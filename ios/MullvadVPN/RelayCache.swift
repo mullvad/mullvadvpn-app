@@ -20,7 +20,7 @@ enum RelayCacheError: ChainedError {
     case writeCache(Error)
     case encodeCache(Error)
     case decodeCache(Error)
-    case rpc(MullvadRpc.Error)
+    case rest(RestError)
 
     var errorDescription: String? {
         switch self {
@@ -36,14 +36,14 @@ enum RelayCacheError: ChainedError {
             return "Decode pre-bundled relays error"
         case .writeCache:
             return "Write cache error"
-        case .rpc:
-            return "RPC error"
+        case .rest:
+            return "REST error"
         }
     }
 }
 
 protocol RelayCacheObserver: class {
-    func relayCache(_ relayCache: RelayCache, didUpdateCachedRelayList cachedRelayList: CachedRelayList)
+    func relayCache(_ relayCache: RelayCache, didUpdateCachedRelays cachedRelays: CachedRelays)
 }
 
 private class AnyRelayCacheObserver: WeakObserverBox, RelayCacheObserver {
@@ -56,8 +56,8 @@ private class AnyRelayCacheObserver: WeakObserverBox, RelayCacheObserver {
         self.inner = inner
     }
 
-    func relayCache(_ relayCache: RelayCache, didUpdateCachedRelayList cachedRelayList: CachedRelayList) {
-        inner?.relayCache(relayCache, didUpdateCachedRelayList: cachedRelayList)
+    func relayCache(_ relayCache: RelayCache, didUpdateCachedRelays cachedRelays: CachedRelays) {
+        inner?.relayCache(relayCache, didUpdateCachedRelays: cachedRelays)
     }
 
     static func == (lhs: AnyRelayCacheObserver, rhs: AnyRelayCacheObserver) -> Bool {
@@ -155,10 +155,10 @@ class RelayCache {
     }
 
     /// Read the relay cache from disk
-    func read(completionHandler: @escaping (Result<CachedRelayList, RelayCacheError>) -> Void) {
+    func read(completionHandler: @escaping (Result<CachedRelays, RelayCacheError>) -> Void) {
         dispatchQueue.async {
             let result = Self.read(cacheFileURL: self.cacheFileURL)
-                .flatMapError { (error) -> Result<CachedRelayList, RelayCacheError> in
+                .flatMapError { (error) -> Result<CachedRelays, RelayCacheError> in
                     if case .readCache(let ioError as CocoaError) = error, ioError.code == .fileReadNoSuchFile {
                         return Self.readPrebundledRelays(fileURL: Self.preBundledRelaysFileURL)
                     } else {
@@ -201,19 +201,19 @@ class RelayCache {
 
     private func downloadRelays() {
         let taskResult = makeDownloadTask { (result) in
-            let result = result.flatMap { (relayList) -> Result<CachedRelayList, RelayCacheError> in
-                let cachedRelayList = CachedRelayList(relayList: relayList, updatedAt: Date())
+            let result = result.flatMap { (relays) -> Result<CachedRelays, RelayCacheError> in
+                let cachedRelays = CachedRelays(relays: relays, updatedAt: Date())
 
-                return Self.write(cacheFileURL: self.cacheFileURL, record: cachedRelayList)
-                    .map { cachedRelayList }
+                return Self.write(cacheFileURL: self.cacheFileURL, record: cachedRelays)
+                    .map { cachedRelays }
             }
 
             switch result {
-            case .success(let cachedRelayList):
-                os_log(.default, "Downloaded %d relays", cachedRelayList.relayList.numRelays)
+            case .success(let cachedRelays):
+                os_log(.default, "Downloaded %d relays", cachedRelays.relays.wireguard.relays.count)
 
                 self.observerList.forEach { (observer) in
-                    observer.relayCache(self, didUpdateCachedRelayList: cachedRelayList)
+                    observer.relayCache(self, didUpdateCachedRelays: cachedRelays)
                 }
 
             case .failure(let error):
@@ -248,52 +248,19 @@ class RelayCache {
         self.timerSource = timerSource
     }
 
-    private func makeDownloadTask(completionHandler: @escaping (Result<RelayList, RelayCacheError>) -> Void) -> Result<URLSessionDataTask, RestError> {
+    private func makeDownloadTask(completionHandler: @escaping (Result<ServerRelaysResponse, RelayCacheError>) -> Void) -> Result<URLSessionDataTask, RestError> {
         return rest.getRelays().dataTask(payload: EmptyPayload()) { (result) in
-            let result = result
-                .map(Self.filterRelayList)
-                .mapError { RelayCacheError.rpc($0) }
-
             self.dispatchQueue.async {
-                completionHandler(result)
+                completionHandler(result.mapError { RelayCacheError.rest($0) })
             }
         }
     }
 
     // MARK: - Private class methods
 
-    /// Filters the given `RelayList` removing empty leaf nodes, relays without Wireguard tunnels or
-    /// Wireguard tunnels without any available ports.
-    private class func filterRelayList(_ relayList: RelayList) -> RelayList {
-        let filteredCountries = relayList.countries
-            .map { (country) -> RelayList.Country in
-                var filteredCountry = country
-
-                filteredCountry.cities = country.cities.map { (city) -> RelayList.City in
-                    var filteredCity = city
-
-                    filteredCity.relays = city.relays
-                        .map { (relay) -> RelayList.Relay in
-                            var filteredRelay = relay
-
-                            // filter out tunnels without ports
-                            filteredRelay.tunnels?.wireguard = relay.tunnels?.wireguard?
-                                .filter { !$0.portRanges.isEmpty }
-
-                            return filteredRelay
-                    }.filter { $0.tunnels?.wireguard.flatMap { !$0.isEmpty } ?? false }
-
-                    return filteredCity
-                }.filter { !$0.relays.isEmpty }
-
-                return filteredCountry
-        }.filter { !$0.cities.isEmpty }
-
-        return RelayList(countries: filteredCountries)
-    }
     /// Safely read the cache file from disk using file coordinator
-    private class func read(cacheFileURL: URL) -> Result<CachedRelayList, RelayCacheError> {
-        var result: Result<CachedRelayList, RelayCacheError>?
+    private class func read(cacheFileURL: URL) -> Result<CachedRelays, RelayCacheError> {
+        var result: Result<CachedRelays, RelayCacheError>?
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
         let accessor = { (fileURLForReading: URL) -> Void in
@@ -301,7 +268,7 @@ class RelayCache {
             result = Result { try Data(contentsOf: fileURLForReading) }
                 .mapError { RelayCacheError.readCache($0) }
                 .flatMap { (data) in
-                    Result { try JSONDecoder().decode(CachedRelayList.self, from: data) }
+                    Result { try JSONDecoder().decode(CachedRelays.self, from: data) }
                         .mapError { RelayCacheError.decodeCache($0) }
                 }
         }
@@ -319,15 +286,15 @@ class RelayCache {
         return result!
     }
 
-    private class func readPrebundledRelays(fileURL: URL) -> Result<CachedRelayList, RelayCacheError> {
+    private class func readPrebundledRelays(fileURL: URL) -> Result<CachedRelays, RelayCacheError> {
         return Result { try Data(contentsOf: fileURL) }
             .mapError { RelayCacheError.readPrebundledRelays($0) }
-            .flatMap { (data) -> Result<CachedRelayList, RelayCacheError> in
-                return Result { try MullvadRpc.makeJSONDecoder().decode(RelayList.self, from: data) }
+            .flatMap { (data) -> Result<CachedRelays, RelayCacheError> in
+                return Result { try MullvadRest.makeJSONDecoder().decode(ServerRelaysResponse.self, from: data) }
                     .mapError { RelayCacheError.decodePrebundledRelays($0) }
-                    .map { (relayList) -> CachedRelayList in
-                        return CachedRelayList(
-                            relayList: Self.filterRelayList(relayList),
+                    .map { (relays) -> CachedRelays in
+                        return CachedRelays(
+                            relays: relays,
                             updatedAt: Date(timeIntervalSince1970: 0)
                         )
                 }
@@ -335,7 +302,7 @@ class RelayCache {
     }
 
     /// Safely write the cache file on disk using file coordinator
-    private class func write(cacheFileURL: URL, record: CachedRelayList) -> Result<(), RelayCacheError> {
+    private class func write(cacheFileURL: URL, record: CachedRelays) -> Result<(), RelayCacheError> {
         var result: Result<(), RelayCacheError>?
         let fileCoordinator = NSFileCoordinator(filePresenter: nil)
 
@@ -393,9 +360,9 @@ class RelayCache {
 }
 
 /// A struct that represents the relay cache on disk
-struct CachedRelayList: Codable {
+struct CachedRelays: Codable {
     /// The relay list stored within the cache entry
-    var relayList: RelayList
+    var relays: ServerRelaysResponse
 
     /// The date when this cache was last updated
     var updatedAt: Date

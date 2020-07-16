@@ -27,9 +27,11 @@ struct RelayList: Codable {
 
     struct Relay: Codable {
         var hostname: String
+        var provider: String
         var ipv4AddrIn: IPv4Address
         var includeInCountry: Bool
         var active: Bool
+        var owned: Bool
         var weight: Int32
         var tunnels: Tunnels?
     }

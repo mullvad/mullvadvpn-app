@@ -10,57 +10,51 @@ import Foundation
 import Network
 
 struct RelaySelectorResult {
-    var relay: RelayList.Relay
-    var tunnel: RelayList.WireguardTunnel
     var endpoint: MullvadEndpoint
+    var relay: ServerRelay
     var location: Location
 }
 
 private struct RelayWithLocation {
-    var relay: RelayList.Relay
+    var relay: ServerRelay
     var location: Location
 }
 
 struct RelaySelector {
 
-    private let relayList: RelayList
+    private let relays: ServerRelaysResponse
 
-    init(relayList: RelayList) {
-        self.relayList = relayList
+    init(relays: ServerRelaysResponse) {
+        self.relays = relays
     }
 
     func evaluate(with constraints: RelayConstraints) -> RelaySelectorResult? {
-        let relays = Self.applyConstraints(constraints, relays: Self.parseRelayList(self.relayList))
-        let totalWeight = relays.reduce(0) { $0 + $1.relay.weight }
+        let filteredRelays = Self.applyConstraints(constraints, relays: Self.parseRelaysResponse(self.relays))
+        let totalWeight = filteredRelays.reduce(0) { $0 + $1.relay.weight }
 
         guard totalWeight > 0 else { return nil }
         guard var i = (0...totalWeight).randomElement() else { return nil }
 
-        let relayWithLocation = relays.first { (relayWithLocation) -> Bool in
+        let relayWithLocation = filteredRelays.first { (relayWithLocation) -> Bool in
             i -= relayWithLocation.relay.weight
             return i <= 0
         }.unsafelyUnwrapped
 
-        guard let tunnel = relayWithLocation.relay.tunnels?.wireguard?.randomElement() else {
-            return nil
-        }
-
-        guard let port = tunnel.portRanges.randomElement()?.randomElement() else {
+        guard let port = relays.wireguard.portRanges.randomElement()?.randomElement() else {
             return nil
         }
 
         let endpoint = MullvadEndpoint(
             ipv4Relay: IPv4Endpoint(ip: relayWithLocation.relay.ipv4AddrIn, port: port),
-            ipv6Relay: nil,
-            ipv4Gateway: tunnel.ipv4Gateway,
-            ipv6Gateway: tunnel.ipv6Gateway,
-            publicKey: tunnel.publicKey
+            ipv6Relay: IPv6Endpoint(ip: relayWithLocation.relay.ipv6AddrIn, port: port),
+            ipv4Gateway: relays.wireguard.ipv4Gateway,
+            ipv6Gateway: relays.wireguard.ipv6Gateway,
+            publicKey: relayWithLocation.relay.publicKey
         )
 
         return RelaySelectorResult(
-            relay: relayWithLocation.relay,
-            tunnel: tunnel,
             endpoint: endpoint,
+            relay: relayWithLocation.relay,
             location: relayWithLocation.location
         )
     }
@@ -87,45 +81,29 @@ struct RelaySelector {
                         relayWithLocation.relay.hostname == hostname
                 }
             }
-        }.map({ (relayWithLocation) -> RelayWithLocation in
-            var filteredRelay = relayWithLocation
-            let wireguardTunnels = filteredRelay.relay.tunnels?.wireguard?
-                .filter { !$0.portRanges.isEmpty }
-
-            filteredRelay.relay.tunnels?.wireguard = wireguardTunnels
-
-            return filteredRelay
-        }).filter { (relayWithLocation) -> Bool in
-            guard let wireguardTunnels = relayWithLocation.relay.tunnels?.wireguard else { return false }
-
-            return relayWithLocation.relay.active && !wireguardTunnels.isEmpty
+        }.filter { (relayWithLocation) -> Bool in
+            return relayWithLocation.relay.active
         }
     }
 
-    private static func parseRelayList(_ relayList: RelayList) -> [RelayWithLocation] {
-        var relays = [RelayWithLocation]()
+    private static func parseRelaysResponse(_ response: ServerRelaysResponse) -> [RelayWithLocation] {
+        return response.wireguard.relays.compactMap { (serverRelay) -> RelayWithLocation? in
+            guard let serverLocation = response.locations[serverRelay.location] else { return nil }
 
-        for country in relayList.countries {
-            for city in country.cities {
-                for relay in city.relays {
-                    let location = Location(
-                        country: country.name,
-                        countryCode: country.code,
-                        city: city.name,
-                        cityCode: city.code,
-                        latitude: city.latitude,
-                        longitude: city.longitude
-                    )
-                    let relayWithLocation = RelayWithLocation(
-                        relay: relay,
-                        location: location
-                    )
-                    relays.append(relayWithLocation)
-                }
-            }
+            let locationComponents = serverRelay.location.split(separator: "-")
+            guard locationComponents.count > 1 else { return nil }
+            
+            let location = Location(
+                country: serverLocation.country,
+                countryCode: String(locationComponents[0]),
+                city: serverLocation.city,
+                cityCode: String(locationComponents[1]),
+                latitude: serverLocation.latitude,
+                longitude: serverLocation.longitude
+            )
+
+            return RelayWithLocation(relay: serverRelay, location: location)
         }
-
-        return relays
     }
 
 }

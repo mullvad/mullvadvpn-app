@@ -177,8 +177,13 @@ class AutomaticKeyRotationManager {
             self.dispatchQueue.async {
                 let updateResult = result.mapError { (error) -> Error in
                     return .rest(error)
-                }.flatMap { (addresses) -> Result<TunnelSettings, Error> in
-                    self.updateTunnelSettings(privateKey: newPrivateKey, addresses: addresses)
+                }.flatMap { (response) -> Result<TunnelSettings, Error> in
+                    let addresses = WireguardAssociatedAddresses(
+                        ipv4Address: response.ipv4Address,
+                        ipv6Address: response.ipv6Address
+                    )
+
+                    return self.updateTunnelSettings(privateKey: newPrivateKey, addresses: addresses)
                 }
                 completionHandler(updateResult)
             }

@@ -452,35 +452,36 @@ struct AccountResponse: Decodable, RestResponse {
     let expires: Date
 }
 
-struct ServerLocation: Decodable {
+struct ServerLocation: Codable {
     let country: String
     let city: String
     let latitude: Double
     let longitude: Double
 }
 
-struct ServerRelay: Decodable {
+struct ServerRelay: Codable {
     let hostname: String
     let active: Bool
     let owned: Bool
     let location: String
     let provider: String
-    let ipv4AddrIn: IPv4Address
     let weight: Int32
+    let ipv4AddrIn: IPv4Address
+    let ipv6AddrIn: IPv6Address
+    let publicKey: Data
     let includeInCountry: Bool
 }
 
-struct ServerWireguardTunnel: Decodable {
+struct ServerWireguardTunnels: Codable {
     let ipv4Gateway: IPv4Address
     let ipv6Gateway: IPv6Address
-    let publicKey: Data
     let portRanges: [ClosedRange<UInt16>]
     let relays: [ServerRelay]
 }
 
-struct ServerRelaysResponse: Decodable, RestResponse {
+struct ServerRelaysResponse: Codable, RestResponse {
     let locations: [String: ServerLocation]
-    let wireguard: [ServerWireguardTunnel]
+    let wireguard: ServerWireguardTunnels
 }
 
 struct PushWireguardKeyRequest: Encodable, RestPayload {
