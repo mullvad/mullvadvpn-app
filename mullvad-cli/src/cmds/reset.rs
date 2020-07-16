@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Result};
+use crate::{new_grpc_client, Command, Result};
 use std::io::stdin;
 
 pub struct Reset;
@@ -12,10 +12,10 @@ impl Command for Reset {
         clap::SubCommand::with_name(self.name()).about("Reset settings, caches and logs")
     }
 
-    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let mut rpc = new_rpc_client()?;
+    async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
+        let mut rpc = new_grpc_client().await?;
         if Self::receive_confirmation() {
-            if rpc.factory_reset().is_err() {
+            if rpc.factory_reset(()).await.is_err() {
                 eprintln!("FAILED TO PERFORM FACTORY RESET");
             } else {
                 #[cfg(target_os = "linux")]
