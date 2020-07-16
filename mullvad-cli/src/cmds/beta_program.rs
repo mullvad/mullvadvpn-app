@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Error, Result, PRODUCT_VERSION};
+use crate::{new_grpc_client, Command, Error, Result, PRODUCT_VERSION};
 use clap::value_t_or_exit;
 
 pub struct BetaProgram;
@@ -28,8 +28,11 @@ impl Command for BetaProgram {
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("get", Some(_)) => {
-                let mut rpc = new_rpc_client()?;
-                let settings = rpc.get_settings()?;
+                let mut rpc = new_grpc_client().await?;
+                let settings = rpc.get_settings(())
+                    .await
+                    .map_err(Error::GrpcClientError)?
+                    .into_inner();
                 let enabled_str = if settings.show_beta_releases {
                     "on"
                 } else {
@@ -48,8 +51,8 @@ impl Command for BetaProgram {
                     ));
                 }
 
-                let mut rpc = new_rpc_client()?;
-                rpc.set_show_beta_releases(enable)?;
+                let mut rpc = new_grpc_client().await?;
+                rpc.set_show_beta_releases(enable).await?;
 
                 println!("Beta program: {}", enable_str);
                 Ok(())
