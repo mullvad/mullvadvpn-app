@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Result};
+use crate::{new_grpc_client, Command, Error, Result};
 use clap::value_t_or_exit;
 
 pub struct Lan;
@@ -31,9 +31,9 @@ impl Command for Lan {
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             let allow_lan = value_t_or_exit!(set_matches.value_of("policy"), String);
-            self.set(allow_lan == "allow")
+            self.set(allow_lan == "allow").await
         } else if let Some(_matches) = matches.subcommand_matches("get") {
-            self.get()
+            self.get().await
         } else {
             unreachable!("No lan command given");
         }
@@ -41,16 +41,22 @@ impl Command for Lan {
 }
 
 impl Lan {
-    fn set(&self, allow_lan: bool) -> Result<()> {
-        let mut rpc = new_rpc_client()?;
-        rpc.set_allow_lan(allow_lan)?;
+    async fn set(&self, allow_lan: bool) -> Result<()> {
+        let mut rpc = new_grpc_client().await?;
+        rpc.set_allow_lan(allow_lan)
+            .await
+            .map_err(Error::GrpcClientError)?;
         println!("Changed local network sharing setting");
         Ok(())
     }
 
-    fn get(&self) -> Result<()> {
-        let mut rpc = new_rpc_client()?;
-        let allow_lan = rpc.get_settings()?.allow_lan;
+    async fn get(&self) -> Result<()> {
+        let mut rpc = new_grpc_client().await?;
+        let allow_lan = rpc.get_settings(())
+            .await
+            .map_err(Error::GrpcClientError)?
+            .into_inner()
+            .allow_lan;
         println!(
             "Local network sharing setting: {}",
             if allow_lan { "allow" } else { "block" }
