@@ -2,11 +2,11 @@
 
 use async_trait::async_trait;
 use clap::{crate_authors, crate_description};
-use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
 use std::{collections::HashMap, io};
 use talpid_types::ErrorExt;
 
 mod cmds;
+mod format;
 mod location;
 
 pub const BIN_NAME: &str = "mullvad";
@@ -31,12 +31,6 @@ use tokio;
 pub enum Error {
     #[error(display = "Failed to connect to daemon")]
     DaemonNotRunning(#[error(source)] io::Error),
-
-    #[error(display = "Can't subscribe to daemon states")]
-    CantSubscribe(#[error(source)] mullvad_ipc_client::PubSubError),
-
-    #[error(display = "Failed to communicate with mullvad-daemon over RPC")]
-    RpcClientError(#[error(source)] mullvad_ipc_client::Error),
 
     #[error(display = "Failed to connect to mullvad-daemon over RPC")]
     GrpcClientSetup(#[error(source)] tonic::transport::Error),
@@ -63,13 +57,6 @@ pub async fn new_grpc_client() -> Result<ManagementServiceClient<tonic::transpor
         .map_err(Error::GrpcClientSetup)?;
 
     Ok(ManagementServiceClient::new(channel))
-}
-
-pub fn new_rpc_client() -> Result<DaemonRpcClient> {
-    match new_standalone_ipc_client(&mullvad_paths::get_rpc_socket_path()) {
-        Err(e) => Err(Error::DaemonNotRunning(e)),
-        Ok(client) => Ok(client),
-    }
 }
 
 #[tokio::main]
