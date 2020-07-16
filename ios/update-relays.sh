@@ -14,7 +14,5 @@ fi
 
 if [ ! -f "$RELAYS_FILE" ]; then
   echo "Download relays file"
-  curl https://api.mullvad.net/rpc/ \
-    -d '{"jsonrpc": "2.0", "id": "0", "method": "relay_list_v3"}' \
-    --header "Content-Type: application/json" | jq -c .result > "$RELAYS_FILE"
+  curl https://api.mullvad.net/app/v1/relays -s -o "$RELAYS_FILE"
 fi
