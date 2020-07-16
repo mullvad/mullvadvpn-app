@@ -22,23 +22,23 @@ pub fn get_subcommand() -> clap::App<'static, 'static> {
         )
 }
 
-pub fn get_constraint(matches: &clap::ArgMatches<'_>) -> Constraint<LocationConstraint> {
+pub fn get_constraint(matches: &clap::ArgMatches<'_>) -> Vec<String> {
     let country_original = matches.value_of("country").unwrap();
     let country = country_original.to_lowercase();
     let city = matches.value_of("city").map(str::to_lowercase);
     let hostname = matches.value_of("hostname").map(str::to_lowercase);
 
     match (country_original, city, hostname) {
-        ("any", None, None) => Constraint::Any,
+        ("any", None, None) => Vec::with_capacity(0),
         ("any", ..) => clap::Error::with_description(
             "City can't be given when selecting 'any' country",
             clap::ErrorKind::InvalidValue,
         )
         .exit(),
-        (_, None, None) => Constraint::Only(LocationConstraint::Country(country)),
-        (_, Some(city), None) => Constraint::Only(LocationConstraint::City(country, city)),
+        (_, None, None) => [country].to_vec(),
+        (_, Some(city), None) => [country, city].to_vec(),
         (_, Some(city), Some(hostname)) => {
-            Constraint::Only(LocationConstraint::Hostname(country, city, hostname))
+            [country, city, hostname].to_vec()
         }
         (..) => clap::Error::with_description(
             "Invalid country, city and hostname combination given",
