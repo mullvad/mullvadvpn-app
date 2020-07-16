@@ -126,8 +126,9 @@ message TunnelState {
 }
 
 enum TunnelType {
-	OPENVPN = 0;
-	WIREGUARD = 1;
+	ANY_TUNNEL = 0;
+	OPENVPN = 1;
+	WIREGUARD = 2;
 }
 
 message TunnelStateRelayInfo {
@@ -244,12 +245,21 @@ message RelaySettings {
 }
 
 message NormalRelaySettings {
+	message OpenvpnConstraints {
+		// NOTE: optional
+		uint32 port = 1;
+		// NOTE: optional
+		TransportProtocol protocol = 2;
+	}
+	message WireguardConstraints {
+		// NOTE: optional
+		uint32 port = 1;
+	}
+
 	RelayLocation location = 1;
 	TunnelType tunnel_type = 2;
-	// NOTE: optional
-	uint32 port = 3;
-	// NOTE: (optional) OpenVPN only
-	TransportProtocol protocol = 4;
+	WireguardConstraints wireguard_constraints = 3;
+	OpenvpnConstraints openvpn_constraints = 4;
 }
 
 message CustomRelaySettings {
@@ -259,28 +269,27 @@ message CustomRelaySettings {
 
 message ConnectionConfig {
 	message OpenvpnConfig {
-		string ip = 1;
-		uint32 port = 2;
-		TransportProtocol protocol = 3;
-
-		string username = 4;
+		string address = 1;
+		TransportProtocol protocol = 2;
+		string username = 3;
+		string password = 4;
 	}
 	message WireguardConfig {
 		message TunnelConfig {
-			string privateKey = 1;
+			bytes private_key = 1;
 			repeated string addresses = 2;
 		}
 		message PeerConfig {
-			string publicKey = 1;
-			repeated string addresses = 2;
+			bytes public_key = 1;
+			repeated string allowed_ips = 2;
 			string endpoint = 3;
 		}
 
 		TunnelConfig tunnel = 1;
 		PeerConfig peer = 2;
-		string ipv4Gateway = 3;
+		string ipv4_gateway = 3;
 		// NOTE: optional
-		string ipv6Gateway = 4;
+		string ipv6_gateway = 4;
 	}
 
 	oneof config {
@@ -378,8 +387,9 @@ message RelayBridges {
 }
 
 enum TransportProtocol {
-	UDP = 0;
-	TCP = 1;
+	ANY_PROTOCOL = 0;
+	UDP = 1;
+	TCP = 2;
 }
 
 message ShadowsocksEndpointData {
