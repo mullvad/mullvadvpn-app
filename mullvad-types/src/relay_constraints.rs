@@ -42,6 +42,15 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
         }
     }
 
+    pub fn map<U: fmt::Debug + Clone + Eq + PartialEq, F: FnOnce(T) -> U>(
+        self, f: F
+    ) -> Constraint<U> {
+        match self {
+            Constraint::Any => Constraint::Any,
+            Constraint::Only(value) => Constraint::Only(f(value)),
+        }
+    }
+
     pub fn is_any(&self) -> bool {
         match self {
             Constraint::Any => true,
