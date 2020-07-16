@@ -156,8 +156,11 @@ matrix:
       language: shell
       before_install: *rust_windows_before_install
       script: *rust_windows_script
+
   allow_failures:
     - name: Desktop Frontend, Windows
+    - name: Daemon, Linux - beta Rust
+    - name: Daemon, Windows - beta Rust
 
 notifications:
   email:
