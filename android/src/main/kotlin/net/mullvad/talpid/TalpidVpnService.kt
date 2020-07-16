@@ -16,6 +16,7 @@ open class TalpidVpnService : VpnService() {
     }
 
     private var currentTunConfig = defaultTunConfig()
+    private var tunIsStale = false
 
     protected var disallowedApps: List<String>? = null
 
@@ -33,13 +34,14 @@ open class TalpidVpnService : VpnService() {
         synchronized(this) {
             val tunDevice = activeTunDevice
 
-            if (config == currentTunConfig && tunDevice != null) {
+            if (config == currentTunConfig && tunDevice != null && !tunIsStale) {
                 return tunDevice
             } else {
                 val newTunDevice = createTun(config)
 
                 currentTunConfig = config
                 activeTunDevice = newTunDevice
+                tunIsStale = false
 
                 return newTunDevice
             }
@@ -72,6 +74,12 @@ open class TalpidVpnService : VpnService() {
     fun closeTun() {
         synchronized(this) {
             activeTunDevice = null
+        }
+    }
+
+    fun markTunAsStale() {
+        synchronized(this) {
+            tunIsStale = true
         }
     }
 
