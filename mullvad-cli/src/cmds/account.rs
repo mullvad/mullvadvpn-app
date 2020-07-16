@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Result};
+use crate::{Error, new_grpc_client, Command, Error, Result};
 use clap::value_t_or_exit;
 use mullvad_types::account::{AccountToken, VoucherError};
 
@@ -53,18 +53,18 @@ impl Command for Account {
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             let token = value_t_or_exit!(set_matches.value_of("token"), String);
-            self.set(Some(token))
+            self.set(Some(token)).await
         } else if let Some(_matches) = matches.subcommand_matches("get") {
-            self.get()
+            self.get().await
         } else if let Some(_matches) = matches.subcommand_matches("unset") {
-            self.set(None)
+            self.set(None).await
         } else if let Some(_matches) = matches.subcommand_matches("clear-history") {
-            self.clear_history()
+            self.clear_history().await
         } else if let Some(_matches) = matches.subcommand_matches("create") {
-            self.create()
+            self.create().await
         } else if let Some(matches) = matches.subcommand_matches("redeem") {
             let voucher = value_t_or_exit!(matches.value_of("voucher"), String);
-            self.redeem_voucher(voucher)
+            self.redeem_voucher(voucher).await
         } else {
             unreachable!("No account command given");
         }
@@ -72,9 +72,9 @@ impl Command for Account {
 }
 
 impl Account {
-    fn set(&self, token: Option<AccountToken>) -> Result<()> {
-        let mut rpc = new_rpc_client()?;
-        rpc.set_account(token.clone())?;
+    async fn set(&self, token: Option<AccountToken>) -> Result<()> {
+        let mut rpc = new_grpc_client().await?;
+        rpc.set_account(token.clone().unwrap_or_default()).await;
         if let Some(token) = token {
             println!("Mullvad account \"{}\" set", token);
         } else {
@@ -83,45 +83,58 @@ impl Account {
         Ok(())
     }
 
-    fn get(&self) -> Result<()> {
-        let mut rpc = new_rpc_client()?;
-        let settings = rpc.get_settings()?;
-        if let Some(account_token) = settings.get_account_token() {
-            println!("Mullvad account: {}", account_token);
-            let expiry = rpc.get_account_data(account_token)?;
-            println!("Expires at     : {}", expiry.expiry);
+    async fn get(&self) -> Result<()> {
+        let mut rpc = new_grpc_client().await?;
+        let settings = rpc.get_settings(())
+            .await
+            .map_err(Error::GrpcClientError)?
+            .into_inner();
+        if settings.account_token != "" {
+            println!("Mullvad account: {}", settings.account_token);
+            let expiry = rpc.get_account_data(settings.account_token)
+                .await
+                .map_err(Error::GrpcClientError)?
+                .into_inner();
+            println!(
+                "Expires at     : {}",
+                Self::format_expiry(&expiry.expiry.unwrap())
+            );
         } else {
             println!("No account configured");
         }
         Ok(())
     }
 
-    fn create(&self) -> Result<()> {
-        let mut rpc = new_rpc_client()?;
-        rpc.create_new_account()?;
+    async fn create(&self) -> Result<()> {
+        let mut rpc = new_grpc_client().await?;
+        rpc.create_new_account(()).await.map_err(Error::GrpcClientError)?;
         println!("New account created!");
-        self.get()
+        self.get().await
     }
 
-    fn redeem_voucher(&self, mut voucher: String) -> Result<()> {
-        let mut rpc = new_rpc_client()?;
+    async fn redeem_voucher(&self, mut voucher: String) -> Result<()> {
+        let mut rpc = new_grpc_client().await?;
         voucher.retain(|c| c.is_alphanumeric());
 
-        match rpc.submit_voucher(voucher) {
+        match rpc.submit_voucher(voucher).await {
             Ok(submission) => {
+                let submission = submission.into_inner();
                 println!(
                     "Added {} to the account",
                     Self::format_duration(submission.time_added)
                 );
-                println!("New expiry date: {}", submission.new_expiry);
+                println!(
+                    "New expiry date: {}",
+                    Self::format_expiry(&submission.new_expiry.unwrap())
+                );
                 Ok(())
             }
             Err(err) => {
                 eprintln!(
                     "Failed to submit voucher.\n{}",
-                    VoucherError::from_rpc_error_code(Self::get_redeem_rpc_error_code(&err))
+                    VoucherError::from_rpc_error_code(err.code() as i64)
                 );
-                Err(err.into())
+                Err(Error::GrpcClientError(err))
             }
         }
     }
@@ -139,16 +152,13 @@ impl Account {
         }
     }
 
-    fn get_redeem_rpc_error_code(error: &mullvad_ipc_client::Error) -> i64 {
-        match error.kind() {
-            mullvad_ipc_client::ErrorKind::JsonRpcError(ref rpc_error) => rpc_error.code.code(),
-            _ => 0,
-        }
+    fn format_expiry(expiry: &prost_types::Timestamp) -> String {
+        chrono::NaiveDateTime::from_timestamp(expiry.seconds, expiry.nanos as u32).to_string()
     }
 
-    fn clear_history(&self) -> Result<()> {
-        let mut rpc = new_rpc_client()?;
-        rpc.clear_account_history()?;
+    async fn clear_history(&self) -> Result<()> {
+        let mut rpc = new_grpc_client().await?;
+        rpc.clear_account_history(()).await.map_err(Error::GrpcClientError)?;
         println!("Removed account history and all associated keys");
         Ok(())
     }
