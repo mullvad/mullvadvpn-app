@@ -99,12 +99,12 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
 
     // MARK: - RelayCacheObserver
 
-    func relayCache(_ relayCache: RelayCache, didUpdateCachedRelayList cachedRelayList: CachedRelayList) {
-        self.didReceiveCachedRelays(cachedRelayList: cachedRelayList) { (result) in
+    func relayCache(_ relayCache: RelayCache, didUpdateCachedRelays cachedRelays: CachedRelays) {
+        self.didReceiveCachedRelays(cachedRelays) { (result) in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let (cachedRelayList, relayConstraints)):
-                    self.didReceive(relayList: cachedRelayList.relayList, relayConstraints: relayConstraints)
+                case .success(let (cachedRelays, relayConstraints)):
+                    self.didReceiveCachedRelays(cachedRelays, relayConstraints: relayConstraints)
 
                 case .failure(let error):
                     error.logChain()
@@ -119,8 +119,8 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
         fetchRelays { (result) in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let (cachedRelayList, relayConstraints)):
-                    self.didReceive(relayList: cachedRelayList.relayList, relayConstraints: relayConstraints)
+                case .success(let (cachedRelays, relayConstraints)):
+                    self.didReceiveCachedRelays(cachedRelays, relayConstraints: relayConstraints)
 
                 case .failure(let error):
                     error.logChain()
@@ -129,11 +129,11 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
         }
     }
 
-    private func fetchRelays(completionHandler: @escaping (Result<(CachedRelayList, RelayConstraints), Error>) -> Void) {
+    private func fetchRelays(completionHandler: @escaping (Result<(CachedRelays, RelayConstraints), Error>) -> Void) {
         RelayCache.shared.read { (result) in
             switch result {
-            case .success(let cachedRelayList):
-                self.didReceiveCachedRelays(cachedRelayList: cachedRelayList, completionHandler: completionHandler)
+            case .success(let cachedRelays):
+                self.didReceiveCachedRelays(cachedRelays, completionHandler: completionHandler)
 
             case .failure(let error):
                 completionHandler(.failure(.loadRelayList(error)))
@@ -141,17 +141,17 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
         }
     }
 
-    private func didReceiveCachedRelays(cachedRelayList: CachedRelayList, completionHandler: @escaping (Result<(CachedRelayList, RelayConstraints), Error>) -> Void) {
+    private func didReceiveCachedRelays(_ cachedRelays: CachedRelays, completionHandler: @escaping (Result<(CachedRelays, RelayConstraints), Error>) -> Void) {
         TunnelManager.shared.getRelayConstraints { (result) in
             let result = result
-                .map { (cachedRelayList, $0) }
+                .map { (cachedRelays, $0) }
                 .mapError { Error.getRelayConstraints($0) }
 
             completionHandler(result)
         }
     }
 
-    private func didReceive(relayList: RelayList, relayConstraints: RelayConstraints) {
+    private func didReceiveCachedRelays(_ cachedRelays: CachedRelays, relayConstraints: RelayConstraints) {
         self.relayList = relayList.sorted()
         self.relayConstraints = relayConstraints
 

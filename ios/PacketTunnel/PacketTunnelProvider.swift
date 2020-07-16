@@ -459,7 +459,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         RelayCache.shared.read { (result) in
             switch result {
             case .success(let cachedRelayList):
-                let relaySelector = RelaySelector(relayList: cachedRelayList.relayList)
+                let relaySelector = RelaySelector(relays: cachedRelayList.relays)
 
                 if let selectorResult = relaySelector.evaluate(with: relayConstraints) {
                     completionHandler(.success(selectorResult))
