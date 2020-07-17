@@ -7,6 +7,7 @@ use std::{collections::HashMap, io};
 use talpid_types::ErrorExt;
 
 mod cmds;
+mod format;
 mod location;
 
 pub const BIN_NAME: &str = "mullvad";
