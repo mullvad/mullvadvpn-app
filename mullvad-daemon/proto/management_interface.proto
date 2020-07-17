@@ -43,6 +43,7 @@ service ManagementService {
 	rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
 	rpc FactoryReset(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
+	rpc EventsListen(google.protobuf.Empty) returns (stream DaemonEvent) {}
 }
 
 message RelaySettingsUpdate {
@@ -414,4 +415,18 @@ message WireguardEndpointData {
 message PortRange {
 	uint32 first = 1;
 	uint32 last = 2;
+}
+
+message DaemonEvent {
+	oneof event {
+		TunnelState tunnel_state = 1;
+		Settings settings = 2;
+		RelayList relay_list = 3;
+		AppVersionInfo version_info = 4;
+		KeygenEvent key_event = 5;
+	}
+}
+
+message RelayList {
+	repeated RelayListCountry countries = 1;
 }

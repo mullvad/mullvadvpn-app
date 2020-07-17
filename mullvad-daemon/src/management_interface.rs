@@ -20,13 +20,11 @@ use mullvad_types::{
 };
 use parking_lot::RwLock;
 use std::{
-    collections::{hash_map::Entry, HashMap},
     str::FromStr,
     sync::{Arc, mpsc},
 };
 use talpid_ipc;
 use talpid_types::{net::{TransportProtocol, TunnelType}, ErrorExt};
-use uuid;
 use futures::compat::Future01CompatExt;
 
 pub const INVALID_VOUCHER_CODE: i64 = -400;
@@ -38,6 +36,7 @@ mod proto {
     tonic::include_proto!("mullvad_daemon.management_interface");
 }
 
+use proto::daemon_event::Event as DaemonEventType;
 use proto::management_service_server::{ManagementService, ManagementServiceServer};
 
 use tonic::{
@@ -48,14 +47,18 @@ use tonic::{
 
 struct ManagementServiceImpl {
     daemon_tx: DaemonCommandSender,
+    subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, tonic::Status>;
+type EventsListenerReceiver = tokio02::sync::mpsc::UnboundedReceiver<Result<proto::DaemonEvent, tonic::Status>>;
+type EventsListenerSender = tokio02::sync::mpsc::UnboundedSender<Result<proto::DaemonEvent, tonic::Status>>;
 
 #[tonic::async_trait]
 impl ManagementService for ManagementServiceImpl {
     type GetRelayLocationsStream = tokio02::sync::mpsc::Receiver<Result<proto::RelayListCountry, tonic::Status>>;
     type GetSplitTunnelProcessesStream = tokio02::sync::mpsc::UnboundedReceiver<Result<i32, tonic::Status>>;
+    type EventsListenStream = EventsListenerReceiver;
 
     async fn create_new_account(&self, _: Request<()>) -> ServiceResult<String> {
         let (tx, rx) = sync::oneshot::channel();
@@ -587,19 +590,7 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetSettings(tx))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(|settings| {
-                Response::new(proto::Settings {
-                    account_token: settings.get_account_token().unwrap_or_default(),
-                    relay_settings: Some(convert_relay_settings(&settings.get_relay_settings())),
-                    bridge_settings: Some(convert_bridge_settings(&settings.bridge_settings)),
-                    bridge_state: Some(convert_bridge_state(settings.get_bridge_state())),
-                    allow_lan: settings.allow_lan,
-                    block_when_disconnected: settings.block_when_disconnected,
-                    auto_connect: settings.auto_connect,
-                    tunnel_options: Some(convert_tunnel_options(&settings.tunnel_options)),
-                    show_beta_releases: settings.show_beta_releases,
-                })
-            })
+            .map(|settings| Response::new(convert_settings(&settings)))
             .compat()
             .await
     }
@@ -614,22 +605,7 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GenerateWireguardKey(tx))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(|event| {
-                use mullvad_types::wireguard::KeygenEvent as MullvadEvent;
-                use proto::keygen_event::KeygenEvent as Event;
-                Response::new(proto::KeygenEvent {
-                    event: match event {
-                        MullvadEvent::NewKey(_) => Event::NewKey as i32,
-                        MullvadEvent::TooManyKeys => Event::TooManyKeys as i32,
-                        MullvadEvent::GenerationFailure => Event::GenerationFailure as i32,
-                    },
-                    new_key: if let MullvadEvent::NewKey(key) = event {
-                        Some(Self::convert_public_key(&key))
-                    } else {
-                        None
-                    },
-                })
-            })
+            .map(|event| Response::new(convert_wireguard_key_event(&event)))
             .compat()
             .await
     }
@@ -643,7 +619,7 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetWireguardKey(tx))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(|public_key| Response::new(Self::convert_public_key(&public_key.unwrap())))
+            .map(|public_key| Response::new(convert_public_key(&public_key.unwrap())))
             .compat()
             .await
     }
@@ -677,12 +653,7 @@ impl ManagementService for ManagementServiceImpl {
             .compat()
             .await?;
 
-        Ok(Response::new(proto::AppVersionInfo {
-            supported: app_version_info.supported,
-            latest_stable: app_version_info.latest_stable,
-            latest_beta: app_version_info.latest_beta,
-            suggested_upgrade: app_version_info.suggested_upgrade.unwrap_or_default(),
-        }))
+        Ok(Response::new(convert_version_info(&app_version_info)))
     }
 
     async fn factory_reset(&self, _: Request<()>) -> ServiceResult<()> {
@@ -777,7 +748,14 @@ impl ManagementService for ManagementServiceImpl {
     }
     */
 
-    // TODO: daemon event subscriptions
+    async fn events_listen(&self, _: Request<()>) -> ServiceResult<Self::EventsListenStream> {
+        let (tx, rx) = tokio02::sync::mpsc::unbounded_channel();
+
+        let mut subscriptions = self.subscriptions.write();
+        subscriptions.push(tx);
+
+        Ok(Response::new(rx))
+    }
 }
 
 impl ManagementServiceImpl {
@@ -788,15 +766,19 @@ impl ManagementServiceImpl {
     ) -> impl Future<Item = (), Error = tonic::Status> {
         future::result(self.daemon_tx.send(command).map_err(|_| tonic::Status::internal("internal error")))
     }
+}
 
-    fn convert_public_key(public_key: &wireguard::PublicKey) -> proto::PublicKey {
-        proto::PublicKey {
-            key: public_key.key.as_bytes().to_vec(),
-            created: Some(prost_types::Timestamp {
-                seconds: public_key.created.timestamp(),
-                nanos: 0,
-            }),
-        }
+fn convert_settings(settings: &Settings) -> proto::Settings {
+    proto::Settings {
+        account_token: settings.get_account_token().unwrap_or_default(),
+        relay_settings: Some(convert_relay_settings(&settings.get_relay_settings())),
+        bridge_settings: Some(convert_bridge_settings(&settings.bridge_settings)),
+        bridge_state: Some(convert_bridge_state(settings.get_bridge_state())),
+        allow_lan: settings.allow_lan,
+        block_when_disconnected: settings.block_when_disconnected,
+        auto_connect: settings.auto_connect,
+        tunnel_options: Some(convert_tunnel_options(&settings.tunnel_options)),
+        show_beta_releases: settings.show_beta_releases,
     }
 }
 
@@ -936,6 +918,34 @@ fn convert_bridge_settings(settings: &BridgeSettings) -> proto::BridgeSettings {
     }
 }
 
+fn convert_wireguard_key_event(event: &mullvad_types::wireguard::KeygenEvent) -> proto::KeygenEvent {
+    use mullvad_types::wireguard::KeygenEvent::*;
+    use proto::keygen_event::KeygenEvent as ProtoEvent;
+
+    proto::KeygenEvent {
+        event: match event {
+            NewKey(_) => ProtoEvent::NewKey as i32,
+            TooManyKeys => ProtoEvent::TooManyKeys as i32,
+            GenerationFailure => ProtoEvent::GenerationFailure as i32,
+        },
+        new_key: if let NewKey(key) = event {
+            Some(convert_public_key(&key))
+        } else {
+            None
+        },
+    }
+}
+
+fn convert_public_key(public_key: &wireguard::PublicKey) -> proto::PublicKey {
+    proto::PublicKey {
+        key: public_key.key.as_bytes().to_vec(),
+        created: Some(prost_types::Timestamp {
+            seconds: public_key.created.timestamp(),
+            nanos: 0,
+        }),
+    }
+}
+
 fn convert_location_constraint(location: &Constraint<LocationConstraint>) -> Option<proto::RelayLocation> {
     let location = match location {
         Constraint::Any => None,
@@ -1065,6 +1075,15 @@ fn convert_relay(relay: &Relay) -> proto::Relay {
     }
 }
 
+fn convert_version_info(version_info: &version::AppVersionInfo) -> proto::AppVersionInfo {
+    proto::AppVersionInfo {
+        supported: version_info.supported,
+        latest_stable: version_info.latest_stable.clone(),
+        latest_beta: version_info.latest_beta.clone(),
+        suggested_upgrade: version_info.suggested_upgrade.clone().unwrap_or_default(),
+    }
+}
+
 build_rpc_trait! {
     pub trait ManagementInterfaceApi {
         type Metadata;
@@ -1124,26 +1143,12 @@ build_rpc_trait! {
         #[rpc(meta, name = "get_version_info")]
         fn get_version_info(&self, Self::Metadata) -> BoxFuture<version::AppVersionInfo, Error>;
         */
-
-        #[pubsub(name = "daemon_event")] {
-            /// Subscribes to events from the daemon.
-            #[rpc(name = "daemon_event_subscribe")]
-            fn daemon_event_subscribe(
-                &self,
-                Self::Metadata,
-                pubsub::Subscriber<DaemonEvent>
-            );
-
-            /// Unsubscribes from the `daemon_event` event notifications.
-            #[rpc(name = "daemon_event_unsubscribe")]
-            fn daemon_event_unsubscribe(&self, SubscriptionId) -> BoxFuture<(), Error>;
-        }
     }
 }
 
 pub struct ManagementInterfaceServer {
     server: talpid_ipc::IpcServer,
-    subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonEvent>>>>,
+    subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
 
     runtime: tokio02::runtime::Runtime,
     server_abort_tx: triggered::Trigger,
@@ -1155,6 +1160,7 @@ impl ManagementInterfaceServer {
         daemon_tx: DaemonCommandSender,
         server_start_tx: std::sync::mpsc::Sender<()>,
         abort_rx: triggered::Listener,
+        subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
     ) -> std::result::Result<(), tonic::transport::Error>
     {
         use parity_tokio_ipc::{Endpoint as IpcEndpoint, SecurityAttributes};
@@ -1170,7 +1176,8 @@ impl ManagementInterfaceServer {
         let _ = server_start_tx.send(());
 
         let server = ManagementServiceImpl {
-            daemon_tx
+            daemon_tx,
+            subscriptions,
         };
 
         Server::builder()
@@ -1188,13 +1195,18 @@ impl ManagementInterfaceServer {
             .build()
             .unwrap(); // FIXME: do not unwrap here
 
+        let rpc = ManagementInterface::new(tunnel_tx.clone());
+        let subscriptions = rpc.subscriptions.clone();
+
         let (server_abort_tx, server_abort_rx) = triggered::trigger();
         let (start_tx, start_rx) = mpsc::channel();
         let server_join_handle = runtime.spawn(Self::start_server_crap(
-            tunnel_tx.clone(),
+            tunnel_tx,
             start_tx,
             server_abort_rx,
+            subscriptions.clone(),
         ));
+
         if let Err(_) = start_rx.recv() {
             // FIXME: do not unwrap here
             /*
@@ -1208,9 +1220,6 @@ impl ManagementInterfaceServer {
             // FIXME
             panic!("start_rx failed");
         }
-
-        let rpc = ManagementInterface::new(tunnel_tx);
-        let subscriptions = rpc.subscriptions.clone();
 
         let mut io = PubSubHandler::default();
         io.extend_with(rpc.to_delegate());
@@ -1236,7 +1245,9 @@ impl ManagementInterfaceServer {
     }
 
     pub fn event_broadcaster(&self) -> ManagementInterfaceEventBroadcaster {
+        // TODO: send events via gRPC here, to each listener
         ManagementInterfaceEventBroadcaster {
+            runtime: self.runtime.handle().clone(),
             subscriptions: self.subscriptions.clone(),
             close_handle: Some(self.server.close_handle()),
         }
@@ -1252,45 +1263,91 @@ impl ManagementInterfaceServer {
 /// A handle that allows broadcasting messages to all subscribers of the management interface.
 #[derive(Clone)]
 pub struct ManagementInterfaceEventBroadcaster {
-    subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonEvent>>>>,
+    runtime: tokio02::runtime::Handle,
+    subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
     close_handle: Option<talpid_ipc::CloseHandle>,
 }
 
 impl EventListener for ManagementInterfaceEventBroadcaster {
     /// Sends a new state update to all `new_state` subscribers of the management interface.
     fn notify_new_state(&self, new_state: TunnelState) {
+        // TODO: share conversion with GetState RPC?
+        use proto::tunnel_state;
+        
+        // TODO: construct proper daemon event type
+        // !! TODO: add convert_tunnel_state
+
+        let event = /*match new_state {
+            TunnelState::Disconnected => tunnel_state::State::Disconnected(
+                tunnel_state::Disconnected {}
+            )
+        }*/tunnel_state::State::Disconnected(
+            tunnel_state::Disconnected {}
+        );
+
+        /*
+        proto::DaemonEvent {
+            event: Some(EventType::TunnelState(proto::TunnelState {
+                state: Some(tunnel_state::State::Disconnected(
+                    tunnel_state::Disconnected {}
+                ))
+            })),
+        }
+
         self.notify(DaemonEvent::TunnelState(new_state));
+        */
+        self.notify(proto::DaemonEvent {
+            event: Some(DaemonEventType::TunnelState(proto::TunnelState {
+                state: Some(event)
+            })),
+        })
     }
 
     /// Sends settings to all `settings` subscribers of the management interface.
     fn notify_settings(&self, settings: Settings) {
         log::debug!("Broadcasting new settings");
-        self.notify(DaemonEvent::Settings(settings));
+        self.notify(proto::DaemonEvent {
+            event: Some(DaemonEventType::Settings(convert_settings(&settings))),
+        })
     }
 
-    /// Sends settings to all `settings` subscribers of the management interface.
+    /// Sends relays to all subscribers of the management interface.
     fn notify_relay_list(&self, relay_list: RelayList) {
         log::debug!("Broadcasting new relay list");
-        self.notify(DaemonEvent::RelayList(relay_list));
+        let mut new_list = proto::RelayList {
+            countries: Vec::new(),
+        };
+        new_list.countries.reserve(relay_list.countries.len());
+        for country in &relay_list.countries {
+            new_list.countries.push(convert_relay_list_country(country));
+        }
+        self.notify(proto::DaemonEvent {
+            event: Some(DaemonEventType::RelayList(new_list))
+        })
     }
 
     fn notify_app_version(&self, app_version_info: version::AppVersionInfo) {
         log::debug!("Broadcasting new app version info");
-        self.notify(DaemonEvent::AppVersionInfo(app_version_info));
+        let new_info = convert_version_info(&app_version_info);
+        self.notify(proto::DaemonEvent {
+            event: Some(DaemonEventType::VersionInfo(new_info))
+        })
     }
 
     fn notify_key_event(&self, key_event: mullvad_types::wireguard::KeygenEvent) {
         log::debug!("Broadcasting new wireguard key event");
-        self.notify(DaemonEvent::WireguardKey(key_event));
+        let new_event = convert_wireguard_key_event(&key_event);
+        self.notify(proto::DaemonEvent {
+            event: Some(DaemonEventType::KeyEvent(new_event))
+        })
     }
 }
 
 impl ManagementInterfaceEventBroadcaster {
-    fn notify(&self, value: DaemonEvent) {
-        let subscriptions = self.subscriptions.read();
-        for sink in subscriptions.values() {
-            let _ = sink.notify(Ok(value.clone())).wait();
-        }
+    fn notify(&self, value: proto::DaemonEvent) {
+        let mut subscriptions = self.subscriptions.write();
+        // TODO: using write-lock everywhere. use a mutex instead?
+        subscriptions.retain(|tx| tx.send(Ok(value.clone())).is_ok());
     }
 }
 
@@ -1303,7 +1360,9 @@ impl Drop for ManagementInterfaceEventBroadcaster {
 }
 
 struct ManagementInterface {
-    subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonEvent>>>>,
+    // TODO: use a sender here instead of pubsub
+    //subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonEvent>>>>,
+    subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
     tx: DaemonCommandSender,
 }
 
@@ -1411,41 +1470,6 @@ impl ManagementInterfaceApi for ManagementInterface {
             .send_command_to_daemon(DaemonCommand::GetSettings(tx))
             .and_then(|_| rx.map_err(|_| Error::internal_error()));
         Box::new(future)
-    }
-
-    fn daemon_event_subscribe(
-        &self,
-        _: Self::Metadata,
-        subscriber: pubsub::Subscriber<DaemonEvent>,
-    ) {
-        log::debug!("daemon_event_subscribe");
-        let mut subscriptions = self.subscriptions.write();
-        loop {
-            let id = SubscriptionId::String(uuid::Uuid::new_v4().to_string());
-            if let Entry::Vacant(entry) = subscriptions.entry(id.clone()) {
-                if let Ok(sink) = subscriber.assign_id(id.clone()) {
-                    log::debug!("Accepting new subscription with id {:?}", id);
-                    entry.insert(sink);
-                }
-                break;
-            }
-        }
-    }
-
-    fn daemon_event_unsubscribe(&self, id: SubscriptionId) -> BoxFuture<(), Error> {
-        log::debug!("daemon_event_unsubscribe");
-        let was_removed = self.subscriptions.write().remove(&id).is_some();
-        let result = if was_removed {
-            log::debug!("Unsubscribing id {:?}", id);
-            future::ok(())
-        } else {
-            future::err(Error {
-                code: ErrorCode::InvalidParams,
-                message: "Invalid subscription".to_owned(),
-                data: None,
-            })
-        };
-        Box::new(result)
     }
 }
 
