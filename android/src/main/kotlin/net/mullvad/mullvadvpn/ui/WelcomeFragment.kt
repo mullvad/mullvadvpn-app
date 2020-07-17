@@ -35,6 +35,10 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             setOnClickListener { copyAccountTokenToClipboard() }
         }
 
+        view.findViewById<TextView>(R.id.pay_to_start_using).text =
+            parentActivity.getString(R.string.pay_to_start_using) + " " +
+            parentActivity.getString(R.string.add_time_to_account)
+
         view.findViewById<UrlButton>(R.id.buy_credit).apply {
             prepare(daemon, jobTracker)
         }

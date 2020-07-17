@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -39,6 +40,10 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
         }
 
         headerBar = HeaderBar(view, parentActivity)
+
+        view.findViewById<TextView>(R.id.no_more_vpn_time_left).text =
+            parentActivity.getString(R.string.no_more_vpn_time_left) + " " +
+            parentActivity.getString(R.string.add_time_to_account)
 
         disconnectButton = view.findViewById<Button>(R.id.disconnect).apply {
             setOnClickAction("disconnect", jobTracker) {
