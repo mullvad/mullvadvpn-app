@@ -142,13 +142,6 @@
                                   android:textSize="13sp"
                                   android:text="@string/sent_contact"
                                   android:visibility="gone" />
-                        <TextView android:id="@+id/response_email"
-                                  android:layout_width="wrap_content"
-                                  android:layout_height="wrap_content"
-                                  android:textColor="@color/white"
-                                  android:textSize="13sp"
-                                  android:textStyle="bold"
-                                  android:visibility="gone" />
                         <Space android:layout_width="match_parent"
                                android:layout_height="0dp"
                                android:layout_weight="1" />
