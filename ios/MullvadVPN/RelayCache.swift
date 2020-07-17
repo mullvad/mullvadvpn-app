@@ -350,7 +350,7 @@ class RelayCache {
         case .readPrebundledRelays, .decodePrebundledRelays, .decodeCache:
             return true
 
-        case .readCache(let error as CocoaError) where error.code == .fileReadNoSuchFile:
+        case .readCache(CocoaError.fileReadNoSuchFile):
             return true
 
         default:

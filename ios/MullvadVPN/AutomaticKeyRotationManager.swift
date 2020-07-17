@@ -228,7 +228,7 @@ class AutomaticKeyRotationManager {
                 nextRotationTime = .now() + .seconds(kRetryIntervalOnFailure)
             }
 
-        case .failure(.rest(.network(let urlError))) where urlError.code == .cancelled:
+        case .failure(.rest(.network(URLError.cancelled))):
             os_log(.default, log: tunnelProviderLog, "Key rotation was cancelled")
             break
 
