@@ -1,6 +1,6 @@
 use crate::{account_history::AccountHistory, DaemonEventSender, InternalDaemonEvent};
 use chrono::offset::Utc;
-use mullvad_rpc::rest::{CancelHandle, Cancellable, Error as RestError, MullvadRestHandle};
+use mullvad_rpc::rest::{Error as RestError, MullvadRestHandle};
 use mullvad_types::account::AccountToken;
 pub use mullvad_types::wireguard::*;
 use std::{
@@ -10,6 +10,7 @@ use std::{
 };
 
 use talpid_core::{
+    future_cancel::{CancelHandle, Cancellable},
     future_retry::{retry_future_with_backoff, ExponentialBackoff, Jittered},
     mpsc::Sender,
 };
