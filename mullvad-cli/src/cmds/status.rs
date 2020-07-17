@@ -1,8 +1,8 @@
-use crate::{new_rpc_client, Command, Error, Result};
+use crate::{new_grpc_client, proto, Command, Error, Result};
 use futures::{Future, Stream};
-use mullvad_ipc_client::DaemonRpcClient;
-use mullvad_types::{auth_failed::AuthFailed, states::TunnelState, DaemonEvent};
-use talpid_types::tunnel::{ErrorState, ErrorStateCause};
+use mullvad_types::auth_failed::AuthFailed;
+use proto::management_service_client::ManagementServiceClient;
+use proto::{error_state::{Cause as ErrorStateCause, GenerationError}, daemon_event::Event as EventType, ErrorState, TunnelState};
 
 pub struct Status;
 
@@ -33,126 +33,182 @@ impl Command for Status {
     }
 
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let mut rpc = new_rpc_client()?;
-        let state = rpc.get_state()?;
+        let mut rpc = new_grpc_client().await?;
+        let state = rpc.get_state(()).await.map_err(Error::GrpcClientError)?.into_inner();
 
         print_state(&state);
         if matches.is_present("location") {
-            print_location(&mut rpc)?;
+            print_location(&mut rpc).await?;
         }
 
         if let Some(listen_matches) = matches.subcommand_matches("listen") {
             let verbose = listen_matches.is_present("verbose");
-            let subscription = rpc
-                .daemon_event_subscribe()
-                .wait()
-                .map_err(Error::CantSubscribe)?;
-            for event in subscription.wait() {
-                match event? {
-                    DaemonEvent::TunnelState(new_state) => {
+
+            let mut events = rpc.events_listen(())
+                .await
+                .map_err(Error::GrpcClientError)?
+                .into_inner();
+
+            while let Some(event) = events.message().await? {
+                // TODO: fix formatting
+                match event.event.unwrap() {
+                    EventType::TunnelState(new_state) => {
                         print_state(&new_state);
-                        use self::TunnelState::*;
-                        match new_state {
-                            Connected { .. } | Disconnected => {
+                        use proto::tunnel_state::State::*;
+                        match new_state.state.unwrap() {
+                            Connected(..) | Disconnected(..) => {
                                 if matches.is_present("location") {
-                                    print_location(&mut rpc)?;
+                                    print_location(&mut rpc).await?;
                                 }
                             }
                             _ => {}
                         }
                     }
-                    DaemonEvent::Settings(settings) => {
+                    EventType::Settings(settings) => {
                         if verbose {
                             println!("New settings: {:#?}", settings);
                         }
                     }
-                    DaemonEvent::RelayList(relay_list) => {
+                    EventType::RelayList(relay_list) => {
                         if verbose {
                             println!("New relay list: {:#?}", relay_list);
                         }
                     }
-                    DaemonEvent::AppVersionInfo(app_version_info) => {
+                    EventType::VersionInfo(app_version_info) => {
                         if verbose {
                             println!("New app version info: {:#?}", app_version_info);
                         }
                     }
-                    DaemonEvent::WireguardKey(key_event) => {
+                    EventType::KeyEvent(key_event) => {
                         if verbose {
-                            println!("{}", key_event);
+                            println!("{:#?}", key_event);
                         }
                     }
                 }
             }
         }
+
         Ok(())
     }
 }
 
 fn print_state(state: &TunnelState) {
-    use self::TunnelState::*;
+    // TODO: fix formatting
+    use proto::tunnel_state;
+    use proto::tunnel_state::State::*;
+
     print!("Tunnel status: ");
-    match state {
-        Error(reason) => print_error_state(reason),
-        Connected { endpoint, .. } => {
-            println!("Connected to {}", endpoint);
+    match state.state.as_ref().unwrap() {
+        Error(error) => print_error_state(error.error_state.as_ref().unwrap()),
+        Connected(tunnel_state::Connected { relay_info }) => {
+            // TODO: compare output
+
+            let endpoint = relay_info.as_ref().unwrap().tunnel_endpoint.as_ref().unwrap();
+            println!(
+                "Connected to {} {} over {}",
+                // TODO: as string
+                endpoint.tunnel_type,
+                endpoint.address,
+                // TODO: as string
+                endpoint.protocol,
+            );
+
+            // TODO: optional proxy endpoint
+            /*
+            if let Some(ref proxy) = self.proxy {
+                write!(
+                    f,
+                    " via {} {} over {}",
+                    proxy.proxy_type, proxy.endpoint.address, proxy.endpoint.protocol
+                )?;
+            }
+            */
         }
-        Connecting { endpoint, .. } => println!("Connecting to {}...", endpoint),
-        Disconnected => println!("Disconnected"),
+        Connecting(tunnel_state::Connecting { relay_info }) => {
+            let endpoint = relay_info.as_ref().unwrap().tunnel_endpoint.as_ref().unwrap();
+            println!("Connecting to {:?}...", endpoint);
+        }
+        Disconnected(_) => println!("Disconnected"),
         Disconnecting(_) => println!("Disconnecting..."),
     }
 }
 
 fn print_error_state(error_state: &ErrorState) {
-    if !error_state.is_blocking() {
+    if !error_state.is_blocking {
         eprintln!("Mullvad daemon failed to setup firewall rules!");
         eprintln!("Deamon cannot block traffic from flowing, non-local traffic will leak");
     }
 
-    print_blocked_reason(error_state.cause());
-}
-
-fn print_blocked_reason(reason: &ErrorStateCause) {
-    match reason {
-        ErrorStateCause::AuthFailed(ref auth_failure) => {
-            let auth_failure_str = auth_failure
-                .as_ref()
-                .map(|s| s.as_str())
-                .unwrap_or("Account authentication failed");
-            println!("Blocked: {}", AuthFailed::from(auth_failure_str));
+    match error_state.cause {
+        x if x == ErrorStateCause::AuthFailed as i32 => {
+            println!("Blocked: {}", AuthFailed::from(error_state.auth_fail_reason.as_ref()));
         }
         #[cfg(target_os = "linux")]
-        ErrorStateCause::SetFirewallPolicyError(error) => {
-            println!(
-                "Blocked: {}",
-                ErrorStateCause::SetFirewallPolicyError(error.clone())
-            );
+        cause if cause == ErrorStateCause::SetFirewallPolicyError as i32 => {
+            println!("Blocked: {}", error_state_to_string(error_state));
             println!("Your kernel might be terribly out of date or missing nftables");
         }
-        other => println!("Blocked: {}", other),
+        _ => println!("Blocked: {}", error_state_to_string(error_state)),
     }
 }
 
-fn print_location(rpc: &mut DaemonRpcClient) -> Result<()> {
-    let location = match rpc.get_current_location()? {
-        Some(loc) => loc,
-        None => {
-            println!("Location data unavailable");
-            return Ok(());
+fn error_state_to_string(error_state: &ErrorState) -> String {
+    use ErrorStateCause::*;
+
+    let error_str = match error_state.cause {
+        x if x == AuthFailed as i32 => {
+            // TODO: format correctly?
+            return if error_state.auth_fail_reason.is_empty() {
+                "Authentication with remote server failed".to_string()
+            } else {
+                format!("Authentication with remote server failed: {}", error_state.auth_fail_reason)
+            };
         }
+        x if x == Ipv6Unavailable as i32 => "Failed to configure IPv6 because it's disabled in the platform",
+        x if x == SetFirewallPolicyError as i32 => "Failed to set firewall policy",
+        x if x == SetDnsError as i32 => "Failed to set system DNS server",
+        x if x == StartTunnelError as i32 => "Failed to start connection to remote server",
+        x if x == TunnelParameterError as i32 => {
+            return format!("Failure to generate tunnel parameters: {}", tunnel_parameter_error_to_string(
+                error_state.parameter_error
+            ));
+        }
+        x if x == IsOffline as i32 => "This device is offline, no tunnels can be established",
+        x if x == TapAdapterProblem as i32 => "A problem with the TAP adapter has been detected",
+        #[cfg(target_os = "android")]
+        x if x == VpnPermissionDenied as i32 => "The Android VPN permission was denied when creating the tunnel",
+        _ => unreachable!("unknown error state cause"),
     };
-    if let Some(hostname) = location.hostname {
-        println!("Relay: {}", hostname);
+
+    error_str.to_string()
+}
+
+fn tunnel_parameter_error_to_string(parameter_error: i32) -> &'static str {
+    match parameter_error {
+        x if x == GenerationError::NoMatchingRelay as i32 => "Failure to select a matching tunnel relay",
+        x if x == GenerationError::NoMatchingBridgeRelay as i32 => "Failure to select a matching bridge relay",
+        x if x == GenerationError::NoWireguardKey as i32 => "No wireguard key available",
+        x if x == GenerationError::CustomTunnelHostResolutionError as i32 => "Can't resolve hostname for custom tunnel host",
+        _ => unreachable!("unknown tunnel parameter error"),
     }
-    if let Some(ipv4) = location.ipv4 {
-        println!("IPv4: {}", ipv4);
+}
+
+async fn print_location(rpc: &mut ManagementServiceClient<tonic::transport::Channel>) -> Result<()> {
+    // TODO: RPC should return an optional location
+    let location = rpc.get_current_location(()).await.map_err(Error::GrpcClientError)?.into_inner();
+    if !location.hostname.is_empty() {
+        println!("Relay: {}", location.hostname);
     }
-    if let Some(ipv6) = location.ipv6 {
-        println!("IPv6: {}", ipv6);
+    if !location.ipv4.is_empty() {
+        println!("IPv4: {}", location.ipv4);
+    }
+    if !location.ipv6.is_empty() {
+        println!("IPv6: {}", location.ipv6);
     }
 
     print!("Location: ");
-    if let Some(city) = location.city {
-        print!("{}, ", city);
+    if !location.city.is_empty() {
+        print!("{}, ", location.city);
     }
     println!("{}", location.country);
 
