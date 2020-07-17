@@ -66,22 +66,6 @@ pub struct AndroidTunProvider {
 impl AndroidTunProvider {
     /// Create a new AndroidTunProvider interfacing with Android's VpnService.
     pub fn new(context: AndroidContext, allow_lan: bool) -> Self {
-        // Initial configuration simply intercepts all packets. The only field that matters is
-        // `routes`, because it determines what must enter the tunnel. All other fields contain
-        // stub values.
-        let initial_tun_config = TunConfig {
-            addresses: vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
-            dns_servers: Vec::new(),
-            routes: vec![
-                IpNetwork::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0)
-                    .expect("Invalid IP network prefix for IPv4 address"),
-                IpNetwork::new(IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)), 0)
-                    .expect("Invalid IP network prefix for IPv6 address"),
-            ],
-            required_routes: vec![],
-            mtu: 1380,
-        };
-
         let env = JnixEnv::from(
             context
                 .jvm
@@ -95,7 +79,7 @@ impl AndroidTunProvider {
             class: talpid_vpn_service_class,
             object: context.vpn_service,
             active_tun: None,
-            last_tun_config: initial_tun_config,
+            last_tun_config: TunConfig::default(),
             allow_lan,
         }
     }
@@ -295,5 +279,25 @@ impl VpnServiceTun {
 impl AsRawFd for VpnServiceTun {
     fn as_raw_fd(&self) -> RawFd {
         self.tunnel
+    }
+}
+
+impl Default for TunConfig {
+    fn default() -> Self {
+        // Default configuration simply intercepts all packets. The only field that matters is
+        // `routes`, because it determines what must enter the tunnel. All other fields contain
+        // stub values.
+        TunConfig {
+            addresses: vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
+            dns_servers: Vec::new(),
+            routes: vec![
+                IpNetwork::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0)
+                    .expect("Invalid IP network prefix for IPv4 address"),
+                IpNetwork::new(IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)), 0)
+                    .expect("Invalid IP network prefix for IPv6 address"),
+            ],
+            required_routes: vec![],
+            mtu: 1380,
+        }
     }
 }
