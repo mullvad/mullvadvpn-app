@@ -28,10 +28,7 @@ use futures01::{
     Future, Stream,
 };
 use log::{debug, error, info, warn};
-use mullvad_rpc::{
-    rest::{CancelHandle, Cancellable},
-    AccountsProxy,
-};
+use mullvad_rpc::AccountsProxy;
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     endpoint::MullvadEndpoint,
@@ -61,6 +58,7 @@ use std::{
 #[cfg(target_os = "linux")]
 use talpid_core::split_tunnel;
 use talpid_core::{
+    future_cancel::{CancelHandle, Cancellable},
     mpsc::Sender,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
