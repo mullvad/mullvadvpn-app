@@ -159,9 +159,10 @@ class RelayCache {
         dispatchQueue.async {
             let result = Self.read(cacheFileURL: self.cacheFileURL)
                 .flatMapError { (error) -> Result<CachedRelays, RelayCacheError> in
-                    if case .readCache(let ioError as CocoaError) = error, ioError.code == .fileReadNoSuchFile {
+                    switch error {
+                    case .decodeCache, .readCache(CocoaError.fileReadNoSuchFile):
                         return Self.readPrebundledRelays(fileURL: Self.preBundledRelaysFileURL)
-                    } else {
+                    default:
                         return .failure(error)
                     }
             }
