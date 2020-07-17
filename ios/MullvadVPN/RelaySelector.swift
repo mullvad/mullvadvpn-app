@@ -46,7 +46,7 @@ struct RelaySelector {
 
         let endpoint = MullvadEndpoint(
             ipv4Relay: IPv4Endpoint(ip: relayWithLocation.relay.ipv4AddrIn, port: port),
-            ipv6Relay: IPv6Endpoint(ip: relayWithLocation.relay.ipv6AddrIn, port: port),
+            ipv6Relay: nil,
             ipv4Gateway: relays.wireguard.ipv4Gateway,
             ipv6Gateway: relays.wireguard.ipv6Gateway,
             publicKey: relayWithLocation.relay.publicKey
