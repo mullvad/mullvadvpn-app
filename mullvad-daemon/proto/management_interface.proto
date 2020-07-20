@@ -43,6 +43,9 @@ service ManagementService {
 	rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
 	rpc FactoryReset(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
+	rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
+	rpc RemoveSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
+	rpc ClearSplitTunnelProcesses(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc EventsListen(google.protobuf.Empty) returns (stream DaemonEvent) {}
 }
 
