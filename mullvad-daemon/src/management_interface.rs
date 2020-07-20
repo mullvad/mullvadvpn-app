@@ -1,11 +1,5 @@
 use crate::{BoxFuture, DaemonCommand, DaemonCommandSender, EventListener};
-use jsonrpc_core::{
-    futures::{future, sync, Future},
-    Error, ErrorCode, MetaIoHandler, Metadata,
-};
-use jsonrpc_ipc_server;
-use jsonrpc_macros::{build_rpc_trait, metadata, pubsub};
-use jsonrpc_pubsub::{PubSubHandler, PubSubMetadata, Session, SubscriptionId};
+use futures01::{future, sync, Future};
 use mullvad_paths;
 use mullvad_rpc::{rest::Error as RestError, StatusCode};
 use mullvad_types::{
@@ -23,9 +17,8 @@ use std::{
     str::FromStr,
     sync::{Arc, mpsc},
 };
-use talpid_ipc;
 use talpid_types::{net::{TransportProtocol, TunnelType}, ErrorExt};
-use futures::compat::Future01CompatExt;
+use futures::{Future as NewFuture, compat::Future01CompatExt};
 
 pub const INVALID_VOUCHER_CODE: i64 = -400;
 pub const VOUCHER_USED_ALREADY_CODE: i64 = -401;
@@ -1162,79 +1155,18 @@ fn convert_version_info(version_info: &version::AppVersionInfo) -> proto::AppVer
     }
 }
 
-build_rpc_trait! {
-    pub trait ManagementInterfaceApi {
-        type Metadata;
-
-        /// Returns available countries.
-        #[rpc(meta, name = "get_relay_locations")]
-        fn get_relay_locations(&self, Self::Metadata) -> BoxFuture<RelayList, Error>;
-
-        /// Update constraints put on the type of tunnel connection to use
-        #[rpc(meta, name = "update_relay_settings")]
-        fn update_relay_settings(
-            &self,
-            Self::Metadata, RelaySettingsUpdate
-            ) -> BoxFuture<(), Error>;
-
-        /*
-        /// Try to connect if disconnected, or do nothing if already connecting/connected.
-        #[rpc(meta, name = "connect")]
-        fn connect(&self, Self::Metadata) -> BoxFuture<(), Error>;
-
-        /// Disconnect the VPN tunnel if it is connecting/connected. Does nothing if already
-        /// disconnected.
-        #[rpc(meta, name = "disconnect")]
-        fn disconnect(&self, Self::Metadata) -> BoxFuture<(), Error>;
-        */
-
-        /*
-        /// Returns the current state of the Mullvad client. Changes to this state will
-        /// be announced to subscribers of `new_state`.
-        #[rpc(meta, name = "get_state")]
-        fn get_state(&self, Self::Metadata) -> BoxFuture<TunnelState, Error>;
-        */
-
-        /*
-        /// Performs a geoIP lookup and returns the current location as perceived by the public
-        /// internet.
-        #[rpc(meta, name = "get_current_location")]
-        fn get_current_location(&self, Self::Metadata) -> BoxFuture<Option<GeoIpLocation>, Error>;
-        */
-
-        /// Removes all accounts from history, removing any associated keys in the process
-        #[rpc(meta, name = "clear_account_history")]
-        fn clear_account_history(&self, Self::Metadata) -> BoxFuture<(), Error>;
-
-        /*
-        /// Sets proxy details for OpenVPN
-        #[rpc(meta, name = "set_bridge_settings")]
-        fn set_bridge_settings(&self, Self::Metadata, BridgeSettings) -> BoxFuture<(), Error>;
-        */
-
-        /// Returns the current daemon settings
-        #[rpc(meta, name = "get_settings")]
-        fn get_settings(&self, Self::Metadata) -> BoxFuture<Settings, Error>;
-
-        /*
-        /// Retrieve information about the currently running and latest versions of the app
-        #[rpc(meta, name = "get_version_info")]
-        fn get_version_info(&self, Self::Metadata) -> BoxFuture<version::AppVersionInfo, Error>;
-        */
-    }
-}
-
 pub struct ManagementInterfaceServer {
-    server: talpid_ipc::IpcServer,
     subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
-
+    socket_path: String,
     runtime: tokio02::runtime::Runtime,
     server_abort_tx: triggered::Trigger,
-    server_join_handle: Option<tokio02::task::JoinHandle<std::result::Result<(), tonic::transport::Error>>>,
+    server_join_handle:
+        Option<tokio02::task::JoinHandle<std::result::Result<(), tonic::transport::Error>>>,
 }
 
 impl ManagementInterfaceServer {
     async fn start_server_crap(
+        socket_path: String,
         daemon_tx: DaemonCommandSender,
         server_start_tx: std::sync::mpsc::Sender<()>,
         abort_rx: triggered::Listener,
@@ -1244,11 +1176,7 @@ impl ManagementInterfaceServer {
         use parity_tokio_ipc::{Endpoint as IpcEndpoint, SecurityAttributes};
         use futures::stream::TryStreamExt;
 
-        //let ipc_path = "//./pipe/Mullvad VPNQWE";
-        let ipc_path = std::path::PathBuf::from("/var/run/mullvad-vpnQWE");
-
-        //let mut endpoint = IpcEndpoint::new(ipc_path.to_string());
-        let mut endpoint = IpcEndpoint::new(ipc_path.to_string_lossy().to_string());
+        let mut endpoint = IpcEndpoint::new(socket_path);
         endpoint.set_security_attributes(SecurityAttributes::allow_everyone_create().unwrap().set_mode(777).unwrap());
         let incoming = endpoint.incoming().unwrap(); // FIXME: do not unwrap
         let _ = server_start_tx.send(());
@@ -1264,7 +1192,7 @@ impl ManagementInterfaceServer {
             .await
     }
 
-    pub fn start(tunnel_tx: DaemonCommandSender) -> Result<Self, talpid_ipc::Error> {
+    pub fn start(tunnel_tx: DaemonCommandSender) -> Result<Self, tonic::transport::Error> {
         // TODO: don't spawn a tokio runtime here; make this function async
         let runtime = tokio02::runtime::Builder::new()
             .threaded_scheduler()
@@ -1276,9 +1204,12 @@ impl ManagementInterfaceServer {
         let rpc = ManagementInterface::new(tunnel_tx.clone());
         let subscriptions = rpc.subscriptions.clone();
 
+        let socket_path = mullvad_paths::get_rpc_socket_path().to_string_lossy().to_string();
+
         let (server_abort_tx, server_abort_rx) = triggered::trigger();
         let (start_tx, start_rx) = mpsc::channel();
         let server_join_handle = runtime.spawn(Self::start_server_crap(
+            socket_path.clone(),
             tunnel_tx,
             start_tx,
             server_abort_rx,
@@ -1299,19 +1230,9 @@ impl ManagementInterfaceServer {
             panic!("start_rx failed");
         }
 
-        let mut io = PubSubHandler::default();
-        io.extend_with(rpc.to_delegate());
-        let meta_io: MetaIoHandler<Meta> = io.into();
-        let path = mullvad_paths::get_rpc_socket_path();
-        let server = talpid_ipc::IpcServer::start_with_metadata(
-            meta_io,
-            meta_extractor,
-            &path.to_string_lossy(),
-        )?;
         Ok(ManagementInterfaceServer {
-            server,
             subscriptions,
-            
+            socket_path: socket_path.to_string(),
             runtime,
             server_abort_tx,
             server_join_handle: Some(server_join_handle),
@@ -1319,7 +1240,7 @@ impl ManagementInterfaceServer {
     }
 
     pub fn socket_path(&self) -> &str {
-        self.server.path()
+        &self.socket_path
     }
 
     pub fn event_broadcaster(&self) -> ManagementInterfaceEventBroadcaster {
@@ -1327,14 +1248,18 @@ impl ManagementInterfaceServer {
         ManagementInterfaceEventBroadcaster {
             runtime: self.runtime.handle().clone(),
             subscriptions: self.subscriptions.clone(),
-            close_handle: Some(self.server.close_handle()),
+            close_handle: self.server_abort_tx.clone(),
         }
     }
 
     /// Consumes the server and waits for it to finish. Returns an error if the server exited
     /// due to an error.
-    pub fn wait(self) {
-        self.server.wait()
+    pub fn wait(mut self) {
+        if let Some(server_join_handle) = self.server_join_handle {
+            if let Err(error) = self.runtime.block_on(server_join_handle) {
+                log::error!("Management server panic: {:?}", error);
+            }
+        }
     }
 }
 
@@ -1343,7 +1268,7 @@ impl ManagementInterfaceServer {
 pub struct ManagementInterfaceEventBroadcaster {
     runtime: tokio02::runtime::Handle,
     subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
-    close_handle: Option<talpid_ipc::CloseHandle>,
+    close_handle: triggered::Trigger,
 }
 
 impl EventListener for ManagementInterfaceEventBroadcaster {
@@ -1404,9 +1329,7 @@ impl ManagementInterfaceEventBroadcaster {
 
 impl Drop for ManagementInterfaceEventBroadcaster {
     fn drop(&mut self) {
-        if let Some(close_handle) = self.close_handle.take() {
-            close_handle.close();
-        }
+        self.close_handle.trigger();
     }
 }
 
@@ -1425,14 +1348,7 @@ impl ManagementInterface {
         }
     }
 
-    /// Sends a command to the daemon and maps the error to an RPC error.
-    fn send_command_to_daemon(
-        &self,
-        command: DaemonCommand,
-    ) -> impl Future<Item = (), Error = Error> {
-        future::result(self.tx.send(command)).map_err(|_| Error::internal_error())
-    }
-
+    /*
     /// Converts a REST API error for an account into a JSONRPC error for the JSONRPC client.
     fn map_rest_account_error(error: RestError) -> Error {
         match error {
@@ -1448,107 +1364,9 @@ impl ManagementInterface {
             _ => Error::internal_error(),
         }
     }
-}
-
-impl ManagementInterfaceApi for ManagementInterface {
-    type Metadata = Meta;
-
-    fn get_relay_locations(&self, _: Self::Metadata) -> BoxFuture<RelayList, Error> {
-        log::debug!("get_relay_locations");
-        let (tx, rx) = sync::oneshot::channel();
-        let future = self
-            .send_command_to_daemon(DaemonCommand::GetRelayLocations(tx))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()));
-        Box::new(future)
-    }
-
-    fn update_relay_settings(
-        &self,
-        _: Self::Metadata,
-        constraints_update: RelaySettingsUpdate,
-    ) -> BoxFuture<(), Error> {
-        log::debug!("update_relay_settings");
-        let (tx, rx) = sync::oneshot::channel();
-
-        let message = DaemonCommand::UpdateRelaySettings(tx, constraints_update);
-        let future = self
-            .send_command_to_daemon(message)
-            .and_then(|_| rx.map_err(|_| Error::internal_error()));
-        Box::new(future)
-    }
-
-    /*
-    fn get_state(&self, _: Self::Metadata) -> BoxFuture<TunnelState, Error> {
-        log::debug!("get_state");
-        let (state_tx, state_rx) = sync::oneshot::channel();
-        let future = self
-            .send_command_to_daemon(DaemonCommand::GetState(state_tx))
-            .and_then(|_| state_rx.map_err(|_| Error::internal_error()));
-        Box::new(future)
-    }
     */
-
-    fn clear_account_history(&self, _: Self::Metadata) -> BoxFuture<(), Error> {
-        log::debug!("clear_account_history");
-        let (tx, rx) = sync::oneshot::channel();
-        let future = self
-            .send_command_to_daemon(DaemonCommand::ClearAccountHistory(tx))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()));
-        Box::new(future)
-    }
-
-    /*
-    fn set_bridge_settings(
-        &self,
-        _: Self::Metadata,
-        bridge_settings: BridgeSettings,
-    ) -> BoxFuture<(), Error> {
-        log::debug!("set_bridge_settings({:?})", bridge_settings);
-        let (tx, rx) = sync::oneshot::channel();
-        let future = self
-            .send_command_to_daemon(DaemonCommand::SetBridgeSettings(tx, bridge_settings))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()))
-            .and_then(|settings_result| settings_result.map_err(|_| Error::internal_error()));
-
-        Box::new(future)
-    }
-    */
-
-    fn get_settings(&self, _: Self::Metadata) -> BoxFuture<Settings, Error> {
-        log::debug!("get_settings");
-        let (tx, rx) = sync::oneshot::channel();
-        let future = self
-            .send_command_to_daemon(DaemonCommand::GetSettings(tx))
-            .and_then(|_| rx.map_err(|_| Error::internal_error()));
-        Box::new(future)
-    }
 }
 
-
-/// The metadata type. There is one instance associated with each connection. In this pubsub
-/// scenario they are created by `meta_extractor` by the server on each new incoming
-/// connection.
-#[derive(Clone, Debug, Default)]
-pub struct Meta {
-    session: Option<Arc<Session>>,
-}
-
-/// Make the `Meta` type possible to use as jsonrpc metadata type.
-impl Metadata for Meta {}
-
-/// Make the `Meta` type possible to use as a pubsub metadata type.
-impl PubSubMetadata for Meta {
-    fn session(&self) -> Option<Arc<Session>> {
-        self.session.clone()
-    }
-}
-
-/// Metadata extractor function for `Meta`.
-fn meta_extractor(context: &jsonrpc_ipc_server::RequestContext<'_>) -> Meta {
-    Meta {
-        session: Some(Arc::new(Session::new(context.sender.clone()))),
-    }
-}
 
 // FIXME
 use std::{

@@ -44,9 +44,7 @@ pub enum Error {
 }
 
 pub async fn new_grpc_client() -> Result<ManagementServiceClient<tonic::transport::Channel>> {
-    // FIXME
-    let ipc_path = "//./pipe/Mullvad VPNQWE";
-    let ipc_path = std::path::PathBuf::from("/var/run/mullvad-vpnQWE");
+    let ipc_path = mullvad_paths::get_rpc_socket_path();
 
     // The URI will be ignored
     let channel = Endpoint::from_static("lttp://[::]:50051")
