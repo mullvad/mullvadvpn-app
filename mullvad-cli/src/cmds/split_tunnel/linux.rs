@@ -43,26 +43,34 @@ impl SplitTunnel {
         match matches.subcommand() {
             ("add", Some(matches)) => {
                 let pid = value_t_or_exit!(matches.value_of("pid"), i32);
-                new_grpc_client().await?.add_split_tunnel_process(pid)
+                new_grpc_client()
+                    .await?
+                    .add_split_tunnel_process(pid)
                     .await
                     .map_err(Error::GrpcClientError)?;
                 Ok(())
             }
             ("delete", Some(matches)) => {
                 let pid = value_t_or_exit!(matches.value_of("pid"), i32);
-                new_grpc_client().await?.remove_split_tunnel_process(pid)
+                new_grpc_client()
+                    .await?
+                    .remove_split_tunnel_process(pid)
                     .await
                     .map_err(Error::GrpcClientError)?;
                 Ok(())
             }
             ("clear", Some(_)) => {
-                new_grpc_client().await?.clear_split_tunnel_processes(())
+                new_grpc_client()
+                    .await?
+                    .clear_split_tunnel_processes(())
                     .await
                     .map_err(Error::GrpcClientError)?;
                 Ok(())
             }
             ("list", Some(_)) => {
-                let mut pids_stream = new_grpc_client().await?.get_split_tunnel_processes(())
+                let mut pids_stream = new_grpc_client()
+                    .await?
+                    .get_split_tunnel_processes(())
                     .await
                     .map_err(Error::GrpcClientError)?
                     .into_inner();

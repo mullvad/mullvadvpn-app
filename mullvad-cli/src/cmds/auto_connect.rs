@@ -1,4 +1,4 @@
-use crate::{Error, new_grpc_client, Command, Result};
+use crate::{new_grpc_client, Command, Error, Result};
 use clap::value_t_or_exit;
 
 pub struct AutoConnect;
@@ -52,7 +52,8 @@ impl AutoConnect {
 
     async fn get(&self) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let auto_connect = rpc.get_settings(())
+        let auto_connect = rpc
+            .get_settings(())
             .await
             .map_err(Error::GrpcClientError)?
             .into_inner()
