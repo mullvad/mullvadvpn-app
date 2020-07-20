@@ -29,7 +29,8 @@ impl Command for BetaProgram {
         match matches.subcommand() {
             ("get", Some(_)) => {
                 let mut rpc = new_grpc_client().await?;
-                let settings = rpc.get_settings(())
+                let settings = rpc
+                    .get_settings(())
                     .await
                     .map_err(Error::GrpcClientError)?
                     .into_inner();

@@ -20,12 +20,12 @@ mod proto {
 use proto::management_service_client::ManagementServiceClient;
 
 use parity_tokio_ipc::Endpoint as IpcEndpoint;
-use tower::service_fn;
+use tokio;
 use tonic::{
     self,
     transport::{Endpoint, Uri},
 };
-use tokio;
+use tower::service_fn;
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {

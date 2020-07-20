@@ -9,17 +9,9 @@ use std::{
 use mullvad_types::relay_constraints::Constraint;
 use proto::{
     connection_config::{self, OpenvpnConfig, WireguardConfig},
-    relay_settings_update,
-    OpenvpnConstraints,
-    WireguardConstraints,
-    ConnectionConfig,
-    CustomRelaySettings,
-    NormalRelaySettingsUpdate,
-    RelayLocation,
-    RelaySettingsUpdate,
-    TransportProtocol,
-    TunnelType,
-    TunnelTypeUpdate,
+    relay_settings_update, ConnectionConfig, CustomRelaySettings, NormalRelaySettingsUpdate,
+    OpenvpnConstraints, RelayLocation, RelaySettingsUpdate, TransportProtocol, TunnelType,
+    TunnelTypeUpdate, WireguardConstraints,
 };
 use talpid_types::net::all_of_the_internet;
 
@@ -180,7 +172,9 @@ impl Command for Relay {
 impl Relay {
     async fn update_constraints(&self, update: RelaySettingsUpdate) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.update_relay_settings(update).await.map_err(Error::GrpcClientError)?;
+        rpc.update_relay_settings(update)
+            .await
+            .map_err(Error::GrpcClientError)?;
         println!("Relay constraints updated");
         Ok(())
     }
@@ -205,10 +199,11 @@ impl Relay {
             ("wireguard", Some(wg_matches)) => Self::read_custom_wireguard_relay(wg_matches),
             (_unknown_tunnel, _) => unreachable!("No set relay command given"),
         };
-        
+
         self.update_constraints(RelaySettingsUpdate {
-            r#type: Some(relay_settings_update::Type::Custom(custom_endpoint))
-        }).await
+            r#type: Some(relay_settings_update::Type::Custom(custom_endpoint)),
+        })
+        .await
     }
 
     fn read_custom_openvpn_relay(matches: &clap::ArgMatches<'_>) -> CustomRelaySettings {
@@ -216,8 +211,7 @@ impl Relay {
         let port = value_t!(matches.value_of("port"), u16).unwrap_or_else(|e| e.exit());
         let username = value_t!(matches.value_of("username"), String).unwrap_or_else(|e| e.exit());
         let password = value_t!(matches.value_of("password"), String).unwrap_or_else(|e| e.exit());
-        let protocol =
-            value_t!(matches.value_of("protocol"), String).unwrap_or_else(|e| e.exit());
+        let protocol = value_t!(matches.value_of("protocol"), String).unwrap_or_else(|e| e.exit());
 
         let protocol = match protocol.as_str() {
             "udp" => TransportProtocol::Udp,
@@ -225,21 +219,19 @@ impl Relay {
             _ => clap::Error::with_description(
                 "unknown transport protocol",
                 clap::ErrorKind::ValueValidation,
-            ).exit(),
+            )
+            .exit(),
         };
 
         CustomRelaySettings {
             host,
             config: Some(ConnectionConfig {
                 config: Some(connection_config::Config::Openvpn(OpenvpnConfig {
-                    address: SocketAddr::new(
-                        IpAddr::V4(Ipv4Addr::UNSPECIFIED),
-                        port,
-                    ).to_string(),
+                    address: SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port).to_string(),
                     protocol: protocol as i32,
                     username,
                     password,
-                }))
+                })),
             }),
         }
     }
@@ -276,16 +268,26 @@ impl Relay {
                 config: Some(connection_config::Config::Wireguard(WireguardConfig {
                     tunnel: Some(wireguard_config::TunnelConfig {
                         private_key: private_key.to_vec(),
-                        addresses: addresses.iter().map(|address| address.to_string()).collect(),
+                        addresses: addresses
+                            .iter()
+                            .map(|address| address.to_string())
+                            .collect(),
                     }),
                     peer: Some(wireguard_config::PeerConfig {
                         public_key: peer_public_key.to_vec(),
-                        allowed_ips: all_of_the_internet().iter().map(|address| address.to_string()).collect(),
-                        endpoint: SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port).to_string(),
+                        allowed_ips: all_of_the_internet()
+                            .iter()
+                            .map(|address| address.to_string())
+                            .collect(),
+                        endpoint: SocketAddr::new(IpAddr::V4(Ipv4Addr::UNSPECIFIED), port)
+                            .to_string(),
                     }),
                     ipv4_gateway: ipv4_gateway.to_string(),
-                    ipv6_gateway: ipv6_gateway.as_ref().map(|addr| addr.to_string()).unwrap_or_default(),
-                }))
+                    ipv6_gateway: ipv6_gateway
+                        .as_ref()
+                        .map(|addr| addr.to_string())
+                        .unwrap_or_default(),
+                })),
             }),
         }
     }
@@ -313,13 +315,16 @@ impl Relay {
         let location_constraint = location::get_constraint(matches);
 
         self.update_constraints(RelaySettingsUpdate {
-            r#type: Some(relay_settings_update::Type::Normal(NormalRelaySettingsUpdate {
-                location: Some(RelayLocation {
-                    hostname: location_constraint,
-                }),
-                ..Default::default()
-            }))
-        }).await
+            r#type: Some(relay_settings_update::Type::Normal(
+                NormalRelaySettingsUpdate {
+                    location: Some(RelayLocation {
+                        hostname: location_constraint,
+                    }),
+                    ..Default::default()
+                },
+            )),
+        })
+        .await
     }
 
     async fn set_tunnel(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
@@ -333,22 +338,30 @@ impl Relay {
                     return Err(Error::InvalidCommand("WireGuard does not support TCP"));
                 }
                 self.update_constraints(RelaySettingsUpdate {
-                    r#type: Some(relay_settings_update::Type::Normal(NormalRelaySettingsUpdate {
-                        wireguard_constraints: Some(WireguardConstraints { port: port.unwrap_or(0) as u32 }),
-                        ..Default::default()
-                    }))
-                }).await
+                    r#type: Some(relay_settings_update::Type::Normal(
+                        NormalRelaySettingsUpdate {
+                            wireguard_constraints: Some(WireguardConstraints {
+                                port: port.unwrap_or(0) as u32,
+                            }),
+                            ..Default::default()
+                        },
+                    )),
+                })
+                .await
             }
             "openvpn" => {
                 self.update_constraints(RelaySettingsUpdate {
-                    r#type: Some(relay_settings_update::Type::Normal(NormalRelaySettingsUpdate {
-                        openvpn_constraints: Some(OpenvpnConstraints {
-                            port: port.unwrap_or(0) as u32,
-                            protocol: protocol.unwrap_or(TransportProtocol::AnyProtocol) as i32,
-                        }),
-                        ..Default::default()
-                    }))
-                }).await
+                    r#type: Some(relay_settings_update::Type::Normal(
+                        NormalRelaySettingsUpdate {
+                            openvpn_constraints: Some(OpenvpnConstraints {
+                                port: port.unwrap_or(0) as u32,
+                                protocol: protocol.unwrap_or(TransportProtocol::AnyProtocol) as i32,
+                            }),
+                            ..Default::default()
+                        },
+                    )),
+                })
+                .await
             }
             _ => unreachable!(),
         }
@@ -362,18 +375,22 @@ impl Relay {
             _ => unreachable!(),
         };
         self.update_constraints(RelaySettingsUpdate {
-            r#type: Some(relay_settings_update::Type::Normal(NormalRelaySettingsUpdate {
-                tunnel_type: Some(TunnelTypeUpdate {
-                    tunnel_type: tunnel_type as i32,
-                }),
-                ..Default::default()
-            }))
-        }).await
+            r#type: Some(relay_settings_update::Type::Normal(
+                NormalRelaySettingsUpdate {
+                    tunnel_type: Some(TunnelTypeUpdate {
+                        tunnel_type: tunnel_type as i32,
+                    }),
+                    ..Default::default()
+                },
+            )),
+        })
+        .await
     }
 
     async fn get(&self) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let constraints = rpc.get_settings(())
+        let constraints = rpc
+            .get_settings(())
             .await
             .map_err(Error::GrpcClientError)?
             .into_inner()
@@ -385,7 +402,8 @@ impl Relay {
 
     async fn list(&self) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let mut locations = rpc.get_relay_locations(())
+        let mut locations = rpc
+            .get_relay_locations(())
             .await
             .map_err(Error::GrpcClientError)?
             .into_inner();
@@ -450,7 +468,8 @@ impl Relay {
     }
 
     async fn update(&self) -> Result<()> {
-        new_grpc_client().await?
+        new_grpc_client()
+            .await?
             .update_relay_locations(())
             .await
             .map_err(Error::GrpcClientError)?;
