@@ -1,13 +1,39 @@
-use mullvad_ipc_client::new_standalone_ipc_client;
 use mullvad_paths;
+use parity_tokio_ipc::Endpoint as IpcEndpoint;
 use talpid_types::ErrorExt;
+use tower::service_fn;
+use tonic::{
+    self,
+    transport::{self, Endpoint, Uri},
+};
+
+mod proto {
+    tonic::include_proto!("mullvad_daemon.management_interface");
+}
+use proto::management_service_client::ManagementServiceClient;
+
+async fn new_grpc_client() -> Result<ManagementServiceClient<transport::Channel>, transport::Error> {
+    let ipc_path = mullvad_paths::get_rpc_socket_path();
+
+    // The URI will be ignored
+    let channel = Endpoint::from_static("lttp://[::]:50051")
+        .connect_with_connector(service_fn(move |_: Uri| {
+            IpcEndpoint::connect(ipc_path.clone())
+        }))
+        .await?;
+
+    Ok(ManagementServiceClient::new(channel))
+}
 
 /// Checks if there is another instance of the daemon running.
 ///
 /// Tries to connect to another daemon and perform a simple RPC call. If it fails, assumes the
 /// other daemon has stopped.
 pub fn is_another_instance_running() -> bool {
-    match new_standalone_ipc_client(&mullvad_paths::get_rpc_socket_path()) {
+    // TODO: make this async and get rid of the runtime
+    let mut runtime = tokio02::runtime::Runtime::new().unwrap();
+
+    match runtime.block_on(new_grpc_client()) {
         Ok(_) => true,
         Err(error) => {
             let msg =
