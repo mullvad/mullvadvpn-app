@@ -1,7 +1,11 @@
 use crate::{new_grpc_client, proto, Command, Error, Result};
 use mullvad_types::auth_failed::AuthFailed;
-use proto::management_service_client::ManagementServiceClient;
-use proto::{error_state::{Cause as ErrorStateCause, GenerationError}, daemon_event::Event as EventType, ErrorState, TunnelState};
+use proto::{
+    daemon_event::Event as EventType,
+    error_state::{Cause as ErrorStateCause, GenerationError},
+    management_service_client::ManagementServiceClient,
+    ErrorState, TunnelState,
+};
 
 pub struct Status;
 
@@ -33,7 +37,11 @@ impl Command for Status {
 
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let state = rpc.get_state(()).await.map_err(Error::GrpcClientError)?.into_inner();
+        let state = rpc
+            .get_state(())
+            .await
+            .map_err(Error::GrpcClientError)?
+            .into_inner();
 
         print_state(&state);
         if matches.is_present("location") {
@@ -43,7 +51,8 @@ impl Command for Status {
         if let Some(listen_matches) = matches.subcommand_matches("listen") {
             let verbose = listen_matches.is_present("verbose");
 
-            let mut events = rpc.events_listen(())
+            let mut events = rpc
+                .events_listen(())
                 .await
                 .map_err(Error::GrpcClientError)?
                 .into_inner();
@@ -93,8 +102,7 @@ impl Command for Status {
 
 fn print_state(state: &TunnelState) {
     // TODO: fix formatting
-    use proto::tunnel_state;
-    use proto::tunnel_state::State::*;
+    use proto::{tunnel_state, tunnel_state::State::*};
 
     print!("Tunnel status: ");
     match state.state.as_ref().unwrap() {
@@ -102,7 +110,12 @@ fn print_state(state: &TunnelState) {
         Connected(tunnel_state::Connected { relay_info }) => {
             // TODO: compare output
 
-            let endpoint = relay_info.as_ref().unwrap().tunnel_endpoint.as_ref().unwrap();
+            let endpoint = relay_info
+                .as_ref()
+                .unwrap()
+                .tunnel_endpoint
+                .as_ref()
+                .unwrap();
             println!(
                 "Connected to {} {} over {}",
                 // TODO: as string
@@ -113,18 +126,21 @@ fn print_state(state: &TunnelState) {
             );
 
             // TODO: optional proxy endpoint
-            /*
-            if let Some(ref proxy) = self.proxy {
-                write!(
-                    f,
-                    " via {} {} over {}",
-                    proxy.proxy_type, proxy.endpoint.address, proxy.endpoint.protocol
-                )?;
-            }
-            */
+            // if let Some(ref proxy) = self.proxy {
+            // write!(
+            // f,
+            // " via {} {} over {}",
+            // proxy.proxy_type, proxy.endpoint.address, proxy.endpoint.protocol
+            // )?;
+            // }
         }
         Connecting(tunnel_state::Connecting { relay_info }) => {
-            let endpoint = relay_info.as_ref().unwrap().tunnel_endpoint.as_ref().unwrap();
+            let endpoint = relay_info
+                .as_ref()
+                .unwrap()
+                .tunnel_endpoint
+                .as_ref()
+                .unwrap();
             println!("Connecting to {:?}...", endpoint);
         }
         Disconnected(_) => println!("Disconnected"),
@@ -140,7 +156,10 @@ fn print_error_state(error_state: &ErrorState) {
 
     match error_state.cause {
         x if x == ErrorStateCause::AuthFailed as i32 => {
-            println!("Blocked: {}", AuthFailed::from(error_state.auth_fail_reason.as_ref()));
+            println!(
+                "Blocked: {}",
+                AuthFailed::from(error_state.auth_fail_reason.as_ref())
+            );
         }
         #[cfg(target_os = "linux")]
         cause if cause == ErrorStateCause::SetFirewallPolicyError as i32 => {
@@ -160,22 +179,30 @@ fn error_state_to_string(error_state: &ErrorState) -> String {
             return if error_state.auth_fail_reason.is_empty() {
                 "Authentication with remote server failed".to_string()
             } else {
-                format!("Authentication with remote server failed: {}", error_state.auth_fail_reason)
+                format!(
+                    "Authentication with remote server failed: {}",
+                    error_state.auth_fail_reason
+                )
             };
         }
-        x if x == Ipv6Unavailable as i32 => "Failed to configure IPv6 because it's disabled in the platform",
+        x if x == Ipv6Unavailable as i32 => {
+            "Failed to configure IPv6 because it's disabled in the platform"
+        }
         x if x == SetFirewallPolicyError as i32 => "Failed to set firewall policy",
         x if x == SetDnsError as i32 => "Failed to set system DNS server",
         x if x == StartTunnelError as i32 => "Failed to start connection to remote server",
         x if x == TunnelParameterError as i32 => {
-            return format!("Failure to generate tunnel parameters: {}", tunnel_parameter_error_to_string(
-                error_state.parameter_error
-            ));
+            return format!(
+                "Failure to generate tunnel parameters: {}",
+                tunnel_parameter_error_to_string(error_state.parameter_error)
+            );
         }
         x if x == IsOffline as i32 => "This device is offline, no tunnels can be established",
         x if x == TapAdapterProblem as i32 => "A problem with the TAP adapter has been detected",
         #[cfg(target_os = "android")]
-        x if x == VpnPermissionDenied as i32 => "The Android VPN permission was denied when creating the tunnel",
+        x if x == VpnPermissionDenied as i32 => {
+            "The Android VPN permission was denied when creating the tunnel"
+        }
         _ => unreachable!("unknown error state cause"),
     };
 
@@ -184,17 +211,29 @@ fn error_state_to_string(error_state: &ErrorState) -> String {
 
 fn tunnel_parameter_error_to_string(parameter_error: i32) -> &'static str {
     match parameter_error {
-        x if x == GenerationError::NoMatchingRelay as i32 => "Failure to select a matching tunnel relay",
-        x if x == GenerationError::NoMatchingBridgeRelay as i32 => "Failure to select a matching bridge relay",
+        x if x == GenerationError::NoMatchingRelay as i32 => {
+            "Failure to select a matching tunnel relay"
+        }
+        x if x == GenerationError::NoMatchingBridgeRelay as i32 => {
+            "Failure to select a matching bridge relay"
+        }
         x if x == GenerationError::NoWireguardKey as i32 => "No wireguard key available",
-        x if x == GenerationError::CustomTunnelHostResolutionError as i32 => "Can't resolve hostname for custom tunnel host",
+        x if x == GenerationError::CustomTunnelHostResolutionError as i32 => {
+            "Can't resolve hostname for custom tunnel host"
+        }
         _ => unreachable!("unknown tunnel parameter error"),
     }
 }
 
-async fn print_location(rpc: &mut ManagementServiceClient<tonic::transport::Channel>) -> Result<()> {
+async fn print_location(
+    rpc: &mut ManagementServiceClient<tonic::transport::Channel>,
+) -> Result<()> {
     // TODO: RPC should return an optional location
-    let location = rpc.get_current_location(()).await.map_err(Error::GrpcClientError)?.into_inner();
+    let location = rpc
+        .get_current_location(())
+        .await
+        .map_err(Error::GrpcClientError)?
+        .into_inner();
     if !location.hostname.is_empty() {
         println!("Relay: {}", location.hostname);
     }

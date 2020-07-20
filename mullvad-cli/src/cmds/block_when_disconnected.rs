@@ -52,7 +52,8 @@ impl BlockWhenDisconnected {
 
     async fn get(&self) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let block_when_disconnected = rpc.get_settings(())
+        let block_when_disconnected = rpc
+            .get_settings(())
             .await
             .map_err(Error::GrpcClientError)?
             .into_inner()

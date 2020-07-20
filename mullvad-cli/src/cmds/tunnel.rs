@@ -106,7 +106,9 @@ fn create_ipv6_subcommand() -> clap::App<'static, 'static> {
 impl Tunnel {
     async fn handle_openvpn_cmd(matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
-            ("mssfix", Some(mssfix_matches)) => Self::handle_openvpn_mssfix_cmd(mssfix_matches).await,
+            ("mssfix", Some(mssfix_matches)) => {
+                Self::handle_openvpn_mssfix_cmd(mssfix_matches).await
+            }
             _ => unreachable!("unhandled command"),
         }
     }
@@ -149,9 +151,7 @@ impl Tunnel {
 
     async fn process_wireguard_mtu_get() -> Result<()> {
         let tunnel_options = Self::get_tunnel_options().await?;
-        let mtu = tunnel_options
-            .wireguard.unwrap()
-            .mtu;
+        let mtu = tunnel_options.wireguard.unwrap().mtu;
         println!(
             "mtu: {}",
             if mtu != 0 {
@@ -166,21 +166,29 @@ impl Tunnel {
     async fn process_wireguard_mtu_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mtu = value_t!(matches.value_of("mtu"), u16).unwrap_or_else(|e| e.exit());
         let mut rpc = new_grpc_client().await?;
-        rpc.set_wireguard_mtu(mtu as u32).await.map_err(Error::GrpcClientError)?;
+        rpc.set_wireguard_mtu(mtu as u32)
+            .await
+            .map_err(Error::GrpcClientError)?;
         println!("Wireguard MTU has been updated");
         Ok(())
     }
 
     async fn process_wireguard_mtu_unset() -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.set_wireguard_mtu(0).await.map_err(Error::GrpcClientError)?;
+        rpc.set_wireguard_mtu(0)
+            .await
+            .map_err(Error::GrpcClientError)?;
         println!("Wireguard MTU has been unset");
         Ok(())
     }
 
     async fn process_wireguard_key_check() -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let key = rpc.get_wireguard_key(()).await.map_err(Error::GrpcClientError)?.into_inner();
+        let key = rpc
+            .get_wireguard_key(())
+            .await
+            .map_err(Error::GrpcClientError)?
+            .into_inner();
         if !key.key.is_empty() {
             // TODO: Fix formatting
             println!("Current key    : {:?}", &key.key);
@@ -190,7 +198,8 @@ impl Tunnel {
             return Ok(());
         }
 
-        let is_valid = rpc.verify_wireguard_key(())
+        let is_valid = rpc
+            .verify_wireguard_key(())
             .await
             .map_err(Error::GrpcClientError)?
             .into_inner();
@@ -213,9 +222,7 @@ impl Tunnel {
         let tunnel_options = Self::get_tunnel_options().await?;
         println!(
             "Rotation interval: {} hour(s)",
-            tunnel_options
-                .wireguard.unwrap()
-                .automatic_rotation
+            tunnel_options.wireguard.unwrap().automatic_rotation
         );
         Ok(())
     }
@@ -268,18 +275,20 @@ impl Tunnel {
 
     async fn get_tunnel_options() -> Result<TunnelOptions> {
         let mut rpc = new_grpc_client().await?;
-        Ok(rpc.get_settings(())
+        Ok(rpc
+            .get_settings(())
             .await
             .map_err(Error::GrpcClientError)?
             .into_inner()
             .tunnel_options
-            .unwrap()
-        )
+            .unwrap())
     }
 
     async fn process_openvpn_mssfix_unset() -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.set_openvpn_mssfix(0).await.map_err(Error::GrpcClientError)?;
+        rpc.set_openvpn_mssfix(0)
+            .await
+            .map_err(Error::GrpcClientError)?;
         println!("mssfix parameter has been unset");
         Ok(())
     }
@@ -287,7 +296,9 @@ impl Tunnel {
     async fn process_openvpn_mssfix_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let new_value = value_t!(matches.value_of("mssfix"), u16).unwrap_or_else(|e| e.exit());
         let mut rpc = new_grpc_client().await?;
-        rpc.set_openvpn_mssfix(new_value as u32).await.map_err(Error::GrpcClientError)?;
+        rpc.set_openvpn_mssfix(new_value as u32)
+            .await
+            .map_err(Error::GrpcClientError)?;
         println!("mssfix parameter has been updated");
         Ok(())
     }
@@ -309,7 +320,9 @@ impl Tunnel {
         let enabled = matches.value_of("enable").unwrap() == "on";
 
         let mut rpc = new_grpc_client().await?;
-        rpc.set_enable_ipv6(enabled).await.map_err(Error::GrpcClientError)?;
+        rpc.set_enable_ipv6(enabled)
+            .await
+            .map_err(Error::GrpcClientError)?;
         if enabled {
             println!("Enabled IPv6");
         } else {
