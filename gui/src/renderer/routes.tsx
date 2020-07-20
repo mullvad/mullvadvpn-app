@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Route, RouteComponentProps, Switch, withRouter } from 'react-router';
 import Launch from './components/Launch';
+import LinuxSplitTunnelingSettings from './components/LinuxSplitTunnelingSettings';
 import TransitionContainer, { TransitionView } from './components/TransitionContainer';
 import AccountPage from './containers/AccountPage';
 import AdvancedSettingsPage from './containers/AdvancedSettingsPage';
@@ -72,6 +73,11 @@ class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
                 exact={true}
                 path="/settings/advanced/wireguard-keys"
                 component={WireguardKeysPage}
+              />
+              <Route
+                exact={true}
+                path="/settings/advanced/linux-split-tunneling"
+                component={LinuxSplitTunnelingSettings}
               />
               <Route exact={true} path="/settings/support" component={SupportPage} />
               <Route exact={true} path="/select-location" component={SelectLocationPage} />

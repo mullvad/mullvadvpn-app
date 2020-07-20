@@ -155,6 +155,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
       }
     },
     onViewWireguardKeys: () => history.push('/settings/advanced/wireguard-keys'),
+    onViewLinuxSplitTunneling: () => history.push('/settings/advanced/linux-split-tunneling'),
   };
 };
 
