@@ -16,11 +16,6 @@ fern = { version = "0.5", features = ["colored"] }
 futures01 = { package = "futures", version = "0.1" }
 futures = { package = "futures", version = "0.3", features = [ "compat" ]}
 ipnetwork = "0.16"
-jsonrpc-client-core = "0.5"
-jsonrpc-core = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
-jsonrpc-ipc-server = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
-jsonrpc-macros = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
-jsonrpc-pubsub = { git = "https://github.com/mullvad/jsonrpc", branch = "mullvad-fork" }
 lazy_static = "1.0"
 log = "0.4"
 log-panics = "2.0.0"
@@ -35,12 +30,10 @@ tokio-retry = "0.2"
 tokio-timer = "0.1"
 uuid = { version = "0.7", features = ["v4"] }
 
-mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-rpc = { path = "../mullvad-rpc" }
 talpid-core = { path = "../talpid-core" }
-talpid-ipc = { path = "../talpid-ipc" }
 talpid-types = { path = "../talpid-types" }
 
 tonic = "0.2"
