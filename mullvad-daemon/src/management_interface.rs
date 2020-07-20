@@ -1062,7 +1062,7 @@ fn convert_state(state: TunnelState) -> proto::TunnelState {
                 location: location.map(convert_geoip_location),
             }),
         }),
-        Connected { endpoint, location } => ProtoState::Connecting(tunnel_state::Connecting {
+        Connected { endpoint, location } => ProtoState::Connected(tunnel_state::Connected {
             relay_info: Some(proto::TunnelStateRelayInfo {
                 tunnel_endpoint: Some(convert_endpoint(endpoint)),
                 location: location.map(convert_geoip_location),
@@ -1349,35 +1349,8 @@ pub struct ManagementInterfaceEventBroadcaster {
 impl EventListener for ManagementInterfaceEventBroadcaster {
     /// Sends a new state update to all `new_state` subscribers of the management interface.
     fn notify_new_state(&self, new_state: TunnelState) {
-        // TODO: share conversion with GetState RPC?
-        use proto::tunnel_state;
-        
-        // TODO: construct proper daemon event type
-        // !! TODO: add convert_tunnel_state
-
-        let event = /*match new_state {
-            TunnelState::Disconnected => tunnel_state::State::Disconnected(
-                tunnel_state::Disconnected {}
-            )
-        }*/tunnel_state::State::Disconnected(
-            tunnel_state::Disconnected {}
-        );
-
-        /*
-        proto::DaemonEvent {
-            event: Some(EventType::TunnelState(proto::TunnelState {
-                state: Some(tunnel_state::State::Disconnected(
-                    tunnel_state::Disconnected {}
-                ))
-            })),
-        }
-
-        self.notify(DaemonEvent::TunnelState(new_state));
-        */
         self.notify(proto::DaemonEvent {
-            event: Some(DaemonEventType::TunnelState(proto::TunnelState {
-                state: Some(event)
-            })),
+            event: Some(DaemonEventType::TunnelState(convert_state(new_state))),
         })
     }
 
