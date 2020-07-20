@@ -1,13 +1,13 @@
 use clap::{crate_authors, crate_description, crate_name, SubCommand};
+use parity_tokio_ipc::Endpoint as IpcEndpoint;
 use std::process;
 use talpid_core::firewall::{self, Firewall, FirewallArguments};
 use talpid_types::ErrorExt;
-use parity_tokio_ipc::Endpoint as IpcEndpoint;
-use tower::service_fn;
 use tonic::{
     self,
     transport::{Endpoint, Uri},
 };
+use tower::service_fn;
 
 mod proto {
     tonic::include_proto!("mullvad_daemon.management_interface");
@@ -68,7 +68,9 @@ async fn main() {
 
 async fn prepare_restart() -> Result<(), Error> {
     let mut rpc = new_grpc_client().await?;
-    rpc.prepare_restart(()).await.map_err(Error::DaemonRpcError)?;
+    rpc.prepare_restart(())
+        .await
+        .map_err(Error::DaemonRpcError)?;
     Ok(())
 }
 
@@ -87,7 +89,8 @@ async fn reset_firewall() -> Result<(), Error> {
     firewall.reset_policy().map_err(Error::FirewallError)
 }
 
-pub async fn new_grpc_client() -> Result<ManagementServiceClient<tonic::transport::Channel>, Error> {
+pub async fn new_grpc_client() -> Result<ManagementServiceClient<tonic::transport::Channel>, Error>
+{
     let ipc_path = mullvad_paths::get_rpc_socket_path();
 
     // The URI will be ignored

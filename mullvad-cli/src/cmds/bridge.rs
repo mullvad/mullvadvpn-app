@@ -2,12 +2,10 @@ use crate::{location, new_grpc_client, Command, Error, Result};
 use clap::value_t;
 
 use crate::proto::{
-    BridgeSettings,
-    BridgeState,
-    bridge_settings::{Type as BridgeSettingsType},
-    bridge_state::{State as BridgeStateType},
+    bridge_settings::{Type as BridgeSettingsType, *},
+    bridge_state::State as BridgeStateType,
+    BridgeSettings, BridgeState,
 };
-use crate::proto::bridge_settings::*;
 use talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS;
 
 use std::net::{IpAddr, SocketAddr};
@@ -167,18 +165,15 @@ impl Bridge {
 
     async fn handle_get() -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let settings = rpc.get_settings(())
+        let settings = rpc
+            .get_settings(())
             .await
             .map_err(Error::GrpcClientError)?
             .into_inner();
         Self::print_state(settings.bridge_state.unwrap());
         match settings.bridge_settings.unwrap().r#type.unwrap() {
-            BridgeSettingsType::Local(local_proxy) => {
-                Self::print_local_proxy(&local_proxy)
-            }
-            BridgeSettingsType::Remote(remote_proxy) => {
-                Self::print_remote_proxy(&remote_proxy)
-            }
+            BridgeSettingsType::Local(local_proxy) => Self::print_local_proxy(&local_proxy),
+            BridgeSettingsType::Remote(remote_proxy) => Self::print_remote_proxy(&remote_proxy),
             BridgeSettingsType::Shadowsocks(shadowsocks_proxy) => {
                 Self::print_shadowsocks_proxy(&shadowsocks_proxy)
             }
@@ -194,11 +189,11 @@ impl Bridge {
         let mut rpc = new_grpc_client().await?;
         rpc.set_bridge_settings(BridgeSettings {
             r#type: Some(BridgeSettingsType::Normal(BridgeConstraints {
-                location: Some(crate::proto::RelayLocation {
-                    hostname
-                })
-            }))
-        }).await.map_err(Error::GrpcClientError)?;
+                location: Some(crate::proto::RelayLocation { hostname }),
+            })),
+        })
+        .await
+        .map_err(Error::GrpcClientError)?;
         Ok(())
     }
 
@@ -261,11 +256,9 @@ impl Bridge {
                 }),
                 _ => None,
             };
-            let prost_auth = auth.clone().map(|auth| {
-                RemoteProxyAuth {
-                    username: auth.username.clone(),
-                    password: auth.password.clone(),
-                }
+            let prost_auth = auth.clone().map(|auth| RemoteProxyAuth {
+                username: auth.username.clone(),
+                password: auth.password.clone(),
             });
 
             let proxy = openvpn::RemoteProxySettings {
@@ -394,7 +387,8 @@ impl Bridge {
 
         countries.sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
         for mut country in countries {
-            country.cities
+            country
+                .cities
                 .sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
             println!("{} ({})", country.name, country.code);
             for mut city in country.cities {
