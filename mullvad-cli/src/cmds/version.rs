@@ -30,7 +30,8 @@ impl Command for Version {
             println!("\tLatest stable version: {}", version_info.latest_stable);
         }
 
-        let settings = rpc.get_settings(())
+        let settings = rpc
+            .get_settings(())
             .await
             .map_err(Error::GrpcClientError)?
             .into_inner();

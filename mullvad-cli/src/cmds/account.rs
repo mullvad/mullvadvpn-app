@@ -1,4 +1,4 @@
-use crate::{Error, new_grpc_client, Command, Error, Result};
+use crate::{new_grpc_client, Command, Error, Result};
 use clap::value_t_or_exit;
 use mullvad_types::account::{AccountToken, VoucherError};
 
@@ -87,13 +87,15 @@ impl Account {
 
     async fn get(&self) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let settings = rpc.get_settings(())
+        let settings = rpc
+            .get_settings(())
             .await
             .map_err(Error::GrpcClientError)?
             .into_inner();
         if settings.account_token != "" {
             println!("Mullvad account: {}", settings.account_token);
-            let expiry = rpc.get_account_data(settings.account_token)
+            let expiry = rpc
+                .get_account_data(settings.account_token)
                 .await
                 .map_err(Error::GrpcClientError)?
                 .into_inner();
@@ -109,7 +111,9 @@ impl Account {
 
     async fn create(&self) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.create_new_account(()).await.map_err(Error::GrpcClientError)?;
+        rpc.create_new_account(())
+            .await
+            .map_err(Error::GrpcClientError)?;
         println!("New account created!");
         self.get().await
     }
@@ -160,7 +164,9 @@ impl Account {
 
     async fn clear_history(&self) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.clear_account_history(()).await.map_err(Error::GrpcClientError)?;
+        rpc.clear_account_history(())
+            .await
+            .map_err(Error::GrpcClientError)?;
         println!("Removed account history and all associated keys");
         Ok(())
     }
