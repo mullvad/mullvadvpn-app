@@ -17,6 +17,8 @@ pub mod rpc_uniqueness_check;
 mod settings;
 pub mod version;
 mod version_check;
+#[cfg(target_os = "windows")]
+mod windows_permissions;
 
 use futures01::{
     future::{self, Executor},
