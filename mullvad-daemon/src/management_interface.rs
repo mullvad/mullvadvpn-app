@@ -42,11 +42,17 @@ use tonic::{
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
+    // Unable to start the management interface server
     #[error(display = "Unable to start management interface server")]
     SetupError(tonic::transport::Error),
 
+    // Unable to set the permissions on the named pipe
     #[error(display = "Unable to set permissions for IPC endpoint")]
     PermissionsError(#[error(source)] io::Error),
+
+    // Unable to start the tokio runtime
+    #[error(display = "Failed to create the tokio runtime")]
+    TokioRuntimeError(#[error(source)] tokio02::io::Error)
 }
 
 struct ManagementServiceImpl {
@@ -1205,12 +1211,12 @@ impl ManagementInterfaceServer {
 
     pub fn start(tunnel_tx: DaemonCommandSender) -> Result<Self, Error> {
         // TODO: don't spawn a tokio runtime here; make this function async
-        let runtime = tokio02::runtime::Builder::new()
+        let mut runtime = tokio02::runtime::Builder::new()
             .threaded_scheduler()
             .core_threads(1)
             .enable_all()
             .build()
-            .unwrap(); // FIXME: do not unwrap here
+            .map_err(Error::TokioRuntimeError)?;
 
         let rpc = ManagementInterface::new(tunnel_tx.clone());
         let subscriptions = rpc.subscriptions.clone();
@@ -1228,17 +1234,11 @@ impl ManagementInterfaceServer {
         ));
 
         if let Err(_) = start_rx.recv() {
-            // FIXME: do not unwrap here
-            /*
             return Err(runtime
                 .block_on(server_join_handle)
                 .expect("Failed to resolve quit handle future")
-                .map_err(Error::EventDispatcherError)
+                .map_err(Error::SetupError)
                 .unwrap_err());
-
-            */
-            // FIXME
-            panic!("start_rx failed");
         }
 
         #[cfg(unix)]
