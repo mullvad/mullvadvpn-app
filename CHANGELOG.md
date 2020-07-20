@@ -38,6 +38,7 @@ Line wrap the file at 100 chars.                                              Th
 - Make connectivity checker more resilient to suspension.
 - Make uninstaller on desktop platforms attempt to remove WireGuard keys from accounts.
 - Make important notifications not timeout on macOS and remain in the notification list on Linux.
+- Add exponential backoff to relay list downloader.
 
 #### Android
 - Show a system notification when the account time will soon run out.
