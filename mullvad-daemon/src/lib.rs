@@ -972,6 +972,13 @@ where
         self.rpc_runtime.runtime().spawn(fut);
     }
 
+    fn block_on_future<F>(&mut self, fut: F) -> F::Output
+    where
+        F: std::future::Future,
+    {
+        self.rpc_runtime.runtime().block_on(fut)
+    }
+
 
     fn handle_command(&mut self, command: DaemonCommand) {
         use self::DaemonCommand::*;
