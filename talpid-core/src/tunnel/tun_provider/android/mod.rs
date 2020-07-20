@@ -11,16 +11,12 @@ use jnix::{
     },
     IntoJava, JnixEnv,
 };
-use rand::{seq::SliceRandom, thread_rng, Rng};
 use std::{
-    fs::File,
-    io,
-    net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr, UdpSocket},
-    os::unix::io::{AsRawFd, FromRawFd, RawFd},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+    os::unix::io::{AsRawFd, RawFd},
     sync::Arc,
-    time::{Duration, Instant},
 };
-use talpid_types::android::AndroidContext;
+use talpid_types::{android::AndroidContext, ErrorExt};
 
 
 /// Errors that occur while setting up VpnService tunnel.
@@ -49,18 +45,6 @@ pub enum Error {
     )]
     InvalidMethodResult(&'static str, String),
 
-    #[error(display = "Failed to bind an UDP socket")]
-    BindUdpSocket(#[error(source)] io::Error),
-
-    #[error(display = "Failed to send random data through UDP socket")]
-    SendToUdpSocket(#[error(source)] io::Error),
-
-    #[error(display = "Failed to select() on tunnel device")]
-    Select(#[error(source)] nix::Error),
-
-    #[error(display = "Timed out while waiting for tunnel device to receive data")]
-    TunnelDeviceTimeout,
-
     #[error(display = "Failed to create tunnel device")]
     TunnelDeviceError,
 
@@ -73,7 +57,6 @@ pub struct AndroidTunProvider {
     jvm: Arc<JavaVM>,
     class: GlobalRef,
     object: GlobalRef,
-    active_tun: Option<File>,
     last_tun_config: TunConfig,
     allow_lan: bool,
 }
@@ -81,22 +64,6 @@ pub struct AndroidTunProvider {
 impl AndroidTunProvider {
     /// Create a new AndroidTunProvider interfacing with Android's VpnService.
     pub fn new(context: AndroidContext, allow_lan: bool) -> Self {
-        // Initial configuration simply intercepts all packets. The only field that matters is
-        // `routes`, because it determines what must enter the tunnel. All other fields contain
-        // stub values.
-        let initial_tun_config = TunConfig {
-            addresses: vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
-            dns_servers: Vec::new(),
-            routes: vec![
-                IpNetwork::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0)
-                    .expect("Invalid IP network prefix for IPv4 address"),
-                IpNetwork::new(IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)), 0)
-                    .expect("Invalid IP network prefix for IPv6 address"),
-            ],
-            required_routes: vec![],
-            mtu: 1380,
-        };
-
         let env = JnixEnv::from(
             context
                 .jvm
@@ -109,8 +76,7 @@ impl AndroidTunProvider {
             jvm: context.jvm,
             class: talpid_vpn_service_class,
             object: context.vpn_service,
-            active_tun: None,
-            last_tun_config: initial_tun_config,
+            last_tun_config: TunConfig::default(),
             allow_lan,
         }
     }
@@ -118,10 +84,7 @@ impl AndroidTunProvider {
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<(), Error> {
         if self.allow_lan != allow_lan {
             self.allow_lan = allow_lan;
-
-            if self.active_tun.is_some() {
-                self.create_tun()?;
-            }
+            self.recreate_tun_if_open()?;
         }
 
         Ok(())
@@ -129,7 +92,9 @@ impl AndroidTunProvider {
 
     /// Retrieve a tunnel device with the provided configuration.
     pub fn get_tun(&mut self, config: TunConfig) -> Result<VpnServiceTun, Error> {
-        let tun_fd = self.get_tun_fd(config)?;
+        let tun_fd = self.get_tun_fd(config.clone())?;
+
+        self.last_tun_config = config;
 
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
             .map_err(Error::CloneJavaVm)?;
@@ -142,132 +107,103 @@ impl AndroidTunProvider {
         })
     }
 
-    fn wait_for_tunnel_up(tun_fd: RawFd, tun_config: &TunConfig) -> Result<(), Error> {
-        use nix::sys::{
-            select::{pselect, FdSet},
-            time::{TimeSpec, TimeValLike},
-        };
-        let mut fd_set = FdSet::new();
-        fd_set.insert(tun_fd);
-        let timeout = TimeSpec::microseconds(300);
-        const TIMEOUT: Duration = Duration::from_secs(60);
-        let start = Instant::now();
-        while start.elapsed() < TIMEOUT {
-            // if tunnel device is ready to be read from, traffic is being routed through it
-            if pselect(None, Some(&mut fd_set), None, None, Some(&timeout), None)
-                .map_err(Error::Select)?
-                > 0
-            {
-                return Ok(());
-            }
-            // have to add tun_fd back into the bitset
-            fd_set.insert(tun_fd);
-            Self::try_sending_random_udp(tun_config)?;
-        }
-
-        Err(Error::TunnelDeviceTimeout)
-    }
-
-    fn try_sending_random_udp(tun_config: &TunConfig) -> Result<(), Error> {
-        let mut tried_ipv6 = false;
-        const TIMEOUT: Duration = Duration::from_millis(300);
-        let start = Instant::now();
-
-        while start.elapsed() < TIMEOUT {
-            // pick any random route to select between Ipv4 and Ipv6
-            // TODO: if we are to allow LAN on Android by changing the routes that are stuffed in
-            // TunConfig, then this should be revisited to be fair between IPv4 and IPv6
-            let should_generate_ipv4 = tun_config
-                .routes
-                .choose(&mut thread_rng())
-                .map(|route| route.is_ipv4())
-                .unwrap_or(true)
-                || tried_ipv6;
-
-            let rand_port = thread_rng().gen();
-            let (local_addr, rand_dest_addr) = if should_generate_ipv4 || tried_ipv6 {
-                let mut ipv4_bytes = [0u8; 4];
-                thread_rng().fill(&mut ipv4_bytes);
-                (
-                    SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0),
-                    SocketAddr::new(IpAddr::from(ipv4_bytes).into(), rand_port),
-                )
-            } else {
-                let mut ipv6_bytes = [0u8; 16];
-                tried_ipv6 = true;
-                thread_rng().fill(&mut ipv6_bytes);
-                (
-                    SocketAddr::new(Ipv6Addr::UNSPECIFIED.into(), 0),
-                    SocketAddr::new(IpAddr::from(ipv6_bytes).into(), rand_port),
-                )
-            };
-
-            // TODO: once https://github.com/rust-lang/rust/issues/27709 is resolved, please use
-            // `is_global()` to check if a new address should be attempted.
-            if !is_public_ip(rand_dest_addr.ip()) {
-                continue;
-            }
-
-            let socket = UdpSocket::bind(local_addr).map_err(Error::BindUdpSocket)?;
-
-            let mut buf = vec![0u8; thread_rng().gen_range(17, 214)];
-            // fill buff with random data
-            thread_rng().fill(buf.as_mut_slice());
-            match socket.send_to(&buf, rand_dest_addr) {
-                Ok(_) => return Ok(()),
-                Err(err) => {
-                    if tried_ipv6 {
-                        continue;
-                    }
-                    match err.raw_os_error() {
-                        // Error code 101 - specified network is unreachable
-                        // Error code 22 - specified address is not usable
-                        Some(101) | Some(22) => {
-                            // if we failed whilst trying to send to IPv6, we should not try
-                            // IPv6 again.
-                            continue;
-                        }
-                        _ => return Err(Error::SendToUdpSocket(err)),
-                    }
-                }
-            };
-        }
-        Ok(())
-    }
-
     /// Open a tunnel device using the previous or the default configuration.
     ///
     /// Will open a new tunnel if there is already an active tunnel. The previous tunnel will be
     /// closed.
     pub fn create_tun(&mut self) -> Result<(), Error> {
-        self.open_tun(self.last_tun_config.clone())
+        let result = self.call_method(
+            "createTun",
+            "()V",
+            JavaType::Primitive(Primitive::Void),
+            &[],
+        )?;
+
+        match result {
+            JValue::Void => Ok(()),
+            value => Err(Error::InvalidMethodResult(
+                "createTun",
+                format!("{:?}", value),
+            )),
+        }
     }
 
     /// Open a tunnel device using the previous or the default configuration if there is no
     /// currently active tunnel.
     pub fn create_tun_if_closed(&mut self) -> Result<(), Error> {
-        if self.active_tun.is_none() {
-            self.create_tun()?;
-        }
+        let result = self.call_method(
+            "createTunIfClosed",
+            "()V",
+            JavaType::Primitive(Primitive::Void),
+            &[],
+        )?;
 
-        Ok(())
+        match result {
+            JValue::Void => Ok(()),
+            value => Err(Error::InvalidMethodResult(
+                "createTunIfClosed",
+                format!("{:?}", value),
+            )),
+        }
     }
 
     /// Close currently active tunnel device.
     pub fn close_tun(&mut self) {
-        self.active_tun = None;
+        let result = self.call_method("closeTun", "()V", JavaType::Primitive(Primitive::Void), &[]);
+
+        let error = match result {
+            Ok(JValue::Void) => None,
+            Ok(value) => Some(Error::InvalidMethodResult(
+                "closeTun",
+                format!("{:?}", value),
+            )),
+            Err(error) => Some(error),
+        };
+
+        if let Some(error) = error {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to close the tunnel")
+            );
+        }
     }
 
     fn get_tun_fd(&mut self, config: TunConfig) -> Result<RawFd, Error> {
-        if self.active_tun.is_none() || self.last_tun_config != config {
-            self.open_tun(config)?;
-        }
+        let env = self.env()?;
+        let actual_config = self.prepare_tun_config(config);
+        let java_config = actual_config.into_java(&env);
 
-        Ok(self
-            .active_tun
-            .as_ref()
-            .expect("Tunnel should be configured")
-            .as_raw_fd())
+        let result = self.call_method(
+            "getTun",
+            "(Lnet/mullvad/talpid/tun_provider/TunConfig;)I",
+            JavaType::Primitive(Primitive::Int),
+            &[JValue::Object(java_config.as_obj())],
+        )?;
+
+        match result {
+            JValue::Int(0) => Err(Error::TunnelDeviceError),
+            JValue::Int(-1) => Err(Error::PermissionDenied),
+            JValue::Int(fd) => Ok(fd),
+            value => Err(Error::InvalidMethodResult("getTun", format!("{:?}", value))),
+        }
+    }
+
+    fn recreate_tun_if_open(&mut self) -> Result<(), Error> {
+        let env = self.env()?;
+        let actual_config = self.prepare_tun_config(self.last_tun_config.clone());
+        let java_config = actual_config.into_java(&env);
+
+        let result = self.call_method(
+            "recreateTunIfOpen",
+            "(Lnet/mullvad/talpid/tun_provider/TunConfig;)V",
+            JavaType::Primitive(Primitive::Void),
+            &[JValue::Object(java_config.as_obj())],
+        )?;
+
+        match result {
+            JValue::Void => Ok(()),
+            value => Err(Error::InvalidMethodResult("getTun", format!("{:?}", value))),
+        }
     }
 
     fn prepare_tun_config(&self, config: TunConfig) -> TunConfig {
@@ -313,87 +249,34 @@ impl AndroidTunProvider {
         }
     }
 
-    fn open_tun(&mut self, config: TunConfig) -> Result<(), Error> {
-        let actual_config = self.prepare_tun_config(config.clone());
-
+    fn call_method(
+        &self,
+        name: &'static str,
+        signature: &str,
+        return_type: JavaType,
+        parameters: &[JValue<'_>],
+    ) -> Result<JValue<'_>, Error> {
         let env = JnixEnv::from(
             self.jvm
                 .attach_current_thread_as_daemon()
                 .map_err(Error::AttachJvmToThread)?,
         );
-        let create_tun_method = env
-            .get_method_id(
-                &self.class,
-                "createTun",
-                "(Lnet/mullvad/talpid/tun_provider/TunConfig;)I",
-            )
-            .map_err(|cause| Error::FindMethod("createTun", cause))?;
+        let method_id = env
+            .get_method_id(&self.class, name, signature)
+            .map_err(|cause| Error::FindMethod(name, cause))?;
 
-        let java_config = actual_config.clone().into_java(&env);
-        let result = env
-            .call_method_unchecked(
-                self.object.as_obj(),
-                create_tun_method,
-                JavaType::Primitive(Primitive::Int),
-                &[JValue::Object(java_config.as_obj())],
-            )
-            .map_err(|cause| Error::CallMethod("createTun", cause))?;
-
-        match result {
-            JValue::Int(0) => Err(Error::TunnelDeviceError),
-            JValue::Int(-1) => Err(Error::PermissionDenied),
-            JValue::Int(fd) => {
-                Self::wait_for_tunnel_up(fd, &config)?;
-                let tun = unsafe { File::from_raw_fd(fd) };
-
-                self.active_tun = Some(tun);
-                self.last_tun_config = config;
-
-                Ok(())
-            }
-            value => Err(Error::InvalidMethodResult(
-                "createTun",
-                format!("{:?}", value),
-            )),
-        }
+        env.call_method_unchecked(self.object.as_obj(), method_id, return_type, parameters)
+            .map_err(|cause| Error::CallMethod(name, cause))
     }
-}
 
-fn is_public_ip(addr: IpAddr) -> bool {
-    match addr {
-        IpAddr::V4(ipv4) => {
-            // 0.x.x.x is not a publicly routable address
-            if ipv4.octets()[0] == 0u8 {
-                return false;
-            }
-        }
-        IpAddr::V6(ipv6) => {
-            if ipv6.segments()[0] == 0u16 {
-                return false;
-            }
-        }
+    fn env(&self) -> Result<JnixEnv<'_>, Error> {
+        let jni_env = self
+            .jvm
+            .attach_current_thread_as_daemon()
+            .map_err(Error::AttachJvmToThread)?;
+
+        Ok(JnixEnv::from(jni_env))
     }
-    // A non-exhaustive list of non-public subnets
-    let publicly_unroutable_subnets: Vec<IpNetwork> = vec![
-        // IPv4 local networks
-        "10.0.0.0/8".parse().unwrap(),
-        "172.16.0.0/12".parse().unwrap(),
-        "192.168.0.0/16".parse().unwrap(),
-        // IPv4 non-forwardable network
-        "169.254.0.0/16".parse().unwrap(),
-        "192.0.0.0/8".parse().unwrap(),
-        // Documentation networks
-        "192.0.2.0/24".parse().unwrap(),
-        "198.51.100.0/24".parse().unwrap(),
-        "203.0.113.0/24".parse().unwrap(),
-        // IPv6 publicly unroutable networks
-        "fc00::/7".parse().unwrap(),
-        "fe80::/10".parse().unwrap(),
-    ];
-
-    !publicly_unroutable_subnets
-        .iter()
-        .any(|net| net.contains(addr))
 }
 
 /// Handle to a tunnel device on Android.
@@ -441,5 +324,25 @@ impl VpnServiceTun {
 impl AsRawFd for VpnServiceTun {
     fn as_raw_fd(&self) -> RawFd {
         self.tunnel
+    }
+}
+
+impl Default for TunConfig {
+    fn default() -> Self {
+        // Default configuration simply intercepts all packets. The only field that matters is
+        // `routes`, because it determines what must enter the tunnel. All other fields contain
+        // stub values.
+        TunConfig {
+            addresses: vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
+            dns_servers: Vec::new(),
+            routes: vec![
+                IpNetwork::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0)
+                    .expect("Invalid IP network prefix for IPv4 address"),
+                IpNetwork::new(IpAddr::V6(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 0)), 0)
+                    .expect("Invalid IP network prefix for IPv6 address"),
+            ],
+            required_routes: vec![],
+            mtu: 1380,
+        }
     }
 }

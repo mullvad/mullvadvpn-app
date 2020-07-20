@@ -5,6 +5,7 @@ mod classes;
 mod daemon_interface;
 mod is_null;
 mod jni_event_listener;
+mod talpid_vpn_service;
 
 use crate::{daemon_interface::DaemonInterface, jni_event_listener::JniEventListener};
 use jnix::{
