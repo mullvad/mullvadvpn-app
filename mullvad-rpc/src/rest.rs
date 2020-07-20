@@ -1,5 +1,6 @@
 use futures::{
     channel::{mpsc, oneshot},
+    future::{abortable, AbortHandle, Aborted},
     sink::SinkExt,
     stream::StreamExt,
     TryFutureExt,
@@ -11,7 +12,6 @@ use hyper::{
     Method, Uri,
 };
 use std::{collections::BTreeMap, future::Future, mem, net::IpAddr, str::FromStr, time::Duration};
-use talpid_core::future_cancel::{CancelErr, CancelHandle, Cancellable};
 use tokio::runtime::Handle;
 
 pub use hyper::StatusCode;
@@ -27,7 +27,7 @@ const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Request cancelled")]
-    Cancelled(CancelErr),
+    Aborted(Aborted),
 
     #[error(display = "Hyper error")]
     HyperError(#[error(source)] hyper::Error),
@@ -68,7 +68,7 @@ pub(crate) struct RequestService<C> {
     connector: C,
     handle: Handle,
     next_id: u64,
-    in_flight_requests: BTreeMap<u64, CancelHandle>,
+    in_flight_requests: BTreeMap<u64, AbortHandle>,
 }
 
 impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
@@ -107,7 +107,7 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
                 let mut tx = self.command_tx.clone();
                 let timeout = request.timeout();
 
-                let (request_future, cancel_handle) = Cancellable::new(
+                let (request_future, abort_handle) = abortable(
                     self.client
                         .request(request.into_request())
                         .map_err(Error::from),
@@ -115,7 +115,7 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
 
                 let future = async move {
                     let response =
-                        tokio::time::timeout(timeout, request_future.map_err(Error::Cancelled))
+                        tokio::time::timeout(timeout, request_future.map_err(Error::Aborted))
                             .await
                             .map_err(Error::TimeoutError);
 
@@ -131,7 +131,7 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
 
 
                 self.handle.spawn(future);
-                self.in_flight_requests.insert(id, cancel_handle);
+                self.in_flight_requests.insert(id, abort_handle);
             }
 
             RequestCommand::RequestFinished(id) => {
@@ -146,8 +146,8 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
 
     fn reset(&mut self) {
         let old_requests = mem::replace(&mut self.in_flight_requests, BTreeMap::new());
-        for (_, cancel_handle) in old_requests.into_iter() {
-            cancel_handle.cancel();
+        for (_, abort_handle) in old_requests.into_iter() {
+            abort_handle.abort();
         }
         let _ = mem::replace(&mut self.client, Self::new_client(self.connector.clone()));
         self.next_id = 0;

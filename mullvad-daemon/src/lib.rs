@@ -18,6 +18,7 @@ mod settings;
 pub mod version;
 mod version_check;
 
+use futures::future::{abortable, AbortHandle};
 use futures01::{
     future::{self, Executor},
     stream::Wait,
@@ -58,7 +59,6 @@ use std::{
 #[cfg(target_os = "linux")]
 use talpid_core::split_tunnel;
 use talpid_core::{
-    future_cancel::{CancelHandle, Cancellable},
     mpsc::Sender,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
@@ -462,7 +462,7 @@ pub struct Daemon<L: EventListener> {
     exclude_pids: split_tunnel::PidManager,
     rx: Wait<UnboundedReceiver<InternalDaemonEvent>>,
     tx: DaemonEventSender,
-    reconnection_job: Option<CancelHandle>,
+    reconnection_job: Option<AbortHandle>,
     event_listener: L,
     settings: SettingsPersister,
     account_history: account_history::AccountHistory,
@@ -948,19 +948,19 @@ where
 
     fn schedule_reconnect(&mut self, delay: Duration) {
         let tunnel_command_tx = self.tx.to_specialized_sender();
-        let (future, cancel_handle) = Cancellable::new(Box::pin(async move {
+        let (future, abort_handle) = abortable(Box::pin(async move {
             tokio02::time::delay_for(delay).await;
             log::debug!("Attempting to reconnect");
             let _ = tunnel_command_tx.send(DaemonCommand::Reconnect);
         }));
 
         self.spawn_future(future);
-        self.reconnection_job = Some(cancel_handle);
+        self.reconnection_job = Some(abort_handle);
     }
 
     fn unschedule_reconnect(&mut self) {
         if let Some(job) = self.reconnection_job.take() {
-            job.cancel();
+            job.abort();
         }
     }
 
