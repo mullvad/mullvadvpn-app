@@ -52,7 +52,7 @@ service ManagementService {
 message RelaySettingsUpdate {
 	oneof type {
 		CustomRelaySettings custom = 1;
-		NormalRelaySettings normal = 2;
+		NormalRelaySettingsUpdate normal = 2;
 	}
 }
 
@@ -66,9 +66,9 @@ message VoucherSubmission {
 }
 
 enum AfterDisconnect {
-	Nothing = 0;
-	Block = 1;
-	Reconnect = 2;
+	NOTHING = 0;
+	BLOCK = 1;
+	RECONNECT = 2;
 }
 
 message ErrorState {
@@ -94,9 +94,9 @@ message ErrorState {
 	Cause cause = 1;
 	bool is_blocking = 2;
 
-	// TODO: only if AuthFailed
+	// NOTE: only if AuthFailed
 	string auth_fail_reason = 3;
-	// TODO: only if TunnelParameterError
+	// NOTE: only if TunnelParameterError
 	GenerationError parameter_error = 4;
 }
 
@@ -241,21 +241,33 @@ message RelaySettings {
 }
 
 message NormalRelaySettings {
-	message OpenvpnConstraints {
-		// NOTE: optional
-		uint32 port = 1;
-		// NOTE: optional
-		TransportProtocol protocol = 2;
-	}
-	message WireguardConstraints {
-		// NOTE: optional
-		uint32 port = 1;
-	}
-
 	RelayLocation location = 1;
 	TunnelType tunnel_type = 2;
 	WireguardConstraints wireguard_constraints = 3;
 	OpenvpnConstraints openvpn_constraints = 4;
+}
+
+// Constraints are only updated for fields that are provided
+message NormalRelaySettingsUpdate {
+	RelayLocation location = 1;
+	TunnelTypeUpdate tunnel_type = 2;
+	WireguardConstraints wireguard_constraints = 3;
+	OpenvpnConstraints openvpn_constraints = 4;
+}
+
+message TunnelTypeUpdate {
+	TunnelType tunnel_type = 1;
+}
+
+message OpenvpnConstraints {
+	// NOTE: optional
+	uint32 port = 1;
+	// NOTE: optional
+	TransportProtocol protocol = 2;
+}
+message WireguardConstraints {
+	// NOTE: optional
+	uint32 port = 1;
 }
 
 message CustomRelaySettings {

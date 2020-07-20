@@ -10,17 +10,16 @@ use mullvad_types::relay_constraints::Constraint;
 use proto::{
     connection_config::{self, OpenvpnConfig, WireguardConfig},
     relay_settings_update,
-    normal_relay_settings::{
-        OpenvpnConstraints,
-        WireguardConstraints,
-    },
+    OpenvpnConstraints,
+    WireguardConstraints,
     ConnectionConfig,
     CustomRelaySettings,
-    NormalRelaySettings,
+    NormalRelaySettingsUpdate,
     RelayLocation,
     RelaySettingsUpdate,
     TransportProtocol,
     TunnelType,
+    TunnelTypeUpdate,
 };
 use talpid_types::net::all_of_the_internet;
 
@@ -314,9 +313,9 @@ impl Relay {
         let location_constraint = location::get_constraint(matches);
 
         self.update_constraints(RelaySettingsUpdate {
-            r#type: Some(relay_settings_update::Type::Normal(NormalRelaySettings {
+            r#type: Some(relay_settings_update::Type::Normal(NormalRelaySettingsUpdate {
                 location: Some(RelayLocation {
-                    hostname: location_constraint
+                    hostname: location_constraint,
                 }),
                 ..Default::default()
             }))
@@ -334,7 +333,7 @@ impl Relay {
                     return Err(Error::InvalidCommand("WireGuard does not support TCP"));
                 }
                 self.update_constraints(RelaySettingsUpdate {
-                    r#type: Some(relay_settings_update::Type::Normal(NormalRelaySettings {
+                    r#type: Some(relay_settings_update::Type::Normal(NormalRelaySettingsUpdate {
                         wireguard_constraints: Some(WireguardConstraints { port: port.unwrap_or(0) as u32 }),
                         ..Default::default()
                     }))
@@ -342,7 +341,7 @@ impl Relay {
             }
             "openvpn" => {
                 self.update_constraints(RelaySettingsUpdate {
-                    r#type: Some(relay_settings_update::Type::Normal(NormalRelaySettings {
+                    r#type: Some(relay_settings_update::Type::Normal(NormalRelaySettingsUpdate {
                         openvpn_constraints: Some(OpenvpnConstraints {
                             port: port.unwrap_or(0) as u32,
                             protocol: protocol.unwrap_or(TransportProtocol::AnyProtocol) as i32,
@@ -363,8 +362,10 @@ impl Relay {
             _ => unreachable!(),
         };
         self.update_constraints(RelaySettingsUpdate {
-            r#type: Some(relay_settings_update::Type::Normal(NormalRelaySettings {
-                tunnel_type: tunnel_type as i32,
+            r#type: Some(relay_settings_update::Type::Normal(NormalRelaySettingsUpdate {
+                tunnel_type: Some(TunnelTypeUpdate {
+                    tunnel_type: tunnel_type as i32,
+                }),
                 ..Default::default()
             }))
         }).await
