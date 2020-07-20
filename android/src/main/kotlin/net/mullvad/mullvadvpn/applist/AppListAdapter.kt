@@ -6,9 +6,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.service.SplitTunnelling
 import net.mullvad.mullvadvpn.util.JobTracker
 
-class AppListAdapter(context: Context) : Adapter<AppListItemHolder>() {
+class AppListAdapter(
+    context: Context,
+    private val splitTunnelling: SplitTunnelling
+) : Adapter<AppListItemHolder>() {
     private val appList = ArrayList<AppInfo>()
     private val jobTracker = JobTracker()
     private val packageManager = context.packageManager
@@ -41,7 +45,7 @@ class AppListAdapter(context: Context) : Adapter<AppListItemHolder>() {
         val inflater = LayoutInflater.from(parentView.context)
         val view = inflater.inflate(R.layout.app_list_item, parentView, false)
 
-        return AppListItemHolder(packageManager, jobTracker, view)
+        return AppListItemHolder(splitTunnelling, packageManager, jobTracker, view)
     }
 
     override fun onBindViewHolder(holder: AppListItemHolder, position: Int) {

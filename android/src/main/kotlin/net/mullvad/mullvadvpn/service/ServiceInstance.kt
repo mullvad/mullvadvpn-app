@@ -6,7 +6,8 @@ class ServiceInstance(
     val daemon: MullvadDaemon,
     val connectionProxy: ConnectionProxy,
     val connectivityListener: ConnectivityListener,
-    val settingsListener: SettingsListener
+    val settingsListener: SettingsListener,
+    val splitTunnelling: SplitTunnelling
 ) {
     val accountCache = AccountCache(daemon, settingsListener)
     val keyStatusListener = KeyStatusListener(daemon)

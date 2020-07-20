@@ -16,6 +16,9 @@ open class TalpidVpnService : VpnService() {
     }
 
     private var currentTunConfig = defaultTunConfig()
+    private var tunIsStale = false
+
+    protected var disallowedApps: List<String>? = null
 
     val connectivityListener = ConnectivityListener()
 
@@ -31,13 +34,14 @@ open class TalpidVpnService : VpnService() {
         synchronized(this) {
             val tunDevice = activeTunDevice
 
-            if (config == currentTunConfig && tunDevice != null) {
+            if (config == currentTunConfig && tunDevice != null && !tunIsStale) {
                 return tunDevice
             } else {
                 val newTunDevice = createTun(config)
 
                 currentTunConfig = config
                 activeTunDevice = newTunDevice
+                tunIsStale = false
 
                 return newTunDevice
             }
@@ -73,6 +77,12 @@ open class TalpidVpnService : VpnService() {
         }
     }
 
+    fun markTunAsStale() {
+        synchronized(this) {
+            tunIsStale = true
+        }
+    }
+
     private fun createTun(config: TunConfig): Int {
         if (VpnService.prepare(this) != null) {
             // VPN permission wasn't granted
@@ -90,6 +100,12 @@ open class TalpidVpnService : VpnService() {
 
             for (route in config.routes) {
                 addRoute(route.address, route.prefixLength.toInt())
+            }
+
+            disallowedApps?.let { apps ->
+                for (app in apps) {
+                    addDisallowedApplication(app)
+                }
             }
 
             setMtu(config.mtu)

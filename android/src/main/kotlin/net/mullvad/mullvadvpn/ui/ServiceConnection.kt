@@ -12,6 +12,7 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     val keyStatusListener = service.keyStatusListener
     val locationInfoCache = service.locationInfoCache
     val settingsListener = service.settingsListener
+    val splitTunnelling = service.splitTunnelling
 
     val appVersionInfoCache = AppVersionInfoCache(mainActivity, daemon, settingsListener)
     var relayListListener = RelayListListener(daemon, settingsListener)

@@ -8,10 +8,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.service.SplitTunnelling
 import net.mullvad.mullvadvpn.ui.CellSwitch
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class AppListItemHolder(
+    private val splitTunnelling: SplitTunnelling,
     private val packageManager: PackageManager,
     private val jobTracker: JobTracker,
     view: View
@@ -33,6 +35,12 @@ class AppListItemHolder(
                 hideIcon()
                 loadIcon(info)
             }
+
+            if (splitTunnelling.isAppExcluded(info.info.packageName)) {
+                excluded.forcefullySetState(CellSwitch.State.ON)
+            } else {
+                excluded.forcefullySetState(CellSwitch.State.OFF)
+            }
         } else {
             name.text = ""
             hideIcon()
@@ -42,6 +50,15 @@ class AppListItemHolder(
     init {
         view.setOnClickListener {
             excluded.toggle()
+        }
+
+        excluded.listener = { state ->
+            appInfo?.info?.packageName?.let { app ->
+                when (state) {
+                    CellSwitch.State.ON -> splitTunnelling.excludeApp(app)
+                    CellSwitch.State.OFF -> splitTunnelling.includeApp(app)
+                }
+            }
         }
     }
 

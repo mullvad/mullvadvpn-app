@@ -52,7 +52,7 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        appListAdapter = AppListAdapter(context)
+        appListAdapter = AppListAdapter(context, splitTunnelling)
     }
 
     override fun onSafelyCreateView(
@@ -133,10 +133,12 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
 
         excludeApplications.visibility = View.VISIBLE
         excludeApplicationsFadeOut.reverse()
+        splitTunnelling.enabled = true
     }
 
     private fun disable() {
         appListAdapter.enabled = false
+        splitTunnelling.enabled = false
         excludeApplicationsFadeOut.start()
     }
 
