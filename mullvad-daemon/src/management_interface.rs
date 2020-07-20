@@ -14,6 +14,7 @@ use mullvad_types::{
 };
 use parking_lot::RwLock;
 use std::{
+    io,
     str::FromStr,
     sync::{Arc, mpsc},
 };
@@ -37,6 +38,16 @@ use tonic::{
     transport::{server::Connected, Server},
     Request, Response,
 };
+
+#[derive(err_derive::Error, Debug)]
+#[error(no_from)]
+pub enum Error {
+    #[error(display = "Unable to start management interface server")]
+    SetupError(tonic::transport::Error),
+
+    #[error(display = "Unable to set permissions for IPC endpoint")]
+    PermissionsError(#[error(source)] io::Error),
+}
 
 struct ManagementServiceImpl {
     daemon_tx: DaemonCommandSender,
@@ -1192,7 +1203,7 @@ impl ManagementInterfaceServer {
             .await
     }
 
-    pub fn start(tunnel_tx: DaemonCommandSender) -> Result<Self, tonic::transport::Error> {
+    pub fn start(tunnel_tx: DaemonCommandSender) -> Result<Self, Error> {
         // TODO: don't spawn a tokio runtime here; make this function async
         let runtime = tokio02::runtime::Builder::new()
             .threaded_scheduler()
@@ -1229,6 +1240,16 @@ impl ManagementInterfaceServer {
             // FIXME
             panic!("start_rx failed");
         }
+
+        #[cfg(unix)]
+        {
+            use std::{fs, os::unix::fs::PermissionsExt};
+            fs::set_permissions(&socket_path, PermissionsExt::from_mode(0o766))
+                .map_err(Error::PermissionsError)?;
+        }
+        #[cfg(windows)]
+        crate::windows_permissions::deny_network_access(&socket_path)
+            .map_err(Error::PermissionsError)?;
 
         Ok(ManagementInterfaceServer {
             subscriptions,
