@@ -29,6 +29,9 @@ Line wrap the file at 100 chars.                                              Th
 - Reconnect with a new key when WireGuard key is rotated automatically, previously the tunnel would
   time out before reconnecting.
 
+#### Android
+- Add split-tunnelling, allowing apps to be configured to be excluded from the tunnel.
+
 ### Changed
 - Upgrade from Electron 7 to Electron 8.
 - Change version string parsing to never suggest the user to upgrade to an older version.
