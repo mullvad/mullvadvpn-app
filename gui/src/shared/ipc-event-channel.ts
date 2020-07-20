@@ -6,6 +6,7 @@ import { IGuiSettingsState } from './gui-settings-state';
 
 import { ICurrentAppVersionInfo } from '../main/index';
 import { IWindowShapeParameters } from '../main/window-controller';
+import ISplitTunnelingApplication from '../shared/linux-split-tunneling-application';
 import {
   AccountToken,
   BridgeSettings,
@@ -151,6 +152,18 @@ interface IWireguardKeyHandlers extends ISender<IWireguardPublicKey | undefined>
   handleVerifyKey(fn: () => Promise<boolean>): void;
 }
 
+interface ISplitTunnelingMethods {
+  getApplications(): Promise<ISplitTunnelingApplication[]>;
+  launchApplication(application: ISplitTunnelingApplication | string): Promise<void>;
+}
+
+interface ISplitTunnelingHandlers {
+  handleGetApplications(fn: () => Promise<ISplitTunnelingApplication[]>): void;
+  handleLaunchApplication(
+    fn: (application: ISplitTunnelingApplication | string) => Promise<void>,
+  ): void;
+}
+
 /// Events names
 
 const LOCALE_CHANGED = 'locale-changed';
@@ -206,6 +219,9 @@ const WIREGUARD_KEY_SET = 'wireguard-key-change-event';
 const WIREGUARD_KEYGEN_EVENT = 'wireguard-keygen-event';
 const GENERATE_WIREGUARD_KEY = 'generate-wireguard-key';
 const VERIFY_WIREGUARD_KEY = 'verify-wireguard-key';
+
+const SPLIT_TUNNELING_GET_APPLICATIONS = 'split-tunneling-get-applications';
+const SPLIT_TUNNELING_LAUNCH_APPLICATION = 'split-tunneling-launch-application';
 
 /// Typed IPC event channel
 ///
@@ -306,6 +322,11 @@ export class IpcRendererEventChannel {
     generateKey: requestSender(GENERATE_WIREGUARD_KEY),
     verifyKey: requestSender(VERIFY_WIREGUARD_KEY),
   };
+
+  public static splitTunneling: ISplitTunnelingMethods = {
+    getApplications: requestSender(SPLIT_TUNNELING_GET_APPLICATIONS),
+    launchApplication: requestSender(SPLIT_TUNNELING_LAUNCH_APPLICATION),
+  };
 }
 
 export class IpcMainEventChannel {
@@ -402,6 +423,11 @@ export class IpcMainEventChannel {
     notifyKeygenEvent: sender<KeygenEvent>(WIREGUARD_KEYGEN_EVENT),
     handleGenerateKey: requestHandler(GENERATE_WIREGUARD_KEY),
     handleVerifyKey: requestHandler(VERIFY_WIREGUARD_KEY),
+  };
+
+  public static splitTunneling: ISplitTunnelingHandlers = {
+    handleGetApplications: requestHandler(SPLIT_TUNNELING_GET_APPLICATIONS),
+    handleLaunchApplication: requestHandler(SPLIT_TUNNELING_LAUNCH_APPLICATION),
   };
 }
 
