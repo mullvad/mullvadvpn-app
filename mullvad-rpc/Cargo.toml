@@ -28,7 +28,6 @@ webpki = { version = "0.21", features =  [] }
 
 mullvad-types = { path = "../mullvad-types" }
 talpid-types = { path = "../talpid-types" }
-talpid-core = { path = "../talpid-core" }
 
 [dev-dependencies]
 filetime = "0.2"
