@@ -15,8 +15,8 @@
     ],
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2017",
-    "lib": ["es2017", "dom"],
+    "target": "es2020",
+    "lib": ["es2020", "dom"],
     "typeRoots": [
       "./types",
       "node_modules/@types"
