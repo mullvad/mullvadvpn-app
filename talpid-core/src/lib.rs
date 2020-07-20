@@ -48,9 +48,6 @@ pub mod tunnel_state_machine;
 /// Future utilities
 pub mod future_retry;
 
-/// Cancel a future remotely
-pub mod future_cancel;
-
 #[cfg(not(target_os = "android"))]
 /// Internal code for managing bundled proxy software.
 mod proxy;
