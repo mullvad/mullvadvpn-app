@@ -1,9 +1,9 @@
-use crate::{BoxFuture, DaemonCommand, DaemonCommandSender, EventListener};
+use crate::{DaemonCommand, DaemonCommandSender, EventListener};
 use futures01::{future, sync, Future};
 use mullvad_paths;
 use mullvad_rpc::{rest::Error as RestError, StatusCode};
 use mullvad_types::{
-    account::{AccountData, AccountToken, VoucherSubmission},
+    account::AccountToken,
     ConnectionConfig,
     location::GeoIpLocation,
     relay_constraints::{BridgeSettings, BridgeConstraints, BridgeState, Constraint, LocationConstraint, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate, TunnelProtocol,
@@ -13,17 +13,16 @@ use mullvad_types::{
     relay_list::{Relay, RelayList, RelayListCountry},
     settings::{Settings, TunnelOptions},
     states::{TargetState, TunnelState},
-    version, wireguard, DaemonEvent,
+    version, wireguard,
 };
 use parking_lot::RwLock;
 use std::{
     io,
-    net::SocketAddr,
     str::FromStr,
     sync::{Arc, mpsc},
 };
 use talpid_types::{ErrorExt, net::TransportProtocol};
-use futures::{Future as NewFuture, compat::Future01CompatExt};
+use futures::compat::Future01CompatExt;
 
 pub const INVALID_VOUCHER_CODE: i64 = -400;
 pub const VOUCHER_USED_ALREADY_CODE: i64 = -401;
@@ -1297,7 +1296,7 @@ pub struct ManagementInterfaceServer {
     subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
     socket_path: String,
     runtime: tokio02::runtime::Runtime,
-    server_abort_tx: triggered::Trigger,
+    _server_abort_tx: triggered::Trigger,
     server_join_handle: Option<tokio02::task::JoinHandle<std::result::Result<(), tonic::transport::Error>>>,
 }
 
@@ -1338,8 +1337,7 @@ impl ManagementInterfaceServer {
             .build()
             .map_err(Error::TokioRuntimeError)?;
 
-        let rpc = ManagementInterface::new(tunnel_tx.clone());
-        let subscriptions = rpc.subscriptions.clone();
+        let subscriptions = Arc::<RwLock<Vec<EventsListenerSender>>>::default();
 
         let socket_path = mullvad_paths::get_rpc_socket_path().to_string_lossy().to_string();
 
@@ -1375,7 +1373,7 @@ impl ManagementInterfaceServer {
             subscriptions,
             socket_path: socket_path.to_string(),
             runtime,
-            server_abort_tx,
+            _server_abort_tx: server_abort_tx,
             server_join_handle: Some(server_join_handle),
         })
     }
@@ -1472,39 +1470,23 @@ impl Drop for ManagementInterfaceEventBroadcaster {
     }
 }
 
-struct ManagementInterface {
-    // TODO: use a sender here instead of pubsub
-    //subscriptions: Arc<RwLock<HashMap<SubscriptionId, pubsub::Sink<DaemonEvent>>>>,
-    subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
-    tx: DaemonCommandSender,
-}
-
-impl ManagementInterface {
-    pub fn new(tx: DaemonCommandSender) -> Self {
-        ManagementInterface {
-            subscriptions: Default::default(),
-            tx,
-        }
-    }
-
-    /*
-    /// Converts a REST API error for an account into a JSONRPC error for the JSONRPC client.
-    fn map_rest_account_error(error: RestError) -> Error {
-        match error {
-            RestError::ApiError(status, message)
-                if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN =>
-            {
-                Error {
-                    code: ErrorCode::from(INVALID_ACCOUNT_CODE),
-                    message,
-                    data: None,
-                }
+/*
+/// Converts a REST API error for an account into a JSONRPC error for the JSONRPC client.
+fn map_rest_account_error(error: RestError) -> Error {
+    match error {
+        RestError::ApiError(status, message)
+            if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN =>
+        {
+            Error {
+                code: ErrorCode::from(INVALID_ACCOUNT_CODE),
+                message,
+                data: None,
             }
-            _ => Error::internal_error(),
         }
+        _ => Error::internal_error(),
     }
-    */
 }
+*/
 
 
 // FIXME
