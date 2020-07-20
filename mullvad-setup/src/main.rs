@@ -1,5 +1,5 @@
 use clap::{crate_authors, crate_description, crate_name, SubCommand};
-use std::{io, process};
+use std::process;
 use talpid_core::firewall::{self, Firewall, FirewallArguments};
 use talpid_types::ErrorExt;
 use parity_tokio_ipc::Endpoint as IpcEndpoint;
