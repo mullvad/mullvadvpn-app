@@ -52,7 +52,8 @@ impl Lan {
 
     async fn get(&self) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let allow_lan = rpc.get_settings(())
+        let allow_lan = rpc
+            .get_settings(())
             .await
             .map_err(Error::GrpcClientError)?
             .into_inner()

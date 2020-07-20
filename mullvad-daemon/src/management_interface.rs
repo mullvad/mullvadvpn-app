@@ -1,28 +1,31 @@
 use crate::{DaemonCommand, DaemonCommandSender, EventListener};
+use futures::compat::Future01CompatExt;
 use futures01::{future, sync, Future};
 use mullvad_paths;
 use mullvad_rpc::{rest::Error as RestError, StatusCode};
 use mullvad_types::{
     account::AccountToken,
-    ConnectionConfig,
     location::GeoIpLocation,
-    relay_constraints::{BridgeSettings, BridgeConstraints, BridgeState, Constraint, LocationConstraint, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
-        OpenVpnConstraints,
+    relay_constraints::{
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
+        OpenVpnConstraints, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
         WireguardConstraints,
     },
     relay_list::{Relay, RelayList, RelayListCountry},
     settings::{Settings, TunnelOptions},
     states::{TargetState, TunnelState},
-    version, wireguard,
+    version, wireguard, ConnectionConfig,
 };
 use parking_lot::RwLock;
 use std::{
     io,
     str::FromStr,
-    sync::{Arc, mpsc},
+    sync::{mpsc, Arc},
 };
-use talpid_types::{net::{TransportProtocol, TunnelType}, ErrorExt};
-use futures::compat::Future01CompatExt;
+use talpid_types::{
+    net::{TransportProtocol, TunnelType},
+    ErrorExt,
+};
 
 pub const INVALID_VOUCHER_CODE: i64 = -400;
 pub const VOUCHER_USED_ALREADY_CODE: i64 = -401;
@@ -33,8 +36,10 @@ mod proto {
     tonic::include_proto!("mullvad_daemon.management_interface");
 }
 
-use proto::daemon_event::Event as DaemonEventType;
-use proto::management_service_server::{ManagementService, ManagementServiceServer};
+use proto::{
+    daemon_event::Event as DaemonEventType,
+    management_service_server::{ManagementService, ManagementServiceServer},
+};
 
 use tonic::{
     self,
@@ -55,7 +60,7 @@ pub enum Error {
 
     // Unable to start the tokio runtime
     #[error(display = "Failed to create the tokio runtime")]
-    TokioRuntimeError(#[error(source)] tokio02::io::Error)
+    TokioRuntimeError(#[error(source)] tokio02::io::Error),
 }
 
 struct ManagementServiceImpl {
@@ -64,13 +69,17 @@ struct ManagementServiceImpl {
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, tonic::Status>;
-type EventsListenerReceiver = tokio02::sync::mpsc::UnboundedReceiver<Result<proto::DaemonEvent, tonic::Status>>;
-type EventsListenerSender = tokio02::sync::mpsc::UnboundedSender<Result<proto::DaemonEvent, tonic::Status>>;
+type EventsListenerReceiver =
+    tokio02::sync::mpsc::UnboundedReceiver<Result<proto::DaemonEvent, tonic::Status>>;
+type EventsListenerSender =
+    tokio02::sync::mpsc::UnboundedSender<Result<proto::DaemonEvent, tonic::Status>>;
 
 #[tonic::async_trait]
 impl ManagementService for ManagementServiceImpl {
-    type GetRelayLocationsStream = tokio02::sync::mpsc::Receiver<Result<proto::RelayListCountry, tonic::Status>>;
-    type GetSplitTunnelProcessesStream = tokio02::sync::mpsc::UnboundedReceiver<Result<i32, tonic::Status>>;
+    type GetRelayLocationsStream =
+        tokio02::sync::mpsc::Receiver<Result<proto::RelayListCountry, tonic::Status>>;
+    type GetSplitTunnelProcessesStream =
+        tokio02::sync::mpsc::UnboundedReceiver<Result<i32, tonic::Status>>;
     type EventsListenStream = EventsListenerReceiver;
 
     async fn create_new_account(&self, _: Request<()>) -> ServiceResult<String> {
@@ -87,7 +96,7 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn get_account_data(
         &self,
-        request: Request<AccountToken>
+        request: Request<AccountToken>,
     ) -> ServiceResult<proto::AccountData> {
         log::debug!("get_account_data");
         let account_token = request.into_inner();
@@ -96,24 +105,24 @@ impl ManagementService for ManagementServiceImpl {
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
             .and_then(|rpc_future| {
                 rpc_future
-                .map(|account_data| {
-                    Response::new(proto::AccountData {
-                        expiry: Some(prost_types::Timestamp {
-                            seconds: account_data.expiry.timestamp(),
-                            nanos: 0,
-                        }),
+                    .map(|account_data| {
+                        Response::new(proto::AccountData {
+                            expiry: Some(prost_types::Timestamp {
+                                seconds: account_data.expiry.timestamp(),
+                                nanos: 0,
+                            }),
+                        })
                     })
-                })
-                .map_err(|error: RestError| {
-                    log::error!(
-                        "Unable to get account data from API: {}",
-                        error.display_chain()
-                    );
+                    .map_err(|error: RestError| {
+                        log::error!(
+                            "Unable to get account data from API: {}",
+                            error.display_chain()
+                        );
 
-                    // FIXME: map this to the correct error code
-                    // see `map_rest_account_error`
-                    tonic::Status::internal("internal error")
-                })
+                        // FIXME: map this to the correct error code
+                        // see `map_rest_account_error`
+                        tonic::Status::internal("internal error")
+                    })
             })
             .compat()
             .await
@@ -126,16 +135,16 @@ impl ManagementService for ManagementServiceImpl {
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
             .and_then(|rpc_future| {
                 rpc_future
-                .map(Response::new)
-                .map_err(|error: mullvad_rpc::rest::Error| {
-                    log::error!(
-                        "Unable to get account data from API: {}",
-                        error.display_chain()
-                    );
-                    // FIXME: map this to the correct error code
-                    // see `map_rest_account_error`
-                    tonic::Status::internal("internal error")
-                })
+                    .map(Response::new)
+                    .map_err(|error: mullvad_rpc::rest::Error| {
+                        log::error!(
+                            "Unable to get account data from API: {}",
+                            error.display_chain()
+                        );
+                        // FIXME: map this to the correct error code
+                        // see `map_rest_account_error`
+                        tonic::Status::internal("internal error")
+                    })
             })
             .compat()
             .await
@@ -151,8 +160,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::SubmitVoucher(tx, voucher))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
             .and_then(|f| {
-                f
-                .map(|submission| {
+                f.map(|submission| {
                     Response::new(proto::VoucherSubmission {
                         time_added: submission.time_added,
                         new_expiry: Some(prost_types::Timestamp {
@@ -164,22 +172,18 @@ impl ManagementService for ManagementServiceImpl {
                 .map_err(|e| match e {
                     RestError::ApiError(StatusCode::BAD_REQUEST, message) => {
                         match &message.as_str() {
-
                             // FIXME: return other error codes
-                            /*
-                            &mullvad_rpc::INVALID_VOUCHER => Error {
-                                code: ErrorCode::from(INVALID_VOUCHER_CODE),
-                                message,
-                                data: None,
-                            },
-
-                            &mullvad_rpc::VOUCHER_USED => Error {
-                                code: ErrorCode::from(VOUCHER_USED_ALREADY_CODE),
-                                message,
-                                data: None,
-                            },
-                            */
-
+                            // &mullvad_rpc::INVALID_VOUCHER => Error {
+                            // code: ErrorCode::from(INVALID_VOUCHER_CODE),
+                            // message,
+                            // data: None,
+                            // },
+                            //
+                            // &mullvad_rpc::VOUCHER_USED => Error {
+                            // code: ErrorCode::from(VOUCHER_USED_ALREADY_CODE),
+                            // message,
+                            // data: None,
+                            // },
                             _ => tonic::Status::internal("internal error"),
                         }
                     }
@@ -190,11 +194,15 @@ impl ManagementService for ManagementServiceImpl {
             .await
     }
 
-    async fn get_relay_locations(&self, _: Request<()>) -> ServiceResult<Self::GetRelayLocationsStream> {
+    async fn get_relay_locations(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<Self::GetRelayLocationsStream> {
         log::debug!("get_relay_locations");
 
         let (tx, rx) = sync::oneshot::channel();
-        let locations = self.send_command_to_daemon(DaemonCommand::GetRelayLocations(tx))
+        let locations = self
+            .send_command_to_daemon(DaemonCommand::GetRelayLocations(tx))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
             .compat()
             .await?;
@@ -203,7 +211,10 @@ impl ManagementService for ManagementServiceImpl {
 
         tokio02::spawn(async move {
             for country in &locations.countries {
-                stream_tx.send(Ok(convert_relay_list_country(country))).await.unwrap();
+                stream_tx
+                    .send(Ok(convert_relay_list_country(country)))
+                    .await
+                    .unwrap();
             }
         });
 
@@ -212,13 +223,13 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn update_relay_locations(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("update_relay_locations");
-        self.send_command_to_daemon(DaemonCommand::UpdateRelayLocations).compat().await.map(Response::new)
+        self.send_command_to_daemon(DaemonCommand::UpdateRelayLocations)
+            .compat()
+            .await
+            .map(Response::new)
     }
 
-    async fn set_account(
-        &self,
-        request: Request<AccountToken>,
-    ) -> ServiceResult<()> {
+    async fn set_account(&self, request: Request<AccountToken>) -> ServiceResult<()> {
         log::debug!("set_account");
         let account_token = request.into_inner();
         let account_token = if account_token == "" {
@@ -228,7 +239,10 @@ impl ManagementService for ManagementServiceImpl {
         };
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetAccount(tx, account_token))
-            .and_then(|_| rx.map(Response::new).map_err(|_| tonic::Status::internal("internal error")))
+            .and_then(|_| {
+                rx.map(Response::new)
+                    .map_err(|_| tonic::Status::internal("internal error"))
+            })
             .compat()
             .await
     }
@@ -271,21 +285,18 @@ impl ManagementService for ManagementServiceImpl {
             .await
     }
 
-    async fn set_block_when_disconnected(
-        &self,
-        request: Request<bool>,
-    ) -> ServiceResult<()> {
+    async fn set_block_when_disconnected(&self, request: Request<bool>) -> ServiceResult<()> {
         let block_when_disconnected = request.into_inner();
         log::debug!("set_block_when_disconnected({})", block_when_disconnected);
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetBlockWhenDisconnected(
-                tx,
-                block_when_disconnected,
-            ))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(Response::new)
-            .compat()
-            .await
+            tx,
+            block_when_disconnected,
+        ))
+        .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+        .map(Response::new)
+        .compat()
+        .await
     }
 
     async fn set_auto_connect(&self, request: Request<bool>) -> ServiceResult<()> {
@@ -328,7 +339,10 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn reconnect(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("reconnect");
-        self.send_command_to_daemon(DaemonCommand::Reconnect).map(Response::new).compat().await
+        self.send_command_to_daemon(DaemonCommand::Reconnect)
+            .map(Response::new)
+            .compat()
+            .await
     }
 
     async fn get_state(&self, _: Request<()>) -> ServiceResult<proto::TunnelState> {
@@ -357,11 +371,13 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetCurrentLocation(tx))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .and_then(|geoip| if let Some(geoip) = geoip {
-                Ok(Response::new(convert_geoip_location(geoip)))
-            } else {
-                // FIXME: handle error properly
-                Err(tonic::Status::internal("internal error"))
+            .and_then(|geoip| {
+                if let Some(geoip) = geoip {
+                    Ok(Response::new(convert_geoip_location(geoip)))
+                } else {
+                    // FIXME: handle error properly
+                    Err(tonic::Status::internal("internal error"))
+                }
             })
             .compat()
             .await
@@ -369,30 +385,34 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn shutdown(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("shutdown");
-        self.send_command_to_daemon(DaemonCommand::Shutdown).map(Response::new).compat().await
+        self.send_command_to_daemon(DaemonCommand::Shutdown)
+            .map(Response::new)
+            .compat()
+            .await
     }
 
     async fn prepare_restart(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("prepare_restart");
-        self.send_command_to_daemon(DaemonCommand::PrepareRestart).map(Response::new).compat().await
+        self.send_command_to_daemon(DaemonCommand::PrepareRestart)
+            .map(Response::new)
+            .compat()
+            .await
     }
-    
+
     async fn get_account_history(&self, _: Request<()>) -> ServiceResult<proto::AccountHistory> {
         // TODO: this might be a stream
         log::debug!("get_account_history");
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetAccountHistory(tx))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(|history| Response::new(proto::AccountHistory {
-                token: history
-            }))
+            .map(|history| Response::new(proto::AccountHistory { token: history }))
             .compat()
             .await
     }
 
     async fn remove_account_from_history(
         &self,
-        request: Request<AccountToken>
+        request: Request<AccountToken>,
     ) -> ServiceResult<()> {
         log::debug!("remove_account_from_history");
         let account_token = request.into_inner();
@@ -419,12 +439,18 @@ impl ManagementService for ManagementServiceImpl {
             .compat()
             .await
     }
-    
-    async fn set_bridge_settings(&self, request: Request<proto::BridgeSettings>) -> ServiceResult<()> {
-        use talpid_types::net;
-        use proto::bridge_settings::Type as BridgeSettingType;
 
-        let settings = request.into_inner().r#type.ok_or(tonic::Status::invalid_argument("no settings provided"))?;
+    async fn set_bridge_settings(
+        &self,
+        request: Request<proto::BridgeSettings>,
+    ) -> ServiceResult<()> {
+        use proto::bridge_settings::Type as BridgeSettingType;
+        use talpid_types::net;
+
+        let settings = request
+            .into_inner()
+            .r#type
+            .ok_or(tonic::Status::invalid_argument("no settings provided"))?;
 
         let settings = match settings {
             BridgeSettingType::Normal(constraints) => {
@@ -444,50 +470,59 @@ impl ManagementService for ManagementServiceImpl {
                                 hostname[1].clone(),
                                 hostname[2].clone(),
                             )),
-                            _ => return Err(tonic::Status::invalid_argument("expected 1-3 elements")),
+                            _ => {
+                                return Err(tonic::Status::invalid_argument(
+                                    "expected 1-3 elements",
+                                ))
+                            }
                         }
                     }
                 };
 
                 BridgeSettings::Normal(BridgeConstraints {
-                    location: constraint
+                    location: constraint,
                 })
             }
             BridgeSettingType::Local(proxy_settings) => {
-                let peer = proxy_settings.peer.parse().map_err(|_| {
-                    tonic::Status::invalid_argument("failed to parse peer address")
-                })?;
-                let proxy_settings = net::openvpn::ProxySettings::Local(net::openvpn::LocalProxySettings {
-                    port: proxy_settings.port as u16,
-                    peer,
-                });
+                let peer = proxy_settings
+                    .peer
+                    .parse()
+                    .map_err(|_| tonic::Status::invalid_argument("failed to parse peer address"))?;
+                let proxy_settings =
+                    net::openvpn::ProxySettings::Local(net::openvpn::LocalProxySettings {
+                        port: proxy_settings.port as u16,
+                        peer,
+                    });
                 BridgeSettings::Custom(proxy_settings)
             }
             BridgeSettingType::Remote(proxy_settings) => {
-                let address = proxy_settings.address.parse().map_err(|_| {
-                    tonic::Status::invalid_argument("failed to parse IP address")
-                })?;
-                let auth = proxy_settings.auth.map(|auth| {
-                    net::openvpn::ProxyAuth {
-                        username: auth.username,
-                        password: auth.password,
-                    }
+                let address = proxy_settings
+                    .address
+                    .parse()
+                    .map_err(|_| tonic::Status::invalid_argument("failed to parse IP address"))?;
+                let auth = proxy_settings.auth.map(|auth| net::openvpn::ProxyAuth {
+                    username: auth.username,
+                    password: auth.password,
                 });
-                let proxy_settings = net::openvpn::ProxySettings::Remote(net::openvpn::RemoteProxySettings {
-                    address,
-                    auth,
-                });
+                let proxy_settings =
+                    net::openvpn::ProxySettings::Remote(net::openvpn::RemoteProxySettings {
+                        address,
+                        auth,
+                    });
                 BridgeSettings::Custom(proxy_settings)
             }
             BridgeSettingType::Shadowsocks(proxy_settings) => {
-                let peer = proxy_settings.peer.parse().map_err(|_| {
-                    tonic::Status::invalid_argument("failed to parse peer address")
-                })?;
-                let proxy_settings = net::openvpn::ProxySettings::Shadowsocks(net::openvpn::ShadowsocksProxySettings {
-                    peer,
-                    password: proxy_settings.password,
-                    cipher: proxy_settings.cipher,
-                });
+                let peer = proxy_settings
+                    .peer
+                    .parse()
+                    .map_err(|_| tonic::Status::invalid_argument("failed to parse peer address"))?;
+                let proxy_settings = net::openvpn::ProxySettings::Shadowsocks(
+                    net::openvpn::ShadowsocksProxySettings {
+                        peer,
+                        password: proxy_settings.password,
+                        cipher: proxy_settings.cipher,
+                    },
+                );
                 BridgeSettings::Custom(proxy_settings)
             }
         };
@@ -497,16 +532,15 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetBridgeSettings(tx, settings))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .and_then(|settings_result| settings_result.map_err(|_| tonic::Status::internal("internal error")))
+            .and_then(|settings_result| {
+                settings_result.map_err(|_| tonic::Status::internal("internal error"))
+            })
             .map(Response::new)
             .compat()
             .await
     }
-    
-    async fn set_bridge_state(
-        &self,
-        request: Request<proto::BridgeState>,
-    ) -> ServiceResult<()> {
+
+    async fn set_bridge_state(&self, request: Request<proto::BridgeState>) -> ServiceResult<()> {
         use proto::bridge_state::State;
 
         let bridge_state = match request.into_inner().state {
@@ -520,7 +554,9 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetBridgeState(tx, bridge_state))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .and_then(|settings_result| settings_result.map_err(|_| tonic::Status::internal("internal error")))
+            .and_then(|settings_result| {
+                settings_result.map_err(|_| tonic::Status::internal("internal error"))
+            })
             .map(Response::new)
             .compat()
             .await
@@ -536,14 +572,10 @@ impl ManagementService for ManagementServiceImpl {
             .compat()
             .await
     }
-    
+
     async fn set_wireguard_mtu(&self, request: Request<u32>) -> ServiceResult<()> {
         let mtu = request.into_inner();
-        let mtu = if mtu != 0 {
-            Some(mtu as u16)
-        } else {
-            None
-        };
+        let mtu = if mtu != 0 { Some(mtu as u16) } else { None };
         log::debug!("set_wireguard_mtu({:?})", mtu);
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetWireguardMtu(tx, mtu))
@@ -556,12 +588,8 @@ impl ManagementService for ManagementServiceImpl {
     async fn set_wireguard_rotation_interval(&self, request: Request<u32>) -> ServiceResult<()> {
         // FIXME: distinguish between disabled and unset
         let interval = request.into_inner();
-        let interval = if interval != 0 {
-            Some(interval)
-        } else {
-            None
-        };
-        
+        let interval = if interval != 0 { Some(interval) } else { None };
+
         log::debug!("set_wireguard_rotation_interval({:?})", interval);
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetWireguardRotationInterval(tx, interval))
@@ -581,10 +609,7 @@ impl ManagementService for ManagementServiceImpl {
             .await
     }
 
-    async fn generate_wireguard_key(
-        &self,
-        _: Request<()>,
-    ) -> ServiceResult<proto::KeygenEvent> {
+    async fn generate_wireguard_key(&self, _: Request<()>) -> ServiceResult<proto::KeygenEvent> {
         // TODO: return error for TooManyKeys, GenerationFailure
         // on success, simply return the new key or nil
         log::debug!("generate_wireguard_key");
@@ -596,10 +621,7 @@ impl ManagementService for ManagementServiceImpl {
             .await
     }
 
-    async fn get_wireguard_key(
-        &self,
-        _: Request<()>,
-    ) -> ServiceResult<proto::PublicKey> {
+    async fn get_wireguard_key(&self, _: Request<()>) -> ServiceResult<proto::PublicKey> {
         // FIXME: optional return
         log::debug!("get_wireguard_key");
         let (tx, rx) = sync::oneshot::channel();
@@ -634,7 +656,8 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("get_version_info");
 
         let (tx, rx) = sync::oneshot::channel();
-        let app_version_info = self.send_command_to_daemon(DaemonCommand::GetVersionInfo(tx))
+        let app_version_info = self
+            .send_command_to_daemon(DaemonCommand::GetVersionInfo(tx))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
             .compat()
             .await?;
@@ -659,12 +682,16 @@ impl ManagementService for ManagementServiceImpl {
         }
     }
 
-    async fn get_split_tunnel_processes(&self, _: Request<()>) -> ServiceResult<Self::GetSplitTunnelProcessesStream> {
+    async fn get_split_tunnel_processes(
+        &self,
+        _: Request<()>,
+    ) -> ServiceResult<Self::GetSplitTunnelProcessesStream> {
         #[cfg(target_os = "linux")]
         {
             log::debug!("get_split_tunnel_processes");
             let (tx, rx) = sync::oneshot::channel();
-            let pids = self.send_command_to_daemon(DaemonCommand::GetSplitTunnelProcesses(tx))
+            let pids = self
+                .send_command_to_daemon(DaemonCommand::GetSplitTunnelProcesses(tx))
                 .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
                 .compat()
                 .await?;
@@ -750,7 +777,11 @@ impl ManagementServiceImpl {
         &self,
         command: DaemonCommand,
     ) -> impl Future<Item = (), Error = tonic::Status> {
-        future::result(self.daemon_tx.send(command).map_err(|_| tonic::Status::internal("internal error")))
+        future::result(
+            self.daemon_tx
+                .send(command)
+                .map_err(|_| tonic::Status::internal("internal error")),
+        )
     }
 }
 
@@ -770,8 +801,10 @@ fn convert_settings(settings: &Settings) -> proto::Settings {
 
 fn convert_relay_settings_update(settings: &proto::RelaySettingsUpdate) -> RelaySettingsUpdate {
     use mullvad_types::CustomTunnelEndpoint;
-    use proto::connection_config::{Config as ProtoConnectionConfig};
-    use proto::relay_settings_update::{Type as ProtoUpdateType};
+    use proto::{
+        connection_config::Config as ProtoConnectionConfig,
+        relay_settings_update::Type as ProtoUpdateType,
+    };
     use talpid_types::net::{self, openvpn, wireguard};
 
     match settings.r#type.clone().unwrap() {
@@ -782,8 +815,12 @@ fn convert_relay_settings_update(settings: &proto::RelaySettingsUpdate) -> Relay
                         endpoint: net::Endpoint {
                             address: config.address.parse().unwrap(),
                             protocol: match config.protocol {
-                                x if x == proto::TransportProtocol::Udp as i32 => TransportProtocol::Udp,
-                                x if x == proto::TransportProtocol::Tcp as i32 => TransportProtocol::Tcp,
+                                x if x == proto::TransportProtocol::Udp as i32 => {
+                                    TransportProtocol::Udp
+                                }
+                                x if x == proto::TransportProtocol::Tcp as i32 => {
+                                    TransportProtocol::Tcp
+                                }
                                 _ => unreachable!("unknown protocol"),
                             },
                         },
@@ -817,15 +854,19 @@ fn convert_relay_settings_update(settings: &proto::RelaySettingsUpdate) -> Relay
                     ConnectionConfig::Wireguard(wireguard::ConnectionConfig {
                         tunnel: wireguard::TunnelConfig {
                             private_key: wireguard::PrivateKey::from(private_key),
-                            addresses: tunnel.addresses.iter().map(|address| {
-                                address.parse().unwrap()
-                            }).collect(),
+                            addresses: tunnel
+                                .addresses
+                                .iter()
+                                .map(|address| address.parse().unwrap())
+                                .collect(),
                         },
                         peer: wireguard::PeerConfig {
                             public_key: wireguard::PublicKey::from(public_key),
-                            allowed_ips: peer.allowed_ips.iter().map(|address| {
-                                ipnetwork::IpNetwork::from_str(address).unwrap()
-                            }).collect(),
+                            allowed_ips: peer
+                                .allowed_ips
+                                .iter()
+                                .map(|address| ipnetwork::IpNetwork::from_str(address).unwrap())
+                                .collect(),
                             endpoint: peer.endpoint.parse().unwrap(),
                         },
                         ipv4_gateway: config.ipv4_gateway.parse().unwrap(),
@@ -849,9 +890,7 @@ fn convert_relay_settings_update(settings: &proto::RelaySettingsUpdate) -> Relay
                     let location = location.hostname;
                     match location.len() {
                         0 => Constraint::Any,
-                        1 => Constraint::Only(LocationConstraint::Country(
-                            location[0].clone(),
-                        )),
+                        1 => Constraint::Only(LocationConstraint::Country(location[0].clone())),
                         2 => Constraint::Only(LocationConstraint::City(
                             location[0].clone(),
                             location[1].clone(),
@@ -864,32 +903,42 @@ fn convert_relay_settings_update(settings: &proto::RelaySettingsUpdate) -> Relay
                         _ => unreachable!("expected 0-3 elements"),
                     }
                 }),
-                tunnel_protocol: settings.tunnel_type.map(|update| {
-                    match update.tunnel_type {
-                        x if x == proto::TunnelType::AnyTunnel as i32 => Constraint::Any,
-                        x if x == proto::TunnelType::Openvpn as i32 => Constraint::Only(TunnelType::OpenVpn),
-                        x if x == proto::TunnelType::Wireguard as i32 => Constraint::Only(TunnelType::Wireguard),
-                        _ => unreachable!("unknown protocol"),
+                tunnel_protocol: settings.tunnel_type.map(|update| match update.tunnel_type {
+                    x if x == proto::TunnelType::AnyTunnel as i32 => Constraint::Any,
+                    x if x == proto::TunnelType::Openvpn as i32 => {
+                        Constraint::Only(TunnelType::OpenVpn)
+                    }
+                    x if x == proto::TunnelType::Wireguard as i32 => {
+                        Constraint::Only(TunnelType::Wireguard)
+                    }
+                    _ => unreachable!("unknown protocol"),
+                }),
+                wireguard_constraints: settings.wireguard_constraints.map(|constraints| {
+                    WireguardConstraints {
+                        port: if constraints.port != 0 {
+                            Constraint::Only(constraints.port as u16)
+                        } else {
+                            Constraint::Any
+                        },
                     }
                 }),
-                wireguard_constraints: settings.wireguard_constraints.map(|constraints| WireguardConstraints {
-                    port: if constraints.port != 0 {
-                        Constraint::Only(constraints.port as u16)
-                    } else {
-                        Constraint::Any
-                    },
-                }),
-                openvpn_constraints: settings.openvpn_constraints.map(|constraints| OpenVpnConstraints {
-                    port: if constraints.port != 0 {
-                        Constraint::Only(constraints.port as u16)
-                    } else {
-                        Constraint::Any
-                    },
-                    protocol: match constraints.protocol {
-                        x if x == proto::TransportProtocol::Udp as i32 => Constraint::Only(TransportProtocol::Udp),
-                        x if x == proto::TransportProtocol::Tcp as i32 => Constraint::Only(TransportProtocol::Tcp),
-                        _ => Constraint::Any,
-                    },
+                openvpn_constraints: settings.openvpn_constraints.map(|constraints| {
+                    OpenVpnConstraints {
+                        port: if constraints.port != 0 {
+                            Constraint::Only(constraints.port as u16)
+                        } else {
+                            Constraint::Any
+                        },
+                        protocol: match constraints.protocol {
+                            x if x == proto::TransportProtocol::Udp as i32 => {
+                                Constraint::Only(TransportProtocol::Udp)
+                            }
+                            x if x == proto::TransportProtocol::Tcp as i32 => {
+                                Constraint::Only(TransportProtocol::Tcp)
+                            }
+                            _ => Constraint::Any,
+                        },
+                    }
                 }),
             })
         }
@@ -921,10 +970,15 @@ fn convert_relay_settings(settings: &RelaySettings) -> proto::RelaySettings {
 
                 openvpn_constraints: Some(proto::OpenvpnConstraints {
                     port: constraints.openvpn_constraints.port.unwrap_or(0) as u32,
-                    protocol: constraints.openvpn_constraints.protocol.map(|protocol| match protocol {
-                        TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
-                        TransportProtocol::Udp => proto::TransportProtocol::Udp,
-                    }).unwrap_or(proto::TransportProtocol::AnyProtocol) as i32,
+                    protocol: constraints
+                        .openvpn_constraints
+                        .protocol
+                        .map(|protocol| match protocol {
+                            TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
+                            TransportProtocol::Udp => proto::TransportProtocol::Udp,
+                        })
+                        .unwrap_or(proto::TransportProtocol::AnyProtocol)
+                        as i32,
                 }),
             })
         }
@@ -955,19 +1009,27 @@ fn convert_connection_config(config: &ConnectionConfig) -> proto::ConnectionConf
                 connection_config::Config::Wireguard(connection_config::WireguardConfig {
                     tunnel: Some(connection_config::wireguard_config::TunnelConfig {
                         private_key: config.tunnel.private_key.to_bytes().to_vec(),
-                        addresses: config.tunnel.addresses.iter().map(|address| {
-                            address.to_string()
-                        }).collect(),
+                        addresses: config
+                            .tunnel
+                            .addresses
+                            .iter()
+                            .map(|address| address.to_string())
+                            .collect(),
                     }),
                     peer: Some(connection_config::wireguard_config::PeerConfig {
                         public_key: config.peer.public_key.as_bytes().to_vec(),
-                        allowed_ips: config.peer.allowed_ips.iter().map(|address| {
-                            address.to_string()
-                        }).collect(),
+                        allowed_ips: config
+                            .peer
+                            .allowed_ips
+                            .iter()
+                            .map(|address| address.to_string())
+                            .collect(),
                         endpoint: config.peer.endpoint.to_string(),
                     }),
                     ipv4_gateway: config.ipv4_gateway.to_string(),
-                    ipv6_gateway: config.ipv6_gateway.as_ref()
+                    ipv6_gateway: config
+                        .ipv6_gateway
+                        .as_ref()
                         .map(|address| address.to_string())
                         .unwrap_or_default(),
                 })
@@ -986,34 +1048,32 @@ fn convert_bridge_settings(settings: &BridgeSettings) -> proto::BridgeSettings {
                 location: convert_location_constraint(&constraints.location),
             })
         }
-        BridgeSettings::Custom(proxy_settings) => {
-            match proxy_settings {
-                net::openvpn::ProxySettings::Local(proxy_settings) => {
-                    BridgeSettingType::Local(bridge_settings::LocalProxySettings {
-                        port: proxy_settings.port as u32,
-                        peer: proxy_settings.peer.to_string(),
-                    })
-                }
-                net::openvpn::ProxySettings::Remote(proxy_settings) => {
-                    BridgeSettingType::Remote(bridge_settings::RemoteProxySettings {
-                        address: proxy_settings.address.to_string(),
-                        auth: proxy_settings.auth.as_ref().map(|auth| {
-                            bridge_settings::RemoteProxyAuth {
-                                username: auth.username.clone(),
-                                password: auth.password.clone(),
-                            }
-                        }),
-                    })
-                }
-                net::openvpn::ProxySettings::Shadowsocks(proxy_settings) => {
-                    BridgeSettingType::Shadowsocks(bridge_settings::ShadowsocksProxySettings {
-                        peer: proxy_settings.peer.to_string(),
-                        password: proxy_settings.password.clone(),
-                        cipher: proxy_settings.cipher.clone(),
-                    })
-                }
+        BridgeSettings::Custom(proxy_settings) => match proxy_settings {
+            net::openvpn::ProxySettings::Local(proxy_settings) => {
+                BridgeSettingType::Local(bridge_settings::LocalProxySettings {
+                    port: proxy_settings.port as u32,
+                    peer: proxy_settings.peer.to_string(),
+                })
             }
-        }
+            net::openvpn::ProxySettings::Remote(proxy_settings) => {
+                BridgeSettingType::Remote(bridge_settings::RemoteProxySettings {
+                    address: proxy_settings.address.to_string(),
+                    auth: proxy_settings.auth.as_ref().map(|auth| {
+                        bridge_settings::RemoteProxyAuth {
+                            username: auth.username.clone(),
+                            password: auth.password.clone(),
+                        }
+                    }),
+                })
+            }
+            net::openvpn::ProxySettings::Shadowsocks(proxy_settings) => {
+                BridgeSettingType::Shadowsocks(bridge_settings::ShadowsocksProxySettings {
+                    peer: proxy_settings.peer.to_string(),
+                    password: proxy_settings.password.clone(),
+                    cipher: proxy_settings.cipher.clone(),
+                })
+            }
+        },
     };
 
     proto::BridgeSettings {
@@ -1021,7 +1081,9 @@ fn convert_bridge_settings(settings: &BridgeSettings) -> proto::BridgeSettings {
     }
 }
 
-fn convert_wireguard_key_event(event: &mullvad_types::wireguard::KeygenEvent) -> proto::KeygenEvent {
+fn convert_wireguard_key_event(
+    event: &mullvad_types::wireguard::KeygenEvent,
+) -> proto::KeygenEvent {
     use mullvad_types::wireguard::KeygenEvent::*;
     use proto::keygen_event::KeygenEvent as ProtoEvent;
 
@@ -1049,24 +1111,20 @@ fn convert_public_key(public_key: &wireguard::PublicKey) -> proto::PublicKey {
     }
 }
 
-fn convert_location_constraint(location: &Constraint<LocationConstraint>) -> Option<proto::RelayLocation> {
+fn convert_location_constraint(
+    location: &Constraint<LocationConstraint>,
+) -> Option<proto::RelayLocation> {
     let location = match location {
         Constraint::Any => None,
         Constraint::Only(location) => Some(match location {
-            LocationConstraint::Country(country) => {
-                [country.clone()].to_vec()
-            }
-            LocationConstraint::City(country, city) => {
-                [country.clone(), city.clone()].to_vec()
-            }
+            LocationConstraint::Country(country) => [country.clone()].to_vec(),
+            LocationConstraint::City(country, city) => [country.clone(), city.clone()].to_vec(),
             LocationConstraint::Hostname(country, city, host) => {
                 [country.clone(), city.clone(), host.clone()].to_vec()
             }
-        })
+        }),
     };
-    location.map(|location| proto::RelayLocation {
-        hostname: location
-    })
+    location.map(|location| proto::RelayLocation { hostname: location })
 }
 
 fn convert_bridge_state(state: &BridgeState) -> proto::BridgeState {
@@ -1076,7 +1134,7 @@ fn convert_bridge_state(state: &BridgeState) -> proto::BridgeState {
         BridgeState::Off => proto::bridge_state::State::Off,
     };
     proto::BridgeState {
-        state: state as i32
+        state: state as i32,
     }
 }
 
@@ -1108,7 +1166,11 @@ fn convert_relay_list_country(country: &RelayListCountry) -> proto::RelayListCou
             code: city.code.clone(),
             latitude: city.latitude,
             longitude: city.longitude,
-            relays: city.relays.iter().map(|relay| convert_relay(relay)).collect(),
+            relays: city
+                .relays
+                .iter()
+                .map(|relay| convert_relay(relay))
+                .collect(),
         });
     }
 
@@ -1119,70 +1181,90 @@ fn convert_relay(relay: &Relay) -> proto::Relay {
     proto::Relay {
         hostname: relay.hostname.clone(),
         ipv4_addr_in: relay.ipv4_addr_in.to_string(),
-        ipv6_addr_in: relay.ipv6_addr_in.map(|addr| addr.to_string()).unwrap_or_default(),
+        ipv6_addr_in: relay
+            .ipv6_addr_in
+            .map(|addr| addr.to_string())
+            .unwrap_or_default(),
         include_in_country: relay.include_in_country,
         active: relay.active,
         owned: relay.owned,
         provider: relay.provider.clone(),
         weight: relay.weight,
         tunnels: Some(proto::RelayTunnels {
-            openvpn: relay.tunnels.openvpn.iter().map(|endpoint| {
-                let protocol = match endpoint.protocol {
-                    TransportProtocol::Udp => proto::TransportProtocol::Udp,
-                    TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
-                };
-                proto::OpenVpnEndpointData {
-                    port: endpoint.port as u32,
-                    protocol: protocol as i32,
-                }
-            }).collect(),
-            wireguard: relay.tunnels.wireguard.iter().map(|endpoint| {
-                let port_ranges = endpoint.port_ranges.iter().map(|range| {
-                    proto::PortRange {
-                        first: range.0 as u32,
-                        last: range.1 as u32,
+            openvpn: relay
+                .tunnels
+                .openvpn
+                .iter()
+                .map(|endpoint| {
+                    let protocol = match endpoint.protocol {
+                        TransportProtocol::Udp => proto::TransportProtocol::Udp,
+                        TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
+                    };
+                    proto::OpenVpnEndpointData {
+                        port: endpoint.port as u32,
+                        protocol: protocol as i32,
                     }
-                }).collect();
-                proto::WireguardEndpointData {
-                    port_ranges,
-                    ipv4_gateway: endpoint.ipv4_gateway.to_string(),
-                    ipv6_gateway: endpoint.ipv6_gateway.to_string(),
-                    public_key: endpoint.public_key.as_bytes().to_vec(),
-                }
-            }).collect(),
+                })
+                .collect(),
+            wireguard: relay
+                .tunnels
+                .wireguard
+                .iter()
+                .map(|endpoint| {
+                    let port_ranges = endpoint
+                        .port_ranges
+                        .iter()
+                        .map(|range| proto::PortRange {
+                            first: range.0 as u32,
+                            last: range.1 as u32,
+                        })
+                        .collect();
+                    proto::WireguardEndpointData {
+                        port_ranges,
+                        ipv4_gateway: endpoint.ipv4_gateway.to_string(),
+                        ipv6_gateway: endpoint.ipv6_gateway.to_string(),
+                        public_key: endpoint.public_key.as_bytes().to_vec(),
+                    }
+                })
+                .collect(),
         }),
         bridges: Some(proto::RelayBridges {
-            shadowsocks: relay.bridges.shadowsocks.iter().map(|endpoint| {
-                let protocol = match endpoint.protocol {
-                    TransportProtocol::Udp => proto::TransportProtocol::Udp,
-                    TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
-                };
-                proto::ShadowsocksEndpointData {
-                    port: endpoint.port as u32,
-                    cipher: endpoint.cipher.clone(),
-                    password: endpoint.password.clone(),
-                    protocol: protocol as i32,
-                }
-            }).collect(),
+            shadowsocks: relay
+                .bridges
+                .shadowsocks
+                .iter()
+                .map(|endpoint| {
+                    let protocol = match endpoint.protocol {
+                        TransportProtocol::Udp => proto::TransportProtocol::Udp,
+                        TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
+                    };
+                    proto::ShadowsocksEndpointData {
+                        port: endpoint.port as u32,
+                        cipher: endpoint.cipher.clone(),
+                        password: endpoint.password.clone(),
+                        protocol: protocol as i32,
+                    }
+                })
+                .collect(),
         }),
-        location: relay.location.as_ref().map(|location| {
-            proto::Location {
-                country: location.country.clone(),
-                country_code: location.country_code.clone(),
-                city: location.city.clone(),
-                city_code: location.city_code.clone(),
-                latitude: location.latitude,
-                longitude: location.longitude,
-            }
+        location: relay.location.as_ref().map(|location| proto::Location {
+            country: location.country.clone(),
+            country_code: location.country_code.clone(),
+            city: location.city.clone(),
+            city_code: location.city_code.clone(),
+            latitude: location.latitude,
+            longitude: location.longitude,
         }),
     }
 }
 
 fn convert_state(state: TunnelState) -> proto::TunnelState {
+    use proto::{
+        error_state::{Cause as ProtoErrorCause, GenerationError as ProtoGenerationError},
+        tunnel_state::{self, State as ProtoState},
+    };
     use talpid_types::tunnel::{ActionAfterDisconnect, ErrorStateCause, ParameterGenerationError};
     use TunnelState::*;
-    use proto::tunnel_state::{self, State as ProtoState};
-    use proto::error_state::{Cause as ProtoErrorCause, GenerationError as ProtoGenerationError};
 
     let state = match state {
         Disconnected => ProtoState::Disconnected(tunnel_state::Disconnected {}),
@@ -1210,14 +1292,20 @@ fn convert_state(state: TunnelState) -> proto::TunnelState {
                 cause: match error_state.cause() {
                     ErrorStateCause::AuthFailed(_) => ProtoErrorCause::AuthFailed as i32,
                     ErrorStateCause::Ipv6Unavailable => ProtoErrorCause::Ipv6Unavailable as i32,
-                    ErrorStateCause::SetFirewallPolicyError => ProtoErrorCause::SetFirewallPolicyError as i32,
+                    ErrorStateCause::SetFirewallPolicyError => {
+                        ProtoErrorCause::SetFirewallPolicyError as i32
+                    }
                     ErrorStateCause::SetDnsError => ProtoErrorCause::SetDnsError as i32,
                     ErrorStateCause::StartTunnelError => ProtoErrorCause::StartTunnelError as i32,
-                    ErrorStateCause::TunnelParameterError(_) => ProtoErrorCause::TunnelParameterError as i32,
+                    ErrorStateCause::TunnelParameterError(_) => {
+                        ProtoErrorCause::TunnelParameterError as i32
+                    }
                     ErrorStateCause::IsOffline => ProtoErrorCause::IsOffline as i32,
                     ErrorStateCause::TapAdapterProblem => ProtoErrorCause::TapAdapterProblem as i32,
                     #[cfg(target_os = "android")]
-                    ErrorStateCause::VpnPermissionDenied => ProtoErrorCause::VpnPermissionDenied as i32,
+                    ErrorStateCause::VpnPermissionDenied => {
+                        ProtoErrorCause::VpnPermissionDenied as i32
+                    }
                 },
                 is_blocking: error_state.is_blocking(),
                 auth_fail_reason: if let ErrorStateCause::AuthFailed(reason) = error_state.cause() {
@@ -1225,12 +1313,22 @@ fn convert_state(state: TunnelState) -> proto::TunnelState {
                 } else {
                     "".to_string()
                 },
-                parameter_error: if let ErrorStateCause::TunnelParameterError(reason) = error_state.cause() {
+                parameter_error: if let ErrorStateCause::TunnelParameterError(reason) =
+                    error_state.cause()
+                {
                     match reason {
-                        ParameterGenerationError::NoMatchingRelay => ProtoGenerationError::NoMatchingRelay as i32,
-                        ParameterGenerationError::NoMatchingBridgeRelay => ProtoGenerationError::NoMatchingBridgeRelay as i32,
-                        ParameterGenerationError::NoWireguardKey => ProtoGenerationError::NoWireguardKey as i32,
-                        ParameterGenerationError::CustomTunnelHostResultionError => ProtoGenerationError::CustomTunnelHostResolutionError as i32,
+                        ParameterGenerationError::NoMatchingRelay => {
+                            ProtoGenerationError::NoMatchingRelay as i32
+                        }
+                        ParameterGenerationError::NoMatchingBridgeRelay => {
+                            ProtoGenerationError::NoMatchingBridgeRelay as i32
+                        }
+                        ParameterGenerationError::NoWireguardKey => {
+                            ProtoGenerationError::NoWireguardKey as i32
+                        }
+                        ParameterGenerationError::CustomTunnelHostResultionError => {
+                            ProtoGenerationError::CustomTunnelHostResolutionError as i32
+                        }
                     }
                 } else {
                     0
@@ -1308,13 +1406,17 @@ impl ManagementInterfaceServer {
         server_start_tx: std::sync::mpsc::Sender<()>,
         abort_rx: triggered::Listener,
         subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
-    ) -> std::result::Result<(), tonic::transport::Error>
-    {
-        use parity_tokio_ipc::{Endpoint as IpcEndpoint, SecurityAttributes};
+    ) -> std::result::Result<(), tonic::transport::Error> {
         use futures::stream::TryStreamExt;
+        use parity_tokio_ipc::{Endpoint as IpcEndpoint, SecurityAttributes};
 
         let mut endpoint = IpcEndpoint::new(socket_path);
-        endpoint.set_security_attributes(SecurityAttributes::allow_everyone_create().unwrap().set_mode(777).unwrap());
+        endpoint.set_security_attributes(
+            SecurityAttributes::allow_everyone_create()
+                .unwrap()
+                .set_mode(777)
+                .unwrap(),
+        );
         let incoming = endpoint.incoming().unwrap(); // FIXME: do not unwrap
         let _ = server_start_tx.send(());
 
@@ -1340,7 +1442,9 @@ impl ManagementInterfaceServer {
 
         let subscriptions = Arc::<RwLock<Vec<EventsListenerSender>>>::default();
 
-        let socket_path = mullvad_paths::get_rpc_socket_path().to_string_lossy().to_string();
+        let socket_path = mullvad_paths::get_rpc_socket_path()
+            .to_string_lossy()
+            .to_string();
 
         let (server_abort_tx, server_abort_rx) = triggered::trigger();
         let (start_tx, start_rx) = mpsc::channel();
@@ -1438,7 +1542,7 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
             new_list.countries.push(convert_relay_list_country(country));
         }
         self.notify(proto::DaemonEvent {
-            event: Some(DaemonEventType::RelayList(new_list))
+            event: Some(DaemonEventType::RelayList(new_list)),
         })
     }
 
@@ -1446,7 +1550,7 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
         log::debug!("Broadcasting new app version info");
         let new_info = convert_version_info(&app_version_info);
         self.notify(proto::DaemonEvent {
-            event: Some(DaemonEventType::VersionInfo(new_info))
+            event: Some(DaemonEventType::VersionInfo(new_info)),
         })
     }
 
@@ -1454,7 +1558,7 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
         log::debug!("Broadcasting new wireguard key event");
         let new_event = convert_wireguard_key_event(&key_event);
         self.notify(proto::DaemonEvent {
-            event: Some(DaemonEventType::KeyEvent(new_event))
+            event: Some(DaemonEventType::KeyEvent(new_event)),
         })
     }
 }
@@ -1473,23 +1577,21 @@ impl Drop for ManagementInterfaceEventBroadcaster {
     }
 }
 
-/*
-/// Converts a REST API error for an account into a JSONRPC error for the JSONRPC client.
-fn map_rest_account_error(error: RestError) -> Error {
-    match error {
-        RestError::ApiError(status, message)
-            if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN =>
-        {
-            Error {
-                code: ErrorCode::from(INVALID_ACCOUNT_CODE),
-                message,
-                data: None,
-            }
-        }
-        _ => Error::internal_error(),
-    }
-}
-*/
+// Converts a REST API error for an account into a JSONRPC error for the JSONRPC client.
+// fn map_rest_account_error(error: RestError) -> Error {
+// match error {
+// RestError::ApiError(status, message)
+// if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN =>
+// {
+// Error {
+// code: ErrorCode::from(INVALID_ACCOUNT_CODE),
+// message,
+// data: None,
+// }
+// }
+// _ => Error::internal_error(),
+// }
+// }
 
 
 // FIXME
@@ -1524,10 +1626,7 @@ impl<T: AsyncRead + AsyncWrite + Unpin> AsyncWrite for StreamBox<T> {
         Pin::new(&mut self.0).poll_flush(cx)
     }
 
-    fn poll_shutdown(
-        mut self: Pin<&mut Self>,
-        cx: &mut Context<'_>,
-    ) -> Poll<std::io::Result<()>> {
+    fn poll_shutdown(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<std::io::Result<()>> {
         Pin::new(&mut self.0).poll_shutdown(cx)
     }
 }

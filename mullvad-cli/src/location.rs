@@ -35,9 +35,7 @@ pub fn get_constraint(matches: &clap::ArgMatches<'_>) -> Vec<String> {
         .exit(),
         (_, None, None) => [country].to_vec(),
         (_, Some(city), None) => [country, city].to_vec(),
-        (_, Some(city), Some(hostname)) => {
-            [country, city, hostname].to_vec()
-        }
+        (_, Some(city), Some(hostname)) => [country, city, hostname].to_vec(),
         (..) => clap::Error::with_description(
             "Invalid country, city and hostname combination given",
             clap::ErrorKind::InvalidValue,
