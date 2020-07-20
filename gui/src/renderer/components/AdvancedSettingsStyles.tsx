@@ -28,10 +28,10 @@ export default {
   advanced_settings__content: Styles.createViewStyle({
     flex: 0,
   }),
-  advanced_settings__tunnel_protocol: Styles.createViewStyle({
+  advanced_settings__cell_bottom_margin: Styles.createViewStyle({
     marginBottom: 20,
   }),
-  advanced_settings__wgkeys_cell: Styles.createViewStyle({
+  advanced_settings__last_cell_bottom_margin: Styles.createViewStyle({
     marginBottom: 22,
   }),
   advanced_settings__wg_no_key: Styles.createTextStyle({
