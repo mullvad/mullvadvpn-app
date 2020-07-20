@@ -62,14 +62,10 @@ message VoucherSubmission {
 	google.protobuf.Timestamp new_expiry = 2;
 }
 
-message AfterDisconnect {
-	enum Action {
-		Nothing = 0;
-		Block = 1;
-		Reconnect = 2;
-	}
-
-	Action action = 1;
+enum AfterDisconnect {
+	Nothing = 0;
+	Block = 1;
+	Reconnect = 2;
 }
 
 message ErrorState {
@@ -150,13 +146,9 @@ enum ProxyType {
 }
 
 message ProxyEndpoint {
-	Endpoint endpoint = 1;
-	ProxyType proxy_type = 2;
-}
-
-message Endpoint {
 	string address = 1;
 	TransportProtocol protocol = 2;
+	ProxyType proxy_type = 3;
 }
 
 message GeoIpLocation {

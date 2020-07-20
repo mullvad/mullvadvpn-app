@@ -319,28 +319,11 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     async fn get_state(&self, _: Request<()>) -> ServiceResult<proto::TunnelState> {
-        use TunnelState::*;
-        use proto::tunnel_state;
-
         log::debug!("get_state");
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetState(tx))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .and_then(|state| {
-                // FIXME: return correct state
-
-                let state = match state {
-                    Disconnected => tunnel_state::Disconnected {},
-                    Connecting { .. } => tunnel_state::Disconnected {},
-                    Connected { .. } => tunnel_state::Disconnected {},
-                    Disconnecting(..) => tunnel_state::Disconnected {},
-                    Error(..) => tunnel_state::Disconnected {},
-                };
-
-                Ok(Response::new(proto::TunnelState {
-                    state: Some(tunnel_state::State::Disconnected(state))
-                }))
-            })
+            .and_then(|state| Ok(Response::new(convert_state(state))))
             .compat()
             .await
     }
@@ -362,17 +345,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::GetCurrentLocation(tx))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
             .and_then(|geoip| if let Some(geoip) = geoip {
-                Ok(Response::new(proto::GeoIpLocation {
-                    ipv4: geoip.ipv4.map(|ip| ip.to_string()).unwrap_or_default(),
-                    ipv6: geoip.ipv6.map(|ip| ip.to_string()).unwrap_or_default(),
-                    country: geoip.country,
-                    city: geoip.city.unwrap_or_default(),
-                    latitude: geoip.latitude,
-                    longitude: geoip.longitude,
-                    mullvad_exit_ip: geoip.mullvad_exit_ip,
-                    hostname: geoip.hostname.unwrap_or_default(),
-                    bridge_hostname: geoip.bridge_hostname.unwrap_or_default(),
-                }))
+                Ok(Response::new(convert_geoip_location(geoip)))
             } else {
                 // FIXME: handle error properly
                 Err(tonic::Status::internal("internal error"))
@@ -1072,6 +1045,111 @@ fn convert_relay(relay: &Relay) -> proto::Relay {
                 longitude: location.longitude,
             }
         }),
+    }
+}
+
+fn convert_state(state: TunnelState) -> proto::TunnelState {
+    use talpid_types::tunnel::{ActionAfterDisconnect, ErrorStateCause, ParameterGenerationError};
+    use TunnelState::*;
+    use proto::tunnel_state::{self, State as ProtoState};
+    use proto::error_state::{Cause as ProtoErrorCause, GenerationError as ProtoGenerationError};
+
+    let state = match state {
+        Disconnected => ProtoState::Disconnected(tunnel_state::Disconnected {}),
+        Connecting { endpoint, location } => ProtoState::Connecting(tunnel_state::Connecting {
+            relay_info: Some(proto::TunnelStateRelayInfo {
+                tunnel_endpoint: Some(convert_endpoint(endpoint)),
+                location: location.map(convert_geoip_location),
+            }),
+        }),
+        Connected { endpoint, location } => ProtoState::Connecting(tunnel_state::Connecting {
+            relay_info: Some(proto::TunnelStateRelayInfo {
+                tunnel_endpoint: Some(convert_endpoint(endpoint)),
+                location: location.map(convert_geoip_location),
+            }),
+        }),
+        Disconnecting(after_disconnect) => ProtoState::Disconnecting(tunnel_state::Disconnecting {
+            after_disconnect: match after_disconnect {
+                ActionAfterDisconnect::Nothing => proto::AfterDisconnect::Nothing as i32,
+                ActionAfterDisconnect::Block => proto::AfterDisconnect::Block as i32,
+                ActionAfterDisconnect::Reconnect => proto::AfterDisconnect::Reconnect as i32,
+            },
+        }),
+        Error(error_state) => ProtoState::Error(tunnel_state::Error {
+            error_state: Some(proto::ErrorState {
+                cause: match error_state.cause() {
+                    ErrorStateCause::AuthFailed(_) => ProtoErrorCause::AuthFailed as i32,
+                    ErrorStateCause::Ipv6Unavailable => ProtoErrorCause::Ipv6Unavailable as i32,
+                    ErrorStateCause::SetFirewallPolicyError => ProtoErrorCause::SetFirewallPolicyError as i32,
+                    ErrorStateCause::SetDnsError => ProtoErrorCause::SetDnsError as i32,
+                    ErrorStateCause::StartTunnelError => ProtoErrorCause::StartTunnelError as i32,
+                    ErrorStateCause::TunnelParameterError(_) => ProtoErrorCause::TunnelParameterError as i32,
+                    ErrorStateCause::IsOffline => ProtoErrorCause::IsOffline as i32,
+                    ErrorStateCause::TapAdapterProblem => ProtoErrorCause::TapAdapterProblem as i32,
+                    #[cfg(target_os = "android")]
+                    ErrorStateCause::VpnPermissionDenied => ProtoErrorCause::VpnPermissionDenied as i32,
+                },
+                is_blocking: error_state.is_blocking(),
+                auth_fail_reason: if let ErrorStateCause::AuthFailed(reason) = error_state.cause() {
+                    reason.clone().unwrap_or_default()
+                } else {
+                    "".to_string()
+                },
+                parameter_error: if let ErrorStateCause::TunnelParameterError(reason) = error_state.cause() {
+                    match reason {
+                        ParameterGenerationError::NoMatchingRelay => ProtoGenerationError::NoMatchingRelay as i32,
+                        ParameterGenerationError::NoMatchingBridgeRelay => ProtoGenerationError::NoMatchingBridgeRelay as i32,
+                        ParameterGenerationError::NoWireguardKey => ProtoGenerationError::NoWireguardKey as i32,
+                        ParameterGenerationError::CustomTunnelHostResultionError => ProtoGenerationError::CustomTunnelHostResolutionError as i32,
+                    }
+                } else {
+                    0
+                },
+            }),
+        }),
+    };
+
+    proto::TunnelState { state: Some(state) }
+}
+
+fn convert_endpoint(endpoint: talpid_types::net::TunnelEndpoint) -> proto::TunnelEndpoint {
+    use talpid_types::net;
+
+    proto::TunnelEndpoint {
+        address: endpoint.endpoint.address.to_string(),
+        protocol: match endpoint.endpoint.protocol {
+            TransportProtocol::Tcp => proto::TransportProtocol::Tcp as i32,
+            TransportProtocol::Udp => proto::TransportProtocol::Udp as i32,
+        },
+        tunnel_type: match endpoint.tunnel_type {
+            net::TunnelType::Wireguard => proto::TunnelType::Wireguard as i32,
+            net::TunnelType::OpenVpn => proto::TunnelType::Openvpn as i32,
+        },
+        proxy: endpoint.proxy.map(|proxy_ep| proto::ProxyEndpoint {
+            address: proxy_ep.endpoint.address.to_string(),
+            protocol: match proxy_ep.endpoint.protocol {
+                TransportProtocol::Tcp => proto::TransportProtocol::Tcp as i32,
+                TransportProtocol::Udp => proto::TransportProtocol::Udp as i32,
+            },
+            proxy_type: match proxy_ep.proxy_type {
+                net::proxy::ProxyType::Shadowsocks => proto::ProxyType::Shadowsocks as i32,
+                net::proxy::ProxyType::Custom => proto::ProxyType::Custom as i32,
+            },
+        }),
+    }
+}
+
+fn convert_geoip_location(geoip: GeoIpLocation) -> proto::GeoIpLocation {
+    proto::GeoIpLocation {
+        ipv4: geoip.ipv4.map(|ip| ip.to_string()).unwrap_or_default(),
+        ipv6: geoip.ipv6.map(|ip| ip.to_string()).unwrap_or_default(),
+        country: geoip.country,
+        city: geoip.city.unwrap_or_default(),
+        latitude: geoip.latitude,
+        longitude: geoip.longitude,
+        mullvad_exit_ip: geoip.mullvad_exit_ip,
+        hostname: geoip.hostname.unwrap_or_default(),
+        bridge_hostname: geoip.bridge_hostname.unwrap_or_default(),
     }
 }
 
