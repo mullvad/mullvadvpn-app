@@ -13,23 +13,3 @@ pub mod wireguard;
 
 mod custom_tunnel;
 pub use crate::custom_tunnel::*;
-
-/// An event sent out from the daemon to frontends.
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum DaemonEvent {
-    /// The daemon transitioned into a new state.
-    TunnelState(states::TunnelState),
-
-    /// The daemon settings changed.
-    Settings(settings::Settings),
-
-    /// The daemon got an updated relay list.
-    RelayList(relay_list::RelayList),
-
-    /// The daemon got update version info.
-    AppVersionInfo(version::AppVersionInfo),
-
-    /// Key event
-    WireguardKey(wireguard::KeygenEvent),
-}
