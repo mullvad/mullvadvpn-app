@@ -726,6 +726,8 @@
 	${EndIf}
 	Pop $FullUninstall
 
+	log::Log "Running uninstaller for ${PRODUCT_NAME} ${VERSION}"
+
 	${If} $FullUninstall != 1
 		# Save the target tunnel state if we're upgrading
 		SetOutPath "$TEMP"
@@ -747,6 +749,7 @@
 
 	# Discard return value
 	Pop $0
+	Pop $1
 
 	Sleep 5000
 
@@ -754,10 +757,9 @@
 
 	# Discard return value
 	Pop $0
+	Pop $1
 
 	Sleep 1000
-
-	log::Log "Running uninstaller for ${PRODUCT_NAME} ${VERSION}"
 
 	${RemoveCLIFromEnvironPath}
 
