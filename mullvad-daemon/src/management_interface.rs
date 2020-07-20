@@ -6,7 +6,10 @@ use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     ConnectionConfig,
     location::GeoIpLocation,
-    relay_constraints::{BridgeSettings, BridgeConstraints, BridgeState, Constraint, LocationConstraint, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate},
+    relay_constraints::{BridgeSettings, BridgeConstraints, BridgeState, Constraint, LocationConstraint, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
+        OpenVpnConstraints,
+        WireguardConstraints,
+    },
     relay_list::{Relay, RelayList, RelayListCountry},
     settings::{Settings, TunnelOptions},
     states::{TargetState, TunnelState},
@@ -15,6 +18,7 @@ use mullvad_types::{
 use parking_lot::RwLock;
 use std::{
     io,
+    net::SocketAddr,
     str::FromStr,
     sync::{Arc, mpsc},
 };
@@ -766,65 +770,141 @@ fn convert_settings(settings: &Settings) -> proto::Settings {
 }
 
 fn convert_relay_settings_update(settings: &proto::RelaySettingsUpdate) -> RelaySettingsUpdate {
-    use proto::relay_settings::Endpoint;
+    use mullvad_types::CustomTunnelEndpoint;
+    use proto::connection_config::{Config as ProtoConnectionConfig};
+    use proto::relay_settings_update::{Type as ProtoUpdateType};
+    use talpid_types::net::{self, openvpn, wireguard};
 
-    // FIXME: handle missing field correctly
-    let endpoint = settings.r#type.clone().unwrap();
+    match settings.r#type.clone().unwrap() {
+        ProtoUpdateType::Custom(settings) => {
+            let config = match settings.config.unwrap().config.unwrap() {
+                ProtoConnectionConfig::Openvpn(config) => {
+                    ConnectionConfig::OpenVpn(openvpn::ConnectionConfig {
+                        endpoint: net::Endpoint {
+                            address: config.address.parse().unwrap(),
+                            protocol: match config.protocol {
+                                x if x == proto::TransportProtocol::Udp as i32 => TransportProtocol::Udp,
+                                x if x == proto::TransportProtocol::Tcp as i32 => TransportProtocol::Tcp,
+                                _ => unreachable!("unknown protocol"),
+                            },
+                        },
+                        username: config.username.clone(),
+                        password: config.password.clone(),
+                    })
+                }
+                ProtoConnectionConfig::Wireguard(config) => {
+                    let tunnel = config.tunnel.unwrap();
 
-    // FIXME: custom
-    // FIXME: parse input
+                    // Copy the private key to an array
+                    let mut private_key = [0; 32];
+                    // TODO: Avoid panic here
+                    let buffer = &tunnel.private_key[..private_key.len()];
+                    private_key.copy_from_slice(buffer);
 
-    RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-        location: None,
-        tunnel_protocol: None,
-        wireguard_constraints: None,
-        openvpn_constraints: None,
-    })
+                    let peer = config.peer.unwrap();
+
+                    // Copy the public key to an array
+                    let mut public_key = [0; 32];
+                    // TODO: Avoid panic here
+                    let buffer = &peer.public_key[..public_key.len()];
+                    public_key.copy_from_slice(buffer);
+
+                    let ipv6_gateway = if !config.ipv6_gateway.is_empty() {
+                        Some(config.ipv6_gateway.parse().unwrap())
+                    } else {
+                        None
+                    };
+
+                    ConnectionConfig::Wireguard(wireguard::ConnectionConfig {
+                        tunnel: wireguard::TunnelConfig {
+                            private_key: wireguard::PrivateKey::from(private_key),
+                            addresses: tunnel.addresses.iter().map(|address| {
+                                address.parse().unwrap()
+                            }).collect(),
+                        },
+                        peer: wireguard::PeerConfig {
+                            public_key: wireguard::PublicKey::from(public_key),
+                            allowed_ips: peer.allowed_ips.iter().map(|address| {
+                                ipnetwork::IpNetwork::from_str(address).unwrap()
+                            }).collect(),
+                            endpoint: peer.endpoint.parse().unwrap(),
+                        },
+                        ipv4_gateway: config.ipv4_gateway.parse().unwrap(),
+                        ipv6_gateway,
+                    })
+                }
+            };
+
+            RelaySettingsUpdate::CustomTunnelEndpoint(CustomTunnelEndpoint {
+                host: settings.host.clone(),
+                config,
+            })
+        }
+
+        ProtoUpdateType::Normal(settings) => {
+            RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+                // If `location` isn't provided, no changes are made.
+                // If `location` is provided, but is an empty vector,
+                // then the constraint is set to `Constraint::Any`.
+                location: settings.location.map(|location| {
+                    let location = location.hostname;
+                    match location.len() {
+                        0 => Constraint::Any,
+                        1 => Constraint::Only(LocationConstraint::Country(
+                            location[0].clone(),
+                        )),
+                        2 => Constraint::Only(LocationConstraint::City(
+                            location[0].clone(),
+                            location[1].clone(),
+                        )),
+                        3 => Constraint::Only(LocationConstraint::Hostname(
+                            location[0].clone(),
+                            location[1].clone(),
+                            location[2].clone(),
+                        )),
+                        _ => unreachable!("expected 0-3 elements"),
+                    }
+                }),
+                tunnel_protocol: settings.tunnel_type.map(|update| {
+                    match update.tunnel_type {
+                        x if x == proto::TunnelType::AnyTunnel as i32 => Constraint::Any,
+                        x if x == proto::TunnelType::Openvpn as i32 => Constraint::Only(TunnelType::OpenVpn),
+                        x if x == proto::TunnelType::Wireguard as i32 => Constraint::Only(TunnelType::Wireguard),
+                        _ => unreachable!("unknown protocol"),
+                    }
+                }),
+                wireguard_constraints: settings.wireguard_constraints.map(|constraints| WireguardConstraints {
+                    port: if constraints.port != 0 {
+                        Constraint::Only(constraints.port as u16)
+                    } else {
+                        Constraint::Any
+                    },
+                }),
+                openvpn_constraints: settings.openvpn_constraints.map(|constraints| OpenVpnConstraints {
+                    port: if constraints.port != 0 {
+                        Constraint::Only(constraints.port as u16)
+                    } else {
+                        Constraint::Any
+                    },
+                    protocol: match constraints.protocol {
+                        x if x == proto::TransportProtocol::Udp as i32 => Constraint::Only(TransportProtocol::Udp),
+                        x if x == proto::TransportProtocol::Tcp as i32 => Constraint::Only(TransportProtocol::Tcp),
+                        _ => Constraint::Any,
+                    },
+                }),
+            })
+        }
+    }
 }
 
 fn convert_relay_settings(settings: &RelaySettings) -> proto::RelaySettings {
-    use proto::{connection_config, relay_settings};
+    use proto::relay_settings;
 
     let endpoint = match settings {
         RelaySettings::CustomTunnelEndpoint(endpoint) => {
             relay_settings::Endpoint::Custom(proto::CustomRelaySettings {
                 host: endpoint.host.clone(),
-                config: Some(proto::ConnectionConfig {
-                    config: Some(match &endpoint.config {
-                        ConnectionConfig::OpenVpn(config) => {
-                            connection_config::Config::Openvpn(connection_config::OpenvpnConfig {
-                                address: config.endpoint.address.to_string(),
-                                protocol: match config.endpoint.protocol {
-                                    TransportProtocol::Tcp => proto::TransportProtocol::Tcp as i32,
-                                    TransportProtocol::Udp => proto::TransportProtocol::Udp as i32,
-                                },
-                                username: config.username.clone(),
-                                password: config.password.clone(),
-                            })
-                        }
-                        ConnectionConfig::Wireguard(config) => {
-                            connection_config::Config::Wireguard(connection_config::WireguardConfig {
-                                tunnel: Some(connection_config::wireguard_config::TunnelConfig {
-                                    private_key: config.tunnel.private_key.to_bytes().to_vec(),
-                                    addresses: config.tunnel.addresses.iter().map(|address| {
-                                        address.to_string()
-                                    }).collect(),
-                                }),
-                                peer: Some(connection_config::wireguard_config::PeerConfig {
-                                    public_key: config.peer.public_key.as_bytes().to_vec(),
-                                    allowed_ips: config.peer.allowed_ips.iter().map(|address| {
-                                        address.to_string()
-                                    }).collect(),
-                                    endpoint: config.peer.endpoint.to_string(),
-                                }),
-                                ipv4_gateway: config.ipv4_gateway.to_string(),
-                                ipv6_gateway: config.ipv6_gateway.as_ref()
-                                    .map(|address| address.to_string())
-                                    .unwrap_or_default(),
-                            })
-                        }
-                    }),
-                }),
+                config: Some(convert_connection_config(&endpoint.config)),
             })
         }
         RelaySettings::Normal(constraints) => {
@@ -836,11 +916,11 @@ fn convert_relay_settings(settings: &RelaySettings) -> proto::RelaySettings {
                     Constraint::Only(TunnelType::OpenVpn) => proto::TunnelType::Openvpn as i32,
                 },
 
-                wireguard_constraints: Some(proto::normal_relay_settings::WireguardConstraints {
+                wireguard_constraints: Some(proto::WireguardConstraints {
                     port: constraints.wireguard_constraints.port.unwrap_or(0) as u32,
                 }),
 
-                openvpn_constraints: Some(proto::normal_relay_settings::OpenvpnConstraints {
+                openvpn_constraints: Some(proto::OpenvpnConstraints {
                     port: constraints.openvpn_constraints.port.unwrap_or(0) as u32,
                     protocol: constraints.openvpn_constraints.protocol.map(|protocol| match protocol {
                         TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
@@ -853,6 +933,47 @@ fn convert_relay_settings(settings: &RelaySettings) -> proto::RelaySettings {
 
     proto::RelaySettings {
         endpoint: Some(endpoint),
+    }
+}
+
+fn convert_connection_config(config: &ConnectionConfig) -> proto::ConnectionConfig {
+    use proto::connection_config;
+
+    proto::ConnectionConfig {
+        config: Some(match config {
+            ConnectionConfig::OpenVpn(config) => {
+                connection_config::Config::Openvpn(connection_config::OpenvpnConfig {
+                    address: config.endpoint.address.to_string(),
+                    protocol: match config.endpoint.protocol {
+                        TransportProtocol::Tcp => proto::TransportProtocol::Tcp as i32,
+                        TransportProtocol::Udp => proto::TransportProtocol::Udp as i32,
+                    },
+                    username: config.username.clone(),
+                    password: config.password.clone(),
+                })
+            }
+            ConnectionConfig::Wireguard(config) => {
+                connection_config::Config::Wireguard(connection_config::WireguardConfig {
+                    tunnel: Some(connection_config::wireguard_config::TunnelConfig {
+                        private_key: config.tunnel.private_key.to_bytes().to_vec(),
+                        addresses: config.tunnel.addresses.iter().map(|address| {
+                            address.to_string()
+                        }).collect(),
+                    }),
+                    peer: Some(connection_config::wireguard_config::PeerConfig {
+                        public_key: config.peer.public_key.as_bytes().to_vec(),
+                        allowed_ips: config.peer.allowed_ips.iter().map(|address| {
+                            address.to_string()
+                        }).collect(),
+                        endpoint: config.peer.endpoint.to_string(),
+                    }),
+                    ipv4_gateway: config.ipv4_gateway.to_string(),
+                    ipv6_gateway: config.ipv6_gateway.as_ref()
+                        .map(|address| address.to_string())
+                        .unwrap_or_default(),
+                })
+            }
+        }),
     }
 }
 
