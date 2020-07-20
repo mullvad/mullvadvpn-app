@@ -650,18 +650,20 @@ impl ManagementService for ManagementServiceImpl {
         #[cfg(target_os = "linux")]
         {
             log::debug!("get_split_tunnel_processes");
-            let (tx, rx) = tokio02::sync::mpsc::unbounded_channel();
-            // TODO
-            Ok(Response::new(rx))
-            /*
-            log::debug!("get_split_tunnel_processes");
             let (tx, rx) = sync::oneshot::channel();
-            self.send_command_to_daemon(DaemonCommand::GetSplitTunnelProcesses(tx))
+            let pids = self.send_command_to_daemon(DaemonCommand::GetSplitTunnelProcesses(tx))
                 .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-                .map(Response::new)
                 .compat()
-                .await
-            */
+                .await?;
+
+            let (tx, rx) = tokio02::sync::mpsc::unbounded_channel();
+            tokio02::spawn(async move {
+                for pid in pids {
+                    let _ = tx.send(Ok(pid));
+                }
+            });
+
+            Ok(Response::new(rx))
         }
         #[cfg(not(target_os = "linux"))]
         {
@@ -670,7 +672,6 @@ impl ManagementService for ManagementServiceImpl {
         }
     }
 
-    /*
     #[cfg(target_os = "linux")]
     async fn add_split_tunnel_process(&self, request: Request<i32>) -> ServiceResult<()> {
         let pid = request.into_inner();
@@ -719,7 +720,6 @@ impl ManagementService for ManagementServiceImpl {
             Ok(Response::new(()))
         }
     }
-    */
 
     async fn events_listen(&self, _: Request<()>) -> ServiceResult<Self::EventsListenStream> {
         let (tx, rx) = tokio02::sync::mpsc::unbounded_channel();
