@@ -26,11 +26,9 @@ futures = "0.1"
 natord = "1.0.9"
 serde = "1.0"
 
-mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-paths = { path = "../mullvad-paths" }
 talpid-types = { path = "../talpid-types" }
-talpid-ipc = { path = "../talpid-ipc" }
 
 tonic = "0.2"
 tower = "0.3"
