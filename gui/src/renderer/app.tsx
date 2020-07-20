@@ -26,6 +26,7 @@ import { ICurrentAppVersionInfo } from '../main';
 import { loadTranslations, messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel, IRelayListPair } from '../shared/ipc-event-channel';
+import ISplitTunnelingApplication from '../shared/linux-split-tunneling-application';
 import { getRendererLogFile, setupLogging } from '../shared/logging';
 import consumePromise from '../shared/promise';
 
@@ -411,6 +412,14 @@ export default class AppRenderer {
     actions.settings.replaceWireguardKey(oldKey);
     const keygenEvent = await IpcRendererEventChannel.wireguardKeys.generateKey();
     actions.settings.setWireguardKeygenEvent(keygenEvent);
+  }
+
+  public getSplitTunnelingApplications() {
+    return IpcRendererEventChannel.splitTunneling.getApplications();
+  }
+
+  public launchExcludedApplication(application: ISplitTunnelingApplication | string) {
+    consumePromise(IpcRendererEventChannel.splitTunneling.launchApplication(application));
   }
 
   public getPreferredLocaleList(): IPreferredLocaleDescriptor[] {

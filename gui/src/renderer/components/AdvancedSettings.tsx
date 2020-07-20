@@ -62,6 +62,7 @@ interface IProps {
   setOpenVpnRelayProtocolAndPort: (protocol?: RelayProtocol, port?: number) => void;
   setWireguardRelayPort: (port?: number) => void;
   onViewWireguardKeys: () => void;
+  onViewLinuxSplitTunneling: () => void;
   onClose: () => void;
 }
 
@@ -204,7 +205,7 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                     <View
                       style={[
                         styles.advanced_settings__content,
-                        styles.advanced_settings__tunnel_protocol,
+                        styles.advanced_settings__cell_bottom_margin,
                       ]}>
                       <TunnelProtocolSelector
                         title={messages.pgettext('advanced-settings-view', 'Tunnel protocol')}
@@ -350,7 +351,12 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                       </Cell.FooterText>
                     </Cell.Footer>
 
-                    <View style={styles.advanced_settings__wgkeys_cell}>
+                    <View
+                      style={
+                        process.platform !== 'linux'
+                          ? styles.advanced_settings__cell_bottom_margin
+                          : undefined
+                      }>
                       <Cell.CellButton onClick={this.props.onViewWireguardKeys}>
                         <Cell.Label>
                           {messages.pgettext('advanced-settings-view', 'WireGuard key')}
@@ -358,6 +364,17 @@ export default class AdvancedSettings extends Component<IProps, IState> {
                         <Cell.Icon height={12} width={7} source="icon-chevron" />
                       </Cell.CellButton>
                     </View>
+
+                    {process.platform === 'linux' && (
+                      <View style={styles.advanced_settings__cell_bottom_margin}>
+                        <Cell.CellButton onClick={this.props.onViewLinuxSplitTunneling}>
+                          <Cell.Label>
+                            {messages.pgettext('advanced-settings-view', 'Split tunneling')}
+                          </Cell.Label>
+                          <Cell.Icon height={12} width={7} source="icon-chevron" />
+                        </Cell.CellButton>
+                      </View>
+                    )}
                   </StyledNavigationScrollbars>
                 </View>
               </NavigationContainer>

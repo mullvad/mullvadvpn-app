@@ -25,5 +25,7 @@ export type LocalizationContexts =
   | 'advanced-settings-view-wireguard'
   | 'wireguard-key-view'
   | 'wireguard-keys-nav'
+  | 'split-tunneling-view'
+  | 'split-tunneling-nav'
   | 'support-view'
   | 'select-language-nav';
