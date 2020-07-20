@@ -1,6 +1,5 @@
 /// Intended to be used to pre-load a relay list when creating an installer for the Mullvad VPN
 /// app.
-use futures01::future::Future;
 use mullvad_rpc::{rest::Error as RestError, MullvadRpcRuntime, RelayListProxy};
 use std::process;
 use talpid_types::ErrorExt;
@@ -10,7 +9,7 @@ fn main() {
 
     let relay_list_request = RelayListProxy::new(runtime.mullvad_rest_handle()).relay_list();
 
-    let relay_list = match relay_list_request.wait() {
+    let relay_list = match runtime.runtime().block_on(relay_list_request) {
         Ok(relay_list) => relay_list,
         Err(RestError::TimeoutError(_)) => {
             eprintln!("Request timed out");
