@@ -1,5 +1,4 @@
 use crate::{new_grpc_client, proto, Command, Error, Result};
-use futures::{Future, Stream};
 use mullvad_types::auth_failed::AuthFailed;
 use proto::management_service_client::ManagementServiceClient;
 use proto::{error_state::{Cause as ErrorStateCause, GenerationError}, daemon_event::Event as EventType, ErrorState, TunnelState};

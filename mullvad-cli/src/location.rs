@@ -1,5 +1,3 @@
-use mullvad_types::relay_constraints::{Constraint, LocationConstraint};
-
 pub fn get_subcommand() -> clap::App<'static, 'static> {
     clap::SubCommand::with_name("location")
         .arg(

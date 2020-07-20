@@ -74,7 +74,9 @@ impl Command for Account {
 impl Account {
     async fn set(&self, token: Option<AccountToken>) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.set_account(token.clone().unwrap_or_default()).await;
+        rpc.set_account(token.clone().unwrap_or_default())
+            .await
+            .map_err(Error::GrpcClientError)?;
         if let Some(token) = token {
             println!("Mullvad account \"{}\" set", token);
         } else {
