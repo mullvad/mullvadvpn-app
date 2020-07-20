@@ -4,16 +4,14 @@ members = [
     "mullvad-cli",
     "mullvad-setup",
     "mullvad-problem-report",
-    "mullvad-ipc-client",
     "mullvad-jni",
     "mullvad-paths",
     "mullvad-types",
     "mullvad-rpc",
-    "mullvad-tests",
+#    "mullvad-tests",
     "mullvad-exclude",
     "talpid-openvpn-plugin",
     "talpid-core",
-    "talpid-ipc",
 ]
 exclude = ["dist-assets/binaries/shadowsocks-rust"]
 

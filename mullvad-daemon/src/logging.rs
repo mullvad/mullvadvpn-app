@@ -26,15 +26,12 @@ pub enum Error {
 
 pub const SILENCED_CRATES: &[&str] = &[
     "h2",
-    "jsonrpc_core",
-    // jsonrpc_core does some logging under the "rpc" target as well.
     "rpc",
     "tokio_core",
     "tokio_io",
     "tokio_proto",
     "tokio_reactor",
     "tokio_threadpool",
-    "jsonrpc_ws_server",
     "want",
     "ws",
     "mio",
