@@ -21,6 +21,7 @@ import JsonRpcClient, {
   SocketTransport,
   TimeOutError as JsonRpcTimeOutError,
 } from './jsonrpc-client';
+import { camelCaseToSnakeCase, snakeCaseToCamelCase } from './transform-object-keys';
 
 import { validate } from 'validated/object';
 import {
@@ -491,7 +492,7 @@ export class DaemonRpc {
   public async getRelayLocations(): Promise<IRelayList> {
     const response = await this.transport.send('get_relay_locations');
     try {
-      return camelCaseObjectKeys(validate(relayListSchema, response));
+      return snakeCaseToCamelCase(validate(relayListSchema, response));
     } catch (error) {
       throw new ResponseParseError(`Invalid response from get_relay_locations: ${error}`, error);
     }
@@ -507,7 +508,7 @@ export class DaemonRpc {
   }
 
   public async updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
-    await this.transport.send('update_relay_settings', [underscoreObjectKeys(relaySettings)]);
+    await this.transport.send('update_relay_settings', [camelCaseToSnakeCase(relaySettings)]);
   }
 
   public async setAllowLan(allowLan: boolean): Promise<void> {
@@ -563,7 +564,7 @@ export class DaemonRpc {
     try {
       const validatedObject = validate(locationSchema, response);
       if (validatedObject) {
-        return camelCaseObjectKeys(validatedObject);
+        return snakeCaseToCamelCase(validatedObject);
       } else {
         return undefined;
       }
@@ -575,7 +576,7 @@ export class DaemonRpc {
   public async getState(): Promise<TunnelState> {
     const response = await this.transport.send('get_state');
     try {
-      return camelCaseObjectKeys(validate(tunnelStateSchema, response));
+      return snakeCaseToCamelCase(validate(tunnelStateSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_state', error);
     }
@@ -584,7 +585,7 @@ export class DaemonRpc {
   public async getSettings(): Promise<ISettings> {
     const response = await this.transport.send('get_settings');
     try {
-      return camelCaseObjectKeys(validate(settingsSchema, response));
+      return snakeCaseToCamelCase(validate(settingsSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_settings', error);
     }
@@ -597,7 +598,7 @@ export class DaemonRpc {
       let daemonEvent: DaemonEvent;
 
       try {
-        daemonEvent = camelCaseObjectKeys(validate(daemonEventSchema, payload));
+        daemonEvent = snakeCaseToCamelCase(validate(daemonEventSchema, payload));
       } catch (error) {
         listener.onError(new ResponseParseError('Invalid payload from daemon_event', error));
         return;
@@ -648,7 +649,7 @@ export class DaemonRpc {
         case 'generation_failure':
           return validatedResponse;
         default:
-          return camelCaseObjectKeys(validatedResponse as object);
+          return snakeCaseToCamelCase(validatedResponse as object);
       }
     } catch (error) {
       throw new ResponseParseError(`Invalid response from generate_wireguard_key ${error}`);
@@ -676,48 +677,9 @@ export class DaemonRpc {
   public async getVersionInfo(): Promise<IAppVersionInfo> {
     const response = await this.transport.send('get_version_info', [], NETWORK_CALL_TIMEOUT);
     try {
-      return camelCaseObjectKeys(validate(appVersionInfoSchema, response));
+      return snakeCaseToCamelCase(validate(appVersionInfoSchema, response));
     } catch (error) {
       throw new ResponseParseError('Invalid response from get_version_info');
     }
   }
-}
-
-function underscoreToCamelCase(str: string): string {
-  return str.replace(/_([a-z])/gi, (matches) => matches[1].toUpperCase());
-}
-
-function camelCaseToUnderscore(str: string): string {
-  return str
-    .replace(/[a-z0-9][A-Z]/g, (matches) => `${matches[0]}_${matches[1].toLowerCase()}`)
-    .toLowerCase();
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function camelCaseObjectKeys<T>(anObject: { [key: string]: any }): T {
-  return transformObjectKeys(anObject, underscoreToCamelCase) as T;
-}
-
-function underscoreObjectKeys<T>(anObject: T): Record<string, unknown> {
-  return transformObjectKeys(anObject, camelCaseToUnderscore);
-}
-
-function transformObjectKeys(
-  anObject: { [key: string]: any }, // eslint-disable-line @typescript-eslint/no-explicit-any
-  keyTransformer: (key: string) => string,
-) {
-  for (const sourceKey of Object.keys(anObject)) {
-    const targetKey = keyTransformer(sourceKey);
-    const sourceValue = anObject[sourceKey];
-
-    anObject[targetKey] =
-      sourceValue !== null && typeof sourceValue === 'object'
-        ? transformObjectKeys(sourceValue, keyTransformer)
-        : sourceValue;
-
-    if (sourceKey !== targetKey) {
-      delete anObject[sourceKey];
-    }
-  }
-  return anObject;
 }
