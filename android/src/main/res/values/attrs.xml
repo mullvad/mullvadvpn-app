@@ -13,8 +13,6 @@
               format="reference" />
         <attr name="showSpinner"
               format="boolean" />
-        <attr name="text"
-              format="reference|string" />
     </declare-styleable>
     <declare-styleable name="CopyableInformationView">
         <attr name="clipboardLabel"
@@ -40,6 +38,10 @@
             <enum name="showSpinner"
                   value="2" />
         </attr>
+    </declare-styleable>
+    <declare-styleable name="TextAttribute">
+        <attr name="text"
+              format="reference|string" />
     </declare-styleable>
     <declare-styleable name="UrlButton">
         <attr name="url"

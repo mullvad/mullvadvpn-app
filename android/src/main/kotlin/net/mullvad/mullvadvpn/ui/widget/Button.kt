@@ -142,10 +142,17 @@ open class Button : FrameLayout {
 
         context.theme.obtainStyledAttributes(attributes, styleableId, 0, 0).apply {
             try {
-                button.text = getString(R.styleable.Button_text) ?: ""
                 buttonColor = ButtonColor.fromCode(getInteger(R.styleable.Button_buttonColor, 0))
                 detailImage = getDrawable(R.styleable.Button_detailImage)
                 showSpinner = getBoolean(R.styleable.Button_showSpinner, false)
+            } finally {
+                recycle()
+            }
+        }
+
+        context.theme.obtainStyledAttributes(attributes, R.styleable.TextAttribute, 0, 0).apply {
+            try {
+                button.text = getString(R.styleable.TextAttribute_text) ?: ""
             } finally {
                 recycle()
             }
