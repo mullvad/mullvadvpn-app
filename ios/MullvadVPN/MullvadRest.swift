@@ -501,10 +501,19 @@ struct ReplaceWireguardKeyRequest: Encodable, RestPayload {
 }
 
 struct CreateApplePaymentRequest: Encodable, RestPayload {
-    let receiptString: String
+    let receiptString: Data
 }
 
 struct CreateApplePaymentResponse: Decodable, RestResponse {
     let timeAdded: Int
     let newExpiry: Date
+
+    /// Returns a formatted string for the `timeAdded` interval, i.e "30 days"
+    var formattedTimeAdded: String? {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.day, .hour]
+        formatter.unitsStyle = .full
+
+        return formatter.string(from: TimeInterval(timeAdded))
+    }
 }

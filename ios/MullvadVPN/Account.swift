@@ -227,7 +227,7 @@ extension Account: AppStorePaymentObserver {
         // no-op
     }
 
-    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: SendAppStoreReceiptResponse) {
+    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: CreateApplePaymentResponse) {
         let newExpiry = response.newExpiry
 
         let operation = AsyncBlockOperation { (finish) in

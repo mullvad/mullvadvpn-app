@@ -45,7 +45,7 @@ protocol AppStorePaymentObserver: class {
         _ manager: AppStorePaymentManager,
         transaction: SKPaymentTransaction,
         accountToken: String,
-        didFinishWithResponse response: SendAppStoreReceiptResponse)
+        didFinishWithResponse response: CreateApplePaymentResponse)
 }
 
 /// A type-erasing weak container for `AppStorePaymentObserver`
@@ -71,7 +71,7 @@ private class AnyAppStorePaymentObserver: WeakObserverBox, Equatable {
     func appStorePaymentManager(_ manager: AppStorePaymentManager,
                                 transaction: SKPaymentTransaction,
                                 accountToken: String,
-                                didFinishWithResponse response: SendAppStoreReceiptResponse)
+                                didFinishWithResponse response: CreateApplePaymentResponse)
     {
         self.inner?.appStorePaymentManager(
             manager,
@@ -99,7 +99,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         case noAccountSet
         case storePayment(Swift.Error)
         case readReceipt(AppStoreReceipt.Error)
-        case sendReceipt(MullvadRpc.Error)
+        case sendReceipt(RestError)
 
         var errorDescription: String? {
             switch self {
@@ -115,12 +115,18 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
         }
     }
 
+    private enum ExlcusivityCategory {
+        case sendReceipt
+    }
+
     /// A shared instance of `AppStorePaymentManager`
     static let shared = AppStorePaymentManager(queue: SKPaymentQueue.default())
 
     private let operationQueue = OperationQueue()
+    private lazy var exclusivityController = ExclusivityController<ExlcusivityCategory>(operationQueue: operationQueue)
+
+    private let rest = MullvadRest(session: URLSession(configuration: .ephemeral))
     private let queue: SKPaymentQueue
-    private let rpc = MullvadRpc.withEphemeralURLSession()
 
     private var observerList = ObserverList<AnyAppStorePaymentObserver>()
     private let lock = NSRecursiveLock()
@@ -225,7 +231,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     func restorePurchases(
         for accountToken: String,
-        completionHandler: @escaping (Result<SendAppStoreReceiptResponse, AppStorePaymentManager.Error>) -> Void) {
+        completionHandler: @escaping (Result<CreateApplePaymentResponse, AppStorePaymentManager.Error>) -> Void) {
         return sendAppStoreReceipt(
             accountToken: accountToken,
             forceRefresh: true,
@@ -235,23 +241,21 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     // MARK: - Private methods
 
-    private func sendAppStoreReceipt(accountToken: String, forceRefresh: Bool, completionHandler: @escaping (Result<SendAppStoreReceiptResponse, Error>) -> Void)
+    private func sendAppStoreReceipt(accountToken: String, forceRefresh: Bool, completionHandler: @escaping (Result<CreateApplePaymentResponse, Error>) -> Void)
     {
         AppStoreReceipt.fetch(forceRefresh: forceRefresh) { (result) in
             switch result {
             case .success(let receiptData):
-                let request = self.rpc.sendAppStoreReceipt(
-                    accountToken: accountToken,
-                    receiptData: receiptData
-                )
+                let payload = TokenPayload<CreateApplePaymentRequest>(token: accountToken, payload: CreateApplePaymentRequest(receiptString: receiptData))
 
-                request.start { (result) in
+                let createApplePaymentOperation = self.rest.createApplePayment()
+                    .operation(payload: payload)
+
+                createApplePaymentOperation.addDidFinishBlockObserver { (operation, result) in
                     switch result {
                     case .success(let response):
-                        os_log(
-                            .info,
-                            "AppStore Receipt was processed. Time added: %{public}.2f, New expiry: %{private}s",
-                            response.timeAdded, "\(response.newExpiry)")
+                        os_log(.info, "AppStore Receipt was processed. Time added: %{public}.2f, New expiry: %{private}s",
+                               response.timeAdded, "\(response.newExpiry)")
 
                         completionHandler(.success(response))
 
@@ -259,6 +263,8 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                         completionHandler(.failure(.sendReceipt(error)))
                     }
                 }
+                
+                self.exclusivityController.addOperation(createApplePaymentOperation, categories: [.sendReceipt])
 
             case .failure(let error):
                 completionHandler(.failure(.readReceipt(error)))
