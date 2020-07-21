@@ -1,0 +1,12 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView android:layout_width="24dp"
+               android:layout_height="24dp"
+               android:layout_marginRight="8dp"
+               android:src="@drawable/icon_back" />
+    <TextView android:id="@+id/label"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textColor="@color/white60"
+              android:textSize="13sp"
+              android:textStyle="bold" />
+</merge>
