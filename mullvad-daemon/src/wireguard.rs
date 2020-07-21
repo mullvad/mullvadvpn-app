@@ -1,6 +1,6 @@
 use crate::{account_history::AccountHistory, DaemonEventSender, InternalDaemonEvent};
 use chrono::offset::Utc;
-use mullvad_rpc::rest::{CancelHandle, Cancellable, Error as RestError, MullvadRestHandle};
+use mullvad_rpc::rest::{Error as RestError, MullvadRestHandle};
 use mullvad_types::account::AccountToken;
 pub use mullvad_types::wireguard::*;
 use std::{
@@ -9,6 +9,7 @@ use std::{
     time::{Duration, Instant},
 };
 
+use futures::future::{abortable, AbortHandle};
 use talpid_core::{
     future_retry::{retry_future_with_backoff, ExponentialBackoff, Jittered},
     mpsc::Sender,
@@ -43,9 +44,9 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub struct KeyManager {
     daemon_tx: DaemonEventSender,
     http_handle: MullvadRestHandle,
-    current_job: Option<CancelHandle>,
+    current_job: Option<AbortHandle>,
 
-    abort_scheduler_tx: Option<CancelHandle>,
+    abort_scheduler_tx: Option<AbortHandle>,
     auto_rotation_interval: Duration,
 }
 
@@ -98,7 +99,7 @@ impl KeyManager {
     /// Stop current key generation
     pub fn reset(&mut self) {
         if let Some(job) = self.current_job.take() {
-            job.cancel()
+            job.abort()
         }
     }
 
@@ -203,7 +204,7 @@ impl KeyManager {
             retry_future_with_backoff(future_generator, should_retry, retry_strategy);
 
 
-        let (cancellable_upload, cancel_handle) = Cancellable::new(Box::pin(upload_future));
+        let (cancellable_upload, abort_handle) = abortable(Box::pin(upload_future));
         let daemon_tx = self.daemon_tx.clone();
         let future = async move {
             match cancellable_upload.await {
@@ -222,7 +223,7 @@ impl KeyManager {
 
 
         self.http_handle.service().spawn(Box::pin(future));
-        self.current_job = Some(cancel_handle);
+        self.current_job = Some(abort_handle);
     }
 
 
@@ -391,16 +392,16 @@ impl KeyManager {
             self.auto_rotation_interval.as_secs(),
             account_token,
         );
-        let (cancellable, cancel_handle) = Cancellable::new(Box::pin(fut));
+        let (request, abort_handle) = abortable(Box::pin(fut));
 
-        self.http_handle.service().spawn(cancellable);
-        self.abort_scheduler_tx = Some(cancel_handle);
+        self.http_handle.service().spawn(request);
+        self.abort_scheduler_tx = Some(abort_handle);
     }
 
     fn stop_automatic_rotation(&mut self) {
-        if let Some(cancel_handle) = self.abort_scheduler_tx.take() {
+        if let Some(abort_handle) = self.abort_scheduler_tx.take() {
             log::info!("Stopping automatic key rotation");
-            cancel_handle.cancel();
+            abort_handle.abort();
         }
     }
 }

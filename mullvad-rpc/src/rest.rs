@@ -1,8 +1,9 @@
 use futures::{
     channel::{mpsc, oneshot},
+    future::{abortable, AbortHandle, Aborted},
     sink::SinkExt,
     stream::StreamExt,
-    FutureExt, TryFutureExt,
+    TryFutureExt,
 };
 use futures01::Future as OldFuture;
 use hyper::{
@@ -10,16 +11,7 @@ use hyper::{
     header::{self, HeaderValue},
     Method, Uri,
 };
-use std::{
-    collections::BTreeMap,
-    future::Future,
-    mem,
-    net::IpAddr,
-    pin::Pin,
-    str::FromStr,
-    task::{Context, Poll},
-    time::Duration,
-};
+use std::{collections::BTreeMap, future::Future, mem, net::IpAddr, str::FromStr, time::Duration};
 use tokio::runtime::Handle;
 
 pub use hyper::StatusCode;
@@ -35,7 +27,7 @@ const DEFAULT_TIMEOUT: Duration = Duration::from_secs(10);
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Request cancelled")]
-    Cancelled(CancelErr),
+    Aborted(Aborted),
 
     #[error(display = "Hyper error")]
     HyperError(#[error(source)] hyper::Error),
@@ -76,7 +68,7 @@ pub(crate) struct RequestService<C> {
     connector: C,
     handle: Handle,
     next_id: u64,
-    in_flight_requests: BTreeMap<u64, CancelHandle>,
+    in_flight_requests: BTreeMap<u64, AbortHandle>,
 }
 
 impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
@@ -115,19 +107,17 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
                 let mut tx = self.command_tx.clone();
                 let timeout = request.timeout();
 
-                let (request_future, cancel_handle) = Cancellable::new(
+                let (request_future, abort_handle) = abortable(
                     self.client
                         .request(request.into_request())
                         .map_err(Error::from),
                 );
 
                 let future = async move {
-                    let response = tokio::time::timeout(
-                        timeout,
-                        request_future.into_future().map_err(Error::Cancelled),
-                    )
-                    .await
-                    .map_err(Error::TimeoutError);
+                    let response =
+                        tokio::time::timeout(timeout, request_future.map_err(Error::Aborted))
+                            .await
+                            .map_err(Error::TimeoutError);
 
                     let response = flatten_result(flatten_result(response));
 
@@ -141,7 +131,7 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
 
 
                 self.handle.spawn(future);
-                self.in_flight_requests.insert(id, cancel_handle);
+                self.in_flight_requests.insert(id, abort_handle);
             }
 
             RequestCommand::RequestFinished(id) => {
@@ -156,8 +146,8 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
 
     fn reset(&mut self) {
         let old_requests = mem::replace(&mut self.in_flight_requests, BTreeMap::new());
-        for (_, cancel_handle) in old_requests.into_iter() {
-            cancel_handle.cancel();
+        for (_, abort_handle) in old_requests.into_iter() {
+            abort_handle.abort();
         }
         let _ = mem::replace(&mut self.client, Self::new_client(self.connector.clone()));
         self.next_id = 0;
@@ -219,7 +209,7 @@ impl RequestServiceHandle {
         });
 
 
-        rx.map_err(|_| Error::Cancelled(CancelErr(()))).flatten()
+        rx.map_err(|_| Error::ReceiveError).flatten()
     }
 
     /// Spawns a future on the RPC runtime.
@@ -424,65 +414,6 @@ impl RequestFactory {
     }
 }
 
-
-#[derive(Debug)]
-pub struct CancelErr(());
-
-pub struct Cancellable<F: Future> {
-    rx: oneshot::Receiver<()>,
-    f: F,
-}
-
-pub struct CancelHandle {
-    tx: oneshot::Sender<()>,
-}
-
-impl CancelHandle {
-    pub fn cancel(self) {
-        let _ = self.tx.send(());
-    }
-}
-
-
-impl<F> Cancellable<F>
-where
-    F: Future,
-{
-    pub fn new(f: F) -> (Self, CancelHandle) {
-        let (tx, rx) = oneshot::channel();
-        (Self { f, rx }, CancelHandle { tx })
-    }
-
-    async fn into_future(self) -> std::result::Result<F::Output, CancelErr> {
-        futures::select! {
-            _cancelled = self.rx.fuse() => {
-                Err(CancelErr(()))
-            },
-            value = self.f.fuse() => {
-                Ok(value)
-            }
-        }
-    }
-}
-
-
-impl<F: Future<Output = T> + Unpin, T: Unpin> Future for Cancellable<F> {
-    type Output = std::result::Result<T, CancelErr>;
-
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let inner = self.get_mut();
-
-        if let Poll::Ready(ready) = inner.f.poll_unpin(cx) {
-            return Poll::Ready(Ok(ready));
-        }
-
-        if let Poll::Ready(_) = inner.rx.poll_unpin(cx) {
-            return Poll::Ready(Err(CancelErr(())));
-        }
-
-        Poll::Pending
-    }
-}
 
 pub fn get_request<T: serde::de::DeserializeOwned>(
     factory: &RequestFactory,
