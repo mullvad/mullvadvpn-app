@@ -356,7 +356,6 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     async fn get_current_location(&self, _: Request<()>) -> ServiceResult<proto::GeoIpLocation> {
-        // NOTE: optional result
         log::debug!("get_current_location");
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetCurrentLocation(tx))
@@ -365,8 +364,7 @@ impl ManagementService for ManagementServiceImpl {
                 if let Some(geoip) = geoip {
                     Ok(Response::new(convert_geoip_location(geoip)))
                 } else {
-                    // FIXME: handle error properly
-                    Err(tonic::Status::internal("internal error"))
+                    Err(tonic::Status::not_found("no location was found"))
                 }
             })
             .compat()
