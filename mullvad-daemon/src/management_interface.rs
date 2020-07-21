@@ -19,7 +19,6 @@ use mullvad_types::{
 use parking_lot::RwLock;
 use std::{
     io,
-    str::FromStr,
     sync::{mpsc, Arc},
 };
 use talpid_types::{
@@ -208,7 +207,10 @@ impl ManagementService for ManagementServiceImpl {
                     .send(Ok(convert_relay_list_country(country)))
                     .await
                 {
-                    log::error!("Error while sending relays to client: {}", error.display_chain());
+                    log::error!(
+                        "Error while sending relays to client: {}",
+                        error.display_chain()
+                    );
                 }
             }
         });
@@ -248,7 +250,7 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<()> {
         log::debug!("update_relay_settings");
         let (tx, rx) = sync::oneshot::channel();
-        let constraints_update = convert_relay_settings_update(&request.into_inner());
+        let constraints_update = convert_relay_settings_update(&request.into_inner())?;
 
         let message = DaemonCommand::UpdateRelaySettings(tx, constraints_update);
         self.send_command_to_daemon(message)
@@ -795,7 +797,9 @@ fn convert_settings(settings: &Settings) -> proto::Settings {
     }
 }
 
-fn convert_relay_settings_update(settings: &proto::RelaySettingsUpdate) -> RelaySettingsUpdate {
+fn convert_relay_settings_update(
+    settings: &proto::RelaySettingsUpdate,
+) -> Result<RelaySettingsUpdate, tonic::Status> {
     use mullvad_types::CustomTunnelEndpoint;
     use proto::{
         connection_config::Config as ProtoConnectionConfig,
@@ -803,13 +807,29 @@ fn convert_relay_settings_update(settings: &proto::RelaySettingsUpdate) -> Relay
     };
     use talpid_types::net::{self, openvpn, wireguard};
 
-    match settings.r#type.clone().unwrap() {
+    let update_value = settings
+        .r#type
+        .clone()
+        .ok_or(tonic::Status::invalid_argument("missing relay settings"))?;
+
+    match update_value {
         ProtoUpdateType::Custom(settings) => {
-            let config = match settings.config.unwrap().config.unwrap() {
+            let config = settings
+                .config
+                .ok_or(tonic::Status::invalid_argument("missing relay settings"))?;
+            let config = config
+                .config
+                .ok_or(tonic::Status::invalid_argument("missing relay settings"))?;
+            let config = match config {
                 ProtoConnectionConfig::Openvpn(config) => {
+                    let address = match config.address.parse() {
+                        Ok(address) => address,
+                        Err(_) => return Err(tonic::Status::invalid_argument("invalid address")),
+                    };
+
                     ConnectionConfig::OpenVpn(openvpn::ConnectionConfig {
                         endpoint: net::Endpoint {
-                            address: config.address.parse().unwrap(),
+                            address,
                             protocol: match config.protocol {
                                 x if x == proto::TransportProtocol::Udp as i32 => {
                                     TransportProtocol::Udp
@@ -817,7 +837,11 @@ fn convert_relay_settings_update(settings: &proto::RelaySettingsUpdate) -> Relay
                                 x if x == proto::TransportProtocol::Tcp as i32 => {
                                     TransportProtocol::Tcp
                                 }
-                                _ => unreachable!("unknown protocol"),
+                                _ => {
+                                    return Err(tonic::Status::invalid_argument(
+                                        "unknown transport protocol",
+                                    ))
+                                }
                             },
                         },
                         username: config.username.clone(),
@@ -825,90 +849,142 @@ fn convert_relay_settings_update(settings: &proto::RelaySettingsUpdate) -> Relay
                     })
                 }
                 ProtoConnectionConfig::Wireguard(config) => {
-                    let tunnel = config.tunnel.unwrap();
+                    let tunnel = config
+                        .tunnel
+                        .ok_or(tonic::Status::invalid_argument("missing tunnel config"))?;
 
                     // Copy the private key to an array
+                    if tunnel.private_key.len() != 32 {
+                        return Err(tonic::Status::invalid_argument("invalid private key"));
+                    }
+
                     let mut private_key = [0; 32];
-                    // TODO: Avoid panic here
                     let buffer = &tunnel.private_key[..private_key.len()];
                     private_key.copy_from_slice(buffer);
 
-                    let peer = config.peer.unwrap();
+                    let peer = config
+                        .peer
+                        .ok_or(tonic::Status::invalid_argument("missing peer config"))?;
 
                     // Copy the public key to an array
+                    if peer.public_key.len() != 32 {
+                        return Err(tonic::Status::invalid_argument("invalid public key"));
+                    }
+
                     let mut public_key = [0; 32];
-                    // TODO: Avoid panic here
                     let buffer = &peer.public_key[..public_key.len()];
                     public_key.copy_from_slice(buffer);
 
+                    let ipv4_gateway = match config.ipv4_gateway.parse() {
+                        Ok(address) => address,
+                        Err(_) => {
+                            return Err(tonic::Status::invalid_argument("invalid IPv4 gateway"))
+                        }
+                    };
                     let ipv6_gateway = if !config.ipv6_gateway.is_empty() {
-                        Some(config.ipv6_gateway.parse().unwrap())
+                        let address = match config.ipv6_gateway.parse() {
+                            Ok(address) => address,
+                            Err(_) => {
+                                return Err(tonic::Status::invalid_argument("invalid IPv6 gateway"))
+                            }
+                        };
+                        Some(address)
                     } else {
                         None
                     };
 
+                    let endpoint = match peer.endpoint.parse() {
+                        Ok(address) => address,
+                        Err(_) => {
+                            return Err(tonic::Status::invalid_argument("invalid peer address"))
+                        }
+                    };
+
+                    let mut tunnel_addresses = Vec::new();
+                    for address in tunnel.addresses {
+                        let address = address
+                            .parse()
+                            .map_err(|_| tonic::Status::invalid_argument("invalid address"))?;
+                        tunnel_addresses.push(address);
+                    }
+
+                    let mut allowed_ips = Vec::new();
+                    for address in peer.allowed_ips {
+                        let address = address
+                            .parse()
+                            .map_err(|_| tonic::Status::invalid_argument("invalid address"))?;
+                        allowed_ips.push(address);
+                    }
+
                     ConnectionConfig::Wireguard(wireguard::ConnectionConfig {
                         tunnel: wireguard::TunnelConfig {
                             private_key: wireguard::PrivateKey::from(private_key),
-                            addresses: tunnel
-                                .addresses
-                                .iter()
-                                .map(|address| address.parse().unwrap())
-                                .collect(),
+                            addresses: tunnel_addresses,
                         },
                         peer: wireguard::PeerConfig {
                             public_key: wireguard::PublicKey::from(public_key),
-                            allowed_ips: peer
-                                .allowed_ips
-                                .iter()
-                                .map(|address| ipnetwork::IpNetwork::from_str(address).unwrap())
-                                .collect(),
-                            endpoint: peer.endpoint.parse().unwrap(),
+                            allowed_ips,
+                            endpoint,
                         },
-                        ipv4_gateway: config.ipv4_gateway.parse().unwrap(),
+                        ipv4_gateway,
                         ipv6_gateway,
                     })
                 }
             };
 
-            RelaySettingsUpdate::CustomTunnelEndpoint(CustomTunnelEndpoint {
-                host: settings.host.clone(),
-                config,
-            })
+            Ok(RelaySettingsUpdate::CustomTunnelEndpoint(
+                CustomTunnelEndpoint {
+                    host: settings.host.clone(),
+                    config,
+                },
+            ))
         }
 
         ProtoUpdateType::Normal(settings) => {
-            RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
-                // If `location` isn't provided, no changes are made.
-                // If `location` is provided, but is an empty vector,
-                // then the constraint is set to `Constraint::Any`.
-                location: settings.location.map(|location| {
+            // If `location` isn't provided, no changes are made.
+            // If `location` is provided, but is an empty vector,
+            // then the constraint is set to `Constraint::Any`.
+            let location = match settings.location {
+                Some(location) => {
                     let location = location.hostname;
                     match location.len() {
-                        0 => Constraint::Any,
-                        1 => Constraint::Only(LocationConstraint::Country(location[0].clone())),
-                        2 => Constraint::Only(LocationConstraint::City(
+                        0 => Some(Constraint::Any),
+                        1 => Some(Constraint::Only(LocationConstraint::Country(
+                            location[0].clone(),
+                        ))),
+                        2 => Some(Constraint::Only(LocationConstraint::City(
                             location[0].clone(),
                             location[1].clone(),
-                        )),
-                        3 => Constraint::Only(LocationConstraint::Hostname(
+                        ))),
+                        3 => Some(Constraint::Only(LocationConstraint::Hostname(
                             location[0].clone(),
                             location[1].clone(),
                             location[2].clone(),
-                        )),
-                        _ => unreachable!("expected 0-3 elements"),
+                        ))),
+                        _ => return Err(tonic::Status::invalid_argument("expected 0-3 elements")),
                     }
-                }),
-                tunnel_protocol: settings.tunnel_type.map(|update| match update.tunnel_type {
-                    x if x == proto::TunnelType::AnyTunnel as i32 => Constraint::Any,
+                }
+                None => None,
+            };
+
+            let tunnel_protocol = if let Some(update) = settings.tunnel_type {
+                match update.tunnel_type {
+                    x if x == proto::TunnelType::AnyTunnel as i32 => Some(Constraint::Any),
                     x if x == proto::TunnelType::Openvpn as i32 => {
-                        Constraint::Only(TunnelType::OpenVpn)
+                        Some(Constraint::Only(TunnelType::OpenVpn))
                     }
                     x if x == proto::TunnelType::Wireguard as i32 => {
-                        Constraint::Only(TunnelType::Wireguard)
+                        Some(Constraint::Only(TunnelType::Wireguard))
                     }
-                    _ => unreachable!("unknown protocol"),
-                }),
+                    _ => return Err(tonic::Status::invalid_argument("unknown tunnel protocol")),
+                }
+            } else {
+                None
+            };
+
+            Ok(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
+                location,
+                tunnel_protocol,
                 wireguard_constraints: settings.wireguard_constraints.map(|constraints| {
                     WireguardConstraints {
                         port: if constraints.port != 0 {
@@ -936,7 +1012,7 @@ fn convert_relay_settings_update(settings: &proto::RelaySettingsUpdate) -> Relay
                         },
                     }
                 }),
-            })
+            }))
         }
     }
 }
@@ -1413,7 +1489,7 @@ impl ManagementInterfaceServer {
                 .set_mode(777)
                 .unwrap(),
         );
-        let incoming = endpoint.incoming().unwrap(); // FIXME: do not unwrap
+        let incoming = endpoint.incoming().unwrap();
         let _ = server_start_tx.send(());
 
         let server = ManagementServiceImpl {
@@ -1484,7 +1560,6 @@ impl ManagementInterfaceServer {
     }
 
     pub fn event_broadcaster(&self) -> ManagementInterfaceEventBroadcaster {
-        // TODO: send events via gRPC here, to each listener
         ManagementInterfaceEventBroadcaster {
             runtime: self.runtime.handle().clone(),
             subscriptions: self.subscriptions.clone(),
