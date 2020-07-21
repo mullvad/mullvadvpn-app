@@ -8,7 +8,7 @@ pub mod net;
 pub mod tunnel;
 
 #[cfg(target_os = "linux")]
-pub const SPLIT_TUNNEL_CGROUP_NAME: &str = "mullvad-exclusions";
+pub mod cgroup;
 
 
 /// Used to generate string representations of error chains.
