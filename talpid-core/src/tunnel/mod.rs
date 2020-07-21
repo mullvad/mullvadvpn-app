@@ -10,8 +10,6 @@ use std::{
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
 use talpid_types::net::{wireguard as wireguard_types, TunnelParameters};
-#[cfg(target_os = "windows")]
-use talpid_types::ErrorExt;
 
 #[cfg(target_os = "android")]
 pub use self::tun_provider::TunConfig;
@@ -241,22 +239,10 @@ impl TunnelMonitor {
         let options = tunnel_parameters.get_generic_options();
 
         #[cfg(target_os = "windows")]
-        match tunnel_parameters {
-            TunnelParameters::OpenVpn(..) => {
-                if options.enable_ipv6 {
-                    try_enabling_ipv6(tunnel_parameters)
-                } else {
-                    Ok(())
-                }
-            }
-            TunnelParameters::Wireguard(..) => {
-                // WireGuard always waits on an IPv6 interface,
-                // even if it's not in use
-                if let Err(e) = try_enabling_ipv6(tunnel_parameters) {
-                    log::error!("{}", e.display_chain_with_msg("Failed to enable IPv6"));
-                }
-                Ok(())
-            }
+        if options.enable_ipv6 {
+            try_enabling_ipv6(tunnel_parameters)
+        } else {
+            Ok(())
         }
 
         #[cfg(not(target_os = "windows"))]
