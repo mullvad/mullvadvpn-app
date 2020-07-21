@@ -126,9 +126,12 @@ impl WgGoTunnel {
             .map(LoggingContext)
             .map_err(TunnelError::LoggingError)?;
 
-        let wait_on_ipv6 = config.ipv6_gateway.is_some() ||
-            config.tunnel.addresses.iter().any(|ip| ip.is_ipv6()) ||
-            config.peers.iter().any(|config| config.allowed_ips.iter().any(|ip| ip.is_ipv6()));
+        let wait_on_ipv6 = config.ipv6_gateway.is_some()
+            || config.tunnel.addresses.iter().any(|ip| ip.is_ipv6())
+            || config
+                .peers
+                .iter()
+                .any(|config| config.allowed_ips.iter().any(|ip| ip.is_ipv6()));
 
         let handle = unsafe {
             wgTurnOn(
