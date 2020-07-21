@@ -1,11 +1,12 @@
 use std::{
     fs,
     io::{self, BufRead, BufReader, BufWriter, Write},
-    path::Path,
+    path::PathBuf,
 };
-use talpid_types::SPLIT_TUNNEL_CGROUP_NAME;
+use talpid_types::cgroup::{find_net_cls_mount, SPLIT_TUNNEL_CGROUP_NAME};
 
-const NETCLS_DIR: &str = "/sys/fs/cgroup/net_cls/";
+const DEFAULT_NETCLS_DIR: &str = "/dev/mullvad-exclude";
+const NETCLS_DIR_OVERRIDE_ENV_VAR: &str = "TALPID_NETCLS_MOUNT_DIR";
 
 /// Identifies packets coming from the cgroup.
 /// This should be an arbitrary but unique integer.
@@ -41,34 +42,47 @@ pub enum Error {
     /// Unable to read cgroup.procs.
     #[error(display = "Unable to obtain PIDs from cgroup.procs")]
     ListCGroupPids(#[error(source)] io::Error),
+
+    /// Unable to read /proc/mounts
+    #[error(display = "Failed to read /proc/mounts")]
+    ListMounts(#[error(source)] io::Error),
 }
 
 /// Manages PIDs to exclude from the tunnel.
-pub struct PidManager(());
+pub struct PidManager {
+    net_cls_path: PathBuf,
+}
 
 impl PidManager {
     /// Create object to manage split-tunnel PIDs.
     pub fn new() -> Result<PidManager, Error> {
-        Self::create_cgroup()?;
-        Ok(PidManager(()))
+        let net_cls_path = Self::create_cgroup()?;
+        Ok(PidManager { net_cls_path })
     }
 
     /// Set up cgroup used to track PIDs for split tunneling.
-    fn create_cgroup() -> Result<(), Error> {
-        let netcls_dir = Path::new(NETCLS_DIR);
+    fn create_cgroup() -> Result<PathBuf, Error> {
+        if let Some(net_cls_path) = find_net_cls_mount().map_err(Error::ListMounts)? {
+            return Ok(net_cls_path);
+        }
+
+        let netcls_dir = std::env::var(NETCLS_DIR_OVERRIDE_ENV_VAR)
+            .map(PathBuf::from)
+            .unwrap_or(PathBuf::from(DEFAULT_NETCLS_DIR));
+
         if !netcls_dir.exists() {
             fs::create_dir(netcls_dir.clone()).map_err(Error::CreateCGroup)?;
-
-            // https://www.kernel.org/doc/Documentation/cgroup-v1/net_cls.txt
-            nix::mount::mount(
-                Some("net_cls"),
-                netcls_dir,
-                Some("cgroup"),
-                nix::mount::MsFlags::empty(),
-                Some("net_cls"),
-            )
-            .map_err(Error::InitNetClsCGroup)?;
         }
+
+        // https://www.kernel.org/doc/Documentation/cgroup-v1/net_cls.txt
+        nix::mount::mount(
+            Some("net_cls"),
+            &netcls_dir,
+            Some("cgroup"),
+            nix::mount::MsFlags::empty(),
+            Some("net_cls"),
+        )
+        .map_err(Error::InitNetClsCGroup)?;
 
         let exclusions_dir = netcls_dir.join(SPLIT_TUNNEL_CGROUP_NAME);
 
@@ -78,7 +92,9 @@ impl PidManager {
 
         let classid_path = exclusions_dir.join("net_cls.classid");
         fs::write(classid_path, NETCLS_CLASSID.to_string().as_bytes())
-            .map_err(Error::SetCGroupClassId)
+            .map_err(Error::SetCGroupClassId)?;
+
+        Ok(netcls_dir)
     }
 
     /// Add a PID to exclude from the tunnel.
@@ -88,7 +104,8 @@ impl PidManager {
 
     /// Add PIDs to exclude from the tunnel.
     pub fn add_list<T: Into<i32> + ToString>(&self, pids: &[T]) -> Result<(), Error> {
-        let exclusions_path = Path::new(NETCLS_DIR)
+        let exclusions_path = self
+            .net_cls_path
             .join(SPLIT_TUNNEL_CGROUP_NAME)
             .join("cgroup.procs");
 
@@ -113,7 +130,7 @@ impl PidManager {
     pub fn remove(&self, pid: i32) -> Result<(), Error> {
         // FIXME: We remove PIDs from our cgroup here by adding
         //        them to the parent cgroup. This seems wrong.
-        let exclusions_path = Path::new(NETCLS_DIR).join("cgroup.procs");
+        let exclusions_path = self.net_cls_path.join("cgroup.procs");
 
         let mut file = fs::OpenOptions::new()
             .write(true)
@@ -127,7 +144,8 @@ impl PidManager {
 
     /// Return a list of PIDs that are excluded from the tunnel.
     pub fn list(&self) -> Result<Vec<i32>, Error> {
-        let exclusions_path = Path::new(NETCLS_DIR)
+        let exclusions_path = self
+            .net_cls_path
             .join(SPLIT_TUNNEL_CGROUP_NAME)
             .join("cgroup.procs");
 

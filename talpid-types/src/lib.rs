@@ -8,6 +8,7 @@ pub mod net;
 pub mod tunnel;
 
 #[cfg(target_os = "linux")]
+pub mod cgroup;
 pub const SPLIT_TUNNEL_CGROUP_NAME: &str = "mullvad-exclusions";
 
 
