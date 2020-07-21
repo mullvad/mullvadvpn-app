@@ -184,12 +184,18 @@ impl Tunnel {
 
     async fn process_wireguard_key_check() -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let key = rpc
-            .get_wireguard_key(())
-            .await
-            .map_err(Error::GrpcClientError)?
-            .into_inner();
-        if !key.key.is_empty() {
+        let key = rpc.get_wireguard_key(()).await;
+        let key = match key {
+            Ok(response) => Some(response.into_inner()),
+            Err(status) => {
+                if status.code() == tonic::Code::NotFound {
+                    None
+                } else {
+                    return Err(Error::GrpcClientError(status));
+                }
+            }
+        };
+        if let Some(key) = key {
             // TODO: Fix formatting
             println!("Current key    : {:?}", &key.key);
             println!("Key created on : {:?}", key.created);
