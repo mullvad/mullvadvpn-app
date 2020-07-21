@@ -11,10 +11,11 @@ iOS consists of a completely standalone implementation that resides in [ios/](io
 
 There are built and signed releases for macOS, Windows, Linux and Android available on
 [our website](https://mullvad.net/download/) and on
-[Github](https://github.com/mullvad/mullvadvpn-app/releases/). The Andriod app is also available
-on [Google Play] and the iOS version on [App Store].
+[Github](https://github.com/mullvad/mullvadvpn-app/releases/). The Android app is also available
+on [Google Play] and [F-Droid] and the iOS version on [App Store].
 
 [Google Play]: https://play.google.com/store/apps/details?id=net.mullvad.mullvadvpn
+[F-Droid]: https://f-droid.org/packages/net.mullvad.mullvadvpn/
 [App Store]: https://apps.apple.com/us/app/mullvad-vpn/id1488466513
 
 You can find our code signing keys as well as instructions for how to cryptographically verify
