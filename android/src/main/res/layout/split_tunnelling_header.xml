@@ -11,9 +11,7 @@
               android:layout_marginTop="4dp"
               android:layout_marginBottom="12dp"
               android:text="@string/split_tunnelling"
-              android:textColor="@color/white"
-              android:textSize="32sp"
-              android:textStyle="bold" />
+              style="@style/SettingsExpandedHeader" />
     <TextView android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:paddingTop="8dp"

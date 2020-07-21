@@ -40,4 +40,16 @@
            parent="Button">
         <item name="android:background">@drawable/white20_button_background</item>
     </style>
+    <style name="SettingsHeader">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    <style name="SettingsExpandedHeader"
+           parent="SettingsHeader">
+        <item name="android:textSize">32sp</item>
+    </style>
+    <style name="SettingsCollapsedHeader"
+           parent="SettingsHeader">
+        <item name="android:textSize">16sp</item>
+    </style>
 </resources>

@@ -8,10 +8,8 @@
     <TextView android:id="@+id/title"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:textColor="@color/white"
-              android:textSize="16sp"
-              android:textStyle="bold"
-              android:text="@string/split_tunnelling" />
+              android:text="@string/split_tunnelling"
+              style="@style/SettingsCollapsedHeader" />
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="match_parent"
                   android:orientation="vertical">
@@ -42,10 +40,8 @@
                       android:layout_height="wrap_content"
                       android:layout_marginHorizontal="4dp"
                       android:layout_gravity="center"
-                      android:textColor="@color/white"
-                      android:textSize="16sp"
-                      android:textStyle="bold"
-                      android:text="@string/split_tunnelling" />
+                      android:text="@string/split_tunnelling"
+                      style="@style/SettingsCollapsedHeader" />
         </FrameLayout>
         <net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView android:id="@+id/app_list"
                                                              android:layout_width="match_parent"
