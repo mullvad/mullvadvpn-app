@@ -27,9 +27,9 @@ use talpid_types::{
     ErrorExt,
 };
 
-pub const INVALID_VOUCHER_CODE: i64 = -400;
-pub const VOUCHER_USED_ALREADY_CODE: i64 = -401;
-pub const INVALID_ACCOUNT_CODE: i64 = -200;
+pub const INVALID_VOUCHER_CODE: i32 = -400;
+pub const VOUCHER_USED_ALREADY_CODE: i32 = -401;
+pub const INVALID_ACCOUNT_CODE: i32 = -200;
 
 
 mod proto {
@@ -118,10 +118,7 @@ impl ManagementService for ManagementServiceImpl {
                             "Unable to get account data from API: {}",
                             error.display_chain()
                         );
-
-                        // FIXME: map this to the correct error code
-                        // see `map_rest_account_error`
-                        tonic::Status::internal("internal error")
+                        map_rest_account_error(error)
                     })
             })
             .compat()
@@ -141,9 +138,7 @@ impl ManagementService for ManagementServiceImpl {
                             "Unable to get account data from API: {}",
                             error.display_chain()
                         );
-                        // FIXME: map this to the correct error code
-                        // see `map_rest_account_error`
-                        tonic::Status::internal("internal error")
+                        map_rest_account_error(error)
                     })
             })
             .compat()
@@ -172,18 +167,16 @@ impl ManagementService for ManagementServiceImpl {
                 .map_err(|e| match e {
                     RestError::ApiError(StatusCode::BAD_REQUEST, message) => {
                         match &message.as_str() {
-                            // FIXME: return other error codes
-                            // &mullvad_rpc::INVALID_VOUCHER => Error {
-                            // code: ErrorCode::from(INVALID_VOUCHER_CODE),
-                            // message,
-                            // data: None,
-                            // },
-                            //
-                            // &mullvad_rpc::VOUCHER_USED => Error {
-                            // code: ErrorCode::from(VOUCHER_USED_ALREADY_CODE),
-                            // message,
-                            // data: None,
-                            // },
+                            &mullvad_rpc::INVALID_VOUCHER => tonic::Status::new(
+                                tonic::Code::from_i32(INVALID_VOUCHER_CODE),
+                                message,
+                            ),
+
+                            &mullvad_rpc::VOUCHER_USED => tonic::Status::new(
+                                tonic::Code::from_i32(VOUCHER_USED_ALREADY_CODE),
+                                message,
+                            ),
+
                             _ => tonic::Status::internal("internal error"),
                         }
                     }
@@ -1578,20 +1571,16 @@ impl Drop for ManagementInterfaceEventBroadcaster {
 }
 
 // Converts a REST API error for an account into a JSONRPC error for the JSONRPC client.
-// fn map_rest_account_error(error: RestError) -> Error {
-// match error {
-// RestError::ApiError(status, message)
-// if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN =>
-// {
-// Error {
-// code: ErrorCode::from(INVALID_ACCOUNT_CODE),
-// message,
-// data: None,
-// }
-// }
-// _ => Error::internal_error(),
-// }
-// }
+fn map_rest_account_error(error: RestError) -> tonic::Status {
+    match error {
+        RestError::ApiError(status, message)
+            if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN =>
+        {
+            tonic::Status::new(tonic::Code::from_i32(INVALID_ACCOUNT_CODE), message)
+        }
+        _ => tonic::Status::internal("internal error"),
+    }
+}
 
 
 // FIXME
