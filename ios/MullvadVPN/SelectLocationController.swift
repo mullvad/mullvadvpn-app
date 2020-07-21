@@ -64,7 +64,10 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
         tableView.dataSource = dataSource
 
         RelayCache.shared.addObserver(self)
-        loadData()
+
+        updateDataSource(animateDifferences: false) {
+            self.updateTableViewSelection(scroll: true, animated: false)
+        }
     }
 
     override func viewDidLayoutSubviews() {
@@ -113,9 +116,9 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
         }
     }
 
-    // MARK: - Relay list handling
+    // MARK: - Public
 
-    private func loadData() {
+    func prefetchData(completionHandler: @escaping () -> Void) {
         fetchRelays { (result) in
             DispatchQueue.main.async {
                 switch result {
@@ -125,9 +128,13 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
                 case .failure(let error):
                     error.logChain()
                 }
+
+                completionHandler()
             }
         }
     }
+
+    // MARK: - Relay list handling
 
     private func fetchRelays(completionHandler: @escaping (Result<(CachedRelays, RelayConstraints), Error>) -> Void) {
         RelayCache.shared.read { (result) in

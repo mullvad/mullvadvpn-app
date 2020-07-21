@@ -13,4 +13,5 @@ enum ViewControllerIdentifier: String {
     case login = "Login"
     case main = "Main"
     case settings = "Settings"
+    case selectLocation = "SelectLocation"
 }
