@@ -328,6 +328,10 @@ struct MullvadRest {
         return RestSessionEndpoint(session: session, endpoint: Self.getAccountExpiry())
     }
 
+    func getWireguardKey() -> RestSessionEndpoint<PublicKeyPayload<TokenPayload<EmptyPayload>>, WireguardAddressesResponse> {
+        return RestSessionEndpoint(session: session, endpoint: Self.getWireguardKey())
+    }
+
     func pushWireguardKey() -> RestSessionEndpoint<TokenPayload<PushWireguardKeyRequest>, WireguardAddressesResponse> {
         return RestSessionEndpoint(session: session, endpoint: Self.pushWireguardKey())
     }
@@ -366,6 +370,13 @@ extension MullvadRest {
     static func getAccountExpiry() -> RestEndpoint<TokenPayload<EmptyPayload>, AccountResponse> {
         return RestEndpoint(
             endpointURL: kRestBaseURL.appendingPathComponent("me"),
+            httpMethod: .get
+        )
+    }
+    /// GET /v1/wireguard-keys/{pubkey}
+    static func getWireguardKey() -> RestEndpoint<PublicKeyPayload<TokenPayload<EmptyPayload>>, WireguardAddressesResponse> {
+        return RestEndpoint(
+            endpointURL: kRestBaseURL.appendingPathComponent("wireguard-keys"),
             httpMethod: .get
         )
     }

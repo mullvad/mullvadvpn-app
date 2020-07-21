@@ -179,16 +179,16 @@ class TunnelManager {
         case obtainPersistentKeychainReference(TunnelSettingsManager.Error)
 
         /// A failure to push the public WireGuard key
-        case pushWireguardKey(MullvadRpc.Error)
+        case pushWireguardKey(RestError)
 
         /// A failure to replace the public WireGuard key
-        case replaceWireguardKey(MullvadRpc.Error)
+        case replaceWireguardKey(RestError)
 
         /// A failure to remove the public WireGuard key
-        case removeWireguardKey(MullvadRpc.Error)
+        case removeWireguardKey(RestError)
 
         /// A failure to verify the public WireGuard key
-        case verifyWireguardKey(MullvadRpc.Error)
+        case verifyWireguardKey(RestError)
 
         var errorDescription: String? {
             switch self {
@@ -241,7 +241,7 @@ class TunnelManager {
 
     private let dispatchQueue = DispatchQueue(label: "net.mullvad.MullvadVPN.TunnelManager")
 
-    private let rpc = MullvadRpc.withEphemeralURLSession()
+    private let rest = MullvadRest(session: URLSession(configuration: .ephemeral))
     private var tunnelProvider: TunnelProviderManagerType?
     private var tunnelIpc: PacketTunnelIpc?
 
@@ -569,33 +569,40 @@ class TunnelManager {
     }
 
     func verifyPublicKey(completionHandler: @escaping (Result<Bool, Error>) -> Void) {
-        let makeRequest = ResultOperation<MullvadRpc.Request<Bool>, Error> {
-            () -> Result<MullvadRpc.Request<Bool>, Error> in
+        let makePayloadOperation = ResultOperation<PublicKeyPayload<TokenPayload<EmptyPayload>>, Error> {
+            () -> Result<PublicKeyPayload<TokenPayload<EmptyPayload>>, Error> in
             guard let accountToken = self.accountToken else {
                 return .failure(.missingAccount)
             }
 
             return Self.loadTunnelSettings(accountToken: accountToken)
-                .map { (keychainEntry) -> MullvadRpc.Request<Bool> in
+                .map { (keychainEntry) -> PublicKeyPayload<TokenPayload<EmptyPayload>> in
                     let publicKey = keychainEntry.tunnelSettings.interface
                         .privateKey
                         .publicKey.rawRepresentation
 
-                    return self.rpc.checkWireguardKey(
-                        accountToken: keychainEntry.accountToken,
-                        publicKey: publicKey
+                    return PublicKeyPayload(
+                        pubKey: publicKey,
+                        payload: TokenPayload(token: keychainEntry.accountToken, payload: EmptyPayload())
                     )
             }
         }
 
-        let sendRequest = rpc.checkWireguardKey()
-            .injectResult(from: makeRequest)
+        let getPubkeyOperation = self.rest.getWireguardKey()
+            .operation(payload: nil)
+            .injectResult(from: makePayloadOperation)
 
-        sendRequest.addDidFinishBlockObserver { (operation, result) in
-            completionHandler(result.mapError { Error.verifyWireguardKey($0) })
+        getPubkeyOperation.addDidFinishBlockObserver { (operation, result) in
+            let result = result.map { (_) -> Bool in
+                return true
+            }.mapError { (restError) -> Error in
+                return .verifyWireguardKey(restError)
+            }
+
+            completionHandler(result)
         }
 
-        operationQueue.addOperations([makeRequest, sendRequest], waitUntilFinished: false)
+        operationQueue.addOperations([makePayloadOperation, getPubkeyOperation], waitUntilFinished: false)
     }
 
     func regeneratePrivateKey(completionHandler: @escaping (Result<(), Error>) -> Void) {
@@ -793,42 +800,52 @@ class TunnelManager {
         publicKey: WireguardPublicKey,
         completionHandler: @escaping (Result<(), Error>) -> Void)
     {
-        let request = self.rpc.pushWireguardKey(
-            accountToken: accountToken,
-            publicKey: publicKey.rawRepresentation
-        )
+        let payload = TokenPayload(token: accountToken, payload: PushWireguardKeyRequest(pubkey: publicKey.rawRepresentation))
+        let operation = rest.pushWireguardKey().operation(payload: payload)
 
-        request.start { (rpcResult) in
+        operation.addDidFinishBlockObserver { (operation, result) in
+            let updateResult = result
+                .mapError({ (restError) -> Error in
+                    return .pushWireguardKey(restError)
+                })
+                .flatMap { (associatedAddresses) -> Result<(), Error> in
+                    return Self.updateTunnelSettings(accountToken: accountToken) { (tunnelSettings) in
+                        tunnelSettings.interface.addresses = [
+                            associatedAddresses.ipv4Address,
+                            associatedAddresses.ipv6Address
+                        ]
+                    }.map { _ in () }
+            }
+
             self.dispatchQueue.async {
-                let updateResult = rpcResult
-                    .mapError({ (rpcError) -> Error in
-                        return Error.pushWireguardKey(rpcError)
-                    })
-                    .flatMap { (associatedAddresses) -> Result<(), Error> in
-                        return Self.updateTunnelSettings(accountToken: accountToken) { (tunnelSettings) in
-                            tunnelSettings.interface.addresses = [
-                                associatedAddresses.ipv4Address,
-                                associatedAddresses.ipv6Address
-                            ]
-                        }.map { _ in () }
-                }
-
                 completionHandler(updateResult)
             }
         }
+
+        operationQueue.addOperation(operation)
     }
 
     private func removeWireguardKeyFromServer(accountToken: String, publicKey: Data, completionHandler: @escaping (Result<Bool, Error>) -> Void) {
-        let request = self.rpc.removeWireguardKey(
-            accountToken: accountToken,
-            publicKey: publicKey
-        )
+        let payload = PublicKeyPayload(pubKey: publicKey, payload: TokenPayload(token: accountToken, payload: EmptyPayload()))
+        let operation = rest.deleteWireguardKey().operation(payload: payload)
 
-        request.start(completionHandler: { (result) in
-            self.dispatchQueue.async {
-                completionHandler(result.mapError { Error.removeWireguardKey($0) })
+        operation.addDidFinishBlockObserver { (operation, result) in
+            let result = result.map({ () -> Bool in
+                return true
+            }).flatMapError { (restError) -> Result<Bool, Error> in
+                if case .server(.pubKeyNotFound) = restError {
+                    return .success(false)
+                } else {
+                    return .failure(.removeWireguardKey(restError))
+                }
             }
-        })
+
+            self.dispatchQueue.async {
+                completionHandler(result)
+            }
+        }
+
+        operationQueue.addOperation(operation)
     }
 
     private func replaceWireguardKeyAndUpdateSettings(
@@ -837,31 +854,37 @@ class TunnelManager {
         newPrivateKey: WireguardPrivateKey,
         completionHandler: @escaping (Result<(), Error>) -> Void)
     {
-        let request = self.rpc.replaceWireguardKey(
-            accountToken: accountToken,
-            oldPublicKey: oldPublicKey.rawRepresentation,
-            newPublicKey: newPrivateKey.publicKey.rawRepresentation
+        let payload = TokenPayload(
+            token: accountToken,
+            payload: ReplaceWireguardKeyRequest(
+                old: oldPublicKey.rawRepresentation,
+                new: newPrivateKey.publicKey.rawRepresentation
+            )
         )
 
-        request.start { (rpcResult) in
-            self.dispatchQueue.async {
-                let updateResult = rpcResult
-                    .mapError({ (rpcError) -> Error in
-                        return Error.replaceWireguardKey(rpcError)
-                    })
-                    .flatMap { (associatedAddresses) -> Result<(), Error> in
-                        return Self.updateTunnelSettings(accountToken: accountToken) { (tunnelSettings) in
-                            tunnelSettings.interface.privateKey = newPrivateKey
-                            tunnelSettings.interface.addresses = [
-                                associatedAddresses.ipv4Address,
-                                associatedAddresses.ipv6Address
-                            ]
-                        }.map { _ in () }
-                }
+        let operation = rest.replaceWireguardKey().operation(payload: payload)
 
+        operation.addDidFinishBlockObserver { (operation, result) in
+            let updateResult = result
+                .mapError({ (restError) -> Error in
+                    return .replaceWireguardKey(restError)
+                })
+                .flatMap { (associatedAddresses) -> Result<(), Error> in
+                    return Self.updateTunnelSettings(accountToken: accountToken) { (tunnelSettings) in
+                        tunnelSettings.interface.privateKey = newPrivateKey
+                        tunnelSettings.interface.addresses = [
+                            associatedAddresses.ipv4Address,
+                            associatedAddresses.ipv6Address
+                        ]
+                    }.map { _ in () }
+            }
+
+            self.dispatchQueue.async {
                 completionHandler(updateResult)
             }
         }
+
+        operationQueue.addOperation(operation)
     }
 
     /// Initiates the `tunnelState` update
