@@ -29,7 +29,7 @@ type LogSink = unsafe.Pointer
 type LogContext = unsafe.Pointer
 
 //export wgTurnOn
-func wgTurnOn(cIfaceName *C.char, mtu int, cSettings *C.char, logSink LogSink, logContext LogContext) int32 {
+func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, logSink LogSink, logContext LogContext) int32 {
 	logger := logging.NewLogger(logSink, logContext)
 
 	if cIfaceName == nil {
@@ -96,10 +96,12 @@ func wgTurnOn(cIfaceName *C.char, mtu int, cSettings *C.char, logSink LogSink, l
 			Luid:   winipcfg.LUID(nativeTun.LUID()),
 			Family: windows.AF_INET,
 		},
-		{
+	}
+	if waitOnIpv6 {
+		interfaces = append(interfaces, interfacewatcher.Event {
 			Luid:   winipcfg.LUID(nativeTun.LUID()),
 			Family: windows.AF_INET6,
-		},
+		})
 	}
 
 	logger.Debug.Println("Waiting for interfaces to attach")
