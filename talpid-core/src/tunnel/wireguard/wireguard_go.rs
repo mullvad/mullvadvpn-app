@@ -126,10 +126,15 @@ impl WgGoTunnel {
             .map(LoggingContext)
             .map_err(TunnelError::LoggingError)?;
 
+        let wait_on_ipv6 = config.ipv6_gateway.is_some() ||
+            config.tunnel.addresses.iter().any(|ip| ip.is_ipv6()) ||
+            config.peers.iter().any(|config| config.allowed_ips.iter().any(|ip| ip.is_ipv6()));
+
         let handle = unsafe {
             wgTurnOn(
                 cstr_iface_name.as_ptr(),
                 config.mtu as i64,
+                wait_on_ipv6 as u8,
                 wg_config_str.as_ptr(),
                 Some(logging_callback),
                 logging_context.0 as *mut libc::c_void,
@@ -350,6 +355,7 @@ extern "C" {
     fn wgTurnOn(
         iface_name: *const i8,
         mtu: i64,
+        wait_on_ipv6: u8,
         settings: *const i8,
         logging_callback: Option<LoggingCallback>,
         logging_context: *mut libc::c_void,
