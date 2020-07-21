@@ -228,12 +228,18 @@ fn tunnel_parameter_error_to_string(parameter_error: i32) -> &'static str {
 async fn print_location(
     rpc: &mut ManagementServiceClient<tonic::transport::Channel>,
 ) -> Result<()> {
-    // TODO: RPC should return an optional location
-    let location = rpc
-        .get_current_location(())
-        .await
-        .map_err(Error::GrpcClientError)?
-        .into_inner();
+    let location = rpc.get_current_location(()).await;
+    let location = match location {
+        Ok(response) => response.into_inner(),
+        Err(status) => {
+            if status.code() == tonic::Code::NotFound {
+                println!("Location data unavailable");
+                return Ok(());
+            } else {
+                return Err(Error::GrpcClientError(status));
+            }
+        }
+    };
     if !location.hostname.is_empty() {
         println!("Relay: {}", location.hostname);
     }
