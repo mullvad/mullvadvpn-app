@@ -22,22 +22,37 @@ enum HttpMethod: String {
     case delete = "DELETE"
 }
 
-/// A known list of Rest API error codes
-enum RestErrorCode: String {
-    case invalidAccount = "INVALID_ACCOUNT"
-    case keyLimitReached = "KEY_LIMIT_REACHED"
-}
-
 /// A struct that represents a server response in case of error (any HTTP status code except 2xx).
-struct ServerErrorResponse: LocalizedError, Decodable, RestResponse {
+struct ServerErrorResponse: LocalizedError, Decodable, RestResponse, Equatable {
+    /// A list of known server error codes
+    enum Code: String, Equatable {
+        case invalidAccount = "INVALID_ACCOUNT"
+        case keyLimitReached = "KEY_LIMIT_REACHED"
+        case pubKeyNotFound = "PUBKEY_NOT_FOUND"
+
+        static func ~= (pattern: Self, value: ServerErrorResponse) -> Bool {
+            return pattern.rawValue == value.code
+        }
+    }
+
+    static var invalidAccount: Code {
+        return .invalidAccount
+    }
+    static var keyLimitReached: Code {
+        return .keyLimitReached
+    }
+    static var pubKeyNotFound: Code {
+        return .pubKeyNotFound
+    }
+
     let code: String
     let error: String?
 
     var errorDescription: String? {
         switch code {
-        case RestErrorCode.keyLimitReached.rawValue:
+        case Code.keyLimitReached.rawValue:
             return NSLocalizedString("Too many public WireGuard keys", comment: "")
-        case RestErrorCode.invalidAccount.rawValue:
+        case Code.invalidAccount.rawValue:
             return NSLocalizedString("Invalid account", comment: "")
         default:
             return nil
@@ -46,11 +61,15 @@ struct ServerErrorResponse: LocalizedError, Decodable, RestResponse {
 
     var recoverySuggestion: String? {
         switch code {
-        case RestErrorCode.keyLimitReached.rawValue:
+        case Code.keyLimitReached.rawValue:
             return NSLocalizedString("Remove unused WireGuard keys", comment: "")
         default:
             return nil
         }
+    }
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.code == rhs.code
     }
 }
 
