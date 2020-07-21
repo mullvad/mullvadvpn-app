@@ -35,7 +35,7 @@ class AppListAdapter(
 
     init {
         jobTracker.newBackgroundJob("populateAppList") {
-            populateAppList(context)
+            populateAppList()
         }
     }
 
@@ -52,7 +52,7 @@ class AppListAdapter(
         holder.appInfo = appList.get(position)
     }
 
-    private fun populateAppList(context: Context) {
+    private fun populateAppList() {
         val applications = packageManager
             .getInstalledApplications(0)
             .filter { info -> info.packageName != thisPackageName }
