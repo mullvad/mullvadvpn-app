@@ -204,10 +204,12 @@ impl ManagementService for ManagementServiceImpl {
 
         tokio02::spawn(async move {
             for country in &locations.countries {
-                stream_tx
+                if let Err(error) = stream_tx
                     .send(Ok(convert_relay_list_country(country)))
                     .await
-                    .unwrap();
+                {
+                    log::error!("Error while sending relays to client: {}", error.display_chain());
+                }
             }
         });
 
@@ -613,12 +615,15 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     async fn get_wireguard_key(&self, _: Request<()>) -> ServiceResult<proto::PublicKey> {
-        // FIXME: optional return
         log::debug!("get_wireguard_key");
         let (tx, rx) = sync::oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetWireguardKey(tx))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(|public_key| Response::new(convert_public_key(&public_key.unwrap())))
+            .then(|response| match response {
+                Ok(Some(key)) => Ok(Response::new(convert_public_key(&key))),
+                Ok(None) => Err(tonic::Status::not_found("no WireGuard key was found")),
+                Err(e) => Err(e),
+            })
             .compat()
             .await
     }
