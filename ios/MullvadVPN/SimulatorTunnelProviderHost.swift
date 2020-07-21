@@ -46,31 +46,38 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
     func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
         DispatchQueue.main.async {
-            let completeRequest = { (response: AnyEncodable) in
-                switch PacketTunnelIpcHandler.encodeResponse(response: response) {
-                case .success(let data):
-                    completionHandler?(data)
-
-                case .failure:
-                    completionHandler?(nil)
-                }
-
-            }
-
             let result = PacketTunnelIpcHandler.decodeRequest(messageData: messageData)
             switch result {
             case .success(let request):
                 switch request {
                 case .reloadTunnelSettings:
-                    return completeRequest(AnyEncodable(true))
+                    return Self.replyAppMessage(true, completionHandler: completionHandler)
 
                 case .tunnelInformation:
-                    return completeRequest(AnyEncodable(self.connectionInfo))
+                    return Self.replyAppMessage(self.connectionInfo, completionHandler: completionHandler)
                 }
 
             case .failure:
                 completionHandler?(nil)
             }
+        }
+    }
+
+    private static func replyAppMessage<T: Encodable>(
+        _ result: Result<T, PacketTunnelProviderError>,
+        completionHandler: ((Data?) -> Void)?) {
+        let result = result.flatMap { (response) -> Result<Data, PacketTunnelProviderError> in
+            return PacketTunnelIpcHandler.encodeResponse(response: response)
+                .mapError { PacketTunnelProviderError.ipcHandler($0) }
+        }
+
+        switch result {
+        case .success(let data):
+            completionHandler?(data)
+
+        case .failure(let error):
+            error.logChain(log: tunnelProviderLog)
+            completionHandler?(nil)
         }
     }
 
