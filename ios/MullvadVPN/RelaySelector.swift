@@ -92,7 +92,7 @@ struct RelaySelector {
 
             let locationComponents = serverRelay.location.split(separator: "-")
             guard locationComponents.count > 1 else { return nil }
-            
+
             let location = Location(
                 country: serverLocation.country,
                 countryCode: String(locationComponents[0]),
