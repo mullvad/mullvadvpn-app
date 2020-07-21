@@ -62,7 +62,7 @@ class AutomaticKeyRotationManager {
     private var isAutomaticRotationEnabled = false
 
     /// A REST request for replacing the key on server
-    private var request: URLSessionTask?
+    private var dataTask: URLSessionTask?
 
     /// A variable backing the `eventHandler` public property
     private var _eventHandler: ((KeyRotationResult) -> Void)?
@@ -106,8 +106,8 @@ class AutomaticKeyRotationManager {
 
             self.isAutomaticRotationEnabled = false
 
-            self.request?.cancel()
-            self.request = nil
+            self.dataTask?.cancel()
+            self.dataTask = nil
 
             self.timerSource?.cancel()
 
@@ -139,9 +139,11 @@ class AutomaticKeyRotationManager {
 
                 switch result {
                 case .success(let newTask):
-                    self.request = newTask
+                    self.dataTask = newTask
+                    newTask.resume()
+
                 case .failure(let error):
-                    self.request = nil
+                    self.dataTask = nil
                     self.didCompleteKeyRotation(result: .failure(.rest(error)))
                 }
             } else {
