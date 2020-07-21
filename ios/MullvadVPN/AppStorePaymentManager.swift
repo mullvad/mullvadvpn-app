@@ -263,7 +263,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                         completionHandler(.failure(.sendReceipt(error)))
                     }
                 }
-                
+
                 self.exclusivityController.addOperation(createApplePaymentOperation, categories: [.sendReceipt])
 
             case .failure(let error):
