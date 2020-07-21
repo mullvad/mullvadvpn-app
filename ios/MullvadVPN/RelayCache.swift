@@ -227,6 +227,8 @@ class RelayCache {
         switch taskResult {
         case .success(let newDownloadTask):
             downloadTask = newDownloadTask
+            newDownloadTask.resume()
+            
         case .failure(let restError):
             restError.logChain(message: "Failed to create a REST request for updating relays", log: .default)
             downloadTask = nil
