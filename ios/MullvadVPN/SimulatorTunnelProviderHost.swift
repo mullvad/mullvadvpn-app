@@ -51,10 +51,10 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             case .success(let request):
                 switch request {
                 case .reloadTunnelSettings:
-                    return Self.replyAppMessage(true, completionHandler: completionHandler)
+                    Self.replyAppMessage(true, completionHandler: completionHandler)
 
                 case .tunnelInformation:
-                    return Self.replyAppMessage(self.connectionInfo, completionHandler: completionHandler)
+                    Self.replyAppMessage(self.connectionInfo, completionHandler: completionHandler)
                 }
 
             case .failure:
@@ -63,20 +63,14 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         }
     }
 
-    private static func replyAppMessage<T: Encodable>(
-        _ result: Result<T, PacketTunnelProviderError>,
-        completionHandler: ((Data?) -> Void)?) {
-        let result = result.flatMap { (response) -> Result<Data, PacketTunnelProviderError> in
-            return PacketTunnelIpcHandler.encodeResponse(response: response)
-                .mapError { PacketTunnelProviderError.ipcHandler($0) }
-        }
-
-        switch result {
+    private static func replyAppMessage<T: Encodable>(_ response: T, completionHandler: ((Data?) -> Void)?)
+    {
+        switch PacketTunnelIpcHandler.encodeResponse(response: response) {
         case .success(let data):
             completionHandler?(data)
 
         case .failure(let error):
-            error.logChain(log: tunnelProviderLog)
+            error.logChain()
             completionHandler?(nil)
         }
     }
