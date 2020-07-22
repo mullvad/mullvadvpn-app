@@ -11,10 +11,10 @@ import UIKit
 class SelectLocationCell: BasicTableViewCell {
     typealias CollapseHandler = (SelectLocationCell) -> Void
 
-    @IBOutlet var locationLabel: UILabel!
-    @IBOutlet var statusIndicator: RelayStatusIndicatorView!
-    @IBOutlet var tickImageView: UIImageView!
-    @IBOutlet var collapseButton: UIButton!
+    let locationLabel = UILabel()
+    let statusIndicator = RelayStatusIndicatorView()
+    let tickImageView = UIImageView(image: UIImage(imageLiteralResourceName: "IconTick"))
+    let collapseButton = UIButton(type: .custom)
 
     private let chevronDown = UIImage(imageLiteralResourceName: "IconChevronDown")
     private let chevronUp = UIImage(imageLiteralResourceName: "IconChevronUp")
@@ -48,19 +48,14 @@ class SelectLocationCell: BasicTableViewCell {
         }
     }
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        indentationWidth = 16
-        statusIndicator.tintColor = .white
+        setupCell()
+    }
 
-        collapseButton.addTarget(self, action: #selector(handleCollapseButton(_ :)), for: .touchUpInside)
-
-        updateCollapseImage()
-        updateDisabled()
-        updateBackgroundColor()
-
-        contentView.layoutMargins = preferredMargins
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func layoutSubviews() {
@@ -82,9 +77,57 @@ class SelectLocationCell: BasicTableViewCell {
         updateTickImage()
     }
 
+    private func setupCell() {
+        indentationWidth = 16
+
+        backgroundView = UIView()
+        selectedBackgroundView = UIView()
+        backgroundColor = .clear
+        contentView.layoutMargins = preferredMargins
+
+        locationLabel.font = UIFont.systemFont(ofSize: 17)
+        locationLabel.textColor = .white
+
+        statusIndicator.tintColor = .white
+        tickImageView.tintColor = .white
+
+        collapseButton.tintColor = .white
+        collapseButton.setImage(chevronDown, for: .normal)
+        collapseButton.addTarget(self, action: #selector(handleCollapseButton(_ :)), for: .touchUpInside)
+
+        [locationLabel, tickImageView, statusIndicator, collapseButton].forEach { (subview) in
+            subview.translatesAutoresizingMaskIntoConstraints = false
+            contentView.addSubview(subview)
+        }
+
+        updateCollapseImage()
+        updateDisabled()
+        updateBackgroundColor()
+
+        NSLayoutConstraint.activate([
+            statusIndicator.widthAnchor.constraint(equalToConstant: 16),
+            statusIndicator.heightAnchor.constraint(equalToConstant: 16),
+            statusIndicator.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
+            statusIndicator.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+
+            tickImageView.centerXAnchor.constraint(equalTo: statusIndicator.centerXAnchor),
+            tickImageView.centerYAnchor.constraint(equalTo: statusIndicator.centerYAnchor),
+
+            locationLabel.leadingAnchor.constraint(equalTo: statusIndicator.trailingAnchor, constant: 12),
+            locationLabel.trailingAnchor.constraint(greaterThanOrEqualTo: collapseButton.leadingAnchor, constant: 0),
+            locationLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
+            locationLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
+
+            collapseButton.widthAnchor.constraint(equalToConstant: 64),
+            collapseButton.topAnchor.constraint(equalTo: contentView.topAnchor),
+            collapseButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            collapseButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+        ])
+    }
+
     private func updateTickImage() {
         statusIndicator.isHidden = isSelected
-        tickImageView?.isHidden = !isSelected
+        tickImageView.isHidden = !isSelected
     }
 
     private func updateDisabled() {

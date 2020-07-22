@@ -33,12 +33,18 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
     private var expandedItems = [RelayLocation]()
     private var dataSource: DataSource?
 
-    var selectedLocation: RelayLocation?
+    var didSelectLocationHandler: ((RelayLocation) -> Void)?
 
     // MARK: - View lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        view.backgroundColor = .secondaryColor
+
+        tableView.tableHeaderView = SelectLocationHeaderView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+        tableView.register(SelectLocationCell.self, forCellReuseIdentifier: kCellIdentifier)
+        tableView.separatorColor = .clear
 
         dataSource = DataSource(
             tableView: self.tableView,
@@ -57,6 +63,9 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
                 cell.didCollapseHandler = { [weak self] (cell) in
                     self?.collapseCell(cell)
                 }
+
+                // Prevent overlap between cells and subcells
+                cell.layer.zPosition = item.zPosition
 
                 return cell
         })
@@ -89,14 +98,11 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let item = dataSource?.itemIdentifier(for: indexPath) else { return }
 
-        selectedLocation = item.relayLocation
-
-        // Return back to the main view after selecting the relay
+        // Disable interaction with the controller after selection
         tableView.isUserInteractionEnabled = false
 
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(250)) {
-            self.performSegue(withIdentifier:
-                SegueIdentifier.SelectLocation.returnToConnectWithNewRelay.rawValue, sender: self)
+            self.didSelectLocationHandler?(item.relayLocation)
         }
     }
 
@@ -368,6 +374,17 @@ private enum DataSourceItem: Hashable {
             return self.hasActiveRelays()
         case .hostname:
             return false
+        }
+    }
+
+    var zPosition: CGFloat {
+        switch self {
+        case .country:
+            return 3
+        case .city:
+            return 2
+        case .hostname:
+            return 1
         }
     }
 

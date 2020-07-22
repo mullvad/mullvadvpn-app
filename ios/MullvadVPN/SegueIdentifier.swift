@@ -26,10 +26,6 @@ extension SegueIdentifier {
         case embedTunnelControls = "EmbedTunnelControls"
     }
 
-    enum SelectLocation: String, SegueConvertible {
-        case returnToConnectWithNewRelay = "ReturnToConnectWithNewRelay"
-    }
-
     enum Account: String, SegueConvertible {
         case logout = "Logout"
     }

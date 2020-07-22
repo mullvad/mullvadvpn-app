@@ -76,6 +76,8 @@
 		5857F23D24C8449A00CF6F47 /* TransformOperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22024B3240100F9D8A1 /* TransformOperationObserver.swift */; };
 		5857F23E24C844A000CF6F47 /* OperationBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE21424B3231200F9D8A1 /* OperationBlockObserver.swift */; };
 		5857F23F24C844AD00CF6F47 /* Locking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA692D23E99EFF009DC256 /* Locking.swift */; };
+		5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */; };
+		5857F24724C882D700CF6F47 /* SelectLocationNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */; };
 		5860F1C223A785C600CEA666 /* WireguardDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1C123A785C600CEA666 /* WireguardDevice.swift */; };
 		5860F1C423A8D25F00CEA666 /* WireguardConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1C323A8D25F00CEA666 /* WireguardConfiguration.swift */; };
 		5860F1EB23AA4CF300CEA666 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1EA23AA4CF300CEA666 /* Logging.swift */; };
@@ -272,6 +274,8 @@
 		5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelIpc.swift; sourceTree = "<group>"; };
 		584B26F3237434D00073B10E /* RelaySelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorTests.swift; sourceTree = "<group>"; };
 		58561C98239A5D1500BD6B5E /* IPEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPEndpoint.swift; sourceTree = "<group>"; };
+		5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationHeaderView.swift; sourceTree = "<group>"; };
+		5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationNavigationController.swift; sourceTree = "<group>"; };
 		5860F1C123A785C600CEA666 /* WireguardDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardDevice.swift; sourceTree = "<group>"; };
 		5860F1C323A8D25F00CEA666 /* WireguardConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardConfiguration.swift; sourceTree = "<group>"; };
 		5860F1EA23AA4CF300CEA666 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
@@ -541,6 +545,8 @@
 				5867A51B2248F26A005513C0 /* SegueIdentifier.swift */,
 				5888AD82227B11080051EB06 /* SelectLocationCell.swift */,
 				5888AD86227B17950051EB06 /* SelectLocationController.swift */,
+				5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */,
+				5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */,
 				582BB1B2229574F40055B6EF /* SettingsAccountCell.swift */,
 				581CBCEB2298041B00727D7F /* SettingsAppVersionCell.swift */,
 				5877152D23981C5B001F8237 /* SettingsBasicCell.swift */,
@@ -907,6 +913,7 @@
 				580EE21E24B3237F00F9D8A1 /* OutputOperation.swift in Sources */,
 				5840250122B1124600E4CFEC /* IpAddress+Codable.swift in Sources */,
 				58EC4E6C23915325003F5C5B /* Bundle+MullvadVersion.swift in Sources */,
+				5857F24724C882D700CF6F47 /* SelectLocationNavigationController.swift in Sources */,
 				580EE21224B322FC00F9D8A1 /* ResultOperation.swift in Sources */,
 				58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */,
 				58E6771F24ADFE7800AA26E7 /* SettingsNavigationController.swift in Sources */,
@@ -968,6 +975,7 @@
 				581CBCEE229826FD00727D7F /* StaticTableViewDataSource.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
 				58C6B35E22BBBFE3003C19AD /* Data+HexCoding.swift in Sources */,
+				5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */,
 				58AEEF652344A36000C9BBD5 /* KeychainError.swift in Sources */,
 				580EE22824B3289300F9D8A1 /* AssociatedValue.swift in Sources */,
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
