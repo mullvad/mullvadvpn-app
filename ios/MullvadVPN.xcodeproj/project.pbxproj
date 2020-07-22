@@ -62,6 +62,20 @@
 		584E96BE240FD4DB00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
+		5857F22F24C8404C00CF6F47 /* MullvadRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CB0EDF24B86751001EF0D8 /* MullvadRest.swift */; };
+		5857F23024C843ED00CF6F47 /* ChainedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840B12464491D0044E708 /* ChainedError.swift */; };
+		5857F23324C8442800CF6F47 /* IPAddressRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C6B34E22BB7AC0003C19AD /* IPAddressRange.swift */; };
+		5857F23424C8443700CF6F47 /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E973DD24850EB600096F90 /* AsyncOperation.swift */; };
+		5857F23524C8444E00CF6F47 /* InputOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE21A24B3236900F9D8A1 /* InputOperation.swift */; };
+		5857F23624C8445300CF6F47 /* OutputOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE21D24B3237F00F9D8A1 /* OutputOperation.swift */; };
+		5857F23724C8446400CF6F47 /* AssociatedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22724B3289300F9D8A1 /* AssociatedValue.swift */; };
+		5857F23824C8446700CF6F47 /* AsyncBlockOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */; };
+		5857F23924C8446A00CF6F47 /* AnyOperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE21724B3235100F9D8A1 /* AnyOperationObserver.swift */; };
+		5857F23B24C8448600CF6F47 /* OperationProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE20024B321D500F9D8A1 /* OperationProtocol.swift */; };
+		5857F23C24C8449500CF6F47 /* OperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE20324B321EC00F9D8A1 /* OperationObserver.swift */; };
+		5857F23D24C8449A00CF6F47 /* TransformOperationObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22024B3240100F9D8A1 /* TransformOperationObserver.swift */; };
+		5857F23E24C844A000CF6F47 /* OperationBlockObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE21424B3231200F9D8A1 /* OperationBlockObserver.swift */; };
+		5857F23F24C844AD00CF6F47 /* Locking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA692D23E99EFF009DC256 /* Locking.swift */; };
 		5860F1C223A785C600CEA666 /* WireguardDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1C123A785C600CEA666 /* WireguardDevice.swift */; };
 		5860F1C423A8D25F00CEA666 /* WireguardConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1C323A8D25F00CEA666 /* WireguardConfiguration.swift */; };
 		5860F1EB23AA4CF300CEA666 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1EA23AA4CF300CEA666 /* Logging.swift */; };
@@ -851,22 +865,36 @@
 				5896AE81246ACE81005B36CB /* KeychainMatchLimit.swift in Sources */,
 				5896AE80246ACE79005B36CB /* KeychainClass.swift in Sources */,
 				582AE3132440CA2700E6733A /* AccountTokenInput.swift in Sources */,
+				5857F23724C8446400CF6F47 /* AssociatedValue.swift in Sources */,
+				5857F23B24C8448600CF6F47 /* OperationProtocol.swift in Sources */,
+				5857F22F24C8404C00CF6F47 /* MullvadRest.swift in Sources */,
 				58B0A2AA238EE6A900BC001D /* RelaySelector.swift in Sources */,
+				5857F23924C8446A00CF6F47 /* AnyOperationObserver.swift in Sources */,
 				5896AE86246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift in Sources */,
 				5807E2C3243203E700F5FF30 /* String+Split.swift in Sources */,
+				5857F23324C8442800CF6F47 /* IPAddressRange.swift in Sources */,
 				5896AE82246ACE84005B36CB /* KeychainReturn.swift in Sources */,
 				58B0A2A8238EE68200BC001D /* RelaySelectorTests.swift in Sources */,
 				584E96BE240FD4DB00D3334F /* Location.swift in Sources */,
+				5857F23F24C844AD00CF6F47 /* Locking.swift in Sources */,
+				5857F23424C8443700CF6F47 /* AsyncOperation.swift in Sources */,
+				5857F23624C8445300CF6F47 /* OutputOperation.swift in Sources */,
 				58B0A2AC238EE6D500BC001D /* IpAddress+Codable.swift in Sources */,
 				58B0A2AD238EE6EC00BC001D /* MullvadEndpoint.swift in Sources */,
 				58FAEDF4245088B300CB0F5B /* KeychainError.swift in Sources */,
 				5896AE88246D7FAF005B36CB /* CustomDateComponentsFormatting.swift in Sources */,
+				5857F23D24C8449A00CF6F47 /* TransformOperationObserver.swift in Sources */,
+				5857F23524C8444E00CF6F47 /* InputOperation.swift in Sources */,
+				5857F23824C8446700CF6F47 /* AsyncBlockOperation.swift in Sources */,
 				582AE3122440CA0D00E6733A /* AccountTokenInputTests.swift in Sources */,
 				5896AE7E246ACE65005B36CB /* KeychainAttributes.swift in Sources */,
 				58B0A2A9238EE6A100BC001D /* RelayConstraints.swift in Sources */,
 				5807E2C2243203D000F5FF30 /* StringTests.swift in Sources */,
+				5857F23E24C844A000CF6F47 /* OperationBlockObserver.swift in Sources */,
+				5857F23024C843ED00CF6F47 /* ChainedError.swift in Sources */,
 				58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */,
 				5896AE7F246ACE76005B36CB /* Keychain.swift in Sources */,
+				5857F23C24C8449500CF6F47 /* OperationObserver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
