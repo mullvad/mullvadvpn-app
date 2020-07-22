@@ -16,7 +16,7 @@ impl Command for Connect {
 
     async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        if let Err(e) = rpc.connect_daemon(()).await {
+        if let Err(e) = rpc.connect_tunnel(()).await {
             eprintln!("{}", e.display_chain());
         }
         Ok(())

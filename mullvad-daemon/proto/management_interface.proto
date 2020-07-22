@@ -7,47 +7,61 @@ import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
 
 service ManagementService {
-	rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
-	rpc GetAccountData(google.protobuf.StringValue) returns (AccountData) {}
-	rpc GetWwwAuthToken(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
-	rpc SubmitVoucher(google.protobuf.StringValue) returns (VoucherSubmission) {}
+	// Control and get tunnel state
+	rpc ConnectTunnel(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc DisconnectTunnel(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc ReconnectTunnel(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc GetTunnelState(google.protobuf.Empty) returns (TunnelState) {}
+
+	// Control the daemon and receive events
+	rpc EventsListen(google.protobuf.Empty) returns (stream DaemonEvent) {}
+	rpc PrepareRestart(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc Shutdown(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc FactoryReset(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+	rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
+
+	// Relays and tunnel constraints
 	rpc UpdateRelayLocations(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc SetAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-	rpc SetAllowLan(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 	rpc UpdateRelaySettings(RelaySettingsUpdate) returns (google.protobuf.Empty) {}
+	rpc GetRelayLocations(google.protobuf.Empty) returns (stream RelayListCountry) {}
+	rpc GetCurrentLocation(google.protobuf.Empty) returns (GeoIpLocation) {}
+	rpc SetBridgeSettings(BridgeSettings) returns (google.protobuf.Empty) {}
+	rpc SetBridgeState(BridgeState) returns (google.protobuf.Empty) {}
+
+	// Settings
+	rpc GetSettings(google.protobuf.Empty) returns (Settings) {}
+	rpc SetAllowLan(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 	rpc SetShowBetaReleases(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 	rpc SetBlockWhenDisconnected(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 	rpc SetAutoConnect(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-	rpc ConnectDaemon(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc DisconnectDaemon(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc Reconnect(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc GetState(google.protobuf.Empty) returns (TunnelState) {}
-	rpc GetCurrentLocation(google.protobuf.Empty) returns (GeoIpLocation) {}
-	rpc ClearAccountHistory(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc Shutdown(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc PrepareRestart(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc SetOpenvpnMssfix(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
+	rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
+	rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+
+	// Account management
+	rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+	rpc SetAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+	rpc GetAccountData(google.protobuf.StringValue) returns (AccountData) {}
 	rpc GetAccountHistory(google.protobuf.Empty) returns (AccountHistory) {}
 	rpc RemoveAccountFromHistory(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-	rpc SetOpenvpnMssfix(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
-	rpc SetBridgeSettings(BridgeSettings) returns (google.protobuf.Empty) {}
-	rpc SetBridgeState(BridgeState) returns (google.protobuf.Empty) {}
-	rpc GetSettings(google.protobuf.Empty) returns (Settings) {}
-	rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
-	rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
+	rpc ClearAccountHistory(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc GetWwwAuthToken(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
+	rpc SubmitVoucher(google.protobuf.StringValue) returns (VoucherSubmission) {}
+
+	// WireGuard key management
 	rpc SetWireguardRotationInterval(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc ResetWireguardRotationInterval(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc GenerateWireguardKey(google.protobuf.Empty) returns (KeygenEvent) {}
 	rpc GetWireguardKey(google.protobuf.Empty) returns (PublicKey) {}
 	rpc VerifyWireguardKey(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
-	rpc GetCurrentVersion(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
-	rpc GetRelayLocations(google.protobuf.Empty) returns (stream RelayListCountry) {}
-	rpc GetVersionInfo(google.protobuf.Empty) returns (AppVersionInfo) {}
-	rpc FactoryReset(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	// Split tunneling
 	rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
 	rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
 	rpc RemoveSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
 	rpc ClearSplitTunnelProcesses(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc EventsListen(google.protobuf.Empty) returns (stream DaemonEvent) {}
 }
 
 message RelaySettingsUpdate {
@@ -62,7 +76,7 @@ message AccountData {
 }
 
 message VoucherSubmission {
-	uint64 time_added = 1;
+	uint64 seconds_added = 1;
 	google.protobuf.Timestamp new_expiry = 2;
 }
 
