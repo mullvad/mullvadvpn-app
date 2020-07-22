@@ -12,22 +12,41 @@ class OperationBlockObserver<OperationType: OperationProtocol>: OperationObserve
     private var willFinish: ((OperationType) -> Void)?
     private var didFinish: ((OperationType) -> Void)?
 
-    init(willFinish: ((OperationType) -> Void)? = nil, didFinish: ((OperationType) -> Void)? = nil) {
+    let queue: DispatchQueue?
+
+    init(queue: DispatchQueue? = nil, willFinish: ((OperationType) -> Void)? = nil, didFinish: ((OperationType) -> Void)? = nil) {
+        self.queue = queue
         self.willFinish = willFinish
         self.didFinish = didFinish
     }
 
     func operationWillFinish(_ operation: OperationType) {
-        self.willFinish?(operation)
+        if let willFinish = self.willFinish {
+            scheduleEvent {
+                willFinish(operation)
+            }
+        }
     }
 
     func operationDidFinish(_ operation: OperationType) {
-        self.didFinish?(operation)
+        if let didFinish = self.didFinish {
+            scheduleEvent {
+                didFinish(operation)
+            }
+        }
+    }
+
+    private func scheduleEvent(_ body: @escaping () -> Void) {
+        if let queue = queue {
+            queue.async(execute: body)
+        } else {
+            body()
+        }
     }
 }
 
 extension OperationProtocol {
-    func addDidFinishBlockObserver(_ block: @escaping (Self) -> Void) {
-        addObserver(OperationBlockObserver(didFinish: block))
+    func addDidFinishBlockObserver(queue: DispatchQueue? = nil, _ block: @escaping (Self) -> Void) {
+        addObserver(OperationBlockObserver(queue: queue, didFinish: block))
     }
 }

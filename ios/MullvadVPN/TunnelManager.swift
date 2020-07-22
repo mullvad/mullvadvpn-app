@@ -803,7 +803,7 @@ class TunnelManager {
         let payload = TokenPayload(token: accountToken, payload: PushWireguardKeyRequest(pubkey: publicKey.rawRepresentation))
         let operation = rest.pushWireguardKey().operation(payload: payload)
 
-        operation.addDidFinishBlockObserver { (operation, result) in
+        operation.addDidFinishBlockObserver(queue: dispatchQueue) { (operation, result) in
             let updateResult = result
                 .mapError({ (restError) -> Error in
                     return .pushWireguardKey(restError)
@@ -817,9 +817,7 @@ class TunnelManager {
                     }.map { _ in () }
             }
 
-            self.dispatchQueue.async {
-                completionHandler(updateResult)
-            }
+            completionHandler(updateResult)
         }
 
         operationQueue.addOperation(operation)
@@ -829,7 +827,7 @@ class TunnelManager {
         let payload = PublicKeyPayload(pubKey: publicKey, payload: TokenPayload(token: accountToken, payload: EmptyPayload()))
         let operation = rest.deleteWireguardKey().operation(payload: payload)
 
-        operation.addDidFinishBlockObserver { (operation, result) in
+        operation.addDidFinishBlockObserver(queue: dispatchQueue) { (operation, result) in
             let result = result.map({ () -> Bool in
                 return true
             }).flatMapError { (restError) -> Result<Bool, Error> in
@@ -840,9 +838,7 @@ class TunnelManager {
                 }
             }
 
-            self.dispatchQueue.async {
-                completionHandler(result)
-            }
+            completionHandler(result)
         }
 
         operationQueue.addOperation(operation)
@@ -864,7 +860,7 @@ class TunnelManager {
 
         let operation = rest.replaceWireguardKey().operation(payload: payload)
 
-        operation.addDidFinishBlockObserver { (operation, result) in
+        operation.addDidFinishBlockObserver(queue: dispatchQueue) { (operation, result) in
             let updateResult = result
                 .mapError({ (restError) -> Error in
                     return .replaceWireguardKey(restError)
@@ -879,9 +875,7 @@ class TunnelManager {
                     }.map { _ in () }
             }
 
-            self.dispatchQueue.async {
-                completionHandler(updateResult)
-            }
+            completionHandler(updateResult)
         }
 
         operationQueue.addOperation(operation)
