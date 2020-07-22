@@ -93,5 +93,7 @@ fn declare_libs_dir(base: &str) {
 }
 
 fn generate_grpc_code() {
-    tonic_build::compile_protos("../talpid-openvpn-plugin/proto/openvpn_plugin.proto").unwrap();
+    const PROTO_FILE: &str = "../talpid-openvpn-plugin/proto/openvpn_plugin.proto";
+    tonic_build::compile_protos(PROTO_FILE).unwrap();
+    println!("cargo:rerun-if-changed={}", PROTO_FILE);
 }
