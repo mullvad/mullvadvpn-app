@@ -1,5 +1,7 @@
 fn main() {
-    tonic_build::compile_protos("proto/openvpn_plugin.proto").unwrap();
+    const PROTO_FILE: &str = "proto/openvpn_plugin.proto";
+    tonic_build::compile_protos(PROTO_FILE).unwrap();
+    println!("cargo:rerun-if-changed={}", PROTO_FILE);
 
     #[cfg(windows)]
     {
