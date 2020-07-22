@@ -35,6 +35,7 @@ service ManagementService {
 	rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 	rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc SetWireguardRotationInterval(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
+	rpc ResetWireguardRotationInterval(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc GenerateWireguardKey(google.protobuf.Empty) returns (KeygenEvent) {}
 	rpc GetWireguardKey(google.protobuf.Empty) returns (PublicKey) {}
 	rpc VerifyWireguardKey(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}

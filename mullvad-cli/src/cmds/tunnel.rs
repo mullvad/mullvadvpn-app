@@ -224,7 +224,6 @@ impl Tunnel {
     }
 
     async fn process_wireguard_rotation_interval_get() -> Result<()> {
-        // TODO: handle default interval
         let tunnel_options = Self::get_tunnel_options().await?;
         println!(
             "Rotation interval: {} hour(s)",
@@ -234,7 +233,6 @@ impl Tunnel {
     }
 
     async fn process_wireguard_rotation_interval_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
-        // TODO: handle default interval
         let rotate_interval =
             value_t!(matches.value_of("interval"), u32).unwrap_or_else(|e| e.exit());
         let mut rpc = new_grpc_client().await?;
@@ -246,9 +244,8 @@ impl Tunnel {
     }
 
     async fn process_wireguard_rotation_interval_reset() -> Result<()> {
-        // TODO: handle default interval
         let mut rpc = new_grpc_client().await?;
-        rpc.set_wireguard_rotation_interval(0)
+        rpc.reset_wireguard_rotation_interval(())
             .await
             .map_err(Error::GrpcClientError)?;
         println!("Set key rotation interval: default");
