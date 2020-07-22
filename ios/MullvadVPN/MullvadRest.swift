@@ -265,7 +265,7 @@ struct RestEndpoint<Input, Response> where Input: RestPayload, Response: RestRes
         }
     }
 
-    /// A private helper that parses the JSON response in case of success (HTTP 200)
+    /// A private helper that parses the JSON response in case of success (HTTP 2xx)
     private static func decodeSuccessResponse(_ responseData: Data) -> Result<Response.Output, RestError> {
         return Result { () -> Response.Output in
             return try Response.decodeResponse(responseData)
@@ -274,7 +274,7 @@ struct RestEndpoint<Input, Response> where Input: RestPayload, Response: RestRes
         })
     }
 
-    /// A private helper that parses the JSON response in case of error (Any HTTP code except 200)
+    /// A private helper that parses the JSON response in case of error (Any HTTP code except 2xx)
     private static func decodeErrorResponse(_ responseData: Data) -> Result<ServerErrorResponse, RestError> {
         return Result { () -> ServerErrorResponse in
             return try ServerErrorResponse.decodeResponse(responseData)
