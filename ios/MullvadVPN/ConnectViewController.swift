@@ -13,7 +13,8 @@ import os
 class ConnectViewController: UIViewController,
     RootContainment,
     TunnelControlViewControllerDelegate,
-    TunnelObserver
+    TunnelObserver,
+    SelectLocationDelegate
 {
 
     @IBOutlet var secureLabel: UILabel!
@@ -99,6 +100,31 @@ class ConnectViewController: UIViewController,
         case .selectLocation:
             showSelectLocation()
         }
+    }
+
+    // MARK: - SelectLocationDelegate
+
+    func selectLocationController(_ controller: SelectLocationController, didSelectLocation location: RelayLocation) {
+        controller.dismiss(animated: true) {
+            let relayConstraints = RelayConstraints(location: .only(location))
+
+            TunnelManager.shared.setRelayConstraints(relayConstraints) { [weak self] (result) in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success:
+                        os_log(.debug, "Updated relay constraints: %{public}s", "\(relayConstraints)")
+                        self?.connectTunnel()
+
+                    case .failure(let error):
+                        os_log(.error, "Failed to update relay constraints: %{public}s", error.localizedDescription)
+                    }
+                }
+            }
+        }
+    }
+
+    func selectLocationControllerDidCancel(_ controller: SelectLocationController) {
+        controller.dismiss(animated: true)
     }
 
     // MARK: - Private
@@ -193,21 +219,14 @@ class ConnectViewController: UIViewController,
     }
 
     private func showSelectLocation() {
-        let contentController = self.storyboard?.instantiateViewController(withIdentifier: ViewControllerIdentifier.selectLocation.rawValue) as! SelectLocationController
-        contentController.navigationItem.title = NSLocalizedString("Select location", comment: "")
-        contentController.navigationItem.largeTitleDisplayMode = .always
-
-        let navController = UINavigationController(navigationBarClass: CustomNavigationBar.self, toolbarClass: nil)
-        navController.viewControllers = [contentController]
-        navController.navigationBar.prefersLargeTitles = true
-        navController.navigationBar.barStyle = .black
-        navController.navigationBar.tintColor = .white
+        let selectLocationController = SelectLocationNavigationController()
+        selectLocationController.selectLocationDelegate = self
 
         // Disable root controller interaction
         rootContainerController?.view.isUserInteractionEnabled = false
 
-        contentController.prefetchData {
-            self.present(navController, animated: true)
+        selectLocationController.prefetchData {
+            self.present(selectLocationController, animated: true)
 
             // Re-enable root controller interaction
             self.rootContainerController?.view.isUserInteractionEnabled = true
@@ -218,26 +237,6 @@ class ConnectViewController: UIViewController,
 
     @objc func handleConnectionPanelButton(_ sender: Any) {
         connectionPanel.toggleConnectionInfoVisibility()
-    }
-
-    @IBAction func unwindFromSelectLocation(segue: UIStoryboardSegue) {
-        guard let selectLocationController = segue.source as? SelectLocationController else { return }
-        guard let selectedLocation = selectLocationController.selectedLocation else { return }
-
-        let relayConstraints = RelayConstraints(location: .only(selectedLocation))
-
-        TunnelManager.shared.setRelayConstraints(relayConstraints) { [weak self] (result) in
-            DispatchQueue.main.async {
-                switch result {
-                case .success:
-                    os_log(.debug, "Updated relay constraints: %{public}s", "\(relayConstraints)")
-                    self?.connectTunnel()
-
-                case .failure(let error):
-                    os_log(.error, "Failed to update relay constraints: %{public}s", error.localizedDescription)
-                }
-            }
-        }
     }
 
 }
