@@ -9,6 +9,7 @@ import {
   ConnectingNotificationProvider,
   DisconnectedNotificationProvider,
   ErrorNotificationProvider,
+  NotificationAction,
   ReconnectingNotificationProvider,
   SystemNotification,
   SystemNotificationProvider,
@@ -16,6 +17,7 @@ import {
 import consumePromise from '../shared/promise';
 
 interface NotificationControllerDelegate {
+  openApp(): void;
   openLink(url: string, withAuth?: boolean): Promise<void>;
   isWindowVisible(): boolean;
   areSystemNotificationsEnabled(): boolean;
@@ -97,7 +99,9 @@ export default class NotificationController {
       this.addPendingNotification(notification);
       notification.show();
 
-      setTimeout(() => notification.close(), 4000);
+      if (!systemNotification.critical) {
+        setTimeout(() => notification.close(), 4000);
+      }
 
       return notification;
     } else {
@@ -111,16 +115,31 @@ export default class NotificationController {
       body: systemNotification.message,
       silent: true,
       icon: this.notificationIcon,
+      timeoutType: systemNotification.critical ? 'never' : 'default',
     });
 
-    if (systemNotification.action) {
-      const { withAuth, url } = systemNotification.action;
-      notification.on('click', () => {
-        consumePromise(this.notificationControllerDelegate.openLink(url, withAuth));
-      });
+    // Action buttons are only available on macOS.
+    if (process.platform === 'darwin') {
+      if (systemNotification.action) {
+        notification.actions = [{ type: 'button', text: systemNotification.action.text }];
+        notification.on('action', () => this.performAction(systemNotification.action));
+      }
+      notification.on('click', () => this.notificationControllerDelegate.openApp());
+    } else {
+      if (systemNotification.action) {
+        notification.on('click', () => this.performAction(systemNotification.action));
+      } else {
+        notification.on('click', () => this.notificationControllerDelegate.openApp());
+      }
     }
 
     return notification;
+  }
+
+  private performAction(action?: NotificationAction) {
+    if (action && action.type === 'open-url') {
+      consumePromise(this.notificationControllerDelegate.openLink(action.url, action.withAuth));
+    }
   }
 
   private showTunnelStateNotification(systemNotification: SystemNotification) {

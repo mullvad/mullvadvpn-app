@@ -1,4 +1,9 @@
-export type NotificationAction = { type: 'open-url'; url: string; withAuth?: boolean };
+export type NotificationAction = {
+  type: 'open-url';
+  url: string;
+  text?: string;
+  withAuth?: boolean;
+};
 
 export type InAppNotificationIndicatorType = 'success' | 'warning' | 'error';
 
