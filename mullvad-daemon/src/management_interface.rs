@@ -1,4 +1,6 @@
-use crate::{DaemonCommand, DaemonCommandSender, EventListener};
+use crate::{
+    wireguard::DEFAULT_AUTOMATIC_KEY_ROTATION, DaemonCommand, DaemonCommandSender, EventListener,
+};
 use futures::compat::Future01CompatExt;
 use futures01::{future, sync, Future};
 use mullvad_paths;
@@ -581,13 +583,24 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     async fn set_wireguard_rotation_interval(&self, request: Request<u32>) -> ServiceResult<()> {
-        // FIXME: distinguish between disabled and unset
         let interval = request.into_inner();
-        let interval = if interval != 0 { Some(interval) } else { None };
 
         log::debug!("set_wireguard_rotation_interval({:?})", interval);
         let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetWireguardRotationInterval(tx, interval))
+        self.send_command_to_daemon(DaemonCommand::SetWireguardRotationInterval(
+            tx,
+            Some(interval),
+        ))
+        .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+        .map(Response::new)
+        .compat()
+        .await
+    }
+
+    async fn reset_wireguard_rotation_interval(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("reset_wireguard_rotation_interval");
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetWireguardRotationInterval(tx, None))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
             .map(Response::new)
             .compat()
@@ -1217,7 +1230,10 @@ fn convert_tunnel_options(options: &TunnelOptions) -> proto::TunnelOptions {
         }),
         wireguard: Some(proto::tunnel_options::WireguardOptions {
             mtu: options.wireguard.mtu.unwrap_or_default() as u32,
-            automatic_rotation: options.wireguard.automatic_rotation.unwrap_or_default() as u32,
+            automatic_rotation: options
+                .wireguard
+                .automatic_rotation
+                .unwrap_or((DEFAULT_AUTOMATIC_KEY_ROTATION.as_secs() / 60u64 / 60u64) as u32),
         }),
         generic: Some(proto::tunnel_options::GenericOptions {
             enable_ipv6: options.generic.enable_ipv6,
