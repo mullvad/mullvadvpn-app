@@ -12,27 +12,26 @@ protocol DisplayChainedError {
     var errorChainDescription: String? { get }
 }
 
-extension MullvadRpc.Error: DisplayChainedError {
+extension RestError: DisplayChainedError {
     var errorChainDescription: String? {
         switch self {
         case .network(let urlError):
             return urlError.localizedDescription
-
         case .server(let serverError):
             if let knownErrorDescription = serverError.errorDescription {
                 return knownErrorDescription
             } else {
                 return String(
                     format: NSLocalizedString("Server error: %@", comment: ""),
-                    serverError.message
+                    serverError.error ?? "(empty)"
                 )
             }
-
-        case .encoding:
+        case .encodePayload:
             return NSLocalizedString("Server request encoding error", comment: "")
-
-        case .decoding:
-            return NSLocalizedString("Server response decoding error", comment: "")
+        case .decodeSuccessResponse:
+            return NSLocalizedString("Server success response decoding error", comment: "")
+        case .decodeErrorResponse:
+            return NSLocalizedString("Server error response decoding error", comment: "")
         }
     }
 }
@@ -73,22 +72,22 @@ extension TunnelManager.Error: DisplayChainedError {
         case .removeTunnelSettings(_):
             return NSLocalizedString("Failed to remove tunnel settings", comment: "")
 
-        case .pushWireguardKey(let rpcError):
-            let reason = rpcError.errorChainDescription ?? ""
+        case .pushWireguardKey(let restError):
+            let reason = restError.errorChainDescription ?? ""
             var message = String(format: NSLocalizedString("Failed to send the WireGuard key to server: %@", comment: ""), reason)
 
-            if case .server(let serverError) = rpcError, serverError.code == .tooManyWireguardKeys {
+            if case .server(.keyLimitReached) = restError {
                 message.append("\n\n")
                 message.append(NSLocalizedString("Remove unused WireGuard keys and try again", comment: ""))
             }
 
             return message
 
-        case .replaceWireguardKey(let rpcError):
-            let reason = rpcError.errorChainDescription ?? ""
+        case .replaceWireguardKey(let restError):
+            let reason = restError.errorChainDescription ?? ""
             var message = String(format: NSLocalizedString("Failed to replace the WireGuard key on server: %@", comment: ""), reason)
 
-            if case .server(let serverError) = rpcError, serverError.code == .tooManyWireguardKeys {
+            if case .server(.keyLimitReached) = restError {
                 message.append("\n\n")
                 message.append(NSLocalizedString("Remove unused WireGuard keys and try again", comment: ""))
             }
@@ -99,8 +98,8 @@ extension TunnelManager.Error: DisplayChainedError {
             // This error is never displayed anywhere
             return nil
 
-        case .verifyWireguardKey(let rpcError):
-            let reason = rpcError.errorChainDescription ?? ""
+        case .verifyWireguardKey(let restError):
+            let reason = restError.errorChainDescription ?? ""
 
             return String(format: NSLocalizedString("Failed to verify the WireGuard key on server: %@", comment: ""), reason)
 
@@ -114,8 +113,8 @@ extension Account.Error: DisplayChainedError {
 
     var errorChainDescription: String? {
         switch self {
-        case .createAccount(let rpcError), .verifyAccount(let rpcError):
-            return rpcError.errorChainDescription
+        case .createAccount(let restError), .verifyAccount(let restError):
+            return restError.errorChainDescription
 
         case .tunnelConfiguration(let tunnelError):
             return tunnelError.errorChainDescription
@@ -133,8 +132,8 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
         case .readReceipt(let readReceiptError):
             return String(format: NSLocalizedString("Cannot read the receipt: %@", comment: ""), readReceiptError.errorChainDescription ?? "")
 
-        case .sendReceipt(let rpcError):
-            let reason = rpcError.errorChainDescription ?? ""
+        case .sendReceipt(let restError):
+            let reason = restError.errorChainDescription ?? ""
 
             return String(format: NSLocalizedString(#"Failed to send the receipt to server: %@\n\nPlease retry by using the "Restore purchases" button."#, comment: ""), reason)
 

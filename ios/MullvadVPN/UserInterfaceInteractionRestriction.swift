@@ -20,7 +20,7 @@ protocol UserInterfaceInteractionRestrictionProtocol {
 /// A counter based user interface interaction restriction implementation
 class UserInterfaceInteractionRestriction: UserInterfaceInteractionRestrictionProtocol
 {
-    typealias Action = (_ disableUserInteraction: Bool, _ animated: Bool) -> Void
+    typealias Action = (_ enableUserInteraction: Bool, _ animated: Bool) -> Void
 
     private let action: Action
     private var counter: UInt = 0

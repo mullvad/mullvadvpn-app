@@ -180,22 +180,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     override func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
         dispatchQueue.async {
-            let finishWithResult = { (result: Result<AnyEncodable, PacketTunnelProviderError>) in
-                let result = result.flatMap { (response) -> Result<Data, PacketTunnelProviderError> in
-                    return PacketTunnelIpcHandler.encodeResponse(response: response)
-                        .mapError { PacketTunnelProviderError.ipcHandler($0) }
-                }
-
-                switch result {
-                case .success(let data):
-                    completionHandler?(data)
-
-                case .failure(let error):
-                    error.logChain(log: tunnelProviderLog)
-                    completionHandler?(nil)
-                }
-            }
-
             let decodeResult = PacketTunnelIpcHandler.decodeRequest(messageData: messageData)
                 .mapError { PacketTunnelProviderError.ipcHandler($0) }
 
@@ -204,15 +188,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 switch request {
                 case .reloadTunnelSettings:
                     self.reloadTunnelSettings { (result) in
-                        finishWithResult(result.map { AnyEncodable(true) })
+                        Self.replyAppMessage(result.map { true }, completionHandler: completionHandler)
                     }
 
                 case .tunnelInformation:
-                    finishWithResult(.success(AnyEncodable(self.connectionInfo)))
+                    Self.replyAppMessage(.success(self.connectionInfo), completionHandler: completionHandler)
                 }
 
             case .failure(let error):
-                finishWithResult(.failure(error))
+                Self.replyAppMessage(Result<String, PacketTunnelProviderError>.failure(error), completionHandler: completionHandler)
             }
         }
     }
@@ -353,6 +337,24 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
 
+    private static func replyAppMessage<T: Encodable>(
+        _ result: Result<T, PacketTunnelProviderError>,
+        completionHandler: ((Data?) -> Void)?) {
+        let result = result.flatMap { (response) -> Result<Data, PacketTunnelProviderError> in
+            return PacketTunnelIpcHandler.encodeResponse(response: response)
+                .mapError { PacketTunnelProviderError.ipcHandler($0) }
+        }
+
+        switch result {
+        case .success(let data):
+            completionHandler?(data)
+
+        case .failure(let error):
+            error.logChain(log: tunnelProviderLog)
+            completionHandler?(nil)
+        }
+    }
+
     private func setTunnelConnectionInfo(selectorResult: RelaySelectorResult) {
         self.connectionInfo = TunnelConnectionInfo(
             ipv4Relay: selectorResult.endpoint.ipv4Relay,
@@ -417,10 +419,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             }
         }
 
-        operation.addDidFinishBlockObserver { (operation, result) in
-            self.dispatchQueue.async {
-                completionHandler(result)
-            }
+        operation.addDidFinishBlockObserver(queue: dispatchQueue) { (operation, result) in
+            completionHandler(result)
         }
 
         exclusivityController.addOperation(operation, categories: [.exclusive])
@@ -459,7 +459,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         RelayCache.shared.read { (result) in
             switch result {
             case .success(let cachedRelayList):
-                let relaySelector = RelaySelector(relayList: cachedRelayList.relayList)
+                let relaySelector = RelaySelector(relays: cachedRelayList.relays)
 
                 if let selectorResult = relaySelector.evaluate(with: relayConstraints) {
                     completionHandler(.success(selectorResult))

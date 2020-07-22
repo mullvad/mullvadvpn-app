@@ -28,7 +28,7 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
         }
     }
 
-    private var relayList: RelayList?
+    private var cachedRelays: CachedRelays?
     private var relayConstraints: RelayConstraints?
     private var expandedItems = [RelayLocation]()
     private var dataSource: DataSource?
@@ -64,7 +64,10 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
         tableView.dataSource = dataSource
 
         RelayCache.shared.addObserver(self)
-        loadData()
+
+        updateDataSource(animateDifferences: false) {
+            self.updateTableViewSelection(scroll: true, animated: false)
+        }
     }
 
     override func viewDidLayoutSubviews() {
@@ -99,41 +102,45 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
 
     // MARK: - RelayCacheObserver
 
-    func relayCache(_ relayCache: RelayCache, didUpdateCachedRelayList cachedRelayList: CachedRelayList) {
-        self.didReceiveCachedRelays(cachedRelayList: cachedRelayList) { (result) in
+    func relayCache(_ relayCache: RelayCache, didUpdateCachedRelays cachedRelays: CachedRelays) {
+        self.didReceiveCachedRelays(cachedRelays) { (result) in
             DispatchQueue.main.async {
                 switch result {
-                case .success(let (cachedRelayList, relayConstraints)):
-                    self.didReceive(relayList: cachedRelayList.relayList, relayConstraints: relayConstraints)
+                case .success(let (cachedRelays, relayConstraints)):
+                    self.didReceiveCachedRelays(cachedRelays, relayConstraints: relayConstraints)
 
                 case .failure(let error):
                     error.logChain()
                 }
+            }
+        }
+    }
+
+    // MARK: - Public
+
+    func prefetchData(completionHandler: @escaping () -> Void) {
+        fetchRelays { (result) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let (cachedRelays, relayConstraints)):
+                    self.didReceiveCachedRelays(cachedRelays, relayConstraints: relayConstraints)
+
+                case .failure(let error):
+                    error.logChain()
+                }
+
+                completionHandler()
             }
         }
     }
 
     // MARK: - Relay list handling
 
-    private func loadData() {
-        fetchRelays { (result) in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let (cachedRelayList, relayConstraints)):
-                    self.didReceive(relayList: cachedRelayList.relayList, relayConstraints: relayConstraints)
-
-                case .failure(let error):
-                    error.logChain()
-                }
-            }
-        }
-    }
-
-    private func fetchRelays(completionHandler: @escaping (Result<(CachedRelayList, RelayConstraints), Error>) -> Void) {
+    private func fetchRelays(completionHandler: @escaping (Result<(CachedRelays, RelayConstraints), Error>) -> Void) {
         RelayCache.shared.read { (result) in
             switch result {
-            case .success(let cachedRelayList):
-                self.didReceiveCachedRelays(cachedRelayList: cachedRelayList, completionHandler: completionHandler)
+            case .success(let cachedRelays):
+                self.didReceiveCachedRelays(cachedRelays, completionHandler: completionHandler)
 
             case .failure(let error):
                 completionHandler(.failure(.loadRelayList(error)))
@@ -141,18 +148,18 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
         }
     }
 
-    private func didReceiveCachedRelays(cachedRelayList: CachedRelayList, completionHandler: @escaping (Result<(CachedRelayList, RelayConstraints), Error>) -> Void) {
+    private func didReceiveCachedRelays(_ cachedRelays: CachedRelays, completionHandler: @escaping (Result<(CachedRelays, RelayConstraints), Error>) -> Void) {
         TunnelManager.shared.getRelayConstraints { (result) in
             let result = result
-                .map { (cachedRelayList, $0) }
+                .map { (cachedRelays, $0) }
                 .mapError { Error.getRelayConstraints($0) }
 
             completionHandler(result)
         }
     }
 
-    private func didReceive(relayList: RelayList, relayConstraints: RelayConstraints) {
-        self.relayList = relayList.sorted()
+    private func didReceiveCachedRelays(_ cachedRelays: CachedRelays, relayConstraints: RelayConstraints) {
+        self.cachedRelays = cachedRelays
         self.relayConstraints = relayConstraints
 
         let relayLocation = relayConstraints.location.value
@@ -186,9 +193,11 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
     }
 
     private func updateDataSource(animateDifferences: Bool, completion: (() -> Void)? = nil) {
-        let items = relayList?.intoRelayDataSourceItemList(using: { (item) -> Bool in
-            return expandedItems.contains(item.relayLocation)
-        }) ?? []
+        let items = self.cachedRelays.map { (cachedRelays) -> [DataSourceItem] in
+            return cachedRelays.relays.makeDataSource { (item) -> Bool in
+                return expandedItems.contains(item.relayLocation)
+            }
+        } ?? []
 
         var snapshot = DataSourceSnapshot()
         snapshot.appendSections([.locations])
@@ -245,62 +254,6 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
     }
 }
 
-private extension RelayList {
-
-    typealias EvaluatorFn = (DataSourceItem) -> Bool
-
-    /// Turn `RelayList` into a flat list of `DataSourceItem`s.
-    ///
-    /// - Parameters evaluator: A closure that determines if the sub-tree should be rendered when it
-    ///                         returns `true`, or dropped when it returns `false`
-    func intoRelayDataSourceItemList(using evaluator: EvaluatorFn) -> [DataSourceItem] {
-        var items = [DataSourceItem]()
-
-        for country in countries {
-            let wrappedCountry = DataSourceItem.Country(
-                countryCode: country.code,
-                name: country.name,
-                hasActiveRelays: country.cities.contains(where: { (city) -> Bool in
-                    return city.relays.contains { (host) -> Bool in
-                        return host.active
-                    }
-                })
-            )
-
-            let countryItem = DataSourceItem.country(wrappedCountry)
-            items.append(countryItem)
-
-            if evaluator(countryItem) {
-                for city in country.cities {
-                    let wrappedCity = DataSourceItem.City(
-                        countryCode: country.code,
-                        cityCode: city.code,
-                        name: city.name,
-                        hasActiveRelays: city.relays.contains(where: { $0.active })
-                    )
-
-                    let cityItem = DataSourceItem.city(wrappedCity)
-                    items.append(cityItem)
-
-                    if evaluator(cityItem) {
-                        for host in city.relays {
-                            let wrappedHost = DataSourceItem.Hostname(
-                                countryCode: country.code,
-                                cityCode: city.code,
-                                hostname: host.hostname,
-                                active: host.active)
-                            items.append(.hostname(wrappedHost))
-                        }
-                    }
-                }
-            }
-        }
-
-        return items
-    }
-
-}
-
 private extension RelayLocation {
 
     /// A list of `RelayLocation` items preceding the given one in the relay tree
@@ -334,21 +287,19 @@ private typealias DataSourceSnapshot = DiffableDataSourceSnapshot<DataSourceSect
 private enum DataSourceItem: Hashable {
 
     struct Country {
-        let countryCode: String
+        let location: String
         let name: String
         let hasActiveRelays: Bool
     }
 
     struct City {
-        let countryCode: String
-        let cityCode: String
+        let location: String
         let name: String
         let hasActiveRelays: Bool
     }
 
     struct Hostname {
-        let countryCode: String
-        let cityCode: String
+        let location: String
         let hostname: String
         let active: Bool
     }
@@ -360,11 +311,13 @@ private enum DataSourceItem: Hashable {
     var relayLocation: RelayLocation {
         switch self {
         case .country(let country):
-            return .country(country.countryCode)
+            return .country(country.location)
         case .city(let city):
-            return .city(city.countryCode, city.cityCode)
+            let split = city.location.split(separator: "-", maxSplits: 2).map(String.init)
+            return .city(split[0], split[1])
         case .hostname(let host):
-            return .hostname(host.countryCode, host.cityCode, host.hostname)
+            let split = host.location.split(separator: "-", maxSplits: 2).map(String.init)
+            return .hostname(split[0], split[1], host.hostname)
         }
     }
 
@@ -418,4 +371,105 @@ private enum DataSourceItem: Hashable {
         }
     }
 
+}
+
+extension ServerRelaysResponse {
+    fileprivate static func lexicalSortComparator(_ a: String, _ b: String) -> Bool {
+        return a.localizedCaseInsensitiveCompare(b) == .orderedAscending
+    }
+
+    fileprivate static func fileSortComparator(_ a: String, _ b: String) -> Bool {
+        return a.localizedStandardCompare(b) == .orderedAscending
+    }
+
+    fileprivate func makeDataSource(evaluator: (DataSourceItem) -> Bool) -> [DataSourceItem] {
+        let relaysByCountry = Dictionary(grouping: wireguard.relays) { (relay) -> String in
+            return relay.location.split(separator: "-").first.flatMap(String.init)!
+        }
+
+        var items = [DataSourceItem]()
+
+        var countryItems = [DataSourceItem.Country]()
+        var cityItems = [String: [DataSourceItem.City]]()
+        var relayItems = [String: [DataSourceItem.Hostname]]()
+
+        for (countryCode, relays) in relaysByCountry {
+            let relaysByCity = Dictionary(grouping: relays) { (relay) -> String in
+                return relay.location
+            }
+
+            if let (cityCode, relays) = relaysByCity.first {
+                guard let location = locations[cityCode] else {
+                    continue
+                }
+
+                let country = DataSourceItem.Country(
+                    location: countryCode,
+                    name: location.country,
+                    hasActiveRelays: relays.contains(where: { (serverRelay) -> Bool in
+                        return serverRelay.active
+                    }))
+
+                countryItems.append(country)
+                if !evaluator(.country(country)) {
+                    continue
+                }
+            }
+
+            for (cityCode, relays) in relaysByCity {
+                guard let location = locations[cityCode] else {
+                    os_log(.info, "Location is not found: %{public}s", cityCode)
+                    continue
+                }
+
+                let city = DataSourceItem.City(
+                    location: cityCode,
+                    name: location.city,
+                    hasActiveRelays: relays.contains(where: { (serverRelay) -> Bool in
+                        return serverRelay.active
+                    }))
+
+                if var cities = cityItems[countryCode] {
+                    cities.append(city)
+                    cityItems[countryCode] = cities
+                } else {
+                    cityItems[countryCode] = [city]
+                }
+
+                if !evaluator(.city(city)) {
+                    continue
+                }
+
+                relayItems[cityCode] = relays.map { (relay) -> DataSourceItem.Hostname in
+                    return DataSourceItem.Hostname(location: relay.location, hostname: relay.hostname, active: relay.active)
+                }
+            }
+        }
+
+        countryItems.sort { (a, b) -> Bool in
+            return Self.lexicalSortComparator(a.name, b.name)
+        }
+
+        for country in countryItems {
+            items.append(.country(country))
+
+            if var cities = cityItems[country.location] {
+                cities.sort { (a, b) -> Bool in
+                    return Self.lexicalSortComparator(a.name, b.name)
+                }
+                for city in cities {
+                    items.append(.city(city))
+
+                    if var relays = relayItems[city.location] {
+                        relays.sort { (a, b) -> Bool in
+                            return Self.fileSortComparator(a.hostname, b.hostname)
+                        }
+                        items.append(contentsOf: relays.map { DataSourceItem.hostname($0) })
+                    }
+                }
+            }
+        }
+
+        return items
+    }
 }

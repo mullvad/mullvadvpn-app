@@ -176,8 +176,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
     }
 
     private func showTimeAddedConfirmationAlert(
-        with response: SendAppStoreReceiptResponse,
-        context: SendAppStoreReceiptResponse.Context)
+        with response: CreateApplePaymentResponse,
+        context: CreateApplePaymentResponse.Context)
     {
         let alertController = UIAlertController(
             title: response.alertTitle(context: context),
@@ -282,7 +282,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
         }
     }
 
-    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: SendAppStoreReceiptResponse) {
+    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: CreateApplePaymentResponse) {
         DispatchQueue.main.async {
             self.showTimeAddedConfirmationAlert(with: response, context: .purchase)
 
@@ -361,7 +361,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
 
 }
 
-private extension SendAppStoreReceiptResponse {
+private extension CreateApplePaymentResponse {
 
     enum Context {
         case purchase
@@ -385,7 +385,7 @@ private extension SendAppStoreReceiptResponse {
                 formattedTimeAdded ?? ""
             )
         case .restoration:
-            return timeAdded.isZero
+            return timeAdded == 0
                 ? NSLocalizedString(
                     "Your previous purchases have already been added to this account.",
                     comment: "")

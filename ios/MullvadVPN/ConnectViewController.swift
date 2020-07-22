@@ -97,9 +97,7 @@ class ConnectViewController: UIViewController,
             disconnectTunnel()
 
         case .selectLocation:
-            performSegue(
-                withIdentifier: SegueIdentifier.Connect.showRelaySelector.rawValue,
-                sender: self)
+            showSelectLocation()
         }
     }
 
@@ -191,6 +189,28 @@ class ConnectViewController: UIViewController,
 
         if let accountExpiry = Account.shared.expiry, AccountExpiry(date: accountExpiry).isExpired {
             rootContainerController?.showSettings(navigateTo: .account, animated: true)
+        }
+    }
+
+    private func showSelectLocation() {
+        let contentController = self.storyboard?.instantiateViewController(withIdentifier: ViewControllerIdentifier.selectLocation.rawValue) as! SelectLocationController
+        contentController.navigationItem.title = NSLocalizedString("Select location", comment: "")
+        contentController.navigationItem.largeTitleDisplayMode = .always
+
+        let navController = UINavigationController(navigationBarClass: CustomNavigationBar.self, toolbarClass: nil)
+        navController.viewControllers = [contentController]
+        navController.navigationBar.prefersLargeTitles = true
+        navController.navigationBar.barStyle = .black
+        navController.navigationBar.tintColor = .white
+
+        // Disable root controller interaction
+        rootContainerController?.view.isUserInteractionEnabled = false
+
+        contentController.prefetchData {
+            self.present(navController, animated: true)
+
+            // Re-enable root controller interaction
+            self.rootContainerController?.view.isUserInteractionEnabled = true
         }
     }
 
