@@ -90,19 +90,17 @@ class Account {
     func loginWithNewAccount(completionHandler: @escaping (Result<AccountResponse, Error>) -> Void) {
         let operation = rest.createAccount().operation(payload: EmptyPayload())
 
-        operation.addDidFinishBlockObserver({ (operation, result) in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let response):
-                    self.setupTunnel(accountToken: response.token, expiry: response.expires) { (result) in
-                        completionHandler(result.map { response })
-                    }
-
-                case .failure(let error):
-                    completionHandler(.failure(.createAccount(error)))
+        operation.addDidFinishBlockObserver(queue: .main) { (operation, result) in
+            switch result {
+            case .success(let response):
+                self.setupTunnel(accountToken: response.token, expiry: response.expires) { (result) in
+                    completionHandler(result.map { response })
                 }
+
+            case .failure(let error):
+                completionHandler(.failure(.createAccount(error)))
             }
-        })
+        }
 
         exclusivityController.addOperation(operation, categories: [.exclusive])
     }
@@ -113,17 +111,15 @@ class Account {
         let operation = rest.getAccountExpiry()
             .operation(payload: .init(token: accountToken, payload: EmptyPayload()))
 
-        operation.addDidFinishBlockObserver { (operation, result) in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let response):
-                    self.setupTunnel(accountToken: response.token, expiry: response.expires) { (result) in
-                        completionHandler(result.map { response })
-                    }
-
-                case .failure(let error):
-                    completionHandler(.failure(.verifyAccount(error)))
+        operation.addDidFinishBlockObserver(queue: .main) { (operation, result) in
+            switch result {
+            case .success(let response):
+                self.setupTunnel(accountToken: response.token, expiry: response.expires) { (result) in
+                    completionHandler(result.map { response })
                 }
+
+            case .failure(let error):
+                completionHandler(.failure(.verifyAccount(error)))
             }
         }
 
@@ -148,10 +144,8 @@ class Account {
             }
         }
 
-        operation.addDidFinishBlockObserver { (operation, result) in
-            DispatchQueue.main.async {
-                completionHandler(result)
-            }
+        operation.addDidFinishBlockObserver(queue: .main) { (operation, result) in
+            completionHandler(result)
         }
 
         exclusivityController.addOperation(operation, categories: [.exclusive])
@@ -168,16 +162,14 @@ class Account {
             .operation(payload: nil)
             .injectResult(from: makeRequest)
 
-        sendRequest.addDidFinishBlockObserver { (operation, result) in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let response):
-                    self.expiry = response.expires
-                    self.postExpiryUpdateNotification(newExpiry: response.expires)
+        sendRequest.addDidFinishBlockObserver(queue: .main) { (operation, result) in
+            switch result {
+            case .success(let response):
+                self.expiry = response.expires
+                self.postExpiryUpdateNotification(newExpiry: response.expires)
 
-                case .failure(let error):
-                    error.logChain(message: "Failed to update account expiry")
-                }
+            case .failure(let error):
+                error.logChain(message: "Failed to update account expiry")
             }
         }
 

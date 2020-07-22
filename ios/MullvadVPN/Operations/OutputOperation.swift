@@ -40,8 +40,8 @@ extension OutputOperation where Self: OperationSubclassing {
 }
 
 extension OperationProtocol where Self: OutputOperation {
-    func addDidFinishBlockObserver(_ block: @escaping (Self, Output) -> Void) {
-        addDidFinishBlockObserver { (operation) in
+    func addDidFinishBlockObserver(queue: DispatchQueue? = nil, _ block: @escaping (Self, Output) -> Void) {
+        addDidFinishBlockObserver(queue: queue) { (operation) in
             if let output = operation.output {
                 block(operation, output)
             }
