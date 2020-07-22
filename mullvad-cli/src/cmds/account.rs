@@ -124,7 +124,7 @@ impl Account {
                 let submission = submission.into_inner();
                 println!(
                     "Added {} to the account",
-                    Self::format_duration(submission.time_added)
+                    Self::format_duration(submission.seconds_added)
                 );
                 println!("New expiry date: {:?}", submission.new_expiry);
                 Ok(())

@@ -38,7 +38,7 @@ impl Command for Status {
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
         let state = rpc
-            .get_state(())
+            .get_tunnel_state(())
             .await
             .map_err(Error::GrpcClientError)?
             .into_inner();
