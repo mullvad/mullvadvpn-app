@@ -47,6 +47,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Fix window flickering by disabling window animations.
+- Fix WireGuard not connecting if IPv6 is disabled in the adapter or OS. `libwg` would time out
+  waiting for an IPv6 interface to become available.
 
 #### Android
 - Fix Connect screen sometimes becoming unusually tall. This ended up causing the screen to be

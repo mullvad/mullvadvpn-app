@@ -28,8 +28,30 @@ import (
 type LogSink = unsafe.Pointer
 type LogContext = unsafe.Pointer
 
+func createInterfaceWatcherEvents(waitOnIpv6 bool, tunLuid uint64) []interfacewatcher.Event {
+	if waitOnIpv6 {
+		return []interfacewatcher.Event{
+			{
+				Luid:   winipcfg.LUID(tunLuid),
+				Family: windows.AF_INET,
+			},
+			interfacewatcher.Event {
+				Luid:   winipcfg.LUID(tunLuid),
+				Family: windows.AF_INET6,
+			},
+		}
+	} else {
+		return []interfacewatcher.Event{
+			{
+				Luid:   winipcfg.LUID(tunLuid),
+				Family: windows.AF_INET,
+			},
+		}
+	}
+}
+
 //export wgTurnOn
-func wgTurnOn(cIfaceName *C.char, mtu int, cSettings *C.char, logSink LogSink, logContext LogContext) int32 {
+func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, logSink LogSink, logContext LogContext) int32 {
 	logger := logging.NewLogger(logSink, logContext)
 
 	if cIfaceName == nil {
@@ -91,16 +113,7 @@ func wgTurnOn(cIfaceName *C.char, mtu int, cSettings *C.char, logSink LogSink, l
 
 	device.Up()
 
-	interfaces := []interfacewatcher.Event{
-		{
-			Luid:   winipcfg.LUID(nativeTun.LUID()),
-			Family: windows.AF_INET,
-		},
-		{
-			Luid:   winipcfg.LUID(nativeTun.LUID()),
-			Family: windows.AF_INET6,
-		},
-	}
+	interfaces := createInterfaceWatcherEvents(waitOnIpv6, nativeTun.LUID())
 
 	logger.Debug.Println("Waiting for interfaces to attach")
 
