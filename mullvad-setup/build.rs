@@ -1,7 +1,9 @@
 use std::{env, fs, path::PathBuf};
 
 fn main() {
-    tonic_build::compile_protos("../mullvad-daemon/proto/management_interface.proto").unwrap();
+    const PROTO_FILE: &str = "../mullvad-daemon/proto/management_interface.proto";
+    tonic_build::compile_protos(PROTO_FILE).unwrap();
+    println!("cargo:rerun-if-changed={}", PROTO_FILE);
 
     let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     let product_version = env!("CARGO_PKG_VERSION").replacen(".0", "", 1);
