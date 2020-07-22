@@ -84,6 +84,12 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
         return view
     }
 
+    override fun onSafelyPause() {
+        jobTracker.newBackgroundJob("persistExcludedApps") {
+            splitTunnelling.persist()
+        }
+    }
+
     override fun onSafelyDestroyView() {
         titleController.onDestroy()
     }
@@ -104,7 +110,20 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
                 setDuration(200)
             }
 
+        if (configureSpinner()) {
+            jobTracker.newUiJob("enableAdapter") {
+                loadingSpinner.visibility = View.GONE
+                appListAdapter.enabled = true
+            }
+        }
+
         enabledToggle = header.findViewById<CellSwitch>(R.id.enabled_toggle).apply {
+            if (splitTunnelling.enabled) {
+                forcefullySetState(CellSwitch.State.ON)
+            } else {
+                forcefullySetState(CellSwitch.State.OFF)
+            }
+
             listener = { toggleState ->
                 when (toggleState) {
                     CellSwitch.State.ON -> enable()
@@ -119,27 +138,30 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
     }
 
     private fun enable() {
-        appListAdapter.apply {
-            if (!isListReady) {
-                enabled = false
-                showLoadingSpinner()
-                onListReady = {
-                    hideLoadingSpinner()
-                }
-            } else {
-                enabled = true
-            }
-        }
-
+        splitTunnelling.enabled = true
+        appListAdapter.enabled = configureSpinner()
         excludeApplications.visibility = View.VISIBLE
         excludeApplicationsFadeOut.reverse()
-        splitTunnelling.enabled = true
     }
 
     private fun disable() {
-        appListAdapter.enabled = false
         splitTunnelling.enabled = false
+        appListAdapter.enabled = false
         excludeApplicationsFadeOut.start()
+    }
+
+    private fun configureSpinner(): Boolean {
+        if (splitTunnelling.enabled && !appListAdapter.isListReady) {
+            showLoadingSpinner()
+
+            appListAdapter.onListReady = {
+                hideLoadingSpinner()
+            }
+
+            return false
+        } else {
+            return splitTunnelling.enabled
+        }
     }
 
     private fun showLoadingSpinner() {
