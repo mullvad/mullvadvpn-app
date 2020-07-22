@@ -83,107 +83,145 @@ impl ManagementService for ManagementServiceImpl {
         tokio02::sync::mpsc::UnboundedReceiver<Result<i32, tonic::Status>>;
     type EventsListenStream = EventsListenerReceiver;
 
-    async fn create_new_account(&self, _: Request<()>) -> ServiceResult<String> {
+    // Control and get the tunnel state
+    //
+
+    async fn connect_tunnel(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("connect_tunnel");
+
         let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::CreateNewAccount(tx))
+        self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Secured))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
             .and_then(|result| match result {
-                Ok(account_token) => Ok(Response::new(account_token)),
-                Err(_) => Err(tonic::Status::internal("internal error")),
+                Ok(()) => Ok(Response::new(())),
+                Err(()) => Err(tonic::Status::new(
+                    tonic::Code::from(-900),
+                    "No account token configured",
+                )),
             })
             .compat()
             .await
     }
 
-    async fn get_account_data(
+    async fn disconnect_tunnel(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("disconnect_tunnel");
+
+        let (tx, _) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Unsecured))
+            .then(|_| Ok(Response::new(())))
+            .compat()
+            .await
+    }
+
+    async fn reconnect_tunnel(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("reconnect_tunnel");
+        self.send_command_to_daemon(DaemonCommand::Reconnect)
+            .map(Response::new)
+            .compat()
+            .await
+    }
+
+    async fn get_tunnel_state(&self, _: Request<()>) -> ServiceResult<proto::TunnelState> {
+        log::debug!("get_tunnel_state");
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetState(tx))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .and_then(|state| Ok(Response::new(convert_state(state))))
+            .compat()
+            .await
+    }
+
+    // Control the daemon and receive events
+    //
+
+    async fn events_listen(&self, _: Request<()>) -> ServiceResult<Self::EventsListenStream> {
+        let (tx, rx) = tokio02::sync::mpsc::unbounded_channel();
+
+        let mut subscriptions = self.subscriptions.write();
+        subscriptions.push(tx);
+
+        Ok(Response::new(rx))
+    }
+
+    async fn prepare_restart(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("prepare_restart");
+        self.send_command_to_daemon(DaemonCommand::PrepareRestart)
+            .map(Response::new)
+            .compat()
+            .await
+    }
+
+    async fn shutdown(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("shutdown");
+        self.send_command_to_daemon(DaemonCommand::Shutdown)
+            .map(Response::new)
+            .compat()
+            .await
+    }
+
+    async fn factory_reset(&self, _: Request<()>) -> ServiceResult<()> {
+        #[cfg(not(target_os = "android"))]
+        {
+            log::debug!("factory_reset");
+            let (tx, rx) = sync::oneshot::channel();
+            self.send_command_to_daemon(DaemonCommand::FactoryReset(tx))
+                .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+                .map(Response::new)
+                .compat()
+                .await
+        }
+        #[cfg(target_os = "android")]
+        {
+            Response::new(())
+        }
+    }
+
+    async fn get_current_version(&self, _: Request<()>) -> ServiceResult<String> {
+        log::debug!("get_current_version");
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetCurrentVersion(tx))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .map(Response::new)
+            .compat()
+            .await
+    }
+
+    async fn get_version_info(&self, _: Request<()>) -> ServiceResult<proto::AppVersionInfo> {
+        log::debug!("get_version_info");
+
+        let (tx, rx) = sync::oneshot::channel();
+        let app_version_info = self
+            .send_command_to_daemon(DaemonCommand::GetVersionInfo(tx))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .compat()
+            .await?;
+
+        Ok(Response::new(convert_version_info(&app_version_info)))
+    }
+
+    // Relays and tunnel constraints
+    //
+
+    async fn update_relay_locations(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("update_relay_locations");
+        self.send_command_to_daemon(DaemonCommand::UpdateRelayLocations)
+            .compat()
+            .await
+            .map(Response::new)
+    }
+
+    async fn update_relay_settings(
         &self,
-        request: Request<AccountToken>,
-    ) -> ServiceResult<proto::AccountData> {
-        log::debug!("get_account_data");
-        let account_token = request.into_inner();
+        request: Request<proto::RelaySettingsUpdate>,
+    ) -> ServiceResult<()> {
+        log::debug!("update_relay_settings");
         let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetAccountData(tx, account_token))
+        let constraints_update = convert_relay_settings_update(&request.into_inner())?;
+
+        let message = DaemonCommand::UpdateRelaySettings(tx, constraints_update);
+        self.send_command_to_daemon(message)
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .and_then(|rpc_future| {
-                rpc_future
-                    .map(|account_data| {
-                        Response::new(proto::AccountData {
-                            expiry: Some(prost_types::Timestamp {
-                                seconds: account_data.expiry.timestamp(),
-                                nanos: 0,
-                            }),
-                        })
-                    })
-                    .map_err(|error: RestError| {
-                        log::error!(
-                            "Unable to get account data from API: {}",
-                            error.display_chain()
-                        );
-                        map_rest_account_error(error)
-                    })
-            })
-            .compat()
-            .await
-    }
-
-    async fn get_www_auth_token(&self, _: Request<()>) -> ServiceResult<String> {
-        log::debug!("get_www_auth_token");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetWwwAuthToken(tx))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .and_then(|rpc_future| {
-                rpc_future
-                    .map(Response::new)
-                    .map_err(|error: mullvad_rpc::rest::Error| {
-                        log::error!(
-                            "Unable to get account data from API: {}",
-                            error.display_chain()
-                        );
-                        map_rest_account_error(error)
-                    })
-            })
-            .compat()
-            .await
-    }
-
-    async fn submit_voucher(
-        &self,
-        request: Request<String>,
-    ) -> ServiceResult<proto::VoucherSubmission> {
-        log::debug!("submit_voucher");
-        let voucher = request.into_inner();
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SubmitVoucher(tx, voucher))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .and_then(|f| {
-                f.map(|submission| {
-                    Response::new(proto::VoucherSubmission {
-                        time_added: submission.time_added,
-                        new_expiry: Some(prost_types::Timestamp {
-                            seconds: submission.new_expiry.timestamp(),
-                            nanos: 0,
-                        }),
-                    })
-                })
-                .map_err(|e| match e {
-                    RestError::ApiError(StatusCode::BAD_REQUEST, message) => {
-                        match &message.as_str() {
-                            &mullvad_rpc::INVALID_VOUCHER => tonic::Status::new(
-                                tonic::Code::from_i32(INVALID_VOUCHER_CODE),
-                                message,
-                            ),
-
-                            &mullvad_rpc::VOUCHER_USED => tonic::Status::new(
-                                tonic::Code::from_i32(VOUCHER_USED_ALREADY_CODE),
-                                message,
-                            ),
-
-                            _ => tonic::Status::internal("internal error"),
-                        }
-                    }
-                    _ => tonic::Status::internal("internal error"),
-                })
-            })
+            .map(Response::new)
             .compat()
             .await
     }
@@ -220,150 +258,6 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(stream_rx))
     }
 
-    async fn update_relay_locations(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("update_relay_locations");
-        self.send_command_to_daemon(DaemonCommand::UpdateRelayLocations)
-            .compat()
-            .await
-            .map(Response::new)
-    }
-
-    async fn set_account(&self, request: Request<AccountToken>) -> ServiceResult<()> {
-        log::debug!("set_account");
-        let account_token = request.into_inner();
-        let account_token = if account_token == "" {
-            None
-        } else {
-            Some(account_token)
-        };
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetAccount(tx, account_token))
-            .and_then(|_| {
-                rx.map(Response::new)
-                    .map_err(|_| tonic::Status::internal("internal error"))
-            })
-            .compat()
-            .await
-    }
-
-    async fn update_relay_settings(
-        &self,
-        request: Request<proto::RelaySettingsUpdate>,
-    ) -> ServiceResult<()> {
-        log::debug!("update_relay_settings");
-        let (tx, rx) = sync::oneshot::channel();
-        let constraints_update = convert_relay_settings_update(&request.into_inner())?;
-
-        let message = DaemonCommand::UpdateRelaySettings(tx, constraints_update);
-        self.send_command_to_daemon(message)
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(Response::new)
-            .compat()
-            .await
-    }
-
-    async fn set_allow_lan(&self, request: Request<bool>) -> ServiceResult<()> {
-        let allow_lan = request.into_inner();
-        log::debug!("set_allow_lan({})", allow_lan);
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetAllowLan(tx, allow_lan))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(Response::new)
-            .compat()
-            .await
-    }
-
-    async fn set_show_beta_releases(&self, request: Request<bool>) -> ServiceResult<()> {
-        let enabled = request.into_inner();
-        log::debug!("set_show_beta_releases({})", enabled);
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetShowBetaReleases(tx, enabled))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(Response::new)
-            .compat()
-            .await
-    }
-
-    async fn set_block_when_disconnected(&self, request: Request<bool>) -> ServiceResult<()> {
-        let block_when_disconnected = request.into_inner();
-        log::debug!("set_block_when_disconnected({})", block_when_disconnected);
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetBlockWhenDisconnected(
-            tx,
-            block_when_disconnected,
-        ))
-        .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-        .map(Response::new)
-        .compat()
-        .await
-    }
-
-    async fn set_auto_connect(&self, request: Request<bool>) -> ServiceResult<()> {
-        let auto_connect = request.into_inner();
-        log::debug!("set_auto_connect({})", auto_connect);
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetAutoConnect(tx, auto_connect))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(Response::new)
-            .compat()
-            .await
-    }
-
-    async fn connect_daemon(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("connect_daemon");
-
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Secured))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .and_then(|result| match result {
-                Ok(()) => Ok(Response::new(())),
-                Err(()) => Err(tonic::Status::new(
-                    tonic::Code::from(-900),
-                    "No account token configured",
-                )),
-            })
-            .compat()
-            .await
-    }
-
-    async fn disconnect_daemon(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("disconnect_daemon");
-
-        let (tx, _) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Unsecured))
-            .then(|_| Ok(Response::new(())))
-            .compat()
-            .await
-    }
-
-    async fn reconnect(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("reconnect");
-        self.send_command_to_daemon(DaemonCommand::Reconnect)
-            .map(Response::new)
-            .compat()
-            .await
-    }
-
-    async fn get_state(&self, _: Request<()>) -> ServiceResult<proto::TunnelState> {
-        log::debug!("get_state");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetState(tx))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .and_then(|state| Ok(Response::new(convert_state(state))))
-            .compat()
-            .await
-    }
-
-    async fn clear_account_history(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("clear_account_history");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::ClearAccountHistory(tx))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(Response::new)
-            .compat()
-            .await
-    }
-
     async fn get_current_location(&self, _: Request<()>) -> ServiceResult<proto::GeoIpLocation> {
         log::debug!("get_current_location");
         let (tx, rx) = sync::oneshot::channel();
@@ -376,63 +270,6 @@ impl ManagementService for ManagementServiceImpl {
                     Err(tonic::Status::not_found("no location was found"))
                 }
             })
-            .compat()
-            .await
-    }
-
-    async fn shutdown(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("shutdown");
-        self.send_command_to_daemon(DaemonCommand::Shutdown)
-            .map(Response::new)
-            .compat()
-            .await
-    }
-
-    async fn prepare_restart(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("prepare_restart");
-        self.send_command_to_daemon(DaemonCommand::PrepareRestart)
-            .map(Response::new)
-            .compat()
-            .await
-    }
-
-    async fn get_account_history(&self, _: Request<()>) -> ServiceResult<proto::AccountHistory> {
-        // TODO: this might be a stream
-        log::debug!("get_account_history");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetAccountHistory(tx))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(|history| Response::new(proto::AccountHistory { token: history }))
-            .compat()
-            .await
-    }
-
-    async fn remove_account_from_history(
-        &self,
-        request: Request<AccountToken>,
-    ) -> ServiceResult<()> {
-        log::debug!("remove_account_from_history");
-        let account_token = request.into_inner();
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::RemoveAccountFromHistory(tx, account_token))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(Response::new)
-            .compat()
-            .await
-    }
-
-    async fn set_openvpn_mssfix(&self, request: Request<u32>) -> ServiceResult<()> {
-        let mssfix = request.into_inner();
-        let mssfix = if mssfix != 0 {
-            Some(mssfix as u16)
-        } else {
-            None
-        };
-        log::debug!("set_openvpn_mssfix({:?})", mssfix);
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetOpenVpnMssfix(tx, mssfix))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(Response::new)
             .compat()
             .await
     }
@@ -559,11 +396,76 @@ impl ManagementService for ManagementServiceImpl {
             .await
     }
 
-    async fn set_enable_ipv6(&self, request: Request<bool>) -> ServiceResult<()> {
-        let enable_ipv6 = request.into_inner();
-        log::debug!("set_enable_ipv6({})", enable_ipv6);
+    // Settings
+    //
+
+    async fn get_settings(&self, _: Request<()>) -> ServiceResult<proto::Settings> {
+        log::debug!("get_settings");
         let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetEnableIpv6(tx, enable_ipv6))
+        self.send_command_to_daemon(DaemonCommand::GetSettings(tx))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .map(|settings| Response::new(convert_settings(&settings)))
+            .compat()
+            .await
+    }
+
+    async fn set_allow_lan(&self, request: Request<bool>) -> ServiceResult<()> {
+        let allow_lan = request.into_inner();
+        log::debug!("set_allow_lan({})", allow_lan);
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetAllowLan(tx, allow_lan))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .map(Response::new)
+            .compat()
+            .await
+    }
+
+    async fn set_show_beta_releases(&self, request: Request<bool>) -> ServiceResult<()> {
+        let enabled = request.into_inner();
+        log::debug!("set_show_beta_releases({})", enabled);
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetShowBetaReleases(tx, enabled))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .map(Response::new)
+            .compat()
+            .await
+    }
+
+    async fn set_block_when_disconnected(&self, request: Request<bool>) -> ServiceResult<()> {
+        let block_when_disconnected = request.into_inner();
+        log::debug!("set_block_when_disconnected({})", block_when_disconnected);
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetBlockWhenDisconnected(
+            tx,
+            block_when_disconnected,
+        ))
+        .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+        .map(Response::new)
+        .compat()
+        .await
+    }
+
+    async fn set_auto_connect(&self, request: Request<bool>) -> ServiceResult<()> {
+        let auto_connect = request.into_inner();
+        log::debug!("set_auto_connect({})", auto_connect);
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetAutoConnect(tx, auto_connect))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .map(Response::new)
+            .compat()
+            .await
+    }
+
+    async fn set_openvpn_mssfix(&self, request: Request<u32>) -> ServiceResult<()> {
+        let mssfix = request.into_inner();
+        let mssfix = if mssfix != 0 {
+            Some(mssfix as u16)
+        } else {
+            None
+        };
+        log::debug!("set_openvpn_mssfix({:?})", mssfix);
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetOpenVpnMssfix(tx, mssfix))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
             .map(Response::new)
             .compat()
@@ -581,6 +483,181 @@ impl ManagementService for ManagementServiceImpl {
             .compat()
             .await
     }
+
+    async fn set_enable_ipv6(&self, request: Request<bool>) -> ServiceResult<()> {
+        let enable_ipv6 = request.into_inner();
+        log::debug!("set_enable_ipv6({})", enable_ipv6);
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetEnableIpv6(tx, enable_ipv6))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .map(Response::new)
+            .compat()
+            .await
+    }
+
+    // Account management
+    //
+
+    async fn create_new_account(&self, _: Request<()>) -> ServiceResult<String> {
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::CreateNewAccount(tx))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .and_then(|result| match result {
+                Ok(account_token) => Ok(Response::new(account_token)),
+                Err(_) => Err(tonic::Status::internal("internal error")),
+            })
+            .compat()
+            .await
+    }
+
+    async fn set_account(&self, request: Request<AccountToken>) -> ServiceResult<()> {
+        log::debug!("set_account");
+        let account_token = request.into_inner();
+        let account_token = if account_token == "" {
+            None
+        } else {
+            Some(account_token)
+        };
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetAccount(tx, account_token))
+            .and_then(|_| {
+                rx.map(Response::new)
+                    .map_err(|_| tonic::Status::internal("internal error"))
+            })
+            .compat()
+            .await
+    }
+
+    async fn get_account_data(
+        &self,
+        request: Request<AccountToken>,
+    ) -> ServiceResult<proto::AccountData> {
+        log::debug!("get_account_data");
+        let account_token = request.into_inner();
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetAccountData(tx, account_token))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .and_then(|rpc_future| {
+                rpc_future
+                    .map(|account_data| {
+                        Response::new(proto::AccountData {
+                            expiry: Some(prost_types::Timestamp {
+                                seconds: account_data.expiry.timestamp(),
+                                nanos: 0,
+                            }),
+                        })
+                    })
+                    .map_err(|error: RestError| {
+                        log::error!(
+                            "Unable to get account data from API: {}",
+                            error.display_chain()
+                        );
+                        map_rest_account_error(error)
+                    })
+            })
+            .compat()
+            .await
+    }
+
+    async fn get_account_history(&self, _: Request<()>) -> ServiceResult<proto::AccountHistory> {
+        // TODO: this might be a stream
+        log::debug!("get_account_history");
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetAccountHistory(tx))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .map(|history| Response::new(proto::AccountHistory { token: history }))
+            .compat()
+            .await
+    }
+
+    async fn remove_account_from_history(
+        &self,
+        request: Request<AccountToken>,
+    ) -> ServiceResult<()> {
+        log::debug!("remove_account_from_history");
+        let account_token = request.into_inner();
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::RemoveAccountFromHistory(tx, account_token))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .map(Response::new)
+            .compat()
+            .await
+    }
+
+    async fn clear_account_history(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("clear_account_history");
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ClearAccountHistory(tx))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .map(Response::new)
+            .compat()
+            .await
+    }
+
+    async fn get_www_auth_token(&self, _: Request<()>) -> ServiceResult<String> {
+        log::debug!("get_www_auth_token");
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetWwwAuthToken(tx))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .and_then(|rpc_future| {
+                rpc_future
+                    .map(Response::new)
+                    .map_err(|error: mullvad_rpc::rest::Error| {
+                        log::error!(
+                            "Unable to get account data from API: {}",
+                            error.display_chain()
+                        );
+                        map_rest_account_error(error)
+                    })
+            })
+            .compat()
+            .await
+    }
+
+    async fn submit_voucher(
+        &self,
+        request: Request<String>,
+    ) -> ServiceResult<proto::VoucherSubmission> {
+        log::debug!("submit_voucher");
+        let voucher = request.into_inner();
+        let (tx, rx) = sync::oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SubmitVoucher(tx, voucher))
+            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
+            .and_then(|f| {
+                f.map(|submission| {
+                    Response::new(proto::VoucherSubmission {
+                        seconds_added: submission.time_added,
+                        new_expiry: Some(prost_types::Timestamp {
+                            seconds: submission.new_expiry.timestamp(),
+                            nanos: 0,
+                        }),
+                    })
+                })
+                .map_err(|e| match e {
+                    RestError::ApiError(StatusCode::BAD_REQUEST, message) => {
+                        match &message.as_str() {
+                            &mullvad_rpc::INVALID_VOUCHER => tonic::Status::new(
+                                tonic::Code::from_i32(INVALID_VOUCHER_CODE),
+                                message,
+                            ),
+
+                            &mullvad_rpc::VOUCHER_USED => tonic::Status::new(
+                                tonic::Code::from_i32(VOUCHER_USED_ALREADY_CODE),
+                                message,
+                            ),
+
+                            _ => tonic::Status::internal("internal error"),
+                        }
+                    }
+                    _ => tonic::Status::internal("internal error"),
+                })
+            })
+            .compat()
+            .await
+    }
+
+    // WireGuard key management
+    //
 
     async fn set_wireguard_rotation_interval(&self, request: Request<u32>) -> ServiceResult<()> {
         let interval = request.into_inner();
@@ -603,16 +680,6 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::SetWireguardRotationInterval(tx, None))
             .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
             .map(Response::new)
-            .compat()
-            .await
-    }
-
-    async fn get_settings(&self, _: Request<()>) -> ServiceResult<proto::Settings> {
-        log::debug!("get_settings");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetSettings(tx))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(|settings| Response::new(convert_settings(&settings)))
             .compat()
             .await
     }
@@ -653,45 +720,8 @@ impl ManagementService for ManagementServiceImpl {
             .await
     }
 
-    async fn get_current_version(&self, _: Request<()>) -> ServiceResult<String> {
-        log::debug!("get_current_version");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetCurrentVersion(tx))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .map(Response::new)
-            .compat()
-            .await
-    }
-
-    async fn get_version_info(&self, _: Request<()>) -> ServiceResult<proto::AppVersionInfo> {
-        log::debug!("get_version_info");
-
-        let (tx, rx) = sync::oneshot::channel();
-        let app_version_info = self
-            .send_command_to_daemon(DaemonCommand::GetVersionInfo(tx))
-            .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-            .compat()
-            .await?;
-
-        Ok(Response::new(convert_version_info(&app_version_info)))
-    }
-
-    async fn factory_reset(&self, _: Request<()>) -> ServiceResult<()> {
-        #[cfg(not(target_os = "android"))]
-        {
-            log::debug!("factory_reset");
-            let (tx, rx) = sync::oneshot::channel();
-            self.send_command_to_daemon(DaemonCommand::FactoryReset(tx))
-                .and_then(|_| rx.map_err(|_| tonic::Status::internal("internal error")))
-                .map(Response::new)
-                .compat()
-                .await
-        }
-        #[cfg(target_os = "android")]
-        {
-            Response::new(())
-        }
-    }
+    // Split tunneling
+    //
 
     async fn get_split_tunnel_processes(
         &self,
@@ -770,15 +800,6 @@ impl ManagementService for ManagementServiceImpl {
         {
             Ok(Response::new(()))
         }
-    }
-
-    async fn events_listen(&self, _: Request<()>) -> ServiceResult<Self::EventsListenStream> {
-        let (tx, rx) = tokio02::sync::mpsc::unbounded_channel();
-
-        let mut subscriptions = self.subscriptions.write();
-        subscriptions.push(tx);
-
-        Ok(Response::new(rx))
     }
 }
 

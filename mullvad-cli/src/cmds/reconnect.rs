@@ -15,7 +15,7 @@ impl Command for Reconnect {
 
     async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        if let Err(e) = rpc.reconnect(()).await {
+        if let Err(e) = rpc.reconnect_tunnel(()).await {
             eprintln!("{}", e.display_chain());
         }
         Ok(())

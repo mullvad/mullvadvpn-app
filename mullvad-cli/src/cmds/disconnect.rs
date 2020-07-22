@@ -15,7 +15,7 @@ impl Command for Disconnect {
 
     async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.disconnect_daemon(())
+        rpc.disconnect_tunnel(())
             .await
             .map_err(Error::GrpcClientError)?;
         Ok(())
