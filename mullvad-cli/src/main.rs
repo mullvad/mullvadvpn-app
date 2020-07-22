@@ -20,7 +20,6 @@ mod proto {
 use proto::management_service_client::ManagementServiceClient;
 
 use parity_tokio_ipc::Endpoint as IpcEndpoint;
-use tokio;
 use tonic::{
     self,
     transport::{Endpoint, Uri},

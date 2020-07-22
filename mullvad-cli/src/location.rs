@@ -27,7 +27,7 @@ pub fn get_constraint(matches: &clap::ArgMatches<'_>) -> Vec<String> {
     let hostname = matches.value_of("hostname").map(str::to_lowercase);
 
     match (country_original, city, hostname) {
-        ("any", None, None) => Vec::with_capacity(0),
+        ("any", None, None) => Vec::new(),
         ("any", ..) => clap::Error::with_description(
             "City can't be given when selecting 'any' country",
             clap::ErrorKind::InvalidValue,
