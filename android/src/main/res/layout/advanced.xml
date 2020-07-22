@@ -81,52 +81,16 @@
                           android:paddingHorizontal="24dp"
                           android:textColor="@color/white60"
                           android:textSize="13sp" />
-                <LinearLayout android:id="@+id/wireguard_keys"
-                              android:layout_width="match_parent"
-                              android:layout_height="wrap_content"
-                              android:layout_marginTop="24dp"
-                              android:paddingHorizontal="16dp"
-                              android:background="@drawable/cell_button_background"
-                              android:clickable="true"
-                              android:gravity="center">
-                    <TextView android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:layout_weight="1"
-                              android:paddingHorizontal="8dp"
-                              android:paddingVertical="17dp"
-                              android:textColor="@color/white"
-                              android:textSize="20sp"
-                              android:textStyle="bold"
-                              android:text="@string/wireguard_key" />
-                    <ImageView android:layout_width="14dp"
-                               android:layout_height="24dp"
-                               android:layout_weight="0"
-                               android:alpha="0.6"
-                               android:src="@drawable/icon_chevron" />
-                </LinearLayout>
-                <LinearLayout android:id="@+id/split_tunnelling"
-                              android:layout_width="match_parent"
-                              android:layout_height="wrap_content"
-                              android:layout_marginTop="24dp"
-                              android:paddingHorizontal="16dp"
-                              android:background="@drawable/cell_button_background"
-                              android:clickable="true"
-                              android:gravity="center">
-                    <TextView android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:layout_weight="1"
-                              android:paddingHorizontal="8dp"
-                              android:paddingVertical="17dp"
-                              android:textColor="@color/white"
-                              android:textSize="20sp"
-                              android:textStyle="bold"
-                              android:text="@string/split_tunnelling" />
-                    <ImageView android:layout_width="14dp"
-                               android:layout_height="24dp"
-                               android:layout_weight="0"
-                               android:alpha="0.6"
-                               android:src="@drawable/icon_chevron" />
-                </LinearLayout>
+                <net.mullvad.mullvadvpn.ui.widget.NavigateCell android:id="@+id/wireguard_keys"
+                                                               android:layout_width="match_parent"
+                                                               android:layout_height="wrap_content"
+                                                               android:layout_marginTop="24dp"
+                                                               mullvad:text="@string/wireguard_key" />
+                <net.mullvad.mullvadvpn.ui.widget.NavigateCell android:id="@+id/split_tunnelling"
+                                                               android:layout_width="match_parent"
+                                                               android:layout_height="wrap_content"
+                                                               android:layout_marginTop="24dp"
+                                                               mullvad:text="@string/split_tunnelling" />
             </LinearLayout>
         </net.mullvad.mullvadvpn.ui.widget.ListenableScrollView>
     </LinearLayout>
