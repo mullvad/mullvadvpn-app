@@ -47,8 +47,8 @@ Line wrap the file at 100 chars.                                              Th
 - Upgrade Wintun from 0.7 to 0.8.1.
 
 #### Linux
-- Allow users to specify `net_cls` controller mountpoint if it's not mounted already via the
-  `TALPID_NETCLS_MOUNT_DIR` environment variable.
+- Allow users to specify `net_cls` controller mountpoint via `TALPID_NET_CLS_MOUNT_DIR`. The
+  specified mountpoint will only be used if the controller isn't mounted already.
 
 ### Fixed
 - Fix connectivity monitor for WireGuard not disconnecting from a relay when connectivity is lost.
