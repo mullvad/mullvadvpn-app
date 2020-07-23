@@ -218,11 +218,9 @@ message BridgeSettings {
 }
 
 message RelayLocation {
-	// 0-3 strings
-	// The 1st element specifies the country code.
-	// (optional) The 2nd element specifies the city code.
-	// (optional) The 3rd element specifies the hostname.
-	repeated string hostname = 1;
+	string country = 1;
+	string city = 2;
+	string hostname = 3;
 }
 
 message BridgeState {

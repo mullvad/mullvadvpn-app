@@ -10,8 +10,8 @@ use mullvad_types::relay_constraints::Constraint;
 use proto::{
     connection_config::{self, OpenvpnConfig, WireguardConfig},
     relay_settings_update, ConnectionConfig, CustomRelaySettings, NormalRelaySettingsUpdate,
-    OpenvpnConstraints, RelayLocation, RelaySettingsUpdate, TransportProtocol, TunnelType,
-    TunnelTypeUpdate, WireguardConstraints,
+    OpenvpnConstraints, RelaySettingsUpdate, TransportProtocol, TunnelType, TunnelTypeUpdate,
+    WireguardConstraints,
 };
 use talpid_types::net::all_of_the_internet;
 
@@ -317,9 +317,7 @@ impl Relay {
         self.update_constraints(RelaySettingsUpdate {
             r#type: Some(relay_settings_update::Type::Normal(
                 NormalRelaySettingsUpdate {
-                    location: Some(RelayLocation {
-                        hostname: location_constraint,
-                    }),
+                    location: Some(location_constraint),
                     ..Default::default()
                 },
             )),
