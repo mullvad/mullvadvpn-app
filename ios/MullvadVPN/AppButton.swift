@@ -98,6 +98,35 @@ private extension UIControl.State {
 /// A subclass that implements action buttons used across the app
 @IBDesignable class AppButton: CustomButton {
 
+    enum Style {
+        case `default`
+        case danger
+        case success
+        case translucentDanger
+        case translucentNeutral
+
+        var backgroundImage: UIImage? {
+            switch self {
+            case .default:
+                return UIImage(named: "DefaultButton")
+            case .danger:
+                return UIImage(named: "DangerButton")
+            case .success:
+                return UIImage(named: "SuccessButton")
+            case .translucentDanger:
+                return UIImage(named: "TranslucentDangerButton")
+            case .translucentNeutral:
+                return UIImage(named: "TranslucentNeutralButton")
+            }
+        }
+    }
+
+    var style: Style = .default {
+        didSet {
+            updateButtonBackground()
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         commonInit()
@@ -138,6 +167,15 @@ private extension UIControl.State {
                 setTitleColor(titleColor, for: state)
             }
         }
+
+        // Avoid setting the background image if it's already set via Interface Builder
+        if backgroundImage(for: .normal) == nil {
+            updateButtonBackground()
+        }
+    }
+
+    private func updateButtonBackground() {
+        setBackgroundImage(style.backgroundImage, for: .normal)
     }
 
 }

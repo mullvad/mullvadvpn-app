@@ -182,12 +182,12 @@ class ConnectionPanelCollapseButton: CustomButton {
     enum Style {
         case up, down
 
-        var image: UIImage {
+        var image: UIImage? {
             switch self {
             case .up:
-                return UIImage(imageLiteralResourceName: "IconChevronUp")
+                return UIImage(named: "IconChevronUp")
             case .down:
-                return UIImage(imageLiteralResourceName: "IconChevronDown")
+                return UIImage(named: "IconChevronDown")
             }
         }
     }

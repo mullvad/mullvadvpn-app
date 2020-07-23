@@ -28,6 +28,7 @@ GRAPHICAL_ASSETS=[
   "icon-fail.svg",
   "icon-fastest.svg",
   "icon-nearest.svg",
+  "icon-reload.svg",
   "icon-settings.svg",
   "icon-spinner.svg",
   "icon-success.svg",
