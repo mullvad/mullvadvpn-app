@@ -118,7 +118,7 @@ class SelectLocationCell: BasicTableViewCell {
             locationLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
             locationLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
 
-            collapseButton.widthAnchor.constraint(equalToConstant: 64),
+            collapseButton.widthAnchor.constraint(equalToConstant: 70),
             collapseButton.topAnchor.constraint(equalTo: contentView.topAnchor),
             collapseButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             collapseButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
