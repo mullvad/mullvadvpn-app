@@ -149,19 +149,3 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
         }
     }
 }
-
-extension AppStoreReceipt.Error: DisplayChainedError {
-    var errorChainDescription: String? {
-        switch self {
-        case .doesNotExist:
-            return NSLocalizedString("AppStore receipt does not exist", comment: "")
-
-        case .io(let readError):
-            return String(format: NSLocalizedString("Read error: %@", comment: ""),
-                          readError.localizedDescription)
-
-        case .refresh(let refreshError):
-            return String(format: NSLocalizedString("Failed to refresh the receipt: %@", comment: ""), refreshError.localizedDescription)
-        }
-    }
-}
