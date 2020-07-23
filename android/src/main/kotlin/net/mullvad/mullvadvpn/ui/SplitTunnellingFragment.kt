@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.applist.AppListAdapter
 import net.mullvad.mullvadvpn.ui.widget.CellSwitch
 import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
+import net.mullvad.mullvadvpn.ui.widget.ToggleCell
 import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
 class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
@@ -42,7 +43,7 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
     }
 
     private lateinit var appListAdapter: AppListAdapter
-    private lateinit var enabledToggle: CellSwitch
+    private lateinit var enabledToggle: ToggleCell
     private lateinit var excludeApplicationsFadeOut: ObjectAnimator
     private lateinit var loadingSpinnerFadeIn: ObjectAnimator
     private lateinit var titleController: CollapsibleTitleController
@@ -118,7 +119,7 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
             }
         }
 
-        enabledToggle = header.findViewById<CellSwitch>(R.id.enabled_toggle).apply {
+        enabledToggle = header.findViewById<ToggleCell>(R.id.enabled).apply {
             if (splitTunnelling.enabled) {
                 forcefullySetState(CellSwitch.State.ON)
             } else {
