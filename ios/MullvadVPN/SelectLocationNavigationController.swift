@@ -19,10 +19,6 @@ class SelectLocationNavigationController: UINavigationController {
 
     weak var selectLocationDelegate: SelectLocationDelegate?
 
-    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        super.init(nibName: nil, bundle: nil)
-    }
-
     init() {
         super.init(navigationBarClass: CustomNavigationBar.self, toolbarClass: nil)
 
@@ -43,6 +39,12 @@ class SelectLocationNavigationController: UINavigationController {
 
         self.contentController = contentController
         self.viewControllers = [contentController]
+    }
+
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        // This override has to exist to prevent crash on iOS 12 where `UINavigationController`
+        // calls `self.init(nibName:bundle:)` internally.
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
 
     required init?(coder aDecoder: NSCoder) {
