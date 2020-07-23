@@ -14,6 +14,10 @@
         <attr name="showSpinner"
               format="boolean" />
     </declare-styleable>
+    <declare-styleable name="Cell">
+        <attr name="footer"
+              format="reference|string" />
+    </declare-styleable>
     <declare-styleable name="CopyableInformationView">
         <attr name="clipboardLabel"
               format="reference|string" />

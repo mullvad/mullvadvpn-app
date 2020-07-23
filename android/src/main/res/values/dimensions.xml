@@ -18,6 +18,8 @@
     <dimen name="cell_horizontal_padding">16dp</dimen>
     <dimen name="cell_label_horizontal_padding">8dp</dimen>
     <dimen name="cell_label_vertical_padding">17dp</dimen>
+    <dimen name="cell_footer_top_padding">8dp</dimen>
+    <dimen name="cell_footer_horizontal_padding">24dp</dimen>
     <dimen name="chevron_width">14dp</dimen>
     <dimen name="chevron_height">24dp</dimen>
 </resources>

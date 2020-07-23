@@ -23,6 +23,21 @@ open class Cell : LinearLayout {
         setTypeface(null, Typeface.BOLD)
     }
 
+    private var footer: TextView? = null
+        set(value) {
+            field = value?.apply {
+                val horizontalPadding =
+                    resources.getDimensionPixelSize(R.dimen.cell_footer_horizontal_padding)
+                val topPadding = resources.getDimensionPixelSize(R.dimen.cell_footer_top_padding)
+
+                layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                setPadding(horizontalPadding, topPadding, horizontalPadding, 0)
+
+                setTextColor(context.getColor(R.color.white60))
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.0f)
+            }
+        }
+
     protected var cell: LinearLayout = this
         set(value) {
             field = value.apply {
@@ -73,6 +88,32 @@ open class Cell : LinearLayout {
             }
         }
 
-        cell = this
+        context.theme.obtainStyledAttributes(attributes, R.styleable.Cell, 0, 0).apply {
+            try {
+                footer = getString(R.styleable.Cell_footer)?.let { footerText ->
+                    TextView(context).apply { text = footerText }
+                }
+            } finally {
+                recycle()
+            }
+        }
+
+        setUp()
+    }
+
+    private fun setUp() {
+        if (footer != null) {
+            cell = LinearLayout(context).apply {
+                layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+            }
+
+            isClickable = false
+            orientation = VERTICAL
+
+            addView(cell)
+            addView(footer)
+        } else {
+            cell = this
+        }
     }
 }
