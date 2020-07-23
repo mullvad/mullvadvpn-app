@@ -130,7 +130,14 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
             return NSLocalizedString("Internal error: account is not set", comment: "")
 
         case .readReceipt(let readReceiptError):
-            return String(format: NSLocalizedString("Cannot read the receipt: %@", comment: ""), readReceiptError.errorChainDescription ?? "")
+            switch readReceiptError {
+            case .refresh(let storeError):
+                return String(format: NSLocalizedString("Cannot refresh the AppStore receipt: %@", comment: ""), storeError.localizedDescription)
+            case .io(let ioError):
+                return String(format: NSLocalizedString("Cannot read the AppStore receipt from disk: %@", comment: ""), ioError.localizedDescription)
+            case .doesNotExist:
+                return NSLocalizedString("AppStore receipt is not found on disk.", comment: "")
+            }
 
         case .sendReceipt(let restError):
             let reason = restError.errorChainDescription ?? ""
