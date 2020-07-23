@@ -41,7 +41,6 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
         super.viewDidLoad()
 
         view.backgroundColor = .secondaryColor
-
         tableView.tableHeaderView = SelectLocationHeaderView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
         tableView.register(SelectLocationCell.self, forCellReuseIdentifier: kCellIdentifier)
         tableView.separatorColor = .secondaryColor
@@ -68,6 +67,7 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
                 return cell
         })
 
+        dataSource?.defaultRowAnimation = .top
         tableView.dataSource = dataSource
 
         RelayCache.shared.addObserver(self)
