@@ -8,14 +8,10 @@ use std::{
     fs,
     io::{self, BufWriter, Write},
     os::unix::ffi::OsStrExt,
-    path::Path,
 };
 
 #[cfg(target_os = "linux")]
-use talpid_types::SPLIT_TUNNEL_CGROUP_NAME;
-
-#[cfg(target_os = "linux")]
-const NETCLS_DIR: &str = "/sys/fs/cgroup/net_cls/";
+use talpid_types::cgroup::{find_net_cls_mount, SPLIT_TUNNEL_CGROUP_NAME};
 
 #[cfg(target_os = "linux")]
 const PROGRAM_NAME: &str = "mullvad-exclude";
@@ -41,6 +37,12 @@ enum Error {
 
     #[error(display = "An argument contains interior nul bytes")]
     ArgumentNulError(#[error(source)] NulError),
+
+    #[error(display = "Failed to find net_cls controller")]
+    FindNetClsController(#[error(source)] io::Error),
+
+    #[error(display = "No net_cls controller")]
+    NoNetClsController,
 }
 
 fn main() {
@@ -80,9 +82,13 @@ fn run() -> Result<void::Void, Error> {
         .map_err(Error::ArgumentNulError)?;
     let args: Vec<&CStr> = args.iter().map(|arg| &**arg).collect();
 
-    // Set the cgroup of this process
-    let cgroup_dir = Path::new(NETCLS_DIR).join(SPLIT_TUNNEL_CGROUP_NAME);
-    let procs_path = cgroup_dir.join("cgroup.procs");
+    let cgroup_dir = find_net_cls_mount()
+        .map_err(Error::FindNetClsController)?
+        .ok_or(Error::NoNetClsController)?;
+
+    let procs_path = cgroup_dir
+        .join(SPLIT_TUNNEL_CGROUP_NAME)
+        .join("cgroup.procs");
 
     let file = fs::OpenOptions::new()
         .write(true)
