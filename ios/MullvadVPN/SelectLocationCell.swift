@@ -131,7 +131,7 @@ class SelectLocationCell: BasicTableViewCell {
     }
 
     private func updateDisabled() {
-        contentView.alpha = isDisabled ? 0.5 : 1
+        locationLabel.alpha = isDisabled ? 0.2 : 1
     }
 
     private func updateBackgroundColor() {
@@ -140,24 +140,13 @@ class SelectLocationCell: BasicTableViewCell {
     }
 
     private func backgroundColorForIdentationLevel() -> UIColor {
-        if isDisabled {
-            switch indentationLevel {
-            case 1:
-                return UIColor.SubCell.disabledBackgroundColor
-            case 2:
-                return UIColor.SubSubCell.disabledBackgroundColor
-            default:
-                return UIColor.Cell.disabledBackgroundColor
-            }
-        } else {
-            switch indentationLevel {
-            case 1:
-                return UIColor.SubCell.backgroundColor
-            case 2:
-                return UIColor.SubSubCell.backgroundColor
-            default:
-                return UIColor.Cell.backgroundColor
-            }
+        switch indentationLevel {
+        case 1:
+            return UIColor.SubCell.backgroundColor
+        case 2:
+            return UIColor.SubSubCell.backgroundColor
+        default:
+            return UIColor.Cell.backgroundColor
         }
     }
 
