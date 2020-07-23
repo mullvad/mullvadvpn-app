@@ -31,6 +31,6 @@ class NavigateCell : Cell {
     ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource) {}
 
     init {
-        addView(chevron)
+        cell.addView(chevron)
     }
 }

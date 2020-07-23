@@ -23,6 +23,25 @@ open class Cell : LinearLayout {
         setTypeface(null, Typeface.BOLD)
     }
 
+    protected var cell: LinearLayout = this
+        set(value) {
+            field = value.apply {
+                isClickable = true
+                gravity = Gravity.CENTER
+                orientation = HORIZONTAL
+
+                setBackgroundResource(R.drawable.cell_button_background)
+
+                resources.getDimensionPixelSize(R.dimen.cell_horizontal_padding).let { padding ->
+                    setPadding(padding, 0, padding, 0)
+                }
+
+                addView(label)
+
+                setOnClickListener { onClickListener?.invoke() }
+            }
+        }
+
     var onClickListener: (() -> Unit)? = null
 
     constructor(context: Context) : super(context) {}
@@ -45,22 +64,6 @@ open class Cell : LinearLayout {
         loadAttributes(attributes)
     }
 
-    init {
-        isClickable = true
-        gravity = Gravity.CENTER
-        orientation = HORIZONTAL
-
-        setBackgroundResource(R.drawable.cell_button_background)
-
-        resources.getDimensionPixelSize(R.dimen.cell_horizontal_padding).let { padding ->
-            setPadding(padding, 0, padding, 0)
-        }
-
-        addView(label)
-
-        setOnClickListener { onClickListener?.invoke() }
-    }
-
     private fun loadAttributes(attributes: AttributeSet) {
         context.theme.obtainStyledAttributes(attributes, R.styleable.TextAttribute, 0, 0).apply {
             try {
@@ -69,5 +72,7 @@ open class Cell : LinearLayout {
                 recycle()
             }
         }
+
+        cell = this
     }
 }
