@@ -55,12 +55,10 @@ extension UIColor {
 
     enum SubCell {
         static let backgroundColor = namedColor("SubCell")
-        static let disabledBackgroundColor = backgroundColor.darkened(by: 0.3)!
     }
 
     enum SubSubCell {
         static let backgroundColor = namedColor("SubSubCell")
-        static let disabledBackgroundColor = backgroundColor.darkened(by: 0.3)!
     }
 
     enum HeaderBar {
