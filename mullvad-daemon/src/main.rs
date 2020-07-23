@@ -86,8 +86,14 @@ fn run_platform(_config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), S
 }
 
 fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
-    if rpc_uniqueness_check::is_another_instance_running() {
-        return Err("Another instance of the daemon is already running".to_owned());
+    {
+        let mut runtime = tokio02::runtime::Builder::new()
+            .basic_scheduler()
+            .build()
+            .expect("Failed to create tokio runtime");
+        if runtime.block_on(rpc_uniqueness_check::is_another_instance_running()) {
+            return Err("Another instance of the daemon is already running".to_owned());
+        }
     }
 
     if !running_as_admin() {
