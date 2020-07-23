@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "IconReload.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

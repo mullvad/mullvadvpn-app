@@ -22,10 +22,6 @@ extension SegueIdentifier {
         case showAccount = "ShowAccount"
     }
 
-    enum Connect: String, SegueConvertible {
-        case embedTunnelControls = "EmbedTunnelControls"
-    }
-
     enum Account: String, SegueConvertible {
         case logout = "Logout"
     }
