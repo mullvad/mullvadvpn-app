@@ -13,6 +13,7 @@ import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.service.AccountCache
+import net.mullvad.mullvadvpn.ui.widget.Cell
 
 class SettingsFragment : ServiceAwareFragment() {
     private lateinit var accountMenu: View
@@ -64,14 +65,14 @@ class SettingsFragment : ServiceAwareFragment() {
             }
         }
 
-        preferencesMenu = view.findViewById<View>(R.id.preferences).apply {
-            setOnClickListener {
+        preferencesMenu = view.findViewById<Cell>(R.id.preferences).apply {
+            onClickListener = {
                 openSubFragment(PreferencesFragment())
             }
         }
 
-        advancedMenu = view.findViewById<View>(R.id.advanced).apply {
-            setOnClickListener {
+        advancedMenu = view.findViewById<Cell>(R.id.advanced).apply {
+            onClickListener = {
                 openSubFragment(AdvancedFragment())
             }
         }
@@ -80,7 +81,7 @@ class SettingsFragment : ServiceAwareFragment() {
             openLink(R.string.download_url)
         }
 
-        view.findViewById<View>(R.id.report_a_problem).setOnClickListener {
+        view.findViewById<Cell>(R.id.report_a_problem).onClickListener = {
             openSubFragment(ProblemReportFragment())
         }
 

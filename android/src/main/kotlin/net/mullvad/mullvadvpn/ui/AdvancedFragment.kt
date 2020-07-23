@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.ui.widget.Cell
 
 private const val MIN_MTU_VALUE = 1280
 private const val MAX_MTU_VALUE = 1420
@@ -40,11 +41,11 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             text = context.getString(R.string.wireguard_mtu_footer, MIN_MTU_VALUE, MAX_MTU_VALUE)
         }
 
-        view.findViewById<View>(R.id.wireguard_keys).setOnClickListener {
+        view.findViewById<Cell>(R.id.wireguard_keys).onClickListener = {
             openSubFragment(WireguardKeyFragment())
         }
 
-        view.findViewById<View>(R.id.split_tunnelling).setOnClickListener {
+        view.findViewById<Cell>(R.id.split_tunnelling).onClickListener = {
             openSubFragment(SplitTunnellingFragment())
         }
 
