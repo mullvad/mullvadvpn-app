@@ -65,9 +65,6 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
                     self?.collapseCell(cell)
                 }
 
-                // Prevent overlap between cells and subcells
-                cell.layer.zPosition = item.zPosition
-
                 return cell
         })
 
@@ -375,17 +372,6 @@ private enum DataSourceItem: Hashable {
             return self.hasActiveRelays()
         case .hostname:
             return false
-        }
-    }
-
-    var zPosition: CGFloat {
-        switch self {
-        case .country:
-            return 3
-        case .city:
-            return 2
-        case .hostname:
-            return 1
         }
     }
 
