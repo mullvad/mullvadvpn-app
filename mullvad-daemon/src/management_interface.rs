@@ -377,11 +377,11 @@ impl ManagementService for ManagementServiceImpl {
     async fn set_bridge_state(&self, request: Request<proto::BridgeState>) -> ServiceResult<()> {
         use proto::bridge_state::State;
 
-        let bridge_state = match request.into_inner().state {
-            x if x == State::Auto as i32 => BridgeState::Auto,
-            x if x == State::On as i32 => BridgeState::On,
-            x if x == State::Off as i32 => BridgeState::Off,
-            _ => return Err(tonic::Status::invalid_argument("unknown bridge state")),
+        let bridge_state = match State::from_i32(request.into_inner().state) {
+            Some(State::Auto) => BridgeState::Auto,
+            Some(State::On) => BridgeState::On,
+            Some(State::Off) => BridgeState::Off,
+            None => return Err(tonic::Status::invalid_argument("unknown bridge state")),
         };
 
         log::debug!("set_bridge_state({:?})", bridge_state);
@@ -864,14 +864,10 @@ fn convert_relay_settings_update(
                     ConnectionConfig::OpenVpn(openvpn::ConnectionConfig {
                         endpoint: net::Endpoint {
                             address,
-                            protocol: match config.protocol {
-                                x if x == proto::TransportProtocol::Udp as i32 => {
-                                    TransportProtocol::Udp
-                                }
-                                x if x == proto::TransportProtocol::Tcp as i32 => {
-                                    TransportProtocol::Tcp
-                                }
-                                _ => {
+                            protocol: match proto::TransportProtocol::from_i32(config.protocol) {
+                                Some(proto::TransportProtocol::Udp) => TransportProtocol::Udp,
+                                Some(proto::TransportProtocol::Tcp) => TransportProtocol::Tcp,
+                                None | Some(proto::TransportProtocol::AnyProtocol) => {
                                     return Err(tonic::Status::invalid_argument(
                                         "unknown transport protocol",
                                     ))
@@ -1002,15 +998,13 @@ fn convert_relay_settings_update(
             };
 
             let tunnel_protocol = if let Some(update) = settings.tunnel_type {
-                match update.tunnel_type {
-                    x if x == proto::TunnelType::AnyTunnel as i32 => Some(Constraint::Any),
-                    x if x == proto::TunnelType::Openvpn as i32 => {
-                        Some(Constraint::Only(TunnelType::OpenVpn))
-                    }
-                    x if x == proto::TunnelType::Wireguard as i32 => {
+                match proto::TunnelType::from_i32(update.tunnel_type) {
+                    Some(proto::TunnelType::AnyTunnel) => Some(Constraint::Any),
+                    Some(proto::TunnelType::Openvpn) => Some(Constraint::Only(TunnelType::OpenVpn)),
+                    Some(proto::TunnelType::Wireguard) => {
                         Some(Constraint::Only(TunnelType::Wireguard))
                     }
-                    _ => return Err(tonic::Status::invalid_argument("unknown tunnel protocol")),
+                    None => return Err(tonic::Status::invalid_argument("unknown tunnel protocol")),
                 }
             } else {
                 None
@@ -1035,11 +1029,11 @@ fn convert_relay_settings_update(
                         } else {
                             Constraint::Any
                         },
-                        protocol: match constraints.protocol {
-                            x if x == proto::TransportProtocol::Udp as i32 => {
+                        protocol: match proto::TransportProtocol::from_i32(constraints.protocol) {
+                            Some(proto::TransportProtocol::Udp) => {
                                 Constraint::Only(TransportProtocol::Udp)
                             }
-                            x if x == proto::TransportProtocol::Tcp as i32 => {
+                            Some(proto::TransportProtocol::Tcp) => {
                                 Constraint::Only(TransportProtocol::Tcp)
                             }
                             _ => Constraint::Any,
