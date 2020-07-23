@@ -91,8 +91,9 @@ class SettingsViewController: UITableViewController {
         let middleSection = StaticTableViewSection()
         let versionRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.appVersion.rawValue) { (_, cell) in
             let cell = cell as! SettingsAppVersionCell
+            let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
 
-            cell.versionLabel.text = Bundle.main.mullvadVersion
+            cell.versionLabel.text = version
         }
         versionRow.isSelectable = false
 
