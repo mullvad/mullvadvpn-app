@@ -154,15 +154,15 @@ fn print_error_state(error_state: &ErrorState) {
         eprintln!("Deamon cannot block traffic from flowing, non-local traffic will leak");
     }
 
-    match error_state.cause {
-        x if x == ErrorStateCause::AuthFailed as i32 => {
+    match ErrorStateCause::from_i32(error_state.cause) {
+        Some(ErrorStateCause::AuthFailed) => {
             println!(
                 "Blocked: {}",
                 AuthFailed::from(error_state.auth_fail_reason.as_ref())
             );
         }
         #[cfg(target_os = "linux")]
-        cause if cause == ErrorStateCause::SetFirewallPolicyError as i32 => {
+        Some(ErrorStateCause::SetFirewallPolicyError) => {
             println!("Blocked: {}", error_state_to_string(error_state));
             println!("Your kernel might be terribly out of date or missing nftables");
         }
@@ -173,8 +173,9 @@ fn print_error_state(error_state: &ErrorState) {
 fn error_state_to_string(error_state: &ErrorState) -> String {
     use ErrorStateCause::*;
 
-    let error_str = match error_state.cause {
-        x if x == AuthFailed as i32 => {
+    let error_str = match ErrorStateCause::from_i32(error_state.cause).expect("unknown error cause")
+    {
+        AuthFailed => {
             // TODO: format correctly?
             return if error_state.auth_fail_reason.is_empty() {
                 "Authentication with remote server failed".to_string()
@@ -185,43 +186,35 @@ fn error_state_to_string(error_state: &ErrorState) -> String {
                 )
             };
         }
-        x if x == Ipv6Unavailable as i32 => {
-            "Failed to configure IPv6 because it's disabled in the platform"
-        }
-        x if x == SetFirewallPolicyError as i32 => "Failed to set firewall policy",
-        x if x == SetDnsError as i32 => "Failed to set system DNS server",
-        x if x == StartTunnelError as i32 => "Failed to start connection to remote server",
-        x if x == TunnelParameterError as i32 => {
+        Ipv6Unavailable => "Failed to configure IPv6 because it's disabled in the platform",
+        SetFirewallPolicyError => "Failed to set firewall policy",
+        SetDnsError => "Failed to set system DNS server",
+        StartTunnelError => "Failed to start connection to remote server",
+        TunnelParameterError => {
             return format!(
                 "Failure to generate tunnel parameters: {}",
                 tunnel_parameter_error_to_string(error_state.parameter_error)
             );
         }
-        x if x == IsOffline as i32 => "This device is offline, no tunnels can be established",
-        x if x == TapAdapterProblem as i32 => "A problem with the TAP adapter has been detected",
+        IsOffline => "This device is offline, no tunnels can be established",
+        TapAdapterProblem => "A problem with the TAP adapter has been detected",
         #[cfg(target_os = "android")]
-        x if x == VpnPermissionDenied as i32 => {
-            "The Android VPN permission was denied when creating the tunnel"
-        }
-        _ => unreachable!("unknown error state cause"),
+        VpnPermissionDenied => "The Android VPN permission was denied when creating the tunnel",
+        #[cfg(not(target_os = "android"))]
+        _ => unreachable!("unknown error cause"),
     };
 
     error_str.to_string()
 }
 
 fn tunnel_parameter_error_to_string(parameter_error: i32) -> &'static str {
-    match parameter_error {
-        x if x == GenerationError::NoMatchingRelay as i32 => {
-            "Failure to select a matching tunnel relay"
-        }
-        x if x == GenerationError::NoMatchingBridgeRelay as i32 => {
-            "Failure to select a matching bridge relay"
-        }
-        x if x == GenerationError::NoWireguardKey as i32 => "No wireguard key available",
-        x if x == GenerationError::CustomTunnelHostResolutionError as i32 => {
+    match GenerationError::from_i32(parameter_error).expect("unknown generation error") {
+        GenerationError::NoMatchingRelay => "Failure to select a matching tunnel relay",
+        GenerationError::NoMatchingBridgeRelay => "Failure to select a matching bridge relay",
+        GenerationError::NoWireguardKey => "No wireguard key available",
+        GenerationError::CustomTunnelHostResolutionError => {
             "Can't resolve hostname for custom tunnel host"
         }
-        _ => unreachable!("unknown tunnel parameter error"),
     }
 }
 
