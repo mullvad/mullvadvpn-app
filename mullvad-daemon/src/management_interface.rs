@@ -1503,7 +1503,7 @@ pub struct ManagementInterfaceServer {
 }
 
 impl ManagementInterfaceServer {
-    async fn start_server_crap(
+    async fn start_server(
         socket_path: String,
         daemon_tx: DaemonCommandSender,
         server_start_tx: std::sync::mpsc::Sender<()>,
@@ -1551,7 +1551,7 @@ impl ManagementInterfaceServer {
 
         let (server_abort_tx, server_abort_rx) = triggered::trigger();
         let (start_tx, start_rx) = mpsc::channel();
-        let server_join_handle = runtime.spawn(Self::start_server_crap(
+        let server_join_handle = runtime.spawn(Self::start_server(
             socket_path.clone(),
             tunnel_tx,
             start_tx,
