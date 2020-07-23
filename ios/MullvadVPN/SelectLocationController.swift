@@ -44,7 +44,8 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
 
         tableView.tableHeaderView = SelectLocationHeaderView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
         tableView.register(SelectLocationCell.self, forCellReuseIdentifier: kCellIdentifier)
-        tableView.separatorColor = .clear
+        tableView.separatorColor = .secondaryColor
+        tableView.separatorInset = .zero
 
         dataSource = DataSource(
             tableView: self.tableView,
