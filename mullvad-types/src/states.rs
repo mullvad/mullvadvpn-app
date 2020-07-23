@@ -18,7 +18,7 @@ pub enum TargetState {
 }
 
 /// Represents the state the client tunnel is in.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 #[serde(tag = "state", content = "details")]
 #[cfg_attr(target_os = "android", derive(IntoJava))]

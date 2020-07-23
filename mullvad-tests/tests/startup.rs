@@ -1,7 +1,7 @@
 #![cfg(feature = "integration-tests")]
 
 use mullvad_tests::DaemonRunner;
-use talpid_types::tunnel::TunnelStateTransition;
+use mullvad_types::states::TunnelState;
 
 #[test]
 fn starts_in_disconnected_state() {
@@ -10,5 +10,5 @@ fn starts_in_disconnected_state() {
 
     let state = rpc_client.get_state().expect("Failed to read daemon state");
 
-    assert_eq!(state, TunnelStateTransition::Disconnected);
+    assert_eq!(state, TunnelState::Disconnected);
 }
