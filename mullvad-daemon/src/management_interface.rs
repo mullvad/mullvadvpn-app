@@ -286,80 +286,58 @@ impl ManagementService for ManagementServiceImpl {
             .r#type
             .ok_or(tonic::Status::invalid_argument("no settings provided"))?;
 
-        let settings = match settings {
-            BridgeSettingType::Normal(constraints) => {
-                let constraint = match constraints.location {
-                    None => Constraint::Any,
-                    Some(location) => {
-                        let hostname = location.hostname;
-                        match hostname.len() {
-                            0 => Constraint::Any,
-                            1 => Constraint::Only(LocationConstraint::Country(hostname[0].clone())),
-                            2 => Constraint::Only(LocationConstraint::City(
-                                hostname[0].clone(),
-                                hostname[1].clone(),
-                            )),
-                            3 => Constraint::Only(LocationConstraint::Hostname(
-                                hostname[0].clone(),
-                                hostname[1].clone(),
-                                hostname[2].clone(),
-                            )),
-                            _ => {
-                                return Err(tonic::Status::invalid_argument(
-                                    "expected 1-3 elements",
-                                ))
-                            }
-                        }
-                    }
-                };
+        let settings =
+            match settings {
+                BridgeSettingType::Normal(constraints) => {
+                    let constraint = match constraints.location {
+                        None => Constraint::Any,
+                        Some(location) => convert_proto_location(location),
+                    };
 
-                BridgeSettings::Normal(BridgeConstraints {
-                    location: constraint,
-                })
-            }
-            BridgeSettingType::Local(proxy_settings) => {
-                let peer = proxy_settings
-                    .peer
-                    .parse()
-                    .map_err(|_| tonic::Status::invalid_argument("failed to parse peer address"))?;
-                let proxy_settings =
-                    net::openvpn::ProxySettings::Local(net::openvpn::LocalProxySettings {
-                        port: proxy_settings.port as u16,
-                        peer,
+                    BridgeSettings::Normal(BridgeConstraints {
+                        location: constraint,
+                    })
+                }
+                BridgeSettingType::Local(proxy_settings) => {
+                    let peer = proxy_settings.peer.parse().map_err(|_| {
+                        tonic::Status::invalid_argument("failed to parse peer address")
+                    })?;
+                    let proxy_settings =
+                        net::openvpn::ProxySettings::Local(net::openvpn::LocalProxySettings {
+                            port: proxy_settings.port as u16,
+                            peer,
+                        });
+                    BridgeSettings::Custom(proxy_settings)
+                }
+                BridgeSettingType::Remote(proxy_settings) => {
+                    let address = proxy_settings.address.parse().map_err(|_| {
+                        tonic::Status::invalid_argument("failed to parse IP address")
+                    })?;
+                    let auth = proxy_settings.auth.map(|auth| net::openvpn::ProxyAuth {
+                        username: auth.username,
+                        password: auth.password,
                     });
-                BridgeSettings::Custom(proxy_settings)
-            }
-            BridgeSettingType::Remote(proxy_settings) => {
-                let address = proxy_settings
-                    .address
-                    .parse()
-                    .map_err(|_| tonic::Status::invalid_argument("failed to parse IP address"))?;
-                let auth = proxy_settings.auth.map(|auth| net::openvpn::ProxyAuth {
-                    username: auth.username,
-                    password: auth.password,
-                });
-                let proxy_settings =
-                    net::openvpn::ProxySettings::Remote(net::openvpn::RemoteProxySettings {
-                        address,
-                        auth,
-                    });
-                BridgeSettings::Custom(proxy_settings)
-            }
-            BridgeSettingType::Shadowsocks(proxy_settings) => {
-                let peer = proxy_settings
-                    .peer
-                    .parse()
-                    .map_err(|_| tonic::Status::invalid_argument("failed to parse peer address"))?;
-                let proxy_settings = net::openvpn::ProxySettings::Shadowsocks(
-                    net::openvpn::ShadowsocksProxySettings {
-                        peer,
-                        password: proxy_settings.password,
-                        cipher: proxy_settings.cipher,
-                    },
-                );
-                BridgeSettings::Custom(proxy_settings)
-            }
-        };
+                    let proxy_settings =
+                        net::openvpn::ProxySettings::Remote(net::openvpn::RemoteProxySettings {
+                            address,
+                            auth,
+                        });
+                    BridgeSettings::Custom(proxy_settings)
+                }
+                BridgeSettingType::Shadowsocks(proxy_settings) => {
+                    let peer = proxy_settings.peer.parse().map_err(|_| {
+                        tonic::Status::invalid_argument("failed to parse peer address")
+                    })?;
+                    let proxy_settings = net::openvpn::ProxySettings::Shadowsocks(
+                        net::openvpn::ShadowsocksProxySettings {
+                            peer,
+                            password: proxy_settings.password,
+                            cipher: proxy_settings.cipher,
+                        },
+                    );
+                    BridgeSettings::Custom(proxy_settings)
+                }
+            };
 
         log::debug!("set_bridge_settings({:?})", settings);
 
@@ -974,28 +952,7 @@ fn convert_relay_settings_update(
             // If `location` isn't provided, no changes are made.
             // If `location` is provided, but is an empty vector,
             // then the constraint is set to `Constraint::Any`.
-            let location = match settings.location {
-                Some(location) => {
-                    let location = location.hostname;
-                    match location.len() {
-                        0 => Some(Constraint::Any),
-                        1 => Some(Constraint::Only(LocationConstraint::Country(
-                            location[0].clone(),
-                        ))),
-                        2 => Some(Constraint::Only(LocationConstraint::City(
-                            location[0].clone(),
-                            location[1].clone(),
-                        ))),
-                        3 => Some(Constraint::Only(LocationConstraint::Hostname(
-                            location[0].clone(),
-                            location[1].clone(),
-                            location[2].clone(),
-                        ))),
-                        _ => return Err(tonic::Status::invalid_argument("expected 0-3 elements")),
-                    }
-                }
-                None => None,
-            };
+            let location = settings.location.map(convert_proto_location);
 
             let tunnel_protocol = if let Some(update) = settings.tunnel_type {
                 match proto::TunnelType::from_i32(update.tunnel_type) {
@@ -1214,17 +1171,26 @@ fn convert_public_key(public_key: &wireguard::PublicKey) -> proto::PublicKey {
 fn convert_location_constraint(
     location: &Constraint<LocationConstraint>,
 ) -> Option<proto::RelayLocation> {
-    let location = match location {
-        Constraint::Any => None,
-        Constraint::Only(location) => Some(match location {
-            LocationConstraint::Country(country) => [country.clone()].to_vec(),
-            LocationConstraint::City(country, city) => [country.clone(), city.clone()].to_vec(),
-            LocationConstraint::Hostname(country, city, host) => {
-                [country.clone(), city.clone(), host.clone()].to_vec()
-            }
-        }),
-    };
-    location.map(|location| proto::RelayLocation { hostname: location })
+    if location.is_any() {
+        return None;
+    }
+
+    Some(match location.as_ref().unwrap() {
+        LocationConstraint::Country(country) => proto::RelayLocation {
+            country: country.to_string(),
+            ..Default::default()
+        },
+        LocationConstraint::City(country, city) => proto::RelayLocation {
+            country: country.to_string(),
+            city: city.to_string(),
+            ..Default::default()
+        },
+        LocationConstraint::Hostname(country, city, hostname) => proto::RelayLocation {
+            country: country.to_string(),
+            city: city.to_string(),
+            hostname: hostname.to_string(),
+        },
+    })
 }
 
 fn convert_bridge_state(state: &BridgeState) -> proto::BridgeState {
@@ -1490,6 +1456,22 @@ fn convert_version_info(version_info: &version::AppVersionInfo) -> proto::AppVer
         latest_stable: version_info.latest_stable.clone(),
         latest_beta: version_info.latest_beta.clone(),
         suggested_upgrade: version_info.suggested_upgrade.clone().unwrap_or_default(),
+    }
+}
+
+fn convert_proto_location(location: proto::RelayLocation) -> Constraint<LocationConstraint> {
+    if !location.hostname.is_empty() {
+        Constraint::Only(LocationConstraint::Hostname(
+            location.country,
+            location.city,
+            location.hostname,
+        ))
+    } else if !location.city.is_empty() {
+        Constraint::Only(LocationConstraint::City(location.country, location.city))
+    } else if !location.country.is_empty() {
+        Constraint::Only(LocationConstraint::Country(location.country))
+    } else {
+        Constraint::Any
     }
 }
 
