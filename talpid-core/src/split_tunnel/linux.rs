@@ -1,16 +1,16 @@
 use std::{
-    fs,
+    env, fs,
     io::{self, BufRead, BufReader, BufWriter, Write},
     path::PathBuf,
 };
 use talpid_types::cgroup::{find_net_cls_mount, SPLIT_TUNNEL_CGROUP_NAME};
 
-const DEFAULT_NETCLS_DIR: &str = "/sys/fs/cgroup/net_cls";
-const NETCLS_DIR_OVERRIDE_ENV_VAR: &str = "TALPID_NETCLS_MOUNT_DIR";
+const DEFAULT_NET_CLS_DIR: &str = "/sys/fs/cgroup/net_cls";
+const NET_CLS_DIR_OVERRIDE_ENV_VAR: &str = "TALPID_NET_CLS_MOUNT_DIR";
 
 /// Identifies packets coming from the cgroup.
 /// This should be an arbitrary but unique integer.
-pub const NETCLS_CLASSID: u32 = 0x4d9f41;
+pub const NET_CLS_CLASSID: u32 = 0x4d9f41;
 /// Value used to mark packets and associated connections.
 /// This should be an arbitrary but unique integer.
 pub const MARK: i32 = 0xf41;
@@ -69,18 +69,18 @@ impl PidManager {
             return Ok(net_cls_path);
         }
 
-        let netcls_dir = std::env::var(NETCLS_DIR_OVERRIDE_ENV_VAR)
+        let net_cls_dir = env::var(NET_CLS_DIR_OVERRIDE_ENV_VAR)
             .map(PathBuf::from)
-            .unwrap_or(PathBuf::from(DEFAULT_NETCLS_DIR));
+            .unwrap_or(PathBuf::from(DEFAULT_NET_CLS_DIR));
 
-        if !netcls_dir.exists() {
-            fs::create_dir(netcls_dir.clone()).map_err(Error::CreateCGroup)?;
+        if !net_cls_dir.exists() {
+            fs::create_dir_all(&net_cls_dir).map_err(Error::CreateCGroup)?;
         }
 
         // https://www.kernel.org/doc/Documentation/cgroup-v1/net_cls.txt
         nix::mount::mount(
             Some("net_cls"),
-            &netcls_dir,
+            &net_cls_dir,
             Some("cgroup"),
             nix::mount::MsFlags::empty(),
             Some("net_cls"),
@@ -88,7 +88,7 @@ impl PidManager {
         .map_err(Error::InitNetClsCGroup)?;
 
 
-        Ok(netcls_dir)
+        Ok(net_cls_dir)
     }
 
     fn setup_exclusion_group(&self) -> Result<(), Error> {
@@ -98,7 +98,7 @@ impl PidManager {
         }
 
         let classid_path = exclusions_dir.join("net_cls.classid");
-        fs::write(classid_path, NETCLS_CLASSID.to_string().as_bytes())
+        fs::write(classid_path, NET_CLS_CLASSID.to_string().as_bytes())
             .map_err(Error::SetCGroupClassId)
     }
 
