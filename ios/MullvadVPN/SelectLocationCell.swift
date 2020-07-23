@@ -105,13 +105,13 @@ class SelectLocationCell: BasicTableViewCell {
         updateBackgroundColor()
 
         NSLayoutConstraint.activate([
+            tickImageView.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
+            tickImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+
             statusIndicator.widthAnchor.constraint(equalToConstant: 16),
             statusIndicator.heightAnchor.constraint(equalToConstant: 16),
-            statusIndicator.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
-            statusIndicator.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-
-            tickImageView.centerXAnchor.constraint(equalTo: statusIndicator.centerXAnchor),
-            tickImageView.centerYAnchor.constraint(equalTo: statusIndicator.centerYAnchor),
+            statusIndicator.centerXAnchor.constraint(equalTo: tickImageView.centerXAnchor),
+            statusIndicator.centerYAnchor.constraint(equalTo: tickImageView.centerYAnchor),
 
             locationLabel.leadingAnchor.constraint(equalTo: statusIndicator.trailingAnchor, constant: 12),
             locationLabel.trailingAnchor.constraint(greaterThanOrEqualTo: collapseButton.leadingAnchor, constant: 0),
