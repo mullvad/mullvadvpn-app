@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.widget.ImageView
 import net.mullvad.mullvadvpn.R
 
-class NavigateCell : Cell {
+open class NavigateCell : Cell {
     private val chevron = ImageView(context).apply {
         val width = resources.getDimensionPixelSize(R.dimen.chevron_width)
         val height = resources.getDimensionPixelSize(R.dimen.chevron_height)
