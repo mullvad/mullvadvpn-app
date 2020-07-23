@@ -185,11 +185,11 @@ impl Bridge {
     }
 
     async fn handle_set_bridge_location(matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let hostname = location::get_constraint(matches);
+        let constraints = location::get_constraint(matches);
         let mut rpc = new_grpc_client().await?;
         rpc.set_bridge_settings(BridgeSettings {
             r#type: Some(BridgeSettingsType::Normal(BridgeConstraints {
-                location: Some(crate::proto::RelayLocation { hostname }),
+                location: Some(constraints),
             })),
         })
         .await
