@@ -15,7 +15,7 @@ class RemainingTimeLabel(val context: Context, val view: View) {
     private val expiredColor = context.getColor(R.color.red)
     private val normalColor = context.getColor(R.color.white60)
 
-    private val label = view.findViewById<TextView>(R.id.remaining_time)
+    private val label = view.findViewById<TextView>(R.id.label)
 
     var accountExpiry: DateTime? = null
         set(value) {
