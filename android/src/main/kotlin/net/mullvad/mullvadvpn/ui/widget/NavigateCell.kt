@@ -1,8 +1,11 @@
 package net.mullvad.mullvadvpn.ui.widget
 
 import android.content.Context
+import android.support.v4.app.Fragment
+import android.support.v4.app.FragmentActivity
 import android.util.AttributeSet
 import android.widget.ImageView
+import kotlin.reflect.KClass
 import net.mullvad.mullvadvpn.R
 
 open class NavigateCell : Cell {
@@ -15,6 +18,8 @@ open class NavigateCell : Cell {
 
         setImageResource(R.drawable.icon_chevron)
     }
+
+    var targetFragment: KClass<out Fragment>? = null
 
     constructor(context: Context) : super(context) {}
 
@@ -32,5 +37,24 @@ open class NavigateCell : Cell {
 
     init {
         cell.addView(chevron)
+        onClickListener = { openSubFragment() }
+    }
+
+    private fun openSubFragment() {
+        targetFragment?.let { fragmentClass ->
+            val fragment = fragmentClass.java.getConstructor().newInstance()
+
+            (context as? FragmentActivity)?.supportFragmentManager?.beginTransaction()?.apply {
+                setCustomAnimations(
+                    R.anim.fragment_enter_from_right,
+                    R.anim.fragment_half_exit_to_left,
+                    R.anim.fragment_half_enter_from_left,
+                    R.anim.fragment_exit_to_right
+                )
+                replace(R.id.main_fragment, fragment)
+                addToBackStack(null)
+                commit()
+            }
+        }
     }
 }
