@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.ui.widget.CellSwitch
 
 class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var allowLanToggle: CellSwitch

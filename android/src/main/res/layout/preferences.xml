@@ -58,10 +58,10 @@
                               android:textSize="20sp"
                               android:textStyle="bold"
                               android:text="@string/auto_connect" />
-                    <net.mullvad.mullvadvpn.ui.CellSwitch android:id="@+id/auto_connect_toggle"
-                                                          android:layout_width="52dp"
-                                                          android:layout_height="32dp"
-                                                          android:layout_weight="0" />
+                    <net.mullvad.mullvadvpn.ui.widget.CellSwitch android:id="@+id/auto_connect_toggle"
+                                                                 android:layout_width="52dp"
+                                                                 android:layout_height="32dp"
+                                                                 android:layout_weight="0" />
                 </LinearLayout>
                 <TextView android:id="@+id/auto_connect_footer"
                           android:layout_width="match_parent"
@@ -87,10 +87,10 @@
                               android:textSize="20sp"
                               android:textStyle="bold"
                               android:text="@string/local_network_sharing" />
-                    <net.mullvad.mullvadvpn.ui.CellSwitch android:id="@+id/allow_lan_toggle"
-                                                          android:layout_width="52dp"
-                                                          android:layout_height="32dp"
-                                                          android:layout_weight="0" />
+                    <net.mullvad.mullvadvpn.ui.widget.CellSwitch android:id="@+id/allow_lan_toggle"
+                                                                 android:layout_width="52dp"
+                                                                 android:layout_height="32dp"
+                                                                 android:layout_weight="0" />
                 </LinearLayout>
                 <TextView android:id="@+id/allow_lan_footer"
                           android:layout_width="match_parent"
