@@ -23,7 +23,7 @@ open class Cell : LinearLayout {
         setTypeface(null, Typeface.BOLD)
     }
 
-    private var footer: TextView? = null
+    protected var footer: TextView? = null
         set(value) {
             field = value?.apply {
                 val horizontalPadding =
@@ -59,14 +59,13 @@ open class Cell : LinearLayout {
 
     var onClickListener: (() -> Unit)? = null
 
-    constructor(context: Context) : super(context) {}
-
-    constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {
-        loadAttributes(attributes)
+    constructor(context: Context, footer: TextView? = null) : super(context) {
+        this.footer = footer
     }
 
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute) {
+    constructor(context: Context, attributes: AttributeSet, footer: TextView? = null) :
+        super(context, attributes) {
+            this.footer = footer
             loadAttributes(attributes)
         }
 
@@ -74,8 +73,20 @@ open class Cell : LinearLayout {
         context: Context,
         attributes: AttributeSet,
         defaultStyleAttribute: Int,
-        defaultStyleResource: Int
+        footer: TextView? = null
+    ) : super(context, attributes, defaultStyleAttribute) {
+        this.footer = footer
+        loadAttributes(attributes)
+    }
+
+    constructor(
+        context: Context,
+        attributes: AttributeSet,
+        defaultStyleAttribute: Int,
+        defaultStyleResource: Int,
+        footer: TextView? = null
     ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource) {
+        this.footer = footer
         loadAttributes(attributes)
     }
 
@@ -90,8 +101,12 @@ open class Cell : LinearLayout {
 
         context.theme.obtainStyledAttributes(attributes, R.styleable.Cell, 0, 0).apply {
             try {
-                footer = getString(R.styleable.Cell_footer)?.let { footerText ->
-                    TextView(context).apply { text = footerText }
+                getString(R.styleable.Cell_footer)?.let { footerText ->
+                    if (footer == null) {
+                        footer = TextView(context)
+                    }
+
+                    footer?.text = footerText
                 }
             } finally {
                 recycle()
