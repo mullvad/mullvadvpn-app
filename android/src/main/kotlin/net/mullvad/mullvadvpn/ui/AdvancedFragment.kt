@@ -14,7 +14,6 @@ private const val MAX_MTU_VALUE = 1420
 
 class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var wireguardMtuInput: CellInput
-    private lateinit var wireguardKeysMenu: View
     private lateinit var titleController: CollapsibleTitleController
 
     override fun onSafelyCreateView(
@@ -41,10 +40,8 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             text = context.getString(R.string.wireguard_mtu_footer, MIN_MTU_VALUE, MAX_MTU_VALUE)
         }
 
-        wireguardKeysMenu = view.findViewById<View>(R.id.wireguard_keys).apply {
-            setOnClickListener {
-                openSubFragment(WireguardKeyFragment())
-            }
+        view.findViewById<View>(R.id.wireguard_keys).setOnClickListener {
+            openSubFragment(WireguardKeyFragment())
         }
 
         view.findViewById<View>(R.id.split_tunnelling).setOnClickListener {
