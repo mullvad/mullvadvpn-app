@@ -33,13 +33,13 @@ pub struct VoucherSubmission {
 /// was rejected by the `/v1/submit-voucher` RPC.
 #[derive(err_derive::Error, Debug)]
 pub enum VoucherError {
-    /// Error code -400
+    /// Error code `tonic::Code::NotFound`
     #[error(display = "Bad voucher code")]
     BadVoucher,
-    /// Error code -401
+    /// Error code `tonic::Code::ResourceExhausted`
     #[error(display = "Voucher already used")]
     VoucherAlreadyUsed,
-    /// Error code -100
+    /// Error code `tonic::Code::Internal`
     #[error(display = "Server internal error")]
     InternalError,
     #[error(display = "Unknown error, {}", _0)]
@@ -50,9 +50,9 @@ impl VoucherError {
     /// Create error from RPC error code.
     pub fn from_rpc_error_code(err_code: i64) -> VoucherError {
         match err_code {
-            -400 => VoucherError::BadVoucher,
-            -401 => VoucherError::VoucherAlreadyUsed,
-            -100 => VoucherError::InternalError,
+            x if x == tonic::Code::NotFound as i64 => VoucherError::BadVoucher,
+            x if x == tonic::Code::ResourceExhausted as i64 => VoucherError::VoucherAlreadyUsed,
+            x if x == tonic::Code::Internal as i64 => VoucherError::InternalError,
             err => VoucherError::UnknownError(err),
         }
     }

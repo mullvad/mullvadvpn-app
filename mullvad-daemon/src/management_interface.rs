@@ -28,10 +28,6 @@ use talpid_types::{
     ErrorExt,
 };
 
-pub const INVALID_VOUCHER_CODE: i32 = -400;
-pub const VOUCHER_USED_ALREADY_CODE: i32 = -401;
-pub const INVALID_ACCOUNT_CODE: i32 = -200;
-
 
 mod proto {
     tonic::include_proto!("mullvad_daemon.management_interface");
@@ -614,15 +610,13 @@ impl ManagementService for ManagementServiceImpl {
                 .map_err(|e| match e {
                     RestError::ApiError(StatusCode::BAD_REQUEST, message) => {
                         match &message.as_str() {
-                            &mullvad_rpc::INVALID_VOUCHER => tonic::Status::new(
-                                tonic::Code::from_i32(INVALID_VOUCHER_CODE),
-                                message,
-                            ),
+                            &mullvad_rpc::INVALID_VOUCHER => {
+                                tonic::Status::new(tonic::Code::NotFound, message)
+                            }
 
-                            &mullvad_rpc::VOUCHER_USED => tonic::Status::new(
-                                tonic::Code::from_i32(VOUCHER_USED_ALREADY_CODE),
-                                message,
-                            ),
+                            &mullvad_rpc::VOUCHER_USED => {
+                                tonic::Status::new(tonic::Code::ResourceExhausted, message)
+                            }
 
                             _ => tonic::Status::internal("internal error"),
                         }
@@ -1661,13 +1655,13 @@ impl Drop for ManagementInterfaceEventBroadcaster {
     }
 }
 
-// Converts a REST API error for an account into a JSONRPC error for the JSONRPC client.
+// Converts a REST API error for an account into a tonic status.
 fn map_rest_account_error(error: RestError) -> tonic::Status {
     match error {
         RestError::ApiError(status, message)
             if status == StatusCode::UNAUTHORIZED || status == StatusCode::FORBIDDEN =>
         {
-            tonic::Status::new(tonic::Code::from_i32(INVALID_ACCOUNT_CODE), message)
+            tonic::Status::new(tonic::Code::Unauthenticated, message)
         }
         _ => tonic::Status::internal("internal error"),
     }
