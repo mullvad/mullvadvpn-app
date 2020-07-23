@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.ui
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.service.AccountCache
 import net.mullvad.mullvadvpn.ui.widget.AccountCell
-import net.mullvad.mullvadvpn.ui.widget.Cell
+import net.mullvad.mullvadvpn.ui.widget.NavigateCell
 
 class SettingsFragment : ServiceAwareFragment() {
     private lateinit var accountMenu: AccountCell
@@ -60,29 +59,23 @@ class SettingsFragment : ServiceAwareFragment() {
         }
 
         accountMenu = view.findViewById<AccountCell>(R.id.account).apply {
-            onClickListener = {
-                openSubFragment(AccountFragment())
-            }
+            targetFragment = AccountFragment::class
         }
 
-        preferencesMenu = view.findViewById<Cell>(R.id.preferences).apply {
-            onClickListener = {
-                openSubFragment(PreferencesFragment())
-            }
+        preferencesMenu = view.findViewById<NavigateCell>(R.id.preferences).apply {
+            targetFragment = PreferencesFragment::class
         }
 
-        advancedMenu = view.findViewById<Cell>(R.id.advanced).apply {
-            onClickListener = {
-                openSubFragment(AdvancedFragment())
-            }
+        advancedMenu = view.findViewById<NavigateCell>(R.id.advanced).apply {
+            targetFragment = AdvancedFragment::class
         }
 
         view.findViewById<View>(R.id.app_version).setOnClickListener {
             openLink(R.string.download_url)
         }
 
-        view.findViewById<Cell>(R.id.report_a_problem).onClickListener = {
-            openSubFragment(ProblemReportFragment())
+        view.findViewById<NavigateCell>(R.id.report_a_problem).apply {
+            targetFragment = ProblemReportFragment::class
         }
 
         appVersionWarning = view.findViewById(R.id.app_version_warning)
@@ -138,20 +131,6 @@ class SettingsFragment : ServiceAwareFragment() {
             jobTracker.newUiJob("updateVersionInfo") {
                 updateVersionInfo()
             }
-        }
-    }
-
-    private fun openSubFragment(fragment: Fragment) {
-        fragmentManager?.beginTransaction()?.apply {
-            setCustomAnimations(
-                R.anim.fragment_enter_from_right,
-                R.anim.fragment_half_exit_to_left,
-                R.anim.fragment_half_enter_from_left,
-                R.anim.fragment_exit_to_right
-            )
-            replace(R.id.main_fragment, fragment)
-            addToBackStack(null)
-            commit()
         }
     }
 
