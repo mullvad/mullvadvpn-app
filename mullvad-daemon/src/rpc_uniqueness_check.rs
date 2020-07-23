@@ -30,11 +30,8 @@ async fn new_grpc_client() -> Result<ManagementServiceClient<transport::Channel>
 ///
 /// Tries to connect to another daemon and perform a simple RPC call. If it fails, assumes the
 /// other daemon has stopped.
-pub fn is_another_instance_running() -> bool {
-    // TODO: make this async and get rid of the runtime
-    let mut runtime = tokio02::runtime::Runtime::new().unwrap();
-
-    match runtime.block_on(new_grpc_client()) {
+pub async fn is_another_instance_running() -> bool {
+    match new_grpc_client().await {
         Ok(_) => true,
         Err(error) => {
             let msg =
