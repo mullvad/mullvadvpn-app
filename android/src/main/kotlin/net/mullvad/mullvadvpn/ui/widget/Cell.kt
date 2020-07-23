@@ -23,6 +23,8 @@ open class Cell : LinearLayout {
         setTypeface(null, Typeface.BOLD)
     }
 
+    var onClickListener: (() -> Unit)? = null
+
     constructor(context: Context) : super(context) {}
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {
@@ -55,6 +57,8 @@ open class Cell : LinearLayout {
         }
 
         addView(label)
+
+        setOnClickListener { onClickListener?.invoke() }
     }
 
     private fun loadAttributes(attributes: AttributeSet) {
