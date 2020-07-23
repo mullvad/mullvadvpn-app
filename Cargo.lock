@@ -1563,14 +1563,21 @@ dependencies = [
  "libc 0.2.69 (registry+https://github.com/rust-lang/crates.io-index)",
  "mullvad-ipc-client 0.1.0",
  "mullvad-paths 0.1.0",
+ "mullvad-rpc 0.1.0",
  "mullvad-types 0.1.0",
  "notify 4.0.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "openvpn-plugin 0.3.0 (git+https://github.com/mullvad/openvpn-plugin-rs?branch=auth-failed-event)",
+ "parity-tokio-ipc 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "prost 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "talpid-ipc 0.1.0",
  "talpid-types 0.1.0",
  "tempfile 3.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio 0.1.22 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tokio 0.2.21 (registry+https://github.com/rust-lang/crates.io-index)",
  "tokio-timer 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tonic 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tonic-build 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "tower 0.3.1 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]

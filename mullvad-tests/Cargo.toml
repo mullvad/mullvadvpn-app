@@ -14,6 +14,7 @@ integration-tests = []
 duct = "0.13"
 mullvad-ipc-client = { path = "../mullvad-ipc-client" }
 mullvad-paths = { path = "../mullvad-paths" }
+mullvad-rpc = { path = "../mullvad-rpc" }
 mullvad-types = { path = "../mullvad-types" }
 notify = "4.0"
 openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde"] }
@@ -23,9 +24,17 @@ tempfile = "3.0"
 jsonrpc-client-core = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "68aac55b" }
 jsonrpc-client-ipc = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "68aac55b" }
 jsonrpc-client-pubsub = { git = "https://github.com/mullvad/jsonrpc-client-rs", rev = "68aac55b" }
-tokio = "0.1"
-tokio-timer = "0.1"
 futures = "0.1.23"
+tokio01 = { package = "tokio", version = "0.1" }
+tokio-timer = "0.1"
+tokio = { version = "0.2", features =  [ "io-util", "process", "rt-core", "rt-threaded", "stream", "fs"] }
+tonic = "0.2"
+tower = "0.3"
+prost = "0.6"
+parity-tokio-ipc = "0.7"
+
+[build-dependencies]
+tonic-build = { version = "0.2", default-features = false, features = ["transport", "prost"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"

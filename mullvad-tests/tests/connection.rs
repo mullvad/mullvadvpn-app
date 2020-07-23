@@ -5,11 +5,11 @@ use mullvad_tests::{
     mock_openvpn::search_openvpn_args, watch_event, DaemonRunner, MockOpenVpnPluginRpcClient,
     PathWatcher,
 };
-use mullvad_types::DaemonEvent;
+use mullvad_types::{location::GeoIpLocation, states::TunnelState, DaemonEvent};
 use std::{fs, path::Path, time::Duration};
 use talpid_types::{
     net::{Endpoint, TransportProtocol, TunnelEndpoint, TunnelType},
-    tunnel::{ActionAfterDisconnect, TunnelStateTransition},
+    tunnel::ActionAfterDisconnect,
 };
 
 #[cfg(target_os = "linux")]
@@ -67,11 +67,17 @@ fn changes_to_connecting_state() {
 
     let _ = assert_state_event(
         state_events,
-        TunnelStateTransition::Connecting(get_default_endpoint()),
+        TunnelState::Connecting {
+            endpoint: get_default_endpoint(),
+            location: get_default_location(),
+        },
     );
     assert_eq!(
         rpc_client.get_state().unwrap(),
-        TunnelStateTransition::Connecting(get_default_endpoint())
+        TunnelState::Connecting {
+            endpoint: get_default_endpoint(),
+            location: get_default_location(),
+        },
     );
 }
 
@@ -88,7 +94,10 @@ fn changes_to_connected_state() {
 
     let state_events = assert_state_event(
         state_events,
-        TunnelStateTransition::Connecting(get_default_endpoint()),
+        TunnelState::Connecting {
+            endpoint: get_default_endpoint(),
+            location: get_default_location(),
+        },
     );
     openvpn_args_file_events.assert_create_write_close_sequence();
 
@@ -98,11 +107,17 @@ fn changes_to_connected_state() {
 
     assert_state_event(
         state_events,
-        TunnelStateTransition::Connected(get_default_endpoint()),
+        TunnelState::Connected {
+            endpoint: get_default_endpoint(),
+            location: get_default_location(),
+        },
     );
     assert_eq!(
         rpc_client.get_state().unwrap(),
-        TunnelStateTransition::Connected(get_default_endpoint())
+        TunnelState::Connected {
+            endpoint: get_default_endpoint(),
+            location: get_default_location(),
+        }
     );
 }
 
@@ -119,7 +134,10 @@ fn returns_to_connecting_state() {
 
     let state_events = assert_state_event(
         state_events,
-        TunnelStateTransition::Connecting(get_default_endpoint()),
+        TunnelState::Connecting {
+            endpoint: get_default_endpoint(),
+            location: get_default_location(),
+        },
     );
     openvpn_args_file_events.assert_create_write_close_sequence();
 
@@ -129,7 +147,10 @@ fn returns_to_connecting_state() {
 
     let state_events = assert_state_event(
         state_events,
-        TunnelStateTransition::Connected(get_default_endpoint()),
+        TunnelState::Connected {
+            endpoint: get_default_endpoint(),
+            location: get_default_location(),
+        },
     );
 
     mock_plugin_client.route_predown().unwrap();
@@ -140,7 +161,7 @@ fn returns_to_connecting_state() {
 
     let _ = assert_state_event(
         state_events,
-        TunnelStateTransition::Disconnecting(ActionAfterDisconnect::Reconnect),
+        TunnelState::Disconnecting(ActionAfterDisconnect::Reconnect),
     );
 }
 
@@ -157,7 +178,10 @@ fn disconnects() {
 
     let state_events = assert_state_event(
         state_events,
-        TunnelStateTransition::Connecting(get_default_endpoint()),
+        TunnelState::Connecting {
+            endpoint: get_default_endpoint(),
+            location: get_default_location(),
+        },
     );
     openvpn_args_file_events.assert_create_write_close_sequence();
 
@@ -167,16 +191,19 @@ fn disconnects() {
 
     let state_events = assert_state_event(
         state_events,
-        TunnelStateTransition::Connected(get_default_endpoint()),
+        TunnelState::Connected {
+            endpoint: get_default_endpoint(),
+            location: get_default_location(),
+        },
     );
 
     rpc_client.disconnect().unwrap();
 
     let state_events = assert_state_event(
         state_events,
-        TunnelStateTransition::Disconnecting(ActionAfterDisconnect::Nothing),
+        TunnelState::Disconnecting(ActionAfterDisconnect::Nothing),
     );
-    let _ = assert_state_event(state_events, TunnelStateTransition::Disconnected);
+    let _ = assert_state_event(state_events, TunnelState::Disconnected);
 }
 
 fn get_default_endpoint() -> TunnelEndpoint {
@@ -186,14 +213,29 @@ fn get_default_endpoint() -> TunnelEndpoint {
             protocol: TransportProtocol::Udp,
         },
         tunnel_type: TunnelType::OpenVpn,
+        proxy: None,
     }
+}
+
+fn get_default_location() -> Option<GeoIpLocation> {
+    Some(GeoIpLocation {
+        ipv4: None,
+        ipv6: None,
+        country: "Sweden".to_string(),
+        city: Some("Gothenburg".to_string()),
+        latitude: 57.70887,
+        longitude: 11.97456,
+        mullvad_exit_ip: true,
+        hostname: Some("fakehost".to_string()),
+        bridge_hostname: None,
+    })
 }
 
 fn assert_state_event<
     S: Stream<Item = DaemonEvent, Error = jsonrpc_client_core::Error> + std::fmt::Debug,
 >(
     mut receiver: S,
-    expected_state: TunnelStateTransition,
+    expected_state: TunnelState,
 ) -> S {
     use futures::future::Either;
 
@@ -206,7 +248,7 @@ fn assert_state_event<
             _ => panic!("Timed out waiting for tunnel state transition"),
         };
         receiver = receiver2;
-        if let DaemonEvent::StateTransition(new_state) = event.unwrap() {
+        if let DaemonEvent::TunnelState(new_state) = event.unwrap() {
             transition = Some(new_state);
         }
     }
