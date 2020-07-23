@@ -28,6 +28,13 @@ pub enum Constraint<T: fmt::Debug + Clone + Eq + PartialEq> {
 }
 
 impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
+    pub fn unwrap(self) -> T {
+        match self {
+            Constraint::Any => panic!("called `Constraint::unwrap()` on an `Any` value"),
+            Constraint::Only(value) => value,
+        }
+    }
+
     pub fn unwrap_or(self, other: T) -> T {
         match self {
             Constraint::Any => other,
@@ -56,6 +63,13 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
         match self {
             Constraint::Any => true,
             Constraint::Only(_value) => false,
+        }
+    }
+
+    pub fn as_ref(&self) -> Constraint<&T> {
+        match self {
+            Constraint::Any => Constraint::Any,
+            Constraint::Only(ref value) => Constraint::Only(value),
         }
     }
 }
