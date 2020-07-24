@@ -120,8 +120,11 @@ fn print_blocked_reason(reason: &ErrorStateCause) {
             println!("Blocked: {}", AuthFailed::from(auth_failure_str));
         }
         #[cfg(target_os = "linux")]
-        ErrorStateCause::SetFirewallPolicyError => {
-            println!("Blocked: {}", ErrorStateCause::SetFirewallPolicyError);
+        ErrorStateCause::SetFirewallPolicyError(error) => {
+            println!(
+                "Blocked: {}",
+                ErrorStateCause::SetFirewallPolicyError(error.clone())
+            );
             println!("Your kernel might be terribly out of date or missing nftables");
         }
         other => println!("Blocked: {}", other),
