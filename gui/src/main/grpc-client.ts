@@ -8,19 +8,33 @@ import { Empty } from 'google-protobuf/google/protobuf/empty_pb.js';
 import { promisify } from 'util';
 import {
   AccountToken,
+  IRelayListCountry,
+  IRelayListCity,
+  IRelayListHostname,
+  IWireguardTunnelData,
+  IShadowsocksEndpointData,
+  RelayProtocol,
   BridgeState,
   ILocation,
   IAppVersionInfo,
   IAccountData,
+  IOpenVpnTunnelData,
 } from '../shared/daemon-rpc-types';
 import * as managementInterface from './management_interface/management_interface_grpc_pb';
 import {
   AccountData,
   BridgeState as GrpcBridgeState,
   VoucherSubmission,
+  RelayListCountry,
+  RelayListCity,
+  Relay,
+  WireguardEndpointData,
+  ShadowsocksEndpointData,
+  TransportProtocol,
   GeoIpLocation,
   AccountHistory,
   AppVersionInfo,
+  OpenVpnEndpointData,
 } from './management_interface/management_interface_pb';
 
 const NETWORK_CALL_TIMEOUT = 10000;
@@ -187,6 +201,22 @@ export class GrpcClient {
     };
   }
 
+  public getRelayLocations(): Promise<IRelayListCountry[]> {
+    if (this.client) {
+      return new Promise((resolve, reject) => {
+        const relayLocations: IRelayListCountry[] = [];
+        const stream = this.client!.getRelayLocations(new Empty());
+        stream.on('data', (country: RelayListCountry) =>
+          relayLocations.push(convertRelayListCountry(country.toObject())),
+        );
+        stream.on('end', () => resolve(relayLocations));
+        stream.on('close', reject);
+      });
+    } else {
+      throw noConnectionError;
+    }
+  }
+
   public async createNewAccount(): Promise<string> {
     const response = await this.callEmpty<StringValue>(this.client?.createNewAccount);
     return response.getValue();
@@ -276,4 +306,69 @@ export class GrpcClient {
     const response = await this.callEmpty<AppVersionInfo>(this.client?.getVersionInfo);
     return response.toObject();
   }
+}
+
+function convertRelayListCountry(country: RelayListCountry.AsObject): IRelayListCountry {
+  return {
+    ...country,
+    cities: country.citiesList.map(convertRelayListCity),
+  };
+}
+
+function convertRelayListCity(city: RelayListCity.AsObject): IRelayListCity {
+  return {
+    ...city,
+    relays: city.relaysList.map(convertRelayListRelay),
+  };
+}
+
+function convertRelayListRelay(relay: Relay.AsObject): IRelayListHostname {
+  return {
+    ...relay,
+    tunnels: relay.tunnels && {
+      ...relay.tunnels,
+      openvpn: relay.tunnels.openvpnList.map(convertOpenvpnList),
+      wireguard: relay.tunnels.wireguardList.map(convertWireguardList),
+    },
+    bridges: relay.bridges && {
+      shadowsocks: relay.bridges.shadowsocksList.map(convertShadowsocksList),
+    },
+  };
+}
+
+function convertOpenvpnList(openvpn: OpenVpnEndpointData.AsObject): IOpenVpnTunnelData {
+  return {
+    ...openvpn,
+    protocol: convertTransportProtocol(openvpn.protocol),
+  };
+}
+
+function convertWireguardList(wireguard: WireguardEndpointData.AsObject): IWireguardTunnelData {
+  return {
+    ...wireguard,
+    portRanges: wireguard.portRangesList,
+    publicKey: convertWireguardKey(wireguard.publicKey),
+  };
+}
+
+function convertWireguardKey(publicKey: Uint8Array | string): string {
+  return typeof publicKey === 'string' ? publicKey : new TextDecoder('utf-8').decode(publicKey);
+}
+
+function convertShadowsocksList(
+  shadowsocks: ShadowsocksEndpointData.AsObject,
+): IShadowsocksEndpointData {
+  return {
+    ...shadowsocks,
+    protocol: convertTransportProtocol(shadowsocks.protocol),
+  };
+}
+
+function convertTransportProtocol(protocol: TransportProtocol): RelayProtocol {
+  const protocolMap: Record<TransportProtocol, RelayProtocol> = {
+    [TransportProtocol.TCP]: 'tcp',
+    [TransportProtocol.UDP]: 'udp',
+    [TransportProtocol.ANY_PROTOCOL]: 'any',
+  };
+  return protocolMap[protocol];
 }

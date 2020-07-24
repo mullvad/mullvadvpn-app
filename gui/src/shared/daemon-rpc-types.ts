@@ -58,7 +58,7 @@ export function tunnelTypeToString(tunnel: TunnelType): string {
   }
 }
 
-export type RelayProtocol = 'tcp' | 'udp';
+export type RelayProtocol = 'any' | 'tcp' | 'udp';
 
 export type Constraint<T> = 'any' | { only: T };
 export type LiftedConstraint<T> = 'any' | T;
@@ -238,9 +238,14 @@ export interface IWireguardTunnelData {
   // Port ranges are an array of pairs, such as [[53,53], [10_000, 60_000]],
   // which in this case translates that the specific tunnel can be connected on
   // port 53 and ports 10'000 through 60'000.
-  portRanges: Array<[number, number]>;
+  portRanges: Array<IPortRange>;
   // Public key of the tunnel.
   publicKey: string;
+}
+
+export interface IPortRange {
+  first: number;
+  last: number;
 }
 
 export interface IShadowsocksEndpointData {
