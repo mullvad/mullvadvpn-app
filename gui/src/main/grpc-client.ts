@@ -30,6 +30,8 @@ import {
   ProxyType,
   KeygenEvent,
   IWireguardPublicKey,
+  ISettings,
+  ConnectionConfig,
 } from '../shared/daemon-rpc-types';
 import * as managementInterface from './management_interface/management_interface_grpc_pb';
 import {
@@ -40,6 +42,8 @@ import {
   TunnelType as GrpcTunnelType,
   ProxyType as GrpcProxyType,
   KeygenEvent as GrpcKeygenEvent,
+  RelaySettings as GrpcRelaySettings,
+  ConnectionConfig as GrpcConnectionConfig,
   VoucherSubmission,
   RelayListCountry,
   RelayListCity,
@@ -55,6 +59,7 @@ import {
   TunnelStateRelayInfo,
   ProxyEndpoint,
   PublicKey,
+  Settings,
 } from './management_interface/management_interface_pb';
 
 const NETWORK_CALL_TIMEOUT = 10000;
@@ -308,6 +313,11 @@ export class GrpcClient {
     return convertTunnelState(response)!;
   }
 
+  public async getSettings(): Promise<ISettings> {
+    const response = await this.callEmpty<Settings>(this.client?.getSettings);
+    return convertSettings(response)!;
+  }
+
   public async getAccountHistory(): Promise<AccountToken[]> {
     const response = await this.callEmpty<AccountHistory>(this.client?.getAccountHistory);
     return response.toObject().tokenList;
@@ -554,3 +564,108 @@ function convertProxyEndpoint(proxyEndpoint: ProxyEndpoint.AsObject): IProxyEndp
     proxyType: proxyTypeMap[proxyEndpoint.proxyType],
   };
 }
+
+function convertSettings(_settings: Settings): ISettings | undefined {
+  // TODO
+  // const settingsObject = settings.toObject();
+  // const bridgeState = settingsObject.bridgeState && convertBridgeState(settingsObject.bridgeState.state);
+  // const relaySettings = convertRelaySettings(settings.getRelaySettings());
+  // const bridgeSettings = settingsObject.bridgeSettings && convertBridgeSettings(settingsObject.bridgeSettings);
+  // const tunnelOptions = settingsObject.tunnelOptions && convertTunnelOptions(settingsObject.tunnelOptions);
+  return undefined;
+  // return {
+  //   ...settings.toObject(),
+  //   bridgeState,
+  //   relaySettings,
+  //   bridgeSettings,
+  //   tunnelOptions,
+  // };
+}
+
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function convertBridgeState(bridgeState: GrpcBridgeState.State): BridgeState {
+  const bridgeStateMap: Record<GrpcBridgeState.State, BridgeState> = {
+    [GrpcBridgeState.State.AUTO]: 'auto',
+    [GrpcBridgeState.State.ON]: 'on',
+    [GrpcBridgeState.State.OFF]: 'off',
+  };
+
+  return bridgeStateMap[bridgeState];
+}
+
+// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function convertRelaySettings(relaySettings?: GrpcRelaySettings): RelaySettings | undefined {
+  if (relaySettings) {
+    switch (relaySettings.getEndpointCase()) {
+      case GrpcRelaySettings.EndpointCase.ENDPOINT_NOT_SET:
+        return undefined;
+      case GrpcRelaySettings.EndpointCase.CUSTOM: {
+        const custom = relaySettings.getCustom()?.toObject();
+        const config = relaySettings.getCustom()?.getConfig();
+        const connectionConfig = config && convertConnectionConfig(config);
+        return (
+          custom &&
+          connectionConfig && {
+            customTunnelEndpoint: {
+              ...custom,
+              config: connectionConfig,
+            },
+          }
+        );
+      }
+      case GrpcRelaySettings.EndpointCase.NORMAL:
+        // TODO
+        return undefined;
+    }
+  } else {
+    return undefined;
+  }
+}
+
+function convertConnectionConfig(
+  connectionConfig: GrpcConnectionConfig,
+): ConnectionConfig | undefined {
+  const connectionConfigObject = connectionConfig.toObject();
+  switch (connectionConfig.getConfigCase()) {
+    case GrpcConnectionConfig.ConfigCase.CONFIG_NOT_SET:
+      return undefined;
+    case GrpcConnectionConfig.ConfigCase.WIREGUARD:
+      return (
+        connectionConfigObject.wireguard &&
+        connectionConfigObject.wireguard.tunnel &&
+        connectionConfigObject.wireguard.peer && {
+          wireguard: {
+            ...connectionConfigObject.wireguard,
+            tunnel: {
+              privateKey: convertWireguardKey(connectionConfigObject.wireguard.tunnel.privateKey),
+              addresses: connectionConfigObject.wireguard.tunnel.addressesList,
+            },
+            peer: {
+              ...connectionConfigObject.wireguard.peer,
+              addresses: connectionConfigObject.wireguard.peer.allowedIpsList,
+              publicKey: convertWireguardKey(connectionConfigObject.wireguard.peer.publicKey),
+            },
+          },
+        }
+      );
+    case GrpcConnectionConfig.ConfigCase.OPENVPN:
+      return {
+        openvpn: {
+          ...connectionConfigObject.openvpn!,
+          endpoint: {
+            ip: connectionConfigObject.openvpn!.address,
+            protocol: convertTransportProtocol(connectionConfigObject.openvpn!.protocol),
+            port: 443, // TODO port is missing from OpenvpnConfig
+          },
+        },
+      };
+  }
+}
+
+// function convertBridgeSettings(bridgeSettings: GrpcBridgeSettings.AsObject): BridgeSettings {
+// }
+
+// function convertTunnelOptions(tunnelOptions: TunnelOptions.AsObject): ITunnelOptions {
+// }
