@@ -1,25 +1,21 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
-import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.service.AccountCache
 import net.mullvad.mullvadvpn.ui.widget.AccountCell
+import net.mullvad.mullvadvpn.ui.widget.AppVersionCell
 import net.mullvad.mullvadvpn.ui.widget.NavigateCell
 
 class SettingsFragment : ServiceAwareFragment() {
     private lateinit var accountMenu: AccountCell
-    private lateinit var appVersionWarning: View
-    private lateinit var appVersionLabel: TextView
-    private lateinit var appVersionFooter: View
+    private lateinit var appVersionMenu: AppVersionCell
     private lateinit var preferencesMenu: View
     private lateinit var advancedMenu: View
     private lateinit var titleController: CollapsibleTitleController
@@ -70,17 +66,12 @@ class SettingsFragment : ServiceAwareFragment() {
             targetFragment = AdvancedFragment::class
         }
 
-        view.findViewById<View>(R.id.app_version).setOnClickListener {
-            openLink(R.string.download_url)
-        }
-
         view.findViewById<NavigateCell>(R.id.report_a_problem).apply {
             targetFragment = ProblemReportFragment::class
         }
 
-        appVersionWarning = view.findViewById(R.id.app_version_warning)
-        appVersionLabel = view.findViewById<TextView>(R.id.app_version_label)
-        appVersionFooter = view.findViewById(R.id.app_version_footer)
+        appVersionMenu = view.findViewById<AppVersionCell>(R.id.app_version)
+
         titleController = CollapsibleTitleController(view)
 
         return view
@@ -134,12 +125,6 @@ class SettingsFragment : ServiceAwareFragment() {
         }
     }
 
-    private fun openLink(urlResourceId: Int) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(parentActivity.getString(urlResourceId)))
-
-        startActivity(intent)
-    }
-
     private fun updateLoggedInStatus(loggedIn: Boolean) {
         val visibility = if (loggedIn) {
             View.VISIBLE
@@ -156,14 +141,7 @@ class SettingsFragment : ServiceAwareFragment() {
         val isOutdated = versionInfoCache?.isOutdated ?: false
         val isSupported = versionInfoCache?.isSupported ?: true
 
-        appVersionLabel.setText(versionInfoCache?.version ?: "")
-
-        if (!isOutdated && isSupported) {
-            appVersionWarning.visibility = View.GONE
-            appVersionFooter.visibility = View.GONE
-        } else {
-            appVersionWarning.visibility = View.VISIBLE
-            appVersionFooter.visibility = View.VISIBLE
-        }
+        appVersionMenu.updateAvailable = isOutdated || !isSupported
+        appVersionMenu.version = versionInfoCache?.version ?: ""
     }
 }
