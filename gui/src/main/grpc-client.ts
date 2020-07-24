@@ -32,6 +32,7 @@ import {
   IWireguardPublicKey,
   ISettings,
   ConnectionConfig,
+  DaemonEvent,
 } from '../shared/daemon-rpc-types';
 import * as managementInterface from './management_interface/management_interface_grpc_pb';
 import {
@@ -251,6 +252,21 @@ export class GrpcClient {
     await this.callString(this.client?.setAccount, accountToken);
   }
 
+  // TODO: Contains case
+  // public async updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
+  //   const grpcRelaySettings = new GrpcRelaySettingsUpdate();
+
+  //   if (relaySettings.type === 'normal') {
+  //     const normalUpdate = new NormalRelaySettingsUpdate();
+  //     normalUpdate.setLocation(relaySettings.normal.location);
+  //     normalUpdate.setTunnelType(relaySettings.normal.tunnelType);
+  //     ...
+  //   }
+
+  //   grpcRelaySettings.setNormal(relaySettings.normal);
+  //   await this.call<GrpcRelaySettingsUpdate, Empty>(this.client?.updateRelaySettings, relaySettings);
+  // }
+
   public async setAllowLan(allowLan: boolean): Promise<void> {
     await this.callBool(this.client?.setAllowLan, allowLan);
   }
@@ -278,6 +294,18 @@ export class GrpcClient {
     grpcBridgeState.setState(bridgeStateMap[bridgeState]);
     await this.call<GrpcBridgeState, Empty>(this.client?.setBridgeState, grpcBridgeState);
   }
+
+  // TODO: Contains case
+  // public async setBridgeSettings(bridgeSettings: BridgeSettings): Promise<void> {
+  //   const grpcBridgeSettings = new GrpcBridgeSettings();
+
+  //   if (bridgeSettings.type === 'normal') {
+  //     const normal = new GrpcBridgeSettings.BridgeConstraints();
+  //     ...
+  //   }
+
+  //   await this.call<GrpcBridgeSettings, Empty>(this.client?.setBridgeSettings, grpcBridgeSettings);
+  // }
 
   public async setOpenVpnMssfix(mssfix?: number): Promise<void> {
     await this.callNumber(this.client?.setOpenvpnMssfix, mssfix);
@@ -316,6 +344,18 @@ export class GrpcClient {
   public async getSettings(): Promise<ISettings> {
     const response = await this.callEmpty<Settings>(this.client?.getSettings);
     return convertSettings(response)!;
+  }
+
+  public async subscribeDaemonEventListener(
+    _listener: SubscriptionListener<DaemonEvent>,
+  ): Promise<void> {
+    // TODO: Contains case
+  }
+
+  public async unsubscribeDaemonEventListener(
+    _listener: SubscriptionListener<DaemonEvent>,
+  ): Promise<void> {
+    // TODO
   }
 
   public async getAccountHistory(): Promise<AccountToken[]> {
