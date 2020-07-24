@@ -28,6 +28,8 @@ import {
   TunnelType,
   IProxyEndpoint,
   ProxyType,
+  KeygenEvent,
+  IWireguardPublicKey,
 } from '../shared/daemon-rpc-types';
 import * as managementInterface from './management_interface/management_interface_grpc_pb';
 import {
@@ -37,6 +39,7 @@ import {
   AfterDisconnect as GrpcAfterDisconnect,
   TunnelType as GrpcTunnelType,
   ProxyType as GrpcProxyType,
+  KeygenEvent as GrpcKeygenEvent,
   VoucherSubmission,
   RelayListCountry,
   RelayListCity,
@@ -51,6 +54,7 @@ import {
   ErrorState,
   TunnelStateRelayInfo,
   ProxyEndpoint,
+  PublicKey,
 } from './management_interface/management_interface_pb';
 
 const NETWORK_CALL_TIMEOUT = 10000;
@@ -316,6 +320,35 @@ export class GrpcClient {
   public async getCurrentVersion(): Promise<string> {
     const response = await this.callEmpty<StringValue>(this.client?.getCurrentVersion);
     return response.getValue();
+  }
+
+  public async generateWireguardKey(): Promise<KeygenEvent> {
+    const response = await this.callEmpty<GrpcKeygenEvent>(this.client?.generateWireguardKey);
+    switch (response.getEvent()) {
+      case GrpcKeygenEvent.KeygenEvent.TOO_MANY_KEYS:
+        return 'too_many_keys';
+      case GrpcKeygenEvent.KeygenEvent.NEW_KEY: {
+        const newKey = response.getNewKey();
+        return newKey
+          ? {
+              newKey: {
+                created: newKey.getCreated()!.toDate().toISOString(),
+                key: convertWireguardKey(newKey.getKey()),
+              },
+            }
+          : 'generation_failure';
+      }
+      case GrpcKeygenEvent.KeygenEvent.GENERATION_FAILURE:
+        return 'generation_failure';
+    }
+  }
+
+  public async getWireguardKey(): Promise<IWireguardPublicKey> {
+    const response = await this.callEmpty<PublicKey>(this.client?.getWireguardKey);
+    return {
+      created: response.getCreated()!.toDate().toISOString(),
+      key: convertWireguardKey(response.getKey()),
+    };
   }
 
   public async verifyWireguardKey(): Promise<boolean> {
