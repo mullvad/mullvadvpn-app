@@ -132,6 +132,13 @@ typedef struct tag_PingableHosts
 }
 PingableHosts;
 
+enum WINFW_POLICY_STATUS
+{
+	WINFW_POLICY_STATUS_SUCCESS = 0,
+	WINFW_POLICY_STATUS_GENERAL_FAILURE = 1,
+	WINFW_POLICY_STATUS_LOCK_TIMEOUT = 2,
+};
+
 //
 // ApplyPolicyConnecting:
 //
@@ -142,7 +149,7 @@ PingableHosts;
 //
 extern "C"
 WINFW_LINKAGE
-bool
+WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
@@ -169,7 +176,7 @@ WinFw_ApplyPolicyConnecting(
 //
 extern "C"
 WINFW_LINKAGE
-bool
+WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
@@ -188,7 +195,7 @@ WinFw_ApplyPolicyConnected(
 //
 extern "C"
 WINFW_LINKAGE
-bool
+WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyBlocked(
 	const WinFwSettings *settings
@@ -201,6 +208,6 @@ WinFw_ApplyPolicyBlocked(
 //
 extern "C"
 WINFW_LINKAGE
-bool
+WINFW_POLICY_STATUS
 WINFW_API
 WinFw_Reset();
