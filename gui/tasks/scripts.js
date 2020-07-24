@@ -1,4 +1,5 @@
-const { src, dest } = require('gulp');
+const { exec } = require('child_process');
+const { src, dest, series } = require('gulp');
 const ts = require('gulp-typescript');
 const inject = require('gulp-inject-string');
 const TscWatchClient = require('tsc-watch/client');
@@ -25,7 +26,13 @@ function compileScripts() {
     .pipe(dest('build'));
 }
 
+function buildProto(callback) {
+  exec('./scripts/build-proto.sh', () => callback());
+}
+
 compileScripts.displayName = 'compile-scripts';
+buildProto.displayName = 'build-proto';
 
 exports.build = compileScripts;
+exports.buildProto = buildProto;
 exports.makeWatchCompiler = makeWatchCompiler;
