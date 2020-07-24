@@ -51,7 +51,7 @@
                       android:layout_marginBottom="4dp"
                       android:gravity="start"
                       android:textColor="@color/white"
-                      android:textSize="32sp"
+                      android:textSize="@dimen/text_huge"
                       android:textStyle="bold"
                       android:text="@string/login_title" />
             <TextView android:id="@+id/subtitle"
@@ -61,7 +61,7 @@
                       android:layout_marginBottom="10dp"
                       android:gravity="start"
                       android:textColor="@color/white80"
-                      android:textSize="13sp"
+                      android:textSize="@dimen/text_small"
                       android:text="@string/login_description" />
             <net.mullvad.mullvadvpn.ui.AccountInputContainer android:id="@+id/account_input_container"
                                                              android:layout_width="match_parent"
@@ -81,7 +81,7 @@
                           android:hint="@string/login_hint"
                           android:textColorHint="@color/blue40"
                           android:textColor="@color/blue"
-                          android:textSize="20sp"
+                          android:textSize="@dimen/text_medium_plus"
                           android:textStyle="bold" />
                 <ImageButton android:id="@+id/login_button"
                              android:layout_width="48dp"
@@ -114,7 +114,7 @@
                       android:layout_marginBottom="8dp"
                       android:gravity="start"
                       android:textColor="@color/white80"
-                      android:textSize="13sp"
+                      android:textSize="@dimen/text_small"
                       android:text="@string/dont_have_an_account" />
             <net.mullvad.mullvadvpn.ui.widget.Button android:id="@+id/create_account"
                                                      android:layout_width="match_parent"

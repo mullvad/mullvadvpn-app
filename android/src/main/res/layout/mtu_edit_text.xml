@@ -10,4 +10,4 @@
           android:hint="@string/hint_default"
           android:textColorHint="@color/white80"
           android:textColor="@color/white"
-          android:textSize="20sp" />
+          android:textSize="@dimen/text_medium_plus" />

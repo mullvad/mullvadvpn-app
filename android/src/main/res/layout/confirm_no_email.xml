@@ -14,7 +14,7 @@
                   android:layout_weight="0"
                   android:layout_marginBottom="12dp"
                   android:textColor="@color/white80"
-                  android:textSize="16sp"
+                  android:textSize="@dimen/text_medium"
                   android:text="@string/confirm_no_email" />
         <Button android:id="@+id/send_button"
                 android:text="@string/send_anyway"

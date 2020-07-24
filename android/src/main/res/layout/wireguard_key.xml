@@ -70,7 +70,7 @@
                               android:layout_width="wrap_content"
                               android:layout_height="wrap_content"
                               android:textColor="@color/red"
-                              android:textSize="13sp"
+                              android:textSize="@dimen/text_small"
                               android:textStyle="bold"
                               android:visibility="gone" />
                     <ProgressBar android:id="@+id/verifying_key_spinner"

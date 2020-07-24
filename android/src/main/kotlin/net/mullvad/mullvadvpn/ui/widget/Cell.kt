@@ -19,7 +19,7 @@ open class Cell : LinearLayout {
         setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding)
 
         setTextColor(context.getColor(R.color.white))
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, 20.0f)
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.text_medium))
         setTypeface(null, Typeface.BOLD)
     }
 
@@ -34,7 +34,7 @@ open class Cell : LinearLayout {
                 setPadding(horizontalPadding, topPadding, horizontalPadding, 0)
 
                 setTextColor(context.getColor(R.color.white60))
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.0f)
+                setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.text_small))
             }
         }
 

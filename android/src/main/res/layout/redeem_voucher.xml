@@ -15,7 +15,7 @@
                   android:layout_weight="0"
                   android:layout_marginBottom="12dp"
                   android:textColor="@color/white80"
-                  android:textSize="16sp"
+                  android:textSize="@dimen/text_medium"
                   android:text="@string/enter_voucher_code" />
         <EditText android:id="@+id/voucher_code"
                   android:layout_width="match_parent"
@@ -33,14 +33,14 @@
                   android:textAllCaps="true"
                   android:textColorHint="@color/blue40"
                   android:textColor="@color/blue"
-                  android:textSize="13sp"
+                  android:textSize="@dimen/text_small"
                   android:textStyle="bold" />
         <TextView android:id="@+id/error"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_marginTop="8dp"
                   android:textColor="@color/red"
-                  android:textSize="13sp"
+                  android:textSize="@dimen/text_small"
                   android:textStyle="bold"
                   android:visibility="invisible" />
         <net.mullvad.mullvadvpn.ui.widget.Button android:id="@+id/redeem"

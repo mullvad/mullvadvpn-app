@@ -24,7 +24,7 @@
               android:layout_toLeftOf="@id/notification_icon"
               android:layout_toRightOf="@id/notification_status_container"
               android:layout_marginLeft="7dp"
-              android:textSize="13sp"
+              android:textSize="@dimen/text_small"
               android:textStyle="bold"
               android:text="@string/blocking_internet"
               android:textAllCaps="true" />
@@ -35,7 +35,7 @@
               android:layout_toLeftOf="@id/notification_icon"
               android:layout_alignLeft="@id/notification_title"
               android:layout_below="@id/notification_title"
-              android:textSize="13sp"
+              android:textSize="@dimen/text_small"
               android:textColor="@color/white60"
               android:text=""
               android:visibility="gone" />
