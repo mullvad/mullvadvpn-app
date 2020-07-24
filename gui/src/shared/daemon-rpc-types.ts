@@ -46,14 +46,14 @@ export type ErrorStateCause =
 
 export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 
-export type TunnelType = 'wireguard' | 'openvpn';
+export type TunnelType = 'any' | 'wireguard' | 'openvpn';
 export function tunnelTypeToString(tunnel: TunnelType): string {
   switch (tunnel) {
     case 'wireguard':
       return 'WireGuard';
     case 'openvpn':
       return 'OpenVPN';
-    default:
+    case 'any':
       return '';
   }
 }
@@ -235,12 +235,14 @@ export interface IOpenVpnTunnelData {
 }
 
 export interface IWireguardTunnelData {
-  // Port ranges are an array of pairs, such as [[53,53], [10_000, 60_000]],
-  // which in this case translates that the specific tunnel can be connected on
-  // port 53 and ports 10'000 through 60'000.
-  portRanges: Array<[number, number]>;
+  portRanges: Array<IPortRange>;
   // Public key of the tunnel.
   publicKey: string;
+}
+
+export interface IPortRange {
+  first: number;
+  last: number;
 }
 
 export interface IShadowsocksEndpointData {
@@ -328,7 +330,7 @@ export interface ISocketAddress {
 }
 
 export type VoucherResponse =
-  | { type: 'success'; new_expiry: string }
+  | { type: 'success'; newExpiry: string; secondsAdded: number }
   | { type: 'invalid' | 'already_used' | 'error' };
 
 export enum VoucherErrorCode {
