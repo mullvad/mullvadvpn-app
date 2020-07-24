@@ -5,6 +5,7 @@
 /gui/scripts/ne_50m_admin_0_countries/
 /gui/scripts/ne_50m_admin_1_states_provinces_lines/
 /gui/scripts/out/
+/gui/src/main/management_interface/
 /build/
 /dist
 .DS_Store
