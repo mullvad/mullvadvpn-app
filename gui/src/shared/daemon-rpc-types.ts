@@ -46,14 +46,14 @@ export type ErrorStateCause =
 
 export type AfterDisconnect = 'nothing' | 'block' | 'reconnect';
 
-export type TunnelType = 'wireguard' | 'openvpn';
+export type TunnelType = 'any' | 'wireguard' | 'openvpn';
 export function tunnelTypeToString(tunnel: TunnelType): string {
   switch (tunnel) {
     case 'wireguard':
       return 'WireGuard';
     case 'openvpn':
       return 'OpenVPN';
-    default:
+    case 'any':
       return '';
   }
 }

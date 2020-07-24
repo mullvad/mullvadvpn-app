@@ -19,11 +19,24 @@ import {
   IAppVersionInfo,
   IAccountData,
   IOpenVpnTunnelData,
+  TunnelState,
+  AfterDisconnect,
+  IErrorState,
+  ErrorStateCause,
+  TunnelParameterError,
+  ITunnelStateRelayInfo,
+  TunnelType,
+  IProxyEndpoint,
+  ProxyType,
 } from '../shared/daemon-rpc-types';
 import * as managementInterface from './management_interface/management_interface_grpc_pb';
 import {
   AccountData,
   BridgeState as GrpcBridgeState,
+  TunnelState as GrpcTunnelState,
+  AfterDisconnect as GrpcAfterDisconnect,
+  TunnelType as GrpcTunnelType,
+  ProxyType as GrpcProxyType,
   VoucherSubmission,
   RelayListCountry,
   RelayListCity,
@@ -35,6 +48,9 @@ import {
   AccountHistory,
   AppVersionInfo,
   OpenVpnEndpointData,
+  ErrorState,
+  TunnelStateRelayInfo,
+  ProxyEndpoint,
 } from './management_interface/management_interface_pb';
 
 const NETWORK_CALL_TIMEOUT = 10000;
@@ -283,6 +299,11 @@ export class GrpcClient {
     return response.toObject();
   }
 
+  public async getState(): Promise<TunnelState> {
+    const response = await this.callEmpty<GrpcTunnelState>(this.client?.getTunnelState);
+    return convertTunnelState(response)!;
+  }
+
   public async getAccountHistory(): Promise<AccountToken[]> {
     const response = await this.callEmpty<AccountHistory>(this.client?.getAccountHistory);
     return response.toObject().tokenList;
@@ -371,4 +392,132 @@ function convertTransportProtocol(protocol: TransportProtocol): RelayProtocol {
     [TransportProtocol.ANY_PROTOCOL]: 'any',
   };
   return protocolMap[protocol];
+}
+
+function convertTunnelState(tunnelState: GrpcTunnelState): TunnelState | undefined {
+  const tunnelStateObject = tunnelState.toObject();
+  switch (tunnelState.getStateCase()) {
+    case GrpcTunnelState.StateCase.STATE_NOT_SET:
+      return undefined;
+    case GrpcTunnelState.StateCase.DISCONNECTED:
+      return { state: 'disconnected' };
+    case GrpcTunnelState.StateCase.DISCONNECTING: {
+      const detailsMap: Record<GrpcAfterDisconnect, AfterDisconnect> = {
+        [GrpcAfterDisconnect.NOTHING]: 'nothing',
+        [GrpcAfterDisconnect.BLOCK]: 'block',
+        [GrpcAfterDisconnect.RECONNECT]: 'reconnect',
+      };
+      return (
+        tunnelStateObject.disconnecting && {
+          state: 'disconnecting',
+          details: detailsMap[tunnelStateObject.disconnecting.afterDisconnect],
+        }
+      );
+    }
+    case GrpcTunnelState.StateCase.ERROR:
+      return (
+        tunnelStateObject.error?.errorState && {
+          state: 'error',
+          details: convertTunnelStateError(tunnelStateObject.error.errorState),
+        }
+      );
+    case GrpcTunnelState.StateCase.CONNECTING:
+      return {
+        state: 'connecting',
+        details:
+          tunnelStateObject.connecting?.relayInfo &&
+          convertTunnelStateRelayInfo(tunnelStateObject.connecting.relayInfo),
+      };
+    case GrpcTunnelState.StateCase.CONNECTED: {
+      const relayInfo =
+        tunnelStateObject.connected?.relayInfo &&
+        convertTunnelStateRelayInfo(tunnelStateObject.connected.relayInfo);
+      return (
+        relayInfo && {
+          state: 'connected',
+          details: relayInfo,
+        }
+      );
+    }
+  }
+}
+
+function convertTunnelStateError(state: ErrorState.AsObject): IErrorState {
+  return {
+    ...state,
+    cause: convertTunnelStateErrorCause(state.cause, state),
+  };
+}
+
+function convertTunnelStateErrorCause(
+  cause: ErrorState.Cause,
+  state: ErrorState.AsObject,
+): ErrorStateCause {
+  switch (cause) {
+    case ErrorState.Cause.IS_OFFLINE:
+      return { reason: 'is_offline' };
+    case ErrorState.Cause.SET_DNS_ERROR:
+      return { reason: 'set_dns_error' };
+    case ErrorState.Cause.IPV6_UNAVAILABLE:
+      return { reason: 'ipv6_unavailable' };
+    case ErrorState.Cause.START_TUNNEL_ERROR:
+      return { reason: 'start_tunnel_error' };
+    case ErrorState.Cause.TAP_ADAPTER_PROBLEM:
+      return { reason: 'tap_adapter_problem' };
+    case ErrorState.Cause.SET_FIREWALL_POLICY_ERROR:
+      return { reason: 'set_firewall_policy_error' };
+    case ErrorState.Cause.VPN_PERMISSION_DENIED:
+      throw Error(); // TODO
+    case ErrorState.Cause.AUTH_FAILED:
+      return { reason: 'auth_failed', details: state.authFailReason };
+    case ErrorState.Cause.TUNNEL_PARAMETER_ERROR: {
+      const parameterErrorMap: Record<ErrorState.GenerationError, TunnelParameterError> = {
+        [ErrorState.GenerationError.NO_MATCHING_RELAY]: 'no_matching_relay',
+        [ErrorState.GenerationError.NO_MATCHING_BRIDGE_RELAY]: 'no_matching_bridge_relay',
+        [ErrorState.GenerationError.NO_WIREGUARD_KEY]: 'no_wireguard_key',
+        [ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR]:
+          'custom_tunnel_host_resultion_error',
+      };
+      return { reason: 'tunnel_parameter_error', details: parameterErrorMap[state.parameterError] };
+    }
+  }
+}
+
+function convertTunnelStateRelayInfo(
+  state: TunnelStateRelayInfo.AsObject,
+): ITunnelStateRelayInfo | undefined {
+  return (
+    state.tunnelEndpoint && {
+      ...state,
+      endpoint: {
+        ...state.tunnelEndpoint,
+        tunnelType: convertTunnelType(state.tunnelEndpoint.tunnelType),
+        protocol: convertTransportProtocol(state.tunnelEndpoint.protocol),
+        proxy: state.tunnelEndpoint.proxy && convertProxyEndpoint(state.tunnelEndpoint.proxy),
+      },
+    }
+  );
+}
+
+function convertTunnelType(tunnelType: GrpcTunnelType): TunnelType {
+  const tunnelTypeMap: Record<GrpcTunnelType, TunnelType> = {
+    [GrpcTunnelType.ANY_TUNNEL]: 'any',
+    [GrpcTunnelType.WIREGUARD]: 'wireguard',
+    [GrpcTunnelType.OPENVPN]: 'openvpn',
+  };
+
+  return tunnelTypeMap[tunnelType];
+}
+
+function convertProxyEndpoint(proxyEndpoint: ProxyEndpoint.AsObject): IProxyEndpoint {
+  const proxyTypeMap: Record<GrpcProxyType, ProxyType> = {
+    [GrpcProxyType.CUSTOM]: 'custom',
+    [GrpcProxyType.SHADOWSOCKS]: 'shadowsocks',
+  };
+
+  return {
+    ...proxyEndpoint,
+    protocol: convertTransportProtocol(proxyEndpoint.protocol),
+    proxyType: proxyTypeMap[proxyEndpoint.proxyType],
+  };
 }
