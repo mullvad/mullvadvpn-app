@@ -86,7 +86,7 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
     if (response.type === 'success') {
       setValue('');
       closeScheduler.schedule(() => {
-        updateAccountExpiry(response.new_expiry);
+        updateAccountExpiry(response.newExpiry);
         onSuccess?.();
       }, 1000);
     } else {
