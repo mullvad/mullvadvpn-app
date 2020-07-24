@@ -1169,11 +1169,7 @@ fn convert_public_key(public_key: &wireguard::PublicKey) -> types::PublicKey {
 fn convert_location_constraint(
     location: &Constraint<LocationConstraint>,
 ) -> Option<types::RelayLocation> {
-    if location.is_any() {
-        return None;
-    }
-
-    Some(match location.as_ref().unwrap() {
+    location.as_ref().option().map(|location| match location {
         LocationConstraint::Country(country) => types::RelayLocation {
             country: country.to_string(),
             ..Default::default()
