@@ -1,323 +1,74 @@
+import * as grpc from '@grpc/grpc-js';
+import {
+  BoolValue,
+  StringValue,
+  UInt32Value,
+} from 'google-protobuf/google/protobuf/wrappers_pb.js';
+import log from 'electron-log';
+import { Empty } from 'google-protobuf/google/protobuf/empty_pb.js';
+import { promisify } from 'util';
 import {
   AccountToken,
-  BridgeSettings,
-  BridgeState,
-  DaemonEvent,
-  IAccountData,
-  IAppVersionInfo,
-  ILocation,
+  Constraint,
+  IRelayListCountry,
+  IRelayListCity,
+  IRelayListHostname,
+  IWireguardTunnelData,
+  IBridgeConstraints,
+  IWireguardConstraints,
+  ITunnelOptions,
+  IOpenVpnConstraints,
   IRelayList,
-  ISettings,
-  IWireguardPublicKey,
-  KeygenEvent,
-  RelaySettingsUpdate,
+  IShadowsocksEndpointData,
+  RelayProtocol,
+  BridgeSettings,
+  FirewallPolicyError,
+  BridgeState,
+  ILocation,
+  IAppVersionInfo,
+  IAccountData,
+  IOpenVpnTunnelData,
   TunnelState,
-  VoucherErrorCode,
+  AfterDisconnect,
+  IErrorState,
+  ErrorStateCause,
+  TunnelParameterError,
+  ITunnelStateRelayInfo,
+  TunnelType,
+  IProxyEndpoint,
+  ProxyType,
+  KeygenEvent,
+  IWireguardPublicKey,
+  ISettings,
+  ConnectionConfig,
+  DaemonEvent,
+  RelaySettings,
+  RelaySettingsUpdate,
+  RelayLocation,
+  ProxySettings,
   VoucherResponse,
+  TunnelProtocol,
 } from '../shared/daemon-rpc-types';
-import { CommunicationError, InvalidAccountError, NoDaemonError } from './errors';
-import JsonRpcClient, {
-  RemoteError as JsonRpcRemoteError,
-  SocketTransport,
-  TimeOutError as JsonRpcTimeOutError,
-} from './jsonrpc-client';
-import { camelCaseToSnakeCase, snakeCaseToCamelCase } from './transform-object-keys';
 
-import { validate } from 'validated/object';
-import {
-  arrayOf,
-  boolean,
-  enumeration,
-  maybe,
-  Node as SchemaNode,
-  number,
-  object,
-  oneOf,
-  partialObject,
-  string,
-} from 'validated/schema';
+import * as managementInterface from './management_interface/management_interface_grpc_pb';
+import * as grpcTypes from './management_interface/management_interface_pb';
+import { CommunicationError, InvalidAccountError } from './errors';
+import consumePromise from '../shared/promise';
 
-const locationSchema = maybe(
-  partialObject({
-    ipv4: maybe(string),
-    ipv6: maybe(string),
-    country: string,
-    city: maybe(string),
-    latitude: number,
-    longitude: number,
-    mullvad_exit_ip: boolean,
-    hostname: maybe(string),
-    bridge_hostname: maybe(string),
-  }),
+const NETWORK_CALL_TIMEOUT = 10000;
+const CHANNEL_STATE_TIMEOUT = 1000 * 60 * 60;
+
+const ManagementServiceClient = grpc.makeClientConstructor(
+  // @ts-ignore
+  managementInterface['mullvad_daemon.management_interface.ManagementService'],
+  'ManagementService',
 );
 
-const constraint = <T>(constraintValue: SchemaNode<T>) => {
-  return oneOf(
-    string, // any
-    object({
-      only: constraintValue,
-    }),
-  );
-};
-
-const locationConstraintSchema = constraint(
-  oneOf(
-    object({
-      hostname: arrayOf(string),
-    }),
-    object({
-      city: arrayOf(string),
-    }),
-    object({
-      country: string,
-    }),
-  ),
+const noConnectionError = new Error('No connection established to daemon');
+const configNotSupported = new Error('Setting custom settings is not supported');
+const invalidErrorStateCause = new Error(
+  'VPN_PERMISSION_DENIED is not a valid error state cause on desktop',
 );
-
-const customTunnelEndpointSchema = oneOf(
-  object({
-    openvpn: object({
-      endpoint: object({
-        address: string,
-        protocol: enumeration('udp', 'tcp'),
-      }),
-      username: string,
-      password: string,
-    }),
-  }),
-  object({
-    wireguard: object({
-      tunnel: object({
-        private_key: string,
-        addresses: arrayOf(string),
-      }),
-      peer: object({
-        public_key: string,
-        allowed_ips: arrayOf(string),
-        endpoint: string,
-      }),
-      ipv4_gateway: string,
-      ipv6_gateway: maybe(string),
-    }),
-  }),
-);
-
-const relaySettingsSchema = oneOf(
-  object({
-    normal: partialObject({
-      location: locationConstraintSchema,
-      tunnel_protocol: constraint(enumeration('wireguard', 'openvpn')),
-      wireguard_constraints: partialObject({
-        port: constraint(number),
-      }),
-      openvpn_constraints: partialObject({
-        port: constraint(number),
-        protocol: constraint(enumeration('udp', 'tcp')),
-      }),
-    }),
-  }),
-  object({
-    custom_tunnel_endpoint: partialObject({
-      host: string,
-      config: customTunnelEndpointSchema,
-    }),
-  }),
-);
-
-const relayListSchema = partialObject({
-  countries: arrayOf(
-    partialObject({
-      name: string,
-      code: string,
-      cities: arrayOf(
-        partialObject({
-          name: string,
-          code: string,
-          latitude: number,
-          longitude: number,
-          relays: arrayOf(
-            partialObject({
-              hostname: string,
-              ipv4_addr_in: string,
-              include_in_country: boolean,
-              active: boolean,
-              weight: number,
-              bridges: maybe(
-                partialObject({
-                  shadowsocks: arrayOf(
-                    object({
-                      port: number,
-                      cipher: string,
-                      password: string,
-                      protocol: enumeration('tcp', 'udp'),
-                    }),
-                  ),
-                }),
-              ),
-              tunnels: maybe(
-                partialObject({
-                  openvpn: arrayOf(
-                    partialObject({
-                      port: number,
-                      protocol: string,
-                    }),
-                  ),
-                  wireguard: arrayOf(
-                    partialObject({
-                      port_ranges: arrayOf(arrayOf(number)),
-                      public_key: string,
-                    }),
-                  ),
-                }),
-              ),
-            }),
-          ),
-        }),
-      ),
-    }),
-  ),
-});
-
-const openVpnProxySchema = maybe(
-  oneOf(
-    object({
-      local: partialObject({
-        port: number,
-        peer: string,
-      }),
-    }),
-    object({
-      remote: partialObject({
-        address: string,
-        auth: maybe(
-          partialObject({
-            username: string,
-            password: string,
-          }),
-        ),
-      }),
-    }),
-    object({
-      shadowsocks: partialObject({
-        peer: string,
-        password: string,
-        cipher: string,
-      }),
-    }),
-  ),
-);
-
-const bridgeSettingsSchema = oneOf(
-  partialObject({ normal: partialObject({ location: locationConstraintSchema }) }),
-  partialObject({ custom: openVpnProxySchema }),
-);
-
-const tunnelOptionsSchema = partialObject({
-  openvpn: partialObject({
-    mssfix: maybe(number),
-  }),
-  wireguard: partialObject({
-    mtu: maybe(number),
-    // only relevant on linux
-    fmwark: maybe(number),
-  }),
-  generic: partialObject({
-    enable_ipv6: boolean,
-  }),
-});
-
-const accountDataSchema = partialObject({
-  expiry: string,
-});
-
-const voucherResponseSchema = partialObject({
-  new_expiry: string,
-});
-
-const tunnelStateSchema = oneOf(
-  object({
-    state: enumeration('disconnecting'),
-    details: enumeration('nothing', 'block', 'reconnect'),
-  }),
-  object({
-    state: enumeration('connecting', 'connected'),
-    details: object({
-      endpoint: partialObject({
-        address: string,
-        protocol: enumeration('tcp', 'udp'),
-        tunnel_type: enumeration('wireguard', 'openvpn'),
-        proxy: maybe(
-          partialObject({
-            address: string,
-            protocol: enumeration('tcp', 'udp'),
-            proxy_type: enumeration('shadowsocks', 'custom'),
-          }),
-        ),
-      }),
-      location: maybe(locationSchema),
-    }),
-  }),
-  object({
-    state: enumeration('error'),
-    details: object({
-      block_failure: maybe(
-        object({
-          reason: enumeration('generic', 'locked'),
-          details: maybe(
-            object({
-              name: string,
-              pid: number,
-            }),
-          ),
-        }),
-      ),
-      cause: oneOf(
-        object({
-          reason: enumeration(
-            'ipv6_unavailable',
-            'set_dns_error',
-            'start_tunnel_error',
-            'is_offline',
-            'tap_adapter_problem',
-          ),
-        }),
-        object({
-          reason: enumeration('set_firewall_policy_error'),
-          details: object({
-            reason: enumeration('generic', 'locked'),
-            details: maybe(
-              object({
-                name: string,
-                pid: number,
-              }),
-            ),
-          }),
-        }),
-        object({
-          reason: enumeration('auth_failed'),
-          details: maybe(string),
-        }),
-        object({
-          reason: enumeration('tunnel_parameter_error'),
-          details: enumeration(
-            'no_matching_relay',
-            'no_matching_bridge_relay',
-            'no_wireguard_key',
-            'custom_tunnel_host_resultion_error',
-          ),
-        }),
-      ),
-    }),
-  }),
-  object({
-    state: enumeration('connected', 'connecting', 'disconnected'),
-  }),
-);
-
-const appVersionInfoSchema = partialObject({
-  supported: boolean,
-  suggested_upgrade: maybe(string),
-});
 
 export class ConnectionObserver {
   constructor(private openHandler: () => void, private closeHandler: (error?: Error) => void) {}
@@ -338,7 +89,7 @@ export class ConnectionObserver {
 export class SubscriptionListener<T> {
   // Only meant to be used by DaemonRpc
   // @internal
-  public subscriptionId?: string | number;
+  public subscriptionId?: number;
 
   constructor(
     private eventHandler: (payload: T) => void,
@@ -358,328 +109,1122 @@ export class SubscriptionListener<T> {
   }
 }
 
-const settingsSchema = partialObject({
-  account_token: maybe(string),
-  allow_lan: boolean,
-  auto_connect: boolean,
-  block_when_disconnected: boolean,
-  show_beta_releases: boolean,
-  bridge_settings: bridgeSettingsSchema,
-  bridge_state: enumeration('on', 'auto', 'off'),
-  relay_settings: relaySettingsSchema,
-  tunnel_options: tunnelOptionsSchema,
-});
-
-const wireguardPublicKey = object({
-  key: string,
-  created: string,
-});
-
-const keygenEventSchema = oneOf(
-  enumeration('too_many_keys', 'generation_failure'),
-  object({
-    new_key: object({
-      key: string,
-      created: string,
-    }),
-  }),
-);
-
-const daemonEventSchema = oneOf(
-  object({
-    tunnel_state: tunnelStateSchema,
-  }),
-  object({
-    settings: settingsSchema,
-  }),
-  object({
-    relay_list: relayListSchema,
-  }),
-  object({
-    wireguard_key: keygenEventSchema,
-  }),
-  object({
-    app_version_info: appVersionInfoSchema,
-  }),
-);
-
 export class ResponseParseError extends Error {
-  constructor(message: string, private validationErrorValue?: Error) {
+  constructor(message: string) {
     super(message);
-  }
-
-  get validationError(): Error | undefined {
-    return this.validationErrorValue;
   }
 }
 
-// Timeout used for RPC calls that do networking
-const NETWORK_CALL_TIMEOUT = 10000;
+type CallFunctionArgument<T, R> =
+  | ((arg: T, callback: (error: Error | null, result: R) => void) => void)
+  | undefined;
 
 export class DaemonRpc {
-  private transport = new JsonRpcClient(new SocketTransport());
+  constructor(connectionParams: string) {
+    this.client = (new ManagementServiceClient(
+      connectionParams,
+      grpc.credentials.createInsecure(),
+      this.channelOptions(),
+    ) as unknown) as managementInterface.ManagementServiceClient;
+  }
 
-  public connect(connectionParams: { path: string }): Promise<void> {
-    return this.transport.connect(connectionParams);
+  private client: managementInterface.ManagementServiceClient;
+  private isConnected = false;
+  private connectionObservers: ConnectionObserver[] = [];
+  private nextSubscriptionId = 0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private subscriptions: Map<number, grpc.ClientReadableStream<any>> = new Map();
+  private reconnectionTimeout?: number;
+
+  private subscriptionId(): number {
+    const current = this.nextSubscriptionId;
+    this.nextSubscriptionId += 1;
+    return current;
+  }
+
+  private deadlineFromNow() {
+    return Date.now() + NETWORK_CALL_TIMEOUT;
+  }
+
+  private channelStateTimeout(): number {
+    return Date.now() + CHANNEL_STATE_TIMEOUT;
+  }
+
+  private callEmpty<R>(fn: CallFunctionArgument<Empty, R>): Promise<R> {
+    return this.call<Empty, R>(fn, new Empty());
+  }
+
+  private callString<R>(fn: CallFunctionArgument<StringValue, R>, value?: string): Promise<R> {
+    const googleString = new StringValue();
+
+    if (value !== undefined) {
+      googleString.setValue(value);
+    }
+
+    return this.call<StringValue, R>(fn, googleString);
+  }
+
+  private callBool<R>(fn: CallFunctionArgument<BoolValue, R>, value?: boolean): Promise<R> {
+    const googleBool = new BoolValue();
+
+    if (value !== undefined) {
+      googleBool.setValue(value);
+    }
+
+    return this.call<BoolValue, R>(fn, googleBool);
+  }
+
+  private callNumber<R>(fn: CallFunctionArgument<UInt32Value, R>, value?: number): Promise<R> {
+    const googleNumber = new UInt32Value();
+
+    if (value !== undefined) {
+      googleNumber.setValue(value);
+    }
+
+    return this.call<UInt32Value, R>(fn, googleNumber);
+  }
+
+  private call<T, R>(fn: CallFunctionArgument<T, R>, arg: T): Promise<R> {
+    if (fn && this.isConnected) {
+      return promisify<T, R>(fn.bind(this.client))(arg);
+    } else {
+      throw noConnectionError;
+    }
+  }
+
+  public connect(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.client.waitForReady(this.deadlineFromNow(), (error) => {
+        if (error) {
+          this.connectionObservers.forEach((observer) => observer.onClose(error));
+          this.ensureConnectivity();
+          reject(error);
+        } else {
+          this.reconnectionTimeout = undefined;
+          this.isConnected = true;
+          this.connectionObservers.forEach((observer) => observer.onOpen());
+          this.setChannelCallback();
+          resolve();
+        }
+      });
+    });
+  }
+
+  private channelOptions(): grpc.ClientOptions {
+    return {
+      'grpc.max_reconnect_backoff_ms': 3000,
+      'grpc.initial_reconnect_backoff_ms': 3000,
+      'grpc.keepalive_time_ms': Math.pow(2, 30),
+      'grpc.keepalive_timeout_ms': Math.pow(2, 30),
+    };
+  }
+
+  private connectivityChangeCallback(timeoutErr?: Error) {
+    const channel = this.client.getChannel();
+    const currentState = channel?.getConnectivityState(true);
+    log.debug(`GRPC Channel connectivity state changed to ${currentState}`);
+    if (channel) {
+      if (timeoutErr) {
+        this.setChannelCallback(currentState);
+        return;
+      }
+      const wasConnected = this.isConnected;
+      if (this.channelDisconnected(currentState)) {
+        this.connectionObservers.forEach((observer) => observer.onClose());
+        this.isConnected = false;
+        // Try and reconnect in case
+        consumePromise(
+          this.connect().catch((error) => {
+            log.error(`Failed to reconnect - ${error}`);
+          }),
+        );
+      } else if (!wasConnected) {
+        this.isConnected = true;
+        this.connectionObservers.forEach((observer) => observer.onOpen());
+      }
+      this.setChannelCallback(currentState);
+    }
+  }
+
+  private channelDisconnected(state: grpc.connectivityState): boolean {
+    return (
+      (state == grpc.connectivityState.SHUTDOWN ||
+        state == grpc.connectivityState.TRANSIENT_FAILURE ||
+        state == grpc.connectivityState.IDLE) &&
+      this.isConnected
+    );
+  }
+
+  private setChannelCallback(currentState?: grpc.connectivityState) {
+    const channel = this.client.getChannel();
+    if (currentState === undefined && channel) {
+      currentState = channel?.getConnectivityState(false);
+    }
+    if (currentState) {
+      channel.watchConnectivityState(currentState, this.channelStateTimeout(), (error) =>
+        this.connectivityChangeCallback(error),
+      );
+    }
+  }
+
+  // Since grpc.Channel.watchConnectivityState() isn't always running as intended, whenever the
+  // client fails to connect at first, `ensureConnectivity()` should be called so that it tries to
+  // check the connectivity state and nudge the client into connecting.
+  // `grpc.Channel.getConnectivityState(true)` should make it attempt to connect.
+  private ensureConnectivity() {
+    this.reconnectionTimeout = setTimeout(() => {
+      const lastState = this.client.getChannel().getConnectivityState(true);
+      if (this.channelDisconnected(lastState)) {
+        this.connectionObservers.forEach((observer) => observer.onClose());
+        this.isConnected = false;
+      }
+      if (!this.isConnected) {
+        consumePromise(
+          this.connect().catch((error) => {
+            log.error(`Failed to reconnect - ${error}`);
+          }),
+        );
+      }
+    }, 3000);
   }
 
   public disconnect() {
-    this.transport.disconnect();
+    this.isConnected = false;
+    this.subscriptions.clear();
+    this.client.close();
+    if (this.reconnectionTimeout) {
+      clearTimeout(this.reconnectionTimeout);
+    }
   }
 
   public addConnectionObserver(observer: ConnectionObserver) {
-    this.transport.on('open', observer.onOpen).on('close', observer.onClose);
+    this.connectionObservers.push(observer);
+    const currentState = this.client.getChannel()?.getConnectivityState(true);
+    if (
+      currentState == grpc.connectivityState.SHUTDOWN ||
+      currentState == grpc.connectivityState.TRANSIENT_FAILURE ||
+      currentState == grpc.connectivityState.IDLE
+    ) {
+      observer.onClose();
+    } else {
+      observer.onOpen();
+    }
   }
 
   public removeConnectionObserver(observer: ConnectionObserver) {
-    this.transport.off('open', observer.onOpen).off('close', observer.onClose);
+    const index = this.connectionObservers.indexOf(observer);
+    if (index !== -1) {
+      this.connectionObservers.splice(index, 1);
+    }
   }
 
   public async getAccountData(accountToken: AccountToken): Promise<IAccountData> {
-    let response;
     try {
-      response = await this.transport.send('get_account_data', accountToken, NETWORK_CALL_TIMEOUT);
+      const response = await this.callString<grpcTypes.AccountData>(
+        this.client?.getAccountData,
+        accountToken,
+      );
+      const expiry = response.getExpiry()!.toDate().toISOString();
+      return { expiry };
     } catch (error) {
-      if (error instanceof JsonRpcRemoteError) {
+      if (error.code) {
         switch (error.code) {
-          case -200: // Account doesn't exist
+          case grpc.status.UNAUTHENTICATED:
             throw new InvalidAccountError();
-          case -32603: // Internal error
+          default:
             throw new CommunicationError();
         }
-      } else if (error instanceof JsonRpcTimeOutError) {
-        throw new NoDaemonError();
-      } else {
-        throw error;
       }
-    }
-
-    try {
-      return validate(accountDataSchema, response);
-    } catch (error) {
-      throw new ResponseParseError('Invalid response from get_account_data', error);
+      throw error;
     }
   }
 
   public async getWwwAuthToken(): Promise<string> {
-    const response = await this.transport.send('get_www_auth_token');
-    try {
-      return validate(string, response);
-    } catch (error) {
-      throw new ResponseParseError('Invalid response from get_www_auth_token', error);
-    }
+    const response = await this.callEmpty<StringValue>(this.client?.getWwwAuthToken);
+    return response.getValue();
   }
 
   public async submitVoucher(voucherCode: string): Promise<VoucherResponse> {
     try {
-      const response = await this.transport.send('submit_voucher', voucherCode);
-      const new_expiry = validate(voucherResponseSchema, response).new_expiry;
-      return { type: 'success', new_expiry };
+      const response = await this.callString<grpcTypes.VoucherSubmission>(
+        this.client?.submitVoucher,
+        voucherCode,
+      );
+
+      const secondsAdded = ensureExists(
+        response.getSecondsAdded(),
+        "no 'secondsAdded' field in voucher response",
+      );
+      const newExpiry = ensureExists(
+        response.getNewExpiry(),
+        "no 'newExpiry' field in voucher response",
+      )
+        .toDate()
+        .toISOString();
+      return {
+        type: 'success',
+        secondsAdded,
+        newExpiry,
+      };
     } catch (error) {
-      if (error instanceof JsonRpcRemoteError) {
+      if (error.code) {
         switch (error.code) {
-          case VoucherErrorCode.Invalid:
+          case grpc.status.NOT_FOUND:
             return { type: 'invalid' };
-          case VoucherErrorCode.AlreadyUsed:
+          case grpc.status.RESOURCE_EXHAUSTED:
             return { type: 'already_used' };
         }
       }
+      return { type: 'error' };
     }
-
-    return { type: 'error' };
   }
 
-  public async getRelayLocations(): Promise<IRelayList> {
-    const response = await this.transport.send('get_relay_locations');
-    try {
-      return snakeCaseToCamelCase(validate(relayListSchema, response));
-    } catch (error) {
-      throw new ResponseParseError(`Invalid response from get_relay_locations: ${error}`, error);
+  public getRelayLocations(): Promise<IRelayList> {
+    if (this.isConnected) {
+      return new Promise((resolve, reject) => {
+        const relayLocations: IRelayListCountry[] = [];
+        const stream = this.client!.getRelayLocations(new Empty());
+        stream.on('data', (country: grpcTypes.RelayListCountry) =>
+          relayLocations.push(convertFromRelayListCountry(country.toObject())),
+        );
+        stream.on('end', () => resolve({ countries: relayLocations }));
+        stream.on('close', reject);
+      });
+    } else {
+      throw noConnectionError;
     }
   }
 
   public async createNewAccount(): Promise<string> {
-    const response = await this.transport.send('create_new_account');
-    return validate(string, response);
+    const response = await this.callEmpty<StringValue>(this.client?.createNewAccount);
+    return response.getValue();
   }
 
   public async setAccount(accountToken?: AccountToken): Promise<void> {
-    await this.transport.send('set_account', [accountToken]);
+    await this.callString(this.client?.setAccount, accountToken);
   }
 
+  // TODO: Custom tunnel configurations are not supported by the GUI.
   public async updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
-    await this.transport.send('update_relay_settings', [camelCaseToSnakeCase(relaySettings)]);
+    if ('normal' in relaySettings) {
+      const settingsUpdate = relaySettings.normal;
+      const grpcRelaySettings = new grpcTypes.RelaySettingsUpdate();
+
+      const normalUpdate = new grpcTypes.NormalRelaySettingsUpdate();
+
+      if (settingsUpdate.tunnelProtocol) {
+        const tunnelTypeUpdate = new grpcTypes.TunnelTypeUpdate();
+        tunnelTypeUpdate.setTunnelType(
+          convertToTunnelTypeConstraint(settingsUpdate.tunnelProtocol),
+        );
+        normalUpdate.setTunnelType(tunnelTypeUpdate);
+      }
+
+      if (settingsUpdate.location) {
+        normalUpdate.setLocation(convertToLocation(liftConstraint(settingsUpdate.location)));
+      }
+
+      if (settingsUpdate.wireguardConstraints) {
+        normalUpdate.setWireguardConstraints(
+          convertToWireguardConstraints(settingsUpdate.wireguardConstraints),
+        );
+      }
+
+      if (settingsUpdate.openvpnConstraints) {
+        normalUpdate.setOpenvpnConstraints(
+          convertToOpenVpnConstraints(settingsUpdate.openvpnConstraints),
+        );
+      }
+
+      grpcRelaySettings.setNormal(normalUpdate);
+      await this.call<grpcTypes.RelaySettingsUpdate, Empty>(
+        this.client?.updateRelaySettings,
+        grpcRelaySettings,
+      );
+    }
   }
 
   public async setAllowLan(allowLan: boolean): Promise<void> {
-    await this.transport.send('set_allow_lan', [allowLan]);
+    await this.callBool(this.client?.setAllowLan, allowLan);
   }
 
   public async setShowBetaReleases(showBetaReleases: boolean): Promise<void> {
-    await this.transport.send('set_show_beta_releases', [showBetaReleases]);
+    await this.callBool(this.client?.setShowBetaReleases, showBetaReleases);
   }
 
   public async setEnableIpv6(enableIpv6: boolean): Promise<void> {
-    await this.transport.send('set_enable_ipv6', [enableIpv6]);
+    await this.callBool(this.client?.setEnableIpv6, enableIpv6);
   }
 
   public async setBlockWhenDisconnected(blockWhenDisconnected: boolean): Promise<void> {
-    await this.transport.send('set_block_when_disconnected', [blockWhenDisconnected]);
+    await this.callBool(this.client?.setBlockWhenDisconnected, blockWhenDisconnected);
   }
 
   public async setBridgeState(bridgeState: BridgeState): Promise<void> {
-    await this.transport.send('set_bridge_state', [bridgeState]);
+    const bridgeStateMap = {
+      auto: grpcTypes.BridgeState.State.AUTO,
+      on: grpcTypes.BridgeState.State.ON,
+      off: grpcTypes.BridgeState.State.OFF,
+    };
+
+    const grpcBridgeState = new grpcTypes.BridgeState();
+    grpcBridgeState.setState(bridgeStateMap[bridgeState]);
+    await this.call<grpcTypes.BridgeState, Empty>(this.client?.setBridgeState, grpcBridgeState);
   }
 
   public async setBridgeSettings(bridgeSettings: BridgeSettings): Promise<void> {
-    await this.transport.send('set_bridge_settings', [bridgeSettings]);
+    const grpcBridgeSettings = new grpcTypes.BridgeSettings();
+
+    if ('normal' in bridgeSettings) {
+      const normalSettings = convertToNormalBridgeSettings(bridgeSettings.normal);
+      grpcBridgeSettings.setNormal(normalSettings);
+    }
+
+    if ('custom' in bridgeSettings) {
+      throw configNotSupported;
+    }
+
+    await this.call<grpcTypes.BridgeSettings, Empty>(
+      this.client?.setBridgeSettings,
+      grpcBridgeSettings,
+    );
   }
 
   public async setOpenVpnMssfix(mssfix?: number): Promise<void> {
-    await this.transport.send('set_openvpn_mssfix', [mssfix]);
+    await this.callNumber(this.client?.setOpenvpnMssfix, mssfix);
   }
 
   public async setWireguardMtu(mtu?: number): Promise<void> {
-    await this.transport.send('set_wireguard_mtu', [mtu]);
+    await this.callNumber(this.client?.setWireguardMtu, mtu);
   }
 
   public async setAutoConnect(autoConnect: boolean): Promise<void> {
-    await this.transport.send('set_auto_connect', [autoConnect]);
+    await this.callBool(this.client?.setAutoConnect, autoConnect);
   }
 
   public async connectTunnel(): Promise<void> {
-    await this.transport.send('connect');
+    await this.callEmpty(this.client?.connectTunnel);
   }
 
   public async disconnectTunnel(): Promise<void> {
-    await this.transport.send('disconnect');
+    await this.callEmpty(this.client?.disconnectTunnel);
   }
 
   public async reconnectTunnel(): Promise<void> {
-    await this.transport.send('reconnect');
+    await this.callEmpty(this.client?.reconnectTunnel);
   }
 
-  public async getLocation(): Promise<ILocation | undefined> {
-    const response = await this.transport.send('get_current_location', [], NETWORK_CALL_TIMEOUT);
-    try {
-      const validatedObject = validate(locationSchema, response);
-      if (validatedObject) {
-        return snakeCaseToCamelCase(validatedObject);
-      } else {
-        return undefined;
-      }
-    } catch (error) {
-      throw new ResponseParseError('Invalid response from get_current_location', error);
-    }
+  public async getLocation(): Promise<ILocation> {
+    const response = await this.callEmpty<grpcTypes.GeoIpLocation>(this.client?.getCurrentLocation);
+    return response.toObject();
   }
 
   public async getState(): Promise<TunnelState> {
-    const response = await this.transport.send('get_state');
-    try {
-      return snakeCaseToCamelCase(validate(tunnelStateSchema, response));
-    } catch (error) {
-      throw new ResponseParseError('Invalid response from get_state', error);
-    }
+    const response = await this.callEmpty<grpcTypes.TunnelState>(this.client?.getTunnelState);
+    return convertFromTunnelState(response)!;
   }
 
   public async getSettings(): Promise<ISettings> {
-    const response = await this.transport.send('get_settings');
-    try {
-      return snakeCaseToCamelCase(validate(settingsSchema, response));
-    } catch (error) {
-      throw new ResponseParseError('Invalid response from get_settings', error);
-    }
+    const response = await this.callEmpty<grpcTypes.Settings>(this.client?.getSettings);
+    return convertFromSettings(response)!;
   }
 
-  public async subscribeDaemonEventListener(
-    listener: SubscriptionListener<DaemonEvent>,
-  ): Promise<void> {
-    const subscriptionId = await this.transport.subscribe('daemon_event', (payload) => {
-      let daemonEvent: DaemonEvent;
+  public subscribeDaemonEventListener(listener: SubscriptionListener<DaemonEvent>) {
+    const call = this.isConnected && this.client?.eventsListen(new Empty());
+    if (!call) {
+      throw noConnectionError;
+    }
+    const subscriptionId = this.subscriptionId();
+    listener.subscriptionId = subscriptionId;
+    this.subscriptions.set(subscriptionId, call);
 
+    call.on('data', (data: grpcTypes.DaemonEvent) => {
       try {
-        daemonEvent = snakeCaseToCamelCase(validate(daemonEventSchema, payload));
-      } catch (error) {
-        listener.onError(new ResponseParseError('Invalid payload from daemon_event', error));
-        return;
+        const daemonEvent = convertFromDaemonEvent(data);
+        listener.onEvent(daemonEvent);
+      } catch (err) {
+        listener.onError(err);
       }
-
-      listener.onEvent(daemonEvent);
     });
 
-    listener.subscriptionId = subscriptionId;
+    const removeSubscription = () => {
+      const subscription = this.subscriptions.get(subscriptionId);
+      if (subscription !== undefined) {
+        subscription.cancel();
+        this.subscriptions.delete(subscriptionId);
+      }
+    };
+
+    call.on('error', (error) => {
+      listener.onError(error);
+      removeSubscription();
+    });
   }
 
-  public async unsubscribeDaemonEventListener(
-    listener: SubscriptionListener<DaemonEvent>,
-  ): Promise<void> {
-    if (listener.subscriptionId) {
-      return this.transport.unsubscribe('daemon_event', listener.subscriptionId);
+  public unsubscribeDaemonEventListener(listener: SubscriptionListener<DaemonEvent>) {
+    const id = listener.subscriptionId;
+    if (id !== undefined) {
+      const subscription = this.subscriptions.get(id);
+      if (subscription !== undefined) {
+        subscription.cancel();
+        this.subscriptions.delete(id);
+      }
     }
   }
 
   public async getAccountHistory(): Promise<AccountToken[]> {
-    const response = await this.transport.send('get_account_history');
-    try {
-      return validate(arrayOf(string), response);
-    } catch (error) {
-      throw new ResponseParseError('Invalid response from get_account_history');
-    }
+    const response = await this.callEmpty<grpcTypes.AccountHistory>(this.client?.getAccountHistory);
+    return response.toObject().tokenList;
   }
 
   public async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
-    await this.transport.send('remove_account_from_history', accountToken);
+    await this.callString(this.client?.removeAccountFromHistory, accountToken);
   }
 
   public async getCurrentVersion(): Promise<string> {
-    const response = await this.transport.send('get_current_version');
-    try {
-      return validate(string, response);
-    } catch (error) {
-      throw new ResponseParseError('Invalid response from get_current_version');
-    }
+    const response = await this.callEmpty<StringValue>(this.client?.getCurrentVersion);
+    return response.getValue();
   }
 
   public async generateWireguardKey(): Promise<KeygenEvent> {
-    const response = await this.transport.send('generate_wireguard_key');
-    try {
-      const validatedResponse = validate(keygenEventSchema, response);
-      switch (validatedResponse) {
-        case 'too_many_keys':
-        case 'generation_failure':
-          return validatedResponse;
-        default:
-          return snakeCaseToCamelCase(validatedResponse as object);
-      }
-    } catch (error) {
-      throw new ResponseParseError(`Invalid response from generate_wireguard_key ${error}`);
-    }
+    const response = await this.callEmpty<grpcTypes.KeygenEvent>(this.client?.generateWireguardKey);
+    return convertFromKeygenEvent(response);
   }
 
-  public async getWireguardKey(): Promise<IWireguardPublicKey | undefined> {
-    const response = await this.transport.send('get_wireguard_key');
-    try {
-      return validate(maybe(wireguardPublicKey), response) || undefined;
-    } catch (error) {
-      throw new ResponseParseError('Invalid response from get_wireguard_key');
-    }
+  public async getWireguardKey(): Promise<IWireguardPublicKey> {
+    const response = await this.callEmpty<grpcTypes.PublicKey>(this.client?.getWireguardKey);
+    return {
+      created: response.getCreated()!.toDate().toISOString(),
+      key: convertFromWireguardKey(response.getKey()),
+    };
   }
 
   public async verifyWireguardKey(): Promise<boolean> {
-    const response = await this.transport.send('verify_wireguard_key');
-    try {
-      return validate(boolean, response);
-    } catch (error) {
-      throw new ResponseParseError('Invalid response from verify_wireguard_key');
-    }
+    const response = await this.callEmpty<BoolValue>(this.client?.verifyWireguardKey);
+    return response.getValue();
   }
 
   public async getVersionInfo(): Promise<IAppVersionInfo> {
-    const response = await this.transport.send('get_version_info', [], NETWORK_CALL_TIMEOUT);
-    try {
-      return snakeCaseToCamelCase(validate(appVersionInfoSchema, response));
-    } catch (error) {
-      throw new ResponseParseError('Invalid response from get_version_info');
+    const response = await this.callEmpty<grpcTypes.AppVersionInfo>(this.client?.getVersionInfo);
+    return response.toObject();
+  }
+}
+
+function liftConstraint<T>(constraint: Constraint<T> | undefined): T | undefined {
+  if (constraint !== undefined && constraint !== 'any') {
+    return constraint.only;
+  }
+  return undefined;
+}
+
+function convertFromRelayListCountry(
+  country: grpcTypes.RelayListCountry.AsObject,
+): IRelayListCountry {
+  return {
+    ...country,
+    cities: country.citiesList.map(convertFromRelayListCity),
+  };
+}
+
+function convertFromRelayListCity(city: grpcTypes.RelayListCity.AsObject): IRelayListCity {
+  return {
+    ...city,
+    relays: city.relaysList.map(convertFromRelayListRelay),
+  };
+}
+
+function convertFromRelayListRelay(relay: grpcTypes.Relay.AsObject): IRelayListHostname {
+  return {
+    ...relay,
+    tunnels: relay.tunnels && {
+      ...relay.tunnels,
+      openvpn: relay.tunnels.openvpnList.map(convertFromOpenvpnList),
+      wireguard: relay.tunnels.wireguardList.map(convertFromWireguardList),
+    },
+    bridges: relay.bridges && {
+      shadowsocks: relay.bridges.shadowsocksList.map(convertFromShadowsocksList),
+    },
+  };
+}
+
+function convertFromOpenvpnList(
+  openvpn: grpcTypes.OpenVpnEndpointData.AsObject,
+): IOpenVpnTunnelData {
+  return {
+    ...openvpn,
+    protocol: convertFromTransportProtocol(openvpn.protocol),
+  };
+}
+
+function convertFromWireguardList(
+  wireguard: grpcTypes.WireguardEndpointData.AsObject,
+): IWireguardTunnelData {
+  return {
+    ...wireguard,
+    portRanges: wireguard.portRangesList,
+    publicKey: convertFromWireguardKey(wireguard.publicKey),
+  };
+}
+
+function convertFromWireguardKey(publicKey: Uint8Array | string): string {
+  if (typeof publicKey === 'string') {
+    return publicKey;
+  }
+  return Buffer.from(publicKey).toString('base64');
+}
+
+function convertFromShadowsocksList(
+  shadowsocks: grpcTypes.ShadowsocksEndpointData.AsObject,
+): IShadowsocksEndpointData {
+  return {
+    ...shadowsocks,
+    protocol: convertFromTransportProtocol(shadowsocks.protocol),
+  };
+}
+
+function convertFromTransportProtocol(protocol: grpcTypes.TransportProtocol): RelayProtocol {
+  const protocolMap: Record<grpcTypes.TransportProtocol, RelayProtocol> = {
+    [grpcTypes.TransportProtocol.TCP]: 'tcp',
+    [grpcTypes.TransportProtocol.UDP]: 'udp',
+  };
+  return protocolMap[protocol];
+}
+
+function convertFromTunnelState(tunnelState: grpcTypes.TunnelState): TunnelState | undefined {
+  const tunnelStateObject = tunnelState.toObject();
+  switch (tunnelState.getStateCase()) {
+    case grpcTypes.TunnelState.StateCase.STATE_NOT_SET:
+      return undefined;
+    case grpcTypes.TunnelState.StateCase.DISCONNECTED:
+      return { state: 'disconnected' };
+    case grpcTypes.TunnelState.StateCase.DISCONNECTING: {
+      const detailsMap: Record<grpcTypes.AfterDisconnect, AfterDisconnect> = {
+        [grpcTypes.AfterDisconnect.NOTHING]: 'nothing',
+        [grpcTypes.AfterDisconnect.BLOCK]: 'block',
+        [grpcTypes.AfterDisconnect.RECONNECT]: 'reconnect',
+      };
+      return (
+        tunnelStateObject.disconnecting && {
+          state: 'disconnecting',
+          details: detailsMap[tunnelStateObject.disconnecting.afterDisconnect],
+        }
+      );
+    }
+    case grpcTypes.TunnelState.StateCase.ERROR:
+      return (
+        tunnelStateObject.error?.errorState && {
+          state: 'error',
+          details: convertFromTunnelStateError(tunnelStateObject.error.errorState),
+        }
+      );
+    case grpcTypes.TunnelState.StateCase.CONNECTING:
+      return {
+        state: 'connecting',
+        details:
+          tunnelStateObject.connecting?.relayInfo &&
+          convertFromTunnelStateRelayInfo(tunnelStateObject.connecting.relayInfo),
+      };
+    case grpcTypes.TunnelState.StateCase.CONNECTED: {
+      const relayInfo =
+        tunnelStateObject.connected?.relayInfo &&
+        convertFromTunnelStateRelayInfo(tunnelStateObject.connected.relayInfo);
+      return (
+        relayInfo && {
+          state: 'connected',
+          details: relayInfo,
+        }
+      );
     }
   }
+}
+
+function convertFromTunnelStateError(state: grpcTypes.ErrorState.AsObject): IErrorState {
+  return {
+    ...state,
+    cause: convertFromTunnelStateErrorCause(state.cause, state),
+  };
+}
+
+function convertFromTunnelStateErrorCause(
+  cause: grpcTypes.ErrorState.Cause,
+  state: grpcTypes.ErrorState.AsObject,
+): ErrorStateCause {
+  switch (cause) {
+    case grpcTypes.ErrorState.Cause.IS_OFFLINE:
+      return { reason: 'is_offline' };
+    case grpcTypes.ErrorState.Cause.SET_DNS_ERROR:
+      return { reason: 'set_dns_error' };
+    case grpcTypes.ErrorState.Cause.IPV6_UNAVAILABLE:
+      return { reason: 'ipv6_unavailable' };
+    case grpcTypes.ErrorState.Cause.START_TUNNEL_ERROR:
+      return { reason: 'start_tunnel_error' };
+    case grpcTypes.ErrorState.Cause.TAP_ADAPTER_PROBLEM:
+      return { reason: 'tap_adapter_problem' };
+    case grpcTypes.ErrorState.Cause.SET_FIREWALL_POLICY_ERROR:
+      return {
+        reason: 'set_firewall_policy_error',
+        details: convertFromFirewallPolicyError(state.policyError!),
+      };
+    case grpcTypes.ErrorState.Cause.AUTH_FAILED:
+      return { reason: 'auth_failed', details: state.authFailReason };
+    case grpcTypes.ErrorState.Cause.TUNNEL_PARAMETER_ERROR: {
+      const parameterErrorMap: Record<
+        grpcTypes.ErrorState.GenerationError,
+        TunnelParameterError
+      > = {
+        [grpcTypes.ErrorState.GenerationError.NO_MATCHING_RELAY]: 'no_matching_relay',
+        [grpcTypes.ErrorState.GenerationError.NO_MATCHING_BRIDGE_RELAY]: 'no_matching_bridge_relay',
+        [grpcTypes.ErrorState.GenerationError.NO_WIREGUARD_KEY]: 'no_wireguard_key',
+        [grpcTypes.ErrorState.GenerationError.CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR]:
+          'custom_tunnel_host_resultion_error',
+      };
+      return { reason: 'tunnel_parameter_error', details: parameterErrorMap[state.parameterError] };
+    }
+    case grpcTypes.ErrorState.Cause.VPN_PERMISSION_DENIED:
+      // VPN_PERMISSION_DENIED is only ever created on Android
+      throw invalidErrorStateCause;
+  }
+}
+
+function convertFromFirewallPolicyError(
+  error: grpcTypes.ErrorState.FirewallPolicyError.AsObject,
+): FirewallPolicyError {
+  switch (error.type) {
+    case grpcTypes.ErrorState.FirewallPolicyError.ErrorType.GENERIC:
+      return { reason: 'generic' };
+    case grpcTypes.ErrorState.FirewallPolicyError.ErrorType.LOCKED: {
+      const pid = error.lockPid;
+      const name = error.lockName;
+      return { reason: 'locked', details: pid && name ? { pid, name } : undefined };
+    }
+  }
+}
+
+function convertFromTunnelStateRelayInfo(
+  state: grpcTypes.TunnelStateRelayInfo.AsObject,
+): ITunnelStateRelayInfo | undefined {
+  if (state.tunnelEndpoint) {
+    return {
+      ...state,
+      endpoint: {
+        ...state.tunnelEndpoint,
+        tunnelType: convertFromTunnelType(state.tunnelEndpoint.tunnelType),
+        protocol: convertFromTransportProtocol(state.tunnelEndpoint.protocol),
+        proxy: state.tunnelEndpoint.proxy && convertFromProxyEndpoint(state.tunnelEndpoint.proxy),
+      },
+    };
+  }
+  return undefined;
+}
+
+function convertFromTunnelType(tunnelType: grpcTypes.TunnelType): TunnelType {
+  const tunnelTypeMap: Record<grpcTypes.TunnelType, TunnelType> = {
+    [grpcTypes.TunnelType.WIREGUARD]: 'wireguard',
+    [grpcTypes.TunnelType.OPENVPN]: 'openvpn',
+  };
+
+  return tunnelTypeMap[tunnelType];
+}
+
+function convertFromProxyEndpoint(proxyEndpoint: grpcTypes.ProxyEndpoint.AsObject): IProxyEndpoint {
+  const proxyTypeMap: Record<grpcTypes.ProxyType, ProxyType> = {
+    [grpcTypes.ProxyType.CUSTOM]: 'custom',
+    [grpcTypes.ProxyType.SHADOWSOCKS]: 'shadowsocks',
+  };
+
+  return {
+    ...proxyEndpoint,
+    protocol: convertFromTransportProtocol(proxyEndpoint.protocol),
+    proxyType: proxyTypeMap[proxyEndpoint.proxyType],
+  };
+}
+
+function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefined {
+  const settingsObject = settings.toObject();
+  const bridgeState = convertFromBridgeState(settingsObject.bridgeState!.state!);
+  const relaySettings = convertFromRelaySettings(settings.getRelaySettings())!;
+  const bridgeSettings = convertFromBridgeSettings(settingsObject.bridgeSettings!);
+  const tunnelOptions = convertFromTunnelOptions(settingsObject.tunnelOptions!);
+  return {
+    ...settings.toObject(),
+    bridgeState,
+    relaySettings,
+    bridgeSettings,
+    tunnelOptions,
+  };
+}
+
+function convertFromBridgeState(bridgeState: grpcTypes.BridgeState.State): BridgeState {
+  const bridgeStateMap: Record<grpcTypes.BridgeState.State, BridgeState> = {
+    [grpcTypes.BridgeState.State.AUTO]: 'auto',
+    [grpcTypes.BridgeState.State.ON]: 'on',
+    [grpcTypes.BridgeState.State.OFF]: 'off',
+  };
+
+  return bridgeStateMap[bridgeState];
+}
+
+function convertFromRelaySettings(
+  relaySettings?: grpcTypes.RelaySettings,
+): RelaySettings | undefined {
+  if (relaySettings) {
+    switch (relaySettings.getEndpointCase()) {
+      case grpcTypes.RelaySettings.EndpointCase.ENDPOINT_NOT_SET:
+        return undefined;
+      case grpcTypes.RelaySettings.EndpointCase.CUSTOM: {
+        const custom = relaySettings.getCustom()?.toObject();
+        const config = relaySettings.getCustom()?.getConfig();
+        const connectionConfig = config && convertFromConnectionConfig(config);
+        return (
+          custom &&
+          connectionConfig && {
+            customTunnelEndpoint: {
+              ...custom,
+              config: connectionConfig,
+            },
+          }
+        );
+      }
+      case grpcTypes.RelaySettings.EndpointCase.NORMAL: {
+        const normal = relaySettings.getNormal()!;
+        const grpcLocation = normal.getLocation();
+        const location = grpcLocation
+          ? { only: convertFromLocation(grpcLocation.toObject()) }
+          : 'any';
+        const tunnelProtocol = convertFromTunnelTypeConstraint(normal.getTunnelType()!);
+        const openvpnConstraints = convertFromOpenVpnConstraints(normal.getOpenvpnConstraints()!);
+        const wireguardConstraints = convertFromWireguardConstraints(
+          normal.getWireguardConstraints()!,
+        );
+
+        return {
+          normal: {
+            location,
+            tunnelProtocol,
+            wireguardConstraints,
+            openvpnConstraints,
+          },
+        };
+      }
+    }
+  } else {
+    return undefined;
+  }
+}
+
+function convertFromBridgeSettings(
+  bridgeSettings: grpcTypes.BridgeSettings.AsObject,
+): BridgeSettings {
+  const normalSettings = bridgeSettings.normal;
+  if (normalSettings) {
+    const grpcLocation = normalSettings.location;
+    const location = grpcLocation ? { only: convertFromLocation(grpcLocation) } : 'any';
+    return {
+      normal: {
+        location,
+      },
+    };
+  }
+
+  const customSettings = (settings: ProxySettings): BridgeSettings => {
+    return { custom: settings };
+  };
+
+  const localSettings = bridgeSettings.local;
+  if (localSettings) {
+    return customSettings({
+      port: localSettings?.port!,
+      peer: localSettings?.peer!,
+    });
+  }
+
+  const remoteSettings = bridgeSettings.remote;
+  if (remoteSettings) {
+    return customSettings({
+      address: remoteSettings?.address!,
+      auth: {
+        ...remoteSettings?.auth!,
+      },
+    });
+  }
+
+  const shadowsocksSettings = bridgeSettings.shadowsocks!;
+  return customSettings({
+    peer: shadowsocksSettings.peer!,
+    password: shadowsocksSettings.password!,
+    cipher: shadowsocksSettings.cipher!,
+  });
+}
+
+function convertFromConnectionConfig(
+  connectionConfig: grpcTypes.ConnectionConfig,
+): ConnectionConfig | undefined {
+  const connectionConfigObject = connectionConfig.toObject();
+  switch (connectionConfig.getConfigCase()) {
+    case grpcTypes.ConnectionConfig.ConfigCase.CONFIG_NOT_SET:
+      return undefined;
+    case grpcTypes.ConnectionConfig.ConfigCase.WIREGUARD:
+      return (
+        connectionConfigObject.wireguard &&
+        connectionConfigObject.wireguard.tunnel &&
+        connectionConfigObject.wireguard.peer && {
+          wireguard: {
+            ...connectionConfigObject.wireguard,
+            tunnel: {
+              privateKey: convertFromWireguardKey(
+                connectionConfigObject.wireguard.tunnel.privateKey,
+              ),
+              addresses: connectionConfigObject.wireguard.tunnel.addressesList,
+            },
+            peer: {
+              ...connectionConfigObject.wireguard.peer,
+              addresses: connectionConfigObject.wireguard.peer.allowedIpsList,
+              publicKey: convertFromWireguardKey(connectionConfigObject.wireguard.peer.publicKey),
+            },
+          },
+        }
+      );
+    case grpcTypes.ConnectionConfig.ConfigCase.OPENVPN: {
+      const [ip, port] = connectionConfigObject.openvpn!.address.split(':');
+      return {
+        openvpn: {
+          ...connectionConfigObject.openvpn!,
+          endpoint: {
+            ip,
+            port: parseInt(port, 10),
+            protocol: convertFromTransportProtocol(connectionConfigObject.openvpn!.protocol),
+          },
+        },
+      };
+    }
+  }
+}
+
+function convertFromLocation(location: grpcTypes.RelayLocation.AsObject): RelayLocation {
+  if (location.hostname) {
+    return { hostname: [location.country, location.city, location.hostname] };
+  }
+  if (location.city) {
+    return { city: [location.country, location.city] };
+  }
+
+  return { country: location.country };
+}
+
+function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObject): ITunnelOptions {
+  return {
+    openvpn: {
+      mssfix: tunnelOptions.openvpn!.mssfix,
+    },
+    wireguard: {
+      mtu: tunnelOptions.wireguard!.mtu,
+    },
+    generic: {
+      enableIpv6: tunnelOptions.generic!.enableIpv6,
+    },
+  };
+}
+
+function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
+  const tunnelState = data.getTunnelState();
+  if (tunnelState !== undefined) {
+    return { tunnelState: convertFromTunnelState(tunnelState)! };
+  }
+
+  const settings = data.getSettings();
+  if (settings !== undefined) {
+    return { settings: convertFromSettings(settings)! };
+  }
+
+  const relayList = data.getRelayList();
+  if (relayList !== undefined) {
+    return {
+      relayList: {
+        countries: relayList
+          .getCountriesList()
+          ?.map((country: grpcTypes.RelayListCountry) =>
+            convertFromRelayListCountry(country.toObject()),
+          ),
+      },
+    };
+  }
+
+  const keygenEvent = data.getKeyEvent();
+  if (keygenEvent !== undefined) {
+    return {
+      wireguardKey: convertFromKeygenEvent(keygenEvent),
+    };
+  }
+
+  return {
+    appVersionInfo: data.getVersionInfo()!.toObject(),
+  };
+}
+
+function convertFromKeygenEvent(data: grpcTypes.KeygenEvent): KeygenEvent {
+  switch (data.getEvent()) {
+    case grpcTypes.KeygenEvent.KeygenEvent.TOO_MANY_KEYS:
+      return 'too_many_keys';
+    case grpcTypes.KeygenEvent.KeygenEvent.NEW_KEY: {
+      const newKey = data.getNewKey();
+      return newKey
+        ? {
+            newKey: {
+              created: newKey.getCreated()!.toDate().toISOString(),
+              key: convertFromWireguardKey(newKey.getKey()),
+            },
+          }
+        : 'generation_failure';
+    }
+    case grpcTypes.KeygenEvent.KeygenEvent.GENERATION_FAILURE:
+      return 'generation_failure';
+  }
+}
+
+function convertFromOpenVpnConstraints(
+  constraints: grpcTypes.OpenvpnConstraints,
+): IOpenVpnConstraints {
+  const port = convertFromConstraint(constraints.getPort());
+  let protocol: Constraint<RelayProtocol> = 'any';
+  switch (constraints.getProtocol()?.getProtocol()) {
+    case grpcTypes.TransportProtocol.TCP:
+      protocol = { only: 'tcp' };
+      break;
+    case grpcTypes.TransportProtocol.UDP:
+      protocol = { only: 'udp' };
+      break;
+  }
+
+  return { port, protocol };
+}
+
+function convertFromWireguardConstraints(
+  constraints: grpcTypes.WireguardConstraints,
+): IWireguardConstraints {
+  const port = convertFromConstraint(constraints.getPort());
+  return { port };
+}
+
+function convertFromTunnelTypeConstraint(
+  constraint: grpcTypes.TunnelTypeConstraint | undefined,
+): Constraint<TunnelProtocol> {
+  switch (constraint?.getTunnelType()) {
+    case grpcTypes.TunnelType.WIREGUARD: {
+      return { only: 'wireguard' };
+    }
+    case grpcTypes.TunnelType.OPENVPN: {
+      return { only: 'openvpn' };
+    }
+    default: {
+      return 'any';
+    }
+  }
+}
+
+function convertFromConstraint<T>(value: T | undefined): Constraint<T> {
+  if (value) {
+    return { only: value };
+  } else {
+    return 'any';
+  }
+}
+
+function convertToNormalBridgeSettings(
+  constraints: IBridgeConstraints,
+): grpcTypes.BridgeSettings.BridgeConstraints {
+  const normalBridgeSettings = new grpcTypes.BridgeSettings.BridgeConstraints();
+  normalBridgeSettings.setLocation(convertToLocation(liftConstraint(constraints.location)));
+
+  return normalBridgeSettings;
+}
+
+function convertToLocation(
+  constraint: RelayLocation | undefined,
+): grpcTypes.RelayLocation | undefined {
+  const location = new grpcTypes.RelayLocation();
+  if (constraint && 'hostname' in constraint) {
+    const [countryCode, cityCode, hostname] = constraint.hostname;
+    location.setCountry(countryCode);
+    location.setCity(cityCode);
+    location.setHostname(hostname);
+    return location;
+  } else if (constraint && 'city' in constraint) {
+    location.setCountry(constraint.city[0]);
+    location.setCity(constraint.city[1]);
+    return location;
+  } else if (constraint && 'country' in constraint) {
+    location.setCountry(constraint.country);
+    return location;
+  } else {
+    return undefined;
+  }
+}
+
+function convertToTunnelTypeConstraint(
+  constraint: Constraint<TunnelType>,
+): grpcTypes.TunnelTypeConstraint | undefined {
+  const grpcConstraint = new grpcTypes.TunnelTypeConstraint();
+
+  if (constraint !== undefined && constraint !== 'any' && 'only' in constraint) {
+    switch (constraint.only) {
+      case 'wireguard':
+        grpcConstraint.setTunnelType(grpcTypes.TunnelType.WIREGUARD);
+        return grpcConstraint;
+      case 'openvpn':
+        grpcConstraint.setTunnelType(grpcTypes.TunnelType.OPENVPN);
+        return grpcConstraint;
+    }
+  }
+  return undefined;
+}
+
+function convertToOpenVpnConstraints(
+  constraints: Partial<IOpenVpnConstraints> | undefined,
+): grpcTypes.OpenvpnConstraints | undefined {
+  const openvpnConstraints = new grpcTypes.OpenvpnConstraints();
+  if (constraints) {
+    const port = liftConstraint(constraints.port);
+    if (port) {
+      openvpnConstraints.setPort(port);
+    }
+    const protocol = liftConstraint(constraints.protocol);
+    if (protocol) {
+      const transportConstraint = new grpcTypes.TransportProtocolConstraint();
+      transportConstraint.setProtocol(convertToTransportProtocol(protocol));
+      openvpnConstraints.setProtocol(transportConstraint);
+    }
+    return openvpnConstraints;
+  }
+
+  return undefined;
+}
+
+function convertToWireguardConstraints(
+  constraint: Partial<IWireguardConstraints> | undefined,
+): grpcTypes.WireguardConstraints | undefined {
+  if (constraint) {
+    const wireguardConstraints = new grpcTypes.WireguardConstraints();
+    const port = liftConstraint(constraint.port);
+    if (port) {
+      wireguardConstraints.setPort(port);
+    }
+    return wireguardConstraints;
+  }
+  return undefined;
+}
+
+function convertToTransportProtocol(protocol: RelayProtocol): grpcTypes.TransportProtocol {
+  switch (protocol) {
+    case 'udp':
+      return grpcTypes.TransportProtocol.UDP;
+    case 'tcp':
+      return grpcTypes.TransportProtocol.TCP;
+  }
+}
+
+function ensureExists<T>(value: T | undefined, errorMessage: string): T {
+  if (value) {
+    return value;
+  }
+  throw new ResponseParseError(errorMessage);
 }
