@@ -7,6 +7,6 @@
               android:layout_height="wrap_content"
               android:textColor="@color/blue"
               android:padding="10dip"
-              android:textSize="16dip"
+              android:textSize="@dimen/text_medium"
               android:textStyle="bold" />
 </LinearLayout>

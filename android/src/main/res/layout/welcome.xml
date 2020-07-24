@@ -18,7 +18,7 @@
                       android:layout_marginHorizontal="24dp"
                       android:layout_marginTop="24dp"
                       android:textColor="@color/white"
-                      android:textSize="32sp"
+                      android:textSize="@dimen/text_large"
                       android:textStyle="bold"
                       android:text="@string/congrats" />
             <TextView android:layout_width="wrap_content"
@@ -27,7 +27,7 @@
                       android:layout_marginTop="8dp"
                       android:layout_marginBottom="11dp"
                       android:textColor="@color/white"
-                      android:textSize="13sp"
+                      android:textSize="@dimen/text_small"
                       android:text="@string/here_is_your_account_number" />
             <TextView android:id="@+id/account_number"
                       android:layout_width="match_parent"
@@ -37,7 +37,7 @@
                       android:clickable="true"
                       android:background="?android:attr/selectableItemBackground"
                       android:textColor="@color/white"
-                      android:textSize="24sp"
+                      android:textSize="@dimen/text_big"
                       android:textStyle="bold"
                       android:text="" />
             <TextView android:id="@+id/pay_to_start_using"
@@ -46,7 +46,7 @@
                       android:layout_marginHorizontal="24dp"
                       android:layout_marginTop="11dp"
                       android:textColor="@color/white"
-                      android:textSize="13sp" />
+                      android:textSize="@dimen/text_small" />
             <Space android:layout_width="match_parent"
                    android:layout_height="0dp"
                    android:layout_weight="1" />

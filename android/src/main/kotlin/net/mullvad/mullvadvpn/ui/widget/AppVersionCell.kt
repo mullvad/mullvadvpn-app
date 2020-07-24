@@ -32,7 +32,7 @@ class AppVersionCell : Cell {
         }
 
         setTextColor(context.getColor(R.color.white60))
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.0f)
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.text_small))
         setTypeface(null, Typeface.BOLD)
 
         text = ""

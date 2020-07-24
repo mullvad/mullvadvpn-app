@@ -4,7 +4,7 @@
               android:layout_height="wrap_content"
               android:layout_marginBottom="9dp"
               android:textColor="@color/white60"
-              android:textSize="13sp"
+              android:textSize="@dimen/text_small"
               android:textStyle="bold"
               android:text="" />
     <FrameLayout android:layout_width="wrap_content"
@@ -13,7 +13,7 @@
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:textColor="@color/white"
-                  android:textSize="16sp"
+                  android:textSize="@dimen/text_medium"
                   android:textStyle="bold"
                   android:text="" />
         <ProgressBar android:id="@+id/spinner"
