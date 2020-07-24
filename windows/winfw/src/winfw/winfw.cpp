@@ -42,6 +42,23 @@ std::optional<FwContext::PingableHosts> ConvertPingableHosts(const PingableHosts
 	return converted;
 }
 
+WINFW_POLICY_STATUS
+HandlePolicyException(const common::error::WindowsException &err)
+{
+	if (nullptr != g_logSink)
+	{
+		g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
+	}
+
+	if (FWP_E_TIMEOUT == err.errorCode())
+	{
+		// TODO: Detect software that may cause this
+		return WINFW_POLICY_STATUS_LOCK_TIMEOUT;
+	}
+
+	return WINFW_POLICY_STATUS_GENERAL_FAILURE;
+}
+
 } // anonymous namespace
 
 WINFW_LINKAGE
@@ -176,7 +193,7 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 }
 
 WINFW_LINKAGE
-bool
+WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
@@ -187,7 +204,7 @@ WinFw_ApplyPolicyConnecting(
 {
 	if (nullptr == g_fwContext)
 	{
-		return false;
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 
 	try
@@ -212,7 +229,11 @@ WinFw_ApplyPolicyConnecting(
 			*relay,
 			relayClient,
 			ConvertPingableHosts(pingableHosts)
-		);
+		) ? WINFW_POLICY_STATUS_SUCCESS : WINFW_POLICY_STATUS_GENERAL_FAILURE;
+	}
+	catch (common::error::WindowsException &err)
+	{
+		return HandlePolicyException(err);
 	}
 	catch (std::exception &err)
 	{
@@ -221,16 +242,16 @@ WinFw_ApplyPolicyConnecting(
 			g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
 		}
 
-		return false;
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 	catch (...)
 	{
-		return false;
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 }
 
 WINFW_LINKAGE
-bool
+WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
@@ -243,7 +264,7 @@ WinFw_ApplyPolicyConnected(
 {
 	if (nullptr == g_fwContext)
 	{
-		return false;
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 
 	try
@@ -286,7 +307,11 @@ WinFw_ApplyPolicyConnected(
 			relayClient,
 			tunnelInterfaceAlias,
 			tunnelDnsServers
-		);
+		) ? WINFW_POLICY_STATUS_SUCCESS : WINFW_POLICY_STATUS_GENERAL_FAILURE;
+	}
+	catch (common::error::WindowsException &err)
+	{
+		return HandlePolicyException(err);
 	}
 	catch (std::exception &err)
 	{
@@ -295,16 +320,16 @@ WinFw_ApplyPolicyConnected(
 			g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
 		}
 
-		return false;
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 	catch (...)
 	{
-		return false;
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 }
 
 WINFW_LINKAGE
-bool
+WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyBlocked(
 	const WinFwSettings *settings
@@ -312,7 +337,7 @@ WinFw_ApplyPolicyBlocked(
 {
 	if (nullptr == g_fwContext)
 	{
-		return false;
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 
 	try
@@ -322,7 +347,13 @@ WinFw_ApplyPolicyBlocked(
 			THROW_ERROR("Invalid argument: settings");
 		}
 
-		return g_fwContext->applyPolicyBlocked(*settings);
+		return g_fwContext->applyPolicyBlocked(*settings)
+			? WINFW_POLICY_STATUS_SUCCESS
+			: WINFW_POLICY_STATUS_GENERAL_FAILURE;
+	}
+	catch (common::error::WindowsException &err)
+	{
+		return HandlePolicyException(err);
 	}
 	catch (std::exception &err)
 	{
@@ -331,16 +362,16 @@ WinFw_ApplyPolicyBlocked(
 			g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
 		}
 
-		return false;
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 	catch (...)
 	{
-		return false;
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 }
 
 WINFW_LINKAGE
-bool
+WINFW_POLICY_STATUS
 WINFW_API
 WinFw_Reset()
 {
@@ -348,10 +379,18 @@ WinFw_Reset()
 	{
 		if (nullptr == g_fwContext)
 		{
-			return ObjectPurger::Execute(ObjectPurger::GetRemoveAllFunctor());
+			return ObjectPurger::Execute(ObjectPurger::GetRemoveAllFunctor())
+				? WINFW_POLICY_STATUS_SUCCESS
+				: WINFW_POLICY_STATUS_GENERAL_FAILURE;
 		}
 
-		return g_fwContext->reset();
+		return g_fwContext->reset()
+			? WINFW_POLICY_STATUS_SUCCESS
+			: WINFW_POLICY_STATUS_GENERAL_FAILURE;
+	}
+	catch (common::error::WindowsException &err)
+	{
+		return HandlePolicyException(err);
 	}
 	catch (std::exception &err)
 	{
@@ -360,10 +399,10 @@ WinFw_Reset()
 			g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
 		}
 
-		return false;
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 	catch (...)
 	{
-		return false;
+		return WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 }
