@@ -53,7 +53,7 @@
                               android:layout_height="wrap_content"
                               android:layout_marginHorizontal="24dp"
                               android:textColor="@color/white"
-                              android:textSize="34sp"
+                              android:textSize="@dimen/text_large"
                               android:textStyle="bold"
                               android:text="" />
                     <TextView android:id="@+id/country"
@@ -61,7 +61,7 @@
                               android:layout_height="wrap_content"
                               android:layout_marginHorizontal="24dp"
                               android:textColor="@color/white"
-                              android:textSize="34sp"
+                              android:textSize="@dimen/text_large"
                               android:textStyle="bold"
                               android:text="" />
                     <LinearLayout android:id="@+id/tunnel_info"

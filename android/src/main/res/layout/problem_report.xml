@@ -125,7 +125,7 @@
                                   android:layout_height="wrap_content"
                                   android:layout_marginBottom="4dp"
                                   android:textColor="@color/white"
-                                  android:textSize="34sp"
+                                  android:textSize="@dimen/text_large"
                                   android:textStyle="bold"
                                   android:text="@string/sending" />
                         <TextView android:id="@+id/send_details"
