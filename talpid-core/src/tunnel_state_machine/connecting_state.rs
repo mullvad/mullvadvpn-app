@@ -358,7 +358,7 @@ impl TunnelState for ConnectingState {
                             "Failed to apply firewall policy for connecting state"
                         )
                     );
-                    ErrorState::enter(shared_values, ErrorStateCause::StartTunnelError)
+                    ErrorState::enter(shared_values, ErrorStateCause::SetFirewallPolicyError)
                 } else {
                     #[cfg(target_os = "linux")]
                     if let Err(error) = shared_values.route_manager.enable_exclusions_routes() {
