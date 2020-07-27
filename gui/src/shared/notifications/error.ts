@@ -97,10 +97,22 @@ function getInAppNotificationSubtitle(tunnelState: { state: 'error'; details: IE
             extraMessage = messages.pgettext('in-app-notifications', 'Your kernel may be outdated');
             break;
           case 'win32':
-            extraMessage = messages.pgettext(
-              'in-app-notifications',
-              'This might be caused by third party security software',
-            );
+            switch (blockReason.details.reason) {
+              case 'locked':
+                if (blockReason.details.details) {
+                  // TODO: Check if this message is ok
+                  extraMessage = `${messages.pgettext(
+                    'in-app-notifications',
+                    'An application prevented the policy from being set',
+                  )}: ${blockReason.details.details.name}`;
+                } else {
+                  extraMessage = messages.pgettext(
+                    'in-app-notifications',
+                    'This might be caused by third party security software',
+                  );
+                }
+                break;
+            }
             break;
         }
         return `${messages.pgettext(
