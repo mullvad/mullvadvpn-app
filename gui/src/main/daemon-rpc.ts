@@ -264,12 +264,23 @@ const tunnelStateSchema = oneOf(
         object({
           reason: enumeration(
             'ipv6_unavailable',
-            'set_firewall_policy_error',
             'set_dns_error',
             'start_tunnel_error',
             'is_offline',
             'tap_adapter_problem',
           ),
+        }),
+        object({
+          reason: enumeration('set_firewall_policy_error'),
+          details: object({
+            reason: enumeration('generic', 'locked'),
+            details: maybe(
+              object({
+                name: string,
+                pid: number,
+              }),
+            ),
+          }),
         }),
         object({
           reason: enumeration('auth_failed'),
