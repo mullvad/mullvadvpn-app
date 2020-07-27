@@ -52,6 +52,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix connectivity monitor for WireGuard not disconnecting from a relay when connectivity is lost.
+- Forward firewall errors to the GUI in the connecting state, instead of showing a generic message
+  about failing to start the tunnel.
 
 #### Windows
 - Fix window flickering by disabling window animations.
