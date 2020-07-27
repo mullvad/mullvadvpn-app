@@ -42,7 +42,7 @@ pub enum VoucherError {
     /// Error code -100
     #[error(display = "Server internal error")]
     InternalError,
-    #[error(display = "Unknown error, _0")]
+    #[error(display = "Unknown error, {}", _0)]
     UnknownError(i64),
 }
 
