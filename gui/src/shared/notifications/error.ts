@@ -1,7 +1,12 @@
 import { sprintf } from 'sprintf-js';
 import { hasExpired } from '../account-expiry';
 import { AuthFailureKind, parseAuthFailure } from '../auth-failure';
-import { IErrorState, TunnelState, TunnelParameterError } from '../daemon-rpc-types';
+import {
+  IErrorState,
+  TunnelState,
+  TunnelParameterError,
+  FirewallPolicyError,
+} from '../daemon-rpc-types';
 import { messages } from '../gettext';
 import {
   InAppNotification,
@@ -76,6 +81,17 @@ function getSystemNotificationMessage(
 
 function getInAppNotificationSubtitle(tunnelState: { state: 'error'; details: IErrorState }) {
   if (!tunnelState.details.isBlocking) {
+    const errorReason = tunnelState.details.cause;
+    switch (errorReason.reason) {
+      case 'set_firewall_policy_error': {
+        const extraMessage = getPolicyMessage(errorReason.details);
+        // TODO: check if message makes sense
+        return `${messages.pgettext(
+          'in-app-notifications',
+          'Failed to block all network traffic',
+        )}${extraMessage ? '. ' + extraMessage : ''}`;
+      }
+    }
     return messages.pgettext(
       'in-app-notifications',
       'Failed to block all network traffic. Please troubleshoot or report the problem to us.',
@@ -91,30 +107,7 @@ function getInAppNotificationSubtitle(tunnelState: { state: 'error'; details: IE
           'Could not configure IPv6, please enable it on your system or disable it in the app',
         );
       case 'set_firewall_policy_error': {
-        let extraMessage = null;
-        switch (process.platform) {
-          case 'linux':
-            extraMessage = messages.pgettext('in-app-notifications', 'Your kernel may be outdated');
-            break;
-          case 'win32':
-            switch (blockReason.details.reason) {
-              case 'locked':
-                if (blockReason.details.details) {
-                  // TODO: Check if this message is ok
-                  extraMessage = `${messages.pgettext(
-                    'in-app-notifications',
-                    'An application prevented the policy from being set',
-                  )}: ${blockReason.details.details.name}`;
-                } else {
-                  extraMessage = messages.pgettext(
-                    'in-app-notifications',
-                    'This might be caused by third party security software',
-                  );
-                }
-                break;
-            }
-            break;
-        }
+        const extraMessage = getPolicyMessage(blockReason.details);
         return `${messages.pgettext(
           'in-app-notifications',
           'Failed to apply firewall rules. The device might currently be unsecured',
@@ -138,6 +131,34 @@ function getInAppNotificationSubtitle(tunnelState: { state: 'error'; details: IE
         );
     }
   }
+}
+
+function getPolicyMessage(err: FirewallPolicyError): string | null {
+  let extraMessage = null;
+  switch (process.platform) {
+    case 'linux':
+      extraMessage = messages.pgettext('in-app-notifications', 'Your kernel may be outdated');
+      break;
+    case 'win32':
+      switch (err.reason) {
+        case 'locked':
+          if (err.details) {
+            // TODO: Check if this message is ok
+            extraMessage = `${messages.pgettext(
+              'in-app-notifications',
+              'An application prevented the policy from being set',
+            )}: ${err.details.name}`;
+          } else {
+            extraMessage = messages.pgettext(
+              'in-app-notifications',
+              'This might be caused by third party security software',
+            );
+          }
+          break;
+      }
+      break;
+  }
+  return extraMessage;
 }
 
 function getTunnelParameterMessage(err: TunnelParameterError): string {
