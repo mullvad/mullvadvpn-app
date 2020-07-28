@@ -196,9 +196,11 @@ impl Tunnel {
             }
         };
         if let Some(key) = key {
-            // TODO: Fix formatting
-            println!("Current key    : {:?}", &key.key);
-            println!("Key created on : {:?}", key.created);
+            println!("Current key    : {}", base64::encode(&key.key));
+            println!(
+                "Key created on : {}",
+                Self::format_key_timestamp(&key.created.unwrap())
+            );
         } else {
             println!("No key is set");
             return Ok(());
@@ -332,5 +334,9 @@ impl Tunnel {
             println!("Disabled IPv6");
         }
         Ok(())
+    }
+
+    fn format_key_timestamp(timestamp: &prost_types::Timestamp) -> String {
+        chrono::NaiveDateTime::from_timestamp(timestamp.seconds, timestamp.nanos as u32).to_string()
     }
 }
