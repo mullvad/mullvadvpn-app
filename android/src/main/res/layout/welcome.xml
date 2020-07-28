@@ -18,7 +18,7 @@
                       android:layout_marginHorizontal="24dp"
                       android:layout_marginTop="24dp"
                       android:textColor="@color/white"
-                      android:textSize="@dimen/text_large"
+                      android:textSize="@dimen/text_huge"
                       android:textStyle="bold"
                       android:text="@string/congrats" />
             <TextView android:layout_width="wrap_content"

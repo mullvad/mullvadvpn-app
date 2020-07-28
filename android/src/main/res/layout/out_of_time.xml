@@ -23,7 +23,7 @@
                       android:layout_height="wrap_content"
                       android:layout_marginHorizontal="24dp"
                       android:textColor="@color/white"
-                      android:textSize="@dimen/text_large"
+                      android:textSize="@dimen/text_huge"
                       android:textStyle="bold"
                       android:text="@string/out_of_time" />
             <TextView android:id="@+id/no_more_vpn_time_left"
