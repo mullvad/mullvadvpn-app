@@ -35,7 +35,6 @@ fn main() {
         .expect("Failed to open string resources file");
     let mut string_resources: android::StringResources =
         serde_xml_rs::from_reader(strings_file).expect("Failed to read string resources file");
-    let mut missing_translations = HashMap::new();
 
     string_resources.normalize();
 
@@ -47,6 +46,8 @@ fn main() {
             (string.value, android_id)
         })
         .partition(|(string_value, _)| string_value.starts_with("https://mullvad.net/en/"));
+
+    let mut missing_translations = known_strings.clone();
 
     let locale_files = fs::read_dir("../../gui/locales")
         .expect("Failed to open root locale directory")
@@ -113,6 +114,10 @@ fn android_locale_directory(locale: &str) -> String {
 /// URL strings are treated differently. The "translated" URLs have a locale specified in them. If
 /// mapping from the translation locale to a website locale fails, the "translated" URL is not
 /// generated, and the app falls back to the original URL value with the english locale.
+///
+/// The missing translations map is updated to only contain the strings that aren't present in the
+/// current locale, which means that in the end the map contains only the translations that aren't
+/// present in any locale.
 fn generate_translations(
     locale: &str,
     known_urls: HashMap<String, String>,
@@ -146,7 +151,7 @@ fn generate_translations(
     fs::write(output_path, localized_resource.to_string())
         .expect("Failed to create Android locale file");
 
-    missing_translations.extend(known_strings.into_iter());
+    missing_translations.retain(|translation, _| known_strings.contains_key(translation));
 }
 
 /// Tries to map a translation locale to a locale used on the Mullvad website.
