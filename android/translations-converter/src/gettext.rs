@@ -1,8 +1,8 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
-    fs::File,
-    io::{BufRead, BufReader},
+    fs::{File, OpenOptions},
+    io::{self, BufRead, BufReader, BufWriter, Write},
     path::Path,
 };
 
@@ -47,6 +47,28 @@ pub fn load_file(file_path: impl AsRef<Path>) -> Vec<MsgEntry> {
     }
 
     entries
+}
+
+/// Append message entries to a translation file.
+///
+/// This is used to append missing translation entries back to the base translation template file.
+pub fn append_to_template(
+    file_path: impl AsRef<Path>,
+    entries: impl Iterator<Item = MsgEntry>,
+) -> Result<(), io::Error> {
+    let file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open(file_path)?;
+    let mut writer = BufWriter::new(file);
+
+    for entry in entries {
+        writeln!(writer)?;
+        writeln!(writer, "msgid {:?}", entry.id)?;
+        writeln!(writer, "msgstr {:?}", entry.value)?;
+    }
+
+    Ok(())
 }
 
 fn parse_line<'l>(line: &'l str, prefix: &str, suffix: &str) -> Option<&'l str> {
