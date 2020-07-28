@@ -9,6 +9,7 @@ import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
+import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import org.joda.time.DateTime
@@ -25,7 +26,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             field = value
             updateDisconnectButton()
             updateBuyButtons()
-            headerBar.setState(value)
+            headerBar.tunnelState = state
         }
 
     override fun onSafelyCreateView(
@@ -35,11 +36,9 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     ): View {
         val view = inflater.inflate(R.layout.out_of_time, container, false)
 
-        view.findViewById<View>(R.id.settings).setOnClickListener {
-            parentActivity.openSettings()
+        headerBar = view.findViewById<HeaderBar>(R.id.header_bar).apply {
+            tunnelState = this@OutOfTimeFragment.tunnelState
         }
-
-        headerBar = HeaderBar(view, parentActivity)
 
         view.findViewById<TextView>(R.id.no_more_vpn_time_left).text =
             parentActivity.getString(R.string.no_more_vpn_time_left) + " " +

@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -12,6 +11,7 @@ import net.mullvad.mullvadvpn.ui.notification.AccountExpiryNotification
 import net.mullvad.mullvadvpn.ui.notification.KeyStatusNotification
 import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
 import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
+import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.NotificationBanner
 import org.joda.time.DateTime
 
@@ -42,11 +42,9 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         val view = inflater.inflate(R.layout.connect, container, false)
         val resources = parentActivity.resources
 
-        view.findViewById<ImageButton>(R.id.settings).setOnClickListener {
-            parentActivity.openSettings()
+        headerBar = view.findViewById<HeaderBar>(R.id.header_bar).apply {
+            tunnelState = TunnelState.Disconnected()
         }
-
-        headerBar = HeaderBar(view, parentActivity)
 
         notificationBanner = view.findViewById<NotificationBanner>(R.id.notification_banner).apply {
             notifications.apply {
@@ -132,7 +130,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
     private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) {
         locationInfo.state = realState
-        headerBar.setState(realState)
+        headerBar.tunnelState = realState
         status.setState(realState)
 
         actionButton.tunnelState = uiState
