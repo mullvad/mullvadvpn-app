@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -21,13 +22,11 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     private lateinit var disconnectButton: Button
     private lateinit var redeemButton: Button
 
-    private var tunnelState: TunnelState = TunnelState.Disconnected()
-        set(value) {
-            field = value
-            updateDisconnectButton()
-            updateBuyButtons()
-            headerBar.tunnelState = state
-        }
+    private var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, state ->
+        updateDisconnectButton()
+        updateBuyButtons()
+        headerBar.tunnelState = state
+    }
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
