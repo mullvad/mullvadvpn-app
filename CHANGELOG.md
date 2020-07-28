@@ -46,6 +46,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Upgrade Wintun from 0.7 to 0.8.1.
+- Display causes of firewall errors in the GUI.
 
 #### Linux
 - Allow users to specify `net_cls` controller mountpoint via `TALPID_NET_CLS_MOUNT_DIR`. The
