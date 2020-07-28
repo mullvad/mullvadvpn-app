@@ -9,7 +9,7 @@ import android.widget.TextView
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.service.SplitTunnelling
-import net.mullvad.mullvadvpn.ui.CellSwitch
+import net.mullvad.mullvadvpn.ui.widget.CellSwitch
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class AppListItemHolder(

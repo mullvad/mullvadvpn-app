@@ -6,10 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.ui.widget.CellSwitch
+import net.mullvad.mullvadvpn.ui.widget.ToggleCell
 
 class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
-    private lateinit var allowLanToggle: CellSwitch
-    private lateinit var autoConnectToggle: CellSwitch
+    private lateinit var allowLanToggle: ToggleCell
+    private lateinit var autoConnectToggle: ToggleCell
     private lateinit var titleController: CollapsibleTitleController
 
     override fun onSafelyCreateView(
@@ -23,7 +25,7 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
             parentActivity.onBackPressed()
         }
 
-        allowLanToggle = view.findViewById<CellSwitch>(R.id.allow_lan_toggle).apply {
+        allowLanToggle = view.findViewById<ToggleCell>(R.id.allow_lan).apply {
             forcefullySetState(boolToSwitchState(settingsListener.settings.allowLan))
 
             listener = { state ->
@@ -34,7 +36,7 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
-        autoConnectToggle = view.findViewById<CellSwitch>(R.id.auto_connect_toggle).apply {
+        autoConnectToggle = view.findViewById<ToggleCell>(R.id.auto_connect).apply {
             forcefullySetState(boolToSwitchState(settingsListener.settings.autoConnect))
 
             listener = { state ->

@@ -9,10 +9,19 @@
     <dimen name="normal_button_height">44dp</dimen>
     <dimen name="tall_button_height">64dp</dimen>
     <dimen name="cell_switch_border_radius">16dp</dimen>
-    <dimen name="cell_switch_width">32dp</dimen>
-    <dimen name="cell_switch_height">52dp</dimen>
+    <dimen name="cell_switch_width">52dp</dimen>
+    <dimen name="cell_switch_height">32dp</dimen>
     <dimen name="cell_switch_knob_margin">4dp</dimen>
     <dimen name="cell_switch_knob_max_translation">20dp</dimen>
     <dimen name="cell_switch_knob_size">24dp</dimen>
     <dimen name="settings_back_button_padding">12dp</dimen>
+    <dimen name="cell_horizontal_padding">16dp</dimen>
+    <dimen name="cell_label_horizontal_padding">8dp</dimen>
+    <dimen name="cell_label_vertical_padding">17dp</dimen>
+    <dimen name="cell_input_width">80dp</dimen>
+    <dimen name="cell_input_height">34dp</dimen>
+    <dimen name="cell_footer_top_padding">8dp</dimen>
+    <dimen name="cell_footer_horizontal_padding">24dp</dimen>
+    <dimen name="chevron_width">14dp</dimen>
+    <dimen name="chevron_height">24dp</dimen>
 </resources>

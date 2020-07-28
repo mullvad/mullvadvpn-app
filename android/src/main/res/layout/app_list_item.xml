@@ -30,8 +30,8 @@
               android:textColor="@color/white"
               android:textSize="16sp"
               android:text="" />
-    <net.mullvad.mullvadvpn.ui.CellSwitch android:id="@+id/excluded"
-                                          android:layout_width="52dp"
-                                          android:layout_height="32dp"
-                                          android:layout_weight="0" />
+    <net.mullvad.mullvadvpn.ui.widget.CellSwitch android:id="@+id/excluded"
+                                                 android:layout_width="52dp"
+                                                 android:layout_height="32dp"
+                                                 android:layout_weight="0" />
 </LinearLayout>

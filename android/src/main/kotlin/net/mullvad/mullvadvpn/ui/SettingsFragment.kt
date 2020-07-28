@@ -1,27 +1,23 @@
 package net.mullvad.mullvadvpn.ui
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageButton
-import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.service.AccountCache
+import net.mullvad.mullvadvpn.ui.widget.AccountCell
+import net.mullvad.mullvadvpn.ui.widget.AppVersionCell
+import net.mullvad.mullvadvpn.ui.widget.NavigateCell
 
 class SettingsFragment : ServiceAwareFragment() {
-    private lateinit var accountMenu: View
-    private lateinit var appVersionWarning: View
-    private lateinit var appVersionLabel: TextView
-    private lateinit var appVersionFooter: View
+    private lateinit var accountMenu: AccountCell
+    private lateinit var appVersionMenu: AppVersionCell
     private lateinit var preferencesMenu: View
     private lateinit var advancedMenu: View
-    private lateinit var remainingTimeLabel: RemainingTimeLabel
     private lateinit var titleController: CollapsibleTitleController
 
     private var active = false
@@ -58,36 +54,24 @@ class SettingsFragment : ServiceAwareFragment() {
             parentActivity.quit()
         }
 
-        accountMenu = view.findViewById<View>(R.id.account).apply {
-            setOnClickListener {
-                openSubFragment(AccountFragment())
-            }
+        accountMenu = view.findViewById<AccountCell>(R.id.account).apply {
+            targetFragment = AccountFragment::class
         }
 
-        preferencesMenu = view.findViewById<View>(R.id.preferences).apply {
-            setOnClickListener {
-                openSubFragment(PreferencesFragment())
-            }
+        preferencesMenu = view.findViewById<NavigateCell>(R.id.preferences).apply {
+            targetFragment = PreferencesFragment::class
         }
 
-        advancedMenu = view.findViewById<View>(R.id.advanced).apply {
-            setOnClickListener {
-                openSubFragment(AdvancedFragment())
-            }
+        advancedMenu = view.findViewById<NavigateCell>(R.id.advanced).apply {
+            targetFragment = AdvancedFragment::class
         }
 
-        view.findViewById<View>(R.id.app_version).setOnClickListener {
-            openLink(R.string.download_url)
+        view.findViewById<NavigateCell>(R.id.report_a_problem).apply {
+            targetFragment = ProblemReportFragment::class
         }
 
-        view.findViewById<View>(R.id.report_a_problem).setOnClickListener {
-            openSubFragment(ProblemReportFragment())
-        }
+        appVersionMenu = view.findViewById<AppVersionCell>(R.id.app_version)
 
-        appVersionWarning = view.findViewById(R.id.app_version_warning)
-        appVersionLabel = view.findViewById<TextView>(R.id.app_version_label)
-        appVersionFooter = view.findViewById(R.id.app_version_footer)
-        remainingTimeLabel = RemainingTimeLabel(parentActivity, view)
         titleController = CollapsibleTitleController(view)
 
         return view
@@ -127,7 +111,7 @@ class SettingsFragment : ServiceAwareFragment() {
 
             onAccountExpiryChange.subscribe(this@SettingsFragment) { expiry ->
                 jobTracker.newUiJob("updateAccountInfo") {
-                    remainingTimeLabel.accountExpiry = expiry
+                    accountMenu.accountExpiry = expiry
                 }
             }
 
@@ -139,26 +123,6 @@ class SettingsFragment : ServiceAwareFragment() {
                 updateVersionInfo()
             }
         }
-    }
-
-    private fun openSubFragment(fragment: Fragment) {
-        fragmentManager?.beginTransaction()?.apply {
-            setCustomAnimations(
-                R.anim.fragment_enter_from_right,
-                R.anim.fragment_half_exit_to_left,
-                R.anim.fragment_half_enter_from_left,
-                R.anim.fragment_exit_to_right
-            )
-            replace(R.id.main_fragment, fragment)
-            addToBackStack(null)
-            commit()
-        }
-    }
-
-    private fun openLink(urlResourceId: Int) {
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(parentActivity.getString(urlResourceId)))
-
-        startActivity(intent)
     }
 
     private fun updateLoggedInStatus(loggedIn: Boolean) {
@@ -177,14 +141,7 @@ class SettingsFragment : ServiceAwareFragment() {
         val isOutdated = versionInfoCache?.isOutdated ?: false
         val isSupported = versionInfoCache?.isSupported ?: true
 
-        appVersionLabel.setText(versionInfoCache?.version ?: "")
-
-        if (!isOutdated && isSupported) {
-            appVersionWarning.visibility = View.GONE
-            appVersionFooter.visibility = View.GONE
-        } else {
-            appVersionWarning.visibility = View.VISIBLE
-            appVersionFooter.visibility = View.VISIBLE
-        }
+        appVersionMenu.updateAvailable = isOutdated || !isSupported
+        appVersionMenu.version = versionInfoCache?.version ?: ""
     }
 }

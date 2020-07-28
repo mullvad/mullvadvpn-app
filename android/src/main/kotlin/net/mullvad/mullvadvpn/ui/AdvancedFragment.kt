@@ -1,20 +1,16 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
-
-private const val MIN_MTU_VALUE = 1280
-private const val MAX_MTU_VALUE = 1420
+import net.mullvad.mullvadvpn.ui.widget.MtuCell
+import net.mullvad.mullvadvpn.ui.widget.NavigateCell
 
 class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
-    private lateinit var wireguardMtuInput: CellInput
-    private lateinit var wireguardKeysMenu: View
+    private lateinit var wireguardMtuInput: MtuCell
     private lateinit var titleController: CollapsibleTitleController
 
     override fun onSafelyCreateView(
@@ -28,27 +24,20 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             parentActivity.onBackPressed()
         }
 
-        wireguardMtuInput =
-            CellInput(view.findViewById(R.id.wireguard_mtu_input), MIN_MTU_VALUE, MAX_MTU_VALUE)
-
-        wireguardMtuInput.onSubmit = { mtu ->
-            jobTracker.newBackgroundJob("updateMtu") {
-                daemon.setWireguardMtu(mtu)
+        wireguardMtuInput = view.findViewById<MtuCell>(R.id.wireguard_mtu).apply {
+            onSubmit = { mtu ->
+                jobTracker.newBackgroundJob("updateMtu") {
+                    daemon.setWireguardMtu(mtu)
+                }
             }
         }
 
-        view.findViewById<TextView>(R.id.wireguard_mtu_footer).apply {
-            text = context.getString(R.string.wireguard_mtu_footer, MIN_MTU_VALUE, MAX_MTU_VALUE)
+        view.findViewById<NavigateCell>(R.id.wireguard_keys).apply {
+            targetFragment = WireguardKeyFragment::class
         }
 
-        wireguardKeysMenu = view.findViewById<View>(R.id.wireguard_keys).apply {
-            setOnClickListener {
-                openSubFragment(WireguardKeyFragment())
-            }
-        }
-
-        view.findViewById<View>(R.id.split_tunnelling).setOnClickListener {
-            openSubFragment(SplitTunnellingFragment())
+        view.findViewById<NavigateCell>(R.id.split_tunnelling).apply {
+            targetFragment = SplitTunnellingFragment::class
         }
 
         settingsListener.subscribe(this) { settings ->
@@ -71,19 +60,5 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     override fun onSafelyDestroyView() {
         titleController.onDestroy()
         settingsListener.unsubscribe(this)
-    }
-
-    private fun openSubFragment(fragment: Fragment) {
-        fragmentManager?.beginTransaction()?.apply {
-            setCustomAnimations(
-                R.anim.fragment_enter_from_right,
-                R.anim.fragment_half_exit_to_left,
-                R.anim.fragment_half_enter_from_left,
-                R.anim.fragment_exit_to_right
-            )
-            replace(R.id.main_fragment, fragment)
-            addToBackStack(null)
-            commit()
-        }
     }
 }
