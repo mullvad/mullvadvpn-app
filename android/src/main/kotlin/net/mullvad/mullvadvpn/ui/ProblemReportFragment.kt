@@ -1,10 +1,15 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
+import android.graphics.Typeface
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.text.Editable
+import android.text.Spannable
+import android.text.SpannableStringBuilder
 import android.text.TextWatcher
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -47,7 +52,6 @@ class ProblemReportFragment : Fragment() {
     private lateinit var sendStatusLabel: TextView
     private lateinit var sendDetailsLabel: TextView
     private lateinit var responseMessageLabel: TextView
-    private lateinit var responseEmailLabel: TextView
 
     private lateinit var editMessageButton: Button
     private lateinit var tryAgainButton: Button
@@ -87,7 +91,6 @@ class ProblemReportFragment : Fragment() {
         sendStatusLabel = view.findViewById<TextView>(R.id.send_status)
         sendDetailsLabel = view.findViewById<TextView>(R.id.send_details)
         responseMessageLabel = view.findViewById<TextView>(R.id.response_message)
-        responseEmailLabel = view.findViewById<TextView>(R.id.response_email)
 
         editMessageButton = view.findViewById<Button>(R.id.edit_message_button)
         tryAgainButton = view.findViewById<Button>(R.id.try_again_button)
@@ -193,7 +196,6 @@ class ProblemReportFragment : Fragment() {
         sendStatusLabel.visibility = View.VISIBLE
         sendDetailsLabel.visibility = View.GONE
         responseMessageLabel.visibility = View.GONE
-        responseEmailLabel.visibility = View.GONE
 
         sendStatusLabel.setText(R.string.sending)
 
@@ -209,17 +211,34 @@ class ProblemReportFragment : Fragment() {
         sendDetailsLabel.visibility = View.VISIBLE
 
         if (!userEmail.isEmpty()) {
-            responseMessageLabel.visibility = View.VISIBLE
-            responseEmailLabel.visibility = View.VISIBLE
-            responseEmailLabel.text = userEmail
-
-            showingEmail = true
+            showResponseMessage(userEmail)
         }
 
         sendStatusLabel.setText(R.string.sent)
         sendDetailsLabel.setText(R.string.sent_thanks)
 
         scrollArea.scrollTo(0, titleController.fullCollapseScrollOffset.toInt())
+    }
+
+    private fun showResponseMessage(userEmail: String) {
+        val responseMessageTemplate = parentActivity.getString(R.string.sent_contact)
+        val responseMessage = parentActivity.getString(R.string.sent_contact, userEmail)
+
+        val emailStart = responseMessageTemplate.indexOf('%')
+        val emailEndFromStringEnd = responseMessageTemplate.length - (emailStart + 4)
+        val emailEnd = responseMessage.length - emailEndFromStringEnd
+
+        val boldStyle = StyleSpan(Typeface.BOLD)
+        val colorStyle = ForegroundColorSpan(parentActivity.getColor(R.color.white))
+
+        responseMessageLabel.text = SpannableStringBuilder(responseMessage).apply {
+            setSpan(boldStyle, emailStart, emailEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(colorStyle, emailStart, emailEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
+        responseMessageLabel.visibility = View.VISIBLE
+
+        showingEmail = true
     }
 
     private fun showErrorScreen() {
