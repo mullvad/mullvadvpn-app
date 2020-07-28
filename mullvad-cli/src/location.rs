@@ -57,19 +57,20 @@ pub fn get_constraint(matches: &clap::ArgMatches<'_>) -> RelayLocation {
     }
 }
 
-pub fn format_location(location: &RelayLocation) -> String {
-    if !location.hostname.is_empty() {
-        format!(
-            "city {}, {}, hostname {}",
-            location.city, location.country, location.hostname
-        )
-    } else if !location.city.is_empty() {
-        format!("city {}, {}", location.city, location.country)
-    } else if !location.country.is_empty() {
-        format!("country {}", location.country)
-    } else {
-        "any".to_string()
+pub fn format_location(location: Option<&RelayLocation>) -> String {
+    if let Some(location) = location {
+        if !location.hostname.is_empty() {
+            return format!(
+                "city {}, {}, hostname {}",
+                location.city, location.country, location.hostname
+            );
+        } else if !location.city.is_empty() {
+            return format!("city {}, {}", location.city, location.country);
+        } else if !location.country.is_empty() {
+            return format!("country {}", location.country);
+        }
     }
+    "any location".to_string()
 }
 
 fn country_code_validator(code: String) -> std::result::Result<(), String> {
