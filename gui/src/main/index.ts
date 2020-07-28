@@ -138,7 +138,6 @@ class ApplicationMain {
       },
       wireguard: {
         mtu: undefined,
-        fwmark: undefined,
       },
     },
   };
