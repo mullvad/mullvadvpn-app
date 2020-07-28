@@ -94,11 +94,11 @@
     the form.</string>
     <string name="edit_message">Edit message</string>
     <string name="try_again">Try again</string>
-    <string name="unsecured_connection">Unsecured connection</string>
-    <string name="creating_secure_connection">Creating secure connection</string>
-    <string name="secure_connection">Secure connection</string>
-    <string name="blocked_connection">Blocked connection</string>
-    <string name="error_state">Failed to secure connection</string>
+    <string name="unsecured_connection">UNSECURED CONNECTION</string>
+    <string name="creating_secure_connection">CREATING SECURE CONNECTION</string>
+    <string name="secure_connection">SECURE CONNECTION</string>
+    <string name="blocked_connection">BLOCKED CONNECTION</string>
+    <string name="error_state">FAILED TO SECURE CONNECTION</string>
     <string name="connect">Secure my connection</string>
     <string name="cancel">Cancel</string>
     <string name="disconnect">Disconnect</string>
@@ -110,7 +110,7 @@
     <string name="in_address">In %1$s:%2$d %3$s</string>
     <string name="out_address">Out %1$s</string>
     <string name="blocking_internet">Blocking internet</string>
-    <string name="not_blocking_internet">You might be leaking network traffic</string>
+    <string name="not_blocking_internet">YOU MIGHT BE LEAKING NETWORK TRAFFIC</string>
     <string name="failed_to_block_internet">Failed to block all network traffic. Please
     troubleshoot or report the problem to us.</string>
     <string name="auth_failed">Account authentication failed.</string>
@@ -133,10 +133,10 @@
     <string name="wireguard_error">WireGuard error</string>
     <string name="too_many_keys">Too many WireGuard keys registered to account</string>
     <string name="failed_to_generate_key">Failed to generate a key</string>
-    <string name="update_available">Update available</string>
+    <string name="update_available">UPDATE AVAILABLE</string>
     <string name="update_available_description">Install Mullvad VPN (%1$s) to stay up to
     date</string>
-    <string name="unsupported_version">Unsupported version</string>
+    <string name="unsupported_version">UNSUPPORTED VERSION</string>
     <string name="unsupported_version_description">You are running an unsupported app version.
     Please upgrade to %1$s now to ensure your security</string>
     <string name="unsupported_version_without_upgrade">You are running an unsupported app
