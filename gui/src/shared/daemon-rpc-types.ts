@@ -261,8 +261,6 @@ export interface ITunnelOptions {
   };
   wireguard: {
     mtu?: number;
-    // Only relevant on Linux
-    fwmark?: number;
   };
   generic: {
     enableIpv6: boolean;
