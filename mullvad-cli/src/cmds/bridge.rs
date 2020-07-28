@@ -178,7 +178,10 @@ impl Bridge {
                 Self::print_shadowsocks_proxy(&shadowsocks_proxy)
             }
             BridgeSettingsType::Normal(constraints) => {
-                println!("Bridge constraints: {:?}", constraints);
+                println!(
+                    "Bridge constraints - {}",
+                    location::format_location(constraints.location.as_ref())
+                );
             }
         };
         Ok(())
