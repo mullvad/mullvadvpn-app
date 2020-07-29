@@ -1,11 +1,12 @@
-use crate::{new_grpc_client, proto, Command, Error, Result};
+use crate::{format::print_keygen_event, new_grpc_client, proto, Command, Error, Result};
 use mullvad_types::auth_failed::AuthFailed;
 use proto::{
     daemon_event::Event as EventType,
     error_state::{Cause as ErrorStateCause, GenerationError},
     management_service_client::ManagementServiceClient,
-    ErrorState, TunnelState,
+    ErrorState, ProxyType, TransportProtocol, TunnelEndpoint, TunnelState, TunnelType,
 };
+use std::fmt::Write;
 
 pub struct Status;
 
@@ -58,7 +59,6 @@ impl Command for Status {
                 .into_inner();
 
             while let Some(event) = events.message().await? {
-                // TODO: fix formatting
                 match event.event.unwrap() {
                     EventType::TunnelState(new_state) => {
                         print_state(&new_state);
@@ -89,7 +89,8 @@ impl Command for Status {
                     }
                     EventType::KeyEvent(key_event) => {
                         if verbose {
-                            println!("{:#?}", key_event);
+                            print!("Key event: ");
+                            print_keygen_event(&key_event);
                         }
                     }
                 }
@@ -101,38 +102,19 @@ impl Command for Status {
 }
 
 fn print_state(state: &TunnelState) {
-    // TODO: fix formatting
     use proto::{tunnel_state, tunnel_state::State::*};
 
     print!("Tunnel status: ");
     match state.state.as_ref().unwrap() {
         Error(error) => print_error_state(error.error_state.as_ref().unwrap()),
         Connected(tunnel_state::Connected { relay_info }) => {
-            // TODO: compare output
-
             let endpoint = relay_info
                 .as_ref()
                 .unwrap()
                 .tunnel_endpoint
                 .as_ref()
                 .unwrap();
-            println!(
-                "Connected to {} {} over {}",
-                // TODO: as string
-                endpoint.tunnel_type,
-                endpoint.address,
-                // TODO: as string
-                endpoint.protocol,
-            );
-
-            // TODO: optional proxy endpoint
-            // if let Some(ref proxy) = self.proxy {
-            // write!(
-            // f,
-            // " via {} {} over {}",
-            // proxy.proxy_type, proxy.endpoint.address, proxy.endpoint.protocol
-            // )?;
-            // }
+            println!("Connected to {}", format_endpoint(&endpoint));
         }
         Connecting(tunnel_state::Connecting { relay_info }) => {
             let endpoint = relay_info
@@ -141,11 +123,44 @@ fn print_state(state: &TunnelState) {
                 .tunnel_endpoint
                 .as_ref()
                 .unwrap();
-            println!("Connecting to {:?}...", endpoint);
+            println!("Connecting to {}...", format_endpoint(&endpoint));
         }
         Disconnected(_) => println!("Disconnected"),
         Disconnecting(_) => println!("Disconnecting..."),
     }
+}
+
+fn format_endpoint(endpoint: &TunnelEndpoint) -> String {
+    let mut out = format!(
+        "{} {} over {}",
+        match TunnelType::from_i32(endpoint.tunnel_type).expect("unknown tunnel protocol") {
+            TunnelType::Wireguard => "WireGuard",
+            TunnelType::Openvpn => "OpenVPN",
+            TunnelType::AnyTunnel => panic!("unexpected tunnel protocol"),
+        },
+        endpoint.address,
+        format_protocol(
+            TransportProtocol::from_i32(endpoint.protocol).expect("unknown transport protocol")
+        ),
+    );
+
+    if let Some(ref proxy) = endpoint.proxy {
+        write!(
+            &mut out,
+            " via {} {} over {}",
+            match ProxyType::from_i32(proxy.proxy_type).expect("unknown proxy type") {
+                ProxyType::Shadowsocks => "Shadowsocks",
+                ProxyType::Custom => "custom bridge",
+            },
+            proxy.address,
+            format_protocol(
+                TransportProtocol::from_i32(proxy.protocol).expect("unknown transport protocol")
+            ),
+        )
+        .unwrap();
+    }
+
+    out
 }
 
 fn print_error_state(error_state: &ErrorState) {
@@ -254,4 +269,12 @@ async fn print_location(
         location.latitude, location.longitude
     );
     Ok(())
+}
+
+fn format_protocol(protocol: TransportProtocol) -> &'static str {
+    match protocol {
+        TransportProtocol::Udp => "UDP",
+        TransportProtocol::Tcp => "TCP",
+        TransportProtocol::AnyProtocol => panic!("unexpected transport protocol"),
+    }
 }
