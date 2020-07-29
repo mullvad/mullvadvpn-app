@@ -1,0 +1,26 @@
+{
+  "images" : [
+    {
+      "filename" : "TranslucentDangerSplitRightButton.pdf",
+      "idiom" : "universal",
+      "resizing" : {
+        "cap-insets" : {
+          "bottom" : 3,
+          "left" : 21,
+          "right" : 22,
+          "top" : 3
+        },
+        "center" : {
+          "height" : 1,
+          "mode" : "tile",
+          "width" : 1
+        },
+        "mode" : "9-part"
+      }
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
