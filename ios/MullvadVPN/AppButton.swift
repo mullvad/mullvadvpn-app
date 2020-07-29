@@ -98,12 +98,16 @@ private extension UIControl.State {
 /// A subclass that implements action buttons used across the app
 @IBDesignable class AppButton: CustomButton {
 
-    enum Style {
+    static let defaultContentInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+
+    enum Style: Int {
         case `default`
         case danger
         case success
         case translucentDanger
         case translucentNeutral
+        case translucentDangerSplitLeft
+        case translucentDangerSplitRight
 
         var backgroundImage: UIImage? {
             switch self {
@@ -117,6 +121,10 @@ private extension UIControl.State {
                 return UIImage(named: "TranslucentDangerButton")
             case .translucentNeutral:
                 return UIImage(named: "TranslucentNeutralButton")
+            case .translucentDangerSplitLeft:
+                return UIImage(named: "TranslucentDangerSplitLeftButton")
+            case .translucentDangerSplitRight:
+                return UIImage(named: "TranslucentDangerSplitRightButton")
             }
         }
     }
@@ -124,6 +132,17 @@ private extension UIControl.State {
     var style: Style = .default {
         didSet {
             updateButtonBackground()
+        }
+    }
+
+    @IBInspectable var interfaceBuilderStyle: Int {
+        get {
+            return self.style.rawValue
+        }
+        set {
+            if let style = Style(rawValue: newValue) {
+                self.style = style
+            }
         }
     }
 
@@ -141,19 +160,19 @@ private extension UIControl.State {
         var contentInsets = contentEdgeInsets
 
         if contentInsets.top == 0 {
-            contentInsets.top = 10
+            contentInsets.top = Self.defaultContentInsets.top
         }
 
         if contentInsets.bottom == 0 {
-            contentInsets.bottom = 10
+            contentInsets.bottom = Self.defaultContentInsets.bottom
         }
 
         if contentInsets.right == 0 {
-            contentInsets.right = 10
+            contentInsets.right = Self.defaultContentInsets.right
         }
 
         if contentInsets.left == 0 {
-            contentInsets.left = 10
+            contentInsets.left = Self.defaultContentInsets.left
         }
 
         contentEdgeInsets = contentInsets
