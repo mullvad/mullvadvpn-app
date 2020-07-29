@@ -77,7 +77,9 @@ ADDITIONAL_ASSETS = [
   "SuccessButton.svg",
   "DangerButton.svg",
   "TranslucentDangerButton.svg",
-  "TranslucentNeutralButton.svg"
+  "TranslucentNeutralButton.svg",
+  "TranslucentDangerSplitLeftButton.svg",
+  "TranslucentDangerSplitRightButton.svg"
 ]
 
 # Functions
