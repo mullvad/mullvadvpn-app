@@ -7,11 +7,13 @@ use talpid_types::net::wireguard;
 
 use std::{
     collections::BTreeMap,
+    future::Future,
     net::{Ipv4Addr, Ipv6Addr},
     time::Duration,
 };
 
 /// Fetches relay list from https://api.mullvad.net/v1/relays
+#[derive(Clone)]
 pub struct RelayListProxy {
     handle: rest::MullvadRestHandle,
 }
@@ -25,9 +27,7 @@ impl RelayListProxy {
     }
 
     /// Fetch the relay list
-    pub fn relay_list(
-        &self,
-    ) -> impl futures01::future::Future<Item = relay_list::RelayList, Error = rest::Error> {
+    pub fn relay_list(&self) -> impl Future<Output = Result<relay_list::RelayList, rest::Error>> {
         let service = self.handle.service.clone();
         let request = self.handle.factory.request("/v1/relays", Method::GET);
 
@@ -43,7 +43,7 @@ impl RelayListProxy {
                 .await?
                 .into_relay_list())
         };
-        self.handle.service.compat_spawn(future)
+        future
     }
 }
 

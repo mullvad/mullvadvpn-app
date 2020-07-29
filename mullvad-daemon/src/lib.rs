@@ -508,7 +508,7 @@ where
         let on_relay_list_update = move |relay_list: &RelayList| {
             relay_list_listener.notify_relay_list(relay_list.clone());
         };
-        let relay_selector = relays::RelaySelector::new(
+        let mut relay_selector = relays::RelaySelector::new(
             rpc_handle.clone(),
             on_relay_list_update,
             &resource_dir,
@@ -578,7 +578,7 @@ where
             wireguard::KeyManager::new(internal_event_tx.clone(), rpc_handle.clone());
 
         // Attempt to download a fresh relay list
-        relay_selector.update();
+        rpc_runtime.runtime().block_on(relay_selector.update());
 
         let initial_target_state = if settings.get_account_token().is_some() {
             if settings.auto_connect {
@@ -972,6 +972,13 @@ where
         self.rpc_runtime.runtime().spawn(fut);
     }
 
+    fn block_on_future<F>(&mut self, fut: F) -> F::Output
+    where
+        F: std::future::Future,
+    {
+        self.rpc_runtime.runtime().block_on(fut)
+    }
+
 
     fn handle_command(&mut self, command: DaemonCommand) {
         use self::DaemonCommand::*;
@@ -1272,7 +1279,8 @@ where
     }
 
     fn on_update_relay_locations(&mut self) {
-        self.relay_selector.update();
+        let update_future = self.relay_selector.update();
+        self.block_on_future(update_future);
     }
 
     fn on_set_account(&mut self, tx: oneshot::Sender<()>, account_token: Option<String>) {
