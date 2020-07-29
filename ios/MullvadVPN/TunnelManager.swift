@@ -435,6 +435,28 @@ class TunnelManager {
         exclusityController.addOperation(operation, categories: [.tunnelControl])
     }
 
+    func reconnectTunnel(completionHandler: @escaping () -> Void) {
+        let operation = AsyncBlockOperation { (finish) in
+            guard let tunnelIpc = self.tunnelIpc else {
+                finish()
+                return
+            }
+
+            tunnelIpc.reloadTunnelSettings { (result) in
+                if case .failure(let error) = result {
+                    error.logChain(message: "Failed to reconnect the tunnel")
+                }
+                finish()
+            }
+        }
+
+        operation.addDidFinishBlockObserver { (operation) in
+            completionHandler()
+        }
+
+        exclusityController.addOperation(operation, categories: [.tunnelControl])
+    }
+
     func setAccount(accountToken: String, completionHandler: @escaping (Result<(), TunnelManager.Error>) -> Void) {
         let operation = ResultOperation<(), TunnelManager.Error> { (finish) in
             let result = Self.makeTunnelSettings(accountToken: accountToken)
