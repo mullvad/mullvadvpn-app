@@ -1102,7 +1102,7 @@ fn convert_bridge_settings(settings: &BridgeSettings) -> proto::BridgeSettings {
         BridgeSettings::Custom(proxy_settings) => match proxy_settings {
             net::openvpn::ProxySettings::Local(proxy_settings) => {
                 BridgeSettingType::Local(bridge_settings::LocalProxySettings {
-                    port: proxy_settings.port as u32,
+                    port: u32::from(proxy_settings.port),
                     peer: proxy_settings.peer.to_string(),
                 })
             }
@@ -1201,10 +1201,10 @@ fn convert_bridge_state(state: &BridgeState) -> proto::BridgeState {
 fn convert_tunnel_options(options: &TunnelOptions) -> proto::TunnelOptions {
     proto::TunnelOptions {
         openvpn: Some(proto::tunnel_options::OpenvpnOptions {
-            mssfix: options.openvpn.mssfix.unwrap_or_default() as u32,
+            mssfix: u32::from(options.openvpn.mssfix.unwrap_or_default()),
         }),
         wireguard: Some(proto::tunnel_options::WireguardOptions {
-            mtu: options.wireguard.mtu.unwrap_or_default() as u32,
+            mtu: u32::from(options.wireguard.mtu.unwrap_or_default()),
             automatic_rotation: options
                 .wireguard
                 .automatic_rotation
@@ -1264,7 +1264,7 @@ fn convert_relay(relay: &Relay) -> proto::Relay {
                         TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
                     };
                     proto::OpenVpnEndpointData {
-                        port: endpoint.port as u32,
+                        port: u32::from(endpoint.port),
                         protocol: protocol as i32,
                     }
                 })
@@ -1278,8 +1278,8 @@ fn convert_relay(relay: &Relay) -> proto::Relay {
                         .port_ranges
                         .iter()
                         .map(|range| proto::PortRange {
-                            first: range.0 as u32,
-                            last: range.1 as u32,
+                            first: u32::from(range.0),
+                            last: u32::from(range.1),
                         })
                         .collect();
                     proto::WireguardEndpointData {
@@ -1302,7 +1302,7 @@ fn convert_relay(relay: &Relay) -> proto::Relay {
                         TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
                     };
                     proto::ShadowsocksEndpointData {
-                        port: endpoint.port as u32,
+                        port: u32::from(endpoint.port),
                         cipher: endpoint.cipher.clone(),
                         password: endpoint.password.clone(),
                         protocol: protocol as i32,
