@@ -5,10 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
+import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import org.joda.time.DateTime
@@ -20,13 +22,11 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     private lateinit var disconnectButton: Button
     private lateinit var redeemButton: Button
 
-    private var tunnelState: TunnelState = TunnelState.Disconnected()
-        set(value) {
-            field = value
-            updateDisconnectButton()
-            updateBuyButtons()
-            headerBar.setState(value)
-        }
+    private var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, state ->
+        updateDisconnectButton()
+        updateBuyButtons()
+        headerBar.tunnelState = state
+    }
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -35,11 +35,9 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     ): View {
         val view = inflater.inflate(R.layout.out_of_time, container, false)
 
-        view.findViewById<View>(R.id.settings).setOnClickListener {
-            parentActivity.openSettings()
+        headerBar = view.findViewById<HeaderBar>(R.id.header_bar).apply {
+            tunnelState = this@OutOfTimeFragment.tunnelState
         }
-
-        headerBar = HeaderBar(view, parentActivity)
 
         view.findViewById<TextView>(R.id.no_more_vpn_time_left).text =
             parentActivity.getString(R.string.no_more_vpn_time_left) + " " +

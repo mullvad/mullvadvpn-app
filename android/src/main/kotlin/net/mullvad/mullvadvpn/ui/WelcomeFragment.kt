@@ -11,7 +11,9 @@ import android.widget.TextView
 import android.widget.Toast
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
+import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import org.joda.time.DateTime
 
@@ -27,8 +29,8 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     ): View {
         val view = inflater.inflate(R.layout.welcome, container, false)
 
-        view.findViewById<View>(R.id.settings).setOnClickListener {
-            parentActivity.openSettings()
+        view.findViewById<HeaderBar>(R.id.header_bar).apply {
+            tunnelState = TunnelState.Disconnected()
         }
 
         accountLabel = view.findViewById<TextView>(R.id.account_number).apply {
