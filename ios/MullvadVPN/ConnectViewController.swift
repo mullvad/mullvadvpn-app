@@ -250,6 +250,10 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
         }
     }
 
+    private func reconnectTunnel() {
+        TunnelManager.shared.reconnectTunnel(completionHandler: nil)
+    }
+
     private func showAccountViewForExpiredAccount() {
         guard !showedAccountView else { return }
 
@@ -290,9 +294,7 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
     }
 
     @objc func handleReconnect(_ sender: Any) {
-        TunnelManager.shared.reconnectTunnel {
-            // TODO:
-        }
+        reconnectTunnel()
     }
 
     @objc func handleSelectLocation(_ sender: Any) {

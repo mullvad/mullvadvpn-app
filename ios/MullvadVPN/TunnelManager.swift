@@ -435,7 +435,7 @@ class TunnelManager {
         exclusityController.addOperation(operation, categories: [.tunnelControl])
     }
 
-    func reconnectTunnel(completionHandler: @escaping () -> Void) {
+    func reconnectTunnel(completionHandler: (() -> Void)?) {
         let operation = AsyncBlockOperation { (finish) in
             guard let tunnelIpc = self.tunnelIpc else {
                 finish()
@@ -451,7 +451,7 @@ class TunnelManager {
         }
 
         operation.addDidFinishBlockObserver { (operation) in
-            completionHandler()
+            completionHandler?()
         }
 
         exclusityController.addOperation(operation, categories: [.tunnelControl])
