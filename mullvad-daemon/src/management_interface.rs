@@ -1010,26 +1010,29 @@ fn convert_relay_settings(settings: &RelaySettings) -> proto::RelaySettings {
             relay_settings::Endpoint::Normal(proto::NormalRelaySettings {
                 location: convert_location_constraint(&constraints.location),
                 tunnel_type: match constraints.tunnel_protocol {
-                    Constraint::Any => proto::TunnelType::AnyTunnel as i32,
-                    Constraint::Only(TunnelType::Wireguard) => proto::TunnelType::Wireguard as i32,
-                    Constraint::Only(TunnelType::OpenVpn) => proto::TunnelType::Openvpn as i32,
+                    Constraint::Any => i32::from(proto::TunnelType::AnyTunnel),
+                    Constraint::Only(TunnelType::Wireguard) => {
+                        i32::from(proto::TunnelType::Wireguard)
+                    }
+                    Constraint::Only(TunnelType::OpenVpn) => i32::from(proto::TunnelType::Openvpn),
                 },
 
                 wireguard_constraints: Some(proto::WireguardConstraints {
-                    port: constraints.wireguard_constraints.port.unwrap_or(0) as u32,
+                    port: u32::from(constraints.wireguard_constraints.port.unwrap_or(0)),
                 }),
 
                 openvpn_constraints: Some(proto::OpenvpnConstraints {
-                    port: constraints.openvpn_constraints.port.unwrap_or(0) as u32,
-                    protocol: constraints
-                        .openvpn_constraints
-                        .protocol
-                        .map(|protocol| match protocol {
-                            TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
-                            TransportProtocol::Udp => proto::TransportProtocol::Udp,
-                        })
-                        .unwrap_or(proto::TransportProtocol::AnyProtocol)
-                        as i32,
+                    port: u32::from(constraints.openvpn_constraints.port.unwrap_or(0)),
+                    protocol: i32::from(
+                        constraints
+                            .openvpn_constraints
+                            .protocol
+                            .map(|protocol| match protocol {
+                                TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
+                                TransportProtocol::Udp => proto::TransportProtocol::Udp,
+                            })
+                            .unwrap_or(proto::TransportProtocol::AnyProtocol),
+                    ),
                 }),
             })
         }
@@ -1049,8 +1052,8 @@ fn convert_connection_config(config: &ConnectionConfig) -> proto::ConnectionConf
                 connection_config::Config::Openvpn(connection_config::OpenvpnConfig {
                     address: config.endpoint.address.to_string(),
                     protocol: match config.endpoint.protocol {
-                        TransportProtocol::Tcp => proto::TransportProtocol::Tcp as i32,
-                        TransportProtocol::Udp => proto::TransportProtocol::Udp as i32,
+                        TransportProtocol::Tcp => i32::from(proto::TransportProtocol::Tcp),
+                        TransportProtocol::Udp => i32::from(proto::TransportProtocol::Udp),
                     },
                     username: config.username.clone(),
                     password: config.password.clone(),
@@ -1102,7 +1105,7 @@ fn convert_bridge_settings(settings: &BridgeSettings) -> proto::BridgeSettings {
         BridgeSettings::Custom(proxy_settings) => match proxy_settings {
             net::openvpn::ProxySettings::Local(proxy_settings) => {
                 BridgeSettingType::Local(bridge_settings::LocalProxySettings {
-                    port: proxy_settings.port as u32,
+                    port: u32::from(proxy_settings.port),
                     peer: proxy_settings.peer.to_string(),
                 })
             }
@@ -1140,9 +1143,9 @@ fn convert_wireguard_key_event(
 
     proto::KeygenEvent {
         event: match event {
-            NewKey(_) => ProtoEvent::NewKey as i32,
-            TooManyKeys => ProtoEvent::TooManyKeys as i32,
-            GenerationFailure => ProtoEvent::GenerationFailure as i32,
+            NewKey(_) => i32::from(ProtoEvent::NewKey),
+            TooManyKeys => i32::from(ProtoEvent::TooManyKeys),
+            GenerationFailure => i32::from(ProtoEvent::GenerationFailure),
         },
         new_key: if let NewKey(key) = event {
             Some(convert_public_key(&key))
@@ -1194,17 +1197,17 @@ fn convert_bridge_state(state: &BridgeState) -> proto::BridgeState {
         BridgeState::Off => proto::bridge_state::State::Off,
     };
     proto::BridgeState {
-        state: state as i32,
+        state: i32::from(state),
     }
 }
 
 fn convert_tunnel_options(options: &TunnelOptions) -> proto::TunnelOptions {
     proto::TunnelOptions {
         openvpn: Some(proto::tunnel_options::OpenvpnOptions {
-            mssfix: options.openvpn.mssfix.unwrap_or_default() as u32,
+            mssfix: u32::from(options.openvpn.mssfix.unwrap_or_default()),
         }),
         wireguard: Some(proto::tunnel_options::WireguardOptions {
-            mtu: options.wireguard.mtu.unwrap_or_default() as u32,
+            mtu: u32::from(options.wireguard.mtu.unwrap_or_default()),
             automatic_rotation: options
                 .wireguard
                 .automatic_rotation
@@ -1264,8 +1267,8 @@ fn convert_relay(relay: &Relay) -> proto::Relay {
                         TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
                     };
                     proto::OpenVpnEndpointData {
-                        port: endpoint.port as u32,
-                        protocol: protocol as i32,
+                        port: u32::from(endpoint.port),
+                        protocol: i32::from(protocol),
                     }
                 })
                 .collect(),
@@ -1278,8 +1281,8 @@ fn convert_relay(relay: &Relay) -> proto::Relay {
                         .port_ranges
                         .iter()
                         .map(|range| proto::PortRange {
-                            first: range.0 as u32,
-                            last: range.1 as u32,
+                            first: u32::from(range.0),
+                            last: u32::from(range.1),
                         })
                         .collect();
                     proto::WireguardEndpointData {
@@ -1302,10 +1305,10 @@ fn convert_relay(relay: &Relay) -> proto::Relay {
                         TransportProtocol::Tcp => proto::TransportProtocol::Tcp,
                     };
                     proto::ShadowsocksEndpointData {
-                        port: endpoint.port as u32,
+                        port: u32::from(endpoint.port),
                         cipher: endpoint.cipher.clone(),
                         password: endpoint.password.clone(),
-                        protocol: protocol as i32,
+                        protocol: i32::from(protocol),
                     }
                 })
                 .collect(),
@@ -1345,29 +1348,33 @@ fn convert_state(state: TunnelState) -> proto::TunnelState {
         }),
         Disconnecting(after_disconnect) => ProtoState::Disconnecting(tunnel_state::Disconnecting {
             after_disconnect: match after_disconnect {
-                ActionAfterDisconnect::Nothing => proto::AfterDisconnect::Nothing as i32,
-                ActionAfterDisconnect::Block => proto::AfterDisconnect::Block as i32,
-                ActionAfterDisconnect::Reconnect => proto::AfterDisconnect::Reconnect as i32,
+                ActionAfterDisconnect::Nothing => i32::from(proto::AfterDisconnect::Nothing),
+                ActionAfterDisconnect::Block => i32::from(proto::AfterDisconnect::Block),
+                ActionAfterDisconnect::Reconnect => i32::from(proto::AfterDisconnect::Reconnect),
             },
         }),
         Error(error_state) => ProtoState::Error(tunnel_state::Error {
             error_state: Some(proto::ErrorState {
                 cause: match error_state.cause() {
-                    ErrorStateCause::AuthFailed(_) => ProtoErrorCause::AuthFailed as i32,
-                    ErrorStateCause::Ipv6Unavailable => ProtoErrorCause::Ipv6Unavailable as i32,
+                    ErrorStateCause::AuthFailed(_) => i32::from(ProtoErrorCause::AuthFailed),
+                    ErrorStateCause::Ipv6Unavailable => i32::from(ProtoErrorCause::Ipv6Unavailable),
                     ErrorStateCause::SetFirewallPolicyError => {
-                        ProtoErrorCause::SetFirewallPolicyError as i32
+                        i32::from(ProtoErrorCause::SetFirewallPolicyError)
                     }
-                    ErrorStateCause::SetDnsError => ProtoErrorCause::SetDnsError as i32,
-                    ErrorStateCause::StartTunnelError => ProtoErrorCause::StartTunnelError as i32,
+                    ErrorStateCause::SetDnsError => i32::from(ProtoErrorCause::SetDnsError),
+                    ErrorStateCause::StartTunnelError => {
+                        i32::from(ProtoErrorCause::StartTunnelError)
+                    }
                     ErrorStateCause::TunnelParameterError(_) => {
-                        ProtoErrorCause::TunnelParameterError as i32
+                        i32::from(ProtoErrorCause::TunnelParameterError)
                     }
-                    ErrorStateCause::IsOffline => ProtoErrorCause::IsOffline as i32,
-                    ErrorStateCause::TapAdapterProblem => ProtoErrorCause::TapAdapterProblem as i32,
+                    ErrorStateCause::IsOffline => i32::from(ProtoErrorCause::IsOffline),
+                    ErrorStateCause::TapAdapterProblem => {
+                        i32::from(ProtoErrorCause::TapAdapterProblem)
+                    }
                     #[cfg(target_os = "android")]
                     ErrorStateCause::VpnPermissionDenied => {
-                        ProtoErrorCause::VpnPermissionDenied as i32
+                        i32::from(ProtoErrorCause::VpnPermissionDenied)
                     }
                 },
                 is_blocking: error_state.is_blocking(),
@@ -1381,16 +1388,16 @@ fn convert_state(state: TunnelState) -> proto::TunnelState {
                 {
                     match reason {
                         ParameterGenerationError::NoMatchingRelay => {
-                            ProtoGenerationError::NoMatchingRelay as i32
+                            i32::from(ProtoGenerationError::NoMatchingRelay)
                         }
                         ParameterGenerationError::NoMatchingBridgeRelay => {
-                            ProtoGenerationError::NoMatchingBridgeRelay as i32
+                            i32::from(ProtoGenerationError::NoMatchingBridgeRelay)
                         }
                         ParameterGenerationError::NoWireguardKey => {
-                            ProtoGenerationError::NoWireguardKey as i32
+                            i32::from(ProtoGenerationError::NoWireguardKey)
                         }
                         ParameterGenerationError::CustomTunnelHostResultionError => {
-                            ProtoGenerationError::CustomTunnelHostResolutionError as i32
+                            i32::from(ProtoGenerationError::CustomTunnelHostResolutionError)
                         }
                     }
                 } else {
@@ -1409,22 +1416,22 @@ fn convert_endpoint(endpoint: talpid_types::net::TunnelEndpoint) -> proto::Tunne
     proto::TunnelEndpoint {
         address: endpoint.endpoint.address.to_string(),
         protocol: match endpoint.endpoint.protocol {
-            TransportProtocol::Tcp => proto::TransportProtocol::Tcp as i32,
-            TransportProtocol::Udp => proto::TransportProtocol::Udp as i32,
+            TransportProtocol::Tcp => i32::from(proto::TransportProtocol::Tcp),
+            TransportProtocol::Udp => i32::from(proto::TransportProtocol::Udp),
         },
         tunnel_type: match endpoint.tunnel_type {
-            net::TunnelType::Wireguard => proto::TunnelType::Wireguard as i32,
-            net::TunnelType::OpenVpn => proto::TunnelType::Openvpn as i32,
+            net::TunnelType::Wireguard => i32::from(proto::TunnelType::Wireguard),
+            net::TunnelType::OpenVpn => i32::from(proto::TunnelType::Openvpn),
         },
         proxy: endpoint.proxy.map(|proxy_ep| proto::ProxyEndpoint {
             address: proxy_ep.endpoint.address.to_string(),
             protocol: match proxy_ep.endpoint.protocol {
-                TransportProtocol::Tcp => proto::TransportProtocol::Tcp as i32,
-                TransportProtocol::Udp => proto::TransportProtocol::Udp as i32,
+                TransportProtocol::Tcp => i32::from(proto::TransportProtocol::Tcp),
+                TransportProtocol::Udp => i32::from(proto::TransportProtocol::Udp),
             },
             proxy_type: match proxy_ep.proxy_type {
-                net::proxy::ProxyType::Shadowsocks => proto::ProxyType::Shadowsocks as i32,
-                net::proxy::ProxyType::Custom => proto::ProxyType::Custom as i32,
+                net::proxy::ProxyType::Shadowsocks => i32::from(proto::ProxyType::Shadowsocks),
+                net::proxy::ProxyType::Custom => i32::from(proto::ProxyType::Custom),
             },
         }),
     }
