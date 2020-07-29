@@ -9,10 +9,14 @@
 import Foundation
 import UIKit
 
+private let kSplitSeparatorWidth = CGFloat(1)
+
 class DisconnectSplitButton: UIView {
     @IBOutlet var contentView: UIView!
     @IBOutlet var primaryButton: AppButton!
     @IBOutlet var secondaryButton: AppButton!
+
+    private var secondaryButtonObserver: NSObjectProtocol?
 
     init(bundle: Bundle?) {
         super.init(frame: .zero)
@@ -28,6 +32,8 @@ class DisconnectSplitButton: UIView {
         let nib = UINib(nibName: "DisconnectSplitButton", bundle: bundle)
         _ = nib.instantiate(withOwner: self, options: nil)
 
+        primaryButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+
         contentView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(contentView)
 
@@ -37,17 +43,17 @@ class DisconnectSplitButton: UIView {
             contentView.topAnchor.constraint(equalTo: topAnchor),
             contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
         ])
-    }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        adjustTitleLabelPosition()
+        secondaryButtonObserver = secondaryButton.observe(\.bounds, options: [.new]) { [weak self] (button, change) in
+            self?.adjustTitleLabelPosition()
+        }
     }
 
     private func adjustTitleLabelPosition() {
-        let offset = secondaryButton.frame.width + AppButton.defaultContentInsets.left
+        var contentInsets = AppButton.defaultContentInsets
+        contentInsets.left = secondaryButton.frame.width + kSplitSeparatorWidth
+        contentInsets.right = 0
 
-        primaryButton.contentEdgeInsets.left = offset
+        primaryButton.contentEdgeInsets = contentInsets
     }
 }
