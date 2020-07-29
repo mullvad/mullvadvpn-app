@@ -116,6 +116,9 @@ def genereate_app_icon()
 end
 
 def generate_additional_assets()
+  # Fix PDF "CreationDate" for reproducible output
+  environment_variables = { "SOURCE_DATE_EPOCH" => "1596022781" }
+
   for asset_name in ADDITIONAL_ASSETS do
     svg_file = File.join(ADDITIONAL_ASSETS_DIR, asset_name)
     image_name = File.basename(svg_file, ".svg")
@@ -128,7 +131,7 @@ def generate_additional_assets()
     end
 
     puts "Generate #{image_name} -> #{output_file}"
-    system("rsvg-convert", "-f", "pdf", "-o", output_file, svg_file)
+    system(environment_variables, "rsvg-convert", "-f", "pdf", "-o", output_file, svg_file)
   end
 end
 
