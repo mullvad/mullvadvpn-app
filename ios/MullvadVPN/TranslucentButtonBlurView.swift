@@ -27,6 +27,34 @@ private let kButtonCornerRadius = CGFloat(4)
     private func setup() {
         layer.cornerRadius = kButtonCornerRadius
         layer.masksToBounds = true
+
+        updateCornerMask()
+    }
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+
+        updateCornerMask()
+    }
+
+    private func updateCornerMask() {
+        for case let button as AppButton in contentView.subviews {
+            layer.maskedCorners = Self.cornerMask(buttonStyle: button.style)
+        }
+    }
+
+    private class func cornerMask(buttonStyle: AppButton.Style) -> CACornerMask {
+        switch buttonStyle {
+        case .translucentDangerSplitLeft:
+            return [.layerMinXMinYCorner, .layerMinXMaxYCorner]
+        case .translucentDangerSplitRight:
+            return [.layerMaxXMinYCorner, .layerMaxXMaxYCorner]
+        default:
+            return [
+                .layerMinXMinYCorner, .layerMinXMaxYCorner,
+                .layerMaxXMinYCorner, .layerMaxXMaxYCorner
+            ]
+        }
     }
 
 }
