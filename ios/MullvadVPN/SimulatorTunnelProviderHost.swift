@@ -11,10 +11,12 @@
 import Foundation
 import Network
 import NetworkExtension
+import Logging
 
 class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
     private var connectionInfo: TunnelConnectionInfo?
+    private let logger = Logger(label: "SimulatorTunnelProviderHost")
 
     func startTunnel(options: [String: Any]?, completionHandler: @escaping (Error?) -> Void) {
         DispatchQueue.main.async {
@@ -51,10 +53,10 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
             case .success(let request):
                 switch request {
                 case .reloadTunnelSettings:
-                    Self.replyAppMessage(true, completionHandler: completionHandler)
+                    self.replyAppMessage(true, completionHandler: completionHandler)
 
                 case .tunnelInformation:
-                    Self.replyAppMessage(self.connectionInfo, completionHandler: completionHandler)
+                    self.replyAppMessage(self.connectionInfo, completionHandler: completionHandler)
                 }
 
             case .failure:
@@ -63,14 +65,14 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         }
     }
 
-    private static func replyAppMessage<T: Encodable>(_ response: T, completionHandler: ((Data?) -> Void)?)
+    private func replyAppMessage<T: Encodable>(_ response: T, completionHandler: ((Data?) -> Void)?)
     {
         switch PacketTunnelIpcHandler.encodeResponse(response: response) {
         case .success(let data):
             completionHandler?(data)
 
         case .failure(let error):
-            error.logChain()
+            self.logger.error(chainedError: error)
             completionHandler?(nil)
         }
     }

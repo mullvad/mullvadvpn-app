@@ -7,7 +7,7 @@
 //
 
 import UIKit
-import os
+import Logging
 
 private let kMinimumAccountTokenLength = 10
 
@@ -35,6 +35,8 @@ class LoginViewController: UIViewController, RootContainment {
     @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
     @IBOutlet var statusImageView: UIImageView!
     @IBOutlet var createAccountButton: AppButton!
+
+    private let logger = Logger(label: "LoginViewController")
 
     private var loginState = LoginState.default {
         didSet {
@@ -159,7 +161,7 @@ class LoginViewController: UIViewController, RootContainment {
                 self.endLogin(.success(.existingAccount))
 
             case .failure(let error):
-                error.logChain(message: "Failed to log in with existing account")
+                self.logger.error(chainedError: error, message: "Failed to log in with existing account")
 
                 self.endLogin(.failure(error))
             }
@@ -179,7 +181,7 @@ class LoginViewController: UIViewController, RootContainment {
 
                 self.endLogin(.success(.newAccount))
             case .failure(let error):
-                error.logChain(message: "Failed to log in with new account")
+                self.logger.error(chainedError: error, message: "Failed to log in with new account")
 
                 self.endLogin(.failure(error))
             }

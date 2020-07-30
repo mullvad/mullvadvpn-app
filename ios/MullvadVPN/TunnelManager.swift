@@ -8,7 +8,7 @@
 
 import Foundation
 import NetworkExtension
-import os
+import Logging
 
 enum MapConnectionStatusError: ChainedError {
     /// A failure to perform the IPC request because the tunnel IPC is already deallocated
@@ -239,6 +239,7 @@ class TunnelManager {
 
     // MARK: - Internal variables
 
+    private let logger = Logger(label: "TunnelManager")
     private let dispatchQueue = DispatchQueue(label: "net.mullvad.MullvadVPN.TunnelManager")
 
     private let rest = MullvadRest(session: URLSession(configuration: .ephemeral))
@@ -266,7 +267,7 @@ class TunnelManager {
             stateLock.withCriticalBlock {
                 guard _tunnelState != newValue else { return }
 
-                os_log(.default, "Set tunnel state: %{public}s", String(reflecting: newValue))
+                logger.info("Set tunnel state: \(newValue)")
 
                 _tunnelState = newValue
 
@@ -315,7 +316,7 @@ class TunnelManager {
                     } else {
                         if let accountToken = self.accountToken {
                             // Migrate the tunnel settings if needed
-                            Self.migrateTunnelSettings(accountToken: accountToken)
+                            self.migrateTunnelSettings(accountToken: accountToken)
 
                             // Load last known public key
                             self.loadPublicKey(accountToken: accountToken)
@@ -444,7 +445,7 @@ class TunnelManager {
 
             tunnelIpc.reloadTunnelSettings { (result) in
                 if case .failure(let error) = result {
-                    error.logChain(message: "Failed to reconnect the tunnel")
+                    self.logger.error(chainedError: error, message: "Failed to reconnect the tunnel")
                 }
                 finish()
             }
@@ -525,7 +526,7 @@ class TunnelManager {
                     // Ignore Keychain errors because that normally means that the Keychain
                     // configuration was already removed and we shouldn't be blocking the
                     // user from logging out
-                    error.logChain(message: "Unset account error")
+                    self.logger.error(chainedError: error, message: "Unset account error")
                 }
 
                 guard let tunnelProvider = self.tunnelProvider else {
@@ -563,10 +564,10 @@ class TunnelManager {
                 self.removeWireguardKeyFromServer(accountToken: accountToken, publicKey: publicKey) { (result) in
                     switch result {
                     case .success(let isRemoved):
-                        os_log(.debug, "Removed the WireGuard key from server: %{public}s", "\(isRemoved)")
+                        self.logger.warning("Removed the WireGuard key from server: \(isRemoved)")
 
                     case .failure(let error):
-                        error.logChain(message: "Unset account error")
+                        self.logger.error(chainedError: error, message: "Unset account error")
                     }
 
                     removeTunnel()
@@ -576,7 +577,7 @@ class TunnelManager {
                 // Ignore Keychain errors because that normally means that the Keychain
                 // configuration was already removed and we shouldn't be blocking the
                 // user from logging out
-                error.logChain(message: "Unset account error")
+                self.logger.error(chainedError: error, message: "Unset account error")
 
                 removeTunnel()
             }
@@ -662,7 +663,7 @@ class TunnelManager {
                 tunnelIpc.reloadTunnelSettings { (ipcResult) in
                     if case .failure(let error) = ipcResult {
                         // Ignore Packet Tunnel IPC errors but log them
-                        error.logChain(message: "Failed to IPC the tunnel to reload configuration")
+                        self.logger.error(chainedError: error, message: "Failed to IPC the tunnel to reload configuration")
                     }
 
                     finish(.success(()))
@@ -701,7 +702,7 @@ class TunnelManager {
             tunnelIpc.reloadTunnelSettings { (ipcResult) in
                 // Ignore Packet Tunnel IPC errors but log them
                 if case .failure(let error) = ipcResult {
-                    error.logChain(message: "Failed to reload tunnel settings")
+                    self.logger.error(chainedError: error, message: "Failed to reload tunnel settings")
                 }
 
                 finish(.success(()))
@@ -811,7 +812,7 @@ class TunnelManager {
             self.publicKey = entry.tunnelSettings.interface.privateKey.publicKey
 
         case .failure(let error):
-            error.logChain(message: "Failed to load the public key")
+            self.logger.error(chainedError: error, message: "Failed to load the public key")
 
             self.publicKey = nil
         }
@@ -912,7 +913,7 @@ class TunnelManager {
                     self.tunnelState = tunnelState
 
                 case .failure(let error):
-                    error.logChain(message: "Failed to map the tunnel state")
+                    self.logger.error(chainedError: error, message: "Failed to map the tunnel state")
                 }
 
                 finish()
@@ -1080,20 +1081,20 @@ class TunnelManager {
         }
     }
 
-    private class func migrateTunnelSettings(accountToken: String) {
+    private func migrateTunnelSettings(accountToken: String) {
         let result = TunnelSettingsManager
             .migrateKeychainEntry(searchTerm: .accountToken(accountToken))
 
         switch result {
         case .success(let migrated):
             if migrated {
-                os_log("Migrated Keychain tunnel configuration")
+                self.logger.info("Migrated Keychain tunnel configuration")
             } else {
-                os_log("Tunnel settings are up to date. No migration needed.")
+                self.logger.info("Tunnel settings are up to date. No migration needed.")
             }
 
         case .failure(let error):
-            error.logChain(message: "Failed to migrate tunnel settings")
+            self.logger.error(chainedError: error, message: "Failed to migrate tunnel settings")
         }
     }
 

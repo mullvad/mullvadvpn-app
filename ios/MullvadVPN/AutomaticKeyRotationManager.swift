@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import os
+import Logging
 
 /// A private key rotation retry interval on failure (in seconds)
 private let kRetryIntervalOnFailure = 300
@@ -45,6 +45,8 @@ class AutomaticKeyRotationManager {
             }
         }
     }
+
+    private let logger = Logger(label: "AutomaticKeyRotationManager")
 
     private let rest = MullvadRest(session: URLSession(configuration: .ephemeral))
     private let persistentKeychainReference: Data
@@ -89,7 +91,7 @@ class AutomaticKeyRotationManager {
         dispatchQueue.async {
             guard !self.isAutomaticRotationEnabled else { return }
 
-            os_log(.default, log: tunnelProviderLog, "Start automatic key rotation")
+            self.logger.info("Start automatic key rotation")
 
             self.isAutomaticRotationEnabled = true
             self.performKeyRotation()
@@ -102,7 +104,7 @@ class AutomaticKeyRotationManager {
         dispatchQueue.async {
             guard self.isAutomaticRotationEnabled else { return }
 
-            os_log(.default, log: tunnelProviderLog, "Stop automatic key rotation")
+            self.logger.info("Stop automatic key rotation")
 
             self.isAutomaticRotationEnabled = false
 
@@ -211,7 +213,7 @@ class AutomaticKeyRotationManager {
         switch result {
         case .success(let event):
             if event.isNew {
-                os_log(.default, log: tunnelProviderLog, "Finished private key rotation")
+                logger.info("Finished private key rotation")
 
                 eventHandler?(event)
             }
@@ -219,26 +221,20 @@ class AutomaticKeyRotationManager {
             if let rotationDate = Self.nextRotation(creationDate: event.creationDate) {
                 let interval = rotationDate.timeIntervalSinceNow
 
-                os_log(.default, log: tunnelProviderLog,
-                       "Next private key rotation on %{public}s", "\(rotationDate)")
+                logger.info("Next private key rotation on \(rotationDate)")
 
                 nextRotationTime = .now() + .seconds(Int(interval))
             } else {
-                os_log(.error, log: tunnelProviderLog,
-                       "Failed to compute the next private rotation date. Retry in %d seconds.")
+                logger.error("Failed to compute the next private rotation date. Retry in \(kRetryIntervalOnFailure) seconds.")
 
                 nextRotationTime = .now() + .seconds(kRetryIntervalOnFailure)
             }
 
         case .failure(.rest(.network(URLError.cancelled))):
-            os_log(.default, log: tunnelProviderLog, "Key rotation was cancelled")
-            break
+            logger.info("Key rotation was cancelled")
 
         case .failure(let error):
-            os_log(.error, log: tunnelProviderLog,
-                   "Failed to rotate the private key: %{public}s. Retry in %d seconds.",
-                   error.localizedDescription,
-                   kRetryIntervalOnFailure)
+            logger.error("Failed to rotate the private key. Retry in \(kRetryIntervalOnFailure) seconds. Error: \(error.displayChain())")
 
             nextRotationTime = .now() + .seconds(kRetryIntervalOnFailure)
         }

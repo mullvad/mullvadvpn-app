@@ -8,15 +8,13 @@
 
 import Foundation
 import NetworkExtension
-import os
+import Logging
 
 /// A class describing the `wireguard-go` interactions
 ///
 /// - Thread safety:
 /// This class is thread safe.
 class WireguardDevice {
-
-    typealias WireguardLogHandler = (WireguardLogLevel, String) -> Void
 
     /// An error type describing the errors returned by `WireguardDevice`
     enum Error: ChainedError {
@@ -51,9 +49,12 @@ class WireguardDevice {
         }
     }
 
-    /// A global Wireguard log handler
+    /// A global Wireguard logger
     /// It should only be accessed from the `loggingQueue`
-    private static var wireguardLogHandler: WireguardLogHandler?
+    private static var tunnelLogger: Logger?
+
+    /// A logger used by WireguardDevice
+    private let logger = Logger(label: "WireguardDevice")
 
     /// A private queue used for Wireguard logging
     private static let loggingQueue = DispatchQueue(
@@ -94,17 +95,17 @@ class WireguardDevice {
     ///
     /// - Thread safety:
     /// This function is thread safe
-    class func setLogger(with handler: @escaping WireguardLogHandler) {
+    class func setTunnelLogger(_ logger: Logger) {
         WireguardDevice.loggingQueue.async {
-            WireguardDevice.wireguardLogHandler = handler
+            WireguardDevice.tunnelLogger = logger
         }
 
         wgSetLogger { (level, messagePtr) in
             guard let message = messagePtr.map({ String(cString: $0) }) else { return }
-            let logType = WireguardLogLevel(rawValue: level) ?? .debug
+            let logLevel = WireguardLogLevel(rawValue: level) ?? .debug
 
             WireguardDevice.loggingQueue.async {
-                WireguardDevice.wireguardLogHandler?(logType, message)
+                WireguardDevice.tunnelLogger?.log(level: logLevel.loggerLevel, Logger.Message(stringLiteral: message))
             }
         }
     }
@@ -138,7 +139,7 @@ class WireguardDevice {
                 return
             }
 
-            let resolvedConfiguration = Self.resolveConfiguration(configuration)
+            let resolvedConfiguration = self.resolveConfiguration(configuration)
             let handle = resolvedConfiguration
                 .uapiConfiguration()
                 .toRawWireguardConfigString()
@@ -176,7 +177,7 @@ class WireguardDevice {
     func setConfiguration(_ newConfiguration: WireguardConfiguration, completionHandler: @escaping (Result<(), Error>) -> Void) {
         workQueue.async {
             if let handle = self.wireguardHandle {
-                let resolvedConfiguration = Self.resolveConfiguration(newConfiguration)
+                let resolvedConfiguration = self.resolveConfiguration(newConfiguration)
                 let commands = resolvedConfiguration.uapiConfiguration()
 
                 Self.setWireguardConfig(handle: handle, commands: commands)
@@ -222,7 +223,7 @@ class WireguardDevice {
             .withCString { wgSetConfig(handle, $0) }
     }
 
-    private class func resolveConfiguration(_ configuration: WireguardConfiguration)
+    private func resolveConfiguration(_ configuration: WireguardConfiguration)
         -> WireguardConfiguration
     {
         return WireguardConfiguration(
@@ -232,11 +233,11 @@ class WireguardDevice {
         )
     }
 
-    private class func resolvePeers(_ peers: [WireguardPeer]) -> [WireguardPeer] {
+    private func resolvePeers(_ peers: [WireguardPeer]) -> [WireguardPeer] {
         var newPeers = [WireguardPeer]()
 
         for peer in peers {
-            switch self.resolvePeer(peer) {
+            switch resolvePeer(peer) {
             case .success(let resolvedPeer):
                 newPeers.append(resolvedPeer)
             case .failure(_):
@@ -248,24 +249,19 @@ class WireguardDevice {
         return newPeers
     }
 
-    private class func resolvePeer(_ peer: WireguardPeer) -> Result<WireguardPeer, Error> {
+    private func resolvePeer(_ peer: WireguardPeer) -> Result<WireguardPeer, Error> {
         switch peer.withReresolvedEndpoint() {
         case .success(let resolvedPeer):
             if "\(peer.endpoint.ip)" == "\(resolvedPeer.endpoint.ip)" {
-                os_log(.debug, log: wireguardDeviceLog,
-                       "DNS64: mapped %{public}s to itself", "\(resolvedPeer.endpoint.ip)")
+                logger.debug("DNS64: mapped \(resolvedPeer.endpoint.ip) to itself")
             } else {
-                os_log(.debug, log: wireguardDeviceLog,
-                       "DNS64: mapped %{public}s to %{public}s",
-                       "\(peer.endpoint.ip)", "\(resolvedPeer.endpoint.ip)")
+                logger.debug("DNS64: mapped \(peer.endpoint.ip) to \(resolvedPeer.endpoint.ip)")
             }
 
             return .success(resolvedPeer)
 
         case .failure(let error):
-            os_log(.error, log: wireguardDeviceLog,
-                   "Failed to re-resolve the peer: %{public}s. Error: %{public}s",
-                   "\(peer.endpoint.ip)", error.localizedDescription)
+            logger.error("Failed to re-resolve the peer: \(peer.endpoint.ip). Error: \(error.localizedDescription)")
 
             return .failure(.resolveEndpoint(peer.endpoint, error))
         }
@@ -288,14 +284,11 @@ class WireguardDevice {
         workQueue.async {
             guard let handle = self.wireguardHandle else { return }
 
-            os_log(.debug, log: wireguardDeviceLog,
-                   "Network change detected. Status: %{public}s, interfaces %{public}s.",
-                   String(describing: path.status),
-                   String(describing: path.availableInterfaces))
+            self.logger.debug("Network change detected. Status: \(path.status), interfaces \(path.availableInterfaces).")
 
             // Re-resolve endpoints on network changes
             if let currentConfiguration = self.configuration {
-                let resolvedConfiguration = Self.resolveConfiguration(currentConfiguration)
+                let resolvedConfiguration = self.resolveConfiguration(currentConfiguration)
                 let commands = resolvedConfiguration.endpointUapiConfiguration()
 
                 Self.setWireguardConfig(handle: handle, commands: commands)
@@ -313,7 +306,7 @@ enum WireguardLogLevel: Int32 {
     case info = 1
     case error = 2
 
-    var osLogType: OSLogType {
+    var loggerLevel: Logger.Level {
         switch self {
         case .debug:
             return .debug

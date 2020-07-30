@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-import os
+import Logging
 
 /// A UI refresh interval for the public key creation date (in seconds)
 private let kCreationDateRefreshInterval = Int(60)
@@ -35,6 +35,7 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     private var copyToPasteboardWork: DispatchWorkItem?
 
     private let alertPresenter = AlertPresenter()
+    private let logger = Logger(label: "WireguardKeysViewController")
 
     private var state: WireguardKeysViewState = .default {
         didSet {
@@ -207,7 +208,7 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
                         UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
                     )
 
-                    error.logChain(message: "Failed to regenerate the private key")
+                    self.logger.error(chainedError: error, message: "Failed to regenerate the private key")
 
                     self.alertPresenter.enqueue(alertController, presentingController: self)
                 }

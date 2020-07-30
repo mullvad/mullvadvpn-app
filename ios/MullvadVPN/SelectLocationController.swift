@@ -8,7 +8,7 @@
 
 import DiffableDataSources
 import UIKit
-import os
+import Logging
 
 private let kCellIdentifier = "Cell"
 
@@ -28,6 +28,7 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
         }
     }
 
+    private let logger = Logger(label: "SelectLocationController")
     private var cachedRelays: CachedRelays?
     private var relayConstraints: RelayConstraints?
     private var expandedItems = [RelayLocation]()
@@ -114,7 +115,7 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
                     self.didReceiveCachedRelays(cachedRelays, relayConstraints: relayConstraints)
 
                 case .failure(let error):
-                    error.logChain()
+                    self.logger.error(chainedError: error)
                 }
             }
         }
@@ -130,7 +131,7 @@ class SelectLocationController: UITableViewController, RelayCacheObserver {
                     self.didReceiveCachedRelays(cachedRelays, relayConstraints: relayConstraints)
 
                 case .failure(let error):
-                    error.logChain()
+                    self.logger.error(chainedError: error)
                 }
 
                 completionHandler()
@@ -422,7 +423,8 @@ extension ServerRelaysResponse {
 
             for (cityCode, relays) in relaysByCity {
                 guard let location = locations[cityCode] else {
-                    os_log(.info, "Location is not found: %{public}s", cityCode)
+                    // TODO: log to file?
+                    print("Location not found: \(cityCode)")
                     continue
                 }
 

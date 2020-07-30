@@ -39,6 +39,16 @@
 		580EE22824B3289300F9D8A1 /* AssociatedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22724B3289300F9D8A1 /* AssociatedValue.swift */; };
 		580EE22924B3289300F9D8A1 /* AssociatedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22724B3289300F9D8A1 /* AssociatedValue.swift */; };
 		5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */; };
+		5815039724D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5815039624D6ECAE00C9C50E /* CustomFormatLogHandler.swift */; };
+		5815039824D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5815039624D6ECAE00C9C50E /* CustomFormatLogHandler.swift */; };
+		5815039D24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5815039C24D6ECE600C9C50E /* TextFileOutputStream.swift */; };
+		5815039E24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5815039C24D6ECE600C9C50E /* TextFileOutputStream.swift */; };
+		581503A024D6F01E00C9C50E /* LogRotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5815039324D6EB7200C9C50E /* LogRotation.swift */; };
+		581503A124D6F01F00C9C50E /* LogRotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5815039324D6EB7200C9C50E /* LogRotation.swift */; };
+		581503A324D6F1EC00C9C50E /* ChainedError+Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581503A224D6F1EC00C9C50E /* ChainedError+Logger.swift */; };
+		581503A424D6F1EC00C9C50E /* ChainedError+Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581503A224D6F1EC00C9C50E /* ChainedError+Logger.swift */; };
+		581503A624D6F4AE00C9C50E /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581503A524D6F4AE00C9C50E /* Logging.swift */; };
+		581503A724D6F4AE00C9C50E /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581503A524D6F4AE00C9C50E /* Logging.swift */; };
 		581CBCE62296B97300727D7F /* ViewControllerIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581CBCE52296B97300727D7F /* ViewControllerIdentifier.swift */; };
 		581CBCEC2298041B00727D7F /* SettingsAppVersionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581CBCEB2298041B00727D7F /* SettingsAppVersionCell.swift */; };
 		581CBCEE229826FD00727D7F /* StaticTableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */; };
@@ -77,9 +87,10 @@
 		5857F23F24C844AD00CF6F47 /* Locking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA692D23E99EFF009DC256 /* Locking.swift */; };
 		5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */; };
 		5857F24724C882D700CF6F47 /* SelectLocationNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */; };
+		585834F824D2BC1F00A8AF56 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 585834F724D2BC1F00A8AF56 /* Logging */; };
+		585834FC24D2BC9500A8AF56 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 585834FB24D2BC9500A8AF56 /* Logging */; };
 		5860F1C223A785C600CEA666 /* WireguardDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1C123A785C600CEA666 /* WireguardDevice.swift */; };
 		5860F1C423A8D25F00CEA666 /* WireguardConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1C323A8D25F00CEA666 /* WireguardConfiguration.swift */; };
-		5860F1EB23AA4CF300CEA666 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1EA23AA4CF300CEA666 /* Logging.swift */; };
 		5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */; };
 		5867A51C2248F26A005513C0 /* SegueIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867A51B2248F26A005513C0 /* SegueIdentifier.swift */; };
 		5868585524054096000B8131 /* AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5868585424054096000B8131 /* AppButton.swift */; };
@@ -258,6 +269,11 @@
 		580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncBlockOperation.swift; sourceTree = "<group>"; };
 		580EE22724B3289300F9D8A1 /* AssociatedValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssociatedValue.swift; sourceTree = "<group>"; };
 		5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NEVPNStatus+Debug.swift"; sourceTree = "<group>"; };
+		5815039324D6EB7200C9C50E /* LogRotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRotation.swift; sourceTree = "<group>"; };
+		5815039624D6ECAE00C9C50E /* CustomFormatLogHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFormatLogHandler.swift; sourceTree = "<group>"; };
+		5815039C24D6ECE600C9C50E /* TextFileOutputStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFileOutputStream.swift; sourceTree = "<group>"; };
+		581503A224D6F1EC00C9C50E /* ChainedError+Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChainedError+Logger.swift"; sourceTree = "<group>"; };
+		581503A524D6F4AE00C9C50E /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		581CBCE52296B97300727D7F /* ViewControllerIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewControllerIdentifier.swift; sourceTree = "<group>"; };
 		581CBCEB2298041B00727D7F /* SettingsAppVersionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsAppVersionCell.swift; sourceTree = "<group>"; };
 		581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticTableViewDataSource.swift; sourceTree = "<group>"; };
@@ -277,7 +293,6 @@
 		5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationNavigationController.swift; sourceTree = "<group>"; };
 		5860F1C123A785C600CEA666 /* WireguardDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardDevice.swift; sourceTree = "<group>"; };
 		5860F1C323A8D25F00CEA666 /* WireguardConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardConfiguration.swift; sourceTree = "<group>"; };
-		5860F1EA23AA4CF300CEA666 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslucentButtonBlurView.swift; sourceTree = "<group>"; };
 		5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MullvadVPN.entitlements; sourceTree = "<group>"; };
 		5867A51B2248F26A005513C0 /* SegueIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegueIdentifier.swift; sourceTree = "<group>"; };
@@ -387,6 +402,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				585834F824D2BC1F00A8AF56 /* Logging in Frameworks */,
 				58F3C0A0249BBF1E003E76BE /* DiffableDataSources in Frameworks */,
 				586BD68422B7BBE400BB7F9F /* NetworkExtension.framework in Frameworks */,
 			);
@@ -396,6 +412,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				585834FC24D2BC9500A8AF56 /* Logging in Frameworks */,
 				586BD68322B7BBD800BB7F9F /* NetworkExtension.framework in Frameworks */,
 				58723E7522A54CB2009837F5 /* libwg-go.a in Frameworks */,
 			);
@@ -442,6 +459,18 @@
 			path = Operations;
 			sourceTree = "<group>";
 		};
+		5815039F24D6ECF200C9C50E /* Logging */ = {
+			isa = PBXGroup;
+			children = (
+				581503A224D6F1EC00C9C50E /* ChainedError+Logger.swift */,
+				5815039624D6ECAE00C9C50E /* CustomFormatLogHandler.swift */,
+				5815039C24D6ECE600C9C50E /* TextFileOutputStream.swift */,
+				581503A524D6F4AE00C9C50E /* Logging.swift */,
+				5815039324D6EB7200C9C50E /* LogRotation.swift */,
+			);
+			path = Logging;
+			sourceTree = "<group>";
+		};
 		58B0A2A1238EE67E00BC001D /* MullvadVPNTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -483,6 +512,7 @@
 		58CE5E62224146200008646E /* MullvadVPN */ = {
 			isa = PBXGroup;
 			children = (
+				5815039F24D6ECF200C9C50E /* Logging */,
 				587AD7C92342283900E93A53 /* Account.swift */,
 				582BB1B42295780F0055B6EF /* AccountExpiry.swift */,
 				58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */,
@@ -590,7 +620,6 @@
 				58C6B36622C106FC003C19AD /* WireguardCommand.swift */,
 				5860F1C123A785C600CEA666 /* WireguardDevice.swift */,
 				5860F1C323A8D25F00CEA666 /* WireguardConfiguration.swift */,
-				5860F1EA23AA4CF300CEA666 /* Logging.swift */,
 			);
 			path = PacketTunnel;
 			sourceTree = "<group>";
@@ -676,6 +705,7 @@
 			name = MullvadVPN;
 			packageProductDependencies = (
 				58F3C09F249BBF1E003E76BE /* DiffableDataSources */,
+				585834F724D2BC1F00A8AF56 /* Logging */,
 			);
 			productName = MullvadVPN;
 			productReference = 58CE5E60224146200008646E /* MullvadVPN.app */;
@@ -696,6 +726,9 @@
 				58FBDAA222A52A6800EB69A3 /* PBXTargetDependency */,
 			);
 			name = PacketTunnel;
+			packageProductDependencies = (
+				585834FB24D2BC9500A8AF56 /* Logging */,
+			);
 			productName = PacketTunnel;
 			productReference = 58CE5E79224146470008646E /* PacketTunnel.appex */;
 			productType = "com.apple.product-type.app-extension";
@@ -772,6 +805,7 @@
 			mainGroup = 58CE5E57224146200008646E;
 			packageReferences = (
 				58F3C09E249BBF1E003E76BE /* XCRemoteSwiftPackageReference "DiffableDataSources" */,
+				585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */,
 			);
 			productRefGroup = 58CE5E61224146200008646E /* Products */;
 			projectDirPath = "";
@@ -952,6 +986,7 @@
 				5845F842236CBACD00B2D93C /* PacketTunnelIpc.swift in Sources */,
 				58781CC922AE7CA8009B9D8E /* RelayConstraints.swift in Sources */,
 				584E96BC240FD4DA00D3334F /* Location.swift in Sources */,
+				581503A124D6F01F00C9C50E /* LogRotation.swift in Sources */,
 				580EE20F24B322E700F9D8A1 /* TransformOperation.swift in Sources */,
 				58B8743222B25A7600015324 /* WireguardAssociatedAddresses.swift in Sources */,
 				58C6B34F22BB7AC0003C19AD /* IPAddressRange.swift in Sources */,
@@ -972,12 +1007,15 @@
 				5877152E23981C5B001F8237 /* SettingsBasicCell.swift in Sources */,
 				58FD5BE724192A2C00112C88 /* AppStoreReceipt.swift in Sources */,
 				5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */,
+				5815039724D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */,
+				5815039D24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */,
 				581CBCEE229826FD00727D7F /* StaticTableViewDataSource.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
 				58C6B35E22BBBFE3003C19AD /* Data+HexCoding.swift in Sources */,
 				5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */,
 				58AEEF652344A36000C9BBD5 /* KeychainError.swift in Sources */,
 				580EE22824B3289300F9D8A1 /* AssociatedValue.swift in Sources */,
+				581503A624D6F4AE00C9C50E /* Logging.swift in Sources */,
 				58CCA01222424D11004F3011 /* SettingsViewController.swift in Sources */,
 				58FD5BF42428C67600112C88 /* InAppPurchaseButton.swift in Sources */,
 				580EE22424B3243100F9D8A1 /* AsyncBlockOperation.swift in Sources */,
@@ -993,6 +1031,7 @@
 				5896AE84246D5889005B36CB /* CustomDateComponentsFormatting.swift in Sources */,
 				580EE21824B3235100F9D8A1 /* AnyOperationObserver.swift in Sources */,
 				587AD7C623421D7000E93A53 /* TunnelSettings.swift in Sources */,
+				581503A324D6F1EC00C9C50E /* ChainedError+Logger.swift in Sources */,
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
 				58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */,
@@ -1034,18 +1073,21 @@
 				586AA296234B696B00502875 /* WireguardAssociatedAddresses.swift in Sources */,
 				58BA692F23E99F5B009DC256 /* Locking.swift in Sources */,
 				58B8743B22B788D200015324 /* PacketTunnelSettingsGenerator.swift in Sources */,
-				5860F1EB23AA4CF300CEA666 /* Logging.swift in Sources */,
 				5860F1C223A785C600CEA666 /* WireguardDevice.swift in Sources */,
 				580EE21624B3231200F9D8A1 /* OperationBlockObserver.swift in Sources */,
 				58CC40F024A602780019D96E /* ObserverList.swift in Sources */,
 				58C6B35522BB87C4003C19AD /* WireguardPrivateKey.swift in Sources */,
+				581503A724D6F4AE00C9C50E /* Logging.swift in Sources */,
 				58FAEE0424533AC000CB0F5B /* KeychainClass.swift in Sources */,
 				58AEEF6C2344A49D00C9BBD5 /* TunnelSettingsManager.swift in Sources */,
 				58C6B35F22BBBFE3003C19AD /* Data+HexCoding.swift in Sources */,
+				581503A424D6F1EC00C9C50E /* ChainedError+Logger.swift in Sources */,
+				5815039824D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */,
 				5840250522B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */,
 				58BFA5C722A7C97F00A6173D /* RelayCache.swift in Sources */,
 				580EE21024B322E700F9D8A1 /* TransformOperation.swift in Sources */,
 				58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */,
+				5815039E24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */,
 				584E96BD240FD4DA00D3334F /* Location.swift in Sources */,
 				58FAEDF8245088E100CB0F5B /* Keychain.swift in Sources */,
 				58C6B36122C0EC82003C19AD /* AnyIPEndpoint+DNS64.swift in Sources */,
@@ -1057,6 +1099,7 @@
 				580EE20D24B3225F00F9D8A1 /* DelayOperation.swift in Sources */,
 				588534BF246193D90018B744 /* AutomaticKeyRotationManager.swift in Sources */,
 				58781CCE22AE8918009B9D8E /* RelayConstraints.swift in Sources */,
+				581503A024D6F01E00C9C50E /* LogRotation.swift in Sources */,
 				58781CD522AFBA39009B9D8E /* RelaySelector.swift in Sources */,
 				580EE21C24B3236900F9D8A1 /* InputOperation.swift in Sources */,
 				580EE22224B3240100F9D8A1 /* TransformOperationObserver.swift in Sources */,
@@ -1515,6 +1558,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-log.git";
+			requirement = {
+				kind = exactVersion;
+				version = 1.4.0;
+			};
+		};
 		58F3C09E249BBF1E003E76BE /* XCRemoteSwiftPackageReference "DiffableDataSources" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/ra1028/DiffableDataSources.git";
@@ -1526,6 +1577,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		585834F724D2BC1F00A8AF56 /* Logging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */;
+			productName = Logging;
+		};
+		585834FB24D2BC9500A8AF56 /* Logging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */;
+			productName = Logging;
+		};
 		58F3C09F249BBF1E003E76BE /* DiffableDataSources */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 58F3C09E249BBF1E003E76BE /* XCRemoteSwiftPackageReference "DiffableDataSources" */;
