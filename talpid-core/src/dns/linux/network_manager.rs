@@ -42,6 +42,9 @@ pub enum Error {
 
     #[error(display = "Failed to find link interface in network manager")]
     LinkNotFound,
+
+    #[error(display = "Device inactive: {}", _0)]
+    DeviceNotReady(u32),
 }
 
 const NM_BUS: &str = "org.freedesktop.NetworkManager";
@@ -57,6 +60,8 @@ const GLOBAL_DNS_CONF_KEY: &str = "GlobalDnsConfiguration";
 const RC_MANAGEMENT_MODE_KEY: &str = "RcManager";
 const DNS_MODE_KEY: &str = "Mode";
 const DNS_FIRST_PRIORITY: i32 = -2147483647;
+
+const NM_DEVICE_STATE_ACTIVATED: u32 = 100;
 
 pub struct NetworkManager {
     dbus_connection: dbus::Connection,
@@ -235,6 +240,28 @@ impl NetworkManager {
 
             if device != interface_name {
                 continue;
+            }
+
+            let state: u32 = self
+                .dbus_connection
+                .with_path(NM_BUS, key, RPC_TIMEOUT_MS)
+                .get(NM_DEVICE, "State")
+                .map_err(Error::Dbus)?;
+
+            if state != NM_DEVICE_STATE_ACTIVATED {
+                // Allow the device some time to get ready
+                // TODO: Could listen for state events instead
+                std::thread::sleep(std::time::Duration::from_secs(1));
+
+                let state: u32 = self
+                    .dbus_connection
+                    .with_path(NM_BUS, key, RPC_TIMEOUT_MS)
+                    .get(NM_DEVICE, "State")
+                    .map_err(Error::Dbus)?;
+
+                if state != NM_DEVICE_STATE_ACTIVATED {
+                    return Err(Error::DeviceNotReady(state));
+                }
             }
 
             let active_connection: dbus::Path<'_> = self
