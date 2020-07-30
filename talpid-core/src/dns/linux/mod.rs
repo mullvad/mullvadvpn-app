@@ -120,7 +120,9 @@ impl DnsMonitorHolder {
             SystemdResolved(ref mut systemd_resolved) => {
                 systemd_resolved.set_dns(interface, &servers)?
             }
-            NetworkManager(ref mut network_manager) => network_manager.set_dns(servers)?,
+            NetworkManager(ref mut network_manager) => {
+                network_manager.set_dns(interface, servers)?
+            }
         }
         Ok(())
     }
