@@ -13,11 +13,11 @@ class SelectLocationCell: BasicTableViewCell {
 
     let locationLabel = UILabel()
     let statusIndicator = RelayStatusIndicatorView()
-    let tickImageView = UIImageView(image: UIImage(imageLiteralResourceName: "IconTick"))
+    let tickImageView = UIImageView(image: UIImage(named: "IconTick"))
     let collapseButton = UIButton(type: .custom)
 
-    private let chevronDown = UIImage(imageLiteralResourceName: "IconChevronDown")
-    private let chevronUp = UIImage(imageLiteralResourceName: "IconChevronUp")
+    private let chevronDown = UIImage(named: "IconChevronDown")
+    private let chevronUp = UIImage(named: "IconChevronUp")
 
     var isDisabled = false {
         didSet {

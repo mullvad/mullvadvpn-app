@@ -206,7 +206,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="3rI-k6-N1S">
-                                <rect key="frame" x="24" y="245" width="327" height="212"/>
+                                <rect key="frame" x="24" y="307" width="327" height="212"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="SECURE CONNECTION" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HNy-mU-nui">
                                         <rect key="frame" x="0.0" y="0.0" width="327" height="24"/>
@@ -253,29 +253,39 @@
                                     </view>
                                 </subviews>
                             </stackView>
-                            <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dv1-XA-XQG" userLabel="Tunnel control buttons">
-                                <rect key="frame" x="24" y="481" width="327" height="162"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kbg-vd-uS0">
+                                <rect key="frame" x="24" y="543" width="327" height="100"/>
+                                <subviews>
+                                    <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="oZQ-uX-qg5">
+                                        <rect key="frame" x="0.0" y="0.0" width="327" height="100"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="100" placeholder="YES" id="xyU-Ve-38D"/>
+                                        </constraints>
+                                    </stackView>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="162" placeholder="YES" id="kLh-W4-WzX"/>
+                                    <constraint firstItem="oZQ-uX-qg5" firstAttribute="leading" secondItem="kbg-vd-uS0" secondAttribute="leading" id="CVK-s8-K47"/>
+                                    <constraint firstAttribute="trailing" secondItem="oZQ-uX-qg5" secondAttribute="trailing" id="IEd-jf-HBD"/>
+                                    <constraint firstAttribute="bottom" secondItem="oZQ-uX-qg5" secondAttribute="bottom" id="pAj-Dl-cfL"/>
+                                    <constraint firstItem="oZQ-uX-qg5" firstAttribute="top" secondItem="kbg-vd-uS0" secondAttribute="top" id="qfE-M4-Vqw"/>
                                 </constraints>
-                                <connections>
-                                    <segue destination="7We-1v-DIF" kind="embed" identifier="EmbedTunnelControls" id="SUp-a7-wNJ"/>
-                                </connections>
-                            </containerView>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" name="Primary"/>
                         <constraints>
                             <constraint firstItem="3rI-k6-N1S" firstAttribute="leading" secondItem="PNd-mm-N1B" secondAttribute="leadingMargin" id="5fs-z1-QKf"/>
                             <constraint firstAttribute="trailingMargin" secondItem="3rI-k6-N1S" secondAttribute="trailing" id="NFr-rI-7r3"/>
-                            <constraint firstItem="iBo-pG-OTz" firstAttribute="trailing" secondItem="Dv1-XA-XQG" secondAttribute="trailing" constant="24" id="OPf-p4-dPn"/>
-                            <constraint firstItem="Dv1-XA-XQG" firstAttribute="top" secondItem="3rI-k6-N1S" secondAttribute="bottom" constant="24" id="hRj-EJ-ls3"/>
-                            <constraint firstItem="iBo-pG-OTz" firstAttribute="bottom" secondItem="Dv1-XA-XQG" secondAttribute="bottom" constant="24" id="sjJ-M6-O74"/>
-                            <constraint firstItem="Dv1-XA-XQG" firstAttribute="leading" secondItem="iBo-pG-OTz" secondAttribute="leading" constant="24" id="ye6-tj-a0l"/>
+                            <constraint firstItem="iBo-pG-OTz" firstAttribute="bottom" secondItem="kbg-vd-uS0" secondAttribute="bottom" constant="24" id="Und-F7-4LQ"/>
+                            <constraint firstItem="kbg-vd-uS0" firstAttribute="leading" secondItem="iBo-pG-OTz" secondAttribute="leading" constant="24" id="WON-cN-WSC"/>
+                            <constraint firstItem="kbg-vd-uS0" firstAttribute="top" secondItem="3rI-k6-N1S" secondAttribute="bottom" constant="24" id="Yrd-dM-tsp"/>
+                            <constraint firstItem="iBo-pG-OTz" firstAttribute="trailing" secondItem="kbg-vd-uS0" secondAttribute="trailing" constant="24" id="cbX-QT-hOe"/>
                         </constraints>
                         <edgeInsets key="layoutMargins" top="0.0" left="24" bottom="24" right="24"/>
                         <viewLayoutGuide key="safeArea" id="iBo-pG-OTz"/>
                     </view>
                     <connections>
+                        <outlet property="buttonsStackView" destination="oZQ-uX-qg5" id="dvm-AG-6HG"/>
                         <outlet property="cityLabel" destination="mfr-Ic-PYf" id="vut-Me-cdj"/>
                         <outlet property="connectionPanel" destination="ocV-9f-WDZ" id="Uad-bl-KFU"/>
                         <outlet property="countryLabel" destination="9Yf-sl-l3q" id="L3N-Jn-zlr"/>
@@ -895,7 +905,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JYh-33-d0O">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="597"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="598"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="N9k-cQ-tlw" userLabel="Content view">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="558"/>
@@ -934,7 +944,7 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cas-Tk-gcz" customClass="LinkButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                <rect key="frame" x="20" y="516" width="128" height="22"/>
+                                                <rect key="frame" x="20" y="516" width="20" height="22"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="18"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" title="Privacy Policy" image="IconExtlink"/>
@@ -970,10 +980,10 @@
                                 </constraints>
                             </scrollView>
                             <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="16P-Q0-ZO9" userLabel="Footer">
-                                <rect key="frame" x="0.0" y="597" width="375" height="70"/>
+                                <rect key="frame" x="0.0" y="598" width="375" height="69"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ttw-7B-1MM" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
-                                        <rect key="frame" x="16" y="24" width="343" height="22"/>
+                                        <rect key="frame" x="16" y="24" width="343" height="21"/>
                                         <accessibility key="accessibilityConfiguration" identifier="AgreeButton"/>
                                         <state key="normal" title="Agree and continue" backgroundImage="DefaultButton">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -1011,235 +1021,6 @@
             </objects>
             <point key="canvasLocation" x="-551" y="27"/>
         </scene>
-        <!--Tunnel Control View Controller-->
-        <scene sceneID="Zzn-S1-fVu">
-            <objects>
-                <viewController id="7We-1v-DIF" customClass="TunnelControlViewController" customModule="MullvadVPN" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="Ayf-ZB-cCJ">
-                        <rect key="frame" x="0.0" y="0.0" width="327" height="162"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <viewLayoutGuide key="safeArea" id="MPh-Rn-8Ad"/>
-                    </view>
-                    <connections>
-                        <outlet property="connectedView" destination="KX2-Pi-Myg" id="qSH-w0-rkV"/>
-                        <outlet property="connectingView" destination="ZYQ-G2-MXc" id="Hg7-Sg-PFl"/>
-                        <outlet property="disconnectedView" destination="7l6-on-fbR" id="UT0-9I-faY"/>
-                    </connections>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="C3V-lo-QFw" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-                <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="7l6-on-fbR">
-                    <rect key="frame" x="0.0" y="0.0" width="261" height="121"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <subviews>
-                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="shY-Lj-oYx">
-                            <rect key="frame" x="0.0" y="0.0" width="261" height="121"/>
-                            <subviews>
-                                <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JHO-Ca-Zzd" customClass="TranslucentButtonBlurView" customModule="MullvadVPN" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="0.0" width="261" height="52.5"/>
-                                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="jVH-JP-pJo">
-                                        <rect key="frame" x="0.0" y="0.0" width="261" height="52.5"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hVz-q0-Xpd" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="0.0" width="261" height="52.5"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="SelectLocationButton"/>
-                                                <inset key="contentEdgeInsets" minX="0.0" minY="0.0" maxX="0.0" maxY="10"/>
-                                                <state key="normal" title="Select location" backgroundImage="TranslucentNeutralButton">
-                                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="handleSelectLocation:" destination="7We-1v-DIF" eventType="touchUpInside" id="P4j-WA-6kP"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="bottom" secondItem="hVz-q0-Xpd" secondAttribute="bottom" id="4Q2-Zh-7fM"/>
-                                            <constraint firstAttribute="trailing" secondItem="hVz-q0-Xpd" secondAttribute="trailing" id="AsY-cg-1fj"/>
-                                            <constraint firstItem="hVz-q0-Xpd" firstAttribute="leading" secondItem="jVH-JP-pJo" secondAttribute="leading" id="Eya-ig-8On"/>
-                                            <constraint firstItem="hVz-q0-Xpd" firstAttribute="top" secondItem="jVH-JP-pJo" secondAttribute="top" id="UY2-bK-i8s"/>
-                                        </constraints>
-                                    </view>
-                                    <blurEffect style="light"/>
-                                </visualEffectView>
-                                <button opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vxU-Mt-fMo" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="68.5" width="261" height="52.5"/>
-                                    <accessibility key="accessibilityConfiguration" identifier="ConnectButton"/>
-                                    <state key="normal" title="Secure my connection" backgroundImage="SuccessButton">
-                                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    </state>
-                                    <connections>
-                                        <action selector="handleSecureConnection:" destination="7We-1v-DIF" eventType="touchUpInside" id="XmB-3v-mds"/>
-                                    </connections>
-                                </button>
-                            </subviews>
-                        </stackView>
-                    </subviews>
-                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    <constraints>
-                        <constraint firstItem="shY-Lj-oYx" firstAttribute="leading" secondItem="7l6-on-fbR" secondAttribute="leading" id="1th-7a-npG"/>
-                        <constraint firstItem="shY-Lj-oYx" firstAttribute="bottom" secondItem="7l6-on-fbR" secondAttribute="bottom" id="53Y-II-Op2"/>
-                        <constraint firstAttribute="trailing" secondItem="shY-Lj-oYx" secondAttribute="trailing" id="6QT-NE-4OX"/>
-                        <constraint firstItem="shY-Lj-oYx" firstAttribute="trailing" secondItem="7l6-on-fbR" secondAttribute="trailing" id="ORr-CI-hQE"/>
-                        <constraint firstItem="shY-Lj-oYx" firstAttribute="leading" secondItem="7l6-on-fbR" secondAttribute="leading" id="U5c-eT-w73"/>
-                        <constraint firstItem="shY-Lj-oYx" firstAttribute="top" secondItem="7l6-on-fbR" secondAttribute="top" id="cea-vh-q3j"/>
-                        <constraint firstAttribute="bottom" secondItem="shY-Lj-oYx" secondAttribute="bottom" id="isW-KM-CjB"/>
-                        <constraint firstItem="shY-Lj-oYx" firstAttribute="top" secondItem="7l6-on-fbR" secondAttribute="top" id="zkC-qT-d72"/>
-                    </constraints>
-                </view>
-                <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="ZYQ-G2-MXc">
-                    <rect key="frame" x="0.0" y="0.0" width="261" height="120"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <subviews>
-                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="K2E-tQ-f7f">
-                            <rect key="frame" x="0.0" y="0.0" width="261" height="120"/>
-                            <subviews>
-                                <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HGl-4o-WUZ" customClass="TranslucentButtonBlurView" customModule="MullvadVPN" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="0.0" width="261" height="52"/>
-                                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="tbu-8S-1Wk">
-                                        <rect key="frame" x="0.0" y="0.0" width="261" height="52"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dbp-iY-d0K" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="0.0" width="261" height="52"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="SwitchLocationButton"/>
-                                                <inset key="contentEdgeInsets" minX="0.0" minY="0.0" maxX="0.0" maxY="10"/>
-                                                <state key="normal" title="Switch location" backgroundImage="TranslucentNeutralButton">
-                                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="handleSelectLocation:" destination="7We-1v-DIF" eventType="touchUpInside" id="8dc-Ta-6qx"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                        <constraints>
-                                            <constraint firstAttribute="bottom" secondItem="dbp-iY-d0K" secondAttribute="bottom" id="5LU-aU-B47"/>
-                                            <constraint firstAttribute="trailing" secondItem="dbp-iY-d0K" secondAttribute="trailing" id="7PF-WL-1iS"/>
-                                            <constraint firstItem="dbp-iY-d0K" firstAttribute="leading" secondItem="tbu-8S-1Wk" secondAttribute="leading" id="8h9-Dh-uGH"/>
-                                            <constraint firstItem="dbp-iY-d0K" firstAttribute="top" secondItem="tbu-8S-1Wk" secondAttribute="top" id="Xop-Vl-s9E"/>
-                                        </constraints>
-                                    </view>
-                                    <blurEffect style="light"/>
-                                </visualEffectView>
-                                <visualEffectView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="wTZ-S5-pHI" customClass="TranslucentButtonBlurView" customModule="MullvadVPN" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="68" width="261" height="52"/>
-                                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="hWm-jl-c2l">
-                                        <rect key="frame" x="0.0" y="0.0" width="261" height="52"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PDP-HS-RB2" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="0.0" width="261" height="52"/>
-                                                <state key="normal" title="Cancel" backgroundImage="TranslucentDangerButton">
-                                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="handleDisconnect:" destination="7We-1v-DIF" eventType="touchUpInside" id="lgN-mu-5IE"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                        <constraints>
-                                            <constraint firstItem="PDP-HS-RB2" firstAttribute="leading" secondItem="hWm-jl-c2l" secondAttribute="leading" id="0iK-cH-2T7"/>
-                                            <constraint firstItem="PDP-HS-RB2" firstAttribute="top" secondItem="hWm-jl-c2l" secondAttribute="top" id="Q9r-wY-cgh"/>
-                                            <constraint firstAttribute="bottom" secondItem="PDP-HS-RB2" secondAttribute="bottom" id="Rvj-jF-cwH"/>
-                                            <constraint firstAttribute="trailing" secondItem="PDP-HS-RB2" secondAttribute="trailing" id="Thh-Vt-L4v"/>
-                                        </constraints>
-                                    </view>
-                                    <blurEffect style="light"/>
-                                </visualEffectView>
-                            </subviews>
-                        </stackView>
-                    </subviews>
-                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    <constraints>
-                        <constraint firstItem="K2E-tQ-f7f" firstAttribute="trailing" secondItem="ZYQ-G2-MXc" secondAttribute="trailing" id="8jj-NR-Sva"/>
-                        <constraint firstItem="K2E-tQ-f7f" firstAttribute="bottom" secondItem="ZYQ-G2-MXc" secondAttribute="bottom" id="eza-7A-uNf"/>
-                        <constraint firstItem="K2E-tQ-f7f" firstAttribute="top" secondItem="ZYQ-G2-MXc" secondAttribute="top" id="ndG-qN-nvg"/>
-                        <constraint firstItem="K2E-tQ-f7f" firstAttribute="leading" secondItem="ZYQ-G2-MXc" secondAttribute="leading" id="phY-um-kkn"/>
-                        <constraint firstAttribute="bottom" secondItem="K2E-tQ-f7f" secondAttribute="bottom" id="qUI-AH-MDO"/>
-                        <constraint firstItem="K2E-tQ-f7f" firstAttribute="top" secondItem="ZYQ-G2-MXc" secondAttribute="top" id="s3u-gd-29a"/>
-                        <constraint firstAttribute="trailing" secondItem="K2E-tQ-f7f" secondAttribute="trailing" id="x5Q-Uy-6xz"/>
-                        <constraint firstItem="K2E-tQ-f7f" firstAttribute="leading" secondItem="ZYQ-G2-MXc" secondAttribute="leading" id="xkx-qv-Dcr"/>
-                    </constraints>
-                </view>
-                <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="KX2-Pi-Myg">
-                    <rect key="frame" x="0.0" y="0.0" width="261" height="120"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <subviews>
-                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="16" translatesAutoresizingMaskIntoConstraints="NO" id="J70-p3-IaC">
-                            <rect key="frame" x="0.0" y="0.0" width="261" height="120"/>
-                            <subviews>
-                                <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fgw-rj-lK4" customClass="TranslucentButtonBlurView" customModule="MullvadVPN" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="0.0" width="261" height="52"/>
-                                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="dSR-qU-xgH">
-                                        <rect key="frame" x="0.0" y="0.0" width="261" height="52"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZbQ-zA-ZS8" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="0.0" width="261" height="52"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="SwitchLocationButton"/>
-                                                <inset key="contentEdgeInsets" minX="0.0" minY="0.0" maxX="0.0" maxY="10"/>
-                                                <state key="normal" title="Switch location" backgroundImage="TranslucentNeutralButton">
-                                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="handleSelectLocation:" destination="7We-1v-DIF" eventType="touchUpInside" id="rZA-gs-2O6"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                        <constraints>
-                                            <constraint firstItem="ZbQ-zA-ZS8" firstAttribute="leading" secondItem="dSR-qU-xgH" secondAttribute="leading" id="c2Y-VY-hME"/>
-                                            <constraint firstAttribute="bottom" secondItem="ZbQ-zA-ZS8" secondAttribute="bottom" id="eUE-C6-e9C"/>
-                                            <constraint firstAttribute="trailing" secondItem="ZbQ-zA-ZS8" secondAttribute="trailing" id="ggD-w4-oQQ"/>
-                                            <constraint firstItem="ZbQ-zA-ZS8" firstAttribute="top" secondItem="dSR-qU-xgH" secondAttribute="top" id="oMx-RW-wv9"/>
-                                        </constraints>
-                                    </view>
-                                    <blurEffect style="light"/>
-                                </visualEffectView>
-                                <visualEffectView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="sAx-Or-5Yn" customClass="TranslucentButtonBlurView" customModule="MullvadVPN" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="68" width="261" height="52"/>
-                                    <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="ANR-Gb-KsI">
-                                        <rect key="frame" x="0.0" y="0.0" width="261" height="52"/>
-                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                        <subviews>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="d5t-ia-qxF" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                <rect key="frame" x="0.0" y="0.0" width="261" height="52"/>
-                                                <accessibility key="accessibilityConfiguration" identifier="DisconnectButton"/>
-                                                <state key="normal" title="Disconnect" backgroundImage="TranslucentDangerButton">
-                                                    <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="handleDisconnect:" destination="7We-1v-DIF" eventType="touchUpInside" id="S6r-fB-gnj"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                        <constraints>
-                                            <constraint firstAttribute="trailing" secondItem="d5t-ia-qxF" secondAttribute="trailing" id="6AH-65-3Vh"/>
-                                            <constraint firstAttribute="bottom" secondItem="d5t-ia-qxF" secondAttribute="bottom" id="7aQ-oK-5Yo"/>
-                                            <constraint firstItem="d5t-ia-qxF" firstAttribute="leading" secondItem="ANR-Gb-KsI" secondAttribute="leading" id="EKV-6Y-UtV"/>
-                                            <constraint firstItem="d5t-ia-qxF" firstAttribute="top" secondItem="ANR-Gb-KsI" secondAttribute="top" id="NKf-WN-rVa"/>
-                                        </constraints>
-                                    </view>
-                                    <blurEffect style="light"/>
-                                </visualEffectView>
-                            </subviews>
-                        </stackView>
-                    </subviews>
-                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    <constraints>
-                        <constraint firstItem="J70-p3-IaC" firstAttribute="bottom" secondItem="KX2-Pi-Myg" secondAttribute="bottom" id="0FU-IO-L7p"/>
-                        <constraint firstItem="J70-p3-IaC" firstAttribute="top" secondItem="KX2-Pi-Myg" secondAttribute="top" id="KZn-7H-iDI"/>
-                        <constraint firstItem="J70-p3-IaC" firstAttribute="top" secondItem="KX2-Pi-Myg" secondAttribute="top" id="NnJ-v1-dtl"/>
-                        <constraint firstItem="J70-p3-IaC" firstAttribute="leading" secondItem="KX2-Pi-Myg" secondAttribute="leading" id="ZWy-eg-o1m"/>
-                        <constraint firstAttribute="trailing" secondItem="J70-p3-IaC" secondAttribute="trailing" id="cFk-ve-P9q"/>
-                        <constraint firstItem="J70-p3-IaC" firstAttribute="leading" secondItem="KX2-Pi-Myg" secondAttribute="leading" id="kjo-BJ-Odb"/>
-                        <constraint firstItem="J70-p3-IaC" firstAttribute="trailing" secondItem="KX2-Pi-Myg" secondAttribute="trailing" id="saI-Tt-ucW"/>
-                        <constraint firstAttribute="bottom" secondItem="J70-p3-IaC" secondAttribute="bottom" id="tBe-df-ho5"/>
-                    </constraints>
-                </view>
-            </objects>
-            <point key="canvasLocation" x="2541" y="78"/>
-        </scene>
     </scenes>
     <resources>
         <image name="DangerButton" width="9" height="9"/>
@@ -1248,8 +1029,6 @@
         <image name="IconSuccess" width="60" height="60"/>
         <image name="LogoIcon" width="253" height="253"/>
         <image name="SuccessButton" width="9" height="9"/>
-        <image name="TranslucentDangerButton" width="9" height="9"/>
-        <image name="TranslucentNeutralButton" width="9" height="9"/>
         <namedColor name="Primary">
             <color red="0.16078431372549021" green="0.30196078431372547" blue="0.45098039215686275" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

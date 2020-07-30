@@ -1,14 +1,14 @@
 {
   "images" : [
     {
-      "filename" : "SuccessButton.pdf",
+      "filename" : "TranslucentDangerSplitRightButton.pdf",
       "idiom" : "universal",
       "resizing" : {
         "cap-insets" : {
-          "bottom" : 4,
-          "left" : 4,
-          "right" : 4,
-          "top" : 4
+          "bottom" : 3,
+          "left" : 21,
+          "right" : 22,
+          "top" : 3
         },
         "center" : {
           "height" : 1,

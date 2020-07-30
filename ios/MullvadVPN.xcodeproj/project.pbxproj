@@ -54,7 +54,6 @@
 		5840250222B1124600E4CFEC /* IpAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250022B1124600E4CFEC /* IpAddress+Codable.swift */; };
 		5840250422B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
 		5840250522B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
-		5845F838236C466400B2D93C /* TunnelControlViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5845F837236C466400B2D93C /* TunnelControlViewController.swift */; };
 		5845F842236CBACD00B2D93C /* PacketTunnelIpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */; };
 		5845F843236CBDAB00B2D93C /* PacketTunnelIpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */; };
 		584E96BC240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
@@ -106,6 +105,8 @@
 		5888AD87227B17950051EB06 /* SelectLocationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* SelectLocationController.swift */; };
 		588D2FE3248AC27F00E313F7 /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E973DD24850EB600096F90 /* AsyncOperation.swift */; };
 		58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */; };
+		58907D9324D167B400CFC3F5 /* DisconnectSplitButton.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58907D9224D167B400CFC3F5 /* DisconnectSplitButton.xib */; };
+		58907D9524D17B4E00CFC3F5 /* DisconnectSplitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */; };
 		5896AE7E246ACE65005B36CB /* KeychainAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */; };
 		5896AE7F246ACE76005B36CB /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDF6245088E100CB0F5B /* Keychain.swift */; };
 		5896AE80246ACE79005B36CB /* KeychainClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEE0024533A9C00CB0F5B /* KeychainClass.swift */; };
@@ -169,7 +170,6 @@
 		58D0C7A223F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D0C7A023F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift */; };
 		58DF28A52417CB4B00E836B0 /* AppStorePaymentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF28A42417CB4B00E836B0 /* AppStorePaymentManager.swift */; };
 		58E6771F24ADFE7800AA26E7 /* SettingsNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E6771E24ADFE7800AA26E7 /* SettingsNavigationController.swift */; };
-		58EC4E6C23915325003F5C5B /* Bundle+MullvadVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EC4E6B23915325003F5C5B /* Bundle+MullvadVersion.swift */; };
 		58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */; };
 		58F3C0962492617E003E76BE /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E973DD24850EB600096F90 /* AsyncOperation.swift */; };
 		58F3C099249B978C003E76BE /* x25519.c in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C098249B978C003E76BE /* x25519.c */; };
@@ -270,7 +270,6 @@
 		5835B7CB233B76CB0096D79F /* TunnelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManager.swift; sourceTree = "<group>"; };
 		5840250022B1124600E4CFEC /* IpAddress+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IpAddress+Codable.swift"; sourceTree = "<group>"; };
 		5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadEndpoint.swift; sourceTree = "<group>"; };
-		5845F837236C466400B2D93C /* TunnelControlViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelControlViewController.swift; sourceTree = "<group>"; };
 		5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelIpc.swift; sourceTree = "<group>"; };
 		584B26F3237434D00073B10E /* RelaySelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorTests.swift; sourceTree = "<group>"; };
 		58561C98239A5D1500BD6B5E /* IPEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPEndpoint.swift; sourceTree = "<group>"; };
@@ -300,6 +299,8 @@
 		5888AD82227B11080051EB06 /* SelectLocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationCell.swift; sourceTree = "<group>"; };
 		5888AD86227B17950051EB06 /* SelectLocationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationController.swift; sourceTree = "<group>"; };
 		58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NEProviderStopReason+Debug.swift"; sourceTree = "<group>"; };
+		58907D9224D167B400CFC3F5 /* DisconnectSplitButton.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DisconnectSplitButton.xib; sourceTree = "<group>"; };
+		58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisconnectSplitButton.swift; sourceTree = "<group>"; };
 		5894E725236B2801008A2793 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateComponentsFormatting.swift; sourceTree = "<group>"; };
 		5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateComponentsFormattingTests.swift; sourceTree = "<group>"; };
@@ -351,7 +352,6 @@
 		58DF28A42417CB4B00E836B0 /* AppStorePaymentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorePaymentManager.swift; sourceTree = "<group>"; };
 		58E6771E24ADFE7800AA26E7 /* SettingsNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsNavigationController.swift; sourceTree = "<group>"; };
 		58E973DD24850EB600096F90 /* AsyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOperation.swift; sourceTree = "<group>"; };
-		58EC4E6B23915325003F5C5B /* Bundle+MullvadVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+MullvadVersion.swift"; sourceTree = "<group>"; };
 		58ECD29123F178FD004298B6 /* Screenshots.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Screenshots.xcconfig; sourceTree = "<group>"; };
 		58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerActivityIndicatorView.swift; sourceTree = "<group>"; };
 		58F3C097249B978C003E76BE /* x25519.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = x25519.h; sourceTree = "<group>"; };
@@ -498,7 +498,6 @@
 				58CE5E6A224146210008646E /* Assets.xcassets */,
 				588534BD246193C00018B744 /* AutomaticKeyRotationManager.swift */,
 				589AB4F6227B64450039131E /* BasicTableViewCell.swift */,
-				58EC4E6B23915325003F5C5B /* Bundle+MullvadVersion.swift */,
 				58F840B12464491D0044E708 /* ChainedError.swift */,
 				58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */,
 				58CCA00F224249A1004F3011 /* ConnectViewController.swift */,
@@ -507,6 +506,8 @@
 				5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */,
 				582BB1B0229569620055B6EF /* CustomNavigationBar.swift */,
 				58C6B35D22BBBFE3003C19AD /* Data+HexCoding.swift */,
+				58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */,
+				58907D9224D167B400CFC3F5 /* DisconnectSplitButton.xib */,
 				58B9EB142489139B00095626 /* DisplayChainedError.swift */,
 				5873884C239E6D7E00E96C4E /* EmbeddedViewContainerView.swift */,
 				58F3C0A3249CB069003E76BE /* HeaderBarView.swift */,
@@ -560,7 +561,6 @@
 				581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */,
 				5807E2BF2432038B00F5FF30 /* String+Split.swift */,
 				5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */,
-				5845F837236C466400B2D93C /* TunnelControlViewController.swift */,
 				5835B7CB233B76CB0096D79F /* TunnelManager.swift */,
 				587AD7C523421D7000E93A53 /* TunnelSettings.swift */,
 				58AEEF6A2344A46200C9BBD5 /* TunnelSettingsManager.swift */,
@@ -798,6 +798,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58907D9324D167B400CFC3F5 /* DisconnectSplitButton.xib in Resources */,
 				58F3C0A2249CA1E0003E76BE /* HeaderBarView.xib in Resources */,
 				58F3C0A624A50157003E76BE /* relays.json in Resources */,
 				58CE5E6E224146210008646E /* LaunchScreen.storyboard in Resources */,
@@ -912,7 +913,6 @@
 				58BA692E23E99EFF009DC256 /* Locking.swift in Sources */,
 				580EE21E24B3237F00F9D8A1 /* OutputOperation.swift in Sources */,
 				5840250122B1124600E4CFEC /* IpAddress+Codable.swift in Sources */,
-				58EC4E6C23915325003F5C5B /* Bundle+MullvadVersion.swift in Sources */,
 				5857F24724C882D700CF6F47 /* SelectLocationNavigationController.swift in Sources */,
 				580EE21224B322FC00F9D8A1 /* ResultOperation.swift in Sources */,
 				58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */,
@@ -933,12 +933,12 @@
 				580EE20924B3224200F9D8A1 /* RetryOperation.swift in Sources */,
 				582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */,
 				58FAEDF7245088E100CB0F5B /* Keychain.swift in Sources */,
+				58907D9524D17B4E00CFC3F5 /* DisconnectSplitButton.swift in Sources */,
 				5888AD87227B17950051EB06 /* SelectLocationController.swift in Sources */,
 				580EE20424B321EC00F9D8A1 /* OperationObserver.swift in Sources */,
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
 				58A99ED3240014A0006599E9 /* ConsentViewController.swift in Sources */,
 				58FAEE0124533A9C00CB0F5B /* KeychainClass.swift in Sources */,
-				5845F838236C466400B2D93C /* TunnelControlViewController.swift in Sources */,
 				58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */,
 				58AEEF6B2344A46200C9BBD5 /* TunnelSettingsManager.swift in Sources */,
 				587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */,

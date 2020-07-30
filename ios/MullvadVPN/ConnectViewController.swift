@@ -10,17 +10,19 @@ import UIKit
 import NetworkExtension
 import os
 
-class ConnectViewController: UIViewController,
-    RootContainment,
-    TunnelControlViewControllerDelegate,
-    TunnelObserver,
+class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
     SelectLocationDelegate
 {
-
     @IBOutlet var secureLabel: UILabel!
     @IBOutlet var countryLabel: UILabel!
     @IBOutlet var cityLabel: UILabel!
     @IBOutlet var connectionPanel: ConnectionPanelView!
+    @IBOutlet var buttonsStackView: UIStackView!
+
+    private let connectButton = makeButton(style: .success)
+    private let selectLocationButton = makeButton(style: .translucentNeutral)
+    private lazy var selectLocationBlurView = Self.makeBlurButton(button: selectLocationButton)
+    private let splitDisconnectButtonView = DisconnectSplitButton(bundle: nil)
 
     private let alertPresenter = AlertPresenter()
 
@@ -47,15 +49,21 @@ class ConnectViewController: UIViewController,
             setNeedsHeaderBarStyleAppearanceUpdate()
             updateSecureLabel()
             updateTunnelConnectionInfo()
+            updateButtons()
         }
     }
 
-    private var showedAccountView = false
+    private var showedAccountView = true
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
         connectionPanel.collapseButton.addTarget(self, action: #selector(handleConnectionPanelButton(_:)), for: .touchUpInside)
+        connectButton.addTarget(self, action: #selector(handleConnect(_:)), for: .touchUpInside)
+        splitDisconnectButtonView.primaryButton.addTarget(self, action: #selector(handleDisconnect(_:)), for: .touchUpInside)
+        splitDisconnectButtonView.secondaryButton.addTarget(self, action: #selector(handleReconnect(_:)), for: .touchUpInside)
+
+        selectLocationButton.addTarget(self, action: #selector(handleSelectLocation(_:)), for: .touchUpInside)
 
         TunnelManager.shared.addObserver(self)
         self.tunnelState = TunnelManager.shared.tunnelState
@@ -65,14 +73,6 @@ class ConnectViewController: UIViewController,
         super.viewDidAppear(animated)
 
         showAccountViewForExpiredAccount()
-    }
-
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if case .embedTunnelControls = SegueIdentifier.Connect.from(segue: segue) {
-            let tunnelControlController = segue.destination as! TunnelControlViewController
-            tunnelControlController.view.translatesAutoresizingMaskIntoConstraints = false
-            tunnelControlController.delegate = self
-        }
     }
 
     // MARK: - TunnelObserver
@@ -85,21 +85,6 @@ class ConnectViewController: UIViewController,
 
     func tunnelPublicKeyDidChange(publicKey: WireguardPublicKey?) {
         // no-op
-    }
-
-    // MARK: - TunnelControlViewControllerDelegate
-
-    func tunnelControlViewController(_ controller: TunnelControlViewController, handleAction action: TunnelControlAction) {
-        switch action {
-        case .connect:
-            connectTunnel()
-
-        case .disconnect:
-            disconnectTunnel()
-
-        case .selectLocation:
-            showSelectLocation()
-        }
     }
 
     // MARK: - SelectLocationDelegate
@@ -128,6 +113,63 @@ class ConnectViewController: UIViewController,
     }
 
     // MARK: - Private
+
+    private class func makeBlurButton(button: AppButton) -> UIView {
+        let effectView = TranslucentButtonBlurView(effect: UIBlurEffect(style: .light))
+        effectView.contentView.addSubview(button)
+
+        NSLayoutConstraint.activate([
+            button.topAnchor.constraint(equalTo: effectView.contentView.topAnchor),
+            button.leadingAnchor.constraint(equalTo: effectView.contentView.leadingAnchor),
+            button.trailingAnchor.constraint(equalTo: effectView.contentView.trailingAnchor),
+            button.bottomAnchor.constraint(equalTo: effectView.contentView.bottomAnchor)
+        ])
+
+        return effectView
+    }
+
+    private class func makeButton(style: AppButton.Style) -> AppButton {
+        let button = AppButton(type: .custom)
+        button.style = style
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        return button
+    }
+
+    private func updateButtons() {
+        switch tunnelState {
+        case .disconnected:
+            selectLocationButton.setTitle(NSLocalizedString("Select location", comment: ""), for: .normal)
+            connectButton.setTitle(NSLocalizedString("Secure connection", comment: ""), for: .normal)
+
+            setArrangedButtons([selectLocationBlurView, connectButton])
+
+        case .connecting:
+            selectLocationButton.setTitle(NSLocalizedString("Switch location", comment: ""), for: .normal)
+            splitDisconnectButtonView.primaryButton.setTitle(NSLocalizedString("Cancel", comment: ""), for: .normal)
+
+            setArrangedButtons([selectLocationBlurView, splitDisconnectButtonView])
+
+        case .connected, .reconnecting, .disconnecting:
+            selectLocationButton.setTitle(NSLocalizedString("Switch location", comment: ""), for: .normal)
+            splitDisconnectButtonView.primaryButton.setTitle(NSLocalizedString("Disconnect", comment: ""), for: .normal)
+
+            setArrangedButtons([selectLocationBlurView, splitDisconnectButtonView])
+        }
+    }
+
+    private func setArrangedButtons(_ newButtons: [UIView]) {
+        buttonsStackView.arrangedSubviews.forEach { (button) in
+            if !newButtons.contains(button) {
+                buttonsStackView.removeArrangedSubview(button)
+                button.removeFromSuperview()
+            }
+        }
+
+        newButtons.forEach { (button) in
+            buttonsStackView.addArrangedSubview(button)
+        }
+    }
 
     private func updateSecureLabel() {
         secureLabel.text = tunnelState.textForSecureLabel().uppercased()
@@ -208,6 +250,10 @@ class ConnectViewController: UIViewController,
         }
     }
 
+    private func reconnectTunnel() {
+        TunnelManager.shared.reconnectTunnel(completionHandler: nil)
+    }
+
     private func showAccountViewForExpiredAccount() {
         guard !showedAccountView else { return }
 
@@ -237,6 +283,22 @@ class ConnectViewController: UIViewController,
 
     @objc func handleConnectionPanelButton(_ sender: Any) {
         connectionPanel.toggleConnectionInfoVisibility()
+    }
+
+    @objc func handleConnect(_ sender: Any) {
+        connectTunnel()
+    }
+
+    @objc func handleDisconnect(_ sender: Any) {
+        disconnectTunnel()
+    }
+
+    @objc func handleReconnect(_ sender: Any) {
+        reconnectTunnel()
+    }
+
+    @objc func handleSelectLocation(_ sender: Any) {
+        showSelectLocation()
     }
 
 }

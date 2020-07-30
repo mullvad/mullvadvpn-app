@@ -220,11 +220,11 @@ class LoginViewController: UIViewController, RootContainment {
         switch loginState {
         case .failure:
             let opacity: CGFloat = self.accountTextField.isEditing ? 0 : 1
-            statusImageView.image = UIImage(imageLiteralResourceName: "IconFail")
+            statusImageView.image = UIImage(named: "IconFail")
             animateStatusImage(to: opacity)
 
         case .success:
-            statusImageView.image = UIImage(imageLiteralResourceName: "IconSuccess")
+            statusImageView.image = UIImage(named: "IconSuccess")
             animateStatusImage(to: 1)
 
         case .default, .authenticating:
