@@ -21,7 +21,7 @@
     <dimen name="cell_input_width">80dp</dimen>
     <dimen name="cell_input_height">34dp</dimen>
     <dimen name="cell_footer_top_padding">8dp</dimen>
-    <dimen name="cell_footer_horizontal_padding">24dp</dimen>
+    <dimen name="cell_footer_horizontal_padding">@dimen/side_margin</dimen>
     <dimen name="chevron_width">14dp</dimen>
     <dimen name="chevron_height">24dp</dimen>
     <dimen name="text_small">13sp</dimen>
@@ -29,4 +29,5 @@
     <dimen name="text_medium_plus">18sp</dimen>
     <dimen name="text_big">24sp</dimen>
     <dimen name="text_huge">30sp</dimen>
+    <dimen name="side_margin">24dp</dimen>
 </resources>

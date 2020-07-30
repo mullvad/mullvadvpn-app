@@ -40,7 +40,7 @@
                           android:layout_weight="0"
                           android:layout_marginTop="4dp"
                           android:layout_marginBottom="8dp"
-                          android:layout_marginHorizontal="24dp"
+                          android:layout_marginHorizontal="@dimen/side_margin"
                           android:text="@string/report_a_problem"
                           style="@style/SettingsExpandedHeader" />
                 <ViewSwitcher android:id="@+id/body_container"
@@ -53,7 +53,7 @@
                                   android:layout_height="wrap_content"
                                   android:layout_weight="0"
                                   android:layout_marginBottom="24dp"
-                                  android:layout_marginHorizontal="24dp"
+                                  android:layout_marginHorizontal="@dimen/side_margin"
                                   android:textColor="@color/white80"
                                   android:textSize="@dimen/text_small"
                                   android:text="@string/problem_report_description" />
@@ -76,7 +76,7 @@
                                   android:gravity="top"
                                   style="@style/InputText" />
                         <Button android:id="@+id/send_button"
-                                android:layout_marginHorizontal="24dp"
+                                android:layout_marginHorizontal="@dimen/side_margin"
                                 android:layout_marginVertical="16dp"
                                 android:enabled="false"
                                 android:text="@string/send"
@@ -85,7 +85,7 @@
                     <LinearLayout android:layout_width="match_parent"
                                   android:layout_height="match_parent"
                                   android:layout_marginVertical="16dp"
-                                  android:layout_marginHorizontal="24dp"
+                                  android:layout_marginHorizontal="@dimen/side_margin"
                                   android:orientation="vertical">
                         <FrameLayout android:layout_width="60dp"
                                      android:layout_height="60dp"

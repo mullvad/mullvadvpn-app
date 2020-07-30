@@ -14,7 +14,8 @@
                       android:layout_height="wrap_content"
                       android:layout_weight="1"
                       android:orientation="vertical"
-                      android:padding="24dp">
+                      android:paddingHorizontal="@dimen/side_margin"
+                      android:paddingVertical="24dp">
             <Space android:layout_width="match_parent"
                    android:layout_height="0dp"
                    android:layout_weight="1" />
@@ -105,7 +106,7 @@
                       android:layout_height="wrap_content"
                       android:layout_weight="0"
                       android:orientation="vertical"
-                      android:paddingHorizontal="24dp"
+                      android:paddingHorizontal="@dimen/side_margin"
                       android:paddingBottom="24dp"
                       android:paddingTop="16dp"
                       android:background="@color/darkBlue">

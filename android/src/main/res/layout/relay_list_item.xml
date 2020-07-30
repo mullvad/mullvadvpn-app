@@ -34,8 +34,7 @@
                  android:layout_width="wrap_content"
                  android:layout_height="match_parent"
                  android:layout_weight="0"
-                 android:paddingRight="24dp"
-                 android:paddingLeft="24dp"
+                 android:paddingHorizontal="@dimen/side_margin"
                  android:background="?android:attr/selectableItemBackground"
                  android:src="@drawable/icon_chevron_expand" />
 </LinearLayout>
