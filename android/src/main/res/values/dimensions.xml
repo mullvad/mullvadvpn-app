@@ -29,5 +29,5 @@
     <dimen name="text_medium_plus">18sp</dimen>
     <dimen name="text_big">24sp</dimen>
     <dimen name="text_huge">30sp</dimen>
-    <dimen name="side_margin">24dp</dimen>
+    <dimen name="side_margin">22dp</dimen>
 </resources>
