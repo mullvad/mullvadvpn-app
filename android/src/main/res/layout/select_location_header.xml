@@ -17,7 +17,7 @@
               android:layout_marginHorizontal="24dp"
               android:layout_marginBottom="24dp"
               android:textColor="@color/white60"
-              android:textSize="13sp"
+              android:textSize="@dimen/text_small"
               android:text="@string/select_location_description" />
     <ProgressBar android:id="@+id/loading_spinner"
                  android:layout_width="60dp"

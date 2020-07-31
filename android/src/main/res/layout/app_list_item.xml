@@ -28,7 +28,7 @@
               android:layout_marginHorizontal="8dp"
               android:layout_marginVertical="16dp"
               android:textColor="@color/white"
-              android:textSize="16sp"
+              android:textSize="@dimen/text_medium"
               android:text="" />
     <net.mullvad.mullvadvpn.ui.widget.CellSwitch android:id="@+id/excluded"
                                                  android:layout_width="52dp"

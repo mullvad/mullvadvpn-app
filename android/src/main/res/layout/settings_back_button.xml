@@ -7,6 +7,6 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:textColor="@color/white60"
-              android:textSize="13sp"
+              android:textSize="@dimen/text_small"
               android:textStyle="bold" />
 </merge>

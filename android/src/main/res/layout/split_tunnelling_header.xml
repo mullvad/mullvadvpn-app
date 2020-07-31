@@ -19,7 +19,7 @@
               android:paddingHorizontal="24dp"
               android:text="@string/split_tunnelling_description"
               android:textColor="@color/white60"
-              android:textSize="13sp" />
+              android:textSize="@dimen/text_small" />
     <net.mullvad.mullvadvpn.ui.widget.ToggleCell android:id="@+id/enabled"
                                                  android:layout_width="match_parent"
                                                  android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
                   android:paddingHorizontal="8dp"
                   android:paddingVertical="17dp"
                   android:textColor="@color/white"
-                  android:textSize="20sp"
+                  android:textSize="@dimen/text_medium_plus"
                   android:textStyle="bold"
                   android:text="@string/exclude_applications" />
     </LinearLayout>

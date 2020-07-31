@@ -44,7 +44,7 @@
                               android:layout_marginBottom="4dp"
                               android:layout_marginHorizontal="24dp"
                               android:textColor="@color/red"
-                              android:textSize="16sp"
+                              android:textSize="@dimen/text_medium"
                               android:textStyle="bold"
                               android:text="@string/unsecured_connection"
                               android:textAllCaps="true" />
@@ -53,7 +53,7 @@
                               android:layout_height="wrap_content"
                               android:layout_marginHorizontal="24dp"
                               android:textColor="@color/white"
-                              android:textSize="34sp"
+                              android:textSize="@dimen/text_huge"
                               android:textStyle="bold"
                               android:text="" />
                     <TextView android:id="@+id/country"
@@ -61,7 +61,7 @@
                               android:layout_height="wrap_content"
                               android:layout_marginHorizontal="24dp"
                               android:textColor="@color/white"
-                              android:textSize="34sp"
+                              android:textSize="@dimen/text_huge"
                               android:textStyle="bold"
                               android:text="" />
                     <LinearLayout android:id="@+id/tunnel_info"
@@ -80,7 +80,7 @@
                                       android:layout_width="wrap_content"
                                       android:layout_height="wrap_content"
                                       android:textColor="@color/white"
-                                      android:textSize="16sp"
+                                      android:textSize="@dimen/text_medium"
                                       android:textStyle="bold"
                                       android:text="" />
                             <ImageView android:id="@+id/chevron"
@@ -95,19 +95,19 @@
                                   android:layout_height="wrap_content"
                                   android:layout_marginTop="4dp"
                                   android:textColor="@color/white"
-                                  android:textSize="13sp"
+                                  android:textSize="@dimen/text_small"
                                   android:text="" />
                         <TextView android:id="@+id/in_address"
                                   android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
                                   android:textColor="@color/white"
-                                  android:textSize="13sp"
+                                  android:textSize="@dimen/text_small"
                                   android:text="" />
                         <TextView android:id="@+id/out_address"
                                   android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
                                   android:textColor="@color/white"
-                                  android:textSize="13sp"
+                                  android:textSize="@dimen/text_small"
                                   android:text="" />
                     </LinearLayout>
                 </LinearLayout>

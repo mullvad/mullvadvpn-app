@@ -28,7 +28,7 @@ class AccountCell : NavigateCell {
 
         setAllCaps(true)
         setTextColor(normalColor)
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, 13.0f)
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.text_small))
         setTypeface(null, Typeface.BOLD)
 
         text = ""
