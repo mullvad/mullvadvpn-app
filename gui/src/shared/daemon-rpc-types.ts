@@ -112,7 +112,7 @@ export type TunnelState =
   | { state: 'error'; details: IErrorState };
 
 export interface IErrorState {
-  isBlocking: boolean;
+  blockFailure?: FirewallPolicyError;
   cause: ErrorStateCause;
 }
 

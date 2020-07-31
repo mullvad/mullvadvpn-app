@@ -67,17 +67,21 @@ impl TunnelState for ErrorState {
         block_reason: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         #[cfg(not(target_os = "android"))]
-        let (block_reason, is_blocking) = match Self::set_firewall_policy(shared_values) {
-            Ok(()) => (block_reason, true),
-            Err(error) => (ErrorStateCause::SetFirewallPolicyError(error), false),
-        };
+        let block_failure = Self::set_firewall_policy(shared_values).err();
         #[cfg(target_os = "android")]
-        let (block_reason, is_blocking) = (block_reason, Self::create_blocking_tun(shared_values));
+        let block_failure = if !Self::create_blocking_tun(shared_values) {
+            Some(FirewallPolicyError::Generic)
+        } else {
+            None
+        };
         (
             TunnelStateWrapper::from(ErrorState {
                 block_reason: block_reason.clone(),
             }),
-            TunnelStateTransition::Error(talpid_tunnel::ErrorState::new(block_reason, is_blocking)),
+            TunnelStateTransition::Error(talpid_tunnel::ErrorState::new(
+                block_reason,
+                block_failure,
+            )),
         )
     }
 

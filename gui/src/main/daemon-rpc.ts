@@ -259,7 +259,17 @@ const tunnelStateSchema = oneOf(
   object({
     state: enumeration('error'),
     details: object({
-      is_blocking: boolean,
+      block_failure: maybe(
+        object({
+          reason: enumeration('generic', 'locked'),
+          details: maybe(
+            object({
+              name: string,
+              pid: number,
+            }),
+          ),
+        }),
+      ),
       cause: oneOf(
         object({
           reason: enumeration(

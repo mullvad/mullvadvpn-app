@@ -41,20 +41,28 @@ pub enum ActionAfterDisconnect {
 pub struct ErrorState {
     /// Reason why the tunnel state machine ended up in the error state
     cause: ErrorStateCause,
-    /// Indicates whether the daemon is currently blocking all traffic. This _should_ always be
-    /// true - in the case it is not, the user should be notified that no traffic is being blocked.
-    /// A false value means there was a serious error and the intended security properties are not
+    /// Indicates whether the daemon is currently blocking all traffic. This _should_ always
+    /// succeed - in the case it does not, the user should be notified that no traffic is being
+    /// blocked.
+    /// An error value means there was a serious error and the intended security properties are not
     /// being upheld.
-    is_blocking: bool,
+    #[cfg_attr(
+        target_os = "android",
+        jnix(map = "|block_failure| block_failure.is_none()")
+    )]
+    block_failure: Option<FirewallPolicyError>,
 }
 
 impl ErrorState {
-    pub fn new(cause: ErrorStateCause, is_blocking: bool) -> Self {
-        Self { cause, is_blocking }
+    pub fn new(cause: ErrorStateCause, block_failure: Option<FirewallPolicyError>) -> Self {
+        Self {
+            cause,
+            block_failure,
+        }
     }
 
     pub fn is_blocking(&self) -> bool {
-        self.is_blocking
+        self.block_failure.is_none()
     }
 
     pub fn cause(&self) -> &ErrorStateCause {

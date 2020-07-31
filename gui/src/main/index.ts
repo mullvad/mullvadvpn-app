@@ -863,7 +863,7 @@ class ApplicationMain {
         return 'securing';
 
       case 'error':
-        if (tunnelState.details.isBlocking) {
+        if (!tunnelState.details.blockFailure) {
           return 'securing';
         } else {
           return 'unsecured';
