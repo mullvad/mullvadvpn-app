@@ -176,7 +176,7 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
       case 'error':
         if (
           this.props.tunnelState.state === 'error' &&
-          !this.props.tunnelState.details.isBlocking
+          this.props.tunnelState.details.blockFailure
         ) {
           return (
             <Wrapper>

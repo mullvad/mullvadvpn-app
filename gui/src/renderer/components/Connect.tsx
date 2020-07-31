@@ -169,7 +169,7 @@ export default class Connect extends React.Component<IProps, IState> {
       case 'connected':
         return HeaderBarStyle.success;
       case 'error':
-        return status.details.isBlocking ? HeaderBarStyle.success : HeaderBarStyle.error;
+        return !status.details.blockFailure ? HeaderBarStyle.success : HeaderBarStyle.error;
       case 'disconnecting':
         switch (status.details) {
           case 'block':
@@ -223,7 +223,7 @@ export default class Connect extends React.Component<IProps, IState> {
       case 'connected':
         return MarkerStyle.secure;
       case 'error':
-        return status.details.isBlocking ? MarkerStyle.secure : MarkerStyle.unsecure;
+        return !status.details.blockFailure ? MarkerStyle.secure : MarkerStyle.unsecure;
       case 'disconnected':
         return MarkerStyle.unsecure;
       case 'disconnecting':
