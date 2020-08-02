@@ -57,6 +57,8 @@ const NM_DNS_MANAGER: &str = "org.freedesktop.NetworkManager.DnsManager";
 const NM_DNS_MANAGER_PATH: &str = "/org/freedesktop/NetworkManager/DnsManager";
 const NM_OBJECT_PATH: &str = "/org/freedesktop/NetworkManager";
 const NM_DEVICE: &str = "org.freedesktop.NetworkManager.Device";
+const NM_IP4_CONFIG: &str = "org.freedesktop.NetworkManager.IP4Config";
+const NM_IP6_CONFIG: &str = "org.freedesktop.NetworkManager.IP6Config";
 const RPC_TIMEOUT_MS: i32 = 3000;
 const GLOBAL_DNS_CONF_KEY: &str = "GlobalDnsConfiguration";
 const RC_MANAGEMENT_MODE_KEY: &str = "RcManager";
@@ -179,6 +181,56 @@ impl NetworkManager {
             .collect();
         if !v6_dns.is_empty() {
             Self::update_dns_config(&mut settings, "ipv6", v6_dns);
+        }
+
+        // Keep changed routes
+
+        if let Some(ipv4_settings) = settings.get_mut("ipv4") {
+            let device_ip4_config: dbus::Path<'_> = self
+                .dbus_connection
+                .with_path(NM_BUS, &device, RPC_TIMEOUT_MS)
+                .get(NM_DEVICE, "Ip4Config")
+                .map_err(Error::Dbus)?;
+
+            let device_routes: Vec<Vec<u32>> = self
+                .dbus_connection
+                .with_path(NM_BUS, &device_ip4_config, RPC_TIMEOUT_MS)
+                .get(NM_IP4_CONFIG, "Routes")
+                .map_err(Error::Dbus)?;
+
+            let device_route_data: Vec<HashMap<String, Variant<Box<dyn RefArg>>>> = self
+                .dbus_connection
+                .with_path(NM_BUS, &device_ip4_config, RPC_TIMEOUT_MS)
+                .get(NM_IP4_CONFIG, "RouteData")
+                .map_err(Error::Dbus)?;
+
+            ipv4_settings.insert("route-metric", Variant(Box::new(0u32)));
+            ipv4_settings.insert("routes", Variant(Box::new(device_routes)));
+            ipv4_settings.insert("route-data", Variant(Box::new(device_route_data)));
+        }
+
+        if let Some(ipv6_settings) = settings.get_mut("ipv6") {
+            let device_ip6_config: dbus::Path<'_> = self
+                .dbus_connection
+                .with_path(NM_BUS, &device, RPC_TIMEOUT_MS)
+                .get(NM_DEVICE, "Ip6Config")
+                .map_err(Error::Dbus)?;
+
+            let device_routes6: Vec<(Vec<u8>, u32, Vec<u8>, u32)> = self
+                .dbus_connection
+                .with_path(NM_BUS, &device_ip6_config, RPC_TIMEOUT_MS)
+                .get(NM_IP6_CONFIG, "Routes")
+                .map_err(Error::Dbus)?;
+
+            let device_route6_data: Vec<HashMap<String, Variant<Box<dyn RefArg>>>> = self
+                .dbus_connection
+                .with_path(NM_BUS, &device_ip6_config, RPC_TIMEOUT_MS)
+                .get(NM_IP6_CONFIG, "RouteData")
+                .map_err(Error::Dbus)?;
+
+            ipv6_settings.insert("route-metric", Variant(Box::new(0u32)));
+            ipv6_settings.insert("routes", Variant(Box::new(device_routes6)));
+            ipv6_settings.insert("route-data", Variant(Box::new(device_route6_data)));
         }
 
         // Re-apply changes
