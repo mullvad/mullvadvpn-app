@@ -18,15 +18,18 @@ mod settings;
 pub mod version;
 mod version_check;
 
-use futures::future::{abortable, AbortHandle};
-use futures01::{
-    future::{self, Executor},
-    stream::Wait,
-    sync::{
+use futures::{
+    channel::{
         mpsc::{UnboundedReceiver, UnboundedSender},
         oneshot,
     },
-    Future, Stream,
+    executor::BlockingStream,
+    future::{abortable, AbortHandle},
+};
+use futures01::{
+    future::{self, Executor},
+    sync::{mpsc as old_mpsc, oneshot as old_oneshot},
+    Future,
 };
 use log::{debug, error, info, warn};
 use mullvad_rpc::AccountsProxy;
@@ -343,7 +346,7 @@ pub struct DaemonCommandChannel {
 
 impl DaemonCommandChannel {
     pub fn new() -> Self {
-        let (untracked_sender, receiver) = futures01::sync::mpsc::unbounded();
+        let (untracked_sender, receiver) = futures::channel::mpsc::unbounded();
         let sender = DaemonCommandSender(Arc::new(untracked_sender));
 
         Self { sender, receiver }
@@ -454,13 +457,13 @@ pub trait EventListener {
 }
 
 pub struct Daemon<L: EventListener> {
-    tunnel_command_tx: Arc<UnboundedSender<TunnelCommand>>,
+    tunnel_command_tx: Arc<old_mpsc::UnboundedSender<TunnelCommand>>,
     tunnel_state: TunnelState,
     target_state: TargetState,
     state: DaemonExecutionState,
     #[cfg(target_os = "linux")]
     exclude_pids: split_tunnel::PidManager,
-    rx: Wait<UnboundedReceiver<InternalDaemonEvent>>,
+    rx: BlockingStream<UnboundedReceiver<InternalDaemonEvent>>,
     tx: DaemonEventSender,
     reconnection_job: Option<AbortHandle>,
     event_listener: L,
@@ -478,7 +481,7 @@ pub struct Daemon<L: EventListener> {
     app_version_info: AppVersionInfo,
     shutdown_callbacks: Vec<Box<dyn FnOnce()>>,
     /// oneshot channel that completes once the tunnel state machine has been shut down
-    tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
+    tunnel_state_machine_shutdown_signal: old_oneshot::Receiver<()>,
     cache_dir: PathBuf,
 }
 
@@ -496,7 +499,7 @@ where
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
-            oneshot::channel();
+            old_oneshot::channel();
 
         let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache_dir(&cache_dir)
             .map_err(Error::InitRpcFactory)?;
@@ -605,7 +608,7 @@ where
             state: DaemonExecutionState::Running,
             #[cfg(target_os = "linux")]
             exclude_pids: split_tunnel::PidManager::new().map_err(Error::InitSplitTunneling)?,
-            rx: internal_event_rx.wait(),
+            rx: futures::executor::block_on_stream(internal_event_rx),
             tx: internal_event_tx,
             reconnection_job: None,
             event_listener,
@@ -650,7 +653,8 @@ where
         if self.target_state == TargetState::Secured {
             self.connect_tunnel();
         }
-        while let Some(Ok(event)) = self.rx.next() {
+
+        while let Some(event) = self.rx.next() {
             self.handle_event(event);
             if self.state == DaemonExecutionState::Finished {
                 break;
@@ -690,7 +694,7 @@ where
 
     /// Shuts down the daemon without shutting down the underlying event listener and the shutdown
     /// callbacks
-    fn shutdown(self) -> (L, Vec<Box<dyn FnOnce()>>, oneshot::Receiver<()>) {
+    fn shutdown(self) -> (L, Vec<Box<dyn FnOnce()>>, old_oneshot::Receiver<()>) {
         let Daemon {
             event_listener,
             shutdown_callbacks,
