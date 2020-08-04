@@ -1,5 +1,5 @@
 use dbus::{
-    arg::{RefArg, Variant},
+    arg::{Append, RefArg, Variant},
     stdintf::*,
     BusType, Member, Message,
 };
@@ -73,6 +73,8 @@ lazy_static! {
 
 pub struct NetworkManager {
     dbus_connection: dbus::Connection,
+    device: Option<dbus::Path<'static>>,
+    settings_backup: Option<HashMap<String, HashMap<String, Variant<Box<dyn RefArg>>>>>,
 }
 
 
@@ -80,7 +82,11 @@ impl NetworkManager {
     pub fn new() -> Result<Self> {
         let dbus_connection =
             dbus::Connection::get_private(BusType::System).map_err(Error::Dbus)?;
-        let manager = NetworkManager { dbus_connection };
+        let manager = NetworkManager {
+            dbus_connection,
+            device: None,
+            settings_backup: None,
+        };
         manager.ensure_resolv_conf_is_managed()?;
         manager.ensure_network_manager_exists()?;
         Ok(manager)
@@ -154,34 +160,8 @@ impl NetworkManager {
             .read2()
             .map_err(Error::MatchDBusTypeError)?;
 
-        // Update the DNS config
-
-        let v4_dns: Vec<u32> = servers
-            .iter()
-            .filter_map(|server| {
-                match server {
-                    // Network-byte order
-                    IpAddr::V4(server) => Some(u32::to_be(server.clone().into())),
-                    IpAddr::V6(_) => None,
-                }
-            })
-            .collect();
-        if !v4_dns.is_empty() {
-            Self::update_dns_config(&mut settings, "ipv4", v4_dns);
-        }
-
-        let v6_dns: Vec<Vec<u8>> = servers
-            .iter()
-            .filter_map(|server| match server {
-                IpAddr::V4(_) => None,
-                IpAddr::V6(server) => Some(server.octets().to_vec()),
-            })
-            .collect();
-        if !v6_dns.is_empty() {
-            Self::update_dns_config(&mut settings, "ipv6", v6_dns);
-        }
-
-        // Keep changed routes
+        // Keep changed routes.
+        // These routes were modified outside NM, likely by RouteManager.
 
         if let Some(ipv4_settings) = settings.get_mut("ipv4") {
             let device_ip4_config: dbus::Path<'_> = self
@@ -231,19 +211,73 @@ impl NetworkManager {
             ipv6_settings.insert("route-data", Variant(Box::new(device_route6_data)));
         }
 
-        // Re-apply changes
+        let mut settings_backup =
+            HashMap::<String, HashMap<String, Variant<Box<dyn RefArg>>>>::new();
+        for (top_key, map) in settings.iter() {
+            let mut inner_dict = HashMap::<String, Variant<Box<dyn RefArg>>>::new();
+            for (key, variant) in map.iter() {
+                inner_dict.insert(key.to_string(), Variant(variant.0.box_clone()));
+            }
+            settings_backup.insert(top_key.to_string(), inner_dict);
+        }
 
-        let reapply = Message::new_method_call(NM_BUS, &device, NM_DEVICE, "Reapply")
-            .map_err(Error::DbusMethodCall)?
-            .append3(settings, version_id, 0u32);
-        self.dbus_connection
-            .send_with_reply_and_block(reapply, RPC_TIMEOUT_MS)
-            .map_err(Error::Dbus)?;
+        // Update the DNS config
+
+        let v4_dns: Vec<u32> = servers
+            .iter()
+            .filter_map(|server| {
+                match server {
+                    // Network-byte order
+                    IpAddr::V4(server) => Some(u32::to_be(server.clone().into())),
+                    IpAddr::V6(_) => None,
+                }
+            })
+            .collect();
+        if !v4_dns.is_empty() {
+            Self::update_dns_config(&mut settings, "ipv4", v4_dns);
+        }
+
+        let v6_dns: Vec<Vec<u8>> = servers
+            .iter()
+            .filter_map(|server| match server {
+                IpAddr::V4(_) => None,
+                IpAddr::V6(server) => Some(server.octets().to_vec()),
+            })
+            .collect();
+        if !v6_dns.is_empty() {
+            Self::update_dns_config(&mut settings, "ipv6", v6_dns);
+        }
+
+        self.reapply_settings(&device, settings, version_id)?;
+
+        self.device = Some(device);
+        self.settings_backup = Some(settings_backup);
 
         Ok(())
     }
 
     pub fn reset(&mut self) -> Result<()> {
+        if let Some(settings_backup) = self.settings_backup.take() {
+            let device = self.device.take().ok_or(Error::LinkNotFound)?;
+            self.reapply_settings(&device, settings_backup, 0u64)?;
+        } else {
+            log::trace!("No DNS settings to reset");
+        }
+        Ok(())
+    }
+
+    fn reapply_settings<Settings: Append>(
+        &self,
+        device: &dbus::Path<'_>,
+        settings: Settings,
+        version_id: u64,
+    ) -> Result<()> {
+        let reapply = Message::new_method_call(NM_BUS, device, NM_DEVICE, "Reapply")
+            .map_err(Error::DbusMethodCall)?
+            .append3(settings, version_id, 0u32);
+        self.dbus_connection
+            .send_with_reply_and_block(reapply, RPC_TIMEOUT_MS)
+            .map_err(Error::Dbus)?;
         Ok(())
     }
 
@@ -267,7 +301,7 @@ impl NetworkManager {
         settings.insert("dns", Variant(Box::new(servers)));
     }
 
-    fn fetch_device(&self, interface_name: &str) -> Result<dbus::Path<'_>> {
+    fn fetch_device(&self, interface_name: &str) -> Result<dbus::Path<'static>> {
         let devices: Box<dyn RefArg> = self
             .as_manager()
             .get(NM_TOP_OBJECT, "Devices")
