@@ -5,7 +5,7 @@ use super::{
 use crate::firewall::FirewallPolicy;
 use futures01::{sync::mpsc, Stream};
 use talpid_types::{
-    tunnel::{self as talpid_tunnel, ErrorStateCause},
+    tunnel::{self as talpid_tunnel, ErrorStateCause, FirewallPolicyError},
     ErrorExt,
 };
 
@@ -16,23 +16,29 @@ pub struct ErrorState {
 
 impl ErrorState {
     /// Returns true if firewall policy was applied successfully
-    fn set_firewall_policy(shared_values: &mut SharedTunnelStateValues) -> bool {
+    fn set_firewall_policy(
+        shared_values: &mut SharedTunnelStateValues,
+    ) -> Result<(), FirewallPolicyError> {
         let policy = FirewallPolicy::Blocked {
             allow_lan: shared_values.allow_lan,
         };
 
-        match shared_values.firewall.apply_policy(policy) {
-            Ok(()) => true,
-            Err(error) => {
+        shared_values
+            .firewall
+            .apply_policy(policy)
+            .map_err(|error| {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg(
                         "Failed to apply firewall policy for blocked state"
                     )
                 );
-                false
-            }
-        }
+                match error {
+                    #[cfg(windows)]
+                    crate::firewall::Error::ApplyingBlockedPolicy(policy_error) => policy_error,
+                    _ => FirewallPolicyError::Generic,
+                }
+            })
     }
 
     /// Returns true if a new tunnel device was successfully created.
@@ -61,14 +67,21 @@ impl TunnelState for ErrorState {
         block_reason: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         #[cfg(not(target_os = "android"))]
-        let is_blocking = Self::set_firewall_policy(shared_values);
+        let block_failure = Self::set_firewall_policy(shared_values).err();
         #[cfg(target_os = "android")]
-        let is_blocking = Self::create_blocking_tun(shared_values);
+        let block_failure = if !Self::create_blocking_tun(shared_values) {
+            Some(FirewallPolicyError::Generic)
+        } else {
+            None
+        };
         (
             TunnelStateWrapper::from(ErrorState {
                 block_reason: block_reason.clone(),
             }),
-            TunnelStateTransition::Error(talpid_tunnel::ErrorState::new(block_reason, is_blocking)),
+            TunnelStateTransition::Error(talpid_tunnel::ErrorState::new(
+                block_reason,
+                block_failure,
+            )),
         )
     }
 
@@ -84,7 +97,7 @@ impl TunnelState for ErrorState {
                 if let Err(error_state_cause) = shared_values.set_allow_lan(allow_lan) {
                     NewState(Self::enter(shared_values, error_state_cause))
                 } else {
-                    Self::set_firewall_policy(shared_values);
+                    let _ = Self::set_firewall_policy(shared_values);
                     SameState(self)
                 }
             }

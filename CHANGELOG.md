@@ -39,6 +39,8 @@ Line wrap the file at 100 chars.                                              Th
 - Make uninstaller on desktop platforms attempt to remove WireGuard keys from accounts.
 - Make important notifications not timeout on macOS and remain in the notification list on Linux.
 - Add exponential backoff to relay list downloader.
+- Display the original block reason in the non-blocking error state, and why applying the blocking
+  policy failed.
 
 #### Android
 - Show a system notification when the account time will soon run out.
@@ -46,6 +48,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Upgrade Wintun from 0.7 to 0.8.1.
+- Display causes of firewall errors in the GUI.
 
 #### Linux
 - Allow users to specify `net_cls` controller mountpoint via `TALPID_NET_CLS_MOUNT_DIR`. The

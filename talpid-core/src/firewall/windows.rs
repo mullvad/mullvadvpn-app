@@ -7,12 +7,13 @@ use super::{FirewallArguments, FirewallPolicy, FirewallT};
 use crate::winnet;
 use log::{debug, error, trace};
 use std::os::windows::ffi::OsStrExt;
-use talpid_types::net::Endpoint;
+use talpid_types::{net::Endpoint, tunnel::FirewallPolicyError};
 use widestring::WideCString;
 
 
 /// Errors that can happen when configuring the Windows firewall.
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     /// Failure to initialize windows firewall module
     #[error(display = "Failed to initialize windows firewall module")]
@@ -24,19 +25,19 @@ pub enum Error {
 
     /// Failure to apply a firewall _connecting_ policy
     #[error(display = "Failed to apply connecting firewall policy")]
-    ApplyingConnectingPolicy,
+    ApplyingConnectingPolicy(#[error(source)] FirewallPolicyError),
 
     /// Failure to apply a firewall _connected_ policy
     #[error(display = "Failed to apply connected firewall policy")]
-    ApplyingConnectedPolicy,
+    ApplyingConnectedPolicy(#[error(source)] FirewallPolicyError),
 
     /// Failure to apply firewall _blocked_ policy
     #[error(display = "Failed to apply blocked firewall policy")]
-    ApplyingBlockedPolicy,
+    ApplyingBlockedPolicy(#[error(source)] FirewallPolicyError),
 
     /// Failure to reset firewall policies
     #[error(display = "Failed to reset firewall policies")]
-    ResettingPolicy,
+    ResettingPolicy(#[error(source)] FirewallPolicyError),
 
     /// Failure to set TAP adapter metric
     #[error(display = "Unable to set TAP adapter metric")]
@@ -111,7 +112,7 @@ impl FirewallT for Firewall {
     }
 
     fn reset_policy(&mut self) -> Result<(), Self::Error> {
-        unsafe { WinFw_Reset().into_result() }?;
+        unsafe { WinFw_Reset().into_result().map_err(Error::ResettingPolicy) }?;
         Ok(())
     }
 }
@@ -141,8 +142,6 @@ impl Firewall {
     ) -> Result<(), Error> {
         trace!("Applying 'connecting' firewall policy");
         let ip_str = Self::widestring_ip(endpoint.address.ip());
-
-        // ip_str has to outlive winfw_relay
         let winfw_relay = WinFwRelay {
             ip: ip_str.as_ptr(),
             port: endpoint.address.port(),
@@ -152,31 +151,23 @@ impl Firewall {
         let mut relay_client: Vec<u16> = relay_client.as_os_str().encode_wide().collect();
         relay_client.push(0u16);
 
-        if pingable_hosts.is_empty() {
-            unsafe {
-                return WinFw_ApplyPolicyConnecting(
-                    winfw_settings,
-                    &winfw_relay,
-                    relay_client.as_ptr(),
-                    ptr::null(),
-                )
-                .into_result();
-            }
-        }
+        let pingable_hosts = if !pingable_hosts.is_empty() {
+            let pingable_addresses = pingable_hosts
+                .iter()
+                .map(|ip| Self::widestring_ip(*ip))
+                .collect::<Vec<_>>();
+            let pingable_address_ptrs = pingable_addresses
+                .iter()
+                .map(|ip| ip.as_ptr())
+                .collect::<Vec<_>>();
 
-        let pingable_addresses = pingable_hosts
-            .iter()
-            .map(|ip| Self::widestring_ip(*ip))
-            .collect::<Vec<_>>();
-        let pingable_address_ptrs = pingable_addresses
-            .iter()
-            .map(|ip| ip.as_ptr())
-            .collect::<Vec<_>>();
-
-        let pingable_hosts = WinFwPingableHosts {
-            interfaceAlias: ptr::null(),
-            addresses: pingable_address_ptrs.as_ptr(),
-            num_addresses: pingable_addresses.len(),
+            Some(WinFwPingableHosts {
+                interfaceAlias: ptr::null(),
+                addresses: pingable_address_ptrs.as_ptr(),
+                num_addresses: pingable_addresses.len(),
+            })
+        } else {
+            None
         };
 
         unsafe {
@@ -184,9 +175,10 @@ impl Firewall {
                 winfw_settings,
                 &winfw_relay,
                 relay_client.as_ptr(),
-                &pingable_hosts,
+                pingable_hosts.as_ptr(),
             )
             .into_result()
+            .map_err(Error::ApplyingConnectingPolicy)
         }
     }
 
@@ -246,15 +238,32 @@ impl Firewall {
                 v6_gateway_ptr,
             )
             .into_result()
+            .map_err(Error::ApplyingConnectedPolicy)
         }
     }
 
     fn set_blocked_state(&mut self, winfw_settings: &WinFwSettings) -> Result<(), Error> {
         trace!("Applying 'blocked' firewall policy");
-        unsafe { WinFw_ApplyPolicyBlocked(winfw_settings).into_result() }
+        unsafe {
+            WinFw_ApplyPolicyBlocked(winfw_settings)
+                .into_result()
+                .map_err(Error::ApplyingBlockedPolicy)
+        }
     }
 }
 
+trait NullablePointer<T> {
+    fn as_ptr(&self) -> *const T;
+}
+
+impl<T> NullablePointer<T> for Option<T> {
+    fn as_ptr(&self) -> *const T {
+        match self {
+            Some(ref value) => value,
+            None => ptr::null(),
+        }
+    }
+}
 
 #[allow(non_snake_case)]
 mod winfw {
@@ -319,10 +328,34 @@ mod winfw {
 
     ffi_error!(InitializationResult, Error::Initialization);
     ffi_error!(DeinitializationResult, Error::Deinitialization);
-    ffi_error!(ApplyConnectingResult, Error::ApplyingConnectingPolicy);
-    ffi_error!(ApplyConnectedResult, Error::ApplyingConnectedPolicy);
-    ffi_error!(ApplyBlockedResult, Error::ApplyingBlockedPolicy);
-    ffi_error!(ResettingPolicyResult, Error::ResettingPolicy);
+
+    #[derive(Debug)]
+    #[allow(dead_code)]
+    #[repr(u32)]
+    pub enum WinFwPolicyStatus {
+        Success = 0,
+        GeneralFailure = 1,
+        LockTimeout = 2,
+    }
+
+    impl WinFwPolicyStatus {
+        pub fn into_result(self) -> Result<(), super::FirewallPolicyError> {
+            match self {
+                WinFwPolicyStatus::Success => Ok(()),
+                WinFwPolicyStatus::GeneralFailure => Err(super::FirewallPolicyError::Generic),
+                WinFwPolicyStatus::LockTimeout => {
+                    // TODO: Obtain application name and string from WinFw
+                    Err(super::FirewallPolicyError::Locked(None))
+                }
+            }
+        }
+    }
+
+    impl Into<Result<(), super::FirewallPolicyError>> for WinFwPolicyStatus {
+        fn into(self) -> Result<(), super::FirewallPolicyError> {
+            self.into_result()
+        }
+    }
 
     extern "system" {
         #[link_name = "WinFw_Initialize"]
@@ -349,7 +382,7 @@ mod winfw {
             relay: &WinFwRelay,
             relayClient: *const libc::wchar_t,
             pingable_hosts: *const WinFwPingableHosts,
-        ) -> ApplyConnectingResult;
+        ) -> WinFwPolicyStatus;
 
         #[link_name = "WinFw_ApplyPolicyConnected"]
         pub fn WinFw_ApplyPolicyConnected(
@@ -359,12 +392,12 @@ mod winfw {
             tunnelIfaceAlias: *const libc::wchar_t,
             v4Gateway: *const libc::wchar_t,
             v6Gateway: *const libc::wchar_t,
-        ) -> ApplyConnectedResult;
+        ) -> WinFwPolicyStatus;
 
         #[link_name = "WinFw_ApplyPolicyBlocked"]
-        pub fn WinFw_ApplyPolicyBlocked(settings: &WinFwSettings) -> ApplyBlockedResult;
+        pub fn WinFw_ApplyPolicyBlocked(settings: &WinFwSettings) -> WinFwPolicyStatus;
 
         #[link_name = "WinFw_Reset"]
-        pub fn WinFw_Reset() -> ResettingPolicyResult;
+        pub fn WinFw_Reset() -> WinFwPolicyStatus;
     }
 }

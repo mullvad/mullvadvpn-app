@@ -15,6 +15,16 @@ export interface ILocation {
   bridgeHostname?: string;
 }
 
+export type FirewallPolicyError =
+  | { reason: 'generic' }
+  | {
+      reason: 'locked';
+      details?: {
+        name: string;
+        pid: number;
+      };
+    };
+
 export type TunnelParameterError =
   | 'no_matching_relay'
   | 'no_matching_bridge_relay'
@@ -25,12 +35,12 @@ export type ErrorStateCause =
   | {
       reason:
         | 'ipv6_unavailable'
-        | 'set_firewall_policy_error'
         | 'set_dns_error'
         | 'start_tunnel_error'
         | 'is_offline'
         | 'tap_adapter_problem';
     }
+  | { reason: 'set_firewall_policy_error'; details: FirewallPolicyError }
   | { reason: 'tunnel_parameter_error'; details: TunnelParameterError }
   | { reason: 'auth_failed'; details?: string };
 
@@ -102,7 +112,7 @@ export type TunnelState =
   | { state: 'error'; details: IErrorState };
 
 export interface IErrorState {
-  isBlocking: boolean;
+  blockFailure?: FirewallPolicyError;
   cause: ErrorStateCause;
 }
 

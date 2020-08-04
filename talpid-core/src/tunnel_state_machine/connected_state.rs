@@ -12,7 +12,7 @@ use futures01::{
 };
 use talpid_types::{
     net::{Endpoint, TunnelParameters},
-    tunnel::ErrorStateCause,
+    tunnel::{ErrorStateCause, FirewallPolicyError},
     BoxedError, ErrorExt,
 };
 
@@ -51,7 +51,7 @@ impl ConnectedState {
     fn set_firewall_policy(
         &self,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> Result<(), crate::firewall::Error> {
+    ) -> Result<(), FirewallPolicyError> {
         // If a proxy is specified we need to pass it on as the peer endpoint.
         let peer_endpoint = self.get_endpoint_from_params();
 
@@ -65,7 +65,24 @@ impl ConnectedState {
                 &self.tunnel_parameters,
             ),
         };
-        shared_values.firewall.apply_policy(policy)
+        shared_values
+            .firewall
+            .apply_policy(policy)
+            .map_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to apply firewall policy for connected state"
+                    )
+                );
+                #[cfg(windows)]
+                match error {
+                    crate::firewall::Error::ApplyingConnectedPolicy(policy_error) => policy_error,
+                    _ => FirewallPolicyError::Generic,
+                }
+                #[cfg(not(windows))]
+                FirewallPolicyError::Generic
+            })
     }
 
     fn get_endpoint_from_params(&self) -> Endpoint {
@@ -140,18 +157,10 @@ impl ConnectedState {
                 } else {
                     match self.set_firewall_policy(shared_values) {
                         Ok(()) => SameState(self),
-                        Err(error) => {
-                            log::error!(
-                                "{}",
-                                error.display_chain_with_msg(
-                                    "Failed to apply firewall policy for connected state"
-                                )
-                            );
-                            self.disconnect(
-                                shared_values,
-                                AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError),
-                            )
-                        }
+                        Err(error) => self.disconnect(
+                            shared_values,
+                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
+                        ),
                     }
                 }
             }
@@ -237,16 +246,12 @@ impl TunnelState for ConnectedState {
         let tunnel_endpoint = connected_state.tunnel_parameters.get_tunnel_endpoint();
 
         if let Err(error) = connected_state.set_firewall_policy(shared_values) {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to apply firewall policy for connected state")
-            );
             DisconnectingState::enter(
                 shared_values,
                 (
                     connected_state.close_handle,
                     connected_state.tunnel_close_event,
-                    AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError),
+                    AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
                 ),
             )
         } else if let Err(error) = connected_state.set_dns(shared_values) {

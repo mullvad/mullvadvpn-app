@@ -1,7 +1,13 @@
 import { sprintf } from 'sprintf-js';
 import { hasExpired } from '../account-expiry';
 import { AuthFailureKind, parseAuthFailure } from '../auth-failure';
-import { IErrorState, TunnelState, TunnelParameterError } from '../daemon-rpc-types';
+import {
+  IErrorState,
+  TunnelState,
+  TunnelParameterError,
+  ErrorStateCause,
+  FirewallPolicyError,
+} from '../daemon-rpc-types';
 import { messages } from '../gettext';
 import {
   InAppNotification,
@@ -27,7 +33,7 @@ export class ErrorNotificationProvider
             this.context.tunnelState,
             this.context.accountExpiry,
           ),
-          critical: !this.context.tunnelState.details.isBlocking,
+          critical: !!this.context.tunnelState.details.blockFailure,
         }
       : undefined;
   }
@@ -36,7 +42,7 @@ export class ErrorNotificationProvider
     return this.context.tunnelState.state === 'error'
       ? {
           indicator: 'error',
-          title: this.context.tunnelState.details.isBlocking
+          title: !this.context.tunnelState.details.blockFailure
             ? messages.pgettext('in-app-notifications', 'BLOCKING INTERNET')
             : messages.pgettext('in-app-notifications', 'YOU MIGHT BE LEAKING NETWORK TRAFFIC'),
           subtitle: getInAppNotificationSubtitle(this.context.tunnelState),
@@ -49,7 +55,7 @@ function getSystemNotificationMessage(
   tunnelState: { state: 'error'; details: IErrorState },
   accountExpiry?: string,
 ) {
-  if (!tunnelState.details.isBlocking) {
+  if (tunnelState.details.blockFailure) {
     return messages.pgettext('notifications', 'Critical error (your attention is required)');
   } else if (
     (tunnelState.details.cause.reason === 'auth_failed' &&
@@ -75,57 +81,85 @@ function getSystemNotificationMessage(
 }
 
 function getInAppNotificationSubtitle(tunnelState: { state: 'error'; details: IErrorState }) {
-  if (!tunnelState.details.isBlocking) {
-    return messages.pgettext(
+  let blockFailureMessage = null;
+  if (tunnelState.details.blockFailure) {
+    const extraMessage = getPolicyMessage(tunnelState.details.blockFailure);
+    blockFailureMessage = `${messages.pgettext(
       'in-app-notifications',
-      'Failed to block all network traffic. Please troubleshoot or report the problem to us.',
-    );
-  } else {
-    const blockReason = tunnelState.details.cause;
-    switch (blockReason.reason) {
-      case 'auth_failed':
-        return parseAuthFailure(blockReason.details).message;
-      case 'ipv6_unavailable':
-        return messages.pgettext(
-          'in-app-notifications',
-          'Could not configure IPv6, please enable it on your system or disable it in the app',
-        );
-      case 'set_firewall_policy_error': {
-        let extraMessage = null;
-        switch (process.platform) {
-          case 'linux':
-            extraMessage = messages.pgettext('in-app-notifications', 'Your kernel may be outdated');
-            break;
-          case 'win32':
+      'Failed to block all network traffic',
+    )}${extraMessage ? '. ' + extraMessage : ''}`;
+  }
+
+  const blockMessage = getBlockMessage(tunnelState.details.cause);
+  return blockFailureMessage
+    ? `${blockFailureMessage}. ${messages.pgettext(
+        'in-app-notifications',
+        'Original block reason',
+      )}: ${blockMessage}`
+    : blockMessage;
+}
+
+function getBlockMessage(blockReason: ErrorStateCause): string {
+  switch (blockReason.reason) {
+    case 'auth_failed':
+      return parseAuthFailure(blockReason.details).message;
+    case 'ipv6_unavailable':
+      return messages.pgettext(
+        'in-app-notifications',
+        'Could not configure IPv6, please enable it on your system or disable it in the app',
+      );
+    case 'set_firewall_policy_error': {
+      const extraMessage = getPolicyMessage(blockReason.details);
+      return `${messages.pgettext(
+        'in-app-notifications',
+        'Failed to apply firewall rules. The device might currently be unsecured',
+      )}${extraMessage ? '. ' + extraMessage : ''}`;
+    }
+    case 'set_dns_error':
+      return messages.pgettext('in-app-notifications', 'Failed to set system DNS server');
+    case 'start_tunnel_error':
+      return messages.pgettext('in-app-notifications', 'Failed to start tunnel connection');
+    case 'tunnel_parameter_error':
+      return getTunnelParameterMessage(blockReason.details);
+    case 'is_offline':
+      return messages.pgettext(
+        'in-app-notifications',
+        'This device is offline, no tunnels can be established',
+      );
+    case 'tap_adapter_problem':
+      return messages.pgettext(
+        'in-app-notifications',
+        "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app",
+      );
+  }
+}
+
+function getPolicyMessage(err: FirewallPolicyError): string | null {
+  let extraMessage = null;
+  switch (process.platform) {
+    case 'linux':
+      extraMessage = messages.pgettext('in-app-notifications', 'Your kernel may be outdated');
+      break;
+    case 'win32':
+      switch (err.reason) {
+        case 'locked':
+          if (err.details) {
+            // TODO: Check if this message is ok
+            extraMessage = `${messages.pgettext(
+              'in-app-notifications',
+              'An application prevented the policy from being set',
+            )}: ${err.details.name}`;
+          } else {
             extraMessage = messages.pgettext(
               'in-app-notifications',
               'This might be caused by third party security software',
             );
-            break;
-        }
-        return `${messages.pgettext(
-          'in-app-notifications',
-          'Failed to apply firewall rules. The device might currently be unsecured',
-        )}${extraMessage ? '. ' + extraMessage : ''}`;
+          }
+          break;
       }
-      case 'set_dns_error':
-        return messages.pgettext('in-app-notifications', 'Failed to set system DNS server');
-      case 'start_tunnel_error':
-        return messages.pgettext('in-app-notifications', 'Failed to start tunnel connection');
-      case 'tunnel_parameter_error':
-        return getTunnelParameterMessage(blockReason.details);
-      case 'is_offline':
-        return messages.pgettext(
-          'in-app-notifications',
-          'This device is offline, no tunnels can be established',
-        );
-      case 'tap_adapter_problem':
-        return messages.pgettext(
-          'in-app-notifications',
-          "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app",
-        );
-    }
+      break;
   }
+  return extraMessage;
 }
 
 function getTunnelParameterMessage(err: TunnelParameterError): string {

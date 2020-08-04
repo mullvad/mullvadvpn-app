@@ -41,20 +41,28 @@ pub enum ActionAfterDisconnect {
 pub struct ErrorState {
     /// Reason why the tunnel state machine ended up in the error state
     cause: ErrorStateCause,
-    /// Indicates whether the daemon is currently blocking all traffic. This _should_ always be
-    /// true - in the case it is not, the user should be notified that no traffic is being blocked.
-    /// A false value means there was a serious error and the intended security properties are not
+    /// Indicates whether the daemon is currently blocking all traffic. This _should_ always
+    /// succeed - in the case it does not, the user should be notified that no traffic is being
+    /// blocked.
+    /// An error value means there was a serious error and the intended security properties are not
     /// being upheld.
-    is_blocking: bool,
+    #[cfg_attr(
+        target_os = "android",
+        jnix(map = "|block_failure| block_failure.is_none()")
+    )]
+    block_failure: Option<FirewallPolicyError>,
 }
 
 impl ErrorState {
-    pub fn new(cause: ErrorStateCause, is_blocking: bool) -> Self {
-        Self { cause, is_blocking }
+    pub fn new(cause: ErrorStateCause, block_failure: Option<FirewallPolicyError>) -> Self {
+        Self {
+            cause,
+            block_failure,
+        }
     }
 
     pub fn is_blocking(&self) -> bool {
-        self.is_blocking
+        self.block_failure.is_none()
     }
 
     pub fn cause(&self) -> &ErrorStateCause {
@@ -75,7 +83,7 @@ pub enum ErrorStateCause {
     /// Failed to configure IPv6 because it's disabled in the platform.
     Ipv6Unavailable,
     /// Failed to set firewall policy.
-    SetFirewallPolicyError,
+    SetFirewallPolicyError(FirewallPolicyError),
     /// Failed to set system DNS server.
     SetDnsError,
     /// Failed to start connection to remote server.
@@ -111,6 +119,30 @@ pub enum ParameterGenerationError {
     CustomTunnelHostResultionError,
 }
 
+/// Application that prevents setting the firewall policy.
+#[cfg(windows)]
+#[derive(Debug, Serialize, Clone, PartialEq, Deserialize)]
+pub struct BlockingApplication {
+    pub name: String,
+    pub pid: u32,
+}
+
+/// Errors that can occur when setting the firewall policy.
+#[derive(err_derive::Error, Debug, Serialize, Clone, PartialEq, Deserialize)]
+#[serde(rename_all = "snake_case")]
+#[serde(tag = "reason", content = "details")]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.tunnel"))]
+pub enum FirewallPolicyError {
+    /// General firewall failure
+    #[error(display = "Failed to set firewall policy")]
+    Generic,
+    /// An application prevented the firewall policy from being set
+    #[cfg(windows)]
+    #[error(display = "An application prevented the firewall policy from being set")]
+    Locked(Option<BlockingApplication>),
+}
+
 impl fmt::Display for ErrorStateCause {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::ErrorStateCause::*;
@@ -126,7 +158,15 @@ impl fmt::Display for ErrorStateCause {
                 );
             }
             Ipv6Unavailable => "Failed to configure IPv6 because it's disabled in the platform",
-            SetFirewallPolicyError => "Failed to set firewall policy",
+            SetFirewallPolicyError(ref err) => {
+                return match err {
+                    #[cfg(windows)]
+                    FirewallPolicyError::Locked(Some(value)) => {
+                        write!(f, "{}: {} (pid {})", err, value.name, value.pid)
+                    }
+                    _ => write!(f, "{}", err),
+                };
+            }
             SetDnsError => "Failed to set system DNS server",
             StartTunnelError => "Failed to start connection to remote server",
             TunnelParameterError(ref err) => {
