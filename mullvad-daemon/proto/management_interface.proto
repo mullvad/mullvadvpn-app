@@ -106,13 +106,27 @@ message ErrorState {
 		CUSTOM_TUNNEL_HOST_RESOLUTION_ERROR = 3;
 	}
 
+	message FirewallPolicyError {
+		enum ErrorType {
+			GENERIC = 0;
+			LOCKED = 1;
+		}
+		ErrorType type = 1;
+
+		// LOCKED
+		uint32 lock_pid = 2;
+		string lock_name = 3;
+	}
+
 	Cause cause = 1;
 	bool is_blocking = 2;
 
-	// NOTE: only if AuthFailed
+	// AUTH_FAILED
 	string auth_fail_reason = 3;
-	// NOTE: only if TunnelParameterError
+	// TUNNEL_PARAMETER_ERROR
 	GenerationError parameter_error = 4;
+	// SET_FIREWALL_POLICY_ERROR
+	FirewallPolicyError policy_error = 5;
 }
 
 message TunnelState {

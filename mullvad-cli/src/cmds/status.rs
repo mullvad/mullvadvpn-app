@@ -2,7 +2,10 @@ use crate::{format::print_keygen_event, new_grpc_client, proto, Command, Error, 
 use mullvad_types::auth_failed::AuthFailed;
 use proto::{
     daemon_event::Event as EventType,
-    error_state::{Cause as ErrorStateCause, GenerationError},
+    error_state::{
+        firewall_policy_error::ErrorType as FirewallPolicyErrorType, Cause as ErrorStateCause,
+        FirewallPolicyError, GenerationError,
+    },
     management_service_client::ManagementServiceClient,
     ErrorState, ProxyType, TransportProtocol, TunnelEndpoint, TunnelState, TunnelType,
 };
@@ -201,7 +204,9 @@ fn error_state_to_string(error_state: &ErrorState) -> String {
             };
         }
         Ipv6Unavailable => "Failed to configure IPv6 because it's disabled in the platform",
-        SetFirewallPolicyError => "Failed to set firewall policy",
+        SetFirewallPolicyError => {
+            return policy_error_to_string(error_state.policy_error.as_ref().unwrap())
+        }
         SetDnsError => "Failed to set system DNS server",
         StartTunnelError => "Failed to start connection to remote server",
         TunnelParameterError => {
@@ -230,6 +235,19 @@ fn tunnel_parameter_error_to_string(parameter_error: i32) -> &'static str {
             "Can't resolve hostname for custom tunnel host"
         }
     }
+}
+
+fn policy_error_to_string(policy_error: &FirewallPolicyError) -> String {
+    let cause = match FirewallPolicyErrorType::from_i32(policy_error.r#type)
+        .expect("unknown policy error")
+    {
+        FirewallPolicyErrorType::Generic => return "Failed to set firewall policy".to_string(),
+        FirewallPolicyErrorType::Locked => format!(
+            "An application prevented the firewall policy from being set: {} (pid {})",
+            policy_error.lock_name, policy_error.lock_pid
+        ),
+    };
+    format!("Failed to set firewall policy: {}", cause)
 }
 
 async fn print_location(
