@@ -6,11 +6,7 @@ use dbus::{
 };
 use lazy_static::lazy_static;
 use libc::{AF_INET, AF_INET6};
-use std::{
-    fs, io,
-    net::{IpAddr, Ipv4Addr},
-    path::Path,
-};
+use std::{fs, io, net::IpAddr, path::Path};
 use talpid_types::ErrorExt as _;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -23,9 +19,6 @@ pub enum Error {
 
     #[error(display = "/etc/resolv.conf is not a symlink to Systemd resolved")]
     NotSymlinkedToResolvConf,
-
-    #[error(display = "Systemd resolved DNS 127.0.0.53, is not currently configured")]
-    NoDnsPointsToResolved,
 
     #[error(display = "Systemd resolved not detected")]
     NoSystemdResolved(#[error(source)] dbus::Error),
@@ -62,8 +55,6 @@ lazy_static! {
     ];
 }
 
-const RESOLVED_DNS_SERVER_ADDRESS: [u8; 4] = [127, 0, 0, 53];
-
 const RESOLVED_BUS: &str = "org.freedesktop.resolve1";
 const RPC_TIMEOUT_MS: i32 = 1000;
 
@@ -94,7 +85,6 @@ impl SystemdResolved {
 
         systemd_resolved.ensure_resolved_exists()?;
         Self::ensure_resolv_conf_is_resolved_symlink()?;
-        Self::ensure_resolv_conf_has_resolved_dns()?;
 
         Ok(systemd_resolved)
     }
@@ -135,25 +125,6 @@ impl SystemdResolved {
             }
         } else {
             RESOLVED_PATHS.contains(&link_path)
-        }
-    }
-
-    fn ensure_resolv_conf_has_resolved_dns() -> Result<()> {
-        let resolv_conf_contents =
-            fs::read_to_string(RESOLV_CONF_PATH).map_err(Error::ReadResolvConfFailed)?;
-        let parsed_resolv_conf = resolv_conf::Config::parse(resolv_conf_contents)
-            .map_err(Error::ParseResolvConfFailed)?;
-        let resolved_dns_server =
-            resolv_conf::ScopedIp::V4(Ipv4Addr::from(RESOLVED_DNS_SERVER_ADDRESS));
-
-        if parsed_resolv_conf
-            .nameservers
-            .into_iter()
-            .any(|nameserver| nameserver == resolved_dns_server)
-        {
-            Ok(())
-        } else {
-            Err(Error::NoDnsPointsToResolved)
         }
     }
 
