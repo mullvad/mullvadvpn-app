@@ -173,28 +173,12 @@ export class DaemonRpc {
     return this.transport.getSettings();
   }
 
-  public async subscribeDaemonEventListener(
-    _listener: SubscriptionListener<DaemonEvent>,
-  ): Promise<void> {
-    // const subscriptionId = await this.transport.subscribe('daemon_event', (payload) => {
-    //   let daemonEvent: DaemonEvent;
-    //   try {
-    //     daemonEvent = camelCaseObjectKeys(validate(daemonEventSchema, payload));
-    //   } catch (error) {
-    //     listener.onError(new ResponseParseError('Invalid payload from daemon_event', error));
-    //     return;
-    //   }
-    //   listener.onEvent(daemonEvent);
-    // });
-    // listener.subscriptionId = subscriptionId;
+  public subscribeDaemonEventListener(listener: SubscriptionListener<DaemonEvent>) {
+    this.transport.subscribeDaemonEventListener(listener);
   }
 
-  public async unsubscribeDaemonEventListener(
-    _listener: SubscriptionListener<DaemonEvent>,
-  ): Promise<void> {
-    // if (listener.subscriptionId) {
-    //   return this.transport.unsubscribe('daemon_event', listener.subscriptionId);
-    // }
+  public unsubscribeDaemonEventListener(listener: SubscriptionListener<DaemonEvent>) {
+    this.transport.unsubscribeDaemonEventListener(listener);
   }
 
   public getAccountHistory(): Promise<AccountToken[]> {
