@@ -39,6 +39,7 @@
 		580EE22824B3289300F9D8A1 /* AssociatedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22724B3289300F9D8A1 /* AssociatedValue.swift */; };
 		580EE22924B3289300F9D8A1 /* AssociatedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 580EE22724B3289300F9D8A1 /* AssociatedValue.swift */; };
 		5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */; };
+		58141EC924DAC0ED0013F79C /* TextFileStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58141EC824DAC0ED0013F79C /* TextFileStream.swift */; };
 		5815039724D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5815039624D6ECAE00C9C50E /* CustomFormatLogHandler.swift */; };
 		5815039824D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5815039624D6ECAE00C9C50E /* CustomFormatLogHandler.swift */; };
 		5815039D24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5815039C24D6ECE600C9C50E /* TextFileOutputStream.swift */; };
@@ -268,6 +269,7 @@
 		580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncBlockOperation.swift; sourceTree = "<group>"; };
 		580EE22724B3289300F9D8A1 /* AssociatedValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssociatedValue.swift; sourceTree = "<group>"; };
 		5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NEVPNStatus+Debug.swift"; sourceTree = "<group>"; };
+		58141EC824DAC0ED0013F79C /* TextFileStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFileStream.swift; sourceTree = "<group>"; };
 		5815039324D6EB7200C9C50E /* LogRotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRotation.swift; sourceTree = "<group>"; };
 		5815039624D6ECAE00C9C50E /* CustomFormatLogHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomFormatLogHandler.swift; sourceTree = "<group>"; };
 		5815039C24D6ECE600C9C50E /* TextFileOutputStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFileOutputStream.swift; sourceTree = "<group>"; };
@@ -465,6 +467,7 @@
 				5815039C24D6ECE600C9C50E /* TextFileOutputStream.swift */,
 				581503A524D6F4AE00C9C50E /* Logging.swift */,
 				5815039324D6EB7200C9C50E /* LogRotation.swift */,
+				58141EC824DAC0ED0013F79C /* TextFileStream.swift */,
 			);
 			path = Logging;
 			sourceTree = "<group>";
@@ -1032,6 +1035,7 @@
 				58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
 				58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
+				58141EC924DAC0ED0013F79C /* TextFileStream.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
 				58F840B22464491D0044E708 /* ChainedError.swift in Sources */,
 				58FAEDFF24533A7000CB0F5B /* KeychainReturn.swift in Sources */,
