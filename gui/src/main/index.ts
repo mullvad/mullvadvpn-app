@@ -63,7 +63,7 @@ import WindowController from './window-controller';
 const linuxSplitTunneling = process.platform === 'linux' && require('./linux-split-tunneling');
 
 const DAEMON_RPC_PATH =
-  process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
+  process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
 
 const AUTO_CONNECT_FALLBACK_DELAY = 6000;
 
@@ -95,7 +95,7 @@ class ApplicationMain {
   private windowController?: WindowController;
   private trayIconController?: TrayIconController;
 
-  private daemonRpc = new DaemonRpc();
+  private daemonRpc = new DaemonRpc(DAEMON_RPC_PATH);
   private daemonEventListener?: SubscriptionListener<DaemonEvent>;
   private reconnectBackoff = new ReconnectionBackoff();
   private connectedToDaemon = false;
@@ -506,6 +506,9 @@ class ApplicationMain {
     // Reset the daemon event listener since it's going to be invalidated on disconnect
     this.daemonEventListener = undefined;
 
+    // TODO: GRPC doesn't set an error, but without an error, the UI won't be updated
+    error = error === undefined && wasConnected ? new Error('Connection to daemon lost') : error;
+
     if (wasConnected) {
       this.connectedToDaemon = false;
 
@@ -528,21 +531,13 @@ class ApplicationMain {
       } else {
         log.error(`Failed to connect to daemon: ${error.message}`);
       }
-
-      this.reconnectToDaemon();
     } else {
       log.info('Disconnected from the daemon');
     }
   };
 
   private connectToDaemon() {
-    consumePromise(this.daemonRpc.connect({ path: DAEMON_RPC_PATH }));
-  }
-
-  private reconnectToDaemon() {
-    this.reconnectBackoff.attempt(() => {
-      this.connectToDaemon();
-    });
+    consumePromise(this.daemonRpc.connect());
   }
 
   private recoverFromBootstrapError(_error?: Error) {
