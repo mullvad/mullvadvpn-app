@@ -35,10 +35,14 @@ export class ResponseParseError extends Error {
 // const NETWORK_CALL_TIMEOUT = 10000;
 
 export class DaemonRpc {
-  private transport = new GrpcClient();
+  constructor(connectionParams: string) {
+    this.transport = new GrpcClient(connectionParams);
+  }
 
-  public connect(connectionParams: { path: string }): Promise<void> {
-    return this.transport.connect(connectionParams);
+  private transport: GrpcClient;
+
+  public connect(): Promise<void> {
+    return this.transport.connect();
   }
 
   public disconnect() {
@@ -109,8 +113,10 @@ export class DaemonRpc {
     await this.transport.setAccount(accountToken);
   }
 
-  public async updateRelaySettings(_relaySettings: RelaySettingsUpdate): Promise<void> {
-    // await this.transport.updateRelaySettings(relaySettings);
+  public async updateRelaySettings(relaySettings: RelaySettingsUpdate): Promise<void> {
+    if ('normal' in relaySettings) {
+      await this.transport.updateRelaySettings(relaySettings.normal);
+    }
   }
 
   public async setAllowLan(allowLan: boolean): Promise<void> {
@@ -133,8 +139,8 @@ export class DaemonRpc {
     await this.transport.setBridgeState(bridgeState);
   }
 
-  public async setBridgeSettings(_bridgeSettings: BridgeSettings): Promise<void> {
-    // await this.transport.setBridgeSettings(bridgeSettings);
+  public async setBridgeSettings(bridgeSettings: BridgeSettings): Promise<void> {
+    await this.transport.setBridgeSettings(bridgeSettings);
   }
 
   public async setOpenVpnMssfix(mssfix?: number): Promise<void> {
