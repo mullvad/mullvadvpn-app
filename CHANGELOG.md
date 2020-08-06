@@ -72,6 +72,9 @@ Line wrap the file at 100 chars.                                              Th
   connecting.
 - Fix notification sometimes not being dismissible.
 
+#### Linux
+- Fix `systemd-resolved` DNS management by not parsing `/etc/resolv.conf`.
+
 
 ## [2020.5] - 2020-06-25
 ### Added

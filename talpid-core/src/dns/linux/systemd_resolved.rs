@@ -6,11 +6,7 @@ use dbus::{
 };
 use lazy_static::lazy_static;
 use libc::{AF_INET, AF_INET6};
-use std::{
-    fs, io,
-    net::{IpAddr, Ipv4Addr},
-    path::Path,
-};
+use std::{fs, io, net::IpAddr, path::Path};
 use talpid_types::ErrorExt as _;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -23,9 +19,6 @@ pub enum Error {
 
     #[error(display = "/etc/resolv.conf is not a symlink to Systemd resolved")]
     NotSymlinkedToResolvConf,
-
-    #[error(display = "Systemd resolved DNS 127.0.0.53, is not currently configured")]
-    NoDnsPointsToResolved,
 
     #[error(display = "Systemd resolved not detected")]
     NoSystemdResolved(#[error(source)] dbus::Error),
@@ -56,13 +49,12 @@ pub enum Error {
 }
 
 lazy_static! {
-    static ref RESOLVED_PATHS: Vec<&'static Path> = vec![
+    static ref RESOLVED_STUB_PATHS: Vec<&'static Path> = vec![
         Path::new("/run/systemd/resolve/stub-resolv.conf"),
-        Path::new("/run/systemd/resolve/resolv.conf"),
+        Path::new("/var/run/systemd/resolve/stub-resolv.conf"),
     ];
 }
 
-const RESOLVED_DNS_SERVER_ADDRESS: [u8; 4] = [127, 0, 0, 53];
 
 const RESOLVED_BUS: &str = "org.freedesktop.resolve1";
 const RPC_TIMEOUT_MS: i32 = 1000;
@@ -94,7 +86,6 @@ impl SystemdResolved {
 
         systemd_resolved.ensure_resolved_exists()?;
         Self::ensure_resolv_conf_is_resolved_symlink()?;
-        Self::ensure_resolv_conf_has_resolved_dns()?;
 
         Ok(systemd_resolved)
     }
@@ -109,21 +100,26 @@ impl SystemdResolved {
     }
 
     fn ensure_resolv_conf_is_resolved_symlink() -> Result<()> {
-        let is_correct_symlink = fs::read_link(RESOLV_CONF_PATH)
-            .map(|resolv_conf_target| Self::compare_resolvconf_symlink(&resolv_conf_target))
-            .unwrap_or_else(|_| false);
-        if is_correct_symlink {
+        let link_target =
+            fs::read_link(RESOLV_CONF_PATH).map_err(|_| Error::NotSymlinkedToResolvConf)?;
+
+        // if /etc/resolv.conf is not symlinked to the stub resolve.conf file , managing DNS
+        // through systemd-resolved will not ensure that our resolver is given priority - sometimes
+        // this will mean adding 1 and 2 seconds of latency to DNS queries, other times our
+        // resolver won't be considered at all. In this case, it's better to fall back to cruder
+        // management methods.
+        if Self::path_is_resolvconf_stub(&link_target) {
             Ok(())
         } else {
             Err(Error::NotSymlinkedToResolvConf)
         }
     }
 
-    fn compare_resolvconf_symlink(link_path: &Path) -> bool {
+    fn path_is_resolvconf_stub(link_path: &Path) -> bool {
         // if link path is relative to /etc/resolv.conf, resolve the path and compare it.
         if link_path.is_relative() {
             match Path::new("/etc/").join(link_path).canonicalize() {
-                Ok(link_destination) => RESOLVED_PATHS.contains(&link_destination.as_ref()),
+                Ok(link_destination) => RESOLVED_STUB_PATHS.contains(&link_destination.as_ref()),
                 Err(e) => {
                     log::error!(
                         "Failed to canonicalize resolv conf path {} - {}",
@@ -134,26 +130,7 @@ impl SystemdResolved {
                 }
             }
         } else {
-            RESOLVED_PATHS.contains(&link_path)
-        }
-    }
-
-    fn ensure_resolv_conf_has_resolved_dns() -> Result<()> {
-        let resolv_conf_contents =
-            fs::read_to_string(RESOLV_CONF_PATH).map_err(Error::ReadResolvConfFailed)?;
-        let parsed_resolv_conf = resolv_conf::Config::parse(resolv_conf_contents)
-            .map_err(Error::ParseResolvConfFailed)?;
-        let resolved_dns_server =
-            resolv_conf::ScopedIp::V4(Ipv4Addr::from(RESOLVED_DNS_SERVER_ADDRESS));
-
-        if parsed_resolv_conf
-            .nameservers
-            .into_iter()
-            .any(|nameserver| nameserver == resolved_dns_server)
-        {
-            Ok(())
-        } else {
-            Err(Error::NoDnsPointsToResolved)
+            RESOLVED_STUB_PATHS.contains(&link_path)
         }
     }
 
