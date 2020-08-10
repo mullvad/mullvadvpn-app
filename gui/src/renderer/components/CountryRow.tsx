@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Component, Styles, View } from 'reactxp';
 import styled from 'styled-components';
+import { colors } from '../../config.json';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
 import Accordion from './Accordion';
 import * as Cell from './Cell';
@@ -38,6 +39,12 @@ const Button = styled(Cell.CellButton)({
 
 const StyledChevronButton = styled(ChevronButton)({
   marginLeft: '18px',
+});
+
+const Label = styled(Cell.Label)({
+  '[disabled] &': {
+    color: colors.white20,
+  },
 });
 
 export default class CountryRow extends Component<IProps> {
@@ -97,7 +104,7 @@ export default class CountryRow extends Component<IProps> {
             active={this.props.hasActiveRelays}
             selected={this.props.selected}
           />
-          <Cell.Label>{this.props.name}</Cell.Label>
+          <Label>{this.props.name}</Label>
           {hasChildren ? (
             <StyledChevronButton onClick={this.toggleCollapse} up={this.props.expanded} />
           ) : null}

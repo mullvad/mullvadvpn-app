@@ -20,6 +20,12 @@ const Button = styled(Cell.CellButton)((props: { selected: boolean }) => ({
   backgroundColor: !props.selected ? colors.blue20 : undefined,
 }));
 
+const Label = styled(Cell.Label)({
+  '[disabled] &': {
+    color: colors.white20,
+  },
+});
+
 export default class RelayRow extends Component<IProps> {
   public static compareProps(oldProps: IProps, nextProps: IProps) {
     return (
@@ -42,7 +48,7 @@ export default class RelayRow extends Component<IProps> {
         disabled={!this.props.active}>
         <RelayStatusIndicator active={this.props.active} selected={this.props.selected} />
 
-        <Cell.Label>{this.props.hostname}</Cell.Label>
+        <Label>{this.props.hostname}</Label>
       </Button>
     );
   }
