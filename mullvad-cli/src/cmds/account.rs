@@ -74,9 +74,7 @@ impl Command for Account {
 impl Account {
     async fn set(&self, token: Option<AccountToken>) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.set_account(token.clone().unwrap_or_default())
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.set_account(token.clone().unwrap_or_default()).await?;
         if let Some(token) = token {
             println!("Mullvad account \"{}\" set", token);
         } else {
@@ -87,17 +85,12 @@ impl Account {
 
     async fn get(&self) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let settings = rpc
-            .get_settings(())
-            .await
-            .map_err(Error::GrpcClientError)?
-            .into_inner();
+        let settings = rpc.get_settings(()).await?.into_inner();
         if settings.account_token != "" {
             println!("Mullvad account: {}", settings.account_token);
             let expiry = rpc
                 .get_account_data(settings.account_token)
-                .await
-                .map_err(Error::GrpcClientError)?
+                .await?
                 .into_inner();
             println!(
                 "Expires at     : {}",
@@ -111,9 +104,7 @@ impl Account {
 
     async fn create(&self) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.create_new_account(())
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.create_new_account(()).await?;
         println!("New account created!");
         self.get().await
     }
@@ -164,9 +155,7 @@ impl Account {
 
     async fn clear_history(&self) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.clear_account_history(())
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.clear_account_history(()).await?;
         println!("Removed account history and all associated keys");
         Ok(())
     }

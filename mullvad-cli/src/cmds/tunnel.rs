@@ -166,18 +166,14 @@ impl Tunnel {
     async fn process_wireguard_mtu_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mtu = value_t!(matches.value_of("mtu"), u16).unwrap_or_else(|e| e.exit());
         let mut rpc = new_grpc_client().await?;
-        rpc.set_wireguard_mtu(mtu as u32)
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.set_wireguard_mtu(mtu as u32).await?;
         println!("Wireguard MTU has been updated");
         Ok(())
     }
 
     async fn process_wireguard_mtu_unset() -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.set_wireguard_mtu(0)
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.set_wireguard_mtu(0).await?;
         println!("Wireguard MTU has been unset");
         Ok(())
     }
@@ -206,21 +202,14 @@ impl Tunnel {
             return Ok(());
         }
 
-        let is_valid = rpc
-            .verify_wireguard_key(())
-            .await
-            .map_err(Error::GrpcClientError)?
-            .into_inner();
+        let is_valid = rpc.verify_wireguard_key(()).await?.into_inner();
         println!("Key is valid for use with current account: {}", is_valid);
         Ok(())
     }
 
     async fn process_wireguard_key_generate() -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let keygen_event = rpc
-            .generate_wireguard_key(())
-            .await
-            .map_err(Error::GrpcClientError)?;
+        let keygen_event = rpc.generate_wireguard_key(()).await?;
         print_keygen_event(&keygen_event.into_inner());
         Ok(())
     }
@@ -238,18 +227,14 @@ impl Tunnel {
         let rotate_interval =
             value_t!(matches.value_of("interval"), u32).unwrap_or_else(|e| e.exit());
         let mut rpc = new_grpc_client().await?;
-        rpc.set_wireguard_rotation_interval(rotate_interval)
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.set_wireguard_rotation_interval(rotate_interval).await?;
         println!("Set key rotation interval: {} hour(s)", rotate_interval);
         Ok(())
     }
 
     async fn process_wireguard_rotation_interval_reset() -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.reset_wireguard_rotation_interval(())
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.reset_wireguard_rotation_interval(()).await?;
         println!("Set key rotation interval: default");
         Ok(())
     }
@@ -282,8 +267,7 @@ impl Tunnel {
         let mut rpc = new_grpc_client().await?;
         Ok(rpc
             .get_settings(())
-            .await
-            .map_err(Error::GrpcClientError)?
+            .await?
             .into_inner()
             .tunnel_options
             .unwrap())
@@ -291,9 +275,7 @@ impl Tunnel {
 
     async fn process_openvpn_mssfix_unset() -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.set_openvpn_mssfix(0)
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.set_openvpn_mssfix(0).await?;
         println!("mssfix parameter has been unset");
         Ok(())
     }
@@ -301,9 +283,7 @@ impl Tunnel {
     async fn process_openvpn_mssfix_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let new_value = value_t!(matches.value_of("mssfix"), u16).unwrap_or_else(|e| e.exit());
         let mut rpc = new_grpc_client().await?;
-        rpc.set_openvpn_mssfix(new_value as u32)
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.set_openvpn_mssfix(new_value as u32).await?;
         println!("mssfix parameter has been updated");
         Ok(())
     }
@@ -325,9 +305,7 @@ impl Tunnel {
         let enabled = matches.value_of("enable").unwrap() == "on";
 
         let mut rpc = new_grpc_client().await?;
-        rpc.set_enable_ipv6(enabled)
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.set_enable_ipv6(enabled).await?;
         if enabled {
             println!("Enabled IPv6");
         } else {

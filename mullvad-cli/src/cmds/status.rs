@@ -41,11 +41,7 @@ impl Command for Status {
 
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let state = rpc
-            .get_tunnel_state(())
-            .await
-            .map_err(Error::GrpcClientError)?
-            .into_inner();
+        let state = rpc.get_tunnel_state(()).await?.into_inner();
 
         print_state(&state);
         if matches.is_present("location") {
@@ -55,11 +51,7 @@ impl Command for Status {
         if let Some(listen_matches) = matches.subcommand_matches("listen") {
             let verbose = listen_matches.is_present("verbose");
 
-            let mut events = rpc
-                .events_listen(())
-                .await
-                .map_err(Error::GrpcClientError)?
-                .into_inner();
+            let mut events = rpc.events_listen(()).await?.into_inner();
 
             while let Some(event) = events.message().await? {
                 match event.event.unwrap() {

@@ -172,9 +172,7 @@ impl Command for Relay {
 impl Relay {
     async fn update_constraints(&self, update: RelaySettingsUpdate) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.update_relay_settings(update)
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.update_relay_settings(update).await?;
         println!("Relay constraints updated");
         Ok(())
     }
@@ -389,8 +387,7 @@ impl Relay {
         let mut rpc = new_grpc_client().await?;
         let constraints = rpc
             .get_settings(())
-            .await
-            .map_err(Error::GrpcClientError)?
+            .await?
             .into_inner()
             .relay_settings
             .unwrap();
@@ -458,11 +455,7 @@ impl Relay {
 
     async fn list(&self) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let mut locations = rpc
-            .get_relay_locations(())
-            .await
-            .map_err(Error::GrpcClientError)?
-            .into_inner();
+        let mut locations = rpc.get_relay_locations(()).await?.into_inner();
 
         let mut countries = Vec::new();
 
@@ -524,11 +517,7 @@ impl Relay {
     }
 
     async fn update(&self) -> Result<()> {
-        new_grpc_client()
-            .await?
-            .update_relay_locations(())
-            .await
-            .map_err(Error::GrpcClientError)?;
+        new_grpc_client().await?.update_relay_locations(()).await?;
         println!("Updating relay list in the background...");
         Ok(())
     }

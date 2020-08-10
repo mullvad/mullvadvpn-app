@@ -1,4 +1,4 @@
-use crate::{new_grpc_client, Command, Error, Result};
+use crate::{new_grpc_client, Command, Result};
 use clap::value_t_or_exit;
 
 pub struct AutoConnect;
@@ -43,21 +43,14 @@ impl Command for AutoConnect {
 impl AutoConnect {
     async fn set(&self, auto_connect: bool) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.set_auto_connect(auto_connect)
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.set_auto_connect(auto_connect).await?;
         println!("Changed auto-connect sharing setting");
         Ok(())
     }
 
     async fn get(&self) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let auto_connect = rpc
-            .get_settings(())
-            .await
-            .map_err(Error::GrpcClientError)?
-            .into_inner()
-            .auto_connect;
+        let auto_connect = rpc.get_settings(()).await?.into_inner().auto_connect;
         println!("Autoconnect: {}", if auto_connect { "on" } else { "off" });
         Ok(())
     }

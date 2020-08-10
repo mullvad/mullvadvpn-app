@@ -29,11 +29,7 @@ impl Command for BetaProgram {
         match matches.subcommand() {
             ("get", Some(_)) => {
                 let mut rpc = new_grpc_client().await?;
-                let settings = rpc
-                    .get_settings(())
-                    .await
-                    .map_err(Error::GrpcClientError)?
-                    .into_inner();
+                let settings = rpc.get_settings(()).await?.into_inner();
                 let enabled_str = if settings.show_beta_releases {
                     "on"
                 } else {

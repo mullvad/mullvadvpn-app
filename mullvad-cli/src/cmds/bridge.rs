@@ -1,4 +1,4 @@
-use crate::{location, new_grpc_client, Command, Error, Result};
+use crate::{location, new_grpc_client, Command, Result};
 use clap::value_t;
 
 use crate::proto::{
@@ -165,11 +165,7 @@ impl Bridge {
 
     async fn handle_get() -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let settings = rpc
-            .get_settings(())
-            .await
-            .map_err(Error::GrpcClientError)?
-            .into_inner();
+        let settings = rpc.get_settings(()).await?.into_inner();
         Self::print_state(settings.bridge_state.unwrap());
         match settings.bridge_settings.unwrap().r#type.unwrap() {
             BridgeSettingsType::Local(local_proxy) => Self::print_local_proxy(&local_proxy),
@@ -195,8 +191,7 @@ impl Bridge {
                 location: Some(constraints),
             })),
         })
-        .await
-        .map_err(Error::GrpcClientError)?;
+        .await?;
         Ok(())
     }
 
@@ -208,9 +203,7 @@ impl Bridge {
             _ => unreachable!(),
         };
         let mut rpc = new_grpc_client().await?;
-        rpc.set_bridge_state(BridgeState { state })
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.set_bridge_state(BridgeState { state }).await?;
         Ok(())
     }
 
@@ -242,8 +235,7 @@ impl Bridge {
             rpc.set_bridge_settings(BridgeSettings {
                 r#type: Some(BridgeSettingsType::Local(prost_proxy)),
             })
-            .await
-            .map_err(Error::GrpcClientError)?;
+            .await?;
         } else if let Some(args) = matches.subcommand_matches("remote") {
             let remote_ip =
                 value_t!(args.value_of("remote-ip"), IpAddr).unwrap_or_else(|e| e.exit());
@@ -282,8 +274,7 @@ impl Bridge {
             rpc.set_bridge_settings(BridgeSettings {
                 r#type: Some(BridgeSettingsType::Remote(prost_proxy)),
             })
-            .await
-            .map_err(Error::GrpcClientError)?;
+            .await?;
         } else if let Some(args) = matches.subcommand_matches("shadowsocks") {
             let remote_ip =
                 value_t!(args.value_of("remote-ip"), IpAddr).unwrap_or_else(|e| e.exit());
@@ -312,8 +303,7 @@ impl Bridge {
             rpc.set_bridge_settings(BridgeSettings {
                 r#type: Some(BridgeSettingsType::Shadowsocks(prost_proxy)),
             })
-            .await
-            .map_err(Error::GrpcClientError)?;
+            .await?;
         } else {
             unreachable!("unhandled proxy type");
         }
@@ -358,11 +348,7 @@ impl Bridge {
 
     async fn list_bridge_relays() -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        let mut locations = rpc
-            .get_relay_locations(())
-            .await
-            .map_err(Error::GrpcClientError)?
-            .into_inner();
+        let mut locations = rpc.get_relay_locations(()).await?.into_inner();
 
         let mut countries = Vec::new();
 

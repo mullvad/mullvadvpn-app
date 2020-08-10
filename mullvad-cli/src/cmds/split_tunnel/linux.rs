@@ -1,4 +1,4 @@
-use crate::{new_grpc_client, Command, Error, Result};
+use crate::{new_grpc_client, Command, Result};
 use clap::value_t_or_exit;
 
 pub struct SplitTunnel;
@@ -46,8 +46,7 @@ impl SplitTunnel {
                 new_grpc_client()
                     .await?
                     .add_split_tunnel_process(pid)
-                    .await
-                    .map_err(Error::GrpcClientError)?;
+                    .await?;
                 Ok(())
             }
             ("delete", Some(matches)) => {
@@ -55,24 +54,21 @@ impl SplitTunnel {
                 new_grpc_client()
                     .await?
                     .remove_split_tunnel_process(pid)
-                    .await
-                    .map_err(Error::GrpcClientError)?;
+                    .await?;
                 Ok(())
             }
             ("clear", Some(_)) => {
                 new_grpc_client()
                     .await?
                     .clear_split_tunnel_processes(())
-                    .await
-                    .map_err(Error::GrpcClientError)?;
+                    .await?;
                 Ok(())
             }
             ("list", Some(_)) => {
                 let mut pids_stream = new_grpc_client()
                     .await?
                     .get_split_tunnel_processes(())
-                    .await
-                    .map_err(Error::GrpcClientError)?
+                    .await?
                     .into_inner();
                 println!("Excluded PIDs:");
 

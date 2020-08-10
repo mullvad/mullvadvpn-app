@@ -32,7 +32,7 @@ pub enum Error {
     DaemonNotRunning(#[error(source)] io::Error),
 
     #[error(display = "Failed to connect to mullvad-daemon over RPC")]
-    GrpcClientSetup(#[error(source)] tonic::transport::Error),
+    GrpcTransportError(#[error(source)] tonic::transport::Error),
 
     #[error(display = "Failed to communicate with mullvad-daemon over RPC")]
     GrpcClientError(#[error(source)] tonic::Status),
@@ -50,8 +50,7 @@ pub async fn new_grpc_client() -> Result<ManagementServiceClient<tonic::transpor
         .connect_with_connector(service_fn(move |_: Uri| {
             IpcEndpoint::connect(ipc_path.clone())
         }))
-        .await
-        .map_err(Error::GrpcClientSetup)?;
+        .await?;
 
     Ok(ManagementServiceClient::new(channel))
 }

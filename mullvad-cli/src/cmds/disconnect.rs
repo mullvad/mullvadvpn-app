@@ -1,4 +1,4 @@
-use crate::{new_grpc_client, Command, Error, Result};
+use crate::{new_grpc_client, Command, Result};
 
 pub struct Disconnect;
 
@@ -15,9 +15,7 @@ impl Command for Disconnect {
 
     async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
-        rpc.disconnect_tunnel(())
-            .await
-            .map_err(Error::GrpcClientError)?;
+        rpc.disconnect_tunnel(()).await?;
         Ok(())
     }
 }
