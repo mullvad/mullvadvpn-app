@@ -1,4 +1,4 @@
-use crate::{new_grpc_client, Command, Error, Result};
+use crate::{new_grpc_client, Command, Result};
 
 pub struct Version;
 
@@ -30,11 +30,7 @@ impl Command for Version {
             println!("\tLatest stable version: {}", version_info.latest_stable);
         }
 
-        let settings = rpc
-            .get_settings(())
-            .await
-            .map_err(Error::GrpcClientError)?
-            .into_inner();
+        let settings = rpc.get_settings(()).await?.into_inner();
         if settings.show_beta_releases {
             println!("\t Latest beta version: {}", version_info.latest_beta);
         };
