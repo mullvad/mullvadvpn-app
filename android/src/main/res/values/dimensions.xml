@@ -15,8 +15,8 @@
     <dimen name="cell_switch_knob_max_translation">20dp</dimen>
     <dimen name="cell_switch_knob_size">24dp</dimen>
     <dimen name="settings_back_button_padding">12dp</dimen>
-    <dimen name="cell_horizontal_padding">16dp</dimen>
-    <dimen name="cell_label_horizontal_padding">8dp</dimen>
+    <dimen name="cell_horizontal_padding">@dimen/side_margin</dimen>
+    <dimen name="cell_inner_spacing">8dp</dimen>
     <dimen name="cell_label_vertical_padding">17dp</dimen>
     <dimen name="cell_input_width">80dp</dimen>
     <dimen name="cell_input_height">34dp</dimen>

@@ -16,8 +16,8 @@ class AppVersionCell : Cell {
     private val warningIcon = ImageView(context).apply {
         layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.0f)
 
-        resources.getDimensionPixelSize(R.dimen.cell_label_horizontal_padding).let { padding ->
-            setPadding(padding, 0, 0, 0)
+        resources.getDimensionPixelSize(R.dimen.cell_inner_spacing).let { padding ->
+            setPadding(0, 0, padding, 0)
         }
 
         setImageResource(R.drawable.icon_alert)
@@ -27,7 +27,7 @@ class AppVersionCell : Cell {
         layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.0f)
         gravity = Gravity.RIGHT
 
-        resources.getDimensionPixelSize(R.dimen.cell_label_horizontal_padding).let { padding ->
+        resources.getDimensionPixelSize(R.dimen.cell_inner_spacing).let { padding ->
             setPadding(padding, 0, padding, 0)
         }
 
