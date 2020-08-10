@@ -15,7 +15,7 @@ class TextFileStream<Codec> where Codec: UnicodeCodec {
     private let queue = DispatchQueue(label: "net.mullvad.MullvadVPN.TextFileStream<\(Codec.self)>")
     private let stringStream: StringStreamIterator<Codec>
 
-    init?(fileURL: URL, separator: Character, encoding: String.Encoding = .utf8) {
+    init?(fileURL: URL, separator: Character) {
         let filePath = fileURL.path.utf8CString.map { $0 }
 
         let fileDescriptor = open(filePath, O_RDONLY)
@@ -50,7 +50,7 @@ class TextFileStream<Codec> where Codec: UnicodeCodec {
             let actual = Darwin.read(self.fileDescriptor, &buffer, estimated)
 
             if actual == -1 {
-                print("TextFileInputStream: read error: \(errno)")
+                print("TextFileStream<\(Codec.self)>: read error: \(errno)")
             }
 
             if actual > 0 {

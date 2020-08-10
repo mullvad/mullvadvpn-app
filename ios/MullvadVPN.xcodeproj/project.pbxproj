@@ -90,6 +90,7 @@
 		5857F24724C882D700CF6F47 /* SelectLocationNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */; };
 		585834F824D2BC1F00A8AF56 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 585834F724D2BC1F00A8AF56 /* Logging */; };
 		585834FC24D2BC9500A8AF56 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 585834FB24D2BC9500A8AF56 /* Logging */; };
+		585FE2F124E1365400439C50 /* LogStreamer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585FE2F024E1365400439C50 /* LogStreamer.swift */; };
 		5860F1C223A785C600CEA666 /* WireguardDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1C123A785C600CEA666 /* WireguardDevice.swift */; };
 		5860F1C423A8D25F00CEA666 /* WireguardConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5860F1C323A8D25F00CEA666 /* WireguardConfiguration.swift */; };
 		5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */; };
@@ -292,6 +293,7 @@
 		58561C98239A5D1500BD6B5E /* IPEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPEndpoint.swift; sourceTree = "<group>"; };
 		5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationHeaderView.swift; sourceTree = "<group>"; };
 		5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationNavigationController.swift; sourceTree = "<group>"; };
+		585FE2F024E1365400439C50 /* LogStreamer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogStreamer.swift; sourceTree = "<group>"; };
 		5860F1C123A785C600CEA666 /* WireguardDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardDevice.swift; sourceTree = "<group>"; };
 		5860F1C323A8D25F00CEA666 /* WireguardConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardConfiguration.swift; sourceTree = "<group>"; };
 		5862805322428EF100F5A6E1 /* TranslucentButtonBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslucentButtonBlurView.swift; sourceTree = "<group>"; };
@@ -468,6 +470,7 @@
 				581503A524D6F4AE00C9C50E /* Logging.swift */,
 				5815039324D6EB7200C9C50E /* LogRotation.swift */,
 				58141EC824DAC0ED0013F79C /* TextFileStream.swift */,
+				585FE2F024E1365400439C50 /* LogStreamer.swift */,
 			);
 			path = Logging;
 			sourceTree = "<group>";
@@ -995,6 +998,7 @@
 				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,
 				5873884D239E6D7E00E96C4E /* EmbeddedViewContainerView.swift in Sources */,
 				58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */,
+				585FE2F124E1365400439C50 /* LogStreamer.swift in Sources */,
 				58B9EB132488ED2100095626 /* AlertPresenter.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
 				5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */,
