@@ -1,4 +1,4 @@
-use crate::{new_grpc_client, Command, Error, Result};
+use crate::{new_grpc_client, Command, Result};
 use clap::value_t_or_exit;
 
 pub struct BlockWhenDisconnected;
@@ -44,8 +44,7 @@ impl BlockWhenDisconnected {
     async fn set(&self, block_when_disconnected: bool) -> Result<()> {
         let mut rpc = new_grpc_client().await?;
         rpc.set_block_when_disconnected(block_when_disconnected)
-            .await
-            .map_err(Error::GrpcClientError)?;
+            .await?;
         println!("Changed always require VPN setting");
         Ok(())
     }
@@ -54,8 +53,7 @@ impl BlockWhenDisconnected {
         let mut rpc = new_grpc_client().await?;
         let block_when_disconnected = rpc
             .get_settings(())
-            .await
-            .map_err(Error::GrpcClientError)?
+            .await?
             .into_inner()
             .block_when_disconnected;
         println!(
