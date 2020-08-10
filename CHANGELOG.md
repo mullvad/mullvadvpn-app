@@ -74,6 +74,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Linux
 - Fix `systemd-resolved` DNS management by not parsing `/etc/resolv.conf`.
+- Fix issue where DNS configuration would not be reset when NetworkManager was used and the daemon
+  was stopped ungracefully. This persisted after reboots.
 
 
 ## [2020.5] - 2020-06-25

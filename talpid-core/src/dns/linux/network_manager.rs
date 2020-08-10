@@ -1,8 +1,9 @@
 use dbus::{
-    arg::{RefArg, Variant},
+    arg::{Append, RefArg, Variant},
     stdintf::*,
-    BusType,
+    BusType, Member, Message,
 };
+use lazy_static::lazy_static;
 use std::{
     collections::HashMap,
     fs::File,
@@ -28,8 +29,26 @@ pub enum Error {
     #[error(display = "Error while communicating over Dbus")]
     Dbus(#[error(source)] dbus::Error),
 
+    #[error(display = "Failed to construct DBus method call message")]
+    DbusMethodCall(String),
+
+    #[error(display = "Failed to construct DBus member")]
+    DbusMemberConstruct(String),
+
+    #[error(display = "Failed to match the returned D-Bus object with expected type")]
+    MatchDBusTypeError(#[error(source)] dbus::arg::TypeMismatchError),
+
     #[error(display = "DNS is managed by systemd-resolved - NM can't enforce DNS globally")]
     SystemdResolved,
+
+    #[error(display = "Failed to find obtain devices from network manager")]
+    ObtainDevices,
+
+    #[error(display = "Failed to find link interface in network manager")]
+    LinkNotFound,
+
+    #[error(display = "Device inactive: {}", _0)]
+    DeviceNotReady(u32),
 }
 
 const NM_BUS: &str = "org.freedesktop.NetworkManager";
@@ -37,13 +56,25 @@ const NM_TOP_OBJECT: &str = "org.freedesktop.NetworkManager";
 const NM_DNS_MANAGER: &str = "org.freedesktop.NetworkManager.DnsManager";
 const NM_DNS_MANAGER_PATH: &str = "/org/freedesktop/NetworkManager/DnsManager";
 const NM_OBJECT_PATH: &str = "/org/freedesktop/NetworkManager";
+const NM_DEVICE: &str = "org.freedesktop.NetworkManager.Device";
+const NM_IP4_CONFIG: &str = "org.freedesktop.NetworkManager.IP4Config";
+const NM_IP6_CONFIG: &str = "org.freedesktop.NetworkManager.IP6Config";
 const RPC_TIMEOUT_MS: i32 = 3000;
 const GLOBAL_DNS_CONF_KEY: &str = "GlobalDnsConfiguration";
 const RC_MANAGEMENT_MODE_KEY: &str = "RcManager";
 const DNS_MODE_KEY: &str = "Mode";
+const DNS_FIRST_PRIORITY: i32 = -2147483647;
+
+const NM_DEVICE_STATE_ACTIVATED: u32 = 100;
+
+lazy_static! {
+    static ref NM_DEVICE_STATE_CHANGED: Member<'static> = Member::new("StateChanged").unwrap();
+}
 
 pub struct NetworkManager {
     dbus_connection: dbus::Connection,
+    device: Option<dbus::Path<'static>>,
+    settings_backup: Option<HashMap<String, HashMap<String, Variant<Box<dyn RefArg>>>>>,
 }
 
 
@@ -51,7 +82,11 @@ impl NetworkManager {
     pub fn new() -> Result<Self> {
         let dbus_connection =
             dbus::Connection::get_private(BusType::System).map_err(Error::Dbus)?;
-        let manager = NetworkManager { dbus_connection };
+        let manager = NetworkManager {
+            dbus_connection,
+            device: None,
+            settings_backup: None,
+        };
         manager.ensure_resolv_conf_is_managed()?;
         manager.ensure_network_manager_exists()?;
         Ok(manager)
@@ -83,9 +118,6 @@ impl NetworkManager {
             .map_err(Error::Dbus)?;
 
         match dns_mode.as_ref() {
-            // NetworkManager can only set DNS globally if it's not managing DNS through
-            // systemd-resolved.
-            "systemd-resolved" => return Err(Error::SystemdResolved),
             // If NetworkManager isn't managing DNS for us, it's useless.
             "none" => return Err(Error::NetworkManagerNotManagingDns),
             _ => (),
@@ -107,62 +139,245 @@ impl NetworkManager {
             .with_path(NM_BUS, NM_OBJECT_PATH, RPC_TIMEOUT_MS)
     }
 
-    pub fn set_dns(&mut self, servers: &[IpAddr]) -> Result<()> {
-        self.set_global_dns(create_global_settings(servers))
-    }
+    pub fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
+        let device = self.fetch_device(interface_name)?;
 
-    fn set_global_dns(&mut self, config: GlobalDnsConfig) -> Result<()> {
-        self.as_manager()
-            .set(NM_TOP_OBJECT, GLOBAL_DNS_CONF_KEY, config)
-            .map_err(Error::Dbus)
+        // Get the last applied connection
+
+        let get_applied_connection =
+            Message::new_method_call(NM_BUS, &device, NM_DEVICE, "GetAppliedConnection")
+                .map_err(Error::DbusMethodCall)?
+                .append1(0u32);
+        let applied_connection = self
+            .dbus_connection
+            .send_with_reply_and_block(get_applied_connection, RPC_TIMEOUT_MS)
+            .map_err(Error::Dbus)?;
+
+        let (mut settings, version_id): (
+            HashMap<&str, HashMap<&str, Variant<Box<dyn RefArg>>>>,
+            u64,
+        ) = applied_connection
+            .read2()
+            .map_err(Error::MatchDBusTypeError)?;
+
+        // Keep changed routes.
+        // These routes were modified outside NM, likely by RouteManager.
+
+        if let Some(ipv4_settings) = settings.get_mut("ipv4") {
+            let device_ip4_config: dbus::Path<'_> = self
+                .dbus_connection
+                .with_path(NM_BUS, &device, RPC_TIMEOUT_MS)
+                .get(NM_DEVICE, "Ip4Config")
+                .map_err(Error::Dbus)?;
+
+            let device_routes: Vec<Vec<u32>> = self
+                .dbus_connection
+                .with_path(NM_BUS, &device_ip4_config, RPC_TIMEOUT_MS)
+                .get(NM_IP4_CONFIG, "Routes")
+                .map_err(Error::Dbus)?;
+
+            let device_route_data: Vec<HashMap<String, Variant<Box<dyn RefArg>>>> = self
+                .dbus_connection
+                .with_path(NM_BUS, &device_ip4_config, RPC_TIMEOUT_MS)
+                .get(NM_IP4_CONFIG, "RouteData")
+                .map_err(Error::Dbus)?;
+
+            ipv4_settings.insert("route-metric", Variant(Box::new(0u32)));
+            ipv4_settings.insert("routes", Variant(Box::new(device_routes)));
+            ipv4_settings.insert("route-data", Variant(Box::new(device_route_data)));
+        }
+
+        if let Some(ipv6_settings) = settings.get_mut("ipv6") {
+            let device_ip6_config: dbus::Path<'_> = self
+                .dbus_connection
+                .with_path(NM_BUS, &device, RPC_TIMEOUT_MS)
+                .get(NM_DEVICE, "Ip6Config")
+                .map_err(Error::Dbus)?;
+
+            let device_routes6: Vec<(Vec<u8>, u32, Vec<u8>, u32)> = self
+                .dbus_connection
+                .with_path(NM_BUS, &device_ip6_config, RPC_TIMEOUT_MS)
+                .get(NM_IP6_CONFIG, "Routes")
+                .map_err(Error::Dbus)?;
+
+            let device_route6_data: Vec<HashMap<String, Variant<Box<dyn RefArg>>>> = self
+                .dbus_connection
+                .with_path(NM_BUS, &device_ip6_config, RPC_TIMEOUT_MS)
+                .get(NM_IP6_CONFIG, "RouteData")
+                .map_err(Error::Dbus)?;
+
+            ipv6_settings.insert("route-metric", Variant(Box::new(0u32)));
+            ipv6_settings.insert("routes", Variant(Box::new(device_routes6)));
+            ipv6_settings.insert("route-data", Variant(Box::new(device_route6_data)));
+        }
+
+        let mut settings_backup =
+            HashMap::<String, HashMap<String, Variant<Box<dyn RefArg>>>>::new();
+        for (top_key, map) in settings.iter() {
+            let mut inner_dict = HashMap::<String, Variant<Box<dyn RefArg>>>::new();
+            for (key, variant) in map.iter() {
+                inner_dict.insert(key.to_string(), Variant(variant.0.box_clone()));
+            }
+            settings_backup.insert(top_key.to_string(), inner_dict);
+        }
+
+        // Update the DNS config
+
+        let v4_dns: Vec<u32> = servers
+            .iter()
+            .filter_map(|server| {
+                match server {
+                    // Network-byte order
+                    IpAddr::V4(server) => Some(u32::to_be(server.clone().into())),
+                    IpAddr::V6(_) => None,
+                }
+            })
+            .collect();
+        if !v4_dns.is_empty() {
+            Self::update_dns_config(&mut settings, "ipv4", v4_dns);
+        }
+
+        let v6_dns: Vec<Vec<u8>> = servers
+            .iter()
+            .filter_map(|server| match server {
+                IpAddr::V4(_) => None,
+                IpAddr::V6(server) => Some(server.octets().to_vec()),
+            })
+            .collect();
+        if !v6_dns.is_empty() {
+            Self::update_dns_config(&mut settings, "ipv6", v6_dns);
+        }
+
+        self.reapply_settings(&device, settings, version_id)?;
+
+        self.device = Some(device);
+        self.settings_backup = Some(settings_backup);
+
+        Ok(())
     }
 
     pub fn reset(&mut self) -> Result<()> {
-        self.set_global_dns(create_empty_global_settings())
+        if let Some(settings_backup) = self.settings_backup.take() {
+            let device = self.device.take().ok_or(Error::LinkNotFound)?;
+            self.reapply_settings(&device, settings_backup, 0u64)?;
+        } else {
+            log::trace!("No DNS settings to reset");
+        }
+        Ok(())
     }
-}
 
-type GlobalDnsConfig = HashMap<&'static str, Variant<Box<dyn RefArg>>>;
+    fn reapply_settings<Settings: Append>(
+        &self,
+        device: &dbus::Path<'_>,
+        settings: Settings,
+        version_id: u64,
+    ) -> Result<()> {
+        let reapply = Message::new_method_call(NM_BUS, device, NM_DEVICE, "Reapply")
+            .map_err(Error::DbusMethodCall)?
+            .append3(settings, version_id, 0u32);
+        self.dbus_connection
+            .send_with_reply_and_block(reapply, RPC_TIMEOUT_MS)
+            .map_err(Error::Dbus)?;
+        Ok(())
+    }
 
-// The NetworkManager GlobalDnsConfiguration schema looks something like this
-// {
-//  "searches": ["example.com", "search-domain.com"],
-//  "options": "this field is currently unused",
-//  "domains": {
-//   "*": {
-//     "servers": [ "1.1.1.1" ]
-//   }
-//   "example.com": {
-//     "servers": [ "8.8.8.8", "8.8.4.4" ]
-//   }
-//  }
-// }
-fn create_global_settings(server_list: &[IpAddr]) -> GlobalDnsConfig {
-    let mut global_settings = HashMap::new();
-    let mut domain_settings = HashMap::new();
-    let mut specific_domain_config = HashMap::new();
+    fn update_dns_config<'a, T>(
+        settings: &mut HashMap<&str, HashMap<&str, Variant<Box<dyn RefArg + 'a>>>>,
+        ip_protocol: &'static str,
+        servers: T,
+    ) where
+        T: RefArg + 'a,
+    {
+        let settings = match settings.get_mut(ip_protocol) {
+            Some(ip_protocol) => ip_protocol,
+            None => {
+                settings.insert(ip_protocol, HashMap::new());
+                settings.get_mut(ip_protocol).unwrap()
+            }
+        };
 
-    let dns_server_list = as_variant(
-        server_list
-            .iter()
-            .map(ToString::to_string)
-            .collect::<Vec<_>>(),
-    );
-    specific_domain_config.insert("servers".to_owned(), dns_server_list);
-    domain_settings.insert("*".to_owned(), as_variant(specific_domain_config));
-    global_settings.insert("domains", as_variant(domain_settings));
-    global_settings.insert("searches", as_variant(vec![] as Vec<String>));
-    global_settings.insert("options", as_variant(vec![] as Vec<String>));
+        settings.insert("method", Variant(Box::new("manual".to_string())));
+        settings.insert("dns-priority", Variant(Box::new(DNS_FIRST_PRIORITY)));
+        settings.insert("dns", Variant(Box::new(servers)));
+    }
 
-    global_settings
-}
+    fn fetch_device(&self, interface_name: &str) -> Result<dbus::Path<'static>> {
+        let devices: Box<dyn RefArg> = self
+            .as_manager()
+            .get(NM_TOP_OBJECT, "Devices")
+            .map_err(Error::Dbus)?;
+        let mut iter = devices.as_iter().ok_or(Error::ObtainDevices)?;
 
-fn create_empty_global_settings() -> GlobalDnsConfig {
-    HashMap::new()
-}
+        while let Some(device) = iter.next() {
+            // Copy due to lifetime weirdness
+            let device = device.box_clone();
+            let device = device
+                .as_any()
+                .downcast_ref::<dbus::Path<'_>>()
+                .ok_or(Error::ObtainDevices)?;
 
-fn as_variant<T: RefArg + 'static>(t: T) -> Variant<Box<dyn RefArg>> {
-    Variant(Box::new(t) as Box<dyn RefArg>)
+            let device_name: String = self
+                .dbus_connection
+                .with_path(NM_BUS, device, RPC_TIMEOUT_MS)
+                .get(NM_DEVICE, "Interface")
+                .map_err(Error::Dbus)?;
+
+            if device_name != interface_name {
+                continue;
+            }
+
+            let state: u32 = self
+                .dbus_connection
+                .with_path(NM_BUS, device, RPC_TIMEOUT_MS)
+                .get(NM_DEVICE, "State")
+                .map_err(Error::Dbus)?;
+
+            if state != NM_DEVICE_STATE_ACTIVATED {
+                let mut current_state = state;
+
+                let match_rule = &format!(
+                    "destination='{}',path='{}',interface='{}',member='{}'",
+                    NM_BUS,
+                    device,
+                    NM_DEVICE,
+                    NM_DEVICE_STATE_CHANGED.to_string()
+                );
+                self.dbus_connection
+                    .add_match(match_rule)
+                    .map_err(Error::Dbus)?;
+
+                for message in self.dbus_connection.incoming(RPC_TIMEOUT_MS as u32) {
+                    if message.member().as_ref() != Some(&NM_DEVICE_STATE_CHANGED) {
+                        continue;
+                    }
+                    let (new_state, _old_state, _reason): (u32, u32, u32) = message
+                        .read3()
+                        .map_err(Error::MatchDBusTypeError)
+                        .map_err(|error| {
+                            let _ = self.dbus_connection.remove_match(match_rule);
+                            error
+                        })?;
+
+                    current_state = new_state;
+                    log::trace!("New tunnel device state: {}", current_state);
+                    if current_state == NM_DEVICE_STATE_ACTIVATED {
+                        break;
+                    }
+                }
+
+                if let Err(error) = self.dbus_connection.remove_match(match_rule) {
+                    log::warn!("Failed to remove signal listener: {}", error);
+                }
+
+                if current_state != NM_DEVICE_STATE_ACTIVATED {
+                    return Err(Error::DeviceNotReady(state));
+                }
+            }
+
+            return Ok(device.clone());
+        }
+        Err(Error::LinkNotFound)
+    }
 }
 
 fn eq_file_content<P: AsRef<Path>>(a: &P, b: &P) -> bool {
