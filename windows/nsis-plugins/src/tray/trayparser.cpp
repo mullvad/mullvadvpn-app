@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "trayparser.h"
 #include <libcommon/error.h>
+#include <iterator>
 #include <algorithm>
 
 TrayParser::TrayParser(const std::vector<uint8_t> &blob)
