@@ -1,7 +1,7 @@
-use crate::{location, new_grpc_client, Command, Result};
+use crate::{location, new_rpc_client, Command, Result};
 use clap::value_t;
 
-use crate::proto::{
+use mullvad_management_interface::types::{
     bridge_settings::{Type as BridgeSettingsType, *},
     bridge_state::State as BridgeStateType,
     BridgeSettings, BridgeState,
@@ -12,7 +12,7 @@ use std::net::{IpAddr, SocketAddr};
 
 pub struct Bridge;
 
-#[async_trait::async_trait]
+#[mullvad_management_interface::async_trait]
 impl Command for Bridge {
     fn name(&self) -> &'static str {
         "bridge"
@@ -164,7 +164,7 @@ impl Bridge {
     }
 
     async fn handle_get() -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         let settings = rpc.get_settings(()).await?.into_inner();
         Self::print_state(settings.bridge_state.unwrap());
         match settings.bridge_settings.unwrap().r#type.unwrap() {
@@ -185,7 +185,7 @@ impl Bridge {
 
     async fn handle_set_bridge_location(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let constraints = location::get_constraint(matches);
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.set_bridge_settings(BridgeSettings {
             r#type: Some(BridgeSettingsType::Normal(BridgeConstraints {
                 location: Some(constraints),
@@ -202,7 +202,7 @@ impl Bridge {
             "off" => BridgeStateType::Off as i32,
             _ => unreachable!(),
         };
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.set_bridge_state(BridgeState { state }).await?;
         Ok(())
     }
@@ -231,7 +231,7 @@ impl Bridge {
                 panic!(error);
             }
 
-            let mut rpc = new_grpc_client().await?;
+            let mut rpc = new_rpc_client().await?;
             rpc.set_bridge_settings(BridgeSettings {
                 r#type: Some(BridgeSettingsType::Local(prost_proxy)),
             })
@@ -270,7 +270,7 @@ impl Bridge {
                 panic!(error);
             }
 
-            let mut rpc = new_grpc_client().await?;
+            let mut rpc = new_rpc_client().await?;
             rpc.set_bridge_settings(BridgeSettings {
                 r#type: Some(BridgeSettingsType::Remote(prost_proxy)),
             })
@@ -299,7 +299,7 @@ impl Bridge {
                 panic!(error);
             }
 
-            let mut rpc = new_grpc_client().await?;
+            let mut rpc = new_rpc_client().await?;
             rpc.set_bridge_settings(BridgeSettings {
                 r#type: Some(BridgeSettingsType::Shadowsocks(prost_proxy)),
             })
@@ -347,7 +347,7 @@ impl Bridge {
     }
 
     async fn list_bridge_relays() -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         let mut locations = rpc.get_relay_locations(()).await?.into_inner();
 
         let mut countries = Vec::new();
