@@ -1,6 +1,7 @@
 import { remote } from 'electron';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router';
+import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
@@ -11,6 +12,7 @@ import * as AppButton from './AppButton';
 import * as Cell from './Cell';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
+import { ModalContainer, ModalAlert, ModalAlertType } from './Modal';
 import {
   BackBarItem,
   NavigationBar,
@@ -47,8 +49,22 @@ const StyledContent = styled.div({
   flex: 1,
 });
 
-const StyledIcon = styled(Cell.UntintedIcon)({
+const StyledCellButton = styled(Cell.CellButton)((props: { lookDisabled: boolean }) => ({
+  ':not(:disabled):hover': {
+    backgroundColor: props.lookDisabled ? colors.blue : undefined,
+  },
+}));
+
+const disabledApplication = (props: { lookDisabled: boolean }) => ({
+  opacity: props.lookDisabled ? 0.6 : undefined,
+});
+
+const StyledIcon = styled(Cell.UntintedIcon)(disabledApplication, {
   marginRight: '12px',
+});
+
+const StyledCellLabel = styled(Cell.Label)(disabledApplication, {
+  fontWeight: 'normal',
 });
 
 const StyledIconPlaceholder = styled.div({
@@ -114,66 +130,68 @@ export default function LinuxSplitTunnelingSettings() {
   return (
     <>
       <StyledPageCover show={browsing} />
-      <Layout>
-        <StyledContainer>
-          <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <BackBarItem action={history.goBack}>
-                  {
-                    // TRANSLATORS: Back button in navigation bar
-                    messages.pgettext('navigation-bar', 'Advanced')
-                  }
-                </BackBarItem>
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('split-tunneling-nav', 'Split tunneling')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+      <ModalContainer>
+        <Layout>
+          <StyledContainer>
+            <NavigationContainer>
+              <NavigationBar>
+                <NavigationItems>
+                  <BackBarItem action={history.goBack}>
+                    {
+                      // TRANSLATORS: Back button in navigation bar
+                      messages.pgettext('navigation-bar', 'Advanced')
+                    }
+                  </BackBarItem>
+                  <TitleBarItem>
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('split-tunneling-nav', 'Split tunneling')
+                    }
+                  </TitleBarItem>
+                </NavigationItems>
+              </NavigationBar>
 
-            <StyledNavigationScrollbars>
-              <StyledContent>
-                <SettingsHeader>
-                  <HeaderTitle>
-                    {messages.pgettext('split-tunneling-view', 'Split tunneling')}
-                  </HeaderTitle>
-                  <HeaderSubTitle>
-                    {messages.pgettext(
-                      'split-tunneling-view',
-                      'Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it.',
-                    )}
-                  </HeaderSubTitle>
-                </SettingsHeader>
+              <StyledNavigationScrollbars>
+                <StyledContent>
+                  <SettingsHeader>
+                    <HeaderTitle>
+                      {messages.pgettext('split-tunneling-view', 'Split tunneling')}
+                    </HeaderTitle>
+                    <HeaderSubTitle>
+                      {messages.pgettext(
+                        'split-tunneling-view',
+                        'Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it.',
+                      )}
+                    </HeaderSubTitle>
+                  </SettingsHeader>
 
-                <StyledApplicationListAnimation height={applicationListHeight}>
-                  <StyledApplicationListContent ref={applicationListRef}>
-                    {applications === undefined ? (
-                      <StyledSpinnerRow>
-                        <ImageView source="icon-spinner" height={60} width={60} />
-                      </StyledSpinnerRow>
-                    ) : (
-                      applications.map((application) => (
-                        <ApplicationRow
-                          key={application.absolutepath}
-                          application={application}
-                          launchApplication={launchExcludedApplication}
-                        />
-                      ))
-                    )}
-                  </StyledApplicationListContent>
-                </StyledApplicationListAnimation>
+                  <StyledApplicationListAnimation height={applicationListHeight}>
+                    <StyledApplicationListContent ref={applicationListRef}>
+                      {applications === undefined ? (
+                        <StyledSpinnerRow>
+                          <ImageView source="icon-spinner" height={60} width={60} />
+                        </StyledSpinnerRow>
+                      ) : (
+                        applications.map((application) => (
+                          <ApplicationRow
+                            key={application.absolutepath}
+                            application={application}
+                            launchApplication={launchExcludedApplication}
+                          />
+                        ))
+                      )}
+                    </StyledApplicationListContent>
+                  </StyledApplicationListAnimation>
 
-                <StyledBrowseButton onClick={launchWithFilePicker}>
-                  {messages.pgettext('split-tunneling-view', 'Browse')}
-                </StyledBrowseButton>
-              </StyledContent>
-            </StyledNavigationScrollbars>
-          </NavigationContainer>
-        </StyledContainer>
-      </Layout>
+                  <StyledBrowseButton onClick={launchWithFilePicker}>
+                    {messages.pgettext('split-tunneling-view', 'Browse')}
+                  </StyledBrowseButton>
+                </StyledContent>
+              </StyledNavigationScrollbars>
+            </NavigationContainer>
+          </StyledContainer>
+        </Layout>
+      </ModalContainer>
     </>
   );
 }
@@ -184,18 +202,78 @@ interface IApplicationRowProps {
 }
 
 function ApplicationRow(props: IApplicationRowProps) {
-  const onClick = useCallback(() => {
+  const [showWarning, setShowWarning] = useState(false);
+
+  const launch = useCallback(() => {
+    setShowWarning(false);
     props.launchApplication(props.application);
   }, [props.launchApplication, props.application]);
 
+  const showWarningDialog = useCallback(() => setShowWarning(true), []);
+  const hideWarningDialog = useCallback(() => setShowWarning(false), []);
+
+  const disabled = props.application.warning === 'launches-elsewhere';
+  const warningColor = disabled ? colors.red : colors.yellow;
+  const warningMessage = disabled
+    ? sprintf(
+        messages.pgettext(
+          'split-tunneling-view',
+          '%(applicationName)s is problematic and cannot be excluded from the VPN tunnel.',
+        ),
+        {
+          applicationName: props.application.name,
+        },
+      )
+    : sprintf(
+        messages.pgettext(
+          'split-tunneling-view',
+          '%(applicationName)s is problematic and might not be excluded from the VPN tunnel. Try closing all existing instances of %(applicationName)s before starting it from here.',
+        ),
+        {
+          applicationName: props.application.name,
+        },
+      );
+  const warningDialogButtons = disabled
+    ? [
+        <AppButton.BlueButton key="cancel" onClick={hideWarningDialog}>
+          {messages.gettext('Back')}
+        </AppButton.BlueButton>,
+      ]
+    : [
+        <AppButton.BlueButton key="launch" onClick={launch}>
+          {messages.pgettext('split-tunneling-view', 'Launch')}
+        </AppButton.BlueButton>,
+        <AppButton.BlueButton key="cancel" onClick={hideWarningDialog}>
+          {messages.gettext('Cancel')}
+        </AppButton.BlueButton>,
+      ];
+
   return (
-    <Cell.CellButton onClick={onClick}>
-      {props.application.icon ? (
-        <StyledIcon source={props.application.icon} width={35} height={35} />
-      ) : (
-        <StyledIconPlaceholder />
+    <>
+      <StyledCellButton
+        onClick={props.application.warning ? showWarningDialog : launch}
+        lookDisabled={disabled}>
+        {props.application.icon ? (
+          <StyledIcon
+            source={props.application.icon}
+            width={35}
+            height={35}
+            lookDisabled={disabled}
+          />
+        ) : (
+          <StyledIconPlaceholder />
+        )}
+        <StyledCellLabel lookDisabled={disabled}>{props.application.name}</StyledCellLabel>
+        {props.application.warning && <Cell.Icon source="icon-alert" tintColor={warningColor} />}
+      </StyledCellButton>
+      {showWarning && (
+        <ModalAlert
+          type={ModalAlertType.Warning}
+          iconColor={warningColor}
+          message={warningMessage}
+          buttons={warningDialogButtons}
+        />
       )}
-      <Cell.Label>{props.application.name}</Cell.Label>
-    </Cell.CellButton>
+    </>
   );
 }
