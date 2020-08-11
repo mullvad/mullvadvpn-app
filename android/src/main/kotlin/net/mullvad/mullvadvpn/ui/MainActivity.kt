@@ -34,11 +34,13 @@ class MainActivity : FragmentActivity() {
 
     private val serviceConnectionManager = object : android.content.ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
+            android.util.Log.d("mullvad", "UI successfully connected to the service")
             val localBinder = binder as MullvadVpnService.LocalBinder
 
             service = localBinder
 
             localBinder.serviceNotifier.subscribe(this@MainActivity) { service ->
+                android.util.Log.d("mullvad", "UI connection to the service changed: $service")
                 serviceConnection?.onDestroy()
 
                 val newConnection = service?.let { safeService ->
@@ -55,6 +57,7 @@ class MainActivity : FragmentActivity() {
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
+            android.util.Log.d("mullvad", "UI lost the connection to the service")
             service?.serviceNotifier?.unsubscribe(this@MainActivity)
             serviceConnection = null
             serviceNotifier.notify(null)
@@ -79,6 +82,7 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onStart() {
+        android.util.Log.d("mullvad", "Starting main activity")
         super.onStart()
 
         val intent = Intent(this, MullvadVpnService::class.java)
@@ -97,6 +101,7 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onStop() {
+        android.util.Log.d("mullvad", "Stoping main activity")
         unbindService(serviceConnectionManager)
 
         super.onStop()
