@@ -48,6 +48,12 @@ impl StringResources {
             entry.normalize();
         }
     }
+
+    /// Sorts the entries alphabetically based on their IDs.
+    pub fn sort(&mut self) {
+        self.entries
+            .sort_by(|left, right| left.name.cmp(&right.name));
+    }
 }
 
 impl Deref for StringResources {

@@ -159,6 +159,8 @@ fn generate_translations(
         }
     }
 
+    localized_resource.sort();
+
     fs::write(output_path, localized_resource.to_string())
         .expect("Failed to create Android locale file");
 
