@@ -1,9 +1,9 @@
-use crate::{new_grpc_client, Command, Result};
+use crate::{new_rpc_client, Command, Result};
 use clap::value_t_or_exit;
 
 pub struct SplitTunnel;
 
-#[async_trait::async_trait]
+#[mullvad_management_interface::async_trait]
 impl Command for SplitTunnel {
     fn name(&self) -> &'static str {
         "split-tunnel"
@@ -43,7 +43,7 @@ impl SplitTunnel {
         match matches.subcommand() {
             ("add", Some(matches)) => {
                 let pid = value_t_or_exit!(matches.value_of("pid"), i32);
-                new_grpc_client()
+                new_rpc_client()
                     .await?
                     .add_split_tunnel_process(pid)
                     .await?;
@@ -51,21 +51,21 @@ impl SplitTunnel {
             }
             ("delete", Some(matches)) => {
                 let pid = value_t_or_exit!(matches.value_of("pid"), i32);
-                new_grpc_client()
+                new_rpc_client()
                     .await?
                     .remove_split_tunnel_process(pid)
                     .await?;
                 Ok(())
             }
             ("clear", Some(_)) => {
-                new_grpc_client()
+                new_rpc_client()
                     .await?
                     .clear_split_tunnel_processes(())
                     .await?;
                 Ok(())
             }
             ("list", Some(_)) => {
-                let mut pids_stream = new_grpc_client()
+                let mut pids_stream = new_rpc_client()
                     .await?
                     .get_split_tunnel_processes(())
                     .await?

@@ -1,4 +1,4 @@
-use crate::proto::RelayLocation;
+use mullvad_management_interface::types::RelayLocation;
 
 pub fn get_subcommand() -> clap::App<'static, 'static> {
     clap::SubCommand::with_name("location")

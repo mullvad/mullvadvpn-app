@@ -1,19 +1,21 @@
-use crate::{format::print_keygen_event, new_grpc_client, proto, Command, Error, Result};
-use mullvad_types::auth_failed::AuthFailed;
-use proto::{
-    daemon_event::Event as EventType,
-    error_state::{
-        firewall_policy_error::ErrorType as FirewallPolicyErrorType, Cause as ErrorStateCause,
-        FirewallPolicyError, GenerationError,
+use crate::{format::print_keygen_event, new_rpc_client, Command, Error, Result};
+use mullvad_management_interface::{
+    types::{
+        daemon_event::Event as EventType,
+        error_state::{
+            firewall_policy_error::ErrorType as FirewallPolicyErrorType, Cause as ErrorStateCause,
+            FirewallPolicyError, GenerationError,
+        },
+        ErrorState, ProxyType, TransportProtocol, TunnelEndpoint, TunnelState, TunnelType,
     },
-    management_service_client::ManagementServiceClient,
-    ErrorState, ProxyType, TransportProtocol, TunnelEndpoint, TunnelState, TunnelType,
+    ManagementServiceClient,
 };
+use mullvad_types::auth_failed::AuthFailed;
 use std::fmt::Write;
 
 pub struct Status;
 
-#[async_trait::async_trait]
+#[mullvad_management_interface::async_trait]
 impl Command for Status {
     fn name(&self) -> &'static str {
         "status"
@@ -40,7 +42,7 @@ impl Command for Status {
     }
 
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         let state = rpc.get_tunnel_state(()).await?.into_inner();
 
         print_state(&state);
@@ -57,7 +59,7 @@ impl Command for Status {
                 match event.event.unwrap() {
                     EventType::TunnelState(new_state) => {
                         print_state(&new_state);
-                        use proto::tunnel_state::State::*;
+                        use mullvad_management_interface::types::tunnel_state::State::*;
                         match new_state.state.unwrap() {
                             Connected(..) | Disconnected(..) => {
                                 if matches.is_present("location") {
@@ -97,7 +99,7 @@ impl Command for Status {
 }
 
 fn print_state(state: &TunnelState) {
-    use proto::{tunnel_state, tunnel_state::State::*};
+    use mullvad_management_interface::types::{tunnel_state, tunnel_state::State::*};
 
     print!("Tunnel status: ");
     match state.state.as_ref().unwrap() {
@@ -242,14 +244,12 @@ fn policy_error_to_string(policy_error: &FirewallPolicyError) -> String {
     format!("Failed to set firewall policy: {}", cause)
 }
 
-async fn print_location(
-    rpc: &mut ManagementServiceClient<tonic::transport::Channel>,
-) -> Result<()> {
+async fn print_location(rpc: &mut ManagementServiceClient) -> Result<()> {
     let location = rpc.get_current_location(()).await;
     let location = match location {
         Ok(response) => response.into_inner(),
         Err(status) => {
-            if status.code() == tonic::Code::NotFound {
+            if status.code() == mullvad_management_interface::Code::NotFound {
                 println!("Location data unavailable");
                 return Ok(());
             } else {

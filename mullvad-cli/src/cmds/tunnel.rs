@@ -1,10 +1,10 @@
-use crate::{format::print_keygen_event, new_grpc_client, proto, Command, Error, Result};
+use crate::{format::print_keygen_event, new_rpc_client, Command, Error, Result};
 use clap::value_t;
-use proto::TunnelOptions;
+use mullvad_management_interface::types::{Timestamp, TunnelOptions};
 
 pub struct Tunnel;
 
-#[async_trait::async_trait]
+#[mullvad_management_interface::async_trait]
 impl Command for Tunnel {
     fn name(&self) -> &'static str {
         "tunnel"
@@ -165,26 +165,26 @@ impl Tunnel {
 
     async fn process_wireguard_mtu_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mtu = value_t!(matches.value_of("mtu"), u16).unwrap_or_else(|e| e.exit());
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.set_wireguard_mtu(mtu as u32).await?;
         println!("Wireguard MTU has been updated");
         Ok(())
     }
 
     async fn process_wireguard_mtu_unset() -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.set_wireguard_mtu(0).await?;
         println!("Wireguard MTU has been unset");
         Ok(())
     }
 
     async fn process_wireguard_key_check() -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         let key = rpc.get_wireguard_key(()).await;
         let key = match key {
             Ok(response) => Some(response.into_inner()),
             Err(status) => {
-                if status.code() == tonic::Code::NotFound {
+                if status.code() == mullvad_management_interface::Code::NotFound {
                     None
                 } else {
                     return Err(Error::GrpcClientError(status));
@@ -208,7 +208,7 @@ impl Tunnel {
     }
 
     async fn process_wireguard_key_generate() -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         let keygen_event = rpc.generate_wireguard_key(()).await?;
         print_keygen_event(&keygen_event.into_inner());
         Ok(())
@@ -226,14 +226,14 @@ impl Tunnel {
     async fn process_wireguard_rotation_interval_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let rotate_interval =
             value_t!(matches.value_of("interval"), u32).unwrap_or_else(|e| e.exit());
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.set_wireguard_rotation_interval(rotate_interval).await?;
         println!("Set key rotation interval: {} hour(s)", rotate_interval);
         Ok(())
     }
 
     async fn process_wireguard_rotation_interval_reset() -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.reset_wireguard_rotation_interval(()).await?;
         println!("Set key rotation interval: default");
         Ok(())
@@ -264,7 +264,7 @@ impl Tunnel {
     }
 
     async fn get_tunnel_options() -> Result<TunnelOptions> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         Ok(rpc
             .get_settings(())
             .await?
@@ -274,7 +274,7 @@ impl Tunnel {
     }
 
     async fn process_openvpn_mssfix_unset() -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.set_openvpn_mssfix(0).await?;
         println!("mssfix parameter has been unset");
         Ok(())
@@ -282,7 +282,7 @@ impl Tunnel {
 
     async fn process_openvpn_mssfix_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let new_value = value_t!(matches.value_of("mssfix"), u16).unwrap_or_else(|e| e.exit());
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.set_openvpn_mssfix(new_value as u32).await?;
         println!("mssfix parameter has been updated");
         Ok(())
@@ -304,7 +304,7 @@ impl Tunnel {
     async fn process_ipv6_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let enabled = matches.value_of("enable").unwrap() == "on";
 
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.set_enable_ipv6(enabled).await?;
         if enabled {
             println!("Enabled IPv6");
@@ -314,7 +314,7 @@ impl Tunnel {
         Ok(())
     }
 
-    fn format_key_timestamp(timestamp: &prost_types::Timestamp) -> String {
+    fn format_key_timestamp(timestamp: &Timestamp) -> String {
         chrono::NaiveDateTime::from_timestamp(timestamp.seconds, timestamp.nanos as u32).to_string()
     }
 }

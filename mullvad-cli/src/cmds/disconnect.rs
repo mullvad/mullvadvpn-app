@@ -1,8 +1,8 @@
-use crate::{new_grpc_client, Command, Result};
+use crate::{new_rpc_client, Command, Result};
 
 pub struct Disconnect;
 
-#[async_trait::async_trait]
+#[mullvad_management_interface::async_trait]
 impl Command for Disconnect {
     fn name(&self) -> &'static str {
         "disconnect"
@@ -14,7 +14,7 @@ impl Command for Disconnect {
     }
 
     async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.disconnect_tunnel(()).await?;
         Ok(())
     }

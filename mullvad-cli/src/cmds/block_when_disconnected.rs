@@ -1,9 +1,9 @@
-use crate::{new_grpc_client, Command, Result};
+use crate::{new_rpc_client, Command, Result};
 use clap::value_t_or_exit;
 
 pub struct BlockWhenDisconnected;
 
-#[async_trait::async_trait]
+#[mullvad_management_interface::async_trait]
 impl Command for BlockWhenDisconnected {
     fn name(&self) -> &'static str {
         "always-require-vpn"
@@ -42,7 +42,7 @@ impl Command for BlockWhenDisconnected {
 
 impl BlockWhenDisconnected {
     async fn set(&self, block_when_disconnected: bool) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.set_block_when_disconnected(block_when_disconnected)
             .await?;
         println!("Changed always require VPN setting");
@@ -50,7 +50,7 @@ impl BlockWhenDisconnected {
     }
 
     async fn get(&self) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         let block_when_disconnected = rpc
             .get_settings(())
             .await?
