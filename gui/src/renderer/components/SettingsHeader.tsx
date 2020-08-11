@@ -4,7 +4,7 @@ import { bigText, smallText } from './common-styles';
 
 export const Container = styled.div({
   flex: 0,
-  padding: '2px 20px 20px',
+  padding: '2px 22px 20px',
 });
 
 export const ContentWrapper = styled.div({
