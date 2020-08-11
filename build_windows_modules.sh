@@ -164,17 +164,14 @@ function main
   local winfw_root_path=${CPP_ROOT_PATH:-"./windows/winfw"}
   local windns_root_path=${CPP_ROOT_PATH:-"./windows/windns"}
   local winnet_root_path=${CPP_ROOT_PATH:-"./windows/winnet"}
-  local winutil_root_path=${CPP_ROOT_PATH:-"./windows/winutil"}
   
   build_solution "$winfw_root_path" "winfw.sln"
   build_solution "$windns_root_path" "windns.sln"
   build_solution "$winnet_root_path" "winnet.sln"
-  build_solution "$winutil_root_path" "winutil.sln"
 
   copy_outputs $winfw_root_path "winfw.dll"
   copy_outputs $windns_root_path "windns.dll"
   copy_outputs $winnet_root_path "winnet.dll"
-  copy_outputs $winutil_root_path "winutil.dll"
 
   local driverlogic_root_path=${CPP_ROOT_PATH:-"./windows/driverlogic"}
   build_solution "$driverlogic_root_path" "driverlogic.sln"
