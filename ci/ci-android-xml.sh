@@ -8,6 +8,7 @@ function tidy-up-android-xml {
         -m  \
         -i  \
         -w 100 \
+        -utf8 \
         --quiet yes \
         --indent-attributes yes \
         --indent-spaces 4 \
