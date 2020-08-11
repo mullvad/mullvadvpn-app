@@ -28,32 +28,3 @@ pub struct VoucherSubmission {
     #[cfg_attr(target_os = "android", jnix(map = "|expiry| expiry.to_string()"))]
     pub new_expiry: DateTime<Utc>,
 }
-
-/// Mapping of mullvad-api errors to enum variants. Used by frontends to explain why a voucher
-/// was rejected by the `/v1/submit-voucher` RPC.
-#[derive(err_derive::Error, Debug)]
-pub enum VoucherError {
-    /// Error code `tonic::Code::NotFound`
-    #[error(display = "Bad voucher code")]
-    BadVoucher,
-    /// Error code `tonic::Code::ResourceExhausted`
-    #[error(display = "Voucher already used")]
-    VoucherAlreadyUsed,
-    /// Error code `tonic::Code::Internal`
-    #[error(display = "Server internal error")]
-    InternalError,
-    #[error(display = "Unknown error, {}", _0)]
-    UnknownError(i64),
-}
-
-impl VoucherError {
-    /// Create error from RPC error code.
-    pub fn from_rpc_error_code(err_code: i64) -> VoucherError {
-        match err_code {
-            x if x == tonic::Code::NotFound as i64 => VoucherError::BadVoucher,
-            x if x == tonic::Code::ResourceExhausted as i64 => VoucherError::VoucherAlreadyUsed,
-            x if x == tonic::Code::Internal as i64 => VoucherError::InternalError,
-            err => VoucherError::UnknownError(err),
-        }
-    }
-}

@@ -1,9 +1,11 @@
 #![deny(rust_2018_idioms)]
 
-use async_trait::async_trait;
 use clap::{crate_authors, crate_description};
+use mullvad_management_interface::async_trait;
 use std::{collections::HashMap, io};
 use talpid_types::ErrorExt;
+
+pub use mullvad_management_interface::{self, new_rpc_client};
 
 mod cmds;
 mod format;
@@ -14,45 +16,20 @@ pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/produc
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-mod proto {
-    tonic::include_proto!("mullvad_daemon.management_interface");
-}
-use proto::management_service_client::ManagementServiceClient;
-
-use parity_tokio_ipc::Endpoint as IpcEndpoint;
-use tonic::{
-    self,
-    transport::{Endpoint, Uri},
-};
-use tower::service_fn;
-
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Failed to connect to daemon")]
     DaemonNotRunning(#[error(source)] io::Error),
 
-    #[error(display = "Failed to connect to mullvad-daemon over RPC")]
-    GrpcTransportError(#[error(source)] tonic::transport::Error),
+    #[error(display = "Management interface error")]
+    ManagementInterfaceError(#[error(source)] mullvad_management_interface::Error),
 
     #[error(display = "Failed to communicate with mullvad-daemon over RPC")]
-    GrpcClientError(#[error(source)] tonic::Status),
+    GrpcClientError(#[error(source)] mullvad_management_interface::Status),
 
     /// The given command is not correct in some way
     #[error(display = "Invalid command: {}", _0)]
     InvalidCommand(&'static str),
-}
-
-pub async fn new_grpc_client() -> Result<ManagementServiceClient<tonic::transport::Channel>> {
-    let ipc_path = mullvad_paths::get_rpc_socket_path();
-
-    // The URI will be ignored
-    let channel = Endpoint::from_static("lttp://[::]:50051")
-        .connect_with_connector(service_fn(move |_: Uri| {
-            IpcEndpoint::connect(ipc_path.clone())
-        }))
-        .await?;
-
-    Ok(ManagementServiceClient::new(channel))
 }
 
 #[tokio::main]

@@ -1,10 +1,11 @@
-use crate::{new_grpc_client, Command, Error, Result};
+use crate::{new_rpc_client, Command, Error, Result};
 use clap::value_t_or_exit;
-use mullvad_types::account::{AccountToken, VoucherError};
+use mullvad_management_interface::{types::Timestamp, Code};
+use mullvad_types::account::AccountToken;
 
 pub struct Account;
 
-#[async_trait::async_trait]
+#[mullvad_management_interface::async_trait]
 impl Command for Account {
     fn name(&self) -> &'static str {
         "account"
@@ -73,7 +74,7 @@ impl Command for Account {
 
 impl Account {
     async fn set(&self, token: Option<AccountToken>) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.set_account(token.clone().unwrap_or_default()).await?;
         if let Some(token) = token {
             println!("Mullvad account \"{}\" set", token);
@@ -84,7 +85,7 @@ impl Account {
     }
 
     async fn get(&self) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         let settings = rpc.get_settings(()).await?.into_inner();
         if settings.account_token != "" {
             println!("Mullvad account: {}", settings.account_token);
@@ -103,14 +104,14 @@ impl Account {
     }
 
     async fn create(&self) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.create_new_account(()).await?;
         println!("New account created!");
         self.get().await
     }
 
     async fn redeem_voucher(&self, mut voucher: String) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         voucher.retain(|c| c.is_alphanumeric());
 
         match rpc.submit_voucher(voucher).await {
@@ -127,11 +128,13 @@ impl Account {
                 Ok(())
             }
             Err(err) => {
-                eprintln!(
-                    "Failed to submit voucher.\n{}",
-                    VoucherError::from_rpc_error_code(err.code() as i64)
-                );
-                Err(Error::GrpcClientError(err))
+                match err.code() {
+                    Code::NotFound | Code::ResourceExhausted => {
+                        eprintln!("Failed to submit voucher: {}", err.message());
+                    }
+                    _ => return Err(Error::GrpcClientError(err)),
+                }
+                std::process::exit(1);
             }
         }
     }
@@ -149,12 +152,12 @@ impl Account {
         }
     }
 
-    fn format_expiry(expiry: &prost_types::Timestamp) -> String {
+    fn format_expiry(expiry: &Timestamp) -> String {
         chrono::NaiveDateTime::from_timestamp(expiry.seconds, expiry.nanos as u32).to_string()
     }
 
     async fn clear_history(&self) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.clear_account_history(()).await?;
         println!("Removed account history and all associated keys");
         Ok(())

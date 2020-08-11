@@ -1,8 +1,8 @@
-use crate::{new_grpc_client, Command, Result};
+use crate::{new_rpc_client, Command, Result};
 use std::io::stdin;
 
 pub struct Reset;
-#[async_trait::async_trait]
+#[mullvad_management_interface::async_trait]
 impl Command for Reset {
     fn name(&self) -> &'static str {
         "factory-reset"
@@ -13,7 +13,7 @@ impl Command for Reset {
     }
 
     async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         if Self::receive_confirmation() {
             if rpc.factory_reset(()).await.is_err() {
                 eprintln!("FAILED TO PERFORM FACTORY RESET");

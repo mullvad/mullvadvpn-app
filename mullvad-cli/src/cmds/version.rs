@@ -1,8 +1,8 @@
-use crate::{new_grpc_client, Command, Result};
+use crate::{new_rpc_client, Command, Result};
 
 pub struct Version;
 
-#[async_trait::async_trait]
+#[mullvad_management_interface::async_trait]
 impl Command for Version {
     fn name(&self) -> &'static str {
         "version"
@@ -14,7 +14,7 @@ impl Command for Version {
     }
 
     async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         let current_version = rpc.get_current_version(()).await?.into_inner();
         println!("Current version: {}", current_version);
         let version_info = rpc.get_version_info(()).await?.into_inner();

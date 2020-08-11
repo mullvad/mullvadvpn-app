@@ -1,9 +1,9 @@
-use crate::{new_grpc_client, Command, Result};
+use crate::{new_rpc_client, Command, Result};
 use talpid_types::ErrorExt;
 
 pub struct Reconnect;
 
-#[async_trait::async_trait]
+#[mullvad_management_interface::async_trait]
 impl Command for Reconnect {
     fn name(&self) -> &'static str {
         "reconnect"
@@ -14,7 +14,7 @@ impl Command for Reconnect {
     }
 
     async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         if let Err(e) = rpc.reconnect_tunnel(()).await {
             eprintln!("{}", e.display_chain());
         }
