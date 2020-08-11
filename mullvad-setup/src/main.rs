@@ -1,28 +1,18 @@
 use clap::{crate_authors, crate_description, crate_name, SubCommand};
-use parity_tokio_ipc::Endpoint as IpcEndpoint;
+use mullvad_management_interface::new_rpc_client;
 use std::process;
 use talpid_core::firewall::{self, Firewall, FirewallArguments};
 use talpid_types::ErrorExt;
-use tonic::{
-    self,
-    transport::{Endpoint, Uri},
-};
-use tower::service_fn;
-
-mod proto {
-    tonic::include_proto!("mullvad_daemon.management_interface");
-}
-use proto::management_service_client::ManagementServiceClient;
 
 pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
-    #[error(display = "Failed to connect to daemon")]
-    DaemonConnect(#[error(source)] tonic::transport::Error),
+    #[error(display = "Failed to connect to RPC client")]
+    RpcConnectionError(#[error(source)] mullvad_management_interface::Error),
 
     #[error(display = "RPC call failed")]
-    DaemonRpcError(#[error(source)] tonic::Status),
+    DaemonRpcError(#[error(source)] mullvad_management_interface::Status),
 
     #[error(display = "This command cannot be run if the daemon is active")]
     DaemonIsRunning,
@@ -67,7 +57,7 @@ async fn main() {
 }
 
 async fn prepare_restart() -> Result<(), Error> {
-    let mut rpc = new_grpc_client().await?;
+    let mut rpc = new_rpc_client().await?;
     rpc.prepare_restart(())
         .await
         .map_err(Error::DaemonRpcError)?;
@@ -76,7 +66,7 @@ async fn prepare_restart() -> Result<(), Error> {
 
 async fn reset_firewall() -> Result<(), Error> {
     // Ensure that the daemon isn't running
-    if let Ok(_) = new_grpc_client().await {
+    if let Ok(_) = new_rpc_client().await {
         return Err(Error::DaemonIsRunning);
     }
 
@@ -87,19 +77,4 @@ async fn reset_firewall() -> Result<(), Error> {
     .map_err(Error::FirewallError)?;
 
     firewall.reset_policy().map_err(Error::FirewallError)
-}
-
-pub async fn new_grpc_client() -> Result<ManagementServiceClient<tonic::transport::Channel>, Error>
-{
-    let ipc_path = mullvad_paths::get_rpc_socket_path();
-
-    // The URI will be ignored
-    let channel = Endpoint::from_static("lttp://[::]:50051")
-        .connect_with_connector(service_fn(move |_: Uri| {
-            IpcEndpoint::connect(ipc_path.clone())
-        }))
-        .await
-        .map_err(Error::DaemonConnect)?;
-
-    Ok(ManagementServiceClient::new(channel))
 }
