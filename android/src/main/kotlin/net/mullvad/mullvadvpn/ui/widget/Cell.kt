@@ -11,12 +11,11 @@ import net.mullvad.mullvadvpn.R
 
 open class Cell : LinearLayout {
     private val label = TextView(context).apply {
-        val horizontalPadding =
-            resources.getDimensionPixelSize(R.dimen.cell_label_horizontal_padding)
+        val rightPadding = resources.getDimensionPixelSize(R.dimen.cell_inner_spacing)
         val verticalPadding = resources.getDimensionPixelSize(R.dimen.cell_label_vertical_padding)
 
         layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.0f)
-        setPadding(horizontalPadding, verticalPadding, horizontalPadding, verticalPadding)
+        setPadding(0, verticalPadding, rightPadding, verticalPadding)
 
         setTextColor(context.getColor(R.color.white))
         setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.text_medium))

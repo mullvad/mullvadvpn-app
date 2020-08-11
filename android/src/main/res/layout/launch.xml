@@ -12,6 +12,7 @@
     <LinearLayout android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_gravity="center"
+                  android:paddingHorizontal="@dimen/side_margin"
                   android:orientation="vertical"
                   android:gravity="center">
         <ImageView android:layout_width="120dp"

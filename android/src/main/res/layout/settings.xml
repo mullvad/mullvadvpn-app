@@ -40,7 +40,7 @@
                           android:layout_width="wrap_content"
                           android:layout_height="wrap_content"
                           android:layout_marginTop="4dp"
-                          android:layout_marginLeft="24dp"
+                          android:layout_marginLeft="@dimen/side_margin"
                           android:text="@string/settings"
                           style="@style/SettingsExpandedHeader" />
                 <net.mullvad.mullvadvpn.ui.widget.AccountCell android:id="@+id/account"
@@ -70,10 +70,8 @@
                                                                android:layout_marginTop="24dp"
                                                                mullvad:text="@string/report_a_problem" />
                 <Button android:id="@+id/quit_button"
-                        android:layout_marginTop="24dp"
-                        android:layout_marginLeft="24dp"
-                        android:layout_marginRight="24dp"
-                        android:layout_marginBottom="24dp"
+                        android:layout_marginHorizontal="@dimen/side_margin"
+                        android:layout_marginVertical="24dp"
                         android:text="@string/quit"
                         style="@style/RedButton" />
             </LinearLayout>

@@ -15,13 +15,13 @@
     <dimen name="cell_switch_knob_max_translation">20dp</dimen>
     <dimen name="cell_switch_knob_size">24dp</dimen>
     <dimen name="settings_back_button_padding">12dp</dimen>
-    <dimen name="cell_horizontal_padding">16dp</dimen>
-    <dimen name="cell_label_horizontal_padding">8dp</dimen>
+    <dimen name="cell_horizontal_padding">@dimen/side_margin</dimen>
+    <dimen name="cell_inner_spacing">8dp</dimen>
     <dimen name="cell_label_vertical_padding">17dp</dimen>
     <dimen name="cell_input_width">80dp</dimen>
     <dimen name="cell_input_height">34dp</dimen>
     <dimen name="cell_footer_top_padding">8dp</dimen>
-    <dimen name="cell_footer_horizontal_padding">24dp</dimen>
+    <dimen name="cell_footer_horizontal_padding">@dimen/side_margin</dimen>
     <dimen name="chevron_width">14dp</dimen>
     <dimen name="chevron_height">24dp</dimen>
     <dimen name="text_small">13sp</dimen>
@@ -29,4 +29,5 @@
     <dimen name="text_medium_plus">18sp</dimen>
     <dimen name="text_big">24sp</dimen>
     <dimen name="text_huge">30sp</dimen>
+    <dimen name="side_margin">22dp</dimen>
 </resources>

@@ -15,7 +15,7 @@
                       android:orientation="vertical">
             <TextView android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:layout_marginHorizontal="24dp"
+                      android:layout_marginHorizontal="@dimen/side_margin"
                       android:layout_marginTop="24dp"
                       android:textColor="@color/white"
                       android:textSize="@dimen/text_huge"
@@ -23,7 +23,7 @@
                       android:text="@string/congrats" />
             <TextView android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:layout_marginHorizontal="24dp"
+                      android:layout_marginHorizontal="@dimen/side_margin"
                       android:layout_marginTop="8dp"
                       android:layout_marginBottom="11dp"
                       android:textColor="@color/white"
@@ -32,7 +32,7 @@
             <TextView android:id="@+id/account_number"
                       android:layout_width="match_parent"
                       android:layout_height="wrap_content"
-                      android:paddingHorizontal="24dp"
+                      android:paddingHorizontal="@dimen/side_margin"
                       android:paddingVertical="11dp"
                       android:clickable="true"
                       android:background="?android:attr/selectableItemBackground"
@@ -43,7 +43,7 @@
             <TextView android:id="@+id/pay_to_start_using"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:layout_marginHorizontal="24dp"
+                      android:layout_marginHorizontal="@dimen/side_margin"
                       android:layout_marginTop="11dp"
                       android:textColor="@color/white"
                       android:textSize="@dimen/text_small" />
@@ -54,7 +54,8 @@
                           android:layout_height="wrap_content"
                           android:layout_marginTop="16dp"
                           android:orientation="vertical"
-                          android:padding="24dp"
+                          android:paddingHorizontal="@dimen/side_margin"
+                          android:paddingVertical="24dp"
                           android:background="@color/darkBlue">
                 <net.mullvad.mullvadvpn.ui.widget.UrlButton android:id="@+id/buy_credit"
                                                             android:layout_width="match_parent"

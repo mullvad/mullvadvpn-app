@@ -21,7 +21,7 @@
                        android:src="@drawable/icon_fail" />
             <TextView android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:layout_marginHorizontal="24dp"
+                      android:layout_marginHorizontal="@dimen/side_margin"
                       android:textColor="@color/white"
                       android:textSize="@dimen/text_huge"
                       android:textStyle="bold"
@@ -29,7 +29,7 @@
             <TextView android:id="@+id/no_more_vpn_time_left"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:layout_marginHorizontal="24dp"
+                      android:layout_marginHorizontal="@dimen/side_margin"
                       android:layout_marginTop="8dp"
                       android:layout_marginBottom="11dp"
                       android:textColor="@color/white"
@@ -41,7 +41,8 @@
                           android:layout_height="wrap_content"
                           android:layout_weight="0"
                           android:orientation="vertical"
-                          android:padding="24dp"
+                          android:paddingHorizontal="@dimen/side_margin"
+                          android:paddingVertical="24dp"
                           android:background="@color/darkBlue">
                 <net.mullvad.mullvadvpn.ui.widget.Button android:id="@+id/disconnect"
                                                          android:layout_width="match_parent"
