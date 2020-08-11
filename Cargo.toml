@@ -13,6 +13,7 @@ members = [
     "mullvad-exclude",
     "talpid-openvpn-plugin",
     "talpid-core",
+    "mullvad-management-interface",
 ]
 exclude = ["dist-assets/binaries/shadowsocks-rust"]
 

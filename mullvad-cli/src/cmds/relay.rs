@@ -1,4 +1,4 @@
-use crate::{location, new_grpc_client, proto, Command, Error, Result};
+use crate::{location, new_rpc_client, Command, Error, Result};
 use clap::{value_t, values_t};
 use std::{
     io::{self, BufRead},
@@ -6,18 +6,18 @@ use std::{
     str::FromStr,
 };
 
-use mullvad_types::relay_constraints::Constraint;
-use proto::{
+use mullvad_management_interface::types::{
     connection_config::{self, OpenvpnConfig, WireguardConfig},
     relay_settings, relay_settings_update, ConnectionConfig, CustomRelaySettings,
     NormalRelaySettingsUpdate, OpenvpnConstraints, RelaySettingsUpdate, TransportProtocol,
     TunnelType, TunnelTypeUpdate, WireguardConstraints,
 };
+use mullvad_types::relay_constraints::Constraint;
 use talpid_types::net::all_of_the_internet;
 
 pub struct Relay;
 
-#[async_trait::async_trait]
+#[mullvad_management_interface::async_trait]
 impl Command for Relay {
     fn name(&self) -> &'static str {
         "relay"
@@ -171,7 +171,7 @@ impl Command for Relay {
 
 impl Relay {
     async fn update_constraints(&self, update: RelaySettingsUpdate) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         rpc.update_relay_settings(update).await?;
         println!("Relay constraints updated");
         Ok(())
@@ -384,7 +384,7 @@ impl Relay {
     }
 
     async fn get(&self) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         let constraints = rpc
             .get_settings(())
             .await?
@@ -454,7 +454,7 @@ impl Relay {
     }
 
     async fn list(&self) -> Result<()> {
-        let mut rpc = new_grpc_client().await?;
+        let mut rpc = new_rpc_client().await?;
         let mut locations = rpc.get_relay_locations(()).await?.into_inner();
 
         let mut countries = Vec::new();
@@ -517,7 +517,7 @@ impl Relay {
     }
 
     async fn update(&self) -> Result<()> {
-        new_grpc_client().await?.update_relay_locations(()).await?;
+        new_rpc_client().await?.update_relay_locations(()).await?;
         println!("Updating relay list in the background...");
         Ok(())
     }
