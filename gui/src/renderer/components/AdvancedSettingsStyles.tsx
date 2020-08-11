@@ -41,6 +41,6 @@ export default {
     lineHeight: 20,
     color: colors.red,
     marginTop: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: 22,
   }),
 };
