@@ -82,6 +82,7 @@ const ModalAlertButtonContainer = styled.div({
 
 interface IModalAlertProps {
   type?: ModalAlertType;
+  iconColor?: string;
   message?: string;
   buttons: React.ReactNode[];
   children?: React.ReactNode;
@@ -152,7 +153,9 @@ export class ModalAlert extends React.Component<IModalAlertProps> {
         color = colors.red;
         break;
     }
-    return <ImageView height={44} width={44} source={source} tintColor={color} />;
+    return (
+      <ImageView height={44} width={44} source={source} tintColor={this.props.iconColor ?? color} />
+    );
   }
 }
 
