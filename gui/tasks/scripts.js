@@ -27,7 +27,7 @@ function compileScripts() {
 }
 
 function buildProto(callback) {
-  exec('./scripts/build-proto.sh', () => callback());
+  exec('bash ./scripts/build-proto.sh', (err) => callback(err));
 }
 
 compileScripts.displayName = 'compile-scripts';
