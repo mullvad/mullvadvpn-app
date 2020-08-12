@@ -32,5 +32,5 @@
     <dimen name="side_margin">22dp</dimen>
     <dimen name="vertical_space">20dp</dimen>
     <dimen name="half_vertical_space">10dp</dimen>
-    <dimen name="button_separation">24dp</dimen>
+    <dimen name="button_separation">18dp</dimen>
 </resources>
