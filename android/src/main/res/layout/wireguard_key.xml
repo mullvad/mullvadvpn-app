@@ -108,7 +108,7 @@
                                                             android:layout_height="wrap_content"
                                                             android:layout_weight="0"
                                                             android:layout_marginTop="@dimen/button_separation"
-                                                            android:layout_marginBottom="24dp"
+                                                            android:layout_marginBottom="@dimen/screen_vertical_margin"
                                                             android:layout_marginHorizontal="@dimen/side_margin"
                                                             mullvad:text="@string/wireguard_manage_keys"
                                                             mullvad:buttonColor="blue"

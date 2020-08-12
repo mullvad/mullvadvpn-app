@@ -107,7 +107,7 @@
                       android:layout_weight="0"
                       android:orientation="vertical"
                       android:paddingHorizontal="@dimen/side_margin"
-                      android:paddingBottom="24dp"
+                      android:paddingBottom="@dimen/screen_vertical_margin"
                       android:paddingTop="16dp"
                       android:background="@color/darkBlue">
             <TextView android:layout_width="match_parent"

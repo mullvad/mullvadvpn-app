@@ -16,7 +16,7 @@
             <TextView android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:layout_marginHorizontal="@dimen/side_margin"
-                      android:layout_marginTop="24dp"
+                      android:layout_marginTop="@dimen/screen_vertical_margin"
                       android:textColor="@color/white"
                       android:textSize="@dimen/text_huge"
                       android:textStyle="bold"
@@ -56,7 +56,7 @@
                           android:layout_marginTop="16dp"
                           android:orientation="vertical"
                           android:paddingHorizontal="@dimen/side_margin"
-                          android:paddingBottom="24dp"
+                          android:paddingBottom="@dimen/screen_vertical_margin"
                           android:background="@color/darkBlue">
                 <net.mullvad.mullvadvpn.ui.widget.UrlButton android:id="@+id/buy_credit"
                                                             android:layout_width="match_parent"

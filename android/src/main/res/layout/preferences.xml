@@ -33,7 +33,7 @@
 
             <LinearLayout android:layout_width="match_parent"
                           android:layout_height="match_parent"
-                          android:paddingBottom="24dp"
+                          android:paddingBottom="@dimen/screen_vertical_margin"
                           android:orientation="vertical">
                 <TextView android:id="@+id/expanded_title"
                           android:layout_width="wrap_content"

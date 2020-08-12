@@ -117,7 +117,7 @@
                               android:orientation="vertical"
                               android:paddingHorizontal="@dimen/side_margin"
                               android:paddingTop="@dimen/vertical_space"
-                              android:paddingBottom="24dp">
+                              android:paddingBottom="@dimen/screen_vertical_margin">
                     <Button android:id="@+id/switch_location"
                             android:layout_marginTop="20dp"
                             android:layout_marginBottom="16dp"
