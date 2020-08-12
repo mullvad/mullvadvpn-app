@@ -72,7 +72,7 @@
                 <net.mullvad.mullvadvpn.ui.widget.Button android:id="@+id/redeem_voucher"
                                                          android:layout_width="match_parent"
                                                          android:layout_height="wrap_content"
-                                                         android:layout_marginTop="24dp"
+                                                         android:layout_marginVertical="@dimen/button_separation"
                                                          android:layout_marginHorizontal="@dimen/side_margin"
                                                          mullvad:text="@string/redeem_voucher"
                                                          mullvad:buttonColor="green" />
@@ -80,7 +80,7 @@
                                                          android:layout_width="match_parent"
                                                          android:layout_height="wrap_content"
                                                          android:layout_marginHorizontal="@dimen/side_margin"
-                                                         android:layout_marginVertical="24dp"
+                                                         android:layout_marginBottom="24dp"
                                                          mullvad:text="@string/log_out"
                                                          mullvad:buttonColor="red" />
             </LinearLayout>
