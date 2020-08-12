@@ -33,5 +33,5 @@
     <dimen name="vertical_space">20dp</dimen>
     <dimen name="half_vertical_space">10dp</dimen>
     <dimen name="button_separation">18dp</dimen>
-    <dimen name="screen_vertical_margin">24dp</dimen>
+    <dimen name="screen_vertical_margin">22dp</dimen>
 </resources>
