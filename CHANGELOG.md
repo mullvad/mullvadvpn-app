@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Add split-tunnelling, allowing apps to be configured to be excluded from the tunnel.
+- Add localized app messages.
 
 ### Changed
 - Upgrade from Electron 7 to Electron 8.

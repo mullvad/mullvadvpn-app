@@ -636,6 +636,8 @@ The menubar icons are described futher [here](./gui/assets/images/menubar%20icon
 Instructions for how to handle locales and translations are found
 [here](./gui/locales/README.md).
 
+For instructions specific to the Android app, see [here](./android/README.md).
+
 ## Audits, pentests and external security reviews
 
 Mullvad has used external pentesting companies to carry out security audits of this VPN app. Read

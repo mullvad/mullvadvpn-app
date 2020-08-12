@@ -77,3 +77,8 @@ command:
 ```
 CROWDIN_API_KEY=$YOUR_CROWDIN_KEY ./gui/scripts/crowdin.sh download
 ```
+
+## Android translations
+
+The Android app uses translation strings stored in a different format, but which can be generated
+from the translations in this directory. For more information, see [here](../../android/README.md).

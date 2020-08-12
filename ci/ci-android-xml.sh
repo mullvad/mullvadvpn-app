@@ -8,11 +8,17 @@ function tidy-up-android-xml {
         -m  \
         -i  \
         -w 100 \
+        -utf8 \
         --quiet yes \
         --indent-attributes yes \
         --indent-spaces 4 \
         --literal-attributes yes \
-        android/src/main/AndroidManifest.xml android/src/main/res/*/*.xml
+        android/src/main/AndroidManifest.xml \
+        android/src/main/res/anim*/*.xml \
+        android/src/main/res/drawable*/*.xml \
+        android/src/main/res/layout*/*.xml \
+        android/src/main/res/mipmap*/*.xml \
+        android/src/main/res/values/*.xml
 
     # FIXME - when tidy learns to not leave whitespace around, remove the line below - https://github.com/htacg/tidy-html5/issues/864
     find android/src/main/ -name '*.xml' -exec sed -i -e 's/[ \t]*$//' '{}' ';'
