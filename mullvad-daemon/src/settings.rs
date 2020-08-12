@@ -78,21 +78,42 @@ impl SettingsPersister {
     }
 
     fn load_settings(path: &Path) -> (Settings, bool) {
-        Self::load_settings_from_file(path)
-            .or_else(|error| match error {
-                #[cfg(windows)]
-                LoadSettingsError::FileNotFound => {
-                    Self::try_load_settings_after_windows_update(path)
-                }
-                _ => Err(error),
-            })
-            .unwrap_or_else(|error| {
-                info!(
+        let error = match Self::load_settings_from_file(path) {
+            Ok(value) => return value,
+            Err(error) => error,
+        };
+
+        #[cfg(windows)]
+        if let LoadSettingsError::FileNotFound = error {
+            info!(
+                "No settings file found. Attempting migration from Windows update backup location"
+            );
+            match Self::try_load_settings_after_windows_update(path) {
+                Ok(Some(value)) => return value,
+                Ok(None) => info!("Nothing to migrate. Using defaults."),
+                Err(error) => info!(
                     "{}",
-                    error.display_chain_with_msg("Failed to load settings. Using defaults.")
-                );
-                (Settings::default(), true)
-            })
+                    error.display_chain_with_msg("Settings migration failed. Using defaults.")
+                ),
+            }
+        } else {
+            info!(
+                "{}",
+                error.display_chain_with_msg("Failed to load settings. Using defaults.")
+            );
+        }
+
+        #[cfg(not(windows))]
+        if let LoadSettingsError::FileNotFound = error {
+            info!("No settings were found. Using defaults.");
+        } else {
+            info!(
+                "{}",
+                error.display_chain_with_msg("Failed to load settings. Using defaults.")
+            );
+        }
+
+        (Settings::default(), true)
     }
 
     fn load_settings_from_file(path: &Path) -> Result<(Settings, bool), LoadSettingsError> {
@@ -117,11 +138,14 @@ impl SettingsPersister {
     #[cfg(windows)]
     fn try_load_settings_after_windows_update(
         path: &Path,
-    ) -> Result<(Settings, bool), LoadSettingsError> {
-        info!("No settings file found. Attempting migration from Windows update backup location");
-
-        windows::migrate_after_windows_update().map_err(LoadSettingsError::WinMigrationError)?;
-        Self::load_settings_from_file(path)
+    ) -> Result<Option<(Settings, bool)>, LoadSettingsError> {
+        let migration = windows::migrate_after_windows_update()
+            .map_err(LoadSettingsError::WinMigrationError)?;
+        if migration.is_some() {
+            Self::load_settings_from_file(path).map(Some)
+        } else {
+            Ok(None)
+        }
     }
 
     /// Serializes the settings and saves them to the file it was loaded from.
@@ -287,9 +311,6 @@ mod windows {
     #[derive(err_derive::Error, Debug)]
     #[error(no_from)]
     pub enum Error {
-        #[error(display = "No files to migrate")]
-        NothingToMigrate,
-
         #[error(display = "Unable to find settings directory")]
         FindSettings(#[error(source)] mullvad_paths::Error),
 
@@ -309,13 +330,13 @@ mod windows {
         IoError(#[error(source)] io::Error),
     }
 
-    pub fn migrate_after_windows_update() -> Result<(), Error> {
+    pub fn migrate_after_windows_update() -> Result<Option<()>, Error> {
         let destination_settings_dir =
             mullvad_paths::settings_dir().map_err(Error::FindSettings)?;
 
         let system_appdata_dir = dirs::data_local_dir().ok_or(Error::FindAppData)?;
         if !destination_settings_dir.starts_with(system_appdata_dir) {
-            return Err(Error::NothingToMigrate);
+            return Ok(None);
         }
 
         let settings_path = destination_settings_dir.join(super::SETTINGS_FILE);
@@ -324,10 +345,21 @@ mod windows {
         }
 
         let mut components = destination_settings_dir.components();
-        let prefix = components.next().ok_or(Error::NothingToMigrate)?;
-        let root = components.next().ok_or(Error::NothingToMigrate)?;
+        let prefix = if let Some(prefix) = components.next() {
+            prefix
+        } else {
+            return Ok(None);
+        };
+        let root = if let Some(root) = components.next() {
+            root
+        } else {
+            return Ok(None);
+        };
 
         let windows_old_dir = Path::new(&prefix).join(&root).join(MIGRATION_DIRNAME);
+        if !windows_old_dir.exists() {
+            return Ok(None);
+        }
 
         let security_info =
             SecurityInformation::from_file(windows_old_dir.as_path(), OWNER_SECURITY_INFORMATION)
@@ -343,14 +375,14 @@ mod windows {
 
         let source_settings_dir = Path::new(&windows_old_dir).join(&components);
         if !source_settings_dir.exists() {
-            return Err(Error::NothingToMigrate);
+            return Ok(None);
         }
 
         if !destination_settings_dir.exists() {
             fs::create_dir_all(&destination_settings_dir).map_err(Error::IoError)?;
         }
 
-        let mut result = Ok(());
+        let mut result = Ok(Some(()));
 
         for (file, required) in &MIGRATE_FILES {
             let from = source_settings_dir.join(file);
