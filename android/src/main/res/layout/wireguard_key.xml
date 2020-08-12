@@ -40,7 +40,7 @@
                           android:layout_weight="0"
                           android:layout_marginLeft="@dimen/side_margin"
                           android:layout_marginTop="4dp"
-                          android:layout_marginBottom="12dp"
+                          android:layout_marginBottom="@dimen/half_vertical_space"
                           android:text="@string/wireguard_key"
                           style="@style/SettingsExpandedHeader" />
                 <net.mullvad.mullvadvpn.ui.widget.CopyableInformationView android:id="@+id/public_key"
@@ -48,7 +48,7 @@
                                                                           android:layout_height="wrap_content"
                                                                           android:layout_weight="0"
                                                                           android:paddingHorizontal="@dimen/side_margin"
-                                                                          android:paddingVertical="12dp"
+                                                                          android:paddingVertical="@dimen/half_vertical_space"
                                                                           mullvad:clipboardLabel="@string/wireguard_public_key"
                                                                           mullvad:copiedToast="@string/copied_wireguard_public_key"
                                                                           mullvad:description="@string/public_key"
@@ -59,13 +59,13 @@
                                                                   android:layout_height="wrap_content"
                                                                   android:layout_weight="0"
                                                                   android:paddingHorizontal="@dimen/side_margin"
-                                                                  android:paddingVertical="12dp"
+                                                                  android:paddingVertical="@dimen/half_vertical_space"
                                                                   mullvad:description="@string/wireguard_key_generated"
                                                                   mullvad:whenMissing="showSpinner" />
                 <FrameLayout android:layout_width="wrap_content"
                              android:layout_height="wrap_content"
                              android:paddingHorizontal="@dimen/side_margin"
-                             android:paddingVertical="12dp">
+                             android:paddingVertical="@dimen/half_vertical_space">
                     <TextView android:id="@+id/wireguard_key_status"
                               android:layout_width="wrap_content"
                               android:layout_height="wrap_content"

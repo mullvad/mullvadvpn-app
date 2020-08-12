@@ -45,6 +45,7 @@
                       android:layout_height="wrap_content"
                       android:layout_marginHorizontal="@dimen/side_margin"
                       android:layout_marginTop="11dp"
+                      android:layout_marginBottom="@dimen/vertical_space"
                       android:textColor="@color/white"
                       android:textSize="@dimen/text_small" />
             <Space android:layout_width="match_parent"

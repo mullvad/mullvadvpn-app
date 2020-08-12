@@ -46,7 +46,7 @@
                 <net.mullvad.mullvadvpn.ui.widget.AccountCell android:id="@+id/account"
                                                               android:layout_width="match_parent"
                                                               android:layout_height="wrap_content"
-                                                              android:layout_marginTop="24dp"
+                                                              android:layout_marginTop="@dimen/vertical_space"
                                                               mullvad:text="@string/settings_account" />
                 <net.mullvad.mullvadvpn.ui.widget.NavigateCell android:id="@+id/preferences"
                                                                android:layout_width="match_parent"
@@ -61,17 +61,18 @@
                 <net.mullvad.mullvadvpn.ui.widget.AppVersionCell android:id="@+id/app_version"
                                                                  android:layout_width="match_parent"
                                                                  android:layout_height="wrap_content"
-                                                                 android:layout_marginTop="1dp"
+                                                                 android:layout_marginTop="@dimen/vertical_space"
                                                                  mullvad:text="@string/app_version"
                                                                  mullvad:footer="@string/update_available_footer" />
                 <net.mullvad.mullvadvpn.ui.widget.NavigateCell android:id="@+id/report_a_problem"
                                                                android:layout_width="match_parent"
                                                                android:layout_height="wrap_content"
-                                                               android:layout_marginTop="24dp"
+                                                               android:layout_marginTop="@dimen/vertical_space"
                                                                mullvad:text="@string/report_a_problem" />
                 <Button android:id="@+id/quit_button"
                         android:layout_marginHorizontal="@dimen/side_margin"
-                        android:layout_marginVertical="24dp"
+                        android:layout_marginTop="@dimen/vertical_space"
+                        android:layout_marginBottom="24dp"
                         android:text="@string/quit"
                         style="@style/RedButton" />
             </LinearLayout>

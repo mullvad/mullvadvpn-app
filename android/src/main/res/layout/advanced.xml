@@ -45,17 +45,17 @@
                 <net.mullvad.mullvadvpn.ui.widget.MtuCell android:id="@+id/wireguard_mtu"
                                                           android:layout_width="match_parent"
                                                           android:layout_height="wrap_content"
-                                                          android:layout_marginTop="24dp"
+                                                          android:layout_marginTop="@dimen/vertical_space"
                                                           mullvad:text="@string/wireguard_mtu" />
                 <net.mullvad.mullvadvpn.ui.widget.NavigateCell android:id="@+id/wireguard_keys"
                                                                android:layout_width="match_parent"
                                                                android:layout_height="wrap_content"
-                                                               android:layout_marginTop="24dp"
+                                                               android:layout_marginTop="@dimen/vertical_space"
                                                                mullvad:text="@string/wireguard_key" />
                 <net.mullvad.mullvadvpn.ui.widget.NavigateCell android:id="@+id/split_tunnelling"
                                                                android:layout_width="match_parent"
                                                                android:layout_height="wrap_content"
-                                                               android:layout_marginTop="24dp"
+                                                               android:layout_marginTop="@dimen/vertical_space"
                                                                mullvad:text="@string/split_tunnelling" />
             </LinearLayout>
         </net.mullvad.mullvadvpn.ui.widget.ListenableScrollView>

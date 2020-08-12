@@ -45,13 +45,13 @@
                 <net.mullvad.mullvadvpn.ui.widget.ToggleCell android:id="@+id/auto_connect"
                                                              android:layout_width="match_parent"
                                                              android:layout_height="wrap_content"
-                                                             android:layout_marginTop="24dp"
+                                                             android:layout_marginTop="@dimen/vertical_space"
                                                              mullvad:text="@string/auto_connect"
                                                              mullvad:footer="@string/auto_connect_footer" />
                 <net.mullvad.mullvadvpn.ui.widget.ToggleCell android:id="@+id/allow_lan"
                                                              android:layout_width="match_parent"
                                                              android:layout_height="wrap_content"
-                                                             android:layout_marginTop="24dp"
+                                                             android:layout_marginTop="@dimen/vertical_space"
                                                              mullvad:text="@string/local_network_sharing"
                                                              mullvad:footer="@string/allow_lan_footer" />
             </LinearLayout>
