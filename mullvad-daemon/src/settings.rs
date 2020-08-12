@@ -327,19 +327,11 @@ mod windows {
         let prefix = components.next().ok_or(Error::NothingToMigrate)?;
         let root = components.next().ok_or(Error::NothingToMigrate)?;
 
-        let source_settings_dir = Path::new(&prefix)
-            .join(&root)
-            .join(MIGRATION_DIRNAME)
-            .join(&components);
-        if !source_settings_dir.exists() {
-            return Err(Error::NothingToMigrate);
-        }
+        let windows_old_dir = Path::new(&prefix).join(&root).join(MIGRATION_DIRNAME);
 
-        let security_info = SecurityInformation::from_file(
-            &source_settings_dir.as_path(),
-            OWNER_SECURITY_INFORMATION,
-        )
-        .map_err(Error::SecurityInformation)?;
+        let security_info =
+            SecurityInformation::from_file(windows_old_dir.as_path(), OWNER_SECURITY_INFORMATION)
+                .map_err(Error::SecurityInformation)?;
 
         let owner_sid = security_info.owner().ok_or(Error::WrongOwner)?;
 
@@ -347,6 +339,11 @@ mod windows {
             && !is_well_known_sid(owner_sid, WinBuiltinAdministratorsSid)
         {
             return Err(Error::WrongOwner);
+        }
+
+        let source_settings_dir = Path::new(&windows_old_dir).join(&components);
+        if !source_settings_dir.exists() {
+            return Err(Error::NothingToMigrate);
         }
 
         if !destination_settings_dir.exists() {
