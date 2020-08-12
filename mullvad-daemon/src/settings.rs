@@ -293,6 +293,9 @@ mod windows {
         #[error(display = "Unable to find settings directory")]
         FindSettings(#[error(source)] mullvad_paths::Error),
 
+        #[error(display = "Unable to find local appdata directory")]
+        FindAppData,
+
         #[error(display = "Migration was aborted to avoid overwriting current settings")]
         SettingsExist,
 
@@ -309,6 +312,11 @@ mod windows {
     pub fn migrate_after_windows_update() -> Result<(), Error> {
         let destination_settings_dir =
             mullvad_paths::settings_dir().map_err(Error::FindSettings)?;
+
+        let system_appdata_dir = dirs::data_local_dir().ok_or(Error::FindAppData)?;
+        if !destination_settings_dir.starts_with(system_appdata_dir) {
+            return Err(Error::NothingToMigrate);
+        }
 
         let settings_path = destination_settings_dir.join(super::SETTINGS_FILE);
         if settings_path.exists() {
