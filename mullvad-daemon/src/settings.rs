@@ -78,21 +78,38 @@ impl SettingsPersister {
     }
 
     fn load_settings(path: &Path) -> (Settings, bool) {
-        Self::load_settings_from_file(path)
-            .or_else(|error| match error {
-                #[cfg(windows)]
-                LoadSettingsError::FileNotFound => {
-                    Self::try_load_settings_after_windows_update(path)
-                }
-                _ => Err(error),
-            })
-            .unwrap_or_else(|error| {
-                info!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to load settings. Using defaults.")
-                );
-                (Settings::default(), true)
-            })
+        let error = match Self::load_settings_from_file(path) {
+            Ok(value) => return value,
+            Err(error) => error,
+        };
+
+        #[cfg(windows)]
+        let error = if let LoadSettingsError::FileNotFound = error {
+            info!(
+                "No settings file found. Attempting migration from Windows update backup location"
+            );
+            match windows::migrate_after_windows_update() {
+                Ok(Some(())) => match Self::load_settings_from_file(path) {
+                    Ok(value) => return value,
+                    Err(error) => error,
+                },
+                Ok(None) => LoadSettingsError::FileNotFound,
+                Err(error) => LoadSettingsError::WinMigrationError(error),
+            }
+        } else {
+            error
+        };
+
+        if let LoadSettingsError::FileNotFound = error {
+            info!("No settings were found. Using defaults.");
+        } else {
+            info!(
+                "{}",
+                error.display_chain_with_msg("Failed to load settings. Using defaults.")
+            );
+        }
+
+        (Settings::default(), true)
     }
 
     fn load_settings_from_file(path: &Path) -> Result<(Settings, bool), LoadSettingsError> {
@@ -112,16 +129,6 @@ impl SettingsPersister {
                 Settings::migrate_from_bytes(&settings_bytes).map(|settings| (settings, true))
             })
             .map_err(LoadSettingsError::ParseError)
-    }
-
-    #[cfg(windows)]
-    fn try_load_settings_after_windows_update(
-        path: &Path,
-    ) -> Result<(Settings, bool), LoadSettingsError> {
-        info!("No settings file found. Attempting migration from Windows update backup location");
-
-        windows::migrate_after_windows_update().map_err(LoadSettingsError::WinMigrationError)?;
-        Self::load_settings_from_file(path)
     }
 
     /// Serializes the settings and saves them to the file it was loaded from.
@@ -287,17 +294,11 @@ mod windows {
     #[derive(err_derive::Error, Debug)]
     #[error(no_from)]
     pub enum Error {
-        #[error(display = "No files to migrate")]
-        NothingToMigrate,
-
         #[error(display = "Unable to find settings directory")]
         FindSettings(#[error(source)] mullvad_paths::Error),
 
         #[error(display = "Unable to find local appdata directory")]
         FindAppData,
-
-        #[error(display = "Migration was aborted to avoid overwriting current settings")]
-        SettingsExist,
 
         #[error(display = "Could not acquire security descriptor of backup directory")]
         SecurityInformation(#[error(source)] io::Error),
@@ -309,25 +310,40 @@ mod windows {
         IoError(#[error(source)] io::Error),
     }
 
-    pub fn migrate_after_windows_update() -> Result<(), Error> {
+    /// Attempts to restore the Mullvad settings from `C:\windows.old` after an update of Windows.
+    /// Upon success, it returns `Ok(Some(()))` if the migration succeeded, and `Ok(None)` if no
+    /// migration was needed.
+    pub fn migrate_after_windows_update() -> Result<Option<()>, Error> {
         let destination_settings_dir =
             mullvad_paths::settings_dir().map_err(Error::FindSettings)?;
 
         let system_appdata_dir = dirs::data_local_dir().ok_or(Error::FindAppData)?;
         if !destination_settings_dir.starts_with(system_appdata_dir) {
-            return Err(Error::NothingToMigrate);
+            return Ok(None);
         }
 
         let settings_path = destination_settings_dir.join(super::SETTINGS_FILE);
         if settings_path.exists() {
-            return Err(Error::SettingsExist);
+            return Ok(None);
         }
 
         let mut components = destination_settings_dir.components();
-        let prefix = components.next().ok_or(Error::NothingToMigrate)?;
-        let root = components.next().ok_or(Error::NothingToMigrate)?;
+        let prefix = if let Some(prefix) = components.next() {
+            prefix
+        } else {
+            return Ok(None);
+        };
+        let root = if let Some(root) = components.next() {
+            root
+        } else {
+            return Ok(None);
+        };
 
         let windows_old_dir = Path::new(&prefix).join(&root).join(MIGRATION_DIRNAME);
+        let source_settings_dir = Path::new(&windows_old_dir).join(&components);
+        if !source_settings_dir.exists() {
+            return Ok(None);
+        }
 
         let security_info =
             SecurityInformation::from_file(windows_old_dir.as_path(), OWNER_SECURITY_INFORMATION)
@@ -341,16 +357,11 @@ mod windows {
             return Err(Error::WrongOwner);
         }
 
-        let source_settings_dir = Path::new(&windows_old_dir).join(&components);
-        if !source_settings_dir.exists() {
-            return Err(Error::NothingToMigrate);
-        }
-
         if !destination_settings_dir.exists() {
             fs::create_dir_all(&destination_settings_dir).map_err(Error::IoError)?;
         }
 
-        let mut result = Ok(());
+        let mut result = Ok(Some(()));
 
         for (file, required) in &MIGRATE_FILES {
             let from = source_settings_dir.join(file);
@@ -376,6 +387,13 @@ mod windows {
                     }
                 }
             }
+        }
+
+        if let Err(error) = fs::remove_dir(source_settings_dir) {
+            log::trace!(
+                "{}",
+                error.display_chain_with_msg("Failed to delete backup directory")
+            );
         }
 
         result
