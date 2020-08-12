@@ -7,7 +7,16 @@ import ISplitTunnelingApplication from '../shared/linux-split-tunneling-applicat
 import { pascalCaseToCamelCase } from './transform-object-keys';
 
 const PROBLEMATIC_APPLICATIONS = {
-  launchingInExistingProcess: ['firefox', 'firefox-esr'],
+  launchingInExistingProcess: [
+    'brave-browser-stable',
+    'chromium-browser',
+    'firefox',
+    'firefox-esr',
+    'google-chrome-stable',
+    'mate-terminal',
+    'opera',
+    'xfce4-terminal',
+  ],
   launchingElsewhere: ['gnome-terminal'],
 };
 
