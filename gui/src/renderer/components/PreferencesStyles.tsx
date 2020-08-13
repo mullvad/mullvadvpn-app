@@ -13,6 +13,7 @@ export default {
   preferences__content: Styles.createViewStyle({
     flexDirection: 'column',
     flex: 1,
+    marginBottom: 2,
   }),
   preferences__separator: Styles.createViewStyle({
     height: 1,
