@@ -1,3 +1,0 @@
-LIBRARY winutil
-EXPORTS
-	WinUtil_MigrateAfterWindowsUpdate
