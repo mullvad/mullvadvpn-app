@@ -32,7 +32,7 @@ export default {
     marginBottom: 20,
   }),
   advanced_settings__wgkeys_cell: Styles.createViewStyle({
-    marginBottom: 20,
+    marginBottom: 22,
   }),
   advanced_settings__wg_no_key: Styles.createTextStyle({
     fontFamily: 'Open Sans',
