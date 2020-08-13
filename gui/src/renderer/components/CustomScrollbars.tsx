@@ -176,6 +176,7 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
       onScroll: _onScroll,
       fillContainer,
       children,
+      className,
       ...otherProps
     } = this.props;
     const showScrollbars = this.state.canScroll && this.state.showScrollIndicators;
@@ -185,9 +186,10 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
     const thumbWideClass = this.state.isWide ? ' custom-scrollbars__thumb--wide' : '';
     const trackClass =
       showScrollbars && this.state.showTrack ? ' custom-scrollbars__track--visible' : '';
+    const classNames = className ? `${className} custom-scrollbars` : 'custom-scrollbars';
 
     return (
-      <div {...otherProps} className="custom-scrollbars">
+      <div {...otherProps} className={classNames}>
         <div className={`custom-scrollbars__track ${trackClass}`} ref={this.trackRef} />
         <div
           className={`custom-scrollbars__thumb ${thumbWideClass} ${thumbActiveClass} ${thumbAnimationClass}`}
