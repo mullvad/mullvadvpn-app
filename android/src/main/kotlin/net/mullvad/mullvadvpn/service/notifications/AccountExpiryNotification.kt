@@ -58,9 +58,10 @@ class AccountExpiryNotification(
 
     private suspend fun update(accountExpiry: DateTime?) {
         val remainingTime = accountExpiry?.let { expiry -> Duration(DateTime.now(), expiry) }
+        val closeToExpire = remainingTime?.isShorterThan(REMAINING_TIME_FOR_REMINDERS) ?: false
 
-        if (remainingTime != null && remainingTime.isShorterThan(REMAINING_TIME_FOR_REMINDERS)) {
-            val notification = build(accountExpiry, remainingTime)
+        if (closeToExpire && !accountCache.newlyCreatedAccount) {
+            val notification = build(accountExpiry!!, remainingTime!!)
 
             channel.notificationManager.notify(NOTIFICATION_ID, notification)
 
