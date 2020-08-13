@@ -1,73 +1,47 @@
 import * as React from 'react';
-import { Component, Styles, Text, Types, View } from 'reactxp';
+import styled from 'styled-components';
+import { colors } from '../../config.json';
 import ImageView from './ImageView';
 
-const styles = {
-  container: Styles.createViewStyle({
-    flexDirection: 'row',
-    alignItems: 'center',
-  }),
-  caption: {
-    base: Styles.createTextStyle({
-      fontFamily: 'Open Sans',
-      fontSize: 15,
-      fontWeight: '600',
-      lineHeight: 20,
-      color: 'rgb(255, 255, 255, 0.4)',
-    }),
-    hovered: Styles.createTextStyle({
-      color: 'rgb(255, 255, 255)',
-    }),
+const Container = styled.div({
+  display: 'flex',
+  alignItems: 'center',
+});
+
+const Caption = styled.span((props: { open: boolean }) => ({
+  fontFamily: 'Open Sans',
+  fontSize: '15px',
+  fontWeight: 600,
+  lineHeight: '20px',
+  color: props.open ? colors.white : colors.white40,
+  [Container + ':hover &']: {
+    color: colors.white,
   },
-};
+}));
+
+const Chevron = styled(ImageView)({
+  [Container + ':hover &']: {
+    backgroundColor: colors.white,
+  },
+});
 
 interface IProps {
   pointsUp: boolean;
   onToggle?: () => void;
   children: React.ReactText;
-  style?: Types.ViewStyleRuleSet | Types.ViewStyleRuleSet[];
+  className?: string;
 }
 
-interface IState {
-  isHovered: boolean;
-}
-
-export default class ConnectionPanelDisclosure extends Component<IProps, IState> {
-  constructor(props: IProps) {
-    super(props);
-
-    this.state = {
-      isHovered: false,
-    };
-  }
-
-  public render() {
-    const tintColor = this.state.isHovered ? 'rgb(255, 255, 255)' : 'rgb(255, 255, 255, 0.4)';
-    const textHoverStyle =
-      this.props.pointsUp || this.state.isHovered ? styles.caption.hovered : undefined;
-
-    return (
-      <View
-        style={[styles.container, this.props.style]}
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
-        onPress={this.props.onToggle}>
-        <Text style={[styles.caption.base, textHoverStyle]}>{this.props.children}</Text>
-        <ImageView
-          source={this.props.pointsUp ? 'icon-chevron-up' : 'icon-chevron-down'}
-          width={24}
-          height={24}
-          tintColor={tintColor}
-        />
-      </View>
-    );
-  }
-
-  private onMouseEnter = () => {
-    this.setState({ isHovered: true });
-  };
-
-  private onMouseLeave = () => {
-    this.setState({ isHovered: false });
-  };
+export default function ConnectionPanelDisclosure(props: IProps) {
+  return (
+    <Container className={props.className} onClick={props.onToggle}>
+      <Caption open={props.pointsUp}>{props.children}</Caption>
+      <Chevron
+        source={props.pointsUp ? 'icon-chevron-up' : 'icon-chevron-down'}
+        width={24}
+        height={24}
+        tintColor={colors.white40}
+      />
+    </Container>
+  );
 }
