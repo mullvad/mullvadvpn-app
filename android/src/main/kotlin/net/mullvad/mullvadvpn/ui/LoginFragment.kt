@@ -95,7 +95,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         scrollToShow(loggingInStatus)
 
         val accountToken = jobTracker.runOnBackground {
-            daemon.createNewAccount()
+            accountCache.createNewAccount()
         }
 
         if (accountToken == null) {
@@ -135,7 +135,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
                 when (accountDataResult) {
                     is GetAccountDataResult.Ok -> {
-                        daemon.setAccount(accountToken)
+                        accountCache.login(accountToken)
 
                         val expiryString = accountDataResult.accountData.expiry
                         val expiry = DateTime.parse(expiryString, AccountCache.EXPIRY_FORMAT)
@@ -147,7 +147,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
                         }
                     }
                     is GetAccountDataResult.RpcError -> {
-                        daemon.setAccount(accountToken)
+                        accountCache.login(accountToken)
                         LoginResult.ExistingAccountWithTime
                     }
                     else -> null

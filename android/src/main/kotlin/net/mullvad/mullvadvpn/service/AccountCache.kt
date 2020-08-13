@@ -36,6 +36,16 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
         }
     }
 
+    fun createNewAccount(): String? {
+        return daemon.createNewAccount()
+    }
+
+    fun login(account: String) {
+        if (account != accountNumber) {
+            daemon.setAccount(account)
+        }
+    }
+
     fun fetchAccountExpiry() {
         synchronized(this) {
             accountNumber?.let { account ->
