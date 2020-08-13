@@ -56,6 +56,8 @@ class CellSwitch : LinearLayout {
     private val knobPosition: Float
         get() = knobView.translationX / knobMaxTranslation
 
+    private var animationIsReversed = false
+
     private val positionAnimation = ValueAnimator.ofFloat(0f, knobMaxTranslation).apply {
         addUpdateListener { animation ->
             knobView.translationX = animation.animatedValue as Float
@@ -213,12 +215,16 @@ class CellSwitch : LinearLayout {
 
         when (state) {
             State.ON -> {
+                animationIsReversed = false
                 colorAnimation.start()
                 positionAnimation.start()
             }
             State.OFF -> {
-                colorAnimation.reverse()
-                positionAnimation.reverse()
+                if (!animationIsReversed || !colorAnimation.isRunning()) {
+                    animationIsReversed = true
+                    colorAnimation.reverse()
+                    positionAnimation.reverse()
+                }
 
                 playTime = knobAnimationDuration - playTime
             }
