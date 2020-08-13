@@ -1,21 +1,18 @@
-import { Styles } from 'reactxp';
+import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { Container } from './Layout';
 
-export default {
-  preferences: Styles.createViewStyle({
-    backgroundColor: colors.darkBlue,
-    flex: 1,
-  }),
-  preferences__container: Styles.createViewStyle({
-    flexDirection: 'column',
-    flex: 1,
-  }),
-  preferences__content: Styles.createViewStyle({
-    flexDirection: 'column',
-    flex: 1,
-    marginBottom: 2,
-  }),
-  preferences__separator: Styles.createViewStyle({
-    height: 1,
-  }),
-};
+export const StyledContainer = styled(Container)({
+  backgroundColor: colors.darkBlue,
+});
+
+export const StyledContent = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  marginBottom: '2px',
+});
+
+export const StyledSeparator = styled.div({
+  height: '1px',
+});
