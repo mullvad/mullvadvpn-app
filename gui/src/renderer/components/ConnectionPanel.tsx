@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { Component, Styles, Text, Types, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
+import styled from 'styled-components';
+import { colors } from '../../config.json';
 import {
   ProxyType,
   proxyTypeToString,
@@ -38,80 +39,76 @@ interface IProps {
   bridgeInfo?: IBridgeData;
   outAddress?: IOutAddress;
   onToggle: () => void;
-  style?: Types.ViewStyleRuleSet | Types.ViewStyleRuleSet[];
+  className?: string;
 }
 
-const styles = {
-  row: Styles.createViewStyle({
-    flexDirection: 'row',
-    marginTop: 3,
-  }),
-  caption: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    lineHeight: 15,
-    fontWeight: '600',
-    color: 'rgb(255, 255, 255)',
-    flex: 0,
-    marginRight: 8,
-  }),
-  value: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    lineHeight: 15,
-    fontWeight: '600',
-    color: 'rgb(255, 255, 255)',
-  }),
-  header: Styles.createViewStyle({
-    flexDirection: 'row',
-    alignItems: 'center',
-  }),
-};
+const Row = styled.div({
+  display: 'flex',
+  marginTop: '3px',
+});
 
-export default class ConnectionPanel extends Component<IProps> {
+const Text = styled.span({
+  fontFamily: 'Open Sans',
+  fontSize: '13px',
+  lineHeight: '15px',
+  fontWeight: 600,
+  color: colors.white,
+});
+
+const Caption = styled(Text)({
+  flex: 0,
+  marginRight: '8px',
+});
+
+const Header = styled.div({
+  display: 'flex',
+  alignItems: 'center',
+});
+
+export default class ConnectionPanel extends React.Component<IProps> {
   public render() {
     const { inAddress, outAddress, bridgeInfo } = this.props;
     const entryPoint = bridgeInfo && inAddress ? bridgeInfo : inAddress;
 
     return (
-      <View style={this.props.style}>
+      <div className={this.props.className}>
         {this.props.hostname && (
-          <View style={styles.header}>
+          <Header>
             <ConnectionPanelDisclosure pointsUp={this.props.isOpen} onToggle={this.props.onToggle}>
               {this.hostnameLine()}
             </ConnectionPanelDisclosure>
-          </View>
+          </Header>
         )}
 
         {this.props.isOpen && this.props.hostname && (
           <React.Fragment>
             {this.props.inAddress && (
-              <View style={styles.row}>
-                <Text style={styles.value}>{this.transportLine()}</Text>
-              </View>
+              <Row>
+                <Text>{this.transportLine()}</Text>
+              </Row>
             )}
 
             {entryPoint && (
-              <View style={styles.row}>
-                <Text style={styles.caption}>{messages.pgettext('connection-info', 'In')}</Text>
-                <Text style={styles.value}>
+              <Row>
+                <Caption>{messages.pgettext('connection-info', 'In')}</Caption>
+                <Text>
                   {`${entryPoint.ip}:${entryPoint.port} ${entryPoint.protocol.toUpperCase()}`}
                 </Text>
-              </View>
+              </Row>
             )}
 
             {outAddress && (outAddress.ipv4 || outAddress.ipv6) && (
-              <View style={styles.row}>
-                <Text style={styles.caption}>{messages.pgettext('connection-info', 'Out')}</Text>
-                <View>
-                  {outAddress.ipv4 && <Text style={styles.value}>{outAddress.ipv4}</Text>}
-                  {outAddress.ipv6 && <Text style={styles.value}>{outAddress.ipv6}</Text>}
-                </View>
-              </View>
+              <Row>
+                <Caption>{messages.pgettext('connection-info', 'Out')}</Caption>
+                <div>
+                  {outAddress.ipv4 && <Text>{outAddress.ipv4}</Text>}
+                  {outAddress.ipv6 && <Text>{outAddress.ipv6}</Text>}
+                </div>
+              </Row>
             )}
           </React.Fragment>
         )}
-      </View>
+      </div>
     );
   }
 
