@@ -74,6 +74,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix connect action from quick-settings tile or notification sometimes opening the UI instead of
   connecting.
 - Fix notification sometimes not being dismissible.
+- Fix toggle switch sometimes getting stuck.
 
 #### Linux
 - Fix `systemd-resolved` DNS management by not parsing `/etc/resolv.conf`.
