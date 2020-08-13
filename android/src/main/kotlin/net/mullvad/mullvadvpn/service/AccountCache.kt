@@ -23,6 +23,9 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
 
+    var newlyCreatedAccount = false
+        private set
+
     private val jobTracker = JobTracker()
 
     private var accountNumber by onAccountNumberChange.notifiable()
@@ -37,11 +40,14 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     }
 
     fun createNewAccount(): String? {
+        newlyCreatedAccount = true
+
         return daemon.createNewAccount()
     }
 
     fun login(account: String) {
         if (account != accountNumber) {
+            newlyCreatedAccount = false
             daemon.setAccount(account)
         }
     }
@@ -109,6 +115,10 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
             if (newAccountExpiry != oldAccountExpiry || retryAttempt >= MAX_INVALIDATED_RETRIES) {
                 accountExpiry = newAccountExpiry
                 oldAccountExpiry = null
+
+                if (accountExpiry != null) {
+                    newlyCreatedAccount = false
+                }
 
                 return true
             }
