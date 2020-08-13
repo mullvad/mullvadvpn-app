@@ -16,7 +16,7 @@ final class AssociatedValue<T>: NSObject {
     }
 
     class func get(object: Any, key: UnsafeRawPointer) -> T? {
-        let container = objc_getAssociatedObject(object, key) as? Self
+        let container = objc_getAssociatedObject(object, key) as? AssociatedValue<T>
         return container?.value
     }
 
