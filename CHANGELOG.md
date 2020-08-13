@@ -43,6 +43,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add exponential backoff to relay list downloader.
 - Display the original block reason in the non-blocking error state, and why applying the blocking
   policy failed.
+- Don't show account time expired notification for newly created accounts.
 
 #### Android
 - Show a system notification when the account time will soon run out.
