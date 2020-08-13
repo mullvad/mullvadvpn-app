@@ -1,6 +1,5 @@
 import * as React from 'react';
 import ReactDOM from 'react-dom';
-import { Component, Styles, View } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
@@ -28,15 +27,9 @@ interface IState {
   source: Array<ISelectorItem<string>>;
 }
 
-const styles = {
-  page: Styles.createViewStyle({
-    backgroundColor: colors.darkBlue,
-    flex: 1,
-  }),
-  container: Styles.createViewStyle({
-    flex: 1,
-  }),
-};
+const StyledContainer = styled(Container)({
+  backgroundColor: colors.darkBlue,
+});
 
 const StyledNavigationScrollbars = styled(NavigationScrollbars)({
   flex: 1,
@@ -46,7 +39,7 @@ const StyledSelector = (styled(Selector)({
   marginBottom: 0,
 }) as unknown) as new <T>() => Selector<T>;
 
-export default class SelectLanguage extends Component<IProps, IState> {
+export default class SelectLanguage extends React.Component<IProps, IState> {
   private scrollView = React.createRef<CustomScrollbars>();
   private selectedCellRef = React.createRef<SelectorCell<string>>();
 
@@ -67,45 +60,41 @@ export default class SelectLanguage extends Component<IProps, IState> {
   public render() {
     return (
       <Layout>
-        <Container>
-          <View style={styles.page}>
-            <NavigationContainer>
-              <NavigationBar>
-                <NavigationItems>
-                  <BackBarItem action={this.props.onClose}>
-                    {
-                      // TRANSLATORS: Back button in navigation bar
-                      messages.pgettext('navigation-bar', 'Settings')
-                    }
-                  </BackBarItem>
-                  <TitleBarItem>
-                    {
-                      // TRANSLATORS: Title label in navigation bar
-                      messages.pgettext('select-language-nav', 'Select language')
-                    }
-                  </TitleBarItem>
-                </NavigationItems>
-              </NavigationBar>
+        <StyledContainer>
+          <NavigationContainer>
+            <NavigationBar>
+              <NavigationItems>
+                <BackBarItem action={this.props.onClose}>
+                  {
+                    // TRANSLATORS: Back button in navigation bar
+                    messages.pgettext('navigation-bar', 'Settings')
+                  }
+                </BackBarItem>
+                <TitleBarItem>
+                  {
+                    // TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('select-language-nav', 'Select language')
+                  }
+                </TitleBarItem>
+              </NavigationItems>
+            </NavigationBar>
 
-              <View style={styles.container}>
-                <StyledNavigationScrollbars>
-                  <SettingsHeader>
-                    <HeaderTitle>
-                      {messages.pgettext('select-language-nav', 'Select language')}
-                    </HeaderTitle>
-                  </SettingsHeader>
-                  <StyledSelector
-                    title=""
-                    values={this.state.source}
-                    value={this.props.preferredLocale}
-                    onSelect={this.props.setPreferredLocale}
-                    selectedCellRef={this.selectedCellRef}
-                  />
-                </StyledNavigationScrollbars>
-              </View>
-            </NavigationContainer>
-          </View>
-        </Container>
+            <StyledNavigationScrollbars>
+              <SettingsHeader>
+                <HeaderTitle>
+                  {messages.pgettext('select-language-nav', 'Select language')}
+                </HeaderTitle>
+              </SettingsHeader>
+              <StyledSelector
+                title=""
+                values={this.state.source}
+                value={this.props.preferredLocale}
+                onSelect={this.props.setPreferredLocale}
+                selectedCellRef={this.selectedCellRef}
+              />
+            </StyledNavigationScrollbars>
+          </NavigationContainer>
+        </StyledContainer>
       </Layout>
     );
   }
