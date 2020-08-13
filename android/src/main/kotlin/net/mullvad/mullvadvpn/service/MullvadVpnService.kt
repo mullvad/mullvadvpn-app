@@ -19,8 +19,6 @@ import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
-import net.mullvad.talpid.util.autoSubscribable
-import org.joda.time.DateTime
 
 private const val RELAYS_FILE = "relays.json"
 
@@ -49,23 +47,17 @@ class MullvadVpnService : TalpidVpnService() {
         if (newInstance != oldInstance) {
             oldInstance?.onDestroy()
 
-            accountExpiryNotification = newInstance?.daemon?.let { daemon ->
-                AccountExpiryNotification(this, daemon)
+            accountExpiryNotification = newInstance?.let { instance ->
+                AccountExpiryNotification(this, instance.daemon, instance.accountCache)
             }
-
-            accountExpiryEvents = newInstance?.accountCache?.onAccountExpiryChange
 
             serviceNotifier.notify(newInstance)
         }
     }
 
-    private var accountExpiryEvents by autoSubscribable<DateTime?>(this, null) { expiry ->
-        accountExpiryNotification?.accountExpiry = expiry
-    }
-
     private var accountExpiryNotification
     by observable<AccountExpiryNotification?>(null) { _, oldNotification, _ ->
-        oldNotification?.accountExpiry = null
+        oldNotification?.onDestroy()
     }
 
     private lateinit var keyguardManager: KeyguardManager
