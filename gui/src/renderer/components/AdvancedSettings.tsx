@@ -1,17 +1,22 @@
 import * as React from 'react';
-import { Component, Text, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
 import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { WgKeyState } from '../redux/settings/reducers';
-import styles, {
-  InputFrame,
+import {
+  StyledBottomCellGroup,
+  StyledContainer,
+  StyledInputFrame,
   StyledNavigationScrollbars,
-  TunnelProtocolSelector,
+  StyledNoWireguardKeyError,
+  StyledNoWireguardKeyErrorContainer,
+  StyledSelectorContainer,
+  StyledTunnelProtocolSelector,
+  StyledTunnelProtocolContainer,
 } from './AdvancedSettingsStyles';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
-import { Container, Layout } from './Layout';
+import { Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';
 import {
   BackBarItem,
@@ -70,7 +75,7 @@ interface IState {
   showConfirmBlockWhenDisconnectedAlert: boolean;
 }
 
-export default class AdvancedSettings extends Component<IProps, IState> {
+export default class AdvancedSettings extends React.Component<IProps, IState> {
   private portItems: { [key in RelayProtocol]: Array<ISelectorItem<OptionalPort>> };
   private protocolItems: Array<ISelectorItem<OptionalRelayProtocol>>;
   private bridgeStateItems: Array<ISelectorItem<BridgeState>>;
@@ -138,248 +143,229 @@ export default class AdvancedSettings extends Component<IProps, IState> {
     return (
       <ModalContainer>
         <Layout>
-          <Container>
-            <View style={styles.advanced_settings}>
-              <NavigationContainer>
-                <NavigationBar>
-                  <NavigationItems>
-                    <BackBarItem action={this.props.onClose}>
-                      {
-                        // TRANSLATORS: Back button in navigation bar
-                        messages.pgettext('navigation-bar', 'Settings')
-                      }
-                    </BackBarItem>
-                    <TitleBarItem>
-                      {
-                        // TRANSLATORS: Title label in navigation bar
-                        messages.pgettext('advanced-settings-nav', 'Advanced')
-                      }
-                    </TitleBarItem>
-                  </NavigationItems>
-                </NavigationBar>
+          <StyledContainer>
+            <NavigationContainer>
+              <NavigationBar>
+                <NavigationItems>
+                  <BackBarItem action={this.props.onClose}>
+                    {
+                      // TRANSLATORS: Back button in navigation bar
+                      messages.pgettext('navigation-bar', 'Settings')
+                    }
+                  </BackBarItem>
+                  <TitleBarItem>
+                    {
+                      // TRANSLATORS: Title label in navigation bar
+                      messages.pgettext('advanced-settings-nav', 'Advanced')
+                    }
+                  </TitleBarItem>
+                </NavigationItems>
+              </NavigationBar>
 
-                <View style={styles.advanced_settings__container}>
-                  <StyledNavigationScrollbars>
-                    <SettingsHeader>
-                      <HeaderTitle>
-                        {messages.pgettext('advanced-settings-view', 'Advanced')}
-                      </HeaderTitle>
-                    </SettingsHeader>
+              <StyledNavigationScrollbars>
+                <SettingsHeader>
+                  <HeaderTitle>
+                    {messages.pgettext('advanced-settings-view', 'Advanced')}
+                  </HeaderTitle>
+                </SettingsHeader>
 
-                    <Cell.Container>
-                      <Cell.Label>
-                        {messages.pgettext('advanced-settings-view', 'Enable IPv6')}
-                      </Cell.Label>
-                      <Cell.Switch
-                        isOn={this.props.enableIpv6}
-                        onChange={this.props.setEnableIpv6}
-                      />
-                    </Cell.Container>
-                    <Cell.Footer>
-                      <Cell.FooterText>
+                <Cell.Container>
+                  <Cell.Label>
+                    {messages.pgettext('advanced-settings-view', 'Enable IPv6')}
+                  </Cell.Label>
+                  <Cell.Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
+                </Cell.Container>
+                <Cell.Footer>
+                  <Cell.FooterText>
+                    {messages.pgettext(
+                      'advanced-settings-view',
+                      'Enable IPv6 communication through the tunnel.',
+                    )}
+                  </Cell.FooterText>
+                </Cell.Footer>
+
+                <Cell.Container>
+                  <Cell.Label>
+                    {messages.pgettext('advanced-settings-view', 'Always require VPN')}
+                  </Cell.Label>
+                  <Cell.Switch
+                    isOn={this.props.blockWhenDisconnected}
+                    onChange={this.setBlockWhenDisconnected}
+                  />
+                </Cell.Container>
+                <Cell.Footer>
+                  <Cell.FooterText>
+                    {messages.pgettext(
+                      'advanced-settings-view',
+                      'If you disconnect or quit the app, this setting will block your internet.',
+                    )}
+                  </Cell.FooterText>
+                </Cell.Footer>
+
+                <StyledTunnelProtocolContainer>
+                  <StyledTunnelProtocolSelector
+                    title={messages.pgettext('advanced-settings-view', 'Tunnel protocol')}
+                    values={this.tunnelProtocolItems(hasWireguardKey)}
+                    value={this.props.tunnelProtocol}
+                    onSelect={this.onSelectTunnelProtocol}
+                  />
+                  {!hasWireguardKey && (
+                    <StyledNoWireguardKeyErrorContainer>
+                      <StyledNoWireguardKeyError>
                         {messages.pgettext(
                           'advanced-settings-view',
-                          'Enable IPv6 communication through the tunnel.',
+                          'To enable WireGuard, generate a key under the "WireGuard key" setting below.',
                         )}
-                      </Cell.FooterText>
-                    </Cell.Footer>
+                      </StyledNoWireguardKeyError>
+                    </StyledNoWireguardKeyErrorContainer>
+                  )}
+                </StyledTunnelProtocolContainer>
 
-                    <Cell.Container>
-                      <Cell.Label>
-                        {messages.pgettext('advanced-settings-view', 'Always require VPN')}
-                      </Cell.Label>
-                      <Cell.Switch
-                        isOn={this.props.blockWhenDisconnected}
-                        onChange={this.setBlockWhenDisconnected}
-                      />
-                    </Cell.Container>
-                    <Cell.Footer>
-                      <Cell.FooterText>
-                        {messages.pgettext(
-                          'advanced-settings-view',
-                          'If you disconnect or quit the app, this setting will block your internet.',
-                        )}
-                      </Cell.FooterText>
-                    </Cell.Footer>
-
-                    <View
-                      style={[
-                        styles.advanced_settings__content,
-                        styles.advanced_settings__cell_bottom_margin,
-                      ]}>
-                      <TunnelProtocolSelector
-                        title={messages.pgettext('advanced-settings-view', 'Tunnel protocol')}
-                        values={this.tunnelProtocolItems(hasWireguardKey)}
-                        value={this.props.tunnelProtocol}
-                        onSelect={this.onSelectTunnelProtocol}
-                      />
-                      {!hasWireguardKey && (
-                        <Text style={styles.advanced_settings__wg_no_key}>
-                          {messages.pgettext(
-                            'advanced-settings-view',
-                            'To enable WireGuard, generate a key under the "WireGuard key" setting below.',
-                          )}
-                        </Text>
-                      )}
-                    </View>
-
-                    {this.props.tunnelProtocol !== 'wireguard' ? (
-                      <View style={styles.advanced_settings__content}>
-                        <Selector
-                          title={messages.pgettext(
-                            'advanced-settings-view',
-                            'OpenVPN transport protocol',
-                          )}
-                          values={this.protocolItems}
-                          value={this.props.openvpn.protocol}
-                          onSelect={this.onSelectOpenvpnProtocol}
-                        />
-
-                        {this.props.openvpn.protocol ? (
-                          <Selector
-                            title={sprintf(
-                              // TRANSLATORS: The title for the port selector section.
-                              // TRANSLATORS: Available placeholders:
-                              // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
-                              messages.pgettext(
-                                'advanced-settings-view',
-                                'OpenVPN %(portType)s port',
-                              ),
-                              {
-                                portType: this.props.openvpn.protocol.toUpperCase(),
-                              },
-                            )}
-                            values={this.portItems[this.props.openvpn.protocol]}
-                            value={this.props.openvpn.port}
-                            onSelect={this.onSelectOpenVpnPort}
-                          />
-                        ) : undefined}
-                      </View>
-                    ) : undefined}
-
-                    {this.props.tunnelProtocol === 'wireguard' ? (
-                      <View style={styles.advanced_settings__content}>
-                        <Selector
-                          // TRANSLATORS: The title for the shadowsocks bridge selector section.
-                          title={messages.pgettext('advanced-settings-view', 'WireGuard port')}
-                          values={this.wireguardPortItems}
-                          value={this.props.wireguard.port}
-                          onSelect={this.onSelectWireguardPort}
-                        />
-                      </View>
-                    ) : undefined}
-
+                {this.props.tunnelProtocol !== 'wireguard' ? (
+                  <StyledSelectorContainer>
                     <Selector
-                      title={
-                        // TRANSLATORS: The title for the shadowsocks bridge selector section.
-                        messages.pgettext('advanced-settings-view', 'Bridge mode')
-                      }
-                      values={this.bridgeStateItems}
-                      value={this.props.bridgeState}
-                      onSelect={this.onSelectBridgeState}
+                      title={messages.pgettext(
+                        'advanced-settings-view',
+                        'OpenVPN transport protocol',
+                      )}
+                      values={this.protocolItems}
+                      value={this.props.openvpn.protocol}
+                      onSelect={this.onSelectOpenvpnProtocol}
                     />
 
-                    <Cell.Container>
-                      <Cell.Label>
-                        {messages.pgettext('advanced-settings-view', 'OpenVPN Mssfix')}
-                      </Cell.Label>
-                      <InputFrame>
-                        <Cell.AutoSizingTextInput
-                          value={this.props.mssfix ? this.props.mssfix.toString() : ''}
-                          inputMode={'numeric'}
-                          maxLength={4}
-                          placeholder={messages.pgettext('advanced-settings-view', 'Default')}
-                          onSubmitValue={this.onMssfixSubmit}
-                          validateValue={AdvancedSettings.mssfixIsValid}
-                          submitOnBlur={true}
-                          modifyValue={AdvancedSettings.removeNonNumericCharacters}
-                        />
-                      </InputFrame>
-                    </Cell.Container>
-                    <Cell.Footer>
-                      <Cell.FooterText>
-                        {sprintf(
-                          // TRANSLATORS: The hint displayed below the Mssfix input field.
+                    {this.props.openvpn.protocol ? (
+                      <Selector
+                        title={sprintf(
+                          // TRANSLATORS: The title for the port selector section.
                           // TRANSLATORS: Available placeholders:
-                          // TRANSLATORS: %(max)d - the maximum possible mssfix value
-                          // TRANSLATORS: %(min)d - the minimum possible mssfix value
-                          messages.pgettext(
-                            'advanced-settings-view',
-                            'Set OpenVPN MSS value. Valid range: %(min)d - %(max)d.',
-                          ),
+                          // TRANSLATORS: %(portType)s - a selected protocol (either TCP or UDP)
+                          messages.pgettext('advanced-settings-view', 'OpenVPN %(portType)s port'),
                           {
-                            min: MIN_MSSFIX_VALUE,
-                            max: MAX_MSSFIX_VALUE,
+                            portType: this.props.openvpn.protocol.toUpperCase(),
                           },
                         )}
-                      </Cell.FooterText>
-                    </Cell.Footer>
+                        values={this.portItems[this.props.openvpn.protocol]}
+                        value={this.props.openvpn.port}
+                        onSelect={this.onSelectOpenVpnPort}
+                      />
+                    ) : undefined}
+                  </StyledSelectorContainer>
+                ) : undefined}
 
-                    <Cell.Container>
-                      <Cell.Label>
-                        {messages.pgettext('advanced-settings-view', 'WireGuard MTU')}
-                      </Cell.Label>
-                      <InputFrame>
-                        <Cell.AutoSizingTextInput
-                          value={this.props.wireguardMtu ? this.props.wireguardMtu.toString() : ''}
-                          inputMode={'numeric'}
-                          maxLength={4}
-                          placeholder={messages.pgettext('advanced-settings-view', 'Default')}
-                          onSubmitValue={this.onWireguardMtuSubmit}
-                          validateValue={AdvancedSettings.wireguarMtuIsValid}
-                          submitOnBlur={true}
-                          modifyValue={AdvancedSettings.removeNonNumericCharacters}
-                        />
-                      </InputFrame>
-                    </Cell.Container>
-                    <Cell.Footer>
-                      <Cell.FooterText>
-                        {sprintf(
-                          // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
-                          // TRANSLATORS: Available placeholders:
-                          // TRANSLATORS: %(max)d - the maximum possible wireguard mtu value
-                          // TRANSLATORS: %(min)d - the minimum possible wireguard mtu value
-                          messages.pgettext(
-                            'advanced-settings-view',
-                            'Set WireGuard MTU value. Valid range: %(min)d - %(max)d.',
-                          ),
-                          {
-                            min: MIN_WIREGUARD_MTU_VALUE,
-                            max: MAX_WIREGUARD_MTU_VALUE,
-                          },
-                        )}
-                      </Cell.FooterText>
-                    </Cell.Footer>
+                {this.props.tunnelProtocol === 'wireguard' ? (
+                  <StyledSelectorContainer>
+                    <Selector
+                      // TRANSLATORS: The title for the shadowsocks bridge selector section.
+                      title={messages.pgettext('advanced-settings-view', 'WireGuard port')}
+                      values={this.wireguardPortItems}
+                      value={this.props.wireguard.port}
+                      onSelect={this.onSelectWireguardPort}
+                    />
+                  </StyledSelectorContainer>
+                ) : undefined}
 
-                    <View
-                      style={
-                        process.platform !== 'linux'
-                          ? styles.advanced_settings__last_cell_bottom_margin
-                          : undefined
-                      }>
-                      <Cell.CellButton onClick={this.props.onViewWireguardKeys}>
-                        <Cell.Label>
-                          {messages.pgettext('advanced-settings-view', 'WireGuard key')}
-                        </Cell.Label>
-                        <Cell.Icon height={12} width={7} source="icon-chevron" />
-                      </Cell.CellButton>
-                    </View>
+                <Selector
+                  title={
+                    // TRANSLATORS: The title for the shadowsocks bridge selector section.
+                    messages.pgettext('advanced-settings-view', 'Bridge mode')
+                  }
+                  values={this.bridgeStateItems}
+                  value={this.props.bridgeState}
+                  onSelect={this.onSelectBridgeState}
+                />
 
-                    {process.platform === 'linux' && (
-                      <View style={styles.advanced_settings__last_cell_bottom_margin}>
-                        <Cell.CellButton onClick={this.props.onViewLinuxSplitTunneling}>
-                          <Cell.Label>
-                            {messages.pgettext('advanced-settings-view', 'Split tunneling')}
-                          </Cell.Label>
-                          <Cell.Icon height={12} width={7} source="icon-chevron" />
-                        </Cell.CellButton>
-                      </View>
+                <Cell.Container>
+                  <Cell.Label>
+                    {messages.pgettext('advanced-settings-view', 'OpenVPN Mssfix')}
+                  </Cell.Label>
+                  <StyledInputFrame>
+                    <Cell.AutoSizingTextInput
+                      value={this.props.mssfix ? this.props.mssfix.toString() : ''}
+                      inputMode={'numeric'}
+                      maxLength={4}
+                      placeholder={messages.pgettext('advanced-settings-view', 'Default')}
+                      onSubmitValue={this.onMssfixSubmit}
+                      validateValue={AdvancedSettings.mssfixIsValid}
+                      submitOnBlur={true}
+                      modifyValue={AdvancedSettings.removeNonNumericCharacters}
+                    />
+                  </StyledInputFrame>
+                </Cell.Container>
+                <Cell.Footer>
+                  <Cell.FooterText>
+                    {sprintf(
+                      // TRANSLATORS: The hint displayed below the Mssfix input field.
+                      // TRANSLATORS: Available placeholders:
+                      // TRANSLATORS: %(max)d - the maximum possible mssfix value
+                      // TRANSLATORS: %(min)d - the minimum possible mssfix value
+                      messages.pgettext(
+                        'advanced-settings-view',
+                        'Set OpenVPN MSS value. Valid range: %(min)d - %(max)d.',
+                      ),
+                      {
+                        min: MIN_MSSFIX_VALUE,
+                        max: MAX_MSSFIX_VALUE,
+                      },
                     )}
-                  </StyledNavigationScrollbars>
-                </View>
-              </NavigationContainer>
-            </View>
-          </Container>
+                  </Cell.FooterText>
+                </Cell.Footer>
+
+                <Cell.Container>
+                  <Cell.Label>
+                    {messages.pgettext('advanced-settings-view', 'WireGuard MTU')}
+                  </Cell.Label>
+                  <StyledInputFrame>
+                    <Cell.AutoSizingTextInput
+                      value={this.props.wireguardMtu ? this.props.wireguardMtu.toString() : ''}
+                      inputMode={'numeric'}
+                      maxLength={4}
+                      placeholder={messages.pgettext('advanced-settings-view', 'Default')}
+                      onSubmitValue={this.onWireguardMtuSubmit}
+                      validateValue={AdvancedSettings.wireguarMtuIsValid}
+                      submitOnBlur={true}
+                      modifyValue={AdvancedSettings.removeNonNumericCharacters}
+                    />
+                  </StyledInputFrame>
+                </Cell.Container>
+                <Cell.Footer>
+                  <Cell.FooterText>
+                    {sprintf(
+                      // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
+                      // TRANSLATORS: Available placeholders:
+                      // TRANSLATORS: %(max)d - the maximum possible wireguard mtu value
+                      // TRANSLATORS: %(min)d - the minimum possible wireguard mtu value
+                      messages.pgettext(
+                        'advanced-settings-view',
+                        'Set WireGuard MTU value. Valid range: %(min)d - %(max)d.',
+                      ),
+                      {
+                        min: MIN_WIREGUARD_MTU_VALUE,
+                        max: MAX_WIREGUARD_MTU_VALUE,
+                      },
+                    )}
+                  </Cell.FooterText>
+                </Cell.Footer>
+
+                <StyledBottomCellGroup>
+                  <Cell.CellButton onClick={this.props.onViewWireguardKeys}>
+                    <Cell.Label>
+                      {messages.pgettext('advanced-settings-view', 'WireGuard key')}
+                    </Cell.Label>
+                    <Cell.Icon height={12} width={7} source="icon-chevron" />
+                  </Cell.CellButton>
+
+                  {process.platform === 'linux' && (
+                    <Cell.CellButton onClick={this.props.onViewLinuxSplitTunneling}>
+                      <Cell.Label>
+                        {messages.pgettext('advanced-settings-view', 'Split tunneling')}
+                      </Cell.Label>
+                      <Cell.Icon height={12} width={7} source="icon-chevron" />
+                    </Cell.CellButton>
+                  )}
+                </StyledBottomCellGroup>
+              </StyledNavigationScrollbars>
+            </NavigationContainer>
+          </StyledContainer>
         </Layout>
 
         {this.state.showConfirmBlockWhenDisconnectedAlert &&
