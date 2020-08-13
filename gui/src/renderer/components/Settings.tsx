@@ -1,11 +1,9 @@
 import * as React from 'react';
-import { Component, Text, View } from 'reactxp';
 import { colors, links } from '../../config.json';
 import { hasExpired, formatRemainingTime } from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
-import * as AppButton from './AppButton';
 import * as Cell from './Cell';
-import { Container, Layout } from './Layout';
+import { Layout } from './Layout';
 import {
   CloseBarItem,
   NavigationBar,
@@ -14,7 +12,15 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import styles, { CellIcon, OutOfTimeSubText, StyledNavigationScrollbars } from './SettingsStyles';
+import {
+  StyledCellIcon,
+  StyledCellSpacer,
+  StyledContainer,
+  StyledContent,
+  StyledNavigationScrollbars,
+  StyledOutOfTimeSubText,
+  StyledQuitButton,
+} from './SettingsStyles';
 
 import { LoginState } from '../redux/account/reducers';
 
@@ -37,47 +43,43 @@ export interface IProps {
   onExternalLink: (url: string) => void;
 }
 
-export default class Settings extends Component<IProps> {
+export default class Settings extends React.Component<IProps> {
   public render() {
     const showLargeTitle = this.props.loginState.type !== 'ok';
 
     return (
       <Layout>
-        <Container>
-          <View style={styles.settings}>
-            <NavigationContainer>
-              <NavigationBar alwaysDisplayBarTitle={!showLargeTitle}>
-                <NavigationItems>
-                  <CloseBarItem action={this.props.onClose} />
-                  <TitleBarItem>
-                    {
-                      // TRANSLATORS: Title label in navigation bar
-                      messages.pgettext('navigation-bar', 'Settings')
-                    }
-                  </TitleBarItem>
-                </NavigationItems>
-              </NavigationBar>
+        <StyledContainer>
+          <NavigationContainer>
+            <NavigationBar alwaysDisplayBarTitle={!showLargeTitle}>
+              <NavigationItems>
+                <CloseBarItem action={this.props.onClose} />
+                <TitleBarItem>
+                  {
+                    // TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('navigation-bar', 'Settings')
+                  }
+                </TitleBarItem>
+              </NavigationItems>
+            </NavigationBar>
 
-              <View style={styles.container}>
-                <StyledNavigationScrollbars>
-                  <View style={styles.content}>
-                    {showLargeTitle && (
-                      <SettingsHeader>
-                        <HeaderTitle>{messages.pgettext('navigation-bar', 'Settings')}</HeaderTitle>
-                      </SettingsHeader>
-                    )}
-                    <View>
-                      {this.renderTopButtons()}
-                      {this.renderMiddleButtons()}
-                      {this.renderBottomButtons()}
-                    </View>
-                    {this.renderQuitButton()}
-                  </View>
-                </StyledNavigationScrollbars>
-              </View>
-            </NavigationContainer>
-          </View>
-        </Container>
+            <StyledNavigationScrollbars>
+              <StyledContent>
+                {showLargeTitle && (
+                  <SettingsHeader>
+                    <HeaderTitle>{messages.pgettext('navigation-bar', 'Settings')}</HeaderTitle>
+                  </SettingsHeader>
+                )}
+
+                {this.renderTopButtons()}
+                {this.renderMiddleButtons()}
+                {this.renderBottomButtons()}
+
+                {this.renderQuitButton()}
+              </StyledContent>
+            </StyledNavigationScrollbars>
+          </NavigationContainer>
+        </StyledContainer>
       </Layout>
     );
   }
@@ -87,11 +89,9 @@ export default class Settings extends Component<IProps> {
 
   private renderQuitButton() {
     return (
-      <View style={styles.quitButtonFooter}>
-        <AppButton.RedButton onClick={this.props.onQuit}>
-          {messages.pgettext('settings-view', 'Quit app')}
-        </AppButton.RedButton>
-      </View>
+      <StyledQuitButton onClick={this.props.onQuit}>
+        {messages.pgettext('settings-view', 'Quit app')}
+      </StyledQuitButton>
     );
   }
 
@@ -109,21 +109,19 @@ export default class Settings extends Component<IProps> {
     const outOfTimeMessage = messages.pgettext('settings-view', 'OUT OF TIME');
 
     return (
-      <View>
-        <View>
-          <Cell.CellButton onClick={this.props.onViewAccount}>
-            <Cell.Label>
-              {
-                // TRANSLATORS: Navigation button to the 'Account' view
-                messages.pgettext('settings-view', 'Account')
-              }
-            </Cell.Label>
-            <OutOfTimeSubText isOutOfTime={isOutOfTime}>
-              {isOutOfTime ? outOfTimeMessage : formattedExpiry}
-            </OutOfTimeSubText>
-            <Cell.Icon height={12} width={7} source="icon-chevron" />
-          </Cell.CellButton>
-        </View>
+      <>
+        <Cell.CellButton onClick={this.props.onViewAccount}>
+          <Cell.Label>
+            {
+              // TRANSLATORS: Navigation button to the 'Account' view
+              messages.pgettext('settings-view', 'Account')
+            }
+          </Cell.Label>
+          <StyledOutOfTimeSubText isOutOfTime={isOutOfTime}>
+            {isOutOfTime ? outOfTimeMessage : formattedExpiry}
+          </StyledOutOfTimeSubText>
+          <Cell.Icon height={12} width={7} source="icon-chevron" />
+        </Cell.CellButton>
 
         <Cell.CellButton onClick={this.props.onViewPreferences}>
           <Cell.Label>
@@ -144,8 +142,8 @@ export default class Settings extends Component<IProps> {
           </Cell.Label>
           <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
-        <View style={styles.cellSpacer} />
-      </View>
+        <StyledCellSpacer />
+      </>
     );
   }
 
@@ -167,18 +165,18 @@ export default class Settings extends Component<IProps> {
         ? inconsistentVersionMessage
         : updateAvailableMessage;
 
-      icon = <CellIcon source="icon-alert" tintColor={colors.red} />;
+      icon = <StyledCellIcon source="icon-alert" tintColor={colors.red} />;
       footer = (
-        <View style={styles.cellFooter}>
-          <Text style={styles.cellFooterLabel}>{message}</Text>
-        </View>
+        <Cell.Footer>
+          <Cell.FooterText>{message}</Cell.FooterText>
+        </Cell.Footer>
       );
     } else {
-      footer = <View style={styles.cellSpacer} />;
+      footer = <StyledCellSpacer />;
     }
 
     return (
-      <View>
+      <>
         <Cell.CellButton disabled={this.props.isOffline} onClick={this.openDownloadLink}>
           {icon}
           <Cell.Label>{messages.pgettext('settings-view', 'App version')}</Cell.Label>
@@ -186,13 +184,13 @@ export default class Settings extends Component<IProps> {
           <Cell.Icon height={16} width={16} source="icon-extLink" />
         </Cell.CellButton>
         {footer}
-      </View>
+      </>
     );
   }
 
   private renderBottomButtons() {
     return (
-      <View>
+      <>
         <Cell.CellButton onClick={this.props.onViewSupport}>
           <Cell.Label>
             {
@@ -214,7 +212,7 @@ export default class Settings extends Component<IProps> {
         </Cell.CellButton>
 
         <Cell.CellButton onClick={this.props.onViewSelectLanguage}>
-          <CellIcon width={24} height={24} source="icon-language" />
+          <StyledCellIcon width={24} height={24} source="icon-language" />
           <Cell.Label>
             {
               // TRANSLATORS: Navigation button to the 'Language' settings view
@@ -224,7 +222,7 @@ export default class Settings extends Component<IProps> {
           <Cell.SubText>{this.props.preferredLocaleDisplayName}</Cell.SubText>
           <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
-      </View>
+      </>
     );
   }
 }
