@@ -155,9 +155,8 @@ message TunnelState {
 }
 
 enum TunnelType {
-	ANY_TUNNEL = 0;
-	OPENVPN = 1;
-	WIREGUARD = 2;
+	OPENVPN = 0;
+	WIREGUARD = 1;
 }
 
 message TunnelStateRelayInfo {
@@ -267,9 +266,13 @@ message RelaySettings {
 	}
 }
 
+message TunnelTypeConstraint {
+	TunnelType tunnel_type = 1;
+}
+
 message NormalRelaySettings {
 	RelayLocation location = 1;
-	TunnelType tunnel_type = 2;
+	TunnelTypeConstraint tunnel_type = 2;
 	WireguardConstraints wireguard_constraints = 3;
 	OpenvpnConstraints openvpn_constraints = 4;
 }
@@ -283,14 +286,16 @@ message NormalRelaySettingsUpdate {
 }
 
 message TunnelTypeUpdate {
-	TunnelType tunnel_type = 1;
+	TunnelTypeConstraint tunnel_type = 2;
+}
+
+message TransportProtocolConstraint {
+	TransportProtocol protocol = 1;
 }
 
 message OpenvpnConstraints {
-	// NOTE: optional
 	uint32 port = 1;
-	// NOTE: optional
-	TransportProtocol protocol = 2;
+	TransportProtocolConstraint protocol = 2;
 }
 message WireguardConstraints {
 	// NOTE: optional
@@ -422,9 +427,8 @@ message RelayBridges {
 }
 
 enum TransportProtocol {
-	ANY_PROTOCOL = 0;
-	UDP = 1;
-	TCP = 2;
+	UDP = 0;
+	TCP = 1;
 }
 
 message ShadowsocksEndpointData {
