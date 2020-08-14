@@ -10,6 +10,9 @@ import net.mullvad.talpid.net.Endpoint
 import net.mullvad.talpid.net.TransportProtocol
 
 class LocationInfo(val parentView: View, val context: Context) {
+    private val hostnameColorCollapsed = context.getColor(R.color.white40)
+    private val hostnameColorExpanded = context.getColor(R.color.white)
+
     private val country: TextView = parentView.findViewById(R.id.country)
     private val city: TextView = parentView.findViewById(R.id.city)
     private val tunnelInfo: View = parentView.findViewById(R.id.tunnel_info)
@@ -85,11 +88,13 @@ class LocationInfo(val parentView: View, val context: Context) {
         chevron.visibility = View.VISIBLE
 
         if (isTunnelInfoExpanded) {
+            hostname.setTextColor(hostnameColorExpanded)
             chevron.rotation = 180.0F
             protocol.setText(R.string.wireguard)
             showInAddress(endpoint)
             updateOutAddress(location)
         } else {
+            hostname.setTextColor(hostnameColorCollapsed)
             chevron.rotation = 0.0F
             protocol.text = ""
             inAddress.text = ""
