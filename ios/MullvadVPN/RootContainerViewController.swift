@@ -47,7 +47,7 @@ class RootContainerViewController: UIViewController {
         return viewControllers.last
     }
 
-    private let headerBarView = HeaderBarView(bundle: nil)
+    private let headerBarView = HeaderBarView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
     private let transitionContainer = UIView(frame: UIScreen.main.bounds)
 
     private(set) var headerBarStyle = HeaderBarStyle.default
@@ -201,6 +201,10 @@ class RootContainerViewController: UIViewController {
         ]
 
         headerBarView.translatesAutoresizingMaskIntoConstraints = false
+
+        // Prevent automatic layout margins adjustment as we manually control them.
+        headerBarView.insetsLayoutMarginsFromSafeArea = false
+
         headerBarView.settingsButton.addTarget(
             self,
             action: #selector(handleSettingsButtonTap),
@@ -344,27 +348,18 @@ class RootContainerViewController: UIViewController {
     private func updateHeaderBarLayoutMarginsIfNeeded() {
         let offsetTop = view.safeAreaInsets.top - additionalSafeAreaInsets.top
 
-        var layoutMargins = headerBarView.layoutMargins
-        layoutMargins.top = offsetTop
-
-        if layoutMargins != headerBarView.layoutMargins {
-            headerBarView.layoutMargins = layoutMargins
+        if headerBarView.layoutMargins.top != offsetTop {
+            headerBarView.layoutMargins.top = offsetTop
         }
     }
 
     /// Updates additional safe area insets to push the child views below the header bar
     private func updateAdditionalSafeAreaInsetsIfNeeded() {
-        var safeAreaInsets = additionalSafeAreaInsets
-
         // Reset top inset if header bar is invisible
-        if headerBarHidden {
-            safeAreaInsets.top = 0
-        } else {
-            safeAreaInsets.top = headerBarView.frame.height
-        }
+        let insetTop = headerBarHidden ? 0 : headerBarView.frame.height
 
-        if additionalSafeAreaInsets != safeAreaInsets {
-            additionalSafeAreaInsets = safeAreaInsets
+        if additionalSafeAreaInsets.top != insetTop {
+            additionalSafeAreaInsets.top = insetTop
         }
     }
 
