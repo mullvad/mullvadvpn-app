@@ -397,7 +397,7 @@ export class GrpcClient {
 
     if (relaySettings.tunnelProtocol) {
       const tunnelTypeUpdate = new grpcTypes.TunnelTypeUpdate();
-      tunnelTypeUpdate.setTunnelType(convertToTunnelType(relaySettings.tunnelProtocol));
+      tunnelTypeUpdate.setTunnelType(convertToTunnelTypeConstraint(relaySettings.tunnelProtocol));
       normalUpdate.setTunnelType(tunnelTypeUpdate);
     }
 
@@ -416,7 +416,6 @@ export class GrpcClient {
         convertToOpenVpnConstraints(relaySettings.openvpnConstraints),
       );
     }
-    log.error(normalUpdate);
 
     grpcRelaySettings.setNormal(normalUpdate);
     await this.call<grpcTypes.RelaySettingsUpdate, Empty>(
@@ -654,7 +653,6 @@ function convertFromTransportProtocol(protocol: TransportProtocol): RelayProtoco
   const protocolMap: Record<TransportProtocol, RelayProtocol> = {
     [TransportProtocol.TCP]: 'tcp',
     [TransportProtocol.UDP]: 'udp',
-    [TransportProtocol.ANY_PROTOCOL]: 'any',
   };
   return protocolMap[protocol];
 }
@@ -771,15 +769,11 @@ function convertFromTunnelStateRelayInfo(
   state: TunnelStateRelayInfo.AsObject,
 ): ITunnelStateRelayInfo | undefined {
   if (state.tunnelEndpoint) {
-    const tunnelType = convertFromTunnelType(state.tunnelEndpoint.tunnelType);
-    if (tunnelType == 'any') {
-      throw new Error('Unexpected tunnel type value');
-    }
     return {
       ...state,
       endpoint: {
         ...state.tunnelEndpoint,
-        tunnelType: tunnelType.only,
+        tunnelType: convertFromTunnelType(state.tunnelEndpoint.tunnelType),
         protocol: convertFromTransportProtocol(state.tunnelEndpoint.protocol),
         proxy: state.tunnelEndpoint.proxy && convertFromProxyEndpoint(state.tunnelEndpoint.proxy),
       },
@@ -788,11 +782,10 @@ function convertFromTunnelStateRelayInfo(
   return undefined;
 }
 
-function convertFromTunnelType(tunnelType: GrpcTunnelType): Constraint<TunnelType> {
-  const tunnelTypeMap: Record<GrpcTunnelType, Constraint<TunnelType>> = {
-    [GrpcTunnelType.ANY_TUNNEL]: 'any',
-    [GrpcTunnelType.WIREGUARD]: { only: 'wireguard' },
-    [GrpcTunnelType.OPENVPN]: { only: 'openvpn' },
+function convertFromTunnelType(tunnelType: GrpcTunnelType): TunnelType {
+  const tunnelTypeMap: Record<GrpcTunnelType, TunnelType> = {
+    [GrpcTunnelType.WIREGUARD]: 'wireguard',
+    [GrpcTunnelType.OPENVPN]: 'openvpn',
   };
 
   return tunnelTypeMap[tunnelType];
@@ -1056,7 +1049,7 @@ function convertFromOpenVpnConstraints(
 ): IOpenVpnConstraints {
   const port = convertFromConstraint(constraints.getPort());
   let protocol: Constraint<RelayProtocol> = 'any';
-  switch (constraints.getProtocol()) {
+  switch (constraints.getProtocol()?.getProtocol()) {
     case grpcTypes.TransportProtocol.TCP:
       protocol = { only: 'tcp' };
       break;
@@ -1076,17 +1069,17 @@ function convertFromWireguardConstraints(
 }
 
 function convertFromTunnelTypeConstraint(
-  tunnelType: grpcTypes.TunnelType,
+  constraint: grpcTypes.TunnelTypeConstraint | undefined,
 ): Constraint<TunnelProtocol> {
-  switch (tunnelType) {
-    case grpcTypes.TunnelType.ANY_TUNNEL: {
-      return 'any';
-    }
+  switch (constraint?.getTunnelType()) {
     case grpcTypes.TunnelType.WIREGUARD: {
       return { only: 'wireguard' };
     }
     case grpcTypes.TunnelType.OPENVPN: {
       return { only: 'openvpn' };
+    }
+    default: {
+      return 'any';
     }
   }
 }
@@ -1130,18 +1123,22 @@ function convertToLocation(
   }
 }
 
-function convertToTunnelType(constraint: Constraint<TunnelType> | undefined): GrpcTunnelType {
+function convertToTunnelTypeConstraint(
+  constraint: Constraint<TunnelType>,
+): grpcTypes.TunnelTypeConstraint | undefined {
+  const grpcConstraint = new grpcTypes.TunnelTypeConstraint();
+
   if (constraint !== undefined && constraint !== 'any' && 'only' in constraint) {
     switch (constraint.only) {
       case 'wireguard':
-        return GrpcTunnelType.WIREGUARD;
+        grpcConstraint.setTunnelType(grpcTypes.TunnelType.WIREGUARD);
+        return grpcConstraint;
       case 'openvpn':
-        return GrpcTunnelType.OPENVPN;
-      default:
-        return GrpcTunnelType.ANY_TUNNEL;
+        grpcConstraint.setTunnelType(grpcTypes.TunnelType.OPENVPN);
+        return grpcConstraint;
     }
   }
-  return GrpcTunnelType.ANY_TUNNEL;
+  return undefined;
 }
 
 function convertToOpenVpnConstraints(
@@ -1155,7 +1152,9 @@ function convertToOpenVpnConstraints(
     }
     const protocol = liftConstraint(constraints.protocol);
     if (protocol) {
-      openvpnConstraints.setProtocol(convertToTransportProtocol(protocol));
+      const transportConstraint = new grpcTypes.TransportProtocolConstraint();
+      transportConstraint.setProtocol(convertToTransportProtocol(protocol));
+      openvpnConstraints.setProtocol(transportConstraint);
     }
     return openvpnConstraints;
   }
@@ -1179,8 +1178,6 @@ function convertToWireguardConstraints(
 
 function convertToTransportProtocol(protocol: RelayProtocol): TransportProtocol {
   switch (protocol) {
-    case 'any':
-      return TransportProtocol.ANY_PROTOCOL;
     case 'udp':
       return TransportProtocol.UDP;
     case 'tcp':

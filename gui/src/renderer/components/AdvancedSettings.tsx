@@ -89,7 +89,6 @@ export default class AdvancedSettings extends Component<IProps, IState> {
     };
 
     this.portItems = {
-      any: [], // TODO What ports should be in here?
       udp: [automaticPort].concat(UDP_PORTS.map(mapPortToSelectorItem)),
       tcp: [automaticPort].concat(TCP_PORTS.map(mapPortToSelectorItem)),
     };
