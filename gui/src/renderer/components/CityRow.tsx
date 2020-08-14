@@ -34,6 +34,12 @@ const StyledChevronButton = styled(ChevronButton)({
   marginLeft: '18px',
 });
 
+const Label = styled(Cell.Label)({
+  '[disabled] &': {
+    color: colors.white20,
+  },
+});
+
 export default class CityRow extends Component<IProps> {
   private buttonRef = React.createRef<HTMLButtonElement>();
 
@@ -85,7 +91,7 @@ export default class CityRow extends Component<IProps> {
             active={this.props.hasActiveRelays}
             selected={this.props.selected}
           />
-          <Cell.Label>{this.props.name}</Cell.Label>
+          <Label>{this.props.name}</Label>
 
           {hasChildren && (
             <StyledChevronButton onClick={this.toggleCollapse} up={this.props.expanded} />
