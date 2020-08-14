@@ -21,8 +21,8 @@ interface IState {
   currentItem?: ITransitionQueueItem;
   nextItem?: ITransitionQueueItem;
   itemQueue: ITransitionQueueItem[];
-  currentItemStyle?: Array<Types.StyleRuleSet<Types.AnimatedViewStyle>>;
-  nextItemStyle?: Array<Types.StyleRuleSet<Types.AnimatedViewStyle>>;
+  currentItemStyle?: Array<Types.StyleRuleSet<Types.AnimatedViewStyle | Types.ViewStyle>>;
+  nextItemStyle?: Array<Types.StyleRuleSet<Types.AnimatedViewStyle | Types.ViewStyle>>;
 }
 
 const styles = {
