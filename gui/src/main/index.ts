@@ -63,7 +63,7 @@ import WindowController from './window-controller';
 const linuxSplitTunneling = process.platform === 'linux' && require('./linux-split-tunneling');
 
 const DAEMON_RPC_PATH =
-  process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix://var/run/mullvad-vpn';
+  process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
 
 const AUTO_CONNECT_FALLBACK_DELAY = 6000;
 
