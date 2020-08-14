@@ -27,7 +27,7 @@ use futures::{
     future::{abortable, AbortHandle},
 };
 use futures01::{
-    future::{self, Executor},
+    future,
     sync::{mpsc as old_mpsc, oneshot as old_oneshot},
     Future,
 };
@@ -77,7 +77,6 @@ use talpid_types::{
 mod wireguard;
 
 const TARGET_START_STATE_FILE: &str = "target-start-state.json";
-mod event_loop;
 
 /// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
 /// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
@@ -474,7 +473,6 @@ pub struct Daemon<L: EventListener> {
     rpc_handle: mullvad_rpc::rest::MullvadRestHandle,
     wireguard_key_manager: wireguard::KeyManager,
     version_updater_handle: version_check::VersionUpdaterHandle,
-    core_handle: event_loop::CoreHandle,
     relay_selector: relays::RelaySelector,
     last_generated_relay: Option<Relay>,
     last_generated_bridge_relay: Option<Relay>,
@@ -504,8 +502,6 @@ where
         let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache_dir(&cache_dir)
             .map_err(Error::InitRpcFactory)?;
         let rpc_handle = rpc_runtime.mullvad_rest_handle();
-
-        let core_handle = event_loop::spawn();
 
         let relay_list_listener = event_listener.clone();
         let on_relay_list_update = move |relay_list: &RelayList| {
@@ -619,7 +615,6 @@ where
             rpc_handle,
             wireguard_key_manager,
             version_updater_handle,
-            core_handle,
             relay_selector,
             last_generated_relay: None,
             last_generated_bridge_relay: None,
@@ -1190,8 +1185,10 @@ where
                 }
             };
 
-        self.core_handle.remote.spawn(move |_| {
-            get_location.map(|location| Self::oneshot_send(tx, location, "current location"))
+        self.rpc_runtime.runtime().spawn(async {
+            let _ = get_location
+                .map(|location| Self::oneshot_send(tx, location, "current location"))
+                .wait();
         });
     }
 
@@ -1246,9 +1243,11 @@ where
                 Ok(())
             });
 
-        if self.core_handle.remote.execute(future).is_err() {
-            log::error!("Failed to spawn future for creating a new account");
-        }
+        self.rpc_runtime.runtime().spawn(async {
+            if future.wait().is_err() {
+                log::error!("Failed to spawn future for creating a new account");
+            }
+        });
     }
 
     fn on_get_account_data(
@@ -1500,7 +1499,7 @@ where
                         .notify_settings(self.settings.to_settings());
                     let runtime = self.rpc_runtime.runtime();
                     let mut handle = self.version_updater_handle.clone();
-                    runtime.block_on(async { handle.set_show_beta_releases(enabled).await });
+                    runtime.block_on(handle.set_show_beta_releases(enabled));
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
