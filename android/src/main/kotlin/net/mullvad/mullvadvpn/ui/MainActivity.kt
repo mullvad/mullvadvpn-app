@@ -89,6 +89,7 @@ class MainActivity : FragmentActivity() {
         super.onStart()
 
         if (!quitting) {
+            android.util.Log.d("mullvad", "Starting background service")
             val intent = Intent(this, MullvadVpnService::class.java)
 
             if (Build.VERSION.SDK_INT >= 26) {
