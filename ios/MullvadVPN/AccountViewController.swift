@@ -8,7 +8,7 @@
 
 import StoreKit
 import UIKit
-import os
+import Logging
 
 class AccountViewController: UIViewController, AppStorePaymentObserver {
 
@@ -24,6 +24,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
 
     private var pendingPayment: SKPayment?
     private let alertPresenter = AlertPresenter()
+    private let logger = Logger(label: "AccountViewController")
 
     private lazy var purchaseButtonInteractionRestriction =
         UserInterfaceInteractionRestriction { [weak self] (enableUserInteraction, _) in
@@ -236,7 +237,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
                     alertController.dismiss(animated: true) {
                         switch result {
                         case .failure(let error):
-                            error.logChain(message: "Failed to log out")
+                            self.logger.error(chainedError: error, message: "Failed to log out")
 
                             let errorAlertController = UIAlertController(
                                 title: NSLocalizedString("Failed to log out", comment: ""),

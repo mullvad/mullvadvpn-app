@@ -9,7 +9,7 @@
 import Foundation
 import Network
 import NetworkExtension
-import os
+import Logging
 
 enum PacketTunnelProviderError: ChainedError {
     /// Failure to read the relay cache
@@ -109,12 +109,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         case exclusive
     }
 
+    /// Tunnel provider logger
+    private let logger: Logger
+
     /// Active wireguard device
     private var wireguardDevice: WireguardDevice?
 
     /// Active tunnel connection information
     private var connectionInfo: TunnelConnectionInfo?
 
+    /// Internal queue
     private let dispatchQueue = DispatchQueue(label: "net.mullvad.MullvadVPN.PacketTunnel", qos: .utility)
 
     private lazy var operationQueue: OperationQueue = {
@@ -122,6 +126,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         operationQueue.underlyingQueue = self.dispatchQueue
         return operationQueue
     }()
+
     private lazy var exclusivityController: ExclusivityController<OperationCategory> = {
         return ExclusivityController(operationQueue: self.operationQueue)
     }()
@@ -129,25 +134,26 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private var keyRotationManager: AutomaticKeyRotationManager?
 
     override init() {
-        super.init()
+        initLoggingSystem(bundleIdentifier: Bundle.main.bundleIdentifier!)
+        WireguardDevice.setTunnelLogger(Logger(label: "WireGuard"))
 
-        self.configureLogger()
+        logger = Logger(label: "PacketTunnelProvider")
     }
 
     // MARK: - Subclass
 
     override func startTunnel(options: [String : NSObject]?, completionHandler: @escaping (Error?) -> Void) {
-        os_log(.default, log: tunnelProviderLog, "Start the tunnel")
+        logger.info("Start the tunnel")
 
         let operation = AsyncBlockOperation { (finish) in
             self.doStartTunnel { (result) in
                 switch result {
                 case .success:
-                    os_log(.default, log: tunnelProviderLog, "Started the tunnel")
+                    self.logger.info("Started the tunnel")
                     completionHandler(nil)
 
                 case .failure(let error):
-                    error.logChain(message: "Failed to start the tunnel", log: tunnelProviderLog)
+                    self.logger.error(chainedError: error, message: "Failed to start the tunnel")
                     completionHandler(error)
                 }
 
@@ -159,15 +165,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
-        os_log(.default, log: tunnelProviderLog, "Stop the tunnel. Reason: %{public}s", "\(reason)")
+        logger.info("Stop the tunnel. Reason: \(reason)")
 
         let operation = AsyncBlockOperation { (finish) in
             self.doStopTunnel { (result) in
                 switch result {
                 case .success:
-                    os_log(.default, log: tunnelProviderLog, "Stopped the tunnel")
+                    self.logger.info("Stopped the tunnel")
                 case .failure(let error):
-                    error.logChain(message: "Failed to stop the tunnel", log: tunnelProviderLog)
+                    self.logger.error(chainedError: error, message: "Failed to stop the tunnel")
                 }
 
                 completionHandler()
@@ -188,15 +194,15 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 switch request {
                 case .reloadTunnelSettings:
                     self.reloadTunnelSettings { (result) in
-                        Self.replyAppMessage(result.map { true }, completionHandler: completionHandler)
+                        self.replyAppMessage(result.map { true }, completionHandler: completionHandler)
                     }
 
                 case .tunnelInformation:
-                    Self.replyAppMessage(.success(self.connectionInfo), completionHandler: completionHandler)
+                    self.replyAppMessage(.success(self.connectionInfo), completionHandler: completionHandler)
                 }
 
             case .failure(let error):
-                Self.replyAppMessage(Result<String, PacketTunnelProviderError>.failure(error), completionHandler: completionHandler)
+                self.replyAppMessage(Result<String, PacketTunnelProviderError>.failure(error), completionHandler: completionHandler)
             }
         }
     }
@@ -225,7 +231,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                     return
                 }
 
-                Self.startWireguardDevice(packetFlow: self.packetFlow, configuration: packetTunnelConfig.wireguardConfig) { (result) in
+                self.startWireguardDevice(packetFlow: self.packetFlow, configuration: packetTunnelConfig.wireguardConfig) { (result) in
                     self.dispatchQueue.async {
                         guard case .success(let device) = result else {
                             completionHandler(result.map { _ in () })
@@ -242,7 +248,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                                         break
 
                                     case .failure(let error):
-                                        error.logChain(message: "Failed to reload tunnel settings", log: tunnelProviderLog)
+                                        self.logger.error(chainedError: error, message: "Failed to reload tunnel settings")
                                     }
                                 }
                             }
@@ -290,13 +296,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     private func doReloadTunnelSettings(completionHandler: @escaping (Result<(), PacketTunnelProviderError>) -> Void) {
         guard let device = self.wireguardDevice else {
-            os_log(.default, log: tunnelProviderLog, "Ignore reloading tunnel settings. The WireguardDevice is not set yet.")
+            logger.warning("Ignore reloading tunnel settings. The WireguardDevice is not set yet.")
 
             completionHandler(.success(()))
             return
         }
 
-        os_log(.default, log: tunnelProviderLog, "Reload tunnel settings")
+        logger.info("Reload tunnel settings")
 
         makePacketTunnelConfig { (result) in
             guard case .success(let packetTunnelConfig) = result else {
@@ -331,13 +337,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     // MARK: - Private
 
-    private func configureLogger() {
-        WireguardDevice.setLogger { (level, message) in
-            os_log(level.osLogType, log: wireguardLog, "%{public}s", message)
-        }
-    }
-
-    private static func replyAppMessage<T: Encodable>(
+    private func replyAppMessage<T: Encodable>(
         _ result: Result<T, PacketTunnelProviderError>,
         completionHandler: ((Data?) -> Void)?) {
         let result = result.flatMap { (response) -> Result<Data, PacketTunnelProviderError> in
@@ -350,7 +350,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             completionHandler?(data)
 
         case .failure(let error):
-            error.logChain(log: tunnelProviderLog)
+            self.logger.error(chainedError: error)
             completionHandler?(nil)
         }
     }
@@ -363,8 +363,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             location: selectorResult.location
         )
 
-        os_log(.default, log: tunnelProviderLog, "Tunnel connection info: %{public}s",
-               selectorResult.relay.hostname)
+        logger.info("Tunnel connection info: \(selectorResult.relay.hostname)")
     }
 
     private func makePacketTunnelConfig(completionHandler: @escaping (Result<PacketTunnelConfiguration, PacketTunnelProviderError>) -> Void) {
@@ -393,18 +392,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             tunnelSettings: packetTunnelConfig.tunnelSettings
         )
 
-        os_log(.default, log: tunnelProviderLog, "Updating network settings...")
+        logger.info("Updating network settings...")
 
         setTunnelNetworkSettings(settingsGenerator.networkSettings()) { (error) in
             self.dispatchQueue.async {
                 if let error = error {
-                    os_log(.error, log: tunnelProviderLog,
-                           "Cannot update network settings: %{public}s",
-                           error.localizedDescription)
+                    self.logger.error("Cannot update network settings: \(error.localizedDescription)")
 
                     completionHandler(.failure(.setNetworkSettings(error)))
                 } else {
-                    os_log(.default, log: tunnelProviderLog, "Updated network settings")
+                    self.logger.info("Updated network settings")
 
                     completionHandler(.success(()))
                 }
@@ -473,7 +470,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
 
-    private class func startWireguardDevice(packetFlow: NEPacketTunnelFlow, configuration: WireguardConfiguration, completionHandler: @escaping (Result<WireguardDevice, PacketTunnelProviderError>) -> Void) {
+    private func startWireguardDevice(packetFlow: NEPacketTunnelFlow, configuration: WireguardConfiguration, completionHandler: @escaping (Result<WireguardDevice, PacketTunnelProviderError>) -> Void) {
         let result = WireguardDevice.fromPacketFlow(packetFlow)
 
         guard case .success(let device) = result else {
@@ -483,7 +480,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         let tunnelDeviceName = device.getInterfaceName() ?? "unknown"
 
-        os_log(.default, log: tunnelProviderLog, "Tunnel interface is %{public}s", tunnelDeviceName)
+        logger.info("Tunnel interface is \(tunnelDeviceName)")
 
         device.start(configuration: configuration) { (result) in
             let result = result.map { device }

@@ -8,7 +8,7 @@
 
 import UIKit
 import NetworkExtension
-import os
+import Logging
 
 class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
     SelectLocationDelegate
@@ -18,6 +18,8 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
     @IBOutlet var cityLabel: UILabel!
     @IBOutlet var connectionPanel: ConnectionPanelView!
     @IBOutlet var buttonsStackView: UIStackView!
+
+    private let logger = Logger(label: "ConnectViewController")
 
     private let connectButton = makeButton(style: .success)
     private let selectLocationButton = makeButton(style: .translucentNeutral)
@@ -95,13 +97,15 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
 
             TunnelManager.shared.setRelayConstraints(relayConstraints) { [weak self] (result) in
                 DispatchQueue.main.async {
+                    guard let self = self else { return }
+
                     switch result {
                     case .success:
-                        os_log(.debug, "Updated relay constraints: %{public}s", "\(relayConstraints)")
-                        self?.connectTunnel()
+                        self.logger.debug("Updated relay constraints: \(relayConstraints)")
+                        self.connectTunnel()
 
                     case .failure(let error):
-                        os_log(.error, "Failed to update relay constraints: %{public}s", error.localizedDescription)
+                        self.logger.error(chainedError: error, message: "Failed to update relay constraints")
                     }
                 }
             }
@@ -214,7 +218,7 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
                     break
 
                 case .failure(let error):
-                    error.logChain(message: "Failed to start the VPN tunnel")
+                    self.logger.error(chainedError: error, message: "Failed to start the VPN tunnel")
 
                     let alertController = UIAlertController(
                         title: NSLocalizedString("Failed to start the VPN tunnel", comment: ""),
@@ -234,7 +238,7 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
     private func disconnectTunnel() {
         TunnelManager.shared.stopTunnel { (result) in
             if case .failure(let error) = result {
-                error.logChain(message: "Failed to stop the VPN tunnel")
+                self.logger.error(chainedError: error, message: "Failed to stop the VPN tunnel")
 
                 let alertController = UIAlertController(
                     title: NSLocalizedString("Failed to stop the VPN tunnel", comment: ""),

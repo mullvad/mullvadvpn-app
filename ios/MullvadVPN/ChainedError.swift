@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import os
 
 /// A protocol describing errors that can be chained together
 protocol ChainedError: LocalizedError {
@@ -42,10 +41,6 @@ extension ChainedError {
         }
 
         return s
-    }
-
-    func logChain(message: String? = nil, log: OSLog = .default) {
-        os_log(.error, log: log, "%{public}s", displayChain(message: message))
     }
 
     private func makeChainIterator() -> AnyIterator<Error> {

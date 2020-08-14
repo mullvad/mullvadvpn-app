@@ -8,7 +8,6 @@
 
 import Foundation
 import Network
-import os
 
 extension AnyIPEndpoint {
 

@@ -8,7 +8,7 @@
 
 import Foundation
 import StoreKit
-import os
+import Logging
 
 enum AppStoreSubscription: String {
     /// Thirty days non-renewable subscription
@@ -121,6 +121,8 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
     /// A shared instance of `AppStorePaymentManager`
     static let shared = AppStorePaymentManager(queue: SKPaymentQueue.default())
+
+    private let logger = Logger(label: "AppStorePaymentManager")
 
     private let operationQueue = OperationQueue()
     private lazy var exclusivityController = ExclusivityController<ExlcusivityCategory>(operationQueue: operationQueue)
@@ -254,8 +256,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                 createApplePaymentOperation.addDidFinishBlockObserver { (operation, result) in
                     switch result {
                     case .success(let response):
-                        os_log(.info, "AppStore Receipt was processed. Time added: %{public}.2f, New expiry: %{private}s",
-                               response.timeAdded, "\(response.newExpiry)")
+                        self.logger.info("AppStore Receipt was processed. Time added: \(response.timeAdded), New expiry: \(response.newExpiry)")
 
                         completionHandler(.success(response))
 
@@ -267,6 +268,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                 self.exclusivityController.addOperation(createApplePaymentOperation, categories: [.sendReceipt])
 
             case .failure(let error):
+                self.logger.error(chainedError: error, message: "Failed to fetch the AppStore receipt")
                 completionHandler(.failure(.readReceipt(error)))
             }
         }
@@ -275,31 +277,28 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private func handleTransaction(_ transaction: SKPaymentTransaction) {
         switch transaction.transactionState {
         case .deferred:
-            os_log(.debug, "Deferred %{public}s", transaction.payment.productIdentifier)
+            logger.info("Deferred \(transaction.payment.productIdentifier)")
 
         case .failed:
-            os_log(.debug, "Failed to purchase %{public}s: %{public}s",
-                   transaction.payment.productIdentifier,
-                   transaction.error?.localizedDescription ?? "No error")
+            logger.error("Failed to purchase \(transaction.payment.productIdentifier): \(transaction.error?.localizedDescription ?? "No error")")
 
             didFailPurchase(transaction: transaction)
 
         case .purchased:
-            os_log(.debug, "Purchased %{public}s", transaction.payment.productIdentifier)
+            logger.info("Purchased \(transaction.payment.productIdentifier)")
 
             didFinishOrRestorePurchase(transaction: transaction)
 
         case .purchasing:
-            os_log(.debug, "Purchasing %{public}s", transaction.payment.productIdentifier)
+            logger.info("Purchasing \(transaction.payment.productIdentifier)")
 
         case .restored:
-            os_log(.debug, "Restored %{public}s", transaction.payment.productIdentifier)
+            logger.info("Restored \(transaction.payment.productIdentifier)")
 
             didFinishOrRestorePurchase(transaction: transaction)
 
         @unknown default:
-            os_log(.debug, "Unknown transactionState = %{public}d",
-                   transaction.transactionState.rawValue)
+            logger.warning("Unknown transactionState = \(transaction.transactionState.rawValue)")
         }
     }
 
@@ -354,7 +353,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                     }
 
                 case .failure(let error):
-                    error.logChain(message: "Failed to upload the AppStore receipt")
+                    self.logger.error(chainedError: error, message: "Failed to upload the AppStore receipt")
 
                     self.observerList.forEach { (observer) in
                         observer.appStorePaymentManager(

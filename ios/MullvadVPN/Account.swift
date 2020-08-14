@@ -9,7 +9,7 @@
 import Foundation
 import NetworkExtension
 import StoreKit
-import os
+import Logging
 
 /// A enum holding the `UserDefaults` string keys
 private enum UserDefaultsKeys: String {
@@ -40,6 +40,8 @@ class Account {
 
     /// A shared instance of `Account`
     static let shared = Account()
+
+    private let logger = Logger(label: "Account")
 
     /// Returns true if user agreed to terms of service, otherwise false
     var isAgreedToTermsOfService: Bool {
@@ -169,7 +171,7 @@ class Account {
                 self.postExpiryUpdateNotification(newExpiry: response.expires)
 
             case .failure(let error):
-                error.logChain(message: "Failed to update account expiry")
+                self.logger.error(chainedError: error, message: "Failed to update account expiry")
             }
         }
 

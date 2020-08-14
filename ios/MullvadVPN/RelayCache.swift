@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import os
+import Logging
 
 /// Periodic update interval
 private let kUpdateIntervalSeconds = 3600
@@ -66,6 +66,8 @@ private class AnyRelayCacheObserver: WeakObserverBox, RelayCacheObserver {
 }
 
 class RelayCache {
+    private let logger = Logger(label: "RelayCache")
+
     /// Mullvad REST client
     private let rest: MullvadRest
 
@@ -125,7 +127,7 @@ class RelayCache {
                 }
 
             case .failure(let readError):
-                readError.logChain(message: "Failed to read the relay cache")
+                self.logger.error(chainedError: readError, message: "Failed to read the relay cache")
 
                 if Self.shouldDownloadRelaysOnReadFailure(readError) {
                     self.scheduleRepeatingTimer(startTime: .now())
@@ -192,7 +194,7 @@ class RelayCache {
             }
 
         case .failure(let readError):
-            readError.logChain(message: "Failed to read the relay cache")
+            self.logger.error(chainedError: readError, message: "Failed to read the relay cache")
 
             if Self.shouldDownloadRelaysOnReadFailure(readError) {
                 self.downloadRelays()
@@ -211,14 +213,16 @@ class RelayCache {
 
             switch result {
             case .success(let cachedRelays):
-                os_log(.default, "Downloaded %d relays", cachedRelays.relays.wireguard.relays.count)
+                let numRelays = cachedRelays.relays.wireguard.relays.count
+
+                self.logger.info("Downloaded \(numRelays) relays")
 
                 self.observerList.forEach { (observer) in
                     observer.relayCache(self, didUpdateCachedRelays: cachedRelays)
                 }
 
             case .failure(let error):
-                error.logChain(message: "Failed to update the relays")
+                self.logger.error(chainedError: error, message: "Failed to update the relays")
             }
         }
 
@@ -230,7 +234,7 @@ class RelayCache {
             newDownloadTask.resume()
 
         case .failure(let restError):
-            restError.logChain(message: "Failed to create a REST request for updating relays", log: .default)
+            self.logger.error(chainedError: restError, message: "Failed to create a REST request for updating relays")
             downloadTask = nil
         }
     }

@@ -8,6 +8,7 @@
 
 import UIKit
 import StoreKit
+import Logging
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -21,6 +22,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     #endif
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        initLoggingSystem(bundleIdentifier: Bundle.main.bundleIdentifier!)
+
         #if targetEnvironment(simulator)
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProvider
         #endif

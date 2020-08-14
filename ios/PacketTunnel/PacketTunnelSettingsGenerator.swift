@@ -9,7 +9,6 @@
 import Foundation
 import Network
 import NetworkExtension
-import os
 
 struct PacketTunnelSettingsGenerator {
     let mullvadEndpoint: MullvadEndpoint
