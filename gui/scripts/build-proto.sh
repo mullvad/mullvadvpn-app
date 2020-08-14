@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
 NODE_MODULES_DIR="$(realpath ../node_modules/.bin)"
-PROTO_DIR="../../mullvad-daemon/proto"
+PROTO_DIR="../../mullvad-management-interface/proto"
 PROTO_FILENAME="management_interface.proto"
 DESTINATION_DIR="../build/src/main/management_interface"
 TYPES_DESTINATION_DIR="../src/main/management_interface"
