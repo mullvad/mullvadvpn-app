@@ -741,6 +741,7 @@ function convertFromTunnelStateErrorCause(
 function convertFromFirewallPolicyError(
   error: grpcTypes.ErrorState.FirewallPolicyError.AsObject,
 ): FirewallPolicyError {
+  /*  eslint-disable no-case-declarations */
   switch (error.type) {
     case grpcTypes.ErrorState.FirewallPolicyError.ErrorType.GENERIC:
       return { reason: 'generic' };
@@ -1089,7 +1090,9 @@ function convertToNormalBridgeSettings(
   return normalBridgeSettings;
 }
 
-function convertToLocation(constraint: RelayLocation | undefined): grpcTypes.RelayLocation | undefined {
+function convertToLocation(
+  constraint: RelayLocation | undefined,
+): grpcTypes.RelayLocation | undefined {
   const location = new grpcTypes.RelayLocation();
   if (constraint && 'hostname' in constraint) {
     const [countryCode, cityCode, hostname] = constraint.hostname;
