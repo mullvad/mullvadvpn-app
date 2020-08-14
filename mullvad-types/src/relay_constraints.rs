@@ -72,6 +72,13 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
             Constraint::Only(ref value) => Constraint::Only(value),
         }
     }
+
+    pub fn option(self) -> Option<T> {
+        match self {
+            Constraint::Any => None,
+            Constraint::Only(value) => Some(value),
+        }
+    }
 }
 
 impl<T: fmt::Debug + Clone + Eq + PartialEq> Default for Constraint<T> {
@@ -87,6 +94,15 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Match<T> for Constraint<T> {
         match *self {
             Constraint::Any => true,
             Constraint::Only(ref value) => value == other,
+        }
+    }
+}
+
+impl<T: fmt::Debug + Clone + Eq + PartialEq> From<Option<T>> for Constraint<T> {
+    fn from(value: Option<T>) -> Self {
+        match value {
+            Some(value) => Constraint::Only(value),
+            None => Constraint::Any,
         }
     }
 }
