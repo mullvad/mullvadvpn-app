@@ -10,7 +10,8 @@ use mullvad_management_interface::types::{
     connection_config::{self, OpenvpnConfig, WireguardConfig},
     relay_settings, relay_settings_update, ConnectionConfig, CustomRelaySettings,
     NormalRelaySettingsUpdate, OpenvpnConstraints, RelaySettingsUpdate, TransportProtocol,
-    TunnelType, TunnelTypeUpdate, WireguardConstraints,
+    TransportProtocolConstraint, TunnelType, TunnelTypeConstraint, TunnelTypeUpdate,
+    WireguardConstraints,
 };
 use mullvad_types::relay_constraints::Constraint;
 use talpid_types::net::all_of_the_internet;
@@ -351,7 +352,11 @@ impl Relay {
                         NormalRelaySettingsUpdate {
                             openvpn_constraints: Some(OpenvpnConstraints {
                                 port: port.unwrap_or(0) as u32,
-                                protocol: protocol.unwrap_or(TransportProtocol::AnyProtocol) as i32,
+                                protocol: protocol.option().map(|protocol| {
+                                    TransportProtocolConstraint {
+                                        protocol: protocol as i32,
+                                    }
+                                }),
                             }),
                             ..Default::default()
                         },
@@ -365,16 +370,18 @@ impl Relay {
 
     async fn set_tunnel_protocol(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let tunnel_type = match matches.value_of("tunnel protocol").unwrap() {
-            "wireguard" => TunnelType::Wireguard,
-            "openvpn" => TunnelType::Openvpn,
-            "any" => TunnelType::AnyTunnel,
+            "wireguard" => Some(TunnelType::Wireguard),
+            "openvpn" => Some(TunnelType::Openvpn),
+            "any" => None,
             _ => unreachable!(),
         };
         self.update_constraints(RelaySettingsUpdate {
             r#type: Some(relay_settings_update::Type::Normal(
                 NormalRelaySettingsUpdate {
                     tunnel_type: Some(TunnelTypeUpdate {
-                        tunnel_type: tunnel_type as i32,
+                        tunnel_type: tunnel_type.map(|tunnel_type| TunnelTypeConstraint {
+                            tunnel_type: tunnel_type as i32,
+                        }),
                     }),
                     ..Default::default()
                 },
@@ -395,18 +402,16 @@ impl Relay {
         print!("Current constraints: ");
 
         match constraints.endpoint.unwrap() {
-            relay_settings::Endpoint::Normal(settings) => {
-                match TunnelType::from_i32(settings.tunnel_type).expect("unknown tunnel type") {
-                    TunnelType::AnyTunnel => {
-                        println!(
-                            "Any tunnel protocol with OpenVPN over {} and WireGuard over {} in {}",
-                            Self::format_openvpn_constraints(settings.openvpn_constraints.as_ref()),
-                            Self::format_wireguard_constraints(
-                                settings.wireguard_constraints.as_ref()
-                            ),
-                            location::format_location(settings.location.as_ref())
-                        );
-                    }
+            relay_settings::Endpoint::Normal(settings) => match settings.tunnel_type {
+                None => {
+                    println!(
+                        "Any tunnel protocol with OpenVPN over {} and WireGuard over {} in {}",
+                        Self::format_openvpn_constraints(settings.openvpn_constraints.as_ref()),
+                        Self::format_wireguard_constraints(settings.wireguard_constraints.as_ref()),
+                        location::format_location(settings.location.as_ref())
+                    );
+                }
+                Some(constraint) => match TunnelType::from_i32(constraint.tunnel_type).unwrap() {
                     TunnelType::Wireguard => {
                         println!(
                             "WireGuard over {} in {}",
@@ -423,8 +428,8 @@ impl Relay {
                             location::format_location(settings.location.as_ref())
                         );
                     }
-                }
-            }
+                },
+            },
 
             relay_settings::Endpoint::Custom(settings) => {
                 let config = settings.config.unwrap();
@@ -433,9 +438,9 @@ impl Relay {
                         println!(
                             "custom OpenVPN relay - {} {}",
                             config.address,
-                            Self::format_transport_protocol(
+                            Self::format_transport_protocol(Some(
                                 TransportProtocol::from_i32(config.protocol).unwrap()
-                            ),
+                            )),
                         );
                     }
                     connection_config::Config::Wireguard(config) => {
@@ -522,11 +527,11 @@ impl Relay {
         Ok(())
     }
 
-    fn format_transport_protocol(protocol: TransportProtocol) -> &'static str {
+    fn format_transport_protocol(protocol: Option<TransportProtocol>) -> &'static str {
         match protocol {
-            TransportProtocol::AnyProtocol => "any transport protocol",
-            TransportProtocol::Udp => "UDP",
-            TransportProtocol::Tcp => "TCP",
+            None => "any transport protocol",
+            Some(TransportProtocol::Udp) => "UDP",
+            Some(TransportProtocol::Tcp) => "TCP",
         }
     }
 
@@ -544,7 +549,10 @@ impl Relay {
                 "{} over {}",
                 Self::format_port(constraints.port),
                 Self::format_transport_protocol(
-                    TransportProtocol::from_i32(constraints.protocol).unwrap()
+                    constraints
+                        .protocol
+                        .clone()
+                        .map(|protocol| TransportProtocol::from_i32(protocol.protocol).unwrap())
                 )
             )
         } else {

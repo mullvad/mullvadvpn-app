@@ -830,9 +830,9 @@ fn convert_relay_settings_update(
                             protocol: match types::TransportProtocol::from_i32(config.protocol) {
                                 Some(types::TransportProtocol::Udp) => TransportProtocol::Udp,
                                 Some(types::TransportProtocol::Tcp) => TransportProtocol::Tcp,
-                                None | Some(types::TransportProtocol::AnyProtocol) => {
+                                None => {
                                     return Err(Status::invalid_argument(
-                                        "unknown transport protocol",
+                                        "invalid transport protocol",
                                     ))
                                 }
                             },
@@ -934,13 +934,34 @@ fn convert_relay_settings_update(
             let location = settings.location.map(convert_proto_location);
 
             let tunnel_protocol = if let Some(update) = settings.tunnel_type {
-                match types::TunnelType::from_i32(update.tunnel_type) {
-                    Some(types::TunnelType::AnyTunnel) => Some(Constraint::Any),
-                    Some(types::TunnelType::Openvpn) => Some(Constraint::Only(TunnelType::OpenVpn)),
-                    Some(types::TunnelType::Wireguard) => {
-                        Some(Constraint::Only(TunnelType::Wireguard))
+                match update.tunnel_type {
+                    Some(constraint) => match types::TunnelType::from_i32(constraint.tunnel_type) {
+                        Some(types::TunnelType::Openvpn) => {
+                            Some(Constraint::Only(TunnelType::OpenVpn))
+                        }
+                        Some(types::TunnelType::Wireguard) => {
+                            Some(Constraint::Only(TunnelType::Wireguard))
+                        }
+                        None => return Err(Status::invalid_argument("unknown tunnel protocol")),
+                    },
+                    None => Some(Constraint::Any),
+                }
+            } else {
+                None
+            };
+
+            let transport_protocol = if let Some(ref constraints) = settings.openvpn_constraints {
+                match &constraints.protocol {
+                    Some(constraint) => {
+                        match types::TransportProtocol::from_i32(constraint.protocol) {
+                            Some(types::TransportProtocol::Udp) => Some(TransportProtocol::Udp),
+                            Some(types::TransportProtocol::Tcp) => Some(TransportProtocol::Tcp),
+                            None => {
+                                return Err(Status::invalid_argument("unknown transport protocol"))
+                            }
+                        }
                     }
-                    None => return Err(Status::invalid_argument("unknown tunnel protocol")),
+                    None => None,
                 }
             } else {
                 None
@@ -965,15 +986,7 @@ fn convert_relay_settings_update(
                         } else {
                             Constraint::Any
                         },
-                        protocol: match types::TransportProtocol::from_i32(constraints.protocol) {
-                            Some(types::TransportProtocol::Udp) => {
-                                Constraint::Only(TransportProtocol::Udp)
-                            }
-                            Some(types::TransportProtocol::Tcp) => {
-                                Constraint::Only(TransportProtocol::Tcp)
-                            }
-                            _ => Constraint::Any,
-                        },
+                        protocol: Constraint::from(transport_protocol),
                     }
                 }),
             }))
@@ -995,12 +1008,13 @@ fn convert_relay_settings(settings: &RelaySettings) -> types::RelaySettings {
             relay_settings::Endpoint::Normal(types::NormalRelaySettings {
                 location: convert_location_constraint(&constraints.location),
                 tunnel_type: match constraints.tunnel_protocol {
-                    Constraint::Any => i32::from(types::TunnelType::AnyTunnel),
-                    Constraint::Only(TunnelType::Wireguard) => {
-                        i32::from(types::TunnelType::Wireguard)
-                    }
-                    Constraint::Only(TunnelType::OpenVpn) => i32::from(types::TunnelType::Openvpn),
-                },
+                    Constraint::Any => None,
+                    Constraint::Only(TunnelType::Wireguard) => Some(types::TunnelType::Wireguard),
+                    Constraint::Only(TunnelType::OpenVpn) => Some(types::TunnelType::Openvpn),
+                }
+                .map(|tunnel_type| types::TunnelTypeConstraint {
+                    tunnel_type: i32::from(tunnel_type),
+                }),
 
                 wireguard_constraints: Some(types::WireguardConstraints {
                     port: u32::from(constraints.wireguard_constraints.port.unwrap_or(0)),
@@ -1008,16 +1022,18 @@ fn convert_relay_settings(settings: &RelaySettings) -> types::RelaySettings {
 
                 openvpn_constraints: Some(types::OpenvpnConstraints {
                     port: u32::from(constraints.openvpn_constraints.port.unwrap_or(0)),
-                    protocol: i32::from(
-                        constraints
-                            .openvpn_constraints
-                            .protocol
-                            .map(|protocol| match protocol {
-                                TransportProtocol::Tcp => types::TransportProtocol::Tcp,
-                                TransportProtocol::Udp => types::TransportProtocol::Udp,
-                            })
-                            .unwrap_or(types::TransportProtocol::AnyProtocol),
-                    ),
+                    protocol: constraints
+                        .openvpn_constraints
+                        .protocol
+                        .as_ref()
+                        .option()
+                        .map(|protocol| match protocol {
+                            TransportProtocol::Tcp => types::TransportProtocol::Tcp,
+                            TransportProtocol::Udp => types::TransportProtocol::Udp,
+                        })
+                        .map(|protocol| types::TransportProtocolConstraint {
+                            protocol: i32::from(protocol),
+                        }),
                 }),
             })
         }
