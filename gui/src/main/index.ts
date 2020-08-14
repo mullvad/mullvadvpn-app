@@ -59,6 +59,9 @@ import ReconnectionBackoff from './reconnection-backoff';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
 import WindowController from './window-controller';
 
+// Only import when running app on Linux.
+const linuxSplitTunneling = process.platform === 'linux' && require('./linux-split-tunneling');
+
 const DAEMON_RPC_PATH =
   process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
 
@@ -1004,6 +1007,22 @@ class ApplicationMain {
       }
     });
     IpcMainEventChannel.wireguardKeys.handleVerifyKey(() => this.daemonRpc.verifyWireguardKey());
+
+    IpcMainEventChannel.splitTunneling.handleGetApplications(() => {
+      if (linuxSplitTunneling) {
+        return linuxSplitTunneling.getApplications(this.locale);
+      } else {
+        throw Error('linuxSplitTunneling called without being imported');
+      }
+    });
+    IpcMainEventChannel.splitTunneling.handleLaunchApplication((application) => {
+      if (linuxSplitTunneling) {
+        linuxSplitTunneling.launchApplication(application);
+        return Promise.resolve();
+      } else {
+        throw Error('linuxSplitTunneling called without being imported');
+      }
+    });
 
     ipcMain.on('show-window', () => {
       const windowController = this.windowController;

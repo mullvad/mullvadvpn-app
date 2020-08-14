@@ -1,3 +1,4 @@
+import path from 'path';
 import * as React from 'react';
 import styled from 'styled-components';
 
@@ -40,7 +41,9 @@ const ImageMask = styled.div((props: IImageMaskProps) => {
 const HiddenImage = styled.img({ visibility: 'hidden' });
 
 export default function ImageView(props: IImageViewProps) {
-  const url = `../../assets/images/${props.source}.svg`;
+  const url = path.isAbsolute(props.source)
+    ? props.source
+    : `../../assets/images/${props.source}.svg`;
 
   if (props.tintColor) {
     const { source: _source, ...otherProps } = props;
