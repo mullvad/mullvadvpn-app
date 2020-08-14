@@ -66,6 +66,7 @@ lazy_static::lazy_static! {
 fn create_app() -> App<'static, 'static> {
     let mut app = App::new(crate_name!())
         .version(version::PRODUCT_VERSION)
+        .author(crate_authors!(", "))
         .about(crate_description!())
         .after_help(ENV_DESC.as_str())
         .arg(
@@ -84,11 +85,6 @@ fn create_app() -> App<'static, 'static> {
                 .long("disable-stdout-timestamps")
                 .help("Don't log timestamps when logging to stdout, useful when running as a systemd service")
         );
-    // A workaround since clap 2 will not fix the deprecation warnings in this macro.
-    #[allow(deprecated)]
-    {
-        app = app.author(crate_authors!(", "));
-    }
 
     if cfg!(windows) {
         app = app.arg(
