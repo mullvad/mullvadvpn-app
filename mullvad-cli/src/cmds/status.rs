@@ -133,7 +133,6 @@ fn format_endpoint(endpoint: &TunnelEndpoint) -> String {
         match TunnelType::from_i32(endpoint.tunnel_type).expect("unknown tunnel protocol") {
             TunnelType::Wireguard => "WireGuard",
             TunnelType::Openvpn => "OpenVPN",
-            TunnelType::AnyTunnel => panic!("unexpected tunnel protocol"),
         },
         endpoint.address,
         format_protocol(
@@ -284,6 +283,5 @@ fn format_protocol(protocol: TransportProtocol) -> &'static str {
     match protocol {
         TransportProtocol::Udp => "UDP",
         TransportProtocol::Tcp => "TCP",
-        TransportProtocol::AnyProtocol => panic!("unexpected transport protocol"),
     }
 }
