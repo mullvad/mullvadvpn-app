@@ -38,7 +38,7 @@
                 <TextView android:id="@+id/expanded_title"
                           android:layout_width="wrap_content"
                           android:layout_height="wrap_content"
-                          android:layout_marginTop="4dp"
+                          android:layout_marginTop="2dp"
                           android:layout_marginLeft="@dimen/side_margin"
                           android:text="@string/settings_advanced"
                           style="@style/SettingsExpandedHeader" />
