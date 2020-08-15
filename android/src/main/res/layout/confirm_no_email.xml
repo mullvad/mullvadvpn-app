@@ -19,7 +19,7 @@
                   android:layout_weight="0"
                   android:layout_marginTop="16dp"
                   android:textColor="@color/white80"
-                  android:textSize="@dimen/text_medium"
+                  android:textSize="@dimen/text_small"
                   android:text="@string/confirm_no_email" />
         <Button android:id="@+id/send_button"
                 android:layout_marginVertical="@dimen/button_separation"
