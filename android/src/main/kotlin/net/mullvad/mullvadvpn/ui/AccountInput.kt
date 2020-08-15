@@ -125,7 +125,7 @@ class AccountInput(val parentView: View, context: Context) {
         setButtonEnabled(false)
         button.visibility = View.GONE
         input.visibility = View.GONE
-        container.visibility = View.GONE
+        container.visibility = View.INVISIBLE
     }
 
     private fun failureState() {
