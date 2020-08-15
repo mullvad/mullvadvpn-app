@@ -123,7 +123,7 @@
                               android:paddingBottom="@dimen/screen_vertical_margin">
                     <Button android:id="@+id/switch_location"
                             android:layout_marginBottom="@dimen/button_separation"
-                            android:paddingHorizontal="8dp"
+                            android:paddingHorizontal="9dp"
                             android:text="@string/switch_location"
                             android:drawableRight="@drawable/icon_chevron"
                             style="@style/White20Button" />
