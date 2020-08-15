@@ -44,7 +44,7 @@ pub struct MonitorHandle;
 impl MonitorHandle {
     /// Host is considered to be offline if the IPv4 internet is considered to be unreachable by the
     /// given reachability flags *or* there are no active physical interfaces.
-    pub fn is_offline(&self) -> bool {
+    pub async fn is_offline(&self) -> bool {
         let reachability = SCNetworkReachability::from(ipv4_internet());
         let store = SCDynamicStoreBuilder::new("talpid-offline-check").build();
         reachability
@@ -54,7 +54,9 @@ impl MonitorHandle {
     }
 }
 
-pub fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<MonitorHandle, Error> {
+pub async fn spawn_monitor(
+    sender: Weak<UnboundedSender<TunnelCommand>>,
+) -> Result<MonitorHandle, Error> {
     let (result_tx, result_rx) = mpsc::channel();
     thread::spawn(move || {
         let mut reachability_ref = SCNetworkReachability::from(ipv4_internet());

@@ -203,7 +203,7 @@ impl BroadcastListener {
         state.apply_change(StateChange::NetworkConnectivity(connectivity));
     }
 
-    pub fn is_offline(&self) -> bool {
+    pub async fn is_offline(&self) -> bool {
         let state = self._system_state.lock();
         state.is_offline_currently().unwrap_or(false)
     }
@@ -264,7 +264,9 @@ impl SystemState {
 
 pub type MonitorHandle = BroadcastListener;
 
-pub fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<MonitorHandle, Error> {
+pub async fn spawn_monitor(
+    sender: Weak<UnboundedSender<TunnelCommand>>,
+) -> Result<MonitorHandle, Error> {
     BroadcastListener::start(sender)
 }
 

@@ -25,18 +25,21 @@ pub use self::imp::Error;
 pub struct MonitorHandle(imp::MonitorHandle);
 
 impl MonitorHandle {
-    pub fn is_offline(&mut self) -> bool {
-        self.0.is_offline()
+    pub async fn is_offline(&mut self) -> bool {
+        self.0.is_offline().await
     }
 }
 
-pub fn spawn_monitor(
+pub async fn spawn_monitor(
     sender: Weak<UnboundedSender<TunnelCommand>>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<MonitorHandle, Error> {
-    Ok(MonitorHandle(imp::spawn_monitor(
-        sender,
-        #[cfg(target_os = "android")]
-        android_context,
-    )?))
+    Ok(MonitorHandle(
+        imp::spawn_monitor(
+            sender,
+            #[cfg(target_os = "android")]
+            android_context,
+        )
+        .await?,
+    ))
 }
