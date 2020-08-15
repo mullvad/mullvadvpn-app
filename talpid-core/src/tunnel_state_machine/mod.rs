@@ -23,10 +23,11 @@ use crate::{
     tunnel::tun_provider::TunProvider,
 };
 
-use futures01::{
-    sync::{mpsc, oneshot},
-    Async, Future, Poll, Stream,
+use futures::{
+    channel::{mpsc, oneshot},
+    StreamExt,
 };
+use futures01::{sync::mpsc as old_mpsc, Async, Future, Poll, Stream};
 use std::{
     collections::HashSet,
     io,
@@ -77,7 +78,7 @@ pub enum Error {
 }
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
-pub fn spawn(
+pub async fn spawn(
     allow_lan: bool,
     block_when_disconnected: bool,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
@@ -88,7 +89,7 @@ pub fn spawn(
     shutdown_tx: oneshot::Sender<()>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
-    let (command_tx, command_rx) = mpsc::unbounded();
+    let (command_tx, mut command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
     let mut offline_monitor = offline::spawn_monitor(
         Arc::downgrade(&command_tx),
@@ -105,6 +106,16 @@ pub fn spawn(
         allow_lan,
     );
 
+    // Hide internal 0.1 futures from the client
+    let (command_adapter_tx, command_adapter_rx) = old_mpsc::unbounded();
+    tokio02::spawn(async move {
+        while let Some(command) = command_rx.next().await {
+            if command_adapter_tx.unbounded_send(command).is_err() {
+                log::error!("Failed to forward daemon command");
+            }
+        }
+    });
+
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
     thread::spawn(move || {
         match create_event_loop(
@@ -116,7 +127,7 @@ pub fn spawn(
             log_dir,
             resource_dir,
             cache_dir,
-            command_rx,
+            command_adapter_rx,
             state_change_listener,
             shutdown_tx,
         ) {
@@ -156,7 +167,7 @@ fn create_event_loop(
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     cache_dir: impl AsRef<Path>,
-    commands: mpsc::UnboundedReceiver<TunnelCommand>,
+    commands: old_mpsc::UnboundedReceiver<TunnelCommand>,
     state_change_listener: impl Sender<TunnelStateTransition>,
     shutdown_tx: oneshot::Sender<()>,
 ) -> Result<(Core, impl Future<Item = (), Error = Error>), Error> {
@@ -213,7 +224,7 @@ pub enum TunnelCommand {
 /// by the stream.
 struct TunnelStateMachine {
     current_state: Option<TunnelStateWrapper>,
-    commands: mpsc::UnboundedReceiver<TunnelCommand>,
+    commands: old_mpsc::UnboundedReceiver<TunnelCommand>,
     shared_values: SharedTunnelStateValues,
 }
 
@@ -227,7 +238,7 @@ impl TunnelStateMachine {
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: impl AsRef<Path>,
-        commands: mpsc::UnboundedReceiver<TunnelCommand>,
+        commands: old_mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> Result<Self, Error> {
         let args = if block_when_disconnected {
             FirewallArguments {
@@ -432,7 +443,7 @@ trait TunnelState: Into<TunnelStateWrapper> + Sized {
     /// [`EventConsequence`]: enum.EventConsequence.html
     fn handle_event(
         self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        commands: &mut old_mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self>;
 }
@@ -456,7 +467,7 @@ macro_rules! state_wrapper {
         impl $wrapper_name {
             fn handle_event(
                 self,
-                commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+                commands: &mut old_mpsc::UnboundedReceiver<TunnelCommand>,
                 shared_values: &mut SharedTunnelStateValues,
             ) -> TunnelStateMachineAction {
                 match self {

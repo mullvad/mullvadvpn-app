@@ -19,18 +19,11 @@ pub mod version;
 mod version_check;
 
 use futures::{
-    channel::{
-        mpsc::{UnboundedReceiver, UnboundedSender},
-        oneshot,
-    },
+    channel::{mpsc, oneshot},
     executor::BlockingStream,
     future::{abortable, AbortHandle},
 };
-use futures01::{
-    future,
-    sync::{mpsc as old_mpsc, oneshot as old_oneshot},
-    Future,
-};
+use futures01::{future, Future};
 use log::{debug, error, info, warn};
 use mullvad_rpc::AccountsProxy;
 use mullvad_types::{
@@ -56,7 +49,7 @@ use std::{
     marker::PhantomData,
     mem,
     path::PathBuf,
-    sync::{mpsc, Arc, Weak},
+    sync::{mpsc as sync_mpsc, Arc, Weak},
     time::Duration,
 };
 #[cfg(target_os = "linux")]
@@ -254,7 +247,7 @@ pub(crate) enum InternalDaemonEvent {
     TunnelStateTransition(TunnelStateTransition),
     /// Request from the `MullvadTunnelParametersGenerator` to obtain a new relay.
     GenerateTunnelParameters(
-        mpsc::Sender<Result<TunnelParameters, ParameterGenerationError>>,
+        sync_mpsc::Sender<Result<TunnelParameters, ParameterGenerationError>>,
         u32,
     ),
     /// A command sent to the daemon.
@@ -340,12 +333,12 @@ impl DaemonExecutionState {
 
 pub struct DaemonCommandChannel {
     sender: DaemonCommandSender,
-    receiver: UnboundedReceiver<InternalDaemonEvent>,
+    receiver: mpsc::UnboundedReceiver<InternalDaemonEvent>,
 }
 
 impl DaemonCommandChannel {
     pub fn new() -> Self {
-        let (untracked_sender, receiver) = futures::channel::mpsc::unbounded();
+        let (untracked_sender, receiver) = mpsc::unbounded();
         let sender = DaemonCommandSender(Arc::new(untracked_sender));
 
         Self { sender, receiver }
@@ -355,7 +348,12 @@ impl DaemonCommandChannel {
         self.sender.clone()
     }
 
-    fn destructure(self) -> (DaemonEventSender, UnboundedReceiver<InternalDaemonEvent>) {
+    fn destructure(
+        self,
+    ) -> (
+        DaemonEventSender,
+        mpsc::UnboundedReceiver<InternalDaemonEvent>,
+    ) {
         let event_sender = DaemonEventSender::new(Arc::downgrade(&self.sender.0));
 
         (event_sender, self.receiver)
@@ -363,7 +361,7 @@ impl DaemonCommandChannel {
 }
 
 #[derive(Clone)]
-pub struct DaemonCommandSender(Arc<UnboundedSender<InternalDaemonEvent>>);
+pub struct DaemonCommandSender(Arc<mpsc::UnboundedSender<InternalDaemonEvent>>);
 
 impl DaemonCommandSender {
     pub fn send(&self, command: DaemonCommand) -> Result<(), Error> {
@@ -374,7 +372,7 @@ impl DaemonCommandSender {
 }
 
 pub(crate) struct DaemonEventSender<E = InternalDaemonEvent> {
-    sender: Weak<UnboundedSender<InternalDaemonEvent>>,
+    sender: Weak<mpsc::UnboundedSender<InternalDaemonEvent>>,
     _event: PhantomData<E>,
 }
 
@@ -391,7 +389,7 @@ where
 }
 
 impl DaemonEventSender {
-    pub fn new(sender: Weak<UnboundedSender<InternalDaemonEvent>>) -> Self {
+    pub fn new(sender: Weak<mpsc::UnboundedSender<InternalDaemonEvent>>) -> Self {
         DaemonEventSender {
             sender,
             _event: PhantomData,
@@ -456,13 +454,13 @@ pub trait EventListener {
 }
 
 pub struct Daemon<L: EventListener> {
-    tunnel_command_tx: Arc<old_mpsc::UnboundedSender<TunnelCommand>>,
+    tunnel_command_tx: Arc<mpsc::UnboundedSender<TunnelCommand>>,
     tunnel_state: TunnelState,
     target_state: TargetState,
     state: DaemonExecutionState,
     #[cfg(target_os = "linux")]
     exclude_pids: split_tunnel::PidManager,
-    rx: BlockingStream<UnboundedReceiver<InternalDaemonEvent>>,
+    rx: BlockingStream<mpsc::UnboundedReceiver<InternalDaemonEvent>>,
     tx: DaemonEventSender,
     reconnection_job: Option<AbortHandle>,
     event_listener: L,
@@ -479,7 +477,7 @@ pub struct Daemon<L: EventListener> {
     app_version_info: AppVersionInfo,
     shutdown_callbacks: Vec<Box<dyn FnOnce()>>,
     /// oneshot channel that completes once the tunnel state machine has been shut down
-    tunnel_state_machine_shutdown_signal: old_oneshot::Receiver<()>,
+    tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
     cache_dir: PathBuf,
 }
 
@@ -497,7 +495,7 @@ where
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
-            old_oneshot::channel();
+            oneshot::channel();
 
         let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache_dir(&cache_dir)
             .map_err(Error::InitRpcFactory)?;
@@ -565,19 +563,21 @@ where
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
             tx: internal_event_tx.clone(),
         };
-        let tunnel_command_tx = tunnel_state_machine::spawn(
-            settings.allow_lan,
-            settings.block_when_disconnected,
-            tunnel_parameters_generator,
-            log_dir,
-            resource_dir,
-            cache_dir.clone(),
-            internal_event_tx.to_specialized_sender(),
-            tunnel_state_machine_shutdown_tx,
-            #[cfg(target_os = "android")]
-            android_context,
-        )
-        .map_err(Error::TunnelError)?;
+        let tunnel_command_tx = rpc_runtime
+            .runtime()
+            .block_on(tunnel_state_machine::spawn(
+                settings.allow_lan,
+                settings.block_when_disconnected,
+                tunnel_parameters_generator,
+                log_dir,
+                resource_dir,
+                cache_dir.clone(),
+                internal_event_tx.to_specialized_sender(),
+                tunnel_state_machine_shutdown_tx,
+                #[cfg(target_os = "android")]
+                android_context,
+            ))
+            .map_err(Error::TunnelError)?;
 
         let wireguard_key_manager =
             wireguard::KeyManager::new(internal_event_tx.clone(), rpc_handle.clone());
@@ -661,44 +661,51 @@ where
     }
 
     fn finalize(self) {
-        let (event_listener, shutdown_callbacks, tunnel_state_machine_shutdown_signal) =
-            self.shutdown();
+        let (
+            event_listener,
+            shutdown_callbacks,
+            mut rpc_runtime,
+            tunnel_state_machine_shutdown_signal,
+        ) = self.shutdown();
         for cb in shutdown_callbacks {
             cb();
         }
 
-        let state_machine_shutdown = tokio_timer::Timer::default().timeout(
-            // the oneshot::Canceled error type does not play well with the timer error, as such,
-            // it has to be cast away.
-            tunnel_state_machine_shutdown_signal.map_err(|_| {
-                log::error!("Tunnel state machine already shut down");
-            }),
+        let shutdown_signal = tokio02::time::timeout(
             TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT,
+            tunnel_state_machine_shutdown_signal,
         );
 
-        match state_machine_shutdown.wait() {
-            Ok(_) => {
-                log::info!("Tunnel state machine shut down");
-            }
-            Err(_) => {
-                log::error!("Tunnel state machine did not shut down in time, shutting down anyway");
-            }
+        match rpc_runtime.runtime().block_on(shutdown_signal) {
+            Ok(_) => log::info!("Tunnel state machine shut down"),
+            Err(_) => log::error!("Tunnel state machine did not shut down gracefully"),
         }
+        mem::drop(rpc_runtime);
+
         mem::drop(event_listener);
     }
 
     /// Shuts down the daemon without shutting down the underlying event listener and the shutdown
     /// callbacks
-    fn shutdown(self) -> (L, Vec<Box<dyn FnOnce()>>, old_oneshot::Receiver<()>) {
+    fn shutdown(
+        self,
+    ) -> (
+        L,
+        Vec<Box<dyn FnOnce()>>,
+        mullvad_rpc::MullvadRpcRuntime,
+        oneshot::Receiver<()>,
+    ) {
         let Daemon {
             event_listener,
             shutdown_callbacks,
+            rpc_runtime,
             tunnel_state_machine_shutdown_signal,
             ..
         } = self;
         (
             event_listener,
             shutdown_callbacks,
+            rpc_runtime,
             tunnel_state_machine_shutdown_signal,
         )
     }
@@ -781,7 +788,9 @@ where
 
     fn handle_generate_tunnel_parameters(
         &mut self,
-        tunnel_parameters_tx: &mpsc::Sender<Result<TunnelParameters, ParameterGenerationError>>,
+        tunnel_parameters_tx: &sync_mpsc::Sender<
+            Result<TunnelParameters, ParameterGenerationError>,
+        >,
         retry_attempt: u32,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
@@ -1985,7 +1994,7 @@ impl TunnelParametersGenerator for MullvadTunnelParametersGenerator {
         &mut self,
         retry_attempt: u32,
     ) -> Result<TunnelParameters, ParameterGenerationError> {
-        let (response_tx, response_rx) = mpsc::channel();
+        let (response_tx, response_rx) = sync_mpsc::channel();
         if self
             .tx
             .send(InternalDaemonEvent::GenerateTunnelParameters(
