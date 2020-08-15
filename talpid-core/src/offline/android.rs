@@ -1,5 +1,5 @@
 use crate::tunnel_state_machine::TunnelCommand;
-use futures01::sync::mpsc::UnboundedSender;
+use futures::channel::mpsc::UnboundedSender;
 use jnix::{
     jni::{
         self,

@@ -1,6 +1,5 @@
 use crate::tunnel_state_machine::TunnelCommand;
-use futures::{StreamExt, TryStreamExt};
-use futures01::sync::mpsc::UnboundedSender;
+use futures::{channel::mpsc::UnboundedSender, StreamExt, TryStreamExt};
 use netlink_packet_route::{
     constants::{ARPHRD_LOOPBACK, ARPHRD_NONE, IFF_LOWER_UP, IFF_UP},
     rtnl::link::nlas::{Info as LinkInfo, InfoKind, Nla as LinkNla},
