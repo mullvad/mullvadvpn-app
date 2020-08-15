@@ -9,6 +9,11 @@
                   android:orientation="vertical"
                   android:gravity="left"
                   android:elevation="2dp">
+        <ImageView android:layout_width="44dp"
+                   android:layout_height="44dp"
+                   android:layout_marginTop="8dp"
+                   android:layout_gravity="center"
+                   android:src="@drawable/icon_alert" />
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_weight="0"
