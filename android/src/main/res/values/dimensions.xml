@@ -1,7 +1,7 @@
 <resources>
-    <dimen name="country_row_padding">20dp</dimen>
-    <dimen name="city_row_padding">40dp</dimen>
-    <dimen name="relay_row_padding">60dp</dimen>
+    <dimen name="country_row_padding">18dp</dimen>
+    <dimen name="city_row_padding">34dp</dimen>
+    <dimen name="relay_row_padding">50dp</dimen>
     <dimen name="list_item_divider">1dp</dimen>
     <dimen name="dialog_margin">14dp</dimen>
     <dimen name="account_input_corner_radius">4dp</dimen>
