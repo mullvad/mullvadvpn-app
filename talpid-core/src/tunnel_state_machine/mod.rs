@@ -93,8 +93,9 @@ pub async fn spawn(
         #[cfg(target_os = "android")]
         android_context.clone(),
     )
+    .await
     .map_err(Error::OfflineMonitorError)?;
-    let is_offline = offline_monitor.is_offline();
+    let is_offline = offline_monitor.is_offline().await;
 
     let tun_provider = TunProvider::new(
         #[cfg(target_os = "android")]

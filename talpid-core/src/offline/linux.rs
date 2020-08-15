@@ -1,5 +1,8 @@
 use crate::tunnel_state_machine::TunnelCommand;
-use futures::{channel::mpsc::UnboundedSender, StreamExt, TryStreamExt};
+use futures::{
+    channel::{mpsc::UnboundedSender, oneshot},
+    FutureExt, StreamExt, TryStreamExt,
+};
 use netlink_packet_route::{
     constants::{ARPHRD_LOOPBACK, ARPHRD_NONE, IFF_LOWER_UP, IFF_UP},
     rtnl::link::nlas::{Info as LinkInfo, InfoKind, Nla as LinkNla},
@@ -13,8 +16,6 @@ use rtnetlink::{
 use std::{collections::BTreeSet, io, sync::Weak};
 
 pub type Result<T> = std::result::Result<T, Error>;
-
-const EVENT_LOOP_THREAD_NAME: &str = "mullvad-offline-detection-event-loop";
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -46,12 +47,12 @@ pub enum Error {
 
 pub struct MonitorHandle {
     handle: rtnetlink::Handle,
-    runtime: tokio::runtime::Runtime,
+    _stop_connection_tx: oneshot::Sender<()>,
 }
 
 impl MonitorHandle {
-    pub fn is_offline(&mut self) -> bool {
-        match self.runtime.block_on(check_offline_state(&self.handle)) {
+    pub async fn is_offline(&mut self) -> bool {
+        match check_offline_state(&self.handle).await {
             Ok(is_offline) => is_offline,
             Err(err) => {
                 log::error!(
@@ -64,41 +65,36 @@ impl MonitorHandle {
     }
 }
 
-pub fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<MonitorHandle> {
-    let mut runtime = tokio::runtime::Builder::new()
-        .threaded_scheduler()
-        .core_threads(1)
-        .enable_all()
-        .thread_name(EVENT_LOOP_THREAD_NAME)
-        .build()
-        .map_err(Error::EventLoopError)?;
+pub async fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<MonitorHandle> {
+    let (mut connection, handle, mut messages) =
+        rtnetlink::new_connection().map_err(Error::NetlinkConnectionError)?;
 
-    let (connection, handle, mut messages) = runtime.block_on(async move {
-        let (mut connection, handle, messages) =
-            rtnetlink::new_connection().map_err(Error::NetlinkConnectionError)?;
+    let mgroup_flags = RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR | RTMGRP_LINK | RTMGRP_NOTIFY;
+    let addr = SocketAddr::new(0, mgroup_flags);
 
-        let mgroup_flags = RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR | RTMGRP_LINK | RTMGRP_NOTIFY;
-        let addr = SocketAddr::new(0, mgroup_flags);
+    connection
+        .socket_mut()
+        .bind(&addr)
+        .map_err(Error::BindError)?;
 
-        connection
-            .socket_mut()
-            .bind(&addr)
-            .map_err(Error::BindError)?;
+    let (stop_connection_tx, stop_rx) = oneshot::channel();
 
-        Ok((connection, handle, messages))
-    })?;
-
-    // Connection will be closed once the runtime is dropped
-    let _ = runtime.spawn(connection);
-    let mut is_offline = runtime.block_on(check_offline_state(&handle))?;
+    // Connection will be closed once the channel is dropped
+    tokio::spawn(async {
+        futures::select! {
+            _ = connection.fuse() => (),
+            _ = stop_rx.fuse() => (),
+        }
+    });
+    let mut is_offline = check_offline_state(&handle).await?;
 
     let monitor_handle = MonitorHandle {
         handle: handle.clone(),
-        runtime,
+        _stop_connection_tx: stop_connection_tx,
     };
 
 
-    let _ = monitor_handle.runtime.spawn(async move {
+    tokio::spawn(async move {
         while let Some(_new_message) = messages.next().await {
             match sender.upgrade() {
                 Some(sender) => {

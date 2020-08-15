@@ -96,7 +96,7 @@ impl MonitorHandle {
         })
     }
 
-    pub fn is_offline(&self) -> bool {
+    pub async fn is_offline(&self) -> bool {
         match self.get_is_connected() {
             Ok(is_connected) => !is_connected,
             Err(error) => {
@@ -205,7 +205,7 @@ unsafe fn get_sender_from_address(address: jlong) -> Box<Weak<UnboundedSender<Tu
     Box::from_raw(address as *mut Weak<UnboundedSender<TunnelCommand>>)
 }
 
-pub fn spawn_monitor(
+pub async fn spawn_monitor(
     sender: Weak<UnboundedSender<TunnelCommand>>,
     android_context: AndroidContext,
 ) -> Result<MonitorHandle, Error> {
