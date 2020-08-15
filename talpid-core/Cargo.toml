@@ -24,12 +24,10 @@ parking_lot = "0.9"
 regex = "1.1.0"
 shell-escape = "0.1"
 talpid-types = { path = "../talpid-types" }
-tokio-core = "0.1"
-tokio-executor = "0.1"
 uuid = { version = "0.7", features = ["v4"] }
 zeroize = "1"
 chrono = "0.4"
-tokio02 = { package = "tokio", version = "0.2", features =  [ "io-util", "process", "rt-core", "rt-threaded", "stream"] }
+tokio = { version = "0.2", features =  [ "io-util", "process", "rt-core", "rt-threaded", "stream"] }
 rand = "0.7"
 
 
@@ -42,7 +40,6 @@ prost = "0.6"
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.17"
-tokio-io = "0.1"
 
 
 [target.'cfg(target_os = "android")'.dependencies]

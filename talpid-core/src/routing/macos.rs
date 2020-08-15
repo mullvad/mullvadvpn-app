@@ -12,7 +12,7 @@ use std::{
     net::IpAddr,
     process::{ExitStatus, Stdio},
 };
-use tokio02::{io::AsyncBufReadExt, process::Command};
+use tokio::{io::AsyncBufReadExt, process::Command};
 
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -310,7 +310,7 @@ async fn listen_for_default_route_changes() -> Result<impl Stream<Item = std::io
 
 
     let mut process = cmd.spawn().map_err(Error::FailedToMonitorRoutes)?;
-    let reader = tokio02::io::BufReader::new(process.stdout.take().unwrap());
+    let reader = tokio::io::BufReader::new(process.stdout.take().unwrap());
     let lines = reader.lines();
 
     // route -n monitor will produce netlink messages in the following format

@@ -38,7 +38,7 @@ pub enum Error {
 
     // Unable to start the tokio runtime
     #[error(display = "Failed to create the tokio runtime")]
-    TokioRuntimeError(#[error(source)] tokio02::io::Error),
+    TokioRuntimeError(#[error(source)] tokio::io::Error),
 }
 
 struct ManagementServiceImpl {
@@ -48,9 +48,8 @@ struct ManagementServiceImpl {
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
 type EventsListenerReceiver =
-    tokio02::sync::mpsc::UnboundedReceiver<Result<types::DaemonEvent, Status>>;
-type EventsListenerSender =
-    tokio02::sync::mpsc::UnboundedSender<Result<types::DaemonEvent, Status>>;
+    tokio::sync::mpsc::UnboundedReceiver<Result<types::DaemonEvent, Status>>;
+type EventsListenerSender = tokio::sync::mpsc::UnboundedSender<Result<types::DaemonEvent, Status>>;
 
 const INVALID_VOUCHER_MESSAGE: &str = "This voucher code is invalid";
 const USED_VOUCHER_MESSAGE: &str = "This voucher code has already been used";
@@ -58,9 +57,8 @@ const USED_VOUCHER_MESSAGE: &str = "This voucher code has already been used";
 #[mullvad_management_interface::async_trait]
 impl ManagementService for ManagementServiceImpl {
     type GetRelayLocationsStream =
-        tokio02::sync::mpsc::Receiver<Result<types::RelayListCountry, Status>>;
-    type GetSplitTunnelProcessesStream =
-        tokio02::sync::mpsc::UnboundedReceiver<Result<i32, Status>>;
+        tokio::sync::mpsc::Receiver<Result<types::RelayListCountry, Status>>;
+    type GetSplitTunnelProcessesStream = tokio::sync::mpsc::UnboundedReceiver<Result<i32, Status>>;
     type EventsListenStream = EventsListenerReceiver;
 
     // Control and get the tunnel state
@@ -104,7 +102,7 @@ impl ManagementService for ManagementServiceImpl {
     //
 
     async fn events_listen(&self, _: Request<()>) -> ServiceResult<Self::EventsListenStream> {
-        let (tx, rx) = tokio02::sync::mpsc::unbounded_channel();
+        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
         let mut subscriptions = self.subscriptions.write();
         subscriptions.push(tx);
@@ -195,9 +193,9 @@ impl ManagementService for ManagementServiceImpl {
         let locations = rx.await.map_err(|_| Status::internal("internal error"))?;
 
         let (mut stream_tx, stream_rx) =
-            tokio02::sync::mpsc::channel(cmp::max(1, locations.countries.len()));
+            tokio::sync::mpsc::channel(cmp::max(1, locations.countries.len()));
 
-        tokio02::spawn(async move {
+        tokio::spawn(async move {
             for country in &locations.countries {
                 if let Err(error) = stream_tx
                     .send(Ok(convert_relay_list_country(country)))
@@ -624,8 +622,8 @@ impl ManagementService for ManagementServiceImpl {
             self.send_command_to_daemon(DaemonCommand::GetSplitTunnelProcesses(tx))?;
             let pids = rx.await.map_err(|_| Status::internal("internal error"))?;
 
-            let (tx, rx) = tokio02::sync::mpsc::unbounded_channel();
-            tokio02::spawn(async move {
+            let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+            tokio::spawn(async move {
                 for pid in pids {
                     let _ = tx.send(Ok(pid));
                 }
@@ -635,7 +633,7 @@ impl ManagementService for ManagementServiceImpl {
         }
         #[cfg(not(target_os = "linux"))]
         {
-            let (_, rx) = tokio02::sync::mpsc::unbounded_channel();
+            let (_, rx) = tokio::sync::mpsc::unbounded_channel();
             Ok(Response::new(rx))
         }
     }
@@ -1443,17 +1441,17 @@ fn convert_proto_location(location: types::RelayLocation) -> Constraint<Location
 pub struct ManagementInterfaceServer {
     subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
     socket_path: String,
-    runtime: tokio02::runtime::Runtime,
+    runtime: tokio::runtime::Runtime,
     server_abort_tx: triggered::Trigger,
     server_join_handle: Option<
-        tokio02::task::JoinHandle<std::result::Result<(), mullvad_management_interface::Error>>,
+        tokio::task::JoinHandle<std::result::Result<(), mullvad_management_interface::Error>>,
     >,
 }
 
 impl ManagementInterfaceServer {
     pub fn start(tunnel_tx: DaemonCommandSender) -> Result<Self, Error> {
         // TODO: don't spawn a tokio runtime here; make this function async
-        let mut runtime = tokio02::runtime::Builder::new()
+        let mut runtime = tokio::runtime::Builder::new()
             .threaded_scheduler()
             .core_threads(1)
             .enable_all()
@@ -1521,7 +1519,7 @@ impl ManagementInterfaceServer {
 /// A handle that allows broadcasting messages to all subscribers of the management interface.
 #[derive(Clone)]
 pub struct ManagementInterfaceEventBroadcaster {
-    runtime: tokio02::runtime::Handle,
+    runtime: tokio::runtime::Handle,
     subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
     close_handle: triggered::Trigger,
 }

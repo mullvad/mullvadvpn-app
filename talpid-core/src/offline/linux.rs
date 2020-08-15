@@ -46,7 +46,7 @@ pub enum Error {
 
 pub struct MonitorHandle {
     handle: rtnetlink::Handle,
-    runtime: tokio02::runtime::Runtime,
+    runtime: tokio::runtime::Runtime,
 }
 
 impl MonitorHandle {
@@ -65,7 +65,7 @@ impl MonitorHandle {
 }
 
 pub fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<MonitorHandle> {
-    let mut runtime = tokio02::runtime::Builder::new()
+    let mut runtime = tokio::runtime::Builder::new()
         .threaded_scheduler()
         .core_threads(1)
         .enable_all()
