@@ -1,6 +1,5 @@
 use crate::{DaemonCommand, DaemonCommandSender, EventListener};
-use futures::{channel::oneshot, compat::Future01CompatExt};
-use futures01::Future as OldFuture;
+use futures::channel::oneshot;
 use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, Status,
@@ -451,8 +450,8 @@ impl ManagementService for ManagementServiceImpl {
         let account_token = request.into_inner();
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetAccountData(tx, account_token))?;
-        let rpc_future = rx.await.map_err(|_| Status::internal("internal error"))?;
-        rpc_future
+        let result = rx.await.map_err(|_| Status::internal("internal error"))?;
+        result
             .map(|account_data| {
                 Response::new(types::AccountData {
                     expiry: Some(types::Timestamp {
@@ -468,8 +467,6 @@ impl ManagementService for ManagementServiceImpl {
                 );
                 map_rest_account_error(error)
             })
-            .compat()
-            .await
     }
 
     async fn get_account_history(&self, _: Request<()>) -> ServiceResult<types::AccountHistory> {
@@ -508,8 +505,8 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("get_www_auth_token");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetWwwAuthToken(tx))?;
-        let rpc_future = rx.await.map_err(|_| Status::internal("internal error"))?;
-        rpc_future
+        let result = rx.await.map_err(|_| Status::internal("internal error"))?;
+        result
             .map(Response::new)
             .map_err(|error: mullvad_rpc::rest::Error| {
                 log::error!(
@@ -518,8 +515,6 @@ impl ManagementService for ManagementServiceImpl {
                 );
                 map_rest_account_error(error)
             })
-            .compat()
-            .await
     }
 
     async fn submit_voucher(
@@ -555,8 +550,6 @@ impl ManagementService for ManagementServiceImpl {
                 },
                 _ => Status::internal("internal error"),
             })
-            .compat()
-            .await
     }
 
     // WireGuard key management
