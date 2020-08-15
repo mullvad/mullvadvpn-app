@@ -9,6 +9,7 @@ import android.support.v4.app.DialogFragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
 import android.widget.Button
 import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
@@ -50,6 +51,12 @@ class ConfirmNoEmailDialogFragment : DialogFragment() {
         dialog.window?.setBackgroundDrawable(ColorDrawable(android.R.color.transparent))
 
         return dialog
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        dialog?.window?.setLayout(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
     }
 
     override fun onDismiss(dialogInterface: DialogInterface) {
