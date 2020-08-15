@@ -21,9 +21,9 @@ mod version_check;
 use futures::{
     channel::{mpsc, oneshot},
     executor::BlockingStream,
-    future::{abortable, AbortHandle},
+    future::{abortable, AbortHandle, Future},
 };
-use futures01::{future, Future};
+use futures01::Future as Future01;
 use log::{debug, error, info, warn};
 use mullvad_rpc::AccountsProxy;
 use mullvad_types::{
@@ -70,11 +70,6 @@ use talpid_types::{
 mod wireguard;
 
 const TARGET_START_STATE_FILE: &str = "target-start-state.json";
-
-/// FIXME(linus): This is here just because the futures crate has deprecated it and jsonrpc_core
-/// did not introduce their own yet (https://github.com/paritytech/jsonrpc/pull/196).
-/// Remove this and use the one in jsonrpc_core when that is released.
-type BoxFuture<T, E> = Box<dyn Future<Item = T, Error = E> + Send>;
 
 const TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -146,24 +141,24 @@ pub enum Error {
 /// Enum representing commands that can be sent to the daemon.
 pub enum DaemonCommand {
     /// Set target state. Does nothing if the daemon already has the state that is being set.
-    SetTargetState(oneshot::Sender<std::result::Result<(), ()>>, TargetState),
+    SetTargetState(oneshot::Sender<Result<(), ()>>, TargetState),
     /// Reconnect the tunnel, if one is connecting/connected.
     Reconnect,
     /// Request the current state.
     GetState(oneshot::Sender<TunnelState>),
     /// Get the current geographical location.
     GetCurrentLocation(oneshot::Sender<Option<GeoIpLocation>>),
-    CreateNewAccount(oneshot::Sender<std::result::Result<String, mullvad_rpc::rest::Error>>),
+    CreateNewAccount(oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>),
     /// Request the metadata for an account.
     GetAccountData(
-        oneshot::Sender<BoxFuture<AccountData, mullvad_rpc::rest::Error>>,
+        oneshot::Sender<Result<AccountData, mullvad_rpc::rest::Error>>,
         AccountToken,
     ),
     /// Request www auth token for an account
-    GetWwwAuthToken(oneshot::Sender<BoxFuture<String, mullvad_rpc::rest::Error>>),
+    GetWwwAuthToken(oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>),
     /// Submit voucher to add time to the current account. Returns time added in seconds
     SubmitVoucher(
-        oneshot::Sender<BoxFuture<VoucherSubmission, mullvad_rpc::rest::Error>>,
+        oneshot::Sender<Result<VoucherSubmission, mullvad_rpc::rest::Error>>,
         String,
     ),
     /// Request account history
@@ -1171,42 +1166,52 @@ where
 
     fn on_get_current_location(&mut self, tx: oneshot::Sender<Option<GeoIpLocation>>) {
         use self::TunnelState::*;
-        let get_location: Box<dyn Future<Item = Option<GeoIpLocation>, Error = ()> + Send> =
-            match &self.tunnel_state {
-                Disconnected => Box::new(self.get_geo_location().map(Some)),
-                Connecting { location, .. } => Box::new(future::result(Ok(location.clone()))),
-                Disconnecting(..) => Box::new(future::result(Ok(self.build_location_from_relay()))),
-                Connected { location, .. } => {
-                    let relay_location = location.clone();
-                    Box::new(
-                        self.get_geo_location()
-                            .map(|fetched_location| GeoIpLocation {
-                                ipv4: fetched_location.ipv4,
-                                ipv6: fetched_location.ipv6,
-                                ..relay_location.unwrap_or(fetched_location)
-                            })
-                            .map(Some),
-                    )
-                }
-                Error(..) => {
-                    // We are not online at all at this stage so no location data is available.
-                    Box::new(future::result(Ok(None)))
-                }
-            };
 
-        self.rpc_runtime.runtime().spawn(async {
-            let _ = get_location
-                .map(|location| Self::oneshot_send(tx, location, "current location"))
-                .wait();
-        });
+        match &self.tunnel_state {
+            Disconnected => {
+                let location = self.get_geo_location();
+                self.rpc_runtime.runtime().spawn(async {
+                    Self::oneshot_send(tx, location.await.ok(), "current location");
+                });
+            }
+            Connecting { location, .. } => {
+                Self::oneshot_send(tx, location.clone(), "current location")
+            }
+            Disconnecting(..) => {
+                Self::oneshot_send(tx, self.build_location_from_relay(), "current location")
+            }
+            Connected { location, .. } => {
+                let relay_location = location.clone();
+                let location = self.get_geo_location();
+                self.rpc_runtime.runtime().spawn(async {
+                    Self::oneshot_send(
+                        tx,
+                        location.await.ok().map(|fetched_location| GeoIpLocation {
+                            ipv4: fetched_location.ipv4,
+                            ipv6: fetched_location.ipv6,
+                            ..relay_location.unwrap_or(fetched_location)
+                        }),
+                        "current location",
+                    );
+                });
+            }
+            Error(_) => {
+                // We are not online at all at this stage so no location data is available.
+                Self::oneshot_send(tx, None, "current location");
+            }
+        }
     }
 
-    fn get_geo_location(&mut self) -> impl Future<Item = GeoIpLocation, Error = ()> {
+    fn get_geo_location(&mut self) -> impl Future<Output = Result<GeoIpLocation, ()>> {
         let https_handle = self.rpc_runtime.rest_handle();
 
-        geoip::send_location_request(https_handle).map_err(|e| {
-            warn!("Unable to fetch GeoIP location: {}", e.display_chain());
-        })
+        async {
+            geoip::send_location_request(https_handle)
+                .map_err(|e| {
+                    warn!("Unable to fetch GeoIP location: {}", e.display_chain());
+                })
+                .wait()
+        }
     }
 
     fn build_location_from_relay(&self) -> Option<GeoIpLocation> {
@@ -1261,34 +1266,43 @@ where
 
     fn on_get_account_data(
         &mut self,
-        tx: oneshot::Sender<BoxFuture<AccountData, mullvad_rpc::rest::Error>>,
+        tx: oneshot::Sender<Result<AccountData, mullvad_rpc::rest::Error>>,
         account_token: AccountToken,
     ) {
-        let rpc_call = self
-            .accounts_proxy
-            .get_expiry(account_token)
-            .map(|expiry| AccountData { expiry });
-        Self::oneshot_send(tx, Box::new(rpc_call), "account data")
+        let expiry_old_fut = self.accounts_proxy.get_expiry(account_token);
+        let rpc_call = async {
+            let result = expiry_old_fut.wait().map(|expiry| AccountData { expiry });
+            Self::oneshot_send(tx, result, "account data");
+        };
+        self.rpc_runtime.runtime().spawn(rpc_call);
     }
 
     fn on_get_www_auth_token(
         &mut self,
-        tx: oneshot::Sender<BoxFuture<String, mullvad_rpc::rest::Error>>,
+        tx: oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
-            let rpc_call = self.accounts_proxy.get_www_auth_token(account_token);
-            Self::oneshot_send(tx, Box::new(rpc_call), "get_www_auth_token response")
+            let old_future = self.accounts_proxy.get_www_auth_token(account_token);
+            let rpc_call = async {
+                let result = old_future.wait();
+                Self::oneshot_send(tx, result, "get_www_auth_token response");
+            };
+            self.rpc_runtime.runtime().spawn(rpc_call);
         }
     }
 
     fn on_submit_voucher(
         &mut self,
-        tx: oneshot::Sender<BoxFuture<VoucherSubmission, mullvad_rpc::rest::Error>>,
+        tx: oneshot::Sender<Result<VoucherSubmission, mullvad_rpc::rest::Error>>,
         voucher: String,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
-            let rpc_call = self.accounts_proxy.submit_voucher(account_token, voucher);
-            Self::oneshot_send(tx, Box::new(rpc_call), "submit_voucher response");
+            let old_future = self.accounts_proxy.submit_voucher(account_token, voucher);
+            let rpc_call = async {
+                let result = old_future.wait();
+                Self::oneshot_send(tx, result, "submit_voucher response");
+            };
+            self.rpc_runtime.runtime().spawn(rpc_call);
         }
     }
 
