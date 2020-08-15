@@ -13,8 +13,8 @@
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_weight="0"
-                  android:layout_marginBottom="12dp"
-                  android:textColor="@color/white80"
+                  android:layout_marginBottom="9dp"
+                  android:textColor="@color/white"
                   android:textSize="@dimen/text_medium"
                   android:text="@string/enter_voucher_code" />
         <EditText android:id="@+id/voucher_code"
