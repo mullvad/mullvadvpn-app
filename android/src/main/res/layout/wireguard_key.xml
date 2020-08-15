@@ -29,8 +29,8 @@
         </FrameLayout>
         <net.mullvad.mullvadvpn.ui.widget.ListenableScrollView android:id="@+id/scroll_area"
                                                                android:layout_width="match_parent"
-                                                               android:layout_height="match_parent">
-
+                                                               android:layout_height="match_parent"
+                                                               android:fillViewport="true">
             <LinearLayout android:layout_width="match_parent"
                           android:layout_height="match_parent"
                           android:orientation="vertical">
