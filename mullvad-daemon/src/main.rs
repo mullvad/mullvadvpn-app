@@ -87,7 +87,7 @@ fn run_platform(_config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), S
 
 fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     {
-        let mut runtime = tokio02::runtime::Builder::new()
+        let mut runtime = tokio::runtime::Builder::new()
             .basic_scheduler()
             .enable_all()
             .build()

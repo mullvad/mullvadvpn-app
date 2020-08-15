@@ -19,7 +19,6 @@ pub use talpid_types::net::wireguard::{
     ConnectionConfig, PrivateKey, TunnelConfig, TunnelParameters,
 };
 use talpid_types::ErrorExt;
-use tokio_timer;
 
 /// Default automatic key rotation
 const DEFAULT_AUTOMATIC_KEY_ROTATION: Duration = Duration::from_secs(7 * 24 * 60 * 60);
@@ -35,8 +34,6 @@ pub enum Error {
     RestError(#[error(source)] mullvad_rpc::rest::Error),
     #[error(display = "Account already has maximum number of keys")]
     TooManyKeys,
-    #[error(display = "Failed to create rotation timer")]
-    RotationScheduleError(#[error(source)] tokio_timer::TimerError),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -291,7 +288,7 @@ impl KeyManager {
     }
 
     async fn key_rotation_timer(key: PublicKey, rotation_interval_secs: u64) {
-        let mut interval = tokio02::time::interval(KEY_CHECK_INTERVAL);
+        let mut interval = tokio::time::interval(KEY_CHECK_INTERVAL);
         loop {
             interval.tick().await;
             if (Utc::now().signed_duration_since(key.created)).num_seconds() as u64
@@ -342,7 +339,7 @@ impl KeyManager {
         rotation_interval_secs: u64,
         account_token: AccountToken,
     ) {
-        let mut interval = tokio02::time::interval_at(
+        let mut interval = tokio::time::interval_at(
             (Instant::now() + AUTOMATIC_ROTATION_RETRY_DELAY).into(),
             AUTOMATIC_ROTATION_RETRY_DELAY,
         );

@@ -21,7 +21,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::net::openvpn;
-use tokio02::task;
+use tokio::task;
 #[cfg(target_os = "linux")]
 use which;
 
@@ -132,7 +132,7 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     /// Keep the 'TempFile' for the proxy user-pass file in the struct, so it's removed on drop.
     _proxy_auth_file: Option<mktemp::TempFile>,
 
-    runtime: tokio02::runtime::Runtime,
+    runtime: tokio::runtime::Runtime,
     event_server_abort_tx: triggered::Trigger,
     server_join_handle: Option<task::JoinHandle<std::result::Result<(), event_server::Error>>>,
 }
@@ -239,7 +239,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
 
         let (event_server_abort_tx, event_server_abort_rx) = triggered::trigger();
 
-        let mut runtime = tokio02::runtime::Builder::new()
+        let mut runtime = tokio::runtime::Builder::new()
             .threaded_scheduler()
             .core_threads(1)
             .enable_all()
@@ -619,7 +619,7 @@ mod event_server {
         pin::Pin,
         task::{Context, Poll},
     };
-    use tokio02::io::{AsyncRead, AsyncWrite};
+    use tokio::io::{AsyncRead, AsyncWrite};
     use tonic::{
         self,
         transport::{server::Connected, Server},

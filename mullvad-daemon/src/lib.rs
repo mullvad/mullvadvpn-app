@@ -666,7 +666,7 @@ where
             cb();
         }
 
-        let shutdown_signal = tokio02::time::timeout(
+        let shutdown_signal = tokio::time::timeout(
             TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT,
             tunnel_state_machine_shutdown_signal,
         );
@@ -958,7 +958,7 @@ where
     fn schedule_reconnect(&mut self, delay: Duration) {
         let tunnel_command_tx = self.tx.to_specialized_sender();
         let (future, abort_handle) = abortable(Box::pin(async move {
-            tokio02::time::delay_for(delay).await;
+            tokio::time::delay_for(delay).await;
             log::debug!("Attempting to reconnect");
             let _ = tunnel_command_tx.send(DaemonCommand::Reconnect);
         }));

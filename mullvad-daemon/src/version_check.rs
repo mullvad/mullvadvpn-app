@@ -17,7 +17,7 @@ use std::{
 };
 use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
-use tokio02::fs::File;
+use tokio::fs::File;
 
 const VERSION_INFO_FILENAME: &str = "version-info.json";
 
@@ -165,7 +165,7 @@ impl VersionUpdater {
         let mut buf = serde_json::to_vec_pretty(&cached_app_version).map_err(Error::Serialize)?;
         let mut read_buf: &[u8] = buf.as_mut();
 
-        let _ = tokio02::io::copy(&mut read_buf, &mut file)
+        let _ = tokio::io::copy(&mut read_buf, &mut file)
             .await
             .map_err(Error::WriteVersionCache)?;
         Ok(())
@@ -218,7 +218,7 @@ impl VersionUpdater {
 
     pub async fn run(mut self) {
         let mut rx = self.rx.take().unwrap().fuse();
-        let next_delay = || tokio02::time::delay_for(UPDATE_CHECK_INTERVAL).fuse();
+        let next_delay = || tokio::time::delay_for(UPDATE_CHECK_INTERVAL).fuse();
         let mut check_delay = next_delay();
         let mut version_check = futures::future::Fuse::terminated();
 

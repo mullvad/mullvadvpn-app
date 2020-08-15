@@ -27,22 +27,19 @@ use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
 };
-use futures01::{sync::mpsc as old_mpsc, Async, Future, Poll, Stream};
+use futures01::{sync::mpsc as old_mpsc, Async, Poll, Stream};
 use std::{
     collections::HashSet,
     io,
     path::{Path, PathBuf},
     sync::{mpsc as sync_mpsc, Arc},
-    thread,
 };
 #[cfg(target_os = "android")]
-use talpid_types::android::AndroidContext;
+use talpid_types::{android::AndroidContext, ErrorExt};
 use talpid_types::{
     net::TunnelParameters,
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
-    ErrorExt,
 };
-use tokio_core::reactor::Core;
 
 /// Errors that can happen when setting up or using the state machine.
 #[derive(err_derive::Error, Debug)]
@@ -108,7 +105,7 @@ pub async fn spawn(
 
     // Hide internal 0.1 futures from the client
     let (command_adapter_tx, command_adapter_rx) = old_mpsc::unbounded();
-    tokio02::spawn(async move {
+    tokio::spawn(async move {
         while let Some(command) = command_rx.next().await {
             if command_adapter_tx.unbounded_send(command).is_err() {
                 log::error!("Failed to forward daemon command");
@@ -117,8 +114,8 @@ pub async fn spawn(
     });
 
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
-    thread::spawn(move || {
-        match create_event_loop(
+    std::thread::spawn(move || {
+        let state_machine = TunnelStateMachine::new(
             allow_lan,
             block_when_disconnected,
             is_offline,
@@ -128,27 +125,32 @@ pub async fn spawn(
             resource_dir,
             cache_dir,
             command_adapter_rx,
-            state_change_listener,
-            shutdown_tx,
-        ) {
-            Ok((mut reactor, event_loop)) => {
-                startup_result_tx.send(Ok(())).expect(
-                    "Tunnel state machine won't be started because the owner thread crashed",
-                );
-
-                if let Err(e) = reactor.run(event_loop) {
-                    log::error!(
-                        "{}",
-                        e.display_chain_with_msg("Tunnel state machine exited with an error")
-                    );
-                }
+        );
+        let state_machine = match state_machine {
+            Ok(state_machine) => {
+                startup_result_tx.send(Ok(())).unwrap();
+                state_machine
             }
-            Err(startup_error) => {
-                startup_result_tx
-                    .send(Err(startup_error))
-                    .expect("Failed to send startup error");
+            Err(error) => {
+                startup_result_tx.send(Err(error)).unwrap();
+                return;
+            }
+        };
+
+        let mut iter = state_machine.wait();
+        while let Some(Ok(change_event)) = iter.next() {
+            if let Err(error) = state_change_listener
+                .send(change_event)
+                .map_err(|_| Error::SendStateChange)
+            {
+                log::error!("{}", error);
+                break;
             }
         }
+        if shutdown_tx.send(()).is_err() {
+            log::error!("Can't send shutdown completion to daemon");
+        }
+
         std::mem::drop(offline_monitor);
     });
 
@@ -156,48 +158,6 @@ pub async fn spawn(
         .recv()
         .expect("Failed to start tunnel state machine thread")?;
     Ok(command_tx)
-}
-
-fn create_event_loop(
-    allow_lan: bool,
-    block_when_disconnected: bool,
-    is_offline: bool,
-    tunnel_parameters_generator: impl TunnelParametersGenerator,
-    tun_provider: TunProvider,
-    log_dir: Option<PathBuf>,
-    resource_dir: PathBuf,
-    cache_dir: impl AsRef<Path>,
-    commands: old_mpsc::UnboundedReceiver<TunnelCommand>,
-    state_change_listener: impl Sender<TunnelStateTransition>,
-    shutdown_tx: oneshot::Sender<()>,
-) -> Result<(Core, impl Future<Item = (), Error = Error>), Error> {
-    let reactor = Core::new().map_err(Error::ReactorError)?;
-    let state_machine = TunnelStateMachine::new(
-        allow_lan,
-        block_when_disconnected,
-        is_offline,
-        tunnel_parameters_generator,
-        tun_provider,
-        log_dir,
-        resource_dir,
-        cache_dir,
-        commands,
-    )?;
-
-    let future = state_machine
-        .for_each(move |state_change_event| {
-            state_change_listener
-                .send(state_change_event)
-                .map_err(|_| Error::SendStateChange)
-        })
-        .then(move |_| {
-            if shutdown_tx.send(()).is_err() {
-                log::error!("Can't send shutdown completion to daemon");
-            }
-            Ok(())
-        });
-
-    Ok((reactor, future))
 }
 
 /// Representation of external commands for the tunnel state machine.

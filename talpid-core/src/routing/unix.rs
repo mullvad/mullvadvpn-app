@@ -69,7 +69,7 @@ pub enum RouteManagerCommand {
 /// the route will be adjusted dynamically when the default route changes.
 pub struct RouteManager {
     manage_tx: Option<UnboundedSender<RouteManagerCommand>>,
-    runtime: tokio02::runtime::Runtime,
+    runtime: tokio::runtime::Runtime,
 }
 
 impl RouteManager {
@@ -78,7 +78,7 @@ impl RouteManager {
     /// routes.
     pub fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self, Error> {
         let (manage_tx, manage_rx) = mpsc::unbounded();
-        let mut runtime = tokio02::runtime::Runtime::new().expect("Failed to spawn runtime");
+        let mut runtime = tokio::runtime::Runtime::new().expect("Failed to spawn runtime");
         let manager = runtime.block_on(imp::RouteManagerImpl::new(required_routes))?;
         runtime.handle().spawn(manager.run(manage_rx));
 

@@ -33,7 +33,7 @@ use talpid_types::{
     net::{all_of_the_internet, openvpn::ProxySettings, wireguard, TransportProtocol, TunnelType},
     ErrorExt,
 };
-use tokio02::fs::File;
+use tokio::fs::File;
 
 const DATE_TIME_FORMAT_STR: &str = "%Y-%m-%d %H:%M:%S%.3f";
 const RELAYS_FILENAME: &str = "relays.json";
@@ -807,7 +807,7 @@ impl RelayListUpdater {
     }
 
     async fn run(mut self, mut cmd_rx: mpsc::Receiver<()>) {
-        let mut check_interval = tokio02::time::interval(UPDATE_CHECK_INTERVAL).fuse();
+        let mut check_interval = tokio::time::interval(UPDATE_CHECK_INTERVAL).fuse();
         let mut download_future = Box::pin(Fuse::terminated());
         loop {
             futures::select! {
@@ -918,7 +918,7 @@ impl RelayListUpdater {
             .map_err(Error::OpenRelayCache)?;
         let bytes = serde_json::to_vec_pretty(relays).map_err(Error::Serialize)?;
         let mut slice: &[u8] = bytes.as_slice();
-        let _ = tokio02::io::copy(&mut slice, &mut file)
+        let _ = tokio::io::copy(&mut slice, &mut file)
             .await
             .map_err(Error::WriteRelayCache)?;
         Ok(())
