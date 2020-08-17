@@ -20,6 +20,7 @@ mod version_check;
 
 use futures::{
     channel::{mpsc, oneshot},
+    compat::Future01CompatExt,
     executor::BlockingStream,
     future::{abortable, AbortHandle, Future},
 };
@@ -666,18 +667,18 @@ where
             cb();
         }
 
-        let shutdown_signal = tokio::time::timeout(
-            TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT,
-            tunnel_state_machine_shutdown_signal,
-        );
-
-        match rpc_runtime.runtime().block_on(shutdown_signal) {
-            Ok(_) => log::info!("Tunnel state machine shut down"),
-            Err(_) => log::error!("Tunnel state machine did not shut down gracefully"),
-        }
-        mem::drop(rpc_runtime);
-
+        rpc_runtime.runtime().block_on(async {
+            let shutdown_signal = tokio::time::timeout(
+                TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT,
+                tunnel_state_machine_shutdown_signal,
+            );
+            match shutdown_signal.await {
+                Ok(_) => log::info!("Tunnel state machine shut down"),
+                Err(_) => log::error!("Tunnel state machine did not shut down gracefully"),
+            }
+        });
         mem::drop(event_listener);
+        mem::drop(rpc_runtime);
     }
 
     /// Shuts down the daemon without shutting down the underlying event listener and the shutdown
@@ -1210,7 +1211,8 @@ where
                 .map_err(|e| {
                     warn!("Unable to fetch GeoIP location: {}", e.display_chain());
                 })
-                .wait()
+                .compat()
+                .await
         }
     }
 
@@ -1258,7 +1260,7 @@ where
             });
 
         self.rpc_runtime.runtime().spawn(async {
-            if future.wait().is_err() {
+            if future.compat().await.is_err() {
                 log::error!("Failed to spawn future for creating a new account");
             }
         });
@@ -1271,7 +1273,10 @@ where
     ) {
         let expiry_old_fut = self.accounts_proxy.get_expiry(account_token);
         let rpc_call = async {
-            let result = expiry_old_fut.wait().map(|expiry| AccountData { expiry });
+            let result = expiry_old_fut
+                .compat()
+                .await
+                .map(|expiry| AccountData { expiry });
             Self::oneshot_send(tx, result, "account data");
         };
         self.rpc_runtime.runtime().spawn(rpc_call);
@@ -1284,7 +1289,7 @@ where
         if let Some(account_token) = self.settings.get_account_token() {
             let old_future = self.accounts_proxy.get_www_auth_token(account_token);
             let rpc_call = async {
-                let result = old_future.wait();
+                let result = old_future.compat().await;
                 Self::oneshot_send(tx, result, "get_www_auth_token response");
             };
             self.rpc_runtime.runtime().spawn(rpc_call);
@@ -1299,7 +1304,7 @@ where
         if let Some(account_token) = self.settings.get_account_token() {
             let old_future = self.accounts_proxy.submit_voucher(account_token, voucher);
             let rpc_call = async {
-                let result = old_future.wait();
+                let result = old_future.compat().await;
                 Self::oneshot_send(tx, result, "submit_voucher response");
             };
             self.rpc_runtime.runtime().spawn(rpc_call);
