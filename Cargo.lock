@@ -1184,7 +1184,7 @@ name = "mullvad-jni"
 version = "0.1.0"
 dependencies = [
  "err-derive 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "futures 0.1.29 (registry+https://github.com/rust-lang/crates.io-index)",
+ "futures 0.3.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "ipnetwork 0.16.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "jnix 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
