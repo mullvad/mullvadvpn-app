@@ -6,6 +6,8 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
+#if DEBUG
+
 import Foundation
 
 private let kLogPollIntervalSeconds = 2
@@ -82,3 +84,5 @@ class LogStreamer<Codec> where Codec: UnicodeCodec {
         }
     }
 }
+
+#endif
