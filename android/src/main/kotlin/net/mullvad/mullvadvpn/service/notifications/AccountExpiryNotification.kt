@@ -9,12 +9,17 @@ import android.net.Uri
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.service.AccountCache
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
 import org.joda.time.Duration
 
-class AccountExpiryNotification(val context: Context, val daemon: MullvadDaemon) {
+class AccountExpiryNotification(
+    val context: Context,
+    val daemon: MullvadDaemon,
+    val accountCache: AccountCache
+) {
     companion object {
         val NOTIFICATION_ID: Int = 2
         val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(2)
@@ -40,11 +45,23 @@ class AccountExpiryNotification(val context: Context, val daemon: MullvadDaemon)
         }
     }
 
+    init {
+        accountCache.onAccountExpiryChange.subscribe(this) { newExpiry ->
+            accountExpiry = newExpiry
+        }
+    }
+
+    fun onDestroy() {
+        accountCache.onAccountNumberChange.unsubscribe(this)
+        accountExpiry = null
+    }
+
     private suspend fun update(accountExpiry: DateTime?) {
         val remainingTime = accountExpiry?.let { expiry -> Duration(DateTime.now(), expiry) }
+        val closeToExpire = remainingTime?.isShorterThan(REMAINING_TIME_FOR_REMINDERS) ?: false
 
-        if (remainingTime != null && remainingTime.isShorterThan(REMAINING_TIME_FOR_REMINDERS)) {
-            val notification = build(accountExpiry, remainingTime)
+        if (closeToExpire && !accountCache.newlyCreatedAccount) {
+            val notification = build(accountExpiry!!, remainingTime!!)
 
             channel.notificationManager.notify(NOTIFICATION_ID, notification)
 
