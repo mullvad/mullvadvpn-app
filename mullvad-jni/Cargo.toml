@@ -12,7 +12,7 @@ crate_type = ["cdylib"]
 
 [target.'cfg(target_os = "android")'.dependencies]
 err-derive = "0.2.1"
-futures = "0.1"
+futures = "0.3"
 ipnetwork = "0.16"
 jnix = { version = "0.2.3", features = ["derive"] }
 lazy_static = "1"
