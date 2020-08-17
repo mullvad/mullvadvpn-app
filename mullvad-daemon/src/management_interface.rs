@@ -23,7 +23,10 @@ use mullvad_types::{
     version, wireguard, ConnectionConfig,
 };
 use parking_lot::RwLock;
-use std::sync::{mpsc, Arc};
+use std::{
+    cmp,
+    sync::{mpsc, Arc},
+};
 use talpid_types::{
     net::{TransportProtocol, TunnelType},
     ErrorExt,
@@ -220,7 +223,8 @@ impl ManagementService for ManagementServiceImpl {
             .compat()
             .await?;
 
-        let (mut stream_tx, stream_rx) = tokio02::sync::mpsc::channel(locations.countries.len());
+        let (mut stream_tx, stream_rx) =
+            tokio02::sync::mpsc::channel(cmp::max(1, locations.countries.len()));
 
         tokio02::spawn(async move {
             for country in &locations.countries {
