@@ -89,8 +89,9 @@ fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     {
         let mut runtime = tokio02::runtime::Builder::new()
             .basic_scheduler()
+            .enable_all()
             .build()
-            .expect("Failed to create tokio runtime");
+            .map_err(|e| e.display_chain())?;
         if runtime.block_on(rpc_uniqueness_check::is_another_instance_running()) {
             return Err("Another instance of the daemon is already running".to_owned());
         }
