@@ -131,7 +131,7 @@ export class DaemonRpc {
   private nextSubscriptionId = 0;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private subscriptions: Map<number, grpc.ClientReadableStream<any>> = new Map();
-  private connectionPromise?: Promise<void>;
+  private reconnectionTimeout?: number;
 
   private subscriptionId(): number {
     const current = this.nextSubscriptionId;
@@ -182,7 +182,7 @@ export class DaemonRpc {
   }
 
   private call<T, R>(fn: CallFunctionArgument<T, R>, arg: T): Promise<R> {
-    if (this.client && fn && this.isConnected) {
+    if (fn && this.isConnected) {
       return promisify<T, R>(fn.bind(this.client))(arg);
     } else {
       throw noConnectionError;
@@ -190,25 +190,22 @@ export class DaemonRpc {
   }
 
   public connect(): Promise<void> {
-    if (this.connectionPromise === undefined) {
-      this.connectionPromise = new Promise((resolve, reject) => {
-        this.client.waitForReady(this.deadlineFromNow(), (error) => {
-          this.connectionPromise = undefined;
-          if (error) {
-            this.client.getChannel()?.getConnectivityState(false);
-            this.connectionObservers.forEach((observer) => observer.onClose(error));
-            this.ensureConnectivity();
-            reject(error);
-          } else {
-            this.isConnected = true;
-            this.connectionObservers.forEach((observer) => observer.onOpen());
-            this.setChannelCallback();
-            resolve();
-          }
-        });
+    return new Promise((resolve, reject) => {
+      this.client.waitForReady(this.deadlineFromNow(), (error) => {
+        if (error) {
+          this.client.getChannel()?.getConnectivityState(false);
+          this.connectionObservers.forEach((observer) => observer.onClose(error));
+          this.ensureConnectivity();
+          reject(error);
+        } else {
+          this.reconnectionTimeout = undefined;
+          this.isConnected = true;
+          this.connectionObservers.forEach((observer) => observer.onOpen());
+          this.setChannelCallback();
+          resolve();
+        }
       });
-    }
-    return this.connectionPromise;
+    });
   }
 
   private channelOptions(): grpc.ClientOptions {
@@ -257,7 +254,7 @@ export class DaemonRpc {
   }
 
   private setChannelCallback(currentState?: grpc.connectivityState) {
-    const channel = this.client?.getChannel();
+    const channel = this.client.getChannel();
     if (currentState === undefined && channel) {
       currentState = channel?.getConnectivityState(false);
     }
@@ -272,23 +269,19 @@ export class DaemonRpc {
   // client fails to connect at first, `ensureConnectivity()` should be called so that it tries to
   // check the connectivity state and nudge the client into connecting.
   // `grpc.Channel.getConnectivityState(true)` should make it attempt to connect.
-  private ensureConnectivity(lastState?: grpc.connectivityState) {
-    setTimeout(() => {
-      if (this.client) {
-        if (lastState === undefined) {
-          lastState = this.client.getChannel().getConnectivityState(true);
-        }
-        if (this.channelDisconnected(lastState)) {
-          this.connectionObservers.forEach((observer) => observer.onClose());
-          this.isConnected = false;
-        }
-        if (!this.isConnected) {
-          consumePromise(
-            this.connect().catch((error) => {
-              log.error(`Failed to reconnect - ${error}`);
-            }),
-          );
-        }
+  private ensureConnectivity() {
+    this.reconnectionTimeout = setTimeout(() => {
+      const lastState = this.client.getChannel().getConnectivityState(true);
+      if (this.channelDisconnected(lastState)) {
+        this.connectionObservers.forEach((observer) => observer.onClose());
+        this.isConnected = false;
+      }
+      if (!this.isConnected) {
+        consumePromise(
+          this.connect().catch((error) => {
+            log.error(`Failed to reconnect - ${error}`);
+          }),
+        );
       }
     }, 3000);
   }
@@ -296,7 +289,10 @@ export class DaemonRpc {
   public disconnect() {
     this.isConnected = false;
     this.subscriptions.clear();
-    this.client?.close();
+    this.client.close();
+    if (this.reconnectionTimeout) {
+      clearTimeout(this.reconnectionTimeout);
+    }
   }
 
   public addConnectionObserver(observer: ConnectionObserver) {
@@ -379,7 +375,7 @@ export class DaemonRpc {
   }
 
   public getRelayLocations(): Promise<IRelayList> {
-    if (this.client) {
+    if (this.isConnected) {
       return new Promise((resolve, reject) => {
         const relayLocations: IRelayListCountry[] = [];
         const stream = this.client!.getRelayLocations(new Empty());
