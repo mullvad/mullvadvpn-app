@@ -101,7 +101,8 @@ class WireguardDevice {
         }
 
         wgSetLogger { (level, messagePtr) in
-            guard let message = messagePtr.map({ String(cString: $0) }) else { return }
+            guard let message = messagePtr.map({ String(cString: $0) })?
+                .trimmingCharacters(in: .newlines) else { return }
             let logLevel = WireguardLogLevel(rawValue: level) ?? .debug
 
             WireguardDevice.loggingQueue.async {
