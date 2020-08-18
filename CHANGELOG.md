@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Use gRPC for communication between frontends and the backend instead of JSON-RPC.
+- Show a warning in the CLI if the provided location constraints don't match any known relay.
 
 ### Fixed
 #### Android
