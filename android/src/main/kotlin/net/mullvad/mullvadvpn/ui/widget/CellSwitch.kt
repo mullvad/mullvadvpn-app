@@ -12,6 +12,7 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.widget.ImageView
 import android.widget.LinearLayout
+import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 
 class CellSwitch : LinearLayout {
@@ -20,14 +21,13 @@ class CellSwitch : LinearLayout {
         OFF
     }
 
-    var state = State.OFF
-        set(value) {
-            if (field != value) {
-                field = value
-                animateToState()
-                listener?.invoke(value)
-            }
+    var state by observable(State.OFF) { _, oldState, newState ->
+        animateToState()
+
+        if (oldState != newState) {
+            listener?.invoke(newState)
         }
+    }
 
     var listener: ((State) -> Unit)? = null
 
@@ -55,6 +55,8 @@ class CellSwitch : LinearLayout {
 
     private val knobPosition: Float
         get() = knobView.translationX / knobMaxTranslation
+
+    private var animationIsReversed = false
 
     private val positionAnimation = ValueAnimator.ofFloat(0f, knobMaxTranslation).apply {
         addUpdateListener { animation ->
@@ -213,12 +215,16 @@ class CellSwitch : LinearLayout {
 
         when (state) {
             State.ON -> {
+                animationIsReversed = false
                 colorAnimation.start()
                 positionAnimation.start()
             }
             State.OFF -> {
-                colorAnimation.reverse()
-                positionAnimation.reverse()
+                if (!animationIsReversed || !colorAnimation.isRunning()) {
+                    animationIsReversed = true
+                    colorAnimation.reverse()
+                    positionAnimation.reverse()
+                }
 
                 playTime = knobAnimationDuration - playTime
             }
