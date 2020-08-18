@@ -371,6 +371,47 @@ impl Relay {
 
     async fn set_location(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let location_constraint = location::get_constraint(matches);
+        let mut found = false;
+
+        if !location_constraint.country.is_empty() {
+            let countries = Self::get_filtered_relays().await?;
+            for country in &countries {
+                if country.code != location_constraint.country {
+                    continue;
+                }
+
+                if location_constraint.city.is_empty() {
+                    found = true;
+                    break;
+                }
+
+                for city in &country.cities {
+                    if city.code != location_constraint.city {
+                        continue;
+                    }
+
+                    if location_constraint.hostname.is_empty() {
+                        found = true;
+                        break;
+                    }
+
+                    for relay in &city.relays {
+                        if relay.hostname != location_constraint.hostname {
+                            continue;
+                        }
+                        found = true;
+                        break;
+                    }
+
+                    break;
+                }
+                break;
+            }
+
+            if !found {
+                eprintln!("Warning: No matching relay was found.");
+            }
+        }
 
         self.update_constraints(RelaySettingsUpdate {
             r#type: Some(relay_settings_update::Type::Normal(
