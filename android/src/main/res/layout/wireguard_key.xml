@@ -29,8 +29,8 @@
         </FrameLayout>
         <net.mullvad.mullvadvpn.ui.widget.ListenableScrollView android:id="@+id/scroll_area"
                                                                android:layout_width="match_parent"
-                                                               android:layout_height="match_parent">
-
+                                                               android:layout_height="match_parent"
+                                                               android:fillViewport="true">
             <LinearLayout android:layout_width="match_parent"
                           android:layout_height="match_parent"
                           android:orientation="vertical">
@@ -39,7 +39,7 @@
                           android:layout_height="wrap_content"
                           android:layout_weight="0"
                           android:layout_marginLeft="@dimen/side_margin"
-                          android:layout_marginTop="4dp"
+                          android:layout_marginTop="2dp"
                           android:layout_marginBottom="@dimen/half_vertical_space"
                           android:text="@string/wireguard_key"
                           style="@style/SettingsExpandedHeader" />
@@ -65,7 +65,8 @@
                 <FrameLayout android:layout_width="wrap_content"
                              android:layout_height="wrap_content"
                              android:paddingHorizontal="@dimen/side_margin"
-                             android:paddingVertical="@dimen/half_vertical_space">
+                             android:paddingTop="@dimen/half_vertical_space"
+                             android:paddingBottom="@dimen/button_separation">
                     <TextView android:id="@+id/wireguard_key_status"
                               android:layout_width="wrap_content"
                               android:layout_height="wrap_content"

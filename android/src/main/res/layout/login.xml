@@ -19,8 +19,8 @@
             <Space android:layout_width="match_parent"
                    android:layout_height="0dp"
                    android:layout_weight="1" />
-            <FrameLayout android:layout_width="60dp"
-                         android:layout_height="60dp"
+            <FrameLayout android:layout_width="48dp"
+                         android:layout_height="48dp"
                          android:layout_gravity="center_horizontal"
                          android:layout_marginBottom="30dp">
                 <ProgressBar android:id="@+id/logging_in_status"
@@ -49,7 +49,7 @@
                       android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:layout_weight="0"
-                      android:layout_marginBottom="4dp"
+                      android:layout_marginBottom="7dp"
                       android:gravity="start"
                       android:textColor="@color/white"
                       android:textSize="@dimen/text_huge"
@@ -59,7 +59,7 @@
                       android:layout_width="match_parent"
                       android:layout_height="wrap_content"
                       android:layout_weight="0"
-                      android:layout_marginBottom="10dp"
+                      android:layout_marginBottom="8dp"
                       android:gravity="start"
                       android:textColor="@color/white80"
                       android:textSize="@dimen/text_small"
@@ -108,7 +108,7 @@
                       android:orientation="vertical"
                       android:paddingHorizontal="@dimen/side_margin"
                       android:paddingBottom="@dimen/screen_vertical_margin"
-                      android:paddingTop="16dp"
+                      android:paddingTop="@dimen/button_separation"
                       android:background="@color/darkBlue">
             <TextView android:layout_width="match_parent"
                       android:layout_height="wrap_content"

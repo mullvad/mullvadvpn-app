@@ -14,7 +14,9 @@ import net.mullvad.mullvadvpn.R
 
 class AppVersionCell : Cell {
     private val warningIcon = ImageView(context).apply {
-        layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.0f)
+        val iconSize = resources.getDimensionPixelSize(R.dimen.app_version_warning_icon_size)
+
+        layoutParams = LayoutParams(iconSize, iconSize, 0.0f)
 
         resources.getDimensionPixelSize(R.dimen.cell_inner_spacing).let { padding ->
             setPadding(0, 0, padding, 0)

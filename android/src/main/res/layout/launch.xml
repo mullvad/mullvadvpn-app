@@ -5,7 +5,7 @@
                  android:layout_width="wrap_content"
                  android:layout_height="wrap_content"
                  android:layout_gravity="top | right"
-                 android:paddingHorizontal="12dp"
+                 android:paddingHorizontal="16dp"
                  android:paddingVertical="25dp"
                  android:background="?android:attr/selectableItemBackground"
                  android:src="@drawable/icon_settings" />
@@ -17,7 +17,7 @@
                   android:gravity="center">
         <ImageView android:layout_width="120dp"
                    android:layout_height="120dp"
-                   android:layout_marginBottom="4dp"
+                   android:layout_marginBottom="5dp"
                    android:src="@drawable/launch_logo" />
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
