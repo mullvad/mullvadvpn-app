@@ -366,11 +366,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_createN
     if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
         match daemon_interface.create_new_account() {
             Ok(account) => account.into_java(&env).forget(),
-            Err(err) => {
-                log::error!(
-                    "{}",
-                    err.display_chain_with_msg("Failed to create new account")
-                );
+            Err(error) => {
+                log_request_error("create new account", &error);
                 JObject::null()
             }
         }
@@ -496,10 +493,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getAcco
         let result = daemon_interface.get_account_data(account);
 
         if let Err(ref error) = &result {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to get account data")
-            );
+            log_request_error("get account data", error);
         }
 
         GetAccountDataResult::from(result).into_java(&env).forget()
@@ -520,11 +514,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getWwwA
     if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
         match daemon_interface.get_www_auth_token() {
             Ok(token) => token.into_java(&env).forget(),
-            Err(err) => {
-                log::error!(
-                    "{}",
-                    err.display_chain_with_msg("Failed to get WWW auth token")
-                );
+            Err(error) => {
+                log_request_error("get WWW auth token", &error);
                 String::new().into_java(&env).forget()
             }
         }
@@ -838,10 +829,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_submitV
         let raw_result = daemon_interface.submit_voucher(voucher);
 
         if let Err(ref error) = &raw_result {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to submit voucher code")
-            );
+            log_request_error("submit voucher code", error);
         }
 
         VoucherSubmissionResult::from(raw_result)
@@ -923,6 +911,20 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
                 error.display_chain_with_msg("Failed to collect problem report")
             );
             JNI_FALSE
+        }
+    }
+}
+
+fn log_request_error(request: &str, error: &daemon_interface::Error) {
+    match error {
+        daemon_interface::Error::RpcError(RestError::Aborted(_)) => {
+            log::debug!("Request to {} cancelled", request);
+        }
+        error => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg(&format!("Failed to {}", request))
+            );
         }
     }
 }
