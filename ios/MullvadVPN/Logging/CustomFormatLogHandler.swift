@@ -16,6 +16,14 @@ struct CustomFormatLogHandler: LogHandler {
     private let label: String
     private let streams: [TextOutputStream]
 
+    private let dateFormatter = Self.makeDateFormatter()
+
+    static func makeDateFormatter() -> DateFormatter {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "YYYY-MM-dd HH:mm:ss.SSS"
+        return dateFormatter
+    }
+
     init(label: String, streams: [TextOutputStream]) {
         self.label = label
         self.streams = streams
@@ -43,7 +51,8 @@ struct CustomFormatLogHandler: LogHandler {
         }
         let prettyMetadata = Self.formatMetadata(mergedMetadata)
         let metadataOutput = prettyMetadata.isEmpty ? "" :  " \(prettyMetadata)"
-        let formattedMessage = "[\(Self.timestamp())][\(self.label)][\(level)]\(metadataOutput) \(message)\n"
+        let timestamp = dateFormatter.string(from: Date())
+        let formattedMessage = "[\(timestamp)][\(self.label)][\(level)]\(metadataOutput) \(message)\n"
 
         for var stream in streams {
             stream.write(formattedMessage)
@@ -52,17 +61,5 @@ struct CustomFormatLogHandler: LogHandler {
 
     private static func formatMetadata(_ metadata: Logger.Metadata) -> String {
         return metadata.map { "\($0)=\($1)" }.joined(separator: " ")
-    }
-
-    private static func timestamp() -> String {
-        var buffer = [Int8](repeating: 0, count: 255)
-        var timestamp = time(nil)
-        let localTime = localtime(&timestamp)
-        strftime(&buffer, buffer.count, "%Y-%m-%dT%H:%M:%S%z", localTime)
-        return buffer.withUnsafeBufferPointer {
-            $0.withMemoryRebound(to: CChar.self) {
-                String(cString: $0.baseAddress!)
-            }
-        }
     }
 }
