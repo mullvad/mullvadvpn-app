@@ -58,6 +58,12 @@ const StyledCellIcon = styled(Cell.Icon)((props: { visible: boolean }) => ({
   marginRight: '8px',
 }));
 
+const StyledLabel = styled(Cell.Label)({
+  fontFamily: 'Open Sans',
+  fontWeight: 'normal',
+  fontSize: '16px',
+});
+
 interface ISelectorCellProps<T> {
   value: T;
   selected: boolean;
@@ -80,7 +86,7 @@ export class SelectorCell<T> extends React.Component<ISelectorCellProps<T>> {
           height={24}
           tintColor={colors.white}
         />
-        <Cell.Label>{this.props.children}</Cell.Label>
+        <StyledLabel>{this.props.children}</StyledLabel>
       </Cell.CellButton>
     );
   }
