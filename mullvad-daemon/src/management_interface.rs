@@ -35,10 +35,6 @@ pub enum Error {
     // Unable to start the management interface server
     #[error(display = "Unable to start management interface server")]
     SetupError(#[error(source)] mullvad_management_interface::Error),
-
-    // Unable to start the tokio runtime
-    #[error(display = "Failed to create the tokio runtime")]
-    TokioRuntimeError(#[error(source)] tokio::io::Error),
 }
 
 struct ManagementServiceImpl {
@@ -1441,7 +1437,6 @@ fn convert_proto_location(location: types::RelayLocation) -> Constraint<Location
 pub struct ManagementInterfaceServer {
     subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
     socket_path: String,
-    runtime: tokio::runtime::Runtime,
     server_abort_tx: triggered::Trigger,
     server_join_handle: Option<
         tokio::task::JoinHandle<std::result::Result<(), mullvad_management_interface::Error>>,
@@ -1449,15 +1444,7 @@ pub struct ManagementInterfaceServer {
 }
 
 impl ManagementInterfaceServer {
-    pub fn start(tunnel_tx: DaemonCommandSender) -> Result<Self, Error> {
-        // TODO: don't spawn a tokio runtime here; make this function async
-        let mut runtime = tokio::runtime::Builder::new()
-            .threaded_scheduler()
-            .core_threads(1)
-            .enable_all()
-            .build()
-            .map_err(Error::TokioRuntimeError)?;
-
+    pub async fn start(tunnel_tx: DaemonCommandSender) -> Result<Self, Error> {
         let subscriptions = Arc::<RwLock<Vec<EventsListenerSender>>>::default();
 
         let socket_path = mullvad_paths::get_rpc_socket_path()
@@ -1470,15 +1457,15 @@ impl ManagementInterfaceServer {
             daemon_tx: tunnel_tx,
             subscriptions: subscriptions.clone(),
         };
-        let server_join_handle = runtime.spawn(mullvad_management_interface::spawn_rpc_server(
+        let server_join_handle = tokio::spawn(mullvad_management_interface::spawn_rpc_server(
             server,
             start_tx,
             server_abort_rx,
         ));
 
         if let Err(_) = start_rx.recv() {
-            return Err(runtime
-                .block_on(server_join_handle)
+            return Err(server_join_handle
+                .await
                 .expect("Failed to resolve quit handle future")
                 .map_err(Error::SetupError)
                 .unwrap_err());
@@ -1487,7 +1474,6 @@ impl ManagementInterfaceServer {
         Ok(ManagementInterfaceServer {
             subscriptions,
             socket_path,
-            runtime,
             server_abort_tx,
             server_join_handle: Some(server_join_handle),
         })
@@ -1499,7 +1485,6 @@ impl ManagementInterfaceServer {
 
     pub fn event_broadcaster(&self) -> ManagementInterfaceEventBroadcaster {
         ManagementInterfaceEventBroadcaster {
-            runtime: self.runtime.handle().clone(),
             subscriptions: self.subscriptions.clone(),
             close_handle: self.server_abort_tx.clone(),
         }
@@ -1507,11 +1492,12 @@ impl ManagementInterfaceServer {
 
     /// Consumes the server and waits for it to finish. Returns an error if the server exited
     /// due to an error.
-    pub fn wait(mut self) {
+    pub async fn run(self) {
         if let Some(server_join_handle) = self.server_join_handle {
-            if let Err(error) = self.runtime.block_on(server_join_handle) {
+            if let Err(error) = server_join_handle.await {
                 log::error!("Management server panic: {:?}", error);
             }
+            log::info!("Management interface shut down");
         }
     }
 }
@@ -1519,7 +1505,6 @@ impl ManagementInterfaceServer {
 /// A handle that allows broadcasting messages to all subscribers of the management interface.
 #[derive(Clone)]
 pub struct ManagementInterfaceEventBroadcaster {
-    runtime: tokio::runtime::Handle,
     subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
     close_handle: triggered::Trigger,
 }

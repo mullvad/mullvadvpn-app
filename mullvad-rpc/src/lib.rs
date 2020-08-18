@@ -16,7 +16,6 @@ use std::{
 use talpid_types::net::wireguard;
 
 
-pub mod event_loop;
 pub mod rest;
 
 mod cached_dns_resolver;
@@ -44,29 +43,27 @@ const API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
 pub struct MullvadRpcRuntime {
     cached_dns_resolver: CachedDnsResolver,
     https_connector: HttpsConnectorWithSni,
-    runtime: tokio::runtime::Runtime,
+    handle: tokio::runtime::Handle,
 }
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Failed to construct a rest client")]
     RestError(#[error(source)] rest::Error),
-    #[error(display = "Failed to spawn a tokio runtime")]
-    TokioRuntimeError(#[error(source)] tokio::io::Error),
 }
 
 impl MullvadRpcRuntime {
     /// Create a new `MullvadRpcRuntime`.
-    pub fn new() -> Result<Self, Error> {
+    pub fn new(handle: tokio::runtime::Handle) -> Result<Self, Error> {
         Ok(MullvadRpcRuntime {
             cached_dns_resolver: CachedDnsResolver::new(API_HOST.to_owned(), None, API_IP),
-            runtime: event_loop::create_runtime()?,
             https_connector: HttpsConnectorWithSni::new(),
+            handle,
         })
     }
 
     /// Create a new `MullvadRpcRuntime` using the specified cache directory.
-    pub fn with_cache_dir(cache_dir: &Path) -> Result<Self, Error> {
+    pub fn with_cache_dir(handle: tokio::runtime::Handle, cache_dir: &Path) -> Result<Self, Error> {
         let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
         let cached_dns_resolver =
             CachedDnsResolver::new(API_HOST.to_owned(), Some(cache_file), API_IP);
@@ -75,8 +72,8 @@ impl MullvadRpcRuntime {
 
         Ok(MullvadRpcRuntime {
             cached_dns_resolver,
-            runtime: event_loop::create_runtime()?,
             https_connector,
+            handle,
         })
     }
 
@@ -85,9 +82,9 @@ impl MullvadRpcRuntime {
         let mut https_connector = self.https_connector.clone();
         https_connector.set_sni_hostname(sni_hostname);
 
-        let service = rest::RequestService::new(https_connector, self.runtime.handle().clone());
+        let service = rest::RequestService::new(https_connector, self.handle.clone());
         let handle = service.handle();
-        self.runtime.spawn(service.into_future());
+        self.handle.spawn(service.into_future());
         handle
     }
 
@@ -106,17 +103,8 @@ impl MullvadRpcRuntime {
         self.new_request_service(None)
     }
 
-    pub fn runtime(&mut self) -> &mut tokio::runtime::Runtime {
-        &mut self.runtime
-    }
-}
-
-impl Drop for MullvadRpcRuntime {
-    fn drop(&mut self) {
-        if let Ok(runtime) = event_loop::create_runtime() {
-            let old_runtime = std::mem::replace(&mut self.runtime, runtime);
-            old_runtime.shutdown_timeout(std::time::Duration::from_secs(1));
-        }
+    pub fn handle(&mut self) -> &mut tokio::runtime::Handle {
+        &mut self.handle
     }
 }
 

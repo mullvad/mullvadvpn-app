@@ -4,12 +4,16 @@ use mullvad_rpc::{rest::Error as RestError, MullvadRpcRuntime, RelayListProxy};
 use std::process;
 use talpid_types::ErrorExt;
 
-fn main() {
-    let mut runtime = MullvadRpcRuntime::new().expect("Failed to load runtime");
+#[tokio::main]
+async fn main() {
+    let mut runtime =
+        MullvadRpcRuntime::new(tokio::runtime::Handle::current()).expect("Failed to load runtime");
 
-    let relay_list_request = RelayListProxy::new(runtime.mullvad_rest_handle()).relay_list();
+    let relay_list_request = RelayListProxy::new(runtime.mullvad_rest_handle())
+        .relay_list()
+        .await;
 
-    let relay_list = match runtime.runtime().block_on(relay_list_request) {
+    let relay_list = match relay_list_request {
         Ok(relay_list) => relay_list,
         Err(RestError::TimeoutError(_)) => {
             eprintln!("Request timed out");
