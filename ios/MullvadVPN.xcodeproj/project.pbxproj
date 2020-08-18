@@ -156,6 +156,7 @@
 		58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */; };
 		58C3B06724EA768100C0348E /* LogStreamerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3B06624EA768100C0348E /* LogStreamerViewController.swift */; };
 		58C3B06924EAA25000C0348E /* StringStreamIterator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3B06824EAA25000C0348E /* StringStreamIterator.swift */; };
+		58C4CB0124EBE5A700A22D49 /* LogEntryParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C4CB0024EBE5A700A22D49 /* LogEntryParser.swift */; };
 		58C6B34F22BB7AC0003C19AD /* IPAddressRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C6B34E22BB7AC0003C19AD /* IPAddressRange.swift */; };
 		58C6B35122BB7CFD003C19AD /* IPAddressRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C6B34E22BB7AC0003C19AD /* IPAddressRange.swift */; };
 		58C6B35422BB87C4003C19AD /* WireguardPrivateKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C6B35322BB87C4003C19AD /* WireguardPrivateKey.swift */; };
@@ -343,6 +344,7 @@
 		58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInputGroupView.swift; sourceTree = "<group>"; };
 		58C3B06624EA768100C0348E /* LogStreamerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogStreamerViewController.swift; sourceTree = "<group>"; };
 		58C3B06824EAA25000C0348E /* StringStreamIterator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringStreamIterator.swift; sourceTree = "<group>"; };
+		58C4CB0024EBE5A700A22D49 /* LogEntryParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogEntryParser.swift; sourceTree = "<group>"; };
 		58C6B34E22BB7AC0003C19AD /* IPAddressRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPAddressRange.swift; sourceTree = "<group>"; };
 		58C6B35322BB87C4003C19AD /* WireguardPrivateKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardPrivateKey.swift; sourceTree = "<group>"; };
 		58C6B35D22BBBFE3003C19AD /* Data+HexCoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+HexCoding.swift"; sourceTree = "<group>"; };
@@ -470,6 +472,7 @@
 			children = (
 				581503A224D6F1EC00C9C50E /* ChainedError+Logger.swift */,
 				5815039624D6ECAE00C9C50E /* CustomFormatLogHandler.swift */,
+				58C4CB0024EBE5A700A22D49 /* LogEntryParser.swift */,
 				581503A524D6F4AE00C9C50E /* Logging.swift */,
 				5815039324D6EB7200C9C50E /* LogRotation.swift */,
 				585FE2F024E1365400439C50 /* LogStreamer.swift */,
@@ -1049,6 +1052,7 @@
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				58141EC924DAC0ED0013F79C /* TextFileStream.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
+				58C4CB0124EBE5A700A22D49 /* LogEntryParser.swift in Sources */,
 				58F840B22464491D0044E708 /* ChainedError.swift in Sources */,
 				58FAEDFF24533A7000CB0F5B /* KeychainReturn.swift in Sources */,
 				580EE20C24B3225F00F9D8A1 /* DelayOperation.swift in Sources */,
