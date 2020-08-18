@@ -21,6 +21,9 @@ const Button = styled(Cell.CellButton)((props: { selected: boolean }) => ({
 }));
 
 const Label = styled(Cell.Label)({
+  fontFamily: 'Open Sans',
+  fontWeight: 'normal',
+  fontSize: '16px',
   '[disabled] &': {
     color: colors.white20,
   },
