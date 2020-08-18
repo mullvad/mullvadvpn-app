@@ -17,9 +17,11 @@ class LogStreamer<Codec> where Codec: UnicodeCodec {
     private let fileURLs: [URL]
     private var remainingFileURLs: [URL]
     private var streams = [TextFileStream<Codec>]()
+    private var eventSources = [DispatchSourceFileSystemObject]()
     private let queue = DispatchQueue(label: "net.mullvad.MullvadVPN.LogStreamer<\(Codec.self)>")
     private var retry: DispatchWorkItem?
     private var handlerBlock: ((String) -> Void)?
+    private var isStarted = false
 
     init(fileURLs: [URL]) {
         self.fileURLs = fileURLs
@@ -28,6 +30,9 @@ class LogStreamer<Codec> where Codec: UnicodeCodec {
 
     func start(handler: @escaping (String) -> Void) {
         queue.async {
+            guard !self.isStarted else { return }
+
+            self.isStarted = true
             self.handlerBlock = handler
             self.poll()
         }
@@ -35,9 +40,14 @@ class LogStreamer<Codec> where Codec: UnicodeCodec {
 
     func stop() {
         queue.async {
+            guard self.isStarted else { return }
+
+            self.isStarted = false
+
             self.retry?.cancel()
             self.handlerBlock = nil
 
+            self.eventSources.removeAll()
             self.streams.removeAll()
             self.remainingFileURLs = self.fileURLs
         }
@@ -49,7 +59,15 @@ class LogStreamer<Codec> where Codec: UnicodeCodec {
             if let stream = TextFileStream<Codec>(fileURL: fileURL, separator: "\n") {
                 streams.append(stream)
 
-                didAddStream(stream)
+                stream.read { [weak self] (s) in
+                    guard let self = self else { return }
+
+                    self.queue.async {
+                        self.handlerBlock?(s)
+                    }
+                }
+
+                addFileWatch(fileURL: fileURL, stream: stream)
             } else {
                 failedURLs.append(fileURL)
             }
@@ -68,20 +86,41 @@ class LogStreamer<Codec> where Codec: UnicodeCodec {
 
     private func scheduleRetry() {
         let workItem = DispatchWorkItem(block: { [weak self] in
-            self?.poll()
+            guard let self = self, self.isStarted else { return }
+
+            self.poll()
         })
         queue.asyncAfter(wallDeadline: .now() + .seconds(kLogPollIntervalSeconds), execute: workItem)
         retry = workItem
     }
 
-    private func didAddStream(_ stream: TextFileStream<Codec>) {
-        stream.read { [weak self] (s) in
-            guard let self = self else { return }
+    /// Watch file renames and re-add the stream once that happens
+    private func addFileWatch(fileURL: URL, stream: TextFileStream<Codec>) {
+        let source = DispatchSource.makeFileSystemObjectSource(
+            fileDescriptor: stream.fileDescriptor,
+            eventMask: .rename,
+            queue: queue
+        )
 
-            self.queue.async {
-                self.handlerBlock?(s)
+        source.setEventHandler { [weak self, weak source] in
+            guard let self = self, self.isStarted else { return }
+
+            // Cancel current event source
+            source?.cancel()
+
+            // Release the stream
+            self.streams.removeAll { (s) -> Bool in
+                return stream === s
             }
+
+            // Add the file URL to backlog & poll
+            self.remainingFileURLs.append(fileURL)
+            self.poll()
         }
+
+        source.activate()
+
+        eventSources.append(source)
     }
 }
 

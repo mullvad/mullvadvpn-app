@@ -12,8 +12,9 @@ import Foundation
 import Darwin
 
 class TextFileStream<Codec> where Codec: UnicodeCodec {
+    let fileDescriptor: Int32
+
     private let readSource: DispatchSourceRead
-    private let fileDescriptor: Int32
     private let queue = DispatchQueue(label: "net.mullvad.MullvadVPN.TextFileStream<\(Codec.self)>")
     private let stringStream: StringStreamIterator<Codec>
 
