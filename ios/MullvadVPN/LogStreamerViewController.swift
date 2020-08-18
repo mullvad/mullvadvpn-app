@@ -10,11 +10,19 @@
 
 import Foundation
 import UIKit
+import Logging
 
 class LogStreamerViewController: UIViewController, UITextViewDelegate {
 
     private let textView = UITextView()
     private let streamer: LogStreamer<UTF8>
+    private let logEntryParser = LogEntryParser()
+    private var currentTextColor: UIColor?
+    private let timestampFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm:ss.SSS"
+        return formatter
+    }()
 
     private var autoScrollButtonItem: UIBarButtonItem {
         return UIBarButtonItem(barButtonSystemItem: autoScroll ? .pause : .play, target: self, action: #selector(handleToggleAutoscroll(_:)))
@@ -75,6 +83,11 @@ class LogStreamerViewController: UIViewController, UITextViewDelegate {
     private func addSubviews() {
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.isEditable = false
+        if #available(iOS 13.0, *) {
+            textView.font = UIFont.monospacedSystemFont(ofSize: UIFont.systemFontSize, weight: .regular)
+        } else {
+            textView.font = UIFont(name: "Courier", size: UIFont.systemFontSize)
+        }
         textView.delegate = self
 
         view.addSubview(textView)
@@ -92,14 +105,42 @@ class LogStreamerViewController: UIViewController, UITextViewDelegate {
             guard let self = self else { return }
 
             DispatchQueue.main.async {
-                self.textView.insertText("\(str)\n")
+                // Try parsing the entry
+                let entry = self.logEntryParser.parse(str)
+
+                // Since the log streamer sends the log file line-by-line, it's possible that only a
+                // part of a multiline message is captured at first.
+                let message = entry.map { (entry) -> String in
+                    // Reformat the log entry date
+                    let timestamp = self.timestampFormatter.string(from: entry.timestamp)
+
+                    return "\(timestamp) \(entry.module) \(entry.message)\n"
+                } ?? "\(str)\n"
+
+
+                // Compute the range for replacing the text color
+                let start = self.textView.text.utf16.count
+                let end = start + message.utf16.count
+                let textRange = NSRange(start..<end)
+
+                self.textView.insertText(message)
                 self.handleAutoScroll()
+
+                // Update the current log entry color
+                if let logLevel = entry?.level {
+                    self.currentTextColor = self.textColor(for: logLevel)
+                }
+
+                // Apply the color attribute to the inserted text
+                if let textColor = self.currentTextColor {
+                    self.textView.textStorage.addAttributes([.foregroundColor: textColor], range: textRange)
+                }
             }
         }
     }
 
     private func handleAutoScroll() {
-        if autoScroll && !textView.isTracking && !textView.isDragging {
+        if autoScroll && !textView.isTracking && (!textView.isDragging || textView.isDecelerating) {
             scrollToBottom()
         }
     }
@@ -112,6 +153,19 @@ class LogStreamerViewController: UIViewController, UITextViewDelegate {
 
     private func updateAutoScrollBarItem() {
         navigationItem.leftBarButtonItem = autoScrollButtonItem
+    }
+
+    private func textColor(for logLevel: Logger.Level) -> UIColor {
+        switch logLevel {
+        case .debug, .trace:
+            return .lightGray
+        case .error, .critical:
+            return .red
+        case .info, .notice:
+            return .blue
+        case .warning:
+            return .orange
+        }
     }
 
     // MARK: - Actions

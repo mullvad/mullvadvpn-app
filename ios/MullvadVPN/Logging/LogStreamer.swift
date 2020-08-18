@@ -15,7 +15,7 @@ private let kLogPollIntervalSeconds = 2
 /// A class that consolidates multiple log streams into one
 class LogStreamer<Codec> where Codec: UnicodeCodec {
     private let fileURLs: [URL]
-    private var remainingFileURLs: [URL]
+    private var pendingFileURLs: [URL]
     private var streams = [TextFileStream<Codec>]()
     private var eventSources = [DispatchSourceFileSystemObject]()
     private let queue = DispatchQueue(label: "net.mullvad.MullvadVPN.LogStreamer<\(Codec.self)>")
@@ -25,7 +25,11 @@ class LogStreamer<Codec> where Codec: UnicodeCodec {
 
     init(fileURLs: [URL]) {
         self.fileURLs = fileURLs
-        self.remainingFileURLs = fileURLs
+        self.pendingFileURLs = fileURLs
+    }
+
+    deinit {
+        cancelAndRemoveAllEventSources()
     }
 
     func start(handler: @escaping (String) -> Void) {
@@ -47,15 +51,15 @@ class LogStreamer<Codec> where Codec: UnicodeCodec {
             self.retry?.cancel()
             self.handlerBlock = nil
 
-            self.eventSources.removeAll()
+            self.cancelAndRemoveAllEventSources()
             self.streams.removeAll()
-            self.remainingFileURLs = self.fileURLs
+            self.pendingFileURLs = self.fileURLs
         }
     }
 
     private func openRemainingStreams() -> Bool {
         var failedURLs = [URL]()
-        for fileURL in remainingFileURLs {
+        for fileURL in pendingFileURLs {
             if let stream = TextFileStream<Codec>(fileURL: fileURL, separator: "\n") {
                 streams.append(stream)
 
@@ -73,7 +77,7 @@ class LogStreamer<Codec> where Codec: UnicodeCodec {
             }
         }
 
-        remainingFileURLs = failedURLs
+        pendingFileURLs = failedURLs
 
         return failedURLs.isEmpty
     }
@@ -103,24 +107,34 @@ class LogStreamer<Codec> where Codec: UnicodeCodec {
         )
 
         source.setEventHandler { [weak self, weak source] in
-            guard let self = self, self.isStarted else { return }
+            guard let self = self, let source = source, self.isStarted else { return }
 
             // Cancel current event source
-            source?.cancel()
+            source.cancel()
 
             // Release the stream
             self.streams.removeAll { (s) -> Bool in
                 return stream === s
             }
 
-            // Add the file URL to backlog & poll
-            self.remainingFileURLs.append(fileURL)
+            // Release the current event source
+            self.eventSources.removeAll { (s) -> Bool in
+                return source === s
+            }
+
+            // Add the file URL to backlog & start polling
+            self.pendingFileURLs.append(fileURL)
             self.poll()
         }
 
         source.activate()
 
         eventSources.append(source)
+    }
+
+    private func cancelAndRemoveAllEventSources() {
+        eventSources.forEach { $0.cancel() }
+        eventSources.removeAll()
     }
 }
 
