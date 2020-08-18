@@ -1,115 +1,96 @@
-import { Styles } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
+import { bigText, smallText } from './common-styles';
+import { Container } from './Layout';
 
 export const StyledBlueButton = styled(AppButton.BlueButton)({
-  marginBottom: 18,
+  marginBottom: '18px',
 });
 
-export default {
-  support: Styles.createViewStyle({
-    backgroundColor: colors.darkBlue,
-    flex: 1,
-  }),
-  support__container: Styles.createViewStyle({
-    flexDirection: 'column',
-    flex: 1,
-  }),
-  support__content: Styles.createViewStyle({
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  }),
-  support__form: Styles.createViewStyle({
-    flex: 1,
-    flexDirection: 'column',
-  }),
-  support__form_row: Styles.createViewStyle({
-    paddingLeft: 22,
-    paddingRight: 22,
-    marginBottom: 12,
-  }),
-  support__form_row_email: Styles.createViewStyle({
-    paddingLeft: 22,
-    paddingRight: 22,
-    marginBottom: 12,
-  }),
-  support__form_row_message: Styles.createViewStyle({
-    flex: 1,
-    paddingLeft: 22,
-    paddingRight: 22,
-  }),
-  support__form_message_scroll_wrap: Styles.createViewStyle({
-    flex: 1,
-    borderRadius: 4,
-    overflow: 'hidden',
-  }),
-  support__footer: Styles.createViewStyle({
-    paddingTop: 18,
-    paddingBottom: 22,
-    paddingHorizontal: 22,
-    flexDirection: 'column',
-    flex: 0,
-  }),
-  support__status_icon: Styles.createViewStyle({
-    alignItems: 'center',
-    marginBottom: 32,
-  }),
-  support__form_email: Styles.createTextStyle({
-    flex: 1,
-    borderRadius: 4,
-    overflow: 'hidden',
-    paddingTop: 14,
-    paddingLeft: 14,
-    paddingRight: 14,
-    paddingBottom: 14,
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    fontWeight: '600',
-    lineHeight: 26,
-    color: colors.blue,
-    backgroundColor: colors.white,
-  }),
-  support__form_message: Styles.createTextStyle({
-    paddingTop: 14,
-    paddingLeft: 14,
-    paddingRight: 14,
-    paddingBottom: 14,
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.blue,
-    backgroundColor: colors.white,
-    flex: 1,
-  }),
-  support__sent_message: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    fontWeight: '600',
-    overflow: 'visible',
-    color: colors.white60,
-    lineHeight: 20,
-  }),
-  support__sent_email: Styles.createTextStyle({
-    fontWeight: '900',
-    color: colors.white,
-  }),
-  support__status_security__secure: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 16,
-    fontWeight: '800',
-    lineHeight: 22,
-    marginBottom: 4,
-    color: colors.green,
-  }),
-  support__send_status: Styles.createTextStyle({
-    // TODO: Use bigText in comonStyles when converted from ReactXP
-    fontFamily: 'DINPro',
-    fontSize: 30,
-    fontWeight: '900',
-    lineHeight: 34,
-    color: colors.white,
-    marginBottom: 4,
-  }),
+export const StyledContainer = styled(Container)({
+  backgroundColor: colors.darkBlue,
+});
+
+export const StyledContentContainer = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+});
+
+export const StyledContent = styled.div({
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'column',
+  justifyContent: 'space-between',
+});
+
+export const StyledForm = styled.div({
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'column',
+  margin: '0 22px',
+});
+
+export const StyledFormEmailRow = styled.div({
+  marginBottom: '12px',
+  display: 'flex',
+});
+
+export const StyledFormMessageRow = styled.div({
+  display: 'flex',
+  flex: 1,
+});
+
+const input = {
+  flex: 1,
+  borderRadius: '4px',
+  padding: '14px',
+  color: colors.blue,
+  backgroundColor: colors.white,
+  border: 'none',
 };
+
+export const StyledEmailInput = styled.input.attrs({ type: 'email' })(smallText, input, {
+  lineHeight: '26px',
+});
+
+export const StyledMessageInput = styled.textarea(smallText, input, {
+  resize: 'none',
+});
+
+export const StyledFooter = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 0,
+  padding: '18px 22px 22px',
+});
+
+export const StyledStatusIcon = styled.div({
+  display: 'flex',
+  justifyContent: 'center',
+  marginBottom: '32px',
+});
+
+export const StyledSentMessage = styled.span(smallText, {
+  overflow: 'visible',
+  color: colors.white60,
+});
+
+export const StyledEmail = styled.span({
+  fontWeight: 900,
+  color: colors.white,
+});
+
+export const StyledSecureStatus = styled.span({
+  fontFamily: 'Open Sans',
+  fontSize: '16px',
+  fontWeight: 800,
+  lineHeight: '22px',
+  marginBottom: '4px',
+  color: colors.green,
+});
+
+export const StyledSendStatus = styled.span(bigText, {
+  marginBottom: '4px',
+});
