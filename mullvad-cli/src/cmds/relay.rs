@@ -9,9 +9,9 @@ use std::{
 use mullvad_management_interface::types::{
     connection_config::{self, OpenvpnConfig, WireguardConfig},
     relay_settings, relay_settings_update, ConnectionConfig, CustomRelaySettings,
-    NormalRelaySettingsUpdate, OpenvpnConstraints, RelaySettingsUpdate, TransportProtocol,
-    TransportProtocolConstraint, TunnelType, TunnelTypeConstraint, TunnelTypeUpdate,
-    WireguardConstraints,
+    NormalRelaySettingsUpdate, OpenvpnConstraints, RelayListCountry, RelayLocation,
+    RelaySettingsUpdate, TransportProtocol, TransportProtocolConstraint, TunnelType,
+    TunnelTypeConstraint, TunnelTypeUpdate, WireguardConstraints,
 };
 use mullvad_types::relay_constraints::Constraint;
 use talpid_types::net::all_of_the_internet;
@@ -117,6 +117,16 @@ impl Command for Relay {
                                    command to show available alternatives.")
                     )
                     .subcommand(
+                        clap::SubCommand::with_name("relay")
+                            .about("Set the exact relay to use via its hostname. Shortcut for \
+                                'location <country> <city> <hostname>'.")
+                            .arg(
+                                clap::Arg::with_name("hostname")
+                                    .help("The hostname")
+                                    .required(true),
+                            ),
+                    )
+                    .subcommand(
                         clap::SubCommand::with_name("tunnel")
                             .about("Set individual tunnel constraints")
                             .arg(
@@ -183,6 +193,8 @@ impl Relay {
             self.set_custom(custom_matches).await
         } else if let Some(location_matches) = matches.subcommand_matches("location") {
             self.set_location(location_matches).await
+        } else if let Some(relay_matches) = matches.subcommand_matches("relay") {
+            self.set_relay(relay_matches).await
         } else if let Some(tunnel_matches) = matches.subcommand_matches("tunnel") {
             self.set_tunnel(tunnel_matches).await
         } else if let Some(tunnel_matches) = matches.subcommand_matches("tunnel-protocol") {
@@ -308,6 +320,53 @@ impl Relay {
 
         key.copy_from_slice(&key_bytes);
         key
+    }
+
+    async fn set_relay(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+        let hostname = matches.value_of("hostname").unwrap();
+        let countries = Self::get_filtered_relays().await?;
+
+        let find_relay = || {
+            for country in &countries {
+                for city in &country.cities {
+                    for relay in &city.relays {
+                        if relay.hostname == hostname {
+                            return Some((country, city, relay));
+                        }
+                    }
+                }
+            }
+            None
+        };
+
+        if let Some(location) = find_relay() {
+            println!(
+                "Setting location constraint to {} in {}, {}",
+                location.2.hostname, location.1.name, location.0.name
+            );
+
+            let location_constraint = RelayLocation {
+                country: location.0.code.clone(),
+                city: location.1.code.clone(),
+                hostname: location.2.hostname.clone(),
+            };
+
+            self.update_constraints(RelaySettingsUpdate {
+                r#type: Some(relay_settings_update::Type::Normal(
+                    NormalRelaySettingsUpdate {
+                        location: Some(location_constraint),
+                        ..Default::default()
+                    },
+                )),
+            })
+            .await
+        } else {
+            clap::Error::with_description(
+                "No matching server found",
+                clap::ErrorKind::ValueValidation,
+            )
+            .exit()
+        }
     }
 
     async fn set_location(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
@@ -459,34 +518,7 @@ impl Relay {
     }
 
     async fn list(&self) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        let mut locations = rpc.get_relay_locations(()).await?.into_inner();
-
-        let mut countries = Vec::new();
-
-        while let Some(mut country) = locations.message().await? {
-            country.cities = country
-                .cities
-                .into_iter()
-                .filter_map(|mut city| {
-                    city.relays.retain(|relay| {
-                        relay.active
-                            && relay.tunnels.is_some()
-                            && !(relay.tunnels.as_ref().unwrap().openvpn.is_empty()
-                                && relay.tunnels.as_ref().unwrap().wireguard.is_empty())
-                    });
-                    if !city.relays.is_empty() {
-                        Some(city)
-                    } else {
-                        None
-                    }
-                })
-                .collect();
-            if !country.cities.is_empty() {
-                countries.push(country);
-            }
-        }
-
+        let mut countries = Self::get_filtered_relays().await?;
         countries.sort_by(|c1, c2| natord::compare_ignore_case(&c1.name, &c2.name));
         for mut country in countries {
             country
@@ -566,6 +598,38 @@ impl Relay {
         } else {
             "any port".to_string()
         }
+    }
+
+    async fn get_filtered_relays() -> Result<Vec<RelayListCountry>> {
+        let mut rpc = new_rpc_client().await?;
+        let mut locations = rpc.get_relay_locations(()).await?.into_inner();
+
+        let mut countries = Vec::new();
+
+        while let Some(mut country) = locations.message().await? {
+            country.cities = country
+                .cities
+                .into_iter()
+                .filter_map(|mut city| {
+                    city.relays.retain(|relay| {
+                        relay.active
+                            && relay.tunnels.is_some()
+                            && !(relay.tunnels.as_ref().unwrap().openvpn.is_empty()
+                                && relay.tunnels.as_ref().unwrap().wireguard.is_empty())
+                    });
+                    if !city.relays.is_empty() {
+                        Some(city)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+            if !country.cities.is_empty() {
+                countries.push(country);
+            }
+        }
+
+        Ok(countries)
     }
 }
 
