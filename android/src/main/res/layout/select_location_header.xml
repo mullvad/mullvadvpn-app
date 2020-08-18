@@ -15,7 +15,7 @@
               android:layout_height="wrap_content"
               android:layout_weight="0"
               android:layout_marginHorizontal="@dimen/side_margin"
-              android:layout_marginBottom="24dp"
+              android:layout_marginBottom="@dimen/vertical_space"
               android:textColor="@color/white60"
               android:textSize="@dimen/text_small"
               android:text="@string/select_location_description" />

@@ -34,12 +34,11 @@
             <LinearLayout android:layout_width="match_parent"
                           android:layout_height="match_parent"
                           android:layout_marginTop="4dp"
-                          android:layout_marginBottom="24dp"
                           android:orientation="vertical">
                 <TextView android:id="@+id/expanded_title"
                           android:layout_width="wrap_content"
                           android:layout_height="wrap_content"
-                          android:layout_marginBottom="12dp"
+                          android:layout_marginBottom="@dimen/half_vertical_space"
                           android:layout_marginHorizontal="@dimen/side_margin"
                           android:text="@string/settings_account"
                           style="@style/SettingsExpandedHeader" />
@@ -47,7 +46,7 @@
                                                                           android:layout_width="match_parent"
                                                                           android:layout_height="wrap_content"
                                                                           android:paddingHorizontal="@dimen/side_margin"
-                                                                          android:paddingVertical="12dp"
+                                                                          android:paddingVertical="@dimen/half_vertical_space"
                                                                           mullvad:clipboardLabel="@string/mullvad_account_number"
                                                                           mullvad:copiedToast="@string/copied_mullvad_account_number"
                                                                           mullvad:description="@string/account_number"
@@ -56,13 +55,13 @@
                                                                   android:layout_width="match_parent"
                                                                   android:layout_height="wrap_content"
                                                                   android:paddingHorizontal="@dimen/side_margin"
-                                                                  android:paddingVertical="12dp"
+                                                                  android:paddingVertical="@dimen/half_vertical_space"
                                                                   mullvad:description="@string/paid_until"
                                                                   mullvad:whenMissing="hide" />
                 <net.mullvad.mullvadvpn.ui.widget.UrlButton android:id="@+id/buy_credit"
                                                             android:layout_width="match_parent"
                                                             android:layout_height="wrap_content"
-                                                            android:layout_marginTop="12dp"
+                                                            android:layout_marginTop="@dimen/half_vertical_space"
                                                             android:layout_marginHorizontal="@dimen/side_margin"
                                                             mullvad:showSpinner="true"
                                                             mullvad:url="@string/account_url"
@@ -72,7 +71,7 @@
                 <net.mullvad.mullvadvpn.ui.widget.Button android:id="@+id/redeem_voucher"
                                                          android:layout_width="match_parent"
                                                          android:layout_height="wrap_content"
-                                                         android:layout_marginTop="24dp"
+                                                         android:layout_marginVertical="@dimen/button_separation"
                                                          android:layout_marginHorizontal="@dimen/side_margin"
                                                          mullvad:text="@string/redeem_voucher"
                                                          mullvad:buttonColor="green" />
@@ -80,7 +79,7 @@
                                                          android:layout_width="match_parent"
                                                          android:layout_height="wrap_content"
                                                          android:layout_marginHorizontal="@dimen/side_margin"
-                                                         android:layout_marginVertical="24dp"
+                                                         android:layout_marginBottom="@dimen/screen_vertical_margin"
                                                          mullvad:text="@string/log_out"
                                                          mullvad:buttonColor="red" />
             </LinearLayout>
