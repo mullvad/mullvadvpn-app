@@ -23,7 +23,17 @@ fn main() {
         eprintln!("{}", error);
         std::process::exit(1)
     });
-    let exit_code = match run_platform(config, log_dir) {
+
+    let mut runtime = tokio::runtime::Builder::new()
+        .threaded_scheduler()
+        .enable_all()
+        .build()
+        .unwrap_or_else(|error| {
+            eprintln!("{}", error.display_chain());
+            std::process::exit(1);
+        });
+
+    let exit_code = match runtime.block_on(run_platform(config, log_dir)) {
         Ok(_) => 0,
         Err(error) => {
             error!("{}", error);
@@ -64,7 +74,7 @@ fn get_log_dir(config: &cli::Config) -> Result<Option<PathBuf>, String> {
 }
 
 #[cfg(windows)]
-fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
+async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
     if config.run_as_service {
         system_service::run()
     } else {
@@ -75,33 +85,26 @@ fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), St
             }
             install_result
         } else {
-            run_standalone(log_dir)
+            run_standalone(log_dir).await
         }
     }
 }
 
 #[cfg(not(windows))]
-fn run_platform(_config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
-    run_standalone(log_dir)
+async fn run_platform(_config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
+    run_standalone(log_dir).await
 }
 
-fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
-    {
-        let mut runtime = tokio::runtime::Builder::new()
-            .basic_scheduler()
-            .enable_all()
-            .build()
-            .map_err(|e| e.display_chain())?;
-        if runtime.block_on(rpc_uniqueness_check::is_another_instance_running()) {
-            return Err("Another instance of the daemon is already running".to_owned());
-        }
+async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
+    if rpc_uniqueness_check::is_another_instance_running().await {
+        return Err("Another instance of the daemon is already running".to_owned());
     }
 
     if !running_as_admin() {
         warn!("Running daemon as a non-administrator user, clients might refuse to connect");
     }
 
-    let daemon = create_daemon(log_dir)?;
+    let daemon = create_daemon(log_dir).await?;
 
     let shutdown_handle = daemon.shutdown_handle();
     shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown())
@@ -114,7 +117,7 @@ fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     Ok(())
 }
 
-fn create_daemon(
+async fn create_daemon(
     log_dir: Option<PathBuf>,
 ) -> Result<Daemon<ManagementInterfaceEventBroadcaster>, String> {
     let resource_dir = mullvad_paths::get_resource_dir();
@@ -124,7 +127,7 @@ fn create_daemon(
         .map_err(|e| e.display_chain_with_msg("Unable to get cache dir"))?;
 
     let command_channel = DaemonCommandChannel::new();
-    let event_listener = spawn_management_interface(command_channel.sender())?;
+    let event_listener = spawn_management_interface(command_channel.sender()).await?;
 
     Daemon::start(
         log_dir,
@@ -134,23 +137,22 @@ fn create_daemon(
         event_listener,
         command_channel,
     )
+    .await
     .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))
 }
 
-fn spawn_management_interface(
+async fn spawn_management_interface(
     command_sender: DaemonCommandSender,
 ) -> Result<ManagementInterfaceEventBroadcaster, String> {
-    let server = ManagementInterfaceServer::start(command_sender).map_err(|error| {
-        error.display_chain_with_msg("Unable to start management interface server")
-    })?;
+    let server = ManagementInterfaceServer::start(command_sender)
+        .await
+        .map_err(|error| {
+            error.display_chain_with_msg("Unable to start management interface server")
+        })?;
     let event_broadcaster = server.event_broadcaster();
 
     info!("Management interface listening on {}", server.socket_path());
-
-    thread::spawn(|| {
-        server.wait();
-        info!("Management interface shut down");
-    });
+    tokio::spawn(server.run());
 
     Ok(event_broadcaster)
 }

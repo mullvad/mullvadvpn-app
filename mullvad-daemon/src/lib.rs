@@ -481,7 +481,7 @@ impl<L> Daemon<L>
 where
     L: EventListener + Clone + Send + 'static,
 {
-    pub fn start(
+    pub async fn start(
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         settings_dir: PathBuf,
@@ -493,8 +493,11 @@ where
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
 
-        let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache_dir(&cache_dir)
-            .map_err(Error::InitRpcFactory)?;
+        let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache_dir(
+            tokio::runtime::Handle::current(),
+            &cache_dir,
+        )
+        .map_err(Error::InitRpcFactory)?;
         let rpc_handle = rpc_runtime.mullvad_rest_handle();
 
         let relay_list_listener = event_listener.clone();
@@ -525,7 +528,7 @@ where
             app_version_info.clone(),
             settings.show_beta_releases,
         );
-        rpc_runtime.runtime().spawn(version_updater.run());
+        tokio::spawn(version_updater.run());
         let account_history =
             account_history::AccountHistory::new(&cache_dir, &settings_dir, rpc_handle.clone())
                 .map_err(Error::LoadAccountHistory)?;
@@ -559,27 +562,26 @@ where
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
             tx: internal_event_tx.clone(),
         };
-        let tunnel_command_tx = rpc_runtime
-            .runtime()
-            .block_on(tunnel_state_machine::spawn(
-                settings.allow_lan,
-                settings.block_when_disconnected,
-                tunnel_parameters_generator,
-                log_dir,
-                resource_dir,
-                cache_dir.clone(),
-                internal_event_tx.to_specialized_sender(),
-                tunnel_state_machine_shutdown_tx,
-                #[cfg(target_os = "android")]
-                android_context,
-            ))
-            .map_err(Error::TunnelError)?;
+        let tunnel_command_tx = tunnel_state_machine::spawn(
+            settings.allow_lan,
+            settings.block_when_disconnected,
+            tunnel_parameters_generator,
+            log_dir,
+            resource_dir,
+            cache_dir.clone(),
+            internal_event_tx.to_specialized_sender(),
+            tunnel_state_machine_shutdown_tx,
+            #[cfg(target_os = "android")]
+            android_context,
+        )
+        .await
+        .map_err(Error::TunnelError)?;
 
         let wireguard_key_manager =
             wireguard::KeyManager::new(internal_event_tx.clone(), rpc_handle.clone());
 
         // Attempt to download a fresh relay list
-        rpc_runtime.runtime().block_on(relay_selector.update());
+        relay_selector.update().await;
 
         let initial_target_state = if settings.get_account_token().is_some() {
             if settings.auto_connect {
@@ -667,7 +669,7 @@ where
             cb();
         }
 
-        rpc_runtime.runtime().block_on(async {
+        rpc_runtime.handle().block_on(async {
             let shutdown_signal = tokio::time::timeout(
                 TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT,
                 tunnel_state_machine_shutdown_signal,
@@ -979,14 +981,14 @@ where
         F: std::future::Future + Send + 'static,
         F::Output: Send,
     {
-        self.rpc_runtime.runtime().spawn(fut);
+        self.rpc_runtime.handle().spawn(fut);
     }
 
     fn block_on_future<F>(&mut self, fut: F) -> F::Output
     where
         F: std::future::Future,
     {
-        self.rpc_runtime.runtime().block_on(fut)
+        self.rpc_runtime.handle().block_on(fut)
     }
 
 
@@ -1171,7 +1173,7 @@ where
         match &self.tunnel_state {
             Disconnected => {
                 let location = self.get_geo_location();
-                self.rpc_runtime.runtime().spawn(async {
+                self.rpc_runtime.handle().spawn(async {
                     Self::oneshot_send(tx, location.await.ok(), "current location");
                 });
             }
@@ -1184,7 +1186,7 @@ where
             Connected { location, .. } => {
                 let relay_location = location.clone();
                 let location = self.get_geo_location();
-                self.rpc_runtime.runtime().spawn(async {
+                self.rpc_runtime.handle().spawn(async {
                     Self::oneshot_send(
                         tx,
                         location.await.ok().map(|fetched_location| GeoIpLocation {
@@ -1259,7 +1261,7 @@ where
                 Ok(())
             });
 
-        self.rpc_runtime.runtime().spawn(async {
+        self.rpc_runtime.handle().spawn(async {
             if future.compat().await.is_err() {
                 log::error!("Failed to spawn future for creating a new account");
             }
@@ -1279,7 +1281,7 @@ where
                 .map(|expiry| AccountData { expiry });
             Self::oneshot_send(tx, result, "account data");
         };
-        self.rpc_runtime.runtime().spawn(rpc_call);
+        self.rpc_runtime.handle().spawn(rpc_call);
     }
 
     fn on_get_www_auth_token(
@@ -1292,7 +1294,7 @@ where
                 let result = old_future.compat().await;
                 Self::oneshot_send(tx, result, "get_www_auth_token response");
             };
-            self.rpc_runtime.runtime().spawn(rpc_call);
+            self.rpc_runtime.handle().spawn(rpc_call);
         }
     }
 
@@ -1307,7 +1309,7 @@ where
                 let result = old_future.compat().await;
                 Self::oneshot_send(tx, result, "submit_voucher response");
             };
-            self.rpc_runtime.runtime().spawn(rpc_call);
+            self.rpc_runtime.handle().spawn(rpc_call);
         }
     }
 
@@ -1525,7 +1527,7 @@ where
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
-                    let runtime = self.rpc_runtime.runtime();
+                    let runtime = self.rpc_runtime.handle();
                     let mut handle = self.version_updater_handle.clone();
                     runtime.block_on(handle.set_show_beta_releases(enabled));
                 }
