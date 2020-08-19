@@ -39,8 +39,8 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             tunnelState = this@OutOfTimeFragment.tunnelState
         }
 
-        view.findViewById<TextView>(R.id.no_more_vpn_time_left).text =
-            parentActivity.getString(R.string.no_more_vpn_time_left) + " " +
+        view.findViewById<TextView>(R.id.account_credit_has_expired).text =
+            parentActivity.getString(R.string.account_credit_has_expired) + " " +
             parentActivity.getString(R.string.add_time_to_account)
 
         disconnectButton = view.findViewById<Button>(R.id.disconnect).apply {

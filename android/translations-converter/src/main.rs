@@ -38,14 +38,26 @@ fn main() {
 
     string_resources.normalize();
 
-    let (known_urls, known_strings): (HashMap<_, _>, _) = string_resources
-        .into_iter()
-        .map(|string| {
-            let android_id = string.name;
+    let mut known_urls = HashMap::with_capacity(string_resources.len());
+    let mut known_strings = HashMap::with_capacity(string_resources.len());
 
-            (string.value, android_id)
-        })
-        .partition(|(string_value, _)| string_value.starts_with("https://mullvad.net/en/"));
+    for string in string_resources {
+        let destination = if string.value.starts_with("https://mullvad.net/en/") {
+            &mut known_urls
+        } else {
+            &mut known_strings
+        };
+
+        if destination
+            .insert(string.value.clone(), string.name)
+            .is_some()
+        {
+            panic!(
+                "String {:?} has more than one Android resource ID",
+                string.value
+            );
+        }
+    }
 
     let mut missing_translations = known_strings.clone();
 

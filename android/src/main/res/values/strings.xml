@@ -49,7 +49,6 @@
     <string name="account_credit_has_expired">You have no more VPN time left on this
     account.</string>
     <string name="out_of_time">Out of time</string>
-    <string name="no_more_vpn_time_left">You have no more VPN time left on this account.</string>
     <string name="add_time_to_account">Either buy credit on our website or redeem a
     voucher.</string>
     <string name="settings_preferences">Preferences</string>
@@ -158,7 +157,7 @@
     <string name="wireguard_key_valid">Key is valid</string>
     <string name="wireguard_key_invalid">Key is invalid</string>
     <string name="wireguard_key_verification_failure">Key verification failed</string>
-    <string name="wireguard_public_key">Public key</string>
+    <string name="wireguard_public_key">WireGuard public key</string>
     <string name="copied_wireguard_public_key">Copied WireGuard public key to clipboard</string>
     <string name="split_tunnelling">Split tunnelling</string>
     <string name="split_tunnelling_description">Split tunnelling makes it possible to select which
