@@ -751,6 +751,9 @@ function convertFromTunnelStateError(state: grpcTypes.ErrorState.AsObject): IErr
   return {
     ...state,
     cause: convertFromTunnelStateErrorCause(state.cause, state),
+    blockFailure: state.blockingError
+      ? convertFromFirewallPolicyError(state.blockingError)
+      : undefined,
   };
 }
 
