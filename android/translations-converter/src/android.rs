@@ -27,6 +27,9 @@ pub struct StringResource {
     /// The string resource ID.
     pub name: String,
 
+    /// If the string should be translated or not.
+    pub translatable: Option<bool>,
+
     /// The string value.
     #[serde(rename = "$value")]
     pub value: String,
@@ -97,7 +100,11 @@ impl StringResource {
             value.push_str(part);
         }
 
-        StringResource { name, value }
+        StringResource {
+            name,
+            translatable: None,
+            value,
+        }
     }
 
     /// Normalize the string value into a common format.
@@ -131,10 +138,18 @@ impl Display for StringResources {
 
 impl Display for StringResource {
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        write!(
-            formatter,
-            r#"<string name="{}">{}</string>"#,
-            self.name, self.value
-        )
+        if self.translatable.unwrap_or(true) {
+            write!(
+                formatter,
+                r#"<string name="{}">{}</string>"#,
+                self.name, self.value
+            )
+        } else {
+            write!(
+                formatter,
+                r#"<string name="{}" translatable="false">{}</string>"#,
+                self.name, self.value
+            )
+        }
     }
 }
