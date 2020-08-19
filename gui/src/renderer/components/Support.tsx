@@ -1,14 +1,29 @@
 import * as React from 'react';
-import { Component, Text, TextInput, View } from 'reactxp';
 import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import * as AppButton from './AppButton';
 import ImageView from './ImageView';
-import { Container, Layout } from './Layout';
+import { Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalContainer } from './Modal';
 import { BackBarItem, NavigationBar, NavigationItems } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import styles, { StyledBlueButton } from './SupportStyles';
+import {
+  StyledBlueButton,
+  StyledContainer,
+  StyledContent,
+  StyledContentContainer,
+  StyledEmail,
+  StyledEmailInput,
+  StyledFooter,
+  StyledForm,
+  StyledFormEmailRow,
+  StyledFormMessageRow,
+  StyledSecureStatus,
+  StyledSendStatus,
+  StyledSentMessage,
+  StyledStatusIcon,
+  StyledMessageInput,
+} from './SupportStyles';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
 import { ISupportReportForm } from '../redux/support/actions';
@@ -45,7 +60,7 @@ interface ISupportProps {
   onExternalLink: (url: string) => void;
 }
 
-export default class Support extends Component<ISupportProps, ISupportState> {
+export default class Support extends React.Component<ISupportProps, ISupportState> {
   public state = {
     email: '',
     message: '',
@@ -70,14 +85,14 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     return this.state.message.trim().length > 0;
   }
 
-  public onChangeEmail = (email: string) => {
-    this.setState({ email }, () => {
+  public onChangeEmail = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ email: event.target.value }, () => {
       this.saveFormData();
     });
   };
 
-  public onChangeDescription = (description: string) => {
-    this.setState({ message: description }, () => {
+  public onChangeDescription = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    this.setState({ message: event.target.value }, () => {
       this.saveFormData();
     });
   };
@@ -131,26 +146,25 @@ export default class Support extends Component<ISupportProps, ISupportState> {
     return (
       <ModalContainer>
         <Layout>
-          <Container>
-            <View style={styles.support}>
-              <NavigationBar>
-                <NavigationItems>
-                  <BackBarItem action={this.props.onClose}>
-                    {
-                      // TRANSLATORS: Back button in navigation bar
-                      messages.pgettext('navigation-bar', 'Settings')
-                    }
-                  </BackBarItem>
-                </NavigationItems>
-              </NavigationBar>
-              <View style={styles.support__container}>
-                {header}
-                {content}
-              </View>
-            </View>
+          <StyledContainer>
+            <NavigationBar>
+              <NavigationItems>
+                <BackBarItem action={this.props.onClose}>
+                  {
+                    // TRANSLATORS: Back button in navigation bar
+                    messages.pgettext('navigation-bar', 'Settings')
+                  }
+                </BackBarItem>
+              </NavigationItems>
+            </NavigationBar>
+            <StyledContentContainer>
+              {header}
+              {content}
+            </StyledContentContainer>
+
             {sendState === SendState.Confirm && this.renderNoEmailDialog()}
             {showOutdatedVersionWarning && this.renderOutdateVersionWarningDialog()}
-          </Container>
+          </StyledContainer>
         </Layout>
       </ModalContainer>
     );
@@ -278,63 +292,49 @@ export default class Support extends Component<ISupportProps, ISupportState> {
 
   private renderForm() {
     return (
-      <View style={styles.support__content}>
-        <View style={styles.support__form}>
-          <View style={styles.support__form_row_email}>
-            <TextInput
-              style={styles.support__form_email}
+      <StyledContent>
+        <StyledForm>
+          <StyledFormEmailRow>
+            <StyledEmailInput
               placeholder={messages.pgettext('support-view', 'Your email (optional)')}
               defaultValue={this.state.email}
-              onChangeText={this.onChangeEmail}
-              keyboardType="email-address"
+              onChange={this.onChangeEmail}
             />
-          </View>
-          <View style={styles.support__form_row_message}>
-            <View style={styles.support__form_message_scroll_wrap}>
-              <TextInput
-                style={styles.support__form_message}
-                placeholder={messages.pgettext('support-view', 'Describe your problem')}
-                defaultValue={this.state.message}
-                multiline={true}
-                onChangeText={this.onChangeDescription}
-              />
-            </View>
-          </View>
-          <View style={styles.support__footer}>
-            <StyledBlueButton onClick={this.onViewLog} disabled={this.state.disableActions}>
-              <AppButton.Label>
-                {messages.pgettext('support-view', 'View app logs')}
-              </AppButton.Label>
-              <AppButton.Icon source="icon-extLink" height={16} width={16} />
-            </StyledBlueButton>
-            <AppButton.GreenButton
-              disabled={!this.validate() || this.state.disableActions}
-              onClick={this.onSend}>
-              {messages.pgettext('support-view', 'Send')}
-            </AppButton.GreenButton>
-          </View>
-        </View>
-      </View>
+          </StyledFormEmailRow>
+          <StyledFormMessageRow>
+            <StyledMessageInput
+              placeholder={messages.pgettext('support-view', 'Describe your problem')}
+              defaultValue={this.state.message}
+              onChange={this.onChangeDescription}
+            />
+          </StyledFormMessageRow>
+        </StyledForm>
+        <StyledFooter>
+          <StyledBlueButton onClick={this.onViewLog} disabled={this.state.disableActions}>
+            <AppButton.Label>{messages.pgettext('support-view', 'View app logs')}</AppButton.Label>
+            <AppButton.Icon source="icon-extLink" height={16} width={16} />
+          </StyledBlueButton>
+          <AppButton.GreenButton
+            disabled={!this.validate() || this.state.disableActions}
+            onClick={this.onSend}>
+            {messages.pgettext('support-view', 'Send')}
+          </AppButton.GreenButton>
+        </StyledFooter>
+      </StyledContent>
     );
   }
 
   private renderSending() {
     return (
-      <View style={styles.support__content}>
-        <View style={styles.support__form}>
-          <View style={styles.support__form_row}>
-            <View style={styles.support__status_icon}>
-              <ImageView source="icon-spinner" height={60} width={60} />
-            </View>
-            <View style={styles.support__status_security__secure}>
-              {messages.gettext('SECURE CONNECTION')}
-            </View>
-            <Text style={styles.support__send_status}>
-              {messages.pgettext('support-view', 'Sending...')}
-            </Text>
-          </View>
-        </View>
-      </View>
+      <StyledContent>
+        <StyledForm>
+          <StyledStatusIcon>
+            <ImageView source="icon-spinner" height={60} width={60} />
+          </StyledStatusIcon>
+          <StyledSecureStatus>{messages.gettext('SECURE CONNECTION')}</StyledSecureStatus>
+          <StyledSendStatus>{messages.pgettext('support-view', 'Sending...')}</StyledSendStatus>
+        </StyledForm>
+      </StyledContent>
     );
   }
 
@@ -346,71 +346,53 @@ export default class Support extends Component<ISupportProps, ISupportState> {
       messages
         .pgettext('support-view', 'If needed we will contact you on %(email)s')
         .split('%(email)s', 2);
-    reachBackMessage.splice(
-      1,
-      0,
-      <Text key={'email'} style={styles.support__sent_email}>
-        {this.state.email}
-      </Text>,
-    );
+    reachBackMessage.splice(1, 0, <StyledEmail key="email">{this.state.email}</StyledEmail>);
 
     return (
-      <View style={styles.support__content}>
-        <View style={styles.support__form}>
-          <View style={styles.support__form_row}>
-            <View style={styles.support__status_icon}>
-              <ImageView source="icon-success" height={60} width={60} />
-            </View>
-            <Text style={styles.support__status_security__secure}>
-              {messages.gettext('SECURE CONNECTION')}
-            </Text>
-            <Text style={styles.support__send_status}>
-              {messages.pgettext('support-view', 'Sent')}
-            </Text>
+      <StyledContent>
+        <StyledForm>
+          <StyledStatusIcon>
+            <ImageView source="icon-success" height={60} width={60} />
+          </StyledStatusIcon>
+          <StyledSecureStatus>{messages.gettext('SECURE CONNECTION')}</StyledSecureStatus>
+          <StyledSendStatus>{messages.pgettext('support-view', 'Sent')}</StyledSendStatus>
 
-            <Text style={styles.support__sent_message}>
-              {messages.pgettext('support-view', 'Thanks! We will look into this.')}
-            </Text>
-            {this.state.email.trim().length > 0 ? (
-              <Text style={styles.support__sent_message}>{reachBackMessage}</Text>
-            ) : null}
-          </View>
-        </View>
-      </View>
+          <StyledSentMessage>
+            {messages.pgettext('support-view', 'Thanks! We will look into this.')}
+          </StyledSentMessage>
+          {this.state.email.trim().length > 0 ? (
+            <StyledSentMessage>{reachBackMessage}</StyledSentMessage>
+          ) : null}
+        </StyledForm>
+      </StyledContent>
     );
   }
 
   private renderFailed() {
     return (
-      <View style={styles.support__content}>
-        <View style={styles.support__form}>
-          <View style={styles.support__form_row}>
-            <View style={styles.support__status_icon}>
-              <ImageView source="icon-fail" height={60} width={60} />
-            </View>
-            <Text style={styles.support__status_security__secure}>
-              {messages.gettext('SECURE CONNECTION')}
-            </Text>
-            <Text style={styles.support__send_status}>
-              {messages.pgettext('support-view', 'Failed to send')}
-            </Text>
-            <Text style={styles.support__sent_message}>
-              {messages.pgettext(
-                'support-view',
-                "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form.",
-              )}
-            </Text>
-          </View>
-        </View>
-        <View style={styles.support__footer}>
+      <StyledContent>
+        <StyledForm>
+          <StyledStatusIcon>
+            <ImageView source="icon-fail" height={60} width={60} />
+          </StyledStatusIcon>
+          <StyledSecureStatus>{messages.gettext('SECURE CONNECTION')}</StyledSecureStatus>
+          <StyledSendStatus>{messages.pgettext('support-view', 'Failed to send')}</StyledSendStatus>
+          <StyledSentMessage>
+            {messages.pgettext(
+              'support-view',
+              "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form.",
+            )}
+          </StyledSentMessage>
+        </StyledForm>
+        <StyledFooter>
           <StyledBlueButton onClick={this.handleEditMessage}>
             {messages.pgettext('support-view', 'Edit message')}
           </StyledBlueButton>
           <AppButton.GreenButton onClick={this.onSend}>
             {messages.pgettext('support-view', 'Try again')}
           </AppButton.GreenButton>
-        </View>
-      </View>
+        </StyledFooter>
+      </StyledContent>
     );
   }
 
