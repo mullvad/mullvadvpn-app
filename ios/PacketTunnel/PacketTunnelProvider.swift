@@ -337,7 +337,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     // MARK: - Private
 
-    private func replyAppMessage<T: Encodable>(
+    private func replyAppMessage<T: Codable>(
         _ result: Result<T, PacketTunnelProviderError>,
         completionHandler: ((Data?) -> Void)?) {
         let result = result.flatMap { (response) -> Result<Data, PacketTunnelProviderError> in
