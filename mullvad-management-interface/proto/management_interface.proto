@@ -119,7 +119,7 @@ message ErrorState {
 	}
 
 	Cause cause = 1;
-	bool is_blocking = 2;
+	FirewallPolicyError blocking_error = 2;
 
 	// AUTH_FAILED
 	string auth_fail_reason = 3;

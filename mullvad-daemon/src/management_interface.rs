@@ -1335,6 +1335,26 @@ fn convert_state(state: TunnelState) -> types::TunnelState {
     };
     use TunnelState::*;
 
+    let map_firewall_error = |firewall_error: &FirewallPolicyError| match firewall_error {
+        FirewallPolicyError::Generic => ProtoFirewallPolicyError {
+            r#type: i32::from(PolicyErrorType::Generic),
+            ..Default::default()
+        },
+        #[cfg(windows)]
+        FirewallPolicyError::Locked(blocking_app) => {
+            let (lock_pid, lock_name) = match blocking_app {
+                Some(app) => (app.pid, app.name.clone()),
+                None => (0, "".to_string()),
+            };
+
+            ProtoFirewallPolicyError {
+                r#type: i32::from(PolicyErrorType::Locked),
+                lock_pid,
+                lock_name,
+            }
+        }
+    };
+
     let state = match state {
         Disconnected => ProtoState::Disconnected(tunnel_state::Disconnected {}),
         Connecting { endpoint, location } => ProtoState::Connecting(tunnel_state::Connecting {
@@ -1380,7 +1400,7 @@ fn convert_state(state: TunnelState) -> types::TunnelState {
                         i32::from(ProtoErrorCause::VpnPermissionDenied)
                     }
                 },
-                is_blocking: error_state.is_blocking(),
+                blocking_error: error_state.block_failure().map(map_firewall_error),
                 auth_fail_reason: if let ErrorStateCause::AuthFailed(reason) = error_state.cause() {
                     reason.clone().unwrap_or_default()
                 } else {
@@ -1409,25 +1429,7 @@ fn convert_state(state: TunnelState) -> types::TunnelState {
                 policy_error: if let ErrorStateCause::SetFirewallPolicyError(reason) =
                     error_state.cause()
                 {
-                    match reason {
-                        FirewallPolicyError::Generic => Some(ProtoFirewallPolicyError {
-                            r#type: i32::from(PolicyErrorType::Generic),
-                            ..Default::default()
-                        }),
-                        #[cfg(windows)]
-                        FirewallPolicyError::Locked(blocking_app) => {
-                            let (lock_pid, lock_name) = match blocking_app {
-                                Some(app) => (app.pid, app.name.clone()),
-                                None => (0, "".to_string()),
-                            };
-
-                            Some(ProtoFirewallPolicyError {
-                                r#type: i32::from(PolicyErrorType::Locked),
-                                lock_pid,
-                                lock_name,
-                            })
-                        }
-                    }
+                    Some(map_firewall_error(reason))
                 } else {
                     None
                 },

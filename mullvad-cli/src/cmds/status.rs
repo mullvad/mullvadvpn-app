@@ -160,7 +160,7 @@ fn format_endpoint(endpoint: &TunnelEndpoint) -> String {
 }
 
 fn print_error_state(error_state: &ErrorState) {
-    if !error_state.is_blocking {
+    if error_state.blocking_error.is_some() {
         eprintln!("Mullvad daemon failed to setup firewall rules!");
         eprintln!("Deamon cannot block traffic from flowing, non-local traffic will leak");
     }
