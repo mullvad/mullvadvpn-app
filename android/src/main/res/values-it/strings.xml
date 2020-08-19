@@ -41,6 +41,7 @@
     <string name="failed_to_send_details">Prima di riprovare, potresti dover tornare alla schermata principale dell\'app e fare clic su Disconnetti. Non preoccuparti: le informazioni inserite rimarranno nel modulo.</string>
     <string name="here_is_your_account_number">Ecco il tuo numero di account. Salvalo!</string>
     <string name="hint_default">Predefinito</string>
+    <string name="in_address">Ricezione</string>
     <string name="invalid_voucher">Il codice voucher non è valido.</string>
     <string name="is_offline">Il dispositivo è offline. Impossibile stabilire tunnel</string>
     <string name="local_network_sharing">Condivisione rete locale</string>
@@ -54,6 +55,7 @@
     <string name="login_title">Accedi</string>
     <string name="no_wireguard_key">Manca una chiave WireGuard valida. Gestisci le chiavi da Impostazioni avanzate.</string>
     <string name="not_blocking_internet">POSSIBILI PERDITE NEL TRAFFICO DI RETE</string>
+    <string name="out_address">Invio</string>
     <string name="out_of_time">Scaduto</string>
     <string name="paid_until">Pagato fino al</string>
     <string name="pay_to_start_using">Per iniziare a utilizzare l\'app, devi prima aggiungere tempo al tuo account.</string>

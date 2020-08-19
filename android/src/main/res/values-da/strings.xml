@@ -41,6 +41,7 @@
     <string name="failed_to_send_details">Du skal muligvis vende tilbage til appens hovedskærm og klikke på Afbryd forbindelse, før du prøver igen. Bare rolig, de angivne oplysninger bliver ikke slettet fra formularen.</string>
     <string name="here_is_your_account_number">Her er dit kontonummer. Gem det!</string>
     <string name="hint_default">Default (Standardværdi)</string>
+    <string name="in_address">Ind</string>
     <string name="invalid_voucher">Kuponkode er ugyldig.</string>
     <string name="is_offline">Denne enhed er offline, ingen tunneler kan etableres</string>
     <string name="local_network_sharing">Lokal netværksdeling</string>
@@ -54,6 +55,7 @@
     <string name="login_title">Log ind</string>
     <string name="no_wireguard_key">Gyldig WireGuard-nøgle mangler. Administrer nøgler under Avancerede indstillinger.</string>
     <string name="not_blocking_internet">DU LÆKKER MÅSKE NETVÆRKSTRAFIK</string>
+    <string name="out_address">Ud</string>
     <string name="out_of_time">Tid udløbet</string>
     <string name="paid_until">Betalt indtil</string>
     <string name="pay_to_start_using">For at begynde at bruge appen skal du først føje tid til din konto.</string>

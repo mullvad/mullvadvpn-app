@@ -41,6 +41,7 @@
     <string name="failed_to_send_details">再試行する前に、アプリのメイン画面に戻って「接続解除」をクリックする必要があるかもしれません。すでにフォームに入力された情報が失われることはありませんので、ご安心ください。</string>
     <string name="here_is_your_account_number">これがあなたのアカウント番号です。保存してください！</string>
     <string name="hint_default">デフォルト</string>
+    <string name="in_address">内側</string>
     <string name="invalid_voucher">バウチャーコードが無効です。</string>
     <string name="is_offline">このデバイスはオフラインであるため、トンネルを作成できません。</string>
     <string name="local_network_sharing">ローカルネットワーク共有</string>
@@ -54,6 +55,7 @@
     <string name="login_title">ログイン</string>
     <string name="no_wireguard_key">有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。</string>
     <string name="not_blocking_internet">ネットワーク通信が漏洩している可能性があります。</string>
+    <string name="out_address">外側</string>
     <string name="out_of_time">時間切れ</string>
     <string name="paid_until">次の日時まで支払い済み</string>
     <string name="pay_to_start_using">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</string>

@@ -41,6 +41,7 @@
     <string name="failed_to_send_details">Прежде чем повторить попытку, может понадобиться вернуться на главный экран приложения и нажать «Отключить». Не волнуйтесь: введенные в форму данные сохранятся.</string>
     <string name="here_is_your_account_number">Вот номер вашей учетной записи. Сохраните его!</string>
     <string name="hint_default">По умолчанию</string>
+    <string name="in_address">Вход</string>
     <string name="invalid_voucher">Код ваучера недействителен.</string>
     <string name="is_offline">Устройство вне сети, установить подключение к туннелям невозможно</string>
     <string name="local_network_sharing">Обмен данными в локальной сети</string>
@@ -54,6 +55,7 @@
     <string name="login_title">Вход</string>
     <string name="no_wireguard_key">Не найден корректный ключ WireGuard. Управлять ключами можно в разделе «Дополнительные настройки».</string>
     <string name="not_blocking_internet">ВОЗМОЖНА УТЕЧКА СЕТЕВОГО ТРАФИКА</string>
+    <string name="out_address">Выход</string>
     <string name="out_of_time">Закончилось время</string>
     <string name="paid_until">Оплачено до</string>
     <string name="pay_to_start_using">Чтобы пользоваться приложением, нужно добавить время на учетную запись.</string>

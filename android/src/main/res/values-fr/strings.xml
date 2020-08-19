@@ -41,6 +41,7 @@
     <string name="failed_to_send_details">Vous allez peut-être devoir retourner à l\'écran principal de l\'application pour cliquer sur Déconnexion avant de réessayer. Ne vous inquiétez pas, les informations saisies resteront dans le formulaire.</string>
     <string name="here_is_your_account_number">Voici votre numéro de compte. Gardez-le !</string>
     <string name="hint_default">Par défaut</string>
+    <string name="in_address">Entrante</string>
     <string name="invalid_voucher">Le code du bon n\'est pas valide.</string>
     <string name="is_offline">Cet appareil est hors ligne. Aucun tunnel ne peut être établi</string>
     <string name="local_network_sharing">Partage réseau local</string>
@@ -54,6 +55,7 @@
     <string name="login_title">Connexion</string>
     <string name="no_wireguard_key">Une clé wireguard valide manque. Gérez les clés dans les paramètre avancés.</string>
     <string name="not_blocking_internet">VOUS POURRIEZ AVOIR DES FUITES DE TRAFIC RÉSEAU</string>
+    <string name="out_address">Sortante</string>
     <string name="out_of_time">Plus de temps</string>
     <string name="paid_until">Payé jusqu\'au</string>
     <string name="pay_to_start_using">Pour commencer à utiliser l\'application, vous devez d\'abord ajouter du temps à votre compte.</string>
