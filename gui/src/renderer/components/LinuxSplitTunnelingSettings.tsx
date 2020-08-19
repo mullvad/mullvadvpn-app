@@ -64,7 +64,9 @@ const StyledIcon = styled(Cell.UntintedIcon)(disabledApplication, {
 });
 
 const StyledCellLabel = styled(Cell.Label)(disabledApplication, {
+  fontFamily: 'Open Sans',
   fontWeight: 'normal',
+  fontSize: '16px',
 });
 
 const StyledIconPlaceholder = styled.div({
