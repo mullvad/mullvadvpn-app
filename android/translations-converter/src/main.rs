@@ -153,11 +153,13 @@ fn generate_translations(
     let mut localized_resource = android::StringResources::new();
 
     for translation in translations {
-        if let Some(android_key) = known_strings.remove(&translation.id) {
-            localized_resource.push(android::StringResource::new(
-                android_key,
-                &translation.value,
-            ));
+        if let gettext::MsgValue::Invariant(translation_value) = translation.value {
+            if let Some(android_key) = known_strings.remove(&translation.id) {
+                localized_resource.push(android::StringResource::new(
+                    android_key,
+                    &translation_value,
+                ));
+            }
         }
     }
 

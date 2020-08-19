@@ -15,7 +15,23 @@ lazy_static! {
 #[derive(Clone, Debug)]
 pub struct MsgEntry {
     pub id: String,
-    pub value: String,
+    pub value: MsgValue,
+}
+
+/// A message string or plural set in a gettext translation file.
+#[derive(Clone, Debug)]
+pub enum MsgValue {
+    Invariant(String),
+    Plural {
+        plural_id: String,
+        values: Vec<String>,
+    },
+}
+
+impl From<String> for MsgValue {
+    fn from(string: String) -> Self {
+        MsgValue::Invariant(string)
+    }
 }
 
 /// Load message entries from a gettext translation file.
@@ -36,7 +52,7 @@ pub fn load_file(file_path: impl AsRef<Path>) -> Vec<MsgEntry> {
         } else {
             if let Some(translation) = parse_line(line, "msgstr \"", "\"") {
                 if let Some(id) = current_id.take() {
-                    let value = normalize(translation);
+                    let value = MsgValue::from(normalize(translation));
 
                     entries.push(MsgEntry { id, value });
                 }
@@ -65,7 +81,17 @@ pub fn append_to_template(
     for entry in entries {
         writeln!(writer)?;
         writeln!(writer, "msgid {:?}", entry.id)?;
-        writeln!(writer, "msgstr {:?}", entry.value)?;
+
+        match entry.value {
+            MsgValue::Invariant(value) => writeln!(writer, "msgstr {:?}", value)?,
+            MsgValue::Plural { plural_id, values } => {
+                writeln!(writer, "msgid_plural {:?}", plural_id)?;
+
+                for (index, value) in values.into_iter().enumerate() {
+                    writeln!(writer, "msgstr[{}] {:?}", index, value)?;
+                }
+            }
+        }
     }
 
     Ok(())
