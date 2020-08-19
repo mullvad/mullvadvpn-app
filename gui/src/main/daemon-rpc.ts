@@ -238,11 +238,12 @@ export class DaemonRpc {
             log.error(`Failed to reconnect - ${error}`);
           }),
         );
-      } else if (!wasConnected) {
+        this.setChannelCallback(currentState);
+      } else if (!wasConnected && currentState == grpc.connectivityState.READY) {
         this.isConnected = true;
         this.connectionObservers.forEach((observer) => observer.onOpen());
+        this.setChannelCallback(currentState);
       }
-      this.setChannelCallback(currentState);
     }
   }
 
@@ -550,12 +551,21 @@ export class DaemonRpc {
     const removeSubscription = () => {
       const subscription = this.subscriptions.get(subscriptionId);
       if (subscription !== undefined) {
-        subscription.cancel();
         this.subscriptions.delete(subscriptionId);
+        subscription.cancel();
       }
     };
 
     call.on('error', (error) => {
+      // if the subscription was cancelled by the client, there's no reason to
+      // invoke the onError handler
+      if (
+        'code' in error &&
+        error['code'] == grpc.status.CANCELLED &&
+        !this.subscriptions.has(subscriptionId)
+      ) {
+        return;
+      }
       listener.onError(error);
       removeSubscription();
     });
@@ -566,8 +576,8 @@ export class DaemonRpc {
     if (id !== undefined) {
       const subscription = this.subscriptions.get(id);
       if (subscription !== undefined) {
-        subscription.cancel();
         this.subscriptions.delete(id);
+        subscription.cancel();
       }
     }
   }
