@@ -21,6 +21,7 @@ class SettingsViewController: UITableViewController {
         case account = "Account"
         case appVersion = "AppVersion"
         case basicDisclosure = "BasicDisclosure"
+        case basic = "Basic"
     }
 
     private weak var accountRow: StaticTableViewRow?
@@ -99,6 +100,23 @@ class SettingsViewController: UITableViewController {
 
         middleSection.addRows([versionRow])
         staticDataSource.addSections([middleSection])
+
+        #if DEBUG
+        let logStreamerRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basic.rawValue) { (_, cell) in
+            let cell = cell as! SettingsBasicCell
+
+            cell.titleLabel.text = NSLocalizedString("App logs", comment: "")
+        }
+        logStreamerRow.actionBlock = { [weak self] (indexPath) in
+            let logController = LogStreamerViewController(fileURLs: ApplicationConfiguration.logFileURLs)
+            let navController = UINavigationController(rootViewController: logController)
+
+            navController.modalPresentationStyle = .fullScreen
+
+            self?.present(navController, animated: true)
+        }
+        middleSection.addRows([logStreamerRow])
+        #endif
     }
 
 }

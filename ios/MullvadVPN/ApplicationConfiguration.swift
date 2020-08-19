@@ -15,4 +15,17 @@ class ApplicationConfiguration {
 
     /// The application identifier for the PacketTunnel extension
     static let packetTunnelExtensionIdentifier = "net.mullvad.MullvadVPN.PacketTunnel"
+
+    /// The application log files
+    static var logFileURLs: [URL] {
+        let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Self.securityGroupIdentifier)
+        let fileNames = ["net.mullvad.MullvadVPN", "net.mullvad.MullvadVPN.PacketTunnel"]
+
+        return fileNames.compactMap { (fileName) -> URL? in
+            return containerURL?
+                .appendingPathComponent("Logs", isDirectory: true)
+                .appendingPathComponent(fileName, isDirectory: false)
+                .appendingPathExtension("log")
+        }
+    }
 }

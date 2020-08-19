@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ZwP-1v-DUg">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ZwP-1v-DUg">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
@@ -404,6 +404,32 @@
                                 <color key="backgroundColor" name="Primary"/>
                                 <connections>
                                     <outlet property="titleLabel" destination="Amw-A3-ePS" id="cGS-cX-LXr"/>
+                                </connections>
+                            </tableViewCell>
+                            <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="Basic" id="kzz-4X-xg1" customClass="SettingsBasicCell" customModule="MullvadVPN" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="186" width="375" height="43.5"/>
+                                <autoresizingMask key="autoresizingMask"/>
+                                <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="kzz-4X-xg1" id="KpJ-UC-PyV">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
+                                    <autoresizingMask key="autoresizingMask"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PWF-Y6-mDf">
+                                            <rect key="frame" x="16" y="11" width="343" height="21.5"/>
+                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <constraints>
+                                        <constraint firstItem="PWF-Y6-mDf" firstAttribute="top" secondItem="KpJ-UC-PyV" secondAttribute="topMargin" id="7c8-Np-uyI"/>
+                                        <constraint firstAttribute="trailingMargin" secondItem="PWF-Y6-mDf" secondAttribute="trailing" id="G6s-Z9-acp"/>
+                                        <constraint firstAttribute="bottomMargin" secondItem="PWF-Y6-mDf" secondAttribute="bottom" id="ICb-f1-Zux"/>
+                                        <constraint firstItem="PWF-Y6-mDf" firstAttribute="leading" secondItem="KpJ-UC-PyV" secondAttribute="leadingMargin" id="teH-t2-aJn"/>
+                                    </constraints>
+                                </tableViewCellContentView>
+                                <color key="backgroundColor" name="Primary"/>
+                                <connections>
+                                    <outlet property="titleLabel" destination="PWF-Y6-mDf" id="G5i-Wm-WZN"/>
                                 </connections>
                             </tableViewCell>
                         </prototypes>
@@ -905,7 +931,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" translatesAutoresizingMaskIntoConstraints="NO" id="JYh-33-d0O">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="598"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="597"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="N9k-cQ-tlw" userLabel="Content view">
                                         <rect key="frame" x="0.0" y="0.0" width="375" height="558"/>
@@ -944,7 +970,7 @@
                                                 <nil key="highlightedColor"/>
                                             </label>
                                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cas-Tk-gcz" customClass="LinkButton" customModule="MullvadVPN" customModuleProvider="target">
-                                                <rect key="frame" x="20" y="516" width="20" height="22"/>
+                                                <rect key="frame" x="20" y="516" width="128" height="22"/>
                                                 <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="18"/>
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <state key="normal" title="Privacy Policy" image="IconExtlink"/>
@@ -980,10 +1006,10 @@
                                 </constraints>
                             </scrollView>
                             <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="16P-Q0-ZO9" userLabel="Footer">
-                                <rect key="frame" x="0.0" y="598" width="375" height="69"/>
+                                <rect key="frame" x="0.0" y="597" width="375" height="70"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ttw-7B-1MM" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
-                                        <rect key="frame" x="16" y="24" width="343" height="21"/>
+                                        <rect key="frame" x="16" y="24" width="343" height="22"/>
                                         <accessibility key="accessibilityConfiguration" identifier="AgreeButton"/>
                                         <state key="normal" title="Agree and continue" backgroundImage="DefaultButton">
                                             <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
