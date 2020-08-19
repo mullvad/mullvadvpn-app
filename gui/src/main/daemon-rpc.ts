@@ -321,7 +321,7 @@ export class DaemonRpc {
   public async getAccountData(accountToken: AccountToken): Promise<IAccountData> {
     try {
       const response = await this.callString<grpcTypes.AccountData>(
-        this.client?.getAccountData,
+        this.client.getAccountData,
         accountToken,
       );
       const expiry = response.getExpiry()!.toDate().toISOString();
@@ -340,14 +340,14 @@ export class DaemonRpc {
   }
 
   public async getWwwAuthToken(): Promise<string> {
-    const response = await this.callEmpty<StringValue>(this.client?.getWwwAuthToken);
+    const response = await this.callEmpty<StringValue>(this.client.getWwwAuthToken);
     return response.getValue();
   }
 
   public async submitVoucher(voucherCode: string): Promise<VoucherResponse> {
     try {
       const response = await this.callString<grpcTypes.VoucherSubmission>(
-        this.client?.submitVoucher,
+        this.client.submitVoucher,
         voucherCode,
       );
 
@@ -383,7 +383,7 @@ export class DaemonRpc {
     if (this.isConnected) {
       return new Promise((resolve, reject) => {
         const relayLocations: IRelayListCountry[] = [];
-        const stream = this.client!.getRelayLocations(new Empty());
+        const stream = this.client.getRelayLocations(new Empty());
         stream.on('data', (country: grpcTypes.RelayListCountry) =>
           relayLocations.push(convertFromRelayListCountry(country.toObject())),
         );
@@ -396,12 +396,12 @@ export class DaemonRpc {
   }
 
   public async createNewAccount(): Promise<string> {
-    const response = await this.callEmpty<StringValue>(this.client?.createNewAccount);
+    const response = await this.callEmpty<StringValue>(this.client.createNewAccount);
     return response.getValue();
   }
 
   public async setAccount(accountToken?: AccountToken): Promise<void> {
-    await this.callString(this.client?.setAccount, accountToken);
+    await this.callString(this.client.setAccount, accountToken);
   }
 
   // TODO: Custom tunnel configurations are not supported by the GUI.
@@ -438,26 +438,26 @@ export class DaemonRpc {
 
       grpcRelaySettings.setNormal(normalUpdate);
       await this.call<grpcTypes.RelaySettingsUpdate, Empty>(
-        this.client?.updateRelaySettings,
+        this.client.updateRelaySettings,
         grpcRelaySettings,
       );
     }
   }
 
   public async setAllowLan(allowLan: boolean): Promise<void> {
-    await this.callBool(this.client?.setAllowLan, allowLan);
+    await this.callBool(this.client.setAllowLan, allowLan);
   }
 
   public async setShowBetaReleases(showBetaReleases: boolean): Promise<void> {
-    await this.callBool(this.client?.setShowBetaReleases, showBetaReleases);
+    await this.callBool(this.client.setShowBetaReleases, showBetaReleases);
   }
 
   public async setEnableIpv6(enableIpv6: boolean): Promise<void> {
-    await this.callBool(this.client?.setEnableIpv6, enableIpv6);
+    await this.callBool(this.client.setEnableIpv6, enableIpv6);
   }
 
   public async setBlockWhenDisconnected(blockWhenDisconnected: boolean): Promise<void> {
-    await this.callBool(this.client?.setBlockWhenDisconnected, blockWhenDisconnected);
+    await this.callBool(this.client.setBlockWhenDisconnected, blockWhenDisconnected);
   }
 
   public async setBridgeState(bridgeState: BridgeState): Promise<void> {
@@ -469,7 +469,7 @@ export class DaemonRpc {
 
     const grpcBridgeState = new grpcTypes.BridgeState();
     grpcBridgeState.setState(bridgeStateMap[bridgeState]);
-    await this.call<grpcTypes.BridgeState, Empty>(this.client?.setBridgeState, grpcBridgeState);
+    await this.call<grpcTypes.BridgeState, Empty>(this.client.setBridgeState, grpcBridgeState);
   }
 
   public async setBridgeSettings(bridgeSettings: BridgeSettings): Promise<void> {
@@ -485,52 +485,52 @@ export class DaemonRpc {
     }
 
     await this.call<grpcTypes.BridgeSettings, Empty>(
-      this.client?.setBridgeSettings,
+      this.client.setBridgeSettings,
       grpcBridgeSettings,
     );
   }
 
   public async setOpenVpnMssfix(mssfix?: number): Promise<void> {
-    await this.callNumber(this.client?.setOpenvpnMssfix, mssfix);
+    await this.callNumber(this.client.setOpenvpnMssfix, mssfix);
   }
 
   public async setWireguardMtu(mtu?: number): Promise<void> {
-    await this.callNumber(this.client?.setWireguardMtu, mtu);
+    await this.callNumber(this.client.setWireguardMtu, mtu);
   }
 
   public async setAutoConnect(autoConnect: boolean): Promise<void> {
-    await this.callBool(this.client?.setAutoConnect, autoConnect);
+    await this.callBool(this.client.setAutoConnect, autoConnect);
   }
 
   public async connectTunnel(): Promise<void> {
-    await this.callEmpty(this.client?.connectTunnel);
+    await this.callEmpty(this.client.connectTunnel);
   }
 
   public async disconnectTunnel(): Promise<void> {
-    await this.callEmpty(this.client?.disconnectTunnel);
+    await this.callEmpty(this.client.disconnectTunnel);
   }
 
   public async reconnectTunnel(): Promise<void> {
-    await this.callEmpty(this.client?.reconnectTunnel);
+    await this.callEmpty(this.client.reconnectTunnel);
   }
 
   public async getLocation(): Promise<ILocation> {
-    const response = await this.callEmpty<grpcTypes.GeoIpLocation>(this.client?.getCurrentLocation);
+    const response = await this.callEmpty<grpcTypes.GeoIpLocation>(this.client.getCurrentLocation);
     return response.toObject();
   }
 
   public async getState(): Promise<TunnelState> {
-    const response = await this.callEmpty<grpcTypes.TunnelState>(this.client?.getTunnelState);
+    const response = await this.callEmpty<grpcTypes.TunnelState>(this.client.getTunnelState);
     return convertFromTunnelState(response)!;
   }
 
   public async getSettings(): Promise<ISettings> {
-    const response = await this.callEmpty<grpcTypes.Settings>(this.client?.getSettings);
+    const response = await this.callEmpty<grpcTypes.Settings>(this.client.getSettings);
     return convertFromSettings(response)!;
   }
 
   public subscribeDaemonEventListener(listener: SubscriptionListener<DaemonEvent>) {
-    const call = this.isConnected && this.client?.eventsListen(new Empty());
+    const call = this.isConnected && this.client.eventsListen(new Empty());
     if (!call) {
       throw noConnectionError;
     }
@@ -573,26 +573,26 @@ export class DaemonRpc {
   }
 
   public async getAccountHistory(): Promise<AccountToken[]> {
-    const response = await this.callEmpty<grpcTypes.AccountHistory>(this.client?.getAccountHistory);
+    const response = await this.callEmpty<grpcTypes.AccountHistory>(this.client.getAccountHistory);
     return response.toObject().tokenList;
   }
 
   public async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
-    await this.callString(this.client?.removeAccountFromHistory, accountToken);
+    await this.callString(this.client.removeAccountFromHistory, accountToken);
   }
 
   public async getCurrentVersion(): Promise<string> {
-    const response = await this.callEmpty<StringValue>(this.client?.getCurrentVersion);
+    const response = await this.callEmpty<StringValue>(this.client.getCurrentVersion);
     return response.getValue();
   }
 
   public async generateWireguardKey(): Promise<KeygenEvent> {
-    const response = await this.callEmpty<grpcTypes.KeygenEvent>(this.client?.generateWireguardKey);
+    const response = await this.callEmpty<grpcTypes.KeygenEvent>(this.client.generateWireguardKey);
     return convertFromKeygenEvent(response);
   }
 
   public async getWireguardKey(): Promise<IWireguardPublicKey> {
-    const response = await this.callEmpty<grpcTypes.PublicKey>(this.client?.getWireguardKey);
+    const response = await this.callEmpty<grpcTypes.PublicKey>(this.client.getWireguardKey);
     return {
       created: response.getCreated()!.toDate().toISOString(),
       key: convertFromWireguardKey(response.getKey()),
@@ -600,12 +600,12 @@ export class DaemonRpc {
   }
 
   public async verifyWireguardKey(): Promise<boolean> {
-    const response = await this.callEmpty<BoolValue>(this.client?.verifyWireguardKey);
+    const response = await this.callEmpty<BoolValue>(this.client.verifyWireguardKey);
     return response.getValue();
   }
 
   public async getVersionInfo(): Promise<IAppVersionInfo> {
-    const response = await this.callEmpty<grpcTypes.AppVersionInfo>(this.client?.getVersionInfo);
+    const response = await this.callEmpty<grpcTypes.AppVersionInfo>(this.client.getVersionInfo);
     return response.toObject();
   }
 }
