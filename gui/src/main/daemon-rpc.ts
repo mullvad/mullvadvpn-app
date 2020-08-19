@@ -132,8 +132,7 @@ export class DaemonRpc {
   private isConnected = false;
   private connectionObservers: ConnectionObserver[] = [];
   private nextSubscriptionId = 0;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private subscriptions: Map<number, grpc.ClientReadableStream<any>> = new Map();
+  private subscriptions: Map<number, grpc.ClientReadableStream<grpcTypes.DaemonEvent>> = new Map();
   private reconnectionTimeout?: number;
 
   private subscriptionId(): number {
