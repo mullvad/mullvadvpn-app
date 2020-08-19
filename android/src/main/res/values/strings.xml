@@ -158,7 +158,7 @@
     <string name="wireguard_key_valid">Key is valid</string>
     <string name="wireguard_key_invalid">Key is invalid</string>
     <string name="wireguard_key_verification_failure">Key verification failed</string>
-    <string name="wireguard_public_key">Public key</string>
+    <string name="wireguard_public_key">WireGuard public key</string>
     <string name="copied_wireguard_public_key">Copied WireGuard public key to clipboard</string>
     <string name="split_tunnelling">Split tunnelling</string>
     <string name="split_tunnelling_description">Split tunnelling makes it possible to select which
