@@ -320,6 +320,8 @@ class ApplicationMain {
     if (process.platform === 'darwin' && this.windowController) {
       this.windowController.window.closable = true;
     }
+
+    this.daemonRpc.disconnect();
   }
 
   private detectLocale(): string {
