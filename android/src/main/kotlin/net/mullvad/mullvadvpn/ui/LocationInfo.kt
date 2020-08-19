@@ -104,17 +104,14 @@ class LocationInfo(val parentView: View, val context: Context) {
 
     private fun showInAddress(endpoint: Endpoint?) {
         if (endpoint != null) {
-            val transportProtocol = when (endpoint.protocol) {
+            val host = endpoint.address.address.hostAddress
+            val port = endpoint.address.port
+            val protocol = when (endpoint.protocol) {
                 TransportProtocol.Tcp -> context.getString(R.string.tcp)
                 TransportProtocol.Udp -> context.getString(R.string.udp)
             }
 
-            inAddress.text = context.getString(
-                R.string.in_address,
-                endpoint.address.address.hostAddress,
-                endpoint.address.port,
-                transportProtocol
-            )
+            inAddress.text = context.getString(R.string.in_address) + "  $host:$port $protocol"
         } else {
             inAddress.text = ""
         }
@@ -136,7 +133,7 @@ class LocationInfo(val parentView: View, val context: Context) {
                 ipAddress = "${ipv4.hostAddress} / ${ipv6.hostAddress}"
             }
 
-            outAddress.text = context.getString(R.string.out_address, ipAddress)
+            outAddress.text = context.getString(R.string.out_address) + "  $ipAddress"
         } else {
             outAddress.text = ""
         }

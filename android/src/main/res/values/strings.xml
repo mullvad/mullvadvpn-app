@@ -106,8 +106,8 @@
     <string name="wireguard">WireGuard</string>
     <string name="tcp">TCP</string>
     <string name="udp">UDP</string>
-    <string name="in_address">In %1$s:%2$d %3$s</string>
-    <string name="out_address">Out %1$s</string>
+    <string name="in_address">In</string>
+    <string name="out_address">Out</string>
     <string name="blocking_internet">Blocking internet</string>
     <string name="not_blocking_internet">YOU MIGHT BE LEAKING NETWORK TRAFFIC</string>
     <string name="failed_to_block_internet">Failed to block all network traffic. Please
