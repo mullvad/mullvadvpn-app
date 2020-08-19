@@ -26,7 +26,7 @@
                       android:textSize="@dimen/text_huge"
                       android:textStyle="bold"
                       android:text="@string/out_of_time" />
-            <TextView android:id="@+id/no_more_vpn_time_left"
+            <TextView android:id="@+id/account_credit_has_expired"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:layout_marginHorizontal="@dimen/side_margin"
