@@ -37,6 +37,7 @@ fn main() {
         serde_xml_rs::from_reader(strings_file).expect("Failed to read string resources file");
 
     string_resources.normalize();
+    string_resources.retain(|string| string.translatable);
 
     let mut known_urls = HashMap::with_capacity(string_resources.len());
     let mut known_strings = HashMap::with_capacity(string_resources.len());
