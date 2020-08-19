@@ -1,9 +1,9 @@
-import { Styles } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
+import { bigText, smallText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 
 export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
@@ -14,7 +14,7 @@ export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
   color: colors.white,
 });
 
-export const ModalCellContainer = styled(Cell.Container)({
+export const StyledModalCellContainer = styled(Cell.Container)({
   marginTop: '18px',
   paddingLeft: '12px',
   paddingRight: '12px',
@@ -31,64 +31,52 @@ export const StyledCustomScrollbars = styled(CustomScrollbars)({
   flex: 1,
 });
 
-export default {
-  container: Styles.createViewStyle({
-    flex: 1,
-    paddingTop: 22,
-    // ReactXP don't allow setting 'minHeight' and don't allow percentages. This will work well
-    // without the '@ts-ignore' when moving away from ReactXP.
-    // @ts-ignore
-    minHeight: '100%',
-  }),
-  body: Styles.createViewStyle({
-    flex: 1,
-    paddingHorizontal: 22,
-  }),
-  footer: Styles.createViewStyle({
-    flex: 0,
-    paddingTop: 18,
-    paddingBottom: 22,
-    paddingHorizontal: 22,
-    backgroundColor: colors.darkBlue,
-  }),
-  title: Styles.createTextStyle({
-    fontFamily: 'DINPro',
-    fontSize: 30,
-    fontWeight: '900',
-    lineHeight: 38,
-    color: colors.white,
-    marginBottom: 8,
-  }),
-  message: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    lineHeight: 20,
-    fontWeight: '600',
-    color: colors.white,
-    marginBottom: 20,
-  }),
-  statusIcon: Styles.createViewStyle({
-    alignSelf: 'center',
-    width: 60,
-    height: 60,
-    marginBottom: 18,
-  }),
-  fieldLabel: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    fontWeight: '600',
-    lineHeight: 20,
-    color: colors.white,
-    marginBottom: 9,
-  }),
-  accountTokenMessage: Styles.createViewStyle({
-    marginBottom: 0,
-  }),
-  accountTokenFieldLabel: Styles.createTextStyle({
-    marginBottom: 0,
-  }),
-  accountTokenContainer: Styles.createViewStyle({
-    height: 68,
-    justifyContent: 'center',
-  }),
-};
+export const StyledContainer = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  paddingTop: '22px',
+  minHeight: '100%',
+});
+
+export const StyledBody = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  padding: '0 22px',
+});
+
+export const StyledFooter = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 0,
+  padding: '18px 22px 22px',
+  backgroundColor: colors.darkBlue,
+});
+
+export const StyledTitle = styled.span(bigText, {
+  lineHeight: '38px',
+  marginBottom: '8px',
+});
+
+export const StyledMessage = styled.span(smallText, {
+  marginBottom: '20px',
+  color: colors.white,
+});
+
+export const StyledAccountTokenMessage = styled.span(smallText, {
+  color: colors.white,
+});
+
+export const StyledStatusIcon = styled.div({
+  alignSelf: 'center',
+  width: '60px',
+  height: '60px',
+  marginBottom: '18px',
+});
+
+export const StyledAccountTokenContainer = styled.div({
+  display: 'flex',
+  height: '68px',
+  alignItems: 'center',
+});
