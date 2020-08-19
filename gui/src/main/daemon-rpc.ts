@@ -238,7 +238,7 @@ export class DaemonRpc {
           }),
         );
         this.setChannelCallback(currentState);
-      } else if (!wasConnected && currentState == grpc.connectivityState.READY) {
+      } else if (!wasConnected && currentState === grpc.connectivityState.READY) {
         this.isConnected = true;
         this.connectionObservers.forEach((observer) => observer.onOpen());
         this.setChannelCallback(currentState);
@@ -248,9 +248,9 @@ export class DaemonRpc {
 
   private channelDisconnected(state: grpc.connectivityState): boolean {
     return (
-      (state == grpc.connectivityState.SHUTDOWN ||
-        state == grpc.connectivityState.TRANSIENT_FAILURE ||
-        state == grpc.connectivityState.IDLE) &&
+      (state === grpc.connectivityState.SHUTDOWN ||
+        state === grpc.connectivityState.TRANSIENT_FAILURE ||
+        state === grpc.connectivityState.IDLE) &&
       this.isConnected
     );
   }
@@ -301,9 +301,9 @@ export class DaemonRpc {
     this.connectionObservers.push(observer);
     const currentState = this.client.getChannel()?.getConnectivityState(true);
     if (
-      currentState == grpc.connectivityState.SHUTDOWN ||
-      currentState == grpc.connectivityState.TRANSIENT_FAILURE ||
-      currentState == grpc.connectivityState.IDLE
+      currentState === grpc.connectivityState.SHUTDOWN ||
+      currentState === grpc.connectivityState.TRANSIENT_FAILURE ||
+      currentState === grpc.connectivityState.IDLE
     ) {
       observer.onClose();
     } else {
@@ -547,37 +547,33 @@ export class DaemonRpc {
       }
     });
 
-    const removeSubscription = () => {
-      const subscription = this.subscriptions.get(subscriptionId);
-      if (subscription !== undefined) {
-        this.subscriptions.delete(subscriptionId);
-        subscription.cancel();
-      }
-    };
-
     call.on('error', (error) => {
       // if the subscription was cancelled by the client, there's no reason to
       // invoke the onError handler
       if (
         'code' in error &&
-        error['code'] == grpc.status.CANCELLED &&
+        error['code'] === grpc.status.CANCELLED &&
         !this.subscriptions.has(subscriptionId)
       ) {
         return;
       }
       listener.onError(error);
-      removeSubscription();
+      this.removeSubscription(subscriptionId);
     });
   }
 
   public unsubscribeDaemonEventListener(listener: SubscriptionListener<DaemonEvent>) {
     const id = listener.subscriptionId;
     if (id !== undefined) {
-      const subscription = this.subscriptions.get(id);
-      if (subscription !== undefined) {
-        this.subscriptions.delete(id);
-        subscription.cancel();
-      }
+      this.removeSubscription(id);
+    }
+  }
+
+  private removeSubscription(id: number) {
+    const subscription = this.subscriptions.get(id);
+    if (subscription !== undefined) {
+      this.subscriptions.delete(id);
+      subscription.cancel();
     }
   }
 
