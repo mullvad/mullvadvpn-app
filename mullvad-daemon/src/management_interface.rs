@@ -1,6 +1,4 @@
-use crate::{
-    wireguard::DEFAULT_AUTOMATIC_KEY_ROTATION, DaemonCommand, DaemonCommandSender, EventListener,
-};
+use crate::{DaemonCommand, DaemonCommandSender, EventListener};
 use futures::compat::Future01CompatExt;
 use futures01::{future, sync, Future};
 use mullvad_management_interface::{
@@ -1199,6 +1197,8 @@ fn convert_bridge_state(state: &BridgeState) -> types::BridgeState {
 }
 
 fn convert_tunnel_options(options: &TunnelOptions) -> types::TunnelOptions {
+    use types::tunnel_options::wireguard_options::RotationInterval;
+
     types::TunnelOptions {
         openvpn: Some(types::tunnel_options::OpenvpnOptions {
             mssfix: u32::from(options.openvpn.mssfix.unwrap_or_default()),
@@ -1208,7 +1208,7 @@ fn convert_tunnel_options(options: &TunnelOptions) -> types::TunnelOptions {
             automatic_rotation: options
                 .wireguard
                 .automatic_rotation
-                .unwrap_or((DEFAULT_AUTOMATIC_KEY_ROTATION.as_secs() / 60u64 / 60u64) as u32),
+                .map(|interval| RotationInterval { interval }),
         }),
         generic: Some(types::tunnel_options::GenericOptions {
             enable_ipv6: options.generic.enable_ipv6,

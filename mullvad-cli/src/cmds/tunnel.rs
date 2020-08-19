@@ -216,10 +216,12 @@ impl Tunnel {
 
     async fn process_wireguard_rotation_interval_get() -> Result<()> {
         let tunnel_options = Self::get_tunnel_options().await?;
-        println!(
-            "Rotation interval: {} hour(s)",
-            tunnel_options.wireguard.unwrap().automatic_rotation
-        );
+        match tunnel_options.wireguard.unwrap().automatic_rotation {
+            Some(interval) => {
+                println!("Rotation interval: {} hour(s)", interval.interval);
+            }
+            None => println!("Rotation interval: default"),
+        }
         Ok(())
     }
 

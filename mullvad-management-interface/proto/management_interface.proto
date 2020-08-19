@@ -246,7 +246,6 @@ message BridgeState {
 }
 
 message Settings {
-	// NOTE: token is optional
 	string account_token = 1;
 	RelaySettings relay_settings = 2;
 	BridgeSettings bridge_settings = 3;
@@ -256,7 +255,6 @@ message Settings {
 	bool auto_connect = 7;
 	TunnelOptions tunnel_options = 8;
 	bool show_beta_releases = 9;
-	// NOTE: skipping version field
 }
 
 message RelaySettings {
@@ -344,10 +342,13 @@ message TunnelOptions {
 		uint32 mssfix = 1;
 	}
 	message WireguardOptions {
+		message RotationInterval {
+			uint32 interval = 1;
+		}
+
 		// NOTE: optional
 		uint32 mtu = 1;
-		// NOTE: optional
-		uint32 automatic_rotation = 2;
+		RotationInterval automatic_rotation = 2;
 	}
 	message GenericOptions {
 		bool enable_ipv6 = 1;
