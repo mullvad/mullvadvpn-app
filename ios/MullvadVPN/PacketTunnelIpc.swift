@@ -42,6 +42,11 @@ enum PacketTunnelRequest: Int, Codable, RawRepresentable {
     }
 }
 
+/// A container type around Packet Tunnel response
+struct PacketTunnelResponse<T: Codable>: Codable {
+    var value: T
+}
+
 /// A struct that holds the basic information regarding the tunnel connection
 struct TunnelConnectionInfo: Codable, Equatable {
     let ipv4Relay: IPv4Endpoint
@@ -96,10 +101,10 @@ extension PacketTunnelIpcHandler {
         }
     }
 
-    static func encodeResponse<T>(response: T) -> Result<Data, Error> where T: Encodable {
+    static func encodeResponse<T>(response: T) -> Result<Data, Error> where T: Codable {
         do {
             let encoder = JSONEncoder()
-            let value = try encoder.encode(response)
+            let value = try encoder.encode(PacketTunnelResponse(value: response))
 
             return .success(value)
         } catch {
@@ -163,12 +168,12 @@ class PacketTunnelIpc {
         }
     }
 
-    private class func decodeResponse<T>(data: Data) -> Result<T, Error> where T: Decodable {
+    private class func decodeResponse<T>(data: Data) -> Result<T, Error> where T: Codable {
         do {
             let decoder = JSONDecoder()
-            let value = try decoder.decode(T.self, from: data)
+            let response = try decoder.decode(PacketTunnelResponse<T>.self, from: data)
 
-            return .success(value)
+            return .success(response.value)
         } catch {
             return .failure(.decoding(error))
         }
@@ -183,7 +188,7 @@ class PacketTunnelIpc {
     }
 
     private func send<T>(message: PacketTunnelRequest, completionHandler: @escaping (Result<T, Error>) -> Void)
-        where T: Decodable
+        where T: Codable
     {
         sendWithoutDecoding(message: message) { (result) in
             let result = result.flatMap { (data) -> Result<T, Error> in

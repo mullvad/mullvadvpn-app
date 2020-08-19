@@ -65,7 +65,7 @@ class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         }
     }
 
-    private func replyAppMessage<T: Encodable>(_ response: T, completionHandler: ((Data?) -> Void)?)
+    private func replyAppMessage<T: Codable>(_ response: T, completionHandler: ((Data?) -> Void)?)
     {
         switch PacketTunnelIpcHandler.encodeResponse(response: response) {
         case .success(let data):
