@@ -9,49 +9,60 @@
 import Foundation
 import UIKit
 
-private let kSplitSeparatorWidth = CGFloat(1)
-
 class DisconnectSplitButton: UIView {
-    @IBOutlet var contentView: UIView!
-    @IBOutlet var primaryButton: AppButton!
-    @IBOutlet var secondaryButton: AppButton!
+    let primaryButton = AppButton(style: .translucentDangerSplitLeft)
+    var secondaryButton = AppButton(style: .translucentDangerSplitRight)
+
+    private let stackView: UIStackView
 
     private var secondaryButtonObserver: NSObjectProtocol?
 
-    init(bundle: Bundle?) {
+    init() {
+        stackView = UIStackView(arrangedSubviews: [primaryButton, secondaryButton])
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .horizontal
+        stackView.distribution = .fill
+        stackView.alignment = .fill
+        stackView.spacing = 1
+
+        primaryButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        primaryButton.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        primaryButton.setContentHuggingPriority(.defaultLow, for: .vertical)
+        primaryButton.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        primaryButton.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
+
+        secondaryButton.setImage(UIImage(named: "IconReload"), for: .normal)
+        secondaryButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        secondaryButton.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        secondaryButton.setContentCompressionResistancePriority(UILayoutPriority(50), for: .horizontal)
+        secondaryButton.setContentCompressionResistancePriority(UILayoutPriority(50), for: .vertical)
+
         super.init(frame: .zero)
 
-        loadFromNib(bundle: bundle)
+        addSubview(stackView)
+
+        secondaryButtonObserver = secondaryButton.observe(\.bounds, options: [.new]) { [weak self] (button, change) in
+            self?.adjustTitleLabelPosition()
+        }
+
+        NSLayoutConstraint.activate([
+            stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            stackView.topAnchor.constraint(equalTo: topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
+
+            primaryButton.heightAnchor.constraint(equalTo: secondaryButton.heightAnchor),
+            secondaryButton.widthAnchor.constraint(equalTo: secondaryButton.heightAnchor)
+        ])
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func loadFromNib(bundle: Bundle?) {
-        let nib = UINib(nibName: "DisconnectSplitButton", bundle: bundle)
-        _ = nib.instantiate(withOwner: self, options: nil)
-
-        primaryButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
-
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(contentView)
-
-        NSLayoutConstraint.activate([
-            contentView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            contentView.topAnchor.constraint(equalTo: topAnchor),
-            contentView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
-
-        secondaryButtonObserver = secondaryButton.observe(\.bounds, options: [.new]) { [weak self] (button, change) in
-            self?.adjustTitleLabelPosition()
-        }
-    }
-
     private func adjustTitleLabelPosition() {
         var contentInsets = AppButton.defaultContentInsets
-        contentInsets.left = secondaryButton.frame.width + kSplitSeparatorWidth
+        contentInsets.left = secondaryButton.frame.width + stackView.spacing
         contentInsets.right = 0
 
         primaryButton.contentEdgeInsets = contentInsets
