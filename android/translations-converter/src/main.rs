@@ -31,6 +31,7 @@ use std::{
 
 fn main() {
     let resources_dir = Path::new("../src/main/res");
+
     let strings_file = File::open(resources_dir.join("values/strings.xml"))
         .expect("Failed to open string resources file");
     let mut string_resources: android::StringResources =
@@ -61,6 +62,11 @@ fn main() {
     }
 
     let mut missing_translations = known_strings.clone();
+
+    let plurals_file = File::open(resources_dir.join("values/plurals.xml"))
+        .expect("Failed to open plurals resources file");
+    let plural_resources: android::PluralResources =
+        serde_xml_rs::from_reader(plurals_file).expect("Failed to read plural resources file");
 
     let locale_dir = Path::new("../../gui/locales");
     let locale_files = fs::read_dir(&locale_dir)
@@ -94,20 +100,49 @@ fn main() {
         );
     }
 
+    let template_path = locale_dir.join("messages.pot");
+
     if !missing_translations.is_empty() {
         println!("Appending missing translations to template file:");
 
         gettext::append_to_template(
-            locale_dir.join("messages.pot"),
+            &template_path,
             missing_translations
                 .into_iter()
                 .inspect(|(missing_translation, id)| println!("  {}: {}", id, missing_translation))
                 .map(|(id, _)| gettext::MsgEntry {
                     id,
-                    value: String::new(),
+                    value: String::new().into(),
                 }),
         )
         .expect("Failed to append missing translations to message template file");
+    }
+
+    if !plural_resources.is_empty() {
+        gettext::append_to_template(
+            &template_path,
+            plural_resources
+                .into_iter()
+                .inspect(|plural| {
+                    let last_item = &plural.items.last().expect("Plural items are empty").string;
+
+                    println!("  {}: {}", plural.name, last_item);
+                })
+                .map(|mut plural| {
+                    let plural_id = plural.items.pop().expect("Plural items are empty").string;
+                    plural.items.truncate(1);
+                    let id = plural.items.remove(0).string;
+
+                    gettext::MsgEntry {
+                        id,
+                        value: gettext::MsgValue::Plural {
+                            plural_id,
+                            values: vec!["".to_owned(), "".to_owned()],
+                        },
+                    }
+                }),
+        )
+        .expect("Failed to append missing plural translations to message template file");
     }
 }
 
