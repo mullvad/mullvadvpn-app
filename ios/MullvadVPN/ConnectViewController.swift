@@ -21,10 +21,9 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
 
     private let logger = Logger(label: "ConnectViewController")
 
-    private let connectButton = makeButton(style: .success)
-    private let selectLocationButton = makeButton(style: .translucentNeutral)
-    private lazy var selectLocationBlurView = Self.makeBlurButton(button: selectLocationButton)
-    private let splitDisconnectButtonView = DisconnectSplitButton(bundle: nil)
+    private let connectButton = AppButton(style: .success)
+    private let selectLocationButton = AppButton(style: .translucentNeutral)
+    private let splitDisconnectButtonView = DisconnectSplitButton()
 
     private let alertPresenter = AlertPresenter()
 
@@ -59,6 +58,10 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        for button in [connectButton, selectLocationButton] {
+            button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
+        }
 
         connectionPanel.collapseButton.addTarget(self, action: #selector(handleConnectionPanelButton(_:)), for: .touchUpInside)
         connectButton.addTarget(self, action: #selector(handleConnect(_:)), for: .touchUpInside)
@@ -118,47 +121,25 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
 
     // MARK: - Private
 
-    private class func makeBlurButton(button: AppButton) -> UIView {
-        let effectView = TranslucentButtonBlurView(effect: UIBlurEffect(style: .light))
-        effectView.contentView.addSubview(button)
-
-        NSLayoutConstraint.activate([
-            button.topAnchor.constraint(equalTo: effectView.contentView.topAnchor),
-            button.leadingAnchor.constraint(equalTo: effectView.contentView.leadingAnchor),
-            button.trailingAnchor.constraint(equalTo: effectView.contentView.trailingAnchor),
-            button.bottomAnchor.constraint(equalTo: effectView.contentView.bottomAnchor)
-        ])
-
-        return effectView
-    }
-
-    private class func makeButton(style: AppButton.Style) -> AppButton {
-        let button = AppButton(type: .custom)
-        button.style = style
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
-        return button
-    }
-
     private func updateButtons() {
         switch tunnelState {
         case .disconnected:
             selectLocationButton.setTitle(NSLocalizedString("Select location", comment: ""), for: .normal)
             connectButton.setTitle(NSLocalizedString("Secure connection", comment: ""), for: .normal)
 
-            setArrangedButtons([selectLocationBlurView, connectButton])
+            setArrangedButtons([selectLocationButton, connectButton])
 
         case .connecting:
             selectLocationButton.setTitle(NSLocalizedString("Switch location", comment: ""), for: .normal)
             splitDisconnectButtonView.primaryButton.setTitle(NSLocalizedString("Cancel", comment: ""), for: .normal)
 
-            setArrangedButtons([selectLocationBlurView, splitDisconnectButtonView])
+            setArrangedButtons([selectLocationButton, splitDisconnectButtonView])
 
         case .connected, .reconnecting, .disconnecting:
             selectLocationButton.setTitle(NSLocalizedString("Switch location", comment: ""), for: .normal)
             splitDisconnectButtonView.primaryButton.setTitle(NSLocalizedString("Disconnect", comment: ""), for: .normal)
 
-            setArrangedButtons([selectLocationBlurView, splitDisconnectButtonView])
+            setArrangedButtons([selectLocationButton, splitDisconnectButtonView])
         }
     }
 

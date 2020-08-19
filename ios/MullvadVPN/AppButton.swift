@@ -129,7 +129,7 @@ private extension UIControl.State {
         }
     }
 
-    var style: Style = .default {
+    var style: Style {
         didSet {
             updateButtonBackground()
         }
@@ -146,12 +146,20 @@ private extension UIControl.State {
         }
     }
 
+    init(style: Style) {
+        self.style = style
+        super.init(frame: .zero)
+        commonInit()
+    }
+
     override init(frame: CGRect) {
+        style = .default
         super.init(frame: frame)
         commonInit()
     }
 
     required init?(coder aDecoder: NSCoder) {
+        style = .default
         super.init(coder: aDecoder)
         commonInit()
     }
