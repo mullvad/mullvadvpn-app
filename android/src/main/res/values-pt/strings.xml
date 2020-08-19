@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="account_created">Conta criada</string>
+    <string name="account_credit_has_expired">Não tem mais Tempo de VPN restante nesta conta.</string>
     <string name="account_number">Número de conta</string>
     <string name="account_url">https://mullvad.net/pt/account</string>
     <string name="add_time_to_account">Compre crédito no nosso sítio da web ou reclame um voucher.</string>
@@ -51,13 +52,13 @@
     <string name="login_fail_description">Número de conta inválido</string>
     <string name="login_fail_title">Erro ao iniciar sessão</string>
     <string name="login_title">Iniciar sessão</string>
-    <string name="no_more_vpn_time_left">Não tem mais Tempo de VPN restante nesta conta.</string>
     <string name="no_wireguard_key">Chave WireGuard válida em falta. Faça a gestão das chaves em Definições Avançadas.</string>
     <string name="not_blocking_internet">PODERÁ ESTAR A PERDER TRÁFEGO DE REDE</string>
     <string name="out_of_time">Sem tempo</string>
     <string name="paid_until">Pago até</string>
     <string name="pay_to_start_using">Para começar a utilizar a aplicação, primeiro tem de adicionar tempo à sua conta.</string>
     <string name="problem_report_description">Para o ajudarmos de forma mais eficaz, o ficheiro de registo da sua aplicação será anexado a esta mensagem. Os seus dados permanecerão seguros e privados, pois são tornados anónimos antes de serem enviados através de um canal encriptado.</string>
+    <string name="public_key">Chave pública</string>
     <string name="quit">Sair da app</string>
     <string name="reconnecting">A religar</string>
     <string name="redeem">Reclamar</string>
@@ -106,7 +107,6 @@
     <string name="wireguard_manage_keys">Gerir chaves</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Definir o valor WireGuard MTU. Intervalo válido: %1$d - %2$d.</string>
-    <string name="wireguard_public_key">Chave pública</string>
     <string name="wireguard_replace_key">Voltar a gerar chave</string>
     <string name="wireguard_verify_key">Verificar chave</string>
 </resources>
