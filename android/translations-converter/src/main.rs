@@ -16,6 +16,13 @@
 //! order when only named parameters are used, and Android strings only supported numbered
 //! parameters.
 //!
+//! Android's plural resources aren't currently translated, but this tool will convert them to
+//! gettext message templates and append them to the message template file. It's important to note
+//! that the first quantity item for a plural will be used as the `msgid`, so it shouldn't
+//! have any parameters. The last quantity item for a plural will be used as the `msgid_plural`,
+//! and it can contain parameters. This assumes a plural resource will have at least two items.
+//! While it would still work with a single item, this is an unlikely case for a plural resource.
+//!
 //! Note that this conversion procedure is very raw and likely very brittle, so while it works for
 //! most cases, it is important to keep in mind that this is just a helper tool and manual steps are
 //! likely to be needed from time to time.
