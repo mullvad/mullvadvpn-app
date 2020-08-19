@@ -1,14 +1,15 @@
-import { Styles } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import * as AppButton from './AppButton';
 import * as Cell from './Cell';
+import { Container } from './Layout';
 import { NavigationScrollbars } from './NavigationBar';
 
-export const OutOfTimeSubText = styled(Cell.SubText)((props: { isOutOfTime: boolean }) => ({
+export const StyledOutOfTimeSubText = styled(Cell.SubText)((props: { isOutOfTime: boolean }) => ({
   color: props.isOutOfTime ? colors.red : undefined,
 }));
 
-export const CellIcon = styled(Cell.UntintedIcon)({
+export const StyledCellIcon = styled(Cell.UntintedIcon)({
   marginRight: '8px',
 });
 
@@ -16,40 +17,24 @@ export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
   flex: 1,
 });
 
-export default {
-  settings: Styles.createViewStyle({
-    backgroundColor: colors.darkBlue,
-    flex: 1,
-  }),
-  container: Styles.createViewStyle({
-    flexDirection: 'column',
-    flex: 1,
-  }),
-  content: Styles.createViewStyle({
-    flexDirection: 'column',
-    flex: 1,
-    justifyContent: 'space-between',
-    overflow: 'visible',
-  }),
-  cellSpacer: Styles.createViewStyle({
-    height: 20,
-    flex: 0,
-  }),
-  cellFooter: Styles.createViewStyle({
-    paddingTop: 6,
-    paddingHorizontal: 22,
-    paddingBottom: 20,
-  }),
-  quitButtonFooter: Styles.createViewStyle({
-    paddingTop: 20,
-    paddingBottom: 22,
-    paddingHorizontal: 22,
-  }),
-  cellFooterLabel: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    fontWeight: '600',
-    lineHeight: 20,
-    color: colors.white60,
-  }),
-};
+export const StyledContainer = styled(Container)({
+  backgroundColor: colors.darkBlue,
+});
+
+export const StyledContent = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  justifyContent: 'space-between',
+  overflow: 'visible',
+});
+
+export const StyledCellSpacer = styled.div({
+  height: '20px',
+  minHeight: '20px',
+  flex: 0,
+});
+
+export const StyledQuitButton = styled(AppButton.RedButton)({
+  margin: '20px 22px 22px',
+});
