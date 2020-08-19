@@ -96,19 +96,19 @@ fn main() {
 
     if !missing_translations.is_empty() {
         println!("Appending missing translations to template file:");
-    }
 
-    gettext::append_to_template(
-        locale_dir.join("messages.pot"),
-        missing_translations
-            .into_iter()
-            .inspect(|(missing_translation, id)| println!("  {}: {}", id, missing_translation))
-            .map(|(id, _)| gettext::MsgEntry {
-                id,
-                value: String::new(),
-            }),
-    )
-    .expect("Failed to append missing translations to message template file");
+        gettext::append_to_template(
+            locale_dir.join("messages.pot"),
+            missing_translations
+                .into_iter()
+                .inspect(|(missing_translation, id)| println!("  {}: {}", id, missing_translation))
+                .map(|(id, _)| gettext::MsgEntry {
+                    id,
+                    value: String::new(),
+                }),
+        )
+        .expect("Failed to append missing translations to message template file");
+    }
 }
 
 /// Determines the localized value resources directory name based on a locale specification.
