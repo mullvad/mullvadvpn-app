@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Component, Text, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
 import { hasExpired } from '../../shared/account-expiry';
@@ -8,12 +7,20 @@ import { messages } from '../../shared/gettext';
 import { LoginState } from '../redux/account/reducers';
 import * as AppButton from './AppButton';
 import * as Cell from './Cell';
-import styles, {
-  ModalCellContainer,
+import {
+  StyledAccountTokenContainer,
   StyledAccountTokenLabel,
+  StyledAccountTokenMessage,
+  StyledBody,
   StyledBuyCreditButton,
+  StyledContainer,
   StyledCustomScrollbars,
   StyledDisconnectButton,
+  StyledFooter,
+  StyledMessage,
+  StyledModalCellContainer,
+  StyledStatusIcon,
+  StyledTitle,
 } from './ExpiredAccountErrorViewStyles';
 import ImageView from './ImageView';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
@@ -42,7 +49,7 @@ interface IExpiredAccountErrorViewState {
   showRedeemVoucherAlert: boolean;
 }
 
-export default class ExpiredAccountErrorView extends Component<
+export default class ExpiredAccountErrorView extends React.Component<
   IExpiredAccountErrorViewProps,
   IExpiredAccountErrorViewState
 > {
@@ -60,10 +67,10 @@ export default class ExpiredAccountErrorView extends Component<
   public render() {
     return (
       <StyledCustomScrollbars fillContainer>
-        <View style={styles.container}>
-          <View style={styles.body}>{this.renderContent()}</View>
+        <StyledContainer>
+          <StyledBody>{this.renderContent()}</StyledBody>
 
-          <View style={styles.footer}>
+          <StyledFooter>
             {this.getRecoveryAction() === RecoveryAction.disconnect && (
               <AppButton.BlockingButton onClick={this.props.onDisconnect}>
                 <StyledDisconnectButton>
@@ -79,11 +86,11 @@ export default class ExpiredAccountErrorView extends Component<
               onClick={this.onOpenRedeemVoucherAlert}>
               {messages.pgettext('connect-view', 'Redeem voucher')}
             </AppButton.GreenButton>
-          </View>
+          </StyledFooter>
 
           {this.state.showRedeemVoucherAlert && this.renderRedeemVoucherAlert()}
           {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
-        </View>
+        </StyledContainer>
       </StyledCustomScrollbars>
     );
   }
@@ -95,11 +102,11 @@ export default class ExpiredAccountErrorView extends Component<
 
     return (
       <>
-        <View style={styles.statusIcon}>
+        <StyledStatusIcon>
           <ImageView source="icon-fail" height={60} width={60} />
-        </View>
-        <View style={styles.title}>{messages.pgettext('connect-view', 'Out of time')}</View>
-        <View style={styles.message}>
+        </StyledStatusIcon>
+        <StyledTitle>{messages.pgettext('connect-view', 'Out of time')}</StyledTitle>
+        <StyledMessage>
           {sprintf('%(introduction)s %(recoveryMessage)s', {
             introduction: messages.pgettext(
               'connect-view',
@@ -107,7 +114,7 @@ export default class ExpiredAccountErrorView extends Component<
             ),
             recoveryMessage: this.getRecoveryActionMessage(),
           })}
-        </View>
+        </StyledMessage>
       </>
     );
   }
@@ -115,17 +122,15 @@ export default class ExpiredAccountErrorView extends Component<
   private renderWelcomeView() {
     return (
       <>
-        <View style={styles.title}>{messages.pgettext('connect-view', 'Congrats!')}</View>
-        <View style={[styles.message, styles.accountTokenMessage]}>
-          <Text style={[styles.fieldLabel, styles.accountTokenFieldLabel]}>
-            {messages.pgettext('connect-view', 'Here’s your account number. Save it!')}
-          </Text>
-          <View style={styles.accountTokenContainer}>
+        <StyledTitle>{messages.pgettext('connect-view', 'Congrats!')}</StyledTitle>
+        <StyledAccountTokenMessage>
+          {messages.pgettext('connect-view', 'Here’s your account number. Save it!')}
+          <StyledAccountTokenContainer>
             <StyledAccountTokenLabel accountToken={this.props.accountToken || ''} />
-          </View>
-        </View>
+          </StyledAccountTokenContainer>
+        </StyledAccountTokenMessage>
 
-        <View style={styles.message}>
+        <StyledMessage>
           {sprintf('%(introduction)s %(recoveryMessage)s', {
             introduction: messages.pgettext(
               'connect-view',
@@ -133,7 +138,7 @@ export default class ExpiredAccountErrorView extends Component<
             ),
             recoveryMessage: this.getRecoveryActionMessage(),
           })}
-        </View>
+        </StyledMessage>
       </>
     );
   }
@@ -202,13 +207,13 @@ export default class ExpiredAccountErrorView extends Component<
             'Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings.',
           )}
         </ModalMessage>
-        <ModalCellContainer>
+        <StyledModalCellContainer>
           <Cell.Label>{messages.pgettext('connect-view', 'Always require VPN')}</Cell.Label>
           <Cell.Switch
             isOn={this.props.blockWhenDisconnected}
             onChange={this.props.setBlockWhenDisconnected}
           />
-        </ModalCellContainer>
+        </StyledModalCellContainer>
       </ModalAlert>
     );
   }
