@@ -56,7 +56,7 @@
                                                                android:layout_width="match_parent"
                                                                android:layout_height="wrap_content"
                                                                android:layout_marginTop="@dimen/vertical_space"
-                                                               mullvad:text="@string/split_tunnelling" />
+                                                               mullvad:text="@string/split_tunneling" />
             </LinearLayout>
         </net.mullvad.mullvadvpn.ui.widget.ListenableScrollView>
     </LinearLayout>

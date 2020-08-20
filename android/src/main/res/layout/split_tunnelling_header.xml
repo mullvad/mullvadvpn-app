@@ -11,13 +11,13 @@
               android:layout_marginLeft="@dimen/side_margin"
               android:layout_marginTop="2dp"
               android:layout_marginBottom="12dp"
-              android:text="@string/split_tunnelling"
+              android:text="@string/split_tunneling"
               style="@style/SettingsExpandedHeader" />
     <TextView android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:paddingTop="8dp"
               android:paddingHorizontal="@dimen/side_margin"
-              android:text="@string/split_tunnelling_description"
+              android:text="@string/split_tunneling_description"
               android:textColor="@color/white60"
               android:textSize="@dimen/text_small" />
     <net.mullvad.mullvadvpn.ui.widget.ToggleCell android:id="@+id/enabled"
