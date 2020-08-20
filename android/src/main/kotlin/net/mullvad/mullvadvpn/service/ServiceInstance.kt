@@ -7,7 +7,7 @@ class ServiceInstance(
     val connectionProxy: ConnectionProxy,
     val connectivityListener: ConnectivityListener,
     val settingsListener: SettingsListener,
-    val splitTunnelling: SplitTunneling
+    val splitTunneling: SplitTunneling
 ) {
     val accountCache = AccountCache(daemon, settingsListener)
     val keyStatusListener = KeyStatusListener(daemon)
