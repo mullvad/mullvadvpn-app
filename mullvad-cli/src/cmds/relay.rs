@@ -9,9 +9,9 @@ use std::{
 use mullvad_management_interface::types::{
     connection_config::{self, OpenvpnConfig, WireguardConfig},
     relay_settings, relay_settings_update, ConnectionConfig, CustomRelaySettings,
-    NormalRelaySettingsUpdate, OpenvpnConstraints, RelaySettingsUpdate, TransportProtocol,
-    TransportProtocolConstraint, TunnelType, TunnelTypeConstraint, TunnelTypeUpdate,
-    WireguardConstraints,
+    NormalRelaySettingsUpdate, OpenvpnConstraints, ProviderUpdate, RelaySettingsUpdate,
+    TransportProtocol, TransportProtocolConstraint, TunnelType, TunnelTypeConstraint,
+    TunnelTypeUpdate, WireguardConstraints,
 };
 use mullvad_types::relay_constraints::Constraint;
 use talpid_types::net::all_of_the_internet;
@@ -117,6 +117,16 @@ impl Command for Relay {
                                    command to show available alternatives.")
                     )
                     .subcommand(
+                        clap::SubCommand::with_name("provider")
+                            .about("Set a hosting provider to select relays from. The 'list' \
+                                   command shows the available relays and their providers.")
+                            .arg(
+                                clap::Arg::with_name("provider")
+                                .help("The hosting provider to use, or 'any' for no preference.")
+                                .required(true)
+                            )
+                    )
+                    .subcommand(
                         clap::SubCommand::with_name("tunnel")
                             .about("Set individual tunnel constraints")
                             .arg(
@@ -183,6 +193,8 @@ impl Relay {
             self.set_custom(custom_matches).await
         } else if let Some(location_matches) = matches.subcommand_matches("location") {
             self.set_location(location_matches).await
+        } else if let Some(provider_matches) = matches.subcommand_matches("provider") {
+            self.set_provider(provider_matches).await
         } else if let Some(tunnel_matches) = matches.subcommand_matches("tunnel") {
             self.set_tunnel(tunnel_matches).await
         } else if let Some(tunnel_matches) = matches.subcommand_matches("tunnel-protocol") {
@@ -324,6 +336,26 @@ impl Relay {
         .await
     }
 
+    async fn set_provider(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+        let provider = value_t!(matches.value_of("provider"), String).unwrap_or_else(|e| e.exit());
+
+        self.update_constraints(RelaySettingsUpdate {
+            r#type: Some(relay_settings_update::Type::Normal(
+                NormalRelaySettingsUpdate {
+                    provider: Some(ProviderUpdate {
+                        provider: if provider == "any" {
+                            "".to_string()
+                        } else {
+                            provider
+                        },
+                    }),
+                    ..Default::default()
+                },
+            )),
+        })
+        .await
+    }
+
     async fn set_tunnel(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let vpn_protocol = matches.value_of("vpn protocol").unwrap();
         let port = parse_port_constraint(matches.value_of("port").unwrap())?;
@@ -405,27 +437,30 @@ impl Relay {
             relay_settings::Endpoint::Normal(settings) => match settings.tunnel_type {
                 None => {
                     println!(
-                        "Any tunnel protocol with OpenVPN over {} and WireGuard over {} in {}",
+                        "Any tunnel protocol with OpenVPN over {} and WireGuard over {} in {} using {}",
                         Self::format_openvpn_constraints(settings.openvpn_constraints.as_ref()),
                         Self::format_wireguard_constraints(settings.wireguard_constraints.as_ref()),
-                        location::format_location(settings.location.as_ref())
+                        location::format_location(settings.location.as_ref()),
+                        location::format_provider(settings.provider.as_ref())
                     );
                 }
                 Some(constraint) => match TunnelType::from_i32(constraint.tunnel_type).unwrap() {
                     TunnelType::Wireguard => {
                         println!(
-                            "WireGuard over {} in {}",
+                            "WireGuard over {} in {} using {}",
                             Self::format_wireguard_constraints(
                                 settings.wireguard_constraints.as_ref()
                             ),
-                            location::format_location(settings.location.as_ref())
+                            location::format_location(settings.location.as_ref()),
+                            location::format_provider(settings.provider.as_ref())
                         );
                     }
                     TunnelType::Openvpn => {
                         println!(
-                            "OpenVPN over {} in {}",
+                            "OpenVPN over {} in {} using {}",
                             Self::format_openvpn_constraints(settings.openvpn_constraints.as_ref()),
-                            location::format_location(settings.location.as_ref())
+                            location::format_location(settings.location.as_ref()),
+                            location::format_provider(settings.provider.as_ref())
                         );
                     }
                 },
