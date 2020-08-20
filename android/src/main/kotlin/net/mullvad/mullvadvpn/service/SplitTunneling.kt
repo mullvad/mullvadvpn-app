@@ -7,7 +7,7 @@ import kotlin.properties.Delegates.observable
 private const val SHARED_PREFERENCES = "split_tunnelling"
 private const val KEY_ENABLED = "enabled"
 
-class SplitTunnelling(context: Context) {
+class SplitTunneling(context: Context) {
     private val appListFile = File(context.filesDir, "split-tunnelling.txt")
     private val excludedApps = HashSet<String>()
     private val preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)

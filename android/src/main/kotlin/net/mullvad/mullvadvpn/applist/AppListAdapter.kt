@@ -6,12 +6,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.service.SplitTunnelling
+import net.mullvad.mullvadvpn.service.SplitTunneling
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class AppListAdapter(
     context: Context,
-    private val splitTunnelling: SplitTunnelling
+    private val splitTunnelling: SplitTunneling
 ) : Adapter<AppListItemHolder>() {
     private val appList = ArrayList<AppInfo>()
     private val jobTracker = JobTracker()

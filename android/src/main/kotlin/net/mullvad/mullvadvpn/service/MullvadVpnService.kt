@@ -238,7 +238,7 @@ class MullvadVpnService : TalpidVpnService() {
             pendingAction = null
         }
 
-        val splitTunnelling = SplitTunnelling(this).apply {
+        val splitTunnelling = SplitTunneling(this).apply {
             onChange = { excludedApps ->
                 disallowedApps = excludedApps
                 markTunAsStale()

@@ -8,12 +8,12 @@ import android.widget.ImageView
 import android.widget.TextView
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.service.SplitTunnelling
+import net.mullvad.mullvadvpn.service.SplitTunneling
 import net.mullvad.mullvadvpn.ui.widget.CellSwitch
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class AppListItemHolder(
-    private val splitTunnelling: SplitTunnelling,
+    private val splitTunnelling: SplitTunneling,
     private val packageManager: PackageManager,
     private val jobTracker: JobTracker,
     view: View
