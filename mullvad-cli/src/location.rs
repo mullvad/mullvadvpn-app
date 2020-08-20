@@ -73,6 +73,14 @@ pub fn format_location(location: Option<&RelayLocation>) -> String {
     "any location".to_string()
 }
 
+pub fn format_provider(provider: &str) -> String {
+    if !provider.is_empty() {
+        format!("provider {}", provider)
+    } else {
+        "any provider".to_string()
+    }
+}
+
 fn country_code_validator(code: String) -> std::result::Result<(), String> {
     if code.len() == 2 || code == "any" {
         Ok(())
