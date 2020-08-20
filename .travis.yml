@@ -42,8 +42,8 @@ matrix:
       name: Android
       android:
         components:
-          - android-28
-          - build-tools-28.0.3
+          - android-29
+          - build-tools-29.0.3
       install:
         - curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable --profile minimal -y
         - source $HOME/.cargo/env
