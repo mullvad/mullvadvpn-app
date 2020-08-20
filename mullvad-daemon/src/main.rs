@@ -110,7 +110,7 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
     shutdown::set_shutdown_signal_handler(move || shutdown_handle.shutdown())
         .map_err(|e| e.display_chain())?;
 
-    daemon.run().map_err(|e| e.display_chain())?;
+    daemon.run().await.map_err(|e| e.display_chain())?;
 
     info!("Mullvad daemon is quitting");
     thread::sleep(Duration::from_millis(500));
