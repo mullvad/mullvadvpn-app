@@ -25,8 +25,8 @@ pub enum Error {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 #[cfg_attr(target_os = "android", jnix(skip_all))]
 pub struct CustomTunnelEndpoint {
-    host: String,
-    config: ConnectionConfig,
+    pub host: String,
+    pub config: ConnectionConfig,
 }
 
 impl CustomTunnelEndpoint {

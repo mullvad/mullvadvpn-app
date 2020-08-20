@@ -28,6 +28,13 @@ pub enum Constraint<T: fmt::Debug + Clone + Eq + PartialEq> {
 }
 
 impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
+    pub fn unwrap(self) -> T {
+        match self {
+            Constraint::Any => panic!("called `Constraint::unwrap()` on an `Any` value"),
+            Constraint::Only(value) => value,
+        }
+    }
+
     pub fn unwrap_or(self, other: T) -> T {
         match self {
             Constraint::Any => other,
@@ -42,10 +49,34 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
         }
     }
 
+    pub fn map<U: fmt::Debug + Clone + Eq + PartialEq, F: FnOnce(T) -> U>(
+        self,
+        f: F,
+    ) -> Constraint<U> {
+        match self {
+            Constraint::Any => Constraint::Any,
+            Constraint::Only(value) => Constraint::Only(f(value)),
+        }
+    }
+
     pub fn is_any(&self) -> bool {
         match self {
             Constraint::Any => true,
             Constraint::Only(_value) => false,
+        }
+    }
+
+    pub fn as_ref(&self) -> Constraint<&T> {
+        match self {
+            Constraint::Any => Constraint::Any,
+            Constraint::Only(ref value) => Constraint::Only(value),
+        }
+    }
+
+    pub fn option(self) -> Option<T> {
+        match self {
+            Constraint::Any => None,
+            Constraint::Only(value) => Some(value),
         }
     }
 }
@@ -63,6 +94,15 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Match<T> for Constraint<T> {
         match *self {
             Constraint::Any => true,
             Constraint::Only(ref value) => value == other,
+        }
+    }
+}
+
+impl<T: fmt::Debug + Clone + Eq + PartialEq> From<Option<T>> for Constraint<T> {
+    fn from(value: Option<T>) -> Self {
+        match value {
+            Some(value) => Constraint::Only(value),
+            None => Constraint::Any,
         }
     }
 }

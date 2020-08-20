@@ -3,6 +3,7 @@ use talpid_types::ErrorExt;
 
 pub struct Reconnect;
 
+#[mullvad_management_interface::async_trait]
 impl Command for Reconnect {
     fn name(&self) -> &'static str {
         "reconnect"
@@ -12,9 +13,9 @@ impl Command for Reconnect {
         clap::SubCommand::with_name(self.name()).about("Command the client to reconnect")
     }
 
-    fn run(&self, _matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let mut rpc = new_rpc_client()?;
-        if let Err(e) = rpc.reconnect() {
+    async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
+        let mut rpc = new_rpc_client().await?;
+        if let Err(e) = rpc.reconnect_tunnel(()).await {
             eprintln!("{}", e.display_chain());
         }
         Ok(())

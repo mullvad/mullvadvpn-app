@@ -68,6 +68,10 @@ impl ErrorState {
     pub fn cause(&self) -> &ErrorStateCause {
         &self.cause
     }
+
+    pub fn block_failure(&self) -> Option<&FirewallPolicyError> {
+        self.block_failure.as_ref()
+    }
 }
 
 

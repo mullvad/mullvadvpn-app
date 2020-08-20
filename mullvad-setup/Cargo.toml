@@ -16,7 +16,10 @@ clap = "2.32"
 env_logger = "0.7"
 err-derive = "0.2.1"
 
-mullvad-ipc-client = { path = "../mullvad-ipc-client" }
+mullvad-management-interface = { path = "../mullvad-management-interface" }
+
+tokio = { version = "0.2", features =  [ "io-util", "process", "rt-core", "rt-threaded", "stream"] }
+
 mullvad-paths = { path = "../mullvad-paths" }
 talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }

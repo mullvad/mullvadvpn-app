@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 - Display the original block reason in the non-blocking error state, and why applying the blocking
   policy failed.
 - Don't show account time expired notification for newly created accounts.
+- Use gRPC for communication between frontends and the backend instead of JSON-RPC.
 
 #### Android
 - Show a system notification when the account time will soon run out.

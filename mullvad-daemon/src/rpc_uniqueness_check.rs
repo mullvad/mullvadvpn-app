@@ -1,13 +1,12 @@
-use mullvad_ipc_client::new_standalone_ipc_client;
-use mullvad_paths;
+use mullvad_management_interface::new_rpc_client;
 use talpid_types::ErrorExt;
 
 /// Checks if there is another instance of the daemon running.
 ///
 /// Tries to connect to another daemon and perform a simple RPC call. If it fails, assumes the
 /// other daemon has stopped.
-pub fn is_another_instance_running() -> bool {
-    match new_standalone_ipc_client(&mullvad_paths::get_rpc_socket_path()) {
+pub async fn is_another_instance_running() -> bool {
+    match new_rpc_client().await {
         Ok(_) => true,
         Err(error) => {
             let msg =

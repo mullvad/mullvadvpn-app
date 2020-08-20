@@ -1,11 +1,14 @@
 #![deny(rust_2018_idioms)]
 
 use clap::{crate_authors, crate_description};
-use mullvad_ipc_client::{new_standalone_ipc_client, DaemonRpcClient};
+use mullvad_management_interface::async_trait;
 use std::{collections::HashMap, io};
 use talpid_types::ErrorExt;
 
+pub use mullvad_management_interface::{self, new_rpc_client};
+
 mod cmds;
+mod format;
 mod location;
 
 pub const BIN_NAME: &str = "mullvad";
@@ -18,26 +21,20 @@ pub enum Error {
     #[error(display = "Failed to connect to daemon")]
     DaemonNotRunning(#[error(source)] io::Error),
 
-    #[error(display = "Can't subscribe to daemon states")]
-    CantSubscribe(#[error(source)] mullvad_ipc_client::PubSubError),
+    #[error(display = "Management interface error")]
+    ManagementInterfaceError(#[error(source)] mullvad_management_interface::Error),
 
     #[error(display = "Failed to communicate with mullvad-daemon over RPC")]
-    RpcClientError(#[error(source)] mullvad_ipc_client::Error),
+    GrpcClientError(#[error(source)] mullvad_management_interface::Status),
 
     /// The given command is not correct in some way
     #[error(display = "Invalid command: {}", _0)]
     InvalidCommand(&'static str),
 }
 
-pub fn new_rpc_client() -> Result<DaemonRpcClient> {
-    match new_standalone_ipc_client(&mullvad_paths::get_rpc_socket_path()) {
-        Err(e) => Err(Error::DaemonNotRunning(e)),
-        Ok(client) => Ok(client),
-    }
-}
-
-fn main() {
-    let exit_code = match run() {
+#[tokio::main]
+async fn main() {
+    let exit_code = match run().await {
         Ok(_) => 0,
         Err(error) => {
             eprintln!("{}", error.display_chain());
@@ -47,7 +44,7 @@ fn main() {
     std::process::exit(exit_code);
 }
 
-fn run() -> Result<()> {
+async fn run() -> Result<()> {
     env_logger::init();
 
     let commands = cmds::get_commands();
@@ -85,7 +82,7 @@ fn run() -> Result<()> {
         }
         (sub_name, Some(sub_matches)) => {
             if let Some(cmd) = commands.get(sub_name) {
-                cmd.run(sub_matches)
+                cmd.run(sub_matches).await
             } else {
                 unreachable!("No command matched");
             }
@@ -109,10 +106,11 @@ fn build_cli(commands: &HashMap<&'static str, Box<dyn Command>>) -> clap::App<'s
         .subcommands(commands.values().map(|cmd| cmd.clap_subcommand()))
 }
 
+#[async_trait]
 pub trait Command {
     fn name(&self) -> &'static str;
 
     fn clap_subcommand(&self) -> clap::App<'static, 'static>;
 
-    fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()>;
+    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()>;
 }

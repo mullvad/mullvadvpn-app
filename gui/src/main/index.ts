@@ -44,12 +44,7 @@ import consumePromise from '../shared/promise';
 import { Scheduler } from '../shared/scheduler';
 import AccountDataCache from './account-data-cache';
 import { getOpenAtLogin, setOpenAtLogin } from './autostart';
-import {
-  ConnectionObserver,
-  DaemonRpc,
-  ResponseParseError,
-  SubscriptionListener,
-} from './daemon-rpc';
+import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rpc';
 import { InvalidAccountError } from './errors';
 import Expectation from './expectation';
 import GuiSettings from './gui-settings';
@@ -63,7 +58,7 @@ import WindowController from './window-controller';
 const linuxSplitTunneling = process.platform === 'linux' && require('./linux-split-tunneling');
 
 const DAEMON_RPC_PATH =
-  process.platform === 'win32' ? '//./pipe/Mullvad VPN' : '/var/run/mullvad-vpn';
+  process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
 
 const AUTO_CONNECT_FALLBACK_DELAY = 6000;
 
@@ -95,7 +90,7 @@ class ApplicationMain {
   private windowController?: WindowController;
   private trayIconController?: TrayIconController;
 
-  private daemonRpc = new DaemonRpc();
+  private daemonRpc = new DaemonRpc(DAEMON_RPC_PATH);
   private daemonEventListener?: SubscriptionListener<DaemonEvent>;
   private reconnectBackoff = new ReconnectionBackoff();
   private connectedToDaemon = false;
@@ -138,7 +133,6 @@ class ApplicationMain {
       },
       wireguard: {
         mtu: undefined,
-        fwmark: undefined,
       },
     },
   };
@@ -310,7 +304,7 @@ class ApplicationMain {
     // Unsubscribe the event handler
     try {
       if (this.daemonEventListener) {
-        await this.daemonRpc.unsubscribeDaemonEventListener(this.daemonEventListener);
+        this.daemonRpc.unsubscribeDaemonEventListener(this.daemonEventListener);
 
         log.info('Unsubscribed from the daemon events');
       }
@@ -326,6 +320,8 @@ class ApplicationMain {
     if (process.platform === 'darwin' && this.windowController) {
       this.windowController.window.closable = true;
     }
+
+    this.daemonRpc.disconnect();
   }
 
   private detectLocale(): string {
@@ -419,7 +415,7 @@ class ApplicationMain {
 
     // subscribe to events
     try {
-      this.daemonEventListener = await this.subscribeEvents();
+      this.daemonEventListener = this.subscribeEvents();
     } catch (error) {
       log.error(`Failed to subscribe: ${error.message}`);
 
@@ -500,12 +496,18 @@ class ApplicationMain {
   };
 
   private onDaemonDisconnected = (error?: Error) => {
+    if (this.daemonEventListener) {
+      this.daemonRpc.unsubscribeDaemonEventListener(this.daemonEventListener);
+    }
     // make sure we were connected before to distinguish between a failed attempt to reconnect and
     // connection loss.
     const wasConnected = this.connectedToDaemon;
 
     // Reset the daemon event listener since it's going to be invalidated on disconnect
     this.daemonEventListener = undefined;
+
+    // TODO: GRPC doesn't set an error, but without an error, the UI won't be updated
+    error = error === undefined && wasConnected ? new Error('Connection to daemon lost') : error;
 
     if (wasConnected) {
       this.connectedToDaemon = false;
@@ -529,32 +531,24 @@ class ApplicationMain {
       } else {
         log.error(`Failed to connect to daemon: ${error.message}`);
       }
-
-      this.reconnectToDaemon();
     } else {
       log.info('Disconnected from the daemon');
     }
   };
 
   private connectToDaemon() {
-    consumePromise(this.daemonRpc.connect({ path: DAEMON_RPC_PATH }));
-  }
-
-  private reconnectToDaemon() {
-    this.reconnectBackoff.attempt(() => {
-      this.connectToDaemon();
-    });
+    consumePromise(this.daemonRpc.connect());
   }
 
   private recoverFromBootstrapError(_error?: Error) {
     // Attempt to reconnect to daemon if the program fails to fetch settings, tunnel state or
     // subscribe for RPC events.
-    this.daemonRpc.disconnect();
-
-    this.reconnectToDaemon();
+    if (this.daemonEventListener) {
+      this.daemonRpc.unsubscribeDaemonEventListener(this.daemonEventListener);
+    }
   }
 
-  private async subscribeEvents(): Promise<SubscriptionListener<DaemonEvent>> {
+  private subscribeEvents(): SubscriptionListener<DaemonEvent> {
     const daemonEventListener = new SubscriptionListener(
       (daemonEvent: DaemonEvent) => {
         if ('tunnelState' in daemonEvent) {
@@ -575,14 +569,11 @@ class ApplicationMain {
       },
       (error: Error) => {
         log.error(`Cannot deserialize the daemon event: ${error.message}`);
-
-        if (error instanceof ResponseParseError && error.validationError) {
-          log.error(error.validationError.message);
-        }
+        log.error(error.stack);
       },
     );
 
-    await this.daemonRpc.subscribeDaemonEventListener(daemonEventListener);
+    this.daemonRpc.subscribeDaemonEventListener(daemonEventListener);
 
     return daemonEventListener;
   }
