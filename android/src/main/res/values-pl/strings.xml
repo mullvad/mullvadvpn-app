@@ -41,6 +41,7 @@
     <string name="failed_to_send_details">Być może przed ponowną próbą trzeba będzie wrócić do głównego ekranu aplikacji i kliknąć przycisk Rozłącz. Nie martw się, wprowadzone informacje pozostaną w formularzu.</string>
     <string name="here_is_your_account_number">Oto Twój numer konta. Zachowaj go!</string>
     <string name="hint_default">Domyślnie</string>
+    <string name="in_address">Wejście</string>
     <string name="invalid_voucher">Nieprawidłowy kod kuponu.</string>
     <string name="is_offline">To urządzenie jest offline, nie można ustanowić tuneli</string>
     <string name="local_network_sharing">Udostępnianie sieci lokalnej</string>
@@ -54,6 +55,7 @@
     <string name="login_title">Logowanie</string>
     <string name="no_wireguard_key">Brak prawidłowego klucza WireGuard. Zarządzaj kluczami w obszarze Ustawienia zaawansowane.</string>
     <string name="not_blocking_internet">TWÓJ RUCH SIECIOWY MOŻE WYCIEKAĆ</string>
+    <string name="out_address">Wyjście</string>
     <string name="out_of_time">Koniec czasu</string>
     <string name="paid_until">Płatne do</string>
     <string name="pay_to_start_using">Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta.</string>

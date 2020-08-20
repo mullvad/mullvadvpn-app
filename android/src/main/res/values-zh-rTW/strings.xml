@@ -41,6 +41,7 @@
     <string name="failed_to_send_details">在重試之前，您可能需要返回應用程式的主畫面，然後按一下「中斷連線」。請不用擔心，您輸入的資訊將保留在表單中。</string>
     <string name="here_is_your_account_number">以下是您的帳號。請妥善保管！</string>
     <string name="hint_default">預設</string>
+    <string name="in_address">入境</string>
     <string name="invalid_voucher">憑證兌換碼無效。</string>
     <string name="is_offline">此裝置目前離線中，無法建立通道</string>
     <string name="local_network_sharing">本機網路分享</string>
@@ -54,6 +55,7 @@
     <string name="login_title">登入</string>
     <string name="no_wireguard_key">缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。</string>
     <string name="not_blocking_internet">您的網路流量可能正在洩露</string>
+    <string name="out_address">出境</string>
     <string name="out_of_time">逾時</string>
     <string name="paid_until">支付至</string>
     <string name="pay_to_start_using">需先在帳戶中加時，才能開始使用本應用程式。</string>

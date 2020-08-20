@@ -41,6 +41,7 @@
     <string name="failed_to_send_details">Voordat u het opnieuw probeert, keert u eventueel terug naar het hoofdscherm van de app en klikt u op Verbinding verbreken. Geen zorgen, de ingevoerde informatie blijft in het formulier staan.</string>
     <string name="here_is_your_account_number">Hier is uw accountnummer. Sla het op!</string>
     <string name="hint_default">Standaard</string>
+    <string name="in_address">In</string>
     <string name="invalid_voucher">Vouchercode is ongeldig.</string>
     <string name="is_offline">Dit toestel is offline, er kunnen geen tunnels worden gemaakt</string>
     <string name="local_network_sharing">Delen op lokaal netwerk</string>
@@ -54,6 +55,7 @@
     <string name="login_title">Aanmelden</string>
     <string name="no_wireguard_key">Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen.</string>
     <string name="not_blocking_internet">U LEKT MOGELIJK NETWERKVERKEER</string>
+    <string name="out_address">Uit</string>
     <string name="out_of_time">Geen tijd meer</string>
     <string name="paid_until">Betaald tot</string>
     <string name="pay_to_start_using">Om de app te gebruiken, moet u eerst tijd toevoegen aan uw account.</string>

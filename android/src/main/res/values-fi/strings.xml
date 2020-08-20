@@ -41,6 +41,7 @@
     <string name="failed_to_send_details">Ennen kuin yrität uudelleen sinun on ehkä palattava sovelluksen päänäytölle ja napsautettava yhteyden katkaisua. Älä huoli, syöttämäsi tiedot säilyvät lomakkeella.</string>
     <string name="here_is_your_account_number">Tässä tulee tilisi numero. Laita se talteen!</string>
     <string name="hint_default">Oletus</string>
+    <string name="in_address">Saapuva</string>
     <string name="invalid_voucher">Kuponkikoodi ei kelpaa.</string>
     <string name="is_offline">Tämä laite ei ole yhdistetty verkkoon. Tunneleita ei voida luoda.</string>
     <string name="local_network_sharing">Paikallisen verkon jakaminen</string>
@@ -54,6 +55,7 @@
     <string name="login_title">Kirjaudu sisään</string>
     <string name="no_wireguard_key">Validi WireGuard-avain puuttuu. Hallinnoi avaimia lisäasetuksissa.</string>
     <string name="not_blocking_internet">VERKKOLIIKENTEESI SAATTAA VUOTAA</string>
+    <string name="out_address">Lähtevä</string>
     <string name="out_of_time">Ei käyttöaikaa</string>
     <string name="paid_until">Maksu ennen</string>
     <string name="pay_to_start_using">Voit aloittaa sovelluksen käyttämisen lisäämällä ensin aikaa tilillesi.</string>

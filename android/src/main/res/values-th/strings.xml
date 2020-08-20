@@ -41,6 +41,7 @@
     <string name="failed_to_send_details">คุณอาจจำเป็นต้องย้อนกลับไปที่หน้าจอหลักของแอป และคลิกตัดการเชื่อมต่อ ก่อนที่จะลองใหม่อีกครั้ง และไม่ต้องกังวลไป เพราะข้อมูลที่คุณป้อนไว้จะยังคงอยู่ในแบบฟอร์มเหมือนเดิม</string>
     <string name="here_is_your_account_number">นี่คือหมายเลขบัญชีของคุณ จดบันทึกไว้ด้วยนะ!</string>
     <string name="hint_default">ค่าเริ่มต้น</string>
+    <string name="in_address">เข้า</string>
     <string name="invalid_voucher">รหัสบัตรกำนัลไม่ถูกต้อง</string>
     <string name="is_offline">อุปกรณ์ออฟไลน์อยู่ในขณะนี้ ไม่สามารถสร้างช่องทางการเชื่อมต่อได้</string>
     <string name="local_network_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
@@ -54,6 +55,7 @@
     <string name="login_title">เข้าสู่ระบบ</string>
     <string name="no_wireguard_key">ไม่มีคีย์ WireGuard ที่ถูกต้อง โปรดจัดการคีย์ภายใต้ส่วนการตั้งค่าขั้นสูง</string>
     <string name="not_blocking_internet">คุณอาจมีการรับส่งข้อมูลทางเครือข่ายที่รั่วไหลอยู่ในขณะนี้</string>
+    <string name="out_address">ออก</string>
     <string name="out_of_time">หมดเวลา</string>
     <string name="paid_until">ชำระเงินแล้วจนถึง</string>
     <string name="pay_to_start_using">คุณจำเป็นต้องเพิ่มเวลาไปยังบัญชีของคุณก่อน เพื่อที่จะเริ่มใช้งานแอป</string>
