@@ -97,6 +97,7 @@
     <string name="user_email_hint">อีเมลของคุณ (ไม่บังคับ)</string>
     <string name="user_message_hint">ระบุปัญหาของคุณ</string>
     <string name="voucher_already_used">รหัสบัตรกำนัลถูกใช้ไปแล้ว</string>
+    <string name="wg_key_url">https://mullvad.net/th/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">สร้างคีย์</string>
     <string name="wireguard_key">คีย์ WireGuard</string>

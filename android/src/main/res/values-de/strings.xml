@@ -97,6 +97,7 @@
     <string name="user_email_hint">Ihre E-Mail-Adresse (optional)</string>
     <string name="user_message_hint">Beschreiben Sie Ihr Problem</string>
     <string name="voucher_already_used">Der Gutscheincode wurde bereits verwendet.</string>
+    <string name="wg_key_url">https://mullvad.net/de/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">Schlüssel generieren</string>
     <string name="wireguard_key">WireGuard-Schlüssel</string>

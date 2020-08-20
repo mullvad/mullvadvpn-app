@@ -97,6 +97,7 @@
     <string name="user_email_hint">이메일(선택 사항)</string>
     <string name="user_message_hint">문제 설명</string>
     <string name="voucher_already_used">이미 사용된 바우처 코드입니다.</string>
+    <string name="wg_key_url">https://mullvad.net/ko/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">키 생성</string>
     <string name="wireguard_key">WireGuard 키</string>

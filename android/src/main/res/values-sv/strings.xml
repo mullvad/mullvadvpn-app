@@ -97,6 +97,7 @@
     <string name="user_email_hint">Din e-postadress (valfritt)</string>
     <string name="user_message_hint">Beskriv ditt problem</string>
     <string name="voucher_already_used">Kupongkoden har redan använts.</string>
+    <string name="wg_key_url">https://mullvad.net/sv/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">Generera nyckel</string>
     <string name="wireguard_key">WireGuard-nyckel</string>
