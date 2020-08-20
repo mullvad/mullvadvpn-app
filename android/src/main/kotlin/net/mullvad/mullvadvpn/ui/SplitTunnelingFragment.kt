@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
 import net.mullvad.mullvadvpn.ui.widget.ToggleCell
 import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
-class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+class SplitTunnelingFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private val excludeApplicationsFadeOutListener = object : AnimatorListener {
         override fun onAnimationCancel(animation: Animator) {}
         override fun onAnimationRepeat(animation: Animator) {}

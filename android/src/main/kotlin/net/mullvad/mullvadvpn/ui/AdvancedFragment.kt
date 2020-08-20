@@ -37,7 +37,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         view.findViewById<NavigateCell>(R.id.split_tunneling).apply {
-            targetFragment = SplitTunnellingFragment::class
+            targetFragment = SplitTunnelingFragment::class
         }
 
         settingsListener.subscribe(this) { settings ->
