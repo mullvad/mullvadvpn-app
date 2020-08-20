@@ -59,7 +59,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
     lateinit var settingsListener: SettingsListener
         private set
 
-    lateinit var splitTunnelling: SplitTunneling
+    lateinit var splitTunneling: SplitTunneling
 
     override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
         // This method is always either called first or after an `onNoServiceConnection`, so the
@@ -73,7 +73,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         locationInfoCache = serviceConnection.locationInfoCache
         relayListListener = serviceConnection.relayListListener
         settingsListener = serviceConnection.settingsListener
-        splitTunnelling = serviceConnection.splitTunneling
+        splitTunneling = serviceConnection.splitTunneling
 
         synchronized(this) {
             when (state) {

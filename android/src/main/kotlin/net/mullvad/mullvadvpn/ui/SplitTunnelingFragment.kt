@@ -54,7 +54,7 @@ class SplitTunnelingFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        appListAdapter = AppListAdapter(context, splitTunnelling)
+        appListAdapter = AppListAdapter(context, splitTunneling)
     }
 
     override fun onSafelyCreateView(
@@ -88,7 +88,7 @@ class SplitTunnelingFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
 
     override fun onSafelyPause() {
         jobTracker.newBackgroundJob("persistExcludedApps") {
-            splitTunnelling.persist()
+            splitTunneling.persist()
         }
     }
 
@@ -119,14 +119,14 @@ class SplitTunnelingFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
             }
         }
 
-        if (splitTunnelling.enabled) {
+        if (splitTunneling.enabled) {
             jobTracker.newUiJob("showExcludedApplications") {
                 excludeApplications.visibility = View.VISIBLE
             }
         }
 
         enabledToggle = header.findViewById<ToggleCell>(R.id.enabled).apply {
-            if (splitTunnelling.enabled) {
+            if (splitTunneling.enabled) {
                 forcefullySetState(CellSwitch.State.ON)
             } else {
                 forcefullySetState(CellSwitch.State.OFF)
@@ -146,20 +146,20 @@ class SplitTunnelingFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
     }
 
     private fun enable() {
-        splitTunnelling.enabled = true
+        splitTunneling.enabled = true
         appListAdapter.enabled = configureSpinner()
         excludeApplications.visibility = View.VISIBLE
         excludeApplicationsFadeOut.reverse()
     }
 
     private fun disable() {
-        splitTunnelling.enabled = false
+        splitTunneling.enabled = false
         appListAdapter.enabled = false
         excludeApplicationsFadeOut.start()
     }
 
     private fun configureSpinner(): Boolean {
-        if (splitTunnelling.enabled && !appListAdapter.isListReady) {
+        if (splitTunneling.enabled && !appListAdapter.isListReady) {
             showLoadingSpinner()
 
             appListAdapter.onListReady = {
@@ -168,7 +168,7 @@ class SplitTunnelingFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
 
             return false
         } else {
-            return splitTunnelling.enabled
+            return splitTunneling.enabled
         }
     }
 
