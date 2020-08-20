@@ -97,6 +97,7 @@
     <string name="user_email_hint">E-posta adresiniz (isteğe bağlı)</string>
     <string name="user_message_hint">Sorununuzu açıklayın</string>
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>
+    <string name="wg_key_url">https://mullvad.net/tr/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">Anahtar oluştur</string>
     <string name="wireguard_key">WireGuard anahtarı</string>

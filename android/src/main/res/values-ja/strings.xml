@@ -97,6 +97,7 @@
     <string name="user_email_hint">あなたのメールアドレス（任意）</string>
     <string name="user_message_hint">問題の内容をご説明ください</string>
     <string name="voucher_already_used">バウチャーコードはすでに使用されています。</string>
+    <string name="wg_key_url">https://mullvad.net/ja/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">鍵を生成</string>
     <string name="wireguard_key">WireGuard鍵</string>

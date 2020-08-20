@@ -97,6 +97,7 @@
     <string name="user_email_hint">您的電子郵件 (選填)</string>
     <string name="user_message_hint">描述您的問題</string>
     <string name="voucher_already_used">此憑證兌換碼已有人用過。</string>
+    <string name="wg_key_url">https://mullvad.net/zh-hant/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">產生金鑰</string>
     <string name="wireguard_key">WireGuard 金鑰</string>
