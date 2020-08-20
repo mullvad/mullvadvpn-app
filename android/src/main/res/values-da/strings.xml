@@ -97,6 +97,7 @@
     <string name="user_email_hint">Din e-mail (valgfrit)</string>
     <string name="user_message_hint">Beskriv dit problem</string>
     <string name="voucher_already_used">Kuponkode er allerede brugt.</string>
+    <string name="wg_key_url">https://mullvad.net/da/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">Generer nøgle</string>
     <string name="wireguard_key">WireGuard-nøgle</string>
