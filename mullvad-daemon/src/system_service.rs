@@ -117,23 +117,24 @@ fn run_service() -> Result<(), String> {
         Ok(runtime) => runtime,
     };
 
-    let result = runtime
-        .block_on(crate::create_daemon(log_dir))
-        .and_then(|daemon| {
-            let shutdown_handle = daemon.shutdown_handle();
+    let result = runtime.block_on(crate::create_daemon(log_dir));
+    if let Ok(daemon) = result {
+        let shutdown_handle = daemon.shutdown_handle();
 
-            // Register monitor that translates `ServiceControl` to Daemon events
-            start_event_monitor(
-                persistent_service_status.clone(),
-                shutdown_handle,
-                event_rx,
-                clean_shutdown.clone(),
-            );
+        // Register monitor that translates `ServiceControl` to Daemon events
+        start_event_monitor(
+            persistent_service_status.clone(),
+            shutdown_handle,
+            event_rx,
+            clean_shutdown.clone(),
+        );
 
-            persistent_service_status.set_running().unwrap();
+        persistent_service_status.set_running().unwrap();
 
-            daemon.run().map_err(|e| e.display_chain())
-        });
+        runtime
+            .block_on(daemon.run())
+            .map_err(|e| e.display_chain())
+    }
 
     let exit_code = match result {
         Ok(()) => {

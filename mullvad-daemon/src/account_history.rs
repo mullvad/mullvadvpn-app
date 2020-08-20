@@ -123,7 +123,7 @@ impl AccountHistory {
 
     /// Gets account data for a certain account id and bumps it's entry to the top of the list if
     /// it isn't there already. Returns None if the account entry is not available.
-    pub fn get(&mut self, account: &AccountToken) -> Result<Option<AccountEntry>> {
+    pub async fn get(&mut self, account: &AccountToken) -> Result<Option<AccountEntry>> {
         let (idx, entry) = match self
             .accounts
             .iter()
@@ -139,19 +139,19 @@ impl AccountHistory {
         if idx == 0 {
             return Ok(Some(entry));
         }
-        self.insert(entry.clone())?;
+        self.insert(entry.clone()).await?;
         Ok(Some(entry))
     }
 
     /// Bumps history of an account token. If the account token is not in history, it will be
     /// added.
-    pub fn bump_history(&mut self, account: &AccountToken) -> Result<()> {
-        if self.get(account)?.is_none() {
+    pub async fn bump_history(&mut self, account: &AccountToken) -> Result<()> {
+        if self.get(account).await?.is_none() {
             let new_entry = AccountEntry {
                 account: account.to_string(),
                 wireguard: None,
             };
-            self.insert(new_entry)?;
+            self.insert(new_entry).await?;
         }
         Ok(())
     }
@@ -173,7 +173,7 @@ impl AccountHistory {
     }
 
     /// Always inserts a new entry at the start of the list
-    pub fn insert(&mut self, new_entry: AccountEntry) -> Result<()> {
+    pub async fn insert(&mut self, new_entry: AccountEntry) -> Result<()> {
         self.accounts
             .retain(|entry| entry.account != new_entry.account);
 
@@ -182,9 +182,7 @@ impl AccountHistory {
         if self.accounts.len() > ACCOUNT_HISTORY_LIMIT {
             let last_entry = self.accounts.pop_back().unwrap();
             if let Some(wg_data) = last_entry.wireguard {
-                self.rpc_handle
-                    .service()
-                    .spawn(self.create_remove_wg_key_rpc(&last_entry.account, &wg_data));
+                tokio::spawn(self.create_remove_wg_key_rpc(&last_entry.account, &wg_data));
             }
         }
 
@@ -200,17 +198,15 @@ impl AccountHistory {
     }
 
     /// Remove account data
-    pub fn remove_account(&mut self, account: &str) -> Result<()> {
-        let entry = self.get(&String::from(account))?;
+    pub async fn remove_account(&mut self, account: &str) -> Result<()> {
+        let entry = self.get(&String::from(account)).await?;
         let entry = match entry {
             Some(entry) => entry,
             None => return Ok(()),
         };
 
         if let Some(wg_data) = entry.wireguard {
-            self.rpc_handle
-                .service()
-                .spawn(self.create_remove_wg_key_rpc(account, &wg_data))
+            tokio::spawn(self.create_remove_wg_key_rpc(account, &wg_data));
         }
 
         let _ = self.accounts.pop_front();
@@ -218,7 +214,7 @@ impl AccountHistory {
     }
 
     /// Remove account history
-    pub fn clear(&mut self) -> Result<()> {
+    pub async fn clear(&mut self) -> Result<()> {
         log::debug!("account_history::clear");
 
         let rpc = WireguardKeyProxy::new(self.rpc_handle.clone());
@@ -241,8 +237,7 @@ impl AccountHistory {
             .collect();
 
 
-        let joined_futs = futures::future::join_all(removal);
-        self.rpc_handle.service().block_on(joined_futs);
+        futures::future::join_all(removal).await;
 
         self.accounts = VecDeque::new();
         self.save_to_disk()
