@@ -967,6 +967,13 @@ fn convert_relay_settings_update(
 
             Ok(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
                 location,
+                provider: settings.provider.map(|provider_update| {
+                    if !provider_update.provider.is_empty() {
+                        Constraint::Only(provider_update.provider.clone())
+                    } else {
+                        Constraint::Any
+                    }
+                }),
                 tunnel_protocol,
                 wireguard_constraints: settings.wireguard_constraints.map(|constraints| {
                     WireguardConstraints {
@@ -1005,6 +1012,10 @@ fn convert_relay_settings(settings: &RelaySettings) -> types::RelaySettings {
         RelaySettings::Normal(constraints) => {
             relay_settings::Endpoint::Normal(types::NormalRelaySettings {
                 location: convert_location_constraint(&constraints.location),
+                provider: match &constraints.provider {
+                    Constraint::Any => "".to_string(),
+                    Constraint::Only(ref provider) => provider.clone(),
+                },
                 tunnel_type: match constraints.tunnel_protocol {
                     Constraint::Any => None,
                     Constraint::Only(TunnelType::Wireguard) => Some(types::TunnelType::Wireguard),

@@ -172,11 +172,13 @@ impl RelaySettings {
 
 /// Limits the set of [`crate::relay_list::Relay`]s that a `RelaySelector` may select.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(default)]
 #[cfg_attr(not(target_os = "android"), derive(Default))]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
+    pub provider: Constraint<Provider>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_protocol: Constraint<TunnelType>,
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -189,10 +191,8 @@ pub struct RelayConstraints {
 impl Default for RelayConstraints {
     fn default() -> Self {
         RelayConstraints {
-            location: Constraint::Any,
             tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-            wireguard_constraints: WireguardConstraints::default(),
-            openvpn_constraints: OpenVpnConstraints::default(),
+            ..Default::default()
         }
     }
 }
@@ -201,6 +201,7 @@ impl RelayConstraints {
     pub fn merge(&self, update: RelayConstraintsUpdate) -> Self {
         RelayConstraints {
             location: update.location.unwrap_or_else(|| self.location.clone()),
+            provider: update.provider.unwrap_or_else(|| self.provider.clone()),
             tunnel_protocol: update
                 .tunnel_protocol
                 .unwrap_or_else(|| self.tunnel_protocol.clone()),
@@ -236,8 +237,16 @@ impl fmt::Display for RelayConstraints {
         }
         write!(f, " in ")?;
         match self.location {
-            Constraint::Any => write!(f, "any location"),
-            Constraint::Only(ref location_constraint) => location_constraint.fmt(f),
+            Constraint::Any => write!(f, "any location")?,
+            Constraint::Only(ref location_constraint) => location_constraint.fmt(f)?,
+        }
+        write!(f, " using ")?;
+        match self.provider {
+            Constraint::Any => write!(f, "any provider"),
+            Constraint::Only(ref constraint) => {
+                write!(f, "provider ")?;
+                constraint.fmt(f)
+            }
         }
     }
 }
@@ -257,6 +266,10 @@ pub enum LocationConstraint {
     /// An single hostname in a given city.
     Hostname(CountryCode, CityCode, Hostname),
 }
+
+/// Limits the set of [`crate::relay_list::Relay`]s used by a `RelaySelector` based on
+/// provider.
+pub type Provider = String;
 
 impl fmt::Display for LocationConstraint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
@@ -466,6 +479,7 @@ impl RelaySettingsUpdate {
 #[serde(default)]
 pub struct RelayConstraintsUpdate {
     pub location: Option<Constraint<LocationConstraint>>,
+    pub provider: Option<Constraint<Provider>>,
     #[cfg_attr(target_os = "android", jnix(default))]
     pub tunnel_protocol: Option<Constraint<TunnelType>>,
     #[cfg_attr(target_os = "android", jnix(default))]

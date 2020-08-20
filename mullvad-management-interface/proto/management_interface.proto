@@ -270,17 +270,23 @@ message TunnelTypeConstraint {
 
 message NormalRelaySettings {
 	RelayLocation location = 1;
-	TunnelTypeConstraint tunnel_type = 2;
-	WireguardConstraints wireguard_constraints = 3;
-	OpenvpnConstraints openvpn_constraints = 4;
+	string provider = 2;
+	TunnelTypeConstraint tunnel_type = 3;
+	WireguardConstraints wireguard_constraints = 4;
+	OpenvpnConstraints openvpn_constraints = 5;
 }
 
 // Constraints are only updated for fields that are provided
 message NormalRelaySettingsUpdate {
 	RelayLocation location = 1;
-	TunnelTypeUpdate tunnel_type = 2;
-	WireguardConstraints wireguard_constraints = 3;
-	OpenvpnConstraints openvpn_constraints = 4;
+	ProviderUpdate provider = 2;
+	TunnelTypeUpdate tunnel_type = 3;
+	WireguardConstraints wireguard_constraints = 4;
+	OpenvpnConstraints openvpn_constraints = 5;
+}
+
+message ProviderUpdate {
+	string provider = 1;
 }
 
 message TunnelTypeUpdate {

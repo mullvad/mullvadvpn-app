@@ -14,7 +14,7 @@ use mullvad_types::{
     location::Location,
     relay_constraints::{
         BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
-        OpenVpnConstraints, RelayConstraints, WireguardConstraints,
+        OpenVpnConstraints, Provider, RelayConstraints, WireguardConstraints,
     },
     relay_list::{OpenVpnEndpointData, Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
@@ -253,6 +253,7 @@ impl RelaySelector {
                 self.preferred_tunnel_constraints(
                     retry_attempt,
                     &original_constraints.location,
+                    &original_constraints.provider,
                     wg_key_exists,
                 )
             } else {
@@ -260,12 +261,9 @@ impl RelaySelector {
             };
 
 
-        let mut relay_constraints = RelayConstraints {
-            location: original_constraints.location.clone(),
-            tunnel_protocol: original_constraints.tunnel_protocol.clone(),
-            wireguard_constraints: original_constraints.wireguard_constraints,
-            ..Default::default()
-        };
+        let mut relay_constraints = original_constraints.clone();
+        relay_constraints.openvpn_constraints = Default::default();
+
         // Highest priority preference. Where we prefer OpenVPN using UDP. But without changing
         // any constraints that are explicitly specified.
         match original_constraints.tunnel_protocol {
@@ -380,6 +378,7 @@ impl RelaySelector {
         &self,
         retry_attempt: u32,
         location_constraint: &Constraint<LocationConstraint>,
+        provider_constraint: &Constraint<Provider>,
         wg_key_exists: bool,
     ) -> (Constraint<u16>, TransportProtocol, TunnelType) {
         #[cfg(not(target_os = "windows"))]
@@ -389,6 +388,7 @@ impl RelaySelector {
                     relay.active
                         && !relay.tunnels.wireguard.is_empty()
                         && Self::relay_matches_location(relay, &location_constraint)
+                        && Self::relay_matches_provider(relay, &provider_constraint)
                 });
             // If location does not support WireGuard, defer to preferred OpenVPN tunnel
             // constraints
@@ -475,6 +475,9 @@ impl RelaySelector {
         if !Self::relay_matches_location(relay, &constraints.location) {
             return None;
         }
+        if !Self::relay_matches_provider(relay, &constraints.provider) {
+            return None;
+        }
 
 
         let relay = match constraints.tunnel_protocol {
@@ -555,6 +558,13 @@ impl RelaySelector {
                         && relay.hostname == *hostname
                 })
             }
+        }
+    }
+
+    fn relay_matches_provider(relay: &Relay, provider: &Constraint<Provider>) -> bool {
+        match provider {
+            Constraint::Any => true,
+            Constraint::Only(provider) => &relay.provider == provider,
         }
     }
 
