@@ -39,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 - Show "Exclude applications" header if needed when entering the "Split tunneling" screen.
 - Fix check for update versions and check for support for current version.
 - Fix crash that could happen when leaving the Select Location screen.
+- Don't show out-of-time notification for newly created accounts.
 
 
 ## [2020.6-beta1] - 2020-08-20
