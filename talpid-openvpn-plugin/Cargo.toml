@@ -20,7 +20,7 @@ tokio = { package = "tokio", version = "0.2", features =  [ "rt-core", "rt-threa
 openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde", "log"] }
 talpid-types = { path = "../talpid-types" }
 
-tonic = "0.2"
+tonic = "0.3.1"
 tower = "0.3"
 prost = "0.6"
 
