@@ -1,5 +1,6 @@
-- Show a notification banner warning when the account time will soon run out.
-- Prevent commands to connect or disconnect to be sent when the device is locked.
-- Make all screens scrollable to better handle small screens and split-screen mode.
-- Prevent tapjacking attacks and prohibit screenshots. Fixes audit ticket `MUL-02-003`.
-- Fix various bugs causing random crashes, and UI navigation issues.
+- Add split-tunnelling, allowing apps to be configured to be excluded from the tunnel.
+- Add localized app messages.
+- Show a system notification when the account time will soon run out.
+- Changed how the Select Location screen scrolls so that more items can be viewed at the same time.
+- Fix notification sometimes not being dismissible.
+- Various UI bug fixes and improvements.

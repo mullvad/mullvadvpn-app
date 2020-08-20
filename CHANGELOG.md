@@ -23,11 +23,18 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+- Use gRPC for communication between frontends and the backend instead of JSON-RPC.
+
+
+## [2020.6-beta1] - 2020-08-20
 ### Added
 - Show system notification when account has expired.
 - Add fish shell completions for the mullvad CLI.
 - Reconnect with a new key when WireGuard key is rotated automatically, previously the tunnel would
   time out before reconnecting.
+
+#### Linux
 - Add split tunneling menu under advanced settings in Linux app.
 
 #### Android
@@ -44,7 +51,6 @@ Line wrap the file at 100 chars.                                              Th
 - Display the original block reason in the non-blocking error state, and why applying the blocking
   policy failed.
 - Don't show account time expired notification for newly created accounts.
-- Use gRPC for communication between frontends and the backend instead of JSON-RPC.
 
 #### Android
 - Show a system notification when the account time will soon run out.
@@ -71,7 +77,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix Connect screen sometimes becoming unusually tall. This ended up causing the screen to be
   scrolled up and made the UI elements unable to be seen until the user scrolled down.
-- Fix app restarting itself after quitting.
 - Fix connect action from quick-settings tile or notification sometimes opening the UI instead of
   connecting.
 - Fix notification sometimes not being dismissible.
