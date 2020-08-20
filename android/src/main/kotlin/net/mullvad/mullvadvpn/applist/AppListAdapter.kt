@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.util.JobTracker
 
 class AppListAdapter(
     context: Context,
-    private val splitTunnelling: SplitTunneling
+    private val splitTunneling: SplitTunneling
 ) : Adapter<AppListItemHolder>() {
     private val appList = ArrayList<AppInfo>()
     private val jobTracker = JobTracker()
@@ -45,7 +45,7 @@ class AppListAdapter(
         val inflater = LayoutInflater.from(parentView.context)
         val view = inflater.inflate(R.layout.app_list_item, parentView, false)
 
-        return AppListItemHolder(splitTunnelling, packageManager, jobTracker, view)
+        return AppListItemHolder(splitTunneling, packageManager, jobTracker, view)
     }
 
     override fun onBindViewHolder(holder: AppListItemHolder, position: Int) {
