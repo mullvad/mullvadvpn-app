@@ -62,7 +62,7 @@ class SplitTunnelingFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.split_tunnelling, container, false)
+        val view = inflater.inflate(R.layout.split_tunneling, container, false)
 
         view.findViewById<View>(R.id.back).setOnClickListener {
             activity?.onBackPressed()
@@ -73,7 +73,7 @@ class SplitTunnelingFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
         view.findViewById<CustomRecyclerView>(R.id.app_list).apply {
             layoutManager = LinearLayoutManager(parentActivity)
 
-            adapter = AdapterWithHeader(appListAdapter, R.layout.split_tunnelling_header).apply {
+            adapter = AdapterWithHeader(appListAdapter, R.layout.split_tunneling_header).apply {
                 onHeaderAvailable = { headerView ->
                     configureHeader(headerView)
                     titleController.expandedTitleView = headerView.findViewById(R.id.expanded_title)
