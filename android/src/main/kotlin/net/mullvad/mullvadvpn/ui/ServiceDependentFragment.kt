@@ -73,7 +73,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         locationInfoCache = serviceConnection.locationInfoCache
         relayListListener = serviceConnection.relayListListener
         settingsListener = serviceConnection.settingsListener
-        splitTunnelling = serviceConnection.splitTunnelling
+        splitTunnelling = serviceConnection.splitTunneling
 
         synchronized(this) {
             when (state) {
