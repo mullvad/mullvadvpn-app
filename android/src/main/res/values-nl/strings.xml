@@ -97,6 +97,7 @@
     <string name="user_email_hint">Uw e-mailadres (optioneel)</string>
     <string name="user_message_hint">Beschrijf het probleem</string>
     <string name="voucher_already_used">Vouchercode is al gebruikt.</string>
+    <string name="wg_key_url">https://mullvad.net/nl/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">Sleutel genereren</string>
     <string name="wireguard_key">WireGuard-sleutel</string>
