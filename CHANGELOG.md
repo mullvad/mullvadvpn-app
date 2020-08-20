@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.6-beta1] - 2020-08-20
 ### Added
 - Show system notification when account has expired.
 - Add fish shell completions for the mullvad CLI.
@@ -70,7 +73,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix Connect screen sometimes becoming unusually tall. This ended up causing the screen to be
   scrolled up and made the UI elements unable to be seen until the user scrolled down.
-- Fix app restarting itself after quitting.
 - Fix connect action from quick-settings tile or notification sometimes opening the UI instead of
   connecting.
 - Fix notification sometimes not being dismissible.
