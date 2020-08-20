@@ -36,6 +36,7 @@ Line wrap the file at 100 chars.                                              Th
   is loaded.
 - Fix crash when selecting the whole text entered for the voucher code and then deleting it in the
   Redeem Voucher dialog.
+- Show "Exclude applications" header if needed when entering the "Split tunneling" screen.
 
 
 ## [2020.6-beta1] - 2020-08-20
