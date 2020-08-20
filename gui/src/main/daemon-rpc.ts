@@ -548,15 +548,6 @@ export class DaemonRpc {
     });
 
     call.on('error', (error) => {
-      // if the subscription was cancelled by the client, there's no reason to
-      // invoke the onError handler
-      if (
-        'code' in error &&
-        error['code'] === grpc.status.CANCELLED &&
-        !this.subscriptions.has(subscriptionId)
-      ) {
-        return;
-      }
       listener.onError(error);
       this.removeSubscription(subscriptionId);
     });
@@ -573,7 +564,15 @@ export class DaemonRpc {
     const subscription = this.subscriptions.get(id);
     if (subscription !== undefined) {
       this.subscriptions.delete(id);
-      subscription.cancel();
+      subscription.removeAllListeners('data');
+      subscription.removeAllListeners('error');
+      try {
+        subscription.cancel();
+      } catch (error) {
+        if (error.code !== grpc.status.CANCELLED) {
+          throw error;
+        }
+      }
     }
   }
 
