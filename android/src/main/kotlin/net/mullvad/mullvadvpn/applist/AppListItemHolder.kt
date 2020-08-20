@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.ui.widget.CellSwitch
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class AppListItemHolder(
-    private val splitTunnelling: SplitTunneling,
+    private val splitTunneling: SplitTunneling,
     private val packageManager: PackageManager,
     private val jobTracker: JobTracker,
     view: View
@@ -36,7 +36,7 @@ class AppListItemHolder(
                 loadIcon(info)
             }
 
-            if (splitTunnelling.isAppExcluded(info.info.packageName)) {
+            if (splitTunneling.isAppExcluded(info.info.packageName)) {
                 excluded.forcefullySetState(CellSwitch.State.ON)
             } else {
                 excluded.forcefullySetState(CellSwitch.State.OFF)
@@ -55,8 +55,8 @@ class AppListItemHolder(
         excluded.listener = { state ->
             appInfo?.info?.packageName?.let { app ->
                 when (state) {
-                    CellSwitch.State.ON -> splitTunnelling.excludeApp(app)
-                    CellSwitch.State.OFF -> splitTunnelling.includeApp(app)
+                    CellSwitch.State.ON -> splitTunneling.excludeApp(app)
+                    CellSwitch.State.OFF -> splitTunneling.includeApp(app)
                 }
             }
         }
