@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add a provider relay constraint, which restricts relay selection to a given hosting provider.
+
 ### Changed
 - Use gRPC for communication between frontends and the backend instead of JSON-RPC.
 
