@@ -151,16 +151,16 @@ impl Firewall {
         let mut relay_client: Vec<u16> = relay_client.as_os_str().encode_wide().collect();
         relay_client.push(0u16);
 
-        let pingable_hosts = if !pingable_hosts.is_empty() {
-            let pingable_addresses = pingable_hosts
-                .iter()
-                .map(|ip| Self::widestring_ip(*ip))
-                .collect::<Vec<_>>();
-            let pingable_address_ptrs = pingable_addresses
-                .iter()
-                .map(|ip| ip.as_ptr())
-                .collect::<Vec<_>>();
+        let pingable_addresses = pingable_hosts
+            .iter()
+            .map(|ip| Self::widestring_ip(*ip))
+            .collect::<Vec<_>>();
+        let pingable_address_ptrs = pingable_addresses
+            .iter()
+            .map(|ip| ip.as_ptr())
+            .collect::<Vec<_>>();
 
+        let pingable_hosts = if !pingable_address_ptrs.is_empty() {
             Some(WinFwPingableHosts {
                 interfaceAlias: ptr::null(),
                 addresses: pingable_address_ptrs.as_ptr(),
