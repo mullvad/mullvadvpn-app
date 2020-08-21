@@ -11,6 +11,16 @@ cd "$SCRIPT_DIR"
 COMMAND="$1"
 shift 1
 
+INCLUDED_CRATES=(
+    "mullvad-daemon"
+    "mullvad-cli"
+    "mullvad-problem-report"
+    "mullvad-setup"
+    "mullvad-exclude"
+    "talpid-openvpn-plugin"
+)
+MANIFESTS=( "${INCLUDED_CRATES[@]/%//Cargo.toml}" )
+
 function inject_version {
     # Regex that only matches valid Mullvad VPN versions. It also captures
     # relevant values into capture groups, read out via BASH_REMATCH[x].
@@ -46,11 +56,7 @@ EOF
 
     # Rust crates
     sed -i.bak -Ee "s/^version = \"[^\"]+\"\$/version = \"$semver_version\"/g" \
-        mullvad-daemon/Cargo.toml \
-        mullvad-cli/Cargo.toml \
-        mullvad-problem-report/Cargo.toml \
-        mullvad-setup/Cargo.toml \
-        talpid-openvpn-plugin/Cargo.toml
+        "${MANIFESTS[@]}"
 
     # Android
     if [[ ("$(uname -s)" == "Linux") ]]; then
@@ -80,11 +86,9 @@ function restore_backup {
     fi
 
     # Rust crates
-    mv mullvad-daemon/Cargo.toml.bak mullvad-daemon/Cargo.toml
-    mv mullvad-cli/Cargo.toml.bak mullvad-cli/Cargo.toml
-    mv mullvad-problem-report/Cargo.toml.bak mullvad-problem-report/Cargo.toml
-    mv mullvad-setup/Cargo.toml.bak mullvad-setup/Cargo.toml
-    mv talpid-openvpn-plugin/Cargo.toml.bak talpid-openvpn-plugin/Cargo.toml
+    for toml in "${MANIFESTS[@]}"; do
+        mv "${toml}.bak" "${toml}"
+    done
     # Android
     if [[ ("$(uname -s)" == "Linux") ]]; then
         mv android/build.gradle.bak android/build.gradle
@@ -104,11 +108,9 @@ function delete_backup {
     fi
 
     # Rust crates
-    rm mullvad-daemon/Cargo.toml.bak
-    rm mullvad-cli/Cargo.toml.bak
-    rm mullvad-problem-report/Cargo.toml.bak
-    rm mullvad-setup/Cargo.toml.bak
-    rm talpid-openvpn-plugin/Cargo.toml.bak
+    for toml in "${MANIFESTS[@]}"; do
+        rm "${toml}.bak"
+    done
     # Android
     if [[ ("$(uname -s)" == "Linux") ]]; then
         rm android/build.gradle.bak
