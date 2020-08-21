@@ -1728,11 +1728,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "pnet_base"
-version = "0.22.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "pnet_base"
 version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
@@ -1748,7 +1743,7 @@ dependencies = [
 
 [[package]]
 name = "pnet_macros_support"
-version = "0.22.0"
+version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "pnet_base 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1756,13 +1751,13 @@ dependencies = [
 
 [[package]]
 name = "pnet_packet"
-version = "0.22.0"
+version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "glob 0.2.11 (registry+https://github.com/rust-lang/crates.io-index)",
- "pnet_base 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pnet_base 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pnet_macros 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "pnet_macros_support 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pnet_macros_support 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "syntex 0.42.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -2540,7 +2535,7 @@ dependencies = [
  "parity-tokio-ipc 0.7.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "parking_lot 0.9.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pfctl 0.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "pnet_packet 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "pnet_packet 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "prost 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "quickcheck 0.9.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "quickcheck_macros 0.9.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -3700,11 +3695,10 @@ dependencies = [
 "checksum pin-project-lite 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)" = "282adbf10f2698a7a77f8e983a74b2d18176c19a7fd32a45446139ae7b02b715"
 "checksum pin-utils 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8b870d8c151b6f2fb93e84a13146138f05d02ed11c7e7c54f8826aaaf7c9f184"
 "checksum pkg-config 0.3.18 (registry+https://github.com/rust-lang/crates.io-index)" = "d36492546b6af1463394d46f0c834346f31548646f6ba10849802c9c9a27ac33"
-"checksum pnet_base 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)" = "4df28acf2fcc77436dd2b91a9a0c2bb617f9ca5f2acefee1a4135058b9f9801f"
 "checksum pnet_base 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)" = "b7cd5f7e15220afa66b0a9a62841ea10089f39dcaa1c29752c0b22dfc03111b5"
 "checksum pnet_macros 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)" = "bbbd5c52c6e04aa720400f9c71cd0e8bcb38cd13421d5caabd9035e9efa47de9"
-"checksum pnet_macros_support 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)" = "84684f2cddefc37a06f2fe2ca4dcc3457fc3b282734b5246507d8ee75d2780ae"
-"checksum pnet_packet 0.22.0 (registry+https://github.com/rust-lang/crates.io-index)" = "08a6cdcdaddc5174f18286298842a4e31cd3cc018933d42af51434b1fa07dcbe"
+"checksum pnet_macros_support 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)" = "daf9c5c0c36766d0a4da9ab268c0700771b8ec367b9463fd678109fa28463c5b"
+"checksum pnet_packet 0.26.0 (registry+https://github.com/rust-lang/crates.io-index)" = "89e26a864d71d0ac51a549cf40283c44ed1b8f98168545638a4730ef9f560283"
 "checksum ppv-lite86 0.2.9 (registry+https://github.com/rust-lang/crates.io-index)" = "c36fa947111f5c62a733b652544dd0016a43ce89619538a8ef92724a6f501a20"
 "checksum proc-macro-error 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)" = "da25490ff9892aab3fcf7c36f08cfb902dd3e71ca0f9f9517bea02a73a5ce38c"
 "checksum proc-macro-error-attr 1.0.4 (registry+https://github.com/rust-lang/crates.io-index)" = "a1be40180e52ecc98ad80b184934baf3d0d29f979574e439af5a55274b35f869"
