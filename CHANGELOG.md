@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Add a provider relay constraint, which restricts relay selection to a given hosting provider.
+- Include hosting providers in the CLI for `mullvad relay list`.
 
 ### Changed
 - Use gRPC for communication between frontends and the backend instead of JSON-RPC.
