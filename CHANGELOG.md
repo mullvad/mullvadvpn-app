@@ -30,6 +30,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix possible crash when starting the app, caused by trying to use JNI functions before the library
   is loaded.
+- Fix crash when selecting the whole text entered for the voucher code and then deleting it in the
+  Redeem Voucher dialog.
 
 
 ## [2020.6-beta1] - 2020-08-20
