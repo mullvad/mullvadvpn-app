@@ -4,10 +4,14 @@ import android.content.Context
 import java.io.File
 import kotlin.properties.Delegates.observable
 
+// The spelling of the shared preferences location can't be changed to American English without
+// either having users lose their preferences on update or implementing some migration code.
 private const val SHARED_PREFERENCES = "split_tunnelling"
 private const val KEY_ENABLED = "enabled"
 
 class SplitTunneling(context: Context) {
+    // The spelling of the app list file name can't be changed to American English without either
+    // having users lose their preferences on update or implementing some migration code.
     private val appListFile = File(context.filesDir, "split-tunnelling.txt")
     private val excludedApps = HashSet<String>()
     private val preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
