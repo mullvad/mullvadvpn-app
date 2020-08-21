@@ -28,6 +28,10 @@ class MullvadVpnService : TalpidVpnService() {
 
         val KEY_CONNECT_ACTION = "net.mullvad.mullvadvpn.connect_action"
         val KEY_DISCONNECT_ACTION = "net.mullvad.mullvadvpn.disconnect_action"
+
+        init {
+            System.loadLibrary("mullvad_jni")
+        }
     }
 
     private enum class PendingAction {
