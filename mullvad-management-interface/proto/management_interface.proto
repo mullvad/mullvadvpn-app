@@ -201,6 +201,7 @@ message AccountHistory {
 message BridgeSettings {
 	message BridgeConstraints {
 		RelayLocation location = 1;
+		string provider = 2;
 	}
 
 	message LocalProxySettings {

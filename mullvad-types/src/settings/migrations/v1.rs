@@ -40,9 +40,7 @@ impl Default for Settings {
                 location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
                 tunnel: Constraint::Any,
             }),
-            bridge_settings: BridgeSettings::Normal(BridgeConstraints {
-                location: Constraint::Any,
-            }),
+            bridge_settings: BridgeSettings::Normal(BridgeConstraints::default()),
             bridge_state: BridgeState::Auto,
             allow_lan: false,
             block_when_disconnected: false,

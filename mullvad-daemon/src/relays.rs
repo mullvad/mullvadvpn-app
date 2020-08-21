@@ -543,6 +543,9 @@ impl RelaySelector {
         if !constraints.location.matches(relay) {
             return None;
         }
+        if !constraints.provider.matches_eq(&relay.provider) {
+            return None;
+        }
 
         let mut filtered_relay = relay.clone();
         filtered_relay
