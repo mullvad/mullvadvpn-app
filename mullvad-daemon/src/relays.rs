@@ -575,6 +575,9 @@ impl RelaySelector {
         if !Self::relay_matches_location(relay, &constraints.location) {
             return None;
         }
+        if !Self::relay_matches_provider(relay, &constraints.provider) {
+            return None;
+        }
 
         let mut filtered_relay = relay.clone();
         filtered_relay
