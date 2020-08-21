@@ -621,8 +621,8 @@ impl Relay {
                         _ => unreachable!("Bug in relay filtering earlier on"),
                     };
                     println!(
-                        "\t\t{} ({}) - {}",
-                        relay.hostname, relay.ipv4_addr_in, support_msg
+                        "\t\t{} ({}) - {}, hosted by {}",
+                        relay.hostname, relay.ipv4_addr_in, support_msg, relay.provider
                     );
                 }
             }
