@@ -444,7 +444,10 @@ impl Bridge {
                     city.name, city.code, city.latitude, city.longitude
                 );
                 for relay in &city.relays {
-                    println!("\t\t{} ({})", relay.hostname, relay.ipv4_addr_in);
+                    println!(
+                        "\t\t{} ({}) - hosted by {}",
+                        relay.hostname, relay.ipv4_addr_in, relay.provider
+                    );
                 }
             }
             println!();
