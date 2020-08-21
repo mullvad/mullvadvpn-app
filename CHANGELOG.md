@@ -26,6 +26,11 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Use gRPC for communication between frontends and the backend instead of JSON-RPC.
 
+### Fixed
+#### Android
+- Fix possible crash when starting the app, caused by trying to use JNI functions before the library
+  is loaded.
+
 
 ## [2020.6-beta1] - 2020-08-20
 ### Added
