@@ -676,7 +676,11 @@ class ApplicationMain {
   ) {
     this.relays = newRelayList;
 
-    const filteredRelays = this.processRelaysForPresentation(newRelayList, relaySettings);
+    const filteredRelays = this.processRelaysForPresentation(
+      newRelayList,
+      relaySettings,
+      bridgeState,
+    );
     const filteredBridges = this.processBridgesForPresentation(newRelayList, bridgeState);
 
     if (this.windowController) {
@@ -690,6 +694,7 @@ class ApplicationMain {
   private processRelaysForPresentation(
     relayList: IRelayList,
     relaySettings: RelaySettings,
+    bridgeState: BridgeState,
   ): IRelayList {
     const tunnelProtocol =
       'normal' in relaySettings ? liftConstraint(relaySettings.normal.tunnelProtocol) : undefined;
@@ -711,7 +716,7 @@ class ApplicationMain {
 
                   case 'any':
                     // TODO: Drop win32 check when Wireguard becomes default on Windows
-                    if (process.platform === 'win32') {
+                    if (process.platform === 'win32' || bridgeState === 'on') {
                       return relay.tunnels.openvpn.length > 0;
                     } else {
                       return relay.tunnels.openvpn.length > 0 || relay.tunnels.wireguard.length > 0;
@@ -907,7 +912,11 @@ class ApplicationMain {
       settings: this.settings,
       location: this.location,
       relayListPair: {
-        relays: this.processRelaysForPresentation(this.relays, this.settings.relaySettings),
+        relays: this.processRelaysForPresentation(
+          this.relays,
+          this.settings.relaySettings,
+          this.settings.bridgeState,
+        ),
         bridges: this.processBridgesForPresentation(this.relays, this.settings.bridgeState),
       },
       currentVersion: this.currentVersion,
