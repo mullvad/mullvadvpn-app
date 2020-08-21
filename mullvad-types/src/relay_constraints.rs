@@ -425,10 +425,12 @@ pub enum BridgeSettings {
 
 
 /// Limits the set of bridge servers to use in `mullvad-daemon`.
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(default)]
 #[serde(rename_all = "snake_case")]
 pub struct BridgeConstraints {
     pub location: Constraint<LocationConstraint>,
+    pub provider: Constraint<Provider>,
 }
 
 impl fmt::Display for BridgeConstraints {
@@ -466,6 +468,7 @@ impl fmt::Display for BridgeState {
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct InternalBridgeConstraints {
     pub location: Constraint<LocationConstraint>,
+    pub provider: Constraint<Provider>,
     pub transport_protocol: Constraint<TransportProtocol>,
 }
 
