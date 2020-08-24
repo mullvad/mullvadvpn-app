@@ -374,6 +374,8 @@ impl Relay {
         let mut found = false;
 
         if !location_constraint.country.is_empty() {
+            // TODO: `mullvad_types::relay_constraints::LocationConstraint::matches(&relay)`
+            //       could be used to guarantee consistency with the daemon.
             let countries = Self::get_filtered_relays().await?;
             for country in &countries {
                 if country.code != location_constraint.country {
