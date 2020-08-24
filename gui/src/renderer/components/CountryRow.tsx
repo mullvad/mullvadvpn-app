@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Component, Styles, View } from 'reactxp';
 import styled from 'styled-components';
-import { colors } from '../../config.json';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
 import Accordion from './Accordion';
 import * as Cell from './Cell';
@@ -45,9 +44,6 @@ const Label = styled(Cell.Label)({
   fontFamily: 'Open Sans',
   fontWeight: 'normal',
   fontSize: '16px',
-  '[disabled] &': {
-    color: colors.white20,
-  },
 });
 
 export default class CountryRow extends Component<IProps> {
