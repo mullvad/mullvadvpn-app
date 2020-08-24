@@ -36,8 +36,8 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             targetFragment = WireguardKeyFragment::class
         }
 
-        view.findViewById<NavigateCell>(R.id.split_tunnelling).apply {
-            targetFragment = SplitTunnellingFragment::class
+        view.findViewById<NavigateCell>(R.id.split_tunneling).apply {
+            targetFragment = SplitTunnelingFragment::class
         }
 
         settingsListener.subscribe(this) { settings ->

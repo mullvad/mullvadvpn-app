@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.service.KeyStatusListener
 import net.mullvad.mullvadvpn.service.LocationInfoCache
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.SettingsListener
-import net.mullvad.mullvadvpn.service.SplitTunnelling
+import net.mullvad.mullvadvpn.service.SplitTunneling
 import net.mullvad.talpid.ConnectivityListener
 
 abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceAwareFragment() {
@@ -59,7 +59,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
     lateinit var settingsListener: SettingsListener
         private set
 
-    lateinit var splitTunnelling: SplitTunnelling
+    lateinit var splitTunneling: SplitTunneling
 
     override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
         // This method is always either called first or after an `onNoServiceConnection`, so the
@@ -73,7 +73,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         locationInfoCache = serviceConnection.locationInfoCache
         relayListListener = serviceConnection.relayListListener
         settingsListener = serviceConnection.settingsListener
-        splitTunnelling = serviceConnection.splitTunnelling
+        splitTunneling = serviceConnection.splitTunneling
 
         synchronized(this) {
             when (state) {

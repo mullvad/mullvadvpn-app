@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
 import net.mullvad.mullvadvpn.ui.widget.ToggleCell
 import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
-class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+class SplitTunnelingFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private val excludeApplicationsFadeOutListener = object : AnimatorListener {
         override fun onAnimationCancel(animation: Animator) {}
         override fun onAnimationRepeat(animation: Animator) {}
@@ -54,7 +54,7 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        appListAdapter = AppListAdapter(context, splitTunnelling)
+        appListAdapter = AppListAdapter(context, splitTunneling)
     }
 
     override fun onSafelyCreateView(
@@ -62,7 +62,7 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.split_tunnelling, container, false)
+        val view = inflater.inflate(R.layout.split_tunneling, container, false)
 
         view.findViewById<View>(R.id.back).setOnClickListener {
             activity?.onBackPressed()
@@ -73,7 +73,7 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
         view.findViewById<CustomRecyclerView>(R.id.app_list).apply {
             layoutManager = LinearLayoutManager(parentActivity)
 
-            adapter = AdapterWithHeader(appListAdapter, R.layout.split_tunnelling_header).apply {
+            adapter = AdapterWithHeader(appListAdapter, R.layout.split_tunneling_header).apply {
                 onHeaderAvailable = { headerView ->
                     configureHeader(headerView)
                     titleController.expandedTitleView = headerView.findViewById(R.id.expanded_title)
@@ -88,7 +88,7 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
 
     override fun onSafelyPause() {
         jobTracker.newBackgroundJob("persistExcludedApps") {
-            splitTunnelling.persist()
+            splitTunneling.persist()
         }
     }
 
@@ -119,14 +119,14 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
             }
         }
 
-        if (splitTunnelling.enabled) {
+        if (splitTunneling.enabled) {
             jobTracker.newUiJob("showExcludedApplications") {
                 excludeApplications.visibility = View.VISIBLE
             }
         }
 
         enabledToggle = header.findViewById<ToggleCell>(R.id.enabled).apply {
-            if (splitTunnelling.enabled) {
+            if (splitTunneling.enabled) {
                 forcefullySetState(CellSwitch.State.ON)
             } else {
                 forcefullySetState(CellSwitch.State.OFF)
@@ -146,20 +146,20 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
     }
 
     private fun enable() {
-        splitTunnelling.enabled = true
+        splitTunneling.enabled = true
         appListAdapter.enabled = configureSpinner()
         excludeApplications.visibility = View.VISIBLE
         excludeApplicationsFadeOut.reverse()
     }
 
     private fun disable() {
-        splitTunnelling.enabled = false
+        splitTunneling.enabled = false
         appListAdapter.enabled = false
         excludeApplicationsFadeOut.start()
     }
 
     private fun configureSpinner(): Boolean {
-        if (splitTunnelling.enabled && !appListAdapter.isListReady) {
+        if (splitTunneling.enabled && !appListAdapter.isListReady) {
             showLoadingSpinner()
 
             appListAdapter.onListReady = {
@@ -168,7 +168,7 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
 
             return false
         } else {
-            return splitTunnelling.enabled
+            return splitTunneling.enabled
         }
     }
 
