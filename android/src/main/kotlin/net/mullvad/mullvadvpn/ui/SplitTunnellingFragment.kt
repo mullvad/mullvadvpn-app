@@ -119,6 +119,12 @@ class SplitTunnellingFragment : ServiceDependentFragment(OnNoService.GoToLaunchS
             }
         }
 
+        if (splitTunnelling.enabled) {
+            jobTracker.newUiJob("showExcludedApplications") {
+                excludeApplications.visibility = View.VISIBLE
+            }
+        }
+
         enabledToggle = header.findViewById<ToggleCell>(R.id.enabled).apply {
             if (splitTunnelling.enabled) {
                 forcefullySetState(CellSwitch.State.ON)
