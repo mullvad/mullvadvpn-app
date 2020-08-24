@@ -31,7 +31,7 @@
               android:textSize="@dimen/text_medium"
               android:text="" />
     <net.mullvad.mullvadvpn.ui.widget.CellSwitch android:id="@+id/excluded"
-                                                 android:layout_width="52dp"
-                                                 android:layout_height="32dp"
+                                                 android:layout_width="@dimen/cell_switch_width"
+                                                 android:layout_height="@dimen/cell_switch_height"
                                                  android:layout_weight="0" />
 </LinearLayout>
