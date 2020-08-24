@@ -122,8 +122,7 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
         relayListListener.onRelayListChange = null
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
+    override fun onSafelyDestroyView() {
         titleController.onDestroy()
     }
 
