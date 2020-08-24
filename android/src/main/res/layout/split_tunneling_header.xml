@@ -39,7 +39,7 @@
                   android:paddingHorizontal="8dp"
                   android:paddingVertical="17dp"
                   android:textColor="@color/white"
-                  android:textSize="@dimen/text_medium_plus"
+                  android:textSize="@dimen/text_medium"
                   android:textStyle="bold"
                   android:text="@string/exclude_applications" />
     </LinearLayout>
