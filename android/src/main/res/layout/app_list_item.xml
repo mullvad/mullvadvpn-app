@@ -7,8 +7,8 @@
               android:gravity="center"
               android:clickable="true">
     <ProgressBar android:id="@+id/loading"
-                 android:layout_width="40dp"
-                 android:layout_height="40dp"
+                 android:layout_width="@dimen/app_list_item_icon_size"
+                 android:layout_height="@dimen/app_list_item_icon_size"
                  android:layout_gravity="center"
                  android:indeterminate="true"
                  android:indeterminateOnly="true"
@@ -16,8 +16,8 @@
                  android:indeterminateDrawable="@drawable/icon_spinner"
                  android:visibility="visible" />
     <ImageView android:id="@+id/icon"
-               android:layout_width="40dp"
-               android:layout_height="40dp"
+               android:layout_width="@dimen/app_list_item_icon_size"
+               android:layout_height="@dimen/app_list_item_icon_size"
                android:layout_gravity="center"
                android:layout_marginLeft="8dp"
                android:visibility="gone" />
