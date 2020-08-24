@@ -224,6 +224,7 @@ impl VersionUpdater {
 
         // If this is a dev build ,there's no need to pester the API for version checks.
         if *IS_DEV_BUILD {
+            log::warn!("Not checking for updates because this is a development build");
             while let Some(_) = rx.next().await {}
             return;
         }
