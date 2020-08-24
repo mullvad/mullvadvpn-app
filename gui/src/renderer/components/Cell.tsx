@@ -5,11 +5,15 @@ import {
   StyledAutoSizingTextInputFiller,
   StyledCellButton,
   StyledContainer,
-  StyledLabel,
+  StyledIconContainer,
   StyledInput,
+  StyledLabel,
   StyledSection,
+  StyledSubText,
+  StyledTintedIcon,
 } from './CellStyles';
-import { default as StandaloneSwitch } from './Switch';
+import ImageView, { IImageViewProps } from './ImageView';
+import StandaloneSwitch from './Switch';
 
 export {
   StyledFooter as Footer,
@@ -17,10 +21,7 @@ export {
   StyledFooterText as FooterText,
   StyledInputFrame as InputFrame,
   StyledSectionTitle as SectionTitle,
-  StyledSubText as SubText,
-  StyledTintedIcon as Icon,
 } from './CellStyles';
-export { default as UntintedIcon } from './ImageView';
 
 const CellSectionContext = React.createContext<boolean>(false);
 const CellDisabledContext = React.createContext<boolean>(false);
@@ -46,7 +47,11 @@ export const CellButton = React.forwardRef(function Button(
   ref: React.Ref<HTMLButtonElement>,
 ) {
   const containedInSection = useContext(CellSectionContext);
-  return <StyledCellButton ref={ref} containedInSection={containedInSection} {...props} />;
+  return (
+    <CellDisabledContext.Provider value={props.disabled ?? false}>
+      <StyledCellButton ref={ref} containedInSection={containedInSection} {...props} />
+    </CellDisabledContext.Provider>
+  );
 });
 
 interface ISectionProps {
@@ -65,6 +70,29 @@ export function Section(props: ISectionProps) {
 export function Label(props: React.HTMLAttributes<HTMLDivElement>) {
   const disabled = useContext(CellDisabledContext);
   return <StyledLabel disabled={disabled} {...props} />;
+}
+
+export function SubText(props: React.HTMLAttributes<HTMLDivElement>) {
+  const disabled = useContext(CellDisabledContext);
+  return <StyledSubText disabled={disabled} {...props} />;
+}
+
+export function UntintedIcon(props: IImageViewProps) {
+  const disabled = useContext(CellDisabledContext);
+  return (
+    <StyledIconContainer disabled={disabled}>
+      <ImageView {...props} />
+    </StyledIconContainer>
+  );
+}
+
+export function Icon(props: IImageViewProps) {
+  const disabled = useContext(CellDisabledContext);
+  return (
+    <StyledIconContainer disabled={disabled}>
+      <StyledTintedIcon {...props} />
+    </StyledIconContainer>
+  );
 }
 
 export function Switch(props: StandaloneSwitch['props']) {

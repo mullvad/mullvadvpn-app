@@ -38,9 +38,6 @@ const Label = styled(Cell.Label)({
   fontFamily: 'Open Sans',
   fontWeight: 'normal',
   fontSize: '16px',
-  '[disabled] &': {
-    color: colors.white20,
-  },
 });
 
 export default class CityRow extends Component<IProps> {

@@ -54,14 +54,14 @@ export const StyledLabel = styled.div(buttonText, (props: { disabled: boolean })
   textAlign: 'left',
 }));
 
-export const StyledSubText = styled.span(smallText, {
-  color: colors.white60,
+export const StyledSubText = styled.span(smallText, (props: { disabled: boolean }) => ({
+  color: props.disabled ? colors.white20 : colors.white60,
   fontWeight: 800,
   flex: -1,
   textAlign: 'right',
   marginLeft: '8px',
   marginRight: '8px',
-});
+}));
 
 export const StyledTintedIcon = styled(ImageView).attrs((props: IImageViewProps) => ({
   tintColor: props.tintColor ?? colors.white60,
@@ -126,3 +126,7 @@ export const StyledAutoSizingTextInputWrapper = styled.div({
   width: '100%',
   height: '100%',
 });
+
+export const StyledIconContainer = styled.div((props: { disabled: boolean }) => ({
+  opacity: props.disabled ? 0.4 : 1,
+}));
