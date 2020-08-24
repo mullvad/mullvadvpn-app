@@ -3,7 +3,7 @@
 
 use crate::{
     location::{CityCode, CountryCode, Hostname},
-    relay_list::{OpenVpnEndpointData, WireguardEndpointData},
+    relay_list::{OpenVpnEndpointData, Relay, WireguardEndpointData},
     CustomTunnelEndpoint,
 };
 #[cfg(target_os = "android")]
@@ -79,6 +79,13 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Constraint<T> {
             Constraint::Only(value) => Some(value),
         }
     }
+
+    pub fn matches_eq(&self, other: &T) -> bool {
+        match self {
+            Constraint::Any => true,
+            Constraint::Only(ref value) => value == other,
+        }
+    }
 }
 
 impl<T: fmt::Debug + Clone + Eq + PartialEq> Default for Constraint<T> {
@@ -89,11 +96,11 @@ impl<T: fmt::Debug + Clone + Eq + PartialEq> Default for Constraint<T> {
 
 impl<T: Copy + fmt::Debug + Clone + Eq + PartialEq> Copy for Constraint<T> {}
 
-impl<T: fmt::Debug + Clone + Eq + PartialEq> Match<T> for Constraint<T> {
-    fn matches(&self, other: &T) -> bool {
+impl<T: fmt::Debug + Clone + Eq + Match<U>, U> Match<U> for Constraint<T> {
+    fn matches(&self, other: &U) -> bool {
         match *self {
             Constraint::Any => true,
-            Constraint::Only(ref value) => value == other,
+            Constraint::Only(ref value) => value.matches(other),
         }
     }
 }
@@ -258,6 +265,32 @@ pub enum LocationConstraint {
     Hostname(CountryCode, CityCode, Hostname),
 }
 
+impl Match<Relay> for LocationConstraint {
+    fn matches(&self, relay: &Relay) -> bool {
+        match self {
+            LocationConstraint::Country(ref country) => {
+                relay
+                    .location
+                    .as_ref()
+                    .map_or(false, |loc| loc.country_code == *country)
+                    && relay.include_in_country
+            }
+            LocationConstraint::City(ref country, ref city) => {
+                relay.location.as_ref().map_or(false, |loc| {
+                    loc.country_code == *country && loc.city_code == *city
+                })
+            }
+            LocationConstraint::Hostname(ref country, ref city, ref hostname) => {
+                relay.location.as_ref().map_or(false, |loc| {
+                    loc.country_code == *country
+                        && loc.city_code == *city
+                        && relay.hostname == *hostname
+                })
+            }
+        }
+    }
+}
+
 impl fmt::Display for LocationConstraint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
@@ -335,7 +368,7 @@ impl fmt::Display for OpenVpnConstraints {
 
 impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
     fn matches(&self, endpoint: &OpenVpnEndpointData) -> bool {
-        self.port.matches(&endpoint.port) && self.protocol.matches(&endpoint.protocol)
+        self.port.matches_eq(&endpoint.port) && self.protocol.matches_eq(&endpoint.protocol)
     }
 }
 

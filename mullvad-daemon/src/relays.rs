@@ -388,7 +388,7 @@ impl RelaySelector {
                 self.parsed_relays.lock().relays().iter().any(|relay| {
                     relay.active
                         && !relay.tunnels.wireguard.is_empty()
-                        && Self::relay_matches_location(relay, &location_constraint)
+                        && location_constraint.matches(relay)
                 });
             // If location does not support WireGuard, defer to preferred OpenVPN tunnel
             // constraints
@@ -472,7 +472,7 @@ impl RelaySelector {
     /// Takes a `Relay` and a corresponding `RelayConstraints` and returns a new `Relay` if the
     /// given relay matches the constraints.
     fn matching_relay(relay: &Relay, constraints: &RelayConstraints) -> Option<Relay> {
-        if !Self::relay_matches_location(relay, &constraints.location) {
+        if !constraints.location.matches(relay) {
             return None;
         }
 
@@ -533,36 +533,11 @@ impl RelaySelector {
         }
     }
 
-    fn relay_matches_location(relay: &Relay, location: &Constraint<LocationConstraint>) -> bool {
-        match location {
-            Constraint::Any => true,
-            Constraint::Only(LocationConstraint::Country(ref country)) => {
-                relay
-                    .location
-                    .as_ref()
-                    .map_or(false, |loc| loc.country_code == *country)
-                    && relay.include_in_country
-            }
-            Constraint::Only(LocationConstraint::City(ref country, ref city)) => {
-                relay.location.as_ref().map_or(false, |loc| {
-                    loc.country_code == *country && loc.city_code == *city
-                })
-            }
-            Constraint::Only(LocationConstraint::Hostname(ref country, ref city, ref hostname)) => {
-                relay.location.as_ref().map_or(false, |loc| {
-                    loc.country_code == *country
-                        && loc.city_code == *city
-                        && relay.hostname == *hostname
-                })
-            }
-        }
-    }
-
     fn matching_bridge_relay(
         relay: &Relay,
         constraints: &InternalBridgeConstraints,
     ) -> Option<Relay> {
-        if !Self::relay_matches_location(relay, &constraints.location) {
+        if !constraints.location.matches(relay) {
             return None;
         }
 
@@ -570,7 +545,7 @@ impl RelaySelector {
         filtered_relay
             .bridges
             .shadowsocks
-            .retain(|bridge| constraints.transport_protocol.matches(&bridge.protocol));
+            .retain(|bridge| constraints.transport_protocol.matches_eq(&bridge.protocol));
         if filtered_relay.bridges.shadowsocks.is_empty() {
             return None;
         }

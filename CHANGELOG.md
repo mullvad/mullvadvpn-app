@@ -23,8 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add CLI command to set the location constraint via `mullvad relay set relay HOSTNAME`.
+
 ### Changed
 - Use gRPC for communication between frontends and the backend instead of JSON-RPC.
+- Show a warning in the CLI if the provided location constraints don't match any known relay.
 
 ### Fixed
 #### Android
