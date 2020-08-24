@@ -312,7 +312,7 @@ pub fn load_cache(cache_dir: &Path) -> AppVersionInfo {
             );
             // If we don't have a cache, start out with sane defaults.
             AppVersionInfo {
-                supported: *IS_DEV_BUILD,
+                supported: !*IS_DEV_BUILD,
                 latest_stable: PRODUCT_VERSION.to_owned(),
                 latest_beta: PRODUCT_VERSION.to_owned(),
                 suggested_upgrade: None,
