@@ -22,7 +22,6 @@ serde_json = "1.0"
 hyper-rustls = "0.20"
 tokio = { version = "0.2", features = [ "time", "rt-threaded", "net", "io-std", "io-driver" ] }
 tokio-rustls = "0.13"
-tokio-service = "0.1"
 urlencoding = "1"
 webpki = { version = "0.21", features =  [] }
 
