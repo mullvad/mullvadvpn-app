@@ -158,3 +158,68 @@ impl Display for StringResource {
         }
     }
 }
+
+/// Contents of an Android plurals resources file.
+///
+/// This type can be created directly deserializing the `plurals.xml` file.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct PluralResources {
+    #[serde(rename = "plurals")]
+    entries: Vec<PluralResource>,
+}
+
+/// An entry in an Android plurals resources file.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct PluralResource {
+    /// The plural resource ID.
+    pub name: String,
+
+    /// The items of the plural resource, one for each quantity variant.
+    #[serde(rename = "item")]
+    pub items: Vec<PluralVariant>,
+}
+
+/// A string resource for a specific quantity.
+///
+/// This is part of a plural resource.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct PluralVariant {
+    /// The quantity for this variant to be used.
+    pub quantity: PluralQuantity,
+
+    /// The string value
+    #[serde(rename = "$value")]
+    pub string: String,
+}
+
+/// A valid quantity for a plural variant.
+#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum PluralQuantity {
+    Zero,
+    One,
+    Other,
+}
+
+impl Deref for PluralResources {
+    type Target = Vec<PluralResource>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.entries
+    }
+}
+
+impl DerefMut for PluralResources {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.entries
+    }
+}
+
+impl IntoIterator for PluralResources {
+    type Item = PluralResource;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.entries.into_iter()
+    }
+}
