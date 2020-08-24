@@ -48,12 +48,12 @@ class SegmentedInputFormatter(val input: EditText, var separator: Char) : TextWa
             var end = input.selectionEnd
             var changed = false
 
-            if (start % separatorSkipCount == 0) {
+            if (start % separatorSkipCount == 0 && start > 0) {
                 start -= 1
                 changed = true
             }
 
-            if (end % separatorSkipCount == 0) {
+            if (end % separatorSkipCount == 0 && end > 0) {
                 end -= 1
                 changed = true
             }
