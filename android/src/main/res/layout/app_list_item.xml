@@ -10,6 +10,7 @@
                  android:layout_width="@dimen/app_list_item_icon_size"
                  android:layout_height="@dimen/app_list_item_icon_size"
                  android:layout_gravity="center"
+                 android:layout_marginLeft="8dp"
                  android:indeterminate="true"
                  android:indeterminateOnly="true"
                  android:indeterminateDuration="600"
