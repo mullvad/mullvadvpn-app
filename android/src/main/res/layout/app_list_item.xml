@@ -11,6 +11,7 @@
                  android:layout_height="@dimen/app_list_item_icon_size"
                  android:layout_gravity="center"
                  android:layout_marginLeft="8dp"
+                 android:layout_marginRight="4dp"
                  android:indeterminate="true"
                  android:indeterminateOnly="true"
                  android:indeterminateDuration="600"
@@ -21,6 +22,7 @@
                android:layout_height="@dimen/app_list_item_icon_size"
                android:layout_gravity="center"
                android:layout_marginLeft="8dp"
+               android:layout_marginRight="4dp"
                android:visibility="gone" />
     <TextView android:id="@+id/name"
               android:layout_width="wrap_content"
