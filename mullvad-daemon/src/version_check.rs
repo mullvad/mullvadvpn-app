@@ -25,7 +25,7 @@ lazy_static::lazy_static! {
     static ref STABLE_REGEX: Regex = Regex::new(r"^(\d{4})\.(\d+)$").unwrap();
     static ref BETA_REGEX: Regex = Regex::new(r"^(\d{4})\.(\d+)-beta(\d+)$").unwrap();
     static ref APP_VERSION: Option<AppVersion> = AppVersion::from_str(PRODUCT_VERSION);
-    static ref IS_DEV_BUILD: bool = APP_VERSION.is_some();
+    static ref IS_DEV_BUILD: bool = APP_VERSION.is_none();
 }
 
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
