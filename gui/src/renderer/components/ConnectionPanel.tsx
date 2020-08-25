@@ -60,6 +60,11 @@ const Caption = styled(Text)({
   marginRight: '8px',
 });
 
+const IpAddresses = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+});
+
 const Header = styled.div({
   display: 'flex',
   alignItems: 'center',
@@ -100,10 +105,10 @@ export default class ConnectionPanel extends React.Component<IProps> {
             {outAddress && (outAddress.ipv4 || outAddress.ipv6) && (
               <Row>
                 <Caption>{messages.pgettext('connection-info', 'Out')}</Caption>
-                <div>
+                <IpAddresses>
                   {outAddress.ipv4 && <Text>{outAddress.ipv4}</Text>}
                   {outAddress.ipv6 && <Text>{outAddress.ipv6}</Text>}
-                </div>
+                </IpAddresses>
               </Row>
             )}
           </React.Fragment>
