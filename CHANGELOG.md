@@ -33,6 +33,9 @@ Line wrap the file at 100 chars.                                              Th
 - Show a warning in the CLI if the provided location constraints don't match any known relay.
 
 ### Fixed
+- Fix high CPU usage in 2020.6-beta1. This was due to an incorrectly initialized stream in the
+  relay list updater.
+
 #### Android
 - Fix possible crash when starting the app, caused by trying to use JNI functions before the library
   is loaded.
