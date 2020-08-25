@@ -196,7 +196,7 @@ impl RouteManager {
 
     /// Exposes runtime handle
     #[cfg(target_os = "linux")]
-    pub fn runtime_handle(&self) -> tokio02::runtime::Handle {
+    pub fn runtime_handle(&self) -> tokio::runtime::Handle {
         self.runtime.handle().clone()
     }
 

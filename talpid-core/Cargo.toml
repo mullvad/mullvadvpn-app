@@ -39,7 +39,8 @@ tonic = "0.3.1"
 prost = "0.6"
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.17"
+nix = "0.18"
+tokio-io = "0.1"
 
 
 [target.'cfg(target_os = "android")'.dependencies]
@@ -52,10 +53,13 @@ failure = "0.1"
 notify = "4.0"
 resolv-conf = "0.6.1"
 async-stream = "0.2"
-rtnetlink = "0.2"
-netlink-packet-route = "0.2"
-netlink-proto = "0.2"
-netlink-sys = "0.2"
+rtnetlink = "0.3"
+netlink-packet-core = "0.2"
+netlink-packet-utils = "0.2"
+netlink-packet-route = "0.3"
+netlink-proto = "0.4"
+netlink-sys = "0.3"
+byteorder = "1"
 futures = { package = "futures", version = "0.3" }
 nftnl = { version = "0.5", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
