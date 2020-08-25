@@ -812,7 +812,7 @@ impl RelayListUpdater {
         loop {
             futures::select! {
                 _check_update = check_interval.next() => {
-                    if !download_future.is_terminated() && self.should_update() {
+                    if download_future.is_terminated() && self.should_update() {
                         download_future = Box::pin(Self::download_relay_list(self.rpc_client.clone()).fuse());
                         self.earliest_next_try = Instant::now() + UPDATE_INTERVAL;
                     }

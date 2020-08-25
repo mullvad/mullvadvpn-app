@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix high CPU usage in 2020.6-beta1. This was due to an incorrectly initialized stream in the
   relay list updater.
+- Fix the relay list not being updated in 2020.6-beta1 after the daemon has started.
 
 #### Android
 - Fix possible crash when starting the app, caused by trying to use JNI functions before the library
