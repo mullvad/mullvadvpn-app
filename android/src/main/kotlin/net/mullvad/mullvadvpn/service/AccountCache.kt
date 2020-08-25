@@ -31,6 +31,7 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     private var accountNumber by onAccountNumberChange.notifiable()
     private var accountExpiry by onAccountExpiryChange.notifiable()
 
+    private var createdAccountExpiry: DateTime? = null
     private var oldAccountExpiry: DateTime? = null
 
     init {
@@ -41,13 +42,14 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
     fun createNewAccount(): String? {
         newlyCreatedAccount = true
+        createdAccountExpiry = null
 
         return daemon.createNewAccount()
     }
 
     fun login(account: String) {
         if (account != accountNumber) {
-            newlyCreatedAccount = false
+            markAccountAsNotNew()
             daemon.setAccount(account)
         }
     }
@@ -91,6 +93,11 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
         jobTracker.cancelAllJobs()
     }
 
+    private fun markAccountAsNotNew() {
+        newlyCreatedAccount = false
+        createdAccountExpiry = null
+    }
+
     private fun handleNewAccountNumber(newAccountNumber: String?) {
         synchronized(this) {
             accountExpiry = null
@@ -116,8 +123,12 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
                 accountExpiry = newAccountExpiry
                 oldAccountExpiry = null
 
-                if (accountExpiry != null) {
-                    newlyCreatedAccount = false
+                if (accountExpiry != null && newlyCreatedAccount) {
+                    if (createdAccountExpiry == null) {
+                        createdAccountExpiry = accountExpiry
+                    } else if (accountExpiry != createdAccountExpiry) {
+                        markAccountAsNotNew()
+                    }
                 }
 
                 return true
