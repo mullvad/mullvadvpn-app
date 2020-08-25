@@ -52,7 +52,7 @@ pub enum Error {
     BindError(#[error(source)] io::Error),
 
     #[error(display = "Netlink error")]
-    NetlinkError(#[error(source)] failure::Compat<rtnetlink::Error>),
+    NetlinkError(#[error(source)] rtnetlink::Error),
 
     #[error(display = "Route without a valid node")]
     InvalidRoute,
@@ -379,7 +379,6 @@ impl RouteManagerImpl {
         while let Some(route) = route_request
             .try_next()
             .await
-            .map_err(failure::Fail::compat)
             .map_err(Error::NetlinkError)?
         {
             if route.header.destination_prefix_length == 0 {
@@ -394,12 +393,7 @@ impl RouteManagerImpl {
     async fn initialize_link_map(handle: &rtnetlink::Handle) -> Result<BTreeMap<u32, String>> {
         let mut link_map = BTreeMap::new();
         let mut link_request = handle.link().get().execute();
-        while let Some(link) = link_request
-            .try_next()
-            .await
-            .map_err(failure::Fail::compat)
-            .map_err(Error::NetlinkError)?
-        {
+        while let Some(link) = link_request.try_next().await.map_err(Error::NetlinkError)? {
             if let Some((idx, link_name)) = Self::map_iface_name_to_idx(link) {
                 link_map.insert(idx, link_name);
             }
@@ -536,7 +530,7 @@ impl RouteManagerImpl {
                 Route::new(best_node, required_route.destination).table(required_route.table_id);
             if let Err(e) = self.delete_route(&route).await {
                 if let Error::NetlinkError(err) = &e {
-                    if let rtnetlink::ErrorKind::NetlinkError(msg) = err.get_ref().kind() {
+                    if let rtnetlink::Error::NetlinkError(msg) = err {
                         // -3 means that the route doesn't exist anymore anyway
                         if msg.code == -3 {
                             continue;
@@ -551,7 +545,7 @@ impl RouteManagerImpl {
         for route in self.added_routes.drain().collect::<Vec<_>>().iter() {
             if let Err(e) = self.delete_route(&route).await {
                 if let Error::NetlinkError(err) = &e {
-                    if let rtnetlink::ErrorKind::NetlinkError(msg) = err.get_ref().kind() {
+                    if let rtnetlink::Error::NetlinkError(msg) = err {
                         // -3 means that the route doesn't exist anymore anyway
                         if msg.code == -3 {
                             continue;
@@ -785,7 +779,6 @@ impl RouteManagerImpl {
             .del(route_message)
             .execute()
             .await
-            .map_err(failure::Fail::compat)
             .map_err(Error::NetlinkError)
     }
 
@@ -849,17 +842,11 @@ impl RouteManagerImpl {
         let mut req = NetlinkMessage::from(RtnlMessage::NewRoute(add_message));
         req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_CREATE | NLM_F_REPLACE;
 
-        let mut response = self
-            .handle
-            .request(req)
-            .map_err(failure::Fail::compat)
-            .map_err(Error::NetlinkError)?;
+        let mut response = self.handle.request(req).map_err(Error::NetlinkError)?;
 
         while let Some(message) = response.next().await {
             if let NetlinkPayload::Error(err) = message.payload {
-                let compat_err =
-                    failure::Fail::compat(rtnetlink::ErrorKind::NetlinkError(err).into());
-                return Err(Error::NetlinkError(compat_err));
+                return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(err)));
             }
         }
         self.added_routes.insert(route.clone());
