@@ -9,4 +9,6 @@ if which systemctl &> /dev/null; then
     fi
 fi
 
+pkill -x "mullvad-gui" || true
+
 rm -f /var/cache/mullvad-vpn/relays.json || true
