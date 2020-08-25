@@ -12,7 +12,7 @@ use mullvad_types::{
     location::GeoIpLocation,
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
-        OpenVpnConstraints, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
+        OpenVpnConstraints, Provider, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
         WireguardConstraints,
     },
     relay_list::{Relay, RelayList, RelayListCountry},
@@ -271,14 +271,16 @@ impl ManagementService for ManagementServiceImpl {
 
         let settings = match settings {
             BridgeSettingType::Normal(constraints) => {
-                let constraint = match constraints.location {
+                let location = match constraints.location {
                     None => Constraint::Any,
                     Some(location) => convert_proto_location(location),
                 };
+                let provider = match constraints.provider.as_ref() {
+                    "" => Constraint::Any,
+                    provider => Constraint::Only(String::from(provider)),
+                };
 
-                BridgeSettings::Normal(BridgeConstraints {
-                    location: constraint,
-                })
+                BridgeSettings::Normal(BridgeConstraints { location, provider })
             }
             BridgeSettingType::Local(proxy_settings) => {
                 let peer = proxy_settings
@@ -967,6 +969,13 @@ fn convert_relay_settings_update(
 
             Ok(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
                 location,
+                provider: settings.provider.map(|provider_update| {
+                    if !provider_update.provider.is_empty() {
+                        Constraint::Only(provider_update.provider.clone())
+                    } else {
+                        Constraint::Any
+                    }
+                }),
                 tunnel_protocol,
                 wireguard_constraints: settings.wireguard_constraints.map(|constraints| {
                     WireguardConstraints {
@@ -1005,6 +1014,7 @@ fn convert_relay_settings(settings: &RelaySettings) -> types::RelaySettings {
         RelaySettings::Normal(constraints) => {
             relay_settings::Endpoint::Normal(types::NormalRelaySettings {
                 location: convert_location_constraint(&constraints.location),
+                provider: convert_provider_constraint(&constraints.provider),
                 tunnel_type: match constraints.tunnel_protocol {
                     Constraint::Any => None,
                     Constraint::Only(TunnelType::Wireguard) => Some(types::TunnelType::Wireguard),
@@ -1099,6 +1109,7 @@ fn convert_bridge_settings(settings: &BridgeSettings) -> types::BridgeSettings {
         BridgeSettings::Normal(constraints) => {
             BridgeSettingType::Normal(types::bridge_settings::BridgeConstraints {
                 location: convert_location_constraint(&constraints.location),
+                provider: convert_provider_constraint(&constraints.provider),
             })
         }
         BridgeSettings::Custom(proxy_settings) => match proxy_settings {
@@ -1183,6 +1194,13 @@ fn convert_location_constraint(
             hostname: hostname.to_string(),
         },
     })
+}
+
+fn convert_provider_constraint(provider: &Constraint<Provider>) -> String {
+    match provider.as_ref() {
+        Constraint::Any => "".to_string(),
+        Constraint::Only(ref provider) => provider.to_string(),
+    }
 }
 
 fn convert_bridge_state(state: &BridgeState) -> types::BridgeState {

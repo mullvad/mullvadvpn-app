@@ -857,6 +857,7 @@ where
                     BridgeSettings::Normal(settings) => {
                         let bridge_constraints = InternalBridgeConstraints {
                             location: settings.location.clone(),
+                            provider: settings.provider.clone(),
                             // FIXME: This is temporary while talpid-core only supports TCP proxies
                             transport_protocol: Constraint::Only(TransportProtocol::Tcp),
                         };

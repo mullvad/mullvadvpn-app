@@ -4,7 +4,7 @@ use clap::value_t;
 use mullvad_management_interface::types::{
     bridge_settings::{Type as BridgeSettingsType, *},
     bridge_state::State as BridgeStateType,
-    BridgeSettings, BridgeState,
+    BridgeSettings, BridgeState, RelayLocation,
 };
 use talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS;
 
@@ -45,6 +45,18 @@ fn create_bridge_set_subcommand() -> clap::App<'static, 'static> {
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
         .subcommand(create_set_state_subcommand())
         .subcommand(create_set_custom_settings_subcommand())
+        .subcommand(
+            clap::SubCommand::with_name("provider")
+                .about(
+                    "Set a hosting provider to select bridge relays from. The 'list' \
+                        command shows the available relays and their providers.",
+                )
+                .arg(
+                    clap::Arg::with_name("provider")
+                        .help("The hosting provider to use, or 'any' for no preference.")
+                        .required(true),
+                ),
+        )
         .subcommand(location::get_subcommand().about(
             "Set country or city to select bridge relays from. Use the 'list' \
              command to show available alternatives.",
@@ -155,6 +167,9 @@ impl Bridge {
             ("location", Some(location_matches)) => {
                 Self::handle_set_bridge_location(location_matches).await
             }
+            ("provider", Some(provider_matches)) => {
+                Self::handle_set_bridge_provider(provider_matches).await
+            }
             ("custom", Some(custom_matches)) => {
                 Self::handle_bridge_set_custom_settings(custom_matches).await
             }
@@ -175,8 +190,9 @@ impl Bridge {
             }
             BridgeSettingsType::Normal(constraints) => {
                 println!(
-                    "Bridge constraints - {}",
-                    location::format_location(constraints.location.as_ref())
+                    "Bridge constraints - {}, {}",
+                    location::format_location(constraints.location.as_ref()),
+                    location::format_provider(constraints.provider.as_ref())
                 );
             }
         };
@@ -184,12 +200,52 @@ impl Bridge {
     }
 
     async fn handle_set_bridge_location(matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let constraints = location::get_constraint(matches);
+        Self::update_bridge_settings(Some(location::get_constraint(matches)), None).await
+    }
+
+    async fn handle_set_bridge_provider(matches: &clap::ArgMatches<'_>) -> Result<()> {
+        let new_provider =
+            value_t!(matches.value_of("provider"), String).unwrap_or_else(|e| e.exit());
+        let new_provider = if new_provider == "any" {
+            "".to_string()
+        } else {
+            new_provider
+        };
+
+        Self::update_bridge_settings(None, Some(new_provider)).await
+    }
+
+    async fn update_bridge_settings(
+        location: Option<RelayLocation>,
+        provider: Option<String>,
+    ) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
+        let settings = rpc.get_settings(()).await?.into_inner();
+
+        let bridge_settings = settings.bridge_settings.unwrap();
+        let constraints = match bridge_settings.r#type.unwrap() {
+            BridgeSettingsType::Normal(mut constraints) => {
+                if let Some(new_location) = location {
+                    constraints.location = Some(new_location);
+                }
+                if let Some(new_provider) = provider {
+                    constraints.provider = new_provider;
+                }
+                constraints
+            }
+            _ => {
+                let location = location.unwrap_or_default();
+                let provider = provider.unwrap_or_default();
+
+                BridgeConstraints {
+                    location: Some(location),
+                    provider,
+                }
+            }
+        };
+
         rpc.set_bridge_settings(BridgeSettings {
-            r#type: Some(BridgeSettingsType::Normal(BridgeConstraints {
-                location: Some(constraints),
-            })),
+            r#type: Some(BridgeSettingsType::Normal(constraints)),
         })
         .await?;
         Ok(())
@@ -388,7 +444,10 @@ impl Bridge {
                     city.name, city.code, city.latitude, city.longitude
                 );
                 for relay in &city.relays {
-                    println!("\t\t{} ({})", relay.hostname, relay.ipv4_addr_in);
+                    println!(
+                        "\t\t{} ({}) - hosted by {}",
+                        relay.hostname, relay.ipv4_addr_in, relay.provider
+                    );
                 }
             }
             println!();
