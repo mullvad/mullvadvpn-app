@@ -12,11 +12,6 @@ class ListItemDividerDecoration(private val context: Context) : ItemDecoration()
     private val dividerHeight = context.resources.getDimensionPixelSize(R.dimen.list_item_divider)
 
     override fun getItemOffsets(offsets: Rect, view: View, parent: RecyclerView, state: State) {
-        val position = parent.getChildAdapterPosition(view)
-        val lastItem = parent.adapter!!.itemCount - 1
-
-        if (position != lastItem) {
-            offsets.bottom = dividerHeight
-        }
+        offsets.bottom = dividerHeight
     }
 }

@@ -18,7 +18,7 @@
               android:paddingTop="8dp"
               android:paddingHorizontal="@dimen/side_margin"
               android:text="@string/split_tunneling_description"
-              android:textColor="@color/white60"
+              android:textColor="@color/white"
               android:textSize="@dimen/text_small" />
     <net.mullvad.mullvadvpn.ui.widget.ToggleCell android:id="@+id/enabled"
                                                  android:layout_width="match_parent"
@@ -29,17 +29,18 @@
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:layout_marginTop="@dimen/vertical_space"
-                  android:paddingHorizontal="16dp"
+                  android:paddingLeft="@dimen/cell_left_padding"
+                  android:paddingRight="@dimen/cell_right_padding"
                   android:background="@drawable/cell_button_background"
                   android:visibility="gone"
                   android:gravity="center">
         <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_weight="1"
-                  android:paddingHorizontal="8dp"
-                  android:paddingVertical="17dp"
+                  android:paddingRight="@dimen/cell_inner_spacing"
+                  android:paddingVertical="@dimen/cell_label_vertical_padding"
                   android:textColor="@color/white"
-                  android:textSize="@dimen/text_medium_plus"
+                  android:textSize="@dimen/text_medium"
                   android:textStyle="bold"
                   android:text="@string/exclude_applications" />
     </LinearLayout>
