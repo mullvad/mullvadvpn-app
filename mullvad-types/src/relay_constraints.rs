@@ -199,7 +199,10 @@ impl Default for RelayConstraints {
     fn default() -> Self {
         RelayConstraints {
             tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-            ..Default::default()
+            location: Constraint::default(),
+            provider: Constraint::default(),
+            wireguard_constraints: WireguardConstraints::default(),
+            openvpn_constraints: OpenVpnConstraints::default(),
         }
     }
 }
