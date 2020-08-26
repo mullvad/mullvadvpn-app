@@ -283,8 +283,8 @@ impl Drop for WgGoTunnel {
 }
 
 impl Tunnel for WgGoTunnel {
-    fn get_interface_name(&self) -> &str {
-        &self.interface_name
+    fn get_interface_name(&self) -> String {
+        self.interface_name.clone()
     }
 
     fn get_tunnel_stats(&self) -> Result<Stats> {
