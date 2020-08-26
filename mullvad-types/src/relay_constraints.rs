@@ -185,6 +185,7 @@ impl RelaySettings {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub provider: Constraint<Provider>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_protocol: Constraint<TunnelType>,
@@ -199,7 +200,10 @@ impl Default for RelayConstraints {
     fn default() -> Self {
         RelayConstraints {
             tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-            ..Default::default()
+            location: Constraint::default(),
+            provider: Constraint::default(),
+            wireguard_constraints: WireguardConstraints::default(),
+            openvpn_constraints: OpenVpnConstraints::default(),
         }
     }
 }
