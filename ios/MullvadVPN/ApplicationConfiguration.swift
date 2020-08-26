@@ -16,16 +16,23 @@ class ApplicationConfiguration {
     /// The application identifier for the PacketTunnel extension
     static let packetTunnelExtensionIdentifier = "net.mullvad.MullvadVPN.PacketTunnel"
 
-    /// The application log files
-    static var logFileURLs: [URL] {
-        let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Self.securityGroupIdentifier)
-        let fileNames = ["net.mullvad.MullvadVPN", "net.mullvad.MullvadVPN.PacketTunnel"]
+    /// Container URL for security group
+    static var containerURL: URL? {
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Self.securityGroupIdentifier)
+    }
 
-        return fileNames.compactMap { (fileName) -> URL? in
-            return containerURL?
-                .appendingPathComponent("Logs", isDirectory: true)
-                .appendingPathComponent(fileName, isDirectory: false)
-                .appendingPathExtension("log")
-        }
+    /// The main application log file located in a shared container
+    static var mainApplicationLogFileURL: URL? {
+        return Self.containerURL?.appendingPathComponent("Logs/net.mullvad.MullvadVPN.log", isDirectory: false)
+    }
+
+    /// The packet tunnel log file located in a shared container
+    static var packetTunnelLogFileURL: URL? {
+        return Self.containerURL?.appendingPathComponent("Logs/net.mullvad.MullvadVPN.PacketTunnel.log", isDirectory: false)
+    }
+
+    /// All log files located in a shared container
+    static var logFileURLs: [URL] {
+        return [mainApplicationLogFileURL, packetTunnelLogFileURL].compactMap { $0 }
     }
 }
