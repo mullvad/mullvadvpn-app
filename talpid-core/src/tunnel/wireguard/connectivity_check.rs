@@ -514,8 +514,8 @@ mod test {
     }
 
     impl Tunnel for MockTunnel {
-        fn get_interface_name(&self) -> &str {
-            "mock-tunnel"
+        fn get_interface_name(&self) -> String {
+            "mock-tunnel".to_string()
         }
 
         fn stop(self: Box<Self>) -> Result<(), TunnelError> {

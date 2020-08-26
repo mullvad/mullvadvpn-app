@@ -93,7 +93,7 @@ impl WireguardMonitor {
         let close_sender = monitor.close_msg_sender.clone();
         let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
             gateway,
-            iface_name,
+            iface_name.to_string(),
             Arc::downgrade(&monitor.tunnel),
             pinger_rx,
         )?;
@@ -228,7 +228,7 @@ impl CloseHandle {
 }
 
 pub(crate) trait Tunnel: Send {
-    fn get_interface_name(&self) -> &str;
+    fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     fn get_tunnel_stats(&self) -> std::result::Result<stats::Stats, TunnelError>;
 }
