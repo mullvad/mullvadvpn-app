@@ -185,6 +185,7 @@ impl RelaySettings {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub provider: Constraint<Provider>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_protocol: Constraint<TunnelType>,
