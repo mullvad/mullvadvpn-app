@@ -771,21 +771,17 @@
 		Pop $1
 	${EndIf}
 
-	nsExec::ExecToStack '"$SYSDIR\sc.exe" stop mullvadvpn'
+	nsExec::ExecToStack '"$SYSDIR\net.exe" stop mullvadvpn'
 
 	# Discard return value
 	Pop $0
 	Pop $1
-
-	Sleep 5000
 
 	nsExec::ExecToStack '"$SYSDIR\sc.exe" delete mullvadvpn'
 
 	# Discard return value
 	Pop $0
 	Pop $1
-
-	Sleep 1000
 
 	${RemoveCLIFromEnvironPath}
 
