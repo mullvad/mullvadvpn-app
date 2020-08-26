@@ -561,6 +561,33 @@
 !define RemoveCLIFromEnvironPath '!insertmacro "RemoveCLIFromEnvironPath"'
 
 #
+# ClearFirewallRules
+#
+# Removes any WFP filters added by the daemon, using mullvad-setup.
+# This fails if the daemon is running.
+#
+!macro ClearFirewallRules
+
+	Push $0
+	Push $1
+
+	SetOutPath "$TEMP"
+	File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
+	File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-Release\winfw.dll"
+	nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" reset-firewall'
+	Pop $0
+	Pop $1
+
+	log::Log "Resetting firewall: $0 $1"
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define ClearFirewallRules '!insertmacro "ClearFirewallRules"'
+
+#
 # customInit
 #
 # This macro is activated right when the installer first starts up.
@@ -681,15 +708,7 @@
 
 	${If} $0 == 0
 		MessageBox MB_ICONEXCLAMATION|MB_YESNO "Do you wish to unblock your internet access? Doing so will leave you with an unsecure connection." IDNO customInstall_abortInstallation_skip_firewall_revert
-
-		SetOutPath "$TEMP"
-		File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
-		File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-Release\winfw.dll"
-		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" reset-firewall'
-		Pop $0
-		Pop $1
-
-		log::Log "Resetting firewall: $0 $1"
+		${ClearFirewallRules}
 	${EndIf}
 
 	customInstall_abortInstallation_skip_firewall_revert:
@@ -776,6 +795,8 @@
 
 	# If not ran silently
 	${If} $FullUninstall == 1
+		${ClearFirewallRules}
+
 		# Remove Wintun
 		${ExtractWintun}
 		${RemoveWintun}
