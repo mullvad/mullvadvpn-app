@@ -3,6 +3,7 @@
 set -eux
 
 LOG_DIR=/var/log/mullvad-vpn
+INSTALL_DIR=$2
 
 mkdir -p $LOG_DIR
 chmod 755 $LOG_DIR
@@ -76,4 +77,12 @@ if [ -d "$OLD_CACHE_DIR" ]; then
     rm -rf "$OLD_CACHE_DIR"
 fi
 
-rm -f "$NEW_CACHE_DIR/relays.json" || true
+# Remove the existing relay list.
+# There is a risk that it's incompatible with the format this version wants
+rm "$NEW_CACHE_DIR/relays.json" || true
+
+# Notify the running daemon that we are going to kill it and replace it with a newer version.
+# This will make the daemon save it's state to a file and then lock the firewall to prevent
+# leaks during the upgrade.
+"$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" prepare-restart || \
+    echo "Failed to send 'prepare-restart' command to old mullvad-daemon"
