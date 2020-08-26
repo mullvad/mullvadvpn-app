@@ -3,7 +3,7 @@
 set -eux
 
 RUST_TOOLCHAIN_CHANNEL=$1
-export RUSTFLAGS="--deny unused_imports --deny dead_code --deny unused_mut --deny unused_variables --deny unused_parens --deny unconditional_recursion"
+export RUSTFLAGS="--deny warnings"
 
 source env.sh
 
