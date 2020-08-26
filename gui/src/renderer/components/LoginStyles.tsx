@@ -1,10 +1,10 @@
-import { Styles } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import ImageView from './ImageView';
 import * as Cell from './Cell';
+import { bigText, smallText } from './common-styles';
 
-export const AccountDropdownRemoveIcon = styled(ImageView)({
+export const StyledAccountDropdownRemoveIcon = styled(ImageView)({
   justifyContent: 'center',
   paddingTop: '10px',
   paddingRight: '12px',
@@ -13,7 +13,7 @@ export const AccountDropdownRemoveIcon = styled(ImageView)({
   marginLeft: '0px',
 });
 
-export const InputSubmitIcon = styled(ImageView)((props: { visible: boolean }) => ({
+export const StyledInputSubmitIcon = styled(ImageView)((props: { visible: boolean }) => ({
   flex: 0,
   borderWidth: '0px',
   width: '48px',
@@ -22,7 +22,7 @@ export const InputSubmitIcon = styled(ImageView)((props: { visible: boolean }) =
   opacity: props.visible ? 1 : 0,
 }));
 
-export const AccountDropdownItemButton = styled(Cell.CellButton)({
+export const StyledAccountDropdownItemButton = styled(Cell.CellButton)({
   padding: '0px',
   marginBottom: '0px',
   flexDirection: 'row',
@@ -34,7 +34,7 @@ export const AccountDropdownItemButton = styled(Cell.CellButton)({
   },
 });
 
-export const AccountDropdownItemButtonLabel = styled(Cell.Label)({
+export const StyledAccountDropdownItemButtonLabel = styled(Cell.Label)({
   padding: '11px 0px 11px 12px',
   margin: '0',
   color: colors.blue80,
@@ -42,111 +42,111 @@ export const AccountDropdownItemButtonLabel = styled(Cell.Label)({
   textAlign: 'left',
   marginLeft: 0,
   cursor: 'default',
-  [AccountDropdownItemButton + ':hover']: {
+  [StyledAccountDropdownItemButton + ':hover']: {
     color: colors.blue,
   },
 });
 
-export default {
-  login_footer: Styles.createViewStyle({
-    flex: 0,
-    paddingTop: 18,
-    paddingBottom: 22,
-    paddingHorizontal: 22,
-    backgroundColor: colors.darkBlue,
-  }),
-  status_icon: Styles.createViewStyle({
-    flex: 0,
-    marginBottom: 30,
-    alignItems: 'center',
-    height: 48,
-  }),
-  login_form: Styles.createViewStyle({
-    flex: 1,
-    flexDirection: 'column',
-    overflow: 'visible',
-    paddingTop: 0,
-    paddingBottom: 0,
-    paddingLeft: 22,
-    paddingRight: 22,
-    marginTop: 83,
-    marginBottom: 0,
-    marginRight: 0,
-    marginLeft: 0,
-  }),
-  account_input_group: Styles.createViewStyle({
-    borderWidth: 2,
-    borderRadius: 8,
-    borderColor: 'transparent',
-  }),
-  account_input_group__active: Styles.createViewStyle({
-    borderColor: colors.darkBlue,
-  }),
-  account_input_group__inactive: Styles.createViewStyle({
-    opacity: 0.6,
-  }),
-  account_input_group__error: Styles.createViewStyle({
-    borderColor: colors.red40,
-  }),
-  account_input_backdrop: Styles.createViewStyle({
-    backgroundColor: colors.white,
-    borderColor: colors.darkBlue,
-    flexDirection: 'row',
-  }),
-  input_button: Styles.createViewStyle({
-    flex: 0,
-    borderWidth: 0,
-    width: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-  }),
-  input_button__invisible: Styles.createViewStyle({
-    backgroundColor: colors.white,
-    opacity: 0,
-  }),
-  account_dropdown__spacer: Styles.createViewStyle({
-    height: 1,
-    backgroundColor: colors.darkBlue,
-  }),
+export const StyledFooter = styled.div({}, (props: { show: boolean }) => ({
+  position: 'absolute',
+  width: '100%',
+  bottom: 0,
+  transform: `translateY(${props.show ? 0 : 100}%)`,
+  display: 'flex',
+  flexDirection: 'column',
+  padding: '18px 22px 22px',
+  backgroundColor: colors.darkBlue,
+  transition: 'transform 250ms ease-in-out',
+}));
 
-  login_footer__prompt: Styles.createTextStyle({
-    color: colors.white80,
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    fontWeight: '600',
-    lineHeight: 18,
-    marginBottom: 8,
-  }),
-  // TODO: Use bigText in comonStyles when converted from ReactXP
-  title: Styles.createTextStyle({
-    fontFamily: 'DINPro',
-    fontSize: 30,
-    fontWeight: '900',
-    lineHeight: 40,
-    color: colors.white,
-    marginBottom: 7,
-    flex: 0,
-  }),
-  subtitle: Styles.createTextStyle({
-    fontFamily: 'Open Sans',
-    fontSize: 13,
-    lineHeight: 15,
-    fontWeight: '600',
-    color: colors.white80,
-    marginBottom: 8,
-  }),
-  account_input_textfield: Styles.createTextInputStyle({
-    borderWidth: 0,
-    paddingTop: 10,
-    paddingRight: 12,
-    paddingLeft: 12,
-    paddingBottom: 12,
-    fontFamily: 'DINPro',
-    fontSize: 20,
-    fontWeight: '900',
-    lineHeight: 26,
-    color: colors.blue,
-    backgroundColor: 'transparent',
-    flex: 1,
-  }),
-};
+export const StyledStatusIcon = styled.div({
+  display: 'flex',
+  flex: 0,
+  marginBottom: '30px',
+  justifyContent: 'center',
+  height: '48px',
+  minHeight: '48px',
+});
+
+export const StyledLoginForm = styled.div({
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'column',
+  overflow: 'visible',
+  padding: '0 22px',
+  margin: '83px 0 0',
+});
+
+interface IStyledAccountInputGroupProps {
+  editable: boolean;
+  active: boolean;
+  error: boolean;
+}
+
+export const StyledAccountInputGroup = styled.div((props: IStyledAccountInputGroupProps) => ({
+  borderWidth: '2px',
+  borderStyle: 'solid',
+  borderRadius: '8px',
+  overflow: 'hidden',
+  borderColor: props.error ? colors.red40 : props.active ? colors.darkBlue : 'transparent',
+  opacity: props.editable ? 1 : 0.6,
+}));
+
+export const StyledAccountInputBackdrop = styled.div({
+  display: 'flex',
+  backgroundColor: colors.white,
+  borderColor: colors.darkBlue,
+});
+
+export const StyledInputButton = styled.button((props: { visible: boolean }) => ({
+  display: 'flex',
+  flex: 0,
+  borderWidth: 0,
+  width: '48px',
+  alignItems: 'center',
+  justifyContent: 'center',
+  opacity: props.visible ? 1 : 0,
+  transition: 'opacity 250ms ease-in-out',
+  backgroundColor: colors.green,
+}));
+
+export const StyledDropdownSpacer = styled.div({
+  height: 1,
+  backgroundColor: colors.darkBlue,
+});
+
+export const StyledLoginFooterPrompt = styled.span({
+  color: colors.white80,
+  fontFamily: 'Open Sans',
+  fontSize: '13px',
+  fontWeight: 600,
+  lineHeight: '18px',
+  marginBottom: '8px',
+});
+
+export const StyledTitle = styled.span(bigText, {
+  lineHeight: '40px',
+  marginBottom: '7px',
+  flex: 0,
+});
+
+export const StyledSubtitle = styled.span(smallText, {
+  lineHeight: '15px',
+  marginBottom: '8px',
+});
+
+export const StyledInput = styled.input({
+  minWidth: 0,
+  borderWidth: 0,
+  padding: '10px 12px 12px',
+  fontFamily: 'DINPro',
+  fontSize: '20px',
+  fontWeight: 900,
+  lineHeight: '26px',
+  color: colors.blue,
+  backgroundColor: 'transparent',
+  flex: 1,
+  '::placeholder': {
+    color: colors.blue40,
+  },
+});

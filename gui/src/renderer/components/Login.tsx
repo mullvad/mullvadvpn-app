@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { Animated, Component, Styles, Text, TextInput, Types, UserInterface, View } from 'reactxp';
+import React, { useCallback } from 'react';
 import { colors } from '../../config.json';
 import consumePromise from '../../shared/promise';
 import { messages } from '../../shared/gettext';
@@ -9,11 +8,22 @@ import * as AppButton from './AppButton';
 import { Brand, HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
-import styles, {
-  AccountDropdownItemButton,
-  AccountDropdownItemButtonLabel,
-  AccountDropdownRemoveIcon,
-  InputSubmitIcon,
+import {
+  StyledAccountDropdownItemButton,
+  StyledAccountDropdownItemButtonLabel,
+  StyledAccountDropdownRemoveIcon,
+  StyledAccountInputBackdrop,
+  StyledAccountInputGroup,
+  StyledDropdownSpacer,
+  StyledFooter,
+  StyledInput,
+  StyledInputButton,
+  StyledInputSubmitIcon,
+  StyledLoginFooterPrompt,
+  StyledLoginForm,
+  StyledStatusIcon,
+  StyledSubtitle,
+  StyledTitle,
 } from './LoginStyles';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
@@ -37,24 +47,13 @@ interface IState {
 
 const MIN_ACCOUNT_TOKEN_LENGTH = 10;
 
-export default class Login extends Component<IProps, IState> {
+export default class Login extends React.Component<IProps, IState> {
   public state: IState = {
     isActive: true,
   };
 
-  private accountInput = React.createRef<TextInput>();
+  private accountInput = React.createRef<HTMLInputElement>();
   private shouldResetLoginError = false;
-
-  private showsFooter = true;
-  private footerAnimatedValue = Animated.createValue(0);
-  private footerAnimation?: Types.Animated.CompositeAnimation;
-  private footerAnimationStyle: Types.AnimatedViewStyleRuleSet;
-  private footerRef = React.createRef<Animated.View>();
-
-  private isLoginButtonActive = false;
-  private loginButtonAnimatedValue = Animated.createValue(0);
-  private loginButtonAnimation?: Types.Animated.CompositeAnimation;
-  private loginButtonAnimationStyle: Types.AnimatedViewStyleRuleSet;
 
   constructor(props: IProps) {
     super(props);
@@ -62,22 +61,6 @@ export default class Login extends Component<IProps, IState> {
     if (props.loginState.type === 'failed') {
       this.shouldResetLoginError = true;
     }
-
-    this.footerAnimationStyle = Styles.createAnimatedViewStyle({
-      transform: [{ translateY: this.footerAnimatedValue }],
-    });
-
-    this.loginButtonAnimationStyle = Styles.createAnimatedViewStyle({
-      backgroundColor: Animated.interpolate(
-        this.loginButtonAnimatedValue,
-        [0.0, 1.0],
-        [colors.white, colors.green],
-      ),
-    });
-  }
-
-  public componentDidMount() {
-    consumePromise(this.setFooterVisibility(this.shouldShowFooter()));
   }
 
   public componentDidUpdate(prevProps: IProps, _prevState: IState) {
@@ -89,17 +72,13 @@ export default class Login extends Component<IProps, IState> {
       this.shouldResetLoginError = true;
 
       // focus on login field when failed to log in
-      const accountInput = this.accountInput.current;
-      if (accountInput) {
-        accountInput.focus();
-      }
+      this.accountInput.current?.focus();
     }
-
-    this.setLoginButtonActive(this.shouldActivateLoginButton());
-    consumePromise(this.setFooterVisibility(this.shouldShowFooter()));
   }
 
   public render() {
+    const showFooter = this.shouldShowFooter();
+
     return (
       <Layout>
         <Header>
@@ -107,18 +86,14 @@ export default class Login extends Component<IProps, IState> {
           <HeaderBarSettingsButton />
         </Header>
         <Container>
-          <View style={styles.login_form}>
+          <StyledLoginForm>
             {this.getStatusIcon()}
-            <Text style={styles.title}>{this.formTitle()}</Text>
+            <StyledTitle>{this.formTitle()}</StyledTitle>
 
             {this.createLoginForm()}
-          </View>
+          </StyledLoginForm>
 
-          <Animated.View
-            ref={this.footerRef}
-            style={[styles.login_footer, this.footerAnimationStyle]}>
-            {this.createFooter()}
-          </Animated.View>
+          <StyledFooter show={showFooter}>{this.createFooter()}</StyledFooter>
         </Container>
       </Layout>
     );
@@ -128,14 +103,9 @@ export default class Login extends Component<IProps, IState> {
     this.setState({ isActive: true });
   };
 
-  private onBlur = (e: Types.SyntheticEvent) => {
-    // TOOD: relatedTarget is not exposed by ReactXP and may not work on non-web platforms.
-    // Find a workaround.
-    // @ts-ignore
-    const relatedTarget = e.relatedTarget;
-
+  private onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     // restore focus if click happened within dropdown
-    if (relatedTarget) {
+    if (e.relatedTarget) {
       if (this.accountInput.current) {
         this.accountInput.current.focus();
       }
@@ -145,71 +115,27 @@ export default class Login extends Component<IProps, IState> {
     this.setState({ isActive: false });
   };
 
-  private setLoginButtonActive(isActive: boolean) {
-    if (this.isLoginButtonActive === isActive) {
-      return;
-    }
-
-    const animation = Animated.timing(this.loginButtonAnimatedValue, {
-      toValue: isActive ? 1 : 0,
-      easing: Animated.Easing.Linear(),
-      duration: 250,
-    });
-
-    const oldAnimation = this.loginButtonAnimation;
-    if (oldAnimation) {
-      oldAnimation.stop();
-    }
-
-    animation.start();
-
-    this.loginButtonAnimation = animation;
-    this.isLoginButtonActive = isActive;
-  }
-
-  private async setFooterVisibility(show: boolean) {
-    if (this.showsFooter === show || !this.footerRef.current) {
-      return;
-    }
-
-    this.showsFooter = show;
-
-    const layout = await UserInterface.measureLayoutRelativeToWindow(this.footerRef.current);
-    const value = show ? 0 : layout.height;
-
-    const animation = Animated.timing(this.footerAnimatedValue, {
-      toValue: value,
-      easing: Animated.Easing.InOut(),
-      duration: 250,
-    });
-
-    const oldAnimation = this.footerAnimation;
-    if (oldAnimation) {
-      oldAnimation.stop();
-    }
-
-    animation.start();
-
-    this.footerAnimation = animation;
-  }
-
   private onSubmit = () => {
-    const accountToken = this.props.accountToken;
-    if (accountToken && accountToken.length >= MIN_ACCOUNT_TOKEN_LENGTH) {
-      this.props.login(accountToken);
+    if (this.accountTokenValid()) {
+      this.props.login(this.props.accountToken!);
     }
   };
 
-  private onInputChange = (value: string) => {
+  private onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // reset error when user types in the new account number
     if (this.shouldResetLoginError) {
       this.shouldResetLoginError = false;
       this.props.resetLoginError();
     }
 
-    const accountToken = value.replace(/[^0-9]/g, '');
-
+    const accountToken = event.target.value.replace(/[^0-9]/g, '');
     this.props.updateAccountToken(accountToken);
+  };
+
+  private onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      this.onSubmit();
+    }
   };
 
   private formTitle() {
@@ -253,9 +179,9 @@ export default class Login extends Component<IProps, IState> {
   private getStatusIcon() {
     const statusIconPath = this.getStatusIconPath();
     return (
-      <View style={styles.status_icon}>
+      <StyledStatusIcon>
         {statusIconPath ? <ImageView source={statusIconPath} height={48} width={48} /> : null}
-      </View>
+      </StyledStatusIcon>
     );
   }
 
@@ -272,48 +198,13 @@ export default class Login extends Component<IProps, IState> {
     }
   }
 
-  private accountInputGroupStyles(): Types.ViewStyleRuleSet[] {
-    const classes = [styles.account_input_group];
-    if (this.state.isActive) {
-      classes.push(styles.account_input_group__active);
-    }
-
-    if (!this.allowInteraction()) {
-      classes.push(styles.account_input_group__inactive);
-    } else if (
-      this.props.loginState.type === 'failed' &&
-      this.props.loginState.method === 'existing_account'
-    ) {
-      classes.push(styles.account_input_group__error);
-    }
-
-    return classes;
-  }
-
-  private accountInputButtonStyles() {
-    const classes: Array<
-      Types.StyleRuleSet<Types.AnimatedViewStyle> | Types.StyleRuleSet<Types.ViewStyle>
-    > = [styles.input_button];
-
-    if (!this.allowInteraction()) {
-      classes.push(styles.input_button__invisible);
-    }
-
-    classes.push(this.loginButtonAnimationStyle);
-
-    return classes;
-  }
-
   private allowInteraction() {
     return this.props.loginState.type !== 'logging in' && this.props.loginState.type !== 'ok';
   }
 
-  private shouldActivateLoginButton(): boolean {
+  private accountTokenValid(): boolean {
     const { accountToken } = this.props;
-    if (accountToken && accountToken.length >= MIN_ACCOUNT_TOKEN_LENGTH) {
-      return true;
-    }
-    return false;
+    return accountToken !== undefined && accountToken.length >= MIN_ACCOUNT_TOKEN_LENGTH;
   }
 
   private shouldShowAccountHistory() {
@@ -347,37 +238,42 @@ export default class Login extends Component<IProps, IState> {
   }
 
   private createLoginForm() {
+    const allowInteraction = this.allowInteraction();
+    const hasError =
+      this.props.loginState.type === 'failed' &&
+      this.props.loginState.method === 'existing_account';
+
     return (
-      <View>
-        <Text style={styles.subtitle}>{this.formSubtitle()}</Text>
-        <View style={this.accountInputGroupStyles()}>
-          <View style={styles.account_input_backdrop}>
-            <TextInput
-              style={styles.account_input_textfield}
+      <>
+        <StyledSubtitle>{this.formSubtitle()}</StyledSubtitle>
+        <StyledAccountInputGroup
+          active={allowInteraction && this.state.isActive}
+          editable={allowInteraction}
+          error={hasError}>
+          <StyledAccountInputBackdrop>
+            <StyledInput
               placeholder="0000 0000 0000 0000"
-              placeholderTextColor={colors.blue40}
               value={this.props.accountToken || ''}
-              autoCorrect={false}
-              editable={this.allowInteraction()}
+              disabled={!this.allowInteraction()}
               onFocus={this.onFocus}
               onBlur={this.onBlur}
-              onChangeText={this.onInputChange}
-              onSubmitEditing={this.onSubmit}
-              returnKeyType="done"
-              keyboardType="numeric"
+              onChange={this.onInputChange}
+              onKeyPress={this.onKeyPress}
               autoFocus={true}
               ref={this.accountInput}
             />
-            <Animated.View style={this.accountInputButtonStyles()} onPress={this.onSubmit}>
-              <InputSubmitIcon
+            <StyledInputButton
+              visible={this.allowInteraction() && this.accountTokenValid()}
+              onClick={this.onSubmit}>
+              <StyledInputSubmitIcon
                 visible={this.props.loginState.type !== 'logging in'}
                 source="icon-arrow"
                 height={16}
                 width={24}
                 tintColor="rgb(255, 255, 255)"
               />
-            </Animated.View>
-          </View>
+            </StyledInputButton>
+          </StyledAccountInputBackdrop>
           <Accordion expanded={this.shouldShowAccountHistory()}>
             {
               <AccountDropdown
@@ -387,23 +283,23 @@ export default class Login extends Component<IProps, IState> {
               />
             }
           </Accordion>
-        </View>
-      </View>
+        </StyledAccountInputGroup>
+      </>
     );
   }
 
   private createFooter() {
     return (
-      <View>
-        <Text style={styles.login_footer__prompt}>
+      <>
+        <StyledLoginFooterPrompt>
           {messages.pgettext('login-view', "Don't have an account number?")}
-        </Text>
+        </StyledLoginFooterPrompt>
         <AppButton.BlueButton
           onClick={this.props.createNewAccount}
           disabled={!this.allowInteraction()}>
           {messages.pgettext('login-view', 'Create account')}
         </AppButton.BlueButton>
-      </View>
+      </>
     );
   }
 }
@@ -414,26 +310,24 @@ interface IAccountDropdownProps {
   onRemove: (value: AccountToken) => void;
 }
 
-class AccountDropdown extends Component<IAccountDropdownProps> {
-  public render() {
-    const uniqueItems = [...new Set(this.props.items)];
-    return (
-      <View>
-        {uniqueItems.map((token) => {
-          const label = formatAccountToken(token);
-          return (
-            <AccountDropdownItem
-              key={token}
-              value={token}
-              label={label}
-              onSelect={this.props.onSelect}
-              onRemove={this.props.onRemove}
-            />
-          );
-        })}
-      </View>
-    );
-  }
+function AccountDropdown(props: IAccountDropdownProps) {
+  const uniqueItems = [...new Set(props.items)];
+  return (
+    <>
+      {uniqueItems.map((token) => {
+        const label = formatAccountToken(token);
+        return (
+          <AccountDropdownItem
+            key={token}
+            value={token}
+            label={label}
+            onSelect={props.onSelect}
+            onRemove={props.onRemove}
+          />
+        );
+      })}
+    </>
+  );
 }
 
 interface IAccountDropdownItemProps {
@@ -443,33 +337,31 @@ interface IAccountDropdownItemProps {
   onSelect: (value: AccountToken) => void;
 }
 
-class AccountDropdownItem extends Component<IAccountDropdownItemProps> {
-  public render() {
-    return (
-      <View>
-        <View style={styles.account_dropdown__spacer} />
-        <AccountDropdownItemButton>
-          <AccountDropdownItemButtonLabel onClick={this.handleSelect}>
-            {this.props.label}
-          </AccountDropdownItemButtonLabel>
-          <AccountDropdownRemoveIcon
-            tintColor={colors.blue40}
-            tintHoverColor={colors.blue}
-            source="icon-close-sml"
-            height={16}
-            width={16}
-            onClick={this.handleRemove}
-          />
-        </AccountDropdownItemButton>
-      </View>
-    );
-  }
+function AccountDropdownItem(props: IAccountDropdownItemProps) {
+  const handleSelect = useCallback(() => {
+    props.onSelect(props.value);
+  }, [props.onSelect, props.value]);
 
-  private handleSelect = () => {
-    this.props.onSelect(this.props.value);
-  };
+  const handleRemove = useCallback(() => {
+    props.onRemove(props.value);
+  }, [props.onRemove, props.value]);
 
-  private handleRemove = () => {
-    this.props.onRemove(this.props.value);
-  };
+  return (
+    <>
+      <StyledDropdownSpacer />
+      <StyledAccountDropdownItemButton>
+        <StyledAccountDropdownItemButtonLabel onClick={handleSelect}>
+          {props.label}
+        </StyledAccountDropdownItemButtonLabel>
+        <StyledAccountDropdownRemoveIcon
+          tintColor={colors.blue40}
+          tintHoverColor={colors.blue}
+          source="icon-close-sml"
+          height={16}
+          width={16}
+          onClick={handleRemove}
+        />
+      </StyledAccountDropdownItemButton>
+    </>
+  );
 }
