@@ -24,6 +24,12 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+### Added
+
+#### Linux
+- Add support for WireGuard's kernel module if it's loaded.
+
+
 ### Fixed
 
 #### Windows
@@ -57,7 +63,6 @@ This release is for Android only.
 - Fix check for update versions and check for support for current version.
 - Fix crash that could happen when leaving the Select Location screen.
 - Don't show out-of-time notification for newly created accounts.
-
 
 ## [2020.6-beta1] - 2020-08-20
 This release is for Android only.
