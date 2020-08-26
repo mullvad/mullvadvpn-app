@@ -52,6 +52,10 @@ This release is for Android only.
 - Fix crash that could happen when leaving the Select Location screen.
 - Don't show out-of-time notification for newly created accounts.
 
+#### Windows
+- Remove firewall filters (unblock internet access) when "Always require VPN" is enabled and the app
+  is uninstalled.
+
 
 ## [2020.6-beta1] - 2020-08-20
 This release is for Android only.
