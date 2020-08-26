@@ -36,12 +36,8 @@ esac
 # On Windows, it relies on having msbuild.exe in your path.
 ./wireguard/build-wireguard-go.sh
 
-# FIXME: Becaues of our old jsonrpc dependency our Rust code won't build
-# on latest nightly.
-if [ "${RUST_TOOLCHAIN_CHANNEL}" != "nightly" ]; then
-  time cargo build --locked --verbose
-  time cargo test --locked --verbose
-fi
+time cargo build --locked --verbose
+time cargo test --locked --verbose
 
 if [[ "${RUST_TOOLCHAIN_CHANNEL}" == "nightly" && "$(uname -s)" == "Linux" ]]; then
   rustfmt --version;
