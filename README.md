@@ -140,7 +140,7 @@ sudo dnf install rpm-build
 
 These instructions are for building the app for Android **under Linux**.
 
-#### Install dependencies
+#### Download and install the JDK
 ```bash
 sudo apt install zip default-jdk
 ```
@@ -154,12 +154,15 @@ This directory should be exported as the `$ANDROID_HOME` environment variable.
 cd /opt/android     # Or some other directory to place the Android SDK
 export ANDROID_HOME=$PWD
 
-wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
-unzip sdk-tools-linux-4333796.zip
-./tools/bin/sdkmanager "platforms;android-28" "build-tools;28.0.3" "platform-tools"
+wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip
+unzip commandlinetools-linux-6609375_latest.zip
+./tools/bin/sdkmanager "platforms;android-29" "build-tools;29.0.3" "platform-tools"
 ```
 
-### Download and install the NDK
+If `sdkmanager` fails to find the SDK root path, pass the option `--sdk_root=$ANDROID_HOME`
+to the command above.
+
+#### Download and install the NDK
 
 The NDK should be placed in a separate directory, which can be inside the `$ANDROID_HOME` or in a
 completely separate path. The extracted directory must be exported as the `$ANDROID_NDK_HOME`
@@ -174,7 +177,18 @@ cd android-ndk-r20b
 export ANDROID_NDK_HOME="$PWD"
 ```
 
-Some environment variables must also be exported so that some Rust dependencies can be
+#### Docker
+
+Docker is required to build `wireguard-go` for Android. Follow the [installation
+instructions](https://docs.docker.com/engine/install/debian/) for your distribution.
+
+#### Configuring Rust
+
+These steps has to be done **after** you have installed Rust in the section below:
+
+##### Install the Rust Android target
+
+Some environment variables must be exported so that some Rust dependencies can be
 cross-compiled correctly:
 ```
 export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
@@ -188,11 +202,6 @@ export CC_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/x86_64-linux-android21-clang"
 export CC_i686_linux_android="$NDK_TOOLCHAIN_DIR/i686-linux-android21-clang"
 ```
 
-#### Configuring Rust
-
-These steps has to be done **after** you have installed Rust in the section below:
-
-##### Install the Rust Android target
 ```bash
 rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 ```
@@ -202,7 +211,7 @@ rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-andro
 This block assumes you installed everything under `/opt/android`, but you can install it wherever
 you want as long as the `ANDROID_HOME` variable is set accordingly.
 
-Add to `~/.cargo/config`:
+Add to `~/.cargo/config.toml`:
 ```
 [target.aarch64-linux-android]
 ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
@@ -221,7 +230,7 @@ ar = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i6
 linker = "/opt/android/android-ndk-r20b/toolchains/llvm/prebuilt/linux-x86_64/bin/i686-linux-android21-clang"
 ```
 
-#### Signing the release APK
+#### Signing key for release APKs (optional)
 
 In order to build release APKs, they need to be signed. First, a signing key must be generated and
 stored in a keystore file. In the example below, the keystore file will be
@@ -246,7 +255,9 @@ storePassword = keystore-password
 
 1. Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
-1. Get the latest version 12 release of Node.js and the latest version of npm.
+1. *This can be skipped for Android builds*.
+
+   Get the latest version 12 release of Node.js and the latest version of npm.
    #### macOS
    ```bash
    brew install node
@@ -259,7 +270,6 @@ storePassword = keystore-password
    #### Windows
    Download the Node.js installer from the official website.
 
-
 1. Install Go (ideally version `1.13.6`) by following the [official
    instructions](https://golang.org/doc/install).  Newer versions of Go may be used. Earlier
    versions may be used, but versions older than `1.12` are known to not work, newer versions may
@@ -269,6 +279,8 @@ storePassword = keystore-password
 
 
 ## Building and packaging the app
+
+### Desktop
 
 The simplest way to build the entire app and generate an installer is to just run the build script.
 `--dev-build` is added to skip some release checks and signing of the binaries:
@@ -281,6 +293,26 @@ Building this requires at least 1GB of memory.
 
 If you want to build each component individually, or run in development mode, read the following
 sections.
+
+### Android
+
+Running the `build-apk.sh` script will build the necessary Rust daemon for all supported ABIs and
+build the final APK:
+```bash
+./build-apk.sh
+```
+
+You may pass a `--dev-build` to build the Rust daemon and the UI in debug mode and sign the APK with
+automatically generated debug keys:
+```bash
+./build-apk.sh --dev-build
+```
+
+If the above fails with an error related to compression, try allowing more memory to the JVM:
+```bash
+echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
+./android/gradlew --stop
+```
 
 ## Building and running mullvad-daemon on desktop
 
@@ -361,22 +393,6 @@ to do that before starting the GUI.
 
 1. `MULLVAD_PATH` - Allows changing the path to the folder with the `mullvad-problem-report` tool
     when running in development mode. Defaults to: `<repo>/target/debug/`.
-
-
-## Building the Android app
-
-Running the `build-apk.sh` script will build the necessary Rust daemon for all supported ABIs and
-build the final APK. You may pass a `--dev-build` to build the Rust daemon and the UI in debug mode
-and sign the APK with automatically generated debug keys.
-```bash
-./build-apk.sh
-```
-
-If the above fails with an error related to compression, try allowing more memory to the JVM:
-```bash
-echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
-./android/gradlew --stop
-```
 
 
 ## Making a release
