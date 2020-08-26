@@ -2,6 +2,7 @@ use crate::location::GeoIpLocation;
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
 use serde::{Deserialize, Serialize};
+use std::fmt;
 use talpid_types::{
     net::TunnelEndpoint,
     tunnel::{ActionAfterDisconnect, ErrorState},
@@ -15,6 +16,15 @@ use talpid_types::{
 pub enum TargetState {
     Unsecured,
     Secured,
+}
+
+impl fmt::Display for TargetState {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TargetState::Unsecured => "Unsecured".fmt(f),
+            TargetState::Secured => "Secured".fmt(f),
+        }
+    }
 }
 
 /// Represents the state the client tunnel is in.

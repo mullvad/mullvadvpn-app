@@ -545,13 +545,19 @@ where
                 .map_err(Error::ReadCachedTargetState),
             Err(e) => {
                 if e.kind() == io::ErrorKind::NotFound {
+                    debug!("No cached target state to load");
                     Ok(None)
                 } else {
                     Err(Error::OpenCachedTargetState(e))
                 }
             }
         }?;
-        if cached_target_state.is_some() {
+        if let Some(cached_target_state) = &cached_target_state {
+            info!(
+                "Loaded cached target state \"{}\" from {}",
+                cached_target_state,
+                target_cache.display()
+            );
             let _ = fs::remove_file(target_cache).map_err(|e| {
                 error!("Cannot delete target tunnel state cache: {}", e);
             });
@@ -586,7 +592,6 @@ where
                 info!("Automatically connecting since auto-connect is turned on");
                 TargetState::Secured
             } else {
-                info!("Restoring cached target state");
                 cached_target_state.unwrap_or(TargetState::Unsecured)
             }
         } else {
