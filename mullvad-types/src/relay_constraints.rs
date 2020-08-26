@@ -519,6 +519,7 @@ impl RelaySettingsUpdate {
 #[serde(default)]
 pub struct RelayConstraintsUpdate {
     pub location: Option<Constraint<LocationConstraint>>,
+    #[cfg_attr(target_os = "android", jnix(default))]
     pub provider: Option<Constraint<Provider>>,
     #[cfg_attr(target_os = "android", jnix(default))]
     pub tunnel_protocol: Option<Constraint<TunnelType>>,
