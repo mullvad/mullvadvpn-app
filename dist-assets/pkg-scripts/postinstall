@@ -51,8 +51,6 @@ EOM
 ZSH_COMPLETIONS_DIR="/usr/local/share/zsh/site-functions/"
 FISH_COMPLETIONS_DIR="/usr/local/share/fish/vendor_completions.d/"
 
-"$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" prepare-restart || true
-
 pkill -x "Mullvad VPN" || echo "Unable to kill GUI, not running?"
 sleep 1
 
