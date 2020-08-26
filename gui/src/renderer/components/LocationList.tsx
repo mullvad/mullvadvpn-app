@@ -215,6 +215,12 @@ const StyledSpecialLocationCellButton = styled(Cell.CellButton)({
   paddingLeft: '18px',
 });
 
+const StyledSpecialLocationCellLabel = styled(Cell.Label)({
+  fontFamily: 'Open Sans',
+  fontWeight: 'normal',
+  fontSize: '16px',
+});
+
 const StyledSpecialLocationIcon = styled(Cell.Icon)({
   marginRight: '8px',
 });
@@ -236,7 +242,7 @@ export class SpecialLocation<T> extends Component<ISpecialLocationProps<T>> {
           height={24}
           width={24}
         />
-        <Cell.Label>{this.props.children}</Cell.Label>
+        <StyledSpecialLocationCellLabel>{this.props.children}</StyledSpecialLocationCellLabel>
       </StyledSpecialLocationCellButton>
     );
   }
