@@ -1,24 +1,15 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { Component, Styles, View } from 'reactxp';
 import { colors } from '../../config.json';
 import * as Cell from './Cell';
 
-const styles = {
-  relayStatus: Styles.createViewStyle({
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    marginLeft: 4,
-    marginRight: 12,
-  }),
-  inactive: Styles.createViewStyle({
-    backgroundColor: colors.red95,
-  }),
-  active: Styles.createViewStyle({
-    backgroundColor: colors.green90,
-  }),
-};
+const StyledRelayStatus = styled.div((props: { active: boolean }) => ({
+  width: '16px',
+  height: '16px',
+  borderRadius: '8px',
+  margin: '0 12px 0 4px',
+  backgroundColor: props.active ? colors.green90 : colors.red95,
+}));
 
 const TickIcon = styled(Cell.Icon)({
   marginRight: '8px',
@@ -29,12 +20,10 @@ interface IProps {
   selected: boolean;
 }
 
-export default class RelayStatusIndicator extends Component<IProps> {
-  public render() {
-    return this.props.selected ? (
-      <TickIcon tintColor={colors.white} source="icon-tick" height={24} width={24} />
-    ) : (
-      <View style={[styles.relayStatus, this.props.active ? styles.active : styles.inactive]} />
-    );
-  }
+export default function RelayStatusIndicator(props: IProps) {
+  return props.selected ? (
+    <TickIcon tintColor={colors.white} source="icon-tick" height={24} width={24} />
+  ) : (
+    <StyledRelayStatus active={props.active} />
+  );
 }

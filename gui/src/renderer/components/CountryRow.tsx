@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Component, Styles, View } from 'reactxp';
 import styled from 'styled-components';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
 import Accordion from './Accordion';
@@ -23,13 +22,6 @@ interface IProps {
   children?: CityRowElement | CityRowElement[];
 }
 
-const styles = {
-  container: Styles.createViewStyle({
-    flexDirection: 'column',
-    flex: 0,
-  }),
-};
-
 const Button = styled(Cell.CellButton)({
   paddingRight: '16px',
   // The actual padding is 22px except for the tick icon which has 18.
@@ -46,7 +38,7 @@ const Label = styled(Cell.Label)({
   fontSize: '16px',
 });
 
-export default class CountryRow extends Component<IProps> {
+export default class CountryRow extends React.Component<IProps> {
   private buttonRef = React.createRef<HTMLButtonElement>();
 
   public static compareProps(oldProps: IProps, nextProps: IProps) {
@@ -93,7 +85,7 @@ export default class CountryRow extends Component<IProps> {
     const hasChildren = numChildren > 1 || numOnlyChildChildren > 1;
 
     return (
-      <View style={styles.container}>
+      <>
         <Button
           ref={this.buttonRef}
           onClick={this.handleClick}
@@ -118,7 +110,7 @@ export default class CountryRow extends Component<IProps> {
             {this.props.children}
           </Accordion>
         )}
-      </View>
+      </>
     );
   }
 

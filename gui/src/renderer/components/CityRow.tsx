@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Component, View } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
@@ -40,7 +39,7 @@ const Label = styled(Cell.Label)({
   fontSize: '16px',
 });
 
-export default class CityRow extends Component<IProps> {
+export default class CityRow extends React.Component<IProps> {
   private buttonRef = React.createRef<HTMLButtonElement>();
 
   public static compareProps(oldProps: IProps, nextProps: IProps): boolean {
@@ -81,7 +80,7 @@ export default class CityRow extends Component<IProps> {
     const hasChildren = React.Children.count(this.props.children) > 1;
 
     return (
-      <View>
+      <>
         <Button
           ref={this.buttonRef}
           onClick={this.handleClick}
@@ -107,7 +106,7 @@ export default class CityRow extends Component<IProps> {
             {this.props.children}
           </Accordion>
         )}
-      </View>
+      </>
     );
   }
 

@@ -1,6 +1,5 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { Component, View } from 'reactxp';
 import { colors } from '../../config.json';
 import {
   compareRelayLocation,
@@ -35,7 +34,7 @@ interface ILocationListProps<SpecialValueType> {
   onSelect?: (value: LocationSelection<SpecialValueType>) => void;
 }
 
-export default class LocationList<SpecialValueType> extends Component<
+export default class LocationList<SpecialValueType> extends React.Component<
   ILocationListProps<SpecialValueType>,
   ILocationListState<SpecialValueType>
 > {
@@ -81,7 +80,7 @@ export default class LocationList<SpecialValueType> extends Component<
       selection && selection.type === LocationSelectionType.relay ? selection.value : undefined;
 
     return (
-      <View>
+      <>
         {React.Children.map(this.props.children, (child) => {
           if (React.isValidElement(child)) {
             if (child.type === SpecialLocations) {
@@ -104,7 +103,7 @@ export default class LocationList<SpecialValueType> extends Component<
           }
           return child;
         })}
-      </View>
+      </>
     );
   }
 
@@ -192,7 +191,7 @@ interface ISpecialLocationsProps<T> {
 
 export function SpecialLocations<T>(props: ISpecialLocationsProps<T>) {
   return (
-    <View>
+    <>
       {React.Children.map(props.children, (child) => {
         if (React.isValidElement(child) && child.type === SpecialLocation) {
           const isSelected = props.selectedValue === child.props.value;
@@ -207,7 +206,7 @@ export function SpecialLocations<T>(props: ISpecialLocationsProps<T>) {
           return undefined;
         }
       })}
-    </View>
+    </>
   );
 }
 
@@ -232,7 +231,7 @@ interface ISpecialLocationProps<T> {
   onSelect?: (value: T) => void;
 }
 
-export class SpecialLocation<T> extends Component<ISpecialLocationProps<T>> {
+export class SpecialLocation<T> extends React.Component<ISpecialLocationProps<T>> {
   public render() {
     return (
       <StyledSpecialLocationCellButton selected={this.props.isSelected} onClick={this.onSelect}>
@@ -271,10 +270,10 @@ interface ICommonCellProps<T> {
   ref?: React.Ref<T>;
 }
 
-export class RelayLocations extends Component<IRelayLocationsProps> {
+export class RelayLocations extends React.Component<IRelayLocationsProps> {
   public render() {
     return (
-      <View>
+      <>
         {this.props.source.map((relayCountry) => {
           const countryLocation: RelayLocation = { country: relayCountry.code };
 
@@ -326,7 +325,7 @@ export class RelayLocations extends Component<IRelayLocationsProps> {
             </CountryRow>
           );
         })}
-      </View>
+      </>
     );
   }
 
