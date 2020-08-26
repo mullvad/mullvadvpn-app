@@ -750,7 +750,9 @@ class ApplicationMain {
           cities: country.cities
             .map((city) => ({
               ...city,
-              relays: city.relays.filter((relay) => relay.bridges),
+              relays: city.relays.filter(
+                (relay) => relay.bridges && relay.bridges.shadowsocks.length > 0,
+              ),
             }))
             .filter((city) => city.relays.length > 0),
         }))
