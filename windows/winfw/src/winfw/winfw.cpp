@@ -189,7 +189,7 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 		return true;
 	}
 
-	return WinFw_Reset();
+	return WINFW_POLICY_STATUS_SUCCESS == WinFw_Reset();
 }
 
 WINFW_LINKAGE
