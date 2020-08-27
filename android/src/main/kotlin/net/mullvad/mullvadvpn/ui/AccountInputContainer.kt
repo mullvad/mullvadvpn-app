@@ -34,6 +34,11 @@ class AccountInputContainer : RelativeLayout {
     private val bottomLeftCorner: ImageView = container.findViewById(R.id.bottom_left_corner)
     private val bottomRightCorner: ImageView = container.findViewById(R.id.bottom_right_corner)
 
+    private val topBorder: ImageView = container.findViewById(R.id.top_border)
+    private val leftBorder: ImageView = container.findViewById(R.id.left_border)
+    private val rightBorder: ImageView = container.findViewById(R.id.right_border)
+    private val bottomBorder: ImageView = container.findViewById(R.id.bottom_border)
+
     var borderState = BorderState.UNFOCUSED
         set(value) {
             field = value
@@ -60,6 +65,11 @@ class AccountInputContainer : RelativeLayout {
         topRightCorner.elevation = borderElevation
         bottomLeftCorner.elevation = borderElevation
         bottomRightCorner.elevation = borderElevation
+
+        topBorder.elevation = borderElevation
+        leftBorder.elevation = borderElevation
+        rightBorder.elevation = borderElevation
+        bottomBorder.elevation = borderElevation
     }
 
     constructor(context: Context) : super(context) {}

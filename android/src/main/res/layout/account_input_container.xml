@@ -1,4 +1,5 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- corners -->
     <ImageView android:id="@+id/top_left_corner"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
@@ -26,4 +27,33 @@
                android:layout_alignParentLeft="true"
                android:rotation="270"
                android:src="@drawable/account_input_corner" />
+    <!-- sides -->
+    <ImageView android:id="@+id/left_border"
+               android:layout_width="@dimen/account_input_border_width"
+               android:layout_height="wrap_content"
+               android:layout_alignParentLeft="true"
+               android:layout_below="@id/top_left_corner"
+               android:layout_above="@id/bottom_left_corner"
+               android:src="@drawable/account_input_border" />
+    <ImageView android:id="@+id/right_border"
+               android:layout_width="@dimen/account_input_border_width"
+               android:layout_height="wrap_content"
+               android:layout_alignParentRight="true"
+               android:layout_below="@id/top_right_corner"
+               android:layout_above="@id/bottom_right_corner"
+               android:src="@drawable/account_input_border" />
+    <ImageView android:id="@+id/top_border"
+               android:layout_width="wrap_content"
+               android:layout_height="@dimen/account_input_border_width"
+               android:layout_toLeftOf="@id/top_right_corner"
+               android:layout_toRightOf="@id/top_left_corner"
+               android:layout_alignParentTop="true"
+               android:src="@drawable/account_input_border" />
+    <ImageView android:id="@+id/bottom_border"
+               android:layout_width="wrap_content"
+               android:layout_height="@dimen/account_input_border_width"
+               android:layout_toLeftOf="@id/bottom_right_corner"
+               android:layout_toRightOf="@id/bottom_left_corner"
+               android:layout_alignParentBottom="true"
+               android:src="@drawable/account_input_border" />
 </merge>
