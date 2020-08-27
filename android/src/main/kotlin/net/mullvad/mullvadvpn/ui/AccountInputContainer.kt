@@ -2,10 +2,10 @@ package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
 import android.util.AttributeSet
-import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import net.mullvad.mullvadvpn.R
 
-class AccountInputContainer : LinearLayout {
+class AccountInputContainer : RelativeLayout {
     enum class BorderState {
         UNFOCUSED,
         FOCUSED,
