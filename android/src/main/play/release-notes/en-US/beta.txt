@@ -1,6 +1,5 @@
-- Add split-tunnelling, allowing apps to be configured to be excluded from the tunnel.
-- Add localized app messages.
-- Show a system notification when the account time will soon run out.
-- Changed how the Select Location screen scrolls so that more items can be viewed at the same time.
-- Fix notification sometimes not being dismissible.
-- Various UI bug fixes and improvements.
+- Fix CPU consuming bug draining battery
+- Fix crash happening to ~5% of users
+- Fix layout bug on new split tunneling feature screen
+- Don't show account out of time warning when creating new accounts
+- Fix crash in voucher code entry dialog
