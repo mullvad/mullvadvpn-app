@@ -1,7 +1,6 @@
 import log from 'electron-log';
 import moment from 'moment';
 import * as React from 'react';
-import { Component, Text, View } from 'reactxp';
 import { sprintf } from 'sprintf-js';
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
@@ -9,7 +8,7 @@ import { IWgKey, WgKeyState } from '../redux/settings/reducers';
 import * as AppButton from './AppButton';
 import ClipboardLabel from './ClipboardLabel';
 import ImageView from './ImageView';
-import { Container, Layout } from './Layout';
+import { Layout } from './Layout';
 import {
   BackBarItem,
   NavigationBar,
@@ -18,7 +17,19 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import styles, { StyledNavigationScrollbars } from './WireguardKeysStyles';
+import {
+  StyledButtonRow,
+  StyledContainer,
+  StyledContent,
+  StyledLastButtonRow,
+  StyledMessage,
+  StyledMessages,
+  StyledNavigationScrollbars,
+  StyledRow,
+  StyledRowLabel,
+  StyledRowLabelSpacer,
+  StyledRowValue,
+} from './WireguardKeysStyles';
 
 export interface IProps {
   keyState: WgKeyState;
@@ -38,7 +49,7 @@ export interface IState {
   userHasInitiatedVerification: boolean;
 }
 
-export default class WireguardKeys extends Component<IProps, IState> {
+export default class WireguardKeys extends React.Component<IProps, IState> {
   public state = {
     recentlyGeneratedKey: false,
     userHasInitiatedVerification: false,
@@ -69,108 +80,102 @@ export default class WireguardKeys extends Component<IProps, IState> {
   public render() {
     return (
       <Layout>
-        <Container>
-          <View style={styles.wgkeys}>
-            <NavigationContainer>
-              <NavigationBar>
-                <NavigationItems>
-                  <BackBarItem action={this.props.onClose}>
-                    {
-                      // TRANSLATORS: Back button in navigation bar
-                      messages.pgettext('wireguard-keys-nav', 'Advanced')
-                    }
-                  </BackBarItem>
-                  <TitleBarItem>
-                    {
-                      // TRANSLATORS: Title label in navigation bar
-                      messages.pgettext('wireguard-keys-nav', 'WireGuard key')
-                    }
-                  </TitleBarItem>
-                </NavigationItems>
-              </NavigationBar>
+        <StyledContainer>
+          <NavigationContainer>
+            <NavigationBar>
+              <NavigationItems>
+                <BackBarItem action={this.props.onClose}>
+                  {
+                    // TRANSLATORS: Back button in navigation bar
+                    messages.pgettext('wireguard-keys-nav', 'Advanced')
+                  }
+                </BackBarItem>
+                <TitleBarItem>
+                  {
+                    // TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('wireguard-keys-nav', 'WireGuard key')
+                  }
+                </TitleBarItem>
+              </NavigationItems>
+            </NavigationBar>
 
-              <View style={styles.wgkeys__container}>
-                <StyledNavigationScrollbars fillContainer>
-                  <View style={styles.wgkeys__content}>
-                    <SettingsHeader>
-                      <HeaderTitle>
-                        {messages.pgettext('wireguard-keys-nav', 'WireGuard key')}
-                      </HeaderTitle>
-                    </SettingsHeader>
+            <StyledNavigationScrollbars fillContainer>
+              <StyledContent>
+                <SettingsHeader>
+                  <HeaderTitle>
+                    {messages.pgettext('wireguard-keys-nav', 'WireGuard key')}
+                  </HeaderTitle>
+                </SettingsHeader>
 
-                    <View style={styles.wgkeys__row}>
-                      <Text style={styles.wgkeys__row_label}>
-                        {messages.pgettext('wireguard-key-view', 'Public key')}
-                      </Text>
+                <StyledRow>
+                  <StyledRowLabel>
+                    <span>{messages.pgettext('wireguard-key-view', 'Public key')}</span>
+                    <StyledRowLabelSpacer />
+                    <span>{this.keyValidityLabel()}</span>
+                  </StyledRowLabel>
 
-                      <View style={styles.wgkeys__row_value}>{this.getKeyText()}</View>
-                    </View>
-                    <View style={styles.wgkeys__row}>
-                      <Text style={styles.wgkeys__row_label}>
-                        {messages.pgettext('wireguard-key-view', 'Key generated')}
-                      </Text>
-                      <Text style={styles.wgkeys__row_value}>{this.ageOfKeyString()}</Text>
-                    </View>
+                  <StyledRowValue>{this.getKeyText()}</StyledRowValue>
+                </StyledRow>
+                <StyledRow>
+                  <StyledRowLabel>
+                    {messages.pgettext('wireguard-key-view', 'Key generated')}
+                  </StyledRowLabel>
+                  <StyledRowValue>{this.ageOfKeyString()}</StyledRowValue>
+                </StyledRow>
 
-                    <View style={styles.wgkeys__messages}>
-                      {this.props.isOffline ? (
-                        this.offlineLabel()
-                      ) : (
-                        <View style={styles.wgkeys__row}>{this.keyValidityLabel()}</View>
-                      )}
-                    </View>
+                <StyledMessages>
+                  {this.props.isOffline ? (
+                    this.offlineLabel()
+                  ) : (
+                    <StyledMessage success={false}>{this.getStatusMessage()}</StyledMessage>
+                  )}
+                </StyledMessages>
 
-                    <View style={styles.wgkeys__button_row}>{this.getGenerateButton()}</View>
-                    <View style={styles.wgkeys__button_row}>
-                      <AppButton.BlueButton
-                        disabled={this.isVerifyButtonDisabled()}
-                        onClick={this.handleVerifyKeyPress}>
-                        <AppButton.Label>
-                          {messages.pgettext('wireguard-key-view', 'Verify key')}
-                        </AppButton.Label>
-                      </AppButton.BlueButton>
-                    </View>
-                    <View style={[styles.wgkeys__button_row, styles.wgkeys__last_button]}>
-                      <AppButton.BlockingButton
-                        disabled={this.props.isOffline}
-                        onClick={this.props.onVisitWebsiteKey}>
-                        <AppButton.BlueButton>
-                          <AppButton.Label>
-                            {messages.pgettext('wireguard-key-view', 'Manage keys')}
-                          </AppButton.Label>
-                          <AppButton.Icon source="icon-extLink" height={16} width={16} />
-                        </AppButton.BlueButton>
-                      </AppButton.BlockingButton>
-                    </View>
-                  </View>
-                </StyledNavigationScrollbars>
-              </View>
-            </NavigationContainer>
-          </View>
-        </Container>
+                <StyledButtonRow>{this.getGenerateButton()}</StyledButtonRow>
+                <StyledButtonRow>
+                  <AppButton.BlueButton
+                    disabled={this.isVerifyButtonDisabled()}
+                    onClick={this.handleVerifyKeyPress}>
+                    <AppButton.Label>
+                      {messages.pgettext('wireguard-key-view', 'Verify key')}
+                    </AppButton.Label>
+                  </AppButton.BlueButton>
+                </StyledButtonRow>
+                <StyledLastButtonRow>
+                  <AppButton.BlockingButton
+                    disabled={this.props.isOffline}
+                    onClick={this.props.onVisitWebsiteKey}>
+                    <AppButton.BlueButton>
+                      <AppButton.Label>
+                        {messages.pgettext('wireguard-key-view', 'Manage keys')}
+                      </AppButton.Label>
+                      <AppButton.Icon source="icon-extLink" height={16} width={16} />
+                    </AppButton.BlueButton>
+                  </AppButton.BlockingButton>
+                </StyledLastButtonRow>
+              </StyledContent>
+            </StyledNavigationScrollbars>
+          </NavigationContainer>
+        </StyledContainer>
       </Layout>
     );
   }
 
   private offlineLabel() {
-    return this.state.recentlyGeneratedKey ? (
-      <Text style={[styles.wgkeys__row, styles.wgkeys__valid_key]}>
-        {messages.pgettext('wireguard-key-view', 'Reconnecting with new WireGuard key...')}
-      </Text>
-    ) : (
-      <Text style={[styles.wgkeys__row, styles.wgkeys__invalid_key]}>
-        {messages.pgettext('wireguard-key-view', 'Unable to manage keys while in a blocked state')}
-      </Text>
+    return (
+      <StyledMessage success={this.state.recentlyGeneratedKey}>
+        {this.state.recentlyGeneratedKey
+          ? messages.pgettext('wireguard-key-view', 'Reconnecting with new WireGuard key...')
+          : messages.pgettext(
+              'wireguard-key-view',
+              'Unable to manage keys while in a blocked state',
+            )}
+      </StyledMessage>
     );
   }
 
   private isVerifyButtonDisabled(): boolean {
-    switch (this.props.keyState.type) {
-      case 'key-set':
-        return false || this.props.isOffline;
-      default:
-        return true;
-    }
+    return this.props.keyState.type !== 'key-set' || this.props.isOffline;
   }
 
   private handleVerifyKeyPress = () => {
@@ -192,10 +197,10 @@ export default class WireguardKeys extends Component<IProps, IState> {
 
   /// Action button can either generate or verify a key
   private getGenerateButton() {
-    const generateText = messages.pgettext('wireguard-key-view', 'Generate key');
+    let buttonText = messages.pgettext('wireguard-key-view', 'Generate key');
     const regenerateText = messages.pgettext('wireguard-key-view', 'Regenerate key');
-    let buttonText = generateText;
 
+    let disabled = this.props.isOffline;
     let generateKey = this.props.onGenerateKey;
     switch (this.props.keyState.type) {
       case 'key-set': {
@@ -205,24 +210,19 @@ export default class WireguardKeys extends Component<IProps, IState> {
         break;
       }
       case 'being-verified':
-        return this.busyButton(regenerateText);
+        disabled = true;
+        buttonText = regenerateText;
+        break;
       case 'being-replaced':
       case 'being-generated':
-        return this.busyButton(messages.pgettext('wireguard-key-view', 'Generating key'));
+        disabled = true;
+        buttonText = messages.pgettext('wireguard-key-view', 'Generating key');
     }
+
     return (
-      <AppButton.GreenButton disabled={this.props.isOffline} onClick={generateKey}>
+      <AppButton.GreenButton disabled={disabled} onClick={generateKey}>
         <AppButton.Label>{buttonText}</AppButton.Label>
       </AppButton.GreenButton>
-    );
-  }
-
-  private busyButton(message: string) {
-    return (
-      <AppButton.BlueButton disabled={true}>
-        <AppButton.Label>{message}</AppButton.Label>
-        <AppButton.Icon source="icon-spinner" height={16} width={16} />
-      </AppButton.BlueButton>
     );
   }
 
@@ -233,91 +233,73 @@ export default class WireguardKeys extends Component<IProps, IState> {
         // mimicking the truncating of the key from website
         const publicKey = this.props.keyState.key.publicKey;
         return (
-          <View title={this.props.keyState.key.publicKey}>
-            <Text style={styles.wgkeys__row_value}>
-              <ClipboardLabel value={publicKey} displayValue={publicKey.substring(0, 20) + '...'} />
-            </Text>
-          </View>
+          <StyledRowValue title={this.props.keyState.key.publicKey}>
+            <ClipboardLabel value={publicKey} displayValue={publicKey.substring(0, 20) + '...'} />
+          </StyledRowValue>
         );
       }
       case 'being-replaced':
       case 'being-generated':
         return <ImageView source="icon-spinner" height={19} width={19} />;
-      case 'too-many-keys':
-      case 'generation-failure':
-        return (
-          <Text style={styles.wgkeys__invalid_key}>
-            {this.formatKeygenFailure(this.props.keyState.type)}
-          </Text>
-        );
       default:
         return (
-          <Text style={styles.wgkeys__row_value}>
-            {messages.pgettext('wireguard-key-view', 'No key set')}
-          </Text>
+          <StyledRowValue>{messages.pgettext('wireguard-key-view', 'No key set')}</StyledRowValue>
         );
     }
   }
 
   private keyValidityLabel() {
-    switch (this.props.keyState.type) {
-      case 'being-verified':
-        return this.state.userHasInitiatedVerification ? (
-          <ImageView source="icon-spinner" height={20} width={20} />
-        ) : null;
-      case 'key-set': {
-        const key = this.props.keyState.key;
-        if (key.valid === true && this.state.userHasInitiatedVerification) {
-          return (
-            <Text style={styles.wgkeys__valid_key}>
-              {messages.pgettext('wireguard-key-view', 'Key is valid')}
-            </Text>
-          );
-        } else if (key.valid === false) {
-          return (
-            <Text style={styles.wgkeys__invalid_key}>
-              {messages.pgettext('wireguard-key-view', 'Key is invalid')}
-            </Text>
-          );
-        } else if (key.replacementFailure) {
-          let failureMessage = '';
-          switch (key.replacementFailure) {
-            case 'too_many_keys':
-              failureMessage = this.formatKeygenFailure('too-many-keys');
-              break;
-            case 'generation_failure':
-              failureMessage = this.formatKeygenFailure('generation-failure');
-              break;
-          }
-
-          return <Text style={styles.wgkeys__invalid_key}>{failureMessage}</Text>;
-        } else if (key.verificationFailed) {
-          return (
-            <Text style={styles.wgkeys__invalid_key}>
-              {messages.pgettext('wireguard-key-view', 'Key verification failed')}
-            </Text>
-          );
-        } else {
-          return null;
-        }
-      }
-      default:
-        return null;
+    const keyStateType = this.props.keyState.type;
+    if (keyStateType === 'being-verified' && this.state.userHasInitiatedVerification) {
+      return <ImageView source="icon-spinner" height={20} width={20} />;
+    } else if (this.props.keyState.type === 'key-set') {
+      const valid = this.props.keyState.key.valid;
+      const show = this.state.userHasInitiatedVerification || valid === false;
+      return show && valid !== undefined ? (
+        <StyledMessage success={valid}>
+          {valid
+            ? messages.pgettext('wireguard-key-view', 'Key is valid')
+            : messages.pgettext('wireguard-key-view', 'Key is invalid')}
+        </StyledMessage>
+      ) : null;
+    } else {
+      return null;
     }
   }
 
   private ageOfKeyString(): string {
-    let keyCreatedSince = '-';
     switch (this.props.keyState.type) {
       case 'key-set':
       case 'being-verified':
-        keyCreatedSince = moment(this.props.keyState.key.created)
-          .locale(this.props.locale)
-          .fromNow();
-        break;
+        return moment(this.props.keyState.key.created).locale(this.props.locale).fromNow();
+      default:
+        return '-';
     }
+  }
 
-    return keyCreatedSince;
+  private getStatusMessage(): string {
+    switch (this.props.keyState.type) {
+      case 'key-set': {
+        const key = this.props.keyState.key;
+        if (key.replacementFailure) {
+          switch (key.replacementFailure) {
+            case 'too_many_keys':
+              return this.formatKeygenFailure('too-many-keys');
+            case 'generation_failure':
+              return this.formatKeygenFailure('generation-failure');
+          }
+        } else if (key.verificationFailed) {
+          return messages.pgettext('wireguard-key-view', 'Key verification failed');
+        }
+
+        return '';
+      }
+      case 'too-many-keys':
+      case 'generation-failure':
+        return this.formatKeygenFailure(this.props.keyState.type);
+      default:
+        return '';
+    }
   }
 
   private formatKeygenFailure(failure: 'too-many-keys' | 'generation-failure'): string {
