@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Component } from 'reactxp';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
@@ -26,7 +25,7 @@ const Label = styled(Cell.Label)({
   fontSize: '16px',
 });
 
-export default class RelayRow extends Component<IProps> {
+export default class RelayRow extends React.Component<IProps> {
   public static compareProps(oldProps: IProps, nextProps: IProps) {
     return (
       oldProps.hostname === nextProps.hostname &&

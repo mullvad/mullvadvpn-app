@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Component, View } from 'reactxp';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
@@ -8,7 +7,7 @@ import { LocationScope } from '../redux/userinterface/reducers';
 import BridgeLocations, { SpecialBridgeLocationType } from './BridgeLocations';
 import CustomScrollbars from './CustomScrollbars';
 import ExitLocations from './ExitLocations';
-import { Container, Layout } from './Layout';
+import { Layout } from './Layout';
 import LocationList, { LocationSelection, LocationSelectionType } from './LocationList';
 import {
   CloseBarItem,
@@ -19,7 +18,12 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import { ScopeBarItem } from './ScopeBar';
-import styles, { StyledScopeBar } from './SelectLocationStyles';
+import {
+  StyledContainer,
+  StyledContent,
+  StyledNavigationBarAttachment,
+  StyledScopeBar,
+} from './SelectLocationStyles';
 import { HeaderSubTitle } from './SettingsHeader';
 
 interface IProps {
@@ -41,7 +45,7 @@ interface ISelectLocationSnapshot {
   expandedLocations: RelayLocation[];
 }
 
-export default class SelectLocation extends Component<IProps> {
+export default class SelectLocation extends React.Component<IProps> {
   private scrollView = React.createRef<CustomScrollbars>();
   private spacePreAllocationViewRef = React.createRef<SpacePreAllocationView>();
   private selectedExitLocationRef = React.createRef<React.ReactInstance>();
@@ -86,79 +90,71 @@ export default class SelectLocation extends Component<IProps> {
   public render() {
     return (
       <Layout>
-        <Container>
-          <View style={styles.select_location}>
-            <NavigationContainer>
-              <NavigationBar alwaysDisplayBarTitle={true}>
-                <NavigationItems>
-                  <CloseBarItem action={this.props.onClose} />
-                  <TitleBarItem>
-                    {
-                      // TRANSLATORS: Title label in navigation bar
-                      messages.pgettext('select-location-nav', 'Select location')
-                    }
-                  </TitleBarItem>
-                </NavigationItems>
-                <View style={styles.navigationBarAttachment}>
-                  <HeaderSubTitle>
-                    {this.props.allowBridgeSelection
-                      ? messages.pgettext(
-                          'select-location-view',
-                          'While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server).',
-                        )
-                      : messages.pgettext(
-                          'select-location-view',
-                          'While connected, your real location is masked with a private and secure location in the selected region.',
-                        )}
-                  </HeaderSubTitle>
-                  {this.props.allowBridgeSelection && (
-                    <StyledScopeBar
-                      defaultSelectedIndex={this.props.locationScope}
-                      onChange={this.props.onChangeLocationScope}>
-                      <ScopeBarItem>
-                        {messages.pgettext('select-location-nav', 'Entry')}
-                      </ScopeBarItem>
-                      <ScopeBarItem>
-                        {messages.pgettext('select-location-nav', 'Exit')}
-                      </ScopeBarItem>
-                    </StyledScopeBar>
-                  )}
-                </View>
-              </NavigationBar>
-              <View style={styles.container}>
-                <NavigationScrollbars ref={this.scrollView}>
-                  <SpacePreAllocationView ref={this.spacePreAllocationViewRef}>
-                    <View style={styles.content}>
-                      {this.props.locationScope === LocationScope.relay ? (
-                        <ExitLocations
-                          ref={this.exitLocationList}
-                          source={this.props.relayLocations}
-                          defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
-                          selectedValue={this.props.selectedExitLocation}
-                          selectedElementRef={this.selectedExitLocationRef}
-                          onSelect={this.onSelectExitLocation}
-                          onWillExpand={this.onWillExpand}
-                          onTransitionEnd={this.spacePreAllocationViewRef.current?.reset}
-                        />
-                      ) : (
-                        <BridgeLocations
-                          ref={this.bridgeLocationList}
-                          source={this.props.bridgeLocations}
-                          defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
-                          selectedValue={this.props.selectedBridgeLocation}
-                          selectedElementRef={this.selectedBridgeLocationRef}
-                          onSelect={this.onSelectBridgeLocation}
-                          onWillExpand={this.onWillExpand}
-                          onTransitionEnd={this.spacePreAllocationViewRef.current?.reset}
-                        />
+        <StyledContainer>
+          <NavigationContainer>
+            <NavigationBar alwaysDisplayBarTitle={true}>
+              <NavigationItems>
+                <CloseBarItem action={this.props.onClose} />
+                <TitleBarItem>
+                  {
+                    // TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('select-location-nav', 'Select location')
+                  }
+                </TitleBarItem>
+              </NavigationItems>
+              <StyledNavigationBarAttachment>
+                <HeaderSubTitle>
+                  {this.props.allowBridgeSelection
+                    ? messages.pgettext(
+                        'select-location-view',
+                        'While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server).',
+                      )
+                    : messages.pgettext(
+                        'select-location-view',
+                        'While connected, your real location is masked with a private and secure location in the selected region.',
                       )}
-                    </View>
-                  </SpacePreAllocationView>
-                </NavigationScrollbars>
-              </View>
-            </NavigationContainer>
-          </View>
-        </Container>
+                </HeaderSubTitle>
+                {this.props.allowBridgeSelection && (
+                  <StyledScopeBar
+                    defaultSelectedIndex={this.props.locationScope}
+                    onChange={this.props.onChangeLocationScope}>
+                    <ScopeBarItem>{messages.pgettext('select-location-nav', 'Entry')}</ScopeBarItem>
+                    <ScopeBarItem>{messages.pgettext('select-location-nav', 'Exit')}</ScopeBarItem>
+                  </StyledScopeBar>
+                )}
+              </StyledNavigationBarAttachment>
+            </NavigationBar>
+            <NavigationScrollbars ref={this.scrollView}>
+              <SpacePreAllocationView ref={this.spacePreAllocationViewRef}>
+                <StyledContent>
+                  {this.props.locationScope === LocationScope.relay ? (
+                    <ExitLocations
+                      ref={this.exitLocationList}
+                      source={this.props.relayLocations}
+                      defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
+                      selectedValue={this.props.selectedExitLocation}
+                      selectedElementRef={this.selectedExitLocationRef}
+                      onSelect={this.onSelectExitLocation}
+                      onWillExpand={this.onWillExpand}
+                      onTransitionEnd={this.spacePreAllocationViewRef.current?.reset}
+                    />
+                  ) : (
+                    <BridgeLocations
+                      ref={this.bridgeLocationList}
+                      source={this.props.bridgeLocations}
+                      defaultExpandedLocations={this.getExpandedLocationsFromSnapshot()}
+                      selectedValue={this.props.selectedBridgeLocation}
+                      selectedElementRef={this.selectedBridgeLocationRef}
+                      onSelect={this.onSelectBridgeLocation}
+                      onWillExpand={this.onWillExpand}
+                      onTransitionEnd={this.spacePreAllocationViewRef.current?.reset}
+                    />
+                  )}
+                </StyledContent>
+              </SpacePreAllocationView>
+            </NavigationScrollbars>
+          </NavigationContainer>
+        </StyledContainer>
       </Layout>
     );
   }
@@ -236,7 +232,7 @@ interface ISpacePreAllocationView {
   children?: React.ReactNode;
 }
 
-class SpacePreAllocationView extends Component<ISpacePreAllocationView> {
+class SpacePreAllocationView extends React.Component<ISpacePreAllocationView> {
   private ref = React.createRef<HTMLDivElement>();
 
   public allocate(height: number) {
