@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.ImageView
@@ -21,6 +22,9 @@ class AccountInputContainer : RelativeLayout {
             inflater.inflate(R.layout.account_input_container, this)
         }
 
+    private val errorCorner = resources.getDrawable(R.drawable.account_input_corner_error, null)
+    private val focusedCorner = resources.getDrawable(R.drawable.account_input_corner_focused, null)
+    private val unfocusedCorner = resources.getDrawable(R.drawable.account_input_corner, null)
 
     private val errorBorder = resources.getDrawable(R.drawable.account_input_border_error, null)
     private val focusedBorder = resources.getDrawable(R.drawable.account_input_border_focused, null)
@@ -37,9 +41,15 @@ class AccountInputContainer : RelativeLayout {
             overlay.clear()
 
             when (value) {
-                BorderState.UNFOCUSED -> {}
-                BorderState.FOCUSED -> overlay.add(focusedBorder)
-                BorderState.ERROR -> overlay.add(errorBorder)
+                BorderState.UNFOCUSED -> setBorder(unfocusedCorner)
+                BorderState.FOCUSED -> {
+                    setBorder(focusedCorner)
+                    overlay.add(focusedBorder)
+                }
+                BorderState.ERROR -> {
+                    setBorder(errorCorner)
+                    overlay.add(errorBorder)
+                }
             }
         }
 
@@ -85,4 +95,10 @@ class AccountInputContainer : RelativeLayout {
         }
     }
 
+    private fun setBorder(corner: Drawable) {
+        topLeftCorner.setImageDrawable(corner)
+        topRightCorner.setImageDrawable(corner)
+        bottomLeftCorner.setImageDrawable(corner)
+        bottomRightCorner.setImageDrawable(corner)
+    }
 }
