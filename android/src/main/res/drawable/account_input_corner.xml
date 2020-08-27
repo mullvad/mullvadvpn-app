@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="@dimen/account_input_corner_radius"
+        android:height="@dimen/account_input_corner_radius"
+        android:viewportWidth="4.0"
+        android:viewportHeight="4.0">
+    <path android:fillColor="@color/blue"
+          android:pathData="M 0 4  H 2  A 2 2 0 0 1 4 2  V 0  H 0  Z" />
+</vector>
