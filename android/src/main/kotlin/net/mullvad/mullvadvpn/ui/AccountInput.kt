@@ -90,11 +90,7 @@ class AccountInput(val parentView: View, context: Context) {
             )
         }
 
-        container.apply {
-            clipToOutline = true
-            outlineProvider = AccountInputOutlineProvider(context)
-            setOnClickListener { shouldShowAccountHistory = true }
-        }
+        container.setOnClickListener { shouldShowAccountHistory = true }
     }
 
     private fun initialState() {
