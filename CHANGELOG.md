@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.6-beta2] - 2020-08-27
+This release is for Android only.
+
 ### Added
 - Add CLI command to set the location constraint via `mullvad relay set relay HOSTNAME`.
 - Add a provider relay constraint, which restricts relay selection to a given hosting provider.
@@ -49,6 +54,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [2020.6-beta1] - 2020-08-20
+This release is for Android only.
+
 ### Added
 - Show system notification when account has expired.
 - Add fish shell completions for the mullvad CLI.
