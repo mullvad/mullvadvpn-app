@@ -2,6 +2,8 @@ package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.LayoutInflater
+import android.widget.ImageView
 import android.widget.RelativeLayout
 import net.mullvad.mullvadvpn.R
 
@@ -12,8 +14,21 @@ class AccountInputContainer : RelativeLayout {
         ERROR
     }
 
+    private val container =
+        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
+            val inflater = service as LayoutInflater
+
+            inflater.inflate(R.layout.account_input_container, this)
+        }
+
+
     private val errorBorder = resources.getDrawable(R.drawable.account_input_border_error, null)
     private val focusedBorder = resources.getDrawable(R.drawable.account_input_border_focused, null)
+
+    private val topLeftCorner: ImageView = container.findViewById(R.id.top_left_corner)
+    private val topRightCorner: ImageView = container.findViewById(R.id.top_right_corner)
+    private val bottomLeftCorner: ImageView = container.findViewById(R.id.bottom_left_corner)
+    private val bottomRightCorner: ImageView = container.findViewById(R.id.bottom_right_corner)
 
     var borderState = BorderState.UNFOCUSED
         set(value) {
@@ -27,6 +42,15 @@ class AccountInputContainer : RelativeLayout {
                 BorderState.ERROR -> overlay.add(errorBorder)
             }
         }
+
+    init {
+        val borderElevation = elevation + 0.1f
+
+        topLeftCorner.elevation = borderElevation
+        topRightCorner.elevation = borderElevation
+        bottomLeftCorner.elevation = borderElevation
+        bottomRightCorner.elevation = borderElevation
+    }
 
     constructor(context: Context) : super(context) {}
 
@@ -60,4 +84,5 @@ class AccountInputContainer : RelativeLayout {
             focusedBorder.setBounds(0, 0, width, height)
         }
     }
+
 }
