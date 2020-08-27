@@ -2,25 +2,13 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
           android:shape="rectangle">
     <item android:state_enabled="false">
-        <inset android:insetTop="1dp"
-               android:insetBottom="1dp"
-               android:insetRight="1dp">
-            <shape android:shape="rectangle">
-                <corners android:bottomRightRadius="@dimen/account_input_corner_radius"
-                         android:topRightRadius="@dimen/account_input_corner_radius" />
-                <solid android:color="@color/white" />
-            </shape>
-        </inset>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/white" />
+        </shape>
     </item>
     <item android:state_enabled="true">
-        <inset android:insetTop="1dp"
-               android:insetBottom="1dp"
-               android:insetRight="1dp">
-            <shape android:shape="rectangle">
-                <corners android:bottomRightRadius="@dimen/account_input_corner_radius"
-                         android:topRightRadius="@dimen/account_input_corner_radius" />
-                <solid android:color="@color/green" />
-            </shape>
-        </inset>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/green" />
+        </shape>
     </item>
 </selector>
