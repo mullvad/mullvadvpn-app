@@ -136,7 +136,7 @@ export default class SelectLocation extends React.Component<IProps> {
                       selectedElementRef={this.selectedExitLocationRef}
                       onSelect={this.onSelectExitLocation}
                       onWillExpand={this.onWillExpand}
-                      onTransitionEnd={this.spacePreAllocationViewRef.current?.reset}
+                      onTransitionEnd={this.resetHeight}
                     />
                   ) : (
                     <BridgeLocations
@@ -147,7 +147,7 @@ export default class SelectLocation extends React.Component<IProps> {
                       selectedElementRef={this.selectedBridgeLocationRef}
                       onSelect={this.onSelectBridgeLocation}
                       onWillExpand={this.onWillExpand}
-                      onTransitionEnd={this.spacePreAllocationViewRef.current?.reset}
+                      onTransitionEnd={this.resetHeight}
                     />
                   )}
                 </StyledContent>
@@ -168,6 +168,10 @@ export default class SelectLocation extends React.Component<IProps> {
       this.scrollToSelectedCell();
     }
   }
+
+  private resetHeight = () => {
+    this.spacePreAllocationViewRef.current?.reset();
+  };
 
   private getExpandedLocationsFromSnapshot(): RelayLocation[] | undefined {
     const snapshot = this.snapshotByScope[this.props.locationScope];

@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Animated, Component, Styles, Types, View } from 'reactxp';
+import styled from 'styled-components';
+import { Scheduler } from '../../shared/scheduler';
 import { ITransitionGroupProps } from '../transitions';
 
 interface ITransitioningViewProps {
@@ -17,83 +18,71 @@ interface IProps extends ITransitionGroupProps {
   children: TransitioningView;
 }
 
+interface IItemStyle {
+  // x and y are percentages
+  x: number;
+  y: number;
+  inFront: boolean;
+  duration?: number;
+}
+
 interface IState {
   currentItem?: ITransitionQueueItem;
   nextItem?: ITransitionQueueItem;
   itemQueue: ITransitionQueueItem[];
-  currentItemStyle?: Array<Types.StyleRuleSet<Types.AnimatedViewStyle | Types.ViewStyle>>;
-  nextItemStyle?: Array<Types.StyleRuleSet<Types.AnimatedViewStyle | Types.ViewStyle>>;
+  currentItemStyle?: IItemStyle;
+  nextItemStyle?: IItemStyle;
+  currentItemTransition?: Partial<IItemStyle>;
+  nextItemTransition?: Partial<IItemStyle>;
 }
 
-const styles = {
-  animatedContainer: Styles.createViewStyle({
+export const StyledTransitionContainer = styled.div(
+  {},
+  (props: { disableUserInteraction: boolean }) => ({
+    flex: 1,
+    pointerEvents: props.disableUserInteraction ? 'none' : undefined,
+  }),
+);
+
+export const StyledTransitionContent = styled.div({}, (props: { transition?: IItemStyle }) => {
+  const x = `${props.transition?.x ?? 0}%`;
+  const y = `${props.transition?.y ?? 0}%`;
+  const duration = props.transition?.duration ?? 450;
+
+  return {
+    display: 'flex',
+    flexDirection: 'column',
     position: 'absolute',
     left: 0,
     right: 0,
     top: 0,
     bottom: 0,
-  }),
-  transitionView: Styles.createViewStyle({
-    flex: 1,
-  }),
-  blockUserInteraction: Styles.createViewStyle({
-    // @ts-ignore
-    pointerEvents: 'none',
-  }),
-  transitionContainer: Styles.createViewStyle({
-    flex: 1,
-  }),
-  orderFront: Styles.createViewStyle({
-    // @ts-ignore
-    zIndex: 1,
-  }),
-  orderBack: Styles.createViewStyle({
-    // @ts-ignore
-    zIndex: 0,
-  }),
-};
+    zIndex: props.transition?.inFront ? 1 : 0,
+    transform: `translate(${x}, ${y})`,
+    transition: `transform ${duration}ms ease-in-out`,
+  };
+});
 
-export class TransitionView extends Component<ITransitioningViewProps> {
+export const StyledTransitionView = styled.div({
+  display: 'flex',
+  flex: 1,
+  flexDirection: 'column',
+});
+
+export class TransitionView extends React.Component<ITransitioningViewProps> {
   public render() {
-    return <View style={styles.transitionView}>{this.props.children}</View>;
+    return <StyledTransitionView>{this.props.children}</StyledTransitionView>;
   }
 }
 
-export default class TransitionContainer extends Component<IProps, IState> {
+export default class TransitionContainer extends React.Component<IProps, IState> {
   public state: IState = {
     itemQueue: [],
+    currentItem: this.makeItem(this.props),
   };
 
-  private containerSize = { width: 0, height: 0 };
-
-  private animation?: Types.Animated.CompositeAnimation;
   private isCycling = false;
-
-  private slideValueA = Animated.createValue(0);
-  private slideAnimationStyleA = Styles.createAnimatedViewStyle({
-    transform: [{ translateY: this.slideValueA }],
-  });
-
-  private slideValueB = Animated.createValue(0);
-  private slideAnimationStyleB = Styles.createAnimatedViewStyle({
-    transform: [{ translateY: this.slideValueB }],
-  });
-
-  private pushValueA = Animated.createValue(0);
-  private pushStyleA = Styles.createAnimatedViewStyle({
-    transform: [{ translateX: this.pushValueA }],
-  });
-
-  private pushValueB = Animated.createValue(0);
-  private pushStyleB = Styles.createAnimatedViewStyle({
-    transform: [{ translateX: this.pushValueB }],
-  });
-
-  constructor(props: IProps) {
-    super(props);
-
-    this.state.currentItem = this.makeItem(props);
-  }
+  private cycleScheduler = new Scheduler();
 
   public UNSAFE_componentWillReceiveProps(nextProps: IProps) {
     const candidate = nextProps.children;
@@ -136,13 +125,37 @@ export default class TransitionContainer extends Component<IProps, IState> {
   }
 
   public componentDidUpdate() {
-    this.cycle();
+    if (
+      this.state.currentItemStyle &&
+      this.state.currentItemTransition &&
+      this.state.nextItemStyle &&
+      this.state.nextItemTransition
+    ) {
+      this.setState(
+        (state) => ({
+          currentItemStyle: Object.assign({}, state.currentItemStyle, state.currentItemTransition),
+          nextItemStyle: Object.assign({}, state.nextItemStyle, state.nextItemTransition),
+          currentItemTransition: undefined,
+          nextItemTransition: undefined,
+        }),
+        () => {
+          // Schedule call to continueCycling instead of using onTransitionEnd since there are
+          // multiple simultaneous transitions which would result in the listener being called
+          // multiple times.
+          const duration = Math.max(
+            this.state.currentItemStyle?.duration ?? 450,
+            this.state.nextItemStyle?.duration ?? 450,
+          );
+          this.cycleScheduler.schedule(this.continueCycling, duration);
+        },
+      );
+    } else {
+      this.cycle();
+    }
   }
 
   public componentWillUnmount() {
-    if (this.animation) {
-      this.animation.stop();
-    }
+    this.cycleScheduler.cancel();
   }
 
   public render() {
@@ -150,52 +163,43 @@ export default class TransitionContainer extends Component<IProps, IState> {
       this.state.itemQueue.length > 0 || this.state.nextItem ? true : false;
 
     return (
-      <View
-        style={[
-          styles.transitionContainer,
-          disableUserInteraction ? styles.blockUserInteraction : undefined,
-        ]}
-        onLayout={this.onLayout}>
+      <StyledTransitionContainer disableUserInteraction={disableUserInteraction}>
         {this.state.currentItem && (
-          <Animated.View
+          <StyledTransitionContent
             key={this.state.currentItem.view.props.viewId}
-            style={[styles.animatedContainer, this.state.currentItemStyle]}>
+            transition={this.state.currentItemStyle}>
             {this.state.currentItem.view}
-          </Animated.View>
+          </StyledTransitionContent>
         )}
 
         {this.state.nextItem && (
-          <Animated.View
+          <StyledTransitionContent
             key={this.state.nextItem.view.props.viewId}
-            style={[styles.animatedContainer, this.state.nextItemStyle]}>
+            transition={this.state.nextItemStyle}>
             {this.state.nextItem.view}
-          </Animated.View>
+          </StyledTransitionContent>
         )}
-      </View>
+      </StyledTransitionContainer>
     );
   }
-
-  private onLayout = (event: Types.ViewOnLayoutEvent) => {
-    this.containerSize = { width: event.width, height: event.height };
-  };
 
   private cycle() {
     if (!this.isCycling) {
       this.isCycling = true;
-      this.cycleUnguarded(() => {
-        this.isCycling = false;
-      });
+      this.cycleUnguarded();
     }
   }
 
-  private cycleUnguarded(onFinish: () => void) {
-    const itemQueue = this.state.itemQueue;
+  private finishCycling() {
+    this.isCycling = false;
+  }
 
-    const continueCycling = () => {
-      this.makeNextItemCurrent(() => {
-        this.cycleUnguarded(onFinish);
-      });
-    };
+  private continueCycling = () => {
+    this.makeNextItemCurrent(this.cycleUnguarded);
+  };
+
+  private cycleUnguarded = () => {
+    const itemQueue = this.state.itemQueue;
 
     if (itemQueue.length > 0) {
       const nextItem = itemQueue[0];
@@ -203,32 +207,29 @@ export default class TransitionContainer extends Component<IProps, IState> {
 
       switch (transition.name) {
         case 'slide-up':
-          this.slideUp(transition.duration, continueCycling);
+          this.slideUp(transition.duration);
           break;
 
         case 'slide-down':
-          this.slideDown(transition.duration, continueCycling);
+          this.slideDown(transition.duration);
           break;
 
         case 'push':
-          this.push(transition.duration, continueCycling);
+          this.push(transition.duration);
           break;
 
         case 'pop':
-          this.pop(transition.duration, continueCycling);
+          this.pop(transition.duration);
           break;
 
         default:
-          this.replace(() => {
-            this.cycleUnguarded(onFinish);
-          });
+          this.replace(this.cycleUnguarded);
           break;
       }
     } else {
-      this.animation = undefined;
-      onFinish();
+      this.finishCycling();
     }
-  }
+  };
 
   private makeItem(props: IProps): ITransitionQueueItem {
     return {
@@ -245,121 +246,57 @@ export default class TransitionContainer extends Component<IProps, IState> {
       (state) => ({
         currentItem: state.nextItem,
         nextItem: undefined,
-        currentItemStyle: [],
-        nextItemStyle: [],
+        currentItemStyle: undefined,
+        nextItemStyle: undefined,
+        currentItemTransition: undefined,
+        nextItemTransition: undefined,
       }),
       completion,
     );
   }
 
-  private slideUp(duration: number, completion: Types.Animated.EndCallback) {
-    this.slideValueA.setValue(0);
-    this.slideValueB.setValue(this.containerSize.height);
-
-    this.setState(
-      (state) => ({
-        nextItem: state.itemQueue[0],
-        itemQueue: state.itemQueue.slice(1),
-        currentItemStyle: [this.slideAnimationStyleA, styles.orderBack],
-        nextItemStyle: [this.slideAnimationStyleB, styles.orderFront],
-      }),
-      () => {
-        const animation = Animated.timing(this.slideValueB, {
-          toValue: 0,
-          easing: Animated.Easing.InOut(),
-          duration,
-        });
-
-        animation.start(completion);
-        this.animation = animation;
-      },
-    );
+  private slideUp(duration: number) {
+    this.setState((state) => ({
+      nextItem: state.itemQueue[0],
+      itemQueue: state.itemQueue.slice(1),
+      currentItemStyle: { x: 0, y: 0, inFront: false },
+      nextItemStyle: { x: 0, y: 100, inFront: true },
+      currentItemTransition: { duration },
+      nextItemTransition: { y: 0, duration },
+    }));
   }
 
-  private slideDown(duration: number, completion: Types.Animated.EndCallback) {
-    this.slideValueA.setValue(0);
-    this.slideValueB.setValue(0);
-
-    this.setState(
-      (state) => ({
-        nextItem: state.itemQueue[0],
-        itemQueue: state.itemQueue.slice(1),
-        currentItemStyle: [this.slideAnimationStyleA, styles.orderFront],
-        nextItemStyle: [this.slideAnimationStyleB, styles.orderBack],
-      }),
-      () => {
-        const animation = Animated.timing(this.slideValueA, {
-          toValue: this.containerSize.height,
-          easing: Animated.Easing.InOut(),
-          duration,
-        });
-
-        animation.start(completion);
-        this.animation = animation;
-      },
-    );
+  private slideDown(duration: number) {
+    this.setState((state) => ({
+      nextItem: state.itemQueue[0],
+      itemQueue: state.itemQueue.slice(1),
+      currentItemStyle: { x: 0, y: 0, inFront: true },
+      nextItemStyle: { x: 0, y: 0, inFront: false },
+      currentItemTransition: { y: 100, duration },
+      nextItemTransition: { duration },
+    }));
   }
 
-  private push(duration: number, completion: Types.Animated.EndCallback) {
-    this.pushValueA.setValue(0);
-    this.pushValueB.setValue(this.containerSize.width);
-
-    this.setState(
-      (state) => ({
-        nextItem: state.itemQueue[0],
-        itemQueue: state.itemQueue.slice(1),
-        currentItemStyle: [this.pushStyleA, styles.orderBack],
-        nextItemStyle: [this.pushStyleB, styles.orderFront],
-      }),
-      () => {
-        const animation = Animated.parallel([
-          Animated.timing(this.pushValueA, {
-            toValue: -this.containerSize.width * 0.5,
-            easing: Animated.Easing.InOut(),
-            duration,
-          }),
-          Animated.timing(this.pushValueB, {
-            toValue: 0,
-            easing: Animated.Easing.InOut(),
-            duration,
-          }),
-        ]);
-
-        animation.start(completion);
-        this.animation = animation;
-      },
-    );
+  private push(duration: number) {
+    this.setState((state) => ({
+      nextItem: state.itemQueue[0],
+      itemQueue: state.itemQueue.slice(1),
+      currentItemStyle: { x: 0, y: 0, inFront: false },
+      nextItemStyle: { x: 100, y: 0, inFront: true },
+      currentItemTransition: { x: -50, duration },
+      nextItemTransition: { x: 0, duration },
+    }));
   }
 
-  private pop(duration: number, completion: Types.Animated.EndCallback) {
-    this.pushValueA.setValue(-this.containerSize.width * 0.5);
-    this.pushValueB.setValue(0);
-
-    this.setState(
-      (state) => ({
-        nextItem: state.itemQueue[0],
-        itemQueue: state.itemQueue.slice(1),
-        currentItemStyle: [this.pushStyleB, styles.orderFront],
-        nextItemStyle: [this.pushStyleA, styles.orderBack],
-      }),
-      () => {
-        const animation = Animated.parallel([
-          Animated.timing(this.pushValueA, {
-            toValue: 0,
-            easing: Animated.Easing.InOut(),
-            duration,
-          }),
-          Animated.timing(this.pushValueB, {
-            toValue: this.containerSize.width,
-            easing: Animated.Easing.InOut(),
-            duration,
-          }),
-        ]);
-
-        animation.start(completion);
-        this.animation = animation;
-      },
-    );
+  private pop(duration: number) {
+    this.setState((state) => ({
+      nextItem: state.itemQueue[0],
+      itemQueue: state.itemQueue.slice(1),
+      currentItemStyle: { x: 0, y: 0, inFront: true },
+      nextItemStyle: { x: -50, y: 0, inFront: false },
+      currentItemTransition: { x: 100, duration },
+      nextItemTransition: { x: 0, duration },
+    }));
   }
 
   private replace(completion: () => void) {
@@ -368,8 +305,10 @@ export default class TransitionContainer extends Component<IProps, IState> {
         currentItem: state.itemQueue[0],
         nextItem: undefined,
         itemQueue: state.itemQueue.slice(1),
-        currentItemStyle: [],
-        nextItemStyle: [],
+        currentItemStyle: { x: 0, y: 0, inFront: false, duration: 0 },
+        nextItemStyle: { x: 0, y: 0, inFront: true, duration: 0 },
+        currentItemTransition: undefined,
+        nextItemTransition: undefined,
       }),
       completion,
     );
