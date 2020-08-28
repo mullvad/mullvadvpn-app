@@ -597,15 +597,13 @@ impl RelaySelector {
         } else {
             // Pick a random number in the range 0 - total_weight. This choses the relay.
             let mut i: u64 = self.rng.gen_range(0, total_weight + 1);
-            Some(
-                relays
-                    .iter()
-                    .find(|relay| {
-                        i = i.saturating_sub(relay.weight);
-                        i == 0
-                    })
-                    .unwrap(),
-            )
+            relays
+                .iter()
+                .find(|relay| {
+                    i = i.saturating_sub(relay.weight);
+                    i == 0
+                })
+                .unwrap()
         }
     }
 
