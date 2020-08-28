@@ -3,7 +3,9 @@ package net.mullvad.mullvadvpn.ui.widget
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.LoginState
 
@@ -15,7 +17,17 @@ class AccountInput : LinearLayout {
             inflater.inflate(R.layout.account_input, this)
         }
 
+    private val input = container.findViewById<TextView>(R.id.login_input)
+
+    private val button = container.findViewById<ImageButton>(R.id.login_button).apply {
+        setOnClickListener {
+            onLogin?.invoke(input.text.toString())
+        }
+    }
+
     var loginState = LoginState.Initial
+
+    var onLogin: ((String) -> Unit)? = null
 
     constructor(context: Context) : super(context) {}
 

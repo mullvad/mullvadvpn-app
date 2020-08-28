@@ -71,12 +71,11 @@ class AccountInputController(val parentView: View, context: Context) {
             }
         }
 
-    var onLogin: ((String) -> Unit)? = null
+    var onLogin: ((String) -> Unit)?
+        get() = newInput.onLogin
+        set(value) { newInput.onLogin = value }
 
     init {
-        button.setOnClickListener {
-            onLogin?.invoke(input.text.toString())
-        }
         setButtonEnabled(false)
 
         input.apply {
