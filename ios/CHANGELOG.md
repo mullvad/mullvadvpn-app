@@ -39,6 +39,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Remove the public WireGuard inside the VPN tunnel during the log out, if VPN is active at that
   time.
+- Turn off WireGuard when no active network interfaces available.
 
 ## [2020.3] - 2020-06-12
 ### Added
