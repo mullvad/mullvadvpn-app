@@ -4,7 +4,9 @@ use log::{debug, error, info, warn};
 use mullvad_daemon::{
     logging,
     management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer},
-    rpc_uniqueness_check, version, Daemon, DaemonCommandChannel, DaemonCommandSender,
+    rpc_uniqueness_check,
+    runtime::new_runtime_builder,
+    version, Daemon, DaemonCommandChannel, DaemonCommandSender,
 };
 use std::{path::PathBuf, thread, time::Duration};
 use talpid_types::ErrorExt;
@@ -24,14 +26,10 @@ fn main() {
         std::process::exit(1)
     });
 
-    let mut runtime = tokio::runtime::Builder::new()
-        .threaded_scheduler()
-        .enable_all()
-        .build()
-        .unwrap_or_else(|error| {
-            eprintln!("{}", error.display_chain());
-            std::process::exit(1);
-        });
+    let mut runtime = new_runtime_builder().build().unwrap_or_else(|error| {
+        eprintln!("{}", error.display_chain());
+        std::process::exit(1);
+    });
 
     let exit_code = match runtime.block_on(run_platform(config, log_dir)) {
         Ok(_) => 0,

@@ -267,7 +267,7 @@ pub fn send_problem_report(
         ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
 
     let runtime = tokio::runtime::Builder::new()
-        .threaded_scheduler()
+        .basic_scheduler()
         .enable_all()
         .build()
         .map_err(Error::CreateRuntime)?;
