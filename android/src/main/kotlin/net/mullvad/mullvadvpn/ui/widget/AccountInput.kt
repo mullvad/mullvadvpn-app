@@ -6,8 +6,11 @@ import android.view.LayoutInflater
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.LoginState
+
+const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 
 class AccountInput : LinearLayout {
     private val container =
@@ -25,7 +28,14 @@ class AccountInput : LinearLayout {
         }
     }
 
-    var loginState = LoginState.Initial
+    var loginState by observable(LoginState.Initial) { _, _, state ->
+        when (state) {
+            LoginState.Initial -> initialState()
+            LoginState.InProgress -> loggingInState()
+            LoginState.Success -> successState()
+            LoginState.Failure -> failureState()
+        }
+    }
 
     var onLogin: ((String) -> Unit)? = null
 
@@ -46,5 +56,33 @@ class AccountInput : LinearLayout {
 
     init {
         orientation = HORIZONTAL
+
+        setButtonEnabled(false)
+    }
+
+    private fun initialState() {
+        setButtonEnabled(input.text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
+    }
+
+    private fun loggingInState() {
+        setButtonEnabled(false)
+    }
+
+    private fun successState() {
+        setButtonEnabled(false)
+    }
+
+    private fun failureState() {
+        setButtonEnabled(false)
+    }
+
+    /*private*/ fun setButtonEnabled(enabled: Boolean) {
+        button.apply {
+            if (enabled != isEnabled()) {
+                setEnabled(enabled)
+                setClickable(enabled)
+                setFocusable(enabled)
+            }
+        }
     }
 }

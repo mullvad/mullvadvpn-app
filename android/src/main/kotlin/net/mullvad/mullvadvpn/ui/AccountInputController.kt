@@ -76,8 +76,6 @@ class AccountInputController(val parentView: View, context: Context) {
         set(value) { newInput.onLogin = value }
 
     init {
-        setButtonEnabled(false)
-
         input.apply {
             addTextChangedListener(InputWatcher())
             setOnTouchListener(
@@ -95,7 +93,6 @@ class AccountInputController(val parentView: View, context: Context) {
     }
 
     private fun initialState() {
-        setButtonEnabled(input.text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
         button.visibility = View.VISIBLE
 
         input.apply {
@@ -106,7 +103,6 @@ class AccountInputController(val parentView: View, context: Context) {
     }
 
     private fun loggingInState() {
-        setButtonEnabled(false)
         button.visibility = View.GONE
 
         input.apply {
@@ -119,14 +115,12 @@ class AccountInputController(val parentView: View, context: Context) {
     }
 
     private fun successState() {
-        setButtonEnabled(false)
         button.visibility = View.GONE
         input.visibility = View.GONE
         container.visibility = View.INVISIBLE
     }
 
     private fun failureState() {
-        setButtonEnabled(false)
         button.visibility = View.VISIBLE
 
         input.apply {
@@ -137,16 +131,6 @@ class AccountInputController(val parentView: View, context: Context) {
         }
 
         usingErrorColor = true
-    }
-
-    private fun setButtonEnabled(enabled: Boolean) {
-        button.apply {
-            if (enabled != isEnabled()) {
-                setEnabled(enabled)
-                setClickable(enabled)
-                setFocusable(enabled)
-            }
-        }
     }
 
     private fun updateAccountHistory() {
@@ -209,7 +193,7 @@ class AccountInputController(val parentView: View, context: Context) {
         override fun afterTextChanged(text: Editable) {
             inputHasFocus = true
             removeFormattingSpans(text)
-            setButtonEnabled(text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
+            newInput.setButtonEnabled(text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
             leaveErrorState()
         }
     }
