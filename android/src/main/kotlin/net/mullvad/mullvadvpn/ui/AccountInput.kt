@@ -49,7 +49,7 @@ class AccountInput(val parentView: View, context: Context) {
         }
 
     val container: AccountInputContainer = parentView.findViewById(R.id.account_input_container)
-    val input: TextView = parentView.findViewById(R.id.account_input)
+    val input: TextView = parentView.findViewById(R.id.login_input)
     val button: ImageButton = parentView.findViewById(R.id.login_button)
     val accountHistoryList: ListView = parentView.findViewById(R.id.account_history_list)
 
