@@ -1,0 +1,24 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditText android:id="@+id/account_input"
+              android:digits="0123456789"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layout_weight="1"
+              android:paddingHorizontal="12dp"
+              android:background="@drawable/account_input_background"
+              android:inputType="number"
+              android:singleLine="true"
+              android:imeOptions="flagNoPersonalizedLearning"
+              android:textCursorDrawable="@drawable/text_input_cursor"
+              android:hint="@string/login_hint"
+              android:textColorHint="@color/blue40"
+              android:textColor="@color/blue"
+              android:textSize="@dimen/text_medium_plus"
+              android:textStyle="bold" />
+    <ImageButton android:id="@+id/login_button"
+                 android:layout_width="48dp"
+                 android:layout_height="match_parent"
+                 android:layout_weight="0"
+                 android:background="@drawable/login_button_background"
+                 android:src="@drawable/login_button_arrow" />
+</merge>
