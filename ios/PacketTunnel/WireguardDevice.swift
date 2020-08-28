@@ -21,6 +21,13 @@ class WireguardDevice {
         /// A failure to obtain the tunnel device file descriptor
         case cannotLocateSocketDescriptor
 
+        /// A failure to duplicate the socket descriptor.
+        /// The associated value contains the `errno` from a syscall to `dup`
+        case cannotDuplicateSocketDescriptor(Int32)
+
+        /// A failure to obtain the tunnel device name
+        case cannotObtainTunnelDeviceName
+
         /// A failure to start the Wireguard backend
         case start(Int32)
 
@@ -36,7 +43,11 @@ class WireguardDevice {
         var errorDescription: String? {
             switch self {
             case .cannotLocateSocketDescriptor:
-                return "Unable to locate the file descriptor for socket."
+                return "Cannot locate the socket file descriptor."
+            case .cannotDuplicateSocketDescriptor(let posixErrorCode):
+                return "Cannot duplicate the socket file descriptor. Errno: \(posixErrorCode)"
+            case .cannotObtainTunnelDeviceName:
+                return "Failed to obtain the tunnel device name."
             case .start(let wgErrorCode):
                 return "Failed to start Wireguard. Return code: \(wgErrorCode)"
             case .notStarted:
@@ -75,8 +86,11 @@ class WireguardDevice {
     /// Network routes monitor
     private var networkMonitor: NWPathMonitor?
 
-    /// A tunnel device descriptor
-    private let tunFd: Int32
+    /// A tunnel device source socket file descriptor
+    private let tunnelFileDescriptor: Int32
+
+    /// A duplicate tunnel device socket file descriptor used for calls to `wgTurnOn`
+    private var wireguardTunnelFileDescriptor: Int32?
 
     /// A wireguard internal handle returned by `wgTurnOn` that's used to associate the calls
     /// with the specific Wireguard tunnel.
@@ -84,6 +98,12 @@ class WireguardDevice {
 
     /// Active configuration
     private var configuration: WireguardConfiguration?
+
+    /// A flag that indicates that the device has started
+    private var isStarted = false
+
+    /// A flag that indicates whether the device has active network interfaces besides the tunnel
+    private var deviceHasActiveNetworkInterfaces = true
 
     /// Returns a Wireguard version
     class var version: String {
@@ -116,15 +136,15 @@ class WireguardDevice {
     /// A designated initializer
     class func fromPacketFlow(_ packetFlow: NEPacketTunnelFlow) -> Result<WireguardDevice, Error> {
         if let fd = packetFlow.value(forKeyPath: "socket.fileDescriptor") as? Int32 {
-            return .success(.init(tunFd: fd))
+            return .success(.init(tunnelFileDescriptor: fd))
         } else {
             return .failure(.cannotLocateSocketDescriptor)
         }
     }
 
     /// Private initializer
-    private init(tunFd: Int32) {
-        self.tunFd = tunFd
+    private init(tunnelFileDescriptor: Int32) {
+        self.tunnelFileDescriptor = tunnelFileDescriptor
     }
 
     deinit {
@@ -135,38 +155,40 @@ class WireguardDevice {
 
     func start(configuration: WireguardConfiguration, completionHandler: @escaping (Result<(), Error>) -> Void) {
         workQueue.async {
-            guard self.wireguardHandle == nil else {
+            guard !self.isStarted else {
                 completionHandler(.failure(.alreadyStarted))
                 return
             }
 
-            let resolvedConfiguration = self.resolveConfiguration(configuration)
-            let handle = resolvedConfiguration
-                .uapiConfiguration()
-                .toRawWireguardConfigString()
-                .withCString { wgTurnOn($0, self.tunFd) }
+            assert(self.wireguardHandle == nil)
+            assert(self.wireguardTunnelFileDescriptor == nil)
 
-            if handle >= 0 {
-                self.wireguardHandle = handle
+            let resolvedConfiguration = self.resolveConfiguration(configuration)
+
+            switch self.startWireguardBackend(resolvedConfiguration: resolvedConfiguration) {
+            case .success:
+                self.isStarted = true
+                self.deviceHasActiveNetworkInterfaces = true
                 self.configuration = configuration
 
                 self.startNetworkMonitor()
 
                 completionHandler(.success(()))
-            } else {
-                completionHandler(.failure(.start(handle)))
+
+            case .failure(let error):
+                completionHandler(.failure(error))
             }
         }
     }
 
     func stop(completionHandler: @escaping (Result<(), Error>) -> Void) {
         workQueue.async {
-            if let handle = self.wireguardHandle {
+            if self.isStarted {
                 self.networkMonitor?.cancel()
                 self.networkMonitor = nil
 
-                wgTurnOff(handle)
-                self.wireguardHandle = nil
+                self.stopWireguardBackend()
+                self.isStarted = false
 
                 completionHandler(.success(()))
             } else {
@@ -177,11 +199,13 @@ class WireguardDevice {
 
     func setConfiguration(_ newConfiguration: WireguardConfiguration, completionHandler: @escaping (Result<(), Error>) -> Void) {
         workQueue.async {
-            if let handle = self.wireguardHandle {
-                let resolvedConfiguration = self.resolveConfiguration(newConfiguration)
-                let commands = resolvedConfiguration.uapiConfiguration()
+            if self.isStarted {
+                if let handle = self.wireguardHandle {
+                    let resolvedConfiguration = self.resolveConfiguration(newConfiguration)
+                    let commands = resolvedConfiguration.uapiConfiguration()
 
-                Self.setWireguardConfig(handle: handle, commands: commands)
+                    Self.setWireguardConfig(handle: handle, commands: commands)
+                }
 
                 self.configuration = newConfiguration
 
@@ -200,7 +224,7 @@ class WireguardDevice {
 
             var ifnameSize = socklen_t(IFNAMSIZ)
             let result = getsockopt(
-                self.tunFd,
+                self.tunnelFileDescriptor,
                 2 /* SYSPROTO_CONTROL */,
                 2 /* UTUN_OPT_IFNAME */,
                 baseAddress,
@@ -215,6 +239,45 @@ class WireguardDevice {
     }
 
     // MARK: - Private methods
+
+    private func startWireguardBackend(resolvedConfiguration: WireguardConfiguration) -> Result<(), Error> {
+        assert(self.wireguardHandle == nil)
+        assert(self.wireguardTunnelFileDescriptor == nil)
+
+        // Duplicate the tunnel file descriptor to prevent `wgTurnOff` from closing it
+        let duplicateFileDescriptor = dup(self.tunnelFileDescriptor)
+        if duplicateFileDescriptor == -1 {
+            return .failure(.cannotDuplicateSocketDescriptor(errno))
+        }
+
+        let handle = resolvedConfiguration
+            .uapiConfiguration()
+            .toRawWireguardConfigString()
+            .withCString { wgTurnOn($0, duplicateFileDescriptor) }
+
+        if handle >= 0 {
+            self.wireguardHandle = handle
+            self.wireguardTunnelFileDescriptor = duplicateFileDescriptor
+
+            return .success(())
+        } else {
+            // `wgTurnOn` does not cover all of the code paths and may leave the file descriptor
+            // open on failure
+            if close(duplicateFileDescriptor) == -1 {
+                self.logger.warning("Failed to close the duplicate tunnel file descriptor. Error: \(errno)")
+            }
+
+            return .failure(.start(handle))
+        }
+    }
+
+    private func stopWireguardBackend() {
+        guard let handle = self.wireguardHandle else { return }
+
+        wgTurnOff(handle)
+        self.wireguardHandle = nil
+        self.wireguardTunnelFileDescriptor = nil
+    }
 
     private class func setWireguardConfig(handle: Int32, commands: [WireguardCommand]) {
         // Ignore empty payloads
@@ -281,22 +344,62 @@ class WireguardDevice {
         self.networkMonitor = networkMonitor
     }
 
+    private func checkNetworkPathHasActiveNetworkInterfaces(_ networkPath: Network.NWPath) -> Result<Bool, Error> {
+        guard let tunnelDeviceName = self.getInterfaceName() else {
+            return .failure(.cannotObtainTunnelDeviceName)
+        }
+
+        let availableInterfaces = networkPath.availableInterfaces.filter { (interface) -> Bool in
+            return interface.name != tunnelDeviceName
+        }
+
+        return .success(!availableInterfaces.isEmpty)
+    }
+
     private func didReceiveNetworkPathUpdate(path: Network.NWPath) {
         workQueue.async {
-            guard let handle = self.wireguardHandle else { return }
+            guard self.isStarted else { return }
 
             self.logger.debug("Network change detected. Status: \(path.status), interfaces \(path.availableInterfaces).")
 
-            // Re-resolve endpoints on network changes
-            if let currentConfiguration = self.configuration {
-                let resolvedConfiguration = self.resolveConfiguration(currentConfiguration)
-                let commands = resolvedConfiguration.endpointUapiConfiguration()
+            switch self.checkNetworkPathHasActiveNetworkInterfaces(path) {
+            case .success(let newValue):
+                let oldValue = self.deviceHasActiveNetworkInterfaces
+                self.deviceHasActiveNetworkInterfaces = newValue
 
-                Self.setWireguardConfig(handle: handle, commands: commands)
+                switch (oldValue, newValue)  {
+                case (true, false):
+                    self.logger.info("Stop wireguard backend")
+                    self.stopWireguardBackend()
+
+                case (false, true), (true, true):
+                    guard let currentConfiguration = self.configuration else { return }
+
+                    self.logger.info("Re-resolve endpoints")
+
+                    let resolvedConfiguration = self.resolveConfiguration(currentConfiguration)
+
+                    if let handle = self.wireguardHandle {
+                        let commands = resolvedConfiguration.endpointUapiConfiguration()
+                        Self.setWireguardConfig(handle: handle, commands: commands)
+                        
+                        wgBumpSockets(handle)
+                    } else {
+                        self.logger.info("Start wireguard backend")
+
+                        if case .failure(let error) = self.startWireguardBackend(resolvedConfiguration: resolvedConfiguration) {
+                            self.logger.error(chainedError: error, message: "Failed to turn on WireGuard")
+                        }
+                    }
+
+                case (false, false):
+                    // No-op: device remains offline
+                    break
+                }
+
+            case .failure(let error):
+                self.logger.error(chainedError: error, message: "Failed to handle network changes")
             }
-
-            // Tell Wireguard to re-open sockets and bind them to the new network interface
-            wgBumpSockets(handle)
         }
     }
 }
