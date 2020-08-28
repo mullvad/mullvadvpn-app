@@ -14,6 +14,7 @@ import android.widget.TextView
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.AccountInputContainer.BorderState
+import net.mullvad.mullvadvpn.ui.widget.AccountInput
 
 const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 
@@ -36,7 +37,9 @@ class AccountInputController(val parentView: View, context: Context) {
         updateBorder()
     }
 
-    var state by observable(LoginState.Initial) { _, _, newState ->
+    var state: LoginState by observable(LoginState.Initial) { _, _, newState ->
+        newInput.loginState = newState
+
         when (newState) {
             LoginState.Initial -> initialState()
             LoginState.InProgress -> loggingInState()
@@ -49,6 +52,8 @@ class AccountInputController(val parentView: View, context: Context) {
     val input: TextView = parentView.findViewById(R.id.login_input)
     val button: ImageButton = parentView.findViewById(R.id.login_button)
     val accountHistoryList: ListView = parentView.findViewById(R.id.account_history_list)
+
+    val newInput = parentView.findViewById<AccountInput>(R.id.account_input)
 
     var accountHistory: ArrayList<String>? = null
         set(value) {

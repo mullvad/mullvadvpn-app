@@ -67,7 +67,8 @@
             <net.mullvad.mullvadvpn.ui.AccountInputContainer android:id="@+id/account_input_container"
                                                              android:layout_width="match_parent"
                                                              android:layout_height="48dp">
-                <net.mullvad.mullvadvpn.ui.widget.AccountInput android:layout_width="match_parent"
+                <net.mullvad.mullvadvpn.ui.widget.AccountInput android:id="@+id/account_input"
+                                                               android:layout_width="match_parent"
                                                                android:layout_height="48dp"
                                                                android:layout_alignParentTop="true"
                                                                android:orientation="horizontal" />
