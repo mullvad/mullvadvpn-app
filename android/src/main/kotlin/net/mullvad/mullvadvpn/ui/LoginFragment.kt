@@ -28,7 +28,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var loggingInStatus: View
     private lateinit var loggedInStatus: View
     private lateinit var loginFailStatus: View
-    private lateinit var accountInput: AccountInput
+    private lateinit var accountInput: AccountInputController
     private lateinit var scrollArea: ScrollView
 
     private val loggedIn = CompletableDeferred<LoginResult>()
@@ -46,7 +46,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loggedInStatus = view.findViewById(R.id.logged_in_status)
         loginFailStatus = view.findViewById(R.id.login_fail_status)
 
-        accountInput = AccountInput(view, parentActivity)
+        accountInput = AccountInputController(view, parentActivity)
         accountInput.onLogin = { accountToken -> login(accountToken) }
 
         view.findViewById<Button>(R.id.create_account)

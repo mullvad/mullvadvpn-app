@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.ui.AccountInputContainer.BorderState
 
 const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 
-class AccountInput(val parentView: View, context: Context) {
+class AccountInputController(val parentView: View, context: Context) {
     private val disabledBackgroundColor = context.getColor(R.color.white20)
     private val disabledTextColor = context.getColor(R.color.white)
     private val enabledBackgroundColor = context.getColor(R.color.white)
