@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.LoginState
 
 class AccountInput : LinearLayout {
     private val container =
@@ -13,6 +14,8 @@ class AccountInput : LinearLayout {
 
             inflater.inflate(R.layout.account_input, this)
         }
+
+    var loginState = LoginState.Initial
 
     constructor(context: Context) : super(context) {}
 
