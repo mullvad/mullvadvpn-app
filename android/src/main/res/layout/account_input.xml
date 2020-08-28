@@ -1,5 +1,5 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
-    <EditText android:id="@+id/account_input"
+    <EditText android:id="@+id/login_input"
               android:digits="0123456789"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
