@@ -1,7 +1,7 @@
 //! Installs signal handlers to catch critical program faults and logs them.
 
 use libc::{c_int, c_void, siginfo_t};
-use nix::sys::signal::*;
+use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, Signal};
 
 use std::{convert::TryFrom, sync::Once};
 
