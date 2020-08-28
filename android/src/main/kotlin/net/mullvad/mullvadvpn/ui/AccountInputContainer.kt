@@ -15,6 +15,11 @@ class AccountInputContainer : RelativeLayout {
         ERROR
     }
 
+    // The horizontal and vertical drawables are identical, but they must be separate objects
+    // because the view that uses them changes the bounds of the drawable. If they are shared
+    // between the horizontal and vertical views either the drawable becomes a vertical line or a
+    // horizontal line, and as a consequence either the horizontal or the vertical borders don't
+    // show correctly, respectively.
     private class StateDrawables(
         val corner: Drawable,
         val horizontalBorder: Drawable,
