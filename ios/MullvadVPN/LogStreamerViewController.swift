@@ -69,6 +69,13 @@ class LogStreamerViewController: UIViewController, UITextViewDelegate {
         // Disable autoscroll if user scrolled up
         if translation.y > 0 {
             autoScroll = false
+        } else if translation.y < 0 {
+            // Enable autoscroll if user scrolled to the bottom of the view
+            let maxScrollY = scrollView.contentSize.height - scrollView.frame.height
+
+            if targetContentOffset.pointee.y >= maxScrollY {
+                autoScroll = true
+            }
         }
     }
 
