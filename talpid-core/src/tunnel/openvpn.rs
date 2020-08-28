@@ -242,6 +242,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         let mut runtime = tokio::runtime::Builder::new()
             .threaded_scheduler()
             .core_threads(1)
+            .max_threads(1)
             .enable_all()
             .build()
             .map_err(Error::RuntimeError)?;

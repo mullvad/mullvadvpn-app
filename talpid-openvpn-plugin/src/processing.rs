@@ -28,6 +28,7 @@ impl EventProcessor {
         let mut runtime = runtime::Builder::new()
             .basic_scheduler()
             .core_threads(1)
+            .max_threads(1)
             .enable_all()
             .build()
             .map_err(Error::CreateRuntime)?;

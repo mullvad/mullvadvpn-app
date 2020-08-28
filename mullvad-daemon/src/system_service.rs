@@ -1,5 +1,5 @@
 use crate::cli;
-use mullvad_daemon::DaemonShutdownHandle;
+use mullvad_daemon::{runtime::new_runtime_builder, DaemonShutdownHandle};
 use std::{
     env,
     ffi::OsString,
@@ -103,10 +103,7 @@ fn run_service() -> Result<(), String> {
 
     let log_dir = crate::get_log_dir(cli::get_config()).expect("Log dir should be available here");
 
-    let runtime = tokio::runtime::Builder::new()
-        .threaded_scheduler()
-        .enable_all()
-        .build();
+    let runtime = new_runtime_builder().build();
     let mut runtime = match runtime {
         Err(error) => {
             persistent_service_status
@@ -118,7 +115,7 @@ fn run_service() -> Result<(), String> {
     };
 
     let result = runtime.block_on(crate::create_daemon(log_dir));
-    if let Ok(daemon) = result {
+    let result = if let Ok(daemon) = result {
         let shutdown_handle = daemon.shutdown_handle();
 
         // Register monitor that translates `ServiceControl` to Daemon events
@@ -134,7 +131,9 @@ fn run_service() -> Result<(), String> {
         runtime
             .block_on(daemon.run())
             .map_err(|e| e.display_chain())
-    }
+    } else {
+        result.map(|_| ())
+    };
 
     let exit_code = match result {
         Ok(()) => {

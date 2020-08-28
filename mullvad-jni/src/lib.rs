@@ -17,7 +17,9 @@ use jnix::{
     },
     FromJava, IntoJava, JnixEnv,
 };
-use mullvad_daemon::{exception_logging, logging, version, Daemon, DaemonCommandChannel};
+use mullvad_daemon::{
+    exception_logging, logging, runtime::new_runtime_builder, version, Daemon, DaemonCommandChannel,
+};
 use mullvad_rpc::{rest::Error as RestError, StatusCode};
 use mullvad_types::account::{AccountData, VoucherSubmission};
 use std::{
@@ -206,9 +208,7 @@ fn spawn_daemon(
         .map_err(Error::CreateGlobalReference)?;
     let (tx, rx) = mpsc::channel();
 
-    let mut runtime = tokio::runtime::Builder::new()
-        .threaded_scheduler()
-        .enable_all()
+    let mut runtime = new_runtime_builder()
         .build()
         .map_err(Error::InitializeTokioRuntime)?;
 
