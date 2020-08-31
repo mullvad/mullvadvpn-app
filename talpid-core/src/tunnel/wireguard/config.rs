@@ -17,6 +17,9 @@ pub struct Config {
     pub ipv6_gateway: Option<Ipv6Addr>,
     /// Maximum transmission unit for the tunnel
     pub mtu: u16,
+    /// Firewall mark
+    #[cfg(target_os = "linux")]
+    pub fwmark: u32,
 }
 
 const DEFAULT_MTU: u16 = 1380;
@@ -96,6 +99,8 @@ impl Config {
             ipv4_gateway: connection_config.ipv4_gateway,
             ipv6_gateway,
             mtu,
+            #[cfg(target_os = "linux")]
+            fwmark: crate::linux::TUNNEL_FW_MARK,
         })
     }
 
@@ -107,6 +112,9 @@ impl Config {
         wg_conf
             .add("private_key", self.tunnel.private_key.to_bytes().as_ref())
             .add("listen_port", "0");
+
+        #[cfg(target_os = "linux")]
+        wg_conf.add("fwmark", self.fwmark.to_string().as_str());
 
         wg_conf.add("replace_peers", "true");
 

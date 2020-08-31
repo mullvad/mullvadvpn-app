@@ -248,6 +248,13 @@ impl NetworkManager {
             Self::update_dns_config(&mut settings, "ipv6", v6_dns);
         }
 
+        if let Some(wg_config) = settings.get_mut("wireguard") {
+            wg_config.insert(
+                "fwmark",
+                Variant(Box::new(crate::linux::TUNNEL_FW_MARK) as Box<dyn RefArg>),
+            );
+        }
+
         self.reapply_settings(&device, settings, version_id)?;
 
         self.device = Some(device);

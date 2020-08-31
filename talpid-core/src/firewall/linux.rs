@@ -504,11 +504,10 @@ impl<'a> PolicyBatch<'a> {
 
         self.batch.add(&in_rule, nftnl::MsgType::Add);
 
-
         let mut out_rule = Rule::new(&self.out_chain);
         check_endpoint(&mut out_rule, End::Dst, endpoint);
-        out_rule.add_expr(&nft_expr!(meta skuid));
-        out_rule.add_expr(&nft_expr!(cmp == 0u32));
+        out_rule.add_expr(&nft_expr!(meta mark));
+        out_rule.add_expr(&nft_expr!(cmp == crate::linux::TUNNEL_FW_MARK));
         add_verdict(&mut out_rule, &Verdict::Accept);
 
         self.batch.add(&out_rule, nftnl::MsgType::Add);
