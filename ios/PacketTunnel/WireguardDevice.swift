@@ -73,11 +73,6 @@ class WireguardDevice {
         label: "net.mullvad.vpn.packet-tunnel.wireguard-device.work-queue"
     )
 
-    /// A private queue used for network monitor
-    private let networkMonitorQueue = DispatchQueue(
-        label: "net.mullvad.vpn.packet-tunnel.network-monitor"
-    )
-
     /// Network routes monitor
     private var networkMonitor: NWPathMonitor?
 
@@ -328,50 +323,48 @@ class WireguardDevice {
         networkMonitor.pathUpdateHandler = { [weak self] (path) in
             self?.didReceiveNetworkPathUpdate(path: path)
         }
-        networkMonitor.start(queue: networkMonitorQueue)
+        networkMonitor.start(queue: workQueue)
         self.networkMonitor = networkMonitor
     }
-
+    
     private func didReceiveNetworkPathUpdate(path: Network.NWPath) {
-        workQueue.async {
-            guard self.isStarted else { return }
-
-            self.logger.info("Network change detected. Status: \(path.status), interfaces \(path.availableInterfaces).")
-
-            let oldPathSatisfied = self.isPathSatisfied
-            let newPathSatisfied = path.status.isSatisfiable
-
-            self.isPathSatisfied = newPathSatisfied
-
-            switch (oldPathSatisfied, newPathSatisfied)  {
-            case (true, false):
-                self.logger.info("Stop wireguard backend")
-                self.stopWireguardBackend()
-
-            case (false, true), (true, true):
-                guard let currentConfiguration = self.configuration else { return }
-
-                self.logger.info("Re-resolve endpoints")
-
-                let resolvedConfiguration = self.resolveConfiguration(currentConfiguration)
-
-                if let handle = self.wireguardHandle {
-                    let commands = resolvedConfiguration.endpointUapiConfiguration()
-                    Self.setWireguardConfig(handle: handle, commands: commands)
-
-                    wgBumpSockets(handle)
-                } else {
-                    self.logger.info("Start wireguard backend")
-
-                    if case .failure(let error) = self.startWireguardBackend(resolvedConfiguration: resolvedConfiguration) {
-                        self.logger.error(chainedError: error, message: "Failed to turn on WireGuard")
-                    }
+        guard self.isStarted else { return }
+        
+        self.logger.info("Network change detected. Status: \(path.status), interfaces \(path.availableInterfaces).")
+        
+        let oldPathSatisfied = self.isPathSatisfied
+        let newPathSatisfied = path.status.isSatisfiable
+        
+        self.isPathSatisfied = newPathSatisfied
+        
+        switch (oldPathSatisfied, newPathSatisfied)  {
+        case (true, false):
+            self.logger.info("Stop wireguard backend")
+            self.stopWireguardBackend()
+            
+        case (false, true), (true, true):
+            guard let currentConfiguration = self.configuration else { return }
+            
+            self.logger.info("Re-resolve endpoints")
+            
+            let resolvedConfiguration = self.resolveConfiguration(currentConfiguration)
+            
+            if let handle = self.wireguardHandle {
+                let commands = resolvedConfiguration.endpointUapiConfiguration()
+                Self.setWireguardConfig(handle: handle, commands: commands)
+                
+                wgBumpSockets(handle)
+            } else {
+                self.logger.info("Start wireguard backend")
+                
+                if case .failure(let error) = self.startWireguardBackend(resolvedConfiguration: resolvedConfiguration) {
+                    self.logger.error(chainedError: error, message: "Failed to turn on WireGuard")
                 }
-
-            case (false, false):
-                // No-op: device remains offline
-                break
             }
+            
+        case (false, false):
+            // No-op: device remains offline
+            break
         }
     }
 }
