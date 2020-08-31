@@ -17,6 +17,10 @@ import net.mullvad.mullvadvpn.ui.LoginState
 const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 
 class AccountInput : LinearLayout {
+    private val disabledTextColor = context.getColor(R.color.white)
+    private val enabledTextColor = context.getColor(R.color.blue)
+    private val errorTextColor = context.getColor(R.color.red)
+
     private val container =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
             val inflater = service as LayoutInflater
@@ -78,11 +82,24 @@ class AccountInput : LinearLayout {
     }
 
     private fun initialState() {
+        input.apply {
+            setTextColor(enabledTextColor)
+            setEnabled(true)
+            visibility = View.VISIBLE
+        }
+
         button.visibility = View.VISIBLE
         setButtonEnabled(input.text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
     }
 
     private fun loggingInState() {
+        input.apply {
+            setTextColor(disabledTextColor)
+            setEnabled(false)
+            visibility = View.VISIBLE
+            clearFocus()
+        }
+
         button.visibility = View.GONE
         setButtonEnabled(false)
     }
@@ -90,11 +107,20 @@ class AccountInput : LinearLayout {
     private fun successState() {
         button.visibility = View.GONE
         setButtonEnabled(false)
+
+        input.visibility = View.GONE
     }
 
     private fun failureState() {
         button.visibility = View.VISIBLE
         setButtonEnabled(false)
+
+        input.apply {
+            findFocus()
+            setTextColor(errorTextColor)
+            setEnabled(true)
+            visibility = View.VISIBLE
+        }
     }
 
     private fun setButtonEnabled(enabled: Boolean) {

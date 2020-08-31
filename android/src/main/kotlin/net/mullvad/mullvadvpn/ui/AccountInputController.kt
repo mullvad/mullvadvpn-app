@@ -16,10 +16,7 @@ import net.mullvad.mullvadvpn.ui.widget.AccountInput
 
 class AccountInputController(val parentView: View, context: Context) {
     private val disabledBackgroundColor = context.getColor(R.color.white20)
-    private val disabledTextColor = context.getColor(R.color.white)
     private val enabledBackgroundColor = context.getColor(R.color.white)
-    private val enabledTextColor = context.getColor(R.color.blue)
-    private val errorTextColor = context.getColor(R.color.red)
 
     private var inputHasFocus by observable(false) { _, _, hasFocus ->
         updateBorder()
@@ -37,7 +34,7 @@ class AccountInputController(val parentView: View, context: Context) {
         newInput.loginState = newState
 
         when (newState) {
-            LoginState.Initial -> initialState()
+            LoginState.Initial -> {}
             LoginState.InProgress -> loggingInState()
             LoginState.Success -> successState()
             LoginState.Failure -> failureState()
@@ -87,37 +84,15 @@ class AccountInputController(val parentView: View, context: Context) {
         container.setOnClickListener { shouldShowAccountHistory = true }
     }
 
-    private fun initialState() {
-        input.apply {
-            setTextColor(enabledTextColor)
-            setEnabled(true)
-            visibility = View.VISIBLE
-        }
-    }
-
     private fun loggingInState() {
-        input.apply {
-            setTextColor(disabledTextColor)
-            setEnabled(false)
-            visibility = View.VISIBLE
-            clearFocus()
-        }
         accountHistoryList.visibility = View.INVISIBLE
     }
 
     private fun successState() {
-        input.visibility = View.GONE
         container.visibility = View.INVISIBLE
     }
 
     private fun failureState() {
-        input.apply {
-            findFocus()
-            setTextColor(errorTextColor)
-            setEnabled(true)
-            visibility = View.VISIBLE
-        }
-
         usingErrorColor = true
     }
 
@@ -162,7 +137,7 @@ class AccountInputController(val parentView: View, context: Context) {
 
     private fun leaveErrorState() {
         if (usingErrorColor) {
-            input.setTextColor(enabledTextColor)
+            newInput.loginState = LoginState.Initial
             usingErrorColor = false
         }
     }
