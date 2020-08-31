@@ -110,7 +110,7 @@ static OPENVPN_DIE_TIMEOUT: Duration = Duration::from_secs(30);
 
 #[cfg(target_os = "macos")]
 const OPENVPN_PLUGIN_FILENAME: &str = "libtalpid_openvpn_plugin.dylib";
-#[cfg(any(target_os = "linux", target_os = "android"))]
+#[cfg(target_os = "linux")]
 const OPENVPN_PLUGIN_FILENAME: &str = "libtalpid_openvpn_plugin.so";
 #[cfg(windows)]
 const OPENVPN_PLUGIN_FILENAME: &str = "talpid_openvpn_plugin.dll";

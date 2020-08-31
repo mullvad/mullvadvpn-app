@@ -35,8 +35,9 @@ mullvad-rpc = { path = "../mullvad-rpc" }
 talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }
 
-mullvad-management-interface = { path = "../mullvad-management-interface" }
+[target.'cfg(not(target_os="android"))'.dependencies]
 triggered = "0.1.1"
+mullvad-management-interface = { path = "../mullvad-management-interface" }
 
 [target.'cfg(target_os="android")'.dependencies]
 android_logger = "0.8"
