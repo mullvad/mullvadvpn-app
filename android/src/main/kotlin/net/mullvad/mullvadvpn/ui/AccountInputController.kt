@@ -15,9 +15,6 @@ import net.mullvad.mullvadvpn.ui.AccountInputContainer.BorderState
 import net.mullvad.mullvadvpn.ui.widget.AccountInput
 
 class AccountInputController(val parentView: View, context: Context) {
-    private val disabledBackgroundColor = context.getColor(R.color.white20)
-    private val enabledBackgroundColor = context.getColor(R.color.white)
-
     private var inputHasFocus by observable(false) { _, _, hasFocus ->
         updateBorder()
 
