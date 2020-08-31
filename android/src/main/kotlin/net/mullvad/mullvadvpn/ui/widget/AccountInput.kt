@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.ui.widget
 
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
+import android.text.style.MetricAffectingSpan
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -21,7 +24,20 @@ class AccountInput : LinearLayout {
             inflater.inflate(R.layout.account_input, this)
         }
 
-    private val input = container.findViewById<TextView>(R.id.login_input)
+    private val inputWatcher = object : TextWatcher {
+        override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {}
+
+        override fun afterTextChanged(text: Editable) {
+            removeFormattingSpans(text)
+            setButtonEnabled(text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
+        }
+    }
+
+    private val input = container.findViewById<TextView>(R.id.login_input).apply {
+        addTextChangedListener(inputWatcher)
+    }
 
     private val button = container.findViewById<ImageButton>(R.id.login_button).apply {
         setOnClickListener {
@@ -81,13 +97,19 @@ class AccountInput : LinearLayout {
         setButtonEnabled(false)
     }
 
-    /*private*/ fun setButtonEnabled(enabled: Boolean) {
+    private fun setButtonEnabled(enabled: Boolean) {
         button.apply {
             if (enabled != isEnabled()) {
                 setEnabled(enabled)
                 setClickable(enabled)
                 setFocusable(enabled)
             }
+        }
+    }
+
+    private fun removeFormattingSpans(text: Editable) {
+        for (span in text.getSpans(0, text.length, MetricAffectingSpan::class.java)) {
+            text.removeSpan(span)
         }
     }
 }
