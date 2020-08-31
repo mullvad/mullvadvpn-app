@@ -8,7 +8,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.widget.ArrayAdapter
-import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.TextView
 import kotlin.properties.Delegates.observable
@@ -50,7 +49,6 @@ class AccountInputController(val parentView: View, context: Context) {
 
     val container: AccountInputContainer = parentView.findViewById(R.id.account_input_container)
     val input: TextView = parentView.findViewById(R.id.login_input)
-    val button: ImageButton = parentView.findViewById(R.id.login_button)
     val accountHistoryList: ListView = parentView.findViewById(R.id.account_history_list)
 
     val newInput = parentView.findViewById<AccountInput>(R.id.account_input)
@@ -93,8 +91,6 @@ class AccountInputController(val parentView: View, context: Context) {
     }
 
     private fun initialState() {
-        button.visibility = View.VISIBLE
-
         input.apply {
             setTextColor(enabledTextColor)
             setEnabled(true)
@@ -103,8 +99,6 @@ class AccountInputController(val parentView: View, context: Context) {
     }
 
     private fun loggingInState() {
-        button.visibility = View.GONE
-
         input.apply {
             setTextColor(disabledTextColor)
             setEnabled(false)
@@ -115,14 +109,11 @@ class AccountInputController(val parentView: View, context: Context) {
     }
 
     private fun successState() {
-        button.visibility = View.GONE
         input.visibility = View.GONE
         container.visibility = View.INVISIBLE
     }
 
     private fun failureState() {
-        button.visibility = View.VISIBLE
-
         input.apply {
             findFocus()
             setTextColor(errorTextColor)

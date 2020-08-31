@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.ui.widget
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -61,18 +62,22 @@ class AccountInput : LinearLayout {
     }
 
     private fun initialState() {
+        button.visibility = View.VISIBLE
         setButtonEnabled(input.text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
     }
 
     private fun loggingInState() {
+        button.visibility = View.GONE
         setButtonEnabled(false)
     }
 
     private fun successState() {
+        button.visibility = View.GONE
         setButtonEnabled(false)
     }
 
     private fun failureState() {
+        button.visibility = View.VISIBLE
         setButtonEnabled(false)
     }
 
