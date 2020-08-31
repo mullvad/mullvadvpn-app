@@ -124,8 +124,11 @@ VPN tunnel is allowed on all interfaces, together with responses to this outgoin
 First hop means the bridge server if one is used, otherwise the VPN server directly.
 This IP+port+protocol combination should only be allowed for the process establishing the
 VPN tunnel, or only administrator level processes, depending on what the platform firewall
-allows restricting. On Windows the rule only allows processes from binaries in certain paths.
-On Linux and macOS the rule only allows packets from processes running as `root`.
+allows restricting. On Windows the rule only allows processes from binaries in certain paths. macOS
+the rule only allows packets from processes running as `root`. On Linux, the rule only allows
+packets that have the mark `0x6d6f6c65` set: setting a firewall mark on traffic requires elevated
+privileges when using tunnels that support marking traffic, otherwise the rule is the same as on
+macOS: the packet needs to originate from a process running as `root`.
 This process/user check is important to not allow unprivileged programs
 to leak packets to this IP outside the tunnel, as those packets can be fingerprinted.
 

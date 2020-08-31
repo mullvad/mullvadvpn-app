@@ -25,3 +25,6 @@ pub enum IfaceIndexLookupError {
     #[error(display = "Failed to get index for interface {}", _0)]
     InterfaceLookupError(String, #[error(source)] io::Error),
 }
+
+// b"mole" is [ 0x6d, 0x6f 0x6c, 0x65 ]
+pub const TUNNEL_FW_MARK: u32 = 0x6d6f6c65;
