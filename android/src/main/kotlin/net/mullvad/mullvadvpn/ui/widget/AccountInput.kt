@@ -81,6 +81,11 @@ class AccountInput : LinearLayout {
         setButtonEnabled(false)
     }
 
+    fun loginWith(accountNumber: String) {
+        input.text = accountNumber
+        onLogin?.invoke(accountNumber)
+    }
+
     private fun initialState() {
         input.apply {
             setTextColor(enabledTextColor)
