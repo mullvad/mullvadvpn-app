@@ -143,7 +143,7 @@ pub enum Error {
 /// Enum representing commands that can be sent to the daemon.
 pub enum DaemonCommand {
     /// Set target state. Does nothing if the daemon already has the state that is being set.
-    SetTargetState(oneshot::Sender<Result<(), ()>>, TargetState),
+    SetTargetState(oneshot::Sender<()>, TargetState),
     /// Reconnect the tunnel, if one is connecting/connected.
     Reconnect,
     /// Request the current state.
@@ -189,15 +189,9 @@ pub enum DaemonCommand {
     /// Set the mssfix argument for OpenVPN
     SetOpenVpnMssfix(oneshot::Sender<()>, Option<u16>),
     /// Set proxy details for OpenVPN
-    SetBridgeSettings(
-        oneshot::Sender<std::result::Result<(), settings::Error>>,
-        BridgeSettings,
-    ),
+    SetBridgeSettings(oneshot::Sender<Result<(), settings::Error>>, BridgeSettings),
     /// Set proxy state
-    SetBridgeState(
-        oneshot::Sender<std::result::Result<(), settings::Error>>,
-        BridgeState,
-    ),
+    SetBridgeState(oneshot::Sender<Result<(), settings::Error>>, BridgeState),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(oneshot::Sender<()>, bool),
     /// Set MTU for wireguard tunnels
@@ -1144,17 +1138,13 @@ where
         self.event_listener.notify_app_version(app_version_info);
     }
 
-    fn on_set_target_state(
-        &mut self,
-        tx: oneshot::Sender<Result<(), ()>>,
-        new_target_state: TargetState,
-    ) {
+    fn on_set_target_state(&mut self, tx: oneshot::Sender<()>, new_target_state: TargetState) {
         if self.state.is_running() {
             self.set_target_state(new_target_state);
         } else {
             warn!("Ignoring target state change request due to shutdown");
         }
-        Self::oneshot_send(tx, Ok(()), "target state");
+        Self::oneshot_send(tx, (), "target state");
     }
 
     fn on_reconnect(&mut self) {
