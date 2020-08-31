@@ -65,11 +65,8 @@ impl ManagementService for ManagementServiceImpl {
 
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Secured))?;
-        let result = rx.await.map_err(|_| Status::internal("internal error"))?;
-        match result {
-            Ok(()) => Ok(Response::new(())),
-            Err(()) => Err(Status::new(Code::from(-900), "No account token configured")),
-        }
+        rx.await.map_err(|_| Status::internal("internal error"))?;
+        Ok(Response::new(()))
     }
 
     async fn disconnect_tunnel(&self, _: Request<()>) -> ServiceResult<()> {
