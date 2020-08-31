@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.ui
 import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
-import android.text.style.MetricAffectingSpan
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
@@ -14,8 +13,6 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.AccountInputContainer.BorderState
 import net.mullvad.mullvadvpn.ui.widget.AccountInput
-
-const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 
 class AccountInputController(val parentView: View, context: Context) {
     private val disabledBackgroundColor = context.getColor(R.color.white20)
@@ -170,12 +167,6 @@ class AccountInputController(val parentView: View, context: Context) {
         }
     }
 
-    private fun removeFormattingSpans(text: Editable) {
-        for (span in text.getSpans(0, text.length, MetricAffectingSpan::class.java)) {
-            text.removeSpan(span)
-        }
-    }
-
     inner class InputWatcher : TextWatcher {
         override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {}
 
@@ -183,8 +174,6 @@ class AccountInputController(val parentView: View, context: Context) {
 
         override fun afterTextChanged(text: Editable) {
             inputHasFocus = true
-            removeFormattingSpans(text)
-            newInput.setButtonEnabled(text.length >= MIN_ACCOUNT_TOKEN_LENGTH)
             leaveErrorState()
         }
     }
