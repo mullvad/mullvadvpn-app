@@ -22,7 +22,7 @@ use std::{
     time::{Duration, Instant},
 };
 use talpid_types::{
-    net::{openvpn, TunnelParameters},
+    net::TunnelParameters,
     tunnel::{ErrorStateCause, FirewallPolicyError},
     ErrorExt,
 };
@@ -48,13 +48,7 @@ impl ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
         params: &TunnelParameters,
     ) -> Result<(), FirewallPolicyError> {
-        let proxy = &get_openvpn_proxy_settings(&params);
-        let endpoint = params.get_tunnel_endpoint().endpoint;
-
-        let peer_endpoint = match proxy {
-            Some(proxy_settings) => proxy_settings.get_endpoint().endpoint,
-            None => endpoint,
-        };
+        let peer_endpoint = params.get_next_hop_endpoint();
 
         let policy = FirewallPolicy::Connecting {
             peer_endpoint,
@@ -62,6 +56,8 @@ impl ConnectingState {
             allow_lan: shared_values.allow_lan,
             #[cfg(windows)]
             relay_client: TunnelMonitor::get_relay_client(&shared_values.resource_dir, &params),
+            #[cfg(target_os = "linux")]
+            use_fwmark: params.get_proxy_endpoint().is_none(),
         };
         shared_values
             .firewall
@@ -309,15 +305,6 @@ impl ConnectingState {
             shared_values,
             self.retry_attempt + 1,
         ))
-    }
-}
-
-fn get_openvpn_proxy_settings(
-    tunnel_parameters: &TunnelParameters,
-) -> &Option<openvpn::ProxySettings> {
-    match tunnel_parameters {
-        TunnelParameters::OpenVpn(ref config) => &config.proxy,
-        _ => &None,
     }
 }
 

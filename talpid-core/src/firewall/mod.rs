@@ -97,6 +97,9 @@ pub enum FirewallPolicy {
         /// A process that is allowed to send packets to the relay.
         #[cfg(windows)]
         relay_client: PathBuf,
+        /// Use firewall mark or endpoint
+        #[cfg(target_os = "linux")]
+        use_fwmark: bool,
     },
 
     /// Allow traffic only to server and over tunnel interface
@@ -110,6 +113,9 @@ pub enum FirewallPolicy {
         /// A process that is allowed to send packets to the relay.
         #[cfg(windows)]
         relay_client: PathBuf,
+        /// Use firewall mark or endpoint
+        #[cfg(target_os = "linux")]
+        use_fwmark: bool,
     },
 
     /// Block all network traffic in and out from the computer.

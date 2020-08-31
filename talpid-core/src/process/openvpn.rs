@@ -249,6 +249,13 @@ impl OpenVpnCommand {
         args.extend(Self::tls_cipher_arguments().iter().map(OsString::from));
         args.extend(self.proxy_arguments().iter().map(OsString::from));
 
+        #[cfg(target_os = "linux")]
+        args.extend(
+            ["--mark", &crate::linux::TUNNEL_FW_MARK.to_string()]
+                .iter()
+                .map(OsString::from),
+        );
+
         args
     }
 

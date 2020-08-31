@@ -37,6 +37,25 @@ impl TunnelParameters {
         }
     }
 
+    // Returns the endpoint that will be connected to
+    pub fn get_next_hop_endpoint(&self) -> Endpoint {
+        match self {
+            TunnelParameters::OpenVpn(params) => params
+                .proxy
+                .as_ref()
+                .map(|proxy| proxy.get_endpoint().endpoint)
+                .unwrap_or(params.config.endpoint),
+            TunnelParameters::Wireguard(params) => params.connection.get_endpoint(),
+        }
+    }
+
+    pub fn get_proxy_endpoint(&self) -> Option<openvpn::ProxySettings> {
+        match self {
+            TunnelParameters::OpenVpn(params) => params.proxy.clone(),
+            _ => None,
+        }
+    }
+
     pub fn get_generic_options(&self) -> &GenericTunnelOptions {
         match &self {
             TunnelParameters::OpenVpn(params) => &params.generic_options,
