@@ -106,11 +106,8 @@ class AccountInputController(val parentView: View, context: Context) {
                 )
 
                 setOnItemClickListener { _, _, idx, _ ->
-                    val accountNumber = history[idx]
-
-                    input.setText(accountNumber)
+                    newInput.loginWith(history[idx])
                     accountHistoryList.visibility = View.GONE
-                    onLogin?.invoke(accountNumber)
                 }
             }
 
