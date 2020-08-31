@@ -532,6 +532,7 @@ where
         tokio::spawn(version_updater.run());
         let account_history =
             account_history::AccountHistory::new(&cache_dir, &settings_dir, rpc_handle.clone())
+                .await
                 .map_err(Error::LoadAccountHistory)?;
 
         // Restore the tunnel to a previous state
