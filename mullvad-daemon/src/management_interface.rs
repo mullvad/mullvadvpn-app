@@ -1490,8 +1490,7 @@ impl ManagementInterfaceServer {
         }
     }
 
-    /// Consumes the server and waits for it to finish. Returns an error if the server exited
-    /// due to an error.
+    /// Consumes the server and waits for it to finish.
     pub async fn run(self) {
         if let Some(server_join_handle) = self.server_join_handle {
             if let Err(error) = server_join_handle.await {
