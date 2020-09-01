@@ -56,7 +56,7 @@ impl FirewallT for Firewall {
         let logging_context = b"WinFw\0".as_ptr();
 
         if args.initialize_blocked {
-            let cfg = &WinFwSettings::new(args.allow_lan.unwrap());
+            let cfg = &WinFwSettings::new(args.allow_lan);
             unsafe {
                 WinFw_InitializeBlocked(
                     WINFW_TIMEOUT_SECONDS,

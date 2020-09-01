@@ -115,7 +115,7 @@ impl TunnelState for ErrorState {
             }
             Ok(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
             Ok(TunnelCommand::Disconnect) | Err(_) => {
-                NewState(DisconnectedState::enter(shared_values, ()))
+                NewState(DisconnectedState::enter(shared_values, true))
             }
             Ok(TunnelCommand::Block(reason)) => NewState(ErrorState::enter(shared_values, reason)),
         }
