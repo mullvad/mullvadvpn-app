@@ -84,10 +84,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 case .failure(let error):
                     self.logger.error(chainedError: error, message: "Failed to stop the tunnel")
                 }
-
-                completionHandler()
                 finish()
             }
+        }
+
+        operation.addDidFinishBlockObserver { (op) in
+            completionHandler()
         }
 
         exclusivityController.addOperation(operation, categories: [.exclusive])
