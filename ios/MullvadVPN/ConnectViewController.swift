@@ -123,7 +123,7 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
 
     private func updateButtons() {
         switch tunnelState {
-        case .disconnected:
+        case .disconnected, .disconnecting:
             selectLocationButton.setTitle(NSLocalizedString("Select location", comment: ""), for: .normal)
             connectButton.setTitle(NSLocalizedString("Secure connection", comment: ""), for: .normal)
 
@@ -135,7 +135,7 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
 
             setArrangedButtons([selectLocationButton, splitDisconnectButtonView])
 
-        case .connected, .reconnecting, .disconnecting:
+        case .connected, .reconnecting:
             selectLocationButton.setTitle(NSLocalizedString("Switch location", comment: ""), for: .normal)
             splitDisconnectButtonView.primaryButton.setTitle(NSLocalizedString("Disconnect", comment: ""), for: .normal)
 
