@@ -65,7 +65,7 @@ class WireguardDevice {
     /// A private queue used for Wireguard logging
     private static let loggingQueue = DispatchQueue(
         label: "net.mullvad.vpn.packet-tunnel.wireguard-device.global-logging-queue",
-        qos: .background
+        qos: .utility
     )
 
     /// A private queue used to synchronize access to `WireguardDevice` members
