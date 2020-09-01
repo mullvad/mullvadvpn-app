@@ -42,9 +42,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     override init() {
         initLoggingSystem(bundleIdentifier: Bundle.main.bundleIdentifier!)
-        WireguardDevice.setTunnelLogger(Logger(label: "WireGuard"))
 
         logger = Logger(label: "PacketTunnelProvider")
+
+        let wireguardLogger = Logger(label: "WireGuard")
+        WireguardDevice.setTunnelLogger(wireguardLogger)
     }
 
     // MARK: - Subclass
@@ -147,43 +149,39 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 }
 
                 self.startWireguardDevice(packetFlow: self.packetFlow, configuration: packetTunnelConfig.wireguardConfig) { (result) in
-                    self.dispatchQueue.async {
-                        guard case .success(let device) = result else {
-                            self.tunnelState = .disconnected
+                    guard case .success(let device) = result else {
+                        self.tunnelState = .disconnected
 
-                            completionHandler(result.map { _ in () })
-                            return
-                        }
+                        completionHandler(result.map { _ in () })
+                        return
+                    }
 
-                        let persistentKeychainReference = packetTunnelConfig.persistentKeychainReference
-                        let keyRotationManager = AutomaticKeyRotationManager(persistentKeychainReference: persistentKeychainReference)
-                        keyRotationManager.eventHandler = { (keyRotationEvent) in
-                            self.dispatchQueue.async {
-                                self.reloadTunnelSettings { (result) in
-                                    switch result {
-                                    case .success:
-                                        break
+                    let persistentKeychainReference = packetTunnelConfig.persistentKeychainReference
+                    let keyRotationManager = AutomaticKeyRotationManager(persistentKeychainReference: persistentKeychainReference, eventQueue: self.dispatchQueue)
+                    keyRotationManager.eventHandler = { [weak self] (keyRotationEvent) in
+                        guard let self = self else { return }
 
-                                    case .failure(let error):
-                                        self.logger.error(chainedError: error, message: "Failed to reload tunnel settings")
-                                    }
-                                }
+                        self.reloadTunnelSettings { (result) in
+                            switch result {
+                            case .success:
+                                break
+
+                            case .failure(let error):
+                                self.logger.error(chainedError: error, message: "Failed to reload tunnel settings")
                             }
                         }
+                    }
 
-                        RelayCache.shared.startPeriodicUpdates {
-                            keyRotationManager.startAutomaticRotation {
-                                self.dispatchQueue.async {
-                                    let context = PacketTunnelContext(
-                                        wireguardDevice: device,
-                                        keyRotationManager: keyRotationManager
-                                    )
+                    RelayCache.shared.startPeriodicUpdates(queue: self.dispatchQueue) {
+                        keyRotationManager.startAutomaticRotation(queue: self.dispatchQueue) {
+                            let context = PacketTunnelContext(
+                                wireguardDevice: device,
+                                keyRotationManager: keyRotationManager
+                            )
 
-                                    self.tunnelState = .connected(packetTunnelConfig.selectorResult.tunnelConnectionInfo, context)
+                            self.tunnelState = .connected(packetTunnelConfig.selectorResult.tunnelConnectionInfo, context)
 
-                                    completionHandler(.success(()))
-                                }
-                            }
+                            completionHandler(.success(()))
                         }
                     }
                 }
@@ -200,18 +198,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         self.tunnelState = .disconnecting
 
-        RelayCache.shared.stopPeriodicUpdates {
-            context.keyRotationManager.stopAutomaticRotation {
-                context.wireguardDevice.stop { (result) in
-                    self.dispatchQueue.async {
-                        let result = result.mapError({ (error) -> PacketTunnelProviderError in
-                            return .stopWireguardDevice(error)
-                        })
+        RelayCache.shared.stopPeriodicUpdates(queue: self.dispatchQueue) {
+            context.keyRotationManager.stopAutomaticRotation(queue: self.dispatchQueue) {
+                context.wireguardDevice.stop(queue: self.dispatchQueue) { (result) in
+                    let result = result.mapError({ (error) -> PacketTunnelProviderError in
+                        return .stopWireguardDevice(error)
+                    })
 
-                        self.tunnelState = .disconnected
+                    self.tunnelState = .disconnected
 
-                        completionHandler(result)
-                    }
+                    completionHandler(result)
                 }
             }
         }
@@ -262,10 +258,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                     return
                 }
 
-                context.wireguardDevice.setConfiguration(packetTunnelConfig.wireguardConfig) { (result) in
-                    self.dispatchQueue.async {
-                        finishReconnecting(result.mapError { PacketTunnelProviderError.updateWireguardConfiguration($0) })
-                    }
+                context.wireguardDevice.setConfiguration(packetTunnelConfig.wireguardConfig, queue: self.dispatchQueue) { (result) in
+                    finishReconnecting(result.mapError { PacketTunnelProviderError.updateWireguardConfiguration($0) })
                 }
             }
         }
@@ -297,10 +291,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             return
         }
 
-        Self.makePacketTunnelConfig(keychainReference: keychainReference) { (result) in
-            self.dispatchQueue.async {
-                completionHandler(result)
-            }
+        Self.makePacketTunnelConfig(keychainReference: keychainReference, queue: self.dispatchQueue) { (result) in
+            completionHandler(result)
         }
     }
 
@@ -339,7 +331,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     /// Returns a `PacketTunnelConfig` that contains the tunnel settings and selected relay
-    private class func makePacketTunnelConfig(keychainReference: Data, completionHandler: @escaping (Result<PacketTunnelConfiguration, PacketTunnelProviderError>) -> Void) {
+    private class func makePacketTunnelConfig(keychainReference: Data, queue: DispatchQueue?, completionHandler: @escaping (Result<PacketTunnelConfiguration, PacketTunnelProviderError>) -> Void) {
         switch Self.readTunnelSettings(keychainReference: keychainReference) {
         case .success(let tunnelSettings):
             Self.selectRelayEndpoint(relayConstraints: tunnelSettings.relayConstraints) { (result) in
@@ -350,11 +342,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                         selectorResult: selectorResult
                     )
                 }
-                completionHandler(result)
+
+                queue.performOnWrappedOrCurrentQueue {
+                    completionHandler(result)
+                }
             }
 
         case .failure(let error):
-            completionHandler(.failure(error))
+            queue.performOnWrappedOrCurrentQueue {
+                completionHandler(.failure(error))
+            }
         }
     }
 
@@ -397,7 +394,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         logger.info("Tunnel interface is \(tunnelDeviceName)")
 
-        device.start(configuration: configuration) { (result) in
+        device.start(queue: dispatchQueue, configuration: configuration) { (result) in
             let result = result.map { device }
                 .mapError { PacketTunnelProviderError.startWireguardDevice($0) }
 

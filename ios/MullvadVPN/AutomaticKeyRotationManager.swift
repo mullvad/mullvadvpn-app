@@ -69,6 +69,9 @@ class AutomaticKeyRotationManager {
     /// A variable backing the `eventHandler` public property
     private var _eventHandler: ((KeyRotationResult) -> Void)?
 
+    /// A dispatch queue used for broadcasting events
+    private let eventQueue: DispatchQueue?
+
     /// An event handler that's invoked when key rotation occurred
     var eventHandler: ((KeyRotationResult) -> Void)? {
         get {
@@ -83,11 +86,12 @@ class AutomaticKeyRotationManager {
         }
     }
 
-    init(persistentKeychainReference: Data) {
+    init(persistentKeychainReference: Data, eventQueue: DispatchQueue?) {
         self.persistentKeychainReference = persistentKeychainReference
+        self.eventQueue = eventQueue
     }
 
-    func startAutomaticRotation(completionHandler: @escaping () -> Void) {
+    func startAutomaticRotation(queue: DispatchQueue?, completionHandler: @escaping () -> Void) {
         dispatchQueue.async {
             guard !self.isAutomaticRotationEnabled else { return }
 
@@ -96,11 +100,11 @@ class AutomaticKeyRotationManager {
             self.isAutomaticRotationEnabled = true
             self.performKeyRotation()
 
-            completionHandler()
+            queue.performOnWrappedOrCurrentQueue(block: completionHandler)
         }
     }
 
-    func stopAutomaticRotation(completionHandler: @escaping () -> Void) {
+    func stopAutomaticRotation(queue: DispatchQueue?, completionHandler: @escaping () -> Void) {
         dispatchQueue.async {
             guard self.isAutomaticRotationEnabled else { return }
 
@@ -113,7 +117,7 @@ class AutomaticKeyRotationManager {
 
             self.timerSource?.cancel()
 
-            completionHandler()
+            queue.performOnWrappedOrCurrentQueue(block: completionHandler)
         }
     }
 
@@ -215,7 +219,9 @@ class AutomaticKeyRotationManager {
             if event.isNew {
                 logger.info("Finished private key rotation")
 
-                eventHandler?(event)
+                eventQueue.performOnWrappedOrCurrentQueue {
+                    self.eventHandler?(event)
+                }
             }
 
             if let rotationDate = Self.nextRotation(creationDate: event.creationDate) {
