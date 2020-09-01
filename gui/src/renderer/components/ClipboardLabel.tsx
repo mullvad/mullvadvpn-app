@@ -8,7 +8,7 @@ interface IProps {
   value: string;
   displayValue?: string;
   delay: number;
-  message: string;
+  message?: string;
   className?: string;
 }
 
@@ -23,7 +23,6 @@ const Label = styled.span({
 export default class ClipboardLabel extends React.Component<IProps, IState> {
   public static defaultProps: Partial<IProps> = {
     delay: 3000,
-    message: messages.gettext('COPIED TO CLIPBOARD!'),
   };
 
   public state: IState = {
@@ -37,10 +36,11 @@ export default class ClipboardLabel extends React.Component<IProps, IState> {
   }
 
   public render() {
-    const displayValue = this.props.displayValue || this.props.value;
+    const message = this.props.message ?? messages.gettext('COPIED TO CLIPBOARD!');
+    const displayValue = this.props.displayValue ?? this.props.value;
     return (
       <Label className={this.props.className} onClick={this.handlePress}>
-        {this.state.showsMessage ? this.props.message : displayValue}
+        {this.state.showsMessage ? message : displayValue}
       </Label>
     );
   }
