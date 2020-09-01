@@ -141,10 +141,12 @@ class WireguardDevice {
 
     // MARK: - Public methods
 
-    func start(configuration: WireguardConfiguration, completionHandler: @escaping (Result<(), Error>) -> Void) {
+    func start(queue: DispatchQueue?, configuration: WireguardConfiguration, completionHandler: @escaping (Result<(), Error>) -> Void) {
         workQueue.async {
             guard !self.isStarted else {
-                completionHandler(.failure(.alreadyStarted))
+                queue.performOnWrappedOrCurrentQueue {
+                    completionHandler(.failure(.alreadyStarted))
+                }
                 return
             }
 
@@ -160,15 +162,19 @@ class WireguardDevice {
 
                 self.startNetworkMonitor()
 
-                completionHandler(.success(()))
+                queue.performOnWrappedOrCurrentQueue {
+                    completionHandler(.success(()))
+                }
 
             case .failure(let error):
-                completionHandler(.failure(error))
+                queue.performOnWrappedOrCurrentQueue {
+                    completionHandler(.failure(error))
+                }
             }
         }
     }
 
-    func stop(completionHandler: @escaping (Result<(), Error>) -> Void) {
+    func stop(queue: DispatchQueue?, completionHandler: @escaping (Result<(), Error>) -> Void) {
         workQueue.async {
             if self.isStarted {
                 self.networkMonitor?.cancel()
@@ -177,14 +183,18 @@ class WireguardDevice {
                 self.stopWireguardBackend()
                 self.isStarted = false
 
-                completionHandler(.success(()))
+                queue.performOnWrappedOrCurrentQueue {
+                    completionHandler(.success(()))
+                }
             } else {
-                completionHandler(.failure(.notStarted))
+                queue.performOnWrappedOrCurrentQueue {
+                    completionHandler(.failure(.notStarted))
+                }
             }
         }
     }
 
-    func setConfiguration(_ newConfiguration: WireguardConfiguration, completionHandler: @escaping (Result<(), Error>) -> Void) {
+    func setConfiguration(_ newConfiguration: WireguardConfiguration, queue: DispatchQueue?, completionHandler: @escaping (Result<(), Error>) -> Void) {
         workQueue.async {
             if self.isStarted {
                 if let handle = self.wireguardHandle {
@@ -196,9 +206,13 @@ class WireguardDevice {
 
                 self.configuration = newConfiguration
 
-                completionHandler(.success(()))
+                queue.performOnWrappedOrCurrentQueue {
+                    completionHandler(.success(()))
+                }
             } else {
-                completionHandler(.failure(.notStarted))
+                queue.performOnWrappedOrCurrentQueue {
+                    completionHandler(.failure(.notStarted))
+                }
             }
         }
     }
