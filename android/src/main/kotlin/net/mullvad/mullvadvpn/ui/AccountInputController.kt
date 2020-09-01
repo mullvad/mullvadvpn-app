@@ -18,18 +18,16 @@ class AccountInputController(val parentView: View, context: Context) {
         }
     }
 
-    private var usingErrorColor by observable(false) { _, _, _ ->
-        updateBorder()
-    }
-
     var state: LoginState by observable(LoginState.Initial) { _, _, newState ->
         input.loginState = newState
+
+        updateBorder()
 
         when (newState) {
             LoginState.Initial -> {}
             LoginState.InProgress -> loggingInState()
             LoginState.Success -> successState()
-            LoginState.Failure -> failureState()
+            LoginState.Failure -> {}
         }
     }
 
@@ -42,7 +40,9 @@ class AccountInputController(val parentView: View, context: Context) {
         }
 
         onTextChanged.subscribe(this) { _ ->
-            leaveErrorState()
+            if (state == LoginState.Failure) {
+                state = LoginState.Initial
+            }
         }
     }
 
@@ -79,10 +79,6 @@ class AccountInputController(val parentView: View, context: Context) {
         container.visibility = View.INVISIBLE
     }
 
-    private fun failureState() {
-        usingErrorColor = true
-    }
-
     private fun updateAccountHistory() {
         accountHistory?.let { history ->
             accountHistoryList.apply {
@@ -110,19 +106,12 @@ class AccountInputController(val parentView: View, context: Context) {
     }
 
     private fun updateBorder() {
-        if (usingErrorColor) {
+        if (state == LoginState.Failure) {
             container.borderState = BorderState.ERROR
         } else if (inputHasFocus) {
             container.borderState = BorderState.FOCUSED
         } else {
             container.borderState = BorderState.UNFOCUSED
-        }
-    }
-
-    private fun leaveErrorState() {
-        if (usingErrorColor) {
-            input.loginState = LoginState.Initial
-            usingErrorColor = false
         }
     }
 }
