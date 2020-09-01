@@ -7,12 +7,14 @@ import android.text.style.MetricAffectingSpan
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnFocusChangeListener
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.LoginState
+import net.mullvad.talpid.util.EventNotifier
 
 const val MIN_ACCOUNT_TOKEN_LENGTH = 10
 
@@ -41,6 +43,10 @@ class AccountInput : LinearLayout {
 
     private val input = container.findViewById<TextView>(R.id.login_input).apply {
         addTextChangedListener(inputWatcher)
+
+        onFocusChangeListener = OnFocusChangeListener { view, inputHasFocus ->
+            hasFocus = inputHasFocus && view.isEnabled
+        }
     }
 
     private val button = container.findViewById<ImageButton>(R.id.login_button).apply {
@@ -48,6 +54,9 @@ class AccountInput : LinearLayout {
             onLogin?.invoke(input.text.toString())
         }
     }
+
+    val onFocusChanged = EventNotifier(false)
+    private var hasFocus by onFocusChanged.notifiable()
 
     var loginState by observable(LoginState.Initial) { _, _, state ->
         when (state) {
@@ -90,6 +99,7 @@ class AccountInput : LinearLayout {
         input.apply {
             setTextColor(enabledTextColor)
             setEnabled(true)
+            setFocusableInTouchMode(true)
             visibility = View.VISIBLE
         }
 
@@ -101,8 +111,8 @@ class AccountInput : LinearLayout {
         input.apply {
             setTextColor(disabledTextColor)
             setEnabled(false)
+            setFocusable(false)
             visibility = View.VISIBLE
-            clearFocus()
         }
 
         button.visibility = View.GONE
@@ -121,10 +131,11 @@ class AccountInput : LinearLayout {
         setButtonEnabled(false)
 
         input.apply {
-            findFocus()
             setTextColor(errorTextColor)
             setEnabled(true)
+            setFocusableInTouchMode(true)
             visibility = View.VISIBLE
+            requestFocus()
         }
     }
 
