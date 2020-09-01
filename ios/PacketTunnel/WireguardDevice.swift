@@ -136,6 +136,7 @@ class WireguardDevice {
 
     deinit {
         networkMonitor?.cancel()
+        stopWireguardBackend()
     }
 
     // MARK: - Public methods
@@ -326,42 +327,42 @@ class WireguardDevice {
         networkMonitor.start(queue: workQueue)
         self.networkMonitor = networkMonitor
     }
-    
+
     private func didReceiveNetworkPathUpdate(path: Network.NWPath) {
         guard self.isStarted else { return }
-        
+
         self.logger.info("Network change detected. Status: \(path.status), interfaces \(path.availableInterfaces).")
-        
+
         let oldPathSatisfied = self.isPathSatisfied
         let newPathSatisfied = path.status.isSatisfiable
-        
+
         self.isPathSatisfied = newPathSatisfied
-        
+
         switch (oldPathSatisfied, newPathSatisfied)  {
         case (true, false):
             self.logger.info("Stop wireguard backend")
             self.stopWireguardBackend()
-            
+
         case (false, true), (true, true):
             guard let currentConfiguration = self.configuration else { return }
-            
+
             self.logger.info("Re-resolve endpoints")
-            
+
             let resolvedConfiguration = self.resolveConfiguration(currentConfiguration)
-            
+
             if let handle = self.wireguardHandle {
                 let commands = resolvedConfiguration.endpointUapiConfiguration()
                 Self.setWireguardConfig(handle: handle, commands: commands)
-                
+
                 wgBumpSockets(handle)
             } else {
                 self.logger.info("Start wireguard backend")
-                
+
                 if case .failure(let error) = self.startWireguardBackend(resolvedConfiguration: resolvedConfiguration) {
                     self.logger.error(chainedError: error, message: "Failed to turn on WireGuard")
                 }
             }
-            
+
         case (false, false):
             // No-op: device remains offline
             break

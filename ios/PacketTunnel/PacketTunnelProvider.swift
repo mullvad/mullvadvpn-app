@@ -11,98 +11,6 @@ import Network
 import NetworkExtension
 import Logging
 
-enum PacketTunnelProviderError: ChainedError {
-    /// Failure to read the relay cache
-    case readRelayCache(RelayCacheError)
-
-    /// Failure to satisfy the relay constraint
-    case noRelaySatisfyingConstraint
-
-    /// Missing the persistent keychain reference to the tunnel settings
-    case missingKeychainConfigurationReference
-
-    /// Failure to read the tunnel settings from Keychain
-    case cannotReadTunnelSettings(TunnelSettingsManager.Error)
-
-    /// Failure to set network settings
-    case setNetworkSettings(Error)
-
-    /// Failure to start the Wireguard backend
-    case startWireguardDevice(WireguardDevice.Error)
-
-    /// Failure to stop the Wireguard backend
-    case stopWireguardDevice(WireguardDevice.Error)
-
-    /// Failure to update the Wireguard configuration
-    case updateWireguardConfiguration(Error)
-
-    /// IPC handler failure
-    case ipcHandler(PacketTunnelIpcHandler.Error)
-
-    var errorDescription: String? {
-        switch self {
-        case .readRelayCache:
-            return "Failure to read the relay cache"
-
-        case .noRelaySatisfyingConstraint:
-            return "No relay satisfying the given constraint"
-
-        case .missingKeychainConfigurationReference:
-            return "Invalid protocol configuration"
-
-        case .cannotReadTunnelSettings:
-            return "Failure to read tunnel settings"
-
-        case .setNetworkSettings:
-            return "Failure to set system network settings"
-
-        case .startWireguardDevice:
-            return "Failure to start the WireGuard device"
-
-        case .stopWireguardDevice:
-            return "Failure to stop the WireGuard device"
-
-        case .updateWireguardConfiguration:
-            return "Failure to update the Wireguard configuration"
-
-        case .ipcHandler:
-            return "Failure to handle the IPC request"
-        }
-    }
-}
-
-struct PacketTunnelConfiguration {
-    var persistentKeychainReference: Data
-    var tunnelSettings: TunnelSettings
-    var selectorResult: RelaySelectorResult
-}
-
-extension PacketTunnelConfiguration {
-    var wireguardConfig: WireguardConfiguration {
-        let mullvadEndpoint = selectorResult.endpoint
-        var peers: [AnyIPEndpoint] = [.ipv4(mullvadEndpoint.ipv4Relay)]
-
-        if let ipv6Relay = mullvadEndpoint.ipv6Relay {
-            peers.append(.ipv6(ipv6Relay))
-        }
-
-        let wireguardPeers = peers.map {
-            WireguardPeer(
-                endpoint: $0,
-                publicKey: selectorResult.endpoint.publicKey)
-        }
-
-        return WireguardConfiguration(
-            privateKey: tunnelSettings.interface.privateKey,
-            peers: wireguardPeers,
-            allowedIPs: [
-                IPAddressRange(address: IPv4Address.any, networkPrefixLength: 0),
-                IPAddressRange(address: IPv6Address.any, networkPrefixLength: 0)
-            ]
-        )
-    }
-}
-
 class PacketTunnelProvider: NEPacketTunnelProvider {
 
     enum OperationCategory {
@@ -112,11 +20,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     /// Tunnel provider logger
     private let logger: Logger
 
-    /// Active wireguard device
-    private var wireguardDevice: WireguardDevice?
-
-    /// Active tunnel connection information
-    private var connectionInfo: TunnelConnectionInfo?
+    /// Current tunnel state
+    private var tunnelState: PacketTunnelState = .disconnected {
+        didSet {
+            logger.info("New tunnel state: \(String(reflecting: self.tunnelState))")
+        }
+    }
 
     /// Internal queue
     private let dispatchQueue = DispatchQueue(label: "net.mullvad.MullvadVPN.PacketTunnel", qos: .utility)
@@ -130,8 +39,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     private lazy var exclusivityController: ExclusivityController<OperationCategory> = {
         return ExclusivityController(operationQueue: self.operationQueue)
     }()
-
-    private var keyRotationManager: AutomaticKeyRotationManager?
 
     override init() {
         initLoggingSystem(bundleIdentifier: Bundle.main.bundleIdentifier!)
@@ -198,7 +105,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                     }
 
                 case .tunnelInformation:
-                    self.replyAppMessage(.success(self.connectionInfo), completionHandler: completionHandler)
+                    self.replyAppMessage(.success(self.tunnelState.tunnelConnectionInfo), completionHandler: completionHandler)
                 }
 
             case .failure(let error):
@@ -219,14 +126,22 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     // MARK: - Tunnel management
 
     private func doStartTunnel(completionHandler: @escaping (Result<(), PacketTunnelProviderError>) -> Void) {
+        self.tunnelState = .connecting(nil)
+
         makePacketTunnelConfig { (result) in
             guard case .success(let packetTunnelConfig) = result else {
+                self.tunnelState = .disconnected
+
                 completionHandler(result.map { _ in () })
                 return
             }
 
+            self.tunnelState = .connecting(packetTunnelConfig.selectorResult.tunnelConnectionInfo)
+
             self.updateNetworkSettings(packetTunnelConfig: packetTunnelConfig) { (result) in
                 guard case .success = result else {
+                    self.tunnelState = .disconnected
+
                     completionHandler(result)
                     return
                 }
@@ -234,6 +149,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 self.startWireguardDevice(packetFlow: self.packetFlow, configuration: packetTunnelConfig.wireguardConfig) { (result) in
                     self.dispatchQueue.async {
                         guard case .success(let device) = result else {
+                            self.tunnelState = .disconnected
+
                             completionHandler(result.map { _ in () })
                             return
                         }
@@ -254,12 +171,16 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                             }
                         }
 
-                        self.wireguardDevice = device
-                        self.keyRotationManager = keyRotationManager
-
                         RelayCache.shared.startPeriodicUpdates {
                             keyRotationManager.startAutomaticRotation {
                                 self.dispatchQueue.async {
+                                    let context = PacketTunnelContext(
+                                        wireguardDevice: device,
+                                        keyRotationManager: keyRotationManager
+                                    )
+
+                                    self.tunnelState = .connected(packetTunnelConfig.selectorResult.tunnelConnectionInfo, context)
+
                                     completionHandler(.success(()))
                                 }
                             }
@@ -271,22 +192,24 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private func doStopTunnel(completionHandler: @escaping (Result<(), PacketTunnelProviderError>) -> Void) {
-        guard let device = self.wireguardDevice, let keyRotationManager = self.keyRotationManager
-            else {
-                completionHandler(.success(()))
-                return
+        guard let context = self.tunnelState.context else {
+            logger.warning("Cannot stop the tunnel in such state: \(self.tunnelState)")
+            completionHandler(.failure(.invalidTunnelState))
+            return
         }
 
-        RelayCache.shared.stopPeriodicUpdates {
-            keyRotationManager.stopAutomaticRotation {
-                device.stop { (result) in
-                    self.dispatchQueue.async {
-                        self.wireguardDevice = nil
-                        self.keyRotationManager = nil
+        self.tunnelState = .disconnecting
 
+        RelayCache.shared.stopPeriodicUpdates {
+            context.keyRotationManager.stopAutomaticRotation {
+                context.wireguardDevice.stop { (result) in
+                    self.dispatchQueue.async {
                         let result = result.mapError({ (error) -> PacketTunnelProviderError in
                             return .stopWireguardDevice(error)
                         })
+
+                        self.tunnelState = .disconnected
+
                         completionHandler(result)
                     }
                 }
@@ -295,25 +218,38 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private func doReloadTunnelSettings(completionHandler: @escaping (Result<(), PacketTunnelProviderError>) -> Void) {
-        guard let device = self.wireguardDevice else {
-            logger.warning("Ignore reloading tunnel settings. The WireguardDevice is not set yet.")
-
-            completionHandler(.success(()))
+        guard let context = self.tunnelState.context else {
+            logger.warning("Cannot reload tunnel settings in such state: \(self.tunnelState)")
+            completionHandler(.failure(.invalidTunnelState))
             return
         }
 
         logger.info("Reload tunnel settings")
 
+        let priorTunnelState = self.tunnelState
+        self.tunnelState = .reconnecting(nil, context)
+
         makePacketTunnelConfig { (result) in
             guard case .success(let packetTunnelConfig) = result else {
+                self.tunnelState = priorTunnelState
+
                 completionHandler(result.map { _ in () })
                 return
             }
+
+            self.tunnelState = .reconnecting(packetTunnelConfig.selectorResult.tunnelConnectionInfo, context)
 
             // Tell the system that the tunnel is about to reconnect with the new endpoint
             self.reasserting = true
 
             let finishReconnecting = { (result: Result<(), PacketTunnelProviderError>) in
+                switch result {
+                case .success:
+                    self.tunnelState = .connected(packetTunnelConfig.selectorResult.tunnelConnectionInfo, context)
+                case .failure:
+                    self.tunnelState = priorTunnelState
+                }
+
                 // Tell the system that the tunnel has finished reconnecting
                 self.reasserting = false
 
@@ -326,7 +262,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                     return
                 }
 
-                device.setConfiguration(packetTunnelConfig.wireguardConfig) { (result) in
+                context.wireguardDevice.setConfiguration(packetTunnelConfig.wireguardConfig) { (result) in
                     self.dispatchQueue.async {
                         finishReconnecting(result.mapError { PacketTunnelProviderError.updateWireguardConfiguration($0) })
                     }
@@ -355,17 +291,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
 
-    private func setTunnelConnectionInfo(selectorResult: RelaySelectorResult) {
-        self.connectionInfo = TunnelConnectionInfo(
-            ipv4Relay: selectorResult.endpoint.ipv4Relay,
-            ipv6Relay: selectorResult.endpoint.ipv6Relay,
-            hostname: selectorResult.relay.hostname,
-            location: selectorResult.location
-        )
-
-        logger.info("Tunnel connection info: \(selectorResult.relay.hostname)")
-    }
-
     private func makePacketTunnelConfig(completionHandler: @escaping (Result<PacketTunnelConfiguration, PacketTunnelProviderError>) -> Void) {
         guard let keychainReference = protocolConfiguration.passwordReference else {
             completionHandler(.failure(.missingKeychainConfigurationReference))
@@ -374,13 +299,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
         Self.makePacketTunnelConfig(keychainReference: keychainReference) { (result) in
             self.dispatchQueue.async {
-                guard case .success(let packetTunnelConfig) = result else {
-                    completionHandler(result)
-                    return
-                }
-
-                self.setTunnelConnectionInfo(selectorResult: packetTunnelConfig.selectorResult)
-
                 completionHandler(result)
             }
         }
@@ -410,14 +328,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private func reloadTunnelSettings(completionHandler: @escaping (Result<(), PacketTunnelProviderError>) -> Void) {
-        let operation = ResultOperation<(), PacketTunnelProviderError> { (finish) in
+        let operation = AsyncBlockOperation { (finish) in
             self.doReloadTunnelSettings { (result) in
-                finish(result)
+                completionHandler(result)
+                finish()
             }
-        }
-
-        operation.addDidFinishBlockObserver(queue: dispatchQueue) { (operation, result) in
-            completionHandler(result)
         }
 
         exclusivityController.addOperation(operation, categories: [.exclusive])
@@ -490,3 +405,202 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
         }
     }
 }
+
+enum PacketTunnelProviderError: ChainedError {
+    /// Failure to perform operation in such state
+    case invalidTunnelState
+
+    /// Failure to read the relay cache
+    case readRelayCache(RelayCacheError)
+
+    /// Failure to satisfy the relay constraint
+    case noRelaySatisfyingConstraint
+
+    /// Missing the persistent keychain reference to the tunnel settings
+    case missingKeychainConfigurationReference
+
+    /// Failure to read the tunnel settings from Keychain
+    case cannotReadTunnelSettings(TunnelSettingsManager.Error)
+
+    /// Failure to set network settings
+    case setNetworkSettings(Error)
+
+    /// Failure to start the Wireguard backend
+    case startWireguardDevice(WireguardDevice.Error)
+
+    /// Failure to stop the Wireguard backend
+    case stopWireguardDevice(WireguardDevice.Error)
+
+    /// Failure to update the Wireguard configuration
+    case updateWireguardConfiguration(Error)
+
+    /// IPC handler failure
+    case ipcHandler(PacketTunnelIpcHandler.Error)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidTunnelState:
+            return "Failure to handle request in such tunnel state"
+
+        case .readRelayCache:
+            return "Failure to read the relay cache"
+
+        case .noRelaySatisfyingConstraint:
+            return "No relay satisfying the given constraint"
+
+        case .missingKeychainConfigurationReference:
+            return "Keychain configuration reference is not set on protocol configuration"
+
+        case .cannotReadTunnelSettings:
+            return "Failure to read tunnel settings"
+
+        case .setNetworkSettings:
+            return "Failure to set system network settings"
+
+        case .startWireguardDevice:
+            return "Failure to start the WireGuard device"
+
+        case .stopWireguardDevice:
+            return "Failure to stop the WireGuard device"
+
+        case .updateWireguardConfiguration:
+            return "Failure to update the Wireguard configuration"
+
+        case .ipcHandler:
+            return "Failure to handle the IPC request"
+        }
+    }
+}
+
+struct PacketTunnelConfiguration {
+    var persistentKeychainReference: Data
+    var tunnelSettings: TunnelSettings
+    var selectorResult: RelaySelectorResult
+}
+
+extension PacketTunnelConfiguration {
+    var wireguardConfig: WireguardConfiguration {
+        let mullvadEndpoint = selectorResult.endpoint
+        var peers: [AnyIPEndpoint] = [.ipv4(mullvadEndpoint.ipv4Relay)]
+
+        if let ipv6Relay = mullvadEndpoint.ipv6Relay {
+            peers.append(.ipv6(ipv6Relay))
+        }
+
+        let wireguardPeers = peers.map {
+            WireguardPeer(
+                endpoint: $0,
+                publicKey: selectorResult.endpoint.publicKey)
+        }
+
+        return WireguardConfiguration(
+            privateKey: tunnelSettings.interface.privateKey,
+            peers: wireguardPeers,
+            allowedIPs: [
+                IPAddressRange(address: IPv4Address.any, networkPrefixLength: 0),
+                IPAddressRange(address: IPv6Address.any, networkPrefixLength: 0)
+            ]
+        )
+    }
+}
+
+struct PacketTunnelContext {
+    let wireguardDevice: WireguardDevice
+    let keyRotationManager: AutomaticKeyRotationManager
+}
+
+enum PacketTunnelState {
+    case connecting(TunnelConnectionInfo?)
+    case connected(TunnelConnectionInfo, PacketTunnelContext)
+    case disconnecting
+    case disconnected
+    case reconnecting(TunnelConnectionInfo?, PacketTunnelContext)
+
+    var tunnelConnectionInfo: TunnelConnectionInfo? {
+        switch self {
+        case .connecting(let connectionInfo):
+            return connectionInfo
+        case .connected(let connectionInfo, _):
+            return connectionInfo
+        case .disconnecting:
+            return nil
+        case .disconnected:
+            return nil
+        case .reconnecting(let connectionInfo, _):
+            return connectionInfo
+        }
+    }
+
+    var context: PacketTunnelContext? {
+        switch self {
+        case .connecting:
+            return nil
+        case .connected(_, let context):
+            return context
+        case .disconnecting:
+            return nil
+        case .disconnected:
+            return nil
+        case .reconnecting(_, let context):
+            return context
+        }
+    }
+}
+
+extension PacketTunnelState: CustomStringConvertible, CustomDebugStringConvertible {
+    var description: String {
+        switch self {
+        case .connecting:
+            return "connecting"
+        case .connected:
+            return "connected"
+        case .disconnecting:
+            return "disconnecting"
+        case .disconnected:
+            return "disconnected"
+        case .reconnecting:
+            return "reconnecting"
+        }
+    }
+
+    var debugDescription: String {
+        var output = "PacketTunnelState."
+
+        switch self {
+        case .connecting(let connectionInfo):
+            output.append("connecting(")
+            output.append(String(reflecting: connectionInfo))
+            output.append(")")
+
+        case .connected(let connectionInfo, _):
+            output.append("connected(")
+            output.append(String(reflecting: connectionInfo))
+            output.append(")")
+
+        case .disconnecting:
+            output.append("disconnecting")
+
+        case .disconnected:
+            output.append("disconnected")
+
+        case .reconnecting(let connectionInfo, _):
+            output.append("reconnecting(")
+            output.append(String(reflecting: connectionInfo))
+            output.append(")")
+        }
+
+        return output
+    }
+}
+
+extension RelaySelectorResult {
+    var tunnelConnectionInfo: TunnelConnectionInfo {
+        return TunnelConnectionInfo(
+            ipv4Relay: self.endpoint.ipv4Relay,
+            ipv6Relay: self.endpoint.ipv6Relay,
+            hostname: self.relay.hostname,
+            location: self.location
+        )
+    }
+}
+
