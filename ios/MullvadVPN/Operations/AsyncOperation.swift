@@ -11,8 +11,15 @@ import Foundation
 /// A base implementation of an asynchronous operation
 class AsyncOperation: Operation, OperationProtocol {
 
+    /// A state transaction lock used to perform critical sections of code within `start`, `cancel`
+    /// and `finish` calls.
+    fileprivate let transactionLock = NSRecursiveLock()
+
     /// A state lock used for manipulating the operation state flags in a thread safe fashion.
     fileprivate let stateLock = NSRecursiveLock()
+
+    /// The operation observers.
+    fileprivate var observers: [AnyOperationObserver<AsyncOperation>] = []
 
     /// Operation state flags.
     private var _isExecuting = false
@@ -36,8 +43,8 @@ class AsyncOperation: Operation, OperationProtocol {
     }
 
     final override func start() {
-        stateLock.withCriticalBlock {
-            if self._isCancelled {
+        transactionLock.withCriticalBlock {
+            if self.isCancelled {
                 self.finish()
             } else {
                 self.setExecuting(true)
@@ -53,11 +60,17 @@ class AsyncOperation: Operation, OperationProtocol {
     /// Cancel operation
     /// Subclasses should override `operationDidCancel` instead
     final override func cancel() {
-        stateLock.withCriticalBlock {
-            if !self._isCancelled {
+        transactionLock.withCriticalBlock {
+            if self.isCancelled {
+                super.cancel()
+            } else {
                 self.setCancelled(true)
 
-                if self._isExecuting {
+                super.cancel()
+
+                // Only notify the operation about cancellation when it is already running,
+                // otherwise the call to `start` should automatically `finish()` the operation.
+                if self.isExecuting {
                     self.operationDidCancel()
                 }
             }
@@ -71,17 +84,20 @@ class AsyncOperation: Operation, OperationProtocol {
     }
 
     final func finish() {
-        stateLock.withCriticalBlock {
-            if !self._isFinished {
+        transactionLock.withCriticalBlock {
+            guard !self.isFinished else { return }
+
+            self.stateLock.withCriticalBlock {
                 self.observers.forEach { $0.operationWillFinish(self) }
             }
 
-            if self._isExecuting {
+            if self.isExecuting {
                 self.setExecuting(false)
             }
 
-            if !self._isFinished {
-                self.setFinished(true)
+            self.setFinished(true)
+
+            self.stateLock.withCriticalBlock {
                 self.observers.forEach { $0.operationDidFinish(self) }
             }
         }
@@ -89,26 +105,23 @@ class AsyncOperation: Operation, OperationProtocol {
 
     private func setExecuting(_ value: Bool) {
         willChangeValue(for: \.isExecuting)
-        _isExecuting = value
+        stateLock.withCriticalBlock { _isExecuting = value }
         didChangeValue(for: \.isExecuting)
     }
 
     private func setFinished(_ value: Bool) {
         willChangeValue(for: \.isFinished)
-        _isFinished = value
+        stateLock.withCriticalBlock { _isFinished = value }
         didChangeValue(for: \.isFinished)
     }
 
     private func setCancelled(_ value: Bool) {
         willChangeValue(for: \.isCancelled)
-        _isCancelled = value
+        stateLock.withCriticalBlock { _isCancelled = value }
         didChangeValue(for: \.isCancelled)
     }
 
     // MARK: - Observation
-
-    /// The operation observers.
-    fileprivate var observers: [AnyOperationObserver<AsyncOperation>] = []
 
     /// Add type-erased operation observer
     fileprivate func addAnyObserver(_ observer: AnyOperationObserver<AsyncOperation>) {
