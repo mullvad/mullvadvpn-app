@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
-import android.widget.TextView
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.AccountInputContainer.BorderState
@@ -24,7 +23,7 @@ class AccountInputController(val parentView: View, context: Context) {
     }
 
     var state: LoginState by observable(LoginState.Initial) { _, _, newState ->
-        newInput.loginState = newState
+        input.loginState = newState
 
         when (newState) {
             LoginState.Initial -> {}
@@ -35,10 +34,9 @@ class AccountInputController(val parentView: View, context: Context) {
     }
 
     val container: AccountInputContainer = parentView.findViewById(R.id.account_input_container)
-    val input: TextView = parentView.findViewById(R.id.login_input)
     val accountHistoryList: ListView = parentView.findViewById(R.id.account_history_list)
 
-    val newInput = parentView.findViewById<AccountInput>(R.id.account_input).apply {
+    val input = parentView.findViewById<AccountInput>(R.id.account_input).apply {
         onFocusChanged.subscribe(this) { hasFocus ->
             inputHasFocus = hasFocus
         }
@@ -65,12 +63,12 @@ class AccountInputController(val parentView: View, context: Context) {
         }
 
     var onLogin: ((String) -> Unit)?
-        get() = newInput.onLogin
-        set(value) { newInput.onLogin = value }
+        get() = input.onLogin
+        set(value) { input.onLogin = value }
 
     fun onDestroy() {
-        newInput.onFocusChanged.unsubscribe(this)
-        newInput.onTextChanged.unsubscribe(this)
+        input.onFocusChanged.unsubscribe(this)
+        input.onTextChanged.unsubscribe(this)
     }
 
     private fun loggingInState() {
@@ -98,7 +96,7 @@ class AccountInputController(val parentView: View, context: Context) {
                 )
 
                 setOnItemClickListener { _, _, idx, _ ->
-                    newInput.loginWith(history[idx])
+                    input.loginWith(history[idx])
                     accountHistoryList.visibility = View.GONE
                 }
             }
@@ -123,7 +121,7 @@ class AccountInputController(val parentView: View, context: Context) {
 
     private fun leaveErrorState() {
         if (usingErrorColor) {
-            newInput.loginState = LoginState.Initial
+            input.loginState = LoginState.Initial
             usingErrorColor = false
         }
     }
