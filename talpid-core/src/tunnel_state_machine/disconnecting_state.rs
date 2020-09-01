@@ -125,7 +125,7 @@ impl DisconnectingState {
         }
 
         match self.after_disconnect {
-            AfterDisconnect::Nothing => DisconnectedState::enter(shared_values, ()),
+            AfterDisconnect::Nothing => DisconnectedState::enter(shared_values, true),
             AfterDisconnect::Block(cause) => ErrorState::enter(shared_values, cause),
             AfterDisconnect::Reconnect(retry_attempt) => {
                 ConnectingState::enter(shared_values, retry_attempt)
