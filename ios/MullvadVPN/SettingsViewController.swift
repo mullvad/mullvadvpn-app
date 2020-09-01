@@ -11,6 +11,7 @@ import UIKit
 
 enum SettingsNavigationRoute {
     case account
+    case wireguardKeys
 }
 
 class SettingsViewController: UITableViewController {
@@ -56,6 +57,11 @@ class SettingsViewController: UITableViewController {
             self.performSegue(
                 withIdentifier: SegueIdentifier.Settings.showAccount.rawValue,
                 sender: nil)
+
+        case .wireguardKeys:
+            let controller = WireguardKeysViewController()
+
+            navigationController?.pushViewController(controller, animated: true)
         }
     }
 
@@ -78,9 +84,7 @@ class SettingsViewController: UITableViewController {
             }
 
             wireguardKeyRow.actionBlock = { [weak self] (indexPath) in
-                let controller = WireguardKeysViewController()
-
-                self?.navigationController?.pushViewController(controller, animated: true)
+                self?.navigate(to: .wireguardKeys)
             }
 
             self.accountRow = accountRow
