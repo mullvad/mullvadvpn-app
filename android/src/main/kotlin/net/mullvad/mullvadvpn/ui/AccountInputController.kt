@@ -1,8 +1,6 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
@@ -44,6 +42,10 @@ class AccountInputController(val parentView: View, context: Context) {
         onFocusChanged.subscribe(this) { hasFocus ->
             inputHasFocus = hasFocus
         }
+
+        onTextChanged.subscribe(this) { _ ->
+            leaveErrorState()
+        }
     }
 
     var accountHistory: ArrayList<String>? = null
@@ -66,14 +68,9 @@ class AccountInputController(val parentView: View, context: Context) {
         get() = newInput.onLogin
         set(value) { newInput.onLogin = value }
 
-    init {
-        input.apply {
-            addTextChangedListener(InputWatcher())
-        }
-    }
-
     fun onDestroy() {
         newInput.onFocusChanged.unsubscribe(this)
+        newInput.onTextChanged.unsubscribe(this)
     }
 
     private fun loggingInState() {
@@ -128,16 +125,6 @@ class AccountInputController(val parentView: View, context: Context) {
         if (usingErrorColor) {
             newInput.loginState = LoginState.Initial
             usingErrorColor = false
-        }
-    }
-
-    inner class InputWatcher : TextWatcher {
-        override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {}
-
-        override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {}
-
-        override fun afterTextChanged(text: Editable) {
-            leaveErrorState()
         }
     }
 }
