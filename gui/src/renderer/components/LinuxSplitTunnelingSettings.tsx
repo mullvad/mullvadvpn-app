@@ -220,7 +220,7 @@ function ApplicationRow(props: IApplicationRowProps) {
     ? sprintf(
         messages.pgettext(
           'split-tunneling-view',
-          '%(applicationName)s is problematic and cannot be excluded from the VPN tunnel.',
+          '%(applicationName)s is problematic and can’t be excluded from the VPN tunnel.',
         ),
         {
           applicationName: props.application.name,
@@ -229,7 +229,7 @@ function ApplicationRow(props: IApplicationRowProps) {
     : sprintf(
         messages.pgettext(
           'split-tunneling-view',
-          '%(applicationName)s is problematic and might not be excluded from the VPN tunnel. Try closing all existing instances of %(applicationName)s before starting it from here.',
+          'If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel.',
         ),
         {
           applicationName: props.application.name,
