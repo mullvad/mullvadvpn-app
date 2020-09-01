@@ -72,7 +72,7 @@ async fn reset_firewall() -> Result<(), Error> {
 
     let mut firewall = Firewall::new(FirewallArguments {
         initialize_blocked: false,
-        allow_lan: None,
+        allow_lan: true,
     })
     .map_err(Error::FirewallError)?;
 
