@@ -92,8 +92,8 @@ impl From<Result<VoucherSubmission, daemon_interface::Error>> for VoucherSubmiss
             Ok(submission) => VoucherSubmissionResult::Ok(submission),
             Err(daemon_interface::Error::RpcError(RestError::ApiError(_, code))) => {
                 match code.as_str() {
-                    "INVALID_VOUCHER" => VoucherSubmissionResult::InvalidVoucher,
-                    "VOUCHER_USED" => VoucherSubmissionResult::VoucherAlreadyUsed,
+                    mullvad_rpc::INVALID_VOUCHER => VoucherSubmissionResult::InvalidVoucher,
+                    mullvad_rpc::VOUCHER_USED => VoucherSubmissionResult::VoucherAlreadyUsed,
                     _ => VoucherSubmissionResult::RpcError,
                 }
             }

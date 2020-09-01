@@ -29,6 +29,11 @@ mod relay_list;
 pub use hyper::StatusCode;
 pub use relay_list::RelayListProxy;
 
+/// Error code returned by the Mullvad API if the voucher has alreaby been used.
+pub const VOUCHER_USED: &str = "VOUCHER_USED";
+
+/// Error code returned by the Mullvad API if the voucher code is invalid.
+pub const INVALID_VOUCHER: &str = "INVALID_VOUCHER";
 
 const API_HOST: &str = "api.mullvad.net";
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
@@ -124,9 +129,6 @@ struct AccountResponse {
     token: AccountToken,
     expires: DateTime<Utc>,
 }
-pub const VOUCHER_USED: &str = "VOUCHER_USED";
-pub const INVALID_VOUCHER: &str = "INVALID_VOUCHER";
-pub const MISSING_ARGUMENT: &str = "MISSING_ARGUMENT";
 
 impl AccountsProxy {
     pub fn new(handle: rest::MullvadRestHandle) -> Self {
