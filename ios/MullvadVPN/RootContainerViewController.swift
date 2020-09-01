@@ -151,6 +151,12 @@ class RootContainerViewController: UIViewController {
         setViewControllersInternal(newViewControllers, isUnwinding: false, animated: animated)
     }
 
+    func popToRootViewController(animated: Bool) {
+        if let rootController = self.viewControllers.first, self.viewControllers.count > 1 {
+            setViewControllersInternal([rootController], isUnwinding: true, animated: animated)
+        }
+    }
+
     /// Request the root container to query the top controller for the new header bar style
     func updateHeaderBarAppearance() {
         updateHeaderBarStyleFromChildPreferences(animated: UIView.areAnimationsEnabled)
