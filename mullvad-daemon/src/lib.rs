@@ -57,6 +57,7 @@ use std::{
 #[cfg(target_os = "linux")]
 use talpid_core::split_tunnel;
 use talpid_core::{
+    firewall::FirewallArguments,
     mpsc::Sender,
     tunnel_state_machine::{self, TunnelCommand, TunnelParametersGenerator},
 };
@@ -558,9 +559,26 @@ where
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
             tx: internal_event_tx.clone(),
         };
+
+
+        let initialize_blocked = cached_target_state
+            .map(|state| state.is_secured())
+            .unwrap_or(settings.block_when_disconnected);
+
+        let firewall_args = FirewallArguments {
+            initialize_blocked,
+            // only allow lan if internet shouldn't be blocked when disconnected
+            allow_lan: if !settings.block_when_disconnected {
+                Some(settings.allow_lan)
+            } else {
+                None
+            },
+        };
+
         let tunnel_command_tx = tunnel_state_machine::spawn(
             settings.allow_lan,
             settings.block_when_disconnected,
+            firewall_args,
             tunnel_parameters_generator,
             log_dir,
             resource_dir,
