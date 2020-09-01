@@ -3,9 +3,7 @@ package net.mullvad.mullvadvpn.ui
 import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnTouchListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.TextView
@@ -42,7 +40,11 @@ class AccountInputController(val parentView: View, context: Context) {
     val input: TextView = parentView.findViewById(R.id.login_input)
     val accountHistoryList: ListView = parentView.findViewById(R.id.account_history_list)
 
-    val newInput = parentView.findViewById<AccountInput>(R.id.account_input)
+    val newInput = parentView.findViewById<AccountInput>(R.id.account_input).apply {
+        onFocusChanged.subscribe(this) { hasFocus ->
+            inputHasFocus = hasFocus
+        }
+    }
 
     var accountHistory: ArrayList<String>? = null
         set(value) {
@@ -67,18 +69,13 @@ class AccountInputController(val parentView: View, context: Context) {
     init {
         input.apply {
             addTextChangedListener(InputWatcher())
-            setOnTouchListener(
-                OnTouchListener {
-                    _, event ->
-                    if (MotionEvent.ACTION_UP == event.getAction()) {
-                        shouldShowAccountHistory = true
-                    }
-                    false
-                }
-            )
         }
 
         container.setOnClickListener { shouldShowAccountHistory = true }
+    }
+
+    fun onDestroy() {
+        newInput.onFocusChanged.unsubscribe(this)
     }
 
     private fun loggingInState() {
@@ -142,7 +139,6 @@ class AccountInputController(val parentView: View, context: Context) {
         override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {}
 
         override fun afterTextChanged(text: Editable) {
-            inputHasFocus = true
             leaveErrorState()
         }
     }
