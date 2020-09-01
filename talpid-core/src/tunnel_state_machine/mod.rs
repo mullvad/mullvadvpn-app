@@ -78,6 +78,7 @@ pub enum Error {
 pub async fn spawn(
     allow_lan: bool,
     block_when_disconnected: bool,
+    firewall_arguments: FirewallArguments,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
@@ -119,6 +120,7 @@ pub async fn spawn(
         let state_machine = TunnelStateMachine::new(
             allow_lan,
             block_when_disconnected,
+            firewall_arguments,
             is_offline,
             tunnel_parameters_generator,
             tun_provider,
@@ -193,6 +195,7 @@ impl TunnelStateMachine {
     fn new(
         allow_lan: bool,
         block_when_disconnected: bool,
+        firewall_args: FirewallArguments,
         is_offline: bool,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
         tun_provider: TunProvider,
@@ -201,19 +204,7 @@ impl TunnelStateMachine {
         cache_dir: impl AsRef<Path>,
         commands: old_mpsc::UnboundedReceiver<TunnelCommand>,
     ) -> Result<Self, Error> {
-        let args = if block_when_disconnected {
-            FirewallArguments {
-                initialize_blocked: true,
-                allow_lan: Some(allow_lan),
-            }
-        } else {
-            FirewallArguments {
-                initialize_blocked: false,
-                allow_lan: None,
-            }
-        };
-
-        let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
+        let firewall = Firewall::new(firewall_args).map_err(Error::InitFirewallError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
         let route_manager =
             RouteManager::new(HashSet::new()).map_err(Error::InitRouteManagerError)?;

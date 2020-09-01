@@ -18,6 +18,16 @@ pub enum TargetState {
     Secured,
 }
 
+impl TargetState {
+    /// Returns true if the target state is `Secured`.
+    pub fn is_secured(&self) -> bool {
+        match self {
+            Self::Secured => true,
+            _ => false,
+        }
+    }
+}
+
 impl fmt::Display for TargetState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
