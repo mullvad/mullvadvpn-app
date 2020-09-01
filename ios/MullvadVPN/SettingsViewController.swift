@@ -54,9 +54,14 @@ class SettingsViewController: UITableViewController {
     func navigate(to route: SettingsNavigationRoute) {
         switch route {
         case .account:
-            self.performSegue(
-                withIdentifier: SegueIdentifier.Settings.showAccount.rawValue,
-                sender: nil)
+            let controller = AccountViewController()
+            controller.didFinishLogout = { [weak self] in
+                self?.dismiss(animated: true) {
+                    // TODO: pop to login controller
+                }
+            }
+
+            navigationController?.pushViewController(controller, animated: true)
 
         case .wireguardKeys:
             let controller = WireguardKeysViewController()
@@ -74,6 +79,10 @@ class SettingsViewController: UITableViewController {
                 let cell = cell as! SettingsAccountCell
 
                 cell.accountExpiryDate = Account.shared.expiry
+            }
+
+            accountRow.actionBlock = { [weak self] (indexPath) in
+                self?.navigate(to: .account)
             }
 
             let wireguardKeyRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicDisclosure.rawValue) { (_, cell) in

@@ -26,6 +26,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
     private let alertPresenter = AlertPresenter()
     private let logger = Logger(label: "AccountViewController")
 
+    var didFinishLogout: (() -> Void)?
+
     private lazy var purchaseButtonInteractionRestriction =
         UserInterfaceInteractionRestriction { [weak self] (enableUserInteraction, _) in
             // Make sure to disable the button if the product is not loaded
@@ -49,6 +51,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        navigationItem.title = NSLocalizedString("Account", comment: "Navigation title")
 
         AppStorePaymentManager.shared.addPaymentObserver(self)
 
@@ -250,10 +254,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
                             self.alertPresenter.enqueue(errorAlertController, presentingController: self)
 
                         case .success:
-                            self.performSegue(
-                                withIdentifier: SegueIdentifier.Account.logout.rawValue,
-                                sender: self
-                            )
+                            self.didFinishLogout?()
                         }
                     }
                 }

@@ -16,14 +16,6 @@ extension SegueIdentifier {
     enum Login: String, SegueConvertible {
         case showConnect = "ShowConnect"
     }
-
-    enum Settings: String, SegueConvertible {
-        case showAccount = "ShowAccount"
-    }
-
-    enum Account: String, SegueConvertible {
-        case logout = "Logout"
-    }
 }
 
 protocol SegueConvertible: RawRepresentable {
