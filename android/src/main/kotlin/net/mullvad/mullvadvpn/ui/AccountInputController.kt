@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.TextView
+import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.AccountInputContainer.BorderState
 
@@ -23,30 +24,26 @@ class AccountInputController(val parentView: View, context: Context) {
     private val enabledTextColor = context.getColor(R.color.blue)
     private val errorTextColor = context.getColor(R.color.red)
 
-    private var inputHasFocus = false
-        set(value) {
-            field = value
-            updateBorder()
-            if (value == true) {
-                shouldShowAccountHistory = true
-            }
-        }
+    private var inputHasFocus by observable(false) { _, _, hasFocus ->
+        updateBorder()
 
-    private var usingErrorColor = false
-        set(value) {
-            field = value
-            updateBorder()
+        if (hasFocus) {
+            shouldShowAccountHistory = true
         }
+    }
 
-    var state = LoginState.Initial
-        set(value) {
-            when (value) {
-                LoginState.Initial -> initialState()
-                LoginState.InProgress -> loggingInState()
-                LoginState.Success -> successState()
-                LoginState.Failure -> failureState()
-            }
+    private var usingErrorColor by observable(false) { _, _, _ ->
+        updateBorder()
+    }
+
+    var state by observable(LoginState.Initial) { _, _, newState ->
+        when (newState) {
+            LoginState.Initial -> initialState()
+            LoginState.InProgress -> loggingInState()
+            LoginState.Success -> successState()
+            LoginState.Failure -> failureState()
         }
+    }
 
     val container: AccountInputContainer = parentView.findViewById(R.id.account_input_container)
     val input: TextView = parentView.findViewById(R.id.login_input)
