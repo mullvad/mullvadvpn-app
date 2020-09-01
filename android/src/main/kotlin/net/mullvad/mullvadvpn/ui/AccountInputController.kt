@@ -70,8 +70,6 @@ class AccountInputController(val parentView: View, context: Context) {
         input.apply {
             addTextChangedListener(InputWatcher())
         }
-
-        container.setOnClickListener { shouldShowAccountHistory = true }
     }
 
     fun onDestroy() {
