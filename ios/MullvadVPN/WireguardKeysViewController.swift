@@ -46,6 +46,8 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        navigationItem.title = NSLocalizedString("WireGuard key", comment: "Navigation title")
+
         TunnelManager.shared.addObserver(self)
         updatePublicKey(publicKey: TunnelManager.shared.publicKey, animated: false)
 

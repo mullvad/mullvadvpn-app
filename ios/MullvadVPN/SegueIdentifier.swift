@@ -18,7 +18,6 @@ extension SegueIdentifier {
     }
 
     enum Settings: String, SegueConvertible {
-        case showWireguardKeys = "ShowWireguardKeys"
         case showAccount = "ShowAccount"
     }
 

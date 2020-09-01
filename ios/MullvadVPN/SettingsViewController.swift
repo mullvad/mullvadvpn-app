@@ -78,9 +78,9 @@ class SettingsViewController: UITableViewController {
             }
 
             wireguardKeyRow.actionBlock = { [weak self] (indexPath) in
-                self?.performSegue(
-                    withIdentifier: SegueIdentifier.Settings.showWireguardKeys.rawValue,
-                    sender: nil)
+                let controller = WireguardKeysViewController()
+
+                self?.navigationController?.pushViewController(controller, animated: true)
             }
 
             self.accountRow = accountRow

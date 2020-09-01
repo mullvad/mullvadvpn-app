@@ -144,6 +144,7 @@
 		58B0A2AD238EE6EC00BC001D /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
 		58B8743222B25A7600015324 /* WireguardAssociatedAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B8743122B25A7600015324 /* WireguardAssociatedAddresses.swift */; };
 		58B8743B22B788D200015324 /* PacketTunnelSettingsGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B8743722B25EAB00015324 /* PacketTunnelSettingsGenerator.swift */; };
+		58B9814E24FEA70D00C0D59E /* WireguardKeysViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58B9814D24FEA70D00C0D59E /* WireguardKeysViewController.xib */; };
 		58B9EB132488ED2100095626 /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB122488ED2100095626 /* AlertPresenter.swift */; };
 		58B9EB152489139B00095626 /* DisplayChainedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB142489139B00095626 /* DisplayChainedError.swift */; };
 		58BA692E23E99EFF009DC256 /* Locking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA692D23E99EFF009DC256 /* Locking.swift */; };
@@ -336,6 +337,7 @@
 		58B0A2A4238EE67E00BC001D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		58B8743122B25A7600015324 /* WireguardAssociatedAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardAssociatedAddresses.swift; sourceTree = "<group>"; };
 		58B8743722B25EAB00015324 /* PacketTunnelSettingsGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelSettingsGenerator.swift; sourceTree = "<group>"; };
+		58B9814D24FEA70D00C0D59E /* WireguardKeysViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WireguardKeysViewController.xib; sourceTree = "<group>"; };
 		58B9EB122488ED2100095626 /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		58B9EB142489139B00095626 /* DisplayChainedError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayChainedError.swift; sourceTree = "<group>"; };
 		58BA692D23E99EFF009DC256 /* Locking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Locking.swift; sourceTree = "<group>"; };
@@ -579,6 +581,7 @@
 				5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */,
 				58CC40EE24A601900019D96E /* ObserverList.swift */,
 				580EE1FF24B3218800F9D8A1 /* Operations */,
+				583BC70624FE4DC400C9DE04 /* Optional+DispatchQueue.swift */,
 				5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */,
 				58BFA5C522A7C97F00A6173D /* RelayCache.swift */,
 				58781CC822AE7CA8009B9D8E /* RelayConstraints.swift */,
@@ -612,10 +615,10 @@
 				581CBCE52296B97300727D7F /* ViewControllerIdentifier.swift */,
 				58B8743122B25A7600015324 /* WireguardAssociatedAddresses.swift */,
 				5877152F23981F7B001F8237 /* WireguardKeysViewController.swift */,
+				58B9814D24FEA70D00C0D59E /* WireguardKeysViewController.xib */,
 				58C6B35322BB87C4003C19AD /* WireguardPrivateKey.swift */,
 				58F3C098249B978C003E76BE /* x25519.c */,
 				58F3C097249B978C003E76BE /* x25519.h */,
-				583BC70624FE4DC400C9DE04 /* Optional+DispatchQueue.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -849,6 +852,7 @@
 				58CE5E6E224146210008646E /* LaunchScreen.storyboard in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
 				58CE5E69224146200008646E /* Main.storyboard in Resources */,
+				58B9814E24FEA70D00C0D59E /* WireguardKeysViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
