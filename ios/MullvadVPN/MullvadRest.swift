@@ -462,7 +462,10 @@ struct PublicKeyPayload<Payload: RestPayload>: RestPayload {
     }
 
     func inject(into request: inout URLRequest) throws {
-        request.url = request.url?.appendingPathComponent(pubKey.base64EncodedString())
+        let pathComponent = pubKey.base64EncodedString()
+            .addingPercentEncoding(withAllowedCharacters: .alphanumerics)!
+
+        request.url = request.url?.appendingPathComponent(pathComponent)
         try payload.inject(into: &request)
     }
 }
