@@ -93,12 +93,12 @@ class AutomaticKeyRotationManager {
 
     func startAutomaticRotation(queue: DispatchQueue?, completionHandler: @escaping () -> Void) {
         dispatchQueue.async {
-            guard !self.isAutomaticRotationEnabled else { return }
+            if !self.isAutomaticRotationEnabled {
+                self.logger.info("Start automatic key rotation")
 
-            self.logger.info("Start automatic key rotation")
-
-            self.isAutomaticRotationEnabled = true
-            self.performKeyRotation()
+                self.isAutomaticRotationEnabled = true
+                self.performKeyRotation()
+            }
 
             queue.performOnWrappedOrCurrentQueue(block: completionHandler)
         }
@@ -106,16 +106,16 @@ class AutomaticKeyRotationManager {
 
     func stopAutomaticRotation(queue: DispatchQueue?, completionHandler: @escaping () -> Void) {
         dispatchQueue.async {
-            guard self.isAutomaticRotationEnabled else { return }
+            if self.isAutomaticRotationEnabled {
+                self.logger.info("Stop automatic key rotation")
 
-            self.logger.info("Stop automatic key rotation")
+                self.isAutomaticRotationEnabled = false
 
-            self.isAutomaticRotationEnabled = false
+                self.dataTask?.cancel()
+                self.dataTask = nil
 
-            self.dataTask?.cancel()
-            self.dataTask = nil
-
-            self.timerSource?.cancel()
+                self.timerSource?.cancel()
+            }
 
             queue.performOnWrappedOrCurrentQueue(block: completionHandler)
         }
