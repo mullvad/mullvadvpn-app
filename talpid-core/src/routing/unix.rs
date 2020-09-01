@@ -7,7 +7,7 @@ use futures::channel::{
     mpsc::{self, UnboundedSender},
     oneshot,
 };
-use std::collections::HashSet;
+use std::{collections::HashSet, io};
 use talpid_types::ErrorExt;
 
 #[cfg(target_os = "linux")]
@@ -39,6 +39,9 @@ pub enum Error {
     /// Failed to spawn route manager future
     #[error(display = "Failed to spawn route manager on the provided executor")]
     FailedToSpawnManager,
+    /// Failed to spawn route manager runtime
+    #[error(display = "Failed to spawn route manager runtime")]
+    FailedToSpawnRuntime(#[error(source)] io::Error),
     /// Attempt to use route manager that has been dropped
     #[error(display = "Cannot send message to route manager since it is down")]
     RouteManagerDown,
@@ -69,7 +72,7 @@ pub enum RouteManagerCommand {
 /// the route will be adjusted dynamically when the default route changes.
 pub struct RouteManager {
     manage_tx: Option<UnboundedSender<RouteManagerCommand>>,
-    runtime: tokio02::runtime::Runtime,
+    runtime: tokio::runtime::Runtime,
 }
 
 impl RouteManager {
@@ -78,7 +81,12 @@ impl RouteManager {
     /// routes.
     pub fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self, Error> {
         let (manage_tx, manage_rx) = mpsc::unbounded();
-        let mut runtime = tokio02::runtime::Runtime::new().expect("Failed to spawn runtime");
+        let mut runtime = tokio::runtime::Builder::new()
+            .threaded_scheduler()
+            .core_threads(1)
+            .max_threads(1)
+            .enable_all()
+            .build()?;
         let manager = runtime.block_on(imp::RouteManagerImpl::new(required_routes))?;
         runtime.handle().spawn(manager.run(manage_rx));
 

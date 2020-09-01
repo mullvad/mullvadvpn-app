@@ -19,7 +19,6 @@ pub use talpid_types::net::wireguard::{
     ConnectionConfig, PrivateKey, TunnelConfig, TunnelParameters,
 };
 use talpid_types::ErrorExt;
-use tokio_timer;
 
 /// Default automatic key rotation
 const DEFAULT_AUTOMATIC_KEY_ROTATION: Duration = Duration::from_secs(7 * 24 * 60 * 60);
@@ -35,8 +34,6 @@ pub enum Error {
     RestError(#[error(source)] mullvad_rpc::rest::Error),
     #[error(display = "Account already has maximum number of keys")]
     TooManyKeys,
-    #[error(display = "Failed to create rotation timer")]
-    RotationScheduleError(#[error(source)] tokio_timer::TimerError),
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -63,16 +60,19 @@ impl KeyManager {
 
     /// Reset key rotation, cancelling the current one and starting a new one for the specified
     /// account
-    pub fn reset_rotation(
+    pub async fn reset_rotation(
         &mut self,
         account_history: &mut AccountHistory,
         account_token: AccountToken,
     ) {
         match account_history
             .get(&account_token)
+            .await
             .map(|entry| entry.map(|entry| entry.wireguard.map(|wg| wg.get_public_key())))
         {
-            Ok(Some(Some(public_key))) => self.run_automatic_rotation(account_token, public_key),
+            Ok(Some(Some(public_key))) => {
+                self.run_automatic_rotation(account_token, public_key).await
+            }
             Ok(Some(None)) => {
                 log::error!("reset_rotation: failed to obtain public key for account entry.")
             }
@@ -84,7 +84,7 @@ impl KeyManager {
     /// Update automatic key rotation interval
     /// Passing `None` for the interval will use the default value.
     /// A duration of `0` disables automatic key rotation.
-    pub fn set_rotation_interval(
+    pub async fn set_rotation_interval(
         &mut self,
         account_history: &mut AccountHistory,
         account_token: AccountToken,
@@ -93,7 +93,7 @@ impl KeyManager {
         self.auto_rotation_interval =
             auto_rotation_interval.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION);
 
-        self.reset_rotation(account_history, account_token);
+        self.reset_rotation(account_history, account_token).await;
     }
 
     /// Stop current key generation
@@ -104,19 +104,18 @@ impl KeyManager {
     }
 
     /// Generate a new private key
-    pub fn generate_key_sync(&mut self, account: AccountToken) -> Result<WireguardData> {
+    pub async fn generate_key_sync(&mut self, account: AccountToken) -> Result<WireguardData> {
         self.reset();
         let private_key = PrivateKey::new_from_random();
 
-        self.http_handle
-            .service()
-            .block_on(self.push_future_generator(account, private_key, None)())
+        self.push_future_generator(account, private_key, None)()
+            .await
             .map_err(Self::map_rpc_error)
     }
 
 
     /// Replace a key for an account synchronously
-    pub fn replace_key(
+    pub async fn replace_key(
         &mut self,
         account: AccountToken,
         old_key: PublicKey,
@@ -124,12 +123,7 @@ impl KeyManager {
         self.reset();
 
         let new_key = PrivateKey::new_from_random();
-        self.http_handle.service().block_on(Self::replace_key_rpc(
-            self.http_handle.clone(),
-            account,
-            old_key,
-            new_key,
-        ))
+        Self::replace_key_rpc(self.http_handle.clone(), account, old_key, new_key).await
     }
 
     /// Verifies whether a key is valid or not.
@@ -154,7 +148,7 @@ impl KeyManager {
 
 
     /// Generate a new private key asynchronously. The new keys will be sent to the daemon channel.
-    pub fn generate_key_async(&mut self, account: AccountToken, timeout: Option<Duration>) {
+    pub async fn generate_key_async(&mut self, account: AccountToken, timeout: Option<Duration>) {
         self.reset();
         let private_key = PrivateKey::new_from_random();
 
@@ -222,7 +216,7 @@ impl KeyManager {
         };
 
 
-        self.http_handle.service().spawn(Box::pin(future));
+        tokio::spawn(Box::pin(future));
         self.current_job = Some(abort_handle);
     }
 
@@ -291,7 +285,7 @@ impl KeyManager {
     }
 
     async fn key_rotation_timer(key: PublicKey, rotation_interval_secs: u64) {
-        let mut interval = tokio02::time::interval(KEY_CHECK_INTERVAL);
+        let mut interval = tokio::time::interval(KEY_CHECK_INTERVAL);
         loop {
             interval.tick().await;
             if (Utc::now().signed_duration_since(key.created)).num_seconds() as u64
@@ -342,7 +336,7 @@ impl KeyManager {
         rotation_interval_secs: u64,
         account_token: AccountToken,
     ) {
-        let mut interval = tokio02::time::interval_at(
+        let mut interval = tokio::time::interval_at(
             (Instant::now() + AUTOMATIC_ROTATION_RETRY_DELAY).into(),
             AUTOMATIC_ROTATION_RETRY_DELAY,
         );
@@ -375,7 +369,7 @@ impl KeyManager {
         }
     }
 
-    fn run_automatic_rotation(&mut self, account_token: AccountToken, public_key: PublicKey) {
+    async fn run_automatic_rotation(&mut self, account_token: AccountToken, public_key: PublicKey) {
         self.stop_automatic_rotation();
 
         if self.auto_rotation_interval == Duration::new(0, 0) {
@@ -394,7 +388,7 @@ impl KeyManager {
         );
         let (request, abort_handle) = abortable(Box::pin(fut));
 
-        self.http_handle.service().spawn(request);
+        tokio::spawn(request);
         self.abort_scheduler_tx = Some(abort_handle);
     }
 

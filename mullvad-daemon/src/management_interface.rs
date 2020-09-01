@@ -1,6 +1,5 @@
 use crate::{DaemonCommand, DaemonCommandSender, EventListener};
-use futures::compat::Future01CompatExt;
-use futures01::{future, sync, Future};
+use futures::channel::oneshot;
 use mullvad_management_interface::{
     types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, Status,
@@ -36,10 +35,6 @@ pub enum Error {
     // Unable to start the management interface server
     #[error(display = "Unable to start management interface server")]
     SetupError(#[error(source)] mullvad_management_interface::Error),
-
-    // Unable to start the tokio runtime
-    #[error(display = "Failed to create the tokio runtime")]
-    TokioRuntimeError(#[error(source)] tokio02::io::Error),
 }
 
 struct ManagementServiceImpl {
@@ -49,20 +44,17 @@ struct ManagementServiceImpl {
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
 type EventsListenerReceiver =
-    tokio02::sync::mpsc::UnboundedReceiver<Result<types::DaemonEvent, Status>>;
-type EventsListenerSender =
-    tokio02::sync::mpsc::UnboundedSender<Result<types::DaemonEvent, Status>>;
+    tokio::sync::mpsc::UnboundedReceiver<Result<types::DaemonEvent, Status>>;
+type EventsListenerSender = tokio::sync::mpsc::UnboundedSender<Result<types::DaemonEvent, Status>>;
 
-const INVALID_ACCOUNT_TOKEN_MESSAGE: &str = "No valid account token configured";
 const INVALID_VOUCHER_MESSAGE: &str = "This voucher code is invalid";
 const USED_VOUCHER_MESSAGE: &str = "This voucher code has already been used";
 
 #[mullvad_management_interface::async_trait]
 impl ManagementService for ManagementServiceImpl {
     type GetRelayLocationsStream =
-        tokio02::sync::mpsc::Receiver<Result<types::RelayListCountry, Status>>;
-    type GetSplitTunnelProcessesStream =
-        tokio02::sync::mpsc::UnboundedReceiver<Result<i32, Status>>;
+        tokio::sync::mpsc::Receiver<Result<types::RelayListCountry, Status>>;
+    type GetSplitTunnelProcessesStream = tokio::sync::mpsc::UnboundedReceiver<Result<i32, Status>>;
     type EventsListenStream = EventsListenerReceiver;
 
     // Control and get the tunnel state
@@ -71,53 +63,39 @@ impl ManagementService for ManagementServiceImpl {
     async fn connect_tunnel(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("connect_tunnel");
 
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Secured))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-            .and_then(|result| match result {
-                Ok(()) => Ok(Response::new(())),
-                Err(()) => Err(Status::new(
-                    Code::Unauthenticated,
-                    INVALID_ACCOUNT_TOKEN_MESSAGE,
-                )),
-            })
-            .compat()
-            .await
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Secured))?;
+        rx.await.map_err(|_| Status::internal("internal error"))?;
+        Ok(Response::new(()))
     }
 
     async fn disconnect_tunnel(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("disconnect_tunnel");
 
-        let (tx, _) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Unsecured))
-            .then(|_| Ok(Response::new(())))
-            .compat()
-            .await
+        let (tx, _) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Unsecured))?;
+        Ok(Response::new(()))
     }
 
     async fn reconnect_tunnel(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("reconnect_tunnel");
-        self.send_command_to_daemon(DaemonCommand::Reconnect)
-            .map(Response::new)
-            .compat()
-            .await
+        self.send_command_to_daemon(DaemonCommand::Reconnect)?;
+        Ok(Response::new(()))
     }
 
     async fn get_tunnel_state(&self, _: Request<()>) -> ServiceResult<types::TunnelState> {
         log::debug!("get_tunnel_state");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetState(tx))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-            .and_then(|state| Ok(Response::new(convert_state(state))))
-            .compat()
-            .await
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetState(tx))?;
+        let state = rx.await.map_err(|_| Status::internal("internal error"))?;
+        Ok(Response::new(convert_state(state)))
     }
 
     // Control the daemon and receive events
     //
 
     async fn events_listen(&self, _: Request<()>) -> ServiceResult<Self::EventsListenStream> {
-        let (tx, rx) = tokio02::sync::mpsc::unbounded_channel();
+        let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
 
         let mut subscriptions = self.subscriptions.write();
         subscriptions.push(tx);
@@ -127,30 +105,25 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn prepare_restart(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("prepare_restart");
-        self.send_command_to_daemon(DaemonCommand::PrepareRestart)
-            .map(Response::new)
-            .compat()
-            .await
+        self.send_command_to_daemon(DaemonCommand::PrepareRestart)?;
+        Ok(Response::new(()))
     }
 
     async fn shutdown(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("shutdown");
-        self.send_command_to_daemon(DaemonCommand::Shutdown)
-            .map(Response::new)
-            .compat()
-            .await
+        self.send_command_to_daemon(DaemonCommand::Shutdown)?;
+        Ok(Response::new(()))
     }
 
     async fn factory_reset(&self, _: Request<()>) -> ServiceResult<()> {
         #[cfg(not(target_os = "android"))]
         {
             log::debug!("factory_reset");
-            let (tx, rx) = sync::oneshot::channel();
-            self.send_command_to_daemon(DaemonCommand::FactoryReset(tx))
-                .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+            let (tx, rx) = oneshot::channel();
+            self.send_command_to_daemon(DaemonCommand::FactoryReset(tx))?;
+            rx.await
                 .map(Response::new)
-                .compat()
-                .await
+                .map_err(|_| Status::internal("internal error"))
         }
         #[cfg(target_os = "android")]
         {
@@ -160,25 +133,22 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn get_current_version(&self, _: Request<()>) -> ServiceResult<String> {
         log::debug!("get_current_version");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetCurrentVersion(tx))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetCurrentVersion(tx))?;
+        rx.await
             .map(Response::new)
-            .compat()
-            .await
+            .map_err(|_| Status::internal("internal error"))
     }
 
     async fn get_version_info(&self, _: Request<()>) -> ServiceResult<types::AppVersionInfo> {
         log::debug!("get_version_info");
 
-        let (tx, rx) = sync::oneshot::channel();
-        let app_version_info = self
-            .send_command_to_daemon(DaemonCommand::GetVersionInfo(tx))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-            .compat()
-            .await?;
-
-        Ok(Response::new(convert_version_info(&app_version_info)))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetVersionInfo(tx))?;
+        rx.await
+            .map_err(|_| Status::internal("internal error"))
+            .map(|version_info| convert_version_info(&version_info))
+            .map(Response::new)
     }
 
     // Relays and tunnel constraints
@@ -186,10 +156,8 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn update_relay_locations(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("update_relay_locations");
-        self.send_command_to_daemon(DaemonCommand::UpdateRelayLocations)
-            .compat()
-            .await
-            .map(Response::new)
+        self.send_command_to_daemon(DaemonCommand::UpdateRelayLocations)?;
+        Ok(Response::new(()))
     }
 
     async fn update_relay_settings(
@@ -197,15 +165,14 @@ impl ManagementService for ManagementServiceImpl {
         request: Request<types::RelaySettingsUpdate>,
     ) -> ServiceResult<()> {
         log::debug!("update_relay_settings");
-        let (tx, rx) = sync::oneshot::channel();
+        let (tx, rx) = oneshot::channel();
         let constraints_update = convert_relay_settings_update(&request.into_inner())?;
 
         let message = DaemonCommand::UpdateRelaySettings(tx, constraints_update);
-        self.send_command_to_daemon(message)
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        self.send_command_to_daemon(message)?;
+        rx.await
             .map(Response::new)
-            .compat()
-            .await
+            .map_err(|_| Status::internal("internal error"))
     }
 
     async fn get_relay_locations(
@@ -214,17 +181,14 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<Self::GetRelayLocationsStream> {
         log::debug!("get_relay_locations");
 
-        let (tx, rx) = sync::oneshot::channel();
-        let locations = self
-            .send_command_to_daemon(DaemonCommand::GetRelayLocations(tx))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-            .compat()
-            .await?;
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetRelayLocations(tx))?;
+        let locations = rx.await.map_err(|_| Status::internal("internal error"))?;
 
         let (mut stream_tx, stream_rx) =
-            tokio02::sync::mpsc::channel(cmp::max(1, locations.countries.len()));
+            tokio::sync::mpsc::channel(cmp::max(1, locations.countries.len()));
 
-        tokio02::spawn(async move {
+        tokio::spawn(async move {
             for country in &locations.countries {
                 if let Err(error) = stream_tx
                     .send(Ok(convert_relay_list_country(country)))
@@ -243,18 +207,13 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn get_current_location(&self, _: Request<()>) -> ServiceResult<types::GeoIpLocation> {
         log::debug!("get_current_location");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetCurrentLocation(tx))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-            .and_then(|geoip| {
-                if let Some(geoip) = geoip {
-                    Ok(Response::new(convert_geoip_location(geoip)))
-                } else {
-                    Err(Status::not_found("no location was found"))
-                }
-            })
-            .compat()
-            .await
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetCurrentLocation(tx))?;
+        let result = rx.await.map_err(|_| Status::internal("internal error"))?;
+        match result {
+            Some(geoip) => Ok(Response::new(convert_geoip_location(geoip))),
+            None => Err(Status::not_found("no location was found")),
+        }
     }
 
     async fn set_bridge_settings(
@@ -328,15 +287,12 @@ impl ManagementService for ManagementServiceImpl {
 
         log::debug!("set_bridge_settings({:?})", settings);
 
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetBridgeSettings(tx, settings))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-            .and_then(|settings_result| {
-                settings_result.map_err(|_| Status::internal("internal error"))
-            })
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetBridgeSettings(tx, settings))?;
+        let settings_result = rx.await.map_err(|_| Status::internal("internal error"))?;
+        settings_result
             .map(Response::new)
-            .compat()
-            .await
+            .map_err(|_| Status::internal("internal error"))
     }
 
     async fn set_bridge_state(&self, request: Request<types::BridgeState>) -> ServiceResult<()> {
@@ -350,15 +306,12 @@ impl ManagementService for ManagementServiceImpl {
         };
 
         log::debug!("set_bridge_state({:?})", bridge_state);
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetBridgeState(tx, bridge_state))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-            .and_then(|settings_result| {
-                settings_result.map_err(|_| Status::internal("internal error"))
-            })
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetBridgeState(tx, bridge_state))?;
+        let settings_result = rx.await.map_err(|_| Status::internal("internal error"))?;
+        settings_result
             .map(Response::new)
-            .compat()
-            .await
+            .map_err(|_| Status::internal("internal error"))
     }
 
     // Settings
@@ -366,59 +319,54 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn get_settings(&self, _: Request<()>) -> ServiceResult<types::Settings> {
         log::debug!("get_settings");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetSettings(tx))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetSettings(tx))?;
+        rx.await
             .map(|settings| Response::new(convert_settings(&settings)))
-            .compat()
-            .await
+            .map_err(|_| Status::internal("internal error"))
     }
 
     async fn set_allow_lan(&self, request: Request<bool>) -> ServiceResult<()> {
         let allow_lan = request.into_inner();
         log::debug!("set_allow_lan({})", allow_lan);
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetAllowLan(tx, allow_lan))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetAllowLan(tx, allow_lan))?;
+        rx.await
             .map(Response::new)
-            .compat()
-            .await
+            .map_err(|_| Status::internal("internal error"))
     }
 
     async fn set_show_beta_releases(&self, request: Request<bool>) -> ServiceResult<()> {
         let enabled = request.into_inner();
         log::debug!("set_show_beta_releases({})", enabled);
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetShowBetaReleases(tx, enabled))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetShowBetaReleases(tx, enabled))?;
+        rx.await
             .map(Response::new)
-            .compat()
-            .await
+            .map_err(|_| Status::internal("internal error"))
     }
 
     async fn set_block_when_disconnected(&self, request: Request<bool>) -> ServiceResult<()> {
         let block_when_disconnected = request.into_inner();
         log::debug!("set_block_when_disconnected({})", block_when_disconnected);
-        let (tx, rx) = sync::oneshot::channel();
+        let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetBlockWhenDisconnected(
             tx,
             block_when_disconnected,
-        ))
-        .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-        .map(Response::new)
-        .compat()
-        .await
+        ))?;
+        rx.await
+            .map(Response::new)
+            .map_err(|_| Status::internal("internal error"))
     }
 
     async fn set_auto_connect(&self, request: Request<bool>) -> ServiceResult<()> {
         let auto_connect = request.into_inner();
         log::debug!("set_auto_connect({})", auto_connect);
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetAutoConnect(tx, auto_connect))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetAutoConnect(tx, auto_connect))?;
+        rx.await
             .map(Response::new)
-            .compat()
-            .await
+            .map_err(|_| Status::internal("internal error"))
     }
 
     async fn set_openvpn_mssfix(&self, request: Request<u32>) -> ServiceResult<()> {
@@ -429,50 +377,45 @@ impl ManagementService for ManagementServiceImpl {
             None
         };
         log::debug!("set_openvpn_mssfix({:?})", mssfix);
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetOpenVpnMssfix(tx, mssfix))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetOpenVpnMssfix(tx, mssfix))?;
+        rx.await
             .map(Response::new)
-            .compat()
-            .await
+            .map_err(|_| Status::internal("internal error"))
     }
 
     async fn set_wireguard_mtu(&self, request: Request<u32>) -> ServiceResult<()> {
         let mtu = request.into_inner();
         let mtu = if mtu != 0 { Some(mtu as u16) } else { None };
         log::debug!("set_wireguard_mtu({:?})", mtu);
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetWireguardMtu(tx, mtu))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetWireguardMtu(tx, mtu))?;
+        rx.await
             .map(Response::new)
-            .compat()
-            .await
+            .map_err(|_| Status::internal("internal error"))
     }
 
     async fn set_enable_ipv6(&self, request: Request<bool>) -> ServiceResult<()> {
         let enable_ipv6 = request.into_inner();
         log::debug!("set_enable_ipv6({})", enable_ipv6);
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetEnableIpv6(tx, enable_ipv6))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetEnableIpv6(tx, enable_ipv6))?;
+        rx.await
             .map(Response::new)
-            .compat()
-            .await
+            .map_err(|_| Status::internal("internal error"))
     }
 
     // Account management
     //
 
     async fn create_new_account(&self, _: Request<()>) -> ServiceResult<String> {
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::CreateNewAccount(tx))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-            .and_then(|result| match result {
-                Ok(account_token) => Ok(Response::new(account_token)),
-                Err(_) => Err(Status::internal("internal error")),
-            })
-            .compat()
-            .await
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::CreateNewAccount(tx))?;
+        let result = rx.await.map_err(|_| Status::internal("internal error"))?;
+        match result {
+            Ok(account_token) => Ok(Response::new(account_token)),
+            Err(_) => Err(Status::internal("internal error")),
+        }
     }
 
     async fn set_account(&self, request: Request<AccountToken>) -> ServiceResult<()> {
@@ -483,14 +426,11 @@ impl ManagementService for ManagementServiceImpl {
         } else {
             Some(account_token)
         };
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetAccount(tx, account_token))
-            .and_then(|_| {
-                rx.map(Response::new)
-                    .map_err(|_| Status::internal("internal error"))
-            })
-            .compat()
-            .await
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetAccount(tx, account_token))?;
+        rx.await
+            .map(Response::new)
+            .map_err(|_| Status::internal("internal error"))
     }
 
     async fn get_account_data(
@@ -499,40 +439,35 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<types::AccountData> {
         log::debug!("get_account_data");
         let account_token = request.into_inner();
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetAccountData(tx, account_token))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-            .and_then(|rpc_future| {
-                rpc_future
-                    .map(|account_data| {
-                        Response::new(types::AccountData {
-                            expiry: Some(types::Timestamp {
-                                seconds: account_data.expiry.timestamp(),
-                                nanos: 0,
-                            }),
-                        })
-                    })
-                    .map_err(|error: RestError| {
-                        log::error!(
-                            "Unable to get account data from API: {}",
-                            error.display_chain()
-                        );
-                        map_rest_account_error(error)
-                    })
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetAccountData(tx, account_token))?;
+        let result = rx.await.map_err(|_| Status::internal("internal error"))?;
+        result
+            .map(|account_data| {
+                Response::new(types::AccountData {
+                    expiry: Some(types::Timestamp {
+                        seconds: account_data.expiry.timestamp(),
+                        nanos: 0,
+                    }),
+                })
             })
-            .compat()
-            .await
+            .map_err(|error: RestError| {
+                log::error!(
+                    "Unable to get account data from API: {}",
+                    error.display_chain()
+                );
+                map_rest_account_error(error)
+            })
     }
 
     async fn get_account_history(&self, _: Request<()>) -> ServiceResult<types::AccountHistory> {
         // TODO: this might be a stream
         log::debug!("get_account_history");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetAccountHistory(tx))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetAccountHistory(tx))?;
+        rx.await
+            .map_err(|_| Status::internal("internal error"))
             .map(|history| Response::new(types::AccountHistory { token: history }))
-            .compat()
-            .await
     }
 
     async fn remove_account_from_history(
@@ -541,42 +476,36 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<()> {
         log::debug!("remove_account_from_history");
         let account_token = request.into_inner();
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::RemoveAccountFromHistory(tx, account_token))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::RemoveAccountFromHistory(tx, account_token))?;
+        rx.await
             .map(Response::new)
-            .compat()
-            .await
+            .map_err(|_| Status::internal("internal error"))
     }
 
     async fn clear_account_history(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("clear_account_history");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::ClearAccountHistory(tx))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ClearAccountHistory(tx))?;
+        rx.await
             .map(Response::new)
-            .compat()
-            .await
+            .map_err(|_| Status::internal("internal error"))
     }
 
     async fn get_www_auth_token(&self, _: Request<()>) -> ServiceResult<String> {
         log::debug!("get_www_auth_token");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetWwwAuthToken(tx))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-            .and_then(|rpc_future| {
-                rpc_future
-                    .map(Response::new)
-                    .map_err(|error: mullvad_rpc::rest::Error| {
-                        log::error!(
-                            "Unable to get account data from API: {}",
-                            error.display_chain()
-                        );
-                        map_rest_account_error(error)
-                    })
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetWwwAuthToken(tx))?;
+        let result = rx.await.map_err(|_| Status::internal("internal error"))?;
+        result
+            .map(Response::new)
+            .map_err(|error: mullvad_rpc::rest::Error| {
+                log::error!(
+                    "Unable to get account data from API: {}",
+                    error.display_chain()
+                );
+                map_rest_account_error(error)
             })
-            .compat()
-            .await
     }
 
     async fn submit_voucher(
@@ -585,38 +514,33 @@ impl ManagementService for ManagementServiceImpl {
     ) -> ServiceResult<types::VoucherSubmission> {
         log::debug!("submit_voucher");
         let voucher = request.into_inner();
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SubmitVoucher(tx, voucher))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-            .and_then(|f| {
-                f.map(|submission| {
-                    Response::new(types::VoucherSubmission {
-                        seconds_added: submission.time_added,
-                        new_expiry: Some(types::Timestamp {
-                            seconds: submission.new_expiry.timestamp(),
-                            nanos: 0,
-                        }),
-                    })
-                })
-                .map_err(|e| match e {
-                    RestError::ApiError(StatusCode::BAD_REQUEST, message) => {
-                        match &message.as_str() {
-                            &mullvad_rpc::INVALID_VOUCHER => {
-                                Status::new(Code::NotFound, INVALID_VOUCHER_MESSAGE)
-                            }
-
-                            &mullvad_rpc::VOUCHER_USED => {
-                                Status::new(Code::ResourceExhausted, USED_VOUCHER_MESSAGE)
-                            }
-
-                            _ => Status::internal("internal error"),
-                        }
-                    }
-                    _ => Status::internal("internal error"),
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SubmitVoucher(tx, voucher))?;
+        let result = rx.await.map_err(|_| Status::internal("internal error"))?;
+        result
+            .map(|submission| {
+                Response::new(types::VoucherSubmission {
+                    seconds_added: submission.time_added,
+                    new_expiry: Some(types::Timestamp {
+                        seconds: submission.new_expiry.timestamp(),
+                        nanos: 0,
+                    }),
                 })
             })
-            .compat()
-            .await
+            .map_err(|e| match e {
+                RestError::ApiError(StatusCode::BAD_REQUEST, message) => match &message.as_str() {
+                    &mullvad_rpc::INVALID_VOUCHER => {
+                        Status::new(Code::NotFound, INVALID_VOUCHER_MESSAGE)
+                    }
+
+                    &mullvad_rpc::VOUCHER_USED => {
+                        Status::new(Code::ResourceExhausted, USED_VOUCHER_MESSAGE)
+                    }
+
+                    _ => Status::internal("internal error"),
+                },
+                _ => Status::internal("internal error"),
+            })
     }
 
     // WireGuard key management
@@ -626,61 +550,55 @@ impl ManagementService for ManagementServiceImpl {
         let interval = request.into_inner();
 
         log::debug!("set_wireguard_rotation_interval({:?})", interval);
-        let (tx, rx) = sync::oneshot::channel();
+        let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetWireguardRotationInterval(
             tx,
             Some(interval),
-        ))
-        .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-        .map(Response::new)
-        .compat()
-        .await
+        ))?;
+        rx.await
+            .map_err(|_| Status::internal("internal error"))
+            .map(Response::new)
     }
 
     async fn reset_wireguard_rotation_interval(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("reset_wireguard_rotation_interval");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetWireguardRotationInterval(tx, None))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetWireguardRotationInterval(tx, None))?;
+        rx.await
+            .map_err(|_| Status::internal("internal error"))
             .map(Response::new)
-            .compat()
-            .await
     }
 
     async fn generate_wireguard_key(&self, _: Request<()>) -> ServiceResult<types::KeygenEvent> {
         // TODO: return error for TooManyKeys, GenerationFailure
         // on success, simply return the new key or nil
         log::debug!("generate_wireguard_key");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GenerateWireguardKey(tx))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GenerateWireguardKey(tx))?;
+        rx.await
+            .map_err(|_| Status::internal("internal error"))
             .map(|event| Response::new(convert_wireguard_key_event(&event)))
-            .compat()
-            .await
     }
 
     async fn get_wireguard_key(&self, _: Request<()>) -> ServiceResult<types::PublicKey> {
         log::debug!("get_wireguard_key");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::GetWireguardKey(tx))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-            .then(|response| match response {
-                Ok(Some(key)) => Ok(Response::new(convert_public_key(&key))),
-                Ok(None) => Err(Status::not_found("no WireGuard key was found")),
-                Err(e) => Err(e),
-            })
-            .compat()
-            .await
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::GetWireguardKey(tx))?;
+        let response = rx.await.map_err(|_| Status::internal("internal error"));
+        match response {
+            Ok(Some(key)) => Ok(Response::new(convert_public_key(&key))),
+            Ok(None) => Err(Status::not_found("no WireGuard key was found")),
+            Err(e) => Err(e),
+        }
     }
 
     async fn verify_wireguard_key(&self, _: Request<()>) -> ServiceResult<bool> {
         log::debug!("verify_wireguard_key");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::VerifyWireguardKey(tx))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::VerifyWireguardKey(tx))?;
+        rx.await
+            .map_err(|_| Status::internal("internal error"))
             .map(Response::new)
-            .compat()
-            .await
     }
 
     // Split tunneling
@@ -693,15 +611,12 @@ impl ManagementService for ManagementServiceImpl {
         #[cfg(target_os = "linux")]
         {
             log::debug!("get_split_tunnel_processes");
-            let (tx, rx) = sync::oneshot::channel();
-            let pids = self
-                .send_command_to_daemon(DaemonCommand::GetSplitTunnelProcesses(tx))
-                .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
-                .compat()
-                .await?;
+            let (tx, rx) = oneshot::channel();
+            self.send_command_to_daemon(DaemonCommand::GetSplitTunnelProcesses(tx))?;
+            let pids = rx.await.map_err(|_| Status::internal("internal error"))?;
 
-            let (tx, rx) = tokio02::sync::mpsc::unbounded_channel();
-            tokio02::spawn(async move {
+            let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
+            tokio::spawn(async move {
                 for pid in pids {
                     let _ = tx.send(Ok(pid));
                 }
@@ -711,7 +626,7 @@ impl ManagementService for ManagementServiceImpl {
         }
         #[cfg(not(target_os = "linux"))]
         {
-            let (_, rx) = tokio02::sync::mpsc::unbounded_channel();
+            let (_, rx) = tokio::sync::mpsc::unbounded_channel();
             Ok(Response::new(rx))
         }
     }
@@ -720,12 +635,11 @@ impl ManagementService for ManagementServiceImpl {
     async fn add_split_tunnel_process(&self, request: Request<i32>) -> ServiceResult<()> {
         let pid = request.into_inner();
         log::debug!("add_split_tunnel_process");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::AddSplitTunnelProcess(tx, pid))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::AddSplitTunnelProcess(tx, pid))?;
+        rx.await
+            .map_err(|_| Status::internal("internal error"))
             .map(Response::new)
-            .compat()
-            .await
     }
     #[cfg(not(target_os = "linux"))]
     async fn add_split_tunnel_process(&self, _: Request<i32>) -> ServiceResult<()> {
@@ -736,12 +650,11 @@ impl ManagementService for ManagementServiceImpl {
     async fn remove_split_tunnel_process(&self, request: Request<i32>) -> ServiceResult<()> {
         let pid = request.into_inner();
         log::debug!("remove_split_tunnel_process");
-        let (tx, rx) = sync::oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::RemoveSplitTunnelProcess(tx, pid))
-            .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::RemoveSplitTunnelProcess(tx, pid))?;
+        rx.await
+            .map_err(|_| Status::internal("internal error"))
             .map(Response::new)
-            .compat()
-            .await
     }
     #[cfg(not(target_os = "linux"))]
     async fn remove_split_tunnel_process(&self, _: Request<i32>) -> ServiceResult<()> {
@@ -752,12 +665,11 @@ impl ManagementService for ManagementServiceImpl {
         #[cfg(target_os = "linux")]
         {
             log::debug!("clear_split_tunnel_processes");
-            let (tx, rx) = sync::oneshot::channel();
-            self.send_command_to_daemon(DaemonCommand::ClearSplitTunnelProcesses(tx))
-                .and_then(|_| rx.map_err(|_| Status::internal("internal error")))
+            let (tx, rx) = oneshot::channel();
+            self.send_command_to_daemon(DaemonCommand::ClearSplitTunnelProcesses(tx))?;
+            rx.await
+                .map_err(|_| Status::internal("internal error"))
                 .map(Response::new)
-                .compat()
-                .await
         }
         #[cfg(not(target_os = "linux"))]
         {
@@ -768,15 +680,10 @@ impl ManagementService for ManagementServiceImpl {
 
 impl ManagementServiceImpl {
     /// Sends a command to the daemon and maps the error to an RPC error.
-    fn send_command_to_daemon(
-        &self,
-        command: DaemonCommand,
-    ) -> impl Future<Item = (), Error = Status> {
-        future::result(
-            self.daemon_tx
-                .send(command)
-                .map_err(|_| Status::internal("internal error")),
-        )
+    fn send_command_to_daemon(&self, command: DaemonCommand) -> Result<(), Status> {
+        self.daemon_tx
+            .send(command)
+            .map_err(|_| Status::internal("internal error"))
     }
 }
 
@@ -1527,23 +1434,14 @@ fn convert_proto_location(location: types::RelayLocation) -> Constraint<Location
 pub struct ManagementInterfaceServer {
     subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
     socket_path: String,
-    runtime: tokio02::runtime::Runtime,
     server_abort_tx: triggered::Trigger,
     server_join_handle: Option<
-        tokio02::task::JoinHandle<std::result::Result<(), mullvad_management_interface::Error>>,
+        tokio::task::JoinHandle<std::result::Result<(), mullvad_management_interface::Error>>,
     >,
 }
 
 impl ManagementInterfaceServer {
-    pub fn start(tunnel_tx: DaemonCommandSender) -> Result<Self, Error> {
-        // TODO: don't spawn a tokio runtime here; make this function async
-        let mut runtime = tokio02::runtime::Builder::new()
-            .threaded_scheduler()
-            .core_threads(1)
-            .enable_all()
-            .build()
-            .map_err(Error::TokioRuntimeError)?;
-
+    pub async fn start(tunnel_tx: DaemonCommandSender) -> Result<Self, Error> {
         let subscriptions = Arc::<RwLock<Vec<EventsListenerSender>>>::default();
 
         let socket_path = mullvad_paths::get_rpc_socket_path()
@@ -1556,15 +1454,15 @@ impl ManagementInterfaceServer {
             daemon_tx: tunnel_tx,
             subscriptions: subscriptions.clone(),
         };
-        let server_join_handle = runtime.spawn(mullvad_management_interface::spawn_rpc_server(
+        let server_join_handle = tokio::spawn(mullvad_management_interface::spawn_rpc_server(
             server,
             start_tx,
             server_abort_rx,
         ));
 
         if let Err(_) = start_rx.recv() {
-            return Err(runtime
-                .block_on(server_join_handle)
+            return Err(server_join_handle
+                .await
                 .expect("Failed to resolve quit handle future")
                 .map_err(Error::SetupError)
                 .unwrap_err());
@@ -1573,7 +1471,6 @@ impl ManagementInterfaceServer {
         Ok(ManagementInterfaceServer {
             subscriptions,
             socket_path,
-            runtime,
             server_abort_tx,
             server_join_handle: Some(server_join_handle),
         })
@@ -1585,19 +1482,18 @@ impl ManagementInterfaceServer {
 
     pub fn event_broadcaster(&self) -> ManagementInterfaceEventBroadcaster {
         ManagementInterfaceEventBroadcaster {
-            runtime: self.runtime.handle().clone(),
             subscriptions: self.subscriptions.clone(),
             close_handle: self.server_abort_tx.clone(),
         }
     }
 
-    /// Consumes the server and waits for it to finish. Returns an error if the server exited
-    /// due to an error.
-    pub fn wait(mut self) {
+    /// Consumes the server and waits for it to finish.
+    pub async fn run(self) {
         if let Some(server_join_handle) = self.server_join_handle {
-            if let Err(error) = self.runtime.block_on(server_join_handle) {
+            if let Err(error) = server_join_handle.await {
                 log::error!("Management server panic: {:?}", error);
             }
+            log::info!("Management interface shut down");
         }
     }
 }
@@ -1605,7 +1501,6 @@ impl ManagementInterfaceServer {
 /// A handle that allows broadcasting messages to all subscribers of the management interface.
 #[derive(Clone)]
 pub struct ManagementInterfaceEventBroadcaster {
-    runtime: tokio02::runtime::Handle,
     subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
     close_handle: triggered::Trigger,
 }

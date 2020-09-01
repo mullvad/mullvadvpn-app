@@ -176,12 +176,10 @@ pub struct RequestServiceHandle {
 
 impl RequestServiceHandle {
     /// Resets the corresponding RequestService, dropping all in-flight requests.
-    pub fn reset(&self) {
+    pub async fn reset(&self) {
         let mut tx = self.tx.clone();
 
-        self.handle.block_on(async move {
-            let _ = tx.send(RequestCommand::Reset).await;
-        });
+        let _ = tx.send(RequestCommand::Reset).await;
     }
 
     /// Submits a `RestRequest` for exectuion to the request service.
@@ -215,13 +213,6 @@ impl RequestServiceHandle {
     /// Spawns a future on the RPC runtime.
     pub fn spawn<T: Send + 'static>(&self, future: impl Future<Output = T> + Send + 'static) {
         let _ = self.handle.spawn(future);
-    }
-
-    pub fn block_on<T: Send + 'static>(
-        &self,
-        future: impl Future<Output = T> + Send + 'static,
-    ) -> T {
-        self.handle.block_on(future)
     }
 }
 

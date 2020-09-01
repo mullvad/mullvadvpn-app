@@ -67,6 +67,9 @@ pub enum Error {
 
     #[error(display = "Error during RPC call")]
     SendRpcError(#[error(source)] mullvad_rpc::rest::Error),
+
+    #[error(display = "Unable to spawn Tokio runtime")]
+    CreateRuntime(#[error(source)] io::Error),
 }
 
 /// These are errors that can happen during problem report collection.
@@ -263,8 +266,14 @@ pub fn send_problem_report(
     let metadata =
         ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
 
-    let mut rpc_manager =
-        mullvad_rpc::MullvadRpcRuntime::new().map_err(Error::CreateRpcClientError)?;
+    let runtime = tokio::runtime::Builder::new()
+        .basic_scheduler()
+        .enable_all()
+        .build()
+        .map_err(Error::CreateRuntime)?;
+
+    let mut rpc_manager = mullvad_rpc::MullvadRpcRuntime::new(runtime.handle().clone())
+        .map_err(Error::CreateRpcClientError)?;
     let rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_manager.mullvad_rest_handle());
 
     rpc_client

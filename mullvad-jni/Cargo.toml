@@ -12,16 +12,15 @@ crate_type = ["cdylib"]
 
 [target.'cfg(target_os = "android")'.dependencies]
 err-derive = "0.2.1"
-futures = "0.1"
+futures = "0.3"
 ipnetwork = "0.16"
 jnix = { version = "0.2.3", features = ["derive"] }
-jsonrpc-client-core = "0.5"
-jsonrpc-core = "8"
 lazy_static = "1"
 log = "0.4"
 log-panics = "2"
 nix = "0.17"
 rand = "0.7"
+tokio = "0.2"
 
 mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-paths = { path = "../mullvad-paths" }

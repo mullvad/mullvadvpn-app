@@ -1,4 +1,4 @@
-use futures::{sync::oneshot, Future};
+use futures::{channel::oneshot, executor::block_on};
 use mullvad_daemon::{DaemonCommand, DaemonCommandSender};
 use mullvad_types::{
     account::{AccountData, VoucherSubmission},
@@ -42,9 +42,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SetTargetState(tx, TargetState::Secured))?;
 
-        rx.wait().map_err(|_| Error::NoResponse)?.unwrap();
-
-        Ok(())
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn create_new_account(&self) -> Result<String> {
@@ -52,7 +50,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::CreateNewAccount(tx))?;
 
-        rx.wait()
+        block_on(rx)
             .map_err(|_| Error::NoResponse)?
             .map_err(Error::RpcError)
     }
@@ -62,9 +60,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SetTargetState(tx, TargetState::Unsecured))?;
 
-        rx.wait().map_err(|_| Error::NoResponse)?.unwrap();
-
-        Ok(())
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn generate_wireguard_key(&self) -> Result<KeygenEvent> {
@@ -72,7 +68,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GenerateWireguardKey(tx))?;
 
-        rx.wait().map_err(|_| Error::NoResponse)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn get_account_data(&self, account_token: String) -> Result<AccountData> {
@@ -80,9 +76,8 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetAccountData(tx, account_token))?;
 
-        rx.wait()
+        block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .wait()
             .map_err(Error::RpcError)
     }
 
@@ -91,7 +86,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetAccountHistory(tx))?;
 
-        rx.wait().map_err(|_| Error::NoResponse)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn get_www_auth_token(&self) -> Result<String> {
@@ -99,9 +94,8 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetWwwAuthToken(tx))?;
 
-        rx.wait()
+        block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .wait()
             .map_err(Error::RpcError)
     }
 
@@ -110,7 +104,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetCurrentLocation(tx))?;
 
-        Ok(rx.wait().map_err(|_| Error::NoResponse)?)
+        Ok(block_on(rx).map_err(|_| Error::NoResponse)?)
     }
 
     pub fn get_current_version(&self) -> Result<String> {
@@ -118,7 +112,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetCurrentVersion(tx))?;
 
-        Ok(rx.wait().map_err(|_| Error::NoResponse)?)
+        Ok(block_on(rx).map_err(|_| Error::NoResponse)?)
     }
 
     pub fn get_relay_locations(&self) -> Result<RelayList> {
@@ -126,7 +120,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetRelayLocations(tx))?;
 
-        Ok(rx.wait().map_err(|_| Error::NoResponse)?)
+        Ok(block_on(rx).map_err(|_| Error::NoResponse)?)
     }
 
     pub fn get_settings(&self) -> Result<Settings> {
@@ -134,7 +128,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetSettings(tx))?;
 
-        Ok(rx.wait().map_err(|_| Error::NoResponse)?)
+        Ok(block_on(rx).map_err(|_| Error::NoResponse)?)
     }
 
     pub fn get_state(&self) -> Result<TunnelState> {
@@ -142,7 +136,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetState(tx))?;
 
-        Ok(rx.wait().map_err(|_| Error::NoResponse)?)
+        Ok(block_on(rx).map_err(|_| Error::NoResponse)?)
     }
 
     pub fn get_version_info(&self) -> Result<AppVersionInfo> {
@@ -150,7 +144,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetVersionInfo(tx))?;
 
-        rx.wait().map_err(|_| Error::NoResponse)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn reconnect(&self) -> Result<()> {
@@ -164,14 +158,14 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetWireguardKey(tx))?;
 
-        rx.wait().map_err(|_| Error::NoResponse)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn verify_wireguard_key(&self) -> Result<bool> {
         let (tx, rx) = oneshot::channel();
 
         self.send_command(DaemonCommand::VerifyWireguardKey(tx))?;
-        rx.wait().map_err(|_| Error::NoResponse)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn set_account(&self, account_token: Option<String>) -> Result<()> {
@@ -179,7 +173,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SetAccount(tx, account_token))?;
 
-        rx.wait().map_err(|_| Error::NoResponse)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn set_allow_lan(&self, allow_lan: bool) -> Result<()> {
@@ -187,7 +181,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SetAllowLan(tx, allow_lan))?;
 
-        rx.wait().map_err(|_| Error::NoResponse)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn set_auto_connect(&self, auto_connect: bool) -> Result<()> {
@@ -195,7 +189,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SetAutoConnect(tx, auto_connect))?;
 
-        rx.wait().map_err(|_| Error::NoResponse)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn set_wireguard_mtu(&self, wireguard_mtu: Option<u16>) -> Result<()> {
@@ -203,7 +197,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SetWireguardMtu(tx, wireguard_mtu))?;
 
-        rx.wait().map_err(|_| Error::NoResponse)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     pub fn shutdown(&self) -> Result<()> {
@@ -215,9 +209,8 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SubmitVoucher(tx, voucher))?;
 
-        rx.wait()
+        block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .wait()
             .map_err(Error::RpcError)
     }
 
@@ -226,7 +219,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::UpdateRelaySettings(tx, update))?;
 
-        rx.wait().map_err(|_| Error::NoResponse)
+        block_on(rx).map_err(|_| Error::NoResponse)
     }
 
     fn send_command(&self, command: DaemonCommand) -> Result<()> {
