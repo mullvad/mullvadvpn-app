@@ -25,8 +25,8 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
     private val fetchInitialStateJob = fetchInitialState()
     private val initialState: TunnelState = TunnelState.Disconnected()
 
-    var onUiStateChange = EventNotifier(initialState)
     var onStateChange = EventNotifier(initialState)
+    var onUiStateChange = EventNotifier(initialState)
     var vpnPermission = CompletableDeferred<Boolean>()
 
     var state = initialState
