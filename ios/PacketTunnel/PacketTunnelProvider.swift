@@ -438,6 +438,9 @@ enum PacketTunnelProviderError: ChainedError {
 
     var errorDescription: String? {
         switch self {
+        case .invalidTunnelState:
+            return "Failure to handle request in such tunnel state"
+
         case .readRelayCache:
             return "Failure to read the relay cache"
 
@@ -445,7 +448,7 @@ enum PacketTunnelProviderError: ChainedError {
             return "No relay satisfying the given constraint"
 
         case .missingKeychainConfigurationReference:
-            return "Invalid protocol configuration"
+            return "Keychain configuration reference is not set on protocol configuration"
 
         case .cannotReadTunnelSettings:
             return "Failure to read tunnel settings"
@@ -464,9 +467,6 @@ enum PacketTunnelProviderError: ChainedError {
 
         case .ipcHandler:
             return "Failure to handle the IPC request"
-
-        case .invalidTunnelState:
-            return "Failure to handle request in such tunnel state"
         }
     }
 }
