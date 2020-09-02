@@ -32,9 +32,7 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
     var state = initialState
         private set(value) {
             field = value
-            resetAnticipatedStateJob?.cancel()
             onStateChange.notify(value)
-            uiState = value
         }
 
     var uiState = initialState
@@ -46,7 +44,9 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
     init {
         daemon.onTunnelStateChange = { newState ->
             synchronized(this) {
+                resetAnticipatedStateJob?.cancel()
                 state = newState
+                uiState = newState
             }
         }
     }
