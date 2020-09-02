@@ -29,17 +29,10 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
     var onUiStateChange = EventNotifier(initialState)
     var vpnPermission = CompletableDeferred<Boolean>()
 
-    var state = initialState
-        private set(value) {
-            field = value
-            onStateChange.notify(value)
-        }
-
-    var uiState = initialState
-        private set(value) {
-            field = value
-            onUiStateChange.notify(value)
-        }
+    var state by onStateChange.notifiable()
+        private set
+    var uiState by onUiStateChange.notifiable()
+        private set
 
     init {
         daemon.onTunnelStateChange = { newState ->
