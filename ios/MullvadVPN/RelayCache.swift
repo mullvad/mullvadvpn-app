@@ -110,35 +110,34 @@ class RelayCache {
         self.cacheFileURL = cacheFileURL
     }
 
-    func startPeriodicUpdates(completionHandler: (() -> Void)?) {
+    func startPeriodicUpdates(queue: DispatchQueue?, completionHandler: (() -> Void)?) {
         dispatchQueue.async {
-            guard !self.isPeriodicUpdatesEnabled else {
+            if !self.isPeriodicUpdatesEnabled {
+                self.isPeriodicUpdatesEnabled = true
+
+                switch Self.read(cacheFileURL: self.cacheFileURL) {
+                case .success(let cachedRelayList):
+                    if let nextUpdate = Self.nextUpdateDate(lastUpdatedAt: cachedRelayList.updatedAt) {
+                        let startTime = Self.makeWalltime(fromDate: nextUpdate)
+                        self.scheduleRepeatingTimer(startTime: startTime)
+                    }
+
+                case .failure(let readError):
+                    self.logger.error(chainedError: readError, message: "Failed to read the relay cache")
+
+                    if Self.shouldDownloadRelaysOnReadFailure(readError) {
+                        self.scheduleRepeatingTimer(startTime: .now())
+                    }
+                }
+            }
+
+            queue.performOnWrappedOrCurrentQueue {
                 completionHandler?()
-                return
             }
-
-            self.isPeriodicUpdatesEnabled = true
-
-            switch Self.read(cacheFileURL: self.cacheFileURL) {
-            case .success(let cachedRelayList):
-                if let nextUpdate = Self.nextUpdateDate(lastUpdatedAt: cachedRelayList.updatedAt) {
-                    let startTime = Self.makeWalltime(fromDate: nextUpdate)
-                    self.scheduleRepeatingTimer(startTime: startTime)
-                }
-
-            case .failure(let readError):
-                self.logger.error(chainedError: readError, message: "Failed to read the relay cache")
-
-                if Self.shouldDownloadRelaysOnReadFailure(readError) {
-                    self.scheduleRepeatingTimer(startTime: .now())
-                }
-            }
-
-            completionHandler?()
         }
     }
 
-    func stopPeriodicUpdates(completionHandler: (() -> Void)?) {
+    func stopPeriodicUpdates(queue: DispatchQueue?, completionHandler: (() -> Void)?) {
         dispatchQueue.async {
             self.isPeriodicUpdatesEnabled = false
 
@@ -146,7 +145,9 @@ class RelayCache {
             self.timerSource = nil
             self.downloadTask?.cancel()
 
-            completionHandler?()
+            queue.performOnWrappedOrCurrentQueue {
+                completionHandler?()
+            }
         }
     }
 
