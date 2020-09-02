@@ -34,6 +34,9 @@ Line wrap the file at 100 chars.                                              Th
 - Remove firewall filters (unblock internet access) when "Always require VPN" is enabled and the app
   is uninstalled.
 
+#### Android
+- Fix rare crash that could happen when starting the background service.
+
 
 ## [2020.6-beta2] - 2020-08-27
 This release is for Android only.
