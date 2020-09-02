@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 ### Fixed
+- Stop resetting the firewall after an upgrade to not leak after an upgrade.
 
 #### Windows
 - Remove firewall filters (unblock internet access) when "Always require VPN" is enabled and the app
