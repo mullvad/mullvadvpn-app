@@ -16,6 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
+    var rootContainer: RootContainerViewController?
 
     #if targetEnvironment(simulator)
     let simulatorTunnelProvider = SimulatorTunnelProviderHost()
@@ -50,6 +51,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
 
                 let rootViewController = RootContainerViewController()
+                rootViewController.delegate = self
 
                 let showMainController = { (_ animated: Bool) in
                     self.showMainController(in: rootViewController, animated: animated) {
@@ -68,6 +70,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
 
                 self.window?.rootViewController = rootViewController
+                self.rootContainer = rootViewController
             }
         }
 
@@ -110,6 +113,39 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         rootViewController.setViewControllers(viewControllers, animated: animated, completion: completionHandler)
+    }
+
+}
+
+extension AppDelegate: RootContainerViewControllerDelegate {
+
+    func rootContainerViewControllerShouldShowSettings(_ controller: RootContainerViewController, navigateTo route: SettingsNavigationRoute?, animated: Bool) {
+        guard let navController = mainStoryboard
+            .instantiateViewController(withIdentifier: ViewControllerIdentifier.settings.rawValue)
+            as? UINavigationController else { return }
+
+        guard let settingsController = navController.topViewController as? SettingsViewController else { return }
+        settingsController.settingsDelegate = self
+
+        if let route = route {
+            settingsController.navigate(to: route)
+        }
+
+        controller.present(navController, animated: animated)
+    }
+}
+
+extension AppDelegate: SettingsViewControllerDelegate {
+
+    func settingsViewController(_ controller: SettingsViewController, didFinishWithReason reason: SettingsDismissReason) {
+        if case .userLoggedOut = reason {
+            rootContainer?.popToRootViewController(animated: false)
+
+            let loginController = rootContainer?.topViewController as? LoginViewController
+
+            loginController?.reset()
+        }
+        controller.dismiss(animated: true)
     }
 
 }

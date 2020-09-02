@@ -10,6 +10,10 @@ import StoreKit
 import UIKit
 import Logging
 
+protocol AccountViewControllerDelegate: class {
+    func accountViewControllerDidLogout(_ controller: AccountViewController)
+}
+
 class AccountViewController: UIViewController, AppStorePaymentObserver {
 
     @IBOutlet var accountTokenButton: UIButton!
@@ -26,7 +30,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
     private let alertPresenter = AlertPresenter()
     private let logger = Logger(label: "AccountViewController")
 
-    var didFinishLogout: (() -> Void)?
+    weak var delegate: AccountViewControllerDelegate?
 
     private lazy var purchaseButtonInteractionRestriction =
         UserInterfaceInteractionRestriction { [weak self] (enableUserInteraction, _) in
@@ -254,7 +258,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
                             self.alertPresenter.enqueue(errorAlertController, presentingController: self)
 
                         case .success:
-                            self.didFinishLogout?()
+                            self.delegate?.accountViewControllerDidLogout(self)
                         }
                     }
                 }

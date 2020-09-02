@@ -14,7 +14,16 @@ enum SettingsNavigationRoute {
     case wireguardKeys
 }
 
-class SettingsViewController: UITableViewController {
+enum SettingsDismissReason {
+    case none
+    case userLoggedOut
+}
+
+protocol SettingsViewControllerDelegate: class {
+    func settingsViewController(_ controller: SettingsViewController, didFinishWithReason reason: SettingsDismissReason)
+}
+
+class SettingsViewController: UITableViewController, AccountViewControllerDelegate {
 
     @IBOutlet var staticDataSource: SettingsTableViewDataSource!
 
@@ -27,6 +36,8 @@ class SettingsViewController: UITableViewController {
 
     private weak var accountRow: StaticTableViewRow?
     private var accountExpiryObserver: NSObjectProtocol?
+
+    weak var settingsDelegate: SettingsViewControllerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -46,7 +57,7 @@ class SettingsViewController: UITableViewController {
     // MARK: - IBActions
 
     @IBAction func handleDismiss() {
-        dismiss(animated: true)
+        settingsDelegate?.settingsViewController(self, didFinishWithReason: .none)
     }
 
     // MARK: - Navigation
@@ -55,11 +66,7 @@ class SettingsViewController: UITableViewController {
         switch route {
         case .account:
             let controller = AccountViewController()
-            controller.didFinishLogout = { [weak self] in
-                self?.dismiss(animated: true) {
-                    // TODO: pop to login controller
-                }
-            }
+            controller.delegate = self
 
             navigationController?.pushViewController(controller, animated: true)
 
@@ -68,6 +75,12 @@ class SettingsViewController: UITableViewController {
 
             navigationController?.pushViewController(controller, animated: true)
         }
+    }
+
+    // MARK: - AccountViewControllerDelegate
+
+    func accountViewControllerDidLogout(_ controller: AccountViewController) {
+        settingsDelegate?.settingsViewController(self, didFinishWithReason: .userLoggedOut)
     }
 
     // MARK: - Private

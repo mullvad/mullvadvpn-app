@@ -99,6 +99,14 @@ class LoginViewController: UIViewController, RootContainment {
                                        object: accountTextField)
     }
 
+    // MARK: - Public
+
+    func reset() {
+        loginState = .default
+        accountTextField.autoformattingText = ""
+        updateKeyboardToolbar()
+    }
+
     // MARK: - Keyboard notifications
 
     @objc private func keyboardWillShow(_ notification: Notification) {
@@ -139,12 +147,6 @@ class LoginViewController: UIViewController, RootContainment {
     }
 
     // MARK: - Actions
-
-    @IBAction func unwindFromAccount(segue: UIStoryboardSegue) {
-        loginState = .default
-        accountTextField.autoformattingText = ""
-        updateKeyboardToolbar()
-    }
 
     @IBAction func cancelLogin() {
         view.endEditing(true)

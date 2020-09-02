@@ -36,22 +36,28 @@ protocol RootContainment {
 
 }
 
+protocol RootContainerViewControllerDelegate: class {
+    func rootContainerViewControllerShouldShowSettings(_ controller: RootContainerViewController, navigateTo route: SettingsNavigationRoute?, animated: Bool)
+}
+
 /// A root container class that primarily handles the unwind storyboard segues on log out
 class RootContainerViewController: UIViewController {
 
     typealias CompletionHandler = () -> Void
-
-    private var viewControllers = [UIViewController]()
-
-    private var topViewController: UIViewController? {
-        return viewControllers.last
-    }
 
     private let headerBarView = HeaderBarView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
     private let transitionContainer = UIView(frame: UIScreen.main.bounds)
 
     private(set) var headerBarStyle = HeaderBarStyle.default
     private(set) var headerBarHidden = false
+
+    private(set) var viewControllers = [UIViewController]()
+
+    var topViewController: UIViewController? {
+        return viewControllers.last
+    }
+
+    weak var delegate: RootContainerViewControllerDelegate?
 
     override var childForStatusBarStyle: UIViewController? {
         return topViewController
@@ -164,18 +170,7 @@ class RootContainerViewController: UIViewController {
 
     /// Request to display settings controller
     func showSettings(navigateTo route: SettingsNavigationRoute? = nil, animated: Bool) {
-        let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
-
-        guard let navController = mainStoryboard
-            .instantiateViewController(withIdentifier: ViewControllerIdentifier.settings.rawValue)
-            as? UINavigationController else { return }
-
-        if let route = route {
-            let settingsController = navController.topViewController as? SettingsViewController
-            settingsController?.navigate(to: route)
-        }
-
-        present(navController, animated: animated)
+        delegate?.rootContainerViewControllerShouldShowSettings(self, navigateTo: route, animated: animated)
     }
 
     /// Enable or disable the settings bar button displayed in the header bar
