@@ -215,7 +215,14 @@ impl NetworkManager {
             ipv6_settings.insert("route-metric", Variant(Box::new(0u32)));
             ipv6_settings.insert("routes", Variant(Box::new(device_routes6)));
             ipv6_settings.insert("route-data", Variant(Box::new(device_route6_data)));
-            ipv6_settings.insert("addresses", Variant(Box::new(device_addresses6)));
+            // if the link contains link local addresses, addresses shouldn't be reset
+            if ipv6_settings
+                .get("method")
+                .map(|method| method.as_str() != Some("link-local"))
+                .unwrap_or(true)
+            {
+                ipv6_settings.insert("addresses", Variant(Box::new(device_addresses6)));
+            }
         }
 
         let mut settings_backup =
