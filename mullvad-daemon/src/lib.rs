@@ -575,28 +575,6 @@ where
             },
         };
 
-        let tunnel_command_tx = tunnel_state_machine::spawn(
-            settings.allow_lan,
-            settings.block_when_disconnected,
-            firewall_args,
-            tunnel_parameters_generator,
-            log_dir,
-            resource_dir,
-            cache_dir.clone(),
-            internal_event_tx.to_specialized_sender(),
-            tunnel_state_machine_shutdown_tx,
-            #[cfg(target_os = "android")]
-            android_context,
-        )
-        .await
-        .map_err(Error::TunnelError)?;
-
-        let wireguard_key_manager =
-            wireguard::KeyManager::new(internal_event_tx.clone(), rpc_handle.clone());
-
-        // Attempt to download a fresh relay list
-        relay_selector.update().await;
-
         let initial_target_state = if settings.get_account_token().is_some() {
             if settings.auto_connect {
                 // Note: Auto-connect overrides the cached target state
@@ -608,6 +586,30 @@ where
         } else {
             TargetState::Unsecured
         };
+
+
+        let tunnel_command_tx = tunnel_state_machine::spawn(
+            settings.allow_lan,
+            settings.block_when_disconnected,
+            firewall_args,
+            tunnel_parameters_generator,
+            log_dir,
+            resource_dir,
+            cache_dir.clone(),
+            internal_event_tx.to_specialized_sender(),
+            tunnel_state_machine_shutdown_tx,
+            initial_target_state,
+            #[cfg(target_os = "android")]
+            android_context,
+        )
+        .await
+        .map_err(Error::TunnelError)?;
+
+        let wireguard_key_manager =
+            wireguard::KeyManager::new(internal_event_tx.clone(), rpc_handle.clone());
+
+        // Attempt to download a fresh relay list
+        relay_selector.update().await;
 
         let mut daemon = Daemon {
             tunnel_command_tx,
@@ -660,10 +662,6 @@ where
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
     /// shutdown event is received.
     pub async fn run(mut self) -> Result<(), Error> {
-        if self.target_state == TargetState::Secured {
-            self.connect_tunnel();
-        }
-
         while let Some(event) = self.rx.next().await {
             self.handle_event(event).await;
             if self.state == DaemonExecutionState::Finished {

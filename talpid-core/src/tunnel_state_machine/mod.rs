@@ -85,6 +85,7 @@ pub async fn spawn(
     cache_dir: impl AsRef<Path> + Send + 'static,
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     shutdown_tx: oneshot::Sender<()>,
+    connect_immediately: bool,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
     let (command_tx, mut command_rx) = mpsc::unbounded();
@@ -128,6 +129,7 @@ pub async fn spawn(
             resource_dir,
             cache_dir,
             command_adapter_rx,
+            connect_immediately,
         );
         let state_machine = match state_machine {
             Ok(state_machine) => {
@@ -203,6 +205,7 @@ impl TunnelStateMachine {
         resource_dir: PathBuf,
         cache_dir: impl AsRef<Path>,
         commands: old_mpsc::UnboundedReceiver<TunnelCommand>,
+        connect_immediately: bool,
     ) -> Result<Self, Error> {
         let firewall = Firewall::new(firewall_args).map_err(Error::InitFirewallError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
@@ -221,7 +224,12 @@ impl TunnelStateMachine {
             resource_dir,
         };
 
-        let (initial_state, _) = DisconnectedState::enter(&mut shared_values, ());
+        let (initial_state, _) = if connect_immediately {
+            ConnectingState::enter(&mut shared_values, 0)
+        } else {
+            DisconnectedState::enter(&mut shared_values, ())
+        };
+
         Ok(TunnelStateMachine {
             current_state: Some(initial_state),
             commands,
