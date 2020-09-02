@@ -24,6 +24,10 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+### Added
+#### Linux
+- Add support for WireGuard's kernel module if it's loaded.
+
 ### Fixed
 
 #### Windows

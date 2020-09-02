@@ -194,6 +194,12 @@ impl RouteManager {
         }
     }
 
+    /// Exposes runtime handle
+    #[cfg(target_os = "linux")]
+    pub fn runtime_handle(&self) -> tokio::runtime::Handle {
+        self.runtime.handle().clone()
+    }
+
     /// Route DNS requests through the tunnel interface.
     #[cfg(target_os = "linux")]
     pub fn route_exclusions_dns(

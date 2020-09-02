@@ -194,6 +194,12 @@ impl NetworkManager {
                 .get(NM_DEVICE, "Ip6Config")
                 .map_err(Error::Dbus)?;
 
+            let device_addresses6: Vec<(Vec<u8>, u32, Vec<u8>)> = self
+                .dbus_connection
+                .with_path(NM_BUS, &device_ip6_config, RPC_TIMEOUT_MS)
+                .get(NM_IP6_CONFIG, "Addresses")
+                .map_err(Error::Dbus)?;
+
             let device_routes6: Vec<(Vec<u8>, u32, Vec<u8>, u32)> = self
                 .dbus_connection
                 .with_path(NM_BUS, &device_ip6_config, RPC_TIMEOUT_MS)
@@ -209,6 +215,7 @@ impl NetworkManager {
             ipv6_settings.insert("route-metric", Variant(Box::new(0u32)));
             ipv6_settings.insert("routes", Variant(Box::new(device_routes6)));
             ipv6_settings.insert("route-data", Variant(Box::new(device_route6_data)));
+            ipv6_settings.insert("addresses", Variant(Box::new(device_addresses6)));
         }
 
         let mut settings_backup =
@@ -246,6 +253,13 @@ impl NetworkManager {
             .collect();
         if !v6_dns.is_empty() {
             Self::update_dns_config(&mut settings, "ipv6", v6_dns);
+        }
+
+        if let Some(wg_config) = settings.get_mut("wireguard") {
+            wg_config.insert(
+                "fwmark",
+                Variant(Box::new(crate::linux::TUNNEL_FW_MARK) as Box<dyn RefArg>),
+            );
         }
 
         self.reapply_settings(&device, settings, version_id)?;

@@ -11,7 +11,7 @@ use futures01::{
     Async, Future, Stream,
 };
 use talpid_types::{
-    net::{Endpoint, TunnelParameters},
+    net::TunnelParameters,
     tunnel::{ErrorStateCause, FirewallPolicyError},
     BoxedError, ErrorExt,
 };
@@ -52,19 +52,7 @@ impl ConnectedState {
         &self,
         shared_values: &mut SharedTunnelStateValues,
     ) -> Result<(), FirewallPolicyError> {
-        // If a proxy is specified we need to pass it on as the peer endpoint.
-        let peer_endpoint = self.get_endpoint_from_params();
-
-        let policy = FirewallPolicy::Connected {
-            peer_endpoint,
-            tunnel: self.metadata.clone(),
-            allow_lan: shared_values.allow_lan,
-            #[cfg(windows)]
-            relay_client: TunnelMonitor::get_relay_client(
-                &shared_values.resource_dir,
-                &self.tunnel_parameters,
-            ),
-        };
+        let policy = self.get_firewall_policy(shared_values);
         shared_values
             .firewall
             .apply_policy(policy)
@@ -85,13 +73,18 @@ impl ConnectedState {
             })
     }
 
-    fn get_endpoint_from_params(&self) -> Endpoint {
-        match self.tunnel_parameters {
-            TunnelParameters::OpenVpn(ref params) => match params.proxy {
-                Some(ref proxy_settings) => proxy_settings.get_endpoint().endpoint,
-                None => params.config.endpoint,
-            },
-            TunnelParameters::Wireguard(ref params) => params.connection.get_endpoint(),
+    fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
+        FirewallPolicy::Connected {
+            peer_endpoint: self.tunnel_parameters.get_next_hop_endpoint(),
+            tunnel: self.metadata.clone(),
+            allow_lan: shared_values.allow_lan,
+            #[cfg(windows)]
+            relay_client: TunnelMonitor::get_relay_client(
+                &shared_values.resource_dir,
+                &self.tunnel_parameters,
+            ),
+            #[cfg(target_os = "linux")]
+            use_fwmark: self.tunnel_parameters.get_proxy_endpoint().is_none(),
         }
     }
 
