@@ -22,31 +22,25 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
     private var activeAction: Job? = null
     private var resetAnticipatedStateJob: Job? = null
 
-    private val fetchInitialStateJob = fetchInitialState()
     private val initialState: TunnelState = TunnelState.Disconnected()
 
-    var state = initialState
-        private set(value) {
-            field = value
-            resetAnticipatedStateJob?.cancel()
-            onStateChange.notify(value)
-            uiState = value
-        }
-
-    var uiState = initialState
-        private set(value) {
-            field = value
-            onUiStateChange.notify(value)
-        }
-
-    var onUiStateChange = EventNotifier(uiState)
-    var onStateChange = EventNotifier(state)
+    var onStateChange = EventNotifier(initialState)
+    var onUiStateChange = EventNotifier(initialState)
     var vpnPermission = CompletableDeferred<Boolean>()
+
+    var state by onStateChange.notifiable()
+        private set
+    var uiState by onUiStateChange.notifiable()
+        private set
+
+    private val fetchInitialStateJob = fetchInitialState()
 
     init {
         daemon.onTunnelStateChange = { newState ->
             synchronized(this) {
+                resetAnticipatedStateJob?.cancel()
                 state = newState
+                uiState = newState
             }
         }
     }
