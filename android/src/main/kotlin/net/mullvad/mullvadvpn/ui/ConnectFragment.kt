@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.ui.notification.TunnelStateNotification
 import net.mullvad.mullvadvpn.ui.notification.VersionInfoNotification
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.NotificationBanner
+import net.mullvad.mullvadvpn.ui.widget.SwitchLocationButton
 import org.joda.time.DateTime
 
 val KEY_IS_TUNNEL_INFO_EXPANDED = "is_tunnel_info_expanded"
@@ -68,8 +69,9 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             onDisconnect = { connectionProxy.disconnect() }
         }
 
-        switchLocationButton = SwitchLocationButton(view, resources)
-        switchLocationButton.onClick = { openSwitchLocationScreen() }
+        switchLocationButton = view.findViewById<SwitchLocationButton>(R.id.switch_location).apply {
+            onClick = { openSwitchLocationScreen() }
+        }
 
         return view
     }
@@ -122,7 +124,6 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
     override fun onSafelyDestroyView() {
         notificationBanner.onDestroy()
-        switchLocationButton.onDestroy()
     }
 
     override fun onSafelySaveInstanceState(state: Bundle) {
@@ -136,7 +137,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         status.setState(realState)
 
         actionButton.tunnelState = uiState
-        switchLocationButton.state = uiState
+        switchLocationButton.tunnelState = uiState
     }
 
     private fun openSwitchLocationScreen() {

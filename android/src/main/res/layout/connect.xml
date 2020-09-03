@@ -121,12 +121,10 @@
                               android:paddingHorizontal="@dimen/side_margin"
                               android:paddingTop="@dimen/button_separation"
                               android:paddingBottom="@dimen/screen_vertical_margin">
-                    <Button android:id="@+id/switch_location"
-                            android:layout_marginBottom="@dimen/button_separation"
-                            android:paddingHorizontal="9dp"
-                            android:text="@string/switch_location"
-                            android:drawableRight="@drawable/icon_chevron"
-                            style="@style/White20Button" />
+                    <net.mullvad.mullvadvpn.ui.widget.SwitchLocationButton android:id="@+id/switch_location"
+                                                                           android:layout_width="match_parent"
+                                                                           android:layout_height="wrap_content"
+                                                                           android:layout_marginBottom="@dimen/button_separation" />
                     <LinearLayout android:layout_width="match_parent"
                                   android:layout_height="wrap_content"
                                   android:orientation="horizontal">
