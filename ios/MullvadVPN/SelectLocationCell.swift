@@ -80,8 +80,6 @@ class SelectLocationCell: BasicTableViewCell {
     private func setupCell() {
         indentationWidth = 16
 
-        backgroundView = UIView()
-        selectedBackgroundView = UIView()
         backgroundColor = .clear
         contentView.layoutMargins = preferredMargins
 
