@@ -54,7 +54,7 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         return view
     }
 
-    override fun onSafelyResume() {
+    override fun onSafelyStart() {
         accountCache.onAccountNumberChange.subscribe(this) { account ->
             updateAccountNumber(account)
         }
@@ -71,7 +71,7 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
     }
 
-    override fun onSafelyPause() {
+    override fun onSafelyStop() {
         accountCache.onAccountNumberChange.unsubscribe(this)
         accountCache.onAccountExpiryChange.unsubscribe(this)
         jobTracker.cancelJob("pollAccountData")
