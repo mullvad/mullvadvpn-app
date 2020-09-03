@@ -1,0 +1,14 @@
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <Button android:id="@+id/button_with_label"
+            android:layout_gravity="bottom"
+            android:paddingHorizontal="9dp"
+            android:text="@string/switch_location"
+            style="@style/White20Button" />
+    <Button android:id="@+id/button_with_location"
+            android:layout_gravity="bottom"
+            android:paddingHorizontal="9dp"
+            android:text="@string/switch_location"
+            android:drawableRight="@drawable/icon_chevron"
+            android:visibility="invisible"
+            style="@style/White20Button" />
+</merge>
