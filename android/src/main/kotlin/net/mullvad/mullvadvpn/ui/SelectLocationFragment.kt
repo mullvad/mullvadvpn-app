@@ -80,7 +80,7 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
         return view
     }
 
-    override fun onSafelyResume() {
+    override fun onSafelyStart() {
         // If the relay list is immediately available, setting the listener will cause it to be
         // called right away, while the state is still Initializing. In that case we can skip
         // showing the spinner animation and go directly to the Visible state.
@@ -118,7 +118,7 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
         }
     }
 
-    override fun onSafelyPause() {
+    override fun onSafelyStop() {
         relayListListener.onRelayListChange = null
     }
 

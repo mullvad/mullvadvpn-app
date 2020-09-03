@@ -25,7 +25,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         Uninitialized,
         Initialized,
         Active,
-        Paused,
+        Stopped,
         LostConnection,
         WaitingForReconnection,
     }
@@ -78,7 +78,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         synchronized(this) {
             when (state) {
                 State.Uninitialized -> state = State.Initialized
-                State.WaitingForReconnection -> state = State.Paused
+                State.WaitingForReconnection -> state = State.Stopped
                 else -> {}
             }
         }
@@ -95,7 +95,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
                     state = State.LostConnection
                     leaveFragment()
                 }
-                State.Paused -> state = State.WaitingForReconnection
+                State.Stopped -> state = State.WaitingForReconnection
                 else -> {}
             }
         }
@@ -108,7 +108,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
     ): View {
         synchronized(this) {
             when (state) {
-                State.Initialized, State.Active, State.Paused -> {
+                State.Initialized, State.Active, State.Stopped -> {
                     return onSafelyCreateView(inflater, container, savedInstanceState)
                 }
                 State.Uninitialized, State.LostConnection, State.WaitingForReconnection -> {
@@ -118,14 +118,14 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         }
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
 
         synchronized(this) {
             when (state) {
-                State.Initialized, State.Paused -> {
+                State.Initialized, State.Stopped -> {
                     state = State.Active
-                    onSafelyResume()
+                    onSafelyStart()
                 }
                 State.WaitingForReconnection -> {
                     state = State.LostConnection
@@ -139,7 +139,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
     override fun onSaveInstanceState(instanceState: Bundle) {
         synchronized(this) {
             when (state) {
-                State.Initialized, State.Paused, State.Active -> {
+                State.Initialized, State.Stopped, State.Active -> {
                     onSafelySaveInstanceState(instanceState)
                 }
                 else -> {}
@@ -147,24 +147,24 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         }
     }
 
-    override fun onPause() {
+    override fun onStop() {
         synchronized(this) {
             when (state) {
                 State.Initialized, State.Active -> {
-                    onSafelyPause()
-                    state = State.Paused
+                    onSafelyStop()
+                    state = State.Stopped
                 }
                 else -> {}
             }
         }
 
-        super.onPause()
+        super.onStop()
     }
 
     override fun onDestroyView() {
         synchronized(this) {
             when (state) {
-                State.Initialized, State.Paused, State.Active -> onSafelyDestroyView()
+                State.Initialized, State.Stopped, State.Active -> onSafelyDestroyView()
                 else -> {}
             }
         }
@@ -178,13 +178,13 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         savedInstanceState: Bundle?
     ): View
 
-    open fun onSafelyResume() {
+    open fun onSafelyStart() {
     }
 
     open fun onSafelySaveInstanceState(state: Bundle) {
     }
 
-    open fun onSafelyPause() {
+    open fun onSafelyStop() {
     }
 
     open fun onSafelyDestroyView() {

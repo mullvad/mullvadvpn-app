@@ -76,7 +76,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         return view
     }
 
-    override fun onSafelyResume() {
+    override fun onSafelyStart() {
         locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded
 
         notificationBanner.onResume()
@@ -109,7 +109,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
     }
 
-    override fun onSafelyPause() {
+    override fun onSafelyStop() {
         locationInfoCache.onNewLocation = null
         relayListListener.onRelayListChange = null
 
