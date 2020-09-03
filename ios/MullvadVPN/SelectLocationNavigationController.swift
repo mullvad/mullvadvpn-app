@@ -27,7 +27,7 @@ class SelectLocationNavigationController: UINavigationController {
         navigationBar.tintColor = .white
 
         let contentController = SelectLocationViewController()
-        contentController.navigationItem.title = NSLocalizedString("Select location", comment: "")
+        contentController.navigationItem.title = NSLocalizedString("Select location", comment: "Navigation title")
         contentController.navigationItem.largeTitleDisplayMode = .always
         contentController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(handleDone(_:)))
 
