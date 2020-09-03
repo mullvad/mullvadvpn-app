@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ConsentViewController" customModule="MullvadVPN" customModuleProvider="target">
+            <connections>
+                <outlet property="view" destination="okw-Tg-2ad" id="WQ8-79-AH6"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="okw-Tg-2ad">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fbX-Lo-tij">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="793"/>
+                    <subviews>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="11q-bQ-xwY" userLabel="Content view">
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="558"/>
+                            <subviews>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5Ub-SU-zLG" userLabel="Logo header">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="100"/>
+                                    <subviews>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LogoIcon" translatesAutoresizingMaskIntoConstraints="NO" id="4vX-y0-HN4">
+                                            <rect key="frame" x="177" y="20" width="60" height="60"/>
+                                            <constraints>
+                                                <constraint firstAttribute="width" secondItem="4vX-y0-HN4" secondAttribute="height" multiplier="1:1" id="4h0-Vu-yGp"/>
+                                                <constraint firstAttribute="width" constant="60" id="DiU-Y2-Isy"/>
+                                            </constraints>
+                                        </imageView>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstItem="4vX-y0-HN4" firstAttribute="top" secondItem="5Ub-SU-zLG" secondAttribute="top" constant="20" id="0Bk-LL-D0w"/>
+                                        <constraint firstItem="4vX-y0-HN4" firstAttribute="centerX" secondItem="5Ub-SU-zLG" secondAttribute="centerX" id="G7a-zH-1ff"/>
+                                        <constraint firstAttribute="bottom" secondItem="4vX-y0-HN4" secondAttribute="bottom" constant="20" id="iv9-ph-I49"/>
+                                    </constraints>
+                                </view>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Do you agree to remaining anonymous?" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="64r-KN-ooC">
+                                    <rect key="frame" x="20" y="100" width="374" height="57.5"/>
+                                    <fontDescription key="fontDescription" type="boldSystem" pointSize="24"/>
+                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wh8-zG-jJA">
+                                    <rect key="frame" x="20" y="181.5" width="374" height="334.5"/>
+                                    <string key="text">You have a right to privacy. That’s why we never store activity logs, don't ask for personal information, and encourage anonymous payments.  In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
+ We strongly believe in retaining as little data as possible because we want you to remain anonymous.
+</string>
+                                    <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DsZ-mb-iQe" customClass="LinkButton" customModule="MullvadVPN" customModuleProvider="target">
+                                    <rect key="frame" x="20" y="516" width="20" height="22"/>
+                                    <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="18"/>
+                                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <state key="normal" title="Privacy Policy" image="IconExtlink"/>
+                                    <connections>
+                                        <action selector="handlePrivacyPolicyButton:" destination="-1" eventType="touchUpInside" id="Vid-Bc-rEi"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="DsZ-mb-iQe" secondAttribute="trailing" constant="20" symbolic="YES" id="4tG-3r-ao8"/>
+                                <constraint firstItem="wh8-zG-jJA" firstAttribute="top" secondItem="64r-KN-ooC" secondAttribute="bottom" constant="24" id="FLZ-Ye-Tpi"/>
+                                <constraint firstItem="DsZ-mb-iQe" firstAttribute="top" secondItem="wh8-zG-jJA" secondAttribute="bottom" id="I7w-FT-B6x"/>
+                                <constraint firstAttribute="trailing" secondItem="5Ub-SU-zLG" secondAttribute="trailing" id="Laz-Cj-wzQ"/>
+                                <constraint firstAttribute="trailing" secondItem="64r-KN-ooC" secondAttribute="trailing" constant="20" symbolic="YES" id="NEy-kj-Xa9"/>
+                                <constraint firstAttribute="bottom" secondItem="DsZ-mb-iQe" secondAttribute="bottom" constant="20" symbolic="YES" id="VEw-Go-ZgL"/>
+                                <constraint firstItem="DsZ-mb-iQe" firstAttribute="leading" secondItem="11q-bQ-xwY" secondAttribute="leading" constant="20" symbolic="YES" id="WZO-4C-eJL"/>
+                                <constraint firstItem="5Ub-SU-zLG" firstAttribute="leading" secondItem="11q-bQ-xwY" secondAttribute="leading" id="hVR-xg-zsg"/>
+                                <constraint firstAttribute="trailing" secondItem="wh8-zG-jJA" secondAttribute="trailing" constant="20" symbolic="YES" id="mKX-Gy-ThJ"/>
+                                <constraint firstItem="5Ub-SU-zLG" firstAttribute="top" secondItem="11q-bQ-xwY" secondAttribute="top" id="p0M-NJ-XvJ"/>
+                                <constraint firstItem="5Ub-SU-zLG" firstAttribute="bottom" secondItem="64r-KN-ooC" secondAttribute="top" id="qr7-pk-goS"/>
+                                <constraint firstItem="wh8-zG-jJA" firstAttribute="leading" secondItem="11q-bQ-xwY" secondAttribute="leading" constant="20" symbolic="YES" id="ugv-Jw-Z2N"/>
+                                <constraint firstItem="64r-KN-ooC" firstAttribute="leading" secondItem="11q-bQ-xwY" secondAttribute="leading" constant="20" symbolic="YES" id="yXI-Im-8ZF"/>
+                            </constraints>
+                        </view>
+                    </subviews>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="11q-bQ-xwY" secondAttribute="trailing" id="2iy-GE-faC"/>
+                        <constraint firstAttribute="bottom" secondItem="11q-bQ-xwY" secondAttribute="bottom" id="NJz-kz-ei6"/>
+                        <constraint firstItem="11q-bQ-xwY" firstAttribute="width" secondItem="fbX-Lo-tij" secondAttribute="width" id="dPZ-ie-kV8"/>
+                        <constraint firstItem="11q-bQ-xwY" firstAttribute="top" secondItem="fbX-Lo-tij" secondAttribute="top" id="po9-I5-cIU"/>
+                        <constraint firstItem="11q-bQ-xwY" firstAttribute="leading" secondItem="fbX-Lo-tij" secondAttribute="leading" id="sin-cl-oOj"/>
+                    </constraints>
+                </scrollView>
+                <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FYK-e4-iEm" userLabel="Footer">
+                    <rect key="frame" x="0.0" y="793" width="414" height="103"/>
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7rE-vW-Iff" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
+                            <rect key="frame" x="20" y="24" width="374" height="21"/>
+                            <accessibility key="accessibilityConfiguration" identifier="AgreeButton"/>
+                            <state key="normal" title="Agree and continue" backgroundImage="DefaultButton">
+                                <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </state>
+                            <connections>
+                                <action selector="handleAgreeAndContinueButton:" destination="-1" eventType="touchUpInside" id="GH7-Ie-FcB"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" name="Secondary"/>
+                    <constraints>
+                        <constraint firstItem="7rE-vW-Iff" firstAttribute="trailing" secondItem="FYK-e4-iEm" secondAttribute="trailingMargin" id="1rH-JL-16T"/>
+                        <constraint firstItem="7rE-vW-Iff" firstAttribute="leading" secondItem="FYK-e4-iEm" secondAttribute="leadingMargin" id="StR-Pw-jiq"/>
+                        <constraint firstAttribute="bottomMargin" secondItem="7rE-vW-Iff" secondAttribute="bottom" id="r5T-I7-veu"/>
+                        <constraint firstItem="7rE-vW-Iff" firstAttribute="top" secondItem="FYK-e4-iEm" secondAttribute="topMargin" id="zpa-Wp-alT"/>
+                    </constraints>
+                    <edgeInsets key="layoutMargins" top="24" left="16" bottom="24" right="16"/>
+                </view>
+            </subviews>
+            <color key="backgroundColor" name="Primary"/>
+            <constraints>
+                <constraint firstItem="fbX-Lo-tij" firstAttribute="leading" secondItem="okw-Tg-2ad" secondAttribute="leading" id="Dnd-7Z-TMw"/>
+                <constraint firstAttribute="bottom" secondItem="FYK-e4-iEm" secondAttribute="bottom" id="R7i-8R-6DV"/>
+                <constraint firstAttribute="trailing" secondItem="fbX-Lo-tij" secondAttribute="trailing" id="RYg-1F-lLB"/>
+                <constraint firstItem="FYK-e4-iEm" firstAttribute="leading" secondItem="okw-Tg-2ad" secondAttribute="leading" id="agm-y6-aMX"/>
+                <constraint firstItem="fbX-Lo-tij" firstAttribute="top" secondItem="okw-Tg-2ad" secondAttribute="top" id="cU9-ui-8N7"/>
+                <constraint firstAttribute="trailing" secondItem="FYK-e4-iEm" secondAttribute="trailing" id="dVg-eg-gFM"/>
+                <constraint firstItem="FYK-e4-iEm" firstAttribute="top" secondItem="fbX-Lo-tij" secondAttribute="bottom" id="dhh-eu-XGv"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="AcR-u0-2Ll"/>
+            <point key="canvasLocation" x="139" y="153"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="DefaultButton" width="9" height="9"/>
+        <image name="IconExtlink" width="16" height="16"/>
+        <image name="LogoIcon" width="253" height="253"/>
+        <namedColor name="Primary">
+            <color red="0.16078431372549021" green="0.30196078431372547" blue="0.45098039215686275" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="Secondary">
+            <color red="0.098039215686274508" green="0.1803921568627451" blue="0.27058823529411763" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

@@ -90,8 +90,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     private func showTermsOfService(in rootViewController: RootContainerViewController, completionHandler: @escaping () -> Void) {
-        let consentViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.consent.rawValue) as! ConsentViewController
-
+        let consentViewController = ConsentViewController()
         consentViewController.completionHandler = completionHandler
 
         rootViewController.setViewControllers([consentViewController], animated: false)
