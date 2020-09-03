@@ -10,12 +10,12 @@ import Foundation
 import UIKit
 
 protocol SelectLocationDelegate: class {
-    func selectLocationController(_ controller: SelectLocationController, didSelectLocation location: RelayLocation)
-    func selectLocationControllerDidCancel(_ controller: SelectLocationController)
+    func selectLocationViewController(_ controller: SelectLocationViewController, didSelectLocation location: RelayLocation)
+    func selectLocationViewControllerDidCancel(_ controller: SelectLocationViewController)
 }
 
 class SelectLocationNavigationController: UINavigationController {
-    private weak var contentController: SelectLocationController?
+    private weak var contentController: SelectLocationViewController?
 
     weak var selectLocationDelegate: SelectLocationDelegate?
 
@@ -26,7 +26,7 @@ class SelectLocationNavigationController: UINavigationController {
         navigationBar.barStyle = .black
         navigationBar.tintColor = .white
 
-        let contentController = SelectLocationController()
+        let contentController = SelectLocationViewController()
         contentController.navigationItem.title = NSLocalizedString("Select location", comment: "")
         contentController.navigationItem.largeTitleDisplayMode = .always
         contentController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(handleDone(_:)))
@@ -34,7 +34,7 @@ class SelectLocationNavigationController: UINavigationController {
         contentController.didSelectLocationHandler = { [weak self] (location) in
             guard let self = self, let contentController = self.contentController else { return }
 
-            self.selectLocationDelegate?.selectLocationController(contentController, didSelectLocation: location)
+            self.selectLocationDelegate?.selectLocationViewController(contentController, didSelectLocation: location)
         }
 
         self.contentController = contentController
@@ -57,7 +57,7 @@ class SelectLocationNavigationController: UINavigationController {
 
     @objc func handleDone(_ sender: AnyObject) {
         if let contentController = contentController {
-            selectLocationDelegate?.selectLocationControllerDidCancel(contentController)
+            selectLocationDelegate?.selectLocationViewControllerDidCancel(contentController)
         }
     }
 }

@@ -116,7 +116,7 @@
 		588534BF246193D90018B744 /* AutomaticKeyRotationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588534BD246193C00018B744 /* AutomaticKeyRotationManager.swift */; };
 		5888AD7F2279B6BF0051EB06 /* RelayStatusIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD7E2279B6BF0051EB06 /* RelayStatusIndicatorView.swift */; };
 		5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD82227B11080051EB06 /* SelectLocationCell.swift */; };
-		5888AD87227B17950051EB06 /* SelectLocationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* SelectLocationController.swift */; };
+		5888AD87227B17950051EB06 /* SelectLocationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5888AD86227B17950051EB06 /* SelectLocationViewController.swift */; };
 		588D2FE3248AC27F00E313F7 /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E973DD24850EB600096F90 /* AsyncOperation.swift */; };
 		58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */; };
 		58907D9524D17B4E00CFC3F5 /* DisconnectSplitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */; };
@@ -322,7 +322,7 @@
 		588534BD246193C00018B744 /* AutomaticKeyRotationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyRotationManager.swift; sourceTree = "<group>"; };
 		5888AD7E2279B6BF0051EB06 /* RelayStatusIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayStatusIndicatorView.swift; sourceTree = "<group>"; };
 		5888AD82227B11080051EB06 /* SelectLocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationCell.swift; sourceTree = "<group>"; };
-		5888AD86227B17950051EB06 /* SelectLocationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationController.swift; sourceTree = "<group>"; };
+		5888AD86227B17950051EB06 /* SelectLocationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationViewController.swift; sourceTree = "<group>"; };
 		58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NEProviderStopReason+Debug.swift"; sourceTree = "<group>"; };
 		58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisconnectSplitButton.swift; sourceTree = "<group>"; };
 		5894E725236B2801008A2793 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -595,7 +595,7 @@
 				5888AD7E2279B6BF0051EB06 /* RelayStatusIndicatorView.swift */,
 				587425C02299833500CA2045 /* RootContainerViewController.swift */,
 				5888AD82227B11080051EB06 /* SelectLocationCell.swift */,
-				5888AD86227B17950051EB06 /* SelectLocationController.swift */,
+				5888AD86227B17950051EB06 /* SelectLocationViewController.swift */,
 				5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */,
 				5857F24624C882D700CF6F47 /* SelectLocationNavigationController.swift */,
 				582BB1B2229574F40055B6EF /* SettingsAccountCell.swift */,
@@ -992,7 +992,7 @@
 				582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */,
 				58FAEDF7245088E100CB0F5B /* Keychain.swift in Sources */,
 				58907D9524D17B4E00CFC3F5 /* DisconnectSplitButton.swift in Sources */,
-				5888AD87227B17950051EB06 /* SelectLocationController.swift in Sources */,
+				5888AD87227B17950051EB06 /* SelectLocationViewController.swift in Sources */,
 				580EE20424B321EC00F9D8A1 /* OperationObserver.swift in Sources */,
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
 				58A99ED3240014A0006599E9 /* ConsentViewController.swift in Sources */,
