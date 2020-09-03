@@ -21,10 +21,6 @@ class WireguardDevice {
         /// A failure to obtain the tunnel device file descriptor
         case cannotLocateSocketDescriptor
 
-        /// A failure to duplicate the socket descriptor.
-        /// The associated value contains the `errno` from a syscall to `dup`
-        case cannotDuplicateSocketDescriptor(Int32)
-
         /// A failure to start the Wireguard backend
         case start(Int32)
 
@@ -41,8 +37,6 @@ class WireguardDevice {
             switch self {
             case .cannotLocateSocketDescriptor:
                 return "Cannot locate the socket file descriptor."
-            case .cannotDuplicateSocketDescriptor(let posixErrorCode):
-                return "Cannot duplicate the socket file descriptor. Errno: \(posixErrorCode)"
             case .start(let wgErrorCode):
                 return "Failed to start Wireguard. Return code: \(wgErrorCode)"
             case .notStarted:
@@ -244,28 +238,16 @@ class WireguardDevice {
     private func startWireguardBackend(resolvedConfiguration: WireguardConfiguration) -> Result<(), Error> {
         assert(self.wireguardHandle == nil)
 
-        // Duplicate the tunnel file descriptor to prevent `wgTurnOff` from closing it
-        let duplicateFileDescriptor = dup(self.tunnelFileDescriptor)
-        if duplicateFileDescriptor == -1 {
-            return .failure(.cannotDuplicateSocketDescriptor(errno))
-        }
-
         let handle = resolvedConfiguration
             .uapiConfiguration()
             .toRawWireguardConfigString()
-            .withCString { wgTurnOn($0, duplicateFileDescriptor) }
+            .withCString { wgTurnOn($0, self.tunnelFileDescriptor) }
 
         if handle >= 0 {
             self.wireguardHandle = handle
 
             return .success(())
         } else {
-            // `wgTurnOn` does not cover all of the code paths and may leave the file descriptor
-            // open on failure
-            if close(duplicateFileDescriptor) == -1 {
-                self.logger.warning("Failed to close the duplicate tunnel file descriptor. Error: \(errno)")
-            }
-
             return .failure(.start(handle))
         }
     }
