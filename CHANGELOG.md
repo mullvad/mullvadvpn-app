@@ -36,6 +36,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Fix rare crash that could happen when starting the background service.
+- Fix UI not updating in split screen mode when the window is unfocused.
 
 
 ## [2020.6-beta2] - 2020-08-27
