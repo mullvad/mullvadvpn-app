@@ -81,6 +81,8 @@ class AccountLogin : RelativeLayout {
     }
 
     init {
+        border.elevation = elevation + 0.1f
+
         input.apply {
             onFocusChanged.subscribe(this) { hasFocus ->
                 inputHasFocus = hasFocus
