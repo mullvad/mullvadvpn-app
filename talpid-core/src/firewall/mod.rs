@@ -186,7 +186,7 @@ pub struct FirewallArguments {
     /// Determines whether the firewall should atomically enter the blocked state during init.
     pub initialize_blocked: bool,
     /// This argument is required for the blocked state to configure the firewall correctly.
-    pub allow_lan: Option<bool>,
+    pub allow_lan: bool,
 }
 
 impl Firewall {

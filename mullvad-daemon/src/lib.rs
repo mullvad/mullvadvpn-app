@@ -558,26 +558,7 @@ where
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
             tx: internal_event_tx.clone(),
         };
-        let tunnel_command_tx = tunnel_state_machine::spawn(
-            settings.allow_lan,
-            settings.block_when_disconnected,
-            tunnel_parameters_generator,
-            log_dir,
-            resource_dir,
-            cache_dir.clone(),
-            internal_event_tx.to_specialized_sender(),
-            tunnel_state_machine_shutdown_tx,
-            #[cfg(target_os = "android")]
-            android_context,
-        )
-        .await
-        .map_err(Error::TunnelError)?;
 
-        let wireguard_key_manager =
-            wireguard::KeyManager::new(internal_event_tx.clone(), rpc_handle.clone());
-
-        // Attempt to download a fresh relay list
-        relay_selector.update().await;
 
         let initial_target_state = if settings.get_account_token().is_some() {
             if settings.auto_connect {
@@ -590,6 +571,29 @@ where
         } else {
             TargetState::Unsecured
         };
+
+
+        let tunnel_command_tx = tunnel_state_machine::spawn(
+            settings.allow_lan,
+            settings.block_when_disconnected,
+            tunnel_parameters_generator,
+            log_dir,
+            resource_dir,
+            cache_dir.clone(),
+            internal_event_tx.to_specialized_sender(),
+            tunnel_state_machine_shutdown_tx,
+            initial_target_state != TargetState::Secured,
+            #[cfg(target_os = "android")]
+            android_context,
+        )
+        .await
+        .map_err(Error::TunnelError)?;
+
+        let wireguard_key_manager =
+            wireguard::KeyManager::new(internal_event_tx.clone(), rpc_handle.clone());
+
+        // Attempt to download a fresh relay list
+        relay_selector.update().await;
 
         let mut daemon = Daemon {
             tunnel_command_tx,
