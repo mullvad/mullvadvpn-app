@@ -28,18 +28,18 @@ class LaunchFragment : ServiceAwareFragment() {
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
 
         jobTracker.newUiJob("advanceToNextScreen") {
             advanceToNextScreen()
         }
     }
 
-    override fun onPause() {
+    override fun onStop() {
         jobTracker.cancelJob("advanceToNextScreen")
 
-        super.onPause()
+        super.onStop()
     }
 
     private suspend fun advanceToNextScreen() {
