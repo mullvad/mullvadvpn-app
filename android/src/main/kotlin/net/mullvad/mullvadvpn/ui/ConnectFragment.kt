@@ -86,8 +86,10 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
 
         relayListListener.onRelayListChange = { _, selectedRelayItem ->
-            locationInfoCache.selectedRelay = selectedRelayItem
-            switchLocationButton.location = selectedRelayItem
+            jobTracker.newUiJob("updateSelectedRelayItem") {
+                locationInfoCache.selectedRelay = selectedRelayItem
+                switchLocationButton.location = selectedRelayItem
+            }
         }
 
         connectionProxy.onUiStateChange.subscribe(this) { uiState ->
