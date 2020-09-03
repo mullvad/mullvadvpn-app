@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import net.mullvad.mullvadvpn.R
 
-class AccountInputContainer : RelativeLayout {
+class AccountLoginBorder : RelativeLayout {
     enum class BorderState {
         UNFOCUSED,
         FOCUSED,
@@ -48,7 +48,7 @@ class AccountInputContainer : RelativeLayout {
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
             val inflater = service as LayoutInflater
 
-            inflater.inflate(R.layout.account_input_container, this)
+            inflater.inflate(R.layout.account_login_border, this)
         }
 
     private val topLeftCorner: ImageView = container.findViewById(R.id.top_left_corner)

@@ -7,8 +7,8 @@ import android.widget.ListView
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.widget.AccountInput
-import net.mullvad.mullvadvpn.ui.widget.AccountInputContainer
-import net.mullvad.mullvadvpn.ui.widget.AccountInputContainer.BorderState
+import net.mullvad.mullvadvpn.ui.widget.AccountLoginBorder
+import net.mullvad.mullvadvpn.ui.widget.AccountLoginBorder.BorderState
 
 class AccountInputController(val parentView: View, context: Context) {
     private var inputHasFocus by observable(false) { _, _, hasFocus ->
@@ -32,7 +32,7 @@ class AccountInputController(val parentView: View, context: Context) {
         }
     }
 
-    val container: AccountInputContainer = parentView.findViewById(R.id.account_input_container)
+    val container: AccountLoginBorder = parentView.findViewById(R.id.account_input_container)
     val accountHistoryList: ListView = parentView.findViewById(R.id.account_history_list)
 
     val input = parentView.findViewById<AccountInput>(R.id.account_input).apply {
