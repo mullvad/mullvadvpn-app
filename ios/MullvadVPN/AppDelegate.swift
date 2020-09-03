@@ -101,9 +101,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         animated: Bool,
         completionHandler: @escaping () -> Void)
     {
-        let loginViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.login.rawValue)
+        let loginViewController = LoginViewController()
+        loginViewController.delegate = self
 
-        var viewControllers = [loginViewController]
+        var viewControllers: [UIViewController] = [loginViewController]
 
         if Account.shared.isLoggedIn {
             let mainViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.main.rawValue)
@@ -132,6 +133,16 @@ extension AppDelegate: RootContainerViewControllerDelegate {
 
         controller.present(navController, animated: animated)
     }
+}
+
+extension AppDelegate: LoginViewControllerDelegate {
+
+    func loginViewControllerDidLogin(_ controller: LoginViewController) {
+        let mainViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.main.rawValue)
+
+        rootContainer?.pushViewController(mainViewController, animated: true)
+    }
+
 }
 
 extension AppDelegate: SettingsViewControllerDelegate {

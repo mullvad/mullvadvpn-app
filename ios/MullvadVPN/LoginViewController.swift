@@ -22,6 +22,10 @@ enum LoginState {
     case success(AuthenticationMethod)
 }
 
+protocol LoginViewControllerDelegate: class {
+    func loginViewControllerDidLogin(_ controller: LoginViewController)
+}
+
 class LoginViewController: UIViewController, RootContainment {
 
     @IBOutlet var keyboardToolbar: UIToolbar!
@@ -43,6 +47,8 @@ class LoginViewController: UIViewController, RootContainment {
             loginStateDidChange()
         }
     }
+
+    weak var delegate: LoginViewControllerDelegate?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -261,8 +267,7 @@ class LoginViewController: UIViewController, RootContainment {
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
                 self.rootContainerController?.setEnableSettingsButton(true)
 
-                self.performSegue(withIdentifier: SegueIdentifier.Login.showConnect.rawValue,
-                                  sender: self)
+                self.delegate?.loginViewControllerDidLogin(self)
             }
         }
     }
