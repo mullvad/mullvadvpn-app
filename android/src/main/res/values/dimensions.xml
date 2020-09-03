@@ -4,8 +4,8 @@
     <dimen name="relay_row_padding">50dp</dimen>
     <dimen name="list_item_divider">1dp</dimen>
     <dimen name="dialog_margin">14dp</dimen>
-    <dimen name="account_input_corner_radius">4dp</dimen>
-    <dimen name="account_input_border_width">2dp</dimen>
+    <dimen name="account_login_corner_radius">4dp</dimen>
+    <dimen name="account_login_border_width">2dp</dimen>
     <dimen name="edit_text_corner_radius">4dp</dimen>
     <dimen name="button_height">44dp</dimen>
     <dimen name="cell_switch_border_radius">16dp</dimen>
