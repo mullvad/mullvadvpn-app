@@ -1,4 +1,4 @@
-import { geoTimes } from 'd3-geo-projection';
+import { geoMercator, GeoProjection } from 'd3-geo';
 import rbush from 'rbush';
 import * as React from 'react';
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
@@ -8,9 +8,6 @@ import statesProvincesLinesData from '../../../assets/geo/states-provinces-lines
 
 import geometryTreeData from '../../../assets/geo/geometry.rbush.json';
 import statesProvincesLinesTreeData from '../../../assets/geo/states-provinces-lines.rbush.json';
-
-// Infer the GeoProjection type from the `geoTimes()` return value
-type GeoProjection = ReturnType<typeof geoTimes>;
 
 interface IGeometryLeaf extends rbush.BBox {
   id: string;
@@ -196,7 +193,7 @@ export default class SvgMap extends React.Component<IProps, IState> {
     height: number = this.props.height,
     offset: [number, number] = this.props.offset,
   ) {
-    return geoTimes()
+    return geoMercator()
       .scale(this.projectionConfig.scale)
       .translate([offset[0] + width / 2, offset[1] + height / 2])
       .precision(0.1);
