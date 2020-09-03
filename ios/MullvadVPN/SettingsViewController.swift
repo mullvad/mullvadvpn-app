@@ -25,14 +25,12 @@ protocol SettingsViewControllerDelegate: class {
 
 class SettingsViewController: UITableViewController, AccountViewControllerDelegate {
 
-    @IBOutlet var staticDataSource: SettingsTableViewDataSource!
-
     private enum CellIdentifier: String {
-        case account = "Account"
-        case appVersion = "AppVersion"
-        case basicDisclosure = "BasicDisclosure"
-        case basic = "Basic"
+        case accountCell = "AccountCell"
+        case basicCell = "BasicCell"
     }
+
+    private let staticDataSource = SettingsTableViewDataSource()
 
     private weak var accountRow: StaticTableViewRow?
     private var accountExpiryObserver: NSObjectProtocol?
@@ -41,6 +39,23 @@ class SettingsViewController: UITableViewController, AccountViewControllerDelega
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        tableView.backgroundColor = .secondaryColor
+        tableView.separatorColor = .secondaryColor
+        tableView.rowHeight = UITableView.automaticDimension
+        tableView.estimatedRowHeight = 60
+        tableView.sectionHeaderHeight = 18
+        tableView.sectionFooterHeight = 18
+
+        tableView.dataSource = staticDataSource
+        tableView.delegate = staticDataSource
+
+        tableView.register(SettingsAccountCell.self, forCellReuseIdentifier: CellIdentifier.accountCell.rawValue)
+        tableView.register(SettingsCell.self, forCellReuseIdentifier: CellIdentifier.basicCell.rawValue)
+
+        navigationItem.title = NSLocalizedString("Settings", comment: "Navigation title")
+        navigationItem.largeTitleDisplayMode = .always
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(handleDismiss))
 
         accountExpiryObserver = NotificationCenter.default.addObserver(
             forName: Account.didUpdateAccountExpiryNotification,
@@ -88,21 +103,24 @@ class SettingsViewController: UITableViewController, AccountViewControllerDelega
     private func setupDataSource() {
         if Account.shared.isLoggedIn {
             let topSection = StaticTableViewSection()
-            let accountRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.account.rawValue) { (_, cell) in
+            let accountRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.accountCell.rawValue) { (_, cell) in
                 let cell = cell as! SettingsAccountCell
 
+                cell.titleLabel.text = NSLocalizedString("Account", comment: "")
                 cell.accountExpiryDate = Account.shared.expiry
+                cell.accessoryType = .disclosureIndicator
             }
 
             accountRow.actionBlock = { [weak self] (indexPath) in
                 self?.navigate(to: .account)
             }
 
-            let wireguardKeyRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicDisclosure.rawValue) { (_, cell) in
-                let cell = cell as! SettingsBasicCell
+            let wireguardKeyRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
+                let cell = cell as! SettingsCell
 
                 cell.titleLabel.text = NSLocalizedString("WireGuard key", comment: "")
                 cell.accessibilityIdentifier = "WireGuardKeyCell"
+                cell.accessoryType = .disclosureIndicator
             }
 
             wireguardKeyRow.actionBlock = { [weak self] (indexPath) in
@@ -116,11 +134,12 @@ class SettingsViewController: UITableViewController, AccountViewControllerDelega
         }
 
         let middleSection = StaticTableViewSection()
-        let versionRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.appVersion.rawValue) { (_, cell) in
-            let cell = cell as! SettingsAppVersionCell
+        let versionRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
+            let cell = cell as! SettingsCell
             let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
 
-            cell.versionLabel.text = version
+            cell.titleLabel.text = NSLocalizedString("App version", comment: "")
+            cell.detailTitleLabel.text = version
         }
         versionRow.isSelectable = false
 
@@ -128,8 +147,8 @@ class SettingsViewController: UITableViewController, AccountViewControllerDelega
         staticDataSource.addSections([middleSection])
 
         #if DEBUG
-        let logStreamerRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basic.rawValue) { (_, cell) in
-            let cell = cell as! SettingsBasicCell
+        let logStreamerRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
+            let cell = cell as! SettingsCell
 
             cell.titleLabel.text = NSLocalizedString("App logs", comment: "")
         }

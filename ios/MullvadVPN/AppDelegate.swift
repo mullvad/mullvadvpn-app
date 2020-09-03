@@ -14,8 +14,6 @@ import Logging
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
-    let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
     var rootContainer: RootContainerViewController?
 
     #if targetEnvironment(simulator)
@@ -118,12 +116,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 extension AppDelegate: RootContainerViewControllerDelegate {
 
     func rootContainerViewControllerShouldShowSettings(_ controller: RootContainerViewController, navigateTo route: SettingsNavigationRoute?, animated: Bool) {
-        guard let navController = mainStoryboard
-            .instantiateViewController(withIdentifier: ViewControllerIdentifier.settings.rawValue)
-            as? UINavigationController else { return }
-
-        guard let settingsController = navController.topViewController as? SettingsViewController else { return }
+        let settingsController = SettingsViewController(style: .grouped)
         settingsController.settingsDelegate = self
+
+        let navController = SettingsNavigationController(navigationBarClass: CustomNavigationBar.self, toolbarClass: nil)
+        navController.pushViewController(settingsController, animated: false)
 
         if let route = route {
             settingsController.navigate(to: route)

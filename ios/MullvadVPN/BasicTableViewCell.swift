@@ -10,8 +10,8 @@ import UIKit
 
 class BasicTableViewCell: UITableViewCell {
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         let backgroundView = UIView()
         backgroundView.backgroundColor = UIColor.Cell.backgroundColor
@@ -23,6 +23,10 @@ class BasicTableViewCell: UITableViewCell {
         self.selectedBackgroundView = selectedBackgroundView
         backgroundColor = UIColor.clear
         contentView.backgroundColor = UIColor.clear
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
 }

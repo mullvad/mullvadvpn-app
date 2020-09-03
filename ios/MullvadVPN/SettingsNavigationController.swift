@@ -10,10 +10,16 @@ import Foundation
 import UIKit
 
 class SettingsNavigationController: UINavigationController {
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        navigationBar.barStyle = .black
+        navigationBar.tintColor = .white
+        navigationBar.prefersLargeTitles = true
 
         // Update account expiry
         Account.shared.updateAccountExpiry()
     }
+
 }

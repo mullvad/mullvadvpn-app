@@ -10,9 +10,6 @@ import UIKit
 
 class SettingsAccountCell: SettingsCell {
 
-    @IBOutlet var titleLabel: UILabel!
-    @IBOutlet var expiryLabel: UILabel!
-
     var accountExpiryDate: Date? {
         didSet {
             didUpdateAccountExpiry()
@@ -24,22 +21,22 @@ class SettingsAccountCell: SettingsCell {
             let accountExpiry = AccountExpiry(date: accountExpiryDate)
 
             if accountExpiry.isExpired {
-                expiryLabel.text = NSLocalizedString("OUT OF TIME", comment: "")
-                expiryLabel.textColor = .dangerColor
+                detailTitleLabel.text = NSLocalizedString("OUT OF TIME", comment: "")
+                detailTitleLabel.textColor = .dangerColor
             } else {
                 if let remainingTime = accountExpiry.formattedRemainingTime {
                     let localizedString = NSLocalizedString("%@ left", comment: "")
                     let formattedString = String(format: localizedString, remainingTime)
 
-                    expiryLabel.text = formattedString.uppercased()
+                    detailTitleLabel.text = formattedString.uppercased()
                 } else {
-                    expiryLabel.text = ""
+                    detailTitleLabel.text = ""
                 }
-                expiryLabel.textColor = .white
+                detailTitleLabel.textColor = .white
             }
         } else {
-            expiryLabel.text = ""
-            expiryLabel.textColor = .white
+            detailTitleLabel.text = ""
+            detailTitleLabel.textColor = .white
         }
     }
 

@@ -40,7 +40,7 @@ protocol RootContainerViewControllerDelegate: class {
     func rootContainerViewControllerShouldShowSettings(_ controller: RootContainerViewController, navigateTo route: SettingsNavigationRoute?, animated: Bool)
 }
 
-/// A root container class that primarily handles the unwind storyboard segues on log out
+/// A root container view controller
 class RootContainerViewController: UIViewController {
 
     typealias CompletionHandler = () -> Void
