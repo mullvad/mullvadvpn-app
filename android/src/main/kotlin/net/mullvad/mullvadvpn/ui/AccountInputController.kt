@@ -6,8 +6,9 @@ import android.widget.ArrayAdapter
 import android.widget.ListView
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.ui.AccountInputContainer.BorderState
 import net.mullvad.mullvadvpn.ui.widget.AccountInput
+import net.mullvad.mullvadvpn.ui.widget.AccountInputContainer
+import net.mullvad.mullvadvpn.ui.widget.AccountInputContainer.BorderState
 
 class AccountInputController(val parentView: View, context: Context) {
     private var inputHasFocus by observable(false) { _, _, hasFocus ->
