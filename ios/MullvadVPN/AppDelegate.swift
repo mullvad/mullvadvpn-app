@@ -54,7 +54,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 rootViewController.delegate = self
 
                 let showMainController = { (_ animated: Bool) in
-                    self.showMainController(in: rootViewController, animated: animated) {
+                    self.showConnectController(in: rootViewController, animated: animated) {
                         self.didPresentTheMainController()
                     }
                 }
@@ -96,7 +96,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         rootViewController.setViewControllers([consentViewController], animated: false)
     }
 
-    private func showMainController(
+    private func showConnectController(
         in rootViewController: RootContainerViewController,
         animated: Bool,
         completionHandler: @escaping () -> Void)
@@ -107,9 +107,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         var viewControllers: [UIViewController] = [loginViewController]
 
         if Account.shared.isLoggedIn {
-            let mainViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.main.rawValue)
-
-            viewControllers.append(mainViewController)
+            viewControllers.append(ConnectViewController())
         }
 
         rootViewController.setViewControllers(viewControllers, animated: animated, completion: completionHandler)
@@ -138,9 +136,7 @@ extension AppDelegate: RootContainerViewControllerDelegate {
 extension AppDelegate: LoginViewControllerDelegate {
 
     func loginViewControllerDidLogin(_ controller: LoginViewController) {
-        let mainViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.main.rawValue)
-
-        rootContainer?.pushViewController(mainViewController, animated: true)
+        rootContainer?.pushViewController(ConnectViewController(), animated: true)
     }
 
 }

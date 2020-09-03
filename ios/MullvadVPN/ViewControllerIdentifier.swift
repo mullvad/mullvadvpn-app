@@ -9,6 +9,5 @@
 import Foundation
 
 enum ViewControllerIdentifier: String {
-    case main = "Main"
     case settings = "Settings"
 }
