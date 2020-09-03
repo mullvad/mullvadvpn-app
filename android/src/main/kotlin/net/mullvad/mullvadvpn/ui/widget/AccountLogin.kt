@@ -20,9 +20,9 @@ class AccountLogin : RelativeLayout {
             inflater.inflate(R.layout.account_login, this)
         }
 
-    private val border: AccountLoginBorder = container.findViewById(R.id.account_input_container)
-    private val accountHistoryList: ListView = container.findViewById(R.id.account_history_list)
-    private val input: AccountInput = container.findViewById(R.id.account_input)
+    private val border: AccountLoginBorder = container.findViewById(R.id.border)
+    private val accountHistoryList: ListView = container.findViewById(R.id.history)
+    private val input: AccountInput = container.findViewById(R.id.input)
 
     private var shouldShowAccountHistory = false
         set(value) {
