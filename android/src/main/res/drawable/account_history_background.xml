@@ -2,7 +2,7 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape xmlns:android="http://schemas.android.com/apk/res/android">
-            <corners android:radius="@dimen/account_input_corner_radius" />
+            <corners android:radius="@dimen/account_login_corner_radius" />
             <solid android:color="@color/darkBlue" />
         </shape>
     </item>
@@ -11,7 +11,7 @@
           android:bottom="1dp"
           android:left="1dp">
         <shape xmlns:android="http://schemas.android.com/apk/res/android">
-            <corners android:radius="@dimen/account_input_corner_radius" />
+            <corners android:radius="@dimen/account_login_corner_radius" />
             <solid android:color="@color/white" />
         </shape>
     </item>
