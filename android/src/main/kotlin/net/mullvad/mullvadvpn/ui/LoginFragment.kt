@@ -13,6 +13,7 @@ import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.service.AccountCache
+import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.Button
 import org.joda.time.DateTime
 
@@ -28,7 +29,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var loggingInStatus: View
     private lateinit var loggedInStatus: View
     private lateinit var loginFailStatus: View
-    private lateinit var accountInput: AccountInputController
+    private lateinit var accountInput: AccountLogin
     private lateinit var scrollArea: ScrollView
 
     private val loggedIn = CompletableDeferred<LoginResult>()
@@ -46,7 +47,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loggedInStatus = view.findViewById(R.id.logged_in_status)
         loginFailStatus = view.findViewById(R.id.login_fail_status)
 
-        accountInput = AccountInputController(view, parentActivity)
+        accountInput = view.findViewById(R.id.account_login)
         accountInput.onLogin = { accountToken -> login(accountToken) }
 
         view.findViewById<Button>(R.id.create_account)
@@ -55,7 +56,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         scrollArea = view.findViewById(R.id.scroll_area)
 
         fetchHistory()
-        scrollToShow(accountInput.input)
+        scrollToShow(accountInput)
 
         return view
     }
@@ -198,6 +199,6 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
         accountInput.state = LoginState.Failure
 
-        scrollToShow(accountInput.input)
+        scrollToShow(accountInput)
     }
 }
