@@ -33,12 +33,28 @@ const mapStyle = {
 };
 
 const zoomableGroupStyle = {
-  transition: `transform ${MOVE_SPEED}ms ease-in-out`,
+  transition: `transform ${MOVE_SPEED}ms ease-out`,
 };
 
 const markerStyle = mergeRsmStyle({
   default: {
-    transition: `transform ${MOVE_SPEED}ms ease-in-out`,
+    transition: `transform ${MOVE_SPEED}ms ease-out`,
+  },
+});
+
+const geographyStyle = mergeRsmStyle({
+  default: {
+    fill: '#294d73',
+    stroke: '#192e45',
+    strokeWidth: 0.2,
+  },
+});
+
+const stateProvinceLineStyle = mergeRsmStyle({
+  default: {
+    fill: 'transparent',
+    stroke: '#192e45',
+    strokeWidth: 0.2,
   },
 });
 
@@ -152,30 +168,6 @@ export default function SvgMap(props: IProps) {
   const visibleStatesProvincesLines = useMemo(
     () => provincesStatesLinesTree.search(combinedViewportBboxMatch),
     [combinedViewportBboxMatch],
-  );
-
-  const geographyStyle = useMemo(
-    () =>
-      mergeRsmStyle({
-        default: {
-          fill: '#294d73',
-          stroke: '#192e45',
-          strokeWidth: `${1 / zoomLevel}`,
-        },
-      }),
-    [zoomLevel],
-  );
-
-  const stateProvinceLineStyle = useMemo(
-    () =>
-      mergeRsmStyle({
-        default: {
-          fill: 'transparent',
-          stroke: '#192e45',
-          strokeWidth: `${1 / zoomLevel}`,
-        },
-      }),
-    [zoomLevel],
   );
 
   const removeOldViewportBboxes = useCallback(() => {
