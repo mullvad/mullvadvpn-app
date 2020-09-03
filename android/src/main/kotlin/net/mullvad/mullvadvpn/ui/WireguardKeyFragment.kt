@@ -141,7 +141,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         return view
     }
 
-    override fun onSafelyResume() {
+    override fun onSafelyStart() {
         connectionProxy.onUiStateChange.subscribe(this) { uiState ->
             jobTracker.newUiJob("tunnelStateUpdate") {
                 synchronized(this@WireguardKeyFragment) {
@@ -169,7 +169,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         actionState = ActionState.Idle(false)
     }
 
-    override fun onSafelyPause() {
+    override fun onSafelyStop() {
         connectionProxy.onUiStateChange.unsubscribe(this)
         keyStatusListener.onKeyStatusChange.unsubscribe(this)
 

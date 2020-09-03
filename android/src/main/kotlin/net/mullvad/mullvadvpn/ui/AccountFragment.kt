@@ -85,7 +85,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         return view
     }
 
-    override fun onSafelyResume() {
+    override fun onSafelyStart() {
         accountCache.onAccountNumberChange.subscribe(this) { accountNumber ->
             jobTracker.newUiJob("updateAccountNumber") {
                 accountNumberView.information = accountNumber
@@ -112,7 +112,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
     }
 
-    override fun onSafelyPause() {
+    override fun onSafelyStop() {
         accountCache.onAccountNumberChange.unsubscribe(this)
         accountCache.onAccountExpiryChange.unsubscribe(this)
     }

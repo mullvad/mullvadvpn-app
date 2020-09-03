@@ -77,14 +77,14 @@ class SettingsFragment : ServiceAwareFragment() {
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
 
         configureListeners()
         active = true
     }
 
-    override fun onPause() {
+    override fun onStop() {
         active = false
         versionInfoCache?.onUpdate = null
 
@@ -93,7 +93,7 @@ class SettingsFragment : ServiceAwareFragment() {
             onAccountExpiryChange.unsubscribe(this@SettingsFragment)
         }
 
-        super.onPause()
+        super.onStop()
     }
 
     override fun onDestroyView() {

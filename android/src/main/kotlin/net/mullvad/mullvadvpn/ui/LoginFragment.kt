@@ -60,7 +60,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         return view
     }
 
-    override fun onSafelyResume() {
+    override fun onSafelyStart() {
         jobTracker.newUiJob("advanceToNextScreen") {
             when (loggedIn.await()) {
                 LoginResult.ExistingAccountWithTime -> openNextScreen(ConnectFragment())
@@ -72,7 +72,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         fetchHistory()
     }
 
-    override fun onSafelyPause() {
+    override fun onSafelyStop() {
         jobTracker.cancelJob("advanceToNextScreen")
     }
 
