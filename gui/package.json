@@ -15,7 +15,7 @@
     "@grpc/grpc-js": "^1.1.2",
     "argv-split": "^2.0.1",
     "connected-react-router": "^6.8.0",
-    "d3-geo-projection": "^2.7.0",
+    "d3-geo": "^1.12.1",
     "electron-log": "^4.1.1",
     "gettext-parser": "^4.0.3",
     "google-protobuf": "^4.0.0-rc.2",
