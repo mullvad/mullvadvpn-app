@@ -25,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     #endif
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Setup logging
         initLoggingSystem(bundleIdentifier: Bundle.main.bundleIdentifier!)
 
         #if DEBUG
@@ -35,13 +36,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         #endif
 
         #if targetEnvironment(simulator)
+        // Configure mock tunnel provider on simulator
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProvider
         #endif
 
-        let accountToken = Account.shared.token
+        // Create an app window
+        self.window = UIWindow(frame: UIScreen.main.bounds)
 
+        // Set an empty view controller while loading tunnels
+        let launchController = UIViewController()
+        launchController.view.backgroundColor = .primaryColor
+        self.window?.rootViewController = launchController
+
+        // Update relays
         RelayCache.shared.updateRelays()
 
+        // Load tunnels
+        let accountToken = Account.shared.token
         TunnelManager.shared.loadTunnel(accountToken: accountToken) { (result) in
             DispatchQueue.main.async {
                 if case .failure(let error) = result {
@@ -71,6 +82,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 self.rootContainer = rootViewController
             }
         }
+
+        // Show the window
+        self.window?.makeKeyAndVisible()
 
         return true
     }
