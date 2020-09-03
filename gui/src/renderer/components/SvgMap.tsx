@@ -1,15 +1,7 @@
 import { geoTimes } from 'd3-geo-projection';
 import rbush from 'rbush';
 import * as React from 'react';
-import {
-  ComposableMap,
-  Geographies,
-  Geography,
-  Marker,
-  Markers,
-  ZoomableGroup,
-} from 'react-simple-maps';
-import { Scheduler } from '../../shared/scheduler';
+import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
 
 import geographyData from '../../../assets/geo/geometry.json';
 import statesProvincesLinesData from '../../../assets/geo/states-provinces-lines.json';
@@ -70,8 +62,6 @@ export default class SvgMap extends React.Component<IProps, IState> {
     scale: 160,
   };
 
-  private transitionEndScheduler = new Scheduler();
-
   constructor(props: IProps) {
     super(props);
 
@@ -98,18 +88,6 @@ export default class SvgMap extends React.Component<IProps, IState> {
       this.state.zoomCenter !== nextState.zoomCenter ||
       this.state.zoomLevel !== nextState.zoomLevel
     );
-  }
-
-  public componentDidUpdate(_prevProps: IProps, _prevState: IState) {
-    if (this.state.viewportBboxes.length > 1) {
-      this.transitionEndScheduler.schedule(() => {
-        this.setState((state) => this.removeOldViewportBboxes(state));
-      }, MOVE_SPEED);
-    }
-  }
-
-  public componentWillUnmount() {
-    this.transitionEndScheduler.cancel();
   }
 
   public render() {
@@ -150,9 +128,9 @@ export default class SvgMap extends React.Component<IProps, IState> {
     const userMarker = this.props.showMarker && (
       <Marker
         key={`user-location-${this.props.center.join('-')}`}
-        marker={{ coordinates: this.props.center }}
+        coordinates={this.props.center}
         style={markerStyle}>
-        <image x="-30" y="-30" xlinkHref={this.props.markerImagePath} />
+        <image x="-6" y="-6" width="12" xlinkHref={this.props.markerImagePath} />
       </Marker>
     );
 
@@ -161,38 +139,40 @@ export default class SvgMap extends React.Component<IProps, IState> {
         width={this.props.width}
         height={this.props.height}
         style={mapStyle}
-        projection={this.getProjection}
+        projection={
+          // Workaround for incorrect type definition in @types/react-simple-maps.
+          /* @ts-ignore */
+          this.getProjection() as () => GeoProjection
+        }
         projectionConfig={this.projectionConfig}>
         <ZoomableGroup
           center={this.state.zoomCenter}
           zoom={this.state.zoomLevel}
-          disablePanning={false}
+          onTransitionEnd={this.removeOldViewportBboxes}
           style={zoomableGroupStyle}>
-          <Geographies geography={geographyData} disableOptimization={true}>
-            {(geographies, projection) => {
+          <Geographies geography={geographyData}>
+            {({ geographies }) => {
               return this.state.visibleGeometry.map(({ id }) => (
                 <Geography
                   key={id}
                   geography={geographies[parseInt(id, 10)]}
-                  projection={projection}
                   style={geographyStyle}
                 />
               ));
             }}
           </Geographies>
-          <Geographies geography={statesProvincesLinesData} disableOptimization={true}>
-            {(geographies, projection) => {
+          <Geographies geography={statesProvincesLinesData}>
+            {({ geographies }) => {
               return this.state.visibleStatesProvincesLines.map(({ id }) => (
                 <Geography
                   key={id}
                   geography={geographies[parseInt(id, 10)]}
-                  projection={projection}
                   style={stateProvinceLineStyle}
                 />
               ));
             }}
           </Geographies>
-          <Markers>{[userMarker]}</Markers>
+          {[userMarker]}
         </ZoomableGroup>
       </ComposableMap>
     );
@@ -212,27 +192,14 @@ export default class SvgMap extends React.Component<IProps, IState> {
   }
 
   private getProjection(
-    width: number,
-    height: number,
-    config: {
-      scale?: number;
-      xOffset?: number;
-      yOffset?: number;
-      rotation?: [number, number, number];
-      precision?: number;
-    },
+    width: number = this.props.width,
+    height: number = this.props.height,
+    offset: [number, number] = this.props.offset,
   ) {
-    const scale = config.scale || 160;
-    const xOffset = config.xOffset || 0;
-    const yOffset = config.yOffset || 0;
-    const rotation = config.rotation || [0, 0, 0];
-    const precision = config.precision || 0.1;
-
     return geoTimes()
-      .scale(scale)
-      .translate([xOffset + width / 2, yOffset + height / 2])
-      .rotate(rotation)
-      .precision(precision);
+      .scale(this.projectionConfig.scale)
+      .translate([offset[0] + width / 2, offset[1] + height / 2])
+      .precision(0.1);
   }
 
   private getZoomCenter(
@@ -285,7 +252,7 @@ export default class SvgMap extends React.Component<IProps, IState> {
     const { width, height, center, offset, zoomLevel } = nextProps;
     const viewportBboxes = prevState === null ? [] : prevState.viewportBboxes;
 
-    const projection = this.getProjection(width, height, this.projectionConfig);
+    const projection = this.getProjection(width, height, offset);
     const zoomCenter = this.getZoomCenter(center, offset, projection, zoomLevel);
 
     const viewportBbox = this.getViewportGeoBoundingBox(
@@ -316,7 +283,7 @@ export default class SvgMap extends React.Component<IProps, IState> {
     };
   }
 
-  private removeOldViewportBboxes(state: IState) {
-    return { viewportBboxes: state.viewportBboxes.slice(-1) };
-  }
+  private removeOldViewportBboxes = () => {
+    this.setState((state) => ({ viewportBboxes: state.viewportBboxes.slice(-1) }));
+  };
 }
