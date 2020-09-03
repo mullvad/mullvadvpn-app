@@ -54,7 +54,7 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
         }
     }
 
-    private var showedAccountView = true
+    private var showedAccountView = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
