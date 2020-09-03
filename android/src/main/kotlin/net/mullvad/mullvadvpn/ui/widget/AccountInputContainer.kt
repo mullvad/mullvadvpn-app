@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.ui.widget
 
 import android.content.Context
 import android.graphics.drawable.Drawable
