@@ -24,6 +24,112 @@ const provincesStatesLinesTree = rbush<IProvinceAndStateLineLeaf>().fromJSON(
 
 type BBox = [number, number, number, number];
 
+const MOVE_SPEED = 2000;
+
+const projectionConfig = {
+  scale: 160,
+};
+
+function mergeRsmStyle(style: {
+  default?: React.CSSProperties;
+  hover?: React.CSSProperties;
+  pressed?: React.CSSProperties;
+}) {
+  const defaultStyle = style.default || {};
+  return {
+    default: defaultStyle,
+    hover: style.hover || defaultStyle,
+    pressed: style.pressed || defaultStyle,
+  };
+}
+
+function getProjection(
+  width: number,
+  height: number,
+  offsetX: number,
+  offsetY: number,
+  scale: number,
+) {
+  return geoMercator()
+    .scale(scale)
+    .translate([offsetX + width / 2, offsetY + height / 2])
+    .precision(0.1);
+}
+
+function getZoomCenter(
+  center: [number, number],
+  offset: [number, number],
+  projection: GeoProjection,
+  zoom: number,
+): [number, number] {
+  const pos = projection(center)!;
+  return projection.invert!([pos[0] + offset[0] / zoom, pos[1] + offset[1] / zoom])!;
+}
+
+function getViewportGeoBoundingBox(
+  centerCoordinate: [number, number],
+  width: number,
+  height: number,
+  projection: GeoProjection,
+  zoom: number,
+): BBox {
+  const center = projection(centerCoordinate)!;
+  const halfWidth = (width * 0.5) / zoom;
+  const halfHeight = (height * 0.5) / zoom;
+
+  const northWest = projection.invert!([center[0] - halfWidth, center[1] - halfHeight])!;
+  const southEast = projection.invert!([center[0] + halfWidth, center[1] + halfHeight])!;
+
+  // normalize to [minX, minY, maxX, maxY]
+  return [
+    Math.min(northWest[0], southEast[0]),
+    Math.min(northWest[1], southEast[1]),
+    Math.max(northWest[0], southEast[0]),
+    Math.max(northWest[1], southEast[1]),
+  ];
+}
+
+function shouldInvalidateState(oldProps: IProps, nextProps: IProps) {
+  return (
+    oldProps.width !== nextProps.width ||
+    oldProps.height !== nextProps.height ||
+    oldProps.center[0] !== nextProps.center[0] ||
+    oldProps.center[1] !== nextProps.center[1] ||
+    oldProps.offset[0] !== nextProps.offset[0] ||
+    oldProps.offset[1] !== nextProps.offset[1] ||
+    oldProps.zoomLevel !== nextProps.zoomLevel
+  );
+}
+
+function getNextState(prevState: IState | null, nextProps: IProps): IState {
+  const { width, height, center, offset, zoomLevel } = nextProps;
+  const viewportBboxes = prevState === null ? [] : prevState.viewportBboxes;
+
+  const projection = getProjection(width, height, offset[0], offset[1], projectionConfig.scale);
+  const zoomCenter = getZoomCenter(center, offset, projection, zoomLevel);
+
+  const viewportBbox = getViewportGeoBoundingBox(zoomCenter, width, height, projection, zoomLevel);
+  viewportBboxes.push(viewportBbox);
+
+  const combinedViewportBboxMatch = {
+    minX: Math.min(...viewportBboxes.map((viewportBbox) => viewportBbox[0])),
+    minY: Math.min(...viewportBboxes.map((viewportBbox) => viewportBbox[1])),
+    maxX: Math.max(...viewportBboxes.map((viewportBbox) => viewportBbox[2])),
+    maxY: Math.max(...viewportBboxes.map((viewportBbox) => viewportBbox[3])),
+  };
+
+  const visibleGeometry = geometryTree.search(combinedViewportBboxMatch);
+  const visibleStatesProvincesLines = provincesStatesLinesTree.search(combinedViewportBboxMatch);
+
+  return {
+    zoomCenter,
+    zoomLevel,
+    visibleGeometry,
+    visibleStatesProvincesLines,
+    viewportBboxes,
+  };
+}
+
 export interface IProps {
   width: number;
   height: number;
@@ -43,31 +149,13 @@ interface IState {
   viewportBboxes: BBox[];
 }
 
-const MOVE_SPEED = 2000;
-
 // @TODO: Calculate zoom level based on (center + span) (aka MKCoordinateSpan)
 export default class SvgMap extends React.Component<IProps, IState> {
-  public state: IState = {
-    zoomCenter: [0, 0],
-    zoomLevel: 1,
-    visibleGeometry: [],
-    visibleStatesProvincesLines: [],
-    viewportBboxes: [],
-  };
-
-  private projectionConfig = {
-    scale: 160,
-  };
-
-  constructor(props: IProps) {
-    super(props);
-
-    this.state = this.getNextState(null, props);
-  }
+  public state: IState = getNextState(null, this.props);
 
   public UNSAFE_componentWillReceiveProps(nextProps: IProps) {
-    if (this.shouldInvalidateState(nextProps)) {
-      this.setState((prevState) => this.getNextState(prevState, nextProps));
+    if (shouldInvalidateState(this.props, nextProps)) {
+      this.setState((prevState) => getNextState(prevState, nextProps));
     }
   }
 
@@ -98,7 +186,7 @@ export default class SvgMap extends React.Component<IProps, IState> {
       transition: `transform ${MOVE_SPEED}ms ease-in-out`,
     };
 
-    const geographyStyle = this.mergeRsmStyle({
+    const geographyStyle = mergeRsmStyle({
       default: {
         fill: '#294d73',
         stroke: '#192e45',
@@ -106,7 +194,7 @@ export default class SvgMap extends React.Component<IProps, IState> {
       },
     });
 
-    const stateProvinceLineStyle = this.mergeRsmStyle({
+    const stateProvinceLineStyle = mergeRsmStyle({
       default: {
         fill: 'transparent',
         stroke: '#192e45',
@@ -114,7 +202,7 @@ export default class SvgMap extends React.Component<IProps, IState> {
       },
     });
 
-    const markerStyle = this.mergeRsmStyle({
+    const markerStyle = mergeRsmStyle({
       default: {
         transition: `transform ${MOVE_SPEED}ms ease-in-out`,
       },
@@ -139,9 +227,15 @@ export default class SvgMap extends React.Component<IProps, IState> {
         projection={
           // Workaround for incorrect type definition in @types/react-simple-maps.
           /* @ts-ignore */
-          this.getProjection() as () => GeoProjection
+          getProjection(
+            this.props.height,
+            this.props.width,
+            this.props.offset[0],
+            this.props.offset[1],
+            projectionConfig.scale,
+          ) as () => GeoProjection
         }
-        projectionConfig={this.projectionConfig}>
+        projectionConfig={projectionConfig}>
         <ZoomableGroup
           center={this.state.zoomCenter}
           zoom={this.state.zoomLevel}
@@ -173,111 +267,6 @@ export default class SvgMap extends React.Component<IProps, IState> {
         </ZoomableGroup>
       </ComposableMap>
     );
-  }
-
-  private mergeRsmStyle(style: {
-    default?: React.CSSProperties;
-    hover?: React.CSSProperties;
-    pressed?: React.CSSProperties;
-  }) {
-    const defaultStyle = style.default || {};
-    return {
-      default: defaultStyle,
-      hover: style.hover || defaultStyle,
-      pressed: style.pressed || defaultStyle,
-    };
-  }
-
-  private getProjection(
-    width: number = this.props.width,
-    height: number = this.props.height,
-    offset: [number, number] = this.props.offset,
-  ) {
-    return geoMercator()
-      .scale(this.projectionConfig.scale)
-      .translate([offset[0] + width / 2, offset[1] + height / 2])
-      .precision(0.1);
-  }
-
-  private getZoomCenter(
-    center: [number, number],
-    offset: [number, number],
-    projection: GeoProjection,
-    zoom: number,
-  ): [number, number] {
-    const pos = projection(center)!;
-    return projection.invert!([pos[0] + offset[0] / zoom, pos[1] + offset[1] / zoom])!;
-  }
-
-  private getViewportGeoBoundingBox(
-    centerCoordinate: [number, number],
-    width: number,
-    height: number,
-    projection: GeoProjection,
-    zoom: number,
-  ): BBox {
-    const center = projection(centerCoordinate)!;
-    const halfWidth = (width * 0.5) / zoom;
-    const halfHeight = (height * 0.5) / zoom;
-
-    const northWest = projection.invert!([center[0] - halfWidth, center[1] - halfHeight])!;
-    const southEast = projection.invert!([center[0] + halfWidth, center[1] + halfHeight])!;
-
-    // normalize to [minX, minY, maxX, maxY]
-    return [
-      Math.min(northWest[0], southEast[0]),
-      Math.min(northWest[1], southEast[1]),
-      Math.max(northWest[0], southEast[0]),
-      Math.max(northWest[1], southEast[1]),
-    ];
-  }
-
-  private shouldInvalidateState(nextProps: IProps) {
-    const oldProps = this.props;
-    return (
-      oldProps.width !== nextProps.width ||
-      oldProps.height !== nextProps.height ||
-      oldProps.center[0] !== nextProps.center[0] ||
-      oldProps.center[1] !== nextProps.center[1] ||
-      oldProps.offset[0] !== nextProps.offset[0] ||
-      oldProps.offset[1] !== nextProps.offset[1] ||
-      oldProps.zoomLevel !== nextProps.zoomLevel
-    );
-  }
-
-  private getNextState(prevState: IState | null, nextProps: IProps): IState {
-    const { width, height, center, offset, zoomLevel } = nextProps;
-    const viewportBboxes = prevState === null ? [] : prevState.viewportBboxes;
-
-    const projection = this.getProjection(width, height, offset);
-    const zoomCenter = this.getZoomCenter(center, offset, projection, zoomLevel);
-
-    const viewportBbox = this.getViewportGeoBoundingBox(
-      zoomCenter,
-      width,
-      height,
-      projection,
-      zoomLevel,
-    );
-    viewportBboxes.push(viewportBbox);
-
-    const combinedViewportBboxMatch = {
-      minX: Math.min(...viewportBboxes.map((viewportBbox) => viewportBbox[0])),
-      minY: Math.min(...viewportBboxes.map((viewportBbox) => viewportBbox[1])),
-      maxX: Math.max(...viewportBboxes.map((viewportBbox) => viewportBbox[2])),
-      maxY: Math.max(...viewportBboxes.map((viewportBbox) => viewportBbox[3])),
-    };
-
-    const visibleGeometry = geometryTree.search(combinedViewportBboxMatch);
-    const visibleStatesProvincesLines = provincesStatesLinesTree.search(combinedViewportBboxMatch);
-
-    return {
-      zoomCenter,
-      zoomLevel,
-      visibleGeometry,
-      visibleStatesProvincesLines,
-      viewportBboxes,
-    };
   }
 
   private removeOldViewportBboxes = () => {
