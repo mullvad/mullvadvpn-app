@@ -51,7 +51,9 @@ pub enum Error {
 lazy_static! {
     static ref RESOLVED_STUB_PATHS: Vec<&'static Path> = vec![
         Path::new("/run/systemd/resolve/stub-resolv.conf"),
+        Path::new("/run/systemd/resolve/resolv.conf"),
         Path::new("/var/run/systemd/resolve/stub-resolv.conf"),
+        Path::new("/var/run/systemd/resolve/resolv.conf"),
     ];
 }
 
@@ -77,17 +79,25 @@ pub struct SystemdResolved {
 
 impl SystemdResolved {
     pub fn new() -> Result<Self> {
-        let dbus_connection =
-            dbus::Connection::get_private(BusType::System).map_err(Error::ConnectDBus)?;
-        let systemd_resolved = SystemdResolved {
-            dbus_connection,
-            interface_link: None,
-        };
+        let result = (|| {
+            let dbus_connection =
+                dbus::Connection::get_private(BusType::System).map_err(Error::ConnectDBus)?;
+            let systemd_resolved = SystemdResolved {
+                dbus_connection,
+                interface_link: None,
+            };
 
-        systemd_resolved.ensure_resolved_exists()?;
-        Self::ensure_resolv_conf_is_resolved_symlink()?;
+            systemd_resolved.ensure_resolved_exists()?;
+            Self::ensure_resolv_conf_is_resolved_symlink()?;
+            Ok(systemd_resolved)
+        })();
 
-        Ok(systemd_resolved)
+        if let Err(err) = &result {
+            log::error!("systemd-resolved is not being used because: {}", err);
+        }
+
+
+        result
     }
 
     fn ensure_resolved_exists(&self) -> Result<()> {
