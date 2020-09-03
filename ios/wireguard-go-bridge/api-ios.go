@@ -90,15 +90,22 @@ func wgTurnOn(settings *C.char, tunFd int32) int32 {
 		Info:  log.New(&CLogger{level: 1}, "", 0),
 		Error: log.New(&CLogger{level: 2}, "", 0),
 	}
-
-	err := unix.SetNonblock(int(tunFd), true)
+	dupTunFd, err := unix.Dup(int(tunFd))
 	if err != nil {
 		logger.Error.Println(err)
 		return -1
 	}
-	tun, err := tun.CreateTUNFromFile(os.NewFile(uintptr(tunFd), "/dev/tun"), 0)
+
+	err = unix.SetNonblock(dupTunFd, true)
 	if err != nil {
 		logger.Error.Println(err)
+		unix.Close(dupTunFd)
+		return -1
+	}
+	tun, err := tun.CreateTUNFromFile(os.NewFile(uintptr(dupTunFd), "/dev/tun"), 0)
+	if err != nil {
+		logger.Error.Println(err)
+		unix.Close(dupTunFd)
 		return -1
 	}
 	logger.Info.Println("Attaching to interface")
@@ -107,6 +114,7 @@ func wgTurnOn(settings *C.char, tunFd int32) int32 {
 	setError := device.IpcSetOperation(bufio.NewReader(strings.NewReader(C.GoString(settings))))
 	if setError != nil {
 		logger.Error.Println(setError)
+		unix.Close(dupTunFd)
 		return -1
 	}
 
@@ -120,6 +128,7 @@ func wgTurnOn(settings *C.char, tunFd int32) int32 {
 		}
 	}
 	if i == math.MaxInt32 {
+		unix.Close(dupTunFd)
 		return -1
 	}
 	tunnelHandles[i] = tunnelHandle{device, logger}
