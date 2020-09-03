@@ -121,7 +121,6 @@ class AccountLogin : RelativeLayout {
 
                 setOnItemClickListener { _, _, idx, _ ->
                     input.loginWith(history[idx])
-                    accountHistoryList.visibility = View.GONE
                 }
             }
 
