@@ -9,4 +9,12 @@
                                                        android:layout_alignParentTop="true"
                                                        android:orientation="horizontal" />
     </net.mullvad.mullvadvpn.ui.widget.AccountLoginBorder>
+    <ListView android:id="@+id/account_history_list"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:layout_below="@id/account_input_container"
+              android:divider="@drawable/account_history_list_divider"
+              android:dividerHeight="1dp"
+              android:visibility="invisible"
+              android:background="@drawable/account_history_background" />
 </merge>
