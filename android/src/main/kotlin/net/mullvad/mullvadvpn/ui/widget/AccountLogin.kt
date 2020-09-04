@@ -44,12 +44,18 @@ class AccountLogin : RelativeLayout {
     private val expandedHeight: Int
         get() = collapsedHeight + historyHeight
 
-    private var historyHeight by observable(0) { _, _, _ ->
-        historyAnimation.setIntValues(collapsedHeight, expandedHeight)
+    private var historyHeight by observable(0) { _, oldHistoryHeight, newHistoryHeight ->
+        if (newHistoryHeight != oldHistoryHeight) {
+            historyAnimation.setIntValues(collapsedHeight, expandedHeight)
+            reposition()
+        }
     }
 
-    private var collapsedHeight by observable(0) { _, _, newCollapsedHeight ->
-        historyAnimation.setIntValues(newCollapsedHeight, expandedHeight)
+    private var collapsedHeight by observable(0) { _, oldCollapsedHeight, newCollapsedHeight ->
+        if (newCollapsedHeight != oldCollapsedHeight) {
+            historyAnimation.setIntValues(newCollapsedHeight, expandedHeight)
+            reposition()
+        }
     }
 
     private var inputHasFocus by observable(false) { _, _, hasFocus ->
@@ -170,6 +176,16 @@ class AccountLogin : RelativeLayout {
         layoutParams.bottomMargin = expandedHeight - height
 
         container.layoutParams = layoutParams
+    }
+
+    private fun reposition() {
+        historyAnimation.end()
+
+        if (shouldShowAccountHistory) {
+            updateHeight(expandedHeight)
+        } else {
+            updateHeight(collapsedHeight)
+        }
     }
 
     private fun hideKeyboard() {
