@@ -64,22 +64,9 @@
                       android:textColor="@color/white80"
                       android:textSize="@dimen/text_small"
                       android:text="@string/login_description" />
-            <net.mullvad.mullvadvpn.ui.AccountInputContainer android:id="@+id/account_input_container"
-                                                             android:layout_width="match_parent"
-                                                             android:layout_height="48dp">
-                <net.mullvad.mullvadvpn.ui.widget.AccountInput android:id="@+id/account_input"
-                                                               android:layout_width="match_parent"
-                                                               android:layout_height="48dp"
-                                                               android:layout_alignParentTop="true"
-                                                               android:orientation="horizontal" />
-            </net.mullvad.mullvadvpn.ui.AccountInputContainer>
-            <ListView android:id="@+id/account_history_list"
-                      android:layout_width="fill_parent"
-                      android:layout_height="wrap_content"
-                      android:divider="@drawable/account_history_list_divider"
-                      android:dividerHeight="1dp"
-                      android:visibility="invisible"
-                      android:background="@drawable/account_history_background" />
+            <net.mullvad.mullvadvpn.ui.widget.AccountLogin android:id="@+id/account_login"
+                                                           android:layout_width="match_parent"
+                                                           android:layout_height="wrap_content" />
             <Space android:layout_width="match_parent"
                    android:layout_height="0dp"
                    android:layout_weight="3" />

@@ -13,6 +13,7 @@ import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.service.AccountCache
+import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.Button
 import org.joda.time.DateTime
 
@@ -28,7 +29,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var loggingInStatus: View
     private lateinit var loggedInStatus: View
     private lateinit var loginFailStatus: View
-    private lateinit var accountInput: AccountInputController
+    private lateinit var accountLogin: AccountLogin
     private lateinit var scrollArea: ScrollView
 
     private val loggedIn = CompletableDeferred<LoginResult>()
@@ -46,8 +47,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loggedInStatus = view.findViewById(R.id.logged_in_status)
         loginFailStatus = view.findViewById(R.id.login_fail_status)
 
-        accountInput = AccountInputController(view, parentActivity)
-        accountInput.onLogin = { accountToken -> login(accountToken) }
+        accountLogin = view.findViewById(R.id.account_login)
+        accountLogin.onLogin = { accountToken -> login(accountToken) }
 
         view.findViewById<Button>(R.id.create_account)
             .setOnClickAction("createAccount", jobTracker) { createAccount() }
@@ -55,7 +56,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         scrollArea = view.findViewById(R.id.scroll_area)
 
         fetchHistory()
-        scrollToShow(accountInput.input)
+        scrollToShow(accountLogin)
 
         return view
     }
@@ -90,7 +91,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loginFailStatus.visibility = View.GONE
         loggedInStatus.visibility = View.GONE
 
-        accountInput.state = LoginState.InProgress
+        accountLogin.state = LoginState.InProgress
 
         scrollToShow(loggingInStatus)
 
@@ -113,7 +114,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loginFailStatus.visibility = View.GONE
         loggedInStatus.visibility = View.GONE
 
-        accountInput.state = LoginState.InProgress
+        accountLogin.state = LoginState.InProgress
 
         scrollToShow(loggingInStatus)
 
@@ -122,7 +123,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
     private fun fetchHistory() {
         jobTracker.newUiJob("fetchHistory") {
-            accountInput.accountHistory = jobTracker.runOnBackground() {
+            accountLogin.accountHistory = jobTracker.runOnBackground() {
                 daemon.getAccountHistory()
             }
         }
@@ -176,7 +177,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loginFailStatus.visibility = View.GONE
         loggedInStatus.visibility = View.VISIBLE
 
-        accountInput.state = LoginState.Success
+        accountLogin.state = LoginState.Success
 
         scrollToShow(loggedInStatus)
     }
@@ -196,8 +197,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loginFailStatus.visibility = View.VISIBLE
         loggedInStatus.visibility = View.GONE
 
-        accountInput.state = LoginState.Failure
+        accountLogin.state = LoginState.Failure
 
-        scrollToShow(accountInput.input)
+        scrollToShow(accountLogin)
     }
 }

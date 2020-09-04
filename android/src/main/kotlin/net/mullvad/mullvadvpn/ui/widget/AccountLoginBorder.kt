@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.ui.widget
 
 import android.content.Context
 import android.graphics.drawable.Drawable
@@ -8,7 +8,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import net.mullvad.mullvadvpn.R
 
-class AccountInputContainer : RelativeLayout {
+class AccountLoginBorder : RelativeLayout {
     enum class BorderState {
         UNFOCUSED,
         FOCUSED,
@@ -27,28 +27,28 @@ class AccountInputContainer : RelativeLayout {
     )
 
     private val unfocusedDrawables = StateDrawables(
-        resources.getDrawable(R.drawable.account_input_corner, null),
-        resources.getDrawable(R.drawable.account_input_border, null),
-        resources.getDrawable(R.drawable.account_input_border, null)
+        resources.getDrawable(R.drawable.account_login_corner, null),
+        resources.getDrawable(R.drawable.account_login_border, null),
+        resources.getDrawable(R.drawable.account_login_border, null)
     )
 
     private val focusedDrawables = StateDrawables(
-        resources.getDrawable(R.drawable.account_input_corner_focused, null),
-        resources.getDrawable(R.drawable.account_input_border_focused, null),
-        resources.getDrawable(R.drawable.account_input_border_focused, null)
+        resources.getDrawable(R.drawable.account_login_corner_focused, null),
+        resources.getDrawable(R.drawable.account_login_border_focused, null),
+        resources.getDrawable(R.drawable.account_login_border_focused, null)
     )
 
     private val errorDrawables = StateDrawables(
-        resources.getDrawable(R.drawable.account_input_corner_error, null),
-        resources.getDrawable(R.drawable.account_input_border_error, null),
-        resources.getDrawable(R.drawable.account_input_border_error, null)
+        resources.getDrawable(R.drawable.account_login_corner_error, null),
+        resources.getDrawable(R.drawable.account_login_border_error, null),
+        resources.getDrawable(R.drawable.account_login_border_error, null)
     )
 
     private val container =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
             val inflater = service as LayoutInflater
 
-            inflater.inflate(R.layout.account_input_container, this)
+            inflater.inflate(R.layout.account_login_border, this)
         }
 
     private val topLeftCorner: ImageView = container.findViewById(R.id.top_left_corner)
