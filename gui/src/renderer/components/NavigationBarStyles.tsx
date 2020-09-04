@@ -36,6 +36,7 @@ export const StyledTitleBarItemContainer = styled.div({
   minWidth: 0,
   flexDirection: 'column',
   justifyContent: 'center',
+  overflow: 'hidden',
 });
 
 interface ITitleBarItemLabelProps {
