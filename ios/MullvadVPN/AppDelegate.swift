@@ -14,8 +14,7 @@ import Logging
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-
-    let mainStoryboard = UIStoryboard(name: "Main", bundle: nil)
+    var rootContainer: RootContainerViewController?
 
     #if targetEnvironment(simulator)
     let simulatorTunnelProvider = SimulatorTunnelProviderHost()
@@ -26,6 +25,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     #endif
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Setup logging
         initLoggingSystem(bundleIdentifier: Bundle.main.bundleIdentifier!)
 
         #if DEBUG
@@ -36,13 +36,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         #endif
 
         #if targetEnvironment(simulator)
+        // Configure mock tunnel provider on simulator
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProvider
         #endif
 
-        let accountToken = Account.shared.token
+        // Create an app window
+        self.window = UIWindow(frame: UIScreen.main.bounds)
 
+        // Set an empty view controller while loading tunnels
+        let launchController = UIViewController()
+        launchController.view.backgroundColor = .primaryColor
+        self.window?.rootViewController = launchController
+
+        // Update relays
         RelayCache.shared.updateRelays()
 
+        // Load tunnels
+        let accountToken = Account.shared.token
         TunnelManager.shared.loadTunnel(accountToken: accountToken) { (result) in
             DispatchQueue.main.async {
                 if case .failure(let error) = result {
@@ -50,9 +60,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
 
                 let rootViewController = RootContainerViewController()
+                rootViewController.delegate = self
 
                 let showMainController = { (_ animated: Bool) in
-                    self.showMainController(in: rootViewController, animated: animated) {
+                    self.showConnectController(in: rootViewController, animated: animated) {
                         self.didPresentTheMainController()
                     }
                 }
@@ -68,8 +79,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 }
 
                 self.window?.rootViewController = rootViewController
+                self.rootContainer = rootViewController
             }
         }
+
+        // Show the window
+        self.window?.makeKeyAndVisible()
 
         return true
     }
@@ -87,29 +102,67 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     private func showTermsOfService(in rootViewController: RootContainerViewController, completionHandler: @escaping () -> Void) {
-        let consentViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.consent.rawValue) as! ConsentViewController
-
+        let consentViewController = ConsentViewController()
         consentViewController.completionHandler = completionHandler
 
         rootViewController.setViewControllers([consentViewController], animated: false)
     }
 
-    private func showMainController(
+    private func showConnectController(
         in rootViewController: RootContainerViewController,
         animated: Bool,
         completionHandler: @escaping () -> Void)
     {
-        let loginViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.login.rawValue)
+        let loginViewController = LoginViewController()
+        loginViewController.delegate = self
 
-        var viewControllers = [loginViewController]
+        var viewControllers: [UIViewController] = [loginViewController]
 
         if Account.shared.isLoggedIn {
-            let mainViewController = self.mainStoryboard.instantiateViewController(withIdentifier: ViewControllerIdentifier.main.rawValue)
-
-            viewControllers.append(mainViewController)
+            viewControllers.append(ConnectViewController())
         }
 
         rootViewController.setViewControllers(viewControllers, animated: animated, completion: completionHandler)
+    }
+
+}
+
+extension AppDelegate: RootContainerViewControllerDelegate {
+
+    func rootContainerViewControllerShouldShowSettings(_ controller: RootContainerViewController, navigateTo route: SettingsNavigationRoute?, animated: Bool) {
+        let settingsController = SettingsViewController(style: .grouped)
+        settingsController.settingsDelegate = self
+
+        let navController = SettingsNavigationController(navigationBarClass: CustomNavigationBar.self, toolbarClass: nil)
+        navController.pushViewController(settingsController, animated: false)
+
+        if let route = route {
+            settingsController.navigate(to: route)
+        }
+
+        controller.present(navController, animated: animated)
+    }
+}
+
+extension AppDelegate: LoginViewControllerDelegate {
+
+    func loginViewControllerDidLogin(_ controller: LoginViewController) {
+        rootContainer?.pushViewController(ConnectViewController(), animated: true)
+    }
+
+}
+
+extension AppDelegate: SettingsViewControllerDelegate {
+
+    func settingsViewController(_ controller: SettingsViewController, didFinishWithReason reason: SettingsDismissReason) {
+        if case .userLoggedOut = reason {
+            rootContainer?.popToRootViewController(animated: false)
+
+            let loginController = rootContainer?.topViewController as? LoginViewController
+
+            loginController?.reset()
+        }
+        controller.dismiss(animated: true)
     }
 
 }

@@ -1,5 +1,5 @@
 //
-//  SelectLocationController.swift
+//  SelectLocationViewController.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 02/05/2019.
@@ -12,7 +12,7 @@ import Logging
 
 private let kCellIdentifier = "Cell"
 
-class SelectLocationController: UITableViewController, RelayCacheObserver {
+class SelectLocationViewController: UITableViewController, RelayCacheObserver {
 
     private enum Error: ChainedError {
         case loadRelayList(RelayCacheError)

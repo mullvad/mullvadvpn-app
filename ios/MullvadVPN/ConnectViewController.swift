@@ -94,7 +94,7 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
 
     // MARK: - SelectLocationDelegate
 
-    func selectLocationController(_ controller: SelectLocationController, didSelectLocation location: RelayLocation) {
+    func selectLocationViewController(_ controller: SelectLocationViewController, didSelectLocation location: RelayLocation) {
         controller.dismiss(animated: true) {
             let relayConstraints = RelayConstraints(location: .only(location))
 
@@ -115,7 +115,7 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
         }
     }
 
-    func selectLocationControllerDidCancel(_ controller: SelectLocationController) {
+    func selectLocationViewControllerDidCancel(_ controller: SelectLocationViewController) {
         controller.dismiss(animated: true)
     }
 

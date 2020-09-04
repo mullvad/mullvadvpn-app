@@ -10,6 +10,10 @@ import StoreKit
 import UIKit
 import Logging
 
+protocol AccountViewControllerDelegate: class {
+    func accountViewControllerDidLogout(_ controller: AccountViewController)
+}
+
 class AccountViewController: UIViewController, AppStorePaymentObserver {
 
     @IBOutlet var accountTokenButton: UIButton!
@@ -25,6 +29,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
     private var pendingPayment: SKPayment?
     private let alertPresenter = AlertPresenter()
     private let logger = Logger(label: "AccountViewController")
+
+    weak var delegate: AccountViewControllerDelegate?
 
     private lazy var purchaseButtonInteractionRestriction =
         UserInterfaceInteractionRestriction { [weak self] (enableUserInteraction, _) in
@@ -49,6 +55,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        navigationItem.title = NSLocalizedString("Account", comment: "Navigation title")
 
         AppStorePaymentManager.shared.addPaymentObserver(self)
 
@@ -250,10 +258,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
                             self.alertPresenter.enqueue(errorAlertController, presentingController: self)
 
                         case .success:
-                            self.performSegue(
-                                withIdentifier: SegueIdentifier.Account.logout.rawValue,
-                                sender: self
-                            )
+                            self.delegate?.accountViewControllerDidLogout(self)
                         }
                     }
                 }
