@@ -1,6 +1,6 @@
 import { geoMercator, GeoProjection } from 'd3-geo';
 import rbush from 'rbush';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
 
 import geographyData from '../../../assets/geo/geometry.json';
@@ -8,6 +8,7 @@ import statesProvincesLinesData from '../../../assets/geo/states-provinces-lines
 
 import geometryTreeData from '../../../assets/geo/geometry.rbush.json';
 import statesProvincesLinesTreeData from '../../../assets/geo/states-provinces-lines.rbush.json';
+import { useScheduler } from '../../shared/scheduler';
 
 interface IGeometryLeaf extends rbush.BBox {
   id: string;
@@ -31,7 +32,6 @@ const mapStyle = {
   height: '100%',
   backgroundColor: '#192e45',
 };
-
 const zoomableGroupStyle = {
   transition: `transform ${MOVE_SPEED}ms ease-out`,
 };
@@ -212,6 +212,13 @@ function SvgMap(props: IProps) {
   );
   const [visibleGeometry, visibleStatesProvincesLines] = useVisibleGeometry(viewportBboxes);
 
+  // react-simple-maps renders the map with zoom=1 the first render resulting in a transition from
+  // 1 to zoomLevel when it immediately renders a second time. This makes sure that transitions are
+  // disabled until after the second render.
+  const [enableTransition, setEnableTransition] = useState(false);
+  const enableTransitionScheduler = useScheduler();
+  useEffect(() => enableTransitionScheduler.schedule(() => setEnableTransition(true)), []);
+
   return (
     <ComposableMap
       width={width}
@@ -227,7 +234,7 @@ function SvgMap(props: IProps) {
         center={zoomCenter}
         zoom={zoomLevel}
         onTransitionEnd={removeOldViewportBboxes}
-        style={zoomableGroupStyle}>
+        style={enableTransition ? zoomableGroupStyle : undefined}>
         <Geographies geography={geographyData}>
           {({ geographies }) => {
             return visibleGeometry.map(({ id }) => (
