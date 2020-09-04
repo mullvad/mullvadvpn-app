@@ -14,7 +14,7 @@
               android:layout_height="wrap_content"
               android:layout_below="@id/input"
               android:divider="@drawable/account_history_list_divider"
-              android:dividerHeight="1dp"
+              android:dividerHeight="@dimen/account_history_divider"
               android:visibility="invisible"
               android:background="@drawable/account_history_background" />
 </merge>
