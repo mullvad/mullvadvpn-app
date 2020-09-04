@@ -2,14 +2,14 @@
 set -eu
 
 function remove_logs_and_cache {
-  rm -rf /var/log/mullvad-vpn/ || \
+  rm -r --interactive=never /var/log/mullvad-vpn/ || \
     echo "Failed to remove mullvad-vpn logs"
-  rm -rf /var/cache/mullvad-vpn/ || \
+  rm -r --interactive=never /var/cache/mullvad-vpn/ || \
     echo "Failed to remove mullvad-vpn cache"
 }
 
 function remove_config {
-  rm -rf /etc/mullvad-vpn || \
+  rm -r --interactive=never /etc/mullvad-vpn || \
     echo "Failed to remove mullvad-vpn config"
 }
 
