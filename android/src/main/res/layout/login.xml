@@ -66,7 +66,7 @@
                       android:text="@string/login_description" />
             <net.mullvad.mullvadvpn.ui.widget.AccountLogin android:id="@+id/account_login"
                                                            android:layout_width="match_parent"
-                                                           android:layout_height="wrap_content" />
+                                                           android:layout_height="@dimen/account_history_entry_height" />
             <Space android:layout_width="match_parent"
                    android:layout_height="0dp"
                    android:layout_weight="3" />

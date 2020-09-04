@@ -1,9 +1,11 @@
 package net.mullvad.mullvadvpn.ui.widget
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnLayoutChangeListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.RelativeLayout
@@ -24,6 +26,33 @@ class AccountLogin : RelativeLayout {
     private val accountHistoryList: ListView = container.findViewById(R.id.history)
     private val input: AccountInput = container.findViewById(R.id.input)
 
+    private val dividerHeight = resources.getDimensionPixelSize(R.dimen.account_history_divider)
+    private val historyEntryHeight =
+        resources.getDimensionPixelSize(R.dimen.account_history_entry_height)
+
+    private val historyAnimation = ValueAnimator.ofInt(0, 0).apply {
+        addUpdateListener { animation ->
+            val layoutParams = container.layoutParams
+
+            layoutParams.height = animation.animatedValue as Int
+
+            container.layoutParams = layoutParams
+        }
+
+        duration = 350
+    }
+
+    private val expandedHeight: Int
+        get() = collapsedHeight + historyHeight
+
+    private var historyHeight by observable(0) { _, _, _ ->
+        historyAnimation.setIntValues(collapsedHeight, expandedHeight)
+    }
+
+    private var collapsedHeight by observable(0) { _, _, newCollapsedHeight ->
+        historyAnimation.setIntValues(newCollapsedHeight, expandedHeight)
+    }
+
     private var inputHasFocus by observable(false) { _, _, hasFocus ->
         updateBorder()
 
@@ -32,11 +61,20 @@ class AccountLogin : RelativeLayout {
         }
     }
 
-    private var shouldShowAccountHistory by observable(false) { _, _, _ ->
-        updateAccountHistory()
+    private var shouldShowAccountHistory by observable(false) { _, isShown, show ->
+        if (isShown != show) {
+            if (show) {
+                historyAnimation.start()
+            } else {
+                historyAnimation.reverse()
+            }
+        }
     }
 
-    var accountHistory by observable<ArrayList<String>?>(null) { _, _, _ ->
+    var accountHistory by observable<ArrayList<String>?>(null) { _, _, history ->
+        val entryCount = history?.size ?: 0
+
+        historyHeight = entryCount * (historyEntryHeight + dividerHeight)
         updateAccountHistory()
     }
 
@@ -85,6 +123,12 @@ class AccountLogin : RelativeLayout {
                     state = LoginState.Initial
                 }
             }
+
+            addOnLayoutChangeListener(
+                OnLayoutChangeListener { _, _, top, _, bottom, _, _, _, _ ->
+                    collapsedHeight = bottom - top
+                }
+            )
         }
     }
 
