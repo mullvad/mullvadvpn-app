@@ -55,10 +55,7 @@ class AccountLogin : RelativeLayout {
 
     private var inputHasFocus by observable(false) { _, _, hasFocus ->
         updateBorder()
-
-        if (hasFocus) {
-            shouldShowAccountHistory = true
-        }
+        shouldShowAccountHistory = hasFocus
     }
 
     private var shouldShowAccountHistory by observable(false) { _, isShown, show ->
@@ -83,11 +80,8 @@ class AccountLogin : RelativeLayout {
 
         updateBorder()
 
-        when (newState) {
-            LoginState.Initial -> {}
-            LoginState.InProgress -> loggingInState()
-            LoginState.Success -> successState()
-            LoginState.Failure -> {}
+        if (newState == LoginState.Success) {
+            visibility = View.INVISIBLE
         }
     }
 
@@ -135,14 +129,6 @@ class AccountLogin : RelativeLayout {
     fun onDestroy() {
         input.onFocusChanged.unsubscribe(this)
         input.onTextChanged.unsubscribe(this)
-    }
-
-    private fun loggingInState() {
-        accountHistoryList.visibility = View.INVISIBLE
-    }
-
-    private fun successState() {
-        visibility = View.INVISIBLE
     }
 
     private fun updateAccountHistory() {
