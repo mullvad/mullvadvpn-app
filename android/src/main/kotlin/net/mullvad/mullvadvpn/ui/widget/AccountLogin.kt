@@ -7,6 +7,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnLayoutChangeListener
+import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.ListView
@@ -34,9 +35,10 @@ class AccountLogin : RelativeLayout {
 
     private val historyAnimation = ValueAnimator.ofInt(0, 0).apply {
         addUpdateListener { animation ->
-            val layoutParams = container.layoutParams
+            val layoutParams = container.layoutParams as MarginLayoutParams
 
             layoutParams.height = animation.animatedValue as Int
+            layoutParams.bottomMargin = expandedHeight - value
 
             container.layoutParams = layoutParams
         }
