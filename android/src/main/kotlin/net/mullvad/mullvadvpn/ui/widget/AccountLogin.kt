@@ -35,12 +35,7 @@ class AccountLogin : RelativeLayout {
 
     private val historyAnimation = ValueAnimator.ofInt(0, 0).apply {
         addUpdateListener { animation ->
-            val layoutParams = container.layoutParams as MarginLayoutParams
-
-            layoutParams.height = animation.animatedValue as Int
-            layoutParams.bottomMargin = expandedHeight - value
-
-            container.layoutParams = layoutParams
+            updateHeight(animation.animatedValue as Int)
         }
 
         duration = 350
@@ -166,6 +161,15 @@ class AccountLogin : RelativeLayout {
         } else {
             border.borderState = BorderState.UNFOCUSED
         }
+    }
+
+    private fun updateHeight(height: Int) {
+        val layoutParams = container.layoutParams as MarginLayoutParams
+
+        layoutParams.height = height
+        layoutParams.bottomMargin = expandedHeight - height
+
+        container.layoutParams = layoutParams
     }
 
     private fun hideKeyboard() {
