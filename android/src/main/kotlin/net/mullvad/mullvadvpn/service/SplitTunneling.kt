@@ -27,11 +27,14 @@ class SplitTunneling(context: Context) {
         enabledChanged()
     }
 
-    var onChange: ((List<String>) -> Unit)? = null
+    var onChange by observable<((List<String>) -> Unit)?>(null) { _, _, _ ->
+        update()
+    }
 
     init {
         if (appListFile.exists()) {
             excludedApps.addAll(appListFile.readLines())
+            update()
         }
     }
 
