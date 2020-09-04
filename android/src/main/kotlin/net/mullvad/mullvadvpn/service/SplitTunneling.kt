@@ -32,6 +32,7 @@ class SplitTunneling(context: Context) {
     init {
         if (appListFile.exists()) {
             excludedApps.addAll(appListFile.readLines())
+            update()
         }
     }
 
