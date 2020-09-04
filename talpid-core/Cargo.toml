@@ -24,7 +24,7 @@ parking_lot = "0.9"
 regex = "1.1.0"
 shell-escape = "0.1"
 talpid-types = { path = "../talpid-types" }
-uuid = { version = "0.7", features = ["v4"] }
+uuid = { version = "0.8", features = ["v4"] }
 zeroize = "1"
 chrono = "0.4"
 tokio = { version = "0.2", features =  [ "io-util", "process", "rt-core", "rt-threaded", "stream"] }
@@ -53,12 +53,12 @@ failure = "0.1"
 notify = "4.0"
 resolv-conf = "0.6.1"
 async-stream = "0.2"
-rtnetlink = "0.3"
+rtnetlink = "0.4"
 netlink-packet-core = "0.2"
 netlink-packet-utils = "0.2"
-netlink-packet-route = "0.3"
+netlink-packet-route = "0.4"
 netlink-proto = "0.4"
-netlink-sys = "0.3"
+netlink-sys = "0.4"
 byteorder = "1"
 futures = { package = "futures", version = "0.3" }
 nftnl = { version = "0.5", features = ["nftnl-1-1-0"] }
@@ -81,7 +81,7 @@ socket2 = "0.3"
 pnet_packet = "0.26"
 
 [build-dependencies]
-tonic-build = { version = "0.2", default-features = false, features = ["transport", "prost"] }
+tonic-build = { version = "0.3", default-features = false, features = ["transport", "prost"] }
 
 
 [dev-dependencies]

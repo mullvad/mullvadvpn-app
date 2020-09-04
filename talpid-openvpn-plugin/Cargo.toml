@@ -25,7 +25,7 @@ tower = "0.3"
 prost = "0.6"
 
 [build-dependencies]
-tonic-build = { version = "0.2", default-features = false, features = ["transport", "prost"] }
+tonic-build = { version = "0.3", default-features = false, features = ["transport", "prost"] }
 
 
 [target.'cfg(windows)'.build-dependencies]
