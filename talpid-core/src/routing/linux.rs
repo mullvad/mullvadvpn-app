@@ -27,9 +27,9 @@ use netlink_packet_route::{
     },
     NetlinkMessage, NetlinkPayload, RtnlMessage,
 };
-use netlink_sys::SocketAddr;
 use rtnetlink::{
     constants::{RTMGRP_IPV4_ROUTE, RTMGRP_IPV6_ROUTE, RTMGRP_LINK, RTMGRP_NOTIFY},
+    sys::SocketAddr,
     Handle, IpVersion,
 };
 

@@ -8,9 +8,9 @@ use netlink_packet_route::{
     rtnl::link::nlas::{Info as LinkInfo, InfoKind, Nla as LinkNla},
     LinkMessage,
 };
-use netlink_sys::SocketAddr;
 use rtnetlink::{
     constants::{RTMGRP_IPV4_IFADDR, RTMGRP_IPV6_IFADDR, RTMGRP_LINK, RTMGRP_NOTIFY},
+    sys::SocketAddr,
     Handle,
 };
 use std::{collections::BTreeSet, io, sync::Weak};

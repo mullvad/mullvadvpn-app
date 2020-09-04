@@ -15,7 +15,7 @@ err-derive = "0.2.1"
 futures01 = { version = "0.1", package = "futures" }
 lazy_static = "1.0"
 regex = "1.0"
-uuid = { version = "0.7", features = ["v4"] }
+uuid = { version = "0.8", features = ["v4"] }
 tokio = { version = "0.2", features = [ "time", "rt-threaded", "net", "io-std", "io-driver" ] }
 
 mullvad-paths = { path = "../mullvad-paths" }

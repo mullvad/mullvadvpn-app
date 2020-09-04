@@ -21,4 +21,4 @@ triggered = "0.1.1"
 winapi = { version = "0.3", features = ["errhandlingapi", "handleapi", "libloaderapi", "ntlsa", "synchapi", "tlhelp32", "winbase", "winerror", "winuser"] }
 
 [build-dependencies]
-tonic-build = { version = "0.2", default-features = false, features = ["transport", "prost"] }
+tonic-build = { version = "0.3", default-features = false, features = ["transport", "prost"] }

@@ -16,12 +16,12 @@ name = "mullvad"
 path = "src/main.rs"
 
 [dependencies]
-base64 = "0.10"
+base64 = "0.12"
 chrono = { version = "0.4", features = ["serde"] }
 clap = "2.32"
 err-derive = "0.2.1"
 env_logger = "0.7"
-futures = "0.1"
+futures = "0.3"
 natord = "1.0.9"
 serde = "1.0"
 
@@ -30,7 +30,6 @@ mullvad-paths = { path = "../mullvad-paths" }
 talpid-types = { path = "../talpid-types" }
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
-futures03 = { package = "futures", version = "0.3", features = [ "compat" ]}
 tokio = { version = "0.2", features =  [ "io-util", "process", "rt-core", "rt-threaded", "stream"] }
 
 [target.'cfg(windows)'.build-dependencies]

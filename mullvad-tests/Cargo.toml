@@ -32,7 +32,7 @@ prost = "0.6"
 parity-tokio-ipc = "0.7"
 
 [build-dependencies]
-tonic-build = { version = "0.2", default-features = false, features = ["transport", "prost"] }
+tonic-build = { version = "0.3", default-features = false, features = ["transport", "prost"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
