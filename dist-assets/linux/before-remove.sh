@@ -14,7 +14,7 @@ if [[ "$1" == "upgrade" ]]; then
     exit 0;
 fi
 
-mullvad account clear-history || echo "Failed to remove leftover WireGuard keys"
+/usr/bin/mullvad account clear-history || echo "Failed to remove leftover WireGuard keys"
 
 if which systemctl &> /dev/null; then
     # the user might've disabled or stopped the service themselves already
