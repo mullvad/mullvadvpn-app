@@ -117,12 +117,6 @@ class AccountLogin : RelativeLayout {
                     input.loginWith(history[idx])
                 }
             }
-
-            if (shouldShowAccountHistory && accountHistoryList.visibility != View.VISIBLE) {
-                accountHistoryList.visibility = View.VISIBLE
-                accountHistoryList.translationY = -accountHistoryList.height.toFloat()
-                accountHistoryList.animate().translationY(0.0F).setDuration(350).start()
-            }
         }
     }
 
