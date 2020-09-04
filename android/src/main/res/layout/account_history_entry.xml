@@ -5,6 +5,7 @@
     <TextView android:id="@+id/account_history_entry_text_view"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:background="@color/white60"
               android:paddingHorizontal="12dp"
               android:gravity="center_vertical"
               android:textColor="@color/blue"
