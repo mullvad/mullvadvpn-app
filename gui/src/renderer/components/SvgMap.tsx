@@ -138,19 +138,45 @@ function sameProps(prevProps: IProps, nextProps: IProps) {
   );
 }
 
-function useBboxes(bbox: BBox): [BBox[], () => void] {
+function useViewportBboxes(
+  center: [number, number],
+  width: number,
+  height: number,
+  projection: GeoProjection,
+  zoom: number,
+): [BBox[], () => void] {
+  const viewportBbox = useMemo(
+    () => getViewportGeoBoundingBox(center, width, height, projection, zoom),
+    [center, width, height, projection, zoom],
+  );
+
   const prev = useRef<BBox[]>([]);
-  const bboxes = useMemo(() => [...prev.current, bbox], [bbox]);
+  const viewportBboxes = useMemo(() => [...prev.current, viewportBbox], [viewportBbox]);
 
   const keepLast = useCallback(() => {
     prev.current = prev.current.slice(-1);
   }, []);
 
   useEffect(() => {
-    prev.current = [...bboxes];
-  }, [bboxes]);
+    prev.current = [...viewportBboxes];
+  }, [viewportBboxes]);
 
-  return [bboxes, keepLast];
+  return [viewportBboxes, keepLast];
+}
+
+function useVisibleGeometry(viewportBboxes: BBox[]) {
+  const combinedViewportBboxMatch = useMemo(() => getCombindedViewportBboxMatch(viewportBboxes), [
+    viewportBboxes,
+  ]);
+  const visibleGeometry = useMemo(() => geometryTree.search(combinedViewportBboxMatch), [
+    combinedViewportBboxMatch,
+  ]);
+  const visibleStatesProvincesLines = useMemo(
+    () => provincesStatesLinesTree.search(combinedViewportBboxMatch),
+    [combinedViewportBboxMatch],
+  );
+
+  return [visibleGeometry, visibleStatesProvincesLines];
 }
 
 export interface IProps {
@@ -167,37 +193,24 @@ export interface IProps {
 function SvgMap(props: IProps) {
   const { width, height, zoomLevel } = props;
   const center = useMemo(() => props.center, [...props.center]);
-  const offset = useMemo(() => props.offset, [...props.offset]);
-
-  const projection = useMemo(() => getProjection(width, height, offset, projectionConfig.scale), [
-    width,
-    height,
-    offset,
-    projectionConfig.scale,
-  ]);
-  const zoomCenter = useMemo(() => getZoomCenter(center, offset, projection, zoomLevel), [
-    center,
-    offset,
+  const projection = useMemo(
+    () => getProjection(width, height, props.offset, projectionConfig.scale),
+    [width, height, ...props.offset, projectionConfig.scale],
+  );
+  const zoomCenter = useMemo(() => getZoomCenter(center, props.offset, projection, zoomLevel), [
+    ...center,
+    ...props.offset,
     projection,
     zoomLevel,
   ]);
-
-  const viewportBbox = useMemo(
-    () => getViewportGeoBoundingBox(zoomCenter, width, height, projection, zoomLevel),
-    [zoomCenter, width, height, projection, zoomLevel],
+  const [viewportBboxes, removeOldViewportBboxes] = useViewportBboxes(
+    zoomCenter,
+    width,
+    height,
+    projection,
+    zoomLevel,
   );
-  const [viewportBboxes, removeOldViewportBboxes] = useBboxes(viewportBbox);
-
-  const combinedViewportBboxMatch = useMemo(() => getCombindedViewportBboxMatch(viewportBboxes), [
-    viewportBboxes,
-  ]);
-  const visibleGeometry = useMemo(() => geometryTree.search(combinedViewportBboxMatch), [
-    combinedViewportBboxMatch,
-  ]);
-  const visibleStatesProvincesLines = useMemo(
-    () => provincesStatesLinesTree.search(combinedViewportBboxMatch),
-    [combinedViewportBboxMatch],
-  );
+  const [visibleGeometry, visibleStatesProvincesLines] = useVisibleGeometry(viewportBboxes);
 
   return (
     <ComposableMap
