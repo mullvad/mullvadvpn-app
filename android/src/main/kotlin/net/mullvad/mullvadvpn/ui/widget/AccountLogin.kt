@@ -1,11 +1,13 @@
 package net.mullvad.mullvadvpn.ui.widget
 
 import android.animation.ValueAnimator
+import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnLayoutChangeListener
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.RelativeLayout
@@ -56,6 +58,10 @@ class AccountLogin : RelativeLayout {
     private var inputHasFocus by observable(false) { _, _, hasFocus ->
         updateBorder()
         shouldShowAccountHistory = hasFocus
+
+        if (!hasFocus) {
+            hideKeyboard()
+        }
     }
 
     private var shouldShowAccountHistory by observable(false) { _, isShown, show ->
@@ -158,5 +164,12 @@ class AccountLogin : RelativeLayout {
         } else {
             border.borderState = BorderState.UNFOCUSED
         }
+    }
+
+    private fun hideKeyboard() {
+        val inputManagerId = Activity.INPUT_METHOD_SERVICE
+        val inputManager = context.getSystemService(inputManagerId) as InputMethodManager
+
+        inputManager.hideSoftInputFromWindow(windowToken, 0)
     }
 }
