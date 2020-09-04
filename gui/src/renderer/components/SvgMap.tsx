@@ -1,6 +1,6 @@
 import { geoMercator, GeoProjection } from 'd3-geo';
 import rbush from 'rbush';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
 
 import geographyData from '../../../assets/geo/geometry.json';
@@ -124,6 +124,35 @@ function getCombindedViewportBboxMatch(viewportBboxes: BBox[]) {
   };
 }
 
+function sameProps(prevProps: IProps, nextProps: IProps) {
+  return (
+    prevProps.width === nextProps.width &&
+    prevProps.height === nextProps.height &&
+    prevProps.center[0] === nextProps.center[0] &&
+    prevProps.center[1] === nextProps.center[1] &&
+    prevProps.offset[0] === nextProps.offset[0] &&
+    prevProps.offset[1] === nextProps.offset[1] &&
+    prevProps.zoomLevel === nextProps.zoomLevel &&
+    prevProps.showMarker === nextProps.showMarker &&
+    prevProps.markerImagePath === nextProps.markerImagePath
+  );
+}
+
+function useBboxes(bbox: BBox): [BBox[], () => void] {
+  const prev = useRef<BBox[]>([]);
+  const bboxes = useMemo(() => [...prev.current, bbox], [bbox]);
+
+  const keepLast = useCallback(() => {
+    prev.current = prev.current.slice(-1);
+  }, []);
+
+  useEffect(() => {
+    prev.current = [...bboxes];
+  }, [bboxes]);
+
+  return [bboxes, keepLast];
+}
+
 export interface IProps {
   width: number;
   height: number;
@@ -135,29 +164,29 @@ export interface IProps {
 }
 
 // @TODO: Calculate zoom level based on (center + span) (aka MKCoordinateSpan)
-export default function SvgMap(props: IProps) {
+function SvgMap(props: IProps) {
   const { width, height, zoomLevel } = props;
   const center = useMemo(() => props.center, [...props.center]);
   const offset = useMemo(() => props.offset, [...props.offset]);
-  const [viewportBboxes, setViewportBboxes] = useState<BBox[]>([]);
 
   const projection = useMemo(() => getProjection(width, height, offset, projectionConfig.scale), [
     width,
     height,
-    ...offset,
+    offset,
     projectionConfig.scale,
   ]);
   const zoomCenter = useMemo(() => getZoomCenter(center, offset, projection, zoomLevel), [
-    ...center,
-    ...offset,
+    center,
+    offset,
     projection,
     zoomLevel,
   ]);
 
   const viewportBbox = useMemo(
     () => getViewportGeoBoundingBox(zoomCenter, width, height, projection, zoomLevel),
-    [...zoomCenter, width, height, projection, zoomLevel],
+    [zoomCenter, width, height, projection, zoomLevel],
   );
+  const [viewportBboxes, removeOldViewportBboxes] = useBboxes(viewportBbox);
 
   const combinedViewportBboxMatch = useMemo(() => getCombindedViewportBboxMatch(viewportBboxes), [
     viewportBboxes,
@@ -169,14 +198,6 @@ export default function SvgMap(props: IProps) {
     () => provincesStatesLinesTree.search(combinedViewportBboxMatch),
     [combinedViewportBboxMatch],
   );
-
-  const removeOldViewportBboxes = useCallback(() => {
-    setViewportBboxes((viewportBboxes) => viewportBboxes.slice(-1));
-  }, []);
-
-  useEffect(() => {
-    setViewportBboxes((viewportBboxes) => [...viewportBboxes, viewportBbox]);
-  }, [viewportBbox]);
 
   return (
     <ComposableMap
@@ -232,3 +253,5 @@ export default function SvgMap(props: IProps) {
     </ComposableMap>
   );
 }
+
+export default React.memo(SvgMap, sameProps);
