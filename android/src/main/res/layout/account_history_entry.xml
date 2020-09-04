@@ -8,7 +8,7 @@
               android:background="@color/white60"
               android:paddingHorizontal="12dp"
               android:gravity="center_vertical"
-              android:textColor="@color/blue"
+              android:textColor="@color/blue80"
               android:textSize="@dimen/text_medium_plus"
               android:textStyle="bold" />
 </LinearLayout>
