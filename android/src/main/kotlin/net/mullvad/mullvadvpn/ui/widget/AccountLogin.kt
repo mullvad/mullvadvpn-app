@@ -24,14 +24,6 @@ class AccountLogin : RelativeLayout {
     private val accountHistoryList: ListView = container.findViewById(R.id.history)
     private val input: AccountInput = container.findViewById(R.id.input)
 
-    private var shouldShowAccountHistory = false
-        set(value) {
-            synchronized(this) {
-                field = value
-                updateAccountHistory()
-            }
-        }
-
     private var inputHasFocus by observable(false) { _, _, hasFocus ->
         updateBorder()
 
@@ -40,13 +32,13 @@ class AccountLogin : RelativeLayout {
         }
     }
 
-    var accountHistory: ArrayList<String>? = null
-        set(value) {
-            synchronized(this) {
-                field = value
-                updateAccountHistory()
-            }
-        }
+    private var shouldShowAccountHistory by observable(false) { _, _, _ ->
+        updateAccountHistory()
+    }
+
+    var accountHistory by observable<ArrayList<String>?>(null) { _, _, _ ->
+        updateAccountHistory()
+    }
 
     var state: LoginState by observable(LoginState.Initial) { _, _, newState ->
         input.loginState = newState
