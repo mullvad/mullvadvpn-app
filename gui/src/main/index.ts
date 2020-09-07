@@ -4,6 +4,7 @@ import log from 'electron-log';
 import mkdirp from 'mkdirp';
 import moment from 'moment';
 import * as path from 'path';
+import { sprintf } from 'sprintf-js';
 import * as uuid from 'uuid';
 import { hasExpired } from '../shared/account-expiry';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
@@ -65,6 +66,8 @@ const AUTO_CONNECT_FALLBACK_DELAY = 6000;
 /// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
 const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
 
+const displayEnvironmentsSupportingTrayClick = [];
+
 enum AppQuitStage {
   unready,
   initiated,
@@ -88,6 +91,7 @@ class ApplicationMain {
     areSystemNotificationsEnabled: () => this.guiSettings.enableSystemNotifications,
   });
   private windowController?: WindowController;
+  private tray?: Tray;
   private trayIconController?: TrayIconController;
 
   private daemonRpc = new DaemonRpc(DAEMON_RPC_PATH);
@@ -358,6 +362,7 @@ class ApplicationMain {
     this.addContextMenu(window);
 
     this.windowController = windowController;
+    this.tray = tray;
 
     this.guiSettings.onChange = (newState, oldState) => {
       if (oldState.monochromaticIcon !== newState.monochromaticIcon) {
@@ -388,12 +393,17 @@ class ApplicationMain {
         this.installMacOsMenubarAppWindowHandlers(tray, windowController);
         this.setMacOsAppMenu();
         break;
-      case 'linux':
-        this.installGenericMenubarAppWindowHandlers(tray, windowController);
+      case 'linux': {
+        if (displayEnvironmentsSupportingTrayClick.includes(this.getXdgCurrentDesktop())) {
+          this.installLinuxMenubarAppWindowHandlers(tray, windowController);
+        } else {
+          this.setLinuxTrayContextMenu();
+        }
         this.installLinuxWindowCloseHandler(windowController);
         this.setLinuxAppMenu();
         window.setMenuBarVisibility(false);
         break;
+      }
       default:
         this.installGenericMenubarAppWindowHandlers(tray, windowController);
         break;
@@ -618,6 +628,10 @@ class ApplicationMain {
     this.tunnelState = newState;
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
     consumePromise(this.updateLocation());
+
+    if (!displayEnvironmentsSupportingTrayClick.includes(this.getXdgCurrentDesktop())) {
+      this.setLinuxTrayContextMenu();
+    }
 
     this.notificationController.notifyTunnelState(
       newState,
@@ -1412,6 +1426,45 @@ class ApplicationMain {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   }
 
+  private setLinuxTrayContextMenu() {
+    const connectLabel = {
+      disconnected: messages.gettext('Connect'),
+      connecting: messages.gettext('Connecting...'),
+      connected: messages.gettext('Disconnect'),
+      disconnecting: messages.gettext('Disconnecting...'),
+      error: messages.gettext('Error...'),
+    };
+
+    const template: Electron.MenuItemConstructorOptions[] = [
+      {
+        label: sprintf(messages.pgettext('tray-icon-context-menu', 'Open %(mullvadVpn)s'), {
+          mullvadVpn: messages.pgettext('generic', 'Mullvad VPN'),
+        }),
+        click: () => this.windowController?.show(),
+      },
+      { type: 'separator' },
+      {
+        label: connectLabel[this.tunnelState.state],
+        enabled:
+          this.tunnelState.state === 'connected' || this.tunnelState.state === 'disconnected',
+        click: () => {
+          if (this.tunnelState.state === 'connected') {
+            consumePromise(this.daemonRpc.disconnectTunnel());
+          } else {
+            consumePromise(this.daemonRpc.connectTunnel());
+          }
+        },
+      },
+      {
+        label: messages.gettext('Reconnect'),
+        enabled: this.tunnelState.state === 'connected' || this.tunnelState.state === 'connecting',
+        click: () => consumePromise(this.daemonRpc.reconnectTunnel()),
+      },
+    ];
+
+    this.tray?.setContextMenu(Menu.buildFromTemplate(template));
+  }
+
   private addContextMenu(window: BrowserWindow) {
     const menuTemplate: Electron.MenuItemConstructorOptions[] = [
       { role: 'cut' },
@@ -1512,6 +1565,12 @@ class ApplicationMain {
     });
   }
 
+  private installLinuxMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
+    tray.on('click', () => {
+      windowController.show();
+    });
+  }
+
   private installLinuxWindowCloseHandler(windowController: WindowController) {
     windowController.window.on('close', (closeEvent: Event) => {
       if (this.quitStage !== AppQuitStage.ready) {
@@ -1546,6 +1605,10 @@ class ApplicationMain {
     } else {
       return shell.openExternal(url);
     }
+  }
+
+  private getXdgCurrentDesktop() {
+    return process.env.ORIGINAL_XDG_CURRENT_DESKTOP ?? process.env.XDG_CURRENT_DESKTOP ?? '';
   }
 }
 
