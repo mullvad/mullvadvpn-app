@@ -21,11 +21,9 @@ mod version_check;
 
 use futures::{
     channel::{mpsc, oneshot},
-    compat::Future01CompatExt,
     future::{abortable, AbortHandle, Future},
     StreamExt,
 };
-use futures01::Future as Future01;
 use log::{debug, error, info, warn};
 use mullvad_rpc::AccountsProxy;
 use mullvad_types::{
@@ -1207,11 +1205,10 @@ where
 
         async {
             geoip::send_location_request(https_handle)
+                .await
                 .map_err(|e| {
                     warn!("Unable to fetch GeoIP location: {}", e.display_chain());
                 })
-                .compat()
-                .await
         }
     }
 
