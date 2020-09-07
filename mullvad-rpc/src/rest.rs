@@ -5,7 +5,6 @@ use futures::{
     stream::StreamExt,
     TryFutureExt,
 };
-use futures01::Future as OldFuture;
 use hyper::{
     client::{connect::Connect, Client},
     header::{self, HeaderValue},
@@ -192,22 +191,6 @@ impl RequestServiceHandle {
 
 
         completion_rx.await.map_err(|_| Error::ReceiveError)?
-    }
-
-    /// Spawns a future on the hyper runtime returning an old-style future that can be spawned on
-    /// any runtime
-    pub fn compat_spawn<T: Send + std::fmt::Debug + 'static>(
-        &self,
-        future: impl Future<Output = Result<T>> + Send + 'static,
-    ) -> impl futures01::Future<Item = T, Error = Error> {
-        let (tx, rx) = futures01::sync::oneshot::channel();
-        let _ = self.handle.spawn(async move {
-            let result = future.await;
-            let _ = tx.send(result);
-        });
-
-
-        rx.map_err(|_| Error::ReceiveError).flatten()
     }
 
     /// Spawns a future on the RPC runtime.

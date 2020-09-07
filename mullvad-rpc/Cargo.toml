@@ -10,8 +10,7 @@ publish = false
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 err-derive = "0.2.1"
-futures = { version = "0.3", features = [ "default", "compat" ] }
-futures01 = { package = "futures", version = "0.1" }
+futures = "0.3"
 http = "0.2"
 hyper = "0.13"
 ipnetwork = "0.16"
