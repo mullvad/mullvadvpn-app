@@ -4,6 +4,7 @@ import log from 'electron-log';
 import mkdirp from 'mkdirp';
 import moment from 'moment';
 import * as path from 'path';
+import { sprintf } from 'sprintf-js';
 import * as uuid from 'uuid';
 import { hasExpired } from '../shared/account-expiry';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
@@ -88,6 +89,7 @@ class ApplicationMain {
     areSystemNotificationsEnabled: () => this.guiSettings.enableSystemNotifications,
   });
   private windowController?: WindowController;
+  private tray?: Tray;
   private trayIconController?: TrayIconController;
 
   private daemonRpc = new DaemonRpc(DAEMON_RPC_PATH);
@@ -358,6 +360,7 @@ class ApplicationMain {
     this.addContextMenu(window);
 
     this.windowController = windowController;
+    this.tray = tray;
 
     this.guiSettings.onChange = (newState, oldState) => {
       if (oldState.monochromaticIcon !== newState.monochromaticIcon) {
@@ -389,7 +392,7 @@ class ApplicationMain {
         this.setMacOsAppMenu();
         break;
       case 'linux':
-        this.installGenericMenubarAppWindowHandlers(tray, windowController);
+        this.setLinuxTrayContextMenu();
         this.installLinuxWindowCloseHandler(windowController);
         this.setLinuxAppMenu();
         window.setMenuBarVisibility(false);
@@ -618,6 +621,10 @@ class ApplicationMain {
     this.tunnelState = newState;
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
     consumePromise(this.updateLocation());
+
+    if (process.platform === 'linux') {
+      this.setLinuxTrayContextMenu();
+    }
 
     this.notificationController.notifyTunnelState(
       newState,
@@ -1410,6 +1417,52 @@ class ApplicationMain {
       },
     ];
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  }
+
+  private setLinuxTrayContextMenu() {
+    const template: Electron.MenuItemConstructorOptions[] = [
+      {
+        label: sprintf(messages.pgettext('tray-icon-context-menu', 'Open %(mullvadVpn)s'), {
+          mullvadVpn: messages.pgettext('generic', 'Mullvad VPN'),
+        }),
+        click: () => this.windowController?.show(),
+      },
+      { type: 'separator' },
+      {
+        label: this.getLinuxContextMenuActionButtonLabel(),
+        click: () => {
+          if (this.tunnelState.state === 'disconnected') {
+            consumePromise(this.daemonRpc.connectTunnel());
+          } else {
+            consumePromise(this.daemonRpc.disconnectTunnel());
+          }
+        },
+      },
+      {
+        label: messages.gettext('Reconnect'),
+        enabled: this.tunnelState.state === 'connected' || this.tunnelState.state === 'connecting',
+        click: () => consumePromise(this.daemonRpc.reconnectTunnel()),
+      },
+    ];
+
+    this.tray?.setContextMenu(Menu.buildFromTemplate(template));
+  }
+
+  private getLinuxContextMenuActionButtonLabel() {
+    switch (this.tunnelState.state) {
+      case 'disconnected':
+        return messages.gettext('Connect');
+      case 'connecting':
+        return messages.gettext('Cancel');
+      case 'connected':
+        return messages.gettext('Disconnect');
+      case 'disconnecting':
+        return '';
+      case 'error':
+        return this.tunnelState.details.blockFailure
+          ? messages.gettext('Dismiss')
+          : messages.gettext('Cancel');
+    }
   }
 
   private addContextMenu(window: BrowserWindow) {
