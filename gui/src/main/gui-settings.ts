@@ -2,17 +2,15 @@ import { app } from 'electron';
 import log from 'electron-log';
 import * as fs from 'fs';
 import * as path from 'path';
-import { validate } from 'validated/object';
-import { boolean, partialObject, string } from 'validated/schema';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 
-const settingsSchema = partialObject({
-  preferredLocale: string,
-  autoConnect: boolean,
-  enableSystemNotifications: boolean,
-  monochromaticIcon: boolean,
-  startMinimized: boolean,
-});
+const settingsSchema = {
+  preferredLocale: 'string',
+  autoConnect: 'boolean',
+  enableSystemNotifications: 'boolean',
+  monochromaticIcon: 'boolean',
+  startMinimized: 'boolean',
+};
 
 const defaultSettings: IGuiSettingsState = {
   preferredLocale: SYSTEM_PREFERRED_LOCALE_KEY,
@@ -79,7 +77,7 @@ export default class GuiSettings {
 
       this.stateValue = {
         ...defaultSettings,
-        ...(validate(settingsSchema, rawJson) as Partial<IGuiSettingsState>),
+        ...this.validateSettings(rawJson),
       };
     } catch (error) {
       log.error(`Failed to read GUI settings file: ${error}`);
@@ -94,6 +92,18 @@ export default class GuiSettings {
     } catch (error) {
       log.error(`Failed to write GUI settings file: ${error}`);
     }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private validateSettings(settings: any) {
+    Object.entries(settingsSchema).forEach(([key, expectedType]) => {
+      const actualType = typeof settings[key];
+      if (key in settings && actualType !== expectedType) {
+        throw new Error(`Expected ${key} to be of type ${expectedType} but was ${actualType}`);
+      }
+    });
+
+    return settings as Partial<IGuiSettingsState>;
   }
 
   private filePath() {

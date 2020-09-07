@@ -33,8 +33,7 @@
     "redux": "^4.0.5",
     "sprintf-js": "^1.1.2",
     "styled-components": "^5.1.0",
-    "uuid": "^3.0.1",
-    "validated": "^2.0.1"
+    "uuid": "^3.0.1"
   },
   "optionalDependencies": {
     "nseventmonitor": "^0.0.18"
