@@ -79,11 +79,15 @@ git commit -S -m "Updating version in package files" \
 
 echo "Tagging current git commit with release tag $PRODUCT_VERSION..."
 
+NEW_TAGS=""
+
 if [[ "$ANDROID" == "true" ]]; then
     git tag -s "android/$PRODUCT_VERSION" -m "android/$PRODUCT_VERSION"
+    NEW_TAGS+=" android/$PRODUCT_VERSION"
 fi
 if [[ "$DESKTOP" == "true" ]]; then
     git tag -s $PRODUCT_VERSION -m $PRODUCT_VERSION
+    NEW_TAGS+=" $PRODUCT_VERSION"
 fi
 
 ./version-metadata.sh delete-backup
@@ -92,5 +96,5 @@ echo "================================================="
 echo "| DONE preparing for a release!                 |"
 echo "|    Now push the tag created by this script    |"
 echo "|    after you have verified it is correct:     |"
-echo "|        $ git push origin $PRODUCT_VERSION     |"
+echo "|        $ git push origin$NEW_TAGS"
 echo "================================================="
