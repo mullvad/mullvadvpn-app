@@ -230,7 +230,7 @@ impl ProblemReportProxy {
         message: &str,
         log: &str,
         metadata: &BTreeMap<String, String>,
-    ) -> impl Future01<Item = (), Error = rest::Error> {
+    ) -> impl Future<Output = Result<(), rest::Error>> {
         #[derive(serde::Serialize)]
         struct ProblemReport {
             address: String,
@@ -257,10 +257,10 @@ impl ProblemReportProxy {
             StatusCode::NO_CONTENT,
         );
 
-        self.handle.service.compat_spawn(async move {
+        async move {
             request.await?;
             Ok(())
-        })
+        }
     }
 }
 

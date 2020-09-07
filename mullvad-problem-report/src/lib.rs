@@ -1,6 +1,5 @@
 #![deny(rust_2018_idioms)]
 
-use futures01::Future;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
@@ -266,7 +265,7 @@ pub fn send_problem_report(
     let metadata =
         ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
 
-    let runtime = tokio::runtime::Builder::new()
+    let mut runtime = tokio::runtime::Builder::new()
         .basic_scheduler()
         .enable_all()
         .build()
@@ -276,9 +275,8 @@ pub fn send_problem_report(
         .map_err(Error::CreateRpcClientError)?;
     let rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_manager.mullvad_rest_handle());
 
-    rpc_client
-        .problem_report(user_email, user_message, &report_content, &metadata)
-        .wait()
+    runtime
+        .block_on(rpc_client.problem_report(user_email, user_message, &report_content, &metadata))
         .map_err(Error::SendRpcError)
 }
 
