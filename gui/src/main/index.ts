@@ -66,7 +66,7 @@ const AUTO_CONNECT_FALLBACK_DELAY = 6000;
 /// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
 const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
 
-const displayEnvironmentsSupportingTrayClick = [];
+const displayEnvironmentsSupportingTrayClick = ['KDE'];
 
 enum AppQuitStage {
   unready,
