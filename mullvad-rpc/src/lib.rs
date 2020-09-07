@@ -1,7 +1,6 @@
 #![deny(rust_2018_idioms)]
 
 use chrono::{offset::Utc, DateTime};
-use futures01::future::Future as Future01;
 use hyper::Method;
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
@@ -126,7 +125,7 @@ impl AccountsProxy {
     pub fn get_expiry(
         &self,
         account: AccountToken,
-    ) -> impl Future01<Item = DateTime<Utc>, Error = rest::Error> {
+    ) -> impl Future<Output = Result<DateTime<Utc>, rest::Error>> {
         let service = self.handle.service.clone();
 
         let response = rest::send_request(
@@ -137,13 +136,13 @@ impl AccountsProxy {
             Some(account),
             StatusCode::OK,
         );
-        self.handle.service.compat_spawn(async move {
+        async move {
             let account: AccountResponse = rest::deserialize_body(response.await?).await?;
             Ok(account.expires)
-        })
+        }
     }
 
-    pub fn create_account(&mut self) -> impl Future01<Item = AccountToken, Error = rest::Error> {
+    pub fn create_account(&mut self) -> impl Future<Output = Result<AccountToken, rest::Error>> {
         let service = self.handle.service.clone();
         let response = rest::send_request(
             &self.handle.factory,
@@ -154,17 +153,17 @@ impl AccountsProxy {
             StatusCode::CREATED,
         );
 
-        self.handle.service.compat_spawn(async move {
+        async move {
             let account: AccountResponse = rest::deserialize_body(response.await?).await?;
             Ok(account.token)
-        })
+        }
     }
 
     pub fn submit_voucher(
         &mut self,
         account_token: AccountToken,
         voucher_code: String,
-    ) -> impl Future01<Item = VoucherSubmission, Error = rest::Error> {
+    ) -> impl Future<Output = Result<VoucherSubmission, rest::Error>> {
         #[derive(serde::Serialize)]
         struct VoucherSubmission {
             voucher_code: String,
@@ -182,15 +181,13 @@ impl AccountsProxy {
             StatusCode::OK,
         );
 
-        self.handle
-            .service
-            .compat_spawn(async move { rest::deserialize_body(response.await?).await })
+        async move { rest::deserialize_body(response.await?).await }
     }
 
     pub fn get_www_auth_token(
         &self,
         account: AccountToken,
-    ) -> impl Future01<Item = String, Error = rest::Error> {
+    ) -> impl Future<Output = Result<String, rest::Error>> {
         #[derive(serde::Deserialize)]
         struct AuthTokenResponse {
             auth_token: String,
@@ -206,12 +203,10 @@ impl AccountsProxy {
             StatusCode::OK,
         );
 
-        let future = async move {
+        async move {
             let response: AuthTokenResponse = rest::deserialize_body(response.await?).await?;
             Ok(response.auth_token)
-        };
-
-        self.handle.service.compat_spawn(future)
+        }
     }
 }
 
