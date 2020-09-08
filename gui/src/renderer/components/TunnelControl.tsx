@@ -97,19 +97,19 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
 
     const Disconnect = (props: React.ComponentProps<typeof AppButton.RedTransparentButton>) => (
       <AppButton.RedTransparentButton onClick={this.props.onDisconnect} {...props}>
-        {messages.pgettext('tunnel-control', 'Disconnect')}
+        {messages.gettext('Disconnect')}
       </AppButton.RedTransparentButton>
     );
 
     const Cancel = (props: React.ComponentProps<typeof AppButton.RedTransparentButton>) => (
       <AppButton.RedTransparentButton onClick={this.props.onDisconnect} {...props}>
-        {messages.pgettext('tunnel-control', 'Cancel')}
+        {messages.gettext('Cancel')}
       </AppButton.RedTransparentButton>
     );
 
     const Dismiss = (props: React.ComponentProps<typeof AppButton.RedTransparentButton>) => (
       <AppButton.RedTransparentButton onClick={this.props.onDisconnect} {...props}>
-        {messages.pgettext('tunnel-control', 'Dismiss')}
+        {messages.gettext('Dismiss')}
       </AppButton.RedTransparentButton>
     );
 
