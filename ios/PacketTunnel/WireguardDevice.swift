@@ -285,7 +285,7 @@ class WireguardDevice {
             case .success(let resolvedPeer):
                 newPeers.append(resolvedPeer)
             case .failure(_):
-                // Fix me: Ignore resolution error and carry on with the last known peer
+                // Fix me: ignore resolution error and carry on with the last known peer
                 newPeers.append(peer)
             }
         }
@@ -294,18 +294,18 @@ class WireguardDevice {
     }
 
     private func resolvePeer(_ peer: WireguardPeer) -> Result<WireguardPeer, Error> {
-        switch peer.withReresolvedEndpoint() {
+        switch peer.withResolvedEndpoint() {
         case .success(let resolvedPeer):
             if "\(peer.endpoint.ip)" == "\(resolvedPeer.endpoint.ip)" {
-                logger.debug("DNS64: mapped \(resolvedPeer.endpoint.ip) to itself")
+                logger.info("DNS64: mapped \(resolvedPeer.endpoint.ip) to itself")
             } else {
-                logger.debug("DNS64: mapped \(peer.endpoint.ip) to \(resolvedPeer.endpoint.ip)")
+                logger.info("DNS64: mapped \(peer.endpoint.ip) to \(resolvedPeer.endpoint.ip)")
             }
 
             return .success(resolvedPeer)
 
         case .failure(let error):
-            logger.error("Failed to re-resolve the peer: \(peer.endpoint.ip). Error: \(error.localizedDescription)")
+            logger.error("DNS64: Failed to resolve the peer: \(peer.endpoint.ip). Error: \(error.localizedDescription)")
 
             return .failure(.resolveEndpoint(peer.endpoint, error))
         }
@@ -342,7 +342,7 @@ class WireguardDevice {
         case (false, true), (true, true):
             guard let currentConfiguration = self.configuration else { return }
 
-            self.logger.info("Re-resolve endpoints")
+            self.logger.info("Resolve endpoints")
 
             let resolvedConfiguration = self.resolveConfiguration(currentConfiguration)
 

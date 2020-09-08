@@ -16,9 +16,10 @@ struct WireguardPeer: Hashable {
 
 extension WireguardPeer {
 
-    func withReresolvedEndpoint() -> Result<WireguardPeer, Error> {
-        return self.endpoint.withReresolvedIP()
-            .map { WireguardPeer(endpoint: $0, publicKey: self.publicKey) }
+    func withResolvedEndpoint() -> Result<WireguardPeer, Error> {
+        return self.endpoint.withResolvedIP().map { (endpoint) -> WireguardPeer in
+            return WireguardPeer(endpoint: endpoint, publicKey: self.publicKey)
+        }
     }
 
 }
