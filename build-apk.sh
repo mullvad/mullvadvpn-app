@@ -47,7 +47,7 @@ if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     fi
 fi
 
-product_version_commit_hash=$(git rev-parse android/$PRODUCT_VERSION^{commit})
+product_version_commit_hash=$(git rev-parse android/$PRODUCT_VERSION^{commit} || echo "")
 current_head_commit_hash=$(git rev-parse HEAD^{commit})
 if [[ "$BUILD_TYPE" == "debug" || $product_version_commit_hash != $current_head_commit_hash ]]; then
     PRODUCT_VERSION="${PRODUCT_VERSION}-dev-${current_head_commit_hash:0:6}"
