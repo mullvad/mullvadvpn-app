@@ -62,7 +62,7 @@ else
     export CSC_IDENTITY_AUTO_DISCOVERY=false
 fi
 
-product_version_commit_hash=$(git rev-parse $PRODUCT_VERSION^{commit})
+product_version_commit_hash=$(git rev-parse $PRODUCT_VERSION^{commit} || echo "")
 current_head_commit_hash=$(git rev-parse HEAD^{commit})
 if [[ "$BUILD_MODE" == "dev" || $product_version_commit_hash != $current_head_commit_hash ]]; then
     PRODUCT_VERSION="$PRODUCT_VERSION-dev-${current_head_commit_hash:0:6}"
