@@ -10,9 +10,45 @@
 import Foundation
 import Network
 
+/// A struct describing an IP address range
 struct IPAddressRange {
     let address: IPAddress
-    var networkPrefixLength: UInt8
+    let networkPrefixLength: UInt8
+
+    init(address: IPAddress, networkPrefixLength: UInt8) {
+        self.address = address
+        self.networkPrefixLength = min(networkPrefixLength, address.maxNetworkPrefixLength)
+    }
+
+    init(string: String) throws {
+        let separatorIndex = string.lastIndex(of: "/") ?? string.endIndex
+        let prefixStartIndex = string.index(separatorIndex, offsetBy: 1, limitedBy: string.endIndex)
+
+        let prefixSubstring = prefixStartIndex.flatMap { string[$0...] }
+        var prefix: UInt8?
+        if let prefixSubstring = prefixSubstring {
+            if let parsedPrefix = UInt8(prefixSubstring) {
+                prefix = parsedPrefix
+            } else {
+                throw IPAddressRangeParseError.parsePrefix(String(prefixSubstring))
+            }
+        }
+
+        let addressString = String(string[..<separatorIndex])
+        if let ipv4Address = IPv4Address(addressString) {
+            self = IPAddressRange(
+                address: ipv4Address,
+                networkPrefixLength: prefix ?? ipv4Address.maxNetworkPrefixLength
+            )
+        } else if let ipv6Address = IPv6Address(addressString) {
+            self = IPAddressRange(
+                address: ipv6Address,
+                networkPrefixLength: prefix ?? ipv6Address.maxNetworkPrefixLength
+            )
+        } else {
+            throw IPAddressRangeParseError.parseAddress(addressString)
+        }
+    }
 }
 
 extension IPAddressRange: Equatable {
@@ -35,44 +71,31 @@ extension IPAddressRange: CustomStringConvertible {
     }
 }
 
-extension IPAddressRange {
-
-    init?(from string: String) {
-        guard let parsed = IPAddressRange.parseAddressString(string) else { return nil }
-        address = parsed.0
-        networkPrefixLength = parsed.1
+private extension IPv4Address {
+    var maxNetworkPrefixLength: UInt8 {
+        return 32
     }
+}
 
-    private static func parseAddressString(_ string: String) -> (IPAddress, UInt8)? {
-        let endOfIPAddress = string.lastIndex(of: "/") ?? string.endIndex
-        let addressString = String(string[string.startIndex ..< endOfIPAddress])
-        let address: IPAddress
-        if let addr = IPv4Address(addressString) {
-            address = addr
-        } else if let addr = IPv6Address(addressString) {
-            address = addr
+private extension IPv6Address {
+    var maxNetworkPrefixLength: UInt8 {
+        return 128
+    }
+}
+
+private extension IPAddress {
+    var maxNetworkPrefixLength: UInt8 {
+        if let ipv4Address = self as? IPv4Address {
+            return ipv4Address.maxNetworkPrefixLength
+        } else if let ipv6Address = self as? IPv6Address {
+            return ipv6Address.maxNetworkPrefixLength
         } else {
-            return nil
+            fatalError()
         }
-
-        let maxNetworkPrefixLength: UInt8 = address is IPv4Address ? 32 : 128
-        var networkPrefixLength: UInt8
-        if endOfIPAddress < string.endIndex { // "/" was located
-            let indexOfNetworkPrefixLength = string.index(after: endOfIPAddress)
-            guard indexOfNetworkPrefixLength < string.endIndex else { return nil }
-            let networkPrefixLengthSubstring = string[indexOfNetworkPrefixLength ..< string.endIndex]
-            guard let npl = UInt8(networkPrefixLengthSubstring) else { return nil }
-            networkPrefixLength = min(npl, maxNetworkPrefixLength)
-        } else {
-            networkPrefixLength = maxNetworkPrefixLength
-        }
-
-        return (address, networkPrefixLength)
     }
 }
 
 extension IPAddressRange: Codable {
-
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
 
@@ -83,11 +106,31 @@ extension IPAddressRange: Codable {
         let container = try decoder.singleValueContainer()
         let value = try container.decode(String.self)
 
-        if let addressRange = IPAddressRange(from: value) {
-            self = addressRange
-        } else {
-            throw DecodingError.dataCorruptedError(
-                in: container, debugDescription: "Invalid IPAddressRange representation")
+        do {
+            self = try IPAddressRange(string: value)
+        } catch {
+            let context = DecodingError.Context(
+                codingPath: container.codingPath,
+                debugDescription: "Invalid IPAddressRange representation",
+                underlyingError: error)
+            throw DecodingError.dataCorrupted(context)
+        }
+    }
+}
+
+enum IPAddressRangeParseError: LocalizedError, Equatable {
+    /// A failure to parse the IP address
+    case parseAddress(String)
+
+    /// A failure to parse the network prefix
+    case parsePrefix(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .parseAddress(let addressString):
+            return "Failure to parse the IP address: \(addressString)"
+        case .parsePrefix(let prefixString):
+            return "Failure to parse the network prefix: \(prefixString)"
         }
     }
 }
