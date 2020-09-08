@@ -132,12 +132,15 @@ impl WireguardMonitor {
         #[cfg(target_os = "linux")]
         match wireguard_kernel::KernelTunnel::new(route_manager.runtime_handle(), config) {
             Ok(tunnel) => {
+                log::debug!("Using kernel WireGuard implementation");
                 return Ok(Box::new(tunnel));
             }
-            Err(err) => {
+            Err(error) => {
                 log::error!(
-                    "Failed to setup kernel WireGuard device, falling back to userspace: {}",
-                    err
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to setup kernel WireGuard device, falling back to userspace"
+                    )
                 );
             }
         };
