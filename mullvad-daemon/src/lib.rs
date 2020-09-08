@@ -21,11 +21,9 @@ mod version_check;
 
 use futures::{
     channel::{mpsc, oneshot},
-    compat::Future01CompatExt,
     future::{abortable, AbortHandle, Future},
     StreamExt,
 };
-use futures01::Future as Future01;
 use log::{debug, error, info, warn};
 use mullvad_rpc::AccountsProxy;
 use mullvad_types::{
@@ -1207,11 +1205,10 @@ where
 
         async {
             geoip::send_location_request(https_handle)
+                .await
                 .map_err(|e| {
                     warn!("Unable to fetch GeoIP location: {}", e.display_chain());
                 })
-                .compat()
-                .await
         }
     }
 
@@ -1242,25 +1239,16 @@ where
         tx: oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>,
     ) {
         let daemon_tx = self.tx.clone();
-        let future = self
-            .accounts_proxy
-            .create_account()
-            .then(move |result| -> Result<(), ()> {
-                match result {
-                    Ok(account_token) => {
-                        let _ =
-                            daemon_tx.send(InternalDaemonEvent::NewAccountEvent(account_token, tx));
-                    }
-                    Err(err) => {
-                        let _ = tx.send(Err(err));
-                    }
-                };
-                Ok(())
-            });
+        let future = self.accounts_proxy.create_account();
 
-        tokio::spawn(async {
-            if future.compat().await.is_err() {
-                log::error!("Failed to spawn future for creating a new account");
+        tokio::spawn(async move {
+            match future.await {
+                Ok(account_token) => {
+                    let _ = daemon_tx.send(InternalDaemonEvent::NewAccountEvent(account_token, tx));
+                }
+                Err(err) => {
+                    let _ = tx.send(Err(err));
+                }
             }
         });
     }
@@ -1270,12 +1258,9 @@ where
         tx: oneshot::Sender<Result<AccountData, mullvad_rpc::rest::Error>>,
         account_token: AccountToken,
     ) {
-        let expiry_old_fut = self.accounts_proxy.get_expiry(account_token);
+        let expiry_fut = self.accounts_proxy.get_expiry(account_token);
         let rpc_call = async {
-            let result = expiry_old_fut
-                .compat()
-                .await
-                .map(|expiry| AccountData { expiry });
+            let result = expiry_fut.await.map(|expiry| AccountData { expiry });
             Self::oneshot_send(tx, result, "account data");
         };
         tokio::spawn(rpc_call);
@@ -1286,10 +1271,9 @@ where
         tx: oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
-            let old_future = self.accounts_proxy.get_www_auth_token(account_token);
+            let future = self.accounts_proxy.get_www_auth_token(account_token);
             let rpc_call = async {
-                let result = old_future.compat().await;
-                Self::oneshot_send(tx, result, "get_www_auth_token response");
+                Self::oneshot_send(tx, future.await, "get_www_auth_token response");
             };
             tokio::spawn(rpc_call);
         }
@@ -1301,10 +1285,9 @@ where
         voucher: String,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
-            let old_future = self.accounts_proxy.submit_voucher(account_token, voucher);
+            let future = self.accounts_proxy.submit_voucher(account_token, voucher);
             let rpc_call = async {
-                let result = old_future.compat().await;
-                Self::oneshot_send(tx, result, "submit_voucher response");
+                Self::oneshot_send(tx, future.await, "submit_voucher response");
             };
             tokio::spawn(rpc_call);
         }

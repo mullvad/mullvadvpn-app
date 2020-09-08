@@ -12,7 +12,6 @@ clap = "2.25"
 dirs = "2.0"
 env_logger = "0.7"
 err-derive = "0.2.1"
-futures01 = { version = "0.1", package = "futures" }
 lazy_static = "1.0"
 regex = "1.0"
 uuid = { version = "0.8", features = ["v4"] }
