@@ -132,12 +132,15 @@ impl WireguardMonitor {
         #[cfg(target_os = "linux")]
         match wireguard_kernel::KernelTunnel::new(route_manager.runtime_handle(), config) {
             Ok(tunnel) => {
+                log::debug!("Using kernel WireGuard implementation");
                 return Ok(Box::new(tunnel));
             }
-            Err(err) => {
+            Err(error) => {
                 log::error!(
-                    "Failed to setup kernel WireGuard device, falling back to userspace: {}",
-                    err
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to setup kernel WireGuard device, falling back to userspace"
+                    )
                 );
             }
         };
@@ -177,7 +180,7 @@ impl WireguardMonitor {
         match self.tunnel.lock().expect("Tunnel lock poisoned").take() {
             Some(tunnel) => {
                 if let Err(e) = tunnel.stop() {
-                    log::error!("Failed to stop tunnel - {}", e);
+                    log::error!("{}", e.display_chain_with_msg("Failed to stop tunnel"));
                 }
             }
             None => {
@@ -247,7 +250,7 @@ impl CloseHandle {
     /// Closes a WireGuard tunnel
     pub fn close(&mut self) {
         if let Err(e) = self.chan.send(CloseMsg::Stop) {
-            log::trace!("Failed to send close message to wireguard tunnel - {}", e);
+            log::trace!("Failed to send close message to wireguard tunnel: {}", e);
         }
     }
 }
@@ -278,7 +281,7 @@ pub enum TunnelError {
     FatalStartWireguardError,
 
     /// Failed to tear down wireguard tunnel.
-    #[error(display = "Failed to stop wireguard tunnel - {}", status)]
+    #[error(display = "Failed to stop wireguard tunnel. Status: {}", status)]
     StopWireguardError {
         /// Returned error code
         status: i32,
