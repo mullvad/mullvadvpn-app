@@ -62,9 +62,10 @@ else
     export CSC_IDENTITY_AUTO_DISCOVERY=false
 fi
 
-if [[ "$BUILD_MODE" == "dev" || $(git describe) != "$PRODUCT_VERSION" ]]; then
-    GIT_COMMIT=$(git rev-parse HEAD | head -c 6)
-    PRODUCT_VERSION="$PRODUCT_VERSION-dev-$GIT_COMMIT"
+product_version_commit_hash=$(git rev-parse $PRODUCT_VERSION^{commit})
+current_head_commit_hash=$(git rev-parse HEAD^{commit})
+if [[ "$BUILD_MODE" == "dev" || $product_version_commit_hash != $current_head_commit_hash ]]; then
+    PRODUCT_VERSION="$PRODUCT_VERSION-dev-${current_head_commit_hash:0:6}"
     echo "Modifying product version to $PRODUCT_VERSION"
 
     echo "Disabling Apple notarization (macOs only) of installer in this dev build"
