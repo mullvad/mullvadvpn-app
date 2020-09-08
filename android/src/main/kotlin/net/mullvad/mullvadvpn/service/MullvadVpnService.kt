@@ -282,6 +282,7 @@ class MullvadVpnService : TalpidVpnService() {
     private fun openUi() {
         val intent = Intent(this, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }
 
         startActivity(intent)
