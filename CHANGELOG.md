@@ -27,6 +27,11 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 #### Linux
 - Add support for WireGuard's kernel module if it's loaded.
+- Add tray context menu with actions on desktop environments that require a context menu.
+
+### Changed
+- Make click on tray icon (or topmost context menu item) always show the app window instead of
+  toggle it.
 
 ### Fixed
 - Stop resetting the firewall after an upgrade to not leak after an upgrade.
