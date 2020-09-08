@@ -1,5 +1,5 @@
 //
-//  IpAddress+Codable.swift
+//  IPAddress+Codable.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 12/06/2019.
