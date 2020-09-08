@@ -4,6 +4,7 @@
 //
 //  Created by pronebird on 24/06/2019.
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2018-2019 WireGuard LLC. All Rights Reserved.
 //
 
 import Foundation
