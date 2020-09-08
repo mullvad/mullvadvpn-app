@@ -270,7 +270,7 @@ class MullvadVpnService : TalpidVpnService() {
                 }
             }
             PendingAction.Disconnect -> connectionProxy.disconnect()
-            null -> {}
+            null -> return
         }
 
         pendingAction = null
