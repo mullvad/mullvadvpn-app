@@ -221,22 +221,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
         val settingsListener = SettingsListener(daemon, settings)
-
-        val connectionProxy = ConnectionProxy(this, daemon).apply {
-            when (pendingAction) {
-                PendingAction.Connect -> {
-                    if (settings.accountToken != null) {
-                        connect()
-                    } else {
-                        openUi()
-                    }
-                }
-                PendingAction.Disconnect -> disconnect()
-                null -> {}
-            }
-
-            pendingAction = null
-        }
+        val connectionProxy = ConnectionProxy(this, daemon)
 
         val splitTunneling = SplitTunneling(this).apply {
             onChange = { excludedApps ->
@@ -245,6 +230,8 @@ class MullvadVpnService : TalpidVpnService() {
                 connectionProxy.reconnect()
             }
         }
+
+        handlePendingAction(connectionProxy, settings)
 
         instance = ServiceInstance(
             daemon,
@@ -277,6 +264,22 @@ class MullvadVpnService : TalpidVpnService() {
         Log.d(TAG, "Restarting service")
         tearDown()
         setUp()
+    }
+
+    private fun handlePendingAction(connectionProxy: ConnectionProxy, settings: Settings) {
+        when (pendingAction) {
+            PendingAction.Connect -> {
+                if (settings.accountToken != null) {
+                    connectionProxy.connect()
+                } else {
+                    openUi()
+                }
+            }
+            PendingAction.Disconnect -> connectionProxy.disconnect()
+            null -> {}
+        }
+
+        pendingAction = null
     }
 
     private fun openUi() {
