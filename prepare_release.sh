@@ -5,19 +5,46 @@
 
 set -eu
 
-if [[ "$#" != "1" ]]; then
-    echo "Please give the release version as the first and only argument to this script."
+PRODUCT_VERSION=""
+ANDROID="false"
+DESKTOP="false"
+
+for argument in "$@"; do
+    case "$argument" in
+        "--android")
+            ANDROID="true"
+            ;;
+        "--desktop")
+            DESKTOP="true"
+            ;;
+        -*)
+            echo "Unknown option \"$argument\""
+            exit 1
+            ;;
+        *)
+            PRODUCT_VERSION="$argument"
+            ;;
+    esac
+done
+
+if [ -z "$PRODUCT_VERSION" ]; then
+    echo "Please give the release version as an argument to this script."
     echo "For example: '2018.1-beta3' for a beta release, or '2018.6' for a stable one."
     exit 1
 fi
-PRODUCT_VERSION=$1
+
+if [[ "$ANDROID" != "true" && "$DESKTOP" != "true" ]]; then
+    echo "Please specify if the release is for the desktop app and/or for Android app."
+    echo "For example: --android --desktop"
+    exit 1
+fi
 
 if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
     echo "Dirty working directory! Will not accept that for an official release."
     exit 1
 fi
 
-if [[ $(grep $PRODUCT_VERSION CHANGELOG.md) == "" ]]; then
+if [[ $(grep "^## \\[$PRODUCT_VERSION\\] - " CHANGELOG.md) == "" ]]; then
     echo "It looks like you did not add $PRODUCT_VERSION to the changelog?"
     echo "Please make sure the changelog is up to date and correct before you proceed."
     exit 1
@@ -51,7 +78,17 @@ git commit -S -m "Updating version in package files" \
     dist-assets/windows/version.h
 
 echo "Tagging current git commit with release tag $PRODUCT_VERSION..."
-git tag -s $PRODUCT_VERSION -m $PRODUCT_VERSION
+
+NEW_TAGS=""
+
+if [[ "$ANDROID" == "true" ]]; then
+    git tag -s "android/$PRODUCT_VERSION" -m "android/$PRODUCT_VERSION"
+    NEW_TAGS+=" android/$PRODUCT_VERSION"
+fi
+if [[ "$DESKTOP" == "true" ]]; then
+    git tag -s $PRODUCT_VERSION -m $PRODUCT_VERSION
+    NEW_TAGS+=" $PRODUCT_VERSION"
+fi
 
 ./version-metadata.sh delete-backup
 
@@ -59,5 +96,5 @@ echo "================================================="
 echo "| DONE preparing for a release!                 |"
 echo "|    Now push the tag created by this script    |"
 echo "|    after you have verified it is correct:     |"
-echo "|        $ git push origin $PRODUCT_VERSION     |"
+echo "|        $ git push origin$NEW_TAGS"
 echo "================================================="
