@@ -47,9 +47,10 @@ if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     fi
 fi
 
-if [[ "$BUILD_TYPE" == "debug" || "$(git describe)" != "$PRODUCT_VERSION" ]]; then
-    GIT_COMMIT="$(git rev-parse HEAD | head -c 6)"
-    PRODUCT_VERSION="${PRODUCT_VERSION}-dev-${GIT_COMMIT}"
+product_version_commit_hash=$(git rev-parse android/$PRODUCT_VERSION^{commit})
+current_head_commit_hash=$(git rev-parse HEAD^{commit})
+if [[ "$BUILD_TYPE" == "debug" || $product_version_commit_hash != $current_head_commit_hash ]]; then
+    PRODUCT_VERSION="${PRODUCT_VERSION}-dev-${current_head_commit_hash:0:6}"
     echo "Modifying product version to $PRODUCT_VERSION"
 else
     echo "Removing old Rust build artifacts"
@@ -57,6 +58,7 @@ else
     CARGO_ARGS+=" --locked"
 fi
 
+echo "Building Mullvad VPN $PRODUCT_VERSION for Android"
 pushd "$SCRIPT_DIR/android"
 
 # Fallback to the system-wide gradle command if the gradlew script is removed.
