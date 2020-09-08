@@ -40,6 +40,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix rare crash that happened with large text sizes and long location names on the main screen.
 - Fix UI not updating in split screen mode when the window is unfocused.
 - Fix split tunneling not being correctly configured after restarting the app.
+- Fix inconsistent behavior of the quick-settings tile when logged out. It would sometimes enter the
+  blocking state and sometimes open the UI for the user to login. Now it always opens the UI.
 
 
 ## [2020.6-beta2] - 2020-08-27
