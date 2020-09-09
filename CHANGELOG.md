@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix rare crash that happened with large text sizes and long location names on the main screen.
 - Fix UI not updating in split screen mode when the window is unfocused.
 - Fix split tunneling not being correctly configured after restarting the app.
+- Fix app reopening after pressing the Quit button because app was running multiple tasks.
 
 
 ## [2020.6-beta2] - 2020-08-27
