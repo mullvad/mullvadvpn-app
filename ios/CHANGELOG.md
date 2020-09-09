@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.4] - 2020-09-10
 ### Added
 - Save application logs to file.
 - Add button to reconnect the tunnel.
@@ -32,14 +35,15 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix the issue when starting the tunnel could take longer than expected due to the app refreshing
-  the relay list.
+  the relay list before connecting.
 - Fix the issue when regenerating the WireGuard key and dismissing the settings at the same
   time could lead to the revoked key still being used by the tunnel, leaving the tunnel unusable.
 
 ### Changed
-- Remove the public WireGuard inside the VPN tunnel during the log out, if VPN is active at that
-  time.
-- Turn off WireGuard when no active network interfaces available.
+- Remove the WireGuard key from the account inside the VPN tunnel during the log out, if VPN is
+  active at that time. Before it would always remove it outside the tunnel.
+- Turn off WireGuard backend when there are no active network interfaces available. Saves battery.
+
 
 ## [2020.3] - 2020-06-12
 ### Added
@@ -58,6 +62,7 @@ Line wrap the file at 100 chars.                                              Th
 
 [`MUL-02-001`]: ../audits/2020-06-12-cure53.md#miscellaneous-issues
 
+
 ## [2020.2] - 2020-04-16
 ### Fixed
 - Fix "invalid account" error that was mistakenly reported as "network error" during log in.
@@ -68,6 +73,7 @@ Line wrap the file at 100 chars.                                              Th
 - Enable on-demand VPN with a single rule to always connect the tunnel when on Wi-Fi or cellular. 
   Automatically disable on-demand VPN when manually disconnecting the tunnel from GUI to prevent the 
   tunnel from coming back up.
+
 
 ## [2020.1] - 2020-04-08
 Initial release. Supports...
