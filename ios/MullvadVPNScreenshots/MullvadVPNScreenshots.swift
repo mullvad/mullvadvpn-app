@@ -60,7 +60,7 @@ class MullvadVPNScreenshots: XCTestCase {
         if cityCell.exists {
             cityCell.tap()
         } else {
-            countryCell.buttons["ExpandButton"].tap()
+            countryCell.buttons["CollapseButton"].tap()
             cityCell.tap()
         }
 
@@ -70,8 +70,8 @@ class MullvadVPNScreenshots: XCTestCase {
         snapshot("MainSecured")
 
         // Re-open Select location controller
-        app.buttons["SwitchLocationButton"].tap()
-        cityCell.buttons["ExpandButton"].tap()
+        app.buttons["SelectLocationButton"].tap()
+        cityCell.buttons["CollapseButton"].tap()
         snapshot("SelectLocation")
 
         // Tap the "Done" button to dismiss the "Select location" controller

@@ -23,6 +23,7 @@ class HeaderBarView: UIView {
     lazy var settingsButton: UIButton = {
         let settingsButton = UIButton(type: .custom)
         settingsButton.setImage(UIImage(named: "IconSettings"), for: .normal)
+        settingsButton.accessibilityIdentifier = "SettingsButton"
         return settingsButton
     }()
 

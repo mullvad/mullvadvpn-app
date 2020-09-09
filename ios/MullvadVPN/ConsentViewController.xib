@@ -20,7 +20,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fbX-Lo-tij">
-                    <rect key="frame" x="0.0" y="0.0" width="414" height="793"/>
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="792"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="11q-bQ-xwY" userLabel="Content view">
                             <rect key="frame" x="0.0" y="0.0" width="414" height="558"/>
@@ -59,7 +59,7 @@
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="leading" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DsZ-mb-iQe" customClass="LinkButton" customModule="MullvadVPN" customModuleProvider="target">
-                                    <rect key="frame" x="20" y="516" width="20" height="22"/>
+                                    <rect key="frame" x="20" y="516" width="128" height="22"/>
                                     <fontDescription key="fontDescription" name=".AppleSystemUIFont" family=".AppleSystemUIFont" pointSize="18"/>
                                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <state key="normal" title="Privacy Policy" image="IconExtlink"/>
@@ -95,10 +95,10 @@
                     </constraints>
                 </scrollView>
                 <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FYK-e4-iEm" userLabel="Footer">
-                    <rect key="frame" x="0.0" y="793" width="414" height="103"/>
+                    <rect key="frame" x="0.0" y="792" width="414" height="104"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7rE-vW-Iff" customClass="AppButton" customModule="MullvadVPN" customModuleProvider="target">
-                            <rect key="frame" x="20" y="24" width="374" height="21"/>
+                            <rect key="frame" x="20" y="24" width="374" height="22"/>
                             <accessibility key="accessibilityConfiguration" identifier="AgreeButton"/>
                             <state key="normal" title="Agree and continue" backgroundImage="DefaultButton">
                                 <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

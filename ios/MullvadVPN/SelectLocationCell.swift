@@ -89,6 +89,7 @@ class SelectLocationCell: BasicTableViewCell {
         statusIndicator.tintColor = .white
         tickImageView.tintColor = .white
 
+        collapseButton.accessibilityIdentifier = "CollapseButton"
         collapseButton.tintColor = .white
         collapseButton.setImage(chevronDown, for: .normal)
         collapseButton.addTarget(self, action: #selector(handleCollapseButton(_ :)), for: .touchUpInside)

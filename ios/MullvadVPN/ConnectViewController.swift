@@ -63,6 +63,9 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
             button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         }
 
+        selectLocationButton.accessibilityIdentifier = "SelectLocationButton"
+        splitDisconnectButtonView.primaryButton.accessibilityIdentifier = "DisconnectButton"
+
         connectionPanel.collapseButton.addTarget(self, action: #selector(handleConnectionPanelButton(_:)), for: .touchUpInside)
         connectButton.addTarget(self, action: #selector(handleConnect(_:)), for: .touchUpInside)
         splitDisconnectButtonView.primaryButton.addTarget(self, action: #selector(handleDisconnect(_:)), for: .touchUpInside)
