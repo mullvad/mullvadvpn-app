@@ -38,22 +38,13 @@ func snapshot(_ name: String, timeWaitingForIdle timeout: TimeInterval = 20) {
 }
 
 enum SnapshotError: Error, CustomDebugStringConvertible {
-    case cannotDetectUser
-    case cannotFindHomeDirectory
     case cannotFindSimulatorHomeDirectory
-    case cannotAccessSimulatorHomeDirectory(String)
     case cannotRunOnPhysicalDevice
 
     var debugDescription: String {
         switch self {
-        case .cannotDetectUser:
-            return "Couldn't find Snapshot configuration files - can't detect current user "
-        case .cannotFindHomeDirectory:
-            return "Couldn't find Snapshot configuration files - can't detect `Users` dir"
         case .cannotFindSimulatorHomeDirectory:
             return "Couldn't find simulator home location. Please, check SIMULATOR_HOST_HOME env variable."
-        case .cannotAccessSimulatorHomeDirectory(let simulatorHostHome):
-            return "Can't prepare environment. Simulator home location is inaccessible. Does \(simulatorHostHome) exist?"
         case .cannotRunOnPhysicalDevice:
             return "Can't use Snapshot on a physical device."
         }
@@ -75,7 +66,7 @@ open class Snapshot: NSObject {
         Snapshot.waitForAnimations = waitForAnimations
 
         do {
-            let cacheDir = try pathPrefix()
+            let cacheDir = try getCacheDirectory()
             Snapshot.cacheDirectory = cacheDir
             setLanguage(app)
             setLocale(app)
@@ -206,40 +197,28 @@ open class Snapshot: NSObject {
         _ = XCTWaiter.wait(for: [networkLoadingIndicatorDisappeared], timeout: timeout)
     }
 
-    class func pathPrefix() throws -> URL? {
-        let homeDir: URL
+    class func getCacheDirectory() throws -> URL {
+        let cachePath = "Library/Caches/tools.fastlane"
         // on OSX config is stored in /Users/<username>/Library
         // and on iOS/tvOS/WatchOS it's in simulator's home dir
         #if os(OSX)
-            guard let user = ProcessInfo().environment["USER"] else {
-                throw SnapshotError.cannotDetectUser
+            let homeDir = URL(fileURLWithPath: NSHomeDirectory())
+            return homeDir.appendingPathComponent(cachePath)
+        #elseif arch(i386) || arch(x86_64)
+            guard let simulatorHostHome = ProcessInfo().environment["SIMULATOR_HOST_HOME"] else {
+                throw SnapshotError.cannotFindSimulatorHomeDirectory
             }
-
-            guard let usersDir = FileManager.default.urls(for: .userDirectory, in: .localDomainMask).first else {
-                throw SnapshotError.cannotFindHomeDirectory
-            }
-
-            homeDir = usersDir.appendingPathComponent(user)
+            let homeDir = URL(fileURLWithPath: simulatorHostHome)
+            return homeDir.appendingPathComponent(cachePath)
         #else
-            #if arch(i386) || arch(x86_64)
-                guard let simulatorHostHome = ProcessInfo().environment["SIMULATOR_HOST_HOME"] else {
-                    throw SnapshotError.cannotFindSimulatorHomeDirectory
-                }
-                guard let homeDirUrl = URL(string: simulatorHostHome) else {
-                    throw SnapshotError.cannotAccessSimulatorHomeDirectory(simulatorHostHome)
-                }
-                homeDir = URL(fileURLWithPath: homeDirUrl.path)
-            #else
-                throw SnapshotError.cannotRunOnPhysicalDevice
-            #endif
+            throw SnapshotError.cannotRunOnPhysicalDevice
         #endif
-        return homeDir.appendingPathComponent("Library/Caches/tools.fastlane")
     }
 }
 
 private extension XCUIElementAttributes {
     var isNetworkLoadingIndicator: Bool {
-        if hasWhiteListedIdentifier { return false }
+        if hasAllowListedIdentifier { return false }
 
         let hasOldLoadingIndicatorSize = frame.size == CGSize(width: 10, height: 20)
         let hasNewLoadingIndicatorSize = frame.size.width.isBetween(46, and: 47) && frame.size.height.isBetween(2, and: 3)
@@ -247,10 +226,10 @@ private extension XCUIElementAttributes {
         return hasOldLoadingIndicatorSize || hasNewLoadingIndicatorSize
     }
 
-    var hasWhiteListedIdentifier: Bool {
-        let whiteListedIdentifiers = ["GeofenceLocationTrackingOn", "StandardLocationTrackingOn"]
+    var hasAllowListedIdentifier: Bool {
+        let allowListedIdentifiers = ["GeofenceLocationTrackingOn", "StandardLocationTrackingOn"]
 
-        return whiteListedIdentifiers.contains(identifier)
+        return allowListedIdentifiers.contains(identifier)
     }
 
     func isStatusBar(_ deviceWidth: CGFloat) -> Bool {
@@ -300,4 +279,4 @@ private extension CGFloat {
 
 // Please don't remove the lines below
 // They are used to detect outdated configuration files
-// SnapshotHelperVersion [1.21]
+// SnapshotHelperVersion [1.23]
