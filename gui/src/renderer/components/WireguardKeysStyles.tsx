@@ -15,7 +15,7 @@ export const StyledContainer = styled(Container)({
 export const StyledContent = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: '100%',
+  flex: 1,
 });
 
 export const StyledMessages = styled.div({
