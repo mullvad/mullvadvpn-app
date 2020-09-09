@@ -68,20 +68,14 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
 
-    private var pendingAction: PendingAction? = null
-        set(value) {
-            field = value
-
-            instance?.connectionProxy?.let { activeConnectionProxy ->
-                when (value) {
-                    PendingAction.Connect -> activeConnectionProxy.connect()
-                    PendingAction.Disconnect -> activeConnectionProxy.disconnect()
-                    null -> {}
-                }
-
-                field = null
-            }
+    private var pendingAction by observable<PendingAction?>(null) { _, _, action ->
+        instance?.let { activeInstance ->
+            handlePendingAction(
+                activeInstance.connectionProxy,
+                activeInstance.settingsListener.settings
+            )
         }
+    }
 
     private var isBound by observable(false) { _, _, isBound ->
         notificationManager.lockedToForeground = isBound
@@ -221,22 +215,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
         val settingsListener = SettingsListener(daemon, settings)
-
-        val connectionProxy = ConnectionProxy(this, daemon).apply {
-            when (pendingAction) {
-                PendingAction.Connect -> {
-                    if (settings.accountToken != null) {
-                        connect()
-                    } else {
-                        openUi()
-                    }
-                }
-                PendingAction.Disconnect -> disconnect()
-                null -> {}
-            }
-
-            pendingAction = null
-        }
+        val connectionProxy = ConnectionProxy(this, daemon)
 
         val splitTunneling = SplitTunneling(this).apply {
             onChange = { excludedApps ->
@@ -245,6 +224,8 @@ class MullvadVpnService : TalpidVpnService() {
                 connectionProxy.reconnect()
             }
         }
+
+        handlePendingAction(connectionProxy, settings)
 
         instance = ServiceInstance(
             daemon,
@@ -277,6 +258,22 @@ class MullvadVpnService : TalpidVpnService() {
         Log.d(TAG, "Restarting service")
         tearDown()
         setUp()
+    }
+
+    private fun handlePendingAction(connectionProxy: ConnectionProxy, settings: Settings) {
+        when (pendingAction) {
+            PendingAction.Connect -> {
+                if (settings.accountToken != null) {
+                    connectionProxy.connect()
+                } else {
+                    openUi()
+                }
+            }
+            PendingAction.Disconnect -> connectionProxy.disconnect()
+            null -> return
+        }
+
+        pendingAction = null
     }
 
     private fun openUi() {
