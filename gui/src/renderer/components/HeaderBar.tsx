@@ -91,7 +91,9 @@ export function HeaderBarSettingsButton() {
   }, [history]);
 
   return (
-    <HeaderBarSettingsButtonContainer onClick={openSettings}>
+    <HeaderBarSettingsButtonContainer
+      onClick={openSettings}
+      aria-label={messages.gettext('Settings')}>
       <ImageView
         height={24}
         width={24}
