@@ -65,6 +65,14 @@ export const StyledTitleBarItemMeasuringLabel = styled(StyledTitleBarItemLabel)(
   opacity: 0,
 });
 
+export const StyledCloseBarItemButton = styled.button({
+  borderWidth: 0,
+  padding: 0,
+  margin: 0,
+  cursor: 'default',
+  backgroundColor: 'transparent',
+});
+
 export const StyledCloseBarItemIcon = styled(ImageView)({
   flex: 0,
 });

@@ -1,10 +1,12 @@
 import React, { useCallback, useContext, useLayoutEffect, useRef, useState } from 'react';
 import { colors } from '../../config.json';
+import { messages } from '../../shared/gettext';
 import CustomScrollbars, { IScrollEvent } from './CustomScrollbars';
 import {
   StyledBackBarItemButton,
   StyledBackBarItemIcon,
   StyledBackBarItemLabel,
+  StyledCloseBarItemButton,
   StyledCloseBarItemIcon,
   StyledNavigationBar,
   StyledNavigationBarSeparator,
@@ -239,14 +241,15 @@ export function CloseBarItem(props: ICloseBarItemProps) {
   // title bar.
   const iconName = process.platform === 'linux' ? 'icon-close-down' : 'icon-close';
   return (
-    <StyledCloseBarItemIcon
-      height={24}
-      width={24}
-      source={iconName}
-      onClick={props.action}
-      tintColor={colors.white60}
-      tintHoverColor={colors.white80}
-    />
+    <StyledCloseBarItemButton aria-label={messages.gettext('Close')} onClick={props.action}>
+      <StyledCloseBarItemIcon
+        height={24}
+        width={24}
+        source={iconName}
+        tintColor={colors.white60}
+        tintHoverColor={colors.white80}
+      />
+    </StyledCloseBarItemButton>
   );
 }
 
