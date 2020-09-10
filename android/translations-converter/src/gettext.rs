@@ -11,6 +11,11 @@ lazy_static! {
     static ref PARAMETERS: Regex = Regex::new(r"%\([^)]*\)").unwrap();
 }
 
+/// A parsed gettext translation file.
+pub struct Translation {
+    entries: Vec<MsgEntry>,
+}
+
 /// A message entry in a gettext translation file.
 #[derive(Clone, Debug)]
 pub struct MsgEntry {
@@ -28,6 +33,15 @@ pub enum MsgValue {
     },
 }
 
+impl IntoIterator for Translation {
+    type Item = MsgEntry;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.entries.into_iter()
+    }
+}
+
 impl From<String> for MsgValue {
     fn from(string: String) -> Self {
         MsgValue::Invariant(string)
@@ -38,7 +52,7 @@ impl From<String> for MsgValue {
 ///
 /// The messages are normalized into a common format so that they can be compared to Android string
 /// resource entries.
-pub fn load_file(file_path: impl AsRef<Path>) -> Vec<MsgEntry> {
+pub fn load_file(file_path: impl AsRef<Path>) -> Translation {
     let mut entries = Vec::new();
     let mut current_id = None;
     let file = BufReader::new(File::open(file_path).expect("Failed to open gettext file"));
@@ -62,7 +76,7 @@ pub fn load_file(file_path: impl AsRef<Path>) -> Vec<MsgEntry> {
         }
     }
 
-    entries
+    Translation { entries }
 }
 
 /// Append message entries to a translation file.

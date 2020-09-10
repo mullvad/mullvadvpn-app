@@ -188,7 +188,7 @@ fn generate_translations(
     locale: &str,
     known_urls: HashMap<String, String>,
     mut known_strings: HashMap<String, String>,
-    translations: Vec<gettext::MsgEntry>,
+    translations: gettext::Translation,
     output_path: impl AsRef<Path>,
     missing_translations: &mut HashMap<String, String>,
 ) {
