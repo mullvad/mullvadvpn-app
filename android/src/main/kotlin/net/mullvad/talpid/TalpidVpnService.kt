@@ -109,6 +109,7 @@ open class TalpidVpnService : VpnService() {
             }
 
             setMtu(config.mtu)
+            setMetered(false)
             setBlocking(false)
         }
 
