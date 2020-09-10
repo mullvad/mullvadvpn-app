@@ -48,6 +48,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix inconsistent behavior of the quick-settings tile when logged out. It would sometimes enter the
   blocking state and sometimes open the UI for the user to login. Now it always opens the UI.
 
+#### Linux
+- Fix split tunneling rules preventing `systemd-resolved` from performing DNS lookups for excluded
+  processes.
+
 
 ## [2020.6-beta2] - 2020-08-27
 This release is for Android only.
