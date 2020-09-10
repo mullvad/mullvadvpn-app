@@ -143,6 +143,8 @@ export default class Connect extends React.Component<IProps, IState> {
       <>
         <StyledMap {...this.getMapProps()} />
         <Content>
+          <StyledNotificationArea />
+
           <StyledMain>
             {/* show spinner when connecting */}
             {this.showMarkerOrSpinner() === 'spinner' ? (
@@ -160,8 +162,6 @@ export default class Connect extends React.Component<IProps, IState> {
               onReconnect={this.props.onReconnect}
               onSelectLocation={this.props.onSelectLocation}
             />
-
-            <StyledNotificationArea />
           </StyledMain>
         </Content>
       </>
