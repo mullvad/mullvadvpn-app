@@ -213,11 +213,17 @@ export const TitleBarItem = React.memo(function TitleBarItemT(props: ITitleBarIt
 
   return (
     <StyledTitleBarItemContainer ref={titleContainerRef}>
-      <StyledTitleBarItemLabel titleAdjustment={titleAdjustment} visible={visible}>
+      <StyledTitleBarItemLabel
+        titleAdjustment={titleAdjustment}
+        visible={visible}
+        aria-hidden={!visible}>
         {props.children}
       </StyledTitleBarItemLabel>
 
-      <StyledTitleBarItemMeasuringLabel titleAdjustment={0} ref={measuringTitleRef}>
+      <StyledTitleBarItemMeasuringLabel
+        titleAdjustment={0}
+        ref={measuringTitleRef}
+        aria-hidden={true}>
         {props.children}
       </StyledTitleBarItemMeasuringLabel>
     </StyledTitleBarItemContainer>

@@ -55,7 +55,7 @@ export default function ImageView(props: IImageViewProps) {
   } else {
     return (
       <Wrapper onClick={props.onClick} className={props.className}>
-        <img src={url} width={props.width} height={props.height} />
+        <img src={url} width={props.width} height={props.height} aria-hidden={true} />
       </Wrapper>
     );
   }

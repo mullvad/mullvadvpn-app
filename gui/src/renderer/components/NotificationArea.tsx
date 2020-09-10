@@ -80,7 +80,7 @@ export default function NotificationArea(props: IProps) {
     }
   }
 
-  return <NotificationBanner className={props.className} visible={false} />;
+  return <NotificationBanner className={props.className} visible={false} aria-hidden={true} />;
 }
 
 interface INotificationActionWrapperProps {
