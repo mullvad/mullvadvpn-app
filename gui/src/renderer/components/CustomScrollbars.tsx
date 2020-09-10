@@ -1,5 +1,13 @@
 import * as React from 'react';
+import styled from 'styled-components';
 import { Scheduler } from '../../shared/scheduler';
+
+const ScrollableContent = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: '100%',
+  height: 'max-content',
+});
 
 const AUTOHIDE_TIMEOUT = 1000;
 
@@ -54,9 +62,15 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
   };
 
   private scrollableRef = React.createRef<HTMLDivElement>();
+  private scrollableContentRef = React.createRef<HTMLDivElement>();
   private trackRef = React.createRef<HTMLDivElement>();
   private thumbRef = React.createRef<HTMLDivElement>();
   private autoHideScheduler = new Scheduler();
+
+  // Update scrollbar when content grows/shrinks.
+  private contentResizeObserver = new ResizeObserver(() => {
+    this.updateScrollbarsHelper({ size: true });
+  });
 
   public scrollToTop() {
     const scrollable = this.scrollableRef.current;
@@ -134,6 +148,10 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
     if (this.props.autoHide) {
       this.startAutoHide();
     }
+
+    if (this.scrollableContentRef.current) {
+      this.contentResizeObserver.observe(this.scrollableContentRef.current);
+    }
   }
 
   public shouldComponentUpdate(nextProps: IProps, nextState: IState) {
@@ -160,6 +178,10 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
     document.removeEventListener('mousemove', this.handleMouseMove);
     document.removeEventListener('mouseup', this.handleMouseUp);
     document.removeEventListener('mousedown', this.handleMouseDown);
+
+    if (this.scrollableContentRef.current) {
+      this.contentResizeObserver.unobserve(this.scrollableContentRef.current);
+    }
   }
 
   public componentDidUpdate() {
@@ -201,7 +223,7 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
           style={{ overflow: 'auto', flex: fillContainer ? '1' : undefined }}
           onScroll={this.onScroll}
           ref={this.scrollableRef}>
-          {children}
+          <ScrollableContent ref={this.scrollableContentRef}>{children}</ScrollableContent>
         </div>
       </div>
     );
