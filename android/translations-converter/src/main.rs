@@ -101,7 +101,7 @@ fn main() {
             locale,
             known_urls.clone(),
             known_strings.clone(),
-            gettext::load_file(&locale_file),
+            gettext::Translation::from_file(&locale_file),
             destination_dir.join("strings.xml"),
             &mut missing_translations,
         );

@@ -33,6 +33,39 @@ pub enum MsgValue {
     },
 }
 
+impl Translation {
+    /// Load message entries from a gettext translation file.
+    ///
+    /// The messages are normalized into a common format so that they can be compared to Android
+    /// string resource entries.
+    pub fn from_file(file_path: impl AsRef<Path>) -> Self {
+        let mut entries = Vec::new();
+        let mut current_id = None;
+        let file = BufReader::new(File::open(file_path).expect("Failed to open gettext file"));
+
+        for line in file.lines() {
+            let line = line.expect("Failed to read from gettext file");
+            let line = line.trim();
+
+            if let Some(msg_id) = parse_line(line, "msgid \"", "\"") {
+                current_id = Some(normalize(msg_id));
+            } else {
+                if let Some(translation) = parse_line(line, "msgstr \"", "\"") {
+                    if let Some(id) = current_id.take() {
+                        let value = MsgValue::from(normalize(translation));
+
+                        entries.push(MsgEntry { id, value });
+                    }
+                }
+
+                current_id = None;
+            }
+        }
+
+        Self { entries }
+    }
+}
+
 impl IntoIterator for Translation {
     type Item = MsgEntry;
     type IntoIter = std::vec::IntoIter<Self::Item>;
@@ -46,37 +79,6 @@ impl From<String> for MsgValue {
     fn from(string: String) -> Self {
         MsgValue::Invariant(string)
     }
-}
-
-/// Load message entries from a gettext translation file.
-///
-/// The messages are normalized into a common format so that they can be compared to Android string
-/// resource entries.
-pub fn load_file(file_path: impl AsRef<Path>) -> Translation {
-    let mut entries = Vec::new();
-    let mut current_id = None;
-    let file = BufReader::new(File::open(file_path).expect("Failed to open gettext file"));
-
-    for line in file.lines() {
-        let line = line.expect("Failed to read from gettext file");
-        let line = line.trim();
-
-        if let Some(msg_id) = parse_line(line, "msgid \"", "\"") {
-            current_id = Some(normalize(msg_id));
-        } else {
-            if let Some(translation) = parse_line(line, "msgstr \"", "\"") {
-                if let Some(id) = current_id.take() {
-                    let value = MsgValue::from(normalize(translation));
-
-                    entries.push(MsgEntry { id, value });
-                }
-            }
-
-            current_id = None;
-        }
-    }
-
-    Translation { entries }
 }
 
 /// Append message entries to a translation file.
