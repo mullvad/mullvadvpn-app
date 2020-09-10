@@ -61,6 +61,12 @@ const StyledNotificationArea = styled(NotificationArea)({
   right: 0,
 });
 
+const StyledMain = styled.main({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+});
+
 interface IState {
   isAccountExpired: boolean;
 }
@@ -137,24 +143,26 @@ export default class Connect extends React.Component<IProps, IState> {
       <>
         <StyledMap {...this.getMapProps()} />
         <Content>
-          {/* show spinner when connecting */}
-          {this.showMarkerOrSpinner() === 'spinner' ? (
-            <StatusIcon source="icon-spinner" height={60} width={60} />
-          ) : null}
+          <StyledMain>
+            {/* show spinner when connecting */}
+            {this.showMarkerOrSpinner() === 'spinner' ? (
+              <StatusIcon source="icon-spinner" height={60} width={60} />
+            ) : null}
 
-          <TunnelControl
-            tunnelState={this.props.connection.status}
-            blockWhenDisconnected={this.props.blockWhenDisconnected}
-            selectedRelayName={this.props.selectedRelayName}
-            city={this.props.connection.city}
-            country={this.props.connection.country}
-            onConnect={this.props.onConnect}
-            onDisconnect={this.props.onDisconnect}
-            onReconnect={this.props.onReconnect}
-            onSelectLocation={this.props.onSelectLocation}
-          />
+            <TunnelControl
+              tunnelState={this.props.connection.status}
+              blockWhenDisconnected={this.props.blockWhenDisconnected}
+              selectedRelayName={this.props.selectedRelayName}
+              city={this.props.connection.city}
+              country={this.props.connection.country}
+              onConnect={this.props.onConnect}
+              onDisconnect={this.props.onDisconnect}
+              onReconnect={this.props.onReconnect}
+              onSelectLocation={this.props.onSelectLocation}
+            />
 
-          <StyledNotificationArea />
+            <StyledNotificationArea />
+          </StyledMain>
         </Content>
       </>
     );

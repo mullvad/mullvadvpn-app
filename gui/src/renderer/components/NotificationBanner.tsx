@@ -125,7 +125,7 @@ const Collapsible = styled.div({}, (props: ICollapsibleProps) => {
   };
 });
 
-const Content = styled.div({
+const Content = styled.section({
   display: 'flex',
   flexDirection: 'row',
   padding: '8px 12px 8px 16px',

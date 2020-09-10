@@ -17,7 +17,7 @@ export const StyledNavigationItems = styled.div({
   flexDirection: 'row',
 });
 
-export const StyledNavigationBar = styled.div({
+export const StyledNavigationBar = styled.nav({
   flex: 0,
   padding: '12px',
   paddingTop: process.platform === 'darwin' ? '24px' : '12px',
