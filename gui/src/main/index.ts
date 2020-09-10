@@ -392,6 +392,7 @@ class ApplicationMain {
         this.setMacOsAppMenu();
         break;
       case 'linux':
+        this.installLinuxMenubarAppWindowHandlers(tray, windowController);
         this.setLinuxTrayContextMenu();
         this.installLinuxWindowCloseHandler(windowController);
         this.setLinuxAppMenu();
@@ -1562,6 +1563,12 @@ class ApplicationMain {
   private installGenericMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
     tray.on('click', () => {
       windowController.toggle();
+    });
+  }
+
+  private installLinuxMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
+    tray.on('click', () => {
+      windowController.show();
     });
   }
 
