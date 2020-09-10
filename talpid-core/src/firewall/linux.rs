@@ -280,14 +280,14 @@ impl<'a> PolicyBatch<'a> {
     /// policy.
     pub fn finalize(mut self, policy: &FirewallPolicy) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
-        self.add_split_tunneling_rules();
+        self.add_split_tunneling_rules()?;
         self.add_dhcp_client_rules();
         self.add_policy_specific_rules(policy)?;
 
         Ok(self.batch.finalize())
     }
 
-    fn add_split_tunneling_rules(&mut self) {
+    fn add_split_tunneling_rules(&mut self) -> Result<()> {
         let mangle_chains = [&self.mangle_chain_v4, &self.mangle_chain_v6];
         for chain in &mangle_chains {
             let mut rule = Rule::new(chain);
@@ -314,12 +314,22 @@ impl<'a> PolicyBatch<'a> {
         let nat_chains = [&self.nat_chain_v4, &self.nat_chain_v6];
         for chain in &nat_chains {
             let mut rule = Rule::new(chain);
+
+            // Don't masquerade packets on the loopback device.
+            let iface_index = crate::linux::iface_index("lo")
+                .map_err(|e| Error::LookupIfaceIndexError("lo".to_string(), e))?;
+            rule.add_expr(&nft_expr!(meta oif));
+            rule.add_expr(&nft_expr!(cmp != iface_index));
+
             rule.add_expr(&nft_expr!(ct mark));
             rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+
             rule.add_expr(&nft_expr!(masquerade));
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
+
+        Ok(())
     }
 
     fn add_loopback_rules(&mut self) -> Result<()> {
