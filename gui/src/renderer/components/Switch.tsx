@@ -80,6 +80,8 @@ export default class Switch extends React.Component<IProps, IState> {
   public render() {
     return (
       <SwitchContainer
+        role="checkbox"
+        aria-checked={this.state.isOn}
         ref={this.containerRef}
         onClick={this.handleClick}
         disabled={this.props.disabled ?? false}
