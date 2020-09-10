@@ -108,6 +108,7 @@ class SettingsViewController: UITableViewController, AccountViewControllerDelega
 
                 cell.titleLabel.text = NSLocalizedString("Account", comment: "")
                 cell.accountExpiryDate = Account.shared.expiry
+                cell.accessibilityIdentifier = "AccountCell"
                 cell.accessoryType = .disclosureIndicator
             }
 
