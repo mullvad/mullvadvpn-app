@@ -39,7 +39,6 @@ class MullvadVPNScreenshots: XCTestCase {
         // Wait for Login screen
         let textField = app.textFields["LoginTextField"]
         _ = textField.waitForExistence(timeout: 5)
-        snapshot("Login")
 
         // Enter account token
         textField.tap()
