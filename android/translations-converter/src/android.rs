@@ -225,3 +225,12 @@ impl IntoIterator for PluralResources {
         self.entries.into_iter()
     }
 }
+
+impl PluralResources {
+    /// Create an empty list of plural resources.
+    pub fn new() -> Self {
+        PluralResources {
+            entries: Vec::new(),
+        }
+    }
+}
