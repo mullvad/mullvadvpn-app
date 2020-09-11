@@ -164,8 +164,7 @@ impl WgGoTunnel {
     #[cfg(target_os = "windows")]
     pub unsafe extern "system" fn default_route_changed_callback(
         event_type: winnet::WinNetDefaultRouteChangeEventType,
-        address_family: winnet::WinNetAddrFamily,
-        interface_luid: u64,
+        default_route: winnet::WinNetDefaultRoute,
         _ctx: *mut libc::c_void,
     ) {
         use winapi::shared::{ifdef::NET_LUID, netioapi::ConvertInterfaceLuidToIndex};
@@ -173,7 +172,7 @@ impl WgGoTunnel {
             winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged => {
                 let mut iface_idx = 0u32;
                 let iface_luid = NET_LUID {
-                    Value: interface_luid,
+                    Value: default_route.interface_luid,
                 };
                 let status =
                     ConvertInterfaceLuidToIndex(&iface_luid as *const _, &mut iface_idx as *mut _);
@@ -191,7 +190,10 @@ impl WgGoTunnel {
             winnet::WinNetDefaultRouteChangeEventType::DefaultRouteRemoved => 0,
         };
 
-        wgRebindTunnelSocket(address_family.to_windows_proto_enum(), iface_idx);
+        wgRebindTunnelSocket(
+            default_route.gateway.addr_family.to_windows_proto_enum(),
+            iface_idx,
+        );
     }
 
     #[cfg(not(target_os = "windows"))]

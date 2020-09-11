@@ -37,6 +37,33 @@ SOCKADDR_INET IpToNative(const WINNET_IP &from)
 	return to;
 }
 
+WINNET_IP IpFromNative(const SOCKADDR_INET &from)
+{
+	WINNET_IP to = { 0 };
+
+	switch (from.si_family)
+	{
+		case AF_INET:
+		{
+			*reinterpret_cast<uint32_t*>(to.bytes) = static_cast<uint32_t>(from.Ipv4.sin_addr.s_addr);
+			to.family = WINNET_ADDR_FAMILY_IPV4;
+			break;
+		}
+		case AF_INET6:
+		{
+			memcpy(to.bytes, from.Ipv6.sin6_addr.u.Byte, 16);
+			to.family = WINNET_ADDR_FAMILY_IPV6;
+			break;
+		}
+		default:
+		{
+			THROW_ERROR("Invalid network address family");
+		}
+	}
+
+	return to;
+}
+
 } // anonymous namespace
 
 namespace winnet
@@ -110,6 +137,19 @@ std::vector<SOCKADDR_INET> ConvertAddresses(const WINNET_IP *addresses, uint32_t
 	for (uint32_t i = 0; i < numAddresses; ++i)
 	{
 		out.emplace_back(IpToNative(addresses[i]));
+	}
+
+	return out;
+}
+
+std::vector<WINNET_IP> ConvertNativeAddresses(const SOCKADDR_INET *addresses, uint32_t numAddresses)
+{
+	std::vector<WINNET_IP> out;
+	out.reserve(numAddresses);
+
+	for (uint32_t i = 0; i < numAddresses; ++i)
+	{
+		out.emplace_back(IpFromNative(addresses[i]));
 	}
 
 	return out;
