@@ -1433,16 +1433,18 @@ class ApplicationMain {
         label: this.getLinuxContextMenuActionButtonLabel(),
         click: () => {
           if (this.tunnelState.state === 'disconnected') {
-            consumePromise(this.daemonRpc.connectTunnel());
+            // Workaround: gRPC calls are sometimes delayed by a few seconds and setImmediate
+            // mitigates this. https://github.com/grpc/grpc-node/issues/882
+            setImmediate(() => consumePromise(this.daemonRpc.connectTunnel()));
           } else {
-            consumePromise(this.daemonRpc.disconnectTunnel());
+            setImmediate(() => consumePromise(this.daemonRpc.disconnectTunnel()));
           }
         },
       },
       {
         label: messages.gettext('Reconnect'),
         enabled: this.tunnelState.state === 'connected' || this.tunnelState.state === 'connecting',
-        click: () => consumePromise(this.daemonRpc.reconnectTunnel()),
+        click: () => setImmediate(() => consumePromise(this.daemonRpc.reconnectTunnel())),
       },
     ];
 
