@@ -18,11 +18,13 @@
 //!
 //! Android's plural resources are also translated using the same principle. It's important to note
 //! that the singular quantity item (i.e., the item where `quantity="one"`) for each Android plural
-//! resource will be used as the `msgid` to be search for in the gettext translations file. The
-//! plurals are also appended to the gettext messages template (the `messages.pot` file). When this
-//! happens, the new message entries are created, using the first quantity as the `msgid` and the
-//! last quantity as the `msgid_plural`. Because of this, it is important to note that the first
-//! quantity can't have parameters, while the last one can.
+//! resource will be used as the `msgid` to be search for in the gettext translations file.
+//!
+//! Missing translations are appended to the gettext messages template file (`messages.pot`). These
+//! are the entries for which no translation in any locale was found. When missing plurals are
+//! appended to the template file, the new message entries are created using the first quantity as
+//! the `msgid` and the last quantity as the `msgid_plural`. Because of this, it is important to
+//! note that the first quantity can't have parameters, while the last one can.
 //!
 //! Note that this conversion procedure is very raw and likely very brittle, so while it works for
 //! most cases, it is important to keep in mind that this is just a helper tool and manual steps are
@@ -69,8 +71,6 @@ fn main() {
         }
     }
 
-    let mut missing_translations = known_strings.clone();
-
     let plurals_file = File::open(resources_dir.join("values/plurals.xml"))
         .expect("Failed to open plurals resources file");
     let plural_resources: android::PluralResources =
@@ -90,6 +90,9 @@ fn main() {
             (singular, name)
         })
         .collect();
+
+    let mut missing_translations = known_strings.clone();
+    let mut missing_plurals = known_plurals.clone();
 
     let locale_dir = Path::new("../../gui/locales");
     let locale_files = fs::read_dir(&locale_dir)
@@ -122,6 +125,7 @@ fn main() {
             destination_dir.join("strings.xml"),
             destination_dir.join("plurals.xml"),
             &mut missing_translations,
+            &mut missing_plurals,
         );
     }
 
@@ -143,7 +147,9 @@ fn main() {
         .expect("Failed to append missing translations to message template file");
     }
 
-    if !plural_resources.is_empty() {
+    if !missing_plurals.is_empty() {
+        println!("Appending missing plural translations to template file:");
+
         gettext::append_to_template(
             &template_path,
             plural_resources
@@ -211,6 +217,7 @@ fn generate_translations(
     strings_output_path: impl AsRef<Path>,
     plurals_output_path: impl AsRef<Path>,
     missing_translations: &mut HashMap<String, String>,
+    missing_plurals: &mut HashMap<String, String>,
 ) {
     let mut localized_strings = android::StringResources::new();
     let mut localized_plurals = android::PluralResources::new();
@@ -262,6 +269,7 @@ fn generate_translations(
         .expect("Failed to create Android plurals file");
 
     missing_translations.retain(|translation, _| known_strings.contains_key(translation));
+    missing_plurals.retain(|translation, _| known_plurals.contains_key(translation));
 }
 
 /// Converts a gettext plural form into the plural quantities used by Android.
