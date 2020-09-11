@@ -1,9 +1,12 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
 import { BlockingButton } from './AppButton';
 import ImageView from './ImageView';
+
+const NOTIFICATION_AREA_ID = 'notification-area';
 
 export const NotificationTitle = styled.span({
   fontFamily: 'Open Sans',
@@ -52,7 +55,9 @@ interface INotifcationOpenLinkActionProps {
 export function NotificationOpenLinkAction(props: INotifcationOpenLinkActionProps) {
   return (
     <BlockingButton onClick={props.onClick}>
-      <NotificationOpenLinkActionButton>
+      <NotificationOpenLinkActionButton
+        aria-describedby={NOTIFICATION_AREA_ID}
+        aria-label={messages.gettext('Open URL')}>
         <NotificationOpenLinkActionIcon
           height={12}
           width={12}
@@ -64,7 +69,7 @@ export function NotificationOpenLinkAction(props: INotifcationOpenLinkActionProp
   );
 }
 
-export const NotificationContent = styled.div({
+export const NotificationContent = styled.div.attrs({ id: NOTIFICATION_AREA_ID })({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
@@ -125,7 +130,7 @@ const Collapsible = styled.div({}, (props: ICollapsibleProps) => {
   };
 });
 
-const Content = styled.div({
+const Content = styled.section({
   display: 'flex',
   flexDirection: 'row',
   padding: '8px 12px 8px 16px',

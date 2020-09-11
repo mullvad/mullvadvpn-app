@@ -29,7 +29,11 @@ interface ISecuredLabelProps {
 }
 
 export default function SecuredLabel(props: ISecuredLabelProps) {
-  return <StyledSecuredLabel {...props}>{getLabelText(props.displayStyle)}</StyledSecuredLabel>;
+  return (
+    <StyledSecuredLabel {...props} role="alert" aria-live="polite">
+      {getLabelText(props.displayStyle)}
+    </StyledSecuredLabel>
+  );
 }
 
 function getLabelText(displayStyle: SecuredDisplayStyle) {

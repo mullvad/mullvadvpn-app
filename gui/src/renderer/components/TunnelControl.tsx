@@ -114,7 +114,10 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
     );
 
     const Reconnect = (props: React.ComponentProps<typeof AppButton.RedTransparentButton>) => (
-      <AppButton.RedTransparentButton onClick={this.props.onReconnect} {...props}>
+      <AppButton.RedTransparentButton
+        onClick={this.props.onReconnect}
+        aria-label={messages.gettext('Reconnect')}
+        {...props}>
         <ImageView height={22} width={22} source="icon-reload" tintColor="white" />
       </AppButton.RedTransparentButton>
     );

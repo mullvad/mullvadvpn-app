@@ -14,7 +14,7 @@ const StyledContainer = styled(Container)({
   marginTop: '-150px',
 });
 
-const Title = styled.span({
+const Title = styled.h1({
   fontFamily: 'DINPro',
   fontSize: '24px',
   fontWeight: 900,

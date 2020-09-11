@@ -17,7 +17,7 @@ export const StyledNavigationItems = styled.div({
   flexDirection: 'row',
 });
 
-export const StyledNavigationBar = styled.div({
+export const StyledNavigationBar = styled.nav({
   flex: 0,
   padding: '12px',
   paddingTop: process.platform === 'darwin' ? '24px' : '12px',
@@ -63,6 +63,14 @@ export const StyledTitleBarItemLabel = styled.span({}, (props: ITitleBarItemLabe
 export const StyledTitleBarItemMeasuringLabel = styled(StyledTitleBarItemLabel)({
   position: 'absolute',
   opacity: 0,
+});
+
+export const StyledCloseBarItemButton = styled.button({
+  borderWidth: 0,
+  padding: 0,
+  margin: 0,
+  cursor: 'default',
+  backgroundColor: 'transparent',
 });
 
 export const StyledCloseBarItemIcon = styled(ImageView)({

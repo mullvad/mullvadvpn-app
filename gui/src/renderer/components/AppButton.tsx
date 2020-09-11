@@ -38,7 +38,7 @@ export function Icon(props: IIconProps) {
   return <ImageView {...props} tintColor={colors.white} />;
 }
 
-export interface IProps {
+export interface IProps extends React.HTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
   className?: string;
   disabled?: boolean;
@@ -67,19 +67,17 @@ class BaseButton extends React.Component<IProps, IState> {
   }
 
   public render() {
+    const { children, ...otherProps } = this.props;
+
     return (
       <ButtonContext.Provider
         value={{
           textAdjustment: this.state.textAdjustment,
           textRef: this.textRef,
         }}>
-        <StyledButton
-          ref={this.buttonRef}
-          disabled={this.props.disabled}
-          onClick={this.props.onClick}
-          className={this.props.className}>
+        <StyledButton ref={this.buttonRef} {...otherProps}>
           <StyledButtonContent>
-            {React.Children.map(this.props.children, (child) =>
+            {React.Children.map(children, (child) =>
               typeof child === 'string' ? <Label>{child as string}</Label> : child,
             )}
           </StyledButtonContent>

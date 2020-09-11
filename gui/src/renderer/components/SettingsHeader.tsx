@@ -13,7 +13,7 @@ export const ContentWrapper = styled.div({
   },
 });
 
-export const HeaderTitle = styled.span(bigText);
+export const HeaderTitle = styled.h1(bigText);
 export const HeaderSubTitle = styled.span(smallText);
 
 interface ISettingsHeaderProps {

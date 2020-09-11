@@ -19,7 +19,7 @@ const headerBarStyleColorMap = {
   [HeaderBarStyle.success]: colors.green,
 };
 
-const HeaderBarContainer = styled.div({}, (props: { barStyle?: HeaderBarStyle }) => ({
+const HeaderBarContainer = styled.header({}, (props: { barStyle?: HeaderBarStyle }) => ({
   padding: '12px 16px',
   paddingTop: process.platform === 'darwin' ? '24px' : '12px',
   backgroundColor: headerBarStyleColorMap[props.barStyle ?? HeaderBarStyle.default],
@@ -53,7 +53,7 @@ const BrandContainer = styled.div({
   alignItems: 'center',
 });
 
-const Title = styled.span({
+const Title = styled.h1({
   fontFamily: 'DINPro',
   fontSize: '24px',
   fontWeight: 900,
@@ -91,7 +91,9 @@ export function HeaderBarSettingsButton() {
   }, [history]);
 
   return (
-    <HeaderBarSettingsButtonContainer onClick={openSettings}>
+    <HeaderBarSettingsButtonContainer
+      onClick={openSettings}
+      aria-label={messages.gettext('Settings')}>
       <ImageView
         height={24}
         width={24}
