@@ -224,6 +224,24 @@ fn generate_translations(
     missing_translations.retain(|translation, _| known_strings.contains_key(translation));
 }
 
+/// Converts a gettext plural form into the plural quantities used by Android.
+///
+/// Returns an iterator that can be zipped with the gettext plural variants to produce the Android
+/// plural string items.
+fn android_plural_quantities_from_gettext_plural_form(
+    plural_form: gettext::PluralForm,
+) -> impl Iterator<Item = android::PluralQuantity> + Clone {
+    use android::PluralQuantity::*;
+    use gettext::PluralForm;
+
+    match plural_form {
+        PluralForm::Single => vec![Other],
+        PluralForm::SingularForOne | PluralForm::SingularForZeroAndOne => vec![One, Other],
+        PluralForm::Polish | PluralForm::Russian => vec![One, Few, Many, Other],
+    }
+    .into_iter()
+}
+
 /// Tries to map a translation locale to a locale used on the Mullvad website.
 ///
 /// The mapping is trivial if no region is specified. Otherwise the region code must be manually
