@@ -198,6 +198,8 @@ pub struct PluralVariant {
 pub enum PluralQuantity {
     Zero,
     One,
+    Few,
+    Many,
     Other,
 }
 
