@@ -2,6 +2,7 @@
 
 #include "types.h"
 #include <vector>
+#include <optional>
 
 namespace winnet::routing
 {
@@ -29,7 +30,7 @@ std::vector<AnnotatedRoute> AnnotateRoutes(const std::vector<const MIB_IPFORWARD
 
 bool RouteHasGateway(const MIB_IPFORWARD_ROW2 &route);
 
-InterfaceAndGateway GetBestDefaultRoute(ADDRESS_FAMILY family);
+std::optional<InterfaceAndGateway> GetBestDefaultRoute(ADDRESS_FAMILY family);
 
 bool AdapterInterfaceEnabled(const IP_ADAPTER_ADDRESSES *adapter, ADDRESS_FAMILY family);
 

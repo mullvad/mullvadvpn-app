@@ -180,6 +180,31 @@ WINNET_API
 WinNet_DeleteAppliedRoutes(
 );
 
+typedef struct tag_WINNET_DEFAULT_ROUTE
+{
+	uint64_t interfaceLuid;
+	WINNET_IP gateway;
+}
+WINNET_DEFAULT_ROUTE;
+
+enum WINNET_GBDR_STATUS
+{
+	WINNET_GBDR_STATUS_SUCCESS = 0,
+	WINNET_GBDR_STATUS_NOT_FOUND = 1,
+	WINNET_GBDR_STATUS_FAILURE = 2,
+};
+
+extern "C"
+WINNET_LINKAGE
+WINNET_GBDR_STATUS
+WINNET_API
+WinNet_GetBestDefaultRoute(
+	WINNET_ADDR_FAMILY family,
+	WINNET_DEFAULT_ROUTE *route,
+	MullvadLogSink logSink,
+	void *logSinkContext
+);
+
 enum WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE
 {
 	// Best default route changed.
@@ -197,7 +222,7 @@ typedef void (WINNET_API *WinNetDefaultRouteChangedCallback)
 	WINNET_ADDR_FAMILY family,
 
 	// For update events, indicates the interface associated with the new best default route.
-	uint64_t interfaceLuid,
+	WINNET_DEFAULT_ROUTE route,
 
 	void *context
 );

@@ -125,7 +125,12 @@ InterfaceAndGateway ResolveNode(ADDRESS_FAMILY family, const std::optional<Node>
 
 	if (false == optionalNode.has_value())
 	{
-		return GetBestDefaultRoute(family);
+		const auto default_route = GetBestDefaultRoute(family);
+		if (!default_route.has_value())
+		{
+			THROW_ERROR("Unable to determine details of default route");
+		}
+		return default_route.value();
 	}
 
 	const auto &node = optionalNode.value();

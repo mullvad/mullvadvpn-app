@@ -10,3 +10,4 @@ EXPORTS
 	WinNet_ActivateRouteManager
 	WinNet_DeactivateRouteManager
 	WinNet_AddDeviceIpAddresses
+	WinNet_GetBestDefaultRoute

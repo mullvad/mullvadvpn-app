@@ -6,6 +6,25 @@
 #include <libcommon/error.h>
 #include <libcommon/memory.h>
 
+namespace
+{
+
+bool IsRouteOnPhysicalInterface(const MIB_IPFORWARD_ROW2 &route)
+{
+	switch (route.InterfaceLuid.Info.IfType)
+	{
+		case IF_TYPE_SOFTWARE_LOOPBACK:
+		case IF_TYPE_TUNNEL:
+		case IF_TYPE_PROP_VIRTUAL:
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+} // anonymous namespace
+
 namespace winnet::routing
 {
 
@@ -124,7 +143,7 @@ bool RouteHasGateway(const MIB_IPFORWARD_ROW2 &route)
 	};
 }
 
-InterfaceAndGateway GetBestDefaultRoute(ADDRESS_FAMILY family)
+std::optional<InterfaceAndGateway> GetBestDefaultRoute(ADDRESS_FAMILY family)
 {
 	PMIB_IPFORWARD_TABLE2 table;
 
@@ -146,7 +165,8 @@ InterfaceAndGateway GetBestDefaultRoute(ADDRESS_FAMILY family)
 	candidates.reserve(table->NumEntries);
 
 	//
-	// Enumerate routes looking for: route 0/0 && gateway specified.
+	// Enumerate routes looking for: route 0/0
+	// The WireGuard interface route has no gateway.
 	//
 
 	for (ULONG i = 0; i < table->NumEntries; ++i)
@@ -154,7 +174,8 @@ InterfaceAndGateway GetBestDefaultRoute(ADDRESS_FAMILY family)
 		const MIB_IPFORWARD_ROW2 &candidate = table->Table[i];
 
 		if (0 == candidate.DestinationPrefix.PrefixLength
-			&& RouteHasGateway(candidate))
+			&& RouteHasGateway(candidate)
+			&& IsRouteOnPhysicalInterface(candidate))
 		{
 			candidates.emplace_back(&candidate);
 		}
@@ -164,7 +185,7 @@ InterfaceAndGateway GetBestDefaultRoute(ADDRESS_FAMILY family)
 
 	if (annotated.empty())
 	{
-		THROW_ERROR("Unable to determine details of default route");
+		return std::nullopt;
 	}
 
 	//
@@ -187,10 +208,10 @@ InterfaceAndGateway GetBestDefaultRoute(ADDRESS_FAMILY family)
 
 	if (false == annotated[0].active)
 	{
-		THROW_ERROR("Unable to identify active default route");
+		return std::nullopt;
 	}
 
-	return InterfaceAndGateway { annotated[0].route->InterfaceLuid, annotated[0].route->NextHop };
+	return std::make_optional(InterfaceAndGateway { annotated[0].route->InterfaceLuid, annotated[0].route->NextHop });
 }
 
 bool AdapterInterfaceEnabled(const IP_ADAPTER_ADDRESSES *adapter, ADDRESS_FAMILY family)

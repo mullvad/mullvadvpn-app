@@ -94,6 +94,55 @@ WinNet_EnableIpv6ForAdapter(
 
 extern "C"
 WINNET_LINKAGE
+WINNET_GBDR_STATUS
+WINNET_API
+WinNet_GetBestDefaultRoute(
+	WINNET_ADDR_FAMILY family,
+	WINNET_DEFAULT_ROUTE *route,
+	MullvadLogSink logSink,
+	void *logSinkContext
+)
+{
+	try
+	{
+		if (nullptr == route)
+		{
+			THROW_ERROR("Invalid argument: route");
+		}
+
+		static const std::pair<WINNET_ADDR_FAMILY, ADDRESS_FAMILY> familyMap[] =
+		{
+			{ WINNET_ADDR_FAMILY_IPV4, static_cast<ADDRESS_FAMILY>(AF_INET) },
+			{ WINNET_ADDR_FAMILY_IPV6, static_cast<ADDRESS_FAMILY>(AF_INET6) }
+		};
+		const auto win_family = common::ValueMapper::Map<>(family, familyMap);
+
+		const auto ifaceAndGateway = GetBestDefaultRoute(win_family);
+
+		if (!ifaceAndGateway.has_value())
+		{
+			return WINNET_GBDR_STATUS_NOT_FOUND;
+		}
+
+		route->interfaceLuid = ifaceAndGateway->iface.Value;
+		const auto ips = winnet::ConvertNativeAddresses(&ifaceAndGateway->gateway, 1);
+		route->gateway = ips[0];
+
+		return WINNET_GBDR_STATUS_SUCCESS;
+	}
+	catch (const std::exception & err)
+	{
+		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
+		return WINNET_GBDR_STATUS_FAILURE;
+	}
+	catch (...)
+	{
+		return WINNET_GBDR_STATUS_FAILURE;
+	}
+}
+
+extern "C"
+WINNET_LINKAGE
 bool
 WINNET_API
 WinNet_GetTapInterfaceAlias(
@@ -480,22 +529,24 @@ WinNet_RegisterDefaultRouteChangedCallback(
 
 			const auto translatedFamily = common::ValueMapper::Map<>(family, familyMap);
 
-			//
-			// Determine which LUID to forward.
-			//
+			WINNET_DEFAULT_ROUTE defaultRoute = { 0 };
 
-			uint64_t translatedLuid = 0;
+			//
+			// Determine which LUID and gateway to forward.
+			//
 
 			if (RouteManager::DefaultRouteChangedEventType::Updated == eventType)
 			{
-				translatedLuid = route.value().iface.Value;
+				const auto ips = winnet::ConvertNativeAddresses(&route.value().gateway, 1);
+				defaultRoute.gateway = ips[0];
+				defaultRoute.interfaceLuid = route.value().iface.Value;
 			}
 
 			//
 			// Forward to client.
 			//
 
-			callback(translatedEventType, translatedFamily, translatedLuid, context);
+			callback(translatedEventType, translatedFamily, defaultRoute, context);
 		};
 
 		*registrationHandle = g_RouteManager->registerDefaultRouteChangedCallback(forwarder);
