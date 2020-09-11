@@ -22,9 +22,10 @@
 //!
 //! Missing translations are appended to the gettext messages template file (`messages.pot`). These
 //! are the entries for which no translation in any locale was found. When missing plurals are
-//! appended to the template file, the new message entries are created using the first quantity as
-//! the `msgid` and the last quantity as the `msgid_plural`. Because of this, it is important to
-//! note that the first quantity can't have parameters, while the last one can.
+//! appended to the template file, the new message entries are created using the singular quantity
+//! item as the `msgid` and the other quantity item as the `msgid_plural`. Because of this, it is
+//! important to note that the former can't have parameters, while the latter can. Otherwise, the
+//! entries will have to be manually added.
 //!
 //! Note that this conversion procedure is very raw and likely very brittle, so while it works for
 //! most cases, it is important to keep in mind that this is just a helper tool and manual steps are
@@ -155,14 +156,29 @@ fn main() {
             plural_resources
                 .into_iter()
                 .inspect(|plural| {
-                    let last_item = &plural.items.last().expect("Plural items are empty").string;
+                    let other_item = &plural
+                        .items
+                        .iter()
+                        .find(|plural| plural.quantity == android::PluralQuantity::Other)
+                        .expect("Plural items are empty")
+                        .string;
 
-                    println!("  {}: {}", plural.name, last_item);
+                    println!("  {}: {}", plural.name, other_item);
                 })
                 .map(|mut plural| {
-                    let plural_id = plural.items.pop().expect("Plural items are empty").string;
-                    plural.items.truncate(1);
-                    let id = plural.items.remove(0).string;
+                    let singular_position = plural
+                        .items
+                        .iter()
+                        .position(|plural| plural.quantity == android::PluralQuantity::One)
+                        .expect("Missing singular variant to use as msgid");
+                    let id = plural.items.remove(singular_position).string;
+
+                    let other_position = plural
+                        .items
+                        .iter()
+                        .position(|plural| plural.quantity == android::PluralQuantity::Other)
+                        .expect("Missing other variant to use as msgid_plural");
+                    let plural_id = plural.items.remove(other_position).string;
 
                     gettext::MsgEntry {
                         id,
