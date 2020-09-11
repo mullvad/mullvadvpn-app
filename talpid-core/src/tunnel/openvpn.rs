@@ -6,6 +6,7 @@ use crate::{
         stoppable_process::StoppableProcess,
     },
     proxy::{self, ProxyMonitor, ProxyResourceData},
+    routing,
 };
 use std::{
     collections::HashMap,
@@ -36,6 +37,10 @@ pub enum Error {
     /// Failed to initialize the tokio runtime.
     #[error(display = "Failed to initialize the tokio runtime")]
     RuntimeError(#[error(source)] io::Error),
+
+    /// Failed to set up routing.
+    #[error(display = "Failed to setup routing")]
+    SetupRoutingError(#[error(source)] routing::Error),
 
     /// Unable to start, wait for or kill the OpenVPN process.
     #[error(display = "Error in OpenVPN process management: {}", _0)]
@@ -145,6 +150,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         params: &openvpn::TunnelParameters,
         log_path: Option<PathBuf>,
         resource_dir: &Path,
+        #[cfg(target_os = "linux")] route_manager: &mut routing::RouteManager,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
@@ -163,7 +169,18 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             _ => None,
         };
 
-        let on_openvpn_event = move |event, env| {
+        #[cfg(target_os = "linux")]
+        let route_manager_tx = route_manager.channel().map_err(Error::SetupRoutingError)?;
+
+        let on_openvpn_event = move |event, env: HashMap<String, String>| {
+            #[cfg(target_os = "linux")]
+            if event == openvpn_plugin::EventType::Up {
+                let interface = env.get("dev").unwrap().to_owned();
+                route_manager_tx
+                    .unbounded_send(routing::RouteManagerCommand::SetTunnelLink(interface))
+                    .unwrap();
+                return;
+            }
             if event == openvpn_plugin::EventType::RouteUp {
                 // The user-pass file has been read. Try to delete it early.
                 let _ = fs::remove_file(&user_pass_file_path);
