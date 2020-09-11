@@ -248,3 +248,52 @@ impl PluralResource {
         PluralResource { name, items }
     }
 }
+
+impl Display for PluralResources {
+    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+        writeln!(formatter, r#"<?xml version="1.0" encoding="utf-8"?>"#)?;
+        writeln!(formatter, "<resources>")?;
+
+        for entry in &self.entries {
+            write!(formatter, "{}", entry)?;
+        }
+
+        writeln!(formatter, "</resources>")
+    }
+}
+
+impl Display for PluralResource {
+    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+        writeln!(formatter, r#"    <plurals name="{}">"#, self.name)?;
+
+        for item in &self.items {
+            writeln!(formatter, "        {}", item)?;
+        }
+
+        writeln!(formatter, "    </plurals>")
+    }
+}
+
+impl Display for PluralVariant {
+    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+        write!(
+            formatter,
+            r#"<item quantity="{}">{}</item>"#,
+            self.quantity, self.string
+        )
+    }
+}
+
+impl Display for PluralQuantity {
+    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+        let quantity = match self {
+            PluralQuantity::Zero => "zero",
+            PluralQuantity::One => "one",
+            PluralQuantity::Few => "few",
+            PluralQuantity::Many => "many",
+            PluralQuantity::Other => "other",
+        };
+
+        write!(formatter, "{}", quantity)
+    }
+}
