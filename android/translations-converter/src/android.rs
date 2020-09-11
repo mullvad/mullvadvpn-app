@@ -193,7 +193,7 @@ pub struct PluralVariant {
 }
 
 /// A valid quantity for a plural variant.
-#[derive(Clone, Copy, Debug, Deserialize, Serialize)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum PluralQuantity {
     Zero,
