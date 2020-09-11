@@ -1433,16 +1433,18 @@ class ApplicationMain {
         label: this.getLinuxContextMenuActionButtonLabel(),
         click: () => {
           if (this.tunnelState.state === 'disconnected') {
-            consumePromise(this.daemonRpc.connectTunnel());
+            // The use of setImmediate is a workaround for this issue:
+            // https://github.com/grpc/grpc-node/issues/882
+            setImmediate(() => consumePromise(this.daemonRpc.connectTunnel()));
           } else {
-            consumePromise(this.daemonRpc.disconnectTunnel());
+            setImmediate(() => consumePromise(this.daemonRpc.disconnectTunnel()));
           }
         },
       },
       {
         label: messages.gettext('Reconnect'),
         enabled: this.tunnelState.state === 'connected' || this.tunnelState.state === 'connecting',
-        click: () => consumePromise(this.daemonRpc.reconnectTunnel()),
+        click: () => setImmediate(() => consumePromise(this.daemonRpc.reconnectTunnel())),
       },
     ];
 
