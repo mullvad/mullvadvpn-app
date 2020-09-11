@@ -15,6 +15,7 @@ lazy_static! {
 
 /// A parsed gettext translation file.
 pub struct Translation {
+    pub plural_form: Option<PluralForm>,
     entries: Vec<MsgEntry>,
 }
 
@@ -50,10 +51,16 @@ impl Translation {
     ///
     /// The messages are normalized into a common format so that they can be compared to Android
     /// string resource entries.
+    ///
+    /// The only metadata that is parsed from the file is the "Plural-Form" header. It is assumed
+    /// that the header value is one of some hard-coded values, so if new languages that have new
+    /// plurals are added, the code will have to be updated.
     pub fn from_file(file_path: impl AsRef<Path>) -> Self {
+        let mut parsing_header = false;
         let mut entries = Vec::new();
         let mut current_id = None;
         let mut current_plural_id = None;
+        let mut plural_form = None;
         let mut variants = BTreeMap::new();
         let file = BufReader::new(File::open(file_path).expect("Failed to open gettext file"));
 
@@ -67,6 +74,8 @@ impl Translation {
                 if let Some(id) = current_id.take() {
                     let value = MsgValue::from(normalize(translation));
 
+                    parsing_header = id.is_empty() && translation.is_empty();
+
                     entries.push(MsgEntry { id, value });
                 }
 
@@ -74,6 +83,7 @@ impl Translation {
                 current_plural_id = None;
             } else if let Some(plural_id) = parse_line(line, "msgid_plural \"", "\"") {
                 current_plural_id = Some(normalize(plural_id));
+                parsing_header = false;
             } else if let Some(plural_translation) = parse_line(line, "msgstr[", "\"") {
                 let variant_id_end = plural_translation
                     .chars()
@@ -86,6 +96,13 @@ impl Translation {
                     .expect("Invalid plural msgstr");
 
                 variants.insert(variant_id, normalize(variant_msg));
+                parsing_header = false;
+            } else if let Some(header) = parse_line(line, "\"", "\\n\"") {
+                if parsing_header {
+                    if let Some(plural_formula) = parse_line(header, "Plural-Forms: ", ";") {
+                        plural_form = Some(PluralForm::from_formula(plural_formula));
+                    }
+                }
             } else {
                 if let Some(plural_id) = current_plural_id.take() {
                     let id = current_id.take().expect("Missing msgid for plural message");
@@ -105,10 +122,14 @@ impl Translation {
                 current_id = None;
                 current_plural_id = None;
                 variants.clear();
+                parsing_header = false;
             }
         }
 
-        Self { entries }
+        Self {
+            entries,
+            plural_form,
+        }
     }
 }
 
