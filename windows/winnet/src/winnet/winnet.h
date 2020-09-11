@@ -205,6 +205,25 @@ WinNet_GetBestDefaultRoute(
 	void *logSinkContext
 );
 
+enum WINNET_ILTIA_STATUS
+{
+	WINNET_ILTIA_STATUS_SUCCESS = 0,
+	WINNET_ILTIA_STATUS_NOT_FOUND = 1,
+	WINNET_ILTIA_STATUS_FAILURE = 2,
+};
+
+extern "C"
+WINNET_LINKAGE
+WINNET_ILTIA_STATUS
+WINNET_API
+WinNet_InterfaceLuidToIpAddress(
+	WINNET_ADDR_FAMILY family,
+	uint64_t interfaceLuid,
+	WINNET_IP *ip,
+	MullvadLogSink logSink,
+	void *logSinkContext
+);
+
 enum WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE
 {
 	// Best default route changed.

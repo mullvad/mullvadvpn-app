@@ -33,6 +33,10 @@ pub enum Error {
     #[error(display = "Failed to obtain default route")]
     GetDefaultRoute,
 
+    /// Failed to obtain an IP address given a LUID.
+    #[error(display = "Failed to obtain IP address for the given interface")]
+    GetIpAddressFromLuid,
+
     /// Failed to read IPv6 status on the TAP network interface.
     #[error(display = "Failed to read IPv6 status on the TAP network interface")]
     GetIpv6Status,
@@ -409,6 +413,28 @@ pub fn get_best_default_route(
     }
 }
 
+// TODO: Remove attribute once this is in use.
+#[allow(dead_code)]
+pub fn interface_luid_to_ip(
+    family: WinNetAddrFamily,
+    luid: u64,
+) -> Result<Option<WinNetIp>, Error> {
+    let mut ip = WinNetIp::default();
+    match unsafe {
+        WinNet_InterfaceLuidToIpAddress(
+            family,
+            luid,
+            &mut ip as *mut _,
+            Some(log_sink),
+            logging_context(),
+        )
+    } {
+        InterfaceLuidToIpAddressStatus::Success => Ok(Some(ip)),
+        InterfaceLuidToIpAddressStatus::NotFound => Ok(None),
+        InterfaceLuidToIpAddressStatus::Failure => Err(Error::GetIpAddressFromLuid),
+    }
+}
+
 pub fn add_device_ip_addresses(iface: &String, addresses: &Vec<IpAddr>) -> bool {
     let raw_iface = WideCString::from_str(iface)
         .expect("Failed to convert UTF-8 string to null terminated UCS string")
@@ -437,6 +463,7 @@ mod api {
         Failure = 2,
     }
     pub type GetBestDefaultRouteStatus = FailableOptionalStatus;
+    pub type InterfaceLuidToIpAddressStatus = FailableOptionalStatus;
 
     extern "system" {
         #[link_name = "WinNet_ActivateRouteManager"]
@@ -483,6 +510,17 @@ mod api {
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> GetBestDefaultRouteStatus;
+
+        // TODO: Remove "allow(dead_code)" this is in use.
+        #[allow(dead_code)]
+        #[link_name = "WinNet_InterfaceLuidToIpAddress"]
+        pub fn WinNet_InterfaceLuidToIpAddress(
+            family: super::WinNetAddrFamily,
+            luid: u64,
+            ip: *mut super::WinNetIp,
+            sink: Option<LogSink>,
+            sink_context: *const u8,
+        ) -> InterfaceLuidToIpAddressStatus;
 
         #[link_name = "WinNet_GetTapInterfaceAlias"]
         pub fn WinNet_GetTapInterfaceAlias(
