@@ -234,3 +234,17 @@ impl PluralResources {
         }
     }
 }
+
+impl PluralResource {
+    /// Create a plural resource representation.
+    ///
+    /// The resource has a name, used as the identifier, and a list of items. Each item contains
+    /// the message and the quantity it should be used for.
+    pub fn new(name: String, values: impl Iterator<Item = (PluralQuantity, String)>) -> Self {
+        let items = values
+            .map(|(quantity, string)| PluralVariant { quantity, string })
+            .collect();
+
+        PluralResource { name, items }
+    }
+}
