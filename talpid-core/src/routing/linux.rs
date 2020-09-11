@@ -11,7 +11,7 @@ use std::{
     collections::{BTreeMap, HashSet},
     fs,
     io::{self, BufRead, BufReader, Read, Seek, Write},
-    net::{IpAddr, Ipv4Addr},
+    net::IpAddr,
     process::Command,
 };
 
@@ -110,6 +110,7 @@ pub struct RouteManagerImpl {
     best_default_node_v6: Option<Node>,
 
     split_table_id: i32,
+    split_ignored_interface: Option<String>,
 }
 
 impl RouteManagerImpl {
@@ -142,7 +143,10 @@ impl RouteManagerImpl {
             best_default_node_v6: None,
 
             split_table_id,
+            split_ignored_interface: None,
         };
+
+        monitor.initialize_exclusions_routes().await?;
 
         monitor.default_routes = monitor.get_default_routes().await?;
         monitor.best_default_node_v4 =
@@ -225,6 +229,15 @@ impl RouteManagerImpl {
         Ok(table_id)
     }
 
+    async fn initialize_exclusions_routes(&mut self) -> Result<()> {
+        let main_routes = self.get_routes().await?;
+        for mut route in main_routes {
+            route.table_id = self.split_table_id as u8;
+            self.add_route_direct(route).await?;
+        }
+        Ok(())
+    }
+
     /// Route PID-associated packets through the physical interface.
     async fn enable_exclusions_routes(&mut self) -> Result<()> {
         // TODO: IPv6
@@ -253,14 +266,7 @@ impl RouteManagerImpl {
             ])?;
         }
 
-        // Add default route for the exclusions table
-        let zero_network =
-            ipnetwork::IpNetwork::new(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)), 0).unwrap();
-        let mut required_routes = HashSet::new();
-        required_routes.insert(
-            RequiredRoute::new(zero_network, NetNode::DefaultNode).table(self.split_table_id as u8),
-        );
-        self.add_required_routes(required_routes).await
+        Ok(())
     }
 
     /// Stop routing PID-associated packets through the physical interface.
@@ -367,6 +373,27 @@ impl RouteManagerImpl {
         Ok(())
     }
 
+    async fn get_routes(&self) -> Result<HashSet<Route>> {
+        let mut routes = self.get_routes_inner(IpVersion::V4).await?;
+        routes.extend(self.get_routes_inner(IpVersion::V6).await?);
+        Ok(routes)
+    }
+
+    async fn get_routes_inner(&self, version: IpVersion) -> Result<HashSet<Route>> {
+        let mut routes = HashSet::new();
+        let mut route_request = self.handle.route().get(version).execute();
+        while let Some(route) = route_request
+            .try_next()
+            .await
+            .map_err(Error::NetlinkError)?
+        {
+            if let Some(route) = self.parse_route_message(route)? {
+                routes.insert(route);
+            }
+        }
+        Ok(routes)
+    }
+
     async fn get_default_routes(&self) -> Result<HashSet<Route>> {
         let mut routes = self.get_default_routes_inner(IpVersion::V4).await?;
         routes.extend(self.get_default_routes_inner(IpVersion::V6).await?);
@@ -411,6 +438,14 @@ impl RouteManagerImpl {
 
 
     async fn process_new_route(&mut self, route: Route) -> Result<()> {
+        if self.split_ignored_interface.is_none()
+            || route.node.device != self.split_ignored_interface
+        {
+            let mut exclusions_route = route.clone();
+            exclusions_route.table_id = self.split_table_id as u8;
+            self.add_route_direct(exclusions_route).await?;
+        }
+
         if route.prefix.prefix() == 0 {
             self.default_routes.insert(route);
             self.update_default_routes().await?;
@@ -419,6 +454,19 @@ impl RouteManagerImpl {
     }
 
     async fn process_deleted_route(&mut self, route: Route) -> Result<()> {
+        if self.split_ignored_interface.is_none()
+            || route.node.device != self.split_ignored_interface
+        {
+            let mut exclusions_route = route.clone();
+            exclusions_route.table_id = self.split_table_id as u8;
+            if let Err(error) = self.delete_route(&exclusions_route).await {
+                log::warn!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to remove exclusions route")
+                );
+            }
+        }
+
         if route.prefix.prefix() == 0 {
             self.default_routes.remove(&route);
             self.update_default_routes().await?;
@@ -592,6 +640,13 @@ impl RouteManagerImpl {
             }
             RouteManagerCommand::DisableExclusionsRoutes => {
                 self.disable_exclusions_routes().await;
+            }
+            RouteManagerCommand::SetTunnelLink(interface_name) => {
+                log::debug!(
+                    "Exclusions: Ignoring route changes for dev {}",
+                    &interface_name
+                );
+                self.split_ignored_interface = Some(interface_name);
             }
             RouteManagerCommand::RouteExclusionsDns(tunnel_alias, dns_servers, result_rx) => {
                 let _ =
@@ -782,7 +837,7 @@ impl RouteManagerImpl {
             .map_err(Error::NetlinkError)
     }
 
-    async fn add_route(&mut self, route: Route) -> Result<()> {
+    async fn add_route_direct(&mut self, route: Route) -> Result<()> {
         let add_message = match &route.prefix {
             IpNetwork::V4(v4_prefix) => {
                 let mut add_message = self
@@ -849,7 +904,12 @@ impl RouteManagerImpl {
                 return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(err)));
             }
         }
-        self.added_routes.insert(route.clone());
+        Ok(())
+    }
+
+    async fn add_route(&mut self, route: Route) -> Result<()> {
+        self.add_route_direct(route.clone()).await?;
+        self.added_routes.insert(route);
         Ok(())
     }
 }

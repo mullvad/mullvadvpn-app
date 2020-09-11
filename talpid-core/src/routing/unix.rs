@@ -47,18 +47,28 @@ pub enum Error {
     RouteManagerDown,
 }
 
+/// Commands for the underlying route manager object.
 #[derive(Debug)]
 pub enum RouteManagerCommand {
+    /// Adds required routes
     AddRoutes(
         HashSet<RequiredRoute>,
         oneshot::Sender<Result<(), PlatformError>>,
     ),
+    /// Clears required routes
     ClearRoutes,
+    /// Shuts down the route manager
     Shutdown(oneshot::Sender<()>),
+    /// Routes traffic with correct fwmark using the exclusions table
     #[cfg(target_os = "linux")]
     EnableExclusionsRoutes(oneshot::Sender<Result<(), PlatformError>>),
+    /// Removes rule for routing marked traffic differently.
     #[cfg(target_os = "linux")]
     DisableExclusionsRoutes,
+    /// Adds link to ignore in the exclusions table.
+    #[cfg(target_os = "linux")]
+    SetTunnelLink(String),
+    /// Adds exclusions table route for sending DNS requests via the tunnel.
     #[cfg(target_os = "linux")]
     RouteExclusionsDns(
         String,
@@ -189,6 +199,32 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
             Ok(())
+        } else {
+            Err(Error::RouteManagerDown)
+        }
+    }
+
+    /// Set the link to be ignored by the exclusions routing table.
+    #[cfg(target_os = "linux")]
+    pub fn set_tunnel_link(&mut self, tunnel_alias: &str) -> Result<(), Error> {
+        if let Some(tx) = &self.manage_tx {
+            if tx
+                .unbounded_send(RouteManagerCommand::SetTunnelLink(tunnel_alias.to_string()))
+                .is_err()
+            {
+                return Err(Error::RouteManagerDown);
+            }
+            Ok(())
+        } else {
+            Err(Error::RouteManagerDown)
+        }
+    }
+
+    /// Retrieve a sender directly to the command channel.
+    #[cfg(target_os = "linux")]
+    pub fn channel(&self) -> Result<UnboundedSender<RouteManagerCommand>, Error> {
+        if let Some(tx) = &self.manage_tx {
+            Ok(tx.clone())
         } else {
             Err(Error::RouteManagerDown)
         }
