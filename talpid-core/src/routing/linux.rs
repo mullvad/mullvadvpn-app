@@ -181,7 +181,7 @@ impl RouteManagerImpl {
     async fn initialize_exclusions_routes(&mut self) -> Result<()> {
         let main_routes = self.get_routes().await?;
         for mut route in main_routes {
-            route.table_id = self.split_table_id as u8;
+            route.table_id = self.split_table_id;
             self.add_route_direct(route).await?;
         }
         Ok(())
@@ -400,7 +400,7 @@ impl RouteManagerImpl {
             || route.node.device != self.split_ignored_interface
         {
             let mut exclusions_route = route.clone();
-            exclusions_route.table_id = self.split_table_id as u8;
+            exclusions_route.table_id = self.split_table_id;
             self.add_route_direct(exclusions_route).await?;
         }
 
@@ -416,7 +416,7 @@ impl RouteManagerImpl {
             || route.node.device != self.split_ignored_interface
         {
             let mut exclusions_route = route.clone();
-            exclusions_route.table_id = self.split_table_id as u8;
+            exclusions_route.table_id = self.split_table_id;
             if let Err(error) = self.delete_route(&exclusions_route).await {
                 log::warn!(
                     "{}",
@@ -806,7 +806,7 @@ impl RouteManagerImpl {
     }
 
     async fn add_route_direct(&mut self, route: Route) -> Result<()> {
-        let add_message = match &route.prefix {
+        let mut add_message = match &route.prefix {
             IpNetwork::V4(v4_prefix) => {
                 let mut add_message = self
                     .handle
@@ -860,6 +860,12 @@ impl RouteManagerImpl {
         add_message.header.table = compat_table;
         if compat_table == RT_TABLE_COMPAT {
             add_message.nlas.push(RouteNla::Table(route.table_id));
+        }
+
+        // TODO: Request support for route priority in RouteAddIpv{4,6}Request
+        if let Some(metric) = route.metric {
+            use netlink_packet_route::nlas::route;
+            add_message.nlas.push(route::Nla::Priority(metric));
         }
 
         // Need to modify the request in place to set the correct flags to be able to replace any
