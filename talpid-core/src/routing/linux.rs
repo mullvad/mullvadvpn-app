@@ -838,7 +838,7 @@ impl RouteManagerImpl {
     }
 
     async fn add_route_direct(&mut self, route: Route) -> Result<()> {
-        let add_message = match &route.prefix {
+        let mut add_message = match &route.prefix {
             IpNetwork::V4(v4_prefix) => {
                 let mut add_message = self
                     .handle
@@ -889,6 +889,12 @@ impl RouteManagerImpl {
                 add_message.message_mut().clone()
             }
         };
+
+        // TODO: Request support for route priority in RouteAddIpv{4,6}Request
+        if let Some(metric) = route.metric {
+            use netlink_packet_route::nlas::route;
+            add_message.nlas.push(route::Nla::Priority(metric));
+        }
 
         // Need to modify the request in place to set the correct flags to be able to replace any
         // existing routes - self.handle.route().add_v4().execute() sets the NLM_F_EXCL flag which
