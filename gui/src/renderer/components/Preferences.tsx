@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { messages } from '../../shared/gettext';
+import { createInputAriaAttributes } from '../lib/accessibility';
 import * as Cell from './Cell';
 import { Layout } from './Layout';
 import {
@@ -35,6 +36,14 @@ export interface IProps {
 
 export default class Preferences extends React.Component<IProps> {
   public render() {
+    const autoStartAria = createInputAriaAttributes();
+    const autoConnectAria = createInputAriaAttributes();
+    const allowLanAria = createInputAriaAttributes();
+    const systemNotificationsAria = createInputAriaAttributes();
+    const monochromaticIconAria = createInputAriaAttributes();
+    const startMinimizedAria = createInputAriaAttributes();
+    const betaProgramAria = createInputAriaAttributes();
+
     return (
       <Layout>
         <StyledContainer>
@@ -63,19 +72,29 @@ export default class Preferences extends React.Component<IProps> {
 
               <StyledContent>
                 <Cell.Container>
-                  <Cell.Label>
+                  <Cell.InputLabel {...autoStartAria.label}>
                     {messages.pgettext('preferences-view', 'Launch app on start-up')}
-                  </Cell.Label>
-                  <Cell.Switch isOn={this.props.autoStart} onChange={this.props.setAutoStart} />
+                  </Cell.InputLabel>
+                  <Cell.Switch
+                    isOn={this.props.autoStart}
+                    onChange={this.props.setAutoStart}
+                    {...autoStartAria.input}
+                  />
                 </Cell.Container>
                 <StyledSeparator />
 
                 <Cell.Container>
-                  <Cell.Label>{messages.pgettext('preferences-view', 'Auto-connect')}</Cell.Label>
-                  <Cell.Switch isOn={this.props.autoConnect} onChange={this.props.setAutoConnect} />
+                  <Cell.InputLabel {...autoConnectAria.label}>
+                    {messages.pgettext('preferences-view', 'Auto-connect')}
+                  </Cell.InputLabel>
+                  <Cell.Switch
+                    isOn={this.props.autoConnect}
+                    onChange={this.props.setAutoConnect}
+                    {...autoConnectAria.input}
+                  />
                 </Cell.Container>
                 <Cell.Footer>
-                  <Cell.FooterText>
+                  <Cell.FooterText {...autoConnectAria.description}>
                     {messages.pgettext(
                       'preferences-view',
                       'Automatically connect to a server when the app launches.',
@@ -84,13 +103,17 @@ export default class Preferences extends React.Component<IProps> {
                 </Cell.Footer>
 
                 <Cell.Container>
-                  <Cell.Label>
+                  <Cell.InputLabel {...allowLanAria.label}>
                     {messages.pgettext('preferences-view', 'Local network sharing')}
-                  </Cell.Label>
-                  <Cell.Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
+                  </Cell.InputLabel>
+                  <Cell.Switch
+                    isOn={this.props.allowLan}
+                    onChange={this.props.setAllowLan}
+                    {...allowLanAria.input}
+                  />
                 </Cell.Container>
                 <Cell.Footer>
-                  <Cell.FooterText>
+                  <Cell.FooterText {...allowLanAria.description}>
                     {messages.pgettext(
                       'preferences-view',
                       'Allows access to other devices on the same network for sharing, printing etc.',
@@ -99,14 +122,17 @@ export default class Preferences extends React.Component<IProps> {
                 </Cell.Footer>
 
                 <Cell.Container>
-                  <Cell.Label>{messages.pgettext('preferences-view', 'Notifications')}</Cell.Label>
+                  <Cell.InputLabel {...systemNotificationsAria.label}>
+                    {messages.pgettext('preferences-view', 'Notifications')}
+                  </Cell.InputLabel>
                   <Cell.Switch
                     isOn={this.props.enableSystemNotifications}
                     onChange={this.props.setEnableSystemNotifications}
+                    {...systemNotificationsAria.input}
                   />
                 </Cell.Container>
                 <Cell.Footer>
-                  <Cell.FooterText>
+                  <Cell.FooterText {...systemNotificationsAria.description}>
                     {messages.pgettext(
                       'preferences-view',
                       'Enable or disable system notifications. The critical notifications will always be displayed.',
@@ -115,16 +141,17 @@ export default class Preferences extends React.Component<IProps> {
                 </Cell.Footer>
 
                 <Cell.Container>
-                  <Cell.Label>
+                  <Cell.InputLabel {...monochromaticIconAria.label}>
                     {messages.pgettext('preferences-view', 'Monochromatic tray icon')}
-                  </Cell.Label>
+                  </Cell.InputLabel>
                   <Cell.Switch
                     isOn={this.props.monochromaticIcon}
                     onChange={this.props.setMonochromaticIcon}
+                    {...monochromaticIconAria.input}
                   />
                 </Cell.Container>
                 <Cell.Footer>
-                  <Cell.FooterText>
+                  <Cell.FooterText {...monochromaticIconAria.description}>
                     {messages.pgettext(
                       'preferences-view',
                       'Use a monochromatic tray icon instead of a colored one.',
@@ -135,16 +162,17 @@ export default class Preferences extends React.Component<IProps> {
                 {this.props.enableStartMinimizedToggle ? (
                   <React.Fragment>
                     <Cell.Container>
-                      <Cell.Label>
+                      <Cell.InputLabel {...startMinimizedAria.label}>
                         {messages.pgettext('preferences-view', 'Start minimized')}
-                      </Cell.Label>
+                      </Cell.InputLabel>
                       <Cell.Switch
                         isOn={this.props.startMinimized}
                         onChange={this.props.setStartMinimized}
+                        {...startMinimizedAria.input}
                       />
                     </Cell.Container>
                     <Cell.Footer>
-                      <Cell.FooterText>
+                      <Cell.FooterText {...startMinimizedAria.description}>
                         {messages.pgettext(
                           'preferences-view',
                           'Show only the tray icon when the app starts.',
@@ -155,14 +183,17 @@ export default class Preferences extends React.Component<IProps> {
                 ) : undefined}
 
                 <Cell.Container disabled={this.props.isBeta}>
-                  <Cell.Label>{messages.pgettext('preferences-view', 'Beta program')}</Cell.Label>
+                  <Cell.InputLabel {...betaProgramAria.label}>
+                    {messages.pgettext('preferences-view', 'Beta program')}
+                  </Cell.InputLabel>
                   <Cell.Switch
                     isOn={this.props.showBetaReleases}
                     onChange={this.props.setShowBetaReleases}
+                    {...betaProgramAria.input}
                   />
                 </Cell.Container>
                 <Cell.Footer>
-                  <Cell.FooterText>
+                  <Cell.FooterText {...betaProgramAria.description}>
                     {this.props.isBeta
                       ? messages.pgettext(
                           'preferences-view',

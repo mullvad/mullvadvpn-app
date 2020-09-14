@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 
 interface IProps {
+  id?: string;
+  'aria-labelledby'?: string;
+  'aria-describedby'?: string;
   isOn: boolean;
   onChange?: (isOn: boolean) => void;
   className?: string;
@@ -80,8 +83,11 @@ export default class Switch extends React.Component<IProps, IState> {
   public render() {
     return (
       <SwitchContainer
+        id={this.props.id}
         role="checkbox"
-        aria-checked={this.state.isOn}
+        aria-labelledby={this.props['aria-labelledby']}
+        aria-describedby={this.props['aria-describedby']}
+        aria-checked={this.props.isOn}
         ref={this.containerRef}
         onClick={this.handleClick}
         disabled={this.props.disabled ?? false}

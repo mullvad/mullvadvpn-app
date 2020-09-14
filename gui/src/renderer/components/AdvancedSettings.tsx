@@ -2,6 +2,7 @@ import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { createInputAriaAttributes } from '../lib/accessibility';
 import { WgKeyState } from '../redux/settings/reducers';
 import {
   StyledBottomCellGroup,
@@ -140,6 +141,11 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
   public render() {
     const hasWireguardKey = this.props.wireguardKeyState.type === 'key-set';
 
+    const enableIpv6Aria = createInputAriaAttributes();
+    const blockedWhenDisconnectedAria = createInputAriaAttributes();
+    const openVpnMssFixAria = createInputAriaAttributes();
+    const wireguardMtuAria = createInputAriaAttributes();
+
     return (
       <ModalContainer>
         <Layout>
@@ -170,13 +176,17 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                 </SettingsHeader>
 
                 <Cell.Container>
-                  <Cell.Label>
+                  <Cell.InputLabel {...enableIpv6Aria.label}>
                     {messages.pgettext('advanced-settings-view', 'Enable IPv6')}
-                  </Cell.Label>
-                  <Cell.Switch isOn={this.props.enableIpv6} onChange={this.props.setEnableIpv6} />
+                  </Cell.InputLabel>
+                  <Cell.Switch
+                    isOn={this.props.enableIpv6}
+                    onChange={this.props.setEnableIpv6}
+                    {...enableIpv6Aria.input}
+                  />
                 </Cell.Container>
                 <Cell.Footer>
-                  <Cell.FooterText>
+                  <Cell.FooterText {...enableIpv6Aria.description}>
                     {messages.pgettext(
                       'advanced-settings-view',
                       'Enable IPv6 communication through the tunnel.',
@@ -185,16 +195,17 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                 </Cell.Footer>
 
                 <Cell.Container>
-                  <Cell.Label>
+                  <Cell.InputLabel {...blockedWhenDisconnectedAria.label}>
                     {messages.pgettext('advanced-settings-view', 'Always require VPN')}
-                  </Cell.Label>
+                  </Cell.InputLabel>
                   <Cell.Switch
                     isOn={this.props.blockWhenDisconnected}
                     onChange={this.setBlockWhenDisconnected}
+                    {...blockedWhenDisconnectedAria.input}
                   />
                 </Cell.Container>
                 <Cell.Footer>
-                  <Cell.FooterText>
+                  <Cell.FooterText {...blockedWhenDisconnectedAria.description}>
                     {messages.pgettext(
                       'advanced-settings-view',
                       'If you disconnect or quit the app, this setting will block your internet.',
@@ -275,9 +286,9 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                 />
 
                 <Cell.Container>
-                  <Cell.Label>
+                  <Cell.InputLabel {...openVpnMssFixAria.label}>
                     {messages.pgettext('advanced-settings-view', 'OpenVPN Mssfix')}
-                  </Cell.Label>
+                  </Cell.InputLabel>
                   <StyledInputFrame>
                     <Cell.AutoSizingTextInput
                       value={this.props.mssfix ? this.props.mssfix.toString() : ''}
@@ -288,11 +299,12 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                       validateValue={AdvancedSettings.mssfixIsValid}
                       submitOnBlur={true}
                       modifyValue={AdvancedSettings.removeNonNumericCharacters}
+                      {...openVpnMssFixAria.input}
                     />
                   </StyledInputFrame>
                 </Cell.Container>
                 <Cell.Footer>
-                  <Cell.FooterText>
+                  <Cell.FooterText {...openVpnMssFixAria.description}>
                     {sprintf(
                       // TRANSLATORS: The hint displayed below the Mssfix input field.
                       // TRANSLATORS: Available placeholders:
@@ -311,9 +323,9 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                 </Cell.Footer>
 
                 <Cell.Container>
-                  <Cell.Label>
+                  <Cell.InputLabel {...wireguardMtuAria.label}>
                     {messages.pgettext('advanced-settings-view', 'WireGuard MTU')}
-                  </Cell.Label>
+                  </Cell.InputLabel>
                   <StyledInputFrame>
                     <Cell.AutoSizingTextInput
                       value={this.props.wireguardMtu ? this.props.wireguardMtu.toString() : ''}
@@ -324,11 +336,12 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                       validateValue={AdvancedSettings.wireguarMtuIsValid}
                       submitOnBlur={true}
                       modifyValue={AdvancedSettings.removeNonNumericCharacters}
+                      {...wireguardMtuAria.input}
                     />
                   </StyledInputFrame>
                 </Cell.Container>
                 <Cell.Footer>
-                  <Cell.FooterText>
+                  <Cell.FooterText {...wireguardMtuAria.description}>
                     {sprintf(
                       // TRANSLATORS: The hint displayed below the WireGuard MTU input field.
                       // TRANSLATORS: Available placeholders:
