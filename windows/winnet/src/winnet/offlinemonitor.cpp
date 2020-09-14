@@ -16,6 +16,7 @@ bool IsConnectedAdapter(const MIB_IF_ROW2 &iface)
 	{
 		case IF_TYPE_SOFTWARE_LOOPBACK:
 		case IF_TYPE_TUNNEL:
+		case IF_TYPE_PROP_VIRTUAL:
 		{
 			return false;
 		}
