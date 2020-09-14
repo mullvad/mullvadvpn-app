@@ -50,9 +50,8 @@ extension WireguardCommand {
 
         case .peer(let peer):
             let keyString = peer.publicKey.hexEncodedString()
-            let endpointString = peer.endpoint.wireguardStringRepresentation
 
-            return ["public_key=\(keyString)", "endpoint=\(endpointString)"]
+            return ["public_key=\(keyString)", "endpoint=\(peer.endpoint)"]
                 .joined(separator: "\n")
 
         case .replaceAllowedIPs:
