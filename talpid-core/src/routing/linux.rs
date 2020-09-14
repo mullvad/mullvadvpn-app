@@ -21,7 +21,7 @@ use netlink_packet_route::{
     link::{nlas::Nla as LinkNla, LinkMessage},
     route::{nlas::Nla as RouteNla, RouteHeader, RouteMessage},
     rtnl::{
-        constants::{RTN_UNICAST, RTPROT_STATIC, RT_SCOPE_UNIVERSE, RT_TABLE_MAIN},
+        constants::{RTN_UNSPEC, RTPROT_UNSPEC, RT_SCOPE_LINK, RT_SCOPE_UNIVERSE, RT_TABLE_MAIN},
         RouteFlags,
     },
     rule::{nlas::Nla as RuleNla, RuleHeader, RuleMessage},
@@ -231,7 +231,18 @@ impl RouteManagerImpl {
     }
 
     async fn initialize_exclusions_routes(&mut self) -> Result<()> {
-        let main_routes = self.get_routes().await?;
+        let split_routes = self.get_routes(Some(self.split_table_id as u8)).await?;
+        for route in split_routes {
+            if let Err(error) = self.delete_route(&route).await {
+                log::warn!(
+                    "Failed to delete exclusions route: {}\n{}",
+                    route,
+                    error.display_chain()
+                );
+            }
+        }
+
+        let main_routes = self.get_routes(None).await?;
         for mut route in main_routes {
             route.table_id = self.split_table_id as u8;
             self.add_route_direct(route).await?;
@@ -383,21 +394,30 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    async fn get_routes(&self) -> Result<HashSet<Route>> {
-        let mut routes = self.get_routes_inner(IpVersion::V4).await?;
-        routes.extend(self.get_routes_inner(IpVersion::V6).await?);
+    async fn get_routes(&self, table_id: Option<u8>) -> Result<HashSet<Route>> {
+        let mut routes = self.get_routes_inner(IpVersion::V4, table_id).await?;
+        routes.extend(self.get_routes_inner(IpVersion::V6, table_id).await?);
         Ok(routes)
     }
 
-    async fn get_routes_inner(&self, version: IpVersion) -> Result<HashSet<Route>> {
+    async fn get_routes_inner(
+        &self,
+        version: IpVersion,
+        table_id: Option<u8>,
+    ) -> Result<HashSet<Route>> {
         let mut routes = HashSet::new();
+        let table_id = table_id.unwrap_or(RT_TABLE_MAIN);
         let mut route_request = self.handle.route().get(version).execute();
+
         while let Some(route) = route_request
             .try_next()
             .await
             .map_err(Error::NetlinkError)?
         {
-            if let Some(route) = self.parse_route_message(route)? {
+            if route.header.table != table_id {
+                continue;
+            }
+            if let Some(route) = self.parse_route_message_inner(route)? {
                 routes.insert(route);
             }
         }
@@ -453,7 +473,13 @@ impl RouteManagerImpl {
         {
             let mut exclusions_route = route.clone();
             exclusions_route.table_id = self.split_table_id as u8;
-            self.add_route_direct(exclusions_route).await?;
+            if let Err(error) = self.add_route_direct(exclusions_route.clone()).await {
+                log::warn!(
+                    "Failed to add exclusions route: {}\n{}",
+                    exclusions_route,
+                    error.display_chain(),
+                );
+            }
         }
 
         if route.prefix.prefix() == 0 {
@@ -470,9 +496,11 @@ impl RouteManagerImpl {
             let mut exclusions_route = route.clone();
             exclusions_route.table_id = self.split_table_id as u8;
             if let Err(error) = self.delete_route(&exclusions_route).await {
-                log::warn!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to remove exclusions route")
+                // This may be expected when routes are deleted by the kernel
+                log::debug!(
+                    "Failed to remove exclusions route: {}\n{}",
+                    exclusions_route,
+                    error.display_chain(),
                 );
             }
         }
@@ -705,8 +733,11 @@ impl RouteManagerImpl {
         if msg.header.table != RT_TABLE_MAIN {
             return Ok(None);
         }
+        self.parse_route_message_inner(msg)
+    }
 
-
+    // Tries to coax a Route out of a RouteMessage
+    fn parse_route_message_inner(&self, msg: RouteMessage) -> Result<Option<Route>> {
         let mut prefix = None;
         let mut node_addr = None;
         let mut device = None;
@@ -805,6 +836,23 @@ impl RouteManagerImpl {
     }
 
     async fn delete_route(&self, route: &Route) -> Result<()> {
+        let scope = match route.prefix {
+            IpNetwork::V4(v4_prefix) => {
+                if v4_prefix.prefix() > 0 && v4_prefix.prefix() < 32 {
+                    RT_SCOPE_LINK
+                } else {
+                    RT_SCOPE_UNIVERSE
+                }
+            }
+            IpNetwork::V6(v6_prefix) => {
+                if v6_prefix.prefix() > 0 && v6_prefix.prefix() < 128 {
+                    RT_SCOPE_LINK
+                } else {
+                    RT_SCOPE_UNIVERSE
+                }
+            }
+        };
+
         let mut route_message = RouteMessage {
             header: RouteHeader {
                 address_family: if route.prefix.is_ipv4() {
@@ -816,9 +864,9 @@ impl RouteManagerImpl {
                 destination_prefix_length: route.prefix.prefix(),
                 tos: 0u8,
                 table: route.table_id,
-                protocol: RTPROT_STATIC,
-                scope: RT_SCOPE_UNIVERSE,
-                kind: RTN_UNICAST,
+                protocol: RTPROT_UNSPEC,
+                scope,
+                kind: RTN_UNSPEC,
                 flags: RouteFlags::empty(),
             },
             nlas: vec![RouteNla::Destination(ip_to_bytes(route.prefix.ip()))],
@@ -838,6 +886,9 @@ impl RouteManagerImpl {
             route_message.nlas.push(gateway_nla);
         }
 
+        if let Some(metric) = route.metric {
+            route_message.nlas.push(RouteNla::Priority(metric));
+        }
 
         self.handle
             .route()
@@ -902,8 +953,7 @@ impl RouteManagerImpl {
 
         // TODO: Request support for route priority in RouteAddIpv{4,6}Request
         if let Some(metric) = route.metric {
-            use netlink_packet_route::nlas::route;
-            add_message.nlas.push(route::Nla::Priority(metric));
+            add_message.nlas.push(RouteNla::Priority(metric));
         }
 
         // Need to modify the request in place to set the correct flags to be able to replace any
