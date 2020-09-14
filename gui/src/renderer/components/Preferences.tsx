@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { messages } from '../../shared/gettext';
+import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaInputGroup';
 import * as Cell from './Cell';
 import { Layout } from './Layout';
 import {
@@ -62,118 +63,181 @@ export default class Preferences extends React.Component<IProps> {
               </SettingsHeader>
 
               <StyledContent>
-                <Cell.Container>
-                  <Cell.Label>
-                    {messages.pgettext('preferences-view', 'Launch app on start-up')}
-                  </Cell.Label>
-                  <Cell.Switch isOn={this.props.autoStart} onChange={this.props.setAutoStart} />
-                </Cell.Container>
+                <AriaInputGroup>
+                  <Cell.Container>
+                    <AriaLabel>
+                      <Cell.InputLabel>
+                        {messages.pgettext('preferences-view', 'Launch app on start-up')}
+                      </Cell.InputLabel>
+                    </AriaLabel>
+                    <AriaInput>
+                      <Cell.Switch isOn={this.props.autoStart} onChange={this.props.setAutoStart} />
+                    </AriaInput>
+                  </Cell.Container>
+                </AriaInputGroup>
                 <StyledSeparator />
 
-                <Cell.Container>
-                  <Cell.Label>{messages.pgettext('preferences-view', 'Auto-connect')}</Cell.Label>
-                  <Cell.Switch isOn={this.props.autoConnect} onChange={this.props.setAutoConnect} />
-                </Cell.Container>
-                <Cell.Footer>
-                  <Cell.FooterText>
-                    {messages.pgettext(
-                      'preferences-view',
-                      'Automatically connect to a server when the app launches.',
-                    )}
-                  </Cell.FooterText>
-                </Cell.Footer>
-
-                <Cell.Container>
-                  <Cell.Label>
-                    {messages.pgettext('preferences-view', 'Local network sharing')}
-                  </Cell.Label>
-                  <Cell.Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
-                </Cell.Container>
-                <Cell.Footer>
-                  <Cell.FooterText>
-                    {messages.pgettext(
-                      'preferences-view',
-                      'Allows access to other devices on the same network for sharing, printing etc.',
-                    )}
-                  </Cell.FooterText>
-                </Cell.Footer>
-
-                <Cell.Container>
-                  <Cell.Label>{messages.pgettext('preferences-view', 'Notifications')}</Cell.Label>
-                  <Cell.Switch
-                    isOn={this.props.enableSystemNotifications}
-                    onChange={this.props.setEnableSystemNotifications}
-                  />
-                </Cell.Container>
-                <Cell.Footer>
-                  <Cell.FooterText>
-                    {messages.pgettext(
-                      'preferences-view',
-                      'Enable or disable system notifications. The critical notifications will always be displayed.',
-                    )}
-                  </Cell.FooterText>
-                </Cell.Footer>
-
-                <Cell.Container>
-                  <Cell.Label>
-                    {messages.pgettext('preferences-view', 'Monochromatic tray icon')}
-                  </Cell.Label>
-                  <Cell.Switch
-                    isOn={this.props.monochromaticIcon}
-                    onChange={this.props.setMonochromaticIcon}
-                  />
-                </Cell.Container>
-                <Cell.Footer>
-                  <Cell.FooterText>
-                    {messages.pgettext(
-                      'preferences-view',
-                      'Use a monochromatic tray icon instead of a colored one.',
-                    )}
-                  </Cell.FooterText>
-                </Cell.Footer>
-
-                {this.props.enableStartMinimizedToggle ? (
-                  <React.Fragment>
-                    <Cell.Container>
-                      <Cell.Label>
-                        {messages.pgettext('preferences-view', 'Start minimized')}
-                      </Cell.Label>
+                <AriaInputGroup>
+                  <Cell.Container>
+                    <AriaLabel>
+                      <Cell.InputLabel>
+                        {messages.pgettext('preferences-view', 'Auto-connect')}
+                      </Cell.InputLabel>
+                    </AriaLabel>
+                    <AriaInput>
                       <Cell.Switch
-                        isOn={this.props.startMinimized}
-                        onChange={this.props.setStartMinimized}
+                        isOn={this.props.autoConnect}
+                        onChange={this.props.setAutoConnect}
                       />
-                    </Cell.Container>
-                    <Cell.Footer>
+                    </AriaInput>
+                  </Cell.Container>
+                  <Cell.Footer>
+                    <AriaDescription>
                       <Cell.FooterText>
                         {messages.pgettext(
                           'preferences-view',
-                          'Show only the tray icon when the app starts.',
+                          'Automatically connect to a server when the app launches.',
                         )}
                       </Cell.FooterText>
-                    </Cell.Footer>
+                    </AriaDescription>
+                  </Cell.Footer>
+                </AriaInputGroup>
+
+                <AriaInputGroup>
+                  <Cell.Container>
+                    <AriaLabel>
+                      <Cell.InputLabel>
+                        {messages.pgettext('preferences-view', 'Local network sharing')}
+                      </Cell.InputLabel>
+                    </AriaLabel>
+                    <AriaInput>
+                      <Cell.Switch isOn={this.props.allowLan} onChange={this.props.setAllowLan} />
+                    </AriaInput>
+                  </Cell.Container>
+                  <Cell.Footer>
+                    <AriaDescription>
+                      <Cell.FooterText>
+                        {messages.pgettext(
+                          'preferences-view',
+                          'Allows access to other devices on the same network for sharing, printing etc.',
+                        )}
+                      </Cell.FooterText>
+                    </AriaDescription>
+                  </Cell.Footer>
+                </AriaInputGroup>
+
+                <AriaInputGroup>
+                  <Cell.Container>
+                    <AriaLabel>
+                      <Cell.InputLabel>
+                        {messages.pgettext('preferences-view', 'Notifications')}
+                      </Cell.InputLabel>
+                    </AriaLabel>
+                    <AriaInput>
+                      <Cell.Switch
+                        isOn={this.props.enableSystemNotifications}
+                        onChange={this.props.setEnableSystemNotifications}
+                      />
+                    </AriaInput>
+                  </Cell.Container>
+                  <Cell.Footer>
+                    <AriaDescription>
+                      <Cell.FooterText>
+                        {messages.pgettext(
+                          'preferences-view',
+                          'Enable or disable system notifications. The critical notifications will always be displayed.',
+                        )}
+                      </Cell.FooterText>
+                    </AriaDescription>
+                  </Cell.Footer>
+                </AriaInputGroup>
+
+                <AriaInputGroup>
+                  <Cell.Container>
+                    <AriaLabel>
+                      <Cell.InputLabel>
+                        {messages.pgettext('preferences-view', 'Monochromatic tray icon')}
+                      </Cell.InputLabel>
+                    </AriaLabel>
+                    <AriaInput>
+                      <Cell.Switch
+                        isOn={this.props.monochromaticIcon}
+                        onChange={this.props.setMonochromaticIcon}
+                      />
+                    </AriaInput>
+                  </Cell.Container>
+                  <Cell.Footer>
+                    <AriaDescription>
+                      <Cell.FooterText>
+                        {messages.pgettext(
+                          'preferences-view',
+                          'Use a monochromatic tray icon instead of a colored one.',
+                        )}
+                      </Cell.FooterText>
+                    </AriaDescription>
+                  </Cell.Footer>
+                </AriaInputGroup>
+
+                {this.props.enableStartMinimizedToggle ? (
+                  <React.Fragment>
+                    <AriaInputGroup>
+                      <Cell.Container>
+                        <AriaLabel>
+                          <Cell.InputLabel>
+                            {messages.pgettext('preferences-view', 'Start minimized')}
+                          </Cell.InputLabel>
+                        </AriaLabel>
+                        <AriaInput>
+                          <Cell.Switch
+                            isOn={this.props.startMinimized}
+                            onChange={this.props.setStartMinimized}
+                          />
+                        </AriaInput>
+                      </Cell.Container>
+                      <Cell.Footer>
+                        <AriaDescription>
+                          <Cell.FooterText>
+                            {messages.pgettext(
+                              'preferences-view',
+                              'Show only the tray icon when the app starts.',
+                            )}
+                          </Cell.FooterText>
+                        </AriaDescription>
+                      </Cell.Footer>
+                    </AriaInputGroup>
                   </React.Fragment>
                 ) : undefined}
 
-                <Cell.Container disabled={this.props.isBeta}>
-                  <Cell.Label>{messages.pgettext('preferences-view', 'Beta program')}</Cell.Label>
-                  <Cell.Switch
-                    isOn={this.props.showBetaReleases}
-                    onChange={this.props.setShowBetaReleases}
-                  />
-                </Cell.Container>
-                <Cell.Footer>
-                  <Cell.FooterText>
-                    {this.props.isBeta
-                      ? messages.pgettext(
-                          'preferences-view',
-                          'This option is unavailable while using a beta version.',
-                        )
-                      : messages.pgettext(
-                          'preferences-view',
-                          'Enable to get notified when new beta versions of the app are released.',
-                        )}
-                  </Cell.FooterText>
-                </Cell.Footer>
+                <AriaInputGroup>
+                  <Cell.Container disabled={this.props.isBeta}>
+                    <AriaLabel>
+                      <Cell.InputLabel>
+                        {messages.pgettext('preferences-view', 'Beta program')}
+                      </Cell.InputLabel>
+                    </AriaLabel>
+                    <AriaInput>
+                      <Cell.Switch
+                        isOn={this.props.showBetaReleases}
+                        onChange={this.props.setShowBetaReleases}
+                      />
+                    </AriaInput>
+                  </Cell.Container>
+                  <Cell.Footer>
+                    <AriaDescription>
+                      <Cell.FooterText>
+                        {this.props.isBeta
+                          ? messages.pgettext(
+                              'preferences-view',
+                              'This option is unavailable while using a beta version.',
+                            )
+                          : messages.pgettext(
+                              'preferences-view',
+                              'Enable to get notified when new beta versions of the app are released.',
+                            )}
+                      </Cell.FooterText>
+                    </AriaDescription>
+                  </Cell.Footer>
+                </AriaInputGroup>
               </StyledContent>
             </NavigationScrollbars>
           </NavigationContainer>

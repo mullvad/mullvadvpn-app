@@ -72,6 +72,11 @@ export function Label(props: React.HTMLAttributes<HTMLDivElement>) {
   return <StyledLabel disabled={disabled} {...props} />;
 }
 
+export function InputLabel(props: React.LabelHTMLAttributes<HTMLLabelElement>) {
+  const disabled = useContext(CellDisabledContext);
+  return <StyledLabel as="label" disabled={disabled} {...props} />;
+}
+
 export function SubText(props: React.HTMLAttributes<HTMLDivElement>) {
   const disabled = useContext(CellDisabledContext);
   return <StyledSubText disabled={disabled} {...props} />;
@@ -216,7 +221,7 @@ export function AutoSizingTextInput({ onChangeValue, ...otherProps }: IInputProp
       <StyledAutoSizingTextInputWrapper>
         <Input onChangeValue={onChangeValueWrapper} {...otherProps} />
       </StyledAutoSizingTextInputWrapper>
-      <StyledAutoSizingTextInputFiller className={otherProps.className}>
+      <StyledAutoSizingTextInputFiller className={otherProps.className} aria-hidden={true}>
         {value === '' ? otherProps.placeholder : value}
       </StyledAutoSizingTextInputFiller>
     </StyledAutoSizingTextInputContainer>
