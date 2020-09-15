@@ -252,6 +252,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
             {messages.gettext('Back')}
           </AppButton.BlueButton>,
         ]}
+        close={this.onCancelNoEmailDialog}
       />
     );
   }
@@ -286,6 +287,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
             {messages.gettext('Cancel')}
           </AppButton.BlueButton>,
         ]}
+        close={this.props.onClose}
       />
     );
   }
