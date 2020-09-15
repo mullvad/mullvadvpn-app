@@ -80,7 +80,7 @@ struct PacketTunnelSettingsGenerator {
         let length: UInt8 = addressRange.networkPrefixLength
         assert(length <= 32)
         var octets: [UInt8] = [0, 0, 0, 0]
-        let subnetMask: UInt32 = length > 0 ? ~UInt32(0) << (32 - length) : UInt32(0)
+        let subnetMask: UInt32 = length > 0 ? UInt32.max << (32 - length) : UInt32.zero
         octets[0] = UInt8(truncatingIfNeeded: subnetMask >> 24)
         octets[1] = UInt8(truncatingIfNeeded: subnetMask >> 16)
         octets[2] = UInt8(truncatingIfNeeded: subnetMask >> 8)
