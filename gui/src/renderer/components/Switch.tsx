@@ -91,6 +91,7 @@ export default class Switch extends React.Component<IProps, IState> {
         ref={this.containerRef}
         onClick={this.handleClick}
         disabled={this.props.disabled ?? false}
+        aria-disabled={this.props.disabled ?? false}
         className={this.props.className}>
         <Knob
           disabled={this.props.disabled ?? false}
