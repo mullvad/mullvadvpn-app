@@ -15,18 +15,12 @@ class ConnectivityListener {
     private val callback = object : NetworkCallback() {
         override fun onAvailable(network: Network) {
             availableNetworks.add(network)
-
-            if (!isConnected) {
-                isConnected = true
-            }
+            isConnected = true
         }
 
         override fun onLost(network: Network) {
             availableNetworks.remove(network)
-
-            if (isConnected && availableNetworks.isEmpty()) {
-                isConnected = false
-            }
+            isConnected = !availableNetworks.isEmpty()
         }
     }
 
