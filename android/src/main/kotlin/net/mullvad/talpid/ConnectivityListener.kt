@@ -34,12 +34,14 @@ class ConnectivityListener {
 
     val connectivityNotifier = EventNotifier(false)
 
-    var isConnected by observable(false) { _, _, value ->
-        if (senderAddress != 0L) {
-            notifyConnectivityChange(value, senderAddress)
-        }
+    var isConnected by observable(false) { _, oldValue, newValue ->
+        if (newValue != oldValue) {
+            if (senderAddress != 0L) {
+                notifyConnectivityChange(newValue, senderAddress)
+            }
 
-        connectivityNotifier.notify(value)
+            connectivityNotifier.notify(newValue)
+        }
     }
 
     var senderAddress = 0L
