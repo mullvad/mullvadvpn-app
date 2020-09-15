@@ -8,7 +8,7 @@ import android.support.v7.widget.RecyclerView.State
 import android.view.View
 import net.mullvad.mullvadvpn.R
 
-class ListItemDividerDecoration(private val context: Context) : ItemDecoration() {
+class ListItemDividerDecoration(context: Context) : ItemDecoration() {
     private val dividerHeight = context.resources.getDimensionPixelSize(R.dimen.list_item_divider)
 
     override fun getItemOffsets(offsets: Rect, view: View, parent: RecyclerView, state: State) {
