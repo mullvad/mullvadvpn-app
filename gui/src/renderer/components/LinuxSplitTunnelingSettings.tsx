@@ -274,6 +274,7 @@ function ApplicationRow(props: IApplicationRowProps) {
           iconColor={warningColor}
           message={warningMessage}
           buttons={warningDialogButtons}
+          close={hideWarningDialog}
         />
       )}
     </>

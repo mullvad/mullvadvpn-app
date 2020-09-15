@@ -198,7 +198,8 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
         <AppButton.BlueButton key="cancel" disabled={cancelDisabled} onClick={props.onClose}>
           {messages.pgettext('redeem-voucher-alert', 'Cancel')}
         </AppButton.BlueButton>,
-      ]}>
+      ]}
+      close={props.onClose}>
       <StyledLabel>{messages.pgettext('redeem-voucher-alert', 'Enter voucher code')}</StyledLabel>
       <RedeemVoucherInput />
       <RedeemVoucherResponse />
