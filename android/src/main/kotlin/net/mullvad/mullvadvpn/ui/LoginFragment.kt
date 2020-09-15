@@ -59,7 +59,6 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             accountLogin.clearFocus()
         }
 
-        fetchHistory()
         scrollToShow(accountLogin)
 
         return view
@@ -74,11 +73,16 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             }
         }
 
-        fetchHistory()
+        accountCache.onAccountHistoryChange.subscribe(this) { history ->
+            jobTracker.newUiJob("updateHistory") {
+                accountLogin.accountHistory = history
+            }
+        }
     }
 
     override fun onSafelyStop() {
         jobTracker.cancelJob("advanceToNextScreen")
+        accountCache.onAccountHistoryChange.unsubscribe(this)
     }
 
     private fun scrollToShow(view: View) {
@@ -123,14 +127,6 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         scrollToShow(loggingInStatus)
 
         performLogin(accountToken)
-    }
-
-    private fun fetchHistory() {
-        jobTracker.newUiJob("fetchHistory") {
-            accountLogin.accountHistory = jobTracker.runOnBackground() {
-                daemon.getAccountHistory()
-            }
-        }
     }
 
     private fun performLogin(accountToken: String) {
