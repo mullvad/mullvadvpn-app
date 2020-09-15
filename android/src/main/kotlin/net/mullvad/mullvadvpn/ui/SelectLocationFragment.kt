@@ -74,7 +74,11 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
                 }
             }
 
-            addItemDecoration(ListItemDividerDecoration(parentActivity))
+            addItemDecoration(
+                ListItemDividerDecoration(parentActivity).apply {
+                    bottomOffsetId = R.dimen.list_item_divider
+                }
+            )
         }
 
         return view

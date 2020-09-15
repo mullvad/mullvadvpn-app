@@ -6,12 +6,20 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.RecyclerView.ItemDecoration
 import android.support.v7.widget.RecyclerView.State
 import android.view.View
-import net.mullvad.mullvadvpn.R
+import kotlin.properties.Delegates.observable
 
 class ListItemDividerDecoration(context: Context) : ItemDecoration() {
-    private val dividerHeight = context.resources.getDimensionPixelSize(R.dimen.list_item_divider)
+    private var bottomOffset = 0
+
+    var bottomOffsetId by observable<Int?>(null) { _, _, id ->
+        if (id != null) {
+            bottomOffset = context.resources.getDimensionPixelSize(id)
+        } else {
+            bottomOffset = 0
+        }
+    }
 
     override fun getItemOffsets(offsets: Rect, view: View, parent: RecyclerView, state: State) {
-        offsets.bottom = dividerHeight
+        offsets.bottom = bottomOffset
     }
 }
