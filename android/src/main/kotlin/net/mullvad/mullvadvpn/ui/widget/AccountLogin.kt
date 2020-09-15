@@ -14,6 +14,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.RelativeLayout
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.ListItemDividerDecoration
 import net.mullvad.mullvadvpn.ui.LoginState
 import net.mullvad.mullvadvpn.ui.widget.AccountLoginBorder.BorderState
 
@@ -144,6 +145,12 @@ class AccountLogin : RelativeLayout {
         accountHistoryList.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = historyAdapter
+
+            addItemDecoration(
+                ListItemDividerDecoration(context).apply {
+                    topOffsetId = R.dimen.account_history_divider
+                }
+            )
         }
     }
 
