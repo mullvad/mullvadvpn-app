@@ -147,7 +147,7 @@ class AccountLogin : RelativeLayout {
                     ArrayAdapter(
                         context,
                         R.layout.account_history_entry,
-                        R.id.account_history_entry_text_view,
+                        R.id.label,
                         history
                     )
                 )
