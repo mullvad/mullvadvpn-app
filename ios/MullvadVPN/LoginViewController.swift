@@ -37,7 +37,7 @@ class LoginViewController: UIViewController, RootContainment {
     @IBOutlet var loginForm: UIView!
     @IBOutlet var loginFormWrapperBottomConstraint: NSLayoutConstraint!
     @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
-    @IBOutlet var statusImageView: UIImageView!
+    @IBOutlet var statusImageView: StatusImageView!
     @IBOutlet var createAccountButton: AppButton!
 
     private let logger = Logger(label: "LoginViewController")
@@ -230,11 +230,11 @@ class LoginViewController: UIViewController, RootContainment {
         switch loginState {
         case .failure:
             let opacity: CGFloat = self.accountTextField.isEditing ? 0 : 1
-            statusImageView.image = UIImage(named: "IconFail")
+            statusImageView.style = .failure
             animateStatusImage(to: opacity)
 
         case .success:
-            statusImageView.image = UIImage(named: "IconSuccess")
+            statusImageView.style = .success
             animateStatusImage(to: 1)
 
         case .default, .authenticating:
