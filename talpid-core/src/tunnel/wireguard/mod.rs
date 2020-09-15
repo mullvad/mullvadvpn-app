@@ -3,6 +3,10 @@ use self::config::Config;
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::routing::{self, RequiredRoute};
+#[cfg(target_os = "linux")]
+use lazy_static::lazy_static;
+#[cfg(target_os = "linux")]
+use std::env;
 use std::{
     collections::HashSet,
     path::Path,
@@ -53,6 +57,14 @@ pub struct WireguardMonitor {
     close_msg_sender: mpsc::Sender<CloseMsg>,
     close_msg_receiver: mpsc::Receiver<CloseMsg>,
     pinger_stop_sender: mpsc::Sender<()>,
+}
+
+#[cfg(target_os = "linux")]
+lazy_static! {
+    /// Overrides the preference for the kernel module for WireGuard.
+    static ref FORCE_USERSPACE_WIREGUARD: bool = env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
+        .map(|v| v != "0")
+        .unwrap_or(false);
 }
 
 impl WireguardMonitor {
@@ -130,20 +142,24 @@ impl WireguardMonitor {
         route_manager: &mut routing::RouteManager,
     ) -> Result<Box<dyn Tunnel>> {
         #[cfg(target_os = "linux")]
-        match wireguard_kernel::KernelTunnel::new(route_manager.runtime_handle(), config) {
-            Ok(tunnel) => {
-                log::debug!("Using kernel WireGuard implementation");
-                return Ok(Box::new(tunnel));
-            }
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg(
-                        "Failed to setup kernel WireGuard device, falling back to userspace"
-                    )
-                );
-            }
-        };
+        if !*FORCE_USERSPACE_WIREGUARD {
+            match wireguard_kernel::KernelTunnel::new(route_manager.runtime_handle(), config) {
+                Ok(tunnel) => {
+                    log::debug!("Using kernel WireGuard implementation");
+                    return Ok(Box::new(tunnel));
+                }
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to setup kernel WireGuard device, falling back to userspace"
+                        )
+                    );
+                }
+            };
+        } else {
+            log::debug!("Using userspace WireGuard implementation");
+        }
 
         Ok(Box::new(WgGoTunnel::start_tunnel(
             &config,
