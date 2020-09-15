@@ -230,6 +230,9 @@ typedef void (WINNET_API *WinNetDefaultRouteChangedCallback)
 (
 	WINNET_DEFAULT_ROUTE_CHANGED_EVENT_TYPE eventType,
 
+	// Indicates which IP family the event relates to.
+	WINNET_ADDR_FAMILY family,
+
 	// For update events, indicates the interface associated with the new best default route.
 	WINNET_DEFAULT_ROUTE route,
 

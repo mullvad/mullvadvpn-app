@@ -164,6 +164,7 @@ impl WgGoTunnel {
     #[cfg(target_os = "windows")]
     pub unsafe extern "system" fn default_route_changed_callback(
         event_type: winnet::WinNetDefaultRouteChangeEventType,
+        family: winnet::WinNetAddrFamily,
         default_route: winnet::WinNetDefaultRoute,
         _ctx: *mut libc::c_void,
     ) {
@@ -190,10 +191,7 @@ impl WgGoTunnel {
             winnet::WinNetDefaultRouteChangeEventType::DefaultRouteRemoved => 0,
         };
 
-        wgRebindTunnelSocket(
-            default_route.gateway.addr_family.to_windows_proto_enum(),
-            iface_idx,
-        );
+        wgRebindTunnelSocket(family.to_windows_proto_enum(), iface_idx);
     }
 
     #[cfg(not(target_os = "windows"))]

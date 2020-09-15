@@ -600,7 +600,6 @@ WinNet_RegisterDefaultRouteChangedCallback(
 			const auto translatedFamily = common::ValueMapper::Map<>(family, familyMap);
 
 			WINNET_DEFAULT_ROUTE defaultRoute = { 0 };
-			defaultRoute.gateway.family = translatedFamily;
 
 			//
 			// Determine which LUID and gateway to forward.
@@ -617,7 +616,7 @@ WinNet_RegisterDefaultRouteChangedCallback(
 			// Forward to client.
 			//
 
-			callback(translatedEventType, defaultRoute, context);
+			callback(translatedEventType, translatedFamily, defaultRoute, context);
 		};
 
 		*registrationHandle = g_RouteManager->registerDefaultRouteChangedCallback(forwarder);

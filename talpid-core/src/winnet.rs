@@ -351,6 +351,7 @@ pub enum WinNetDefaultRouteChangeEventType {
 
 pub type DefaultRouteChangedCallback = unsafe extern "system" fn(
     event_type: WinNetDefaultRouteChangeEventType,
+    family: WinNetAddrFamily,
     default_route: WinNetDefaultRoute,
     ctx: *mut c_void,
 );
