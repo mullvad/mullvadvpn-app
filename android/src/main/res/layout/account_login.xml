@@ -9,9 +9,8 @@
                                                    android:layout_height="48dp"
                                                    android:layout_alignParentTop="true"
                                                    android:orientation="horizontal" />
-    <ListView android:id="@+id/history"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:layout_below="@id/input"
-              android:dividerHeight="@dimen/account_history_divider" />
+    <android.support.v7.widget.RecyclerView android:id="@+id/history"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:layout_below="@id/input" />
 </merge>
