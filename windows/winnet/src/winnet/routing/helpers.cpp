@@ -9,17 +9,43 @@
 namespace
 {
 
+// Interface description substrings found for virtual adapters.
+const wchar_t *TUNNEL_INTERFACE_DESCS[] = {
+	L"WireGuard",
+	L"TAP Adapter"
+};
+
 bool IsRouteOnPhysicalInterface(const MIB_IPFORWARD_ROW2 &route)
 {
 	switch (route.InterfaceLuid.Info.IfType)
 	{
 		case IF_TYPE_SOFTWARE_LOOPBACK:
 		case IF_TYPE_TUNNEL:
-		case IF_TYPE_PROP_VIRTUAL:
 		{
 			return false;
 		}
 	}
+
+	// OpenVPN uses interface type IF_TYPE_PROP_VIRTUAL,
+	// but tethering etc. may rely on virtual adapters too,
+	// so we have to filter out the TAP adapter specifically.
+
+	MIB_IF_ROW2 row = { 0 };
+	row.InterfaceLuid = route.InterfaceLuid;
+
+	if (NO_ERROR != GetIfEntry2(&row))
+	{
+		THROW_ERROR("Cannot obtain interface information for the given route");
+	}
+
+	for (size_t i = 0; i < ARRAYSIZE(TUNNEL_INTERFACE_DESCS); i++)
+	{
+		if (nullptr != wcsstr(row.Description, TUNNEL_INTERFACE_DESCS[i]))
+		{
+			return false;
+		}
+	}
+
 	return true;
 }
 
