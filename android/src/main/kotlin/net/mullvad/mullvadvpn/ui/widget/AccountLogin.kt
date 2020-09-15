@@ -3,14 +3,14 @@ package net.mullvad.mullvadvpn.ui.widget
 import android.animation.ValueAnimator
 import android.app.Activity
 import android.content.Context
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.inputmethod.InputMethodManager
-import android.widget.ArrayAdapter
-import android.widget.ListView
 import android.widget.RelativeLayout
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
@@ -26,8 +26,12 @@ class AccountLogin : RelativeLayout {
         }
 
     private val border: AccountLoginBorder = container.findViewById(R.id.border)
-    private val accountHistoryList: ListView = container.findViewById(R.id.history)
+    private val accountHistoryList: RecyclerView = container.findViewById(R.id.history)
     private val input: AccountInput = container.findViewById(R.id.input)
+
+    private val historyAdapter = AccountHistoryAdapter().apply {
+        onSelectEntry = { account -> input.loginWith(account) }
+    }
 
     private val dividerHeight = resources.getDimensionPixelSize(R.dimen.account_history_divider)
     private val historyEntryHeight =
@@ -81,7 +85,10 @@ class AccountLogin : RelativeLayout {
         val entryCount = history?.size ?: 0
 
         historyHeight = entryCount * (historyEntryHeight + dividerHeight)
-        updateAccountHistory()
+
+        if (history != null) {
+            historyAdapter.accountHistory = history
+        }
     }
 
     var state: LoginState by observable(LoginState.Initial) { _, _, newState ->
@@ -133,30 +140,16 @@ class AccountLogin : RelativeLayout {
                 }
             )
         }
+
+        accountHistoryList.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = historyAdapter
+        }
     }
 
     fun onDestroy() {
         input.onFocusChanged.unsubscribe(this)
         input.onTextChanged.unsubscribe(this)
-    }
-
-    private fun updateAccountHistory() {
-        accountHistory?.let { history ->
-            accountHistoryList.apply {
-                setAdapter(
-                    ArrayAdapter(
-                        context,
-                        R.layout.account_history_entry,
-                        R.id.label,
-                        history
-                    )
-                )
-
-                setOnItemClickListener { _, _, idx, _ ->
-                    input.loginWith(history[idx])
-                }
-            }
-        }
     }
 
     private fun updateBorder() {
