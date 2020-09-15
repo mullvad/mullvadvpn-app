@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { AriaInput, AriaLabel } from './AriaInputGroup';
 import * as Cell from './Cell';
 
 export interface ISelectorItem<T> {
@@ -40,16 +41,20 @@ export default class Selector<T> extends React.Component<ISelectorProps<T>> {
       );
     });
 
-    if (this.props.title) {
-      return (
-        <Section className={this.props.className}>
-          <Cell.SectionTitle>{this.props.title}</Cell.SectionTitle>
+    const title = this.props.title && (
+      <AriaLabel>
+        <Cell.SectionTitle as="label">{this.props.title}</Cell.SectionTitle>
+      </AriaLabel>
+    );
+
+    return (
+      <AriaInput>
+        <Section role="listbox" className={this.props.className}>
+          {title}
           {items}
         </Section>
-      );
-    } else {
-      return <Section className={this.props.className}>{items}</Section>;
-    }
+      </AriaInput>
+    );
   }
 }
 
@@ -78,7 +83,10 @@ export class SelectorCell<T> extends React.Component<ISelectorCellProps<T>> {
       <Cell.CellButton
         onClick={this.onClick}
         selected={this.props.selected}
-        disabled={this.props.disabled}>
+        disabled={this.props.disabled}
+        role="option"
+        aria-selected={this.props.selected}
+        aria-disabled={this.props.disabled}>
         <StyledCellIcon
           visible={this.props.selected}
           source="icon-tick"

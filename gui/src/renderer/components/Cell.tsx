@@ -54,15 +54,11 @@ export const CellButton = React.forwardRef(function Button(
   );
 });
 
-interface ISectionProps {
-  children?: React.ReactNode;
-  className?: string;
-}
-
-export function Section(props: ISectionProps) {
+export function Section(props: React.HTMLAttributes<HTMLDivElement>) {
+  const { children, ...otherProps } = props;
   return (
-    <StyledSection className={props.className}>
-      <CellSectionContext.Provider value={true}>{props.children}</CellSectionContext.Provider>
+    <StyledSection {...otherProps}>
+      <CellSectionContext.Provider value={true}>{children}</CellSectionContext.Provider>
     </StyledSection>
   );
 }
