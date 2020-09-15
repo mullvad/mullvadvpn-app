@@ -28,7 +28,7 @@ open class TalpidVpnService : VpnService() {
     }
 
     override fun onDestroy() {
-        connectivityListener.unregister(this)
+        connectivityListener.unregister()
     }
 
     fun getTun(config: TunConfig): Int {

@@ -52,7 +52,7 @@ class ConnectivityListener {
         connectivityManager.registerNetworkCallback(request, callback)
     }
 
-    fun unregister(context: Context) {
+    fun unregister() {
         connectivityManager.unregisterNetworkCallback(callback)
     }
 
