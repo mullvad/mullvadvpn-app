@@ -6,6 +6,7 @@ import android.net.ConnectivityManager.NetworkCallback
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import kotlin.properties.Delegates.observable
 import net.mullvad.talpid.util.EventNotifier
 
 class ConnectivityListener {
@@ -33,16 +34,13 @@ class ConnectivityListener {
 
     val connectivityNotifier = EventNotifier(false)
 
-    var isConnected = false
-        private set(value) {
-            field = value
-
-            if (senderAddress != 0L) {
-                notifyConnectivityChange(value, senderAddress)
-            }
-
-            connectivityNotifier.notify(value)
+    var isConnected by observable(false) { _, _, value ->
+        if (senderAddress != 0L) {
+            notifyConnectivityChange(value, senderAddress)
         }
+
+        connectivityNotifier.notify(value)
+    }
 
     var senderAddress = 0L
 
