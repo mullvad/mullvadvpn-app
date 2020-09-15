@@ -4,6 +4,7 @@
 //
 //  Created by pronebird on 13/06/2019.
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2018-2019 WireGuard LLC. All Rights Reserved.
 //
 
 import Foundation
@@ -79,7 +80,7 @@ struct PacketTunnelSettingsGenerator {
         let length: UInt8 = addressRange.networkPrefixLength
         assert(length <= 32)
         var octets: [UInt8] = [0, 0, 0, 0]
-        let subnetMask: UInt32 = length > 0 ? ~UInt32(0) << (32 - length) : UInt32(0)
+        let subnetMask: UInt32 = length > 0 ? UInt32.max << (32 - length) : UInt32.zero
         octets[0] = UInt8(truncatingIfNeeded: subnetMask >> 24)
         octets[1] = UInt8(truncatingIfNeeded: subnetMask >> 16)
         octets[2] = UInt8(truncatingIfNeeded: subnetMask >> 8)
