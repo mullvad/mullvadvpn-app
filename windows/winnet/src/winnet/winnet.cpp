@@ -95,7 +95,7 @@ WinNet_EnableIpv6ForAdapter(
 
 extern "C"
 WINNET_LINKAGE
-WINNET_GBDR_STATUS
+WINNET_STATUS
 WINNET_API
 WinNet_GetBestDefaultRoute(
 	WINNET_ADDR_FAMILY family,
@@ -122,29 +122,29 @@ WinNet_GetBestDefaultRoute(
 
 		if (!ifaceAndGateway.has_value())
 		{
-			return WINNET_GBDR_STATUS_NOT_FOUND;
+			return WINNET_STATUS_NOT_FOUND;
 		}
 
 		route->interfaceLuid = ifaceAndGateway->iface.Value;
 		const auto ips = winnet::ConvertNativeAddresses(&ifaceAndGateway->gateway, 1);
 		route->gateway = ips[0];
 
-		return WINNET_GBDR_STATUS_SUCCESS;
+		return WINNET_STATUS_SUCCESS;
 	}
 	catch (const std::exception & err)
 	{
 		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
-		return WINNET_GBDR_STATUS_FAILURE;
+		return WINNET_STATUS_FAILURE;
 	}
 	catch (...)
 	{
-		return WINNET_GBDR_STATUS_FAILURE;
+		return WINNET_STATUS_FAILURE;
 	}
 }
 
 extern "C"
 WINNET_LINKAGE
-WINNET_ILTIA_STATUS
+WINNET_STATUS
 WINNET_API
 WinNet_InterfaceLuidToIpAddress(
 	WINNET_ADDR_FAMILY family,
@@ -195,19 +195,19 @@ WinNet_InterfaceLuidToIpAddress(
 			const auto ips = winnet::ConvertNativeAddresses(&entry.Address, 1);
 			*ip = ips[0];
 
-			return WINNET_ILTIA_STATUS_SUCCESS;
+			return WINNET_STATUS_SUCCESS;
 		}
 
-		return WINNET_ILTIA_STATUS_NOT_FOUND;
+		return WINNET_STATUS_NOT_FOUND;
 	}
 	catch (const std::exception & err)
 	{
 		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
-		return WINNET_ILTIA_STATUS_FAILURE;
+		return WINNET_STATUS_FAILURE;
 	}
 	catch (...)
 	{
-		return WINNET_ILTIA_STATUS_FAILURE;
+		return WINNET_STATUS_FAILURE;
 	}
 }
 

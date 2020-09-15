@@ -408,9 +408,9 @@ pub fn get_best_default_route(
             logging_context(),
         )
     } {
-        GetBestDefaultRouteStatus::Success => Ok(Some(default_route)),
-        GetBestDefaultRouteStatus::NotFound => Ok(None),
-        GetBestDefaultRouteStatus::Failure => Err(Error::GetDefaultRoute),
+        WinNetStatus::Success => Ok(Some(default_route)),
+        WinNetStatus::NotFound => Ok(None),
+        WinNetStatus::Failure => Err(Error::GetDefaultRoute),
     }
 }
 
@@ -430,9 +430,9 @@ pub fn interface_luid_to_ip(
             logging_context(),
         )
     } {
-        InterfaceLuidToIpAddressStatus::Success => Ok(Some(ip)),
-        InterfaceLuidToIpAddressStatus::NotFound => Ok(None),
-        InterfaceLuidToIpAddressStatus::Failure => Err(Error::GetIpAddressFromLuid),
+        WinNetStatus::Success => Ok(Some(ip)),
+        WinNetStatus::NotFound => Ok(None),
+        WinNetStatus::Failure => Err(Error::GetIpAddressFromLuid),
     }
 }
 
@@ -458,13 +458,11 @@ mod api {
 
     #[allow(dead_code)]
     #[repr(u32)]
-    pub enum FailableOptionalStatus {
+    pub enum WinNetStatus {
         Success = 0,
         NotFound = 1,
         Failure = 2,
     }
-    pub type GetBestDefaultRouteStatus = FailableOptionalStatus;
-    pub type InterfaceLuidToIpAddressStatus = FailableOptionalStatus;
 
     extern "system" {
         #[link_name = "WinNet_ActivateRouteManager"]
@@ -510,7 +508,7 @@ mod api {
             default_route: *mut super::WinNetDefaultRoute,
             sink: Option<LogSink>,
             sink_context: *const u8,
-        ) -> GetBestDefaultRouteStatus;
+        ) -> WinNetStatus;
 
         // TODO: Remove "allow(dead_code)" this is in use.
         #[allow(dead_code)]
@@ -521,7 +519,7 @@ mod api {
             ip: *mut super::WinNetIp,
             sink: Option<LogSink>,
             sink_context: *const u8,
-        ) -> InterfaceLuidToIpAddressStatus;
+        ) -> WinNetStatus;
 
         #[link_name = "WinNet_GetTapInterfaceAlias"]
         pub fn WinNet_GetTapInterfaceAlias(
