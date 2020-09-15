@@ -1,18 +1,39 @@
 package net.mullvad.talpid
 
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.net.ConnectivityManager
-import android.net.NetworkInfo
-import android.net.NetworkInfo.DetailedState
+import android.net.ConnectivityManager.NetworkCallback
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import net.mullvad.talpid.util.EventNotifier
 
-class ConnectivityListener : BroadcastReceiver() {
-    val connectivityNotifier = EventNotifier(true)
+class ConnectivityListener {
+    private val availableNetworks = HashSet<Network>()
 
-    var isConnected = true
+    private val callback = object : NetworkCallback() {
+        override fun onAvailable(network: Network) {
+            availableNetworks.add(network)
+
+            if (!isConnected) {
+                isConnected = true
+            }
+        }
+
+        override fun onLost(network: Network) {
+            availableNetworks.remove(network)
+
+            if (isConnected && availableNetworks.isEmpty()) {
+                isConnected = false
+            }
+        }
+    }
+
+    private lateinit var connectivityManager: ConnectivityManager
+
+    val connectivityNotifier = EventNotifier(false)
+
+    var isConnected = false
         private set(value) {
             field = value
 
@@ -26,44 +47,19 @@ class ConnectivityListener : BroadcastReceiver() {
     var senderAddress = 0L
 
     fun register(context: Context) {
-        val intentFilter = IntentFilter()
+        val request = NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+            .build()
 
-        intentFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
-        context.registerReceiver(this, intentFilter)
+        connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        checkConnectionState(context)
+        connectivityManager.registerNetworkCallback(request, callback)
     }
 
     fun unregister(context: Context) {
-        context.unregisterReceiver(this)
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        val networkInfo =
-            intent.getParcelableExtra<NetworkInfo>(ConnectivityManager.EXTRA_NETWORK_INFO)
-
-        if (networkInfo == null) {
-            checkConnectionState(context)
-        } else if (networkInfo.type != ConnectivityManager.TYPE_VPN) {
-            if (networkInfo.detailedState == DetailedState.DISCONNECTED) {
-                checkConnectionState(context)
-            } else if (networkInfo.detailedState == DetailedState.CONNECTED) {
-                isConnected = true
-            }
-        }
-    }
-
-    private fun checkConnectionState(context: Context) {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-        isConnected = connectivityManager.allNetworks
-            .map({ network -> connectivityManager.getNetworkInfo(network) })
-            .filterNotNull()
-            .any({ networkInfo ->
-                networkInfo.type != ConnectivityManager.TYPE_VPN &&
-                    networkInfo.detailedState == DetailedState.CONNECTED
-            })
+        connectivityManager.unregisterNetworkCallback(callback)
     }
 
     private fun finalize() {
