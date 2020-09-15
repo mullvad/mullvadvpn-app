@@ -459,7 +459,8 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
           <AppButton.BlueButton key="back" onClick={this.hideConfirmBlockWhenDisconnectedAlert}>
             {messages.gettext('Back')}
           </AppButton.BlueButton>,
-        ]}>
+        ]}
+        close={this.hideConfirmBlockWhenDisconnectedAlert}>
         <ModalMessage>
           {messages.pgettext(
             'advanced-settings-view',

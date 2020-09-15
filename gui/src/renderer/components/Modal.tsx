@@ -1,11 +1,9 @@
-import * as React from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { Scheduler } from '../../shared/scheduler';
 import ImageView from './ImageView';
-
-const MODAL_CONTAINER_ID = 'modalContainer';
 
 const ModalContent = styled.div({
   position: 'absolute',
@@ -39,11 +37,35 @@ interface IModalContainerProps {
   children?: React.ReactNode;
 }
 
+interface IModalContext {
+  activeModal: boolean;
+  setActiveModal: (value: boolean) => void;
+  modalContainerRef: React.RefObject<HTMLDivElement>;
+}
+
+const noActiveModalContextError = new Error('ActiveModalContext.Provider missing');
+const ActiveModalContext = React.createContext<IModalContext>({
+  get activeModal(): boolean {
+    throw noActiveModalContextError;
+  },
+  setActiveModal(_value) {
+    throw noActiveModalContextError;
+  },
+  get modalContainerRef(): React.RefObject<HTMLDivElement> {
+    throw noActiveModalContextError;
+  },
+});
+
 export function ModalContainer(props: IModalContainerProps) {
+  const [activeModal, setActiveModal] = useState(false);
+  const modalContainerRef = useRef() as React.RefObject<HTMLDivElement>;
+
   return (
-    <StyledModalContainer id={MODAL_CONTAINER_ID}>
-      <ModalContent>{props.children}</ModalContent>
-    </StyledModalContainer>
+    <ActiveModalContext.Provider value={{ activeModal, setActiveModal, modalContainerRef }}>
+      <StyledModalContainer ref={modalContainerRef}>
+        <ModalContent aria-hidden={activeModal}>{props.children}</ModalContent>
+      </StyledModalContainer>
+    </ActiveModalContext.Provider>
   );
 }
 
@@ -86,18 +108,24 @@ interface IModalAlertProps {
   message?: string;
   buttons: React.ReactNode[];
   children?: React.ReactNode;
+  close?: () => void;
 }
 
-export class ModalAlert extends React.Component<IModalAlertProps> {
+export function ModalAlert(props: IModalAlertProps) {
+  const activeModalContext = useContext(ActiveModalContext);
+  return <ModalAlertWithContext {...activeModalContext} {...props} />;
+}
+
+class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalContext> {
   private element = document.createElement('div');
-  private modalContainer?: Element;
   private appendScheduler = new Scheduler();
 
   public componentDidMount() {
-    const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
-    if (modalContainer) {
-      this.modalContainer = modalContainer;
+    this.props.setActiveModal(true);
+    document.addEventListener('keydown', this.handleKeyPress);
 
+    const modalContainer = this.props.modalContainerRef.current;
+    if (modalContainer) {
       // Mounting the container element immediately results in a graphical issue with the dialog
       // first rendering with the wrong proportions and then changing to the correct proportions.
       // Postponing it to the next event cycle solves this issue.
@@ -110,11 +138,11 @@ export class ModalAlert extends React.Component<IModalAlertProps> {
   }
 
   public componentWillUnmount() {
-    this.appendScheduler.cancel();
+    this.props.setActiveModal(false);
+    document.removeEventListener('keydown', this.handleKeyPress);
 
-    if (this.modalContainer) {
-      this.modalContainer.removeChild(this.element);
-    }
+    this.appendScheduler.cancel();
+    this.props.modalContainerRef.current?.removeChild(this.element);
   }
 
   public render() {
@@ -125,7 +153,7 @@ export class ModalAlert extends React.Component<IModalAlertProps> {
     return (
       <ModalBackground>
         <ModalAlertContainer>
-          <StyledModalAlert>
+          <StyledModalAlert role="alertdialog">
             {this.props.type && (
               <ModalAlertIcon>{this.renderTypeIcon(this.props.type)}</ModalAlertIcon>
             )}
@@ -157,6 +185,12 @@ export class ModalAlert extends React.Component<IModalAlertProps> {
       <ImageView height={44} width={44} source={source} tintColor={this.props.iconColor ?? color} />
     );
   }
+
+  private handleKeyPress = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      this.props.close?.();
+    }
+  };
 }
 
 export const ModalMessage = styled.span({

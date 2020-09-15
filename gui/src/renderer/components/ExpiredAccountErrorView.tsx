@@ -194,7 +194,8 @@ export default class ExpiredAccountErrorView extends React.Component<
             onClick={this.onCloseBlockWhenDisconnectedInstructions}>
             {messages.gettext('Close')}
           </AppButton.BlueButton>,
-        ]}>
+        ]}
+        close={this.onCloseBlockWhenDisconnectedInstructions}>
         <ModalMessage>
           {messages.pgettext(
             'connect-view',
