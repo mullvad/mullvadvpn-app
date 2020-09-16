@@ -160,10 +160,6 @@ class MullvadVpnService : TalpidVpnService() {
     inner class LocalBinder : Binder() {
         val serviceNotifier
             get() = this@MullvadVpnService.serviceNotifier
-
-        fun stop() {
-            this@MullvadVpnService.stop()
-        }
     }
 
     private fun setUp() {
