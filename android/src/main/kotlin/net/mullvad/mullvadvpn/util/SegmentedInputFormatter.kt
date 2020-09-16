@@ -127,8 +127,8 @@ class SegmentedInputFormatter(val input: EditText, var separator: Char) : TextWa
     }
 
     private fun formatSeparator(input: Editable, index: Int): Boolean {
-        if (index < input.length && input[index] != '-') {
-            input.insert(index, "-")
+        if (index < input.length && input[index] != separator) {
+            input.insert(index, "$separator")
             return true
         } else {
             return false
