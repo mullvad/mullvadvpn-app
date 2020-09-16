@@ -19,15 +19,15 @@ ipnetwork = "0.16"
 lazy_static = "1.0"
 libc = "0.2"
 log = "0.4"
-os_pipe = "0.8"
-parking_lot = "0.9"
+os_pipe = "0.9"
+parking_lot = "0.11"
 regex = "1.1.0"
 shell-escape = "0.1"
 talpid-types = { path = "../talpid-types" }
 uuid = { version = "0.8", features = ["v4"] }
 zeroize = "1"
 chrono = "0.4"
-tokio = { version = "0.2", features =  [ "io-util", "process", "rt-core", "rt-threaded", "stream"] }
+tokio = { version = "0.2", features =  [ "process", "rt-threaded", "stream" ] }
 rand = "0.7"
 
 
@@ -40,7 +40,6 @@ prost = "0.6"
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.18"
-tokio-io = "0.1"
 
 
 [target.'cfg(target_os = "android")'.dependencies]
@@ -52,7 +51,6 @@ dbus = "0.6"
 failure = "0.1"
 notify = "4.0"
 resolv-conf = "0.6.1"
-async-stream = "0.2"
 rtnetlink = "0.4"
 netlink-packet-core = "0.2"
 netlink-packet-utils = "0.2"
@@ -63,19 +61,19 @@ byteorder = "1"
 futures = { package = "futures", version = "0.3" }
 nftnl = { version = "0.5", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
-which = { version = "3.1", default-features = false }
-tun = "0.4.3"
+which = { version = "4.0", default-features = false }
+tun = "0.5"
 
 
 [target.'cfg(target_os = "macos")'.dependencies]
 pfctl = "0.4"
 system-configuration = "0.4"
-tun = "0.4.3"
+tun = "0.5"
 
 
 [target.'cfg(windows)'.dependencies]
 widestring = "0.4"
-winreg = "0.6"
+winreg = "0.7"
 winapi = { version = "0.3.6", features = ["handleapi", "ifdef", "libloaderapi", "netioapi", "synchapi", "winbase", "winuser"] }
 socket2 = "0.3"
 pnet_packet = "0.26"
