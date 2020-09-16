@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.ui.widget
 import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.method.DigitsKeyListener
 import android.text.style.MetricAffectingSpan
 import android.util.AttributeSet
 import android.view.LayoutInflater
@@ -48,6 +49,10 @@ class AccountInput : LinearLayout {
         onFocusChangeListener = OnFocusChangeListener { view, inputHasFocus ->
             hasFocus = inputHasFocus && view.isEnabled
         }
+
+        // Manually initializing the `DigitsKeyListener` allows spaces to be used and still keeps
+        // the input type as a number so that the correct software keyboard type is shown
+        keyListener = DigitsKeyListener.getInstance("01234567890 ")
     }
 
     private val button = container.findViewById<ImageButton>(R.id.login_button).apply {
