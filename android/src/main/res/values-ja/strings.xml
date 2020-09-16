@@ -61,7 +61,6 @@
     <string name="pay_to_start_using">アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。</string>
     <string name="problem_report_description">さらに効率よく問題解決を支援するため、お使いのアプリのログファイルをこのメッセージに添付します。個人データは匿名化された後に暗号化されたチャネルで送信されるため、その安全性は維持され、公開されることはありません。</string>
     <string name="public_key">公開鍵</string>
-    <string name="quit">アプリを終了する</string>
     <string name="reconnecting">再接続中</string>
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>
