@@ -69,12 +69,6 @@
                                                                android:layout_height="wrap_content"
                                                                android:layout_marginTop="@dimen/vertical_space"
                                                                mullvad:text="@string/report_a_problem" />
-                <Button android:id="@+id/quit_button"
-                        android:layout_marginHorizontal="@dimen/side_margin"
-                        android:layout_marginTop="@dimen/vertical_space"
-                        android:layout_marginBottom="@dimen/screen_vertical_margin"
-                        android:text="@string/quit"
-                        style="@style/RedButton" />
             </LinearLayout>
         </net.mullvad.mullvadvpn.ui.widget.ListenableScrollView>
     </LinearLayout>
