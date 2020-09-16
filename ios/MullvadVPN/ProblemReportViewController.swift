@@ -15,8 +15,8 @@ class ProblemReportViewController: UIViewController {
 
     let subheaderLabel = UILabel()
 
-    let emailTextField = EmailTextField()
-    let descriptionTextView = ProblemDescriptionTextView()
+    let emailTextField = CustomTextField()
+    let descriptionTextView = CustomTextView()
     let formContainerView = UIView()
 
     let actionFooter = UIStackView()
@@ -42,19 +42,15 @@ class ProblemReportViewController: UIViewController {
 
         emailTextField.borderStyle = .none
         emailTextField.backgroundColor = .white
-        emailTextField.layer.cornerRadius = 5
-        emailTextField.clipsToBounds = true
+        emailTextField.font = UIFont.systemFont(ofSize: 17)
         emailTextField.placeholder = NSLocalizedString("Your email (optional)", comment: "")
         emailTextField.setContentHuggingPriority(.defaultHigh, for: .vertical)
         emailTextField.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
 
         descriptionTextView.backgroundColor = .white
+        descriptionTextView.font = UIFont.systemFont(ofSize: 17)
         descriptionTextView.placeholder = NSLocalizedString("Describe your problem", comment: "")
         descriptionTextView.font = UIFont.systemFont(ofSize: 17)
-
-        descriptionTextView.layer.cornerRadius = 5
-        descriptionTextView.clipsToBounds = true
-
         descriptionTextView.setContentHuggingPriority(.defaultLow, for: .vertical)
         descriptionTextView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 
@@ -125,66 +121,4 @@ class ProblemReportViewController: UIViewController {
         NSLayoutConstraint.activate(constraints)
     }
 
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
-
-}
-
-class EmailTextField: UITextField {
-
-    override func textRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.insetBy(dx: 14, dy: 12)
-    }
-
-    override func editingRect(forBounds bounds: CGRect) -> CGRect {
-        return textRect(forBounds: bounds)
-    }
-
-}
-
-
-class ProblemDescriptionTextView: UITextView {
-
-    let placeholderTextLabel = UILabel()
-
-    var placeholder: String? {
-        set {
-            placeholderTextLabel.text = newValue
-        }
-        get {
-            return placeholderTextLabel.text
-        }
-    }
-
-    override init(frame: CGRect, textContainer: NSTextContainer?) {
-        super.init(frame: frame, textContainer: textContainer)
-
-        let placeholderColor = UIColor(red: 0.24, green: 0.24, blue: 0.26, alpha: 0.3)
-        placeholderTextLabel.translatesAutoresizingMaskIntoConstraints = false
-        placeholderTextLabel.textColor = placeholderColor
-        placeholderTextLabel.highlightedTextColor = placeholderColor
-
-        addSubview(placeholderTextLabel)
-
-        NSLayoutConstraint.activate([
-            placeholderTextLabel.topAnchor.constraint(equalTo: self.layoutMarginsGuide.topAnchor),
-            placeholderTextLabel.leadingAnchor.constraint(equalTo: self.layoutMarginsGuide.leadingAnchor),
-            placeholderTextLabel.trailingAnchor.constraint(equalTo: self.layoutMarginsGuide.trailingAnchor),
-        ])
-
-        contentInset = .zero
-        textContainerInset = UIEdgeInsets(top: 12, left: 14, bottom: 12, right: 14)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
 }
