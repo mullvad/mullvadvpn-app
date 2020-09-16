@@ -1,12 +1,10 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
     <EditText android:id="@+id/login_input"
-              android:digits="0123456789"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:layout_weight="1"
               android:paddingHorizontal="12dp"
               android:background="@drawable/account_input_background"
-              android:inputType="number"
               android:singleLine="true"
               android:imeOptions="flagNoPersonalizedLearning"
               android:textCursorDrawable="@drawable/text_input_cursor"
