@@ -169,12 +169,6 @@ class MainActivity : FragmentActivity() {
         startActivityForResult(intent, 0)
     }
 
-    fun quit() {
-        quitting = true
-        service?.stop()
-        finishAndRemoveTask()
-    }
-
     private fun tryToConnect() {
         serviceConnection?.apply {
             connectionProxy.connect()
