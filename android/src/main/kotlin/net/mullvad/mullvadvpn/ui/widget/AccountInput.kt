@@ -15,6 +15,7 @@ import android.widget.LinearLayout
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.LoginState
+import net.mullvad.mullvadvpn.util.SegmentedInputFormatter
 import net.mullvad.talpid.util.EventNotifier
 
 const val MIN_ACCOUNT_TOKEN_LENGTH = 10
@@ -53,6 +54,12 @@ class AccountInput : LinearLayout {
         // Manually initializing the `DigitsKeyListener` allows spaces to be used and still keeps
         // the input type as a number so that the correct software keyboard type is shown
         keyListener = DigitsKeyListener.getInstance("01234567890 ")
+
+        SegmentedInputFormatter(this, ' ').apply {
+            isValidInputCharacter = { character ->
+                '0' <= character && character <= '9'
+            }
+        }
     }
 
     private val button = container.findViewById<ImageButton>(R.id.login_button).apply {
