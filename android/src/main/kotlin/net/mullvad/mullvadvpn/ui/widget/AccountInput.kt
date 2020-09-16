@@ -8,9 +8,9 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnFocusChangeListener
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.TextView
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.LoginState
@@ -42,7 +42,7 @@ class AccountInput : LinearLayout {
         }
     }
 
-    private val input = container.findViewById<TextView>(R.id.login_input).apply {
+    private val input = container.findViewById<EditText>(R.id.login_input).apply {
         addTextChangedListener(inputWatcher)
 
         onFocusChangeListener = OnFocusChangeListener { view, inputHasFocus ->
@@ -94,7 +94,7 @@ class AccountInput : LinearLayout {
     }
 
     fun loginWith(accountNumber: String) {
-        input.text = accountNumber
+        input.setText(accountNumber)
         onLogin?.invoke(accountNumber)
     }
 
