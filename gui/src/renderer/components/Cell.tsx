@@ -154,12 +154,15 @@ export class Input extends React.Component<IInputProps, IInputState> {
       ...otherProps
     } = this.props;
 
+    const valid = validateValue?.(this.state.value);
+
     return (
       <CellDisabledContext.Consumer>
         {(disabled) => (
           <StyledInput
             type="text"
-            valid={validateValue?.(this.state.value)}
+            valid={valid}
+            aria-invalid={!valid}
             onChange={this.onChange}
             onFocus={this.onFocus}
             onBlur={this.onBlur}
