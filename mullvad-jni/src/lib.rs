@@ -724,6 +724,28 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_reconne
 
 #[no_mangle]
 #[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_removeAccountFromHistory(
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    accountToken: JString<'_>,
+) {
+    let env = JnixEnv::from(env);
+
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let account = String::from_java(&env, accountToken);
+
+        if let Err(error) = daemon_interface.remove_account_from_history(account) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to remove account from history")
+            );
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAccount(
     env: JNIEnv<'_>,
     _: JObject<'_>,
