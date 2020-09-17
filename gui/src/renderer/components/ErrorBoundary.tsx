@@ -79,7 +79,7 @@ export default class ErrorBoundary extends React.Component<IProps, IState> {
             <StyledContainer>
               <Logo height={106} width={106} source="logo-icon" />
               <Title>{messages.pgettext('generic', 'MULLVAD VPN')}</Title>
-              <Subtitle>{reachBackMessage}</Subtitle>
+              <Subtitle role="alert">{reachBackMessage}</Subtitle>
             </StyledContainer>
           </Layout>
         </PlatformWindowContainer>
