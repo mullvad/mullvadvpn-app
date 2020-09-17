@@ -9,13 +9,13 @@ publish = false
 
 [dependencies]
 clap = "2.25"
-dirs = "2.0"
+dirs = "3.0"
 env_logger = "0.7"
 err-derive = "0.2.1"
 lazy_static = "1.0"
 regex = "1.0"
 uuid = { version = "0.8", features = ["v4"] }
-tokio = { version = "0.2", features = [ "time", "rt-threaded", "net", "io-std", "io-driver" ] }
+tokio = { version = "0.2", features = [ "rt-core" ] }
 
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-rpc = { path = "../mullvad-rpc" }

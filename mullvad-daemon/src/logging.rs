@@ -1,4 +1,3 @@
-use chrono;
 use fern::{
     colors::{Color, ColoredLevelConfig},
     Output,

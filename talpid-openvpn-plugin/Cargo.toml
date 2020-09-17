@@ -15,7 +15,7 @@ err-derive = "0.2.1"
 log = "0.4"
 env_logger = "0.7"
 parity-tokio-ipc = "0.7"
-tokio = { package = "tokio", version = "0.2", features =  [ "rt-core", "rt-threaded"] }
+tokio = { version = "0.2", features =  [ "rt-core" ] }
 
 openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde", "log"] }
 talpid-types = { path = "../talpid-types" }

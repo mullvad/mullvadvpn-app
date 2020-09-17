@@ -2,6 +2,7 @@
 use nix::unistd::{execvp, getgid, getpid, getuid, setgid, setuid};
 #[cfg(target_os = "linux")]
 use std::{
+    convert::Infallible,
     env,
     error::Error as StdError,
     ffi::{CStr, CString, NulError},
@@ -70,7 +71,7 @@ fn main() {
 }
 
 #[cfg(target_os = "linux")]
-fn run() -> Result<void::Void, Error> {
+fn run() -> Result<Infallible, Error> {
     let mut args_iter = env::args_os().skip(1);
     let program = args_iter.next().ok_or(Error::InvalidArguments)?;
     let program = CString::new(program.as_bytes()).map_err(Error::ArgumentNulError)?;

@@ -12,4 +12,4 @@ err-derive = "0.2.1"
 log = "0.4"
 
 [target.'cfg(any(windows, target_os = "macos"))'.dependencies]
-dirs = "2.0"
+dirs = "3.0"
