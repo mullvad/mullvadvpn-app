@@ -106,6 +106,10 @@ class AccountLogin : RelativeLayout {
         get() = input.onLogin
         set(value) { input.onLogin = value }
 
+    var onRemoveFromHistory: ((String) -> Unit)?
+        get() = historyAdapter.onRemoveEntry
+        set(value) { historyAdapter.onRemoveEntry = value }
+
     constructor(context: Context) : super(context) {}
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {}
