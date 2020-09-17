@@ -33,6 +33,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Open and focus app when opened from context menu instead of toggling the window.
 
+#### Android
+- Removed the Quit button.
+
 ### Fixed
 - Stop resetting the firewall after an upgrade to not leak after an upgrade.
 
