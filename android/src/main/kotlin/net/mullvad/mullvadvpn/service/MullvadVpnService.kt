@@ -77,8 +77,12 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
-    private var isBound by observable(false) { _, _, isBound ->
-        notificationManager.lockedToForeground = isBound
+    private var isBound: Boolean by observable(false) { _, _, isBound ->
+        notificationManager.lockedToForeground = isUiVisible or isBound
+    }
+
+    private var isUiVisible: Boolean by observable(false) { _, _, isUiVisible ->
+        notificationManager.lockedToForeground = isUiVisible or isBound
     }
 
     override fun onCreate() {
@@ -160,6 +164,10 @@ class MullvadVpnService : TalpidVpnService() {
     inner class LocalBinder : Binder() {
         val serviceNotifier
             get() = this@MullvadVpnService.serviceNotifier
+
+        var isUiVisible
+            get() = this@MullvadVpnService.isUiVisible
+            set(value) { this@MullvadVpnService.isUiVisible = value }
     }
 
     private fun setUp() {
