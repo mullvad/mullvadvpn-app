@@ -136,7 +136,7 @@ const TitleBarItemContext = React.createContext({
   get titleContainerRef(): React.RefObject<HTMLDivElement> {
     throw Error('Missing TitleBarItemContext provider');
   },
-  get measuringTitleRef(): React.RefObject<HTMLSpanElement> {
+  get measuringTitleRef(): React.RefObject<HTMLHeadingElement> {
     throw Error('Missing TitleBarItemContext provider');
   },
 });
@@ -151,7 +151,7 @@ export const NavigationBar = function NavigationBarT(props: INavigationBarProps)
   const [titleAdjustment, setTitleAdjustment] = useState(0);
 
   const titleContainerRef = useRef() as React.RefObject<HTMLDivElement>;
-  const measuringTitleRef = useRef() as React.RefObject<HTMLSpanElement>;
+  const measuringTitleRef = useRef() as React.RefObject<HTMLHeadingElement>;
   const navigationBarRef = useRef() as React.RefObject<HTMLDivElement>;
 
   useLayoutEffect(() => {
@@ -215,10 +215,7 @@ export const TitleBarItem = React.memo(function TitleBarItemT(props: ITitleBarIt
 
   return (
     <StyledTitleBarItemContainer ref={titleContainerRef}>
-      <StyledTitleBarItemLabel
-        titleAdjustment={titleAdjustment}
-        visible={visible}
-        aria-hidden={!visible}>
+      <StyledTitleBarItemLabel titleAdjustment={titleAdjustment} visible={visible}>
         {props.children}
       </StyledTitleBarItemLabel>
 

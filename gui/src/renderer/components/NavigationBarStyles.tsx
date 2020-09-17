@@ -44,7 +44,7 @@ interface ITitleBarItemLabelProps {
   visible?: boolean;
 }
 
-export const StyledTitleBarItemLabel = styled.span({}, (props: ITitleBarItemLabelProps) => ({
+export const StyledTitleBarItemLabel = styled.h1({}, (props: ITitleBarItemLabelProps) => ({
   fontFamily: 'Open Sans',
   fontSize: '16px',
   fontWeight: 600,
