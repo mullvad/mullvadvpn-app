@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { messages } from '../../shared/gettext';
-import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaInputGroup';
+import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './Cell';
 import { Layout } from './Layout';
 import {

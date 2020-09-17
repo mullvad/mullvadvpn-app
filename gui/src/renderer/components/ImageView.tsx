@@ -7,7 +7,7 @@ export interface IImageViewProps extends IImageMaskProps {
   className?: string;
 }
 
-interface IImageMaskProps {
+interface IImageMaskProps extends React.HTMLAttributes<HTMLElement> {
   source: string;
   width?: number;
   height?: number;

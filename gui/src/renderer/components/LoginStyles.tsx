@@ -4,6 +4,16 @@ import ImageView from './ImageView';
 import * as Cell from './Cell';
 import { bigText, smallText } from './common-styles';
 
+export const StyledAccountDropdownContainer = styled.ul({
+  display: 'flex',
+  flexDirection: 'column',
+});
+
+export const StyledAccountDropdownRemoveButton = styled.button({
+  border: 'none',
+  background: 'none',
+});
+
 export const StyledAccountDropdownRemoveIcon = styled(ImageView)({
   justifyContent: 'center',
   paddingTop: '10px',
@@ -22,15 +32,24 @@ export const StyledInputSubmitIcon = styled(ImageView)((props: { visible: boolea
   opacity: props.visible ? 1 : 0,
 }));
 
+export const StyledAccountDropdownItem = styled.li({
+  display: 'flex',
+  flex: 1,
+  backgroundColor: colors.white60,
+  cursor: 'default',
+  ':hover': {
+    backgroundColor: colors.white40,
+  },
+});
+
 export const StyledAccountDropdownItemButton = styled(Cell.CellButton)({
   padding: '0px',
   marginBottom: '0px',
   flexDirection: 'row',
   alignItems: 'stretch',
-  backgroundColor: colors.white60,
-  cursor: 'default',
+  backgroundColor: 'transparent',
   ':not(:disabled):hover': {
-    backgroundColor: colors.white40,
+    backgroundColor: 'transparent',
   },
 });
 
@@ -83,7 +102,7 @@ interface IStyledAccountInputGroupProps {
   error: boolean;
 }
 
-export const StyledAccountInputGroup = styled.div((props: IStyledAccountInputGroupProps) => ({
+export const StyledAccountInputGroup = styled.form((props: IStyledAccountInputGroupProps) => ({
   borderWidth: '2px',
   borderStyle: 'solid',
   borderRadius: '8px',
@@ -124,7 +143,7 @@ export const StyledLoginFooterPrompt = styled.span({
   marginBottom: '8px',
 });
 
-export const StyledTitle = styled.span(bigText, {
+export const StyledTitle = styled.h1(bigText, {
   lineHeight: '40px',
   marginBottom: '7px',
   flex: 0,
