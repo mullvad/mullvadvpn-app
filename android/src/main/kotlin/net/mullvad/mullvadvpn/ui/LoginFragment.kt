@@ -47,8 +47,9 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loggedInStatus = view.findViewById(R.id.logged_in_status)
         loginFailStatus = view.findViewById(R.id.login_fail_status)
 
-        accountLogin = view.findViewById(R.id.account_login)
-        accountLogin.onLogin = { accountToken -> login(accountToken) }
+        accountLogin = view.findViewById<AccountLogin>(R.id.account_login).apply {
+            onLogin = { accountToken -> login(accountToken) }
+        }
 
         view.findViewById<Button>(R.id.create_account)
             .setOnClickAction("createAccount", jobTracker) { createAccount() }
