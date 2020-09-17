@@ -19,6 +19,7 @@ class AccountHistoryAdapter : Adapter<AccountHistoryHolder>() {
     }
 
     var onSelectEntry: ((String) -> Unit)? = null
+    var onRemoveEntry: ((String) -> Unit)? = null
 
     override fun onCreateViewHolder(parentView: ViewGroup, type: Int): AccountHistoryHolder {
         val inflater = LayoutInflater.from(parentView.context)
@@ -26,6 +27,7 @@ class AccountHistoryAdapter : Adapter<AccountHistoryHolder>() {
 
         return AccountHistoryHolder(view, formatter).apply {
             onSelect = { account -> onSelectEntry?.invoke(account) }
+            onRemove = { account -> onRemoveEntry?.invoke(account) }
         }
     }
 
