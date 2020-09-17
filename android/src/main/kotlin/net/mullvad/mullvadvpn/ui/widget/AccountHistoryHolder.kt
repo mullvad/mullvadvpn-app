@@ -18,10 +18,15 @@ class AccountHistoryHolder(
     }
 
     var onSelect: ((String) -> Unit)? = null
+    var onRemove: ((String) -> Unit)? = null
 
     init {
         view.setOnClickListener {
             onSelect?.invoke(accountToken)
+        }
+
+        view.findViewById<View>(R.id.remove).setOnClickListener {
+            onRemove?.invoke(accountToken)
         }
     }
 }
