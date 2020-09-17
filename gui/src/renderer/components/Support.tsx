@@ -5,7 +5,7 @@ import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import { Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalContainer } from './Modal';
-import { BackBarItem, NavigationBar, NavigationItems } from './NavigationBar';
+import { BackBarItem, NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import {
   StyledBlueButton,
@@ -159,6 +159,12 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
                     messages.pgettext('navigation-bar', 'Settings')
                   }
                 </BackBarItem>
+                <TitleBarItem>
+                  {
+                    // TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('support-view', 'Report a problem')
+                  }
+                </TitleBarItem>
               </NavigationItems>
             </NavigationBar>
             <StyledContentContainer>

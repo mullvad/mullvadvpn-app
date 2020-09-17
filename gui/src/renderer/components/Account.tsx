@@ -16,7 +16,7 @@ import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
 import { Layout } from './Layout';
 import { ModalContainer } from './Modal';
-import { BackBarItem, NavigationBar, NavigationItems } from './NavigationBar';
+import { BackBarItem, NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
@@ -45,6 +45,12 @@ export default class Account extends React.Component<IProps> {
                     messages.pgettext('navigation-bar', 'Settings')
                   }
                 </BackBarItem>
+                <TitleBarItem>
+                  {
+                    // TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('account-view', 'Account')
+                  }
+                </TitleBarItem>
               </NavigationItems>
             </NavigationBar>
 

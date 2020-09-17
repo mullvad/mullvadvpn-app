@@ -53,7 +53,7 @@ const BrandContainer = styled.div({
   alignItems: 'center',
 });
 
-const Title = styled.h1({
+const Title = styled.span({
   fontFamily: 'DINPro',
   fontSize: '24px',
   fontWeight: 900,
