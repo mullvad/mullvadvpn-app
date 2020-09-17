@@ -53,6 +53,7 @@
 		581CBCEE229826FD00727D7F /* StaticTableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */; };
 		58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB025124117005D0BB5 /* CustomTextField.swift */; };
 		58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB2251241B3005D0BB5 /* CustomTextView.swift */; };
+		58293FB725138B88005D0BB5 /* CustomNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB625138B88005D0BB5 /* CustomNavigationController.swift */; };
 		582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */; };
 		582AE3122440CA0D00E6733A /* AccountTokenInputTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582AE3112440CA0D00E6733A /* AccountTokenInputTests.swift */; };
 		582AE3132440CA2700E6733A /* AccountTokenInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */; };
@@ -288,6 +289,7 @@
 		581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticTableViewDataSource.swift; sourceTree = "<group>"; };
 		58293FB025124117005D0BB5 /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		58293FB2251241B3005D0BB5 /* CustomTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
+		58293FB625138B88005D0BB5 /* CustomNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationController.swift; sourceTree = "<group>"; };
 		582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountTokenInput.swift; sourceTree = "<group>"; };
 		582AE3112440CA0D00E6733A /* AccountTokenInputTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTokenInputTests.swift; sourceTree = "<group>"; };
 		582BB1AE229566420055B6EF /* SettingsCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsCell.swift; sourceTree = "<group>"; };
@@ -551,6 +553,7 @@
 				58AB9DEB2501040C006C5526 /* ConsentViewController.xib */,
 				5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */,
 				582BB1B0229569620055B6EF /* CustomNavigationBar.swift */,
+				58293FB625138B88005D0BB5 /* CustomNavigationController.swift */,
 				58293FB025124117005D0BB5 /* CustomTextField.swift */,
 				58293FB2251241B3005D0BB5 /* CustomTextView.swift */,
 				58C6B35D22BBBFE3003C19AD /* Data+HexCoding.swift */,
@@ -1049,6 +1052,7 @@
 				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
 				587AD7CA2342283900E93A53 /* Account.swift in Sources */,
 				58F840AF2464382C0044E708 /* KeychainItemRevision.swift in Sources */,
+				58293FB725138B88005D0BB5 /* CustomNavigationController.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
 				580EE20124B321D500F9D8A1 /* OperationProtocol.swift in Sources */,
 				5896AE84246D5889005B36CB /* CustomDateComponentsFormatting.swift in Sources */,
