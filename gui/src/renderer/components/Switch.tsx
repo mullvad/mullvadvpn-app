@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 
 interface IProps {
+  id?: string;
+  'aria-labelledby'?: string;
+  'aria-describedby'?: string;
   isOn: boolean;
   onChange?: (isOn: boolean) => void;
   className?: string;
@@ -47,7 +50,7 @@ const Knob = styled.div({}, (props: { isOn: boolean; isPressed: boolean; disable
   };
 });
 
-export default class Switch extends React.Component<IProps, IState> {
+export default class Switch extends React.PureComponent<IProps, IState> {
   public state: IState = {
     isOn: this.props.isOn,
     isPressed: false,
@@ -58,14 +61,6 @@ export default class Switch extends React.Component<IProps, IState> {
   private isPanning = false;
   private startPos = 0;
   private changedDuringPan = false;
-
-  public shouldComponentUpdate(nextProps: IProps, nextState: IState) {
-    return (
-      nextState.isOn !== this.state.isOn ||
-      nextState.isPressed !== this.state.isPressed ||
-      nextProps.isOn !== this.props.isOn
-    );
-  }
 
   public componentDidUpdate(prevProps: IProps, _prevState: IState) {
     if (
@@ -80,11 +75,15 @@ export default class Switch extends React.Component<IProps, IState> {
   public render() {
     return (
       <SwitchContainer
+        id={this.props.id}
         role="checkbox"
-        aria-checked={this.state.isOn}
+        aria-labelledby={this.props['aria-labelledby']}
+        aria-describedby={this.props['aria-describedby']}
+        aria-checked={this.props.isOn}
         ref={this.containerRef}
         onClick={this.handleClick}
         disabled={this.props.disabled ?? false}
+        aria-disabled={this.props.disabled ?? false}
         className={this.props.className}>
         <Knob
           disabled={this.props.disabled ?? false}
