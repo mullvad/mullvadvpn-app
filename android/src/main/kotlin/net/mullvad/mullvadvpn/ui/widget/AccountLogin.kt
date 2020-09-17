@@ -19,6 +19,10 @@ import net.mullvad.mullvadvpn.ui.LoginState
 import net.mullvad.mullvadvpn.ui.widget.AccountLoginBorder.BorderState
 
 class AccountLogin : RelativeLayout {
+    companion object {
+        private val MAX_ACCOUNT_HISTORY_ENTRIES = 3
+    }
+
     private val container =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
             val inflater = service as LayoutInflater
@@ -45,6 +49,9 @@ class AccountLogin : RelativeLayout {
 
         duration = 350
     }
+
+    private val maxHeight: Int
+        get() = MAX_ACCOUNT_HISTORY_ENTRIES * (historyEntryHeight + dividerHeight)
 
     private val expandedHeight: Int
         get() = collapsedHeight + historyHeight
@@ -177,7 +184,7 @@ class AccountLogin : RelativeLayout {
         val layoutParams = container.layoutParams as MarginLayoutParams
 
         layoutParams.height = height
-        layoutParams.bottomMargin = expandedHeight - height
+        layoutParams.bottomMargin = maxHeight - height
 
         container.layoutParams = layoutParams
     }
