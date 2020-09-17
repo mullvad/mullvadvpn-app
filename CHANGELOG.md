@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Removed the Quit button.
+- Add button to remove account and WireGuard key from history in the login screen.
 
 ### Fixed
 - Stop resetting the firewall after an upgrade to not leak after an upgrade.
