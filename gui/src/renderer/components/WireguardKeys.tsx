@@ -6,6 +6,7 @@ import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IWgKey, WgKeyState } from '../redux/settings/reducers';
 import * as AppButton from './AppButton';
+import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ClipboardLabel from './ClipboardLabel';
 import ImageView from './ImageView';
 import { Layout } from './Layout';
@@ -145,12 +146,23 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
                   <AppButton.BlockingButton
                     disabled={this.props.isOffline}
                     onClick={this.props.onVisitWebsiteKey}>
-                    <AppButton.BlueButton>
-                      <AppButton.Label>
-                        {messages.pgettext('wireguard-key-view', 'Manage keys')}
-                      </AppButton.Label>
-                      <AppButton.Icon source="icon-extLink" height={16} width={16} />
-                    </AppButton.BlueButton>
+                    <AriaDescriptionGroup>
+                      <AriaDescribed>
+                        <AppButton.BlueButton>
+                          <AppButton.Label>
+                            {messages.pgettext('wireguard-key-view', 'Manage keys')}
+                          </AppButton.Label>
+                          <AriaDescription>
+                            <AppButton.Icon
+                              source="icon-extLink"
+                              height={16}
+                              width={16}
+                              aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                            />
+                          </AriaDescription>
+                        </AppButton.BlueButton>
+                      </AriaDescribed>
+                    </AriaDescriptionGroup>
                   </AppButton.BlockingButton>
                 </StyledLastButtonRow>
               </StyledContent>

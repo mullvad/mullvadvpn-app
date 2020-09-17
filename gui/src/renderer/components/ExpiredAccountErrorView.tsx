@@ -6,6 +6,7 @@ import { AccountToken } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { LoginState } from '../redux/account/reducers';
 import * as AppButton from './AppButton';
+import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import * as Cell from './Cell';
 import {
   StyledAccountTokenContainer,
@@ -168,10 +169,21 @@ export default class ExpiredAccountErrorView extends React.Component<
       <AppButton.BlockingButton
         disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
         onClick={this.onOpenExternalPayment}>
-        <StyledBuyCreditButton>
-          <AppButton.Label>{buttonText}</AppButton.Label>
-          <AppButton.Icon source="icon-extLink" height={16} width={16} />
-        </StyledBuyCreditButton>
+        <AriaDescriptionGroup>
+          <AriaDescribed>
+            <StyledBuyCreditButton>
+              <AppButton.Label>{buttonText}</AppButton.Label>
+              <AriaDescription>
+                <AppButton.Icon
+                  source="icon-extLink"
+                  height={16}
+                  width={16}
+                  aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                />
+              </AriaDescription>
+            </StyledBuyCreditButton>
+          </AriaDescribed>
+        </AriaDescriptionGroup>
       </AppButton.BlockingButton>
     );
   }

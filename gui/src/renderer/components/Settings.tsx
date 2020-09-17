@@ -2,6 +2,7 @@ import * as React from 'react';
 import { colors, links } from '../../config.json';
 import { hasExpired, formatRemainingTime } from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
+import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import * as Cell from './Cell';
 import { Layout } from './Layout';
 import {
@@ -176,15 +177,24 @@ export default class Settings extends React.Component<IProps> {
     }
 
     return (
-      <>
-        <Cell.CellButton disabled={this.props.isOffline} onClick={this.openDownloadLink}>
-          {icon}
-          <Cell.Label>{messages.pgettext('settings-view', 'App version')}</Cell.Label>
-          <Cell.SubText>{this.props.appVersion}</Cell.SubText>
-          <Cell.Icon height={16} width={16} source="icon-extLink" />
-        </Cell.CellButton>
+      <AriaDescriptionGroup>
+        <AriaDescribed>
+          <Cell.CellButton disabled={this.props.isOffline} onClick={this.openDownloadLink}>
+            {icon}
+            <Cell.Label>{messages.pgettext('settings-view', 'App version')}</Cell.Label>
+            <Cell.SubText>{this.props.appVersion}</Cell.SubText>
+            <AriaDescription>
+              <Cell.Icon
+                height={16}
+                width={16}
+                source="icon-extLink"
+                aria-label={messages.pgettext('accessibility', 'Opens externally')}
+              />
+            </AriaDescription>
+          </Cell.CellButton>
+        </AriaDescribed>
         {footer}
-      </>
+      </AriaDescriptionGroup>
     );
   }
 
@@ -201,15 +211,26 @@ export default class Settings extends React.Component<IProps> {
           <Cell.Icon height={12} width={7} source="icon-chevron" />
         </Cell.CellButton>
 
-        <Cell.CellButton disabled={this.props.isOffline} onClick={this.openFaqLink}>
-          <Cell.Label>
-            {
-              // TRANSLATORS: Link to the webpage
-              messages.pgettext('settings-view', 'FAQs & Guides')
-            }
-          </Cell.Label>
-          <Cell.Icon height={16} width={16} source="icon-extLink" />
-        </Cell.CellButton>
+        <AriaDescriptionGroup>
+          <AriaDescribed>
+            <Cell.CellButton disabled={this.props.isOffline} onClick={this.openFaqLink}>
+              <Cell.Label>
+                {
+                  // TRANSLATORS: Link to the webpage
+                  messages.pgettext('settings-view', 'FAQs & Guides')
+                }
+              </Cell.Label>
+              <AriaDescription>
+                <Cell.Icon
+                  height={16}
+                  width={16}
+                  source="icon-extLink"
+                  aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                />
+              </AriaDescription>
+            </Cell.CellButton>
+          </AriaDescribed>
+        </AriaDescriptionGroup>
 
         <Cell.CellButton onClick={this.props.onViewSelectLanguage}>
           <StyledCellIcon width={24} height={24} source="icon-language" />
