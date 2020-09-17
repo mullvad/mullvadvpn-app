@@ -90,6 +90,13 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
         }
     }
 
+    fun removeAccountFromHistory(accountToken: String) {
+        jobTracker.newBackgroundJob("removeAccountFromHistory $accountToken") {
+            daemon.removeAccountFromHistory(accountToken)
+            fetchAccountHistory()
+        }
+    }
+
     fun onDestroy() {
         settingsListener.accountNumberNotifier.unsubscribe(this)
         jobTracker.cancelAllJobs()
