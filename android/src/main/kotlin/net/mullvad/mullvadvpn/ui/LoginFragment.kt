@@ -49,6 +49,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
         accountLogin = view.findViewById<AccountLogin>(R.id.account_login).apply {
             onLogin = { accountToken -> login(accountToken) }
+            onRemoveFromHistory = { account -> accountCache.removeAccountFromHistory(account) }
         }
 
         view.findViewById<Button>(R.id.create_account)
