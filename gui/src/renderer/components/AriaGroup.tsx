@@ -28,12 +28,40 @@ export function AriaControlGroup(props: IAriaGroupProps) {
   );
 }
 
+interface IAriaDescriptionContext {
+  descriptionId?: string;
+  setHasDescription: (value: boolean) => void;
+}
+
+const AriaDescriptionContext = React.createContext<IAriaDescriptionContext>({
+  setHasDescription(_value) {
+    throw new Error('Missing AriaDescriptionContext.Provider');
+  },
+});
+
+export function AriaDescriptionGroup(props: IAriaGroupProps) {
+  const id = useMemo(getNewId, []);
+  const [hasDescription, setHasDescription] = useState(false);
+
+  const contextValue = useMemo(
+    () => ({
+      descriptionId: hasDescription ? `${id}-description` : undefined,
+      setHasDescription,
+    }),
+    [hasDescription],
+  );
+
+  return (
+    <AriaDescriptionContext.Provider value={contextValue}>
+      {props.children}
+    </AriaDescriptionContext.Provider>
+  );
+}
+
 interface IAriaInputContext {
   inputId: string;
   labelId?: string;
-  descriptionId?: string;
   setHasLabel: (value: boolean) => void;
-  setHasDescription: (value: boolean) => void;
 }
 
 const missingAriaInputContextError = new Error('Missing AriaInputContext.Provider');
@@ -44,27 +72,26 @@ const AriaInputContext = React.createContext<IAriaInputContext>({
   setHasLabel() {
     throw missingAriaInputContextError;
   },
-  setHasDescription() {
-    throw missingAriaInputContextError;
-  },
 });
 
 export function AriaInputGroup(props: IAriaGroupProps) {
   const id = useMemo(getNewId, []);
 
   const [hasLabel, setHasLabel] = useState(false);
-  const [hasDescription, setHasDescription] = useState(false);
 
-  const contextValue = {
-    inputId: `${id}-input`,
-    labelId: hasLabel ? `${id}-label` : undefined,
-    descriptionId: hasDescription ? `${id}-description` : undefined,
-    setHasLabel,
-    setHasDescription,
-  };
+  const contextValue = useMemo(
+    () => ({
+      inputId: `${id}-input`,
+      labelId: hasLabel ? `${id}-label` : undefined,
+      setHasLabel,
+    }),
+    [hasLabel],
+  );
 
   return (
-    <AriaInputContext.Provider value={contextValue}>{props.children}</AriaInputContext.Provider>
+    <AriaDescriptionGroup>
+      <AriaInputContext.Provider value={contextValue}>{props.children}</AriaInputContext.Provider>
+    </AriaDescriptionGroup>
   );
 }
 
@@ -83,13 +110,16 @@ export function AriaControls(props: IAriaElementProps) {
 }
 
 export function AriaInput(props: IAriaElementProps) {
-  const { inputId, labelId, descriptionId } = useContext(AriaInputContext);
+  const { inputId, labelId } = useContext(AriaInputContext);
 
-  return React.cloneElement(props.children, {
-    id: inputId,
-    'aria-labelledby': labelId,
-    'aria-describedby': descriptionId,
-  });
+  return (
+    <AriaDescribed>
+      {React.cloneElement(props.children, {
+        id: inputId,
+        'aria-labelledby': labelId,
+      })}
+    </AriaDescribed>
+  );
 }
 
 export function AriaLabel(props: IAriaElementProps) {
@@ -106,8 +136,16 @@ export function AriaLabel(props: IAriaElementProps) {
   });
 }
 
+export function AriaDescribed(props: IAriaElementProps) {
+  const { descriptionId } = useContext(AriaDescriptionContext);
+
+  return React.cloneElement(props.children, {
+    'aria-describedby': descriptionId,
+  });
+}
+
 export function AriaDescription(props: IAriaElementProps) {
-  const { descriptionId, setHasDescription } = useContext(AriaInputContext);
+  const { descriptionId, setHasDescription } = useContext(AriaDescriptionContext);
 
   useEffect(() => {
     setHasDescription(true);
