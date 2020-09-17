@@ -153,6 +153,14 @@ impl DaemonInterface {
         Ok(())
     }
 
+    pub fn remove_account_from_history(&self, account_token: String) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::RemoveAccountFromHistory(tx, account_token))?;
+
+        block_on(rx).map_err(|_| Error::NoResponse)
+    }
+
     pub fn get_wireguard_key(&self) -> Result<Option<wireguard::PublicKey>> {
         let (tx, rx) = oneshot::channel();
 
