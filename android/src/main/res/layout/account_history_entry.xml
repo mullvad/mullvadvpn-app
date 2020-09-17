@@ -10,4 +10,10 @@
               android:textColor="@color/blue80"
               android:textSize="@dimen/text_medium_plus"
               android:textStyle="bold" />
+    <ImageButton android:id="@+id/remove"
+                 android:layout_width="@dimen/account_history_entry_height"
+                 android:layout_height="@dimen/account_history_entry_height"
+                 android:layout_gravity="right"
+                 android:background="?android:attr/selectableItemBackground"
+                 android:src="@drawable/account_history_remove" />
 </FrameLayout>
