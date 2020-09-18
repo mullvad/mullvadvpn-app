@@ -15,7 +15,7 @@ class RelayCountry(
         get() = cities.any { city -> city.active }
 
     override val hasChildren
-        get() = getRelayCount() > 0
+        get() = !cities.isEmpty()
 
     override val visibleChildCount: Int
         get() {
