@@ -18,14 +18,17 @@ protocol ConditionalNavigation: class {
     func shouldPopNavigationItem(_ navigationItem: UINavigationItem, trigger: NavigationPopTrigger) -> Bool
 }
 
-class CustomNavigationController: UINavigationController, UINavigationBarDelegate, UIGestureRecognizerDelegate {
+class CustomNavigationController: UINavigationController, UINavigationBarDelegate {
+
+    private var popGestureRecognizerDelegate: CustomPopGestureRecognizerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Since we take over the system delegate, we have to handle a couple of edge cases
-        // in `gestureRecognizerShouldBegin`
-        interactivePopGestureRecognizer?.delegate = self
+        popGestureRecognizerDelegate = CustomPopGestureRecognizerDelegate(navigationController: self, systemGestureRecognizerDelegate: interactivePopGestureRecognizer?.delegate)
+
+        // Replace the system interactive gesture recognizer
+        interactivePopGestureRecognizer?.delegate = popGestureRecognizerDelegate
     }
 
     func navigationBar(_ navigationBar: UINavigationBar, shouldPop item: UINavigationItem) -> Bool {
@@ -35,24 +38,47 @@ class CustomNavigationController: UINavigationController, UINavigationBarDelegat
 
         return true
     }
+}
+
+private class CustomPopGestureRecognizerDelegate: NSObject, UIGestureRecognizerDelegate {
+
+    private let systemGestureRecognizerDelegate: UIGestureRecognizerDelegate?
+    private weak var navigationController: UINavigationController?
+
+    init(navigationController: UINavigationController, systemGestureRecognizerDelegate: UIGestureRecognizerDelegate?) {
+        self.navigationController = navigationController
+        self.systemGestureRecognizerDelegate = systemGestureRecognizerDelegate
+    }
+
+    override func responds(to aSelector: Selector!) -> Bool {
+        if Self.instancesRespond(to: aSelector) {
+            return true
+        } else {
+            return systemGestureRecognizerDelegate?.responds(to: aSelector) ?? false
+        }
+    }
+
+    override func forwardingTarget(for aSelector: Selector!) -> Any? {
+        let shouldForward = systemGestureRecognizerDelegate?.responds(to: aSelector) ?? false
+
+        if shouldForward {
+            return systemGestureRecognizerDelegate
+        } else {
+            return nil
+        }
+    }
+
+    // MARK: - UIGestureRecognizerDelegate
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        guard gestureRecognizer == interactivePopGestureRecognizer else { return true }
-
-        // Ignore gesture recognition during animations
-        if let transitionCoordinator = transitionCoordinator, transitionCoordinator.isAnimated {
-            return false
+        let shouldBegin = systemGestureRecognizerDelegate?.gestureRecognizerShouldBegin?(gestureRecognizer) ?? true
+        
+        guard let navigationController = navigationController,
+            let topItem = navigationController.navigationBar.topItem,
+            let conformingViewController = navigationController.topViewController as? ConditionalNavigation else {
+                return shouldBegin
         }
-
-        // Ignore gesture recognition with less than two controllers on stack
-        if viewControllers.count < 2 {
-            return false
-        }
-
-        if let topItem = navigationBar.topItem, let conformingViewController = topViewController as? ConditionalNavigation {
-            return conformingViewController.shouldPopNavigationItem(topItem, trigger: .interactiveGesture)
-        }
-
-        return true
+        
+        return shouldBegin && conformingViewController.shouldPopNavigationItem(topItem, trigger: .interactiveGesture)
     }
 }
