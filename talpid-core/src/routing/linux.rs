@@ -6,11 +6,9 @@ use crate::{
 use talpid_types::ErrorExt;
 
 use ipnetwork::IpNetwork;
-use regex::Regex;
 use std::{
     collections::{BTreeMap, HashSet},
-    fs,
-    io::{self, BufRead, BufReader, Read, Seek, Write},
+    io,
     net::{IpAddr, Ipv4Addr},
 };
 
@@ -34,9 +32,6 @@ use rtnetlink::{
 };
 
 use libc::{AF_INET, AF_INET6};
-
-const ROUTING_TABLE_NAME: &str = "mullvad_exclusions";
-const RT_TABLES_PATH: &str = "/etc/iproute2/rt_tables";
 
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -70,11 +65,7 @@ pub enum Error {
     UnknownDeviceIndex(u32),
 
     /// Unable to create routing table for tagged connections and packets.
-    #[error(display = "Unable to create routing table for split tunneling")]
-    ExclusionsRoutingTableSetup(#[error(source)] io::Error),
-
-    /// Unable to create routing table for tagged connections and packets.
-    #[error(display = "Cannot find a free routing table ID in rt_tables")]
+    #[error(display = "Cannot find a free routing table ID")]
     NoFreeRoutingTableId,
 
     #[error(display = "Shutting down route manager")]
@@ -109,7 +100,7 @@ pub struct RouteManagerImpl {
     best_default_node_v4: Option<Node>,
     best_default_node_v6: Option<Node>,
 
-    split_table_id: i32,
+    split_table_id: u32,
 }
 
 impl RouteManagerImpl {
@@ -127,7 +118,9 @@ impl RouteManagerImpl {
         tokio::spawn(connection);
 
         let iface_map = Self::initialize_link_map(&handle).await?;
-        let split_table_id = Self::initialize_exclusions_table().await?;
+        let split_table_id = Self::find_free_table_id(&handle).await?;
+
+        log::trace!("Using table id {} for excluded apps", split_table_id);
 
         let mut monitor = Self {
             iface_map,
@@ -155,8 +148,8 @@ impl RouteManagerImpl {
         Ok(monitor)
     }
 
-    async fn find_free_table_id(&self) -> Result<u32> {
-        let mut request = self.handle.route().get(IpVersion::V4).execute();
+    async fn find_free_table_id(handle: &rtnetlink::Handle) -> Result<u32> {
+        let mut request = handle.route().get(IpVersion::V4).execute();
         let mut used_ids = HashSet::new();
 
         while let Some(route) = request.try_next().await.map_err(Error::NetlinkError)? {
@@ -188,76 +181,6 @@ impl RouteManagerImpl {
         }
 
         Err(Error::NoFreeRoutingTableId)
-    }
-
-    /// Set up policy-based routing table for marked packets.
-    /// Returns the routing table id.
-    async fn initialize_exclusions_table() -> Result<i32> {
-        // Add routing table to /etc/iproute2/rt_tables, if it does not exist
-
-        let file = fs::OpenOptions::new()
-            .read(true)
-            .open(RT_TABLES_PATH)
-            .map_err(Error::ExclusionsRoutingTableSetup)?;
-        let buf_reader = BufReader::new(file);
-        let expression = Regex::new(r"^\s*(\d+)\s+(\w+)").unwrap();
-
-        let mut used_ids = Vec::<i32>::new();
-
-        for line in buf_reader.lines() {
-            let line = line.map_err(Error::ExclusionsRoutingTableSetup)?;
-            if let Some(captures) = expression.captures(&line) {
-                let table_id = captures
-                    .get(1)
-                    .unwrap()
-                    .as_str()
-                    .parse::<i32>()
-                    .expect("Table ID does not fit i32");
-                let table_name = captures.get(2).unwrap().as_str();
-
-                if table_name == ROUTING_TABLE_NAME {
-                    // The table has already been added
-                    return Ok(table_id);
-                }
-
-                used_ids.push(table_id);
-            }
-        }
-
-        used_ids.sort_unstable();
-
-        // Assign a free id to the table
-        let mut table_id = 1;
-        loop {
-            if used_ids.binary_search(&table_id).is_err() {
-                break;
-            }
-
-            table_id += 1;
-
-            if table_id >= 256 {
-                return Err(Error::NoFreeRoutingTableId);
-            }
-        }
-
-        let mut file = fs::OpenOptions::new()
-            .read(true)
-            .append(true)
-            .open(RT_TABLES_PATH)
-            .map_err(Error::ExclusionsRoutingTableSetup)?;
-
-        if let Ok(_) = file.seek(io::SeekFrom::End(-1)) {
-            // Append newline if necessary
-            let mut buffer = [0u8];
-            let _ = file.read_exact(&mut buffer);
-            if buffer[0] != b'\n' {
-                writeln!(file).map_err(Error::ExclusionsRoutingTableSetup)?;
-            }
-        }
-
-        writeln!(file, "{} {}", table_id, ROUTING_TABLE_NAME)
-            .map_err(Error::ExclusionsRoutingTableSetup)?;
-        Ok(table_id)
     }
 
     /// Route PID-associated packets through the physical interface.
