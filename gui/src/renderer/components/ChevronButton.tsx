@@ -3,11 +3,14 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as Cell from './Cell';
 
-interface IProps {
+interface IProps extends React.HTMLAttributes<HTMLButtonElement> {
   up: boolean;
-  onClick?: (event: React.MouseEvent) => void;
-  className?: string;
 }
+
+const Button = styled.button({
+  border: 'none',
+  background: 'none',
+});
 
 const Icon = styled(Cell.Icon)({
   flex: 0,
@@ -16,15 +19,17 @@ const Icon = styled(Cell.Icon)({
 });
 
 export default function ChevronButton(props: IProps) {
+  const { up, ...otherProps } = props;
+
   return (
-    <Icon
-      tintColor={colors.white80}
-      tintHoverColor={colors.white}
-      onClick={props.onClick}
-      source={props.up ? 'icon-chevron-up' : 'icon-chevron-down'}
-      height={24}
-      width={24}
-      className={props.className}
-    />
+    <Button {...otherProps}>
+      <Icon
+        tintColor={colors.white80}
+        tintHoverColor={colors.white}
+        source={up ? 'icon-chevron-up' : 'icon-chevron-down'}
+        height={24}
+        width={24}
+      />
+    </Button>
   );
 }

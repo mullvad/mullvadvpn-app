@@ -9,9 +9,7 @@ import {
 } from '../../shared/daemon-rpc-types';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
 import * as Cell from './Cell';
-import CityRow from './CityRow';
-import CountryRow from './CountryRow';
-import RelayRow from './RelayRow';
+import LocationRow from './LocationRow';
 
 export enum LocationSelectionType {
   relay = 'relay',
@@ -264,13 +262,13 @@ interface IRelayLocationsProps {
   onTransitionEnd?: () => void;
 }
 
-interface ICommonCellProps<T> {
+interface ICommonCellProps {
   location: RelayLocation;
   selected: boolean;
-  ref?: React.Ref<T>;
+  ref?: React.Ref<HTMLDivElement>;
 }
 
-export class RelayLocations extends React.Component<IRelayLocationsProps> {
+export class RelayLocations extends React.PureComponent<IRelayLocationsProps> {
   public render() {
     return (
       <>
@@ -278,51 +276,51 @@ export class RelayLocations extends React.Component<IRelayLocationsProps> {
           const countryLocation: RelayLocation = { country: relayCountry.code };
 
           return (
-            <CountryRow
+            <LocationRow
               key={getLocationKey(countryLocation)}
               name={relayCountry.name}
-              hasActiveRelays={relayCountry.hasActiveRelays}
+              active={relayCountry.hasActiveRelays}
               expanded={this.isExpanded(countryLocation)}
               onSelect={this.handleSelection}
               onExpand={this.handleExpand}
               onWillExpand={this.props.onWillExpand}
               onTransitionEnd={this.props.onTransitionEnd}
-              {...this.getCommonCellProps<CountryRow>(countryLocation)}>
+              {...this.getCommonCellProps(countryLocation)}>
               {relayCountry.cities.map((relayCity) => {
                 const cityLocation: RelayLocation = {
                   city: [relayCountry.code, relayCity.code],
                 };
 
                 return (
-                  <CityRow
+                  <LocationRow
                     key={getLocationKey(cityLocation)}
                     name={relayCity.name}
-                    hasActiveRelays={relayCity.hasActiveRelays}
+                    active={relayCity.hasActiveRelays}
                     expanded={this.isExpanded(cityLocation)}
                     onSelect={this.handleSelection}
                     onExpand={this.handleExpand}
                     onWillExpand={this.props.onWillExpand}
                     onTransitionEnd={this.props.onTransitionEnd}
-                    {...this.getCommonCellProps<CityRow>(cityLocation)}>
+                    {...this.getCommonCellProps(cityLocation)}>
                     {relayCity.relays.map((relay) => {
                       const relayLocation: RelayLocation = {
                         hostname: [relayCountry.code, relayCity.code, relay.hostname],
                       };
 
                       return (
-                        <RelayRow
+                        <LocationRow
                           key={getLocationKey(relayLocation)}
+                          name={relay.hostname}
                           active={relay.active}
-                          hostname={relay.hostname}
                           onSelect={this.handleSelection}
-                          {...this.getCommonCellProps<RelayRow>(relayLocation)}
+                          {...this.getCommonCellProps(relayLocation)}
                         />
                       );
                     })}
-                  </CityRow>
+                  </LocationRow>
                 );
               })}
-            </CountryRow>
+            </LocationRow>
           );
         })}
       </>
@@ -353,12 +351,12 @@ export class RelayLocations extends React.Component<IRelayLocationsProps> {
     }
   };
 
-  private getCommonCellProps<T>(location: RelayLocation): ICommonCellProps<T> {
+  private getCommonCellProps(location: RelayLocation): ICommonCellProps {
     const selected = this.isSelected(location);
     const ref =
       selected && this.props.selectedElementRef ? this.props.selectedElementRef : undefined;
 
-    return { ref: ref as React.Ref<T>, selected, location };
+    return { ref: ref as React.Ref<HTMLDivElement>, selected, location };
   }
 }
 
