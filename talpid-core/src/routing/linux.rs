@@ -263,7 +263,9 @@ impl RouteManagerImpl {
             Ok(mut response) => {
                 while let Some(message) = response.next().await {
                     if let NetlinkPayload::Error(error) = message.payload {
-                        log::warn!("Failed to delete routing policy: {}", error);
+                        if error.to_io().kind() != io::ErrorKind::NotFound {
+                            log::warn!("Failed to delete routing policy: {}", error);
+                        }
                     }
                 }
             }
