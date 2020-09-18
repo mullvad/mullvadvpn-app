@@ -15,7 +15,7 @@ import {
   StyledTunnelProtocolContainer,
 } from './AdvancedSettingsStyles';
 import * as AppButton from './AppButton';
-import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaInputGroup';
+import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './Cell';
 import { Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';

@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
 import consumePromise from '../../shared/promise';
 import { messages } from '../../shared/gettext';
@@ -9,8 +10,11 @@ import { Brand, HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
 import {
+  StyledAccountDropdownContainer,
+  StyledAccountDropdownItem,
   StyledAccountDropdownItemButton,
   StyledAccountDropdownItemButtonLabel,
+  StyledAccountDropdownRemoveButton,
   StyledAccountDropdownRemoveIcon,
   StyledAccountInputBackdrop,
   StyledAccountInputGroup,
@@ -28,6 +32,7 @@ import {
 
 import { AccountToken } from '../../shared/daemon-rpc-types';
 import { LoginState } from '../redux/account/reducers';
+import { AriaControlGroup, AriaControlled, AriaControls } from './AriaGroup';
 
 interface IProps {
   accountToken?: AccountToken;
@@ -88,7 +93,7 @@ export default class Login extends React.Component<IProps, IState> {
         <Container>
           <StyledLoginForm>
             {this.getStatusIcon()}
-            <StyledTitle>{this.formTitle()}</StyledTitle>
+            <StyledTitle aria-live="polite">{this.formTitle()}</StyledTitle>
 
             {this.createLoginForm()}
           </StyledLoginForm>
@@ -115,7 +120,9 @@ export default class Login extends React.Component<IProps, IState> {
     this.setState({ isActive: false });
   };
 
-  private onSubmit = () => {
+  private onSubmit = (event?: React.FormEvent) => {
+    event?.preventDefault();
+
     if (this.accountTokenValid()) {
       this.props.login(this.props.accountToken!);
     }
@@ -130,12 +137,6 @@ export default class Login extends React.Component<IProps, IState> {
 
     const accountToken = event.target.value.replace(/[^0-9]/g, '');
     this.props.updateAccountToken(accountToken);
-  };
-
-  private onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      this.onSubmit();
-    }
   };
 
   private formTitle() {
@@ -239,6 +240,7 @@ export default class Login extends React.Component<IProps, IState> {
 
   private createLoginForm() {
     const allowInteraction = this.allowInteraction();
+    const allowLogin = allowInteraction && this.accountTokenValid();
     const hasError =
       this.props.loginState.type === 'failed' &&
       this.props.loginState.method === 'existing_account';
@@ -249,7 +251,8 @@ export default class Login extends React.Component<IProps, IState> {
         <StyledAccountInputGroup
           active={allowInteraction && this.state.isActive}
           editable={allowInteraction}
-          error={hasError}>
+          error={hasError}
+          onSubmit={this.onSubmit}>
           <StyledAccountInputBackdrop>
             <StyledInput
               placeholder="0000 0000 0000 0000"
@@ -258,12 +261,18 @@ export default class Login extends React.Component<IProps, IState> {
               onFocus={this.onFocus}
               onBlur={this.onBlur}
               onChange={this.onInputChange}
-              onKeyPress={this.onKeyPress}
               autoFocus={true}
               ref={this.accountInput}
+              aria-autocomplete="list"
             />
             <StyledInputButton
-              visible={this.allowInteraction() && this.accountTokenValid()}
+              type="submit"
+              visible={allowLogin}
+              disabled={!allowLogin}
+              aria-label={
+                // TRANSLATORS: This is used by screenreaders to communicate the login button.
+                messages.pgettext('accessibility', 'Login')
+              }
               onClick={this.onSubmit}>
               <StyledInputSubmitIcon
                 visible={this.props.loginState.type !== 'logging in'}
@@ -275,13 +284,13 @@ export default class Login extends React.Component<IProps, IState> {
             </StyledInputButton>
           </StyledAccountInputBackdrop>
           <Accordion expanded={this.shouldShowAccountHistory()}>
-            {
+            <StyledAccountDropdownContainer>
               <AccountDropdown
                 items={this.props.accountHistory.slice().reverse()}
                 onSelect={this.onSelectAccountFromHistory}
                 onRemove={this.onRemoveAccountFromHistory}
               />
-            }
+            </StyledAccountDropdownContainer>
           </Accordion>
         </StyledAccountInputGroup>
       </>
@@ -349,19 +358,38 @@ function AccountDropdownItem(props: IAccountDropdownItemProps) {
   return (
     <>
       <StyledDropdownSpacer />
-      <StyledAccountDropdownItemButton>
-        <StyledAccountDropdownItemButtonLabel onClick={handleSelect}>
-          {props.label}
-        </StyledAccountDropdownItemButtonLabel>
-        <StyledAccountDropdownRemoveIcon
-          tintColor={colors.blue40}
-          tintHoverColor={colors.blue}
-          source="icon-close-sml"
-          height={16}
-          width={16}
-          onClick={handleRemove}
-        />
-      </StyledAccountDropdownItemButton>
+      <StyledAccountDropdownItem>
+        <AriaControlGroup>
+          <AriaControlled>
+            <StyledAccountDropdownItemButton id={props.label} onClick={handleSelect}>
+              <StyledAccountDropdownItemButtonLabel>
+                {props.label}
+              </StyledAccountDropdownItemButtonLabel>
+            </StyledAccountDropdownItemButton>
+          </AriaControlled>
+          <AriaControls>
+            <StyledAccountDropdownRemoveButton
+              onClick={handleRemove}
+              aria-controls={props.label}
+              aria-label={
+                // TRANSLATORS: This is used by screenreaders to communicate the "x" button next to a saved account number.
+                // TRANSLATORS: Available placeholders:
+                // TRANSLATORS: %(accountToken)s - the account token to the left of the button
+                sprintf(messages.pgettext('accessibility', 'Forget %(accountToken)s'), {
+                  accountToken: props.label,
+                })
+              }>
+              <StyledAccountDropdownRemoveIcon
+                tintColor={colors.blue40}
+                tintHoverColor={colors.blue}
+                source="icon-close-sml"
+                height={16}
+                width={16}
+              />
+            </StyledAccountDropdownRemoveButton>
+          </AriaControls>
+        </AriaControlGroup>
+      </StyledAccountDropdownItem>
     </>
   );
 }

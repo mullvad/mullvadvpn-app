@@ -5,6 +5,29 @@ function getNewId() {
   return groupCounter++;
 }
 
+interface IAriaControlContext {
+  controlledId: string;
+}
+
+const AriaControlContext = React.createContext<IAriaControlContext>({
+  get controlledId(): string {
+    throw new Error('Missing AriaControlContext.Provider');
+  },
+});
+
+interface IAriaGroupProps {
+  children: React.ReactNode;
+}
+
+export function AriaControlGroup(props: IAriaGroupProps) {
+  const id = useMemo(getNewId, []);
+  const contextValue = useMemo(() => ({ controlledId: `${id}-controlled` }), []);
+
+  return (
+    <AriaControlContext.Provider value={contextValue}>{props.children}</AriaControlContext.Provider>
+  );
+}
+
 interface IAriaInputContext {
   inputId: string;
   labelId?: string;
@@ -26,11 +49,7 @@ const AriaInputContext = React.createContext<IAriaInputContext>({
   },
 });
 
-interface IAriaInputGroupProps {
-  children: React.ReactNode;
-}
-
-export function AriaInputGroup(props: IAriaInputGroupProps) {
+export function AriaInputGroup(props: IAriaGroupProps) {
   const id = useMemo(getNewId, []);
 
   const [hasLabel, setHasLabel] = useState(false);
@@ -51,6 +70,16 @@ export function AriaInputGroup(props: IAriaInputGroupProps) {
 
 interface IAriaElementProps {
   children: React.ReactElement;
+}
+
+export function AriaControlled(props: IAriaElementProps) {
+  const { controlledId } = useContext(AriaControlContext);
+  return React.cloneElement(props.children, { id: controlledId });
+}
+
+export function AriaControls(props: IAriaElementProps) {
+  const { controlledId } = useContext(AriaControlContext);
+  return React.cloneElement(props.children, { 'aria-controls': controlledId });
 }
 
 export function AriaInput(props: IAriaElementProps) {
