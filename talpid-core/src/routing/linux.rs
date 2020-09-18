@@ -155,6 +155,41 @@ impl RouteManagerImpl {
         Ok(monitor)
     }
 
+    async fn find_free_table_id(&self) -> Result<u32> {
+        let mut request = self.handle.route().get(IpVersion::V4).execute();
+        let mut used_ids = HashSet::new();
+
+        while let Some(route) = request.try_next().await.map_err(Error::NetlinkError)? {
+            let mut id_found = false;
+            for nla in route.nlas {
+                match nla {
+                    RouteNla::Table(id) => {
+                        used_ids.insert(id);
+                        id_found = true;
+                        break;
+                    }
+                    _ => (),
+                }
+            }
+
+            if !id_found {
+                // Use old header ID
+                used_ids.insert(u32::from(route.header.table));
+            }
+        }
+
+        for id in 1..u32::MAX {
+            if id == RT_TABLE_COMPAT as u32 {
+                continue;
+            }
+            if !used_ids.contains(&id) {
+                return Ok(id);
+            }
+        }
+
+        Err(Error::NoFreeRoutingTableId)
+    }
+
     /// Set up policy-based routing table for marked packets.
     /// Returns the routing table id.
     async fn initialize_exclusions_table() -> Result<i32> {
