@@ -50,6 +50,4 @@ class RelayCountry(
 
         return GetItemResult.Count(itemCount)
     }
-
-    fun getRelayCount(): Int = cities.map { city -> city.getRelayCount() }.sum()
 }
