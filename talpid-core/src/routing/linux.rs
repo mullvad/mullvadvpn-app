@@ -12,7 +12,6 @@ use std::{
     fs,
     io::{self, BufRead, BufReader, Read, Seek, Write},
     net::{IpAddr, Ipv4Addr},
-    process::Command,
 };
 
 use futures::{channel::mpsc::UnboundedReceiver, future::FutureExt, StreamExt, TryStreamExt};
@@ -25,6 +24,7 @@ use netlink_packet_route::{
         constants::{RTN_UNICAST, RTPROT_STATIC, RT_SCOPE_UNIVERSE, RT_TABLE_MAIN},
         RouteFlags,
     },
+    rule::{nlas::Nla as RuleNla, RuleHeader, RuleMessage},
     NetlinkMessage, NetlinkPayload, RtnlMessage,
 };
 use rtnetlink::{
@@ -228,29 +228,17 @@ impl RouteManagerImpl {
     /// Route PID-associated packets through the physical interface.
     async fn enable_exclusions_routes(&mut self) -> Result<()> {
         // TODO: IPv6
+        use netlink_packet_route::constants::*;
 
-        let table_id_str = &self.split_table_id.to_string();
+        let mut req = NetlinkMessage::from(RtnlMessage::NewRule(self.fwmark_rule_message()));
+        req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_CREATE | NLM_F_REPLACE;
 
-        // Create the rule if it does not exist
-        let mut cmd = Command::new("ip");
-        cmd.args(&["-4", "rule", "list", "table", table_id_str]);
-        log::trace!("running cmd - {:?}", &cmd);
-        let out = cmd.output().map_err(Error::ExecFailed)?;
+        let mut response = self.handle.request(req).map_err(Error::NetlinkError)?;
 
-        let missing_rule =
-            !out.status.success() || String::from_utf8_lossy(&out.stdout).trim().is_empty();
-        if missing_rule {
-            exec_ip(&[
-                "-4",
-                "rule",
-                "add",
-                "from",
-                "all",
-                "fwmark",
-                &split_tunnel::MARK.to_string(),
-                "lookup",
-                table_id_str,
-            ])?;
+        while let Some(message) = response.next().await {
+            if let NetlinkPayload::Error(error) = message.payload {
+                return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(error)));
+            }
         }
 
         // Add default route for the exclusions table
@@ -264,21 +252,40 @@ impl RouteManagerImpl {
     }
 
     /// Stop routing PID-associated packets through the physical interface.
-    async fn disable_exclusions_routes(&self) {
+    async fn disable_exclusions_routes(&mut self) {
         // TODO: IPv6
+        use netlink_packet_route::constants::*;
 
-        if let Err(e) = exec_ip(&[
-            "-4",
-            "rule",
-            "del",
-            "from",
-            "all",
-            "fwmark",
-            &split_tunnel::MARK.to_string(),
-            "lookup",
-            &self.split_table_id.to_string(),
-        ]) {
-            log::warn!("Failed to delete routing policy: {}", e);
+        let mut req = NetlinkMessage::from(RtnlMessage::DelRule(self.fwmark_rule_message()));
+        req.header.flags = NLM_F_REQUEST | NLM_F_ACK;
+
+        match self.handle.request(req).map_err(Error::NetlinkError) {
+            Ok(mut response) => {
+                while let Some(message) = response.next().await {
+                    if let NetlinkPayload::Error(error) = message.payload {
+                        log::warn!("Failed to delete routing policy: {}", error);
+                    }
+                }
+            }
+            Err(error) => log::warn!("Failed to delete routing policy: {}", error),
+        }
+    }
+
+    fn fwmark_rule_message(&self) -> RuleMessage {
+        use netlink_packet_route::constants::*;
+
+        RuleMessage {
+            header: RuleHeader {
+                family: AF_INET as u8,
+                action: FR_ACT_TO_TBL,
+                src_len: 0,
+                ..RuleHeader::default()
+            },
+            nlas: vec![
+                RuleNla::Source(ip_to_bytes(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)))),
+                RuleNla::FwMark(split_tunnel::MARK as u32),
+                RuleNla::Table(self.split_table_id as u32),
+            ],
         }
     }
 
@@ -864,20 +871,6 @@ fn ip_to_bytes(addr: IpAddr) -> Vec<u8> {
     match addr {
         IpAddr::V4(addr) => addr.octets().to_vec(),
         IpAddr::V6(addr) => addr.octets().to_vec(),
-    }
-}
-
-fn exec_ip(args: &[&str]) -> Result<()> {
-    let mut cmd = Command::new("ip");
-    cmd.args(args);
-
-    log::trace!("running cmd - {:?}", &cmd);
-
-    let status = cmd.status().map_err(Error::ExecFailed)?;
-    if status.success() {
-        Ok(())
-    } else {
-        Err(Error::IpFailed)
     }
 }
 
