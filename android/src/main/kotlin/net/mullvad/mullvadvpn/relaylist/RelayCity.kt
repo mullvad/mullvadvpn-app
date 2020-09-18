@@ -53,6 +53,4 @@ class RelayCity(
             return 1
         }
     }
-
-    fun getRelayCount(): Int = relays.size
 }
