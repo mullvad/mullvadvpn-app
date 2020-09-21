@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.ui
 import android.animation.Animator
 import android.animation.Animator.AnimatorListener
 import android.animation.ObjectAnimator
-import android.content.Context
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
@@ -51,12 +50,6 @@ class SplitTunnelingFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
     private lateinit var excludeApplications: View
     private lateinit var loadingSpinner: View
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-
-        appListAdapter = AppListAdapter(context, splitTunneling)
-    }
-
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -69,6 +62,8 @@ class SplitTunnelingFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
         }
 
         titleController = CollapsibleTitleController(view, R.id.app_list)
+
+        appListAdapter = AppListAdapter(parentActivity, splitTunneling)
 
         view.findViewById<CustomRecyclerView>(R.id.app_list).apply {
             layoutManager = LinearLayoutManager(parentActivity)
