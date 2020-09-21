@@ -60,9 +60,6 @@ pub enum Error {
     #[error(display = "Invalid network prefix")]
     InvalidNetworkPrefix(#[error(source)] ipnetwork::IpNetworkError),
 
-    #[error(display = "Failed to initialize event loop")]
-    EventLoopError(#[error(source)] io::Error),
-
     #[error(display = "Unknown device index - {}", _0)]
     UnknownDeviceIndex(u32),
 
@@ -72,14 +69,6 @@ pub enum Error {
 
     #[error(display = "Shutting down route manager")]
     Shutdown,
-
-    /// Failed to run the process.
-    #[error(display = "Unable to execute process")]
-    ExecFailed(#[error(source)] io::Error),
-
-    /// ip command returned an error status.
-    #[error(display = "ip command failed")]
-    IpFailed,
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
