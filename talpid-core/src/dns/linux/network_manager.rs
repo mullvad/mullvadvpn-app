@@ -1,7 +1,8 @@
 use dbus::{
     arg::{Append, RefArg, Variant},
-    stdintf::*,
-    BusType, Member, Message,
+    ffidisp::{stdintf::*, BusType, ConnPath, Connection},
+    message::Message,
+    strings::Member,
 };
 use lazy_static::lazy_static;
 use std::{
@@ -72,7 +73,7 @@ lazy_static! {
 }
 
 pub struct NetworkManager {
-    dbus_connection: dbus::Connection,
+    dbus_connection: Connection,
     device: Option<dbus::Path<'static>>,
     settings_backup: Option<HashMap<String, HashMap<String, Variant<Box<dyn RefArg>>>>>,
 }
@@ -80,8 +81,7 @@ pub struct NetworkManager {
 
 impl NetworkManager {
     pub fn new() -> Result<Self> {
-        let dbus_connection =
-            dbus::Connection::get_private(BusType::System).map_err(Error::Dbus)?;
+        let dbus_connection = Connection::get_private(BusType::System).map_err(Error::Dbus)?;
         let manager = NetworkManager {
             dbus_connection,
             device: None,
@@ -134,7 +134,7 @@ impl NetworkManager {
         Ok(())
     }
 
-    fn as_manager(&self) -> dbus::ConnPath<'_, &dbus::Connection> {
+    fn as_manager(&self) -> ConnPath<'_, &Connection> {
         self.dbus_connection
             .with_path(NM_BUS, NM_OBJECT_PATH, RPC_TIMEOUT_MS)
     }
