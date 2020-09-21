@@ -3,6 +3,7 @@ import { useHistory } from 'react-router';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { FocusFallback } from './Focus';
 import ImageView from './ImageView';
 
 export enum HeaderBarStyle {
@@ -69,7 +70,17 @@ const Logo = styled(ImageView)({
 export function Brand() {
   return (
     <BrandContainer>
-      <Logo width={44} height={44} source="logo-icon" />
+      <FocusFallback>
+        <Logo
+          width={44}
+          height={44}
+          source="logo-icon"
+          aria-label={
+            // TRANSLATORS: This communicates the logo image to users of screen readers
+            messages.pgettext('accessibility', 'Mullvad logo')
+          }
+        />
+      </FocusFallback>
       <Title>{messages.pgettext('generic', 'MULLVAD VPN')}</Title>
     </BrandContainer>
   );
