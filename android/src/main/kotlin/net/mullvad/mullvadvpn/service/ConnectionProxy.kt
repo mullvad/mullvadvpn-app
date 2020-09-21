@@ -109,15 +109,26 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
         synchronized(this) {
             val currentState = uiState
 
-            if (currentState is TunnelState.Disconnecting &&
-                currentState.actionAfterDisconnect == ActionAfterDisconnect.Reconnect
-            ) {
-                return false
-            } else {
+            val willReconnect = when (currentState) {
+                is TunnelState.Disconnected -> false
+                is TunnelState.Disconnecting -> {
+                    when (currentState.actionAfterDisconnect) {
+                        ActionAfterDisconnect.Nothing -> false
+                        ActionAfterDisconnect.Reconnect -> false
+                        ActionAfterDisconnect.Block -> true
+                    }
+                }
+                is TunnelState.Connecting -> true
+                is TunnelState.Connected -> true
+                is TunnelState.Error -> true
+            }
+
+            if (willReconnect) {
                 scheduleToResetAnticipatedState()
                 uiState = TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect)
-                return true
             }
+
+            return willReconnect
         }
     }
 
