@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
@@ -41,6 +41,7 @@ interface IModalContext {
   activeModal: boolean;
   setActiveModal: (value: boolean) => void;
   modalContainerRef: React.RefObject<HTMLDivElement>;
+  previousActiveElement: React.MutableRefObject<HTMLElement | undefined>;
 }
 
 const noActiveModalContextError = new Error('ActiveModalContext.Provider missing');
@@ -54,14 +55,34 @@ const ActiveModalContext = React.createContext<IModalContext>({
   get modalContainerRef(): React.RefObject<HTMLDivElement> {
     throw noActiveModalContextError;
   },
+  get previousActiveElement(): React.MutableRefObject<HTMLElement | undefined> {
+    throw noActiveModalContextError;
+  },
 });
 
 export function ModalContainer(props: IModalContainerProps) {
   const [activeModal, setActiveModal] = useState(false);
+  const previousActiveElement = useRef<HTMLElement>();
   const modalContainerRef = useRef() as React.RefObject<HTMLDivElement>;
 
+  const contextValue = useMemo(
+    () => ({
+      activeModal,
+      setActiveModal,
+      modalContainerRef,
+      previousActiveElement,
+    }),
+    [activeModal],
+  );
+
+  useEffect(() => {
+    if (!activeModal) {
+      previousActiveElement.current?.focus();
+    }
+  }, [activeModal]);
+
   return (
-    <ActiveModalContext.Provider value={{ activeModal, setActiveModal, modalContainerRef }}>
+    <ActiveModalContext.Provider value={contextValue}>
       <StyledModalContainer ref={modalContainerRef}>
         <ModalContent aria-hidden={activeModal}>{props.children}</ModalContent>
       </StyledModalContainer>
@@ -118,7 +139,16 @@ export function ModalAlert(props: IModalAlertProps) {
 
 class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalContext> {
   private element = document.createElement('div');
+  private modalRef = React.createRef<HTMLDivElement>();
   private appendScheduler = new Scheduler();
+
+  constructor(props: IModalAlertProps & IModalContext) {
+    super(props);
+
+    if (document.activeElement) {
+      props.previousActiveElement.current = document.activeElement as HTMLElement;
+    }
+  }
 
   public componentDidMount() {
     this.props.setActiveModal(true);
@@ -131,6 +161,7 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
       // Postponing it to the next event cycle solves this issue.
       this.appendScheduler.schedule(() => {
         modalContainer.appendChild(this.element);
+        this.modalRef.current?.focus();
       });
     } else {
       throw Error('Modal container not found when mounting modal');
@@ -153,7 +184,7 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
     return (
       <ModalBackground>
         <ModalAlertContainer>
-          <StyledModalAlert role="alertdialog">
+          <StyledModalAlert ref={this.modalRef} tabIndex={-1} role="dialog" aria-modal>
             {this.props.type && (
               <ModalAlertIcon>{this.renderTypeIcon(this.props.type)}</ModalAlertIcon>
             )}
