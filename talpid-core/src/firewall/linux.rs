@@ -325,7 +325,9 @@ impl<'a> PolicyBatch<'a> {
             rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
 
             rule.add_expr(&nft_expr!(masquerade));
-            add_verdict(&mut rule, &Verdict::Accept);
+            if *ADD_COUNTERS {
+                rule.add_expr(&nft_expr!(counter));
+            }
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
 
