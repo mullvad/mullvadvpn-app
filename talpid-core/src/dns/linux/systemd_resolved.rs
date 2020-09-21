@@ -1,7 +1,13 @@
 use super::RESOLV_CONF_PATH;
 use crate::linux::iface_index;
 use dbus::{
-    arg::RefArg, stdintf::*, BusType, Interface, Member, Message, MessageItem, MessageItemArray,
+    arg::{
+        messageitem::{MessageItem, MessageItemArray},
+        RefArg,
+    },
+    ffidisp::{stdintf::*, BusType, ConnPath, Connection},
+    message::Message,
+    strings::{Interface, Member},
     Signature,
 };
 use lazy_static::lazy_static;
@@ -63,17 +69,17 @@ const RPC_TIMEOUT_MS: i32 = 1000;
 
 lazy_static! {
     static ref LINK_INTERFACE: Interface<'static> =
-        Interface::from_slice(b"org.freedesktop.resolve1.Link").unwrap();
+        Interface::from_slice("org.freedesktop.resolve1.Link\0").unwrap();
     static ref MANAGER_INTERFACE: Interface<'static> =
-        Interface::from_slice(b"org.freedesktop.resolve1.Manager").unwrap();
-    static ref GET_LINK_METHOD: Member<'static> = Member::from_slice(b"GetLink").unwrap();
-    static ref SET_DNS_METHOD: Member<'static> = Member::from_slice(b"SetDNS").unwrap();
-    static ref SET_DOMAINS_METHOD: Member<'static> = Member::from_slice(b"SetDomains").unwrap();
-    static ref REVERT_METHOD: Member<'static> = Member::from_slice(b"Revert").unwrap();
+        Interface::from_slice("org.freedesktop.resolve1.Manager\0").unwrap();
+    static ref GET_LINK_METHOD: Member<'static> = Member::from_slice("GetLink\0").unwrap();
+    static ref SET_DNS_METHOD: Member<'static> = Member::from_slice("SetDNS\0").unwrap();
+    static ref SET_DOMAINS_METHOD: Member<'static> = Member::from_slice("SetDomains\0").unwrap();
+    static ref REVERT_METHOD: Member<'static> = Member::from_slice("Revert\0").unwrap();
 }
 
 pub struct SystemdResolved {
-    dbus_connection: dbus::Connection,
+    dbus_connection: Connection,
     interface_link: Option<(String, dbus::Path<'static>)>,
 }
 
@@ -81,7 +87,7 @@ impl SystemdResolved {
     pub fn new() -> Result<Self> {
         let result = (|| {
             let dbus_connection =
-                dbus::Connection::get_private(BusType::System).map_err(Error::ConnectDBus)?;
+                Connection::get_private(BusType::System).map_err(Error::ConnectDBus)?;
             let systemd_resolved = SystemdResolved {
                 dbus_connection,
                 interface_link: None,
@@ -144,7 +150,7 @@ impl SystemdResolved {
         }
     }
 
-    fn as_manager_object(&self) -> dbus::ConnPath<'_, &dbus::Connection> {
+    fn as_manager_object(&self) -> ConnPath<'_, &Connection> {
         self.dbus_connection
             .with_path(RESOLVED_BUS, "/org/freedesktop/resolve1", RPC_TIMEOUT_MS)
     }
@@ -152,7 +158,7 @@ impl SystemdResolved {
     fn as_link_object<'a>(
         &'a self,
         link_object_path: dbus::Path<'a>,
-    ) -> dbus::ConnPath<'a, &'a dbus::Connection> {
+    ) -> ConnPath<'a, &'a Connection> {
         self.dbus_connection
             .with_path(RESOLVED_BUS, link_object_path, RPC_TIMEOUT_MS)
     }
