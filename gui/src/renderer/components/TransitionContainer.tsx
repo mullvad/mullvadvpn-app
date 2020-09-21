@@ -16,6 +16,7 @@ interface ITransitionQueueItem {
 
 interface IProps extends ITransitionGroupProps {
   children: TransitioningView;
+  onTransitionEnd: () => void;
 }
 
 interface IItemStyle {
@@ -192,6 +193,7 @@ export default class TransitionContainer extends React.Component<IProps, IState>
 
   private finishCycling() {
     this.isCycling = false;
+    this.props.onTransitionEnd();
   }
 
   private continueCycling = () => {
