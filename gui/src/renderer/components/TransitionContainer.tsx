@@ -1,6 +1,5 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { Scheduler } from '../../shared/scheduler';
 import { ITransitionGroupProps } from '../transitions';
 
 interface ITransitioningViewProps {
@@ -83,7 +82,9 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   };
 
   private isCycling = false;
-  private cycleScheduler = new Scheduler();
+
+  private currentContentRef = React.createRef<HTMLDivElement>();
+  private nextContentRef = React.createRef<HTMLDivElement>();
 
   public UNSAFE_componentWillReceiveProps(nextProps: IProps) {
     const candidate = nextProps.children;
@@ -132,31 +133,15 @@ export default class TransitionContainer extends React.Component<IProps, IState>
       this.state.nextItemStyle &&
       this.state.nextItemTransition
     ) {
-      this.setState(
-        (state) => ({
-          currentItemStyle: Object.assign({}, state.currentItemStyle, state.currentItemTransition),
-          nextItemStyle: Object.assign({}, state.nextItemStyle, state.nextItemTransition),
-          currentItemTransition: undefined,
-          nextItemTransition: undefined,
-        }),
-        () => {
-          // Schedule call to continueCycling instead of using onTransitionEnd since there are
-          // multiple simultaneous transitions which would result in the listener being called
-          // multiple times.
-          const duration = Math.max(
-            this.state.currentItemStyle?.duration ?? 450,
-            this.state.nextItemStyle?.duration ?? 450,
-          );
-          this.cycleScheduler.schedule(this.continueCycling, duration);
-        },
-      );
+      this.setState((state) => ({
+        currentItemStyle: Object.assign({}, state.currentItemStyle, state.currentItemTransition),
+        nextItemStyle: Object.assign({}, state.nextItemStyle, state.nextItemTransition),
+        currentItemTransition: undefined,
+        nextItemTransition: undefined,
+      }));
     } else {
       this.cycle();
     }
-  }
-
-  public componentWillUnmount() {
-    this.cycleScheduler.cancel();
   }
 
   public render() {
@@ -168,7 +153,9 @@ export default class TransitionContainer extends React.Component<IProps, IState>
         {this.state.currentItem && (
           <StyledTransitionContent
             key={this.state.currentItem.view.props.viewId}
-            transition={this.state.currentItemStyle}>
+            ref={this.currentContentRef}
+            transition={this.state.currentItemStyle}
+            onTransitionEnd={this.onTransitionEnd}>
             {this.state.currentItem.view}
           </StyledTransitionContent>
         )}
@@ -176,13 +163,25 @@ export default class TransitionContainer extends React.Component<IProps, IState>
         {this.state.nextItem && (
           <StyledTransitionContent
             key={this.state.nextItem.view.props.viewId}
-            transition={this.state.nextItemStyle}>
+            ref={this.nextContentRef}
+            transition={this.state.nextItemStyle}
+            onTransitionEnd={this.onTransitionEnd}>
             {this.state.nextItem.view}
           </StyledTransitionContent>
         )}
       </StyledTransitionContainer>
     );
   }
+
+  private onTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) => {
+    if (
+      this.isCycling &&
+      (event.target === this.currentContentRef.current ||
+        event.target === this.nextContentRef.current)
+    ) {
+      this.continueCycling();
+    }
+  };
 
   private cycle() {
     if (!this.isCycling) {
