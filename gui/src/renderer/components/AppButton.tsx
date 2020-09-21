@@ -1,7 +1,8 @@
 import log from 'electron-log';
-import React, { useContext } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { useMounted } from '../lib/utilityHooks';
 import {
   StyledButton,
   StyledButtonContent,
@@ -10,9 +11,13 @@ import {
 } from './AppButtonStyles';
 import ImageView from './ImageView';
 
-const ButtonContext = React.createContext({
+interface IButtonContext {
+  textAdjustment: number;
+  textRef?: React.Ref<HTMLDivElement>;
+}
+
+const ButtonContext = React.createContext<IButtonContext>({
   textAdjustment: 0,
-  textRef: React.createRef<HTMLDivElement>(),
 });
 
 interface ILabelProps {
@@ -46,51 +51,19 @@ export interface IProps extends React.HTMLAttributes<HTMLButtonElement> {
   textOffset?: number;
 }
 
-interface IState {
-  textAdjustment: number;
-}
+const BaseButton = React.memo(function BaseButtonT(props: IProps) {
+  const { children, disabled, onClick, ...otherProps } = props;
 
-class BaseButton extends React.Component<IProps, IState> {
-  public state: IState = {
-    textAdjustment: 0,
-  };
+  const blockingContext = useContext(BlockingContext);
+  const [textAdjustment, setTextAdjustment] = useState(0);
+  const buttonRef = useRef() as React.RefObject<HTMLButtonElement>;
+  const textRef = useRef() as React.RefObject<HTMLDivElement>;
 
-  private buttonRef = React.createRef<HTMLButtonElement>();
-  private textRef = React.createRef<HTMLDivElement>();
+  const contextValue = useMemo(() => ({ textAdjustment, textRef }), [textAdjustment, textRef]);
 
-  public componentDidMount() {
-    this.updateTextAdjustment();
-  }
-
-  public componentDidUpdate() {
-    this.updateTextAdjustment();
-  }
-
-  public render() {
-    const { children, ...otherProps } = this.props;
-
-    return (
-      <ButtonContext.Provider
-        value={{
-          textAdjustment: this.state.textAdjustment,
-          textRef: this.textRef,
-        }}>
-        <StyledButton ref={this.buttonRef} {...otherProps}>
-          <StyledButtonContent>
-            {React.Children.map(children, (child) =>
-              typeof child === 'string' ? <Label>{child as string}</Label> : child,
-            )}
-          </StyledButtonContent>
-        </StyledButton>
-      </ButtonContext.Provider>
-    );
-  }
-
-  private updateTextAdjustment() {
-    const textOffset = this.props.textOffset ?? 0;
-
-    const buttonRect = this.buttonRef.current?.getBoundingClientRect();
-    const textRect = this.textRef.current?.getBoundingClientRect();
+  useEffect(() => {
+    const buttonRect = buttonRef.current?.getBoundingClientRect();
+    const textRect = textRef.current?.getBoundingClientRect();
 
     if (buttonRect && textRect) {
       const leftDiff = textRect.left - buttonRect.left;
@@ -99,19 +72,37 @@ class BaseButton extends React.Component<IProps, IState> {
       const trailingSpace = buttonRect.width - (leftDiff + textRect.width);
 
       // calculate text adjustment
+      const textOffset = props.textOffset ?? 0;
       const textAdjustment = leftDiff - trailingSpace - textOffset;
 
       // re-render the view with the new text adjustment if it changed
-      if (this.state.textAdjustment !== textAdjustment) {
-        this.setState({ textAdjustment });
-      }
+      setTextAdjustment(textAdjustment);
     }
-  }
+  });
+
+  return (
+    <ButtonContext.Provider value={contextValue}>
+      <StyledButton
+        ref={buttonRef}
+        disabled={blockingContext.disabled || disabled}
+        onClick={blockingContext.onClick ?? onClick}
+        {...otherProps}>
+        <StyledButtonContent>
+          {React.Children.map(children, (child) =>
+            typeof child === 'string' ? <Label>{child as string}</Label> : child,
+          )}
+        </StyledButtonContent>
+      </StyledButton>
+    </ButtonContext.Provider>
+  );
+});
+
+interface IBlockingContext {
+  disabled?: boolean;
+  onClick?: () => Promise<void>;
 }
 
-interface IBlockingState {
-  isBlocked: boolean;
-}
+const BlockingContext = React.createContext<IBlockingContext>({});
 
 interface IBlockingProps {
   children?: React.ReactNode;
@@ -119,35 +110,32 @@ interface IBlockingProps {
   disabled?: boolean;
 }
 
-export class BlockingButton extends React.Component<IBlockingProps, IBlockingState> {
-  public state = {
-    isBlocked: false,
-  };
+export function BlockingButton(props: IBlockingProps) {
+  const isMounted = useMounted();
+  const [isBlocked, setIsBlocked] = useState(false);
 
-  public render() {
-    return React.Children.map(this.props.children, (child) => {
-      if (React.isValidElement(child)) {
-        return React.cloneElement(child as React.ReactElement, {
-          ...child.props,
-          disabled: this.state.isBlocked || this.props.disabled,
-          onClick: this.onClick,
-        });
-      } else {
-        return child;
-      }
-    });
-  }
+  const onClick = useCallback(async () => {
+    setIsBlocked(true);
+    try {
+      await props.onClick();
+    } catch (error) {
+      log.error(`onClick() failed - ${error}`);
+    }
 
-  private onClick = () => {
-    this.setState({ isBlocked: true }, async () => {
-      try {
-        await this.props.onClick();
-      } catch (error) {
-        log.error(`onClick() failed - ${error}`);
-      }
-      this.setState({ isBlocked: false });
-    });
-  };
+    if (isMounted()) {
+      setIsBlocked(false);
+    }
+  }, [props.onClick]);
+
+  const contextValue = useMemo(
+    () => ({
+      disabled: isBlocked || props.disabled,
+      onClick,
+    }),
+    [isBlocked, props.disabled, onClick],
+  );
+
+  return <BlockingContext.Provider value={contextValue}>{props.children}</BlockingContext.Provider>;
 }
 
 export const RedButton = styled(BaseButton)({
