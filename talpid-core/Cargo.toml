@@ -15,7 +15,7 @@ err-derive = "0.2.1"
 futures01 = { package = "futures", version = "0.1" }
 futures = { package = "futures", version = "0.3", features = [ "compat" ]}
 hex = "0.4"
-ipnetwork = "0.16"
+ipnetwork = { version = "0.16", features = [] }
 lazy_static = "1.0"
 libc = "0.2"
 log = "0.4"

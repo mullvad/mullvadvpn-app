@@ -13,7 +13,7 @@ err-derive = "0.2.1"
 futures = "0.3"
 http = "0.2"
 hyper = "0.13"
-ipnetwork = "0.16"
+ipnetwork = { version = "0.16", features = [] }
 log = "0.4"
 regex = "1"
 serde = "1"
