@@ -6,6 +6,7 @@ import NotificationArea from '../components/NotificationArea';
 import { AuthFailureKind, parseAuthFailure } from '../../shared/auth-failure';
 import { LoginState } from '../redux/account/reducers';
 import { IConnectionReduxState } from '../redux/connection/reducers';
+import { FocusFallback } from './Focus';
 import { Brand, HeaderBarStyle, HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
@@ -89,7 +90,9 @@ export default class Connect extends React.Component<IProps, IState> {
       <ModalContainer>
         <Layout>
           <Header barStyle={this.headerBarStyle()}>
-            <Brand />
+            <FocusFallback>
+              <Brand />
+            </FocusFallback>
             <HeaderBarSettingsButton />
           </Header>
           <StyledContainer>

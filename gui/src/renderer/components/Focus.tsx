@@ -5,6 +5,8 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
 
+const FOCUS_FALLBACK_CLASS = 'focus-fallback';
+
 const PageChangeAnnouncer = styled.div({
   width: 0,
   height: 0,
@@ -32,7 +34,8 @@ function Focus(props: IFocusProps, ref: React.Ref<IFocusHandle>) {
         const titleContent = titleElement?.textContent ?? pageName;
         setTitle(titleContent);
 
-        const focusElement = titleElement ?? document.getElementsByTagName('header')[0];
+        const focusElement =
+          titleElement ?? document.getElementsByClassName(FOCUS_FALLBACK_CLASS)[0];
         if (focusElement) {
           focusElement.setAttribute('tabindex', '-1');
           focusElement.focus();
@@ -61,3 +64,13 @@ function Focus(props: IFocusProps, ref: React.Ref<IFocusHandle>) {
 }
 
 export default React.memo(React.forwardRef(Focus));
+
+interface IFocusFallbackProps {
+  children: React.ReactElement;
+}
+
+export function FocusFallback(props: IFocusFallbackProps) {
+  return React.cloneElement(props.children, {
+    className: `${props.children.props.className} ${FOCUS_FALLBACK_CLASS}`,
+  });
+}

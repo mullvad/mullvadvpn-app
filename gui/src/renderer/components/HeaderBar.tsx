@@ -66,9 +66,9 @@ const Logo = styled(ImageView)({
   margin: '4px 0 3px',
 });
 
-export function Brand() {
+export function Brand(props: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <BrandContainer>
+    <BrandContainer {...props}>
       <Logo width={44} height={44} source="logo-icon" />
       <Title>{messages.pgettext('generic', 'MULLVAD VPN')}</Title>
     </BrandContainer>
