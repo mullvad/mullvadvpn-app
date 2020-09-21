@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { AriaInputGroup } from './AriaGroup';
 import CustomScrollbars from './CustomScrollbars';
 import { Container, Layout } from './Layout';
 import {
@@ -85,13 +86,15 @@ export default class SelectLanguage extends React.Component<IProps, IState> {
                   {messages.pgettext('select-language-nav', 'Select language')}
                 </HeaderTitle>
               </SettingsHeader>
-              <StyledSelector
-                title=""
-                values={this.state.source}
-                value={this.props.preferredLocale}
-                onSelect={this.props.setPreferredLocale}
-                selectedCellRef={this.selectedCellRef}
-              />
+              <AriaInputGroup>
+                <StyledSelector
+                  title=""
+                  values={this.state.source}
+                  value={this.props.preferredLocale}
+                  onSelect={this.props.setPreferredLocale}
+                  selectedCellRef={this.selectedCellRef}
+                />
+              </AriaInputGroup>
             </StyledNavigationScrollbars>
           </NavigationContainer>
         </StyledContainer>
