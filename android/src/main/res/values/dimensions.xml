@@ -6,6 +6,8 @@
     <dimen name="dialog_margin">14dp</dimen>
     <dimen name="account_login_corner_radius">4dp</dimen>
     <dimen name="account_login_border_width">2dp</dimen>
+    <dimen name="account_history_divider">1dp</dimen>
+    <dimen name="account_history_entry_height">48dp</dimen>
     <dimen name="edit_text_corner_radius">4dp</dimen>
     <dimen name="button_height">44dp</dimen>
     <dimen name="cell_switch_border_radius">16dp</dimen>

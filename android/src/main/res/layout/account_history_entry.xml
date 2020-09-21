@@ -1,12 +1,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
+              android:layout_height="@dimen/account_history_entry_height"
               android:orientation="vertical">
     <TextView android:id="@+id/account_history_entry_text_view"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"
-              android:textColor="@color/blue"
-              android:padding="10dip"
-              android:textSize="@dimen/text_medium"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@drawable/account_history_entry_background"
+              android:paddingHorizontal="12dp"
+              android:gravity="center_vertical"
+              android:textColor="@color/blue80"
+              android:textSize="@dimen/text_medium_plus"
               android:textStyle="bold" />
 </LinearLayout>

@@ -1,9 +1,14 @@
 package net.mullvad.mullvadvpn.ui.widget
 
+import android.animation.ValueAnimator
+import android.app.Activity
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.OnLayoutChangeListener
+import android.view.ViewGroup.MarginLayoutParams
+import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.RelativeLayout
@@ -24,40 +29,68 @@ class AccountLogin : RelativeLayout {
     private val accountHistoryList: ListView = container.findViewById(R.id.history)
     private val input: AccountInput = container.findViewById(R.id.input)
 
-    private var shouldShowAccountHistory = false
-        set(value) {
-            synchronized(this) {
-                field = value
-                updateAccountHistory()
-            }
+    private val dividerHeight = resources.getDimensionPixelSize(R.dimen.account_history_divider)
+    private val historyEntryHeight =
+        resources.getDimensionPixelSize(R.dimen.account_history_entry_height)
+
+    private val historyAnimation = ValueAnimator.ofInt(0, 0).apply {
+        addUpdateListener { animation ->
+            updateHeight(animation.animatedValue as Int)
         }
 
-    private var inputHasFocus by observable(false) { _, _, hasFocus ->
-        updateBorder()
+        duration = 350
+    }
 
-        if (hasFocus) {
-            shouldShowAccountHistory = true
+    private val expandedHeight: Int
+        get() = collapsedHeight + historyHeight
+
+    private var historyHeight by observable(0) { _, oldHistoryHeight, newHistoryHeight ->
+        if (newHistoryHeight != oldHistoryHeight) {
+            historyAnimation.setIntValues(collapsedHeight, expandedHeight)
+            reposition()
         }
     }
 
-    var accountHistory: ArrayList<String>? = null
-        set(value) {
-            synchronized(this) {
-                field = value
-                updateAccountHistory()
+    private var collapsedHeight by observable(0) { _, oldCollapsedHeight, newCollapsedHeight ->
+        if (newCollapsedHeight != oldCollapsedHeight) {
+            historyAnimation.setIntValues(newCollapsedHeight, expandedHeight)
+            reposition()
+        }
+    }
+
+    private var inputHasFocus by observable(false) { _, _, hasFocus ->
+        updateBorder()
+        shouldShowAccountHistory = hasFocus
+
+        if (!hasFocus) {
+            hideKeyboard()
+        }
+    }
+
+    private var shouldShowAccountHistory by observable(false) { _, isShown, show ->
+        if (isShown != show) {
+            if (show) {
+                historyAnimation.start()
+            } else {
+                historyAnimation.reverse()
             }
         }
+    }
+
+    var accountHistory by observable<ArrayList<String>?>(null) { _, _, history ->
+        val entryCount = history?.size ?: 0
+
+        historyHeight = entryCount * (historyEntryHeight + dividerHeight)
+        updateAccountHistory()
+    }
 
     var state: LoginState by observable(LoginState.Initial) { _, _, newState ->
         input.loginState = newState
 
         updateBorder()
 
-        when (newState) {
-            LoginState.Initial -> {}
-            LoginState.InProgress -> loggingInState()
-            LoginState.Success -> successState()
-            LoginState.Failure -> {}
+        if (newState == LoginState.Success) {
+            visibility = View.INVISIBLE
         }
     }
 
@@ -81,6 +114,8 @@ class AccountLogin : RelativeLayout {
     }
 
     init {
+        border.elevation = elevation + 0.1f
+
         input.apply {
             onFocusChanged.subscribe(this) { hasFocus ->
                 inputHasFocus = hasFocus
@@ -91,20 +126,18 @@ class AccountLogin : RelativeLayout {
                     state = LoginState.Initial
                 }
             }
+
+            addOnLayoutChangeListener(
+                OnLayoutChangeListener { _, _, top, _, bottom, _, _, _, _ ->
+                    collapsedHeight = bottom - top
+                }
+            )
         }
     }
 
     fun onDestroy() {
         input.onFocusChanged.unsubscribe(this)
         input.onTextChanged.unsubscribe(this)
-    }
-
-    private fun loggingInState() {
-        accountHistoryList.visibility = View.INVISIBLE
-    }
-
-    private fun successState() {
-        visibility = View.INVISIBLE
     }
 
     private fun updateAccountHistory() {
@@ -123,12 +156,6 @@ class AccountLogin : RelativeLayout {
                     input.loginWith(history[idx])
                 }
             }
-
-            if (shouldShowAccountHistory && accountHistoryList.visibility != View.VISIBLE) {
-                accountHistoryList.visibility = View.VISIBLE
-                accountHistoryList.translationY = -accountHistoryList.height.toFloat()
-                accountHistoryList.animate().translationY(0.0F).setDuration(350).start()
-            }
         }
     }
 
@@ -140,5 +167,31 @@ class AccountLogin : RelativeLayout {
         } else {
             border.borderState = BorderState.UNFOCUSED
         }
+    }
+
+    private fun updateHeight(height: Int) {
+        val layoutParams = container.layoutParams as MarginLayoutParams
+
+        layoutParams.height = height
+        layoutParams.bottomMargin = expandedHeight - height
+
+        container.layoutParams = layoutParams
+    }
+
+    private fun reposition() {
+        historyAnimation.end()
+
+        if (shouldShowAccountHistory) {
+            updateHeight(expandedHeight)
+        } else {
+            updateHeight(collapsedHeight)
+        }
+    }
+
+    private fun hideKeyboard() {
+        val inputManagerId = Activity.INPUT_METHOD_SERVICE
+        val inputManager = context.getSystemService(inputManagerId) as InputMethodManager
+
+        inputManager.hideSoftInputFromWindow(windowToken, 0)
     }
 }

@@ -72,20 +72,6 @@ class AccountLoginBorder : RelativeLayout {
             }
         }
 
-    init {
-        val borderElevation = elevation + 0.1f
-
-        topLeftCorner.elevation = borderElevation
-        topRightCorner.elevation = borderElevation
-        bottomLeftCorner.elevation = borderElevation
-        bottomRightCorner.elevation = borderElevation
-
-        topBorder.elevation = borderElevation
-        leftBorder.elevation = borderElevation
-        rightBorder.elevation = borderElevation
-        bottomBorder.elevation = borderElevation
-    }
-
     constructor(context: Context) : super(context) {}
 
     constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {}

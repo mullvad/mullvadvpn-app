@@ -1,20 +1,18 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
     <net.mullvad.mullvadvpn.ui.widget.AccountLoginBorder android:id="@+id/border"
                                                          android:layout_width="match_parent"
-                                                         android:layout_height="48dp"
-                                                         android:layout_alignParentTop="true">
-        <net.mullvad.mullvadvpn.ui.widget.AccountInput android:id="@+id/input"
-                                                       android:layout_width="match_parent"
-                                                       android:layout_height="48dp"
-                                                       android:layout_alignParentTop="true"
-                                                       android:orientation="horizontal" />
-    </net.mullvad.mullvadvpn.ui.widget.AccountLoginBorder>
+                                                         android:layout_height="wrap_content"
+                                                         android:layout_alignParentTop="true"
+                                                         android:layout_alignParentBottom="true" />
+    <net.mullvad.mullvadvpn.ui.widget.AccountInput android:id="@+id/input"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="48dp"
+                                                   android:layout_alignParentTop="true"
+                                                   android:orientation="horizontal" />
     <ListView android:id="@+id/history"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
-              android:layout_below="@id/border"
+              android:layout_below="@id/input"
               android:divider="@drawable/account_history_list_divider"
-              android:dividerHeight="1dp"
-              android:visibility="invisible"
-              android:background="@drawable/account_history_background" />
+              android:dividerHeight="@dimen/account_history_divider" />
 </merge>
