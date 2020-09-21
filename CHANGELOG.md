@@ -52,6 +52,7 @@ Line wrap the file at 100 chars.                                              Th
   isn't metered based solely on the underlying network, and not on the VPN connection.
 - Fix connect action button sometimes showing itself as "Cancel" instead of "Secure my connection"
   for a few seconds.
+- Fix crash if connection to service is lost while opening the Split Tunneling settings screen.
 
 #### Linux
 - Fix split tunneling rules preventing `systemd-resolved` from performing DNS lookups for excluded
