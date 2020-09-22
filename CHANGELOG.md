@@ -55,6 +55,8 @@ Line wrap the file at 100 chars.                                              Th
   isn't metered based solely on the underlying network, and not on the VPN connection.
 - Fix connect action button sometimes showing itself as "Cancel" instead of "Secure my connection"
   for a few seconds.
+- Fix the notification sometimes leaving the foreground and becoming dismissable even if the UI was
+  still visible.
 
 #### Linux
 - Fix split tunneling rules preventing `systemd-resolved` from performing DNS lookups for excluded
