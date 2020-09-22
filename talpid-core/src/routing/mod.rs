@@ -24,7 +24,7 @@ pub struct Route {
     prefix: IpNetwork,
     metric: Option<u32>,
     #[cfg(target_os = "linux")]
-    table_id: u8,
+    table_id: u32,
 }
 
 impl Route {
@@ -34,12 +34,12 @@ impl Route {
             prefix,
             metric: None,
             #[cfg(target_os = "linux")]
-            table_id: RT_TABLE_MAIN,
+            table_id: u32::from(RT_TABLE_MAIN),
         }
     }
 
     #[cfg(target_os = "linux")]
-    fn table(mut self, new_id: u8) -> Self {
+    fn table(mut self, new_id: u32) -> Self {
         self.table_id = new_id;
         self
     }
@@ -65,7 +65,7 @@ pub struct RequiredRoute {
     prefix: IpNetwork,
     node: NetNode,
     #[cfg(target_os = "linux")]
-    table_id: u8,
+    table_id: u32,
 }
 
 impl RequiredRoute {
@@ -75,13 +75,13 @@ impl RequiredRoute {
             node: node.into(),
             prefix,
             #[cfg(target_os = "linux")]
-            table_id: RT_TABLE_MAIN,
+            table_id: u32::from(RT_TABLE_MAIN),
         }
     }
 
     /// Sets the routing table ID of the route.
     #[cfg(target_os = "linux")]
-    pub fn table(mut self, new_id: u8) -> Self {
+    pub fn table(mut self, new_id: u32) -> Self {
         self.table_id = new_id;
         self
     }
