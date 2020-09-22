@@ -633,12 +633,13 @@ impl RouteManagerImpl {
             RouteManagerCommand::DisableExclusionsRoutes => {
                 self.disable_exclusions_routes().await;
             }
-            RouteManagerCommand::SetTunnelLink(interface_name) => {
+            RouteManagerCommand::SetTunnelLink(interface_name, result_tx) => {
                 log::debug!(
                     "Exclusions: Ignoring route changes for dev {}",
                     &interface_name
                 );
                 self.split_ignored_interface = Some(interface_name);
+                let _ = result_tx.send(());
             }
             RouteManagerCommand::RouteExclusionsDns(tunnel_alias, dns_servers, result_rx) => {
                 let _ =
