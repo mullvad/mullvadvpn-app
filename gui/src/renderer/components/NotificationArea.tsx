@@ -66,7 +66,7 @@ export default function NotificationArea(props: IProps) {
       return (
         <NotificationBanner className={props.className} visible>
           <NotificationIndicator type={notification.indicator} />
-          <NotificationContent role="alert" aria-live="polite">
+          <NotificationContent role="status" aria-live="polite">
             <NotificationTitle>{notification.title}</NotificationTitle>
             <NotificationSubtitle>{notification.subtitle}</NotificationSubtitle>
           </NotificationContent>
