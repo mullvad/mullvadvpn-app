@@ -56,7 +56,6 @@
     <string name="app_version">App version</string>
     <string name="update_available_footer">Update available, download to remain safe.</string>
     <string name="report_a_problem">Report a problem</string>
-    <string name="quit">Quit app</string>
     <string name="account_number">Account number</string>
     <string name="mullvad_account_number">Mullvad account number</string>
     <string name="copied_mullvad_account_number">Copied Mullvad account number to

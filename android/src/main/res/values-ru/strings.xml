@@ -61,7 +61,6 @@
     <string name="pay_to_start_using">Чтобы пользоваться приложением, нужно добавить время на учетную запись.</string>
     <string name="problem_report_description">Чтобы помощь была эффективнее, к этому сообщению будет прикреплен файл журнала из приложения. Ваши данные останутся защищенными и конфиденциальными: они обезличиваются и отправляются по зашифрованному каналу.</string>
     <string name="public_key">Открытый ключ</string>
-    <string name="quit">Выйти из приложения</string>
     <string name="reconnecting">Идет переподключение</string>
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>

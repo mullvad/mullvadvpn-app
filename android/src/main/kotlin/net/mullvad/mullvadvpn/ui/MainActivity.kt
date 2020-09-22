@@ -27,7 +27,6 @@ class MainActivity : FragmentActivity() {
     val problemReport = MullvadProblemReport()
     val serviceNotifier = EventNotifier<ServiceConnection?>(null)
 
-    private var quitting = false
     private var service: MullvadVpnService.LocalBinder? = null
     private var serviceConnection: ServiceConnection? = null
     private var shouldConnect = false
@@ -68,8 +67,6 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        quitting = false
-
         problemReport.logDirectory.complete(filesDir)
 
         setContentView(R.layout.main)
@@ -88,18 +85,15 @@ class MainActivity : FragmentActivity() {
         android.util.Log.d("mullvad", "Starting main activity")
         super.onStart()
 
-        if (!quitting) {
-            android.util.Log.d("mullvad", "Starting background service")
-            val intent = Intent(this, MullvadVpnService::class.java)
+        val intent = Intent(this, MullvadVpnService::class.java)
 
-            if (Build.VERSION.SDK_INT >= 26) {
-                startForegroundService(intent)
-            } else {
-                startService(intent)
-            }
-
-            bindService(intent, serviceConnectionManager, 0)
+        if (Build.VERSION.SDK_INT >= 26) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
         }
+
+        bindService(intent, serviceConnectionManager, 0)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
@@ -167,12 +161,6 @@ class MainActivity : FragmentActivity() {
 
     fun requestVpnPermission(intent: Intent) {
         startActivityForResult(intent, 0)
-    }
-
-    fun quit() {
-        quitting = true
-        service?.stop()
-        finishAndRemoveTask()
     }
 
     private fun tryToConnect() {

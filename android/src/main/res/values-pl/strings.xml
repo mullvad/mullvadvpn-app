@@ -61,7 +61,6 @@
     <string name="pay_to_start_using">Aby rozpocząć korzystanie z aplikacji, musisz najpierw dodać czas do swojego konta.</string>
     <string name="problem_report_description">Aby pomóc Ci skuteczniej, do tej wiadomości dołączony zostanie plik dzienników aplikacji. Twoje dane pozostaną bezpieczne i prywatne, ponieważ przed wysłaniem zaszyfrowanym kanałem zostają one zanonimizowane.</string>
     <string name="public_key">Klucz publiczny</string>
-    <string name="quit">Zamknij aplikację</string>
     <string name="reconnecting">Ponowne łączenie</string>
     <string name="redeem">Zrealizuj</string>
     <string name="redeem_voucher">Zrealizuj kupon</string>

@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageButton
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
@@ -48,10 +47,6 @@ class SettingsFragment : ServiceAwareFragment() {
 
         view.findViewById<ImageButton>(R.id.close).setOnClickListener {
             activity?.onBackPressed()
-        }
-
-        view.findViewById<Button>(R.id.quit_button).setOnClickListener {
-            parentActivity.quit()
         }
 
         accountMenu = view.findViewById<AccountCell>(R.id.account).apply {
