@@ -623,12 +623,12 @@ impl RouteManagerImpl {
                 let _ = shutdown_signal.send(());
                 return Err(Error::Shutdown);
             }
-            RouteManagerCommand::AddRoutes(routes, result_rx) => {
+            RouteManagerCommand::AddRoutes(routes, result_tx) => {
                 log::debug!("Adding routes: {:?}", routes);
-                let _ = result_rx.send(self.add_required_routes(routes.clone()).await);
+                let _ = result_tx.send(self.add_required_routes(routes.clone()).await);
             }
-            RouteManagerCommand::EnableExclusionsRoutes(result_rx) => {
-                let _ = result_rx.send(self.enable_exclusions_routes().await);
+            RouteManagerCommand::EnableExclusionsRoutes(result_tx) => {
+                let _ = result_tx.send(self.enable_exclusions_routes().await);
             }
             RouteManagerCommand::DisableExclusionsRoutes => {
                 self.disable_exclusions_routes().await;
@@ -641,9 +641,9 @@ impl RouteManagerImpl {
                 self.split_ignored_interface = Some(interface_name);
                 let _ = result_tx.send(());
             }
-            RouteManagerCommand::RouteExclusionsDns(tunnel_alias, dns_servers, result_rx) => {
+            RouteManagerCommand::RouteExclusionsDns(tunnel_alias, dns_servers, result_tx) => {
                 let _ =
-                    result_rx.send(self.route_exclusions_dns(&tunnel_alias, &dns_servers).await);
+                    result_tx.send(self.route_exclusions_dns(&tunnel_alias, &dns_servers).await);
             }
             RouteManagerCommand::ClearRoutes => {
                 log::debug!("Clearing routes");
