@@ -60,6 +60,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         private set
 
     lateinit var splitTunneling: SplitTunneling
+        private set
 
     override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
         // This method is always either called first or after an `onNoServiceConnection`, so the
