@@ -67,7 +67,7 @@ pub enum RouteManagerCommand {
     DisableExclusionsRoutes,
     /// Adds link to ignore in the exclusions table.
     #[cfg(target_os = "linux")]
-    SetTunnelLink(String),
+    SetTunnelLink(String, oneshot::Sender<()>),
     /// Adds exclusions table route for sending DNS requests via the tunnel.
     #[cfg(target_os = "linux")]
     RouteExclusionsDns(
@@ -208,13 +208,23 @@ impl RouteManager {
     #[cfg(target_os = "linux")]
     pub fn set_tunnel_link(&mut self, tunnel_alias: &str) -> Result<(), Error> {
         if let Some(tx) = &self.manage_tx {
+            let (result_tx, result_rx) = oneshot::channel();
             if tx
-                .unbounded_send(RouteManagerCommand::SetTunnelLink(tunnel_alias.to_string()))
+                .unbounded_send(RouteManagerCommand::SetTunnelLink(
+                    tunnel_alias.to_string(),
+                    result_tx,
+                ))
                 .is_err()
             {
                 return Err(Error::RouteManagerDown);
             }
-            Ok(())
+            match self.runtime.block_on(result_rx) {
+                Ok(()) => Ok(()),
+                Err(error) => {
+                    log::trace!("{}", error.display_chain_with_msg("channel is closed"));
+                    Ok(())
+                }
+            }
         } else {
             Err(Error::RouteManagerDown)
         }
