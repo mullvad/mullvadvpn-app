@@ -58,6 +58,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix the notification sometimes leaving the foreground and becoming dismissable even if the UI was
   still visible.
 - Fix crash if connection to service is lost while opening the Split Tunneling settings screen.
+- Fix rare crash that could occur when the tunnel state changes when showing or hiding the quick
+  settings tile.
 
 #### Linux
 - Fix split tunneling rules preventing `systemd-resolved` from performing DNS lookups for excluded
