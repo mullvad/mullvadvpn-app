@@ -5,19 +5,18 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateListener
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class MullvadTileService : TileService() {
-    private var secured = false
-        set(value) {
-            if (field != value) {
-                field = value
-                updateTileState()
-            }
+    private var secured by observable(false) { _, wasSecured, isSecured ->
+        if (wasSecured != isSecured) {
+            updateTileState()
         }
+    }
 
     private lateinit var listener: TunnelStateListener
     private lateinit var securedIcon: Icon
