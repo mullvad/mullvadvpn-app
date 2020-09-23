@@ -9,7 +9,7 @@ use mullvad_types::{
 use std::{
     collections::BTreeMap,
     future::Future,
-    net::{IpAddr, Ipv4Addr},
+    net::{IpAddr, Ipv4Addr, SocketAddr},
     path::Path,
 };
 use talpid_types::net::wireguard;
@@ -17,13 +17,12 @@ use talpid_types::net::wireguard;
 
 pub mod rest;
 
-mod cached_dns_resolver;
-use crate::cached_dns_resolver::CachedDnsResolver;
-
 mod https_client_with_sni;
 use crate::https_client_with_sni::HttpsConnectorWithSni;
 
+mod address_cache;
 mod relay_list;
+use address_cache::AddressCache;
 pub use hyper::StatusCode;
 pub use relay_list::RelayListProxy;
 
@@ -40,9 +39,9 @@ const API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
 
 /// A type that helps with the creation of RPC connections.
 pub struct MullvadRpcRuntime {
-    cached_dns_resolver: CachedDnsResolver,
     https_connector: HttpsConnectorWithSni,
     handle: tokio::runtime::Handle,
+    address_cache: AddressCache,
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -55,24 +54,26 @@ impl MullvadRpcRuntime {
     /// Create a new `MullvadRpcRuntime`.
     pub fn new(handle: tokio::runtime::Handle) -> Result<Self, Error> {
         Ok(MullvadRpcRuntime {
-            cached_dns_resolver: CachedDnsResolver::new(API_HOST.to_owned(), None, API_IP),
             https_connector: HttpsConnectorWithSni::new(),
             handle,
+            address_cache: AddressCache::new(),
         })
     }
 
     /// Create a new `MullvadRpcRuntime` using the specified cache directory.
-    pub fn with_cache_dir(handle: tokio::runtime::Handle, cache_dir: &Path) -> Result<Self, Error> {
+    pub async fn with_cache_dir(
+        handle: tokio::runtime::Handle,
+        cache_dir: &Path,
+    ) -> Result<Self, Error> {
         let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
-        let cached_dns_resolver =
-            CachedDnsResolver::new(API_HOST.to_owned(), Some(cache_file), API_IP);
+        let address_cache = AddressCache::with_cache(cache_file.into_boxed_path()).await;
 
         let https_connector = HttpsConnectorWithSni::new();
 
         Ok(MullvadRpcRuntime {
-            cached_dns_resolver,
             https_connector,
             handle,
+            address_cache,
         })
     }
 
@@ -81,7 +82,11 @@ impl MullvadRpcRuntime {
         let mut https_connector = self.https_connector.clone();
         https_connector.set_sni_hostname(sni_hostname);
 
-        let service = rest::RequestService::new(https_connector, self.handle.clone());
+        let service = rest::RequestService::new(
+            https_connector,
+            self.handle.clone(),
+            self.address_cache.clone(),
+        );
         let handle = service.handle();
         self.handle.spawn(service.into_future());
         handle
@@ -90,11 +95,13 @@ impl MullvadRpcRuntime {
     /// Returns a request factory initialized to create requests for the master API
     pub fn mullvad_rest_handle(&mut self) -> rest::MullvadRestHandle {
         let service = self.new_request_service(Some(API_HOST.to_owned()));
-        let ip = self.cached_dns_resolver.resolve();
-        let factory =
-            rest::RequestFactory::new(API_HOST.to_owned(), Some(ip), Some("app".to_owned()));
+        let factory = rest::RequestFactory::new(
+            API_HOST.to_owned(),
+            Box::new(self.address_cache.clone()),
+            Some("app".to_owned()),
+        );
 
-        rest::MullvadRestHandle { service, factory }
+        rest::MullvadRestHandle::new(service, factory, self.address_cache.clone())
     }
 
     /// Returns a new request service handle
@@ -410,5 +417,28 @@ impl WireguardKeyProxy {
         )
         .await?;
         Ok(())
+    }
+}
+
+#[derive(Clone)]
+pub struct ApiProxy {
+    handle: rest::MullvadRestHandle,
+}
+
+impl ApiProxy {
+    pub async fn get_api_addrs(&self) -> Result<Vec<SocketAddr>, rest::Error> {
+        let service = self.handle.service.clone();
+
+        let response = rest::send_request(
+            &self.handle.factory,
+            service,
+            "/v1/api-addrs",
+            Method::GET,
+            None,
+            StatusCode::OK,
+        )
+        .await?;
+
+        rest::deserialize_body(response).await
     }
 }
