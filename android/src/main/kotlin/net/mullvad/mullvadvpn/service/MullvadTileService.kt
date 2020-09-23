@@ -69,9 +69,9 @@ class MullvadTileService : TileService() {
     }
 
     override fun onStopListening() {
-        super.onStartListening()
-
         listener.onStateChange = null
+
+        super.onStartListening()
     }
 
     private fun updateTileState() {
