@@ -1,14 +1,14 @@
 import path from 'path';
-import * as React from 'react';
+import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
 export interface IImageViewProps extends IImageMaskProps {
+  source: string;
   onClick?: (event: React.MouseEvent) => void;
   className?: string;
 }
 
 interface IImageMaskProps extends React.HTMLAttributes<HTMLElement> {
-  source: string;
   width?: number;
   height?: number;
   disabled?: boolean;
@@ -26,7 +26,6 @@ const ImageMask = styled.div((props: IImageMaskProps) => {
   const maskWidth = props.width ? `${props.width}px` : 'auto';
   const maskHeight = props.height ? `${props.height}px` : 'auto';
   return {
-    maskImage: `url('${props.source}')`,
     maskRepeat: 'no-repeat',
     maskSize: `${maskWidth} ${maskHeight}`,
     maskPosition: 'center',
@@ -45,10 +44,12 @@ export default function ImageView(props: IImageViewProps) {
     ? props.source
     : `../../assets/images/${props.source}.svg`;
 
+  const style = useMemo(() => ({ WebkitMaskImage: `url('${url}')` }), [url]);
+
   if (props.tintColor) {
     const { source: _source, ...otherProps } = props;
     return (
-      <ImageMask source={url} {...otherProps}>
+      <ImageMask style={style} {...otherProps}>
         <HiddenImage src={url} width={props.width} height={props.height} />
       </ImageMask>
     );
