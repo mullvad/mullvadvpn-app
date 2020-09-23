@@ -1,3 +1,4 @@
+use crate::address_cache::AddressCache;
 use futures::{
     channel::{mpsc, oneshot},
     future::{abortable, AbortHandle, Aborted},
@@ -10,13 +11,25 @@ use hyper::{
     header::{self, HeaderValue},
     Method, Uri,
 };
-use std::{collections::BTreeMap, future::Future, mem, net::IpAddr, str::FromStr, time::Duration};
+use std::{
+    collections::BTreeMap,
+    future::Future,
+    mem,
+    net::{IpAddr, SocketAddr},
+    str::FromStr,
+    time::{Duration, Instant},
+};
 use tokio::runtime::Handle;
 
 pub use hyper::StatusCode;
 
 pub type Request = hyper::Request<hyper::Body>;
 pub type Response = hyper::Response<hyper::Body>;
+
+const TIMER_CHECK_INTERVAL: Duration = Duration::from_secs(60);
+const API_IP_CHECK_DELAY: Duration = Duration::from_secs(15 * 60);
+const API_IP_CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60);
+const API_IP_CHECK_ERROR_INTERVAL: Duration = Duration::from_secs(15 * 60);
 
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -68,11 +81,12 @@ pub(crate) struct RequestService<C> {
     handle: Handle,
     next_id: u64,
     in_flight_requests: BTreeMap<u64, AbortHandle>,
+    address_cache: AddressCache,
 }
 
 impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
     /// Constructs a new request service.
-    pub fn new(connector: C, handle: Handle) -> RequestService<C> {
+    pub fn new(connector: C, handle: Handle, address_cache: AddressCache) -> RequestService<C> {
         let client = Self::new_client(connector.clone());
 
         let (command_tx, command_rx) = mpsc::channel(1);
@@ -84,6 +98,7 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
             next_id: 0,
             connector,
             handle,
+            address_cache,
         }
     }
 
@@ -106,11 +121,12 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
                 let mut tx = self.command_tx.clone();
                 let timeout = request.timeout();
 
-                let (request_future, abort_handle) = abortable(
-                    self.client
-                        .request(request.into_request())
-                        .map_err(Error::from),
-                );
+                let hyper_request = request.into_request();
+                let host_addr = get_request_socket_addr(&hyper_request);
+
+                let (request_future, abort_handle) =
+                    abortable(self.client.request(hyper_request).map_err(Error::from));
+                let address_cache = self.address_cache.clone();
 
                 let future = async move {
                     let response =
@@ -119,6 +135,17 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
                             .map_err(Error::TimeoutError);
 
                     let response = flatten_result(flatten_result(response));
+                    if let Some(host_addr) = host_addr {
+                        if let Err(err) = &response {
+                            match err {
+                                Error::HyperError(_) | Error::TimeoutError(_) => {
+                                    address_cache.register_failure(host_addr, err);
+                                }
+                                _ => (),
+                            }
+                        }
+                    }
+
 
                     if completion_tx.send(response).is_err() {
                         log::trace!(
@@ -163,6 +190,18 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
             self.process_command(command);
         }
     }
+}
+
+fn get_request_socket_addr(request: &Request) -> Option<SocketAddr> {
+    let uri = request.uri();
+    let port = uri
+        .port_u16()
+        // Assuming HTTPS always
+        .unwrap_or(443);
+
+    let host_addr = uri.host().and_then(|host| host.parse::<IpAddr>().ok())?;
+
+    Some(SocketAddr::new(host_addr, port))
 }
 
 
@@ -301,18 +340,22 @@ pub struct ErrorResponse {
 
 #[derive(Clone)]
 pub struct RequestFactory {
-    host: String,
-    address: Option<IpAddr>,
+    hostname: String,
+    address_provider: Box<dyn AddressProvider>,
     path_prefix: Option<String>,
     pub timeout: Duration,
 }
 
 
 impl RequestFactory {
-    pub fn new(host: String, address: Option<IpAddr>, path_prefix: Option<String>) -> Self {
+    pub fn new(
+        hostname: String,
+        address_provider: Box<dyn AddressProvider>,
+        path_prefix: Option<String>,
+    ) -> Self {
         Self {
-            host,
-            address,
+            hostname,
+            address_provider,
             path_prefix,
             timeout: DEFAULT_TIMEOUT,
         }
@@ -367,16 +410,13 @@ impl RequestFactory {
             .method(method)
             .uri(uri)
             .header(header::ACCEPT, HeaderValue::from_static("application/json"))
-            .header(header::HOST, self.host.clone());
+            .header(header::HOST, self.hostname.clone());
 
         request.body(hyper::Body::empty()).map_err(Error::HttpError)
     }
 
     fn get_uri(&self, path: &str) -> Result<Uri> {
-        let host: &dyn std::fmt::Display = &self
-            .address
-            .map(|addr| addr.to_string())
-            .unwrap_or_else(|| self.host.clone());
+        let host = self.address_provider.get_address();
         let prefix = self.path_prefix.as_ref().map(AsRef::as_ref).unwrap_or("");
         let uri = format!("https://{}/{}{}", host, prefix, path);
         hyper::Uri::from_str(&uri).map_err(Error::UriError)
@@ -385,6 +425,29 @@ impl RequestFactory {
     fn set_request_timeout(&self, mut request: RestRequest) -> RestRequest {
         request.timeout = self.timeout;
         request
+    }
+}
+
+pub trait AddressProvider: Send + Sync {
+    /// Must return a string that represents either a host or a host with port
+    fn get_address(&self) -> String;
+    fn clone_box(&self) -> Box<dyn AddressProvider>;
+}
+
+impl Clone for Box<dyn AddressProvider> {
+    fn clone(&self) -> Self {
+        self.clone_box()
+    }
+}
+
+impl AddressProvider for IpAddr {
+    /// Must return a string that represents either a host or a host with port
+    fn get_address(&self) -> String {
+        self.to_string()
+    }
+
+    fn clone_box(&self) -> Box<dyn AddressProvider> {
+        Box::new(*self)
     }
 }
 
@@ -490,6 +553,51 @@ pub struct MullvadRestHandle {
 }
 
 impl MullvadRestHandle {
+    pub(crate) fn new(
+        service: RequestServiceHandle,
+        factory: RequestFactory,
+        address_cache: AddressCache,
+    ) -> Self {
+        let handle = Self { service, factory };
+        handle.spawn_api_address_fetcher(address_cache);
+
+        handle
+    }
+
+    fn spawn_api_address_fetcher(&self, address_cache: AddressCache) {
+        let handle = self.clone();
+
+        self.service.spawn(async move {
+            // always start the fetch after 15 minutes
+            let api_proxy = crate::ApiProxy { handle };
+            let mut next_check = Instant::now() + API_IP_CHECK_DELAY;
+
+            let next_error_check = || Instant::now() + API_IP_CHECK_ERROR_INTERVAL;
+            let next_regular_check = || Instant::now() + API_IP_CHECK_INTERVAL;
+
+            let mut interval = tokio::time::interval_at(next_check.into(), TIMER_CHECK_INTERVAL);
+
+            loop {
+                interval.tick().await;
+                if next_check < Instant::now() {
+                    match api_proxy.clone().get_api_addrs().await {
+                        Ok(new_addrs) => {
+                            log::debug!("Fetched new API addresses {:?}, will fetch again in {} hours", new_addrs, API_IP_CHECK_INTERVAL.as_secs() / ( 60 * 60 ));
+                            if let Err(err) = address_cache.set_addresses(new_addrs).await {
+                                log::error!("Failed to save newly updated API addresses: {}", err);
+                            }
+                            next_check = next_regular_check();
+                        }
+                        Err(err) => {
+                            log::error!("Failed to fetch new API addresses: {}, will retry again in {} seconds", err, API_IP_CHECK_ERROR_INTERVAL.as_secs());
+                            next_check = next_error_check();
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     pub fn service(&self) -> RequestServiceHandle {
         self.service.clone()
     }

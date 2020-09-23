@@ -490,6 +490,7 @@ where
             tokio::runtime::Handle::current(),
             &cache_dir,
         )
+        .await
         .map_err(Error::InitRpcFactory)?;
         let rpc_handle = rpc_runtime.mullvad_rest_handle();
 
