@@ -19,7 +19,7 @@ regex = "1"
 serde = "1"
 serde_json = "1.0"
 hyper-rustls = "0.21"
-tokio = { version = "0.2", features = [ "macros", "time", "rt-threaded", "net", "io-std", "io-driver" ] }
+tokio = { version = "0.2", features = [ "macros", "time", "rt-threaded", "net", "io-std", "io-driver", "fs" ] }
 tokio-rustls = "0.14"
 urlencoding = "1"
 webpki = { version = "0.21", features =  [] }
