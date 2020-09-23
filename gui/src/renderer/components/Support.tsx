@@ -112,7 +112,11 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     const sendState = this.state.sendState;
     if (sendState === SendState.Initial && this.state.email.length === 0) {
       this.setState({ sendState: SendState.Confirm });
-    } else if (sendState === SendState.Initial || sendState === SendState.Confirm) {
+    } else if (
+      sendState === SendState.Initial ||
+      sendState === SendState.Confirm ||
+      sendState === SendState.Failed
+    ) {
       try {
         await this.sendReport();
       } catch (error) {
