@@ -1,9 +1,9 @@
 package net.mullvad.mullvadvpn.ui.widget
 
 import android.content.Context
-import android.text.method.DigitsKeyListener
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.method.DigitsKeyListener
 import android.text.style.MetricAffectingSpan
 import android.util.AttributeSet
 import android.view.LayoutInflater
