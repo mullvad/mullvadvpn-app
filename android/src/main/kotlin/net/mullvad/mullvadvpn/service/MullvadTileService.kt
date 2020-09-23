@@ -75,7 +75,7 @@ class MullvadTileService : TileService() {
     }
 
     private fun updateTileState() {
-        qsTile.apply {
+        qsTile?.apply {
             if (secured) {
                 state = Tile.STATE_ACTIVE
                 icon = securedIcon
