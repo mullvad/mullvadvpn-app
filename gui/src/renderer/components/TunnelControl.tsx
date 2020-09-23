@@ -75,59 +75,6 @@ const SelectedLocationChevron = styled(AppButton.Icon)({
 
 export default class TunnelControl extends React.Component<ITunnelControlProps> {
   public render() {
-    const SwitchLocation = () => {
-      return (
-        <SwitchLocationButton onClick={this.props.onSelectLocation}>
-          {messages.pgettext('tunnel-control', 'Switch location')}
-        </SwitchLocationButton>
-      );
-    };
-
-    const SelectedLocation = () => (
-      <SwitchLocationButton
-        onClick={this.props.onSelectLocation}
-        aria-label={sprintf(
-          messages.pgettext('accessibility', 'Select location. Current location is %(location)s'),
-          { location: this.props.selectedRelayName },
-        )}>
-        <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
-        <SelectedLocationChevron height={12} width={7} source="icon-chevron" />
-      </SwitchLocationButton>
-    );
-
-    const Connect = () => (
-      <AppButton.GreenButton onClick={this.props.onConnect}>
-        {messages.pgettext('tunnel-control', 'Secure my connection')}
-      </AppButton.GreenButton>
-    );
-
-    const Disconnect = (props: React.ComponentProps<typeof AppButton.RedTransparentButton>) => (
-      <AppButton.RedTransparentButton onClick={this.props.onDisconnect} {...props}>
-        {messages.gettext('Disconnect')}
-      </AppButton.RedTransparentButton>
-    );
-
-    const Cancel = (props: React.ComponentProps<typeof AppButton.RedTransparentButton>) => (
-      <AppButton.RedTransparentButton onClick={this.props.onDisconnect} {...props}>
-        {messages.gettext('Cancel')}
-      </AppButton.RedTransparentButton>
-    );
-
-    const Dismiss = (props: React.ComponentProps<typeof AppButton.RedTransparentButton>) => (
-      <AppButton.RedTransparentButton onClick={this.props.onDisconnect} {...props}>
-        {messages.gettext('Dismiss')}
-      </AppButton.RedTransparentButton>
-    );
-
-    const Reconnect = (props: React.ComponentProps<typeof AppButton.RedTransparentButton>) => (
-      <AppButton.RedTransparentButton
-        onClick={this.props.onReconnect}
-        aria-label={messages.gettext('Reconnect')}
-        {...props}>
-        <ImageView height={22} width={22} source="icon-reload" tintColor="white" />
-      </AppButton.RedTransparentButton>
-    );
-
     let state = this.props.tunnelState.state;
 
     switch (this.props.tunnelState.state) {
@@ -159,8 +106,8 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
               <ConnectionPanelContainer />
             </Body>
             <Footer>
-              <SwitchLocation />
-              <MultiButton mainButton={Cancel} sideButton={Reconnect} />
+              {this.switchLocationButton()}
+              <MultiButton mainButton={this.cancelButton} sideButton={this.reconnectButton} />
             </Footer>
           </Wrapper>
         );
@@ -176,8 +123,8 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
               <ConnectionPanelContainer />
             </Body>
             <Footer>
-              <SwitchLocation />
-              <MultiButton mainButton={Disconnect} sideButton={Reconnect} />
+              {this.switchLocationButton()}
+              <MultiButton mainButton={this.disconnectButton} sideButton={this.reconnectButton} />
             </Footer>
           </Wrapper>
         );
@@ -193,8 +140,8 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
                 <Secured displayStyle={SecuredDisplayStyle.failedToSecure} />
               </Body>
               <Footer>
-                <SwitchLocation />
-                <MultiButton mainButton={Dismiss} sideButton={Reconnect} />
+                {this.switchLocationButton()}
+                <MultiButton mainButton={this.dismissButton} sideButton={this.reconnectButton} />
               </Footer>
             </Wrapper>
           );
@@ -205,8 +152,8 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
                 <Secured displayStyle={SecuredDisplayStyle.blocked} />
               </Body>
               <Footer>
-                <SwitchLocation />
-                <MultiButton mainButton={Cancel} sideButton={Reconnect} />
+                {this.switchLocationButton()}
+                <MultiButton mainButton={this.cancelButton} sideButton={this.reconnectButton} />
               </Footer>
             </Wrapper>
           );
@@ -220,8 +167,8 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
               <Location>{this.renderCountry()}</Location>
             </Body>
             <Footer>
-              <SelectedLocation />
-              <Connect />
+              {this.selectLocationButton()}
+              {this.connectButton()}
             </Footer>
           </Wrapper>
         );
@@ -237,8 +184,8 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
               <Location>{this.renderCountry()}</Location>
             </Body>
             <Footer>
-              <SelectedLocation />
-              <Connect />
+              {this.selectLocationButton()}
+              {this.connectButton()}
             </Footer>
           </Wrapper>
         );
@@ -256,4 +203,69 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
   private renderCountry() {
     return <StyledMarquee>{this.props.country}</StyledMarquee>;
   }
+
+  private switchLocationButton() {
+    return (
+      <SwitchLocationButton onClick={this.props.onSelectLocation}>
+        {messages.pgettext('tunnel-control', 'Switch location')}
+      </SwitchLocationButton>
+    );
+  }
+
+  private selectLocationButton() {
+    return (
+      <SwitchLocationButton
+        onClick={this.props.onSelectLocation}
+        aria-label={sprintf(
+          messages.pgettext('accessibility', 'Select location. Current location is %(location)s'),
+          { location: this.props.selectedRelayName },
+        )}>
+        <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
+        <SelectedLocationChevron height={12} width={7} source="icon-chevron" />
+      </SwitchLocationButton>
+    );
+  }
+
+  private connectButton() {
+    return (
+      <AppButton.GreenButton onClick={this.props.onConnect}>
+        {messages.pgettext('tunnel-control', 'Secure my connection')}
+      </AppButton.GreenButton>
+    );
+  }
+
+  private disconnectButton = (props: AppButton.IProps) => {
+    return (
+      <AppButton.RedTransparentButton onClick={this.props.onDisconnect} {...props}>
+        {messages.gettext('Disconnect')}
+      </AppButton.RedTransparentButton>
+    );
+  };
+
+  private cancelButton = (props: AppButton.IProps) => {
+    return (
+      <AppButton.RedTransparentButton onClick={this.props.onDisconnect} {...props}>
+        {messages.gettext('Cancel')}
+      </AppButton.RedTransparentButton>
+    );
+  };
+
+  private dismissButton = (props: AppButton.IProps) => {
+    return (
+      <AppButton.RedTransparentButton onClick={this.props.onDisconnect} {...props}>
+        {messages.gettext('Dismiss')}
+      </AppButton.RedTransparentButton>
+    );
+  };
+
+  private reconnectButton = (props: AppButton.IProps) => {
+    return (
+      <AppButton.RedTransparentButton
+        onClick={this.props.onReconnect}
+        aria-label={messages.gettext('Reconnect')}
+        {...props}>
+        <ImageView height={22} width={22} source="icon-reload" tintColor="white" />
+      </AppButton.RedTransparentButton>
+    );
+  };
 }
