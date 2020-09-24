@@ -77,18 +77,13 @@ export const StyledSentMessage = styled.span(smallText, {
   color: colors.white60,
 });
 
+export const StyledThanks = styled.span({
+  color: colors.green,
+});
+
 export const StyledEmail = styled.span({
   fontWeight: 900,
   color: colors.white,
-});
-
-export const StyledSecureStatus = styled.span({
-  fontFamily: 'Open Sans',
-  fontSize: '16px',
-  fontWeight: 800,
-  lineHeight: '22px',
-  marginBottom: '4px',
-  color: colors.green,
 });
 
 export const StyledSendStatus = styled.span(bigText, {

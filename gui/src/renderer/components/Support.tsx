@@ -18,10 +18,10 @@ import {
   StyledForm,
   StyledFormEmailRow,
   StyledFormMessageRow,
-  StyledSecureStatus,
   StyledSendStatus,
   StyledSentMessage,
   StyledStatusIcon,
+  StyledThanks,
   StyledMessageInput,
 } from './SupportStyles';
 
@@ -112,7 +112,11 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     const sendState = this.state.sendState;
     if (sendState === SendState.Initial && this.state.email.length === 0) {
       this.setState({ sendState: SendState.Confirm });
-    } else if (sendState === SendState.Initial || sendState === SendState.Confirm) {
+    } else if (
+      sendState === SendState.Initial ||
+      sendState === SendState.Confirm ||
+      sendState === SendState.Failed
+    ) {
       try {
         await this.sendReport();
       } catch (error) {
@@ -333,7 +337,6 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
           <StyledStatusIcon>
             <ImageView source="icon-spinner" height={60} width={60} />
           </StyledStatusIcon>
-          <StyledSecureStatus>{messages.gettext('SECURE CONNECTION')}</StyledSecureStatus>
           <StyledSendStatus>{messages.pgettext('support-view', 'Sending...')}</StyledSendStatus>
         </StyledForm>
       </StyledContent>
@@ -356,11 +359,11 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
           <StyledStatusIcon>
             <ImageView source="icon-success" height={60} width={60} />
           </StyledStatusIcon>
-          <StyledSecureStatus>{messages.gettext('SECURE CONNECTION')}</StyledSecureStatus>
           <StyledSendStatus>{messages.pgettext('support-view', 'Sent')}</StyledSendStatus>
 
           <StyledSentMessage>
-            {messages.pgettext('support-view', 'Thanks! We will look into this.')}
+            <StyledThanks>{messages.pgettext('support-view', 'Thanks!')} </StyledThanks>
+            {messages.pgettext('support-view', 'We will look into this.')}
           </StyledSentMessage>
           {this.state.email.trim().length > 0 ? (
             <StyledSentMessage>{reachBackMessage}</StyledSentMessage>
@@ -377,7 +380,6 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
           <StyledStatusIcon>
             <ImageView source="icon-fail" height={60} width={60} />
           </StyledStatusIcon>
-          <StyledSecureStatus>{messages.gettext('SECURE CONNECTION')}</StyledSecureStatus>
           <StyledSendStatus>{messages.pgettext('support-view', 'Failed to send')}</StyledSendStatus>
           <StyledSentMessage>
             {messages.pgettext(
