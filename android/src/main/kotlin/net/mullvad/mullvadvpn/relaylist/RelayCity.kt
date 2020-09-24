@@ -16,7 +16,7 @@ class RelayCity(
         get() = relays.any { relay -> relay.active }
 
     override val hasChildren
-        get() = relays.size > 1
+        get() = !relays.isEmpty()
 
     override val visibleChildCount: Int
         get() {
@@ -53,6 +53,4 @@ class RelayCity(
             return 1
         }
     }
-
-    fun getRelayCount(): Int = relays.size
 }
