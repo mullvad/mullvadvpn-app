@@ -188,6 +188,10 @@ export default class AppRenderer {
       this.reduxActions.settings.setWireguardKeygenEvent(event);
     });
 
+    IpcRendererEventChannel.windowFocus.listen((focus: boolean) => {
+      this.reduxActions.userInterface.setWindowFocused(focus);
+    });
+
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 

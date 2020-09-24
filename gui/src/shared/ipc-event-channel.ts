@@ -168,6 +168,7 @@ interface ISplitTunnelingHandlers {
 
 const LOCALE_CHANGED = 'locale-changed';
 const WINDOW_SHAPE_CHANGED = 'window-shape-changed';
+const WINDOW_FOCUS_CHANGED = 'window-focus';
 
 const DAEMON_CONNECTED = 'daemon-connected';
 const DAEMON_DISCONNECTED = 'daemon-disconnected';
@@ -242,6 +243,10 @@ export class IpcRendererEventChannel {
 
   public static windowShape: IReceiver<IWindowShapeParameters> = {
     listen: listen(WINDOW_SHAPE_CHANGED),
+  };
+
+  public static windowFocus: IReceiver<boolean> = {
+    listen: listen(WINDOW_FOCUS_CHANGED),
   };
 
   public static daemonConnected: IReceiver<void> = {
@@ -344,6 +349,10 @@ export class IpcMainEventChannel {
 
   public static windowShape: ISender<IWindowShapeParameters> = {
     notify: sender(WINDOW_SHAPE_CHANGED),
+  };
+
+  public static windowFocus: ISender<boolean> = {
+    notify: sender(WINDOW_FOCUS_CHANGED),
   };
 
   public static daemonConnected: ISenderVoid = {

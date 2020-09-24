@@ -403,6 +403,8 @@ class ApplicationMain {
         break;
     }
 
+    this.installGenericFocusHandlers(windowController);
+
     if (this.shouldShowWindowOnStart() || process.env.NODE_ENV === 'development') {
       windowController.show();
     }
@@ -1580,6 +1582,15 @@ class ApplicationMain {
         closeEvent.preventDefault();
         windowController.hide();
       }
+    });
+  }
+
+  private installGenericFocusHandlers(windowController: WindowController) {
+    windowController.window.on('focus', () => {
+      IpcMainEventChannel.windowFocus.notify(windowController.webContents, true);
+    });
+    windowController.window.on('blur', () => {
+      IpcMainEventChannel.windowFocus.notify(windowController.webContents, false);
     });
   }
 
