@@ -3,17 +3,19 @@ package net.mullvad.mullvadvpn.ui.widget
 import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.method.DigitsKeyListener
 import android.text.style.MetricAffectingSpan
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnFocusChangeListener
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.TextView
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.LoginState
+import net.mullvad.mullvadvpn.util.SegmentedInputFormatter
 import net.mullvad.talpid.util.EventNotifier
 
 const val MIN_ACCOUNT_TOKEN_LENGTH = 10
@@ -42,11 +44,21 @@ class AccountInput : LinearLayout {
         }
     }
 
-    private val input = container.findViewById<TextView>(R.id.login_input).apply {
+    private val input = container.findViewById<EditText>(R.id.login_input).apply {
         addTextChangedListener(inputWatcher)
 
         onFocusChangeListener = OnFocusChangeListener { view, inputHasFocus ->
             hasFocus = inputHasFocus && view.isEnabled
+        }
+
+        // Manually initializing the `DigitsKeyListener` allows spaces to be used and still keeps
+        // the input type as a number so that the correct software keyboard type is shown
+        keyListener = DigitsKeyListener.getInstance("01234567890 ")
+
+        SegmentedInputFormatter(this, ' ').apply {
+            isValidInputCharacter = { character ->
+                '0' <= character && character <= '9'
+            }
         }
     }
 
@@ -94,7 +106,7 @@ class AccountInput : LinearLayout {
     }
 
     fun loginWith(accountNumber: String) {
-        input.text = accountNumber
+        input.setText(accountNumber)
         onLogin?.invoke(accountNumber)
     }
 
