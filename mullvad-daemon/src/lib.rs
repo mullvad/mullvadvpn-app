@@ -621,22 +621,7 @@ where
         };
 
         daemon.ensure_wireguard_keys_for_current_account().await;
-
-        if let Some(token) = daemon.settings.get_account_token() {
-            daemon
-                .wireguard_key_manager
-                .set_rotation_interval(
-                    &mut daemon.account_history,
-                    token,
-                    daemon
-                        .settings
-                        .tunnel_options
-                        .wireguard
-                        .automatic_rotation
-                        .map(|hours| Duration::from_secs(60u64 * 60u64 * hours as u64)),
-                )
-                .await;
-        }
+        daemon.ensure_key_rotation().await;
 
         Ok(daemon)
     }
@@ -1083,6 +1068,8 @@ where
                         account: account.clone(),
                         wireguard: None,
                     });
+                // if no key existed before
+                let first_key_for_account_on_host = account_entry.wireguard.is_none();
                 account_entry.wireguard = Some(data);
                 match self.account_history.insert(account_entry).await {
                     Ok(_) => {
@@ -1090,7 +1077,10 @@ where
                             self.schedule_reconnect(WG_RECONNECT_DELAY).await;
                         }
                         self.event_listener
-                            .notify_key_event(KeygenEvent::NewKey(public_key))
+                            .notify_key_event(KeygenEvent::NewKey(public_key));
+                        if first_key_for_account_on_host {
+                            self.ensure_key_rotation().await;
+                        }
                     }
                     Err(e) => {
                         log::error!(
@@ -1116,6 +1106,21 @@ where
                 self.event_listener
                     .notify_key_event(KeygenEvent::GenerationFailure);
             }
+        }
+    }
+
+    async fn ensure_key_rotation(&mut self) {
+        if let Some(token) = self.settings.get_account_token() {
+            let rotation_interval = self
+                .settings
+                .tunnel_options
+                .wireguard
+                .automatic_rotation
+                .map(|hours| Duration::from_secs(60u64 * 60u64 * hours as u64));
+
+            self.wireguard_key_manager
+                .set_rotation_interval(&mut self.account_history, token, rotation_interval)
+                .await;
         }
     }
 
@@ -1678,19 +1683,7 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, (), "set_wireguard_rotation_interval response");
                 if settings_changed {
-                    let account_token = self.settings.get_account_token();
-
-                    if let Some(token) = account_token {
-                        self.wireguard_key_manager
-                            .set_rotation_interval(
-                                &mut self.account_history,
-                                token,
-                                interval
-                                    .map(|hours| Duration::from_secs(60u64 * 60u64 * hours as u64)),
-                            )
-                            .await;
-                    }
-
+                    self.ensure_key_rotation().await;
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                 }
