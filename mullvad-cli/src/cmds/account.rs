@@ -153,7 +153,9 @@ impl Account {
     }
 
     fn format_expiry(expiry: &Timestamp) -> String {
-        chrono::NaiveDateTime::from_timestamp(expiry.seconds, expiry.nanos as u32).to_string()
+        let ndt = chrono::NaiveDateTime::from_timestamp(expiry.seconds, expiry.nanos as u32);
+        let utc = chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc);
+        utc.with_timezone(&chrono::Local).to_string()
     }
 
     async fn clear_history(&self) -> Result<()> {
