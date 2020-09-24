@@ -45,7 +45,7 @@ export default function Launch() {
       <StyledContainer>
         <Logo height={106} width={106} source="logo-icon" />
         <Title>{messages.pgettext('generic', 'MULLVAD VPN')}</Title>
-        <Subtitle>
+        <Subtitle role="alert">
           {messages.pgettext('launch-view', 'Connecting to Mullvad system service...')}
         </Subtitle>
       </StyledContainer>

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
@@ -83,7 +84,12 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
     };
 
     const SelectedLocation = () => (
-      <SwitchLocationButton onClick={this.props.onSelectLocation}>
+      <SwitchLocationButton
+        onClick={this.props.onSelectLocation}
+        aria-label={sprintf(
+          messages.pgettext('accessibility', 'Select location. Current location is %(location)s'),
+          { location: this.props.selectedRelayName },
+        )}>
         <AppButton.Label>{this.props.selectedRelayName}</AppButton.Label>
         <SelectedLocationChevron height={12} width={7} source="icon-chevron" />
       </SwitchLocationButton>

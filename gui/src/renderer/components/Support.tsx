@@ -2,10 +2,11 @@ import * as React from 'react';
 import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import * as AppButton from './AppButton';
+import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ImageView from './ImageView';
 import { Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalContainer } from './Modal';
-import { BackBarItem, NavigationBar, NavigationItems } from './NavigationBar';
+import { BackBarItem, NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import {
   StyledBlueButton,
@@ -159,6 +160,12 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
                     messages.pgettext('navigation-bar', 'Settings')
                   }
                 </BackBarItem>
+                <TitleBarItem>
+                  {
+                    // TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('support-view', 'Report a problem')
+                  }
+                </TitleBarItem>
               </NavigationItems>
             </NavigationBar>
             <StyledContentContainer>
@@ -277,13 +284,25 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
         type={ModalAlertType.Warning}
         message={message}
         buttons={[
-          <AppButton.GreenButton
-            key="upgrade"
-            disabled={this.props.isOffline}
-            onClick={this.openDownloadLink}>
-            <AppButton.Label>{messages.pgettext('support-view', 'Upgrade app')}</AppButton.Label>
-            <AppButton.Icon height={16} width={16} source="icon-extLink" />
-          </AppButton.GreenButton>,
+          <AriaDescriptionGroup key="upgrade">
+            <AriaDescribed>
+              <AppButton.GreenButton
+                disabled={this.props.isOffline}
+                onClick={this.openDownloadLink}>
+                <AppButton.Label>
+                  {messages.pgettext('support-view', 'Upgrade app')}
+                </AppButton.Label>
+                <AriaDescription>
+                  <AppButton.Icon
+                    height={16}
+                    width={16}
+                    source="icon-extLink"
+                    aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                  />
+                </AriaDescription>
+              </AppButton.GreenButton>
+            </AriaDescribed>
+          </AriaDescriptionGroup>,
           <AppButton.RedButton key="proceed" onClick={this.acknowledgeOutdateVersion}>
             {messages.pgettext('support-view', 'Continue anyway')}
           </AppButton.RedButton>,
@@ -316,10 +335,23 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
           </StyledFormMessageRow>
         </StyledForm>
         <StyledFooter>
-          <StyledBlueButton onClick={this.onViewLog} disabled={this.state.disableActions}>
-            <AppButton.Label>{messages.pgettext('support-view', 'View app logs')}</AppButton.Label>
-            <AppButton.Icon source="icon-extLink" height={16} width={16} />
-          </StyledBlueButton>
+          <AriaDescriptionGroup>
+            <AriaDescribed>
+              <StyledBlueButton onClick={this.onViewLog} disabled={this.state.disableActions}>
+                <AppButton.Label>
+                  {messages.pgettext('support-view', 'View app logs')}
+                </AppButton.Label>
+                <AriaDescription>
+                  <AppButton.Icon
+                    source="icon-extLink"
+                    height={16}
+                    width={16}
+                    aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                  />
+                </AriaDescription>
+              </StyledBlueButton>
+            </AriaDescribed>
+          </AriaDescriptionGroup>
           <AppButton.GreenButton
             disabled={!this.validate() || this.state.disableActions}
             onClick={this.onSend}>
