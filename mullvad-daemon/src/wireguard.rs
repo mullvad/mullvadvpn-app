@@ -150,7 +150,11 @@ impl KeyManager {
 
 
     /// Generate a new private key asynchronously. The new keys will be sent to the daemon channel.
-    pub async fn generate_key_async(&mut self, account: AccountToken, timeout: Option<Duration>) {
+    pub async fn spawn_key_generation_task(
+        &mut self,
+        account: AccountToken,
+        timeout: Option<Duration>,
+    ) {
         self.reset();
         let private_key = PrivateKey::new_from_random();
 

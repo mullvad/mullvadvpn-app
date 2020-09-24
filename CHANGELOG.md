@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Stop resetting the firewall after an upgrade to not leak after an upgrade.
+- Start key rotation when WireGuard key is first created.
 
 #### Windows
 - Remove firewall filters (unblock internet access) when "Always require VPN" is enabled and the app
