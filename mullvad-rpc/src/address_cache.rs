@@ -129,6 +129,10 @@ impl AddressCacheInner {
             }
         }
 
+        if !addresses.contains(&FALLBACK_API_ADDRESS.into()) {
+            addresses.push(FALLBACK_API_ADDRESS.into());
+        }
+
         Ok(Self {
             addresses,
             ..Default::default()
