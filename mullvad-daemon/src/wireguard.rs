@@ -375,7 +375,7 @@ impl KeyManager {
         self.stop_automatic_rotation();
 
         if self.auto_rotation_interval == Duration::new(0, 0) {
-            // disabled
+            log::debug!("Not running key rotation because it's disabled");
             return;
         }
 
