@@ -10,12 +10,14 @@ export interface IUserInterfaceReduxState {
   arrowPosition?: number;
   connectionPanelVisible: boolean;
   locationScope: LocationScope;
+  windowFocused: boolean;
 }
 
 const initialState: IUserInterfaceReduxState = {
   locale: 'en',
   connectionPanelVisible: false,
   locationScope: LocationScope.relay,
+  windowFocused: false,
 };
 
 export default function (
@@ -34,6 +36,9 @@ export default function (
 
     case 'SET_LOCATION_SCOPE':
       return { ...state, locationScope: action.scope };
+
+    case 'SET_WINDOW_FOCUSED':
+      return { ...state, windowFocused: action.focused };
 
     default:
       return state;
