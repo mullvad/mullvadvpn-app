@@ -47,16 +47,33 @@ export interface IProps {
 export interface IState {
   recentlyGeneratedKey: boolean;
   userHasInitiatedVerification: boolean;
+  ageOfKeyString: string;
 }
 
 export default class WireguardKeys extends React.Component<IProps, IState> {
+  private keyAgeUpdateInterval?: number;
+
   public state = {
     recentlyGeneratedKey: false,
     userHasInitiatedVerification: false,
+    ageOfKeyString: WireguardKeys.ageOfKeyString(this.props.keyState, this.props.locale),
   };
+
+  public static getDerivedStateFromProps(props: IProps) {
+    return {
+      ageOfKeyString: WireguardKeys.ageOfKeyString(props.keyState, props.locale),
+    };
+  }
 
   public componentDidMount() {
     this.verifyKey();
+    window.addEventListener('focus', this.setAgeOfKeyStringState);
+    this.keyAgeUpdateInterval = setInterval(this.setAgeOfKeyStringState, 60 * 1000);
+  }
+
+  public componentWillUnmount() {
+    window.removeEventListener('focus', this.setAgeOfKeyStringState);
+    clearInterval(this.keyAgeUpdateInterval);
   }
 
   public componentDidUpdate(prevProps: IProps) {
@@ -120,7 +137,7 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
                   <StyledRowLabel>
                     {messages.pgettext('wireguard-key-view', 'Key generated')}
                   </StyledRowLabel>
-                  <StyledRowValue>{this.ageOfKeyString()}</StyledRowValue>
+                  <StyledRowValue>{this.state.ageOfKeyString}</StyledRowValue>
                 </StyledRow>
 
                 <StyledMessages>
@@ -267,15 +284,21 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
     }
   }
 
-  private ageOfKeyString(): string {
-    switch (this.props.keyState.type) {
+  private static ageOfKeyString(keyState: WgKeyState, locale: string): string {
+    switch (keyState.type) {
       case 'key-set':
       case 'being-verified':
-        return moment(this.props.keyState.key.created).locale(this.props.locale).fromNow();
+        return moment(keyState.key.created).locale(locale).fromNow();
       default:
         return '-';
     }
   }
+
+  private setAgeOfKeyStringState = () => {
+    this.setState({
+      ageOfKeyString: WireguardKeys.ageOfKeyString(this.props.keyState, this.props.locale),
+    });
+  };
 
   private getStatusMessage(): string {
     switch (this.props.keyState.type) {
