@@ -317,6 +317,8 @@ impl Tunnel {
     }
 
     fn format_key_timestamp(timestamp: &Timestamp) -> String {
-        chrono::NaiveDateTime::from_timestamp(timestamp.seconds, timestamp.nanos as u32).to_string()
+        let ndt = chrono::NaiveDateTime::from_timestamp(timestamp.seconds, timestamp.nanos as u32);
+        let utc = chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc);
+        utc.with_timezone(&chrono::Local).to_string()
     }
 }
