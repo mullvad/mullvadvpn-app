@@ -50,13 +50,17 @@ pub struct KeyManager {
 }
 
 impl KeyManager {
-    pub(crate) fn new(daemon_tx: DaemonEventSender, http_handle: MullvadRestHandle) -> Self {
+    pub(crate) fn new(
+        daemon_tx: DaemonEventSender,
+        http_handle: MullvadRestHandle,
+        rotation_interval: Option<Duration>,
+    ) -> Self {
         Self {
             daemon_tx,
             http_handle,
             current_job: None,
             abort_scheduler_tx: None,
-            auto_rotation_interval: Duration::new(0, 0),
+            auto_rotation_interval: rotation_interval.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION),
         }
     }
 
@@ -156,9 +160,16 @@ impl KeyManager {
 
         let error_tx = self.daemon_tx.clone();
         let error_account = account.clone();
+        let http_handle = self.http_handle.clone();
 
         let mut inner_future_generator =
             self.push_future_generator(account.clone(), private_key, timeout);
+
+        let rotation_interval = if self.auto_rotation_interval == Duration::new(0, 0) {
+            None
+        } else {
+            Some(self.auto_rotation_interval.as_secs())
+        };
 
         let future_generator = move || {
             let fut = inner_future_generator();
@@ -200,25 +211,43 @@ impl KeyManager {
             retry_future_with_backoff(future_generator, should_retry, retry_strategy);
 
 
-        let (cancellable_upload, abort_handle) = abortable(Box::pin(upload_future));
+        // let (cancellable_upload, abort_handle) = abortable(Box::pin(upload_future));
         let daemon_tx = self.daemon_tx.clone();
-        let future = async move {
-            match cancellable_upload.await {
-                Ok(Ok(wireguard_data)) => {
+        let (future, abort_handle) = abortable(async move {
+            match upload_future.await {
+                Ok(wireguard_data) => {
+                    let public_key = wireguard_data.get_public_key();
                     let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
-                        account,
+                        account.clone(),
                         Ok(wireguard_data),
                     )));
+
+                    if let Some(rotation_interval) = rotation_interval {
+                        Self::create_automatic_rotation(
+                            daemon_tx,
+                            http_handle.clone(),
+                            public_key,
+                            rotation_interval,
+                            account,
+                        )
+                        .await;
+                    } else {
+                        log::debug!("Not running rotation after generating the key because rotation is disabled");
+                    }
                 }
-                Ok(Err(_)) => {}
-                Err(_) => {
-                    log::error!("Key generation cancelled");
+                Err(err) => {
+                    log::error!("Failed to generate key: {}", err);
                 }
             }
-        };
+        });
 
 
-        tokio::spawn(Box::pin(future));
+        tokio::spawn(Box::pin(async move {
+            if let Err(_) = future.await {
+                log::error!("Key generation cancelled.");
+            }
+        }));
+
         self.current_job = Some(abort_handle);
     }
 
@@ -343,6 +372,7 @@ impl KeyManager {
             AUTOMATIC_ROTATION_RETRY_DELAY,
         );
 
+        log::debug!("Starting automatic key rotation job");
         loop {
             let daemon_tx = daemon_tx.clone();
             interval.tick().await;
@@ -379,7 +409,6 @@ impl KeyManager {
             return;
         }
 
-        log::debug!("Starting automatic key rotation job");
         // Schedule cancellable series of repeating rotation tasks
         let fut = Self::create_automatic_rotation(
             self.daemon_tx.clone(),

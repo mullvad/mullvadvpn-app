@@ -587,8 +587,11 @@ where
         .await
         .map_err(Error::TunnelError)?;
 
-        let wireguard_key_manager =
-            wireguard::KeyManager::new(internal_event_tx.clone(), rpc_handle.clone());
+        let wireguard_key_manager = wireguard::KeyManager::new(
+            internal_event_tx.clone(),
+            rpc_handle.clone(),
+            Self::get_key_rotation_interval(&settings),
+        );
 
         // Attempt to download a fresh relay list
         relay_selector.update().await;
@@ -621,7 +624,6 @@ where
         };
 
         daemon.ensure_wireguard_keys_for_current_account().await;
-        daemon.ensure_key_rotation().await;
 
         Ok(daemon)
     }
@@ -1068,8 +1070,6 @@ where
                         account: account.clone(),
                         wireguard: None,
                     });
-                // if no key existed before
-                let first_key_for_account_on_host = account_entry.wireguard.is_none();
                 account_entry.wireguard = Some(data);
                 match self.account_history.insert(account_entry).await {
                     Ok(_) => {
@@ -1078,9 +1078,6 @@ where
                         }
                         self.event_listener
                             .notify_key_event(KeygenEvent::NewKey(public_key));
-                        if first_key_for_account_on_host {
-                            self.ensure_key_rotation().await;
-                        }
                     }
                     Err(e) => {
                         log::error!(
@@ -1111,17 +1108,22 @@ where
 
     async fn ensure_key_rotation(&mut self) {
         if let Some(token) = self.settings.get_account_token() {
-            let rotation_interval = self
-                .settings
-                .tunnel_options
-                .wireguard
-                .automatic_rotation
-                .map(|hours| Duration::from_secs(60u64 * 60u64 * hours as u64));
-
             self.wireguard_key_manager
-                .set_rotation_interval(&mut self.account_history, token, rotation_interval)
+                .set_rotation_interval(
+                    &mut self.account_history,
+                    token,
+                    Self::get_key_rotation_interval(&self.settings),
+                )
                 .await;
         }
+    }
+
+    fn get_key_rotation_interval(settings: &Settings) -> Option<Duration> {
+        settings
+            .tunnel_options
+            .wireguard
+            .automatic_rotation
+            .map(|hours| Duration::from_secs(60u64 * 60u64 * hours as u64))
     }
 
     async fn handle_new_account_event(
@@ -1346,13 +1348,6 @@ where
             }
 
             self.ensure_wireguard_keys_for_current_account().await;
-
-            if let Some(token) = account_token {
-                // update automatic rotation
-                self.wireguard_key_manager
-                    .reset_rotation(&mut self.account_history, token)
-                    .await;
-            }
         }
         Ok(account_changed)
     }
@@ -1707,6 +1702,7 @@ where
                     .await;
             } else {
                 log::info!("Account already has wireguard key");
+                self.ensure_key_rotation().await;
             }
         }
     }
