@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Open and focus app when opened from context menu instead of toggling the window.
+- Use the API to fetch API IP addresses instead of DNS.
 
 #### Android
 - Removed the Quit button.
