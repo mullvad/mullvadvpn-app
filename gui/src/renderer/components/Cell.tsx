@@ -30,13 +30,17 @@ interface IContainerProps extends React.HTMLAttributes<HTMLDivElement> {
   disabled?: boolean;
 }
 
-export function Container({ disabled, ...otherProps }: IContainerProps) {
+export const Container = React.forwardRef(function ContainerT(
+  props: IContainerProps,
+  ref: React.Ref<HTMLDivElement>,
+) {
+  const { disabled, ...otherProps } = props;
   return (
     <CellDisabledContext.Provider value={disabled ?? false}>
-      <StyledContainer {...otherProps} />
+      <StyledContainer ref={ref} {...otherProps} />
     </CellDisabledContext.Provider>
   );
-}
+});
 
 interface ICellButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   selected?: boolean;
