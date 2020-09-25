@@ -36,11 +36,13 @@ const zoomableGroupStyle = {
   transition: `transform ${MOVE_SPEED}ms ease-out`,
 };
 
-const markerStyle = mergeRsmStyle({
-  default: {
+function getMarkerImageStyle(zoom: number) {
+  return {
+    width: '60px',
+    transform: `translate(${-30 / zoom}px, ${-30 / zoom}px) scale(${1 / zoom})`,
     transition: `transform ${MOVE_SPEED}ms ease-out`,
-  },
-});
+  };
+}
 
 const geographyStyle = mergeRsmStyle({
   default: {
@@ -219,6 +221,12 @@ function SvgMap(props: IProps) {
   const enableTransitionScheduler = useScheduler();
   useEffect(() => enableTransitionScheduler.schedule(() => setEnableTransition(true)), []);
 
+  const markerStyle = useMemo(
+    () => mergeRsmStyle({ default: { display: props.showMarker ? undefined : 'none' } }),
+    [props.showMarker],
+  );
+  const markerImageStyle = useMemo(() => getMarkerImageStyle(zoomLevel), [zoomLevel]);
+
   return (
     <ComposableMap
       width={width}
@@ -257,18 +265,9 @@ function SvgMap(props: IProps) {
             ));
           }}
         </Geographies>
-        {
-          // disable CSS transition when moving between locations
-          // by using the different "key"
-          props.showMarker && (
-            <Marker
-              key={`user-location-${center.join('-')}`}
-              coordinates={center}
-              style={markerStyle}>
-              <image x="-6" y="-6" width="12" xlinkHref={props.markerImagePath} />
-            </Marker>
-          )
-        }
+        <Marker coordinates={center} style={markerStyle}>
+          <image style={markerImageStyle} xlinkHref={props.markerImagePath} />
+        </Marker>
       </ZoomableGroup>
     </ComposableMap>
   );
