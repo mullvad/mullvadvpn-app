@@ -19,11 +19,17 @@ export interface ISetLocationScopeAction {
   scope: LocationScope;
 }
 
+export interface ISetWindowFocusedAction {
+  type: 'SET_WINDOW_FOCUSED';
+  focused: boolean;
+}
+
 export type UserInterfaceAction =
   | IUpdateLocaleAction
   | IUpdateWindowArrowPositionAction
   | IUpdateConnectionInfoOpenAction
-  | ISetLocationScopeAction;
+  | ISetLocationScopeAction
+  | ISetWindowFocusedAction;
 
 function updateLocale(locale: string): IUpdateLocaleAction {
   return {
@@ -52,9 +58,17 @@ function setLocationScope(scope: LocationScope): ISetLocationScopeAction {
   };
 }
 
+function setWindowFocused(focused: boolean): ISetWindowFocusedAction {
+  return {
+    type: 'SET_WINDOW_FOCUSED',
+    focused,
+  };
+}
+
 export default {
   updateLocale,
   updateWindowArrowPosition,
   toggleConnectionPanel,
   setLocationScope,
+  setWindowFocused,
 };
