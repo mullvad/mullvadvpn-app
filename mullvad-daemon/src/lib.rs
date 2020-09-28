@@ -622,7 +622,6 @@ where
         };
 
         daemon.ensure_wireguard_keys_for_current_account().await;
-        daemon.ensure_key_rotation().await;
 
         Ok(daemon)
     }
@@ -1347,13 +1346,6 @@ where
             }
 
             self.ensure_wireguard_keys_for_current_account().await;
-
-            if let Some(token) = account_token {
-                // update automatic rotation
-                self.wireguard_key_manager
-                    .reset_rotation(&mut self.account_history, token)
-                    .await;
-            }
         }
         Ok(account_changed)
     }
@@ -1707,7 +1699,8 @@ where
                     .generate_key_async(account, Some(FIRST_KEY_PUSH_TIMEOUT))
                     .await;
             } else {
-                log::info!("Account already has wireguard key");
+                log::info!("Account already has wireguard key, starting key rotation.");
+                daemon.ensure_key_rotation().await;
             }
         }
     }
