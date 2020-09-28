@@ -24,12 +24,25 @@ export interface ISetWindowFocusedAction {
   focused: boolean;
 }
 
+export interface IAddScrollPosition {
+  type: 'ADD_SCROLL_POSITION';
+  path: string;
+  scrollPosition: [number, number];
+}
+
+export interface IRemoveScrollPosition {
+  type: 'REMOVE_SCROLL_POSITION';
+  path: string;
+}
+
 export type UserInterfaceAction =
   | IUpdateLocaleAction
   | IUpdateWindowArrowPositionAction
   | IUpdateConnectionInfoOpenAction
   | ISetLocationScopeAction
-  | ISetWindowFocusedAction;
+  | ISetWindowFocusedAction
+  | IAddScrollPosition
+  | IRemoveScrollPosition;
 
 function updateLocale(locale: string): IUpdateLocaleAction {
   return {
@@ -65,10 +78,27 @@ function setWindowFocused(focused: boolean): ISetWindowFocusedAction {
   };
 }
 
+function addScrollPosition(path: string, scrollPosition: [number, number]): IAddScrollPosition {
+  return {
+    type: 'ADD_SCROLL_POSITION',
+    path,
+    scrollPosition,
+  };
+}
+
+function removeScrollPosition(path: string): IRemoveScrollPosition {
+  return {
+    type: 'REMOVE_SCROLL_POSITION',
+    path,
+  };
+}
+
 export default {
   updateLocale,
   updateWindowArrowPosition,
   toggleConnectionPanel,
   setLocationScope,
   setWindowFocused,
+  addScrollPosition,
+  removeScrollPosition,
 };

@@ -1,6 +1,19 @@
-import React, { useCallback, useContext, useLayoutEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
+import { useSelector } from 'react-redux';
+import { useHistory } from 'react-router';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import useActions from '../lib/actionsHook';
+import { useCombinedRefs } from '../lib/utilityHooks';
+import { IReduxState } from '../redux/store';
+import userInterface from '../redux/userinterface/actions';
 import CustomScrollbars, { IScrollEvent } from './CustomScrollbars';
 import {
   StyledBackBarItemButton,
@@ -110,9 +123,33 @@ interface INavigationScrollbarsProps {
 
 export const NavigationScrollbars = React.forwardRef(function NavigationScrollbarsT(
   props: INavigationScrollbarsProps,
-  ref?: React.Ref<CustomScrollbars>,
+  forwardedRef?: React.Ref<CustomScrollbars>,
 ) {
+  const history = useHistory();
   const { onScroll } = useContext(NavigationScrollContext);
+
+  const ref = useRef<CustomScrollbars>();
+  const combinedRefs = useCombinedRefs(forwardedRef, ref);
+
+  const { addScrollPosition, removeScrollPosition } = useActions(userInterface);
+  const scrollPosition = useSelector(
+    (state: IReduxState) => state.userInterface.scrollPosition[history.location.pathname],
+  );
+
+  useEffect(() => {
+    const path = history.location.pathname;
+
+    if (history.action === 'POP' && scrollPosition) {
+      ref.current?.scrollTo(...scrollPosition);
+      removeScrollPosition(path);
+    }
+
+    return () => {
+      if (history.action === 'PUSH' && ref.current) {
+        addScrollPosition(path, ref.current.getScrollPosition());
+      }
+    };
+  }, []);
 
   const handleScroll = useCallback((event: IScrollEvent) => {
     onScroll(event);
@@ -121,7 +158,7 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
 
   return (
     <CustomScrollbars
-      ref={ref}
+      ref={combinedRefs}
       className={props.className}
       fillContainer={props.fillContainer}
       onScroll={handleScroll}>
