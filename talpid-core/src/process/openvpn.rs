@@ -50,6 +50,25 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
 static ALLOWED_TLS1_3_CIPHERS: &[&str] =
     &["TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256"];
 
+/// Tun driver to use, specified using `--windows-driver`.
+#[derive(Clone)]
+pub enum WindowsDriver {
+    /// TAP adapter driver
+    TapWindows6,
+    /// Wintun driver
+    Wintun,
+}
+
+impl WindowsDriver {
+    /// Return string to use with the `--windows-driver` option.
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            WindowsDriver::TapWindows6 => "tap-windows6",
+            WindowsDriver::Wintun => "wintun",
+        }
+    }
+}
+
 /// An OpenVPN process builder, providing control over the different arguments that the OpenVPN
 /// binary accepts.
 #[derive(Clone)]
@@ -66,6 +85,8 @@ pub struct OpenVpnCommand {
     log: Option<PathBuf>,
     tunnel_options: net::openvpn::TunnelOptions,
     proxy_settings: Option<net::openvpn::ProxySettings>,
+    #[cfg(windows)]
+    windows_driver: Option<WindowsDriver>,
     tunnel_alias: Option<OsString>,
     enable_ipv6: bool,
     proxy_port: Option<u16>,
@@ -88,6 +109,8 @@ impl OpenVpnCommand {
             log: None,
             tunnel_options: net::openvpn::TunnelOptions::default(),
             proxy_settings: None,
+            #[cfg(windows)]
+            windows_driver: None,
             tunnel_alias: None,
             enable_ipv6: true,
             proxy_port: None,
@@ -153,6 +176,13 @@ impl OpenVpnCommand {
     /// Sets extra options
     pub fn tunnel_options(&mut self, tunnel_options: &net::openvpn::TunnelOptions) -> &mut Self {
         self.tunnel_options = tunnel_options.clone();
+        self
+    }
+
+    /// Sets the driver to use for tunneling
+    #[cfg(windows)]
+    pub fn windows_driver(&mut self, driver: Option<WindowsDriver>) -> &mut Self {
+        self.windows_driver = driver;
         self
     }
 
@@ -243,6 +273,12 @@ impl OpenVpnCommand {
         if let Some(ref tunnel_device) = self.tunnel_alias {
             args.push(OsString::from("--dev-node"));
             args.push(tunnel_device.clone());
+        }
+
+        #[cfg(windows)]
+        if let Some(ref windows_driver) = self.windows_driver {
+            args.push(OsString::from("--windows-driver"));
+            args.push(OsString::from(windows_driver.as_str()));
         }
 
         args.extend(Self::tls_cipher_arguments().iter().map(OsString::from));
