@@ -504,7 +504,7 @@ std::set<NetworkAdapter> GetNetworkAdapters(const std::optional<std::wstring> ha
 	return adapters;
 }
 
-void CreateTapDevice()
+void CreateNetDevice(const std::wstring &hardwareId)
 {
 	GUID classGuid = GUID_DEVCLASS_NET;
 
@@ -542,8 +542,8 @@ void CreateTapDevice()
 		deviceInfoSet,
 		&devInfoData,
 		SPDRP_HARDWAREID,
-		reinterpret_cast<const BYTE *>(TAP_HARDWARE_ID),
-		sizeof(TAP_HARDWARE_ID) - sizeof(L'\0')
+		reinterpret_cast<const BYTE *>(hardwareId.c_str()),
+		sizeof(wchar_t) * hardwareId.size()
 	);
 
 	if (FALSE == status)
@@ -565,7 +565,7 @@ void CreateTapDevice()
 		THROW_SETUPAPI_ERROR(GetLastError(), "SetupDiCallClassInstaller");
 	}
 
-	Log(L"Created new TAP adapter successfully");
+	Log(L"Created new network adapter successfully");
 }
 
 void UpdateTapDriver(const std::wstring &infPath)
@@ -644,13 +644,13 @@ ATTEMPT_UPDATE:
 // NOTE: Enumerating adapters first and picking the next free name is not sufficient,
 //       because the broken TAP may not be included.
 //
-void RenameAdapterToMullvad(const NetworkAdapter &adapter)
+void RenameAdapter(const NetworkAdapter &adapter, const std::wstring &baseName)
 {
 	common::network::Nci nci;
 
 	try
 	{
-		nci.setConnectionName(common::Guid::FromString(adapter.guid), TAP_BASE_ALIAS);
+		nci.setConnectionName(common::Guid::FromString(adapter.guid), baseName.c_str());
 		return;
 	}
 	catch (...)
@@ -660,7 +660,7 @@ void RenameAdapterToMullvad(const NetworkAdapter &adapter)
 	for (int i = 1; i < 10; i++)
 	{
 		std::wstringstream ss;
-		ss << TAP_BASE_ALIAS << L"-" << i;
+		ss << baseName << L"-" << i;
 
 		try
 		{
@@ -672,7 +672,7 @@ void RenameAdapterToMullvad(const NetworkAdapter &adapter)
 		}
 	}
 
-	THROW_ERROR("Exhausted TAP adapter namespace");
+	THROW_ERROR("Unable to rename network adapter");
 }
 
 std::optional<NetworkAdapter> FindMullvadAdapter(const std::set<NetworkAdapter> &tapAdapters)
@@ -726,19 +726,19 @@ std::optional<NetworkAdapter> FindMullvadAdapter(const std::set<NetworkAdapter> 
 	return std::nullopt;
 }
 
-NetworkAdapter FindBrandedTap()
+NetworkAdapter FindNetAdapter(const std::wstring &hardwareId)
 {
-	std::set<NetworkAdapter> added = GetNetworkAdapters(TAP_HARDWARE_ID);
+	std::set<NetworkAdapter> added = GetNetworkAdapters(hardwareId);
 
 	if (added.empty())
 	{
-		THROW_ERROR("Could not identify TAP");
+		THROW_ERROR("Could not identify virtual network adapter");
 	}
 	else if (added.size() > 1)
 	{
-		LogAdapters(L"Enumerable network TAP adapters", added);
+		LogAdapters(L"Enumerable virtual network adapters", added);
 
-		THROW_ERROR("Identified more TAP adapters than expected");
+		THROW_ERROR("Identified more network adapters than expected");
 	}
 
 	return *added.begin();
@@ -837,9 +837,9 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 				goto INVALID_ARGUMENTS;
 			}
 
-			CreateTapDevice();
+			CreateNetDevice(TAP_HARDWARE_ID);
 			UpdateTapDriver(argv[2]);
-			RenameAdapterToMullvad(FindBrandedTap());
+			RenameAdapter(FindNetAdapter(TAP_HARDWARE_ID), TAP_BASE_ALIAS);
 		}
 		else if (0 == _wcsicmp(argv[1], L"update"))
 		{
