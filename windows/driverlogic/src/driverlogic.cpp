@@ -504,7 +504,40 @@ std::set<NetworkAdapter> GetNetworkAdapters(const std::optional<std::wstring> ha
 	return adapters;
 }
 
-void CreateNetDevice(const std::wstring &hardwareId)
+void throwUpdateException(DWORD lastError, const char *operation)
+{
+	if (ERROR_DEVICE_INSTALLER_NOT_READY == lastError)
+	{
+		bool deviceInstallDisabled = false;
+
+		try
+		{
+			const auto key = common::registry::Registry::OpenKey(
+				HKEY_LOCAL_MACHINE,
+				L"SYSTEM\\CurrentControlSet\\Services\\DeviceInstall\\Parameters"
+			);
+			deviceInstallDisabled = (0 != key->readUint32(L"DeviceInstallDisabled"));
+		}
+		catch (...)
+		{
+		}
+
+		if (deviceInstallDisabled)
+		{
+			throw common::error::WindowsException(
+				"Device installs must be enabled to continue. "
+				"Enable them in the Local Group Policy editor, or "
+				"update the registry value DeviceInstallDisabled in "
+				"[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\DeviceInstall\\Parameters]",
+				lastError
+			);
+		}
+	}
+
+	THROW_SETUPAPI_ERROR(lastError, operation);
+}
+
+void CreateNetDevice(const std::wstring &hardwareId, bool installDeviceDriver)
 {
 	GUID classGuid = GUID_DEVCLASS_NET;
 
@@ -566,6 +599,28 @@ void CreateNetDevice(const std::wstring &hardwareId)
 	}
 
 	Log(L"Created new network adapter successfully");
+
+	if (installDeviceDriver)
+	{
+		BOOL rebootRequired = FALSE;
+
+		if (FALSE == DiInstallDevice(
+			nullptr,
+			deviceInfoSet,
+			&devInfoData,
+			nullptr,
+			0,
+			&rebootRequired
+		))
+		{
+			throwUpdateException(GetLastError(), "DiInstallDevice");
+		}
+
+		std::wstringstream ss;
+		ss << L"Installed driver on device. Reboot required: "
+			<< rebootRequired;
+		Log(ss.str());
+	}
 }
 
 void UpdateTapDriver(const std::wstring &infPath)
@@ -598,35 +653,7 @@ ATTEMPT_UPDATE:
 			goto ATTEMPT_UPDATE;
 		}
 
-		if (ERROR_DEVICE_INSTALLER_NOT_READY == lastError)
-		{
-			bool deviceInstallDisabled = false;
-
-			try
-			{
-				const auto key = common::registry::Registry::OpenKey(
-					HKEY_LOCAL_MACHINE,
-					L"SYSTEM\\CurrentControlSet\\Services\\DeviceInstall\\Parameters"
-				);
-				deviceInstallDisabled = (0 != key->readUint32(L"DeviceInstallDisabled"));
-			}
-			catch (...)
-			{
-			}
-
-			if (deviceInstallDisabled)
-			{
-				throw common::error::WindowsException(
-					"Device installs must be enabled to continue. "
-					"Enable them in the Local Group Policy editor, or "
-					"update the registry value DeviceInstallDisabled in "
-					"[HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\DeviceInstall\\Parameters]",
-					lastError
-				);
-			}
-		}
-
-		THROW_SETUPAPI_ERROR(lastError, "UpdateDriverForPlugAndPlayDevicesW");
+		throwUpdateException(lastError, "UpdateDriverForPlugAndPlayDevicesW");
 	}
 
 	//
@@ -837,7 +864,7 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 				goto INVALID_ARGUMENTS;
 			}
 
-			CreateNetDevice(TAP_HARDWARE_ID);
+			CreateNetDevice(TAP_HARDWARE_ID, false);
 			UpdateTapDriver(argv[2]);
 			RenameAdapter(FindNetAdapter(TAP_HARDWARE_ID), TAP_BASE_ALIAS);
 		}
