@@ -44,7 +44,7 @@ impl AutoConnect {
     async fn set(&self, auto_connect: bool) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         rpc.set_auto_connect(auto_connect).await?;
-        println!("Changed auto-connect sharing setting");
+        println!("Changed auto-connect setting");
         Ok(())
     }
 
