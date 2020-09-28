@@ -24,3 +24,5 @@ elif /sbin/init --version | grep upstart &> /dev/null; then
     stop mullvad-daemon
     rm -f /etc/init/mullvad-daemon.conf
 fi
+
+/opt/Mullvad\ VPN/resources/mullvad-setup reset-firewall || true
