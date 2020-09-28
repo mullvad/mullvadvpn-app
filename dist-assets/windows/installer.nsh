@@ -15,6 +15,9 @@
 # TAP device hardware ID
 !define TAP_HARDWARE_ID "tapmullvad0901"
 
+# Wintun hardware ID
+!define TUN_HARDWARE_ID "wintun"
+
 # "sc" exit code
 !define SERVICE_STARTED 0
 !define SERVICE_START_PENDING 2
@@ -233,6 +236,10 @@
 
 	log::Log "RemoveWintun()"
 
+	nsExec::ExecToStack '"$TEMP\tap-driver\driverlogic.exe" remove-device ${TUN_HARDWARE_ID} Mullvad-WT'
+	Pop $0
+	Pop $1
+
 	msiutil::SilentUninstall "$TEMP\mullvad-wintun-amd64.msi"
 	Pop $0
 	Pop $1
@@ -278,6 +285,18 @@
 	${If} $0 != ${MULLVAD_SUCCESS}
 		StrCpy $R0 "Failed to install Wintun: $1"
 		log::Log $R0
+		Goto InstallWintun_return
+	${EndIf}
+
+	log::Log "Creating new virtual adapter"
+	nsExec::ExecToStack '"$TEMP\tap-driver\driverlogic.exe" new-device ${TUN_HARDWARE_ID} Mullvad-WT'
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${DL_GENERAL_SUCCESS}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to create virtual adapter: error $0"
+		log::LogWithDetails $R0 $1
 		Goto InstallWintun_return
 	${EndIf}
 
