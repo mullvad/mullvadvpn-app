@@ -600,9 +600,10 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             .enable_ipv6(params.generic_options.enable_ipv6)
             .ca(resource_dir.join("ca.crt"));
         #[cfg(windows)]
-        cmd.tunnel_alias(Some(
-            crate::winnet::get_tap_interface_alias().map_err(Error::WinnetError)?,
-        ));
+        {
+            cmd.tunnel_alias(Some(OsString::from("Mullvad-WT")));
+            cmd.windows_driver(Some(crate::process::openvpn::WindowsDriver::Wintun));
+        }
         if let Some(proxy_settings) = params.proxy.clone().take() {
             cmd.proxy_settings(proxy_settings);
         }
