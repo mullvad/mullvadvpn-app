@@ -24,6 +24,8 @@ use talpid_types::ErrorExt;
 const DEFAULT_AUTOMATIC_KEY_ROTATION: Duration = Duration::from_secs(7 * 24 * 60 * 60);
 /// How long to wait before reattempting to rotate keys on failure
 const AUTOMATIC_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(60 * 15);
+/// How long to wait before starting the first key rotation.
+const ROTATION_START_DELAY: Duration = Duration::from_secs(60 * 3);
 /// How often to check whether the key has expired.
 /// A short interval is used in case the computer is ever suspended.
 const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(60);
@@ -148,7 +150,11 @@ impl KeyManager {
 
 
     /// Generate a new private key asynchronously. The new keys will be sent to the daemon channel.
-    pub async fn generate_key_async(&mut self, account: AccountToken, timeout: Option<Duration>) {
+    pub async fn spawn_key_generation_task(
+        &mut self,
+        account: AccountToken,
+        timeout: Option<Duration>,
+    ) {
         self.reset();
         let private_key = PrivateKey::new_from_random();
 
@@ -337,7 +343,7 @@ impl KeyManager {
         account_token: AccountToken,
     ) {
         let mut interval = tokio::time::interval_at(
-            (Instant::now() + AUTOMATIC_ROTATION_RETRY_DELAY).into(),
+            (Instant::now() + ROTATION_START_DELAY).into(),
             AUTOMATIC_ROTATION_RETRY_DELAY,
         );
 
@@ -373,7 +379,7 @@ impl KeyManager {
         self.stop_automatic_rotation();
 
         if self.auto_rotation_interval == Duration::new(0, 0) {
-            // disabled
+            log::debug!("Not running key rotation because it's disabled");
             return;
         }
 
