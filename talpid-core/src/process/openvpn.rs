@@ -30,7 +30,7 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--sndbuf", "1048576"],
     &["--fast-io"],
     &["--cipher", "AES-256-CBC"],
-    &["--tls-version-min", "1.2"],
+    &["--tls-version-min", "1.3"],
     &["--verb", "3"],
     #[cfg(windows)]
     &[
@@ -47,10 +47,6 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--route-noexec"],
 ];
 
-static ALLOWED_TLS1_2_CIPHERS: &[&str] = &[
-    "TLS-DHE-RSA-WITH-AES-256-GCM-SHA384",
-    "TLS-DHE-RSA-WITH-AES-256-CBC-SHA",
-];
 static ALLOWED_TLS1_3_CIPHERS: &[&str] =
     &["TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256"];
 
@@ -274,8 +270,6 @@ impl OpenVpnCommand {
 
     fn tls_cipher_arguments() -> Vec<String> {
         let mut args = vec![];
-        args.push("--tls-cipher".to_owned());
-        args.push(ALLOWED_TLS1_2_CIPHERS.join(":"));
         args.push("--tls-ciphersuites".to_owned());
         args.push(ALLOWED_TLS1_3_CIPHERS.join(":"));
         args
