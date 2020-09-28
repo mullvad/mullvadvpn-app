@@ -893,6 +893,30 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 
 			UpdateTapDriver(argv[2]);
 		}
+		else if (0 == _wcsicmp(argv[1], L"new-device"))
+		{
+			if (4 != argc)
+			{
+				goto INVALID_ARGUMENTS;
+			}
+
+			const wchar_t *hardwareId = argv[2];
+			const wchar_t *baseName = argv[3];
+
+			CreateNetDevice(hardwareId, baseName, true);
+		}
+		else if (0 == _wcsicmp(argv[1], L"remove-device"))
+		{
+			if (4 != argc)
+			{
+				goto INVALID_ARGUMENTS;
+			}
+
+			const wchar_t *hardwareId = argv[2];
+			const wchar_t *baseName = argv[3];
+
+			RemoveNetAdapterByAlias(hardwareId, baseName);
+		}
 		else if (0 == _wcsicmp(argv[1], L"remove"))
 		{
 			if (3 != argc)
