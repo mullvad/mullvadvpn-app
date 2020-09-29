@@ -452,7 +452,7 @@ void ForEachNetworkDevice(const std::optional<std::wstring> hwId, std::function<
 				//
 
 				std::wstringstream ss;
-				ss << L"Skipping TAP adapter due to exception caught while iterating: "
+				ss << L"Skipping virtual adapter due to exception caught while iterating: "
 					<< common::string::ToWide(e.what());
 				LogError(ss.str());
 				continue;
@@ -928,8 +928,8 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 			const wchar_t *hardwareId = argv[2];
 			const wchar_t *baseName = argv[3];
 
-			const auto tapAdapters = GetNetworkAdapters(hardwareId);
-			const auto adapter = FindAdapterByAlias(tapAdapters, baseName);
+			const auto virtualAdapters = GetNetworkAdapters(hardwareId);
+			const auto adapter = FindAdapterByAlias(virtualAdapters, baseName);
 
 			if (!adapter.has_value())
 			{

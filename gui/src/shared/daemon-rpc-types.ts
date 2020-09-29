@@ -38,7 +38,7 @@ export type ErrorStateCause =
         | 'set_dns_error'
         | 'start_tunnel_error'
         | 'is_offline'
-        | 'tap_adapter_problem';
+        | 'virtual_adapter_problem';
     }
   | { reason: 'set_firewall_policy_error'; details: FirewallPolicyError }
   | { reason: 'tunnel_parameter_error'; details: TunnelParameterError }

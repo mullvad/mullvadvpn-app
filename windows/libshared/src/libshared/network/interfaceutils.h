@@ -68,12 +68,12 @@ public:
 
 	static void AddDeviceIpAddresses(NET_LUID device, const std::vector<SOCKADDR_INET> &addresses);
 
-	static std::set<NetworkAdapter> GetTapAdapters(const std::set<NetworkAdapter> &adapters);
+	static std::set<NetworkAdapter> GetVirtualAdapters(const std::set<NetworkAdapter> &adapters);
 
 	//
-	// Determines alias of primary TAP adapter.
+	// Determines alias of primary virtual adapter.
 	//
-	static std::wstring GetTapInterfaceAlias();
+	static std::wstring GetInterfaceAlias();
 };
 
 }

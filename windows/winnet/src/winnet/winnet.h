@@ -47,7 +47,7 @@ extern "C"
 WINNET_LINKAGE
 bool
 WINNET_API
-WinNet_GetTapInterfaceAlias(
+WinNet_GetInterfaceAlias(
 	wchar_t **alias,
 	MullvadLogSink logSink,
 	void *logSinkContext

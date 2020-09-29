@@ -41,9 +41,9 @@ pub enum Error {
     #[error(display = "Failed to read IPv6 status on the TAP network interface")]
     GetIpv6Status,
 
-    /// Failed to determine alias of TAP adapter.
-    #[error(display = "Failed to determine alias of TAP adapter")]
-    GetTapAlias,
+    /// Failed to determine alias of virtual adapter.
+    #[error(display = "Failed to determine alias of virtual adapter")]
+    GetVirtualAdapterAlias,
 
     /// Can't establish whether host is connected to a non-virtual network
     #[error(display = "Network connectivity undecideable")]
@@ -102,15 +102,15 @@ pub fn enable_ipv6_for_adapter(interface_guid: &str) -> Result<(), Error> {
     }
 }
 
-/// Dynamically determines the alias of the TAP adapter.
-pub fn get_tap_interface_alias() -> Result<OsString, Error> {
+/// Dynamically determines the alias of the virtual adapter.
+pub fn get_interface_alias() -> Result<OsString, Error> {
     let mut alias_ptr: *mut wchar_t = ptr::null_mut();
     let status = unsafe {
-        WinNet_GetTapInterfaceAlias(&mut alias_ptr as *mut _, Some(log_sink), logging_context())
+        WinNet_GetInterfaceAlias(&mut alias_ptr as *mut _, Some(log_sink), logging_context())
     };
 
     if !status {
-        return Err(Error::GetTapAlias);
+        return Err(Error::GetVirtualAdapterAlias);
     }
 
     let alias = unsafe { WideCString::from_ptr_str(alias_ptr) };
@@ -521,8 +521,8 @@ mod api {
             sink_context: *const u8,
         ) -> WinNetStatus;
 
-        #[link_name = "WinNet_GetTapInterfaceAlias"]
-        pub fn WinNet_GetTapInterfaceAlias(
+        #[link_name = "WinNet_GetInterfaceAlias"]
+        pub fn WinNet_GetInterfaceAlias(
             tunnel_interface_alias: *mut *mut wchar_t,
             sink: Option<LogSink>,
             sink_context: *const u8,
