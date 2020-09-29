@@ -70,15 +70,15 @@ pub enum Error {
     #[error(display = "The OpenVPN event dispatcher exited unexpectedly")]
     EventDispatcherExited,
 
-    /// No TAP adapter was detected
+    /// No virtual adapter was detected
     #[cfg(windows)]
-    #[error(display = "No TAP adapter was detected")]
-    MissingTapAdapter,
+    #[error(display = "No virtual adapter was detected")]
+    MissingVirtualAdapter,
 
-    /// TAP adapter seems to be disabled
+    /// virtual adapter seems to be disabled
     #[cfg(windows)]
-    #[error(display = "The TAP adapter appears to be disabled")]
-    DisabledTapAdapter,
+    #[error(display = "The virtual adapter appears to be disabled")]
+    DisabledVirtualAdapter,
 
     /// OpenVPN process died unexpectedly
     #[error(display = "OpenVPN process died unexpectedly")]
@@ -510,10 +510,10 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             if let Some(log_path) = self.log_path.take() {
                 if let Ok(log) = fs::read_to_string(log_path) {
                     if log.contains("There are no TAP-Windows adapters on this system") {
-                        return Error::MissingTapAdapter;
+                        return Error::MissingVirtualAdapter;
                     }
                     if log.contains("CreateFile failed on TAP device") {
-                        return Error::DisabledTapAdapter;
+                        return Error::DisabledVirtualAdapter;
                     }
                 }
             }
@@ -601,7 +601,9 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             .ca(resource_dir.join("ca.crt"));
         #[cfg(windows)]
         {
-            cmd.tunnel_alias(Some(OsString::from("Mullvad-WT")));
+            cmd.tunnel_alias(Some(
+                crate::winnet::get_interface_alias().map_err(Error::WinnetError)?,
+            ));
             cmd.windows_driver(Some(crate::process::openvpn::WindowsDriver::Wintun));
         }
         if let Some(proxy_settings) = params.proxy.clone().take() {

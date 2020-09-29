@@ -776,8 +776,8 @@ function convertFromTunnelStateErrorCause(
       return { reason: 'ipv6_unavailable' };
     case grpcTypes.ErrorState.Cause.START_TUNNEL_ERROR:
       return { reason: 'start_tunnel_error' };
-    case grpcTypes.ErrorState.Cause.TAP_ADAPTER_PROBLEM:
-      return { reason: 'tap_adapter_problem' };
+    case grpcTypes.ErrorState.Cause.VIRTUAL_ADAPTER_PROBLEM:
+      return { reason: 'virtual_adapter_problem' };
     case grpcTypes.ErrorState.Cause.SET_FIREWALL_POLICY_ERROR:
       return {
         reason: 'set_firewall_policy_error',

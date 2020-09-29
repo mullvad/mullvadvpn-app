@@ -215,7 +215,7 @@ extern "C"
 WINNET_LINKAGE
 bool
 WINNET_API
-WinNet_GetTapInterfaceAlias(
+WinNet_GetInterfaceAlias(
 	wchar_t **alias,
 	MullvadLogSink logSink,
 	void *logSinkContext
@@ -228,7 +228,7 @@ WinNet_GetTapInterfaceAlias(
 			THROW_ERROR("Invalid argument: alias");
 		}
 
-		const auto currentAlias = InterfaceUtils::GetTapInterfaceAlias();
+		const auto currentAlias = InterfaceUtils::GetInterfaceAlias();
 
 		auto stringBuffer = new wchar_t[currentAlias.size() + 1];
 		wcscpy(stringBuffer, currentAlias.c_str());

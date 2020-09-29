@@ -154,18 +154,18 @@ impl ConnectingState {
                 error
                 @
                 tunnel::Error::OpenVpnTunnelMonitoringError(
-                    tunnel::openvpn::Error::DisabledTapAdapter,
+                    tunnel::openvpn::Error::DisabledVirtualAdapter,
                 )
                 | error
                 @
                 tunnel::Error::OpenVpnTunnelMonitoringError(
-                    tunnel::openvpn::Error::MissingTapAdapter,
+                    tunnel::openvpn::Error::MissingVirtualAdapter,
                 ) => {
                     warn!(
                         "{}",
-                        error.display_chain_with_msg("TAP adapter problem detected")
+                        error.display_chain_with_msg("Virtual adapter problem detected")
                     );
-                    Some(ErrorStateCause::TapAdapterProblem)
+                    Some(ErrorStateCause::VirtualAdapterProblem)
                 }
                 error => {
                     warn!(
@@ -416,12 +416,12 @@ impl TunnelState for ConnectingState {
                                     #[cfg(windows)]
                                     tunnel::Error::OpenVpnTunnelMonitoringError(
                                         tunnel::openvpn::Error::WinnetError(
-                                            crate::winnet::Error::GetTapAlias,
+                                            crate::winnet::Error::GetVirtualAdapterAlias,
                                         ),
                                     )
                                     | tunnel::Error::WinnetError(
-                                        crate::winnet::Error::GetTapAlias,
-                                    ) => ErrorStateCause::TapAdapterProblem,
+                                        crate::winnet::Error::GetVirtualAdapterAlias,
+                                    ) => ErrorStateCause::VirtualAdapterProblem,
                                     #[cfg(target_os = "android")]
                                     tunnel::Error::WireguardTunnelMonitoringError(
                                         tunnel::wireguard::Error::TunnelError(

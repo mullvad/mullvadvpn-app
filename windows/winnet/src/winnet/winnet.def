@@ -3,7 +3,7 @@ EXPORTS
 	WinNet_EnsureBestMetric
 	WinNet_InterfaceAliasToGuid
 	WinNet_EnableIpv6ForAdapter
-	WinNet_GetTapInterfaceAlias
+	WinNet_GetInterfaceAlias
 	WinNet_ReleaseString
 	WinNet_ActivateConnectivityMonitor
 	WinNet_DeactivateConnectivityMonitor

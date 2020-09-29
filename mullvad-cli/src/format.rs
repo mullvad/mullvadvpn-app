@@ -138,7 +138,6 @@ fn error_state_to_string(error_state: &ErrorState) -> String {
             );
         }
         IsOffline => "This device is offline, no tunnels can be established",
-        TapAdapterProblem => "A problem with the TAP adapter has been detected",
         #[cfg(target_os = "android")]
         VpnPermissionDenied => "The Android VPN permission was denied when creating the tunnel",
         #[cfg(not(target_os = "android"))]

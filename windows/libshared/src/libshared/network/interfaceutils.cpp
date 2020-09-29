@@ -5,6 +5,18 @@
 #include <libcommon/error.h>
 #include <libcommon/string.h>
 
+namespace
+{
+
+// Interface description substrings found for virtual adapters.
+const wchar_t *TUNNEL_INTERFACE_DESCS[] = {
+	L"WireGuard",
+	L"Wintun",
+	L"Mullvad"
+};
+
+} // anonymous namespace
+
 namespace shared::network
 {
 
@@ -111,38 +123,34 @@ void InterfaceUtils::AddDeviceIpAddresses(NET_LUID device, const std::vector<SOC
 
 //static
 std::set<InterfaceUtils::NetworkAdapter>
-InterfaceUtils::GetTapAdapters(const std::set<NetworkAdapter>& adapters)
+InterfaceUtils::GetVirtualAdapters(const std::set<NetworkAdapter>& adapters)
 {
-	std::set<NetworkAdapter> tapAdapters;
+	std::set<NetworkAdapter> virtualAdapters;
 
 	for (const auto& adapter : adapters)
 	{
-		static constexpr wchar_t name[] = L"Mullvad VPN TAP Adapter";
-
-		//
-		// Compare partial name, because once you start having more TAP adapters
-		// they're named "Mullvad VPN TAP Adapter #2" and so on.
-		//
-
-		if (0 == adapter.name().compare(0, _countof(name) - 1, name))
+		for (size_t i = 0; i < ARRAYSIZE(TUNNEL_INTERFACE_DESCS); i++)
 		{
-			tapAdapters.insert(adapter);
+			if (nullptr != wcsstr(adapter.raw().Description, TUNNEL_INTERFACE_DESCS[i]))
+			{
+				virtualAdapters.insert(adapter);
+			}
 		}
 	}
 
-	return tapAdapters;
+	return virtualAdapters;
 }
 
 //static
-std::wstring InterfaceUtils::GetTapInterfaceAlias()
+std::wstring InterfaceUtils::GetInterfaceAlias()
 {
 	//
-	// Look for TAP adapter with alias "Mullvad".
+	// Look for virtual adapter with alias "Mullvad".
 	//
 
 	using shared::network::InterfaceUtils;
 
-	auto adapters = InterfaceUtils::GetTapAdapters(InterfaceUtils::GetAllAdapters(
+	auto adapters = InterfaceUtils::GetVirtualAdapters(InterfaceUtils::GetAllAdapters(
 		AF_INET,
 		GAA_FLAG_SKIP_UNICAST | GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST
 	));
@@ -165,7 +173,7 @@ std::wstring InterfaceUtils::GetTapInterfaceAlias()
 	}
 
 	//
-	// Look for TAP adapter with alias "Mullvad-1", "Mullvad-2", etc.
+	// Look for virtual adapter with alias "Mullvad-1", "Mullvad-2", etc.
 	//
 
 	for (auto i = 0; i < 10; ++i)
@@ -182,7 +190,7 @@ std::wstring InterfaceUtils::GetTapInterfaceAlias()
 		}
 	}
 
-	THROW_ERROR("Unable to find TAP adapter");
+	THROW_ERROR("Unable to find virtual adapter");
 }
 
 }

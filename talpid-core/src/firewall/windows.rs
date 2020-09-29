@@ -39,9 +39,9 @@ pub enum Error {
     #[error(display = "Failed to reset firewall policies")]
     ResettingPolicy(#[error(source)] FirewallPolicyError),
 
-    /// Failure to set TAP adapter metric
-    #[error(display = "Unable to set TAP adapter metric")]
-    SetTapMetric(#[error(source)] crate::winnet::Error),
+    /// Failure to set virtual adapter metric
+    #[error(display = "Unable to set virtual adapter metric")]
+    SetTunMetric(#[error(source)] crate::winnet::Error),
 }
 
 const WINFW_TIMEOUT_SECONDS: u32 = 2;
@@ -214,7 +214,7 @@ impl Firewall {
         };
 
         let metrics_set = winnet::ensure_best_metric_for_interface(&tunnel_metadata.interface)
-            .map_err(Error::SetTapMetric)?;
+            .map_err(Error::SetTunMetric)?;
 
         if metrics_set {
             debug!("Network interface metrics were changed");
