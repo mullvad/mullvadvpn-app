@@ -117,10 +117,10 @@ function getMessage(errorDetails: IErrorState, accountExpiry?: string): string {
           'notifications',
           "Your device is offline. Try connecting when it's back online.",
         );
-      case 'tap_adapter_problem':
+      case 'virtual_adapter_problem':
         return messages.pgettext(
           'notifications',
-          'Unable to detect a working TAP adapter on this device. Try enabling it. Otherwise, please reinstall the app.',
+          'Unable to detect a working virtual adapter on this device. Try enabling it. Otherwise, please reinstall the app.',
         );
     }
   }

@@ -1370,8 +1370,8 @@ fn convert_state(state: TunnelState) -> types::TunnelState {
                         i32::from(ProtoErrorCause::TunnelParameterError)
                     }
                     ErrorStateCause::IsOffline => i32::from(ProtoErrorCause::IsOffline),
-                    ErrorStateCause::TapAdapterProblem => {
-                        i32::from(ProtoErrorCause::TapAdapterProblem)
+                    ErrorStateCause::VirtualAdapterProblem => {
+                        i32::from(ProtoErrorCause::VirtualAdapterProblem)
                     }
                     #[cfg(target_os = "android")]
                     ErrorStateCause::VpnPermissionDenied => {

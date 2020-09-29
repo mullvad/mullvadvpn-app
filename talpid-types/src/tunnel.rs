@@ -96,8 +96,8 @@ pub enum ErrorStateCause {
     TunnelParameterError(ParameterGenerationError),
     /// This device is offline, no tunnels can be established.
     IsOffline,
-    /// A problem with the TAP adapter has been detected.
-    TapAdapterProblem,
+    /// A problem with the virtual adapter has been detected.
+    VirtualAdapterProblem,
     /// The Android VPN permission was denied.
     #[cfg(target_os = "android")]
     VpnPermissionDenied,
@@ -177,7 +177,7 @@ impl fmt::Display for ErrorStateCause {
                 return write!(f, "Failure to generate tunnel parameters: {}", err);
             }
             IsOffline => "This device is offline, no tunnels can be established",
-            TapAdapterProblem => "A problem with the TAP adapter has been detected",
+            VirtualAdapterProblem => "A problem with the virtual adapter has been detected",
             #[cfg(target_os = "android")]
             VpnPermissionDenied => "The Android VPN permission was denied when creating the tunnel",
         };
