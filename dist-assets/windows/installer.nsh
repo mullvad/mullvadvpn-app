@@ -24,6 +24,7 @@
 !define MULLVAD_SUCCESS 1
 
 # Return codes from driverlogic
+!define DL_ADAPTER_NOT_FOUND -2
 !define DL_GENERAL_ERROR -1
 !define DL_GENERAL_SUCCESS 0
 
@@ -140,6 +141,23 @@
 		Goto InstallWintun_return
 	${EndIf}
 
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" device-exists ${TUN_HARDWARE_ID} Mullvad'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 == ${DL_GENERAL_ERROR}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to identify virtual adapter: error $0"
+		log::LogWithDetails $R0 $1
+		Goto InstallWintun_return
+	${EndIf}
+
+	${If} $0 != ${DL_ADAPTER_NOT_FOUND}
+		log::Log "Found existing virtual adapter"
+		Goto InstallWintun_return_success
+	${EndIf}
+
 	log::Log "Creating new virtual adapter"
 	nsExec::ExecToStack '"$TEMP\driverlogic.exe" new-device ${TUN_HARDWARE_ID} Mullvad'
 
@@ -152,6 +170,8 @@
 		log::LogWithDetails $R0 $1
 		Goto InstallWintun_return
 	${EndIf}
+
+	InstallWintun_return_success:
 
 	log::Log "InstallWintun() completed successfully"
 
