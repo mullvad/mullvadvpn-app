@@ -12,12 +12,9 @@ import net.mullvad.mullvadvpn.relaylist.Relay
 import net.mullvad.mullvadvpn.relaylist.RelayCity
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.util.ExponentialBackoff
 import net.mullvad.talpid.ConnectivityListener
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
-
-const val DELAY_SCALE: Long = 50
-const val MAX_DELAY: Long = 30 * 60 * 1000
-const val MAX_RETRIES: Int = 17 // ceil(log2(MAX_DELAY / DELAY_SCALE) + 1)
 
 class LocationInfoCache(
     val daemon: MullvadDaemon,
@@ -142,15 +139,18 @@ class LocationInfoCache(
         val previousFetch = activeFetch
 
         activeFetch = GlobalScope.launch(Dispatchers.Main) {
+            val delays = ExponentialBackoff().apply {
+                scale = 50
+                cap = 30 /* min */ * 60 /* s */ * 1000 /* ms */
+                count = 17 // ceil(log2(cap / scale) + 1)
+            }
+
             var newLocation: GeoIpLocation? = null
-            var retry = 0
 
             previousFetch?.join()
 
             while (newLocation == null && fetchId == fetchIdCounter) {
-                delayFetch(retry)
-                retry += 1
-
+                delay(delays.next())
                 newLocation = executeFetch().await()
             }
 
@@ -168,19 +168,5 @@ class LocationInfoCache(
 
     private fun executeFetch() = GlobalScope.async(Dispatchers.Default) {
         daemon.getCurrentLocation()
-    }
-
-    private suspend fun delayFetch(retryAttempt: Int) {
-        var duration = 0L
-
-        // The first attempt has no delay
-        if (retryAttempt >= MAX_RETRIES) {
-            duration = MAX_DELAY
-        } else if (retryAttempt >= 1) {
-            val exponent = retryAttempt - 1
-            duration = (1L shl exponent) * DELAY_SCALE
-        }
-
-        delay(duration)
     }
 }
