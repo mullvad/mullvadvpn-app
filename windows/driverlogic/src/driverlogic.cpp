@@ -34,7 +34,8 @@ constexpr std::chrono::milliseconds REGISTRY_GET_TIMEOUT_MS{ 10000 };
 enum ReturnCodes
 {
 	GENERAL_SUCCESS = 0,
-	GENERAL_ERROR = -1
+	GENERAL_ERROR = -1,
+	ADAPTER_NOT_FOUND = -2
 };
 
 struct NetworkAdapter
@@ -916,6 +917,24 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 			const wchar_t *baseName = argv[3];
 
 			RemoveNetAdapterByAlias(hardwareId, baseName);
+		}
+		else if (0 == _wcsicmp(argv[1], L"device-exists"))
+		{
+			if (4 != argc)
+			{
+				goto INVALID_ARGUMENTS;
+			}
+
+			const wchar_t *hardwareId = argv[2];
+			const wchar_t *baseName = argv[3];
+
+			const auto tapAdapters = GetNetworkAdapters(hardwareId);
+			const auto adapter = FindAdapterByAlias(tapAdapters, baseName);
+
+			if (!adapter.has_value())
+			{
+				return ADAPTER_NOT_FOUND;
+			}
 		}
 		else if (0 == _wcsicmp(argv[1], L"remove"))
 		{
