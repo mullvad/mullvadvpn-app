@@ -45,6 +45,8 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     // The route manager is used to add the routes.
     #[cfg(target_os = "linux")]
     &["--route-noexec"],
+    #[cfg(windows)]
+    &["--ip-win32", "ipapi"],
 ];
 
 static ALLOWED_TLS1_3_CIPHERS: &[&str] =
