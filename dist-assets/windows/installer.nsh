@@ -655,12 +655,12 @@
 	#
 	# The electron-builder NSIS logic, that runs before 'customInstall' is activated,
 	# makes a copy of the installer file:
-	# C:\Users\%CURRENTUSER%\AppData\Roaming\${PRODUCT_NAME}\__installer.exe
+	# C:\Users\%CURRENTUSER%\AppData\Local\mullvad-vpn-updater\installer.exe
 	#
-	# Let's undo this and remove the entire "Mullvad" folder under "Roaming".
+	# Let's undo this and remove the entire folder in AppData.
 	#
 	SetShellVarContext current
-	RMDir /r "$APPDATA\${PRODUCT_NAME}"
+	RMDir /r "$LOCALAPPDATA\mullvad-vpn-updater"
 
 	${RemoveRelayCache}
 	
