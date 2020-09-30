@@ -7,6 +7,7 @@
 #include <libcommon/memory.h>
 #include <libcommon/security.h>
 #include <libcommon/process/process.h>
+#include <optional>
 #include <filesystem>
 #include <utility>
 #include <functional>
@@ -47,10 +48,10 @@ mirrored_range
 	return std::make_pair(begin, lhsBegin);
 }
 
-std::wstring ConstructLocalAppDataPath(const std::wstring &base, const std::wstring &user,
+std::wstring ConstructUserPath(const std::wstring &users, const std::wstring &user,
 	const std::pair<std::vector<std::wstring>::iterator, std::vector<std::wstring>::iterator> &tokens)
 {
-	auto path = std::filesystem::path(base);
+	auto path = std::filesystem::path(users);
 
 	path.append(user);
 
@@ -103,6 +104,21 @@ std::wstring GetSystemUserLocalAppData()
 	return common::fs::GetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, processToken);
 }
 
+template <class It>
+size_t EqualTokensCount(It lhsBegin, It lhsEnd, It rhsBegin, It rhsEnd)
+{
+	auto mirror = mirrored_range
+	(
+		lhsBegin, lhsEnd, rhsBegin, rhsEnd,
+		[](const std::wstring &lhs, const std::wstring &rhs)
+		{
+			return 0 == _wcsicmp(lhs.c_str(), rhs.c_str());
+		}
+	);
+
+	return static_cast<size_t>(std::distance(mirror.first, mirror.second));
+}
+
 } // anonymous namespace
 
 namespace cleaningops
@@ -114,6 +130,12 @@ void RemoveLogsCacheCurrentUser()
 	const auto appdir = std::filesystem::path(localAppData).append(L"Mullvad VPN");
 
 	std::filesystem::remove_all(appdir);
+
+	const auto appData = common::fs::GetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr);
+	const auto roamingAppdir = std::filesystem::path(appData).append(L"Mullvad VPN");
+
+	std::error_code dummy;
+	std::filesystem::remove_all(roamingAppdir, dummy);
 }
 
 void RemoveLogsCacheOtherUsers()
@@ -126,25 +148,22 @@ void RemoveLogsCacheOtherUsers()
 	//
 
 	auto localAppData = common::fs::GetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr);
+	auto appData = common::fs::GetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr);
 	auto homeDir = common::fs::GetKnownFolderPath(FOLDERID_Profile, KF_FLAG_DEFAULT, nullptr);
 
 	//
 	// Tokenize to get rid of slashes pointing in different directions.
 	//
 	auto localAppDataTokens = common::string::Tokenize(localAppData, L"\\/");
+	auto appDataTokens = common::string::Tokenize(appData, L"\\/");
 	auto homeDirTokens = common::string::Tokenize(homeDir, L"\\/");
 
-	auto mirror = mirrored_range
-	(
-		localAppDataTokens.begin(), localAppDataTokens.end(),
-		homeDirTokens.begin(), homeDirTokens.end(),
-		[](const std::wstring &lhs, const std::wstring &rhs)
-		{
-			return 0 == _wcsicmp(lhs.c_str(), rhs.c_str());
-		}
+	auto equalTokensCount = EqualTokensCount(
+		localAppDataTokens.begin(),
+		localAppDataTokens.end(),
+		homeDirTokens.begin(),
+		homeDirTokens.end()
 	);
-
-	auto equalTokensCount = (size_t)std::distance(mirror.first, mirror.second);
 
 	//
 	// Abort if "local app data" is not beneath home dir.
@@ -155,11 +174,26 @@ void RemoveLogsCacheOtherUsers()
 	}
 
 	auto relativeLocalAppData = std::make_pair(std::next(localAppDataTokens.begin(), equalTokensCount), localAppDataTokens.end());
+
+	std::optional<std::pair<std::vector<std::wstring>::iterator, std::vector<std::wstring>::iterator>> relativeAppData;
+
+	const auto roamingTokensCount = EqualTokensCount(
+		appDataTokens.begin(),
+		appDataTokens.end(),
+		homeDirTokens.begin(),
+		homeDirTokens.end()
+	);
+
+	if (roamingTokensCount >= homeDirTokens.size())
+	{
+		relativeAppData = std::make_optional(std::make_pair(std::next(appDataTokens.begin(), equalTokensCount), appDataTokens.end()));
+	}
+
 	auto currentUser = *homeDirTokens.rbegin();
 
 	//
 	// Find all other users and construct the most plausible path for their
-	// respective "local app data" dirs.
+	// respective app data dirs.
 	//
 
 	auto parentHomeDir = common::fs::GetKnownFolderPath(FOLDERID_UserProfiles, KF_FLAG_DEFAULT, nullptr);
@@ -181,11 +215,19 @@ void RemoveLogsCacheOtherUsers()
 
 	while (files.next(file))
 	{
-		const auto userLocalAppData = ConstructLocalAppDataPath(files.getDirectory(), file.cFileName, relativeLocalAppData);
+		const auto userLocalAppData = ConstructUserPath(files.getDirectory(), file.cFileName, relativeLocalAppData);
 		const auto target = std::filesystem::path(userLocalAppData).append(L"Mullvad VPN");
 
 		std::error_code dummy;
 		std::filesystem::remove_all(target, dummy);
+
+		if (relativeAppData.has_value())
+		{
+			const auto userAppData = ConstructUserPath(files.getDirectory(), file.cFileName, relativeAppData.value());
+			const auto roamingTarget = std::filesystem::path(userAppData).append(L"Mullvad VPN");
+
+			std::filesystem::remove_all(roamingTarget, dummy);
+		}
 	}
 }
 
