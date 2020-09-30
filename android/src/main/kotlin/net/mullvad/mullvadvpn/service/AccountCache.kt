@@ -1,23 +1,23 @@
 package net.mullvad.mullvadvpn.service
 
-import kotlin.math.min
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
+import net.mullvad.mullvadvpn.util.ExponentialBackoff
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-// Number of retry attempts to check for a changed expiry before giving up.
-// Current value will force the cache to keep fetching for about four minutes or until a new expiry
-// value is received.
-// This is only used if the expiry was invalidated and fetching a new expiry returns the same value
-// as before the invalidation.
-const val MAX_INVALIDATED_RETRIES = 7
-
 class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
     companion object {
         public val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
+
+        // Number of retry attempts to check for a changed expiry before giving up.
+        // Current value will force the cache to keep fetching for about four minutes or until a new
+        // expiry value is received.
+        // This is only used if the expiry was invalidated and fetching a new expiry returns the
+        // same value as before the invalidation.
+        private const val MAX_INVALIDATED_RETRIES = 7
     }
 
     val onAccountNumberChange = EventNotifier<String?>(null)
@@ -60,21 +60,25 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
         synchronized(this) {
             accountNumber?.let { account ->
                 jobTracker.newBackgroundJob("fetch") {
-                    var retryAttempt = 0
+                    val delays = ExponentialBackoff().apply {
+                        cap = 2 /* h */ * 60 /* min */ * 60 /* s */ * 1000 /* ms */
+                    }
 
                     do {
                         val result = daemon.getAccountData(account)
 
                         if (result is GetAccountDataResult.Ok) {
-                            if (handleNewExpiry(account, result.accountData.expiry, retryAttempt)) {
+                            val expiry = result.accountData.expiry
+                            val retryAttempt = delays.iteration
+
+                            if (handleNewExpiry(account, expiry, retryAttempt)) {
                                 break
                             }
                         } else if (result is GetAccountDataResult.InvalidAccount) {
                             break
                         }
 
-                        retryAttempt += 1
-                        delay(calculateRetryFetchDelay(retryAttempt))
+                        delay(delays.next())
                     } while (onAccountExpiryChange.hasListeners())
                 }
             }
@@ -152,12 +156,5 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
             return false
         }
-    }
-
-    private fun calculateRetryFetchDelay(retryAttempt: Int): Long {
-        // delay in seconds = 2 ^ retryAttempt capped at 2^13 (8192)
-        val exponent = min(retryAttempt, 13)
-
-        return (1L shl exponent) * 1000L
     }
 }
