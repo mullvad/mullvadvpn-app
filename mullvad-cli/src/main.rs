@@ -10,6 +10,7 @@ pub use mullvad_management_interface::{self, new_rpc_client};
 mod cmds;
 mod format;
 mod location;
+mod state;
 
 pub const BIN_NAME: &str = "mullvad";
 pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
