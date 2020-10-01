@@ -72,7 +72,7 @@ lazy_static! {
     /// Allows controlling whether firewall rules should have packet counters or not from an env
     /// variable. Useful for debugging the rules.
     static ref ADD_COUNTERS: bool = env::var("TALPID_FIREWALL_DEBUG")
-        .map(|v| v == "1")
+        .map(|v| v != "0")
         .unwrap_or(false);
 }
 
