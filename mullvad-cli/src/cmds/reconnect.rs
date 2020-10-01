@@ -1,5 +1,6 @@
-use crate::{new_rpc_client, Command, Result};
-use talpid_types::ErrorExt;
+use crate::{format, new_rpc_client, state, Command, Error, Result};
+use futures::StreamExt;
+use mullvad_management_interface::types::tunnel_state::State;
 
 pub struct Reconnect;
 
@@ -10,14 +11,40 @@ impl Command for Reconnect {
     }
 
     fn clap_subcommand(&self) -> clap::App<'static, 'static> {
-        clap::SubCommand::with_name(self.name()).about("Command the client to reconnect")
+        clap::SubCommand::with_name(self.name())
+            .about("Command the client to reconnect")
+            .arg(
+                clap::Arg::with_name("wait")
+                    .long("wait")
+                    .short("w")
+                    .help("Wait until reconnected before exiting"),
+            )
     }
 
-    async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        if let Err(e) = rpc.reconnect_tunnel(()).await {
-            eprintln!("{}", e.display_chain());
+
+        let receiver_option = if matches.is_present("wait") {
+            Some(state::state_listen(rpc.clone()))
+        } else {
+            None
+        };
+
+        if rpc.reconnect_tunnel(()).await?.into_inner() {
+            if let Some(mut receiver) = receiver_option {
+                while let Some(state) = receiver.next().await {
+                    let state = state?;
+                    format::print_state(&state);
+                    match state.state.unwrap() {
+                        State::Connected(_) => return Ok(()),
+                        State::Error(_) => return Err(Error::CommandFailed("reconnect")),
+                        _ => {}
+                    }
+                }
+                return Err(Error::StatusListenerFailed);
+            }
         }
+
         Ok(())
     }
 }
