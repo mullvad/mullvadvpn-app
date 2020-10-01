@@ -12,7 +12,6 @@ atty = "0.2"
 cfg-if = "0.1"
 duct = "0.13"
 err-derive = "0.2.1"
-futures01 = { package = "futures", version = "0.1" }
 futures = { package = "futures", version = "0.3", features = [ "compat" ]}
 hex = "0.4"
 ipnetwork = "0.16"
@@ -29,6 +28,7 @@ zeroize = "1"
 chrono = "0.4"
 tokio = { version = "0.2", features =  [ "process", "rt-threaded", "stream" ] }
 rand = "0.7"
+async-trait = "0.1.4"
 
 
 [target.'cfg(not(target_os="android"))'.dependencies]
