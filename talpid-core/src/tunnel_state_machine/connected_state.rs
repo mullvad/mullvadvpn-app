@@ -6,10 +6,7 @@ use crate::{
     firewall::FirewallPolicy,
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
-use futures01::{
-    sync::{mpsc, oneshot},
-    Async, Future, Stream,
-};
+use futures::{channel::mpsc, StreamExt};
 use talpid_types::{
     net::TunnelParameters,
     tunnel::{ErrorStateCause, FirewallPolicyError},
@@ -24,7 +21,7 @@ pub struct ConnectedStateBootstrap {
     pub metadata: TunnelMetadata,
     pub tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     pub tunnel_parameters: TunnelParameters,
-    pub tunnel_close_event: Option<oneshot::Receiver<Option<ErrorStateCause>>>,
+    pub tunnel_close_event: mpsc::UnboundedReceiver<Option<ErrorStateCause>>,
     pub close_handle: Option<CloseHandle>,
 }
 
@@ -33,7 +30,7 @@ pub struct ConnectedState {
     metadata: TunnelMetadata,
     tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
     tunnel_parameters: TunnelParameters,
-    tunnel_close_event: Option<oneshot::Receiver<Option<ErrorStateCause>>>,
+    tunnel_close_event: mpsc::UnboundedReceiver<Option<ErrorStateCause>>,
     close_handle: Option<CloseHandle>,
 }
 
@@ -132,19 +129,23 @@ impl ConnectedState {
 
         EventConsequence::NewState(DisconnectingState::enter(
             shared_values,
-            (self.close_handle, self.tunnel_close_event, after_disconnect),
+            (
+                self.close_handle,
+                Some(self.tunnel_close_event),
+                after_disconnect,
+            ),
         ))
     }
 
     fn handle_commands(
         self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        command: Option<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
         use self::EventConsequence::*;
 
-        match try_handle_event!(self, commands.poll()) {
-            Ok(TunnelCommand::AllowLan(allow_lan)) => {
+        match command {
+            Some(TunnelCommand::AllowLan(allow_lan)) => {
                 if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
                     self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
                 } else {
@@ -157,11 +158,11 @@ impl ConnectedState {
                     }
                 }
             }
-            Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+            Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
                 SameState(self)
             }
-            Ok(TunnelCommand::IsOffline(is_offline)) => {
+            Some(TunnelCommand::IsOffline(is_offline)) => {
                 shared_values.is_offline = is_offline;
                 if is_offline {
                     self.disconnect(
@@ -172,52 +173,43 @@ impl ConnectedState {
                     SameState(self)
                 }
             }
-            Ok(TunnelCommand::Connect) => {
+            Some(TunnelCommand::Connect) => {
                 self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
             }
-            Ok(TunnelCommand::Disconnect) | Err(_) => {
+            Some(TunnelCommand::Disconnect) | None => {
                 self.disconnect(shared_values, AfterDisconnect::Nothing)
             }
-            Ok(TunnelCommand::Block(reason)) => {
+            Some(TunnelCommand::Block(reason)) => {
                 self.disconnect(shared_values, AfterDisconnect::Block(reason))
             }
         }
     }
 
     fn handle_tunnel_events(
-        mut self,
+        self,
+        event: Option<TunnelEvent>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
         use self::EventConsequence::*;
 
-        match try_handle_event!(self, self.tunnel_events.poll()) {
-            Ok(TunnelEvent::Down) | Err(_) => {
+        match event {
+            Some(TunnelEvent::Down) | None => {
                 self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
             }
-            Ok(_) => SameState(self),
+            Some(_) => SameState(self),
         }
     }
 
     fn handle_tunnel_close_event(
-        mut self,
+        self,
+        block_reason: Option<ErrorStateCause>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
         use self::EventConsequence::*;
 
-        let poll_result = match &mut self.tunnel_close_event {
-            Some(tunnel_close_event) => tunnel_close_event.poll(),
-            None => Ok(Async::NotReady),
-        };
-
-        match poll_result {
-            Ok(Async::Ready(block_reason)) => {
-                if let Some(reason) = block_reason {
-                    Self::reset_routes(shared_values);
-                    return NewState(ErrorState::enter(shared_values, reason));
-                }
-            }
-            Ok(Async::NotReady) => return NoEvents(self),
-            Err(_cancelled) => log::warn!("Tunnel monitor thread has stopped unexpectedly"),
+        if let Some(block_reason) = block_reason {
+            Self::reset_routes(shared_values);
+            return NewState(ErrorState::enter(shared_values, block_reason));
         }
 
         log::info!("Tunnel closed. Reconnecting.");
@@ -227,6 +219,7 @@ impl ConnectedState {
     }
 }
 
+#[async_trait::async_trait]
 impl TunnelState for ConnectedState {
     type Bootstrap = ConnectedStateBootstrap;
 
@@ -243,7 +236,7 @@ impl TunnelState for ConnectedState {
                 shared_values,
                 (
                     connected_state.close_handle,
-                    connected_state.tunnel_close_event,
+                    Some(connected_state.tunnel_close_event),
                     AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
                 ),
             )
@@ -253,7 +246,7 @@ impl TunnelState for ConnectedState {
                 shared_values,
                 (
                     connected_state.close_handle,
-                    connected_state.tunnel_close_event,
+                    Some(connected_state.tunnel_close_event),
                     AfterDisconnect::Block(ErrorStateCause::SetDnsError),
                 ),
             )
@@ -265,13 +258,30 @@ impl TunnelState for ConnectedState {
         }
     }
 
-    fn handle_event(
-        self,
+    async fn handle_event(
+        mut self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
-        self.handle_commands(commands, shared_values)
-            .or_else(Self::handle_tunnel_events, shared_values)
-            .or_else(Self::handle_tunnel_close_event, shared_values)
+        log::debug!("ConnectedState::handle_event");
+
+        let fut = tokio::select! {
+            command = commands.next() => {
+                self.handle_commands(command, shared_values)
+            }
+            event = self.tunnel_events.next() => {
+                self.handle_tunnel_events(event, shared_values)
+            }
+            result = self.tunnel_close_event.next() => {
+                match result {
+                    Some(block_reason) => self.handle_tunnel_close_event(block_reason, shared_values),
+                    None => {
+                        log::warn!("Tunnel monitor thread has stopped unexpectedly");
+                        self.handle_tunnel_close_event(None, shared_values)
+                    }
+                }
+            }
+        };
+        fut
     }
 }

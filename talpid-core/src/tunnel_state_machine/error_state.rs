@@ -3,7 +3,7 @@ use super::{
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::firewall::FirewallPolicy;
-use futures01::{sync::mpsc, Stream};
+use futures::{channel::mpsc, StreamExt};
 use talpid_types::{
     tunnel::{self as talpid_tunnel, ErrorStateCause, FirewallPolicyError},
     ErrorExt,
@@ -59,6 +59,7 @@ impl ErrorState {
     }
 }
 
+#[async_trait::async_trait]
 impl TunnelState for ErrorState {
     type Bootstrap = ErrorStateCause;
 
@@ -85,15 +86,16 @@ impl TunnelState for ErrorState {
         )
     }
 
-    fn handle_event(
-        self,
+    async fn handle_event(
+        mut self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence<Self> {
         use self::EventConsequence::*;
+        log::debug!("ErrorState::handle_event");
 
-        match try_handle_event!(self, commands.poll()) {
-            Ok(TunnelCommand::AllowLan(allow_lan)) => {
+        match commands.next().await {
+            Some(TunnelCommand::AllowLan(allow_lan)) => {
                 if let Err(error_state_cause) = shared_values.set_allow_lan(allow_lan) {
                     NewState(Self::enter(shared_values, error_state_cause))
                 } else {
@@ -101,11 +103,11 @@ impl TunnelState for ErrorState {
                     SameState(self)
                 }
             }
-            Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+            Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
                 SameState(self)
             }
-            Ok(TunnelCommand::IsOffline(is_offline)) => {
+            Some(TunnelCommand::IsOffline(is_offline)) => {
                 shared_values.is_offline = is_offline;
                 if !is_offline && self.block_reason == ErrorStateCause::IsOffline {
                     NewState(ConnectingState::enter(shared_values, 0))
@@ -113,11 +115,13 @@ impl TunnelState for ErrorState {
                     SameState(self)
                 }
             }
-            Ok(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
-            Ok(TunnelCommand::Disconnect) | Err(_) => {
+            Some(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
+            Some(TunnelCommand::Disconnect) | None => {
                 NewState(DisconnectedState::enter(shared_values, true))
             }
-            Ok(TunnelCommand::Block(reason)) => NewState(ErrorState::enter(shared_values, reason)),
+            Some(TunnelCommand::Block(reason)) => {
+                NewState(ErrorState::enter(shared_values, reason))
+            }
         }
     }
 }
