@@ -450,12 +450,25 @@ impl RouteManagerImpl {
             let mut exclusions_route = route.clone();
             exclusions_route.table_id = self.split_table_id;
             if let Err(error) = self.delete_route(&exclusions_route).await {
-                // This may be expected when routes are deleted by the kernel
-                log::debug!(
-                    "Failed to remove exclusions route: {}\n{}",
-                    exclusions_route,
-                    error.display_chain(),
-                );
+                match error {
+                    Error::NetlinkError(rtnetlink::Error::NetlinkError(error)) => {
+                        // Not finding the route is expected if the link goes down
+                        if error.code != -libc::ESRCH {
+                            log::error!(
+                                "Failed to remove exclusions route: {}\n{}",
+                                exclusions_route,
+                                error
+                            );
+                        }
+                    }
+                    error => {
+                        log::error!(
+                            "Failed to remove exclusions route: {}\n{}",
+                            exclusions_route,
+                            error.display_chain()
+                        );
+                    }
+                }
             }
         }
 
