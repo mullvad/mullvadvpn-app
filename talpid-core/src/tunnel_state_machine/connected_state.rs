@@ -212,6 +212,7 @@ impl ConnectedState {
         match poll_result {
             Ok(Async::Ready(block_reason)) => {
                 if let Some(reason) = block_reason {
+                    Self::reset_dns(shared_values);
                     Self::reset_routes(shared_values);
                     return NewState(ErrorState::enter(shared_values, reason));
                 }
