@@ -1,9 +1,9 @@
 use super::{
     ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
-    TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    TunnelCommandReceiver, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::firewall::FirewallPolicy;
-use futures01::{sync::mpsc, Stream};
+use futures::StreamExt;
 use talpid_types::{
     tunnel::{self as talpid_tunnel, ErrorStateCause, FirewallPolicyError},
     ErrorExt,
@@ -59,6 +59,7 @@ impl ErrorState {
     }
 }
 
+#[async_trait::async_trait]
 impl TunnelState for ErrorState {
     type Bootstrap = ErrorStateCause;
 
@@ -85,39 +86,41 @@ impl TunnelState for ErrorState {
         )
     }
 
-    fn handle_event(
-        self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+    async fn handle_event(
+        mut self,
+        commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self> {
+    ) -> EventConsequence {
         use self::EventConsequence::*;
 
-        match try_handle_event!(self, commands.poll()) {
-            Ok(TunnelCommand::AllowLan(allow_lan)) => {
+        match commands.next().await {
+            Some(TunnelCommand::AllowLan(allow_lan)) => {
                 if let Err(error_state_cause) = shared_values.set_allow_lan(allow_lan) {
                     NewState(Self::enter(shared_values, error_state_cause))
                 } else {
                     let _ = Self::set_firewall_policy(shared_values);
-                    SameState(self)
+                    SameState(self.into())
                 }
             }
-            Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+            Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
-                SameState(self)
+                SameState(self.into())
             }
-            Ok(TunnelCommand::IsOffline(is_offline)) => {
+            Some(TunnelCommand::IsOffline(is_offline)) => {
                 shared_values.is_offline = is_offline;
                 if !is_offline && self.block_reason == ErrorStateCause::IsOffline {
                     NewState(ConnectingState::enter(shared_values, 0))
                 } else {
-                    SameState(self)
+                    SameState(self.into())
                 }
             }
-            Ok(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
-            Ok(TunnelCommand::Disconnect) | Err(_) => {
+            Some(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
+            Some(TunnelCommand::Disconnect) | None => {
                 NewState(DisconnectedState::enter(shared_values, true))
             }
-            Ok(TunnelCommand::Block(reason)) => NewState(ErrorState::enter(shared_values, reason)),
+            Some(TunnelCommand::Block(reason)) => {
+                NewState(ErrorState::enter(shared_values, reason))
+            }
         }
     }
 }

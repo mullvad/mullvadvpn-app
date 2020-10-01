@@ -1,12 +1,10 @@
 use super::{
-    ConnectingState, DisconnectedState, ErrorState, EventConsequence, SharedTunnelStateValues,
-    TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    connecting_state::TunnelCloseEvent, ConnectingState, DisconnectedState, ErrorState,
+    EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
+    TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::tunnel::CloseHandle;
-use futures01::{
-    sync::{mpsc, oneshot},
-    Async, Future, Stream,
-};
+use futures::{future::FusedFuture, StreamExt};
 use std::thread;
 use talpid_types::{
     tunnel::{ActionAfterDisconnect, ErrorStateCause},
@@ -16,47 +14,46 @@ use talpid_types::{
 /// This state is active from when we manually trigger a tunnel kill until the tunnel wait
 /// operation (TunnelExit) returned.
 pub struct DisconnectingState {
-    exited: Option<oneshot::Receiver<Option<ErrorStateCause>>>,
+    tunnel_close_event: TunnelCloseEvent,
     after_disconnect: AfterDisconnect,
 }
 
 impl DisconnectingState {
     fn handle_commands(
         mut self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        command: Option<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self> {
-        let event = try_handle_event!(self, commands.poll());
+    ) -> EventConsequence {
         let after_disconnect = self.after_disconnect;
 
         self.after_disconnect = match after_disconnect {
-            AfterDisconnect::Nothing => match event {
-                Ok(TunnelCommand::AllowLan(allow_lan)) => {
+            AfterDisconnect::Nothing => match command {
+                Some(TunnelCommand::AllowLan(allow_lan)) => {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Nothing
                 }
-                Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+                Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                     shared_values.block_when_disconnected = block_when_disconnected;
                     AfterDisconnect::Nothing
                 }
-                Ok(TunnelCommand::IsOffline(is_offline)) => {
+                Some(TunnelCommand::IsOffline(is_offline)) => {
                     shared_values.is_offline = is_offline;
                     AfterDisconnect::Nothing
                 }
-                Ok(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
-                Ok(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
-                _ => AfterDisconnect::Nothing,
+                Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
+                Some(TunnelCommand::Disconnect) | None => AfterDisconnect::Nothing,
+                Some(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
             },
-            AfterDisconnect::Block(reason) => match event {
-                Ok(TunnelCommand::AllowLan(allow_lan)) => {
+            AfterDisconnect::Block(reason) => match command {
+                Some(TunnelCommand::AllowLan(allow_lan)) => {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Block(reason)
                 }
-                Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+                Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                     shared_values.block_when_disconnected = block_when_disconnected;
                     AfterDisconnect::Block(reason)
                 }
-                Ok(TunnelCommand::IsOffline(is_offline)) => {
+                Some(TunnelCommand::IsOffline(is_offline)) => {
                     shared_values.is_offline = is_offline;
                     if !is_offline && reason == ErrorStateCause::IsOffline {
                         AfterDisconnect::Reconnect(0)
@@ -64,21 +61,21 @@ impl DisconnectingState {
                         AfterDisconnect::Block(reason)
                     }
                 }
-                Ok(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
-                Ok(TunnelCommand::Disconnect) => AfterDisconnect::Nothing,
-                Ok(TunnelCommand::Block(new_reason)) => AfterDisconnect::Block(new_reason),
-                Err(_) => AfterDisconnect::Block(reason),
+                Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
+                Some(TunnelCommand::Disconnect) => AfterDisconnect::Nothing,
+                Some(TunnelCommand::Block(new_reason)) => AfterDisconnect::Block(new_reason),
+                None => AfterDisconnect::Block(reason),
             },
-            AfterDisconnect::Reconnect(retry_attempt) => match event {
-                Ok(TunnelCommand::AllowLan(allow_lan)) => {
+            AfterDisconnect::Reconnect(retry_attempt) => match command {
+                Some(TunnelCommand::AllowLan(allow_lan)) => {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
-                Ok(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
+                Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                     shared_values.block_when_disconnected = block_when_disconnected;
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
-                Ok(TunnelCommand::IsOffline(is_offline)) => {
+                Some(TunnelCommand::IsOffline(is_offline)) => {
                     shared_values.is_offline = is_offline;
                     if is_offline {
                         AfterDisconnect::Block(ErrorStateCause::IsOffline)
@@ -86,33 +83,13 @@ impl DisconnectingState {
                         AfterDisconnect::Reconnect(retry_attempt)
                     }
                 }
-                Ok(TunnelCommand::Connect) => AfterDisconnect::Reconnect(retry_attempt),
-                Ok(TunnelCommand::Disconnect) | Err(_) => AfterDisconnect::Nothing,
-                Ok(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
+                Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(retry_attempt),
+                Some(TunnelCommand::Disconnect) | None => AfterDisconnect::Nothing,
+                Some(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
             },
         };
 
-        EventConsequence::SameState(self)
-    }
-
-    fn handle_exit_event(
-        mut self,
-        shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self> {
-        use self::EventConsequence::*;
-
-        let poll_result = match &mut self.exited {
-            Some(exited) => exited.poll(),
-            None => Ok(Async::Ready(None)),
-        };
-
-        match poll_result {
-            Ok(Async::NotReady) => NoEvents(self),
-            Ok(Async::Ready(block_reason)) => {
-                NewState(self.after_disconnect(block_reason, shared_values))
-            }
-            Err(_) => NewState(self.after_disconnect(None, shared_values)),
-        }
+        EventConsequence::SameState(self.into())
     }
 
     fn after_disconnect(
@@ -134,16 +111,13 @@ impl DisconnectingState {
     }
 }
 
+#[async_trait::async_trait]
 impl TunnelState for DisconnectingState {
-    type Bootstrap = (
-        Option<CloseHandle>,
-        Option<oneshot::Receiver<Option<ErrorStateCause>>>,
-        AfterDisconnect,
-    );
+    type Bootstrap = (Option<CloseHandle>, TunnelCloseEvent, AfterDisconnect);
 
     fn enter(
         _: &mut SharedTunnelStateValues,
-        (close_handle, exited, after_disconnect): Self::Bootstrap,
+        (close_handle, tunnel_close_event, after_disconnect): Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         if let Some(close_handle) = close_handle {
             thread::spawn(move || {
@@ -160,20 +134,33 @@ impl TunnelState for DisconnectingState {
 
         (
             TunnelStateWrapper::from(DisconnectingState {
-                exited,
+                tunnel_close_event,
                 after_disconnect,
             }),
             TunnelStateTransition::Disconnecting(action_after_disconnect),
         )
     }
 
-    fn handle_event(
-        self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+    async fn handle_event(
+        mut self,
+        commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self> {
-        self.handle_commands(commands, shared_values)
-            .or_else(Self::handle_exit_event, shared_values)
+    ) -> EventConsequence {
+        use self::EventConsequence::*;
+
+        if self.tunnel_close_event.is_terminated() {
+            return NewState(self.after_disconnect(None, shared_values));
+        }
+
+        return futures::select! {
+            command = commands.next() => {
+                self.handle_commands(command, shared_values)
+            }
+            block_reason = &mut self.tunnel_close_event => {
+                let block_reason = block_reason.unwrap_or(None);
+                NewState(self.after_disconnect(block_reason, shared_values))
+            }
+        };
     }
 }
 

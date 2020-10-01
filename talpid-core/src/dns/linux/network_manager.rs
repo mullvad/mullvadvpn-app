@@ -78,6 +78,8 @@ pub struct NetworkManager {
     settings_backup: Option<HashMap<String, HashMap<String, Variant<Box<dyn RefArg>>>>>,
 }
 
+unsafe impl Send for NetworkManager {}
+
 
 impl NetworkManager {
     pub fn new() -> Result<Self> {
