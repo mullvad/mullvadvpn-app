@@ -10,6 +10,7 @@ pub use mullvad_management_interface::{self, new_rpc_client};
 mod cmds;
 mod format;
 mod location;
+mod state;
 
 pub const BIN_NAME: &str = "mullvad";
 pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
@@ -33,6 +34,9 @@ pub enum Error {
 
     #[error(display = "Command failed: {}", _0)]
     CommandFailed(&'static str),
+
+    #[error(display = "Failed to listen for status updates")]
+    StatusListenerFailed,
 }
 
 #[tokio::main]
