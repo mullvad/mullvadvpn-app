@@ -12,14 +12,13 @@ use crate::{
 };
 use futures::{
     channel::{mpsc, oneshot},
-    future::{Fuse, FusedFuture},
+    future::Fuse,
     FutureExt, StreamExt,
 };
 use log::{debug, error, info, trace, warn};
 use std::{
     net::IpAddr,
     path::{Path, PathBuf},
-    pin::Pin,
     thread,
     time::{Duration, Instant},
 };
@@ -34,8 +33,7 @@ use crate::tunnel::tun_provider;
 
 use super::connected_state::TunnelEventsReceiver;
 
-pub(crate) type TunnelCloseEvent =
-    Pin<Box<dyn FusedFuture<Output = Result<Option<ErrorStateCause>, oneshot::Canceled>> + Send>>;
+pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause>>>;
 
 #[cfg(target_os = "android")]
 const MAX_ATTEMPTS_WITH_SAME_TUN: u32 = 5;
@@ -109,7 +107,7 @@ impl ConnectingState {
         let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
 
         Ok(ConnectingState {
-            tunnel_events: Box::pin(event_rx.fuse()),
+            tunnel_events: event_rx.fuse(),
             tunnel_parameters: parameters,
             tunnel_close_event,
             close_handle,
@@ -142,7 +140,7 @@ impl ConnectingState {
             trace!("Tunnel monitor thread exit");
         });
 
-        Box::pin(tunnel_close_event_rx.fuse())
+        tunnel_close_event_rx.fuse()
     }
 
     fn wait_for_tunnel_monitor(tunnel_monitor: TunnelMonitor) -> Option<ErrorStateCause> {
@@ -396,7 +394,7 @@ impl TunnelState for ConnectingState {
                                     shared_values,
                                     (
                                         None,
-                                        Box::pin(Fuse::<TunnelCloseEvent>::terminated()),
+                                        Fuse::terminated(),
                                         AfterDisconnect::Reconnect(retry_attempt + 1),
                                     ),
                                 )
