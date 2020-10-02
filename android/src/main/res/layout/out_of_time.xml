@@ -59,11 +59,11 @@
                                                             mullvad:text="@string/buy_more_credit"
                                                             mullvad:url="@string/account_url"
                                                             mullvad:withToken="true" />
-                <net.mullvad.mullvadvpn.ui.widget.Button android:id="@+id/redeem_voucher"
-                                                         android:layout_width="match_parent"
-                                                         android:layout_height="wrap_content"
-                                                         mullvad:buttonColor="green"
-                                                         mullvad:text="@string/redeem_voucher" />
+                <net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton android:id="@+id/redeem_voucher"
+                                                                      android:layout_width="match_parent"
+                                                                      android:layout_height="wrap_content"
+                                                                      mullvad:buttonColor="green"
+                                                                      mullvad:text="@string/redeem_voucher" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

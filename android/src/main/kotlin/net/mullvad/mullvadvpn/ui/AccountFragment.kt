@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
+import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
 import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import org.joda.time.DateTime
 
@@ -44,7 +45,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var accountExpiryView: InformationView
     private lateinit var accountNumberView: CopyableInformationView
     private lateinit var buyCreditButton: Button
-    private lateinit var redeemVoucherButton: Button
+    private lateinit var redeemVoucherButton: RedeemVoucherButton
     private lateinit var titleController: CollapsibleTitleController
 
     override fun onSafelyCreateView(
@@ -64,10 +65,8 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
-        redeemVoucherButton = view.findViewById<Button>(R.id.redeem_voucher).apply {
-            setOnClickAction("redeem", jobTracker) {
-                showRedeemVoucherDialog()
-            }
+        redeemVoucherButton = view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
+            prepare(fragmentManager, jobTracker)
         }
 
         view.findViewById<Button>(R.id.logout).setOnClickAction("logout", jobTracker) {
