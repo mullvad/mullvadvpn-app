@@ -41,9 +41,8 @@ impl DisconnectingState {
                     AfterDisconnect::Nothing
                 }
                 Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
-                Some(TunnelCommand::Disconnect) => AfterDisconnect::Nothing,
+                Some(TunnelCommand::Disconnect) | None => AfterDisconnect::Nothing,
                 Some(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
-                None => AfterDisconnect::Nothing,
             },
             AfterDisconnect::Block(reason) => match command {
                 Some(TunnelCommand::AllowLan(allow_lan)) => {
@@ -85,9 +84,8 @@ impl DisconnectingState {
                     }
                 }
                 Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(retry_attempt),
-                Some(TunnelCommand::Disconnect) => AfterDisconnect::Nothing,
+                Some(TunnelCommand::Disconnect) | None => AfterDisconnect::Nothing,
                 Some(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
-                None => AfterDisconnect::Nothing,
             },
         };
 
