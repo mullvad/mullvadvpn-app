@@ -160,9 +160,14 @@ impl TunnelMonitor {
 
         match tunnel_parameters {
             #[cfg(not(target_os = "android"))]
-            TunnelParameters::OpenVpn(config) => {
-                Self::start_openvpn_tunnel(&config, log_file, resource_dir, on_event)
-            }
+            TunnelParameters::OpenVpn(config) => Self::start_openvpn_tunnel(
+                &config,
+                log_file,
+                resource_dir,
+                on_event,
+                #[cfg(target_os = "linux")]
+                route_manager,
+            ),
             #[cfg(target_os = "android")]
             TunnelParameters::OpenVpn(_) => Err(Error::UnsupportedPlatform),
 
@@ -225,11 +230,19 @@ impl TunnelMonitor {
         log: Option<PathBuf>,
         resource_dir: &Path,
         on_event: L,
+        #[cfg(target_os = "linux")] route_manager: &mut RouteManager,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
     {
-        let monitor = openvpn::OpenVpnMonitor::start(on_event, config, log, resource_dir)?;
+        let monitor = openvpn::OpenVpnMonitor::start(
+            on_event,
+            config,
+            log,
+            resource_dir,
+            #[cfg(target_os = "linux")]
+            route_manager,
+        )?;
         Ok(TunnelMonitor {
             monitor: InternalTunnelMonitor::OpenVpn(monitor),
         })

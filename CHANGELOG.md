@@ -53,6 +53,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Fix split tunneling rules preventing `systemd-resolved` from performing DNS lookups for excluded
   processes.
+- Honor routes other than the default route with `mullvad-exclude`. This is mainly to improve
+  routing within LANs.
 
 
 ## [2020.6-beta2] - 2020-08-27
