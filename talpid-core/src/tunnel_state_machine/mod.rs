@@ -22,14 +22,12 @@ use crate::{
 
 use futures::{
     channel::{mpsc, oneshot},
-    stream::FusedStream,
-    StreamExt,
+    stream, StreamExt,
 };
 use std::{
     collections::HashSet,
     io,
     path::{Path, PathBuf},
-    pin::Pin,
     sync::{mpsc as sync_mpsc, Arc},
 };
 #[cfg(target_os = "android")]
@@ -160,7 +158,7 @@ pub enum TunnelCommand {
     Block(ErrorStateCause),
 }
 
-type TunnelCommandReceiver = Pin<Box<dyn FusedStream<Item = TunnelCommand> + Send>>;
+type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
 
 /// Asynchronous handling of the tunnel state machine.
 ///
@@ -213,7 +211,7 @@ impl TunnelStateMachine {
 
         Ok(TunnelStateMachine {
             current_state: Some(initial_state),
-            commands: Box::pin(commands.fuse()),
+            commands: commands.fuse(),
             shared_values,
         })
     }

@@ -7,8 +7,7 @@ use crate::{
     firewall::FirewallPolicy,
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
-use futures::{stream::FusedStream, StreamExt};
-use std::pin::Pin;
+use futures::{channel::mpsc, stream::Fuse, StreamExt};
 use talpid_types::{
     net::TunnelParameters,
     tunnel::{ErrorStateCause, FirewallPolicyError},
@@ -20,7 +19,7 @@ use crate::tunnel::TunnelMonitor;
 
 use super::connecting_state::TunnelCloseEvent;
 
-pub(crate) type TunnelEventsReceiver = Pin<Box<dyn FusedStream<Item = TunnelEvent> + Send>>;
+pub(crate) type TunnelEventsReceiver = Fuse<mpsc::UnboundedReceiver<TunnelEvent>>;
 
 
 pub struct ConnectedStateBootstrap {
