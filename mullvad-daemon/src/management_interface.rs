@@ -60,27 +60,30 @@ impl ManagementService for ManagementServiceImpl {
     // Control and get the tunnel state
     //
 
-    async fn connect_tunnel(&self, _: Request<()>) -> ServiceResult<()> {
+    async fn connect_tunnel(&self, _: Request<()>) -> ServiceResult<bool> {
         log::debug!("connect_tunnel");
 
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Secured))?;
-        rx.await.map_err(|_| Status::internal("internal error"))?;
-        Ok(Response::new(()))
+        let connect_issued = rx.await.map_err(|_| Status::internal("internal error"))?;
+        Ok(Response::new(connect_issued))
     }
 
-    async fn disconnect_tunnel(&self, _: Request<()>) -> ServiceResult<()> {
+    async fn disconnect_tunnel(&self, _: Request<()>) -> ServiceResult<bool> {
         log::debug!("disconnect_tunnel");
 
-        let (tx, _) = oneshot::channel();
+        let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::SetTargetState(tx, TargetState::Unsecured))?;
-        Ok(Response::new(()))
+        let disconnect_issued = rx.await.map_err(|_| Status::internal("internal error"))?;
+        Ok(Response::new(disconnect_issued))
     }
 
-    async fn reconnect_tunnel(&self, _: Request<()>) -> ServiceResult<()> {
+    async fn reconnect_tunnel(&self, _: Request<()>) -> ServiceResult<bool> {
         log::debug!("reconnect_tunnel");
-        self.send_command_to_daemon(DaemonCommand::Reconnect)?;
-        Ok(Response::new(()))
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::Reconnect(tx))?;
+        let reconnect_issued = rx.await.map_err(|_| Status::internal("internal error"))?;
+        Ok(Response::new(reconnect_issued))
     }
 
     async fn get_tunnel_state(&self, _: Request<()>) -> ServiceResult<types::TunnelState> {
