@@ -1,7 +1,7 @@
 use super::{
     AfterDisconnect, ConnectedState, ConnectedStateBootstrap, DisconnectingState, ErrorState,
-    EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition,
-    TunnelStateWrapper,
+    EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
+    TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::{
     firewall::FirewallPolicy,
@@ -27,13 +27,15 @@ use talpid_types::{
 #[cfg(target_os = "android")]
 use crate::tunnel::tun_provider;
 
+use super::connected_state::TunnelEventsReceiver;
+
 #[cfg(target_os = "android")]
 const MAX_ATTEMPTS_WITH_SAME_TUN: u32 = 5;
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 
 /// The tunnel has been started, but it is not established/functional.
 pub struct ConnectingState {
-    tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
+    tunnel_events: TunnelEventsReceiver,
     tunnel_parameters: TunnelParameters,
     tunnel_close_event: mpsc::UnboundedReceiver<Option<ErrorStateCause>>,
     close_handle: Option<CloseHandle>,
@@ -99,7 +101,7 @@ impl ConnectingState {
         let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
 
         Ok(ConnectingState {
-            tunnel_events: event_rx,
+            tunnel_events: Box::pin(event_rx.fuse()),
             tunnel_parameters: parameters,
             tunnel_close_event,
             close_handle,
@@ -431,12 +433,12 @@ impl TunnelState for ConnectingState {
 
     async fn handle_event(
         mut self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
         log::debug!("ConnectingState::handle_event");
 
-        let fut = tokio::select! {
+        let fut = futures::select! {
             command = commands.next() => {
                 self.handle_commands(command, shared_values)
             }

@@ -1,6 +1,6 @@
 use super::{
     ConnectingState, DisconnectedState, ErrorState, EventConsequence, SharedTunnelStateValues,
-    TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    TunnelCommand, TunnelCommandReceiver, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::tunnel::CloseHandle;
 use futures::{channel::mpsc, StreamExt};
@@ -148,13 +148,13 @@ impl TunnelState for DisconnectingState {
 
     async fn handle_event(
         mut self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
         use self::EventConsequence::*;
 
         if let Some(ref mut close_event) = &mut self.tunnel_close_event {
-            let fut = tokio::select! {
+            let fut = futures::select! {
                 command = commands.next() => {
                     self.handle_commands(command, shared_values)
                 }

@@ -1,9 +1,9 @@
 use super::{
     ConnectingState, ErrorState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
-    TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    TunnelCommandReceiver, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::firewall::FirewallPolicy;
-use futures::{channel::mpsc, StreamExt};
+use futures::StreamExt;
 use talpid_types::ErrorExt;
 
 /// No tunnel is running.
@@ -64,7 +64,7 @@ impl TunnelState for DisconnectedState {
 
     async fn handle_event(
         mut self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
         use self::EventConsequence::*;

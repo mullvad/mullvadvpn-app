@@ -1,9 +1,9 @@
 use super::{
     ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
-    TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    TunnelCommandReceiver, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::firewall::FirewallPolicy;
-use futures::{channel::mpsc, StreamExt};
+use futures::StreamExt;
 use talpid_types::{
     tunnel::{self as talpid_tunnel, ErrorStateCause, FirewallPolicyError},
     ErrorExt,
@@ -88,7 +88,7 @@ impl TunnelState for ErrorState {
 
     async fn handle_event(
         mut self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
         use self::EventConsequence::*;

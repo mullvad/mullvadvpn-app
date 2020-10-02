@@ -1,12 +1,14 @@
 use super::{
     AfterDisconnect, ConnectingState, DisconnectingState, ErrorState, EventConsequence,
-    SharedTunnelStateValues, TunnelCommand, TunnelState, TunnelStateTransition, TunnelStateWrapper,
+    SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
+    TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::{
     firewall::FirewallPolicy,
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
-use futures::{channel::mpsc, StreamExt};
+use futures::{channel::mpsc, stream::FusedStream, StreamExt};
+use std::pin::Pin;
 use talpid_types::{
     net::TunnelParameters,
     tunnel::{ErrorStateCause, FirewallPolicyError},
@@ -16,10 +18,12 @@ use talpid_types::{
 #[cfg(windows)]
 use crate::tunnel::TunnelMonitor;
 
+pub(crate) type TunnelEventsReceiver = Pin<Box<dyn FusedStream<Item = TunnelEvent> + Send>>;
+
 
 pub struct ConnectedStateBootstrap {
     pub metadata: TunnelMetadata,
-    pub tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
+    pub tunnel_events: TunnelEventsReceiver,
     pub tunnel_parameters: TunnelParameters,
     pub tunnel_close_event: mpsc::UnboundedReceiver<Option<ErrorStateCause>>,
     pub close_handle: Option<CloseHandle>,
@@ -28,7 +32,7 @@ pub struct ConnectedStateBootstrap {
 /// The tunnel is up and working.
 pub struct ConnectedState {
     metadata: TunnelMetadata,
-    tunnel_events: mpsc::UnboundedReceiver<TunnelEvent>,
+    tunnel_events: TunnelEventsReceiver,
     tunnel_parameters: TunnelParameters,
     tunnel_close_event: mpsc::UnboundedReceiver<Option<ErrorStateCause>>,
     close_handle: Option<CloseHandle>,
@@ -260,12 +264,12 @@ impl TunnelState for ConnectedState {
 
     async fn handle_event(
         mut self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
         log::debug!("ConnectedState::handle_event");
 
-        let fut = tokio::select! {
+        let fut = futures::select! {
             command = commands.next() => {
                 self.handle_commands(command, shared_values)
             }

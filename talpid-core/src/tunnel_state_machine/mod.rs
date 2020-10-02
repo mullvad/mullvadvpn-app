@@ -20,11 +20,16 @@ use crate::{
     tunnel::tun_provider::TunProvider,
 };
 
-use futures::channel::{mpsc, oneshot};
+use futures::{
+    channel::{mpsc, oneshot},
+    stream::FusedStream,
+    StreamExt,
+};
 use std::{
     collections::HashSet,
     io,
     path::{Path, PathBuf},
+    pin::Pin,
     sync::{mpsc as sync_mpsc, Arc},
 };
 #[cfg(target_os = "android")]
@@ -123,8 +128,7 @@ pub async fn spawn(
             }
         };
 
-        // runtime.block_on(state_machine.run(state_change_listener));
-        // FIXME: runtime
+        // TODO: Spawn this on a tokio runtime, and share it with RouteManager, etc.
         futures::executor::block_on(state_machine.run(state_change_listener));
 
         if shutdown_tx.send(()).is_err() {
@@ -156,6 +160,8 @@ pub enum TunnelCommand {
     Block(ErrorStateCause),
 }
 
+type TunnelCommandReceiver = Pin<Box<dyn FusedStream<Item = TunnelCommand> + Send>>;
+
 /// Asynchronous handling of the tunnel state machine.
 ///
 /// This type implements `Stream`, and attempts to advance the state machine based on the events
@@ -164,7 +170,7 @@ pub enum TunnelCommand {
 /// by the stream.
 struct TunnelStateMachine {
     current_state: Option<TunnelStateWrapper>,
-    commands: mpsc::UnboundedReceiver<TunnelCommand>,
+    commands: TunnelCommandReceiver,
     shared_values: SharedTunnelStateValues,
 }
 
@@ -207,7 +213,7 @@ impl TunnelStateMachine {
 
         Ok(TunnelStateMachine {
             current_state: Some(initial_state),
-            commands,
+            commands: Box::pin(commands.fuse()),
             shared_values,
         })
     }
@@ -342,7 +348,7 @@ trait TunnelState: Into<TunnelStateWrapper> + Sized {
     /// [`EventConsequence`]: enum.EventConsequence.html
     async fn handle_event(
         self,
-        commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+        commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence;
 }
@@ -366,7 +372,7 @@ macro_rules! state_wrapper {
         impl $wrapper_name {
             async fn handle_event(
                 self,
-                commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
+                commands: &mut TunnelCommandReceiver,
                 shared_values: &mut SharedTunnelStateValues,
             ) -> EventConsequence {
                 match self {
