@@ -30,6 +30,9 @@ pub enum Error {
     /// The given command is not correct in some way
     #[error(display = "Invalid command: {}", _0)]
     InvalidCommand(&'static str),
+
+    #[error(display = "Command failed: {}", _0)]
+    CommandFailed(&'static str),
 }
 
 #[tokio::main]
