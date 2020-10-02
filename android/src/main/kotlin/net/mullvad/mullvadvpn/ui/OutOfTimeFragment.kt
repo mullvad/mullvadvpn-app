@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
+import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
 import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import org.joda.time.DateTime
@@ -20,7 +21,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
 
     private lateinit var buyCreditButton: UrlButton
     private lateinit var disconnectButton: Button
-    private lateinit var redeemButton: Button
+    private lateinit var redeemButton: RedeemVoucherButton
 
     private var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, state ->
         updateDisconnectButton()
@@ -53,10 +54,8 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             prepare(daemon, jobTracker)
         }
 
-        redeemButton = view.findViewById<Button>(R.id.redeem_voucher).apply {
-            setOnClickAction("openRedeemVoucherDialog", jobTracker) {
-                showRedeemVoucherDialog()
-            }
+        redeemButton = view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
+            prepare(fragmentManager, jobTracker)
         }
 
         connectionProxy.onStateChange.subscribe(this) { newState ->
@@ -88,14 +87,6 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
 
     override fun onSafelyDestroyView() {
         connectionProxy.onStateChange.unsubscribe(this)
-    }
-
-    private fun showRedeemVoucherDialog() {
-        val transaction = fragmentManager?.beginTransaction()
-
-        transaction?.addToBackStack(null)
-
-        RedeemVoucherDialogFragment().show(transaction, null)
     }
 
     private fun updateDisconnectButton() {
