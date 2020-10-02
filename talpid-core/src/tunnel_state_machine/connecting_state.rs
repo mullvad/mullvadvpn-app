@@ -191,7 +191,7 @@ impl ConnectingState {
         self,
         shared_values: &mut SharedTunnelStateValues,
         after_disconnect: AfterDisconnect,
-    ) -> EventConsequence<Self> {
+    ) -> EventConsequence {
         Self::reset_routes(shared_values);
 
         EventConsequence::NewState(DisconnectingState::enter(
@@ -208,7 +208,7 @@ impl ConnectingState {
         self,
         command: Option<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self> {
+    ) -> EventConsequence {
         use self::EventConsequence::*;
 
         match command {
@@ -217,7 +217,7 @@ impl ConnectingState {
                     self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
                 } else {
                     match Self::set_firewall_policy(shared_values, &self.tunnel_parameters) {
-                        Ok(()) => SameState(self),
+                        Ok(()) => SameState(self.into()),
                         Err(error) => self.disconnect(
                             shared_values,
                             AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
@@ -227,7 +227,7 @@ impl ConnectingState {
             }
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
-                SameState(self)
+                SameState(self.into())
             }
             Some(TunnelCommand::IsOffline(is_offline)) => {
                 shared_values.is_offline = is_offline;
@@ -237,7 +237,7 @@ impl ConnectingState {
                         AfterDisconnect::Block(ErrorStateCause::IsOffline),
                     )
                 } else {
-                    SameState(self)
+                    SameState(self.into())
                 }
             }
             Some(TunnelCommand::Connect) => {
@@ -256,7 +256,7 @@ impl ConnectingState {
         self,
         event: Option<tunnel::TunnelEvent>,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self> {
+    ) -> EventConsequence {
         use self::EventConsequence::*;
 
         match event {
@@ -268,7 +268,7 @@ impl ConnectingState {
                 shared_values,
                 self.into_connected_state_bootstrap(metadata),
             )),
-            Some(TunnelEvent::Down) => SameState(self),
+            Some(TunnelEvent::Down) => SameState(self.into()),
             None => {
                 // The channel was closed
                 debug!("The tunnel disconnected unexpectedly");
@@ -282,7 +282,7 @@ impl ConnectingState {
         self,
         block_reason: Option<ErrorStateCause>,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self> {
+    ) -> EventConsequence {
         use self::EventConsequence::*;
 
         if let Some(block_reason) = block_reason {
@@ -433,7 +433,7 @@ impl TunnelState for ConnectingState {
         mut self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self> {
+    ) -> EventConsequence {
         log::debug!("ConnectingState::handle_event");
 
         let fut = tokio::select! {

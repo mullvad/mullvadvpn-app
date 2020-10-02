@@ -90,7 +90,7 @@ impl TunnelState for ErrorState {
         mut self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self> {
+    ) -> EventConsequence {
         use self::EventConsequence::*;
         log::debug!("ErrorState::handle_event");
 
@@ -100,19 +100,19 @@ impl TunnelState for ErrorState {
                     NewState(Self::enter(shared_values, error_state_cause))
                 } else {
                     let _ = Self::set_firewall_policy(shared_values);
-                    SameState(self)
+                    SameState(self.into())
                 }
             }
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
-                SameState(self)
+                SameState(self.into())
             }
             Some(TunnelCommand::IsOffline(is_offline)) => {
                 shared_values.is_offline = is_offline;
                 if !is_offline && self.block_reason == ErrorStateCause::IsOffline {
                     NewState(ConnectingState::enter(shared_values, 0))
                 } else {
-                    SameState(self)
+                    SameState(self.into())
                 }
             }
             Some(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),

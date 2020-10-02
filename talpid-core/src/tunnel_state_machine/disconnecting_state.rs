@@ -22,7 +22,7 @@ impl DisconnectingState {
         mut self,
         command: Option<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self> {
+    ) -> EventConsequence {
         let after_disconnect = self.after_disconnect;
 
         self.after_disconnect = match after_disconnect {
@@ -90,7 +90,7 @@ impl DisconnectingState {
             },
         };
 
-        EventConsequence::SameState(self)
+        EventConsequence::SameState(self.into())
     }
 
     fn after_disconnect(
@@ -150,7 +150,7 @@ impl TunnelState for DisconnectingState {
         mut self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self> {
+    ) -> EventConsequence {
         use self::EventConsequence::*;
 
         if let Some(ref mut close_event) = &mut self.tunnel_close_event {

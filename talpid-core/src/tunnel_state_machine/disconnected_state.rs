@@ -66,7 +66,7 @@ impl TunnelState for DisconnectedState {
         mut self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self> {
+    ) -> EventConsequence {
         use self::EventConsequence::*;
 
         log::debug!("DisconnectedState::handle_event");
@@ -82,24 +82,24 @@ impl TunnelState for DisconnectedState {
 
                     Self::set_firewall_policy(shared_values, true);
                 }
-                SameState(self)
+                SameState(self.into())
             }
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 if shared_values.block_when_disconnected != block_when_disconnected {
                     shared_values.block_when_disconnected = block_when_disconnected;
                     Self::set_firewall_policy(shared_values, true);
                 }
-                SameState(self)
+                SameState(self.into())
             }
             Some(TunnelCommand::IsOffline(is_offline)) => {
                 shared_values.is_offline = is_offline;
-                SameState(self)
+                SameState(self.into())
             }
             Some(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
             Some(TunnelCommand::Block(reason)) => {
                 NewState(ErrorState::enter(shared_values, reason))
             }
-            Some(_) => SameState(self),
+            Some(_) => SameState(self.into()),
             None => Finished,
         }
     }

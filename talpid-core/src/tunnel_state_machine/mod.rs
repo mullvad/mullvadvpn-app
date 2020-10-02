@@ -213,7 +213,7 @@ impl TunnelStateMachine {
     }
 
     async fn run(mut self, change_listener: impl Sender<TunnelStateTransition> + Send + 'static) {
-        use EventConsequenceWrapper::*;
+        use EventConsequence::*;
 
         while let Some(state_wrapper) = self.current_state.take() {
             match state_wrapper
@@ -305,31 +305,13 @@ impl SharedTunnelStateValues {
 }
 
 /// Asynchronous result of an attempt to progress a state.
-enum EventConsequence<T: TunnelState> {
+enum EventConsequence {
     /// Transition to a new state.
     NewState((TunnelStateWrapper, TunnelStateTransition)),
     /// An event was received, but it was ignored by the state so no transition is performed.
-    SameState(T),
+    SameState(TunnelStateWrapper),
     /// The state machine has finished its execution.
     Finished,
-}
-
-enum EventConsequenceWrapper {
-    NewState((TunnelStateWrapper, TunnelStateTransition)),
-    SameState(TunnelStateWrapper),
-    Finished,
-}
-
-impl<T: TunnelState> From<EventConsequence<T>> for EventConsequenceWrapper {
-    fn from(consequence: EventConsequence<T>) -> Self {
-        use EventConsequence::*;
-
-        match consequence {
-            NewState(state) => EventConsequenceWrapper::NewState(state),
-            SameState(state) => EventConsequenceWrapper::SameState(state.into()),
-            Finished => EventConsequenceWrapper::Finished,
-        }
-    }
 }
 
 /// Trait that contains the method all states should implement to handle an event and advance the
@@ -362,7 +344,7 @@ trait TunnelState: Into<TunnelStateWrapper> + Sized {
         self,
         commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self>;
+    ) -> EventConsequence;
 }
 
 macro_rules! state_wrapper {
@@ -386,11 +368,10 @@ macro_rules! state_wrapper {
                 self,
                 commands: &mut mpsc::UnboundedReceiver<TunnelCommand>,
                 shared_values: &mut SharedTunnelStateValues,
-            ) -> EventConsequenceWrapper {
+            ) -> EventConsequence {
                 match self {
                     $($wrapper_name::$state_variant(state) => {
-                        let event_consequence = state.handle_event(commands, shared_values).await;
-                        EventConsequenceWrapper::from(event_consequence)
+                        state.handle_event(commands, shared_values).await
                     })*
                 }
             }
