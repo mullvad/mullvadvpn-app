@@ -50,7 +50,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             }
         }
 
-        buyCreditButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
+        buyCreditButton = view.findViewById<SitePaymentButton>(R.id.buy_credit).apply {
             newAccount = false
             prepare(daemon, jobTracker)
         }

@@ -55,19 +55,10 @@
                           android:layout_height="wrap_content"
                           android:layout_marginTop="16dp"
                           android:orientation="vertical"
-                          android:paddingHorizontal="@dimen/side_margin"
+                          android:paddingTop="@dimen/button_separation"
                           android:paddingBottom="@dimen/screen_vertical_margin"
                           android:background="@color/darkBlue">
-                <net.mullvad.mullvadvpn.ui.widget.SitePaymentButton android:id="@+id/site_payment"
-                                                                    android:layout_width="match_parent"
-                                                                    android:layout_height="wrap_content"
-                                                                    android:layout_marginVertical="@dimen/button_separation"
-                                                                    mullvad:buttonColor="green" />
-                <net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton android:id="@+id/redeem_voucher"
-                                                                      android:layout_width="match_parent"
-                                                                      android:layout_height="wrap_content"
-                                                                      mullvad:buttonColor="green"
-                                                                      mullvad:text="@string/redeem_voucher" />
+                <include layout="@layout/payment_buttons" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

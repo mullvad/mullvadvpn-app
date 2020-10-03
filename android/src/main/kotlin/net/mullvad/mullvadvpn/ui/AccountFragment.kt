@@ -44,7 +44,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
     private lateinit var accountExpiryView: InformationView
     private lateinit var accountNumberView: CopyableInformationView
-    private lateinit var buyCreditButton: Button
+    private lateinit var buyCreditButton: SitePaymentButton
     private lateinit var redeemVoucherButton: RedeemVoucherButton
     private lateinit var titleController: CollapsibleTitleController
 
@@ -59,7 +59,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             parentActivity.onBackPressed()
         }
 
-        buyCreditButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
+        buyCreditButton = view.findViewById<SitePaymentButton>(R.id.buy_credit).apply {
             newAccount = false
 
             prepare(daemon, jobTracker) {
