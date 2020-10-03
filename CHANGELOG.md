@@ -67,6 +67,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix crash if connection to service is lost while opening the Split Tunneling settings screen.
 - Fix rare crash that could occur when the tunnel state changes when showing or hiding the quick
   settings tile.
+- Fix app starting by itself sometimes.
 
 #### Linux
 - Fix split tunneling rules preventing `systemd-resolved` from performing DNS lookups for excluded
