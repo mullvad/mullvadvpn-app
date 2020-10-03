@@ -46,13 +46,14 @@ class ForegroundNotificationManager(
 
     private var loggedIn by observable(false) { _, _, _ -> updateNotificationAction() }
 
-    private var onForeground = false
-
     private val tunnelState
         get() = tunnelStateEvents?.latestEvent ?: TunnelState.Disconnected()
 
     private val shouldBeOnForeground
         get() = lockedToForeground || !(tunnelState is TunnelState.Disconnected)
+
+    var onForeground = false
+        private set
 
     var lockedToForeground by observable(false) { _, _, _ -> updateNotification() }
 
