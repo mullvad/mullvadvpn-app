@@ -64,7 +64,7 @@ class AccountInput : LinearLayout {
 
     private val button = container.findViewById<ImageButton>(R.id.login_button).apply {
         setOnClickListener {
-            onLogin?.invoke(input.text.toString())
+            onLogin?.invoke(input.text.replace(Regex("[^0-9]"), ""))
         }
     }
 
