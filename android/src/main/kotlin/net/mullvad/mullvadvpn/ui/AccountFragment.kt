@@ -38,13 +38,13 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private var hasConnectivity = true
         set(value) {
             field = value
-            buyCreditButton.setEnabled(value)
+            sitePaymentButton.setEnabled(value)
             redeemVoucherButton.setEnabled(value)
         }
 
     private lateinit var accountExpiryView: InformationView
     private lateinit var accountNumberView: CopyableInformationView
-    private lateinit var buyCreditButton: SitePaymentButton
+    private lateinit var sitePaymentButton: SitePaymentButton
     private lateinit var redeemVoucherButton: RedeemVoucherButton
     private lateinit var titleController: CollapsibleTitleController
 
@@ -59,7 +59,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             parentActivity.onBackPressed()
         }
 
-        buyCreditButton = view.findViewById<SitePaymentButton>(R.id.buy_credit).apply {
+        sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
             newAccount = false
 
             prepare(daemon, jobTracker) {

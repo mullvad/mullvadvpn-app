@@ -41,7 +41,7 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             parentActivity.getString(R.string.pay_to_start_using) + " " +
             parentActivity.getString(R.string.add_time_to_account)
 
-        view.findViewById<SitePaymentButton>(R.id.buy_credit).apply {
+        view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
             newAccount = true
             prepare(daemon, jobTracker)
         }
