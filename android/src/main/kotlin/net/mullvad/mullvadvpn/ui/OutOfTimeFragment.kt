@@ -12,14 +12,14 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
-import net.mullvad.mullvadvpn.ui.widget.UrlButton
+import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import org.joda.time.DateTime
 
 class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var headerBar: HeaderBar
 
-    private lateinit var buyCreditButton: UrlButton
+    private lateinit var buyCreditButton: SitePaymentButton
     private lateinit var disconnectButton: Button
     private lateinit var redeemButton: RedeemVoucherButton
 
@@ -50,7 +50,8 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             }
         }
 
-        buyCreditButton = view.findViewById<UrlButton>(R.id.buy_credit).apply {
+        buyCreditButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
+            newAccount = false
             prepare(daemon, jobTracker)
         }
 
