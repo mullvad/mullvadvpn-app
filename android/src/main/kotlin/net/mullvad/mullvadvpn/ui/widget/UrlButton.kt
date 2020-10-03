@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.util.JobTracker
 
-class UrlButton : Button {
+open class UrlButton : Button {
     private lateinit var daemon: MullvadDaemon
 
     private var shouldEnable = true
