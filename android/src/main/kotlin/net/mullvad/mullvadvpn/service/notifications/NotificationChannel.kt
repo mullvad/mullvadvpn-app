@@ -37,26 +37,36 @@ class NotificationChannel(
         }
     }
 
-    fun buildNotification(intent: PendingIntent, title: String): Notification {
-        return buildNotification(intent, title, emptyList())
+    fun buildNotification(
+        intent: PendingIntent,
+        title: String,
+        deleteIntent: PendingIntent? = null
+    ): Notification {
+        return buildNotification(intent, title, emptyList(), deleteIntent)
     }
 
-    fun buildNotification(intent: PendingIntent, title: Int): Notification {
-        return buildNotification(intent, title, emptyList())
+    fun buildNotification(
+        intent: PendingIntent,
+        title: Int,
+        deleteIntent: PendingIntent? = null
+    ): Notification {
+        return buildNotification(intent, title, emptyList(), deleteIntent)
     }
 
     fun buildNotification(
         pendingIntent: PendingIntent,
         title: Int,
-        actions: List<NotificationCompat.Action>
+        actions: List<NotificationCompat.Action>,
+        deleteIntent: PendingIntent? = null
     ): Notification {
-        return buildNotification(pendingIntent, context.getString(title), actions)
+        return buildNotification(pendingIntent, context.getString(title), actions, deleteIntent)
     }
 
     fun buildNotification(
         pendingIntent: PendingIntent,
         title: String,
-        actions: List<NotificationCompat.Action>
+        actions: List<NotificationCompat.Action>,
+        deleteIntent: PendingIntent? = null
     ): Notification {
         val builder = NotificationCompat.Builder(context, id)
             .setSmallIcon(R.drawable.small_logo_black)
@@ -66,6 +76,10 @@ class NotificationChannel(
 
         for (action in actions) {
             builder.addAction(action)
+        }
+
+        deleteIntent?.let { intent ->
+            builder.setDeleteIntent(intent)
         }
 
         return builder.build()
