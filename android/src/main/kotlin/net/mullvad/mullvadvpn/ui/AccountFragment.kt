@@ -12,7 +12,7 @@ import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
-import net.mullvad.mullvadvpn.ui.widget.UrlButton
+import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
 import org.joda.time.DateTime
 
 class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
@@ -59,7 +59,9 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             parentActivity.onBackPressed()
         }
 
-        buyCreditButton = view.findViewById<UrlButton>(R.id.buy_credit).apply {
+        buyCreditButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
+            newAccount = false
+
             prepare(daemon, jobTracker) {
                 checkForAddedTime()
             }
