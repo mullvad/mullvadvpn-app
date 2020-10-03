@@ -1,6 +1,6 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
        xmlns:mullvad="http://schemas.android.com/apk/res-auto">
-    <net.mullvad.mullvadvpn.ui.widget.SitePaymentButton android:id="@+id/buy_credit"
+    <net.mullvad.mullvadvpn.ui.widget.SitePaymentButton android:id="@+id/site_payment"
                                                         android:layout_width="match_parent"
                                                         android:layout_height="wrap_content"
                                                         android:layout_marginHorizontal="@dimen/side_margin"

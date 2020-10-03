@@ -19,7 +19,7 @@ import org.joda.time.DateTime
 class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var headerBar: HeaderBar
 
-    private lateinit var buyCreditButton: SitePaymentButton
+    private lateinit var sitePaymentButton: SitePaymentButton
     private lateinit var disconnectButton: Button
     private lateinit var redeemButton: RedeemVoucherButton
 
@@ -50,7 +50,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             }
         }
 
-        buyCreditButton = view.findViewById<SitePaymentButton>(R.id.buy_credit).apply {
+        sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
             newAccount = false
             prepare(daemon, jobTracker)
         }
@@ -116,7 +116,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     private fun updateBuyButtons() {
         val hasConnectivity = tunnelState is TunnelState.Disconnected
 
-        buyCreditButton.setEnabled(hasConnectivity)
+        sitePaymentButton.setEnabled(hasConnectivity)
         redeemButton.setEnabled(hasConnectivity)
     }
 
