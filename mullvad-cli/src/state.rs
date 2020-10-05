@@ -1,31 +1,43 @@
-use crate::{format, Result};
+use crate::{Error, Result};
+use futures::{
+    channel::{mpsc, mpsc::Receiver},
+    SinkExt,
+};
 use mullvad_management_interface::{
-    types::{daemon_event::Event as EventType, tunnel_state::State},
+    types::{daemon_event::Event as EventType, TunnelState},
     ManagementServiceClient,
 };
-use tokio::task::JoinHandle;
 
-// Listens to state changes and prints each new state. To stop listening for changes, return false
-// in continue_condition.
-pub async fn state_listen<C: Fn(&State) -> Result<bool> + Send + 'static>(
-    rpc: &mut ManagementServiceClient,
-    continue_condition: C,
-) -> Result<JoinHandle<Result<()>>> {
-    let mut events = rpc.events_listen(()).await?.into_inner();
-    let join_handle = tokio::spawn(async move {
-        loop {
-            if let Some(event) = events.message().await? {
-                if let EventType::TunnelState(new_state) = event.event.unwrap() {
-                    format::print_state(&new_state);
-                    match continue_condition(&new_state.state.unwrap()) {
-                        Ok(false) => break Ok(()),
-                        Err(e) => break Err(e),
-                        _ => {}
+// Spawns a new task that listens for tunnel state changes and forwards it through the returned
+// channel. Panics if called from outside of the Tokio runtime.
+pub fn state_listen(mut rpc: ManagementServiceClient) -> Receiver<Result<TunnelState>> {
+    let (mut sender, receiver) = mpsc::channel::<Result<TunnelState>>(1);
+    tokio::spawn(async move {
+        match rpc.events_listen(()).await {
+            Ok(events) => {
+                let mut events = events.into_inner();
+                loop {
+                    let forward = match events.message().await {
+                        Ok(Some(event)) => match event.event.unwrap() {
+                            EventType::TunnelState(new_state) => Some(Ok(new_state)),
+                            _ => None,
+                        },
+                        Ok(None) => break,
+                        Err(status) => Some(Err(Error::GrpcClientError(status))),
+                    };
+
+                    if let Some(message) = forward {
+                        if let Err(_) = sender.send(message).await {
+                            break;
+                        }
                     }
                 }
+            }
+            Err(status) => {
+                let _ = sender.send(Err(Error::GrpcClientError(status))).await;
             }
         }
     });
 
-    Ok(join_handle)
+    receiver
 }
