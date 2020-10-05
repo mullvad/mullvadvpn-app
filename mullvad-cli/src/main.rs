@@ -34,6 +34,9 @@ pub enum Error {
 
     #[error(display = "Command failed: {}", _0)]
     CommandFailed(&'static str),
+
+    #[error(display = "Failed to listen for status updates")]
+    StatusListenerFailed,
 }
 
 #[tokio::main]
