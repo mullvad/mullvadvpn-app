@@ -74,7 +74,6 @@
     <string name="sending">A enviar...</string>
     <string name="sent">Enviado</string>
     <string name="sent_contact">Se necessário, iremos contactá-lo através de %1$s</string>
-    <string name="sent_thanks">Obrigado! Vamos analisar esta situação.</string>
     <string name="set_dns_error">Erro ao definir o servidor de sistema DNS</string>
     <string name="set_firewall_policy_error">Erro ao aplicar as regras da firewall. O dispositivo pode estar atualmente inseguro</string>
     <string name="settings">Definições</string>

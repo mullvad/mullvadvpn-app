@@ -74,7 +74,6 @@
     <string name="sending">Wird gesendet...</string>
     <string name="sent">Gesendet</string>
     <string name="sent_contact">Bei Bedarf werden wir Sie unter %1$s kontaktieren</string>
-    <string name="sent_thanks">Danke! Wir werden uns darum kümmern.</string>
     <string name="set_dns_error">Fehler beim Festlegen des System-DNS-Servers</string>
     <string name="set_firewall_policy_error">Fehler beim Anwenden der Firewall-Regeln. Das Gerät ist derzeit möglicherweise ungesichert</string>
     <string name="settings">Einstellungen</string>

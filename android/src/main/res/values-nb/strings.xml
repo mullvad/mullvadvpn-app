@@ -74,7 +74,6 @@
     <string name="sending">Sender ...</string>
     <string name="sent">Sendt</string>
     <string name="sent_contact">Vi vil kontakte deg på %1$s ved behov</string>
-    <string name="sent_thanks">Takk! Dette skal vi følge opp.</string>
     <string name="set_dns_error">Kunne ikke angi systemets DNS-server</string>
     <string name="set_firewall_policy_error">Kunne ikke anvende brannmurregler. Enheten kan være usikker</string>
     <string name="settings">Innstillinger</string>

@@ -74,7 +74,6 @@
     <string name="sending">Gönderiliyor...</string>
     <string name="sent">Gönderildi</string>
     <string name="sent_contact">Gerektiğinde sizinle %1$s adresinden iletişime geçeceğiz</string>
-    <string name="sent_thanks">Teşekkürler! Bunu araştıracağız.</string>
     <string name="set_dns_error">Sistem DNS sunucusu belirlenemiyor</string>
     <string name="set_firewall_policy_error">Güvenlik duvarı kuralları uygulanamıyor. Cihaz şu an korumasız olabilir</string>
     <string name="settings">Ayarlar</string>

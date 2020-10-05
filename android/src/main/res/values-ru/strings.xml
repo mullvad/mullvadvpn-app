@@ -74,7 +74,6 @@
     <string name="sending">Идет отправка...</string>
     <string name="sent">Отправлено</string>
     <string name="sent_contact">При необходимости мы свяжемся с вами по адресу %1$s</string>
-    <string name="sent_thanks">Спасибо! Мы рассмотрим эту проблему.</string>
     <string name="set_dns_error">Не удалось установить системный DNS-сервер</string>
     <string name="set_firewall_policy_error">Не удалось применить правила брандмауэра. Сейчас устройство может быть не защищено</string>
     <string name="settings">Настройки</string>

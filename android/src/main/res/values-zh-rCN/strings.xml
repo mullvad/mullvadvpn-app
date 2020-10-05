@@ -71,7 +71,6 @@
     <string name="sending">正在发送…</string>
     <string name="sent">已发送</string>
     <string name="sent_contact">如果需要，我们将通过 %1$s 与您联系</string>
-    <string name="sent_thanks">谢谢！我们将对此进行调查。</string>
     <string name="set_dns_error">无法设置系统 DNS 服务器</string>
     <string name="set_firewall_policy_error">无法应用防火墙规则。设备当前可能不会受到保护</string>
     <string name="settings">设置</string>

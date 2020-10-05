@@ -85,7 +85,8 @@
     address.</string>
     <string name="send_anyway">Send anyway</string>
     <string name="back">Back</string>
-    <string name="sent_thanks">Thanks! We will look into this.</string>
+    <string name="sent_thanks">Thanks!</string>
+    <string name="we_will_look_into_this">We will look into this.</string>
     <string name="sent_contact">If needed we will contact you on %1$s</string>
     <string name="failed_to_send_details">You may need to go back to the app\'s main screen and
     click Disconnect before trying again. Don\'t worry, the information you entered will remain in
