@@ -96,6 +96,8 @@ enum WINFW_CLEANUP_POLICY
 {
 	// Continue blocking if this happens to be the active policy
 	// otherwise reset the firewall.
+	// This adds persistent blocking filters that are active until
+	// WinFw is reinitialized.
 	WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING = 0,
 
 	// Remove all objects that have been registered with WFP.

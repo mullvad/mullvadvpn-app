@@ -58,6 +58,9 @@
     <ClCompile Include="rules\multi\permitvpnrelay.cpp">
       <Filter>rules\multi</Filter>
     </ClCompile>
+    <ClCompile Include="rules\persistent\blockall.cpp">
+      <Filter>rules\persistent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -126,6 +129,9 @@
     <ClInclude Include="rules\multi\permitvpnrelay.h">
       <Filter>rules\multi</Filter>
     </ClInclude>
+    <ClInclude Include="rules\persistent\blockall.h">
+      <Filter>rules\persistent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="rules">
@@ -139,6 +145,9 @@
     </Filter>
     <Filter Include="rules\multi">
       <UniqueIdentifier>{005cce7c-ed9d-4675-8e4f-759c9682b77e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="rules\persistent">
+      <UniqueIdentifier>{d98577af-1119-4c3a-8a04-d24f461ee61c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

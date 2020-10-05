@@ -15,6 +15,7 @@ public:
 
 	static RemovalFunctor GetRemoveFiltersFunctor();
 	static RemovalFunctor GetRemoveAllFunctor();
+	static RemovalFunctor GetRemoveNonPersistentFunctor();
 
 	static bool Execute(RemovalFunctor f);
 };

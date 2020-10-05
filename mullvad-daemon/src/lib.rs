@@ -640,6 +640,10 @@ where
             }
         }
 
+        #[cfg(windows)]
+        if self.settings.auto_connect {
+            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
+        }
         self.finalize().await;
         Ok(())
     }

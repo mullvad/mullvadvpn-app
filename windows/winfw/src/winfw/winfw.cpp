@@ -2,12 +2,16 @@
 #include "winfw.h"
 #include "fwcontext.h"
 #include "objectpurger.h"
+#include "mullvadobjects.h"
+#include "rules/persistent/blockall.h"
 #include <windows.h>
 #include <libcommon/error.h>
 #include <optional>
 
 namespace
 {
+
+constexpr uint32_t DEINITIALIZE_TIMEOUT = 5000;
 
 MullvadLogSink g_logSink = nullptr;
 void *g_logSinkContext = nullptr;
@@ -179,14 +183,41 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	g_fwContext = nullptr;
 
 	//
-	// Only skip clean-up if this is what the caller requested
+	// Continue blocking if this is what the caller requested
 	// and if the current policy is "(net) blocked".
 	//
 
 	if (WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING == cleanupPolicy
 		&& FwContext::Policy::Blocked == activePolicy)
 	{
-		return true;
+		try
+		{
+			auto engine = wfp::FilterEngine::StandardSession(DEINITIALIZE_TIMEOUT);
+			auto sessionController = std::make_unique<SessionController>(std::move(engine));
+
+			rules::persistent::BlockAll blockAll;
+
+			return sessionController->executeTransaction([&](SessionController &controller, wfp::FilterEngine &engine)
+			{
+				ObjectPurger::GetRemoveNonPersistentFunctor()(engine);
+
+				return controller.addProvider(*MullvadObjects::ProviderPersistent())
+					&& controller.addSublayer(*MullvadObjects::SublayerPersistent())
+					&& blockAll.apply(controller);
+			});
+		}
+		catch (std::exception & err)
+		{
+			if (nullptr != g_logSink)
+			{
+				g_logSink(MULLVAD_LOG_LEVEL_ERROR, err.what(), g_logSinkContext);
+			}
+			return false;
+		}
+		catch (...)
+		{
+			return false;
+		}
 	}
 
 	return WINFW_POLICY_STATUS_SUCCESS == WinFw_Reset();
