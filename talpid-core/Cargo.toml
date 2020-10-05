@@ -28,7 +28,6 @@ zeroize = "1"
 chrono = "0.4"
 tokio = { version = "0.2", features =  [ "process", "rt-threaded", "stream" ] }
 rand = "0.7"
-async-trait = "0.1.4"
 
 
 [target.'cfg(not(target_os="android"))'.dependencies]
