@@ -20,9 +20,16 @@ mullvad-management-interface = { path = "../mullvad-management-interface" }
 
 tokio = { version = "0.2", features =  [ "rt-threaded" ] }
 
-mullvad-paths = { path = "../mullvad-paths" }
+mullvad-daemon = { path = "../mullvad-daemon" }
+mullvad-rpc = { path = "../mullvad-rpc" }
 talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }
+
+[target.'cfg(windows)'.dependencies]
+mullvad-paths = { path = "../mullvad-paths", features = [ "deduce-system-service" ] }
+
+[target.'cfg(not(windows))'.dependencies]
+mullvad-paths = { path = "../mullvad-paths" }
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"
