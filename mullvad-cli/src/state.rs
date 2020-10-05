@@ -1,31 +1,24 @@
-use crate::{format, Result};
+use futures::{
+    channel::{mpsc, mpsc::Receiver},
+    SinkExt,
+};
 use mullvad_management_interface::{
-    types::{daemon_event::Event as EventType, tunnel_state::State},
+    types::{daemon_event::Event as EventType, TunnelState},
     ManagementServiceClient,
 };
-use tokio::task::JoinHandle;
 
-// Listens to state changes and prints each new state. To stop listening for changes, return false
-// in continue_condition.
-pub async fn state_listen<C: Fn(&State) -> Result<bool> + Send + 'static>(
-    rpc: &mut ManagementServiceClient,
-    continue_condition: C,
-) -> Result<JoinHandle<Result<()>>> {
-    let mut events = rpc.events_listen(()).await?.into_inner();
-    let join_handle = tokio::spawn(async move {
-        loop {
-            if let Some(event) = events.message().await? {
-                if let EventType::TunnelState(new_state) = event.event.unwrap() {
-                    format::print_state(&new_state);
-                    match continue_condition(&new_state.state.unwrap()) {
-                        Ok(false) => break Ok(()),
-                        Err(e) => break Err(e),
-                        _ => {}
-                    }
-                }
+// Spawns a new task that listens for tunnel state changes and forwards it through the returned
+// channel.
+pub fn state_listen(mut rpc: ManagementServiceClient) -> Receiver<TunnelState> {
+    let (mut sender, receiver) = mpsc::channel::<TunnelState>(100);
+    tokio::spawn(async move {
+        let mut events = rpc.events_listen(()).await.unwrap().into_inner();
+        while let Ok(Some(event)) = events.message().await {
+            if let EventType::TunnelState(new_state) = event.event.unwrap() {
+                sender.send(new_state).await.unwrap();
             }
         }
     });
 
-    Ok(join_handle)
+    receiver
 }
