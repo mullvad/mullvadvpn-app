@@ -1,7 +1,7 @@
 use super::{
     connecting_state::TunnelCloseEvent, ConnectingState, DisconnectedState, ErrorState,
-    EventConsequence, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
-    TunnelStateTransition, TunnelStateWrapper,
+    EventConsequence, EventResult, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver,
+    TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::tunnel::CloseHandle;
 use futures::{future::FusedFuture, StreamExt};
@@ -111,7 +111,6 @@ impl DisconnectingState {
     }
 }
 
-#[async_trait::async_trait]
 impl TunnelState for DisconnectingState {
     type Bootstrap = (Option<CloseHandle>, TunnelCloseEvent, AfterDisconnect);
 
@@ -141,8 +140,9 @@ impl TunnelState for DisconnectingState {
         )
     }
 
-    async fn handle_event(
+    fn handle_event(
         mut self,
+        runtime: &tokio::runtime::Handle,
         commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
@@ -152,15 +152,21 @@ impl TunnelState for DisconnectingState {
             return NewState(self.after_disconnect(None, shared_values));
         }
 
-        return futures::select! {
-            command = commands.next() => {
-                self.handle_commands(command, shared_values)
+        let result = runtime.block_on(async {
+            futures::select! {
+                command = commands.next() => EventResult::Command(command),
+                result = &mut self.tunnel_close_event => EventResult::Close(result),
             }
-            block_reason = &mut self.tunnel_close_event => {
-                let block_reason = block_reason.unwrap_or(None);
+        });
+
+        match result {
+            EventResult::Command(command) => self.handle_commands(command, shared_values),
+            EventResult::Close(result) => {
+                let block_reason = result.unwrap_or(None);
                 NewState(self.after_disconnect(block_reason, shared_values))
             }
-        };
+            _ => unreachable!("unexpected event result"),
+        }
     }
 }
 

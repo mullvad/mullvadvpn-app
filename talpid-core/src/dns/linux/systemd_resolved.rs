@@ -83,8 +83,6 @@ pub struct SystemdResolved {
     interface_link: Option<(String, dbus::Path<'static>)>,
 }
 
-unsafe impl Send for SystemdResolved {}
-
 impl SystemdResolved {
     pub fn new() -> Result<Self> {
         let result = (|| {

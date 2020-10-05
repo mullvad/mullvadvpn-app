@@ -17,7 +17,7 @@ use crate::{
     mpsc::Sender,
     offline,
     routing::RouteManager,
-    tunnel::tun_provider::TunProvider,
+    tunnel::{tun_provider::TunProvider, TunnelEvent},
 };
 
 use futures::{
@@ -101,6 +101,8 @@ pub async fn spawn(
         allow_lan,
     );
 
+    let runtime = tokio::runtime::Handle::current();
+
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
     std::thread::spawn(move || {
         let state_machine = TunnelStateMachine::new(
@@ -126,8 +128,7 @@ pub async fn spawn(
             }
         };
 
-        // TODO: Spawn this on a tokio runtime, and share it with RouteManager, etc.
-        futures::executor::block_on(state_machine.run(state_change_listener));
+        state_machine.run(runtime, state_change_listener);
 
         if shutdown_tx.send(()).is_err() {
             log::error!("Can't send shutdown completion to daemon");
@@ -159,6 +160,12 @@ pub enum TunnelCommand {
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
+
+enum EventResult {
+    Command(Option<TunnelCommand>),
+    Event(Option<TunnelEvent>),
+    Close(Result<Option<ErrorStateCause>, oneshot::Canceled>),
+}
 
 /// Asynchronous handling of the tunnel state machine.
 ///
@@ -216,13 +223,15 @@ impl TunnelStateMachine {
         })
     }
 
-    async fn run(mut self, change_listener: impl Sender<TunnelStateTransition> + Send + 'static) {
+    fn run(
+        mut self,
+        runtime: tokio::runtime::Handle,
+        change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
+    ) {
         use EventConsequence::*;
 
         while let Some(state_wrapper) = self.current_state.take() {
-            match state_wrapper
-                .handle_event(&mut self.commands, &mut self.shared_values)
-                .await
+            match state_wrapper.handle_event(&runtime, &mut self.commands, &mut self.shared_values)
             {
                 NewState((state, transition)) => {
                     self.current_state = Some(state);
@@ -314,7 +323,6 @@ enum EventConsequence {
 
 /// Trait that contains the method all states should implement to handle an event and advance the
 /// state machine.
-#[async_trait::async_trait]
 trait TunnelState: Into<TunnelStateWrapper> + Sized {
     /// Type representing extra information required for entering the state.
     type Bootstrap;
@@ -338,8 +346,9 @@ trait TunnelState: Into<TunnelStateWrapper> + Sized {
     /// events received through the provided `commands` stream.
     ///
     /// [`EventConsequence`]: enum.EventConsequence.html
-    async fn handle_event(
+    fn handle_event(
         self,
+        runtime: &tokio::runtime::Handle,
         commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence;
@@ -362,14 +371,15 @@ macro_rules! state_wrapper {
         })*
 
         impl $wrapper_name {
-            async fn handle_event(
+            fn handle_event(
                 self,
+                runtime: &tokio::runtime::Handle,
                 commands: &mut TunnelCommandReceiver,
                 shared_values: &mut SharedTunnelStateValues,
             ) -> EventConsequence {
                 match self {
                     $($wrapper_name::$state_variant(state) => {
-                        state.handle_event(commands, shared_values).await
+                        state.handle_event(runtime, commands, shared_values)
                     })*
                 }
             }

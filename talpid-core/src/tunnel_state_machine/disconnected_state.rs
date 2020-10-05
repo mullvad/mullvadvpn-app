@@ -37,7 +37,6 @@ impl DisconnectedState {
     }
 }
 
-#[async_trait::async_trait]
 impl TunnelState for DisconnectedState {
     type Bootstrap = bool;
 
@@ -62,14 +61,15 @@ impl TunnelState for DisconnectedState {
         )
     }
 
-    async fn handle_event(
-        mut self,
+    fn handle_event(
+        self,
+        runtime: &tokio::runtime::Handle,
         commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
         use self::EventConsequence::*;
 
-        match commands.next().await {
+        match runtime.block_on(commands.next()) {
             Some(TunnelCommand::AllowLan(allow_lan)) => {
                 if shared_values.allow_lan != allow_lan {
                     // The only platform that can fail is Android, but Android doesn't support the

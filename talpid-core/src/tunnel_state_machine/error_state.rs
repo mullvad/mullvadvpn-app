@@ -59,7 +59,6 @@ impl ErrorState {
     }
 }
 
-#[async_trait::async_trait]
 impl TunnelState for ErrorState {
     type Bootstrap = ErrorStateCause;
 
@@ -86,14 +85,15 @@ impl TunnelState for ErrorState {
         )
     }
 
-    async fn handle_event(
-        mut self,
+    fn handle_event(
+        self,
+        runtime: &tokio::runtime::Handle,
         commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
         use self::EventConsequence::*;
 
-        match commands.next().await {
+        match runtime.block_on(commands.next()) {
             Some(TunnelCommand::AllowLan(allow_lan)) => {
                 if let Err(error_state_cause) = shared_values.set_allow_lan(allow_lan) {
                     NewState(Self::enter(shared_values, error_state_cause))

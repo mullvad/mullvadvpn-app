@@ -1,6 +1,6 @@
 use super::{
     AfterDisconnect, ConnectingState, DisconnectingState, ErrorState, EventConsequence,
-    SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
+    EventResult, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
     TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::{
@@ -221,7 +221,6 @@ impl ConnectedState {
     }
 }
 
-#[async_trait::async_trait]
 impl TunnelState for ConnectedState {
     type Bootstrap = ConnectedStateBootstrap;
 
@@ -260,25 +259,30 @@ impl TunnelState for ConnectedState {
         }
     }
 
-    async fn handle_event(
+    fn handle_event(
         mut self,
+        runtime: &tokio::runtime::Handle,
         commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
-        return futures::select! {
-            command = commands.next() => {
-                self.handle_commands(command, shared_values)
+        let result = runtime.block_on(async {
+            futures::select! {
+                command = commands.next() => EventResult::Command(command),
+                event = self.tunnel_events.next() => EventResult::Event(event),
+                result = &mut self.tunnel_close_event => EventResult::Close(result),
             }
-            event = self.tunnel_events.next() => {
-                self.handle_tunnel_events(event, shared_values)
-            }
-            result = &mut self.tunnel_close_event => {
+        });
+
+        match result {
+            EventResult::Command(command) => self.handle_commands(command, shared_values),
+            EventResult::Event(event) => self.handle_tunnel_events(event, shared_values),
+            EventResult::Close(result) => {
                 if result.is_err() {
                     log::warn!("Tunnel monitor thread has stopped unexpectedly");
                 }
                 let block_reason = result.unwrap_or(None);
                 self.handle_tunnel_close_event(block_reason, shared_values)
             }
-        };
+        }
     }
 }
