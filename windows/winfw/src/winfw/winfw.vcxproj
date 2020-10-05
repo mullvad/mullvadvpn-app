@@ -38,6 +38,7 @@
     <ClCompile Include="rules\dns\permitnontunnel.cpp" />
     <ClCompile Include="rules\dns\permittunnel.cpp" />
     <ClCompile Include="rules\multi\permitvpnrelay.cpp" />
+    <ClCompile Include="rules\persistent\blockall.cpp" />
     <ClCompile Include="rules\shared.cpp" />
     <ClCompile Include="sessioncontroller.cpp" />
     <ClCompile Include="sessionrecord.cpp" />
@@ -71,6 +72,7 @@
     <ClInclude Include="rules\dns\permitnontunnel.h" />
     <ClInclude Include="rules\dns\permittunnel.h" />
     <ClInclude Include="rules\multi\permitvpnrelay.h" />
+    <ClInclude Include="rules\persistent\blockall.h" />
     <ClInclude Include="rules\ports.h" />
     <ClInclude Include="rules\shared.h" />
     <ClInclude Include="wfpobjecttype.h" />

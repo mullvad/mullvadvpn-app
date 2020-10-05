@@ -640,6 +640,13 @@ where
             }
         }
 
+        // If auto-connect is enabled, block all traffic before shutting down to ensure
+        // that no traffic can leak during boot.
+        #[cfg(windows)]
+        if self.settings.auto_connect {
+            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
+        }
+
         self.finalize().await;
         Ok(())
     }

@@ -319,11 +319,11 @@ mod winfw {
     }
 
     #[allow(dead_code)]
-    #[repr(u8)]
+    #[repr(u32)]
     #[derive(Clone, Copy)]
     pub enum WinFwCleanupPolicy {
-        ContinueBlocking = 0u8,
-        ResetFirewall = 1u8,
+        ContinueBlocking = 0,
+        ResetFirewall = 1,
     }
 
     ffi_error!(InitializationResult, Error::Initialization);

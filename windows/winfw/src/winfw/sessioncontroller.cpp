@@ -60,7 +60,7 @@ bool CheckpointKeyToIndex(const std::vector<SessionRecord> &container, uint32_t 
 
 SessionController::SessionController(std::unique_ptr<wfp::FilterEngine> &&engine)
 	: m_engine(std::move(engine))
-	, m_identityRegistry(MullvadGuids::Registry(MullvadGuids::IdentityQualifier::OnlyCurrent))
+	, m_identityRegistry(MullvadGuids::Registry(MullvadGuids::IdentityQualifier::IncludePersistent))
 	, m_activeTransaction(false)
 {
 }
