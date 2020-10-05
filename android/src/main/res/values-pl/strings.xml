@@ -74,7 +74,6 @@
     <string name="sending">Wysyłanie...</string>
     <string name="sent">Wysłano</string>
     <string name="sent_contact">W razie potrzeby skontaktujemy się z Tobą pod adresem %1$s</string>
-    <string name="sent_thanks">Dziękujemy! Sprawdzimy to.</string>
     <string name="set_dns_error">Niepowodzenie ustawienia systemowego serwera DNS</string>
     <string name="set_firewall_policy_error">Błąd stosowania reguł zapory. Urządzenie może być obecnie niezabezpieczone</string>
     <string name="settings">Ustawienia</string>

@@ -74,7 +74,6 @@
     <string name="sending">Verzenden...</string>
     <string name="sent">Verzonden</string>
     <string name="sent_contact">Indien nodig nemen we u contact op via %1$s</string>
-    <string name="sent_thanks">Bedankt! We gaan het bekijken.</string>
     <string name="set_dns_error">Instellen van DNS-server van systeem is mislukt</string>
     <string name="set_firewall_policy_error">Toepassen van firewallregels is mislukt. Het toestel is nu mogelijk niet beveiligd</string>
     <string name="settings">Instellingen</string>

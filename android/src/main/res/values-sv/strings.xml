@@ -74,7 +74,6 @@
     <string name="sending">Skicka...</string>
     <string name="sent">Skickat</string>
     <string name="sent_contact">Om det behövs kontaktar vi dig på %1$s</string>
-    <string name="sent_thanks">Tack! Vi kommer att undersöka detta.</string>
     <string name="set_dns_error">Det gick inte att ange systemets DNS-server</string>
     <string name="set_firewall_policy_error">Det gick inte att tillämpa brandväggsregler. Enheten kan för närvarande vara osäker</string>
     <string name="settings">Inställningar</string>

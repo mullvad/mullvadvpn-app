@@ -74,7 +74,6 @@
     <string name="sending">전송 중...</string>
     <string name="sent">전송 완료</string>
     <string name="sent_contact">필요하면 %1$s(으)로 연락드리겠습니다</string>
-    <string name="sent_thanks">감사합니다! 조사해보겠습니다.</string>
     <string name="set_dns_error">시스템 DNS 서버를 설정하지 못했습니다.</string>
     <string name="set_firewall_policy_error">방화벽 규칙을 적용하지 못했습니다. 장치가 현재 안전하지 않을 수 있습니다.</string>
     <string name="settings">설정</string>

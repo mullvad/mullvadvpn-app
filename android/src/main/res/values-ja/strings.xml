@@ -74,7 +74,6 @@
     <string name="sending">送信中...</string>
     <string name="sent">送信済み</string>
     <string name="sent_contact">必要に応じて %1$s までご連絡いたします</string>
-    <string name="sent_thanks">ありがとうございます！この問題を調査いたします。</string>
     <string name="set_dns_error">システムの DNS サーバーの設定に失敗しました</string>
     <string name="set_firewall_policy_error">ファイヤーウォール規則の適用に失敗しました。現在、デバイスがセキュリティ保護されていない可能性があります。</string>
     <string name="settings">設定</string>
