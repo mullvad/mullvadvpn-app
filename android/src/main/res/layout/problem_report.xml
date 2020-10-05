@@ -114,14 +114,6 @@
                                        android:src="@drawable/icon_fail"
                                        android:visibility="gone" />
                         </FrameLayout>
-                        <TextView android:layout_width="wrap_content"
-                                  android:layout_height="wrap_content"
-                                  android:layout_marginBottom="4dp"
-                                  android:textColor="@color/green"
-                                  android:textSize="@dimen/text_medium"
-                                  android:textStyle="bold"
-                                  android:text="@string/secure_connection"
-                                  android:textAllCaps="true" />
                         <TextView android:id="@+id/send_status"
                                   android:layout_width="wrap_content"
                                   android:layout_height="wrap_content"
