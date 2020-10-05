@@ -5,7 +5,7 @@
 extern crate serde;
 
 
-mod account_history;
+pub mod account_history;
 pub mod exception_logging;
 mod geoip;
 pub mod logging;
