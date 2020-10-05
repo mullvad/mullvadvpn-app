@@ -135,7 +135,7 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clipData = ClipData.newPlainText(clipboardLabel, accountToken)
 
-        clipboard.primaryClip = clipData
+        clipboard.setPrimaryClip(clipData)
 
         Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
     }

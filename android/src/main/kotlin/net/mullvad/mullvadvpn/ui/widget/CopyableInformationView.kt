@@ -58,7 +58,7 @@ class CopyableInformationView : InformationView {
         val clipData = ClipData.newPlainText(clipboardLabel, information)
         val toastMessage = copiedToast ?: context.getString(R.string.copied_to_clipboard)
 
-        clipboard.primaryClip = clipData
+        clipboard.setPrimaryClip(clipData)
 
         Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
     }
