@@ -1,4 +1,5 @@
-use crate::{new_rpc_client, state, Command, Error, Result};
+use crate::{format, new_rpc_client, state, Command, Error, Result};
+use futures::StreamExt;
 use mullvad_management_interface::types::tunnel_state::State;
 
 pub struct Reconnect;
@@ -23,22 +24,24 @@ impl Command for Reconnect {
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
 
-        let status_listen_handle = if matches.is_present("wait") {
-            Some(
-                state::state_listen(&mut rpc, |state| match state {
-                    State::Connected(_) => Ok(false),
-                    State::Error(_) => Err(Error::CommandFailed("connect")),
-                    _ => Ok(true),
-                })
-                .await?,
-            )
+        let receiver_option = if matches.is_present("wait") {
+            Some(state::state_listen(rpc.clone()))
         } else {
             None
         };
 
         if rpc.reconnect_tunnel(()).await?.into_inner() {
-            if let Some(handle) = status_listen_handle {
-                handle.await.expect("Failed to listen to status updates")?;
+            if let Some(mut receiver) = receiver_option {
+                while let Some(state) = receiver.next().await {
+                    let state = state?;
+                    format::print_state(&state);
+                    match state.state.unwrap() {
+                        State::Connected(_) => return Ok(()),
+                        State::Error(_) => return Err(Error::CommandFailed("reconnect")),
+                        _ => {}
+                    }
+                }
+                return Err(Error::StatusListenerFailed);
             }
         }
 
