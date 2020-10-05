@@ -82,6 +82,7 @@ pub async fn spawn(
     shutdown_tx: oneshot::Sender<()>,
     reset_firewall: bool,
     #[cfg(target_os = "android")] android_context: AndroidContext,
+    #[cfg(windows)] always_block_on_exit: bool,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
@@ -116,6 +117,8 @@ pub async fn spawn(
             cache_dir,
             command_rx,
             reset_firewall,
+            #[cfg(windows)]
+            always_block_on_exit,
         );
         let state_machine = match state_machine {
             Ok(state_machine) => {
@@ -157,6 +160,9 @@ pub enum TunnelCommand {
     Disconnect,
     /// Disconnect any open tunnel and block all network access
     Block(ErrorStateCause),
+    /// Block until the daemon has restarted, even if the machine reboots.
+    #[cfg(windows)]
+    AlwaysBlockOnExit(bool),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
@@ -191,10 +197,13 @@ impl TunnelStateMachine {
         cache_dir: impl AsRef<Path>,
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
         reset_firewall: bool,
+        #[cfg(windows)] always_block_on_exit: bool,
     ) -> Result<Self, Error> {
         let args = FirewallArguments {
             initialize_blocked: block_when_disconnected || !reset_firewall,
             allow_lan,
+            #[cfg(windows)]
+            always_block_on_exit,
         };
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;

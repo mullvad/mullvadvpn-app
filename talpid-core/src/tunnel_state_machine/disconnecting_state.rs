@@ -43,6 +43,13 @@ impl DisconnectingState {
                 Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
                 Some(TunnelCommand::Disconnect) | None => AfterDisconnect::Nothing,
                 Some(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
+                #[cfg(windows)]
+                Some(TunnelCommand::AlwaysBlockOnExit(always_block_on_exit)) => {
+                    shared_values
+                        .firewall
+                        .set_always_block_on_exit(always_block_on_exit);
+                    AfterDisconnect::Nothing
+                }
             },
             AfterDisconnect::Block(reason) => match command {
                 Some(TunnelCommand::AllowLan(allow_lan)) => {
@@ -65,6 +72,13 @@ impl DisconnectingState {
                 Some(TunnelCommand::Disconnect) => AfterDisconnect::Nothing,
                 Some(TunnelCommand::Block(new_reason)) => AfterDisconnect::Block(new_reason),
                 None => AfterDisconnect::Block(reason),
+                #[cfg(windows)]
+                Some(TunnelCommand::AlwaysBlockOnExit(always_block_on_exit)) => {
+                    shared_values
+                        .firewall
+                        .set_always_block_on_exit(always_block_on_exit);
+                    AfterDisconnect::Block(reason)
+                }
             },
             AfterDisconnect::Reconnect(retry_attempt) => match command {
                 Some(TunnelCommand::AllowLan(allow_lan)) => {
@@ -86,6 +100,13 @@ impl DisconnectingState {
                 Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(retry_attempt),
                 Some(TunnelCommand::Disconnect) | None => AfterDisconnect::Nothing,
                 Some(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
+                #[cfg(windows)]
+                Some(TunnelCommand::AlwaysBlockOnExit(always_block_on_exit)) => {
+                    shared_values
+                        .firewall
+                        .set_always_block_on_exit(always_block_on_exit);
+                    AfterDisconnect::Reconnect(retry_attempt)
+                }
             },
         };
 

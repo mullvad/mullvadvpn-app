@@ -19,10 +19,12 @@ private:
 
 public:
 
-	enum class IdentityQualifier
+	enum class IdentityQualifier : uint32_t
 	{
-		IncludeDeprecated,
-		OnlyCurrent,
+		OnlyCurrent			= 0x00,
+		IncludeDeprecated	= 0x01,
+		IncludePersistent	= 0x02,
+		IncludeAll			= IncludeDeprecated | IncludePersistent,
 	};
 
 	static IdentityRegistry Registry(IdentityQualifier qualifier);
@@ -89,4 +91,31 @@ public:
 	static const GUID &Filter_Dns_PermitNonTunnel_Outbound_Ipv6();
 	static const GUID &Filter_Dns_PermitTunnel_Outbound_Ipv4();
 	static const GUID &Filter_Dns_PermitTunnel_Outbound_Ipv6();
+
+	//
+	// Persistent and boot-time filters
+	//
+
+	static const GUID &ProviderPersistent();
+	static const GUID &SublayerPersistent();
+
+	static const GUID &Filter_Boottime_BlockAll_Inbound_Ipv4();
+	static const GUID &Filter_Boottime_BlockAll_Outbound_Ipv4();
+	static const GUID &Filter_Boottime_BlockAll_Inbound_Ipv6();
+	static const GUID &Filter_Boottime_BlockAll_Outbound_Ipv6();
+
+	static const GUID &Filter_Persistent_BlockAll_Inbound_Ipv4();
+	static const GUID &Filter_Persistent_BlockAll_Outbound_Ipv4();
+	static const GUID &Filter_Persistent_BlockAll_Inbound_Ipv6();
+	static const GUID &Filter_Persistent_BlockAll_Outbound_Ipv6();
 };
+
+inline MullvadGuids::IdentityQualifier operator|(MullvadGuids::IdentityQualifier lhs, MullvadGuids::IdentityQualifier rhs)
+{
+	return static_cast<MullvadGuids::IdentityQualifier>(static_cast<uint32_t>(lhs) | static_cast<uint32_t>(rhs));
+}
+
+inline MullvadGuids::IdentityQualifier operator&(MullvadGuids::IdentityQualifier lhs, MullvadGuids::IdentityQualifier rhs)
+{
+	return static_cast<MullvadGuids::IdentityQualifier>(static_cast<uint32_t>(lhs) & static_cast<uint32_t>(rhs));
+}

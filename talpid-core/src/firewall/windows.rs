@@ -47,7 +47,9 @@ pub enum Error {
 const WINFW_TIMEOUT_SECONDS: u32 = 2;
 
 /// The Windows implementation for the firewall and DNS.
-pub struct Firewall(());
+pub struct Firewall {
+    cleanup_policy: WinFwCleanupPolicy,
+}
 
 impl FirewallT for Firewall {
     type Error = Error;
@@ -74,7 +76,13 @@ impl FirewallT for Firewall {
         }
 
         trace!("Successfully initialized windows firewall module");
-        Ok(Firewall(()))
+        Ok(Firewall {
+            cleanup_policy: if args.always_block_on_exit {
+                WinFwCleanupPolicy::Block
+            } else {
+                WinFwCleanupPolicy::ContinueBlocking
+            },
+        })
     }
 
     fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Self::Error> {
@@ -120,7 +128,7 @@ impl FirewallT for Firewall {
 impl Drop for Firewall {
     fn drop(&mut self) {
         if unsafe {
-            WinFw_Deinitialize(WinFwCleanupPolicy::ContinueBlocking)
+            WinFw_Deinitialize(self.cleanup_policy)
                 .into_result()
                 .is_ok()
         } {
@@ -132,6 +140,15 @@ impl Drop for Firewall {
 }
 
 impl Firewall {
+    /// When the daemon exits, block until it has restarted, even after a reboot.
+    pub fn set_always_block_on_exit(&mut self, always_block_on_exit: bool) {
+        if always_block_on_exit {
+            self.cleanup_policy = WinFwCleanupPolicy::Block;
+        } else {
+            self.cleanup_policy = WinFwCleanupPolicy::ContinueBlocking;
+        }
+    }
+
     fn set_connecting_state(
         &mut self,
         endpoint: &Endpoint,
@@ -319,11 +336,12 @@ mod winfw {
     }
 
     #[allow(dead_code)]
-    #[repr(u8)]
+    #[repr(u32)]
     #[derive(Clone, Copy)]
     pub enum WinFwCleanupPolicy {
-        ContinueBlocking = 0u8,
-        ResetFirewall = 1u8,
+        ContinueBlocking = 0,
+        ResetFirewall = 1,
+        Block = 2,
     }
 
     ffi_error!(InitializationResult, Error::Initialization);
