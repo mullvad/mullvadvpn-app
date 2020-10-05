@@ -28,6 +28,7 @@ class MullvadVpnService : TalpidVpnService() {
 
         val KEY_CONNECT_ACTION = "net.mullvad.mullvadvpn.connect_action"
         val KEY_DISCONNECT_ACTION = "net.mullvad.mullvadvpn.disconnect_action"
+        val KEY_QUIT_ACTION = "net.mullvad.mullvadvpn.quit_action"
 
         init {
             System.loadLibrary("mullvad_jni")
@@ -99,6 +100,7 @@ class MullvadVpnService : TalpidVpnService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "Starting service")
         val startResult = super.onStartCommand(intent, flags, startId)
+        var quitCommand = false
 
         if (!keyguardManager.isDeviceLocked) {
             val action = intent?.action
@@ -107,10 +109,13 @@ class MullvadVpnService : TalpidVpnService() {
                 pendingAction = PendingAction.Connect
             } else if (action == KEY_DISCONNECT_ACTION) {
                 pendingAction = PendingAction.Disconnect
+            } else if (action == KEY_QUIT_ACTION && !notificationManager.onForeground) {
+                quitCommand = true
+                stop()
             }
         }
 
-        if (shouldStop) {
+        if (shouldStop && !quitCommand) {
             shouldStop = false
 
             if (isStopping) {
