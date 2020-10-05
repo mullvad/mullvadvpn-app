@@ -1,6 +1,3 @@
-#[macro_use]
-mod macros;
-
 mod connected_state;
 mod connecting_state;
 mod disconnected_state;
@@ -20,14 +17,13 @@ use crate::{
     mpsc::Sender,
     offline,
     routing::RouteManager,
-    tunnel::tun_provider::TunProvider,
+    tunnel::{tun_provider::TunProvider, TunnelEvent},
 };
 
 use futures::{
     channel::{mpsc, oneshot},
-    StreamExt,
+    stream, StreamExt,
 };
-use futures01::{sync::mpsc as old_mpsc, Async, Poll, Stream};
 use std::{
     collections::HashSet,
     io,
@@ -87,7 +83,7 @@ pub async fn spawn(
     reset_firewall: bool,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
-    let (command_tx, mut command_rx) = mpsc::unbounded();
+    let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
     let mut offline_monitor = offline::spawn_monitor(
         Arc::downgrade(&command_tx),
@@ -105,15 +101,7 @@ pub async fn spawn(
         allow_lan,
     );
 
-    // Hide internal 0.1 futures from the client
-    let (command_adapter_tx, command_adapter_rx) = old_mpsc::unbounded();
-    tokio::spawn(async move {
-        while let Some(command) = command_rx.next().await {
-            if command_adapter_tx.unbounded_send(command).is_err() {
-                log::error!("Failed to forward daemon command");
-            }
-        }
-    });
+    let runtime = tokio::runtime::Handle::current();
 
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
     std::thread::spawn(move || {
@@ -126,7 +114,7 @@ pub async fn spawn(
             log_dir,
             resource_dir,
             cache_dir,
-            command_adapter_rx,
+            command_rx,
             reset_firewall,
         );
         let state_machine = match state_machine {
@@ -140,16 +128,8 @@ pub async fn spawn(
             }
         };
 
-        let mut iter = state_machine.wait();
-        while let Some(Ok(change_event)) = iter.next() {
-            if let Err(error) = state_change_listener
-                .send(change_event)
-                .map_err(|_| Error::SendStateChange)
-            {
-                log::error!("{}", error);
-                break;
-            }
-        }
+        state_machine.run(runtime, state_change_listener);
+
         if shutdown_tx.send(()).is_err() {
             log::error!("Can't send shutdown completion to daemon");
         }
@@ -179,6 +159,14 @@ pub enum TunnelCommand {
     Block(ErrorStateCause),
 }
 
+type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
+
+enum EventResult {
+    Command(Option<TunnelCommand>),
+    Event(Option<TunnelEvent>),
+    Close(Result<Option<ErrorStateCause>, oneshot::Canceled>),
+}
+
 /// Asynchronous handling of the tunnel state machine.
 ///
 /// This type implements `Stream`, and attempts to advance the state machine based on the events
@@ -187,7 +175,7 @@ pub enum TunnelCommand {
 /// by the stream.
 struct TunnelStateMachine {
     current_state: Option<TunnelStateWrapper>,
-    commands: old_mpsc::UnboundedReceiver<TunnelCommand>,
+    commands: TunnelCommandReceiver,
     shared_values: SharedTunnelStateValues,
 }
 
@@ -201,7 +189,7 @@ impl TunnelStateMachine {
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: impl AsRef<Path>,
-        commands: old_mpsc::UnboundedReceiver<TunnelCommand>,
+        commands: mpsc::UnboundedReceiver<TunnelCommand>,
         reset_firewall: bool,
     ) -> Result<Self, Error> {
         let args = FirewallArguments {
@@ -230,61 +218,42 @@ impl TunnelStateMachine {
 
         Ok(TunnelStateMachine {
             current_state: Some(initial_state),
-            commands,
+            commands: commands.fuse(),
             shared_values,
         })
     }
-}
 
-impl Stream for TunnelStateMachine {
-    type Item = TunnelStateTransition;
-    type Error = Error;
+    fn run(
+        mut self,
+        runtime: tokio::runtime::Handle,
+        change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
+    ) {
+        use EventConsequence::*;
 
-    fn poll(&mut self) -> Poll<Option<Self::Item>, Self::Error> {
         while let Some(state_wrapper) = self.current_state.take() {
-            match state_wrapper.handle_event(&mut self.commands, &mut self.shared_values) {
-                TunnelStateMachineAction::Repeat(repeat_state_wrapper) => {
-                    self.current_state = Some(repeat_state_wrapper);
+            match state_wrapper.handle_event(&runtime, &mut self.commands, &mut self.shared_values)
+            {
+                NewState((state, transition)) => {
+                    self.current_state = Some(state);
+
+                    if let Err(error) = change_listener
+                        .send(transition)
+                        .map_err(|_| Error::SendStateChange)
+                    {
+                        log::error!("{}", error);
+                        break;
+                    }
                 }
-                TunnelStateMachineAction::Notify(state_wrapper, result) => {
-                    self.current_state = state_wrapper;
-                    return result;
+                SameState(state) => {
+                    self.current_state = Some(state);
                 }
+                Finished => (),
             }
         }
-        Ok(Async::Ready(None))
+
+        log::debug!("Exiting tunnel state machine loop");
     }
 }
-
-/// Action the state machine should take, which is discovered base on an event consequence.
-///
-/// The action can be to execute another iteration or to notify that something happened. Executing
-/// another iteration happens when an event is received and ignored, which causes the tunnel state
-/// machine to stay in the same state. The state machine can notify its caller that a state
-/// transition has occurred, that it has finished, or that it has paused to wait for new events.
-enum TunnelStateMachineAction {
-    Repeat(TunnelStateWrapper),
-    Notify(
-        Option<TunnelStateWrapper>,
-        Poll<Option<TunnelStateTransition>, Error>,
-    ),
-}
-
-impl<T: TunnelState> From<EventConsequence<T>> for TunnelStateMachineAction {
-    fn from(event_consequence: EventConsequence<T>) -> Self {
-        use self::{EventConsequence::*, TunnelStateMachineAction::*};
-
-        match event_consequence {
-            NewState((state_wrapper, transition)) => {
-                Notify(Some(state_wrapper), Ok(Async::Ready(Some(transition))))
-            }
-            SameState(state) => Repeat(state.into()),
-            NoEvents(state) => Notify(Some(state.into()), Ok(Async::NotReady)),
-            Finished => Notify(None, Ok(Async::Ready(None))),
-        }
-    }
-}
-
 
 /// Trait for any type that can provide a stream of `TunnelParameters` to the `TunnelStateMachine`.
 pub trait TunnelParametersGenerator: Send + 'static {
@@ -343,35 +312,13 @@ impl SharedTunnelStateValues {
 }
 
 /// Asynchronous result of an attempt to progress a state.
-enum EventConsequence<T: TunnelState> {
+enum EventConsequence {
     /// Transition to a new state.
     NewState((TunnelStateWrapper, TunnelStateTransition)),
     /// An event was received, but it was ignored by the state so no transition is performed.
-    SameState(T),
-    /// No events were received, the event loop should block until one becomes available.
-    NoEvents(T),
+    SameState(TunnelStateWrapper),
     /// The state machine has finished its execution.
     Finished,
-}
-
-impl<T> EventConsequence<T>
-where
-    T: TunnelState,
-{
-    /// Helper method to chain handling multiple different event types.
-    ///
-    /// The `handle_event` is only called if no events were handled so far.
-    pub fn or_else<F>(self, handle_event: F, shared_values: &mut SharedTunnelStateValues) -> Self
-    where
-        F: FnOnce(T, &mut SharedTunnelStateValues) -> Self,
-    {
-        use self::EventConsequence::*;
-
-        match self {
-            NoEvents(state) => handle_event(state, shared_values),
-            consequence => consequence,
-        }
-    }
 }
 
 /// Trait that contains the method all states should implement to handle an event and advance the
@@ -401,9 +348,10 @@ trait TunnelState: Into<TunnelStateWrapper> + Sized {
     /// [`EventConsequence`]: enum.EventConsequence.html
     fn handle_event(
         self,
-        commands: &mut old_mpsc::UnboundedReceiver<TunnelCommand>,
+        runtime: &tokio::runtime::Handle,
+        commands: &mut TunnelCommandReceiver,
         shared_values: &mut SharedTunnelStateValues,
-    ) -> EventConsequence<Self>;
+    ) -> EventConsequence;
 }
 
 macro_rules! state_wrapper {
@@ -425,13 +373,13 @@ macro_rules! state_wrapper {
         impl $wrapper_name {
             fn handle_event(
                 self,
-                commands: &mut old_mpsc::UnboundedReceiver<TunnelCommand>,
+                runtime: &tokio::runtime::Handle,
+                commands: &mut TunnelCommandReceiver,
                 shared_values: &mut SharedTunnelStateValues,
-            ) -> TunnelStateMachineAction {
+            ) -> EventConsequence {
                 match self {
                     $($wrapper_name::$state_variant(state) => {
-                        let event_consequence = state.handle_event(commands, shared_values);
-                        TunnelStateMachineAction::from(event_consequence)
+                        state.handle_event(runtime, commands, shared_values)
                     })*
                 }
             }

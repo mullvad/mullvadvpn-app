@@ -972,12 +972,6 @@ impl RouteManagerImpl {
     }
 }
 
-impl Drop for RouteManagerImpl {
-    fn drop(&mut self) {
-        futures::executor::block_on(self.destructor());
-    }
-}
-
 fn ip_to_bytes(addr: IpAddr) -> Vec<u8> {
     match addr {
         IpAddr::V4(addr) => addr.octets().to_vec(),

@@ -12,7 +12,6 @@ atty = "0.2"
 cfg-if = "0.1"
 duct = "0.13"
 err-derive = "0.2.1"
-futures01 = { package = "futures", version = "0.1" }
 futures = { package = "futures", version = "0.3", features = [ "compat" ]}
 hex = "0.4"
 ipnetwork = "0.16"
