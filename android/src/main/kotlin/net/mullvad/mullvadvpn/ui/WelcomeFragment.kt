@@ -12,9 +12,9 @@ import android.widget.Toast
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
-import net.mullvad.mullvadvpn.ui.widget.UrlButton
+import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
+import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
 import org.joda.time.DateTime
 
 val POLL_INTERVAL: Long = 15 /* s */ * 1000 /* ms */
@@ -41,14 +41,13 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
             parentActivity.getString(R.string.pay_to_start_using) + " " +
             parentActivity.getString(R.string.add_time_to_account)
 
-        view.findViewById<UrlButton>(R.id.buy_credit).apply {
+        view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
+            newAccount = true
             prepare(daemon, jobTracker)
         }
 
-        view.findViewById<Button>(R.id.redeem_voucher).apply {
-            setOnClickAction("openRedeemVoucherDialog", jobTracker) {
-                showRedeemVoucherDialog()
-            }
+        view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
+            prepare(fragmentManager, jobTracker)
         }
 
         return view
@@ -138,13 +137,5 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         clipboard.setPrimaryClip(clipData)
 
         Toast.makeText(context, toastMessage, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun showRedeemVoucherDialog() {
-        val transaction = fragmentManager?.beginTransaction()
-
-        transaction?.addToBackStack(null)
-
-        RedeemVoucherDialogFragment().show(transaction, null)
     }
 }

@@ -11,7 +11,8 @@ import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
-import net.mullvad.mullvadvpn.ui.widget.UrlButton
+import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
+import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
 import org.joda.time.DateTime
 
 class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
@@ -37,14 +38,14 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private var hasConnectivity = true
         set(value) {
             field = value
-            buyCreditButton.setEnabled(value)
+            sitePaymentButton.setEnabled(value)
             redeemVoucherButton.setEnabled(value)
         }
 
     private lateinit var accountExpiryView: InformationView
     private lateinit var accountNumberView: CopyableInformationView
-    private lateinit var buyCreditButton: Button
-    private lateinit var redeemVoucherButton: Button
+    private lateinit var sitePaymentButton: SitePaymentButton
+    private lateinit var redeemVoucherButton: RedeemVoucherButton
     private lateinit var titleController: CollapsibleTitleController
 
     override fun onSafelyCreateView(
@@ -58,16 +59,16 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
             parentActivity.onBackPressed()
         }
 
-        buyCreditButton = view.findViewById<UrlButton>(R.id.buy_credit).apply {
+        sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
+            newAccount = false
+
             prepare(daemon, jobTracker) {
                 checkForAddedTime()
             }
         }
 
-        redeemVoucherButton = view.findViewById<Button>(R.id.redeem_voucher).apply {
-            setOnClickAction("redeem", jobTracker) {
-                showRedeemVoucherDialog()
-            }
+        redeemVoucherButton = view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
+            prepare(fragmentManager, jobTracker)
         }
 
         view.findViewById<Button>(R.id.logout).setOnClickAction("logout", jobTracker) {

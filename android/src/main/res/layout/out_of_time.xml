@@ -41,29 +41,18 @@
                           android:layout_height="wrap_content"
                           android:layout_weight="0"
                           android:orientation="vertical"
-                          android:paddingHorizontal="@dimen/side_margin"
+                          android:paddingTop="@dimen/button_separation"
                           android:paddingBottom="@dimen/screen_vertical_margin"
                           android:background="@color/darkBlue">
                 <net.mullvad.mullvadvpn.ui.widget.Button android:id="@+id/disconnect"
                                                          android:layout_width="match_parent"
                                                          android:layout_height="wrap_content"
-                                                         android:layout_marginTop="@dimen/button_separation"
+                                                         android:layout_marginHorizontal="@dimen/side_margin"
+                                                         android:layout_marginBottom="@dimen/button_separation"
                                                          android:visibility="gone"
                                                          mullvad:buttonColor="red"
                                                          mullvad:text="@string/disconnect" />
-                <net.mullvad.mullvadvpn.ui.widget.UrlButton android:id="@+id/buy_credit"
-                                                            android:layout_width="match_parent"
-                                                            android:layout_height="wrap_content"
-                                                            android:layout_marginVertical="@dimen/button_separation"
-                                                            mullvad:buttonColor="green"
-                                                            mullvad:text="@string/buy_more_credit"
-                                                            mullvad:url="@string/account_url"
-                                                            mullvad:withToken="true" />
-                <net.mullvad.mullvadvpn.ui.widget.Button android:id="@+id/redeem_voucher"
-                                                         android:layout_width="match_parent"
-                                                         android:layout_height="wrap_content"
-                                                         mullvad:buttonColor="green"
-                                                         mullvad:text="@string/redeem_voucher" />
+                <include layout="@layout/payment_buttons" />
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

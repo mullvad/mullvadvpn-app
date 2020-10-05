@@ -11,16 +11,17 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.ui.widget.HeaderBar
-import net.mullvad.mullvadvpn.ui.widget.UrlButton
+import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
+import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import org.joda.time.DateTime
 
 class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var headerBar: HeaderBar
 
-    private lateinit var buyCreditButton: UrlButton
+    private lateinit var sitePaymentButton: SitePaymentButton
     private lateinit var disconnectButton: Button
-    private lateinit var redeemButton: Button
+    private lateinit var redeemButton: RedeemVoucherButton
 
     private var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, state ->
         updateDisconnectButton()
@@ -49,14 +50,13 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
             }
         }
 
-        buyCreditButton = view.findViewById<UrlButton>(R.id.buy_credit).apply {
+        sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
+            newAccount = false
             prepare(daemon, jobTracker)
         }
 
-        redeemButton = view.findViewById<Button>(R.id.redeem_voucher).apply {
-            setOnClickAction("openRedeemVoucherDialog", jobTracker) {
-                showRedeemVoucherDialog()
-            }
+        redeemButton = view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
+            prepare(fragmentManager, jobTracker)
         }
 
         connectionProxy.onStateChange.subscribe(this) { newState ->
@@ -90,14 +90,6 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
         connectionProxy.onStateChange.unsubscribe(this)
     }
 
-    private fun showRedeemVoucherDialog() {
-        val transaction = fragmentManager?.beginTransaction()
-
-        transaction?.addToBackStack(null)
-
-        RedeemVoucherDialogFragment().show(transaction, null)
-    }
-
     private fun updateDisconnectButton() {
         val state = tunnelState
 
@@ -124,7 +116,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     private fun updateBuyButtons() {
         val hasConnectivity = tunnelState is TunnelState.Disconnected
 
-        buyCreditButton.setEnabled(hasConnectivity)
+        sitePaymentButton.setEnabled(hasConnectivity)
         redeemButton.setEnabled(hasConnectivity)
     }
 
