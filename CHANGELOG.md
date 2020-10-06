@@ -75,6 +75,11 @@ Line wrap the file at 100 chars.                                              Th
 - Honor routes other than the default route with `mullvad-exclude`. This is mainly to improve
   routing within LANs.
 
+### Security
+#### Windows
+- Block all traffic received or sent before the BFE service and daemon service have started during
+  boot, if "Always require VPN" or auto-connect is enabled.
+
 
 ## [2020.6-beta2] - 2020-08-27
 This release is for Android only.
