@@ -44,6 +44,11 @@ Line wrap the file at 100 chars.                                              Th
   settings tile.
 - Fix app starting by itself sometimes.
 
+### Security
+#### Windows
+- Block all traffic received or sent before the BFE service and daemon service have started during
+  boot, if "Always require VPN" or auto-connect is enabled.
+
 
 ## [2020.6-beta3] - 2020-10-06
 This release is for desktop only.
