@@ -14,8 +14,6 @@ if [[ "$1" == "upgrade" ]]; then
     exit 0;
 fi
 
-/usr/bin/mullvad account clear-history || echo "Failed to remove leftover WireGuard keys"
-
 if which systemctl &> /dev/null; then
     # the user might've disabled or stopped the service themselves already
     systemctl stop mullvad-daemon.service || true
@@ -25,4 +23,5 @@ elif /sbin/init --version | grep upstart &> /dev/null; then
     rm -f /etc/init/mullvad-daemon.conf
 fi
 
-/opt/Mullvad\ VPN/resources/mullvad-setup reset-firewall || true
+/opt/Mullvad\ VPN/resources/mullvad-setup reset-firewall || echo "Failed to reset firewall"
+/opt/Mullvad\ VPN/resources/mullvad-setup clear-history || echo "Failed to remove leftover WireGuard keys"
