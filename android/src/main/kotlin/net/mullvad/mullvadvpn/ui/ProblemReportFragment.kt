@@ -208,16 +208,28 @@ class ProblemReportFragment : Fragment() {
 
         sentSuccessfullyIcon.visibility = View.VISIBLE
         sendStatusLabel.visibility = View.VISIBLE
-        sendDetailsLabel.visibility = View.VISIBLE
 
         if (!userEmail.isEmpty()) {
             showResponseMessage(userEmail)
         }
 
+        showThanksMessage()
         sendStatusLabel.setText(R.string.sent)
-        sendDetailsLabel.setText(R.string.sent_thanks)
 
         scrollArea.scrollTo(0, titleController.fullCollapseScrollOffset.toInt())
+    }
+
+    private fun showThanksMessage() {
+        val thanks = parentActivity.getString(R.string.sent_thanks)
+        val weWillLookIntoThis = parentActivity.getString(R.string.we_will_look_into_this)
+
+        val colorStyle = ForegroundColorSpan(parentActivity.getColor(R.color.green))
+
+        sendDetailsLabel.text = SpannableStringBuilder("$thanks $weWillLookIntoThis").apply {
+            setSpan(colorStyle, 0, thanks.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
+        sendDetailsLabel.visibility = View.VISIBLE
     }
 
     private fun showResponseMessage(userEmail: String) {

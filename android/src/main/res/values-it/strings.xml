@@ -74,7 +74,6 @@
     <string name="sending">Invio...</string>
     <string name="sent">Inviato</string>
     <string name="sent_contact">Se necessario, ti contatteremo all\'indirizzo %1$s</string>
-    <string name="sent_thanks">Grazie! Verificheremo.</string>
     <string name="set_dns_error">Impossibile impostare il server DNS di sistema</string>
     <string name="set_firewall_policy_error">Impossibile applicare le regole firewall. Il dispositivo potrebbe essere non protetto</string>
     <string name="settings">Impostazioni</string>

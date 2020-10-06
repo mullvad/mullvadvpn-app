@@ -74,7 +74,6 @@
     <string name="sending">Lähetetään...</string>
     <string name="sent">Lähetetty</string>
     <string name="sent_contact">Tarvittaessa otamme sinuun yhteyttä osoitteeseen %1$s</string>
-    <string name="sent_thanks">Kiitos! Tutkimme asiaa.</string>
     <string name="set_dns_error">Järjestelmän DNS-palvelimen asetus epäonnistui</string>
     <string name="set_firewall_policy_error">Palomuurisääntöjä ei voitu ottaa käyttöön. Laite ei välttämättä ole suojattu.</string>
     <string name="settings">Asetukset</string>

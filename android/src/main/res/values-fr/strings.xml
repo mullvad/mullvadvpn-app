@@ -74,7 +74,6 @@
     <string name="sending">Envoi...</string>
     <string name="sent">Envoyé</string>
     <string name="sent_contact">Si nécessaire, nous vous contacterons sur %1$s</string>
-    <string name="sent_thanks">Merci ! Nous allons nous pencher dessus.</string>
     <string name="set_dns_error">Échec de la configuration du serveur DNS système</string>
     <string name="set_firewall_policy_error">Échec de l\'application des règles du pare-feu. L\'appareil est potentiellement non sécurisé à l\'heure actuelle</string>
     <string name="settings">Paramètres</string>
