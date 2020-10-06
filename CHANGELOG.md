@@ -24,16 +24,20 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+
+## [2020.6-beta3] - 2020-10-06
+This release is for desktop only.
+
 ### Added
 #### Linux
 - Add support for WireGuard's kernel module if it's loaded.
 - Add tray context menu with actions.
 
 ### Changed
+#### Linux
 - Open and focus app when opened from context menu instead of toggling the window.
 
 ### Fixed
-- Stop resetting the firewall after an upgrade to not leak after an upgrade.
 - Start key rotation when WireGuard key is first created.
 - Remove firewall filters (unblock internet access) when "Always require VPN" is enabled and the app
   is uninstalled.
@@ -54,6 +58,9 @@ Line wrap the file at 100 chars.                                              Th
   processes.
 - Honor routes other than the default route with `mullvad-exclude`. This is mainly to improve
   routing within LANs.
+
+### Security
+- Stop resetting the firewall after an upgrade to not leak after an upgrade.
 
 
 ## [2020.6-beta2] - 2020-08-27
