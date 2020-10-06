@@ -32,7 +32,7 @@ impl Command for Version {
 
         let settings = rpc.get_settings(()).await?.into_inner();
         if settings.show_beta_releases {
-            println!("\t Latest beta version: {}", version_info.latest_beta);
+            println!("\tLatest beta version: {}", version_info.latest_beta);
         };
 
         Ok(())
