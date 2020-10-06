@@ -13,8 +13,6 @@ fi
 echo "Stopping GUI process ..."
 sudo pkill -x "Mullvad VPN" || echo "No GUI process found"
 
-mullvad account clear-history || echo "Failed to remove leftover WireGuard keys"
-
 echo "Stopping and unloading mullvad-daemon system daemon ..."
 DAEMON_PLIST_PATH="/Library/LaunchDaemons/net.mullvad.daemon.plist"
 sudo launchctl unload -w "$DAEMON_PLIST_PATH"
@@ -22,6 +20,7 @@ sudo rm -f "$DAEMON_PLIST_PATH"
 
 echo "Resetting firewall"
 sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup reset-firewall
+sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup clear-history
 
 echo "Removing zsh shell completion symlink ..."
 sudo rm -f /usr/local/share/zsh/site-functions/_mullvad
