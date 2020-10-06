@@ -23,19 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-
 ### Added
-#### Linux
-- Add support for WireGuard's kernel module if it's loaded.
-- Add tray context menu with actions.
 - Improve accessibility in the desktop app.
-- Reset firewall when uninstalling.
-
-#### MacOS
-- Reset firewall whe uninstalling.
 
 ### Changed
-- Open and focus app when opened from context menu instead of toggling the window.
 - Use the API to fetch API IP addresses instead of DNS.
 
 #### Android
@@ -43,10 +34,31 @@ Line wrap the file at 100 chars.                                              Th
 - Add button to remove account and WireGuard key from history in the login screen.
 
 ### Fixed
-- Stop resetting the firewall after an upgrade to not leak after an upgrade.
-- Start key rotation when WireGuard key is first created.
+#### Android
+- Fix connect action button sometimes showing itself as "Cancel" instead of "Secure my connection"
+  for a few seconds.
+- Fix the notification sometimes leaving the foreground and becoming dismissable even if the UI was
+  still visible.
+- Fix crash if connection to service is lost while opening the Split Tunneling settings screen.
+- Fix rare crash that could occur when the tunnel state changes when showing or hiding the quick
+  settings tile.
+- Fix app starting by itself sometimes.
 
-#### Windows
+
+## [2020.6-beta3] - 2020-10-06
+This release is for desktop only.
+
+### Added
+#### Linux
+- Add support for WireGuard's kernel module if it's loaded.
+- Add tray context menu with actions.
+
+### Changed
+#### Linux
+- Open and focus app when opened from context menu instead of toggling the window.
+
+### Fixed
+- Start key rotation when WireGuard key is first created.
 - Remove firewall filters (unblock internet access) when "Always require VPN" is enabled and the app
   is uninstalled.
 
@@ -60,20 +72,15 @@ Line wrap the file at 100 chars.                                              Th
   blocking state and sometimes open the UI for the user to login. Now it always opens the UI.
 - Mark the VPN connection as not metered, so that Android properly reports if the connection is or
   isn't metered based solely on the underlying network, and not on the VPN connection.
-- Fix connect action button sometimes showing itself as "Cancel" instead of "Secure my connection"
-  for a few seconds.
-- Fix the notification sometimes leaving the foreground and becoming dismissable even if the UI was
-  still visible.
-- Fix crash if connection to service is lost while opening the Split Tunneling settings screen.
-- Fix rare crash that could occur when the tunnel state changes when showing or hiding the quick
-  settings tile.
-- Fix app starting by itself sometimes.
 
 #### Linux
 - Fix split tunneling rules preventing `systemd-resolved` from performing DNS lookups for excluded
   processes.
 - Honor routes other than the default route with `mullvad-exclude`. This is mainly to improve
   routing within LANs.
+
+### Security
+- Stop resetting the firewall after an upgrade to not leak after an upgrade.
 
 
 ## [2020.6-beta2] - 2020-08-27
