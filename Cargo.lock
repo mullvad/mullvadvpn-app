@@ -1103,7 +1103,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-cli"
-version = "2020.6.0-beta2"
+version = "2020.6.0-beta3"
 dependencies = [
  "base64 0.12.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "chrono 0.4.15 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1124,7 +1124,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-daemon"
-version = "2020.6.0-beta2"
+version = "2020.6.0-beta3"
 dependencies = [
  "android_logger 0.8.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "cfg-if 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1164,7 +1164,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-exclude"
-version = "2020.6.0-beta2"
+version = "2020.6.0-beta3"
 dependencies = [
  "err-derive 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "nix 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1182,9 +1182,9 @@ dependencies = [
  "lazy_static 1.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.11 (registry+https://github.com/rust-lang/crates.io-index)",
  "log-panics 2.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "mullvad-daemon 2020.6.0-beta2",
+ "mullvad-daemon 2020.6.0-beta3",
  "mullvad-paths 0.1.0",
- "mullvad-problem-report 2020.6.0-beta2",
+ "mullvad-problem-report 2020.6.0-beta3",
  "mullvad-rpc 0.1.0",
  "mullvad-types 0.1.0",
  "nix 0.18.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1223,7 +1223,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-problem-report"
-version = "2020.6.0-beta2"
+version = "2020.6.0-beta3"
 dependencies = [
  "clap 2.33.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "dirs 3.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1269,7 +1269,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-setup"
-version = "2020.6.0-beta2"
+version = "2020.6.0-beta3"
 dependencies = [
  "clap 2.33.3 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2358,7 +2358,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-openvpn-plugin"
-version = "2020.6.0-beta2"
+version = "2020.6.0-beta3"
 dependencies = [
  "env_logger 0.7.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "err-derive 0.2.4 (registry+https://github.com/rust-lang/crates.io-index)",
