@@ -584,8 +584,6 @@ where
             initial_target_state != TargetState::Secured,
             #[cfg(target_os = "android")]
             android_context,
-            #[cfg(windows)]
-            settings.auto_connect,
         )
         .await
         .map_err(Error::TunnelError)?;
@@ -642,6 +640,10 @@ where
             }
         }
 
+        #[cfg(windows)]
+        if self.settings.auto_connect {
+            self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
+        }
         self.finalize().await;
         Ok(())
     }
@@ -1554,8 +1556,6 @@ where
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
-                    #[cfg(windows)]
-                    self.send_tunnel_command(TunnelCommand::AlwaysBlockOnExit(auto_connect));
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),

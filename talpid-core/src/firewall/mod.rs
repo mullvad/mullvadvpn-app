@@ -187,9 +187,6 @@ pub struct FirewallArguments {
     pub initialize_blocked: bool,
     /// This argument is required for the blocked state to configure the firewall correctly.
     pub allow_lan: bool,
-    /// Block until the daemon restarts, even after a reboot.
-    #[cfg(windows)]
-    pub always_block_on_exit: bool,
 }
 
 impl Firewall {
@@ -212,12 +209,6 @@ impl Firewall {
     pub fn reset_policy(&mut self) -> Result<(), Error> {
         log::info!("Resetting firewall policy");
         self.inner.reset_policy()
-    }
-
-    #[cfg(windows)]
-    /// When the daemon exits, block until it has restarted, even after a reboot.
-    pub fn set_always_block_on_exit(&mut self, always_block_on_exit: bool) {
-        self.inner.set_always_block_on_exit(always_block_on_exit)
     }
 }
 

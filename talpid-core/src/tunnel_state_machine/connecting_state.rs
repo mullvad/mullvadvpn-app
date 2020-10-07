@@ -251,13 +251,6 @@ impl ConnectingState {
             Some(TunnelCommand::Block(reason)) => {
                 self.disconnect(shared_values, AfterDisconnect::Block(reason))
             }
-            #[cfg(windows)]
-            Some(TunnelCommand::AlwaysBlockOnExit(always_block_on_exit)) => {
-                shared_values
-                    .firewall
-                    .set_always_block_on_exit(always_block_on_exit);
-                SameState(self.into())
-            }
         }
     }
 

@@ -186,9 +186,8 @@ WinFw_Deinitialize(WINFW_CLEANUP_POLICY cleanupPolicy)
 	// Skip clean-up if this is what the user requested.
 	//
 
-	if (WINFW_CLEANUP_POLICY_BLOCK == cleanupPolicy ||
-		(WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING == cleanupPolicy
-		&& FwContext::Policy::Blocked == activePolicy))
+	if (WINFW_CLEANUP_POLICY_CONTINUE_BLOCKING == cleanupPolicy
+		&& FwContext::Policy::Blocked == activePolicy)
 	{
 		try
 		{
