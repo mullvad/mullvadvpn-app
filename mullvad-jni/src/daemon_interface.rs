@@ -42,7 +42,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SetTargetState(tx, TargetState::Secured))?;
 
-        block_on(rx).map_err(|_| Error::NoResponse)
+        block_on(rx).map(|_| ()).map_err(|_| Error::NoResponse)
     }
 
     pub fn create_new_account(&self) -> Result<String> {
@@ -60,7 +60,7 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SetTargetState(tx, TargetState::Unsecured))?;
 
-        block_on(rx).map_err(|_| Error::NoResponse)
+        block_on(rx).map(|_| ()).map_err(|_| Error::NoResponse)
     }
 
     pub fn generate_wireguard_key(&self) -> Result<KeygenEvent> {
@@ -148,7 +148,9 @@ impl DaemonInterface {
     }
 
     pub fn reconnect(&self) -> Result<()> {
-        self.send_command(DaemonCommand::Reconnect)?;
+        let (tx, _) = oneshot::channel();
+
+        self.send_command(DaemonCommand::Reconnect(tx))?;
 
         Ok(())
     }
