@@ -28,7 +28,7 @@ open class InformationView : LinearLayout {
         }
     }
 
-    private val container =
+    private val container: View =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
             val inflater = service as LayoutInflater
 
@@ -56,7 +56,9 @@ open class InformationView : LinearLayout {
 
     var shouldEnable by observable(false) { _, _, _ -> updateEnabled() }
 
-    var onClick: (() -> Unit)? = null
+    var onClick by observable<(() -> Unit)?>(null) { _, _, callback ->
+        container.setFocusable(callback != null)
+    }
 
     constructor(context: Context) : super(context) {}
 
