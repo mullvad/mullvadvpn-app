@@ -7,10 +7,6 @@ license = "GPL-3.0"
 edition = "2018"
 publish = false
 
-[features]
-default = []
-shell-completions = []
-
 [[bin]]
 name = "mullvad"
 path = "src/main.rs"
