@@ -43,6 +43,7 @@ open class Cell : LinearLayout {
                 val leftPadding = resources.getDimensionPixelSize(R.dimen.cell_left_padding)
                 val rightPadding = resources.getDimensionPixelSize(R.dimen.cell_right_padding)
 
+                setFocusable(true)
                 isClickable = true
                 gravity = Gravity.CENTER
                 orientation = HORIZONTAL
