@@ -19,6 +19,10 @@ pub enum Error {
     #[cfg(windows)]
     #[error(display = "Missing %ALLUSERSPROFILE% environment variable")]
     NoProgramDataDir,
+
+    #[cfg(all(windows, feature = "deduce-system-service"))]
+    #[error(display = "Failed to deduce system service directory")]
+    FailedToFindSystemServiceDir(#[error(source)] io::Error),
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
