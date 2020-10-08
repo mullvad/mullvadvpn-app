@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.relaylist
 
 import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view.View
+import android.view.ViewGroup.MarginLayoutParams
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
@@ -14,6 +15,8 @@ class RelayItemHolder(
 ) : ViewHolder(view) {
     private val name: TextView = view.findViewById(R.id.name)
     private val chevron: ImageButton = view.findViewById(R.id.chevron)
+    private val clickArea: View = view.findViewById(R.id.click_area)
+    private val relayStatus: View = view.findViewById(R.id.status)
     private val relayActive: ImageView = view.findViewById(R.id.relay_active)
     private val selectedIcon: View = view.findViewById(R.id.selected)
 
@@ -42,7 +45,7 @@ class RelayItemHolder(
 
     init {
         chevron.setOnClickListener { toggle() }
-        view.setOnClickListener { adapter.selectItem(item, this) }
+        clickArea.setOnClickListener { adapter.selectItem(item, this) }
     }
 
     private fun updateView() {
@@ -71,7 +74,7 @@ class RelayItemHolder(
                 }
             }
 
-            view.setEnabled(item.active)
+            clickArea.setEnabled(item.active)
 
             when (item.type) {
                 RelayItemType.Country -> setViewStyle(countryColor, countryPadding)
@@ -98,19 +101,17 @@ class RelayItemHolder(
 
     private fun setViewStyle(rowColor: Int, padding: Int) {
         var backgroundColor = rowColor
-        val paddingLeft = padding
-        val paddingTop = view.paddingTop
-        val paddingRight = view.paddingRight
-        val paddingBottom = view.paddingBottom
 
         if (selected) {
             backgroundColor = selectedColor
         }
 
-        view.apply {
-            setBackgroundColor(backgroundColor)
-            setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom)
+        (relayStatus.layoutParams as? MarginLayoutParams)?.let { parameters ->
+            parameters.leftMargin = padding
+            relayStatus.layoutParams = parameters
         }
+
+        view.setBackgroundColor(backgroundColor)
     }
 
     private fun toggle() {
