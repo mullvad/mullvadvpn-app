@@ -40,6 +40,7 @@ class BackButton : LinearLayout {
     }
 
     init {
+        setFocusable(true)
         isClickable = true
         gravity = Gravity.CENTER_VERTICAL or Gravity.LEFT
         orientation = HORIZONTAL
