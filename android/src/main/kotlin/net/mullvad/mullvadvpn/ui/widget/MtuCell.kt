@@ -66,8 +66,11 @@ class MtuCell : Cell {
     ) {}
 
     init {
-        cell.setEnabled(false)
-        cell.addView(input)
+        cell.apply {
+            setEnabled(false)
+            setFocusable(false)
+            addView(input)
+        }
 
         footer?.text =
             context.getString(R.string.wireguard_mtu_footer, MIN_MTU_VALUE, MAX_MTU_VALUE)
