@@ -2,4 +2,5 @@
 
 echo "Updating relay list..."
 set -e
-cargo run -p mullvad-rpc --bin relay_list > dist-assets/relays.json
+
+cargo +stable run --bin relay_list --release > dist-assets/relays.json
