@@ -118,7 +118,7 @@ for ARCHITECTURE in $ARCHITECTURES; do
     cp "$SCRIPT_DIR/target/$TARGET/$BUILD_TYPE/libmullvad_jni.so" "$SCRIPT_DIR/android/build/extraJni/$ABI/"
 done
 
-./update-relays.sh
+./update-relays.sh --release
 
 cd "$SCRIPT_DIR/android"
 $GRADLE_CMD --console plain "$GRADLE_TASK"
