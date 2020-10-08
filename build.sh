@@ -134,20 +134,20 @@ fi
 ################################################################################
 ./wireguard/build-wireguard-go.sh
 
+export MULLVAD_ADD_MANIFEST="1"
+
 echo "Building Rust code in release mode using $RUSTC_VERSION..."
 
+cargo +stable build $CARGO_ARGS --release
+
 if [[ ("$(uname -s)" == "Darwin") || ("$(uname -s)" == "Linux") ]]; then
-    pushd mullvad-cli
     mkdir -p "$SCRIPT_DIR/dist-assets/shell-completions"
     for sh in bash zsh fish; do
         echo "Generating shell completion script for $sh..."
-        cargo +stable run $CARGO_ARGS --release --features shell-completions -- \
-            shell-completions "$sh" "$SCRIPT_DIR/dist-assets/shell-completions/"
+        cargo +stable run --bin mullvad $CARGO_ARGS --release -- shell-completions "$sh" \
+            "$SCRIPT_DIR/dist-assets/shell-completions/"
     done
-    popd
 fi
-
-MULLVAD_ADD_MANIFEST="1" cargo +stable build $CARGO_ARGS --release
 
 ################################################################################
 # Other work to prepare the release.
