@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Improve accessibility in the desktop app.
+- Add `--wait` flag to `connect`, `disconnect` and `reconnect` CLI subcommands to make the CLI wait
+  for the target state to be reached before exiting.
 
 ### Changed
 - Use the API to fetch API IP addresses instead of DNS.
