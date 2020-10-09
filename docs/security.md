@@ -102,7 +102,7 @@ This is the default state that the `mullvad-daemon` starts in when the device bo
 [connecting] state immediately.
 
 The disconnected state behaves very differently depending on the value of the
-"block when disconnected" setting. If this setting is enabled, the disconnected state behaves
+"always require VPN" setting. If this setting is enabled, the disconnected state behaves
 like and has the same security properties as, the [error] state. If the setting is
 disabled (the default), then it is the only state where the app does not enforce any firewall
 rules. It then behaves the same as if the `mullvad-daemon` was not even running. It lets
@@ -217,10 +217,10 @@ then they can't leave at all.
 Essentially, one can say that the app's "kill switch" is the fact that the [connecting],
 [disconnecting] and [error] states prevent leaks via firewall rules.
 
-### Block when disconnected
+### Always require VPN
 
-The "block when disconnected" setting in the app is regularly misunderstood as the kill switch.
-This is not the case. The "block when disconnected" setting only changes whether or not the
+The "always require VPN" setting in the app is regularly misunderstood as the kill switch.
+This is not the case. The "always require VPN" setting only changes whether or not the
 [disconnected] state should allow traffic to flow freely or to block it. The
 disconnected state is not active during intermittent network issues or server changes, when
 a kill switch would normally be operating.
