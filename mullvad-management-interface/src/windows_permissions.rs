@@ -93,7 +93,7 @@ pub fn deny_network_access<T: AsRef<OsStr>>(ipc_path: T) -> Result<(), io::Error
     let pipe_handle = WinHandle(pipe_handle);
 
     let network_sid = Sid::new(
-        SECURITY_NT_AUTHORITY.as_mut_ptr() as *mut _,
+        SECURITY_NT_AUTHORITY.as_ptr() as *const _ as *mut _,
         SECURITY_NETWORK_RID,
     )?;
 
@@ -106,7 +106,7 @@ pub fn deny_network_access<T: AsRef<OsStr>>(ipc_path: T) -> Result<(), io::Error
     network_access.Trustee.ptstrName = network_sid.as_ptr() as *mut _;
 
     let network_svc_sid = Sid::new(
-        SECURITY_NT_AUTHORITY.as_mut_ptr() as *mut _,
+        SECURITY_NT_AUTHORITY.as_ptr() as *const _ as *mut _,
         SECURITY_NETWORK_SERVICE_RID,
     )?;
 
@@ -119,7 +119,7 @@ pub fn deny_network_access<T: AsRef<OsStr>>(ipc_path: T) -> Result<(), io::Error
     network_svc_access.Trustee.ptstrName = network_svc_sid.as_ptr() as *mut _;
 
     let everyone_sid = Sid::new(
-        SECURITY_WORLD_SID_AUTHORITY.as_mut_ptr() as *mut _,
+        SECURITY_WORLD_SID_AUTHORITY.as_ptr() as *const _ as *mut _,
         SECURITY_WORLD_RID,
     )?;
 
