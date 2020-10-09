@@ -31,6 +31,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     private lateinit var loginFailStatus: View
     private lateinit var accountLogin: AccountLogin
     private lateinit var scrollArea: ScrollView
+    private lateinit var background: View
 
     private val loggedIn = CompletableDeferred<LoginResult>()
 
@@ -57,8 +58,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
         scrollArea = view.findViewById(R.id.scroll_area)
 
-        view.findViewById<View>(R.id.contents).setOnClickListener {
-            accountLogin.clearFocus()
+        background = view.findViewById<View>(R.id.contents).apply {
+            setOnClickListener { requestFocus() }
         }
 
         scrollToShow(accountLogin)
@@ -123,6 +124,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         loggingInStatus.visibility = View.VISIBLE
         loginFailStatus.visibility = View.GONE
         loggedInStatus.visibility = View.GONE
+
+        background.requestFocus()
 
         accountLogin.state = LoginState.InProgress
 
