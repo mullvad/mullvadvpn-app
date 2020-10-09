@@ -21,7 +21,7 @@ class AccountHistoryHolder(
     var onRemove: ((String) -> Unit)? = null
 
     init {
-        view.setOnClickListener {
+        label.setOnClickListener {
             onSelect?.invoke(accountToken)
         }
 
