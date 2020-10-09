@@ -17,10 +17,15 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.ListItemDividerDecoration
 import net.mullvad.mullvadvpn.ui.LoginState
 import net.mullvad.mullvadvpn.ui.widget.AccountLoginBorder.BorderState
+import net.mullvad.mullvadvpn.util.Debouncer
 
 class AccountLogin : RelativeLayout {
     companion object {
         private val MAX_ACCOUNT_HISTORY_ENTRIES = 3
+    }
+
+    private val focusDebouncer = Debouncer(false).apply {
+        listener = { hasFocus -> focused = hasFocus }
     }
 
     private val container =
@@ -36,6 +41,7 @@ class AccountLogin : RelativeLayout {
 
     private val historyAdapter = AccountHistoryAdapter().apply {
         onSelectEntry = { account -> input.loginWith(account) }
+        onChildFocusChanged = { _, hasFocus -> focusDebouncer.rawValue = hasFocus }
     }
 
     private val dividerHeight = resources.getDimensionPixelSize(R.dimen.account_history_divider)
@@ -70,7 +76,7 @@ class AccountLogin : RelativeLayout {
         }
     }
 
-    private var inputHasFocus by observable(false) { _, _, hasFocus ->
+    private var focused by observable(false) { _, _, hasFocus ->
         updateBorder()
         shouldShowAccountHistory = hasFocus
 
@@ -137,7 +143,7 @@ class AccountLogin : RelativeLayout {
 
         input.apply {
             onFocusChanged.subscribe(this) { hasFocus ->
-                inputHasFocus = hasFocus
+                focusDebouncer.rawValue = hasFocus
             }
 
             onTextChanged.subscribe(this) { _ ->
@@ -173,7 +179,7 @@ class AccountLogin : RelativeLayout {
     private fun updateBorder() {
         if (state == LoginState.Failure) {
             border.borderState = BorderState.ERROR
-        } else if (inputHasFocus) {
+        } else if (focused) {
             border.borderState = BorderState.FOCUSED
         } else {
             border.borderState = BorderState.UNFOCUSED
