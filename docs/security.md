@@ -259,6 +259,21 @@ via unix domain sockets (UDS) on Linux and macOS and via named pipes on Windows.
 This management interface can be reached by any process running on the device.
 Locally running malicious programs are outside of the app's threat model.
 
+The service transitions to the [disconnected] state before exiting (i.e., normally when the OS is
+being shut down). In general, the last firewall policy is maintained when the service exits, and
+lost upon a reboot (except on Windows, see below). In other words, if the "Always require VPN"
+option is enabled, the blocking policy will be left intact when the daemon service stops.
+Otherwise, the system firewall will be reset to its original state.
+
+### Windows
+
+On Windows, persistent firewall filters may be added when the service exits, in case the service
+decides to continue to enforce a blocking policy. These filters block any traffic occurring before
+the service has started back up again during boot, including before the BFE service has started.
+
+As with "Always require VPN", enabling "Auto-connect" in the service will cause it to
+enforce the blocking policy before being stopped.
+
 ## Desktop Electron GUI
 
 The graphical frontend for the app on desktop is an Electron app. This app only ever loads
