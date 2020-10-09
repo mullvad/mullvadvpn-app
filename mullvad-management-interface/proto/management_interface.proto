@@ -8,9 +8,9 @@ import "google/protobuf/wrappers.proto";
 
 service ManagementService {
 	// Control and get tunnel state
-	rpc ConnectTunnel(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc DisconnectTunnel(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-	rpc ReconnectTunnel(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc ConnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+	rpc DisconnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
+	rpc ReconnectTunnel(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
 	rpc GetTunnelState(google.protobuf.Empty) returns (TunnelState) {}
 
 	// Control the daemon and receive events

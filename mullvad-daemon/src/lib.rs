@@ -141,9 +141,9 @@ pub enum Error {
 /// Enum representing commands that can be sent to the daemon.
 pub enum DaemonCommand {
     /// Set target state. Does nothing if the daemon already has the state that is being set.
-    SetTargetState(oneshot::Sender<()>, TargetState),
+    SetTargetState(oneshot::Sender<bool>, TargetState),
     /// Reconnect the tunnel, if one is connecting/connected.
-    Reconnect,
+    Reconnect(oneshot::Sender<bool>),
     /// Request the current state.
     GetState(oneshot::Sender<TunnelState>),
     /// Get the current geographical location.
@@ -967,7 +967,8 @@ where
         let (future, abort_handle) = abortable(Box::pin(async move {
             tokio::time::delay_for(delay).await;
             log::debug!("Attempting to reconnect");
-            let _ = tunnel_command_tx.send(DaemonCommand::Reconnect);
+            let (tx, _) = oneshot::channel();
+            let _ = tunnel_command_tx.send(DaemonCommand::Reconnect(tx));
         }));
 
         tokio::spawn(future);
@@ -989,7 +990,7 @@ where
         }
         match command {
             SetTargetState(tx, state) => self.on_set_target_state(tx, state),
-            Reconnect => self.on_reconnect(),
+            Reconnect(tx) => self.on_reconnect(tx),
             GetState(tx) => self.on_get_state(tx),
             GetCurrentLocation(tx) => self.on_get_current_location(tx).await,
             CreateNewAccount(tx) => self.on_create_new_account(tx).await,
@@ -1152,20 +1153,22 @@ where
         self.event_listener.notify_app_version(app_version_info);
     }
 
-    fn on_set_target_state(&mut self, tx: oneshot::Sender<()>, new_target_state: TargetState) {
+    fn on_set_target_state(&mut self, tx: oneshot::Sender<bool>, new_target_state: TargetState) {
         if self.state.is_running() {
-            self.set_target_state(new_target_state);
+            let state_change_initated = self.set_target_state(new_target_state);
+            Self::oneshot_send(tx, state_change_initated, "state change initiated");
         } else {
             warn!("Ignoring target state change request due to shutdown");
         }
-        Self::oneshot_send(tx, (), "target state");
     }
 
-    fn on_reconnect(&mut self) {
+    fn on_reconnect(&mut self, tx: oneshot::Sender<bool>) {
         if self.target_state == TargetState::Secured || self.tunnel_state.is_in_error_state() {
             self.connect_tunnel();
+            Self::oneshot_send(tx, true, "reconnect issued");
         } else {
             debug!("Ignoring reconnect command. Currently not in secured state");
+            Self::oneshot_send(tx, false, "reconnect issued");
         }
     }
 
@@ -1892,8 +1895,8 @@ where
 
     /// Set the target state of the client. If it changed trigger the operations needed to
     /// progress towards that state.
-    /// Returns an error if trying to set secured state, but no account token is present.
-    fn set_target_state(&mut self, new_state: TargetState) {
+    /// Returns a bool representing whether or not a state change was initiated.
+    fn set_target_state(&mut self, new_state: TargetState) -> bool {
         if new_state != self.target_state || self.tunnel_state.is_in_error_state() {
             debug!("Target state {:?} => {:?}", self.target_state, new_state);
             self.target_state = new_state;
@@ -1901,6 +1904,9 @@ where
                 TargetState::Secured => self.connect_tunnel(),
                 TargetState::Unsecured => self.disconnect_tunnel(),
             }
+            true
+        } else {
+            false
         }
     }
 
