@@ -29,7 +29,7 @@ ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveFiltersFunctor()
 {
 	return [](wfp::FilterEngine &engine)
 	{
-		const auto registry = MullvadGuids::DetailedRegistry(MullvadGuids::IdentityQualifier::IncludeDeprecated);
+		const auto registry = MullvadGuids::DetailedRegistry(MullvadGuids::IdentityQualifier::IncludeAll);
 
 		// Resolve correct overload.
 		void (*deleter)(wfp::FilterEngine &, const GUID &) = wfp::ObjectDeleter::DeleteFilter;
@@ -40,6 +40,22 @@ ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveFiltersFunctor()
 
 //static
 ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveAllFunctor()
+{
+	return [](wfp::FilterEngine &engine)
+	{
+		const auto registry = MullvadGuids::DetailedRegistry(MullvadGuids::IdentityQualifier::IncludeAll);
+
+		// Resolve correct overload.
+		void(*deleter)(wfp::FilterEngine &, const GUID &) = wfp::ObjectDeleter::DeleteFilter;
+
+		RemoveRange(engine, deleter, registry.equal_range(WfpObjectType::Filter));
+		RemoveRange(engine, wfp::ObjectDeleter::DeleteSublayer, registry.equal_range(WfpObjectType::Sublayer));
+		RemoveRange(engine, wfp::ObjectDeleter::DeleteProvider, registry.equal_range(WfpObjectType::Provider));
+	};
+}
+
+//static
+ObjectPurger::RemovalFunctor ObjectPurger::GetRemoveNonPersistentFunctor()
 {
 	return [](wfp::FilterEngine &engine)
 	{

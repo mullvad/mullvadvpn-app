@@ -100,7 +100,7 @@ MullvadGuids::DetailedIdentityRegistry MullvadGuids::DetailedRegistry(IdentityQu
 {
 	std::multimap<WfpObjectType, GUID> registry;
 
-	if (IdentityQualifier::IncludeDeprecated == qualifier)
+	if (IdentityQualifier::IncludeDeprecated == (qualifier & IdentityQualifier::IncludeDeprecated))
 	{
 		registry = DeprecatedIdentities();
 	}
@@ -147,6 +147,22 @@ MullvadGuids::DetailedIdentityRegistry MullvadGuids::DetailedRegistry(IdentityQu
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Dns_PermitTunnel_Outbound_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Dns_PermitTunnel_Outbound_Ipv6()));
 
+	if (IdentityQualifier::IncludePersistent == (qualifier & IdentityQualifier::IncludePersistent))
+	{
+		registry.insert(std::make_pair(WfpObjectType::Provider, ProviderPersistent()));
+		registry.insert(std::make_pair(WfpObjectType::Sublayer, SublayerPersistent()));
+
+		registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Boottime_BlockAll_Inbound_Ipv4()));
+		registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Boottime_BlockAll_Outbound_Ipv4()));
+		registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Boottime_BlockAll_Inbound_Ipv6()));
+		registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Boottime_BlockAll_Outbound_Ipv6()));
+
+		registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Persistent_BlockAll_Inbound_Ipv4()));
+		registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Persistent_BlockAll_Outbound_Ipv4()));
+		registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Persistent_BlockAll_Inbound_Ipv6()));
+		registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Persistent_BlockAll_Outbound_Ipv6()));
+	}
+
 	return registry;
 }
 
@@ -159,6 +175,20 @@ const GUID &MullvadGuids::Provider()
 		0xb9db,
 		0x43c0,
 		{ 0xb3, 0x43, 0xeb, 0x93, 0x65, 0xc7, 0xbd, 0xd2 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::ProviderPersistent()
+{
+	static const GUID g =
+	{
+		0x2bc5bc63,
+		0x80b0,
+		0x4119,
+		{ 0x86, 0xd3, 0x6a, 0xfe, 0x0d, 0xff, 0x2a, 0x26 }
 	};
 
 	return g;
@@ -187,6 +217,132 @@ const GUID &MullvadGuids::SublayerDns()
 		0xcca1,
 		0x4937,
 		{ 0xaa, 0xce, 0x51, 0x25, 0x6e, 0xf4, 0x81, 0xf3 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::SublayerPersistent()
+{
+	static const GUID g =
+	{
+		0x3c28881e,
+		0x8891,
+		0x4d61,
+		{ 0xb8, 0x7f, 0xf2, 0x72, 0x50, 0x2d, 0x10, 0x05 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Boottime_BlockAll_Outbound_Ipv4()
+{
+	static const GUID g =
+	{
+		0x5996aa42,
+		0x102b,
+		0x419f,
+		{ 0xad, 0x3d, 0x83, 0x5d, 0xb5, 0xb, 0x8b, 0x1 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Boottime_BlockAll_Inbound_Ipv4()
+{
+	static const GUID g =
+	{
+		0x6150b73d,
+		0x4dfa,
+		0x4c30,
+		{ 0x80, 0xeb, 0xe0, 0xee, 0x53, 0x51, 0x93, 0xda }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Boottime_BlockAll_Outbound_Ipv6()
+{
+	static const GUID g =
+	{
+		0x139b8b26,
+		0x5037,
+		0x4929,
+		{ 0x92, 0x37, 0xe8, 0x73, 0xbd, 0xdd, 0x65, 0x1d }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Boottime_BlockAll_Inbound_Ipv6()
+{
+	static const GUID g =
+	{
+		0x129927e2,
+		0x7a3a,
+		0x49bb,
+		{ 0xb9, 0x87, 0x36, 0x92, 0x56, 0x3a, 0x83, 0xf4 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Persistent_BlockAll_Outbound_Ipv4()
+{
+	static const GUID g =
+	{
+		0x79860c64,
+		0x9a5e,
+		0x48a3,
+		{ 0xb5, 0xf3, 0xd6, 0x4b, 0x41, 0x65, 0x9a, 0xa5 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Persistent_BlockAll_Inbound_Ipv4()
+{
+	static const GUID g =
+	{
+		0x9f177f14,
+		0xf090,
+		0x4fde,
+		{ 0x98, 0xf9, 0x84, 0x15, 0x31, 0x25, 0xa7, 0xc5 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Persistent_BlockAll_Outbound_Ipv6()
+{
+	static const GUID g =
+	{
+		0xa9b72749,
+		0xb1c1,
+		0x4483,
+		{ 0xa3, 0x71, 0x90, 0xe1, 0x86, 0x68, 0x53, 0x2e }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Persistent_BlockAll_Inbound_Ipv6()
+{
+	static const GUID g =
+	{
+		0x333e7e5c,
+		0x9293,
+		0x4bda,
+		{ 0x8b, 0x19, 0xb6, 0x70, 0x19, 0x1c, 0xc4, 0x7c }
 	};
 
 	return g;

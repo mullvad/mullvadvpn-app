@@ -44,3 +44,33 @@ std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerDns()
 
 	return builder;
 }
+
+//static
+std::unique_ptr<wfp::ProviderBuilder> MullvadObjects::ProviderPersistent()
+{
+	auto builder = std::make_unique<wfp::ProviderBuilder>();
+
+	(*builder)
+		.name(L"Mullvad VPN persistent")
+		.description(L"Mullvad VPN firewall integration")
+		.persistent()
+		.key(MullvadGuids::ProviderPersistent());
+
+	return builder;
+}
+
+//static
+std::unique_ptr<wfp::SublayerBuilder> MullvadObjects::SublayerPersistent()
+{
+	auto builder = std::make_unique<wfp::SublayerBuilder>();
+
+	(*builder)
+		.name(L"Mullvad VPN persistent")
+		.description(L"Filters that restrict traffic before WinFw is initialized")
+		.key(MullvadGuids::SublayerPersistent())
+		.provider(MullvadGuids::ProviderPersistent())
+		.persistent()
+		.weight(MAXUINT16);
+
+	return builder;
+}
