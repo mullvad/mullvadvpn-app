@@ -47,6 +47,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix app starting by itself sometimes.
 
 ### Security
+- Restore the last target state if the daemon crashes. Previously, if auto-connect and
+  "Always require VPN" were disabled, the service would reset the firewall upon starting back up,
+  even if the tunnel was up when the crash occurred.
+
 #### Windows
 - Block all traffic received or sent before the BFE service and daemon service have started during
   boot, if "Always require VPN" or auto-connect is enabled.

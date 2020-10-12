@@ -446,6 +446,7 @@ pub struct Daemon<L: EventListener> {
     tunnel_command_tx: Arc<mpsc::UnboundedSender<TunnelCommand>>,
     tunnel_state: TunnelState,
     target_state: TargetState,
+    clean_up_target_cache: bool,
     state: DaemonExecutionState,
     #[cfg(target_os = "linux")]
     exclude_pids: split_tunnel::PidManager,
@@ -598,6 +599,7 @@ where
             tunnel_command_tx,
             tunnel_state: TunnelState::Disconnected,
             target_state: initial_target_state,
+            clean_up_target_cache: true,
             state: DaemonExecutionState::Running,
             #[cfg(target_os = "linux")]
             exclude_pids: split_tunnel::PidManager::new().map_err(Error::InitSplitTunneling)?,
@@ -652,8 +654,14 @@ where
     }
 
     async fn finalize(self) {
-        let (event_listener, shutdown_callbacks, rpc_runtime, tunnel_state_machine_shutdown_signal) =
-            self.shutdown();
+        let (
+            event_listener,
+            shutdown_callbacks,
+            rpc_runtime,
+            tunnel_state_machine_shutdown_signal,
+            cache_dir,
+            clean_up_target_cache,
+        ) = self.shutdown();
         for cb in shutdown_callbacks {
             cb();
         }
@@ -669,6 +677,13 @@ where
 
         mem::drop(event_listener);
         mem::drop(rpc_runtime);
+
+        if clean_up_target_cache {
+            let target_cache = cache_dir.join(TARGET_START_STATE_FILE);
+            let _ = fs::remove_file(target_cache).map_err(|e| {
+                error!("Cannot delete target tunnel state cache: {}", e);
+            });
+        }
     }
 
     /// Shuts down the daemon without shutting down the underlying event listener and the shutdown
@@ -680,12 +695,16 @@ where
         Vec<Box<dyn FnOnce()>>,
         mullvad_rpc::MullvadRpcRuntime,
         oneshot::Receiver<()>,
+        PathBuf,
+        bool,
     ) {
         let Daemon {
             event_listener,
             shutdown_callbacks,
             rpc_runtime,
             tunnel_state_machine_shutdown_signal,
+            cache_dir,
+            clean_up_target_cache,
             ..
         } = self;
         (
@@ -693,6 +712,8 @@ where
             shutdown_callbacks,
             rpc_runtime,
             tunnel_state_machine_shutdown_signal,
+            cache_dir,
+            clean_up_target_cache,
         )
     }
 
@@ -1872,25 +1893,11 @@ where
         // TODO: See if this can be made to also shut down the daemon
         //       without causing the service to be restarted.
 
-        // Cache the current target state
-        let cache_file = self.cache_dir.join(TARGET_START_STATE_FILE);
-        log::debug!("Saving tunnel target state to {}", cache_file.display());
-        match File::create(&cache_file) {
-            Ok(handle) => {
-                if let Err(e) =
-                    serde_json::to_writer(io::BufWriter::new(handle), &self.target_state)
-                {
-                    log::error!("Failed to serialize target start state: {}", e);
-                }
-            }
-            Err(e) => {
-                log::error!("Failed to save target start state: {}", e);
-            }
-        }
-
         if self.target_state == TargetState::Secured {
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
         }
+
+        self.clean_up_target_cache = false;
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to
@@ -1899,7 +1906,27 @@ where
     fn set_target_state(&mut self, new_state: TargetState) -> bool {
         if new_state != self.target_state || self.tunnel_state.is_in_error_state() {
             debug!("Target state {:?} => {:?}", self.target_state, new_state);
-            self.target_state = new_state;
+
+            if new_state != self.target_state {
+                self.target_state = new_state;
+
+                // Cache the current target state
+                let cache_file = self.cache_dir.join(TARGET_START_STATE_FILE);
+                log::trace!("Saving tunnel target state to {}", cache_file.display());
+                match File::create(&cache_file) {
+                    Ok(handle) => {
+                        if let Err(e) =
+                            serde_json::to_writer(io::BufWriter::new(handle), &self.target_state)
+                        {
+                            log::error!("Failed to cache target state: {}", e);
+                        }
+                    }
+                    Err(e) => {
+                        log::error!("Failed to cache target state: {}", e);
+                    }
+                }
+            }
+
             match self.target_state {
                 TargetState::Secured => self.connect_tunnel(),
                 TargetState::Unsecured => self.disconnect_tunnel(),
