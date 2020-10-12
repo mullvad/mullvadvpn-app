@@ -251,7 +251,10 @@ impl AccountHistory {
 
         futures::future::join_all(removal).await;
 
-        self.accounts = Arc::new(Mutex::new(VecDeque::new()));
+        {
+            let mut accounts = self.accounts.lock().unwrap();
+            *accounts = VecDeque::new();
+        }
         self.save_to_disk().await
     }
 

@@ -19,13 +19,17 @@ pub enum Error {
     #[cfg(windows)]
     #[error(display = "Missing %ALLUSERSPROFILE% environment variable")]
     NoProgramDataDir,
+
+    #[cfg(all(windows, feature = "deduce-system-service"))]
+    #[error(display = "Failed to deduce system service directory")]
+    FailedToFindSystemServiceDir(#[error(source)] io::Error),
 }
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 const PRODUCT_NAME: &str = "mullvad-vpn";
 
 #[cfg(windows)]
-const PRODUCT_NAME: &str = "Mullvad VPN";
+pub const PRODUCT_NAME: &str = "Mullvad VPN";
 
 #[cfg(target_os = "android")]
 const APP_PATH: &str = "/data/data/net.mullvad.mullvadvpn";

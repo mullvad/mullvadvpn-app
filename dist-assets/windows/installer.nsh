@@ -62,7 +62,7 @@
 	${Else}
 		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\tap-driver\win7\*"
 	${EndIf}
-	
+
 !macroend
 
 !define ExtractTapDriver '!insertmacro "ExtractTapDriver"'
@@ -150,7 +150,7 @@
 !macro InstallTapDriver
 
 	log::Log "InstallTapDriver()"
-	
+
 	Push $0
 	Push $1
 
@@ -189,15 +189,15 @@
 	${EndIf}
 
 	log::Log "InstallTapDriver() completed successfully"
-	
+
 	Push 0
 	Pop $R0
-	
+
 	InstallTapDriver_return:
 
 	Pop $1
 	Pop $0
-	
+
 !macroend
 
 !define InstallTapDriver '!insertmacro "InstallTapDriver"'
@@ -371,10 +371,10 @@
 	${EndIf}
 
 	log::Log "InstallService() completed successfully"
-	
+
 	Push 0
 	Pop $R0
-	
+
 	InstallService_return:
 
 	Pop $2
@@ -398,7 +398,7 @@
 	Push $1
 
 	tray::PromoteTrayIcon
-	
+
 	Pop $0
 	Pop $1
 
@@ -408,7 +408,7 @@
 	${EndIf}
 
 	log::Log "InstallTrayIcon() completed successfully"
-	
+
 	InstallTrayIcon_return:
 
 	Pop $1
@@ -469,22 +469,22 @@
 !macro RemoveRelayCache
 
 	log::Log "RemoveRelayCache()"
-	
+
 	Push $0
 	Push $1
 
 	cleanup::RemoveRelayCache
-	
+
 	Pop $0
 	Pop $1
-	
+
 	${If} $0 != ${MULLVAD_SUCCESS}
 		log::Log "Failed to remove relay cache: $1"
 		Goto RemoveRelayCache_return
 	${EndIf}
 
 	log::Log "RemoveRelayCache() completed successfully"
-	
+
 	RemoveRelayCache_return:
 
 	Pop $1
@@ -589,6 +589,33 @@
 !define ClearFirewallRules '!insertmacro "ClearFirewallRules"'
 
 #
+# ClearAccountHistory
+#
+# Removes account history and any associated keys
+#
+!macro ClearAccountHistory
+
+	Push $0
+	Push $1
+
+	SetOutPath "$TEMP"
+	File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
+	File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-Release\winfw.dll"
+	nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" clear-history'
+	Pop $0
+	Pop $1
+
+	log::Log "Remove account history: $0 $1"
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define ClearAccountHistory '!insertmacro "ClearAccountHistory"'
+
+
+#
 # customInit
 #
 # This macro is activated right when the installer first starts up.
@@ -655,7 +682,7 @@
 
 	log::Log "Running installer for ${PRODUCT_NAME} ${VERSION}"
 	log::LogWindowsVersion
-	
+
 	#
 	# The electron-builder NSIS logic, that runs before 'customInstall' is activated,
 	# makes a copy of the installer file:
@@ -667,7 +694,7 @@
 	RMDir /r "$LOCALAPPDATA\mullvad-vpn-updater"
 
 	${RemoveRelayCache}
-	
+
 	${ExtractTapDriver}
 	${InstallTapDriver}
 
@@ -771,13 +798,6 @@
 		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" prepare-restart'
 		Pop $0
 		Pop $1
-	${Else}
-		# Remove keys
-		SetOutPath "$TEMP"
-		File "${BUILD_RESOURCES_DIR}\mullvad.exe"
-		nsExec::ExecToStack '"$TEMP\mullvad.exe" account clear-history'
-		Pop $0
-		Pop $1
 	${EndIf}
 
 	nsExec::ExecToStack '"$SYSDIR\net.exe" stop mullvadvpn'
@@ -803,6 +823,7 @@
 	# If not ran silently
 	${If} $FullUninstall == 1
 		${ClearFirewallRules}
+		${ClearAccountHistory}
 
 		# Remove Wintun
 		${ExtractWintun}
