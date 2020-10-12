@@ -102,7 +102,7 @@ This is the default state that the `mullvad-daemon` starts in when the device bo
 [connecting] state immediately.
 
 The disconnected state behaves very differently depending on the value of the
-"block when disconnected" setting. If this setting is enabled, the disconnected state behaves
+"always require VPN" setting. If this setting is enabled, the disconnected state behaves
 like and has the same security properties as, the [error] state. If the setting is
 disabled (the default), then it is the only state where the app does not enforce any firewall
 rules. It then behaves the same as if the `mullvad-daemon` was not even running. It lets
@@ -217,10 +217,10 @@ then they can't leave at all.
 Essentially, one can say that the app's "kill switch" is the fact that the [connecting],
 [disconnecting] and [error] states prevent leaks via firewall rules.
 
-### Block when disconnected
+### Always require VPN
 
-The "block when disconnected" setting in the app is regularly misunderstood as the kill switch.
-This is not the case. The "block when disconnected" setting only changes whether or not the
+The "always require VPN" setting in the app is regularly misunderstood as the kill switch.
+This is not the case. The "always require VPN" setting only changes whether or not the
 [disconnected] state should allow traffic to flow freely or to block it. The
 disconnected state is not active during intermittent network issues or server changes, when
 a kill switch would normally be operating.
@@ -258,6 +258,21 @@ This system service can be controlled via a management interface, exposed locall
 via unix domain sockets (UDS) on Linux and macOS and via named pipes on Windows.
 This management interface can be reached by any process running on the device.
 Locally running malicious programs are outside of the app's threat model.
+
+The service transitions to the [disconnected] state before exiting (i.e., normally when the OS is
+being shut down). In general, the last firewall policy is maintained when the service exits, and
+lost upon a reboot (except on Windows, see below). In other words, if the "Always require VPN"
+option is enabled, the blocking policy will be left intact when the daemon service stops.
+Otherwise, the system firewall will be reset to its original state.
+
+### Windows
+
+On Windows, persistent firewall filters may be added when the service exits, in case the service
+decides to continue to enforce a blocking policy. These filters block any traffic occurring before
+the service has started back up again during boot, including before the BFE service has started.
+
+As with "Always require VPN", enabling "Auto-connect" in the service will cause it to
+enforce the blocking policy before being stopped.
 
 ## Desktop Electron GUI
 
