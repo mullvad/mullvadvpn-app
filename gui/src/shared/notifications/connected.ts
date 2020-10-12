@@ -13,12 +13,15 @@ export class ConnectedNotificationProvider implements SystemNotificationProvider
       let message = messages.pgettext('notifications', 'Secured');
       const location = this.context.details.location?.hostname;
       if (location) {
-        // TRANSLATORS: The message showed when a server has been connected to.
-        // TRANSLATORS: Available placeholder:
-        // TRANSLATORS: %(location) - name of the server location we're connected to (e.g. "se-got-003")
-        message = sprintf(messages.pgettext('notifications', 'Connected to %(location)s'), {
-          location,
-        });
+        message = sprintf(
+          // TRANSLATORS: The message showed when a server has been connected to.
+          // TRANSLATORS: Available placeholder:
+          // TRANSLATORS: %(location) - name of the server location we're connected to (e.g. "se-got-003")
+          messages.pgettext('notifications', 'Connected to %(location)s'),
+          {
+            location,
+          },
+        );
       }
 
       return {

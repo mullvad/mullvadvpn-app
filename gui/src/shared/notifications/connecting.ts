@@ -25,12 +25,15 @@ export class ConnectingNotificationProvider
       let message = messages.pgettext('notifications', 'Connecting');
       const location = this.context.tunnelState.details?.location?.hostname;
       if (location) {
-        // TRANSLATORS: The message showed when a server is being connected to.
-        // TRANSLATORS: Available placeholder:
-        // TRANSLATORS: %(location) - name of the server location we're connecting to (e.g. "se-got-003")
-        message = sprintf(messages.pgettext('notifications', 'Connecting to %(location)s'), {
-          location,
-        });
+        message = sprintf(
+          // TRANSLATORS: The message showed when a server is being connected to.
+          // TRANSLATORS: Available placeholder:
+          // TRANSLATORS: %(location) - name of the server location we're connecting to (e.g. "se-got-003")
+          messages.pgettext('notifications', 'Connecting to %(location)s'),
+          {
+            location,
+          },
+        );
       }
 
       return {
