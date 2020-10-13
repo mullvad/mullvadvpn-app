@@ -11,7 +11,7 @@ use std::{
     mem::{self, size_of},
     net::{Ipv4Addr, Ipv6Addr},
     os::windows::{
-        ffi::OsStrExt,
+        ffi::{OsStrExt, OsStringExt},
         fs::OpenOptionsExt,
         io::{AsRawHandle, RawHandle},
     },
@@ -66,6 +66,43 @@ pub enum DriverState {
     Engaged = 4,
     // Driver is unloading.
     Terminating = 5,
+}
+
+#[repr(u32)]
+#[derive(Clone, Copy)]
+#[allow(dead_code)]
+pub enum EventId {
+    StartSplittingProcess = 0,
+    StopSplittingProcess,
+
+    // ErrorFlag = 0x80000000,
+    ErrorStartSplittingProcess = 0x80000001,
+    ErrorStopSplittingProcess,
+}
+
+pub struct Event {
+    event_id: EventId,
+    body: EventBody,
+}
+
+pub enum EventBody {
+    SplittingEvent {
+        process_id: u32,
+        reason: SplittingChangeReason,
+        image: OsString,
+    },
+    SplittingError {
+        process_id: u32,
+        image: OsString,
+    },
+}
+
+#[repr(u32)]
+#[derive(Debug)]
+#[allow(dead_code)]
+pub enum SplittingChangeReason {
+    ByInheritance = 0,
+    ByConfig = 1,
 }
 
 pub struct DeviceHandle {
@@ -226,6 +263,40 @@ impl DeviceHandle {
 
         Ok(())
     }
+
+    pub fn deque_event(&self, buffer: &mut Vec<u8>) -> io::Result<(EventId, EventBody)> {
+        deque_event(self.handle.as_raw_handle(), buffer)
+    }
+}
+
+impl AsRawHandle for DeviceHandle {
+    fn as_raw_handle(&self) -> RawHandle {
+        self.handle.as_raw_handle()
+    }
+}
+
+pub fn deque_event(handle: RawHandle, buffer: &mut Vec<u8>) -> io::Result<(EventId, EventBody)> {
+    device_io_control_buffer(
+        handle,
+        DriverIoctlCode::DequeEvent as u32,
+        None,
+        Some(buffer),
+    )?;
+
+    let mut event_header: EventHeader = unsafe { mem::zeroed() };
+
+    unsafe {
+        ptr::copy_nonoverlapping(
+            &buffer[0],
+            &mut event_header as *mut _ as *mut u8,
+            mem::size_of_val(&event_header),
+        )
+    };
+
+    Ok((
+        event_header.event_id,
+        parse_event_buffer(&event_header, buffer),
+    ))
 }
 
 #[repr(C)]
@@ -440,6 +511,91 @@ fn serialize_process_tree(processes: Vec<ProcessInfo>) -> Result<Vec<u8>, io::Er
     Ok(buffer)
 }
 
+#[repr(C)]
+struct EventHeader {
+    event_id: EventId,
+    event_size: usize,
+}
+
+#[repr(C)]
+struct SplittingEventHeader {
+    process_id: u32,
+    reason: SplittingChangeReason,
+    image_name_length: u16,
+}
+
+#[repr(C)]
+struct SplittingErrorEventHeader {
+    process_id: u32,
+    image_name_length: u16,
+}
+
+fn parse_event_buffer(event_header: &EventHeader, buffer: &Vec<u8>) -> EventBody {
+    match event_header.event_id {
+        EventId::StartSplittingProcess | EventId::StopSplittingProcess => {
+            let mut event: SplittingEventHeader = unsafe { mem::zeroed() };
+            unsafe {
+                ptr::copy_nonoverlapping(
+                    &buffer[mem::size_of_val(event_header)],
+                    &mut event as *mut _ as *mut u8,
+                    mem::size_of_val(&event),
+                )
+            };
+
+            let mut image_name = Vec::new();
+            image_name.resize(
+                event.image_name_length as usize / mem::size_of::<u16>(),
+                0u16,
+            );
+
+            unsafe {
+                ptr::copy_nonoverlapping(
+                    &buffer[mem::size_of_val(event_header) + mem::size_of_val(&event)] as *const _
+                        as *const u16,
+                    image_name.as_mut_ptr(),
+                    image_name.len(),
+                )
+            };
+
+            EventBody::SplittingEvent {
+                process_id: event.process_id,
+                reason: event.reason,
+                image: OsStringExt::from_wide(&image_name),
+            }
+        }
+        EventId::ErrorStartSplittingProcess | EventId::ErrorStopSplittingProcess => {
+            let mut event: SplittingErrorEventHeader = unsafe { mem::zeroed() };
+            unsafe {
+                ptr::copy_nonoverlapping(
+                    &buffer[mem::size_of_val(event_header)],
+                    &mut event as *mut _ as *mut u8,
+                    mem::size_of_val(&event),
+                )
+            };
+
+            let mut image_name = Vec::new();
+            image_name.resize(
+                event.image_name_length as usize / mem::size_of::<u16>(),
+                0u16,
+            );
+
+            unsafe {
+                ptr::copy_nonoverlapping(
+                    &buffer[mem::size_of_val(event_header) + mem::size_of_val(&event)] as *const _
+                        as *const u16,
+                    image_name.as_mut_ptr(),
+                    image_name.len(),
+                )
+            };
+
+            EventBody::SplittingError {
+                process_id: event.process_id,
+                image: OsStringExt::from_wide(&image_name),
+            }
+        }
+    }
+}
+
 /// Send an IOCTL code to the given device handle.
 /// `input` specifies an optional buffer to send.
 /// Upon success, a buffer of size `output_size` is returned, or None if `output_size` is 0.
@@ -449,21 +605,38 @@ pub fn device_io_control(
     input: Option<&[u8]>,
     output_size: u32,
 ) -> Result<Option<Vec<u8>>, io::Error> {
-    let input_ptr = match input {
-        Some(input) => input as *const _ as *mut _,
-        None => ptr::null_mut(),
-    };
-    let input_len = input.map(|input| input.len()).unwrap_or(0);
-
     let mut out_buffer = if output_size > 0 {
         Some(Vec::with_capacity(output_size as usize))
     } else {
         None
     };
 
-    let out_ptr = match out_buffer {
-        Some(ref mut out_buffer) => out_buffer.as_mut_ptr() as *mut _,
+    device_io_control_buffer(device, ioctl_code, input, out_buffer.as_mut()).map(|()| out_buffer)
+}
+
+/// Send an IOCTL code to the given device handle.
+/// `input` specifies an optional buffer to send.
+/// Upon success, `output` buffer will contain at most `output.capacity()` bytes of data.
+pub fn device_io_control_buffer(
+    device: RawHandle,
+    ioctl_code: u32,
+    input: Option<&[u8]>,
+    mut output: Option<&mut Vec<u8>>,
+) -> Result<(), io::Error> {
+    let input_ptr = match input {
+        Some(input) => input as *const _ as *mut _,
         None => ptr::null_mut(),
+    };
+    let input_len = input.map(|input| input.len()).unwrap_or(0);
+
+    let out_ptr = match output {
+        Some(ref mut output) => output.as_mut_ptr() as *mut _,
+        None => ptr::null_mut(),
+    };
+    let output_size = if let Some(ref output) = output {
+        output.capacity()
+    } else {
+        0
     };
 
     let mut returned_bytes = 0u32;
@@ -475,18 +648,18 @@ pub fn device_io_control(
             input_ptr,
             input_len as u32,
             out_ptr,
-            output_size,
+            output_size as u32,
             &mut returned_bytes as *mut _,
             ptr::null_mut(), // TODO
         )
     };
 
-    if let Some(ref mut out_buffer) = out_buffer {
-        unsafe { out_buffer.set_len(returned_bytes as usize) };
+    if let Some(ref mut output) = output {
+        unsafe { output.set_len(returned_bytes as usize) };
     }
 
     if result != 0 {
-        Ok(out_buffer)
+        Ok(())
     } else {
         Err(io::Error::last_os_error())
     }
