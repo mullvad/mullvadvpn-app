@@ -11,6 +11,7 @@ export interface IUserInterfaceReduxState {
   connectionPanelVisible: boolean;
   locationScope: LocationScope;
   windowFocused: boolean;
+  scrollPosition: Record<string, [number, number]>;
 }
 
 const initialState: IUserInterfaceReduxState = {
@@ -18,6 +19,7 @@ const initialState: IUserInterfaceReduxState = {
   connectionPanelVisible: false,
   locationScope: LocationScope.relay,
   windowFocused: false,
+  scrollPosition: {},
 };
 
 export default function (
@@ -39,6 +41,18 @@ export default function (
 
     case 'SET_WINDOW_FOCUSED':
       return { ...state, windowFocused: action.focused };
+
+    case 'ADD_SCROLL_POSITION':
+      return {
+        ...state,
+        scrollPosition: { ...state.scrollPosition, [action.path]: action.scrollPosition },
+      };
+
+    case 'REMOVE_SCROLL_POSITION': {
+      const scrollPosition = { ...state.scrollPosition };
+      delete scrollPosition[action.path];
+      return { ...state, scrollPosition };
+    }
 
     default:
       return state;
