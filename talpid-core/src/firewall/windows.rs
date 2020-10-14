@@ -99,10 +99,11 @@ impl FirewallT for Firewall {
                 peer_endpoint,
                 tunnel,
                 allow_lan,
+                dns_servers,
                 relay_client,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
-                self.set_connected_state(&peer_endpoint, &cfg, &tunnel, &relay_client)
+                self.set_connected_state(&peer_endpoint, &cfg, &tunnel, &dns_servers, &relay_client)
             }
             FirewallPolicy::Blocked { allow_lan } => {
                 let cfg = &WinFwSettings::new(allow_lan);
@@ -192,6 +193,7 @@ impl Firewall {
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
         tunnel_metadata: &crate::tunnel::TunnelMetadata,
+        dns_servers: &[IpAddr],
         relay_client: &Path,
     ) -> Result<(), Error> {
         trace!("Applying 'connected' firewall policy");
