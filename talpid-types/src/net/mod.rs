@@ -203,6 +203,8 @@ pub struct GenericTunnelOptions {
     /// Enable configuration of IPv6 on the tunnel interface, allowing IPv6 communication to be
     /// forwarded through the tunnel.
     pub enable_ipv6: bool,
+    /// Custom DNS servers to use.
+    pub custom_dns: Option<Vec<IpAddr>>,
 }
 
 /// Returns a vector of IP networks representing all of the internet, 0.0.0.0/0.

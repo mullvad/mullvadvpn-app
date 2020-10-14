@@ -177,6 +177,7 @@ impl Default for TunnelOptions {
             generic: GenericTunnelOptions {
                 // Enable IPv6 be default on Android
                 enable_ipv6: cfg!(target_os = "android"),
+                custom_dns: None,
             },
         }
     }

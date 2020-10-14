@@ -6,6 +6,7 @@ use mullvad_types::{
 use std::{
     fs::{self, File},
     io,
+    net::IpAddr,
     ops::Deref,
     path::{Path, PathBuf},
 };
@@ -206,6 +207,14 @@ impl SettingsPersister {
         let should_save = Self::update_field(
             &mut self.settings.tunnel_options.generic.enable_ipv6,
             enable_ipv6,
+        );
+        self.update(should_save)
+    }
+
+    pub fn set_custom_dns(&mut self, servers: Option<Vec<IpAddr>>) -> Result<bool, Error> {
+        let should_save = Self::update_field(
+            &mut self.settings.tunnel_options.generic.custom_dns,
+            servers,
         );
         self.update(should_save)
     }

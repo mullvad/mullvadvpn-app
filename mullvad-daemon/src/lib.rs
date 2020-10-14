@@ -576,6 +576,7 @@ where
         let tunnel_command_tx = tunnel_state_machine::spawn(
             settings.allow_lan,
             settings.block_when_disconnected,
+            settings.tunnel_options.generic.custom_dns.clone(),
             tunnel_parameters_generator,
             log_dir,
             resource_dir,
