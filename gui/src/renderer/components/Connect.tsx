@@ -188,8 +188,6 @@ export default class Connect extends React.Component<IProps, IState> {
             return HeaderBarStyle.success;
           case 'nothing':
             return HeaderBarStyle.error;
-          default:
-            throw new Error(`Invalid action after disconnection: ${status.details}`);
         }
     }
   }
@@ -244,8 +242,6 @@ export default class Connect extends React.Component<IProps, IState> {
             return MarkerStyle.secure;
           case 'nothing':
             return MarkerStyle.unsecure;
-          default:
-            throw new Error(`Invalid action after disconnection: ${status.details}`);
         }
     }
   }
