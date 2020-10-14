@@ -1,6 +1,6 @@
 use crate::logging::windows::log_sink;
 
-use std::{net::IpAddr, path::Path, ptr};
+use std::{ffi::OsString, net::IpAddr, path::Path, ptr};
 
 use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, FirewallT};
@@ -230,6 +230,19 @@ impl Firewall {
         let mut relay_client: Vec<u16> = relay_client.as_os_str().encode_wide().collect();
         relay_client.push(0u16);
 
+        let dns_servers: Vec<Vec<u16>> = dns_servers
+            .iter()
+            .map(|ip| {
+                let mut addr: Vec<u16> = OsString::from(ip.to_string())
+                    .as_os_str()
+                    .encode_wide()
+                    .collect();
+                addr.push(0u16);
+                addr
+            })
+            .collect();
+        let dns_servers: Vec<*const u16> = dns_servers.into_iter().map(|ip| ip.as_ptr()).collect();
+
         unsafe {
             WinFw_ApplyPolicyConnected(
                 winfw_settings,
@@ -238,6 +251,8 @@ impl Firewall {
                 tunnel_alias.as_ptr(),
                 v4_gateway.as_ptr(),
                 v6_gateway_ptr,
+                dns_servers.as_ptr(),
+                dns_servers.len(),
             )
             .into_result()
             .map_err(Error::ApplyingConnectedPolicy)
@@ -394,6 +409,8 @@ mod winfw {
             tunnelIfaceAlias: *const libc::wchar_t,
             v4Gateway: *const libc::wchar_t,
             v6Gateway: *const libc::wchar_t,
+            dnsServers: *const *const libc::wchar_t,
+            numDnsServers: usize,
         ) -> WinFwPolicyStatus;
 
         #[link_name = "WinFw_ApplyPolicyBlocked"]
