@@ -91,9 +91,16 @@ impl ConnectedState {
     }
 
     fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
-        let mut dns_ips = vec![self.metadata.ipv4_gateway.into()];
-        if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
-            dns_ips.push(ipv6_gateway.into());
+        let mut default_dns = vec![];
+
+        let dns_ips = if let Some(ref servers) = shared_values.custom_dns {
+            servers
+        } else {
+            default_dns.push(self.metadata.ipv4_gateway.into());
+            if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
+                default_dns.push(ipv6_gateway.into());
+            };
+            &default_dns
         };
 
         shared_values
