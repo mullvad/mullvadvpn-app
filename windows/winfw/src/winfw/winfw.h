@@ -167,14 +167,15 @@ WinFw_ApplyPolicyConnecting(
 // - What is specified by settings
 // - Communication with the relay server
 // - Non-DNS traffic inside the VPN tunnel
-// - DNS requests inside the VPN tunnel, to the specified DNS server
+// - DNS requests inside the VPN tunnel to any specified remote DNS server
+// - DNS requests outside the VPN tunnel to any specified local DNS servers
 //
 // Parameters:
 //
 // tunnelInterfaceAlias:
 //   Friendly name of VPN tunnel interface
-// v4DnsHost/v6DnsHost:
-//   String encoded IP address of DNS to use inside tunnel
+// dnsServers:
+//   Array of string-encoded IP addresses of DNS servers to use
 //
 extern "C"
 WINFW_LINKAGE
@@ -185,8 +186,10 @@ WinFw_ApplyPolicyConnected(
 	const WinFwRelay *relay,
 	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
-	const wchar_t *v4DnsHost,
-	const wchar_t *v6DnsHost
+	const wchar_t *v4Gateway,
+	const wchar_t *v6Gateway,
+	const wchar_t **dnsServers,
+	size_t numDnsServers
 );
 
 //

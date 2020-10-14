@@ -4,6 +4,7 @@
 #include "objectpurger.h"
 #include "mullvadobjects.h"
 #include "rules/persistent/blockall.h"
+#include "libwfp/ipnetwork.h"
 #include <windows.h>
 #include <libcommon/error.h>
 #include <optional>
@@ -62,6 +63,23 @@ HandlePolicyException(const common::error::WindowsException &err)
 
 	return WINFW_POLICY_STATUS_GENERAL_FAILURE;
 }
+
+//
+// Networks for which DNS requests can be made on all network adapters.
+//
+// This should be synchronized with `ALLOWED_LAN_NETS` in talpid-core,
+// but it also includes loopback addresses.
+//
+wfp::IpNetwork g_privateIpRanges[] = {
+	wfp::IpNetwork(wfp::IpAddress::Literal{127, 0, 0, 0}, 8),
+	wfp::IpNetwork(wfp::IpAddress::Literal{10, 0, 0, 0}, 8),
+	wfp::IpNetwork(wfp::IpAddress::Literal{176, 16, 0, 0}, 12),
+	wfp::IpNetwork(wfp::IpAddress::Literal{192, 168, 0, 0}, 16),
+	wfp::IpNetwork(wfp::IpAddress::Literal{169, 254, 0, 0}, 16),
+	wfp::IpNetwork(wfp::IpAddress::Literal6{0, 0, 0, 0, 0, 0, 0, 1}, 128),
+	wfp::IpNetwork(wfp::IpAddress::Literal6{0xfe80, 0, 0, 0, 0, 0, 0, 0}, 10),
+	wfp::IpNetwork(wfp::IpAddress::Literal6{0xfc80, 0, 0, 0, 0, 0, 0, 0}, 7)
+};
 
 } // anonymous namespace
 
@@ -289,8 +307,10 @@ WinFw_ApplyPolicyConnected(
 	const WinFwRelay *relay,
 	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
-	const wchar_t *v4DnsHost,
-	const wchar_t *v6DnsHost
+	const wchar_t *v4Gateway,
+	const wchar_t *v6Gateway,
+	const wchar_t **dnsServers,
+	size_t numDnsServers
 )
 {
 	if (nullptr == g_fwContext)
@@ -320,16 +340,53 @@ WinFw_ApplyPolicyConnected(
 			THROW_ERROR("Invalid argument: tunnelInterfaceAlias");
 		}
 
-		if (nullptr == v4DnsHost)
+		if (nullptr == v4Gateway)
 		{
-			THROW_ERROR("Invalid argument: v4DnsHost");
+			THROW_ERROR("Invalid argument: v4Gateway");
 		}
 
-		std::vector<wfp::IpAddress> tunnelDnsServers = { wfp::IpAddress(v4DnsHost) };
-
-		if (nullptr != v6DnsHost)
+		if (nullptr == dnsServers || 0 == numDnsServers)
 		{
-			tunnelDnsServers.emplace_back(wfp::IpAddress(v6DnsHost));
+			THROW_ERROR("Invalid argument: dnsServers");
+		}
+
+		std::vector<wfp::IpAddress> tunnelDnsServers;
+		std::vector<wfp::IpAddress> nonTunnelDnsServers;
+
+		const auto v4GatewayIp = wfp::IpAddress(v4Gateway);
+		const auto v6GatewayIp = (nullptr != v6Gateway)
+			? std::make_optional(wfp::IpAddress(v6Gateway))
+			: std::nullopt;
+
+		const auto addToDnsCollection = [&](const std::optional<wfp::IpAddress> &gatewayIp, wfp::IpAddress &&ip)
+		{
+			if (gatewayIp.has_value() && *gatewayIp == ip)
+			{
+				// Requests to the gateway IP of the tunnel are only allowed on the tunnel interface.
+				tunnelDnsServers.emplace_back(ip);
+				return;
+			}
+
+			for (const auto &network : g_privateIpRanges)
+			{
+				if (network.includes(ip))
+				{
+					//
+					// Resolvers on the LAN must be accessible outside the tunnel.
+					//
+
+					nonTunnelDnsServers.emplace_back(ip);
+					return;
+				}
+			}
+
+			tunnelDnsServers.emplace_back(ip);
+		};
+
+		for (size_t i = 0; i < numDnsServers; i++)
+		{
+			auto ip = wfp::IpAddress(dnsServers[i]);
+			addToDnsCollection(ip.type() == wfp::IpAddress::Type::Ipv4 ? v4GatewayIp : v6GatewayIp, std::move(ip));
 		}
 
 		return g_fwContext->applyPolicyConnected(
@@ -337,7 +394,8 @@ WinFw_ApplyPolicyConnected(
 			*relay,
 			relayClient,
 			tunnelInterfaceAlias,
-			tunnelDnsServers
+			tunnelDnsServers,
+			nonTunnelDnsServers
 		) ? WINFW_POLICY_STATUS_SUCCESS : WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 	catch (common::error::WindowsException &err)
