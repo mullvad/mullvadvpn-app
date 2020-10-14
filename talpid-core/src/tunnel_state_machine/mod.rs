@@ -27,6 +27,7 @@ use futures::{
 use std::{
     collections::HashSet,
     io,
+    net::IpAddr,
     path::{Path, PathBuf},
     sync::{mpsc as sync_mpsc, Arc},
 };
@@ -74,6 +75,7 @@ pub enum Error {
 pub async fn spawn(
     allow_lan: bool,
     block_when_disconnected: bool,
+    custom_dns: Option<Vec<IpAddr>>,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
@@ -109,6 +111,7 @@ pub async fn spawn(
             allow_lan,
             block_when_disconnected,
             is_offline,
+            custom_dns,
             tunnel_parameters_generator,
             tun_provider,
             log_dir,
@@ -184,6 +187,7 @@ impl TunnelStateMachine {
         allow_lan: bool,
         block_when_disconnected: bool,
         is_offline: bool,
+        custom_dns: Option<Vec<IpAddr>>,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
         tun_provider: TunProvider,
         log_dir: Option<PathBuf>,
@@ -208,6 +212,7 @@ impl TunnelStateMachine {
             allow_lan,
             block_when_disconnected,
             is_offline,
+            custom_dns,
             tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
             tun_provider,
             log_dir,
@@ -277,6 +282,8 @@ struct SharedTunnelStateValues {
     block_when_disconnected: bool,
     /// True when the computer is known to be offline.
     is_offline: bool,
+    /// Custom DNS servers to use.
+    custom_dns: Option<Vec<IpAddr>>,
     /// The generator of new `TunnelParameter`s
     tunnel_parameters_generator: Box<dyn TunnelParametersGenerator>,
     /// The provider of tunnel devices.
