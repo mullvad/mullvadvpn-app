@@ -111,6 +111,8 @@ pub enum FirewallPolicy {
         tunnel: crate::tunnel::TunnelMetadata,
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
+        /// Servers that are allowed to respond to DNS requests.
+        dns_servers: Vec<IpAddr>,
         /// A process that is allowed to send packets to the relay.
         #[cfg(windows)]
         relay_client: PathBuf,

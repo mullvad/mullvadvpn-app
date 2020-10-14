@@ -8,6 +8,7 @@ use crate::{
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
 use futures::{channel::mpsc, stream::Fuse, StreamExt};
+use std::net::IpAddr;
 use talpid_types::{
     net::TunnelParameters,
     tunnel::{ErrorStateCause, FirewallPolicyError},
@@ -75,11 +76,25 @@ impl ConnectedState {
             })
     }
 
+    fn get_dns_servers(&self, shared_values: &SharedTunnelStateValues) -> Vec<IpAddr> {
+        if let Some(ref servers) = shared_values.custom_dns {
+            servers.clone()
+        } else {
+            let mut dns_ips = vec![];
+            dns_ips.push(self.metadata.ipv4_gateway.into());
+            if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
+                dns_ips.push(ipv6_gateway.into());
+            };
+            dns_ips
+        }
+    }
+
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
         FirewallPolicy::Connected {
             peer_endpoint: self.tunnel_parameters.get_next_hop_endpoint(),
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
+            dns_servers: self.get_dns_servers(shared_values),
             #[cfg(windows)]
             relay_client: TunnelMonitor::get_relay_client(
                 &shared_values.resource_dir,
@@ -91,21 +106,12 @@ impl ConnectedState {
     }
 
     fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
-        let mut default_dns = vec![];
-
-        let dns_ips = if let Some(ref servers) = shared_values.custom_dns {
-            servers
-        } else {
-            default_dns.push(self.metadata.ipv4_gateway.into());
-            if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
-                default_dns.push(ipv6_gateway.into());
-            };
-            &default_dns
-        };
-
         shared_values
             .dns_monitor
-            .set(&self.metadata.interface, &dns_ips)
+            .set(
+                &self.metadata.interface,
+                &self.get_dns_servers(shared_values),
+            )
             .map_err(BoxedError::new)?;
 
         #[cfg(target_os = "linux")]
