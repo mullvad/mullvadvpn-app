@@ -60,7 +60,11 @@ export default class SelectLocation extends React.Component<IProps> {
     this.scrollToSelectedCell();
   }
 
-  public componentDidUpdate(prevProps: IProps, _prevState: {}, snapshot?: ISelectLocationSnapshot) {
+  public componentDidUpdate(
+    prevProps: IProps,
+    _prevState: unknown,
+    snapshot?: ISelectLocationSnapshot,
+  ) {
     if (this.props.locationScope !== prevProps.locationScope) {
       this.restoreScrollPosition(this.props.locationScope);
 

@@ -50,6 +50,7 @@ function parseTranslation(locale: string, domain: string, catalogue: Gettext): b
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/ban-types
   let translations: object;
   try {
     translations = po.parse(contents);
