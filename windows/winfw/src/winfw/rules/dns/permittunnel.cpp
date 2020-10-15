@@ -38,7 +38,7 @@ bool PermitTunnel::apply(IObjectInstaller &objectInstaller)
 			.provider(MullvadGuids::Provider())
 			.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
 			.sublayer(MullvadGuids::SublayerDns())
-			.weight(wfp::FilterBuilder::WeightClass::Max)
+			.weight(wfp::FilterBuilder::WeightClass::Medium)
 			.permit();
 
 		wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
@@ -73,7 +73,7 @@ bool PermitTunnel::apply(IObjectInstaller &objectInstaller)
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V6)
 		.sublayer(MullvadGuids::SublayerDns())
-		.weight(wfp::FilterBuilder::WeightClass::Max)
+		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V6);
