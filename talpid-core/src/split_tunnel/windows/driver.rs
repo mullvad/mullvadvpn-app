@@ -18,10 +18,19 @@ use std::{
     ptr,
 };
 use winapi::{
-    shared::{in6addr::IN6_ADDR, inaddr::IN_ADDR},
+    shared::{
+        in6addr::IN6_ADDR,
+        inaddr::IN_ADDR,
+        minwindef::{FALSE, TRUE},
+        winerror::ERROR_IO_PENDING,
+    },
     um::{
-        ioapiset::DeviceIoControl,
+        handleapi::CloseHandle,
+        ioapiset::{DeviceIoControl, GetOverlappedResult},
+        minwinbase::OVERLAPPED,
+        synchapi::CreateEventW,
         tlhelp32::TH32CS_SNAPPROCESS,
+        winbase::FILE_FLAG_OVERLAPPED,
         winioctl::{FILE_ANY_ACCESS, METHOD_BUFFERED, METHOD_NEITHER},
     },
 };
@@ -80,11 +89,6 @@ pub enum EventId {
     ErrorStopSplittingProcess,
 }
 
-pub struct Event {
-    event_id: EventId,
-    body: EventBody,
-}
-
 pub enum EventBody {
     SplittingEvent {
         process_id: u32,
@@ -107,21 +111,29 @@ pub enum SplittingChangeReason {
 
 pub struct DeviceHandle {
     handle: fs::File,
+    overlapped: OVERLAPPED,
 }
 
 impl DeviceHandle {
     pub fn new() -> io::Result<Self> {
+        let mut overlapped: OVERLAPPED = unsafe { mem::zeroed() };
+        overlapped.hEvent = unsafe { CreateEventW(ptr::null_mut(), TRUE, FALSE, ptr::null()) };
+
+        if overlapped.hEvent == ptr::null_mut() {
+            return Err(io::Error::last_os_error());
+        }
+
         // Connect to the driver
         log::trace!("Connecting to the driver");
         let handle = OpenOptions::new()
             .read(true)
             .write(true)
             .share_mode(0)
-            .custom_flags(0)
+            .custom_flags(FILE_FLAG_OVERLAPPED)
             .attributes(0)
             .open(DRIVER_SYMBOLIC_NAME)?;
 
-        let device = Self { handle };
+        let device = Self { handle, overlapped };
 
         // Initialize the driver
         let state = device.get_driver_state()?;
@@ -149,6 +161,7 @@ impl DeviceHandle {
             DriverIoctlCode::Initialize as u32,
             None,
             0,
+            &self.overlapped,
         )?;
         Ok(())
     }
@@ -160,6 +173,7 @@ impl DeviceHandle {
             DriverIoctlCode::RegisterProcesses as u32,
             Some(&process_tree_buffer),
             0,
+            &self.overlapped,
         )?;
         Ok(())
     }
@@ -216,6 +230,7 @@ impl DeviceHandle {
             DriverIoctlCode::RegisterIpAddresses as u32,
             Some(buffer),
             0,
+            &self.overlapped,
         )?;
 
         let state = self.get_driver_state()?;
@@ -230,6 +245,7 @@ impl DeviceHandle {
             DriverIoctlCode::GetState as u32,
             None,
             size_of::<u64>() as u32,
+            &self.overlapped,
         )?
         .unwrap();
 
@@ -254,6 +270,7 @@ impl DeviceHandle {
             DriverIoctlCode::SetConfiguration as u32,
             Some(&config),
             0,
+            &self.overlapped,
         )?;
 
         let state = self.get_driver_state()?;
@@ -268,13 +285,16 @@ impl DeviceHandle {
             DriverIoctlCode::ClearConfiguration as u32,
             None,
             0,
+            &self.overlapped,
         )?;
 
         Ok(())
     }
+}
 
-    pub fn deque_event(&self, buffer: &mut Vec<u8>) -> io::Result<(EventId, EventBody)> {
-        deque_event(self.handle.as_raw_handle(), buffer)
+impl Drop for DeviceHandle {
+    fn drop(&mut self) {
+        unsafe { CloseHandle(self.overlapped.hEvent) };
     }
 }
 
@@ -284,12 +304,17 @@ impl AsRawHandle for DeviceHandle {
     }
 }
 
-pub fn deque_event(handle: RawHandle, buffer: &mut Vec<u8>) -> io::Result<(EventId, EventBody)> {
+pub fn deque_event(
+    handle: RawHandle,
+    buffer: &mut Vec<u8>,
+    overlapped: &mut OVERLAPPED,
+) -> io::Result<(EventId, EventBody)> {
     device_io_control_buffer(
         handle,
         DriverIoctlCode::DequeEvent as u32,
         None,
         Some(buffer),
+        overlapped,
     )?;
 
     let mut event_header: EventHeader = unsafe { mem::zeroed() };
@@ -629,6 +654,7 @@ pub fn device_io_control(
     ioctl_code: u32,
     input: Option<&[u8]>,
     output_size: u32,
+    overlapped: &OVERLAPPED,
 ) -> Result<Option<Vec<u8>>, io::Error> {
     let mut out_buffer = if output_size > 0 {
         Some(Vec::with_capacity(output_size as usize))
@@ -636,7 +662,8 @@ pub fn device_io_control(
         None
     };
 
-    device_io_control_buffer(device, ioctl_code, input, out_buffer.as_mut()).map(|()| out_buffer)
+    device_io_control_buffer(device, ioctl_code, input, out_buffer.as_mut(), overlapped)
+        .map(|()| out_buffer)
 }
 
 /// Send an IOCTL code to the given device handle.
@@ -647,6 +674,7 @@ pub fn device_io_control_buffer(
     ioctl_code: u32,
     input: Option<&[u8]>,
     mut output: Option<&mut Vec<u8>>,
+    overlapped: &OVERLAPPED,
 ) -> Result<(), io::Error> {
     let input_ptr = match input {
         Some(input) => input as *const _ as *mut _,
@@ -665,6 +693,7 @@ pub fn device_io_control_buffer(
     };
 
     let mut returned_bytes = 0u32;
+    let overlapped = overlapped as *const _ as *mut _;
 
     let result = unsafe {
         DeviceIoControl(
@@ -674,20 +703,33 @@ pub fn device_io_control_buffer(
             input_len as u32,
             out_ptr,
             output_size as u32,
-            &mut returned_bytes as *mut _,
-            ptr::null_mut(), // TODO
+            &mut returned_bytes,
+            overlapped,
         )
     };
+
+    if result != 0 {
+        // This should not occur
+        return Err(io::Error::last_os_error());
+    }
+
+    let last_error = io::Error::last_os_error();
+    if last_error.raw_os_error() != Some(ERROR_IO_PENDING as i32) {
+        return Err(last_error);
+    }
+
+    let result =
+        unsafe { GetOverlappedResult(device as *mut _, overlapped, &mut returned_bytes, TRUE) };
+
+    if result == 0 {
+        return Err(io::Error::last_os_error());
+    }
 
     if let Some(ref mut output) = output {
         unsafe { output.set_len(returned_bytes as usize) };
     }
 
-    if result != 0 {
-        Ok(())
-    } else {
-        Err(io::Error::last_os_error())
-    }
+    Ok(())
 }
 
 /// Creates a new instance of an arbitrary type from a byte buffer.
