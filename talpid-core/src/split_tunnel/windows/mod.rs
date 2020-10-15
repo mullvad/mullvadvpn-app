@@ -3,15 +3,16 @@ mod windows;
 
 use std::{
     ffi::OsStr,
-    io,
+    io, mem,
     net::{Ipv4Addr, Ipv6Addr},
-    os::windows::{
-        io::{AsRawHandle, IntoRawHandle, RawHandle},
-        thread,
-    },
+    os::windows::io::{AsRawHandle, IntoRawHandle, RawHandle},
+    ptr,
 };
 use talpid_types::ErrorExt;
-use winapi::um::processthreadsapi::TerminateThread;
+use winapi::{
+    shared::minwindef::{FALSE, TRUE},
+    um::{minwinbase::OVERLAPPED, processthreadsapi::TerminateThread, synchapi::CreateEventW},
+};
 
 const DRIVER_EVENT_BUFFER_SIZE: usize = 2048;
 
@@ -30,6 +31,10 @@ pub enum Error {
     /// Failed to register interface IP addresses
     #[error(display = "Failed to register IP addresses for exclusions")]
     RegisterIps(#[error(source)] io::Error),
+
+    /// Failed to set up the driver event loop
+    #[error(display = "Failed to set up the driver event loop")]
+    EventThreadError(#[error(source)] io::Error),
 }
 
 /// Manages applications whose traffic to exclude from the tunnel.
@@ -38,22 +43,30 @@ pub struct SplitTunnel {
     event_thread: Option<std::thread::JoinHandle<()>>,
 }
 
-struct HandleContainer {
+struct EventThreadContext {
     handle: RawHandle,
+    event_overlapped: OVERLAPPED,
 }
-// FIXME: ! This is not safe. The handle will be invalidated when SplitTunnel is dropped
-unsafe impl Send for HandleContainer {}
+// FIXME: ! This is not safe. The driver handle will be invalidated when SplitTunnel is dropped
+unsafe impl Send for EventThreadContext {}
 
 impl SplitTunnel {
     /// Initialize the driver.
     pub fn new() -> Result<Self, Error> {
-        // TODO: spawn event monitor
         let handle = driver::DeviceHandle::new().map_err(Error::InitializationFailed)?;
 
         // FIXME: Want to use same pointer, but must be certain that the thread dies after this dies
 
-        let raw_handle = HandleContainer {
+        let mut event_overlapped: OVERLAPPED = unsafe { mem::zeroed() };
+        event_overlapped.hEvent =
+            unsafe { CreateEventW(ptr::null_mut(), TRUE, FALSE, ptr::null()) };
+        if event_overlapped.hEvent == ptr::null_mut() {
+            return Err(Error::EventThreadError(io::Error::last_os_error()));
+        }
+
+        let mut event_context = EventThreadContext {
             handle: handle.as_raw_handle(),
+            event_overlapped,
         };
 
         let event_thread = std::thread::spawn(move || {
@@ -62,7 +75,11 @@ impl SplitTunnel {
             let mut data_buffer = Vec::with_capacity(DRIVER_EVENT_BUFFER_SIZE);
 
             loop {
-                match driver::deque_event(raw_handle.handle, &mut data_buffer) {
+                match driver::deque_event(
+                    event_context.handle,
+                    &mut data_buffer,
+                    &mut event_context.event_overlapped,
+                ) {
                     Ok((event_id, event_body)) => {
                         let event_str = match &event_id {
                             EventId::StartSplittingProcess
@@ -91,6 +108,9 @@ impl SplitTunnel {
 
                 // TODO: Quit when signaled. Overlapping + WaitForMultipleObjects?
             }
+
+            // FIXME: The event object will not be destroyed since we use TerminateThread
+            // unsafe { CloseHandle(event_overlapped.hEvent) };
         });
 
         Ok(SplitTunnel {
