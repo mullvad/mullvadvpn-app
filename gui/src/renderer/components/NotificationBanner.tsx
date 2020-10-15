@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
-import { BlockingButton } from './AppButton';
+import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 
 const NOTIFICATION_AREA_ID = 'notification-area';
@@ -32,7 +32,7 @@ export function NotificationSubtitle(props: INotificationSubtitleProps) {
   return React.Children.count(props.children) > 0 ? <NotificationSubtitleText {...props} /> : null;
 }
 
-export const NotificationOpenLinkActionButton = styled.button({
+export const NotificationOpenLinkActionButton = styled(AppButton.SimpleButton)({
   flex: 1,
   justifyContent: 'center',
   cursor: 'default',
@@ -54,7 +54,7 @@ interface INotifcationOpenLinkActionProps {
 
 export function NotificationOpenLinkAction(props: INotifcationOpenLinkActionProps) {
   return (
-    <BlockingButton onClick={props.onClick}>
+    <AppButton.BlockingButton onClick={props.onClick}>
       <NotificationOpenLinkActionButton
         aria-describedby={NOTIFICATION_AREA_ID}
         aria-label={messages.gettext('Open URL')}>
@@ -65,7 +65,7 @@ export function NotificationOpenLinkAction(props: INotifcationOpenLinkActionProp
           source="icon-extLink"
         />
       </NotificationOpenLinkActionButton>
-    </BlockingButton>
+    </AppButton.BlockingButton>
   );
 }
 

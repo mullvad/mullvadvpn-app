@@ -3,12 +3,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { useMounted } from '../lib/utilityHooks';
-import {
-  StyledButton,
-  StyledButtonContent,
-  StyledLabel,
-  StyledLabelContainer,
-} from './AppButtonStyles';
+import { StyledButtonContent, StyledLabel, StyledLabelContainer } from './AppButtonStyles';
 import ImageView from './ImageView';
 
 interface IButtonContext {
@@ -52,9 +47,8 @@ export interface IProps extends React.HTMLAttributes<HTMLButtonElement> {
 }
 
 const BaseButton = React.memo(function BaseButtonT(props: IProps) {
-  const { children, disabled, onClick, ...otherProps } = props;
+  const { children, ...otherProps } = props;
 
-  const blockingContext = useContext(BlockingContext);
   const [textAdjustment, setTextAdjustment] = useState(0);
   const buttonRef = useRef() as React.RefObject<HTMLButtonElement>;
   const textRef = useRef() as React.RefObject<HTMLDivElement>;
@@ -82,19 +76,45 @@ const BaseButton = React.memo(function BaseButtonT(props: IProps) {
 
   return (
     <ButtonContext.Provider value={contextValue}>
-      <StyledButton
-        ref={buttonRef}
-        disabled={blockingContext.disabled || disabled}
-        onClick={blockingContext.onClick ?? onClick}
-        {...otherProps}>
+      <StyledSimpleButton ref={buttonRef} {...otherProps}>
         <StyledButtonContent>
           {React.Children.map(children, (child) =>
             typeof child === 'string' ? <Label>{child as string}</Label> : child,
           )}
         </StyledButtonContent>
-      </StyledButton>
+      </StyledSimpleButton>
     </ButtonContext.Provider>
   );
+});
+
+function SimpleButtonT(
+  props: React.ButtonHTMLAttributes<HTMLButtonElement>,
+  ref: React.Ref<HTMLButtonElement>,
+) {
+  const blockingContext = useContext(BlockingContext);
+
+  return (
+    <button
+      ref={ref}
+      {...props}
+      disabled={props.disabled || blockingContext.disabled}
+      onClick={blockingContext.onClick ?? props.onClick}>
+      {props.children}
+    </button>
+  );
+}
+
+export const SimpleButton = React.memo(React.forwardRef(SimpleButtonT));
+
+const StyledSimpleButton = styled(SimpleButton)({
+  display: 'flex',
+  cursor: 'default',
+  borderRadius: 4,
+  border: 'none',
+  padding: 0,
+  ':disabled': {
+    opacity: 0.5,
+  },
 });
 
 interface IBlockingContext {

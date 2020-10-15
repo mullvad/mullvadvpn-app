@@ -13,17 +13,6 @@ export const StyledLabel = styled.span(buttonText, {
   textAlign: 'center',
 });
 
-export const StyledButton = styled.button({
-  display: 'flex',
-  cursor: 'default',
-  borderRadius: 4,
-  border: 'none',
-  padding: 0,
-  ':disabled': {
-    opacity: 0.5,
-  },
-});
-
 export const StyledButtonContent = styled.div({
   display: 'flex',
   flex: 1,
