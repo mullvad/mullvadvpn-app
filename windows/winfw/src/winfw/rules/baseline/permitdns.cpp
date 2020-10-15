@@ -26,7 +26,7 @@ bool PermitDns::apply(IObjectInstaller &objectInstaller)
 		.provider(MullvadGuids::Provider())
 		.layer(FWPM_LAYER_ALE_AUTH_CONNECT_V4)
 		.sublayer(MullvadGuids::SublayerBaseline())
-		.weight(wfp::FilterBuilder::WeightClass::Max)
+		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 
 	wfp::ConditionBuilder conditionBuilder(FWPM_LAYER_ALE_AUTH_CONNECT_V4);
