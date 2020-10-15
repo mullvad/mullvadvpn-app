@@ -37,6 +37,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add button to remove account and WireGuard key from history in the login screen.
 
 ### Fixed
+- Fix non-working buttons in in-app notification banner.
+
 #### Android
 - Fix connect action button sometimes showing itself as "Cancel" instead of "Secure my connection"
   for a few seconds.
