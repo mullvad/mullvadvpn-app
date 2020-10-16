@@ -1,14 +1,13 @@
 import { geoMercator, GeoProjection } from 'd3-geo';
 import rbush from 'rbush';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from 'react-simple-maps';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import { ComposableMap, Geographies, Geography, Marker } from 'react-simple-maps';
 
 import geographyData from '../../../assets/geo/geometry.json';
 import statesProvincesLinesData from '../../../assets/geo/states-provinces-lines.json';
 
 import geometryTreeData from '../../../assets/geo/geometry.rbush.json';
 import statesProvincesLinesTreeData from '../../../assets/geo/states-provinces-lines.rbush.json';
-import { useScheduler } from '../../shared/scheduler';
 
 interface IGeometryLeaf extends rbush.BBox {
   id: string;
@@ -214,13 +213,6 @@ function SvgMap(props: IProps) {
   );
   const [visibleGeometry, visibleStatesProvincesLines] = useVisibleGeometry(viewportBboxes);
 
-  // react-simple-maps renders the map with zoom=1 the first render resulting in a transition from
-  // 1 to zoomLevel when it immediately renders a second time. This makes sure that transitions are
-  // disabled until after the second render.
-  const [enableTransition, setEnableTransition] = useState(false);
-  const enableTransitionScheduler = useScheduler();
-  useEffect(() => enableTransitionScheduler.schedule(() => setEnableTransition(true)), []);
-
   const markerStyle = useMemo(
     () => mergeRsmStyle({ default: { display: props.showMarker ? undefined : 'none' } }),
     [props.showMarker],
@@ -242,7 +234,10 @@ function SvgMap(props: IProps) {
         center={zoomCenter}
         zoom={zoomLevel}
         onTransitionEnd={removeOldViewportBboxes}
-        style={enableTransition ? zoomableGroupStyle : undefined}>
+        style={zoomableGroupStyle}
+        width={width}
+        height={height}
+        projection={projection}>
         <Geographies geography={geographyData}>
           {({ geographies }) => {
             return visibleGeometry.map(({ id }) => (
@@ -274,3 +269,27 @@ function SvgMap(props: IProps) {
 }
 
 export default React.memo(SvgMap, sameProps);
+
+// Workaround for issue where react-simple-maps does an animated zoom/pan when first loading the
+// map. When this issue is resolved it can be removed:
+// https://github.com/zcreativelabs/react-simple-maps/issues/228
+interface IZoomableGroupProps extends React.SVGAttributes<SVGGElement> {
+  center: [number, number];
+  zoom: number;
+  width: number;
+  height: number;
+  projection: GeoProjection;
+}
+
+function ZoomableGroup(props: IZoomableGroupProps) {
+  const { height, width, center, zoom, projection, ...otherProps } = props;
+
+  const transform = useMemo(() => {
+    const [x, y] = projection(center) ?? [0, 0];
+    const translateX = width / 2 - x * zoom;
+    const translateY = height / 2 - y * zoom;
+    return `translate(${translateX} ${translateY}) scale(${zoom})`;
+  }, [projection, center, width, height, zoom]);
+
+  return <g transform={transform} {...otherProps} />;
+}
