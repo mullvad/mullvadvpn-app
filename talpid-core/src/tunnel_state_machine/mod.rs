@@ -150,6 +150,8 @@ pub async fn spawn(
 pub enum TunnelCommand {
     /// Enable or disable LAN access in the firewall.
     AllowLan(bool),
+    /// Set custom DNS servers to use.
+    CustomDns(Option<Vec<IpAddr>>),
     /// Enable or disable the block_when_disconnected feature.
     BlockWhenDisconnected(bool),
     /// Notify the state machine of the connectivity of the device.
