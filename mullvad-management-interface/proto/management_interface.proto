@@ -39,6 +39,7 @@ service ManagementService {
 	rpc SetOpenvpnMssfix(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc SetWireguardMtu(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
 	rpc SetEnableIpv6(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+	rpc SetCustomDns(CustomDns) returns (google.protobuf.Empty) {}
 
 	// Account management
 	rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
@@ -359,11 +360,16 @@ message TunnelOptions {
 	}
 	message GenericOptions {
 		bool enable_ipv6 = 1;
+		CustomDns custom_dns = 2;
 	}
 
 	OpenvpnOptions openvpn = 1;
 	WireguardOptions wireguard = 2;
 	GenericOptions generic = 3;
+}
+
+message CustomDns {
+	repeated string addresses = 1;
 }
 
 message PublicKey {
