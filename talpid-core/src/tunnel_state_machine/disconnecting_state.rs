@@ -32,6 +32,10 @@ impl DisconnectingState {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Nothing
                 }
+                Some(TunnelCommand::CustomDns(servers)) => {
+                    shared_values.custom_dns = servers;
+                    AfterDisconnect::Nothing
+                }
                 Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                     shared_values.block_when_disconnected = block_when_disconnected;
                     AfterDisconnect::Nothing
@@ -47,6 +51,10 @@ impl DisconnectingState {
             AfterDisconnect::Block(reason) => match command {
                 Some(TunnelCommand::AllowLan(allow_lan)) => {
                     let _ = shared_values.set_allow_lan(allow_lan);
+                    AfterDisconnect::Block(reason)
+                }
+                Some(TunnelCommand::CustomDns(servers)) => {
+                    shared_values.custom_dns = servers;
                     AfterDisconnect::Block(reason)
                 }
                 Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
@@ -69,6 +77,10 @@ impl DisconnectingState {
             AfterDisconnect::Reconnect(retry_attempt) => match command {
                 Some(TunnelCommand::AllowLan(allow_lan)) => {
                     let _ = shared_values.set_allow_lan(allow_lan);
+                    AfterDisconnect::Reconnect(retry_attempt)
+                }
+                Some(TunnelCommand::CustomDns(servers)) => {
+                    shared_values.custom_dns = servers;
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
