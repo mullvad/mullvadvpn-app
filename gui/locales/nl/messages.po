@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2020-06-22 15:10\n"
+"PO-Revision-Date: 2020-10-19 12:23\n"
 
 msgid "Back"
 msgstr "Terug"
@@ -30,17 +30,29 @@ msgstr "Annuleren"
 msgid "Close"
 msgstr "Sluiten"
 
+msgid "Connect"
+msgstr "Verbinden"
+
 msgid "COPIED TO CLIPBOARD!"
 msgstr "GEKOPIEERD NAAR KLEMBORD!"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "BEVEILIGDE VERBINDING AANMAKEN"
 
+msgid "Disconnect"
+msgstr "Verbinding verbreken"
+
+msgid "Dismiss"
+msgstr "Negeren"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "VERBINDING BEVEILIGEN MISLUKT"
 
 msgid "Invalid account number"
 msgstr "Ongeldig accountnummer"
+
+msgid "Reconnect"
+msgstr "Opnieuw verbinden"
 
 msgid "SECURE CONNECTION"
 msgstr "BEVEILIGDE VERBINDING"
@@ -177,6 +189,10 @@ msgstr "Stel OpenVPN MMS-waarde in. Geldig bereik: %(min)d - %(max)d."
 msgctxt "advanced-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "Stel de WireGuard MTU-waarde in. Geldig bereik: %(min)d - %(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "Split tunneling"
+msgstr "Split tunneling"
 
 msgctxt "advanced-settings-view"
 msgid "TCP"
@@ -323,6 +339,10 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Er is iets misgelopen. Neem contact met ons op via %(email)s"
 
 msgctxt "generic"
+msgid "Mullvad VPN"
+msgstr "Mullvad VPN"
+
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
@@ -333,6 +353,10 @@ msgstr "\"Altijd VPN vereisen\" is ingeschakeld."
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "ACCOUNTKREDIET VERVALT BINNENKORT"
+
+msgctxt "in-app-notifications"
+msgid "An application prevented the policy from being set"
+msgstr "Een toepassing verhinderde dat het beleid werd ingesteld"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
@@ -347,8 +371,8 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Toepassen van firewallregels is mislukt. Het toestel is nu mogelijk niet beveiligd"
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Kon alle netwerkverkeer niet blokkeren. Los het probleem op of meld het aan ons."
+msgid "Failed to block all network traffic"
+msgstr "Kon niet alle netwerkverkeer blokkeren"
 
 msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
@@ -382,6 +406,10 @@ msgid "No relay server matches the current settings. You can try changing the lo
 msgstr "Geen enkele relaisserver komt overeen met de huidige instellingen. U kunt proberen de locatie of de relaisinstellingen te wijzigen."
 
 msgctxt "in-app-notifications"
+msgid "Original block reason"
+msgstr "Oorspronkelijke reden blokkering"
+
+msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "Dit toestel is offline, er kunnen geen tunnels worden gemaakt"
 
@@ -404,13 +432,6 @@ msgstr "UPDATE BESCHIKBAAR"
 msgctxt "in-app-notifications"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen."
-
-#. The in-app banner displayed to the user when the running app becomes unsupported.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "U gebruikt een niet-ondersteunde versie van de app. Upgrade nu naar %(version)s om uw veiligheid te garanderen"
 
 msgctxt "in-app-notifications"
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
@@ -485,6 +506,11 @@ msgid "Valid account number"
 msgstr "Geldig accountnummer"
 
 #. Back button in navigation bar
+msgctxt "navigation-bar"
+msgid "Advanced"
+msgstr "Geavanceerd"
+
+#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -502,8 +528,16 @@ msgid "Blocking internet"
 msgstr "Internet blokkeren"
 
 msgctxt "notifications"
+msgid "Blocking internet:"
+msgstr "Internet blokkeren:"
+
+msgctxt "notifications"
 msgid "Blocking internet: Valid WireGuard key is missing"
 msgstr "Internet blokkeren: Geldige WireGuard-sleutel ontbreekt"
+
+msgctxt "notifications"
+msgid "Buy more"
+msgstr "Meer kopen"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -531,6 +565,13 @@ msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
 msgstr "Inconsistente interne versie-informatie, start de app opnieuw "
 
+#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "Please upgrade to %(version)s now to ensure your security"
+msgstr "Upgrade nu naar %(version)s om uw veiligheid te waarborgen"
+
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "Opnieuw verbinden"
@@ -543,12 +584,18 @@ msgctxt "notifications"
 msgid "Unsecured"
 msgstr "Niet beveiligd"
 
-#. The system notification displayed to the user when the running app becomes unsupported.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
 msgctxt "notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "U gebruikt een niet-ondersteunde versie van de app. Upgrade nu naar %(version)s om uw veiligheid te garanderen"
+msgid "Upgrade"
+msgstr "Upgraden"
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "You are running an unsupported app version."
+msgstr "U gebruikt een niet-ondersteunde appversie."
+
+msgctxt "notifications"
+msgid "You have no more VPN time left on this account."
+msgstr "U hebt geen VPN-tijd meer op dit account."
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -727,6 +774,39 @@ msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Update beschikbaar, download deze voor optimale beveiliging."
 
+#. Title label in navigation bar
+msgctxt "split-tunneling-nav"
+msgid "Split tunneling"
+msgstr "Split tunneling"
+
+msgctxt "split-tunneling-view"
+msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
+msgstr "%(applicationName)s is problematisch en kan niet worden uitgesloten van de VPN-tunnel."
+
+msgctxt "split-tunneling-view"
+msgid "Browse"
+msgstr "Bladeren"
+
+msgctxt "split-tunneling-view"
+msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
+msgstr "Klik op een app om deze te starten. Het verkeer ervan gaat buiten de VPN-tunnel om tot u deze sluit."
+
+msgctxt "split-tunneling-view"
+msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
+msgstr "Als deze al is geopend, sluit %(applicationName)s dan voordat deze van hieruit wordt geopend. Anders wordt deze mogelijk niet uitgesloten van de VPN-tunnel."
+
+msgctxt "split-tunneling-view"
+msgid "Launch"
+msgstr "Starten"
+
+msgctxt "split-tunneling-view"
+msgid "Launch application"
+msgstr "Toepassing starten"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling"
+msgstr "Split tunneling"
+
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "Toch doorgaan"
@@ -806,17 +886,9 @@ msgctxt "support-view"
 msgid "Your email (optional)"
 msgstr "Uw e-mailadres (optioneel)"
 
-msgctxt "tunnel-control"
-msgid "Cancel"
-msgstr "Annuleren"
-
-msgctxt "tunnel-control"
-msgid "Disconnect"
-msgstr "Verbinding verbreken"
-
-msgctxt "tunnel-control"
-msgid "Dismiss"
-msgstr "Negeren"
+msgctxt "tray-icon-context-menu"
+msgid "Open %(mullvadVpn)s"
+msgstr "%(mullvadVpn)s openen"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"

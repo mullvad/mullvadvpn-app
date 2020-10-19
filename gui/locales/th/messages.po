@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2020-06-22 15:10\n"
+"PO-Revision-Date: 2020-10-19 12:23\n"
 
 msgid "Back"
 msgstr "ย้อนกลับ"
@@ -30,17 +30,29 @@ msgstr "ยกเลิก"
 msgid "Close"
 msgstr "ปิด"
 
+msgid "Connect"
+msgstr "เชื่อมต่อ"
+
 msgid "COPIED TO CLIPBOARD!"
 msgstr "คัดลอกไปยังคลิปบอร์ดแล้ว!"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "กำลังสร้างการเชื่อมต่อที่ปลอดภัย"
 
+msgid "Disconnect"
+msgstr "ตัดการเชื่อมต่อ"
+
+msgid "Dismiss"
+msgstr "ละทิ้ง"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "ไม่สามารถเชื่อมต่ออย่างปลอดภัยได้"
 
 msgid "Invalid account number"
 msgstr "หมายเลขบัญชีไม่ถูกต้อง"
+
+msgid "Reconnect"
+msgstr "เชื่อมต่อใหม่"
 
 msgid "SECURE CONNECTION"
 msgstr "การเชื่อมต่อที่ปลอดภัย"
@@ -177,6 +189,10 @@ msgstr "ตั้งค่า OpenVPN MSS ช่วงที่ใช้ได�
 msgctxt "advanced-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "ตั้งค่า WireGuard MTU ช่วงที่ใช้ได้: %(min)d - %(max)d"
+
+msgctxt "advanced-settings-view"
+msgid "Split tunneling"
+msgstr "แยกช่องทาง"
 
 msgctxt "advanced-settings-view"
 msgid "TCP"
@@ -323,6 +339,10 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "เกิดข้อผิดพลาดขึ้น โปรดติดต่อเราที่ %(email)s"
 
 msgctxt "generic"
+msgid "Mullvad VPN"
+msgstr "Mullvad VPN"
+
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "Mullvad VPN"
 
@@ -333,6 +353,10 @@ msgstr "เปิดใช้งาน 'ต้องใช้ VPN เสมอ' 
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "เครดิตในบัญชีจะหมดอายุในเร็ว ๆ นี้"
+
+msgctxt "in-app-notifications"
+msgid "An application prevented the policy from being set"
+msgstr "แอปพลิเคชันได้มีการป้องกันเพื่อไม่ให้มีการตั้งค่านโยบาย"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
@@ -347,8 +371,8 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "ไม่สามารถปรับใช้งานกฎของไฟร์วอลล์ได้ อุปกรณ์อาจไม่มีความปลอดภัยในขณะนี้"
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือรายงานปัญหามาที่เรา"
+msgid "Failed to block all network traffic"
+msgstr "ล้มเหลวในการบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมด"
 
 msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
@@ -382,6 +406,10 @@ msgid "No relay server matches the current settings. You can try changing the lo
 msgstr "ไม่มีเซิร์ฟเวอร์รีเลย์ที่ตรงกับการตั้งค่าในปัจจุบัน คุณสามารถลองเปลี่ยนสถานที่ หรือการตั้งค่ารีเลย์ได้"
 
 msgctxt "in-app-notifications"
+msgid "Original block reason"
+msgstr "เหตุผลเดิมสำหรับการบล็อก"
+
+msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "อุปกรณ์ออฟไลน์อยู่ในขณะนี้ ไม่สามารถสร้างช่องทางการเชื่อมต่อได้"
 
@@ -404,13 +432,6 @@ msgstr "มีการอัปเดตให้ใช้งาน"
 msgctxt "in-app-notifications"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "ไม่มีคีย์ WireGuard ที่ถูกต้อง โปรดจัดการคีย์ภายใต้ส่วนการตั้งค่าขั้นสูง"
-
-#. The in-app banner displayed to the user when the running app becomes unsupported.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "คุณกำลังใช้งานแอปในเวอร์ชันที่ไม่ได้รับการรองรับ โปรดอัปเกรดเป็นเวอร์ชัน %(version)s ทันทีเพื่อความปลอดภัยของคุณ"
 
 msgctxt "in-app-notifications"
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
@@ -485,6 +506,11 @@ msgid "Valid account number"
 msgstr "หมายเลขบัญชีที่ถูกต้อง"
 
 #. Back button in navigation bar
+msgctxt "navigation-bar"
+msgid "Advanced"
+msgstr "ขั้นสูง"
+
+#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -502,8 +528,16 @@ msgid "Blocking internet"
 msgstr "กำลังบล็อกอินเทอร์เน็ต"
 
 msgctxt "notifications"
+msgid "Blocking internet:"
+msgstr "กำลังบล็อกอินเทอร์เน็ต:"
+
+msgctxt "notifications"
 msgid "Blocking internet: Valid WireGuard key is missing"
 msgstr "กำลังบล็อกอินเทอร์เน็ต: คีย์ WireGuard ที่ถูกต้องขาดหายไป"
+
+msgctxt "notifications"
+msgid "Buy more"
+msgstr "ซื้อเพิ่ม"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -531,6 +565,13 @@ msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
 msgstr "มีข้อมูลเวอร์ชันภายในที่ไม่ตรงกัน โปรดเปิดแอปขึ้นมาใหม่"
 
+#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "Please upgrade to %(version)s now to ensure your security"
+msgstr "โปรดอัปเกรดเป็น %(version)s ตอนนี้เพื่อความปลอดภัยของคุณ"
+
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "กำลังเชื่อมต่อใหม่"
@@ -543,12 +584,18 @@ msgctxt "notifications"
 msgid "Unsecured"
 msgstr "ไม่ปลอดภัย"
 
-#. The system notification displayed to the user when the running app becomes unsupported.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
 msgctxt "notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "คุณกำลังใช้งานแอปในเวอร์ชันที่ไม่ได้รับการรองรับ โปรดอัปเกรดเป็นเวอร์ชัน %(version)s ทันทีเพื่อความปลอดภัยของคุณ"
+msgid "Upgrade"
+msgstr "อัปเกรด"
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "You are running an unsupported app version."
+msgstr "คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน"
+
+msgctxt "notifications"
+msgid "You have no more VPN time left on this account."
+msgstr "คุณไม่มีเวลาใช้งาน VPN เหลืออยู่ในบัญชีนี้แล้ว"
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -727,6 +774,39 @@ msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "มีการอัปเดตให้ใช้งาน ดาวน์โหลดเพื่อยกระดับความปลอดภัย"
 
+#. Title label in navigation bar
+msgctxt "split-tunneling-nav"
+msgid "Split tunneling"
+msgstr "แยกช่องทาง"
+
+msgctxt "split-tunneling-view"
+msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
+msgstr "%(applicationName)s ได้ก่อให้เกิดปัญหาขึ้น และไม่สามารถแยกออกจากช่องทาง VPN ได้"
+
+msgctxt "split-tunneling-view"
+msgid "Browse"
+msgstr "เรียกดู"
+
+msgctxt "split-tunneling-view"
+msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
+msgstr "คลิกบนแอปเพื่อเปิด การรับส่งข้อมูลของแอปดังกล่าวจะบายพาสช่องทาง VPN จนกว่าคุณจะปิดแอป"
+
+msgctxt "split-tunneling-view"
+msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
+msgstr "ในกรณีที่แอปกำลังทำงานอยู่ ให้ปิด %(applicationName)s ก่อนที่จะเปิดแอปจากที่นี่ มิฉะนั้น แอปจะไม่ถูกแยกออกจากช่องทาง VPN"
+
+msgctxt "split-tunneling-view"
+msgid "Launch"
+msgstr "เปิด"
+
+msgctxt "split-tunneling-view"
+msgid "Launch application"
+msgstr "เปิดแอปพลิเคชัน"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling"
+msgstr "แยกช่องทาง"
+
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "ดำเนินการต่อไป"
@@ -806,17 +886,9 @@ msgctxt "support-view"
 msgid "Your email (optional)"
 msgstr "อีเมลของคุณ (ไม่บังคับ)"
 
-msgctxt "tunnel-control"
-msgid "Cancel"
-msgstr "ยกเลิก"
-
-msgctxt "tunnel-control"
-msgid "Disconnect"
-msgstr "ตัดการเชื่อมต่อ"
-
-msgctxt "tunnel-control"
-msgid "Dismiss"
-msgstr "ละทิ้ง"
+msgctxt "tray-icon-context-menu"
+msgid "Open %(mullvadVpn)s"
+msgstr "เปิด %(mullvadVpn)s"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"

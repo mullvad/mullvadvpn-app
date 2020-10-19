@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2020-06-22 15:10\n"
+"PO-Revision-Date: 2020-10-19 12:23\n"
 
 msgid "Back"
 msgstr "戻る"
@@ -30,17 +30,29 @@ msgstr "キャンセル"
 msgid "Close"
 msgstr "閉じる"
 
+msgid "Connect"
+msgstr "接続"
+
 msgid "COPIED TO CLIPBOARD!"
 msgstr "クリップボードにコピーしました！"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "セキュリティ保護接続を確立中"
 
+msgid "Disconnect"
+msgstr "接続解除"
+
+msgid "Dismiss"
+msgstr "閉じる"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "セキュリティ保護接続を確立できませんでした"
 
 msgid "Invalid account number"
 msgstr "アカウント番号が正しくありません"
+
+msgid "Reconnect"
+msgstr "再接続"
 
 msgid "SECURE CONNECTION"
 msgstr "セキュリティ保護された接続"
@@ -177,6 +189,10 @@ msgstr "OpenVPN MSS の値を設定します。有効範囲：%(min)d ～ %(max)
 msgctxt "advanced-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "WireGuard MTU の値を設定します。有効範囲：%(min)d ～ %(max)d"
+
+msgctxt "advanced-settings-view"
+msgid "Split tunneling"
+msgstr "スプリットトンネリング"
 
 msgctxt "advanced-settings-view"
 msgid "TCP"
@@ -323,6 +339,10 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "何か問題が生じたようです。 %(email)s までご連絡ください。"
 
 msgctxt "generic"
+msgid "Mullvad VPN"
+msgstr "Mullvad VPN"
+
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
@@ -333,6 +353,10 @@ msgstr "「常にVPNを要求する」が有効になっています。"
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "アカウントのクレジットがもうすぐ無効になります。"
+
+msgctxt "in-app-notifications"
+msgid "An application prevented the policy from being set"
+msgstr "アプリケーションによってポリシーの設定が妨げられました"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
@@ -347,8 +371,8 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "ファイヤーウォール規則の適用に失敗しました。現在、デバイスがセキュリティ保護されていない可能性があります。"
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "すべてのネットワーク通信をブロックできませんでした。問題に対処するか、当社に問題を報告してください。"
+msgid "Failed to block all network traffic"
+msgstr "すべてのネットワークトラフィックをブロックできませんでした"
 
 msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
@@ -382,6 +406,10 @@ msgid "No relay server matches the current settings. You can try changing the lo
 msgstr "現在の設定に一致する中継サーバーはありません。場所または中継の設定を変更してみてください。"
 
 msgctxt "in-app-notifications"
+msgid "Original block reason"
+msgstr "本来のブロックの理由"
+
+msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "このデバイスはオフラインであるため、トンネルを作成できません。"
 
@@ -404,13 +432,6 @@ msgstr "アップデート可"
 msgctxt "in-app-notifications"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。"
-
-#. The in-app banner displayed to the user when the running app becomes unsupported.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "未対応のアプリバージョンを実行中です。今すぐ %(version)s にアップデートしてセキュリティを確保してください。"
 
 msgctxt "in-app-notifications"
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
@@ -485,6 +506,11 @@ msgid "Valid account number"
 msgstr "有効なアカウント番号"
 
 #. Back button in navigation bar
+msgctxt "navigation-bar"
+msgid "Advanced"
+msgstr "詳細"
+
+#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -502,8 +528,16 @@ msgid "Blocking internet"
 msgstr "インターネットをブロック中"
 
 msgctxt "notifications"
+msgid "Blocking internet:"
+msgstr "インターネットをブロック中:"
+
+msgctxt "notifications"
 msgid "Blocking internet: Valid WireGuard key is missing"
 msgstr "インターネットをブロック中：有効なWireGuard鍵が見つかりません"
+
+msgctxt "notifications"
+msgid "Buy more"
+msgstr "さらに購入する"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -531,6 +565,13 @@ msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
 msgstr "内部バージョン情報が一致しません。アプリを再起動してください。"
 
+#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "Please upgrade to %(version)s now to ensure your security"
+msgstr "セキュリティを確保するため、今すぐ%(version)sにアップグレードしてください"
+
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "再接続中"
@@ -543,12 +584,18 @@ msgctxt "notifications"
 msgid "Unsecured"
 msgstr "セキュリティ保護されていません"
 
-#. The system notification displayed to the user when the running app becomes unsupported.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
 msgctxt "notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "未対応のアプリバージョンを実行中です。今すぐ %(version)s にアップデートしてセキュリティを確保してください。"
+msgid "Upgrade"
+msgstr "アップグレード"
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "You are running an unsupported app version."
+msgstr "サポートされていないバージョンのアプリを実行しています。"
+
+msgctxt "notifications"
+msgid "You have no more VPN time left on this account."
+msgstr "このアカウントには、もう残っているVPN時間がありません。"
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -727,6 +774,39 @@ msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "アップデートできます。ダウンロードしてセキュリティを維持してください。"
 
+#. Title label in navigation bar
+msgctxt "split-tunneling-nav"
+msgid "Split tunneling"
+msgstr "スプリットトンネリング"
+
+msgctxt "split-tunneling-view"
+msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
+msgstr "%(applicationName)sには問題があるため、VPNトンネルから除外できません。"
+
+msgctxt "split-tunneling-view"
+msgid "Browse"
+msgstr "参照"
+
+msgctxt "split-tunneling-view"
+msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
+msgstr "アプリをクリックして起動します。そのトラフィックは、アプリを閉じるまでVPNトンネルをバイパスします。"
+
+msgctxt "split-tunneling-view"
+msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
+msgstr "すでに実行中の場合は、ここから起動する前に %(applicationName)sを閉じてください。そうしないと、VPNトンネルから除外されない可能性があります。"
+
+msgctxt "split-tunneling-view"
+msgid "Launch"
+msgstr "起動する"
+
+msgctxt "split-tunneling-view"
+msgid "Launch application"
+msgstr "アプリケーションを起動する"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling"
+msgstr "スプリットトンネリング"
+
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "それでも続ける"
@@ -806,17 +886,9 @@ msgctxt "support-view"
 msgid "Your email (optional)"
 msgstr "あなたのメールアドレス（任意）"
 
-msgctxt "tunnel-control"
-msgid "Cancel"
-msgstr "キャンセル"
-
-msgctxt "tunnel-control"
-msgid "Disconnect"
-msgstr "接続解除"
-
-msgctxt "tunnel-control"
-msgid "Dismiss"
-msgstr "閉じる"
+msgctxt "tray-icon-context-menu"
+msgid "Open %(mullvadVpn)s"
+msgstr "%(mullvadVpn)sを開く"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
