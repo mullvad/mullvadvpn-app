@@ -63,6 +63,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
         Box::new(Disconnect),
         Box::new(Reconnect),
         Box::new(Lan),
+        #[cfg(windows)]
         Box::new(CustomDns),
         Box::new(Relay),
         Box::new(Reset),

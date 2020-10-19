@@ -408,6 +408,7 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(|_| Status::internal("internal error"))
     }
 
+    #[cfg(windows)]
     async fn set_custom_dns(&self, request: Request<types::CustomDns>) -> ServiceResult<()> {
         let servers = request.into_inner();
         log::debug!("set_custom_dns({:?})", servers.addresses);
@@ -433,6 +434,10 @@ impl ManagementService for ManagementServiceImpl {
         rx.await
             .map(Response::new)
             .map_err(|_| Status::internal("internal error"))
+    }
+    #[cfg(not(windows))]
+    async fn set_custom_dns(&self, _: Request<types::CustomDns>) -> ServiceResult<()> {
+        Ok(Response::new(()))
     }
 
     // Account management
@@ -1167,6 +1172,7 @@ fn convert_tunnel_options(options: &TunnelOptions) -> types::TunnelOptions {
         }),
         generic: Some(types::tunnel_options::GenericOptions {
             enable_ipv6: options.generic.enable_ipv6,
+            #[cfg(windows)]
             custom_dns: options
                 .generic
                 .custom_dns
@@ -1174,6 +1180,8 @@ fn convert_tunnel_options(options: &TunnelOptions) -> types::TunnelOptions {
                 .map(|addresses| types::CustomDns {
                     addresses: addresses.iter().map(|addr| addr.to_string()).collect(),
                 }),
+            #[cfg(not(windows))]
+            custom_dns: None,
         }),
     }
 }

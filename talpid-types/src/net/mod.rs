@@ -204,6 +204,7 @@ pub struct GenericTunnelOptions {
     /// forwarded through the tunnel.
     pub enable_ipv6: bool,
     /// Custom DNS servers to use.
+    #[cfg(windows)]
     pub custom_dns: Option<Vec<IpAddr>>,
 }
 

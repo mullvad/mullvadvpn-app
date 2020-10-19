@@ -227,6 +227,7 @@ impl ConnectingState {
                     }
                 }
             }
+            #[cfg(windows)]
             Some(TunnelCommand::CustomDns(servers)) => {
                 shared_values.custom_dns = servers;
                 SameState(self.into())
