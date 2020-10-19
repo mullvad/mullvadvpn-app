@@ -76,10 +76,21 @@ impl ConnectedState {
             })
     }
 
+    #[allow(unused_variables)]
     fn get_dns_servers(&self, shared_values: &SharedTunnelStateValues) -> Vec<IpAddr> {
+        #[cfg(windows)]
         if let Some(ref servers) = shared_values.custom_dns {
             servers.clone()
         } else {
+            let mut dns_ips = vec![];
+            dns_ips.push(self.metadata.ipv4_gateway.into());
+            if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
+                dns_ips.push(ipv6_gateway.into());
+            };
+            dns_ips
+        }
+        #[cfg(not(windows))]
+        {
             let mut dns_ips = vec![];
             dns_ips.push(self.metadata.ipv4_gateway.into());
             if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
@@ -94,6 +105,7 @@ impl ConnectedState {
             peer_endpoint: self.tunnel_parameters.get_next_hop_endpoint(),
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
+            #[cfg(windows)]
             dns_servers: self.get_dns_servers(shared_values),
             #[cfg(windows)]
             relay_client: TunnelMonitor::get_relay_client(
@@ -106,12 +118,10 @@ impl ConnectedState {
     }
 
     fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
+        let dns_ips = self.get_dns_servers(shared_values);
         shared_values
             .dns_monitor
-            .set(
-                &self.metadata.interface,
-                &self.get_dns_servers(shared_values),
-            )
+            .set(&self.metadata.interface, &dns_ips)
             .map_err(BoxedError::new)?;
 
         #[cfg(target_os = "linux")]
@@ -172,6 +182,7 @@ impl ConnectedState {
                     }
                 }
             }
+            #[cfg(windows)]
             Some(TunnelCommand::CustomDns(servers)) => {
                 if shared_values.custom_dns != servers {
                     shared_values.custom_dns = servers;
