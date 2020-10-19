@@ -37,6 +37,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add button to remove account and WireGuard key from history in the login screen.
 - Improve navigation in the app using a keyboard, so that touchless devices (like TVs) can be used
   more smoothly.
+- Run app in landscape mode on TVs.
 
 ### Fixed
 - Fix missing map animation after selecting a new location in the desktop app.
