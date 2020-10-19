@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2020-06-22 15:10\n"
+"PO-Revision-Date: 2020-10-19 12:23\n"
 
 msgid "Back"
 msgstr "Назад"
@@ -30,17 +30,29 @@ msgstr "Отмена"
 msgid "Close"
 msgstr "Закрыть"
 
+msgid "Connect"
+msgstr "Подключить"
+
 msgid "COPIED TO CLIPBOARD!"
 msgstr "СКОПИРОВАНО В БУФЕР ОБМЕНА."
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "СОЗДАНИЕ ЗАЩИЩЕННОГО ПОДКЛЮЧЕНИЯ"
 
+msgid "Disconnect"
+msgstr "Отключить"
+
+msgid "Dismiss"
+msgstr "Закрыть"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "НЕ УДАЛОСЬ УСТАНОВИТЬ БЕЗОПАСНОЕ ПОДКЛЮЧЕНИЕ"
 
 msgid "Invalid account number"
 msgstr "Недействительный номер учетной записи"
+
+msgid "Reconnect"
+msgstr "Переподключить"
 
 msgid "SECURE CONNECTION"
 msgstr "ЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ"
@@ -177,6 +189,10 @@ msgstr "Установить значение MSS для OpenVPN. Диапазо
 msgctxt "advanced-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "Установить значение MTU для WireGuard. Диапазон значений: %(min)d–%(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "Split tunneling"
+msgstr "Раздельное туннелирование"
 
 msgctxt "advanced-settings-view"
 msgid "TCP"
@@ -323,6 +339,10 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Ошибка. Свяжитесь с нами по адресу %(email)s"
 
 msgctxt "generic"
+msgid "Mullvad VPN"
+msgstr "Mullvad VPN"
+
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
@@ -333,6 +353,10 @@ msgstr "Параметр «Всегда требовать VPN» включен.
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "ЗАКАНЧИВАЕТСЯ БАЛАНС НА УЧЕТНОЙ ЗАПИСИ"
+
+msgctxt "in-app-notifications"
+msgid "An application prevented the policy from being set"
+msgstr "Приложение не позволяет установить данную политику"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
@@ -347,8 +371,8 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Не удалось применить правила брандмауэра. Сейчас устройство может быть не защищено"
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Не удалось заблокировать весь сетевой трафик. Устраните неисправность или сообщите нам о проблеме."
+msgid "Failed to block all network traffic"
+msgstr "Не удалось заблокировать весь сетевой трафик"
 
 msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
@@ -382,6 +406,10 @@ msgid "No relay server matches the current settings. You can try changing the lo
 msgstr "Текущим настройкам не соответствует ни один сервер ретрансляции. Попробуйте изменить местоположение или настройки ретрансляции."
 
 msgctxt "in-app-notifications"
+msgid "Original block reason"
+msgstr "Исходная причина блокировки"
+
+msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "Устройство вне сети, установить подключение к туннелям невозможно"
 
@@ -404,13 +432,6 @@ msgstr "ЕСТЬ ОБНОВЛЕНИЕ"
 msgctxt "in-app-notifications"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Не найден корректный ключ WireGuard. Управлять ключами можно в разделе «Дополнительные настройки»."
-
-#. The in-app banner displayed to the user when the running app becomes unsupported.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "Вы используете неподдерживаемую версию приложения. Чтобы обеспечить безопасность, обновитесь до версии %(version)s"
 
 msgctxt "in-app-notifications"
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
@@ -485,6 +506,11 @@ msgid "Valid account number"
 msgstr "Действительный номер учетной записи"
 
 #. Back button in navigation bar
+msgctxt "navigation-bar"
+msgid "Advanced"
+msgstr "Дополнительные"
+
+#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -502,8 +528,16 @@ msgid "Blocking internet"
 msgstr "Блокируется доступ в Интернет"
 
 msgctxt "notifications"
+msgid "Blocking internet:"
+msgstr "Блокируется доступ в Интернет:"
+
+msgctxt "notifications"
 msgid "Blocking internet: Valid WireGuard key is missing"
 msgstr "Блокируется доступ в Интернет: не найден корректный ключ WireGuard"
+
+msgctxt "notifications"
+msgid "Buy more"
+msgstr "Купить еще"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -531,6 +565,13 @@ msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
 msgstr "Несоответствие внутренних данных о версии — перезапустите приложение"
 
+#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "Please upgrade to %(version)s now to ensure your security"
+msgstr "Чтобы обеспечить безопасность, обновитесь до версии %(version)s"
+
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "Идет переподключение"
@@ -543,12 +584,18 @@ msgctxt "notifications"
 msgid "Unsecured"
 msgstr "Подключение не защищено"
 
-#. The system notification displayed to the user when the running app becomes unsupported.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
 msgctxt "notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "Вы используете неподдерживаемую версию приложения. Чтобы обеспечить безопасность, обновитесь до версии %(version)s"
+msgid "Upgrade"
+msgstr "Обновить"
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "You are running an unsupported app version."
+msgstr "Версия приложения, с которой вы работаете, не поддерживается."
+
+msgctxt "notifications"
+msgid "You have no more VPN time left on this account."
+msgstr "На этой учетной записи времени VPN не осталось."
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -727,6 +774,39 @@ msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Есть обновление. Чтобы оставаться в безопасности, обновитесь."
 
+#. Title label in navigation bar
+msgctxt "split-tunneling-nav"
+msgid "Split tunneling"
+msgstr "Раздельное туннелирование"
+
+msgctxt "split-tunneling-view"
+msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
+msgstr "%(applicationName)s является проблемным и не может быть исключено из туннеля VPN."
+
+msgctxt "split-tunneling-view"
+msgid "Browse"
+msgstr "Обзор"
+
+msgctxt "split-tunneling-view"
+msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
+msgstr "Щелкните по ярлыку приложения для запуска. Трафик приложения будет обходить туннель VPN, пока вы не закроете его."
+
+msgctxt "split-tunneling-view"
+msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
+msgstr "Если приложение уже работает, закройте %(applicationName)s, и только после этого запускайте его отсюда. В противном случае его не удастся исключить из туннеля VPN."
+
+msgctxt "split-tunneling-view"
+msgid "Launch"
+msgstr "Запустить"
+
+msgctxt "split-tunneling-view"
+msgid "Launch application"
+msgstr "Запустить приложение"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling"
+msgstr "Раздельное туннелирование"
+
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "Всё равно продолжить"
@@ -806,17 +886,9 @@ msgctxt "support-view"
 msgid "Your email (optional)"
 msgstr "Ваша электронная почта (необязательно)"
 
-msgctxt "tunnel-control"
-msgid "Cancel"
-msgstr "Отмена"
-
-msgctxt "tunnel-control"
-msgid "Disconnect"
-msgstr "Отключить"
-
-msgctxt "tunnel-control"
-msgid "Dismiss"
-msgstr "Закрыть"
+msgctxt "tray-icon-context-menu"
+msgid "Open %(mullvadVpn)s"
+msgstr "Открыть %(mullvadVpn)s"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
