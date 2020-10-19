@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2020-06-22 15:10\n"
+"PO-Revision-Date: 2020-10-19 12:23\n"
 
 msgid "Back"
 msgstr "Tilbake"
@@ -30,17 +30,29 @@ msgstr "Avbryt"
 msgid "Close"
 msgstr "Lukk"
 
+msgid "Connect"
+msgstr "Koble til"
+
 msgid "COPIED TO CLIPBOARD!"
 msgstr "KOPIERT TIL UTKLIPPSTAVLEN!"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "OPPRETTER SIKKER TILKOBLING"
 
+msgid "Disconnect"
+msgstr "Koble fra"
+
+msgid "Dismiss"
+msgstr "Ignorer"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "KUNNE IKKE OPPRETTE SIKKER TILKOBLING"
 
 msgid "Invalid account number"
 msgstr "Ugyldig kontonummer"
+
+msgid "Reconnect"
+msgstr "Koble til på nytt"
 
 msgid "SECURE CONNECTION"
 msgstr "SIKKER TILKOBLING"
@@ -177,6 +189,10 @@ msgstr "Angi OpenVPN MSS-verdi. Verdiområde: %(min)d-%(max)d."
 msgctxt "advanced-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "Angi WireGuard MTU-verdi. Verdiområde: %(min)d-%(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "Split tunneling"
+msgstr "Delt tunnel"
 
 msgctxt "advanced-settings-view"
 msgid "TCP"
@@ -323,6 +339,10 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Det oppstod en feil. Kontakt oss på %(email)s"
 
 msgctxt "generic"
+msgid "Mullvad VPN"
+msgstr "Mullvad VPN"
+
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
@@ -333,6 +353,10 @@ msgstr "«Be alltid om VPN» er aktivert."
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "KREDITTEN PÅ KONTOEN UTLØPER SNART"
+
+msgctxt "in-app-notifications"
+msgid "An application prevented the policy from being set"
+msgstr "En applikasjon hindret at policyen ble angitt"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
@@ -347,8 +371,8 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Kunne ikke anvende brannmurregler. Enheten kan være usikker"
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Kunne ikke blokkere all nettverkstrafikk. Kjør feilsøking eller rapporter inn problemet til oss."
+msgid "Failed to block all network traffic"
+msgstr "Kunne ikke blokkere all nettverktrafikk"
 
 msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
@@ -382,6 +406,10 @@ msgid "No relay server matches the current settings. You can try changing the lo
 msgstr "Ingen relayservere passer til nåværende innstillinger. Du kan prøve å endre plassering eller relay-innstillinger."
 
 msgctxt "in-app-notifications"
+msgid "Original block reason"
+msgstr "Opprinnelig årsak for blokkering"
+
+msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "Enheten er frakoblet. Ingen tunneler kan opprettes"
 
@@ -404,13 +432,6 @@ msgstr "OPPDATERING TILGJENGELIG"
 msgctxt "in-app-notifications"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Det mangler en gyldig WireGuard-nøkkel. Du kan behandle nøklene under avanserte innstillinger."
-
-#. The in-app banner displayed to the user when the running app becomes unsupported.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "Du kjører en appversjon som ikke er støttet. Oppdater til %(version)s for å ha den beste sikkerheten"
 
 msgctxt "in-app-notifications"
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
@@ -485,6 +506,11 @@ msgid "Valid account number"
 msgstr "Gyldig kontonummer"
 
 #. Back button in navigation bar
+msgctxt "navigation-bar"
+msgid "Advanced"
+msgstr "Avansert"
+
+#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -502,8 +528,16 @@ msgid "Blocking internet"
 msgstr "Blokkerer internettet"
 
 msgctxt "notifications"
+msgid "Blocking internet:"
+msgstr "Blokkerer internett:"
+
+msgctxt "notifications"
 msgid "Blocking internet: Valid WireGuard key is missing"
 msgstr "Blokkerer internettet: Det mangler en gyldig WireGuard-nøkkel"
+
+msgctxt "notifications"
+msgid "Buy more"
+msgstr "Kjøp mer"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -531,6 +565,13 @@ msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
 msgstr "Inkonsekvent intern informasjon om versjonen. Start appen på nytt"
 
+#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "Please upgrade to %(version)s now to ensure your security"
+msgstr "Oppgrader til %(version)s nå for å ha den beste sikkerheten"
+
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "Kobler til på nytt"
@@ -543,12 +584,18 @@ msgctxt "notifications"
 msgid "Unsecured"
 msgstr "Usikker tilkobling"
 
-#. The system notification displayed to the user when the running app becomes unsupported.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
 msgctxt "notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "Du kjører en appversjon som ikke er støttet. Oppdater til %(version)s for å ha den beste sikkerheten"
+msgid "Upgrade"
+msgstr "Oppgrader"
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "You are running an unsupported app version."
+msgstr "Du kjører en appversjon som ikke støttes."
+
+msgctxt "notifications"
+msgid "You have no more VPN time left on this account."
+msgstr "Du har ikke mer VPN-tid igjen på kontoen."
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -727,6 +774,39 @@ msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Oppdatering tilgjengelig. Last ned for å oppdatere sikkerheten."
 
+#. Title label in navigation bar
+msgctxt "split-tunneling-nav"
+msgid "Split tunneling"
+msgstr "Delt tunnel"
+
+msgctxt "split-tunneling-view"
+msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
+msgstr "%(applicationName)s opplever problemer og kan ikke utelates fra VPN-tunnelen."
+
+msgctxt "split-tunneling-view"
+msgid "Browse"
+msgstr "Se gjennom"
+
+msgctxt "split-tunneling-view"
+msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
+msgstr "Klikk på en app for å starte den. Trafikken fra appen vil føres utenom VPN-tunnelen inntil du avslutter den."
+
+msgctxt "split-tunneling-view"
+msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
+msgstr "Hvis den allerede kjører, må du avslutte %(applicationName)s før du starter den herfra. Hvis ikke, kan den kanskje ikke utelates fra VPN-tunnelen."
+
+msgctxt "split-tunneling-view"
+msgid "Launch"
+msgstr "Start"
+
+msgctxt "split-tunneling-view"
+msgid "Launch application"
+msgstr "Start applikasjon"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling"
+msgstr "Delt tunnel"
+
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "Fortsett uansett"
@@ -806,17 +886,9 @@ msgctxt "support-view"
 msgid "Your email (optional)"
 msgstr "E-post (valgfritt)"
 
-msgctxt "tunnel-control"
-msgid "Cancel"
-msgstr "Avbryt"
-
-msgctxt "tunnel-control"
-msgid "Disconnect"
-msgstr "Koble fra"
-
-msgctxt "tunnel-control"
-msgid "Dismiss"
-msgstr "Ignorer"
+msgctxt "tray-icon-context-menu"
+msgid "Open %(mullvadVpn)s"
+msgstr "Åpne %(mullvadVpn)s"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"

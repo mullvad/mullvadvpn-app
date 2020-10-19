@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2020-06-22 15:10\n"
+"PO-Revision-Date: 2020-10-19 12:23\n"
 
 msgid "Back"
 msgstr "Geri"
@@ -30,17 +30,29 @@ msgstr "İptal et"
 msgid "Close"
 msgstr "Kapat"
 
+msgid "Connect"
+msgstr "Bağlan"
+
 msgid "COPIED TO CLIPBOARD!"
 msgstr "PANOYA KOPYALANDI!"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI OLUŞTURULUYOR"
 
+msgid "Disconnect"
+msgstr "Bağlantıyı Kes"
+
+msgid "Dismiss"
+msgstr "Reddet"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI OLUŞTURULAMADI"
 
 msgid "Invalid account number"
 msgstr "Geçersiz hesap numarası"
+
+msgid "Reconnect"
+msgstr "Yeniden Bağlan"
 
 msgid "SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI"
@@ -177,6 +189,10 @@ msgstr "OpenVPN MSS değerini belirleyin. Geçerli aralık: %(min)d - %(max)d."
 msgctxt "advanced-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "WireGuard MTU değerini ayarlayın. Geçerli aralık: %(min)d - %(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "Split tunneling"
+msgstr "Bölünmüş tünelleme"
 
 msgctxt "advanced-settings-view"
 msgid "TCP"
@@ -323,6 +339,10 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Bir sorun oluştu. Lütfen bizimle %(email)s adresinden iletişime geçin"
 
 msgctxt "generic"
+msgid "Mullvad VPN"
+msgstr "Mullvad VPN"
+
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
@@ -333,6 +353,10 @@ msgstr "\"VPN her zaman açık” etkin."
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "HESAP KREDİSİNİN SÜRESİ YAKINDA DOLACAK"
+
+msgctxt "in-app-notifications"
+msgid "An application prevented the policy from being set"
+msgstr "Politikanın ayarlanması bir uygulama tarafından engelledi"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
@@ -347,8 +371,8 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Güvenlik duvarı kuralları uygulanamıyor. Cihaz şu an korumasız olabilir"
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Tüm ağ trafiği engellenemedi. Lütfen sorunu çözmeyi deneyin veya bize bildirin."
+msgid "Failed to block all network traffic"
+msgstr "Tüm ağ trafiği engellenemedi"
 
 msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
@@ -382,6 +406,10 @@ msgid "No relay server matches the current settings. You can try changing the lo
 msgstr "Geçerli ayarlarla eşleşen hiçbir aktarma sunucusu yok. Konumu veya aktarma ayarlarını değiştirmeyi deneyebilirsiniz."
 
 msgctxt "in-app-notifications"
+msgid "Original block reason"
+msgstr "Orijinal engelleme nedeni"
+
+msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "Bu cihaz çevrimdışı, tünel oluşturulamaz"
 
@@ -404,13 +432,6 @@ msgstr "GÜNCELLEME MEVCUT"
 msgctxt "in-app-notifications"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Geçerli WireGuard anahtarı eksik. Gelişmiş ayarlardan anahtarları yönetin."
-
-#. The in-app banner displayed to the user when the running app becomes unsupported.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi garanti altına almak için lütfen hemen %(version)s sürümüne yükseltin"
 
 msgctxt "in-app-notifications"
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
@@ -485,6 +506,11 @@ msgid "Valid account number"
 msgstr "Geçerli hesap numarası"
 
 #. Back button in navigation bar
+msgctxt "navigation-bar"
+msgid "Advanced"
+msgstr "Gelişmiş"
+
+#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -502,8 +528,16 @@ msgid "Blocking internet"
 msgstr "İnternet bağlantısı engelleme"
 
 msgctxt "notifications"
+msgid "Blocking internet:"
+msgstr "İnternet bağlantısı engelleme:"
+
+msgctxt "notifications"
 msgid "Blocking internet: Valid WireGuard key is missing"
 msgstr "İnternet bağlantısı engelleme: Geçerli WireGuard anahtarı eksik"
+
+msgctxt "notifications"
+msgid "Buy more"
+msgstr "Daha fazla satın al"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -531,6 +565,13 @@ msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
 msgstr "Tutarsız iç sürüm bilgisi, lütfen uygulamayı yeniden başlatın"
 
+#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "Please upgrade to %(version)s now to ensure your security"
+msgstr "Güvenliğinizden emin olmak için hemen %(version)s sürümüne yükseltin"
+
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "Yeniden Bağlanılıyor"
@@ -543,12 +584,18 @@ msgctxt "notifications"
 msgid "Unsecured"
 msgstr "Güvenli Değil"
 
-#. The system notification displayed to the user when the running app becomes unsupported.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
 msgctxt "notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi garanti altına almak için lütfen hemen %(version)s sürümüne yükseltin"
+msgid "Upgrade"
+msgstr "Yükselt"
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "You are running an unsupported app version."
+msgstr "Şu anda desteklenmeyen bir uygulama sürümünü kullanıyorsunuz."
+
+msgctxt "notifications"
+msgid "You have no more VPN time left on this account."
+msgstr "Bu hesap için artık VPN süreniz kalmadı."
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -727,6 +774,39 @@ msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Güncelleme mevcut, güvende olmak için indirin."
 
+#. Title label in navigation bar
+msgctxt "split-tunneling-nav"
+msgid "Split tunneling"
+msgstr "Bölünmüş tünelleme"
+
+msgctxt "split-tunneling-view"
+msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
+msgstr "%(applicationName)s uygulaması hatalı ve VPN tünelinin dışında bırakılamıyor."
+
+msgctxt "split-tunneling-view"
+msgid "Browse"
+msgstr "Tara"
+
+msgctxt "split-tunneling-view"
+msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
+msgstr "Başlatmak için bir uygulamanın üzerine tıklayın. Uygulama trafiği, siz kapatana kadar VPN tünelini atlayacaktır."
+
+msgctxt "split-tunneling-view"
+msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
+msgstr "Zaten çalışıyorsa, buradan başlatmadan önce %(applicationName)s uygulamasını kapatın. Aksi takdirde VPN tünelinin dışında tutulmayacaktır."
+
+msgctxt "split-tunneling-view"
+msgid "Launch"
+msgstr "Başlat"
+
+msgctxt "split-tunneling-view"
+msgid "Launch application"
+msgstr "Uygulamayı başlat"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling"
+msgstr "Bölünmüş tünelleme"
+
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "Yine de devam et"
@@ -806,17 +886,9 @@ msgctxt "support-view"
 msgid "Your email (optional)"
 msgstr "E-posta adresiniz (isteğe bağlı)"
 
-msgctxt "tunnel-control"
-msgid "Cancel"
-msgstr "İptal"
-
-msgctxt "tunnel-control"
-msgid "Disconnect"
-msgstr "Bağlantıyı Kes"
-
-msgctxt "tunnel-control"
-msgid "Dismiss"
-msgstr "Reddet"
+msgctxt "tray-icon-context-menu"
+msgid "Open %(mullvadVpn)s"
+msgstr "%(mullvadVpn)s aç"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
