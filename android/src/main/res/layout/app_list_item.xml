@@ -5,7 +5,8 @@
               android:background="@drawable/app_list_item_background"
               android:orientation="horizontal"
               android:gravity="center"
-              android:clickable="true">
+              android:clickable="true"
+              android:focusable="true">
     <ProgressBar android:id="@+id/loading"
                  android:layout_width="@dimen/app_list_item_icon_size"
                  android:layout_height="@dimen/app_list_item_icon_size"

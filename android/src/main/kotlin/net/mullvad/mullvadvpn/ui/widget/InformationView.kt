@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 
 open class InformationView : LinearLayout {
@@ -27,7 +28,7 @@ open class InformationView : LinearLayout {
         }
     }
 
-    private val container =
+    private val container: View =
         context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
             val inflater = service as LayoutInflater
 
@@ -41,55 +42,23 @@ open class InformationView : LinearLayout {
     private val informationDisplay: TextView = findViewById(R.id.information_display)
     private val spinner: View = findViewById(R.id.spinner)
 
-    var displayFormatter: ((String) -> String)? = null
-        set(value) {
-            field = value
-            updateStatus()
-        }
+    var error by observable<String?>(null) { _, _, _ -> updateStatus() }
+    var information by observable<String?>(null) { _, _, _ -> updateStatus() }
 
-    var shouldEnable = false
-        set(value) {
-            field = value
-            updateEnabled()
-        }
+    var errorColor by observable(context.getColor(R.color.red)) { _, _, _ -> updateStatus() }
+    var informationColor by observable(context.getColor(R.color.white)) { _, _, _ ->
+        updateStatus()
+    }
 
-    var error: String? = null
-        set(value) {
-            field = value
-            updateStatus()
-        }
+    var displayFormatter by observable<((String) -> String)?>(null) { _, _, _ -> updateStatus() }
+    var maxLength by observable(0) { _, _, _ -> updateStatus() }
+    var whenMissing by observable(WhenMissing.Nothing) { _, _, _ -> updateStatus() }
 
-    var errorColor = context.getColor(R.color.red)
-        set(value) {
-            field = value
-            updateStatus()
-        }
+    var shouldEnable by observable(false) { _, _, _ -> updateEnabled() }
 
-    var information: String? = null
-        set(value) {
-            field = value
-            updateStatus()
-        }
-
-    var informationColor = context.getColor(R.color.white)
-        set(value) {
-            field = value
-            updateStatus()
-        }
-
-    var maxLength = 0
-        set(value) {
-            field = value
-            updateStatus()
-        }
-
-    var whenMissing = WhenMissing.Nothing
-        set(value) {
-            field = value
-            updateStatus()
-        }
-
-    var onClick: (() -> Unit)? = null
+    var onClick by observable<(() -> Unit)?>(null) { _, _, callback ->
+        container.setFocusable(callback != null)
+    }
 
     constructor(context: Context) : super(context) {}
 

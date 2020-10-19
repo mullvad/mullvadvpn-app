@@ -19,14 +19,27 @@ class AccountHistoryHolder(
 
     var onSelect: ((String) -> Unit)? = null
     var onRemove: ((String) -> Unit)? = null
+    var onFocusChanged: ((String, Boolean) -> Unit)? = null
 
     init {
-        view.setOnClickListener {
-            onSelect?.invoke(accountToken)
+        view.findViewById<View>(R.id.remove).apply {
+            setOnClickListener {
+                onRemove?.invoke(accountToken)
+            }
+
+            setOnFocusChangeListener { _, hasFocus ->
+                onFocusChanged?.invoke(accountToken, hasFocus)
+            }
         }
 
-        view.findViewById<View>(R.id.remove).setOnClickListener {
-            onRemove?.invoke(accountToken)
+        label.apply {
+            setOnClickListener {
+                onSelect?.invoke(accountToken)
+            }
+
+            setOnFocusChangeListener { _, hasFocus ->
+                onFocusChanged?.invoke(accountToken, hasFocus)
+            }
         }
     }
 }

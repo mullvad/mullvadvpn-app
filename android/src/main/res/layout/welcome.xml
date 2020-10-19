@@ -35,6 +35,7 @@
                       android:paddingHorizontal="@dimen/side_margin"
                       android:paddingVertical="11dp"
                       android:clickable="true"
+                      android:focusable="true"
                       android:background="?android:attr/selectableItemBackground"
                       android:textColor="@color/white"
                       android:textSize="@dimen/text_big"

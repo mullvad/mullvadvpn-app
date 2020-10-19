@@ -33,8 +33,10 @@ Line wrap the file at 100 chars.                                              Th
 - Remove WireGuard keys during uninstallation after the firewall is unlocked.
 
 #### Android
-- Removed the Quit button.
+- Remove the Quit button.
 - Add button to remove account and WireGuard key from history in the login screen.
+- Improve navigation in the app using a keyboard, so that touchless devices (like TVs) can be used
+  more smoothly.
 
 ### Fixed
 - Fix missing map animation after selecting a new location in the desktop app.

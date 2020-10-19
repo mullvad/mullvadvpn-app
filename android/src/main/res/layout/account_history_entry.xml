@@ -4,6 +4,7 @@
     <TextView android:id="@+id/label"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              android:focusable="true"
               android:background="@drawable/account_history_entry_background"
               android:paddingHorizontal="12dp"
               android:gravity="center_vertical"
