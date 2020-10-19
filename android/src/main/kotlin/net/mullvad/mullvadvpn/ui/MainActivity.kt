@@ -1,8 +1,11 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.app.Activity
+import android.app.UiModeManager
 import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -32,6 +35,12 @@ class MainActivity : FragmentActivity() {
     private var serviceConnection: ServiceConnection? = null
     private var shouldConnect = false
     private var visibleSecureScreens = HashSet<Fragment>()
+
+    private val deviceIsTv by lazy {
+        val uiModeManager = getSystemService(UI_MODE_SERVICE) as UiModeManager
+
+        uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
+    }
 
     private val serviceConnectionManager = object : android.content.ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
@@ -68,6 +77,10 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (deviceIsTv) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
+        }
+
         super.onCreate(savedInstanceState)
 
         problemReport.logDirectory.complete(filesDir)
