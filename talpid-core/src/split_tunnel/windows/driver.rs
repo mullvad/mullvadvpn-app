@@ -22,7 +22,7 @@ use winapi::{
         in6addr::IN6_ADDR,
         inaddr::IN_ADDR,
         minwindef::{FALSE, TRUE},
-        winerror::ERROR_IO_PENDING,
+        winerror::{ERROR_INVALID_PARAMETER, ERROR_IO_PENDING},
     },
     um::{
         handleapi::CloseHandle,
@@ -422,6 +422,13 @@ fn build_process_tree() -> io::Result<Vec<ProcessInfo>> {
                     io::ErrorKind::PermissionDenied => continue,
                     // System idle or csrss process
                     io::ErrorKind::InvalidInput => continue,
+                    io::ErrorKind::Other => {
+                        // Old rust lib maps INVALID_PARAMETER to "Other"
+                        if error.raw_os_error() == Some(ERROR_INVALID_PARAMETER as i32) {
+                            continue;
+                        }
+                        Err(error)
+                    }
                     _ => Err(error),
                 }
             }
