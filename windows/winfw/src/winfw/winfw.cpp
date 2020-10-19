@@ -7,6 +7,7 @@
 #include "libwfp/ipnetwork.h"
 #include <windows.h>
 #include <libcommon/error.h>
+#include <libcommon/string.h>
 #include <optional>
 
 namespace
@@ -387,6 +388,31 @@ WinFw_ApplyPolicyConnected(
 		{
 			auto ip = wfp::IpAddress(dnsServers[i]);
 			addToDnsCollection(ip.type() == wfp::IpAddress::Type::Ipv4 ? v4GatewayIp : v6GatewayIp, std::move(ip));
+		}
+
+		if (nullptr != g_logSink)
+		{
+			std::stringstream ss;
+			ss << "Non-tunnel DNS servers: ";
+			for (size_t i = 0; i < nonTunnelDnsServers.size(); i++) {
+				if (i > 0)
+				{
+					ss << ", ";
+				}
+				ss << common::string::ToAnsi(nonTunnelDnsServers[i].toString());
+			}
+			g_logSink(MULLVAD_LOG_LEVEL_DEBUG, ss.str().c_str(), g_logSinkContext);
+
+			ss.str(std::string());
+			ss << "Tunnel DNS servers: ";
+			for (size_t i = 0; i < tunnelDnsServers.size(); i++) {
+				if (i > 0)
+				{
+					ss << ", ";
+				}
+				ss << common::string::ToAnsi(tunnelDnsServers[i].toString());
+			}
+			g_logSink(MULLVAD_LOG_LEVEL_DEBUG, ss.str().c_str(), g_logSinkContext);
 		}
 
 		return g_fwContext->applyPolicyConnected(
