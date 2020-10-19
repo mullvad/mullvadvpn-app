@@ -3,10 +3,11 @@ use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     settings::Settings,
 };
+#[cfg(windows)]
+use std::net::IpAddr;
 use std::{
     fs::{self, File},
     io,
-    net::IpAddr,
     ops::Deref,
     path::{Path, PathBuf},
 };
@@ -211,6 +212,7 @@ impl SettingsPersister {
         self.update(should_save)
     }
 
+    #[cfg(windows)]
     pub fn set_custom_dns(&mut self, servers: Option<Vec<IpAddr>>) -> Result<bool, Error> {
         let should_save = Self::update_field(
             &mut self.settings.tunnel_options.generic.custom_dns,
