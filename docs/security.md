@@ -156,8 +156,11 @@ stays active until the user requests a disconnect, quit, server change, change o
 that affects the tunnel or until the tunnel goes down unexpectedly.
 
 In this state, all traffic in both directions over the tunnel interface is allowed. Minus DNS
-requests (TCP and UDP destination port 53) not to a gateway IP on the tunnel interface.
-Meaning we can *only* request DNS inside the tunnel and *only* from the relay server itself.
+requests (TCP and UDP destination port 53) not to a gateway IP on the tunnel interface or
+one of the defined custom DNS servers.
+We can *only* request DNS inside the tunnel and *only* from the relay server itself,
+unless one or more custom DNS servers are provided. If custom servers are specified, DNS requests
+can only be made to them.
 
 This state allows traffic on all interfaces to and from the IP+port+protocol combination that
 the tunnel runs over. See the [connecting] state for details on this rule.
@@ -237,11 +240,10 @@ Since an invalid or missing DNS response prevents the user from going where they
 it is important that it works and gives correct replies, from an anti-censorship point of view.
 Poisoned DNS replies is a very common way of censoring the network in many places.
 
-With the above as background, the app makes sure that every DNS request from the device goes
-inside the VPN tunnel and to exactly one place, the VPN relay server the device is currently
-connected to. That ensures the request reaches the Mullvad infrastructure and does so safely
-(encrypted). From there the Mullvad servers are responsible for delivering a correct and
-uncensored reply.
+By default, the app makes sure that every DNS request from the device goes inside the VPN tunnel
+and only to the VPN relay server that the device is currently connected to. If custom DNS servers
+are provided, requests are always made inside the tunnel unless the address belongs to a private
+address range (such as 192.168.0.0/16) or a loopback address.
 
 The above holds during the [connected] state. In the [disconnected]
 state the app does nothing with DNS, meaning the default one is used, probably from the ISP.
