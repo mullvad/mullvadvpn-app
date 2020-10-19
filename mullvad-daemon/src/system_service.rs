@@ -65,13 +65,7 @@ windows_service::define_windows_service!(service_main, handle_service_main);
 
 pub fn handle_service_main(_arguments: Vec<OsString>) {
     log::info!("Service started.");
-    match run_service() {
-        Ok(()) => log::info!("Service stopped."),
-        Err(error) => log::error!("{}", error),
-    };
-}
 
-fn run_service() -> Result<(), String> {
     let (event_tx, event_rx) = mpsc::channel();
 
     // Register service event handler
@@ -92,8 +86,16 @@ fn run_service() -> Result<(), String> {
             _ => ServiceControlHandlerResult::NotImplemented,
         }
     };
-    let status_handle = service_control_handler::register(SERVICE_NAME, event_handler)
-        .map_err(|e| e.display_chain_with_msg("Failed to register a service control handler"))?;
+    let status_handle = match service_control_handler::register(SERVICE_NAME, event_handler) {
+        Ok(handle) => handle,
+        Err(error) => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to register a service control handler")
+            );
+            return;
+        }
+    };
     let mut persistent_service_status = PersistentServiceStatus::new(status_handle);
     persistent_service_status
         .set_pending_start(Duration::from_secs(1))
@@ -106,10 +108,11 @@ fn run_service() -> Result<(), String> {
     let runtime = new_runtime_builder().build();
     let mut runtime = match runtime {
         Err(error) => {
+            log::error!("{}", error.display_chain());
             persistent_service_status
                 .set_stopped(ServiceExitCode::ServiceSpecific(1))
                 .unwrap();
-            return Err(error.display_chain());
+            return;
         }
         Ok(runtime) => runtime,
     };
@@ -137,6 +140,7 @@ fn run_service() -> Result<(), String> {
 
     let exit_code = match result {
         Ok(()) => {
+            log::info!("Stopping service");
             // check if shutdown signal was sent from the system
             if clean_shutdown.load(Ordering::Acquire) {
                 ServiceExitCode::default()
@@ -145,12 +149,13 @@ fn run_service() -> Result<(), String> {
                 ServiceExitCode::ServiceSpecific(1)
             }
         }
-        Err(_) => ServiceExitCode::ServiceSpecific(1),
+        Err(error) => {
+            log::error!("{}", error);
+            ServiceExitCode::ServiceSpecific(1)
+        }
     };
 
     persistent_service_status.set_stopped(exit_code).unwrap();
-
-    result.map(|_| ())
 }
 
 /// Start event monitor thread that polls for `ServiceControl` and translates them into calls to
