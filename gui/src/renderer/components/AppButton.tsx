@@ -47,7 +47,7 @@ export interface IProps extends React.HTMLAttributes<HTMLButtonElement> {
 }
 
 const BaseButton = React.memo(function BaseButtonT(props: IProps) {
-  const { children, ...otherProps } = props;
+  const { children, textOffset, ...otherProps } = props;
 
   const [textAdjustment, setTextAdjustment] = useState(0);
   const buttonRef = useRef() as React.RefObject<HTMLButtonElement>;
@@ -66,8 +66,7 @@ const BaseButton = React.memo(function BaseButtonT(props: IProps) {
       const trailingSpace = buttonRect.width - (leftDiff + textRect.width);
 
       // calculate text adjustment
-      const textOffset = props.textOffset ?? 0;
-      const textAdjustment = leftDiff - trailingSpace - textOffset;
+      const textAdjustment = leftDiff - trailingSpace - (textOffset ?? 0);
 
       // re-render the view with the new text adjustment if it changed
       setTextAdjustment(textAdjustment);
