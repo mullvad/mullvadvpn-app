@@ -17,7 +17,7 @@ env_logger = "0.7"
 parity-tokio-ipc = "0.7"
 tokio = { version = "0.2", features =  [ "rt-core" ] }
 
-openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde", "log"] }
+openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", rev = "d33b0d2795b99c83804d4c757acef881b901a5d0", features = ["serde", "log", "auth-failed-event"] }
 talpid-types = { path = "../talpid-types" }
 
 tonic = "0.3.1"
