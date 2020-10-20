@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2020-06-22 15:10\n"
+"PO-Revision-Date: 2020-10-19 12:23\n"
 
 msgid "Back"
 msgstr "뒤로"
@@ -30,17 +30,29 @@ msgstr "취소"
 msgid "Close"
 msgstr "닫기"
 
+msgid "Connect"
+msgstr "연결"
+
 msgid "COPIED TO CLIPBOARD!"
 msgstr "클립보드에 복사됨!"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "보안 연결 생성 중"
 
+msgid "Disconnect"
+msgstr "연결 끊기"
+
+msgid "Dismiss"
+msgstr "해제"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "보안 연결 실패"
 
 msgid "Invalid account number"
 msgstr "유효하지 않은 계정 번호"
+
+msgid "Reconnect"
+msgstr "다시 연결"
 
 msgid "SECURE CONNECTION"
 msgstr "보안 연결"
@@ -177,6 +189,10 @@ msgstr "OpenVPN MSS 값을 설정하세요. 유효 범위: %(min)d ~ %(max)d."
 msgctxt "advanced-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %(min)d ~ %(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "Split tunneling"
+msgstr "분할 터널링"
 
 msgctxt "advanced-settings-view"
 msgid "TCP"
@@ -323,6 +339,10 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "문제가 발생했습니다. %(email)s(으)로 연락주세요."
 
 msgctxt "generic"
+msgid "Mullvad VPN"
+msgstr "Mullvad VPN"
+
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
@@ -333,6 +353,10 @@ msgstr "\"항상 VPN 필요\"가 활성화되었습니다."
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "계정 크레딧이 곧 만료됩니다"
+
+msgctxt "in-app-notifications"
+msgid "An application prevented the policy from being set"
+msgstr "애플리케이션으로 인해 정책이 설정되지 않았습니다"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
@@ -347,8 +371,8 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "방화벽 규칙을 적용하지 못했습니다. 장치가 현재 안전하지 않을 수 있습니다."
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "모든 네트워크 트래픽을 차단하지 못했습니다. 문제를 해결하거나 당사에 신고하세요."
+msgid "Failed to block all network traffic"
+msgstr "모든 네트워크 트래픽을 차단하지 못했습니다"
 
 msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
@@ -382,6 +406,10 @@ msgid "No relay server matches the current settings. You can try changing the lo
 msgstr "현재 설정과 일치하는 릴레이 서버가 없습니다. 위치 또는 릴레이 설정을 변경할 수 있습니다."
 
 msgctxt "in-app-notifications"
+msgid "Original block reason"
+msgstr "원래 차단 이유"
+
+msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "장치가 오프라인 상태이며, 터널을 설정할 수 없습니다"
 
@@ -404,13 +432,6 @@ msgstr "업데이트 사용 가능"
 msgctxt "in-app-notifications"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요."
-
-#. The in-app banner displayed to the user when the running app becomes unsupported.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "지원되지 않는 앱 버전을 실행하고 있습니다. 보안을 위해 %(version)s(으)로 업그레이드하세요"
 
 msgctxt "in-app-notifications"
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
@@ -485,6 +506,11 @@ msgid "Valid account number"
 msgstr "유효한 계정 번호"
 
 #. Back button in navigation bar
+msgctxt "navigation-bar"
+msgid "Advanced"
+msgstr "고급"
+
+#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -502,8 +528,16 @@ msgid "Blocking internet"
 msgstr "인터넷 차단"
 
 msgctxt "notifications"
+msgid "Blocking internet:"
+msgstr "인터넷 차단:"
+
+msgctxt "notifications"
 msgid "Blocking internet: Valid WireGuard key is missing"
 msgstr "인터넷 차단: 유효한 WireGuard 키가 없습니다"
+
+msgctxt "notifications"
+msgid "Buy more"
+msgstr "추가 구매"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -531,6 +565,13 @@ msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
 msgstr "내부 버전 정보가 일치하지 않습니다. 앱을 다시 시작하세요"
 
+#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "Please upgrade to %(version)s now to ensure your security"
+msgstr "보안을 위해 지금 %(version)s(으)로 업그레이드하세요."
+
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "다시 연결 중"
@@ -543,12 +584,18 @@ msgctxt "notifications"
 msgid "Unsecured"
 msgstr "비보안"
 
-#. The system notification displayed to the user when the running app becomes unsupported.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
 msgctxt "notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "지원되지 않는 앱 버전을 실행하고 있습니다. 보안을 위해 %(version)s(으)로 업그레이드하세요"
+msgid "Upgrade"
+msgstr "업그레이드"
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "You are running an unsupported app version."
+msgstr "지원되지 않는 앱 버전을 실행 중입니다."
+
+msgctxt "notifications"
+msgid "You have no more VPN time left on this account."
+msgstr "이 계정에 남은 VPN 시간이 더 이상 없습니다."
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -727,6 +774,39 @@ msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "업데이트 사용 가능, 안전을 유지하기 위해 다운로드하세요."
 
+#. Title label in navigation bar
+msgctxt "split-tunneling-nav"
+msgid "Split tunneling"
+msgstr "분할 터널링"
+
+msgctxt "split-tunneling-view"
+msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
+msgstr "%(applicationName)s에 문제가 있으며 VPN 터널에서 제외할 수 없습니다."
+
+msgctxt "split-tunneling-view"
+msgid "Browse"
+msgstr "찾아보기"
+
+msgctxt "split-tunneling-view"
+msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
+msgstr "앱을 클릭하여 실행하세요. 트래픽은 사용자가 닫을 때까지 VPN 터널을 우회합니다."
+
+msgctxt "split-tunneling-view"
+msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
+msgstr "이미 실행 중인 경우 여기에서 실행하기 전에 %(applicationName)s을(를) 닫으세요. 그렇지 않으면 VPN 터널에서 제외되지 않을 수 있습니다."
+
+msgctxt "split-tunneling-view"
+msgid "Launch"
+msgstr "실행"
+
+msgctxt "split-tunneling-view"
+msgid "Launch application"
+msgstr "애플리케이션 실행"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling"
+msgstr "분할 터널링"
+
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "그래도 계속 사용"
@@ -806,17 +886,9 @@ msgctxt "support-view"
 msgid "Your email (optional)"
 msgstr "이메일(선택 사항)"
 
-msgctxt "tunnel-control"
-msgid "Cancel"
-msgstr "취소"
-
-msgctxt "tunnel-control"
-msgid "Disconnect"
-msgstr "연결 끊기"
-
-msgctxt "tunnel-control"
-msgid "Dismiss"
-msgstr "해제"
+msgctxt "tray-icon-context-menu"
+msgid "Open %(mullvadVpn)s"
+msgstr "%(mullvadVpn)s 열기"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"

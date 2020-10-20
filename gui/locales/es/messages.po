@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
-"PO-Revision-Date: 2020-06-22 15:10\n"
+"PO-Revision-Date: 2020-10-19 12:23\n"
 
 msgid "Back"
 msgstr "Volver"
@@ -30,17 +30,29 @@ msgstr "Cancelar"
 msgid "Close"
 msgstr "Cerrar"
 
+msgid "Connect"
+msgstr "Conectar"
+
 msgid "COPIED TO CLIPBOARD!"
 msgstr "¡COPIADO AL PORTAPAPELES!"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "CREANDO CONEXIÓN SEGURA"
 
+msgid "Disconnect"
+msgstr "Desconectar"
+
+msgid "Dismiss"
+msgstr "Descartar"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "NO SE PUDO PROTEGER LA CONEXIÓN"
 
 msgid "Invalid account number"
 msgstr "Número de cuenta no válido"
+
+msgid "Reconnect"
+msgstr "Reconectar"
 
 msgid "SECURE CONNECTION"
 msgstr "CONEXIÓN SEGURA"
@@ -177,6 +189,10 @@ msgstr "Establezca el valor de MSS de OpenVPN. Intervalo válido: %(min)d-%(max)
 msgctxt "advanced-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "Establezca el valor de MTU de WireGuard. Intervalo válido: %(min)d-%(max)d."
+
+msgctxt "advanced-settings-view"
+msgid "Split tunneling"
+msgstr "Tunelización dividida"
 
 msgctxt "advanced-settings-view"
 msgid "TCP"
@@ -323,6 +339,10 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Hubo un problema. Envíenos un mensaje a %(email)s"
 
 msgctxt "generic"
+msgid "Mullvad VPN"
+msgstr "Mullvad VPN"
+
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
@@ -333,6 +353,10 @@ msgstr "La opción «Requerir siempre VPN» está habilitada."
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "EL CRÉDITO DE SU CUENTA CADUCA PRONTO"
+
+msgctxt "in-app-notifications"
+msgid "An application prevented the policy from being set"
+msgstr "Una aplicación ha impedido que se establezca la política"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
@@ -347,8 +371,8 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "Error al aplicar las reglas del firewall. Puede que el dispositivo no esté protegido actualmente"
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "No se puede bloquear todo el tráfico de red. Intente solucionar el problema o póngase en contacto con nosotros."
+msgid "Failed to block all network traffic"
+msgstr "No se pudo bloquear todo el tráfico de red"
 
 msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
@@ -382,6 +406,10 @@ msgid "No relay server matches the current settings. You can try changing the lo
 msgstr "No hay ningún servidor de retransmisión que coincida con la configuración actual. Pruebe a cambiar la ubicación o la configuración de retransmisión."
 
 msgctxt "in-app-notifications"
+msgid "Original block reason"
+msgstr "Motivo del bloqueo original"
+
+msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "Este dispositivo no está conectado, no puede establecerse ningún túnel"
 
@@ -404,13 +432,6 @@ msgstr "ACTUALIZACIÓN DISPONIBLE"
 msgctxt "in-app-notifications"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "Falta una clave de WireGuard válida. Administre las claves en la Configuración avanzada."
-
-#. The in-app banner displayed to the user when the running app becomes unsupported.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "Ejecuta una versión no admitida de la aplicación. Actualice a %(version)s ahora para garantizar su seguridad"
 
 msgctxt "in-app-notifications"
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
@@ -485,6 +506,11 @@ msgid "Valid account number"
 msgstr "Número de cuenta válido"
 
 #. Back button in navigation bar
+msgctxt "navigation-bar"
+msgid "Advanced"
+msgstr "Avanzadas"
+
+#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -502,8 +528,16 @@ msgid "Blocking internet"
 msgstr "Internet bloqueado"
 
 msgctxt "notifications"
+msgid "Blocking internet:"
+msgstr "Internet bloqueado:"
+
+msgctxt "notifications"
 msgid "Blocking internet: Valid WireGuard key is missing"
 msgstr "Internet bloqueado: falta una clave de WireGuard válida"
+
+msgctxt "notifications"
+msgid "Buy more"
+msgstr "Comprar más"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -531,6 +565,13 @@ msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
 msgstr "La información de la versión interna no coincide, reinicie la aplicación"
 
+#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "Please upgrade to %(version)s now to ensure your security"
+msgstr "Actualice a %(version)s ahora para garantizar su seguridad"
+
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "Volviendo a establecer la conexión"
@@ -543,12 +584,18 @@ msgctxt "notifications"
 msgid "Unsecured"
 msgstr "No protegido"
 
-#. The system notification displayed to the user when the running app becomes unsupported.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
 msgctxt "notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "Ejecuta una versión no admitida de la aplicación. Actualice a %(version)s ahora para garantizar su seguridad"
+msgid "Upgrade"
+msgstr "Actualizar"
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "You are running an unsupported app version."
+msgstr "Ejecuta una versión de la aplicación que no es compatible."
+
+msgctxt "notifications"
+msgid "You have no more VPN time left on this account."
+msgstr "No queda tiempo de uso de VPN en la cuenta."
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -727,6 +774,39 @@ msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "Actualización disponible, descárguela para garantizar su seguridad."
 
+#. Title label in navigation bar
+msgctxt "split-tunneling-nav"
+msgid "Split tunneling"
+msgstr "Tunelización dividida"
+
+msgctxt "split-tunneling-view"
+msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
+msgstr "%(applicationName)s suele causar problemas y no puede excluirse del túnel VPN."
+
+msgctxt "split-tunneling-view"
+msgid "Browse"
+msgstr "Examinar"
+
+msgctxt "split-tunneling-view"
+msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
+msgstr "Haga clic en una aplicación para iniciarla. El tráfico de la aplicación sorteará el túnel VPN hasta que la cierre."
+
+msgctxt "split-tunneling-view"
+msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
+msgstr "Si ya está ejecutándose, cierre %(applicationName)s antes de iniciarla desde aquí. De lo contrario, no se excluirá del túnel VPN."
+
+msgctxt "split-tunneling-view"
+msgid "Launch"
+msgstr "Iniciar"
+
+msgctxt "split-tunneling-view"
+msgid "Launch application"
+msgstr "Iniciar aplicación"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling"
+msgstr "Tunelización dividida"
+
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "Continuar de todos modos"
@@ -806,17 +886,9 @@ msgctxt "support-view"
 msgid "Your email (optional)"
 msgstr "Su correo electrónico (opcional)"
 
-msgctxt "tunnel-control"
-msgid "Cancel"
-msgstr "Cancelar"
-
-msgctxt "tunnel-control"
-msgid "Disconnect"
-msgstr "Desconectar"
-
-msgctxt "tunnel-control"
-msgid "Dismiss"
-msgstr "Descartar"
+msgctxt "tray-icon-context-menu"
+msgid "Open %(mullvadVpn)s"
+msgstr "Abrir %(mullvadVpn)s"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
