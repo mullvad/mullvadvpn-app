@@ -10,6 +10,8 @@
                   android:orientation="vertical"
                   android:focusable="true"
                   android:focusableInTouchMode="true"
+                  android:nextFocusForward="@id/login_input"
+                  android:nextFocusDown="@id/login_input"
                   android:descendantFocusability="beforeDescendants">
         <net.mullvad.mullvadvpn.ui.widget.HeaderBar android:id="@+id/header_bar"
                                                     android:layout_width="match_parent"
