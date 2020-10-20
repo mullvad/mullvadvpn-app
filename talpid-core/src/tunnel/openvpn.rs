@@ -685,12 +685,13 @@ mod event_server {
             &self,
             request: Request<EventType>,
         ) -> std::result::Result<Response<()>, tonic::Status> {
-            log::info!("OpenVPN event {:?}", request);
-
             let request = request.into_inner();
+            log::debug!("OpenVPN event {:?}", request);
 
-            let event_type = openvpn_plugin::EventType::try_from(request.event)
-                .map_err(|_| tonic::Status::invalid_argument("Unknown event type"))?;
+            let event_type =
+                openvpn_plugin::EventType::try_from(request.event).map_err(|event: i32| {
+                    tonic::Status::invalid_argument(format!("Unknown event type: {}", event))
+                })?;
 
             (self.on_event)(event_type, request.env);
 
