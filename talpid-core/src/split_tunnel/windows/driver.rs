@@ -16,6 +16,7 @@ use std::{
         io::{AsRawHandle, RawHandle},
     },
     ptr,
+    time::Duration,
 };
 use winapi::{
     shared::{
@@ -26,7 +27,7 @@ use winapi::{
     },
     um::{
         handleapi::CloseHandle,
-        ioapiset::{DeviceIoControl, GetOverlappedResult},
+        ioapiset::{DeviceIoControl, GetOverlappedResultEx},
         minwinbase::OVERLAPPED,
         synchapi::CreateEventW,
         tlhelp32::TH32CS_SNAPPROCESS,
@@ -37,6 +38,8 @@ use winapi::{
 
 const DRIVER_SYMBOLIC_NAME: &str = "\\\\.\\MULLVADSPLITTUNNEL";
 const ST_DEVICE_TYPE: u32 = 0x8000;
+
+const DRIVER_IO_TIMEOUT: Duration = Duration::from_secs(3);
 
 const fn ctl_code(device_type: u32, function: u32, method: u32, access: u32) -> u32 {
     device_type << 16 | access << 14 | function << 2 | method
@@ -702,8 +705,15 @@ pub fn device_io_control_buffer(
         return Err(last_error);
     }
 
-    let result =
-        unsafe { GetOverlappedResult(device as *mut _, overlapped, &mut returned_bytes, TRUE) };
+    let result = unsafe {
+        GetOverlappedResultEx(
+            device as *mut _,
+            overlapped,
+            &mut returned_bytes,
+            DRIVER_IO_TIMEOUT.as_millis() as u32,
+            FALSE,
+        )
+    };
 
     if result == 0 {
         return Err(io::Error::last_os_error());
