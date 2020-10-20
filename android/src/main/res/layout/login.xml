@@ -13,6 +13,7 @@
                   android:nextFocusForward="@id/login_input"
                   android:nextFocusDown="@id/login_input"
                   android:descendantFocusability="beforeDescendants">
+        <requestFocus />
         <net.mullvad.mullvadvpn.ui.widget.HeaderBar android:id="@+id/header_bar"
                                                     android:layout_width="match_parent"
                                                     android:layout_height="wrap_content" />
