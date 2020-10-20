@@ -5,7 +5,7 @@ use std::{
     convert::Infallible,
     env,
     error::Error as StdError,
-    ffi::{CStr, CString, NulError},
+    ffi::{CString, NulError},
     fs,
     io::{self, BufWriter, Write},
     os::unix::ffi::OsStrExt,
@@ -81,7 +81,6 @@ fn run() -> Result<Infallible, Error> {
         .map(|arg| CString::new(arg.as_bytes()))
         .collect::<Result<Vec<CString>, NulError>>()
         .map_err(Error::ArgumentNulError)?;
-    let args: Vec<&CStr> = args.iter().map(|arg| &**arg).collect();
 
     let cgroup_dir = find_net_cls_mount()
         .map_err(Error::FindNetClsController)?
