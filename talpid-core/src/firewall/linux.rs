@@ -475,8 +475,8 @@ impl<'a> PolicyBatch<'a> {
                 use_fwmark,
             } => {
                 self.add_allow_endpoint_rules(peer_endpoint, *use_fwmark);
-                self.add_allow_dns_rules(tunnel, TransportProtocol::Udp)?;
-                self.add_allow_dns_rules(tunnel, TransportProtocol::Tcp)?;
+                self.add_allow_dns_rules(tunnel, &dns_servers, TransportProtocol::Udp)?;
+                self.add_allow_dns_rules(tunnel, &dns_servers, TransportProtocol::Tcp)?;
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
                 self.add_drop_dns_rule();
@@ -560,17 +560,31 @@ impl<'a> PolicyBatch<'a> {
     fn add_allow_dns_rules(
         &mut self,
         tunnel: &tunnel::TunnelMetadata,
+        dns_servers: &[IpAddr],
         protocol: TransportProtocol,
     ) -> Result<()> {
-        // allow DNS traffic to the tunnel gateway(s)
-        self.add_allow_dns_rule(&tunnel.interface, protocol, tunnel.ipv4_gateway.into())?;
-        if let Some(ipv6_gateway) = tunnel.ipv6_gateway {
-            self.add_allow_dns_rule(&tunnel.interface, protocol, ipv6_gateway.into())?;
-        };
+        let (local_resolvers, remote_resolvers): (Vec<IpAddr>, Vec<IpAddr>) =
+            dns_servers.iter().partition(|server| {
+                is_local_address(server)
+                    && *server != &tunnel.ipv4_gateway
+                    && !tunnel
+                        .ipv6_gateway
+                        .map(|ref gateway| *server == gateway)
+                        .unwrap_or(false)
+            });
+
+        for resolver in &local_resolvers {
+            self.add_allow_local_dns_rule(&tunnel.interface, protocol, *resolver)?;
+        }
+
+        for resolver in &remote_resolvers {
+            self.add_allow_tunnel_dns_rule(&tunnel.interface, protocol, *resolver)?;
+        }
+
         Ok(())
     }
 
-    fn add_allow_dns_rule(
+    fn add_allow_tunnel_dns_rule(
         &mut self,
         interface: &str,
         protocol: TransportProtocol,
@@ -583,6 +597,30 @@ impl<'a> PolicyBatch<'a> {
         };
 
         check_iface(&mut allow_rule, Direction::Out, interface)?;
+        check_port(&mut allow_rule, protocol, End::Dst, 53);
+        check_l3proto(&mut allow_rule, host);
+
+        allow_rule.add_expr(&daddr);
+        allow_rule.add_expr(&nft_expr!(cmp == host));
+        add_verdict(&mut allow_rule, &Verdict::Accept);
+
+        self.batch.add(&allow_rule, nftnl::MsgType::Add);
+        Ok(())
+    }
+
+    fn add_allow_local_dns_rule(
+        &mut self,
+        tunnel_interface: &str,
+        protocol: TransportProtocol,
+        host: IpAddr,
+    ) -> Result<()> {
+        let mut allow_rule = Rule::new(&self.out_chain);
+        let daddr = match host {
+            IpAddr::V4(_) => nft_expr!(payload ipv4 daddr),
+            IpAddr::V6(_) => nft_expr!(payload ipv6 daddr),
+        };
+
+        check_not_iface(&mut allow_rule, Direction::Out, tunnel_interface)?;
         check_port(&mut allow_rule, protocol, End::Dst, 53);
         check_l3proto(&mut allow_rule, host);
 
@@ -707,6 +745,17 @@ fn check_iface(rule: &mut Rule<'_>, direction: Direction, iface: &str) -> Result
     Ok(())
 }
 
+fn check_not_iface(rule: &mut Rule<'_>, direction: Direction, iface: &str) -> Result<()> {
+    let iface_index = crate::linux::iface_index(iface)
+        .map_err(|e| Error::LookupIfaceIndexError(iface.to_owned(), e))?;
+    rule.add_expr(&match direction {
+        Direction::In => nft_expr!(meta iif),
+        Direction::Out => nft_expr!(meta oif),
+    });
+    rule.add_expr(&nft_expr!(cmp != iface_index));
+    Ok(())
+}
+
 fn check_net(rule: &mut Rule<'_>, end: End, net: impl Into<IpNetwork>) {
     let net = net.into();
     // Must check network layer protocol before loading network layer payload
@@ -789,4 +838,17 @@ fn add_verdict(rule: &mut Rule<'_>, verdict: &expr::Verdict) {
         rule.add_expr(&nft_expr!(counter));
     }
     rule.add_expr(verdict);
+}
+
+fn is_local_address(address: &IpAddr) -> bool {
+    let address = address.clone();
+    for net in (&*super::ALLOWED_LAN_NETS)
+        .iter()
+        .chain(&*super::LOOPBACK_NETS)
+    {
+        if net.contains(address) {
+            return true;
+        }
+    }
+    false
 }
