@@ -8,6 +8,10 @@
                   android:required="false" />
     <uses-feature android:name="android.hardware.faketouch"
                   android:required="false" />
+    <uses-feature android:name="android.hardware.screen.portrait"
+                  android:required="false" />
+    <uses-feature android:name="android.hardware.screen.landscape"
+                  android:required="false" />
     <application android:label="@string/app_name"
                  android:icon="@mipmap/ic_launcher"
                  android:roundIcon="@mipmap/ic_launcher"
