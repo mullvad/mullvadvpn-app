@@ -67,6 +67,10 @@ lazy_static! {
         Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3),
     ];
     static ref ROUTER_SOLICITATION_OUT_DST_ADDR: Ipv6Addr = Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2);
+    static ref LOOPBACK_NETS: [IpNetwork; 2] = [
+        IpNetwork::V4(ipnetwork::Ipv4Network::new(Ipv4Addr::new(127, 0, 0, 0), 8).unwrap()),
+        IpNetwork::V6(ipnetwork::Ipv6Network::new(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1), 128).unwrap()),
+    ];
 }
 #[cfg(all(unix, not(target_os = "android")))]
 const DHCPV4_SERVER_PORT: u16 = 67;
