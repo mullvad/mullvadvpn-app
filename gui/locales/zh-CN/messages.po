@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2020-06-22 15:10\n"
+"PO-Revision-Date: 2020-10-19 12:23\n"
 
 msgid "Back"
 msgstr "返回"
@@ -30,17 +30,29 @@ msgstr "取消"
 msgid "Close"
 msgstr "关闭"
 
+msgid "Connect"
+msgstr "连接"
+
 msgid "COPIED TO CLIPBOARD!"
 msgstr "已复制到剪贴板！"
 
 msgid "CREATING SECURE CONNECTION"
 msgstr "正在创建安全连接"
 
+msgid "Disconnect"
+msgstr "断开连接"
+
+msgid "Dismiss"
+msgstr "关闭"
+
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "无法保护连接"
 
 msgid "Invalid account number"
 msgstr "帐号无效"
+
+msgid "Reconnect"
+msgstr "重新连接"
 
 msgid "SECURE CONNECTION"
 msgstr "安全连接"
@@ -177,6 +189,10 @@ msgstr "设置 OpenVPN MSS 值。值范围：%(min)d - %(max)d。"
 msgctxt "advanced-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "设置 WireGuard MTU 值。有效范围：%(min)d - %(max)d。"
+
+msgctxt "advanced-settings-view"
+msgid "Split tunneling"
+msgstr "拆分隧道"
 
 msgctxt "advanced-settings-view"
 msgid "TCP"
@@ -323,6 +339,10 @@ msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "出错了。请发送电子邮件到 %(email)s，与我们联系"
 
 msgctxt "generic"
+msgid "Mullvad VPN"
+msgstr "Mullvad VPN"
+
+msgctxt "generic"
 msgid "MULLVAD VPN"
 msgstr "MULLVAD VPN"
 
@@ -333,6 +353,10 @@ msgstr "“始终需要 VPN”已启用。"
 msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "帐户额度即将到期"
+
+msgctxt "in-app-notifications"
+msgid "An application prevented the policy from being set"
+msgstr "防止设置政策的应用程序"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
@@ -347,8 +371,8 @@ msgid "Failed to apply firewall rules. The device might currently be unsecured"
 msgstr "无法应用防火墙规则。设备当前可能不会受到保护"
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "无法阻止所有网络流量。请排除故障或向我们报告问题。"
+msgid "Failed to block all network traffic"
+msgstr "无法阻止所有网络流量"
 
 msgctxt "in-app-notifications"
 msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
@@ -382,6 +406,10 @@ msgid "No relay server matches the current settings. You can try changing the lo
 msgstr "没有中继服务器与当前设置匹配。您可以尝试更改位置或中继设置。"
 
 msgctxt "in-app-notifications"
+msgid "Original block reason"
+msgstr "原始阻止原因"
+
+msgctxt "in-app-notifications"
 msgid "This device is offline, no tunnels can be established"
 msgstr "此设备已离线，无法建立隧道"
 
@@ -404,13 +432,6 @@ msgstr "有可用更新"
 msgctxt "in-app-notifications"
 msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr "缺少有效的 WireGuard 密钥。在“高级”设置下管理密钥。"
-
-#. The in-app banner displayed to the user when the running app becomes unsupported.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "您正在运行不受支持的应用版本。请立即升级到 %(version)s 以确保您的安全"
 
 msgctxt "in-app-notifications"
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
@@ -485,6 +506,11 @@ msgid "Valid account number"
 msgstr "有效帐号"
 
 #. Back button in navigation bar
+msgctxt "navigation-bar"
+msgid "Advanced"
+msgstr "高级"
+
+#. Back button in navigation bar
 #. Title label in navigation bar
 msgctxt "navigation-bar"
 msgid "Settings"
@@ -502,8 +528,16 @@ msgid "Blocking internet"
 msgstr "正在阻止网络"
 
 msgctxt "notifications"
+msgid "Blocking internet:"
+msgstr "正在阻止网络："
+
+msgctxt "notifications"
 msgid "Blocking internet: Valid WireGuard key is missing"
 msgstr "正在阻止网络：缺少有效的 WireGuard 密钥"
+
+msgctxt "notifications"
+msgid "Buy more"
+msgstr "购买更多"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -531,6 +565,13 @@ msgctxt "notifications"
 msgid "Inconsistent internal version information, please restart the app"
 msgstr "内部版本信息不一致，请重启应用"
 
+#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
+#. Available placeholder:
+#. %(version) - the newest available version of the app
+msgctxt "notifications"
+msgid "Please upgrade to %(version)s now to ensure your security"
+msgstr "请立即升级到 %(version)s 以确保安全"
+
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "正在重新连接"
@@ -543,12 +584,18 @@ msgctxt "notifications"
 msgid "Unsecured"
 msgstr "未受保护"
 
-#. The system notification displayed to the user when the running app becomes unsupported.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
 msgctxt "notifications"
-msgid "You are running an unsupported app version. Please upgrade to %(version)s now to ensure your security"
-msgstr "您正在运行不受支持的应用版本。请立即升级到 %(version)s 以确保您的安全"
+msgid "Upgrade"
+msgstr "升级"
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "You are running an unsupported app version."
+msgstr "您正在运行不受支持的应用版本。"
+
+msgctxt "notifications"
+msgid "You have no more VPN time left on this account."
+msgstr "此帐户没有更多的 VPN 时间了。"
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -727,6 +774,39 @@ msgctxt "settings-view"
 msgid "Update available, download to remain safe."
 msgstr "有可用更新，请下载以保持安全。"
 
+#. Title label in navigation bar
+msgctxt "split-tunneling-nav"
+msgid "Split tunneling"
+msgstr "拆分隧道"
+
+msgctxt "split-tunneling-view"
+msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
+msgstr "%(applicationName)s 出现问题且无法从 VPN 隧道排除。"
+
+msgctxt "split-tunneling-view"
+msgid "Browse"
+msgstr "浏览"
+
+msgctxt "split-tunneling-view"
+msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
+msgstr "点击应用以启动。它的流量会绕开 VPN 隧道，直到您将其关闭。"
+
+msgctxt "split-tunneling-view"
+msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
+msgstr "如果它已经正在运行，请先关闭 %(applicationName)s，然后从此处启动。否则，它可能会被从 VPN 隧道中排除。"
+
+msgctxt "split-tunneling-view"
+msgid "Launch"
+msgstr "启动"
+
+msgctxt "split-tunneling-view"
+msgid "Launch application"
+msgstr "启动应用程序"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling"
+msgstr "拆分隧道"
+
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "仍然继续"
@@ -806,17 +886,9 @@ msgctxt "support-view"
 msgid "Your email (optional)"
 msgstr "您的电子邮件（可选）"
 
-msgctxt "tunnel-control"
-msgid "Cancel"
-msgstr "取消"
-
-msgctxt "tunnel-control"
-msgid "Disconnect"
-msgstr "断开连接"
-
-msgctxt "tunnel-control"
-msgid "Dismiss"
-msgstr "关闭"
+msgctxt "tray-icon-context-menu"
+msgid "Open %(mullvadVpn)s"
+msgstr "打开 %(mullvadVpn)s"
 
 msgctxt "tunnel-control"
 msgid "Secure my connection"
