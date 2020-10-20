@@ -41,7 +41,7 @@ android_logger = "0.8"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
-nix = "0.18"
+nix = "0.19"
 simple-signal = "1.1"
 
 [target.'cfg(windows)'.dependencies]
