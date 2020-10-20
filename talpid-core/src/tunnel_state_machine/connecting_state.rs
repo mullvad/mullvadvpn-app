@@ -227,7 +227,7 @@ impl ConnectingState {
                     }
                 }
             }
-            #[cfg(windows)]
+            #[cfg(any(windows, target_os = "linux"))]
             Some(TunnelCommand::CustomDns(servers)) => {
                 shared_values.custom_dns = servers;
                 SameState(self.into())

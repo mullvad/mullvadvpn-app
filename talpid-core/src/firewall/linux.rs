@@ -471,6 +471,7 @@ impl<'a> PolicyBatch<'a> {
                 peer_endpoint,
                 tunnel,
                 allow_lan,
+                dns_servers,
                 use_fwmark,
             } => {
                 self.add_allow_endpoint_rules(peer_endpoint, *use_fwmark);
