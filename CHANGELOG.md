@@ -61,6 +61,12 @@ Line wrap the file at 100 chars.                                              Th
   boot, if "Always require VPN" or auto-connect is enabled.
 
 
+## [2020.6] - 2020-10-20
+This release is for desktop only.
+
+This release is identical to 2020.6-beta3 except updated GUI translations
+
+
 ## [2020.6-beta3] - 2020-10-06
 This release is for desktop only.
 
