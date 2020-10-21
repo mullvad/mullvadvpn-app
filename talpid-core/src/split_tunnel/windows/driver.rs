@@ -31,7 +31,7 @@ use winapi::{
         minwinbase::OVERLAPPED,
         synchapi::CreateEventW,
         tlhelp32::TH32CS_SNAPPROCESS,
-        winbase::FILE_FLAG_OVERLAPPED,
+        winbase::{FILE_FLAG_OVERLAPPED, INFINITE},
         winioctl::{FILE_ANY_ACCESS, METHOD_BUFFERED, METHOD_NEITHER},
     },
 };
@@ -162,6 +162,7 @@ impl DeviceHandle {
             None,
             0,
             &self.overlapped,
+            Some(DRIVER_IO_TIMEOUT),
         )?;
         Ok(())
     }
@@ -174,6 +175,7 @@ impl DeviceHandle {
             Some(&process_tree_buffer),
             0,
             &self.overlapped,
+            Some(DRIVER_IO_TIMEOUT),
         )?;
         Ok(())
     }
@@ -231,6 +233,7 @@ impl DeviceHandle {
             Some(buffer),
             0,
             &self.overlapped,
+            Some(DRIVER_IO_TIMEOUT),
         )?;
 
         Ok(())
@@ -243,6 +246,7 @@ impl DeviceHandle {
             None,
             size_of::<u64>() as u32,
             &self.overlapped,
+            Some(DRIVER_IO_TIMEOUT),
         )?
         .unwrap();
 
@@ -268,6 +272,7 @@ impl DeviceHandle {
             Some(&config),
             0,
             &self.overlapped,
+            Some(DRIVER_IO_TIMEOUT),
         )?;
 
         Ok(())
@@ -280,6 +285,7 @@ impl DeviceHandle {
             None,
             0,
             &self.overlapped,
+            Some(DRIVER_IO_TIMEOUT),
         )?;
 
         Ok(())
@@ -309,6 +315,7 @@ pub fn deque_event(
         None,
         Some(buffer),
         overlapped,
+        None,
     )?;
 
     let mut event_header: EventHeader = unsafe { mem::zeroed() };
@@ -640,6 +647,7 @@ pub fn device_io_control(
     input: Option<&[u8]>,
     output_size: u32,
     overlapped: &OVERLAPPED,
+    timeout: Option<Duration>,
 ) -> Result<Option<Vec<u8>>, io::Error> {
     let mut out_buffer = if output_size > 0 {
         Some(Vec::with_capacity(output_size as usize))
@@ -647,8 +655,15 @@ pub fn device_io_control(
         None
     };
 
-    device_io_control_buffer(device, ioctl_code, input, out_buffer.as_mut(), overlapped)
-        .map(|()| out_buffer)
+    device_io_control_buffer(
+        device,
+        ioctl_code,
+        input,
+        out_buffer.as_mut(),
+        overlapped,
+        timeout,
+    )
+    .map(|()| out_buffer)
 }
 
 /// Send an IOCTL code to the given device handle.
@@ -660,6 +675,7 @@ pub fn device_io_control_buffer(
     input: Option<&[u8]>,
     mut output: Option<&mut Vec<u8>>,
     overlapped: &OVERLAPPED,
+    timeout: Option<Duration>,
 ) -> Result<(), io::Error> {
     let input_ptr = match input {
         Some(input) => input as *const _ as *mut _,
@@ -710,7 +726,9 @@ pub fn device_io_control_buffer(
             device as *mut _,
             overlapped,
             &mut returned_bytes,
-            DRIVER_IO_TIMEOUT.as_millis() as u32,
+            timeout
+                .map(|timeout| timeout.as_millis() as u32)
+                .unwrap_or(INFINITE),
             FALSE,
         )
     };
