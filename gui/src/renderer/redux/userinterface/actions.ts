@@ -35,6 +35,11 @@ export interface IRemoveScrollPosition {
   path: string;
 }
 
+export interface ISetConnectedToDaemon {
+  type: 'SET_CONNECTED_TO_DAEMON';
+  connected: boolean;
+}
+
 export type UserInterfaceAction =
   | IUpdateLocaleAction
   | IUpdateWindowArrowPositionAction
@@ -42,7 +47,8 @@ export type UserInterfaceAction =
   | ISetLocationScopeAction
   | ISetWindowFocusedAction
   | IAddScrollPosition
-  | IRemoveScrollPosition;
+  | IRemoveScrollPosition
+  | ISetConnectedToDaemon;
 
 function updateLocale(locale: string): IUpdateLocaleAction {
   return {
@@ -93,6 +99,13 @@ function removeScrollPosition(path: string): IRemoveScrollPosition {
   };
 }
 
+function setConnectedToDaemon(connected: boolean): ISetConnectedToDaemon {
+  return {
+    type: 'SET_CONNECTED_TO_DAEMON',
+    connected,
+  };
+}
+
 export default {
   updateLocale,
   updateWindowArrowPosition,
@@ -101,4 +114,5 @@ export default {
   setWindowFocused,
   addScrollPosition,
   removeScrollPosition,
+  setConnectedToDaemon,
 };

@@ -99,7 +99,6 @@ export default class AppRenderer {
   private tunnelState!: TunnelState;
   private settings!: ISettings;
   private guiSettings!: IGuiSettingsState;
-  private connectedToDaemon = false;
   private autoConnected = false;
   private doingLogin = false;
   private loginTimer?: NodeJS.Timeout;
@@ -523,11 +522,11 @@ export default class AppRenderer {
   private async onDaemonConnected() {
     // Filter out the calls coming from IPC events arriving right after the constructor finished
     // execution.
-    if (this.connectedToDaemon) {
+    if (this.reduxStore.getState().userInterface.connectedToDaemon) {
       return;
     }
 
-    this.connectedToDaemon = true;
+    this.reduxActions.userInterface.setConnectedToDaemon(true);
 
     if (this.settings.accountToken) {
       this.memoryHistory.replace('/connect');
@@ -543,9 +542,9 @@ export default class AppRenderer {
   }
 
   private onDaemonDisconnected(error?: Error) {
-    const wasConnected = this.connectedToDaemon;
+    const wasConnected = this.reduxStore.getState().userInterface.connectedToDaemon;
 
-    this.connectedToDaemon = false;
+    this.reduxActions.userInterface.setConnectedToDaemon(false);
 
     if (error && wasConnected) {
       this.memoryHistory.replace('/');

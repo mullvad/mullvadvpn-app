@@ -12,6 +12,7 @@ export interface IUserInterfaceReduxState {
   locationScope: LocationScope;
   windowFocused: boolean;
   scrollPosition: Record<string, [number, number]>;
+  connectedToDaemon: boolean;
 }
 
 const initialState: IUserInterfaceReduxState = {
@@ -20,6 +21,7 @@ const initialState: IUserInterfaceReduxState = {
   locationScope: LocationScope.relay,
   windowFocused: false,
   scrollPosition: {},
+  connectedToDaemon: false,
 };
 
 export default function (
@@ -53,6 +55,12 @@ export default function (
       delete scrollPosition[action.path];
       return { ...state, scrollPosition };
     }
+
+    case 'SET_CONNECTED_TO_DAEMON':
+      return {
+        ...state,
+        connectedToDaemon: action.connected,
+      };
 
     default:
       return state;
