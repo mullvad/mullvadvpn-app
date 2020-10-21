@@ -1,14 +1,21 @@
 use crate::logging::windows::{log_sink, LogSink};
 
-use log::{error, trace};
-use std::{net::IpAddr, path::Path};
+use log::{error, trace, warn};
+use std::{io, net::IpAddr, path::Path};
+use talpid_types::ErrorExt;
 use widestring::WideCString;
+use winreg::{
+    enums::{HKEY_LOCAL_MACHINE, REG_MULTI_SZ},
+    transaction::Transaction,
+    RegKey, RegValue,
+};
 
 mod system_state;
 use self::system_state::SystemStateWriter;
 
 
 const DNS_STATE_FILENAME: &'static str = "dns-state-backup";
+const DNS_CACHE_POLICY_GUID: &str = "{d57d2750-f971-408e-8e55-cfddb37e60ae}";
 
 /// Errors that can happen when configuring DNS on Windows.
 #[derive(err_derive::Error, Debug)]
@@ -21,9 +28,13 @@ pub enum Error {
     #[error(display = "Failed to deinitialize WinDns")]
     Deinitialization,
 
-    /// Failure to set new DNS servers.
-    #[error(display = "Failed to set new DNS servers")]
+    /// Failure to set new DNS servers on the interface.
+    #[error(display = "Failed to set new DNS servers on interface")]
     Setting,
+
+    /// Failure to set new DNS servers.
+    #[error(display = "Failed to update dnscache policy config")]
+    UpdateDnsCachePolicy(#[error(source)] io::Error),
 }
 
 pub struct DnsMonitor {}
@@ -33,6 +44,13 @@ impl super::DnsMonitorT for DnsMonitor {
 
     fn new(cache_dir: impl AsRef<Path>) -> Result<Self, Error> {
         unsafe { WinDns_Initialize(Some(log_sink), b"WinDns\0".as_ptr()).into_result()? };
+
+        if let Err(error) = reset_dns_cache_policy() {
+            error!(
+                "{}",
+                error.display_chain_with_msg("Failed to reset DNS cache policy")
+            );
+        }
 
         let backup_writer = SystemStateWriter::new(
             cache_dir
@@ -77,11 +95,18 @@ impl super::DnsMonitorT for DnsMonitor {
                 ipv6_address_ptrs.len() as u32,
             )
             .into_result()
+        }?;
+
+        if let Err(error) = set_dns_cache_policy(servers) {
+            error!("{}", error.display_chain());
+            warn!("DNS resolution may be slowed down");
         }
+
+        Ok(())
     }
 
     fn reset(&mut self) -> Result<(), Error> {
-        Ok(())
+        reset_dns_cache_policy()
     }
 }
 
@@ -91,10 +116,72 @@ fn ip_to_widestring(ip: &IpAddr) -> WideCString {
 
 impl Drop for DnsMonitor {
     fn drop(&mut self) {
+        if let Err(error) = reset_dns_cache_policy() {
+            warn!(
+                "{}",
+                error.display_chain_with_msg("Failed to reset DNS cache policy")
+            );
+        }
+
         if unsafe { WinDns_Deinitialize().into_result().is_ok() } {
             trace!("Successfully deinitialized WinDns");
         } else {
             error!("Failed to deinitialize WinDns");
+        }
+    }
+}
+
+fn set_dns_cache_policy(servers: &[IpAddr]) -> Result<(), Error> {
+    let transaction = Transaction::new()?;
+    match set_dns_cache_policy_inner(&transaction, servers) {
+        Ok(()) => {
+            transaction.commit()?;
+            Ok(())
+        }
+        Err(error) => {
+            transaction.rollback()?;
+            Err(error)
+        }
+    }
+}
+
+fn set_dns_cache_policy_inner(transaction: &Transaction, servers: &[IpAddr]) -> Result<(), Error> {
+    let dns_cache_parameters = RegKey::predef(HKEY_LOCAL_MACHINE)
+        .open_subkey(r#"SYSTEM\CurrentControlSet\Services\DnsCache\Parameters"#)?;
+
+    let policy_path = Path::new("DnsPolicyConfig").join(DNS_CACHE_POLICY_GUID);
+    let (policy_config, _) =
+        dns_cache_parameters.create_subkey_transacted(policy_path, transaction)?;
+
+    policy_config.set_value("ConfigOptions", &0x08u32)?;
+    let server_list: Vec<String> = servers.iter().map(|server| server.to_string()).collect();
+    policy_config.set_value("GenericDNSServers", &server_list.join(";"))?;
+    policy_config.set_value("IPSECCARestriction", &"")?;
+    policy_config.set_raw_value(
+        "Name",
+        &RegValue {
+            // utf16 string: ".\0\0"
+            bytes: [0x2e, 0, 0, 0, 0, 0].to_vec(),
+            vtype: REG_MULTI_SZ,
+        },
+    )?;
+    policy_config.set_value("Version", &2u32)?;
+
+    Ok(())
+}
+
+fn reset_dns_cache_policy() -> Result<(), Error> {
+    let dns_cache_parameters = RegKey::predef(HKEY_LOCAL_MACHINE)
+        .open_subkey(r#"SYSTEM\CurrentControlSet\Services\DnsCache\Parameters"#)?;
+    let policy_path = Path::new("DnsPolicyConfig").join(DNS_CACHE_POLICY_GUID);
+    match dns_cache_parameters.delete_subkey_all(policy_path) {
+        Ok(()) => Ok(()),
+        Err(error) => {
+            if error.kind() == io::ErrorKind::NotFound {
+                Ok(())
+            } else {
+                Err(Error::UpdateDnsCachePolicy(error))
+            }
         }
     }
 }
