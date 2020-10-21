@@ -14,17 +14,23 @@ export interface ITransitionMatch {
 }
 
 export default class TransitionRule {
-  constructor(private from: string | null, private to: string, private fork: ITransitionFork) {}
+  private from: RegExp;
+  private to: RegExp;
 
-  public match(fromRoute: string | null, toRoute: string): ITransitionMatch | null {
-    if ((!this.from || this.from === fromRoute) && this.to === toRoute) {
+  constructor(from: string | RegExp, to: string | RegExp, private fork: ITransitionFork) {
+    this.from = typeof from === 'string' ? new RegExp(from) : from;
+    this.to = typeof to === 'string' ? new RegExp(to) : to;
+  }
+
+  public match(fromRoute: string, toRoute: string): ITransitionMatch | null {
+    if (this.from.test(fromRoute) && this.to.test(toRoute)) {
       return {
         direction: 'forward',
         descriptor: this.fork.forward,
       };
     }
 
-    if ((!this.from || this.from === toRoute) && this.to === fromRoute) {
+    if (this.from.test(toRoute) && this.to.test(fromRoute)) {
       return {
         direction: 'backward',
         descriptor: this.fork.backward,
