@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Improve accessibility in the desktop app.
 - Add `--wait` flag to `connect`, `disconnect` and `reconnect` CLI subcommands to make the CLI wait
   for the target state to be reached before exiting.
+- Navigate back to the main view when escape is pressed.
 
 #### Windows
 - Add support for custom DNS resolvers (CLI only).
