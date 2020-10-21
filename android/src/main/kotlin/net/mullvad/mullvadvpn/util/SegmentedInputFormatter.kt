@@ -36,13 +36,13 @@ class SegmentedInputFormatter(val input: EditText, var separator: Char) : TextWa
 
         if (isValidInput(string)) {
             editing = false
-            maybeUpdateSelection()
+            maybeUpdateSelection(text)
         } else {
             formatInput(text)
         }
     }
 
-    private fun maybeUpdateSelection() {
+    private fun maybeUpdateSelection(text: Editable) {
         if (removing) {
             var start = input.selectionStart
             var end = input.selectionEnd
@@ -60,6 +60,13 @@ class SegmentedInputFormatter(val input: EditText, var separator: Char) : TextWa
 
             if (changed) {
                 input.setSelection(start, end)
+
+                if (start == end && end == text.length - 1) {
+                    // The cursor was previously at the last character, and now after the character
+                    // was removed it has been moved to before the separator. It's best now to
+                    // remove the unnecessary trailing separator
+                    text.delete(text.length - 1, text.length)
+                }
             }
         }
     }
