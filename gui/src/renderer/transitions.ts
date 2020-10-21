@@ -47,7 +47,7 @@ const transitionRules = [
   r('/settings/advanced', '/settings/advanced/wireguard-keys', transitions.push),
   r('/settings/advanced', '/settings/advanced/linux-split-tunneling', transitions.push),
   r('/settings', '/settings/support', transitions.push),
-  r(/.*/, '/settings', transitions.slide),
+  r(/.*/, /\/settings.*/, transitions.slide),
   r(/.*/, '/select-location', transitions.slide),
 ];
 
