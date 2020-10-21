@@ -49,11 +49,13 @@ impl super::DnsMonitorT for DnsMonitor {
     fn new(cache_dir: impl AsRef<Path>) -> Result<Self, Error> {
         unsafe { WinDns_Initialize(Some(log_sink), b"WinDns\0".as_ptr()).into_result()? };
 
-        if let Err(error) = reset_dns_cache_policy() {
-            error!(
-                "{}",
-                error.display_chain_with_msg("Failed to reset DNS cache policy")
-            );
+        if is_minimum_windows10() {
+            if let Err(error) = reset_dns_cache_policy() {
+                error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to reset DNS cache policy")
+                );
+            }
         }
 
         let backup_writer = SystemStateWriter::new(
@@ -101,16 +103,22 @@ impl super::DnsMonitorT for DnsMonitor {
             .into_result()
         }?;
 
-        if let Err(error) = set_dns_cache_policy(servers) {
-            error!("{}", error.display_chain());
-            warn!("DNS resolution may be slowed down");
+        if is_minimum_windows10() {
+            if let Err(error) = set_dns_cache_policy(servers) {
+                error!("{}", error.display_chain());
+                warn!("DNS resolution may be slowed down");
+            }
         }
 
         Ok(())
     }
 
     fn reset(&mut self) -> Result<(), Error> {
-        reset_dns_cache_policy()
+        if is_minimum_windows10() {
+            reset_dns_cache_policy()
+        } else {
+            Ok(())
+        }
     }
 }
 
@@ -120,11 +128,13 @@ fn ip_to_widestring(ip: &IpAddr) -> WideCString {
 
 impl Drop for DnsMonitor {
     fn drop(&mut self) {
-        if let Err(error) = reset_dns_cache_policy() {
-            warn!(
-                "{}",
-                error.display_chain_with_msg("Failed to reset DNS cache policy")
-            );
+        if is_minimum_windows10() {
+            if let Err(error) = reset_dns_cache_policy() {
+                warn!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to reset DNS cache policy")
+                );
+            }
         }
 
         if unsafe { WinDns_Deinitialize().into_result().is_ok() } {
