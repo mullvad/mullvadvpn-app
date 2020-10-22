@@ -346,7 +346,7 @@ WinFw_ApplyPolicyConnected(
 			THROW_ERROR("Invalid argument: v4Gateway");
 		}
 
-		if (nullptr == dnsServers || 0 == numDnsServers)
+		if (nullptr == dnsServers)
 		{
 			THROW_ERROR("Invalid argument: dnsServers");
 		}
