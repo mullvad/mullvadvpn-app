@@ -22,6 +22,10 @@ class CustomRecyclerView : RecyclerView, ListenableScrollableView {
     override fun onScrolled(horizontalDelta: Int, verticalDelta: Int) {
         super.onScrolled(horizontalDelta, verticalDelta)
 
+        dispatchScrollEvent(horizontalDelta, verticalDelta)
+    }
+
+    private fun dispatchScrollEvent(horizontalDelta: Int, verticalDelta: Int) {
         val oldHorizontalScrollOffset = horizontalScrollOffset
         val oldVerticalScrollOffset = verticalScrollOffset
 
