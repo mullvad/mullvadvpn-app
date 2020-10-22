@@ -26,13 +26,17 @@ use std::{
     io,
     path::{Path, PathBuf},
     ptr,
-    sync::{mpsc, Arc, Once},
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        mpsc, Arc, Once,
+    },
     thread,
 };
 use talpid_types::{android::AndroidContext, ErrorExt};
 
 const LOG_FILENAME: &str = "daemon.log";
 
+static DAEMON_INSTANCE_COUNT: AtomicUsize = AtomicUsize::new(0);
 static LOAD_CLASSES: Once = Once::new();
 static LOG_START: Once = Once::new();
 static mut LOG_INIT_RESULT: Option<Result<(), String>> = None;
@@ -214,6 +218,15 @@ fn spawn_daemon(
 
     thread::spawn(move || {
         let jvm = android_context.jvm.clone();
+        let running_instances = DAEMON_INSTANCE_COUNT.fetch_add(1, Ordering::AcqRel);
+
+        if running_instances != 0 {
+            log::error!(
+                "It seems that there are already {} instances of the Mullvad daemon running",
+                running_instances
+            );
+        }
+
         let daemon = runtime.block_on(Daemon::start(
             Some(resource_dir.clone()),
             resource_dir.clone(),
@@ -223,6 +236,8 @@ fn spawn_daemon(
             command_channel,
             android_context,
         ));
+
+        DAEMON_INSTANCE_COUNT.fetch_sub(1, Ordering::AcqRel);
 
         match daemon {
             Ok(daemon) => {
