@@ -19,9 +19,11 @@ impl Command for CustomDns {
                     .arg(
                         clap::Arg::with_name("servers")
                             .multiple(true)
-                            .required(false),
+                            .help("One or more IP addresses pointing to DNS resolvers.")
+                            .required(true),
                     ),
             )
+            .subcommand(clap::SubCommand::with_name("reset").about("Remove all custom DNS servers"))
             .subcommand(
                 clap::SubCommand::with_name("get").about("Display the current custom DNS setting"),
             )
@@ -30,6 +32,8 @@ impl Command for CustomDns {
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
             self.set(set_matches.values_of_lossy("servers")).await
+        } else if let Some(_matches) = matches.subcommand_matches("reset") {
+            self.reset().await
         } else if let Some(_matches) = matches.subcommand_matches("get") {
             self.get().await
         } else {
@@ -46,6 +50,14 @@ impl CustomDns {
         })
         .await?;
         println!("Updated custom DNS settings");
+        Ok(())
+    }
+
+    async fn reset(&self) -> Result<()> {
+        let mut rpc = new_rpc_client().await?;
+        rpc.set_custom_dns(types::CustomDns { addresses: vec![] })
+            .await?;
+        println!("Cleared list of custom DNS servers");
         Ok(())
     }
 
