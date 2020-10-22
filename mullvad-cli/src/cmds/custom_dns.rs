@@ -1,4 +1,5 @@
 use crate::{new_rpc_client, Command, Result};
+use clap::value_t_or_exit;
 use mullvad_management_interface::types;
 
 pub struct CustomDns;
@@ -14,38 +15,88 @@ impl Command for CustomDns {
             .about("Configure custom DNS servers to use when connected")
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
             .subcommand(
-                clap::SubCommand::with_name("set")
-                    .about("Change custom DNS setting")
-                    .arg(
-                        clap::Arg::with_name("servers")
-                            .multiple(true)
-                            .help("One or more IP addresses pointing to DNS resolvers.")
-                            .required(true),
+                clap::SubCommand::with_name("servers")
+                    .about("Set custom DNS servers to use")
+                    .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+                    .subcommand(
+                        clap::SubCommand::with_name("set")
+                            .about("Set custom DNS servers to use")
+                            .arg(
+                                clap::Arg::with_name("servers")
+                                    .multiple(true)
+                                    .help("One or more IP addresses pointing to DNS resolvers.")
+                                    .required(true),
+                            ),
+                    )
+                    .subcommand(
+                        clap::SubCommand::with_name("clear").about("Remove all custom DNS servers"),
                     ),
             )
-            .subcommand(clap::SubCommand::with_name("reset").about("Remove all custom DNS servers"))
             .subcommand(
-                clap::SubCommand::with_name("get").about("Display the current custom DNS setting"),
+                clap::SubCommand::with_name("get").about("Display the current custom DNS settings"),
+            )
+            .subcommand(
+                clap::SubCommand::with_name("set")
+                    .about("Enable or disable custom DNS")
+                    .arg(
+                        clap::Arg::with_name("enabled")
+                            .required(true)
+                            .possible_values(&["on", "off"]),
+                    ),
             )
     }
 
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
-        if let Some(set_matches) = matches.subcommand_matches("set") {
-            self.set(set_matches.values_of_lossy("servers")).await
-        } else if let Some(_matches) = matches.subcommand_matches("reset") {
-            self.reset().await
-        } else if let Some(_matches) = matches.subcommand_matches("get") {
-            self.get().await
-        } else {
-            unreachable!("No custom-dns command given");
+        match matches.subcommand() {
+            ("servers", Some(matches)) => match matches.subcommand() {
+                ("set", Some(matches)) => {
+                    self.set_servers(matches.values_of_lossy("servers")).await
+                }
+                ("clear", _) => self.clear_servers().await,
+                _ => unreachable!("No custom-dns server command given"),
+            },
+            ("set", Some(matches)) => {
+                let enabled = value_t_or_exit!(matches.value_of("enabled"), String);
+                self.set_state(enabled == "on").await
+            }
+            ("get", _) => self.get().await,
+            _ => unreachable!("No custom-dns command given"),
         }
     }
 }
 
 impl CustomDns {
-    async fn set(&self, servers: Option<Vec<String>>) -> Result<()> {
+    async fn set_state(&self, enabled: bool) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        rpc.set_custom_dns(types::CustomDns {
+        let options = rpc
+            .get_settings(())
+            .await?
+            .into_inner()
+            .tunnel_options
+            .unwrap()
+            .dns_options
+            .unwrap();
+        rpc.set_dns_options(types::DnsOptions {
+            custom: enabled,
+            addresses: options.addresses,
+        })
+        .await?;
+        println!("Updated custom DNS settings");
+        Ok(())
+    }
+
+    async fn set_servers(&self, servers: Option<Vec<String>>) -> Result<()> {
+        let mut rpc = new_rpc_client().await?;
+        let options = rpc
+            .get_settings(())
+            .await?
+            .into_inner()
+            .tunnel_options
+            .unwrap()
+            .dns_options
+            .unwrap();
+        rpc.set_dns_options(types::DnsOptions {
+            custom: options.custom,
             addresses: servers.unwrap_or_default(),
         })
         .await?;
@@ -53,34 +104,53 @@ impl CustomDns {
         Ok(())
     }
 
-    async fn reset(&self) -> Result<()> {
+    async fn clear_servers(&self) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        rpc.set_custom_dns(types::CustomDns { addresses: vec![] })
-            .await?;
+        let options = rpc
+            .get_settings(())
+            .await?
+            .into_inner()
+            .tunnel_options
+            .unwrap()
+            .dns_options
+            .unwrap();
+        rpc.set_dns_options(types::DnsOptions {
+            custom: options.custom,
+            addresses: vec![],
+        })
+        .await?;
         println!("Cleared list of custom DNS servers");
         Ok(())
     }
 
     async fn get(&self) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        let custom_dns = rpc
+        let options = rpc
             .get_settings(())
             .await?
             .into_inner()
             .tunnel_options
             .unwrap()
-            .generic
-            .unwrap()
-            .custom_dns;
-        match custom_dns {
-            None => println!("No DNS servers are configured"),
-            Some(types::CustomDns { addresses }) => {
-                println!("Custom DNS servers:");
-                for server in &addresses {
+            .dns_options
+            .unwrap();
+
+        let state = if options.custom {
+            "enabled"
+        } else {
+            "disabled"
+        };
+        println!("Custom DNS: {}", state);
+
+        match options.addresses.len() {
+            0 => println!("No DNS servers are configured"),
+            _ => {
+                println!("Servers:");
+                for server in &options.addresses {
                     println!("\t{}", server);
                 }
             }
         }
+
         Ok(())
     }
 }
