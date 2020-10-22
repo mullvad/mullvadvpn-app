@@ -19,6 +19,14 @@ class CustomRecyclerView : RecyclerView, ListenableScrollableView {
         super(context, attributes, defaultStyleAttribute) {
         }
 
+    init {
+        itemAnimator = CustomItemAnimator().apply {
+            onMove = { horizontalDelta, verticalDelta ->
+                dispatchScrollEvent(horizontalDelta, verticalDelta)
+            }
+        }
+    }
+
     override fun onScrolled(horizontalDelta: Int, verticalDelta: Int) {
         super.onScrolled(horizontalDelta, verticalDelta)
 
