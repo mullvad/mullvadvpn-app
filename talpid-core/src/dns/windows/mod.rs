@@ -1,11 +1,11 @@
 use crate::logging::windows::{log_sink, LogSink};
 
 use log::{error, trace, warn};
-use std::{io, mem, net::IpAddr, path::Path, ptr};
+use std::{ffi::OsString, io, iter, mem, net::IpAddr, os::windows::ffi::OsStrExt, path::Path, ptr};
 use talpid_types::ErrorExt;
 use widestring::WideCString;
 use winapi::um::{
-    libloaderapi::{GetModuleHandleA, GetProcAddress},
+    libloaderapi::{GetModuleHandleW, GetProcAddress},
     winnt::RTL_OSVERSIONINFOW,
 };
 use winreg::{
@@ -217,7 +217,13 @@ fn is_minimum_windows10() -> bool {
 fn is_minimum_windows10_inner() -> Result<bool, io::Error> {
     let rtl_get_version: extern "stdcall" fn(*mut RTL_OSVERSIONINFOW);
 
-    let ntdll = unsafe { GetModuleHandleA(b"ntdll\0" as *const _ as *const i8) };
+    let module_name: Vec<u16> = OsString::from("ntdll")
+        .as_os_str()
+        .encode_wide()
+        .chain(iter::once(0u16))
+        .collect();
+
+    let ntdll = unsafe { GetModuleHandleW(module_name.as_ptr()) };
     if ntdll == ptr::null_mut() {
         return Err(io::Error::last_os_error());
     }
