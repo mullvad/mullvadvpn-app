@@ -167,6 +167,7 @@ fn set_dns_cache_policy_inner(transaction: &Transaction, servers: &[IpAddr]) -> 
     let (policy_config, _) =
         dns_cache_parameters.create_subkey_transacted(policy_path, transaction)?;
 
+    // Enable only the "Generic DNS server" option
     policy_config.set_value("ConfigOptions", &0x08u32)?;
     let server_list: Vec<String> = servers.iter().map(|server| server.to_string()).collect();
     policy_config.set_value("GenericDNSServers", &server_list.join(";"))?;
