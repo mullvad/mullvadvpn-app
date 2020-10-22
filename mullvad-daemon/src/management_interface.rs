@@ -6,6 +6,8 @@ use mullvad_management_interface::{
 };
 use mullvad_paths;
 use mullvad_rpc::{rest::Error as RestError, StatusCode};
+#[cfg(windows)]
+use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::AccountToken,
     location::GeoIpLocation,
@@ -409,12 +411,16 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     #[cfg(windows)]
-    async fn set_custom_dns(&self, request: Request<types::CustomDns>) -> ServiceResult<()> {
-        let servers = request.into_inner();
-        log::debug!("set_custom_dns({:?})", servers.addresses);
+    async fn set_dns_options(&self, request: Request<types::DnsOptions>) -> ServiceResult<()> {
+        let options = request.into_inner();
+        log::debug!(
+            "set_dns_options({}, {:?})",
+            options.custom,
+            options.addresses
+        );
 
         let mut servers_ip = vec![];
-        for server in servers.addresses.into_iter() {
+        for server in options.addresses.into_iter() {
             if let Ok(addr) = server.parse() {
                 servers_ip.push(addr);
             } else {
@@ -423,20 +429,20 @@ impl ManagementService for ManagementServiceImpl {
             }
         }
 
-        let servers_ip = if !servers_ip.is_empty() {
-            Some(servers_ip)
-        } else {
-            None
-        };
-
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetCustomDns(tx, servers_ip))?;
+        self.send_command_to_daemon(DaemonCommand::SetDnsOptions(
+            tx,
+            DnsOptions {
+                custom: options.custom,
+                addresses: servers_ip,
+            },
+        ))?;
         rx.await
             .map(Response::new)
             .map_err(|_| Status::internal("internal error"))
     }
     #[cfg(not(windows))]
-    async fn set_custom_dns(&self, _: Request<types::CustomDns>) -> ServiceResult<()> {
+    async fn set_dns_options(&self, _: Request<types::DnsOptions>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
 
@@ -1172,17 +1178,19 @@ fn convert_tunnel_options(options: &TunnelOptions) -> types::TunnelOptions {
         }),
         generic: Some(types::tunnel_options::GenericOptions {
             enable_ipv6: options.generic.enable_ipv6,
-            #[cfg(windows)]
-            custom_dns: options
-                .generic
-                .custom_dns
-                .as_ref()
-                .map(|addresses| types::CustomDns {
-                    addresses: addresses.iter().map(|addr| addr.to_string()).collect(),
-                }),
-            #[cfg(not(windows))]
-            custom_dns: None,
         }),
+        #[cfg(windows)]
+        dns_options: Some(types::DnsOptions {
+            custom: options.dns_options.custom,
+            addresses: options
+                .dns_options
+                .addresses
+                .iter()
+                .map(|addr| addr.to_string())
+                .collect(),
+        }),
+        #[cfg(not(windows))]
+        dns_options: None,
     }
 }
 
