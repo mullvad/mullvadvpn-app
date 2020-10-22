@@ -28,6 +28,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add `--wait` flag to `connect`, `disconnect` and `reconnect` CLI subcommands to make the CLI wait
   for the target state to be reached before exiting.
 
+#### Windows
+- Add support for custom DNS resolvers (CLI only).
+
 ### Changed
 - Use the API to fetch API IP addresses instead of DNS.
 - Remove WireGuard keys during uninstallation after the firewall is unlocked.

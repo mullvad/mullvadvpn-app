@@ -408,6 +408,38 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(|_| Status::internal("internal error"))
     }
 
+    #[cfg(windows)]
+    async fn set_custom_dns(&self, request: Request<types::CustomDns>) -> ServiceResult<()> {
+        let servers = request.into_inner();
+        log::debug!("set_custom_dns({:?})", servers.addresses);
+
+        let mut servers_ip = vec![];
+        for server in servers.addresses.into_iter() {
+            if let Ok(addr) = server.parse() {
+                servers_ip.push(addr);
+            } else {
+                let err_msg = format!("failed to parse IP address: {}", server);
+                return Err(Status::invalid_argument(err_msg));
+            }
+        }
+
+        let servers_ip = if !servers_ip.is_empty() {
+            Some(servers_ip)
+        } else {
+            None
+        };
+
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetCustomDns(tx, servers_ip))?;
+        rx.await
+            .map(Response::new)
+            .map_err(|_| Status::internal("internal error"))
+    }
+    #[cfg(not(windows))]
+    async fn set_custom_dns(&self, _: Request<types::CustomDns>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
+
     // Account management
     //
 
@@ -1140,6 +1172,16 @@ fn convert_tunnel_options(options: &TunnelOptions) -> types::TunnelOptions {
         }),
         generic: Some(types::tunnel_options::GenericOptions {
             enable_ipv6: options.generic.enable_ipv6,
+            #[cfg(windows)]
+            custom_dns: options
+                .generic
+                .custom_dns
+                .as_ref()
+                .map(|addresses| types::CustomDns {
+                    addresses: addresses.iter().map(|addr| addr.to_string()).collect(),
+                }),
+            #[cfg(not(windows))]
+            custom_dns: None,
         }),
     }
 }

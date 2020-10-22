@@ -24,6 +24,8 @@ use futures::{
     channel::{mpsc, oneshot},
     stream, StreamExt,
 };
+#[cfg(windows)]
+use std::net::IpAddr;
 use std::{
     collections::HashSet,
     io,
@@ -74,6 +76,7 @@ pub enum Error {
 pub async fn spawn(
     allow_lan: bool,
     block_when_disconnected: bool,
+    #[cfg(windows)] custom_dns: Option<Vec<IpAddr>>,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
@@ -109,6 +112,8 @@ pub async fn spawn(
             allow_lan,
             block_when_disconnected,
             is_offline,
+            #[cfg(windows)]
+            custom_dns,
             tunnel_parameters_generator,
             tun_provider,
             log_dir,
@@ -147,6 +152,9 @@ pub async fn spawn(
 pub enum TunnelCommand {
     /// Enable or disable LAN access in the firewall.
     AllowLan(bool),
+    /// Set custom DNS servers to use.
+    #[cfg(windows)]
+    CustomDns(Option<Vec<IpAddr>>),
     /// Enable or disable the block_when_disconnected feature.
     BlockWhenDisconnected(bool),
     /// Notify the state machine of the connectivity of the device.
@@ -184,6 +192,7 @@ impl TunnelStateMachine {
         allow_lan: bool,
         block_when_disconnected: bool,
         is_offline: bool,
+        #[cfg(windows)] custom_dns: Option<Vec<IpAddr>>,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
         tun_provider: TunProvider,
         log_dir: Option<PathBuf>,
@@ -208,6 +217,8 @@ impl TunnelStateMachine {
             allow_lan,
             block_when_disconnected,
             is_offline,
+            #[cfg(windows)]
+            custom_dns,
             tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
             tun_provider,
             log_dir,
@@ -277,6 +288,9 @@ struct SharedTunnelStateValues {
     block_when_disconnected: bool,
     /// True when the computer is known to be offline.
     is_offline: bool,
+    /// Custom DNS servers to use.
+    #[cfg(windows)]
+    custom_dns: Option<Vec<IpAddr>>,
     /// The generator of new `TunnelParameter`s
     tunnel_parameters_generator: Box<dyn TunnelParametersGenerator>,
     /// The provider of tunnel devices.

@@ -17,6 +17,7 @@
 #include "rules/baseline/permitdns.h"
 #include "rules/dns/blockall.h"
 #include "rules/dns/permittunnel.h"
+#include "rules/dns/permitnontunnel.h"
 #include "rules/multi/permitvpnrelay.h"
 #include <libwfp/transaction.h>
 #include <libwfp/filterengine.h>
@@ -210,7 +211,8 @@ bool FwContext::applyPolicyConnected
 	const WinFwRelay &relay,
 	const std::wstring &relayClient,
 	const std::wstring &tunnelInterfaceAlias,
-	const std::vector<wfp::IpAddress> &tunnelDnsServers
+	const std::vector<wfp::IpAddress> &tunnelDnsServers,
+	const std::vector<wfp::IpAddress> &nonTunnelDnsServers
 )
 {
 	Ruleset ruleset;
@@ -219,9 +221,18 @@ bool FwContext::applyPolicyConnected
 	AppendSettingsRules(ruleset, settings);
 	AppendRelayRules(ruleset, relay, relayClient);
 
-	ruleset.emplace_back(std::make_unique<dns::PermitTunnel>(
-		tunnelInterfaceAlias, tunnelDnsServers
-	));
+	if (!tunnelDnsServers.empty())
+	{
+		ruleset.emplace_back(std::make_unique<dns::PermitTunnel>(
+			tunnelInterfaceAlias, tunnelDnsServers
+		));
+	}
+	if (!nonTunnelDnsServers.empty())
+	{
+		ruleset.emplace_back(std::make_unique<dns::PermitNonTunnel>(
+			tunnelInterfaceAlias, nonTunnelDnsServers
+		));
+	}
 
 	ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
 		tunnelInterfaceAlias

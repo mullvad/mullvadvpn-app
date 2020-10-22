@@ -41,6 +41,8 @@ use mullvad_types::{
     wireguard::KeygenEvent,
 };
 use settings::SettingsPersister;
+#[cfg(windows)]
+use std::net::IpAddr;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
 use std::{
@@ -192,6 +194,9 @@ pub enum DaemonCommand {
     SetBridgeState(oneshot::Sender<Result<(), settings::Error>>, BridgeState),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(oneshot::Sender<()>, bool),
+    /// Set custom DNS servers to use instead of passing requests to the gateway
+    #[cfg(windows)]
+    SetCustomDns(oneshot::Sender<()>, Option<Vec<IpAddr>>),
     /// Set MTU for wireguard tunnels
     SetWireguardMtu(oneshot::Sender<()>, Option<u16>),
     /// Set automatic key rotation interval for wireguard tunnels
@@ -572,10 +577,11 @@ where
             TargetState::Unsecured
         };
 
-
         let tunnel_command_tx = tunnel_state_machine::spawn(
             settings.allow_lan,
             settings.block_when_disconnected,
+            #[cfg(windows)]
+            settings.tunnel_options.generic.custom_dns.clone(),
             tunnel_parameters_generator,
             log_dir,
             resource_dir,
@@ -1039,6 +1045,8 @@ where
             }
             SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
+            #[cfg(windows)]
+            SetCustomDns(tx, dns_servers) => self.on_set_custom_dns(tx, dns_servers),
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
             SetWireguardRotationInterval(tx, interval) => {
                 self.on_set_wireguard_rotation_interval(tx, interval).await
@@ -1671,6 +1679,22 @@ where
                         .notify_settings(self.settings.to_settings());
                     info!("Initiating tunnel restart because the enable IPv6 setting changed");
                     self.reconnect_tunnel();
+                }
+            }
+            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+        }
+    }
+
+    #[cfg(windows)]
+    fn on_set_custom_dns(&mut self, tx: oneshot::Sender<()>, servers: Option<Vec<IpAddr>>) {
+        let save_result = self.settings.set_custom_dns(servers.clone());
+        match save_result {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, (), "set_custom_dns response");
+                if settings_changed {
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
+                    self.send_tunnel_command(TunnelCommand::CustomDns(servers));
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),

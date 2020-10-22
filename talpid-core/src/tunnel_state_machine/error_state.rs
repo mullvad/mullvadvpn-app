@@ -102,6 +102,11 @@ impl TunnelState for ErrorState {
                     SameState(self.into())
                 }
             }
+            #[cfg(windows)]
+            Some(TunnelCommand::CustomDns(servers)) => {
+                shared_values.custom_dns = servers;
+                SameState(self.into())
+            }
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
                 SameState(self.into())

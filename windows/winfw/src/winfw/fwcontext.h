@@ -43,7 +43,8 @@ public:
 		const WinFwRelay &relay,
 		const std::wstring &relayClient,
 		const std::wstring &tunnelInterfaceAlias,
-		const std::vector<wfp::IpAddress> &tunnelDnsServers
+		const std::vector<wfp::IpAddress> &tunnelDnsServers,
+		const std::vector<wfp::IpAddress> &nonTunnelDnsServers
 	);
 
 	bool applyPolicyBlocked(const WinFwSettings &settings);

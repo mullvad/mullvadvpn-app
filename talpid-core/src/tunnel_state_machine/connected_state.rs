@@ -8,6 +8,7 @@ use crate::{
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
 use futures::{channel::mpsc, stream::Fuse, StreamExt};
+use std::net::IpAddr;
 use talpid_types::{
     net::TunnelParameters,
     tunnel::{ErrorStateCause, FirewallPolicyError},
@@ -75,11 +76,37 @@ impl ConnectedState {
             })
     }
 
+    #[allow(unused_variables)]
+    fn get_dns_servers(&self, shared_values: &SharedTunnelStateValues) -> Vec<IpAddr> {
+        #[cfg(windows)]
+        if let Some(ref servers) = shared_values.custom_dns {
+            servers.clone()
+        } else {
+            let mut dns_ips = vec![];
+            dns_ips.push(self.metadata.ipv4_gateway.into());
+            if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
+                dns_ips.push(ipv6_gateway.into());
+            };
+            dns_ips
+        }
+        #[cfg(not(windows))]
+        {
+            let mut dns_ips = vec![];
+            dns_ips.push(self.metadata.ipv4_gateway.into());
+            if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
+                dns_ips.push(ipv6_gateway.into());
+            };
+            dns_ips
+        }
+    }
+
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
         FirewallPolicy::Connected {
             peer_endpoint: self.tunnel_parameters.get_next_hop_endpoint(),
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
+            #[cfg(windows)]
+            dns_servers: self.get_dns_servers(shared_values),
             #[cfg(windows)]
             relay_client: TunnelMonitor::get_relay_client(
                 &shared_values.resource_dir,
@@ -91,11 +118,7 @@ impl ConnectedState {
     }
 
     fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
-        let mut dns_ips = vec![self.metadata.ipv4_gateway.into()];
-        if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
-            dns_ips.push(ipv6_gateway.into());
-        };
-
+        let dns_ips = self.get_dns_servers(shared_values);
         shared_values
             .dns_monitor
             .set(&self.metadata.interface, &dns_ips)
@@ -157,6 +180,32 @@ impl ConnectedState {
                             AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
                         ),
                     }
+                }
+            }
+            #[cfg(windows)]
+            Some(TunnelCommand::CustomDns(servers)) => {
+                if shared_values.custom_dns != servers {
+                    shared_values.custom_dns = servers;
+
+                    if let Err(error) = self.set_firewall_policy(shared_values) {
+                        return self.disconnect(
+                            shared_values,
+                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
+                        );
+                    }
+
+                    match self.set_dns(shared_values) {
+                        Ok(()) => SameState(self.into()),
+                        Err(error) => {
+                            log::error!("{}", error.display_chain_with_msg("Failed to set DNS"));
+                            self.disconnect(
+                                shared_values,
+                                AfterDisconnect::Block(ErrorStateCause::SetDnsError),
+                            )
+                        }
+                    }
+                } else {
+                    SameState(self.into())
                 }
             }
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
