@@ -7,6 +7,8 @@ use jnix::IntoJava;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
+#[cfg(windows)]
+use std::net::IpAddr;
 use talpid_types::net::{openvpn, wireguard, GenericTunnelOptions};
 
 mod migrations;
@@ -164,6 +166,20 @@ pub struct TunnelOptions {
     /// Contains generic tunnel options that may apply to more than a single tunnel type.
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub generic: GenericTunnelOptions,
+    /// Custom DNS options.
+    #[cfg(windows)]
+    pub dns_options: DnsOptions,
+}
+
+/// Custom DNS config
+#[cfg(windows)]
+#[serde(default)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+pub struct DnsOptions {
+    /// Whether to use the addresses in `custom_dns`.
+    pub custom: bool,
+    /// Custom DNS servers to use.
+    pub addresses: Vec<IpAddr>,
 }
 
 impl Default for TunnelOptions {
@@ -177,9 +193,9 @@ impl Default for TunnelOptions {
             generic: GenericTunnelOptions {
                 // Enable IPv6 be default on Android
                 enable_ipv6: cfg!(target_os = "android"),
-                #[cfg(windows)]
-                custom_dns: None,
             },
+            #[cfg(windows)]
+            dns_options: DnsOptions::default(),
         }
     }
 }

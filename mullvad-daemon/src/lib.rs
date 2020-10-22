@@ -26,6 +26,8 @@ use futures::{
 };
 use log::{debug, error, info, warn};
 use mullvad_rpc::AccountsProxy;
+#[cfg(windows)]
+use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     endpoint::MullvadEndpoint,
@@ -196,7 +198,7 @@ pub enum DaemonCommand {
     SetEnableIpv6(oneshot::Sender<()>, bool),
     /// Set custom DNS servers to use instead of passing requests to the gateway
     #[cfg(windows)]
-    SetCustomDns(oneshot::Sender<()>, Option<Vec<IpAddr>>),
+    SetDnsOptions(oneshot::Sender<()>, DnsOptions),
     /// Set MTU for wireguard tunnels
     SetWireguardMtu(oneshot::Sender<()>, Option<u16>),
     /// Set automatic key rotation interval for wireguard tunnels
@@ -581,7 +583,7 @@ where
             settings.allow_lan,
             settings.block_when_disconnected,
             #[cfg(windows)]
-            settings.tunnel_options.generic.custom_dns.clone(),
+            Self::get_custom_resolvers(&settings.tunnel_options.dns_options),
             tunnel_parameters_generator,
             log_dir,
             resource_dir,
@@ -632,6 +634,15 @@ where
         daemon.ensure_wireguard_keys_for_current_account().await;
 
         Ok(daemon)
+    }
+
+    #[cfg(windows)]
+    fn get_custom_resolvers(dns_options: &DnsOptions) -> Option<Vec<IpAddr>> {
+        if dns_options.custom {
+            Some(dns_options.addresses.clone())
+        } else {
+            None
+        }
     }
 
     /// Consume the `Daemon` and run the main event loop. Blocks until an error happens or a
@@ -1046,7 +1057,7 @@ where
             SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
             #[cfg(windows)]
-            SetCustomDns(tx, dns_servers) => self.on_set_custom_dns(tx, dns_servers),
+            SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers),
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
             SetWireguardRotationInterval(tx, interval) => {
                 self.on_set_wireguard_rotation_interval(tx, interval).await
@@ -1686,15 +1697,17 @@ where
     }
 
     #[cfg(windows)]
-    fn on_set_custom_dns(&mut self, tx: oneshot::Sender<()>, servers: Option<Vec<IpAddr>>) {
-        let save_result = self.settings.set_custom_dns(servers.clone());
+    fn on_set_dns_options(&mut self, tx: oneshot::Sender<()>, dns_options: DnsOptions) {
+        let save_result = self.settings.set_dns_options(dns_options.clone());
         match save_result {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "set_custom_dns response");
+                Self::oneshot_send(tx, (), "set_dns_options response");
                 if settings_changed {
-                    self.event_listener
-                        .notify_settings(self.settings.to_settings());
-                    self.send_tunnel_command(TunnelCommand::CustomDns(servers));
+                    let settings = self.settings.to_settings();
+                    let resolvers =
+                        Self::get_custom_resolvers(&settings.tunnel_options.dns_options);
+                    self.event_listener.notify_settings(settings);
+                    self.send_tunnel_command(TunnelCommand::CustomDns(resolvers));
                 }
             }
             Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
