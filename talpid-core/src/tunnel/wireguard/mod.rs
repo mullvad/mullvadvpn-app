@@ -23,6 +23,9 @@ mod wireguard_go;
 #[cfg(target_os = "linux")]
 mod wireguard_kernel;
 
+#[cfg(target_os = "linux")]
+mod network_manager;
+
 use self::wireguard_go::WgGoTunnel;
 
 type Result<T> = std::result::Result<T, Error>;
@@ -149,6 +152,20 @@ impl WireguardMonitor {
     ) -> Result<Box<dyn Tunnel>> {
         #[cfg(target_os = "linux")]
         if !*FORCE_USERSPACE_WIREGUARD {
+            match network_manager::NetworkManager::new(config) {
+                Ok(tunnel) => {
+                    log::debug!("Using NetworkManager to use kernel WireGuard implementation");
+                    return Ok(Box::new(tunnel));
+                }
+                Err(err) => {
+                    log::debug!(
+                        "{}",
+                        err.display_chain_with_msg(
+                            "Failed to create a WireGuard device via NetworkManager"
+                        )
+                    );
+                }
+            };
             match wireguard_kernel::KernelTunnel::new(route_manager.runtime_handle(), config) {
                 Ok(tunnel) => {
                     log::debug!("Using kernel WireGuard implementation");

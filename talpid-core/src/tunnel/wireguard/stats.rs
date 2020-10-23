@@ -5,6 +5,9 @@ pub enum Error {
 
     #[error(display = "Config key not found")]
     KeyNotFoundError,
+
+    #[error(display = "Device no longer exists")]
+    NoTunnelDevice,
 }
 
 /// Contains bytes sent and received through a tunnel
