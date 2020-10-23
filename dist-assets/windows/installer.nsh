@@ -82,6 +82,21 @@
 !define ExtractWintun '!insertmacro "ExtractWintun"'
 
 #
+# ExtractMullvadSetup
+#
+# Extract mullvad-setup into $TEMP
+#
+!macro ExtractMullvadSetup
+
+	SetOutPath "$TEMP"
+	File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
+	File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-Release\winfw.dll"
+
+!macroend
+
+!define ExtractMullvadSetup '!insertmacro "ExtractMullvadSetup"'
+
+#
 # RemoveBrandedTap
 #
 # Try to remove the Mullvad TAP adapter driver
@@ -572,9 +587,6 @@
 	Push $0
 	Push $1
 
-	SetOutPath "$TEMP"
-	File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
-	File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-Release\winfw.dll"
 	nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" reset-firewall'
 	Pop $0
 	Pop $1
@@ -598,9 +610,6 @@
 	Push $0
 	Push $1
 
-	SetOutPath "$TEMP"
-	File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
-	File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-Release\winfw.dll"
 	nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" clear-history'
 	Pop $0
 	Pop $1
@@ -744,6 +753,7 @@
 	${If} $BlockFilterResult == 0
 	${OrIf} $PersistentBlockFilterResult == 0
 		MessageBox MB_ICONEXCLAMATION|MB_YESNO "Do you wish to unblock your internet access? Doing so will leave you with an unsecure connection." IDNO customInstall_abortInstallation_skip_firewall_revert
+		${ExtractMullvadSetup}
 		${ClearFirewallRules}
 	${EndIf}
 
@@ -790,11 +800,10 @@
 
 	log::Log "Running uninstaller for ${PRODUCT_NAME} ${VERSION}"
 
+	${ExtractMullvadSetup}
+
 	${If} $FullUninstall != 1
 		# Save the target tunnel state if we're upgrading
-		SetOutPath "$TEMP"
-		File "${BUILD_RESOURCES_DIR}\mullvad-setup.exe"
-		File "${BUILD_RESOURCES_DIR}\..\windows\winfw\bin\x64-Release\winfw.dll"
 		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" prepare-restart'
 		Pop $0
 		Pop $1
