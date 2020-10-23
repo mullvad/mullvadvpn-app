@@ -55,6 +55,9 @@ Line wrap the file at 100 chars.                                              Th
   settings tile.
 - Fix app starting by itself sometimes.
 
+#### Windows
+- Fix log output encoding for Windows modules.
+
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and
   "Always require VPN" were disabled, the service would reset the firewall upon starting back up,
