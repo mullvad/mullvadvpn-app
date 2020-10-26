@@ -166,7 +166,6 @@ pub struct TunnelOptions {
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub generic: GenericTunnelOptions,
     /// Custom DNS options.
-    #[cfg(not(target_os = "android"))]
     pub dns_options: DnsOptions,
 }
 
