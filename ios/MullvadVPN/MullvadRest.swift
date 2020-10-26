@@ -51,9 +51,9 @@ struct ServerErrorResponse: LocalizedError, Decodable, RestResponse, Equatable {
     var errorDescription: String? {
         switch code {
         case Code.keyLimitReached.rawValue:
-            return NSLocalizedString("Too many public WireGuard keys", comment: "")
+            return NSLocalizedString("Too many WireGuard keys in use.", comment: "")
         case Code.invalidAccount.rawValue:
-            return NSLocalizedString("Invalid account", comment: "")
+            return NSLocalizedString("Invalid account.", comment: "")
         default:
             return nil
         }
@@ -62,7 +62,7 @@ struct ServerErrorResponse: LocalizedError, Decodable, RestResponse, Equatable {
     var recoverySuggestion: String? {
         switch code {
         case Code.keyLimitReached.rawValue:
-            return NSLocalizedString("Remove unused WireGuard keys", comment: "")
+            return NSLocalizedString("Please visit the website to revoke a key before login is possible.", comment: "")
         default:
             return nil
         }

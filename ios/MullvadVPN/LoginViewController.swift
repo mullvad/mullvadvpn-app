@@ -328,8 +328,30 @@ private extension LoginState {
             switch error {
             case .createAccount(let rpcError), .verifyAccount(let rpcError):
                 return rpcError.errorChainDescription ?? ""
-            case .tunnelConfiguration:
-                return NSLocalizedString("Internal error", comment: "")
+            case .tunnelConfiguration(let error):
+                if case .pushWireguardKey(let pushError) = error {
+                    switch pushError {
+                    case .network(let urlError):
+                        return String(
+                            format: NSLocalizedString("Network error: %@", comment: ""),
+                            urlError.localizedDescription
+                        )
+
+                    case .server(let serverError):
+                        var message = serverError.errorDescription ?? NSLocalizedString("Unknown server error.", comment: "")
+
+                        if let recoverySuggestion = serverError.recoverySuggestion {
+                            message.append("\n\(recoverySuggestion)")
+                        }
+
+                        return message
+
+                    case .encodePayload, .decodeErrorResponse, .decodeSuccessResponse:
+                        return NSLocalizedString("Internal error", comment: "")
+                    }
+                } else {
+                    return NSLocalizedString("Internal error", comment: "")
+                }
             }
 
         case .success(let method):

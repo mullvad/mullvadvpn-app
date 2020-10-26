@@ -16,7 +16,10 @@ extension RestError: DisplayChainedError {
     var errorChainDescription: String? {
         switch self {
         case .network(let urlError):
-            return urlError.localizedDescription
+            return String(
+                format: NSLocalizedString("Network error: %@", comment: ""),
+                urlError.localizedDescription
+            )
         case .server(let serverError):
             if let knownErrorDescription = serverError.errorDescription {
                 return knownErrorDescription
