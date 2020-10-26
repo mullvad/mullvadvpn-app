@@ -1,9 +1,7 @@
 use log::{debug, error, info};
-#[cfg(not(target_os = "android"))]
-use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
-    settings::Settings,
+    settings::{DnsOptions, Settings},
 };
 use std::{
     fs::{self, File},
@@ -212,7 +210,6 @@ impl SettingsPersister {
         self.update(should_save)
     }
 
-    #[cfg(not(target_os = "android"))]
     pub fn set_dns_options(&mut self, options: DnsOptions) -> Result<bool, Error> {
         let should_save =
             Self::update_field(&mut self.settings.tunnel_options.dns_options, options);

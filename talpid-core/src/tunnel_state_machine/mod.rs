@@ -151,7 +151,6 @@ pub enum TunnelCommand {
     /// Enable or disable LAN access in the firewall.
     AllowLan(bool),
     /// Set custom DNS servers to use.
-    #[cfg(not(target_os = "android"))]
     CustomDns(Option<Vec<IpAddr>>),
     /// Enable or disable the block_when_disconnected feature.
     BlockWhenDisconnected(bool),
@@ -216,7 +215,6 @@ impl TunnelStateMachine {
             allow_lan,
             block_when_disconnected,
             is_offline,
-            #[cfg(not(target_os = "android"))]
             custom_dns,
             tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
             tun_provider,
@@ -290,7 +288,6 @@ struct SharedTunnelStateValues {
     /// True when the computer is known to be offline.
     is_offline: bool,
     /// Custom DNS servers to use.
-    #[cfg(not(target_os = "android"))]
     custom_dns: Option<Vec<IpAddr>>,
     /// The generator of new `TunnelParameter`s
     tunnel_parameters_generator: Box<dyn TunnelParametersGenerator>,
