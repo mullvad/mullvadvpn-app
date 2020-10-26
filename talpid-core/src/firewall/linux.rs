@@ -614,21 +614,45 @@ impl<'a> PolicyBatch<'a> {
         protocol: TransportProtocol,
         host: IpAddr,
     ) -> Result<()> {
-        let mut allow_rule = Rule::new(&self.out_chain);
-        let daddr = match host {
-            IpAddr::V4(_) => nft_expr!(payload ipv4 daddr),
-            IpAddr::V6(_) => nft_expr!(payload ipv6 daddr),
-        };
+        enum ChainDirection {
+            In,
+            Out,
+        }
 
-        check_not_iface(&mut allow_rule, Direction::Out, tunnel_interface)?;
-        check_port(&mut allow_rule, protocol, End::Dst, 53);
-        check_l3proto(&mut allow_rule, host);
+        let chains = [
+            (&self.out_chain, ChainDirection::Out),
+            (&self.in_chain, ChainDirection::In),
+        ];
 
-        allow_rule.add_expr(&daddr);
-        allow_rule.add_expr(&nft_expr!(cmp == host));
-        add_verdict(&mut allow_rule, &Verdict::Accept);
+        for (chain, direction) in &chains {
+            let mut allow_rule = Rule::new(chain);
+            let addr = match (host, direction) {
+                (IpAddr::V4(_), ChainDirection::Out) => nft_expr!(payload ipv4 daddr),
+                (IpAddr::V6(_), ChainDirection::Out) => nft_expr!(payload ipv6 daddr),
+                (IpAddr::V4(_), ChainDirection::In) => nft_expr!(payload ipv4 saddr),
+                (IpAddr::V6(_), ChainDirection::In) => nft_expr!(payload ipv6 saddr),
+            };
 
-        self.batch.add(&allow_rule, nftnl::MsgType::Add);
+            let iface_dir = match direction {
+                ChainDirection::In => Direction::In,
+                ChainDirection::Out => Direction::Out,
+            };
+            let port_dir = match direction {
+                ChainDirection::In => End::Src,
+                ChainDirection::Out => End::Dst,
+            };
+
+            check_not_iface(&mut allow_rule, iface_dir, tunnel_interface)?;
+            check_port(&mut allow_rule, protocol, port_dir, 53);
+            check_l3proto(&mut allow_rule, host);
+
+            allow_rule.add_expr(&addr);
+            allow_rule.add_expr(&nft_expr!(cmp == host));
+            add_verdict(&mut allow_rule, &Verdict::Accept);
+
+            self.batch.add(&allow_rule, nftnl::MsgType::Add);
+        }
+
         Ok(())
     }
 
