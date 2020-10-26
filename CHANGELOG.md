@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Handle statically added routes.
 - Stop periodically reconnecting when using WireGuard and NetworkManager
+- Ignore routes that use the loopback interface
 
 
 ## [2020.6] - 2020-10-20
