@@ -31,6 +31,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Add support for custom DNS resolvers (CLI only).
 
+#### Linux
+- Add support for custom DNS resolvers (CLI only).
+
 ### Changed
 - Use the API to fetch API IP addresses instead of DNS.
 - Remove WireGuard keys during uninstallation after the firewall is unlocked.
