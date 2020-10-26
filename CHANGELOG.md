@@ -61,6 +61,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Fix log output encoding for Windows modules.
+- Fix app not appearing on top in some situations when pressing the tray icon.
 
 #### Linux
 - Handle statically added routes.

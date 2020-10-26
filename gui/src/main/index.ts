@@ -1370,6 +1370,10 @@ class ApplicationMain {
         // setup window flags to mimic an overlay window
         return new BrowserWindow({
           ...options,
+          // Due to a bug in Electron the app is sometimes placed behind other apps when opened.
+          // Setting alwaysOnTop to true ensures that the app is placed on top. Electron issue:
+          // https://github.com/electron/electron/issues/25915
+          alwaysOnTop: true,
           transparent: true,
           skipTaskbar: true,
         });
