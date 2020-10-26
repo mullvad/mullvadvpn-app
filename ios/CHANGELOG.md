@@ -23,7 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-
+### Fixed
+- Fix regression where "Internal error" was displayed instead of server error (i.e too many 
+  WireGuard keys)
 
 ## [2020.4] - 2020-09-10
 ### Added
@@ -43,6 +45,7 @@ Line wrap the file at 100 chars.                                              Th
 - Remove the WireGuard key from the account inside the VPN tunnel during the log out, if VPN is
   active at that time. Before it would always remove it outside the tunnel.
 - Turn off WireGuard backend when there are no active network interfaces available. Saves battery.
+- Switch from JSON-RPC to REST communication protocol when talking to Mullvad API servers.
 
 
 ## [2020.3] - 2020-06-12
