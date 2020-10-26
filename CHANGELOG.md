@@ -31,6 +31,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Add support for custom DNS resolvers (CLI only).
 
+#### Linux
+- Use NetworkManager to create a WireGuard interface.
+
 ### Changed
 - Use the API to fetch API IP addresses instead of DNS.
 - Remove WireGuard keys during uninstallation after the firewall is unlocked.
@@ -57,6 +60,10 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Fix log output encoding for Windows modules.
+
+#### Linux
+- Handle statically added routes.
+- Stop reconnecting when using WireGuard and NetworkManager.
 
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and

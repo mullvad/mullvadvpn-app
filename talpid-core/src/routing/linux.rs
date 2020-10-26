@@ -196,7 +196,9 @@ impl RouteManagerImpl {
     async fn initialize_exclusions_routes(&mut self) -> Result<()> {
         self.purge_exclusions_routes().await?;
 
-        let main_routes = self.get_routes(None).await?;
+        let mut main_routes = self.get_routes(None).await?.into_iter().collect::<Vec<_>>();
+        main_routes.sort_by(|a, b| a.prefix.prefix().cmp(&b.prefix.prefix()));
+
         for mut route in main_routes {
             route.table_id = self.split_table_id;
             self.add_route_direct(route).await?;
