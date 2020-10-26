@@ -23,7 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-
+### Fixed
+- Fix regression where "Internal error" was displayed instead of server error (i.e too many 
+  WireGuard keys)
 
 ## [2020.4] - 2020-09-10
 ### Added
