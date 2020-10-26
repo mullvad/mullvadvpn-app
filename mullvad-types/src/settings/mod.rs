@@ -7,7 +7,6 @@ use jnix::IntoJava;
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
-#[cfg(not(target_os = "android"))]
 use std::net::IpAddr;
 use talpid_types::net::{openvpn, wireguard, GenericTunnelOptions};
 
@@ -172,9 +171,10 @@ pub struct TunnelOptions {
 }
 
 /// Custom DNS config
-#[cfg(not(target_os = "android"))]
 #[serde(default)]
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct DnsOptions {
     /// Whether to use the addresses in `custom_dns`.
     pub custom: bool,
@@ -194,7 +194,6 @@ impl Default for TunnelOptions {
                 // Enable IPv6 be default on Android
                 enable_ipv6: cfg!(target_os = "android"),
             },
-            #[cfg(not(target_os = "android"))]
             dns_options: DnsOptions::default(),
         }
     }

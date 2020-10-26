@@ -7,6 +7,7 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/mullvadvpn/model/AppVersionInfo",
     "net/mullvad/mullvadvpn/model/Constraint$Any",
     "net/mullvad/mullvadvpn/model/Constraint$Only",
+    "net/mullvad/mullvadvpn/model/DnsOptions",
     "net/mullvad/mullvadvpn/model/GeoIpLocation",
     "net/mullvad/mullvadvpn/model/GetAccountDataResult$Ok",
     "net/mullvad/mullvadvpn/model/GetAccountDataResult$InvalidAccount",
