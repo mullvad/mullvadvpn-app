@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+#### Linux
+- Handle statically added routes.
 
 
 ## [2020.6] - 2020-10-20
