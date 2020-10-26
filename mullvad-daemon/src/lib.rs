@@ -194,7 +194,6 @@ pub enum DaemonCommand {
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(oneshot::Sender<()>, bool),
     /// Set custom DNS servers to use instead of passing requests to the gateway
-    #[cfg(not(target_os = "android"))]
     SetDnsOptions(oneshot::Sender<()>, DnsOptions),
     /// Set MTU for wireguard tunnels
     SetWireguardMtu(oneshot::Sender<()>, Option<u16>),
@@ -1052,7 +1051,6 @@ where
             }
             SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
-            #[cfg(not(target_os = "android"))]
             SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers),
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
             SetWireguardRotationInterval(tx, interval) => {
@@ -1692,7 +1690,6 @@ where
         }
     }
 
-    #[cfg(not(target_os = "android"))]
     fn on_set_dns_options(&mut self, tx: oneshot::Sender<()>, dns_options: DnsOptions) {
         let save_result = self.settings.set_dns_options(dns_options.clone());
         match save_result {

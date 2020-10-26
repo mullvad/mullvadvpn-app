@@ -192,7 +192,6 @@ impl ConnectedState {
                     }
                 }
             }
-            #[cfg(not(target_os = "android"))]
             Some(TunnelCommand::CustomDns(servers)) => {
                 if shared_values.custom_dns != servers {
                     shared_values.custom_dns = servers;

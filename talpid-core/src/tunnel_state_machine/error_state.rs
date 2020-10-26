@@ -105,7 +105,6 @@ impl TunnelState for ErrorState {
                     SameState(self.into())
                 }
             }
-            #[cfg(not(target_os = "android"))]
             Some(TunnelCommand::CustomDns(servers)) => {
                 shared_values.custom_dns = servers;
                 SameState(self.into())

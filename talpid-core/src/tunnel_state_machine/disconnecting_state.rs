@@ -32,7 +32,6 @@ impl DisconnectingState {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Nothing
                 }
-                #[cfg(not(target_os = "android"))]
                 Some(TunnelCommand::CustomDns(servers)) => {
                     shared_values.custom_dns = servers;
                     AfterDisconnect::Nothing
@@ -54,7 +53,6 @@ impl DisconnectingState {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Block(reason)
                 }
-                #[cfg(not(target_os = "android"))]
                 Some(TunnelCommand::CustomDns(servers)) => {
                     shared_values.custom_dns = servers;
                     AfterDisconnect::Block(reason)
@@ -81,7 +79,6 @@ impl DisconnectingState {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
-                #[cfg(not(target_os = "android"))]
                 Some(TunnelCommand::CustomDns(servers)) => {
                     shared_values.custom_dns = servers;
                     AfterDisconnect::Reconnect(retry_attempt)
