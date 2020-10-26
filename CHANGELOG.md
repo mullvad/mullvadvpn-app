@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Linux
 - Use NetworkManager to create a WireGuard interface.
+- Add support for custom DNS resolvers (CLI only).
 
 ### Changed
 - Use the API to fetch API IP addresses instead of DNS.
