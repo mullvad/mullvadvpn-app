@@ -47,7 +47,7 @@ const fn ctl_code(device_type: u32, function: u32, method: u32, access: u32) -> 
 
 #[repr(u32)]
 #[allow(dead_code)]
-enum DriverIoctlCode {
+pub enum DriverIoctlCode {
     Initialize = ctl_code(ST_DEVICE_TYPE, 1, METHOD_NEITHER, FILE_ANY_ACCESS),
     DequeEvent = ctl_code(ST_DEVICE_TYPE, 2, METHOD_BUFFERED, FILE_ANY_ACCESS),
     RegisterProcesses = ctl_code(ST_DEVICE_TYPE, 3, METHOD_BUFFERED, FILE_ANY_ACCESS),
