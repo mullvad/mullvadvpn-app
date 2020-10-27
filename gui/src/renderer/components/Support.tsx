@@ -30,11 +30,11 @@ import { AccountToken } from '../../shared/daemon-rpc-types';
 import { ISupportReportForm } from '../redux/support/actions';
 
 enum SendState {
-  Initial,
-  Confirm,
-  Sending,
-  Success,
-  Failed,
+  initial,
+  confirm,
+  sending,
+  success,
+  failed,
 }
 
 interface ISupportState {
@@ -66,7 +66,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     email: '',
     message: '',
     savedReport: undefined,
-    sendState: SendState.Initial,
+    sendState: SendState.initial,
     disableActions: false,
     showOutdatedVersionWarning: false,
   };
@@ -111,12 +111,12 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
 
   public onSend = async (): Promise<void> => {
     const sendState = this.state.sendState;
-    if (sendState === SendState.Initial && this.state.email.length === 0) {
-      this.setState({ sendState: SendState.Confirm });
+    if (sendState === SendState.initial && this.state.email.length === 0) {
+      this.setState({ sendState: SendState.confirm });
     } else if (
-      sendState === SendState.Initial ||
-      sendState === SendState.Confirm ||
-      sendState === SendState.Failed
+      sendState === SendState.initial ||
+      sendState === SendState.confirm ||
+      sendState === SendState.failed
     ) {
       try {
         await this.sendReport();
@@ -127,7 +127,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
   };
 
   public onCancelNoEmailDialog = () => {
-    this.setState({ sendState: SendState.Initial });
+    this.setState({ sendState: SendState.initial });
   };
 
   public render() {
@@ -135,7 +135,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     const header = (
       <SettingsHeader>
         <HeaderTitle>{messages.pgettext('support-view', 'Report a problem')}</HeaderTitle>
-        {(sendState === SendState.Initial || sendState === SendState.Confirm) && (
+        {(sendState === SendState.initial || sendState === SendState.confirm) && (
           <HeaderSubTitle>
             {messages.pgettext(
               'support-view',
@@ -173,7 +173,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
               {content}
             </StyledContentContainer>
 
-            {sendState === SendState.Confirm && this.renderNoEmailDialog()}
+            {sendState === SendState.confirm && this.renderNoEmailDialog()}
             {showOutdatedVersionWarning && this.renderOutdateVersionWarningDialog()}
           </StyledContainer>
         </Layout>
@@ -212,17 +212,17 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
 
   private sendReport(): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.setState({ sendState: SendState.Sending }, async () => {
+      this.setState({ sendState: SendState.sending }, async () => {
         try {
           const { email, message } = this.state;
           const reportPath = await this.collectLog();
           await this.props.sendProblemReport(email, message, reportPath);
           this.props.clearReportForm();
-          this.setState({ sendState: SendState.Success }, () => {
+          this.setState({ sendState: SendState.success }, () => {
             resolve();
           });
         } catch (error) {
-          this.setState({ sendState: SendState.Failed }, () => {
+          this.setState({ sendState: SendState.failed }, () => {
             reject(error);
           });
         }
@@ -232,14 +232,14 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
 
   private renderContent() {
     switch (this.state.sendState) {
-      case SendState.Initial:
-      case SendState.Confirm:
+      case SendState.initial:
+      case SendState.confirm:
         return this.renderForm();
-      case SendState.Sending:
+      case SendState.sending:
         return this.renderSending();
-      case SendState.Success:
+      case SendState.success:
         return this.renderSent();
-      case SendState.Failed:
+      case SendState.failed:
         return this.renderFailed();
       default:
         return null;
@@ -253,7 +253,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     );
     return (
       <ModalAlert
-        type={ModalAlertType.Warning}
+        type={ModalAlertType.warning}
         message={message}
         buttons={[
           <AppButton.RedButton key="proceed" onClick={this.onSend}>
@@ -281,7 +281,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     );
     return (
       <ModalAlert
-        type={ModalAlertType.Warning}
+        type={ModalAlertType.warning}
         message={message}
         buttons={[
           <AriaDescriptionGroup key="upgrade">
@@ -433,7 +433,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
   }
 
   private handleEditMessage = () => {
-    this.setState({ sendState: SendState.Initial });
+    this.setState({ sendState: SendState.initial });
   };
 
   private performWithActionsDisabled(work: () => Promise<void>) {
