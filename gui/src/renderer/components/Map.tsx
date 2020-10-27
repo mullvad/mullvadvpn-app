@@ -30,14 +30,14 @@ interface IState {
 }
 
 export default class Map extends React.Component<IProps, IState> {
-  private containerRef = React.createRef<HTMLDivElement>();
-
   public state: IState = {
     bounds: {
       width: 0,
       height: 0,
     },
   };
+
+  private containerRef = React.createRef<HTMLDivElement>();
 
   public render() {
     const { width, height } = this.state.bounds;

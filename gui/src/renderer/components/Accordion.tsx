@@ -29,9 +29,6 @@ const Content = styled.div({
 });
 
 export default class Accordion extends React.Component<IProps, IState> {
-  private containerRef = React.createRef<HTMLDivElement>();
-  private contentRef = React.createRef<HTMLDivElement>();
-
   public static defaultProps = {
     expanded: true,
     animationDuration: 350,
@@ -41,6 +38,9 @@ export default class Accordion extends React.Component<IProps, IState> {
     mountChildren: this.props.expanded,
     containerHeight: this.props.expanded ? 'auto' : '0',
   };
+
+  private containerRef = React.createRef<HTMLDivElement>();
+  private contentRef = React.createRef<HTMLDivElement>();
 
   public componentDidUpdate(oldProps: IProps) {
     if (this.props.expanded && !oldProps.expanded) {
