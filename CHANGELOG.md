@@ -45,6 +45,9 @@ Line wrap the file at 100 chars.                                              Th
   more smoothly.
 - Run app in landscape mode on TVs.
 
+#### Linux
+- Increase NetworkManager device readiness timeout to 15 seconds.
+
 ### Fixed
 - Fix missing map animation after selecting a new location in the desktop app.
 
@@ -64,6 +67,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Handle statically added routes.
 - Stop reconnecting when using WireGuard and NetworkManager.
+- Apply DNS config quicker when managing DNS via NetworkManager.
+
 
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and
