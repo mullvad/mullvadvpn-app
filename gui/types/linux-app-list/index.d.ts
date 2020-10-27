@@ -1,6 +1,7 @@
 // Implemented in accordance with this specification:
 // https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
 declare module 'linux-app-list' {
+  /* eslint-disable @typescript-eslint/naming-convention */
   export interface AppData {
     absolutepath: string;
     Name: string;
@@ -15,6 +16,7 @@ declare module 'linux-app-list' {
     NotShowIn?: string | string[];
     TryExec?: string;
   }
+  /* eslint-enable @typescript-eslint/naming-convention */
 
   export interface AppList {
     list(): string[];
