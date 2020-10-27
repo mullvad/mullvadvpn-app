@@ -540,6 +540,12 @@ class ApplicationMain {
     } else {
       log.info('Disconnected from the daemon');
     }
+
+    // Set GUI version info if it hasn't already been done. Only happens if the app starts without a
+    // connection to the daemon.
+    if (this.currentVersion.gui === '') {
+      this.setDaemonVersion('');
+    }
   };
 
   private connectToDaemon() {
