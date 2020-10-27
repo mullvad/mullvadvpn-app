@@ -62,6 +62,7 @@ module.exports = {
     },
   },
   rules: {
+    quotes: ['error', 'single', { avoidEscape: true }],
     'prettier/prettier': 'error',
     '@typescript-eslint/no-unused-vars': [
       'error',
