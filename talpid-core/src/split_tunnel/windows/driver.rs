@@ -747,6 +747,60 @@ pub fn device_io_control_buffer(
     Ok(())
 }
 
+/// Send an IOCTL code to the given device handle.
+/// `input` specifies an optional buffer to send.
+/// The result must be obtained using `GetOverlappedResultEx`.
+pub unsafe fn device_io_control_buffer_async(
+    device: RawHandle,
+    ioctl_code: u32,
+    mut output: Option<&mut Vec<u8>>,
+    input: Option<&[u8]>,
+    overlapped: &OVERLAPPED,
+) -> Result<(), io::Error> {
+    let input_ptr = match input {
+        Some(input) => input as *const _ as *mut _,
+        None => ptr::null_mut(),
+    };
+    let input_len = input.map(|input| input.len()).unwrap_or(0);
+
+    let out_ptr = match output {
+        Some(ref mut output) => output.as_mut_ptr() as *mut _,
+        None => ptr::null_mut(),
+    };
+    let output_size = if let Some(ref output) = output {
+        output.capacity()
+    } else {
+        0
+    };
+
+    let overlapped = overlapped as *const _ as *mut _;
+
+    let result = DeviceIoControl(
+        device as *mut _,
+        ioctl_code,
+        input_ptr,
+        input_len as u32,
+        out_ptr,
+        output_size as u32,
+        ptr::null_mut(),
+        overlapped,
+    );
+
+    if result != 0 {
+        return Err(io::Error::new(
+            io::ErrorKind::Other,
+            "Expected pending operation",
+        ));
+    }
+
+    let last_error = io::Error::last_os_error();
+    if last_error.raw_os_error() != Some(ERROR_IO_PENDING as i32) {
+        return Err(last_error);
+    }
+
+    Ok(())
+}
+
 /// Creates a new instance of an arbitrary type from a byte buffer.
 pub unsafe fn deserialize_buffer<T: Sized>(buffer: &Vec<u8>) -> T {
     let mut instance: T = mem::zeroed();
