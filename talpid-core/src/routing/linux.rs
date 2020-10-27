@@ -94,6 +94,8 @@ pub struct RouteManagerImpl {
 
     split_table_id: u32,
     split_ignored_interface: Option<String>,
+
+    dns_routes: HashSet<Route>,
 }
 
 impl RouteManagerImpl {
@@ -129,6 +131,8 @@ impl RouteManagerImpl {
 
             split_table_id,
             split_ignored_interface: None,
+
+            dns_routes: HashSet::new(),
         };
 
         monitor.initialize_exclusions_routes().await?;
@@ -265,26 +269,47 @@ impl RouteManagerImpl {
         }
     }
 
+    async fn clear_exclusions_dns(&mut self) -> Result<()> {
+        for route in self.dns_routes.clone() {
+            self.delete_route_if_exists(&route).await?;
+            self.dns_routes.remove(&route);
+            self.added_routes.remove(&route);
+        }
+        self.dns_routes.clear();
+
+        Ok(())
+    }
+
     /// Route DNS requests through the tunnel interface.
-    #[cfg(target_os = "linux")]
     async fn route_exclusions_dns(
         &mut self,
         tunnel_alias: &str,
         dns_servers: &[IpAddr],
     ) -> Result<()> {
+        self.clear_exclusions_dns().await?;
+
         let mut dns_routes = HashSet::new();
 
         for server in dns_servers {
             dns_routes.insert(
-                RequiredRoute::new(
-                    IpNetwork::from(*server),
+                Route::new(
                     Node::device(tunnel_alias.to_string()),
+                    IpNetwork::from(*server),
                 )
                 .table(self.split_table_id),
             );
         }
 
-        self.add_required_routes(dns_routes).await
+        if let Some(capacity_needed) = dns_routes.len().checked_sub(self.dns_routes.capacity()) {
+            self.dns_routes.reserve(capacity_needed);
+        }
+
+        for route in dns_routes {
+            self.add_route(route.clone()).await?;
+            self.dns_routes.insert(route);
+        }
+
+        Ok(())
     }
 
     async fn add_required_default_routes(
@@ -478,9 +503,8 @@ impl RouteManagerImpl {
             self.default_routes.remove(&route);
             self.update_default_routes().await?;
         }
-        if self.added_routes.contains(&route) {
-            self.added_routes.remove(&route);
-        }
+        self.added_routes.remove(&route);
+        self.dns_routes.remove(&route);
         Ok(())
     }
 
@@ -583,32 +607,17 @@ impl RouteManagerImpl {
 
             let route =
                 Route::new(best_node, required_route.destination).table(required_route.table_id);
-            if let Err(e) = self.delete_route(&route).await {
-                if let Error::NetlinkError(err) = &e {
-                    if let rtnetlink::Error::NetlinkError(msg) = err {
-                        // -3 means that the route doesn't exist anymore anyway
-                        if msg.code == -3 {
-                            continue;
-                        }
-                    }
-                }
+            if let Err(e) = self.delete_route_if_exists(&route).await {
                 log::error!("Failed to remove route - {} - {}", route, e);
             }
         }
         self.required_default_routes.clear();
 
         for route in self.added_routes.drain().collect::<Vec<_>>().iter() {
-            if let Err(e) = self.delete_route(&route).await {
-                if let Error::NetlinkError(err) = &e {
-                    if let rtnetlink::Error::NetlinkError(msg) = err {
-                        // -3 means that the route doesn't exist anymore anyway
-                        if msg.code == -3 {
-                            continue;
-                        }
-                    }
-                }
+            if let Err(e) = self.delete_route_if_exists(&route).await {
                 log::error!("Failed to remove route - {} - {}", route, e);
             }
+            self.dns_routes.remove(&route);
         }
     }
 
@@ -807,6 +816,21 @@ impl RouteManagerImpl {
         } else {
             log::error!("Expected either 4 or 16 bytes, got {} bytes", bytes.len());
             Err(Error::InvalidIpBytes)
+        }
+    }
+
+    async fn delete_route_if_exists(&self, route: &Route) -> Result<()> {
+        if let Err(error) = self.delete_route(route).await {
+            if let Error::NetlinkError(netlink_error) = &error {
+                if let rtnetlink::Error::NetlinkError(msg) = &netlink_error {
+                    if msg.code == -libc::ESRCH {
+                        return Ok(());
+                    }
+                }
+            }
+            Err(error)
+        } else {
+            Ok(())
         }
     }
 

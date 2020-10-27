@@ -26,7 +26,7 @@ use futures::{
 };
 use log::{debug, error, info, warn};
 use mullvad_rpc::AccountsProxy;
-#[cfg(windows)]
+#[cfg(any(windows, target_os = "linux"))]
 use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
@@ -43,7 +43,7 @@ use mullvad_types::{
     wireguard::KeygenEvent,
 };
 use settings::SettingsPersister;
-#[cfg(windows)]
+#[cfg(any(windows, target_os = "linux"))]
 use std::net::IpAddr;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
@@ -197,7 +197,7 @@ pub enum DaemonCommand {
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(oneshot::Sender<()>, bool),
     /// Set custom DNS servers to use instead of passing requests to the gateway
-    #[cfg(windows)]
+    #[cfg(any(windows, target_os = "linux"))]
     SetDnsOptions(oneshot::Sender<()>, DnsOptions),
     /// Set MTU for wireguard tunnels
     SetWireguardMtu(oneshot::Sender<()>, Option<u16>),
@@ -582,7 +582,7 @@ where
         let tunnel_command_tx = tunnel_state_machine::spawn(
             settings.allow_lan,
             settings.block_when_disconnected,
-            #[cfg(windows)]
+            #[cfg(any(windows, target_os = "linux"))]
             Self::get_custom_resolvers(&settings.tunnel_options.dns_options),
             tunnel_parameters_generator,
             log_dir,
@@ -636,7 +636,7 @@ where
         Ok(daemon)
     }
 
-    #[cfg(windows)]
+    #[cfg(any(windows, target_os = "linux"))]
     fn get_custom_resolvers(dns_options: &DnsOptions) -> Option<Vec<IpAddr>> {
         if dns_options.custom {
             Some(dns_options.addresses.clone())
@@ -1056,7 +1056,7 @@ where
             }
             SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state),
             SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
-            #[cfg(windows)]
+            #[cfg(any(windows, target_os = "linux"))]
             SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers),
             SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
             SetWireguardRotationInterval(tx, interval) => {
@@ -1696,7 +1696,7 @@ where
         }
     }
 
-    #[cfg(windows)]
+    #[cfg(any(windows, target_os = "linux"))]
     fn on_set_dns_options(&mut self, tx: oneshot::Sender<()>, dns_options: DnsOptions) {
         let save_result = self.settings.set_dns_options(dns_options.clone());
         match save_result {

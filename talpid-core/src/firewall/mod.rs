@@ -67,6 +67,10 @@ lazy_static! {
         Ipv6Addr::new(0xff05, 0, 0, 0, 0, 0, 1, 3),
     ];
     static ref ROUTER_SOLICITATION_OUT_DST_ADDR: Ipv6Addr = Ipv6Addr::new(0xff02, 0, 0, 0, 0, 0, 0, 2);
+    static ref LOOPBACK_NETS: [IpNetwork; 2] = [
+        IpNetwork::V4(ipnetwork::Ipv4Network::new(Ipv4Addr::new(127, 0, 0, 0), 8).unwrap()),
+        IpNetwork::V6(ipnetwork::Ipv6Network::new(Ipv6Addr::new(0, 0, 0, 0, 0, 0, 0, 1), 128).unwrap()),
+    ];
 }
 #[cfg(all(unix, not(target_os = "android")))]
 const DHCPV4_SERVER_PORT: u16 = 67;
@@ -112,7 +116,7 @@ pub enum FirewallPolicy {
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
         /// Servers that are allowed to respond to DNS requests.
-        #[cfg(windows)]
+        #[cfg(any(windows, target_os = "linux"))]
         dns_servers: Vec<IpAddr>,
         /// A process that is allowed to send packets to the relay.
         #[cfg(windows)]

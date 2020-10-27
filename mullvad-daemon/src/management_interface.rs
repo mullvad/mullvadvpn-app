@@ -6,7 +6,7 @@ use mullvad_management_interface::{
 };
 use mullvad_paths;
 use mullvad_rpc::{rest::Error as RestError, StatusCode};
-#[cfg(windows)]
+#[cfg(any(windows, target_os = "linux"))]
 use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::AccountToken,
@@ -410,7 +410,7 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(|_| Status::internal("internal error"))
     }
 
-    #[cfg(windows)]
+    #[cfg(any(windows, target_os = "linux"))]
     async fn set_dns_options(&self, request: Request<types::DnsOptions>) -> ServiceResult<()> {
         let options = request.into_inner();
         log::debug!(
@@ -441,7 +441,7 @@ impl ManagementService for ManagementServiceImpl {
             .map(Response::new)
             .map_err(|_| Status::internal("internal error"))
     }
-    #[cfg(not(windows))]
+    #[cfg(not(any(windows, target_os = "linux")))]
     async fn set_dns_options(&self, _: Request<types::DnsOptions>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
@@ -1179,7 +1179,7 @@ fn convert_tunnel_options(options: &TunnelOptions) -> types::TunnelOptions {
         generic: Some(types::tunnel_options::GenericOptions {
             enable_ipv6: options.generic.enable_ipv6,
         }),
-        #[cfg(windows)]
+        #[cfg(any(windows, target_os = "linux"))]
         dns_options: Some(types::DnsOptions {
             custom: options.dns_options.custom,
             addresses: options
@@ -1189,7 +1189,7 @@ fn convert_tunnel_options(options: &TunnelOptions) -> types::TunnelOptions {
                 .map(|addr| addr.to_string())
                 .collect(),
         }),
-        #[cfg(not(windows))]
+        #[cfg(not(any(windows, target_os = "linux")))]
         dns_options: None,
     }
 }
