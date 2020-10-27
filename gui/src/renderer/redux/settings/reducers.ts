@@ -373,7 +373,7 @@ function applyKeyVerification(state: WgKeyState, verified?: boolean): WgKeyState
       };
     // drop the verification event if the key wasn't being verified.
     default:
-      log.error(`Received key verification event when key wasn't being verified`);
+      log.error("Received key verification event when key wasn't being verified");
       return state;
   }
 }
