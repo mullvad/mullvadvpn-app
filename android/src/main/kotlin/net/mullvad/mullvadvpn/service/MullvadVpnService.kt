@@ -102,6 +102,8 @@ class MullvadVpnService : TalpidVpnService() {
         val startResult = super.onStartCommand(intent, flags, startId)
         var quitCommand = false
 
+        notificationManager.acknowledgeStartForegroundService()
+
         if (!keyguardManager.isDeviceLocked) {
             val action = intent?.action
 
