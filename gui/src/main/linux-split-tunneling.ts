@@ -133,6 +133,7 @@ function getGtkThemeDirectories(): Promise<DirectoryDescription[]> {
       process.env.ORIGINAL_XDG_CURRENT_DESKTOP ?? process.env.XDG_CURRENT_DESKTOP ?? '';
     child_process.exec(
       'gsettings get org.gnome.desktop.interface icon-theme',
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       { env: { XDG_CURRENT_DESKTOP: xdgCurrentDesktop } },
       (error, stdout) => {
         if (error) {

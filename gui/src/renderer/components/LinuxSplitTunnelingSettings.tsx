@@ -270,7 +270,7 @@ function ApplicationRow(props: IApplicationRowProps) {
       </StyledCellButton>
       {showWarning && (
         <ModalAlert
-          type={ModalAlertType.Warning}
+          type={ModalAlertType.warning}
           iconColor={warningColor}
           message={warningMessage}
           buttons={warningDialogButtons}
