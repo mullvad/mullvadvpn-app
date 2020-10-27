@@ -5,13 +5,19 @@ use std::{
     ffi::OsStr,
     io, mem,
     net::{Ipv4Addr, Ipv6Addr},
-    os::windows::io::{AsRawHandle, IntoRawHandle, RawHandle},
+    os::windows::io::{AsRawHandle, RawHandle},
     ptr,
 };
 use talpid_types::ErrorExt;
 use winapi::{
     shared::minwindef::{FALSE, TRUE},
-    um::{minwinbase::OVERLAPPED, processthreadsapi::TerminateThread, synchapi::CreateEventW},
+    um::{
+        handleapi::CloseHandle,
+        ioapiset::GetOverlappedResultEx,
+        minwinbase::OVERLAPPED,
+        synchapi::{CreateEventW, SetEvent, WaitForMultipleObjects, WaitForSingleObject},
+        winbase::{INFINITE, WAIT_ABANDONED_0, WAIT_OBJECT_0},
+    },
 };
 
 const DRIVER_EVENT_BUFFER_SIZE: usize = 2048;
@@ -41,21 +47,20 @@ pub enum Error {
 pub struct SplitTunnel {
     handle: driver::DeviceHandle,
     event_thread: Option<std::thread::JoinHandle<()>>,
+    quit_event: RawHandle,
 }
 
 struct EventThreadContext {
     handle: RawHandle,
     event_overlapped: OVERLAPPED,
+    quit_event: RawHandle,
 }
-// FIXME: ! This is not safe. The driver handle will be invalidated when SplitTunnel is dropped
 unsafe impl Send for EventThreadContext {}
 
 impl SplitTunnel {
     /// Initialize the driver.
     pub fn new() -> Result<Self, Error> {
         let handle = driver::DeviceHandle::new().map_err(Error::InitializationFailed)?;
-
-        // FIXME: Want to use same pointer, but must be certain that the thread dies after this dies
 
         let mut event_overlapped: OVERLAPPED = unsafe { mem::zeroed() };
         event_overlapped.hEvent =
@@ -64,58 +69,134 @@ impl SplitTunnel {
             return Err(Error::EventThreadError(io::Error::last_os_error()));
         }
 
-        let mut event_context = EventThreadContext {
+        let quit_event = unsafe { CreateEventW(ptr::null_mut(), TRUE, FALSE, ptr::null()) };
+
+        let event_context = EventThreadContext {
             handle: handle.as_raw_handle(),
             event_overlapped,
+            quit_event,
         };
 
         let event_thread = std::thread::spawn(move || {
             use driver::{EventBody, EventId};
 
             let mut data_buffer = Vec::with_capacity(DRIVER_EVENT_BUFFER_SIZE);
+            let mut returned_bytes = 0u32;
+
+            let event_objects = [
+                event_context.event_overlapped.hEvent,
+                event_context.quit_event,
+            ];
 
             loop {
-                match driver::deque_event(
-                    event_context.handle,
-                    &mut data_buffer,
-                    &mut event_context.event_overlapped,
-                ) {
-                    Ok((event_id, event_body)) => {
-                        let event_str = match &event_id {
-                            EventId::StartSplittingProcess
-                            | EventId::ErrorStartSplittingProcess => "Start splitting process",
-                            EventId::StopSplittingProcess | EventId::ErrorStopSplittingProcess => {
-                                "Stop splitting process"
-                            }
-                        };
-
-                        match event_body {
-                            EventBody::SplittingError { process_id, image } => {
-                                log::error!(
-                                    "FAILED: {}:\n\tpid: {}\n\timage: {:?}",
-                                    event_str,
-                                    process_id,
-                                    image,
-                                );
-                            }
-                            _ => (),
-                        }
-                    }
-                    Err(error) => {
-                        log::error!("{}", error.display_chain_with_msg("deque_event failed"));
-                    }
+                if unsafe { WaitForSingleObject(event_context.quit_event, 0) == WAIT_OBJECT_0 } {
+                    // Quit event was signaled
+                    break;
                 }
 
-                // TODO: Quit when signaled. Overlapping + WaitForMultipleObjects?
+                if let Err(error) = unsafe {
+                    driver::device_io_control_buffer_async(
+                        event_context.handle,
+                        driver::DriverIoctlCode::DequeEvent as u32,
+                        Some(&mut data_buffer),
+                        None,
+                        &event_context.event_overlapped,
+                    )
+                } {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("device_io_control failed")
+                    );
+                    continue;
+                }
+
+                let result = unsafe {
+                    WaitForMultipleObjects(
+                        event_objects.len() as u32,
+                        &event_objects[0],
+                        FALSE,
+                        INFINITE,
+                    )
+                };
+
+                let signaled_index = if result >= WAIT_OBJECT_0
+                    && result < WAIT_OBJECT_0 + event_objects.len() as u32
+                {
+                    result - WAIT_OBJECT_0
+                } else if result >= WAIT_ABANDONED_0
+                    && result < WAIT_ABANDONED_0 + event_objects.len() as u32
+                {
+                    result - WAIT_ABANDONED_0
+                } else {
+                    let error = io::Error::last_os_error();
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("WaitForMultipleObjects failed")
+                    );
+
+                    continue;
+                };
+
+                if event_context.quit_event == event_objects[signaled_index as usize] {
+                    // Quit event was signaled
+                    break;
+                }
+
+                let result = unsafe {
+                    GetOverlappedResultEx(
+                        event_context.handle,
+                        &event_context.event_overlapped as *const _ as *mut _,
+                        &mut returned_bytes,
+                        INFINITE,
+                        FALSE,
+                    )
+                };
+
+                if result == 0 {
+                    let error = io::Error::last_os_error();
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("GetOverlappedResultEx failed")
+                    );
+
+                    continue;
+                }
+
+                unsafe { data_buffer.set_len(returned_bytes as usize) };
+
+                let (event_id, event_body) = driver::parse_event_buffer(&data_buffer);
+
+                let event_str = match &event_id {
+                    EventId::StartSplittingProcess | EventId::ErrorStartSplittingProcess => {
+                        "Start splitting process"
+                    }
+                    EventId::StopSplittingProcess | EventId::ErrorStopSplittingProcess => {
+                        "Stop splitting process"
+                    }
+                };
+
+                match event_body {
+                    EventBody::SplittingError { process_id, image } => {
+                        log::error!(
+                            "FAILED: {}:\n\tpid: {}\n\timage: {:?}",
+                            event_str,
+                            process_id,
+                            image,
+                        );
+                    }
+                    _ => (),
+                }
             }
 
-            // FIXME: The event object will not be destroyed since we use TerminateThread
-            // unsafe { CloseHandle(event_overlapped.hEvent) };
+            log::debug!("Stopping split tunnel event thread");
+
+            unsafe { CloseHandle(event_context.event_overlapped.hEvent) };
         });
 
         Ok(SplitTunnel {
             handle,
             event_thread: Some(event_thread),
+            quit_event,
         })
     }
 
@@ -146,12 +227,19 @@ impl SplitTunnel {
 
 impl Drop for SplitTunnel {
     fn drop(&mut self) {
-        // FIXME: Use signals to close the thread gracefully, followed by a join
         if let Some(event_thread) = self.event_thread.take() {
-            unsafe {
-                TerminateThread(event_thread.into_raw_handle(), 0);
+            if unsafe { SetEvent(self.quit_event) } != 0 {
+                let _ = event_thread.join();
+            } else {
+                let error = io::Error::last_os_error();
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to close ST event thread")
+                );
             }
         }
+
+        unsafe { CloseHandle(self.quit_event) };
 
         let paths: [&OsStr; 0] = [];
         if let Err(error) = self.set_paths(&paths) {
