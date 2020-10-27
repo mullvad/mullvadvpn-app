@@ -87,15 +87,30 @@ class ForegroundNotificationManager(
         tunnelStateNotification.visible = false
     }
 
+    fun acknowledgeStartForegroundService() {
+        // When sending start commands to the service, it is necessary to request the service to be
+        // on the foreground. With such request, when the service is started it must be placed on
+        // the foreground with a call to startForeground before a timeout expires, otherwise Android
+        // kills the app.
+        showOnForeground()
+
+        // Restore the notification to its correct state.
+        updateNotification()
+    }
+
+    private fun showOnForeground() {
+        service.startForeground(
+            TunnelStateNotification.NOTIFICATION_ID,
+            tunnelStateNotification.build()
+        )
+
+        onForeground = true
+    }
+
     private fun updateNotification() {
         if (shouldBeOnForeground != onForeground) {
             if (shouldBeOnForeground) {
-                service.startForeground(
-                    TunnelStateNotification.NOTIFICATION_ID,
-                    tunnelStateNotification.build()
-                )
-
-                onForeground = true
+                showOnForeground()
             } else if (!shouldBeOnForeground) {
                 if (Build.VERSION.SDK_INT >= 24) {
                     service.stopForeground(Service.STOP_FOREGROUND_DETACH)
