@@ -304,23 +304,6 @@ impl AsRawHandle for DeviceHandle {
     }
 }
 
-pub fn deque_event(
-    handle: RawHandle,
-    buffer: &mut Vec<u8>,
-    overlapped: &mut OVERLAPPED,
-) -> io::Result<(EventId, EventBody)> {
-    device_io_control_buffer(
-        handle,
-        DriverIoctlCode::DequeEvent as u32,
-        None,
-        Some(buffer),
-        overlapped,
-        None,
-    )?;
-
-    Ok(parse_event_buffer(buffer))
-}
-
 #[repr(C)]
 struct SplitTunnelAddresses {
     tunnel_ipv4: IN_ADDR,
