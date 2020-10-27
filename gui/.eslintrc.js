@@ -72,6 +72,7 @@ module.exports = {
     '@typescript-eslint/no-floating-promises': 'error',
     '@typescript-eslint/no-unused-expressions': 'error',
     'no-return-await': 'error',
+    'react/jsx-no-bind': 'error',
     '@typescript-eslint/naming-convention': ['error', ...namingConvention],
 
     '@typescript-eslint/no-use-before-define': 'off',
