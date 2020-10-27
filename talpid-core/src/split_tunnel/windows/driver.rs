@@ -318,20 +318,7 @@ pub fn deque_event(
         None,
     )?;
 
-    let mut event_header: EventHeader = unsafe { mem::zeroed() };
-
-    unsafe {
-        ptr::copy_nonoverlapping(
-            &buffer[0],
-            &mut event_header as *mut _ as *mut u8,
-            mem::size_of_val(&event_header),
-        )
-    };
-
-    Ok((
-        event_header.event_id,
-        parse_event_buffer(&event_header, buffer),
-    ))
+    Ok(parse_event_buffer(buffer))
 }
 
 #[repr(C)]
@@ -572,13 +559,23 @@ struct SplittingErrorEventHeader {
     image_name_length: u16,
 }
 
-fn parse_event_buffer(event_header: &EventHeader, buffer: &Vec<u8>) -> EventBody {
+pub fn parse_event_buffer(buffer: &Vec<u8>) -> (EventId, EventBody) {
+    let mut event_header: EventHeader = unsafe { mem::zeroed() };
+
+    unsafe {
+        ptr::copy_nonoverlapping(
+            &buffer[0],
+            &mut event_header as *mut _ as *mut u8,
+            mem::size_of_val(&event_header),
+        )
+    };
+
     match event_header.event_id {
         EventId::StartSplittingProcess | EventId::StopSplittingProcess => {
             let mut event: SplittingEventHeader = unsafe { mem::zeroed() };
             unsafe {
                 ptr::copy_nonoverlapping(
-                    &buffer[mem::size_of_val(event_header)],
+                    &buffer[mem::size_of_val(&event_header)],
                     &mut event as *mut _ as *mut u8,
                     mem::size_of_val(&event),
                 )
@@ -592,24 +589,27 @@ fn parse_event_buffer(event_header: &EventHeader, buffer: &Vec<u8>) -> EventBody
 
             unsafe {
                 ptr::copy_nonoverlapping(
-                    &buffer[mem::size_of_val(event_header) + mem::size_of_val(&event)] as *const _
+                    &buffer[mem::size_of_val(&event_header) + mem::size_of_val(&event)] as *const _
                         as *const u16,
                     image_name.as_mut_ptr(),
                     image_name.len(),
                 )
             };
 
-            EventBody::SplittingEvent {
-                process_id: event.process_id,
-                reason: event.reason,
-                image: OsStringExt::from_wide(&image_name),
-            }
+            (
+                event_header.event_id,
+                EventBody::SplittingEvent {
+                    process_id: event.process_id,
+                    reason: event.reason,
+                    image: OsStringExt::from_wide(&image_name),
+                },
+            )
         }
         EventId::ErrorStartSplittingProcess | EventId::ErrorStopSplittingProcess => {
             let mut event: SplittingErrorEventHeader = unsafe { mem::zeroed() };
             unsafe {
                 ptr::copy_nonoverlapping(
-                    &buffer[mem::size_of_val(event_header)],
+                    &buffer[mem::size_of_val(&event_header)],
                     &mut event as *mut _ as *mut u8,
                     mem::size_of_val(&event),
                 )
@@ -623,17 +623,20 @@ fn parse_event_buffer(event_header: &EventHeader, buffer: &Vec<u8>) -> EventBody
 
             unsafe {
                 ptr::copy_nonoverlapping(
-                    &buffer[mem::size_of_val(event_header) + mem::size_of_val(&event)] as *const _
+                    &buffer[mem::size_of_val(&event_header) + mem::size_of_val(&event)] as *const _
                         as *const u16,
                     image_name.as_mut_ptr(),
                     image_name.len(),
                 )
             };
 
-            EventBody::SplittingError {
-                process_id: event.process_id,
-                image: OsStringExt::from_wide(&image_name),
-            }
+            (
+                event_header.event_id,
+                EventBody::SplittingError {
+                    process_id: event.process_id,
+                    image: OsStringExt::from_wide(&image_name),
+                },
+            )
         }
     }
 }
