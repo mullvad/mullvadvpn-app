@@ -2115,10 +2115,8 @@ dependencies = [
 [[package]]
 name = "rs-release"
 version = "0.1.7"
-source = "git+https://github.com/mullvad/rs-release?branch=snailquote-unescape#88b2afb04c3b2b1b76f27d8b8d48cd52facd292a"
-dependencies = [
- "snailquote",
-]
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4a874cf4a0b9bc283edaa65d81d62368b84b1a8e56196e4885ca4701fd49972"
 
 [[package]]
 name = "rtnetlink"
@@ -2380,15 +2378,6 @@ name = "smallvec"
 version = "1.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fbee7696b84bbf3d89a1c2eccff0850e3047ed46bfcd2e92c29a2d074d57e252"
-
-[[package]]
-name = "snailquote"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fc3e2894a343234fb8a8653cf9d49ef6aea44e6581612ca311c91c4bd356dec4"
-dependencies = [
- "unicode_categories",
-]
 
 [[package]]
 name = "socket2"
@@ -3126,12 +3115,6 @@ name = "unicode-xid"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7fe0bb3479651439c9112f72b6c505038574c9fbb575ed1bf3b797fa39dd564"
-
-[[package]]
-name = "unicode_categories"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39ec24b3121d976906ece63c9daad25b85969647682eee313cb5779fdd69e14e"
 
 [[package]]
 name = "unreachable"
