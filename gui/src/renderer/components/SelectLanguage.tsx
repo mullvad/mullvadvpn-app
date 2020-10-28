@@ -80,7 +80,7 @@ export default class SelectLanguage extends React.Component<IProps, IState> {
               </NavigationItems>
             </NavigationBar>
 
-            <StyledNavigationScrollbars>
+            <StyledNavigationScrollbars ref={this.scrollView}>
               <SettingsHeader>
                 <HeaderTitle>
                   {messages.pgettext('select-language-nav', 'Select language')}
