@@ -124,8 +124,9 @@ export default class LocationList<SpecialValueType> extends React.Component<
       if (typeof this.props.selectedElementRef === 'function') {
         this.props.selectedElementRef(value);
       } else {
-        // @ts-ignore
-        this.props.selectedElementRef.current = value;
+        const ref = this.props
+          .selectedElementRef as React.MutableRefObject<React.ReactInstance | null>;
+        ref.current = value;
       }
     }
   }

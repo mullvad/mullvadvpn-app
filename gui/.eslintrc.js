@@ -91,10 +91,10 @@ module.exports = {
     'no-return-await': 'error',
     'react/jsx-no-bind': 'error',
     '@typescript-eslint/naming-convention': ['error', ...namingConvention],
+    '@typescript-eslint/ban-ts-comment': ['error', { 'ts-ignore': false }],
 
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
-    '@typescript-eslint/ban-ts-comment': 'off',
   },
 };
