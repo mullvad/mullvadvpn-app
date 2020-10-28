@@ -94,6 +94,8 @@ class MullvadVpnService : TalpidVpnService() {
         notificationManager = ForegroundNotificationManager(this, serviceNotifier, keyguardManager)
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
+        notificationManager.acknowledgeStartForegroundService()
+
         setUp()
     }
 
@@ -101,6 +103,8 @@ class MullvadVpnService : TalpidVpnService() {
         Log.d(TAG, "Starting service")
         val startResult = super.onStartCommand(intent, flags, startId)
         var quitCommand = false
+
+        notificationManager.acknowledgeStartForegroundService()
 
         if (!keyguardManager.isDeviceLocked) {
             val action = intent?.action
