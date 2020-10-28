@@ -227,7 +227,7 @@ impl ConnectingState {
                     }
                 }
             }
-            #[cfg(any(windows, target_os = "linux"))]
+            #[cfg(not(target_os = "android"))]
             Some(TunnelCommand::CustomDns(servers)) => {
                 shared_values.custom_dns = servers;
                 SameState(self.into())

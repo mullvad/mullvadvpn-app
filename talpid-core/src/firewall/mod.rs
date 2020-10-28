@@ -82,6 +82,15 @@ const DHCPV6_SERVER_PORT: u16 = 547;
 const DHCPV6_CLIENT_PORT: u16 = 546;
 
 
+#[cfg(all(unix, not(target_os = "android")))]
+fn is_local_address(address: &IpAddr) -> bool {
+    let address = address.clone();
+    (&*ALLOWED_LAN_NETS)
+        .iter()
+        .chain(&*LOOPBACK_NETS)
+        .any(|net| net.contains(address))
+}
+
 /// A enum that describes network security strategy
 ///
 /// # Firewall block/allow specification.
@@ -116,7 +125,7 @@ pub enum FirewallPolicy {
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
         /// Servers that are allowed to respond to DNS requests.
-        #[cfg(any(windows, target_os = "linux"))]
+        #[cfg(not(target_os = "android"))]
         dns_servers: Vec<IpAddr>,
         /// A process that is allowed to send packets to the relay.
         #[cfg(windows)]

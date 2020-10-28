@@ -63,7 +63,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
         Box::new(Disconnect),
         Box::new(Reconnect),
         Box::new(Lan),
-        #[cfg(any(windows, target_os = "linux"))]
+        #[cfg(not(target_os = "android"))]
         Box::new(CustomDns),
         Box::new(Relay),
         Box::new(Reset),

@@ -78,7 +78,7 @@ impl ConnectedState {
 
     #[allow(unused_variables)]
     fn get_dns_servers(&self, shared_values: &SharedTunnelStateValues) -> Vec<IpAddr> {
-        #[cfg(any(windows, target_os = "linux"))]
+        #[cfg(not(target_os = "android"))]
         if let Some(ref servers) = shared_values.custom_dns {
             servers.clone()
         } else {
@@ -89,7 +89,7 @@ impl ConnectedState {
             };
             dns_ips
         }
-        #[cfg(not(any(windows, target_os = "linux")))]
+        #[cfg(target_os = "android")]
         {
             let mut dns_ips = vec![];
             dns_ips.push(self.metadata.ipv4_gateway.into());
@@ -105,7 +105,7 @@ impl ConnectedState {
             peer_endpoint: self.tunnel_parameters.get_next_hop_endpoint(),
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
-            #[cfg(any(windows, target_os = "linux"))]
+            #[cfg(not(target_os = "android"))]
             dns_servers: self.get_dns_servers(shared_values),
             #[cfg(windows)]
             relay_client: TunnelMonitor::get_relay_client(
@@ -182,7 +182,7 @@ impl ConnectedState {
                     }
                 }
             }
-            #[cfg(any(windows, target_os = "linux"))]
+            #[cfg(not(target_os = "android"))]
             Some(TunnelCommand::CustomDns(servers)) => {
                 if shared_values.custom_dns != servers {
                     shared_values.custom_dns = servers;

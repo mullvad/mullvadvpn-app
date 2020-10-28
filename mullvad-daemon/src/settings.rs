@@ -1,5 +1,5 @@
 use log::{debug, error, info};
-#[cfg(any(windows, target_os = "linux"))]
+#[cfg(not(target_os = "android"))]
 use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
@@ -212,7 +212,7 @@ impl SettingsPersister {
         self.update(should_save)
     }
 
-    #[cfg(any(windows, target_os = "linux"))]
+    #[cfg(not(target_os = "android"))]
     pub fn set_dns_options(&mut self, options: DnsOptions) -> Result<bool, Error> {
         let should_save =
             Self::update_field(&mut self.settings.tunnel_options.dns_options, options);
