@@ -93,6 +93,10 @@ impl PrivateKey {
     pub fn public_key(&self) -> PublicKey {
         PublicKey::from(&self.0)
     }
+
+    pub fn to_base64(&self) -> String {
+        base64::encode(self.0.to_bytes())
+    }
 }
 
 impl From<[u8; 32]> for PrivateKey {

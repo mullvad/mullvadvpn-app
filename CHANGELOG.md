@@ -23,9 +23,14 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+####Linux
+- Create WireGuard device with NetworkManager
+
 ### Fixed
 #### Linux
 - Handle statically added routes.
+- Stop periodically reconnecting when using WireGuard and NetworkManager
 
 
 ## [2020.6] - 2020-10-20
