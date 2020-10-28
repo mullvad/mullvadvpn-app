@@ -114,7 +114,7 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
                 is TunnelState.Disconnecting -> {
                     when (currentState.actionAfterDisconnect) {
                         ActionAfterDisconnect.Nothing -> false
-                        ActionAfterDisconnect.Reconnect -> false
+                        ActionAfterDisconnect.Reconnect -> true
                         ActionAfterDisconnect.Block -> true
                     }
                 }
