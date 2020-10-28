@@ -22,6 +22,12 @@ const NM_ADD_CONNECTION_VOLATILE: u32 = 0x2;
 const TRAFFIC_STATS_REFRESH_RATE_MS: u32 = 1000;
 const RPC_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(3);
 
+const DBUS_UNKNOWN_METHOD: &str = "org.freedesktop.DBus.Error.UnknownMethod";
+
+const MINIMUM_SUPPORTED_MAJOR_VERSION: u32 = 1;
+const MINIMUM_SUPPORTED_MINOR_VERSION: u32 = 16;
+
+
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(err_derive::Error, Debug)]
@@ -44,6 +50,18 @@ pub enum Error {
 
     #[error(display = "Configuration has no device associated to it")]
     NoDevice,
+
+    #[error(display = "NetworkManager is too old - {}", _0)]
+    NMTooOld(String),
+}
+
+impl Error {
+    pub fn should_use_userspace(&self) -> bool {
+        match self {
+            Error::NMTooOld(_) => true,
+            _ => false,
+        }
+    }
 }
 
 pub struct NetworkManager {
@@ -60,6 +78,7 @@ type DbusSettings = HashMap<String, VariantMap>;
 impl NetworkManager {
     pub fn new(config: &Config) -> Result<Self> {
         let mut dbus_connection = Connection::new_system().map_err(Error::Dbus)?;
+        Self::ensure_nm_is_new_enough(&dbus_connection)?;
         let tunnel = Some(Self::create_wg_tunnel(&mut dbus_connection, config)?);
         let manager = NetworkManager {
             dbus_connection,
@@ -70,27 +89,47 @@ impl NetworkManager {
         Ok(manager)
     }
 
+    fn ensure_nm_is_new_enough(connection: &Connection) -> Result<()> {
+        let manager = Self::nm_proxy(connection);
+        let version_string: String = manager.get(NM_MANAGER, "Version").map_err(Error::Dbus)?;
+        let version_too_old = || Error::NMTooOld(version_string.clone());
+        let mut parts = version_string
+            .split(".")
+            .map(|part| part.parse().map_err(|_| version_too_old()));
+
+        let major_version: u32 = parts.next().ok_or_else(|| version_too_old())??;
+        let minor_version: u32 = parts.next().ok_or_else(|| version_too_old())??;
+
+        if major_version < MINIMUM_SUPPORTED_MAJOR_VERSION
+            || minor_version < MINIMUM_SUPPORTED_MINOR_VERSION
+        {
+            Err(version_too_old())
+        } else {
+            Ok(())
+        }
+    }
+
+    fn nm_proxy<'a>(connection: &'a Connection) -> Proxy<'a, &Connection> {
+        Proxy::new(NM_BUS, NM_MANAGER_PATH, RPC_TIMEOUT, connection)
+    }
+
 
     fn create_wg_tunnel(dbus_connection: &Connection, config: &Config) -> Result<WireguardTunnel> {
         let settings_map = Self::convert_config_to_dbus(config);
-        let args: VariantMap = HashMap::new();
-        let new_device = Message::new_method_call(
-            NM_BUS,
-            NM_SETTINGS_PATH,
-            NM_INTERFACE_SETTINGS,
-            "AddConnection2",
-        )
-        .map_err(Error::DbusMethodCall)?
-        .append3(settings_map, NM_ADD_CONNECTION_VOLATILE, args);
 
-        let application = dbus_connection
-            .send_with_reply_and_block(new_device, RPC_TIMEOUT)
-            .map_err(Error::Dbus)?;
+        let config_path: Path<'static> = Self::add_connection_2(dbus_connection, &settings_map)
+            .map(|(path, _result)| path)
+            .or_else(|err| {
+                log::error!("Failed to create a new interface via NM - {}", err);
+                match err {
+                    Error::Dbus(dbus_error) if dbus_error.name() == Some(DBUS_UNKNOWN_METHOD) => {
+                        Self::add_connection_unsaved(dbus_connection, &settings_map)
+                    }
+                    err => Err(err),
+                }
+            })?;
 
-        let (config_path, _result): (Path<'static>, DbusSettings) =
-            application.read2().map_err(Error::MatchDBusTypeError)?;
-
-        let manager = Proxy::new(NM_BUS, NM_MANAGER_PATH, RPC_TIMEOUT, dbus_connection);
+        let manager = Self::nm_proxy(dbus_connection);
         let (connection_path,): (Path<'static>,) = manager
             .method_call(
                 NM_MANAGER,
@@ -116,6 +155,47 @@ impl NetworkManager {
         })
     }
 
+    fn add_connection_2(
+        connection: &Connection,
+        settings_map: &DbusSettings,
+    ) -> Result<(Path<'static>, DbusSettings)> {
+        let args: VariantMap = HashMap::new();
+        let new_device = Message::new_method_call(
+            NM_BUS,
+            NM_SETTINGS_PATH,
+            NM_INTERFACE_SETTINGS,
+            "AddConnection2",
+        )
+        .map_err(Error::DbusMethodCall)?
+        .append3(settings_map, NM_ADD_CONNECTION_VOLATILE, args);
+
+        connection
+            .send_with_reply_and_block(new_device, RPC_TIMEOUT)
+            .map_err(Error::Dbus)?
+            .read2()
+            .map_err(Error::MatchDBusTypeError)
+    }
+
+    fn add_connection_unsaved(
+        connection: &Connection,
+        settings_map: &DbusSettings,
+    ) -> Result<Path<'static>> {
+        let new_connection = Message::new_method_call(
+            NM_BUS,
+            NM_SETTINGS_PATH,
+            NM_INTERFACE_SETTINGS,
+            "AddConnectionUnsaved",
+        )
+        .map_err(Error::DbusMethodCall)?
+        .append1(settings_map);
+
+        connection
+            .send_with_reply_and_block(new_connection, RPC_TIMEOUT)
+            .map_err(Error::Dbus)?
+            .read1()
+            .map_err(Error::MatchDBusTypeError)
+    }
+
     fn convert_config_to_dbus(config: &Config) -> DbusSettings {
         let mut ipv6_config: VariantMap = HashMap::new();
         let mut ipv4_config: VariantMap = HashMap::new();
@@ -130,8 +210,6 @@ impl NetworkManager {
             Variant(Box::new(config.tunnel.private_key.to_base64())),
         );
         wireguard_config.insert("private-key-flags".into(), Variant(Box::new(0x0u32)));
-        wireguard_config.insert("ip4-auto-default-route".into(), Variant(Box::new(0u32)));
-        wireguard_config.insert("ip6-auto-default-route".into(), Variant(Box::new(0u32)));
 
         for peer in config.peers.iter() {
             let mut peer_config: VariantMap = HashMap::new();
@@ -188,17 +266,19 @@ impl NetworkManager {
         ipv4_config.insert("method".into(), Variant(Box::new("manual".to_string())));
 
         if !ipv6_addrs.is_empty() {
+            ipv6_config.insert("method".into(), Variant(Box::new("manual".to_string())));
             ipv6_config.insert("address-data".into(), Variant(Box::new(ipv6_addrs)));
             ipv6_config.insert("ignore-auto-routes".into(), Variant(Box::new(true)));
             ipv6_config.insert("ignore-auto-dns".into(), Variant(Box::new(true)));
             ipv6_config.insert("may-fail".into(), Variant(Box::new(true)));
-            ipv6_config.insert("method".into(), Variant(Box::new("manual".to_string())));
         }
 
 
         let mut settings = HashMap::new();
         settings.insert("ipv4".into(), ipv4_config);
-        settings.insert("ipv6".into(), ipv6_config);
+        if !ipv6_config.is_empty() {
+            settings.insert("ipv6".into(), ipv6_config);
+        }
         settings.insert("wireguard".into(), wireguard_config);
         settings.insert("connection".into(), connection_config);
 

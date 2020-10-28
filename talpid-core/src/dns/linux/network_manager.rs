@@ -222,7 +222,11 @@ impl NetworkManager {
             // if the link contains link local addresses, addresses shouldn't be reset
             if ipv6_settings
                 .get("method")
-                .map(|method| method.as_str() != Some("link-local"))
+                .map(|method| {
+                    // if IPv6 isn't enabled, IPv6 method will be set to "ignore", in which case we
+                    // shouldn't reapply any config for ipv6
+                    method.as_str() != Some("link-local") && method.as_str() != Some("ignore")
+                })
                 .unwrap_or(true)
             {
                 ipv6_settings.insert("addresses", Variant(Box::new(device_addresses6)));
