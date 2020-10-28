@@ -216,6 +216,10 @@ impl RouteManagerImpl {
         // TODO: IPv6
         use netlink_packet_route::constants::*;
 
+        if let Ok(true) = self.exclusions_rule_exists().await {
+            return Ok(());
+        }
+
         let mut req = NetlinkMessage::from(RtnlMessage::NewRule(self.fwmark_rule_message()));
         req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_CREATE | NLM_F_REPLACE;
 
@@ -250,6 +254,51 @@ impl RouteManagerImpl {
             }
             Err(error) => log::warn!("Failed to delete routing policy: {}", error),
         }
+    }
+
+    async fn exclusions_rule_exists(&mut self) -> Result<bool> {
+        use netlink_packet_route::constants::*;
+
+        let mut req = NetlinkMessage::from(RtnlMessage::GetRule(RuleMessage {
+            header: RuleHeader {
+                family: AF_INET as u8,
+                ..RuleHeader::default()
+            },
+            nlas: vec![],
+        }));
+        req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_DUMP;
+
+        let mut response = self.handle.request(req).map_err(Error::NetlinkError)?;
+
+        while let Some(message) = response.next().await {
+            match message.payload {
+                NetlinkPayload::InnerMessage(inner) => {
+                    if let RtnlMessage::NewRule(rule) = RtnlMessage::from(inner) {
+                        let mut match_mark = false;
+                        let mut match_table = false;
+                        for nla in &rule.nlas {
+                            match nla {
+                                _x if _x == &RuleNla::FwMark(split_tunnel::MARK as u32) => {
+                                    match_mark = true;
+                                }
+                                _x if _x == &RuleNla::Table(self.split_table_id) => {
+                                    match_table = true;
+                                }
+                                _ => (),
+                            }
+                        }
+                        if match_mark && match_table {
+                            return Ok(true);
+                        }
+                    }
+                }
+                NetlinkPayload::Error(error) => {
+                    return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(error)));
+                }
+                _ => (),
+            }
+        }
+        Ok(false)
     }
 
     fn fwmark_rule_message(&self) -> RuleMessage {
