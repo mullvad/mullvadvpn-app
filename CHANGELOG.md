@@ -67,6 +67,8 @@ Line wrap the file at 100 chars.                                              Th
   settings tile.
 - Fix app starting by itself sometimes.
 - Fix apps not being excluded from the tunnel sometimes if auto-connect was enabled.
+- Fix crash that happened sometimes when closing the app or when requesting from the notification
+  or the quick-settings tile for the app to connect or disconnect.
 
 #### Windows
 - Fix log output encoding for Windows modules.
