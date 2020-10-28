@@ -19,6 +19,7 @@ use futures::{channel::mpsc::UnboundedReceiver, future::FutureExt, StreamExt, Tr
 
 
 use netlink_packet_route::{
+    constants::ARPHRD_LOOPBACK,
     link::{nlas::Nla as LinkNla, LinkMessage},
     route::{nlas::Nla as RouteNla, RouteHeader, RouteMessage},
     rtnl::{
@@ -98,7 +99,7 @@ struct RequiredDefaultRoute {
 pub struct RouteManagerImpl {
     handle: Handle,
     messages: UnboundedReceiver<(NetlinkMessage<RtnlMessage>, SocketAddr)>,
-    iface_map: BTreeMap<u32, String>,
+    iface_map: BTreeMap<u32, NetworkInterface>,
 
     // currently added routes
     added_routes: HashSet<Route>,
@@ -444,22 +445,25 @@ impl RouteManagerImpl {
         Ok(routes)
     }
 
-    async fn initialize_link_map(handle: &rtnetlink::Handle) -> Result<BTreeMap<u32, String>> {
+    async fn initialize_link_map(
+        handle: &rtnetlink::Handle,
+    ) -> Result<BTreeMap<u32, NetworkInterface>> {
         let mut link_map = BTreeMap::new();
         let mut link_request = handle.link().get().execute();
         while let Some(link) = link_request.try_next().await.map_err(Error::NetlinkError)? {
-            if let Some((idx, link_name)) = Self::map_iface_name_to_idx(link) {
-                link_map.insert(idx, link_name);
+            if let Some((idx, device)) = Self::map_interface(link) {
+                link_map.insert(idx, device);
             }
         }
 
         Ok(link_map)
     }
 
+
     fn find_iface_idx(&self, iface_name: &str) -> Option<u32> {
         self.iface_map
             .iter()
-            .find(|(_idx, name)| name.as_str() == iface_name)
+            .find(|(_idx, iface)| iface.name.as_str() == iface_name)
             .map(|(idx, _name)| *idx)
     }
 
@@ -699,12 +703,12 @@ impl RouteManagerImpl {
     async fn process_netlink_message(&mut self, msg: NetlinkMessage<RtnlMessage>) -> Result<()> {
         match msg.payload {
             NetlinkPayload::InnerMessage(RtnlMessage::NewLink(new_link)) => {
-                if let Some((idx, name)) = Self::map_iface_name_to_idx(new_link) {
+                if let Some((idx, name)) = Self::map_interface(new_link) {
                     self.iface_map.insert(idx, name);
                 }
             }
             NetlinkPayload::InnerMessage(RtnlMessage::DelLink(old_link)) => {
-                if let Some((idx, _)) = Self::map_iface_name_to_idx(old_link) {
+                if let Some((idx, _)) = Self::map_interface(old_link) {
                     self.iface_map.remove(&idx);
                 }
             }
@@ -749,7 +753,13 @@ impl RouteManagerImpl {
             match nla {
                 RouteNla::Oif(device_idx) => {
                     match self.iface_map.get(&device_idx) {
-                        Some(device_name) => device = Some(device_name.to_string()),
+                        Some(route_device) => {
+                            if route_device.is_loopback() {
+                                log::debug!("Ignoring route with interface '{}' because it's a loopback interface", route_device.name);
+                                return Ok(None);
+                            }
+                            device = Some(route_device);
+                        }
                         None => {
                             return Err(Error::UnknownDeviceIndex(*device_idx));
                         }
@@ -781,6 +791,7 @@ impl RouteManagerImpl {
             }
         }
 
+
         // when a gateway is specified but prefix is none, then this is a default route
         if prefix.is_none() && gateway.is_some() {
             prefix = match af_spec as i32 {
@@ -797,7 +808,7 @@ impl RouteManagerImpl {
 
         let node = Node {
             ip: node_addr.or(gateway),
-            device,
+            device: device.map(|dev| dev.name.clone()),
         };
 
         Ok(Some(Route {
@@ -808,13 +819,21 @@ impl RouteManagerImpl {
         }))
     }
 
-    fn map_iface_name_to_idx(msg: LinkMessage) -> Option<(u32, String)> {
+    fn map_interface(msg: LinkMessage) -> Option<(u32, NetworkInterface)> {
         let index = msg.header.index;
+        let link_layer_type = msg.header.link_layer_type;
         for nla in msg.nlas {
             if let LinkNla::IfName(name) = nla {
-                return Some((index, name));
+                return Some((
+                    index,
+                    NetworkInterface {
+                        name,
+                        link_layer_type,
+                    },
+                ));
             }
         }
+
         None
     }
 
@@ -1012,6 +1031,18 @@ fn exec_ip(args: &[&str]) -> Result<()> {
         Ok(())
     } else {
         Err(Error::IpFailed)
+    }
+}
+
+#[derive(Debug)]
+struct NetworkInterface {
+    name: String,
+    link_layer_type: u16,
+}
+
+impl NetworkInterface {
+    fn is_loopback(&self) -> bool {
+        self.link_layer_type == ARPHRD_LOOPBACK
     }
 }
 
