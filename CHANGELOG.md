@@ -46,8 +46,12 @@ Line wrap the file at 100 chars.                                              Th
   more smoothly.
 - Run app in landscape mode on TVs.
 
+#### Linux
+- Make route monitor ignore loopback routes.
+
 ### Fixed
 - Fix missing map animation after selecting a new location in the desktop app.
+- Fix crash on older kernels which report a default route through the loopback interface.
 
 #### Android
 - Fix connect action button sometimes showing itself as "Cancel" instead of "Secure my connection"
