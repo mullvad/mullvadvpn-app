@@ -196,7 +196,7 @@ export function SpecialLocations<T>(props: ISpecialLocationsProps<T>) {
 
           return React.cloneElement(child, {
             ...child.props,
-            ref: isSelected ? props.selectedElementRef : undefined,
+            forwardedRef: isSelected ? props.selectedElementRef : undefined,
             onSelect: props.onSelect,
             isSelected,
           });
@@ -227,12 +227,16 @@ interface ISpecialLocationProps<T> {
   value: T;
   isSelected?: boolean;
   onSelect?: (value: T) => void;
+  forwardedRef?: React.Ref<HTMLButtonElement>;
 }
 
 export class SpecialLocation<T> extends React.Component<ISpecialLocationProps<T>> {
   public render() {
     return (
-      <StyledSpecialLocationCellButton selected={this.props.isSelected} onClick={this.onSelect}>
+      <StyledSpecialLocationCellButton
+        ref={this.props.forwardedRef}
+        selected={this.props.isSelected}
+        onClick={this.onSelect}>
         <StyledSpecialLocationIcon
           source={this.props.isSelected ? 'icon-tick' : this.props.icon}
           tintColor={colors.white}

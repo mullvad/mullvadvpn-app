@@ -15,7 +15,7 @@ interface ISelectorProps<T> {
   values: Array<ISelectorItem<T>>;
   value: T;
   onSelect: (value: T) => void;
-  selectedCellRef?: React.Ref<SelectorCell<T>>;
+  selectedCellRef?: React.Ref<HTMLButtonElement>;
   className?: string;
 }
 
@@ -34,7 +34,7 @@ export default class Selector<T> extends React.Component<ISelectorProps<T>> {
           value={item.value}
           selected={selected}
           disabled={item.disabled}
-          ref={selected ? this.props.selectedCellRef : undefined}
+          forwardedRef={selected ? this.props.selectedCellRef : undefined}
           onSelect={this.props.onSelect}>
           {item.label}
         </SelectorCell>
@@ -75,12 +75,14 @@ interface ISelectorCellProps<T> {
   disabled?: boolean;
   onSelect: (value: T) => void;
   children?: React.ReactText;
+  forwardedRef?: React.Ref<HTMLButtonElement>;
 }
 
-export class SelectorCell<T> extends React.Component<ISelectorCellProps<T>> {
+class SelectorCell<T> extends React.Component<ISelectorCellProps<T>> {
   public render() {
     return (
       <Cell.CellButton
+        ref={this.props.forwardedRef}
         onClick={this.onClick}
         selected={this.props.selected}
         disabled={this.props.disabled}
