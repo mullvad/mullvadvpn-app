@@ -82,6 +82,15 @@ const DHCPV6_SERVER_PORT: u16 = 547;
 const DHCPV6_CLIENT_PORT: u16 = 546;
 
 
+#[cfg(all(unix, not(target_os = "android")))]
+fn is_local_address(address: &IpAddr) -> bool {
+    let address = address.clone();
+    (&*ALLOWED_LAN_NETS)
+        .iter()
+        .chain(&*LOOPBACK_NETS)
+        .any(|net| net.contains(address))
+}
+
 /// A enum that describes network security strategy
 ///
 /// # Firewall block/allow specification.

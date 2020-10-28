@@ -155,7 +155,7 @@ impl Firewall {
     ) -> Result<Vec<pfctl::FilterRule>> {
         let mut rules = Vec::with_capacity(4);
 
-        let is_local = is_local_address(&server)
+        let is_local = super::is_local_address(&server)
             && server != tunnel.ipv4_gateway
             && !tunnel
                 .ipv6_gateway
@@ -527,17 +527,4 @@ enum RuleLogging {
     Pass,
     Drop,
     All,
-}
-
-fn is_local_address(address: &IpAddr) -> bool {
-    let address = address.clone();
-    for net in (&*super::ALLOWED_LAN_NETS)
-        .iter()
-        .chain(&*super::LOOPBACK_NETS)
-    {
-        if net.contains(address) {
-            return true;
-        }
-    }
-    false
 }
