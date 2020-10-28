@@ -92,7 +92,9 @@ class ForegroundNotificationManager(
         // on the foreground. With such request, when the service is started it must be placed on
         // the foreground with a call to startForeground before a timeout expires, otherwise Android
         // kills the app.
-        showOnForeground()
+        synchronized(this) {
+            showOnForeground()
+        }
 
         // Restore the notification to its correct state.
         updateNotification()
@@ -108,17 +110,19 @@ class ForegroundNotificationManager(
     }
 
     private fun updateNotification() {
-        if (shouldBeOnForeground != onForeground) {
-            if (shouldBeOnForeground) {
-                showOnForeground()
-            } else if (!shouldBeOnForeground) {
-                if (Build.VERSION.SDK_INT >= 24) {
-                    service.stopForeground(Service.STOP_FOREGROUND_DETACH)
-                } else {
-                    service.stopForeground(false)
-                }
+        synchronized(this) {
+            if (shouldBeOnForeground != onForeground) {
+                if (shouldBeOnForeground) {
+                    showOnForeground()
+                } else if (!shouldBeOnForeground) {
+                    if (Build.VERSION.SDK_INT >= 24) {
+                        service.stopForeground(Service.STOP_FOREGROUND_DETACH)
+                    } else {
+                        service.stopForeground(false)
+                    }
 
-                onForeground = false
+                    onForeground = false
+                }
             }
         }
     }
