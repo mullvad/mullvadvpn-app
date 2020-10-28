@@ -114,7 +114,7 @@ class ForegroundNotificationManager(
             if (shouldBeOnForeground != onForeground) {
                 if (shouldBeOnForeground) {
                     showOnForeground()
-                } else if (!shouldBeOnForeground) {
+                } else {
                     if (Build.VERSION.SDK_INT >= 24) {
                         service.stopForeground(Service.STOP_FOREGROUND_DETACH)
                     } else {
