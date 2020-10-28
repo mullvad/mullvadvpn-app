@@ -565,7 +565,7 @@ impl<'a> PolicyBatch<'a> {
     ) -> Result<()> {
         let (local_resolvers, remote_resolvers): (Vec<IpAddr>, Vec<IpAddr>) =
             dns_servers.iter().partition(|server| {
-                is_local_address(server)
+                super::is_local_address(server)
                     && *server != &tunnel.ipv4_gateway
                     && !tunnel
                         .ipv6_gateway
@@ -853,17 +853,4 @@ fn add_verdict(rule: &mut Rule<'_>, verdict: &expr::Verdict) {
         rule.add_expr(&nft_expr!(counter));
     }
     rule.add_expr(verdict);
-}
-
-fn is_local_address(address: &IpAddr) -> bool {
-    let address = address.clone();
-    for net in (&*super::ALLOWED_LAN_NETS)
-        .iter()
-        .chain(&*super::LOOPBACK_NETS)
-    {
-        if net.contains(address) {
-            return true;
-        }
-    }
-    false
 }
