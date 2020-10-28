@@ -48,7 +48,7 @@ jnix = { version = "0.2.3", features = ["derive"] }
 
 
 [target.'cfg(target_os = "linux")'.dependencies]
-dbus = "0.6"
+dbus = "0.9"
 failure = "0.1"
 notify = "4.0"
 resolv-conf = "0.6.1"
