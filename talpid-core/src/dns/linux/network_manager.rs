@@ -11,6 +11,7 @@ use std::{
     io::{BufRead, BufReader},
     net::IpAddr,
     path::Path,
+    time::{Duration, Instant},
 };
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -61,11 +62,14 @@ const NM_DEVICE: &str = "org.freedesktop.NetworkManager.Device";
 const NM_IP4_CONFIG: &str = "org.freedesktop.NetworkManager.IP4Config";
 const NM_IP6_CONFIG: &str = "org.freedesktop.NetworkManager.IP6Config";
 const RPC_TIMEOUT_MS: i32 = 3000;
+const DEVICE_READY_TIMEOUT: Duration = Duration::from_secs(15);
 const GLOBAL_DNS_CONF_KEY: &str = "GlobalDnsConfiguration";
 const RC_MANAGEMENT_MODE_KEY: &str = "RcManager";
 const DNS_MODE_KEY: &str = "Mode";
 const DNS_FIRST_PRIORITY: i32 = -2147483647;
 
+const NM_DEVICE_STATE_IP_CHECK: u32 = 80;
+const NM_DEVICE_STATE_SECONDARY: u32 = 90;
 const NM_DEVICE_STATE_ACTIVATED: u32 = 100;
 
 lazy_static! {
@@ -347,15 +351,14 @@ impl NetworkManager {
                 continue;
             }
 
-            let state: u32 = self
+            let mut device_state: u32 = self
                 .dbus_connection
                 .with_path(NM_BUS, device, RPC_TIMEOUT_MS)
                 .get(NM_DEVICE, "State")
                 .map_err(Error::Dbus)?;
 
-            if state != NM_DEVICE_STATE_ACTIVATED {
-                let mut current_state = state;
-
+            if device_is_ready(device_state) {
+                let deadline = Instant::now() + DEVICE_READY_TIMEOUT;
                 let match_rule = &format!(
                     "destination='{}',path='{}',interface='{}',member='{}'",
                     NM_BUS,
@@ -367,31 +370,35 @@ impl NetworkManager {
                     .add_match(match_rule)
                     .map_err(Error::Dbus)?;
 
-                for message in self.dbus_connection.incoming(RPC_TIMEOUT_MS as u32) {
-                    if message.member().as_ref() != Some(&NM_DEVICE_STATE_CHANGED) {
-                        continue;
-                    }
-                    let (new_state, _old_state, _reason): (u32, u32, u32) = message
-                        .read3()
-                        .map_err(Error::MatchDBusTypeError)
-                        .map_err(|error| {
-                            let _ = self.dbus_connection.remove_match(match_rule);
-                            error
-                        })?;
+                // a separate loopis used here because `connection.incoming(TIMEOUT)` will sleep
+                // for TIMEOUT after the last message was received - if the device is thrashing
+                // between states, we should probably give up rather than block indefinitely.
+                while Instant::now() < deadline && !device_is_ready(device_state) {
+                    for message in self.dbus_connection.incoming(RPC_TIMEOUT_MS as u32) {
+                        if message.member().as_ref() != Some(&NM_DEVICE_STATE_CHANGED) {
+                            continue;
+                        }
+                        let (new_state, _old_state, _reason): (u32, u32, u32) = message
+                            .read3()
+                            .map_err(Error::MatchDBusTypeError)
+                            .map_err(|error| {
+                                let _ = self.dbus_connection.remove_match(match_rule);
+                                error
+                            })?;
 
-                    current_state = new_state;
-                    log::trace!("New tunnel device state: {}", current_state);
-                    if current_state == NM_DEVICE_STATE_ACTIVATED {
-                        break;
+                        device_state = new_state;
+                        log::trace!("New tunnel device state: {}", device_state);
+                        if device_is_ready(device_state) {
+                            break;
+                        }
                     }
                 }
 
                 if let Err(error) = self.dbus_connection.remove_match(match_rule) {
                     log::warn!("Failed to remove signal listener: {}", error);
                 }
-
-                if current_state != NM_DEVICE_STATE_ACTIVATED {
-                    return Err(Error::DeviceNotReady(state));
+                if !device_is_ready(device_state) {
+                    return Err(Error::DeviceNotReady(device_state));
                 }
             }
 
@@ -399,6 +406,17 @@ impl NetworkManager {
         }
         Err(Error::LinkNotFound)
     }
+}
+
+fn device_is_ready(device_state: u32) -> bool {
+    /// Any state above `NM_DEVICE_STATE_IP_CONFIG` is considered to be an OK state to change the
+    /// DNS config. For the enums, see https://developer.gnome.org/NetworkManager/stable/nm-dbus-types.html#NMDeviceState
+    const READY_STATES: [u32; 3] = [
+        NM_DEVICE_STATE_IP_CHECK,
+        NM_DEVICE_STATE_SECONDARY,
+        NM_DEVICE_STATE_ACTIVATED,
+    ];
+    READY_STATES.contains(&device_state)
 }
 
 fn eq_file_content<P: AsRef<Path>>(a: &P, b: &P) -> bool {
