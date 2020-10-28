@@ -66,6 +66,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix rare crash that could occur when the tunnel state changes when showing or hiding the quick
   settings tile.
 - Fix app starting by itself sometimes.
+- Fix crash that happened sometimes when closing the app or when requesting from the notification
+  or the quick-settings tile for the app to connect or disconnect.
 
 #### Windows
 - Fix log output encoding for Windows modules.
