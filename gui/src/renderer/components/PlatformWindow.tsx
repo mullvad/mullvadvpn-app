@@ -11,7 +11,7 @@ export default styled.div({}, ({ arrowPosition }: { arrowPosition?: number }) =>
 
     mask = [
       `url(../../assets/images/app-triangle.svg) ${arrowPositionCss} 0% no-repeat`,
-      `url(../../assets/images/app-header-backdrop.svg) no-repeat`,
+      'url(../../assets/images/app-header-backdrop.svg) no-repeat',
     ].join(',');
   }
 

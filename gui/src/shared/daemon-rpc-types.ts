@@ -333,11 +333,6 @@ export type VoucherResponse =
   | { type: 'success'; newExpiry: string; secondsAdded: number }
   | { type: 'invalid' | 'already_used' | 'error' };
 
-export enum VoucherErrorCode {
-  Invalid = -400,
-  AlreadyUsed = -401,
-}
-
 export function parseSocketAddress(socketAddrStr: string): ISocketAddress {
   const re = new RegExp(/(.+):(\d+)$/);
   const matches = socketAddrStr.match(re);

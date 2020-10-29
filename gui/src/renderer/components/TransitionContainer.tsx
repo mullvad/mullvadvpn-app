@@ -86,6 +86,7 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   private currentContentRef = React.createRef<HTMLDivElement>();
   private nextContentRef = React.createRef<HTMLDivElement>();
 
+  // eslint-disable-next-line @typescript-eslint/naming-convention
   public UNSAFE_componentWillReceiveProps(nextProps: IProps) {
     const candidate = nextProps.children;
 

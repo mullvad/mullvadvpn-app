@@ -199,7 +199,7 @@ export default class ExpiredAccountErrorView extends React.Component<
   private renderBlockWhenDisconnectedAlert() {
     return (
       <ModalAlert
-        type={ModalAlertType.Info}
+        type={ModalAlertType.info}
         buttons={[
           <AppButton.BlueButton
             key="cancel"

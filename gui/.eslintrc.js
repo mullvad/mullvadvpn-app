@@ -1,3 +1,38 @@
+const namingConvention = [
+  {
+    selector: 'default',
+    format: ['camelCase'],
+  },
+  {
+    selector: 'variable',
+    modifiers: ['const'],
+    format: ['camelCase', 'PascalCase', 'UPPER_CASE'],
+    leadingUnderscore: 'allow',
+  },
+  {
+    selector: 'variableLike',
+    format: ['camelCase'],
+    leadingUnderscore: 'allow',
+  },
+  {
+    selector: 'parameter',
+    format: ['camelCase', 'PascalCase'],
+    leadingUnderscore: 'allow',
+  },
+  {
+    selector: 'function',
+    format: ['camelCase', 'PascalCase'],
+  },
+  {
+    selector: 'memberLike',
+    format: ['camelCase'],
+  },
+  {
+    selector: 'typeLike',
+    format: ['PascalCase'],
+  },
+];
+
 module.exports = {
   env: {
     es6: true,
@@ -27,6 +62,7 @@ module.exports = {
     },
   },
   rules: {
+    quotes: ['error', 'single', { avoidEscape: true }],
     'prettier/prettier': 'error',
     '@typescript-eslint/no-unused-vars': [
       'error',
@@ -36,14 +72,12 @@ module.exports = {
     '@typescript-eslint/no-floating-promises': 'error',
     '@typescript-eslint/no-unused-expressions': 'error',
     'no-return-await': 'error',
+    'react/jsx-no-bind': 'error',
+    '@typescript-eslint/naming-convention': ['error', ...namingConvention],
 
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
-    '@typescript-eslint/interface-name-prefix': 'off',
-
-    // TODO: The rules below should be enabled when move from ReactXP is completed.
-    '@typescript-eslint/camelcase': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     'react/no-find-dom-node': 'off',
   },
