@@ -9,6 +9,7 @@ import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.service.AccountCache
 import net.mullvad.mullvadvpn.service.ConnectionProxy
+import net.mullvad.mullvadvpn.service.CustomDns
 import net.mullvad.mullvadvpn.service.KeyStatusListener
 import net.mullvad.mullvadvpn.service.LocationInfoCache
 import net.mullvad.mullvadvpn.service.MullvadDaemon
@@ -44,6 +45,9 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
     lateinit var connectivityListener: ConnectivityListener
         private set
 
+    lateinit var customDns: CustomDns
+        private set
+
     lateinit var daemon: MullvadDaemon
         private set
 
@@ -69,6 +73,7 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         appVersionInfoCache = serviceConnection.appVersionInfoCache
         connectionProxy = serviceConnection.connectionProxy
         connectivityListener = serviceConnection.connectivityListener
+        customDns = serviceConnection.customDns
         daemon = serviceConnection.daemon
         keyStatusListener = serviceConnection.keyStatusListener
         locationInfoCache = serviceConnection.locationInfoCache
