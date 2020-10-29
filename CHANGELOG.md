@@ -78,6 +78,7 @@ Line wrap the file at 100 chars.                                              Th
 - Handle statically added routes.
 - Stop reconnecting when using WireGuard and NetworkManager.
 - Apply DNS config quicker when managing DNS via NetworkManager.
+- Fix routing rules sometimes being duplicated.
 
 
 ### Security
