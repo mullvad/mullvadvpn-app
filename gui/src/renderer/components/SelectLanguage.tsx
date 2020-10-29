@@ -1,5 +1,4 @@
 import * as React from 'react';
-import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
@@ -14,7 +13,7 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
-import Selector, { ISelectorItem, SelectorCell } from './Selector';
+import Selector, { ISelectorItem } from './Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 interface IProps {
@@ -42,7 +41,7 @@ const StyledSelector = (styled(Selector)({
 
 export default class SelectLanguage extends React.Component<IProps, IState> {
   private scrollView = React.createRef<CustomScrollbars>();
-  private selectedCellRef = React.createRef<SelectorCell<string>>();
+  private selectedCellRef = React.createRef<HTMLButtonElement>();
 
   constructor(props: IProps) {
     super(props);
@@ -107,9 +106,8 @@ export default class SelectLanguage extends React.Component<IProps, IState> {
     const scrollView = this.scrollView.current;
 
     if (scrollView && ref) {
-      const cellDOMNode = ReactDOM.findDOMNode(ref);
-      if (cellDOMNode instanceof HTMLElement) {
-        scrollView.scrollToElement(cellDOMNode, 'middle');
+      if (ref instanceof HTMLElement) {
+        scrollView.scrollToElement(ref, 'middle');
       }
     }
   }

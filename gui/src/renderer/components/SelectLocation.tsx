@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
@@ -202,9 +201,8 @@ export default class SelectLocation extends React.Component<IProps> {
 
     if (scrollView) {
       if (ref) {
-        const cellDOMNode = ReactDOM.findDOMNode(ref);
-        if (cellDOMNode instanceof HTMLElement) {
-          scrollView.scrollToElement(cellDOMNode, 'middle');
+        if (ref instanceof HTMLElement) {
+          scrollView.scrollToElement(ref, 'middle');
         }
       } else {
         scrollView.scrollToTop();
