@@ -137,7 +137,7 @@ class SettingsViewController: UITableViewController, AccountViewControllerDelega
         let middleSection = StaticTableViewSection()
         let versionRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
             let cell = cell as! SettingsCell
-            let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+            let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String
 
             cell.titleLabel.text = NSLocalizedString("App version", comment: "")
             cell.detailTitleLabel.text = version
