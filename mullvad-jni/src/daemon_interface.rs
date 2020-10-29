@@ -5,7 +5,7 @@ use mullvad_types::{
     location::GeoIpLocation,
     relay_constraints::RelaySettingsUpdate,
     relay_list::RelayList,
-    settings::Settings,
+    settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
     version::AppVersionInfo,
     wireguard::{self, KeygenEvent},
@@ -198,6 +198,14 @@ impl DaemonInterface {
         let (tx, rx) = oneshot::channel();
 
         self.send_command(DaemonCommand::SetAutoConnect(tx, auto_connect))?;
+
+        block_on(rx).map_err(|_| Error::NoResponse)
+    }
+
+    pub fn set_dns_options(&self, dns_options: DnsOptions) -> Result<()> {
+        let (tx, rx) = oneshot::channel();
+
+        self.send_command(DaemonCommand::SetDnsOptions(tx, dns_options))?;
 
         block_on(rx).map_err(|_| Error::NoResponse)
     }
