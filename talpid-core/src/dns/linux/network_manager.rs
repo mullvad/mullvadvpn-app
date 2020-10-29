@@ -172,12 +172,6 @@ impl NetworkManager {
                 .get(NM_DEVICE, "Ip4Config")
                 .map_err(Error::Dbus)?;
 
-            let device_routes: Vec<Vec<u32>> = self
-                .dbus_connection
-                .with_path(NM_BUS, &device_ip4_config, RPC_TIMEOUT_MS)
-                .get(NM_IP4_CONFIG, "Routes")
-                .map_err(Error::Dbus)?;
-
             let device_route_data: Vec<HashMap<String, Variant<Box<dyn RefArg>>>> = self
                 .dbus_connection
                 .with_path(NM_BUS, &device_ip4_config, RPC_TIMEOUT_MS)
@@ -185,8 +179,8 @@ impl NetworkManager {
                 .map_err(Error::Dbus)?;
 
             ipv4_settings.insert("route-metric", Variant(Box::new(0u32)));
-            ipv4_settings.insert("routes", Variant(Box::new(device_routes)));
             ipv4_settings.insert("route-data", Variant(Box::new(device_route_data)));
+            ipv4_settings.remove("routes");
         }
 
         if let Some(ipv6_settings) = settings.get_mut("ipv6") {
@@ -201,13 +195,6 @@ impl NetworkManager {
                 .with_path(NM_BUS, &device_ip6_config, RPC_TIMEOUT_MS)
                 .get(NM_IP6_CONFIG, "Addresses")
                 .map_err(Error::Dbus)?;
-
-            let device_routes6: Vec<(Vec<u8>, u32, Vec<u8>, u32)> = self
-                .dbus_connection
-                .with_path(NM_BUS, &device_ip6_config, RPC_TIMEOUT_MS)
-                .get(NM_IP6_CONFIG, "Routes")
-                .map_err(Error::Dbus)?;
-
             let device_route6_data: Vec<HashMap<String, Variant<Box<dyn RefArg>>>> = self
                 .dbus_connection
                 .with_path(NM_BUS, &device_ip6_config, RPC_TIMEOUT_MS)
@@ -215,7 +202,7 @@ impl NetworkManager {
                 .map_err(Error::Dbus)?;
 
             ipv6_settings.insert("route-metric", Variant(Box::new(0u32)));
-            ipv6_settings.insert("routes", Variant(Box::new(device_routes6)));
+            ipv6_settings.remove("routes");
             ipv6_settings.insert("route-data", Variant(Box::new(device_route6_data)));
             // if the link contains link local addresses, addresses shouldn't be reset
             if ipv6_settings
