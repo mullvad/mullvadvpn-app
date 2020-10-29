@@ -43,7 +43,7 @@ This is a folder with gettext translations for Mullvad VPN app.
 ### messages.pot
 
 Run `npm run update-translations` to extract the new translations from the source
-code. Use `crowdin.sh upload` to submit them to Crowdin.
+code.
 
 #### Android translations
 
