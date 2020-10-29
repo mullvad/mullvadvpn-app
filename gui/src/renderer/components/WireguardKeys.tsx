@@ -53,13 +53,13 @@ export interface IState {
 }
 
 export default class WireguardKeys extends React.Component<IProps, IState> {
-  private keyAgeUpdateInterval?: number;
-
   public state = {
     recentlyGeneratedKey: false,
     userHasInitiatedVerification: false,
     ageOfKeyString: WireguardKeys.ageOfKeyString(this.props.keyState, this.props.locale),
   };
+
+  private keyAgeUpdateInterval?: number;
 
   public static getDerivedStateFromProps(props: IProps) {
     return {

@@ -77,14 +77,14 @@ interface IState {
 }
 
 export default class AdvancedSettings extends React.Component<IProps, IState> {
+  public state = {
+    showConfirmBlockWhenDisconnectedAlert: false,
+  };
+
   private portItems: { [key in RelayProtocol]: Array<ISelectorItem<OptionalPort>> };
   private protocolItems: Array<ISelectorItem<OptionalRelayProtocol>>;
   private bridgeStateItems: Array<ISelectorItem<BridgeState>>;
   private wireguardPortItems: Array<ISelectorItem<OptionalPort>>;
-
-  public state = {
-    showConfirmBlockWhenDisconnectedAlert: false,
-  };
 
   constructor(props: IProps) {
     super(props);

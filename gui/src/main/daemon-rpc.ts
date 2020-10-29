@@ -120,14 +120,6 @@ type CallFunctionArgument<T, R> =
   | undefined;
 
 export class DaemonRpc {
-  constructor(connectionParams: string) {
-    this.client = (new ManagementServiceClient(
-      connectionParams,
-      grpc.credentials.createInsecure(),
-      this.channelOptions(),
-    ) as unknown) as managementInterface.ManagementServiceClient;
-  }
-
   private client: managementInterface.ManagementServiceClient;
   private isConnected = false;
   private connectionObservers: ConnectionObserver[] = [];
@@ -135,60 +127,12 @@ export class DaemonRpc {
   private subscriptions: Map<number, grpc.ClientReadableStream<grpcTypes.DaemonEvent>> = new Map();
   private reconnectionTimeout?: number;
 
-  private subscriptionId(): number {
-    const current = this.nextSubscriptionId;
-    this.nextSubscriptionId += 1;
-    return current;
-  }
-
-  private deadlineFromNow() {
-    return Date.now() + NETWORK_CALL_TIMEOUT;
-  }
-
-  private channelStateTimeout(): number {
-    return Date.now() + CHANNEL_STATE_TIMEOUT;
-  }
-
-  private callEmpty<R>(fn: CallFunctionArgument<Empty, R>): Promise<R> {
-    return this.call<Empty, R>(fn, new Empty());
-  }
-
-  private callString<R>(fn: CallFunctionArgument<StringValue, R>, value?: string): Promise<R> {
-    const googleString = new StringValue();
-
-    if (value !== undefined) {
-      googleString.setValue(value);
-    }
-
-    return this.call<StringValue, R>(fn, googleString);
-  }
-
-  private callBool<R>(fn: CallFunctionArgument<BoolValue, R>, value?: boolean): Promise<R> {
-    const googleBool = new BoolValue();
-
-    if (value !== undefined) {
-      googleBool.setValue(value);
-    }
-
-    return this.call<BoolValue, R>(fn, googleBool);
-  }
-
-  private callNumber<R>(fn: CallFunctionArgument<UInt32Value, R>, value?: number): Promise<R> {
-    const googleNumber = new UInt32Value();
-
-    if (value !== undefined) {
-      googleNumber.setValue(value);
-    }
-
-    return this.call<UInt32Value, R>(fn, googleNumber);
-  }
-
-  private call<T, R>(fn: CallFunctionArgument<T, R>, arg: T): Promise<R> {
-    if (fn && this.isConnected) {
-      return promisify<T, R>(fn.bind(this.client))(arg);
-    } else {
-      throw noConnectionError;
-    }
+  constructor(connectionParams: string) {
+    this.client = (new ManagementServiceClient(
+      connectionParams,
+      grpc.credentials.createInsecure(),
+      this.channelOptions(),
+    ) as unknown) as managementInterface.ManagementServiceClient;
   }
 
   public connect(): Promise<void> {
@@ -207,87 +151,6 @@ export class DaemonRpc {
         }
       });
     });
-  }
-
-  private channelOptions(): grpc.ClientOptions {
-    /* eslint-disable @typescript-eslint/naming-convention */
-    return {
-      'grpc.max_reconnect_backoff_ms': 3000,
-      'grpc.initial_reconnect_backoff_ms': 3000,
-      'grpc.keepalive_time_ms': Math.pow(2, 30),
-      'grpc.keepalive_timeout_ms': Math.pow(2, 30),
-    };
-    /* eslint-enable @typescript-eslint/naming-convention */
-  }
-
-  private connectivityChangeCallback(timeoutErr?: Error) {
-    const channel = this.client.getChannel();
-    const currentState = channel?.getConnectivityState(true);
-    log.debug(`GRPC Channel connectivity state changed to ${currentState}`);
-    if (channel) {
-      if (timeoutErr) {
-        this.setChannelCallback(currentState);
-        return;
-      }
-      const wasConnected = this.isConnected;
-      if (this.channelDisconnected(currentState)) {
-        this.connectionObservers.forEach((observer) => observer.onClose());
-        this.isConnected = false;
-        // Try and reconnect in case
-        consumePromise(
-          this.connect().catch((error) => {
-            log.error(`Failed to reconnect - ${error}`);
-          }),
-        );
-        this.setChannelCallback(currentState);
-      } else if (!wasConnected && currentState === grpc.connectivityState.READY) {
-        this.isConnected = true;
-        this.connectionObservers.forEach((observer) => observer.onOpen());
-        this.setChannelCallback(currentState);
-      }
-    }
-  }
-
-  private channelDisconnected(state: grpc.connectivityState): boolean {
-    return (
-      (state === grpc.connectivityState.SHUTDOWN ||
-        state === grpc.connectivityState.TRANSIENT_FAILURE ||
-        state === grpc.connectivityState.IDLE) &&
-      this.isConnected
-    );
-  }
-
-  private setChannelCallback(currentState?: grpc.connectivityState) {
-    const channel = this.client.getChannel();
-    if (currentState === undefined && channel) {
-      currentState = channel?.getConnectivityState(false);
-    }
-    if (currentState) {
-      channel.watchConnectivityState(currentState, this.channelStateTimeout(), (error) =>
-        this.connectivityChangeCallback(error),
-      );
-    }
-  }
-
-  // Since grpc.Channel.watchConnectivityState() isn't always running as intended, whenever the
-  // client fails to connect at first, `ensureConnectivity()` should be called so that it tries to
-  // check the connectivity state and nudge the client into connecting.
-  // `grpc.Channel.getConnectivityState(true)` should make it attempt to connect.
-  private ensureConnectivity() {
-    this.reconnectionTimeout = setTimeout(() => {
-      const lastState = this.client.getChannel().getConnectivityState(true);
-      if (this.channelDisconnected(lastState)) {
-        this.connectionObservers.forEach((observer) => observer.onClose());
-        this.isConnected = false;
-      }
-      if (!this.isConnected) {
-        consumePromise(
-          this.connect().catch((error) => {
-            log.error(`Failed to reconnect - ${error}`);
-          }),
-        );
-      }
-    }, 3000);
   }
 
   public disconnect() {
@@ -562,22 +425,6 @@ export class DaemonRpc {
     }
   }
 
-  private removeSubscription(id: number) {
-    const subscription = this.subscriptions.get(id);
-    if (subscription !== undefined) {
-      this.subscriptions.delete(id);
-      subscription.removeAllListeners('data');
-      subscription.removeAllListeners('error');
-      try {
-        subscription.cancel();
-      } catch (error) {
-        if (error.code !== grpc.status.CANCELLED) {
-          throw error;
-        }
-      }
-    }
-  }
-
   public async getAccountHistory(): Promise<AccountToken[]> {
     const response = await this.callEmpty<grpcTypes.AccountHistory>(this.client.getAccountHistory);
     return response.toObject().tokenList;
@@ -613,6 +460,159 @@ export class DaemonRpc {
   public async getVersionInfo(): Promise<IAppVersionInfo> {
     const response = await this.callEmpty<grpcTypes.AppVersionInfo>(this.client.getVersionInfo);
     return response.toObject();
+  }
+
+  private subscriptionId(): number {
+    const current = this.nextSubscriptionId;
+    this.nextSubscriptionId += 1;
+    return current;
+  }
+
+  private deadlineFromNow() {
+    return Date.now() + NETWORK_CALL_TIMEOUT;
+  }
+
+  private channelStateTimeout(): number {
+    return Date.now() + CHANNEL_STATE_TIMEOUT;
+  }
+
+  private callEmpty<R>(fn: CallFunctionArgument<Empty, R>): Promise<R> {
+    return this.call<Empty, R>(fn, new Empty());
+  }
+
+  private callString<R>(fn: CallFunctionArgument<StringValue, R>, value?: string): Promise<R> {
+    const googleString = new StringValue();
+
+    if (value !== undefined) {
+      googleString.setValue(value);
+    }
+
+    return this.call<StringValue, R>(fn, googleString);
+  }
+
+  private callBool<R>(fn: CallFunctionArgument<BoolValue, R>, value?: boolean): Promise<R> {
+    const googleBool = new BoolValue();
+
+    if (value !== undefined) {
+      googleBool.setValue(value);
+    }
+
+    return this.call<BoolValue, R>(fn, googleBool);
+  }
+
+  private callNumber<R>(fn: CallFunctionArgument<UInt32Value, R>, value?: number): Promise<R> {
+    const googleNumber = new UInt32Value();
+
+    if (value !== undefined) {
+      googleNumber.setValue(value);
+    }
+
+    return this.call<UInt32Value, R>(fn, googleNumber);
+  }
+
+  private call<T, R>(fn: CallFunctionArgument<T, R>, arg: T): Promise<R> {
+    if (fn && this.isConnected) {
+      return promisify<T, R>(fn.bind(this.client))(arg);
+    } else {
+      throw noConnectionError;
+    }
+  }
+
+  private removeSubscription(id: number) {
+    const subscription = this.subscriptions.get(id);
+    if (subscription !== undefined) {
+      this.subscriptions.delete(id);
+      subscription.removeAllListeners('data');
+      subscription.removeAllListeners('error');
+      try {
+        subscription.cancel();
+      } catch (error) {
+        if (error.code !== grpc.status.CANCELLED) {
+          throw error;
+        }
+      }
+    }
+  }
+
+  private channelOptions(): grpc.ClientOptions {
+    /* eslint-disable @typescript-eslint/naming-convention */
+    return {
+      'grpc.max_reconnect_backoff_ms': 3000,
+      'grpc.initial_reconnect_backoff_ms': 3000,
+      'grpc.keepalive_time_ms': Math.pow(2, 30),
+      'grpc.keepalive_timeout_ms': Math.pow(2, 30),
+    };
+    /* eslint-enable @typescript-eslint/naming-convention */
+  }
+
+  private connectivityChangeCallback(timeoutErr?: Error) {
+    const channel = this.client.getChannel();
+    const currentState = channel?.getConnectivityState(true);
+    log.debug(`GRPC Channel connectivity state changed to ${currentState}`);
+    if (channel) {
+      if (timeoutErr) {
+        this.setChannelCallback(currentState);
+        return;
+      }
+      const wasConnected = this.isConnected;
+      if (this.channelDisconnected(currentState)) {
+        this.connectionObservers.forEach((observer) => observer.onClose());
+        this.isConnected = false;
+        // Try and reconnect in case
+        consumePromise(
+          this.connect().catch((error) => {
+            log.error(`Failed to reconnect - ${error}`);
+          }),
+        );
+        this.setChannelCallback(currentState);
+      } else if (!wasConnected && currentState === grpc.connectivityState.READY) {
+        this.isConnected = true;
+        this.connectionObservers.forEach((observer) => observer.onOpen());
+        this.setChannelCallback(currentState);
+      }
+    }
+  }
+
+  private channelDisconnected(state: grpc.connectivityState): boolean {
+    return (
+      (state === grpc.connectivityState.SHUTDOWN ||
+        state === grpc.connectivityState.TRANSIENT_FAILURE ||
+        state === grpc.connectivityState.IDLE) &&
+      this.isConnected
+    );
+  }
+
+  private setChannelCallback(currentState?: grpc.connectivityState) {
+    const channel = this.client.getChannel();
+    if (currentState === undefined && channel) {
+      currentState = channel?.getConnectivityState(false);
+    }
+    if (currentState) {
+      channel.watchConnectivityState(currentState, this.channelStateTimeout(), (error) =>
+        this.connectivityChangeCallback(error),
+      );
+    }
+  }
+
+  // Since grpc.Channel.watchConnectivityState() isn't always running as intended, whenever the
+  // client fails to connect at first, `ensureConnectivity()` should be called so that it tries to
+  // check the connectivity state and nudge the client into connecting.
+  // `grpc.Channel.getConnectivityState(true)` should make it attempt to connect.
+  private ensureConnectivity() {
+    this.reconnectionTimeout = setTimeout(() => {
+      const lastState = this.client.getChannel().getConnectivityState(true);
+      if (this.channelDisconnected(lastState)) {
+        this.connectionObservers.forEach((observer) => observer.onClose());
+        this.isConnected = false;
+      }
+      if (!this.isConnected) {
+        consumePromise(
+          this.connect().catch((error) => {
+            log.error(`Failed to reconnect - ${error}`);
+          }),
+        );
+      }
+    }, 3000);
   }
 }
 

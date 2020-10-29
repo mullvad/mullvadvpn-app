@@ -30,13 +30,13 @@ interface IMarqueeState {
 }
 
 export default class Marquee extends React.Component<IMarqueeProps, IMarqueeState> {
-  private textRef = React.createRef<HTMLSpanElement>();
-  private scheduler = new Scheduler();
-
   public state = {
     alignRight: false,
     uniqueKey: 0,
   };
+
+  private textRef = React.createRef<HTMLSpanElement>();
+  private scheduler = new Scheduler();
 
   public componentDidMount() {
     this.startAnimationIfOverflow();

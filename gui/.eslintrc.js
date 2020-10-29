@@ -33,6 +33,22 @@ const namingConvention = [
   },
 ];
 
+const memberOrdering = {
+  default: [
+    'public-field',
+    'protected-field',
+    'private-field',
+
+    'public-constructor',
+    'protected-constructor',
+    'private-constructor',
+
+    'public-method',
+    'protected-method',
+    'private-method',
+  ],
+};
+
 module.exports = {
   env: {
     es6: true,
@@ -71,6 +87,7 @@ module.exports = {
     '@typescript-eslint/require-await': 'error',
     '@typescript-eslint/no-floating-promises': 'error',
     '@typescript-eslint/no-unused-expressions': 'error',
+    '@typescript-eslint/member-ordering': ['error', memberOrdering],
     'no-return-await': 'error',
     'react/jsx-no-bind': 'error',
     '@typescript-eslint/naming-convention': ['error', ...namingConvention],
