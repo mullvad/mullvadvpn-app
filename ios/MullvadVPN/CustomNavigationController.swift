@@ -20,10 +20,20 @@ protocol ConditionalNavigation: class {
 
 class CustomNavigationController: UINavigationController, UINavigationBarDelegate {
 
+    private static let classInit: Void = {
+        swizzleMethod(
+            aClass: CustomNavigationController.self,
+            originalSelector: #selector(UINavigationBarDelegate.navigationBar(_:shouldPop:)),
+            newSelector: #selector(customNavigationController_navigationBar(_:shouldPop:))
+        )
+    }()
+
     private var popGestureRecognizerDelegate: CustomPopGestureRecognizerDelegate?
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        _ = Self.classInit
 
         popGestureRecognizerDelegate = CustomPopGestureRecognizerDelegate(navigationController: self, systemGestureRecognizerDelegate: interactivePopGestureRecognizer?.delegate)
 
@@ -31,12 +41,20 @@ class CustomNavigationController: UINavigationController, UINavigationBarDelegat
         interactivePopGestureRecognizer?.delegate = popGestureRecognizerDelegate
     }
 
-    func navigationBar(_ navigationBar: UINavigationBar, shouldPop item: UINavigationItem) -> Bool {
+    @objc dynamic func customNavigationController_navigationBar(_ navigationBar: UINavigationBar, shouldPop item: UINavigationItem) -> Bool {
+        var shouldPop = true
+
         if let conformingViewController = topViewController as? ConditionalNavigation {
-            return conformingViewController.shouldPopNavigationItem(item, trigger: .backButton)
+            shouldPop = conformingViewController.shouldPopNavigationItem(item, trigger: .backButton)
         }
 
-        return true
+        // Only call super implementation when we want to pop the controller
+        if shouldPop {
+            // Call super implementation
+            return customNavigationController_navigationBar(navigationBar, shouldPop: item)
+        } else {
+            return shouldPop
+        }
     }
 }
 
@@ -72,13 +90,13 @@ private class CustomPopGestureRecognizerDelegate: NSObject, UIGestureRecognizerD
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         let shouldBegin = systemGestureRecognizerDelegate?.gestureRecognizerShouldBegin?(gestureRecognizer) ?? true
-        
+
         guard let navigationController = navigationController,
             let topItem = navigationController.navigationBar.topItem,
             let conformingViewController = navigationController.topViewController as? ConditionalNavigation else {
                 return shouldBegin
         }
-        
+
         return shouldBegin && conformingViewController.shouldPopNavigationItem(topItem, trigger: .interactiveGesture)
     }
 }
