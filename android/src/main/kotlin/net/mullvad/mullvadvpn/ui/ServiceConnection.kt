@@ -9,6 +9,7 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     val accountCache = service.accountCache
     val connectionProxy = service.connectionProxy
     val connectivityListener = service.connectivityListener
+    val customDns = service.customDns
     val keyStatusListener = service.keyStatusListener
     val locationInfoCache = service.locationInfoCache
     val settingsListener = service.settingsListener
