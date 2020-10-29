@@ -53,7 +53,7 @@ from the translations in this directory. For more information, see [here](../../
 ### relay-locations.pot
 
 To update the countries and cities you have to run the geo data scripts. Follow the instructions
-in `gui/scripts/README.md`.
+in [`gui/scripts/README.md`](../scripts/README.md).
 
 ## Uploading translations template to Crowdin
 
