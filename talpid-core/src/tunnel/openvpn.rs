@@ -1,4 +1,6 @@
 use super::TunnelEvent;
+#[cfg(target_os = "linux")]
+use crate::routing::RequiredRoute;
 use crate::{
     mktemp,
     process::{
@@ -8,8 +10,10 @@ use crate::{
     proxy::{self, ProxyMonitor, ProxyResourceData},
     routing,
 };
+#[cfg(target_os = "linux")]
+use std::net::IpAddr;
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     fs,
     io::{self, Write},
     path::{Path, PathBuf},
@@ -185,6 +189,12 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 return;
             }
             if event == openvpn_plugin::EventType::RouteUp {
+                #[cfg(target_os = "linux")]
+                tokio::task::block_in_place(|| {
+                    let routes = extract_routes(&env);
+                    route_manager_handle.clone().add_routes(routes).unwrap();
+                });
+
                 // The user-pass file has been read. Try to delete it early.
                 let _ = fs::remove_file(&user_pass_file_path);
 
@@ -235,6 +245,37 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             proxy_monitor,
         )
     }
+}
+
+#[cfg(target_os = "linux")]
+fn extract_routes(env: &HashMap<String, String>) -> HashSet<RequiredRoute> {
+    let mut routes = HashSet::new();
+
+    let ipv4_relay: IpAddr = env
+        .get("remote_1")
+        .expect("No \"remote_1\" in route up event")
+        .parse()
+        .expect("Net gateway IP not in valid format");
+    routes.insert(RequiredRoute::new(
+        ipv4_relay.into(),
+        routing::NetNode::DefaultNode,
+    ));
+
+    let interface = env.get("dev").unwrap();
+    let node = routing::Node::device(interface.to_string());
+
+    for network in &["0.0.0.0/1".parse().unwrap(), "128.0.0.0/1".parse().unwrap()] {
+        routes.insert(RequiredRoute::new(*network, node.clone()));
+    }
+
+    for (key, value) in env.iter() {
+        if key.starts_with("route_ipv6_network") {
+            let network = value.parse().expect("V6 network format invalid");
+            routes.insert(RequiredRoute::new(network, node.clone()));
+        }
+    }
+
+    routes
 }
 
 impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
