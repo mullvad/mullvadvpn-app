@@ -43,12 +43,17 @@ This is a folder with gettext translations for Mullvad VPN app.
 ### messages.pot
 
 Run `npm run update-translations` to extract the new translations from the source
-code. Use `crowdin.sh upload` to submit them to Crowdin.
+code.
+
+#### Android translations
+
+The Android app uses translation strings stored in a different format, but which can be generated
+from the translations in this directory. For more information, see [here](../../android/README.md).
 
 ### relay-locations.pot
 
 To update the countries and cities you have to run the geo data scripts. Follow the instructions
-in `gui/scripts/README.md`.
+in [`gui/scripts/README.md`](../scripts/README.md).
 
 ## Uploading translations template to Crowdin
 
@@ -77,8 +82,3 @@ command:
 ```
 CROWDIN_API_KEY=$YOUR_CROWDIN_KEY ./gui/scripts/crowdin.sh download
 ```
-
-## Android translations
-
-The Android app uses translation strings stored in a different format, but which can be generated
-from the translations in this directory. For more information, see [here](../../android/README.md).
