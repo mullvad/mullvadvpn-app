@@ -19,8 +19,15 @@ class AlertPresenter {
     private let operationQueue = OperationQueue()
     private lazy var exclusivityController = ExclusivityController<ExclusivityCategory>(operationQueue: operationQueue)
 
+    private static let initClass: Void = {
+        /// Swizzle `viewDidDisappear` on `UIAlertController` in order to be able to
+        /// detect when the controller disappears.
+        /// The event is broadcasted via `kUIAlertControllerDidDissmissNotification` notification.
+        swizzleMethod(aClass: UIAlertController.self, originalSelector: #selector(UIAlertController.viewDidDisappear(_:)), newSelector: #selector(UIAlertController.alertPresenter_viewDidDisappear(_:)))
+    }()
+
     init() {
-        _ = AlertPresenterUIKitHooks.once
+        _ = Self.initClass
     }
 
     func enqueue(_ alertController: UIAlertController, presentingController: UIViewController, presentCompletion: (() -> Void)? = nil) {
@@ -34,6 +41,19 @@ class AlertPresenter {
     }
 
 }
+
+
+fileprivate extension UIAlertController {
+    @objc dynamic func alertPresenter_viewDidDisappear(_ animated: Bool) {
+        // Call super implementation
+        alertPresenter_viewDidDisappear(animated)
+
+        if presentingViewController == nil {
+            NotificationCenter.default.post(name: kUIAlertControllerDidDissmissNotification, object: self)
+        }
+    }
+}
+
 
 private class PresentAlertOperation: AsyncOperation {
     private let alertController: UIAlertController
@@ -60,38 +80,6 @@ private class PresentAlertOperation: AsyncOperation {
             })
 
             self.presentingController.present(self.alertController, animated: true, completion: self.presentCompletion)
-        }
-    }
-}
-
-/// A helper struct that swizzles `viewDidDisappear` on `UIAlertController` in order to be able to
-/// detect when the controller disappears.
-/// The event is broadcasted via `kUIAlertControllerDidDissmissNotification` notification.
-private struct AlertPresenterUIKitHooks {
-    typealias MethodType = @convention(c) (UIAlertController, Selector, Bool) -> Void
-    typealias BlockImpType = @convention(block) (UIAlertController, Bool) -> Void
-
-    static let once = AlertPresenterUIKitHooks()
-
-    private init() {
-        let originalSelector = #selector(UIAlertController.viewDidDisappear(_:))
-        let originalMethod = class_getInstanceMethod(UIAlertController.self, originalSelector)!
-
-        var originalIMP: IMP? = nil
-        let swizzledBlockIMP: BlockImpType = { (receiver, animated) in
-            let superIMP = originalIMP.map { unsafeBitCast($0, to: MethodType.self) }
-            superIMP?(receiver, originalSelector, animated)
-
-            Self.handleViewDidDisappear(receiver, animated)
-        }
-
-        let swizzledIMP = imp_implementationWithBlock(unsafeBitCast(swizzledBlockIMP, to: AnyObject.self))
-        originalIMP = method_setImplementation(originalMethod, swizzledIMP)
-    }
-
-    private static func handleViewDidDisappear(_ alertController: UIAlertController, _ animated: Bool) {
-        if alertController.presentingViewController == nil {
-            NotificationCenter.default.post(name: kUIAlertControllerDidDissmissNotification, object: alertController)
         }
     }
 }
