@@ -10,56 +10,71 @@ import Foundation
 
 private let kLogMaxReadBytes: UInt64 = 128 * 1024
 private let kLogDelimeter = "===================="
+private let kRedactedPlaceholder = "[REDACTED]"
+private let kRedactedAccountPlaceholder = "[REDACTED ACCOUNT NUMBER]"
 
 class ProblemReport {
 
-    struct LogFileAttachment {
-        let label: String
-        let content: String
-    }
-
-    enum Error: ChainedError {
-        case logFileDoesNotExist(String)
-
-        var errorDescription: String? {
-            switch self {
-            case .logFileDoesNotExist(let path):
-                return "Cannot read the log file: \(path)"
-            }
-        }
-    }
+    typealias Metadata = KeyValuePairs<MetadataKey, String>
 
     enum MetadataKey: String {
         case id, os
         case productVersion = "mullvad-product-version"
     }
 
-    typealias Metadata = KeyValuePairs<MetadataKey, String>
+    struct LogAttachment {
+        let label: String
+        let content: String
+    }
 
-//    private let metadata: Metadata
-    private let redactCustomStrings: [String]
-    private var metadata: Metadata = [:]
-    private var logs: [LogFileAttachment] = []
+    enum Error: ChainedError {
+        case logFileDoesNotExist(String)
+        case invalidLogFileURL(URL)
+
+        var errorDescription: String? {
+            switch self {
+            case .logFileDoesNotExist(let path):
+                return "Log file does not exist: \(path)"
+            case .invalidLogFileURL(let url):
+                return "Invalid log file URL: \(url.absoluteString)"
+            }
+        }
+    }
+
+    let redactCustomStrings: [String]
+    let metadata: Metadata
+
+    private var logs: [LogAttachment] = []
 
     init(redactCustomStrings: [String]) {
         self.metadata = Self.makeMetadata()
         self.redactCustomStrings = redactCustomStrings
     }
 
-    func addLog(filePath: String) {
-        switch self.readFileLossy(path: filePath, maxBytes: kLogMaxReadBytes) {
+    func addLogFile(fileURL: URL) {
+        guard fileURL.isFileURL else {
+            addError(message: fileURL.absoluteString, error: Error.invalidLogFileURL(fileURL))
+            return
+        }
+
+        let path = fileURL.path
+        switch Self.readFileLossy(path: path, maxBytes: kLogMaxReadBytes) {
         case .success(let lossyString):
-            let redactedString = redact(input: lossyString)
-            logs.append(LogFileAttachment(label: filePath, content: redactedString))
+            let redactedString = redact(string: lossyString)
+            logs.append(LogAttachment(label: path, content: redactedString))
         case .failure(let error):
-            addError(message: filePath, error: error)
+            addError(message: path, error: error)
         }
     }
 
-    func addError<ErrorType: ChainedError>(message: String, error: ErrorType) {
-        let redactedError = redact(input: error.displayChain())
+    func addLogFiles(fileURLs: [URL]) {
+        fileURLs.forEach(self.addLogFile)
+    }
 
-        logs.append(LogFileAttachment(label: message, content: redactedError))
+    func addError<ErrorType: ChainedError>(message: String, error: ErrorType) {
+        let redactedError = redact(string: error.displayChain())
+
+        logs.append(LogAttachment(label: message, content: redactedError))
     }
 
     func write<Target: TextOutputStream>(into stream: inout Target) {
@@ -79,9 +94,9 @@ class ProblemReport {
     }
 
     private static func makeMetadata() -> Metadata {
-        let bundle = Bundle(for: ProblemReport.self)
-        let version = bundle.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String ?? "nil"
-        let shortVersion = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "nil"
+        let bundle = Bundle.main
+        let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "nil"
+        let buildNumber = bundle.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String ?? "nil"
 
         let operatingSystemVersion: String = {
             let version = ProcessInfo.processInfo.operatingSystemVersion
@@ -90,12 +105,12 @@ class ProblemReport {
 
         return [
             .id : UUID().uuidString,
-            .productVersion: "\(version)-b\(shortVersion)",
+            .productVersion: "\(version)-b\(buildNumber)",
             .os: operatingSystemVersion
         ]
     }
 
-    private func readFileLossy(path: String, maxBytes: UInt64) -> Result<String, Error> {
+    private static func readFileLossy(path: String, maxBytes: UInt64) -> Result<String, Error> {
         guard let fileHandle = FileHandle(forReadingAtPath: path) else {
             return .failure(.logFileDoesNotExist(path))
         }
@@ -113,29 +128,47 @@ class ProblemReport {
         return .success(lossyString)
     }
 
-    private func redact(input: String) -> String {
-        return [self.redactAccountNumber, self.redactCustomStrings]
-            .reduce(input) { (accum, transform) -> String in
-                return transform(accum)
+    private func redactCustomStrings(string: String) -> String {
+        return redactCustomStrings.reduce(string) { (resultString, redact) -> String in
+            return resultString.replacingOccurrences(of: redact, with: kRedactedPlaceholder)
+        }
+    }
+
+    private func redact(string: String) -> String {
+        return [Self.redactAccountNumber, Self.redactIPv4Address, Self.redactIPv6Address, self.redactCustomStrings]
+            .reduce(string) { (resultString, transform) -> String in
+                return transform(resultString)
             }
     }
 
-    private func redactAccountNumber(input: String) -> String {
-        let regex = try! NSRegularExpression(pattern: #"\d{16}"#, options: [])
-        let nsRange = NSRange((input.startIndex..<input.endIndex), in: input)
-
-        return regex.stringByReplacingMatches(
-            in: input,
-            options: [],
-            range: nsRange,
-            withTemplate: "[REDACTED ACCOUNT NUMBER]"
-        )
+    private static func redactAccountNumber(string: String) -> String {
+        return redact(regularExpression: try! NSRegularExpression(pattern: #"\d{16}"#),
+                      string: string,
+                      replacementString: kRedactedAccountPlaceholder)
     }
 
-    private func redactCustomStrings(input: String) -> String {
-        return redactCustomStrings.reduce(input) { (input, redact) -> String in
-            return input.replacingOccurrences(of: redact, with: "[REDACTED]")
-        }
+    private static func redactIPv4Address(string: String) -> String {
+        return redact(regularExpression: NSRegularExpression.ipv4RegularExpression,
+                      string: string,
+                      replacementString: kRedactedPlaceholder)
+    }
+
+    private static func redactIPv6Address(string: String) -> String {
+        return redact(regularExpression: NSRegularExpression.ipv6RegularExpression,
+                      string: string,
+                      replacementString: kRedactedPlaceholder)
+    }
+
+    private static func redact(regularExpression: NSRegularExpression, string: String, replacementString: String) -> String {
+        let nsRange = NSRange((string.startIndex..<string.endIndex), in: string)
+        let template = NSRegularExpression.escapedTemplate(for: replacementString)
+
+        return regularExpression.stringByReplacingMatches(
+            in: string,
+            options: [],
+            range: nsRange,
+            withTemplate: template
+        )
     }
 
 }
