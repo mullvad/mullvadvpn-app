@@ -361,7 +361,7 @@ function AccountDropdownItem(props: IAccountDropdownItemProps) {
       <StyledAccountDropdownItem>
         <AriaControlGroup>
           <AriaControlled>
-            <StyledAccountDropdownItemButton id={props.label} onClick={handleSelect}>
+            <StyledAccountDropdownItemButton id={props.label} onClick={handleSelect} type="button">
               <StyledAccountDropdownItemButtonLabel>
                 {props.label}
               </StyledAccountDropdownItemButtonLabel>
