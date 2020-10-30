@@ -82,23 +82,20 @@ pub enum RouteManagerCommand {
 /// the route will be adjusted dynamically when the default route changes.
 pub struct RouteManager {
     manage_tx: Option<UnboundedSender<RouteManagerCommand>>,
-    runtime: tokio::runtime::Runtime,
+    runtime: tokio::runtime::Handle,
 }
 
 impl RouteManager {
     /// Constructs a RouteManager and applies the required routes.
     /// Takes a set of network destinations and network nodes as an argument, and applies said
     /// routes.
-    pub fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self, Error> {
+    pub fn new(
+        runtime: tokio::runtime::Handle,
+        required_routes: HashSet<RequiredRoute>,
+    ) -> Result<Self, Error> {
         let (manage_tx, manage_rx) = mpsc::unbounded();
-        let mut runtime = tokio::runtime::Builder::new()
-            .threaded_scheduler()
-            .core_threads(1)
-            .max_threads(1)
-            .enable_all()
-            .build()?;
         let manager = runtime.block_on(imp::RouteManagerImpl::new(required_routes))?;
-        runtime.handle().spawn(manager.run(manage_rx));
+        runtime.spawn(manager.run(manage_rx));
 
         Ok(Self {
             runtime,
@@ -243,7 +240,7 @@ impl RouteManager {
     /// Exposes runtime handle
     #[cfg(target_os = "linux")]
     pub fn runtime_handle(&self) -> tokio::runtime::Handle {
-        self.runtime.handle().clone()
+        self.runtime.clone()
     }
 
     /// Route DNS requests through the tunnel interface.
