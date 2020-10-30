@@ -34,15 +34,21 @@ class TextFileOutputStream: TextOutputStream {
             mode = filePermissions
         }
 
-        let filePath = fileURL.path.utf8CString.map { $0 }
-        guard let writer = DispatchIO(type: .stream, path: filePath, oflag: oflag, mode: mode, queue: queue, cleanupHandler: { (errno) in
-            if errno != 0 {
-                print("TextFileOutputStream: closed channel with error: \(errno)")
-            }
-        }) else { return nil }
+        let queue = self.queue
+        let writer = fileURL.path.withCString { (filePathPointer) -> DispatchIO? in
+            return DispatchIO(type: .stream, path: filePathPointer, oflag: oflag, mode: mode, queue: queue, cleanupHandler: { (errno) in
+                if errno != 0 {
+                    print("TextFileOutputStream: closed channel with error: \(errno)")
+                }
+            })
+        }
 
-        self.writer = writer
-        self.encoding = encoding
+        if let writer = writer {
+            self.writer = writer
+            self.encoding = encoding
+        } else {
+            return nil
+        }
     }
 
     deinit {
