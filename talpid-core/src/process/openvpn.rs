@@ -231,7 +231,6 @@ impl OpenVpnCommand {
             args.push(OsString::from(mssfix.to_string()));
         }
 
-        #[cfg(target_os = "linux")]
         args.push(OsString::from("--route-noexec"));
 
         if !self.enable_ipv6 {
