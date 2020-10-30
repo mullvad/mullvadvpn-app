@@ -1,6 +1,4 @@
 use super::TunnelEvent;
-#[cfg(target_os = "linux")]
-use crate::routing::RequiredRoute;
 use crate::{
     mktemp,
     process::{
@@ -9,13 +7,13 @@ use crate::{
     },
     proxy::{self, ProxyMonitor, ProxyResourceData},
     routing,
+    routing::RequiredRoute,
 };
-#[cfg(target_os = "linux")]
-use std::net::IpAddr;
 use std::{
     collections::{HashMap, HashSet},
     fs,
     io::{self, Write},
+    net::IpAddr,
     path::{Path, PathBuf},
     process::ExitStatus,
     sync::{
@@ -154,7 +152,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         params: &openvpn::TunnelParameters,
         log_path: Option<PathBuf>,
         resource_dir: &Path,
-        #[cfg(target_os = "linux")] route_manager: &mut routing::RouteManager,
+        route_manager: &mut routing::RouteManager,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
@@ -173,28 +171,27 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             _ => None,
         };
 
-        #[cfg(target_os = "linux")]
         let route_manager_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
 
         let on_openvpn_event = move |event, env: HashMap<String, String>| {
-            #[cfg(target_os = "linux")]
             if event == openvpn_plugin::EventType::Up {
-                let interface = env.get("dev").unwrap();
-                tokio::task::block_in_place(|| {
-                    route_manager_handle
-                        .clone()
-                        .set_tunnel_link(interface)
-                        .unwrap();
-                });
-                return;
-            }
-            if event == openvpn_plugin::EventType::RouteUp {
                 #[cfg(target_os = "linux")]
+                {
+                    let interface = env.get("dev").unwrap();
+                    tokio::task::block_in_place(|| {
+                        route_manager_handle
+                            .clone()
+                            .set_tunnel_link(interface)
+                            .unwrap();
+                    });
+                }
                 tokio::task::block_in_place(|| {
                     let routes = extract_routes(&env);
                     route_manager_handle.clone().add_routes(routes).unwrap();
                 });
-
+                return;
+            }
+            if event == openvpn_plugin::EventType::RouteUp {
                 // The user-pass file has been read. Try to delete it early.
                 let _ = fs::remove_file(&user_pass_file_path);
 
@@ -247,17 +244,21 @@ impl OpenVpnMonitor<OpenVpnCommand> {
     }
 }
 
-#[cfg(target_os = "linux")]
 fn extract_routes(env: &HashMap<String, String>) -> HashSet<RequiredRoute> {
     let mut routes = HashSet::new();
 
-    let ipv4_relay: IpAddr = env
-        .get("remote_1")
-        .expect("No \"remote_1\" in route up event")
-        .parse()
-        .expect("Net gateway IP not in valid format");
+    let ipv4_hop: IpAddr = if let Some(network) = env.get("route_network_1") {
+        network
+            .parse()
+            .expect("\"route_network_1\": invalid address")
+    } else {
+        env.get("remote_1")
+            .expect("No \"remote_1\" in event")
+            .parse()
+            .expect("\"remote_1\": invalid address")
+    };
     routes.insert(RequiredRoute::new(
-        ipv4_relay.into(),
+        ipv4_hop.into(),
         routing::NetNode::DefaultNode,
     ));
 
