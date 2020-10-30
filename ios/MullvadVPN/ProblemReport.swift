@@ -12,6 +12,7 @@ private let kLogMaxReadBytes: UInt64 = 128 * 1024
 private let kLogDelimeter = "===================="
 private let kRedactedPlaceholder = "[REDACTED]"
 private let kRedactedAccountPlaceholder = "[REDACTED ACCOUNT NUMBER]"
+private let kRedactedContainerPlaceholder = "[REDACTED CONTAINER PATH]"
 
 class ProblemReport {
 
@@ -42,13 +43,18 @@ class ProblemReport {
     }
 
     let redactCustomStrings: [String]
+    let applicationGroupContainers: [URL]
     let metadata: Metadata
 
     private var logs: [LogAttachment] = []
 
-    init(redactCustomStrings: [String]) {
+    init(redactCustomStrings: [String], redactContainerPathsForSecurityGroupIdentifiers securityGroupIdentifiers: [String]) {
         self.metadata = Self.makeMetadata()
         self.redactCustomStrings = redactCustomStrings
+
+        applicationGroupContainers = securityGroupIdentifiers.compactMap { (securityGroupIdentifier) -> URL? in
+            return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: securityGroupIdentifier)
+        }
     }
 
     func addLogFile(fileURL: URL) {
@@ -58,12 +64,15 @@ class ProblemReport {
         }
 
         let path = fileURL.path
+        let redactedPath = redact(string: path)
+
         switch Self.readFileLossy(path: path, maxBytes: kLogMaxReadBytes) {
         case .success(let lossyString):
             let redactedString = redact(string: lossyString)
-            logs.append(LogAttachment(label: path, content: redactedString))
+            logs.append(LogAttachment(label: redactedPath, content: redactedString))
+
         case .failure(let error):
-            addError(message: path, error: error)
+            addError(message: redactedPath, error: error)
         }
     }
 
@@ -135,10 +144,21 @@ class ProblemReport {
     }
 
     private func redact(string: String) -> String {
-        return [Self.redactAccountNumber, Self.redactIPv4Address, Self.redactIPv6Address, self.redactCustomStrings]
-            .reduce(string) { (resultString, transform) -> String in
-                return transform(resultString)
-            }
+        return [
+            self.redactContainerPaths,
+            Self.redactAccountNumber,
+            Self.redactIPv4Address,
+            Self.redactIPv6Address,
+            self.redactCustomStrings
+        ].reduce(string) { (resultString, transform) -> String in
+            return transform(resultString)
+        }
+    }
+
+    private func redactContainerPaths(string: String) -> String {
+        return applicationGroupContainers.reduce(string) { (resultString, containerURL) -> String in
+            return resultString.replacingOccurrences(of: containerURL.path, with: kRedactedContainerPlaceholder)
+        }
     }
 
     private static func redactAccountNumber(string: String) -> String {
