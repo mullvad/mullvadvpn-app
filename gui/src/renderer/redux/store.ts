@@ -14,7 +14,7 @@ import userInterfaceReducer, { IUserInterfaceReduxState } from './userinterface/
 import versionActions, { VersionAction } from './version/actions';
 import versionReducer, { IVersionReduxState } from './version/reducers';
 
-import { History } from 'history';
+import History from '../lib/history';
 
 export interface IReduxState {
   account: IAccountReduxState;
