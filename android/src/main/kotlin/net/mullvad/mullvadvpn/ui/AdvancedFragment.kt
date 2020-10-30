@@ -1,15 +1,21 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.os.Bundle
+import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.ui.customdns.CustomDnsAdapter
+import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
 import net.mullvad.mullvadvpn.ui.widget.MtuCell
 import net.mullvad.mullvadvpn.ui.widget.NavigateCell
+import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
 class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
+    private val customDnsAdapter = CustomDnsAdapter()
+
     private lateinit var wireguardMtuInput: MtuCell
     private lateinit var titleController: CollapsibleTitleController
 
@@ -24,6 +30,28 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             parentActivity.onBackPressed()
         }
 
+        titleController = CollapsibleTitleController(view, R.id.contents)
+
+        view.findViewById<CustomRecyclerView>(R.id.contents).apply {
+            layoutManager = LinearLayoutManager(parentActivity)
+
+            adapter = AdapterWithHeader(customDnsAdapter, R.layout.advanced_header).apply {
+                onHeaderAvailable = { headerView ->
+                    configureHeader(headerView)
+                    titleController.expandedTitleView = headerView.findViewById(R.id.expanded_title)
+                }
+            }
+        }
+
+        return view
+    }
+
+    override fun onSafelyDestroyView() {
+        titleController.onDestroy()
+        settingsListener.unsubscribe(this)
+    }
+
+    private fun configureHeader(view: View) {
         wireguardMtuInput = view.findViewById<MtuCell>(R.id.wireguard_mtu).apply {
             onSubmit = { mtu ->
                 jobTracker.newBackgroundJob("updateMtu") {
@@ -43,15 +71,6 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         settingsListener.subscribe(this) { settings ->
             updateUi(settings)
         }
-
-        titleController = CollapsibleTitleController(view)
-
-        return view
-    }
-
-    override fun onSafelyDestroyView() {
-        titleController.onDestroy()
-        settingsListener.unsubscribe(this)
     }
 
     private fun updateUi(settings: Settings) {
