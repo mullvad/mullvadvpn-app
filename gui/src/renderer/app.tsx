@@ -450,7 +450,7 @@ export default class AppRenderer {
 
   private redirectToConnect() {
     // Redirect the user after some time to allow for the 'Logged in' screen to be visible
-    this.loginTimer = global.setTimeout(() => this.memoryHistory.replace('/connect'), 1000);
+    this.loginTimer = global.setTimeout(() => this.history.resetWith('/connect'), 1000);
   }
 
   private loadTranslations(locale: string) {
@@ -530,12 +530,12 @@ export default class AppRenderer {
     this.connectedToDaemon = true;
 
     if (this.settings.accountToken) {
-      this.memoryHistory.replace('/connect');
+      this.history.resetWith('/connect');
 
       // try to autoconnect the tunnel
       await this.autoConnect();
     } else {
-      this.memoryHistory.replace('/login');
+      this.history.resetWith('/login');
 
       // show window when account is not set
       ipcRenderer.send('show-window');
@@ -548,7 +548,7 @@ export default class AppRenderer {
     this.connectedToDaemon = false;
 
     if (error && wasConnected) {
-      this.memoryHistory.replace('/');
+      this.history.resetWith('/');
     }
   }
 
@@ -660,12 +660,12 @@ export default class AppRenderer {
         clearTimeout(this.loginTimer);
       }
       reduxAccount.loggedOut();
-      this.memoryHistory.replace('/login');
+      this.history.resetWith('/login');
     } else if (newAccount && oldAccount !== newAccount && !this.doingLogin) {
       reduxAccount.updateAccountToken(newAccount);
       reduxAccount.loggedIn();
       if (!oldAccount) {
-        this.memoryHistory.replace('/connect');
+        this.history.resetWith('/connect');
       }
     }
 
