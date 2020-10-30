@@ -17,8 +17,7 @@ use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
 
 pub use imp::{Error, RouteManager};
 
-#[cfg(target_os = "linux")]
-pub use imp::RouteManagerCommand;
+pub use imp::RouteManagerHandle;
 
 /// A netowrk route with a specific network node, destinaiton and an optional metric.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]

@@ -8,8 +8,6 @@ use crate::{
     proxy::{self, ProxyMonitor, ProxyResourceData},
     routing,
 };
-#[cfg(target_os = "linux")]
-use futures::channel::oneshot;
 use std::{
     collections::HashMap,
     fs,
@@ -172,18 +170,17 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         };
 
         #[cfg(target_os = "linux")]
-        let route_manager_tx = route_manager.channel().map_err(Error::SetupRoutingError)?;
+        let route_manager_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
 
         let on_openvpn_event = move |event, env: HashMap<String, String>| {
             #[cfg(target_os = "linux")]
             if event == openvpn_plugin::EventType::Up {
-                let (tx, rx) = oneshot::channel();
-                let interface = env.get("dev").unwrap().to_owned();
-                route_manager_tx
-                    .unbounded_send(routing::RouteManagerCommand::SetTunnelLink(interface, tx))
-                    .unwrap();
-                tokio::task::block_in_place(move || {
-                    futures::executor::block_on(rx).unwrap();
+                let interface = env.get("dev").unwrap();
+                tokio::task::block_in_place(|| {
+                    route_manager_handle
+                        .clone()
+                        .set_tunnel_link(interface)
+                        .unwrap();
                 });
                 return;
             }

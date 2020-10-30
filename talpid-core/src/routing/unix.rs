@@ -47,6 +47,40 @@ pub enum Error {
     RouteManagerDown,
 }
 
+/// Handle to a route manager.
+#[derive(Clone)]
+pub struct RouteManagerHandle {
+    runtime: tokio::runtime::Handle,
+    tx: UnboundedSender<RouteManagerCommand>,
+}
+
+impl RouteManagerHandle {
+    /// Applies the given routes while the route manager is running.
+    pub fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::AddRoutes(routes, response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        self.runtime
+            .block_on(response_rx)
+            .unwrap()
+            .map_err(Error::PlatformError)
+    }
+
+    /// Set the link to be ignored by the exclusions routing table.
+    #[cfg(target_os = "linux")]
+    pub fn set_tunnel_link(&self, interface: &str) -> Result<(), Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::SetTunnelLink(
+                interface.to_string(),
+                response_tx,
+            ))
+            .map_err(|_| Error::RouteManagerDown)?;
+        Ok(self.runtime.block_on(response_rx).unwrap())
+    }
+}
+
 /// Commands for the underlying route manager object.
 #[derive(Debug)]
 pub enum RouteManagerCommand {
@@ -228,10 +262,12 @@ impl RouteManager {
     }
 
     /// Retrieve a sender directly to the command channel.
-    #[cfg(target_os = "linux")]
-    pub fn channel(&self) -> Result<UnboundedSender<RouteManagerCommand>, Error> {
+    pub fn handle(&self) -> Result<RouteManagerHandle, Error> {
         if let Some(tx) = &self.manage_tx {
-            Ok(tx.clone())
+            Ok(RouteManagerHandle {
+                runtime: self.runtime.clone(),
+                tx: tx.clone(),
+            })
         } else {
             Err(Error::RouteManagerDown)
         }
