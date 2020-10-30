@@ -5,7 +5,6 @@ import {
 } from 'connected-react-router';
 import { ipcRenderer, shell, webFrame } from 'electron';
 import log from 'electron-log';
-import { createMemoryHistory } from 'history';
 import * as React from 'react';
 import { Provider } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -29,6 +28,7 @@ import { IpcRendererEventChannel, IRelayListPair } from '../shared/ipc-event-cha
 import ISplitTunnelingApplication from '../shared/linux-split-tunneling-application';
 import { getRendererLogFile, setupLogging } from '../shared/logging';
 import consumePromise from '../shared/promise';
+import History from './lib/history';
 
 import {
   AccountToken,
@@ -76,8 +76,8 @@ const SUPPORTED_LOCALE_LIST = [
 ];
 
 export default class AppRenderer {
-  private memoryHistory = createMemoryHistory();
-  private reduxStore = configureStore(this.memoryHistory);
+  private history = new History('/');
+  private reduxStore = configureStore(this.history);
   private reduxActions = {
     account: bindActionCreators(accountActions, this.reduxStore.dispatch),
     connection: bindActionCreators(connectionActions, this.reduxStore.dispatch),
@@ -229,7 +229,7 @@ export default class AppRenderer {
     return (
       <AppContext.Provider value={{ app: this }}>
         <Provider store={this.reduxStore}>
-          <ConnectedRouter history={this.memoryHistory}>
+          <ConnectedRouter history={this.history}>
             <ErrorBoundary>
               <AppRoutes />
             </ErrorBoundary>
