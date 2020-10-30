@@ -164,6 +164,7 @@
     <string name="split_tunneling_description">Split tunneling makes it possible to select which
     applications should not be routed through the VPN tunnel.</string>
     <string name="enable">Enable</string>
+    <string name="custom_dns_footer">Enable to add at least one DNS server.</string>
     <string name="exclude_applications">Exclude applications</string>
     <string name="account_url">https://mullvad.net/en/account</string>
     <string name="wg_key_url">https://mullvad.net/en/account/ports</string>
