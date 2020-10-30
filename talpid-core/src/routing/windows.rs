@@ -22,18 +22,23 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub struct RouteManager {
     callback_handles: Vec<winnet::WinNetCallbackHandle>,
     is_stopped: bool,
+    runtime: tokio::runtime::Handle,
 }
 
 impl RouteManager {
     /// Creates a new route manager that will apply the provided routes and ensure they exist until
     /// it's stopped.
-    pub fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self> {
+    pub fn new(
+        runtime: tokio::runtime::Handle,
+        required_routes: HashSet<RequiredRoute>,
+    ) -> Result<Self> {
         if !winnet::activate_routing_manager() {
             return Err(Error::FailedToStartManager);
         }
         let manager = Self {
             callback_handles: vec![],
             is_stopped: false,
+            runtime,
         };
         manager.add_routes(required_routes)?;
         Ok(manager)

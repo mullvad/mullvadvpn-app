@@ -109,6 +109,7 @@ pub async fn spawn(
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
     std::thread::spawn(move || {
         let state_machine = TunnelStateMachine::new(
+            runtime.clone(),
             allow_lan,
             block_when_disconnected,
             is_offline,
@@ -189,6 +190,7 @@ struct TunnelStateMachine {
 
 impl TunnelStateMachine {
     fn new(
+        runtime: tokio::runtime::Handle,
         allow_lan: bool,
         block_when_disconnected: bool,
         is_offline: bool,
@@ -209,7 +211,7 @@ impl TunnelStateMachine {
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
         let route_manager =
-            RouteManager::new(HashSet::new()).map_err(Error::InitRouteManagerError)?;
+            RouteManager::new(runtime, HashSet::new()).map_err(Error::InitRouteManagerError)?;
         let mut shared_values = SharedTunnelStateValues {
             firewall,
             dns_monitor,
