@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.7-beta1] - 2020-11-02
 ### Fixed
 #### Linux
 - Order routes by prefix size in ascending order when applying them.
