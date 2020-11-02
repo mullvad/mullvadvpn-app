@@ -1,7 +1,6 @@
-import { goBack } from 'connected-react-router';
 import log from 'electron-log';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { RouteComponentProps, withRouter } from 'react-router';
 import consumePromise from '../../shared/promise';
 import Preferences from '../components/Preferences';
 import withAppContext, { IAppContext } from '../context';
@@ -18,11 +17,10 @@ const mapStateToProps = (state: IReduxState) => ({
   startMinimized: state.settings.guiSettings.startMinimized,
 });
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
-  const history = bindActionCreators({ goBack }, dispatch);
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
   return {
     onClose: () => {
-      history.goBack();
+      props.history.goBack();
     },
     setEnableSystemNotifications: (flag: boolean) => {
       props.app.setEnableSystemNotifications(flag);
@@ -53,4 +51,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   };
 };
 
-export default withAppContext(connect(mapStateToProps, mapDispatchToProps)(Preferences));
+export default withAppContext(
+  withRouter(connect(mapStateToProps, mapDispatchToProps)(Preferences)),
+);

@@ -1,6 +1,5 @@
-import { goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { RouteComponentProps, withRouter } from 'react-router';
 import SelectLanguage from '../components/SelectLanguage';
 import withAppContext, { IAppContext } from '../context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
@@ -9,19 +8,19 @@ const mapStateToProps = (state: IReduxState) => ({
   preferredLocale: state.settings.guiSettings.preferredLocale,
 });
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
-  const history = bindActionCreators({ goBack }, dispatch);
-
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
   return {
     preferredLocalesList: props.app.getPreferredLocaleList(),
     setPreferredLocale(locale: string) {
       props.app.setPreferredLocale(locale);
-      history.goBack();
+      props.history.goBack();
     },
     onClose() {
-      history.goBack();
+      props.history.goBack();
     },
   };
 };
 
-export default withAppContext(connect(mapStateToProps, mapDispatchToProps)(SelectLanguage));
+export default withAppContext(
+  withRouter(connect(mapStateToProps, mapDispatchToProps)(SelectLanguage)),
+);

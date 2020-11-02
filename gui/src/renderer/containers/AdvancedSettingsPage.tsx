@@ -1,7 +1,6 @@
-import { goBack, push } from 'connected-react-router';
 import log from 'electron-log';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import AdvancedSettings from '../components/AdvancedSettings';
@@ -51,11 +50,10 @@ const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) =>
   }
 };
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
-  const history = bindActionCreators({ push, goBack }, dispatch);
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
   return {
     onClose: () => {
-      history.goBack();
+      props.history.goBack();
     },
     setOpenVpnRelayProtocolAndPort: async (protocol?: RelayProtocol, port?: number) => {
       const relayUpdate = RelaySettingsBuilder.normal()
@@ -154,9 +152,11 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
         log.error('Failed to update mtu value', e.message);
       }
     },
-    onViewWireguardKeys: () => history.push('/settings/advanced/wireguard-keys'),
-    onViewLinuxSplitTunneling: () => history.push('/settings/advanced/linux-split-tunneling'),
+    onViewWireguardKeys: () => props.history.push('/settings/advanced/wireguard-keys'),
+    onViewLinuxSplitTunneling: () => props.history.push('/settings/advanced/linux-split-tunneling'),
   };
 };
 
-export default withAppContext(connect(mapStateToProps, mapDispatchToProps)(AdvancedSettings));
+export default withAppContext(
+  withRouter(connect(mapStateToProps, mapDispatchToProps)(AdvancedSettings)),
+);

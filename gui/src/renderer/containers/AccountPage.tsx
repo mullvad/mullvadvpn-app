@@ -1,6 +1,5 @@
-import { goBack } from 'connected-react-router';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { links } from '../../config.json';
 import consumePromise from '../../shared/promise';
 import Account from '../components/Account';
@@ -14,17 +13,16 @@ const mapStateToProps = (state: IReduxState) => ({
   expiryLocale: state.userInterface.locale,
   isOffline: state.connection.isBlocked,
 });
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
-  const history = bindActionCreators({ goBack }, dispatch);
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
   return {
     onLogout: () => {
       consumePromise(props.app.logout());
     },
     onClose: () => {
-      history.goBack();
+      props.history.goBack();
     },
     onBuyMore: () => props.app.openLinkWithAuth(links.purchase),
   };
 };
 
-export default withAppContext(connect(mapStateToProps, mapDispatchToProps)(Account));
+export default withAppContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(Account)));

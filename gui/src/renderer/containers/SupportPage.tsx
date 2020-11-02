@@ -1,6 +1,6 @@
-import { goBack } from 'connected-react-router';
 import { shell } from 'electron';
 import { connect } from 'react-redux';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { bindActionCreators } from 'redux';
 import Support from '../components/Support';
 import { collectProblemReport, sendProblemReport } from '../lib/problem-report';
@@ -15,13 +15,12 @@ const mapStateToProps = (state: IReduxState) => ({
   outdatedVersion: state.version.suggestedUpgrade ? true : false,
 });
 
-const mapDispatchToProps = (dispatch: ReduxDispatch) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: RouteComponentProps) => {
   const { saveReportForm, clearReportForm } = bindActionCreators(supportActions, dispatch);
-  const history = bindActionCreators({ goBack }, dispatch);
 
   return {
     onClose() {
-      history.goBack();
+      props.history.goBack();
     },
     viewLog(path: string) {
       shell.openItem(path);
@@ -34,4 +33,4 @@ const mapDispatchToProps = (dispatch: ReduxDispatch) => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Support);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Support));

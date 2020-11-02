@@ -1,12 +1,8 @@
-import {
-  ConnectedRouter,
-  push as pushHistory,
-  replace as replaceHistory,
-} from 'connected-react-router';
 import { ipcRenderer, shell, webFrame } from 'electron';
 import log from 'electron-log';
 import * as React from 'react';
 import { Provider } from 'react-redux';
+import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
 
 import ErrorBoundary from './components/ErrorBoundary';
@@ -77,20 +73,13 @@ const SUPPORTED_LOCALE_LIST = [
 
 export default class AppRenderer {
   private history = new History('/');
-  private reduxStore = configureStore(this.history);
+  private reduxStore = configureStore();
   private reduxActions = {
     account: bindActionCreators(accountActions, this.reduxStore.dispatch),
     connection: bindActionCreators(connectionActions, this.reduxStore.dispatch),
     settings: bindActionCreators(settingsActions, this.reduxStore.dispatch),
     version: bindActionCreators(versionActions, this.reduxStore.dispatch),
     userInterface: bindActionCreators(userInterfaceActions, this.reduxStore.dispatch),
-    history: bindActionCreators(
-      {
-        push: pushHistory,
-        replace: replaceHistory,
-      },
-      this.reduxStore.dispatch,
-    ),
   };
 
   private locale = 'en';
@@ -229,11 +218,11 @@ export default class AppRenderer {
     return (
       <AppContext.Provider value={{ app: this }}>
         <Provider store={this.reduxStore}>
-          <ConnectedRouter history={this.history}>
+          <Router history={this.history}>
             <ErrorBoundary>
               <AppRoutes />
             </ErrorBoundary>
-          </ConnectedRouter>
+          </Router>
         </Provider>
       </AppContext.Provider>
     );

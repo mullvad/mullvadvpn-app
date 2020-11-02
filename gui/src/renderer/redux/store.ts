@@ -1,5 +1,4 @@
-import { connectRouter, push, replace, routerMiddleware } from 'connected-react-router';
-import { applyMiddleware, combineReducers, compose, createStore, Dispatch } from 'redux';
+import { combineReducers, compose, createStore, Dispatch } from 'redux';
 
 import accountActions, { AccountAction } from './account/actions';
 import accountReducer, { IAccountReduxState } from './account/reducers';
@@ -13,8 +12,6 @@ import userInterfaceActions, { UserInterfaceAction } from './userinterface/actio
 import userInterfaceReducer, { IUserInterfaceReduxState } from './userinterface/reducers';
 import versionActions, { VersionAction } from './version/actions';
 import versionReducer, { IVersionReduxState } from './version/reducers';
-
-import History from '../lib/history';
 
 export interface IReduxState {
   account: IAccountReduxState;
@@ -35,7 +32,7 @@ export type ReduxAction =
 export type ReduxStore = ReturnType<typeof configureStore>;
 export type ReduxDispatch = Dispatch<ReduxAction>;
 
-export default function configureStore(routerHistory: History, initialState?: IReduxState) {
+export default function configureStore(initialState?: IReduxState) {
   const actionCreators = {
     ...accountActions,
     ...connectionActions,
@@ -43,8 +40,6 @@ export default function configureStore(routerHistory: History, initialState?: IR
     ...supportActions,
     ...versionActions,
     ...userInterfaceActions,
-    pushRoute: (route: string) => push(route),
-    replaceRoute: (route: string) => replace(route),
   };
 
   const reducers = {
@@ -54,7 +49,6 @@ export default function configureStore(routerHistory: History, initialState?: IR
     support: supportReducer,
     version: versionReducer,
     userInterface: userInterfaceReducer,
-    router: connectRouter(routerHistory),
   };
 
   const composeEnhancers: typeof compose = (() => {
@@ -66,8 +60,7 @@ export default function configureStore(routerHistory: History, initialState?: IR
     return compose;
   })();
 
-  const enhancer = composeEnhancers(applyMiddleware(routerMiddleware(routerHistory)));
-
+  const enhancer = composeEnhancers();
   const rootReducer = combineReducers(reducers);
 
   if (initialState) {
