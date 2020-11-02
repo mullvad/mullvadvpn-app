@@ -23,15 +23,15 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-### Added
-####Linux
-- Create WireGuard device with NetworkManager
-
 ### Fixed
 #### Linux
-- Handle statically added routes.
-- Stop periodically reconnecting when using WireGuard and NetworkManager
-- Ignore routes that use the loopback interface
+- Order routes by prefix size in ascending order when applying them.
+  Fixes an issue where seemingly manually added routes would be returned
+  from the kernel in an order which can't be applied.
+- If possible, use NetworkManager to create a WireGuard interface so that DNS can be managed
+  via NetworkManager as well. This fixes the issue where the daemon will reconnect
+  spuriously when using NetworkManager and WireGuard.
+- Fix route parsing bug in route monitor by ignoring loopback routes.
 - Apply DNS config quicker when managing DNS via NetworkManager.
 
 
