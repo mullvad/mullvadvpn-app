@@ -15,6 +15,7 @@ import SelectLocationPage from './containers/SelectLocationPage';
 import SettingsPage from './containers/SettingsPage';
 import SupportPage from './containers/SupportPage';
 import WireguardKeysPage from './containers/WireguardKeysPage';
+import History from './lib/history';
 import { getTransitionProps } from './transitions';
 
 interface IAppRoutesState {
@@ -38,12 +39,14 @@ class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
   public componentDidMount() {
     // React throttles updates, so it's impossible to capture the intermediate navigation without
     // listening to the history directly.
-    this.unobserveHistory = this.props.history.listen((location) => {
-      this.setState((state) => ({
-        previousLocation: state.currentLocation,
-        currentLocation: location,
-      }));
-    });
+    this.unobserveHistory = (this.props.history as History).listen(
+      (location, _action, affectedEntries) => {
+        this.setState({
+          previousLocation: affectedEntries[0],
+          currentLocation: location,
+        });
+      },
+    );
   }
 
   public componentWillUnmount() {
