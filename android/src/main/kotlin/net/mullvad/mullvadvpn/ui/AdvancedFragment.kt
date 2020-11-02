@@ -14,8 +14,7 @@ import net.mullvad.mullvadvpn.ui.widget.NavigateCell
 import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
 class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
-    private val customDnsAdapter = CustomDnsAdapter()
-
+    private lateinit var customDnsAdapter: CustomDnsAdapter
     private lateinit var wireguardMtuInput: MtuCell
     private lateinit var titleController: CollapsibleTitleController
 
@@ -31,6 +30,8 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         titleController = CollapsibleTitleController(view, R.id.contents)
+
+        customDnsAdapter = CustomDnsAdapter(customDns)
 
         view.findViewById<CustomRecyclerView>(R.id.contents).apply {
             layoutManager = LinearLayoutManager(parentActivity)
