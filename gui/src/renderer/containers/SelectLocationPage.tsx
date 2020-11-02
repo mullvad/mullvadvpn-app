@@ -1,6 +1,6 @@
-import { goBack } from 'connected-react-router';
 import log from 'electron-log';
 import { connect } from 'react-redux';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { bindActionCreators } from 'redux';
 import BridgeSettingsBuilder from '../../shared/bridge-settings-builder';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
@@ -40,18 +40,17 @@ const mapStateToProps = (state: IReduxState) => {
     allowBridgeSelection,
   };
 };
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
-  const history = bindActionCreators({ goBack }, dispatch);
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
   const userInterface = bindActionCreators(userInterfaceActions, dispatch);
 
   return {
-    onClose: () => history.goBack(),
+    onClose: () => props.history.goBack(),
     onChangeLocationScope: (scope: LocationScope) => {
       userInterface.setLocationScope(scope);
     },
     onSelectExitLocation: async (relayLocation: RelayLocation) => {
       // dismiss the view first
-      history.goBack();
+      props.history.goBack();
 
       try {
         const relayUpdate = RelaySettingsBuilder.normal().location.fromRaw(relayLocation).build();
@@ -64,7 +63,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
     },
     onSelectBridgeLocation: async (bridgeLocation: RelayLocation) => {
       // dismiss the view first
-      history.goBack();
+      props.history.goBack();
 
       try {
         await props.app.updateBridgeSettings(
@@ -76,7 +75,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
     },
     onSelectClosestToExit: async () => {
       // dismiss the view first
-      history.goBack();
+      props.history.goBack();
 
       try {
         await props.app.updateBridgeSettings(new BridgeSettingsBuilder().location.any().build());
@@ -87,4 +86,6 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   };
 };
 
-export default withAppContext(connect(mapStateToProps, mapDispatchToProps)(SelectLocation));
+export default withAppContext(
+  withRouter(connect(mapStateToProps, mapDispatchToProps)(SelectLocation)),
+);

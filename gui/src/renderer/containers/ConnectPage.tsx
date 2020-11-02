@@ -1,7 +1,6 @@
-import { push } from 'connected-react-router';
 import log from 'electron-log';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { sprintf } from 'sprintf-js';
 import { messages } from '../../shared/gettext';
 import Connect from '../components/Connect';
@@ -72,12 +71,10 @@ const mapStateToProps = (state: IReduxState) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
-  const history = bindActionCreators({ push }, dispatch);
-
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
   return {
     onSelectLocation: () => {
-      history.push('/select-location');
+      props.history.push('/select-location');
     },
     onConnect: async () => {
       try {
@@ -103,4 +100,4 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   };
 };
 
-export default withAppContext(connect(mapStateToProps, mapDispatchToProps)(Connect));
+export default withAppContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(Connect)));

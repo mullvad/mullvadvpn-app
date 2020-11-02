@@ -1,7 +1,6 @@
-import { goBack, push } from 'connected-react-router';
 import { remote, shell } from 'electron';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { RouteComponentProps, withRouter } from 'react-router';
 import Settings from '../components/Settings';
 import withAppContext, { IAppContext } from '../context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
@@ -18,18 +17,17 @@ const mapStateToProps = (state: IReduxState, props: IAppContext) => ({
   upToDateVersion: state.version.suggestedUpgrade ? false : true,
   isOffline: state.connection.isBlocked,
 });
-const mapDispatchToProps = (dispatch: ReduxDispatch) => {
-  const history = bindActionCreators({ push, goBack }, dispatch);
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
   return {
     onQuit: () => remote.app.quit(),
-    onClose: () => history.goBack(),
-    onViewSelectLanguage: () => history.push('/settings/language'),
-    onViewAccount: () => history.push('/settings/account'),
-    onViewSupport: () => history.push('/settings/support'),
-    onViewPreferences: () => history.push('/settings/preferences'),
-    onViewAdvancedSettings: () => history.push('/settings/advanced'),
+    onClose: () => props.history.goBack(),
+    onViewSelectLanguage: () => props.history.push('/settings/language'),
+    onViewAccount: () => props.history.push('/settings/account'),
+    onViewSupport: () => props.history.push('/settings/support'),
+    onViewPreferences: () => props.history.push('/settings/preferences'),
+    onViewAdvancedSettings: () => props.history.push('/settings/advanced'),
     onExternalLink: (url: string) => shell.openExternal(url),
   };
 };
 
-export default withAppContext(connect(mapStateToProps, mapDispatchToProps)(Settings));
+export default withAppContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(Settings)));
