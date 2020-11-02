@@ -48,6 +48,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     override fun onSafelyDestroyView() {
+        customDnsAdapter.onDestroy()
         titleController.onDestroy()
         settingsListener.unsubscribe(this)
     }
