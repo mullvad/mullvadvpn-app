@@ -4,8 +4,9 @@ import android.support.v7.widget.RecyclerView.Adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.service.CustomDns
 
-class CustomDnsAdapter : Adapter<CustomDnsItemHolder>() {
+class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>() {
     override fun getItemCount() = 1
 
     override fun onCreateViewHolder(parentView: ViewGroup, type: Int): CustomDnsItemHolder {
