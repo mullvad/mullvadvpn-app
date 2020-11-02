@@ -1,4 +1,10 @@
-import { Location, Action, LocationListener, LocationDescriptor } from 'history';
+import { Location, Action, LocationDescriptor } from 'history';
+
+type LocationListener<S = unknown> = (
+  location: Location<S>,
+  action: Action,
+  entries: Location<S>[],
+) => void;
 
 // It currently isn't possible to implement this correctly with support for a generic state. State
 // can be added as a generic type (<S = unknown>) after this issue has been resolved:
@@ -27,24 +33,32 @@ export default class History {
   }
 
   public push = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
+    const affectedEntries = [this.entries[this.index]];
     const location = this.createLocation(nextLocation, nextState);
     this.lastAction = 'PUSH';
     this.index += 1;
     this.entries.splice(this.index, this.entries.length - this.index, location);
-    this.notify();
+    this.notify(affectedEntries);
   };
 
   public replace = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
+    const affectedEntries = [this.entries[this.index]];
     this.entries[this.index] = this.createLocation(nextLocation, nextState);
     this.lastAction = 'REPLACE';
-    this.notify();
+    this.notify(affectedEntries);
   };
 
   public go = (n: number) => {
     if (this.canGo(n)) {
-      this.index += n;
+      const nextIndex = this.index + n;
+      const affectedEntries =
+        this.index < nextIndex
+          ? this.entries.slice(this.index, nextIndex)
+          : this.entries.slice(nextIndex + 1, this.index + 1);
+
+      this.index = nextIndex;
       this.lastAction = 'POP';
-      this.notify();
+      this.notify(affectedEntries);
     }
   };
 
@@ -52,16 +66,18 @@ export default class History {
   public goForward = () => this.go(1);
 
   public reset = () => {
+    const affectedEntries = this.entries.slice(1);
     this.lastAction = 'POP';
     this.index = 0;
-    this.notify();
+    this.notify(affectedEntries);
   };
 
   public resetWith = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
+    const affectedEntries = [...this.entries];
     this.entries = [this.createLocation(nextLocation, nextState)];
     this.lastAction = 'REPLACE';
     this.index = 0;
-    this.notify();
+    this.notify(affectedEntries);
   };
 
   public canGo(n: number) {
@@ -82,8 +98,8 @@ export default class History {
     throw Error('Not implemented');
   }
 
-  private notify() {
-    this.listeners.forEach((listener) => listener(this.location, this.action));
+  private notify(affectedEntries: Location<S>[]) {
+    this.listeners.forEach((listener) => listener(this.location, this.action, affectedEntries));
   }
 
   private createLocation(location: LocationDescriptor<S>, state?: S): Location<S> {

@@ -152,7 +152,9 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
 
   public componentDidMount() {
     this.props.setActiveModal(true);
-    document.addEventListener('keydown', this.handleKeyPress);
+    // The `true` argument specifies that the event should be dispatched in the capture phase. This
+    // makes sure that this component catches the event before the escape hatch.
+    document.addEventListener('keydown', this.handleKeyPress, true);
 
     const modalContainer = this.props.modalContainerRef.current;
     if (modalContainer) {
@@ -170,7 +172,7 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
 
   public componentWillUnmount() {
     this.props.setActiveModal(false);
-    document.removeEventListener('keydown', this.handleKeyPress);
+    document.removeEventListener('keydown', this.handleKeyPress, true);
 
     this.appendScheduler.cancel();
     this.props.modalContainerRef.current?.removeChild(this.element);
@@ -219,6 +221,7 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
 
   private handleKeyPress = (event: KeyboardEvent) => {
     if (event.key === 'Escape') {
+      event.stopPropagation();
       this.props.close?.();
     }
   };
