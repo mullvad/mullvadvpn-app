@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-exclude"
-version = "2020.6.0"
+version = "2020.7.0-beta1"
 authors = ["Mullvad VPN"]
 license = "GPL-3.0"
 edition = "2018"
