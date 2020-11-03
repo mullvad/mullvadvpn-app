@@ -48,6 +48,7 @@ import {
   ProxySettings,
   VoucherResponse,
   TunnelProtocol,
+  IDnsOptions,
 } from '../shared/daemon-rpc-types';
 
 import * as managementInterface from './management_interface/management_interface_grpc_pb';
@@ -450,6 +451,14 @@ export class DaemonRpc {
       created: response.getCreated()!.toDate().toISOString(),
       key: convertFromWireguardKey(response.getKey()),
     };
+  }
+
+  public async setDnsOptions(dns: IDnsOptions): Promise<void> {
+    const dnsOptions = new grpcTypes.DnsOptions();
+    dnsOptions.setCustom(dns.custom);
+    dnsOptions.setAddressesList(dns.addresses);
+
+    await this.call<grpcTypes.DnsOptions, Empty>(this.client.setDnsOptions, dnsOptions);
   }
 
   public async verifyWireguardKey(): Promise<boolean> {
