@@ -8,9 +8,11 @@ import android.view.ViewGroup
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.ui.customdns.CustomDnsAdapter
+import net.mullvad.mullvadvpn.ui.widget.CellSwitch
 import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
 import net.mullvad.mullvadvpn.ui.widget.MtuCell
 import net.mullvad.mullvadvpn.ui.widget.NavigateCell
+import net.mullvad.mullvadvpn.ui.widget.ToggleCell
 import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
 class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
@@ -68,6 +70,18 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
         view.findViewById<NavigateCell>(R.id.split_tunneling).apply {
             targetFragment = SplitTunnelingFragment::class
+        }
+
+        view.findViewById<ToggleCell>(R.id.enable_custom_dns).apply {
+            listener = { state ->
+                jobTracker.newBackgroundJob("toggleCustomDns") {
+                    if (state == CellSwitch.State.ON) {
+                        customDns.enable()
+                    } else {
+                        customDns.disable()
+                    }
+                }
+            }
         }
 
         settingsListener.subscribe(this) { settings ->
