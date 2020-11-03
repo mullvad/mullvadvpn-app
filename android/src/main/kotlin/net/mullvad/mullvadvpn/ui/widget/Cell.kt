@@ -18,7 +18,7 @@ open class Cell : LinearLayout {
         setPadding(0, verticalPadding, rightPadding, verticalPadding)
 
         setTextColor(context.getColor(R.color.white))
-        setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.text_medium))
+        setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.text_medium_plus))
         setTypeface(null, Typeface.BOLD)
     }
 
