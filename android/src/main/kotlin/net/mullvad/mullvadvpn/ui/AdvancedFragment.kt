@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
 class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private lateinit var customDnsAdapter: CustomDnsAdapter
+    private lateinit var customDnsToggle: ToggleCell
     private lateinit var wireguardMtuInput: MtuCell
     private lateinit var titleController: CollapsibleTitleController
 
@@ -72,7 +73,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             targetFragment = SplitTunnelingFragment::class
         }
 
-        view.findViewById<ToggleCell>(R.id.enable_custom_dns).apply {
+        customDnsToggle = view.findViewById<ToggleCell>(R.id.enable_custom_dns).apply {
             listener = { state ->
                 jobTracker.newBackgroundJob("toggleCustomDns") {
                     if (state == CellSwitch.State.ON) {
@@ -80,6 +81,16 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
                     } else {
                         customDns.disable()
                     }
+                }
+            }
+        }
+
+        customDns.onEnabledChanged.subscribe(this) { enabled ->
+            jobTracker.newUiJob("updateEnabled") {
+                if (enabled) {
+                    customDnsToggle.state = CellSwitch.State.ON
+                } else {
+                    customDnsToggle.state = CellSwitch.State.OFF
                 }
             }
         }
