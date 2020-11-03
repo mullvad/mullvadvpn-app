@@ -1029,6 +1029,10 @@ function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObjec
     generic: {
       enableIpv6: tunnelOptions.generic!.enableIpv6,
     },
+    dns: {
+      custom: tunnelOptions.dnsOptions?.custom ?? false,
+      addresses: tunnelOptions.dnsOptions?.addressesList ?? [],
+    },
   };
 }
 

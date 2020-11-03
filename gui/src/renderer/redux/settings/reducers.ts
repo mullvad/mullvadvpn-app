@@ -133,6 +133,10 @@ export interface ISettingsReduxState {
   wireguard: {
     mtu?: number;
   };
+  dns: {
+    custom: boolean;
+    addresses: string[];
+  };
   wireguardKeyState: WgKeyState;
 }
 
@@ -172,6 +176,10 @@ const initialState: ISettingsReduxState = {
   wireguard: {},
   wireguardKeyState: {
     type: 'key-not-set',
+  },
+  dns: {
+    custom: false,
+    addresses: [],
   },
 };
 
@@ -298,6 +306,12 @@ export default function (
           type: 'being-replaced',
           oldKey: resetWireguardKeyErrors(action.oldKey),
         },
+      };
+
+    case 'UPDATE_DNS_OPTIONS':
+      return {
+        ...state,
+        dns: action.dns,
       };
 
     default:

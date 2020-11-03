@@ -137,6 +137,10 @@ class ApplicationMain {
       wireguard: {
         mtu: undefined,
       },
+      dns: {
+        custom: false,
+        addresses: [],
+      },
     },
   };
   private guiSettings = new GuiSettings();
