@@ -4,29 +4,34 @@ import { colors } from '../../../config.json';
 import { CellDisabledContext } from './Container';
 import { CellSectionContext } from './Section';
 
-interface IStyledCellButtonProps {
+interface IStyledCellButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
   selected?: boolean;
   containedInSection: boolean;
 }
 
-const StyledCellButton = styled.button({}, (props: IStyledCellButtonProps) => ({
-  display: 'flex',
-  padding: '0 16px 0 22px',
-  marginBottom: '1px',
-  flex: 1,
-  alignItems: 'center',
-  alignContent: 'center',
-  cursor: 'default',
-  border: 'none',
-  backgroundColor: props.selected
+export const StyledCellButton = styled.button({}, (props: IStyledCellButtonProps) => {
+  const backgroundColor = props.selected
     ? colors.green
     : props.containedInSection
     ? colors.blue40
-    : colors.blue,
-  ':not(:disabled):hover': {
-    backgroundColor: props.selected ? colors.green : colors.blue80,
-  },
-}));
+    : colors.blue;
+  const backgroundColorHover = props.selected ? colors.green : colors.blue80;
+
+  return {
+    display: 'flex',
+    padding: '0 16px 0 22px',
+    marginBottom: '1px',
+    flex: 1,
+    alignItems: 'center',
+    alignContent: 'center',
+    cursor: 'default',
+    border: 'none',
+    backgroundColor,
+    ':not(:disabled):hover': {
+      backgroundColor: props.onClick ? backgroundColorHover : backgroundColor,
+    },
+  };
+});
 
 interface ICellButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   selected?: boolean;
