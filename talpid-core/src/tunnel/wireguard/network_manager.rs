@@ -5,7 +5,7 @@ use dbus::{
     message::Message,
     strings::Path,
 };
-use std::{collections::HashMap, net::IpAddr};
+use std::{collections::HashMap, net::IpAddr, time::Duration};
 
 const NM_BUS: &str = "org.freedesktop.NetworkManager";
 const NM_INTERFACE_SETTINGS: &str = "org.freedesktop.NetworkManager.Settings";
@@ -20,7 +20,8 @@ const NM_MANAGER_PATH: &str = "/org/freedesktop/NetworkManager";
 const NM_ADD_CONNECTION_VOLATILE: u32 = 0x2;
 
 const TRAFFIC_STATS_REFRESH_RATE_MS: u32 = 1000;
-const RPC_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(3);
+const RPC_TIMEOUT: Duration = Duration::from_secs(3);
+const RPC_STATS_TIMEOUT: Duration = Duration::from_secs(10);
 
 const DBUS_UNKNOWN_METHOD: &str = "org.freedesktop.DBus.Error.UnknownMethod";
 
@@ -367,7 +368,7 @@ impl Tunnel for NetworkManager {
 
     fn get_tunnel_stats(&self) -> std::result::Result<Stats, TunnelError> {
         if let Some(tunnel) = self.tunnel.as_ref() {
-            let device = tunnel.device_proxy(&self.dbus_connection);
+            let device = tunnel.device_proxy_timeout(&self.dbus_connection, RPC_STATS_TIMEOUT);
             let get_device_stats = || -> std::result::Result<Stats, dbus::Error> {
                 let rx_bytes = device.get(NM_DEVICE_STATISTICS, "RxBytes")?;
                 let tx_bytes = device.get(NM_DEVICE_STATISTICS, "TxBytes")?;
@@ -397,7 +398,15 @@ struct WireguardTunnel {
 
 impl WireguardTunnel {
     fn device_proxy<'a>(&'a self, connection: &'a Connection) -> Proxy<'a, &Connection> {
-        Proxy::new(NM_BUS, &self.device_path, RPC_TIMEOUT, connection)
+        self.device_proxy_timeout(connection, RPC_TIMEOUT)
+    }
+
+    fn device_proxy_timeout<'a>(
+        &'a self,
+        connection: &'a Connection,
+        timeout: Duration,
+    ) -> Proxy<'a, &Connection> {
+        Proxy::new(NM_BUS, &self.device_path, timeout, connection)
     }
 
     fn config_proxy<'a>(&'a self, connection: &'a Connection) -> Proxy<'a, &Connection> {
