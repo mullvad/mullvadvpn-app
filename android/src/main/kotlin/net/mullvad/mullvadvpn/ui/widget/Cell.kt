@@ -40,6 +40,7 @@ open class Cell : LinearLayout {
     protected var cell: LinearLayout = this
         set(value) {
             field = value.apply {
+                val height = resources.getDimensionPixelSize(R.dimen.cell_height)
                 val leftPadding = resources.getDimensionPixelSize(R.dimen.cell_left_padding)
                 val rightPadding = resources.getDimensionPixelSize(R.dimen.cell_right_padding)
 
@@ -47,6 +48,7 @@ open class Cell : LinearLayout {
                 isClickable = true
                 gravity = Gravity.CENTER
                 orientation = HORIZONTAL
+                minimumHeight = height
 
                 setBackgroundResource(R.drawable.cell_button_background)
                 setPadding(leftPadding, 0, rightPadding, 0)
