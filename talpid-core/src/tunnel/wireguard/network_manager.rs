@@ -12,14 +12,12 @@ const NM_INTERFACE_SETTINGS: &str = "org.freedesktop.NetworkManager.Settings";
 const NM_INTERFACE_SETTINGS_CONNECTION: &str = "org.freedesktop.NetworkManager.Settings.Connection";
 const NM_SETTINGS_PATH: &str = "/org/freedesktop/NetworkManager/Settings";
 const NM_DEVICE: &str = "org.freedesktop.NetworkManager.Device";
-const NM_DEVICE_STATISTICS: &str = "org.freedesktop.NetworkManager.Device.Statistics";
 const NM_CONNECTION_ACTIVE: &str = "org.freedesktop.NetworkManager.Connection.Active";
 const NM_MANAGER: &str = "org.freedesktop.NetworkManager";
 const NM_MANAGER_PATH: &str = "/org/freedesktop/NetworkManager";
 
 const NM_ADD_CONNECTION_VOLATILE: u32 = 0x2;
 
-const TRAFFIC_STATS_REFRESH_RATE_MS: u32 = 1000;
 const RPC_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(3);
 
 const DBUS_UNKNOWN_METHOD: &str = "org.freedesktop.DBus.Error.UnknownMethod";
@@ -42,9 +40,6 @@ pub enum Error {
     #[error(display = "Failed to match the returned D-Bus object with expected type")]
     MatchDBusTypeError(#[error(source)] dbus::arg::TypeMismatchError),
 
-    #[error(display = "Failed to set statistics refresh rate")]
-    SetStatsRefreshError(#[error(source)] dbus::Error),
-
     #[error(display = "Error while removing ")]
     DeviceRemovalError(#[error(source)] dbus::Error),
 
@@ -53,6 +48,9 @@ pub enum Error {
 
     #[error(display = "NetworkManager is too old - {}", _0)]
     NMTooOld(String),
+
+    #[error(display = "Cannot obtain the tunnel interface index")]
+    FindInterfaceIndex,
 }
 
 impl Error {
@@ -64,9 +62,17 @@ impl Error {
     }
 }
 
+use super::wireguard_kernel::{
+    wg_message::{DeviceNla, PeerNla},
+    Handle,
+};
+
 pub struct NetworkManager {
     dbus_connection: Connection,
     tunnel: Option<WireguardTunnel>,
+    interface_index: u32,
+    netlink_connections: Handle,
+    tokio_handle: tokio::runtime::Handle,
 }
 
 
@@ -76,17 +82,45 @@ type VariantMap = HashMap<String, VariantRefArg>;
 type DbusSettings = HashMap<String, VariantMap>;
 
 impl NetworkManager {
-    pub fn new(config: &Config) -> Result<Self> {
+    pub fn new(tokio_handle: tokio::runtime::Handle, config: &Config) -> Result<Self> {
         let mut dbus_connection = Connection::new_system().map_err(Error::Dbus)?;
         Self::ensure_nm_is_new_enough(&dbus_connection)?;
         let tunnel = Some(Self::create_wg_tunnel(&mut dbus_connection, config)?);
-        let manager = NetworkManager {
-            dbus_connection,
-            tunnel,
-        };
 
-        manager.set_stats_refresh_rate()?;
-        Ok(manager)
+        tokio_handle.clone().block_on(async move {
+            let netlink_connections = Handle::connect()
+                .await
+                .map_err(|_| Error::FindInterfaceIndex)?;
+            let interface_index = Self::find_device_index(&netlink_connections)
+                .await?
+                .ok_or(Error::FindInterfaceIndex)?;
+
+            Ok(NetworkManager {
+                dbus_connection,
+                tunnel,
+                interface_index,
+                tokio_handle,
+                netlink_connections,
+            })
+        })
+    }
+
+    async fn find_device_index(netlink_connections: &Handle) -> Result<Option<u32>> {
+        let mut wg = netlink_connections.wg_handle.clone();
+        let device = wg
+            .get_by_name("wg-mullvad".to_string())
+            .await
+            .map_err(|err| {
+                log::error!("Failed to fetch WireGuard device config: {}", err);
+                Error::FindInterfaceIndex
+            })?;
+
+        for nla in &device.nlas {
+            if let DeviceNla::IfIndex(index) = nla {
+                return Ok(Some(*index));
+            }
+        }
+        Ok(None)
     }
 
     fn ensure_nm_is_new_enough(connection: &Connection) -> Result<()> {
@@ -285,20 +319,6 @@ impl NetworkManager {
         settings
     }
 
-    fn set_stats_refresh_rate(&self) -> Result<()> {
-        if let Some(tunnel) = self.tunnel.as_ref() {
-            tunnel
-                .device_proxy(&self.dbus_connection)
-                .set(
-                    NM_DEVICE_STATISTICS,
-                    "RefreshRateMs",
-                    TRAFFIC_STATS_REFRESH_RATE_MS,
-                )
-                .map_err(Error::SetStatsRefreshError)?;
-        }
-        Ok(())
-    }
-
     fn convert_address_to_dbus(address: &IpAddr) -> VariantMap {
         let mut map: VariantMap = HashMap::new();
         map.insert(
@@ -366,25 +386,36 @@ impl Tunnel for NetworkManager {
     }
 
     fn get_tunnel_stats(&self) -> std::result::Result<Stats, TunnelError> {
-        if let Some(tunnel) = self.tunnel.as_ref() {
-            let device = tunnel.device_proxy(&self.dbus_connection);
-            let get_device_stats = || -> std::result::Result<Stats, dbus::Error> {
-                let rx_bytes = device.get(NM_DEVICE_STATISTICS, "RxBytes")?;
-                let tx_bytes = device.get(NM_DEVICE_STATISTICS, "TxBytes")?;
+        let mut wg = self.netlink_connections.wg_handle.clone();
+        let interface_index = self.interface_index;
+        let result = self.tokio_handle.block_on(async move {
+            let device = wg.get_by_index(interface_index).await.map_err(|err| {
+                log::error!("Failed to fetch WireGuard device config: {}", err);
+                TunnelError::GetConfigError
+            })?;
 
-                Ok(Stats { rx_bytes, tx_bytes })
-            };
+            // iterate over device attributes
+            let mut tx_bytes = 0;
+            let mut rx_bytes = 0;
+            for nla in device.nlas {
+                if let DeviceNla::Peers(peers) = nla {
+                    // iterate over all peer attributes
+                    let peer_iter = peers.iter().map(|peer| peer.0.as_slice()).flatten();
 
-            match get_device_stats() {
-                Ok(stats) => Ok(stats),
-                Err(err) => {
-                    log::error!("Failed to read tunnel stats from NM: {}", err);
-                    Err(TunnelError::StatsError(super::stats::Error::NoTunnelDevice))
+                    for peer_nla in peer_iter {
+                        match peer_nla {
+                            PeerNla::TxBytes(bytes) => tx_bytes += *bytes,
+                            PeerNla::RxBytes(bytes) => rx_bytes += *bytes,
+                            _ => continue,
+                        };
+                    }
                 }
             }
-        } else {
-            Err(TunnelError::StatsError(super::stats::Error::NoTunnelDevice))
-        }
+
+            Ok(Stats { tx_bytes, rx_bytes })
+        });
+
+        result
     }
 }
 

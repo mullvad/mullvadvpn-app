@@ -19,7 +19,7 @@ use tokio::stream::StreamExt;
 
 mod parsers;
 
-mod wg_message;
+pub mod wg_message;
 use wg_message::{DeviceMessage, DeviceNla, PeerNla};
 mod nl_message;
 use nl_message::{ControlNla, NetlinkControlMessage};
@@ -209,7 +209,7 @@ impl Tunnel for KernelTunnel {
 
 #[derive(Debug)]
 pub struct Handle {
-    wg_handle: WireguardConnection,
+    pub wg_handle: WireguardConnection,
     route_handle: rtnetlink::Handle,
     wg_abort_handle: AbortHandle,
     route_abort_handle: AbortHandle,
@@ -370,7 +370,7 @@ impl Drop for Handle {
 }
 
 #[derive(Debug, Clone)]
-struct WireguardConnection {
+pub struct WireguardConnection {
     connection: ConnectionHandle<DeviceMessage>,
     message_type: u16,
 }
