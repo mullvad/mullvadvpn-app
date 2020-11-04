@@ -152,7 +152,7 @@ impl WireguardMonitor {
     ) -> Result<Box<dyn Tunnel>> {
         #[cfg(target_os = "linux")]
         if !*FORCE_USERSPACE_WIREGUARD {
-            match network_manager::NetworkManager::new(config) {
+            match network_manager::NetworkManager::new(route_manager.runtime_handle(), config) {
                 Ok(tunnel) => {
                     log::debug!("Using NetworkManager to use kernel WireGuard implementation");
                     return Ok(Box::new(tunnel));
