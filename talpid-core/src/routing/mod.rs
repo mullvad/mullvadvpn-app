@@ -46,6 +46,11 @@ impl Route {
         self.table_id = new_id;
         self
     }
+
+    #[cfg(target_os = "linux")]
+    fn is_loopback(&self) -> bool {
+        self.node.ip.map(|ip| ip.is_loopback()).unwrap_or(false)
+    }
 }
 
 impl fmt::Display for Route {

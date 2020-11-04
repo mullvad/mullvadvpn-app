@@ -11,7 +11,7 @@ use std::{
     collections::{BTreeMap, HashSet},
     fs,
     io::{self, BufRead, BufReader, Read, Seek, Write},
-    net::IpAddr,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
     process::Command,
 };
 
@@ -407,6 +407,7 @@ impl RouteManagerImpl {
         let table_id = table_id.unwrap_or(RT_TABLE_MAIN);
         let mut route_request = self.handle.route().get(version).execute();
 
+        let mut num_ignored_loopback_interfaces: u32 = 0;
         while let Some(route) = route_request
             .try_next()
             .await
@@ -416,8 +417,19 @@ impl RouteManagerImpl {
                 if route.table_id != table_id {
                     continue;
                 }
+                // Ignore loopback routes - we don't want to mess with those anyway
+                if route.is_loopback() {
+                    num_ignored_loopback_interfaces += 1;
+                    continue;
+                }
                 routes.insert(route);
             }
+        }
+        if num_ignored_loopback_interfaces != 0 {
+            log::debug!(
+                "Ignored {} loopback routes",
+                num_ignored_loopback_interfaces
+            );
         }
         Ok(routes)
     }
@@ -744,21 +756,37 @@ impl RouteManagerImpl {
         let mut node_addr = None;
         let mut device = None;
         let mut metric = None;
-        let mut gateway = None;
+        let mut gateway: Option<IpAddr> = None;
 
         let destination_length = msg.header.destination_prefix_length;
         let af_spec = msg.header.address_family;
+
+        let is_ipv4 = match af_spec as i32 {
+            AF_INET => true,
+            AF_INET6 => false,
+            af_spec => {
+                log::error!("Unexpected routing protocol: {}", af_spec);
+                return Ok(None);
+            }
+        };
+
+        let mut is_loopback = false;
 
         for nla in msg.nlas.iter() {
             match nla {
                 RouteNla::Oif(device_idx) => {
                     match self.iface_map.get(&device_idx) {
                         Some(route_device) => {
-                            if route_device.is_loopback() {
-                                log::debug!("Ignoring route with interface '{}' because it's a loopback interface", route_device.name);
-                                return Ok(None);
+                            if !route_device.is_loopback() {
+                                device = Some(route_device);
+                            } else {
+                                is_loopback = true;
+                                gateway = if is_ipv4 {
+                                    Some(Ipv4Addr::LOCALHOST.into())
+                                } else {
+                                    Some(Ipv6Addr::LOCALHOST.into())
+                                };
                             }
-                            device = Some(route_device);
                         }
                         None => {
                             return Err(Error::UnknownDeviceIndex(*device_idx));
@@ -791,23 +819,13 @@ impl RouteManagerImpl {
             }
         }
 
-
-        // when a gateway is specified but prefix is none, then this is a default route
-        if prefix.is_none() && gateway.is_some() {
-            prefix = match af_spec as i32 {
-                AF_INET => Some("0.0.0.0/0".parse().expect("failed to parse ipnetwork")),
-                AF_INET6 => Some("::/0".parse().expect("failed to parse ipnetwork")),
-                _ => None,
-            };
-        }
-
-        if device.is_none() && node_addr.is_none() || prefix.is_none() {
+        if device.is_none() && node_addr.is_none() && gateway.is_none() {
             return Err(Error::InvalidRoute);
         }
 
 
         let node = Node {
-            ip: node_addr.or(gateway),
+            ip: node_addr.or(gateway.into()),
             device: device.map(|dev| dev.name.clone()),
         };
 

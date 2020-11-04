@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Fixed
+#### Linux
+- Parse routes more permissively and log parsing errors less verbosely.
 
 
 ## [2020.7-beta1] - 2020-11-10
