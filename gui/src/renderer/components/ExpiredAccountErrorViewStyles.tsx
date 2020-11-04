@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import AccountTokenLabel from './AccountTokenLabel';
 import * as AppButton from './AppButton';
-import * as Cell from './Cell';
+import * as Cell from './cell';
 import { bigText, smallText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 

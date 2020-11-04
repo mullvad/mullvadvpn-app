@@ -13,7 +13,7 @@ import {
   NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
-import Selector, { ISelectorItem } from './Selector';
+import Selector, { ISelectorItem } from './cell/Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 interface IProps {

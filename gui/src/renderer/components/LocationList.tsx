@@ -8,7 +8,7 @@ import {
   relayLocationComponents,
 } from '../../shared/daemon-rpc-types';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
-import * as Cell from './Cell';
+import * as Cell from './cell';
 import LocationRow from './LocationRow';
 
 export enum LocationSelectionType {

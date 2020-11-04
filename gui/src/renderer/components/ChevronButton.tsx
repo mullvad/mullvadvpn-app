@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
-import * as Cell from './Cell';
+import * as Cell from './cell';
 
 interface IProps extends React.HTMLAttributes<HTMLButtonElement> {
   up: boolean;

@@ -7,7 +7,7 @@ import { messages } from '../../shared/gettext';
 import { LoginState } from '../redux/account/reducers';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
-import * as Cell from './Cell';
+import * as Cell from './cell';
 import {
   StyledAccountTokenContainer,
   StyledAccountTokenLabel,

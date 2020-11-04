@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { messages } from '../../shared/gettext';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
-import * as Cell from './Cell';
+import * as Cell from './cell';
 import { Layout } from './Layout';
 import {
   BackBarItem,
