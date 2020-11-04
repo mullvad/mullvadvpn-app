@@ -25,7 +25,7 @@ chmod 755 "$cache_dir"
 gpg_cmd=$(command -v gpg2 || command -v gpg)
 
 # Detect operating system and package manager
-if [[ "$(uname -s)" == "Darwin" && -f /usr/sbin/installer ]]; then
+if [[ "$(uname -s)" == "Darwin" ]] && command -v installer; then
     pkg_manager="macOS"
     pkg_filename="MullvadVPN-${version}.pkg"
 elif command -v apt > /dev/null 2>&1; then
@@ -43,7 +43,7 @@ echo ">>> Detected $pkg_manager as package manager"
 # Download any missing installer/signature
 if [[ ! -f "$pkg_filename" ]]; then
     url="$URL_BASE/$version/$pkg_filename"
-    echo ">>> Downloading RPM from $url"
+    echo ">>> Downloading installer from $url"
     curl -O --fail "$url"
 fi
 if [[ ! -f "$pkg_filename.asc" ]]; then
