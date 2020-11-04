@@ -98,8 +98,12 @@ impl SystemdResolved {
             Ok(systemd_resolved)
         })();
 
-        if let Err(err) = &result {
-            log::error!("systemd-resolved is not being used because: {}", err);
+        match &result {
+            Err(Error::NoSystemdResolved(_)) => (),
+            Err(error) => {
+                log::error!("systemd-resolved is not being used because: {}", error);
+            }
+            Ok(_) => (),
         }
 
 
