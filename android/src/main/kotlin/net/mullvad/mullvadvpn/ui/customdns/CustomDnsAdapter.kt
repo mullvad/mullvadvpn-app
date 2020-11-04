@@ -11,10 +11,13 @@ import net.mullvad.mullvadvpn.util.JobTracker
 class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>() {
     private enum class ViewTypes {
         ADD_SERVER,
+        EDIT_SERVER,
         FOOTER,
     }
 
     private val jobTracker = JobTracker()
+
+    private var enteringNewServer = false
 
     private var enabled by observable(false) { _, oldValue, newValue ->
         if (oldValue != newValue) {
@@ -30,17 +33,28 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         }
     }
 
-    override fun getItemCount() = if (enabled) { 2 } else { 1 }
+    override fun getItemCount() =
+        if (enabled) {
+            2
+        } else {
+            1
+        }
 
     override fun getItemViewType(position: Int): Int {
-        if (enabled) {
-            if (position == 0) {
-                return ViewTypes.ADD_SERVER.ordinal
+        val count = getItemCount()
+        val footer = count - 1
+        val addServerOrNewServer = count - 2
+
+        if (position == footer) {
+            return ViewTypes.FOOTER.ordinal
+        } else if (position == addServerOrNewServer) {
+            if (enteringNewServer) {
+                return ViewTypes.EDIT_SERVER.ordinal
             } else {
-                return ViewTypes.FOOTER.ordinal
+                return ViewTypes.ADD_SERVER.ordinal
             }
         } else {
-            return ViewTypes.FOOTER.ordinal
+            throw RuntimeException("Too many items in the custom DNS list")
         }
     }
 
@@ -55,6 +69,10 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
             ViewTypes.ADD_SERVER -> {
                 val view = inflater.inflate(R.layout.add_custom_dns_server, parentView, false)
                 return AddCustomDnsServerHolder(view)
+            }
+            ViewTypes.EDIT_SERVER -> {
+                val view = inflater.inflate(R.layout.edit_custom_dns_server, parentView, false)
+                return EditCustomDnsServerHolder(view)
             }
         }
     }
