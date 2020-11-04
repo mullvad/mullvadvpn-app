@@ -82,6 +82,7 @@ Line wrap the file at 100 chars.                                              Th
 - Reset DNS config correctly when the tunnel monitor unexpectedly goes down.
 - Set search domains in NetworkManager's DNS configuration, resolving issues where NetworkManager
   is used to manage DNS via systemd-resolved.
+- Parse routes more permissively and log parsing errors less verbosely.
 
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and
