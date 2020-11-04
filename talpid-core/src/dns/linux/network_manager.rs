@@ -361,7 +361,7 @@ impl NetworkManager {
                 .get(NM_DEVICE, "State")
                 .map_err(Error::Dbus)?;
 
-            if device_is_ready(device_state) {
+            if !device_is_ready(device_state) {
                 let deadline = Instant::now() + DEVICE_READY_TIMEOUT;
                 let match_rule = &format!(
                     "destination='{}',path='{}',interface='{}',member='{}'",
