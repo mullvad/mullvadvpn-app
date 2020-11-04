@@ -81,8 +81,7 @@ Line wrap the file at 100 chars.                                              Th
 - Apply DNS config quicker when managing DNS via NetworkManager.
 - Fix routing rules sometimes being duplicated.
 - When NetworkManager is managing /etc/resolv.conf but ultimately using systemd-resolved, use
-  systemd-resolved directly to manage DNS.
-
+- Log less about ignored loopback routes.
 
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and
