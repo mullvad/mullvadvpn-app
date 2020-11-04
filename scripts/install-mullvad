@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+#
+# Download, verify and install the Mullvad VPN app from the build servers.
+# Pass the desired version of the app as the first and only argument.
+
+set -eu
+
+if [[ $# != 1 ]]; then
+    echo "!!! Please pass the app version as the first and only argument"
+    exit 1
+fi
+
+URL_BASE="https://build.mullvad.net/"
+
+# Pass Mullvad VPN app version as first and only argument
+version=$1
+
+# Store all downloaded files in a directory dedicated to our user
+cache_dir="/tmp/mullvadvpn-app.cache.$USER"
+mkdir -p "$cache_dir"
+cd "$cache_dir"
+chmod 755 "$cache_dir"
+
+# Find GnuPG command to use. Prefer gpg2
+gpg_cmd=$(command -v gpg2 || command -v gpg)
+
+# Detect operating system and package manager
+if [[ "$(uname -s)" == "Darwin" && -f /usr/sbin/installer ]]; then
+    pkg_manager="macOS"
+    pkg_filename="MullvadVPN-${version}.pkg"
+elif command -v apt > /dev/null 2>&1; then
+    pkg_manager=apt
+    pkg_filename="MullvadVPN-${version}_amd64.deb"
+elif command -v dnf > /dev/null 2>&1; then
+    pkg_manager=dnf
+    pkg_filename="MullvadVPN-${version}_x86_64.rpm"
+else
+    echo "!!! Unsupported distribution/package manager !!!"
+    exit 1
+fi
+echo ">>> Detected $pkg_manager as package manager"
+
+# Download any missing installer/signature
+if [[ ! -f "$pkg_filename" ]]; then
+    url="$URL_BASE/$version/$pkg_filename"
+    echo ">>> Downloading RPM from $url"
+    curl -O --fail "$url"
+fi
+if [[ ! -f "$pkg_filename.asc" ]]; then
+    url="$URL_BASE/$version/$pkg_filename.asc"
+    echo ">>> Downloading GPG signature from $url"
+    curl -O --fail "$url"
+fi
+
+echo ""
+echo ">>> Verifying integrity of $pkg_filename"
+if ! $gpg_cmd --verify "$pkg_filename.asc" "$pkg_filename"; then
+    echo ""
+    echo "!!! INTEGRITY CHECKING FAILED !!!"
+    rm "$pkg_filename" "$pkg_filename.asc"
+    exit 1
+fi
+
+echo ""
+echo ">>> Installing $pkg_filename with $pkg_manager"
+if [[ "$pkg_manager" == "macOS" ]]; then
+    sudo /usr/sbin/installer -verbose -pkg "./$pkg_filename" -target /
+else
+    sudo $pkg_manager install -y "./$pkg_filename"
+fi
+
