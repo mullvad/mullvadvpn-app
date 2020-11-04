@@ -80,6 +80,8 @@ Line wrap the file at 100 chars.                                              Th
 - Stop reconnecting when using WireGuard and NetworkManager.
 - Apply DNS config quicker when managing DNS via NetworkManager.
 - Fix routing rules sometimes being duplicated.
+- When NetworkManager is managing /etc/resolv.conf but ultimately using systemd-resolved, use
+  systemd-resolved directly to manage DNS.
 
 
 ### Security
