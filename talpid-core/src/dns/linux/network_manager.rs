@@ -127,10 +127,7 @@ impl NetworkManager {
             _ => (),
         };
 
-
-        let expected_resolv_conf = "/var/run/NetworkManager/resolv.conf";
-        let actual_resolv_conf = "/etc/resolv.conf";
-        if !eq_file_content(&expected_resolv_conf, &actual_resolv_conf) {
+        if !verify_etc_resolv_conf_contents() {
             log::debug!("/etc/resolv.conf differs from reference resolv.conf, therefore NM is not managing DNS");
             return Err(Error::NetworkManagerNotManagingDns);
         }
@@ -412,6 +409,69 @@ impl NetworkManager {
     }
 }
 
+/// Given a DBus connection, verify that NM is up and running and capable of managing DNS via
+/// systemd-resolved. This includes verifying that NM is managing DNS via systemd-resolved and is
+/// controlling /etc/resolv.conf
+pub fn is_nm_managing_via_resolved(connection: &Connection) -> bool {
+    let check_nm = || -> Result<bool> {
+        let dns_mode: String = connection
+            .with_path(NM_BUS, NM_DNS_MANAGER_PATH, RPC_TIMEOUT_MS)
+            .get(NM_DNS_MANAGER, DNS_MODE_KEY)
+            .map_err(Error::Dbus)?;
+        if &dns_mode != "systemd-resolved" {
+            return Ok(false);
+        }
+
+
+        let rc_management_mode: String = connection
+            .with_path(NM_BUS, NM_DNS_MANAGER_PATH, RPC_TIMEOUT_MS)
+            .get(NM_DNS_MANAGER, RC_MANAGEMENT_MODE_KEY)
+            .map_err(Error::TooOldNetworkManager)?;
+
+        match rc_management_mode.as_str() {
+            // /etc/resolv.conf is managed via executing a command, can't verify that works, have
+            // to assume it does
+            "resolvconf" | "netconfig" => Ok(true),
+
+            "symlink" | "none" | "file" => {
+                let reload =
+                    Message::new_method_call(NM_BUS, NM_OBJECT_PATH, NM_TOP_OBJECT, "Reload")
+                        .map_err(Error::DbusMethodCall)?
+                        .append1(0x02u32);
+                let _ = connection
+                    .send_with_reply_and_block(reload, RPC_TIMEOUT_MS)
+                    .map_err(Error::Dbus)?;
+                let result = verify_etc_resolv_conf_contents();
+                Ok(result)
+            }
+
+            // NM doesn't manage DNS at all
+            "unmanaged" => Ok(false),
+            unknown_rc_mode => {
+                log::error!("Unknown resolvconf management mode - {}", unknown_rc_mode);
+                Ok(false)
+            }
+        }
+    };
+    match check_nm() {
+        Ok(result) => result,
+        Err(err) => {
+            log::error!(
+                "Failed to check if NM is managing DNS via systemd-resolved: {}",
+                err
+            );
+            false
+        }
+    }
+}
+
+// Verify that the contents of /etc/resolv.conf match what NM expectes them to be.
+fn verify_etc_resolv_conf_contents() -> bool {
+    let expected_resolv_conf = "/var/run/NetworkManager/resolv.conf";
+    let actual_resolv_conf = "/etc/resolv.conf";
+    eq_file_content(&expected_resolv_conf, &actual_resolv_conf)
+}
+
 fn device_is_ready(device_state: u32) -> bool {
     /// Any state above `NM_DEVICE_STATE_IP_CONFIG` is considered to be an OK state to change the
     /// DNS config. For the enums, see https://developer.gnome.org/NetworkManager/stable/nm-dbus-types.html#NMDeviceState
@@ -439,11 +499,11 @@ fn eq_file_content<P: AsRef<Path>>(a: &P, b: &P) -> bool {
         }
     };
 
-    file_a
+    !file_a
         .lines()
         .zip(file_b.lines())
-        .all(|(a, b)| match (a, b) {
-            (Ok(a), Ok(b)) => a == b,
+        .any(|(a, b)| match (a, b) {
+            (Ok(a), Ok(b)) => a != b,
             _ => false,
         })
 }

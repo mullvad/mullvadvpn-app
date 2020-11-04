@@ -94,16 +94,19 @@ impl SystemdResolved {
             };
 
             systemd_resolved.ensure_resolved_exists()?;
-            Self::ensure_resolv_conf_is_resolved_symlink()?;
+            if !super::network_manager::is_nm_managing_via_resolved(
+                &systemd_resolved.dbus_connection,
+            ) {
+                Self::ensure_resolv_conf_is_resolved_symlink()?;
+            }
             Ok(systemd_resolved)
         })();
 
         match &result {
-            Err(Error::NoSystemdResolved(_)) => (),
+            Ok(_) | Err(Error::NoSystemdResolved(_)) => (),
             Err(error) => {
                 log::error!("systemd-resolved is not being used because: {}", error);
             }
-            Ok(_) => (),
         }
 
 
