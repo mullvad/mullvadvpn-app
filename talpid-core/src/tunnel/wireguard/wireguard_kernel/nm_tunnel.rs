@@ -1,4 +1,7 @@
-use super::{config::Config, stats::Stats, Tunnel, TunnelError};
+use super::{
+    super::stats::Stats, wg_message::DeviceNla, Config, Error, Handle, Tunnel, TunnelError,
+    MULLVAD_INTERFACE_NAME,
+};
 use dbus::{
     arg::{RefArg, Variant},
     blocking::{stdintf::org_freedesktop_dbus::Properties, BlockingSender, Connection, Proxy},
@@ -26,11 +29,11 @@ const MINIMUM_SUPPORTED_MAJOR_VERSION: u32 = 1;
 const MINIMUM_SUPPORTED_MINOR_VERSION: u32 = 16;
 
 
-pub type Result<T> = std::result::Result<T, Error>;
+pub type Result<T> = std::result::Result<T, NetworkManagerError>;
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
-pub enum Error {
+pub enum NetworkManagerError {
     #[error(display = "Error while communicating over Dbus")]
     Dbus(#[error(source)] dbus::Error),
 
@@ -53,21 +56,7 @@ pub enum Error {
     FindInterfaceIndex,
 }
 
-impl Error {
-    pub fn should_use_userspace(&self) -> bool {
-        match self {
-            Error::NMTooOld(_) => true,
-            _ => false,
-        }
-    }
-}
-
-use super::wireguard_kernel::{
-    wg_message::{DeviceNla, PeerNla},
-    Handle,
-};
-
-pub struct NetworkManager {
+pub struct NetworkManagerTunnel {
     dbus_connection: Connection,
     tunnel: Option<WireguardTunnel>,
     interface_index: u32,
@@ -81,21 +70,25 @@ type VariantMap = HashMap<String, VariantRefArg>;
 // settings are a{sa{sv}}
 type DbusSettings = HashMap<String, VariantMap>;
 
-impl NetworkManager {
-    pub fn new(tokio_handle: tokio::runtime::Handle, config: &Config) -> Result<Self> {
-        let mut dbus_connection = Connection::new_system().map_err(Error::Dbus)?;
-        Self::ensure_nm_is_new_enough(&dbus_connection)?;
-        let tunnel = Some(Self::create_wg_tunnel(&mut dbus_connection, config)?);
+impl NetworkManagerTunnel {
+    pub fn new(
+        tokio_handle: tokio::runtime::Handle,
+        config: &Config,
+    ) -> std::result::Result<Self, Error> {
+        let mut dbus_connection = Connection::new_system()
+            .map_err(|error| Error::NetworkManager(NetworkManagerError::Dbus(error)))?;
+        Self::ensure_nm_is_new_enough(&dbus_connection).map_err(Error::NetworkManager)?;
+        let tunnel = Some(
+            Self::create_wg_tunnel(&mut dbus_connection, config).map_err(Error::NetworkManager)?,
+        );
 
         tokio_handle.clone().block_on(async move {
-            let netlink_connections = Handle::connect()
-                .await
-                .map_err(|_| Error::FindInterfaceIndex)?;
-            let interface_index = Self::find_device_index(&netlink_connections)
-                .await?
-                .ok_or(Error::FindInterfaceIndex)?;
+            let netlink_connections = Handle::connect().await?;
+            let interface_index = Self::find_device_index(&netlink_connections).await?.ok_or(
+                Error::NetworkManager(NetworkManagerError::FindInterfaceIndex),
+            )?;
 
-            Ok(NetworkManager {
+            Ok(NetworkManagerTunnel {
                 dbus_connection,
                 tunnel,
                 interface_index,
@@ -105,15 +98,11 @@ impl NetworkManager {
         })
     }
 
-    async fn find_device_index(netlink_connections: &Handle) -> Result<Option<u32>> {
+    async fn find_device_index(
+        netlink_connections: &Handle,
+    ) -> std::result::Result<Option<u32>, Error> {
         let mut wg = netlink_connections.wg_handle.clone();
-        let device = wg
-            .get_by_name("wg-mullvad".to_string())
-            .await
-            .map_err(|err| {
-                log::error!("Failed to fetch WireGuard device config: {}", err);
-                Error::FindInterfaceIndex
-            })?;
+        let device = wg.get_by_name(MULLVAD_INTERFACE_NAME.to_string()).await?;
 
         for nla in &device.nlas {
             if let DeviceNla::IfIndex(index) = nla {
@@ -125,8 +114,10 @@ impl NetworkManager {
 
     fn ensure_nm_is_new_enough(connection: &Connection) -> Result<()> {
         let manager = Self::nm_proxy(connection);
-        let version_string: String = manager.get(NM_MANAGER, "Version").map_err(Error::Dbus)?;
-        let version_too_old = || Error::NMTooOld(version_string.clone());
+        let version_string: String = manager
+            .get(NM_MANAGER, "Version")
+            .map_err(NetworkManagerError::Dbus)?;
+        let version_too_old = || NetworkManagerError::NMTooOld(version_string.clone());
         let mut parts = version_string
             .split(".")
             .map(|part| part.parse().map_err(|_| version_too_old()));
@@ -156,7 +147,9 @@ impl NetworkManager {
             .or_else(|err| {
                 log::error!("Failed to create a new interface via NM - {}", err);
                 match err {
-                    Error::Dbus(dbus_error) if dbus_error.name() == Some(DBUS_UNKNOWN_METHOD) => {
+                    NetworkManagerError::Dbus(dbus_error)
+                        if dbus_error.name() == Some(DBUS_UNKNOWN_METHOD) =>
+                    {
                         Self::add_connection_unsaved(dbus_connection, &settings_map)
                     }
                     err => Err(err),
@@ -174,13 +167,16 @@ impl NetworkManager {
                     &Path::new("/").unwrap(),
                 ),
             )
-            .map_err(Error::Dbus)?;
+            .map_err(NetworkManagerError::Dbus)?;
 
         let connection = Proxy::new(NM_BUS, &connection_path, RPC_TIMEOUT, dbus_connection);
         let device_paths: Vec<Path<'static>> = connection
             .get(NM_CONNECTION_ACTIVE, "Devices")
-            .map_err(Error::Dbus)?;
-        let device_path = device_paths.into_iter().next().ok_or(Error::NoDevice)?;
+            .map_err(NetworkManagerError::Dbus)?;
+        let device_path = device_paths
+            .into_iter()
+            .next()
+            .ok_or(NetworkManagerError::NoDevice)?;
 
         Ok(WireguardTunnel {
             config_path,
@@ -200,14 +196,14 @@ impl NetworkManager {
             NM_INTERFACE_SETTINGS,
             "AddConnection2",
         )
-        .map_err(Error::DbusMethodCall)?
+        .map_err(NetworkManagerError::DbusMethodCall)?
         .append3(settings_map, NM_ADD_CONNECTION_VOLATILE, args);
 
         connection
             .send_with_reply_and_block(new_device, RPC_TIMEOUT)
-            .map_err(Error::Dbus)?
+            .map_err(NetworkManagerError::Dbus)?
             .read2()
-            .map_err(Error::MatchDBusTypeError)
+            .map_err(NetworkManagerError::MatchDBusTypeError)
     }
 
     fn add_connection_unsaved(
@@ -220,14 +216,14 @@ impl NetworkManager {
             NM_INTERFACE_SETTINGS,
             "AddConnectionUnsaved",
         )
-        .map_err(Error::DbusMethodCall)?
+        .map_err(NetworkManagerError::DbusMethodCall)?
         .append1(settings_map);
 
         connection
             .send_with_reply_and_block(new_connection, RPC_TIMEOUT)
-            .map_err(Error::Dbus)?
+            .map_err(NetworkManagerError::Dbus)?
             .read1()
-            .map_err(Error::MatchDBusTypeError)
+            .map_err(NetworkManagerError::MatchDBusTypeError)
     }
 
     fn convert_config_to_dbus(config: &Config) -> DbusSettings {
@@ -269,10 +265,13 @@ impl NetworkManager {
         wireguard_config.insert("peers".into(), Variant(Box::new(peer_configs)));
 
         connection_config.insert("type".into(), Variant(Box::new("wireguard".to_string())));
-        connection_config.insert("id".into(), Variant(Box::new("wg-mullvad".to_string())));
+        connection_config.insert(
+            "id".into(),
+            Variant(Box::new(MULLVAD_INTERFACE_NAME.to_string())),
+        );
         connection_config.insert(
             "interface-name".into(),
-            Variant(Box::new("wg-mullvad".to_string())),
+            Variant(Box::new(MULLVAD_INTERFACE_NAME.to_string())),
         );
         connection_config.insert("autoconnect".into(), Variant(Box::new(true)));
 
@@ -340,17 +339,17 @@ impl NetworkManager {
                         "DeactivateConnection",
                         (&tunnel.connection_path,),
                     )
-                    .map_err(Error::Dbus);
+                    .map_err(NetworkManagerError::Dbus);
 
             let device_result: Result<()> = tunnel
                 .device_proxy(&self.dbus_connection)
                 .method_call(NM_DEVICE, "Delete", ())
-                .map_err(Error::DeviceRemovalError);
+                .map_err(NetworkManagerError::DeviceRemovalError);
 
             let config_result: Result<()> = tunnel
                 .config_proxy(&self.dbus_connection)
                 .method_call(NM_INTERFACE_SETTINGS_CONNECTION, "Delete", ())
-                .map_err(Error::DeviceRemovalError);
+                .map_err(NetworkManagerError::DeviceRemovalError);
             deactivation_result?;
             device_result?;
             config_result?;
@@ -359,7 +358,7 @@ impl NetworkManager {
     }
 }
 
-impl Tunnel for NetworkManager {
+impl Tunnel for NetworkManagerTunnel {
     fn get_interface_name(&self) -> String {
         if let Some(tunnel) = self.tunnel.as_ref() {
             let interface_name = tunnel
@@ -373,7 +372,7 @@ impl Tunnel for NetworkManager {
                 Err(error) => log::error!("Failed to fetch interface name from NM: {}", error),
             }
         }
-        "wg-mullvad".to_string()
+        MULLVAD_INTERFACE_NAME.to_string()
     }
 
     fn stop(mut self: Box<Self>) -> std::result::Result<(), TunnelError> {
@@ -393,26 +392,7 @@ impl Tunnel for NetworkManager {
                 log::error!("Failed to fetch WireGuard device config: {}", err);
                 TunnelError::GetConfigError
             })?;
-
-            // iterate over device attributes
-            let mut tx_bytes = 0;
-            let mut rx_bytes = 0;
-            for nla in device.nlas {
-                if let DeviceNla::Peers(peers) = nla {
-                    // iterate over all peer attributes
-                    let peer_iter = peers.iter().map(|peer| peer.0.as_slice()).flatten();
-
-                    for peer_nla in peer_iter {
-                        match peer_nla {
-                            PeerNla::TxBytes(bytes) => tx_bytes += *bytes,
-                            PeerNla::RxBytes(bytes) => rx_bytes += *bytes,
-                            _ => continue,
-                        };
-                    }
-                }
-            }
-
-            Ok(Stats { tx_bytes, rx_bytes })
+            Ok(Stats::parse_device_message(&device))
         });
 
         result
