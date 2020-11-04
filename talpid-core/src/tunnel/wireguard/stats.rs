@@ -1,3 +1,7 @@
+#[cfg(target_os = "linux")]
+use super::wireguard_kernel::wg_message::{DeviceMessage, DeviceNla, PeerNla};
+
+
 #[derive(err_derive::Error, Debug, PartialEq)]
 pub enum Error {
     #[error(display = "Failed to parse integer from string \"_0\"")]
@@ -57,6 +61,29 @@ impl Stats {
             (Some(tx_bytes), Some(rx_bytes)) => Ok(Self { tx_bytes, rx_bytes }),
             _ => Err(Error::KeyNotFoundError),
         }
+    }
+
+    #[cfg(target_os = "linux")]
+    pub fn parse_device_message(message: &DeviceMessage) -> Self {
+        // iterate over device attributes
+        let mut tx_bytes = 0;
+        let mut rx_bytes = 0;
+        for nla in &message.nlas {
+            if let DeviceNla::Peers(peers) = nla {
+                // iterate over all peer attributes
+                let peer_iter = peers.iter().map(|peer| peer.0.as_slice()).flatten();
+
+                for peer_nla in peer_iter {
+                    match peer_nla {
+                        PeerNla::TxBytes(bytes) => tx_bytes += *bytes,
+                        PeerNla::RxBytes(bytes) => rx_bytes += *bytes,
+                        _ => continue,
+                    };
+                }
+            }
+        }
+
+        Self { tx_bytes, rx_bytes }
     }
 }
 
