@@ -83,7 +83,7 @@ Line wrap the file at 100 chars.                                              Th
 - When NetworkManager is managing /etc/resolv.conf but ultimately using systemd-resolved, use
   systemd-resolved directly to manage DNS.
 - Only use WireGuard kernel implementation if DNS isn't managed via NetworkManager.
-
+- Parse routes correctly and log less verbose routes.
 
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and
