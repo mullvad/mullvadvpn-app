@@ -68,7 +68,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
             }
             ViewTypes.ADD_SERVER -> {
                 val view = inflater.inflate(R.layout.add_custom_dns_server, parentView, false)
-                return AddCustomDnsServerHolder(view)
+                return AddCustomDnsServerHolder(view, this)
             }
             ViewTypes.EDIT_SERVER -> {
                 val view = inflater.inflate(R.layout.edit_custom_dns_server, parentView, false)
@@ -81,5 +81,15 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
 
     fun onDestroy() {
         customDns.onEnabledChanged.unsubscribe(this)
+    }
+
+    fun newDnsServer() {
+        if (enabled) {
+            val count = getItemCount()
+
+            enteringNewServer = true
+
+            notifyItemChanged(count - 2)
+        }
     }
 }
