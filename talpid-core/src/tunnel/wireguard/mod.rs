@@ -23,9 +23,6 @@ mod wireguard_go;
 #[cfg(target_os = "linux")]
 mod wireguard_kernel;
 
-#[cfg(target_os = "linux")]
-mod network_manager;
-
 use self::wireguard_go::WgGoTunnel;
 
 type Result<T> = std::result::Result<T, Error>;
@@ -152,14 +149,17 @@ impl WireguardMonitor {
     ) -> Result<Box<dyn Tunnel>> {
         #[cfg(target_os = "linux")]
         if !*FORCE_USERSPACE_WIREGUARD {
-            match network_manager::NetworkManager::new(route_manager.runtime_handle(), config) {
+            match wireguard_kernel::NetworkManagerTunnel::new(
+                route_manager.runtime_handle(),
+                config,
+            ) {
                 Ok(tunnel) => {
                     log::debug!("Using NetworkManager to use kernel WireGuard implementation");
                     return Ok(Box::new(tunnel));
                 }
                 Err(err) => {
                     if !err.should_use_userspace() {
-                        match wireguard_kernel::KernelTunnel::new(
+                        match wireguard_kernel::NetlinkTunnel::new(
                             route_manager.runtime_handle(),
                             config,
                         ) {
