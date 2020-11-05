@@ -106,7 +106,7 @@ impl Resolvconf {
         let mut result = Ok(());
 
         for record_name in self.record_names.drain() {
-            let output = duct::cmd!(&self.resolvconf, "-d", &record_name)
+            let output = duct::cmd!(&self.resolvconf, "-d", &record_name, "-f")
                 .stderr_capture()
                 .unchecked()
                 .run()
