@@ -36,6 +36,8 @@ Line wrap the file at 100 chars.                                              Th
   spuriously when using NetworkManager and WireGuard.
 - Fix route parsing bug in route monitor by ignoring loopback routes.
 - Apply DNS config quicker when managing DNS via NetworkManager.
+- When NetworkManager is managing /etc/resolv.conf but ultimately using systemd-resolved, use
+  systemd-resolved directly to manage DNS.
 
 
 ## [2020.6] - 2020-10-20
