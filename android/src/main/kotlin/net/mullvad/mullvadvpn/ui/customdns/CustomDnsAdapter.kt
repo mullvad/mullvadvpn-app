@@ -8,6 +8,7 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.service.CustomDns
 import net.mullvad.mullvadvpn.util.JobTracker
+import org.apache.commons.validator.routines.InetAddressValidator
 
 class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>() {
     private enum class ViewTypes {
@@ -17,6 +18,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         FOOTER,
     }
 
+    private val inetAddressValidator = InetAddressValidator.getInstance()
     private val jobTracker = JobTracker()
 
     private var enteringNewServer = false
@@ -86,7 +88,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
             }
             ViewTypes.EDIT_SERVER -> {
                 val view = inflater.inflate(R.layout.edit_custom_dns_server, parentView, false)
-                return EditCustomDnsServerHolder(view)
+                return EditCustomDnsServerHolder(view, this)
             }
             ViewTypes.SHOW_SERVER -> {
                 val view = inflater.inflate(R.layout.custom_dns_server, parentView, false)
@@ -115,6 +117,14 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
             enteringNewServer = true
 
             notifyItemChanged(count - 2)
+        }
+    }
+
+    fun addDnsServer(address: String) {
+        jobTracker.newBackgroundJob("addDnsServer $address") {
+            if (inetAddressValidator.isValid(address)) {
+                customDns.addDnsServer(InetAddress.getByName(address))
+            }
         }
     }
 }
