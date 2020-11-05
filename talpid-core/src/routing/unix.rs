@@ -8,7 +8,6 @@ use futures::channel::{
     oneshot,
 };
 use std::{collections::HashSet, io};
-use talpid_types::ErrorExt;
 
 #[cfg(target_os = "linux")]
 use std::net::IpAddr;
@@ -30,9 +29,9 @@ pub use imp::Error as PlatformError;
 /// Errors that can be encountered whilst initializing RouteManager
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
-    /// Routing manager thread panicked before starting routing manager
-    #[error(display = "Routing manager thread panicked before starting routing manager")]
-    RoutingManagerThreadPanic,
+    /// Route manager thread may have panicked
+    #[error(display = "The channel sender was dropped")]
+    ManagerChannelDown,
     /// Platform specific error occured
     #[error(display = "Internal route manager error")]
     PlatformError(#[error(source)] imp::Error),
@@ -63,7 +62,7 @@ impl RouteManagerHandle {
             .map_err(|_| Error::RouteManagerDown)?;
         self.runtime
             .block_on(response_rx)
-            .unwrap()
+            .map_err(|_| Error::ManagerChannelDown)?
             .map_err(Error::PlatformError)
     }
 
@@ -77,7 +76,10 @@ impl RouteManagerHandle {
                 response_tx,
             ))
             .map_err(|_| Error::RouteManagerDown)?;
-        Ok(self.runtime.block_on(response_rx).unwrap())
+        Ok(self
+            .runtime
+            .block_on(response_rx)
+            .map_err(|_| Error::ManagerChannelDown)?)
     }
 }
 
@@ -151,7 +153,7 @@ impl RouteManager {
             }
 
             if self.runtime.block_on(wait_rx).is_err() {
-                log::error!("RouteManager paniced while shutting down");
+                log::error!("{}", Error::ManagerChannelDown);
             }
         }
     }
@@ -167,16 +169,10 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
 
-            match self.runtime.block_on(result_rx) {
-                Ok(result) => result.map_err(Error::PlatformError),
-                Err(error) => {
-                    log::trace!(
-                        "{}",
-                        error.display_chain_with_msg("oneshot channel is closed")
-                    );
-                    Ok(())
-                }
-            }
+            self.runtime
+                .block_on(result_rx)
+                .map_err(|_| Error::ManagerChannelDown)?
+                .map_err(Error::PlatformError)
         } else {
             Err(Error::RouteManagerDown)
         }
@@ -207,13 +203,10 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
 
-            match self.runtime.block_on(result_rx) {
-                Ok(result) => result.map_err(Error::PlatformError),
-                Err(error) => {
-                    log::trace!("{}", error.display_chain_with_msg("channel is closed"));
-                    Ok(())
-                }
-            }
+            self.runtime
+                .block_on(result_rx)
+                .map_err(|_| Error::ManagerChannelDown)?
+                .map_err(Error::PlatformError)
         } else {
             Err(Error::RouteManagerDown)
         }
@@ -249,13 +242,9 @@ impl RouteManager {
             {
                 return Err(Error::RouteManagerDown);
             }
-            match self.runtime.block_on(result_rx) {
-                Ok(()) => Ok(()),
-                Err(error) => {
-                    log::trace!("{}", error.display_chain_with_msg("channel is closed"));
-                    Ok(())
-                }
-            }
+            self.runtime
+                .block_on(result_rx)
+                .map_err(|_| Error::ManagerChannelDown)
         } else {
             Err(Error::RouteManagerDown)
         }
@@ -299,13 +288,10 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
 
-            match self.runtime.block_on(result_rx) {
-                Ok(result) => result.map_err(Error::PlatformError),
-                Err(error) => {
-                    log::trace!("{}", error.display_chain_with_msg("channel is closed"));
-                    Ok(())
-                }
-            }
+            self.runtime
+                .block_on(result_rx)
+                .map_err(|_| Error::ManagerChannelDown)?
+                .map_err(Error::PlatformError)
         } else {
             Err(Error::RouteManagerDown)
         }

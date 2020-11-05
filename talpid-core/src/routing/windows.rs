@@ -12,6 +12,9 @@ use std::collections::HashSet;
 /// Windows routing errors.
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
+    /// The sender was dropped unexpectedly -- possible panic
+    #[error(display = "The channel sender was dropped")]
+    ManagerChannelDown,
     /// Failure to initialize route manager
     #[error(display = "Failed to start route manager")]
     FailedToStartManager,
@@ -49,7 +52,9 @@ impl RouteManagerHandle {
         self.tx
             .unbounded_send(RouteManagerCommand::AddRoutes(routes, response_tx))
             .map_err(|_| Error::RouteManagerDown)?;
-        self.runtime.block_on(response_rx).unwrap()
+        self.runtime
+            .block_on(response_rx)
+            .map_err(|_| Error::ManagerChannelDown)?
     }
 }
 
@@ -178,7 +183,9 @@ impl RouteManager {
             {
                 return Err(Error::RouteManagerDown);
             }
-            self.runtime.block_on(result_rx).unwrap()
+            self.runtime
+                .block_on(result_rx)
+                .map_err(|_| Error::ManagerChannelDown)?
         } else {
             Err(Error::RouteManagerDown)
         }
