@@ -45,6 +45,12 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
                     titleController.expandedTitleView = headerView.findViewById(R.id.expanded_title)
                 }
             }
+
+            addItemDecoration(
+                ListItemDividerDecoration(parentActivity).apply {
+                    topOffsetId = R.dimen.list_item_divider
+                }
+            )
         }
 
         return view
