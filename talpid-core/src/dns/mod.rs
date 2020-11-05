@@ -48,6 +48,7 @@ impl DnsMonitor {
     }
 
     /// Reset system DNS settings to what it was before being set by this instance.
+    /// This succeeds if the interface does not exist.
     pub fn reset(&mut self) -> Result<(), Error> {
         log::info!("Resetting DNS");
         self.inner.reset()

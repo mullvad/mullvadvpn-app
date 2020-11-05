@@ -242,8 +242,8 @@ impl SystemdResolved {
             Ok(mut reply) => reply.as_result().map(|_| ()),
             Err(error) => {
                 if error.name() == Some("org.freedesktop.DBus.Error.UnknownObject") {
-                    log::info!(
-                        "Not reseting DNS of interface {} because it no longer exists",
+                    log::trace!(
+                        "Not resetting DNS of interface {} because it no longer exists",
                         interface_name
                     );
                     Ok(())
