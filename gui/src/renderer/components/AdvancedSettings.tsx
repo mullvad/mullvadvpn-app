@@ -1,3 +1,4 @@
+import ip from 'ip';
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
@@ -91,6 +92,7 @@ interface IState {
   showConfirmBlockWhenDisconnectedAlert: boolean;
   showAddCustomDns: boolean;
   invalidDnsIp: boolean;
+  publicDnsIpToConfirm?: string;
 }
 
 export default class AdvancedSettings extends React.Component<IProps, IState> {
@@ -98,6 +100,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
     showConfirmBlockWhenDisconnectedAlert: false,
     showAddCustomDns: false,
     invalidDnsIp: false,
+    publicDnsIpToConfirm: undefined,
   };
 
   private customDnsSwitchRef = React.createRef<HTMLDivElement>();
@@ -470,7 +473,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                     <StyledAddCustomDnsLabel tabIndex={-1}>
                       {messages.pgettext('advanced-settings-view', 'Add a server')}
                     </StyledAddCustomDnsLabel>
-                    <Cell.UntintedIcon
+                    <Cell.Icon
                       source="icon-add"
                       width={22}
                       height={22}
@@ -496,6 +499,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
 
         {this.state.showConfirmBlockWhenDisconnectedAlert &&
           this.renderConfirmBlockWhenDisconnectedAlert()}
+        {this.state.publicDnsIpToConfirm && this.renderCustomDnsConfirmationDialog()}
       </ModalContainer>
     );
   }
@@ -543,9 +547,11 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
   };
 
   private hideAddCustomDnsRow(justAdded: boolean) {
-    this.setState({ showAddCustomDns: false });
-    if (!justAdded && this.props.dns.addresses.length === 0) {
-      consumePromise(this.setCustomDnsEnabled(false));
+    if (!this.state.publicDnsIpToConfirm) {
+      this.setState({ showAddCustomDns: false });
+      if (!justAdded && this.props.dns.addresses.length === 0) {
+        consumePromise(this.setCustomDnsEnabled(false));
+      }
     }
   }
 
@@ -553,14 +559,31 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
     this.setState({ invalidDnsIp: false });
   };
 
-  private addDnsAddress = async (address: string) => {
-    try {
-      await this.props.setDnsOptions({
-        custom: this.props.dns.custom,
-        addresses: [...this.props.dns.addresses, address],
-      });
-      this.hideAddCustomDnsRow(true);
-    } catch (_e) {
+  private hideCustomDnsConfirmationDialog = () => {
+    this.setState({ publicDnsIpToConfirm: undefined });
+  };
+
+  private confirmPublicDnsAddress = () => {
+    consumePromise(this.addDnsAddress(this.state.publicDnsIpToConfirm!, true));
+    this.hideCustomDnsConfirmationDialog();
+  };
+
+  private addDnsAddress = async (address: string, confirmed?: boolean) => {
+    if (ip.isV4Format(address) || ip.isV6Format(address)) {
+      if (ip.isPublic(address) && !confirmed) {
+        this.setState({ publicDnsIpToConfirm: address });
+      } else {
+        try {
+          await this.props.setDnsOptions({
+            custom: this.props.dns.custom,
+            addresses: [...this.props.dns.addresses, address],
+          });
+          this.hideAddCustomDnsRow(true);
+        } catch (_e) {
+          this.setState({ invalidDnsIp: true });
+        }
+      }
+    } else {
       this.setState({ invalidDnsIp: true });
     }
   };
@@ -598,6 +621,26 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
         disabled: !hasWireguardKey,
       },
     ];
+  };
+
+  private renderCustomDnsConfirmationDialog = () => {
+    return (
+      <ModalAlert
+        type={ModalAlertType.info}
+        buttons={[
+          <AppButton.RedButton key="confirm" onClick={this.confirmPublicDnsAddress}>
+            {messages.pgettext('advanced-settings-view', 'Add anyway')}
+          </AppButton.RedButton>,
+          <AppButton.BlueButton key="back" onClick={this.hideCustomDnsConfirmationDialog}>
+            {messages.gettext('Back')}
+          </AppButton.BlueButton>,
+        ]}
+        close={this.hideCustomDnsConfirmationDialog}
+        message={messages.pgettext(
+          'advanced-settings-view',
+          'The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers.',
+        )}></ModalAlert>
+    );
   };
 
   private renderConfirmBlockWhenDisconnectedAlert = () => {
