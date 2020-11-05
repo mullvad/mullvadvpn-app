@@ -1,4 +1,4 @@
-use super::{stats::Stats, Config, Tunnel, TunnelError};
+use super::{Config, Tunnel, TunnelError};
 use futures::future::{abortable, AbortHandle};
 use netlink_packet_core::{constants::*, NetlinkDeserializable};
 use netlink_packet_route::{
@@ -19,10 +19,15 @@ use tokio::stream::StreamExt;
 
 mod parsers;
 
-mod wg_message;
-use wg_message::{DeviceMessage, DeviceNla, PeerNla};
-mod nl_message;
+pub mod wg_message;
+use wg_message::{DeviceMessage, DeviceNla};
+pub mod nl_message;
 use nl_message::{ControlNla, NetlinkControlMessage};
+
+pub mod netlink_tunnel;
+pub use netlink_tunnel::NetlinkTunnel;
+pub mod nm_tunnel;
+pub use nm_tunnel::NetworkManagerTunnel;
 
 
 #[derive(err_derive::Error, Debug)]
@@ -75,141 +80,26 @@ pub enum Error {
 
     #[error(display = "Failed to delete device")]
     DeleteDeviceError(#[error(source)] rtnetlink::Error),
-}
 
-pub struct KernelTunnel {
-    interface_index: u32,
-    netlink_connections: Handle,
-    tokio_handle: tokio::runtime::Handle,
+    #[error(display = "NetworkManager error")]
+    NetworkManager(#[error(source)] nm_tunnel::Error),
 }
 
 const MULLVAD_INTERFACE_NAME: &str = "wg-mullvad";
 
-impl KernelTunnel {
-    pub fn new(tokio_handle: tokio::runtime::Handle, config: &Config) -> Result<Self, Error> {
-        tokio_handle.clone().block_on(async {
-            let mut netlink_connections = Handle::connect().await?;
-            let interface_index = netlink_connections
-                .create_device(MULLVAD_INTERFACE_NAME.to_string(), config.mtu as u32)
-                .await?;
 
-            let mut tunnel = Self {
-                interface_index,
-                netlink_connections,
-                tokio_handle,
-            };
-
-            if let Err(err) = tunnel.setup(config).await {
-                if let Err(teardown_err) = tunnel
-                    .netlink_connections
-                    .delete_device(interface_index)
-                    .await
-                {
-                    log::error!(
-                        "Failed to tear down WireGuard interface after failing to apply config: {}",
-                        teardown_err
-                    );
-                }
-                return Err(err);
-            }
-
-
-            Ok(tunnel)
-        })
-    }
-
-    async fn setup(&mut self, config: &Config) -> Result<(), Error> {
-        self.netlink_connections
-            .wg_handle
-            .set_config(self.interface_index, config)
-            .await?;
-
-        for tunnel_ip in config.tunnel.addresses.iter() {
-            self.netlink_connections
-                .set_ip_address(self.interface_index, *tunnel_ip)
-                .await?;
-        }
-
-        Ok(())
-    }
-}
-
-impl Tunnel for KernelTunnel {
-    fn get_interface_name(&self) -> String {
-        let mut wg = self.netlink_connections.wg_handle.clone();
-        let result = self.tokio_handle.block_on(async move {
-            let device = wg.get_by_index(self.interface_index).await?;
-            for nla in device.nlas {
-                if let DeviceNla::IfName(name) = nla {
-                    return Ok(name);
-                }
-            }
-            return Err(Error::Truncated);
-        });
-
-        match result {
-            Ok(name) => name.to_string_lossy().to_string(),
-            Err(err) => {
-                log::error!("Failed to deduce interface name at runtime, will attempt to use the default name. {}", err);
-                MULLVAD_INTERFACE_NAME.to_string()
-            }
+impl Error {
+    pub fn should_use_userspace(&self) -> bool {
+        match self {
+            Error::NetworkManager(nm_tunnel::Error::NMTooOld(_)) => true,
+            _ => false,
         }
     }
-
-    fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError> {
-        let Self {
-            mut netlink_connections,
-            interface_index,
-            tokio_handle,
-        } = *self;
-        tokio_handle.block_on(async move {
-            if let Err(err) = netlink_connections.delete_device(interface_index).await {
-                log::error!("Failed to remove WireGuard device - {}", err);
-                Err(TunnelError::FatalStartWireguardError)
-            } else {
-                Ok(())
-            }
-        })
-    }
-
-    fn get_tunnel_stats(&self) -> std::result::Result<Stats, TunnelError> {
-        let mut wg = self.netlink_connections.wg_handle.clone();
-        let interface_index = self.interface_index;
-        let result = self.tokio_handle.block_on(async move {
-            let device = wg.get_by_index(interface_index).await.map_err(|err| {
-                log::error!("Failed to fetch WireGuard device config: {}", err);
-                TunnelError::GetConfigError
-            })?;
-
-            // iterate over device attributes
-            let mut tx_bytes = 0;
-            let mut rx_bytes = 0;
-            for nla in device.nlas {
-                if let DeviceNla::Peers(peers) = nla {
-                    // iterate over all peer attributes
-                    let peer_iter = peers.iter().map(|peer| peer.0.as_slice()).flatten();
-
-                    for peer_nla in peer_iter {
-                        match peer_nla {
-                            PeerNla::TxBytes(bytes) => tx_bytes += *bytes,
-                            PeerNla::RxBytes(bytes) => rx_bytes += *bytes,
-                            _ => continue,
-                        };
-                    }
-                }
-            }
-
-            Ok(Stats { tx_bytes, rx_bytes })
-        });
-
-        result
-    }
 }
-
 
 #[derive(Debug)]
 pub struct Handle {
-    wg_handle: WireguardConnection,
+    pub wg_handle: WireguardConnection,
     route_handle: rtnetlink::Handle,
     wg_abort_handle: AbortHandle,
     route_abort_handle: AbortHandle,
@@ -370,7 +260,7 @@ impl Drop for Handle {
 }
 
 #[derive(Debug, Clone)]
-struct WireguardConnection {
+pub struct WireguardConnection {
     connection: ConnectionHandle<DeviceMessage>,
     message_type: u16,
 }
