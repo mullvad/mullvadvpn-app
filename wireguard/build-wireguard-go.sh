@@ -97,7 +97,7 @@ function build_android {
         docker run --rm \
             -v "$(pwd)/../":/workspace \
             --entrypoint "/workspace/wireguard/libwg/build-android.sh" \
-            mullvadvpn/mullvad-android-app-build@sha256:$docker_image_hash
+            quay.io/mullvad/mullvad-android-app-build@sha256:$docker_image_hash
     else
         ./libwg/build-android.sh
     fi
