@@ -85,32 +85,18 @@ pub struct SystemdResolved {
 
 impl SystemdResolved {
     pub fn new() -> Result<Self> {
-        let result = (|| {
-            let dbus_connection =
-                Connection::get_private(BusType::System).map_err(Error::ConnectDBus)?;
-            let systemd_resolved = SystemdResolved {
-                dbus_connection,
-                interface_link: None,
-            };
+        let dbus_connection =
+            Connection::get_private(BusType::System).map_err(Error::ConnectDBus)?;
+        let systemd_resolved = SystemdResolved {
+            dbus_connection,
+            interface_link: None,
+        };
 
-            systemd_resolved.ensure_resolved_exists()?;
-            if !super::network_manager::is_nm_managing_via_resolved(
-                &systemd_resolved.dbus_connection,
-            ) {
-                Self::ensure_resolv_conf_is_resolved_symlink()?;
-            }
-            Ok(systemd_resolved)
-        })();
-
-        match &result {
-            Ok(_) | Err(Error::NoSystemdResolved(_)) => (),
-            Err(error) => {
-                log::error!("systemd-resolved is not being used because: {}", error);
-            }
+        systemd_resolved.ensure_resolved_exists()?;
+        if !super::network_manager::is_nm_managing_via_resolved(&systemd_resolved.dbus_connection) {
+            Self::ensure_resolv_conf_is_resolved_symlink()?;
         }
-
-
-        result
+        Ok(systemd_resolved)
     }
 
     fn ensure_resolved_exists(&self) -> Result<()> {
