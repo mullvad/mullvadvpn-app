@@ -90,6 +90,18 @@ pub enum Error {
     IpFailed,
 }
 
+impl Error {
+    /// Returns true only if it's a netlink error with a code ENETUNREACH
+    fn is_network_unreachable(&self) -> bool {
+        match self {
+            Error::NetlinkError(rtnetlink::Error::NetlinkError(err)) => {
+                err.code == -libc::ENETUNREACH
+            }
+            _ => false,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 struct RequiredDefaultRoute {
     table_id: u8,
@@ -249,10 +261,33 @@ impl RouteManagerImpl {
 
         let mut main_routes = self.get_routes(None).await?.into_iter().collect::<Vec<_>>();
         main_routes.sort_by(|a, b| a.prefix.prefix().cmp(&b.prefix.prefix()));
+        main_routes.sort_by(|a, b| a.prefix.is_ipv4().cmp(&b.prefix.is_ipv4()));
 
         for mut route in main_routes {
             route.table_id = self.split_table_id as u8;
-            self.add_route_direct(route).await?;
+            if let Err(err) = self.add_route_direct(route.clone()).await {
+                // If a rotue can't be added because parts of it's next-hop are unreachable, then
+                // a gateway route should be added first. Seemingly there's an ARP table per
+                // routing table, and a route that specifies both a gateway and an output interface
+                // depends on a route that instructs how to reach the gateway.
+                if err.is_network_unreachable() {
+                    match (route.device_only_route(), route.node.get_address()) {
+                        (Some(mut gateway_route), Some(address)) => {
+                            gateway_route.prefix =
+                                IpNetwork::new(address, if address.is_ipv4() { 32 } else { 128 })
+                                    .unwrap();
+                            let add_gateway_route = self.add_route_direct(gateway_route).await;
+                            let add_route_result = self.add_route_direct(route).await;
+                            if let Err(err) = add_gateway_route.and_then(|_| add_route_result) {
+                                log::error!("Failed to add route to split-routing table: {}", err);
+                            };
+                            continue;
+                        }
+                        _ => (),
+                    };
+                }
+                log::error!("Failed to add route to split-routing table: {}", err);
+            }
         }
         Ok(())
     }
@@ -779,8 +814,6 @@ impl RouteManagerImpl {
         let mut metric = None;
         let mut gateway: Option<IpAddr> = None;
 
-        let mut table_id = u32::from(msg.header.table);
-
         for nla in msg.nlas.iter() {
             match nla {
                 RouteNla::Oif(device_idx) => {
@@ -835,12 +868,13 @@ impl RouteManagerImpl {
             device: device.map(|dev| dev.name.clone()),
         };
 
-        Ok(Some(Route {
+        let result = Ok(Some(Route {
             node,
             prefix,
             metric,
             table_id: msg.header.table,
-        }))
+        }));
+        result
     }
 
     fn map_interface(msg: LinkMessage) -> Option<(u32, NetworkInterface)> {
