@@ -79,7 +79,7 @@ lazy_static! {
 }
 
 pub struct SystemdResolved {
-    dbus_connection: Connection,
+    pub dbus_connection: Connection,
     interface_link: Option<(String, dbus::Path<'static>)>,
 }
 

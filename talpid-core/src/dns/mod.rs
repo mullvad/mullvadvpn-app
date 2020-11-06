@@ -53,6 +53,11 @@ impl DnsMonitor {
         log::info!("Resetting DNS");
         self.inner.reset()
     }
+
+    #[cfg(target_os="linux")]
+    fn dbus_connection(&self) -> Option<&dbus::ffidisp::Connection> {
+        self.inner.dbus_connection()
+    }
 }
 
 trait DnsMonitorT: Sized {
@@ -63,4 +68,7 @@ trait DnsMonitorT: Sized {
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Self::Error>;
 
     fn reset(&mut self) -> Result<(), Self::Error>;
+
+    #[cfg(target_os="linux")]
+    fn dbus_connection(&self) -> Option<&dbus::ffidisp::Connection>;
 }
