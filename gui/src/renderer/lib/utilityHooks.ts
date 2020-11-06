@@ -15,7 +15,11 @@ export function useMounted() {
 }
 
 export function useCombinedRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {
-  return useCallback((element: T | null) => refs.forEach((ref) => assignToRef(element, ref)), []);
+  return useCallback(combineRefs(...refs), []);
+}
+
+export function combineRefs<T>(...refs: (React.Ref<T> | undefined)[]): React.RefCallback<T> {
+  return (element: T | null) => refs.forEach((ref) => assignToRef(element, ref));
 }
 
 function assignToRef<T>(element: T | null, ref?: React.Ref<T>) {
