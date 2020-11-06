@@ -5,10 +5,13 @@ import { mediumText } from '../common-styles';
 import { CellDisabledContext } from './Container';
 import StandaloneSwitch from '../Switch';
 
-export function Switch(props: StandaloneSwitch['props']) {
+export const Switch = React.forwardRef(function SwitchT(
+  props: StandaloneSwitch['props'],
+  ref: React.Ref<HTMLDivElement>,
+) {
   const disabled = useContext(CellDisabledContext);
-  return <StandaloneSwitch disabled={disabled} {...props} />;
-}
+  return <StandaloneSwitch forwardedRef={ref} disabled={disabled} {...props} />;
+});
 
 export const InputFrame = styled.div({
   flexGrow: 0,

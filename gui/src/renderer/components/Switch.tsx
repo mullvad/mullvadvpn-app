@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { assignToRef } from '../lib/utilityHooks';
 
 interface IProps {
   id?: string;
@@ -10,6 +11,7 @@ interface IProps {
   onChange?: (isOn: boolean) => void;
   className?: string;
   disabled?: boolean;
+  forwardedRef?: React.Ref<HTMLDivElement>;
 }
 
 interface IState {
@@ -75,15 +77,16 @@ export default class Switch extends React.PureComponent<IProps, IState> {
   public render() {
     return (
       <SwitchContainer
+        ref={this.refCallback}
         id={this.props.id}
         role="checkbox"
         aria-labelledby={this.props['aria-labelledby']}
         aria-describedby={this.props['aria-describedby']}
         aria-checked={this.props.isOn}
-        ref={this.containerRef}
         onClick={this.handleClick}
         disabled={this.props.disabled ?? false}
         aria-disabled={this.props.disabled ?? false}
+        tabIndex={-1}
         className={this.props.className}>
         <Knob
           disabled={this.props.disabled ?? false}
@@ -94,6 +97,11 @@ export default class Switch extends React.PureComponent<IProps, IState> {
       </SwitchContainer>
     );
   }
+
+  private refCallback = (element: HTMLDivElement | null) => {
+    assignToRef(element, this.containerRef);
+    assignToRef(element, this.props.forwardedRef);
+  };
 
   private handleClick = () => {
     if (this.props.disabled) {
