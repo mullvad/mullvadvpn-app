@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { combineRefs } from '../lib/utilityHooks';
 
 interface IProps {
   id?: string;
@@ -10,11 +11,14 @@ interface IProps {
   onChange?: (isOn: boolean) => void;
   className?: string;
   disabled?: boolean;
+  forwardedRef?: React.Ref<HTMLDivElement>;
 }
 
 interface IState {
   isOn: boolean;
   isPressed: boolean;
+  containerRef: React.RefObject<HTMLDivElement>;
+  combinedRef?: React.Ref<HTMLDivElement>;
 }
 
 const PAN_DISTANCE = 10;
@@ -54,13 +58,19 @@ export default class Switch extends React.PureComponent<IProps, IState> {
   public state: IState = {
     isOn: this.props.isOn,
     isPressed: false,
+    containerRef: React.createRef<HTMLDivElement>(),
+    combinedRef: undefined,
   };
-
-  private containerRef = React.createRef<HTMLDivElement>();
 
   private isPanning = false;
   private startPos = 0;
   private changedDuringPan = false;
+
+  public static getDerivedStateFromProps(props: IProps, state: IState) {
+    return {
+      combinedRef: combineRefs(state.containerRef, props.forwardedRef),
+    };
+  }
 
   public componentDidUpdate(prevProps: IProps, _prevState: IState) {
     if (
@@ -75,15 +85,16 @@ export default class Switch extends React.PureComponent<IProps, IState> {
   public render() {
     return (
       <SwitchContainer
+        ref={this.state.combinedRef}
         id={this.props.id}
         role="checkbox"
         aria-labelledby={this.props['aria-labelledby']}
         aria-describedby={this.props['aria-describedby']}
         aria-checked={this.props.isOn}
-        ref={this.containerRef}
         onClick={this.handleClick}
         disabled={this.props.disabled ?? false}
         aria-disabled={this.props.disabled ?? false}
+        tabIndex={-1}
         className={this.props.className}>
         <Knob
           disabled={this.props.disabled ?? false}
@@ -132,7 +143,10 @@ export default class Switch extends React.PureComponent<IProps, IState> {
     this.setState({ isPressed: false });
     this.isPanning = false;
     // Reset changedDuringPan when onClick wont be called.
-    if (event.target instanceof Element && !this.containerRef.current?.contains(event.target)) {
+    if (
+      event.target instanceof Element &&
+      !this.state.containerRef.current?.contains(event.target)
+    ) {
       this.changedDuringPan = false;
     }
 
