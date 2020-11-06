@@ -33,7 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for custom DNS resolvers (CLI only).
 
 #### Linux
-- Use NetworkManager to create a WireGuard interface.
+- Optionally use NetworkManager to create WireGuard devices.
 - Add support for custom DNS resolvers (CLI only).
 
 #### macOS
@@ -82,6 +82,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix routing rules sometimes being duplicated.
 - When NetworkManager is managing /etc/resolv.conf but ultimately using systemd-resolved, use
   systemd-resolved directly to manage DNS.
+- Only use WireGuard kernel implementation if DNS isn't managed via NetworkManager.
 
 
 ### Security
