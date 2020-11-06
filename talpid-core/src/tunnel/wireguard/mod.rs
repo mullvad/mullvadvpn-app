@@ -65,6 +65,10 @@ lazy_static! {
     static ref FORCE_USERSPACE_WIREGUARD: bool = env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
         .map(|v| v != "0")
         .unwrap_or(false);
+
+    static ref FORCE_NM_WIREGUARD: bool = env::var("TALPID_FORCE_NM_WIREGUARD")
+        .map(|v| v != "0")
+        .unwrap_or(false);
 }
 
 impl WireguardMonitor {
@@ -149,7 +153,15 @@ impl WireguardMonitor {
     ) -> Result<Box<dyn Tunnel>> {
         #[cfg(target_os = "linux")]
         if !*FORCE_USERSPACE_WIREGUARD {
-            if !crate::dns::will_use_nm()  {
+            if *FORCE_NM_WIREGUARD {
+                if let Ok(tunnel) = wireguard_kernel::NetworkManagerTunnel::new(
+                    route_manager.runtime_handle(),
+                    config,
+                ) {
+                    log::debug!("Using NetworkManager to use kernel WireGuard implementation");
+                    return Ok(Box::new(tunnel));
+                }
+            } else if !crate::dns::will_use_nm() {
                 match wireguard_kernel::NetlinkTunnel::new(route_manager.runtime_handle(), config) {
                     Ok(tunnel) => {
                         log::debug!("Using kernel WireGuard implementation");
@@ -165,7 +177,6 @@ impl WireguardMonitor {
                     }
                 };
             }
-
         } else {
             log::debug!("Using userspace WireGuard implementation");
         }

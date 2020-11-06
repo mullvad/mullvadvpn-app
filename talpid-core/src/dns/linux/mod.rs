@@ -152,5 +152,3 @@ pub fn will_use_nm() -> bool {
     crate::dns::imp::SystemdResolved::new().is_err()
         && crate::dns::imp::NetworkManager::new().is_ok()
 }
-
-
