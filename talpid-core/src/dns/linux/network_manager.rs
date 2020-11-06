@@ -77,7 +77,7 @@ lazy_static! {
 }
 
 pub struct NetworkManager {
-    dbus_connection: Connection,
+    pub dbus_connection: Connection,
     device: Option<dbus::Path<'static>>,
     settings_backup: Option<HashMap<String, HashMap<String, Variant<Box<dyn RefArg>>>>>,
 }
