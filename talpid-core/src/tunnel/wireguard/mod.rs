@@ -149,42 +149,23 @@ impl WireguardMonitor {
     ) -> Result<Box<dyn Tunnel>> {
         #[cfg(target_os = "linux")]
         if !*FORCE_USERSPACE_WIREGUARD {
-            match wireguard_kernel::NetworkManagerTunnel::new(
-                route_manager.runtime_handle(),
-                config,
-            ) {
-                Ok(tunnel) => {
-                    log::debug!("Using NetworkManager to use kernel WireGuard implementation");
-                    return Ok(Box::new(tunnel));
-                }
-                Err(err) => {
-                    if !err.should_use_userspace() {
-                        match wireguard_kernel::NetlinkTunnel::new(
-                            route_manager.runtime_handle(),
-                            config,
-                        ) {
-                            Ok(tunnel) => {
-                                log::debug!("Using kernel WireGuard implementation");
-                                return Ok(Box::new(tunnel));
-                            }
-                            Err(error) => {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg(
-                                        "Failed to setup kernel WireGuard device, falling back to userspace"
-                                    )
-                                );
-                            }
-                        };
+            if !crate::dns::will_use_nm()  {
+                match wireguard_kernel::NetlinkTunnel::new(route_manager.runtime_handle(), config) {
+                    Ok(tunnel) => {
+                        log::debug!("Using kernel WireGuard implementation");
+                        return Ok(Box::new(tunnel));
                     }
-                    log::debug!(
-                        "{}",
-                        err.display_chain_with_msg(
-                            "Failed to create a WireGuard device via NetworkManager"
-                        )
-                    );
-                }
-            };
+                    Err(error) => {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg(
+                                "Failed to setup kernel WireGuard device, falling back to userspace"
+                            )
+                        );
+                    }
+                };
+            }
+
         } else {
             log::debug!("Using userspace WireGuard implementation");
         }
