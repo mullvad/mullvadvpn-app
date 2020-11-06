@@ -18,7 +18,7 @@ export function useCombinedRefs<T>(...refs: (React.Ref<T> | undefined)[]): React
   return useCallback((element: T | null) => refs.forEach((ref) => assignToRef(element, ref)), []);
 }
 
-function assignToRef<T>(element: T | null, ref?: React.Ref<T>) {
+export function assignToRef<T>(element: T | null, ref?: React.Ref<T>) {
   if (typeof ref === 'function') {
     ref(element);
   } else if (ref && element) {
