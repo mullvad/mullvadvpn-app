@@ -752,15 +752,8 @@ impl RouteManagerImpl {
 
     // Tries to coax a Route out of a RouteMessage
     fn parse_route_message_inner(&self, msg: RouteMessage) -> Result<Option<Route>> {
-        let mut prefix = None;
-        let mut node_addr = None;
-        let mut device = None;
-        let mut metric = None;
-        let mut gateway: Option<IpAddr> = None;
-
-        let destination_length = msg.header.destination_prefix_length;
         let af_spec = msg.header.address_family;
-
+        let destination_length = msg.header.destination_prefix_length;
         let is_ipv4 = match af_spec as i32 {
             AF_INET => true,
             AF_INET6 => false,
@@ -770,7 +763,23 @@ impl RouteManagerImpl {
             }
         };
 
-        let mut is_loopback = false;
+
+        // By default, the prefix is unspecified.
+        let mut prefix = IpNetwork::new(
+            if is_ipv4 {
+                Ipv4Addr::UNSPECIFIED.into()
+            } else {
+                Ipv6Addr::UNSPECIFIED.into()
+            },
+            destination_length,
+        )
+        .map_err(Error::InvalidNetworkPrefix)?;
+        let mut node_addr = None;
+        let mut device = None;
+        let mut metric = None;
+        let mut gateway: Option<IpAddr> = None;
+
+        let mut table_id = u32::from(msg.header.table);
 
         for nla in msg.nlas.iter() {
             match nla {
@@ -780,7 +789,6 @@ impl RouteManagerImpl {
                             if !route_device.is_loopback() {
                                 device = Some(route_device);
                             } else {
-                                is_loopback = true;
                                 gateway = if is_ipv4 {
                                     Some(Ipv4Addr::LOCALHOST.into())
                                 } else {
@@ -799,12 +807,10 @@ impl RouteManagerImpl {
                 }
 
                 RouteNla::Destination(addr) => {
-                    prefix = Self::parse_ip(&addr)
-                        .and_then(|ip| {
-                            ipnetwork::IpNetwork::new(ip, destination_length)
-                                .map_err(Error::InvalidNetworkPrefix)
-                        })
-                        .map(Some)?;
+                    prefix = Self::parse_ip(&addr).and_then(|ip| {
+                        ipnetwork::IpNetwork::new(ip, destination_length)
+                            .map_err(Error::InvalidNetworkPrefix)
+                    })?;
                 }
 
                 // gateway NLAs indicate that this is actually a default route
@@ -831,7 +837,7 @@ impl RouteManagerImpl {
 
         Ok(Some(Route {
             node,
-            prefix: prefix.unwrap(),
+            prefix,
             metric,
             table_id: msg.header.table,
         }))
