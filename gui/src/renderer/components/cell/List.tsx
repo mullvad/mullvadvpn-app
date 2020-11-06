@@ -1,6 +1,8 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { colors } from '../../../config.json';
+import { messages } from '../../../shared/gettext';
+import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from '../AriaGroup';
 import ImageView from '../ImageView';
 import * as Cell from '.';
 
@@ -40,6 +42,22 @@ export default function CellList<T>(props: ICellListProps<T>) {
   );
 }
 
+const StyledContainer = styled(Cell.Container)({
+  display: 'flex',
+  marginBottom: '1px',
+  backgroundColor: colors.blue40,
+});
+
+const StyledButton = styled.button({
+  display: 'flex',
+  alignItems: 'center',
+  flex: 1,
+  border: 'none',
+  background: 'transparent',
+  padding: 0,
+  margin: 0,
+});
+
 const StyledLabel = styled(Cell.Label)({}, (props: { paddingLeft: number }) => ({
   fontFamily: 'Open Sans',
   fontWeight: 'normal',
@@ -50,6 +68,18 @@ const StyledLabel = styled(Cell.Label)({}, (props: { paddingLeft: number }) => (
   width: '171px',
   marginRight: '25px',
 }));
+
+const StyledRemoveButton = styled.button({
+  background: 'transparent',
+  border: 'none',
+  padding: 0,
+});
+
+const StyledRemoveIcon = styled(ImageView)({
+  [StyledRemoveButton + ':hover &']: {
+    backgroundColor: colors.white80,
+  },
+});
 
 interface ICellListItemProps<T> {
   value: T;
@@ -64,18 +94,30 @@ function CellListItem<T>(props: ICellListItemProps<T>) {
   const onRemove = useCallback(() => props.onRemove?.(props.value), [props.onRemove, props.value]);
 
   return (
-    <Cell.CellButton onClick={props.onSelect ? onSelect : undefined}>
-      <StyledLabel paddingLeft={props.paddingLeft}>{props.children}</StyledLabel>
-      {props.onRemove && (
-        <ImageView
-          source="icon-close"
-          width={22}
-          height={22}
-          onClick={onRemove}
-          tintColor={colors.white60}
-          tintHoverColor={colors.white80}
-        />
-      )}
-    </Cell.CellButton>
+    <AriaDescriptionGroup>
+      <StyledContainer>
+        <StyledButton
+          onClick={props.onSelect ? onSelect : undefined}
+          as={props.onSelect ? 'button' : 'span'}>
+          <AriaDescription>
+            <StyledLabel paddingLeft={props.paddingLeft}>{props.children}</StyledLabel>
+          </AriaDescription>
+        </StyledButton>
+        {props.onRemove && (
+          <AriaDescribed>
+            <StyledRemoveButton
+              onClick={onRemove}
+              aria-label={messages.pgettext('accessibility', 'Remove item')}>
+              <StyledRemoveIcon
+                source="icon-close"
+                width={22}
+                height={22}
+                tintColor={colors.white60}
+              />
+            </StyledRemoveButton>
+          </AriaDescribed>
+        )}
+      </StyledContainer>
+    </AriaDescriptionGroup>
   );
 }

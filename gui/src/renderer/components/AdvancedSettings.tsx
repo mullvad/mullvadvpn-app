@@ -440,14 +440,20 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                 </StyledButtonCellGroup>
 
                 <StyledCustomDnsSwitchContainer>
-                  <Cell.InputLabel>
-                    {messages.pgettext('advanced-settings-view', 'Use custom DNS server')}
-                  </Cell.InputLabel>
-                  <Cell.Switch
-                    ref={this.customDnsSwitchRef}
-                    isOn={this.props.dns.custom}
-                    onChange={this.setCustomDnsEnabled}
-                  />
+                  <AriaInputGroup>
+                    <AriaLabel>
+                      <Cell.InputLabel>
+                        {messages.pgettext('advanced-settings-view', 'Use custom DNS server')}
+                      </Cell.InputLabel>
+                    </AriaLabel>
+                    <AriaInput>
+                      <Cell.Switch
+                        ref={this.customDnsSwitchRef}
+                        isOn={this.props.dns.custom}
+                        onChange={this.setCustomDnsEnabled}
+                      />
+                    </AriaInput>
+                  </AriaInputGroup>
                 </StyledCustomDnsSwitchContainer>
                 <Accordion expanded={this.props.dns.custom}>
                   <CellList items={this.customDnsItems()} onRemove={this.removeDnsAddress} />
