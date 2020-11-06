@@ -8,7 +8,6 @@ use futures::channel::{
     oneshot,
 };
 use std::{collections::HashSet, io};
-use talpid_types::ErrorExt;
 
 #[cfg(target_os = "linux")]
 use std::net::IpAddr;
@@ -30,9 +29,9 @@ pub use imp::Error as PlatformError;
 /// Errors that can be encountered whilst initializing RouteManager
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
-    /// Routing manager thread panicked before starting routing manager
-    #[error(display = "Routing manager thread panicked before starting routing manager")]
-    RoutingManagerThreadPanic,
+    /// Route manager thread may have panicked
+    #[error(display = "The channel sender was dropped")]
+    ManagerChannelDown,
     /// Platform specific error occured
     #[error(display = "Internal route manager error")]
     PlatformError(#[error(source)] imp::Error),
@@ -45,6 +44,43 @@ pub enum Error {
     /// Attempt to use route manager that has been dropped
     #[error(display = "Cannot send message to route manager since it is down")]
     RouteManagerDown,
+}
+
+/// Handle to a route manager.
+#[derive(Clone)]
+pub struct RouteManagerHandle {
+    runtime: tokio::runtime::Handle,
+    tx: UnboundedSender<RouteManagerCommand>,
+}
+
+impl RouteManagerHandle {
+    /// Applies the given routes while the route manager is running.
+    pub fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::AddRoutes(routes, response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        self.runtime
+            .block_on(response_rx)
+            .map_err(|_| Error::ManagerChannelDown)?
+            .map_err(Error::PlatformError)
+    }
+
+    /// Set the link to be ignored by the exclusions routing table.
+    #[cfg(target_os = "linux")]
+    pub fn set_tunnel_link(&self, interface: &str) -> Result<(), Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::SetTunnelLink(
+                interface.to_string(),
+                response_tx,
+            ))
+            .map_err(|_| Error::RouteManagerDown)?;
+        Ok(self
+            .runtime
+            .block_on(response_rx)
+            .map_err(|_| Error::ManagerChannelDown)?)
+    }
 }
 
 /// Commands for the underlying route manager object.
@@ -82,23 +118,20 @@ pub enum RouteManagerCommand {
 /// the route will be adjusted dynamically when the default route changes.
 pub struct RouteManager {
     manage_tx: Option<UnboundedSender<RouteManagerCommand>>,
-    runtime: tokio::runtime::Runtime,
+    runtime: tokio::runtime::Handle,
 }
 
 impl RouteManager {
     /// Constructs a RouteManager and applies the required routes.
     /// Takes a set of network destinations and network nodes as an argument, and applies said
     /// routes.
-    pub fn new(required_routes: HashSet<RequiredRoute>) -> Result<Self, Error> {
+    pub fn new(
+        runtime: tokio::runtime::Handle,
+        required_routes: HashSet<RequiredRoute>,
+    ) -> Result<Self, Error> {
         let (manage_tx, manage_rx) = mpsc::unbounded();
-        let mut runtime = tokio::runtime::Builder::new()
-            .threaded_scheduler()
-            .core_threads(1)
-            .max_threads(1)
-            .enable_all()
-            .build()?;
         let manager = runtime.block_on(imp::RouteManagerImpl::new(required_routes))?;
-        runtime.handle().spawn(manager.run(manage_rx));
+        runtime.spawn(manager.run(manage_rx));
 
         Ok(Self {
             runtime,
@@ -120,7 +153,7 @@ impl RouteManager {
             }
 
             if self.runtime.block_on(wait_rx).is_err() {
-                log::error!("RouteManager paniced while shutting down");
+                log::error!("{}", Error::ManagerChannelDown);
             }
         }
     }
@@ -136,16 +169,10 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
 
-            match self.runtime.block_on(result_rx) {
-                Ok(result) => result.map_err(Error::PlatformError),
-                Err(error) => {
-                    log::trace!(
-                        "{}",
-                        error.display_chain_with_msg("oneshot channel is closed")
-                    );
-                    Ok(())
-                }
-            }
+            self.runtime
+                .block_on(result_rx)
+                .map_err(|_| Error::ManagerChannelDown)?
+                .map_err(Error::PlatformError)
         } else {
             Err(Error::RouteManagerDown)
         }
@@ -176,13 +203,10 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
 
-            match self.runtime.block_on(result_rx) {
-                Ok(result) => result.map_err(Error::PlatformError),
-                Err(error) => {
-                    log::trace!("{}", error.display_chain_with_msg("channel is closed"));
-                    Ok(())
-                }
-            }
+            self.runtime
+                .block_on(result_rx)
+                .map_err(|_| Error::ManagerChannelDown)?
+                .map_err(Error::PlatformError)
         } else {
             Err(Error::RouteManagerDown)
         }
@@ -218,23 +242,21 @@ impl RouteManager {
             {
                 return Err(Error::RouteManagerDown);
             }
-            match self.runtime.block_on(result_rx) {
-                Ok(()) => Ok(()),
-                Err(error) => {
-                    log::trace!("{}", error.display_chain_with_msg("channel is closed"));
-                    Ok(())
-                }
-            }
+            self.runtime
+                .block_on(result_rx)
+                .map_err(|_| Error::ManagerChannelDown)
         } else {
             Err(Error::RouteManagerDown)
         }
     }
 
     /// Retrieve a sender directly to the command channel.
-    #[cfg(target_os = "linux")]
-    pub fn channel(&self) -> Result<UnboundedSender<RouteManagerCommand>, Error> {
+    pub fn handle(&self) -> Result<RouteManagerHandle, Error> {
         if let Some(tx) = &self.manage_tx {
-            Ok(tx.clone())
+            Ok(RouteManagerHandle {
+                runtime: self.runtime.clone(),
+                tx: tx.clone(),
+            })
         } else {
             Err(Error::RouteManagerDown)
         }
@@ -243,7 +265,7 @@ impl RouteManager {
     /// Exposes runtime handle
     #[cfg(target_os = "linux")]
     pub fn runtime_handle(&self) -> tokio::runtime::Handle {
-        self.runtime.handle().clone()
+        self.runtime.clone()
     }
 
     /// Route DNS requests through the tunnel interface.
@@ -266,13 +288,10 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
 
-            match self.runtime.block_on(result_rx) {
-                Ok(result) => result.map_err(Error::PlatformError),
-                Err(error) => {
-                    log::trace!("{}", error.display_chain_with_msg("channel is closed"));
-                    Ok(())
-                }
-            }
+            self.runtime
+                .block_on(result_rx)
+                .map_err(|_| Error::ManagerChannelDown)?
+                .map_err(Error::PlatformError)
         } else {
             Err(Error::RouteManagerDown)
         }
