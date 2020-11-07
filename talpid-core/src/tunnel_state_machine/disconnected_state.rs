@@ -52,6 +52,8 @@ impl TunnelState for DisconnectedState {
             );
         }
         Self::set_firewall_policy(shared_values, should_reset_firewall);
+        #[cfg(target_os = "linux")]
+        shared_values.reset_connectivity_check();
         #[cfg(target_os = "android")]
         shared_values.tun_provider.close_tun();
 
