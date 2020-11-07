@@ -376,17 +376,37 @@ fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute
         .parse()
         .map_err(RouteParseError::ParseGatewayAddress)
         .map_err(Error::ParseRouteError)?;
+    let tun_gateway_ip6: Option<IpAddr> = if let Some(gateway) = env.get("ifconfig_ipv6_remote") {
+        Some(gateway.parse()
+            .map_err(RouteParseError::ParseGatewayAddress)
+            .map_err(Error::ParseRouteError)?)
+    } else {
+        None
+    };
 
     let tun_interface = env.get("dev").ok_or(Error::MissingTunnelInterface)?;
+    let tun_node = routing::NetNode::from(routing::Node::new(
+        tun_gateway_ip,
+        tun_interface.to_string(),
+    ));
+    let tun_node6 = if let Some(gateway) = tun_gateway_ip6 {
+        routing::NetNode::from(routing::Node::new(
+            gateway,
+            tun_interface.to_string(),
+        ))
+    } else {
+        routing::NetNode::from(routing::Node::device(
+            tun_interface.to_string(),
+        ))
+    };
 
     let ovpn_routes = parse_openvpn_dict_routes(env).map_err(Error::ParseRouteError)?;
 
     for route in ovpn_routes {
         let node = match route.gateway {
             _ if route.gateway == default_node_ip => routing::NetNode::DefaultNode,
-            _ if route.gateway == tun_gateway_ip => {
-                routing::NetNode::from(routing::Node::device(tun_interface.to_string()))
-            }
+            _ if route.gateway == tun_gateway_ip => tun_node.clone(),
+            _ if Some(route.gateway) == tun_gateway_ip6 => tun_node6.clone(),
             other => routing::NetNode::from(routing::Node::address(other)),
         };
         routes.insert(RequiredRoute::new(route.network, node));
@@ -408,12 +428,6 @@ fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute
     let tun_node = routing::Node::device(tun_interface.to_string());
     for network in &["0.0.0.0/1".parse().unwrap(), "128.0.0.0/1".parse().unwrap()] {
         routes.insert(RequiredRoute::new(*network, tun_node.clone()));
-    }
-    for (key, value) in env.iter() {
-        if key.starts_with("route_ipv6_network") {
-            let network = value.parse().expect("V6 network format invalid");
-            routes.insert(RequiredRoute::new(network, tun_node.clone()));
-        }
     }
 
     Ok(routes)
