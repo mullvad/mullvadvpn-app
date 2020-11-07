@@ -23,6 +23,9 @@ impl ErrorState {
             allow_lan: shared_values.allow_lan,
         };
 
+        #[cfg(target_os = "linux")]
+        shared_values.disable_connectivity_check();
+
         shared_values
             .firewall
             .apply_policy(policy)
@@ -121,6 +124,8 @@ impl TunnelState for ErrorState {
             }
             Some(TunnelCommand::Connect) => NewState(ConnectingState::enter(shared_values, 0)),
             Some(TunnelCommand::Disconnect) | None => {
+                #[cfg(target_os = "linux")]
+                shared_values.reset_connectivity_check();
                 NewState(DisconnectedState::enter(shared_values, true))
             }
             Some(TunnelCommand::Block(reason)) => {

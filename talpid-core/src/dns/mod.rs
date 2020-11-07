@@ -54,8 +54,9 @@ impl DnsMonitor {
         self.inner.reset()
     }
 
-    #[cfg(target_os="linux")]
-    fn dbus_connection(&self) -> Option<&dbus::ffidisp::Connection> {
+    /// Expose an existing DBus connection if one already exists.
+    #[cfg(target_os = "linux")]
+    pub fn dbus_connection(&self) -> Option<&dbus::ffidisp::Connection> {
         self.inner.dbus_connection()
     }
 }
@@ -69,6 +70,6 @@ trait DnsMonitorT: Sized {
 
     fn reset(&mut self) -> Result<(), Self::Error>;
 
-    #[cfg(target_os="linux")]
+    #[cfg(target_os = "linux")]
     fn dbus_connection(&self) -> Option<&dbus::ffidisp::Connection>;
 }

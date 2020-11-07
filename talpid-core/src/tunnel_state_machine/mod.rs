@@ -19,7 +19,8 @@ use crate::{
     routing::RouteManager,
     tunnel::{tun_provider::TunProvider, TunnelEvent},
 };
-
+#[cfg(target_os = "linux")]
+use dbus::ffidisp::{BusType, Connection};
 use futures::{
     channel::{mpsc, oneshot},
     stream, StreamExt,
@@ -225,6 +226,8 @@ impl TunnelStateMachine {
             tun_provider,
             log_dir,
             resource_dir,
+            #[cfg(target_os = "linux")]
+            connectivity_check_was_enabled: None,
         };
 
         let (initial_state, _) = DisconnectedState::enter(&mut shared_values, reset_firewall);
@@ -301,6 +304,10 @@ struct SharedTunnelStateValues {
     log_dir: Option<PathBuf>,
     /// Resource directory path.
     resource_dir: PathBuf,
+
+    /// NetworkManager's connecitivity check state.
+    #[cfg(target_os = "linux")]
+    connectivity_check_was_enabled: Option<bool>,
 }
 
 impl SharedTunnelStateValues {
@@ -324,6 +331,65 @@ impl SharedTunnelStateValues {
         }
 
         Ok(())
+    }
+
+    /// NetworkManager's connectivity check can get hung when DNS requests fail, thus the TSM
+    /// should always disable it before applying firewall rules. The connectivity check should be
+    /// reset whenever the firewall is cleared.
+    #[cfg(target_os = "linux")]
+    pub fn disable_connectivity_check(&mut self) {
+        if self.connectivity_check_was_enabled.is_some() {
+            log::trace!("Connectivity check already disabled");
+            return;
+        };
+
+        let own_connection;
+        let connection = if let Some(ready_connection) = self.dns_monitor.dbus_connection() {
+            ready_connection
+        } else {
+            match Connection::get_private(BusType::System) {
+                Ok(connection) => {
+                    own_connection = connection;
+                    &own_connection
+                }
+                Err(err) => {
+                    log::error!("Failed to initialize DBus connection: {}", err);
+                    return;
+                }
+            }
+        };
+
+        self.connectivity_check_was_enabled =
+            crate::linux::network_manager::nm_disable_connectivity_check(connection);
+    }
+
+    /// Reset NetworkManager's connectivity check if it was disabled.
+    #[cfg(target_os = "linux")]
+    pub fn reset_connectivity_check(&mut self) {
+        if self.connectivity_check_was_enabled.is_some() {
+            log::trace!("Connectivity check already disabled");
+            return;
+        };
+
+        let own_connection;
+        let connection = if let Some(ready_connection) = self.dns_monitor.dbus_connection() {
+            ready_connection
+        } else {
+            match Connection::get_private(BusType::System) {
+                Ok(connection) => {
+                    own_connection = connection;
+                    &own_connection
+                }
+                Err(err) => {
+                    log::error!("Failed to initialize DBus connection: {}", err);
+                    return;
+                }
+            }
+        };
+
+        if let Some(true) = self.connectivity_check_was_enabled.take() {
+            crate::linux::network_manager::nm_enable_connectivity_check(connection);
+        }
     }
 }
 
