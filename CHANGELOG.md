@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Use NetworkManager to create a WireGuard interface.
 - Add support for custom DNS resolvers (CLI only).
+- Disable NetworkManager's connectivity check before applying firewall rules to avoid triggerring
+  NetworkManager's [bug](https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/312#note_453724)
 
 #### macOS
 - Add support for custom DNS resolvers (CLI only).

@@ -53,6 +53,9 @@ impl ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
         params: &TunnelParameters,
     ) -> Result<(), FirewallPolicyError> {
+        #[cfg(target_os = "linux")]
+        shared_values.disable_connectivity_check();
+
         let peer_endpoint = params.get_next_hop_endpoint();
 
         let policy = FirewallPolicy::Connecting {
