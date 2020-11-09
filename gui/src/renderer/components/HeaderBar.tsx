@@ -1,8 +1,10 @@
 import React, { useCallback } from 'react';
+import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { IReduxState } from '../redux/store';
 import ImageView from './ImageView';
 
 export enum HeaderBarStyle {
@@ -19,9 +21,14 @@ const headerBarStyleColorMap = {
   [HeaderBarStyle.success]: colors.green,
 };
 
-const HeaderBarContainer = styled.header({}, (props: { barStyle?: HeaderBarStyle }) => ({
+interface IHeaderBarContainerProps {
+  barStyle?: HeaderBarStyle;
+  unpinnedWindow: boolean;
+}
+
+const HeaderBarContainer = styled.header({}, (props: IHeaderBarContainerProps) => ({
   padding: '12px 16px',
-  paddingTop: process.platform === 'darwin' ? '24px' : '12px',
+  paddingTop: process.platform === 'darwin' && !props.unpinnedWindow ? '24px' : '12px',
   backgroundColor: headerBarStyleColorMap[props.barStyle ?? HeaderBarStyle.default],
 }));
 
@@ -40,8 +47,15 @@ interface IHeaderBarProps {
 }
 
 export default function HeaderBar(props: IHeaderBarProps) {
+  const unpinnedWindow = useSelector(
+    (state: IReduxState) => state.settings.guiSettings.unpinnedWindow,
+  );
+
   return (
-    <HeaderBarContainer barStyle={props.barStyle} className={props.className}>
+    <HeaderBarContainer
+      barStyle={props.barStyle}
+      className={props.className}
+      unpinnedWindow={unpinnedWindow}>
       <HeaderBarContent>{props.children}</HeaderBarContent>
     </HeaderBarContainer>
   );

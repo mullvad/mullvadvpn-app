@@ -178,6 +178,9 @@ interface INavigationBarProps {
 
 export const NavigationBar = function NavigationBarT(props: INavigationBarProps) {
   const { showsBarSeparator, showsBarTitle } = useContext(NavigationScrollContext);
+  const unpinnedWindow = useSelector(
+    (state: IReduxState) => state.settings.guiSettings.unpinnedWindow,
+  );
   const [titleAdjustment, setTitleAdjustment] = useState(0);
 
   const titleContainerRef = useRef() as React.RefObject<HTMLDivElement>;
@@ -217,7 +220,7 @@ export const NavigationBar = function NavigationBarT(props: INavigationBarProps)
   });
 
   return (
-    <StyledNavigationBar>
+    <StyledNavigationBar unpinnedWindow={unpinnedWindow}>
       <StyledNavigationBarWrapper ref={navigationBarRef}>
         <TitleBarItemContext.Provider
           value={{
@@ -266,7 +269,10 @@ interface ICloseBarItemProps {
 export function CloseBarItem(props: ICloseBarItemProps) {
   // Use the arrow down icon on Linux, to avoid confusion with the close button in the window
   // title bar.
-  const iconName = process.platform === 'linux' ? 'icon-close-down' : 'icon-close';
+  const unpinnedWindow = useSelector(
+    (state: IReduxState) => state.settings.guiSettings.unpinnedWindow,
+  );
+  const iconName = unpinnedWindow ? 'icon-close-down' : 'icon-close';
   return (
     <StyledCloseBarItemButton aria-label={messages.gettext('Close')} onClick={props.action}>
       <StyledCloseBarItemIcon
