@@ -6,6 +6,7 @@
     <string name="account_url">https://mullvad.net/ko/account</string>
     <string name="add_time_to_account">웹 사이트에서 크레딧을 구매하거나 바우처를 사용하세요.</string>
     <string name="allow_lan_footer">공유, 인쇄 등을 위해 동일한 네트워크의 다른 장치에 액세스할 수 있습니다.</string>
+    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">앱 버전</string>
     <string name="auth_failed">계정 인증에 실패했습니다.</string>
     <string name="auto_connect">자동 연결</string>
@@ -34,7 +35,6 @@
     <string name="enter_voucher_code">바우처 코드 입력</string>
     <string name="error_occurred">오류가 발생했습니다.</string>
     <string name="error_state">보안 연결 실패</string>
-    <string name="failed_to_block_internet">모든 네트워크 트래픽을 차단하지 못했습니다. 문제를 해결하거나 당사에 신고하세요.</string>
     <string name="failed_to_create_account">계정을 만들지 못함</string>
     <string name="failed_to_generate_key">키를 생성하지 못함</string>
     <string name="failed_to_send">전송하지 못함</string>
@@ -80,6 +80,7 @@
     <string name="settings_account">계정</string>
     <string name="settings_advanced">고급</string>
     <string name="settings_preferences">환경 설정</string>
+    <string name="split_tunneling">분할 터널링</string>
     <string name="start_tunnel_error">터널 연결을 시작하지 못했습니다.</string>
     <string name="switch_location">위치 전환</string>
     <string name="tcp">TCP</string>
@@ -88,7 +89,7 @@
     <string name="unsecured">비보안</string>
     <string name="unsecured_connection">비보안 연결</string>
     <string name="unsupported_version">지원되지 않는 버전</string>
-    <string name="unsupported_version_description">지원되지 않는 앱 버전을 실행하고 있습니다. 보안을 위해 %1$s(으)로 업그레이드하세요</string>
+    <string name="unsupported_version_without_upgrade">지원되지 않는 앱 버전을 실행 중입니다.</string>
     <string name="update_available">업데이트 사용 가능</string>
     <string name="update_available_description">Mullvad VPN(%1$s)을 설치하여 최신 상태로 유지하세요.</string>
     <string name="update_available_footer">업데이트 사용 가능, 안전을 유지하기 위해 다운로드하세요.</string>

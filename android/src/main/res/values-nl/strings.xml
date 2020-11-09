@@ -6,6 +6,7 @@
     <string name="account_url">https://mullvad.net/nl/account</string>
     <string name="add_time_to_account">Koop krediet op onze website of wissel een voucher in.</string>
     <string name="allow_lan_footer">Biedt toegang tot andere toestellen op hetzelfde netwerk voor delen, afdrukken, en dergelijke</string>
+    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">Appversie</string>
     <string name="auth_failed">Authenticatie van account mislukt.</string>
     <string name="auto_connect">Automatisch verbinden</string>
@@ -34,7 +35,6 @@
     <string name="enter_voucher_code">Voer vouchercode in</string>
     <string name="error_occurred">Er is een fout opgetreden.</string>
     <string name="error_state">VERBINDING BEVEILIGEN MISLUKT</string>
-    <string name="failed_to_block_internet">Kon alle netwerkverkeer niet blokkeren. Los het probleem op of meld het aan ons.</string>
     <string name="failed_to_create_account">Account aanmaken mislukt</string>
     <string name="failed_to_generate_key">Sleutel genereren mislukt</string>
     <string name="failed_to_send">Verzenden mislukt</string>
@@ -80,6 +80,7 @@
     <string name="settings_account">Account</string>
     <string name="settings_advanced">Geavanceerd</string>
     <string name="settings_preferences">Voorkeuren</string>
+    <string name="split_tunneling">Split tunneling</string>
     <string name="start_tunnel_error">Starten van tunnelverbinding is mislukt</string>
     <string name="switch_location">Locatie wijzigen</string>
     <string name="tcp">TCP</string>
@@ -88,7 +89,7 @@
     <string name="unsecured">Niet beveiligd</string>
     <string name="unsecured_connection">NIET-BEVEILIGDE VERBINDING</string>
     <string name="unsupported_version">NIET-ONDERSTEUNDE VERSIE</string>
-    <string name="unsupported_version_description">U gebruikt een niet-ondersteunde versie van de app. Upgrade nu naar %1$s om uw veiligheid te garanderen</string>
+    <string name="unsupported_version_without_upgrade">U gebruikt een niet-ondersteunde appversie.</string>
     <string name="update_available">UPDATE BESCHIKBAAR</string>
     <string name="update_available_description">Installeer Mullvad VPN (%1$s) om up-to-date te blijven</string>
     <string name="update_available_footer">Update beschikbaar, download deze voor optimale beveiliging.</string>

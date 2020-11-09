@@ -6,6 +6,7 @@
     <string name="account_url">https://mullvad.net/ja/account</string>
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
     <string name="allow_lan_footer">共有や印刷のため、同一ネットワーク上の他のデバイスへのアクセスを許可します。</string>
+    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">アプリのバージョン</string>
     <string name="auth_failed">アカウントの認証に失敗しました。</string>
     <string name="auto_connect">自動接続</string>
@@ -34,7 +35,6 @@
     <string name="enter_voucher_code">バウチャーコードを入力</string>
     <string name="error_occurred">エラー発生。</string>
     <string name="error_state">セキュリティ保護接続を確立できませんでした</string>
-    <string name="failed_to_block_internet">すべてのネットワーク通信をブロックできませんでした。問題に対処するか、当社に問題を報告してください。</string>
     <string name="failed_to_create_account">アカウントを作成できませんでした</string>
     <string name="failed_to_generate_key">鍵の生成に失敗しました</string>
     <string name="failed_to_send">送信に失敗しました</string>
@@ -80,6 +80,7 @@
     <string name="settings_account">アカウント</string>
     <string name="settings_advanced">詳細</string>
     <string name="settings_preferences">環境設定</string>
+    <string name="split_tunneling">スプリットトンネリング</string>
     <string name="start_tunnel_error">トンネル接続の開始に失敗しました</string>
     <string name="switch_location">場所を切り替える</string>
     <string name="tcp">TCP</string>
@@ -88,7 +89,7 @@
     <string name="unsecured">セキュリティ保護されていません</string>
     <string name="unsecured_connection">セキュリティ保護されていない接続</string>
     <string name="unsupported_version">未対応のバージョン</string>
-    <string name="unsupported_version_description">未対応のアプリバージョンを実行中です。今すぐ %1$s にアップデートしてセキュリティを確保してください。</string>
+    <string name="unsupported_version_without_upgrade">サポートされていないバージョンのアプリを実行しています。</string>
     <string name="update_available">アップデート可</string>
     <string name="update_available_description">Mullvad VPN (%1$s) をインストールして常に最新の状態を保ちましょう</string>
     <string name="update_available_footer">アップデートできます。ダウンロードしてセキュリティを維持してください。</string>

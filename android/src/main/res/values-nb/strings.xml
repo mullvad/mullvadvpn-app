@@ -6,6 +6,7 @@
     <string name="account_url">https://mullvad.net/nb/account</string>
     <string name="add_time_to_account">Du kan enten kjøpe kreditt på nettsiden vår eller løse inn en kupong.</string>
     <string name="allow_lan_footer">Gir tilgang til andre enheter på samme nettverk for deling, utskrift osv.</string>
+    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">Appversjon</string>
     <string name="auth_failed">Autentisering av konto mislykket.</string>
     <string name="auto_connect">Automatisk tilkobling</string>
@@ -34,7 +35,6 @@
     <string name="enter_voucher_code">Skriv inn kupongkode</string>
     <string name="error_occurred">Det oppstod en feil.</string>
     <string name="error_state">KUNNE IKKE OPPRETTE SIKKER TILKOBLING</string>
-    <string name="failed_to_block_internet">Kunne ikke blokkere all nettverkstrafikk. Kjør feilsøking eller rapporter inn problemet til oss.</string>
     <string name="failed_to_create_account">Kunne ikke opprette konto</string>
     <string name="failed_to_generate_key">Generering av en nøkkel mislyktes</string>
     <string name="failed_to_send">Kunne ikke sende</string>
@@ -80,6 +80,7 @@
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Avansert</string>
     <string name="settings_preferences">Preferanser</string>
+    <string name="split_tunneling">Delt tunnel</string>
     <string name="start_tunnel_error">Kunne ikke starte tunneltilkobling</string>
     <string name="switch_location">Bytt plassering</string>
     <string name="tcp">TCP</string>
@@ -88,7 +89,7 @@
     <string name="unsecured">Usikker tilkobling</string>
     <string name="unsecured_connection">USIKKER TILKOBLING</string>
     <string name="unsupported_version">VERSJON UTEN STØTTE</string>
-    <string name="unsupported_version_description">Du kjører en appversjon som ikke er støttet. Oppdater til %1$s for å ha den beste sikkerheten</string>
+    <string name="unsupported_version_without_upgrade">Du kjører en appversjon som ikke støttes.</string>
     <string name="update_available">OPPDATERING TILGJENGELIG</string>
     <string name="update_available_description">Installer Mullvad VPN (%1$s) for å holde deg oppdatert</string>
     <string name="update_available_footer">Oppdatering tilgjengelig. Last ned for å oppdatere sikkerheten.</string>

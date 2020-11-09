@@ -6,6 +6,7 @@
     <string name="account_url">https://mullvad.net/pl/account</string>
     <string name="add_time_to_account">Doładuj w naszej witrynie internetowej lub zrealizuj kupon.</string>
     <string name="allow_lan_footer">Umożliwia dostęp do innych urządzeń w tej samej sieci w celu udostępniania, drukowania itd.</string>
+    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">Wersja aplikacji</string>
     <string name="auth_failed">Niepowodzenie uwierzytelnienia konta.</string>
     <string name="auto_connect">Automatyczne łączenie</string>
@@ -34,7 +35,6 @@
     <string name="enter_voucher_code">Wprowadź kod kuponu</string>
     <string name="error_occurred">Wystąpił błąd.</string>
     <string name="error_state">BŁĄD ZABEZPIECZANIA POŁĄCZENIA</string>
-    <string name="failed_to_block_internet">Błąd blokowania całego ruchu sieciowego. Rozwiąż problem lub zgłoś go nam.</string>
     <string name="failed_to_create_account">Nie można utworzyć konta</string>
     <string name="failed_to_generate_key">Nie można wygenerować klucza</string>
     <string name="failed_to_send">Błąd wysyłania</string>
@@ -80,6 +80,7 @@
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Zaawansowane</string>
     <string name="settings_preferences">Preferencje</string>
+    <string name="split_tunneling">Dzielone tunelowanie</string>
     <string name="start_tunnel_error">Niepowodzenie uruchomienia połączenia tunelowego</string>
     <string name="switch_location">Zmień lokalizację</string>
     <string name="tcp">TCP</string>
@@ -88,7 +89,7 @@
     <string name="unsecured">Niezabezpieczone</string>
     <string name="unsecured_connection">NIEZABEZPIECZONE POŁĄCZENIE</string>
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>
-    <string name="unsupported_version_description">Używasz nieobsługiwanej wersji aplikacji. Aby zapewnić sobie bezpieczeństwo, zaktualizuj teraz do wersji %1$s</string>
+    <string name="unsupported_version_without_upgrade">Używasz nieobsługiwanej wersji aplikacji.</string>
     <string name="update_available">DOSTĘPNA JEST AKTUALIZACJA</string>
     <string name="update_available_description">Aby być na bieżąco, zainstaluj Mullvad VPN (%1$s)</string>
     <string name="update_available_footer">Dostępna jest aktualizacja. Aby zachować bezpieczeństwo, pobierz ją.</string>
