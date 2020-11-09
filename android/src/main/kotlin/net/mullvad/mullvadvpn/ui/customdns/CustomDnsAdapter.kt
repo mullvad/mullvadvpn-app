@@ -92,7 +92,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
             }
             ViewTypes.SHOW_SERVER -> {
                 val view = inflater.inflate(R.layout.custom_dns_server, parentView, false)
-                return CustomDnsServerHolder(view)
+                return CustomDnsServerHolder(view, this)
             }
         }
     }
@@ -125,6 +125,12 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
             if (inetAddressValidator.isValid(address)) {
                 customDns.addDnsServer(InetAddress.getByName(address))
             }
+        }
+    }
+
+    fun removeDnsServer(address: InetAddress) {
+        jobTracker.newBackgroundJob("removeDnsServer $address") {
+            customDns.removeDnsServer(address)
         }
     }
 }
