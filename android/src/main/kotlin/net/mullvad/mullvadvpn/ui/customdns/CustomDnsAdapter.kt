@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.ui.customdns
 import android.support.v7.widget.RecyclerView.Adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import java.net.InetAddress
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.service.CustomDns
@@ -12,12 +13,17 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     private enum class ViewTypes {
         ADD_SERVER,
         EDIT_SERVER,
+        SHOW_SERVER,
         FOOTER,
     }
 
     private val jobTracker = JobTracker()
 
     private var enteringNewServer = false
+
+    private var customDnsServers by observable<List<InetAddress>>(emptyList()) { _, _, _ ->
+        notifyDataSetChanged()
+    }
 
     private var enabled by observable(false) { _, oldValue, newValue ->
         if (oldValue != newValue) {
@@ -26,16 +32,24 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     }
 
     init {
-        customDns.onEnabledChanged.subscribe(this) { value ->
-            jobTracker.newUiJob("updateEnabled") {
-                enabled = value
+        customDns.apply {
+            onDnsServersChanged.subscribe(this) { dnsServers ->
+                jobTracker.newUiJob("updateDnsServers") {
+                    customDnsServers = dnsServers
+                }
+            }
+
+            onEnabledChanged.subscribe(this) { value ->
+                jobTracker.newUiJob("updateEnabled") {
+                    enabled = value
+                }
             }
         }
     }
 
     override fun getItemCount() =
         if (enabled) {
-            2
+            customDnsServers.size + 2
         } else {
             1
         }
@@ -54,7 +68,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
                 return ViewTypes.ADD_SERVER.ordinal
             }
         } else {
-            throw RuntimeException("Too many items in the custom DNS list")
+            return ViewTypes.SHOW_SERVER.ordinal
         }
     }
 
@@ -74,13 +88,24 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
                 val view = inflater.inflate(R.layout.edit_custom_dns_server, parentView, false)
                 return EditCustomDnsServerHolder(view)
             }
+            ViewTypes.SHOW_SERVER -> {
+                val view = inflater.inflate(R.layout.custom_dns_server, parentView, false)
+                return CustomDnsServerHolder(view)
+            }
         }
     }
 
-    override fun onBindViewHolder(holder: CustomDnsItemHolder, position: Int) {}
+    override fun onBindViewHolder(holder: CustomDnsItemHolder, position: Int) {
+        if (holder is CustomDnsServerHolder) {
+            holder.serverAddress = customDnsServers[position]
+        }
+    }
 
     fun onDestroy() {
-        customDns.onEnabledChanged.unsubscribe(this)
+        customDns.apply {
+            onDnsServersChanged.unsubscribe(this)
+            onEnabledChanged.unsubscribe(this)
+        }
     }
 
     fun newDnsServer() {
