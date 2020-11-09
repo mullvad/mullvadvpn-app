@@ -84,6 +84,8 @@ Line wrap the file at 100 chars.                                              Th
   systemd-resolved directly to manage DNS.
 - Only use WireGuard kernel implementation if DNS isn't managed via NetworkManager.
 - Reset DNS config correctly when the tunnel monitor unexpectedly goes down.
+- Set search domains in NetworkManager's DNS configuration, resolving issues where NetworkManager
+  is used to manage DNS via systemd-resolved.
 
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and

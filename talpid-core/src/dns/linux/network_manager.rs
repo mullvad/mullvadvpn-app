@@ -344,6 +344,7 @@ impl NetworkManager {
         settings.insert("method", Variant(Box::new("manual".to_string())));
         settings.insert("dns-priority", Variant(Box::new(DNS_FIRST_PRIORITY)));
         settings.insert("dns", Variant(Box::new(servers)));
+        settings.insert("dns-search", Variant(Box::new(vec!["~.".to_string()])));
     }
 
     fn fetch_device(&self, interface_name: &str) -> Result<dbus::Path<'static>> {
