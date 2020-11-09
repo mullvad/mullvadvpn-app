@@ -24,7 +24,7 @@
                                                  android:layout_width="match_parent"
                                                  android:layout_height="wrap_content"
                                                  android:layout_marginTop="@dimen/vertical_space"
-                                                 mullvad:text="@string/enabled" />
+                                                 mullvad:text="@string/enable" />
     <LinearLayout android:id="@+id/exclude_applications"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
