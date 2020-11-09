@@ -2,12 +2,17 @@ import styled from 'styled-components';
 
 const ARROW_WIDTH = 30;
 
-export default styled.div({}, ({ arrowPosition }: { arrowPosition?: number }) => {
+interface IPlatformWindowProps {
+  arrowPosition?: number;
+  unpinnedWindow: boolean;
+}
+
+export default styled.div({}, (props: IPlatformWindowProps) => {
   let mask: string | undefined;
 
-  if (process.platform === 'darwin') {
+  if (process.platform === 'darwin' && !props.unpinnedWindow) {
     const arrowPositionCss =
-      arrowPosition !== undefined ? `${arrowPosition - ARROW_WIDTH * 0.5}px` : '50%';
+      props.arrowPosition !== undefined ? `${props.arrowPosition - ARROW_WIDTH * 0.5}px` : '50%';
 
     mask = [
       `url(../../assets/images/app-triangle.svg) ${arrowPositionCss} 0% no-repeat`,
