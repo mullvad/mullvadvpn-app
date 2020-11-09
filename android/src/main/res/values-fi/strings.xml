@@ -6,6 +6,7 @@
     <string name="account_url">https://mullvad.net/fi/account</string>
     <string name="add_time_to_account">Osta käyttöaikaa verkkosivustoltamme tai lunasta kuponki.</string>
     <string name="allow_lan_footer">Sallii jakamisen, tulostuksen ym. saman verkon muille laitteille.</string>
+    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">Sovelluksen versio</string>
     <string name="auth_failed">Tilin todentaminen epäonnistui.</string>
     <string name="auto_connect">Automaattinen yhteys</string>
@@ -34,7 +35,6 @@
     <string name="enter_voucher_code">Syötä kuponkikoodi</string>
     <string name="error_occurred">Ilmeni virhe.</string>
     <string name="error_state">YHTEYDEN SUOJAAMINEN EPÄONNISTUI</string>
-    <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen epäonnistui. Käytä vian etsintää tai raportoi meille ongelmasta.</string>
     <string name="failed_to_create_account">Tilin luonti epäonnistui</string>
     <string name="failed_to_generate_key">Avaimen luominen epäonnistui</string>
     <string name="failed_to_send">Lähetys epäonnistui</string>
@@ -80,6 +80,7 @@
     <string name="settings_account">Tili</string>
     <string name="settings_advanced">Lisäasetukset</string>
     <string name="settings_preferences">Asetukset</string>
+    <string name="split_tunneling">Sovelluskohtainen yhdistäminen</string>
     <string name="start_tunnel_error">Tunneliyhteyden muodostaminen epäonnistui</string>
     <string name="switch_location">Vaihda sijaintia</string>
     <string name="tcp">TCP</string>
@@ -88,7 +89,7 @@
     <string name="unsecured">Suojaamaton</string>
     <string name="unsecured_connection">SUOJAAMATON YHTEYS</string>
     <string name="unsupported_version">EI-TUETTU VERSIO</string>
-    <string name="unsupported_version_description">Sovellusversiosi ei ole tuettu. Taataksesi turvallisuutesi päivitä versioon %1$s nyt.</string>
+    <string name="unsupported_version_without_upgrade">Sovellusversiotasi ei tueta.</string>
     <string name="update_available">PÄIVITYS SAATAVILLA</string>
     <string name="update_available_description">Päivitä asentamalla Mullvad VPN:n versio (%1$s)</string>
     <string name="update_available_footer">Päivitys saatavilla. Lataa se pysyäksesi turvassa.</string>

@@ -6,6 +6,7 @@
     <string name="account_url">https://mullvad.net/zh-hant/account</string>
     <string name="add_time_to_account">在我們網站上購買點數或兌換憑證。</string>
     <string name="allow_lan_footer">允許存取同一網路上的其他裝置，以進行共用、列印等。</string>
+    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">應用程式版本</string>
     <string name="auth_failed">帳戶驗證失敗。</string>
     <string name="auto_connect">自動連線</string>
@@ -34,7 +35,6 @@
     <string name="enter_voucher_code">輸入憑證兌換碼</string>
     <string name="error_occurred">發生錯誤了。</string>
     <string name="error_state">保護連線失敗</string>
-    <string name="failed_to_block_internet">無法封鎖所有網路流量。請排除故障或向我們回報問題。</string>
     <string name="failed_to_create_account">無法建立帳戶</string>
     <string name="failed_to_generate_key">無法產生金鑰</string>
     <string name="failed_to_send">無法傳送</string>
@@ -80,6 +80,7 @@
     <string name="settings_account">帳戶</string>
     <string name="settings_advanced">進階</string>
     <string name="settings_preferences">喜好設定</string>
+    <string name="split_tunneling">分割通道</string>
     <string name="start_tunnel_error">無法啟動通道連線</string>
     <string name="switch_location">切換位置</string>
     <string name="tcp">TCP</string>
@@ -88,7 +89,7 @@
     <string name="unsecured">不安全</string>
     <string name="unsecured_connection">不安全的連線</string>
     <string name="unsupported_version">不支援的版本</string>
-    <string name="unsupported_version_description">您正在執行不受支援的應用程式版本。請立即升級到 %1$s，以確保您的安全</string>
+    <string name="unsupported_version_without_upgrade">您所執行的應用程式版本不受支援。</string>
     <string name="update_available">可用的更新</string>
     <string name="update_available_description">安裝 Mullvad VPN (%1$s) 以保持最新狀態</string>
     <string name="update_available_footer">更新可用，請下載以保持安全。</string>

@@ -6,6 +6,7 @@
     <string name="account_url">https://mullvad.net/da/account</string>
     <string name="add_time_to_account">Køb enten kredit på vores hjemmeside, eller indløs en kupon.</string>
     <string name="allow_lan_footer">Giver adgang til andre enheder på det samme netværk til deling, udskrivning osv.</string>
+    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">App-version</string>
     <string name="auth_failed">Kontogodkendelse mislykkedes.</string>
     <string name="auto_connect">Auto-tilslutning</string>
@@ -32,9 +33,8 @@
     <string name="download_url">https://mullvad.net/da/download</string>
     <string name="edit_message">Rediger meddelelse</string>
     <string name="enter_voucher_code">Indtast kuponkode</string>
-    <string name="error_occurred">En fejl opstod.</string>
+    <string name="error_occurred">Der opstod en fejl.</string>
     <string name="error_state">KUNNE IKKE SIKRE FORBINDELSEN</string>
-    <string name="failed_to_block_internet">Kunne ikke blokere al netværkstrafik. Løs problemet selv eller rapporter problemet til os.</string>
     <string name="failed_to_create_account">Kunne ikke oprette konto</string>
     <string name="failed_to_generate_key">Kunne ikke generere en nøgle</string>
     <string name="failed_to_send">Kunne ikke sende</string>
@@ -80,6 +80,7 @@
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Avanceret</string>
     <string name="settings_preferences">Indstillinger</string>
+    <string name="split_tunneling">Split tunneling</string>
     <string name="start_tunnel_error">Kunne ikke starte tunnelforbindelsen</string>
     <string name="switch_location">Skift placering</string>
     <string name="tcp">TCP</string>
@@ -88,7 +89,7 @@
     <string name="unsecured">Ikke sikret</string>
     <string name="unsecured_connection">IKKE-SIKRET FORBINDELSE</string>
     <string name="unsupported_version">IKKE-UNDERSTØTTET VERSION</string>
-    <string name="unsupported_version_description">Du kører en ikke-understøttet appversion. Opgrader til %1$s nu for at sikre din sikkerhed</string>
+    <string name="unsupported_version_without_upgrade">Du kører en ikke-understøttet appversion.</string>
     <string name="update_available">OPDATERING TILGÆNGELIG</string>
     <string name="update_available_description">Installer Mullvad VPN (%1$s) for at holde dig opdateret</string>
     <string name="update_available_footer">Opdatering tilgængelig, download den for at forblive sikker.</string>

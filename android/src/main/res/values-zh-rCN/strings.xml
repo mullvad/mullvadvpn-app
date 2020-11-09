@@ -5,6 +5,7 @@
     <string name="account_number">帐号</string>
     <string name="add_time_to_account">在我们的网站上购买额度或兑换优惠券。</string>
     <string name="allow_lan_footer">允许访问同一个网络上的其他设备以进行共享和打印等。</string>
+    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">应用版本</string>
     <string name="auth_failed">帐户身份验证失败。</string>
     <string name="auto_connect">自动连接</string>
@@ -31,7 +32,6 @@
     <string name="enter_voucher_code">输入优惠码</string>
     <string name="error_occurred">出错了。</string>
     <string name="error_state">无法保护连接</string>
-    <string name="failed_to_block_internet">无法阻止所有网络流量。请排除故障或向我们报告问题。</string>
     <string name="failed_to_create_account">无法创建帐户</string>
     <string name="failed_to_generate_key">无法生成密钥</string>
     <string name="failed_to_send">无法发送</string>
@@ -77,6 +77,7 @@
     <string name="settings_account">帐户</string>
     <string name="settings_advanced">高级</string>
     <string name="settings_preferences">偏好设置</string>
+    <string name="split_tunneling">拆分隧道</string>
     <string name="start_tunnel_error">无法启动隧道连接</string>
     <string name="switch_location">切换位置</string>
     <string name="tcp">TCP</string>
@@ -85,7 +86,7 @@
     <string name="unsecured">未受保护</string>
     <string name="unsecured_connection">未受保护的连接</string>
     <string name="unsupported_version">不受支持的版本</string>
-    <string name="unsupported_version_description">您正在运行不受支持的应用版本。请立即升级到 %1$s 以确保您的安全</string>
+    <string name="unsupported_version_without_upgrade">您正在运行不受支持的应用版本。</string>
     <string name="update_available">有可用更新</string>
     <string name="update_available_description">安装 Mullvad VPN (%1$s) 以保持最新状态</string>
     <string name="update_available_footer">有可用更新，请下载以保持安全。</string>

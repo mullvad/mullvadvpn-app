@@ -6,6 +6,7 @@
     <string name="account_url">https://mullvad.net/tr/account</string>
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
     <string name="allow_lan_footer">Paylaşım, yazdırma vb. için aynı ağdaki diğer cihazlara erişime izin verir.</string>
+    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">Uygulama sürümü</string>
     <string name="auth_failed">Hesap kimlik doğrulaması başarısız oldu.</string>
     <string name="auto_connect">Otomatik Bağlan</string>
@@ -26,7 +27,7 @@
     <string name="creating_new_account">Hesap oluşturuluyor...</string>
     <string name="creating_secure_connection">GÜVENLİ BAĞLANTI OLUŞTURULUYOR</string>
     <string name="critical_error">Kritik hata (lütfen dikkat edin)</string>
-    <string name="disconnect">Bağlantıyı kes</string>
+    <string name="disconnect">Bağlantıyı Kes</string>
     <string name="dismiss">Reddet</string>
     <string name="dont_have_an_account">Hesap numaranız yok mu?</string>
     <string name="download_url">https://mullvad.net/tr/download</string>
@@ -34,7 +35,6 @@
     <string name="enter_voucher_code">Kupon kodunu girin</string>
     <string name="error_occurred">Bir hata oluştu.</string>
     <string name="error_state">GÜVENLİ BAĞLANTI OLUŞTURULAMADI</string>
-    <string name="failed_to_block_internet">Tüm ağ trafiği engellenemedi. Lütfen sorunu çözmeyi deneyin veya bize bildirin.</string>
     <string name="failed_to_create_account">Hesap oluşturulamadı</string>
     <string name="failed_to_generate_key">Anahtar oluşturulamadı</string>
     <string name="failed_to_send">Gönderme başarısız</string>
@@ -80,6 +80,7 @@
     <string name="settings_account">Hesap</string>
     <string name="settings_advanced">Gelişmiş</string>
     <string name="settings_preferences">Tercihler</string>
+    <string name="split_tunneling">Bölünmüş tünelleme</string>
     <string name="start_tunnel_error">Tünel bağlantısı başlatılamıyor</string>
     <string name="switch_location">Konum değiştir</string>
     <string name="tcp">TCP</string>
@@ -88,7 +89,7 @@
     <string name="unsecured">Güvenli Değil</string>
     <string name="unsecured_connection">GÜVENLİ OLMAYAN BAĞLANTI</string>
     <string name="unsupported_version">DESTEKLENMEYEN SÜRÜM</string>
-    <string name="unsupported_version_description">Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi garanti altına almak için lütfen hemen %1$s sürümüne yükseltin</string>
+    <string name="unsupported_version_without_upgrade">Şu anda desteklenmeyen bir uygulama sürümünü kullanıyorsunuz.</string>
     <string name="update_available">GÜNCELLEME MEVCUT</string>
     <string name="update_available_description">Güncel kalmak için Mullvad VPN\'in (%1$s) sürümünü yükleyin</string>
     <string name="update_available_footer">Güncelleme mevcut, güvende olmak için indirin.</string>

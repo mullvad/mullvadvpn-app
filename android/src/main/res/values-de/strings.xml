@@ -6,6 +6,7 @@
     <string name="account_url">https://mullvad.net/de/account</string>
     <string name="add_time_to_account">Kaufen Sie entweder Guthaben über unsere Seite oder lösen Sie einen Gutschein ein.</string>
     <string name="allow_lan_footer">Ermöglicht den Zugriff auf andere Geräte im selben Netzwerk zum Teilen von Dateien, Drucken etc.</string>
+    <string name="app_name">Mullvad-VPN</string>
     <string name="app_version">App-Version</string>
     <string name="auth_failed">Konto-Authentifizierung fehlgeschlagen.</string>
     <string name="auto_connect">Automatische Verbindung</string>
@@ -26,7 +27,7 @@
     <string name="creating_new_account">Konto wird erstellt ...</string>
     <string name="creating_secure_connection">SICHERE VERBINDUNG WIRD ERSTELLT</string>
     <string name="critical_error">Kritischer Fehler (Ihre Aufmerksamkeit wird erfordert)</string>
-    <string name="disconnect">Trennen</string>
+    <string name="disconnect">Verbindung trennen</string>
     <string name="dismiss">Ausblenden</string>
     <string name="dont_have_an_account">Sie haben keine Kontonummer?</string>
     <string name="download_url">https://mullvad.net/de/download</string>
@@ -34,7 +35,6 @@
     <string name="enter_voucher_code">Gutscheincode eingeben</string>
     <string name="error_occurred">Ein Fehler ist aufgetreten.</string>
     <string name="error_state">SICHERE VERBINDUNG KONNTE NICHT HERGESTELLT WERDEN</string>
-    <string name="failed_to_block_internet">Sperren des gesamten Netzverkehrs fehlgeschlagen. Bitte beheben Sie den Fehler oder melden Sie ihn bei uns.</string>
     <string name="failed_to_create_account">Konto konnte nicht erstellt werden</string>
     <string name="failed_to_generate_key">Fehler beim Generieren eines Schlüssels</string>
     <string name="failed_to_send">Fehler beim Senden</string>
@@ -80,6 +80,7 @@
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Erweitert</string>
     <string name="settings_preferences">Präferenzen</string>
+    <string name="split_tunneling">Split Tunneling</string>
     <string name="start_tunnel_error">Fehler beim Starten der Tunnel-Verbindung</string>
     <string name="switch_location">Ort wechseln</string>
     <string name="tcp">TCP</string>
@@ -88,7 +89,7 @@
     <string name="unsecured">Ungesichert</string>
     <string name="unsecured_connection">UNGESICHERTE VERBINDUNG</string>
     <string name="unsupported_version">NICHT UNTERSTÜTZTE VERSION</string>
-    <string name="unsupported_version_description">Sie führen eine nicht unterstützte App-Version aus. Bitte führen Sie jetzt ein Upgrade auf %1$s durch, um Ihre Sicherheit zu gewährleisten</string>
+    <string name="unsupported_version_without_upgrade">Sie verwenden eine nicht unterstützte Version der App. </string>
     <string name="update_available">UPDATE VERFÜGBAR</string>
     <string name="update_available_description">Installieren Sie Mullvad VPN (%1$s), um auf dem neuesten Stand zu bleiben</string>
     <string name="update_available_footer">Update verfügbar, laden Sie es herunter, um sicher zu bleiben.</string>
