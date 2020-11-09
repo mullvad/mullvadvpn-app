@@ -88,6 +88,7 @@ impl WireguardMonitor {
             .set_tunnel_link(&iface_name)
             .map_err(Error::SetupRoutingError)?;
 
+        #[cfg(not(target_os = "android"))]
         route_manager
             .add_routes(Self::get_routes(&iface_name, &config))
             .map_err(Error::SetupRoutingError)?;
