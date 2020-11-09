@@ -2,21 +2,18 @@ use crate::{
     routing::{imp::RouteManagerCommand, NetNode, Node, RequiredRoute, Route},
     split_tunnel,
 };
-
-use talpid_types::ErrorExt;
-
-use ipnetwork::IpNetwork;
 use std::{
     collections::{BTreeMap, HashSet},
     io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
+use talpid_types::ErrorExt;
 
 use futures::{channel::mpsc::UnboundedReceiver, future::FutureExt, StreamExt, TryStreamExt};
-
-
+use ipnetwork::IpNetwork;
+use lazy_static::lazy_static;
 use netlink_packet_route::{
-    constants::ARPHRD_LOOPBACK,
+    constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL},
     link::{nlas::Nla as LinkNla, LinkMessage},
     route::{nlas::Nla as RouteNla, RouteHeader, RouteMessage},
     rtnl::{
@@ -36,6 +33,43 @@ use rtnetlink::{
 };
 
 use libc::{AF_INET, AF_INET6};
+
+
+lazy_static! {
+    static ref SUPPRESS_RULE_V4: RuleMessage = RuleMessage {
+        header: RuleHeader {
+            family: AF_INET as u8,
+            action: FR_ACT_TO_TBL,
+            ..RuleHeader::default()
+        },
+        nlas: vec![
+            RuleNla::SuppressPrefixLen(0),
+            RuleNla::Table(RT_TABLE_MAIN as u32),
+        ],
+    };
+    static ref SUPPRESS_RULE_V6: RuleMessage = {
+        let mut v6_rule = SUPPRESS_RULE_V4.clone();
+        v6_rule.header.family = AF_INET6 as u8;
+        v6_rule
+    };
+    static ref NO_FWMARK_RULE_V4: RuleMessage = RuleMessage {
+        header: RuleHeader {
+            family: AF_INET as u8,
+            action: FR_ACT_TO_TBL,
+            flags: FIB_RULE_INVERT,
+            ..RuleHeader::default()
+        },
+        nlas: vec![
+            RuleNla::FwMark(crate::linux::TUNNEL_FW_MARK),
+            RuleNla::Table(crate::linux::TUNNEL_TABLE_ID),
+        ],
+    };
+    static ref NO_FWMARK_RULE_V6: RuleMessage = {
+        let mut v6_rule = NO_FWMARK_RULE_V4.clone();
+        v6_rule.header.family = AF_INET6 as u8;
+        v6_rule
+    };
+}
 
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -149,6 +183,7 @@ impl RouteManagerImpl {
         };
 
         monitor.initialize_exclusions_routes().await?;
+        monitor.clear_routing_rules().await?;
 
         monitor.default_routes = monitor.get_default_routes().await?;
         monitor.best_default_node_v4 =
@@ -241,6 +276,61 @@ impl RouteManagerImpl {
                     };
                 }
                 log::error!("Failed to add route to split-routing table: {}", err);
+            }
+        }
+        Ok(())
+    }
+
+    async fn create_routing_rules(&mut self) -> Result<()> {
+        use netlink_packet_route::constants::*;
+
+        self.clear_routing_rules().await?;
+
+        for rule in &[
+            &*NO_FWMARK_RULE_V4,
+            &*NO_FWMARK_RULE_V6,
+            &*SUPPRESS_RULE_V4,
+            &*SUPPRESS_RULE_V6,
+        ] {
+            let mut req = NetlinkMessage::from(RtnlMessage::NewRule((*rule).clone()));
+            req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_CREATE | NLM_F_REPLACE;
+
+            let mut response = self.handle.request(req).map_err(Error::NetlinkError)?;
+
+            while let Some(message) = response.next().await {
+                if let NetlinkPayload::Error(error) = message.payload {
+                    return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(error)));
+                }
+            }
+        }
+        Ok(())
+    }
+
+    async fn clear_routing_rules(&mut self) -> Result<()> {
+        for rule in &[
+            &*NO_FWMARK_RULE_V4,
+            &*NO_FWMARK_RULE_V6,
+            &*SUPPRESS_RULE_V4,
+            &*SUPPRESS_RULE_V6,
+        ] {
+            self.delete_rule_if_exists((*rule).clone()).await?;
+        }
+        Ok(())
+    }
+
+    async fn delete_rule_if_exists(&mut self, rule: RuleMessage) -> Result<()> {
+        use netlink_packet_route::constants::*;
+
+        let mut req = NetlinkMessage::from(RtnlMessage::DelRule(rule));
+        req.header.flags = NLM_F_REQUEST | NLM_F_ACK;
+
+        let mut response = self.handle.request(req).map_err(Error::NetlinkError)?;
+
+        while let Some(message) = response.next().await {
+            if let NetlinkPayload::Error(error) = message.payload {
+                if error.to_io().kind() != io::ErrorKind::NotFound {
+                    return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(error)));
+                }
             }
         }
         Ok(())
@@ -722,7 +812,10 @@ impl RouteManagerImpl {
     }
 
 
-    pub async fn run(mut self, manage_rx: UnboundedReceiver<RouteManagerCommand>) -> Result<()> {
+    pub(crate) async fn run(
+        mut self,
+        manage_rx: UnboundedReceiver<RouteManagerCommand>,
+    ) -> Result<()> {
         let mut manage_rx = manage_rx.fuse();
         loop {
             futures::select! {
@@ -750,6 +843,12 @@ impl RouteManagerImpl {
             RouteManagerCommand::AddRoutes(routes, result_tx) => {
                 log::debug!("Adding routes: {:?}", routes);
                 let _ = result_tx.send(self.add_required_routes(routes.clone()).await);
+            }
+            RouteManagerCommand::CreateRoutingRules(result_tx) => {
+                let _ = result_tx.send(self.create_routing_rules().await);
+            }
+            RouteManagerCommand::ClearRoutingRules(result_tx) => {
+                let _ = result_tx.send(self.clear_routing_rules().await);
             }
             RouteManagerCommand::EnableExclusionsRoutes(result_tx) => {
                 let _ = result_tx.send(self.enable_exclusions_routes().await);
@@ -1122,6 +1221,13 @@ impl RouteManagerImpl {
             );
         }
         self.cleanup_routes().await;
+
+        if let Err(error) = self.clear_routing_rules().await {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to remove routing rules")
+            );
+        }
     }
 }
 

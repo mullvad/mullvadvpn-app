@@ -194,6 +194,13 @@ impl ConnectingState {
         if let Err(error) = shared_values.route_manager.clear_routes() {
             log::error!("{}", error.display_chain_with_msg("Failed to clear routes"));
         }
+        #[cfg(target_os = "linux")]
+        if let Err(error) = shared_values.route_manager.clear_routing_rules() {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to clear routing rules")
+            );
+        }
     }
 
     fn disconnect(

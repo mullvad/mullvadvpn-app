@@ -220,7 +220,14 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                         .set_tunnel_link(interface)
                         .unwrap();
                     let routes = extract_routes(&env).unwrap();
-                    if let Err(error) = route_manager_handle.clone().add_routes(routes) {
+                    let route_manager_handle = route_manager_handle.clone();
+                    if let Err(error) = route_manager_handle.add_routes(routes) {
+                        log::error!("{}", error.display_chain());
+                        panic!("Failed to add routes");
+                    }
+
+                    #[cfg(target_os = "linux")]
+                    if let Err(error) = route_manager_handle.create_routing_rules() {
                         log::error!("{}", error.display_chain());
                         panic!("Failed to add routes");
                     }

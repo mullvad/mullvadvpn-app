@@ -31,3 +31,4 @@ pub enum IfaceIndexLookupError {
 
 // b"mole" is [ 0x6d, 0x6f 0x6c, 0x65 ]
 pub const TUNNEL_FW_MARK: u32 = 0x6d6f6c65;
+pub const TUNNEL_TABLE_ID: u32 = 0x6d6f6c65;

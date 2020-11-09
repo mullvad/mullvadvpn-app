@@ -81,30 +81,53 @@ impl RouteManagerHandle {
             .block_on(response_rx)
             .map_err(|_| Error::ManagerChannelDown)?)
     }
+
+    /// Ensure that packets are routed using the correct tables.
+    #[cfg(target_os = "linux")]
+    pub fn create_routing_rules(&self) -> Result<(), Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::CreateRoutingRules(response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        self.runtime
+            .block_on(response_rx)
+            .map_err(|_| Error::ManagerChannelDown)?
+            .map_err(Error::PlatformError)
+    }
+
+    /// Remove any routing rules created by [`create_routing_rules`].
+    #[cfg(target_os = "linux")]
+    pub fn clear_routing_rules(&self) -> Result<(), Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::ClearRoutingRules(response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        self.runtime
+            .block_on(response_rx)
+            .map_err(|_| Error::ManagerChannelDown)?
+            .map_err(Error::PlatformError)
+    }
 }
 
 /// Commands for the underlying route manager object.
 #[derive(Debug)]
-pub enum RouteManagerCommand {
-    /// Adds required routes
+pub(crate) enum RouteManagerCommand {
     AddRoutes(
         HashSet<RequiredRoute>,
         oneshot::Sender<Result<(), PlatformError>>,
     ),
-    /// Clears required routes
     ClearRoutes,
-    /// Shuts down the route manager
     Shutdown(oneshot::Sender<()>),
-    /// Routes traffic with correct fwmark using the exclusions table
+    #[cfg(target_os = "linux")]
+    CreateRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
+    #[cfg(target_os = "linux")]
+    ClearRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
     #[cfg(target_os = "linux")]
     EnableExclusionsRoutes(oneshot::Sender<Result<(), PlatformError>>),
-    /// Removes rule for routing marked traffic differently.
     #[cfg(target_os = "linux")]
     DisableExclusionsRoutes,
-    /// Adds link to ignore in the exclusions table.
     #[cfg(target_os = "linux")]
     SetTunnelLink(String, oneshot::Sender<()>),
-    /// Adds exclusions table route for sending DNS requests via the tunnel.
     #[cfg(target_os = "linux")]
     RouteExclusionsDns(
         String,
@@ -189,6 +212,18 @@ impl RouteManager {
         } else {
             Err(Error::RouteManagerDown)
         }
+    }
+
+    /// Ensure that packets are routed using the correct tables.
+    #[cfg(target_os = "linux")]
+    pub fn create_routing_rules(&mut self) -> Result<(), Error> {
+        self.handle()?.create_routing_rules()
+    }
+
+    /// Remove any routing rules created by [`create_routing_rules`].
+    #[cfg(target_os = "linux")]
+    pub fn clear_routing_rules(&mut self) -> Result<(), Error> {
+        self.handle()?.clear_routing_rules()
     }
 
     /// Route PID-associated packets through the physical interface.

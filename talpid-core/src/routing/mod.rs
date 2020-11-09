@@ -95,7 +95,7 @@ impl RequiredRoute {
             node: node.into(),
             prefix,
             #[cfg(target_os = "linux")]
-            table_id: u32::from(RT_TABLE_MAIN),
+            table_id: u32::from(crate::linux::TUNNEL_TABLE_ID),
         }
     }
 
