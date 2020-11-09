@@ -5,7 +5,7 @@ use ipnetwork::IpNetwork;
 use libc::{c_void, wchar_t};
 use std::{
     ffi::{OsStr, OsString},
-    net::IpAddr,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ptr,
 };
 use widestring::WideCString;
@@ -28,6 +28,14 @@ pub enum Error {
     /// Failed to enable IPv6 on the network interface.
     #[error(display = "Failed to obtain GUID for the network interface")]
     GetInterfaceGuid,
+
+    /// Failed to get the current default route.
+    #[error(display = "Failed to obtain default route")]
+    GetDefaultRoute,
+
+    /// Failed to obtain an IP address given a LUID.
+    #[error(display = "Failed to obtain IP address for the given interface")]
+    GetIpAddressFromLuid,
 
     /// Failed to read IPv6 status on the TAP network interface.
     #[error(display = "Failed to read IPv6 status on the TAP network interface")]
@@ -142,6 +150,12 @@ pub enum WinNetAddrFamily {
     IPV6 = 1,
 }
 
+impl Default for WinNetAddrFamily {
+    fn default() -> Self {
+        WinNetAddrFamily::IPV4
+    }
+}
+
 impl WinNetAddrFamily {
     pub fn to_windows_proto_enum(&self) -> u16 {
         match self {
@@ -152,9 +166,30 @@ impl WinNetAddrFamily {
 }
 
 #[repr(C)]
+#[derive(Default)]
 pub struct WinNetIp {
-    addr_family: WinNetAddrFamily,
-    ip_bytes: [u8; 16],
+    pub addr_family: WinNetAddrFamily,
+    pub ip_bytes: [u8; 16],
+}
+
+#[repr(C)]
+#[derive(Default)]
+pub struct WinNetDefaultRoute {
+    pub interface_luid: u64,
+    pub gateway: WinNetIp,
+}
+
+impl From<WinNetIp> for IpAddr {
+    fn from(addr: WinNetIp) -> IpAddr {
+        match addr.addr_family {
+            WinNetAddrFamily::IPV4 => {
+                let mut bytes: [u8; 4] = Default::default();
+                bytes.clone_from_slice(&addr.ip_bytes[..4]);
+                IpAddr::V4(Ipv4Addr::from(bytes))
+            }
+            WinNetAddrFamily::IPV6 => IpAddr::V6(Ipv6Addr::from(addr.ip_bytes)),
+        }
+    }
 }
 
 impl From<IpAddr> for WinNetIp {
@@ -316,8 +351,8 @@ pub enum WinNetDefaultRouteChangeEventType {
 
 pub type DefaultRouteChangedCallback = unsafe extern "system" fn(
     event_type: WinNetDefaultRouteChangeEventType,
-    addr_family: WinNetAddrFamily,
-    interface_luid: u64,
+    family: WinNetAddrFamily,
+    default_route: WinNetDefaultRoute,
     ctx: *mut c_void,
 );
 
@@ -359,6 +394,48 @@ pub fn deactivate_routing_manager() {
     unsafe { WinNet_DeactivateRouteManager() }
 }
 
+// TODO: Remove attribute once this is in use.
+#[allow(dead_code)]
+pub fn get_best_default_route(
+    family: WinNetAddrFamily,
+) -> Result<Option<WinNetDefaultRoute>, Error> {
+    let mut default_route = WinNetDefaultRoute::default();
+    match unsafe {
+        WinNet_GetBestDefaultRoute(
+            family,
+            &mut default_route as *mut _,
+            Some(log_sink),
+            logging_context(),
+        )
+    } {
+        WinNetStatus::Success => Ok(Some(default_route)),
+        WinNetStatus::NotFound => Ok(None),
+        WinNetStatus::Failure => Err(Error::GetDefaultRoute),
+    }
+}
+
+// TODO: Remove attribute once this is in use.
+#[allow(dead_code)]
+pub fn interface_luid_to_ip(
+    family: WinNetAddrFamily,
+    luid: u64,
+) -> Result<Option<WinNetIp>, Error> {
+    let mut ip = WinNetIp::default();
+    match unsafe {
+        WinNet_InterfaceLuidToIpAddress(
+            family,
+            luid,
+            &mut ip as *mut _,
+            Some(log_sink),
+            logging_context(),
+        )
+    } {
+        WinNetStatus::Success => Ok(Some(ip)),
+        WinNetStatus::NotFound => Ok(None),
+        WinNetStatus::Failure => Err(Error::GetIpAddressFromLuid),
+    }
+}
+
 pub fn add_device_ip_addresses(iface: &String, addresses: &Vec<IpAddr>) -> bool {
     let raw_iface = WideCString::from_str(iface)
         .expect("Failed to convert UTF-8 string to null terminated UCS string")
@@ -378,6 +455,14 @@ mod api {
     use libc::{c_void, wchar_t};
 
     pub type ConnectivityCallback = unsafe extern "system" fn(is_connected: bool, ctx: *mut c_void);
+
+    #[allow(dead_code)]
+    #[repr(u32)]
+    pub enum WinNetStatus {
+        Success = 0,
+        NotFound = 1,
+        Failure = 2,
+    }
 
     extern "system" {
         #[link_name = "WinNet_ActivateRouteManager"]
@@ -414,6 +499,27 @@ mod api {
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> bool;
+
+        // TODO: Remove "allow(dead_code)" this is in use.
+        #[allow(dead_code)]
+        #[link_name = "WinNet_GetBestDefaultRoute"]
+        pub fn WinNet_GetBestDefaultRoute(
+            family: super::WinNetAddrFamily,
+            default_route: *mut super::WinNetDefaultRoute,
+            sink: Option<LogSink>,
+            sink_context: *const u8,
+        ) -> WinNetStatus;
+
+        // TODO: Remove "allow(dead_code)" this is in use.
+        #[allow(dead_code)]
+        #[link_name = "WinNet_InterfaceLuidToIpAddress"]
+        pub fn WinNet_InterfaceLuidToIpAddress(
+            family: super::WinNetAddrFamily,
+            luid: u64,
+            ip: *mut super::WinNetIp,
+            sink: Option<LogSink>,
+            sink_context: *const u8,
+        ) -> WinNetStatus;
 
         #[link_name = "WinNet_GetTapInterfaceAlias"]
         pub fn WinNet_GetTapInterfaceAlias(

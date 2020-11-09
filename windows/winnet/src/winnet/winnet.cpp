@@ -9,6 +9,7 @@
 #include <libshared/logging/unwind.h>
 #include <libshared/network/interfaceutils.h>
 #include <libcommon/error.h>
+#include <libcommon/memory.h>
 #include <libcommon/valuemapper.h>
 #include <libcommon/network.h>
 #include <cstdint>
@@ -90,6 +91,124 @@ WinNet_EnableIpv6ForAdapter(
 		return false;
 	}
 	return false;
+}
+
+extern "C"
+WINNET_LINKAGE
+WINNET_STATUS
+WINNET_API
+WinNet_GetBestDefaultRoute(
+	WINNET_ADDR_FAMILY family,
+	WINNET_DEFAULT_ROUTE *route,
+	MullvadLogSink logSink,
+	void *logSinkContext
+)
+{
+	try
+	{
+		if (nullptr == route)
+		{
+			THROW_ERROR("Invalid argument: route");
+		}
+
+		static const std::pair<WINNET_ADDR_FAMILY, ADDRESS_FAMILY> familyMap[] =
+		{
+			{ WINNET_ADDR_FAMILY_IPV4, static_cast<ADDRESS_FAMILY>(AF_INET) },
+			{ WINNET_ADDR_FAMILY_IPV6, static_cast<ADDRESS_FAMILY>(AF_INET6) }
+		};
+		const auto win_family = common::ValueMapper::Map<>(family, familyMap);
+
+		const auto ifaceAndGateway = GetBestDefaultRoute(win_family);
+
+		if (!ifaceAndGateway.has_value())
+		{
+			return WINNET_STATUS_NOT_FOUND;
+		}
+
+		route->interfaceLuid = ifaceAndGateway->iface.Value;
+		const auto ips = winnet::ConvertNativeAddresses(&ifaceAndGateway->gateway, 1);
+		route->gateway = ips[0];
+
+		return WINNET_STATUS_SUCCESS;
+	}
+	catch (const std::exception & err)
+	{
+		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
+		return WINNET_STATUS_FAILURE;
+	}
+	catch (...)
+	{
+		return WINNET_STATUS_FAILURE;
+	}
+}
+
+extern "C"
+WINNET_LINKAGE
+WINNET_STATUS
+WINNET_API
+WinNet_InterfaceLuidToIpAddress(
+	WINNET_ADDR_FAMILY family,
+	uint64_t interfaceLuid,
+	WINNET_IP *ip,
+	MullvadLogSink logSink,
+	void *logSinkContext
+)
+{
+	try
+	{
+		if (nullptr == ip)
+		{
+			THROW_ERROR("Invalid argument: ip");
+		}
+
+		static const std::pair<WINNET_ADDR_FAMILY, ADDRESS_FAMILY> familyMap[] =
+		{
+			{ WINNET_ADDR_FAMILY_IPV4, static_cast<ADDRESS_FAMILY>(AF_INET) },
+			{ WINNET_ADDR_FAMILY_IPV6, static_cast<ADDRESS_FAMILY>(AF_INET6) }
+		};
+		const auto win_family = common::ValueMapper::Map<>(family, familyMap);
+
+		MIB_UNICASTIPADDRESS_TABLE *table = nullptr;
+		const auto status = GetUnicastIpAddressTable(win_family, &table);
+
+		if (NO_ERROR != status)
+		{
+			THROW_WINDOWS_ERROR(status, "GetUnicastIpAddressTable");
+		}
+
+		common::memory::ScopeDestructor destructor;
+
+		destructor += [table]() {
+			FreeMibTable(table);
+		};
+
+		for (ULONG i = 0; i < table->NumEntries; i++)
+		{
+			const auto entry = table->Table[i];
+
+			if (interfaceLuid != entry.InterfaceLuid.Value)
+			{
+				continue;
+			}
+
+			// Found IP address
+			const auto ips = winnet::ConvertNativeAddresses(&entry.Address, 1);
+			*ip = ips[0];
+
+			return WINNET_STATUS_SUCCESS;
+		}
+
+		return WINNET_STATUS_NOT_FOUND;
+	}
+	catch (const std::exception & err)
+	{
+		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
+		return WINNET_STATUS_FAILURE;
+	}
+	catch (...)
+	{
+		return WINNET_STATUS_FAILURE;
+	}
 }
 
 extern "C"
@@ -480,22 +599,24 @@ WinNet_RegisterDefaultRouteChangedCallback(
 
 			const auto translatedFamily = common::ValueMapper::Map<>(family, familyMap);
 
-			//
-			// Determine which LUID to forward.
-			//
+			WINNET_DEFAULT_ROUTE defaultRoute = { 0 };
 
-			uint64_t translatedLuid = 0;
+			//
+			// Determine which LUID and gateway to forward.
+			//
 
 			if (RouteManager::DefaultRouteChangedEventType::Updated == eventType)
 			{
-				translatedLuid = route.value().iface.Value;
+				const auto ips = winnet::ConvertNativeAddresses(&route.value().gateway, 1);
+				defaultRoute.gateway = ips[0];
+				defaultRoute.interfaceLuid = route.value().iface.Value;
 			}
 
 			//
 			// Forward to client.
 			//
 
-			callback(translatedEventType, translatedFamily, translatedLuid, context);
+			callback(translatedEventType, translatedFamily, defaultRoute, context);
 		};
 
 		*registrationHandle = g_RouteManager->registerDefaultRouteChangedCallback(forwarder);
