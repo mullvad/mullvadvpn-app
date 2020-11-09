@@ -104,7 +104,15 @@ impl DnsMonitorHolder {
     fn with_detected_dns_manager() -> Result<Self> {
         SystemdResolved::new()
             .map(DnsMonitorHolder::SystemdResolved)
-            .or_else(|_| NetworkManager::new().map(DnsMonitorHolder::NetworkManager))
+            .or_else(|err| {
+                match err {
+                    systemd_resolved::Error::NoSystemdResolved(_) => (),
+                    other_error => {
+                        log::debug!("systemd-resolved is not being used because {}", other_error)
+                    }
+                }
+                NetworkManager::new().map(DnsMonitorHolder::NetworkManager)
+            })
             .or_else(|_| Resolvconf::new().map(DnsMonitorHolder::Resolvconf))
             .or_else(|_| StaticResolvConf::new().map(DnsMonitorHolder::StaticResolvConf))
             .map_err(|_| Error::NoDnsMonitor)
@@ -137,4 +145,10 @@ impl DnsMonitorHolder {
         }
         Ok(())
     }
+}
+
+/// Returns true if DnsMonitor will use NetworkManager to manage DNS.
+pub fn will_use_nm() -> bool {
+    crate::dns::imp::SystemdResolved::new().is_err()
+        && crate::dns::imp::NetworkManager::new().is_ok()
 }

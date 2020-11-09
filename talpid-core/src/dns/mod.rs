@@ -8,6 +8,9 @@ mod imp;
 #[path = "linux/mod.rs"]
 mod imp;
 
+#[cfg(target_os = "linux")]
+pub use imp::will_use_nm;
+
 #[cfg(windows)]
 #[path = "windows/mod.rs"]
 mod imp;

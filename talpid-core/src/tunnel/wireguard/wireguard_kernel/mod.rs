@@ -87,16 +87,6 @@ pub enum Error {
 
 const MULLVAD_INTERFACE_NAME: &str = "wg-mullvad";
 
-
-impl Error {
-    pub fn should_use_userspace(&self) -> bool {
-        match self {
-            Error::NetworkManager(nm_tunnel::Error::NMTooOld(_)) => true,
-            _ => false,
-        }
-    }
-}
-
 #[derive(Debug)]
 pub struct Handle {
     pub wg_handle: WireguardConnection,
