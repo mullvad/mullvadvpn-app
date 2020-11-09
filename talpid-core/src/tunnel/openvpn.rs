@@ -26,7 +26,7 @@ use std::{
     thread,
     time::Duration,
 };
-use talpid_types::net::openvpn;
+use talpid_types::{net::openvpn, ErrorExt};
 use tokio::task;
 #[cfg(target_os = "linux")]
 use which;
@@ -168,6 +168,7 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     server_join_handle: Option<task::JoinHandle<std::result::Result<(), event_server::Error>>>,
 }
 
+
 impl OpenVpnMonitor<OpenVpnCommand> {
     /// Creates a new `OpenVpnMonitor` with the given listener and using the plugin at the given
     /// path.
@@ -211,7 +212,10 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 }
                 tokio::task::block_in_place(|| {
                     let routes = extract_routes(&env).unwrap();
-                    route_manager_handle.clone().add_routes(routes).unwrap();
+                    if let Err(error) = route_manager_handle.clone().add_routes(routes) {
+                        log::error!("{}", error.display_chain());
+                        panic!("Failed to add routes");
+                    }
                 });
                 return;
             }
