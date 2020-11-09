@@ -148,6 +148,7 @@ const initialState: ISettingsReduxState = {
     autoConnect: true,
     monochromaticIcon: false,
     startMinimized: false,
+    unpinnedWindow: process.platform !== 'win32' && process.platform !== 'darwin',
   },
   relaySettings: {
     normal: {
