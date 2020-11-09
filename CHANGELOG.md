@@ -38,6 +38,7 @@ Line wrap the file at 100 chars.                                              Th
 - Apply DNS config quicker when managing DNS via NetworkManager.
 - When NetworkManager is managing /etc/resolv.conf but ultimately using systemd-resolved, use
   systemd-resolved directly to manage DNS.
+- Only use WireGuard kernel implementation if DNS isn't managed via NetworkManager.
 
 
 ## [2020.6] - 2020-10-20
