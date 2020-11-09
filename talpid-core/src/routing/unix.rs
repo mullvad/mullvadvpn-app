@@ -9,9 +9,6 @@ use futures::channel::{
 };
 use std::{collections::HashSet, io};
 
-#[cfg(target_os = "linux")]
-use std::net::IpAddr;
-
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
 mod imp;
@@ -66,22 +63,6 @@ impl RouteManagerHandle {
             .map_err(Error::PlatformError)
     }
 
-    /// Set the link to be ignored by the exclusions routing table.
-    #[cfg(target_os = "linux")]
-    pub fn set_tunnel_link(&self, interface: &str) -> Result<(), Error> {
-        let (response_tx, response_rx) = oneshot::channel();
-        self.tx
-            .unbounded_send(RouteManagerCommand::SetTunnelLink(
-                interface.to_string(),
-                response_tx,
-            ))
-            .map_err(|_| Error::RouteManagerDown)?;
-        Ok(self
-            .runtime
-            .block_on(response_rx)
-            .map_err(|_| Error::ManagerChannelDown)?)
-    }
-
     /// Ensure that packets are routed using the correct tables.
     #[cfg(target_os = "linux")]
     pub fn create_routing_rules(&self) -> Result<(), Error> {
@@ -122,18 +103,6 @@ pub(crate) enum RouteManagerCommand {
     CreateRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
     #[cfg(target_os = "linux")]
     ClearRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
-    #[cfg(target_os = "linux")]
-    EnableExclusionsRoutes(oneshot::Sender<Result<(), PlatformError>>),
-    #[cfg(target_os = "linux")]
-    DisableExclusionsRoutes,
-    #[cfg(target_os = "linux")]
-    SetTunnelLink(String, oneshot::Sender<()>),
-    #[cfg(target_os = "linux")]
-    RouteExclusionsDns(
-        String,
-        Vec<IpAddr>,
-        oneshot::Sender<Result<(), PlatformError>>,
-    ),
 }
 
 /// RouteManager applies a set of routes to the route table.
@@ -226,65 +195,6 @@ impl RouteManager {
         self.handle()?.clear_routing_rules()
     }
 
-    /// Route PID-associated packets through the physical interface.
-    #[cfg(target_os = "linux")]
-    pub fn enable_exclusions_routes(&mut self) -> Result<(), Error> {
-        if let Some(tx) = &self.manage_tx {
-            let (result_tx, result_rx) = oneshot::channel();
-            if tx
-                .unbounded_send(RouteManagerCommand::EnableExclusionsRoutes(result_tx))
-                .is_err()
-            {
-                return Err(Error::RouteManagerDown);
-            }
-
-            self.runtime
-                .block_on(result_rx)
-                .map_err(|_| Error::ManagerChannelDown)?
-                .map_err(Error::PlatformError)
-        } else {
-            Err(Error::RouteManagerDown)
-        }
-    }
-
-    /// Stop routing PID-associated packets through the physical interface.
-    #[cfg(target_os = "linux")]
-    pub fn disable_exclusions_routes(&self) -> Result<(), Error> {
-        if let Some(tx) = &self.manage_tx {
-            if tx
-                .unbounded_send(RouteManagerCommand::DisableExclusionsRoutes)
-                .is_err()
-            {
-                return Err(Error::RouteManagerDown);
-            }
-            Ok(())
-        } else {
-            Err(Error::RouteManagerDown)
-        }
-    }
-
-    /// Set the link to be ignored by the exclusions routing table.
-    #[cfg(target_os = "linux")]
-    pub fn set_tunnel_link(&mut self, tunnel_alias: &str) -> Result<(), Error> {
-        if let Some(tx) = &self.manage_tx {
-            let (result_tx, result_rx) = oneshot::channel();
-            if tx
-                .unbounded_send(RouteManagerCommand::SetTunnelLink(
-                    tunnel_alias.to_string(),
-                    result_tx,
-                ))
-                .is_err()
-            {
-                return Err(Error::RouteManagerDown);
-            }
-            self.runtime
-                .block_on(result_rx)
-                .map_err(|_| Error::ManagerChannelDown)
-        } else {
-            Err(Error::RouteManagerDown)
-        }
-    }
-
     /// Retrieve a sender directly to the command channel.
     pub fn handle(&self) -> Result<RouteManagerHandle, Error> {
         if let Some(tx) = &self.manage_tx {
@@ -301,35 +211,6 @@ impl RouteManager {
     #[cfg(target_os = "linux")]
     pub fn runtime_handle(&self) -> tokio::runtime::Handle {
         self.runtime.clone()
-    }
-
-    /// Route DNS requests through the tunnel interface.
-    #[cfg(target_os = "linux")]
-    pub fn route_exclusions_dns(
-        &mut self,
-        tunnel_alias: &str,
-        dns_servers: &[IpAddr],
-    ) -> Result<(), Error> {
-        if let Some(tx) = &self.manage_tx {
-            let (result_tx, result_rx) = oneshot::channel();
-            if tx
-                .unbounded_send(RouteManagerCommand::RouteExclusionsDns(
-                    tunnel_alias.to_string(),
-                    dns_servers.to_vec(),
-                    result_tx,
-                ))
-                .is_err()
-            {
-                return Err(Error::RouteManagerDown);
-            }
-
-            self.runtime
-                .block_on(result_rx)
-                .map_err(|_| Error::ManagerChannelDown)?
-                .map_err(Error::PlatformError)
-        } else {
-            Err(Error::RouteManagerDown)
-        }
     }
 }
 

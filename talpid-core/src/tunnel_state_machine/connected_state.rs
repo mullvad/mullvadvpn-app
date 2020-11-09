@@ -124,18 +124,6 @@ impl ConnectedState {
             .set(&self.metadata.interface, &dns_ips)
             .map_err(BoxedError::new)?;
 
-        #[cfg(target_os = "linux")]
-        {
-            let mut dns_routes = vec![IpAddr::V4(self.metadata.ipv4_gateway)];
-            if let Some(gateway) = self.metadata.ipv6_gateway {
-                dns_routes.push(IpAddr::V6(gateway));
-            }
-            shared_values
-                .route_manager
-                .route_exclusions_dns(&self.metadata.interface, &dns_routes)
-                .map_err(BoxedError::new)?;
-        }
-
         Ok(())
     }
 

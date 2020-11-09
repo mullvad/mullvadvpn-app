@@ -69,6 +69,22 @@ lazy_static! {
         v6_rule.header.family = AF_INET6 as u8;
         v6_rule
     };
+    static ref EXCLUSIONS_RULE_V4: RuleMessage = RuleMessage {
+        header: RuleHeader {
+            family: AF_INET as u8,
+            action: FR_ACT_TO_TBL,
+            ..RuleHeader::default()
+        },
+        nlas: vec![
+            RuleNla::FwMark(split_tunnel::MARK as u32),
+            RuleNla::Table(RT_TABLE_MAIN as u32),
+        ],
+    };
+    static ref EXCLUSIONS_RULE_V6: RuleMessage = {
+        let mut v6_rule = EXCLUSIONS_RULE_V4.clone();
+        v6_rule.header.family = AF_INET6 as u8;
+        v6_rule
+    };
 }
 
 
@@ -107,17 +123,6 @@ pub enum Error {
     Shutdown,
 }
 
-impl Error {
-    /// Returns true only if it's a netlink error with a code ENETUNREACH
-    fn is_network_unreachable(&self) -> bool {
-        match self {
-            Error::NetlinkError(rtnetlink::Error::NetlinkError(err)) => {
-                err.code == -libc::ENETUNREACH
-            }
-            _ => false,
-        }
-    }
-}
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
 struct RequiredDefaultRoute {
@@ -138,11 +143,6 @@ pub struct RouteManagerImpl {
     default_routes: HashSet<Route>,
     best_default_node_v4: Option<Node>,
     best_default_node_v6: Option<Node>,
-
-    split_table_id: u32,
-    split_ignored_interface: Option<String>,
-
-    dns_routes: HashSet<Route>,
 }
 
 impl RouteManagerImpl {
@@ -160,9 +160,6 @@ impl RouteManagerImpl {
         tokio::spawn(connection);
 
         let iface_map = Self::initialize_link_map(&handle).await?;
-        let split_table_id = Self::find_free_table_id(&handle).await?;
-
-        log::trace!("Using table id {} for excluded apps", split_table_id);
 
         let mut monitor = Self {
             iface_map,
@@ -175,14 +172,8 @@ impl RouteManagerImpl {
             default_routes: HashSet::new(),
             best_default_node_v4: None,
             best_default_node_v6: None,
-
-            split_table_id,
-            split_ignored_interface: None,
-
-            dns_routes: HashSet::new(),
         };
 
-        monitor.initialize_exclusions_routes().await?;
         monitor.clear_routing_rules().await?;
 
         monitor.default_routes = monitor.get_default_routes().await?;
@@ -196,91 +187,6 @@ impl RouteManagerImpl {
         Ok(monitor)
     }
 
-    async fn find_free_table_id(handle: &rtnetlink::Handle) -> Result<u32> {
-        let mut request = handle.route().get(IpVersion::V4).execute();
-        let mut used_ids = HashSet::new();
-
-        while let Some(route) = request.try_next().await.map_err(Error::NetlinkError)? {
-            let mut id_found = false;
-            for nla in route.nlas {
-                match nla {
-                    RouteNla::Table(id) => {
-                        used_ids.insert(id);
-                        id_found = true;
-                        break;
-                    }
-                    _ => (),
-                }
-            }
-
-            if !id_found {
-                // Use old header ID
-                used_ids.insert(u32::from(route.header.table));
-            }
-        }
-
-        for id in 1..u32::MAX {
-            if id == RT_TABLE_COMPAT as u32 {
-                continue;
-            }
-            if !used_ids.contains(&id) {
-                return Ok(id);
-            }
-        }
-
-        Err(Error::NoFreeRoutingTableId)
-    }
-
-    async fn purge_exclusions_routes(&mut self) -> Result<()> {
-        let split_routes = self.get_routes(Some(self.split_table_id)).await?;
-        for route in split_routes {
-            if let Err(error) = self.delete_route(&route).await {
-                log::warn!(
-                    "Failed to delete exclusions route: {}\n{}",
-                    route,
-                    error.display_chain()
-                );
-            }
-        }
-        Ok(())
-    }
-
-    async fn initialize_exclusions_routes(&mut self) -> Result<()> {
-        self.purge_exclusions_routes().await?;
-
-        let mut main_routes = self.get_routes(None).await?.into_iter().collect::<Vec<_>>();
-        main_routes.sort_by(|a, b| a.prefix.prefix().cmp(&b.prefix.prefix()));
-        main_routes.sort_by(|a, b| a.prefix.is_ipv4().cmp(&b.prefix.is_ipv4()));
-
-        for mut route in main_routes {
-            route.table_id = self.split_table_id;
-            if let Err(err) = self.add_route_direct(route.clone()).await {
-                // If a rotue can't be added because parts of it's next-hop are unreachable, then
-                // a gateway route should be added first. Seemingly there's an ARP table per
-                // routing table, and a route that specifies both a gateway and an output interface
-                // depends on a route that instructs how to reach the gateway.
-                if err.is_network_unreachable() {
-                    match (route.device_only_route(), route.node.get_address()) {
-                        (Some(mut gateway_route), Some(address)) => {
-                            gateway_route.prefix =
-                                IpNetwork::new(address, if address.is_ipv4() { 32 } else { 128 })
-                                    .unwrap();
-                            let add_gateway_route = self.add_route_direct(gateway_route).await;
-                            let add_route_result = self.add_route_direct(route).await;
-                            if let Err(err) = add_gateway_route.and_then(|_| add_route_result) {
-                                log::error!("Failed to add route to split-routing table: {}", err);
-                            };
-                            continue;
-                        }
-                        _ => (),
-                    };
-                }
-                log::error!("Failed to add route to split-routing table: {}", err);
-            }
-        }
-        Ok(())
-    }
-
     async fn create_routing_rules(&mut self) -> Result<()> {
         use netlink_packet_route::constants::*;
 
@@ -291,6 +197,8 @@ impl RouteManagerImpl {
             &*NO_FWMARK_RULE_V6,
             &*SUPPRESS_RULE_V4,
             &*SUPPRESS_RULE_V6,
+            &*EXCLUSIONS_RULE_V4,
+            &*EXCLUSIONS_RULE_V6,
         ] {
             let mut req = NetlinkMessage::from(RtnlMessage::NewRule((*rule).clone()));
             req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_CREATE | NLM_F_REPLACE;
@@ -308,10 +216,12 @@ impl RouteManagerImpl {
 
     async fn clear_routing_rules(&mut self) -> Result<()> {
         for rule in &[
-            &*NO_FWMARK_RULE_V4,
-            &*NO_FWMARK_RULE_V6,
+            &*EXCLUSIONS_RULE_V4,
+            &*EXCLUSIONS_RULE_V6,
             &*SUPPRESS_RULE_V4,
             &*SUPPRESS_RULE_V6,
+            &*NO_FWMARK_RULE_V4,
+            &*NO_FWMARK_RULE_V6,
         ] {
             self.delete_rule_if_exists((*rule).clone()).await?;
         }
@@ -333,157 +243,6 @@ impl RouteManagerImpl {
                 }
             }
         }
-        Ok(())
-    }
-
-    /// Route PID-associated packets through the physical interface.
-    async fn enable_exclusions_routes(&mut self) -> Result<()> {
-        // TODO: IPv6
-        use netlink_packet_route::constants::*;
-
-        if let Ok(true) = self.exclusions_rule_exists().await {
-            return Ok(());
-        }
-
-        let mut req = NetlinkMessage::from(RtnlMessage::NewRule(self.fwmark_rule_message()));
-        req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_CREATE | NLM_F_REPLACE;
-
-        let mut response = self.handle.request(req).map_err(Error::NetlinkError)?;
-
-        while let Some(message) = response.next().await {
-            if let NetlinkPayload::Error(error) = message.payload {
-                return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(error)));
-            }
-        }
-
-        Ok(())
-    }
-
-    /// Stop routing PID-associated packets through the physical interface.
-    async fn disable_exclusions_routes(&mut self) {
-        // TODO: IPv6
-        use netlink_packet_route::constants::*;
-
-        let mut req = NetlinkMessage::from(RtnlMessage::DelRule(self.fwmark_rule_message()));
-        req.header.flags = NLM_F_REQUEST | NLM_F_ACK;
-
-        match self.handle.request(req).map_err(Error::NetlinkError) {
-            Ok(mut response) => {
-                while let Some(message) = response.next().await {
-                    if let NetlinkPayload::Error(error) = message.payload {
-                        if error.to_io().kind() != io::ErrorKind::NotFound {
-                            log::warn!("Failed to delete routing policy: {}", error);
-                        }
-                    }
-                }
-            }
-            Err(error) => log::warn!("Failed to delete routing policy: {}", error),
-        }
-    }
-
-    async fn exclusions_rule_exists(&mut self) -> Result<bool> {
-        use netlink_packet_route::constants::*;
-
-        let mut req = NetlinkMessage::from(RtnlMessage::GetRule(RuleMessage {
-            header: RuleHeader {
-                family: AF_INET as u8,
-                ..RuleHeader::default()
-            },
-            nlas: vec![],
-        }));
-        req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_DUMP;
-
-        let mut response = self.handle.request(req).map_err(Error::NetlinkError)?;
-
-        while let Some(message) = response.next().await {
-            match message.payload {
-                NetlinkPayload::InnerMessage(inner) => {
-                    if let RtnlMessage::NewRule(rule) = RtnlMessage::from(inner) {
-                        let mut match_mark = false;
-                        let mut match_table = false;
-                        for nla in &rule.nlas {
-                            match nla {
-                                _x if _x == &RuleNla::FwMark(split_tunnel::MARK as u32) => {
-                                    match_mark = true;
-                                }
-                                _x if _x == &RuleNla::Table(self.split_table_id) => {
-                                    match_table = true;
-                                }
-                                _ => (),
-                            }
-                        }
-                        if match_mark && match_table {
-                            return Ok(true);
-                        }
-                    }
-                }
-                NetlinkPayload::Error(error) => {
-                    return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(error)));
-                }
-                _ => (),
-            }
-        }
-        Ok(false)
-    }
-
-    fn fwmark_rule_message(&self) -> RuleMessage {
-        use netlink_packet_route::constants::*;
-
-        RuleMessage {
-            header: RuleHeader {
-                family: AF_INET as u8,
-                action: FR_ACT_TO_TBL,
-                src_len: 0,
-                ..RuleHeader::default()
-            },
-            nlas: vec![
-                RuleNla::Source(ip_to_bytes(IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)))),
-                RuleNla::FwMark(split_tunnel::MARK as u32),
-                RuleNla::Table(self.split_table_id as u32),
-            ],
-        }
-    }
-
-    async fn clear_exclusions_dns(&mut self) -> Result<()> {
-        for route in self.dns_routes.clone() {
-            self.delete_route_if_exists(&route).await?;
-            self.dns_routes.remove(&route);
-            self.added_routes.remove(&route);
-        }
-        self.dns_routes.clear();
-
-        Ok(())
-    }
-
-    /// Route DNS requests through the tunnel interface.
-    async fn route_exclusions_dns(
-        &mut self,
-        tunnel_alias: &str,
-        dns_servers: &[IpAddr],
-    ) -> Result<()> {
-        self.clear_exclusions_dns().await?;
-
-        let mut dns_routes = HashSet::new();
-
-        for server in dns_servers {
-            dns_routes.insert(
-                Route::new(
-                    Node::device(tunnel_alias.to_string()),
-                    IpNetwork::from(*server),
-                )
-                .table(self.split_table_id),
-            );
-        }
-
-        if let Some(capacity_needed) = dns_routes.len().checked_sub(self.dns_routes.capacity()) {
-            self.dns_routes.reserve(capacity_needed);
-        }
-
-        for route in dns_routes {
-            self.add_route(route.clone()).await?;
-            self.dns_routes.insert(route);
-        }
-
         Ok(())
     }
 
@@ -550,48 +309,6 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    async fn get_routes(&self, table_id: Option<u32>) -> Result<HashSet<Route>> {
-        let mut routes = self.get_routes_inner(IpVersion::V4, table_id).await?;
-        routes.extend(self.get_routes_inner(IpVersion::V6, table_id).await?);
-        Ok(routes)
-    }
-
-    async fn get_routes_inner(
-        &self,
-        version: IpVersion,
-        table_id: Option<u32>,
-    ) -> Result<HashSet<Route>> {
-        let mut routes = HashSet::new();
-        let table_id = table_id.unwrap_or(RT_TABLE_MAIN as u32);
-        let mut route_request = self.handle.route().get(version).execute();
-
-        let mut num_ignored_loopback_interfaces: u32 = 0;
-        while let Some(route) = route_request
-            .try_next()
-            .await
-            .map_err(Error::NetlinkError)?
-        {
-            if let Some(route) = self.parse_route_message_inner(route)? {
-                if route.table_id != table_id {
-                    continue;
-                }
-                // Ignore loopback routes - we don't want to mess with those anyway
-                if route.is_loopback() {
-                    num_ignored_loopback_interfaces += 1;
-                    continue;
-                }
-                routes.insert(route);
-            }
-        }
-        if num_ignored_loopback_interfaces != 0 {
-            log::debug!(
-                "Ignored {} loopback routes",
-                num_ignored_loopback_interfaces
-            );
-        }
-        Ok(routes)
-    }
-
     async fn get_default_routes(&self) -> Result<HashSet<Route>> {
         let mut routes = self.get_default_routes_inner(IpVersion::V4).await?;
         routes.extend(self.get_default_routes_inner(IpVersion::V6).await?);
@@ -639,20 +356,6 @@ impl RouteManagerImpl {
 
 
     async fn process_new_route(&mut self, route: Route) -> Result<()> {
-        if self.split_ignored_interface.is_none()
-            || route.node.device != self.split_ignored_interface
-        {
-            let mut exclusions_route = route.clone();
-            exclusions_route.table_id = self.split_table_id;
-            if let Err(error) = self.add_route_direct(exclusions_route.clone()).await {
-                log::warn!(
-                    "Failed to add exclusions route: {}\n{}",
-                    exclusions_route,
-                    error.display_chain(),
-                );
-            }
-        }
-
         if route.prefix.prefix() == 0 {
             self.default_routes.insert(route);
             self.update_default_routes().await?;
@@ -661,40 +364,11 @@ impl RouteManagerImpl {
     }
 
     async fn process_deleted_route(&mut self, route: Route) -> Result<()> {
-        if self.split_ignored_interface.is_none()
-            || route.node.device != self.split_ignored_interface
-        {
-            let mut exclusions_route = route.clone();
-            exclusions_route.table_id = self.split_table_id;
-            if let Err(error) = self.delete_route(&exclusions_route).await {
-                match error {
-                    Error::NetlinkError(rtnetlink::Error::NetlinkError(error)) => {
-                        // Not finding the route is expected if the link goes down
-                        if error.code != -libc::ESRCH {
-                            log::error!(
-                                "Failed to remove exclusions route: {}\n{}",
-                                exclusions_route,
-                                error
-                            );
-                        }
-                    }
-                    error => {
-                        log::error!(
-                            "Failed to remove exclusions route: {}\n{}",
-                            exclusions_route,
-                            error.display_chain()
-                        );
-                    }
-                }
-            }
-        }
-
         if route.prefix.prefix() == 0 {
             self.default_routes.remove(&route);
             self.update_default_routes().await?;
         }
         self.added_routes.remove(&route);
-        self.dns_routes.remove(&route);
         Ok(())
     }
 
@@ -807,7 +481,6 @@ impl RouteManagerImpl {
             if let Err(e) = self.delete_route_if_exists(&route).await {
                 log::error!("Failed to remove route - {} - {}", route, e);
             }
-            self.dns_routes.remove(&route);
         }
     }
 
@@ -849,24 +522,6 @@ impl RouteManagerImpl {
             }
             RouteManagerCommand::ClearRoutingRules(result_tx) => {
                 let _ = result_tx.send(self.clear_routing_rules().await);
-            }
-            RouteManagerCommand::EnableExclusionsRoutes(result_tx) => {
-                let _ = result_tx.send(self.enable_exclusions_routes().await);
-            }
-            RouteManagerCommand::DisableExclusionsRoutes => {
-                self.disable_exclusions_routes().await;
-            }
-            RouteManagerCommand::SetTunnelLink(interface_name, result_tx) => {
-                log::debug!(
-                    "Exclusions: Ignoring route changes for dev {}",
-                    &interface_name
-                );
-                self.split_ignored_interface = Some(interface_name);
-                let _ = result_tx.send(());
-            }
-            RouteManagerCommand::RouteExclusionsDns(tunnel_alias, dns_servers, result_tx) => {
-                let _ =
-                    result_tx.send(self.route_exclusions_dns(&tunnel_alias, &dns_servers).await);
             }
             RouteManagerCommand::ClearRoutes => {
                 log::debug!("Clearing routes");
@@ -1214,12 +869,6 @@ impl RouteManagerImpl {
     }
 
     async fn destructor(&mut self) {
-        if let Err(error) = self.purge_exclusions_routes().await {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to flush exclusions routes")
-            );
-        }
         self.cleanup_routes().await;
 
         if let Err(error) = self.clear_routing_rules().await {

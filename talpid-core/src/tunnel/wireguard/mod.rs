@@ -84,14 +84,9 @@ impl WireguardMonitor {
         let iface_name = tunnel.get_interface_name().to_string();
 
         #[cfg(target_os = "linux")]
-        {
-            route_manager
-                .set_tunnel_link(&iface_name)
-                .map_err(Error::SetupRoutingError)?;
-            route_manager
-                .create_routing_rules()
-                .map_err(Error::SetupRoutingError)?;
-        }
+        route_manager
+            .create_routing_rules()
+            .map_err(Error::SetupRoutingError)?;
 
         route_manager
             .add_routes(Self::get_routes(&iface_name, &config))

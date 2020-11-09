@@ -213,12 +213,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         let on_openvpn_event = move |event, env: HashMap<String, String>| {
             #[cfg(target_os = "linux")]
             if event == openvpn_plugin::EventType::Up {
-                let interface = env.get("dev").unwrap();
                 tokio::task::block_in_place(|| {
-                    route_manager_handle
-                        .clone()
-                        .set_tunnel_link(interface)
-                        .unwrap();
                     let routes = extract_routes(&env).unwrap();
                     let route_manager_handle = route_manager_handle.clone();
                     if let Err(error) = route_manager_handle.add_routes(routes) {
