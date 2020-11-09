@@ -78,7 +78,7 @@ lazy_static! {
 
 pub struct NetworkManager {
     dbus_connection: Connection,
-    device: Option<dbus::Path<'static>>,
+    device: Option<String>,
     settings_backup: Option<HashMap<String, HashMap<String, Variant<Box<dyn RefArg>>>>>,
 }
 
@@ -142,6 +142,7 @@ impl NetworkManager {
 
     pub fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
         let device = self.fetch_device(interface_name)?;
+        self.wait_until_device_is_ready(&device)?;
 
         // Get the last applied connection
 
@@ -276,7 +277,7 @@ impl NetworkManager {
 
         self.reapply_settings(&device, settings, version_id)?;
 
-        self.device = Some(device);
+        self.device = Some(interface_name.to_string());
         self.settings_backup = Some(settings_backup);
 
         Ok(())
@@ -284,12 +285,30 @@ impl NetworkManager {
 
     pub fn reset(&mut self) -> Result<()> {
         if let Some(settings_backup) = self.settings_backup.take() {
-            let device = self.device.take().ok_or(Error::LinkNotFound)?;
-            self.reapply_settings(&device, settings_backup, 0u64)?;
-        } else {
-            log::trace!("No DNS settings to reset");
+            let device = match self.device.take() {
+                Some(device) => device,
+                None => return Ok(()),
+            };
+            let device = match self.fetch_device(&device) {
+                Ok(device) => device,
+                Err(Error::LinkNotFound) => return Ok(()),
+                Err(error) => return Err(error),
+            };
+
+            if device_is_ready(self.get_device_state(&device)?) {
+                self.reapply_settings(&device, settings_backup, 0u64)?;
+            }
+            return Ok(());
         }
+        log::trace!("No DNS settings to reset");
         Ok(())
+    }
+
+    fn get_device_state(&self, device: &dbus::Path<'_>) -> Result<u32> {
+        self.dbus_connection
+            .with_path(NM_BUS, device, RPC_TIMEOUT_MS)
+            .get(NM_DEVICE, "State")
+            .map_err(Error::Dbus)
     }
 
     fn reapply_settings<Settings: Append>(
@@ -352,60 +371,59 @@ impl NetworkManager {
                 continue;
             }
 
-            let mut device_state: u32 = self
-                .dbus_connection
-                .with_path(NM_BUS, device, RPC_TIMEOUT_MS)
-                .get(NM_DEVICE, "State")
-                .map_err(Error::Dbus)?;
-
-            if !device_is_ready(device_state) {
-                let deadline = Instant::now() + DEVICE_READY_TIMEOUT;
-                let match_rule = &format!(
-                    "destination='{}',path='{}',interface='{}',member='{}'",
-                    NM_BUS,
-                    device,
-                    NM_DEVICE,
-                    NM_DEVICE_STATE_CHANGED.to_string()
-                );
-                self.dbus_connection
-                    .add_match(match_rule)
-                    .map_err(Error::Dbus)?;
-
-                // a separate loopis used here because `connection.incoming(TIMEOUT)` will sleep
-                // for TIMEOUT after the last message was received - if the device is thrashing
-                // between states, we should probably give up rather than block indefinitely.
-                while Instant::now() < deadline && !device_is_ready(device_state) {
-                    for message in self.dbus_connection.incoming(RPC_TIMEOUT_MS as u32) {
-                        if message.member().as_ref() != Some(&NM_DEVICE_STATE_CHANGED) {
-                            continue;
-                        }
-                        let (new_state, _old_state, _reason): (u32, u32, u32) = message
-                            .read3()
-                            .map_err(Error::MatchDBusTypeError)
-                            .map_err(|error| {
-                                let _ = self.dbus_connection.remove_match(match_rule);
-                                error
-                            })?;
-
-                        device_state = new_state;
-                        log::trace!("New tunnel device state: {}", device_state);
-                        if device_is_ready(device_state) {
-                            break;
-                        }
-                    }
-                }
-
-                if let Err(error) = self.dbus_connection.remove_match(match_rule) {
-                    log::warn!("Failed to remove signal listener: {}", error);
-                }
-                if !device_is_ready(device_state) {
-                    return Err(Error::DeviceNotReady(device_state));
-                }
-            }
-
             return Ok(device.clone());
         }
         Err(Error::LinkNotFound)
+    }
+
+    fn wait_until_device_is_ready(&self, device: &dbus::Path<'_>) -> Result<()> {
+        let mut device_state = self.get_device_state(device)?;
+
+        if !device_is_ready(device_state) {
+            let deadline = Instant::now() + DEVICE_READY_TIMEOUT;
+            let match_rule = &format!(
+                "destination='{}',path='{}',interface='{}',member='{}'",
+                NM_BUS,
+                device,
+                NM_DEVICE,
+                NM_DEVICE_STATE_CHANGED.to_string()
+            );
+            self.dbus_connection
+                .add_match(match_rule)
+                .map_err(Error::Dbus)?;
+
+            // a separate loopis used here because `connection.incoming(TIMEOUT)` will sleep
+            // for TIMEOUT after the last message was received - if the device is thrashing
+            // between states, we should probably give up rather than block indefinitely.
+            while Instant::now() < deadline && !device_is_ready(device_state) {
+                for message in self.dbus_connection.incoming(RPC_TIMEOUT_MS as u32) {
+                    if message.member().as_ref() != Some(&NM_DEVICE_STATE_CHANGED) {
+                        continue;
+                    }
+                    let (new_state, _old_state, _reason): (u32, u32, u32) = message
+                        .read3()
+                        .map_err(Error::MatchDBusTypeError)
+                        .map_err(|error| {
+                            let _ = self.dbus_connection.remove_match(match_rule);
+                            error
+                        })?;
+
+                    device_state = new_state;
+                    log::trace!("New tunnel device state: {}", device_state);
+                    if device_is_ready(device_state) {
+                        break;
+                    }
+                }
+            }
+
+            if let Err(error) = self.dbus_connection.remove_match(match_rule) {
+                log::warn!("Failed to remove signal listener: {}", error);
+            }
+            if !device_is_ready(device_state) {
+                return Err(Error::DeviceNotReady(device_state));
+            }
+        }
+        Ok(())
     }
 }
 
