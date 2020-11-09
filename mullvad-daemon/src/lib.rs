@@ -26,8 +26,6 @@ use futures::{
 };
 use log::{debug, error, info, warn};
 use mullvad_rpc::AccountsProxy;
-#[cfg(not(target_os = "android"))]
-use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     endpoint::MullvadEndpoint,
@@ -37,14 +35,12 @@ use mullvad_types::{
         RelaySettingsUpdate,
     },
     relay_list::{Relay, RelayList},
-    settings::Settings,
+    settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
     wireguard::KeygenEvent,
 };
 use settings::SettingsPersister;
-#[cfg(not(target_os = "android"))]
-use std::net::IpAddr;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
 use std::{
@@ -52,6 +48,7 @@ use std::{
     io,
     marker::PhantomData,
     mem,
+    net::IpAddr,
     path::PathBuf,
     sync::{mpsc as sync_mpsc, Arc, Weak},
     time::Duration,
@@ -583,7 +580,6 @@ where
         let tunnel_command_tx = tunnel_state_machine::spawn(
             settings.allow_lan,
             settings.block_when_disconnected,
-            #[cfg(not(target_os = "android"))]
             Self::get_custom_resolvers(&settings.tunnel_options.dns_options),
             tunnel_parameters_generator,
             log_dir,
@@ -637,7 +633,6 @@ where
         Ok(daemon)
     }
 
-    #[cfg(not(target_os = "android"))]
     fn get_custom_resolvers(dns_options: &DnsOptions) -> Option<Vec<IpAddr>> {
         if dns_options.custom {
             Some(dns_options.addresses.clone())

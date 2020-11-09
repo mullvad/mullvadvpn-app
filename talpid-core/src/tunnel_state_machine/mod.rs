@@ -23,11 +23,10 @@ use futures::{
     channel::{mpsc, oneshot},
     stream, StreamExt,
 };
-#[cfg(not(target_os = "android"))]
-use std::net::IpAddr;
 use std::{
     collections::HashSet,
     io,
+    net::IpAddr,
     path::{Path, PathBuf},
     sync::{mpsc as sync_mpsc, Arc},
 };
@@ -75,7 +74,7 @@ pub enum Error {
 pub async fn spawn(
     allow_lan: bool,
     block_when_disconnected: bool,
-    #[cfg(not(target_os = "android"))] custom_dns: Option<Vec<IpAddr>>,
+    custom_dns: Option<Vec<IpAddr>>,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
@@ -112,7 +111,6 @@ pub async fn spawn(
             allow_lan,
             block_when_disconnected,
             is_offline,
-            #[cfg(not(target_os = "android"))]
             custom_dns,
             tunnel_parameters_generator,
             tun_provider,
@@ -193,7 +191,7 @@ impl TunnelStateMachine {
         allow_lan: bool,
         block_when_disconnected: bool,
         is_offline: bool,
-        #[cfg(not(target_os = "android"))] custom_dns: Option<Vec<IpAddr>>,
+        custom_dns: Option<Vec<IpAddr>>,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
         tun_provider: TunProvider,
         log_dir: Option<PathBuf>,
