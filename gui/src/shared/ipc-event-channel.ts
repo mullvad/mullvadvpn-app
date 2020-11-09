@@ -101,6 +101,7 @@ interface IGuiSettingsMethods extends IReceiver<IGuiSettingsState> {
   setStartMinimized(startMinimized: boolean): void;
   setMonochromaticIcon(monochromaticIcon: boolean): void;
   setPreferredLocale(locale: string): void;
+  setUnpinnedWindow(unpinnedWindow: boolean): void;
 }
 
 interface IGuiSettingsHandlers extends ISender<IGuiSettingsState> {
@@ -109,6 +110,7 @@ interface IGuiSettingsHandlers extends ISender<IGuiSettingsState> {
   handleStartMinimized(fn: (startMinimized: boolean) => void): void;
   handleMonochromaticIcon(fn: (monochromaticIcon: boolean) => void): void;
   handleSetPreferredLocale(fn: (locale: string) => void): void;
+  handleSetUnpinnedWindow(fn: (unpinnedWindow: boolean) => void): void;
 }
 
 interface IAccountHandlers extends ISender<IAccountData | undefined> {
@@ -204,6 +206,7 @@ const SET_AUTO_CONNECT = 'set-auto-connect';
 const SET_MONOCHROMATIC_ICON = 'set-monochromatic-icon';
 const SET_START_MINIMIZED = 'set-start-minimized';
 const SET_PREFERRED_LOCALE = 'set-preferred-locale';
+const SET_UNPINNED_WINDOW = 'set-unpinned-window';
 
 const GET_APP_STATE = 'get-app-state';
 
@@ -305,6 +308,7 @@ export class IpcRendererEventChannel {
     setMonochromaticIcon: set(SET_MONOCHROMATIC_ICON),
     setStartMinimized: set(SET_START_MINIMIZED),
     setPreferredLocale: set(SET_PREFERRED_LOCALE),
+    setUnpinnedWindow: set(SET_UNPINNED_WINDOW),
   };
 
   public static autoStart: IAutoStartMethods = {
@@ -412,6 +416,7 @@ export class IpcMainEventChannel {
     handleMonochromaticIcon: handler(SET_MONOCHROMATIC_ICON),
     handleStartMinimized: handler(SET_START_MINIMIZED),
     handleSetPreferredLocale: handler(SET_PREFERRED_LOCALE),
+    handleSetUnpinnedWindow: handler(SET_UNPINNED_WINDOW),
   };
 
   public static autoStart: IAutoStartHandlers = {

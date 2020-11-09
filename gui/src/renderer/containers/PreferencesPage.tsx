@@ -15,6 +15,7 @@ const mapStateToProps = (state: IReduxState) => ({
   enableSystemNotifications: state.settings.guiSettings.enableSystemNotifications,
   monochromaticIcon: state.settings.guiSettings.monochromaticIcon,
   startMinimized: state.settings.guiSettings.startMinimized,
+  unpinnedWindow: state.settings.guiSettings.unpinnedWindow,
 });
 
 const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
@@ -44,9 +45,11 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps
     setStartMinimized: (startMinimized: boolean) => {
       props.app.setStartMinimized(startMinimized);
     },
-    enableStartMinimizedToggle: process.platform === 'linux',
     setMonochromaticIcon: (monochromaticIcon: boolean) => {
       props.app.setMonochromaticIcon(monochromaticIcon);
+    },
+    setUnpinnedWindow: (unpinnedWindow: boolean) => {
+      props.app.setUnpinnedWindow(unpinnedWindow);
     },
   };
 };
