@@ -381,9 +381,12 @@ fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute
         .map_err(RouteParseError::ParseGatewayAddress)
         .map_err(Error::ParseRouteError)?;
     let tun_gateway_ip6: Option<IpAddr> = if let Some(gateway) = env.get("ifconfig_ipv6_remote") {
-        Some(gateway.parse()
-            .map_err(RouteParseError::ParseGatewayAddress)
-            .map_err(Error::ParseRouteError)?)
+        Some(
+            gateway
+                .parse()
+                .map_err(RouteParseError::ParseGatewayAddress)
+                .map_err(Error::ParseRouteError)?,
+        )
     } else {
         None
     };
@@ -393,16 +396,20 @@ fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute
         tun_gateway_ip,
         tun_interface.to_string(),
     ));
-    let tun_node6 = if let Some(gateway) = tun_gateway_ip6 {
+    #[cfg(windows)]
+    let tun_node6 = if tun_gateway_ip6.is_some() {
         routing::NetNode::from(routing::Node::new(
-            gateway,
+            "fe80::8"
+                .parse()
+                .map_err(RouteParseError::ParseGatewayAddress)
+                .map_err(Error::ParseRouteError)?,
             tun_interface.to_string(),
         ))
     } else {
-        routing::NetNode::from(routing::Node::device(
-            tun_interface.to_string(),
-        ))
+        routing::NetNode::from(routing::Node::device(tun_interface.to_string()))
     };
+    #[cfg(not(windows))]
+    let tun_node6 = routing::NetNode::from(routing::Node::device(tun_interface.to_string()));
 
     let ovpn_routes = parse_openvpn_dict_routes(env).map_err(Error::ParseRouteError)?;
 
