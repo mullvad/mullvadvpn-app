@@ -12,3 +12,4 @@ fi
 pkill -x "mullvad-gui" || true
 
 rm -f /var/cache/mullvad-vpn/relays.json
+rm -f /var/cache/mullvad-vpn/api-ip-address.txt
