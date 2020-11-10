@@ -149,8 +149,17 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     }
 
     fun removeDnsServer(address: InetAddress) {
-        jobTracker.newBackgroundJob("removeDnsServer $address") {
-            customDns.removeDnsServer(address)
+        jobTracker.newUiJob("removeDnsServer $address") {
+            val position = jobTracker.runOnBackground {
+                val index = cachedCustomDnsServers.indexOf(address)
+
+                cachedCustomDnsServers.removeAt(index)
+                customDns.removeDnsServer(address)
+
+                index
+            }
+
+            notifyItemRemoved(position)
         }
     }
 
