@@ -12,7 +12,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::Path,
 };
-use talpid_types::net::wireguard;
+use talpid_types::{net::wireguard, ErrorExt};
 
 
 pub mod rest;
@@ -35,6 +35,7 @@ pub const INVALID_VOUCHER: &str = "INVALID_VOUCHER";
 const API_HOST: &str = "api.mullvad.net";
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 const API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
+const API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
 
 
 /// A type that helps with the creation of RPC connections.
@@ -48,6 +49,9 @@ pub struct MullvadRpcRuntime {
 pub enum Error {
     #[error(display = "Failed to construct a rest client")]
     RestError(#[error(source)] rest::Error),
+
+    #[error(display = "Failed to load address cache")]
+    AddressCacheError(#[error(source)] address_cache::Error),
 }
 
 impl MullvadRpcRuntime {
@@ -56,17 +60,41 @@ impl MullvadRpcRuntime {
         Ok(MullvadRpcRuntime {
             https_connector: HttpsConnectorWithSni::new(),
             handle,
-            address_cache: AddressCache::new(),
+            address_cache: AddressCache::new(vec![API_ADDRESS.into()], None)?,
         })
     }
 
-    /// Create a new `MullvadRpcRuntime` using the specified cache directory.
-    pub async fn with_cache_dir(
+    /// Create a new `MullvadRpcRuntime` using the specified directories.
+    /// Try to use the cache directory first, and fall back on the resource directory
+    /// if it fails.
+    pub async fn with_cache(
         handle: tokio::runtime::Handle,
-        cache_dir: &Path,
+        resource_dir: &Path,
+        cache_dir: Option<&Path>,
     ) -> Result<Self, Error> {
-        let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
-        let address_cache = AddressCache::with_cache(cache_file.into_boxed_path()).await;
+        let resource_file = resource_dir.join(API_IP_CACHE_FILENAME);
+
+        let address_cache = if let Some(cache_dir) = cache_dir {
+            let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
+            let cache_file_boxed = cache_file.clone().into_boxed_path();
+
+            match AddressCache::from_file(&cache_file, Some(cache_file_boxed.clone())).await {
+                Ok(cache) => cache,
+                Err(error) => {
+                    if cache_file.exists() {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg(
+                                "Failed to load cached API addresses. Falling back on bundled list"
+                            )
+                        );
+                    }
+                    AddressCache::from_file(&resource_file, Some(cache_file_boxed)).await?
+                }
+            }
+        } else {
+            AddressCache::from_file(&resource_file, None).await?
+        };
 
         let https_connector = HttpsConnectorWithSni::new();
 
