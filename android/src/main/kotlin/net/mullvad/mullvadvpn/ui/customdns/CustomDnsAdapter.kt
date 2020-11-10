@@ -23,9 +23,15 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
 
     private var enteringNewServer = false
 
-    private var customDnsServers by observable<List<InetAddress>>(emptyList()) { _, _, _ ->
-        notifyDataSetChanged()
+    private var activeCustomDnsServers
+    by observable<List<InetAddress>>(emptyList()) { _, _, servers ->
+        if (servers != cachedCustomDnsServers) {
+            cachedCustomDnsServers = servers.toMutableList()
+            notifyDataSetChanged()
+        }
     }
+
+    private var cachedCustomDnsServers = emptyList<InetAddress>().toMutableList()
 
     private var enabled by observable(false) { _, oldValue, newValue ->
         if (oldValue != newValue) {
@@ -37,7 +43,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         customDns.apply {
             onDnsServersChanged.subscribe(this) { dnsServers ->
                 jobTracker.newUiJob("updateDnsServers") {
-                    customDnsServers = dnsServers
+                    activeCustomDnsServers = dnsServers
                 }
             }
 
@@ -51,7 +57,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
 
     override fun getItemCount() =
         if (enabled) {
-            customDnsServers.size + 2
+            cachedCustomDnsServers.size + 2
         } else {
             1
         }
@@ -99,7 +105,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
 
     override fun onBindViewHolder(holder: CustomDnsItemHolder, position: Int) {
         if (holder is CustomDnsServerHolder) {
-            holder.serverAddress = customDnsServers[position]
+            holder.serverAddress = cachedCustomDnsServers[position]
         }
     }
 
