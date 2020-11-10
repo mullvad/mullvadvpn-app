@@ -1,3 +1,4 @@
+use rand::seq::SliceRandom;
 use std::{
     io,
     net::{IpAddr, SocketAddr},
@@ -67,11 +68,14 @@ impl AddressCache {
         }
     }
 
-    pub async fn set_addresses(&self, addresses: Vec<SocketAddr>) -> io::Result<()> {
+    pub async fn set_addresses(&self, mut addresses: Vec<SocketAddr>) -> io::Result<()> {
         let should_update = {
             let mut inner = self.inner.lock().unwrap();
+            addresses.sort();
+            inner.addresses.sort();
             if addresses != inner.addresses {
                 inner.addresses = addresses.clone();
+                inner.shuffle();
                 inner.choice = 0;
                 true
             } else {
@@ -138,10 +142,17 @@ impl AddressCacheInner {
             addresses.push(FALLBACK_API_ADDRESS.into());
         }
 
-        Ok(Self {
+        let mut cache = Self {
             addresses,
             ..Default::default()
-        })
+        };
+        cache.shuffle();
+        Ok(cache)
+    }
+
+    fn shuffle(&mut self) {
+        let mut rng = rand::thread_rng();
+        (&mut self.addresses[..]).shuffle(&mut rng);
     }
 }
 
