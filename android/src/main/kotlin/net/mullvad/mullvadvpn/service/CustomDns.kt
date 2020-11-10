@@ -43,13 +43,17 @@ class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListene
         }
     }
 
-    fun addDnsServer(server: InetAddress) {
+    fun addDnsServer(server: InetAddress): Boolean {
         synchronized(this) {
             if (!dnsServers.contains(server)) {
                 dnsServers.add(server)
                 changeDnsOptions(enabled, dnsServers)
+
+                return true
             }
         }
+
+        return false
     }
 
     fun removeDnsServer(server: InetAddress) {

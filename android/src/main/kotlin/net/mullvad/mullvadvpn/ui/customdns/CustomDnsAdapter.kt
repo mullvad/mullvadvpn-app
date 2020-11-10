@@ -127,9 +127,27 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     }
 
     fun addDnsServer(address: String) {
-        jobTracker.newBackgroundJob("addDnsServer $address") {
-            if (inetAddressValidator.isValid(address)) {
-                customDns.addDnsServer(InetAddress.getByName(address))
+        jobTracker.newUiJob("addDnsServer $address") {
+            var added = false
+
+            jobTracker.runOnBackground {
+                if (inetAddressValidator.isValid(address)) {
+                    val address = InetAddress.getByName(address)
+
+                    if (customDns.addDnsServer(address)) {
+                        cachedCustomDnsServers.add(address)
+                        added = true
+                    }
+                }
+            }
+
+            if (added) {
+                enteringNewServer = false
+
+                val count = getItemCount()
+
+                notifyItemChanged(count - 3)
+                notifyItemInserted(count - 2)
             }
         }
     }
