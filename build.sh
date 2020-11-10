@@ -210,6 +210,7 @@ fi
 
 
 ./update-relays.sh
+./update-api-address.sh
 
 
 pushd "$SCRIPT_DIR/gui"
