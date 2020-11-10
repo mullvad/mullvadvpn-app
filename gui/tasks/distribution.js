@@ -23,6 +23,7 @@ const config = {
   extraResources: [
     { from: distAssets('ca.crt'), to: '.' },
     { from: distAssets('relays.json'), to: '.' },
+    { from: distAssets('api-ip-address.txt'), to: '.' },
     { from: root('CHANGELOG.md'), to: '.' },
   ],
 

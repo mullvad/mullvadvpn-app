@@ -100,3 +100,34 @@ void __declspec(dllexport) NSISCALL RemoveRelayCache
 		pushint(NsisStatus::GENERAL_ERROR);
 	}
 }
+
+void __declspec(dllexport) NSISCALL RemoveApiAddressCache
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t **stacktop,
+	extra_parameters *extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	try
+	{
+		cleaningops::RemoveApiAddressCacheServiceUser();
+
+		pushstring(L"");
+		pushint(NsisStatus::SUCCESS);
+	}
+	catch (const std::exception &err)
+	{
+		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(NsisStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(NsisStatus::GENERAL_ERROR);
+	}
+}
