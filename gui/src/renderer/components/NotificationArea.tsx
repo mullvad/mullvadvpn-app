@@ -3,13 +3,14 @@ import log from 'electron-log';
 import React, { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import {
-  CloseToAccountExpiryNotificationProvider,
   BlockWhenDisconnectedNotificationProvider,
+  CloseToAccountExpiryNotificationProvider,
   ConnectingNotificationProvider,
   ErrorNotificationProvider,
   InAppNotificationProvider,
   InconsistentVersionNotificationProvider,
   NotificationAction,
+  NoValidKeyNotificationProvider,
   ReconnectingNotificationProvider,
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
@@ -38,12 +39,19 @@ export default function NotificationArea(props: IProps) {
   const blockWhenDisconnected = useSelector(
     (state: IReduxState) => state.settings.blockWhenDisconnected,
   );
+  const tunnelProtocol = useSelector((state: IReduxState) =>
+    'normal' in state.settings.relaySettings
+      ? state.settings.relaySettings.normal.tunnelProtocol
+      : undefined,
+  );
+  const wireGuardKey = useSelector((state: IReduxState) => state.settings.wireguardKeyState);
 
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
     new BlockWhenDisconnectedNotificationProvider({ tunnelState, blockWhenDisconnected }),
     new ErrorNotificationProvider({ tunnelState, accountExpiry }),
+    new NoValidKeyNotificationProvider({ tunnelProtocol, wireGuardKey }),
     new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
     new UnsupportedVersionNotificationProvider(version),
     new UpdateAvailableNotificationProvider(version),
