@@ -104,6 +104,12 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     override fun onBindViewHolder(holder: CustomDnsItemHolder, position: Int) {
         if (holder is CustomDnsServerHolder) {
             holder.serverAddress = cachedCustomDnsServers[position]
+        } else if (holder is EditCustomDnsServerHolder) {
+            if (position >= cachedCustomDnsServers.size) {
+                holder.serverAddress = null
+            } else {
+                holder.serverAddress = cachedCustomDnsServers[position]
+            }
         }
     }
 
@@ -118,9 +124,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         if (enabled) {
             val count = getItemCount()
 
-            editingPosition = count - 2
-
-            notifyItemChanged(count - 2)
+            editDnsServerAt(count - 2)
         }
     }
 
@@ -133,6 +137,14 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
                     replaceDnsServer(address, position)
                 }
             }
+        }
+    }
+
+    fun editDnsServer(address: InetAddress) {
+        if (enabled) {
+            val position = cachedCustomDnsServers.indexOf(address)
+
+            editDnsServerAt(position)
         }
     }
 
@@ -185,5 +197,15 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
             editingPosition = null
             notifyItemChanged(position)
         }
+    }
+
+    private fun editDnsServerAt(position: Int) {
+        editingPosition?.let { oldPosition ->
+            notifyItemChanged(oldPosition)
+        }
+
+        editingPosition = position
+
+        notifyItemChanged(position)
     }
 }
