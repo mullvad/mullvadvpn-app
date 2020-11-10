@@ -494,9 +494,10 @@ where
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
 
-        let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache_dir(
+        let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
             tokio::runtime::Handle::current(),
-            &cache_dir,
+            &resource_dir,
+            Some(&cache_dir),
         )
         .await
         .map_err(Error::InitRpcFactory)?;

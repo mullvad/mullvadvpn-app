@@ -1,3 +1,4 @@
+use rand::seq::SliceRandom;
 use std::{
     io,
     net::{IpAddr, SocketAddr},
@@ -11,6 +12,19 @@ use tokio::{
 
 const FALLBACK_API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
 
+#[derive(err_derive::Error, Debug)]
+#[error(no_from)]
+pub enum Error {
+    #[error(display = "Failed to open the address cache file")]
+    OpenAddressCache(#[error(source)] io::Error),
+
+    #[error(display = "Failed to read the address cache file")]
+    ReadAddressCache(#[error(source)] io::Error),
+
+    #[error(display = "The address cache is empty")]
+    EmptyAddressCache,
+}
+
 #[derive(Clone)]
 pub struct AddressCache {
     inner: Arc<Mutex<AddressCacheInner>>,
@@ -18,20 +32,20 @@ pub struct AddressCache {
 }
 
 impl AddressCache {
-    pub fn new() -> Self {
-        Self {
-            inner: Arc::new(Mutex::new(Default::default())),
-            cache_path: None,
-        }
+    /// Initialize cache using the given list, and write changes to `cache_path`.
+    pub fn new(addresses: Vec<SocketAddr>, cache_path: Option<Box<Path>>) -> Result<Self, Error> {
+        log::trace!("Using API addresses: {:?}", addresses);
+        let cache = AddressCacheInner::from_addresses(addresses)?;
+        Ok(Self {
+            inner: Arc::new(Mutex::new(cache)),
+            cache_path: cache_path.map(|cache| Arc::from(cache)),
+        })
     }
 
-    pub async fn with_cache(cache_path: Box<Path>) -> Self {
-        let cache = AddressCacheInner::from_cache_file(&cache_path)
-            .await
-            .unwrap_or_default();
-        let inner = Arc::new(Mutex::new(cache));
-        let cache_path = Some(cache_path.into());
-        Self { inner, cache_path }
+    /// Initialize cache using `read_path`, and write changes to `cache_path`.
+    pub async fn from_file(read_path: &Path, cache_path: Option<Box<Path>>) -> Result<Self, Error> {
+        log::trace!("Loading API addresses from {:?}", read_path);
+        Self::new(read_address_file(read_path).await?, cache_path)
     }
 
     pub fn get_address(&self) -> SocketAddr {
@@ -67,11 +81,15 @@ impl AddressCache {
         }
     }
 
-    pub async fn set_addresses(&self, addresses: Vec<SocketAddr>) -> io::Result<()> {
+    pub async fn set_addresses(&self, mut addresses: Vec<SocketAddr>) -> io::Result<()> {
         let should_update = {
             let mut inner = self.inner.lock().unwrap();
-            if addresses != inner.addresses {
+            addresses.sort();
+            let mut current_sorted = inner.addresses.clone();
+            current_sorted.sort();
+            if addresses != current_sorted {
                 inner.addresses = addresses.clone();
+                inner.shuffle();
                 inner.choice = 0;
                 true
             } else {
@@ -120,37 +138,43 @@ struct AddressCacheInner {
 }
 
 impl AddressCacheInner {
-    async fn from_cache_file(path: &Path) -> io::Result<Self> {
-        let file = fs::File::open(path).await?;
-        let mut lines = BufReader::new(file).lines();
-        let mut addresses = vec![];
-        while let Some(line) = lines.next_line().await? {
-            // for line in lines.next_line() {
-            match line.trim().parse() {
-                Ok(address) => addresses.push(address),
-                Err(err) => {
-                    log::error!("Failed to parse cached address line: {}", err);
-                }
-            }
+    fn from_addresses(addresses: Vec<SocketAddr>) -> Result<Self, Error> {
+        if addresses.is_empty() {
+            return Err(Error::EmptyAddressCache);
         }
-
-        if !addresses.contains(&FALLBACK_API_ADDRESS.into()) {
-            addresses.push(FALLBACK_API_ADDRESS.into());
-        }
-
-        Ok(Self {
+        let mut cache = Self {
             addresses,
-            ..Default::default()
-        })
+            choice: 0,
+            last_try: None,
+        };
+        cache.shuffle();
+        Ok(cache)
+    }
+
+    fn shuffle(&mut self) {
+        let mut rng = rand::thread_rng();
+        (&mut self.addresses[..]).shuffle(&mut rng);
     }
 }
 
-impl Default for AddressCacheInner {
-    fn default() -> Self {
-        Self {
-            addresses: vec![FALLBACK_API_ADDRESS.into()],
-            choice: 0,
-            last_try: None,
+async fn read_address_file(path: &Path) -> Result<Vec<SocketAddr>, Error> {
+    let file = fs::File::open(path)
+        .await
+        .map_err(|error| Error::OpenAddressCache(error))?;
+    let mut lines = BufReader::new(file).lines();
+    let mut addresses = vec![];
+    while let Some(line) = lines
+        .next_line()
+        .await
+        .map_err(|error| Error::ReadAddressCache(error))?
+    {
+        // for line in lines.next_line() {
+        match line.trim().parse() {
+            Ok(address) => addresses.push(address),
+            Err(err) => {
+                log::error!("Failed to parse cached address line: {}", err);
+            }
         }
     }
+    Ok(addresses)
 }
