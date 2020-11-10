@@ -124,28 +124,14 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         }
     }
 
-    fun addDnsServer(address: String) {
-        jobTracker.newUiJob("addDnsServer $address") {
-            var added = false
-
-            jobTracker.runOnBackground {
-                if (inetAddressValidator.isValid(address)) {
-                    val address = InetAddress.getByName(address)
-
-                    if (customDns.addDnsServer(address)) {
-                        cachedCustomDnsServers.add(address)
-                        added = true
-                    }
+    fun saveDnsServer(address: String) {
+        jobTracker.newUiJob("saveDnsServer $address") {
+            editingPosition?.let { position ->
+                if (position >= cachedCustomDnsServers.size) {
+                    addDnsServer(address)
+                } else {
+                    replaceDnsServer(address, position)
                 }
-            }
-
-            if (added) {
-                editingPosition = null
-
-                val count = getItemCount()
-
-                notifyItemChanged(count - 3)
-                notifyItemInserted(count - 2)
             }
         }
     }
@@ -153,6 +139,51 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     fun removeDnsServer(address: InetAddress) {
         jobTracker.newBackgroundJob("removeDnsServer $address") {
             customDns.removeDnsServer(address)
+        }
+    }
+
+    private suspend fun addDnsServer(address: String) {
+        var added = false
+
+        jobTracker.runOnBackground {
+            if (inetAddressValidator.isValid(address)) {
+                val address = InetAddress.getByName(address)
+
+                if (customDns.addDnsServer(address)) {
+                    cachedCustomDnsServers.add(address)
+                    added = true
+                }
+            }
+        }
+
+        if (added) {
+            editingPosition = null
+
+            val count = getItemCount()
+
+            notifyItemChanged(count - 3)
+            notifyItemInserted(count - 2)
+        }
+    }
+
+    private suspend fun replaceDnsServer(address: String, position: Int) {
+        var replaced = false
+
+        jobTracker.runOnBackground {
+            if (inetAddressValidator.isValid(address)) {
+                val newAddress = InetAddress.getByName(address)
+                val oldAddress = cachedCustomDnsServers[position]
+
+                if (customDns.replaceDnsServer(oldAddress, newAddress)) {
+                    cachedCustomDnsServers[position] = newAddress
+                    replaced = true
+                }
+            }
+        }
+
+        if (replaced) {
+            editingPosition = null
+            notifyItemChanged(position)
         }
     }
 }
