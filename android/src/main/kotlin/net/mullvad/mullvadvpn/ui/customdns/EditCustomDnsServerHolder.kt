@@ -9,7 +9,7 @@ class EditCustomDnsServerHolder(view: View, adapter: CustomDnsAdapter) : CustomD
 
     init {
         view.findViewById<View>(R.id.save).setOnClickListener {
-            adapter.addDnsServer(input.text.toString())
+            adapter.saveDnsServer(input.text.toString())
         }
     }
 }
