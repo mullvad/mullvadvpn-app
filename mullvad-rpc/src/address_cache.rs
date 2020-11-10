@@ -12,6 +12,19 @@ use tokio::{
 
 const FALLBACK_API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
 
+#[derive(err_derive::Error, Debug)]
+#[error(no_from)]
+pub enum Error {
+    #[error(display = "Failed to open the address cache file")]
+    OpenAddressCache(#[error(source)] io::Error),
+
+    #[error(display = "Failed to read the address cache file")]
+    ReadAddressCache(#[error(source)] io::Error),
+
+    #[error(display = "The address cache is empty")]
+    EmptyAddressCache,
+}
+
 #[derive(Clone)]
 pub struct AddressCache {
     inner: Arc<Mutex<AddressCacheInner>>,
@@ -26,13 +39,11 @@ impl AddressCache {
         }
     }
 
-    pub async fn with_cache(cache_path: Box<Path>) -> Self {
-        let cache = AddressCacheInner::from_cache_file(&cache_path)
-            .await
-            .unwrap_or_default();
+    pub async fn with_cache(cache_path: Box<Path>) -> Result<Self, Error> {
+        let cache = AddressCacheInner::from_cache_file(&cache_path).await?;
         let inner = Arc::new(Mutex::new(cache));
         let cache_path = Some(cache_path.into());
-        Self { inner, cache_path }
+        Ok(Self { inner, cache_path })
     }
 
     pub fn get_address(&self) -> SocketAddr {
@@ -124,11 +135,17 @@ struct AddressCacheInner {
 }
 
 impl AddressCacheInner {
-    async fn from_cache_file(path: &Path) -> io::Result<Self> {
-        let file = fs::File::open(path).await?;
+    async fn from_cache_file(path: &Path) -> Result<Self, Error> {
+        let file = fs::File::open(path)
+            .await
+            .map_err(|error| Error::OpenAddressCache(error))?;
         let mut lines = BufReader::new(file).lines();
         let mut addresses = vec![];
-        while let Some(line) = lines.next_line().await? {
+        while let Some(line) = lines
+            .next_line()
+            .await
+            .map_err(|error| Error::ReadAddressCache(error))?
+        {
             // for line in lines.next_line() {
             match line.trim().parse() {
                 Ok(address) => addresses.push(address),
@@ -138,8 +155,8 @@ impl AddressCacheInner {
             }
         }
 
-        if !addresses.contains(&FALLBACK_API_ADDRESS.into()) {
-            addresses.push(FALLBACK_API_ADDRESS.into());
+        if addresses.is_empty() {
+            return Err(Error::EmptyAddressCache);
         }
 
         let mut cache = Self {

@@ -12,7 +12,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::Path,
 };
-use talpid_types::net::wireguard;
+use talpid_types::{net::wireguard, ErrorExt};
 
 
 pub mod rest;
@@ -48,6 +48,9 @@ pub struct MullvadRpcRuntime {
 pub enum Error {
     #[error(display = "Failed to construct a rest client")]
     RestError(#[error(source)] rest::Error),
+
+    #[error(display = "Failed to load address cache")]
+    AddressCacheError(#[error(source)] address_cache::Error),
 }
 
 impl MullvadRpcRuntime {
@@ -60,13 +63,31 @@ impl MullvadRpcRuntime {
         })
     }
 
-    /// Create a new `MullvadRpcRuntime` using the specified cache directory.
-    pub async fn with_cache_dir(
+    /// Create a new `MullvadRpcRuntime` using the specified directories.
+    /// Try to use the cache directory first, and fall back on the resource directory
+    /// if it fails.
+    pub async fn with_cache(
         handle: tokio::runtime::Handle,
+        resource_dir: &Path,
         cache_dir: &Path,
     ) -> Result<Self, Error> {
-        let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
-        let address_cache = AddressCache::with_cache(cache_file.into_boxed_path()).await;
+        let cache_file = cache_dir.join(API_IP_CACHE_FILENAME).into_boxed_path();
+
+        let address_cache = match AddressCache::with_cache(cache_file.clone()).await {
+            Ok(cache) => cache,
+            Err(error) => {
+                let resource_file = resource_dir.join(API_IP_CACHE_FILENAME).into_boxed_path();
+                if cache_file.exists() {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to load cached API addresses. Falling back on bundled list"
+                        )
+                    );
+                }
+                AddressCache::with_cache(resource_file).await?
+            }
+        };
 
         let https_connector = HttpsConnectorWithSni::new();
 
