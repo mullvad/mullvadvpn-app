@@ -21,7 +21,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     private val inetAddressValidator = InetAddressValidator.getInstance()
     private val jobTracker = JobTracker()
 
-    private var enteringNewServer = false
+    private var editingPosition: Int? = null
 
     private var activeCustomDnsServers
     by observable<List<InetAddress>>(emptyList()) { _, _, servers ->
@@ -65,16 +65,14 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     override fun getItemViewType(position: Int): Int {
         val count = getItemCount()
         val footer = count - 1
-        val addServerOrNewServer = count - 2
+        val addServer = count - 2
 
         if (position == footer) {
             return ViewTypes.FOOTER.ordinal
-        } else if (position == addServerOrNewServer) {
-            if (enteringNewServer) {
-                return ViewTypes.EDIT_SERVER.ordinal
-            } else {
-                return ViewTypes.ADD_SERVER.ordinal
-            }
+        } else if (position == editingPosition) {
+            return ViewTypes.EDIT_SERVER.ordinal
+        } else if (position == addServer) {
+            return ViewTypes.ADD_SERVER.ordinal
         } else {
             return ViewTypes.SHOW_SERVER.ordinal
         }
@@ -120,7 +118,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         if (enabled) {
             val count = getItemCount()
 
-            enteringNewServer = true
+            editingPosition = count - 2
 
             notifyItemChanged(count - 2)
         }
@@ -142,7 +140,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
             }
 
             if (added) {
-                enteringNewServer = false
+                editingPosition = null
 
                 val count = getItemCount()
 
