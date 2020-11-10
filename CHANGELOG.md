@@ -38,6 +38,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Use the API to fetch API IP addresses instead of DNS.
 - Remove WireGuard keys during uninstallation after the firewall is unlocked.
+- Randomly select addresses to use for communicating with the API.
+- Bundle a list of API addresses to use instead of assuming that the primary address can be reached.
 
 #### Android
 - Remove the Quit button.
