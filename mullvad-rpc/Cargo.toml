@@ -33,3 +33,6 @@ tempfile = "3.0"
 
 [[bin]]
 name = "relay_list"
+
+[[bin]]
+name = "address_cache"

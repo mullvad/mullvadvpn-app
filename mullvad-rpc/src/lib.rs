@@ -426,6 +426,10 @@ pub struct ApiProxy {
 }
 
 impl ApiProxy {
+    pub fn new(handle: rest::MullvadRestHandle) -> Self {
+        Self { handle }
+    }
+
     pub async fn get_api_addrs(&self) -> Result<Vec<SocketAddr>, rest::Error> {
         let service = self.handle.service.clone();
 
