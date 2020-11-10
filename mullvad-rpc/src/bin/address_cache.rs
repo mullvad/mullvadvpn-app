@@ -1,4 +1,4 @@
-/// Generate a first list of IP addresses for the Mullvad VPN to use to talk to the API.
+/// Generate a first list of IP addresses for Mullvad VPN to use to talk to the API.
 use mullvad_rpc::{rest::Error as RestError, ApiProxy, MullvadRpcRuntime};
 use std::process;
 use talpid_types::ErrorExt;
