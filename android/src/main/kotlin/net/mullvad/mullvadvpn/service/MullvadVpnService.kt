@@ -67,6 +67,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private lateinit var keyguardManager: KeyguardManager
     private lateinit var notificationManager: ForegroundNotificationManager
+    private lateinit var splitTunneling: SplitTunneling
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
 
     private var pendingAction by observable<PendingAction?>(null) { _, _, action ->
@@ -95,6 +96,13 @@ class MullvadVpnService : TalpidVpnService() {
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
         notificationManager.acknowledgeStartForegroundService()
+
+        splitTunneling = SplitTunneling(this).apply {
+            onChange = { excludedApps ->
+                disallowedApps = excludedApps
+                markTunAsStale()
+            }
+        }
 
         setUp()
     }
@@ -230,12 +238,10 @@ class MullvadVpnService : TalpidVpnService() {
         val settingsListener = SettingsListener(daemon, settings)
         val connectionProxy = ConnectionProxy(this, daemon)
 
-        val splitTunneling = SplitTunneling(this).apply {
-            onChange = { excludedApps ->
-                disallowedApps = excludedApps
-                markTunAsStale()
-                connectionProxy.reconnect()
-            }
+        splitTunneling.onChange = { excludedApps ->
+            disallowedApps = excludedApps
+            markTunAsStale()
+            connectionProxy.reconnect()
         }
 
         handlePendingAction(connectionProxy, settings)
