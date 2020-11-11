@@ -60,22 +60,22 @@ function messageForFailureKind(kind: AuthFailureKind): string {
     case AuthFailureKind.invalidAccount:
       return messages.pgettext(
         'auth-failure',
-        "You've logged in with an account number that is not valid. Please log out and try another one.",
+        'You are logged in with an invalid account number. Please log out and try another one.',
       );
 
     case AuthFailureKind.expiredAccount:
-      return messages.pgettext(
-        'auth-failure',
-        'You have no more VPN time left on this account. Please log in on our website to buy more credit.',
-      );
+      return messages.pgettext('auth-failure', 'Blocking internet: account is out of time');
 
     case AuthFailureKind.tooManyConnections:
       return messages.pgettext(
         'auth-failure',
-        'This account has too many simultaneous connections. Disconnect another device or try connecting again shortly.',
+        'Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly.',
       );
 
     case AuthFailureKind.unknown:
-      return messages.pgettext('auth-failure', 'Account authentication failed.');
+      return messages.pgettext(
+        'auth-failure',
+        'Unable to authenticate account. Please contact support.',
+      );
   }
 }

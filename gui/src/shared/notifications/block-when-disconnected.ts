@@ -1,18 +1,13 @@
 import { messages } from '../../shared/gettext';
 import { TunnelState } from '../daemon-rpc-types';
-import {
-  InAppNotification,
-  InAppNotificationProvider,
-  SystemNotificationProvider,
-} from './notification';
+import { InAppNotification, InAppNotificationProvider } from './notification';
 
 interface BlockWhenDisconnectedNotificationContext {
   tunnelState: TunnelState;
   blockWhenDisconnected: boolean;
 }
 
-export class BlockWhenDisconnectedNotificationProvider
-  implements InAppNotificationProvider, SystemNotificationProvider {
+export class BlockWhenDisconnectedNotificationProvider implements InAppNotificationProvider {
   public constructor(private context: BlockWhenDisconnectedNotificationContext) {}
 
   public mayDisplay() {
@@ -23,16 +18,9 @@ export class BlockWhenDisconnectedNotificationProvider
     );
   }
 
-  public getSystemNotification() {
-    return {
-      message: messages.pgettext('notifications', 'Blocking internet'),
-      critical: false,
-    };
-  }
-
   public getInAppNotification(): InAppNotification {
     return {
-      indicator: 'error',
+      indicator: 'warning',
       title: messages.pgettext('in-app-notifications', 'BLOCKING INTERNET'),
       subtitle: messages.pgettext('in-app-notifications', '"Always require VPN" is enabled.'),
     };

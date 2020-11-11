@@ -1,4 +1,3 @@
-import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import {
@@ -23,9 +22,8 @@ export class UnsupportedVersionNotificationProvider
   }
 
   public getSystemNotification(): SystemNotification {
-    const message = this.getMessage();
     return {
-      message,
+      message: this.getMessage(),
       critical: true,
       action: {
         type: 'open-url',
@@ -38,32 +36,19 @@ export class UnsupportedVersionNotificationProvider
   }
 
   public getInAppNotification(): InAppNotification {
-    const subtitle = this.getMessage();
-
     return {
       indicator: 'error',
       title: messages.pgettext('in-app-notifications', 'UNSUPPORTED VERSION'),
-      subtitle,
+      subtitle: this.getMessage(),
       action: { type: 'open-url', url: links.download },
     };
   }
 
   private getMessage(): string {
     // TRANSLATORS: The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
-    let message = messages.pgettext('notifications', 'You are running an unsupported app version.');
-    if (this.context.suggestedUpgrade) {
-      message += ' ';
-      message += sprintf(
-        // TRANSLATORS: Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
-        // TRANSLATORS: Available placeholder:
-        // TRANSLATORS: %(version) - the newest available version of the app
-        messages.pgettext(
-          'notifications',
-          'Please upgrade to %(version)s now to ensure your security',
-        ),
-        { version: this.context.suggestedUpgrade },
-      );
-    }
-    return message;
+    return messages.pgettext(
+      'notifications',
+      'Your privacy might be at risk with this unsupported app version. Please update now.',
+    );
   }
 }

@@ -40,6 +40,7 @@ import {
   CloseToAccountExpiryNotificationProvider,
   InconsistentVersionNotificationProvider,
   UnsupportedVersionNotificationProvider,
+  UpdateAvailableNotificationProvider,
 } from '../shared/notifications/notification';
 import consumePromise from '../shared/promise';
 import { Scheduler } from '../shared/scheduler';
@@ -802,12 +803,20 @@ class ApplicationMain {
     this.upgradeVersion = latestVersionInfo;
 
     // notify user to update the app if it became unsupported
-    const notificationProvider = new UnsupportedVersionNotificationProvider({
-      supported: latestVersionInfo.supported,
-      consistent: this.currentVersion.isConsistent,
-      suggestedUpgrade: latestVersionInfo.suggestedUpgrade,
-    });
-    if (notificationProvider.mayDisplay()) {
+    const notificationProviders = [
+      new UnsupportedVersionNotificationProvider({
+        supported: latestVersionInfo.supported,
+        consistent: this.currentVersion.isConsistent,
+        suggestedUpgrade: latestVersionInfo.suggestedUpgrade,
+      }),
+      new UpdateAvailableNotificationProvider({
+        suggestedUpgrade: latestVersionInfo.suggestedUpgrade,
+      }),
+    ];
+    const notificationProvider = notificationProviders.find((notificationProvider) =>
+      notificationProvider.mayDisplay(),
+    );
+    if (notificationProvider) {
       this.notificationController.notify(notificationProvider.getSystemNotification());
     }
 
