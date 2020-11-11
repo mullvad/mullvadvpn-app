@@ -37,6 +37,10 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         if (oldValue != newValue) {
             if (newValue == true) {
                 notifyItemRangeInserted(0, cachedCustomDnsServers.size + 1)
+
+                if (cachedCustomDnsServers.isEmpty()) {
+                    editingPosition = 0
+                }
             } else {
                 notifyItemRangeRemoved(0, cachedCustomDnsServers.size + 1)
             }
