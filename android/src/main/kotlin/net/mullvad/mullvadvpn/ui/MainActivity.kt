@@ -77,6 +77,8 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    var backButtonHandler: (() -> Boolean)? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         if (deviceIsTv) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE)
@@ -120,6 +122,14 @@ class MainActivity : FragmentActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         setVpnPermission(resultCode == Activity.RESULT_OK)
+    }
+
+    override fun onBackPressed() {
+        val handled = backButtonHandler?.invoke() ?: false
+
+        if (!handled) {
+            super.onBackPressed()
+        }
     }
 
     override fun onStop() {
