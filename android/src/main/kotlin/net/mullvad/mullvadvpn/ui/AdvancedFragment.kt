@@ -29,6 +29,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         val view = inflater.inflate(R.layout.advanced, container, false)
 
         view.findViewById<View>(R.id.back).setOnClickListener {
+            customDnsAdapter.stopEditing()
             parentActivity.onBackPressed()
         }
 
@@ -53,10 +54,13 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             )
         }
 
+        attachBackButtonHandler()
+
         return view
     }
 
     override fun onSafelyDestroyView() {
+        detachBackButtonHandler()
         customDnsAdapter.onDestroy()
         titleController.onDestroy()
         settingsListener.unsubscribe(this)
@@ -112,5 +116,20 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
                 wireguardMtuInput.value = settings.tunnelOptions.wireguard.mtu
             }
         }
+    }
+
+    private fun attachBackButtonHandler() {
+        parentActivity.backButtonHandler = {
+            if (customDnsAdapter.isEditing) {
+                customDnsAdapter.stopEditing()
+                true
+            } else {
+                false
+            }
+        }
+    }
+
+    private fun detachBackButtonHandler() {
+        parentActivity.backButtonHandler = null
     }
 }
