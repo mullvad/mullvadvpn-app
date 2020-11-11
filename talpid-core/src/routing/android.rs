@@ -23,9 +23,15 @@ impl RouteManagerImpl {
     ) -> Result<(), Error> {
         let mut manage_rx = manage_rx.fuse();
         while let Some(command) = manage_rx.next().await {
-            if let RouteManagerCommand::Shutdown(tx) = command {
-                tx.send(()).map_err(|()| Error)?;
-                break;
+            match command {
+                RouteManagerCommand::Shutdown(tx) => {
+                    tx.send(()).map_err(|()| Error)?;
+                    break;
+                }
+                RouteManagerCommand::AddRoutes(_routes, tx) => {
+                    let _ = tx.send(Ok(()));
+                }
+                RouteManagerCommand::ClearRoutes => (),
             }
         }
         Ok(())

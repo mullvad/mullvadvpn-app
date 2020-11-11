@@ -78,14 +78,11 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Handle statically added routes.
 - Stop reconnecting when using WireGuard and NetworkManager.
-- Apply DNS config quicker when managing DNS via NetworkManager.
 - Fix routing rules sometimes being duplicated.
-- When NetworkManager is managing /etc/resolv.conf but ultimately using systemd-resolved, use
-  systemd-resolved directly to manage DNS.
-- Only use WireGuard kernel implementation if DNS isn't managed via NetworkManager.
 - Reset DNS config correctly when the tunnel monitor unexpectedly goes down.
 - Set search domains in NetworkManager's DNS configuration, resolving issues where NetworkManager
   is used to manage DNS via systemd-resolved.
+- Parse routes more permissively and log parsing errors less verbosely.
 
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and
@@ -95,6 +92,24 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Block all traffic received or sent before the BFE service and daemon service have started during
   boot, if "Always require VPN" or auto-connect is enabled.
+
+
+## [2020.7-beta1] - 2020-11-10
+This release is for desktop only. It only has changes for Linux
+
+### Fixed
+#### Linux
+- Order routes by prefix size in ascending order when applying them.
+  Fixes an issue where seemingly manually added routes would be returned
+  from the kernel in an order which can't be applied.
+- If possible, use NetworkManager to create a WireGuard interface so that DNS can be managed
+  via NetworkManager as well. This fixes the issue where the daemon will reconnect
+  spuriously when using NetworkManager and WireGuard.
+- Fix route parsing bug in route monitor by ignoring loopback routes.
+- Apply DNS config quicker when managing DNS via NetworkManager.
+- When NetworkManager is managing /etc/resolv.conf but ultimately using systemd-resolved, use
+  systemd-resolved directly to manage DNS.
+- Only use WireGuard kernel implementation if DNS isn't managed via NetworkManager.
 
 
 ## [2020.6] - 2020-10-20

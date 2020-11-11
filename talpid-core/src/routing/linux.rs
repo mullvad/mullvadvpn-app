@@ -9,7 +9,7 @@ use ipnetwork::IpNetwork;
 use std::{
     collections::{BTreeMap, HashSet},
     io,
-    net::{IpAddr, Ipv4Addr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
 
 use futures::{channel::mpsc::UnboundedReceiver, future::FutureExt, StreamExt, TryStreamExt};
@@ -71,6 +71,18 @@ pub enum Error {
 
     #[error(display = "Shutting down route manager")]
     Shutdown,
+}
+
+impl Error {
+    /// Returns true only if it's a netlink error with a code ENETUNREACH
+    fn is_network_unreachable(&self) -> bool {
+        match self {
+            Error::NetlinkError(rtnetlink::Error::NetlinkError(err)) => {
+                err.code == -libc::ENETUNREACH
+            }
+            _ => false,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
@@ -203,10 +215,33 @@ impl RouteManagerImpl {
 
         let mut main_routes = self.get_routes(None).await?.into_iter().collect::<Vec<_>>();
         main_routes.sort_by(|a, b| a.prefix.prefix().cmp(&b.prefix.prefix()));
+        main_routes.sort_by(|a, b| a.prefix.is_ipv4().cmp(&b.prefix.is_ipv4()));
 
         for mut route in main_routes {
             route.table_id = self.split_table_id;
-            self.add_route_direct(route).await?;
+            if let Err(err) = self.add_route_direct(route.clone()).await {
+                // If a rotue can't be added because parts of it's next-hop are unreachable, then
+                // a gateway route should be added first. Seemingly there's an ARP table per
+                // routing table, and a route that specifies both a gateway and an output interface
+                // depends on a route that instructs how to reach the gateway.
+                if err.is_network_unreachable() {
+                    match (route.device_only_route(), route.node.get_address()) {
+                        (Some(mut gateway_route), Some(address)) => {
+                            gateway_route.prefix =
+                                IpNetwork::new(address, if address.is_ipv4() { 32 } else { 128 })
+                                    .unwrap();
+                            let add_gateway_route = self.add_route_direct(gateway_route).await;
+                            let add_route_result = self.add_route_direct(route).await;
+                            if let Err(err) = add_gateway_route.and_then(|_| add_route_result) {
+                                log::error!("Failed to add route to split-routing table: {}", err);
+                            };
+                            continue;
+                        }
+                        _ => (),
+                    };
+                }
+                log::error!("Failed to add route to split-routing table: {}", err);
+            }
         }
         Ok(())
     }
@@ -440,6 +475,7 @@ impl RouteManagerImpl {
         let table_id = table_id.unwrap_or(RT_TABLE_MAIN as u32);
         let mut route_request = self.handle.route().get(version).execute();
 
+        let mut num_ignored_loopback_interfaces: u32 = 0;
         while let Some(route) = route_request
             .try_next()
             .await
@@ -449,8 +485,19 @@ impl RouteManagerImpl {
                 if route.table_id != table_id {
                     continue;
                 }
+                // Ignore loopback routes - we don't want to mess with those anyway
+                if route.is_loopback() {
+                    num_ignored_loopback_interfaces += 1;
+                    continue;
+                }
                 routes.insert(route);
             }
+        }
+        if num_ignored_loopback_interfaces != 0 {
+            log::debug!(
+                "Ignored {} loopback routes",
+                num_ignored_loopback_interfaces
+            );
         }
         Ok(routes)
     }
@@ -770,14 +817,33 @@ impl RouteManagerImpl {
 
     // Tries to coax a Route out of a RouteMessage
     fn parse_route_message_inner(&self, msg: RouteMessage) -> Result<Option<Route>> {
-        let mut prefix = None;
+        let af_spec = msg.header.address_family;
+        let destination_length = msg.header.destination_prefix_length;
+        let is_ipv4 = match af_spec as i32 {
+            AF_INET => true,
+            AF_INET6 => false,
+            af_spec => {
+                log::error!("Unexpected routing protocol: {}", af_spec);
+                return Ok(None);
+            }
+        };
+
+
+        // By default, the prefix is unspecified.
+        let mut prefix = IpNetwork::new(
+            if is_ipv4 {
+                Ipv4Addr::UNSPECIFIED.into()
+            } else {
+                Ipv6Addr::UNSPECIFIED.into()
+            },
+            destination_length,
+        )
+        .map_err(Error::InvalidNetworkPrefix)?;
         let mut node_addr = None;
         let mut device = None;
         let mut metric = None;
-        let mut gateway = None;
+        let mut gateway: Option<IpAddr> = None;
 
-        let destination_length = msg.header.destination_prefix_length;
-        let af_spec = msg.header.address_family;
         let mut table_id = u32::from(msg.header.table);
 
         for nla in msg.nlas.iter() {
@@ -785,11 +851,15 @@ impl RouteManagerImpl {
                 RouteNla::Oif(device_idx) => {
                     match self.iface_map.get(&device_idx) {
                         Some(route_device) => {
-                            if route_device.is_loopback() {
-                                log::debug!("Ignoring route with interface '{}' because it's a loopback interface", route_device.name);
-                                return Ok(None);
+                            if !route_device.is_loopback() {
+                                device = Some(route_device);
+                            } else {
+                                gateway = if is_ipv4 {
+                                    Some(Ipv4Addr::LOCALHOST.into())
+                                } else {
+                                    Some(Ipv6Addr::LOCALHOST.into())
+                                };
                             }
-                            device = Some(route_device);
                         }
                         None => {
                             return Err(Error::UnknownDeviceIndex(*device_idx));
@@ -802,12 +872,10 @@ impl RouteManagerImpl {
                 }
 
                 RouteNla::Destination(addr) => {
-                    prefix = Self::parse_ip(&addr)
-                        .and_then(|ip| {
-                            ipnetwork::IpNetwork::new(ip, destination_length)
-                                .map_err(Error::InvalidNetworkPrefix)
-                        })
-                        .map(Some)?;
+                    prefix = Self::parse_ip(&addr).and_then(|ip| {
+                        ipnetwork::IpNetwork::new(ip, destination_length)
+                            .map_err(Error::InvalidNetworkPrefix)
+                    })?;
                 }
 
                 // gateway NLAs indicate that this is actually a default route
@@ -826,32 +894,23 @@ impl RouteManagerImpl {
             }
         }
 
-
-        // when a gateway is specified but prefix is none, then this is a default route
-        if prefix.is_none() && gateway.is_some() {
-            prefix = match af_spec as i32 {
-                AF_INET => Some("0.0.0.0/0".parse().expect("failed to parse ipnetwork")),
-                AF_INET6 => Some("::/0".parse().expect("failed to parse ipnetwork")),
-                _ => None,
-            };
-        }
-
-        if device.is_none() && node_addr.is_none() || prefix.is_none() {
+        if device.is_none() && node_addr.is_none() && gateway.is_none() {
             return Err(Error::InvalidRoute);
         }
 
 
         let node = Node {
-            ip: node_addr.or(gateway),
+            ip: node_addr.or(gateway.into()),
             device: device.map(|dev| dev.name.clone()),
         };
 
-        Ok(Some(Route {
+        let result = Ok(Some(Route {
             node,
-            prefix: prefix.unwrap(),
+            prefix,
             metric,
             table_id,
-        }))
+        }));
+        result
     }
 
     fn map_interface(msg: LinkMessage) -> Option<(u32, NetworkInterface)> {
