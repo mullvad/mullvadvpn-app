@@ -423,11 +423,14 @@ fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute
     let ovpn_routes = parse_openvpn_dict_routes(env).map_err(Error::ParseRouteError)?;
 
     for route in ovpn_routes {
-        let node = match route.gateway {
-            _ if route.gateway == default_node_ip => routing::NetNode::DefaultNode,
-            _ if route.gateway == tun_gateway_ip => tun_node.clone(),
-            _ if Some(route.gateway) == tun_gateway_ip6 => tun_node6.clone(),
-            other => routing::NetNode::from(routing::Node::address(other)),
+        let node = if route.gateway == default_node_ip {
+            routing::NetNode::DefaultNode
+        } else if route.gateway == tun_gateway_ip {
+            tun_node.clone()
+        } else if Some(route.gateway) == tun_gateway_ip6 {
+            tun_node6.clone()
+        } else {
+            routing::NetNode::from(routing::Node::address(route.gateway))
         };
         routes.insert(RequiredRoute::new(route.network, node));
     }
