@@ -1,11 +1,4 @@
-import React, {
-  useCallback,
-  useContext,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useContext, useLayoutEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router';
 import { colors } from '../../config.json';
@@ -136,7 +129,7 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
     (state: IReduxState) => state.userInterface.scrollPosition[history.location.pathname],
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const path = history.location.pathname;
 
     if (history.action === 'POP' && scrollPosition) {
