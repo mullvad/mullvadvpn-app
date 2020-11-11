@@ -2,17 +2,19 @@ use self::config::Config;
 #[cfg(not(windows))]
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
-use crate::routing::{self, RequiredRoute};
+use crate::routing;
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
 #[cfg(target_os = "linux")]
 use std::env;
 use std::{
-    collections::HashSet,
     path::Path,
     sync::{mpsc, Arc, Mutex},
 };
 use talpid_types::ErrorExt;
+
+#[cfg(not(target_os = "android"))]
+use {crate::routing::RequiredRoute, std::collections::HashSet};
 
 /// WireGuard config data-types
 pub mod config;
@@ -245,6 +247,7 @@ impl WireguardMonitor {
             })
     }
 
+    #[cfg(not(target_os = "android"))]
     fn get_routes(iface_name: &str, config: &Config) -> HashSet<RequiredRoute> {
         let node = routing::Node::device(iface_name.to_string());
         let mut routes: HashSet<RequiredRoute> = Self::get_tunnel_routes(config)
