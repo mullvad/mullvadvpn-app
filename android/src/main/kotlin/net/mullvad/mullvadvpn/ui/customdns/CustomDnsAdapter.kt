@@ -35,7 +35,11 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
 
     private var enabled by observable(false) { _, oldValue, newValue ->
         if (oldValue != newValue) {
-            notifyDataSetChanged()
+            if (newValue == true) {
+                notifyItemRangeInserted(0, cachedCustomDnsServers.size + 1)
+            } else {
+                notifyItemRangeRemoved(0, cachedCustomDnsServers.size + 1)
+            }
         }
     }
 
