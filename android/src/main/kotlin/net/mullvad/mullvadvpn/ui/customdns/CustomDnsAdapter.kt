@@ -47,6 +47,9 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         }
     }
 
+    val isEditing
+        get() = editingPosition != null
+
     init {
         customDns.apply {
             onDnsServersChanged.subscribe(this) { dnsServers ->
