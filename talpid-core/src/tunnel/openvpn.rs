@@ -398,6 +398,8 @@ fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute
     ));
     #[cfg(windows)]
     let tun_node6 = if tun_gateway_ip6.is_some() {
+        // The tapdrvr expects a special address here rather than a real gateway.
+        // See https://github.com/OpenVPN/openvpn/blob/23e11e591347080efa3b933beca7f620dd059d5c/src/openvpn/route.c#L2013
         routing::NetNode::from(routing::Node::new(
             "fe80::8"
                 .parse()
