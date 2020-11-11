@@ -4,7 +4,6 @@ import os from 'os';
 import path from 'path';
 import { TunnelState } from '../shared/daemon-rpc-types';
 import {
-  BlockWhenDisconnectedNotificationProvider,
   ConnectedNotificationProvider,
   ConnectingNotificationProvider,
   DisconnectedNotificationProvider,
@@ -58,8 +57,7 @@ export default class NotificationController {
       new ConnectingNotificationProvider({ tunnelState, reconnecting: this.reconnecting }),
       new ConnectedNotificationProvider(tunnelState),
       new ReconnectingNotificationProvider(tunnelState),
-      new BlockWhenDisconnectedNotificationProvider({ tunnelState, blockWhenDisconnected }),
-      new DisconnectedNotificationProvider(tunnelState),
+      new DisconnectedNotificationProvider({ tunnelState, blockWhenDisconnected }),
       new ErrorNotificationProvider({ tunnelState, accountExpiry }),
     ];
 

@@ -1,13 +1,18 @@
-import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
-import { InAppNotification, InAppNotificationProvider } from './notification';
+import {
+  InAppNotification,
+  InAppNotificationProvider,
+  SystemNotification,
+  SystemNotificationProvider,
+} from './notification';
 
 interface UpdateAvailableNotificationContext {
   suggestedUpgrade?: string;
 }
 
-export class UpdateAvailableNotificationProvider implements InAppNotificationProvider {
+export class UpdateAvailableNotificationProvider
+  implements InAppNotificationProvider, SystemNotificationProvider {
   public constructor(private context: UpdateAvailableNotificationContext) {}
 
   public mayDisplay() {
@@ -15,22 +20,32 @@ export class UpdateAvailableNotificationProvider implements InAppNotificationPro
   }
 
   public getInAppNotification(): InAppNotification {
-    const subtitle = sprintf(
-      // TRANSLATORS: The in-app banner displayed to the user when the app update is available.
-      // TRANSLATORS: Available placeholders:
-      // TRANSLATORS: %(version)s - the newest available version of the app
-      messages.pgettext(
-        'in-app-notifications',
-        'Install Mullvad VPN (%(version)s) to stay up to date',
-      ),
-      { version: this.context.suggestedUpgrade },
-    );
-
     return {
       indicator: 'warning',
       title: messages.pgettext('in-app-notifications', 'UPDATE AVAILABLE'),
-      subtitle,
+      // TRANSLATORS: The in-app banner displayed to the user when the app update is available.
+      subtitle: messages.pgettext(
+        'in-app-notifications',
+        'Install the latest app version to stay up to date.',
+      ),
       action: { type: 'open-url', url: links.download },
+    };
+  }
+
+  public getSystemNotification(): SystemNotification {
+    return {
+      message: messages.pgettext(
+        'notifications',
+        'Update available. Install the latest app version to stay up to date',
+      ),
+      critical: false,
+      action: {
+        type: 'open-url',
+        url: links.download,
+        text: messages.pgettext('notifications', 'Upgrade'),
+      },
+      presentOnce: { value: true, name: this.constructor.name },
+      suppressInDevelopment: true,
     };
   }
 }

@@ -47,7 +47,6 @@ export class ConnectingNotificationProvider
 
   public getInAppNotification(): InAppNotification {
     return {
-      indicator: 'error',
       title: messages.pgettext('in-app-notifications', 'BLOCKING INTERNET'),
     };
   }

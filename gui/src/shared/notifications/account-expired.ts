@@ -22,10 +22,7 @@ export class AccountExpiredNotificationProvider implements SystemNotificationPro
 
   public getSystemNotification(): SystemNotification {
     return {
-      message: messages.pgettext(
-        'notifications',
-        'You have no more VPN time left on this account.',
-      ),
+      message: messages.pgettext('notifications', 'Account is out of time'),
       critical: true,
       presentOnce: { value: true, name: this.constructor.name },
       action: {
