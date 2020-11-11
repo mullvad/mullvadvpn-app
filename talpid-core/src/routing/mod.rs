@@ -40,10 +40,28 @@ impl Route {
         }
     }
 
+    /// Returns route that only contains the device node if a device node exists.
+    #[cfg(target_os = "linux")]
+    fn device_only_route(&self) -> Option<Self> {
+        if let Some(device) = self.node.get_device() {
+            Some(Self {
+                node: Node::device(device.to_string()),
+                ..self.clone()
+            })
+        } else {
+            None
+        }
+    }
+
     #[cfg(target_os = "linux")]
     fn table(mut self, new_id: u32) -> Self {
         self.table_id = new_id;
         self
+    }
+
+    #[cfg(target_os = "linux")]
+    fn is_loopback(&self) -> bool {
+        self.node.ip.map(|ip| ip.is_loopback()).unwrap_or(false)
     }
 }
 
