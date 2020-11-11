@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Use the API to fetch API IP addresses instead of DNS.
 - Remove WireGuard keys during uninstallation after the firewall is unlocked.
+- Set up routes for OpenVPN using the route manager instead of relying on OpenVPN.
 
 #### Android
 - Remove the Quit button.
