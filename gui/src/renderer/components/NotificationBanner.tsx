@@ -84,7 +84,7 @@ export const NotificationActions = styled.div({
 });
 
 interface INotificationIndicatorProps {
-  type: InAppNotificationIndicatorType;
+  type?: InAppNotificationIndicatorType;
 }
 
 const notificationIndicatorTypeColorMap = {
@@ -99,7 +99,7 @@ export const NotificationIndicator = styled.div((props: INotificationIndicatorPr
   borderRadius: '5px',
   marginTop: '4px',
   marginRight: '8px',
-  backgroundColor: notificationIndicatorTypeColorMap[props.type],
+  backgroundColor: props.type ? notificationIndicatorTypeColorMap[props.type] : 'transparent',
 }));
 
 interface ICollapsibleProps {
