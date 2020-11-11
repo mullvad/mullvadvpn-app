@@ -1,10 +1,13 @@
 package net.mullvad.mullvadvpn.ui.widget
 
 import android.support.v7.widget.DefaultItemAnimator
+import android.support.v7.widget.RecyclerView.LayoutManager
 import android.support.v7.widget.RecyclerView.ViewHolder
 import kotlin.math.round
 
 class CustomItemAnimator : DefaultItemAnimator() {
+    var layoutManager: LayoutManager? = null
+
     var onMove: ((Int, Int) -> Unit)? = null
 
     override fun animateMove(
@@ -16,17 +19,20 @@ class CustomItemAnimator : DefaultItemAnimator() {
     ): Boolean {
         if (super.animateMove(holder, fromX, fromY, toX, toY)) {
             var view = holder.itemView
-            var translationX = view.translationX
-            var translationY = view.translationY
 
-            view.animate().setUpdateListener { _ ->
-                val deltaX = round(translationX - view.translationX)
-                val deltaY = round(translationY - view.translationY)
+            if (view == layoutManager?.getChildAt(0)) {
+                var translationX = view.translationX
+                var translationY = view.translationY
 
-                onMove?.invoke(deltaX.toInt(), deltaY.toInt())
+                view.animate().setUpdateListener { _ ->
+                    val deltaX = round(translationX - view.translationX)
+                    val deltaY = round(translationY - view.translationY)
 
-                translationX -= deltaX
-                translationY -= deltaY
+                    onMove?.invoke(deltaX.toInt(), deltaY.toInt())
+
+                    translationX -= deltaX
+                    translationY -= deltaY
+                }
             }
 
             return true
