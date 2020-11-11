@@ -271,8 +271,18 @@ pub fn send_problem_report(
         .build()
         .map_err(Error::CreateRuntime)?;
 
-    let mut rpc_manager = mullvad_rpc::MullvadRpcRuntime::new(runtime.handle().clone())
-        .map_err(Error::CreateRpcClientError)?;
+    let cache_dir = mullvad_paths::cache_dir();
+
+    let mut rpc_manager = if let Ok(cache_dir) = cache_dir {
+        runtime.block_on(mullvad_rpc::MullvadRpcRuntime::with_cache(
+            runtime.handle().clone(),
+            &mullvad_paths::get_resource_dir(),
+            &cache_dir,
+        ))
+    } else {
+        mullvad_rpc::MullvadRpcRuntime::new(runtime.handle().clone())
+    }
+    .map_err(Error::CreateRpcClientError)?;
     let rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_manager.mullvad_rest_handle());
 
     runtime
