@@ -208,11 +208,26 @@ export default class WindowController {
   private showImmediately() {
     const window = this.windowValue;
 
-    this.updatePosition();
-    this.notifyUpdateWindowShape();
+    // When running with unpinned window on Windows there's a bug that causes the app to become
+    // wider if opened from minimized if the updated position is set before the window is opened.
+    // Unfortunately the order can't always be changed since this would cause the Window to "jump"
+    // in other scenarios.
+    if (
+      process.platform === 'win32' &&
+      this.windowPositioning instanceof StandaloneWindowPositioning
+    ) {
+      window.show();
+      window.focus();
 
-    window.show();
-    window.focus();
+      this.updatePosition();
+      this.notifyUpdateWindowShape();
+    } else {
+      this.updatePosition();
+      this.notifyUpdateWindowShape();
+
+      window.show();
+      window.focus();
+    }
   }
 
   private updatePosition() {
