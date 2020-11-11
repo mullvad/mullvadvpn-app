@@ -304,8 +304,15 @@ fn parse_openvpn_dict_routes(
     let mut routes4 = HashMap::<u32, HashMap<&str, &str>>::new();
     let mut routes6 = HashMap::new();
 
+    const NUM_EXPECTED_CAPTURES: usize = 4;
+
     for (key, value) in env.iter() {
         if let Some(captures) = ENV_ROUTE_ENTRY.captures(key) {
+            if captures.len() != NUM_EXPECTED_CAPTURES {
+                log::error!("Bug: unexpected number of captures");
+                continue;
+            }
+
             let route_index: u32 = captures[3].parse().unwrap();
             let property = captures.get(2).unwrap().as_str();
 
