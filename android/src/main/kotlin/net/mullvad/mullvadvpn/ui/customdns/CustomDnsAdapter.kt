@@ -156,6 +156,22 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         }
     }
 
+    fun stopEditing() {
+        if (enabled) {
+            editDnsServerAt(null)
+        }
+    }
+
+    fun stopEditing(address: InetAddress) {
+        if (enabled) {
+            editingPosition?.let { position ->
+                if (cachedCustomDnsServers.getOrNull(position) == address) {
+                    editDnsServerAt(null)
+                }
+            }
+        }
+    }
+
     fun removeDnsServer(address: InetAddress) {
         jobTracker.newUiJob("removeDnsServer $address") {
             val position = jobTracker.runOnBackground {
@@ -216,13 +232,15 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         }
     }
 
-    private fun editDnsServerAt(position: Int) {
+    private fun editDnsServerAt(position: Int?) {
         editingPosition?.let { oldPosition ->
             notifyItemChanged(oldPosition)
         }
 
         editingPosition = position
 
-        notifyItemChanged(position)
+        position?.let { newPosition ->
+            notifyItemChanged(newPosition)
+        }
     }
 }
