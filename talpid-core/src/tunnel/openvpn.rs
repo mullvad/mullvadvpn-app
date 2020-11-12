@@ -1,4 +1,6 @@
 use super::TunnelEvent;
+#[cfg(target_os = "linux")]
+use crate::routing::RequiredRoute;
 use crate::{
     mktemp,
     process::{
@@ -7,16 +9,15 @@ use crate::{
     },
     proxy::{self, ProxyMonitor, ProxyResourceData},
     routing,
-    routing::RequiredRoute,
 };
+#[cfg(target_os = "linux")]
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashMap,
     fs,
     io::{self, Write},
-    net::IpAddr,
     path::{Path, PathBuf},
     process::ExitStatus,
     sync::{
@@ -26,7 +27,11 @@ use std::{
     thread,
     time::Duration,
 };
-use talpid_types::{net::openvpn, ErrorExt};
+#[cfg(target_os = "linux")]
+use std::{collections::HashSet, net::IpAddr};
+use talpid_types::net::openvpn;
+#[cfg(target_os = "linux")]
+use talpid_types::ErrorExt;
 use tokio::task;
 #[cfg(target_os = "linux")]
 use which;
@@ -49,6 +54,7 @@ pub enum Error {
     RuntimeError(#[error(source)] io::Error),
 
     /// Failed to set up routing.
+    #[cfg(target_os = "linux")]
     #[error(display = "Failed to setup routing")]
     SetupRoutingError(#[error(source)] routing::Error),
 
@@ -116,18 +122,22 @@ pub enum Error {
     WinnetError(#[error(source)] crate::winnet::Error),
 
     /// Error routes from the provided map
+    #[cfg(target_os = "linux")]
     #[error(display = "Failed to parse OpenVPN-provided routes")]
     ParseRouteError(#[error(source)] RouteParseError),
 
     /// The map is missing 'dev'
+    #[cfg(target_os = "linux")]
     #[error(display = "Failed to obtain tunnel interface name")]
     MissingTunnelInterface,
 
     /// The map has no 'route_n' entries
+    #[cfg(target_os = "linux")]
     #[error(display = "Failed to obtain OpenVPN server")]
     MissingRemoteHost,
 
     /// Cannot parse the remote_n in the provided map
+    #[cfg(target_os = "linux")]
     #[error(display = "Cannot parse remote host string")]
     ParseRemoteHost(#[error(source)] std::net::AddrParseError),
 }
@@ -177,7 +187,8 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         params: &openvpn::TunnelParameters,
         log_path: Option<PathBuf>,
         resource_dir: &Path,
-        route_manager: &mut routing::RouteManager,
+        #[cfg(target_os = "linux")] route_manager: &mut routing::RouteManager,
+        #[cfg(not(target_os = "linux"))] _route_manager: &mut routing::RouteManager,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
@@ -196,21 +207,18 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             _ => None,
         };
 
+        #[cfg(target_os = "linux")]
         let route_manager_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
 
         let on_openvpn_event = move |event, env: HashMap<String, String>| {
+            #[cfg(target_os = "linux")]
             if event == openvpn_plugin::EventType::Up {
-                #[cfg(target_os = "linux")]
-                {
-                    let interface = env.get("dev").unwrap();
-                    tokio::task::block_in_place(|| {
-                        route_manager_handle
-                            .clone()
-                            .set_tunnel_link(interface)
-                            .unwrap();
-                    });
-                }
+                let interface = env.get("dev").unwrap();
                 tokio::task::block_in_place(|| {
+                    route_manager_handle
+                        .clone()
+                        .set_tunnel_link(interface)
+                        .unwrap();
                     let routes = extract_routes(&env).unwrap();
                     if let Err(error) = route_manager_handle.clone().add_routes(routes) {
                         log::error!("{}", error.display_chain());
@@ -272,12 +280,14 @@ impl OpenVpnMonitor<OpenVpnCommand> {
     }
 }
 
+#[cfg(target_os = "linux")]
 #[derive(Debug)]
 struct OpenVpnRoute {
     network: IpNetwork,
     gateway: IpAddr,
 }
 
+#[cfg(target_os = "linux")]
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 #[allow(missing_docs)]
@@ -298,6 +308,7 @@ pub enum RouteParseError {
     ParseGatewayAddress(#[error(source)] std::net::AddrParseError),
 }
 
+#[cfg(target_os = "linux")]
 fn parse_openvpn_dict_routes(
     env: &HashMap<String, String>,
 ) -> std::result::Result<Vec<OpenVpnRoute>, RouteParseError> {
@@ -372,6 +383,7 @@ fn parse_openvpn_dict_routes(
     Ok(routes)
 }
 
+#[cfg(target_os = "linux")]
 fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute>> {
     let mut routes = HashSet::new();
 
