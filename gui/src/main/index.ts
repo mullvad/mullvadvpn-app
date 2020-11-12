@@ -142,6 +142,7 @@ class ApplicationMain {
   private location?: ILocation;
   private lastDisconnectedLocation?: ILocation;
   private tunnelStateExpectation?: Expectation;
+  private getLocationPromise?: Promise<ILocation>;
 
   private relays: IRelayList = { countries: [] };
 
@@ -846,7 +847,8 @@ class ApplicationMain {
     if (tunnelState.state === 'connected' || tunnelState.state === 'disconnected') {
       try {
         // Fetch the new user location
-        const location = await this.daemonRpc.getLocation();
+        const getLocationPromise = (this.getLocationPromise = this.daemonRpc.getLocation());
+        const location = await getLocationPromise;
         // If the location is currently unavailable, do nothing! This only ever
         // happens when a custom relay is set or we are in a blocked state.
         if (!location) {
@@ -859,10 +861,8 @@ class ApplicationMain {
           this.lastDisconnectedLocation = location;
         }
 
-        // Broadcast the new location.
-        // There is a chance that the location is not stale if the tunnel state before the location
-        // request is the same as after receiving the response.
-        if (this.tunnelState.state === tunnelState.state) {
+        // Broadcast the new location if it is the result of the most recent call to getLocation.
+        if (getLocationPromise === this.getLocationPromise) {
           this.setLocation(location);
         }
       } catch (error) {
