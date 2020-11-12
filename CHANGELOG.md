@@ -44,7 +44,6 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Use the API to fetch API IP addresses instead of DNS.
 - Remove WireGuard keys during uninstallation after the firewall is unlocked.
-- Set up routes for OpenVPN using the route manager instead of relying on OpenVPN.
 
 #### Android
 - Remove the Quit button.
@@ -56,6 +55,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Make route monitor ignore loopback routes.
 - Increase NetworkManager device readiness timeout to 15 seconds.
+- Set up routes for OpenVPN using the route manager instead of relying on OpenVPN.
 
 ### Fixed
 - Fix missing map animation after selecting a new location in the desktop app.

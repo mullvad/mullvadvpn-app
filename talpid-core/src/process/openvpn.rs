@@ -42,6 +42,9 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
         "vpn_gateway",
         "1",
     ],
+    // The route manager is used to add the routes.
+    #[cfg(target_os = "linux")]
+    &["--route-noexec"],
 ];
 
 static ALLOWED_TLS1_2_CIPHERS: &[&str] = &[
@@ -230,8 +233,6 @@ impl OpenVpnCommand {
             args.push(OsString::from("--mssfix"));
             args.push(OsString::from(mssfix.to_string()));
         }
-
-        args.push(OsString::from("--route-noexec"));
 
         if !self.enable_ipv6 {
             args.push(OsString::from("--pull-filter"));
