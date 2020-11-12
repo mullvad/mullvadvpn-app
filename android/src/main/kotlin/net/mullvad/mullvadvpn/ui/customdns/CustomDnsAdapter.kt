@@ -139,13 +139,19 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         }
     }
 
-    fun saveDnsServer(address: String) {
+    fun saveDnsServer(address: String, errorCallback: () -> Unit) {
         jobTracker.newUiJob("saveDnsServer $address") {
             editingPosition?.let { position ->
+                var validAddress: Boolean
+                
                 if (position >= cachedCustomDnsServers.size) {
-                    addDnsServer(address)
+                    validAddress = addDnsServer(address)
                 } else {
-                    replaceDnsServer(address, position)
+                    validAddress = replaceDnsServer(address, position)
+                }
+
+                if (!validAddress) {
+                    errorCallback()
                 }
             }
         }
@@ -190,12 +196,12 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         }
     }
 
-    private suspend fun addDnsServer(address: String) {
+    private suspend fun addDnsServer(addressText: String): Boolean {
         var added = false
 
         jobTracker.runOnBackground {
-            if (inetAddressValidator.isValid(address)) {
-                val address = InetAddress.getByName(address)
+            if (inetAddressValidator.isValid(addressText)) {
+                val address = InetAddress.getByName(addressText)
 
                 if (customDns.addDnsServer(address)) {
                     cachedCustomDnsServers.add(address)
@@ -212,9 +218,11 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
             notifyItemChanged(count - 3)
             notifyItemInserted(count - 2)
         }
+
+        return added
     }
 
-    private suspend fun replaceDnsServer(address: String, position: Int) {
+    private suspend fun replaceDnsServer(address: String, position: Int): Boolean {
         var replaced = false
 
         jobTracker.runOnBackground {
@@ -233,6 +241,8 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
             editingPosition = null
             notifyItemChanged(position)
         }
+
+        return replaced
     }
 
     private fun editDnsServerAt(position: Int?) {
