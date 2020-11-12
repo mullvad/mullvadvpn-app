@@ -21,7 +21,7 @@ mod logging;
 mod stats;
 mod wireguard_go;
 #[cfg(target_os = "linux")]
-mod wireguard_kernel;
+pub(crate) mod wireguard_kernel;
 
 use self::wireguard_go::WgGoTunnel;
 
@@ -154,13 +154,20 @@ impl WireguardMonitor {
         #[cfg(target_os = "linux")]
         if !*FORCE_USERSPACE_WIREGUARD {
             if *FORCE_NM_WIREGUARD {
-                if let Ok(tunnel) = wireguard_kernel::NetworkManagerTunnel::new(
-                    route_manager.runtime_handle(),
-                    config,
-                ) {
-                    log::debug!("Using NetworkManager to use kernel WireGuard implementation");
-                    return Ok(Box::new(tunnel));
-                }
+                match wireguard_kernel::NetworkManagerTunnel::new(config) {
+                    Ok(tunnel) => {
+                        log::debug!("Using NetworkManager to use kernel WireGuard implementation");
+                        return Ok(Box::new(tunnel));
+                    }
+                    Err(err) => {
+                        log::error!(
+                            "{}",
+                            err.display_chain_with_msg(
+                                "Failed to initialize WireGuard tunnel via NetworkManager"
+                            )
+                        );
+                    }
+                };
             } else if !crate::dns::will_use_nm() {
                 match wireguard_kernel::NetlinkTunnel::new(route_manager.runtime_handle(), config) {
                     Ok(tunnel) => {
@@ -177,10 +184,10 @@ impl WireguardMonitor {
                     }
                 };
             }
-        } else {
-            log::debug!("Using userspace WireGuard implementation");
         }
 
+        #[cfg(traget_os = "linux")]
+        log::debug!("Using userspace WireGuard implementation");
         Ok(Box::new(WgGoTunnel::start_tunnel(
             &config,
             log_path,
@@ -295,6 +302,8 @@ pub(crate) trait Tunnel: Send {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     fn get_tunnel_stats(&self) -> std::result::Result<stats::Stats, TunnelError>;
+    #[cfg(target_os = "linux")]
+    fn slow_stats_refresh_rate(&self) {}
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait

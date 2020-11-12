@@ -105,6 +105,12 @@ impl ConnectivityMonitor {
         let start = Instant::now();
         while start.elapsed() < PING_TIMEOUT {
             if self.check_connectivity(Instant::now())? {
+                #[cfg(target_os = "linux")]
+                self.tunnel_handle.upgrade().and_then::<(), _>(|tunnel| {
+                    let tunnel = tunnel.lock().ok()?;
+                    tunnel.as_ref()?.slow_stats_refresh_rate();
+                    None
+                });
                 return Ok(true);
             }
             if self.should_shut_down(DELAY_ON_INITIAL_SETUP) {
