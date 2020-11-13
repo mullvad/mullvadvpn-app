@@ -12,8 +12,8 @@
 # Do not compare variables using the <> operator - broken
 #
 
-# Wintun hardware ID
-!define TUN_HARDWARE_ID "wintun"
+!define WINTUN_POOL "Mullvad"
+!define WINTUN_ADAPTER "Mullvad"
 
 # "sc" exit code
 !define SERVICE_STARTED 0
@@ -56,7 +56,7 @@
 !macro ExtractWintun
 
 	SetOutPath "$TEMP"
-	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\mullvad-wintun-amd64.msi"
+	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wintun.dll"
 	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
 
 !macroend
@@ -89,17 +89,14 @@
 
 	log::Log "RemoveWintun()"
 
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" remove-device ${TUN_HARDWARE_ID} Mullvad'
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun delete-pool-driver ${WINTUN_POOL}'
 	Pop $0
 	Pop $1
 
-	msiutil::SilentUninstall "$TEMP\mullvad-wintun-amd64.msi"
-	Pop $0
-	Pop $1
-
-	${If} $0 != ${MULLVAD_SUCCESS}
-		StrCpy $R0 "Failed to remove Wintun: $1"
-		log::Log $R0
+	${If} $0 != ${DL_GENERAL_SUCCESS}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to remove Wintun pool: error $0"
+		log::LogWithDetails $R0 $1
 		Goto RemoveWintun_return_only
 	${EndIf}
 
@@ -120,7 +117,7 @@
 #
 # InstallWintun
 #
-# Install Wintun driver
+# Create Wintun Mullvad adapter
 #
 # Returns: 0 in $R0 on success, otherwise an error message in $R0
 #
@@ -131,17 +128,7 @@
 	Push $0
 	Push $1
 
-	msiutil::SilentInstall "$TEMP\mullvad-wintun-amd64.msi"
-	Pop $0
-	Pop $1
-
-	${If} $0 != ${MULLVAD_SUCCESS}
-		StrCpy $R0 "Failed to install Wintun: $1"
-		log::Log $R0
-		Goto InstallWintun_return
-	${EndIf}
-
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" device-exists ${TUN_HARDWARE_ID} Mullvad'
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun adapter-exists ${WINTUN_POOL} ${WINTUN_ADAPTER}'
 
 	Pop $0
 	Pop $1
@@ -159,7 +146,7 @@
 	${EndIf}
 
 	log::Log "Creating new virtual adapter"
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" new-device ${TUN_HARDWARE_ID} Mullvad'
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun create-adapter ${WINTUN_POOL} ${WINTUN_ADAPTER}'
 
 	Pop $0
 	Pop $1
