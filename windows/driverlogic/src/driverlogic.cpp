@@ -20,6 +20,7 @@
 #include <cfgmgr32.h>
 #include <io.h>
 #include <fcntl.h>
+#include "wintun.h"
 
 
 namespace
@@ -768,6 +769,123 @@ void RemoveNetAdapterByAlias(const std::wstring &hardwareId, const std::wstring 
 	}
 }
 
+int HandleWintunCommands(int argc, const wchar_t *argv[])
+{
+	auto wintunHandle = LoadLibraryW(L"wintun.dll");
+
+	if (nullptr == wintunHandle)
+	{
+		std::wcerr << L"Failed to load wintun.dll: " << GetLastError() << std::endl;
+		return GENERAL_ERROR;
+	}
+
+	const auto WintunCreateAdapter = reinterpret_cast<WINTUN_CREATE_ADAPTER_FUNC>(GetProcAddress(wintunHandle, "WintunCreateAdapter"));
+	const auto WintunOpenAdapter = reinterpret_cast<WINTUN_OPEN_ADAPTER_FUNC>(GetProcAddress(wintunHandle, "WintunOpenAdapter"));
+	const auto WintunFreeAdapter = reinterpret_cast<WINTUN_FREE_ADAPTER_FUNC>(GetProcAddress(wintunHandle, "WintunFreeAdapter"));
+	const auto WintunDeletePoolDriver = reinterpret_cast<WINTUN_DELETE_POOL_DRIVER_FUNC>(GetProcAddress(wintunHandle, "WintunDeletePoolDriver"));
+
+	if (!WintunCreateAdapter || !WintunOpenAdapter || !WintunDeletePoolDriver)
+	{
+		FreeLibrary(wintunHandle);
+		std::wcerr << L"Failed to locate wintun functions: " << GetLastError() << std::endl;
+		return GENERAL_ERROR;
+	}
+
+	// argv[1] == "wintun"
+	if (argc < 3)
+	{
+		goto INVALID_ARGUMENTS;
+	}
+
+	if (0 == _wcsicmp(argv[2], L"create-adapter"))
+	{
+		if (argc < 5)
+		{
+			goto INVALID_ARGUMENTS;
+		}
+
+		const wchar_t *pool = argv[3];
+		const wchar_t *adapter = argv[4];
+
+		GUID guidObject;
+		const GUID *requestGuid = nullptr;
+		if (argc >= 6)
+		{
+			guidObject = common::Guid::FromString(argv[5]);
+			requestGuid = &guidObject;
+		}
+
+		const auto handle = WintunCreateAdapter(
+			pool,
+			adapter,
+			requestGuid,
+			nullptr
+		);
+
+		if (nullptr == handle)
+		{
+			const auto status = GetLastError();
+			if (ERROR_FILE_NOT_FOUND == status)
+			{
+				return ADAPTER_NOT_FOUND;
+			}
+			else
+			{
+				THROW_WINDOWS_ERROR(status, "WintunOpenAdapter");
+			}
+		}
+		WintunFreeAdapter(handle);
+	}
+	else if (0 == _wcsicmp(argv[2], L"delete-pool-driver"))
+	{
+		if (4 != argc)
+		{
+			goto INVALID_ARGUMENTS;
+		}
+
+		const wchar_t *pool = argv[3];
+
+		WintunDeletePoolDriver(pool, nullptr);
+	}
+	else if (0 == _wcsicmp(argv[2], L"adapter-exists"))
+	{
+		if (5 != argc)
+		{
+			goto INVALID_ARGUMENTS;
+		}
+
+		const wchar_t *pool = argv[3];
+		const wchar_t *adapter = argv[4];
+
+		const auto handle = WintunOpenAdapter(pool, adapter);
+
+		if (nullptr == handle)
+		{
+			const auto status = GetLastError();
+			if (ERROR_FILE_NOT_FOUND == status)
+			{
+				return ADAPTER_NOT_FOUND;
+			}
+			else
+			{
+				THROW_WINDOWS_ERROR(status, "WintunOpenAdapter");
+			}
+		}
+		WintunFreeAdapter(handle);
+	}
+	else
+	{
+		goto INVALID_ARGUMENTS;
+	}
+
+	return GENERAL_SUCCESS;
+
+INVALID_ARGUMENTS:
+
+	LogError(L"Invalid arguments.");
+	return GENERAL_ERROR;
+}
+
 } // anonymous namespace
 
 int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
@@ -826,6 +944,10 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 			{
 				return ADAPTER_NOT_FOUND;
 			}
+		}
+		else if (0 == _wcsicmp(argv[1], L"wintun"))
+		{
+			return HandleWintunCommands(argc, argv);
 		}
 		else
 		{

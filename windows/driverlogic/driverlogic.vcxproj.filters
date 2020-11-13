@@ -15,5 +15,6 @@
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\targetver.h" />
     <ClInclude Include="src\error.h" />
+    <ClInclude Include="src\wintun.h" />
   </ItemGroup>
 </Project>
