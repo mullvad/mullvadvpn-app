@@ -85,6 +85,8 @@ Line wrap the file at 100 chars.                                              Th
 - Set search domains in NetworkManager's DNS configuration, resolving issues where NetworkManager
   is used to manage DNS via systemd-resolved.
 - Parse routes more permissively and log parsing errors less verbosely.
+- Fix incorrect version string in .deb installer causing downgrade warnings when upgrading from beta
+  to stable.
 
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and
