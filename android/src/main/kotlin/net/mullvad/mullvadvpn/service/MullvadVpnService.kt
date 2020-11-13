@@ -9,6 +9,7 @@ import android.os.IBinder
 import android.util.Log
 import java.io.File
 import kotlin.properties.Delegates.observable
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -42,6 +43,8 @@ class MullvadVpnService : TalpidVpnService() {
 
     private val binder = LocalBinder()
     private val serviceNotifier = EventNotifier<ServiceInstance?>(null)
+
+    private val splitTunneling = CompletableDeferred<SplitTunneling>()
 
     private var isStopping = false
     private var shouldStop = false
@@ -89,6 +92,8 @@ class MullvadVpnService : TalpidVpnService() {
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Initializing service")
+
+        initializeSplitTunneling()
 
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         notificationManager = ForegroundNotificationManager(this, serviceNotifier, keyguardManager)
@@ -179,6 +184,17 @@ class MullvadVpnService : TalpidVpnService() {
             set(value) { this@MullvadVpnService.isUiVisible = value }
     }
 
+    private fun initializeSplitTunneling() = GlobalScope.launch(Dispatchers.Default) {
+        splitTunneling.complete(
+            SplitTunneling(this@MullvadVpnService).apply {
+                onChange = { excludedApps ->
+                    disallowedApps = excludedApps
+                    markTunAsStale()
+                }
+            }
+        )
+    }
+
     private fun setUp() {
         startDaemonJob?.cancel()
         startDaemonJob = startDaemon()
@@ -187,6 +203,7 @@ class MullvadVpnService : TalpidVpnService() {
     private fun startDaemon() = GlobalScope.launch(Dispatchers.Default) {
         Log.d(TAG, "Starting daemon")
         prepareFiles()
+        splitTunneling.await()
 
         val daemon = MullvadDaemon(this@MullvadVpnService).apply {
             onDaemonStopped = {
@@ -226,16 +243,15 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
-    private fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
+    private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
         val settingsListener = SettingsListener(daemon, settings)
         val connectionProxy = ConnectionProxy(this, daemon)
+        val splitTunneling = splitTunneling.await()
 
-        val splitTunneling = SplitTunneling(this).apply {
-            onChange = { excludedApps ->
-                disallowedApps = excludedApps
-                markTunAsStale()
-                connectionProxy.reconnect()
-            }
+        splitTunneling.onChange = { excludedApps ->
+            disallowedApps = excludedApps
+            markTunAsStale()
+            connectionProxy.reconnect()
         }
 
         handlePendingAction(connectionProxy, settings)
