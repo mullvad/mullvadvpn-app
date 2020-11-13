@@ -2,8 +2,10 @@ const path = require('path');
 const fs = require('fs');
 const builder = require('electron-builder');
 const rimraf = require('rimraf');
+const parseSemver = require('semver/functions/parse');
 const util = require('util');
 const { notarize } = require('electron-notarize');
+const { version } = require('../package.json');
 
 const renameAsync = util.promisify(fs.rename);
 const unlinkAsync = util.promisify(fs.unlink);
@@ -117,6 +119,8 @@ const config = {
 
   deb: {
     fpm: [
+      '--version',
+      getDebVersion(),
       '--before-install',
       distAssets('linux/before-install.sh'),
       '--before-remove',
@@ -245,6 +249,18 @@ function distAssets(relativePath) {
 
 function root(relativePath) {
   return path.join(path.resolve(__dirname, '../../'), relativePath);
+}
+
+// Replace '-' between components with a tilde to make the version comparison understand that
+// YYYY.NN > YYYY.NN-betaN > YYYY.NN-betaN-dev-HHHHHH.
+function getDebVersion() {
+  const { major, minor, prerelease } = parseSemver(version);
+  const versionParts = [`${major}.${minor}`];
+  if (prerelease[0]) {
+    // Replace first '-' with a '~' since the first one is the one between 'betaN' and 'dev-hash'.
+    versionParts.push(prerelease[0].replace('-', '~'));
+  }
+  return versionParts.join('~');
 }
 
 packWin.displayName = 'builder-win';
