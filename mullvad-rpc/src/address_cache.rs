@@ -33,17 +33,21 @@ pub struct AddressCache {
 impl AddressCache {
     /// Initialize cache using the given list, and write changes to `cache_path`.
     pub fn new(addresses: Vec<SocketAddr>, cache_path: Option<Box<Path>>) -> Result<Self, Error> {
-        log::trace!("Using API addresses: {:?}", addresses);
+        log::trace!("API address cache: {:?}", addresses);
+
         let cache = AddressCacheInner::from_addresses(addresses)?;
-        Ok(Self {
+        log::debug!("Using API address: {:?}", Self::get_address_inner(&cache));
+
+        let address_cache = Self {
             inner: Arc::new(Mutex::new(cache)),
             cache_path: cache_path.map(|cache| Arc::from(cache)),
-        })
+        };
+        Ok(address_cache)
     }
 
     /// Initialize cache using `read_path`, and write changes to `cache_path`.
     pub async fn from_file(read_path: &Path, cache_path: Option<Box<Path>>) -> Result<Self, Error> {
-        log::trace!("Loading API addresses from {:?}", read_path);
+        log::debug!("Loading API addresses from {:?}", read_path);
         Self::new(read_address_file(read_path).await?, cache_path)
     }
 
@@ -75,8 +79,14 @@ impl AddressCache {
                 .map(|last_try| last_try == inner.choice)
                 .unwrap_or(false)
         {
-            log::error!("HTTP request failed: {}, will try next API address", err);
             inner.choice = inner.choice.wrapping_add(1);
+            let new_address = Self::get_address_inner(&inner);
+            log::error!(
+                "HTTP request failed: {}, using address {}. Trying next API address: {}",
+                err,
+                failed_addr,
+                new_address
+            );
         }
     }
 
@@ -96,6 +106,7 @@ impl AddressCache {
             }
         };
         if should_update {
+            log::trace!("API address cache: {:?}", addresses);
             self.save_to_disk(addresses).await?;
         }
         Ok(())
