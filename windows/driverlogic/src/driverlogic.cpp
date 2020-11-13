@@ -6,6 +6,7 @@
 #include <string>
 #include <optional>
 #include <set>
+#include <filesystem>
 #include <libcommon/error.h>
 #include <libcommon/guid.h>
 #include <libcommon/memory.h>
@@ -20,6 +21,7 @@
 #include <cfgmgr32.h>
 #include <io.h>
 #include <fcntl.h>
+#include <wintun.h>
 
 
 namespace
@@ -768,6 +770,188 @@ void RemoveNetAdapterByAlias(const std::wstring &hardwareId, const std::wstring 
 	}
 }
 
+std::filesystem::path GetCurrentModulePath()
+{
+	std::vector<wchar_t> pathBuffer;
+
+	SetLastError(ERROR_SUCCESS);
+
+	size_t nextCapacity = 256;
+
+	do
+	{
+		pathBuffer.reserve(nextCapacity);
+
+		const auto writtenChars = GetModuleFileNameW(nullptr, &pathBuffer[0], static_cast<DWORD>(pathBuffer.capacity()));
+
+		if (0 == writtenChars)
+		{
+			THROW_WINDOWS_ERROR(GetLastError(), "GetModuleFileNameW");
+		}
+
+		pathBuffer.resize(writtenChars);
+
+		nextCapacity = 2 * pathBuffer.capacity();
+	} while (ERROR_INSUFFICIENT_BUFFER == GetLastError());
+
+	return std::filesystem::path(pathBuffer.begin(), pathBuffer.end());
+}
+
+class WintunDll
+{
+public:
+
+	WintunDll() : dllHandle(nullptr)
+	{
+		auto wintunPath = GetCurrentModulePath().replace_filename(L"wintun.dll");
+		dllHandle = LoadLibraryExW(wintunPath.c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
+
+		if (nullptr == dllHandle)
+		{
+			THROW_WINDOWS_ERROR(GetLastError(), "LoadLibraryExW");
+		}
+
+		try
+		{
+			createAdapter = getProcAddressOrThrow<WINTUN_CREATE_ADAPTER_FUNC>("WintunCreateAdapter");
+			openAdapter = getProcAddressOrThrow<WINTUN_OPEN_ADAPTER_FUNC>("WintunOpenAdapter");
+			freeAdapter = getProcAddressOrThrow<WINTUN_FREE_ADAPTER_FUNC>("WintunFreeAdapter");
+			deletePoolDriver = getProcAddressOrThrow<WINTUN_DELETE_POOL_DRIVER_FUNC>("WintunDeletePoolDriver");
+		}
+		catch (...)
+		{
+			FreeLibrary(dllHandle);
+			throw;
+		}
+	}
+
+	~WintunDll()
+	{
+		if (nullptr != dllHandle)
+		{
+			FreeLibrary(dllHandle);
+		}
+	}
+
+	WINTUN_CREATE_ADAPTER_FUNC createAdapter;
+	WINTUN_OPEN_ADAPTER_FUNC openAdapter;
+	WINTUN_FREE_ADAPTER_FUNC freeAdapter;
+	WINTUN_DELETE_POOL_DRIVER_FUNC deletePoolDriver;
+
+private:
+
+	template<typename T>
+	T getProcAddressOrThrow(const char *procName)
+	{
+		const T result = reinterpret_cast<T>(GetProcAddress(dllHandle, procName));
+		if (nullptr == result)
+		{
+			THROW_WINDOWS_ERROR(GetLastError(), "GetProcAddress");
+		}
+		return result;
+	}
+
+	HMODULE dllHandle;
+};
+
+int HandleWintunCommands(int argc, const wchar_t *argv[])
+{
+	WintunDll wintun;
+
+	if (argc < 3)
+	{
+		goto INVALID_ARGUMENTS;
+	}
+
+	if (0 == _wcsicmp(argv[2], L"create-adapter"))
+	{
+		if (argc < 5)
+		{
+			goto INVALID_ARGUMENTS;
+		}
+
+		const wchar_t *pool = argv[3];
+		const wchar_t *adapter = argv[4];
+
+		GUID guidObject;
+		const GUID *requestGuid = nullptr;
+		if (argc >= 6)
+		{
+			guidObject = common::Guid::FromString(argv[5]);
+			requestGuid = &guidObject;
+		}
+
+		const auto handle = wintun.createAdapter(
+			pool,
+			adapter,
+			requestGuid,
+			nullptr
+		);
+
+		if (nullptr == handle)
+		{
+			const auto status = GetLastError();
+			if (ERROR_FILE_NOT_FOUND == status)
+			{
+				return ADAPTER_NOT_FOUND;
+			}
+			else
+			{
+				THROW_WINDOWS_ERROR(status, "wintun.createAdapter");
+			}
+		}
+		wintun.freeAdapter(handle);
+	}
+	else if (0 == _wcsicmp(argv[2], L"delete-pool-driver"))
+	{
+		if (4 != argc)
+		{
+			goto INVALID_ARGUMENTS;
+		}
+
+		const wchar_t *pool = argv[3];
+
+		wintun.deletePoolDriver(pool, nullptr);
+	}
+	else if (0 == _wcsicmp(argv[2], L"adapter-exists"))
+	{
+		if (5 != argc)
+		{
+			goto INVALID_ARGUMENTS;
+		}
+
+		const wchar_t *pool = argv[3];
+		const wchar_t *adapter = argv[4];
+
+		const auto handle = wintun.openAdapter(pool, adapter);
+
+		if (nullptr == handle)
+		{
+			const auto status = GetLastError();
+			if (ERROR_FILE_NOT_FOUND == status)
+			{
+				return ADAPTER_NOT_FOUND;
+			}
+			else
+			{
+				THROW_WINDOWS_ERROR(status, "wintun.openAdapter");
+			}
+		}
+		wintun.freeAdapter(handle);
+	}
+	else
+	{
+		goto INVALID_ARGUMENTS;
+	}
+
+	return GENERAL_SUCCESS;
+
+INVALID_ARGUMENTS:
+
+	LogError(L"Invalid arguments.");
+	return GENERAL_ERROR;
+}
+
 } // anonymous namespace
 
 int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
@@ -826,6 +1010,10 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 			{
 				return ADAPTER_NOT_FOUND;
 			}
+		}
+		else if (0 == _wcsicmp(argv[1], L"wintun"))
+		{
+			return HandleWintunCommands(argc, argv);
 		}
 		else
 		{
