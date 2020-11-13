@@ -10,7 +10,7 @@ export class ConnectedNotificationProvider implements SystemNotificationProvider
 
   public getSystemNotification() {
     if (this.context.state === 'connected') {
-      let message = messages.pgettext('notifications', 'Secured');
+      let message = messages.pgettext('notifications', 'Connected');
       const location = this.context.details.location?.hostname;
       if (location) {
         message = sprintf(

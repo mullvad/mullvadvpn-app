@@ -18,10 +18,7 @@ export class InconsistentVersionNotificationProvider
 
   public getSystemNotification(): SystemNotification {
     return {
-      message: messages.pgettext(
-        'notifications',
-        'Inconsistent internal version information, please restart the app',
-      ),
+      message: messages.pgettext('notifications', 'App is out of sync. Please quit and restart.'),
       critical: true,
       presentOnce: { value: true, name: this.constructor.name },
       suppressInDevelopment: true,
@@ -31,11 +28,8 @@ export class InconsistentVersionNotificationProvider
   public getInAppNotification(): InAppNotification {
     return {
       indicator: 'error',
-      title: messages.pgettext('in-app-notifications', 'INCONSISTENT VERSION'),
-      subtitle: messages.pgettext(
-        'in-app-notifications',
-        'Inconsistent internal version information, please restart the app',
-      ),
+      title: messages.pgettext('in-app-notifications', 'APP IS OUT OF SYNC'),
+      subtitle: messages.pgettext('in-app-notifications', 'Please quit and restart the app.'),
     };
   }
 }

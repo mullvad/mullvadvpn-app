@@ -20,7 +20,7 @@ export interface SystemNotification {
 }
 
 export interface InAppNotification {
-  indicator: InAppNotificationIndicatorType;
+  indicator?: InAppNotificationIndicatorType;
   title: string;
   subtitle?: string;
   action?: NotificationAction;

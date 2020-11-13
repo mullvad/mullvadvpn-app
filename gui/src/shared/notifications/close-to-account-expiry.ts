@@ -32,7 +32,10 @@ export class CloseToAccountExpiryNotificationProvider
       // TRANSLATORS: The system notification displayed to the user when the account credit is close to expiry.
       // TRANSLATORS: Available placeholder:
       // TRANSLATORS: %(duration)s - remaining time, e.g. "2 days"
-      messages.pgettext('notifications', 'Account credit expires in %(duration)s'),
+      messages.pgettext(
+        'notifications',
+        'Account credit expires in %(duration)s. Buy more credit.',
+      ),
       {
         duration: formatDurationUntilExpiry(this.context.accountExpiry, this.context.locale),
       },
@@ -51,10 +54,15 @@ export class CloseToAccountExpiryNotificationProvider
   }
 
   public getInAppNotification(): InAppNotification {
+    const subtitle = sprintf(
+      messages.pgettext('in-app-notifications', '%(duration)s. Buy more credit.'),
+      { duration: formatRemainingTime(this.context.accountExpiry, this.context.locale, true) },
+    );
+
     return {
       indicator: 'warning',
       title: messages.pgettext('in-app-notifications', 'ACCOUNT CREDIT EXPIRES SOON'),
-      subtitle: formatRemainingTime(this.context.accountExpiry, this.context.locale, true),
+      subtitle,
       action: { type: 'open-url', url: links.purchase, withAuth: true },
     };
   }
