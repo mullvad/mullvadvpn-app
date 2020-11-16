@@ -31,7 +31,7 @@ rand = "0.7"
 
 
 [target.'cfg(not(target_os="android"))'.dependencies]
-openvpn-plugin = { git = "https://github.com/mullvad/openvpn-plugin-rs", branch = "auth-failed-event", features = ["serde"] }
+openvpn-plugin = { version = "0.4", features = ["serde", "auth-failed-event"] }
 parity-tokio-ipc = "0.7"
 triggered = "0.1.1"
 tonic = "0.3.1"

@@ -724,6 +724,7 @@ mod event_server {
     use parity_tokio_ipc::{Endpoint as IpcEndpoint, SecurityAttributes};
     use std::{
         collections::HashMap,
+        convert::TryFrom,
         pin::Pin,
         task::{Context, Poll},
     };
@@ -772,8 +773,10 @@ mod event_server {
 
             let request = request.into_inner();
 
-            let event_type = openvpn_plugin::EventType::try_from(request.event)
-                .ok_or(tonic::Status::invalid_argument("Unknown event type"))?;
+            let event_type =
+                openvpn_plugin::EventType::try_from(request.event).map_err(|event: i32| {
+                    tonic::Status::invalid_argument(format!("Unknown event type: {}", event))
+                })?;
 
             (self.on_event)(event_type, request.env);
 
