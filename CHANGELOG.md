@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.7-beta2] - 2020-11-16
+This release is for desktop only. It only has changes for Linux
+
 ### Fixed
 #### Linux
 - Parse routes more permissively and log parsing errors less verbosely.
