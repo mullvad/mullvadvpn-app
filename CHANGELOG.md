@@ -28,18 +28,12 @@ Line wrap the file at 100 chars.                                              Th
 - Add `--wait` flag to `connect`, `disconnect` and `reconnect` CLI subcommands to make the CLI wait
   for the target state to be reached before exiting.
 - Navigate back to the main view when escape is pressed.
-
-#### Windows
-- Add support for custom DNS resolvers (CLI only).
+- Add support for custom DNS resolvers.
 
 #### Linux
 - Optionally use NetworkManager to create WireGuard devices.
-- Add support for custom DNS resolvers (CLI only).
 - Disable NetworkManager's connectivity check before applying firewall rules to avoid triggerring
   NetworkManager's [bug](https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/312#note_453724)
-
-#### macOS
-- Add support for custom DNS resolvers (CLI only).
 
 ### Changed
 - Use the API to fetch API IP addresses instead of DNS.
