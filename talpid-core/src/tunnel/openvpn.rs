@@ -1,4 +1,6 @@
 use super::TunnelEvent;
+#[cfg(target_os = "linux")]
+use crate::routing::RequiredRoute;
 use crate::{
     mktemp,
     process::{
@@ -8,6 +10,10 @@ use crate::{
     proxy::{self, ProxyMonitor, ProxyResourceData},
     routing,
 };
+#[cfg(target_os = "linux")]
+use ipnetwork::IpNetwork;
+use lazy_static::lazy_static;
+use regex::Regex;
 use std::{
     collections::HashMap,
     fs,
@@ -21,10 +27,19 @@ use std::{
     thread,
     time::Duration,
 };
+#[cfg(target_os = "linux")]
+use std::{collections::HashSet, net::IpAddr};
 use talpid_types::net::openvpn;
+#[cfg(target_os = "linux")]
+use talpid_types::ErrorExt;
 use tokio::task;
 #[cfg(target_os = "linux")]
 use which;
+
+
+lazy_static! {
+    static ref ENV_ROUTE_ENTRY: Regex = Regex::new(r"route_(ipv6_)?(\w+)_(\d+)").unwrap();
+}
 
 
 /// Results from fallible operations on the OpenVPN tunnel.
@@ -39,6 +54,7 @@ pub enum Error {
     RuntimeError(#[error(source)] io::Error),
 
     /// Failed to set up routing.
+    #[cfg(target_os = "linux")]
     #[error(display = "Failed to setup routing")]
     SetupRoutingError(#[error(source)] routing::Error),
 
@@ -104,6 +120,26 @@ pub enum Error {
     #[cfg(windows)]
     #[error(display = "Failure in Windows syscall")]
     WinnetError(#[error(source)] crate::winnet::Error),
+
+    /// Error routes from the provided map
+    #[cfg(target_os = "linux")]
+    #[error(display = "Failed to parse OpenVPN-provided routes")]
+    ParseRouteError(#[error(source)] RouteParseError),
+
+    /// The map is missing 'dev'
+    #[cfg(target_os = "linux")]
+    #[error(display = "Failed to obtain tunnel interface name")]
+    MissingTunnelInterface,
+
+    /// The map has no 'route_n' entries
+    #[cfg(target_os = "linux")]
+    #[error(display = "Failed to obtain OpenVPN server")]
+    MissingRemoteHost,
+
+    /// Cannot parse the remote_n in the provided map
+    #[cfg(target_os = "linux")]
+    #[error(display = "Cannot parse remote host string")]
+    ParseRemoteHost(#[error(source)] std::net::AddrParseError),
 }
 
 
@@ -142,6 +178,7 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     server_join_handle: Option<task::JoinHandle<std::result::Result<(), event_server::Error>>>,
 }
 
+
 impl OpenVpnMonitor<OpenVpnCommand> {
     /// Creates a new `OpenVpnMonitor` with the given listener and using the plugin at the given
     /// path.
@@ -151,6 +188,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         log_path: Option<PathBuf>,
         resource_dir: &Path,
         #[cfg(target_os = "linux")] route_manager: &mut routing::RouteManager,
+        #[cfg(not(target_os = "linux"))] _route_manager: &mut routing::RouteManager,
     ) -> Result<Self>
     where
         L: Fn(TunnelEvent) + Send + Sync + 'static,
@@ -181,6 +219,11 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                         .clone()
                         .set_tunnel_link(interface)
                         .unwrap();
+                    let routes = extract_routes(&env).unwrap();
+                    if let Err(error) = route_manager_handle.clone().add_routes(routes) {
+                        log::error!("{}", error.display_chain());
+                        panic!("Failed to add routes");
+                    }
                 });
                 return;
             }
@@ -235,6 +278,194 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             proxy_monitor,
         )
     }
+}
+
+#[cfg(target_os = "linux")]
+#[derive(Debug)]
+struct OpenVpnRoute {
+    network: IpNetwork,
+    gateway: IpAddr,
+}
+
+#[cfg(target_os = "linux")]
+#[derive(err_derive::Error, Debug)]
+#[error(no_from)]
+#[allow(missing_docs)]
+pub enum RouteParseError {
+    #[error(display = "The route contains no network")]
+    MissingNetwork,
+    #[error(display = "The route contains no gateway")]
+    MissingGateway,
+    #[error(display = "Failed to parse route network address")]
+    ParseNetworkAddress(#[error(source)] std::net::AddrParseError),
+    #[error(display = "Failed to parse route network")]
+    ParseNetwork(#[error(source)] ipnetwork::IpNetworkError),
+    #[error(display = "Failed to parse route mask address")]
+    ParseMaskAddress(#[error(source)] std::net::AddrParseError),
+    #[error(display = "Failed to convert route mask to prefix")]
+    ParseMask(#[error(source)] ipnetwork::IpNetworkError),
+    #[error(display = "Failed to parse route gateway address")]
+    ParseGatewayAddress(#[error(source)] std::net::AddrParseError),
+}
+
+#[cfg(target_os = "linux")]
+fn parse_openvpn_dict_routes(
+    env: &HashMap<String, String>,
+) -> std::result::Result<Vec<OpenVpnRoute>, RouteParseError> {
+    let mut routes4 = HashMap::<u32, HashMap<&str, &str>>::new();
+    let mut routes6 = HashMap::new();
+
+    const NUM_EXPECTED_CAPTURES: usize = 4;
+
+    for (key, value) in env.iter() {
+        if let Some(captures) = ENV_ROUTE_ENTRY.captures(key) {
+            if captures.len() != NUM_EXPECTED_CAPTURES {
+                log::error!("Bug: unexpected number of captures");
+                continue;
+            }
+
+            let route_index: u32 = captures[3].parse().unwrap();
+            let property = captures.get(2).unwrap().as_str();
+
+            let is_ipv6 = captures.get(1).is_some();
+            let properties = if is_ipv6 {
+                routes6.entry(route_index).or_default()
+            } else {
+                routes4.entry(route_index).or_default()
+            };
+            (*properties).insert(property, value);
+        }
+    }
+
+    let parse_dict = |routes: HashMap<u32, HashMap<&str, &str>>,
+                      is_ipv4|
+     -> std::result::Result<Vec<OpenVpnRoute>, RouteParseError> {
+        let mut routes = routes.into_iter().collect::<Vec<_>>();
+        routes.sort_by(|(idx0, _), (idx1, _)| idx0.cmp(idx1));
+
+        let mut parsed_list = Vec::with_capacity(routes.len());
+
+        for (_, route) in routes {
+            let network = route
+                .get("network")
+                .ok_or(RouteParseError::MissingNetwork)?;
+
+            let network = if is_ipv4 {
+                let network = network
+                    .parse()
+                    .map_err(RouteParseError::ParseNetworkAddress)?;
+
+                let mask: IpAddr = if let Some(mask) = route.get("netmask") {
+                    mask.parse().map_err(RouteParseError::ParseMaskAddress)?
+                } else {
+                    "255.255.255.255".parse().unwrap()
+                };
+
+                IpNetwork::with_netmask(network, mask).map_err(RouteParseError::ParseNetwork)?
+            } else {
+                network.parse().map_err(RouteParseError::ParseNetwork)?
+            };
+
+            let gateway = route
+                .get("gateway")
+                .ok_or(RouteParseError::MissingGateway)?
+                .parse()
+                .map_err(RouteParseError::ParseGatewayAddress)?;
+
+            parsed_list.push(OpenVpnRoute { network, gateway });
+        }
+        Ok(parsed_list)
+    };
+
+    let mut routes = parse_dict(routes4, true)?;
+    routes.extend(parse_dict(routes6, false)?);
+
+    Ok(routes)
+}
+
+#[cfg(target_os = "linux")]
+fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute>> {
+    let mut routes = HashSet::new();
+
+    let default_node_ip: IpAddr = env
+        .get("route_net_gateway")
+        .ok_or(Error::ParseRouteError(RouteParseError::MissingGateway))?
+        .parse()
+        .map_err(RouteParseError::ParseGatewayAddress)
+        .map_err(Error::ParseRouteError)?;
+    let tun_gateway_ip: IpAddr = env
+        .get("route_vpn_gateway")
+        .ok_or(Error::ParseRouteError(RouteParseError::MissingGateway))?
+        .parse()
+        .map_err(RouteParseError::ParseGatewayAddress)
+        .map_err(Error::ParseRouteError)?;
+    let tun_gateway_ip6: Option<IpAddr> = if let Some(gateway) = env.get("ifconfig_ipv6_remote") {
+        Some(
+            gateway
+                .parse()
+                .map_err(RouteParseError::ParseGatewayAddress)
+                .map_err(Error::ParseRouteError)?,
+        )
+    } else {
+        None
+    };
+
+    let tun_interface = env.get("dev").ok_or(Error::MissingTunnelInterface)?;
+    let tun_node = routing::NetNode::from(routing::Node::new(
+        tun_gateway_ip,
+        tun_interface.to_string(),
+    ));
+    #[cfg(windows)]
+    let tun_node6 = if tun_gateway_ip6.is_some() {
+        // The tapdrvr expects a special address here rather than a real gateway.
+        // See https://github.com/OpenVPN/openvpn/blob/23e11e591347080efa3b933beca7f620dd059d5c/src/openvpn/route.c#L2013
+        routing::NetNode::from(routing::Node::new(
+            "fe80::8"
+                .parse()
+                .map_err(RouteParseError::ParseGatewayAddress)
+                .map_err(Error::ParseRouteError)?,
+            tun_interface.to_string(),
+        ))
+    } else {
+        routing::NetNode::from(routing::Node::device(tun_interface.to_string()))
+    };
+    #[cfg(not(windows))]
+    let tun_node6 = routing::NetNode::from(routing::Node::device(tun_interface.to_string()));
+
+    let ovpn_routes = parse_openvpn_dict_routes(env).map_err(Error::ParseRouteError)?;
+
+    for route in ovpn_routes {
+        let node = if route.gateway == default_node_ip {
+            routing::NetNode::DefaultNode
+        } else if route.gateway == tun_gateway_ip {
+            tun_node.clone()
+        } else if Some(route.gateway) == tun_gateway_ip6 {
+            tun_node6.clone()
+        } else {
+            routing::NetNode::from(routing::Node::address(route.gateway))
+        };
+        routes.insert(RequiredRoute::new(route.network, node));
+    }
+
+    if env.get("socks_proxy_server_1").is_none() {
+        let remote_host: IpAddr = env
+            .get("remote_1")
+            .ok_or(Error::MissingRemoteHost)?
+            .parse()
+            .map_err(Error::ParseRemoteHost)?;
+        routes.insert(RequiredRoute::new(
+            remote_host.into(),
+            routing::NetNode::DefaultNode,
+        ));
+    }
+
+    #[cfg(target_os = "linux")]
+    let tun_node = routing::Node::device(tun_interface.to_string());
+    for network in &["0.0.0.0/1".parse().unwrap(), "128.0.0.0/1".parse().unwrap()] {
+        routes.insert(RequiredRoute::new(*network, tun_node.clone()));
+    }
+
+    Ok(routes)
 }
 
 impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {

@@ -55,6 +55,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Make route monitor ignore loopback routes.
 - Increase NetworkManager device readiness timeout to 15 seconds.
+- Set up routes for OpenVPN using the route manager instead of relying on OpenVPN.
 
 ### Fixed
 - Fix missing map animation after selecting a new location in the desktop app.

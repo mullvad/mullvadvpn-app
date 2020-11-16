@@ -42,6 +42,9 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
         "vpn_gateway",
         "1",
     ],
+    // The route manager is used to add the routes.
+    #[cfg(target_os = "linux")]
+    &["--route-noexec"],
 ];
 
 static ALLOWED_TLS1_2_CIPHERS: &[&str] = &[
