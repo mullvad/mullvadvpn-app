@@ -85,7 +85,6 @@ Line wrap the file at 100 chars.                                              Th
 - Reset DNS config correctly when the tunnel monitor unexpectedly goes down.
 - Set search domains in NetworkManager's DNS configuration, resolving issues where NetworkManager
   is used to manage DNS via systemd-resolved.
-- Parse routes more permissively and log parsing errors less verbosely.
 - Fix incorrect version string in .deb installer causing downgrade warnings when upgrading from beta
   to stable.
 
@@ -97,6 +96,14 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Block all traffic received or sent before the BFE service and daemon service have started during
   boot, if "Always require VPN" or auto-connect is enabled.
+
+
+## [2020.7-beta2] - 2020-11-16
+This release is for desktop only. It only has changes for Linux
+
+### Fixed
+#### Linux
+- Parse routes more permissively and log parsing errors less verbosely.
 
 
 ## [2020.7-beta1] - 2020-11-10
