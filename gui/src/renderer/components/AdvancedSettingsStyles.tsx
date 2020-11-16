@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
-import * as Cell from './Cell';
+import * as Cell from './cell';
 import { Container } from './Layout';
 import { NavigationScrollbars } from './NavigationBar';
-import Selector from './Selector';
+import Selector from './cell/Selector';
 
 export const StyledContainer = styled(Container)({
   backgroundColor: colors.darkBlue,

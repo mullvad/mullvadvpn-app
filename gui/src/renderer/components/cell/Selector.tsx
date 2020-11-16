@@ -1,8 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { colors } from '../../config.json';
-import { AriaInput, AriaLabel } from './AriaGroup';
-import * as Cell from './Cell';
+import { colors } from '../../../config.json';
+import { AriaInput, AriaLabel } from '../AriaGroup';
+import * as Cell from '.';
 
 export interface ISelectorItem<T> {
   label: string;

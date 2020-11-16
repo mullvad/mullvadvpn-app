@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import ImageView from './ImageView';
-import * as Cell from './Cell';
+import * as Cell from './cell';
 import { bigText, smallText } from './common-styles';
 
 export const StyledAccountDropdownContainer = styled.ul({

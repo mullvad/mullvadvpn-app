@@ -16,7 +16,7 @@ import {
 } from './AdvancedSettingsStyles';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
-import * as Cell from './Cell';
+import * as Cell from './cell';
 import { Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';
 import {
@@ -26,7 +26,7 @@ import {
   NavigationItems,
   TitleBarItem,
 } from './NavigationBar';
-import Selector, { ISelectorItem } from './Selector';
+import Selector, { ISelectorItem } from './cell/Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const MIN_MSSFIX_VALUE = 1000;

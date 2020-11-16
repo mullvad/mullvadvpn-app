@@ -5,7 +5,7 @@ import { colors } from '../../config.json';
 import { compareRelayLocation, RelayLocation } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import Accordion from './Accordion';
-import * as Cell from './Cell';
+import * as Cell from './cell';
 import ChevronButton from './ChevronButton';
 import RelayStatusIndicator from './RelayStatusIndicator';
 

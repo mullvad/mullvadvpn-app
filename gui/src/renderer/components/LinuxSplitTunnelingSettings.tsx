@@ -9,7 +9,7 @@ import ISplitTunnelingApplication from '../../shared/linux-split-tunneling-appli
 import consumePromise from '../../shared/promise';
 import { useAppContext } from '../context';
 import * as AppButton from './AppButton';
-import * as Cell from './Cell';
+import * as Cell from './cell';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
 import { ModalContainer, ModalAlert, ModalAlertType } from './Modal';

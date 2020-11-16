@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
-import * as Cell from './Cell';
+import * as Cell from './cell';
 import { Container } from './Layout';
 import { NavigationScrollbars } from './NavigationBar';
 

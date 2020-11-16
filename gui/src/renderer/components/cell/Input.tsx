@@ -1,109 +1,59 @@
 import React, { useCallback, useContext, useState } from 'react';
-import {
-  StyledAutoSizingTextInputContainer,
-  StyledAutoSizingTextInputWrapper,
-  StyledAutoSizingTextInputFiller,
-  StyledCellButton,
-  StyledContainer,
-  StyledIconContainer,
-  StyledInput,
-  StyledLabel,
-  StyledSection,
-  StyledSubText,
-  StyledTintedIcon,
-} from './CellStyles';
-import ImageView, { IImageViewProps } from './ImageView';
-import StandaloneSwitch from './Switch';
-
-export {
-  StyledFooter as Footer,
-  StyledFooterBoldText as FooterBoldText,
-  StyledFooterText as FooterText,
-  StyledInputFrame as InputFrame,
-  StyledSectionTitle as SectionTitle,
-} from './CellStyles';
-
-const CellSectionContext = React.createContext<boolean>(false);
-const CellDisabledContext = React.createContext<boolean>(false);
-
-interface IContainerProps extends React.HTMLAttributes<HTMLDivElement> {
-  disabled?: boolean;
-}
-
-export const Container = React.forwardRef(function ContainerT(
-  props: IContainerProps,
-  ref: React.Ref<HTMLDivElement>,
-) {
-  const { disabled, ...otherProps } = props;
-  return (
-    <CellDisabledContext.Provider value={disabled ?? false}>
-      <StyledContainer ref={ref} {...otherProps} />
-    </CellDisabledContext.Provider>
-  );
-});
-
-interface ICellButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  selected?: boolean;
-}
-
-export const CellButton = React.forwardRef(function Button(
-  props: ICellButtonProps,
-  ref: React.Ref<HTMLButtonElement>,
-) {
-  const containedInSection = useContext(CellSectionContext);
-  return (
-    <CellDisabledContext.Provider value={props.disabled ?? false}>
-      <StyledCellButton ref={ref} containedInSection={containedInSection} {...props} />
-    </CellDisabledContext.Provider>
-  );
-});
-
-export function Section(props: React.HTMLAttributes<HTMLDivElement>) {
-  const { children, ...otherProps } = props;
-  return (
-    <StyledSection {...otherProps}>
-      <CellSectionContext.Provider value={true}>{children}</CellSectionContext.Provider>
-    </StyledSection>
-  );
-}
-
-export function Label(props: React.HTMLAttributes<HTMLDivElement>) {
-  const disabled = useContext(CellDisabledContext);
-  return <StyledLabel disabled={disabled} {...props} />;
-}
-
-export function InputLabel(props: React.LabelHTMLAttributes<HTMLLabelElement>) {
-  const disabled = useContext(CellDisabledContext);
-  return <StyledLabel as="label" disabled={disabled} {...props} />;
-}
-
-export function SubText(props: React.HTMLAttributes<HTMLDivElement>) {
-  const disabled = useContext(CellDisabledContext);
-  return <StyledSubText disabled={disabled} {...props} />;
-}
-
-export function UntintedIcon(props: IImageViewProps) {
-  const disabled = useContext(CellDisabledContext);
-  return (
-    <StyledIconContainer disabled={disabled}>
-      <ImageView {...props} />
-    </StyledIconContainer>
-  );
-}
-
-export function Icon(props: IImageViewProps) {
-  const disabled = useContext(CellDisabledContext);
-  return (
-    <StyledIconContainer disabled={disabled}>
-      <StyledTintedIcon {...props} />
-    </StyledIconContainer>
-  );
-}
+import styled from 'styled-components';
+import { colors } from '../../../config.json';
+import { mediumText } from '../common-styles';
+import { CellDisabledContext } from './Container';
+import StandaloneSwitch from '../Switch';
 
 export function Switch(props: StandaloneSwitch['props']) {
   const disabled = useContext(CellDisabledContext);
   return <StandaloneSwitch disabled={disabled} {...props} />;
 }
+
+export const InputFrame = styled.div({
+  flexGrow: 0,
+  backgroundColor: 'rgba(255,255,255,0.1)',
+  borderRadius: '4px',
+  padding: '4px 8px',
+});
+
+const inputTextStyles: React.CSSProperties = {
+  ...mediumText,
+  fontWeight: 600,
+  height: '28px',
+  textAlign: 'right',
+  padding: '0px',
+};
+
+const StyledInput = styled.input({}, (props: { valid?: boolean }) => ({
+  ...inputTextStyles,
+  backgroundColor: 'transparent',
+  border: 'none',
+  width: '100%',
+  height: '100%',
+  color: props.valid !== false ? colors.white : colors.red,
+  '::placeholder': {
+    color: colors.white60,
+  },
+}));
+
+const StyledAutoSizingTextInputContainer = styled.div({
+  position: 'relative',
+});
+
+const StyledAutoSizingTextInputFiller = styled.pre({
+  ...inputTextStyles,
+  minWidth: '80px',
+  color: 'transparent',
+});
+
+const StyledAutoSizingTextInputWrapper = styled.div({
+  position: 'absolute',
+  top: '0px',
+  left: '0px',
+  width: '100%',
+  height: '100%',
+});
 
 interface IInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   value?: string;

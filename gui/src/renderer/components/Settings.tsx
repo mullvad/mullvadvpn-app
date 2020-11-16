@@ -3,7 +3,7 @@ import { colors, links } from '../../config.json';
 import { hasExpired, formatRemainingTime } from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
-import * as Cell from './Cell';
+import * as Cell from './cell';
 import { Layout } from './Layout';
 import {
   CloseBarItem,
