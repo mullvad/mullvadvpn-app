@@ -226,16 +226,10 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     private suspend fun addDnsServer(addressText: String): Boolean {
         var added = false
 
-        jobTracker.runOnBackground {
-            if (inetAddressValidator.isValid(addressText)) {
-                val address = InetAddress.getByName(addressText)
-
-                if (!address.isLoopbackAddress()) {
-                    if (customDns.addDnsServer(address)) {
-                        cachedCustomDnsServers.add(address)
-                        added = true
-                    }
-                }
+        withValidAddress(addressText) { address ->
+            if (customDns.addDnsServer(address)) {
+                cachedCustomDnsServers.add(address)
+                added = true
             }
         }
 
@@ -254,17 +248,12 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     private suspend fun replaceDnsServer(address: String, position: Int): Boolean {
         var replaced = false
 
-        jobTracker.runOnBackground {
-            if (inetAddressValidator.isValid(address)) {
-                val newAddress = InetAddress.getByName(address)
-                val oldAddress = cachedCustomDnsServers[position]
+        withValidAddress(address) { newAddress ->
+            val oldAddress = cachedCustomDnsServers[position]
 
-                if (!newAddress.isLoopbackAddress()) {
-                    if (customDns.replaceDnsServer(oldAddress, newAddress)) {
-                        cachedCustomDnsServers[position] = newAddress
-                        replaced = true
-                    }
-                }
+            if (customDns.replaceDnsServer(oldAddress, newAddress)) {
+                cachedCustomDnsServers[position] = newAddress
+                replaced = true
             }
         }
 
@@ -285,6 +274,18 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
 
         position?.let { newPosition ->
             notifyItemChanged(newPosition)
+        }
+    }
+
+    private suspend fun withValidAddress(addressText: String, handler: (InetAddress) -> Unit) {
+        jobTracker.runOnBackground {
+            if (inetAddressValidator.isValid(addressText)) {
+                val address = InetAddress.getByName(addressText)
+
+                if (!address.isLoopbackAddress()) {
+                    handler(address)
+                }
+            }
         }
     }
 }
