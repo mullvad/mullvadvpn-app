@@ -1,4 +1,9 @@
-import { BridgeState, IWireguardPublicKey, KeygenEvent } from '../../../shared/daemon-rpc-types';
+import {
+  BridgeState,
+  IDnsOptions,
+  IWireguardPublicKey,
+  KeygenEvent,
+} from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { BridgeSettingsRedux, IRelayLocationRedux, IWgKey, RelaySettingsRedux } from './reducers';
 
@@ -97,6 +102,11 @@ export interface IWireguardKeyVerifiedAction {
   verified?: boolean;
 }
 
+export interface IUpdateDnsOptionsAction {
+  type: 'UPDATE_DNS_OPTIONS';
+  dns: IDnsOptions;
+}
+
 export type SettingsAction =
   | IUpdateGuiSettingsAction
   | IUpdateRelayAction
@@ -116,7 +126,8 @@ export type SettingsAction =
   | IWireguardGenerateKey
   | IWireguardReplaceKey
   | IWireguardKeygenEvent
-  | IWireguardKeyVerifiedAction;
+  | IWireguardKeyVerifiedAction
+  | IUpdateDnsOptionsAction;
 
 function updateGuiSettings(guiSettings: IGuiSettingsState): IUpdateGuiSettingsAction {
   return {
@@ -261,6 +272,13 @@ function completeWireguardKeyVerification(verified?: boolean): IWireguardKeyVeri
   };
 }
 
+function updateDnsOptions(dns: IDnsOptions): IUpdateDnsOptionsAction {
+  return {
+    type: 'UPDATE_DNS_OPTIONS',
+    dns,
+  };
+}
+
 export default {
   updateGuiSettings,
   updateRelay,
@@ -281,4 +299,5 @@ export default {
   replaceWireguardKey,
   verifyWireguardKey,
   completeWireguardKeyVerification,
+  updateDnsOptions,
 };

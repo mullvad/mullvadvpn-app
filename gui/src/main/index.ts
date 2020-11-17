@@ -15,6 +15,7 @@ import {
   DaemonEvent,
   IAccountData,
   IAppVersionInfo,
+  IDnsOptions,
   ILocation,
   IRelayList,
   ISettings,
@@ -136,6 +137,10 @@ class ApplicationMain {
       },
       wireguard: {
         mtu: undefined,
+      },
+      dns: {
+        custom: false,
+        addresses: [],
       },
     },
   };
@@ -983,6 +988,9 @@ class ApplicationMain {
     );
     IpcMainEventChannel.settings.handleUpdateBridgeSettings((bridgeSettings: BridgeSettings) => {
       return this.daemonRpc.setBridgeSettings(bridgeSettings);
+    });
+    IpcMainEventChannel.settings.handleDnsOptions((dns: IDnsOptions) => {
+      return this.daemonRpc.setDnsOptions(dns);
     });
     IpcMainEventChannel.autoStart.handleSet((autoStart: boolean) => {
       return this.setAutoStart(autoStart);

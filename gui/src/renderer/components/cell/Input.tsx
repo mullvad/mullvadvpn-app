@@ -1,9 +1,10 @@
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { colors } from '../../../config.json';
 import { mediumText } from '../common-styles';
-import { CellDisabledContext } from './Container';
+import { CellDisabledContext, Container } from './Container';
 import StandaloneSwitch from '../Switch';
+import ImageView from '../ImageView';
 
 export const Switch = React.forwardRef(function SwitchT(
   props: StandaloneSwitch['props'],
@@ -181,5 +182,143 @@ export function AutoSizingTextInput({ onChangeValue, ...otherProps }: IInputProp
         {value === '' ? otherProps.placeholder : value}
       </StyledAutoSizingTextInputFiller>
     </StyledAutoSizingTextInputContainer>
+  );
+}
+
+const StyledCellInputRowContainer = styled(Container)({
+  backgroundColor: 'white',
+  marginBottom: '1px',
+});
+
+const StyledSubmitButton = styled.button({
+  border: 'none',
+  backgroundColor: 'transparent',
+  padding: '14px 0',
+});
+
+const StyledInputWrapper = styled.div({}, (props: { marginLeft: number }) => ({
+  position: 'relative',
+  flex: 1,
+  width: '171px',
+  marginLeft: props.marginLeft + 'px',
+  marginRight: '25px',
+  lineHeight: '24px',
+  minHeight: '24px',
+  fontFamily: 'Open Sans',
+  fontWeight: 'normal',
+  fontSize: '16px',
+  padding: '14px 0',
+  maxWidth: '100%',
+}));
+
+const StyledTextArea = styled.textarea({}, (props: { invalid?: boolean }) => ({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  width: '100%',
+  height: '100%',
+  backgroundColor: 'transparent',
+  border: 'none',
+  flex: 1,
+  lineHeight: '24px',
+  fontFamily: 'Open Sans',
+  fontWeight: 'normal',
+  fontSize: '16px',
+  resize: 'none',
+  padding: '14px 0',
+  color: props.invalid ? colors.red : 'auto',
+}));
+
+const StyledInputFiller = styled.div({
+  whiteSpace: 'pre-wrap',
+  overflowWrap: 'break-word',
+  minHeight: '24px',
+  color: 'transparent',
+});
+
+interface IRowInputProps {
+  onChange?: (value: string) => void;
+  onSubmit: (value: string) => void;
+  onFocus?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
+  onBlur?: (event?: React.FocusEvent<HTMLTextAreaElement>) => void;
+  paddingLeft?: number;
+  invalid?: boolean;
+  autofocus?: boolean;
+}
+
+export function RowInput(props: IRowInputProps) {
+  const [value, setValue] = useState('');
+  const textAreaRef = useRef() as React.RefObject<HTMLTextAreaElement>;
+
+  const submit = useCallback(() => props.onSubmit(value), [props.onSubmit, value]);
+  const onChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const value = event.target.value;
+      setValue(value);
+      props.onChange?.(value);
+    },
+    [props.onChange],
+  );
+  const onKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        submit();
+      }
+    },
+    [submit],
+  );
+
+  const globalKeyListener = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.stopPropagation();
+        props.onBlur?.();
+      }
+    },
+    [props.onBlur],
+  );
+
+  useEffect(() => {
+    if (props.autofocus) {
+      textAreaRef.current?.focus();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (props.invalid) {
+      textAreaRef.current?.focus();
+    }
+  }, [props.invalid]);
+
+  useEffect(() => {
+    document.addEventListener('keydown', globalKeyListener, true);
+    return () => document.removeEventListener('keydown', globalKeyListener, true);
+  }, []);
+
+  return (
+    <StyledCellInputRowContainer>
+      <StyledInputWrapper marginLeft={props.paddingLeft ?? 0}>
+        <StyledInputFiller>{value}</StyledInputFiller>
+        <StyledTextArea
+          ref={textAreaRef}
+          onChange={onChange}
+          onKeyDown={onKeyDown}
+          rows={1}
+          value={value}
+          invalid={props.invalid}
+          onFocus={props.onFocus}
+          onBlur={props.onBlur}
+        />
+      </StyledInputWrapper>
+      <StyledSubmitButton onClick={submit}>
+        <ImageView
+          source="icon-tick"
+          height={22}
+          tintColor={colors.green}
+          tintHoverColor={colors.green90}
+        />
+      </StyledSubmitButton>
+    </StyledCellInputRowContainer>
   );
 }

@@ -1,7 +1,12 @@
 import log from 'electron-log';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { BridgeState, RelayProtocol, TunnelProtocol } from '../../shared/daemon-rpc-types';
+import {
+  BridgeState,
+  IDnsOptions,
+  RelayProtocol,
+  TunnelProtocol,
+} from '../../shared/daemon-rpc-types';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import AdvancedSettings from '../components/AdvancedSettings';
 
@@ -19,6 +24,7 @@ const mapStateToProps = (state: IReduxState) => {
     mssfix: state.settings.openVpn.mssfix,
     wireguardMtu: state.settings.wireguard.mtu,
     bridgeState: state.settings.bridgeState,
+    dns: state.settings.dns,
     ...protocolAndPort,
   };
 };
@@ -152,6 +158,11 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps
         log.error('Failed to update mtu value', e.message);
       }
     },
+
+    setDnsOptions: (dns: IDnsOptions) => {
+      return props.app.setDnsOptions(dns);
+    },
+
     onViewWireguardKeys: () => props.history.push('/settings/advanced/wireguard-keys'),
     onViewLinuxSplitTunneling: () => props.history.push('/settings/advanced/linux-split-tunneling'),
   };

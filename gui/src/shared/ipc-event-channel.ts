@@ -13,6 +13,7 @@ import {
   BridgeState,
   IAccountData,
   IAppVersionInfo,
+  IDnsOptions,
   ILocation,
   IRelayList,
   ISettings,
@@ -78,6 +79,7 @@ interface ISettingsMethods extends IReceiver<ISettings> {
   setWireguardMtu(mtu?: number): Promise<void>;
   updateRelaySettings(update: RelaySettingsUpdate): Promise<void>;
   updateBridgeSettings(bridgeSettings: BridgeSettings): Promise<void>;
+  setDnsOptions(dns: IDnsOptions): Promise<void>;
 }
 
 interface ISettingsHandlers extends ISender<ISettings> {
@@ -90,6 +92,7 @@ interface ISettingsHandlers extends ISender<ISettings> {
   handleWireguardMtu(fn: (mtu?: number) => Promise<void>): void;
   handleUpdateRelaySettings(fn: (update: RelaySettingsUpdate) => Promise<void>): void;
   handleUpdateBridgeSettings(fn: (bridgeSettings: BridgeSettings) => Promise<void>): void;
+  handleDnsOptions(fn: (dns: IDnsOptions) => Promise<void>): void;
 }
 
 interface IGuiSettingsMethods extends IReceiver<IGuiSettingsState> {
@@ -188,6 +191,7 @@ const SET_OPENVPN_MSSFIX = 'set-openvpn-mssfix';
 const SET_WIREGUARD_MTU = 'set-wireguard-mtu';
 const UPDATE_RELAY_SETTINGS = 'update-relay-settings';
 const UPDATE_BRIDGE_SETTINGS = 'update-bridge-location';
+const SET_DNS_OPTIONS = 'set-dns-options';
 
 const LOCATION_CHANGED = 'location-changed';
 const RELAYS_CHANGED = 'relays-changed';
@@ -275,6 +279,7 @@ export class IpcRendererEventChannel {
     setWireguardMtu: requestSender(SET_WIREGUARD_MTU),
     updateRelaySettings: requestSender(UPDATE_RELAY_SETTINGS),
     updateBridgeSettings: requestSender(UPDATE_BRIDGE_SETTINGS),
+    setDnsOptions: requestSender(SET_DNS_OPTIONS),
   };
 
   public static location: IReceiver<ILocation> = {
@@ -385,6 +390,7 @@ export class IpcMainEventChannel {
     handleWireguardMtu: requestHandler(SET_WIREGUARD_MTU),
     handleUpdateRelaySettings: requestHandler(UPDATE_RELAY_SETTINGS),
     handleUpdateBridgeSettings: requestHandler(UPDATE_BRIDGE_SETTINGS),
+    handleDnsOptions: requestHandler(SET_DNS_OPTIONS),
   };
 
   public static relays: ISender<IRelayListPair> = {

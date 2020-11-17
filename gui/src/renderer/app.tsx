@@ -32,6 +32,7 @@ import {
   BridgeState,
   IAccountData,
   IAppVersionInfo,
+  IDnsOptions,
   ILocation,
   IRelayList,
   ISettings,
@@ -301,6 +302,10 @@ export default class AppRenderer {
 
   public updateBridgeSettings(bridgeSettings: BridgeSettings) {
     return IpcRendererEventChannel.settings.updateBridgeSettings(bridgeSettings);
+  }
+
+  public setDnsOptions(dns: IDnsOptions) {
+    return IpcRendererEventChannel.settings.setDnsOptions(dns);
   }
 
   public removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
@@ -611,6 +616,7 @@ export default class AppRenderer {
     reduxSettings.updateOpenVpnMssfix(newSettings.tunnelOptions.openvpn.mssfix);
     reduxSettings.updateWireguardMtu(newSettings.tunnelOptions.wireguard.mtu);
     reduxSettings.updateBridgeState(newSettings.bridgeState);
+    reduxSettings.updateDnsOptions(newSettings.tunnelOptions.dns);
 
     this.setRelaySettings(newSettings.relaySettings);
     this.setBridgeSettings(newSettings.bridgeSettings);

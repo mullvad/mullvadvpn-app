@@ -262,6 +262,12 @@ export interface ITunnelOptions {
   generic: {
     enableIpv6: boolean;
   };
+  dns: IDnsOptions;
+}
+
+export interface IDnsOptions {
+  custom: boolean;
+  addresses: string[];
 }
 
 export type ProxySettings = ILocalProxySettings | IRemoteProxySettings | IShadowsocksProxySettings;
