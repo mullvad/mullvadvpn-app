@@ -16,4 +16,4 @@ rand = "0.7"
 err-derive = "0.2.1"
 
 [target.'cfg(target_os = "android")'.dependencies]
-jnix = { version = "0.2.3", features = ["derive"] }
+jnix = { version = "0.3", features = ["derive"] }
