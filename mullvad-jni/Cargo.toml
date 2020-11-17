@@ -14,7 +14,7 @@ crate_type = ["cdylib"]
 err-derive = "0.2.1"
 futures = "0.3"
 ipnetwork = "0.16"
-jnix = { version = "0.2.3", features = ["derive"] }
+jnix = { version = "0.3", features = ["derive"] }
 lazy_static = "1"
 log = "0.4"
 log-panics = "2"
