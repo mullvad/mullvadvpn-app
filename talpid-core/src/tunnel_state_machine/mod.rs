@@ -19,8 +19,6 @@ use crate::{
     routing::RouteManager,
     tunnel::{tun_provider::TunProvider, TunnelEvent},
 };
-#[cfg(target_os = "linux")]
-use dbus::ffidisp::{BusType, Connection};
 use futures::{
     channel::{mpsc, oneshot},
     stream, StreamExt,
@@ -343,24 +341,9 @@ impl SharedTunnelStateValues {
             return;
         };
 
-        let own_connection;
-        let connection = if let Some(ready_connection) = self.dns_monitor.dbus_connection() {
-            ready_connection
-        } else {
-            match Connection::get_private(BusType::System) {
-                Ok(connection) => {
-                    own_connection = connection;
-                    &own_connection
-                }
-                Err(err) => {
-                    log::error!("Failed to initialize DBus connection: {}", err);
-                    return;
-                }
-            }
-        };
-
-        self.connectivity_check_was_enabled =
-            crate::linux::network_manager::nm_disable_connectivity_check(connection);
+        if let Ok(nm) = crate::linux::network_manager::NetworkManager::new() {
+            self.connectivity_check_was_enabled = nm.disable_connectivity_check();
+        }
     }
 
     /// Reset NetworkManager's connectivity check if it was disabled.
@@ -371,24 +354,10 @@ impl SharedTunnelStateValues {
             return;
         };
 
-        let own_connection;
-        let connection = if let Some(ready_connection) = self.dns_monitor.dbus_connection() {
-            ready_connection
-        } else {
-            match Connection::get_private(BusType::System) {
-                Ok(connection) => {
-                    own_connection = connection;
-                    &own_connection
-                }
-                Err(err) => {
-                    log::error!("Failed to initialize DBus connection: {}", err);
-                    return;
-                }
+        if let Ok(nm) = crate::linux::network_manager::NetworkManager::new() {
+            if let Some(true) = self.connectivity_check_was_enabled.take() {
+                nm.enable_connectivity_check();
             }
-        };
-
-        if let Some(true) = self.connectivity_check_was_enabled.take() {
-            crate::linux::network_manager::nm_enable_connectivity_check(connection);
         }
     }
 }
