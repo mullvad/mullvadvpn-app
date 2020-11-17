@@ -265,6 +265,28 @@ impl WireguardMonitor {
             ));
         }
 
+        // add routes for the gateway so that DNS requests can be made in the tunnel
+        // using `mullvad-exclude`
+        #[cfg(target_os = "linux")]
+        {
+            use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
+
+            routes.insert(
+                RequiredRoute::new(
+                    ipnetwork::Ipv4Network::from(config.ipv4_gateway).into(),
+                    node.clone(),
+                )
+                .table(u32::from(RT_TABLE_MAIN)),
+            );
+
+            if let Some(gateway) = config.ipv6_gateway {
+                routes.insert(
+                    RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), node.clone())
+                        .table(u32::from(RT_TABLE_MAIN)),
+                );
+            }
+        }
+
         routes
     }
 
