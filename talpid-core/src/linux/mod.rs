@@ -4,6 +4,8 @@ use std::{
 };
 
 pub mod network_manager;
+pub mod dbus;
+
 /// Converts an interface name into the corresponding index.
 pub fn iface_index(name: &str) -> Result<libc::c_uint, IfaceIndexLookupError> {
     let c_name = CString::new(name)
