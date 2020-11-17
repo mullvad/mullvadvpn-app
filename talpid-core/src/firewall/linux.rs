@@ -280,14 +280,14 @@ impl<'a> PolicyBatch<'a> {
     /// policy.
     pub fn finalize(mut self, policy: &FirewallPolicy) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
-        self.add_split_tunneling_rules()?;
+        self.add_split_tunneling_rules(policy)?;
         self.add_dhcp_client_rules();
         self.add_policy_specific_rules(policy)?;
 
         Ok(self.batch.finalize())
     }
 
-    fn add_split_tunneling_rules(&mut self) -> Result<()> {
+    fn add_split_tunneling_rules(&mut self, policy: &FirewallPolicy) -> Result<()> {
         let mangle_chains = [&self.mangle_chain_v4, &self.mangle_chain_v6];
         for chain in &mangle_chains {
             let mut rule = Rule::new(chain);
@@ -299,23 +299,66 @@ impl<'a> PolicyBatch<'a> {
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
 
-        let mut rule = Rule::new(&self.in_chain);
-        rule.add_expr(&nft_expr!(ct mark));
-        rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
-        add_verdict(&mut rule, &Verdict::Accept);
-        self.batch.add(&rule, nftnl::MsgType::Add);
+        {
+            let mut rule = Rule::new(&self.in_chain);
+            rule.add_expr(&nft_expr!(ct mark));
+            rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
 
-        let mut rule = Rule::new(&self.out_chain);
-        rule.add_expr(&nft_expr!(meta mark));
-        rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
-        add_verdict(&mut rule, &Verdict::Accept);
-        self.batch.add(&rule, nftnl::MsgType::Add);
+            let mut rule = Rule::new(&self.out_chain);
+            rule.add_expr(&nft_expr!(meta mark));
+            rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
+
+        // Allow some DNS requests to pass through the tunnel
+        if let FirewallPolicy::Connected {
+            tunnel,
+            dns_servers,
+            ..
+        } = policy
+        {
+            let gateway = IpAddr::V4(tunnel.ipv4_gateway);
+            if dns_servers.contains(&gateway) {
+                self.add_nat_tunnel_dns_rule(&tunnel.interface, TransportProtocol::Udp, gateway)?;
+                self.add_nat_tunnel_dns_rule(&tunnel.interface, TransportProtocol::Tcp, gateway)?;
+            }
+
+            if let Some(ref gateway) = tunnel.ipv6_gateway {
+                let gateway = IpAddr::V6(*gateway);
+                if dns_servers.contains(&gateway) {
+                    self.add_nat_tunnel_dns_rule(
+                        &tunnel.interface,
+                        TransportProtocol::Udp,
+                        gateway,
+                    )?;
+                    self.add_nat_tunnel_dns_rule(
+                        &tunnel.interface,
+                        TransportProtocol::Tcp,
+                        gateway,
+                    )?;
+                }
+            }
+        }
 
         let nat_chains = [&self.nat_chain_v4, &self.nat_chain_v6];
         for chain in &nat_chains {
+            // Block remaining marked outgoing in-tunnel traffic
+            if let FirewallPolicy::Connected { tunnel, .. } = policy {
+                let mut block_tunnel_rule = Rule::new(chain);
+                check_iface(&mut block_tunnel_rule, Direction::Out, &tunnel.interface)?;
+                block_tunnel_rule.add_expr(&nft_expr!(ct mark));
+                block_tunnel_rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+                add_verdict(&mut block_tunnel_rule, &Verdict::Drop);
+                self.batch.add(&block_tunnel_rule, nftnl::MsgType::Add);
+            }
+
+            // Replace source IP address in rerouted packets.
+            // Don't masquerade packets on the loopback device.
             let mut rule = Rule::new(chain);
 
-            // Don't masquerade packets on the loopback device.
             let iface_index = crate::linux::iface_index("lo")
                 .map_err(|e| Error::LookupIfaceIndexError("lo".to_string(), e))?;
             rule.add_expr(&nft_expr!(meta oif));
@@ -331,6 +374,36 @@ impl<'a> PolicyBatch<'a> {
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
 
+        Ok(())
+    }
+
+    fn add_nat_tunnel_dns_rule(
+        &mut self,
+        interface: &str,
+        protocol: TransportProtocol,
+        host: IpAddr,
+    ) -> Result<()> {
+        let mut allow_rule = match host {
+            IpAddr::V4(_) => Rule::new(&self.nat_chain_v4),
+            IpAddr::V6(_) => Rule::new(&self.nat_chain_v6),
+        };
+        let daddr = match host {
+            IpAddr::V4(_) => nft_expr!(payload ipv4 daddr),
+            IpAddr::V6(_) => nft_expr!(payload ipv6 daddr),
+        };
+
+        check_iface(&mut allow_rule, Direction::Out, interface)?;
+        check_port(&mut allow_rule, protocol, End::Dst, 53);
+
+        allow_rule.add_expr(&daddr);
+        allow_rule.add_expr(&nft_expr!(cmp == host));
+
+        allow_rule.add_expr(&nft_expr!(ct mark));
+        allow_rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
+
+        add_verdict(&mut allow_rule, &Verdict::Accept);
+
+        self.batch.add(&allow_rule, nftnl::MsgType::Add);
         Ok(())
     }
 
