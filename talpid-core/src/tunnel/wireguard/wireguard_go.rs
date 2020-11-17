@@ -330,11 +330,11 @@ pub type LoggingCallback = unsafe extern "system" fn(
 );
 
 extern "C" {
-    // Creates a new wireguard tunnel, uses the specific interface name, MTU and file descriptors
-    // for the tunnel device and logging.
-    //
-    // Positive return values are tunnel handles for this specific wireguard tunnel instance.
-    // Negative return values signify errors. All error codes are opaque.
+    /// Creates a new wireguard tunnel, uses the specific interface name, MTU and file descriptors
+    /// for the tunnel device and logging.
+    ///
+    /// Positive return values are tunnel handles for this specific wireguard tunnel instance.
+    /// Negative return values signify errors. All error codes are opaque.
     #[cfg(not(any(target_os = "android", target_os = "windows")))]
     fn wgTurnOn(
         mtu: isize,

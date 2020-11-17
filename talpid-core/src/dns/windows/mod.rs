@@ -251,7 +251,6 @@ ffi_error!(SettingResult, Error::Setting);
 
 #[allow(non_snake_case)]
 extern "stdcall" {
-
     #[link_name = "WinDns_Initialize"]
     pub fn WinDns_Initialize(
         sink: Option<LogSink>,
