@@ -7,6 +7,7 @@ use self::{
     network_manager::NetworkManager, resolvconf::Resolvconf, static_resolv_conf::StaticResolvConf,
     systemd_resolved::SystemdResolved,
 };
+use crate::linux::network_manager::NetworkManager as NMDBus;
 use std::{env, fmt, net::IpAddr, path::Path};
 
 
@@ -65,10 +66,10 @@ impl super::DnsMonitorT for DnsMonitor {
         Ok(())
     }
 
-    fn dbus_connection(&self) -> Option<&dbus::ffidisp::Connection> {
+    fn dbus_connection(&self) -> Option<&NMDBus> {
         match &self.inner {
-            Some(DnsMonitorHolder::NetworkManager(nm)) => Some(&nm.dbus_connection),
-            Some(DnsMonitorHolder::SystemdResolved(sdr)) => Some(&sdr.dbus_connection),
+            Some(DnsMonitorHolder::NetworkManager(nm)) => Some(&nm.connection),
+            // Some(DnsMonitorHolder::SystemdResolved(sdr)) => Some(&sdr.dbus_connection),
             _ => None,
         }
     }
