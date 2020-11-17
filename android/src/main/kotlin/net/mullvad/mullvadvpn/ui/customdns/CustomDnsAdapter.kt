@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.service.CustomDns
 import net.mullvad.mullvadvpn.util.JobTracker
@@ -18,6 +20,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         FOOTER,
     }
 
+    private val customDnsServersLock = Mutex()
     private val inetAddressValidator = InetAddressValidator.getInstance()
     private val jobTracker = JobTracker()
 
@@ -54,13 +57,17 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
         customDns.apply {
             onDnsServersChanged.subscribe(this) { dnsServers ->
                 jobTracker.newUiJob("updateDnsServers") {
-                    activeCustomDnsServers = dnsServers
+                    customDnsServersLock.withLock {
+                        activeCustomDnsServers = dnsServers
+                    }
                 }
             }
 
             onEnabledChanged.subscribe(this) { value ->
                 jobTracker.newUiJob("updateEnabled") {
-                    enabled = value
+                    customDnsServersLock.withLock {
+                        enabled = value
+                    }
                 }
             }
         }
@@ -132,50 +139,68 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     }
 
     fun newDnsServer() {
-        if (enabled) {
-            val count = getItemCount()
+        jobTracker.newUiJob("newDnsServer") {
+            customDnsServersLock.withLock {
+                if (enabled) {
+                    val count = getItemCount()
 
-            editDnsServerAt(count - 2)
+                    editDnsServerAt(count - 2)
+                }
+            }
         }
     }
 
     fun saveDnsServer(address: String, errorCallback: () -> Unit) {
         jobTracker.newUiJob("saveDnsServer $address") {
-            editingPosition?.let { position ->
-                var validAddress: Boolean
-                
-                if (position >= cachedCustomDnsServers.size) {
-                    validAddress = addDnsServer(address)
-                } else {
-                    validAddress = replaceDnsServer(address, position)
-                }
+            customDnsServersLock.withLock {
+                editingPosition?.let { position ->
+                    var validAddress: Boolean
 
-                if (!validAddress) {
-                    errorCallback()
+                    if (position >= cachedCustomDnsServers.size) {
+                        validAddress = addDnsServer(address)
+                    } else {
+                        validAddress = replaceDnsServer(address, position)
+                    }
+
+                    if (!validAddress) {
+                        errorCallback()
+                    }
                 }
             }
         }
     }
 
     fun editDnsServer(address: InetAddress) {
-        if (enabled) {
-            val position = cachedCustomDnsServers.indexOf(address)
+        jobTracker.newUiJob("editDnsServer $address") {
+            customDnsServersLock.withLock {
+                if (enabled) {
+                    val position = cachedCustomDnsServers.indexOf(address)
 
-            editDnsServerAt(position)
+                    editDnsServerAt(position)
+                }
+            }
         }
     }
 
     fun stopEditing() {
-        if (enabled) {
-            editDnsServerAt(null)
+        jobTracker.newUiJob("stopEditing") {
+            customDnsServersLock.withLock {
+                if (enabled) {
+                    editDnsServerAt(null)
+                }
+            }
         }
     }
 
     fun stopEditing(address: InetAddress) {
-        if (enabled) {
-            editingPosition?.let { position ->
-                if (cachedCustomDnsServers.getOrNull(position) == address) {
-                    editDnsServerAt(null)
+        jobTracker.newUiJob("stopEditing $address") {
+            customDnsServersLock.withLock {
+                if (enabled) {
+                    editingPosition?.let { position ->
+                        if (cachedCustomDnsServers.getOrNull(position) == address) {
+                            editDnsServerAt(null)
+                        }
+                    }
                 }
             }
         }
@@ -183,16 +208,18 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
 
     fun removeDnsServer(address: InetAddress) {
         jobTracker.newUiJob("removeDnsServer $address") {
-            val position = jobTracker.runOnBackground {
-                val index = cachedCustomDnsServers.indexOf(address)
+            customDnsServersLock.withLock {
+                val position = jobTracker.runOnBackground {
+                    val index = cachedCustomDnsServers.indexOf(address)
 
-                cachedCustomDnsServers.removeAt(index)
-                customDns.removeDnsServer(address)
+                    cachedCustomDnsServers.removeAt(index)
+                    customDns.removeDnsServer(address)
 
-                index
+                    index
+                }
+
+                notifyItemRemoved(position)
             }
-
-            notifyItemRemoved(position)
         }
     }
 
