@@ -215,6 +215,7 @@ impl RouteManagerImpl {
     }
 
     async fn clear_routing_rules(&mut self) -> Result<()> {
+        let rules = self.get_rules().await?;
         for rule in &[
             &*EXCLUSIONS_RULE_V4,
             &*EXCLUSIONS_RULE_V6,
@@ -223,9 +224,65 @@ impl RouteManagerImpl {
             &*NO_FWMARK_RULE_V4,
             &*NO_FWMARK_RULE_V6,
         ] {
-            self.delete_rule_if_exists((*rule).clone()).await?;
+            let mut matching_rule = None;
+
+            // `RTM_DELRULE` is way too picky about which rules are considered the same.
+            // So iterate over all rules and ignore irrelevant attributes.
+            for found_rule in &rules {
+                // Match header
+                if found_rule.header.family != rule.header.family {
+                    continue;
+                }
+                if found_rule.header.action != rule.header.action {
+                    continue;
+                }
+                if (found_rule.header.flags & rule.header.flags) != rule.header.flags {
+                    continue;
+                }
+                // Match NLAs
+                let mut contains_nlas = true;
+                for nla in &rule.nlas {
+                    if !found_rule.nlas.contains(nla) {
+                        contains_nlas = false;
+                        break;
+                    }
+                }
+                if contains_nlas {
+                    log::trace!("Existing routing rule matched: {:?}", found_rule);
+                    matching_rule = Some(found_rule);
+                    break;
+                }
+            }
+
+            if let Some(rule) = matching_rule {
+                self.delete_rule_if_exists((*rule).clone()).await?;
+            }
         }
         Ok(())
+    }
+
+    async fn get_rules(&mut self) -> Result<Vec<RuleMessage>> {
+        use netlink_packet_route::constants::*;
+
+        let mut req = NetlinkMessage::from(RtnlMessage::GetRule(RuleMessage::default()));
+        req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_DUMP;
+
+        let mut response = self.handle.request(req).map_err(Error::NetlinkError)?;
+
+        let mut rules = vec![];
+
+        while let Some(message) = response.next().await {
+            match message.payload {
+                NetlinkPayload::InnerMessage(RtnlMessage::NewRule(rule)) => {
+                    rules.push(rule);
+                }
+                NetlinkPayload::Error(error) => {
+                    return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(error)));
+                }
+                _ => (),
+            }
+        }
+        Ok(rules)
     }
 
     async fn delete_rule_if_exists(&mut self, rule: RuleMessage) -> Result<()> {
