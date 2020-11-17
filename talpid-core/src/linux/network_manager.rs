@@ -107,7 +107,7 @@ pub struct NetworkManager {
 impl NetworkManager {
     pub fn new() -> Result<Self> {
         Ok(Self {
-           connection: crate::linux::dbus::get_connection()?,
+            connection: crate::linux::dbus::get_connection()?,
         })
     }
 
@@ -796,53 +796,4 @@ fn eq_file_content<P: AsRef<Path>>(a: &P, b: &P) -> bool {
             (Ok(a), Ok(b)) => a != b,
             _ => false,
         })
-}
-
-/// Given a DBus connection, verify that NM is up and running and capable of managing DNS via
-/// systemd-resolved. This includes verifying that NM is managing DNS via systemd-resolved and is
-/// controlling /etc/resolv.conf
-pub fn is_nm_managing_via_resolved(connection: &SyncConnection) -> bool {
-    let check_nm = || -> std::result::Result<bool, dbus::Error> {
-        let dns_manager = Proxy::new(NM_BUS, NM_DNS_MANAGER_PATH, RPC_TIMEOUT, connection);
-        let dns_mode: String = dns_manager.get(NM_DNS_MANAGER, DNS_MODE_KEY)?;
-        if &dns_mode != "systemd-resolved" {
-            return Ok(false);
-        }
-
-
-        let rc_management_mode: String = dns_manager.get(NM_DNS_MANAGER, RC_MANAGEMENT_MODE_KEY)?;
-
-        match rc_management_mode.as_str() {
-            // /etc/resolv.conf is managed via executing a command, can't verify that works, have
-            // to assume it does
-            "resolvconf" | "netconfig" => Ok(true),
-
-            "symlink" | "none" | "file" => {
-                Proxy::new(NM_BUS, NM_MANAGER_PATH, RPC_TIMEOUT, connection).method_call(
-                    NM_MANAGER,
-                    "Reload",
-                    (0x02u32,),
-                )?;
-                let result = verify_etc_resolv_conf_contents();
-                Ok(result)
-            }
-
-            // NM doesn't manage DNS at all
-            "unmanaged" => Ok(false),
-            unknown_rc_mode => {
-                log::error!("Unknown resolvconf management mode - {}", unknown_rc_mode);
-                Ok(false)
-            }
-        }
-    };
-    match check_nm() {
-        Ok(result) => result,
-        Err(err) => {
-            log::error!(
-                "Failed to check if NM is managing DNS via systemd-resolved: {}",
-                err
-            );
-            false
-        }
-    }
 }
