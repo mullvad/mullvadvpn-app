@@ -83,11 +83,7 @@ impl SystemdResolved {
         };
 
         systemd_resolved.ensure_resolved_exists()?;
-        if !crate::linux::network_manager::is_nm_managing_via_resolved(
-            &systemd_resolved.dbus_connection,
-        ) {
-            Self::ensure_resolv_conf_is_resolved_symlink()?;
-        }
+        Self::ensure_resolv_conf_is_resolved_symlink()?;
         Ok(systemd_resolved)
     }
 
