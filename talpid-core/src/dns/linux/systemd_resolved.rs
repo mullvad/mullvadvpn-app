@@ -6,7 +6,7 @@ use dbus::{
 };
 use lazy_static::lazy_static;
 use libc::{AF_INET, AF_INET6};
-use std::{fs, io, net::IpAddr, path::Path, time::Duration};
+use std::{fs, io, net::IpAddr, path::Path, sync::Arc, time::Duration};
 use talpid_types::ErrorExt as _;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -69,13 +69,13 @@ const SET_DOMAINS_METHOD: &str = "SetDomains";
 const REVERT_METHOD: &str = "Revert";
 
 pub struct SystemdResolved {
-    pub dbus_connection: SyncConnection,
+    pub dbus_connection: Arc<SyncConnection>,
     interface_link: Option<(String, dbus::Path<'static>)>,
 }
 
 impl SystemdResolved {
     pub fn new() -> Result<Self> {
-        let dbus_connection = SyncConnection::new_system().map_err(Error::ConnectDBus)?;
+        let dbus_connection = crate::linux::dbus::get_connection().map_err(Error::ConnectDBus)?;
 
         let systemd_resolved = SystemdResolved {
             dbus_connection,
@@ -207,7 +207,7 @@ impl SystemdResolved {
             RESOLVED_BUS,
             link_object_path,
             RPC_TIMEOUT,
-            &self.dbus_connection,
+            &*self.dbus_connection,
         )
         .method_call(LINK_INTERFACE, SET_DOMAINS_METHOD, (dns_domains,))
         .map_err(Error::SetDomainsError)
