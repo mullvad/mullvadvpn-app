@@ -230,9 +230,11 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
             if (inetAddressValidator.isValid(addressText)) {
                 val address = InetAddress.getByName(addressText)
 
-                if (customDns.addDnsServer(address)) {
-                    cachedCustomDnsServers.add(address)
-                    added = true
+                if (!address.isLoopbackAddress()) {
+                    if (customDns.addDnsServer(address)) {
+                        cachedCustomDnsServers.add(address)
+                        added = true
+                    }
                 }
             }
         }
@@ -257,9 +259,11 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
                 val newAddress = InetAddress.getByName(address)
                 val oldAddress = cachedCustomDnsServers[position]
 
-                if (customDns.replaceDnsServer(oldAddress, newAddress)) {
-                    cachedCustomDnsServers[position] = newAddress
-                    replaced = true
+                if (!newAddress.isLoopbackAddress()) {
+                    if (customDns.replaceDnsServer(oldAddress, newAddress)) {
+                        cachedCustomDnsServers[position] = newAddress
+                        replaced = true
+                    }
                 }
             }
         }
