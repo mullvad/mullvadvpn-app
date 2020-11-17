@@ -107,7 +107,7 @@ pub struct NetworkManager {
 impl NetworkManager {
     pub fn new() -> Result<Self> {
         Ok(Self {
-            connection: Arc::new(SyncConnection::new_system()?),
+           connection: crate::linux::dbus::get_connection()?,
         })
     }
 
