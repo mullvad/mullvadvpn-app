@@ -92,6 +92,11 @@ Line wrap the file at 100 chars.                                              Th
   boot, if "Always require VPN" or auto-connect is enabled.
 
 
+## [2020.7] - 2020-11-18
+This release is identical to 2020.7-beta2.
+This release has no differences for Windows and macOS compared to 2020.6
+
+
 ## [2020.7-beta2] - 2020-11-16
 This release is for desktop only. It only has changes for Linux
 
