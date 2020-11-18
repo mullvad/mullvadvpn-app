@@ -6,6 +6,7 @@
 #include <string>
 #include <optional>
 #include <set>
+#include <filesystem>
 #include <libcommon/error.h>
 #include <libcommon/guid.h>
 #include <libcommon/memory.h>
@@ -769,9 +770,37 @@ void RemoveNetAdapterByAlias(const std::wstring &hardwareId, const std::wstring 
 	}
 }
 
+std::filesystem::path GetCurrentModulePath()
+{
+	std::vector<wchar_t> pathBuffer;
+
+	SetLastError(ERROR_SUCCESS);
+
+	size_t nextCapacity = 256;
+
+	do
+	{
+		pathBuffer.reserve(nextCapacity);
+
+		const auto writtenChars = GetModuleFileNameW(nullptr, &pathBuffer[0], static_cast<DWORD>(pathBuffer.capacity()));
+
+		if (0 == writtenChars)
+		{
+			THROW_WINDOWS_ERROR(GetLastError(), "GetModuleFileNameW");
+		}
+
+		pathBuffer.resize(writtenChars);
+
+		nextCapacity = 2 * pathBuffer.capacity();
+	} while (ERROR_INSUFFICIENT_BUFFER == GetLastError());
+
+	return std::filesystem::path(pathBuffer.begin(), pathBuffer.end());
+}
+
 int HandleWintunCommands(int argc, const wchar_t *argv[])
 {
-	auto wintunHandle = LoadLibraryW(L"wintun.dll");
+	auto wintunPath = GetCurrentModulePath().replace_filename(L"wintun.dll");
+	auto wintunHandle = LoadLibraryExW(wintunPath.c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH);
 
 	if (nullptr == wintunHandle)
 	{
