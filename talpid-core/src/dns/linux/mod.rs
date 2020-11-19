@@ -64,14 +64,6 @@ impl super::DnsMonitorT for DnsMonitor {
         }
         Ok(())
     }
-
-    fn dbus_connection(&self) -> Option<&dbus::ffidisp::Connection> {
-        match &self.inner {
-            Some(DnsMonitorHolder::NetworkManager(nm)) => Some(&nm.dbus_connection),
-            Some(DnsMonitorHolder::SystemdResolved(sdr)) => Some(&sdr.dbus_connection),
-            _ => None,
-        }
-    }
 }
 
 pub enum DnsMonitorHolder {

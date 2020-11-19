@@ -1,18 +1,12 @@
 use super::RESOLV_CONF_PATH;
 use crate::linux::iface_index;
 use dbus::{
-    arg::{
-        messageitem::{MessageItem, MessageItemArray},
-        RefArg,
-    },
-    ffidisp::{stdintf::*, BusType, ConnPath, Connection},
-    message::Message,
-    strings::{Interface, Member},
-    Signature,
+    arg::RefArg,
+    blocking::{stdintf::org_freedesktop_dbus::Properties, Proxy, SyncConnection},
 };
 use lazy_static::lazy_static;
 use libc::{AF_INET, AF_INET6};
-use std::{fs, io, net::IpAddr, path::Path};
+use std::{fs, io, net::IpAddr, path::Path, sync::Arc, time::Duration};
 use talpid_types::ErrorExt as _;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -65,37 +59,31 @@ lazy_static! {
 
 
 const RESOLVED_BUS: &str = "org.freedesktop.resolve1";
-const RPC_TIMEOUT_MS: i32 = 1000;
+const RPC_TIMEOUT: Duration = Duration::from_secs(1);
 
-lazy_static! {
-    static ref LINK_INTERFACE: Interface<'static> =
-        Interface::from_slice("org.freedesktop.resolve1.Link\0").unwrap();
-    static ref MANAGER_INTERFACE: Interface<'static> =
-        Interface::from_slice("org.freedesktop.resolve1.Manager\0").unwrap();
-    static ref GET_LINK_METHOD: Member<'static> = Member::from_slice("GetLink\0").unwrap();
-    static ref SET_DNS_METHOD: Member<'static> = Member::from_slice("SetDNS\0").unwrap();
-    static ref SET_DOMAINS_METHOD: Member<'static> = Member::from_slice("SetDomains\0").unwrap();
-    static ref REVERT_METHOD: Member<'static> = Member::from_slice("Revert\0").unwrap();
-}
+const LINK_INTERFACE: &str = "org.freedesktop.resolve1.Link";
+const MANAGER_INTERFACE: &str = "org.freedesktop.resolve1.Manager";
+const GET_LINK_METHOD: &str = "GetLink";
+const SET_DNS_METHOD: &str = "SetDNS";
+const SET_DOMAINS_METHOD: &str = "SetDomains";
+const REVERT_METHOD: &str = "Revert";
 
 pub struct SystemdResolved {
-    pub dbus_connection: Connection,
+    pub dbus_connection: Arc<SyncConnection>,
     interface_link: Option<(String, dbus::Path<'static>)>,
 }
 
 impl SystemdResolved {
     pub fn new() -> Result<Self> {
-        let dbus_connection =
-            Connection::get_private(BusType::System).map_err(Error::ConnectDBus)?;
+        let dbus_connection = crate::linux::dbus::get_connection().map_err(Error::ConnectDBus)?;
+
         let systemd_resolved = SystemdResolved {
             dbus_connection,
             interface_link: None,
         };
 
         systemd_resolved.ensure_resolved_exists()?;
-        if !super::network_manager::is_nm_managing_via_resolved(&systemd_resolved.dbus_connection) {
-            Self::ensure_resolv_conf_is_resolved_symlink()?;
-        }
+        Self::ensure_resolv_conf_is_resolved_symlink()?;
         Ok(systemd_resolved)
     }
 
@@ -143,17 +131,25 @@ impl SystemdResolved {
         }
     }
 
-    fn as_manager_object(&self) -> ConnPath<'_, &Connection> {
-        self.dbus_connection
-            .with_path(RESOLVED_BUS, "/org/freedesktop/resolve1", RPC_TIMEOUT_MS)
+    fn as_manager_object(&self) -> Proxy<'_, &SyncConnection> {
+        Proxy::new(
+            RESOLVED_BUS,
+            "/org/freedesktop/resolve1",
+            RPC_TIMEOUT,
+            &self.dbus_connection,
+        )
     }
 
     fn as_link_object<'a>(
         &'a self,
         link_object_path: dbus::Path<'a>,
-    ) -> ConnPath<'a, &'a Connection> {
-        self.dbus_connection
-            .with_path(RESOLVED_BUS, link_object_path, RPC_TIMEOUT_MS)
+    ) -> Proxy<'a, &'a SyncConnection> {
+        Proxy::new(
+            RESOLVED_BUS,
+            link_object_path,
+            RPC_TIMEOUT,
+            &self.dbus_connection,
+        )
     }
 
     pub fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
@@ -176,17 +172,14 @@ impl SystemdResolved {
     fn fetch_link(&self, interface_name: &str) -> Result<dbus::Path<'static>> {
         let interface_index = iface_index(interface_name).map_err(Error::InvalidInterfaceName)?;
 
-        let mut reply = self
-            .as_manager_object()
-            .method_call_with_args(&MANAGER_INTERFACE, &GET_LINK_METHOD, |message| {
-                message.append_items(&[MessageItem::Int32(interface_index as i32)]);
-            })
-            .map_err(Error::DBusRpcError)?;
-        reply
-            .as_result()
-            .map_err(Error::DBusRpcError)?
-            .read1()
-            .map_err(Error::MatchDBusTypeError)
+        self.as_manager_object()
+            .method_call(
+                MANAGER_INTERFACE,
+                GET_LINK_METHOD,
+                (interface_index as i32,),
+            )
+            .map_err(Error::DBusRpcError)
+            .map(|result: (dbus::Path<'static>,)| result.0)
     }
 
     fn set_link_dns<'a, 'b: 'a>(
@@ -194,31 +187,26 @@ impl SystemdResolved {
         link_object_path: &'b dbus::Path<'static>,
         servers: &[IpAddr],
     ) -> Result<()> {
-        let server_addresses = build_addresses_argument(servers);
+        let servers = servers
+            .iter()
+            .map(|addr| (ip_version(addr), ip_to_bytes(addr)))
+            .collect::<Vec<_>>();
         self.as_link_object(link_object_path.clone())
-            .method_call_with_args(&LINK_INTERFACE, &SET_DNS_METHOD, |message| {
-                message.append_items(&[server_addresses]);
-            })
-            .and_then(|mut reply| reply.as_result().map(|_| ()))
+            .method_call(LINK_INTERFACE, SET_DNS_METHOD, (servers,))
             .map_err(Error::DBusRpcError)?;
 
         // set the search domain to catch all DNS requests, forces the link to be the prefered
         // resolver, otherwise systemd-resolved will use other interfaces to do DNS lookups
         let dns_domains: &[_] = &[(&".", true)];
 
-        let msg = Message::new_method_call(
+        Proxy::new(
             RESOLVED_BUS,
-            link_object_path as &str,
-            &LINK_INTERFACE as &str,
-            &SET_DOMAINS_METHOD as &str,
+            link_object_path,
+            RPC_TIMEOUT,
+            &*self.dbus_connection,
         )
-        .expect("failed to construct a new dbus message")
-        .append1(dns_domains);
-
-        self.dbus_connection
-            .send_with_reply_and_block(msg, RPC_TIMEOUT_MS)
-            .and_then(|mut reply| reply.as_result().map(|_| ()))
-            .map_err(Error::SetDomainsError)
+        .method_call(LINK_INTERFACE, SET_DOMAINS_METHOD, (dns_domains,))
+        .map_err(Error::SetDomainsError)
     }
 
     pub fn reset(&mut self) -> Result<()> {
@@ -238,51 +226,32 @@ impl SystemdResolved {
     ) -> std::result::Result<(), dbus::Error> {
         let link = self.as_link_object(link_object_path);
 
-        match link.method_call_with_args(&LINK_INTERFACE, &REVERT_METHOD, |_| {}) {
-            Ok(mut reply) => reply.as_result().map(|_| ()),
-            Err(error) => {
-                if error.name() == Some("org.freedesktop.DBus.Error.UnknownObject") {
-                    log::trace!(
-                        "Not resetting DNS of interface {} because it no longer exists",
-                        interface_name
-                    );
-                    Ok(())
-                } else {
-                    Err(error)
-                }
+        if let Err(error) = link.method_call::<(), _, _, _>(LINK_INTERFACE, REVERT_METHOD, ()) {
+            if error.name() == Some("org.freedesktop.DBus.Error.UnknownObject") {
+                log::trace!(
+                    "Not resetting DNS of interface {} because it no longer exists",
+                    interface_name
+                );
+                Ok(())
+            } else {
+                Err(error)
             }
+        } else {
+            Ok(())
         }
     }
 }
 
-fn build_addresses_argument(addresses: &[IpAddr]) -> MessageItem {
-    let addresses = addresses.iter().map(ip_address_to_message_item).collect();
-
-    MessageItem::Array(
-        MessageItemArray::new(addresses, Signature::make::<Vec<(i32, Vec<u8>)>>())
-            .expect("Invalid construction of DBus array of IP addresses argument"),
-    )
+fn ip_version(address: &IpAddr) -> i32 {
+    match address {
+        IpAddr::V4(_) => AF_INET,
+        IpAddr::V6(_) => AF_INET6,
+    }
 }
 
-fn ip_address_to_message_item(address: &IpAddr) -> MessageItem {
-    let (protocol, octets) = match address {
-        IpAddr::V4(ipv4_address) => (AF_INET, bytes_to_message_item_array(&ipv4_address.octets())),
-        IpAddr::V6(ipv6_address) => (
-            AF_INET6,
-            bytes_to_message_item_array(&ipv6_address.octets()),
-        ),
-    };
-
-    MessageItem::Struct(vec![
-        MessageItem::Int32(protocol),
-        MessageItem::Array(octets),
-    ])
-}
-
-fn bytes_to_message_item_array(bytes: &[u8]) -> MessageItemArray {
-    MessageItemArray::new(
-        bytes.iter().cloned().map(MessageItem::Byte).collect(),
-        Signature::make::<Vec<u8>>(),
-    )
-    .expect("Invalid construction of DBus array of bytes argument")
+fn ip_to_bytes(address: &IpAddr) -> Vec<u8> {
+    match address {
+        IpAddr::V4(v4_address) => v4_address.octets().to_vec(),
+        IpAddr::V6(v6_address) => v6_address.octets().to_vec(),
+    }
 }
