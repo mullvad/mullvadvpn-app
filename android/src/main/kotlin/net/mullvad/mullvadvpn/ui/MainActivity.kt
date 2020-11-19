@@ -13,6 +13,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.app.FragmentManager
 import android.view.WindowManager
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -78,6 +79,7 @@ class MainActivity : FragmentActivity() {
     }
 
     var backButtonHandler: (() -> Boolean)? = null
+    var confirmPublicDnsServer: CompletableDeferred<Boolean>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         if (deviceIsTv) {
