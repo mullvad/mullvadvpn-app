@@ -11,6 +11,7 @@
 .DS_Store
 *.log
 /dist-assets/relays.json
+/dist-assets/api-ip-address.txt
 /dist-assets/mullvad
 /dist-assets/mullvad.exe
 /dist-assets/mullvad-daemon

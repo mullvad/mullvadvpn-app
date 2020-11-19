@@ -108,5 +108,6 @@ buildscript {
 task copyExtraAssets(type: Copy) {
     from "$repoRootPath/dist-assets"
     include "relays.json"
+    include "api-ip-address.txt"
     into extraAssetsDirectory
 }

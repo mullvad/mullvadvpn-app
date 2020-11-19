@@ -510,6 +510,40 @@
 !define RemoveRelayCache '!insertmacro "RemoveRelayCache"'
 
 #
+# RemoveApiAddressCache
+#
+# Call into helper DLL instructing it to remove all API address cache.
+# Currently, errors are only logged and not propagated.
+#
+!macro RemoveApiAddressCache
+
+	log::Log "RemoveApiAddressCache()"
+
+	Push $0
+	Push $1
+
+	cleanup::RemoveApiAddressCache
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${MULLVAD_SUCCESS}
+		log::Log "Failed to remove address cache: $1"
+		Goto RemoveApiAddressCache_return
+	${EndIf}
+
+	log::Log "RemoveApiAddressCache() completed successfully"
+
+	RemoveApiAddressCache_return:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define RemoveApiAddressCache '!insertmacro "RemoveApiAddressCache"'
+
+#
 # AddCLIToEnvironPath
 #
 # Add "$INSTDIR\resources" to system env PATH,
@@ -703,6 +737,7 @@
 	RMDir /r "$LOCALAPPDATA\mullvad-vpn-updater"
 
 	${RemoveRelayCache}
+	${RemoveApiAddressCache}
 
 	${ExtractTapDriver}
 	${InstallTapDriver}

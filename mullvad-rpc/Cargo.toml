@@ -15,6 +15,7 @@ http = "0.2"
 hyper = "0.13"
 ipnetwork = "0.16"
 log = "0.4"
+rand = "0.7"
 regex = "1"
 serde = "1"
 serde_json = "1.0"
@@ -33,3 +34,6 @@ tempfile = "3.0"
 
 [[bin]]
 name = "relay_list"
+
+[[bin]]
+name = "address_cache"
