@@ -31,6 +31,7 @@ import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcMainEventChannel } from '../shared/ipc-event-channel';
 import {
   backupLogFile,
+  cleanUpLogDirectory,
   getLogsDirectory,
   getMainLogFile,
   getRendererLogFile,
@@ -264,6 +265,7 @@ class ApplicationMain {
       }
     }
 
+    cleanUpLogDirectory();
     setupLogging(mainLogFile);
   }
 
