@@ -1393,8 +1393,6 @@ class ApplicationMain {
       show: false,
       frame: this.guiSettings.unpinnedWindow,
       transparent: !this.guiSettings.unpinnedWindow,
-      minimizable: this.guiSettings.unpinnedWindow,
-      closable: this.guiSettings.unpinnedWindow,
       useContentSize: true,
       webPreferences: {
         nodeIntegration: true,
@@ -1410,6 +1408,8 @@ class ApplicationMain {
           height: contentHeight + headerBarArrowHeight,
           minHeight: contentHeight + headerBarArrowHeight,
           titleBarStyle: this.guiSettings.unpinnedWindow ? 'default' : 'customButtonsOnHover',
+          minimizable: this.guiSettings.unpinnedWindow,
+          closable: this.guiSettings.unpinnedWindow,
         });
 
         // make the window visible on all workspaces
