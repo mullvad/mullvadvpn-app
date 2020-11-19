@@ -17,7 +17,7 @@ impl RouteManagerImpl {
         Ok(RouteManagerImpl {})
     }
 
-    pub async fn run(
+    pub(crate) async fn run(
         self,
         manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>,
     ) -> Result<(), Error> {

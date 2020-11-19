@@ -83,7 +83,7 @@ impl RouteManagerImpl {
         Ok(manager)
     }
 
-    pub async fn run(mut self, manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>) {
+    pub(crate) async fn run(mut self, manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>) {
         let mut manage_rx = manage_rx.fuse();
         let mut connectivity_change = self.connectivity_change.take().unwrap();
 
