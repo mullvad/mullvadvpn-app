@@ -13,7 +13,7 @@ use futures::{channel::mpsc::UnboundedReceiver, future::FutureExt, StreamExt, Tr
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use netlink_packet_route::{
-    constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL},
+    constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL, FR_ACT_UNREACHABLE},
     link::{nlas::Nla as LinkNla, LinkMessage},
     route::{nlas::Nla as RouteNla, RouteHeader, RouteMessage},
     rtnl::{
@@ -69,6 +69,14 @@ lazy_static! {
         v6_rule.header.family = AF_INET6 as u8;
         v6_rule
     };
+    static ref PROHIBIT_NON_DEFAULT_V6: RuleMessage = RuleMessage {
+        header: RuleHeader {
+            family: AF_INET6 as u8,
+            action: FR_ACT_UNREACHABLE,
+            ..RuleHeader::default()
+        },
+        nlas: vec![RuleNla::FwMark(split_tunnel::MARK as u32),],
+    };
     static ref EXCLUSIONS_RULE_V4: RuleMessage = RuleMessage {
         header: RuleHeader {
             family: AF_INET as u8,
@@ -85,12 +93,12 @@ lazy_static! {
         v6_rule.header.family = AF_INET6 as u8;
         v6_rule
     };
-
-    static ref ALL_RULES: [&'static RuleMessage; 6] = [
+    static ref ALL_RULES: [&'static RuleMessage; 7] = [
         &*NO_FWMARK_RULE_V4,
         &*NO_FWMARK_RULE_V6,
         &*SUPPRESS_RULE_V4,
         &*SUPPRESS_RULE_V6,
+        &*PROHIBIT_NON_DEFAULT_V6,
         &*EXCLUSIONS_RULE_V4,
         &*EXCLUSIONS_RULE_V6,
     ];
