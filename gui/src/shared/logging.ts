@@ -28,7 +28,7 @@ export function getMainLogFile(): string {
 }
 
 export function getRendererLogFile(): string {
-  return path.join(getLogsDirectory(), 'frontend-renderer.log');
+  return path.join(getLogsDirectory(), 'renderer.log');
 }
 
 export function setupLogging(logFile: string) {
