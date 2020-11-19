@@ -258,6 +258,7 @@ impl WireguardMonitor {
             .collect();
 
         // route endpoints with specific routes
+        #[cfg(not(target_os = "linux"))]
         for peer in config.peers.iter() {
             routes.insert(RequiredRoute::new(
                 peer.endpoint.ip().into(),
