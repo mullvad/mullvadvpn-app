@@ -36,7 +36,11 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
         titleController = CollapsibleTitleController(view, R.id.contents)
 
-        customDnsAdapter = CustomDnsAdapter(customDns)
+        customDnsAdapter = CustomDnsAdapter(customDns).apply {
+            showPublicDnsAddressWarning = { confirmation ->
+                showConfirmPublicDnsServerDialog(confirmation)
+            }
+        }
 
         view.findViewById<CustomRecyclerView>(R.id.contents).apply {
             layoutManager = LinearLayoutManager(parentActivity)
