@@ -49,16 +49,16 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         return view
     }
 
+    override fun onSafelyDestroyView() {
+        titleController.onDestroy()
+        settingsListener.unsubscribe(this)
+    }
+
     private fun updateUi(settings: Settings) {
         jobTracker.newUiJob("updateUi") {
             if (!wireguardMtuInput.hasFocus) {
                 wireguardMtuInput.value = settings.tunnelOptions.wireguard.mtu
             }
         }
-    }
-
-    override fun onSafelyDestroyView() {
-        titleController.onDestroy()
-        settingsListener.unsubscribe(this)
     }
 }
