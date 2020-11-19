@@ -85,6 +85,15 @@ lazy_static! {
         v6_rule.header.family = AF_INET6 as u8;
         v6_rule
     };
+
+    static ref ALL_RULES: [&'static RuleMessage; 6] = [
+        &*NO_FWMARK_RULE_V4,
+        &*NO_FWMARK_RULE_V6,
+        &*SUPPRESS_RULE_V4,
+        &*SUPPRESS_RULE_V6,
+        &*EXCLUSIONS_RULE_V4,
+        &*EXCLUSIONS_RULE_V6,
+    ];
 }
 
 
@@ -192,14 +201,7 @@ impl RouteManagerImpl {
 
         self.clear_routing_rules().await?;
 
-        for rule in &[
-            &*NO_FWMARK_RULE_V4,
-            &*NO_FWMARK_RULE_V6,
-            &*SUPPRESS_RULE_V4,
-            &*SUPPRESS_RULE_V6,
-            &*EXCLUSIONS_RULE_V4,
-            &*EXCLUSIONS_RULE_V6,
-        ] {
+        for rule in &*ALL_RULES {
             let mut req = NetlinkMessage::from(RtnlMessage::NewRule((*rule).clone()));
             req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_CREATE | NLM_F_REPLACE;
 
@@ -216,14 +218,7 @@ impl RouteManagerImpl {
 
     async fn clear_routing_rules(&mut self) -> Result<()> {
         let rules = self.get_rules().await?;
-        for rule in &[
-            &*EXCLUSIONS_RULE_V4,
-            &*EXCLUSIONS_RULE_V6,
-            &*SUPPRESS_RULE_V4,
-            &*SUPPRESS_RULE_V6,
-            &*NO_FWMARK_RULE_V4,
-            &*NO_FWMARK_RULE_V6,
-        ] {
+        for rule in &*ALL_RULES {
             let mut matching_rule = None;
 
             // `RTM_DELRULE` is way too picky about which rules are considered the same.
