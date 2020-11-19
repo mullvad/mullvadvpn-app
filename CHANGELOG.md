@@ -44,6 +44,7 @@ Line wrap the file at 100 chars.                                              Th
 - Randomly select addresses to use for communicating with the API.
 - Bundle a list of API addresses to use instead of assuming that the primary address can be reached.
 - Rename CLI subcommand `mullvad relay set relay` to `mullvad relay set hostname`.
+- Upgrade OpenVPN from 2.4.9 to 2.5.0.
 
 #### Android
 - Remove the Quit button.
@@ -62,6 +63,9 @@ Line wrap the file at 100 chars.                                              Th
 - Increase NetworkManager device readiness timeout to 15 seconds.
 - Set up routes for OpenVPN using the route manager instead of relying on OpenVPN.
 - Use rule-based routing and static routes.
+
+#### Windows
+- Use Wintun instead of the OpenVPN TAP driver for OpenVPN.
 
 ### Fixed
 - Fix missing map animation after selecting a new location in the desktop app.
@@ -104,6 +108,7 @@ Line wrap the file at 100 chars.                                              Th
   even if the tunnel was up when the crash occurred.
 - Add firewall rules for `mullvad-exclude`, i.e. split tunneling, that disallow all traffic in the
   tunnel other than non-custom DNS traffic. This prevents leaks into the tunnel.
+- Force OpenVPN to use TLS 1.3 or newer.
 
 #### Windows
 - Block all traffic received or sent before the BFE service and daemon service have started during
