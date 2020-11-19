@@ -55,6 +55,7 @@ Line wrap the file at 100 chars.                                              Th
 - Make route monitor ignore loopback routes.
 - Increase NetworkManager device readiness timeout to 15 seconds.
 - Set up routes for OpenVPN using the route manager instead of relying on OpenVPN.
+- Use rule-based routing and static routes.
 
 ### Fixed
 - Fix missing map animation after selecting a new location in the desktop app.
@@ -86,6 +87,8 @@ Line wrap the file at 100 chars.                                              Th
   is used to manage DNS via systemd-resolved.
 - Fix incorrect version string in .deb installer causing downgrade warnings when upgrading from beta
   to stable.
+- Handle IPv6 traffic correctly using `mullvad-exclude` when there is no default route to any
+  non-tunnel interface.
 
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and
