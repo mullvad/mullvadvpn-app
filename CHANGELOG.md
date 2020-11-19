@@ -40,6 +40,7 @@ Line wrap the file at 100 chars.                                              Th
 - Remove WireGuard keys during uninstallation after the firewall is unlocked.
 - Randomly select addresses to use for communicating with the API.
 - Bundle a list of API addresses to use instead of assuming that the primary address can be reached.
+- Upgrade OpenVPN from 2.4 to 2.5.
 
 #### Android
 - Remove the Quit button.
@@ -52,6 +53,9 @@ Line wrap the file at 100 chars.                                              Th
 - Make route monitor ignore loopback routes.
 - Increase NetworkManager device readiness timeout to 15 seconds.
 - Set up routes for OpenVPN using the route manager instead of relying on OpenVPN.
+
+#### Windows
+- Use Wintun instead of the OpenVPN TAP driver for OpenVPN.
 
 ### Fixed
 - Fix missing map animation after selecting a new location in the desktop app.
