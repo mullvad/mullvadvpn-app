@@ -10,6 +10,7 @@ const settingsSchema = {
   enableSystemNotifications: 'boolean',
   monochromaticIcon: 'boolean',
   startMinimized: 'boolean',
+  unpinnedWindow: 'boolean',
 };
 
 const defaultSettings: IGuiSettingsState = {
@@ -18,6 +19,7 @@ const defaultSettings: IGuiSettingsState = {
   enableSystemNotifications: true,
   monochromaticIcon: false,
   startMinimized: false,
+  unpinnedWindow: process.platform !== 'win32' && process.platform !== 'darwin',
 };
 
 export default class GuiSettings {
@@ -63,6 +65,14 @@ export default class GuiSettings {
 
   get startMinimized(): boolean {
     return this.stateValue.startMinimized;
+  }
+
+  set unpinnedWindow(newValue: boolean) {
+    this.changeStateAndNotify({ ...this.stateValue, unpinnedWindow: newValue });
+  }
+
+  get unpinnedWindow(): boolean {
+    return this.stateValue.unpinnedWindow;
   }
 
   public onChange?: (newState: IGuiSettingsState, oldState: IGuiSettingsState) => void;

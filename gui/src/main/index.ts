@@ -353,7 +353,7 @@ class ApplicationMain {
     const window = this.createWindow();
     const tray = this.createTray();
 
-    const windowController = new WindowController(window, tray);
+    const windowController = new WindowController(window, tray, this.guiSettings.unpinnedWindow);
     this.tunnelStateExpectation = new Expectation(() => {
       this.trayIconController = new TrayIconController(
         tray,
@@ -362,9 +362,7 @@ class ApplicationMain {
       );
     });
 
-    this.registerWindowListener(windowController);
     this.registerIpcListeners();
-    this.addContextMenu(window);
 
     this.windowController = windowController;
     this.tray = tray;
@@ -385,43 +383,50 @@ class ApplicationMain {
       }
     };
 
-    if (process.env.NODE_ENV === 'development') {
-      await this.installDevTools();
-      window.webContents.openDevTools({ mode: 'detach' });
-    }
-
-    switch (process.platform) {
-      case 'win32':
-        this.installWindowsMenubarAppWindowHandlers(tray, windowController);
-        break;
-      case 'darwin':
-        this.installMacOsMenubarAppWindowHandlers(tray, windowController);
-        this.setMacOsAppMenu();
-        break;
-      case 'linux':
-        this.installLinuxMenubarAppWindowHandlers(tray, windowController);
-        this.setLinuxTrayContextMenu();
-        this.installLinuxWindowCloseHandler(windowController);
-        this.setLinuxAppMenu();
-        window.setMenuBarVisibility(false);
-        break;
-      default:
-        this.installGenericMenubarAppWindowHandlers(tray, windowController);
-        break;
-    }
-
-    this.installGenericFocusHandlers(windowController);
-
     if (this.shouldShowWindowOnStart() || process.env.NODE_ENV === 'development') {
       windowController.show();
     }
 
-    try {
-      await window.loadFile(path.resolve(path.join(__dirname, '../renderer/index.html')));
-    } catch (error) {
-      log.error(`Failed to load index file: ${error.message}`);
-    }
+    await this.initializeWindow();
   };
+
+  private async initializeWindow() {
+    if (this.windowController && this.tray) {
+      this.registerWindowListener(this.windowController);
+      this.addContextMenu(this.windowController.window);
+
+      if (process.env.NODE_ENV === 'development') {
+        await this.installDevTools();
+        this.windowController.window.webContents.openDevTools({ mode: 'detach' });
+      }
+
+      switch (process.platform) {
+        case 'win32':
+          this.installWindowsMenubarAppWindowHandlers(this.tray, this.windowController);
+          break;
+        case 'darwin':
+          this.installMacOsMenubarAppWindowHandlers(this.windowController);
+          this.setMacOsAppMenu();
+          break;
+        case 'linux':
+          this.tray.setContextMenu(this.createTrayContextMenu());
+          this.setLinuxAppMenu();
+          this.windowController.window.setMenuBarVisibility(false);
+          break;
+      }
+
+      this.installWindowCloseHandler(this.windowController);
+      this.installTrayClickHandlers();
+      this.installGenericFocusHandlers(this.windowController);
+
+      const filePath = path.resolve(path.join(__dirname, '../renderer/index.html'));
+      try {
+        await this.windowController?.window.loadFile(filePath);
+      } catch (error) {
+        log.error(`Failed to load index file: ${error.message}`);
+      }
+    }
+  }
 
   private onDaemonConnected = async () => {
     this.connectedToDaemon = true;
@@ -639,7 +644,7 @@ class ApplicationMain {
     consumePromise(this.updateLocation());
 
     if (process.platform === 'linux') {
-      this.setLinuxTrayContextMenu();
+      this.tray?.setContextMenu(this.createTrayContextMenu());
     }
 
     this.notificationController.notifyTunnelState(
@@ -1016,6 +1021,10 @@ class ApplicationMain {
       this.guiSettings.monochromaticIcon = monochromaticIcon;
     });
 
+    IpcMainEventChannel.guiSettings.handleSetUnpinnedWindow((unpinnedWindow: boolean) => {
+      consumePromise(this.setUnpinnedWindow(unpinnedWindow));
+    });
+
     IpcMainEventChannel.guiSettings.handleSetPreferredLocale((locale: string) => {
       this.guiSettings.preferredLocale = locale;
       this.didChangeLocale();
@@ -1318,6 +1327,20 @@ class ApplicationMain {
     return Promise.resolve();
   }
 
+  private async setUnpinnedWindow(unpinnedWindow: boolean): Promise<void> {
+    this.guiSettings.unpinnedWindow = unpinnedWindow;
+
+    if (this.tray && this.windowController) {
+      this.tray.removeAllListeners();
+
+      const window = this.createWindow();
+      this.windowController.replaceWindow(window, unpinnedWindow);
+
+      await this.initializeWindow();
+      this.windowController.show();
+    }
+  }
+
   private updateCurrentLocale() {
     this.locale = this.detectLocale();
 
@@ -1350,20 +1373,27 @@ class ApplicationMain {
 
   private createWindow(): BrowserWindow {
     const contentHeight = 568;
-
     // the size of transparent area around arrow on macOS
     const headerBarArrowHeight = 12;
+    const height =
+      process.platform === 'darwin' && !this.guiSettings.unpinnedWindow
+        ? contentHeight + headerBarArrowHeight
+        : contentHeight;
 
     const options: Electron.BrowserWindowConstructorOptions = {
       width: 320,
       minWidth: 320,
-      height: contentHeight,
-      minHeight: contentHeight,
+      height,
+      minHeight: height,
       resizable: false,
       maximizable: false,
       fullscreenable: false,
       show: false,
-      frame: false,
+      frame: this.guiSettings.unpinnedWindow,
+      transparent: !this.guiSettings.unpinnedWindow,
+      minimizable: this.guiSettings.unpinnedWindow,
+      closable: this.guiSettings.unpinnedWindow,
+      useContentSize: true,
       webPreferences: {
         nodeIntegration: true,
         devTools: process.env.NODE_ENV === 'development',
@@ -1377,14 +1407,13 @@ class ApplicationMain {
           ...options,
           height: contentHeight + headerBarArrowHeight,
           minHeight: contentHeight + headerBarArrowHeight,
-          transparent: true,
-          titleBarStyle: 'customButtonsOnHover',
-          minimizable: false,
-          closable: false,
+          titleBarStyle: this.guiSettings.unpinnedWindow ? 'default' : 'customButtonsOnHover',
         });
 
         // make the window visible on all workspaces
-        appWindow.setVisibleOnAllWorkspaces(true);
+        if (!this.guiSettings.unpinnedWindow) {
+          appWindow.setVisibleOnAllWorkspaces(true);
+        }
 
         return appWindow;
       }
@@ -1396,18 +1425,13 @@ class ApplicationMain {
           // Due to a bug in Electron the app is sometimes placed behind other apps when opened.
           // Setting alwaysOnTop to true ensures that the app is placed on top. Electron issue:
           // https://github.com/electron/electron/issues/25915
-          alwaysOnTop: true,
-          transparent: true,
-          skipTaskbar: true,
+          alwaysOnTop: !this.guiSettings.unpinnedWindow,
+          skipTaskbar: !this.guiSettings.unpinnedWindow,
+          autoHideMenuBar: true,
         });
 
       default: {
-        const appWindow = new BrowserWindow({
-          ...options,
-          frame: true,
-        });
-
-        return appWindow;
+        return new BrowserWindow(options);
       }
     }
   }
@@ -1449,7 +1473,7 @@ class ApplicationMain {
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   }
 
-  private setLinuxTrayContextMenu() {
+  private createTrayContextMenu() {
     const template: Electron.MenuItemConstructorOptions[] = [
       {
         label: sprintf(messages.pgettext('tray-icon-context-menu', 'Open %(mullvadVpn)s'), {
@@ -1459,7 +1483,7 @@ class ApplicationMain {
       },
       { type: 'separator' },
       {
-        label: this.getLinuxContextMenuActionButtonLabel(),
+        label: this.getContextMenuActionButtonLabel(),
         click: () => {
           if (this.tunnelState.state === 'disconnected') {
             // Workaround: gRPC calls are sometimes delayed by a few seconds and setImmediate
@@ -1477,10 +1501,10 @@ class ApplicationMain {
       },
     ];
 
-    this.tray?.setContextMenu(Menu.buildFromTemplate(template));
+    return Menu.buildFromTemplate(template);
   }
 
-  private getLinuxContextMenuActionButtonLabel() {
+  private getContextMenuActionButtonLabel() {
     switch (this.tunnelState.state) {
       case 'disconnected':
         return messages.gettext('Connect');
@@ -1551,65 +1575,71 @@ class ApplicationMain {
     return tray;
   }
 
-  private installWindowsMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
-    tray.on('click', () => windowController.toggle());
-    tray.on('right-click', () => windowController.hide());
-
-    windowController.window.on('blur', () => {
-      // Detect if blur happened when user had a cursor above the tray icon.
-      const trayBounds = tray.getBounds();
-      const cursorPos = screen.getCursorScreenPoint();
-      const isCursorInside =
-        cursorPos.x >= trayBounds.x &&
-        cursorPos.y >= trayBounds.y &&
-        cursorPos.x <= trayBounds.x + trayBounds.width &&
-        cursorPos.y <= trayBounds.y + trayBounds.height;
-      if (!isCursorInside) {
-        windowController.hide();
+  private installTrayClickHandlers() {
+    if (this.guiSettings.unpinnedWindow) {
+      if (process.platform === 'win32' || process.platform === 'darwin') {
+        this.tray?.on('right-click', () =>
+          // This needs to be executed on click since if it is added to the tray icon it will be
+          // displayed on left click as well.
+          this.tray?.popUpContextMenu(this.createTrayContextMenu()),
+        );
       }
-    });
+      this.tray?.on('click', () => this.windowController?.show());
+    } else {
+      this.tray?.on('click', () => this.windowController?.toggle());
+      this.tray?.on('right-click', () => this.windowController?.hide());
+    }
+  }
+
+  private installWindowsMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
+    if (!this.guiSettings.unpinnedWindow) {
+      windowController.window.on('blur', () => {
+        // Detect if blur happened when user had a cursor above the tray icon.
+        const trayBounds = tray.getBounds();
+        const cursorPos = screen.getCursorScreenPoint();
+        const isCursorInside =
+          cursorPos.x >= trayBounds.x &&
+          cursorPos.y >= trayBounds.y &&
+          cursorPos.x <= trayBounds.x + trayBounds.width &&
+          cursorPos.y <= trayBounds.y + trayBounds.height;
+        if (!isCursorInside) {
+          windowController.hide();
+        }
+      });
+    }
   }
 
   // setup NSEvent monitor to fix inconsistent window.blur on macOS
   // see https://github.com/electron/electron/issues/8689
-  private installMacOsMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
-    const macEventMonitor = new NSEventMonitor();
-    const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;
-    const window = windowController.window;
+  private installMacOsMenubarAppWindowHandlers(windowController: WindowController) {
+    if (!this.guiSettings.unpinnedWindow) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
+      const macEventMonitor = new NSEventMonitor();
+      const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;
+      const window = windowController.window;
 
-    window.on('show', () => macEventMonitor.start(eventMask, () => windowController.hide()));
-    window.on('hide', () => macEventMonitor.stop());
-    window.on('blur', () => {
-      // Make sure to hide the menubar window when other program captures the focus.
-      // But avoid doing that when dev tools capture the focus to make it possible to inspect the UI
-      if (window.isVisible() && !window.webContents.isDevToolsFocused()) {
-        windowController.hide();
-      }
-    });
-    tray.on('click', () => windowController.toggle());
+      window.on('show', () => macEventMonitor.start(eventMask, () => windowController.hide()));
+      window.on('hide', () => macEventMonitor.stop());
+      window.on('blur', () => {
+        // Make sure to hide the menubar window when other program captures the focus.
+        // But avoid doing that when dev tools capture the focus to make it possible to inspect the UI
+        if (window.isVisible() && !window.webContents.isDevToolsFocused()) {
+          windowController.hide();
+        }
+      });
+    }
   }
 
-  private installGenericMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
-    tray.on('click', () => {
-      windowController.toggle();
-    });
-  }
-
-  private installLinuxMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
-    tray.on('click', () => {
-      windowController.show();
-    });
-  }
-
-  private installLinuxWindowCloseHandler(windowController: WindowController) {
-    windowController.window.on('close', (closeEvent: Event) => {
-      if (this.quitStage !== AppQuitStage.ready) {
-        closeEvent.preventDefault();
-        windowController.hide();
-      }
-    });
+  private installWindowCloseHandler(windowController: WindowController) {
+    if (this.guiSettings.unpinnedWindow) {
+      windowController.window.on('close', (closeEvent: Event) => {
+        if (this.quitStage !== AppQuitStage.ready) {
+          closeEvent.preventDefault();
+          windowController.hide();
+        }
+      });
+    }
   }
 
   private installGenericFocusHandlers(windowController: WindowController) {
@@ -1624,11 +1654,9 @@ class ApplicationMain {
   private shouldShowWindowOnStart(): boolean {
     switch (process.platform) {
       case 'win32':
-        return false;
       case 'darwin':
-        return false;
       case 'linux':
-        return !this.guiSettings.startMinimized;
+        return this.guiSettings.unpinnedWindow && !this.guiSettings.startMinimized;
       default:
         return true;
     }

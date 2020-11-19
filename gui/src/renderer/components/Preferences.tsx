@@ -23,7 +23,7 @@ export interface IProps {
   enableSystemNotifications: boolean;
   monochromaticIcon: boolean;
   startMinimized: boolean;
-  enableStartMinimizedToggle: boolean;
+  unpinnedWindow: boolean;
   setAutoStart: (autoStart: boolean) => void;
   setEnableSystemNotifications: (flag: boolean) => void;
   setAutoConnect: (autoConnect: boolean) => void;
@@ -31,6 +31,7 @@ export interface IProps {
   setShowBetaReleases: (showBetaReleases: boolean) => void;
   setStartMinimized: (startMinimized: boolean) => void;
   setMonochromaticIcon: (monochromaticIcon: boolean) => void;
+  setUnpinnedWindow: (unpinnedWindow: boolean) => void;
   onClose: () => void;
 }
 
@@ -178,7 +179,36 @@ export default class Preferences extends React.Component<IProps> {
                   </Cell.Footer>
                 </AriaInputGroup>
 
-                {this.props.enableStartMinimizedToggle ? (
+                {(process.platform === 'win32' ||
+                  (process.platform === 'darwin' && process.env.NODE_ENV === 'development')) && (
+                  <AriaInputGroup>
+                    <Cell.Container>
+                      <AriaLabel>
+                        <Cell.InputLabel>
+                          {messages.pgettext('preferences-view', 'Unpin app from taskbar')}
+                        </Cell.InputLabel>
+                      </AriaLabel>
+                      <AriaInput>
+                        <Cell.Switch
+                          isOn={this.props.unpinnedWindow}
+                          onChange={this.props.setUnpinnedWindow}
+                        />
+                      </AriaInput>
+                    </Cell.Container>
+                    <Cell.Footer>
+                      <AriaDescription>
+                        <Cell.FooterText>
+                          {messages.pgettext(
+                            'preferences-view',
+                            'Enable to move the app around as a free-standing window.',
+                          )}
+                        </Cell.FooterText>
+                      </AriaDescription>
+                    </Cell.Footer>
+                  </AriaInputGroup>
+                )}
+
+                {this.props.unpinnedWindow && (
                   <React.Fragment>
                     <AriaInputGroup>
                       <Cell.Container>
@@ -206,7 +236,7 @@ export default class Preferences extends React.Component<IProps> {
                       </Cell.Footer>
                     </AriaInputGroup>
                   </React.Fragment>
-                ) : undefined}
+                )}
 
                 <AriaInputGroup>
                   <Cell.Container disabled={this.props.isBeta}>

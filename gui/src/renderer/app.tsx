@@ -386,6 +386,10 @@ export default class AppRenderer {
     IpcRendererEventChannel.guiSettings.setMonochromaticIcon(monochromaticIcon);
   }
 
+  public setUnpinnedWindow(unpinnedWindow: boolean) {
+    IpcRendererEventChannel.guiSettings.setUnpinnedWindow(unpinnedWindow);
+  }
+
   public async verifyWireguardKey(publicKey: IWgKey) {
     const actions = this.reduxActions;
     actions.settings.verifyWireguardKey(publicKey);

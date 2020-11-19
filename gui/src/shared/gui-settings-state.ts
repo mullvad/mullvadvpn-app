@@ -20,4 +20,7 @@ export interface IGuiSettingsState {
 
   // Tells the app to hide the main window on start.
   startMinimized: boolean;
+
+  // Tells the app wheter or not it should act as a window or a context menu.
+  unpinnedWindow: boolean;
 }

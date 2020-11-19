@@ -30,6 +30,9 @@ Line wrap the file at 100 chars.                                              Th
 - Navigate back to the main view when escape is pressed.
 - Add support for custom DNS resolvers.
 
+#### Windows
+- Add setting that unpins the window from the tray icon to let the user move it around freely.
+
 #### Linux
 - Optionally use NetworkManager to create WireGuard devices.
 - Disable NetworkManager's connectivity check before applying firewall rules to avoid triggerring

@@ -133,6 +133,7 @@ class AttachedToTrayWindowPositioning implements IWindowPositioning {
 export default class WindowController {
   private width: number;
   private height: number;
+  private windowValue: BrowserWindow;
   private webContentsValue: WebContents;
   private windowPositioning: IWindowPositioning;
   private isWindowReady = false;
@@ -145,18 +146,33 @@ export default class WindowController {
     return this.webContentsValue;
   }
 
-  constructor(private windowValue: BrowserWindow, tray: Tray) {
+  constructor(windowValue: BrowserWindow, private tray: Tray, unpinnedWindow: boolean) {
     const [width, height] = windowValue.getSize();
     this.width = width;
     this.height = height;
+    this.windowValue = windowValue;
     this.webContentsValue = windowValue.webContents;
-    this.windowPositioning =
-      process.platform === 'linux'
-        ? new StandaloneWindowPositioning()
-        : new AttachedToTrayWindowPositioning(tray);
+    this.windowPositioning = unpinnedWindow
+      ? new StandaloneWindowPositioning()
+      : new AttachedToTrayWindowPositioning(tray);
 
     this.installDisplayMetricsHandler();
     this.installWindowReadyHandlers();
+  }
+
+  public replaceWindow(window: BrowserWindow, unpinnedWindow: boolean) {
+    this.window.removeAllListeners();
+    this.window.destroy();
+
+    this.windowValue = window;
+    this.webContentsValue = window.webContents;
+
+    this.windowPositioning = unpinnedWindow
+      ? new StandaloneWindowPositioning()
+      : new AttachedToTrayWindowPositioning(this.tray);
+
+    this.updatePosition();
+    this.notifyUpdateWindowShape();
   }
 
   public show(whenReady = true) {
@@ -192,11 +208,26 @@ export default class WindowController {
   private showImmediately() {
     const window = this.windowValue;
 
-    this.updatePosition();
-    this.notifyUpdateWindowShape();
+    // When running with unpinned window on Windows there's a bug that causes the app to become
+    // wider if opened from minimized if the updated position is set before the window is opened.
+    // Unfortunately the order can't always be changed since this would cause the Window to "jump"
+    // in other scenarios.
+    if (
+      process.platform === 'win32' &&
+      this.windowPositioning instanceof StandaloneWindowPositioning
+    ) {
+      window.show();
+      window.focus();
 
-    window.show();
-    window.focus();
+      this.updatePosition();
+      this.notifyUpdateWindowShape();
+    } else {
+      this.updatePosition();
+      this.notifyUpdateWindowShape();
+
+      window.show();
+      window.focus();
+    }
   }
 
   private updatePosition() {
