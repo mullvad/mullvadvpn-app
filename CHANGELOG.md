@@ -91,6 +91,8 @@ Line wrap the file at 100 chars.                                              Th
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and
   "Always require VPN" were disabled, the service would reset the firewall upon starting back up,
   even if the tunnel was up when the crash occurred.
+- Add firewall rules for `mullvad-exclude`, i.e. split tunneling, that disallow all traffic in the
+  tunnel other than non-custom DNS traffic. This prevents leaks into the tunnel.
 
 #### Windows
 - Block all traffic received or sent before the BFE service and daemon service have started during
