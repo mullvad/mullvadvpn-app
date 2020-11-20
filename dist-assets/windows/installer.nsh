@@ -35,6 +35,11 @@
 !define ERROR_SERVICE_MARKED_FOR_DELETE 1072
 !define ERROR_SERVICE_DEPENDENCY_DELETED 1075
 
+# mullvad-setup status codes
+!define MVSETUP_OK 0
+!define MVSETUP_ERROR 1
+!define MVSETUP_VERSION_NOT_OLDER 2
+
 # Override electron-builder generated application settings key.
 # electron-builder uses a GUID here rather than the application name.
 !define INSTALL_REGISTRY_KEY "Software\${PRODUCT_NAME}"
@@ -704,6 +709,8 @@
 	Pop $0
 	Pop $0
 
+	WriteRegStr HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APP_GUID}" "NewVersion" "${VERSION}"
+
 	Pop $0
 
 !macroend
@@ -821,23 +828,46 @@
 
 	# Check command line arguments
 	Var /GLOBAL FullUninstall
+	Var /GLOBAL Silent
+	Var /GLOBAL NewVersion
 
 	${GetParameters} $0
 	${GetOptions} $0 "/S" $1
 	${If} ${Errors}
-		Push 1
+		Push 0
 		log::Initialize ${LOG_VOID}
 	${Else}
-		Push 0
+		Push 1
 		log::Initialize ${LOG_FILE}
 	${EndIf}
-	Pop $FullUninstall
+
+	Pop $Silent
 
 	log::Log "Running uninstaller for ${PRODUCT_NAME} ${VERSION}"
 
 	${ExtractMullvadSetup}
 
-	${If} $FullUninstall != 1
+	${If} $Silent == 1
+		ReadRegStr $NewVersion HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\${APP_GUID}" "NewVersion"
+
+		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" is-older-version $0'
+		Pop $0
+		Pop $1
+
+		${If} $0 == ${MVSETUP_OK}
+		${OrIf} $NewVersion == ""
+			log::Log "Downgrading. Performing a full uninstall"
+			Push 1
+		${Else}
+			Push 0
+		${EndIf}
+	${Else}
+		Push 1
+	${EndIf}
+
+	Pop $FullUninstall
+
+	${If} $FullUninstall == 0
 		# Save the target tunnel state if we're upgrading
 		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" prepare-restart'
 		Pop $0
@@ -864,7 +894,6 @@
 	${ExtractTapDriver}
 	${RemoveBrandedTap}
 
-	# If not ran silently
 	${If} $FullUninstall == 1
 		${ClearFirewallRules}
 		${ClearAccountHistory}
@@ -874,8 +903,10 @@
 		${RemoveWintun}
 
 		${RemoveLogsAndCache}
-		MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
-		${RemoveSettings}
+		${If} $Silent != 1
+			MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
+			${RemoveSettings}
+		${EndIf}
 		customRemoveFiles_after_remove_settings:
 	${EndIf}
 
