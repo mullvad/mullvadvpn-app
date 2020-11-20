@@ -4,11 +4,9 @@ use crate::{
 };
 use futures::{channel::mpsc, stream::FusedStream, FutureExt, SinkExt, StreamExt, TryFutureExt};
 use mullvad_rpc::{rest::MullvadRestHandle, AppVersionProxy};
-use mullvad_types::version::AppVersionInfo;
-use regex::Regex;
+use mullvad_types::version::{AppVersionInfo, ParsedAppVersion};
 use serde::{Deserialize, Serialize};
 use std::{
-    cmp::{Ord, Ordering, PartialOrd},
     fs,
     future::Future,
     io,
@@ -22,9 +20,7 @@ use tokio::fs::File;
 const VERSION_INFO_FILENAME: &str = "version-info.json";
 
 lazy_static::lazy_static! {
-    static ref STABLE_REGEX: Regex = Regex::new(r"^(\d{4})\.(\d+)$").unwrap();
-    static ref BETA_REGEX: Regex = Regex::new(r"^(\d{4})\.(\d+)-beta(\d+)$").unwrap();
-    static ref APP_VERSION: Option<AppVersion> = AppVersion::from_str(PRODUCT_VERSION);
+    static ref APP_VERSION: Option<ParsedAppVersion> = ParsedAppVersion::from_str(PRODUCT_VERSION);
     static ref IS_DEV_BUILD: bool = APP_VERSION.is_none();
 }
 
@@ -192,17 +188,17 @@ impl VersionUpdater {
     }
 
     fn suggested_upgrade(
-        current_version: &AppVersion,
+        current_version: &ParsedAppVersion,
         response: &mullvad_rpc::AppVersionResponse,
         show_beta: bool,
     ) -> Option<String> {
         let stable_version = response
             .latest_stable
             .as_ref()
-            .and_then(|stable| AppVersion::from_str(stable));
+            .and_then(|stable| ParsedAppVersion::from_str(stable));
 
         let beta_version = if show_beta {
-            AppVersion::from_str(&response.latest_beta)
+            ParsedAppVersion::from_str(&response.latest_beta)
         } else {
             None
         };
@@ -322,105 +318,9 @@ pub fn load_cache(cache_dir: &Path) -> AppVersionInfo {
     }
 }
 
-#[derive(Eq, PartialEq, Debug, Copy, Clone)]
-enum AppVersion {
-    Stable(u32, u32),
-    Beta(u32, u32, u32),
-}
-
-impl AppVersion {
-    fn from_str(version: &str) -> Option<Self> {
-        let get_int = |cap: &regex::Captures<'_>, idx| cap.get(idx)?.as_str().parse().ok();
-
-        if let Some(caps) = STABLE_REGEX.captures(version) {
-            let year = get_int(&caps, 1)?;
-            let version = get_int(&caps, 2)?;
-            Some(Self::Stable(year, version))
-        } else if let Some(caps) = BETA_REGEX.captures(version) {
-            let year = get_int(&caps, 1)?;
-            let version = get_int(&caps, 2)?;
-            let beta_version = get_int(&caps, 3)?;
-            Some(Self::Beta(year, version, beta_version))
-        } else {
-            None
-        }
-    }
-}
-
-impl Ord for AppVersion {
-    fn cmp(&self, other: &Self) -> Ordering {
-        use AppVersion::*;
-        match (self, other) {
-            (Stable(year, version), Stable(other_year, other_version)) => {
-                year.cmp(other_year).then(version.cmp(other_version))
-            }
-            // A stable version of the same year and version is always greater than a beta
-            (Stable(year, version), Beta(other_year, other_version, _)) => year
-                .cmp(other_year)
-                .then(version.cmp(other_version))
-                .then(Ordering::Greater),
-            (
-                Beta(year, version, beta_version),
-                Beta(other_year, other_version, other_beta_version),
-            ) => year
-                .cmp(other_year)
-                .then(version.cmp(other_version))
-                .then(beta_version.cmp(other_beta_version)),
-            (Beta(year, version, _beta_version), Stable(other_year, other_version)) => year
-                .cmp(other_year)
-                .then(version.cmp(other_version))
-                .then(Ordering::Less),
-        }
-    }
-}
-
-impl PartialOrd for AppVersion {
-    fn partial_cmp(&self, other: &AppVersion) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl ToString for AppVersion {
-    fn to_string(&self) -> String {
-        match self {
-            Self::Stable(year, version) => format!("{}.{}", year, version),
-            Self::Beta(year, version, beta_version) => {
-                format!("{}.{}-beta{}", year, version, beta_version)
-            }
-        }
-    }
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
-
-    #[test]
-    fn test_version_regex() {
-        assert!(STABLE_REGEX.is_match("2020.4"));
-        assert!(!STABLE_REGEX.is_match("2020.4-beta3"));
-        assert!(BETA_REGEX.is_match("2020.4-beta3"));
-        assert!(!STABLE_REGEX.is_match("2020.5-beta1-dev-f16be4"));
-        assert!(!STABLE_REGEX.is_match("2020.5-dev-f16be4"));
-        assert!(!BETA_REGEX.is_match("2020.5-beta1-dev-f16be4"));
-        assert!(!BETA_REGEX.is_match("2020.5-dev-f16be4"));
-        assert!(!BETA_REGEX.is_match("2020.4"));
-    }
-
-    #[test]
-    fn test_version_parsing() {
-        let tests = vec![
-            ("2020.4", Some(AppVersion::Stable(2020, 4))),
-            ("2020.4-beta3", Some(AppVersion::Beta(2020, 4, 3))),
-            ("2020.15-beta1-dev-f16be4", None),
-            ("2020.15-dev-f16be4", None),
-            ("", None),
-        ];
-
-        for (input, expected_output) in tests {
-            assert_eq!(AppVersion::from_str(&input), expected_output,);
-        }
-    }
 
     #[test]
     fn test_version_upgrade_suggestions() {
@@ -431,13 +331,13 @@ mod test {
             latest_beta: "2020.5-beta3".to_string(),
         };
 
-        let older_stable = AppVersion::from_str("2020.3").unwrap();
-        let current_stable = AppVersion::from_str("2020.4").unwrap();
-        let newer_stable = AppVersion::from_str("2021.5").unwrap();
+        let older_stable = ParsedAppVersion::from_str("2020.3").unwrap();
+        let current_stable = ParsedAppVersion::from_str("2020.4").unwrap();
+        let newer_stable = ParsedAppVersion::from_str("2021.5").unwrap();
 
-        let older_beta = AppVersion::from_str("2020.3-beta3").unwrap();
-        let current_beta = AppVersion::from_str("2020.5-beta3").unwrap();
-        let newer_beta = AppVersion::from_str("2021.5-beta3").unwrap();
+        let older_beta = ParsedAppVersion::from_str("2020.3-beta3").unwrap();
+        let current_beta = ParsedAppVersion::from_str("2020.5-beta3").unwrap();
+        let newer_beta = ParsedAppVersion::from_str("2021.5-beta3").unwrap();
 
         assert_eq!(
             VersionUpdater::suggested_upgrade(&older_stable, &app_version_info, false),
