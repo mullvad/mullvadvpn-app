@@ -2,11 +2,24 @@ use clap::{crate_authors, crate_description, crate_name, SubCommand};
 use mullvad_daemon::account_history;
 use mullvad_management_interface::new_rpc_client;
 use mullvad_rpc::MullvadRpcRuntime;
+use mullvad_types::version::ParsedAppVersion;
 use std::{path::PathBuf, process};
 use talpid_core::firewall::{self, Firewall, FirewallArguments};
 use talpid_types::ErrorExt;
 
 pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
+
+lazy_static::lazy_static! {
+    static ref APP_VERSION: ParsedAppVersion = ParsedAppVersion::from_str(PRODUCT_VERSION).unwrap();
+    static ref IS_DEV_BUILD: bool = APP_VERSION.is_dev();
+}
+
+#[repr(i32)]
+enum ExitStatus {
+    Ok = 0,
+    Error = 1,
+    VersionNotOlder = 2,
+}
 
 #[cfg(windows)]
 mod daemon_paths;
@@ -46,6 +59,9 @@ pub enum Error {
 
     #[error(display = "Failed to initialize account history")]
     ClearAccountHistoryError(#[error(source)] account_history::Error),
+
+    #[error(display = "Cannot parse the version string")]
+    ParseVersionStringError,
 }
 
 #[tokio::main]
@@ -58,6 +74,13 @@ async fn main() {
         SubCommand::with_name("reset-firewall")
             .about("Remove any firewall rules introduced by the daemon"),
         SubCommand::with_name("clear-history").about("Clear account history"),
+        SubCommand::with_name("is-older-version")
+            .about("Checks whether the given version is older than the current version")
+            .arg(
+                clap::Arg::with_name("OLDVERSION")
+                    .required(true)
+                    .help("Version string to compare the current version"),
+            ),
     ];
 
     let app = clap::App::new(crate_name!())
@@ -72,17 +95,36 @@ async fn main() {
         .subcommands(subcommands);
 
     let matches = app.get_matches();
-    let result = match matches.subcommand_name().expect("Subcommand has no name") {
-        "prepare-restart" => prepare_restart().await,
-        "reset-firewall" => reset_firewall().await,
-        "clear-history" => clear_history().await,
+    let result = match matches.subcommand() {
+        ("prepare-restart", _) => prepare_restart().await,
+        ("reset-firewall", _) => reset_firewall().await,
+        ("clear-history", _) => clear_history().await,
+        ("is-older-version", Some(sub_matches)) => {
+            let old_version = sub_matches.value_of("OLDVERSION").unwrap();
+            match is_older_version(old_version).await {
+                // Returning exit status
+                Ok(status) => process::exit(status as i32),
+                Err(error) => Err(error),
+            }
+        }
         _ => unreachable!("No command matched"),
     };
 
     if let Err(e) = result {
         eprintln!("{}", e.display_chain());
-        process::exit(1);
+        process::exit(ExitStatus::Error as i32);
     }
+}
+
+async fn is_older_version(old_version: &str) -> Result<ExitStatus, Error> {
+    let parsed_version =
+        ParsedAppVersion::from_str(old_version).ok_or(Error::ParseVersionStringError)?;
+
+    Ok(if parsed_version < *APP_VERSION {
+        ExitStatus::Ok
+    } else {
+        ExitStatus::VersionNotOlder
+    })
 }
 
 async fn prepare_restart() -> Result<(), Error> {

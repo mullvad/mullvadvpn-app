@@ -15,6 +15,7 @@ path = "src/main.rs"
 clap = "2.32"
 env_logger = "0.7"
 err-derive = "0.2.1"
+lazy_static = "1.1.0"
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 
@@ -23,6 +24,7 @@ tokio = { version = "0.2", features =  [ "rt-threaded" ] }
 mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-rpc = { path = "../mullvad-rpc" }
+mullvad-types = { path = "../mullvad-types" }
 talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }
 
