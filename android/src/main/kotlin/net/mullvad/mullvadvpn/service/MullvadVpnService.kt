@@ -72,7 +72,7 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
 
-    private var pendingAction by observable<PendingAction?>(null) { _, _, action ->
+    private var pendingAction by observable<PendingAction?>(null) { _, _, _ ->
         instance?.let { activeInstance ->
             handlePendingAction(
                 activeInstance.connectionProxy,
