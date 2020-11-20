@@ -113,7 +113,6 @@ class MainActivity : FragmentActivity() {
         }
 
         bindService(intent, serviceConnectionManager, 0)
-        service?.isUiVisible = true
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
