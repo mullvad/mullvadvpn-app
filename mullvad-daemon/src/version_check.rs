@@ -20,8 +20,8 @@ use tokio::fs::File;
 const VERSION_INFO_FILENAME: &str = "version-info.json";
 
 lazy_static::lazy_static! {
-    static ref APP_VERSION: Option<ParsedAppVersion> = ParsedAppVersion::from_str(PRODUCT_VERSION);
-    static ref IS_DEV_BUILD: bool = APP_VERSION.is_none();
+    static ref APP_VERSION: ParsedAppVersion = ParsedAppVersion::from_str(PRODUCT_VERSION).unwrap();
+    static ref IS_DEV_BUILD: bool = APP_VERSION.is_dev();
 }
 
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
@@ -171,13 +171,15 @@ impl VersionUpdater {
         &mut self,
         response: mullvad_rpc::AppVersionResponse,
     ) -> AppVersionInfo {
-        let suggested_upgrade = APP_VERSION.and_then(|current_version| {
+        let suggested_upgrade = if !*IS_DEV_BUILD {
             Self::suggested_upgrade(
-                &current_version,
+                &*APP_VERSION,
                 &response,
                 self.show_beta_releases || is_beta_version(),
             )
-        });
+        } else {
+            None
+        };
 
         AppVersionInfo {
             supported: response.supported,
