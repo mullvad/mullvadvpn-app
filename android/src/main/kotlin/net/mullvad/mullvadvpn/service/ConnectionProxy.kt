@@ -52,9 +52,8 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
             requestVpnPermission()
 
             activeAction = GlobalScope.launch(Dispatchers.Default) {
-                if (vpnPermission.await()) {
-                    daemon.connect()
-                }
+                vpnPermission.await()
+                daemon.connect()
             }
         }
     }
