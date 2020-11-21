@@ -10,7 +10,7 @@ use jnix::{
         sys::JNI_FALSE,
         JavaVM,
     },
-    IntoJava, JnixEnv,
+    FromJava, IntoJava, JnixEnv,
 };
 use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
@@ -373,6 +373,24 @@ impl Default for TunConfig {
             ],
             required_routes: vec![],
             mtu: 1380,
+        }
+    }
+}
+
+#[derive(FromJava)]
+#[jnix(package = "net.mullvad.talpid")]
+enum CreateTunResult {
+    Success { tun_fd: i32 },
+    PermissionDenied,
+    TunnelDeviceError,
+}
+
+impl From<CreateTunResult> for Result<RawFd, Error> {
+    fn from(result: CreateTunResult) -> Self {
+        match result {
+            CreateTunResult::Success { tun_fd } => Ok(tun_fd),
+            CreateTunResult::PermissionDenied => Err(Error::PermissionDenied),
+            CreateTunResult::TunnelDeviceError => Err(Error::TunnelDeviceError),
         }
     }
 }
