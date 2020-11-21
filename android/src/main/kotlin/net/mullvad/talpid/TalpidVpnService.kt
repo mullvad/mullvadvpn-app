@@ -57,7 +57,7 @@ open class TalpidVpnService : VpnService() {
 
     fun createTunIfClosed(): Boolean {
         synchronized(this) {
-            if (activeTunStatus == null) {
+            if (activeTunStatus !is CreateTunResult.Success) {
                 activeTunStatus = createTun(currentTunConfig)
             }
 
@@ -67,7 +67,7 @@ open class TalpidVpnService : VpnService() {
 
     fun recreateTunIfOpen(config: TunConfig) {
         synchronized(this) {
-            if (activeTunStatus != null) {
+            if (activeTunStatus is CreateTunResult.Success) {
                 currentTunConfig = config
                 activeTunStatus = createTun(config)
             }
