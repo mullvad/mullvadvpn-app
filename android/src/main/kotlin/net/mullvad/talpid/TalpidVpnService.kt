@@ -101,13 +101,19 @@ open class TalpidVpnService : VpnService() {
             return CreateTunResult.PermissionDenied()
         }
 
+        var invalidDnsServerAddresses = ArrayList<InetAddress>()
+
         val builder = Builder().apply {
             for (address in config.addresses) {
                 addAddress(address, prefixForAddress(address))
             }
 
             for (dnsServer in config.dnsServers) {
-                addDnsServer(dnsServer)
+                try {
+                    addDnsServer(dnsServer)
+                } catch (exception: IllegalArgumentException) {
+                    invalidDnsServerAddresses.add(dnsServer)
+                }
             }
 
             for (route in config.routes) {
@@ -136,6 +142,10 @@ open class TalpidVpnService : VpnService() {
         }
 
         waitForTunnelUp(tunFd, config.routes.any { route -> route.isIpv6 })
+
+        if (!invalidDnsServerAddresses.isEmpty()) {
+            return CreateTunResult.InvalidDnsServers(invalidDnsServerAddresses, tunFd)
+        }
 
         return CreateTunResult.Success(tunFd)
     }
