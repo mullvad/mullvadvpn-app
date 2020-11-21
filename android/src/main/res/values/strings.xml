@@ -118,6 +118,7 @@
     <string name="set_firewall_policy_error">Failed to apply firewall rules. The device might
     currently be unsecured</string>
     <string name="set_dns_error">Failed to set system DNS server</string>
+    <string name="invalid_dns_servers">Custom DNS server addresses %1$s are invalid</string>
     <string name="start_tunnel_error">Failed to start tunnel connection</string>
     <string name="vpn_permission_denied_error">VPN permission was denied when creating the tunnel.
     Please try connecting again.</string>

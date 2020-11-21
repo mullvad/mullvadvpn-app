@@ -8,6 +8,7 @@ import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
 import net.mullvad.talpid.tunnel.ParameterGenerationError
+import net.mullvad.talpid.util.addressString
 
 class TunnelStateNotification(
     private val context: Context,
@@ -67,11 +68,17 @@ class TunnelStateNotification(
 
     private fun blockingErrorMessage(cause: ErrorStateCause): String {
         val messageId = when (cause) {
+            is ErrorStateCause.InvalidDnsServers -> {
+                val addresses = cause.addresses
+                    .map { address -> address.addressString() }
+                    .joinToString()
+
+                return context.getString(R.string.invalid_dns_servers, addresses)
+            }
             is ErrorStateCause.AuthFailed -> R.string.auth_failed
             is ErrorStateCause.Ipv6Unavailable -> R.string.ipv6_unavailable
             is ErrorStateCause.SetFirewallPolicyError -> R.string.set_firewall_policy_error
             is ErrorStateCause.SetDnsError -> R.string.set_dns_error
-            is ErrorStateCause.InvalidDnsServers -> R.string.set_dns_error
             is ErrorStateCause.StartTunnelError -> R.string.start_tunnel_error
             is ErrorStateCause.IsOffline -> R.string.is_offline
             is ErrorStateCause.TunnelParameterError -> {
