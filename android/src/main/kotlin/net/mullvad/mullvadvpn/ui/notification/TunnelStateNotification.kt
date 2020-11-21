@@ -61,6 +61,7 @@ class TunnelStateNotification(
             is ErrorStateCause.Ipv6Unavailable -> R.string.ipv6_unavailable
             is ErrorStateCause.SetFirewallPolicyError -> R.string.set_firewall_policy_error
             is ErrorStateCause.SetDnsError -> R.string.set_dns_error
+            is ErrorStateCause.InvalidDnsServers -> R.string.set_dns_error
             is ErrorStateCause.StartTunnelError -> R.string.start_tunnel_error
             is ErrorStateCause.IsOffline -> R.string.is_offline
             is ErrorStateCause.TunnelParameterError -> {
