@@ -10,9 +10,9 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.talpid.tun_provider.TunConfig
 
 open class TalpidVpnService : VpnService() {
-    private var activeTunDevice by observable<Int?>(null) { _, oldTunDevice, _ ->
-        oldTunDevice?.let { oldTunFd ->
-            ParcelFileDescriptor.adoptFd(oldTunFd).close()
+    private var activeTunStatus by observable<CreateTunResult?>(null) { _, oldTunStatus, _ ->
+        if (oldTunStatus is CreateTunResult.Success) {
+            ParcelFileDescriptor.adoptFd(oldTunStatus.tunFd).close()
         }
     }
 
@@ -31,52 +31,52 @@ open class TalpidVpnService : VpnService() {
         connectivityListener.unregister()
     }
 
-    fun getTun(config: TunConfig): Int {
+    fun getTun(config: TunConfig): CreateTunResult {
         synchronized(this) {
-            val tunDevice = activeTunDevice
+            val tunStatus = activeTunStatus
 
-            if (config == currentTunConfig && tunDevice != null && !tunIsStale) {
-                return tunDevice
+            if (config == currentTunConfig && tunStatus != null && !tunIsStale) {
+                return tunStatus
             } else {
-                val newTunDevice = createTun(config)
+                val newTunStatus = createTun(config)
 
                 currentTunConfig = config
-                activeTunDevice = newTunDevice
+                activeTunStatus = newTunStatus
                 tunIsStale = false
 
-                return newTunDevice
+                return newTunStatus
             }
         }
     }
 
     fun createTun() {
         synchronized(this) {
-            activeTunDevice = createTun(currentTunConfig)
+            activeTunStatus = createTun(currentTunConfig)
         }
     }
 
     fun createTunIfClosed(): Boolean {
         synchronized(this) {
-            if (activeTunDevice == null) {
-                activeTunDevice = createTun(currentTunConfig)
+            if (activeTunStatus == null) {
+                activeTunStatus = createTun(currentTunConfig)
             }
 
-            return activeTunDevice?.let { tunFd -> tunFd > 0 } ?: false
+            return activeTunStatus is CreateTunResult.Success
         }
     }
 
     fun recreateTunIfOpen(config: TunConfig) {
         synchronized(this) {
-            if (activeTunDevice != null) {
+            if (activeTunStatus != null) {
                 currentTunConfig = config
-                activeTunDevice = createTun(config)
+                activeTunStatus = createTun(config)
             }
         }
     }
 
     fun closeTun() {
         synchronized(this) {
-            activeTunDevice = null
+            activeTunStatus = null
         }
     }
 
@@ -86,10 +86,10 @@ open class TalpidVpnService : VpnService() {
         }
     }
 
-    private fun createTun(config: TunConfig): Int {
+    private fun createTun(config: TunConfig): CreateTunResult {
         if (VpnService.prepare(this) != null) {
             // VPN permission wasn't granted
-            return -1
+            return CreateTunResult.PermissionDenied()
         }
 
         val builder = Builder().apply {
@@ -124,9 +124,10 @@ open class TalpidVpnService : VpnService() {
 
         if (tunFd != null) {
             waitForTunnelUp(tunFd, config.routes.any { route -> route.isIpv6 })
-            return tunFd
+
+            return CreateTunResult.Success(tunFd)
         } else {
-            return 0
+            return CreateTunResult.TunnelDeviceError()
         }
     }
 

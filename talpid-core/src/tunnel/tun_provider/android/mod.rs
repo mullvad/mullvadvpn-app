@@ -193,15 +193,13 @@ impl AndroidTunProvider {
 
         let result = self.call_method(
             "getTun",
-            "(Lnet/mullvad/talpid/tun_provider/TunConfig;)I",
-            JavaType::Primitive(Primitive::Int),
+            "(Lnet/mullvad/talpid/tun_provider/TunConfig;)Lnet/mullvad/talpid/CreateTunResult;",
+            JavaType::Object("net/mullvad/talpid/CreateTunResult".to_owned()),
             &[JValue::Object(java_config.as_obj())],
         )?;
 
         match result {
-            JValue::Int(0) => Err(Error::TunnelDeviceError),
-            JValue::Int(-1) => Err(Error::PermissionDenied),
-            JValue::Int(fd) => Ok(fd),
+            JValue::Object(result) => CreateTunResult::from_java(&env, result).into(),
             value => Err(Error::InvalidMethodResult("getTun", format!("{:?}", value))),
         }
     }
