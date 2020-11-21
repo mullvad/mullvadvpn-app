@@ -44,7 +44,6 @@ class MullvadVpnService : TalpidVpnService() {
     private var isStopping = false
     private var shouldStop = false
 
-    private var startDaemonJob: Job? = null
     private var setUpDaemonJob: Job? = null
 
     private var instance by observable<ServiceInstance?>(null) { _, oldInstance, newInstance ->
@@ -104,7 +103,7 @@ class MullvadVpnService : TalpidVpnService() {
             handleDaemonInstance(daemon)
         }
 
-        setUp()
+        daemonInstance.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -173,7 +172,6 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onDestroy() {
         Log.d(TAG, "Service has stopped")
-        tearDown()
         notificationManager.onDestroy()
         daemonInstance.onDestroy()
         super.onDestroy()
@@ -214,16 +212,6 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
-    private fun setUp() {
-        startDaemonJob?.cancel()
-        startDaemonJob = startDaemon()
-    }
-
-    private fun startDaemon() = GlobalScope.launch(Dispatchers.Default) {
-        Log.d(TAG, "Starting daemon")
-        daemonInstance.start()
-    }
-
     private fun setUpDaemon(daemon: MullvadDaemon) = GlobalScope.launch(Dispatchers.Default) {
         val settings = daemon.getSettings()
 
@@ -260,25 +248,16 @@ class MullvadVpnService : TalpidVpnService() {
         Log.d(TAG, "Stopping service")
         isStopping = true
         shouldStop = true
-        stopDaemon()
-        stopSelf()
-    }
-
-    private fun stopDaemon() {
-        Log.d(TAG, "Stopping daemon")
-        startDaemonJob?.cancel()
-        setUpDaemonJob?.cancel()
         daemonInstance.stop()
-    }
-
-    private fun tearDown() {
-        stopDaemon()
+        stopSelf()
     }
 
     private fun restart() {
         Log.d(TAG, "Restarting service")
-        tearDown()
-        setUp()
+        daemonInstance.apply {
+            stop()
+            start()
+        }
     }
 
     private fun handlePendingAction(connectionProxy: ConnectionProxy, settings: Settings) {
