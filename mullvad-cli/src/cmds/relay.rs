@@ -117,7 +117,7 @@ impl Command for Relay {
                                    command to show available alternatives.")
                     )
                     .subcommand(
-                        clap::SubCommand::with_name("relay")
+                        clap::SubCommand::with_name("hostname")
                             .about("Set the exact relay to use via its hostname. Shortcut for \
                                 'location <country> <city> <hostname>'.")
                             .arg(
@@ -203,8 +203,8 @@ impl Relay {
             self.set_custom(custom_matches).await
         } else if let Some(location_matches) = matches.subcommand_matches("location") {
             self.set_location(location_matches).await
-        } else if let Some(relay_matches) = matches.subcommand_matches("relay") {
-            self.set_relay(relay_matches).await
+        } else if let Some(relay_matches) = matches.subcommand_matches("hostname") {
+            self.set_hostname(relay_matches).await
         } else if let Some(provider_matches) = matches.subcommand_matches("provider") {
             self.set_provider(provider_matches).await
         } else if let Some(tunnel_matches) = matches.subcommand_matches("tunnel") {
@@ -334,7 +334,7 @@ impl Relay {
         key
     }
 
-    async fn set_relay(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+    async fn set_hostname(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let hostname = matches.value_of("hostname").unwrap();
         let countries = Self::get_filtered_relays().await?;
 

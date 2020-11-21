@@ -43,6 +43,7 @@ Line wrap the file at 100 chars.                                              Th
 - Remove WireGuard keys during uninstallation after the firewall is unlocked.
 - Randomly select addresses to use for communicating with the API.
 - Bundle a list of API addresses to use instead of assuming that the primary address can be reached.
+- Rename CLI subcommand `mullvad relay set relay` to `mullvad relay set hostname`.
 
 #### Android
 - Remove the Quit button.
