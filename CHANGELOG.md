@@ -73,6 +73,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix apps not being excluded from the tunnel sometimes if auto-connect was enabled.
 - Fix crash that happened sometimes when closing the app or when requesting from the notification
   or the quick-settings tile for the app to connect or disconnect.
+- Fix app showing that it was blocking connections when it wasn't when VPN permission was denied.
 
 #### Windows
 - Fix log output encoding for Windows modules.
