@@ -40,6 +40,12 @@ pub enum Error {
     FindMethod(&'static str, #[error(source)] jnix::jni::errors::Error),
 
     #[error(
+        display = "Attempt to configure the tunnel with an invalid DNS server address(es): {:?}",
+        _0
+    )]
+    InvalidDnsServers(Vec<IpAddr>),
+
+    #[error(
         display = "Received an invalid result from TalpidVpnService.{}: {}",
         _0,
         _1
@@ -379,6 +385,7 @@ impl Default for TunConfig {
 #[jnix(package = "net.mullvad.talpid")]
 enum CreateTunResult {
     Success { tun_fd: i32 },
+    InvalidDnsServers { addresses: Vec<IpAddr> },
     PermissionDenied,
     TunnelDeviceError,
 }
@@ -387,6 +394,9 @@ impl From<CreateTunResult> for Result<RawFd, Error> {
     fn from(result: CreateTunResult) -> Self {
         match result {
             CreateTunResult::Success { tun_fd } => Ok(tun_fd),
+            CreateTunResult::InvalidDnsServers { addresses } => {
+                Err(Error::InvalidDnsServers(addresses))
+            }
             CreateTunResult::PermissionDenied => Err(Error::PermissionDenied),
             CreateTunResult::TunnelDeviceError => Err(Error::TunnelDeviceError),
         }
