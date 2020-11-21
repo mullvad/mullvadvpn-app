@@ -53,10 +53,20 @@ class TunnelStateNotification(
     }
 
     private fun show(error: ErrorState?) {
-        val cause = error?.cause
+        // if the error state is null, we can assume that we are secure
+        if (error?.isBlocking ?: true) {
+            title = blockingTitle
+            message = error?.cause?.let { cause -> blockingErrorMessage(cause) }
+        } else {
+            title = notBlockingTitle
+            message = notBlockingErrorMessage(error?.cause)
+        }
 
-        val messageText = when (cause) {
-            null -> null
+        shouldShow = true
+    }
+
+    private fun blockingErrorMessage(cause: ErrorStateCause): String {
+        val messageId = when (cause) {
             is ErrorStateCause.AuthFailed -> R.string.auth_failed
             is ErrorStateCause.Ipv6Unavailable -> R.string.ipv6_unavailable
             is ErrorStateCause.SetFirewallPolicyError -> R.string.set_firewall_policy_error
@@ -79,21 +89,16 @@ class TunnelStateNotification(
             is ErrorStateCause.VpnPermissionDenied -> R.string.vpn_permission_denied_error
         }
 
-        // if the error state is null, we can assume that we are secure
-        if (error?.isBlocking ?: true) {
-            title = blockingTitle
-            message = messageText?.let { id -> context.getString(id) }
-        } else {
-            val updatedMessageText = when (cause) {
-                is ErrorStateCause.VpnPermissionDenied -> messageText
-                else -> R.string.failed_to_block_internet
-            }
+        return context.getString(messageId)
+    }
 
-            title = notBlockingTitle
-            message = updatedMessageText?.let { id -> context.getString(id) }
+    private fun notBlockingErrorMessage(cause: ErrorStateCause?): String {
+        val messageId = when (cause) {
+            is ErrorStateCause.VpnPermissionDenied -> R.string.vpn_permission_denied_error
+            else -> R.string.failed_to_block_internet
         }
 
-        shouldShow = true
+        return context.getString(messageId)
     }
 
     private fun hide() {
