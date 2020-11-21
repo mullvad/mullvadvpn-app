@@ -41,8 +41,6 @@ class MullvadVpnService : TalpidVpnService() {
     private val binder = LocalBinder()
     private val serviceNotifier = EventNotifier<ServiceInstance?>(null)
 
-    private val splitTunneling = CompletableDeferred<SplitTunneling>()
-
     private var isStopping = false
     private var shouldStop = false
 
@@ -87,6 +85,8 @@ class MullvadVpnService : TalpidVpnService() {
     private var isUiVisible: Boolean by observable(false) { _, _, isUiVisible ->
         notificationManager.lockedToForeground = isUiVisible or isBound
     }
+
+    internal val splitTunneling = CompletableDeferred<SplitTunneling>()
 
     override fun onCreate() {
         super.onCreate()
@@ -221,7 +221,6 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun startDaemon() = GlobalScope.launch(Dispatchers.Default) {
         Log.d(TAG, "Starting daemon")
-        splitTunneling.await()
         daemonInstance.start()
     }
 
