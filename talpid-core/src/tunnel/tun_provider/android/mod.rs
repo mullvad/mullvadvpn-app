@@ -7,6 +7,7 @@ use jnix::{
     jni::{
         objects::{GlobalRef, JValue},
         signature::{JavaType, Primitive},
+        sys::JNI_FALSE,
         JavaVM,
     },
     IntoJava, JnixEnv,
@@ -133,13 +134,14 @@ impl AndroidTunProvider {
     pub fn create_tun_if_closed(&mut self) -> Result<(), Error> {
         let result = self.call_method(
             "createTunIfClosed",
-            "()V",
-            JavaType::Primitive(Primitive::Void),
+            "()Z",
+            JavaType::Primitive(Primitive::Boolean),
             &[],
         )?;
 
         match result {
-            JValue::Void => Ok(()),
+            JValue::Bool(JNI_FALSE) => Err(Error::TunnelDeviceError),
+            JValue::Bool(_) => Ok(()),
             value => Err(Error::InvalidMethodResult(
                 "createTunIfClosed",
                 format!("{:?}", value),
