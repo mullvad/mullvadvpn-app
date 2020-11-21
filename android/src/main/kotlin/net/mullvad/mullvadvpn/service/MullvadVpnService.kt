@@ -51,6 +51,7 @@ class MullvadVpnService : TalpidVpnService() {
     private var shouldStop = false
 
     private var startDaemonJob: Job? = null
+    private var setUpDaemonJob: Job? = null
 
     private var instance by observable<ServiceInstance?>(null) { _, oldInstance, newInstance ->
         if (newInstance != oldInstance) {
@@ -69,6 +70,7 @@ class MullvadVpnService : TalpidVpnService() {
         oldNotification?.onDestroy()
     }
 
+    private lateinit var daemonInstance: DaemonInstance
     private lateinit var keyguardManager: KeyguardManager
     private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
@@ -101,6 +103,10 @@ class MullvadVpnService : TalpidVpnService() {
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
         notificationManager.acknowledgeStartForegroundService()
+
+        daemonInstance = DaemonInstance(this) { daemon ->
+            handleDaemonInstance(daemon)
+        }
 
         setUp()
     }
@@ -173,6 +179,7 @@ class MullvadVpnService : TalpidVpnService() {
         Log.d(TAG, "Service has stopped")
         tearDown()
         notificationManager.onDestroy()
+        daemonInstance.onDestroy()
         super.onDestroy()
     }
 
@@ -196,6 +203,21 @@ class MullvadVpnService : TalpidVpnService() {
         )
     }
 
+    private fun handleDaemonInstance(daemon: MullvadDaemon?) {
+        setUpDaemonJob?.cancel()
+
+        if (daemon != null) {
+            setUpDaemonJob = setUpDaemon(daemon)
+        } else {
+            Log.d(TAG, "Daemon has stopped")
+            instance = null
+
+            if (!isStopping) {
+                restart()
+            }
+        }
+    }
+
     private fun setUp() {
         startDaemonJob?.cancel()
         startDaemonJob = startDaemon()
@@ -205,18 +227,10 @@ class MullvadVpnService : TalpidVpnService() {
         Log.d(TAG, "Starting daemon")
         prepareFiles()
         splitTunneling.await()
+        daemonInstance.start()
+    }
 
-        val daemon = MullvadDaemon(this@MullvadVpnService).apply {
-            onDaemonStopped = {
-                Log.d(TAG, "Daemon has stopped")
-                instance = null
-
-                if (!isStopping) {
-                    restart()
-                }
-            }
-        }
-
+    private fun setUpDaemon(daemon: MullvadDaemon) = GlobalScope.launch(Dispatchers.Default) {
         val settings = daemon.getSettings()
 
         if (settings != null) {
@@ -278,7 +292,8 @@ class MullvadVpnService : TalpidVpnService() {
     private fun stopDaemon() {
         Log.d(TAG, "Stopping daemon")
         startDaemonJob?.cancel()
-        instance?.daemon?.shutdown()
+        setUpDaemonJob?.cancel()
+        daemonInstance.stop()
     }
 
     private fun tearDown() {
