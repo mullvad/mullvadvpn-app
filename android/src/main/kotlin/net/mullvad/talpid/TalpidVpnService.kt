@@ -11,8 +11,14 @@ import net.mullvad.talpid.tun_provider.TunConfig
 
 open class TalpidVpnService : VpnService() {
     private var activeTunStatus by observable<CreateTunResult?>(null) { _, oldTunStatus, _ ->
-        if (oldTunStatus is CreateTunResult.Success) {
-            ParcelFileDescriptor.adoptFd(oldTunStatus.tunFd).close()
+        val oldTunFd = when (oldTunStatus) {
+            is CreateTunResult.Success -> oldTunStatus.tunFd
+            is CreateTunResult.InvalidDnsServers -> oldTunStatus.tunFd
+            else -> null
+        }
+
+        if (oldTunFd != null) {
+            ParcelFileDescriptor.adoptFd(oldTunFd).close()
         }
     }
 
