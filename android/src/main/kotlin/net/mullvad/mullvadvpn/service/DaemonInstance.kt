@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service
 
+import java.io.File
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -8,6 +9,9 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
+
+private const val API_IP_ADDRESS_FILE = "api-ip-address.txt"
+private const val RELAYS_FILE = "relays.json"
 
 class DaemonInstance(val vpnService: MullvadVpnService, val listener: (MullvadDaemon?) -> Unit) {
     private enum class Command {
@@ -35,6 +39,8 @@ class DaemonInstance(val vpnService: MullvadVpnService, val listener: (MullvadDa
 
     private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
         var isRunning = true
+
+        prepareFiles()
 
         while (isRunning) {
             if (!waitForCommand(channel, Command.START)) {
@@ -64,6 +70,25 @@ class DaemonInstance(val vpnService: MullvadVpnService, val listener: (MullvadDa
         }
     }
 
+    private fun prepareFiles() {
+        FileMigrator(File("/data/data/net.mullvad.mullvadvpn"), vpnService.filesDir).apply {
+            migrate(RELAYS_FILE)
+            migrate("settings.json")
+            migrate("daemon.log")
+            migrate("daemon.old.log")
+            migrate("wireguard.log")
+            migrate("wireguard.old.log")
+        }
+
+        val shouldOverwriteRelayList =
+            lastUpdatedTime() > File(vpnService.filesDir, RELAYS_FILE).lastModified()
+
+        FileResourceExtractor(vpnService).apply {
+            extract(API_IP_ADDRESS_FILE, false)
+            extract(RELAYS_FILE, shouldOverwriteRelayList)
+        }
+    }
+
     private fun startDaemon() {
         daemon = MullvadDaemon(vpnService).apply {
             onDaemonStopped = {
@@ -74,5 +99,11 @@ class DaemonInstance(val vpnService: MullvadVpnService, val listener: (MullvadDa
 
     private fun stopDaemon() {
         daemon?.shutdown()
+    }
+
+    private fun lastUpdatedTime(): Long {
+        return vpnService.run {
+            packageManager.getPackageInfo(packageName, 0).lastUpdateTime
+        }
     }
 }
