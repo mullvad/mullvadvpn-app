@@ -16,6 +16,9 @@ open class TalpidVpnService : VpnService() {
         }
     }
 
+    private val tunIsOpen
+        get() = activeTunStatus?.isOpen ?: false
+
     private var currentTunConfig = defaultTunConfig()
     private var tunIsStale = false
 
@@ -35,8 +38,8 @@ open class TalpidVpnService : VpnService() {
         synchronized(this) {
             val tunStatus = activeTunStatus
 
-            if (config == currentTunConfig && tunStatus != null && !tunIsStale) {
-                return tunStatus
+            if (config == currentTunConfig && tunIsOpen && !tunIsStale) {
+                return tunStatus!!
             } else {
                 val newTunStatus = createTun(config)
 
@@ -57,17 +60,17 @@ open class TalpidVpnService : VpnService() {
 
     fun createTunIfClosed(): Boolean {
         synchronized(this) {
-            if (activeTunStatus !is CreateTunResult.Success) {
+            if (!tunIsOpen) {
                 activeTunStatus = createTun(currentTunConfig)
             }
 
-            return activeTunStatus is CreateTunResult.Success
+            return tunIsOpen
         }
     }
 
     fun recreateTunIfOpen(config: TunConfig) {
         synchronized(this) {
-            if (activeTunStatus is CreateTunResult.Success) {
+            if (tunIsOpen) {
                 currentTunConfig = config
                 activeTunStatus = createTun(config)
             }
