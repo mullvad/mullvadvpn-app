@@ -1,7 +1,4 @@
-use crate::{
-    routing::{imp::RouteManagerCommand, NetNode, Node, RequiredRoute, Route},
-    split_tunnel,
-};
+use crate::routing::{imp::RouteManagerCommand, NetNode, Node, RequiredRoute, Route};
 use std::{
     collections::{BTreeMap, HashSet},
     io,
@@ -13,7 +10,7 @@ use futures::{channel::mpsc::UnboundedReceiver, future::FutureExt, StreamExt, Tr
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use netlink_packet_route::{
-    constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL, FR_ACT_UNREACHABLE},
+    constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL},
     link::{nlas::Nla as LinkNla, LinkMessage},
     route::{nlas::Nla as RouteNla, RouteHeader, RouteMessage},
     rtnl::{
@@ -69,38 +66,11 @@ lazy_static! {
         v6_rule.header.family = AF_INET6 as u8;
         v6_rule
     };
-    static ref PROHIBIT_NON_DEFAULT_V6: RuleMessage = RuleMessage {
-        header: RuleHeader {
-            family: AF_INET6 as u8,
-            action: FR_ACT_UNREACHABLE,
-            ..RuleHeader::default()
-        },
-        nlas: vec![RuleNla::FwMark(split_tunnel::MARK as u32),],
-    };
-    static ref EXCLUSIONS_RULE_V4: RuleMessage = RuleMessage {
-        header: RuleHeader {
-            family: AF_INET as u8,
-            action: FR_ACT_TO_TBL,
-            ..RuleHeader::default()
-        },
-        nlas: vec![
-            RuleNla::FwMark(split_tunnel::MARK as u32),
-            RuleNla::Table(RT_TABLE_MAIN as u32),
-        ],
-    };
-    static ref EXCLUSIONS_RULE_V6: RuleMessage = {
-        let mut v6_rule = EXCLUSIONS_RULE_V4.clone();
-        v6_rule.header.family = AF_INET6 as u8;
-        v6_rule
-    };
-    static ref ALL_RULES: [&'static RuleMessage; 7] = [
+    static ref ALL_RULES: [&'static RuleMessage; 4] = [
         &*NO_FWMARK_RULE_V4,
         &*NO_FWMARK_RULE_V6,
         &*SUPPRESS_RULE_V4,
         &*SUPPRESS_RULE_V6,
-        &*PROHIBIT_NON_DEFAULT_V6,
-        &*EXCLUSIONS_RULE_V4,
-        &*EXCLUSIONS_RULE_V6,
     ];
 }
 
