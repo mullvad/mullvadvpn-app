@@ -213,10 +213,6 @@ class ApplicationMain {
 
     this.guiSettings.load();
 
-    // The default value has previously been false but will be changed to true in Electron 9. The
-    // false value has been deprecated in Electron 8. This can be removed when Electron 9 is used.
-    app.allowRendererProcessReuse = true;
-
     app.on('activate', this.onActivate);
     app.on('ready', this.onReady);
     app.on('window-all-closed', () => app.quit());
