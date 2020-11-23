@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
 
+private const val API_IP_ADDRESS_FILE = "api-ip-address.txt"
 private const val RELAYS_FILE = "relays.json"
 
 class MullvadVpnService : TalpidVpnService() {
@@ -239,6 +240,7 @@ class MullvadVpnService : TalpidVpnService() {
             lastUpdatedTime() > File(filesDir, RELAYS_FILE).lastModified()
 
         FileResourceExtractor(this).apply {
+            extract(API_IP_ADDRESS_FILE, false)
             extract(RELAYS_FILE, shouldOverwriteRelayList)
         }
     }

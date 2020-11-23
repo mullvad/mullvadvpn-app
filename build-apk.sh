@@ -119,6 +119,7 @@ for ARCHITECTURE in $ARCHITECTURES; do
 done
 
 ./update-relays.sh
+./update-api-address.sh
 
 cd "$SCRIPT_DIR/android"
 $GRADLE_CMD --console plain "$GRADLE_TASK"
