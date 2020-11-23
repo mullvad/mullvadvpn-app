@@ -28,7 +28,7 @@ export function getMainLogFile(): string {
 }
 
 export function getRendererLogFile(): string {
-  return path.join(getLogsDirectory(), 'frontend-renderer.log');
+  return path.join(getLogsDirectory(), 'renderer.log');
 }
 
 export function setupLogging(logFile: string) {
@@ -48,18 +48,44 @@ export function setupLogging(logFile: string) {
   }
 }
 
-export function backupLogFile(filePath: string): string | undefined {
-  const ext = path.extname(filePath);
-  const baseName = path.basename(filePath, ext);
-  const backupFile = path.join(path.dirname(filePath), baseName + '.old' + ext);
+export function backupLogFile(filePath: string): boolean {
+  const exists = fileExists(filePath);
+  if (exists) {
+    const backupFilePath = getBackupFilePath(filePath);
+    fs.renameSync(filePath, backupFilePath);
+  }
 
+  return exists;
+}
+
+function getBackupFilePath(filePath: string): string {
+  const parsedPath = path.parse(filePath);
+  parsedPath.base = parsedPath.name + '.old' + parsedPath.ext;
+  return path.normalize(path.format(parsedPath));
+}
+
+function fileExists(filePath: string): boolean {
   try {
     fs.accessSync(filePath);
-    fs.renameSync(filePath, backupFile);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-    return backupFile;
-  } catch (error) {
-    // No previous log file exists
-    return undefined;
+// When cleaning up old log files they are first backed up and the next time removed.
+export function cleanUpLogDirectory(): void {
+  const oldLogFileNames = ['frontend-renderer.log'];
+
+  oldLogFileNames.forEach((fileName) => {
+    const filePath = path.join(getLogsDirectory(), fileName);
+    rotateOrDeleteFile(filePath);
+  });
+}
+
+export function rotateOrDeleteFile(filePath: string) {
+  const backupFilePath = getBackupFilePath(filePath);
+  if (!backupLogFile(filePath) && fileExists(backupFilePath)) {
+    fs.unlinkSync(backupFilePath);
   }
 }
