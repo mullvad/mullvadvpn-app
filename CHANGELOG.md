@@ -51,6 +51,9 @@ Line wrap the file at 100 chars.                                              Th
   more smoothly.
 - Run app in landscape mode on TVs.
 
+#### Windows
+- Fully uninstall the app when it is downgraded. Traffic is not blocked.
+
 #### Linux
 - Make route monitor ignore loopback routes.
 - Increase NetworkManager device readiness timeout to 15 seconds.
