@@ -22,6 +22,8 @@ use std::{
 
 use super::{ProxyMonitor, ProxyMonitorCloseHandle, ProxyResourceData, WaitResult};
 use talpid_types::net::openvpn::ShadowsocksProxySettings;
+#[cfg(target_os = "linux")]
+use talpid_types::ErrorExt;
 
 struct ShadowsocksCommand {
     shadowsocks_bin: OsString,
@@ -154,6 +156,30 @@ impl ShadowsocksProxyMonitor {
         cmd = cmd.stdin_null().stderr_to_stdout().stdout_path(&logfile);
 
         let subproc = cmd.start()?;
+
+        #[cfg(target_os = "linux")]
+        {
+            // Run this process outside the tunnel
+            use crate::split_tunnel::PidManager;
+
+            let excluded_pids = PidManager::new().map_err(|error| {
+                Error::new(
+                    ErrorKind::Other,
+                    error.display_chain_with_msg("Failed to initialize PidManager"),
+                )
+            })?;
+            let i32_pids = subproc
+                .pids()
+                .iter()
+                .map(|pid| *pid as i32)
+                .collect::<Vec<_>>();
+            excluded_pids.add_list(&i32_pids).map_err(|error| {
+                Error::new(
+                    ErrorKind::Other,
+                    error.display_chain_with_msg("Failed to exclude Shadowsocks process"),
+                )
+            })?;
+        }
 
         match Self::get_bound_port(File::open(&logfile)?, &subproc) {
             Ok(port) => Ok(Self {
