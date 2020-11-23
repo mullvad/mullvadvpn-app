@@ -438,7 +438,8 @@ fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute
 
     for route in ovpn_routes {
         let node = if route.gateway == default_node_ip {
-            routing::NetNode::DefaultNode
+            log::trace!("Ignoring route to physical interface: {:?}", route);
+            continue;
         } else if route.gateway == tun_gateway_ip {
             tun_node.clone()
         } else if Some(route.gateway) == tun_gateway_ip6 {
@@ -447,18 +448,6 @@ fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute
             routing::NetNode::from(routing::Node::address(route.gateway))
         };
         routes.insert(RequiredRoute::new(route.network, node));
-    }
-
-    if env.get("socks_proxy_server_1").is_none() {
-        let remote_host: IpAddr = env
-            .get("remote_1")
-            .ok_or(Error::MissingRemoteHost)?
-            .parse()
-            .map_err(Error::ParseRemoteHost)?;
-        routes.insert(RequiredRoute::new(
-            remote_host.into(),
-            routing::NetNode::DefaultNode,
-        ));
     }
 
     #[cfg(target_os = "linux")]
