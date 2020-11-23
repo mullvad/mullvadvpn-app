@@ -253,6 +253,7 @@ pub fn send_problem_report(
     user_email: &str,
     user_message: &str,
     report_path: &Path,
+    resource_dir: &Path,
 ) -> Result<(), Error> {
     let report_content = normalize_newlines(
         read_file_lossy(report_path, REPORT_MAX_SIZE).map_err(|source| {
@@ -274,7 +275,7 @@ pub fn send_problem_report(
     let mut rpc_manager = runtime
         .block_on(mullvad_rpc::MullvadRpcRuntime::with_cache(
             runtime.handle().clone(),
-            &mullvad_paths::get_resource_dir(),
+            resource_dir,
             None,
         ))
         .map_err(Error::CreateRpcClientError)?;

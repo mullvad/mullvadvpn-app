@@ -113,7 +113,8 @@ fn run() -> Result<(), Error> {
         let report_path = Path::new(send_matches.value_of_os("report").unwrap());
         let user_email = send_matches.value_of("email").unwrap_or("");
         let user_message = send_matches.value_of("message").unwrap_or("");
-        send_problem_report(user_email, user_message, report_path)
+        let resource_dir = mullvad_paths::get_resource_dir();
+        send_problem_report(user_email, user_message, report_path, &resource_dir)
     } else {
         unreachable!("No sub command given");
     }

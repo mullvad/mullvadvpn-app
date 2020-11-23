@@ -13,6 +13,7 @@ const val PROBLEM_REPORT_FILE = "problem_report.txt"
 
 class MullvadProblemReport {
     val logDirectory = CompletableDeferred<File>()
+    val resourcesDirectory = CompletableDeferred<File>()
 
     private val problemReportPath = GlobalScope.async(Dispatchers.Default) {
         File(logDirectory.await(), PROBLEM_REPORT_FILE)
@@ -66,7 +67,8 @@ class MullvadProblemReport {
                         sendProblemReport(
                             userEmail,
                             userMessage,
-                            problemReportPath.await().absolutePath
+                            problemReportPath.await().absolutePath,
+                            resourcesDirectory.await().absolutePath
                         )
 
                     if (result) {
@@ -102,6 +104,7 @@ class MullvadProblemReport {
     private external fun sendProblemReport(
         userEmail: String,
         userMessage: String,
-        reportPath: String
+        reportPath: String,
+        resourcesDirectory: String
     ): Boolean
 }
