@@ -55,11 +55,13 @@ open class TalpidVpnService : VpnService() {
         }
     }
 
-    fun createTunIfClosed() {
+    fun createTunIfClosed(): Boolean {
         synchronized(this) {
             if (activeTunDevice == null) {
                 activeTunDevice = createTun(currentTunConfig)
             }
+
+            return activeTunDevice?.let { tunFd -> tunFd > 0 } ?: false
         }
     }
 
