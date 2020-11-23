@@ -90,6 +90,7 @@ Line wrap the file at 100 chars.                                              Th
   is used to manage DNS via systemd-resolved.
 - Fix incorrect version string in .deb installer causing downgrade warnings when upgrading from beta
   to stable.
+- Fix memory leak in firewall code via updating `nftnl` dependency.
 
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and

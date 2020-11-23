@@ -57,7 +57,7 @@ netlink-packet-route = "0.4"
 netlink-proto = "0.4"
 netlink-sys = "0.4"
 byteorder = "1"
-nftnl = { version = "0.5", features = ["nftnl-1-1-0"] }
+nftnl = { version = "0.6", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
 which = { version = "4.0", default-features = false }
 tun = "0.5"

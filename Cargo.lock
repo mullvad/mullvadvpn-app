@@ -1523,9 +1523,9 @@ dependencies = [
 
 [[package]]
 name = "nftnl"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b7528eff501558f9f892c5001e945b0d7e980cb464a7969101c94e18481c4563"
+checksum = "f8458833d3dd636d15b07f12aa22916d2f73c7607a072247068ecfe7cf28b660"
 dependencies = [
  "bitflags 1.2.1",
  "err-derive",
@@ -1535,11 +1535,11 @@ dependencies = [
 
 [[package]]
 name = "nftnl-sys"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe241d8ce673ef755c8d2b8717cd74990d4e0a61d437792054750ce9a35743d0"
+checksum = "4de1b9f700ed2553ce1c7bcef72fb6d52e56cdf2bd6ef74ceb0cef89800fe153"
 dependencies = [
- "cfg-if 0.1.10",
+ "cfg-if 1.0.0",
  "libc",
  "pkg-config",
 ]
