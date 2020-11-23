@@ -51,6 +51,8 @@ Line wrap the file at 100 chars.                                              Th
 - Improve navigation in the app using a keyboard, so that touchless devices (like TVs) can be used
   more smoothly.
 - Run app in landscape mode on TVs.
+- Try to connect even if VPN permission is denied, so that the app shows an error message saying
+  that the VPN permission was denied.
 
 #### Linux
 - Make route monitor ignore loopback routes.
