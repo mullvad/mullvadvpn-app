@@ -70,6 +70,16 @@ android {
     }
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        allWarningsAsErrors = true
+
+        kotlinOptions.freeCompilerArgs += [
+            "-Xuse-experimental=kotlinx.coroutines.ObsoleteCoroutinesApi",
+        ]
+    }
+}
+
 play {
     serviceAccountCredentials = file("play-api-key.json")
 }

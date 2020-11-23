@@ -41,7 +41,6 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.connect, container, false)
-        val resources = parentActivity.resources
 
         headerBar = view.findViewById<HeaderBar>(R.id.header_bar).apply {
             tunnelState = TunnelState.Disconnected()
