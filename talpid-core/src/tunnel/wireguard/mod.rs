@@ -233,12 +233,18 @@ impl WireguardMonitor {
     }
 
     fn get_tunnel_routes(config: &Config) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
-        config
+        let routes = config
             .peers
             .iter()
             .flat_map(|peer| peer.allowed_ips.iter())
-            .cloned()
-            .flat_map(|allowed_ip| {
+            .cloned();
+        #[cfg(target_os = "linux")]
+        {
+            routes
+        }
+        #[cfg(not(target_os = "linux"))]
+        {
+            routes.flat_map(|allowed_ip| {
                 if allowed_ip.prefix() == 0 {
                     if allowed_ip.is_ipv4() {
                         vec!["0.0.0.0/1".parse().unwrap(), "128.0.0.0/1".parse().unwrap()]
@@ -249,6 +255,7 @@ impl WireguardMonitor {
                     vec![allowed_ip]
                 }
             })
+        }
     }
 
     fn get_routes(iface_name: &str, config: &Config) -> HashSet<RequiredRoute> {
