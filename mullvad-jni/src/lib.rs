@@ -955,7 +955,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
         Err(error) => {
             log::error!(
                 "{}",
-                error.display_chain_with_msg("Failed to collect problem report")
+                error.display_chain_with_msg("Failed to send problem report")
             );
             JNI_FALSE
         }
