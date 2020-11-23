@@ -29,7 +29,7 @@ use netlink_packet_route::{
 use rtnetlink::{
     constants::{RTMGRP_IPV4_ROUTE, RTMGRP_IPV6_ROUTE, RTMGRP_LINK, RTMGRP_NOTIFY},
     sys::SocketAddr,
-    Handle, IpVersion,
+    Handle,
 };
 
 use libc::{AF_INET, AF_INET6};
@@ -141,12 +141,6 @@ pub enum Error {
 }
 
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq, PartialOrd, Ord)]
-struct RequiredDefaultRoute {
-    table_id: u32,
-    destination: IpNetwork,
-}
-
 pub struct RouteManagerImpl {
     handle: Handle,
     messages: UnboundedReceiver<(NetlinkMessage<RtnlMessage>, SocketAddr)>,
@@ -154,12 +148,6 @@ pub struct RouteManagerImpl {
 
     // currently added routes
     added_routes: HashSet<Route>,
-    // default route tracking
-    // destinations that should be routed through the default route
-    required_default_routes: HashSet<RequiredDefaultRoute>,
-    default_routes: HashSet<Route>,
-    best_default_node_v4: Option<Node>,
-    best_default_node_v6: Option<Node>,
 }
 
 impl RouteManagerImpl {
@@ -182,23 +170,10 @@ impl RouteManagerImpl {
             iface_map,
             handle,
             messages,
-
-            required_default_routes: HashSet::new(),
             added_routes: HashSet::new(),
-
-            default_routes: HashSet::new(),
-            best_default_node_v4: None,
-            best_default_node_v6: None,
         };
 
         monitor.clear_routing_rules().await?;
-
-        monitor.default_routes = monitor.get_default_routes().await?;
-        monitor.best_default_node_v4 =
-            Self::pick_best_default_node(&monitor.default_routes, IpVersion::V4);
-        monitor.best_default_node_v6 =
-            Self::pick_best_default_node(&monitor.default_routes, IpVersion::V6);
-
         monitor.add_required_routes(required_routes).await?;
 
         Ok(monitor)
@@ -306,41 +281,14 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    async fn add_required_default_routes(
-        &mut self,
-        required_default_routes: HashSet<RequiredDefaultRoute>,
-    ) -> Result<()> {
-        for route in required_default_routes.into_iter() {
-            if let (false, _, Some(default_node)) | (true, Some(default_node), _) = (
-                route.destination.is_ipv4(),
-                &self.best_default_node_v4,
-                &self.best_default_node_v6,
-            ) {
-                // best to pick a single node identifier rather than device + ip
-                let new_route =
-                    Route::new(default_node.clone(), route.destination).table(route.table_id);
-                self.add_route(new_route).await?;
-            }
-            self.required_default_routes.insert(route);
-        }
-        Ok(())
-    }
-
     async fn add_required_routes(&mut self, required_routes: HashSet<RequiredRoute>) -> Result<()> {
         let mut required_normal_routes = HashSet::new();
-        let mut required_default_routes = HashSet::new();
 
         for route in required_routes {
             match route.node {
                 NetNode::RealNode(node) => {
                     required_normal_routes
                         .insert(Route::new(node, route.prefix).table(route.table_id));
-                }
-                NetNode::DefaultNode => {
-                    required_default_routes.insert(RequiredDefaultRoute {
-                        table_id: route.table_id,
-                        destination: route.prefix,
-                    });
                 }
             }
         }
@@ -349,47 +297,7 @@ impl RouteManagerImpl {
             self.add_route(normal_route).await?;
         }
 
-        if self
-            .add_required_default_routes(required_default_routes.clone())
-            .await
-            .is_err()
-        {
-            log::trace!("Refreshing default routes which may be stale");
-
-            self.default_routes = self.get_default_routes().await?;
-            self.best_default_node_v4 =
-                Self::pick_best_default_node(&self.default_routes, IpVersion::V4);
-            self.best_default_node_v6 =
-                Self::pick_best_default_node(&self.default_routes, IpVersion::V6);
-
-            self.add_required_default_routes(required_default_routes)
-                .await?;
-        }
-
         Ok(())
-    }
-
-    async fn get_default_routes(&self) -> Result<HashSet<Route>> {
-        let mut routes = self.get_default_routes_inner(IpVersion::V4).await?;
-        routes.extend(self.get_default_routes_inner(IpVersion::V6).await?);
-        Ok(routes)
-    }
-
-    async fn get_default_routes_inner(&self, version: IpVersion) -> Result<HashSet<Route>> {
-        let mut routes = HashSet::new();
-        let mut route_request = self.handle.route().get(version).execute();
-        while let Some(route) = route_request
-            .try_next()
-            .await
-            .map_err(Error::NetlinkError)?
-        {
-            if route.header.destination_prefix_length == 0 {
-                if let Some(default_route) = self.parse_route_message(route)? {
-                    routes.insert(default_route);
-                }
-            }
-        }
-        Ok(routes)
     }
 
     async fn initialize_link_map(
@@ -414,129 +322,12 @@ impl RouteManagerImpl {
             .map(|(idx, _name)| *idx)
     }
 
-
-    async fn process_new_route(&mut self, route: Route) -> Result<()> {
-        if route.prefix.prefix() == 0 {
-            self.default_routes.insert(route);
-            self.update_default_routes().await?;
-        }
-        Ok(())
-    }
-
     async fn process_deleted_route(&mut self, route: Route) -> Result<()> {
-        if route.prefix.prefix() == 0 {
-            self.default_routes.remove(&route);
-            self.update_default_routes().await?;
-        }
         self.added_routes.remove(&route);
         Ok(())
     }
 
-    async fn update_default_routes(&mut self) -> Result<()> {
-        let new_best_v4 = Self::pick_best_default_node(&self.default_routes, IpVersion::V4);
-        if self.best_default_node_v4 != new_best_v4 && new_best_v4.is_some() {
-            let new_node = new_best_v4.unwrap();
-            let old_node = self.best_default_node_v4.take();
-            let v4_routes: Vec<_> = self
-                .required_default_routes
-                .iter()
-                .filter(|ip| ip.destination.is_ipv4())
-                .cloned()
-                .collect();
-            for route in v4_routes {
-                let new_route =
-                    Route::new(new_node.clone(), route.destination).table(route.table_id);
-
-                if let Some(old_node) = &old_node {
-                    let old_route =
-                        Route::new(old_node.clone(), route.destination).table(route.table_id);
-
-                    if let Err(e) = self.delete_route(&old_route).await {
-                        log::error!("Failed to remove old route {} - {}", &old_route, e);
-                    }
-                }
-                if let Err(e) = self.add_route(new_route).await {
-                    log::error!("Failed to add new route {} - {}", &new_node, e);
-                }
-            }
-            self.best_default_node_v4 = Some(new_node);
-        }
-
-        let new_best_v6 = Self::pick_best_default_node(&self.default_routes, IpVersion::V6);
-        if self.best_default_node_v6 != new_best_v6 && new_best_v6.is_some() {
-            let new_node = new_best_v6.unwrap();
-            let old_node = self.best_default_node_v6.take();
-            let v6_routes: Vec<_> = self
-                .required_default_routes
-                .iter()
-                .filter(|ip| !ip.destination.is_ipv4())
-                .cloned()
-                .collect();
-
-            for route in v6_routes {
-                let new_route =
-                    Route::new(new_node.clone(), route.destination).table(route.table_id);
-
-                if let Some(old_node) = &old_node {
-                    let old_route =
-                        Route::new(old_node.clone(), route.destination).table(route.table_id);
-
-                    if let Err(e) = self.delete_route(&old_route).await {
-                        log::error!("Failed to remove old route {} - {}", &old_route, e);
-                    }
-                }
-                if let Err(e) = self.add_route(new_route).await {
-                    log::error!("Failed to add new route {} - {}", &new_node, e);
-                }
-            }
-            self.best_default_node_v6 = Some(new_node);
-        }
-
-        Ok(())
-    }
-
-    fn pick_best_default_node(routes: &HashSet<Route>, version: IpVersion) -> Option<Node> {
-        // Pick the route with the lowest metric - thus the most favourable route.
-        routes
-            .iter()
-            .filter(|route| route.prefix.is_ipv4() == (version == IpVersion::V4))
-            .fold(
-                None,
-                |best_route: Option<Route>, next_route| match best_route {
-                    Some(current_best) => {
-                        if current_best.metric.unwrap_or(0) > next_route.metric.unwrap_or(0) {
-                            Some(next_route.clone())
-                        } else {
-                            Some(current_best)
-                        }
-                    }
-                    None => Some(next_route.clone()),
-                },
-            )
-            .map(|route| route.node)
-    }
-
     async fn cleanup_routes(&mut self) {
-        for required_route in &self.required_default_routes {
-            let best_node = if required_route.destination.is_ipv4() {
-                self.best_default_node_v4.clone()
-            } else {
-                self.best_default_node_v6.clone()
-            };
-
-            let best_node = match best_node {
-                None => continue,
-                Some(node) => node,
-            };
-
-            let route =
-                Route::new(best_node, required_route.destination).table(required_route.table_id);
-            if let Err(e) = self.delete_route_if_exists(&route).await {
-                log::error!("Failed to remove route - {} - {}", route, e);
-            }
-        }
-        self.required_default_routes.clear();
-
         for route in self.added_routes.drain().collect::<Vec<_>>().iter() {
             if let Err(e) = self.delete_route_if_exists(&route).await {
                 log::error!("Failed to remove route - {} - {}", route, e);
@@ -601,12 +392,6 @@ impl RouteManagerImpl {
             NetlinkPayload::InnerMessage(RtnlMessage::DelLink(old_link)) => {
                 if let Some((idx, _)) = Self::map_interface(old_link) {
                     self.iface_map.remove(&idx);
-                }
-            }
-
-            NetlinkPayload::InnerMessage(RtnlMessage::NewRoute(new_route)) => {
-                if let Some(new_route) = self.parse_route_message(new_route)? {
-                    self.process_new_route(new_route).await?;
                 }
             }
             NetlinkPayload::InnerMessage(RtnlMessage::DelRoute(old_route)) => {

@@ -98,6 +98,7 @@ pub enum NetNode {
     RealNode(Node),
     /// A default node is a symbolic node that will resolve to the network node used in the current
     /// most preferable default route
+    #[cfg(not(target_os = "linux"))]
     DefaultNode,
 }
 
