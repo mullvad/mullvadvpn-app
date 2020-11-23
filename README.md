@@ -367,10 +367,6 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
 * `TALPID_FORCE_USERSPACE_WIREGUARD` - Forces the daemon to use the userspace implementation of
    WireGuard on Linux.
 
-* `TALPID_FORCE_NM_WIREGUARD` - Forces the daemon to use NetworkManager to create a WireGuard
-  device instead of relying on netlink. This is highly inadvisable currently, as NetworkManager is
-  exhibiting buggy behavior.
-
 
 ## Building and running the desktop Electron GUI app
 
