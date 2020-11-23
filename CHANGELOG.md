@@ -54,6 +54,9 @@ Line wrap the file at 100 chars.                                              Th
 - Try to connect even if VPN permission is denied, so that the app shows an error message saying
   that the VPN permission was denied.
 
+#### Windows
+- Fully uninstall the app when it is downgraded. Traffic is not blocked.
+
 #### Linux
 - Make route monitor ignore loopback routes.
 - Increase NetworkManager device readiness timeout to 15 seconds.
