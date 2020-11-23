@@ -2,6 +2,7 @@ import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { bindActionCreators } from 'redux';
+import consumePromise from '../../shared/promise';
 import Support from '../components/Support';
 import { collectProblemReport, sendProblemReport } from '../lib/problem-report';
 import { IReduxState, ReduxDispatch } from '../redux/store';
@@ -23,7 +24,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: RouteComponentProps)
       props.history.goBack();
     },
     viewLog(path: string) {
-      shell.openItem(path);
+      consumePromise(shell.openPath(path));
     },
     saveReportForm,
     clearReportForm,
