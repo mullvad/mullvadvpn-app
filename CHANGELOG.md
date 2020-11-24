@@ -84,6 +84,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix crash that happened sometimes when closing the app or when requesting from the notification
   or the quick-settings tile for the app to connect or disconnect.
 - Fix app showing that it was blocking connections when it wasn't when VPN permission was denied.
+- Fix internet not working for a minute or two after changing Allow LAN setting.
 
 #### Windows
 - Fix log output encoding for Windows modules.
