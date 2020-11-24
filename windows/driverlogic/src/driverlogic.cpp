@@ -666,6 +666,48 @@ void CreateNetDevice(const std::wstring &hardwareId, const std::optional<std::ws
 	}
 }
 
+std::wstring FindFreeAdapterAlias(const std::set<NetworkAdapter> &adapters, const std::wstring &baseName)
+{
+	if (adapters.empty())
+	{
+		return baseName;
+	}
+
+	auto findByAlias = [](const std::set<NetworkAdapter> &adapters, const std::wstring &alias)
+	{
+		const auto it = std::find_if(adapters.begin(), adapters.end(), [&alias](const NetworkAdapter &candidate)
+		{
+			return 0 == _wcsicmp(candidate.alias.c_str(), alias.c_str());
+		});
+
+		return it;
+	};
+
+	const auto foundAdapter = findByAlias(adapters, baseName);
+
+	if (adapters.end() == foundAdapter)
+	{
+		return baseName;
+	}
+
+	for (auto i = 1; i < 100; ++i)
+	{
+		std::wstringstream ss;
+
+		ss << baseName << L"-" << i;
+
+		const auto alias = ss.str();
+		const auto nextAdapter = findByAlias(adapters, alias);
+
+		if (adapters.end() == nextAdapter)
+		{
+			return alias;
+		}
+	}
+
+	THROW_ERROR("Cannot find an unused adapter alias")
+}
+
 std::optional<NetworkAdapter> FindAdapterByAlias(const std::set<NetworkAdapter> &tapAdapters, const std::wstring &baseName)
 {
 	if (tapAdapters.empty())
@@ -881,9 +923,12 @@ int HandleWintunCommands(int argc, const wchar_t *argv[])
 			requestGuid = &guidObject;
 		}
 
+		const auto adapters = GetNetworkAdapters(std::nullopt);
+		const auto freeAdapterName = FindFreeAdapterAlias(adapters, adapter);
+
 		const auto handle = wintun.createAdapter(
 			pool,
-			adapter,
+			freeAdapterName.c_str(),
 			requestGuid,
 			nullptr
 		);
