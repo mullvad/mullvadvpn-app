@@ -387,7 +387,7 @@ fn try_enabling_ipv6(tunnel_parameters: &TunnelParameters) -> Result<()> {
 
     let guid = match tunnel_parameters {
         TunnelParameters::OpenVpn(..) => {
-            let alias = crate::winnet::get_tap_interface_alias().map_err(Error::WinnetError)?;
+            let alias = crate::winnet::get_interface_alias().map_err(Error::WinnetError)?;
             guid_string =
                 crate::winnet::interface_alias_to_guid(&alias).map_err(Error::WinnetError)?;
             &guid_string

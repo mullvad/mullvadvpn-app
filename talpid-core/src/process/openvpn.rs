@@ -30,7 +30,7 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     &["--sndbuf", "1048576"],
     &["--fast-io"],
     &["--cipher", "AES-256-CBC"],
-    &["--tls-version-min", "1.2"],
+    &["--tls-version-min", "1.3"],
     &["--verb", "3"],
     #[cfg(windows)]
     &[
@@ -45,14 +45,31 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
     // The route manager is used to add the routes.
     #[cfg(target_os = "linux")]
     &["--route-noexec"],
+    #[cfg(windows)]
+    &["--ip-win32", "ipapi"],
 ];
 
-static ALLOWED_TLS1_2_CIPHERS: &[&str] = &[
-    "TLS-DHE-RSA-WITH-AES-256-GCM-SHA384",
-    "TLS-DHE-RSA-WITH-AES-256-CBC-SHA",
-];
 static ALLOWED_TLS1_3_CIPHERS: &[&str] =
     &["TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256"];
+
+/// Tun driver to use, specified using `--windows-driver`.
+#[derive(Clone)]
+pub enum WindowsDriver {
+    /// TAP adapter driver
+    TapWindows6,
+    /// Wintun driver
+    Wintun,
+}
+
+impl WindowsDriver {
+    /// Return string to use with the `--windows-driver` option.
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            WindowsDriver::TapWindows6 => "tap-windows6",
+            WindowsDriver::Wintun => "wintun",
+        }
+    }
+}
 
 /// An OpenVPN process builder, providing control over the different arguments that the OpenVPN
 /// binary accepts.
@@ -70,6 +87,8 @@ pub struct OpenVpnCommand {
     log: Option<PathBuf>,
     tunnel_options: net::openvpn::TunnelOptions,
     proxy_settings: Option<net::openvpn::ProxySettings>,
+    #[cfg(windows)]
+    windows_driver: Option<WindowsDriver>,
     tunnel_alias: Option<OsString>,
     enable_ipv6: bool,
     proxy_port: Option<u16>,
@@ -92,6 +111,8 @@ impl OpenVpnCommand {
             log: None,
             tunnel_options: net::openvpn::TunnelOptions::default(),
             proxy_settings: None,
+            #[cfg(windows)]
+            windows_driver: None,
             tunnel_alias: None,
             enable_ipv6: true,
             proxy_port: None,
@@ -157,6 +178,13 @@ impl OpenVpnCommand {
     /// Sets extra options
     pub fn tunnel_options(&mut self, tunnel_options: &net::openvpn::TunnelOptions) -> &mut Self {
         self.tunnel_options = tunnel_options.clone();
+        self
+    }
+
+    /// Sets the driver to use for tunneling
+    #[cfg(windows)]
+    pub fn windows_driver(&mut self, driver: Option<WindowsDriver>) -> &mut Self {
+        self.windows_driver = driver;
         self
     }
 
@@ -249,6 +277,12 @@ impl OpenVpnCommand {
             args.push(tunnel_device.clone());
         }
 
+        #[cfg(windows)]
+        if let Some(ref windows_driver) = self.windows_driver {
+            args.push(OsString::from("--windows-driver"));
+            args.push(OsString::from(windows_driver.as_str()));
+        }
+
         args.extend(Self::tls_cipher_arguments().iter().map(OsString::from));
         args.extend(self.proxy_arguments().iter().map(OsString::from));
 
@@ -274,8 +308,6 @@ impl OpenVpnCommand {
 
     fn tls_cipher_arguments() -> Vec<String> {
         let mut args = vec![];
-        args.push("--tls-cipher".to_owned());
-        args.push(ALLOWED_TLS1_2_CIPHERS.join(":"));
         args.push("--tls-ciphersuites".to_owned());
         args.push(ALLOWED_TLS1_3_CIPHERS.join(":"));
         args

@@ -12,8 +12,8 @@
 # Do not compare variables using the <> operator - broken
 #
 
-# TAP device hardware ID
-!define TAP_HARDWARE_ID "tapmullvad0901"
+!define WINTUN_POOL "Mullvad"
+!define WINTUN_ADAPTER "Mullvad"
 
 # "sc" exit code
 !define SERVICE_STARTED 0
@@ -24,6 +24,7 @@
 !define MULLVAD_SUCCESS 1
 
 # Return codes from driverlogic
+!define DL_ADAPTER_NOT_FOUND -2
 !define DL_GENERAL_ERROR -1
 !define DL_GENERAL_SUCCESS 0
 
@@ -48,31 +49,6 @@
 !define PERSISTENT_BLOCK_OUTBOUND_IPV4_FILTER_GUID "{79860c64-9a5e-48a3-b5f3-d64b41659aa5}"
 
 #
-# ExtractTapDriver
-#
-# Extract the correct driver for the current platform
-# placing it into $TEMP\tap-driver
-#
-!macro ExtractTapDriver
-
-	SetOutPath "$TEMP\tap-driver"
-
-	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
-	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\tap-driver\*"
-
-	${If} ${AtLeastWin10}
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\tap-driver\win10\*"
-	${ElseIf} ${AtLeastWin8}
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\tap-driver\win8\*"
-	${Else}
-		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\tap-driver\win7\*"
-	${EndIf}
-
-!macroend
-
-!define ExtractTapDriver '!insertmacro "ExtractTapDriver"'
-
-#
 # ExtractWintun
 #
 # Extract Wintun installer into $TEMP
@@ -80,7 +56,8 @@
 !macro ExtractWintun
 
 	SetOutPath "$TEMP"
-	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\mullvad-wintun-amd64.msi"
+	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wintun.dll"
+	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
 
 !macroend
 
@@ -102,127 +79,6 @@
 !define ExtractMullvadSetup '!insertmacro "ExtractMullvadSetup"'
 
 #
-# RemoveBrandedTap
-#
-# Try to remove the Mullvad TAP adapter driver
-#
-!macro RemoveBrandedTap
-	Push $0
-	Push $1
-
-	nsExec::ExecToStack '"$TEMP\tap-driver\driverlogic.exe" remove ${TAP_HARDWARE_ID}'
-	Pop $0
-	Pop $1
-
-	Pop $1
-	Pop $0
-
-!macroend
-
-!define RemoveBrandedTap '!insertmacro "RemoveBrandedTap"'
-
-#
-# RemoveVanillaTap
-#
-# Try to remove the old Mullvad TAP adapter (with a non-unique hardware ID),
-# and uninstall the driver if it's not in use.
-#
-!macro RemoveVanillaTap
-	Push $0
-	Push $1
-
-	log::Log "RemoveVanillaTap()"
-
-	nsExec::ExecToStack '"$TEMP\tap-driver\driverlogic.exe" remove-vanilla-tap'
-
-	Pop $0
-	Pop $1
-
-	${If} $0 != ${DL_GENERAL_SUCCESS}
-		IntFmt $0 "0x%X" $0
-		StrCpy $R0 "Failed to remove vanilla TAP adapter: error $0"
-		log::LogWithDetails $R0 $1
-
-		Goto RemoveVanillaTap_return
-	${EndIf}
-
-	log::Log "RemoveVanillaTap() completed successfully"
-
-	RemoveVanillaTap_return:
-
-	Push 0
-	Pop $R0
-
-	Pop $1
-	Pop $0
-
-!macroend
-
-!define RemoveVanillaTap '!insertmacro "RemoveVanillaTap"'
-
-#
-# InstallTapDriver
-#
-# Install OpenVPN TAP adapter driver
-#
-# Returns: 0 in $R0 on success, otherwise an error message in $R0
-#
-!macro InstallTapDriver
-
-	log::Log "InstallTapDriver()"
-
-	Push $0
-	Push $1
-
-	#
-	# Remove the old-ID Mullvad TAP, if it exists
-	#
-	${RemoveVanillaTap}
-
-	#
-	# Silently approve the certificate before installing the driver
-	#
-	${IfNot} ${AtLeastWin10}
-		log::Log "Adding OpenVPN certificate to the certificate store"
-
-		nsExec::ExecToStack '"$SYSDIR\certutil.exe" -f -addstore TrustedPublisher "$TEMP\tap-driver\driver.cer"'
-		Pop $0
-		Pop $1
-
-		${If} $0 != 0
-			StrCpy $R0 "Failed to add trusted publisher certificate: error $0"
-			log::LogWithDetails $R0 $1
-		${EndIf}
-	${EndIf}
-
-	log::Log "Creating new virtual adapter"
-	nsExec::ExecToStack '"$TEMP\tap-driver\driverlogic.exe" install "$TEMP\tap-driver\OemVista.inf"'
-
-	Pop $0
-	Pop $1
-
-	${If} $0 != ${DL_GENERAL_SUCCESS}
-		IntFmt $0 "0x%X" $0
-		StrCpy $R0 "Failed to create virtual adapter: error $0"
-		log::LogWithDetails $R0 $1
-		Goto InstallTapDriver_return
-	${EndIf}
-
-	log::Log "InstallTapDriver() completed successfully"
-
-	Push 0
-	Pop $R0
-
-	InstallTapDriver_return:
-
-	Pop $1
-	Pop $0
-
-!macroend
-
-!define InstallTapDriver '!insertmacro "InstallTapDriver"'
-
-#
 # RemoveWintun
 #
 # Try to remove Wintun
@@ -233,13 +89,14 @@
 
 	log::Log "RemoveWintun()"
 
-	msiutil::SilentUninstall "$TEMP\mullvad-wintun-amd64.msi"
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun delete-pool-driver ${WINTUN_POOL}'
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${MULLVAD_SUCCESS}
-		StrCpy $R0 "Failed to remove Wintun: $1"
-		log::Log $R0
+	${If} $0 != ${DL_GENERAL_SUCCESS}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to remove Wintun pool: error $0"
+		log::LogWithDetails $R0 $1
 		Goto RemoveWintun_return_only
 	${EndIf}
 
@@ -260,7 +117,7 @@
 #
 # InstallWintun
 #
-# Install Wintun driver
+# Create Wintun Mullvad adapter
 #
 # Returns: 0 in $R0 on success, otherwise an error message in $R0
 #
@@ -271,15 +128,37 @@
 	Push $0
 	Push $1
 
-	msiutil::SilentInstall "$TEMP\mullvad-wintun-amd64.msi"
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun adapter-exists ${WINTUN_POOL} ${WINTUN_ADAPTER}'
+
 	Pop $0
 	Pop $1
 
-	${If} $0 != ${MULLVAD_SUCCESS}
-		StrCpy $R0 "Failed to install Wintun: $1"
-		log::Log $R0
+	${If} $0 == ${DL_GENERAL_ERROR}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to identify virtual adapter: error $0"
+		log::LogWithDetails $R0 $1
 		Goto InstallWintun_return
 	${EndIf}
+
+	${If} $0 != ${DL_ADAPTER_NOT_FOUND}
+		log::Log "Found existing virtual adapter"
+		Goto InstallWintun_return_success
+	${EndIf}
+
+	log::Log "Creating new virtual adapter"
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun create-adapter ${WINTUN_POOL} ${WINTUN_ADAPTER}'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${DL_GENERAL_SUCCESS}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to create virtual adapter: error $0"
+		log::LogWithDetails $R0 $1
+		Goto InstallWintun_return
+	${EndIf}
+
+	InstallWintun_return_success:
 
 	log::Log "InstallWintun() completed successfully"
 
@@ -746,14 +625,6 @@
 	${RemoveRelayCache}
 	${RemoveApiAddressCache}
 
-	${ExtractTapDriver}
-	${InstallTapDriver}
-
-	${If} $R0 != 0
-		MessageBox MB_OK "Fatal error during driver installation: $R0"
-		Goto customInstall_abort_installation
-	${EndIf}
-
 	${ExtractWintun}
 	${InstallWintun}
 
@@ -889,10 +760,6 @@
 	Sleep 1000
 
 	${RemoveCLIFromEnvironPath}
-
-	# Remove the TAP adapter
-	${ExtractTapDriver}
-	${RemoveBrandedTap}
 
 	${If} $FullUninstall == 1
 		${ClearFirewallRules}

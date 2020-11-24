@@ -61,7 +61,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../windows-libraries/src/;$(ProjectDir)../</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../windows-libraries/src/;$(ProjectDir)../</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -83,7 +83,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir)../../../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../windows-libraries/src/;$(ProjectDir)../</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../windows-libraries/src/;$(ProjectDir)../</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
