@@ -7,7 +7,6 @@ import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
-import java.io.File
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -20,9 +19,6 @@ import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
-
-private const val API_IP_ADDRESS_FILE = "api-ip-address.txt"
-private const val RELAYS_FILE = "relays.json"
 
 class MullvadVpnService : TalpidVpnService() {
     companion object {
@@ -45,12 +41,10 @@ class MullvadVpnService : TalpidVpnService() {
     private val binder = LocalBinder()
     private val serviceNotifier = EventNotifier<ServiceInstance?>(null)
 
-    private val splitTunneling = CompletableDeferred<SplitTunneling>()
-
     private var isStopping = false
     private var shouldStop = false
 
-    private var startDaemonJob: Job? = null
+    private var setUpDaemonJob: Job? = null
 
     private var instance by observable<ServiceInstance?>(null) { _, oldInstance, newInstance ->
         if (newInstance != oldInstance) {
@@ -69,6 +63,7 @@ class MullvadVpnService : TalpidVpnService() {
         oldNotification?.onDestroy()
     }
 
+    private lateinit var daemonInstance: DaemonInstance
     private lateinit var keyguardManager: KeyguardManager
     private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
@@ -90,6 +85,8 @@ class MullvadVpnService : TalpidVpnService() {
         notificationManager.lockedToForeground = isUiVisible or isBound
     }
 
+    internal val splitTunneling = CompletableDeferred<SplitTunneling>()
+
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Initializing service")
@@ -102,7 +99,11 @@ class MullvadVpnService : TalpidVpnService() {
 
         notificationManager.acknowledgeStartForegroundService()
 
-        setUp()
+        daemonInstance = DaemonInstance(this) { daemon ->
+            handleDaemonInstance(daemon)
+        }
+
+        daemonInstance.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -171,8 +172,8 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onDestroy() {
         Log.d(TAG, "Service has stopped")
-        tearDown()
         notificationManager.onDestroy()
+        daemonInstance.onDestroy()
         super.onDestroy()
     }
 
@@ -196,52 +197,28 @@ class MullvadVpnService : TalpidVpnService() {
         )
     }
 
-    private fun setUp() {
-        startDaemonJob?.cancel()
-        startDaemonJob = startDaemon()
-    }
+    private fun handleDaemonInstance(daemon: MullvadDaemon?) {
+        setUpDaemonJob?.cancel()
 
-    private fun startDaemon() = GlobalScope.launch(Dispatchers.Default) {
-        Log.d(TAG, "Starting daemon")
-        prepareFiles()
-        splitTunneling.await()
+        if (daemon != null) {
+            setUpDaemonJob = setUpDaemon(daemon)
+        } else {
+            Log.d(TAG, "Daemon has stopped")
+            instance = null
 
-        val daemon = MullvadDaemon(this@MullvadVpnService).apply {
-            onDaemonStopped = {
-                Log.d(TAG, "Daemon has stopped")
-                instance = null
-
-                if (!isStopping) {
-                    restart()
-                }
+            if (!isStopping) {
+                restart()
             }
         }
+    }
 
+    private fun setUpDaemon(daemon: MullvadDaemon) = GlobalScope.launch(Dispatchers.Default) {
         val settings = daemon.getSettings()
 
         if (settings != null) {
             setUpInstance(daemon, settings)
         } else {
             restart()
-        }
-    }
-
-    private fun prepareFiles() {
-        FileMigrator(File("/data/data/net.mullvad.mullvadvpn"), filesDir).apply {
-            migrate(RELAYS_FILE)
-            migrate("settings.json")
-            migrate("daemon.log")
-            migrate("daemon.old.log")
-            migrate("wireguard.log")
-            migrate("wireguard.old.log")
-        }
-
-        val shouldOverwriteRelayList =
-            lastUpdatedTime() > File(filesDir, RELAYS_FILE).lastModified()
-
-        FileResourceExtractor(this).apply {
-            extract(API_IP_ADDRESS_FILE, false)
-            extract(RELAYS_FILE, shouldOverwriteRelayList)
         }
     }
 
@@ -271,24 +248,16 @@ class MullvadVpnService : TalpidVpnService() {
         Log.d(TAG, "Stopping service")
         isStopping = true
         shouldStop = true
-        stopDaemon()
+        daemonInstance.stop()
         stopSelf()
-    }
-
-    private fun stopDaemon() {
-        Log.d(TAG, "Stopping daemon")
-        startDaemonJob?.cancel()
-        instance?.daemon?.shutdown()
-    }
-
-    private fun tearDown() {
-        stopDaemon()
     }
 
     private fun restart() {
         Log.d(TAG, "Restarting service")
-        tearDown()
-        setUp()
+        daemonInstance.apply {
+            stop()
+            start()
+        }
     }
 
     private fun handlePendingAction(connectionProxy: ConnectionProxy, settings: Settings) {
@@ -314,9 +283,5 @@ class MullvadVpnService : TalpidVpnService() {
         }
 
         startActivity(intent)
-    }
-
-    private fun lastUpdatedTime(): Long {
-        return packageManager.getPackageInfo(packageName, 0).lastUpdateTime
     }
 }

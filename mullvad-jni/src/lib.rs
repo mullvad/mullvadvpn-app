@@ -128,6 +128,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
 
     match start_logging(&resource_dir) {
         Ok(()) => {
+            version::log_version();
+
             LOAD_CLASSES.call_once(|| env.preload_classes(classes::CLASSES.iter().cloned()));
 
             if let Err(error) = initialize(&env, &this, &vpnService, cache_dir, resource_dir) {
@@ -156,7 +158,6 @@ fn initialize_logging(log_dir: &Path) -> Result<(), String> {
         .map_err(|error| error.display_chain_with_msg("Failed to start logger"))?;
     exception_logging::enable();
     log_panics::init();
-    version::log_version();
 
     Ok(())
 }
