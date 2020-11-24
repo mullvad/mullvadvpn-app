@@ -57,15 +57,13 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Fully uninstall the app when it is downgraded. Traffic is not blocked.
+- Use Wintun instead of the OpenVPN TAP driver for OpenVPN.
 
 #### Linux
 - Make route monitor ignore loopback routes.
 - Increase NetworkManager device readiness timeout to 15 seconds.
 - Set up routes for OpenVPN using the route manager instead of relying on OpenVPN.
 - Use rule-based routing and static routes.
-
-#### Windows
-- Use Wintun instead of the OpenVPN TAP driver for OpenVPN.
 
 ### Fixed
 - Fix missing map animation after selecting a new location in the desktop app.
@@ -89,6 +87,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix log output encoding for Windows modules.
 - Fix app not appearing on top in some situations when pressing the tray icon.
+- Fix memory leak in Windows firewall code.
 
 #### Linux
 - Handle statically added routes.
