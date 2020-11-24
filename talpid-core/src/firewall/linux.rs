@@ -295,6 +295,7 @@ impl<'a> PolicyBatch<'a> {
             rule.add_expr(&nft_expr!(cmp == split_tunnel::NET_CLS_CLASSID));
             rule.add_expr(&nft_expr!(immediate data split_tunnel::MARK));
             rule.add_expr(&nft_expr!(ct mark set));
+            rule.add_expr(&nft_expr!(immediate data crate::linux::TUNNEL_FW_MARK));
             rule.add_expr(&nft_expr!(meta mark set));
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
@@ -307,7 +308,7 @@ impl<'a> PolicyBatch<'a> {
             self.batch.add(&rule, nftnl::MsgType::Add);
 
             let mut rule = Rule::new(&self.out_chain);
-            rule.add_expr(&nft_expr!(meta mark));
+            rule.add_expr(&nft_expr!(ct mark));
             rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);

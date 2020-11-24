@@ -85,7 +85,7 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "linux")]
         route_manager
-            .set_tunnel_link(&iface_name)
+            .create_routing_rules()
             .map_err(Error::SetupRoutingError)?;
 
         route_manager
@@ -233,12 +233,18 @@ impl WireguardMonitor {
     }
 
     fn get_tunnel_routes(config: &Config) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
-        config
+        let routes = config
             .peers
             .iter()
             .flat_map(|peer| peer.allowed_ips.iter())
-            .cloned()
-            .flat_map(|allowed_ip| {
+            .cloned();
+        #[cfg(target_os = "linux")]
+        {
+            routes
+        }
+        #[cfg(not(target_os = "linux"))]
+        {
+            routes.flat_map(|allowed_ip| {
                 if allowed_ip.prefix() == 0 {
                     if allowed_ip.is_ipv4() {
                         vec!["0.0.0.0/1".parse().unwrap(), "128.0.0.0/1".parse().unwrap()]
@@ -249,6 +255,7 @@ impl WireguardMonitor {
                     vec![allowed_ip]
                 }
             })
+        }
     }
 
     fn get_routes(iface_name: &str, config: &Config) -> HashSet<RequiredRoute> {
@@ -258,11 +265,34 @@ impl WireguardMonitor {
             .collect();
 
         // route endpoints with specific routes
+        #[cfg(not(target_os = "linux"))]
         for peer in config.peers.iter() {
             routes.insert(RequiredRoute::new(
                 peer.endpoint.ip().into(),
                 routing::NetNode::DefaultNode,
             ));
+        }
+
+        // add routes for the gateway so that DNS requests can be made in the tunnel
+        // using `mullvad-exclude`
+        #[cfg(target_os = "linux")]
+        {
+            use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
+
+            routes.insert(
+                RequiredRoute::new(
+                    ipnetwork::Ipv4Network::from(config.ipv4_gateway).into(),
+                    node.clone(),
+                )
+                .table(u32::from(RT_TABLE_MAIN)),
+            );
+
+            if let Some(gateway) = config.ipv6_gateway {
+                routes.insert(
+                    RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), node.clone())
+                        .table(u32::from(RT_TABLE_MAIN)),
+                );
+            }
         }
 
         routes

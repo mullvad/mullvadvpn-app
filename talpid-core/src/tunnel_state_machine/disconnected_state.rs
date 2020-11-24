@@ -44,13 +44,6 @@ impl TunnelState for DisconnectedState {
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
-        #[cfg(target_os = "linux")]
-        if let Err(error) = shared_values.route_manager.disable_exclusions_routes() {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to disable exclusions routes")
-            );
-        }
         Self::set_firewall_policy(shared_values, should_reset_firewall);
         #[cfg(target_os = "linux")]
         shared_values.reset_connectivity_check();

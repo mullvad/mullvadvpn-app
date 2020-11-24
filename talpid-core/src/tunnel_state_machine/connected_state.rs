@@ -124,18 +124,6 @@ impl ConnectedState {
             .set(&self.metadata.interface, &dns_ips)
             .map_err(BoxedError::new)?;
 
-        #[cfg(target_os = "linux")]
-        {
-            let mut dns_routes = vec![IpAddr::V4(self.metadata.ipv4_gateway)];
-            if let Some(gateway) = self.metadata.ipv6_gateway {
-                dns_routes.push(IpAddr::V6(gateway));
-            }
-            shared_values
-                .route_manager
-                .route_exclusions_dns(&self.metadata.interface, &dns_routes)
-                .map_err(BoxedError::new)?;
-        }
-
         Ok(())
     }
 
@@ -150,6 +138,13 @@ impl ConnectedState {
         shared_values.route_manager.clear_default_route_callbacks();
         if let Err(error) = shared_values.route_manager.clear_routes() {
             log::error!("{}", error.display_chain_with_msg("Failed to clear routes"));
+        }
+        #[cfg(target_os = "linux")]
+        if let Err(error) = shared_values.route_manager.clear_routing_rules() {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to clear routing rules")
+            );
         }
     }
 

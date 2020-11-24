@@ -40,28 +40,10 @@ impl Route {
         }
     }
 
-    /// Returns route that only contains the device node if a device node exists.
-    #[cfg(target_os = "linux")]
-    fn device_only_route(&self) -> Option<Self> {
-        if let Some(device) = self.node.get_device() {
-            Some(Self {
-                node: Node::device(device.to_string()),
-                ..self.clone()
-            })
-        } else {
-            None
-        }
-    }
-
     #[cfg(target_os = "linux")]
     fn table(mut self, new_id: u32) -> Self {
         self.table_id = new_id;
         self
-    }
-
-    #[cfg(target_os = "linux")]
-    fn is_loopback(&self) -> bool {
-        self.node.ip.map(|ip| ip.is_loopback()).unwrap_or(false)
     }
 }
 
@@ -95,7 +77,7 @@ impl RequiredRoute {
             node: node.into(),
             prefix,
             #[cfg(target_os = "linux")]
-            table_id: u32::from(RT_TABLE_MAIN),
+            table_id: u32::from(crate::linux::TUNNEL_TABLE_ID),
         }
     }
 
@@ -116,6 +98,7 @@ pub enum NetNode {
     RealNode(Node),
     /// A default node is a symbolic node that will resolve to the network node used in the current
     /// most preferable default route
+    #[cfg(not(target_os = "linux"))]
     DefaultNode,
 }
 
