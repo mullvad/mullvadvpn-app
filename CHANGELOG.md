@@ -101,6 +101,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix memory leak in firewall code via updating `nftnl` dependency.
 - Handle IPv6 traffic correctly using `mullvad-exclude` when there is no default route to any
   non-tunnel interface.
+- Fix issues managing DNS when dnsmasq is used with NetworkManager.
 
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and
