@@ -111,7 +111,7 @@ class ForegroundNotificationManager(
         showOnForeground()
 
         // Restore the notification to its correct state.
-        updater.sendBlocking(UpdaterMessage.UpdateNotification())
+        updateNotification()
     }
 
     private fun runUpdater() = GlobalScope.actor<UpdaterMessage>(
