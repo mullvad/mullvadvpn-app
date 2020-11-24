@@ -1,5 +1,15 @@
 import { execFile } from 'child_process';
-import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, shell, Tray } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  nativeImage,
+  screen,
+  session,
+  shell,
+  Tray,
+} from 'electron';
 import log from 'electron-log';
 import mkdirp from 'mkdirp';
 import moment from 'moment';
@@ -341,6 +351,11 @@ class ApplicationMain {
   }
 
   private onReady = async () => {
+    // There's no option that prevents Electron from fetching spellcheck dictionaries from
+    // Chromium's CDN and passing a non-resolving URL is the only known way to prevent it from
+    // fetching.  https://github.com/electron/electron/issues/22995
+    session.defaultSession.setSpellCheckerDictionaryDownloadURL('https://00.00/');
+
     this.updateCurrentLocale();
 
     this.daemonRpc.addConnectionObserver(
@@ -1395,6 +1410,7 @@ class ApplicationMain {
         devTools: process.env.NODE_ENV === 'development',
         // TODO: Remove use of remote
         enableRemoteModule: true,
+        spellcheck: false,
       },
     };
 
