@@ -154,6 +154,7 @@ bool SessionController::executeTransaction(TransactionFunctor operation)
 	if (status)
 	{
 		m_records.swap(m_transactionRecords);
+		m_transactionRecords.clear();
 	}
 
 	return status;
