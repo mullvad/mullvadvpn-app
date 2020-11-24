@@ -35,7 +35,7 @@
     "uuid": "^3.0.1"
   },
   "optionalDependencies": {
-    "nseventmonitor": "^0.0.18"
+    "nseventmonitor": "^0.0.19"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
