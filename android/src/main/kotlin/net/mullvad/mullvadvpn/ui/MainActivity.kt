@@ -84,7 +84,10 @@ class MainActivity : FragmentActivity() {
 
         super.onCreate(savedInstanceState)
 
-        problemReport.logDirectory.complete(filesDir)
+        problemReport.apply {
+            logDirectory.complete(filesDir)
+            resourcesDirectory.complete(filesDir)
+        }
 
         setContentView(R.layout.main)
 

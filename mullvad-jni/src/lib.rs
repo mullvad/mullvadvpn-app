@@ -943,19 +943,29 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
     userEmail: JString<'_>,
     userMessage: JString<'_>,
     outputPath: JString<'_>,
+    resourcesDirectory: JString<'_>,
 ) -> jboolean {
     let env = JnixEnv::from(env);
     let user_email = String::from_java(&env, userEmail);
     let user_message = String::from_java(&env, userMessage);
     let output_path_string = String::from_java(&env, outputPath);
     let output_path = Path::new(&output_path_string);
+    let resources_directory_string = String::from_java(&env, resourcesDirectory);
+    let resources_directory = Path::new(&resources_directory_string);
 
-    match mullvad_problem_report::send_problem_report(&user_email, &user_message, output_path) {
+    let send_result = mullvad_problem_report::send_problem_report(
+        &user_email,
+        &user_message,
+        output_path,
+        resources_directory,
+    );
+
+    match send_result {
         Ok(()) => JNI_TRUE,
         Err(error) => {
             log::error!(
                 "{}",
-                error.display_chain_with_msg("Failed to collect problem report")
+                error.display_chain_with_msg("Failed to send problem report")
             );
             JNI_FALSE
         }
