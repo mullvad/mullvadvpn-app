@@ -1393,6 +1393,8 @@ class ApplicationMain {
       webPreferences: {
         nodeIntegration: true,
         devTools: process.env.NODE_ENV === 'development',
+        // TODO: Remove use of remote
+        enableRemoteModule: true,
       },
     };
 
