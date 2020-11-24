@@ -101,6 +101,8 @@ class ForegroundNotificationManager(
         service.unregisterReceiver(deviceLockListener)
 
         updater.close()
+
+        tunnelStateNotification.visible = false
     }
 
     fun acknowledgeStartForegroundService() {
@@ -128,8 +130,6 @@ class ForegroundNotificationManager(
                 }
             }
         }
-
-        tunnelStateNotification.visible = false
     }
 
     private fun showOnForeground() {
