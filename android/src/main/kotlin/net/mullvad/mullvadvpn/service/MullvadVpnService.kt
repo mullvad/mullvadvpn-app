@@ -41,6 +41,7 @@ class MullvadVpnService : TalpidVpnService() {
     private val binder = LocalBinder()
     private val serviceNotifier = EventNotifier<ServiceInstance?>(null)
 
+    private var hasStopped = false
     private var isStopping = false
     private var shouldStop = false
 
@@ -172,6 +173,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onDestroy() {
         Log.d(TAG, "Service has stopped")
+        hasStopped = true
         notificationManager.onDestroy()
         daemonInstance.onDestroy()
         super.onDestroy()
@@ -206,7 +208,7 @@ class MullvadVpnService : TalpidVpnService() {
             Log.d(TAG, "Daemon has stopped")
             instance = null
 
-            if (!isStopping) {
+            if (!isStopping && !hasStopped) {
                 restart()
             }
         }
