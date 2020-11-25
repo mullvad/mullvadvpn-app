@@ -7,6 +7,7 @@ use crate::{
     firewall::FirewallPolicy,
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
+use cfg_if::cfg_if;
 use futures::{channel::mpsc, stream::Fuse, StreamExt};
 use std::net::IpAddr;
 use talpid_types::{
@@ -175,7 +176,15 @@ impl ConnectedState {
                     self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
                 } else {
                     match self.set_firewall_policy(shared_values) {
-                        Ok(()) => SameState(self.into()),
+                        Ok(()) => {
+                            cfg_if! {
+                                if #[cfg(target_os = "android")] {
+                                    self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
+                                } else {
+                                    SameState(self.into())
+                                }
+                            }
+                        }
                         Err(error) => self.disconnect(
                             shared_values,
                             AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
