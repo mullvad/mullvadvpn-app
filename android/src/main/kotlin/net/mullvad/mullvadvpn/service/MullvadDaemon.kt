@@ -55,7 +55,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     }
 
     fun getWwwAuthToken(): String {
-        return getWwwAuthToken(daemonInterfaceAddress)
+        return getWwwAuthToken(daemonInterfaceAddress) ?: ""
     }
 
     fun getCurrentLocation(): GeoIpLocation? {
@@ -142,7 +142,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         accountToken: String
     ): GetAccountDataResult
     private external fun getAccountHistory(daemonInterfaceAddress: Long): ArrayList<String>?
-    private external fun getWwwAuthToken(daemonInterfaceAddress: Long): String
+    private external fun getWwwAuthToken(daemonInterfaceAddress: Long): String?
     private external fun getCurrentLocation(daemonInterfaceAddress: Long): GeoIpLocation?
     private external fun getCurrentVersion(daemonInterfaceAddress: Long): String
     private external fun getRelayLocations(daemonInterfaceAddress: Long): RelayList?
