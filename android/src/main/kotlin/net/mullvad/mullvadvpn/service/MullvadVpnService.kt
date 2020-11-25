@@ -176,6 +176,7 @@ class MullvadVpnService : TalpidVpnService() {
         state = State.Stopped
         notificationManager.onDestroy()
         daemonInstance.onDestroy()
+        instance = null
         super.onDestroy()
     }
 
