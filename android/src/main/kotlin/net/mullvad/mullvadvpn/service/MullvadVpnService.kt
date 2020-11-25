@@ -38,12 +38,16 @@ class MullvadVpnService : TalpidVpnService() {
         Disconnect,
     }
 
+    private enum class State {
+        Running,
+        Stopping,
+        Stopped,
+    }
+
     private val binder = LocalBinder()
     private val serviceNotifier = EventNotifier<ServiceInstance?>(null)
 
-    private var hasStopped = false
-    private var isStopping = false
-    private var shouldStop = false
+    private var state = State.Running
 
     private var setUpDaemonJob: Job? = null
 
@@ -127,13 +131,9 @@ class MullvadVpnService : TalpidVpnService() {
             }
         }
 
-        if (shouldStop && !quitCommand) {
-            shouldStop = false
-
-            if (isStopping) {
-                restart()
-                isStopping = false
-            }
+        if (state == State.Stopping && !quitCommand) {
+            state = State.Running
+            restart()
         }
 
         return startResult
@@ -150,9 +150,9 @@ class MullvadVpnService : TalpidVpnService() {
         Log.d(TAG, "Connection to service restored")
         isBound = true
 
-        if (isStopping) {
+        if (state == State.Stopping) {
+            state = State.Running
             restart()
-            isStopping = false
         }
     }
 
@@ -164,7 +164,7 @@ class MullvadVpnService : TalpidVpnService() {
         Log.d(TAG, "Closed all connections to service")
         isBound = false
 
-        if (shouldStop) {
+        if (state != State.Running) {
             stop()
         }
 
@@ -173,7 +173,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onDestroy() {
         Log.d(TAG, "Service has stopped")
-        hasStopped = true
+        state = State.Stopped
         notificationManager.onDestroy()
         daemonInstance.onDestroy()
         super.onDestroy()
@@ -208,7 +208,7 @@ class MullvadVpnService : TalpidVpnService() {
             Log.d(TAG, "Daemon has stopped")
             instance = null
 
-            if (!isStopping && !hasStopped) {
+            if (state == State.Running) {
                 restart()
             }
         }
@@ -248,8 +248,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun stop() {
         Log.d(TAG, "Stopping service")
-        isStopping = true
-        shouldStop = true
+        state = State.Stopping
         daemonInstance.stop()
         stopSelf()
     }
