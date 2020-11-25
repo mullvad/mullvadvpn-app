@@ -108,7 +108,9 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
     private fun fetchAccountHistory() {
         jobTracker.newBackgroundJob("fetchHistory") {
-            accountHistory = daemon.getAccountHistory()
+            daemon.getAccountHistory()?.let { history ->
+                accountHistory = history
+            }
         }
     }
 
