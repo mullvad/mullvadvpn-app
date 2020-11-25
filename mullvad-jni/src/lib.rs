@@ -524,7 +524,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getAcco
 
         GetAccountDataResult::from(result).into_java(&env).forget()
     } else {
-        JObject::null()
+        GetAccountDataResult::OtherError.into_java(&env).forget()
     }
 }
 
