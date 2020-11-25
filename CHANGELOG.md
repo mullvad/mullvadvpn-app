@@ -45,6 +45,7 @@ Line wrap the file at 100 chars.                                              Th
 - Bundle a list of API addresses to use instead of assuming that the primary address can be reached.
 - Rename CLI subcommand `mullvad relay set relay` to `mullvad relay set hostname`.
 - Upgrade OpenVPN from 2.4.9 to 2.5.0.
+- Upgrade Electron from 8.5.2 to Electron 11.0.2.
 
 #### Android
 - Remove the Quit button.
