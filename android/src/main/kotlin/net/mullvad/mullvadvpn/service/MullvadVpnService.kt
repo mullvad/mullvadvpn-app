@@ -254,10 +254,14 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private fun restart() {
-        Log.d(TAG, "Restarting service")
-        daemonInstance.apply {
-            stop()
-            start()
+        if (state != State.Stopped) {
+            Log.d(TAG, "Restarting service")
+            daemonInstance.apply {
+                stop()
+                start()
+            }
+        } else {
+            Log.d(TAG, "Ignoring restart because onDestroy has executed")
         }
     }
 
