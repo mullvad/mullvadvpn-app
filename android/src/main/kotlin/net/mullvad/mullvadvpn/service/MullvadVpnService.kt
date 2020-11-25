@@ -132,7 +132,6 @@ class MullvadVpnService : TalpidVpnService() {
         }
 
         if (state == State.Stopping && !quitCommand) {
-            state = State.Running
             restart()
         }
 
@@ -151,7 +150,6 @@ class MullvadVpnService : TalpidVpnService() {
         isBound = true
 
         if (state == State.Stopping) {
-            state = State.Running
             restart()
         }
     }
@@ -256,6 +254,9 @@ class MullvadVpnService : TalpidVpnService() {
     private fun restart() {
         if (state != State.Stopped) {
             Log.d(TAG, "Restarting service")
+
+            state = State.Running
+
             daemonInstance.apply {
                 stop()
                 start()
