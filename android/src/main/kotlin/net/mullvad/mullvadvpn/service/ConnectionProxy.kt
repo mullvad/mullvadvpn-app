@@ -194,7 +194,7 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
         val currentState = daemon.getState()
 
         synchronized(this) {
-            if (state === initialState) {
+            if (state === initialState && currentState != null) {
                 state = currentState
             }
         }
