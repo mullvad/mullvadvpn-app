@@ -434,7 +434,13 @@ class ApplicationMain {
 
       const filePath = path.resolve(path.join(__dirname, '../renderer/index.html'));
       try {
-        await this.windowController?.window.loadFile(filePath);
+        if (process.env.NODE_ENV === 'development') {
+          await this.windowController?.window.loadURL(
+            'http://localhost:8080/src/renderer/index.html',
+          );
+        } else {
+          await this.windowController?.window.loadFile(filePath);
+        }
       } catch (error) {
         log.error(`Failed to load index file: ${error.message}`);
       }

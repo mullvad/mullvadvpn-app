@@ -8,7 +8,7 @@ function makeWatchCompiler(onFirstSuccess) {
   const compileScripts = function () {
     const watch = new TscWatchClient();
     watch.on('first_success', onFirstSuccess);
-    watch.start('--noClear', '--sourceMap', '--incremental', '--project', '.');
+    watch.start('--noClear', '--inlineSourceMap', '--incremental', '--project', '.');
     return watch.tsc;
   };
   compileScripts.displayName = 'compile-scripts-watch';
