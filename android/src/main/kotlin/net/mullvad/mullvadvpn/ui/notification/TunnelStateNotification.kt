@@ -63,7 +63,7 @@ class TunnelStateNotification(
             is ErrorStateCause.SetDnsError -> R.string.set_dns_error
             is ErrorStateCause.StartTunnelError -> R.string.start_tunnel_error
             is ErrorStateCause.IsOffline -> R.string.is_offline
-            is ErrorStateCause.TapAdapterProblem -> R.string.tap_adapter_problem
+            is ErrorStateCause.VirtualAdapterProblem -> R.string.virtual_adapter_problem
             is ErrorStateCause.TunnelParameterError -> {
                 when (cause.error) {
                     ParameterGenerationError.NoMatchingRelay -> R.string.no_matching_relay

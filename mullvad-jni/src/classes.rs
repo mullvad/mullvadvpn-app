@@ -55,7 +55,7 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/talpid/tunnel/ErrorStateCause$StartTunnelError",
     "net/mullvad/talpid/tunnel/ErrorStateCause$TunnelParameterError",
     "net/mullvad/talpid/tunnel/ErrorStateCause$IsOffline",
-    "net/mullvad/talpid/tunnel/ErrorStateCause$TapAdapterProblem",
+    "net/mullvad/talpid/tunnel/ErrorStateCause$VirtualAdapterProblem",
     "net/mullvad/talpid/tunnel/ErrorStateCause$VpnPermissionDenied",
     "net/mullvad/talpid/tunnel/ParameterGenerationError",
     "net/mullvad/talpid/ConnectivityListener",

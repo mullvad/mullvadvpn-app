@@ -128,7 +128,7 @@
     <string name="custom_tunnel_host_resolution_error">Failed to resolve the hostname of custom
     server</string>
     <string name="is_offline">This device is offline, no tunnels can be established</string>
-    <string name="tap_adapter_problem">TAP adapter error</string>
+    <string name="virtual_adapter_problem">Virtual adapter error</string>
     <string name="wireguard_error">WireGuard error</string>
     <string name="too_many_keys">Too many WireGuard keys registered to account</string>
     <string name="failed_to_generate_key">Failed to generate a key</string>
