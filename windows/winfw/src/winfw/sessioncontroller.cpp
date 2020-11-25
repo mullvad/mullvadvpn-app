@@ -140,6 +140,7 @@ bool SessionController::executeTransaction(TransactionFunctor operation)
 	scopeDestructor += [this]()
 	{
 		m_activeTransaction.store(false);
+		m_transactionRecords.clear();
 	};
 
 	m_transactionRecords = m_records;
