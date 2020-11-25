@@ -236,13 +236,15 @@ class MullvadVpnService : TalpidVpnService() {
 
         handlePendingAction(connectionProxy, settings)
 
-        instance = ServiceInstance(
-            daemon,
-            connectionProxy,
-            connectivityListener,
-            settingsListener,
-            splitTunneling
-        )
+        if (state == State.Running) {
+            instance = ServiceInstance(
+                daemon,
+                connectionProxy,
+                connectivityListener,
+                settingsListener,
+                splitTunneling
+            )
+        }
     }
 
     private fun stop() {
