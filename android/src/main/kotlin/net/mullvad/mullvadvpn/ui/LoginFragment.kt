@@ -146,11 +146,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
                         val expiryString = accountDataResult.accountData.expiry
                         val expiry = DateTime.parse(expiryString, AccountCache.EXPIRY_FORMAT)
 
-                        if (expiry.isAfterNow()) {
-                            LoginResult.ExistingAccountWithTime
-                        } else {
-                            LoginResult.ExistingAccountOutOfTime
-                        }
+                        loginResultForExpiry(expiry)
                     }
                     is GetAccountDataResult.RpcError -> {
                         accountCache.login(accountToken)
@@ -205,5 +201,13 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         accountLogin.state = LoginState.Failure
 
         scrollToShow(accountLogin)
+    }
+
+    private fun loginResultForExpiry(expiry: DateTime?): LoginResult {
+        if (expiry == null || expiry.isAfterNow()) {
+            return LoginResult.ExistingAccountWithTime
+        } else {
+            return LoginResult.ExistingAccountOutOfTime
+        }
     }
 }
