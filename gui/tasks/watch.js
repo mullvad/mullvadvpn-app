@@ -1,6 +1,7 @@
 const { parallel, series, watch } = require('gulp');
 const electron = require('./electron');
 const hotreload = require('./hotreload');
+const devServer = require('./dev-server');
 const assets = require('./assets');
 const scripts = require('./scripts');
 
@@ -47,6 +48,7 @@ exports.start = series(
     // set up hotreload, run electron and begin watching filesystem for changes, after the first
     // successful build
     series(
+      devServer.start,
       hotreload.start,
       electron.start,
       parallel(

@@ -1,5 +1,15 @@
 import { execFile } from 'child_process';
-import { app, BrowserWindow, ipcMain, Menu, nativeImage, screen, shell, Tray } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  ipcMain,
+  Menu,
+  nativeImage,
+  screen,
+  session,
+  shell,
+  Tray,
+} from 'electron';
 import log from 'electron-log';
 import mkdirp from 'mkdirp';
 import moment from 'moment';
@@ -213,10 +223,6 @@ class ApplicationMain {
 
     this.guiSettings.load();
 
-    // The default value has previously been false but will be changed to true in Electron 9. The
-    // false value has been deprecated in Electron 8. This can be removed when Electron 9 is used.
-    app.allowRendererProcessReuse = true;
-
     app.on('activate', this.onActivate);
     app.on('ready', this.onReady);
     app.on('window-all-closed', () => app.quit());
@@ -345,6 +351,11 @@ class ApplicationMain {
   }
 
   private onReady = async () => {
+    // There's no option that prevents Electron from fetching spellcheck dictionaries from
+    // Chromium's CDN and passing a non-resolving URL is the only known way to prevent it from
+    // fetching.  https://github.com/electron/electron/issues/22995
+    session.defaultSession.setSpellCheckerDictionaryDownloadURL('https://00.00/');
+
     this.updateCurrentLocale();
 
     this.daemonRpc.addConnectionObserver(
@@ -423,7 +434,13 @@ class ApplicationMain {
 
       const filePath = path.resolve(path.join(__dirname, '../renderer/index.html'));
       try {
-        await this.windowController?.window.loadFile(filePath);
+        if (process.env.NODE_ENV === 'development') {
+          await this.windowController?.window.loadURL(
+            'http://localhost:8080/src/renderer/index.html',
+          );
+        } else {
+          await this.windowController?.window.loadFile(filePath);
+        }
       } catch (error) {
         log.error(`Failed to load index file: ${error.message}`);
       }
@@ -1397,6 +1414,9 @@ class ApplicationMain {
       webPreferences: {
         nodeIntegration: true,
         devTools: process.env.NODE_ENV === 'development',
+        // TODO: Remove use of remote
+        enableRemoteModule: true,
+        spellcheck: false,
       },
     };
 
