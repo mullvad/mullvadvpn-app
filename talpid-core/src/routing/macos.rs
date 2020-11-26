@@ -224,7 +224,8 @@ impl RouteManagerImpl {
             .arg("-n")
             .arg("delete")
             .arg(ip_vers(destination))
-            .arg(destination.to_string());
+            .arg(destination.to_string())
+            .stderr(Stdio::null());
 
         cmd.status().await.map_err(Error::FailedToRemoveRoute)
     }
