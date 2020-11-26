@@ -50,19 +50,19 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         return getAccountData(daemonInterfaceAddress, accountToken)
     }
 
-    fun getAccountHistory(): ArrayList<String> {
+    fun getAccountHistory(): ArrayList<String>? {
         return getAccountHistory(daemonInterfaceAddress)
     }
 
     fun getWwwAuthToken(): String {
-        return getWwwAuthToken(daemonInterfaceAddress)
+        return getWwwAuthToken(daemonInterfaceAddress) ?: ""
     }
 
     fun getCurrentLocation(): GeoIpLocation? {
         return getCurrentLocation(daemonInterfaceAddress)
     }
 
-    fun getCurrentVersion(): String {
+    fun getCurrentVersion(): String? {
         return getCurrentVersion(daemonInterfaceAddress)
     }
 
@@ -74,7 +74,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         return getSettings(daemonInterfaceAddress)
     }
 
-    fun getState(): TunnelState {
+    fun getState(): TunnelState? {
         return getState(daemonInterfaceAddress)
     }
 
@@ -141,13 +141,13 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         daemonInterfaceAddress: Long,
         accountToken: String
     ): GetAccountDataResult
-    private external fun getAccountHistory(daemonInterfaceAddress: Long): ArrayList<String>
-    private external fun getWwwAuthToken(daemonInterfaceAddress: Long): String
+    private external fun getAccountHistory(daemonInterfaceAddress: Long): ArrayList<String>?
+    private external fun getWwwAuthToken(daemonInterfaceAddress: Long): String?
     private external fun getCurrentLocation(daemonInterfaceAddress: Long): GeoIpLocation?
-    private external fun getCurrentVersion(daemonInterfaceAddress: Long): String
+    private external fun getCurrentVersion(daemonInterfaceAddress: Long): String?
     private external fun getRelayLocations(daemonInterfaceAddress: Long): RelayList?
-    private external fun getSettings(daemonInterfaceAddress: Long): Settings
-    private external fun getState(daemonInterfaceAddress: Long): TunnelState
+    private external fun getSettings(daemonInterfaceAddress: Long): Settings?
+    private external fun getState(daemonInterfaceAddress: Long): TunnelState?
     private external fun getVersionInfo(daemonInterfaceAddress: Long): AppVersionInfo?
     private external fun getWireguardKey(daemonInterfaceAddress: Long): PublicKey?
     private external fun reconnect(daemonInterfaceAddress: Long)
