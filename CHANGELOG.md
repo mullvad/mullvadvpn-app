@@ -84,6 +84,7 @@ Line wrap the file at 100 chars.                                              Th
   or the quick-settings tile for the app to connect or disconnect.
 - Fix app showing that it was blocking connections when it wasn't when VPN permission was denied.
 - Fix internet not working for a minute or two after changing Allow LAN setting.
+- Fix login appearing to be cancelled after leaving the login screen while logging in.
 
 #### Windows
 - Fix log output encoding for Windows modules.
