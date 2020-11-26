@@ -68,6 +68,18 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     override fun onSafelyStart() {
+        jobTracker.newBackgroundJob("checkIfAlreadyLoggedIn") {
+            if (accountCache.onAccountNumberChange.latestEvent != null) {
+                val loginResult = if (accountCache.newlyCreatedAccount) {
+                    LoginResult.NewAccount
+                } else {
+                    loginResultForExpiry(accountCache.onAccountExpiryChange.latestEvent)
+                }
+
+                loggedIn.complete(loginResult)
+            }
+        }
+
         jobTracker.newUiJob("advanceToNextScreen") {
             when (loggedIn.await()) {
                 LoginResult.ExistingAccountWithTime -> openNextScreen(ConnectFragment())
