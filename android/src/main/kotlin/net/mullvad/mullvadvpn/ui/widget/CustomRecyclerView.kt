@@ -2,10 +2,13 @@ package net.mullvad.mullvadvpn.ui.widget
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.RecyclerView.LayoutManager
 import android.util.AttributeSet
 import net.mullvad.mullvadvpn.util.ListenableScrollableView
 
 class CustomRecyclerView : RecyclerView, ListenableScrollableView {
+    private val customItemAnimator = CustomItemAnimator()
+
     override var horizontalScrollOffset = 0
     override var verticalScrollOffset = 0
 
@@ -20,11 +23,17 @@ class CustomRecyclerView : RecyclerView, ListenableScrollableView {
         }
 
     init {
-        itemAnimator = CustomItemAnimator().apply {
+        itemAnimator = customItemAnimator.apply {
             onMove = { horizontalDelta, verticalDelta ->
                 dispatchScrollEvent(horizontalDelta, verticalDelta)
             }
         }
+    }
+
+    override fun setLayoutManager(layoutManager: LayoutManager?) {
+        super.setLayoutManager(layoutManager)
+
+        customItemAnimator.layoutManager = layoutManager
     }
 
     override fun onScrolled(horizontalDelta: Int, verticalDelta: Int) {
