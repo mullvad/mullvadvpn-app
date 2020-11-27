@@ -46,6 +46,7 @@ Line wrap the file at 100 chars.                                              Th
 - Rename CLI subcommand `mullvad relay set relay` to `mullvad relay set hostname`.
 - Upgrade OpenVPN from 2.4.9 to 2.5.0.
 - Upgrade Electron from 8.5.2 to Electron 11.0.2.
+- Upgrade wireguard-go to v0.0.20201118.
 
 #### Android
 - Remove the Quit button.
