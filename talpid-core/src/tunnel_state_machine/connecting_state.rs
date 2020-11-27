@@ -168,6 +168,12 @@ impl ConnectingState {
                     );
                     Some(ErrorStateCause::VirtualAdapterProblem)
                 }
+                tunnel::Error::WireguardTunnelMonitoringError(
+                    tunnel::wireguard::Error::TimeoutError,
+                ) => {
+                    log::debug!("WireGuard tunnel timed out");
+                    None
+                }
                 error => {
                     warn!(
                         "{}",
