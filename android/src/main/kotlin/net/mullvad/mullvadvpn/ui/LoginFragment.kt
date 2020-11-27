@@ -68,6 +68,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     override fun onSafelyStart() {
+        accountLogin.state = LoginState.Initial
+
         jobTracker.newBackgroundJob("checkIfAlreadyLoggedIn") {
             if (accountCache.onAccountNumberChange.latestEvent != null) {
                 val loginResult = if (accountCache.newlyCreatedAccount) {
