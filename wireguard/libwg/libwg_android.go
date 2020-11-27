@@ -14,6 +14,7 @@ import (
 
 	"golang.org/x/sys/unix"
 
+	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
 
@@ -55,6 +56,7 @@ func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext)
 		return ERROR_INTERMITTENT_FAILURE
 	}
 
+	device.DisableSomeRoamingForBrokenMobileSemantics()
 	device.Up()
 
 	context := tunnelcontainer.Context{
@@ -78,7 +80,8 @@ func wgGetSocketV4(tunnelHandle int32) int32 {
 	if err != nil {
 		return ERROR_GENERAL_FAILURE
 	}
-	fd, err := tunnel.Device.PeekLookAtSocketFd4()
+	peek := tunnel.Device.Bind().(conn.PeekLookAtSocketFd)
+	fd, err := peek.PeekLookAtSocketFd4()
 	if err != nil {
 		return ERROR_GENERAL_FAILURE
 	}
@@ -91,7 +94,8 @@ func wgGetSocketV6(tunnelHandle int32) int32 {
 	if err != nil {
 		return ERROR_GENERAL_FAILURE
 	}
-	fd, err := tunnel.Device.PeekLookAtSocketFd6()
+	peek := tunnel.Device.Bind().(conn.PeekLookAtSocketFd)
+	fd, err := peek.PeekLookAtSocketFd6()
 	if err != nil {
 		return ERROR_GENERAL_FAILURE
 	}
