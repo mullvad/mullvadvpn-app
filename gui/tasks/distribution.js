@@ -98,6 +98,7 @@ const config = {
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
       { from: distAssets('binaries/x86_64-pc-windows-msvc/sslocal.exe'), to: '.' },
       { from: root('build/lib/x86_64-pc-windows-msvc/libwg.dll'), to: '.' },
+      { from: distAssets('binaries/x86_64-pc-windows-msvc/wintun.dll'), to: '.' },
     ],
   },
 
