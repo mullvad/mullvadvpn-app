@@ -27,7 +27,6 @@ const (
 var tunnels tunnelcontainer.Container
 
 func init() {
-	device.RoamingDisabled = true
 	tunnels = tunnelcontainer.New()
 }
 

@@ -14,6 +14,7 @@ import (
 
 	"golang.org/x/sys/windows"
 
+	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
@@ -144,15 +145,17 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, l
 func wgRebindTunnelSocket(family uint16, interfaceIndex uint32) {
 	tunnels.ForEach(func(tunnel tunnelcontainer.Context) {
 		blackhole := (interfaceIndex == 0)
+		bind := tunnel.Device.Bind().(conn.BindSocketToInterface)
+
 		if family == windows.AF_INET {
 			tunnel.Logger.Info.Printf("Binding v4 socket to interface %d (blackhole=%v)", interfaceIndex, blackhole)
-			err := tunnel.Device.BindSocketToInterface4(interfaceIndex, blackhole)
+			err := bind.BindSocketToInterface4(interfaceIndex, blackhole)
 			if err != nil {
 				tunnel.Logger.Info.Println(err)
 			}
 		} else if family == windows.AF_INET6 {
 			tunnel.Logger.Info.Printf("Binding v6 socket to interface %d (blackhole=%v)", interfaceIndex, blackhole)
-			err := tunnel.Device.BindSocketToInterface6(interfaceIndex, blackhole)
+			err := bind.BindSocketToInterface6(interfaceIndex, blackhole)
 			if err != nil {
 				tunnel.Logger.Info.Println(err)
 			}
