@@ -78,7 +78,7 @@ export class TransitionView extends React.Component<ITransitioningViewProps> {
 export default class TransitionContainer extends React.Component<IProps, IState> {
   public state: IState = {
     itemQueue: [],
-    currentItem: this.makeItem(this.props),
+    currentItem: TransitionContainer.makeItem(this.props),
   };
 
   private isCycling = false;
@@ -86,44 +86,38 @@ export default class TransitionContainer extends React.Component<IProps, IState>
   private currentContentRef = React.createRef<HTMLDivElement>();
   private nextContentRef = React.createRef<HTMLDivElement>();
 
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  public UNSAFE_componentWillReceiveProps(nextProps: IProps) {
-    const candidate = nextProps.children;
+  public static getDerivedStateFromProps(props: IProps, state: IState) {
+    const candidate = props.children;
 
-    if (candidate && this.state.currentItem) {
+    if (candidate && state.currentItem) {
       // synchronize updates to the last added child.
-      const itemQueueCount = this.state.itemQueue.length;
-      const lastItemInQueue =
-        itemQueueCount > 0 ? this.state.itemQueue[itemQueueCount - 1] : undefined;
+      const itemQueueCount = state.itemQueue.length;
+      const lastItemInQueue = itemQueueCount > 0 ? state.itemQueue[itemQueueCount - 1] : undefined;
 
       if (lastItemInQueue && lastItemInQueue.view.props.viewId === candidate.props.viewId) {
-        this.setState({
-          itemQueue: [...this.state.itemQueue.slice(0, -1), this.makeItem(nextProps)],
-        });
+        return {
+          itemQueue: [...state.itemQueue.slice(0, -1), TransitionContainer.makeItem(props)],
+        };
       } else if (
         itemQueueCount === 0 &&
-        this.state.nextItem &&
-        this.state.nextItem.view.props.viewId === candidate.props.viewId
+        state.nextItem &&
+        state.nextItem.view.props.viewId === candidate.props.viewId
       ) {
-        this.setState({
-          nextItem: this.makeItem(nextProps),
-        });
+        return { nextItem: TransitionContainer.makeItem(props) };
       } else if (
         itemQueueCount === 0 &&
-        !this.state.nextItem &&
-        this.state.currentItem.view.props.viewId === candidate.props.viewId
+        !state.nextItem &&
+        state.currentItem.view.props.viewId === candidate.props.viewId
       ) {
-        this.setState({
-          currentItem: this.makeItem(nextProps),
-        });
+        return { currentItem: TransitionContainer.makeItem(props) };
       } else {
         // add new item
-        this.setState({
-          itemQueue: [...this.state.itemQueue, this.makeItem(nextProps)],
-        });
+        return { itemQueue: [...state.itemQueue, TransitionContainer.makeItem(props)] };
       }
-    } else if (candidate && !this.state.currentItem) {
-      this.setState({ currentItem: this.makeItem(nextProps) });
+    } else if (candidate && !state.currentItem) {
+      return { currentItem: TransitionContainer.makeItem(props) };
+    } else {
+      return null;
     }
   }
 
@@ -233,7 +227,7 @@ export default class TransitionContainer extends React.Component<IProps, IState>
     }
   };
 
-  private makeItem(props: IProps): ITransitionQueueItem {
+  private static makeItem(props: IProps): ITransitionQueueItem {
     return {
       transition: {
         name: props.name,
