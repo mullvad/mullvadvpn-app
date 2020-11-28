@@ -23,6 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### Android
+- Add a screen to view the logs included in a problem report.
+
 ### Changed
 - Upgrade wireguard-go to v0.0.20201118.
 - Reduce logging about time outs when conneting to a WireGuard tunnel.
