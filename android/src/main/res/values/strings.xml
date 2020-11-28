@@ -76,6 +76,7 @@
     before being sent over an encrypted channel.</string>
     <string name="user_email_hint">Your email (optional)</string>
     <string name="user_message_hint">Describe your problem</string>
+    <string name="view_logs">View app logs</string>
     <string name="send">Send</string>
     <string name="sending">Sending...</string>
     <string name="sent">Sent</string>
