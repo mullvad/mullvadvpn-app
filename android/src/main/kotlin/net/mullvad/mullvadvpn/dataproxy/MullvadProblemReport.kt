@@ -57,6 +57,18 @@ class MullvadProblemReport {
         }
     }
 
+    suspend fun load(): String {
+        if (collectJob == null) {
+            collect()
+        }
+
+        if (collectJob?.await() ?: false) {
+            return problemReportPath.await().readText()
+        } else {
+            return "Failed to collect logs for problem report"
+        }
+    }
+
     fun send(): Deferred<Boolean> {
         synchronized(this) {
             var currentJob = sendJob
