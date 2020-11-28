@@ -92,6 +92,7 @@ class MullvadProblemReport {
             val job = GlobalScope.launch(Dispatchers.Default) {
                 oldDeleteJob?.join()
                 problemReportPath.await().delete()
+                collectJob = null
             }
 
             deleteJob = job
