@@ -95,6 +95,10 @@ class ProblemReportFragment : Fragment() {
         editMessageButton = view.findViewById<Button>(R.id.edit_message_button)
         tryAgainButton = view.findViewById<Button>(R.id.try_again_button)
 
+        view.findViewById<Button>(R.id.view_logs).setOnClickListener {
+            showLogs()
+        }
+
         sendButton.setOnClickListener {
             jobTracker.newUiJob("sendReport") {
                 sendReport(true)
@@ -137,6 +141,20 @@ class ProblemReportFragment : Fragment() {
         showingEmail = false
 
         super.onDetach()
+    }
+
+    private fun showLogs() {
+        fragmentManager?.beginTransaction()?.apply {
+            setCustomAnimations(
+                R.anim.fragment_enter_from_right,
+                R.anim.fragment_half_exit_to_left,
+                R.anim.fragment_half_enter_from_left,
+                R.anim.fragment_exit_to_right
+            )
+            replace(R.id.main_fragment, ViewLogsFragment())
+            addToBackStack(null)
+            commit()
+        }
     }
 
     private suspend fun sendReport(shouldConfirmNoEmail: Boolean) {
