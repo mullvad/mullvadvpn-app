@@ -24,25 +24,23 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Improve accessibility in the desktop app.
+- Improve accessibility in the desktop app. UI elements now have the correct role
+  and are labeled to allow usage of a screen reader.
 - Add `--wait` flag to `connect`, `disconnect` and `reconnect` CLI subcommands to make the CLI wait
   for the target state to be reached before exiting.
 - Navigate back to the main view when escape is pressed.
-- Add support for custom DNS resolvers.
+- Add support for custom DNS resolvers on Windows, macOS and Linux. For now only resolvers in the
+  local network will work properly.
 
 #### Windows
 - Add setting that unpins the window from the tray icon to let the user move it around freely.
 
-#### Linux
-- Optionally use NetworkManager to create WireGuard devices.
-- Disable NetworkManager's connectivity check before applying firewall rules to avoid triggerring
-  NetworkManager's [bug](https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/312#note_453724)
-
 ### Changed
-- Use the API to fetch API IP addresses instead of DNS.
+- Never use DNS to get the IP to contact the Mullvad API over. Instead a list of IPs is bundled
+  with the app, and updates are fetched from the API itself. This list is then shuffled and used
+  to pick a way to reach the API. This avoids censored/fake DNS responses and increases the
+  likelihood to be able to talk to the API.
 - Remove WireGuard keys during uninstallation after the firewall is unlocked.
-- Randomly select addresses to use for communicating with the API.
-- Bundle a list of API addresses to use instead of assuming that the primary address can be reached.
 - Rename CLI subcommand `mullvad relay set relay` to `mullvad relay set hostname`.
 - Upgrade OpenVPN from 2.4.9 to 2.5.0.
 - Upgrade Electron from 8.5.2 to Electron 11.0.2.
@@ -57,14 +55,16 @@ Line wrap the file at 100 chars.                                              Th
   that the VPN permission was denied.
 
 #### Windows
-- Fully uninstall the app when it is downgraded. Traffic is not blocked.
+- Fully uninstall the old app when performing a downgrade. This solves the problem of downgrades
+  not being able to migrate from something newer. For example it fully removes any blocking
+  firewall rules a newer app might have put in place.
 - Use Wintun instead of the OpenVPN TAP driver for OpenVPN.
 
 #### Linux
-- Make route monitor ignore loopback routes.
 - Increase NetworkManager device readiness timeout to 15 seconds.
-- Set up routes for OpenVPN using the route manager instead of relying on OpenVPN.
-- Use rule-based routing and static routes.
+- Set up routes for OpenVPN using our route manager instead of relying on OpenVPN to do it.
+- Use rule-based routing and static routes. Avoids monitoring and duplicating the main routing
+  table into a separate table.
 
 ### Fixed
 - Fix missing map animation after selecting a new location in the desktop app.
@@ -91,9 +91,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix memory leak in Windows firewall code.
 
 #### Linux
-- Handle statically added routes.
 - Stop reconnecting when using WireGuard and NetworkManager.
-- Fix routing rules sometimes being duplicated.
 - Reset DNS config correctly when the tunnel monitor unexpectedly goes down.
 - Set search domains in NetworkManager's DNS configuration, resolving issues where NetworkManager
   is used to manage DNS via systemd-resolved.
@@ -103,6 +101,9 @@ Line wrap the file at 100 chars.                                              Th
 - Handle IPv6 traffic correctly using `mullvad-exclude` when there is no default route to any
   non-tunnel interface.
 - Fix issues managing DNS when dnsmasq is used with NetworkManager.
+- Fix issues with managing kernel WireGuard device via NetworkManager.
+- Disable NetworkManager's connectivity check before applying firewall rules to avoid triggering
+  NetworkManager's [bug](https://gitlab.freedesktop.org/NetworkManager/NetworkManager/-/issues/312#note_453724)
 
 ### Security
 - Restore the last target state if the daemon crashes. Previously, if auto-connect and
