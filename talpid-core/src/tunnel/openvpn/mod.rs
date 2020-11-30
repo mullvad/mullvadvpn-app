@@ -35,6 +35,10 @@ use talpid_types::ErrorExt;
 use tokio::task;
 #[cfg(target_os = "linux")]
 use which;
+#[cfg(windows)]
+use widestring::U16CString;
+#[cfg(windows)]
+use winapi::shared::{guiddef::GUID, winerror::ERROR_FILE_NOT_FOUND};
 
 #[cfg(windows)]
 mod windows;
@@ -42,7 +46,20 @@ mod windows;
 
 lazy_static! {
     static ref ENV_ROUTE_ENTRY: Regex = Regex::new(r"route_(ipv6_)?(\w+)_(\d+)").unwrap();
+
+    #[cfg(windows)]
+    static ref ADAPTER_ALIAS: U16CString = U16CString::from_str("Mullvad").unwrap();
+    #[cfg(windows)]
+    static ref ADAPTER_POOL: U16CString = U16CString::from_str("Mullvad").unwrap();
 }
+
+#[cfg(windows)]
+const ADAPTER_GUID: GUID = GUID {
+    Data1: 0xAFE43773,
+    Data2: 0xE1F8,
+    Data3: 0x4EBB,
+    Data4: [0x85, 0x36, 0x57, 0x6A, 0xB8, 0x6A, 0xFE, 0x9A],
+};
 
 
 /// Results from fallible operations on the OpenVPN tunnel.
@@ -82,6 +99,21 @@ pub enum Error {
     #[cfg(windows)]
     #[error(display = "The virtual adapter appears to be disabled")]
     DisabledVirtualAdapter,
+
+    /// cannot load wintun.dll
+    #[cfg(windows)]
+    #[error(display = "Failed to load wintun.dll")]
+    WintunDllError(#[error(source)] io::Error),
+
+    /// cannot create a wintun interface
+    #[cfg(windows)]
+    #[error(display = "Failed to create Wintun adapter")]
+    WintunError(#[error(source)] io::Error),
+
+    /// cannot create a wintun interface
+    #[cfg(windows)]
+    #[error(display = "Failed to delete existing Wintun adapter")]
+    WintunDeleteExistingError(#[error(source)] io::Error),
 
     /// OpenVPN process died unexpectedly
     #[error(display = "OpenVPN process died unexpectedly")]
@@ -179,6 +211,9 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     runtime: tokio::runtime::Runtime,
     event_server_abort_tx: triggered::Trigger,
     server_join_handle: Option<task::JoinHandle<std::result::Result<(), event_server::Error>>>,
+
+    #[cfg(windows)]
+    wintun_adapter: windows::TemporaryWintunAdapter,
 }
 
 
@@ -375,6 +410,41 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             .start()
             .map_err(|e| Error::ChildProcessError("Failed to start", e))?;
 
+        #[cfg(windows)]
+        let wintun_adapter = {
+            let dll = Arc::new(windows::WintunDll::new().map_err(Error::WintunDllError)?);
+
+            {
+                match windows::WintunAdapter::open(dll.clone(), &*ADAPTER_ALIAS, &*ADAPTER_POOL) {
+                    Ok(adapter) => {
+                        // Delete existing adapter in case it has residual config
+                        adapter
+                            .delete(false)
+                            .map_err(Error::WintunDeleteExistingError)?;
+                    }
+                    Err(error) => {
+                        if error.raw_os_error() != Some(ERROR_FILE_NOT_FOUND as i32) {
+                            return Err(Error::WintunError(error));
+                        }
+                    }
+                }
+            }
+
+            let (adapter, reboot_required) = windows::TemporaryWintunAdapter::create(
+                dll.clone(),
+                &*ADAPTER_ALIAS,
+                &*ADAPTER_POOL,
+                Some(ADAPTER_GUID.clone()),
+            )
+            .map_err(Error::WintunError)?;
+
+            if reboot_required {
+                log::warn!("You may need to restart Windows to complete the install of Wintun");
+            }
+
+            adapter
+        };
+
         Ok(OpenVpnMonitor {
             child: Arc::new(child),
             proxy_monitor,
@@ -386,6 +456,9 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             runtime,
             event_server_abort_tx,
             server_join_handle: Some(server_join_handle),
+
+            #[cfg(windows)]
+            wintun_adapter,
         })
     }
 
@@ -604,9 +677,8 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             .ca(resource_dir.join("ca.crt"));
         #[cfg(windows)]
         {
-            cmd.tunnel_alias(Some(
-                crate::winnet::get_interface_alias().map_err(Error::WinnetError)?,
-            ));
+            use std::ffi::OsString;
+            cmd.tunnel_alias(Some(OsString::from("Mullvad")));
             cmd.windows_driver(Some(crate::process::openvpn::WindowsDriver::Wintun));
         }
         if let Some(proxy_settings) = params.proxy.clone().take() {
