@@ -87,6 +87,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix app showing that it was blocking connections when it wasn't when VPN permission was denied.
 - Fix internet not working for a minute or two after changing Allow LAN setting.
 - Fix login appearing to be cancelled after leaving the login screen while logging in.
+- Fix login input area missing some times when opening the login screen.
 
 #### Windows
 - Fix log output encoding for Windows modules.
