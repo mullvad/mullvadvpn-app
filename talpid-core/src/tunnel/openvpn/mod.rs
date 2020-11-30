@@ -36,6 +36,9 @@ use tokio::task;
 #[cfg(target_os = "linux")]
 use which;
 
+#[cfg(windows)]
+mod windows;
+
 
 lazy_static! {
     static ref ENV_ROUTE_ENTRY: Regex = Regex::new(r"route_(ipv6_)?(\w+)_(\d+)").unwrap();
