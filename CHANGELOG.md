@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.8-beta1] - 2020-11-30
+This release is for Android only.
+
 ### Added
 - Improve accessibility in the desktop app. UI elements now have the correct role
   and are labeled to allow usage of a screen reader.
