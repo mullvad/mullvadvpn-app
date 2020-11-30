@@ -1,8 +1,10 @@
 package net.mullvad.mullvadvpn.service
 
+import android.os.Messenger
 import net.mullvad.talpid.ConnectivityListener
 
 class ServiceInstance(
+    val messenger: Messenger,
     val daemon: MullvadDaemon,
     val connectionProxy: ConnectionProxy,
     val connectivityListener: ConnectivityListener,
