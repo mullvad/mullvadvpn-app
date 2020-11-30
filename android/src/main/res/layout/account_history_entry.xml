@@ -5,6 +5,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:focusable="true"
+              android:nextFocusRight="@id/remove"
               android:background="@drawable/account_history_entry_background"
               android:paddingHorizontal="12dp"
               android:gravity="center_vertical"
@@ -15,6 +16,7 @@
                  android:layout_width="@dimen/account_history_entry_height"
                  android:layout_height="@dimen/account_history_entry_height"
                  android:layout_gravity="right"
+                 android:nextFocusLeft="@id/remove"
                  android:background="?android:attr/selectableItemBackground"
                  android:src="@drawable/account_history_remove" />
 </FrameLayout>
