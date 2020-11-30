@@ -23,6 +23,14 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+- Upgrade wireguard-go to v0.0.20201118.
+- Reduce logging about time outs when conneting to a WireGuard tunnel.
+
+### Fixed
+#### Android
+- Fix login appearing to be cancelled after leaving the login screen while logging in.
+- Fix login input area missing some times when opening the login screen.
 
 
 ## [2020.8-beta1] - 2020-11-30
@@ -49,8 +57,6 @@ This release is for Android only.
 - Rename CLI subcommand `mullvad relay set relay` to `mullvad relay set hostname`.
 - Upgrade OpenVPN from 2.4.9 to 2.5.0.
 - Upgrade Electron from 8.5.2 to Electron 11.0.2.
-- Upgrade wireguard-go to v0.0.20201118.
-- Reduce logging about time outs when conneting to a WireGuard tunnel.
 
 #### Android
 - Remove the Quit button.
@@ -91,8 +97,6 @@ This release is for Android only.
   or the quick-settings tile for the app to connect or disconnect.
 - Fix app showing that it was blocking connections when it wasn't when VPN permission was denied.
 - Fix internet not working for a minute or two after changing Allow LAN setting.
-- Fix login appearing to be cancelled after leaving the login screen while logging in.
-- Fix login input area missing some times when opening the login screen.
 
 #### Windows
 - Fix log output encoding for Windows modules.
