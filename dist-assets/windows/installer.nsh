@@ -13,7 +13,6 @@
 #
 
 !define WINTUN_POOL "Mullvad"
-!define WINTUN_ADAPTER "Mullvad"
 
 # "sc" exit code
 !define SERVICE_STARTED 0
@@ -113,66 +112,6 @@
 !macroend
 
 !define RemoveWintun '!insertmacro "RemoveWintun"'
-
-#
-# InstallWintun
-#
-# Create Wintun Mullvad adapter
-#
-# Returns: 0 in $R0 on success, otherwise an error message in $R0
-#
-!macro InstallWintun
-
-	log::Log "InstallWintun()"
-
-	Push $0
-	Push $1
-
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun adapter-exists ${WINTUN_POOL} ${WINTUN_ADAPTER}'
-
-	Pop $0
-	Pop $1
-
-	${If} $0 == ${DL_GENERAL_ERROR}
-		IntFmt $0 "0x%X" $0
-		StrCpy $R0 "Failed to identify virtual adapter: error $0"
-		log::LogWithDetails $R0 $1
-		Goto InstallWintun_return
-	${EndIf}
-
-	${If} $0 != ${DL_ADAPTER_NOT_FOUND}
-		log::Log "Found existing virtual adapter"
-		Goto InstallWintun_return_success
-	${EndIf}
-
-	log::Log "Creating new virtual adapter"
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun create-adapter ${WINTUN_POOL} ${WINTUN_ADAPTER}'
-
-	Pop $0
-	Pop $1
-
-	${If} $0 != ${DL_GENERAL_SUCCESS}
-		IntFmt $0 "0x%X" $0
-		StrCpy $R0 "Failed to create virtual adapter: error $0"
-		log::LogWithDetails $R0 $1
-		Goto InstallWintun_return
-	${EndIf}
-
-	InstallWintun_return_success:
-
-	log::Log "InstallWintun() completed successfully"
-
-	Push 0
-	Pop $R0
-
-	InstallWintun_return:
-
-	Pop $1
-	Pop $0
-
-!macroend
-
-!define InstallWintun '!insertmacro "InstallWintun"'
 
 #
 # InstallService
@@ -625,14 +564,6 @@
 	${RemoveRelayCache}
 	${RemoveApiAddressCache}
 
-	${ExtractWintun}
-	${InstallWintun}
-
-	${If} $R0 != 0
-		MessageBox MB_OK "$R0"
-		Goto customInstall_abort_installation
-	${EndIf}
-
 	${InstallService}
 
 	${If} $R0 != 0
@@ -765,7 +696,6 @@
 		${ClearFirewallRules}
 		${ClearAccountHistory}
 
-		# Remove Wintun
 		${ExtractWintun}
 		${RemoveWintun}
 
