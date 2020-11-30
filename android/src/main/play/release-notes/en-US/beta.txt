@@ -1,5 +1,5 @@
-- Fix CPU consuming bug draining battery
-- Fix crash happening to ~5% of users
-- Fix layout bug on new split tunneling feature screen
-- Don't show account out of time warning when creating new accounts
-- Fix crash in voucher code entry dialog
+- Support navigating on Android TVs and other touchless devices
+- Fix bug where excluded apps would go in the tunnel after restart of the VPN app
+- Remove the quit button. Instead quit the app by swiping away the notification when disconnected
+- Make more resistant to DNS poisoning of the API server addresses
+- Lots of bugfixes
