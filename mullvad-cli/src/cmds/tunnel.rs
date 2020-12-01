@@ -95,7 +95,7 @@ fn create_ipv6_subcommand() -> clap::App<'static, 'static> {
         .subcommand(clap::SubCommand::with_name("get"))
         .subcommand(
             clap::SubCommand::with_name("set").arg(
-                clap::Arg::with_name("enable")
+                clap::Arg::with_name("policy")
                     .required(true)
                     .takes_value(true)
                     .possible_values(&["on", "off"]),
@@ -304,7 +304,7 @@ impl Tunnel {
     }
 
     async fn process_ipv6_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let enabled = matches.value_of("enable").unwrap() == "on";
+        let enabled = matches.value_of("policy").unwrap() == "on";
 
         let mut rpc = new_rpc_client().await?;
         rpc.set_enable_ipv6(enabled).await?;

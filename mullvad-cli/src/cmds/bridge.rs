@@ -153,7 +153,7 @@ fn create_set_state_subcommand() -> clap::App<'static, 'static> {
     clap::SubCommand::with_name("state")
         .about("Set bridge state")
         .arg(
-            clap::Arg::with_name("state")
+            clap::Arg::with_name("policy")
                 .help("Specifies whether a bridge should be used")
                 .required(true)
                 .index(1)
@@ -252,7 +252,7 @@ impl Bridge {
     }
 
     async fn handle_set_bridge_state(matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let state = match matches.value_of("state").unwrap() {
+        let state = match matches.value_of("policy").unwrap() {
             "auto" => BridgeStateType::Auto as i32,
             "on" => BridgeStateType::On as i32,
             "off" => BridgeStateType::Off as i32,
