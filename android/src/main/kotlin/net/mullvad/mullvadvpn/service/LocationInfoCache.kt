@@ -24,6 +24,13 @@ class LocationInfoCache(
     val connectionProxy: ConnectionProxy,
     val connectivityListener: ConnectivityListener
 ) {
+    companion object {
+        private enum class RequestFetch {
+            ForRealLocation,
+            ForRelayLocation,
+        }
+    }
+
     private val fetchRequestChannel = runFetcher()
 
     private var lastKnownRealLocation: GeoIpLocation? = null
@@ -48,12 +55,12 @@ class LocationInfoCache(
             when (value) {
                 is TunnelState.Disconnected -> {
                     location = lastKnownRealLocation
-                    fetchRequestChannel.sendBlocking(true)
+                    fetchRequestChannel.sendBlocking(RequestFetch.ForRealLocation)
                 }
                 is TunnelState.Connecting -> location = value.location
                 is TunnelState.Connected -> {
                     location = value.location
-                    fetchRequestChannel.sendBlocking(false)
+                    fetchRequestChannel.sendBlocking(RequestFetch.ForRelayLocation)
                 }
                 is TunnelState.Disconnecting -> {
                     when (value.actionAfterDisconnect) {
@@ -77,7 +84,7 @@ class LocationInfoCache(
     init {
         connectivityListener.connectivityNotifier.subscribe(this) { isConnected ->
             if (isConnected && state is TunnelState.Disconnected) {
-                fetchRequestChannel.sendBlocking(true)
+                fetchRequestChannel.sendBlocking(RequestFetch.ForRealLocation)
             }
         }
 
@@ -113,14 +120,17 @@ class LocationInfoCache(
         }
     }
 
-    private fun runFetcher() = GlobalScope.actor<Boolean>(Dispatchers.Default, Channel.CONFLATED) {
+    private fun runFetcher() = GlobalScope.actor<RequestFetch>(
+        Dispatchers.Default,
+        Channel.CONFLATED
+    ) {
         try {
             fetcherLoop(channel)
         } catch (exception: ClosedReceiveChannelException) {
         }
     }
 
-    private suspend fun fetcherLoop(channel: ReceiveChannel<Boolean>) {
+    private suspend fun fetcherLoop(channel: ReceiveChannel<RequestFetch>) {
         val delays = ExponentialBackoff().apply {
             scale = 50
             cap = 30 /* min */ * 60 /* s */ * 1000 /* ms */
@@ -128,24 +138,24 @@ class LocationInfoCache(
         }
 
         while (true) {
-            var isRealLocation = channel.receive()
+            var fetchType = channel.receive()
             var newLocation = daemon.getCurrentLocation()
 
             while (newLocation == null || !channel.isEmpty) {
-                isRealLocation = delayOrReceive(delays, channel, isRealLocation)
+                fetchType = delayOrReceive(delays, channel, fetchType)
                 newLocation = daemon.getCurrentLocation()
             }
 
-            handleNewLocation(newLocation, isRealLocation)
+            handleNewLocation(newLocation, fetchType)
             delays.reset()
         }
     }
 
     private suspend fun delayOrReceive(
         delays: ExponentialBackoff,
-        channel: ReceiveChannel<Boolean>,
-        currentValue: Boolean
-    ): Boolean {
+        channel: ReceiveChannel<RequestFetch>,
+        currentValue: RequestFetch
+    ): RequestFetch {
         try {
             val newValue = withTimeout(delays.next()) {
                 channel.receive()
@@ -159,8 +169,8 @@ class LocationInfoCache(
         }
     }
 
-    private fun handleNewLocation(newLocation: GeoIpLocation, isRealLocation: Boolean) {
-        if (isRealLocation) {
+    private fun handleNewLocation(newLocation: GeoIpLocation, fetchType: RequestFetch) {
+        if (fetchType == RequestFetch.ForRealLocation) {
             lastKnownRealLocation = newLocation
         }
 
