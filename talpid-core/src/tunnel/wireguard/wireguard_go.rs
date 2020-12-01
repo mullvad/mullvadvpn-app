@@ -119,7 +119,7 @@ impl WgGoTunnel {
         _routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<Self> {
         let wg_config_str = config.to_userspace_format();
-        let iface_name: String = "wg-mullvad".to_string();
+        let iface_name: String = "Mullvad".to_string();
         let cstr_iface_name =
             CString::new(iface_name.as_bytes()).map_err(TunnelError::InterfaceNameError)?;
         let logging_context = initialize_logging(log_path)
