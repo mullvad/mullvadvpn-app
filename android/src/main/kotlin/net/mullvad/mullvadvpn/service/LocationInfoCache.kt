@@ -138,7 +138,7 @@ class LocationInfoCache(
         val fetchId = newFetchId()
         val previousFetch = activeFetch
 
-        activeFetch = GlobalScope.launch(Dispatchers.Main) {
+        activeFetch = GlobalScope.launch(Dispatchers.Default) {
             val delays = ExponentialBackoff().apply {
                 scale = 50
                 cap = 30 /* min */ * 60 /* s */ * 1000 /* ms */
@@ -151,7 +151,7 @@ class LocationInfoCache(
 
             while (newLocation == null && fetchId == fetchIdCounter) {
                 delay(delays.next())
-                newLocation = executeFetch().await()
+                newLocation = daemon.getCurrentLocation()
             }
 
             synchronized(this@LocationInfoCache) {
@@ -164,9 +164,5 @@ class LocationInfoCache(
                 }
             }
         }
-    }
-
-    private fun executeFetch() = GlobalScope.async(Dispatchers.Default) {
-        daemon.getCurrentLocation()
     }
 }
