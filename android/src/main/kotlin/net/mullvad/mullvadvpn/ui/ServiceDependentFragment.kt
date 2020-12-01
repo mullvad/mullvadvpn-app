@@ -15,7 +15,6 @@ import net.mullvad.mullvadvpn.service.LocationInfoCache
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.SettingsListener
 import net.mullvad.mullvadvpn.service.SplitTunneling
-import net.mullvad.talpid.ConnectivityListener
 
 abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceAwareFragment() {
     enum class OnNoService {
@@ -40,9 +39,6 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         private set
 
     lateinit var connectionProxy: ConnectionProxy
-        private set
-
-    lateinit var connectivityListener: ConnectivityListener
         private set
 
     lateinit var customDns: CustomDns
@@ -72,7 +68,6 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         accountCache = serviceConnection.accountCache
         appVersionInfoCache = serviceConnection.appVersionInfoCache
         connectionProxy = serviceConnection.connectionProxy
-        connectivityListener = serviceConnection.connectivityListener
         customDns = serviceConnection.customDns
         daemon = serviceConnection.daemon
         keyStatusListener = serviceConnection.keyStatusListener
