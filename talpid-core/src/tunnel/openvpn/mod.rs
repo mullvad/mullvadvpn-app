@@ -12,8 +12,8 @@ use crate::{
 };
 #[cfg(target_os = "linux")]
 use ipnetwork::IpNetwork;
+#[cfg(windows)]
 use lazy_static::lazy_static;
-use regex::Regex;
 use std::{
     collections::HashMap,
     fs,
@@ -44,12 +44,9 @@ use winapi::shared::{guiddef::GUID, winerror::ERROR_FILE_NOT_FOUND};
 mod windows;
 
 
+#[cfg(windows)]
 lazy_static! {
-    static ref ENV_ROUTE_ENTRY: Regex = Regex::new(r"route_(ipv6_)?(\w+)_(\d+)").unwrap();
-
-    #[cfg(windows)]
     static ref ADAPTER_ALIAS: U16CString = U16CString::from_str("Mullvad").unwrap();
-    #[cfg(windows)]
     static ref ADAPTER_POOL: U16CString = U16CString::from_str("Mullvad").unwrap();
 }
 
@@ -89,16 +86,6 @@ pub enum Error {
     /// The OpenVPN event dispatcher exited unexpectedly
     #[error(display = "The OpenVPN event dispatcher exited unexpectedly")]
     EventDispatcherExited,
-
-    /// No virtual adapter was detected
-    #[cfg(windows)]
-    #[error(display = "No virtual adapter was detected")]
-    MissingVirtualAdapter,
-
-    /// virtual adapter seems to be disabled
-    #[cfg(windows)]
-    #[error(display = "The virtual adapter appears to be disabled")]
-    DisabledVirtualAdapter,
 
     /// cannot load wintun.dll
     #[cfg(windows)]
@@ -535,7 +522,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
                     Ok(())
                 } else {
                     log::error!("OpenVPN died unexpectedly with status: {}", exit_status);
-                    Err(self.postmortem())
+                    Err(Error::ChildProcessDied)
                 }
             }
             WaitResult::Child(Err(e), _) => {
@@ -581,25 +568,6 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         let result = rx.recv().expect("inner_wait_tunnel no result");
         let _ = rx.recv().expect("inner_wait_tunnel no second result");
         result
-    }
-
-    /// Performs a postmortem analysis to attempt to provide a more detailed error result.
-    fn postmortem(&mut self) -> Error {
-        #[cfg(windows)]
-        {
-            if let Some(log_path) = self.log_path.take() {
-                if let Ok(log) = fs::read_to_string(log_path) {
-                    if log.contains("There are no TAP-Windows adapters on this system") {
-                        return Error::MissingVirtualAdapter;
-                    }
-                    if log.contains("CreateFile failed on TAP device") {
-                        return Error::DisabledVirtualAdapter;
-                    }
-                }
-            }
-        }
-
-        Error::ChildProcessDied
     }
 
     fn create_proxy_auth_file(
