@@ -1432,9 +1432,13 @@ class ApplicationMain {
           closable: this.guiSettings.unpinnedWindow,
         });
 
-        // make the window visible on all workspaces
-        if (!this.guiSettings.unpinnedWindow) {
+        // make the window visible on all workspaces and prevent the icon from showing in the dock
+        // and app switcher.
+        if (this.guiSettings.unpinnedWindow) {
+          consumePromise(app.dock.show());
+        } else {
           appWindow.setVisibleOnAllWorkspaces(true);
+          app.dock.hide();
         }
 
         return appWindow;
