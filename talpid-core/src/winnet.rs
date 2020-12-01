@@ -2,9 +2,8 @@ use self::api::*;
 pub use self::api::{WinNet_ActivateConnectivityMonitor, WinNet_DeactivateConnectivityMonitor};
 use crate::{logging::windows::log_sink, routing::Node};
 use ipnetwork::IpNetwork;
-use libc::{c_void, wchar_t};
+use libc::c_void;
 use std::{
-    ffi::{OsStr, OsString},
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ptr,
 };
@@ -25,10 +24,6 @@ pub enum Error {
     #[error(display = "Failed to enable IPv6 on the network interface")]
     EnableIpv6,
 
-    /// Failed to enable IPv6 on the network interface.
-    #[error(display = "Failed to obtain GUID for the network interface")]
-    GetInterfaceGuid,
-
     /// Failed to get the current default route.
     #[error(display = "Failed to obtain default route")]
     GetDefaultRoute,
@@ -40,10 +35,6 @@ pub enum Error {
     /// Failed to read IPv6 status on the TAP network interface.
     #[error(display = "Failed to read IPv6 status on the TAP network interface")]
     GetIpv6Status,
-
-    /// Failed to determine alias of virtual adapter.
-    #[error(display = "Failed to determine alias of virtual adapter")]
-    GetVirtualAdapterAlias,
 
     /// Can't establish whether host is connected to a non-virtual network
     #[error(display = "Network connectivity undecideable")]
@@ -100,47 +91,6 @@ pub fn enable_ipv6_for_adapter(interface_guid: &str) -> Result<(), Error> {
     } else {
         Err(Error::EnableIpv6)
     }
-}
-
-/// Dynamically determines the alias of the virtual adapter.
-pub fn get_interface_alias() -> Result<OsString, Error> {
-    let mut alias_ptr: *mut wchar_t = ptr::null_mut();
-    let status = unsafe {
-        WinNet_GetInterfaceAlias(&mut alias_ptr as *mut _, Some(log_sink), logging_context())
-    };
-
-    if !status {
-        return Err(Error::GetVirtualAdapterAlias);
-    }
-
-    let alias = unsafe { WideCString::from_ptr_str(alias_ptr) };
-    unsafe { WinNet_ReleaseString(alias_ptr) };
-
-    Ok(alias.to_os_string())
-}
-
-/// Determines the interface guid for a given adapter alias.
-pub fn interface_alias_to_guid(interface_alias: &OsStr) -> Result<String, Error> {
-    let interface_alias =
-        WideCString::from_os_str(interface_alias).map_err(Error::InvalidInterfaceAlias)?;
-    let mut guid_ptr: *mut wchar_t = ptr::null_mut();
-    let status = unsafe {
-        WinNet_InterfaceAliasToGuid(
-            interface_alias.as_ptr(),
-            &mut guid_ptr as *mut _,
-            Some(log_sink),
-            logging_context(),
-        )
-    };
-
-    if !status {
-        return Err(Error::GetInterfaceGuid);
-    }
-
-    let guid = unsafe { WideCString::from_ptr_str(guid_ptr) };
-    unsafe { WinNet_ReleaseString(guid_ptr) };
-
-    Ok(guid.to_string_lossy())
 }
 
 #[allow(dead_code)]
@@ -520,24 +470,6 @@ mod api {
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> WinNetStatus;
-
-        #[link_name = "WinNet_GetInterfaceAlias"]
-        pub fn WinNet_GetInterfaceAlias(
-            tunnel_interface_alias: *mut *mut wchar_t,
-            sink: Option<LogSink>,
-            sink_context: *const u8,
-        ) -> bool;
-
-        #[link_name = "WinNet_InterfaceAliasToGuid"]
-        pub fn WinNet_InterfaceAliasToGuid(
-            interface_alias: *const wchar_t,
-            interface_guid: *mut *mut wchar_t,
-            sink: Option<LogSink>,
-            sink_context: *const u8,
-        ) -> bool;
-
-        #[link_name = "WinNet_ReleaseString"]
-        pub fn WinNet_ReleaseString(string: *mut wchar_t);
 
         #[link_name = "WinNet_ActivateConnectivityMonitor"]
         pub fn WinNet_ActivateConnectivityMonitor(
