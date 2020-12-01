@@ -39,7 +39,7 @@ impl Command for CustomDns {
                 clap::SubCommand::with_name("set")
                     .about("Enable or disable custom DNS")
                     .arg(
-                        clap::Arg::with_name("enabled")
+                        clap::Arg::with_name("policy")
                             .required(true)
                             .possible_values(&["on", "off"]),
                     ),
@@ -56,8 +56,8 @@ impl Command for CustomDns {
                 _ => unreachable!("No custom-dns server command given"),
             },
             ("set", Some(matches)) => {
-                let enabled = value_t_or_exit!(matches.value_of("enabled"), String);
-                self.set_state(enabled == "on").await
+                let policy = value_t_or_exit!(matches.value_of("policy"), String);
+                self.set_state(policy == "on").await
             }
             ("get", _) => self.get().await,
             _ => unreachable!("No custom-dns command given"),
