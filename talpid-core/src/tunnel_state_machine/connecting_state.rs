@@ -151,23 +151,6 @@ impl ConnectingState {
         match tunnel_monitor.wait() {
             Ok(_) => None,
             Err(error) => match error {
-                #[cfg(windows)]
-                error
-                @
-                tunnel::Error::OpenVpnTunnelMonitoringError(
-                    tunnel::openvpn::Error::DisabledVirtualAdapter,
-                )
-                | error
-                @
-                tunnel::Error::OpenVpnTunnelMonitoringError(
-                    tunnel::openvpn::Error::MissingVirtualAdapter,
-                ) => {
-                    warn!(
-                        "{}",
-                        error.display_chain_with_msg("Virtual adapter problem detected")
-                    );
-                    Some(ErrorStateCause::VirtualAdapterProblem)
-                }
                 tunnel::Error::WireguardTunnelMonitoringError(
                     tunnel::wireguard::Error::TimeoutError,
                 ) => {
@@ -428,15 +411,6 @@ impl TunnelState for ConnectingState {
                                     tunnel::Error::EnableIpv6Error => {
                                         ErrorStateCause::Ipv6Unavailable
                                     }
-                                    #[cfg(windows)]
-                                    tunnel::Error::OpenVpnTunnelMonitoringError(
-                                        tunnel::openvpn::Error::WinnetError(
-                                            crate::winnet::Error::GetVirtualAdapterAlias,
-                                        ),
-                                    )
-                                    | tunnel::Error::WinnetError(
-                                        crate::winnet::Error::GetVirtualAdapterAlias,
-                                    ) => ErrorStateCause::VirtualAdapterProblem,
                                     #[cfg(target_os = "android")]
                                     tunnel::Error::WireguardTunnelMonitoringError(
                                         tunnel::wireguard::Error::TunnelError(

@@ -242,23 +242,21 @@ impl TunnelMonitor {
 
         #[cfg(target_os = "windows")]
         if options.enable_ipv6 {
-            try_enabling_ipv6(tunnel_parameters)
+            try_enabling_ipv6()
         } else {
             Ok(())
         }
 
         #[cfg(not(target_os = "windows"))]
-        {
-            if options.enable_ipv6 {
-                let enabled = is_ipv6_enabled_in_os()?;
-                if enabled {
-                    Ok(())
-                } else {
-                    Err(Error::EnableIpv6Error)
-                }
-            } else {
+        if options.enable_ipv6 {
+            let enabled = is_ipv6_enabled_in_os()?;
+            if enabled {
                 Ok(())
+            } else {
+                Err(Error::EnableIpv6Error)
             }
+        } else {
+            Ok(())
         }
     }
 
@@ -364,7 +362,7 @@ impl InternalTunnelMonitor {
 
 
 #[cfg(target_os = "windows")]
-fn try_enabling_ipv6(tunnel_parameters: &TunnelParameters) -> Result<()> {
+fn try_enabling_ipv6() -> Result<()> {
     use winreg::{enums::*, RegKey};
 
     const IPV6_DISABLED_ON_TUNNELS_MASK: u32 = 0x01;
