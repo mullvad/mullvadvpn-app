@@ -51,6 +51,10 @@ pub enum Error {
     #[error(display = "Failed to obtain settings directory path")]
     SettingsPathError(#[error(source)] PathError),
 
+    #[cfg(windows)]
+    #[error(display = "Failed to obtain resource directory path")]
+    ResourcePathError(#[error(source)] PathError),
+
     #[error(display = "Failed to obtain cache directory path")]
     CachePathError(#[error(source)] PathError),
 
@@ -187,7 +191,8 @@ fn get_paths() -> Result<(PathBuf, PathBuf, PathBuf), Error> {
 fn get_paths() -> Result<(PathBuf, PathBuf, PathBuf), Error> {
     let settings_path =
         daemon_paths::get_mullvad_daemon_settings_path().map_err(Error::CachePathError)?;
-    let resource_path = mullvad_paths::get_resource_dir();
+    let resource_path =
+        daemon_paths::get_mullvad_resource_path().map_err(Error::ResourcePathError)?;
     let cache_path =
         daemon_paths::get_mullvad_daemon_cache_path().map_err(Error::SettingsPathError)?;
 
