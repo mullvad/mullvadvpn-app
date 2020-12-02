@@ -11,9 +11,9 @@ import net.mullvad.mullvadvpn.service.AccountCache
 import net.mullvad.mullvadvpn.service.ConnectionProxy
 import net.mullvad.mullvadvpn.service.CustomDns
 import net.mullvad.mullvadvpn.service.KeyStatusListener
-import net.mullvad.mullvadvpn.service.LocationInfoCache
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.SplitTunneling
+import net.mullvad.mullvadvpn.service.endpoint.LocationInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.service
+package net.mullvad.mullvadvpn.service.endpoint
 
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
@@ -15,18 +15,11 @@ import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.service.endpoint.SettingsListener
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
-import net.mullvad.mullvadvpn.util.Intermittent
-import net.mullvad.talpid.ConnectivityListener
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.util.autoSubscribable
 
-class LocationInfoCache(
-    val connectivityListener: ConnectivityListener,
-    val settingsListener: SettingsListener,
-    val daemon: Intermittent<MullvadDaemon>
-) {
+class LocationInfoCache(private val endpoint: ServiceEndpoint) {
     companion object {
         private enum class RequestFetch {
             ForRealLocation,
@@ -35,6 +28,9 @@ class LocationInfoCache(
     }
 
     private val fetchRequestChannel = runFetcher()
+
+    private val daemon
+        get() = endpoint.intermittentDaemon
 
     private var lastKnownRealLocation: GeoIpLocation? = null
     private var selectedRelayLocation: GeoIpLocation? = null
@@ -74,13 +70,13 @@ class LocationInfoCache(
     }
 
     init {
-        connectivityListener.connectivityNotifier.subscribe(this) { isConnected ->
+        endpoint.connectivityListener.connectivityNotifier.subscribe(this) { isConnected ->
             if (isConnected && state is TunnelState.Disconnected) {
                 fetchRequestChannel.sendBlocking(RequestFetch.ForRealLocation)
             }
         }
 
-        settingsListener.relaySettingsNotifier.subscribe(this) { relaySettings ->
+        endpoint.settingsListener.relaySettingsNotifier.subscribe(this) { relaySettings ->
             selectedRelayLocation = (relaySettings as? RelaySettings.Normal)?.let { settings ->
                 when (val constraint = settings.relayConstraints.location) {
                     is Constraint.Any -> null
@@ -105,8 +101,8 @@ class LocationInfoCache(
     }
 
     fun onDestroy() {
-        connectivityListener.connectivityNotifier.unsubscribe(this)
-        settingsListener.relaySettingsNotifier.unsubscribe(this)
+        endpoint.connectivityListener.connectivityNotifier.unsubscribe(this)
+        endpoint.settingsListener.relaySettingsNotifier.unsubscribe(this)
         stateEvents = null
 
         fetchRequestChannel.close()
