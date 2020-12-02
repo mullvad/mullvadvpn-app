@@ -237,6 +237,7 @@ fn spawn_daemon(
             resource_dir.clone(),
             resource_dir,
             cache_dir,
+            cache_dir,
             listener,
             command_channel,
             android_context,

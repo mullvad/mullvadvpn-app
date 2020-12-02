@@ -33,3 +33,18 @@ pub fn get_default_cache_dir() -> Result<PathBuf> {
         Ok(std::path::Path::new(crate::APP_PATH).join("cache"))
     }
 }
+
+/// Creates and returns a cache directory that is readable by all users.
+pub fn user_cache_dir() -> Result<PathBuf> {
+    crate::create_and_return(get_user_cache_dir, None)
+}
+
+pub fn get_user_cache_dir() -> Result<PathBuf> {
+    #[cfg(windows)]
+    {
+        let dir = crate::get_allusersprofile_dir();
+        dir.map(|dir| dir.join(crate::PRODUCT_NAME))
+    }
+    #[cfg(not(windows))]
+    get_cache_dir()
+}
