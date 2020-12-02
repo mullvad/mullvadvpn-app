@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service
 
+import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.TimeoutCancellationException
@@ -36,50 +37,41 @@ class LocationInfoCache(
     private var lastKnownRealLocation: GeoIpLocation? = null
     private var selectedRelayLocation: GeoIpLocation? = null
 
-    var onNewLocation: ((GeoIpLocation?) -> Unit)? = null
-        set(value) {
-            field = value
-            value?.invoke(location)
-        }
+    var onNewLocation by observable<((GeoIpLocation?) -> Unit)?>(null) { _, _, callback ->
+        callback?.invoke(location)
+    }
 
-    var location: GeoIpLocation? = null
-        set(value) {
-            field = value
-            onNewLocation?.invoke(value)
-        }
+    var location: GeoIpLocation? by observable(null) { _, _, newLocation ->
+        onNewLocation?.invoke(newLocation)
+    }
 
-    var state: TunnelState = TunnelState.Disconnected()
-        set(value) {
-            field = value
-
-            when (value) {
-                is TunnelState.Disconnected -> {
-                    location = lastKnownRealLocation
-                    fetchRequestChannel.sendBlocking(RequestFetch.ForRealLocation)
-                }
-                is TunnelState.Connecting -> location = value.location
-                is TunnelState.Connected -> {
-                    location = value.location
-                    fetchRequestChannel.sendBlocking(RequestFetch.ForRelayLocation)
-                }
-                is TunnelState.Disconnecting -> {
-                    when (value.actionAfterDisconnect) {
-                        ActionAfterDisconnect.Nothing -> location = lastKnownRealLocation
-                        ActionAfterDisconnect.Block -> location = null
-                        ActionAfterDisconnect.Reconnect -> location = selectedRelayLocation
-                    }
-                }
-                is TunnelState.Error -> location = null
+    var state by observable<TunnelState>(TunnelState.Disconnected()) { _, _, newState ->
+        when (newState) {
+            is TunnelState.Disconnected -> {
+                location = lastKnownRealLocation
+                fetchRequestChannel.sendBlocking(RequestFetch.ForRealLocation)
             }
-        }
-
-    var selectedRelay: RelayItem? = null
-        set(value) {
-            if (field != value) {
-                field = value
-                updateSelectedRelayLocation(value)
+            is TunnelState.Connecting -> location = newState.location
+            is TunnelState.Connected -> {
+                location = newState.location
+                fetchRequestChannel.sendBlocking(RequestFetch.ForRelayLocation)
             }
+            is TunnelState.Disconnecting -> {
+                when (newState.actionAfterDisconnect) {
+                    ActionAfterDisconnect.Nothing -> location = lastKnownRealLocation
+                    ActionAfterDisconnect.Block -> location = null
+                    ActionAfterDisconnect.Reconnect -> location = selectedRelayLocation
+                }
+            }
+            is TunnelState.Error -> location = null
         }
+    }
+
+    var selectedRelay by observable<RelayItem?>(null) { _, oldRelay, newRelay ->
+        if (newRelay != oldRelay) {
+            updateSelectedRelayLocation(newRelay)
+        }
+    }
 
     init {
         connectivityListener.connectivityNotifier.subscribe(this) { isConnected ->
