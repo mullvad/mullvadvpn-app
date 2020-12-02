@@ -9,6 +9,7 @@ import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.service.Event
 import net.mullvad.mullvadvpn.service.Request
 import net.mullvad.mullvadvpn.service.ServiceInstance
+import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 import net.mullvad.mullvadvpn.util.DispatchingHandler
 
@@ -22,7 +23,7 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     val connectionProxy = service.connectionProxy
     val customDns = service.customDns
     val keyStatusListener = service.keyStatusListener
-    val locationInfoCache = service.locationInfoCache
+    val locationInfoCache = LocationInfoCache(service.locationInfoCache)
     val settingsListener = SettingsListener(dispatcher)
     val splitTunneling = service.splitTunneling
 
@@ -38,6 +39,7 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     fun onDestroy() {
         dispatcher.onDestroy()
 
+        locationInfoCache.onDestroy()
         settingsListener.onDestroy()
 
         appVersionInfoCache.onDestroy()
