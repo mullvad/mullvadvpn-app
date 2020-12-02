@@ -75,9 +75,14 @@
                                   android:hint="@string/user_message_hint"
                                   android:gravity="top"
                                   style="@style/InputText" />
+                        <Button android:id="@+id/view_logs"
+                                android:layout_marginHorizontal="@dimen/side_margin"
+                                android:layout_marginVertical="@dimen/button_separation"
+                                android:enabled="true"
+                                android:text="@string/view_logs"
+                                style="@style/BlueButton" />
                         <Button android:id="@+id/send_button"
                                 android:layout_marginHorizontal="@dimen/side_margin"
-                                android:layout_marginTop="@dimen/button_separation"
                                 android:layout_marginBottom="@dimen/screen_vertical_margin"
                                 android:enabled="false"
                                 android:text="@string/send"
