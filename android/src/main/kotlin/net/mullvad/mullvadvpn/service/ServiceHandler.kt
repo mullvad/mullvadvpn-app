@@ -6,8 +6,9 @@ import android.os.Looper
 import android.os.Message
 import android.os.Messenger
 import kotlin.properties.Delegates.observable
+import net.mullvad.talpid.ConnectivityListener
 
-class ServiceHandler(looper: Looper) : Handler(looper) {
+class ServiceHandler(looper: Looper, connectivityListener: ConnectivityListener) : Handler(looper) {
     private val listeners = mutableListOf<Messenger>()
 
     val settingsListener = SettingsListener().apply {
@@ -16,8 +17,11 @@ class ServiceHandler(looper: Looper) : Handler(looper) {
         }
     }
 
+    val locationInfoCache = LocationInfoCache(connectivityListener, settingsListener)
+
     var daemon by observable<MullvadDaemon?>(null) { _, _, newDaemon ->
         settingsListener.daemon = newDaemon
+        locationInfoCache.daemon = newDaemon
     }
 
     override fun handleMessage(message: Message) {
