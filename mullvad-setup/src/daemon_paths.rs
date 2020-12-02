@@ -15,7 +15,9 @@ use winapi::{
     um::{
         combaseapi::CoTaskMemFree,
         handleapi::CloseHandle,
-        knownfolders::{FOLDERID_LocalAppData, FOLDERID_RoamingAppData, FOLDERID_System},
+        knownfolders::{
+            FOLDERID_LocalAppData, FOLDERID_ProgramFiles, FOLDERID_RoamingAppData, FOLDERID_System,
+        },
         processthreadsapi::{GetCurrentThread, OpenProcess, OpenProcessToken, OpenThreadToken},
         psapi::K32EnumProcesses,
         securitybaseapi::{AdjustTokenPrivileges, ImpersonateSelf, RevertToSelf},
@@ -33,6 +35,11 @@ use winapi::{
 pub fn get_mullvad_daemon_settings_path() -> io::Result<PathBuf> {
     get_system_service_known_folder(FOLDERID_LocalAppData)
         .map(|settings| settings.join(mullvad_paths::PRODUCT_NAME))
+}
+
+pub fn get_mullvad_resource_path() -> io::Result<PathBuf> {
+    get_known_folder_path(FOLDERID_ProgramFiles, KF_FLAG_DEFAULT, ptr::null_mut())
+        .map(|settings| settings.join(mullvad_paths::PRODUCT_NAME).join("resources"))
 }
 
 pub fn get_mullvad_daemon_cache_path() -> io::Result<PathBuf> {
