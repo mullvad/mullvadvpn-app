@@ -6,6 +6,7 @@ use std::{
     path::Path,
     sync::{Arc, Mutex},
 };
+use talpid_types::ErrorExt;
 use tokio::{
     fs,
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader},
@@ -20,6 +21,9 @@ pub enum Error {
     #[error(display = "Failed to read the address cache file")]
     ReadAddressCache(#[error(source)] io::Error),
 
+    #[error(display = "Failed to update the address cache file")]
+    WriteAddressCache(#[error(source)] io::Error),
+
     #[error(display = "The address cache is empty")]
     EmptyAddressCache,
 }
@@ -27,34 +31,41 @@ pub enum Error {
 #[derive(Clone)]
 pub struct AddressCache {
     inner: Arc<Mutex<AddressCacheInner>>,
-    cache_path: Option<Arc<Path>>,
+    write_path: Option<Arc<Path>>,
 }
 
 impl AddressCache {
-    /// Initialize cache using the given list, and write changes to `cache_path`.
-    pub fn new(addresses: Vec<SocketAddr>, cache_path: Option<Box<Path>>) -> Result<Self, Error> {
-        log::trace!("API address cache: {:?}", addresses);
-
-        let cache = AddressCacheInner::from_addresses(addresses)?;
+    /// Initialize cache using the given list, and write changes to `write_path`.
+    pub fn new(addresses: Vec<SocketAddr>, write_path: Option<Box<Path>>) -> Result<Self, Error> {
+        let mut cache = AddressCacheInner::from_addresses(addresses)?;
+        cache.shuffle_tail();
+        log::trace!("API address cache: {:?}", cache.addresses);
         log::debug!("Using API address: {:?}", Self::get_address_inner(&cache));
 
         let address_cache = Self {
             inner: Arc::new(Mutex::new(cache)),
-            cache_path: cache_path.map(|cache| Arc::from(cache)),
+            write_path: write_path.map(|cache| Arc::from(cache)),
         };
         Ok(address_cache)
     }
 
-    /// Initialize cache using `read_path`, and write changes to `cache_path`.
-    pub async fn from_file(read_path: &Path, cache_path: Option<Box<Path>>) -> Result<Self, Error> {
+    /// Initialize cache using `read_path`, and write changes to `write_path`.
+    pub async fn from_file(read_path: &Path, write_path: Option<Box<Path>>) -> Result<Self, Error> {
         log::debug!("Loading API addresses from {:?}", read_path);
-        Self::new(read_address_file(read_path).await?, cache_path)
+        Self::new(read_address_file(read_path).await?, write_path)
     }
 
+    /// Returns the currently selected address.
     pub fn get_address(&self) -> SocketAddr {
         let mut inner = self.inner.lock().unwrap();
-        inner.last_try = Some(inner.choice);
+        inner.tried_current = true;
+        Self::get_address_inner(&inner)
+    }
 
+    /// Returns the current address without registering it as "tried"
+    /// in [`has_tried_current_address`].
+    pub fn peek_address(&self) -> SocketAddr {
+        let inner = self.inner.lock().unwrap();
         Self::get_address_inner(&inner)
     }
 
@@ -68,26 +79,38 @@ impl AddressCache {
             .unwrap_or(&API_ADDRESS.into())
     }
 
-    pub fn register_failure(&self, failed_addr: SocketAddr, err: &dyn std::error::Error) {
-        let mut inner = self.inner.lock().unwrap();
+    pub fn has_tried_current_address(&self) -> bool {
+        let inner = self.inner.lock().unwrap();
+        inner.tried_current
+    }
 
-        let current_address = Self::get_address_inner(&inner);
-        // Only choose the next server if the current one has been tried before and it failed
-        if failed_addr == current_address
-            && inner
-                .last_try
-                .map(|last_try| last_try == inner.choice)
-                .unwrap_or(false)
-        {
+    pub async fn select_new_address(&self) {
+        let (new_choice, old_choice) = {
+            let mut inner = self.inner.lock().unwrap();
+            let old_choice = inner.choice;
             inner.choice = inner.choice.wrapping_add(1);
-            let new_address = Self::get_address_inner(&inner);
-            log::error!(
-                "HTTP request failed: {}, using address {}. Trying next API address: {}",
-                err,
-                failed_addr,
-                new_address
-            );
+            (inner.choice, old_choice)
+        };
+
+        if new_choice == old_choice {
+            return;
         }
+
+        if let Err(error) = self.save_to_disk().await {
+            log::error!("{}", error.display_chain());
+        }
+    }
+
+    /// Forgets the currently selected address and randomizes
+    /// the entire list.
+    pub async fn randomize(&self) -> Result<(), Error> {
+        {
+            let mut inner = self.inner.lock().unwrap();
+            inner.shuffle();
+            inner.choice = 0;
+            inner.tried_current = false;
+        }
+        self.save_to_disk().await.map_err(Error::WriteAddressCache)
     }
 
     pub async fn set_addresses(&self, mut addresses: Vec<SocketAddr>) -> io::Result<()> {
@@ -97,9 +120,20 @@ impl AddressCache {
             let mut current_sorted = inner.addresses.clone();
             current_sorted.sort();
             if addresses != current_sorted {
+                let current_address = Self::get_address_inner(&inner);
+
                 inner.addresses = addresses.clone();
                 inner.shuffle();
-                inner.choice = 0;
+
+                // Prefer a likely-working address
+                let choice = inner.addresses.iter().position(|&addr| addr == current_address);
+                if let Some(choice) = choice {
+                    inner.choice = choice;
+                } else {
+                    inner.choice = 0;
+                    inner.tried_current = false;
+                }
+
                 true
             } else {
                 false
@@ -107,26 +141,41 @@ impl AddressCache {
         };
         if should_update {
             log::trace!("API address cache: {:?}", addresses);
-            self.save_to_disk(addresses).await?;
+            self.save_to_disk().await?;
         }
         Ok(())
     }
 
-    async fn save_to_disk(&self, addresses: Vec<SocketAddr>) -> io::Result<()> {
-        if let Some(cache_path) = self.cache_path.as_ref() {
-            let mut file = fs::File::create(cache_path).await?;
-            let mut contents = addresses
-                .iter()
-                .map(ToString::to_string)
-                .collect::<Vec<String>>()
-                .join("\n");
-            contents += "\n";
+    async fn save_to_disk(&self) -> io::Result<()> {
+        let write_path = match self.write_path.as_ref() {
+            Some(write_path) => write_path,
+            None => return Ok(()),
+        };
 
-            file.write_all(contents.as_bytes()).await?;
-            file.sync_data().await?;
+        let (mut addresses, choice) = {
+            let inner = self.inner.lock().unwrap();
+            (inner.addresses.clone(), inner.choice)
+        };
+
+        // Place the current choice on top
+        if !addresses.is_empty() {
+            let addresses_len = addresses.len();
+            addresses.swap(0, choice % addresses_len);
         }
 
-        Ok(())
+        let temp_path = write_path.with_file_name("api-cache.temp");
+
+        let mut file = fs::File::create(&temp_path).await?;
+        let mut contents = addresses
+            .iter()
+            .map(ToString::to_string)
+            .collect::<Vec<String>>()
+            .join("\n");
+        contents += "\n";
+        file.write_all(contents.as_bytes()).await?;
+        file.sync_data().await?;
+
+        fs::rename(&temp_path, write_path).await
     }
 }
 
@@ -144,7 +193,7 @@ impl crate::rest::AddressProvider for AddressCache {
 struct AddressCacheInner {
     addresses: Vec<SocketAddr>,
     choice: usize,
-    last_try: Option<usize>,
+    tried_current: bool,
 }
 
 impl AddressCacheInner {
@@ -152,18 +201,22 @@ impl AddressCacheInner {
         if addresses.is_empty() {
             return Err(Error::EmptyAddressCache);
         }
-        let mut cache = Self {
+        Ok(Self {
             addresses,
             choice: 0,
-            last_try: None,
-        };
-        cache.shuffle();
-        Ok(cache)
+            tried_current: false,
+        })
     }
 
     fn shuffle(&mut self) {
         let mut rng = rand::thread_rng();
         (&mut self.addresses[..]).shuffle(&mut rng);
+    }
+
+    /// Shuffle all but the first element
+    fn shuffle_tail(&mut self) {
+        let mut rng = rand::thread_rng();
+        (&mut self.addresses[1..]).shuffle(&mut rng);
     }
 }
 
@@ -178,7 +231,6 @@ async fn read_address_file(path: &Path) -> Result<Vec<SocketAddr>, Error> {
         .await
         .map_err(|error| Error::ReadAddressCache(error))?
     {
-        // for line in lines.next_line() {
         match line.trim().parse() {
             Ok(address) => addresses.push(address),
             Err(err) => {

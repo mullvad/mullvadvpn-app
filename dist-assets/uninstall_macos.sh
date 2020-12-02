@@ -40,7 +40,7 @@ sudo pkgutil --forget net.mullvad.vpn || true
 
 read -p "Do you want to delete the log and cache files the app has created? (y/n) "
 if [[ "$REPLY" =~ [Yy]$ ]]; then
-    sudo rm -rf /var/log/mullvad-vpn /var/root/Library/Caches/mullvad-vpn
+    sudo rm -rf /var/log/mullvad-vpn /var/root/Library/Caches/mullvad-vpn /Library/Caches/mullvad-vpn
     for user in /Users/*; do
         user_log_dir="$user/Library/Logs/Mullvad VPN"
         if [[ -d "$user_log_dir" ]]; then

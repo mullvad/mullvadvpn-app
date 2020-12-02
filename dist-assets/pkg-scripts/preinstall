@@ -80,7 +80,10 @@ fi
 # Remove the existing relay and API address cache lists.
 # There is a risk that they're incompatible with the format this version wants
 rm "$NEW_CACHE_DIR/relays.json" || true
+# Old API IP cache
 rm "$NEW_CACHE_DIR/api-ip-address.txt" || true
+# New API IP cache
+rm "/Library/Caches/mullvad-vpn/api-ip-address.txt" || true
 
 # Notify the running daemon that we are going to kill it and replace it with a newer version.
 # This will make the daemon save it's state to a file and then lock the firewall to prevent

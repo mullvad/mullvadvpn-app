@@ -33,3 +33,26 @@ pub fn get_default_cache_dir() -> Result<PathBuf> {
         Ok(std::path::Path::new(crate::APP_PATH).join("cache"))
     }
 }
+
+/// Creates and returns a cache directory that is readable by all users.
+pub fn user_cache_dir() -> Result<PathBuf> {
+    #[cfg(not(target_os = "macos"))]
+    let permissions = None;
+    #[cfg(target_os = "macos")]
+    let permissions = Some(std::os::unix::fs::PermissionsExt::from_mode(0o755));
+    crate::create_and_return(get_user_cache_dir, permissions)
+}
+
+pub fn get_user_cache_dir() -> Result<PathBuf> {
+    #[cfg(windows)]
+    {
+        let dir = crate::get_allusersprofile_dir();
+        dir.map(|dir| dir.join(crate::PRODUCT_NAME))
+    }
+    #[cfg(target_os = "macos")]
+    {
+        Ok(std::path::Path::new("/Library/Caches").join(crate::PRODUCT_NAME))
+    }
+    #[cfg(not(any(target_os = "macos", windows)))]
+    get_cache_dir()
+}
