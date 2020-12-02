@@ -17,11 +17,11 @@ import net.mullvad.mullvadvpn.relaylist.RelayCity
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
+import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.talpid.ConnectivityListener
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class LocationInfoCache(
-    val daemon: MullvadDaemon,
     val connectionProxy: ConnectionProxy,
     val connectivityListener: ConnectivityListener
 ) {
@@ -34,8 +34,11 @@ class LocationInfoCache(
 
     private val fetchRequestChannel = runFetcher()
 
+    private var availableDaemon = Intermittent<MullvadDaemon>()
     private var lastKnownRealLocation: GeoIpLocation? = null
     private var selectedRelayLocation: GeoIpLocation? = null
+
+    var daemon by availableDaemon.source()
 
     var onNewLocation by observable<((GeoIpLocation?) -> Unit)?>(null) { _, _, callback ->
         callback?.invoke(location)
@@ -131,11 +134,11 @@ class LocationInfoCache(
 
         while (true) {
             var fetchType = channel.receive()
-            var newLocation = daemon.getCurrentLocation()
+            var newLocation = availableDaemon.await().getCurrentLocation()
 
             while (newLocation == null || !channel.isEmpty) {
                 fetchType = delayOrReceive(delays, channel, fetchType)
-                newLocation = daemon.getCurrentLocation()
+                newLocation = availableDaemon.await().getCurrentLocation()
             }
 
             handleNewLocation(newLocation, fetchType)

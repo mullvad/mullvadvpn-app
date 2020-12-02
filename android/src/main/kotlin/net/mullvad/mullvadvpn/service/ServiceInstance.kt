@@ -14,7 +14,10 @@ class ServiceInstance(
 ) {
     val accountCache = AccountCache(daemon, settingsListener)
     val keyStatusListener = KeyStatusListener(daemon)
-    val locationInfoCache = LocationInfoCache(daemon, connectionProxy, connectivityListener)
+
+    val locationInfoCache = LocationInfoCache(connectionProxy, connectivityListener).apply {
+        daemon = this@ServiceInstance.daemon
+    }
 
     fun onDestroy() {
         accountCache.onDestroy()
