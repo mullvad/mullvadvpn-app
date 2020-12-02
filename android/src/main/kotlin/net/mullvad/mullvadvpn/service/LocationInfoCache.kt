@@ -17,13 +17,14 @@ import net.mullvad.mullvadvpn.relaylist.RelayCity
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
+import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.talpid.ConnectivityListener
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class LocationInfoCache(
-    val daemon: MullvadDaemon,
     val connectionProxy: ConnectionProxy,
-    val connectivityListener: ConnectivityListener
+    val connectivityListener: ConnectivityListener,
+    val daemon: Intermittent<MullvadDaemon>
 ) {
     companion object {
         private enum class RequestFetch {
@@ -131,11 +132,11 @@ class LocationInfoCache(
 
         while (true) {
             var fetchType = channel.receive()
-            var newLocation = daemon.getCurrentLocation()
+            var newLocation = daemon.await().getCurrentLocation()
 
             while (newLocation == null || !channel.isEmpty) {
                 fetchType = delayOrReceive(delays, channel, fetchType)
-                newLocation = daemon.getCurrentLocation()
+                newLocation = daemon.await().getCurrentLocation()
             }
 
             handleNewLocation(newLocation, fetchType)
