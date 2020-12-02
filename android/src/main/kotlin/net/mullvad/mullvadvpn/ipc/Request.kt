@@ -11,7 +11,7 @@ sealed class Request : Message(), Parcelable {
     protected override val messageKey = MESSAGE_KEY
 
     @Parcelize
-    class RegisterListener(val listener: Messenger) : Request(), Parcelable
+    data class RegisterListener(val listener: Messenger) : Request(), Parcelable
 
     companion object {
         private const val MESSAGE_KEY = "request"
