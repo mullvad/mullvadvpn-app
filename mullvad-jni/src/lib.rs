@@ -236,6 +236,7 @@ fn spawn_daemon(
             Some(resource_dir.clone()),
             resource_dir.clone(),
             resource_dir,
+            cache_dir.clone(),
             cache_dir,
             listener,
             command_channel,

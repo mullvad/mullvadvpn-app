@@ -333,14 +333,14 @@ void RemoveRelayCacheServiceUser()
 
 void RemoveApiAddressCacheServiceUser()
 {
-	const auto localAppData = GetSystemUserLocalAppData();
-	const auto mullvadAppData = std::filesystem::path(localAppData).append(L"Mullvad VPN");
+	const auto programData = common::fs::GetKnownFolderPath(FOLDERID_ProgramData, KF_FLAG_DEFAULT, nullptr);
+	const auto mullvadProgramData = std::filesystem::path(programData).append(L"Mullvad VPN");
 
 	common::fs::ScopedNativeFileSystem nativeFileSystem;
 
-	common::security::AddAdminToObjectDacl(mullvadAppData, SE_FILE_OBJECT);
+	common::security::AddAdminToObjectDacl(mullvadProgramData, SE_FILE_OBJECT);
 
-	const auto cacheFile = std::filesystem::path(mullvadAppData).append(L"api-ip-address.txt");
+	const auto cacheFile = std::filesystem::path(mullvadProgramData).append(L"api-ip-address.txt");
 
 	std::filesystem::remove(cacheFile);
 }

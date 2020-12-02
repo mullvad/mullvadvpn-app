@@ -22,7 +22,7 @@ class MullvadProblemReport {
     }
 
     val logDirectory = CompletableDeferred<File>()
-    val resourcesDirectory = CompletableDeferred<File>()
+    val cacheDirectory = CompletableDeferred<File>()
 
     private val commandChannel = spawnActor()
 
@@ -112,7 +112,7 @@ class MullvadProblemReport {
                 userEmail,
                 userMessage,
                 problemReportPath.await().absolutePath,
-                resourcesDirectory.await().absolutePath
+                cacheDirectory.await().absolutePath
             )
 
         if (result) {
@@ -132,6 +132,6 @@ class MullvadProblemReport {
         userEmail: String,
         userMessage: String,
         reportPath: String,
-        resourcesDirectory: String
+        cacheDirectory: String
     ): Boolean
 }
