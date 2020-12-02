@@ -31,7 +31,7 @@
     "react-simple-maps": "^2.1.2",
     "redux": "^4.0.5",
     "sprintf-js": "^1.1.2",
-    "styled-components": "^5.2.1",
+    "styled-components": "^5.1.1",
     "uuid": "^3.0.1"
   },
   "optionalDependencies": {
