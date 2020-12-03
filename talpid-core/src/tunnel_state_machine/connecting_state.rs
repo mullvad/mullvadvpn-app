@@ -236,7 +236,7 @@ impl ConnectingState {
                 }
             }
             Some(TunnelCommand::CustomDns(servers)) => {
-                shared_values.custom_dns = servers;
+                shared_values.set_custom_dns(servers);
                 SameState(self.into())
             }
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {

@@ -193,9 +193,7 @@ impl ConnectedState {
                 }
             }
             Some(TunnelCommand::CustomDns(servers)) => {
-                if shared_values.custom_dns != servers {
-                    shared_values.custom_dns = servers;
-
+                if shared_values.set_custom_dns(servers) {
                     if let Err(error) = self.set_firewall_policy(shared_values) {
                         return self.disconnect(
                             shared_values,
