@@ -8,6 +8,7 @@
 
 import Foundation
 import Logging
+import WireGuardKit
 
 /// A private key rotation retry interval on failure (in seconds)
 private let kRetryIntervalOnFailure = 300
@@ -18,8 +19,7 @@ private let kRotationInterval = 4
 /// A struct describing the key rotation result
 struct KeyRotationResult {
     var isNew: Bool
-    var creationDate: Date
-    var publicKey: WireguardPublicKey
+    var publicKeyWithMetadata: PublicKeyWithMetadata
 }
 
 class AutomaticKeyRotationManager {
@@ -129,14 +129,13 @@ class AutomaticKeyRotationManager {
             let currentPrivateKey = keychainEntry.tunnelSettings.interface.privateKey
 
             if Self.shouldRotateKey(creationDate: currentPrivateKey.creationDate) {
-                let result = makeReplaceKeyTask(accountToken: keychainEntry.accountToken, oldPublicKey: currentPrivateKey.publicKey) { (result) in
+                let result = makeReplaceKeyTask(accountToken: keychainEntry.accountToken, oldPublicKey: currentPrivateKey.privateKey.publicKey) { (result) in
                     let result = result.map { (tunnelSettings) -> KeyRotationResult in
                         let newPrivateKey = tunnelSettings.interface.privateKey
 
                         return KeyRotationResult(
                             isNew: true,
-                            creationDate: newPrivateKey.creationDate,
-                            publicKey: newPrivateKey.publicKey
+                            publicKeyWithMetadata: newPrivateKey.publicKeyWithMetadata
                         )
                     }
 
@@ -155,8 +154,7 @@ class AutomaticKeyRotationManager {
             } else {
                 let event = KeyRotationResult(
                     isNew: false,
-                    creationDate: currentPrivateKey.creationDate,
-                    publicKey: currentPrivateKey.publicKey
+                    publicKeyWithMetadata: currentPrivateKey.publicKeyWithMetadata
                 )
 
                 self.didCompleteKeyRotation(result: .success(event))
@@ -169,15 +167,15 @@ class AutomaticKeyRotationManager {
 
     private func makeReplaceKeyTask(
         accountToken: String,
-        oldPublicKey: WireguardPublicKey,
+        oldPublicKey: PublicKey,
         completionHandler: @escaping (Result<TunnelSettings, Error>) -> Void) -> Result<URLSessionDataTask, RestError>
     {
-        let newPrivateKey = WireguardPrivateKey()
+        let newPrivateKeyWithMetadata = PrivateKeyWithMetadata()
         let payload = TokenPayload(
             token: accountToken,
             payload: ReplaceWireguardKeyRequest(
-                old: oldPublicKey.rawRepresentation,
-                new: newPrivateKey.publicKey.rawRepresentation
+                old: oldPublicKey.rawValue,
+                new: newPrivateKeyWithMetadata.privateKey.publicKey.rawValue
             )
         )
 
@@ -191,17 +189,17 @@ class AutomaticKeyRotationManager {
                         ipv6Address: response.ipv6Address
                     )
 
-                    return self.updateTunnelSettings(privateKey: newPrivateKey, addresses: addresses)
+                    return self.updateTunnelSettings(privateKeyWithMetadata: newPrivateKeyWithMetadata, addresses: addresses)
                 }
                 completionHandler(updateResult)
             }
         }
     }
 
-    private func updateTunnelSettings(privateKey: WireguardPrivateKey, addresses: WireguardAssociatedAddresses) -> Result<TunnelSettings, Error> {
+    private func updateTunnelSettings(privateKeyWithMetadata: PrivateKeyWithMetadata, addresses: WireguardAssociatedAddresses) -> Result<TunnelSettings, Error> {
         let updateResult = TunnelSettingsManager.update(searchTerm: .persistentReference(self.persistentKeychainReference))
             { (tunnelSettings) in
-                tunnelSettings.interface.privateKey = privateKey
+                tunnelSettings.interface.privateKey = privateKeyWithMetadata
                 tunnelSettings.interface.addresses = [
                     addresses.ipv4Address,
                     addresses.ipv6Address
@@ -224,7 +222,7 @@ class AutomaticKeyRotationManager {
                 }
             }
 
-            if let rotationDate = Self.nextRotation(creationDate: event.creationDate) {
+            if let rotationDate = Self.nextRotation(creationDate: event.publicKeyWithMetadata.creationDate) {
                 let interval = rotationDate.timeIntervalSinceNow
 
                 logger.info("Next private key rotation on \(rotationDate)")

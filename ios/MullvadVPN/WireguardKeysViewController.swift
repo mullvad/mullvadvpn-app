@@ -49,7 +49,7 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         navigationItem.title = NSLocalizedString("WireGuard key", comment: "Navigation title")
 
         TunnelManager.shared.addObserver(self)
-        updatePublicKey(publicKey: TunnelManager.shared.publicKey, animated: false)
+        updatePublicKeyWithMetadata(publicKeyWithMetadata: TunnelManager.shared.publicKeyWithMetadata, animated: false)
 
         startPublicKeyPeriodicUpdate()
     }
@@ -58,9 +58,9 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         let interval = DispatchTimeInterval.seconds(kCreationDateRefreshInterval)
         let timerSource = DispatchSource.makeTimerSource(queue: .main)
         timerSource.setEventHandler { [weak self] () -> Void in
-            let publicKey = TunnelManager.shared.publicKey
+            let metadata = TunnelManager.shared.publicKeyWithMetadata
 
-            self?.updatePublicKey(publicKey: publicKey, animated: true)
+            self?.updatePublicKeyWithMetadata(publicKeyWithMetadata: metadata, animated: true)
         }
         timerSource.schedule(deadline: .now() + interval, repeating: interval)
         timerSource.activate()
@@ -74,27 +74,27 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         // no-op
     }
 
-    func tunnelPublicKeyDidChange(publicKey: WireguardPublicKey?) {
+    func tunnelPublicKeyDidChange(publicKeyWithMetadata: PublicKeyWithMetadata?) {
         DispatchQueue.main.async {
-            self.updatePublicKey(publicKey: publicKey, animated: true)
+            self.updatePublicKeyWithMetadata(publicKeyWithMetadata: publicKeyWithMetadata, animated: true)
         }
     }
 
     // MARK: - IBActions
 
     @IBAction func copyPublicKey(_ sender: Any) {
-        guard let publicKey = TunnelManager.shared.publicKey else { return }
+        guard let metadata = TunnelManager.shared.publicKeyWithMetadata else { return }
 
-        UIPasteboard.general.string = publicKey.stringRepresentation()
+        UIPasteboard.general.string = metadata.stringRepresentation()
 
         setPublicKeyTitle(
             string: NSLocalizedString("COPIED TO PASTEBOARD!", comment: ""),
             animated: true)
 
         let dispatchWork = DispatchWorkItem { [weak self] in
-            let publicKey = TunnelManager.shared.publicKey
+            let metadata = TunnelManager.shared.publicKeyWithMetadata
 
-            self?.updatePublicKey(publicKey: publicKey, animated: true)
+            self?.updatePublicKeyWithMetadata(publicKeyWithMetadata: metadata, animated: true)
         }
 
         DispatchQueue.main.asyncAfter(wallDeadline: .now() + .seconds(3), execute: dispatchWork)
@@ -127,8 +127,8 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         creationDateLabel.text = formatKeyGenerationElapsedTime(with: creationDate) ?? "-"
     }
 
-    private func updatePublicKey(publicKey: WireguardPublicKey?, animated: Bool) {
-        if let publicKey = publicKey {
+    private func updatePublicKeyWithMetadata(publicKeyWithMetadata: PublicKeyWithMetadata?, animated: Bool) {
+        if let publicKey = publicKeyWithMetadata {
             let displayKey = publicKey
                 .stringRepresentation(maxLength: kDisplayPublicKeyMaxLength)
 

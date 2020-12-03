@@ -1,5 +1,5 @@
 //
-//  WireguardPrivateKey.swift
+//  PrivateKeyWithMetadata.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 20/06/2019.
@@ -7,58 +7,53 @@
 //
 
 import Foundation
+import WireGuardKit
 
-/// A convenience wrapper around the wireguard key
-struct WireguardPrivateKey {
+/// A struct holding a private WireGuard key with associated metadata
+struct PrivateKeyWithMetadata {
 
     /// When the key was created
     let creationDate: Date
 
-    /// Private key's raw representation
-    private(set) var rawRepresentation: Data
+    /// Private key
+    let privateKey: PrivateKey
 
-    /// Public key
-    var publicKey: WireguardPublicKey {
-        WireguardPublicKey(
-            creationDate: creationDate,
-            rawRepresentation: Curve25519.generatePublicKey(fromPrivateKey: rawRepresentation)
-        )
+    /// Public key metadata
+    var publicKeyWithMetadata: PublicKeyWithMetadata {
+        return PublicKeyWithMetadata(publicKey: privateKey.publicKey, createdAt: creationDate)
     }
 
     /// Initialize the new private key
     init() {
-        rawRepresentation = Curve25519.generatePrivateKey()
+        privateKey = PrivateKey()
         creationDate = Date()
     }
 
-    /// Load with the existing private key
-    init?(rawRepresentation: Data, createdAt: Date) {
-        guard rawRepresentation.count == Curve25519.keyLength else { return nil }
-
-        self.rawRepresentation = rawRepresentation
+    /// Initialize with the existing private key
+    init(privateKey: PrivateKey, createdAt: Date) {
+        self.privateKey = privateKey
         creationDate = createdAt
     }
 
 }
 
-extension WireguardPrivateKey: Equatable {
-    static func == (lhs: WireguardPrivateKey, rhs: WireguardPrivateKey) -> Bool {
-        lhs.rawRepresentation == rhs.rawRepresentation
-    }
-}
-
-/// A struct holding a public key used for Wireguard with associated metadata
-struct WireguardPublicKey: Codable, Equatable {
+/// A struct holding a public WireGuard key with associated metadata
+struct PublicKeyWithMetadata: Equatable {
     /// Refers to private key creation date
     let creationDate: Date
 
-    /// Raw public key representation
-    let rawRepresentation: Data
+    /// Public key
+    let publicKey: PublicKey
+
+    init(publicKey: PublicKey, createdAt: Date) {
+        self.publicKey = publicKey
+        creationDate = createdAt
+    }
 
     /// Returns a base64 encoded string representation that can be used for displaying the key in
     /// the user interface
     func stringRepresentation(maxLength: Int? = nil) -> String {
-        let base64EncodedKey = rawRepresentation.base64EncodedString()
+        let base64EncodedKey = publicKey.base64Key
 
         if let maxLength = maxLength, maxLength < base64EncodedKey.count {
             return base64EncodedKey.prefix(maxLength) + "..."
@@ -68,7 +63,7 @@ struct WireguardPublicKey: Codable, Equatable {
     }
 }
 
-extension WireguardPrivateKey: Codable {
+extension PrivateKeyWithMetadata: Codable {
 
     private enum CodingKeys: String, CodingKey {
         case privateKeyData, creationDate
@@ -77,23 +72,23 @@ extension WireguardPrivateKey: Codable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
-        try container.encode(rawRepresentation, forKey: .privateKeyData)
+        try container.encode(privateKey.rawValue, forKey: .privateKeyData)
         try container.encode(creationDate, forKey: .creationDate)
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let privateKeyBytes = try container.decode(Data.self, forKey: .privateKeyData)
-        let creationDate = try container.decode(Date.self, forKey: .creationDate)
 
-        if let instance = WireguardPrivateKey(rawRepresentation: privateKeyBytes, createdAt: creationDate) {
-            self = instance
-        } else {
+        guard let privateKey = PrivateKey(rawValue: privateKeyBytes) else {
             throw DecodingError.dataCorruptedError(
                 forKey: CodingKeys.privateKeyData,
                 in: container,
                 debugDescription: "Invalid key data"
             )
         }
+
+        self.privateKey = privateKey
+        self.creationDate = try container.decode(Date.self, forKey: .creationDate)
     }
 }
