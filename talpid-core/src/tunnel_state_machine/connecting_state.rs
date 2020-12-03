@@ -236,8 +236,11 @@ impl ConnectingState {
                 }
             }
             Some(TunnelCommand::CustomDns(servers)) => {
-                shared_values.set_custom_dns(servers);
-                SameState(self.into())
+                if let Err(error_cause) = shared_values.set_custom_dns(servers) {
+                    self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
+                } else {
+                    SameState(self.into())
+                }
             }
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
