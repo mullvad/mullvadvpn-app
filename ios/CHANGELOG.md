@@ -23,6 +23,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+- Migrate to WireGuardKit framework.
 
 ## [2020.5] - 2020-11-04
 ### Fixed
