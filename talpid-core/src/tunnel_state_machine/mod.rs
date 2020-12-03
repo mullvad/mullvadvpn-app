@@ -100,6 +100,8 @@ pub async fn spawn(
         android_context,
         #[cfg(target_os = "android")]
         allow_lan,
+        #[cfg(target_os = "android")]
+        custom_dns.clone(),
     );
 
     let runtime = tokio::runtime::Handle::current();
