@@ -8,6 +8,5 @@ sealed class ErrorStateCause {
     class StartTunnelError : ErrorStateCause()
     class TunnelParameterError(val error: ParameterGenerationError) : ErrorStateCause()
     class IsOffline : ErrorStateCause()
-    class VirtualAdapterProblem : ErrorStateCause()
     class VpnPermissionDenied : ErrorStateCause()
 }

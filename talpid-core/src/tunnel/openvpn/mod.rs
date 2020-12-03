@@ -12,8 +12,8 @@ use crate::{
 };
 #[cfg(target_os = "linux")]
 use ipnetwork::IpNetwork;
+#[cfg(windows)]
 use lazy_static::lazy_static;
-use regex::Regex;
 use std::{
     collections::HashMap,
     fs,
@@ -35,11 +35,28 @@ use talpid_types::ErrorExt;
 use tokio::task;
 #[cfg(target_os = "linux")]
 use which;
+#[cfg(windows)]
+use widestring::U16CString;
+#[cfg(windows)]
+use winapi::shared::{guiddef::GUID, winerror::ERROR_FILE_NOT_FOUND};
+
+#[cfg(windows)]
+mod windows;
 
 
+#[cfg(windows)]
 lazy_static! {
-    static ref ENV_ROUTE_ENTRY: Regex = Regex::new(r"route_(ipv6_)?(\w+)_(\d+)").unwrap();
+    static ref ADAPTER_ALIAS: U16CString = U16CString::from_str("Mullvad").unwrap();
+    static ref ADAPTER_POOL: U16CString = U16CString::from_str("Mullvad").unwrap();
 }
+
+#[cfg(windows)]
+const ADAPTER_GUID: GUID = GUID {
+    Data1: 0xAFE43773,
+    Data2: 0xE1F8,
+    Data3: 0x4EBB,
+    Data4: [0x85, 0x36, 0x57, 0x6A, 0xB8, 0x6A, 0xFE, 0x9A],
+};
 
 
 /// Results from fallible operations on the OpenVPN tunnel.
@@ -70,15 +87,20 @@ pub enum Error {
     #[error(display = "The OpenVPN event dispatcher exited unexpectedly")]
     EventDispatcherExited,
 
-    /// No virtual adapter was detected
+    /// cannot load wintun.dll
     #[cfg(windows)]
-    #[error(display = "No virtual adapter was detected")]
-    MissingVirtualAdapter,
+    #[error(display = "Failed to load wintun.dll")]
+    WintunDllError(#[error(source)] io::Error),
 
-    /// virtual adapter seems to be disabled
+    /// cannot create a wintun interface
     #[cfg(windows)]
-    #[error(display = "The virtual adapter appears to be disabled")]
-    DisabledVirtualAdapter,
+    #[error(display = "Failed to create Wintun adapter")]
+    WintunError(#[error(source)] io::Error),
+
+    /// cannot create a wintun interface
+    #[cfg(windows)]
+    #[error(display = "Failed to delete existing Wintun adapter")]
+    WintunDeleteExistingError(#[error(source)] io::Error),
 
     /// OpenVPN process died unexpectedly
     #[error(display = "OpenVPN process died unexpectedly")]
@@ -176,6 +198,9 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     runtime: tokio::runtime::Runtime,
     event_server_abort_tx: triggered::Trigger,
     server_join_handle: Option<task::JoinHandle<std::result::Result<(), event_server::Error>>>,
+
+    #[cfg(windows)]
+    wintun_adapter: Option<windows::TemporaryWintunAdapter>,
 }
 
 
@@ -270,6 +295,42 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 
         let plugin_path = Self::get_plugin_path(resource_dir)?;
 
+        #[cfg(windows)]
+        let wintun_adapter = {
+            let dll =
+                Arc::new(windows::WintunDll::new(resource_dir).map_err(Error::WintunDllError)?);
+
+            {
+                match windows::WintunAdapter::open(dll.clone(), &*ADAPTER_ALIAS, &*ADAPTER_POOL) {
+                    Ok(adapter) => {
+                        // Delete existing adapter in case it has residual config
+                        adapter
+                            .delete(false)
+                            .map_err(Error::WintunDeleteExistingError)?;
+                    }
+                    Err(error) => {
+                        if error.raw_os_error() != Some(ERROR_FILE_NOT_FOUND as i32) {
+                            return Err(Error::WintunError(error));
+                        }
+                    }
+                }
+            }
+
+            let (adapter, reboot_required) = windows::TemporaryWintunAdapter::create(
+                dll.clone(),
+                &*ADAPTER_ALIAS,
+                &*ADAPTER_POOL,
+                Some(ADAPTER_GUID.clone()),
+            )
+            .map_err(Error::WintunError)?;
+
+            if reboot_required {
+                log::warn!("You may need to restart Windows to complete the install of Wintun");
+            }
+
+            adapter
+        };
+
         Self::new_internal(
             cmd,
             on_openvpn_event,
@@ -278,6 +339,8 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             user_pass_file,
             proxy_auth_file,
             proxy_monitor,
+            #[cfg(windows)]
+            Some(wintun_adapter),
         )
     }
 }
@@ -330,6 +393,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         user_pass_file: mktemp::TempFile,
         proxy_auth_file: Option<mktemp::TempFile>,
         proxy_monitor: Option<Box<dyn ProxyMonitor>>,
+        #[cfg(windows)] wintun_adapter: Option<windows::TemporaryWintunAdapter>,
     ) -> Result<OpenVpnMonitor<C>>
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
@@ -383,6 +447,9 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             runtime,
             event_server_abort_tx,
             server_join_handle: Some(server_join_handle),
+
+            #[cfg(windows)]
+            wintun_adapter,
         })
     }
 
@@ -455,7 +522,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
                     Ok(())
                 } else {
                     log::error!("OpenVPN died unexpectedly with status: {}", exit_status);
-                    Err(self.postmortem())
+                    Err(Error::ChildProcessDied)
                 }
             }
             WaitResult::Child(Err(e), _) => {
@@ -501,25 +568,6 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         let result = rx.recv().expect("inner_wait_tunnel no result");
         let _ = rx.recv().expect("inner_wait_tunnel no second result");
         result
-    }
-
-    /// Performs a postmortem analysis to attempt to provide a more detailed error result.
-    fn postmortem(&mut self) -> Error {
-        #[cfg(windows)]
-        {
-            if let Some(log_path) = self.log_path.take() {
-                if let Ok(log) = fs::read_to_string(log_path) {
-                    if log.contains("There are no TAP-Windows adapters on this system") {
-                        return Error::MissingVirtualAdapter;
-                    }
-                    if log.contains("CreateFile failed on TAP device") {
-                        return Error::DisabledVirtualAdapter;
-                    }
-                }
-            }
-        }
-
-        Error::ChildProcessDied
     }
 
     fn create_proxy_auth_file(
@@ -601,9 +649,8 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             .ca(resource_dir.join("ca.crt"));
         #[cfg(windows)]
         {
-            cmd.tunnel_alias(Some(
-                crate::winnet::get_interface_alias().map_err(Error::WinnetError)?,
-            ));
+            use std::ffi::OsString;
+            cmd.tunnel_alias(Some(OsString::from("Mullvad")));
             cmd.windows_driver(Some(crate::process::openvpn::WindowsDriver::Wintun));
         }
         if let Some(proxy_settings) = params.proxy.clone().take() {
@@ -910,6 +957,8 @@ mod tests {
             TempFile::new(),
             None,
             None,
+            #[cfg(windows)]
+            None,
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_plugin")),
@@ -928,6 +977,8 @@ mod tests {
             TempFile::new(),
             None,
             None,
+            #[cfg(windows)]
+            None,
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_log_file")),
@@ -939,9 +990,18 @@ mod tests {
     fn exit_successfully() {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(0));
-        let testee =
-            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None, None)
-                .unwrap();
+        let testee = OpenVpnMonitor::new_internal(
+            builder,
+            |_, _| {},
+            "",
+            None,
+            TempFile::new(),
+            None,
+            None,
+            #[cfg(windows)]
+            None,
+        )
+        .unwrap();
         assert!(testee.wait().is_ok());
     }
 
@@ -949,9 +1009,18 @@ mod tests {
     fn exit_error() {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(1));
-        let testee =
-            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None, None)
-                .unwrap();
+        let testee = OpenVpnMonitor::new_internal(
+            builder,
+            |_, _| {},
+            "",
+            None,
+            TempFile::new(),
+            None,
+            None,
+            #[cfg(windows)]
+            None,
+        )
+        .unwrap();
         assert!(testee.wait().is_err());
     }
 
@@ -959,9 +1028,18 @@ mod tests {
     fn wait_closed() {
         let mut builder = TestOpenVpnBuilder::default();
         builder.process_handle = Some(TestProcessHandle(1));
-        let testee =
-            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None, None)
-                .unwrap();
+        let testee = OpenVpnMonitor::new_internal(
+            builder,
+            |_, _| {},
+            "",
+            None,
+            TempFile::new(),
+            None,
+            None,
+            #[cfg(windows)]
+            None,
+        )
+        .unwrap();
         testee.close_handle().close().unwrap();
         assert!(testee.wait().is_ok());
     }
@@ -969,9 +1047,18 @@ mod tests {
     #[test]
     fn failed_process_start() {
         let builder = TestOpenVpnBuilder::default();
-        let error =
-            OpenVpnMonitor::new_internal(builder, |_, _| {}, "", None, TempFile::new(), None, None)
-                .unwrap_err();
+        let error = OpenVpnMonitor::new_internal(
+            builder,
+            |_, _| {},
+            "",
+            None,
+            TempFile::new(),
+            None,
+            None,
+            #[cfg(windows)]
+            None,
+        )
+        .unwrap_err();
         match error {
             Error::ChildProcessError(..) => (),
             _ => panic!("Wrong error"),

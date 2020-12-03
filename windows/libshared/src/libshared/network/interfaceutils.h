@@ -67,13 +67,6 @@ public:
 	static std::set<NetworkAdapter> GetAllAdapters(ULONG family, ULONG flags);
 
 	static void AddDeviceIpAddresses(NET_LUID device, const std::vector<SOCKADDR_INET> &addresses);
-
-	static std::set<NetworkAdapter> GetVirtualAdapters(const std::set<NetworkAdapter> &adapters);
-
-	//
-	// Determines alias of primary virtual adapter.
-	//
-	static std::wstring GetInterfaceAlias();
 };
 
 }

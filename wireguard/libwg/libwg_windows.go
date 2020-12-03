@@ -9,6 +9,7 @@ package main
 import (
 	"C"
 	"bufio"
+	"fmt"
 	"strings"
 	"unsafe"
 
@@ -17,6 +18,7 @@ import (
 	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
+	"golang.zx2c4.com/wireguard/tun/wintun"
 	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 
 	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/interfacewatcher"
@@ -28,6 +30,16 @@ import (
 // Taken from the contained logging package.
 type LogSink = unsafe.Pointer
 type LogContext = unsafe.Pointer
+
+var MullvadPool *wintun.Pool
+
+func init() {
+	var err error
+	MullvadPool, err = wintun.MakePool("Mullvad")
+	if err != nil {
+		panic(fmt.Errorf("Failed to make pool: %w", err))
+	}
+}
 
 func createInterfaceWatcherEvents(waitOnIpv6 bool, tunLuid uint64) []interfacewatcher.Event {
 	if waitOnIpv6 {
@@ -77,6 +89,10 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, l
 		return ERROR_GENERAL_FAILURE
 	}
 	defer watcher.Destroy()
+
+	if tun.WintunPool != MullvadPool {
+		tun.WintunPool = MullvadPool
+	}
 
 	wintun, err := tun.CreateTUNWithRequestedGUID(ifaceName, &networkId, mtu)
 	if err != nil {

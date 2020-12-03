@@ -90,7 +90,7 @@ impl FirewallT for Firewall {
                 self.set_connecting_state(
                     &peer_endpoint,
                     &cfg,
-                    "wg-mullvad".to_string(),
+                    "Mullvad".to_string(),
                     &pingable_hosts,
                     &relay_client,
                 )

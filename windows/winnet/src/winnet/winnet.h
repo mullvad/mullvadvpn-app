@@ -43,39 +43,6 @@ WinNet_EnableIpv6ForAdapter(
 	void *logSinkContext
 );
 
-extern "C"
-WINNET_LINKAGE
-bool
-WINNET_API
-WinNet_GetInterfaceAlias(
-	wchar_t **alias,
-	MullvadLogSink logSink,
-	void *logSinkContext
-);
-
-extern "C"
-WINNET_LINKAGE
-bool
-WINNET_API
-WinNet_InterfaceAliasToGuid(
-	const wchar_t *alias,
-	wchar_t **guid,
-	MullvadLogSink logSink,
-	void *logSinkContext
-);
-
-//
-// This is a companion function to the above function.
-// Generically named in case we need other functions here that return strings.
-//
-extern "C"
-WINNET_LINKAGE
-void
-WINNET_API
-WinNet_ReleaseString(
-	wchar_t *str
-);
-
 typedef void (WINNET_API *WinNetConnectivityMonitorCallback)(bool connected, void *context);
 
 extern "C"
