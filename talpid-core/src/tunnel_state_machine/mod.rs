@@ -328,6 +328,15 @@ impl SharedTunnelStateValues {
         Ok(())
     }
 
+    pub fn set_custom_dns(&mut self, custom_dns: Option<Vec<IpAddr>>) -> bool {
+        if self.custom_dns != custom_dns {
+            self.custom_dns = custom_dns;
+            true
+        } else {
+            false
+        }
+    }
+
     /// NetworkManager's connectivity check can get hung when DNS requests fail, thus the TSM
     /// should always disable it before applying firewall rules. The connectivity check should be
     /// reset whenever the firewall is cleared.
