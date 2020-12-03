@@ -1,6 +1,7 @@
 import moment from 'moment';
 import { sprintf } from 'sprintf-js';
 import { messages } from './gettext';
+import { capitalize } from './string-helpers';
 
 type DateArgument = string | Date | moment.Moment;
 
@@ -47,9 +48,5 @@ export function formatRemainingTime(
     { duration },
   );
 
-  return shouldCapitalizeFirstLetter ? capitalizeFirstLetter(remaining) : remaining;
-}
-
-function capitalizeFirstLetter(inputString: string): string {
-  return inputString.charAt(0).toUpperCase() + inputString.slice(1);
+  return shouldCapitalizeFirstLetter ? capitalize(remaining) : remaining;
 }
