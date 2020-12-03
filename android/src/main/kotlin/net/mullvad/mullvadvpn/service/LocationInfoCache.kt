@@ -1,11 +1,15 @@
 package net.mullvad.mullvadvpn.service
 
+import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.sendBlocking
+import kotlinx.coroutines.withTimeout
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.Relay
@@ -21,63 +25,58 @@ class LocationInfoCache(
     val connectionProxy: ConnectionProxy,
     val connectivityListener: ConnectivityListener
 ) {
-    private var activeFetch: Job? = null
+    companion object {
+        private enum class RequestFetch {
+            ForRealLocation,
+            ForRelayLocation,
+        }
+    }
+
+    private val fetchRequestChannel = runFetcher()
+
     private var lastKnownRealLocation: GeoIpLocation? = null
     private var selectedRelayLocation: GeoIpLocation? = null
 
-    private var fetchIdCounter = 0L
-    private var fetchIdIsActive = false
+    var onNewLocation by observable<((GeoIpLocation?) -> Unit)?>(null) { _, _, callback ->
+        callback?.invoke(location)
+    }
 
-    var onNewLocation: ((GeoIpLocation?) -> Unit)? = null
-        set(value) {
-            field = value
-            value?.invoke(location)
-        }
+    var location: GeoIpLocation? by observable(null) { _, _, newLocation ->
+        onNewLocation?.invoke(newLocation)
+    }
 
-    var location: GeoIpLocation? = null
-        set(value) {
-            field = value
-            onNewLocation?.invoke(value)
-        }
-
-    var state: TunnelState = TunnelState.Disconnected()
-        set(value) {
-            field = value
-            cancelFetch()
-
-            when (value) {
-                is TunnelState.Disconnected -> {
-                    location = lastKnownRealLocation
-                    fetchLocation(true)
-                }
-                is TunnelState.Connecting -> location = value.location
-                is TunnelState.Connected -> {
-                    location = value.location
-                    fetchLocation(false)
-                }
-                is TunnelState.Disconnecting -> {
-                    when (value.actionAfterDisconnect) {
-                        ActionAfterDisconnect.Nothing -> location = lastKnownRealLocation
-                        ActionAfterDisconnect.Block -> location = null
-                        ActionAfterDisconnect.Reconnect -> location = selectedRelayLocation
-                    }
-                }
-                is TunnelState.Error -> location = null
+    var state by observable<TunnelState>(TunnelState.Disconnected()) { _, _, newState ->
+        when (newState) {
+            is TunnelState.Disconnected -> {
+                location = lastKnownRealLocation
+                fetchRequestChannel.sendBlocking(RequestFetch.ForRealLocation)
             }
-        }
-
-    var selectedRelay: RelayItem? = null
-        set(value) {
-            if (field != value) {
-                field = value
-                updateSelectedRelayLocation(value)
+            is TunnelState.Connecting -> location = newState.location
+            is TunnelState.Connected -> {
+                location = newState.location
+                fetchRequestChannel.sendBlocking(RequestFetch.ForRelayLocation)
             }
+            is TunnelState.Disconnecting -> {
+                when (newState.actionAfterDisconnect) {
+                    ActionAfterDisconnect.Nothing -> location = lastKnownRealLocation
+                    ActionAfterDisconnect.Block -> location = null
+                    ActionAfterDisconnect.Reconnect -> location = selectedRelayLocation
+                }
+            }
+            is TunnelState.Error -> location = null
         }
+    }
+
+    var selectedRelay by observable<RelayItem?>(null) { _, oldRelay, newRelay ->
+        if (newRelay != oldRelay) {
+            updateSelectedRelayLocation(newRelay)
+        }
+    }
 
     init {
         connectivityListener.connectivityNotifier.subscribe(this) { isConnected ->
             if (isConnected && state is TunnelState.Disconnected) {
-                fetchLocation(true)
+                fetchRequestChannel.sendBlocking(RequestFetch.ForRealLocation)
             }
         }
 
@@ -89,7 +88,7 @@ class LocationInfoCache(
     fun onDestroy() {
         connectivityListener.connectivityNotifier.unsubscribe(this)
         connectionProxy.onStateChange.unsubscribe(this)
-        cancelFetch()
+        fetchRequestChannel.close()
     }
 
     private fun updateSelectedRelayLocation(relayItem: RelayItem?) {
@@ -113,60 +112,60 @@ class LocationInfoCache(
         }
     }
 
-    private fun newFetchId(): Long {
-        synchronized(this) {
-            if (fetchIdIsActive) {
-                fetchIdCounter += 1
-            } else {
-                fetchIdIsActive = true
-            }
-
-            return fetchIdCounter
+    private fun runFetcher() = GlobalScope.actor<RequestFetch>(
+        Dispatchers.Default,
+        Channel.CONFLATED
+    ) {
+        try {
+            fetcherLoop(channel)
+        } catch (exception: ClosedReceiveChannelException) {
         }
     }
 
-    private fun cancelFetch() {
-        synchronized(this) {
-            if (fetchIdIsActive) {
-                fetchIdCounter += 1
-                fetchIdIsActive = false
+    private suspend fun fetcherLoop(channel: ReceiveChannel<RequestFetch>) {
+        val delays = ExponentialBackoff().apply {
+            scale = 50
+            cap = 30 /* min */ * 60 /* s */ * 1000 /* ms */
+            count = 17 // ceil(log2(cap / scale) + 1)
+        }
+
+        while (true) {
+            var fetchType = channel.receive()
+            var newLocation = daemon.getCurrentLocation()
+
+            while (newLocation == null || !channel.isEmpty) {
+                fetchType = delayOrReceive(delays, channel, fetchType)
+                newLocation = daemon.getCurrentLocation()
             }
+
+            handleNewLocation(newLocation, fetchType)
+            delays.reset()
         }
     }
 
-    private fun fetchLocation(isRealLocation: Boolean) {
-        val fetchId = newFetchId()
-        val previousFetch = activeFetch
-
-        activeFetch = GlobalScope.launch(Dispatchers.Main) {
-            val delays = ExponentialBackoff().apply {
-                scale = 50
-                cap = 30 /* min */ * 60 /* s */ * 1000 /* ms */
-                count = 17 // ceil(log2(cap / scale) + 1)
+    private suspend fun delayOrReceive(
+        delays: ExponentialBackoff,
+        channel: ReceiveChannel<RequestFetch>,
+        currentValue: RequestFetch
+    ): RequestFetch {
+        try {
+            val newValue = withTimeout(delays.next()) {
+                channel.receive()
             }
 
-            var newLocation: GeoIpLocation? = null
+            delays.reset()
 
-            previousFetch?.join()
-
-            while (newLocation == null && fetchId == fetchIdCounter) {
-                delay(delays.next())
-                newLocation = executeFetch().await()
-            }
-
-            synchronized(this@LocationInfoCache) {
-                if (newLocation != null && fetchId == fetchIdCounter) {
-                    location = newLocation
-
-                    if (isRealLocation) {
-                        lastKnownRealLocation = newLocation
-                    }
-                }
-            }
+            return newValue
+        } catch (timeOut: TimeoutCancellationException) {
+            return currentValue
         }
     }
 
-    private fun executeFetch() = GlobalScope.async(Dispatchers.Default) {
-        daemon.getCurrentLocation()
+    private fun handleNewLocation(newLocation: GeoIpLocation, fetchType: RequestFetch) {
+        if (fetchType == RequestFetch.ForRealLocation) {
+            lastKnownRealLocation = newLocation
+        }
+
+        location = newLocation
     }
 }
