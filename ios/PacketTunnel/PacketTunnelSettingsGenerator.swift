@@ -10,6 +10,7 @@
 import Foundation
 import Network
 import NetworkExtension
+import WireGuardKit
 
 struct PacketTunnelSettingsGenerator {
     let mullvadEndpoint: MullvadEndpoint

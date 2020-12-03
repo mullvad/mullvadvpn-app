@@ -8,6 +8,7 @@
 
 import Foundation
 import Network
+import WireGuardKit
 
 /// A enum describing any IP endpoint
 enum AnyIPEndpoint: Hashable {
@@ -56,6 +57,17 @@ extension AnyIPEndpoint: CustomStringConvertible {
             return "\(ipv4Endpoint)"
         case .ipv6(let ipv6Endpoint):
             return "\(ipv6Endpoint)"
+        }
+    }
+}
+
+extension AnyIPEndpoint {
+    var wgEndpoint: WireGuardKit.Endpoint {
+        switch self {
+        case .ipv4(let ipv4Endpoint):
+            return .init(host: .ipv4(ipv4Endpoint.ip), port: .init(integerLiteral: ipv4Endpoint.port))
+        case .ipv6(let ipv6Endpoint):
+            return .init(host: .ipv6(ipv6Endpoint.ip), port: .init(integerLiteral: ipv6Endpoint.port))
         }
     }
 }
