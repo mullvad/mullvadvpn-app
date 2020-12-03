@@ -170,10 +170,11 @@ impl AndroidTunProvider {
         }
     }
 
-    fn get_tun_fd(&mut self, config: TunConfig) -> Result<RawFd, Error> {
+    fn get_tun_fd(&mut self, mut config: TunConfig) -> Result<RawFd, Error> {
+        self.prepare_tun_config(&mut config);
+
         let env = self.env()?;
-        let actual_config = self.prepare_tun_config(config);
-        let java_config = actual_config.into_java(&env);
+        let java_config = config.into_java(&env);
 
         let result = self.call_method(
             "getTun",
@@ -191,8 +192,11 @@ impl AndroidTunProvider {
     }
 
     fn recreate_tun_if_open(&mut self) -> Result<(), Error> {
+        let mut actual_config = self.last_tun_config.clone();
+
+        self.prepare_tun_config(&mut actual_config);
+
         let env = self.env()?;
-        let actual_config = self.prepare_tun_config(self.last_tun_config.clone());
         let java_config = actual_config.into_java(&env);
 
         let result = self.call_method(
@@ -208,7 +212,7 @@ impl AndroidTunProvider {
         }
     }
 
-    fn prepare_tun_config(&self, config: TunConfig) -> TunConfig {
+    fn prepare_tun_config(&self, config: &mut TunConfig) {
         if self.allow_lan {
             let (required_ipv4_routes, required_ipv6_routes) = config
                 .required_routes
@@ -245,9 +249,7 @@ impl AndroidTunProvider {
                 })
                 .collect();
 
-            TunConfig { routes, ..config }
-        } else {
-            config
+            config.routes = routes;
         }
     }
 
