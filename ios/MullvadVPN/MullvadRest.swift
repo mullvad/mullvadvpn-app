@@ -8,6 +8,7 @@
 
 import Foundation
 import Network
+import WireGuardKit
 
 /// REST API v1 base URL
 private let kRestBaseURL = URL(string: "https://api.mullvad.net/app/v1")!

@@ -9,10 +9,11 @@
 import Foundation
 import Network
 import NetworkExtension
+import WireGuardKit
 
 /// A struct that holds a tun interface configuration
 struct InterfaceSettings: Codable {
-    var privateKey = WireguardPrivateKey()
+    var privateKey = PrivateKeyWithMetadata()
     var addresses = [IPAddressRange]()
 }
 
@@ -21,3 +22,4 @@ struct TunnelSettings: Codable {
     var relayConstraints = RelayConstraints()
     var interface = InterfaceSettings()
 }
+

@@ -131,7 +131,7 @@ class AsyncOperation: Operation, OperationProtocol {
     }
 }
 
-/// This extension exists because Swift has some issues to infer the
+/// This extension exists because Swift has some issues with infering the associated type in `OperationObserver`
 extension OperationProtocol where Self: AsyncOperation {
     func addObserver<T: OperationObserver>(_ observer: T) where T.OperationType == Self {
         let transform = TransformOperationObserver<AsyncOperation>(observer)
