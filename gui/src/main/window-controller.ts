@@ -199,12 +199,6 @@ export default class WindowController {
     return this.windowValue.isVisible();
   }
 
-  // Electron uses the `any` type.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public send(event: string, ...data: any[]): void {
-    this.webContentsValue.send(event, ...data);
-  }
-
   private showImmediately() {
     const window = this.windowValue;
 
