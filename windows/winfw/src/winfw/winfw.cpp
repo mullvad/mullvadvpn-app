@@ -74,7 +74,7 @@ HandlePolicyException(const common::error::WindowsException &err)
 wfp::IpNetwork g_privateIpRanges[] = {
 	wfp::IpNetwork(wfp::IpAddress::Literal{127, 0, 0, 0}, 8),
 	wfp::IpNetwork(wfp::IpAddress::Literal{10, 0, 0, 0}, 8),
-	wfp::IpNetwork(wfp::IpAddress::Literal{176, 16, 0, 0}, 12),
+	wfp::IpNetwork(wfp::IpAddress::Literal{172, 16, 0, 0}, 12),
 	wfp::IpNetwork(wfp::IpAddress::Literal{192, 168, 0, 0}, 16),
 	wfp::IpNetwork(wfp::IpAddress::Literal{169, 254, 0, 0}, 16),
 	wfp::IpNetwork(wfp::IpAddress::Literal6{0, 0, 0, 0, 0, 0, 0, 1}, 128),
