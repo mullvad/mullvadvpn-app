@@ -106,8 +106,11 @@ impl TunnelState for ErrorState {
                 }
             }
             Some(TunnelCommand::CustomDns(servers)) => {
-                shared_values.set_custom_dns(servers);
-                SameState(self.into())
+                if let Err(error_state_cause) = shared_values.set_custom_dns(servers) {
+                    NewState(Self::enter(shared_values, error_state_cause))
+                } else {
+                    SameState(self.into())
+                }
             }
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;

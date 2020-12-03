@@ -328,12 +328,29 @@ impl SharedTunnelStateValues {
         Ok(())
     }
 
-    pub fn set_custom_dns(&mut self, custom_dns: Option<Vec<IpAddr>>) -> bool {
+    pub fn set_custom_dns(
+        &mut self,
+        custom_dns: Option<Vec<IpAddr>>,
+    ) -> Result<bool, ErrorStateCause> {
         if self.custom_dns != custom_dns {
-            self.custom_dns = custom_dns;
-            true
+            self.custom_dns = custom_dns.clone();
+
+            #[cfg(target_os = "android")]
+            {
+                if let Err(error) = self.tun_provider.set_custom_dns_servers(custom_dns) {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to restart tunnel after changing custom DNS servers",
+                        )
+                    );
+                    return Err(ErrorStateCause::StartTunnelError);
+                }
+            }
+
+            Ok(true)
         } else {
-            false
+            Ok(false)
         }
     }
 
