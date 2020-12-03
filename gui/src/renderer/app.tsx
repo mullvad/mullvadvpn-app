@@ -170,11 +170,11 @@ export default class AppRenderer {
       this.storeAutoStart(autoStart);
     });
 
-    IpcRendererEventChannel.wireguardKeys.listen((publicKey?: IWireguardPublicKey) => {
+    IpcRendererEventChannel.wireguardKeys.listenPublicKey((publicKey?: IWireguardPublicKey) => {
       this.setWireguardPublicKey(publicKey);
     });
 
-    IpcRendererEventChannel.wireguardKeys.listenKeygenEvents((event: KeygenEvent) => {
+    IpcRendererEventChannel.wireguardKeys.listenKeygenEvent((event: KeygenEvent) => {
       this.reduxActions.settings.setWireguardKeygenEvent(event);
     });
 

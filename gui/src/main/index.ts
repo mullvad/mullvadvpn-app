@@ -632,7 +632,10 @@ class ApplicationMain {
   private setWireguardKey(wireguardKey?: IWireguardPublicKey) {
     this.wireguardPublicKey = wireguardKey;
     if (this.windowController) {
-      IpcMainEventChannel.wireguardKeys.notify(this.windowController.webContents, wireguardKey);
+      IpcMainEventChannel.wireguardKeys.notifyPublicKey(
+        this.windowController.webContents,
+        wireguardKey,
+      );
     }
 
     if (wireguardKey) {
@@ -981,19 +984,19 @@ class ApplicationMain {
       wireguardPublicKey: this.wireguardPublicKey,
     }));
 
-    IpcMainEventChannel.settings.handleAllowLan((allowLan: boolean) =>
+    IpcMainEventChannel.settings.handleSetAllowLan((allowLan: boolean) =>
       this.daemonRpc.setAllowLan(allowLan),
     );
-    IpcMainEventChannel.settings.handleShowBetaReleases((showBetaReleases: boolean) =>
+    IpcMainEventChannel.settings.handleSetShowBetaReleases((showBetaReleases: boolean) =>
       this.daemonRpc.setShowBetaReleases(showBetaReleases),
     );
-    IpcMainEventChannel.settings.handleEnableIpv6((enableIpv6: boolean) =>
+    IpcMainEventChannel.settings.handleSetEnableIpv6((enableIpv6: boolean) =>
       this.daemonRpc.setEnableIpv6(enableIpv6),
     );
-    IpcMainEventChannel.settings.handleBlockWhenDisconnected((blockWhenDisconnected: boolean) =>
+    IpcMainEventChannel.settings.handleSetBlockWhenDisconnected((blockWhenDisconnected: boolean) =>
       this.daemonRpc.setBlockWhenDisconnected(blockWhenDisconnected),
     );
-    IpcMainEventChannel.settings.handleBridgeState(async (bridgeState: BridgeState) => {
+    IpcMainEventChannel.settings.handleSetBridgeState(async (bridgeState: BridgeState) => {
       await this.daemonRpc.setBridgeState(bridgeState);
 
       // Reset bridge constraints to `any` when the state is set to auto or off
@@ -1001,10 +1004,10 @@ class ApplicationMain {
         await this.daemonRpc.setBridgeSettings(new BridgeSettingsBuilder().location.any().build());
       }
     });
-    IpcMainEventChannel.settings.handleOpenVpnMssfix((mssfix?: number) =>
+    IpcMainEventChannel.settings.handleSetOpenVpnMssfix((mssfix?: number) =>
       this.daemonRpc.setOpenVpnMssfix(mssfix),
     );
-    IpcMainEventChannel.settings.handleWireguardMtu((mtu?: number) =>
+    IpcMainEventChannel.settings.handleSetWireguardMtu((mtu?: number) =>
       this.daemonRpc.setWireguardMtu(mtu),
     );
     IpcMainEventChannel.settings.handleUpdateRelaySettings((update: RelaySettingsUpdate) =>
@@ -1013,7 +1016,7 @@ class ApplicationMain {
     IpcMainEventChannel.settings.handleUpdateBridgeSettings((bridgeSettings: BridgeSettings) => {
       return this.daemonRpc.setBridgeSettings(bridgeSettings);
     });
-    IpcMainEventChannel.settings.handleDnsOptions((dns: IDnsOptions) => {
+    IpcMainEventChannel.settings.handleSetDnsOptions((dns: IDnsOptions) => {
       return this.daemonRpc.setDnsOptions(dns);
     });
     IpcMainEventChannel.autoStart.handleSet((autoStart: boolean) => {
@@ -1024,19 +1027,19 @@ class ApplicationMain {
     IpcMainEventChannel.tunnel.handleDisconnect(() => this.daemonRpc.disconnectTunnel());
     IpcMainEventChannel.tunnel.handleReconnect(() => this.daemonRpc.reconnectTunnel());
 
-    IpcMainEventChannel.guiSettings.handleEnableSystemNotifications((flag: boolean) => {
+    IpcMainEventChannel.guiSettings.handleSetEnableSystemNotifications((flag: boolean) => {
       this.guiSettings.enableSystemNotifications = flag;
     });
 
-    IpcMainEventChannel.guiSettings.handleAutoConnect((autoConnect: boolean) => {
+    IpcMainEventChannel.guiSettings.handleSetAutoConnect((autoConnect: boolean) => {
       this.guiSettings.autoConnect = autoConnect;
     });
 
-    IpcMainEventChannel.guiSettings.handleStartMinimized((startMinimized: boolean) => {
+    IpcMainEventChannel.guiSettings.handleSetStartMinimized((startMinimized: boolean) => {
       this.guiSettings.startMinimized = startMinimized;
     });
 
-    IpcMainEventChannel.guiSettings.handleMonochromaticIcon((monochromaticIcon: boolean) => {
+    IpcMainEventChannel.guiSettings.handleSetMonochromaticIcon((monochromaticIcon: boolean) => {
       this.guiSettings.monochromaticIcon = monochromaticIcon;
     });
 
@@ -1052,7 +1055,7 @@ class ApplicationMain {
     IpcMainEventChannel.account.handleCreate(() => this.createNewAccount());
     IpcMainEventChannel.account.handleLogin((token: AccountToken) => this.login(token));
     IpcMainEventChannel.account.handleLogout(() => this.logout());
-    IpcMainEventChannel.account.handleWwwAuthToken(() => this.daemonRpc.getWwwAuthToken());
+    IpcMainEventChannel.account.handleGetWwwAuthToken(() => this.daemonRpc.getWwwAuthToken());
     IpcMainEventChannel.account.handleSubmitVoucher((voucherCode: string) =>
       this.daemonRpc.submitVoucher(voucherCode),
     );
