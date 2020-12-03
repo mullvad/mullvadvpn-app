@@ -316,7 +316,7 @@ impl RouteManagerImpl {
                 command = manage_rx.select_next_some() => {
                     self.process_command(command).await?;
                 },
-                (route_change, socket) = self.messages.select_next_some().fuse() => {
+                (route_change, _socket) = self.messages.select_next_some().fuse() => {
                     if let Err(error) = self.process_netlink_message(route_change).await {
                         log::error!("{}", error.display_chain_with_msg("Failed to process netlink message"));
                     }
