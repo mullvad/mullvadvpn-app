@@ -25,7 +25,7 @@ describe('IAccountData cache', () => {
       (_data) => {},
     );
 
-    const watcher = new Promise((resolve, reject) => {
+    const watcher = new Promise<void>((resolve, reject) => {
       cache.fetch(dummyAccountToken, {
         onFinish: () => resolve(),
         onError: (_error: Error) => reject(),
@@ -41,7 +41,7 @@ describe('IAccountData cache', () => {
       (_data) => {},
     );
 
-    const watcher = new Promise((resolve, reject) => {
+    const watcher = new Promise<void>((resolve, reject) => {
       cache.fetch(dummyAccountToken, {
         onFinish: (_reason?: any) => resolve(),
         onError: (_error: Error) => reject(),
@@ -52,7 +52,7 @@ describe('IAccountData cache', () => {
   });
 
   it('should update when fetch succeeds on the first attempt', async () => {
-    const update = new Promise((resolve, reject) => {
+    const update = new Promise<void>((resolve, reject) => {
       const cache = new AccountDataCache(
         (_) => Promise.resolve(dummyAccountData),
         () => resolve(),
@@ -68,7 +68,7 @@ describe('IAccountData cache', () => {
   });
 
   it('should update when fetch succeeds on the second attempt', async () => {
-    const update = new Promise((resolve, reject) => {
+    const update = new Promise<void>((resolve, reject) => {
       let firstAttempt = true;
       const fetch = () => {
         if (firstAttempt) {
@@ -96,7 +96,7 @@ describe('IAccountData cache', () => {
     const firstError = spy((_error: Error) => {});
     const secondSuccess = spy();
 
-    const update = new Promise<IAccountData>((resolve, reject) => {
+    const update = new Promise<IAccountData | void>((resolve, reject) => {
       let firstAttempt = true;
       const fetch = (_token: string) => {
         if (firstAttempt) {
@@ -139,7 +139,7 @@ describe('IAccountData cache', () => {
     const expiredSpy = spy();
     const nonExpiredSpy = spy();
 
-    const update = new Promise((resolve, reject) => {
+    const update = new Promise<void>((resolve, reject) => {
       let firstAttempt = true;
       const fetch = () => {
         if (firstAttempt) {
@@ -216,7 +216,7 @@ describe('IAccountData cache', () => {
 
   it('should not perform a fetch if called twice synchronously', async () => {
     const fetchSpy = spy();
-    const update = new Promise((resolve, _reject) => {
+    const update = new Promise<void>((resolve, _reject) => {
       const fetch = () => {
         fetchSpy();
         return Promise.resolve(dummyAccountData);
@@ -238,7 +238,7 @@ describe('IAccountData cache', () => {
     date.setMinutes(date.getMinutes() + 3);
     const expiry = date.toISOString();
 
-    const update = new Promise((resolve, reject) => {
+    const update = new Promise<void>((resolve, reject) => {
       let firstAttempt = true;
       const fetch = () => {
         if (firstAttempt) {
