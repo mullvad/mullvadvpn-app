@@ -35,12 +35,8 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
     private var lastKnownRealLocation: GeoIpLocation? = null
     private var selectedRelayLocation: GeoIpLocation? = null
 
-    var onNewLocation by observable<((GeoIpLocation?) -> Unit)?>(null) { _, _, callback ->
-        callback?.invoke(location)
-    }
-
     var location: GeoIpLocation? by observable(null) { _, _, newLocation ->
-        onNewLocation?.invoke(newLocation)
+        endpoint.sendEvent(Event.NewLocation(newLocation))
     }
 
     var state by observable<TunnelState>(TunnelState.Disconnected()) { _, _, newState ->
@@ -106,8 +102,6 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
         stateEvents = null
 
         fetchRequestChannel.close()
-
-        onNewLocation = null
     }
 
     private fun runFetcher() = GlobalScope.actor<RequestFetch>(
