@@ -1,6 +1,7 @@
 use futures::join;
 use mullvad_rpc::{self, rest::RequestServiceHandle};
 use mullvad_types::location::{AmIMullvad, GeoIpLocation};
+use talpid_types::ErrorExt;
 
 const URI_V4: &str = "https://ipv4.am.i.mullvad.net/json";
 const URI_V6: &str = "https://ipv6.am.i.mullvad.net/json";
@@ -11,7 +12,7 @@ pub async fn send_location_request(
     let v4_sender = request_sender.clone();
     let v4_future = async move {
         let location = send_location_request_internal(URI_V4, v4_sender).await?;
-        Ok(GeoIpLocation::from(location))
+        Ok::<GeoIpLocation, mullvad_rpc::rest::Error>(GeoIpLocation::from(location))
     };
     let v6_sender = request_sender.clone();
     let v6_future = async move {
@@ -28,11 +29,17 @@ pub async fn send_location_request(
             Ok(v4)
         }
         (Ok(v4), Err(e)) => {
-            log::debug!("Unable to fetch IPv6 GeoIP location: {}", e);
+            log::debug!(
+                "{}",
+                e.display_chain_with_msg("Unable to fetch IPv6 GeoIP location")
+            );
             Ok(v4)
         }
         (Err(e), Ok(v6)) => {
-            log::debug!("Unable to fetch IPv4 GeoIP location: {}", e);
+            log::debug!(
+                "{}",
+                e.display_chain_with_msg("Unable to fetch IPv4 GeoIP location")
+            );
             Ok(v6)
         }
         (Err(e_v4), Err(_)) => Err(e_v4),
