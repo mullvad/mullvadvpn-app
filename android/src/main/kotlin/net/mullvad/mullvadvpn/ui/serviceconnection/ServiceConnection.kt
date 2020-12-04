@@ -26,7 +26,7 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     val connectionProxy = service.connectionProxy
     val customDns = service.customDns
     val keyStatusListener = service.keyStatusListener
-    val locationInfoCache = LocationInfoCache(service.locationInfoCache)
+    val locationInfoCache = LocationInfoCache(dispatcher)
     val settingsListener = SettingsListener(dispatcher)
     val splitTunneling = service.splitTunneling
 
