@@ -29,6 +29,8 @@ use std::{
 };
 #[cfg(target_os = "linux")]
 use std::{collections::HashSet, net::IpAddr};
+#[cfg(windows)]
+use std::{ffi::OsStr, os::windows::ffi::OsStrExt, time::Instant};
 use talpid_types::net::openvpn;
 #[cfg(target_os = "linux")]
 use talpid_types::ErrorExt;
@@ -38,7 +40,17 @@ use which;
 #[cfg(windows)]
 use widestring::U16CString;
 #[cfg(windows)]
-use winapi::shared::{guiddef::GUID, winerror::ERROR_FILE_NOT_FOUND};
+use winapi::shared::{
+    guiddef::GUID,
+    ifdef::NET_LUID,
+    netioapi::{
+        ConvertInterfaceAliasToLuid, FreeMibTable, GetUnicastIpAddressEntry,
+        GetUnicastIpAddressTable, MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE,
+    },
+    nldef::{IpDadStatePreferred, IpDadStateTentative, NL_DAD_STATE},
+    winerror::{ERROR_FILE_NOT_FOUND, NO_ERROR},
+    ws2def::AF_UNSPEC,
+};
 
 #[cfg(windows)]
 mod windows;
@@ -57,6 +69,11 @@ const ADAPTER_GUID: GUID = GUID {
     Data3: 0x4EBB,
     Data4: [0x85, 0x36, 0x57, 0x6A, 0xB8, 0x6A, 0xFE, 0x9A],
 };
+
+#[cfg(windows)]
+const DEVICE_READY_TIMEOUT: Duration = Duration::from_secs(5);
+#[cfg(windows)]
+const DEVICE_CHECK_INTERVAL: Duration = Duration::from_millis(100);
 
 
 /// Results from fallible operations on the OpenVPN tunnel.
@@ -101,6 +118,31 @@ pub enum Error {
     #[cfg(windows)]
     #[error(display = "Failed to delete existing Wintun adapter")]
     WintunDeleteExistingError(#[error(source)] io::Error),
+
+    /// Error returned from `ConvertInterfaceAliasToLuid`
+    #[cfg(windows)]
+    #[error(display = "Cannot find LUID for virtual adapter")]
+    NoDeviceLuid(#[error(source)] io::Error),
+
+    /// Error returned from `GetUnicastIpAddressTable`/`GetUnicastIpAddressEntry`
+    #[cfg(windows)]
+    #[error(display = "Cannot find LUID for virtual adapter")]
+    ObtainUnicastAddress(#[error(source)] io::Error),
+
+    /// `GetUnicastIpAddressTable` contained no addresses for the tunnel interface
+    #[cfg(windows)]
+    #[error(display = "Found no addresses for virtual adapter")]
+    NoUnicastAddress,
+
+    /// Unexpected DAD state returned for a unicast address
+    #[cfg(windows)]
+    #[error(display = "Unexpected DAD state")]
+    DadStateError(#[error(source)] DadStateError),
+
+    /// DAD check failed.
+    #[cfg(windows)]
+    #[error(display = "Timed out waiting on tunnel device")]
+    DeviceReadyTimeout,
 
     /// OpenVPN process died unexpectedly
     #[error(display = "OpenVPN process died unexpectedly")]
@@ -262,6 +304,11 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 if let Some(ref file_path) = &proxy_auth_file_path {
                     let _ = fs::remove_file(file_path);
                 }
+
+                #[cfg(windows)]
+                tokio::task::block_in_place(|| {
+                    wait_for_ready_device(env.get("dev").expect("missing tunnel alias")).unwrap();
+                });
             }
             match TunnelEvent::from_openvpn_event(event, &env) {
                 Some(tunnel_event) => on_event(tunnel_event),
@@ -884,6 +931,114 @@ mod event_server {
             cx: &mut Context<'_>,
         ) -> Poll<std::io::Result<()>> {
             Pin::new(&mut self.0).poll_shutdown(cx)
+        }
+    }
+}
+
+#[cfg(windows)]
+fn wait_for_ready_device(alias: &str) -> Result<()> {
+    // Obtain luid for alias
+    let alias_wide: Vec<u16> = OsStr::new(alias)
+        .encode_wide()
+        .chain(std::iter::once(0u16))
+        .collect();
+
+    let mut luid: NET_LUID = unsafe { std::mem::zeroed() };
+    let status = unsafe { ConvertInterfaceAliasToLuid(alias_wide.as_ptr(), &mut luid) };
+    if status != NO_ERROR {
+        return Err(Error::NoDeviceLuid(io::Error::last_os_error()));
+    }
+
+    // Obtain unicast IP addresses
+    let mut unicast_rows = vec![];
+
+    unsafe {
+        let mut unicast_table: *mut MIB_UNICASTIPADDRESS_TABLE = std::ptr::null_mut();
+
+        let status = GetUnicastIpAddressTable(AF_UNSPEC as u16, &mut unicast_table);
+        if status != NO_ERROR {
+            return Err(Error::ObtainUnicastAddress(io::Error::last_os_error()));
+        }
+
+        if (*unicast_table).NumEntries == 0 {
+            FreeMibTable(unicast_table as *mut _);
+            return Err(Error::NoUnicastAddress);
+        }
+
+        let first_row = &(*unicast_table).Table[0] as *const MIB_UNICASTIPADDRESS_ROW;
+
+        for i in 0..(*unicast_table).NumEntries {
+            let row = first_row.offset(i as isize);
+            if (*row).InterfaceLuid.Value != luid.Value {
+                continue;
+            }
+            unicast_rows.push(*row);
+        }
+
+        FreeMibTable(unicast_table as *mut _);
+    }
+
+    // Poll DAD status using GetUnicastIpAddressEntry
+    // https://docs.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-createunicastipaddressentry
+
+    let deadline = Instant::now() + DEVICE_READY_TIMEOUT;
+    while Instant::now() < deadline {
+        let mut ready = true;
+
+        for row in &mut unicast_rows {
+            let status = unsafe { GetUnicastIpAddressEntry(row as *mut _) };
+            if status != NO_ERROR {
+                return Err(Error::ObtainUnicastAddress(io::Error::last_os_error()));
+            }
+            if row.DadState == IpDadStateTentative {
+                ready = false;
+                break;
+            }
+            if row.DadState != IpDadStatePreferred {
+                return Err(Error::DadStateError(DadStateError::from(row.DadState)));
+            }
+        }
+
+        if ready {
+            return Ok(());
+        }
+        std::thread::sleep(DEVICE_CHECK_INTERVAL);
+    }
+
+    Err(Error::DeviceReadyTimeout)
+}
+
+/// Handles cases where there DAD state is neither tentative nor preferred.
+#[cfg(windows)]
+#[derive(err_derive::Error, Debug)]
+pub enum DadStateError {
+    /// Invalid DAD state.
+    #[error(display = "Invalid DAD state")]
+    Invalid,
+
+    /// Duplicate unicast address.
+    #[error(display = "A duplicate IP address was detected")]
+    Duplicate,
+
+    /// Deprecated unicast address.
+    #[error(display = "The IP address has been deprecated")]
+    Deprecated,
+
+    /// Unknown DAD state constant.
+    #[error(display = "Unknown DAD state: {}", _0)]
+    Unknown(u32),
+}
+
+#[cfg(windows)]
+#[allow(non_upper_case_globals)]
+impl From<NL_DAD_STATE> for DadStateError {
+    fn from(state: NL_DAD_STATE) -> DadStateError {
+        use winapi::shared::nldef::*;
+        match state {
+            IpDadStateInvalid => DadStateError::Invalid,
+            IpDadStateDuplicate => DadStateError::Duplicate,
+            IpDadStateDeprecated => DadStateError::Deprecated,
+            other => DadStateError::Unknown(other),
         }
     }
 }
