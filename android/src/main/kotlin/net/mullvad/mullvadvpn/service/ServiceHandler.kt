@@ -17,7 +17,11 @@ class ServiceHandler(looper: Looper, connectivityListener: ConnectivityListener)
         }
     }
 
-    val locationInfoCache = LocationInfoCache(connectivityListener, settingsListener)
+    val locationInfoCache = LocationInfoCache(connectivityListener, settingsListener).apply {
+        onNewLocation = { location ->
+            sendEvent(Event.NewLocation(location))
+        }
+    }
 
     var daemon by observable<MullvadDaemon?>(null) { _, _, newDaemon ->
         settingsListener.daemon = newDaemon
