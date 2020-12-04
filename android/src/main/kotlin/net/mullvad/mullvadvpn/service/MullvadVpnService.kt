@@ -253,7 +253,6 @@ class MullvadVpnService : TalpidVpnService() {
                 daemon,
                 connectionProxy,
                 customDns,
-                handler.locationInfoCache,
                 handler.settingsListener,
                 splitTunneling
             )

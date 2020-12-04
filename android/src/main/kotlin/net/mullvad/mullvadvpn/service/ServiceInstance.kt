@@ -7,7 +7,6 @@ class ServiceInstance(
     val daemon: MullvadDaemon,
     val connectionProxy: ConnectionProxy,
     val customDns: CustomDns,
-    val locationInfoCache: LocationInfoCache,
     val settingsListener: SettingsListener,
     val splitTunneling: SplitTunneling
 ) {
@@ -19,6 +18,5 @@ class ServiceInstance(
         connectionProxy.onDestroy()
         customDns.onDestroy()
         keyStatusListener.onDestroy()
-        locationInfoCache.onDestroy()
     }
 }
