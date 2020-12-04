@@ -14,6 +14,7 @@ class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings)
     private val settingsNotifier: EventNotifier<Settings> = EventNotifier(settings)
 
     val accountNumberNotifier = EventNotifier(initialSettings.accountToken)
+    val dnsOptionsNotifier = EventNotifier(initialSettings.tunnelOptions.dnsOptions)
 
     var onRelaySettingsChange: ((RelaySettings?) -> Unit)? = null
         set(value) {
@@ -48,6 +49,10 @@ class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings)
         synchronized(this) {
             if (settings.accountToken != newSettings.accountToken) {
                 accountNumberNotifier.notify(newSettings.accountToken)
+            }
+
+            if (settings.tunnelOptions.dnsOptions != newSettings.tunnelOptions.dnsOptions) {
+                dnsOptionsNotifier.notify(newSettings.tunnelOptions.dnsOptions)
             }
 
             if (settings.relaySettings != newSettings.relaySettings) {

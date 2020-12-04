@@ -60,11 +60,16 @@ pub struct AndroidTunProvider {
     object: GlobalRef,
     last_tun_config: TunConfig,
     allow_lan: bool,
+    custom_dns_servers: Option<Vec<IpAddr>>,
 }
 
 impl AndroidTunProvider {
     /// Create a new AndroidTunProvider interfacing with Android's VpnService.
-    pub fn new(context: AndroidContext, allow_lan: bool) -> Self {
+    pub fn new(
+        context: AndroidContext,
+        allow_lan: bool,
+        custom_dns_servers: Option<Vec<IpAddr>>,
+    ) -> Self {
         let env = JnixEnv::from(
             context
                 .jvm
@@ -79,12 +84,22 @@ impl AndroidTunProvider {
             object: context.vpn_service,
             last_tun_config: TunConfig::default(),
             allow_lan,
+            custom_dns_servers,
         }
     }
 
     pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<(), Error> {
         if self.allow_lan != allow_lan {
             self.allow_lan = allow_lan;
+            self.recreate_tun_if_open()?;
+        }
+
+        Ok(())
+    }
+
+    pub fn set_custom_dns_servers(&mut self, servers: Option<Vec<IpAddr>>) -> Result<(), Error> {
+        if self.custom_dns_servers != servers {
+            self.custom_dns_servers = servers;
             self.recreate_tun_if_open()?;
         }
 
@@ -170,10 +185,11 @@ impl AndroidTunProvider {
         }
     }
 
-    fn get_tun_fd(&mut self, config: TunConfig) -> Result<RawFd, Error> {
+    fn get_tun_fd(&mut self, mut config: TunConfig) -> Result<RawFd, Error> {
+        self.prepare_tun_config(&mut config);
+
         let env = self.env()?;
-        let actual_config = self.prepare_tun_config(config);
-        let java_config = actual_config.into_java(&env);
+        let java_config = config.into_java(&env);
 
         let result = self.call_method(
             "getTun",
@@ -191,8 +207,11 @@ impl AndroidTunProvider {
     }
 
     fn recreate_tun_if_open(&mut self) -> Result<(), Error> {
+        let mut actual_config = self.last_tun_config.clone();
+
+        self.prepare_tun_config(&mut actual_config);
+
         let env = self.env()?;
-        let actual_config = self.prepare_tun_config(self.last_tun_config.clone());
         let java_config = actual_config.into_java(&env);
 
         let result = self.call_method(
@@ -208,7 +227,12 @@ impl AndroidTunProvider {
         }
     }
 
-    fn prepare_tun_config(&self, config: TunConfig) -> TunConfig {
+    fn prepare_tun_config(&self, config: &mut TunConfig) {
+        self.prepare_tun_config_for_allow_lan(config);
+        self.prepare_tun_config_for_custom_dns(config);
+    }
+
+    fn prepare_tun_config_for_allow_lan(&self, config: &mut TunConfig) {
         if self.allow_lan {
             let (required_ipv4_routes, required_ipv6_routes) = config
                 .required_routes
@@ -245,9 +269,13 @@ impl AndroidTunProvider {
                 })
                 .collect();
 
-            TunConfig { routes, ..config }
-        } else {
-            config
+            config.routes = routes;
+        }
+    }
+
+    fn prepare_tun_config_for_custom_dns(&self, config: &mut TunConfig) {
+        if let Some(custom_dns_servers) = self.custom_dns_servers.clone() {
+            config.dns_servers = custom_dns_servers;
         }
     }
 

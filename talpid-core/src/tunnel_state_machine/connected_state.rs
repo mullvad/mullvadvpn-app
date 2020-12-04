@@ -192,30 +192,39 @@ impl ConnectedState {
                     }
                 }
             }
-            #[cfg(not(target_os = "android"))]
             Some(TunnelCommand::CustomDns(servers)) => {
-                if shared_values.custom_dns != servers {
-                    shared_values.custom_dns = servers;
-
-                    if let Err(error) = self.set_firewall_policy(shared_values) {
-                        return self.disconnect(
-                            shared_values,
-                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
-                        );
-                    }
-
-                    match self.set_dns(shared_values) {
-                        Ok(()) => SameState(self.into()),
-                        Err(error) => {
-                            log::error!("{}", error.display_chain_with_msg("Failed to set DNS"));
-                            self.disconnect(
+                match shared_values.set_custom_dns(servers) {
+                    Ok(true) => {
+                        if let Err(error) = self.set_firewall_policy(shared_values) {
+                            return self.disconnect(
                                 shared_values,
-                                AfterDisconnect::Block(ErrorStateCause::SetDnsError),
-                            )
+                                AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(
+                                    error,
+                                )),
+                            );
+                        }
+
+                        match self.set_dns(shared_values) {
+                            #[cfg(target_os = "android")]
+                            Ok(()) => self.disconnect(shared_values, AfterDisconnect::Reconnect(0)),
+                            #[cfg(not(target_os = "android"))]
+                            Ok(()) => SameState(self.into()),
+                            Err(error) => {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg("Failed to set DNS")
+                                );
+                                self.disconnect(
+                                    shared_values,
+                                    AfterDisconnect::Block(ErrorStateCause::SetDnsError),
+                                )
+                            }
                         }
                     }
-                } else {
-                    SameState(self.into())
+                    Ok(false) => SameState(self.into()),
+                    Err(error_cause) => {
+                        self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
+                    }
                 }
             }
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {

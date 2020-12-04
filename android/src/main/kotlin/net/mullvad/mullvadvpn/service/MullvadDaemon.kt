@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.service
 
 import net.mullvad.mullvadvpn.model.AppVersionInfo
+import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.model.KeygenEvent
@@ -106,6 +107,10 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         setAutoConnect(daemonInterfaceAddress, autoConnect)
     }
 
+    fun setDnsOptions(dnsOptions: DnsOptions) {
+        setDnsOptions(daemonInterfaceAddress, dnsOptions)
+    }
+
     fun setWireguardMtu(wireguardMtu: Int?) {
         setWireguardMtu(daemonInterfaceAddress, wireguardMtu)
     }
@@ -158,6 +163,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     private external fun setAccount(daemonInterfaceAddress: Long, accountToken: String?)
     private external fun setAllowLan(daemonInterfaceAddress: Long, allowLan: Boolean)
     private external fun setAutoConnect(daemonInterfaceAddress: Long, alwaysOn: Boolean)
+    private external fun setDnsOptions(daemonInterfaceAddress: Long, dnsOptions: DnsOptions)
     private external fun setWireguardMtu(daemonInterfaceAddress: Long, wireguardMtu: Int?)
     private external fun shutdown(daemonInterfaceAddress: Long)
     private external fun submitVoucher(

@@ -23,11 +23,10 @@ use futures::{
     channel::{mpsc, oneshot},
     stream, StreamExt,
 };
-#[cfg(not(target_os = "android"))]
-use std::net::IpAddr;
 use std::{
     collections::HashSet,
     io,
+    net::IpAddr,
     path::{Path, PathBuf},
     sync::{mpsc as sync_mpsc, Arc},
 };
@@ -75,7 +74,7 @@ pub enum Error {
 pub async fn spawn(
     allow_lan: bool,
     block_when_disconnected: bool,
-    #[cfg(not(target_os = "android"))] custom_dns: Option<Vec<IpAddr>>,
+    custom_dns: Option<Vec<IpAddr>>,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
@@ -101,6 +100,8 @@ pub async fn spawn(
         android_context,
         #[cfg(target_os = "android")]
         allow_lan,
+        #[cfg(target_os = "android")]
+        custom_dns.clone(),
     );
 
     let runtime = tokio::runtime::Handle::current();
@@ -112,7 +113,6 @@ pub async fn spawn(
             allow_lan,
             block_when_disconnected,
             is_offline,
-            #[cfg(not(target_os = "android"))]
             custom_dns,
             tunnel_parameters_generator,
             tun_provider,
@@ -153,7 +153,6 @@ pub enum TunnelCommand {
     /// Enable or disable LAN access in the firewall.
     AllowLan(bool),
     /// Set custom DNS servers to use.
-    #[cfg(not(target_os = "android"))]
     CustomDns(Option<Vec<IpAddr>>),
     /// Enable or disable the block_when_disconnected feature.
     BlockWhenDisconnected(bool),
@@ -193,7 +192,7 @@ impl TunnelStateMachine {
         allow_lan: bool,
         block_when_disconnected: bool,
         is_offline: bool,
-        #[cfg(not(target_os = "android"))] custom_dns: Option<Vec<IpAddr>>,
+        custom_dns: Option<Vec<IpAddr>>,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
         tun_provider: TunProvider,
         log_dir: Option<PathBuf>,
@@ -218,7 +217,6 @@ impl TunnelStateMachine {
             allow_lan,
             block_when_disconnected,
             is_offline,
-            #[cfg(not(target_os = "android"))]
             custom_dns,
             tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
             tun_provider,
@@ -292,7 +290,6 @@ struct SharedTunnelStateValues {
     /// True when the computer is known to be offline.
     is_offline: bool,
     /// Custom DNS servers to use.
-    #[cfg(not(target_os = "android"))]
     custom_dns: Option<Vec<IpAddr>>,
     /// The generator of new `TunnelParameter`s
     tunnel_parameters_generator: Box<dyn TunnelParametersGenerator>,
@@ -329,6 +326,32 @@ impl SharedTunnelStateValues {
         }
 
         Ok(())
+    }
+
+    pub fn set_custom_dns(
+        &mut self,
+        custom_dns: Option<Vec<IpAddr>>,
+    ) -> Result<bool, ErrorStateCause> {
+        if self.custom_dns != custom_dns {
+            self.custom_dns = custom_dns.clone();
+
+            #[cfg(target_os = "android")]
+            {
+                if let Err(error) = self.tun_provider.set_custom_dns_servers(custom_dns) {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to restart tunnel after changing custom DNS servers",
+                        )
+                    );
+                    return Err(ErrorStateCause::StartTunnelError);
+                }
+            }
+
+            Ok(true)
+        } else {
+            Ok(false)
+        }
     }
 
     /// NetworkManager's connectivity check can get hung when DNS requests fail, thus the TSM

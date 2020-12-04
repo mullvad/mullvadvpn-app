@@ -21,7 +21,10 @@ use mullvad_daemon::{
     exception_logging, logging, runtime::new_runtime_builder, version, Daemon, DaemonCommandChannel,
 };
 use mullvad_rpc::{rest::Error as RestError, StatusCode};
-use mullvad_types::account::{AccountData, VoucherSubmission};
+use mullvad_types::{
+    account::{AccountData, VoucherSubmission},
+    settings::DnsOptions,
+};
 use std::{
     io,
     path::{Path, PathBuf},
@@ -818,6 +821,28 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setAuto
             log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to set auto-connect")
+            );
+        }
+    }
+}
+
+#[no_mangle]
+#[allow(non_snake_case)]
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_setDnsOptions(
+    env: JNIEnv<'_>,
+    _: JObject<'_>,
+    daemon_interface_address: jlong,
+    dnsOptions: JObject<'_>,
+) {
+    let env = JnixEnv::from(env);
+
+    if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
+        let dns_options = DnsOptions::from_java(&env, dnsOptions);
+
+        if let Err(error) = daemon_interface.set_dns_options(dns_options) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to set custom DNS options")
             );
         }
     }

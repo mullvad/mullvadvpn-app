@@ -235,10 +235,13 @@ impl ConnectingState {
                     }
                 }
             }
-            #[cfg(not(target_os = "android"))]
             Some(TunnelCommand::CustomDns(servers)) => {
-                shared_values.custom_dns = servers;
-                SameState(self.into())
+                match shared_values.set_custom_dns(servers) {
+                    #[cfg(target_os = "android")]
+                    Ok(true) => self.disconnect(shared_values, AfterDisconnect::Reconnect(0)),
+                    Ok(_) => SameState(self.into()),
+                    Err(cause) => self.disconnect(shared_values, AfterDisconnect::Block(cause)),
+                }
             }
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
