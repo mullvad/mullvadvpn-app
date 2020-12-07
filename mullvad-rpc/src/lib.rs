@@ -23,8 +23,7 @@ use crate::https_client_with_sni::HttpsConnectorWithSni;
 
 mod address_cache;
 mod relay_list;
-use address_cache::AddressCache;
-pub use address_cache::CurrentAddressChangeListener;
+pub use address_cache::{AddressCache, CurrentAddressChangeListener};
 pub use hyper::StatusCode;
 pub use relay_list::RelayListProxy;
 
@@ -44,7 +43,7 @@ const API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
 pub struct MullvadRpcRuntime {
     https_connector: HttpsConnectorWithSni,
     handle: tokio::runtime::Handle,
-    address_cache: AddressCache,
+    pub address_cache: AddressCache,
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -65,7 +64,7 @@ impl MullvadRpcRuntime {
             address_cache: AddressCache::new(
                 vec![API_ADDRESS.into()],
                 None,
-                Arc::new(Box::new(|_| {})),
+                Arc::new(Box::new(|_| Ok(()))),
             )?,
         })
     }
@@ -78,7 +77,7 @@ impl MullvadRpcRuntime {
         resource_dir: Option<&Path>,
         cache_dir: &Path,
         write_changes: bool,
-        address_change_listener: impl Fn(SocketAddr) + Send + Sync + 'static,
+        address_change_listener: impl Fn(SocketAddr) -> Result<(), ()> + Send + Sync + 'static,
     ) -> Result<Self, Error> {
         let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
         let write_file = if write_changes {
@@ -113,13 +112,12 @@ impl MullvadRpcRuntime {
                 match resource_dir {
                     Some(resource_dir) => {
                         let read_file = resource_dir.join(API_IP_CACHE_FILENAME);
-                        let cache = AddressCache::from_file(
-                            &read_file,
-                            write_file,
-                            address_change_listener,
-                        )
-                        .await?;
+                        let empty_listener =
+                            Arc::<Box<CurrentAddressChangeListener>>::new(Box::new(|_| Ok(())));
+                        let mut cache =
+                            AddressCache::from_file(&read_file, write_file, empty_listener).await?;
                         cache.randomize().await?;
+                        cache.set_change_listener(address_change_listener);
                         cache
                     }
                     None => return Err(Error::AddressCacheError(error)),

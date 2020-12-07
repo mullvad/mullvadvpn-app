@@ -281,7 +281,7 @@ pub fn send_problem_report(
             None,
             user_cache_dir,
             false,
-            |_| {},
+            |_| Ok(()),
         ))
         .map_err(Error::CreateRpcClientError)?;
     let rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_manager.mullvad_rest_handle());

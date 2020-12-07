@@ -69,6 +69,8 @@ public:
 
 	static const GUID &Filter_Baseline_PermitVpnRelay();
 
+	static const GUID &Filter_Baseline_PermitEndpoint();
+
 	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4();
 	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6();
 

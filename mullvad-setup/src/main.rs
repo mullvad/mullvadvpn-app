@@ -144,6 +144,7 @@ async fn reset_firewall() -> Result<(), Error> {
     let mut firewall = Firewall::new(FirewallArguments {
         initialize_blocked: false,
         allow_lan: true,
+        allowed_endpoint: None,
     })
     .map_err(Error::FirewallError)?;
 
@@ -158,7 +159,7 @@ async fn clear_history() -> Result<(), Error> {
         None,
         &user_cache_path,
         false,
-        |_| {},
+        |_| Ok(()),
     )
     .await
     .map_err(Error::RpcInitializationError)?;

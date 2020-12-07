@@ -21,6 +21,7 @@ impl ErrorState {
     ) -> Result<(), FirewallPolicyError> {
         let policy = FirewallPolicy::Blocked {
             allow_lan: shared_values.allow_lan,
+            allowed_endpoint: shared_values.allowed_endpoint.clone(),
         };
 
         #[cfg(target_os = "linux")]
@@ -47,7 +48,7 @@ impl ErrorState {
     /// Returns true if a new tunnel device was successfully created.
     #[cfg(target_os = "android")]
     fn create_blocking_tun(shared_values: &mut SharedTunnelStateValues) -> bool {
-        match shared_values.tun_provider.create_tun_if_closed() {
+        match shared_values.tun_provider.create_blocking_tun() {
             Ok(()) => true,
             Err(error) => {
                 log::error!(
@@ -104,6 +105,23 @@ impl TunnelState for ErrorState {
                     let _ = Self::set_firewall_policy(shared_values);
                     SameState(self.into())
                 }
+            }
+            Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
+                if shared_values.set_allowed_endpoint(endpoint) {
+                    let _ = Self::set_firewall_policy(shared_values);
+
+                    #[cfg(target_os = "android")]
+                    if !Self::create_blocking_tun(shared_values) {
+                        return NewState(Self::enter(
+                            shared_values,
+                            ErrorStateCause::SetFirewallPolicyError(FirewallPolicyError::Generic),
+                        ));
+                    }
+                }
+                if let Err(_) = tx.send(()) {
+                    log::error!("The AllowEndpoint receiver was dropped");
+                }
+                SameState(self.into())
             }
             Some(TunnelCommand::CustomDns(servers)) => {
                 if let Err(error_state_cause) = shared_values.set_custom_dns(servers) {

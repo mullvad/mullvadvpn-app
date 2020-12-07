@@ -531,10 +531,12 @@ impl<'a> PolicyBatch<'a> {
                 peer_endpoint,
                 pingable_hosts,
                 allow_lan,
+                allowed_endpoint,
                 use_fwmark,
             } => {
                 self.add_allow_icmp_pingable_hosts(&pingable_hosts);
-                self.add_allow_endpoint_rules(peer_endpoint, *use_fwmark);
+                self.add_allow_tunnel_endpoint_rules(peer_endpoint, *use_fwmark);
+                self.add_allow_endpoint_rules(allowed_endpoint);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
                 // over port 53) but before allow LAN (so DNS does not leak to the LAN)
@@ -548,7 +550,7 @@ impl<'a> PolicyBatch<'a> {
                 dns_servers,
                 use_fwmark,
             } => {
-                self.add_allow_endpoint_rules(peer_endpoint, *use_fwmark);
+                self.add_allow_tunnel_endpoint_rules(peer_endpoint, *use_fwmark);
                 self.add_allow_dns_rules(tunnel, &dns_servers, TransportProtocol::Udp)?;
                 self.add_allow_dns_rules(tunnel, &dns_servers, TransportProtocol::Tcp)?;
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
@@ -560,7 +562,12 @@ impl<'a> PolicyBatch<'a> {
                 }
                 *allow_lan
             }
-            FirewallPolicy::Blocked { allow_lan } => {
+            FirewallPolicy::Blocked {
+                allow_lan,
+                allowed_endpoint,
+            } => {
+                self.add_allow_endpoint_rules(allowed_endpoint);
+
                 // Important to drop DNS before allowing LAN (to stop DNS leaking to the LAN)
                 self.add_drop_dns_rule();
                 *allow_lan
@@ -582,7 +589,7 @@ impl<'a> PolicyBatch<'a> {
         Ok(())
     }
 
-    fn add_allow_endpoint_rules(&mut self, endpoint: &Endpoint, use_fwmark: bool) {
+    fn add_allow_tunnel_endpoint_rules(&mut self, endpoint: &Endpoint, use_fwmark: bool) {
         let mut in_rule = Rule::new(&self.in_chain);
         check_endpoint(&mut in_rule, End::Src, endpoint);
 
@@ -603,6 +610,20 @@ impl<'a> PolicyBatch<'a> {
             out_rule.add_expr(&nft_expr!(meta skuid));
             out_rule.add_expr(&nft_expr!(cmp == 0u32));
         }
+        add_verdict(&mut out_rule, &Verdict::Accept);
+
+        self.batch.add(&out_rule, nftnl::MsgType::Add);
+    }
+
+    fn add_allow_endpoint_rules(&mut self, endpoint: &Endpoint) {
+        let mut in_rule = Rule::new(&self.in_chain);
+        check_endpoint(&mut in_rule, End::Src, endpoint);
+        add_verdict(&mut in_rule, &Verdict::Accept);
+
+        self.batch.add(&in_rule, nftnl::MsgType::Add);
+
+        let mut out_rule = Rule::new(&self.out_chain);
+        check_endpoint(&mut out_rule, End::Dst, endpoint);
         add_verdict(&mut out_rule, &Verdict::Accept);
 
         self.batch.add(&out_rule, nftnl::MsgType::Add);

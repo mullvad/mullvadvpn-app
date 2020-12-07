@@ -37,13 +37,13 @@ enum WinFwProtocol : uint8_t
 	Udp = 1
 };
 
-typedef struct tag_WinFwRelay
+typedef struct tag_WinFwEndpoint
 {
 	const wchar_t *ip;
 	uint16_t port;
 	WinFwProtocol protocol;
 }
-WinFwRelay;
+WinFwEndpoint;
 
 #pragma pack(pop)
 
@@ -88,6 +88,7 @@ WINFW_API
 WinFw_InitializeBlocked(
 	uint32_t timeout,
 	const WinFwSettings *settings,
+	const WinFwEndpoint *allowedEndpoint,
 	MullvadLogSink logSink,
 	void *logSinkContext
 );
@@ -155,9 +156,10 @@ WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
-	const WinFwRelay *relay,
+	const WinFwEndpoint *relay,
 	const wchar_t *relayClient,
-	const PingableHosts *pingableHosts
+	const PingableHosts *pingableHosts,
+	const WinFwEndpoint *allowedEndpoint
 );
 
 //
@@ -183,7 +185,7 @@ WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
-	const WinFwRelay *relay,
+	const WinFwEndpoint *relay,
 	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
 	const wchar_t *v4Gateway,
@@ -203,7 +205,8 @@ WINFW_LINKAGE
 WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyBlocked(
-	const WinFwSettings *settings
+	const WinFwSettings *settings,
+	const WinFwEndpoint *allowedEndpoint
 );
 
 //

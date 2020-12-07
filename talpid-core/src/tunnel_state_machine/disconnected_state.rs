@@ -17,6 +17,7 @@ impl DisconnectedState {
         let result = if shared_values.block_when_disconnected {
             let policy = FirewallPolicy::Blocked {
                 allow_lan: shared_values.allow_lan,
+                allowed_endpoint: shared_values.allowed_endpoint.clone(),
             };
             shared_values.firewall.apply_policy(policy).map_err(|e| {
                 e.display_chain_with_msg(
@@ -74,6 +75,15 @@ impl TunnelState for DisconnectedState {
                         .expect("Failed to set allow LAN parameter");
 
                     Self::set_firewall_policy(shared_values, true);
+                }
+                SameState(self.into())
+            }
+            Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
+                if shared_values.set_allowed_endpoint(endpoint) {
+                    Self::set_firewall_policy(shared_values, true);
+                }
+                if let Err(_) = tx.send(()) {
+                    log::error!("The AllowEndpoint receiver was dropped");
                 }
                 SameState(self.into())
             }
