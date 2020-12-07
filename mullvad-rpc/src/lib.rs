@@ -11,6 +11,7 @@ use std::{
     future::Future,
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::Path,
+    sync::Arc,
 };
 use talpid_types::{net::wireguard, ErrorExt};
 
@@ -23,6 +24,7 @@ use crate::https_client_with_sni::HttpsConnectorWithSni;
 mod address_cache;
 mod relay_list;
 use address_cache::AddressCache;
+pub use address_cache::CurrentAddressChangeListener;
 pub use hyper::StatusCode;
 pub use relay_list::RelayListProxy;
 
@@ -60,7 +62,11 @@ impl MullvadRpcRuntime {
         Ok(MullvadRpcRuntime {
             https_connector: HttpsConnectorWithSni::new(),
             handle,
-            address_cache: AddressCache::new(vec![API_ADDRESS.into()], None)?,
+            address_cache: AddressCache::new(
+                vec![API_ADDRESS.into()],
+                None,
+                Arc::new(Box::new(|_| {})),
+            )?,
         })
     }
 
@@ -72,6 +78,7 @@ impl MullvadRpcRuntime {
         resource_dir: Option<&Path>,
         cache_dir: &Path,
         write_changes: bool,
+        address_change_listener: impl Fn(SocketAddr) + Send + Sync + 'static,
     ) -> Result<Self, Error> {
         let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
         let write_file = if write_changes {
@@ -80,7 +87,16 @@ impl MullvadRpcRuntime {
             None
         };
 
-        let address_cache = match AddressCache::from_file(&cache_file, write_file.clone()).await {
+        let address_change_listener =
+            Arc::<Box<CurrentAddressChangeListener>>::new(Box::new(address_change_listener));
+
+        let address_cache = match AddressCache::from_file(
+            &cache_file,
+            write_file.clone(),
+            address_change_listener.clone(),
+        )
+        .await
+        {
             Ok(cache) => cache,
             Err(error) => {
                 let cache_exists = cache_file.exists();
@@ -97,7 +113,12 @@ impl MullvadRpcRuntime {
                 match resource_dir {
                     Some(resource_dir) => {
                         let read_file = resource_dir.join(API_IP_CACHE_FILENAME);
-                        let cache = AddressCache::from_file(&read_file, write_file).await?;
+                        let cache = AddressCache::from_file(
+                            &read_file,
+                            write_file,
+                            address_change_listener,
+                        )
+                        .await?;
                         cache.randomize().await?;
                         cache
                     }
