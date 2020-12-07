@@ -21,6 +21,7 @@ impl ErrorState {
     ) -> Result<(), FirewallPolicyError> {
         let policy = FirewallPolicy::Blocked {
             allow_lan: shared_values.allow_lan,
+            allow_endpoint: shared_values.allow_endpoint.clone(),
         };
 
         #[cfg(target_os = "linux")]
@@ -100,6 +101,15 @@ impl TunnelState for ErrorState {
             Some(TunnelCommand::AllowLan(allow_lan)) => {
                 if let Err(error_state_cause) = shared_values.set_allow_lan(allow_lan) {
                     NewState(Self::enter(shared_values, error_state_cause))
+                } else {
+                    let _ = Self::set_firewall_policy(shared_values);
+                    SameState(self.into())
+                }
+            }
+            Some(TunnelCommand::AllowEndpoint(endpoint)) => {
+                // TODO: Android
+                if let Err(error) = shared_values.set_allow_endpoint(endpoint) {
+                    NewState(Self::enter(shared_values, error))
                 } else {
                     let _ = Self::set_firewall_policy(shared_values);
                     SameState(self.into())

@@ -107,6 +107,8 @@ pub enum FirewallPolicy {
         pingable_hosts: Vec<IpAddr>,
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
+        /// Host that should be reachable by the tunnel client while connecting.
+        allow_endpoint: Endpoint,
         /// A process that is allowed to send packets to the relay.
         #[cfg(windows)]
         relay_client: PathBuf,
@@ -140,6 +142,8 @@ pub enum FirewallPolicy {
     Blocked {
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
+        /// Host that should be reachable while in the blocked state.
+        allow_endpoint: Endpoint,
     },
 }
 
@@ -182,10 +186,14 @@ impl fmt::Display for FirewallPolicy {
                 tunnel.ipv6_gateway,
                 if *allow_lan { "Allowing" } else { "Blocking" }
             ),
-            FirewallPolicy::Blocked { allow_lan } => write!(
+            FirewallPolicy::Blocked {
+                allow_lan,
+                allow_endpoint,
+            } => write!(
                 f,
-                "Blocked, {} LAN",
-                if *allow_lan { "Allowing" } else { "Blocking" }
+                "Blocked. {} LAN. Allowing endpoint {}",
+                if *allow_lan { "Allowing" } else { "Blocking" },
+                allow_endpoint,
             ),
         }
     }

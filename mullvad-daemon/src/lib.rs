@@ -62,7 +62,7 @@ use talpid_core::{
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 use talpid_types::{
-    net::{openvpn, TransportProtocol, TunnelParameters, TunnelType},
+    net::{openvpn, Endpoint, TransportProtocol, TunnelParameters, TunnelType},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
 };
@@ -590,10 +590,16 @@ where
             TargetState::Unsecured
         };
 
+        let initial_api_endpoint = Endpoint::from_socket_address(
+            rpc_runtime.address_cache.peek_address(),
+            TransportProtocol::Tcp,
+        );
+
         let tunnel_command_tx = tunnel_state_machine::spawn(
             settings.allow_lan,
             settings.block_when_disconnected,
             Self::get_custom_resolvers(&settings.tunnel_options.dns_options),
+            initial_api_endpoint,
             tunnel_parameters_generator,
             log_dir,
             resource_dir,
@@ -764,8 +770,9 @@ where
                 self.handle_new_app_version_info(app_version_info)
             }
             NewApiAddress(address) => {
-                // TODO
-                log::info!("ADDRESS! {:?}", address);
+                self.send_tunnel_command(TunnelCommand::AllowEndpoint(
+                    Endpoint::from_socket_address(address, TransportProtocol::Tcp),
+                ));
             }
         }
     }

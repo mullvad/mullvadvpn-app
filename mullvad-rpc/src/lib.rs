@@ -23,8 +23,7 @@ use crate::https_client_with_sni::HttpsConnectorWithSni;
 
 mod address_cache;
 mod relay_list;
-use address_cache::AddressCache;
-pub use address_cache::CurrentAddressChangeListener;
+pub use address_cache::{AddressCache, CurrentAddressChangeListener};
 pub use hyper::StatusCode;
 pub use relay_list::RelayListProxy;
 
@@ -44,7 +43,7 @@ const API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
 pub struct MullvadRpcRuntime {
     https_connector: HttpsConnectorWithSni,
     handle: tokio::runtime::Handle,
-    address_cache: AddressCache,
+    pub address_cache: AddressCache,
 }
 
 #[derive(err_derive::Error, Debug)]

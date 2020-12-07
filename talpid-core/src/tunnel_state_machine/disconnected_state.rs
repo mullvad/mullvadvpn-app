@@ -17,6 +17,7 @@ impl DisconnectedState {
         let result = if shared_values.block_when_disconnected {
             let policy = FirewallPolicy::Blocked {
                 allow_lan: shared_values.allow_lan,
+                allow_endpoint: shared_values.allow_endpoint.clone(),
             };
             shared_values.firewall.apply_policy(policy).map_err(|e| {
                 e.display_chain_with_msg(
@@ -73,6 +74,14 @@ impl TunnelState for DisconnectedState {
                         .set_allow_lan(allow_lan)
                         .expect("Failed to set allow LAN parameter");
 
+                    Self::set_firewall_policy(shared_values, true);
+                }
+                SameState(self.into())
+            }
+            Some(TunnelCommand::AllowEndpoint(endpoint)) => {
+                if shared_values.allow_endpoint != endpoint {
+                    // TODO: Android
+                    shared_values.set_allow_endpoint(endpoint).unwrap();
                     Self::set_firewall_policy(shared_values, true);
                 }
                 SameState(self.into())

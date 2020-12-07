@@ -63,6 +63,7 @@ impl ConnectingState {
             peer_endpoint,
             pingable_hosts: gateway_list_from_params(params),
             allow_lan: shared_values.allow_lan,
+            allow_endpoint: shared_values.allow_endpoint.clone(),
             #[cfg(windows)]
             relay_client: TunnelMonitor::get_relay_client(&shared_values.resource_dir, &params),
             #[cfg(target_os = "linux")]
@@ -228,6 +229,20 @@ impl ConnectingState {
                                 }
                             }
                         }
+                        Err(error) => self.disconnect(
+                            shared_values,
+                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
+                        ),
+                    }
+                }
+            }
+            Some(TunnelCommand::AllowEndpoint(endpoint)) => {
+                // TODO: Android
+                if let Err(error) = shared_values.set_allow_endpoint(endpoint) {
+                    self.disconnect(shared_values, AfterDisconnect::Block(error))
+                } else {
+                    match Self::set_firewall_policy(shared_values, &self.tunnel_parameters) {
+                        Ok(()) => SameState(self.into()),
                         Err(error) => self.disconnect(
                             shared_values,
                             AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
