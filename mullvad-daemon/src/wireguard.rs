@@ -234,8 +234,8 @@ impl KeyManager {
         timeout: Option<Duration>,
     ) -> Box<
         dyn FnMut() -> Pin<
-                Box<dyn Future<Output = std::result::Result<WireguardData, RestError>> + Send>,
-            > + Send,
+            Box<dyn Future<Output = std::result::Result<WireguardData, RestError>> + Send>,
+        > + Send,
     > {
         let mut rpc = mullvad_rpc::WireguardKeyProxy::new(self.http_handle.clone());
         let public_key = private_key.public_key();
