@@ -1,3 +1,7 @@
 package net.mullvad.talpid.net.wireguard
 
-data class TunnelOptions(val mtu: Int?)
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class TunnelOptions(val mtu: Int?) : Parcelable
