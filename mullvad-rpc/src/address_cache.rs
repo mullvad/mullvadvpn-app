@@ -3,6 +3,7 @@ use rand::seq::SliceRandom;
 use std::{
     io,
     net::SocketAddr,
+    ops::{Deref, DerefMut},
     path::Path,
     sync::{Arc, Mutex},
 };
@@ -26,9 +27,13 @@ pub enum Error {
 
     #[error(display = "The address cache is empty")]
     EmptyAddressCache,
+
+    #[error(display = "The address change listener returned an error")]
+    ChangeListenerError,
 }
 
-pub type CurrentAddressChangeListener = dyn Fn(SocketAddr) + Send + Sync + 'static;
+pub type CurrentAddressChangeListener =
+    dyn Fn(SocketAddr) -> Result<(), ()> + Send + Sync + 'static;
 
 #[derive(Clone)]
 pub struct AddressCache {
@@ -71,6 +76,10 @@ impl AddressCache {
         )
     }
 
+    pub fn set_change_listener(&mut self, change_listener: Arc<Box<CurrentAddressChangeListener>>) {
+        self.change_listener = change_listener;
+    }
+
     /// Returns the currently selected address.
     pub fn get_address(&self) -> SocketAddr {
         let mut inner = self.inner.lock().unwrap();
@@ -101,18 +110,24 @@ impl AddressCache {
     }
 
     pub async fn select_new_address(&self) {
-        let (new_address, new_choice, old_choice) = {
+        {
             let mut inner = self.inner.lock().unwrap();
-            let old_choice = inner.choice;
-            inner.choice = inner.choice.wrapping_add(1);
-            (Self::get_address_inner(&inner), inner.choice, old_choice)
-        };
+            let mut transaction = AddressCacheTransaction::new(&mut inner);
 
-        if new_choice == old_choice {
-            return;
+            transaction.choice = transaction.current.choice.wrapping_add(1);
+            if transaction.choice == transaction.current.choice {
+                return;
+            }
+            transaction.tried_current = false;
+
+            tokio::task::block_in_place(move || {
+                if (*self.change_listener)(Self::get_address_inner(&transaction)).is_err() {
+                    log::error!("Failed to select a new API endpoint");
+                    return;
+                }
+                transaction.commit();
+            });
         }
-
-        (*self.change_listener)(new_address);
 
         if let Err(error) = self.save_to_disk().await {
             log::error!("{}", error.display_chain());
@@ -124,12 +139,25 @@ impl AddressCache {
     pub async fn randomize(&self) -> Result<(), Error> {
         {
             let mut inner = self.inner.lock().unwrap();
-            inner.shuffle();
-            inner.choice = 0;
-            inner.tried_current = false;
 
-            let new_address = Self::get_address_inner(&inner);
-            (*self.change_listener)(new_address);
+            let mut transaction = AddressCacheTransaction::new(&mut inner);
+            transaction.shuffle();
+            transaction.choice = 0;
+
+            let current_address = Self::get_address_inner(&transaction.current);
+            let new_address = Self::get_address_inner(&transaction);
+
+            tokio::task::block_in_place(move || {
+                if new_address != current_address {
+                    transaction.tried_current = false;
+                    if (*self.change_listener)(new_address).is_err() {
+                        return Err(Error::ChangeListenerError);
+                    }
+                }
+
+                transaction.commit();
+                Ok(())
+            })?;
         }
         self.save_to_disk().await.map_err(Error::WriteAddressCache)
     }
@@ -137,28 +165,42 @@ impl AddressCache {
     pub async fn set_addresses(&self, mut addresses: Vec<SocketAddr>) -> io::Result<()> {
         let should_update = {
             let mut inner = self.inner.lock().unwrap();
-            addresses.sort();
-            let mut current_sorted = inner.addresses.clone();
-            current_sorted.sort();
-            if addresses != current_sorted {
-                let current_address = Self::get_address_inner(&inner);
+            let mut transaction = AddressCacheTransaction::new(&mut inner);
 
-                inner.addresses = addresses.clone();
-                inner.shuffle();
+            addresses.sort();
+
+            let mut current_sorted = transaction.addresses.clone();
+            current_sorted.sort();
+
+            if addresses != current_sorted {
+                let current_address = Self::get_address_inner(&transaction);
+
+                transaction.addresses = addresses.clone();
+                transaction.shuffle();
 
                 // Prefer a likely-working address
-                let choice = inner
+                let choice = transaction
                     .addresses
                     .iter()
                     .position(|&addr| addr == current_address);
                 if let Some(choice) = choice {
-                    inner.choice = choice;
+                    transaction.choice = choice;
+                    transaction.commit();
                 } else {
-                    inner.choice = 0;
-                    inner.tried_current = false;
+                    transaction.choice = 0;
+                    transaction.tried_current = false;
 
-                    let new_address = Self::get_address_inner(&inner);
-                    (*self.change_listener)(new_address);
+                    tokio::task::block_in_place(move || {
+                        if (*self.change_listener)(Self::get_address_inner(&transaction)).is_err() {
+                            log::error!("Failed to select a new API endpoint");
+                            return Err(io::Error::new(
+                                io::ErrorKind::Other,
+                                "callback returned an error",
+                            ));
+                        }
+                        transaction.commit();
+                        Ok(())
+                    })?;
                 }
 
                 true
@@ -217,6 +259,7 @@ impl crate::rest::AddressProvider for AddressCache {
 }
 
 
+#[derive(Clone, PartialEq, Eq)]
 struct AddressCacheInner {
     addresses: Vec<SocketAddr>,
     choice: usize,
@@ -244,6 +287,38 @@ impl AddressCacheInner {
     fn shuffle_tail(&mut self) {
         let mut rng = rand::thread_rng();
         (&mut self.addresses[1..]).shuffle(&mut rng);
+    }
+}
+
+struct AddressCacheTransaction<'a> {
+    current: &'a mut AddressCacheInner,
+    working_cache: AddressCacheInner,
+}
+
+impl<'a> AddressCacheTransaction<'a> {
+    fn new(cache: &'a mut AddressCacheInner) -> Self {
+        Self {
+            working_cache: cache.clone(),
+            current: cache,
+        }
+    }
+
+    fn commit(self) {
+        *self.current = self.working_cache;
+    }
+}
+
+impl<'a> Deref for AddressCacheTransaction<'a> {
+    type Target = AddressCacheInner;
+
+    fn deref(&self) -> &Self::Target {
+        &self.working_cache
+    }
+}
+
+impl<'a> DerefMut for AddressCacheTransaction<'a> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.working_cache
     }
 }
 

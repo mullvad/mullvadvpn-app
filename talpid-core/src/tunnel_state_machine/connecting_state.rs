@@ -63,6 +63,7 @@ impl ConnectingState {
             peer_endpoint,
             pingable_hosts: gateway_list_from_params(params),
             allow_lan: shared_values.allow_lan,
+            allowed_endpoint: shared_values.allowed_endpoint.clone(),
             #[cfg(windows)]
             relay_client: TunnelMonitor::get_relay_client(&shared_values.resource_dir, &params),
             #[cfg(target_os = "linux")]
@@ -234,6 +235,22 @@ impl ConnectingState {
                         ),
                     }
                 }
+            }
+            Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
+                if shared_values.set_allowed_endpoint(endpoint) {
+                    if let Err(error) =
+                        Self::set_firewall_policy(shared_values, &self.tunnel_parameters)
+                    {
+                        return self.disconnect(
+                            shared_values,
+                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
+                        );
+                    }
+                }
+                if let Err(_) = tx.send(()) {
+                    log::error!("The AllowEndpoint receiver was dropped");
+                }
+                SameState(self.into())
             }
             Some(TunnelCommand::CustomDns(servers)) => {
                 match shared_values.set_custom_dns(servers) {

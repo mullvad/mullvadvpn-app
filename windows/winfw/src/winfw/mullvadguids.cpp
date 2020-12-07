@@ -129,6 +129,7 @@ MullvadGuids::DetailedIdentityRegistry MullvadGuids::DetailedRegistry(IdentityQu
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitDhcpServer_Inbound_Request_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitDhcpServer_Outbound_Response_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnRelay()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitEndpoint()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnelService_Ipv4()));
@@ -638,6 +639,20 @@ const GUID &MullvadGuids::Filter_Baseline_PermitVpnRelay()
 		0xdb40,
 		0x4f79,
 		{ 0x90, 0x6d, 0xfd, 0xa1, 0xe1, 0xc1, 0x8a, 0x70 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitEndpoint()
+{
+	static const GUID g =
+	{
+		0x99dc8dac,
+		0x8520,
+		0x41be,
+		{ 0xbf, 0xab, 0x0c, 0x9, 0xbf, 0x12, 0xeb, 0 }
 	};
 
 	return g;

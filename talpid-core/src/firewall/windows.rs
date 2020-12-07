@@ -57,10 +57,23 @@ impl FirewallT for Firewall {
 
         if args.initialize_blocked {
             let cfg = &WinFwSettings::new(args.allow_lan);
+
+            let winfw_allowed_endpoint = if let Some(allowed_endpoint) = args.allowed_endpoint {
+                let allowed_endpoint_ip = Self::widestring_ip(allowed_endpoint.address.ip());
+                Some(WinFwEndpoint {
+                    ip: allowed_endpoint_ip.as_ptr(),
+                    port: allowed_endpoint.address.port(),
+                    protocol: WinFwProt::from(allowed_endpoint.protocol),
+                })
+            } else {
+                None
+            };
+
             unsafe {
                 WinFw_InitializeBlocked(
                     WINFW_TIMEOUT_SECONDS,
                     &cfg,
+                    winfw_allowed_endpoint.as_ptr(),
                     Some(log_sink),
                     logging_context,
                 )
@@ -83,6 +96,7 @@ impl FirewallT for Firewall {
                 peer_endpoint,
                 pingable_hosts,
                 allow_lan,
+                allowed_endpoint,
                 relay_client,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
@@ -91,6 +105,7 @@ impl FirewallT for Firewall {
                     &peer_endpoint,
                     &cfg,
                     "Mullvad".to_string(),
+                    &allowed_endpoint,
                     &pingable_hosts,
                     &relay_client,
                 )
@@ -105,9 +120,12 @@ impl FirewallT for Firewall {
                 let cfg = &WinFwSettings::new(allow_lan);
                 self.set_connected_state(&peer_endpoint, &cfg, &tunnel, &dns_servers, &relay_client)
             }
-            FirewallPolicy::Blocked { allow_lan } => {
+            FirewallPolicy::Blocked {
+                allow_lan,
+                allowed_endpoint,
+            } => {
                 let cfg = &WinFwSettings::new(allow_lan);
-                self.set_blocked_state(&cfg)
+                self.set_blocked_state(&cfg, &allowed_endpoint)
             }
         }
     }
@@ -138,12 +156,13 @@ impl Firewall {
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
         _tunnel_iface_alias: String,
+        allowed_endpoint: &Endpoint,
         pingable_hosts: &Vec<IpAddr>,
         relay_client: &Path,
     ) -> Result<(), Error> {
         trace!("Applying 'connecting' firewall policy");
         let ip_str = Self::widestring_ip(endpoint.address.ip());
-        let winfw_relay = WinFwRelay {
+        let winfw_relay = WinFwEndpoint {
             ip: ip_str.as_ptr(),
             port: endpoint.address.port(),
             protocol: WinFwProt::from(endpoint.protocol),
@@ -171,12 +190,20 @@ impl Firewall {
             None
         };
 
+        let allowed_endpoint_ip = Self::widestring_ip(allowed_endpoint.address.ip());
+        let winfw_allowed_endpoint = Some(WinFwEndpoint {
+            ip: allowed_endpoint_ip.as_ptr(),
+            port: allowed_endpoint.address.port(),
+            protocol: WinFwProt::from(allowed_endpoint.protocol),
+        });
+
         unsafe {
             WinFw_ApplyPolicyConnecting(
                 winfw_settings,
                 &winfw_relay,
                 relay_client.as_ptr(),
                 pingable_hosts.as_ptr(),
+                winfw_allowed_endpoint.as_ptr(),
             )
             .into_result()
             .map_err(Error::ApplyingConnectingPolicy)
@@ -207,7 +234,7 @@ impl Firewall {
             WideCString::new(tunnel_metadata.interface.encode_utf16().collect::<Vec<_>>()).unwrap();
 
         // ip_str, gateway_str and tunnel_alias have to outlive winfw_relay
-        let winfw_relay = WinFwRelay {
+        let winfw_relay = WinFwEndpoint {
             ip: ip_str.as_ptr(),
             port: endpoint.address.port(),
             protocol: WinFwProt::from(endpoint.protocol),
@@ -258,10 +285,22 @@ impl Firewall {
         }
     }
 
-    fn set_blocked_state(&mut self, winfw_settings: &WinFwSettings) -> Result<(), Error> {
+    fn set_blocked_state(
+        &mut self,
+        winfw_settings: &WinFwSettings,
+        allowed_endpoint: &Endpoint,
+    ) -> Result<(), Error> {
         trace!("Applying 'blocked' firewall policy");
+
+        let allowed_endpoint_ip = Self::widestring_ip(allowed_endpoint.address.ip());
+        let winfw_allowed_endpoint = Some(WinFwEndpoint {
+            ip: allowed_endpoint_ip.as_ptr(),
+            port: allowed_endpoint.address.port(),
+            protocol: WinFwProt::from(allowed_endpoint.protocol),
+        });
+
         unsafe {
-            WinFw_ApplyPolicyBlocked(winfw_settings)
+            WinFw_ApplyPolicyBlocked(winfw_settings, winfw_allowed_endpoint.as_ptr())
                 .into_result()
                 .map_err(Error::ApplyingBlockedPolicy)
         }
@@ -289,7 +328,7 @@ mod winfw {
     use talpid_types::net::TransportProtocol;
 
     #[repr(C)]
-    pub struct WinFwRelay {
+    pub struct WinFwEndpoint {
         pub ip: *const libc::wchar_t,
         pub port: u16,
         pub protocol: WinFwProt,
@@ -385,6 +424,7 @@ mod winfw {
         pub fn WinFw_InitializeBlocked(
             timeout: libc::c_uint,
             settings: &WinFwSettings,
+            allowed_endpoint: *const WinFwEndpoint,
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> InitializationResult;
@@ -395,15 +435,16 @@ mod winfw {
         #[link_name = "WinFw_ApplyPolicyConnecting"]
         pub fn WinFw_ApplyPolicyConnecting(
             settings: &WinFwSettings,
-            relay: &WinFwRelay,
+            relay: &WinFwEndpoint,
             relayClient: *const libc::wchar_t,
             pingable_hosts: *const WinFwPingableHosts,
+            allowed_endpoint: *const WinFwEndpoint,
         ) -> WinFwPolicyStatus;
 
         #[link_name = "WinFw_ApplyPolicyConnected"]
         pub fn WinFw_ApplyPolicyConnected(
             settings: &WinFwSettings,
-            relay: &WinFwRelay,
+            relay: &WinFwEndpoint,
             relayClient: *const libc::wchar_t,
             tunnelIfaceAlias: *const libc::wchar_t,
             v4Gateway: *const libc::wchar_t,
@@ -413,7 +454,10 @@ mod winfw {
         ) -> WinFwPolicyStatus;
 
         #[link_name = "WinFw_ApplyPolicyBlocked"]
-        pub fn WinFw_ApplyPolicyBlocked(settings: &WinFwSettings) -> WinFwPolicyStatus;
+        pub fn WinFw_ApplyPolicyBlocked(
+            settings: &WinFwSettings,
+            allowed_endpoint: *const WinFwEndpoint,
+        ) -> WinFwPolicyStatus;
 
         #[link_name = "WinFw_Reset"]
         pub fn WinFw_Reset() -> WinFwPolicyStatus;

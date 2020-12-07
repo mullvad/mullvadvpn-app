@@ -26,9 +26,9 @@ WinFwProtocol TranslateProtocol(const std::wstring &protocol)
 	return (0 == _wcsicmp(protocol.c_str(), L"tcp") ? WinFwProtocol::Tcp : WinFwProtocol::Udp);
 }
 
-WinFwRelay CreateRelay(const wchar_t *ip, const std::wstring &port, const std::wstring &protocol)
+WinFwEndpoint CreateRelay(const wchar_t *ip, const std::wstring &port, const std::wstring &protocol)
 {
-	WinFwRelay r;
+	WinFwEndpoint r;
 
 	r.ip = ip;
 	r.port = common::string::LexicalCast<uint16_t>(port);

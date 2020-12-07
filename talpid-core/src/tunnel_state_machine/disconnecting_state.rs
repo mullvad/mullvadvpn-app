@@ -32,6 +32,13 @@ impl DisconnectingState {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Nothing
                 }
+                Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
+                    let _ = shared_values.set_allowed_endpoint(endpoint);
+                    if let Err(_) = tx.send(()) {
+                        log::error!("The AllowEndpoint receiver was dropped");
+                    }
+                    AfterDisconnect::Nothing
+                }
                 Some(TunnelCommand::CustomDns(servers)) => {
                     let _ = shared_values.set_custom_dns(servers);
                     AfterDisconnect::Nothing
@@ -51,6 +58,13 @@ impl DisconnectingState {
             AfterDisconnect::Block(reason) => match command {
                 Some(TunnelCommand::AllowLan(allow_lan)) => {
                     let _ = shared_values.set_allow_lan(allow_lan);
+                    AfterDisconnect::Block(reason)
+                }
+                Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
+                    let _ = shared_values.set_allowed_endpoint(endpoint);
+                    if let Err(_) = tx.send(()) {
+                        log::error!("The AllowEndpoint receiver was dropped");
+                    }
                     AfterDisconnect::Block(reason)
                 }
                 Some(TunnelCommand::CustomDns(servers)) => {
@@ -77,6 +91,13 @@ impl DisconnectingState {
             AfterDisconnect::Reconnect(retry_attempt) => match command {
                 Some(TunnelCommand::AllowLan(allow_lan)) => {
                     let _ = shared_values.set_allow_lan(allow_lan);
+                    AfterDisconnect::Reconnect(retry_attempt)
+                }
+                Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
+                    let _ = shared_values.set_allowed_endpoint(endpoint);
+                    if let Err(_) = tx.send(()) {
+                        log::error!("The AllowEndpoint receiver was dropped");
+                    }
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 Some(TunnelCommand::CustomDns(servers)) => {
