@@ -147,6 +147,9 @@ metadata that might be useful.
 
 ### OpenVPN plugin and communication back to system service
 
+### Split tunneling
+
+See the [split tunneling documentation](split-tunneling.md).
 
 ## Frontends
 
