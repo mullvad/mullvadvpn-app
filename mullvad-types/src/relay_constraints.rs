@@ -22,6 +22,7 @@ pub trait Match<T> {
 #[serde(rename_all = "snake_case")]
 #[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+#[cfg_attr(target_os = "android", jnix(bounds = "T: android.os.Parcelable"))]
 pub enum Constraint<T: fmt::Debug + Clone + Eq + PartialEq> {
     Any,
     Only(T),

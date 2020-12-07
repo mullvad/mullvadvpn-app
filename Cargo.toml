@@ -26,3 +26,7 @@ exclude = ["dist-assets/binaries/shadowsocks-rust"]
 # Other opt-levels that stops the daemon from crashing include 0 and 1. Crashes has
 # only been detected on 2.
 opt-level = "s"
+
+[patch.crates-io]
+jnix = { git = "https://github.com/mullvad/jnix", branch = "support-java-type-bounds", features = ['derive'] }
+jnix-macros = { git = "https://github.com/mullvad/jnix", branch = "support-java-type-bounds" }
