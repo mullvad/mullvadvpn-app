@@ -48,7 +48,7 @@ use std::{
     io,
     marker::PhantomData,
     mem,
-    net::IpAddr,
+    net::{IpAddr, SocketAddr},
     path::PathBuf,
     sync::{mpsc as sync_mpsc, Arc, Weak},
     time::Duration,
@@ -260,6 +260,8 @@ pub(crate) enum InternalDaemonEvent {
     ),
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
+    /// A new API endpoint is being used
+    NewApiAddress(SocketAddr),
 }
 
 impl From<TunnelStateTransition> for InternalDaemonEvent {
@@ -491,11 +493,23 @@ where
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
 
+        let (internal_event_tx, internal_event_rx) = command_channel.destructure();
+        let address_change_tx = std::sync::Mutex::new(internal_event_tx.clone());
+
         let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
             tokio::runtime::Handle::current(),
             Some(&resource_dir),
             &user_cache_dir,
             true,
+            move |address| {
+                let tx = address_change_tx.lock().unwrap();
+                if tx
+                    .send(InternalDaemonEvent::NewApiAddress(address))
+                    .is_err()
+                {
+                    log::error!("Failed to send API address daemon event");
+                }
+            },
         )
         .await
         .map_err(Error::InitRpcFactory)?;
@@ -511,8 +525,6 @@ where
             &resource_dir,
             &cache_dir,
         );
-
-        let (internal_event_tx, internal_event_rx) = command_channel.destructure();
 
 
         let mut settings = SettingsPersister::load(&settings_dir);
@@ -750,6 +762,10 @@ where
             }
             NewAppVersionInfo(app_version_info) => {
                 self.handle_new_app_version_info(app_version_info)
+            }
+            NewApiAddress(address) => {
+                // TODO
+                log::info!("ADDRESS! {:?}", address);
             }
         }
     }

@@ -28,15 +28,22 @@ pub enum Error {
     EmptyAddressCache,
 }
 
+pub type CurrentAddressChangeListener = dyn Fn(SocketAddr) + Send + Sync + 'static;
+
 #[derive(Clone)]
 pub struct AddressCache {
     inner: Arc<Mutex<AddressCacheInner>>,
     write_path: Option<Arc<Path>>,
+    change_listener: Arc<Box<CurrentAddressChangeListener>>,
 }
 
 impl AddressCache {
     /// Initialize cache using the given list, and write changes to `write_path`.
-    pub fn new(addresses: Vec<SocketAddr>, write_path: Option<Box<Path>>) -> Result<Self, Error> {
+    pub fn new(
+        addresses: Vec<SocketAddr>,
+        write_path: Option<Box<Path>>,
+        change_listener: Arc<Box<CurrentAddressChangeListener>>,
+    ) -> Result<Self, Error> {
         let mut cache = AddressCacheInner::from_addresses(addresses)?;
         cache.shuffle_tail();
         log::trace!("API address cache: {:?}", cache.addresses);
@@ -45,14 +52,23 @@ impl AddressCache {
         let address_cache = Self {
             inner: Arc::new(Mutex::new(cache)),
             write_path: write_path.map(|cache| Arc::from(cache)),
+            change_listener,
         };
         Ok(address_cache)
     }
 
     /// Initialize cache using `read_path`, and write changes to `write_path`.
-    pub async fn from_file(read_path: &Path, write_path: Option<Box<Path>>) -> Result<Self, Error> {
+    pub async fn from_file(
+        read_path: &Path,
+        write_path: Option<Box<Path>>,
+        change_listener: Arc<Box<CurrentAddressChangeListener>>,
+    ) -> Result<Self, Error> {
         log::debug!("Loading API addresses from {:?}", read_path);
-        Self::new(read_address_file(read_path).await?, write_path)
+        Self::new(
+            read_address_file(read_path).await?,
+            write_path,
+            change_listener,
+        )
     }
 
     /// Returns the currently selected address.
@@ -85,16 +101,18 @@ impl AddressCache {
     }
 
     pub async fn select_new_address(&self) {
-        let (new_choice, old_choice) = {
+        let (new_address, new_choice, old_choice) = {
             let mut inner = self.inner.lock().unwrap();
             let old_choice = inner.choice;
             inner.choice = inner.choice.wrapping_add(1);
-            (inner.choice, old_choice)
+            (Self::get_address_inner(&inner), inner.choice, old_choice)
         };
 
         if new_choice == old_choice {
             return;
         }
+
+        (*self.change_listener)(new_address);
 
         if let Err(error) = self.save_to_disk().await {
             log::error!("{}", error.display_chain());
@@ -109,6 +127,9 @@ impl AddressCache {
             inner.shuffle();
             inner.choice = 0;
             inner.tried_current = false;
+
+            let new_address = Self::get_address_inner(&inner);
+            (*self.change_listener)(new_address);
         }
         self.save_to_disk().await.map_err(Error::WriteAddressCache)
     }
@@ -126,12 +147,18 @@ impl AddressCache {
                 inner.shuffle();
 
                 // Prefer a likely-working address
-                let choice = inner.addresses.iter().position(|&addr| addr == current_address);
+                let choice = inner
+                    .addresses
+                    .iter()
+                    .position(|&addr| addr == current_address);
                 if let Some(choice) = choice {
                     inner.choice = choice;
                 } else {
                     inner.choice = 0;
                     inner.tried_current = false;
+
+                    let new_address = Self::get_address_inner(&inner);
+                    (*self.change_listener)(new_address);
                 }
 
                 true
