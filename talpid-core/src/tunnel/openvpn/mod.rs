@@ -32,7 +32,7 @@ use std::{collections::HashSet, net::IpAddr};
 #[cfg(windows)]
 use std::{ffi::OsStr, os::windows::ffi::OsStrExt, time::Instant};
 use talpid_types::net::openvpn;
-#[cfg(target_os = "linux")]
+#[cfg(any(windows, target_os = "linux"))]
 use talpid_types::ErrorExt;
 use tokio::task;
 #[cfg(target_os = "linux")]
@@ -51,6 +51,8 @@ use winapi::shared::{
     winerror::{ERROR_FILE_NOT_FOUND, NO_ERROR},
     ws2def::AF_UNSPEC,
 };
+#[cfg(windows)]
+use winreg::enums::{KEY_READ, KEY_WRITE};
 
 #[cfg(windows)]
 mod windows;
@@ -60,6 +62,7 @@ mod windows;
 lazy_static! {
     static ref ADAPTER_ALIAS: U16CString = U16CString::from_str("Mullvad").unwrap();
     static ref ADAPTER_POOL: U16CString = U16CString::from_str("Mullvad").unwrap();
+    static ref ADAPTER_GUID_STR: String = windows::string_from_guid(&ADAPTER_GUID);
 }
 
 #[cfg(windows)]
@@ -373,6 +376,38 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 
             if reboot_required {
                 log::warn!("You may need to restart Windows to complete the install of Wintun");
+            }
+
+            // Workaround: OpenVPN looks up "ComponentId" to identify tunnel devices.
+            // If Wintun fails to create this registry value, create it here.
+            let adapter_key =
+                windows::find_adapter_registry_key(&*ADAPTER_GUID_STR, KEY_READ | KEY_WRITE);
+            match adapter_key {
+                Ok(adapter_key) => {
+                    let component_id: io::Result<String> = adapter_key.get_value("ComponentId");
+                    match component_id {
+                        Ok(_) => (),
+                        Err(error) => {
+                            if error.kind() == io::ErrorKind::NotFound {
+                                if let Err(error) = adapter_key.set_value("ComponentId", &"wintun")
+                                {
+                                    log::error!(
+                                        "{}",
+                                        error.display_chain_with_msg(
+                                            "Failed to set ComponentId registry value"
+                                        )
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to find network adapter registry key")
+                    );
+                }
             }
 
             adapter
@@ -696,8 +731,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             .ca(resource_dir.join("ca.crt"));
         #[cfg(windows)]
         {
-            use std::ffi::OsString;
-            cmd.tunnel_alias(Some(OsString::from("Mullvad")));
+            cmd.tunnel_alias(Some(ADAPTER_ALIAS.to_os_string()));
             cmd.windows_driver(Some(crate::process::openvpn::WindowsDriver::Wintun));
         }
         if let Some(proxy_settings) = params.proxy.clone().take() {
