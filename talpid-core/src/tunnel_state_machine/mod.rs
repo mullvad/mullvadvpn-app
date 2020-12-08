@@ -359,28 +359,24 @@ impl SharedTunnelStateValues {
     /// reset whenever the firewall is cleared.
     #[cfg(target_os = "linux")]
     pub fn disable_connectivity_check(&mut self) {
-        if self.connectivity_check_was_enabled.is_some() {
-            log::trace!("Connectivity check already disabled");
-            return;
-        };
-
-        if let Ok(nm) = crate::linux::network_manager::NetworkManager::new() {
-            self.connectivity_check_was_enabled = nm.disable_connectivity_check();
+        if self.connectivity_check_was_enabled.is_none() {
+            if let Ok(nm) = crate::linux::network_manager::NetworkManager::new() {
+                self.connectivity_check_was_enabled = nm.disable_connectivity_check();
+            }
+        } else {
+            log::trace!("Daemon already disabled connectivity check");
         }
     }
 
     /// Reset NetworkManager's connectivity check if it was disabled.
     #[cfg(target_os = "linux")]
     pub fn reset_connectivity_check(&mut self) {
-        if self.connectivity_check_was_enabled.is_some() {
-            log::trace!("Connectivity check already disabled");
-            return;
-        };
-
-        if let Ok(nm) = crate::linux::network_manager::NetworkManager::new() {
-            if let Some(true) = self.connectivity_check_was_enabled.take() {
+        if self.connectivity_check_was_enabled.take() == Some(true) {
+            if let Ok(nm) = crate::linux::network_manager::NetworkManager::new() {
                 nm.enable_connectivity_check();
             }
+        } else {
+            log::trace!("Connectivity check wasn't disabled by the daemon");
         }
     }
 }
