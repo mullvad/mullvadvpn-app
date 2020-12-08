@@ -372,7 +372,7 @@ impl SharedTunnelStateValues {
     /// Reset NetworkManager's connectivity check if it was disabled.
     #[cfg(target_os = "linux")]
     pub fn reset_connectivity_check(&mut self) {
-        if self.connectivity_check_was_enabled.is_some() {
+        if self.connectivity_check_was_enabled.is_none() {
             log::trace!("Connectivity check already disabled");
             return;
         };
