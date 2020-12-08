@@ -8,10 +8,10 @@ with the internet as if Mullvad VPN was disconnected or not even running.
 DNS is a bit problematic to split properly. Ideally DNS requests from excluded apps would
 always go outside the tunnel, because that's what they would have done if Mullvad was disconnected
 or not running. But this is very hard/impossible to achieve on some platforms.
-One reason for this is that on some operating systems, programs call some system service
+One reason for this is that on some operating systems, programs call into a system service
 for name resolution. This system service will then perform the actual DNS lookup.
 Since all DNS requests then originate from the same process/system service, it becomes hard
-to know which ones are for excluded apps and not.
+to know which ones are for excluded apps and which ones are not.
 
 Some definitions of terms used later to describe behavior:
 
