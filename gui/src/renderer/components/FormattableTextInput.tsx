@@ -7,6 +7,7 @@ interface IFormattableTextInputProps extends React.InputHTMLAttributes<HTMLInput
   uppercaseOnly?: boolean;
   maxLength?: number;
   groupLength: number;
+  addTrailingSeparator?: boolean;
   handleChange: (value: string) => void;
 }
 
@@ -15,6 +16,7 @@ function FormattableTextInput(
   forwardedRef: React.Ref<HTMLInputElement>,
 ) {
   const {
+    addTrailingSeparator,
     allowedCharacters,
     groupLength,
     handleChange,
@@ -37,8 +39,21 @@ function FormattableTextInput(
   );
 
   const format = useCallback(
-    (value: string) => value.match(new RegExp(`.{1,${groupLength}}`, 'g'))?.join(separator) ?? '',
-    [groupLength, separator],
+    (value: string, addTrailingSeparator?: boolean) => {
+      let formatted = value.match(new RegExp(`.{1,${groupLength}}`, 'g'))?.join(separator) ?? '';
+
+      if (
+        addTrailingSeparator &&
+        value.length > 0 &&
+        value.length % groupLength === 0 &&
+        (!maxLength || maxLength > value.length)
+      ) {
+        formatted += separator;
+      }
+
+      return formatted;
+    },
+    [groupLength, separator, maxLength],
   );
 
   const onBeforeInput = useCallback(
@@ -63,22 +78,22 @@ function FormattableTextInput(
         }
 
         let newValue: string;
-        // Format everything before caret to calculate new caret position.
-        let caretPosition = format(beforeSelection + unformattedData).length;
-
+        let caretPosition: number;
         if (inputType === 'deleteContentBackward' && emptySelection && beforeSelection.length > 0) {
+          // This is triggered when pressing backspace without a selection
           newValue = beforeSelection.slice(0, -1) + afterSelection;
-          caretPosition--;
+          caretPosition = format(beforeSelection + unformattedData, false).length - 1;
         } else if (inputType === 'deleteContentForward' && emptySelection) {
+          // This is triggered when pressing delete without a selection
           newValue = beforeSelection + afterSelection.slice(1);
-
-          // Place caret after separator if pressing delete around a separator.
-          if (oldValue.substr(selectionStart - 1, 2).includes(separator)) {
-            caretPosition++;
-          }
+          caretPosition = format(beforeSelection + unformattedData, true).length;
         } else {
           newValue = beforeSelection + unformattedData + afterSelection;
+          caretPosition = format(beforeSelection + unformattedData, true).length;
         }
+
+        const formattedValue = format(newValue, addTrailingSeparator);
+        caretPosition = Math.min(caretPosition, formattedValue.length);
 
         // The new value can't be set before the browser has changed the content of the input
         // element since that would result in the change being made twice. Another alternative would
@@ -87,7 +102,7 @@ function FormattableTextInput(
         ref.current.addEventListener(
           'input',
           () => {
-            inputElement.value = format(newValue);
+            inputElement.value = formattedValue;
             inputElement.selectionStart = inputElement.selectionEnd = caretPosition;
             handleChange(newValue);
           },
@@ -95,7 +110,7 @@ function FormattableTextInput(
         );
       }
     },
-    [unformat, format, handleChange],
+    [unformat, format, handleChange, addTrailingSeparator],
   );
 
   // React doesn't fully support onBeforeInput currently and it's therefore set here.
@@ -107,9 +122,9 @@ function FormattableTextInput(
   // Use value provided in props if it differs from current input value.
   useEffect(() => {
     if (typeof value === 'string' && ref.current && unformat(ref.current.value) !== value) {
-      ref.current.value = format(value);
+      ref.current.value = format(value, addTrailingSeparator);
     }
-  }, [format, value]);
+  }, [format, value, addTrailingSeparator]);
 
   return <input ref={combinedRef} type="text" {...otherProps} />;
 }
