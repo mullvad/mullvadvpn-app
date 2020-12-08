@@ -56,16 +56,16 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
         return view
     }
 
+    override fun onSafelyDestroyView() {
+        titleController.onDestroy()
+        settingsListener.unsubscribe(this)
+    }
+
     private fun updateUi(settings: Settings) {
         jobTracker.newUiJob("updateUi") {
             allowLanToggle.state = boolToSwitchState(settings.allowLan)
             autoConnectToggle.state = boolToSwitchState(settings.autoConnect)
         }
-    }
-
-    override fun onSafelyDestroyView() {
-        titleController.onDestroy()
-        settingsListener.unsubscribe(this)
     }
 
     private fun boolToSwitchState(pref: Boolean): CellSwitch.State {
