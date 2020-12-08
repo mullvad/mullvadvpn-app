@@ -106,9 +106,9 @@ export function RedeemVoucherInput() {
   const { value, setValue, onSubmit, submitting, response } = useContext(RedeemVoucherContext);
   const disabled = submitting || response?.type === 'success';
 
-  const onChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      setValue(event.target.value);
+  const handleChange = useCallback(
+    (value: string) => {
+      setValue(value);
     },
     [setValue],
   );
@@ -124,10 +124,16 @@ export function RedeemVoucherInput() {
 
   return (
     <StyledInput
+      allowedCharacters="[A-Z0-9]"
+      separator="-"
+      uppercaseOnly
+      groupLength={4}
+      maxLength={16}
+      addTrailingSeparator
       disabled={disabled}
       value={value}
       placeholder={'XXXX-XXXX-XXXX-XXXX'}
-      onChange={onChange}
+      handleChange={handleChange}
       onKeyPress={onKeyPress}
     />
   );

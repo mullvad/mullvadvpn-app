@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import FormattableTextInput from './FormattableTextInput';
 import ImageView from './ImageView';
 
 export const StyledLabel = styled.span({
@@ -11,7 +12,7 @@ export const StyledLabel = styled.span({
   marginBottom: '9px',
 });
 
-export const StyledInput = styled.input({
+export const StyledInput = styled(FormattableTextInput)({
   flex: 1,
   overflow: 'hidden',
   padding: '14px',
