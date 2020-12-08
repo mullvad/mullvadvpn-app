@@ -63,8 +63,16 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
     private fun updateUi(settings: Settings) {
         jobTracker.newUiJob("updateUi") {
-            allowLanToggle.state = boolToSwitchState(settings.allowLan)
-            autoConnectToggle.state = boolToSwitchState(settings.autoConnect)
+            val allowLanState = boolToSwitchState(settings.allowLan)
+            val autoConnectState = boolToSwitchState(settings.autoConnect)
+
+            if (isVisible) {
+                allowLanToggle.state = allowLanState
+                autoConnectToggle.state = autoConnectState
+            } else {
+                allowLanToggle.forcefullySetState(allowLanState)
+                autoConnectToggle.forcefullySetState(autoConnectState)
+            }
         }
     }
 
