@@ -1,15 +1,5 @@
 import { execFile } from 'child_process';
-import {
-  app,
-  BrowserWindow,
-  ipcMain,
-  Menu,
-  nativeImage,
-  screen,
-  session,
-  shell,
-  Tray,
-} from 'electron';
+import { app, BrowserWindow, Menu, nativeImage, screen, session, shell, Tray } from 'electron';
 import log from 'electron-log';
 import mkdirp from 'mkdirp';
 import moment from 'moment';
@@ -529,6 +519,11 @@ class ApplicationMain {
     // notify renderer
     if (this.windowController) {
       IpcMainEventChannel.daemonConnected.notify(this.windowController.webContents);
+    }
+
+    // show window when account is not set
+    if (!this.settings.accountToken) {
+      this.windowController?.show();
     }
   };
 
@@ -1087,13 +1082,6 @@ class ApplicationMain {
         return Promise.resolve();
       } else {
         throw Error('linuxSplitTunneling called without being imported');
-      }
-    });
-
-    ipcMain.on('show-window', () => {
-      const windowController = this.windowController;
-      if (windowController) {
-        windowController.show();
       }
     });
 

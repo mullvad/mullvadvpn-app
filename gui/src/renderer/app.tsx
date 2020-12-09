@@ -1,4 +1,4 @@
-import { ipcRenderer, shell, webFrame } from 'electron';
+import { shell, webFrame } from 'electron';
 import log from 'electron-log';
 import * as React from 'react';
 import { Provider } from 'react-redux';
@@ -546,9 +546,6 @@ export default class AppRenderer {
       await this.autoConnect();
     } else {
       this.history.resetWith('/login');
-
-      // show window when account is not set
-      ipcRenderer.send('show-window');
     }
   }
 
