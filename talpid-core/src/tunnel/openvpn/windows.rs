@@ -13,10 +13,14 @@ use winapi::{
         guiddef::GUID,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
     },
-    um::libloaderapi::{
-        FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH,
+    um::{
+        libloaderapi::{
+            FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH,
+        },
+        winreg::REGSAM,
     },
 };
+use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
 
 type WintunOpenAdapterFn =
@@ -240,4 +244,49 @@ impl Drop for WintunDll {
     fn drop(&mut self) {
         unsafe { FreeLibrary(self.handle) };
     }
+}
+
+/// Obtain a string representation for a GUID object.
+pub fn string_from_guid(guid: &GUID) -> String {
+    use std::{ffi::OsString, os::windows::ffi::OsStringExt};
+    use winapi::um::combaseapi::StringFromGUID2;
+
+    let mut buffer = [0u16; 40];
+    let length = unsafe { StringFromGUID2(guid, &mut buffer[0] as *mut _, buffer.len() as i32 - 1) }
+        as usize;
+    if length > 0 {
+        let length = length - 1;
+        OsString::from_wide(&buffer[0..length])
+            .to_string_lossy()
+            .to_string()
+    } else {
+        "".to_string()
+    }
+}
+
+pub fn find_adapter_registry_key(find_guid: &str, permissions: REGSAM) -> io::Result<RegKey> {
+    let net_devs = RegKey::predef(HKEY_LOCAL_MACHINE).open_subkey_with_flags(
+        r"SYSTEM\CurrentControlSet\Control\Class\{4d36e972-e325-11ce-bfc1-08002be10318}",
+        permissions,
+    )?;
+    let find_guid = find_guid.to_lowercase();
+
+    for subkey_name in net_devs.enum_keys() {
+        let subkey_name = match subkey_name {
+            Ok(subkey_name) => subkey_name,
+            Err(_error) => continue,
+        };
+
+        let subkey: io::Result<RegKey> = net_devs.open_subkey_with_flags(&subkey_name, permissions);
+        if let Ok(subkey) = subkey {
+            let guid_str: io::Result<String> = subkey.get_value("NetCfgInstanceId");
+            if let Ok(guid_str) = guid_str {
+                if guid_str.to_lowercase() == find_guid {
+                    return Ok(subkey);
+                }
+            }
+        }
+    }
+
+    Err(io::Error::new(io::ErrorKind::NotFound, "device not found"))
 }
