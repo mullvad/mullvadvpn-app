@@ -88,7 +88,7 @@ class MainActivity : FragmentActivity() {
 
         problemReport.apply {
             logDirectory.complete(filesDir)
-            resourcesDirectory.complete(filesDir)
+            cacheDirectory.complete(cacheDir)
         }
 
         setContentView(R.layout.main)

@@ -43,21 +43,21 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_dataproxy_MullvadProblemRepor
     userEmail: JString<'_>,
     userMessage: JString<'_>,
     outputPath: JString<'_>,
-    resourcesDirectory: JString<'_>,
+    cacheDirectory: JString<'_>,
 ) -> jboolean {
     let env = JnixEnv::from(env);
     let user_email = String::from_java(&env, userEmail);
     let user_message = String::from_java(&env, userMessage);
     let output_path_string = String::from_java(&env, outputPath);
     let output_path = Path::new(&output_path_string);
-    let resources_directory_string = String::from_java(&env, resourcesDirectory);
-    let resources_directory = Path::new(&resources_directory_string);
+    let cache_directory_string = String::from_java(&env, cacheDirectory);
+    let cache_directory = Path::new(&cache_directory_string);
 
     let send_result = mullvad_problem_report::send_problem_report(
         &user_email,
         &user_message,
         output_path,
-        resources_directory,
+        cache_directory,
     );
 
     match send_result {
