@@ -424,6 +424,18 @@ export default class AppRenderer {
     consumePromise(IpcRendererEventChannel.splitTunneling.launchApplication(application));
   }
 
+  public collectProblemReport(toRedact: string[]): Promise<string> {
+    return IpcRendererEventChannel.problemReport.collectLogs(toRedact);
+  }
+
+  public async sendProblemReport(
+    email: string,
+    message: string,
+    savedReport: string,
+  ): Promise<void> {
+    await IpcRendererEventChannel.problemReport.sendReport({ email, message, savedReport });
+  }
+
   public getPreferredLocaleList(): IPreferredLocaleDescriptor[] {
     return [
       {
