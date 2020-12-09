@@ -172,6 +172,10 @@ const ipc = {
     getApplications: invoke<void, ISplitTunnelingApplication[]>(),
     launchApplication: invoke<ISplitTunnelingApplication | string, void>(),
   },
+  problemReport: {
+    collectLogs: invoke<string[], string>(),
+    sendReport: invoke<{ email: string; message: string; savedReport: string }, void>(),
+  },
 };
 
 export const IpcMainEventChannel = createIpcMain(ipc);

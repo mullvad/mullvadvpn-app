@@ -1097,52 +1097,36 @@ class ApplicationMain {
       }
     });
 
-    ipcMain.on(
-      'collect-logs',
-      (event: Electron.IpcMainEvent, requestId: string, toRedact: string[]) => {
-        const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
-        const executable = resolveBin('mullvad-problem-report');
-        const args = ['collect', '--output', reportPath];
-        if (toRedact.length > 0) {
-          args.push('--redact', ...toRedact);
-        }
+    IpcMainEventChannel.problemReport.handleCollectLogs((toRedact) => {
+      const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
+      const executable = resolveBin('mullvad-problem-report');
+      const args = ['collect', '--output', reportPath];
+      if (toRedact.length > 0) {
+        args.push('--redact', ...toRedact);
+      }
 
+      return new Promise((resolve, reject) => {
         execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
           if (error) {
             log.error(
               `Failed to collect a problem report.
-              Stdout: ${stdout.toString()}
-              Stderr: ${stderr.toString()}`,
+                Stdout: ${stdout.toString()}
+                Stderr: ${stderr.toString()}`,
             );
-
-            event.sender.send('collect-logs-reply', requestId, {
-              success: false,
-              error: error.message,
-            });
+            reject(error.message);
           } else {
             log.debug(`Problem report was written to ${reportPath}`);
-
-            event.sender.send('collect-logs-reply', requestId, {
-              success: true,
-              reportPath,
-            });
+            resolve(reportPath);
           }
         });
-      },
-    );
+      });
+    });
 
-    ipcMain.on(
-      'send-problem-report',
-      (
-        event: Electron.IpcMainEvent,
-        requestId: string,
-        email: string,
-        message: string,
-        savedReport: string,
-      ) => {
-        const executable = resolveBin('mullvad-problem-report');
-        const args = ['send', '--email', email, '--message', message, '--report', savedReport];
+    IpcMainEventChannel.problemReport.handleSendReport(({ email, message, savedReport }) => {
+      const executable = resolveBin('mullvad-problem-report');
+      const args = ['send', '--email', email, '--message', message, '--report', savedReport];
 
+      return new Promise((resolve, reject) => {
         execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
           if (error) {
             log.error(
@@ -1150,21 +1134,14 @@ class ApplicationMain {
               Stdout: ${stdout.toString()}
               Stderr: ${stderr.toString()}`,
             );
-
-            event.sender.send('send-problem-report-reply', requestId, {
-              success: false,
-              error: error.message,
-            });
+            reject(error.message);
           } else {
             log.info('Problem report was sent.');
-
-            event.sender.send('send-problem-report-reply', requestId, {
-              success: true,
-            });
+            resolve();
           }
         });
-      },
-    );
+      });
+    });
   }
 
   private async createNewAccount(): Promise<string> {
