@@ -859,6 +859,7 @@ public:
 			openAdapter = getProcAddressOrThrow<WINTUN_OPEN_ADAPTER_FUNC>("WintunOpenAdapter");
 			freeAdapter = getProcAddressOrThrow<WINTUN_FREE_ADAPTER_FUNC>("WintunFreeAdapter");
 			deletePoolDriver = getProcAddressOrThrow<WINTUN_DELETE_POOL_DRIVER_FUNC>("WintunDeletePoolDriver");
+			deleteAdapter = getProcAddressOrThrow<WINTUN_DELETE_ADAPTER_FUNC>("WintunDeleteAdapter");
 		}
 		catch (...)
 		{
@@ -879,6 +880,7 @@ public:
 	WINTUN_OPEN_ADAPTER_FUNC openAdapter;
 	WINTUN_FREE_ADAPTER_FUNC freeAdapter;
 	WINTUN_DELETE_POOL_DRIVER_FUNC deletePoolDriver;
+	WINTUN_DELETE_ADAPTER_FUNC deleteAdapter;
 
 private:
 
@@ -957,6 +959,29 @@ int HandleWintunCommands(int argc, const wchar_t *argv[])
 		const wchar_t *pool = argv[3];
 
 		wintun.deletePoolDriver(pool, nullptr);
+	}
+	else if (0 == _wcsicmp(argv[2], L"delete-adapter"))
+	{
+		if (5 != argc)
+		{
+			goto INVALID_ARGUMENTS;
+		}
+
+		const wchar_t *pool = argv[3];
+		const wchar_t *adapter = argv[4];
+
+		const auto handle = wintun.openAdapter(pool, adapter);
+		if (nullptr == handle)
+		{
+			THROW_WINDOWS_ERROR(GetLastError(), "wintun.openAdapter");
+		}
+		BOOL rebootRequired = 0;
+		if (0 == wintun.deleteAdapter(handle, TRUE, &rebootRequired))
+		{
+			wintun.freeAdapter(handle);
+			THROW_WINDOWS_ERROR(GetLastError(), "wintun.deleteAdapter");
+		}
+		wintun.freeAdapter(handle);
 	}
 	else if (0 == _wcsicmp(argv[2], L"adapter-exists"))
 	{
