@@ -78,6 +78,42 @@
 !define ExtractMullvadSetup '!insertmacro "ExtractMullvadSetup"'
 
 #
+# InitializeWintun
+#
+# Horrible hack tries to ensure that the driver is pre-installed on Windows 7.
+#
+!macro InitializeWintun
+	Push $0
+	Push $1
+
+	log::Log "Creating temporary virtual adapter"
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun create-adapter ${WINTUN_POOL} Mullvad-temp'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${DL_GENERAL_SUCCESS}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to create virtual adapter: error $0"
+		log::LogWithDetails $R0 $1
+		Goto InitializeWintun_return
+	${EndIf}
+
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun delete-adapter ${WINTUN_POOL} Mullvad-temp'
+	Pop $0
+	Pop $1
+
+	log::Log "InitializeWintun() completed successfully"
+
+	Push 0
+	Pop $R0
+	InitializeWintun_return:
+	Pop $1
+	Pop $0
+!macroend
+!define InitializeWintun '!insertmacro "InitializeWintun"'
+
+#
 # RemoveWintun
 #
 # Try to remove Wintun
@@ -563,6 +599,11 @@
 
 	${RemoveRelayCache}
 	${RemoveApiAddressCache}
+
+	${If} ${AtMostWin7}
+		${ExtractWintun}
+		${InitializeWintun}
+	${EndIf}
 
 	${InstallService}
 
