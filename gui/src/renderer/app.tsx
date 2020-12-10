@@ -1,4 +1,4 @@
-import { ipcRenderer, shell, webFrame } from 'electron';
+import { shell, webFrame } from 'electron';
 import log from 'electron-log';
 import * as React from 'react';
 import { Provider } from 'react-redux';
@@ -424,6 +424,18 @@ export default class AppRenderer {
     consumePromise(IpcRendererEventChannel.splitTunneling.launchApplication(application));
   }
 
+  public collectProblemReport(toRedact: string[]): Promise<string> {
+    return IpcRendererEventChannel.problemReport.collectLogs(toRedact);
+  }
+
+  public async sendProblemReport(
+    email: string,
+    message: string,
+    savedReport: string,
+  ): Promise<void> {
+    await IpcRendererEventChannel.problemReport.sendReport({ email, message, savedReport });
+  }
+
   public getPreferredLocaleList(): IPreferredLocaleDescriptor[] {
     return [
       {
@@ -534,9 +546,6 @@ export default class AppRenderer {
       await this.autoConnect();
     } else {
       this.history.resetWith('/login');
-
-      // show window when account is not set
-      ipcRenderer.send('show-window');
     }
   }
 

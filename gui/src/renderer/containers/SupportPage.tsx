@@ -4,7 +4,7 @@ import { RouteComponentProps, withRouter } from 'react-router';
 import { bindActionCreators } from 'redux';
 import consumePromise from '../../shared/promise';
 import Support from '../components/Support';
-import { collectProblemReport, sendProblemReport } from '../lib/problem-report';
+import withAppContext, { IAppContext } from '../context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 import supportActions from '../redux/support/actions';
 
@@ -16,7 +16,7 @@ const mapStateToProps = (state: IReduxState) => ({
   outdatedVersion: state.version.suggestedUpgrade ? true : false,
 });
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: RouteComponentProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext & RouteComponentProps) => {
   const { saveReportForm, clearReportForm } = bindActionCreators(supportActions, dispatch);
 
   return {
@@ -28,10 +28,10 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: RouteComponentProps)
     },
     saveReportForm,
     clearReportForm,
-    collectProblemReport,
-    sendProblemReport,
+    collectProblemReport: props.app.collectProblemReport,
+    sendProblemReport: props.app.sendProblemReport,
     onExternalLink: (url: string) => shell.openExternal(url),
   };
 };
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Support));
+export default withAppContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(Support)));
