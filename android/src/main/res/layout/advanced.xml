@@ -27,37 +27,9 @@
                       android:text="@string/settings_advanced"
                       style="@style/SettingsCollapsedHeader" />
         </FrameLayout>
-        <net.mullvad.mullvadvpn.ui.widget.ListenableScrollView android:id="@+id/scroll_area"
-                                                               android:layout_width="match_parent"
-                                                               android:layout_height="match_parent">
-
-            <LinearLayout android:layout_width="match_parent"
-                          android:layout_height="match_parent"
-                          android:paddingBottom="@dimen/screen_vertical_margin"
-                          android:orientation="vertical">
-                <TextView android:id="@+id/expanded_title"
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:layout_marginTop="2dp"
-                          android:layout_marginLeft="@dimen/side_margin"
-                          android:text="@string/settings_advanced"
-                          style="@style/SettingsExpandedHeader" />
-                <net.mullvad.mullvadvpn.ui.widget.MtuCell android:id="@+id/wireguard_mtu"
-                                                          android:layout_width="match_parent"
-                                                          android:layout_height="wrap_content"
-                                                          android:layout_marginTop="@dimen/vertical_space"
-                                                          mullvad:text="@string/wireguard_mtu" />
-                <net.mullvad.mullvadvpn.ui.widget.NavigateCell android:id="@+id/wireguard_keys"
-                                                               android:layout_width="match_parent"
-                                                               android:layout_height="wrap_content"
-                                                               android:layout_marginTop="@dimen/vertical_space"
-                                                               mullvad:text="@string/wireguard_key" />
-                <net.mullvad.mullvadvpn.ui.widget.NavigateCell android:id="@+id/split_tunneling"
-                                                               android:layout_width="match_parent"
-                                                               android:layout_height="wrap_content"
-                                                               android:layout_marginTop="1dp"
-                                                               mullvad:text="@string/split_tunneling" />
-            </LinearLayout>
-        </net.mullvad.mullvadvpn.ui.widget.ListenableScrollView>
+        <net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView android:id="@+id/contents"
+                                                             android:layout_width="match_parent"
+                                                             android:layout_height="match_parent"
+                                                             android:scrollbars="vertical" />
     </LinearLayout>
 </FrameLayout>

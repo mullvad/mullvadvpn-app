@@ -43,13 +43,37 @@ class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListene
         }
     }
 
-    fun addDnsServer(server: InetAddress) {
+    fun addDnsServer(server: InetAddress): Boolean {
         synchronized(this) {
             if (!dnsServers.contains(server)) {
                 dnsServers.add(server)
                 changeDnsOptions(enabled, dnsServers)
+
+                return true
             }
         }
+
+        return false
+    }
+
+    fun replaceDnsServer(oldServer: InetAddress, newServer: InetAddress): Boolean {
+        synchronized(this) {
+            if (oldServer == newServer) {
+                return true
+            } else if (!dnsServers.contains(newServer)) {
+                val index = dnsServers.indexOf(oldServer)
+
+                if (index >= 0) {
+                    dnsServers.removeAt(index)
+                    dnsServers.add(index, newServer)
+                    changeDnsOptions(enabled, dnsServers)
+
+                    return true
+                }
+            }
+        }
+
+        return false
     }
 
     fun removeDnsServer(server: InetAddress) {

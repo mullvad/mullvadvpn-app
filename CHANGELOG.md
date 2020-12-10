@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 #### Android
 - Add a screen to view the logs included in a problem report.
+- Allow to configure the tunnel to use custom DNS servers.
 
 ### Changed
 - Upgrade wireguard-go to v0.0.20201118.
