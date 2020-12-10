@@ -43,7 +43,7 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
-        settingsListener.subscribe(this) { settings ->
+        settingsListener.settingsNotifier.subscribe(this) { settings ->
             updateUi(settings)
         }
 
@@ -54,7 +54,7 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
     override fun onSafelyDestroyView() {
         titleController.onDestroy()
-        settingsListener.unsubscribe(this)
+        settingsListener.settingsNotifier.unsubscribe(this)
     }
 
     private fun updateUi(settings: Settings) {
