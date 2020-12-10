@@ -16,12 +16,16 @@
 //! order when only named parameters are used, and Android strings only supported numbered
 //! parameters.
 //!
-//! Android's plural resources aren't currently translated, but this tool will convert them to
-//! gettext message templates and append them to the message template file. It's important to note
-//! that the first quantity item for a plural will be used as the `msgid`, so it shouldn't
-//! have any parameters. The last quantity item for a plural will be used as the `msgid_plural`,
-//! and it can contain parameters. This assumes a plural resource will have at least two items.
-//! While it would still work with a single item, this is an unlikely case for a plural resource.
+//! Android's plural resources are also translated using the same principle. It's important to note
+//! that the singular quantity item (i.e., the item where `quantity="one"`) for each Android plural
+//! resource will be used as the `msgid` to be search for in the gettext translations file.
+//!
+//! Missing translations are appended to the gettext messages template file (`messages.pot`). These
+//! are the entries for which no translation in any locale was found. When missing plurals are
+//! appended to the template file, the new message entries are created using the singular quantity
+//! item as the `msgid` and the other quantity item as the `msgid_plural`. Because of this, it is
+//! important to note that the former can't have parameters, while the latter can. Otherwise, the
+//! entries will have to be manually added.
 //!
 //! Note that this conversion procedure is very raw and likely very brittle, so while it works for
 //! most cases, it is important to keep in mind that this is just a helper tool and manual steps are
@@ -68,12 +72,28 @@ fn main() {
         }
     }
 
-    let mut missing_translations = known_strings.clone();
-
     let plurals_file = File::open(resources_dir.join("values/plurals.xml"))
         .expect("Failed to open plurals resources file");
     let plural_resources: android::PluralResources =
         serde_xml_rs::from_reader(plurals_file).expect("Failed to read plural resources file");
+
+    let known_plurals: HashMap<_, _> = plural_resources
+        .iter()
+        .map(|plural| {
+            let name = plural.name.clone();
+            let singular = plural
+                .items
+                .iter()
+                .find(|variant| variant.quantity == android::PluralQuantity::One)
+                .map(|variant| variant.string.clone())
+                .expect("Missing singular plural variant");
+
+            (singular, name)
+        })
+        .collect();
+
+    let mut missing_translations = known_strings.clone();
+    let mut missing_plurals = known_plurals.clone();
 
     let locale_dir = Path::new("../../gui/locales");
     let locale_files = fs::read_dir(&locale_dir)
@@ -101,9 +121,12 @@ fn main() {
             locale,
             known_urls.clone(),
             known_strings.clone(),
-            gettext::load_file(&locale_file),
+            known_plurals.clone(),
+            gettext::Translation::from_file(&locale_file),
             destination_dir.join("strings.xml"),
+            destination_dir.join("plurals.xml"),
             &mut missing_translations,
+            &mut missing_plurals,
         );
     }
 
@@ -125,20 +148,37 @@ fn main() {
         .expect("Failed to append missing translations to message template file");
     }
 
-    if !plural_resources.is_empty() {
+    if !missing_plurals.is_empty() {
+        println!("Appending missing plural translations to template file:");
+
         gettext::append_to_template(
             &template_path,
             plural_resources
                 .into_iter()
                 .inspect(|plural| {
-                    let last_item = &plural.items.last().expect("Plural items are empty").string;
+                    let other_item = &plural
+                        .items
+                        .iter()
+                        .find(|plural| plural.quantity == android::PluralQuantity::Other)
+                        .expect("Plural items are empty")
+                        .string;
 
-                    println!("  {}: {}", plural.name, last_item);
+                    println!("  {}: {}", plural.name, other_item);
                 })
                 .map(|mut plural| {
-                    let plural_id = plural.items.pop().expect("Plural items are empty").string;
-                    plural.items.truncate(1);
-                    let id = plural.items.remove(0).string;
+                    let singular_position = plural
+                        .items
+                        .iter()
+                        .position(|plural| plural.quantity == android::PluralQuantity::One)
+                        .expect("Missing singular variant to use as msgid");
+                    let id = plural.items.remove(singular_position).string;
+
+                    let other_position = plural
+                        .items
+                        .iter()
+                        .position(|plural| plural.quantity == android::PluralQuantity::Other)
+                        .expect("Missing other variant to use as msgid_plural");
+                    let plural_id = plural.items.remove(other_position).string;
 
                     gettext::MsgEntry {
                         id,
@@ -188,19 +228,39 @@ fn generate_translations(
     locale: &str,
     known_urls: HashMap<String, String>,
     mut known_strings: HashMap<String, String>,
-    translations: Vec<gettext::MsgEntry>,
-    output_path: impl AsRef<Path>,
+    mut known_plurals: HashMap<String, String>,
+    translations: gettext::Translation,
+    strings_output_path: impl AsRef<Path>,
+    plurals_output_path: impl AsRef<Path>,
     missing_translations: &mut HashMap<String, String>,
+    missing_plurals: &mut HashMap<String, String>,
 ) {
-    let mut localized_resource = android::StringResources::new();
+    let mut localized_strings = android::StringResources::new();
+    let mut localized_plurals = android::PluralResources::new();
+
+    let plural_quantities = android_plural_quantities_from_gettext_plural_form(
+        translations
+            .plural_form
+            .expect("Missing plural form for translation"),
+    );
 
     for translation in translations {
-        if let gettext::MsgValue::Invariant(translation_value) = translation.value {
-            if let Some(android_key) = known_strings.remove(&translation.id) {
-                localized_resource.push(android::StringResource::new(
-                    android_key,
-                    &translation_value,
-                ));
+        match translation.value {
+            gettext::MsgValue::Invariant(translation_value) => {
+                if let Some(android_key) = known_strings.remove(&translation.id) {
+                    localized_strings.push(android::StringResource::new(
+                        android_key,
+                        &translation_value,
+                    ));
+                }
+            }
+            gettext::MsgValue::Plural { values, .. } => {
+                if let Some(android_key) = known_plurals.remove(&translation.id) {
+                    localized_plurals.push(android::PluralResource::new(
+                        android_key,
+                        plural_quantities.clone().zip(values),
+                    ));
+                }
             }
         }
     }
@@ -209,19 +269,41 @@ fn generate_translations(
         let locale_path = format!("/{}/", web_locale);
 
         for (url, android_key) in known_urls {
-            localized_resource.push(android::StringResource::new(
+            localized_strings.push(android::StringResource::new(
                 android_key,
                 &url.replacen("/en/", &locale_path, 1),
             ));
         }
     }
 
-    localized_resource.sort();
+    localized_strings.sort();
 
-    fs::write(output_path, localized_resource.to_string())
+    fs::write(strings_output_path, localized_strings.to_string())
         .expect("Failed to create Android locale file");
 
+    fs::write(plurals_output_path, localized_plurals.to_string())
+        .expect("Failed to create Android plurals file");
+
     missing_translations.retain(|translation, _| known_strings.contains_key(translation));
+    missing_plurals.retain(|translation, _| known_plurals.contains_key(translation));
+}
+
+/// Converts a gettext plural form into the plural quantities used by Android.
+///
+/// Returns an iterator that can be zipped with the gettext plural variants to produce the Android
+/// plural string items.
+fn android_plural_quantities_from_gettext_plural_form(
+    plural_form: gettext::PluralForm,
+) -> impl Iterator<Item = android::PluralQuantity> + Clone {
+    use android::PluralQuantity::*;
+    use gettext::PluralForm;
+
+    match plural_form {
+        PluralForm::Single => vec![Other],
+        PluralForm::SingularForOne | PluralForm::SingularForZeroAndOne => vec![One, Other],
+        PluralForm::Polish | PluralForm::Russian => vec![One, Few, Many, Other],
+    }
+    .into_iter()
 }
 
 /// Tries to map a translation locale to a locale used on the Mullvad website.
