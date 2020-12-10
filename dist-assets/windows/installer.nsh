@@ -78,6 +78,49 @@
 !define ExtractMullvadSetup '!insertmacro "ExtractMullvadSetup"'
 
 #
+# InstallWin7Hotfix
+#
+# Installs KB2921916. Fixes the "untrusted publisher" issue on Windows 7.
+#
+!macro InstallWin7Hotfix
+	Push $0
+	Push $1
+
+	log::Log "InstallWin7Hotfix()"
+
+	nsExec::ExecToStack '"$SYSDIR\cmd.exe" /c ""$SYSDIR\wbem\wmic.exe" qfe get hotfixid | "$SYSDIR\find.exe" "KB2921916""'
+	Pop $0
+	Pop $1
+
+	${If} $0 == 0
+		log::Log "KB2921916 is already installed"
+		Goto InstallWin7Hotfix_return
+	${EndIf}
+
+	log::Log "Extracting KB2921916"
+
+	SetOutPath "$TEMP"
+	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\Windows6.1-KB2921916-x64.msu"
+
+	log::Log "Installing KB2921916"
+
+	nsExec::ExecToStack '"$SYSDIR\wusa.exe" "$TEMP\Windows6.1-KB2921916-x64.msu"'
+	Pop $0
+	Pop $1
+
+	IntFmt $0 "0x%X" $0
+	log::Log "wusa.exe result: $0"
+
+	InstallWin7Hotfix_return:
+
+	log::Log "InstallWin7Hotfix() completed"
+
+	Pop $1
+	Pop $0
+!macroend
+!define InstallWin7Hotfix '!insertmacro "InstallWin7Hotfix"'
+
+#
 # RemoveWintun
 #
 # Try to remove Wintun
@@ -563,6 +606,10 @@
 
 	${RemoveRelayCache}
 	${RemoveApiAddressCache}
+
+	${If} ${AtMostWin7}
+		${InstallWin7Hotfix}
+	${EndIf}
 
 	${InstallService}
 
