@@ -3,6 +3,7 @@ import { colors } from '../../config.json';
 import ImageView from './ImageView';
 import * as Cell from './cell';
 import { bigText, smallText } from './common-styles';
+import FormattableTextInput from './FormattableTextInput';
 
 export const StyledAccountDropdownContainer = styled.ul({
   display: 'flex',
@@ -154,7 +155,7 @@ export const StyledSubtitle = styled.span(smallText, {
   marginBottom: '8px',
 });
 
-export const StyledInput = styled.input({
+export const StyledInput = styled(FormattableTextInput)({
   minWidth: 0,
   borderWidth: 0,
   padding: '10px 12px 12px',

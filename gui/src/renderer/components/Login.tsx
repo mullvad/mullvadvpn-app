@@ -128,14 +128,13 @@ export default class Login extends React.Component<IProps, IState> {
     }
   };
 
-  private onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  private onInputChange = (accountToken: string) => {
     // reset error when user types in the new account number
     if (this.shouldResetLoginError) {
       this.shouldResetLoginError = false;
       this.props.resetLoginError();
     }
 
-    const accountToken = event.target.value.replace(/[^0-9]/g, '');
     this.props.updateAccountToken(accountToken);
   };
 
@@ -255,12 +254,15 @@ export default class Login extends React.Component<IProps, IState> {
           onSubmit={this.onSubmit}>
           <StyledAccountInputBackdrop>
             <StyledInput
+              allowedCharacters="[0-9]"
+              separator=" "
+              groupLength={4}
               placeholder="0000 0000 0000 0000"
               value={this.props.accountToken || ''}
               disabled={!this.allowInteraction()}
               onFocus={this.onFocus}
               onBlur={this.onBlur}
-              onChange={this.onInputChange}
+              handleChange={this.onInputChange}
               autoFocus={true}
               ref={this.accountInput}
               aria-autocomplete="list"
