@@ -97,6 +97,8 @@
 		Goto InstallWin7Hotfix_return
 	${EndIf}
 
+	MessageBox MB_ICONINFORMATION|MB_YESNO "Windows hotfix KB2921916 must be installed for the app to work on Windows 7. Do you want to install it now?" IDNO InstallWin7Hotfix_return
+
 	log::Log "Extracting KB2921916"
 
 	SetOutPath "$TEMP"
@@ -104,9 +106,13 @@
 
 	log::Log "Installing KB2921916"
 
-	nsExec::ExecToStack '"$SYSDIR\wusa.exe" "$TEMP\Windows6.1-KB2921916-x64.msu"'
+	nsExec::ExecToStack '"$SYSDIR\wusa.exe" "$TEMP\Windows6.1-KB2921916-x64.msu" /quiet /norestart'
 	Pop $0
 	Pop $1
+
+	${If} $0 == 3010
+		MessageBox MB_OK "You may need to restart your computer for the patch to take effect."
+	${EndIf}
 
 	IntFmt $0 "0x%X" $0
 	log::Log "wusa.exe result: $0"
