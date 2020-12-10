@@ -14,8 +14,8 @@ import net.mullvad.mullvadvpn.service.KeyStatusListener
 import net.mullvad.mullvadvpn.service.LocationInfoCache
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.SplitTunneling
-import net.mullvad.mullvadvpn.service.endpoint.SettingsListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
+import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 
 abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceAwareFragment() {
     enum class OnNoService {
