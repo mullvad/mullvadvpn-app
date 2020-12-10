@@ -54,7 +54,7 @@ class AppVersionInfoCache(
         private set
 
     init {
-        settingsListener.subscribe(this) { settings ->
+        settingsListener.settingsNotifier.subscribe(this) { settings ->
             showBetaReleases = settings.showBetaReleases
         }
     }
@@ -68,7 +68,7 @@ class AppVersionInfoCache(
 
     fun onDestroy() {
         setUpJob.cancel()
-        settingsListener.unsubscribe(this)
+        settingsListener.settingsNotifier.unsubscribe(this)
         daemon.onAppVersionInfoChange = null
     }
 

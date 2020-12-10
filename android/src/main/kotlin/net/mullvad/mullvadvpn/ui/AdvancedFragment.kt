@@ -67,7 +67,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         detachBackButtonHandler()
         customDnsAdapter.onDestroy()
         titleController.onDestroy()
-        settingsListener.unsubscribe(this)
+        settingsListener.settingsNotifier.unsubscribe(this)
     }
 
     private fun configureHeader(view: View) {
@@ -109,7 +109,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
-        settingsListener.subscribe(this) { settings ->
+        settingsListener.settingsNotifier.subscribe(this) { settings ->
             updateUi(settings)
         }
     }
