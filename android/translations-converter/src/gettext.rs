@@ -72,6 +72,26 @@ impl Translation {
     /// The only metadata that is parsed from the file is the "Plural-Form" header. It is assumed
     /// that the header value is one of some hard-coded values, so if new languages that have new
     /// plurals are added, the code will have to be updated.
+    ///
+    /// An gettext translation file has the format in the example below:
+    ///
+    /// ```
+    /// # The start of the file can contain empty entries to include some header with meta
+    /// # information. Below is the header indicating the plural format.
+    /// msgid ""
+    /// msgstr ""
+    /// "Plural-Forms: nplurals=2; plural=(n != 1);"
+    ///
+    /// # Simple translated messages
+    /// msgid "Message in original language"
+    /// msgstr "Mesaĝo en tradukita lingvo"
+    ///
+    /// # Plural translated messages (with two forms)
+    /// msgid "One translated message"
+    /// msgid_plural "%d translated messages"
+    /// msgstr[0] "Unu tradukita mesaĝo"
+    /// msgstr[1] "%d tradukitaj mesaĝoj"
+    /// ```
     pub fn from_file(file_path: impl AsRef<Path>) -> Self {
         let mut parsing_header = false;
         let mut entries = Vec::new();
