@@ -26,8 +26,6 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         allowLanToggle = view.findViewById<ToggleCell>(R.id.allow_lan).apply {
-            forcefullySetState(boolToSwitchState(settingsListener.settings.allowLan))
-
             listener = { state ->
                 when (state) {
                     CellSwitch.State.ON -> daemon.setAllowLan(true)
@@ -37,8 +35,6 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         autoConnectToggle = view.findViewById<ToggleCell>(R.id.auto_connect).apply {
-            forcefullySetState(boolToSwitchState(settingsListener.settings.autoConnect))
-
             listener = { state ->
                 when (state) {
                     CellSwitch.State.ON -> daemon.setAutoConnect(true)
