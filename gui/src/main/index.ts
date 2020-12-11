@@ -444,6 +444,9 @@ class ApplicationMain {
       } catch (error) {
         log.error(`Failed to load index file: ${error.message}`);
       }
+
+      // disable pinch to zoom
+      consumePromise(this.windowController.webContents.setVisualZoomLevelLimits(1, 1));
     }
   }
 
