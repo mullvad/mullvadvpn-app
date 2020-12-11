@@ -36,6 +36,8 @@ class ServiceHandler(looper: Looper, connectivityListener: ConnectivityListener)
 
         when (request) {
             is Request.RegisterListener -> registerListener(request.listener)
+            is Request.WireGuardGenerateKey -> keyStatusListener.generateKey()
+            is Request.WireGuardVerifyKey -> keyStatusListener.verifyKey()
         }
     }
 
