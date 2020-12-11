@@ -4,26 +4,29 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.KeygenEvent
+import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.talpid.util.EventNotifier
 
-class KeyStatusListener(val daemon: MullvadDaemon) {
-    val onKeyStatusChange = EventNotifier(getInitialKeyStatus())
+class KeyStatusListener(val daemon: Intermittent<MullvadDaemon>) {
+    val onKeyStatusChange = EventNotifier<KeygenEvent?>(null)
 
     var keyStatus by onKeyStatusChange.notifiable()
 
     init {
-        daemon.onKeygenEvent = { event -> keyStatus = event }
-    }
+        daemon.registerListener(this) { newDaemon ->
+            newDaemon?.apply {
+                keyStatus = getWireguardKey()?.let { wireguardKey ->
+                    KeygenEvent.NewKey(wireguardKey, null, null)
+                }
 
-    private fun getInitialKeyStatus(): KeygenEvent? {
-        return daemon.getWireguardKey()?.let { wireguardKey ->
-            KeygenEvent.NewKey(wireguardKey, null, null)
+                onKeygenEvent = { event -> keyStatus = event }
+            }
         }
     }
 
     fun generateKey() = GlobalScope.launch(Dispatchers.Default) {
         val oldStatus = keyStatus
-        val newStatus = daemon.generateWireguardKey()
+        val newStatus = daemon.await().generateWireguardKey()
         val newFailure = newStatus?.failure()
         if (oldStatus is KeygenEvent.NewKey && newFailure != null) {
             keyStatus = KeygenEvent.NewKey(
@@ -37,7 +40,7 @@ class KeyStatusListener(val daemon: MullvadDaemon) {
     }
 
     fun verifyKey() = GlobalScope.launch(Dispatchers.Default) {
-        val verified = daemon.verifyWireguardKey()
+        val verified = daemon.await().verifyWireguardKey()
         // Only update verification status if the key is actually there
         when (val state = keyStatus) {
             is KeygenEvent.NewKey -> {
@@ -51,7 +54,7 @@ class KeyStatusListener(val daemon: MullvadDaemon) {
     }
 
     fun onDestroy() {
-        daemon.onKeygenEvent = null
+        daemon.unregisterListener(this)
         onKeyStatusChange.unsubscribeAll()
     }
 }
