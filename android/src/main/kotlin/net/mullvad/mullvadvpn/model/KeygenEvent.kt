@@ -1,6 +1,10 @@
 package net.mullvad.mullvadvpn.model
 
-sealed class KeygenEvent {
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+sealed class KeygenEvent : Parcelable {
+    @Parcelize
     class NewKey(
         val publicKey: PublicKey,
         val verified: Boolean?,
@@ -9,7 +13,10 @@ sealed class KeygenEvent {
         constructor(publicKey: PublicKey) : this (publicKey, null, null)
     }
 
+    @Parcelize
     object TooManyKeys : KeygenEvent()
+
+    @Parcelize
     object GenerationFailure : KeygenEvent()
 
     fun failure(): KeygenFailure? {
@@ -21,7 +28,8 @@ sealed class KeygenEvent {
     }
 }
 
-enum class KeygenFailure {
+@Parcelize
+enum class KeygenFailure : Parcelable {
     TooManyKeys,
     GenerationFailure,
 }
