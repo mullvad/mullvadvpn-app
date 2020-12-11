@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { bindActionCreators } from 'redux';
@@ -24,13 +23,13 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext & RouteC
       props.history.goBack();
     },
     viewLog(path: string) {
-      consumePromise(shell.openPath(path));
+      consumePromise(props.app.openPath(path));
     },
     saveReportForm,
     clearReportForm,
     collectProblemReport: props.app.collectProblemReport,
     sendProblemReport: props.app.sendProblemReport,
-    onExternalLink: (url: string) => shell.openExternal(url),
+    onExternalLink: (url: string) => props.app.openUrl(url),
   };
 };
 

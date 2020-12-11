@@ -1,4 +1,3 @@
-import { remote, shell } from 'electron';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import Settings from '../components/Settings';
@@ -19,14 +18,14 @@ const mapStateToProps = (state: IReduxState, props: IAppContext) => ({
 });
 const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
   return {
-    onQuit: () => remote.app.quit(),
+    onQuit: () => props.app.quit(),
     onClose: () => props.history.goBack(),
     onViewSelectLanguage: () => props.history.push('/settings/language'),
     onViewAccount: () => props.history.push('/settings/account'),
     onViewSupport: () => props.history.push('/settings/support'),
     onViewPreferences: () => props.history.push('/settings/preferences'),
     onViewAdvancedSettings: () => props.history.push('/settings/advanced'),
-    onExternalLink: (url: string) => shell.openExternal(url),
+    onExternalLink: (url: string) => props.app.openUrl(url),
   };
 };
 

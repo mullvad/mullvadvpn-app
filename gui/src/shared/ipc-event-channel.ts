@@ -118,6 +118,12 @@ const ipc = {
   upgradeVersion: {
     '': notifyRenderer<IAppVersionInfo>(),
   },
+  app: {
+    quit: send<void>(),
+    openUrl: invoke<string, void>(),
+    openPath: invoke<string, string>(),
+    showOpenDialog: invoke<Electron.OpenDialogOptions, Electron.OpenDialogReturnValue>(),
+  },
   tunnel: {
     '': notifyRenderer<TunnelState>(),
     connect: invoke<void, void>(),
