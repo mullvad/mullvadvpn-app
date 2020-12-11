@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2020.8-beta2] - 2020-12-11
+This release is for desktop only.
+
 ### Added
 #### Android
 - Add a screen to view the logs included in a problem report.
