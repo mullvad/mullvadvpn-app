@@ -17,6 +17,8 @@ class ServiceHandler(looper: Looper, connectivityListener: ConnectivityListener)
         }
     }
 
+    val keyStatusListener = KeyStatusListener()
+
     val locationInfoCache = LocationInfoCache(connectivityListener, settingsListener).apply {
         onNewLocation = { location ->
             sendEvent(Event.NewLocation(location))
@@ -25,6 +27,7 @@ class ServiceHandler(looper: Looper, connectivityListener: ConnectivityListener)
 
     var daemon by observable<MullvadDaemon?>(null) { _, _, newDaemon ->
         settingsListener.daemon = newDaemon
+        keyStatusListener.daemon = newDaemon
         locationInfoCache.daemon = newDaemon
     }
 

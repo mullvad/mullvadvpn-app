@@ -7,15 +7,11 @@ class ServiceInstance(
     val daemon: MullvadDaemon,
     val connectionProxy: ConnectionProxy,
     val customDns: CustomDns,
+    val keyStatusListener: KeyStatusListener,
     val settingsListener: SettingsListener,
     val splitTunneling: SplitTunneling
 ) {
     val accountCache = AccountCache(daemon, settingsListener)
-    val keyStatusListener = KeyStatusListener()
-
-    init {
-        keyStatusListener.daemon = daemon
-    }
 
     fun onDestroy() {
         accountCache.onDestroy()
