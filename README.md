@@ -45,12 +45,12 @@ in other DEs, but we don't regularly test those.
 Here is a table containing the features of the app across platforms. This reflects the current
 state of latest master, not necessarily any existing release.
 
-|                               | Windows | Linux | macOS | Android |
-|-------------------------------|:-------:|:-----:|:-----:|:-------:|
-| OpenVPN                       |    ✓    |   ✓   |   ✓   |         |
-| WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |
-| OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |
-| Optional local network access |    ✓    |   ✓   |   ✓   |    ✓    |
+|                               | Windows | Linux | macOS | Android | iOS |
+|-------------------------------|:-------:|:-----:|:-----:|:-------:|:---:|
+| OpenVPN                       |    ✓    |   ✓   |   ✓   |         |     |
+| WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
+| OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
+| Optional local network access |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 
 ## Security and anonymity
 
