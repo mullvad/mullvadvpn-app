@@ -11,7 +11,7 @@ use netlink_packet_route::{
 };
 use netlink_packet_utils::DecodeError;
 use netlink_proto::{
-    sys::{Protocol, SocketAddr},
+    sys::{protocols::NETLINK_GENERIC, SocketAddr},
     ConnectionHandle, Error as NetlinkError,
 };
 use std::{ffi::CString, net::IpAddr};
@@ -101,7 +101,7 @@ impl Handle {
     pub async fn connect() -> Result<Self, Error> {
         let message_type = Self::get_wireguard_message_type().await?;
         let (conn, wireguard_connection, _messages) =
-            netlink_proto::new_connection(Protocol::Generic).map_err(Error::NetlinkSocketError)?;
+            netlink_proto::new_connection(NETLINK_GENERIC).map_err(Error::NetlinkSocketError)?;
         let wg_handle = WireguardConnection {
             message_type,
             connection: wireguard_connection,
@@ -125,7 +125,7 @@ impl Handle {
 
     async fn get_wireguard_message_type() -> Result<u16, Error> {
         let (conn, mut handle, _messages) =
-            netlink_proto::new_connection(Protocol::Generic).map_err(Error::NetlinkSocketError)?;
+            netlink_proto::new_connection(NETLINK_GENERIC).map_err(Error::NetlinkSocketError)?;
         let (conn, abort_handle) = abortable(conn);
         tokio::spawn(conn);
 
