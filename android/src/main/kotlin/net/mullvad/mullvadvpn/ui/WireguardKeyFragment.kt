@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.KeygenEvent
@@ -40,6 +41,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private var greenColor: Int = 0
     private var redColor: Int = 0
 
+    private var actionCompletion: CompletableDeferred<Unit>? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected
 
     private var actionState: ActionState = ActionState.Idle(false)
@@ -63,6 +65,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 updateStatusMessage()
                 updateGenerateKeyButtonText()
                 updateVerifyKeyButtonState()
+
+                actionCompletion?.complete(Unit)
             }
         }
 
@@ -314,14 +318,21 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
 
         keyStatus = null
-        keyStatusListener.generateKey().join()
+
+        actionCompletion = CompletableDeferred()
+        keyStatusListener.generateKey()
+        actionCompletion?.await()
 
         actionState = ActionState.Idle(false)
     }
 
     private suspend fun onValidateKeyPress() {
         actionState = ActionState.Verifying()
-        keyStatusListener.verifyKey().join()
+
+        actionCompletion = CompletableDeferred()
+        keyStatusListener.verifyKey()
+        actionCompletion?.await()
+
         actionState = ActionState.Idle(true)
     }
 
