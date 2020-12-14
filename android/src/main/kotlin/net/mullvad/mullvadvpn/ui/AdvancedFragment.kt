@@ -5,6 +5,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.ui.customdns.CustomDnsAdapter
@@ -35,7 +36,11 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
         titleController = CollapsibleTitleController(view, R.id.contents)
 
-        customDnsAdapter = CustomDnsAdapter(customDns)
+        customDnsAdapter = CustomDnsAdapter(customDns).apply {
+            showPublicDnsAddressWarning = { confirmation ->
+                showConfirmPublicDnsServerDialog(confirmation)
+            }
+        }
 
         view.findViewById<CustomRecyclerView>(R.id.contents).apply {
             layoutManager = LinearLayoutManager(parentActivity)
@@ -115,6 +120,22 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             if (!wireguardMtuInput.hasFocus) {
                 wireguardMtuInput.value = settings.tunnelOptions.wireguard.mtu
             }
+        }
+    }
+
+    private fun showConfirmPublicDnsServerDialog(confirmation: CompletableDeferred<Boolean>) {
+        val transaction = fragmentManager?.beginTransaction()
+
+        detachBackButtonHandler()
+        transaction?.addToBackStack(null)
+
+        ConfirmPublicDnsDialogFragment()
+            .apply { confirmPublicDns = confirmation }
+            .show(transaction, null)
+
+        jobTracker.newUiJob("restoreBackButtonHandler") {
+            confirmation.await()
+            attachBackButtonHandler()
         }
     }
 
