@@ -9,6 +9,7 @@ import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.service.Request
 import net.mullvad.mullvadvpn.service.ServiceInstance
 import net.mullvad.mullvadvpn.ui.serviceconnection.EventDispatcher
+import net.mullvad.mullvadvpn.ui.serviceconnection.KeyStatusListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 
@@ -19,7 +20,7 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     val accountCache = service.accountCache
     val connectionProxy = service.connectionProxy
     val customDns = service.customDns
-    val keyStatusListener = service.keyStatusListener
+    val keyStatusListener = KeyStatusListener(service.messenger, dispatcher)
     val locationInfoCache = LocationInfoCache(dispatcher)
     val settingsListener = SettingsListener(dispatcher)
     val splitTunneling = service.splitTunneling
