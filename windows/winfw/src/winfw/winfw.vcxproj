@@ -27,6 +27,7 @@
     <ClCompile Include="rules\baseline\permitdhcp.cpp" />
     <ClCompile Include="rules\baseline\permitdhcpserver.cpp" />
     <ClCompile Include="rules\baseline\permitdns.cpp" />
+    <ClCompile Include="rules\baseline\permitendpoint.cpp" />
     <ClCompile Include="rules\baseline\permitlan.cpp" />
     <ClCompile Include="rules\baseline\permitlanservice.cpp" />
     <ClCompile Include="rules\baseline\permitloopback.cpp" />
@@ -61,6 +62,7 @@
     <ClInclude Include="rules\baseline\permitdhcp.h" />
     <ClInclude Include="rules\baseline\permitdhcpserver.h" />
     <ClInclude Include="rules\baseline\permitdns.h" />
+    <ClInclude Include="rules\baseline\permitendpoint.h" />
     <ClInclude Include="rules\baseline\permitlan.h" />
     <ClInclude Include="rules\baseline\permitlanservice.h" />
     <ClInclude Include="rules\baseline\permitloopback.h" />
