@@ -209,6 +209,7 @@ impl TunnelStateMachine {
         let args = FirewallArguments {
             initialize_blocked: block_when_disconnected || !reset_firewall,
             allow_lan,
+            allow_endpoint: Some(allow_endpoint),
         };
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;

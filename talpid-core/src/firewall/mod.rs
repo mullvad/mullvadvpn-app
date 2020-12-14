@@ -211,6 +211,8 @@ pub struct FirewallArguments {
     pub initialize_blocked: bool,
     /// This argument is required for the blocked state to configure the firewall correctly.
     pub allow_lan: bool,
+    /// This argument is required for the blocked state to configure the firewall correctly.
+    pub allow_endpoint: Option<Endpoint>,
 }
 
 impl Firewall {

@@ -136,6 +136,7 @@ WINFW_API
 WinFw_InitializeBlocked(
 	uint32_t timeout,
 	const WinFwSettings *settings,
+	const WinFwEndpoint *allowEndpoint,
 	MullvadLogSink logSink,
 	void *logSinkContext
 )
@@ -162,7 +163,7 @@ WinFw_InitializeBlocked(
 		g_logSink = logSink;
 		g_logSinkContext = logSinkContext;
 
-		g_fwContext = new FwContext(timeout_ms, *settings);
+		g_fwContext = new FwContext(timeout_ms, *settings, allowEndpoint != nullptr ? std::make_optional(*allowEndpoint) : std::nullopt);
 	}
 	catch (std::exception &err)
 	{
@@ -247,9 +248,10 @@ WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
-	const WinFwRelay *relay,
+	const WinFwEndpoint *relay,
 	const wchar_t *relayClient,
-	const PingableHosts *pingableHosts
+	const PingableHosts *pingableHosts,
+	const WinFwEndpoint *allowEndpoint
 )
 {
 	if (nullptr == g_fwContext)
@@ -278,7 +280,8 @@ WinFw_ApplyPolicyConnecting(
 			*settings,
 			*relay,
 			relayClient,
-			ConvertPingableHosts(pingableHosts)
+			ConvertPingableHosts(pingableHosts),
+			allowEndpoint != nullptr ? std::make_optional(*allowEndpoint) : std::nullopt
 		) ? WINFW_POLICY_STATUS_SUCCESS : WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
 	catch (common::error::WindowsException &err)
@@ -305,7 +308,7 @@ WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
-	const WinFwRelay *relay,
+	const WinFwEndpoint *relay,
 	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
 	const wchar_t *v4Gateway,
@@ -447,7 +450,8 @@ WINFW_LINKAGE
 WINFW_POLICY_STATUS
 WINFW_API
 WinFw_ApplyPolicyBlocked(
-	const WinFwSettings *settings
+	const WinFwSettings *settings,
+	const WinFwEndpoint *allowEndpoint
 )
 {
 	if (nullptr == g_fwContext)
@@ -462,7 +466,7 @@ WinFw_ApplyPolicyBlocked(
 			THROW_ERROR("Invalid argument: settings");
 		}
 
-		return g_fwContext->applyPolicyBlocked(*settings)
+		return g_fwContext->applyPolicyBlocked(*settings, allowEndpoint != nullptr ? std::make_optional(*allowEndpoint) : std::nullopt)
 			? WINFW_POLICY_STATUS_SUCCESS
 			: WINFW_POLICY_STATUS_GENERAL_FAILURE;
 	}
