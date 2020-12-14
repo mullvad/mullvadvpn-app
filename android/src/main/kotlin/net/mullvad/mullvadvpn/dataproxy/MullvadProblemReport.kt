@@ -5,112 +5,126 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.sendBlocking
 
 const val PROBLEM_REPORT_FILE = "problem_report.txt"
 
 class MullvadProblemReport {
+    private sealed class Command {
+        class Collect() : Command()
+        class Load(val logs: CompletableDeferred<String>) : Command()
+        class Send(val result: CompletableDeferred<Boolean>) : Command()
+        class Delete() : Command()
+    }
+
     val logDirectory = CompletableDeferred<File>()
     val resourcesDirectory = CompletableDeferred<File>()
+
+    private val commandChannel = spawnActor()
 
     private val problemReportPath = GlobalScope.async(Dispatchers.Default) {
         File(logDirectory.await(), PROBLEM_REPORT_FILE)
     }
 
-    private var collectJob: Deferred<Boolean>? = null
-    private var sendJob: Deferred<Boolean>? = null
-    private var deleteJob: Job? = null
+    private var isCollected = false
 
     var confirmNoEmail: CompletableDeferred<Boolean>? = null
 
     var userEmail = ""
     var userMessage = ""
 
-    val isActive: Boolean
-        get() {
-            synchronized(this) {
-                val collectJob = this.collectJob
-                val sendJob = this.sendJob
-
-                return (collectJob != null && collectJob.isActive) ||
-                    (sendJob != null && sendJob.isActive)
-            }
-        }
-
     init {
         System.loadLibrary("mullvad_jni")
     }
 
     fun collect() {
-        synchronized(this) {
-            if (!isActive) {
-                collectJob = GlobalScope.async(Dispatchers.Default) {
-                    val logDirectoryPath = logDirectory.await().absolutePath
-                    val reportPath = problemReportPath.await().absolutePath
-
-                    deleteReportFile().join()
-                    collectReport(logDirectoryPath, reportPath)
-                }
-            }
-        }
+        commandChannel.sendBlocking(Command.Collect())
     }
 
     suspend fun load(): String {
-        if (collectJob == null) {
-            collect()
+        val logs = CompletableDeferred<String>()
+
+        commandChannel.send(Command.Load(logs))
+
+        return logs.await()
+    }
+
+    fun send(): Deferred<Boolean> {
+        val result = CompletableDeferred<Boolean>()
+
+        commandChannel.sendBlocking(Command.Send(result))
+
+        return result
+    }
+
+    fun deleteReportFile() {
+        commandChannel.sendBlocking(Command.Delete())
+    }
+
+    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+        try {
+            while (true) {
+                val command = channel.receive()
+
+                when (command) {
+                    is Command.Collect -> doCollect()
+                    is Command.Load -> command.logs.complete(doLoad())
+                    is Command.Send -> command.result.complete(doSend())
+                    is Command.Delete -> doDelete()
+                }
+            }
+        } catch (exception: ClosedReceiveChannelException) {
+        }
+    }
+
+    private suspend fun doCollect() {
+        val logDirectoryPath = logDirectory.await().absolutePath
+        val reportPath = problemReportPath.await().absolutePath
+
+        doDelete()
+
+        isCollected = collectReport(logDirectoryPath, reportPath)
+    }
+
+    private suspend fun doLoad(): String {
+        if (!isCollected) {
+            doCollect()
         }
 
-        if (collectJob?.await() ?: false) {
+        if (isCollected) {
             return problemReportPath.await().readText()
         } else {
             return "Failed to collect logs for problem report"
         }
     }
 
-    fun send(): Deferred<Boolean> {
-        synchronized(this) {
-            var currentJob = sendJob
-
-            if (currentJob == null || currentJob.isCompleted) {
-                currentJob = GlobalScope.async(Dispatchers.Default) {
-                    val result = (collectJob?.await() ?: false) &&
-                        sendProblemReport(
-                            userEmail,
-                            userMessage,
-                            problemReportPath.await().absolutePath,
-                            resourcesDirectory.await().absolutePath
-                        )
-
-                    if (result) {
-                        deleteReportFile()
-                    }
-
-                    result
-                }
-
-                sendJob = currentJob
-            }
-
-            return currentJob
+    private suspend fun doSend(): Boolean {
+        if (!isCollected) {
+            doCollect()
         }
+
+        val result = isCollected &&
+            sendProblemReport(
+                userEmail,
+                userMessage,
+                problemReportPath.await().absolutePath,
+                resourcesDirectory.await().absolutePath
+            )
+
+        if (result) {
+            doDelete()
+        }
+
+        return result
     }
 
-    fun deleteReportFile(): Job {
-        synchronized(this) {
-            val oldDeleteJob = deleteJob
-
-            val job = GlobalScope.launch(Dispatchers.Default) {
-                oldDeleteJob?.join()
-                problemReportPath.await().delete()
-                collectJob = null
-            }
-
-            deleteJob = job
-
-            return job
-        }
+    private suspend fun doDelete() {
+        problemReportPath.await().delete()
+        isCollected = false
     }
 
     private external fun collectReport(logDirectory: String, reportPath: String): Boolean
