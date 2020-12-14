@@ -51,6 +51,7 @@ class ServiceHandler(looper: Looper, connectivityListener: ConnectivityListener)
         listener.apply {
             send(Event.SettingsUpdate(settingsListener.settings).message)
             send(Event.NewLocation(locationInfoCache.location).message)
+            send(Event.WireGuardKeyStatus(keyStatusListener.keyStatus).message)
         }
     }
 
