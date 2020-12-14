@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.service
 
 import android.os.Bundle
 import android.os.Message
+import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.Settings
 
 sealed class Event {
@@ -16,6 +17,20 @@ sealed class Event {
         }
 
     open fun prepareData(data: Bundle) {}
+
+    class NewLocation(val location: GeoIpLocation?) : Event() {
+        companion object {
+            private val locationKey = "location"
+        }
+
+        override val type = Type.NewLocation
+
+        constructor(data: Bundle) : this(data.getParcelable(locationKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putParcelable(locationKey, location)
+        }
+    }
 
     class SettingsUpdate(val settings: Settings?) : Event() {
         companion object {
@@ -32,6 +47,7 @@ sealed class Event {
     }
 
     enum class Type(val build: (Bundle) -> Event) {
+        NewLocation({ data -> NewLocation(data) }),
         SettingsUpdate({ data -> SettingsUpdate(data) }),
     }
 
