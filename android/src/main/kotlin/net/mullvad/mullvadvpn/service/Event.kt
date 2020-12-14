@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.service
 import android.os.Bundle
 import android.os.Message
 import net.mullvad.mullvadvpn.model.GeoIpLocation
+import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.Settings
 
 sealed class Event {
@@ -46,9 +47,24 @@ sealed class Event {
         }
     }
 
+    class WireGuardKeyStatus(val keyStatus: KeygenEvent?) : Event() {
+        companion object {
+            private val keyStatusKey = "keyStatus"
+        }
+
+        override val type = Type.WireGuardKeyStatus
+
+        constructor(data: Bundle) : this(data.getParcelable(keyStatusKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putParcelable(keyStatusKey, keyStatus)
+        }
+    }
+
     enum class Type(val build: (Bundle) -> Event) {
         NewLocation({ data -> NewLocation(data) }),
         SettingsUpdate({ data -> SettingsUpdate(data) }),
+        WireGuardKeyStatus({ data -> WireGuardKeyStatus(data) }),
     }
 
     companion object {
