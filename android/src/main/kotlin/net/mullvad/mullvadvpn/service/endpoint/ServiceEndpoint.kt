@@ -91,6 +91,7 @@ class ServiceEndpoint(
             val initialEvents = listOf(
                 Event.SettingsUpdate(settingsListener.settings),
                 Event.NewLocation(locationInfoCache.location),
+                Event.WireGuardKeyStatus(keyStatusListener.keyStatus),
                 Event.ListenerReady
             )
 
