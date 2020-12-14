@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Allow to configure the tunnel to use custom DNS servers.
 
+#### Linux
+- Improved compatiblitiy with newer versions of systemd-resolved.
+
 
 ## [2020.8-beta2] - 2020-12-11
 This release is for desktop only.
