@@ -3,8 +3,8 @@ package net.mullvad.mullvadvpn.ui.notification
 import android.content.Context
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.KeygenEvent
-import net.mullvad.mullvadvpn.service.KeyStatusListener
 import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.mullvadvpn.ui.serviceconnection.KeyStatusListener
 
 class KeyStatusNotification(
     context: Context,
