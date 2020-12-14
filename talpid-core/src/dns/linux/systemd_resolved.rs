@@ -6,7 +6,7 @@ use dbus::{
 };
 use lazy_static::lazy_static;
 use libc::{AF_INET, AF_INET6};
-use std::{fs, io, net::IpAddr, path::Path, sync::Arc, time::Duration};
+use std::{fs, net::IpAddr, path::Path, sync::Arc, time::Duration};
 use talpid_types::ErrorExt as _;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -20,14 +20,11 @@ pub enum Error {
     #[error(display = "/etc/resolv.conf is not a symlink to Systemd resolved")]
     NotSymlinkedToResolvConf,
 
+    #[error(display = "Static stub file does not point to localhost")]
+    StaticStubNotPointingToLocalhost,
+
     #[error(display = "Systemd resolved not detected")]
     NoSystemdResolved(#[error(source)] dbus::Error),
-
-    #[error(display = "Failed to read Systemd resolved's resolv.conf")]
-    ReadResolvConfFailed(#[error(source)] io::Error),
-
-    #[error(display = "Failed to parse Systemd resolved's resolv.conf")]
-    ParseResolvConfFailed(#[error(source)] resolv_conf::ParseError),
 
     #[error(display = "Invalid network interface name")]
     InvalidInterfaceName(#[error(source)] crate::linux::IfaceIndexLookupError),
@@ -43,9 +40,6 @@ pub enum Error {
 
     #[error(display = "Failed to perform RPC call on D-Bus")]
     DBusRpcError(#[error(source)] dbus::Error),
-
-    #[error(display = "Failed to match the returned D-Bus object with expected type")]
-    MatchDBusTypeError(#[error(source)] dbus::arg::TypeMismatchError),
 }
 
 lazy_static! {
@@ -57,6 +51,7 @@ lazy_static! {
     ];
 }
 
+const STATIC_STUB_PATH: &str = "/usr/lib/systemd/resolv.conf";
 
 const RESOLVED_BUS: &str = "org.freedesktop.resolve1";
 const RPC_TIMEOUT: Duration = Duration::from_secs(1);
@@ -105,7 +100,9 @@ impl SystemdResolved {
         // this will mean adding 1 and 2 seconds of latency to DNS queries, other times our
         // resolver won't be considered at all. In this case, it's better to fall back to cruder
         // management methods.
-        if Self::path_is_resolvconf_stub(&link_target) {
+        if Self::path_is_resolvconf_stub(&link_target)
+            || Self::resolv_conf_is_static_stub(&link_target)?
+        {
             Ok(())
         } else {
             Err(Error::NotSymlinkedToResolvConf)
@@ -130,6 +127,32 @@ impl SystemdResolved {
             RESOLVED_STUB_PATHS.contains(&link_path)
         }
     }
+
+    /// Checks if path is pointing to the systemd-resolved _static_ resolv.conf file. If it's not,
+    /// it returns false, otherwise it checks whether the static stub file points to the local
+    /// resolver. If not, the file has been _meddled_ with, so we can't trust it.
+    fn resolv_conf_is_static_stub(link_path: &Path) -> Result<bool> {
+        if link_path == &STATIC_STUB_PATH.as_ref() {
+            let points_to_localhost = fs::read_to_string(link_path)
+                .map(|contents| {
+                    let parts = contents.trim().split(' ');
+                    parts
+                        .map(str::parse::<IpAddr>)
+                        .map(|maybe_ip| maybe_ip.map(|addr| addr.is_loopback()).unwrap_or(false))
+                        .any(|is_loopback| is_loopback)
+                })
+                .unwrap_or(false);
+
+            if points_to_localhost {
+                Ok(true)
+            } else {
+                Err(Error::StaticStubNotPointingToLocalhost)
+            }
+        } else {
+            Ok(false)
+        }
+    }
+
 
     fn as_manager_object(&self) -> Proxy<'_, &SyncConnection> {
         Proxy::new(
