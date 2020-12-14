@@ -16,7 +16,10 @@ import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.util.Intermittent
 
-class ServiceEndpoint(looper: Looper, private val intermittentDaemon: Intermittent<MullvadDaemon>) {
+class ServiceEndpoint(
+    looper: Looper,
+    internal val intermittentDaemon: Intermittent<MullvadDaemon>
+) {
     private val listeners = mutableSetOf<Messenger>()
     private val registrationQueue: SendChannel<Messenger> = startRegistrator()
 
@@ -26,7 +29,7 @@ class ServiceEndpoint(looper: Looper, private val intermittentDaemon: Intermitte
 
     val messenger = Messenger(dispatcher)
 
-    val settingsListener = SettingsListener(intermittentDaemon)
+    val settingsListener = SettingsListener(this)
 
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
