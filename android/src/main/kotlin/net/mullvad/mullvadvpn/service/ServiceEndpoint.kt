@@ -12,7 +12,10 @@ import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.util.DispatchingHandler
 import net.mullvad.mullvadvpn.util.Intermittent
 
-class ServiceEndpoint(looper: Looper, private val intermittentDaemon: Intermittent<MullvadDaemon>) {
+class ServiceEndpoint(
+    looper: Looper,
+    internal val intermittentDaemon: Intermittent<MullvadDaemon>
+) {
     private val listeners = mutableListOf<Messenger>()
     private val registrationQueue = startRegistrator()
 
@@ -22,7 +25,7 @@ class ServiceEndpoint(looper: Looper, private val intermittentDaemon: Intermitte
 
     val messenger = Messenger(dispatcher)
 
-    val settingsListener = SettingsListener(intermittentDaemon)
+    val settingsListener = SettingsListener(this)
 
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
