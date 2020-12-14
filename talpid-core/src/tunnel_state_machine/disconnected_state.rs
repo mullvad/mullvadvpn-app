@@ -79,9 +79,7 @@ impl TunnelState for DisconnectedState {
                 SameState(self.into())
             }
             Some(TunnelCommand::AllowEndpoint(endpoint)) => {
-                if shared_values.allow_endpoint != endpoint {
-                    // TODO: Android
-                    shared_values.set_allow_endpoint(endpoint).unwrap();
+                if shared_values.set_allow_endpoint(endpoint) {
                     Self::set_firewall_policy(shared_values, true);
                 }
                 SameState(self.into())

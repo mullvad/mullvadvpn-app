@@ -60,6 +60,7 @@ pub struct AndroidTunProvider {
     object: GlobalRef,
     last_tun_config: TunConfig,
     allow_lan: bool,
+    allow_endpoint: IpAddr,
     custom_dns_servers: Option<Vec<IpAddr>>,
 }
 
@@ -68,6 +69,7 @@ impl AndroidTunProvider {
     pub fn new(
         context: AndroidContext,
         allow_lan: bool,
+        allow_endpoint: IpAddr,
         custom_dns_servers: Option<Vec<IpAddr>>,
     ) -> Self {
         let env = JnixEnv::from(
@@ -84,6 +86,7 @@ impl AndroidTunProvider {
             object: context.vpn_service,
             last_tun_config: TunConfig::default(),
             allow_lan,
+            allow_endpoint,
             custom_dns_servers,
         }
     }
@@ -95,6 +98,10 @@ impl AndroidTunProvider {
         }
 
         Ok(())
+    }
+
+    pub fn set_allow_endpoint(&mut self, endpoint: IpAddr) {
+        self.allow_endpoint = endpoint;
     }
 
     pub fn set_custom_dns_servers(&mut self, servers: Option<Vec<IpAddr>>) -> Result<(), Error> {
@@ -121,6 +128,19 @@ impl AndroidTunProvider {
             class: self.class.clone(),
             object: self.object.clone(),
         })
+    }
+
+    /// Open a tunnel device that routes everything but `allow_endpoint`, custom DNS, and (potentially)
+    /// LAN routes via the tunnel device.
+    ///
+    /// Will open a new tunnel if there is already an active tunnel. The previous tunnel will be
+    /// closed.
+    pub fn create_blocking_tun(&mut self) -> Result<(), Error> {
+        let mut config = TunConfig::default();
+        self.prepare_tun_config(&mut config);
+        self.prepare_tun_config_for_allowed_endpoint(&mut config);
+        let _ = self.get_tun(config)?;
+        Ok(())
     }
 
     /// Open a tunnel device using the previous or the default configuration.
@@ -225,6 +245,24 @@ impl AndroidTunProvider {
             JValue::Void => Ok(()),
             value => Err(Error::InvalidMethodResult("getTun", format!("{:?}", value))),
         }
+    }
+
+    fn prepare_tun_config_for_allowed_endpoint(&self, config: &mut TunConfig) {
+        let endpoint_net = IpNetwork::from(self.allow_endpoint);
+        let routes = config
+            .routes
+            .iter()
+            .flat_map(|&route| {
+                if route.is_ipv4() && endpoint_net.is_ipv4() {
+                    route.sub(endpoint_net).collect()
+                } else if route.is_ipv6() && endpoint_net.is_ipv6() {
+                    route.sub(endpoint_net).collect()
+                } else {
+                    vec![route]
+                }
+            })
+            .collect();
+        config.routes = routes;
     }
 
     fn prepare_tun_config(&self, config: &mut TunConfig) {

@@ -102,6 +102,8 @@ pub async fn spawn(
         #[cfg(target_os = "android")]
         allow_lan,
         #[cfg(target_os = "android")]
+        allow_endpoint.address.ip(),
+        #[cfg(target_os = "android")]
         custom_dns.clone(),
     );
 
@@ -337,13 +339,17 @@ impl SharedTunnelStateValues {
         Ok(())
     }
 
-    pub fn set_allow_endpoint(&mut self, endpoint: Endpoint) -> Result<(), ErrorStateCause> {
+    pub fn set_allow_endpoint(&mut self, endpoint: Endpoint) -> bool {
         if self.allow_endpoint != endpoint {
             self.allow_endpoint = endpoint;
 
-            // TODO: Android
+            #[cfg(target_os = "android")]
+            self.tun_provider.set_allow_endpoint(endpoint.address.ip());
+
+            true
+        } else {
+            false
         }
-        Ok(())
     }
 
     pub fn set_custom_dns(

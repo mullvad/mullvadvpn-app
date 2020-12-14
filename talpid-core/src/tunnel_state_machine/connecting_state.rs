@@ -237,18 +237,17 @@ impl ConnectingState {
                 }
             }
             Some(TunnelCommand::AllowEndpoint(endpoint)) => {
-                // TODO: Android
-                if let Err(error) = shared_values.set_allow_endpoint(endpoint) {
-                    self.disconnect(shared_values, AfterDisconnect::Block(error))
-                } else {
-                    match Self::set_firewall_policy(shared_values, &self.tunnel_parameters) {
-                        Ok(()) => SameState(self.into()),
-                        Err(error) => self.disconnect(
+                if shared_values.set_allow_endpoint(endpoint) {
+                    if let Err(error) =
+                        Self::set_firewall_policy(shared_values, &self.tunnel_parameters)
+                    {
+                        return self.disconnect(
                             shared_values,
                             AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
-                        ),
+                        );
                     }
                 }
+                SameState(self.into())
             }
             Some(TunnelCommand::CustomDns(servers)) => {
                 match shared_values.set_custom_dns(servers) {

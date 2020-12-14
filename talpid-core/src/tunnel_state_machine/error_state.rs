@@ -48,7 +48,7 @@ impl ErrorState {
     /// Returns true if a new tunnel device was successfully created.
     #[cfg(target_os = "android")]
     fn create_blocking_tun(shared_values: &mut SharedTunnelStateValues) -> bool {
-        match shared_values.tun_provider.create_tun_if_closed() {
+        match shared_values.tun_provider.create_blocking_tun() {
             Ok(()) => true,
             Err(error) => {
                 log::error!(
@@ -107,13 +107,18 @@ impl TunnelState for ErrorState {
                 }
             }
             Some(TunnelCommand::AllowEndpoint(endpoint)) => {
-                // TODO: Android
-                if let Err(error) = shared_values.set_allow_endpoint(endpoint) {
-                    NewState(Self::enter(shared_values, error))
-                } else {
+                if shared_values.set_allow_endpoint(endpoint) {
                     let _ = Self::set_firewall_policy(shared_values);
-                    SameState(self.into())
+
+                    #[cfg(target_os = "android")]
+                    if !Self::create_blocking_tun(shared_values) {
+                        return NewState(Self::enter(
+                            shared_values,
+                            ErrorStateCause::SetFirewallPolicyError(FirewallPolicyError::Generic),
+                        ));
+                    }
                 }
+                SameState(self.into())
             }
             Some(TunnelCommand::CustomDns(servers)) => {
                 if let Err(error_state_cause) = shared_values.set_custom_dns(servers) {
