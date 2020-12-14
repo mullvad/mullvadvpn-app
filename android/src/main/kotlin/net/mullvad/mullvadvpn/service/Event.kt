@@ -5,6 +5,7 @@ import android.os.Message
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.GeoIpLocation
+import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.Settings
 
 sealed class Event : Parcelable {
@@ -16,6 +17,9 @@ sealed class Event : Parcelable {
 
     @Parcelize
     class SettingsUpdate(val settings: Settings?) : Event(), Parcelable
+
+    @Parcelize
+    class WireGuardKeyStatus(val keyStatus: KeygenEvent?) : Event(), Parcelable
 
     val message: Message
         get() = Message.obtain().also { message ->
