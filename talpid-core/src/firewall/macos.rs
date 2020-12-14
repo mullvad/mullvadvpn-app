@@ -98,9 +98,11 @@ impl Firewall {
             FirewallPolicy::Connecting {
                 peer_endpoint,
                 allow_lan,
+                allow_endpoint,
                 pingable_hosts,
             } => {
                 let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
+                rules.push(self.get_allow_endpoint_rule(allow_endpoint)?);
                 rules.extend(self.get_allow_pingable_hosts(&pingable_hosts)?);
                 if allow_lan {
                     // Important to block DNS after allow relay rule (so the relay can operate
@@ -136,8 +138,12 @@ impl Firewall {
 
                 Ok(rules)
             }
-            FirewallPolicy::Blocked { allow_lan } => {
+            FirewallPolicy::Blocked {
+                allow_lan,
+                allow_endpoint,
+            } => {
                 let mut rules = Vec::new();
+                rules.push(self.get_allow_endpoint_rule(allow_endpoint)?);
                 if allow_lan {
                     // Important to block DNS before allow LAN (so DNS does not leak to the LAN)
                     rules.append(&mut self.get_block_dns_rules()?);
@@ -243,6 +249,19 @@ impl Firewall {
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())
             .user(Uid::from(ROOT_UID))
+            .quick(true)
+            .build()?)
+    }
+
+    fn get_allow_endpoint_rule(&self, allow_endpoint: net::Endpoint) -> Result<pfctl::FilterRule> {
+        let pfctl_proto = as_pfctl_proto(allow_endpoint.protocol);
+
+        Ok(self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .direction(pfctl::Direction::Out)
+            .to(allow_endpoint.address)
+            .proto(pfctl_proto)
+            .keep_state(pfctl::StatePolicy::Keep)
             .quick(true)
             .build()?)
     }
