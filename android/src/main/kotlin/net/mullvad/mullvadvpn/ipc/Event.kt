@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.ipc
 import android.os.Message as RawMessage
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.GeoIpLocation
+import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.Settings
 
 // Events that can be sent from the service
@@ -18,6 +19,9 @@ sealed class Event : Message() {
 
     @Parcelize
     data class SettingsUpdate(val settings: Settings?) : Event()
+
+    @Parcelize
+    data class WireGuardKeyStatus(val keyStatus: KeygenEvent?) : Event()
 
     companion object {
         private const val MESSAGE_KEY = "event"
