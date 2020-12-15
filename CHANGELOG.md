@@ -27,6 +27,11 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Allow to configure the tunnel to use custom DNS servers.
 
+### Changed
+- Allow the API to be accessed while in a blocking state.
+- Prefer the last used API endpoint when the service starts back up, as well as in other tools such
+  as the problem report tool.
+
 
 ## [2020.8-beta2] - 2020-12-11
 This release is for desktop only.
