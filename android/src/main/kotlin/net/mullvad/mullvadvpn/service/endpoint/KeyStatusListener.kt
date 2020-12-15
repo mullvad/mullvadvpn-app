@@ -1,8 +1,10 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
+import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.talpid.util.EventNotifier
@@ -12,7 +14,11 @@ class KeyStatusListener(endpoint: ServiceEndpoint) {
 
     val onKeyStatusChange = EventNotifier<KeygenEvent?>(null)
 
-    var keyStatus by onKeyStatusChange.notifiable()
+    var keyStatus by observable<KeygenEvent?>(null) { _, _, status ->
+        endpoint.sendEvent(Event.WireGuardKeyStatus(status))
+        onKeyStatusChange.notify(status)
+    }
+        private set
 
     init {
         daemon.registerListener(this) { newDaemon ->
