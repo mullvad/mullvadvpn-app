@@ -17,7 +17,11 @@ class ServiceHandler(looper: Looper, connectivityListener: ConnectivityListener)
         }
     }
 
-    val keyStatusListener = KeyStatusListener()
+    val keyStatusListener = KeyStatusListener().apply {
+        onKeyStatusChange.subscribe(this@ServiceHandler) { keyStatus ->
+            sendEvent(Event.WireGuardKeyStatus(keyStatus))
+        }
+    }
 
     val locationInfoCache = LocationInfoCache(connectivityListener, settingsListener).apply {
         onNewLocation = { location ->
