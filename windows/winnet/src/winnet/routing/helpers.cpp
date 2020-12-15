@@ -12,7 +12,8 @@ namespace
 // Interface description substrings found for virtual adapters.
 const wchar_t *TUNNEL_INTERFACE_DESCS[] = {
 	L"WireGuard",
-	L"TAP Adapter"
+	L"Wintun",
+	L"Tunnel"
 };
 
 bool IsRouteOnPhysicalInterface(const MIB_IPFORWARD_ROW2 &route)
