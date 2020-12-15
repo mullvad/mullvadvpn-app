@@ -344,6 +344,10 @@ msgstr "ปราก"
 msgid "Pune"
 msgstr "ปูเน"
 
+#. US RAG
+msgid "Raleigh, NC"
+msgstr ""
+
 #. US RIC
 msgid "Richmond, VA"
 msgstr "ริชมอนด์ รัฐเวอร์จิเนีย"
@@ -483,4 +487,3 @@ msgstr "วีน"
 #. CH ZRH
 msgid "Zurich"
 msgstr "ซือริช"
-

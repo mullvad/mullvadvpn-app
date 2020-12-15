@@ -344,6 +344,10 @@ msgstr "布拉格"
 msgid "Pune"
 msgstr "浦那"
 
+#. US RAG
+msgid "Raleigh, NC"
+msgstr "罗利, NC"
+
 #. US RIC
 msgid "Richmond, VA"
 msgstr "弗吉尼亚州里士满"
@@ -483,4 +487,3 @@ msgstr "维也纳"
 #. CH ZRH
 msgid "Zurich"
 msgstr "苏黎世"
-

@@ -344,6 +344,10 @@ msgstr "Praag"
 msgid "Pune"
 msgstr "Pune"
 
+#. US RAG
+msgid "Raleigh, NC"
+msgstr "Raleigh, NC"
+
 #. US RIC
 msgid "Richmond, VA"
 msgstr "Richmond, VA"
@@ -483,4 +487,3 @@ msgstr "Wenen"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zürich"
-

@@ -344,6 +344,10 @@ msgstr "프라하"
 msgid "Pune"
 msgstr "푸네"
 
+#. US RAG
+msgid "Raleigh, NC"
+msgstr "롤리, NC"
+
 #. US RIC
 msgid "Richmond, VA"
 msgstr "리치몬드, VA"
@@ -483,4 +487,3 @@ msgstr "빈"
 #. CH ZRH
 msgid "Zurich"
 msgstr "취리히"
-
