@@ -40,6 +40,11 @@ Line wrap the file at 100 chars.                                              Th
   OpenVPN by correctly applying the fix for
   [CVE-2019-14899](https://seclists.org/oss-sec/2019/q4/122).
 
+### Changed
+- Allow the API to be accessed while in a blocking state.
+- Prefer the last used API endpoint when the service starts back up, as well as in other tools such
+  as the problem report tool.
+
 
 ## [2020.8-beta2] - 2020-12-11
 This release is for desktop only.
