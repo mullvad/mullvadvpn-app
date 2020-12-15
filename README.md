@@ -51,6 +51,7 @@ state of latest master, not necessarily any existing release.
 | WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
 | Optional local network access |    ✓    |   ✓   |   ✓   |    ✓    |  ✓\* |
+
 Note:
 \* The local network is always accessible on iOS with the current implementation
 
