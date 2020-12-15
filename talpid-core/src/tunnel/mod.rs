@@ -107,11 +107,14 @@ impl TunnelEvent {
                     .get("dev")
                     .expect("No \"dev\" in tunnel up event")
                     .to_owned();
-                let ips = vec![env
+                let mut ips = vec![env
                     .get("ifconfig_local")
                     .expect("No \"ifconfig_local\" in tunnel up event")
                     .parse()
                     .expect("Tunnel IP not in valid format")];
+                if let Some(ipv6_address) = env.get("ifconfig_ipv6_local") {
+                    ips.push(ipv6_address.parse().expect("Tunnel IP not in valid format"));
+                }
                 let ipv4_gateway = env
                     .get("route_vpn_gateway")
                     .expect("No \"route_vpn_gateway\" in tunnel up event")
