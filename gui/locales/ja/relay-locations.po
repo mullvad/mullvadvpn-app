@@ -344,6 +344,10 @@ msgstr "プラハ"
 msgid "Pune"
 msgstr "プネー"
 
+#. US RAG
+msgid "Raleigh, NC"
+msgstr "ローリー, NC"
+
 #. US RIC
 msgid "Richmond, VA"
 msgstr "リッチモンド、VA"
@@ -483,4 +487,3 @@ msgstr "ウィーン"
 #. CH ZRH
 msgid "Zurich"
 msgstr "チューリッヒ"
-

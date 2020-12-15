@@ -334,6 +334,10 @@ msgstr ""
 msgid "Pune"
 msgstr ""
 
+#. US RAG
+msgid "Raleigh, NC"
+msgstr ""
+
 #. US RIC
 msgid "Richmond, VA"
 msgstr ""
