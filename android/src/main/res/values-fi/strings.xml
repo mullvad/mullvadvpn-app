@@ -95,6 +95,7 @@
     <string name="update_available_footer">Päivitys saatavilla. Lataa se pysyäksesi turvassa.</string>
     <string name="user_email_hint">Sähköpostisi (valinnainen)</string>
     <string name="user_message_hint">Kuvaile ongelmaasi</string>
+    <string name="view_logs">Tarkastele sovelluslokeja</string>
     <string name="voucher_already_used">Kuponkikoodi on jo käytetty.</string>
     <string name="wg_key_url">https://mullvad.net/fi/account/ports</string>
     <string name="wireguard">WireGuard</string>

@@ -95,6 +95,7 @@
     <string name="update_available_footer">Oppdatering tilgjengelig. Last ned for å oppdatere sikkerheten.</string>
     <string name="user_email_hint">E-post (valgfritt)</string>
     <string name="user_message_hint">Beskriv problemet</string>
+    <string name="view_logs">Se applogger</string>
     <string name="voucher_already_used">Kupongkoden er allerede brukt.</string>
     <string name="wg_key_url">https://mullvad.net/nb/account/ports</string>
     <string name="wireguard">WireGuard</string>

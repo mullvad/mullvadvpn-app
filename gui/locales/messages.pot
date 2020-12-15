@@ -1016,3 +1016,161 @@ msgstr ""
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr ""
+
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr ""
+
+msgid "WireGuard error"
+msgstr ""
+
+msgid "Account time reminders"
+msgstr ""
+
+msgid "WireGuard public key"
+msgstr ""
+
+msgid "Copied WireGuard public key to clipboard"
+msgstr ""
+
+msgid "Account credit expires soon"
+msgstr ""
+
+msgid "Account credit expires in a few minutes"
+msgstr ""
+
+msgid "Thanks!"
+msgstr ""
+
+msgid "We will look into this."
+msgstr ""
+
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr ""
+
+msgid "e.g. 123.456.789.111"
+msgstr ""
+
+msgid "Copied to clipboard"
+msgstr ""
+
+msgid "Too many WireGuard keys registered to account"
+msgstr ""
+
+msgid "Shows current VPN tunnel status"
+msgstr ""
+
+msgid "Copied Mullvad account number to clipboard"
+msgstr ""
+
+msgid "Use custom DNS server"
+msgstr ""
+
+msgid "Add anyway"
+msgstr ""
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr ""
+
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr ""
+
+msgid "less than a day left"
+msgstr ""
+
+msgid "Blocking all connections"
+msgstr ""
+
+msgid "Could not configure IPv6"
+msgstr ""
+
+msgid "Disconnecting"
+msgstr ""
+
+msgid "Enable to add at least one DNS server."
+msgstr ""
+
+msgid "Enable"
+msgstr ""
+
+msgid "No relay server matches the current settings"
+msgstr ""
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr ""
+
+msgid "No bridge relay server matches the current settings"
+msgstr ""
+
+msgid "Shows reminders when the account time is about to expire"
+msgstr ""
+
+msgid "Add a server"
+msgstr ""
+
+msgid "Mullvad account number"
+msgstr ""
+
+msgid "less than a minute ago"
+msgstr ""
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr ""
+
+msgid "Virtual adapter error"
+msgstr ""
+
+msgid "Exclude applications"
+msgstr ""
+
+msgid "VPN tunnel status"
+msgstr ""
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Account credit expires in a day"
+msgid_plural "Account credit expires in %d days"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Account credit expires in an hour"
+msgid_plural "Account credit expires in %d hours"
+msgstr[0] ""
+msgstr[1] ""

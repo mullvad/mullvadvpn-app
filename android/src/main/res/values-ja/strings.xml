@@ -95,6 +95,7 @@
     <string name="update_available_footer">アップデートできます。ダウンロードしてセキュリティを維持してください。</string>
     <string name="user_email_hint">あなたのメールアドレス（任意）</string>
     <string name="user_message_hint">問題の内容をご説明ください</string>
+    <string name="view_logs">アプリのログを表示</string>
     <string name="voucher_already_used">バウチャーコードはすでに使用されています。</string>
     <string name="wg_key_url">https://mullvad.net/ja/account/ports</string>
     <string name="wireguard">WireGuard</string>
