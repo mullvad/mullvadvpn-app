@@ -95,6 +95,7 @@
     <string name="update_available_footer">Güncelleme mevcut, güvende olmak için indirin.</string>
     <string name="user_email_hint">E-posta adresiniz (isteğe bağlı)</string>
     <string name="user_message_hint">Sorununuzu açıklayın</string>
+    <string name="view_logs">Uygulama kayıtlarını görüntüle</string>
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>
     <string name="wg_key_url">https://mullvad.net/tr/account/ports</string>
     <string name="wireguard">WireGuard</string>
