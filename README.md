@@ -483,19 +483,19 @@ If you're using GNOME, try installing one of these GNOME Shell extensions:
 ## Repository structure
 
 ### Electron GUI app and electron-builder packaging assets
-- **gui/packages/**
-  - **components/** - Platform agnostic shared react components
-  - **desktop/** - The desktop implementation
-    - **assets/** - graphical assets and stylesheets
-    - **src/**
-      - **main/**
-        - **index.ts** - entry file for the main process
-      - **renderer/**
-        - **app.ts** - entry file for the renderer process
-        - **routes.ts** - routes configurator
-        - **transitions.ts** - transition rules between views
-      - **config.json** - App color definitions and URLs to external resources
-    - **test/** - Electron GUI tests
+- **gui/**
+  - **assets/** - Graphical assets and stylesheets
+  - **src/**
+    - **main/**
+      - **index.ts** - Entry file for the main process
+    - **renderer/**
+      - **app.tsx** - Entry file for the renderer process
+      - **routes.tsx** - Routes configurator
+      - **transitions.ts** - Transition rules between views
+    - **config.json** - App color definitions and URLs to external resources
+  - **tasks/** - Gulp tasks used to build app and watch for changes during development
+    - **distribution.js** - Configuration for `electron-builder`
+  - **test/** - Electron GUI tests
 - **dist-assets/** - Icons, binaries and other files used when creating the distributables
   - **binaries/** - Git submodule containing binaries bundled with the app. For example the
     statically linked OpenVPN binary. See the README in the submodule for details
