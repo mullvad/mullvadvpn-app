@@ -122,13 +122,13 @@ open class TalpidVpnService : VpnService() {
         val vpnInterface = builder.establish()
         val tunFd = vpnInterface?.detachFd()
 
-        if (tunFd != null) {
-            waitForTunnelUp(tunFd, config.routes.any { route -> route.isIpv6 })
-
-            return CreateTunResult.Success(tunFd)
-        } else {
+        if (tunFd == null) {
             return CreateTunResult.TunnelDeviceError()
         }
+
+        waitForTunnelUp(tunFd, config.routes.any { route -> route.isIpv6 })
+
+        return CreateTunResult.Success(tunFd)
     }
 
     fun bypass(socket: Int): Boolean {
