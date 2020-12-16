@@ -25,6 +25,7 @@ tokio-rustls = "0.14"
 urlencoding = "1"
 webpki = { version = "0.21", features =  [] }
 
+mullvad-platform-metadata = { path = "../mullvad-platform-metadata" }
 mullvad-types = { path = "../mullvad-types" }
 talpid-types = { path = "../talpid-types" }
 

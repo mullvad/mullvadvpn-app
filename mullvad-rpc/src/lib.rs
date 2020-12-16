@@ -2,12 +2,13 @@
 
 use chrono::{offset::Utc, DateTime};
 use hyper::Method;
+use mullvad_platform_metadata::os;
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
     version::AppVersion,
 };
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, HashMap},
     future::Future,
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::Path,
@@ -169,6 +170,7 @@ impl AccountsProxy {
             "/v1/me",
             Method::GET,
             Some(account),
+            None,
             StatusCode::OK,
         );
         async move {
@@ -184,6 +186,7 @@ impl AccountsProxy {
             service,
             "/v1/accounts",
             Method::POST,
+            None,
             None,
             StatusCode::CREATED,
         );
@@ -235,6 +238,7 @@ impl AccountsProxy {
             "/v1/www-auth-token",
             Method::POST,
             Some(account),
+            None,
             StatusCode::OK,
         );
 
@@ -319,12 +323,16 @@ impl AppVersionProxy {
     ) -> impl Future<Output = Result<AppVersionResponse, rest::Error>> {
         let service = self.handle.service.clone();
 
+        let mut headers = HashMap::new();
+        headers.insert("M-Platform-Version", os::version());
+
         let request = rest::send_request(
             &self.handle.factory,
             service,
             &format!("/v1/releases/{}/{}", platform, version),
             Method::GET,
             None,
+            Some(headers),
             StatusCode::OK,
         );
 
@@ -418,6 +426,7 @@ impl WireguardKeyProxy {
             ),
             Method::GET,
             Some(account_token),
+            None,
             StatusCode::OK,
         )
         .await?;
@@ -441,6 +450,7 @@ impl WireguardKeyProxy {
             ),
             Method::DELETE,
             Some(account_token),
+            None,
             StatusCode::NO_CONTENT,
         )
         .await?;
@@ -466,6 +476,7 @@ impl ApiProxy {
             service,
             "/v1/api-addrs",
             Method::GET,
+            None,
             None,
             StatusCode::OK,
         )

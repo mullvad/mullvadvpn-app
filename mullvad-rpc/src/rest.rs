@@ -12,7 +12,7 @@ use hyper::{
     Method, Uri,
 };
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, HashMap},
     future::Future,
     mem,
     net::{IpAddr, SocketAddr},
@@ -306,6 +306,12 @@ impl RestRequest {
         self.timeout
     }
 
+    pub fn add_header(&mut self, key: &'static str, value: String) -> Result<()> {
+        let header_value = http::HeaderValue::from_str(&value).map_err(Error::InvalidHeaderError)?;
+        self.request.headers_mut().insert(key, header_value);
+        Ok(())
+    }
+
     /// Converts into a `hyper::Request<hyper::Body>`
     fn into_request(self) -> Request {
         let Self {
@@ -361,7 +367,11 @@ impl RequestFactory {
         }
     }
 
-    pub fn request(&self, path: &str, method: Method) -> Result<RestRequest> {
+    pub fn request(
+        &self,
+        path: &str,
+        method: Method,
+    ) -> Result<RestRequest> {
         self.hyper_request(path, method)
             .map(RestRequest::from)
             .map(|req| self.set_request_timeout(req))
@@ -474,6 +484,7 @@ pub fn send_request(
     uri: &str,
     method: Method,
     auth: Option<String>,
+    headers: Option<HashMap<&'static str, String>>,
     expected_status: hyper::StatusCode,
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.request(uri, method);
@@ -481,6 +492,13 @@ pub fn send_request(
     async move {
         let mut request = request?;
         request.set_auth(auth)?;
+
+        if let Some(header_map) = headers {
+            for (key, value) in header_map {
+                request.add_header(key, value)?;
+            }
+        }
+
         let response = service.request(request).await?;
         parse_rest_response(response, expected_status).await
     }
