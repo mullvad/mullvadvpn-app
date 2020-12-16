@@ -87,6 +87,7 @@ class ServiceEndpoint(
 
         listener.apply {
             send(Event.LoginStatus(accountCache.onLoginStatusChange.latestEvent).message)
+            send(Event.AccountHistory(accountCache.onAccountHistoryChange.latestEvent).message)
             send(Event.SettingsUpdate(settingsListener.settings).message)
             send(Event.NewLocation(locationInfoCache.location).message)
             send(Event.WireGuardKeyStatus(keyStatusListener.keyStatus).message)
