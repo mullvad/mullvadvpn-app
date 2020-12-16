@@ -10,7 +10,6 @@ class ServiceInstance(
     val accountCache: AccountCache,
     val connectionProxy: ConnectionProxy,
     val customDns: CustomDns,
-    val settingsListener: SettingsListener,
     val splitTunneling: SplitTunneling
 ) {
     fun onDestroy() {
