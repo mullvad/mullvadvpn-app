@@ -239,6 +239,8 @@ class MullvadVpnService : TalpidVpnService() {
         val customDns = CustomDns(daemon, endpoint.settingsListener)
         val splitTunneling = splitTunneling.await()
 
+        notificationManager.accountNumberEvents = endpoint.settingsListener.accountNumberNotifier
+
         splitTunneling.onChange = { excludedApps ->
             disallowedApps = excludedApps
             markTunAsStale()
