@@ -520,11 +520,13 @@ where
         }
 
         let app_version_info = version_check::load_cache(&cache_dir);
+        let platform_version = mullvad_platform_metadata::version();
         let (version_updater, version_updater_handle) = version_check::VersionUpdater::new(
             rpc_handle.clone(),
             cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             app_version_info.clone(),
+            platform_version,
             settings.show_beta_releases,
         );
         tokio::spawn(version_updater.run());
