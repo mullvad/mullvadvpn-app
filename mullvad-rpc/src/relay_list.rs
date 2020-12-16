@@ -29,7 +29,7 @@ impl RelayListProxy {
     /// Fetch the relay list
     pub fn relay_list(&self) -> impl Future<Output = Result<relay_list::RelayList, rest::Error>> {
         let service = self.handle.service.clone();
-        let request = self.handle.factory.request("/v1/relays", Method::GET);
+        let request = self.handle.factory.request("/v1/relays", Method::GET, None);
 
         let future = async move {
             let mut request = request?;

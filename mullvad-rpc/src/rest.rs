@@ -12,7 +12,7 @@ use hyper::{
     Method, Uri,
 };
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, HashMap},
     future::Future,
     mem,
     net::{IpAddr, SocketAddr},
@@ -361,26 +361,31 @@ impl RequestFactory {
         }
     }
 
-    pub fn request(&self, path: &str, method: Method) -> Result<RestRequest> {
-        self.hyper_request(path, method)
+    pub fn request(
+        &self,
+        path: &str,
+        method: Method,
+        headers: Option<HashMap<&str, String>>,
+    ) -> Result<RestRequest> {
+        self.hyper_request(path, method, headers)
             .map(RestRequest::from)
             .map(|req| self.set_request_timeout(req))
     }
 
     pub fn get(&self, path: &str) -> Result<RestRequest> {
-        self.hyper_request(path, Method::GET)
+        self.hyper_request(path, Method::GET, None)
             .map(RestRequest::from)
             .map(|req| self.set_request_timeout(req))
     }
 
     pub fn post(&self, path: &str) -> Result<RestRequest> {
-        self.hyper_request(path, Method::POST)
+        self.hyper_request(path, Method::POST, None)
             .map(RestRequest::from)
             .map(|req| self.set_request_timeout(req))
     }
 
     pub fn post_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<RestRequest> {
-        let mut request = self.hyper_request(path, Method::POST)?;
+        let mut request = self.hyper_request(path, Method::POST, None)?;
 
         let json_body = serde_json::to_string(&body)?;
         let body_length = json_body.as_bytes().len() as u64;
@@ -400,17 +405,28 @@ impl RequestFactory {
     }
 
     pub fn delete(&self, path: &str) -> Result<RestRequest> {
-        self.hyper_request(path, Method::DELETE)
+        self.hyper_request(path, Method::DELETE, None)
             .map(RestRequest::from)
     }
 
-    fn hyper_request(&self, path: &str, method: Method) -> Result<Request> {
+    fn hyper_request(
+        &self,
+        path: &str,
+        method: Method,
+        headers: Option<HashMap<&str, String>>,
+    ) -> Result<Request> {
         let uri = self.get_uri(path)?;
-        let request = http::request::Builder::new()
+        let mut request = http::request::Builder::new()
             .method(method)
             .uri(uri)
             .header(header::ACCEPT, HeaderValue::from_static("application/json"))
             .header(header::HOST, self.hostname.clone());
+
+        if let Some(headers) = headers {
+            request = headers
+                .iter()
+                .fold(request, |req, (&key, value)| req.header(key, value));
+        }
 
         request.body(hyper::Body::empty()).map_err(Error::HttpError)
     }
@@ -474,9 +490,10 @@ pub fn send_request(
     uri: &str,
     method: Method,
     auth: Option<String>,
+    headers: Option<HashMap<&str, String>>,
     expected_status: hyper::StatusCode,
 ) -> impl Future<Output = Result<Response>> {
-    let request = factory.request(uri, method);
+    let request = factory.request(uri, method, headers);
 
     async move {
         let mut request = request?;
