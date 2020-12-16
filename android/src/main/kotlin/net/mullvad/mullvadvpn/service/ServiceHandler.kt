@@ -42,7 +42,19 @@ class ServiceHandler(looper: Looper, connectivityListener: ConnectivityListener)
         val request = Request.fromMessage(message)
 
         when (request) {
+            is Request.CreateAccount -> accountCache.createNewAccount()
+            is Request.FetchAccountExpiry -> accountCache.fetchAccountExpiry()
+            is Request.InvalidateAccountExpiry -> {
+                accountCache.invalidateAccountExpiry(request.expiry)
+            }
+            is Request.Login -> request.account?.let { account -> accountCache.login(account) }
+            is Request.Logout -> accountCache.logout()
             is Request.RegisterListener -> registerListener(request.listener)
+            is Request.RemoveAccountFromHistory -> {
+                request.account?.let { account ->
+                    accountCache.removeAccountFromHistory(account)
+                }
+            }
             is Request.WireGuardGenerateKey -> keyStatusListener.generateKey()
             is Request.WireGuardVerifyKey -> keyStatusListener.verifyKey()
         }
