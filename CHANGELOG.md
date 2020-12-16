@@ -24,6 +24,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Add header containing OS version to version-check API call to enable OS specific compatibility and
+  vulnerability checks.
+
 #### Android
 - Allow to configure the tunnel to use custom DNS servers.
 
