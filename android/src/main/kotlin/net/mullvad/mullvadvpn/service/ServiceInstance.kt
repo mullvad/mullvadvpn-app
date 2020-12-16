@@ -10,7 +10,9 @@ class ServiceInstance(
     val settingsListener: SettingsListener,
     val splitTunneling: SplitTunneling
 ) {
-    val accountCache = AccountCache(daemon, settingsListener)
+    val accountCache = AccountCache(settingsListener).also { accountCache ->
+        accountCache.daemon = daemon
+    }
 
     fun onDestroy() {
         accountCache.onDestroy()

@@ -3,12 +3,13 @@ package net.mullvad.mullvadvpn.service
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
+import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
+class AccountCache(val settingsListener: SettingsListener) {
     companion object {
         public val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
 
@@ -27,6 +28,7 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     var newlyCreatedAccount = false
         private set
 
+    private val availableDaemon = Intermittent<MullvadDaemon>()
     private val jobTracker = JobTracker()
 
     private var accountNumber by onAccountNumberChange.notifiable()
@@ -36,23 +38,25 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     private var createdAccountExpiry: DateTime? = null
     private var oldAccountExpiry: DateTime? = null
 
+    var daemon by availableDaemon.source()
+
     init {
         settingsListener.accountNumberNotifier.subscribe(this) { accountNumber ->
             handleNewAccountNumber(accountNumber)
         }
     }
 
-    fun createNewAccount(): String? {
+    suspend fun createNewAccount(): String? {
         newlyCreatedAccount = true
         createdAccountExpiry = null
 
-        return daemon.createNewAccount()
+        return availableDaemon.await().createNewAccount()
     }
 
-    fun login(account: String) {
+    suspend fun login(account: String) {
         if (account != accountNumber) {
             markAccountAsNotNew()
-            daemon.setAccount(account)
+            availableDaemon.await().setAccount(account)
         }
     }
 
@@ -65,7 +69,7 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
                     }
 
                     do {
-                        val result = daemon.getAccountData(account)
+                        val result = availableDaemon.await().getAccountData(account)
 
                         if (result is GetAccountDataResult.Ok) {
                             val expiry = result.accountData.expiry
@@ -96,7 +100,7 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
     fun removeAccountFromHistory(accountToken: String) {
         jobTracker.newBackgroundJob("removeAccountFromHistory $accountToken") {
-            daemon.removeAccountFromHistory(accountToken)
+            availableDaemon.await().removeAccountFromHistory(accountToken)
             fetchAccountHistory()
         }
     }
@@ -108,7 +112,7 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
     private fun fetchAccountHistory() {
         jobTracker.newBackgroundJob("fetchHistory") {
-            daemon.getAccountHistory()?.let { history ->
+            availableDaemon.await().getAccountHistory()?.let { history ->
                 accountHistory = history
             }
         }
