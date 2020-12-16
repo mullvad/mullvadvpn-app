@@ -237,6 +237,8 @@ class MullvadVpnService : TalpidVpnService() {
 
         handler.daemon = daemon
 
+        notificationManager.accountNumberEvents = handler.settingsListener.accountNumberNotifier
+
         splitTunneling.onChange = { excludedApps ->
             disallowedApps = excludedApps
             markTunAsStale()
