@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
-import net.mullvad.mullvadvpn.service.AccountCache
+import net.mullvad.mullvadvpn.service.endpoint.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.mullvadvpn.ui.widget.AccountCell
 import net.mullvad.mullvadvpn.ui.widget.AppVersionCell
