@@ -159,7 +159,7 @@ async fn clear_history() -> Result<(), Error> {
         None,
         &user_cache_path,
         false,
-        |_| {},
+        |_| Ok(()),
     )
     .await
     .map_err(Error::RpcInitializationError)?;

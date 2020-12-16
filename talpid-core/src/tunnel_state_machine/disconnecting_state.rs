@@ -32,8 +32,11 @@ impl DisconnectingState {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Nothing
                 }
-                Some(TunnelCommand::AllowEndpoint(endpoint)) => {
+                Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                     let _ = shared_values.set_allow_endpoint(endpoint);
+                    if let Err(_) = tx.send(()) {
+                        log::error!("The AllowEndpoint receiver was dropped");
+                    }
                     AfterDisconnect::Nothing
                 }
                 Some(TunnelCommand::CustomDns(servers)) => {
@@ -57,8 +60,11 @@ impl DisconnectingState {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Block(reason)
                 }
-                Some(TunnelCommand::AllowEndpoint(endpoint)) => {
+                Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                     let _ = shared_values.set_allow_endpoint(endpoint);
+                    if let Err(_) = tx.send(()) {
+                        log::error!("The AllowEndpoint receiver was dropped");
+                    }
                     AfterDisconnect::Block(reason)
                 }
                 Some(TunnelCommand::CustomDns(servers)) => {
@@ -87,8 +93,11 @@ impl DisconnectingState {
                     let _ = shared_values.set_allow_lan(allow_lan);
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
-                Some(TunnelCommand::AllowEndpoint(endpoint)) => {
+                Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                     let _ = shared_values.set_allow_endpoint(endpoint);
+                    if let Err(_) = tx.send(()) {
+                        log::error!("The AllowEndpoint receiver was dropped");
+                    }
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 Some(TunnelCommand::CustomDns(servers)) => {

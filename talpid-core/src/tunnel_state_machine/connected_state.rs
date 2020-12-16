@@ -192,14 +192,10 @@ impl ConnectedState {
                     }
                 }
             }
-            Some(TunnelCommand::AllowEndpoint(endpoint)) => {
-                if shared_values.set_allow_endpoint(endpoint) {
-                    if let Err(error) = self.set_firewall_policy(shared_values) {
-                        return self.disconnect(
-                            shared_values,
-                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
-                        );
-                    }
+            Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
+                let _ = shared_values.set_allow_endpoint(endpoint);
+                if let Err(_) = tx.send(()) {
+                    log::error!("The AllowEndpoint receiver was dropped");
                 }
                 SameState(self.into())
             }

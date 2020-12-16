@@ -157,7 +157,8 @@ pub enum TunnelCommand {
     /// Enable or disable LAN access in the firewall.
     AllowLan(bool),
     /// Endpoint that should never be blocked.
-    AllowEndpoint(Endpoint),
+    /// If an error occurs, the sender is dropped.
+    AllowEndpoint(Endpoint, oneshot::Sender<()>),
     /// Set custom DNS servers to use.
     CustomDns(Option<Vec<IpAddr>>),
     /// Enable or disable the block_when_disconnected feature.

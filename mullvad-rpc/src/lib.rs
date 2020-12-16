@@ -64,7 +64,7 @@ impl MullvadRpcRuntime {
             address_cache: AddressCache::new(
                 vec![API_ADDRESS.into()],
                 None,
-                Arc::new(Box::new(|_| {})),
+                Arc::new(Box::new(|_| Ok(()))),
             )?,
         })
     }
@@ -77,7 +77,7 @@ impl MullvadRpcRuntime {
         resource_dir: Option<&Path>,
         cache_dir: &Path,
         write_changes: bool,
-        address_change_listener: impl Fn(SocketAddr) + Send + Sync + 'static,
+        address_change_listener: impl Fn(SocketAddr) -> Result<(), ()> + Send + Sync + 'static,
     ) -> Result<Self, Error> {
         let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
         let write_file = if write_changes {
