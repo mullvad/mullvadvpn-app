@@ -1243,6 +1243,7 @@ dependencies = [
  "log-panics",
  "mullvad-management-interface",
  "mullvad-paths",
+ "mullvad-platform-metadata",
  "mullvad-rpc",
  "mullvad-types",
  "nix 0.19.0",
