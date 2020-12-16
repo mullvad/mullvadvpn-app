@@ -65,6 +65,10 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
             handleNewAccountNumber(accountNumber)
         }
 
+        onAccountHistoryChange.subscribe(this) { history ->
+            endpoint.sendEvent(Event.AccountHistory(history))
+        }
+
         onLoginStatusChange.subscribe(this) { status ->
             endpoint.sendEvent(Event.LoginStatus(status))
         }
