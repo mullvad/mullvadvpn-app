@@ -30,6 +30,12 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Improved compatiblitiy with newer versions of systemd-resolved.
 
+### Security
+#### Linux
+- Prevent the private tunnel IPv6 address from being detectable on a local network when using
+  OpenVPN by correctly applying the fix for
+  [CVE-2019-14899](https://seclists.org/oss-sec/2019/q4/122).
+
 
 ## [2020.8-beta2] - 2020-12-11
 This release is for desktop only.
