@@ -33,6 +33,7 @@ class ServiceEndpoint(
 
     val settingsListener = SettingsListener(this)
 
+    val accountCache = AccountCache(settingsListener, intermittentDaemon)
     val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)
 
@@ -46,6 +47,7 @@ class ServiceEndpoint(
         dispatcher.onDestroy()
         registrationQueue.close()
 
+        accountCache.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
