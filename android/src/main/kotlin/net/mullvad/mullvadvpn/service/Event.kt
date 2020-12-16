@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.service
 
 import android.os.Bundle
 import android.os.Message
+import java.util.ArrayList
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
@@ -19,6 +20,26 @@ sealed class Event {
         }
 
     open fun prepareData(data: Bundle) {}
+
+    class AccountHistory(val history: ArrayList<String>?) : Event() {
+        companion object {
+            private val historyKey = "history"
+
+            fun buildHistory(data: Bundle): ArrayList<String>? {
+                return data.getStringArray(historyKey)?.let { historyArray ->
+                    ArrayList(historyArray.toList())
+                }
+            }
+        }
+
+        override val type = Type.AccountHistory
+
+        constructor(data: Bundle) : this(buildHistory(data)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putStringArray(historyKey, history?.toTypedArray())
+        }
+    }
 
     class LoginStatus(val status: LoginStatusData?) : Event() {
         companion object {
@@ -77,6 +98,7 @@ sealed class Event {
     }
 
     enum class Type(val build: (Bundle) -> Event) {
+        AccountHistory({ data -> AccountHistory(data) }),
         LoginStatus({ data -> LoginStatus(data) }),
         NewLocation({ data -> NewLocation(data) }),
         SettingsUpdate({ data -> SettingsUpdate(data) }),
