@@ -44,6 +44,12 @@ This release is for desktop only.
 - Fix login appearing to be cancelled after leaving the login screen while logging in.
 - Fix login input area missing some times when opening the login screen.
 
+### Security
+#### Linux
+- Prevent the private tunnel IPv6 address from being detectable on a local network when using
+  OpenVPN by correctly applying the fix for
+  [CVE-2019-14899](https://seclists.org/oss-sec/2019/q4/122).
+
 
 ## [2020.8-beta1] - 2020-11-30
 This release is for Android only.
