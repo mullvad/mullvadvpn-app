@@ -13,7 +13,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
-import net.mullvad.mullvadvpn.service.AccountCache
+import net.mullvad.mullvadvpn.service.endpoint.AccountCache
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.Button
 import org.joda.time.DateTime
