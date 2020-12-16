@@ -251,6 +251,7 @@ class MullvadVpnService : TalpidVpnService() {
             instance = ServiceInstance(
                 messenger,
                 daemon,
+                handler.accountCache,
                 connectionProxy,
                 customDns,
                 handler.settingsListener,

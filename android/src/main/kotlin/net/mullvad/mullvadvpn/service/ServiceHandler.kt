@@ -17,6 +17,8 @@ class ServiceHandler(looper: Looper, connectivityListener: ConnectivityListener)
         }
     }
 
+    val accountCache = AccountCache(settingsListener)
+
     val keyStatusListener = KeyStatusListener().apply {
         onKeyStatusChange.subscribe(this@ServiceHandler) { keyStatus ->
             sendEvent(Event.WireGuardKeyStatus(keyStatus))
@@ -31,6 +33,7 @@ class ServiceHandler(looper: Looper, connectivityListener: ConnectivityListener)
 
     var daemon by observable<MullvadDaemon?>(null) { _, _, newDaemon ->
         settingsListener.daemon = newDaemon
+        accountCache.daemon = newDaemon
         keyStatusListener.daemon = newDaemon
         locationInfoCache.daemon = newDaemon
     }
