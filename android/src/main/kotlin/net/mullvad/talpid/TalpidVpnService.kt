@@ -10,11 +10,20 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.talpid.tun_provider.TunConfig
 
 open class TalpidVpnService : VpnService() {
-    private var activeTunDevice by observable<Int?>(null) { _, oldTunDevice, _ ->
-        oldTunDevice?.let { oldTunFd ->
+    private var activeTunStatus by observable<CreateTunResult?>(null) { _, oldTunStatus, _ ->
+        val oldTunFd = when (oldTunStatus) {
+            is CreateTunResult.Success -> oldTunStatus.tunFd
+            is CreateTunResult.InvalidDnsServers -> oldTunStatus.tunFd
+            else -> null
+        }
+
+        if (oldTunFd != null) {
             ParcelFileDescriptor.adoptFd(oldTunFd).close()
         }
     }
+
+    private val tunIsOpen
+        get() = activeTunStatus?.isOpen ?: false
 
     private var currentTunConfig = defaultTunConfig()
     private var tunIsStale = false
@@ -31,52 +40,52 @@ open class TalpidVpnService : VpnService() {
         connectivityListener.unregister()
     }
 
-    fun getTun(config: TunConfig): Int {
+    fun getTun(config: TunConfig): CreateTunResult {
         synchronized(this) {
-            val tunDevice = activeTunDevice
+            val tunStatus = activeTunStatus
 
-            if (config == currentTunConfig && tunDevice != null && !tunIsStale) {
-                return tunDevice
+            if (config == currentTunConfig && tunIsOpen && !tunIsStale) {
+                return tunStatus!!
             } else {
-                val newTunDevice = createTun(config)
+                val newTunStatus = createTun(config)
 
                 currentTunConfig = config
-                activeTunDevice = newTunDevice
+                activeTunStatus = newTunStatus
                 tunIsStale = false
 
-                return newTunDevice
+                return newTunStatus
             }
         }
     }
 
     fun createTun() {
         synchronized(this) {
-            activeTunDevice = createTun(currentTunConfig)
+            activeTunStatus = createTun(currentTunConfig)
         }
     }
 
     fun createTunIfClosed(): Boolean {
         synchronized(this) {
-            if (activeTunDevice == null) {
-                activeTunDevice = createTun(currentTunConfig)
+            if (!tunIsOpen) {
+                activeTunStatus = createTun(currentTunConfig)
             }
 
-            return activeTunDevice?.let { tunFd -> tunFd > 0 } ?: false
+            return tunIsOpen
         }
     }
 
     fun recreateTunIfOpen(config: TunConfig) {
         synchronized(this) {
-            if (activeTunDevice != null) {
+            if (tunIsOpen) {
                 currentTunConfig = config
-                activeTunDevice = createTun(config)
+                activeTunStatus = createTun(config)
             }
         }
     }
 
     fun closeTun() {
         synchronized(this) {
-            activeTunDevice = null
+            activeTunStatus = null
         }
     }
 
@@ -86,11 +95,13 @@ open class TalpidVpnService : VpnService() {
         }
     }
 
-    private fun createTun(config: TunConfig): Int {
+    private fun createTun(config: TunConfig): CreateTunResult {
         if (VpnService.prepare(this) != null) {
             // VPN permission wasn't granted
-            return -1
+            return CreateTunResult.PermissionDenied()
         }
+
+        var invalidDnsServerAddresses = ArrayList<InetAddress>()
 
         val builder = Builder().apply {
             for (address in config.addresses) {
@@ -98,7 +109,11 @@ open class TalpidVpnService : VpnService() {
             }
 
             for (dnsServer in config.dnsServers) {
-                addDnsServer(dnsServer)
+                try {
+                    addDnsServer(dnsServer)
+                } catch (exception: IllegalArgumentException) {
+                    invalidDnsServerAddresses.add(dnsServer)
+                }
             }
 
             for (route in config.routes) {
@@ -122,12 +137,17 @@ open class TalpidVpnService : VpnService() {
         val vpnInterface = builder.establish()
         val tunFd = vpnInterface?.detachFd()
 
-        if (tunFd != null) {
-            waitForTunnelUp(tunFd, config.routes.any { route -> route.isIpv6 })
-            return tunFd
-        } else {
-            return 0
+        if (tunFd == null) {
+            return CreateTunResult.TunnelDeviceError()
         }
+
+        waitForTunnelUp(tunFd, config.routes.any { route -> route.isIpv6 })
+
+        if (!invalidDnsServerAddresses.isEmpty()) {
+            return CreateTunResult.InvalidDnsServers(invalidDnsServerAddresses, tunFd)
+        }
+
+        return CreateTunResult.Success(tunFd)
     }
 
     fun bypass(socket: Int): Boolean {

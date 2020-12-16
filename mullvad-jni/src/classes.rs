@@ -56,8 +56,13 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/talpid/tunnel/ErrorStateCause$StartTunnelError",
     "net/mullvad/talpid/tunnel/ErrorStateCause$TunnelParameterError",
     "net/mullvad/talpid/tunnel/ErrorStateCause$IsOffline",
+    "net/mullvad/talpid/tunnel/ErrorStateCause$InvalidDnsServers",
     "net/mullvad/talpid/tunnel/ErrorStateCause$VpnPermissionDenied",
     "net/mullvad/talpid/tunnel/ParameterGenerationError",
     "net/mullvad/talpid/ConnectivityListener",
+    "net/mullvad/talpid/CreateTunResult$Success",
+    "net/mullvad/talpid/CreateTunResult$InvalidDnsServers",
+    "net/mullvad/talpid/CreateTunResult$PermissionDenied",
+    "net/mullvad/talpid/CreateTunResult$TunnelDeviceError",
     "net/mullvad/talpid/TalpidVpnService",
 ];

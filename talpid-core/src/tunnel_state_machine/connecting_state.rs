@@ -422,6 +422,14 @@ impl TunnelState for ConnectingState {
                                             ),
                                         ),
                                     ) => ErrorStateCause::VpnPermissionDenied,
+                                    #[cfg(target_os = "android")]
+                                    tunnel::Error::WireguardTunnelMonitoringError(
+                                        tunnel::wireguard::Error::TunnelError(
+                                            tunnel::wireguard::TunnelError::SetupTunnelDeviceError(
+                                                tun_provider::Error::InvalidDnsServers(addresses),
+                                            ),
+                                        ),
+                                    ) => ErrorStateCause::InvalidDnsServers(addresses),
                                     _ => ErrorStateCause::StartTunnelError,
                                 };
                                 ErrorState::enter(shared_values, block_reason)

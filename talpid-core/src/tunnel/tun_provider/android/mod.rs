@@ -10,7 +10,7 @@ use jnix::{
         sys::JNI_FALSE,
         JavaVM,
     },
-    IntoJava, JnixEnv,
+    FromJava, IntoJava, JnixEnv,
 };
 use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
@@ -38,6 +38,12 @@ pub enum Error {
 
     #[error(display = "Failed to find TalpidVpnService.{} method", _0)]
     FindMethod(&'static str, #[error(source)] jnix::jni::errors::Error),
+
+    #[error(
+        display = "Attempt to configure the tunnel with an invalid DNS server address(es): {:?}",
+        _0
+    )]
+    InvalidDnsServers(Vec<IpAddr>),
 
     #[error(
         display = "Received an invalid result from TalpidVpnService.{}: {}",
@@ -193,15 +199,13 @@ impl AndroidTunProvider {
 
         let result = self.call_method(
             "getTun",
-            "(Lnet/mullvad/talpid/tun_provider/TunConfig;)I",
-            JavaType::Primitive(Primitive::Int),
+            "(Lnet/mullvad/talpid/tun_provider/TunConfig;)Lnet/mullvad/talpid/CreateTunResult;",
+            JavaType::Object("net/mullvad/talpid/CreateTunResult".to_owned()),
             &[JValue::Object(java_config.as_obj())],
         )?;
 
         match result {
-            JValue::Int(0) => Err(Error::TunnelDeviceError),
-            JValue::Int(-1) => Err(Error::PermissionDenied),
-            JValue::Int(fd) => Ok(fd),
+            JValue::Object(result) => CreateTunResult::from_java(&env, result).into(),
             value => Err(Error::InvalidMethodResult("getTun", format!("{:?}", value))),
         }
     }
@@ -373,6 +377,28 @@ impl Default for TunConfig {
             ],
             required_routes: vec![],
             mtu: 1380,
+        }
+    }
+}
+
+#[derive(FromJava)]
+#[jnix(package = "net.mullvad.talpid")]
+enum CreateTunResult {
+    Success { tun_fd: i32 },
+    InvalidDnsServers { addresses: Vec<IpAddr> },
+    PermissionDenied,
+    TunnelDeviceError,
+}
+
+impl From<CreateTunResult> for Result<RawFd, Error> {
+    fn from(result: CreateTunResult) -> Self {
+        match result {
+            CreateTunResult::Success { tun_fd } => Ok(tun_fd),
+            CreateTunResult::InvalidDnsServers { addresses } => {
+                Err(Error::InvalidDnsServers(addresses))
+            }
+            CreateTunResult::PermissionDenied => Err(Error::PermissionDenied),
+            CreateTunResult::TunnelDeviceError => Err(Error::TunnelDeviceError),
         }
     }
 }
