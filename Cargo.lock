@@ -1322,6 +1322,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad-platform-metadata"
+version = "0.1.0"
+dependencies = [
+ "rs-release",
+]
+
+[[package]]
 name = "mullvad-problem-report"
 version = "2020.8.0-beta2"
 dependencies = [
@@ -1332,9 +1339,9 @@ dependencies = [
  "err-derive",
  "lazy_static",
  "mullvad-paths",
+ "mullvad-platform-metadata",
  "mullvad-rpc",
  "regex",
- "rs-release",
  "talpid-types",
  "tokio",
  "uuid",
