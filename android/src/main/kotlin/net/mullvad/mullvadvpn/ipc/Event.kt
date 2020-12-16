@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.ipc
 
 import android.os.Message as RawMessage
+import java.util.ArrayList
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
@@ -11,6 +12,9 @@ import net.mullvad.mullvadvpn.model.Settings
 sealed class Event : Message() {
     protected override val messageId = 1
     protected override val messageKey = MESSAGE_KEY
+
+    @Parcelize
+    data class AccountHistory(val history: ArrayList<String>?) : Event()
 
     @Parcelize
     object ListenerReady : Event()
