@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.service
 import android.os.Bundle
 import android.os.Message
 import android.os.Parcelable
+import java.util.ArrayList
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
@@ -10,6 +11,9 @@ import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
 import net.mullvad.mullvadvpn.model.Settings
 
 sealed class Event : Parcelable {
+    @Parcelize
+    class AccountHistory(val history: ArrayList<String>?) : Event(), Parcelable
+
     @Parcelize
     class ListenerReady : Event(), Parcelable
 
