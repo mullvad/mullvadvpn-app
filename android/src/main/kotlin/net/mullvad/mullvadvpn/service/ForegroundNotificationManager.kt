@@ -43,10 +43,6 @@ class ForegroundNotificationManager(
         }
     }
 
-    private var accountNumberEvents by autoSubscribable<String?>(this, null) { accountNumber ->
-        loggedIn = accountNumber != null
-    }
-
     private var tunnelStateEvents by autoSubscribable<TunnelState>(
         this,
         TunnelState.Disconnected
@@ -68,6 +64,10 @@ class ForegroundNotificationManager(
     private val shouldBeOnForeground
         get() = lockedToForeground || !(tunnelState is TunnelState.Disconnected)
 
+    var accountNumberEvents by autoSubscribable<String?>(this, null) { accountNumber ->
+        loggedIn = accountNumber != null
+    }
+
     var onForeground = false
         private set
 
@@ -77,7 +77,6 @@ class ForegroundNotificationManager(
 
     init {
         serviceNotifier.subscribe(this) { newServiceInstance ->
-            accountNumberEvents = newServiceInstance?.settingsListener?.accountNumberNotifier
             tunnelStateEvents = newServiceInstance?.connectionProxy?.onStateChange
         }
 
