@@ -8,6 +8,7 @@ import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.service.Request
 import net.mullvad.mullvadvpn.service.ServiceInstance
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.EventDispatcher
 import net.mullvad.mullvadvpn.ui.serviceconnection.KeyStatusListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
@@ -17,7 +18,7 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     val dispatcher = EventDispatcher(Looper.getMainLooper())
 
     val daemon = service.daemon
-    val accountCache = service.accountCache
+    val accountCache = AccountCache(service.messenger, dispatcher)
     val connectionProxy = service.connectionProxy
     val customDns = service.customDns
     val keyStatusListener = KeyStatusListener(service.messenger, dispatcher)
