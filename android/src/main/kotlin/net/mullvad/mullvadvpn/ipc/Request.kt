@@ -13,6 +13,12 @@ sealed class Request : Message(), Parcelable {
     @Parcelize
     data class RegisterListener(val listener: Messenger) : Request(), Parcelable
 
+    @Parcelize
+    object WireGuardGenerateKey : Request(), Parcelable
+
+    @Parcelize
+    object WireGuardVerifyKey : Request(), Parcelable
+
     companion object {
         private const val MESSAGE_KEY = "request"
 
