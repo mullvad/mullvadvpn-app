@@ -16,7 +16,7 @@ import androidx.fragment.app.DialogFragment
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 import net.mullvad.mullvadvpn.service.MullvadDaemon
-import net.mullvad.mullvadvpn.service.endpoint.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.SegmentedInputFormatter
