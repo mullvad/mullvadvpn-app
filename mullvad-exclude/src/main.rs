@@ -52,7 +52,7 @@ fn main() {
         Err(Error::InvalidArguments) => {
             let mut args = env::args();
             let program = args.next().unwrap_or(PROGRAM_NAME.to_string());
-            eprintln!("Usage {} COMMAND [ARGS]", program);
+            eprintln!("Usage: {} COMMAND [ARGS]", program);
             std::process::exit(1);
         }
         Err(e) => {
