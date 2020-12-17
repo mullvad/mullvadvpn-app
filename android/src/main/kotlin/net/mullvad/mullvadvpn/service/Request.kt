@@ -5,10 +5,29 @@ import android.os.Message
 import android.os.Messenger
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
+import org.joda.time.DateTime
 
 sealed class Request : Parcelable {
     @Parcelize
+    class CreateAccount : Request(), Parcelable
+
+    @Parcelize
+    class FetchAccountExpiry : Request(), Parcelable
+
+    @Parcelize
+    class InvalidateAccountExpiry(val expiry: DateTime) : Request(), Parcelable
+
+    @Parcelize
+    class Login(val account: String?) : Request(), Parcelable
+
+    @Parcelize
+    class Logout : Request(), Parcelable
+
+    @Parcelize
     class RegisterListener(val listener: Messenger) : Request(), Parcelable
+
+    @Parcelize
+    class RemoveAccountFromHistory(val account: String?) : Request(), Parcelable
 
     @Parcelize
     class WireGuardGenerateKey : Request(), Parcelable
