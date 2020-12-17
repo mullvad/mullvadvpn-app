@@ -4,6 +4,7 @@ import android.os.Message as RawMessage
 import android.os.Messenger
 import java.net.InetAddress
 import kotlinx.parcelize.Parcelize
+import net.mullvad.mullvadvpn.model.LocationConstraint
 import org.joda.time.DateTime
 
 // Requests that the service can handle
@@ -72,6 +73,9 @@ sealed class Request : Message.RequestMessage() {
 
     @Parcelize
     data class SetEnableSplitTunneling(val enable: Boolean) : Request()
+
+    @Parcelize
+    data class SetRelayLocation(val relayLocation: LocationConstraint?) : Request()
 
     @Parcelize
     data class SetWireGuardMtu(val mtu: Int?) : Request()
