@@ -356,6 +356,8 @@ class ApplicationMain {
     // fetching.  https://github.com/electron/electron/issues/22995
     session.defaultSession.setSpellCheckerDictionaryDownloadURL('https://00.00/');
 
+    this.blockRequests();
+
     this.updateCurrentLocale();
 
     this.daemonRpc.addConnectionObserver(
@@ -1360,6 +1362,37 @@ class ApplicationMain {
     if (this.windowController) {
       IpcMainEventChannel.locale.notify(this.windowController.webContents, this.locale);
     }
+  }
+
+  // Since the app frontend never performs any network requests, all requests originating from the
+  // renderer process are blocked to protect against the potential threat of malicious third party
+  // dependencies. There are a few exceptions when running in development:
+  //  * retrieving assests (index.html, index.js and css files)
+  //  * automatic reloading performed by the browser-sync module
+  //  * downloading of React and Redux developer tools.
+  private blockRequests() {
+    session.defaultSession.webRequest.onBeforeRequest(
+      { urls: ['*://*/*'] },
+      (details, callback) => {
+        if (
+          process.env.NODE_ENV === 'development' &&
+          (details.url.startsWith('http://localhost:8080/') ||
+            details.url.startsWith('http://localhost:35829/browser-sync/') ||
+            details.url.startsWith('https://clients2.google.com') ||
+            details.url.startsWith('https://clients2.googleusercontent.com'))
+        ) {
+          callback({});
+        } else {
+          log.error(`${details.method} request blocked: ${details.url}`);
+          callback({ cancel: true });
+
+          // Throw error in development to notify since this should never happen.
+          if (process.env.NODE_ENV === 'development') {
+            throw new Error('Web request blocked');
+          }
+        }
+      },
+    );
   }
 
   private async installDevTools() {
