@@ -1,6 +1,7 @@
 #pragma once
 
 #include <winfw/rules/ifirewallrule.h>
+#include <winfw/winfw.h>
 #include <libwfp/ipaddress.h>
 #include <string>
 
@@ -10,12 +11,6 @@ namespace rules::multi
 class PermitVpnRelay : public IFirewallRule
 {
 public:
-
-	enum class Protocol
-	{
-		Tcp,
-		Udp
-	};
 
 	enum class Sublayer
 	{
@@ -27,7 +22,7 @@ public:
 	(
 		const wfp::IpAddress &relay,
 		uint16_t relayPort,
-		Protocol protocol,
+		WinFwProtocol protocol,
 		const std::wstring &relayClient,
 		Sublayer sublayer
 	);
@@ -38,7 +33,7 @@ private:
 
 	const wfp::IpAddress m_relay;
 	const uint16_t m_relayPort;
-	const Protocol m_protocol;
+	const WinFwProtocol m_protocol;
 	const std::wstring m_relayClient;
 	const Sublayer m_sublayer;
 };

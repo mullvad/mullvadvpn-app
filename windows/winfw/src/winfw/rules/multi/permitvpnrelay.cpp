@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "permitvpnrelay.h"
 #include <winfw/mullvadguids.h>
+#include <winfw/winfw.h>
 #include <libwfp/filterbuilder.h>
 #include <libwfp/conditionbuilder.h>
 #include <libwfp/conditions/conditionprotocol.h>
@@ -30,12 +31,12 @@ const GUID &LayerFromIp(const wfp::IpAddress &ip)
 	};
 }
 
-std::unique_ptr<ConditionProtocol> CreateProtocolCondition(PermitVpnRelay::Protocol protocol)
+std::unique_ptr<ConditionProtocol> CreateProtocolCondition(WinFwProtocol protocol)
 {
 	switch (protocol)
 	{
-		case PermitVpnRelay::Protocol::Tcp: return ConditionProtocol::Tcp();
-		case PermitVpnRelay::Protocol::Udp: return ConditionProtocol::Udp();
+		case WinFwProtocol::Tcp: return ConditionProtocol::Tcp();
+		case WinFwProtocol::Udp: return ConditionProtocol::Udp();
 		default:
 		{
 			THROW_ERROR("Missing case handler in switch clause");
@@ -62,7 +63,7 @@ PermitVpnRelay::PermitVpnRelay
 (
 	const wfp::IpAddress &relay,
 	uint16_t relayPort,
-	Protocol protocol,
+	WinFwProtocol protocol,
 	const std::wstring &relayClient,
 	Sublayer sublayer
 )
