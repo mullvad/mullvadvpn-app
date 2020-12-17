@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Message
 import android.os.Messenger
 import java.net.InetAddress
+import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.util.ParcelableInetAddress
 import org.joda.time.DateTime
 
@@ -252,6 +253,20 @@ sealed class Request {
         }
     }
 
+    class SetRelayLocation(val relayLocation: LocationConstraint?) : Request() {
+        companion object {
+            private val relayLocationKey = "relayLocation"
+        }
+
+        override val type = Type.SetRelayLocation
+
+        constructor(data: Bundle) : this(data.getParcelable(relayLocationKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putParcelable(relayLocationKey, relayLocation)
+        }
+    }
+
     class SetWireGuardMtu(val mtu: Int?) : Request() {
         companion object {
             private val mtuKey = "mtu"
@@ -321,6 +336,7 @@ sealed class Request {
         SetAccount({ message -> SetAccount(message.data) }),
         SetEnableCustomDns({ message -> SetEnableCustomDns(message.data) }),
         SetEnableSplitTunneling({ message -> SetEnableSplitTunneling(message.data) }),
+        SetRelayLocation({ message -> SetRelayLocation(message.data) }),
         SetWireGuardMtu({ message -> SetWireGuardMtu(message.data) }),
         VpnPermissionResponse({ message -> VpnPermissionResponse(message.data) }),
         WireGuardGenerateKey({ _ -> WireGuardGenerateKey() }),
