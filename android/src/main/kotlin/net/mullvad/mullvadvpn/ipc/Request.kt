@@ -2,9 +2,14 @@ package net.mullvad.mullvadvpn.ipc
 
 import android.os.Bundle
 import android.os.Message
+import android.os.Messenger
 import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
 sealed class Request : Parcelable {
+    @Parcelize
+    class RegisterListener(val listener: Messenger) : Request(), Parcelable
+
     val message: Message
         get() = Message.obtain().also { message ->
             message.what = REQUEST_MESSAGE

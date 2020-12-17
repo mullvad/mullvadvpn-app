@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.github.triplet.play'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-parcelize'
 
 def repoRootPath = projectDir.absoluteFile.parentFile.absolutePath
 def extraAssetsDirectory = "$project.buildDir/extraAssets"
@@ -120,7 +121,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.2'
         classpath 'com.github.triplet.gradle:play-publisher:2.7.5'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10'
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.20'
     }
 }
 
