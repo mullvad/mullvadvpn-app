@@ -23,8 +23,20 @@ sealed class Request {
         }
     }
 
+    class WireGuardGenerateKey : Request() {
+        override val type = Type.WireGuardGenerateKey
+        override fun prepareMessage(message: Message) {}
+    }
+
+    class WireGuardVerifyKey : Request() {
+        override val type = Type.WireGuardVerifyKey
+        override fun prepareMessage(message: Message) {}
+    }
+
     enum class Type(val build: (Message) -> Request) {
         RegisterListener({ message -> RegisterListener(message.replyTo) }),
+        WireGuardGenerateKey({ _ -> WireGuardGenerateKey() }),
+        WireGuardVerifyKey({ _ -> WireGuardVerifyKey() }),
     }
 
     companion object {
