@@ -31,32 +31,6 @@ using namespace rules;
 namespace
 {
 
-multi::PermitVpnRelay::Protocol TranslateProtocol(WinFwProtocol protocol)
-{
-	switch (protocol)
-	{
-		case Tcp: return multi::PermitVpnRelay::Protocol::Tcp;
-		case Udp: return multi::PermitVpnRelay::Protocol::Udp;
-		default:
-		{
-			THROW_ERROR("Missing case handler in switch clause");
-		}
-	};
-}
-
-baseline::PermitEndpoint::Protocol TranslateEndpointProtocol(WinFwProtocol protocol)
-{
-	switch (protocol)
-	{
-		case Tcp: return baseline::PermitEndpoint::Protocol::Tcp;
-		case Udp: return baseline::PermitEndpoint::Protocol::Udp;
-		default:
-		{
-			THROW_ERROR("Missing case handler in switch clause");
-		}
-	};
-}
-
 //
 // Since the PermitLan rule doesn't specifically address DNS, it will allow DNS requests targetting
 // a local resolver to leave the machine. From the local resolver the request will either be
@@ -119,7 +93,7 @@ void AppendRelayRules
 	ruleset.emplace_back(std::make_unique<multi::PermitVpnRelay>(
 		wfp::IpAddress(relay.ip),
 		relay.port,
-		TranslateProtocol(relay.protocol),
+		relay.protocol,
 		relayClient,
 		sublayer
 	));
@@ -137,7 +111,7 @@ void AppendAllowedEndpointRules
 	ruleset.emplace_back(std::make_unique<baseline::PermitEndpoint>(
 		wfp::IpAddress(endpoint.ip),
 		endpoint.port,
-		TranslateEndpointProtocol(endpoint.protocol)
+		endpoint.protocol
 	));
 }
 

@@ -30,12 +30,12 @@ const GUID &OutboundLayerFromIp(const wfp::IpAddress &ip)
 	};
 }
 
-std::unique_ptr<ConditionProtocol> CreateProtocolCondition(PermitEndpoint::Protocol protocol)
+std::unique_ptr<ConditionProtocol> CreateProtocolCondition(WinFwProtocol protocol)
 {
 	switch (protocol)
 	{
-		case PermitEndpoint::Protocol::Tcp: return ConditionProtocol::Tcp();
-		case PermitEndpoint::Protocol::Udp: return ConditionProtocol::Udp();
+		case WinFwProtocol::Tcp: return ConditionProtocol::Tcp();
+		case WinFwProtocol::Udp: return ConditionProtocol::Udp();
 		default:
 		{
 			THROW_ERROR("Missing case handler in switch clause");
@@ -49,7 +49,7 @@ PermitEndpoint::PermitEndpoint
 (
 	const wfp::IpAddress &address,
 	uint16_t port,
-	Protocol protocol
+	WinFwProtocol protocol
 )
 	: m_address(address)
 	, m_port(port)
