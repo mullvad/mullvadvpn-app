@@ -10,6 +10,12 @@ sealed class Request : Parcelable {
     @Parcelize
     class RegisterListener(val listener: Messenger) : Request(), Parcelable
 
+    @Parcelize
+    class WireGuardGenerateKey : Request(), Parcelable
+
+    @Parcelize
+    class WireGuardVerifyKey : Request(), Parcelable
+
     val message: Message
         get() = Message.obtain().also { message ->
             message.what = REQUEST_MESSAGE
