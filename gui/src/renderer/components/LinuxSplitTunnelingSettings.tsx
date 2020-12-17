@@ -1,4 +1,3 @@
-import { remote } from 'electron';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useHistory } from 'react-router';
 import { sprintf } from 'sprintf-js';
@@ -98,7 +97,11 @@ const StyledBrowseButton = styled(AppButton.BlueButton)({
 });
 
 export default function LinuxSplitTunnelingSettings() {
-  const { getSplitTunnelingApplications, launchExcludedApplication } = useAppContext();
+  const {
+    getSplitTunnelingApplications,
+    launchExcludedApplication,
+    showOpenDialog,
+  } = useAppContext();
   const history = useHistory();
 
   const [applications, setApplications] = useState<ISplitTunnelingApplication[]>();
@@ -109,7 +112,7 @@ export default function LinuxSplitTunnelingSettings() {
 
   const launchWithFilePicker = useCallback(async () => {
     setBrowsing(true);
-    const file = await remote.dialog.showOpenDialog({
+    const file = await showOpenDialog({
       properties: ['openFile'],
       buttonLabel: messages.pgettext('split-tunneling-view', 'Launch application'),
     });

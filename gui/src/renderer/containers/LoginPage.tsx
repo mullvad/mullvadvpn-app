@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import consumePromise from '../../shared/promise';
@@ -24,7 +23,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
     resetLoginError: () => {
       resetLoginError();
     },
-    openExternalLink: (url: string) => shell.openExternal(url),
+    openExternalLink: (url: string) => props.app.openUrl(url),
     updateAccountToken,
     removeAccountTokenFromHistory: (token: string) => props.app.removeAccountFromHistory(token),
     createNewAccount: () => consumePromise(props.app.createNewAccount()),

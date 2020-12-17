@@ -1,5 +1,15 @@
 import { execFile } from 'child_process';
-import { app, BrowserWindow, Menu, nativeImage, screen, session, shell, Tray } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  dialog,
+  Menu,
+  nativeImage,
+  screen,
+  session,
+  shell,
+  Tray,
+} from 'electron';
 import log from 'electron-log';
 import mkdirp from 'mkdirp';
 import moment from 'moment';
@@ -434,6 +444,9 @@ class ApplicationMain {
       } catch (error) {
         log.error(`Failed to load index file: ${error.message}`);
       }
+
+      // disable pinch to zoom
+      consumePromise(this.windowController.webContents.setVisualZoomLevelLimits(1, 1));
     }
   }
 
@@ -1130,6 +1143,11 @@ class ApplicationMain {
         });
       });
     });
+
+    IpcMainEventChannel.app.handleQuit(() => app.quit());
+    IpcMainEventChannel.app.handleOpenUrl((url) => shell.openExternal(url));
+    IpcMainEventChannel.app.handleOpenPath((path) => shell.openPath(path));
+    IpcMainEventChannel.app.handleShowOpenDialog((options) => dialog.showOpenDialog(options));
   }
 
   private async createNewAccount(): Promise<string> {

@@ -1,4 +1,3 @@
-import { shell } from 'electron';
 import log from 'electron-log';
 import React, { useCallback } from 'react';
 import { useSelector } from 'react-redux';
@@ -96,13 +95,13 @@ interface INotificationActionWrapperProps {
 }
 
 function NotificationActionWrapper(props: INotificationActionWrapperProps) {
-  const { openLinkWithAuth } = useAppContext();
+  const { openLinkWithAuth, openUrl } = useAppContext();
 
   const handleClick = useCallback(() => {
     if (props.action.withAuth) {
       return openLinkWithAuth(props.action.url);
     } else {
-      return shell.openExternal(props.action.url);
+      return openUrl(props.action.url);
     }
   }, []);
 

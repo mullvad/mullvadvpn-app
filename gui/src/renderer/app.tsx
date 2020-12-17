@@ -1,4 +1,3 @@
-import { shell, webFrame } from 'electron';
 import log from 'electron-log';
 import * as React from 'react';
 import { Provider } from 'react-redux';
@@ -210,9 +209,6 @@ export default class AppRenderer {
     if (initialState.isConnected) {
       consumePromise(this.onDaemonConnected());
     }
-
-    // disable pinch to zoom
-    webFrame.setVisualZoomLevelLimits(1, 1);
   }
 
   public renderView() {
@@ -319,7 +315,7 @@ export default class AppRenderer {
     } catch (e) {
       log.error(`Failed to get the WWW auth token: ${e.message}`);
     }
-    consumePromise(shell.openExternal(`${link}?token=${token}`));
+    consumePromise(this.openUrl(`${link}?token=${token}`));
   }
 
   public async setAllowLan(allowLan: boolean) {
@@ -434,6 +430,24 @@ export default class AppRenderer {
     savedReport: string,
   ): Promise<void> {
     await IpcRendererEventChannel.problemReport.sendReport({ email, message, savedReport });
+  }
+
+  public quit(): void {
+    IpcRendererEventChannel.app.quit();
+  }
+
+  public openUrl(url: string): Promise<void> {
+    return IpcRendererEventChannel.app.openUrl(url);
+  }
+
+  public openPath(path: string): Promise<string> {
+    return IpcRendererEventChannel.app.openPath(path);
+  }
+
+  public showOpenDialog(
+    options: Electron.OpenDialogOptions,
+  ): Promise<Electron.OpenDialogReturnValue> {
+    return IpcRendererEventChannel.app.showOpenDialog(options);
   }
 
   public getPreferredLocaleList(): IPreferredLocaleDescriptor[] {
