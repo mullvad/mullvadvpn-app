@@ -12,6 +12,12 @@ sealed class Request : Message() {
     @Parcelize
     data class RegisterListener(val listener: Messenger) : Request()
 
+    @Parcelize
+    object WireGuardGenerateKey : Request()
+
+    @Parcelize
+    object WireGuardVerifyKey : Request()
+
     companion object {
         private const val MESSAGE_KEY = "request"
 
