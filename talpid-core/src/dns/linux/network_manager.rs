@@ -1,6 +1,6 @@
-pub use crate::linux::network_manager::Error;
-use crate::linux::network_manager::{self, DeviceConfig, NetworkManager as DBus};
 use std::net::IpAddr;
+pub use talpid_dbus::network_manager::Error;
+use talpid_dbus::network_manager::{self, DeviceConfig, NetworkManager as DBus};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
