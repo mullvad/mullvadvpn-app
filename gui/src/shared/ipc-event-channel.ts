@@ -1,6 +1,6 @@
 import { ICurrentAppVersionInfo } from '../main/index';
 import { IWindowShapeParameters } from '../main/window-controller';
-import ISplitTunnelingApplication from '../shared/linux-split-tunneling-application';
+import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
 import {
   AccountToken,
   BridgeSettings,
@@ -175,8 +175,8 @@ const ipc = {
     verifyKey: invoke<void, boolean>(),
   },
   splitTunneling: {
-    getApplications: invoke<void, ISplitTunnelingApplication[]>(),
-    launchApplication: invoke<ISplitTunnelingApplication | string, void>(),
+    getApplications: invoke<void, ILinuxSplitTunnelingApplication[]>(),
+    launchApplication: invoke<ILinuxSplitTunnelingApplication | string, void>(),
   },
   problemReport: {
     collectLogs: invoke<string[], string>(),
