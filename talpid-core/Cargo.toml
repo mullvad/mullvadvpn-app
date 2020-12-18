@@ -46,7 +46,6 @@ jnix = { version = "0.3", features = ["derive"] }
 
 
 [target.'cfg(target_os = "linux")'.dependencies]
-dbus = "0.9"
 failure = "0.1"
 notify = "4.0"
 resolv-conf = "0.7"
@@ -61,6 +60,7 @@ nftnl = { version = "0.6", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
 which = { version = "4.0", default-features = false }
 tun = "0.5"
+talpid-dbus = { path = "../talpid-dbus" }
 
 
 [target.'cfg(target_os = "macos")'.dependencies]
