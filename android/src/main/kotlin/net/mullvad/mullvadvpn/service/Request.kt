@@ -27,9 +27,37 @@ sealed class Request {
         override fun prepareMessage(message: Message) {}
     }
 
+    class ExcludeApp(val packageName: String?) : Request() {
+        companion object {
+            private val packageNameKey = "packageName"
+        }
+
+        override val type = Type.ExcludeApp
+
+        constructor(data: Bundle) : this(data.getString(packageNameKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putString(packageNameKey, packageName)
+        }
+    }
+
     class FetchAccountExpiry : Request() {
         override val type = Type.FetchAccountExpiry
         override fun prepareMessage(message: Message) {}
+    }
+
+    class IncludeApp(val packageName: String?) : Request() {
+        companion object {
+            private val packageNameKey = "packageName"
+        }
+
+        override val type = Type.IncludeApp
+
+        constructor(data: Bundle) : this(data.getString(packageNameKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putString(packageNameKey, packageName)
+        }
     }
 
     class InvalidateAccountExpiry(val expiry: DateTime) : Request() {
@@ -65,6 +93,11 @@ sealed class Request {
         override fun prepareMessage(message: Message) {}
     }
 
+    class PersistExcludedApps : Request() {
+        override val type = Type.PersistExcludedApps
+        override fun prepareMessage(message: Message) {}
+    }
+
     class RemoveAccountFromHistory(val account: String?) : Request() {
         companion object {
             private val accountKey = "account"
@@ -87,6 +120,20 @@ sealed class Request {
         }
     }
 
+    class SetEnableSplitTunneling(val enable: Boolean) : Request() {
+        companion object {
+            private val enableKey = "enable"
+        }
+
+        override val type = Type.SetEnableSplitTunneling
+
+        constructor(data: Bundle) : this(data.getBoolean(enableKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putBoolean(enableKey, enable)
+        }
+    }
+
     class WireGuardGenerateKey : Request() {
         override val type = Type.WireGuardGenerateKey
         override fun prepareMessage(message: Message) {}
@@ -99,12 +146,16 @@ sealed class Request {
 
     enum class Type(val build: (Message) -> Request) {
         CreateAccount({ _ -> CreateAccount() }),
+        ExcludeApp({ message -> ExcludeApp(message.data) }),
         FetchAccountExpiry({ _ -> FetchAccountExpiry() }),
+        IncludeApp({ message -> IncludeApp(message.data) }),
         InvalidateAccountExpiry({ message -> InvalidateAccountExpiry(message.data) }),
         Login({ message -> Login(message.data) }),
         Logout({ _ -> Logout() }),
+        PersistExcludedApps({ _ -> PersistExcludedApps() }),
         RegisterListener({ message -> RegisterListener(message.replyTo) }),
         RemoveAccountFromHistory({ message -> RemoveAccountFromHistory(message.data) }),
+        SetEnableSplitTunneling({ message -> SetEnableSplitTunneling(message.data) }),
         WireGuardGenerateKey({ _ -> WireGuardGenerateKey() }),
         WireGuardVerifyKey({ _ -> WireGuardVerifyKey() }),
     }
