@@ -9,7 +9,6 @@ class ServiceInstance(
     val intermittentDaemon: Intermittent<MullvadDaemon>,
     val connectionProxy: ConnectionProxy,
     val customDns: CustomDns,
-    val splitTunneling: SplitTunneling
 ) {
     fun onDestroy() {
         connectionProxy.onDestroy()
