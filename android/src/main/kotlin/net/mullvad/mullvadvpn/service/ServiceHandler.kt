@@ -50,6 +50,12 @@ class ServiceHandler(
         locationInfoCache.daemon = newDaemon
     }
 
+    init {
+        splitTunneling.onChange.subscribe(this) { excludedApps ->
+            sendEvent(Event.SplitTunnelingUpdate(excludedApps))
+        }
+    }
+
     override fun handleMessage(message: Message) {
         val request = Request.fromMessage(message)
 
