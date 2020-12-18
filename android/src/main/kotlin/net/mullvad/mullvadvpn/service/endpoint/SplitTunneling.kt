@@ -21,14 +21,14 @@ class SplitTunneling(context: Context, endpoint: ServiceEndpoint) {
         get() = if (enabled) {
             excludedApps.toList()
         } else {
-            emptyList()
+            null
         }
 
     var enabled by observable(preferences.getBoolean(KEY_ENABLED, false)) { _, _, _ ->
         enabledChanged()
     }
 
-    var onChange by observable<((List<String>) -> Unit)?>(null) { _, _, _ ->
+    var onChange by observable<((List<String>?) -> Unit)?>(null) { _, _, _ ->
         update()
     }
 
