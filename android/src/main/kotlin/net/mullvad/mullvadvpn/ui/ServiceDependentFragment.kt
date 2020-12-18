@@ -10,12 +10,12 @@ import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.service.ConnectionProxy
 import net.mullvad.mullvadvpn.service.CustomDns
 import net.mullvad.mullvadvpn.service.MullvadDaemon
-import net.mullvad.mullvadvpn.service.endpoint.SplitTunneling
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.KeyStatusListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
+import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 
 abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceAwareFragment() {
     enum class OnNoService {

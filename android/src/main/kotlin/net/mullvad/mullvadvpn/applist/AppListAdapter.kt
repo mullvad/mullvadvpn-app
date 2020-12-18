@@ -9,7 +9,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.service.endpoint.SplitTunneling
+import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.util.JobTracker
 
 class AppListAdapter(
