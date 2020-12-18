@@ -45,7 +45,6 @@ class DaemonInstance(val vpnService: MullvadVpnService) {
         var isRunning = true
 
         prepareFiles()
-        vpnService.splitTunneling.join()
 
         while (isRunning) {
             if (!waitForCommand(channel, Command.START)) {
