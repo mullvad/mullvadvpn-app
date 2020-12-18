@@ -10,7 +10,6 @@ import android.os.Looper
 import android.os.Messenger
 import android.util.Log
 import kotlin.properties.Delegates.observable
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -78,9 +77,13 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
 
     private var pendingAction by observable<PendingAction?>(null) { _, _, _ ->
-        instance?.let { activeInstance ->
-            handler.settingsListener.settings?.let { currentSettings ->
-                handlePendingAction(activeInstance.connectionProxy, currentSettings)
+        val connectionProxy = instance?.connectionProxy
+
+        // The service instance awaits the split tunneling initialization, which also starts the
+        // handler. So if the instance is not null, the handler has certainly been initialized.
+        if (connectionProxy != null) {
+            handler.settingsListener.settings?.let { settings ->
+                handlePendingAction(connectionProxy, settings)
             }
         }
     }
@@ -93,28 +96,35 @@ class MullvadVpnService : TalpidVpnService() {
         notificationManager.lockedToForeground = isUiVisible or isBound
     }
 
-    internal val splitTunneling = CompletableDeferred<SplitTunneling>()
+    internal lateinit var splitTunneling: SplitTunneling
+        private set
 
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Initializing service")
 
-        initializeSplitTunneling()
-
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
-        
+
+        splitTunneling = SplitTunneling(this@MullvadVpnService).apply {
+            onChange = { excludedApps ->
+                disallowedApps = excludedApps
+                markTunAsStale()
+            }
+        }
+
+        daemonInstance = DaemonInstance(this) { daemon ->
+            handleDaemonInstance(daemon)
+        }
+
         handler = ServiceHandler(Looper.getMainLooper(), connectivityListener)
         messenger = Messenger(handler)
 
         notificationManager =
             ForegroundNotificationManager(this, serviceNotifier, keyguardManager).apply {
                 acknowledgeStartForegroundService()
+                accountNumberEvents = handler.settingsListener.accountNumberNotifier
             }
-
-        daemonInstance = DaemonInstance(this) { daemon ->
-            handleDaemonInstance(daemon)
-        }
 
         daemonInstance.start()
     }
@@ -195,17 +205,6 @@ class MullvadVpnService : TalpidVpnService() {
             set(value) { this@MullvadVpnService.isUiVisible = value }
     }
 
-    private fun initializeSplitTunneling() = GlobalScope.launch(Dispatchers.Default) {
-        splitTunneling.complete(
-            SplitTunneling(this@MullvadVpnService).apply {
-                onChange = { excludedApps ->
-                    disallowedApps = excludedApps
-                    markTunAsStale()
-                }
-            }
-        )
-    }
-
     private fun handleDaemonInstance(daemon: MullvadDaemon?) {
         setUpDaemonJob?.cancel()
 
@@ -235,11 +234,8 @@ class MullvadVpnService : TalpidVpnService() {
     private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
         val connectionProxy = ConnectionProxy(this, daemon)
         val customDns = CustomDns(daemon, handler.settingsListener)
-        val splitTunneling = splitTunneling.await()
 
         handler.daemon = daemon
-
-        notificationManager.accountNumberEvents = handler.settingsListener.accountNumberNotifier
 
         splitTunneling.onChange = { excludedApps ->
             disallowedApps = excludedApps
