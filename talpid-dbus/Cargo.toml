@@ -1,0 +1,12 @@
+[package]
+name = "talpid-dbus"
+version = "0.1.0"
+authors = ["Mullvad VPN"]
+edition = "2018"
+publish = false
+
+[target.'cfg(target_os = "linux")'.dependencies]
+dbus = "0.9"
+err-derive = "0.2.1"
+lazy_static = "1.0"
+log = "0.4"
