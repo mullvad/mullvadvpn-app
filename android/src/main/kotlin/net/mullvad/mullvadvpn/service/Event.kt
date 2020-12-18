@@ -27,6 +27,9 @@ sealed class Event : Parcelable {
     class SettingsUpdate(val settings: Settings?) : Event(), Parcelable
 
     @Parcelize
+    class SplitTunnelingUpdate(val excludedApps: ArrayList<String>?) : Event(), Parcelable
+
+    @Parcelize
     class WireGuardKeyStatus(val keyStatus: KeygenEvent?) : Event(), Parcelable
 
     val message: Message
