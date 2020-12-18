@@ -1,12 +1,13 @@
 use super::RESOLV_CONF_PATH;
 use crate::linux::iface_index;
-use dbus::{
-    arg::RefArg,
-    blocking::{stdintf::org_freedesktop_dbus::Properties, Proxy, SyncConnection},
-};
 use lazy_static::lazy_static;
 use libc::{AF_INET, AF_INET6};
 use std::{fs, io, net::IpAddr, path::Path, sync::Arc, time::Duration};
+use talpid_dbus::dbus::{
+    self,
+    arg::RefArg,
+    blocking::{stdintf::org_freedesktop_dbus::Properties, Proxy, SyncConnection},
+};
 use talpid_types::ErrorExt as _;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -76,7 +77,7 @@ pub struct SystemdResolved {
 
 impl SystemdResolved {
     pub fn new() -> Result<Self> {
-        let dbus_connection = crate::linux::dbus::get_connection().map_err(Error::ConnectDBus)?;
+        let dbus_connection = talpid_dbus::get_connection().map_err(Error::ConnectDBus)?;
 
         let systemd_resolved = SystemdResolved {
             dbus_connection,
