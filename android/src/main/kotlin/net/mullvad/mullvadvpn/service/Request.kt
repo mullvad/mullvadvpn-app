@@ -12,7 +12,13 @@ sealed class Request : Parcelable {
     class CreateAccount : Request(), Parcelable
 
     @Parcelize
+    class ExcludeApp(val packageName: String?) : Request(), Parcelable
+
+    @Parcelize
     class FetchAccountExpiry : Request(), Parcelable
+
+    @Parcelize
+    class IncludeApp(val packageName: String?) : Request(), Parcelable
 
     @Parcelize
     class InvalidateAccountExpiry(val expiry: DateTime) : Request(), Parcelable
@@ -24,10 +30,16 @@ sealed class Request : Parcelable {
     class Logout : Request(), Parcelable
 
     @Parcelize
+    class PersistExcludedApps : Request(), Parcelable
+
+    @Parcelize
     class RegisterListener(val listener: Messenger) : Request(), Parcelable
 
     @Parcelize
     class RemoveAccountFromHistory(val account: String?) : Request(), Parcelable
+
+    @Parcelize
+    class SetEnableSplitTunneling(val enable: Boolean) : Request(), Parcelable
 
     @Parcelize
     class WireGuardGenerateKey : Request(), Parcelable
