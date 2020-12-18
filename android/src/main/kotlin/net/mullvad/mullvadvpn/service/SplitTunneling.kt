@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.service
 
 import android.content.Context
 import java.io.File
+import java.util.ArrayList
 import kotlin.properties.Delegates.observable
 import net.mullvad.talpid.util.EventNotifier
 
@@ -17,7 +18,7 @@ class SplitTunneling(context: Context) {
     private val excludedApps = HashSet<String>()
     private val preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
 
-    val onChange = EventNotifier<List<String>?>(null)
+    val onChange = EventNotifier<ArrayList<String>?>(null)
 
     var enabled by observable(preferences.getBoolean(KEY_ENABLED, false)) { _, _, _ ->
         enabledChanged()
@@ -57,7 +58,7 @@ class SplitTunneling(context: Context) {
 
     private fun update() {
         if (enabled) {
-            onChange.notify(excludedApps.toList())
+            onChange.notify(ArrayList(excludedApps))
         } else {
             onChange.notify(null)
         }
