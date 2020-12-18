@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.applist.ViewIntent
 import net.mullvad.mullvadvpn.model.ListItemData
 import net.mullvad.mullvadvpn.model.WidgetState
-import net.mullvad.mullvadvpn.service.endpoint.SplitTunneling
+import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 
 class SplitTunnelingViewModel(
     private val appsProvider: ApplicationsProvider,
