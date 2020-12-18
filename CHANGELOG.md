@@ -30,6 +30,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Improved compatiblitiy with newer versions of systemd-resolved.
 
+### Fixed
+#### Linux
+- Fix missing app window icon in Xfce.
+
 ### Security
 #### Linux
 - Prevent the private tunnel IPv6 address from being detectable on a local network when using
