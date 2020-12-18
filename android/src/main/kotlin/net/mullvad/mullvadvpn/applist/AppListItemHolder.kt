@@ -8,7 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.service.endpoint.SplitTunneling
+import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.ui.widget.CellSwitch
 import net.mullvad.mullvadvpn.util.JobTracker
 
