@@ -4,7 +4,7 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
-import ISplitTunnelingApplication from '../../shared/linux-split-tunneling-application';
+import { ILinuxSplitTunnelingApplication } from '../../shared/application-types';
 import consumePromise from '../../shared/promise';
 import { useAppContext } from '../context';
 import * as AppButton from './AppButton';
@@ -104,7 +104,7 @@ export default function LinuxSplitTunnelingSettings() {
   } = useAppContext();
   const history = useHistory();
 
-  const [applications, setApplications] = useState<ISplitTunnelingApplication[]>();
+  const [applications, setApplications] = useState<ILinuxSplitTunnelingApplication[]>();
   const [applicationListHeight, setApplicationListHeight] = useState<number>();
   const [browsing, setBrowsing] = useState(false);
 
@@ -202,8 +202,8 @@ export default function LinuxSplitTunnelingSettings() {
 }
 
 interface IApplicationRowProps {
-  application: ISplitTunnelingApplication;
-  launchApplication: (application: ISplitTunnelingApplication) => void;
+  application: ILinuxSplitTunnelingApplication;
+  launchApplication: (application: ILinuxSplitTunnelingApplication) => void;
 }
 
 function ApplicationRow(props: IApplicationRowProps) {
