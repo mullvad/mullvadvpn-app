@@ -62,6 +62,7 @@ import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rp
 import { InvalidAccountError } from './errors';
 import Expectation from './expectation';
 import GuiSettings from './gui-settings';
+import { getAppIcon } from './linux-desktop-entry';
 import NotificationController from './notification-controller';
 import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
@@ -365,7 +366,7 @@ class ApplicationMain {
     );
     this.connectToDaemon();
 
-    const window = this.createWindow();
+    const window = await this.createWindow();
     const tray = this.createTray();
 
     const windowController = new WindowController(window, tray, this.guiSettings.unpinnedWindow);
@@ -1340,7 +1341,7 @@ class ApplicationMain {
     if (this.tray && this.windowController) {
       this.tray.removeAllListeners();
 
-      const window = this.createWindow();
+      const window = await this.createWindow();
       this.windowController.replaceWindow(window, unpinnedWindow);
 
       await this.initializeWindow();
@@ -1409,7 +1410,7 @@ class ApplicationMain {
     }
   }
 
-  private createWindow(): BrowserWindow {
+  private async createWindow(): Promise<BrowserWindow> {
     const contentHeight = 568;
     // the size of transparent area around arrow on macOS
     const headerBarArrowHeight = 12;
@@ -1473,6 +1474,12 @@ class ApplicationMain {
           alwaysOnTop: !this.guiSettings.unpinnedWindow,
           skipTaskbar: !this.guiSettings.unpinnedWindow,
           autoHideMenuBar: true,
+        });
+
+      case 'linux':
+        return new BrowserWindow({
+          ...options,
+          icon: await getAppIcon('mullvad-vpn'),
         });
 
       default: {
