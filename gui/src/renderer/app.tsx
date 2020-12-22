@@ -16,7 +16,7 @@ import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
 
 import { ICurrentAppVersionInfo } from '../main';
-import { loadTranslations, messages, relayLocations } from '../shared/gettext';
+import { messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel, IRelayListPair } from '../shared/ipc-event-channel';
 import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
@@ -481,7 +481,7 @@ export default class AppRenderer {
 
   private loadTranslations(locale: string) {
     for (const catalogue of [messages, relayLocations]) {
-      loadTranslations(locale, catalogue);
+      window.loadTranslations(locale, catalogue);
     }
   }
 
