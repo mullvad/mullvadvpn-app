@@ -1,4 +1,3 @@
-import path from 'path';
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
@@ -40,7 +39,7 @@ const ImageMask = styled.div((props: IImageMaskProps) => {
 const HiddenImage = styled.img({ visibility: 'hidden' });
 
 export default function ImageView(props: IImageViewProps) {
-  const url = path.isAbsolute(props.source)
+  const url = props.source.startsWith('/')
     ? props.source
     : `../../assets/images/${props.source}.svg`;
 

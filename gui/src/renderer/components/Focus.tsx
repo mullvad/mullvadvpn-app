@@ -1,4 +1,3 @@
-import path from 'path';
 import React, { useImperativeHandle, useState } from 'react';
 import { useLocation } from 'react-router';
 import { sprintf } from 'sprintf-js';
@@ -29,7 +28,7 @@ function Focus(props: IFocusProps, ref: React.Ref<IFocusHandle>) {
     ref,
     () => ({
       resetFocus: () => {
-        const pageName = path.basename(location.pathname);
+        const pageName = location.pathname.slice(location.pathname.lastIndexOf('/') + 1);
         const titleElement = document.getElementsByTagName('h1')[0];
         const titleContent = titleElement?.textContent ?? pageName;
         setTitle(titleContent);
