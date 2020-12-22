@@ -18,7 +18,7 @@ import versionActions from './redux/version/actions';
 import { ICurrentAppVersionInfo } from '../main';
 import { messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
-import { IpcRendererEventChannel, IRelayListPair } from '../shared/ipc-event-channel';
+import { IRelayListPair } from '../shared/ipc-event-channel';
 import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
 import log, { ConsoleOutput } from '../shared/logging';
 import consumePromise from '../shared/promise';
@@ -44,6 +44,8 @@ import {
 } from '../shared/daemon-rpc-types';
 import { LogLevel } from '../shared/logging-types';
 import IpcOutput from './lib/logging';
+
+const IpcRendererEventChannel = window.ipc;
 
 interface IPreferredLocaleDescriptor {
   name: string;
