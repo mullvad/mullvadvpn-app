@@ -6,7 +6,7 @@ export interface IAppContext {
 }
 
 export const AppContext = React.createContext<IAppContext | undefined>(undefined);
-if (process.env.NODE_ENV === 'development') {
+if (window.runningInDevelopment) {
   AppContext.displayName = 'AppContext';
 }
 
@@ -34,7 +34,7 @@ export default function withAppContext<Props>(BaseComponent: React.ComponentType
     );
   };
 
-  if (process.env.NODE_ENV === 'development') {
+  if (window.runningInDevelopment) {
     wrappedComponent.displayName =
       'withAppContext(' + (BaseComponent.displayName || BaseComponent.name) + ')';
   }

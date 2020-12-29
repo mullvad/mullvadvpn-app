@@ -52,6 +52,8 @@ export interface IAppStateSnapshot {
   guiSettings: IGuiSettingsState;
   wireguardPublicKey?: IWireguardPublicKey;
   translations: ITranslations;
+  platform: NodeJS.Platform;
+  runningInDevelopment: boolean;
 }
 
 // The different types of requests are:
