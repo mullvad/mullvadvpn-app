@@ -11,6 +11,7 @@ function makeWatchCompiler(onFirstSuccess) {
   const compileScripts = function () {
     const watch = new TscWatchClient();
     watch.on('first_success', onFirstSuccess);
+    watch.on('success', browserifyRenderer);
     watch.start('--noClear', '--inlineSourceMap', '--incremental', '--project', '.');
     return watch.tsc;
   };
