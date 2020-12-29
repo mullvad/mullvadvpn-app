@@ -1446,7 +1446,10 @@ class ApplicationMain {
       transparent: !this.guiSettings.unpinnedWindow,
       useContentSize: true,
       webPreferences: {
-        nodeIntegration: true,
+        preload: path.join(__dirname, '../renderer/preload.js'),
+        nodeIntegration: false,
+        nodeIntegrationInWorker: false,
+        nodeIntegrationInSubFrames: false,
         devTools: process.env.NODE_ENV === 'development',
         // TODO: Remove use of remote
         enableRemoteModule: true,
