@@ -175,6 +175,9 @@ export default class AppRenderer {
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 
+    window.platform = initialState.platform;
+    window.runningInDevelopment = initialState.runningInDevelopment;
+
     this.setLocale(initialState.locale);
     loadTranslations(
       messages,
@@ -582,7 +585,7 @@ export default class AppRenderer {
   }
 
   private async autoConnect() {
-    if (process.env.NODE_ENV === 'development') {
+    if (window.runningInDevelopment) {
       log.info('Skip autoconnect in development');
     } else if (this.autoConnected) {
       log.info('Skip autoconnect because it was done before');

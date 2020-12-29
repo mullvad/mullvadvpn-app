@@ -47,7 +47,7 @@ interface IScrollbarUpdateContext {
 export default class CustomScrollbars extends React.Component<IProps, IState> {
   public static defaultProps: IProps = {
     // auto-hide on macOS by default
-    autoHide: process.platform === 'darwin',
+    autoHide: window.platform === 'darwin',
     trackPadding: { x: 2, y: 2 },
   };
 

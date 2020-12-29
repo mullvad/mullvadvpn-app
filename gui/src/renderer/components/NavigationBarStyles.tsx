@@ -20,7 +20,7 @@ export const StyledNavigationItems = styled.div({
 export const StyledNavigationBar = styled.nav((props: { unpinnedWindow: boolean }) => ({
   flex: 0,
   padding: '12px',
-  paddingTop: process.platform === 'darwin' && !props.unpinnedWindow ? '24px' : '12px',
+  paddingTop: window.platform === 'darwin' && !props.unpinnedWindow ? '24px' : '12px',
 }));
 
 export const StyledNavigationBarWrapper = styled.div({

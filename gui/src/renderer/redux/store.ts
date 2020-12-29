@@ -54,7 +54,7 @@ export default function configureStore(initialState?: IReduxState) {
   const composeEnhancers: typeof compose = (() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const reduxCompose = window && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
-    if (process.env.NODE_ENV === 'development' && reduxCompose) {
+    if (window.runningInDevelopment && reduxCompose) {
       return reduxCompose({ actionCreators });
     }
     return compose;
