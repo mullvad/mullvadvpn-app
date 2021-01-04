@@ -111,6 +111,7 @@ class ServiceHandler(
             send(Event.NewLocation(locationInfoCache.location).message)
             send(Event.WireGuardKeyStatus(keyStatusListener.keyStatus).message)
             send(Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent).message)
+            send(Event.ListenerReady().message)
         }
     }
 
