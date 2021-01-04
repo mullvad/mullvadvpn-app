@@ -230,7 +230,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
-        val connectionProxy = ConnectionProxy(this, daemon)
+        val connectionProxy = ConnectionProxy(this, daemonInstance.intermittentDaemon)
         val customDns = CustomDns(daemon, endpoint.settingsListener)
 
         endpoint.splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps ->
