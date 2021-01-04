@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.service.tunnelstate
 
 import android.content.Context
-import net.mullvad.mullvadvpn.service.ConnectionProxy
 import net.mullvad.mullvadvpn.service.ServiceInstance
+import net.mullvad.mullvadvpn.service.endpoint.ConnectionProxy
 import net.mullvad.talpid.util.EventNotifier
 
 class TunnelStateUpdater(context: Context, serviceNotifier: EventNotifier<ServiceInstance?>) {

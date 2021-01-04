@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.service
 
 import android.os.Messenger
+import net.mullvad.mullvadvpn.service.endpoint.ConnectionProxy
 import net.mullvad.mullvadvpn.util.Intermittent
 
 class ServiceInstance(
@@ -11,7 +12,6 @@ class ServiceInstance(
     val customDns: CustomDns,
 ) {
     fun onDestroy() {
-        connectionProxy.onDestroy()
         customDns.onDestroy()
     }
 }
