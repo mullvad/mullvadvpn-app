@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.service
+package net.mullvad.mullvadvpn.service.endpoint
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -10,15 +10,13 @@ import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.service.endpoint.VpnPermission
 import net.mullvad.mullvadvpn.ui.MainActivity
-import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.util.EventNotifier
 
 val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
 
-class ConnectionProxy(val vpnPermission: VpnPermission, val daemon: Intermittent<MullvadDaemon>) {
+class ConnectionProxy(val vpnPermission: VpnPermission, endpoint: ServiceEndpoint) {
     private enum class Command {
         CONNECT,
         RECONNECT,
@@ -26,6 +24,7 @@ class ConnectionProxy(val vpnPermission: VpnPermission, val daemon: Intermittent
     }
 
     private val commandChannel = spawnActor()
+    private val daemon = endpoint.intermittentDaemon
 
     var mainActivity: MainActivity? = null
 
