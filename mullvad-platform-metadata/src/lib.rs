@@ -18,6 +18,10 @@ mod imp {
         format!("Linux {}", version)
     }
 
+    pub fn short_version() -> String {
+        version()
+    }
+
     fn read_os_release_file() -> Result<String, Option<String>> {
         let mut os_release_info = rs_release::get_os_release().map_err(|_| None)?;
         let os_name = os_release_info.remove("NAME");
@@ -69,6 +73,10 @@ mod imp {
         )
     }
 
+    pub fn short_version() -> String {
+        version()
+    }
+
     pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
         std::iter::empty()
     }
@@ -76,30 +84,47 @@ mod imp {
 
 #[cfg(windows)]
 mod imp {
+    use std::collections::HashMap;
+
     pub fn version() -> String {
+        let system_info = system_info();
+        let os_name = system_info.get("OS Name");
+        let os_version = system_info.get("OS Version");
+        let version = os_name.map(parse_version).unwrap_or(String::from("N/A"));
+        let full_version = os_version.map(parse_full_version).unwrap_or(String::from("N/A"));
+        format!("Windows {} ({})", version, full_version)
+    }
+
+    pub fn short_version() -> String {
+        let system_info = system_info();
+        let os_name = system_info.get("OS Name");
+        let version = os_name.map(parse_version).unwrap_or(String::from("N/A"));
+        format!("Windows {}", version)
+    }
+
+    fn system_info() -> HashMap<String, String> {
         let system_info =
             super::command_stdout_lossy("systeminfo", &["/FO", "LIST"]).unwrap_or_else(String::new);
 
-        let mut version = None;
-        let mut full_version = None;
-
-        for info_line in system_info.lines() {
-            let mut info_parts = info_line.split(":");
-
-            match info_parts.next() {
-                Some("OS Name") => {
-                    version = info_parts
-                        .next()
-                        .map(|s| s.trim().trim_start_matches("Microsoft Windows "))
+        let mut info_map = HashMap::new();
+        system_info.lines().for_each(|line| {
+            let mut split = line.split(":");
+            if let Some(key) = split.next() {
+                if let Some(value) = split.next() {
+                    info_map.insert(key.to_owned(), value.to_owned());
                 }
-                Some("OS Version") => full_version = info_parts.next().map(str::trim),
-                _ => {}
             }
-        }
+        });
 
-        let version = version.unwrap_or("N/A");
-        let full_version = full_version.unwrap_or("N/A");
-        format!("Windows {} ({})", version, full_version)
+        info_map
+    }
+
+    fn parse_version(os_name: &String) -> String {
+        os_name.trim().trim_start_matches("Microsoft Windows ").to_owned()
+    }
+
+    fn parse_full_version(os_version: &String) -> String {
+        os_version.trim().to_owned()
     }
 
     pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
@@ -125,6 +150,10 @@ mod imp {
         )
     }
 
+    pub fn short_version() -> String {
+        version()
+    }
+
     pub fn extra_metadata() -> HashMap<String, String> {
         let mut metadata = HashMap::new();
         metadata.insert(
@@ -148,4 +177,4 @@ fn command_stdout_lossy(cmd: &str, args: &[&str]) -> Option<String> {
         .ok()
 }
 
-pub use imp::{extra_metadata, version};
+pub use imp::{extra_metadata, short_version, version};
