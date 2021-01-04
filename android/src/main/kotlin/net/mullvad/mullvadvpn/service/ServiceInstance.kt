@@ -11,7 +11,6 @@ class ServiceInstance(
     val customDns: CustomDns,
 ) {
     fun onDestroy() {
-        connectionProxy.onDestroy()
         customDns.onDestroy()
     }
 }

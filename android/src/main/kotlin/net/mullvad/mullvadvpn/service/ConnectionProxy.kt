@@ -20,7 +20,7 @@ import net.mullvad.talpid.util.EventNotifier
 
 val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
 
-class ConnectionProxy(val context: Context, val daemon: Intermittent<MullvadDaemon>) {
+class ConnectionProxy(val context: Context, endpoint: ServiceEndpoint) {
     private enum class Command {
         CONNECT,
         RECONNECT,
@@ -28,6 +28,7 @@ class ConnectionProxy(val context: Context, val daemon: Intermittent<MullvadDaem
     }
 
     private val commandChannel = spawnActor()
+    private val daemon = endpoint.intermittentDaemon
 
     var mainActivity: MainActivity? = null
 

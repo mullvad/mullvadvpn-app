@@ -29,6 +29,7 @@ class ServiceEndpoint(
 
     val messenger = Messenger(dispatcher)
 
+    val connectionProxy = ConnectionProxy(context, this)
     val settingsListener = SettingsListener(this)
 
     val accountCache = AccountCache(this)
@@ -47,6 +48,7 @@ class ServiceEndpoint(
         registrationQueue.close()
 
         accountCache.onDestroy()
+        connectionProxy.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
