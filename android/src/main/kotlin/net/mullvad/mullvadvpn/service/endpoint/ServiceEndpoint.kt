@@ -100,6 +100,7 @@ class ServiceEndpoint(
                 Event.SettingsUpdate(settingsListener.settings),
                 Event.NewLocation(locationInfoCache.location),
                 Event.WireGuardKeyStatus(keyStatusListener.keyStatus),
+                Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent),
                 Event.ListenerReady
             )
 
