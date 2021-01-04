@@ -7,6 +7,10 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -17,9 +21,16 @@ import net.mullvad.talpid.util.EventNotifier
 val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
 
 class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
+    private enum class Command {
+        CONNECT,
+        RECONNECT,
+        DISCONNECT,
+    }
+
+    private val commandChannel = spawnActor()
+
     var mainActivity: MainActivity? = null
 
-    private var activeAction: Job? = null
     private var resetAnticipatedStateJob: Job? = null
 
     private val initialState: TunnelState = TunnelState.Disconnected
@@ -47,47 +58,50 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
 
     fun connect() {
         if (anticipateConnectingState()) {
-            cancelActiveAction()
-
             requestVpnPermission()
-
-            activeAction = GlobalScope.launch(Dispatchers.Default) {
-                vpnPermission.await()
-                daemon.connect()
-            }
+            commandChannel.sendBlocking(Command.CONNECT)
         }
     }
 
     fun reconnect() {
         if (anticipateReconnectingState()) {
-            cancelActiveAction()
-            activeAction = GlobalScope.launch(Dispatchers.Default) {
-                daemon.reconnect()
-            }
+            commandChannel.sendBlocking(Command.RECONNECT)
         }
     }
 
     fun disconnect() {
         if (anticipateDisconnectingState()) {
-            cancelActiveAction()
-            activeAction = GlobalScope.launch(Dispatchers.Default) {
-                daemon.disconnect()
-            }
+            commandChannel.sendBlocking(Command.DISCONNECT)
         }
     }
 
-    fun cancelActiveAction() {
-        activeAction?.cancel()
-    }
-
     fun onDestroy() {
+        commandChannel.close()
         daemon.onTunnelStateChange = null
 
         onUiStateChange.unsubscribeAll()
         onStateChange.unsubscribeAll()
 
         fetchInitialStateJob.cancel()
-        cancelActiveAction()
+    }
+
+    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+        try {
+            while (true) {
+                val command = channel.receive()
+
+                when (command) {
+                    Command.CONNECT -> {
+                        vpnPermission.await()
+                        daemon.connect()
+                    }
+                    Command.RECONNECT -> daemon.reconnect()
+                    Command.DISCONNECT -> daemon.disconnect()
+                }
+            }
+        } catch (exception: ClosedReceiveChannelException) {
+            // Closed sender, so stop the actor
+        }
     }
 
     private fun anticipateConnectingState(): Boolean {
