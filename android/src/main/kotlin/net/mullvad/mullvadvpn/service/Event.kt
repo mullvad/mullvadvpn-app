@@ -41,6 +41,10 @@ sealed class Event {
         }
     }
 
+    class ListenerReady : Event() {
+        override val type = Type.ListenerReady
+    }
+
     class LoginStatus(val status: LoginStatusData?) : Event() {
         companion object {
             private val statusKey = "status"
@@ -119,6 +123,7 @@ sealed class Event {
 
     enum class Type(val build: (Bundle) -> Event) {
         AccountHistory({ data -> AccountHistory(data) }),
+        ListenerReady({ _ -> ListenerReady() }),
         LoginStatus({ data -> LoginStatus(data) }),
         NewLocation({ data -> NewLocation(data) }),
         SettingsUpdate({ data -> SettingsUpdate(data) }),
