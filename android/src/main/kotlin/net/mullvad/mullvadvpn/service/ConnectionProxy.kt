@@ -20,7 +20,7 @@ import net.mullvad.talpid.util.EventNotifier
 
 val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
 
-class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
+class ConnectionProxy(val context: Context, val daemon: Intermittent<MullvadDaemon>) {
     private enum class Command {
         CONNECT,
         RECONNECT,
@@ -48,12 +48,8 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
     private val fetchInitialStateJob = fetchInitialState()
 
     init {
-        daemon.onTunnelStateChange = { newState ->
-            synchronized(this) {
-                resetAnticipatedStateJob?.cancel()
-                state = newState
-                uiState = newState
-            }
+        daemon.registerListener(this) { newDaemon ->
+            newDaemon?.onTunnelStateChange = { newState -> handleNewState(newState) }
         }
     }
 
@@ -77,12 +73,12 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
 
     fun onDestroy() {
         commandChannel.close()
-        daemon.onTunnelStateChange = null
 
         onUiStateChange.unsubscribeAll()
         onStateChange.unsubscribeAll()
 
         fetchInitialStateJob.cancel()
+        daemon.unregisterListener(this)
     }
 
     private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
@@ -94,14 +90,22 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
                     Command.CONNECT -> {
                         requestVpnPermission()
                         vpnPermission.await()
-                        daemon.connect()
+                        daemon.await().connect()
                     }
-                    Command.RECONNECT -> daemon.reconnect()
-                    Command.DISCONNECT -> daemon.disconnect()
+                    Command.RECONNECT -> daemon.await().reconnect()
+                    Command.DISCONNECT -> daemon.await().disconnect()
                 }
             }
         } catch (exception: ClosedReceiveChannelException) {
             // Closed sender, so stop the actor
+        }
+    }
+
+    private fun handleNewState(newState: TunnelState) {
+        synchronized(this) {
+            resetAnticipatedStateJob?.cancel()
+            state = newState
+            uiState = newState
         }
     }
 
@@ -206,7 +210,7 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
     }
 
     private fun fetchInitialState() = GlobalScope.launch(Dispatchers.Default) {
-        val currentState = daemon.getState()
+        val currentState = daemon.await().getState()
 
         synchronized(this) {
             if (state === initialState && currentState != null) {
