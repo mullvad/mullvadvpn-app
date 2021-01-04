@@ -117,7 +117,7 @@ impl VersionUpdater {
         let version_proxy = AppVersionProxy::new(rpc_handle);
         let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
         let (tx, rx) = mpsc::channel(1);
-        let platform_version = mullvad_platform_metadata::version();
+        let platform_version = mullvad_platform_metadata::short_version();
 
         (
             Self {
