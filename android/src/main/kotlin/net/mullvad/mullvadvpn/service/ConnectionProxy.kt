@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.service
 import android.content.Context
 import android.content.Intent
 import android.net.VpnService
+import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -20,13 +21,14 @@ import net.mullvad.talpid.util.EventNotifier
 
 val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
 
-class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
+class ConnectionProxy(val context: Context) {
     private enum class Command {
         CONNECT,
         RECONNECT,
         DISCONNECT,
     }
 
+    private val availableDaemon = Intermittent<MullvadDaemon>()
     private val commandChannel = spawnActor()
 
     var mainActivity: MainActivity? = null
@@ -40,22 +42,19 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
     var onStateChange = EventNotifier(initialState)
     var onUiStateChange = EventNotifier(initialState)
 
+    var daemon by observable<MullvadDaemon?>(null) { _, oldDaemon, newDaemon ->
+        oldDaemon?.onTunnelStateChange = null
+        newDaemon?.onTunnelStateChange = { newState -> handleNewState(newState) }
+
+        availableDaemon.spawnUpdate(newDaemon)
+    }
+
     var state by onStateChange.notifiable()
         private set
     var uiState by onUiStateChange.notifiable()
         private set
 
     private val fetchInitialStateJob = fetchInitialState()
-
-    init {
-        daemon.onTunnelStateChange = { newState ->
-            synchronized(this) {
-                resetAnticipatedStateJob?.cancel()
-                state = newState
-                uiState = newState
-            }
-        }
-    }
 
     fun connect() {
         if (anticipateConnectingState()) {
@@ -76,7 +75,7 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
     }
 
     fun onDestroy() {
-        daemon.onTunnelStateChange = null
+        daemon = null
 
         onUiStateChange.unsubscribeAll()
         onStateChange.unsubscribeAll()
@@ -94,14 +93,22 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
                     Command.CONNECT -> {
                         requestVpnPermission()
                         vpnPermission.await()
-                        daemon.connect()
+                        availableDaemon.await().connect()
                     }
-                    Command.RECONNECT -> daemon.reconnect()
-                    Command.DISCONNECT -> daemon.disconnect()
+                    Command.RECONNECT -> availableDaemon.await().reconnect()
+                    Command.DISCONNECT -> availableDaemon.await().disconnect()
                 }
             }
         } catch (exception: ClosedReceiveChannelException) {
             // Closed sender, so stop the actor
+        }
+    }
+
+    private fun handleNewState(newState: TunnelState) {
+        synchronized(this) {
+            resetAnticipatedStateJob?.cancel()
+            state = newState
+            uiState = newState
         }
     }
 
@@ -206,7 +213,7 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
     }
 
     private fun fetchInitialState() = GlobalScope.launch(Dispatchers.Default) {
-        val currentState = daemon.getState()
+        val currentState = availableDaemon.await().getState()
 
         synchronized(this) {
             if (state === initialState && currentState != null) {

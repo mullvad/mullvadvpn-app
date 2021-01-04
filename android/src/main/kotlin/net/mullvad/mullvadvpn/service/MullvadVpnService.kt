@@ -232,8 +232,10 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
-        val connectionProxy = ConnectionProxy(this, daemon)
+        val connectionProxy = ConnectionProxy(this)
         val customDns = CustomDns(daemon, handler.settingsListener)
+
+        connectionProxy.daemon = daemon
 
         handler.daemon = daemon
 
