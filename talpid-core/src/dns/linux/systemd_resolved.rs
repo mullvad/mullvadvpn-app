@@ -6,7 +6,7 @@ use dbus::{
 };
 use lazy_static::lazy_static;
 use libc::{AF_INET, AF_INET6};
-use std::{fs, net::IpAddr, path::Path, sync::Arc, time::Duration};
+use std::{fs, io, net::IpAddr, path::Path, sync::Arc, time::Duration};
 use talpid_types::ErrorExt as _;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -16,6 +16,12 @@ pub type Result<T> = std::result::Result<T, Error>;
 pub enum Error {
     #[error(display = "Failed to initialize a connection to D-Bus")]
     ConnectDBus(#[error(source)] dbus::Error),
+
+    #[error(display = "Failed to read /etc/resolv.conf: _0")]
+    ReadResolvConfError(#[error(source)] io::Error),
+
+    #[error(display = "/etc/resolv.conf contents do not match systemd-resolved resolv.conf")]
+    ResolvConfDiffers,
 
     #[error(display = "/etc/resolv.conf is not a symlink to Systemd resolved")]
     NotSymlinkedToResolvConf,
@@ -92,20 +98,44 @@ impl SystemdResolved {
     }
 
     fn ensure_resolv_conf_is_resolved_symlink() -> Result<()> {
-        let link_target =
-            fs::read_link(RESOLV_CONF_PATH).map_err(|_| Error::NotSymlinkedToResolvConf)?;
+        match fs::read_link(RESOLV_CONF_PATH) {
+            Ok(link_target) => {
+                // if /etc/resolv.conf is not symlinked to the stub resolve.conf file , managing DNS
+                // through systemd-resolved will not ensure that our resolver is given priority -
+                // sometimes this will mean adding 1 and 2 seconds of latency to DNS
+                // queries, other times our resolver won't be considered at all. In
+                // this case, it's better to fall back to cruder management methods.
+                if Self::path_is_resolvconf_stub(&link_target)
+                    || Self::resolv_conf_is_static_stub(&link_target)?
+                    || Self::ensure_resolvconf_contents().is_ok()
+                {
+                    Ok(())
+                } else {
+                    Err(Error::NotSymlinkedToResolvConf)
+                }
+            }
+            // etc/resolv.conf is not a symlink
+            Err(err) if err.kind() == io::ErrorKind::InvalidInput => {
+                Self::ensure_resolvconf_contents()
+            }
+            Err(err) => {
+                log::trace!("Failed to read /etc/resolv.conf symlink - {}", err);
+                Err(Error::NotSymlinkedToResolvConf)
+            }
+        }
+    }
 
-        // if /etc/resolv.conf is not symlinked to the stub resolve.conf file , managing DNS
-        // through systemd-resolved will not ensure that our resolver is given priority - sometimes
-        // this will mean adding 1 and 2 seconds of latency to DNS queries, other times our
-        // resolver won't be considered at all. In this case, it's better to fall back to cruder
-        // management methods.
-        if Self::path_is_resolvconf_stub(&link_target)
-            || Self::resolv_conf_is_static_stub(&link_target)?
+    fn ensure_resolvconf_contents() -> Result<()> {
+        let resolv_conf =
+            fs::read_to_string(RESOLV_CONF_PATH).map_err(Error::ReadResolvConfError)?;
+        if RESOLVED_STUB_PATHS
+            .iter()
+            .filter_map(|path| fs::read_to_string(path).ok())
+            .any(|link_contents| link_contents == resolv_conf)
         {
             Ok(())
         } else {
-            Err(Error::NotSymlinkedToResolvConf)
+            Err(Error::ResolvConfDiffers)
         }
     }
 
