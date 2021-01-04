@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.service
 import android.content.Context
 import android.content.Intent
 import android.net.VpnService
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -15,6 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.MainActivity
+import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.util.EventNotifier
 
@@ -35,9 +35,10 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
 
     private val initialState: TunnelState = TunnelState.Disconnected
 
+    val vpnPermission = Intermittent<Boolean>()
+
     var onStateChange = EventNotifier(initialState)
     var onUiStateChange = EventNotifier(initialState)
-    var vpnPermission = CompletableDeferred<Boolean>()
 
     var state by onStateChange.notifiable()
         private set
@@ -58,7 +59,6 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
 
     fun connect() {
         if (anticipateConnectingState()) {
-            requestVpnPermission()
             commandChannel.sendBlocking(Command.CONNECT)
         }
     }
@@ -92,6 +92,7 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
 
                 when (command) {
                     Command.CONNECT -> {
+                        requestVpnPermission()
                         vpnPermission.await()
                         daemon.connect()
                     }
@@ -178,13 +179,13 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
         resetAnticipatedStateJob = newJob
     }
 
-    private fun requestVpnPermission() {
+    private suspend fun requestVpnPermission() {
         val intent = VpnService.prepare(context)
 
-        vpnPermission = CompletableDeferred()
+        vpnPermission.update(null)
 
         if (intent == null) {
-            vpnPermission.complete(true)
+            vpnPermission.update(true)
         } else {
             val activity = mainActivity
 
