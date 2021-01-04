@@ -323,7 +323,7 @@ mod windows {
         let destination_settings_dir =
             mullvad_paths::settings_dir().map_err(Error::FindSettings)?;
 
-        let system_appdata_dir = dirs::data_local_dir().ok_or(Error::FindAppData)?;
+        let system_appdata_dir = dirs_next::data_local_dir().ok_or(Error::FindAppData)?;
         if !destination_settings_dir.starts_with(system_appdata_dir) {
             return Ok(None);
         }
