@@ -22,7 +22,8 @@ class ServiceEndpoint(
     looper: Looper,
     internal val intermittentDaemon: Intermittent<MullvadDaemon>,
     val connectivityListener: ConnectivityListener,
-    splitTunnelingPersistence: SplitTunnelingPersistence
+    splitTunnelingPersistence: SplitTunnelingPersistence,
+    vpnPermission: VpnPermission
 ) {
     private val listeners = mutableSetOf<Messenger>()
     private val registrationQueue: SendChannel<Messenger> = startRegistrator()
@@ -33,6 +34,7 @@ class ServiceEndpoint(
 
     val messenger = Messenger(dispatcher)
 
+    val connectionProxy = ConnectionProxy(vpnPermission, this)
     val settingsListener = SettingsListener(this)
 
     val accountCache = AccountCache(this)
@@ -51,6 +53,7 @@ class ServiceEndpoint(
         registrationQueue.close()
 
         accountCache.onDestroy()
+        connectionProxy.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
