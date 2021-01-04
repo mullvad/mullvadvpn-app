@@ -69,6 +69,7 @@ class MullvadVpnService : TalpidVpnService() {
         oldNotification?.onDestroy()
     }
 
+    private lateinit var connectionProxy: ConnectionProxy
     private lateinit var daemonInstance: DaemonInstance
     private lateinit var handler: ServiceHandler
     private lateinit var keyguardManager: KeyguardManager
@@ -77,13 +78,11 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
 
     private var pendingAction by observable<PendingAction?>(null) { _, _, _ ->
-        val connectionProxy = instance?.connectionProxy
-
         // The service instance awaits the split tunneling initialization, which also starts the
         // handler. So if the instance is not null, the handler has certainly been initialized.
-        if (connectionProxy != null) {
+        if (instance != null) {
             handler.settingsListener.settings?.let { settings ->
-                handlePendingAction(connectionProxy, settings)
+                handlePendingAction(settings)
             }
         }
     }
@@ -103,6 +102,7 @@ class MullvadVpnService : TalpidVpnService() {
         super.onCreate()
         Log.d(TAG, "Initializing service")
 
+        connectionProxy = ConnectionProxy(this)
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
@@ -192,6 +192,7 @@ class MullvadVpnService : TalpidVpnService() {
         state = State.Stopped
         notificationManager.onDestroy()
         daemonInstance.onDestroy()
+        connectionProxy.onDestroy()
         instance = null
         super.onDestroy()
     }
@@ -232,7 +233,6 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
-        val connectionProxy = ConnectionProxy(this)
         val customDns = CustomDns(daemon, handler.settingsListener)
 
         connectionProxy.daemon = daemon
@@ -245,7 +245,7 @@ class MullvadVpnService : TalpidVpnService() {
             connectionProxy.reconnect()
         }
 
-        handlePendingAction(connectionProxy, settings)
+        handlePendingAction(settings)
 
         handler.locationInfoCache.stateEvents = connectionProxy.onStateChange
 
@@ -281,7 +281,7 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
-    private fun handlePendingAction(connectionProxy: ConnectionProxy, settings: Settings) {
+    private fun handlePendingAction(settings: Settings) {
         when (pendingAction) {
             PendingAction.Connect -> {
                 if (settings.accountToken != null) {
