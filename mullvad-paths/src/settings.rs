@@ -24,7 +24,7 @@ pub fn get_default_settings_dir() -> Result<PathBuf> {
         }
         #[cfg(windows)]
         {
-            dir = dirs::data_local_dir().ok_or_else(|| crate::Error::FindDirError);
+            dir = dirs_next::data_local_dir().ok_or_else(|| crate::Error::FindDirError);
         }
         dir.map(|dir| dir.join(crate::PRODUCT_NAME))
     }
