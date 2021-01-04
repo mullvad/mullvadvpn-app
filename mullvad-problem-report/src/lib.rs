@@ -69,6 +69,9 @@ pub enum Error {
 
     #[error(display = "Unable to spawn Tokio runtime")]
     CreateRuntime(#[error(source)] io::Error),
+
+    #[error(display = "Unable to find cache directory")]
+    ObtainCacheDirectory(#[error(source)] mullvad_paths::Error),
 }
 
 /// These are errors that can happen during problem report collection.
@@ -253,7 +256,7 @@ pub fn send_problem_report(
     user_email: &str,
     user_message: &str,
     report_path: &Path,
-    resource_dir: &Path,
+    user_cache_dir: &Path,
 ) -> Result<(), Error> {
     let report_content = normalize_newlines(
         read_file_lossy(report_path, REPORT_MAX_SIZE).map_err(|source| {
@@ -275,8 +278,10 @@ pub fn send_problem_report(
     let mut rpc_manager = runtime
         .block_on(mullvad_rpc::MullvadRpcRuntime::with_cache(
             runtime.handle().clone(),
-            resource_dir,
             None,
+            user_cache_dir,
+            false,
+            |_| Ok(()),
         ))
         .map_err(Error::CreateRpcClientError)?;
     let rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_manager.mullvad_rest_handle());

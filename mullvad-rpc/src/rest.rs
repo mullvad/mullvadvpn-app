@@ -139,7 +139,20 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
                         if let Err(err) = &response {
                             match err {
                                 Error::HyperError(_) | Error::TimeoutError(_) => {
-                                    address_cache.register_failure(host_addr, err);
+                                    let current_address = address_cache.peek_address();
+                                    if current_address == host_addr
+                                        && address_cache.has_tried_current_address()
+                                    {
+                                        address_cache.select_new_address().await;
+                                        let new_address = address_cache.peek_address();
+
+                                        log::error!(
+                                            "HTTP request failed: {}, using address {}. Trying next API address: {}",
+                                            err,
+                                            current_address,
+                                            new_address,
+                                        );
+                                    }
                                 }
                                 _ => (),
                             }

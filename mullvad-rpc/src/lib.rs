@@ -11,6 +11,7 @@ use std::{
     future::Future,
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::Path,
+    sync::Arc,
 };
 use talpid_types::{net::wireguard, ErrorExt};
 
@@ -22,7 +23,7 @@ use crate::https_client_with_sni::HttpsConnectorWithSni;
 
 mod address_cache;
 mod relay_list;
-use address_cache::AddressCache;
+pub use address_cache::{AddressCache, CurrentAddressChangeListener};
 pub use hyper::StatusCode;
 pub use relay_list::RelayListProxy;
 
@@ -42,7 +43,7 @@ const API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
 pub struct MullvadRpcRuntime {
     https_connector: HttpsConnectorWithSni,
     handle: tokio::runtime::Handle,
-    address_cache: AddressCache,
+    pub address_cache: AddressCache,
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -60,7 +61,11 @@ impl MullvadRpcRuntime {
         Ok(MullvadRpcRuntime {
             https_connector: HttpsConnectorWithSni::new(),
             handle,
-            address_cache: AddressCache::new(vec![API_ADDRESS.into()], None)?,
+            address_cache: AddressCache::new(
+                vec![API_ADDRESS.into()],
+                None,
+                Arc::new(Box::new(|_| Ok(()))),
+            )?,
         })
     }
 
@@ -69,31 +74,55 @@ impl MullvadRpcRuntime {
     /// if it fails.
     pub async fn with_cache(
         handle: tokio::runtime::Handle,
-        resource_dir: &Path,
-        cache_dir: Option<&Path>,
+        resource_dir: Option<&Path>,
+        cache_dir: &Path,
+        write_changes: bool,
+        address_change_listener: impl Fn(SocketAddr) -> Result<(), ()> + Send + Sync + 'static,
     ) -> Result<Self, Error> {
-        let resource_file = resource_dir.join(API_IP_CACHE_FILENAME);
+        let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
+        let write_file = if write_changes {
+            Some(cache_file.clone().into_boxed_path())
+        } else {
+            None
+        };
 
-        let address_cache = if let Some(cache_dir) = cache_dir {
-            let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
-            let cache_file_boxed = cache_file.clone().into_boxed_path();
+        let address_change_listener =
+            Arc::<Box<CurrentAddressChangeListener>>::new(Box::new(address_change_listener));
 
-            match AddressCache::from_file(&cache_file, Some(cache_file_boxed.clone())).await {
-                Ok(cache) => cache,
-                Err(error) => {
-                    if cache_file.exists() {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg(
-                                "Failed to load cached API addresses. Falling back on bundled list"
-                            )
-                        );
+        let address_cache = match AddressCache::from_file(
+            &cache_file,
+            write_file.clone(),
+            address_change_listener.clone(),
+        )
+        .await
+        {
+            Ok(cache) => cache,
+            Err(error) => {
+                let cache_exists = cache_file.exists();
+                if cache_exists {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to load cached API addresses. Falling back on bundled list"
+                        )
+                    );
+                }
+
+                // Initialize the cache directory cache using the resource directory
+                match resource_dir {
+                    Some(resource_dir) => {
+                        let read_file = resource_dir.join(API_IP_CACHE_FILENAME);
+                        let empty_listener =
+                            Arc::<Box<CurrentAddressChangeListener>>::new(Box::new(|_| Ok(())));
+                        let mut cache =
+                            AddressCache::from_file(&read_file, write_file, empty_listener).await?;
+                        cache.randomize().await?;
+                        cache.set_change_listener(address_change_listener);
+                        cache
                     }
-                    AddressCache::from_file(&resource_file, Some(cache_file_boxed)).await?
+                    None => return Err(Error::AddressCacheError(error)),
                 }
             }
-        } else {
-            AddressCache::from_file(&resource_file, None).await?
         };
 
         let https_connector = HttpsConnectorWithSni::new();

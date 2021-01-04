@@ -56,7 +56,7 @@ fn create_and_return(
 }
 
 mod cache;
-pub use crate::cache::{cache_dir, get_default_cache_dir};
+pub use crate::cache::{cache_dir, get_default_cache_dir, get_user_cache_dir, user_cache_dir};
 
 mod logs;
 pub use crate::logs::{get_default_log_dir, get_log_dir, log_dir};

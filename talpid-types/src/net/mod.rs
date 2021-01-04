@@ -144,6 +144,10 @@ impl Endpoint {
             protocol,
         }
     }
+
+    pub fn from_socket_address(address: SocketAddr, protocol: TransportProtocol) -> Self {
+        Endpoint { address, protocol }
+    }
 }
 
 impl fmt::Display for Endpoint {

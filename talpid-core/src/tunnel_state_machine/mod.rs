@@ -33,7 +33,7 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_types::{android::AndroidContext, ErrorExt};
 use talpid_types::{
-    net::TunnelParameters,
+    net::{Endpoint, TunnelParameters},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
 };
 
@@ -75,6 +75,7 @@ pub async fn spawn(
     allow_lan: bool,
     block_when_disconnected: bool,
     custom_dns: Option<Vec<IpAddr>>,
+    allowed_endpoint: Endpoint,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
@@ -101,6 +102,8 @@ pub async fn spawn(
         #[cfg(target_os = "android")]
         allow_lan,
         #[cfg(target_os = "android")]
+        allowed_endpoint.address.ip(),
+        #[cfg(target_os = "android")]
         custom_dns.clone(),
     );
 
@@ -114,6 +117,7 @@ pub async fn spawn(
             block_when_disconnected,
             is_offline,
             custom_dns,
+            allowed_endpoint,
             tunnel_parameters_generator,
             tun_provider,
             log_dir,
@@ -152,6 +156,9 @@ pub async fn spawn(
 pub enum TunnelCommand {
     /// Enable or disable LAN access in the firewall.
     AllowLan(bool),
+    /// Endpoint that should never be blocked.
+    /// If an error occurs, the sender is dropped.
+    AllowEndpoint(Endpoint, oneshot::Sender<()>),
     /// Set custom DNS servers to use.
     CustomDns(Option<Vec<IpAddr>>),
     /// Enable or disable the block_when_disconnected feature.
@@ -193,6 +200,7 @@ impl TunnelStateMachine {
         block_when_disconnected: bool,
         is_offline: bool,
         custom_dns: Option<Vec<IpAddr>>,
+        allowed_endpoint: Endpoint,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
         tun_provider: TunProvider,
         log_dir: Option<PathBuf>,
@@ -204,6 +212,7 @@ impl TunnelStateMachine {
         let args = FirewallArguments {
             initialize_blocked: block_when_disconnected || !reset_firewall,
             allow_lan,
+            allowed_endpoint: Some(allowed_endpoint),
         };
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
@@ -218,6 +227,7 @@ impl TunnelStateMachine {
             block_when_disconnected,
             is_offline,
             custom_dns,
+            allowed_endpoint,
             tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
             tun_provider,
             log_dir,
@@ -291,6 +301,8 @@ struct SharedTunnelStateValues {
     is_offline: bool,
     /// Custom DNS servers to use.
     custom_dns: Option<Vec<IpAddr>>,
+    /// Endpoint that should not be blocked by the firewall.
+    allowed_endpoint: Endpoint,
     /// The generator of new `TunnelParameter`s
     tunnel_parameters_generator: Box<dyn TunnelParametersGenerator>,
     /// The provider of tunnel devices.
@@ -326,6 +338,20 @@ impl SharedTunnelStateValues {
         }
 
         Ok(())
+    }
+
+    pub fn set_allowed_endpoint(&mut self, endpoint: Endpoint) -> bool {
+        if self.allowed_endpoint != endpoint {
+            self.allowed_endpoint = endpoint;
+
+            #[cfg(target_os = "android")]
+            self.tun_provider
+                .set_allowed_endpoint(endpoint.address.ip());
+
+            true
+        } else {
+            false
+        }
     }
 
     pub fn set_custom_dns(

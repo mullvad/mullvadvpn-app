@@ -48,7 +48,7 @@ use std::{
     io,
     marker::PhantomData,
     mem,
-    net::IpAddr,
+    net::{IpAddr, SocketAddr},
     path::PathBuf,
     sync::{mpsc as sync_mpsc, Arc, Weak},
     time::Duration,
@@ -62,7 +62,7 @@ use talpid_core::{
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 use talpid_types::{
-    net::{openvpn, TransportProtocol, TunnelParameters, TunnelType},
+    net::{openvpn, Endpoint, TransportProtocol, TunnelParameters, TunnelType},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
 };
@@ -260,6 +260,8 @@ pub(crate) enum InternalDaemonEvent {
     ),
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
+    /// A new API endpoint is being used
+    NewApiAddress(SocketAddr, oneshot::Sender<()>),
 }
 
 impl From<TunnelStateTransition> for InternalDaemonEvent {
@@ -483,6 +485,7 @@ where
         resource_dir: PathBuf,
         settings_dir: PathBuf,
         cache_dir: PathBuf,
+        user_cache_dir: PathBuf,
         event_listener: L,
         command_channel: DaemonCommandChannel,
         #[cfg(target_os = "android")] android_context: AndroidContext,
@@ -490,10 +493,29 @@ where
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
 
+        let (internal_event_tx, internal_event_rx) = command_channel.destructure();
+        let address_change_tx = std::sync::Mutex::new(internal_event_tx.clone());
+        let address_change_runtime = tokio::runtime::Handle::current();
+
         let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
             tokio::runtime::Handle::current(),
-            &resource_dir,
-            Some(&cache_dir),
+            Some(&resource_dir),
+            &user_cache_dir,
+            true,
+            move |address| {
+                let (result_tx, result_rx) = oneshot::channel();
+
+                let tx = address_change_tx.lock().unwrap();
+                if tx
+                    .send(InternalDaemonEvent::NewApiAddress(address, result_tx))
+                    .is_err()
+                {
+                    log::error!("Failed to send API address daemon event");
+                    return Err(());
+                }
+
+                address_change_runtime.block_on(result_rx).map_err(|_| ())
+            },
         )
         .await
         .map_err(Error::InitRpcFactory)?;
@@ -509,8 +531,6 @@ where
             &resource_dir,
             &cache_dir,
         );
-
-        let (internal_event_tx, internal_event_rx) = command_channel.destructure();
 
 
         let mut settings = SettingsPersister::load(&settings_dir);
@@ -576,10 +596,16 @@ where
             TargetState::Unsecured
         };
 
+        let initial_api_endpoint = Endpoint::from_socket_address(
+            rpc_runtime.address_cache.peek_address(),
+            TransportProtocol::Tcp,
+        );
+
         let tunnel_command_tx = tunnel_state_machine::spawn(
             settings.allow_lan,
             settings.block_when_disconnected,
             Self::get_custom_resolvers(&settings.tunnel_options.dns_options),
+            initial_api_endpoint,
             tunnel_parameters_generator,
             log_dir,
             resource_dir,
@@ -748,6 +774,12 @@ where
             }
             NewAppVersionInfo(app_version_info) => {
                 self.handle_new_app_version_info(app_version_info)
+            }
+            NewApiAddress(address, tx) => {
+                self.send_tunnel_command(TunnelCommand::AllowEndpoint(
+                    Endpoint::from_socket_address(address, TransportProtocol::Tcp),
+                    tx,
+                ));
             }
         }
     }
