@@ -50,6 +50,10 @@ class ConnectionProxy(val connection: Messenger, eventDispatcher: EventDispatche
         }
     }
 
+    fun sendVpnPermission(vpnPermission: Boolean) {
+        connection.send(Request.VpnPermissionResponse(vpnPermission).message)
+    }
+
     private fun handleNewState(newState: TunnelState) {
         synchronized(this) {
             resetAnticipatedStateJob?.cancel()
