@@ -9,6 +9,7 @@ import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.model.TunnelState
 
 sealed class Event : Parcelable {
     @Parcelize
@@ -28,6 +29,9 @@ sealed class Event : Parcelable {
 
     @Parcelize
     class SplitTunnelingUpdate(val excludedApps: ArrayList<String>?) : Event(), Parcelable
+
+    @Parcelize
+    class TunnelStateChange(val tunnelState: TunnelState) : Event(), Parcelable
 
     @Parcelize
     class WireGuardKeyStatus(val keyStatus: KeygenEvent?) : Event(), Parcelable
