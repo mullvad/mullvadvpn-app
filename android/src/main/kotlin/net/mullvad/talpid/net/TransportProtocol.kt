@@ -1,5 +1,9 @@
 package net.mullvad.talpid.net
 
-enum class TransportProtocol {
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+enum class TransportProtocol : Parcelable {
     Tcp, Udp
 }
