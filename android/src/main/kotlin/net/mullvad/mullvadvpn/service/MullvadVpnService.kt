@@ -240,6 +240,7 @@ class MullvadVpnService : TalpidVpnService() {
     private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
         val customDns = CustomDns(daemon, handler.settingsListener)
 
+        handler.customDns = customDns
         handler.daemon = daemon
 
         splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps ->

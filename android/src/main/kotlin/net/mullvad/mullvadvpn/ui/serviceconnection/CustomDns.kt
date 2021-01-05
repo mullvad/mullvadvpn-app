@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.os.Messenger
 import java.net.InetAddress
+import net.mullvad.mullvadvpn.service.Request
 import net.mullvad.talpid.util.EventNotifier
 
 class CustomDns(val connection: Messenger, settingsListener: SettingsListener) {
@@ -17,5 +18,37 @@ class CustomDns(val connection: Messenger, settingsListener: SettingsListener) {
                 }
             }
         }
+    }
+
+    fun enable() {
+        connection.send(Request.SetEnableCustomDns(true).message)
+    }
+
+    fun disable() {
+        connection.send(Request.SetEnableCustomDns(false).message)
+    }
+
+    fun addDnsServer(server: InetAddress): Boolean {
+        val alreadyHadServer = onDnsServersChanged.latestEvent.contains(server)
+
+        connection.send(Request.AddCustomDnsServer(server).message)
+
+        return alreadyHadServer
+    }
+
+    fun replaceDnsServer(oldServer: InetAddress, newServer: InetAddress): Boolean {
+        synchronized(this) {
+            val dnsServers = onDnsServersChanged.latestEvent
+            val containsOldServer = dnsServers.contains(oldServer)
+            val replacementIsValid = oldServer == newServer || !dnsServers.contains(newServer)
+
+            connection.send(Request.ReplaceCustomDnsServer(oldServer, newServer).message)
+
+            return containsOldServer && replacementIsValid
+        }
+    }
+
+    fun removeDnsServer(server: InetAddress) {
+        connection.send(Request.RemoveCustomDnsServer(server).message)
     }
 }
