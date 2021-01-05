@@ -10,7 +10,13 @@ sealed class Request : Message.RequestMessage() {
     protected override val messageKey = MESSAGE_KEY
 
     @Parcelize
+    object Connect : Request()
+
+    @Parcelize
     object CreateAccount : Request()
+
+    @Parcelize
+    object Disconnect : Request()
 
     @Parcelize
     data class ExcludeApp(val packageName: String) : Request()
@@ -32,6 +38,9 @@ sealed class Request : Message.RequestMessage() {
 
     @Parcelize
     object PersistExcludedApps : Request()
+
+    @Parcelize
+    object Reconnect : Request()
 
     @Parcelize
     data class RegisterListener(val listener: Messenger) : Request()
