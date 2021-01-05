@@ -17,7 +17,6 @@ import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
-import net.mullvad.talpid.util.autoSubscribable
 
 class LocationInfoCache(private val endpoint: ServiceEndpoint) {
     companion object {
@@ -61,11 +60,11 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
         }
     }
 
-    var stateEvents by autoSubscribable<TunnelState>(this, TunnelState.Disconnected()) { newState ->
-        state = newState
-    }
-
     init {
+        endpoint.connectionProxy.onStateChange.subscribe(this) { newState ->
+            state = newState
+        }
+
         endpoint.connectivityListener.connectivityNotifier.subscribe(this) { isConnected ->
             if (isConnected && state is TunnelState.Disconnected) {
                 fetchRequestChannel.sendBlocking(RequestFetch.ForRealLocation)
@@ -97,9 +96,9 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
     }
 
     fun onDestroy() {
+        endpoint.connectionProxy.onStateChange.unsubscribe(this)
         endpoint.connectivityListener.connectivityNotifier.unsubscribe(this)
         endpoint.settingsListener.relaySettingsNotifier.unsubscribe(this)
-        stateEvents = null
 
         fetchRequestChannel.close()
     }
