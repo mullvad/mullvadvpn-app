@@ -7,6 +7,7 @@ import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.model.TunnelState
 
 sealed class Event {
     abstract val type: Type
@@ -107,6 +108,24 @@ sealed class Event {
         }
     }
 
+    class TunnelStateChange(val tunnelState: TunnelState) : Event() {
+        companion object {
+            private val tunnelStateKey = "tunnelState"
+
+            fun buildTunnelState(data: Bundle): TunnelState {
+                return data.getParcelable(tunnelStateKey) ?: TunnelState.Disconnected()
+            }
+        }
+
+        override val type = Type.TunnelStateChange
+
+        constructor(data: Bundle) : this(buildTunnelState(data)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putParcelable(tunnelStateKey, tunnelState)
+        }
+    }
+
     class WireGuardKeyStatus(val keyStatus: KeygenEvent?) : Event() {
         companion object {
             private val keyStatusKey = "keyStatus"
@@ -128,6 +147,7 @@ sealed class Event {
         NewLocation({ data -> NewLocation(data) }),
         SettingsUpdate({ data -> SettingsUpdate(data) }),
         SplitTunnelingUpdate({ data -> SplitTunnelingUpdate(data) }),
+        TunnelStateChange({ data -> TunnelStateChange(data) }),
         WireGuardKeyStatus({ data -> WireGuardKeyStatus(data) }),
     }
 
