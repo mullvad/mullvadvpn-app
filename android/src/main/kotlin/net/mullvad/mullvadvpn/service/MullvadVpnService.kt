@@ -56,8 +56,6 @@ class MullvadVpnService : TalpidVpnService() {
 
     private var instance by observable<ServiceInstance?>(null) { _, oldInstance, newInstance ->
         if (newInstance != oldInstance) {
-            oldInstance?.onDestroy()
-
             accountExpiryNotification = newInstance?.let { instance ->
                 AccountExpiryNotification(this, instance.daemon, endpoint.accountCache)
             }
@@ -243,12 +241,7 @@ class MullvadVpnService : TalpidVpnService() {
         handlePendingAction(settings)
 
         if (state == State.Running) {
-            instance = ServiceInstance(
-                endpoint.messenger,
-                daemon,
-                daemonInstance.intermittentDaemon,
-                customDns
-            )
+            instance = ServiceInstance(endpoint.messenger, daemon)
         }
     }
 
