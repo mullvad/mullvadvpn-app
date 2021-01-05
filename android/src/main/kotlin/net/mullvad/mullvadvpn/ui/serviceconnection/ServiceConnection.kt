@@ -44,7 +44,6 @@ class ServiceConnection(private val service: ServiceInstance, mainActivity: Main
 
     init {
         appVersionInfoCache.onCreate()
-        service.connectionProxy.mainActivity = mainActivity
         registerListener()
     }
 
@@ -59,7 +58,6 @@ class ServiceConnection(private val service: ServiceInstance, mainActivity: Main
 
         appVersionInfoCache.onDestroy()
         relayListListener.onDestroy()
-        service.connectionProxy.mainActivity = null
     }
 
     private fun registerListener() {
