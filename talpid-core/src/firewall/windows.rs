@@ -58,27 +58,35 @@ impl FirewallT for Firewall {
         if args.initialize_blocked {
             let cfg = &WinFwSettings::new(args.allow_lan);
 
-            let winfw_allowed_endpoint = if let Some(allowed_endpoint) = args.allowed_endpoint {
+            if let Some(allowed_endpoint) = args.allowed_endpoint {
                 let allowed_endpoint_ip = Self::widestring_ip(allowed_endpoint.address.ip());
-                Some(WinFwEndpoint {
+                let winfw_allowed_endpoint = Some(WinFwEndpoint {
                     ip: allowed_endpoint_ip.as_ptr(),
                     port: allowed_endpoint.address.port(),
                     protocol: WinFwProt::from(allowed_endpoint.protocol),
-                })
+                });
+                unsafe {
+                    WinFw_InitializeBlocked(
+                        WINFW_TIMEOUT_SECONDS,
+                        &cfg,
+                        winfw_allowed_endpoint.as_ptr(),
+                        Some(log_sink),
+                        logging_context,
+                    )
+                    .into_result()?
+                };
             } else {
-                None
-            };
-
-            unsafe {
-                WinFw_InitializeBlocked(
-                    WINFW_TIMEOUT_SECONDS,
-                    &cfg,
-                    winfw_allowed_endpoint.as_ptr(),
-                    Some(log_sink),
-                    logging_context,
-                )
-                .into_result()?
-            };
+                unsafe {
+                    WinFw_InitializeBlocked(
+                        WINFW_TIMEOUT_SECONDS,
+                        &cfg,
+                        ptr::null_mut(),
+                        Some(log_sink),
+                        logging_context,
+                    )
+                    .into_result()?
+                };
+            }
         } else {
             unsafe {
                 WinFw_Initialize(WINFW_TIMEOUT_SECONDS, Some(log_sink), logging_context)
