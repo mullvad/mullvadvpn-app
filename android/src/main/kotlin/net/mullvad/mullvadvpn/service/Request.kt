@@ -3,6 +3,8 @@ package net.mullvad.mullvadvpn.service
 import android.os.Bundle
 import android.os.Message
 import android.os.Messenger
+import java.net.InetAddress
+import net.mullvad.mullvadvpn.util.ParcelableInetAddress
 import org.joda.time.DateTime
 
 sealed class Request {
@@ -21,6 +23,26 @@ sealed class Request {
     }
 
     open fun prepareData(data: Bundle) {}
+
+    class AddCustomDnsServer(val address: InetAddress) : Request() {
+        companion object {
+            private val addressKey = "address"
+
+            fun buildAddress(data: Bundle): InetAddress {
+                val wrappedAddress: ParcelableInetAddress = data.getParcelable(addressKey)!!
+
+                return wrappedAddress.address
+            }
+        }
+
+        override val type = Type.AddCustomDnsServer
+
+        constructor(data: Bundle) : this(buildAddress(data)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putParcelable(addressKey, ParcelableInetAddress(address))
+        }
+    }
 
     class Connect : Request() {
         override val type = Type.Connect
@@ -127,11 +149,73 @@ sealed class Request {
         }
     }
 
+    class RemoveCustomDnsServer(val address: InetAddress) : Request() {
+        companion object {
+            private val addressKey = "address"
+
+            fun buildAddress(data: Bundle): InetAddress {
+                val wrappedAddress: ParcelableInetAddress = data.getParcelable(addressKey)!!
+
+                return wrappedAddress.address
+            }
+        }
+
+        override val type = Type.RemoveCustomDnsServer
+
+        constructor(data: Bundle) : this(buildAddress(data)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putParcelable(addressKey, ParcelableInetAddress(address))
+        }
+    }
+
+    class ReplaceCustomDnsServer(
+        val oldAddress: InetAddress,
+        val newAddress: InetAddress
+    ) : Request() {
+        companion object {
+            private val oldAddressKey = "oldAddress"
+            private val newAddressKey = "newAddress"
+
+            fun buildAddress(data: Bundle, key: String): InetAddress {
+                val wrappedAddress: ParcelableInetAddress = data.getParcelable(key)!!
+
+                return wrappedAddress.address
+            }
+        }
+
+        override val type = Type.ReplaceCustomDnsServer
+
+        constructor(data: Bundle) : this(
+            buildAddress(data, oldAddressKey),
+            buildAddress(data, newAddressKey)
+        ) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putParcelable(oldAddressKey, ParcelableInetAddress(oldAddress))
+            data.putParcelable(newAddressKey, ParcelableInetAddress(newAddress))
+        }
+    }
+
     class RegisterListener(val listener: Messenger) : Request() {
         override val type = Type.RegisterListener
 
         override fun prepareMessage(message: Message) {
             message.replyTo = listener
+        }
+    }
+
+    class SetEnableCustomDns(val enable: Boolean) : Request() {
+        companion object {
+            private val enableKey = "enable"
+        }
+
+        override val type = Type.SetEnableCustomDns
+
+        constructor(data: Bundle) : this(data.getBoolean(enableKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putBoolean(enableKey, enable)
         }
     }
 
@@ -174,6 +258,7 @@ sealed class Request {
     }
 
     enum class Type(val build: (Message) -> Request) {
+        AddCustomDnsServer({ message -> AddCustomDnsServer(message.data) }),
         Connect({ _ -> Connect() }),
         CreateAccount({ _ -> CreateAccount() }),
         Disconnect({ _ -> Disconnect() }),
@@ -187,6 +272,9 @@ sealed class Request {
         Reconnect({ _ -> Reconnect() }),
         RegisterListener({ message -> RegisterListener(message.replyTo) }),
         RemoveAccountFromHistory({ message -> RemoveAccountFromHistory(message.data) }),
+        RemoveCustomDnsServer({ message -> RemoveCustomDnsServer(message.data) }),
+        ReplaceCustomDnsServer({ message -> ReplaceCustomDnsServer(message.data) }),
+        SetEnableCustomDns({ message -> SetEnableCustomDns(message.data) }),
         SetEnableSplitTunneling({ message -> SetEnableSplitTunneling(message.data) }),
         VpnPermissionResponse({ message -> VpnPermissionResponse(message.data) }),
         WireGuardGenerateKey({ _ -> WireGuardGenerateKey() }),
