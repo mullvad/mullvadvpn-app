@@ -237,7 +237,9 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
-        val customDns = CustomDns(daemon, endpoint.settingsListener)
+        val customDns = CustomDns(endpoint)
+
+        endpoint.customDns = customDns
 
         handlePendingAction(settings)
 

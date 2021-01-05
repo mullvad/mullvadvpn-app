@@ -3,16 +3,21 @@ package net.mullvad.mullvadvpn.service
 import java.net.InetAddress
 import java.util.ArrayList
 import kotlin.properties.Delegates.observable
+import kotlinx.coroutines.runBlocking
+import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.DnsOptions
-import net.mullvad.mullvadvpn.service.endpoint.SettingsListener
+import net.mullvad.mullvadvpn.service.endpoint.ServiceEndpoint
 import net.mullvad.talpid.util.EventNotifier
 
-class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
+class CustomDns(private val endpoint: ServiceEndpoint) {
     private var enabled by observable(false) { _, oldValue, newValue ->
         if (oldValue != newValue) {
             onEnabledChanged.notify(newValue)
         }
     }
+
+    private val daemon
+        get() = runBlocking { endpoint.intermittentDaemon.await() }
 
     private var dnsServers by observable<ArrayList<InetAddress>>(ArrayList()) { _, _, servers ->
         onDnsServersChanged.notify(servers.toList())
@@ -22,16 +27,38 @@ class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListene
     val onDnsServersChanged = EventNotifier<List<InetAddress>>(emptyList())
 
     init {
-        settingsListener.dnsOptionsNotifier.subscribe(this) { maybeDnsOptions ->
+        endpoint.settingsListener.dnsOptionsNotifier.subscribe(this) { maybeDnsOptions ->
             maybeDnsOptions?.let { dnsOptions ->
                 enabled = dnsOptions.custom
                 dnsServers = dnsOptions.addresses
             }
         }
+
+        endpoint.dispatcher.apply {
+            registerHandler(Request.AddCustomDnsServer::class) { request ->
+                addDnsServer(request.address)
+            }
+
+            registerHandler(Request.RemoveCustomDnsServer::class) { request ->
+                removeDnsServer(request.address)
+            }
+
+            registerHandler(Request.ReplaceCustomDnsServer::class) { request ->
+                replaceDnsServer(request.oldAddress, request.newAddress)
+            }
+
+            registerHandler(Request.SetEnableCustomDns::class) { request ->
+                if (request.enable) {
+                    enable()
+                } else {
+                    disable()
+                }
+            }
+        }
     }
 
     fun onDestroy() {
-        settingsListener.dnsOptionsNotifier.unsubscribe(this)
+        endpoint.settingsListener.dnsOptionsNotifier.unsubscribe(this)
     }
 
     fun enable() {
