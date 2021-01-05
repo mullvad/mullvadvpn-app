@@ -102,7 +102,6 @@ class MullvadVpnService : TalpidVpnService() {
 
         daemonInstance = DaemonInstance(this)
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
         endpoint = ServiceEndpoint(
             Looper.getMainLooper(),
@@ -110,6 +109,8 @@ class MullvadVpnService : TalpidVpnService() {
             connectivityListener,
             this
         )
+
+        tunnelStateUpdater = TunnelStateUpdater(this, connectionProxy)
 
         notificationManager =
             ForegroundNotificationManager(this, connectionProxy, keyguardManager).apply {
