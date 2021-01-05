@@ -2,12 +2,16 @@ package net.mullvad.mullvadvpn.ipc
 
 import android.os.Message as RawMessage
 import android.os.Messenger
+import java.net.InetAddress
 import kotlinx.parcelize.Parcelize
 import org.joda.time.DateTime
 
 // Requests that the service can handle
 sealed class Request : Message.RequestMessage() {
     protected override val messageKey = MESSAGE_KEY
+
+    @Parcelize
+    data class AddCustomDnsServer(val address: InetAddress) : Request()
 
     @Parcelize
     object Connect : Request()
@@ -47,6 +51,18 @@ sealed class Request : Message.RequestMessage() {
 
     @Parcelize
     data class RemoveAccountFromHistory(val account: String?) : Request()
+
+    @Parcelize
+    data class RemoveCustomDnsServer(val address: InetAddress) : Request()
+
+    @Parcelize
+    data class ReplaceCustomDnsServer(
+        val oldAddress: InetAddress,
+        val newAddress: InetAddress
+    ) : Request()
+
+    @Parcelize
+    data class SetEnableCustomDns(val enable: Boolean) : Request()
 
     @Parcelize
     data class SetEnableSplitTunneling(val enable: Boolean) : Request()
