@@ -13,9 +13,6 @@ import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
@@ -131,7 +128,7 @@ class MainActivity : FragmentActivity() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        setVpnPermission(resultCode == Activity.RESULT_OK)
+        serviceConnection?.connectionProxy?.sendVpnPermission(resultCode == Activity.RESULT_OK)
     }
 
     override fun onBackPressed() {
@@ -220,9 +217,5 @@ class MainActivity : FragmentActivity() {
             add(R.id.main_fragment, LaunchFragment())
             commit()
         }
-    }
-
-    private fun setVpnPermission(allow: Boolean) = GlobalScope.launch(Dispatchers.Default) {
-        serviceConnection?.service?.connectionProxy?.vpnPermission?.update(allow)
     }
 }
