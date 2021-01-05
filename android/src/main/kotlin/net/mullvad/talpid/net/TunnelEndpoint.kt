@@ -1,3 +1,7 @@
 package net.mullvad.talpid.net
 
-data class TunnelEndpoint(val endpoint: Endpoint)
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class TunnelEndpoint(val endpoint: Endpoint) : Parcelable

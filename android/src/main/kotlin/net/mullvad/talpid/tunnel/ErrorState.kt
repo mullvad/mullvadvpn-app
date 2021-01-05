@@ -1,3 +1,7 @@
 package net.mullvad.talpid.tunnel
 
-data class ErrorState(val cause: ErrorStateCause, val isBlocking: Boolean)
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class ErrorState(val cause: ErrorStateCause, val isBlocking: Boolean) : Parcelable
