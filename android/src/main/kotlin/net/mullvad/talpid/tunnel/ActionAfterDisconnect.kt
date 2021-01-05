@@ -1,5 +1,9 @@
 package net.mullvad.talpid.tunnel
 
-enum class ActionAfterDisconnect {
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+enum class ActionAfterDisconnect : Parcelable {
     Nothing, Block, Reconnect
 }

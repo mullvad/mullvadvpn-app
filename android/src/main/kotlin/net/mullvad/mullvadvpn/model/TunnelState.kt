@@ -1,16 +1,35 @@
 package net.mullvad.mullvadvpn.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import net.mullvad.talpid.net.TunnelEndpoint
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
 
-sealed class TunnelState() {
-    object Disconnected : TunnelState()
-    class Connecting(val endpoint: TunnelEndpoint?, val location: GeoIpLocation?) : TunnelState()
-    class Connected(val endpoint: TunnelEndpoint, val location: GeoIpLocation?) : TunnelState()
-    class Disconnecting(val actionAfterDisconnect: ActionAfterDisconnect) : TunnelState()
-    class Error(val errorState: ErrorState) : TunnelState()
+sealed class TunnelState() : Parcelable {
+    @Parcelize
+    object Disconnected : TunnelState(), Parcelable
+
+    @Parcelize
+    class Connecting(
+        val endpoint: TunnelEndpoint?,
+        val location: GeoIpLocation?
+    ) : TunnelState(), Parcelable
+
+    @Parcelize
+    class Connected(
+        val endpoint: TunnelEndpoint,
+        val location: GeoIpLocation?
+    ) : TunnelState(), Parcelable
+
+    @Parcelize
+    class Disconnecting(
+        val actionAfterDisconnect: ActionAfterDisconnect
+    ) : TunnelState(), Parcelable
+
+    @Parcelize
+    class Error(val errorState: ErrorState) : TunnelState(), Parcelable
 
     companion object {
         const val DISCONNECTED = "disconnected"
@@ -37,7 +56,7 @@ sealed class TunnelState() {
         }
     }
 
-    override fun toString() = when (this) {
+    override fun toString(): String = when (this) {
         is TunnelState.Disconnected -> DISCONNECTED
         is TunnelState.Connecting -> CONNECTING
         is TunnelState.Connected -> CONNECTED
