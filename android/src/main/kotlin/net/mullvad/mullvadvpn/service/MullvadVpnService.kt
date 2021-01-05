@@ -246,7 +246,6 @@ class MullvadVpnService : TalpidVpnService() {
                 endpoint.messenger,
                 daemon,
                 daemonInstance.intermittentDaemon,
-                connectionProxy,
                 customDns
             )
         }
