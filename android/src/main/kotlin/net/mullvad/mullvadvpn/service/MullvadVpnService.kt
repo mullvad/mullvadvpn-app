@@ -104,7 +104,7 @@ class MullvadVpnService : TalpidVpnService() {
 
         connectionProxy = ConnectionProxy(this)
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
+        tunnelStateUpdater = TunnelStateUpdater(this, connectionProxy)
 
         splitTunneling = SplitTunneling(this@MullvadVpnService).apply {
             onChange.subscribe(this@MullvadVpnService) { excludedApps ->
