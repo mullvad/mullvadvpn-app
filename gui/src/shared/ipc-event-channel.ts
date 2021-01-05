@@ -1,3 +1,4 @@
+import { GetTextTranslations } from 'gettext-parser';
 import { ICurrentAppVersionInfo } from '../main/index';
 import { IWindowShapeParameters } from '../main/window-controller';
 import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
@@ -33,6 +34,12 @@ interface ILogEntry {
   message: string;
 }
 
+export interface ITranslations {
+  locale: string;
+  messages?: GetTextTranslations;
+  relayLocations?: GetTextTranslations;
+}
+
 export interface IRelayListPair {
   relays: IRelayList;
   bridges: IRelayList;
@@ -52,6 +59,7 @@ export interface IAppStateSnapshot {
   upgradeVersion: IAppVersionInfo;
   guiSettings: IGuiSettingsState;
   wireguardPublicKey?: IWireguardPublicKey;
+  translations: ITranslations;
 }
 
 // The different types of requests are:
@@ -96,9 +104,6 @@ export interface IAppStateSnapshot {
 const ipc = {
   state: {
     get: invokeSync<void, IAppStateSnapshot>(),
-  },
-  locale: {
-    '': notifyRenderer<string>(),
   },
   windowShape: {
     '': notifyRenderer<IWindowShapeParameters>(),
@@ -155,7 +160,7 @@ const ipc = {
     setAutoConnect: send<boolean>(),
     setStartMinimized: send<boolean>(),
     setMonochromaticIcon: send<boolean>(),
-    setPreferredLocale: send<string>(),
+    setPreferredLocale: invoke<string, ITranslations>(),
     setUnpinnedWindow: send<boolean>(),
   },
   account: {
