@@ -14,13 +14,13 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.service.endpoint.ConnectionProxy
 import net.mullvad.mullvadvpn.service.notifications.TunnelStateNotification
-import net.mullvad.talpid.util.EventNotifier
 import net.mullvad.talpid.util.autoSubscribable
 
 class ForegroundNotificationManager(
     val service: MullvadVpnService,
-    val serviceNotifier: EventNotifier<ServiceInstance?>,
+    val connectionProxy: ConnectionProxy,
     val keyguardManager: KeyguardManager
 ) {
     private sealed class UpdaterMessage {
@@ -43,13 +43,6 @@ class ForegroundNotificationManager(
         }
     }
 
-    private var tunnelStateEvents by autoSubscribable<TunnelState>(
-        this,
-        TunnelState.Disconnected
-    ) { newState ->
-        updater.sendBlocking(UpdaterMessage.NewTunnelState(newState))
-    }
-
     private var deviceIsUnlocked by observable(!keyguardManager.isDeviceLocked) { _, _, _ ->
         updater.sendBlocking(UpdaterMessage.UpdateAction())
     }
@@ -59,7 +52,7 @@ class ForegroundNotificationManager(
     }
 
     private val tunnelState
-        get() = tunnelStateEvents?.latestEvent ?: TunnelState.Disconnected
+        get() = connectionProxy.onStateChange.latestEvent
 
     private val shouldBeOnForeground
         get() = lockedToForeground || !(tunnelState is TunnelState.Disconnected)
@@ -76,8 +69,8 @@ class ForegroundNotificationManager(
     }
 
     init {
-        serviceNotifier.subscribe(this) { newServiceInstance ->
-            tunnelStateEvents = newServiceInstance?.connectionProxy?.onStateChange
+        connectionProxy.onStateChange.subscribe(this) { newState ->
+            updater.sendBlocking(UpdaterMessage.NewTunnelState(newState))
         }
 
         service.apply {
@@ -94,11 +87,9 @@ class ForegroundNotificationManager(
     }
 
     fun onDestroy() {
-        serviceNotifier.unsubscribe(this)
-
         accountNumberEvents = null
-        tunnelStateEvents = null
 
+        connectionProxy.onStateChange.unsubscribe(this)
         service.unregisterReceiver(deviceLockListener)
 
         updater.close()
