@@ -55,6 +55,10 @@ class ServiceHandler(
     }
 
     init {
+        connectionProxy.onStateChange.subscribe(this) { tunnelState ->
+            sendEvent(Event.TunnelStateChange(tunnelState))
+        }
+
         splitTunneling.onChange.subscribe(this) { excludedApps ->
             sendEvent(Event.SplitTunnelingUpdate(excludedApps))
         }
