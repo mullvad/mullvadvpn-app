@@ -117,7 +117,12 @@ class MullvadVpnService : TalpidVpnService() {
             handleDaemonInstance(daemon)
         }
 
-        handler = ServiceHandler(Looper.getMainLooper(), connectivityListener, splitTunneling)
+        handler = ServiceHandler(
+            Looper.getMainLooper(),
+            connectionProxy,
+            connectivityListener,
+            splitTunneling
+        )
         messenger = Messenger(handler)
 
         notificationManager =
@@ -235,8 +240,6 @@ class MullvadVpnService : TalpidVpnService() {
     private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
         val customDns = CustomDns(daemon, handler.settingsListener)
 
-        connectionProxy.daemon = daemon
-
         handler.daemon = daemon
 
         splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps ->
@@ -246,8 +249,6 @@ class MullvadVpnService : TalpidVpnService() {
         }
 
         handlePendingAction(settings)
-
-        handler.locationInfoCache.stateEvents = connectionProxy.onStateChange
 
         if (state == State.Running) {
             instance = ServiceInstance(

@@ -10,6 +10,7 @@ import net.mullvad.talpid.ConnectivityListener
 
 class ServiceHandler(
     looper: Looper,
+    val connectionProxy: ConnectionProxy,
     connectivityListener: ConnectivityListener,
     val splitTunneling: SplitTunneling
 ) : Handler(looper) {
@@ -38,6 +39,8 @@ class ServiceHandler(
     }
 
     val locationInfoCache = LocationInfoCache(connectivityListener, settingsListener).apply {
+        stateEvents = connectionProxy.onStateChange
+
         onNewLocation = { location ->
             sendEvent(Event.NewLocation(location))
         }
@@ -46,6 +49,7 @@ class ServiceHandler(
     var daemon by observable<MullvadDaemon?>(null) { _, _, newDaemon ->
         settingsListener.daemon = newDaemon
         accountCache.daemon = newDaemon
+        connectionProxy.daemon = newDaemon
         keyStatusListener.daemon = newDaemon
         locationInfoCache.daemon = newDaemon
     }
