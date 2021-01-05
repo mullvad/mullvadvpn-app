@@ -26,8 +26,6 @@ class ConnectionProxy(val context: Context, endpoint: ServiceEndpoint) {
     private val daemon = endpoint.intermittentDaemon
     private val initialState = TunnelState.Disconnected()
 
-    var mainActivity: MainActivity? = null
-
     val vpnPermission = Intermittent<Boolean>()
 
     var onStateChange = EventNotifier<TunnelState>(initialState)
@@ -104,19 +102,13 @@ class ConnectionProxy(val context: Context, endpoint: ServiceEndpoint) {
         if (intent == null) {
             vpnPermission.update(true)
         } else {
-            val activity = mainActivity
-
-            if (activity != null) {
-                activity.requestVpnPermission(intent)
-            } else {
-                val activityIntent = Intent(context, MainActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    putExtra(MainActivity.KEY_SHOULD_CONNECT, true)
-                }
-
-                context.startActivity(activityIntent)
+            val activityIntent = Intent(context, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                putExtra(MainActivity.KEY_SHOULD_CONNECT, true)
             }
+
+            context.startActivity(activityIntent)
         }
     }
 
