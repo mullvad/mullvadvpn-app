@@ -34,7 +34,7 @@ import {
   RelaySettingsUpdate,
   TunnelState,
 } from '../shared/daemon-rpc-types';
-import { loadTranslations, messages } from '../shared/gettext';
+import { messages, relayLocations } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcMainEventChannel } from '../shared/ipc-event-channel';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
@@ -65,11 +65,13 @@ import {
   IpcInput,
   OLD_LOG_FILES,
 } from './logging';
+import { loadTranslations } from './load-translations';
 import NotificationController from './notification-controller';
 import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
 import WindowController from './window-controller';
+import { ITranslations } from '../shared/ipc-schema';
 
 // Only import when running app on Linux.
 const linuxSplitTunneling = process.platform === 'linux' && require('./linux-split-tunneling');
@@ -204,6 +206,7 @@ class ApplicationMain {
   private autoConnectFallbackScheduler = new Scheduler();
 
   private rendererLog?: Logger;
+  private translations: ITranslations = { locale: this.locale };
 
   public run() {
     // Remove window animations to combat window flickering when opening window. Can be removed when
@@ -373,7 +376,7 @@ class ApplicationMain {
 
     this.blockRequests();
 
-    this.updateCurrentLocale();
+    this.translations = this.updateCurrentLocale();
 
     this.daemonRpc.addConnectionObserver(
       new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
@@ -1007,6 +1010,7 @@ class ApplicationMain {
       upgradeVersion: this.upgradeVersion,
       guiSettings: this.guiSettings.state,
       wireguardPublicKey: this.wireguardPublicKey,
+      translations: this.translations,
     }));
 
     IpcMainEventChannel.settings.handleSetAllowLan((allowLan: boolean) =>
@@ -1074,7 +1078,7 @@ class ApplicationMain {
 
     IpcMainEventChannel.guiSettings.handleSetPreferredLocale((locale: string) => {
       this.guiSettings.preferredLocale = locale;
-      this.didChangeLocale();
+      return Promise.resolve(this.updateCurrentLocale());
     });
 
     IpcMainEventChannel.account.handleCreate(() => this.createNewAccount());
@@ -1368,15 +1372,13 @@ class ApplicationMain {
 
     log.info(`Detected locale: ${this.locale}`);
 
-    loadTranslations(this.locale, messages);
-  }
-
-  private didChangeLocale() {
-    this.updateCurrentLocale();
-
-    if (this.windowController) {
-      IpcMainEventChannel.locale.notify(this.windowController.webContents, this.locale);
-    }
+    const messagesTranslations = loadTranslations(this.locale, messages);
+    const relayLocationsTranslations = loadTranslations(this.locale, relayLocations);
+    return {
+      locale: this.locale,
+      messages: messagesTranslations,
+      relayLocations: relayLocationsTranslations,
+    };
   }
 
   // Since the app frontend never performs any network requests, all requests originating from the

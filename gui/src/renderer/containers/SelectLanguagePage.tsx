@@ -11,8 +11,8 @@ const mapStateToProps = (state: IReduxState) => ({
 const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
   return {
     preferredLocalesList: props.app.getPreferredLocaleList(),
-    setPreferredLocale(locale: string) {
-      props.app.setPreferredLocale(locale);
+    async setPreferredLocale(locale: string) {
+      await props.app.setPreferredLocale(locale);
       props.history.goBack();
     },
     onClose() {
