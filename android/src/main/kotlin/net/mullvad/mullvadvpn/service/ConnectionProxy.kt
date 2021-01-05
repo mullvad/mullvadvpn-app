@@ -52,6 +52,10 @@ class ConnectionProxy(val context: Context, endpoint: ServiceEndpoint) {
         daemon.registerListener(this) { newDaemon ->
             newDaemon?.onTunnelStateChange = { newState -> handleNewState(newState) }
         }
+
+        onStateChange.subscribe(this) { tunnelState ->
+            endpoint.sendEvent(Event.TunnelStateChange(tunnelState))
+        }
     }
 
     fun connect() {
