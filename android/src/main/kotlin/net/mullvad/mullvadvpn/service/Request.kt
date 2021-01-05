@@ -4,10 +4,14 @@ import android.os.Bundle
 import android.os.Message
 import android.os.Messenger
 import android.os.Parcelable
+import java.net.InetAddress
 import kotlinx.parcelize.Parcelize
 import org.joda.time.DateTime
 
 sealed class Request : Parcelable {
+    @Parcelize
+    class AddCustomDnsServer(val address: InetAddress) : Request(), Parcelable
+
     @Parcelize
     class Connect : Request(), Parcelable
 
@@ -46,6 +50,18 @@ sealed class Request : Parcelable {
 
     @Parcelize
     class RemoveAccountFromHistory(val account: String?) : Request(), Parcelable
+
+    @Parcelize
+    class RemoveCustomDnsServer(val address: InetAddress) : Request(), Parcelable
+
+    @Parcelize
+    class ReplaceCustomDnsServer(
+        val oldAddress: InetAddress,
+        val newAddress: InetAddress
+    ) : Request(), Parcelable
+
+    @Parcelize
+    class SetEnableCustomDns(val enable: Boolean) : Request(), Parcelable
 
     @Parcelize
     class SetEnableSplitTunneling(val enable: Boolean) : Request(), Parcelable

@@ -37,6 +37,8 @@ class ServiceEndpoint(
     val locationInfoCache = LocationInfoCache(this)
     val splitTunneling = SplitTunneling(context, this)
 
+    var customDns: CustomDns? = null
+
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
             registrationQueue.sendBlocking(request.listener)
