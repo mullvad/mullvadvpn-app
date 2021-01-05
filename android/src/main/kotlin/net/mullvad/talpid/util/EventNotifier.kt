@@ -26,6 +26,14 @@ class EventNotifier<T>(private val initialValue: T) {
         }
     }
 
+    fun notifyIfChanged(event: T) {
+        synchronized(this) {
+            if (latestEvent != event) {
+                notify(event)
+            }
+        }
+    }
+
     fun subscribe(id: Any, listener: (T) -> Unit) {
         synchronized(this) {
             listeners.put(id, listener)
