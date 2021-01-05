@@ -112,7 +112,7 @@ class MullvadVpnService : TalpidVpnService() {
         )
 
         notificationManager =
-            ForegroundNotificationManager(this, serviceNotifier, keyguardManager).apply {
+            ForegroundNotificationManager(this, connectionProxy, keyguardManager).apply {
                 acknowledgeStartForegroundService()
                 accountNumberEvents = endpoint.settingsListener.accountNumberNotifier
             }
