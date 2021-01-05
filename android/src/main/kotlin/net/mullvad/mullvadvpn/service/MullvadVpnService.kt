@@ -243,8 +243,6 @@ class MullvadVpnService : TalpidVpnService() {
 
         handlePendingAction(settings)
 
-        endpoint.locationInfoCache.stateEvents = connectionProxy.onStateChange
-
         if (state == State.Running) {
             instance = ServiceInstance(
                 endpoint.messenger,
