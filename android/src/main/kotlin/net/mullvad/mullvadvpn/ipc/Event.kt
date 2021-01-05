@@ -6,6 +6,7 @@ import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.model.TunnelState
 
 // Events that can be sent from the service
 sealed class Event : Message.EventMessage() {
@@ -28,6 +29,9 @@ sealed class Event : Message.EventMessage() {
 
     @Parcelize
     data class SplitTunnelingUpdate(val excludedApps: List<String>?) : Event()
+
+    @Parcelize
+    data class TunnelStateChange(val tunnelState: TunnelState) : Event()
 
     @Parcelize
     data class WireGuardKeyStatus(val keyStatus: KeygenEvent?) : Event()
