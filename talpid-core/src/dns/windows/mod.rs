@@ -160,8 +160,13 @@ fn set_dns_cache_policy(servers: &[IpAddr]) -> Result<(), Error> {
 }
 
 fn set_dns_cache_policy_inner(transaction: &Transaction, servers: &[IpAddr]) -> Result<(), Error> {
-    let dns_cache_parameters = RegKey::predef(HKEY_LOCAL_MACHINE)
-        .open_subkey(r#"SYSTEM\CurrentControlSet\Services\DnsCache\Parameters"#)?;
+    let (dns_cache_parameters, _) = RegKey::predef(HKEY_LOCAL_MACHINE).create_subkey_transacted(
+        r#"SYSTEM\CurrentControlSet\Services\DnsCache\Parameters"#,
+        transaction,
+    )?;
+
+    // Fall back on LLMNR and NetBIOS if DNS resolution fails
+    dns_cache_parameters.set_value("DnsSecureNameQueryFallback", &1u32)?;
 
     let policy_path = Path::new("DnsPolicyConfig").join(DNS_CACHE_POLICY_GUID);
     let (policy_config, _) =
@@ -186,8 +191,18 @@ fn set_dns_cache_policy_inner(transaction: &Transaction, servers: &[IpAddr]) -> 
 }
 
 fn reset_dns_cache_policy() -> Result<(), Error> {
-    let dns_cache_parameters = RegKey::predef(HKEY_LOCAL_MACHINE)
-        .open_subkey(r#"SYSTEM\CurrentControlSet\Services\DnsCache\Parameters"#)?;
+    let (dns_cache_parameters, _) = RegKey::predef(HKEY_LOCAL_MACHINE)
+        .create_subkey(r#"SYSTEM\CurrentControlSet\Services\DnsCache\Parameters"#)?;
+    match dns_cache_parameters.delete_value("DnsSecureNameQueryFallback") {
+        Ok(()) => Ok(()),
+        Err(error) => {
+            if error.kind() == io::ErrorKind::NotFound {
+                Ok(())
+            } else {
+                Err(Error::UpdateDnsCachePolicy(error))
+            }
+        }
+    }?;
     let policy_path = Path::new("DnsPolicyConfig").join(DNS_CACHE_POLICY_GUID);
     match dns_cache_parameters.delete_subkey_all(policy_path) {
         Ok(()) => Ok(()),
