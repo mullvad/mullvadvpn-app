@@ -10,20 +10,21 @@ import net.mullvad.mullvadvpn.service.Event
 import net.mullvad.mullvadvpn.service.Request
 import net.mullvad.mullvadvpn.service.ServiceInstance
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.KeyStatusListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.util.DispatchingHandler
 
-class ServiceConnection(private val service: ServiceInstance, val mainActivity: MainActivity) {
+class ServiceConnection(val service: ServiceInstance, val mainActivity: MainActivity) {
     val dispatcher = DispatchingHandler(Looper.getMainLooper()) { message ->
         Event.fromMessage(message)
     }
 
     val daemon = service.daemon
     val accountCache = AccountCache(service.messenger, dispatcher)
-    val connectionProxy = service.connectionProxy
+    val connectionProxy = ConnectionProxy(service.messenger, dispatcher)
     val customDns = service.customDns
     val keyStatusListener = KeyStatusListener(service.messenger, dispatcher)
     val locationInfoCache = LocationInfoCache(dispatcher)
@@ -35,7 +36,7 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
 
     init {
         appVersionInfoCache.onCreate()
-        connectionProxy.mainActivity = mainActivity
+        service.connectionProxy.mainActivity = mainActivity
         registerListener()
     }
 
@@ -43,13 +44,14 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
         dispatcher.onDestroy()
 
         accountCache.onDestroy()
+        connectionProxy.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
 
         appVersionInfoCache.onDestroy()
         relayListListener.onDestroy()
-        connectionProxy.mainActivity = null
+        service.connectionProxy.mainActivity = null
     }
 
     private fun registerListener() {
