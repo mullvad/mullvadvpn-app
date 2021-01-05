@@ -22,8 +22,18 @@ sealed class Request {
 
     open fun prepareData(data: Bundle) {}
 
+    class Connect : Request() {
+        override val type = Type.Connect
+        override fun prepareMessage(message: Message) {}
+    }
+
     class CreateAccount : Request() {
         override val type = Type.CreateAccount
+        override fun prepareMessage(message: Message) {}
+    }
+
+    class Disconnect : Request() {
+        override val type = Type.Disconnect
         override fun prepareMessage(message: Message) {}
     }
 
@@ -98,6 +108,11 @@ sealed class Request {
         override fun prepareMessage(message: Message) {}
     }
 
+    class Reconnect : Request() {
+        override val type = Type.Reconnect
+        override fun prepareMessage(message: Message) {}
+    }
+
     class RemoveAccountFromHistory(val account: String?) : Request() {
         companion object {
             private val accountKey = "account"
@@ -145,7 +160,9 @@ sealed class Request {
     }
 
     enum class Type(val build: (Message) -> Request) {
+        Connect({ _ -> Connect() }),
         CreateAccount({ _ -> CreateAccount() }),
+        Disconnect({ _ -> Disconnect() }),
         ExcludeApp({ message -> ExcludeApp(message.data) }),
         FetchAccountExpiry({ _ -> FetchAccountExpiry() }),
         IncludeApp({ message -> IncludeApp(message.data) }),
@@ -153,6 +170,7 @@ sealed class Request {
         Login({ message -> Login(message.data) }),
         Logout({ _ -> Logout() }),
         PersistExcludedApps({ _ -> PersistExcludedApps() }),
+        Reconnect({ _ -> Reconnect() }),
         RegisterListener({ message -> RegisterListener(message.replyTo) }),
         RemoveAccountFromHistory({ message -> RemoveAccountFromHistory(message.data) }),
         SetEnableSplitTunneling({ message -> SetEnableSplitTunneling(message.data) }),
