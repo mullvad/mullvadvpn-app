@@ -50,6 +50,10 @@ class ConnectionProxy(val context: Context, endpoint: ServiceEndpoint) {
             registerHandler(Request.Connect::class) { _ -> connect() }
             registerHandler(Request.Reconnect::class) { _ -> reconnect() }
             registerHandler(Request.Disconnect::class) { _ -> disconnect() }
+
+            registerHandler(Request.VpnPermissionResponse::class) { request ->
+                vpnPermission.spawnUpdate(request.vpnPermission)
+            }
         }
     }
 

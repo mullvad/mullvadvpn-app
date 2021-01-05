@@ -51,6 +51,9 @@ sealed class Request : Parcelable {
     class SetEnableSplitTunneling(val enable: Boolean) : Request(), Parcelable
 
     @Parcelize
+    class VpnPermissionResponse(val vpnPermission: Boolean) : Request(), Parcelable
+
+    @Parcelize
     class WireGuardGenerateKey : Request(), Parcelable
 
     @Parcelize
