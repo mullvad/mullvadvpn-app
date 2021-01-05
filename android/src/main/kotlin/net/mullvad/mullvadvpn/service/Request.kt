@@ -149,6 +149,20 @@ sealed class Request {
         }
     }
 
+    class VpnPermissionResponse(val vpnPermission: Boolean) : Request() {
+        companion object {
+            private val vpnPermissionKey = "vpnPermission"
+        }
+
+        override val type = Type.VpnPermissionResponse
+
+        constructor(data: Bundle) : this(data.getBoolean(vpnPermissionKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putBoolean(vpnPermissionKey, vpnPermission)
+        }
+    }
+
     class WireGuardGenerateKey : Request() {
         override val type = Type.WireGuardGenerateKey
         override fun prepareMessage(message: Message) {}
@@ -174,6 +188,7 @@ sealed class Request {
         RegisterListener({ message -> RegisterListener(message.replyTo) }),
         RemoveAccountFromHistory({ message -> RemoveAccountFromHistory(message.data) }),
         SetEnableSplitTunneling({ message -> SetEnableSplitTunneling(message.data) }),
+        VpnPermissionResponse({ message -> VpnPermissionResponse(message.data) }),
         WireGuardGenerateKey({ _ -> WireGuardGenerateKey() }),
         WireGuardVerifyKey({ _ -> WireGuardVerifyKey() }),
     }

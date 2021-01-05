@@ -96,6 +96,9 @@ class ServiceHandler(
                 }
             }
             is Request.SetEnableSplitTunneling -> splitTunneling.enabled = request.enable
+            is Request.VpnPermissionResponse -> {
+                connectionProxy.vpnPermission.spawnUpdate(request.vpnPermission)
+            }
             is Request.WireGuardGenerateKey -> keyStatusListener.generateKey()
             is Request.WireGuardVerifyKey -> keyStatusListener.verifyKey()
         }
