@@ -42,6 +42,20 @@ sealed class Event {
         }
     }
 
+    class CurrentVersion(val version: String?) : Event() {
+        companion object {
+            private val versionKey = "version"
+        }
+
+        override val type = Type.CurrentVersion
+
+        constructor(data: Bundle) : this(data.getString(versionKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putString(versionKey, version)
+        }
+    }
+
     class ListenerReady : Event() {
         override val type = Type.ListenerReady
     }
@@ -142,6 +156,7 @@ sealed class Event {
 
     enum class Type(val build: (Bundle) -> Event) {
         AccountHistory({ data -> AccountHistory(data) }),
+        CurrentVersion({ data -> CurrentVersion(data) }),
         ListenerReady({ _ -> ListenerReady() }),
         LoginStatus({ data -> LoginStatus(data) }),
         NewLocation({ data -> NewLocation(data) }),
