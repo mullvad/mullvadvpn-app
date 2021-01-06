@@ -16,6 +16,8 @@ class ServiceHandler(
 ) : Handler(looper) {
     private val listeners = mutableListOf<Messenger>()
 
+    private var version: String? = null
+
     val settingsListener = SettingsListener().apply {
         subscribe(this@ServiceHandler) { settings ->
             sendEvent(Event.SettingsUpdate(settings))
@@ -55,6 +57,11 @@ class ServiceHandler(
         customDns.daemon = newDaemon
         keyStatusListener.daemon = newDaemon
         locationInfoCache.daemon = newDaemon
+
+        if (version == null && newDaemon != null) {
+            version = newDaemon.getCurrentVersion()
+            sendEvent(Event.CurrentVersion(version))
+        }
     }
 
     init {
@@ -136,6 +143,7 @@ class ServiceHandler(
             send(Event.NewLocation(locationInfoCache.location).message)
             send(Event.WireGuardKeyStatus(keyStatusListener.keyStatus).message)
             send(Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent).message)
+            send(Event.CurrentVersion(version).message)
             send(Event.ListenerReady().message)
         }
     }
