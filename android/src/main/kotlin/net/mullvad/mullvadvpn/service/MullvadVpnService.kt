@@ -52,21 +52,11 @@ class MullvadVpnService : TalpidVpnService() {
 
     private var setUpDaemonJob: Job? = null
 
-    private var instance by observable<ServiceInstance?>(null) { _, oldInstance, newInstance ->
-        if (newInstance != oldInstance) {
-            accountExpiryNotification = newInstance?.let { instance ->
-                AccountExpiryNotification(this, instance.daemon, handler.accountCache)
-            }
-
-            serviceNotifier.notify(newInstance)
-        }
+    private var instance by observable<ServiceInstance?>(null) { _, _, newInstance ->
+        serviceNotifier.notifyIfChanged(newInstance)
     }
 
-    private var accountExpiryNotification by observable<AccountExpiryNotification?>(null) {
-        _, oldNotification, _ ->
-        oldNotification?.onDestroy()
-    }
-
+    private lateinit var accountExpiryNotification: AccountExpiryNotification
     private lateinit var connectionProxy: ConnectionProxy
     private lateinit var daemonInstance: DaemonInstance
     private lateinit var handler: ServiceHandler
@@ -128,6 +118,10 @@ class MullvadVpnService : TalpidVpnService() {
                 acknowledgeStartForegroundService()
                 accountNumberEvents = handler.settingsListener.accountNumberNotifier
             }
+
+        accountExpiryNotification = AccountExpiryNotification(this).apply {
+            accountCache = handler.accountCache
+        }
 
         daemonInstance.start()
     }
@@ -193,6 +187,7 @@ class MullvadVpnService : TalpidVpnService() {
     override fun onDestroy() {
         Log.d(TAG, "Service has stopped")
         state = State.Stopped
+        accountExpiryNotification.onDestroy()
         notificationManager.onDestroy()
         daemonInstance.onDestroy()
         connectionProxy.onDestroy()
@@ -218,6 +213,7 @@ class MullvadVpnService : TalpidVpnService() {
             Log.d(TAG, "Daemon has stopped")
             instance = null
             handler.daemon = null
+            accountExpiryNotification.daemon = null
 
             if (state == State.Running) {
                 restart()
@@ -237,6 +233,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
         handler.daemon = daemon
+        accountExpiryNotification.daemon = daemon
 
         splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps ->
             disallowedApps = excludedApps

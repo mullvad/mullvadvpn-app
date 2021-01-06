@@ -11,21 +11,19 @@ import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.service.AccountCache
 import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
 import org.joda.time.Duration
 
-class AccountExpiryNotification(
-    val context: Context,
-    val daemon: MullvadDaemon,
-    val accountCache: AccountCache
-) {
+class AccountExpiryNotification(val context: Context, val accountCache: AccountCache) {
     companion object {
         val NOTIFICATION_ID: Int = 2
         val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(2)
         val TIME_BETWEEN_CHECKS: Long = 12 /* h */ * 60 /* min */ * 60 /* s */ * 1000 /* ms */
     }
 
+    private val availableDaemon = Intermittent<MullvadDaemon>()
     private val jobTracker = JobTracker()
     private val resources = context.resources
 
@@ -44,6 +42,8 @@ class AccountExpiryNotification(
             jobTracker.newUiJob("update") { update(newValue) }
         }
     }
+
+    var daemon by availableDaemon.source()
 
     init {
         accountCache.onAccountExpiryChange.subscribe(this) { newExpiry ->
@@ -79,7 +79,7 @@ class AccountExpiryNotification(
 
     private suspend fun build(expiry: DateTime, remainingTime: Duration): Notification {
         val url = jobTracker.runOnBackground {
-            Uri.parse("$buyMoreTimeUrl?token=${daemon.getWwwAuthToken()}")
+            Uri.parse("$buyMoreTimeUrl?token=${availableDaemon.await().getWwwAuthToken()}")
         }
 
         val intent = Intent(Intent.ACTION_VIEW, url)
