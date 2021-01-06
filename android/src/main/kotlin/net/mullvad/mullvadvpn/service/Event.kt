@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.service
 import android.os.Bundle
 import android.os.Message
 import java.util.ArrayList
+import net.mullvad.mullvadvpn.model.AppVersionInfo as AppVersionInfoData
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
@@ -39,6 +40,20 @@ sealed class Event {
 
         override fun prepareData(data: Bundle) {
             data.putStringArray(historyKey, history?.toTypedArray())
+        }
+    }
+
+    class AppVersionInfo(val versionInfo: AppVersionInfoData?) : Event() {
+        companion object {
+            private val versionInfoKey = "versionInfo"
+        }
+
+        override val type = Type.AppVersionInfo
+
+        constructor(data: Bundle) : this(data.getParcelable(versionInfoKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putParcelable(versionInfoKey, versionInfo)
         }
     }
 
@@ -156,6 +171,7 @@ sealed class Event {
 
     enum class Type(val build: (Bundle) -> Event) {
         AccountHistory({ data -> AccountHistory(data) }),
+        AppVersionInfo({ data -> AppVersionInfo(data) }),
         CurrentVersion({ data -> CurrentVersion(data) }),
         ListenerReady({ _ -> ListenerReady() }),
         LoginStatus({ data -> LoginStatus(data) }),
