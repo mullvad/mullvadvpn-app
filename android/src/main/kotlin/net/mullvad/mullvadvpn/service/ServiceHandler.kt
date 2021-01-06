@@ -102,13 +102,7 @@ class ServiceHandler(
             is Request.ReplaceCustomDnsServer -> {
                 customDns?.replaceDnsServer(request.oldAddress, request.newAddress)
             }
-            is Request.SetEnableCustomDns -> {
-                if (request.enable) {
-                    customDns?.enable()
-                } else {
-                    customDns?.disable()
-                }
-            }
+            is Request.SetEnableCustomDns -> customDns?.setEnabled(request.enable)
             is Request.SetEnableSplitTunneling -> splitTunneling.enabled = request.enable
             is Request.VpnPermissionResponse -> {
                 connectionProxy.vpnPermission.spawnUpdate(request.vpnPermission)
