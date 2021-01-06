@@ -11,13 +11,14 @@ import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.endpoint.AccountCache
+import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
 import org.joda.time.Duration
 
 class AccountExpiryNotification(
     val context: Context,
-    val daemon: MullvadDaemon,
+    val daemon: Intermittent<MullvadDaemon>,
     val accountCache: AccountCache
 ) {
     companion object {
@@ -79,7 +80,7 @@ class AccountExpiryNotification(
 
     private suspend fun build(expiry: DateTime, remainingTime: Duration): Notification {
         val url = jobTracker.runOnBackground {
-            Uri.parse("$buyMoreTimeUrl?token=${daemon.getWwwAuthToken()}")
+            Uri.parse("$buyMoreTimeUrl?token=${daemon.await().getWwwAuthToken()}")
         }
 
         val intent = Intent(Intent.ACTION_VIEW, url)
