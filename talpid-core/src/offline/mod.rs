@@ -20,13 +20,23 @@ mod imp;
 #[path = "android.rs"]
 mod imp;
 
+lazy_static::lazy_static! {
+    /// Disables offline monitor
+    static ref FORCE_DISABLE_OFFLINE_MONITOR: bool = std::env::var("TALPID_DISABLE_OFFLINE_MONITOR")
+        .map(|v| v != "0")
+        .unwrap_or(false);
+}
+
 pub use self::imp::Error;
 
-pub struct MonitorHandle(imp::MonitorHandle);
+pub struct MonitorHandle(Option<imp::MonitorHandle>);
 
 impl MonitorHandle {
     pub async fn is_offline(&mut self) -> bool {
-        self.0.is_offline().await
+        match self.0.as_mut() {
+            Some(monitor) => monitor.is_offline().await,
+            None => false,
+        }
     }
 }
 
@@ -34,12 +44,18 @@ pub async fn spawn_monitor(
     sender: Weak<UnboundedSender<TunnelCommand>>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<MonitorHandle, Error> {
-    Ok(MonitorHandle(
-        imp::spawn_monitor(
-            sender,
-            #[cfg(target_os = "android")]
-            android_context,
+    let monitor = if !*FORCE_DISABLE_OFFLINE_MONITOR {
+        Some(
+            imp::spawn_monitor(
+                sender,
+                #[cfg(target_os = "android")]
+                android_context,
+            )
+            .await?,
         )
-        .await?,
-    ))
+    } else {
+        None
+    };
+
+    Ok(MonitorHandle(monitor))
 }
