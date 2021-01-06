@@ -16,8 +16,6 @@ class ServiceHandler(
 ) : Handler(looper) {
     private val listeners = mutableListOf<Messenger>()
 
-    private var version: String? = null
-
     val settingsListener = SettingsListener().apply {
         subscribe(this@ServiceHandler) { settings ->
             sendEvent(Event.SettingsUpdate(settings))
@@ -31,6 +29,16 @@ class ServiceHandler(
 
         onLoginStatusChange.subscribe(this@ServiceHandler) { status ->
             sendEvent(Event.LoginStatus(status))
+        }
+    }
+
+    val appVersionInfoCache = AppVersionInfoCache().apply {
+        currentVersionNotifier.subscribe(this@ServiceHandler) { currentVersion ->
+            sendEvent(Event.CurrentVersion(currentVersion))
+        }
+
+        appVersionInfoNotifier.subscribe(this@ServiceHandler) { appVersionInfo ->
+            sendEvent(Event.AppVersionInfo(appVersionInfo))
         }
     }
 
@@ -53,15 +61,11 @@ class ServiceHandler(
     var daemon by observable<MullvadDaemon?>(null) { _, _, newDaemon ->
         settingsListener.daemon = newDaemon
         accountCache.daemon = newDaemon
+        appVersionInfoCache.daemon = newDaemon
         connectionProxy.daemon = newDaemon
         customDns.daemon = newDaemon
         keyStatusListener.daemon = newDaemon
         locationInfoCache.daemon = newDaemon
-
-        if (version == null && newDaemon != null) {
-            version = newDaemon.getCurrentVersion()
-            sendEvent(Event.CurrentVersion(version))
-        }
     }
 
     init {
@@ -122,6 +126,7 @@ class ServiceHandler(
 
     fun onDestroy() {
         accountCache.onDestroy()
+        appVersionInfoCache.onDestroy()
         customDns.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
@@ -143,7 +148,8 @@ class ServiceHandler(
             send(Event.NewLocation(locationInfoCache.location).message)
             send(Event.WireGuardKeyStatus(keyStatusListener.keyStatus).message)
             send(Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent).message)
-            send(Event.CurrentVersion(version).message)
+            send(Event.CurrentVersion(appVersionInfoCache.currentVersion).message)
+            send(Event.AppVersionInfo(appVersionInfoCache.appVersionInfo).message)
             send(Event.ListenerReady().message)
         }
     }
