@@ -76,3 +76,16 @@ fun <T> autoSubscribable(id: Any, fallback: T, listener: (T) -> Unit) =
             }
         }
     }
+
+fun <T> autoSubscribable(id: Any, listener: (T?) -> Unit) =
+    observable<EventNotifier<T>?>(null) { _, old, new ->
+        if (old != new) {
+            old?.unsubscribe(id)
+
+            if (new == null) {
+                listener.invoke(null)
+            } else {
+                new.subscribe(id, listener)
+            }
+        }
+    }
