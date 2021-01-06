@@ -369,6 +369,8 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
 * `TALPID_FORCE_USERSPACE_WIREGUARD` - Forces the daemon to use the userspace implementation of
    WireGuard on Linux.
 
+* `TALPID_DISABLE_OFFLINE_MONITOR` - Forces the daemon to always assume the host is online.
+
 
 ## Building and running the desktop Electron GUI app
 

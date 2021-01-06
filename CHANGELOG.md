@@ -26,6 +26,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add header containing OS version to version-check API call to enable OS specific compatibility and
   vulnerability checks.
+- Add `TALPID_DISABLE_OFFLINE_MONITOR` environment variable to allow users to disable offline
+  detection.
 
 #### Android
 - Allow to configure the tunnel to use custom DNS servers.

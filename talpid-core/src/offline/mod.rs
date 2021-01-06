@@ -20,13 +20,18 @@ mod imp;
 #[path = "android.rs"]
 mod imp;
 
+const TALPID_DISABLE_OFFLINE_MONITOR: &str = "TALPID_DISABLE_OFFLINE_MONITOR";
+
 pub use self::imp::Error;
 
-pub struct MonitorHandle(imp::MonitorHandle);
+pub struct MonitorHandle(Option<imp::MonitorHandle>);
 
 impl MonitorHandle {
     pub async fn is_offline(&mut self) -> bool {
-        self.0.is_offline().await
+        match self.0.as_mut() {
+            Some(monitor) => monitor.is_offline().await,
+            None => false,
+        }
     }
 }
 
@@ -34,12 +39,19 @@ pub async fn spawn_monitor(
     sender: Weak<UnboundedSender<TunnelCommand>>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<MonitorHandle, Error> {
-    Ok(MonitorHandle(
-        imp::spawn_monitor(
-            sender,
-            #[cfg(target_os = "android")]
-            android_context,
-        )
-        .await?,
-    ))
+    let monitor = match std::env::var(TALPID_DISABLE_OFFLINE_MONITOR)
+        .ok()
+        .as_deref()
+    {
+        Some("0") | None => Some(
+            imp::spawn_monitor(
+                sender,
+                #[cfg(target_os = "android")]
+                android_context,
+            )
+            .await?,
+        ),
+        Some(_) => None,
+    };
+    Ok(MonitorHandle(monitor))
 }
