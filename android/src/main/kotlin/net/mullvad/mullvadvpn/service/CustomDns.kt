@@ -21,18 +21,6 @@ class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListene
         settingsListener.dnsOptionsNotifier.unsubscribe(this)
     }
 
-    fun enable() {
-        synchronized(this) {
-            changeDnsOptions(true, dnsServers)
-        }
-    }
-
-    fun disable() {
-        synchronized(this) {
-            changeDnsOptions(false, dnsServers)
-        }
-    }
-
     fun addDnsServer(server: InetAddress): Boolean {
         synchronized(this) {
             if (!dnsServers.contains(server)) {
@@ -72,6 +60,10 @@ class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListene
                 changeDnsOptions(enabled, dnsServers)
             }
         }
+    }
+
+    fun setEnabled(enable: Boolean) {
+        changeDnsOptions(enable, dnsServers)
     }
 
     private fun changeDnsOptions(enable: Boolean, dnsServers: ArrayList<InetAddress>) {
