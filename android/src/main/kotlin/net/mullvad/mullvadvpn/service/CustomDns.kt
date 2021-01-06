@@ -36,29 +36,13 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
             }
 
             registerHandler(Request.SetEnableCustomDns::class) { request ->
-                if (request.enable) {
-                    enable()
-                } else {
-                    disable()
-                }
+                setEnabled(request.enable)
             }
         }
     }
 
     fun onDestroy() {
         endpoint.settingsListener.dnsOptionsNotifier.unsubscribe(this)
-    }
-
-    fun enable() {
-        synchronized(this) {
-            changeDnsOptions(true, dnsServers)
-        }
-    }
-
-    fun disable() {
-        synchronized(this) {
-            changeDnsOptions(false, dnsServers)
-        }
     }
 
     fun addDnsServer(server: InetAddress): Boolean {
@@ -100,6 +84,10 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
                 changeDnsOptions(enabled, dnsServers)
             }
         }
+    }
+
+    fun setEnabled(enable: Boolean) {
+        changeDnsOptions(enable, dnsServers)
     }
 
     private fun changeDnsOptions(enable: Boolean, dnsServers: ArrayList<InetAddress>) {
