@@ -45,37 +45,27 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
         endpoint.settingsListener.dnsOptionsNotifier.unsubscribe(this)
     }
 
-    fun addDnsServer(server: InetAddress): Boolean {
+    fun addDnsServer(server: InetAddress) {
         synchronized(this) {
             if (!dnsServers.contains(server)) {
                 dnsServers.add(server)
                 changeDnsOptions(enabled, dnsServers)
-
-                return true
             }
         }
-
-        return false
     }
 
-    fun replaceDnsServer(oldServer: InetAddress, newServer: InetAddress): Boolean {
+    fun replaceDnsServer(oldServer: InetAddress, newServer: InetAddress) {
         synchronized(this) {
-            if (oldServer == newServer) {
-                return true
-            } else if (!dnsServers.contains(newServer)) {
+            if (oldServer != newServer && !dnsServers.contains(newServer)) {
                 val index = dnsServers.indexOf(oldServer)
 
                 if (index >= 0) {
                     dnsServers.removeAt(index)
                     dnsServers.add(index, newServer)
                     changeDnsOptions(enabled, dnsServers)
-
-                    return true
                 }
             }
         }
-
-        return false
     }
 
     fun removeDnsServer(server: InetAddress) {
