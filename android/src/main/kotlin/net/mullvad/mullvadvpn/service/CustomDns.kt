@@ -2,14 +2,28 @@ package net.mullvad.mullvadvpn.service
 
 import java.net.InetAddress
 import java.util.ArrayList
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.service.endpoint.ServiceEndpoint
 
 class CustomDns(private val endpoint: ServiceEndpoint) {
+    private sealed class Command {
+        class AddDnsServer(val server: InetAddress) : Command()
+        class RemoveDnsServer(val server: InetAddress) : Command()
+        class ReplaceDnsServer(val oldServer: InetAddress, val newServer: InetAddress) : Command()
+        class SetEnabled(val enabled: Boolean) : Command()
+    }
+
+    private val commandChannel = spawnActor()
+
     private val daemon
-        get() = runBlocking { endpoint.intermittentDaemon.await() }
+        get() = endpoint.intermittentDaemon
 
     private var dnsServers = ArrayList<InetAddress>()
     private var enabled = false
@@ -43,46 +57,72 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
 
     fun onDestroy() {
         endpoint.settingsListener.dnsOptionsNotifier.unsubscribe(this)
+        commandChannel.close()
     }
 
     fun addDnsServer(server: InetAddress) {
-        synchronized(this) {
-            if (!dnsServers.contains(server)) {
-                dnsServers.add(server)
-                changeDnsOptions(enabled, dnsServers)
-            }
-        }
+        commandChannel.sendBlocking(Command.AddDnsServer(server))
     }
 
     fun replaceDnsServer(oldServer: InetAddress, newServer: InetAddress) {
-        synchronized(this) {
-            if (oldServer != newServer && !dnsServers.contains(newServer)) {
-                val index = dnsServers.indexOf(oldServer)
-
-                if (index >= 0) {
-                    dnsServers.removeAt(index)
-                    dnsServers.add(index, newServer)
-                    changeDnsOptions(enabled, dnsServers)
-                }
-            }
-        }
+        commandChannel.sendBlocking(Command.ReplaceDnsServer(oldServer, newServer))
     }
 
     fun removeDnsServer(server: InetAddress) {
-        synchronized(this) {
-            if (dnsServers.remove(server)) {
+        commandChannel.sendBlocking(Command.RemoveDnsServer(server))
+    }
+
+    fun setEnabled(enabled: Boolean) {
+        commandChannel.sendBlocking(Command.SetEnabled(enabled))
+    }
+
+    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+        try {
+            while (true) {
+                val command = channel.receive()
+
+                when (command) {
+                    is Command.AddDnsServer -> doAddDnsServer(command.server)
+                    is Command.RemoveDnsServer -> doRemoveDnsServer(command.server)
+                    is Command.ReplaceDnsServer -> {
+                        doReplaceDnsServer(command.oldServer, command.newServer)
+                    }
+                    is Command.SetEnabled -> changeDnsOptions(command.enabled, dnsServers)
+                }
+            }
+        } catch (exception: ClosedReceiveChannelException) {
+            // Closed sender, so stop the actor
+        }
+    }
+
+    private suspend fun doAddDnsServer(server: InetAddress) {
+        if (!dnsServers.contains(server)) {
+            dnsServers.add(server)
+            changeDnsOptions(enabled, dnsServers)
+        }
+    }
+
+    private suspend fun doReplaceDnsServer(oldServer: InetAddress, newServer: InetAddress) {
+        if (oldServer != newServer && !dnsServers.contains(newServer)) {
+            val index = dnsServers.indexOf(oldServer)
+
+            if (index >= 0) {
+                dnsServers.removeAt(index)
+                dnsServers.add(index, newServer)
                 changeDnsOptions(enabled, dnsServers)
             }
         }
     }
 
-    fun setEnabled(enable: Boolean) {
-        changeDnsOptions(enable, dnsServers)
+    private suspend fun doRemoveDnsServer(server: InetAddress) {
+        if (dnsServers.remove(server)) {
+            changeDnsOptions(enabled, dnsServers)
+        }
     }
 
-    private fun changeDnsOptions(enable: Boolean, dnsServers: ArrayList<InetAddress>) {
+    private suspend fun changeDnsOptions(enable: Boolean, dnsServers: ArrayList<InetAddress>) {
         val options = DnsOptions(enable, dnsServers)
 
-        daemon.setDnsOptions(options)
+        daemon.await().setDnsOptions(options)
     }
 }
