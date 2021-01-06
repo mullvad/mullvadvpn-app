@@ -2,23 +2,11 @@ package net.mullvad.mullvadvpn.service
 
 import java.net.InetAddress
 import java.util.ArrayList
-import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.model.DnsOptions
-import net.mullvad.talpid.util.EventNotifier
 
 class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
-    private var enabled by observable(false) { _, oldValue, newValue ->
-        if (oldValue != newValue) {
-            onEnabledChanged.notify(newValue)
-        }
-    }
-
-    private var dnsServers by observable<ArrayList<InetAddress>>(ArrayList()) { _, _, servers ->
-        onDnsServersChanged.notify(servers.toList())
-    }
-
-    val onEnabledChanged = EventNotifier(false)
-    val onDnsServersChanged = EventNotifier<List<InetAddress>>(emptyList())
+    private var dnsServers = ArrayList<InetAddress>()
+    private var enabled = false
 
     init {
         settingsListener.dnsOptionsNotifier.subscribe(this) { maybeDnsOptions ->
