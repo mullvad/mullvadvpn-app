@@ -23,8 +23,6 @@ class ServiceEndpoint(
     private val listeners = mutableListOf<Messenger>()
     private val registrationQueue = startRegistrator()
 
-    private var version: String? = null
-
     internal val dispatcher = DispatchingHandler(looper) { message ->
         Request.fromMessage(message)
     }
@@ -35,6 +33,7 @@ class ServiceEndpoint(
     val settingsListener = SettingsListener(this)
 
     val accountCache = AccountCache(this)
+    val appVersionInfoCache = AppVersionInfoCache(this)
     val customDns = CustomDns(this)
     val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)
@@ -44,13 +43,6 @@ class ServiceEndpoint(
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
             registrationQueue.sendBlocking(request.listener)
         }
-
-        intermittentDaemon.registerListener(this) { newDaemon ->
-            if (version == null && newDaemon != null) {
-                version = newDaemon.getCurrentVersion()
-                sendEvent(Event.CurrentVersion(version))
-            }
-        }
     }
 
     fun onDestroy() {
@@ -58,6 +50,7 @@ class ServiceEndpoint(
         registrationQueue.close()
 
         accountCache.onDestroy()
+        appVersionInfoCache.onDestroy()
         connectionProxy.onDestroy()
         customDns.onDestroy()
         keyStatusListener.onDestroy()
@@ -109,7 +102,8 @@ class ServiceEndpoint(
             send(Event.NewLocation(locationInfoCache.location).message)
             send(Event.WireGuardKeyStatus(keyStatusListener.keyStatus).message)
             send(Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent).message)
-            send(Event.CurrentVersion(version).message)
+            send(Event.CurrentVersion(appVersionInfoCache.currentVersion).message)
+            send(Event.AppVersionInfo(appVersionInfoCache.appVersionInfo).message)
             send(Event.ListenerReady().message)
         }
     }
