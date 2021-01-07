@@ -4,7 +4,6 @@ import android.os.Looper
 import android.os.Messenger
 import android.os.RemoteException
 import android.util.Log
-import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.di.SERVICE_CONNECTION_SCOPE
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
