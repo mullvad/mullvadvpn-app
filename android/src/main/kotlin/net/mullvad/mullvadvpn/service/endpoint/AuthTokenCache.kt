@@ -1,46 +1,49 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
 import kotlin.properties.Delegates.observable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
-import net.mullvad.mullvadvpn.service.MullvadDaemon
 
 class AuthTokenCache(endpoint: ServiceEndpoint) {
-    private var waitingForDaemon = false
+    companion object {
+        private enum class Command {
+            Fetch
+        }
+    }
+
+    private val daemon = endpoint.intermittentDaemon
+    private val requestQueue = spawnActor()
 
     var authToken by observable<String?>(null) { _, _, token ->
         endpoint.sendEvent(Event.AuthToken(token))
     }
         private set
 
-    var daemon by observable<MullvadDaemon?>(null) { _, _, _ ->
-        synchronized(this@AuthTokenCache) {
-            if (waitingForDaemon) {
-                fetchNewToken()
-            }
-        }
-    }
-
     init {
         endpoint.dispatcher.registerHandler(Request.FetchAuthToken::class) { _ ->
-            fetchNewToken()
+            requestQueue.sendBlocking(Command.Fetch)
         }
     }
 
     fun onDestroy() {
-        daemon = null
+        requestQueue.close()
     }
 
-    private fun fetchNewToken() {
-        synchronized(this) {
-            val daemon = this.daemon
-
-            if (daemon != null) {
-                authToken = daemon.getWwwAuthToken()
-                waitingForDaemon = false
-            } else {
-                waitingForDaemon = true
+    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+        try {
+            for (command in channel) {
+                when (command) {
+                    Command.Fetch -> authToken = daemon.await().getWwwAuthToken()
+                }
             }
+        } catch (exception: ClosedReceiveChannelException) {
+            // Closed sender, so stop the actor
         }
     }
 }
