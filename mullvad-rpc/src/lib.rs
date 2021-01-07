@@ -343,21 +343,23 @@ impl AppVersionProxy {
 
     pub fn version_check(
         &self,
-        version: AppVersion,
+        app_version: AppVersion,
         platform: &str,
+        platform_version: String,
     ) -> impl Future<Output = Result<AppVersionResponse, rest::Error>> {
         let service = self.handle.service.clone();
 
-        let request = rest::send_request(
-            &self.handle.factory,
-            service,
-            &format!("/v1/releases/{}/{}", platform, version),
-            Method::GET,
-            None,
-            StatusCode::OK,
-        );
+        let path = format!("/v1/releases/{}/{}", platform, app_version);
+        let request = self.handle.factory.request(&path, Method::GET);
 
-        async move { rest::deserialize_body(request.await?).await }
+        async move {
+            let mut request = request?;
+            request.add_header("M-Platform-Version", platform_version)?;
+
+            let response = service.request(request).await?;
+            let parsed_response = rest::parse_rest_response(response, StatusCode::OK).await?;
+            rest::deserialize_body(parsed_response).await
+        }
     }
 }
 

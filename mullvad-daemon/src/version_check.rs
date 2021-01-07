@@ -86,6 +86,7 @@ pub(crate) struct VersionUpdater {
     cache_path: PathBuf,
     update_sender: DaemonEventSender<AppVersionInfo>,
     last_app_version_info: AppVersionInfo,
+    platform_version: String,
     next_update_time: Instant,
     show_beta_releases: bool,
     rx: Option<mpsc::Receiver<bool>>,
@@ -116,6 +117,7 @@ impl VersionUpdater {
         let version_proxy = AppVersionProxy::new(rpc_handle);
         let cache_path = cache_dir.join(VERSION_INFO_FILENAME);
         let (tx, rx) = mpsc::channel(1);
+        let platform_version = mullvad_platform_metadata::short_version();
 
         (
             Self {
@@ -123,6 +125,7 @@ impl VersionUpdater {
                 cache_path,
                 update_sender,
                 last_app_version_info,
+                platform_version,
                 next_update_time: Instant::now(),
                 show_beta_releases,
                 rx: Some(rx),
@@ -135,8 +138,13 @@ impl VersionUpdater {
         &self,
     ) -> impl Future<Output = Result<mullvad_rpc::AppVersionResponse, Error>> + Send + 'static {
         let version_proxy = self.version_proxy.clone();
+        let platform_version = self.platform_version.clone();
         let download_future_factory = move || {
-            let response = version_proxy.version_check(PRODUCT_VERSION.to_owned(), PLATFORM);
+            let response = version_proxy.version_check(
+                PRODUCT_VERSION.to_owned(),
+                PLATFORM,
+                platform_version.clone(),
+            );
             response.map_err(Error::Download)
         };
 
