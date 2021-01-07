@@ -1,22 +1,18 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.content.Context
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.ipc.DispatchingHandler
+import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.model.AppVersionInfo
-import net.mullvad.mullvadvpn.service.MullvadDaemon
 
 class AppVersionInfoCache(
     val context: Context,
-    val daemon: MullvadDaemon,
+    eventDispatcher: DispatchingHandler<Event>,
     val settingsListener: SettingsListener
 ) {
     companion object {
         val LEGACY_SHARED_PREFERENCES = "app_version_info_cache"
     }
-
-    private val setUpJob = setUp()
 
     private var appVersionInfo: AppVersionInfo? = null
         set(value) {
@@ -53,6 +49,16 @@ class AppVersionInfoCache(
         private set
 
     init {
+        eventDispatcher.apply {
+            registerHandler(Event.CurrentVersion::class) { event ->
+                version = event.version
+            }
+
+            registerHandler(Event.AppVersionInfo::class) { event ->
+                appVersionInfo = event.versionInfo
+            }
+        }
+
         settingsListener.settingsNotifier.subscribe(this) { maybeSettings ->
             maybeSettings?.let { settings ->
                 showBetaReleases = settings.showBetaReleases
@@ -68,27 +74,7 @@ class AppVersionInfoCache(
     }
 
     fun onDestroy() {
-        setUpJob.cancel()
         settingsListener.settingsNotifier.unsubscribe(this)
-        daemon.onAppVersionInfoChange = null
         onUpdate = null
-    }
-
-    private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
-        val currentVersion = daemon.getCurrentVersion()
-
-        version = currentVersion
-
-        daemon.onAppVersionInfoChange = { newAppVersionInfo ->
-            appVersionInfo = newAppVersionInfo
-        }
-
-        synchronized(this@AppVersionInfoCache) {
-            val initialVersionInfo = daemon.getVersionInfo()
-
-            if (appVersionInfo == null) {
-                appVersionInfo = initialVersionInfo
-            }
-        }
     }
 }
