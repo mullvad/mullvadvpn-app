@@ -1,5 +1,8 @@
 package net.mullvad.mullvadvpn.model
 
+import android.os.Parcelable
 import java.util.ArrayList
+import kotlinx.parcelize.Parcelize
 
-data class RelayList(val countries: ArrayList<RelayListCountry>)
+@Parcelize
+data class RelayList(val countries: ArrayList<RelayListCountry>) : Parcelable
