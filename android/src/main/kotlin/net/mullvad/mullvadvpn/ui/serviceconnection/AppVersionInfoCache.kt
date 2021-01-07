@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.dataproxy
+package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.content.Context
 import kotlinx.coroutines.Dispatchers
@@ -6,7 +6,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.service.MullvadDaemon
-import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 
 class AppVersionInfoCache(
     val context: Context,
