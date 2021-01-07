@@ -1,12 +1,16 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
+import kotlin.properties.Delegates.observable
+import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 
 class RelayListListener(endpoint: ServiceEndpoint) {
     val daemon = endpoint.intermittentDaemon
 
-    var relayList: RelayList? = null
+    var relayList by observable<RelayList?>(null) { _, _, relays ->
+        endpoint.sendEvent(Event.NewRelayList(relays))
+    }
         private set
 
     init {

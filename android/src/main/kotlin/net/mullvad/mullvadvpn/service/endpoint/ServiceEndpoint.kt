@@ -44,6 +44,7 @@ class ServiceEndpoint(
     val customDns = CustomDns(this)
     val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)
+    val relayListListener = RelayListListener(this)
     val splitTunneling = SplitTunneling(SplitTunnelingPersistence(context), this)
 
     init {
@@ -62,6 +63,7 @@ class ServiceEndpoint(
         customDns.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
+        relayListListener.onDestroy()
         settingsListener.onDestroy()
         splitTunneling.onDestroy()
     }
@@ -113,6 +115,7 @@ class ServiceEndpoint(
                 Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent),
                 Event.CurrentVersion(appVersionInfoCache.currentVersion),
                 Event.AppVersionInfo(appVersionInfoCache.appVersionInfo),
+                Event.NewRelayList(relayListListener.relayList),
                 Event.ListenerReady
             )
 

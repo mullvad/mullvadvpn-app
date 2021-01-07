@@ -6,6 +6,7 @@ import net.mullvad.mullvadvpn.model.AppVersionInfo as AppVersionInfoData
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
+import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
 
@@ -30,6 +31,9 @@ sealed class Event : Message.EventMessage() {
 
     @Parcelize
     data class NewLocation(val location: GeoIpLocation?) : Event()
+
+    @Parcelize
+    data class NewRelayList(val relayList: RelayList?) : Event()
 
     @Parcelize
     data class SettingsUpdate(val settings: Settings?) : Event()
