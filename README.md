@@ -341,6 +341,18 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
    cp target/debug/*talpid_openvpn_plugin* dist-assets/
    ```
 
+1. On Windows, also copy `wintun.dll` to the resource directory:
+   ```
+   cp dist-assets/binaries/x86_64-pc-windows-msvc/wintun.dll dist-assets/
+   ```
+
+1. On Windows, the daemon must be run as the SYSTEM user. You can use
+   [PsExec](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec) to launch an elevated
+   command prompt before starting the daemon in it:
+   ```
+   psexec64 -i -s cmd.exe
+   ```
+
 1. Run the daemon with verbose logging with:
     ```
     sudo MULLVAD_RESOURCE_DIR="./dist-assets" ./target/debug/mullvad-daemon -vv
