@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.content.Context
+import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.service.Event
 
@@ -13,13 +14,9 @@ class AppVersionInfoCache(
         val LEGACY_SHARED_PREFERENCES = "app_version_info_cache"
     }
 
-    private var appVersionInfo: AppVersionInfo? = null
-        set(value) {
-            synchronized(this) {
-                field = value
-                onUpdate?.invoke()
-            }
-        }
+    private var appVersionInfo by observable<AppVersionInfo?>(null) { _, _, _ ->
+        onUpdate?.invoke()
+    }
 
     val isSupported
         get() = appVersionInfo?.supported ?: true
@@ -30,19 +27,16 @@ class AppVersionInfoCache(
     val upgradeVersion
         get() = appVersionInfo?.suggestedUpgrade
 
-    var onUpdate: (() -> Unit)? = null
-        set(value) {
-            field = value
-            value?.invoke()
-        }
+    var onUpdate by observable<(() -> Unit)?>(null) { _, _, callback ->
+        callback?.invoke()
+    }
 
-    var showBetaReleases = false
-        private set(value) {
-            if (field != value) {
-                field = value
-                onUpdate?.invoke()
-            }
+    var showBetaReleases by observable(false) { _, wasShowing, shouldShow ->
+        if (shouldShow != wasShowing) {
+            onUpdate?.invoke()
         }
+    }
+        private set
 
     var version: String? = null
         private set
