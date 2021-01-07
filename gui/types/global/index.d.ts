@@ -1,4 +1,4 @@
-import { IpcRendererEventChannel } from '../../src/shared/ipc-event-channel';
+import { IpcRendererEventChannel } from '../../src/renderer/lib/ipc-event-channel';
 
 declare global {
   interface Window {

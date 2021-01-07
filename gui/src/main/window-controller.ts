@@ -1,5 +1,5 @@
 import { BrowserWindow, Display, screen, Tray, WebContents } from 'electron';
-import { IpcMainEventChannel } from '../shared/ipc-event-channel';
+import { IpcMainEventChannel } from './ipc-event-channel';
 
 interface IPosition {
   x: number;
