@@ -209,6 +209,10 @@ class ApplicationMain {
       app.commandLine.appendSwitch('wm-window-animations-disabled');
     }
 
+    if (process.platform !== 'linux') {
+      app.enableSandbox();
+    }
+
     this.overrideAppPaths();
 
     if (this.ensureSingleInstance()) {
@@ -1442,14 +1446,14 @@ class ApplicationMain {
       transparent: !this.guiSettings.unpinnedWindow,
       useContentSize: true,
       webPreferences: {
-        preload: path.join(__dirname, '../renderer/preload.js'),
+        preload: path.join(__dirname, '../renderer/preloadBundle.js'),
         nodeIntegration: false,
         nodeIntegrationInWorker: false,
         nodeIntegrationInSubFrames: false,
-        devTools: process.env.NODE_ENV === 'development',
-        // TODO: Remove use of remote
-        enableRemoteModule: true,
+        enableRemoteModule: false,
+        sandbox: process.platform !== 'linux',
         spellcheck: false,
+        devTools: process.env.NODE_ENV === 'development',
       },
     };
 
