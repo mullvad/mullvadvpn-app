@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.dataproxy
+package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -9,7 +9,6 @@ import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.service.MullvadDaemon
-import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 
 class RelayListListener(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
     private val setUpJob = setUp()
