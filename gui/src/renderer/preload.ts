@@ -1,3 +1,3 @@
-import { IpcRendererEventChannel } from '../shared/ipc-event-channel';
+import { IpcRendererEventChannel } from './lib/ipc-event-channel';
 
 window.ipc = IpcRendererEventChannel;

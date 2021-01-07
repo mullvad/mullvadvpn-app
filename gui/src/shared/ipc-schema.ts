@@ -19,20 +19,13 @@ import {
   VoucherResponse,
 } from './daemon-rpc-types';
 import { IGuiSettingsState } from './gui-settings-state';
-import {
-  createIpcMain,
-  createIpcRenderer,
-  invoke,
-  invokeSync,
-  notifyRenderer,
-  send,
-} from './ipc-helpers';
 import { LogLevel } from './logging-types';
 
 interface ILogEntry {
   level: LogLevel;
   message: string;
 }
+import { invoke, invokeSync, notifyRenderer, send } from './ipc-helpers';
 
 export interface ITranslations {
   locale: string;
@@ -101,7 +94,7 @@ export interface IAppStateSnapshot {
 //       listenFourth: (fn: (arg: boolean) => void) => void,
 //     },
 //   }
-const ipc = {
+export const ipcSchema = {
   state: {
     get: invokeSync<void, IAppStateSnapshot>(),
   },
@@ -197,6 +190,3 @@ const ipc = {
     log: send<ILogEntry>(),
   },
 };
-
-export const IpcMainEventChannel = createIpcMain(ipc);
-export const IpcRendererEventChannel = createIpcRenderer(ipc);

@@ -36,9 +36,9 @@ import {
 } from '../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
-import { IpcMainEventChannel } from '../shared/ipc-event-channel';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
+import { IpcMainEventChannel } from './ipc-event-channel';
 import {
   AccountExpiredNotificationProvider,
   CloseToAccountExpiryNotificationProvider,
