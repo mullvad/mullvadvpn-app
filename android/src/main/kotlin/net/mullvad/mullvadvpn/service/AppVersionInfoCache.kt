@@ -21,21 +21,10 @@ class AppVersionInfoCache(context: Context) {
     var daemon by observable<MullvadDaemon?>(null) { _, oldDaemon, newDaemon ->
         oldDaemon?.onAppVersionInfoChange = null
 
-        if (currentVersion == null && newDaemon != null) {
-            currentVersion = newDaemon.getCurrentVersion()
-        }
-
-        newDaemon?.onAppVersionInfoChange = { newAppVersionInfo ->
-            synchronized(this@AppVersionInfoCache) {
-                appVersionInfo = newAppVersionInfo
-            }
-        }
-
-        // Load initial version info
-        synchronized(this@AppVersionInfoCache) {
-            if (appVersionInfo == null && newDaemon != null) {
-                appVersionInfo = newDaemon.getVersionInfo()
-            }
+        newDaemon?.let { daemon ->
+            initializeCurrentVersion(daemon)
+            registerVersionInfoListener(daemon)
+            fetchInitialVersionInfo(daemon)
         }
     }
 
@@ -51,5 +40,27 @@ class AppVersionInfoCache(context: Context) {
 
         appVersionInfoNotifier.unsubscribeAll()
         currentVersionNotifier.unsubscribeAll()
+    }
+
+    private fun initializeCurrentVersion(daemon: MullvadDaemon) {
+        if (currentVersion == null) {
+            currentVersion = daemon.getCurrentVersion()
+        }
+    }
+
+    private fun registerVersionInfoListener(daemon: MullvadDaemon) {
+        daemon.onAppVersionInfoChange = { newAppVersionInfo ->
+            synchronized(this@AppVersionInfoCache) {
+                appVersionInfo = newAppVersionInfo
+            }
+        }
+    }
+
+    private fun fetchInitialVersionInfo(daemon: MullvadDaemon) {
+        synchronized(this@AppVersionInfoCache) {
+            if (appVersionInfo == null) {
+                appVersionInfo = daemon.getVersionInfo()
+            }
+        }
     }
 }
