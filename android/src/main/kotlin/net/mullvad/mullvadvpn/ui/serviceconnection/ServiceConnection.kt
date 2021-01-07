@@ -44,7 +44,7 @@ class ServiceConnection(private val service: ServiceInstance, mainActivity: Main
     )
     val vpnPermission = VpnPermission(service.messenger)
 
-    val appVersionInfoCache = AppVersionInfoCache(mainActivity, daemon, settingsListener)
+    val appVersionInfoCache = AppVersionInfoCache(mainActivity, dispatcher, settingsListener)
     val customDns = CustomDns(service.messenger, settingsListener)
     var relayListListener = RelayListListener(daemon, settingsListener)
 
