@@ -34,6 +34,7 @@ class ServiceEndpoint(
 
     val accountCache = AccountCache(this)
     val appVersionInfoCache = AppVersionInfoCache(context, this)
+    val authTokenCache = AuthTokenCache(this)
     val customDns = CustomDns(this)
     val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)
@@ -52,6 +53,7 @@ class ServiceEndpoint(
 
         accountCache.onDestroy()
         appVersionInfoCache.onDestroy()
+        authTokenCache.onDestroy()
         connectionProxy.onDestroy()
         customDns.onDestroy()
         keyStatusListener.onDestroy()
@@ -107,6 +109,7 @@ class ServiceEndpoint(
             send(Event.CurrentVersion(appVersionInfoCache.currentVersion).message)
             send(Event.AppVersionInfo(appVersionInfoCache.appVersionInfo).message)
             send(Event.NewRelayList(relayListListener.relayList).message)
+            send(Event.AuthToken(authTokenCache.authToken).message)
             send(Event.ListenerReady().message)
         }
     }
