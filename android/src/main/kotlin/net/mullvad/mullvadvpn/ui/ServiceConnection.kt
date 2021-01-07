@@ -4,11 +4,11 @@ import android.os.Looper
 import android.os.Messenger
 import android.os.RemoteException
 import android.util.Log
-import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.service.Request
 import net.mullvad.mullvadvpn.service.ServiceInstance
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.CustomDns
 import net.mullvad.mullvadvpn.ui.serviceconnection.EventDispatcher
