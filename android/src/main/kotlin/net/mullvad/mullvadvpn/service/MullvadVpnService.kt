@@ -106,6 +106,7 @@ class MullvadVpnService : TalpidVpnService() {
         }
 
         handler = ServiceHandler(
+            this@MullvadVpnService,
             Looper.getMainLooper(),
             connectionProxy,
             connectivityListener,

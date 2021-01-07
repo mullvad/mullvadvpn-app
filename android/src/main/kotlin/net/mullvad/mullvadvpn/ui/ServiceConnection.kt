@@ -17,7 +17,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 
-class ServiceConnection(private val service: ServiceInstance, val mainActivity: MainActivity) {
+class ServiceConnection(private val service: ServiceInstance) {
     val dispatcher = EventDispatcher(Looper.getMainLooper())
 
     val daemon = service.daemon
@@ -28,12 +28,11 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     val settingsListener = SettingsListener(dispatcher)
     val splitTunneling = SplitTunneling(service.messenger, dispatcher)
 
-    val appVersionInfoCache = AppVersionInfoCache(mainActivity, dispatcher, settingsListener)
+    val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(service.messenger, settingsListener)
     var relayListListener = RelayListListener(daemon, settingsListener)
 
     init {
-        appVersionInfoCache.onCreate()
         registerListener()
     }
 
