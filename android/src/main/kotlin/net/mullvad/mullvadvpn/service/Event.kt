@@ -21,6 +21,9 @@ sealed class Event : Parcelable {
     class AppVersionInfo(val versionInfo: AppVersionInfoData?) : Event(), Parcelable
 
     @Parcelize
+    class AuthToken(val token: String?) : Event(), Parcelable
+
+    @Parcelize
     class CurrentVersion(val version: String?) : Event(), Parcelable
 
     @Parcelize

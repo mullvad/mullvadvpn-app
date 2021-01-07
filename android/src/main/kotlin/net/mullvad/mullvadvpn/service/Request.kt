@@ -28,6 +28,9 @@ sealed class Request : Parcelable {
     class FetchAccountExpiry : Request(), Parcelable
 
     @Parcelize
+    class FetchAuthToken : Request(), Parcelable
+
+    @Parcelize
     class IncludeApp(val packageName: String?) : Request(), Parcelable
 
     @Parcelize
