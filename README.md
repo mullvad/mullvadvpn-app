@@ -323,13 +323,13 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
    source env.sh
    ```
 
-1. If you are on Windows, then you have to build the C++ libraries before compiling the daemon:
-    ```bash
-    bash ./build_windows_modules.sh --dev-build
-    ```
+1. On Windows, make sure to start bash first (e.g., Git BASH). Then build the C++ libraries:
+   ```bash
+    ./build_windows_modules.sh --dev-build
+   ```
 
 1. Build the system daemon plus the other Rust tools and programs:
-    ```
+    ```bash
     cargo build
     ```
 
@@ -341,12 +341,24 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
    cp target/debug/*talpid_openvpn_plugin* dist-assets/
    ```
 
-1. Run the daemon with verbose logging with:
-    ```
+1. On Windows, also copy `wintun.dll` to the build directory:
+   ```bash
+   cp dist-assets/binaries/x86_64-pc-windows-msvc/wintun.dll target/debug/
+   ```
+
+1. On Windows, the daemon must be run as the SYSTEM user. You can use
+   [PsExec](https://docs.microsoft.com/en-us/sysinternals/downloads/psexec) to launch an elevated
+   bash instance before starting the daemon in it:
+   ```
+   psexec64 -i -s bash.exe
+   ```
+
+1. Run the daemon with verbose logging (from the root directory of the project):
+    ```bash
     sudo MULLVAD_RESOURCE_DIR="./dist-assets" ./target/debug/mullvad-daemon -vv
     ```
-    It must run as root since it modifies the firewall and sets up virtual network interfaces
-    etc.
+    Leave out `sudo` on Windows. The daemon must run as root since it modifies the firewall and sets
+    up virtual network interfaces etc.
 
 ### Environment variables controlling the execution
 
