@@ -28,7 +28,7 @@ class ServiceConnection(private val service: ServiceInstance, val mainActivity: 
     val settingsListener = SettingsListener(dispatcher)
     val splitTunneling = SplitTunneling(service.messenger, dispatcher)
 
-    val appVersionInfoCache = AppVersionInfoCache(mainActivity, daemon, settingsListener)
+    val appVersionInfoCache = AppVersionInfoCache(mainActivity, dispatcher, settingsListener)
     val customDns = CustomDns(service.messenger, settingsListener)
     var relayListListener = RelayListListener(daemon, settingsListener)
 
