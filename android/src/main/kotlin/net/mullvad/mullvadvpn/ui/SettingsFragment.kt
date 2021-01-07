@@ -6,8 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.widget.AccountCell
 import net.mullvad.mullvadvpn.ui.widget.AppVersionCell
 import net.mullvad.mullvadvpn.ui.widget.NavigateCell
