@@ -78,6 +78,11 @@ sealed class Request {
         override fun prepareMessage(message: Message) {}
     }
 
+    class FetchAuthToken : Request() {
+        override val type = Type.FetchAuthToken
+        override fun prepareMessage(message: Message) {}
+    }
+
     class IncludeApp(val packageName: String?) : Request() {
         companion object {
             private val packageNameKey = "packageName"
@@ -264,6 +269,7 @@ sealed class Request {
         Disconnect({ _ -> Disconnect() }),
         ExcludeApp({ message -> ExcludeApp(message.data) }),
         FetchAccountExpiry({ _ -> FetchAccountExpiry() }),
+        FetchAuthToken({ _ -> FetchAuthToken() }),
         IncludeApp({ message -> IncludeApp(message.data) }),
         InvalidateAccountExpiry({ message -> InvalidateAccountExpiry(message.data) }),
         Login({ message -> Login(message.data) }),

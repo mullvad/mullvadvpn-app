@@ -58,6 +58,20 @@ sealed class Event {
         }
     }
 
+    class AuthToken(val token: String?) : Event() {
+        companion object {
+            private val tokenKey = "token"
+        }
+
+        override val type = Type.AuthToken
+
+        constructor(data: Bundle) : this(data.getString(tokenKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putString(tokenKey, token)
+        }
+    }
+
     class CurrentVersion(val version: String?) : Event() {
         companion object {
             private val versionKey = "version"
@@ -187,6 +201,7 @@ sealed class Event {
     enum class Type(val build: (Bundle) -> Event) {
         AccountHistory({ data -> AccountHistory(data) }),
         AppVersionInfo({ data -> AppVersionInfo(data) }),
+        AuthToken({ data -> AuthToken(data) }),
         CurrentVersion({ data -> CurrentVersion(data) }),
         ListenerReady({ _ -> ListenerReady() }),
         LoginStatus({ data -> LoginStatus(data) }),
