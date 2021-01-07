@@ -37,7 +37,6 @@ class ServiceConnection(private val service: ServiceInstance) {
     }
 
     fun onDestroy() {
-        appVersionInfoCache.onDestroy()
         relayListListener.onDestroy()
     }
 

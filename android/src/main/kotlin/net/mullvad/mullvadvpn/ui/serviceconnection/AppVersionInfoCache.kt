@@ -4,10 +4,7 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.service.Event
 
-class AppVersionInfoCache(
-    eventDispatcher: EventDispatcher,
-    val settingsListener: SettingsListener
-) {
+class AppVersionInfoCache(eventDispatcher: EventDispatcher, settingsListener: SettingsListener) {
     private var appVersionInfo by observable<AppVersionInfo?>(null) { _, _, _ ->
         onUpdate?.invoke()
     }
@@ -51,9 +48,5 @@ class AppVersionInfoCache(
                 showBetaReleases = settings.showBetaReleases
             }
         }
-    }
-
-    fun onDestroy() {
-        settingsListener.settingsNotifier.unsubscribe(this)
     }
 }
