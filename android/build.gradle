@@ -60,7 +60,14 @@ android {
             jniLibs {
                 srcDirs = files(extraJniDirectory)
             }
+            java {
+                srcDirs += 'src/main/kotlin/'
+            }
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     applicationVariants.all { variant ->
