@@ -1,5 +1,5 @@
 const { exec } = require('child_process');
-const { src, dest, series } = require('gulp');
+const { dest, series, parallel } = require('gulp');
 const ts = require('gulp-typescript');
 const inject = require('gulp-inject-string');
 const TscWatchClient = require('tsc-watch/client');
@@ -8,10 +8,21 @@ const buffer = require('vinyl-buffer');
 const source = require('vinyl-source-stream');
 
 function makeWatchCompiler(onFirstSuccess) {
+  let firstBuild = true;
+
   const compileScripts = function () {
     const watch = new TscWatchClient();
-    watch.on('first_success', onFirstSuccess);
-    watch.on('success', browserifyRenderer);
+    watch.on('success', () =>
+      parallel(
+        browserifyRenderer,
+        browserifyPreload,
+      )(() => {
+        if (firstBuild) {
+          firstBuild = false;
+          onFirstSuccess();
+        }
+      }),
+    );
     watch.start('--noClear', '--inlineSourceMap', '--incremental', '--project', '.');
     return watch.tsc;
   };
@@ -38,14 +49,27 @@ function browserifyRenderer() {
     .pipe(dest('./build/src/renderer/'));
 }
 
+function browserifyPreload() {
+  return browserify({
+    entries: './build/src/renderer/preload.js',
+  })
+    .exclude('fs')
+    .exclude('electron')
+    .bundle()
+    .pipe(source('preloadBundle.js'))
+    .pipe(buffer())
+    .pipe(dest('./build/src/renderer/'));
+}
+
 function buildProto(callback) {
   exec('bash ./scripts/build-proto.sh', (err) => callback(err));
 }
 
 compileScripts.displayName = 'compile-scripts';
 browserifyRenderer.displayName = 'browserify-renderer';
+browserifyPreload.displayName = 'browserify-preload';
 buildProto.displayName = 'build-proto';
 
-exports.build = series(compileScripts, browserifyRenderer);
+exports.build = series(compileScripts, parallel(browserifyPreload, browserifyRenderer));
 exports.buildProto = buildProto;
 exports.makeWatchCompiler = makeWatchCompiler;
