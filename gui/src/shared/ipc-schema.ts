@@ -1,7 +1,5 @@
 import { GetTextTranslations } from 'gettext-parser';
-import { ICurrentAppVersionInfo } from '../main/index';
-import { IWindowShapeParameters } from '../main/window-controller';
-import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
+import { ILinuxSplitTunnelingApplication } from './application-types';
 import {
   AccountToken,
   BridgeSettings,
@@ -26,6 +24,7 @@ interface ILogEntry {
   message: string;
 }
 import { invoke, invokeSync, notifyRenderer, send } from './ipc-helpers';
+import { ICurrentAppVersionInfo, IWindowShapeParameters } from './ipc-types';
 
 export interface ITranslations {
   locale: string;

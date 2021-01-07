@@ -39,6 +39,7 @@ import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import log, { ConsoleOutput, Logger } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
 import { IpcMainEventChannel } from './ipc-event-channel';
+import { ICurrentAppVersionInfo } from '../shared/ipc-types';
 import {
   AccountExpiredNotificationProvider,
   CloseToAccountExpiryNotificationProvider,
@@ -88,13 +89,6 @@ enum AppQuitStage {
   unready,
   initiated,
   ready,
-}
-
-export interface ICurrentAppVersionInfo {
-  gui: string;
-  daemon: string;
-  isConsistent: boolean;
-  isBeta: boolean;
 }
 
 type AccountVerification = { status: 'verified' } | { status: 'deferred'; error: Error };

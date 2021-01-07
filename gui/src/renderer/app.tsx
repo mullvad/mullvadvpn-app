@@ -15,7 +15,7 @@ import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
 
-import { ICurrentAppVersionInfo } from '../main';
+import { ICurrentAppVersionInfo } from '../shared/ipc-types';
 import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
 import { messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';

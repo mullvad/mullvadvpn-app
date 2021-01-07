@@ -1,13 +1,10 @@
 import { BrowserWindow, Display, screen, Tray, WebContents } from 'electron';
 import { IpcMainEventChannel } from './ipc-event-channel';
+import { IWindowShapeParameters } from '../shared/ipc-types';
 
 interface IPosition {
   x: number;
   y: number;
-}
-
-export interface IWindowShapeParameters {
-  arrowPosition?: number;
 }
 
 interface IWindowPositioning {
