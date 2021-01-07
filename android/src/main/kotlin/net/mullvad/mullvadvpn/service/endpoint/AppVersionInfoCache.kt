@@ -4,6 +4,7 @@ import android.content.Context
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.model.AppVersionInfo
+import net.mullvad.mullvadvpn.service.MullvadDaemon
 
 class AppVersionInfoCache(context: Context, endpoint: ServiceEndpoint) {
     companion object {
@@ -29,26 +30,37 @@ class AppVersionInfoCache(context: Context, endpoint: ServiceEndpoint) {
             .commit()
 
         daemon.registerListener(this) { newDaemon ->
-            if (currentVersion == null && newDaemon != null) {
-                currentVersion = newDaemon.getCurrentVersion()
-            }
-
-            newDaemon?.onAppVersionInfoChange = { newAppVersionInfo ->
-                synchronized(this@AppVersionInfoCache) {
-                    appVersionInfo = newAppVersionInfo
-                }
-            }
-
-            // Load initial version info
-            synchronized(this@AppVersionInfoCache) {
-                if (appVersionInfo == null && newDaemon != null) {
-                    appVersionInfo = newDaemon.getVersionInfo()
-                }
+            newDaemon?.let { daemon ->
+                initializeCurrentVersion(daemon)
+                registerVersionInfoListener(daemon)
+                fetchInitialVersionInfo(daemon)
             }
         }
     }
 
     fun onDestroy() {
         daemon.unregisterListener(this)
+    }
+
+    private fun initializeCurrentVersion(daemon: MullvadDaemon) {
+        if (currentVersion == null) {
+            currentVersion = daemon.getCurrentVersion()
+        }
+    }
+
+    private fun registerVersionInfoListener(daemon: MullvadDaemon) {
+        daemon.onAppVersionInfoChange = { newAppVersionInfo ->
+            synchronized(this@AppVersionInfoCache) {
+                appVersionInfo = newAppVersionInfo
+            }
+        }
+    }
+
+    private fun fetchInitialVersionInfo(daemon: MullvadDaemon) {
+        synchronized(this@AppVersionInfoCache) {
+            if (appVersionInfo == null) {
+                appVersionInfo = daemon.getVersionInfo()
+            }
+        }
     }
 }
