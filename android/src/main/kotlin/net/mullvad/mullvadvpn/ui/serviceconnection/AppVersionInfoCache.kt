@@ -1,19 +1,13 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
-import android.content.Context
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.service.Event
 
 class AppVersionInfoCache(
-    val context: Context,
     eventDispatcher: EventDispatcher,
     val settingsListener: SettingsListener
 ) {
-    companion object {
-        val LEGACY_SHARED_PREFERENCES = "app_version_info_cache"
-    }
-
     private var appVersionInfo by observable<AppVersionInfo?>(null) { _, _, _ ->
         onUpdate?.invoke()
     }
@@ -57,13 +51,6 @@ class AppVersionInfoCache(
                 showBetaReleases = settings.showBetaReleases
             }
         }
-    }
-
-    fun onCreate() {
-        context.getSharedPreferences(LEGACY_SHARED_PREFERENCES, Context.MODE_PRIVATE)
-            .edit()
-            .clear()
-            .commit()
     }
 
     fun onDestroy() {
