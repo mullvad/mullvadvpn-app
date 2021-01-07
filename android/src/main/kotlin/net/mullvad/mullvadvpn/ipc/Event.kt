@@ -21,6 +21,9 @@ sealed class Event : Message.EventMessage() {
     data class AppVersionInfo(val versionInfo: AppVersionInfoData?) : Event()
 
     @Parcelize
+    data class AuthToken(val token: String?) : Event()
+
+    @Parcelize
     data class CurrentVersion(val version: String?) : Event()
 
     @Parcelize
