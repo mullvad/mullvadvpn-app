@@ -30,7 +30,7 @@ class ServiceConnection(private val service: ServiceInstance) {
 
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(service.messenger, settingsListener)
-    var relayListListener = RelayListListener(daemon, settingsListener)
+    var relayListListener = RelayListListener(dispatcher, settingsListener)
 
     init {
         registerListener()
