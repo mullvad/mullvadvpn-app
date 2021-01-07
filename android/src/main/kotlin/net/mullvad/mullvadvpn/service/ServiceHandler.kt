@@ -60,6 +60,12 @@ class ServiceHandler(
         }
     }
 
+    val relayListListener = RelayListListener().apply {
+        relayListNotifier.subscribe(this@ServiceHandler) { relayList ->
+            sendEvent(Event.NewRelayList(relayList))
+        }
+    }
+
     var daemon by observable<MullvadDaemon?>(null) { _, _, newDaemon ->
         settingsListener.daemon = newDaemon
         accountCache.daemon = newDaemon
@@ -68,6 +74,7 @@ class ServiceHandler(
         customDns.daemon = newDaemon
         keyStatusListener.daemon = newDaemon
         locationInfoCache.daemon = newDaemon
+        relayListListener.daemon = newDaemon
     }
 
     init {
@@ -132,6 +139,7 @@ class ServiceHandler(
         customDns.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
+        relayListListener.onDestroy()
         settingsListener.onDestroy()
 
         connectionProxy.onStateChange.unsubscribe(this)
@@ -152,6 +160,7 @@ class ServiceHandler(
             send(Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent).message)
             send(Event.CurrentVersion(appVersionInfoCache.currentVersion).message)
             send(Event.AppVersionInfo(appVersionInfoCache.appVersionInfo).message)
+            send(Event.NewRelayList(relayListListener.relayList).message)
             send(Event.ListenerReady().message)
         }
     }

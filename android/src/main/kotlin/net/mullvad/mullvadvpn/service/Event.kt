@@ -7,6 +7,7 @@ import net.mullvad.mullvadvpn.model.AppVersionInfo as AppVersionInfoData
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
+import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
 
@@ -103,6 +104,20 @@ sealed class Event {
         }
     }
 
+    class NewRelayList(val relayList: RelayList?) : Event() {
+        companion object {
+            private val relayListKey = "relayList"
+        }
+
+        override val type = Type.NewRelayList
+
+        constructor(data: Bundle) : this(data.getParcelable(relayListKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putParcelable(relayListKey, relayList)
+        }
+    }
+
     class SettingsUpdate(val settings: Settings?) : Event() {
         companion object {
             private val settingsKey = "settings"
@@ -176,6 +191,7 @@ sealed class Event {
         ListenerReady({ _ -> ListenerReady() }),
         LoginStatus({ data -> LoginStatus(data) }),
         NewLocation({ data -> NewLocation(data) }),
+        NewRelayList({ data -> NewRelayList(data) }),
         SettingsUpdate({ data -> SettingsUpdate(data) }),
         SplitTunnelingUpdate({ data -> SplitTunnelingUpdate(data) }),
         TunnelStateChange({ data -> TunnelStateChange(data) }),
