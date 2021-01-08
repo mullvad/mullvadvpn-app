@@ -33,6 +33,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Linux
 - Improved compatiblitiy with newer versions of systemd-resolved.
+- Add version data to problem reports for the following software: the kernel, NetworkManager,
+  WireGuard kernel module.
 
 ### Fixed
 #### Linux
