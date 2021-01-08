@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Allow to configure the tunnel to use custom DNS servers.
+- Show only applications that has INTERNET permission on split tunnel screen.
 
 #### Linux
 - Improved compatiblitiy with newer versions of systemd-resolved.
