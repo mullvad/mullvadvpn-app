@@ -9,8 +9,8 @@
                                                    android:layout_height="48dp"
                                                    android:layout_alignParentTop="true"
                                                    android:orientation="horizontal" />
-    <android.support.v7.widget.RecyclerView android:id="@+id/history"
-                                            android:layout_width="match_parent"
-                                            android:layout_height="wrap_content"
-                                            android:layout_below="@id/input" />
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/history"
+                                               android:layout_width="match_parent"
+                                               android:layout_height="wrap_content"
+                                               android:layout_below="@id/input" />
 </merge>

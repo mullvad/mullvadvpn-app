@@ -1,11 +1,11 @@
 package net.mullvad.mullvadvpn.util
 
-import android.support.v7.widget.RecyclerView.Adapter
-import android.support.v7.widget.RecyclerView.AdapterDataObserver
-import android.support.v7.widget.RecyclerView.ViewHolder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView.Adapter
+import androidx.recyclerview.widget.RecyclerView.AdapterDataObserver
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlin.properties.Delegates.observable
 
 class AdapterWithHeader<H : ViewHolder>(

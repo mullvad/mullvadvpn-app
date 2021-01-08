@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.ui
 import android.content.Context
 import android.graphics.Typeface
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.text.Editable
 import android.text.Spannable
 import android.text.SpannableStringBuilder
@@ -18,6 +17,7 @@ import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.ViewSwitcher
+import androidx.fragment.app.Fragment
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
@@ -197,9 +197,9 @@ class ProblemReportFragment : Fragment() {
     }
 
     private fun showConfirmNoEmailDialog() {
-        val transaction = fragmentManager?.beginTransaction()
+        val transaction = requireFragmentManager().beginTransaction()
 
-        transaction?.addToBackStack(null)
+        transaction.addToBackStack(null)
 
         ConfirmNoEmailDialogFragment().show(transaction, null)
     }

@@ -1,10 +1,10 @@
 package net.mullvad.mullvadvpn.ui.widget
 
 import android.content.Context
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
 import android.util.AttributeSet
 import android.widget.ImageView
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import kotlin.reflect.KClass
 import net.mullvad.mullvadvpn.R
 

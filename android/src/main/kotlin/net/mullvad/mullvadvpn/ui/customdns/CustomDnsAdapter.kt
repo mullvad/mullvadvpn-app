@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.ui.customdns
 
-import android.support.v7.widget.RecyclerView.Adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView.Adapter
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.CompletableDeferred
@@ -27,8 +27,8 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
 
     private var editingPosition: Int? = null
 
-    private var activeCustomDnsServers
-    by observable<List<InetAddress>>(emptyList()) { _, _, servers ->
+    private var activeCustomDnsServers by observable<List<InetAddress>>(emptyList()) {
+        _, _, servers ->
         if (servers != cachedCustomDnsServers) {
             cachedCustomDnsServers = servers.toMutableList()
             notifyDataSetChanged()

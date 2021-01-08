@@ -63,8 +63,8 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
-    private var accountExpiryNotification
-    by observable<AccountExpiryNotification?>(null) { _, oldNotification, _ ->
+    private var accountExpiryNotification by observable<AccountExpiryNotification?>(null) {
+        _, oldNotification, _ ->
         oldNotification?.onDestroy()
     }
 
