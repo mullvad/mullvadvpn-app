@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.ui.widget
 
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.RecyclerView.LayoutManager
-import android.support.v7.widget.RecyclerView.ViewHolder
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import kotlin.math.round
 
 class CustomItemAnimator : DefaultItemAnimator() {

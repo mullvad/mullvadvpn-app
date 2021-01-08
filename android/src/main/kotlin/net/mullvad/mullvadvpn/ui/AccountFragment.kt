@@ -1,10 +1,10 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.os.Bundle
-import android.support.v4.app.FragmentManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.FragmentManager
 import java.text.DateFormat
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -139,9 +139,9 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     private fun showRedeemVoucherDialog() {
-        val transaction = fragmentManager?.beginTransaction()
+        val transaction = requireFragmentManager().beginTransaction()
 
-        transaction?.addToBackStack(null)
+        transaction.addToBackStack(null)
 
         RedeemVoucherDialogFragment().show(transaction, null)
     }
