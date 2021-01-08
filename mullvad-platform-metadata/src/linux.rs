@@ -58,7 +58,7 @@ fn parse_lsb_release() -> Option<String> {
 }
 
 pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
-    [kernel_version, nm_version, wg_version]
+    [kernel_version, nm_version, wg_version, systemd_version]
         .iter()
         .filter_map(|f| f())
 }
@@ -85,4 +85,14 @@ fn wg_version() -> Option<(String, String)> {
         .trim()
         .to_string();
     Some(("wireguard".to_string(), wireguard_version))
+}
+
+/// `systemctl --version` usually outpus two lines - one with the version, and another listing
+/// features:
+/// > systemd 246 (246)
+/// > +PAM +AUDIT -SELINUX +IMA +APPARMOR +SMACK -SYSVINIT +UTMP +LIBCRYPTSETUP +GCRYPT -GNUTLS +ACL
+fn systemd_version() -> Option<(String, String)> {
+    let systemd_version_output = command_stdout_lossy("systemctl", &["--version"])?;
+    let version = systemd_version_output.lines().next()?.to_string();
+    Some(("systemd".to_string(), version))
 }
