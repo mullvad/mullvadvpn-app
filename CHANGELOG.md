@@ -37,6 +37,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Fix missing app window icon in Xfce.
 
+#### Windows
+- Resolve single-label hostnames correctly.
+
 ### Security
 #### Linux
 - Prevent the private tunnel IPv6 address from being detectable on a local network when using

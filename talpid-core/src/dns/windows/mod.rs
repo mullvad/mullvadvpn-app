@@ -1,7 +1,10 @@
 use crate::logging::windows::{log_sink, LogSink};
 
+use lazy_static::lazy_static;
 use log::{error, trace, warn};
-use std::{ffi::OsString, io, iter, mem, net::IpAddr, os::windows::ffi::OsStrExt, path::Path, ptr};
+use std::{
+    env, ffi::OsString, io, iter, mem, net::IpAddr, os::windows::ffi::OsStrExt, path::Path, ptr,
+};
 use talpid_types::ErrorExt;
 use widestring::WideCString;
 use winapi::um::{
@@ -20,6 +23,13 @@ use self::system_state::SystemStateWriter;
 
 const DNS_STATE_FILENAME: &'static str = "dns-state-backup";
 const DNS_CACHE_POLICY_GUID: &str = "{d57d2750-f971-408e-8e55-cfddb37e60ae}";
+
+lazy_static! {
+    /// Specifies whether to override per-interface DNS resolvers with a global DNS policy.
+    static ref GLOBAL_DNS_CACHE_POLICY: bool = env::var("TALPID_DNS_CACHE_POLICY")
+        .map(|v| v != "0")
+        .unwrap_or(true);
+}
 
 /// Errors that can happen when configuring DNS on Windows.
 #[derive(err_derive::Error, Debug)]
@@ -49,15 +59,6 @@ impl super::DnsMonitorT for DnsMonitor {
     fn new(cache_dir: impl AsRef<Path>) -> Result<Self, Error> {
         unsafe { WinDns_Initialize(Some(log_sink), b"WinDns\0".as_ptr()).into_result()? };
 
-        if is_minimum_windows10() {
-            if let Err(error) = reset_dns_cache_policy() {
-                error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to reset DNS cache policy")
-                );
-            }
-        }
-
         let backup_writer = SystemStateWriter::new(
             cache_dir
                 .as_ref()
@@ -65,7 +66,11 @@ impl super::DnsMonitorT for DnsMonitor {
                 .into_boxed_path(),
         );
         let _ = backup_writer.remove_backup();
-        Ok(DnsMonitor {})
+
+        let mut monitor = DnsMonitor {};
+        monitor.reset()?;
+
+        Ok(monitor)
     }
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
@@ -103,7 +108,7 @@ impl super::DnsMonitorT for DnsMonitor {
             .into_result()
         }?;
 
-        if is_minimum_windows10() {
+        if *GLOBAL_DNS_CACHE_POLICY && is_minimum_windows10() {
             if let Err(error) = set_dns_cache_policy(servers) {
                 error!("{}", error.display_chain());
                 warn!("DNS resolution may be slowed down");
@@ -114,7 +119,7 @@ impl super::DnsMonitorT for DnsMonitor {
     }
 
     fn reset(&mut self) -> Result<(), Error> {
-        if is_minimum_windows10() {
+        if *GLOBAL_DNS_CACHE_POLICY && is_minimum_windows10() {
             reset_dns_cache_policy()
         } else {
             Ok(())
@@ -128,7 +133,7 @@ fn ip_to_widestring(ip: &IpAddr) -> WideCString {
 
 impl Drop for DnsMonitor {
     fn drop(&mut self) {
-        if is_minimum_windows10() {
+        if *GLOBAL_DNS_CACHE_POLICY && is_minimum_windows10() {
             if let Err(error) = reset_dns_cache_policy() {
                 warn!(
                     "{}",
@@ -160,8 +165,13 @@ fn set_dns_cache_policy(servers: &[IpAddr]) -> Result<(), Error> {
 }
 
 fn set_dns_cache_policy_inner(transaction: &Transaction, servers: &[IpAddr]) -> Result<(), Error> {
-    let dns_cache_parameters = RegKey::predef(HKEY_LOCAL_MACHINE)
-        .open_subkey(r#"SYSTEM\CurrentControlSet\Services\DnsCache\Parameters"#)?;
+    let (dns_cache_parameters, _) = RegKey::predef(HKEY_LOCAL_MACHINE).create_subkey_transacted(
+        r#"SYSTEM\CurrentControlSet\Services\DnsCache\Parameters"#,
+        transaction,
+    )?;
+
+    // Fall back on LLMNR and NetBIOS if DNS resolution fails
+    dns_cache_parameters.set_value("DnsSecureNameQueryFallback", &1u32)?;
 
     let policy_path = Path::new("DnsPolicyConfig").join(DNS_CACHE_POLICY_GUID);
     let (policy_config, _) =
@@ -186,8 +196,18 @@ fn set_dns_cache_policy_inner(transaction: &Transaction, servers: &[IpAddr]) -> 
 }
 
 fn reset_dns_cache_policy() -> Result<(), Error> {
-    let dns_cache_parameters = RegKey::predef(HKEY_LOCAL_MACHINE)
-        .open_subkey(r#"SYSTEM\CurrentControlSet\Services\DnsCache\Parameters"#)?;
+    let (dns_cache_parameters, _) = RegKey::predef(HKEY_LOCAL_MACHINE)
+        .create_subkey(r#"SYSTEM\CurrentControlSet\Services\DnsCache\Parameters"#)?;
+    match dns_cache_parameters.delete_value("DnsSecureNameQueryFallback") {
+        Ok(()) => Ok(()),
+        Err(error) => {
+            if error.kind() == io::ErrorKind::NotFound {
+                Ok(())
+            } else {
+                Err(Error::UpdateDnsCachePolicy(error))
+            }
+        }
+    }?;
     let policy_path = Path::new("DnsPolicyConfig").join(DNS_CACHE_POLICY_GUID);
     match dns_cache_parameters.delete_subkey_all(policy_path) {
         Ok(()) => Ok(()),
