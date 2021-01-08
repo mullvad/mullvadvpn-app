@@ -47,8 +47,7 @@ class ForegroundNotificationManager(
         loggedIn = accountNumber != null
     }
 
-    private var tunnelStateEvents
-    by autoSubscribable<TunnelState>(this, TunnelState.Disconnected()) { newState ->
+    private var tunnelStateEvents by autoSubscribable<TunnelState>(this, TunnelState.Disconnected()) { newState ->
         updater.sendBlocking(UpdaterMessage.NewTunnelState(newState))
     }
 

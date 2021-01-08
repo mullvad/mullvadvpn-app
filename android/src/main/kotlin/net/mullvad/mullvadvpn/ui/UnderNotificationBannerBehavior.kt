@@ -1,11 +1,11 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
-import android.support.design.widget.CoordinatorLayout
-import android.support.design.widget.CoordinatorLayout.Behavior
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ScrollView
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior
 import net.mullvad.mullvadvpn.R
 
 class UnderNotificationBannerBehavior(
