@@ -22,7 +22,7 @@ mod imp;
 
 lazy_static::lazy_static! {
     /// Disables offline monitor
-    static ref FORCE_DISABLE_OFFLINE_MONITOR: bool = std::env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
+    static ref FORCE_DISABLE_OFFLINE_MONITOR: bool = std::env::var("TALPID_DISABLE_OFFLINE_MONITOR")
         .map(|v| v != "0")
         .unwrap_or(false);
 }
