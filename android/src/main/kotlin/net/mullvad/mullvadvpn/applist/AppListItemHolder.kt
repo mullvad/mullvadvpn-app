@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.applist
 
 import android.content.pm.PackageManager
 import android.graphics.drawable.Drawable
-import android.support.v7.widget.RecyclerView.ViewHolder
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView

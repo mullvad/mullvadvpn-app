@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -124,10 +124,10 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     private fun showConfirmPublicDnsServerDialog(confirmation: CompletableDeferred<Boolean>) {
-        val transaction = fragmentManager?.beginTransaction()
+        val transaction = requireFragmentManager().beginTransaction()
 
         detachBackButtonHandler()
-        transaction?.addToBackStack(null)
+        transaction.addToBackStack(null)
 
         ConfirmPublicDnsDialogFragment()
             .apply { confirmPublicDns = confirmation }

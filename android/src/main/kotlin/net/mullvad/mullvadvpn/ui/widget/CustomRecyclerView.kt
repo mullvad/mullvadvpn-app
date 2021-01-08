@@ -1,8 +1,8 @@
 package net.mullvad.mullvadvpn.ui.widget
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.RecyclerView.LayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView.LayoutManager
 import android.util.AttributeSet
 import net.mullvad.mullvadvpn.util.ListenableScrollableView
 

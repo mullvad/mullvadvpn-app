@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.ui.customdns
 
-import android.support.v7.widget.RecyclerView.Adapter
+import androidx.recyclerview.widget.RecyclerView.Adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import java.net.InetAddress
