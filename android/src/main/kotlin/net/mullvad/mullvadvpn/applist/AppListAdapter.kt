@@ -1,6 +1,9 @@
 package net.mullvad.mullvadvpn.applist
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.support.v7.widget.RecyclerView.Adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -17,6 +20,10 @@ class AppListAdapter(
     private val jobTracker = JobTracker()
     private val packageManager = context.packageManager
     private val thisPackageName = context.packageName
+
+    private val applicationFilterPredicate: (ApplicationInfo) -> Boolean = { appInfo ->
+        hasInternetPermission(appInfo.packageName) && !isSelfApplication(appInfo.packageName)
+    }
 
     var onListReady: (suspend () -> Unit)? = null
 
@@ -55,7 +62,7 @@ class AppListAdapter(
     private fun populateAppList() {
         val applications = packageManager
             .getInstalledApplications(0)
-            .filter { info -> info.packageName != thisPackageName }
+            .filter(applicationFilterPredicate)
             .map { info -> AppInfo(info, packageManager.getApplicationLabel(info).toString()) }
 
         appList.apply {
@@ -69,5 +76,14 @@ class AppListAdapter(
             onListReady?.invoke()
             notifyItemRangeInserted(0, applications.size)
         }
+    }
+
+    private fun hasInternetPermission(packageName: String): Boolean {
+        return PackageManager.PERMISSION_GRANTED ==
+            packageManager.checkPermission(Manifest.permission.INTERNET, packageName)
+    }
+
+    private fun isSelfApplication(packageName: String): Boolean {
+        return packageName == thisPackageName
     }
 }
