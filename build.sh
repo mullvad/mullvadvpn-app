@@ -138,7 +138,7 @@ export MULLVAD_ADD_MANIFEST="1"
 
 echo "Building Rust code in release mode using $RUSTC_VERSION..."
 
-cargo +stable build $CARGO_ARGS --release
+cargo +stable build $CARGO_ARGS --release $(rust_build_package_args)
 
 if [[ ("$(uname -s)" == "Darwin") || ("$(uname -s)" == "Linux") ]]; then
     mkdir -p "$SCRIPT_DIR/dist-assets/shell-completions"

@@ -36,8 +36,12 @@ esac
 # On Windows, it relies on having msbuild.exe in your path.
 ./wireguard/build-wireguard-go.sh
 
-time cargo build --locked --verbose
-time cargo test --locked --verbose
+cargo install cargo-workspaces
+ALL_RUST_PACKAGES=$(cargo workspaces list -a | cut -f1 --delimiter=' ')
+TESTABLE_RUST_PACKAGES=$(echo "$ALL_RUST_PACKAGES $RUST_TEST_EXCLUDE" | sort | uniq -u);
+
+time cargo build --locked --verbose $(rust_build_package_args)
+time cargo test --locked --verbose $(rust_package_args $TESTABLE_RUST_PACKAGES)
 
 if [[ "${RUST_TOOLCHAIN_CHANNEL}" == "nightly" && "$(uname -s)" == "Linux" ]]; then
   rustfmt --version;
