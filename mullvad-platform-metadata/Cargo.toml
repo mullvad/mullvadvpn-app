@@ -10,3 +10,4 @@ publish = false
 
 [target.'cfg(target_os = "linux")'.dependencies]
 rs-release = "0.1.7"
+talpid-dbus = { path = "../talpid-dbus" }
