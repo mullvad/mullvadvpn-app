@@ -9,9 +9,9 @@ import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentActivity
-import android.support.v4.app.FragmentManager
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
 import android.view.WindowManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -170,7 +170,7 @@ class MainActivity : FragmentActivity() {
     }
 
     fun openSettings() {
-        supportFragmentManager?.beginTransaction()?.apply {
+        supportFragmentManager.beginTransaction().apply {
             setCustomAnimations(
                 R.anim.fragment_enter_from_bottom,
                 R.anim.do_nothing,
@@ -184,7 +184,7 @@ class MainActivity : FragmentActivity() {
     }
 
     fun returnToLaunchScreen() {
-        supportFragmentManager?.apply {
+        supportFragmentManager.apply {
             popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 
             beginTransaction().apply {
@@ -206,7 +206,7 @@ class MainActivity : FragmentActivity() {
     }
 
     private fun addInitialFragment() {
-        supportFragmentManager?.beginTransaction()?.apply {
+        supportFragmentManager.beginTransaction().apply {
             add(R.id.main_fragment, LaunchFragment())
             commit()
         }
