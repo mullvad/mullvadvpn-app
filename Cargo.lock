@@ -1327,6 +1327,7 @@ name = "mullvad-platform-metadata"
 version = "0.1.0"
 dependencies = [
  "rs-release",
+ "talpid-dbus",
 ]
 
 [[package]]
