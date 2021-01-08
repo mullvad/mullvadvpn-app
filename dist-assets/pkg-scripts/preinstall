@@ -11,65 +11,10 @@ exec 2>&1 > $LOG_DIR/preinstall.log
 
 echo "Running preinstall at $(date)"
 
-# Uninstall <=2018.1 versions of the app
-OLD_INSTALL_DIR="/Applications/MullvadVPN.app"
-if [ -d "$OLD_INSTALL_DIR" ]; then
-    echo "Found old Mullvad VPN install at $OLD_INSTALL_DIR. Stopping and uninstalling"
-    pkill MullvadVPN || echo "Unable to kill MullvadVPN, not running?"
-    pkill mullvad-daemon || echo "Unable to kill mullvad-daemon, not running?"
-    sleep 0.5
-    rm -r "$OLD_INSTALL_DIR"
-fi
+# Migrate cache files from <=2020.8-beta2 paths
+OLD_CACHE_DIR="/var/root/Library/Caches/mullvad-vpn"
+NEW_CACHE_DIR="/Library/Caches/mullvad-vpn"
 
-# Migrate settings from <=2018.1 paths
-OLD_SETTINGS_DIR="$HOME/Library/Application Support/mullvad-daemon"
-NEW_SETTINGS_DIR="/etc/mullvad-vpn"
-if [ -d "$OLD_SETTINGS_DIR" ]; then
-    echo "Found old setting dir $OLD_SETTINGS_DIR. Moving to $NEW_SETTINGS_DIR"
-    mkdir -p "$NEW_SETTINGS_DIR"
-    mv "$OLD_SETTINGS_DIR/settings.json" "$NEW_SETTINGS_DIR/settings.json" || \
-        echo "Unable to migrate settings, not present in old dir?"
-    rm -rf "$OLD_SETTINGS_DIR"
-fi
-
-# Migrate settings from <=2018.2-betaX paths
-OLD_SETTINGS_DIR="/etc/mullvad-daemon"
-NEW_SETTINGS_DIR="/etc/mullvad-vpn"
-if [ -d "$OLD_SETTINGS_DIR" ]; then
-    echo "Found old setting dir $OLD_SETTINGS_DIR. Moving to $NEW_SETTINGS_DIR"
-    mkdir -p "$NEW_SETTINGS_DIR"
-    mv "$OLD_SETTINGS_DIR/settings.json" "$NEW_SETTINGS_DIR/settings.json" || \
-        echo "Unable to migrate settings, not present in old dir?"
-    rm -rf "$OLD_SETTINGS_DIR"
-fi
-
-# Delete logs from <=2018.1 paths
-OLD_LOG_DIR="$HOME/Library/Logs/MullvadVPN"
-if [ -d "$OLD_LOG_DIR" ]; then
-    echo "Found old log dir $OLD_LOG_DIR. Deleting"
-    rm -rf "$OLD_LOG_DIR"
-fi
-
-# Delete logs from <=2018.2-betaX paths
-OLD_LOG_DIR="/var/log/mullvad-daemon"
-if [ -d "$OLD_LOG_DIR" ]; then
-    echo "Found old log dir $OLD_LOG_DIR. Deleting"
-    rm -rf "$OLD_LOG_DIR"
-fi
-
-# Migrate cache files from <=2018.1 paths
-OLD_CACHE_DIR="$HOME/Library/Caches/mullvad-daemon"
-NEW_CACHE_DIR="/var/root/Library/Caches/mullvad-vpn"
-if [ -d "$OLD_CACHE_DIR" ]; then
-    echo "Found old cache dir at $OLD_CACHE_DIR, moving to $NEW_CACHE_DIR"
-    mkdir -p "$NEW_CACHE_DIR"
-    mv "$OLD_CACHE_DIR"/* "$NEW_CACHE_DIR/" || echo "Unable to migrate cache. No cache files?"
-    rm -rf "$OLD_CACHE_DIR"
-fi
-
-# Migrate cache files from <=2018.2-betaX paths
-OLD_CACHE_DIR="/var/root/Library/Caches/mullvad-daemon"
-NEW_CACHE_DIR="/var/root/Library/Caches/mullvad-vpn"
 if [ -d "$OLD_CACHE_DIR" ]; then
     echo "Found old cache dir at $OLD_CACHE_DIR, moving to $NEW_CACHE_DIR"
     mkdir -p "$NEW_CACHE_DIR"
@@ -80,10 +25,7 @@ fi
 # Remove the existing relay and API address cache lists.
 # There is a risk that they're incompatible with the format this version wants
 rm "$NEW_CACHE_DIR/relays.json" || true
-# Old API IP cache
 rm "$NEW_CACHE_DIR/api-ip-address.txt" || true
-# New API IP cache
-rm "/Library/Caches/mullvad-vpn/api-ip-address.txt" || true
 
 # Notify the running daemon that we are going to kill it and replace it with a newer version.
 # This will make the daemon save it's state to a file and then lock the firewall to prevent
