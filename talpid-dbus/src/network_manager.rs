@@ -184,10 +184,9 @@ impl NetworkManager {
     }
 
     fn ensure_nm_is_new_enough_for_wireguard(&self) -> Result<()> {
-        let manager = self.nm_manager();
-        let version_string: String = manager.get(NM_MANAGER, "Version").map_err(Error::Dbus)?;
-        let version_too_old = || Error::NMTooOld(version_string.clone());
-        let mut parts = version_string
+        let version: String = self.version()?;
+        let version_too_old = || Error::NMTooOld(version.clone());
+        let mut parts = version
             .split(".")
             .map(|part| part.parse().map_err(|_| version_too_old()));
 
@@ -202,6 +201,11 @@ impl NetworkManager {
         } else {
             Ok(())
         }
+    }
+
+    pub fn version(&self) -> Result<String> {
+        let manager = self.nm_manager();
+        manager.get(NM_MANAGER, "Version").map_err(Error::Dbus)
     }
 
     fn add_connection_2(
