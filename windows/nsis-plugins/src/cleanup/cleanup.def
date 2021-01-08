@@ -2,6 +2,7 @@ LIBRARY cleanup
 
 EXPORTS
 
+MigrateCache
 RemoveLogsAndCache
 RemoveSettings
 RemoveRelayCache

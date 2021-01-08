@@ -324,6 +324,40 @@
 !define InstallTrayIcon '!insertmacro "InstallTrayIcon"'
 
 #
+# MigrateCache
+#
+# Move old cache files to the new cache directory.
+# This is for upgrades from versions <= 2020.8-beta2.
+#
+!macro MigrateCache
+
+	log::Log "MigrateCache()"
+
+	Push $0
+	Push $1
+
+	cleanup::MigrateCache
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${MULLVAD_SUCCESS}
+		log::Log "Failed to migrate cache: $1"
+		Goto MigrateCache_return
+	${EndIf}
+
+	log::Log "MigrateCache() completed successfully"
+
+	MigrateCache_return:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define MigrateCache '!insertmacro "MigrateCache"'
+
+#
 # RemoveLogsAndCache
 #
 # Call into helper DLL instructing it to remove all logs and cache
@@ -628,6 +662,7 @@
 	SetShellVarContext current
 	RMDir /r "$LOCALAPPDATA\mullvad-vpn-updater"
 
+	${MigrateCache}
 	${RemoveRelayCache}
 	${RemoveApiAddressCache}
 

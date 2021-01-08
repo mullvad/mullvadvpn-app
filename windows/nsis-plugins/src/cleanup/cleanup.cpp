@@ -23,8 +23,8 @@ void __declspec(dllexport) NSISCALL RemoveLogsAndCache
 	{
 		cleaningops::RemoveLogsCacheCurrentUser,
 		cleaningops::RemoveLogsCacheOtherUsers,
-		cleaningops::RemoveLogsServiceUser,
 		cleaningops::RemoveCacheServiceUser,
+		cleaningops::RemoveLogsServiceUser,
 	};
 
 	bool success = true;
@@ -45,6 +45,36 @@ void __declspec(dllexport) NSISCALL RemoveLogsAndCache
 	}
 
 	pushint(success ? NsisStatus::SUCCESS : NsisStatus::GENERAL_ERROR);
+}
+
+void __declspec(dllexport) NSISCALL MigrateCache
+(
+	HWND hwndParent,
+	int string_size,
+	LPTSTR variables,
+	stack_t** stacktop,
+	extra_parameters* extra,
+	...
+)
+{
+	EXDLL_INIT();
+
+	try
+	{
+		cleaningops::MigrateCacheServiceUser();
+		pushstring(L"");
+		pushint(NsisStatus::SUCCESS);
+	}
+	catch (std::exception &err)
+	{
+		pushstring(common::string::ToWide(err.what()).c_str());
+		pushint(NsisStatus::GENERAL_ERROR);
+	}
+	catch (...)
+	{
+		pushstring(L"Unspecified error");
+		pushint(NsisStatus::GENERAL_ERROR);
+	}
 }
 
 void __declspec(dllexport) NSISCALL RemoveSettings
