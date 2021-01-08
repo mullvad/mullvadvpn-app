@@ -485,7 +485,6 @@ where
         resource_dir: PathBuf,
         settings_dir: PathBuf,
         cache_dir: PathBuf,
-        user_cache_dir: PathBuf,
         event_listener: L,
         command_channel: DaemonCommandChannel,
         #[cfg(target_os = "android")] android_context: AndroidContext,
@@ -500,7 +499,7 @@ where
         let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
             tokio::runtime::Handle::current(),
             Some(&resource_dir),
-            &user_cache_dir,
+            &cache_dir,
             true,
             move |address| {
                 let (result_tx, result_rx) = oneshot::channel();

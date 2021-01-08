@@ -123,8 +123,6 @@ async fn create_daemon(
         .map_err(|e| e.display_chain_with_msg("Unable to get settings dir"))?;
     let cache_dir = mullvad_paths::cache_dir()
         .map_err(|e| e.display_chain_with_msg("Unable to get cache dir"))?;
-    let user_cache_dir = mullvad_paths::user_cache_dir()
-        .map_err(|e| e.display_chain_with_msg("Unable to get user cache dir"))?;
 
     let command_channel = DaemonCommandChannel::new();
     let event_listener = spawn_management_interface(command_channel.sender()).await?;
@@ -134,7 +132,6 @@ async fn create_daemon(
         resource_dir,
         settings_dir,
         cache_dir,
-        user_cache_dir,
         event_listener,
         command_channel,
     )
