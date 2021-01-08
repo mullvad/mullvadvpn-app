@@ -3,6 +3,8 @@
 namespace cleaningops
 {
 
+void MigrateCacheFilesServiceUser();
+
 void RemoveLogsCacheCurrentUser();
 void RemoveLogsCacheOtherUsers();
 void RemoveLogsServiceUser();
