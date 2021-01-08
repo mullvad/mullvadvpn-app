@@ -256,7 +256,7 @@ pub fn send_problem_report(
     user_email: &str,
     user_message: &str,
     report_path: &Path,
-    user_cache_dir: &Path,
+    cache_dir: &Path,
 ) -> Result<(), Error> {
     let report_content = normalize_newlines(
         read_file_lossy(report_path, REPORT_MAX_SIZE).map_err(|source| {
@@ -279,7 +279,7 @@ pub fn send_problem_report(
         .block_on(mullvad_rpc::MullvadRpcRuntime::with_cache(
             runtime.handle().clone(),
             None,
-            user_cache_dir,
+            cache_dir,
             false,
             |_| Ok(()),
         ))
