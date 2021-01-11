@@ -68,7 +68,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
             newAccount = false
 
-            prepare(daemon, jobTracker) {
+            prepare(authTokenCache, jobTracker) {
                 checkForAddedTime()
             }
         }

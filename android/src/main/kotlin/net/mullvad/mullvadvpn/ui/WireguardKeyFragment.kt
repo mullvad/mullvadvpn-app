@@ -138,7 +138,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         verifyingKeySpinner = view.findViewById(R.id.verifying_key_spinner)
 
         manageKeysButton = view.findViewById<UrlButton>(R.id.manage_keys).apply {
-            prepare(daemon, jobTracker)
+            prepare(authTokenCache, jobTracker)
         }
 
         titleController = CollapsibleTitleController(view)
