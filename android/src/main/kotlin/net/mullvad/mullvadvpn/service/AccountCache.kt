@@ -56,6 +56,14 @@ class AccountCache(val settingsListener: SettingsListener) {
 
     var daemon by availableDaemon.source()
 
+    var account: String?
+        get() = settingsListener.accountNumberNotifier.latestEvent
+        set(value) {
+            jobTracker.newBackgroundJob("setAccount") {
+                availableDaemon.await().setAccount(value)
+            }
+        }
+
     var loginStatus by onLoginStatusChange.notifiable()
         private set
 

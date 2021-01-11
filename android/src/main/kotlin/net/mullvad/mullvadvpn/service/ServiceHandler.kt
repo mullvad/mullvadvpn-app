@@ -130,6 +130,7 @@ class ServiceHandler(
             is Request.ReplaceCustomDnsServer -> {
                 customDns.replaceDnsServer(request.oldAddress, request.newAddress)
             }
+            is Request.SetAccount -> accountCache.account = request.account
             is Request.SetEnableCustomDns -> customDns.setEnabled(request.enable)
             is Request.SetEnableSplitTunneling -> splitTunneling.enabled = request.enable
             is Request.VpnPermissionResponse -> {
