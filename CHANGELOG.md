@@ -26,6 +26,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add header containing OS version to version-check API call to enable OS specific compatibility and
   vulnerability checks.
+- Add `TALPID_DISABLE_OFFLINE_MONITOR` environment variable to allow users to disable offline
+  detection.
 
 #### Android
 - Allow to configure the tunnel to use custom DNS servers.
@@ -52,6 +54,9 @@ Line wrap the file at 100 chars.                                              Th
 - Prefer the last used API endpoint when the service starts back up, as well as in other tools such
   as the problem report tool.
 
+#### Linux
+- Improve offline check to query the routing table to allow users to use a bridged adapter as their
+  primary interface.
 
 ## [2020.8-beta2] - 2020-12-11
 This release is for desktop only.

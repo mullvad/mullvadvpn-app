@@ -3,17 +3,13 @@ use futures::{
     channel::{mpsc::UnboundedSender, oneshot},
     FutureExt, StreamExt, TryStreamExt,
 };
-use netlink_packet_route::{
-    constants::{ARPHRD_LOOPBACK, ARPHRD_NONE, IFF_LOWER_UP, IFF_UP},
-    rtnl::link::nlas::{Info as LinkInfo, InfoKind, Nla as LinkNla},
-    LinkMessage,
-};
+use netlink_packet_route::rtnl::route::nlas::Nla as RouteNla;
 use rtnetlink::{
     constants::{RTMGRP_IPV4_IFADDR, RTMGRP_IPV6_IFADDR, RTMGRP_LINK, RTMGRP_NOTIFY},
     sys::SocketAddr,
-    Handle,
+    Handle, IpVersion,
 };
-use std::{collections::BTreeSet, io, sync::Weak};
+use std::{io, net::Ipv4Addr, sync::Weak};
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -25,6 +21,9 @@ pub enum Error {
 
     #[error(display = "Failed to get list of IP addresses")]
     GetAddressesError(#[error(source)] failure::Compat<rtnetlink::Error>),
+
+    #[error(display = "Failed to get a route for an arbitrary IP address")]
+    GetRouteError(#[error(source)] failure::Compat<rtnetlink::Error>),
 
     #[error(display = "Failed to connect to netlink socket")]
     NetlinkConnectionError(#[error(source)] io::Error),
@@ -50,9 +49,13 @@ pub struct MonitorHandle {
     _stop_connection_tx: oneshot::Sender<()>,
 }
 
+// Mullvad API's public IP address, correct at the time of writing, but any public IP address will
+// work.
+const PUBLIC_INTERNET_ADDRESS: Ipv4Addr = Ipv4Addr::new(193, 138, 218, 78);
+
 impl MonitorHandle {
     pub async fn is_offline(&mut self) -> bool {
-        match check_offline_state(&self.handle).await {
+        match public_ip_unreachable(&self.handle).await {
             Ok(is_offline) => is_offline,
             Err(err) => {
                 log::error!(
@@ -86,7 +89,7 @@ pub async fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Resu
             _ = stop_rx.fuse() => (),
         }
     });
-    let mut is_offline = check_offline_state(&handle).await?;
+    let mut is_offline = public_ip_unreachable(&handle).await?;
 
     let monitor_handle = MonitorHandle {
         handle: handle.clone(),
@@ -98,7 +101,7 @@ pub async fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Resu
         while let Some(_new_message) = messages.next().await {
             match sender.upgrade() {
                 Some(sender) => {
-                    let new_offline_state = check_offline_state(&handle).await.unwrap_or(false);
+                    let new_offline_state = public_ip_unreachable(&handle).await.unwrap_or(false);
                     if new_offline_state != is_offline {
                         is_offline = new_offline_state;
                         let _ = sender.unbounded_send(TunnelCommand::IsOffline(is_offline));
@@ -113,63 +116,58 @@ pub async fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Resu
     Ok(monitor_handle)
 }
 
-async fn check_offline_state(handle: &Handle) -> Result<bool> {
-    let mut link_request = handle.link().get().execute();
-    let mut links = BTreeSet::new();
-    while let Some(link) = link_request
+
+async fn public_ip_unreachable(handle: &Handle) -> Result<bool> {
+    let mut request = handle.route().get(IpVersion::V4);
+    let message = request.message_mut();
+    message
+        .nlas
+        .push(RouteNla::Mark(crate::linux::TUNNEL_FW_MARK));
+    message.nlas.push(RouteNla::Destination(
+        PUBLIC_INTERNET_ADDRESS.octets().to_vec(),
+    ));
+    message.header.destination_prefix_length = 32;
+    let mut stream = request.execute();
+    while let Some(message) = stream
         .try_next()
         .await
         .map_err(failure::Fail::compat)
-        .map_err(Error::GetLinksError)?
+        .map_err(Error::GetRouteError)?
     {
-        if link_provides_connectivity(&link) {
-            links.insert(link.header.index);
-        }
-    }
-
-    if links.is_empty() {
-        return Ok(true);
-    }
-
-    let mut address_request = handle.address().get().execute();
-
-    while let Some(address) = address_request
-        .try_next()
-        .await
-        .map_err(failure::Fail::compat)
-        .map_err(Error::GetAddressesError)?
-    {
-        if links.contains(&address.header.index) {
-            return Ok(false);
+        for nla in message.nlas.iter() {
+            if let RouteNla::Gateway(_) | RouteNla::Oif(_) = nla {
+                return Ok(false);
+            }
         }
     }
     Ok(true)
 }
 
+#[cfg(test)]
+mod test {
+    use super::*;
+    use rtnetlink::{
+        constants::{RTMGRP_IPV4_IFADDR, RTMGRP_IPV6_IFADDR, RTMGRP_LINK, RTMGRP_NOTIFY},
+        sys::SocketAddr,
+    };
 
-// TODO: Improve by allowing bridge links to provide connectivity, will require route checking.
-fn link_provides_connectivity(link: &LinkMessage) -> bool {
-    // Some tunnels have the link layer type set to None
-    link.header.link_layer_type != ARPHRD_NONE
-        && link.header.link_layer_type != ARPHRD_LOOPBACK
-        && (link.header.flags & IFF_UP > 0 || link.header.flags & IFF_LOWER_UP > 0)
-        && !is_virtual_interface(link)
-}
+    #[test]
+    fn test_route_table_query() {
+        let mut runtime = tokio::runtime::Runtime::new().expect("failed to initialize runtime");
+        let (mut connection, handle, _) = runtime.block_on(async {
+            rtnetlink::new_connection()
+                .map_err(Error::NetlinkConnectionError)
+                .expect("Failed to create a netlink connection")
+        });
 
-fn is_virtual_interface(link: &LinkMessage) -> bool {
-    for nla in link.nlas.iter() {
-        if let LinkNla::Info(info_nlas) = nla {
-            for info in info_nlas.iter() {
-                // LinkInfo::Kind seems to only be set when the link is actually virtual
-                if let LinkInfo::Kind(ref kind) = info {
-                    use InfoKind::*;
-                    return match kind {
-                        Dummy | Bridge | Tun | Nlmon | IpTun => true,
-                        _ => false,
-                    };
-                }
-            }
-        }
+        let mgroup_flags = RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR | RTMGRP_LINK | RTMGRP_NOTIFY;
+        let addr = SocketAddr::new(0, mgroup_flags);
+
+        connection.socket_mut().bind(&addr).unwrap();
+        runtime.spawn(connection);
+
+        runtime
+            .block_on(public_ip_unreachable(&handle))
+            .expect("Failed to query routing table");
     }
-    false
 }
