@@ -51,7 +51,6 @@ class MainActivity : FragmentActivity() {
 
             localBinder.serviceNotifier.subscribe(this@MainActivity) { service ->
                 android.util.Log.d("mullvad", "UI connection to the service changed: $service")
-                serviceConnection?.onDestroy()
 
                 val newConnection = service?.let { safeService ->
                     ServiceConnection(safeService)
@@ -151,7 +150,6 @@ class MainActivity : FragmentActivity() {
 
     override fun onDestroy() {
         serviceNotifier.unsubscribeAll()
-        serviceConnection?.onDestroy()
 
         super.onDestroy()
     }

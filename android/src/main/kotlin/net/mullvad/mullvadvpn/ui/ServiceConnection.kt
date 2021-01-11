@@ -36,10 +36,6 @@ class ServiceConnection(private val service: ServiceInstance) {
         registerListener()
     }
 
-    fun onDestroy() {
-        relayListListener.onDestroy()
-    }
-
     private fun registerListener() {
         val request = Request.RegisterListener(Messenger(dispatcher))
 

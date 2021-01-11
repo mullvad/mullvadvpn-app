@@ -39,10 +39,6 @@ class RelayListListener(eventDispatcher: EventDispatcher, val settingsListener: 
         }
     }
 
-    fun onDestroy() {
-        settingsListener.relaySettingsNotifier.unsubscribe(this)
-    }
-
     private fun relaySettingsChanged(newRelaySettings: RelaySettings?) {
         synchronized(this) {
             val relayList = this.relayList
