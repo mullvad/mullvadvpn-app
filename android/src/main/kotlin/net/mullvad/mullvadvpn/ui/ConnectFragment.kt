@@ -49,9 +49,9 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         notificationBanner = view.findViewById<NotificationBanner>(R.id.notification_banner).apply {
             notifications.apply {
                 register(TunnelStateNotification(parentActivity, connectionProxy))
-                register(KeyStatusNotification(parentActivity, daemon, keyStatusListener))
+                register(KeyStatusNotification(parentActivity, authTokenCache, keyStatusListener))
                 register(VersionInfoNotification(parentActivity, appVersionInfoCache))
-                register(AccountExpiryNotification(parentActivity, daemon, accountCache))
+                register(AccountExpiryNotification(parentActivity, authTokenCache, accountCache))
             }
         }
 
