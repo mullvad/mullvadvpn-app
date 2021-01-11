@@ -64,6 +64,9 @@ sealed class Request : Parcelable {
     ) : Request(), Parcelable
 
     @Parcelize
+    class SetAccount(val account: String?) : Request(), Parcelable
+
+    @Parcelize
     class SetEnableCustomDns(val enable: Boolean) : Request(), Parcelable
 
     @Parcelize
