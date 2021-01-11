@@ -65,6 +65,9 @@ sealed class Request : Message.RequestMessage() {
     ) : Request()
 
     @Parcelize
+    data class SetAccount(val account: String?) : Request()
+
+    @Parcelize
     data class SetEnableCustomDns(val enable: Boolean) : Request()
 
     @Parcelize
