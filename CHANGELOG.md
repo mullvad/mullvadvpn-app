@@ -55,6 +55,7 @@ Line wrap the file at 100 chars.                                              Th
 - Allow the API to be accessed while in a blocking state.
 - Prefer the last used API endpoint when the service starts back up, as well as in other tools such
   as the problem report tool.
+- Migrate cache to a directory readable by all users, consistent with Android and Linux.
 
 #### Linux
 - Improve offline check to query the routing table to allow users to use a bridged adapter as their
