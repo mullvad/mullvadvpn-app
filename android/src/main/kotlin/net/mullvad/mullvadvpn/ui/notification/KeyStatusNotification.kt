@@ -3,14 +3,14 @@ package net.mullvad.mullvadvpn.ui.notification
 import android.content.Context
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.KeygenEvent
-import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.KeyStatusListener
 
 class KeyStatusNotification(
     context: Context,
-    daemon: MullvadDaemon,
+    authTokenCache: AuthTokenCache,
     private val keyStatusListener: KeyStatusListener
-) : NotificationWithUrlWithToken(context, daemon, R.string.wg_key_url) {
+) : NotificationWithUrlWithToken(context, authTokenCache, R.string.wg_key_url) {
     private val failedToGenerateKey = context.getString(R.string.failed_to_generate_key)
     private val tooManyKeys = context.getString(R.string.too_many_keys)
 
