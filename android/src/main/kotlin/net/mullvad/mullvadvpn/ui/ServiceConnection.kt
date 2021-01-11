@@ -27,7 +27,7 @@ class ServiceConnection(private val service: ServiceInstance) {
     val connectionProxy = ConnectionProxy(service.messenger, dispatcher)
     val keyStatusListener = KeyStatusListener(service.messenger, dispatcher)
     val locationInfoCache = LocationInfoCache(dispatcher)
-    val settingsListener = SettingsListener(dispatcher)
+    val settingsListener = SettingsListener(service.messenger, dispatcher)
     val splitTunneling = SplitTunneling(service.messenger, dispatcher)
 
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)

@@ -210,6 +210,20 @@ sealed class Request {
         }
     }
 
+    class SetAccount(val account: String?) : Request() {
+        companion object {
+            private val accountKey = "account"
+        }
+
+        override val type = Type.SetAccount
+
+        constructor(data: Bundle) : this(data.getString(accountKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putString(accountKey, account)
+        }
+    }
+
     class SetEnableCustomDns(val enable: Boolean) : Request() {
         companion object {
             private val enableKey = "enable"
@@ -280,6 +294,7 @@ sealed class Request {
         RemoveAccountFromHistory({ message -> RemoveAccountFromHistory(message.data) }),
         RemoveCustomDnsServer({ message -> RemoveCustomDnsServer(message.data) }),
         ReplaceCustomDnsServer({ message -> ReplaceCustomDnsServer(message.data) }),
+        SetAccount({ message -> SetAccount(message.data) }),
         SetEnableCustomDns({ message -> SetEnableCustomDns(message.data) }),
         SetEnableSplitTunneling({ message -> SetEnableSplitTunneling(message.data) }),
         VpnPermissionResponse({ message -> VpnPermissionResponse(message.data) }),
