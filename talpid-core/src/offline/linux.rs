@@ -135,6 +135,9 @@ async fn public_ip_unreachable(handle: &Handle) -> Result<bool> {
         .map_err(Error::GetRouteError)?
     {
         for nla in message.nlas.iter() {
+            if message.header.table != libc::RT_TABLE_MAIN {
+                continue;
+            }
             if let RouteNla::Gateway(_) | RouteNla::Oif(_) = nla {
                 return Ok(false);
             }
