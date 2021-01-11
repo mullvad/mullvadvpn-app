@@ -2,29 +2,31 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-export RUST_BUILD_PACKAGES=(
-  mullvad-daemon
-  mullvad-cli
-  mullvad-setup
-  mullvad-problem-report
-  talpid-openvpn-plugin
-)
 
 function rust_package_args {
     for pkg in "$@"; do echo "-p ${pkg} "; done
 }
 
-
-function rust_build_package_args {
-    rust_package_args "${RUST_BUILD_PACKAGES[@]}"
+function cargo_build_crate_args {
+    local RUST_BUILD_CRATES=(
+      mullvad-daemon
+      mullvad-cli
+      mullvad-setup
+      mullvad-problem-report
+      talpid-openvpn-plugin
+    )
+    rust_package_args "${RUST_BUILD_CRATES[@]}"
 }
 
-function rust_testable_packages {
-    local ALL_RUST_PACKAGES=$( cd $SCRIPT_DIR; (for manifest in $(ls */Cargo.toml android/*/Cargo.toml); do basename $(dirname $manifest); done) )
-    (echo ${ALL_RUST_PACKAGES[@]}; echo ${RUST_TEST_EXCLUDE_PACKAGES[@]}) | \
+function cargo_test_crate_args {
+    local ALL_RUST_PACKAGES=$( cd $SCRIPT_DIR;
+        (for manifest in $(find */ -name Cargo.toml | grep -v dist-assets);
+            do basename $(dirname $manifest); done) )
+
+    rust_package_args $((echo ${ALL_RUST_PACKAGES[@]}; echo ${RUST_TEST_EXCLUDE_PACKAGES[@]}) | \
         tr " " "\n" | \
         sort | \
-        uniq -u
+        uniq -u)
 }
 
 case "$(uname -s)" in
