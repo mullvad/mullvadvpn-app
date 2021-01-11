@@ -2,16 +2,16 @@ package net.mullvad.mullvadvpn.ui.notification
 
 import android.content.Context
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.util.TimeLeftFormatter
 import org.joda.time.DateTime
 
 class AccountExpiryNotification(
     context: Context,
-    daemon: MullvadDaemon,
+    authTokenCache: AuthTokenCache,
     private val accountCache: AccountCache
-) : NotificationWithUrlWithToken(context, daemon, R.string.account_url) {
+) : NotificationWithUrlWithToken(context, authTokenCache, R.string.account_url) {
     private val timeLeftFormatter = TimeLeftFormatter(context.resources)
 
     init {
