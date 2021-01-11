@@ -608,8 +608,8 @@ The cache directory can be changed by setting the `MULLVAD_CACHE_DIR` environmen
 | Platform | Path |
 |----------|------|
 | Linux | `/var/cache/mullvad-vpn/` |
-| macOS | `/var/root/Library/Caches/mullvad-vpn/` |
-| Windows | `%LOCALAPPDATA%\Mullvad VPN\` |
+| macOS | `/Library/Caches/mullvad-vpn/` |
+| Windows | `C:\ProgramData\Mullvad VPN\cache` |
 | Android | `/data/data/net.mullvad.mullvadvpn/cache` |
 
 #### RPC address file
