@@ -8,6 +8,7 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.ConnectionProxy
 import net.mullvad.mullvadvpn.ui.serviceconnection.CustomDns
 import net.mullvad.mullvadvpn.ui.serviceconnection.KeyStatusListener
@@ -40,6 +41,9 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
     lateinit var appVersionInfoCache: AppVersionInfoCache
         private set
 
+    lateinit var authTokenCache: AuthTokenCache
+        private set
+
     lateinit var connectionProxy: ConnectionProxy
         private set
 
@@ -69,6 +73,7 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
         // initialization of the fields doesn't have to be synchronized
         accountCache = serviceConnection.accountCache
         appVersionInfoCache = serviceConnection.appVersionInfoCache
+        authTokenCache = serviceConnection.authTokenCache
         connectionProxy = serviceConnection.connectionProxy
         customDns = serviceConnection.customDns
         daemon = serviceConnection.daemon
