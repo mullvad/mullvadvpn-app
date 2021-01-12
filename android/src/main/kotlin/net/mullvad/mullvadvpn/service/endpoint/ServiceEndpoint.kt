@@ -26,6 +26,8 @@ class ServiceEndpoint(looper: Looper, private val intermittentDaemon: Intermitte
 
     val messenger = Messenger(dispatcher)
 
+    val settingsListener = SettingsListener(intermittentDaemon)
+
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
             registrationQueue.sendBlocking(request.listener)
@@ -35,6 +37,8 @@ class ServiceEndpoint(looper: Looper, private val intermittentDaemon: Intermitte
     fun onDestroy() {
         dispatcher.onDestroy()
         registrationQueue.close()
+
+        settingsListener.onDestroy()
     }
 
     internal fun sendEvent(event: Event) {

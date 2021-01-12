@@ -78,7 +78,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private var pendingAction by observable<PendingAction?>(null) { _, _, _ ->
         instance?.let { activeInstance ->
-            activeInstance.settingsListener.settings?.let { currentSettings ->
+            endpoint.settingsListener.settings?.let { currentSettings ->
                 handlePendingAction(activeInstance.connectionProxy, currentSettings)
             }
         }
@@ -231,9 +231,8 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
-        val settingsListener = SettingsListener(daemonInstance.intermittentDaemon)
         val connectionProxy = ConnectionProxy(this, daemon)
-        val customDns = CustomDns(daemon, settingsListener)
+        val customDns = CustomDns(daemon, endpoint.settingsListener)
         val splitTunneling = splitTunneling.await()
 
         splitTunneling.onChange = { excludedApps ->
@@ -251,7 +250,7 @@ class MullvadVpnService : TalpidVpnService() {
                 connectionProxy,
                 connectivityListener,
                 customDns,
-                settingsListener,
+                endpoint.settingsListener,
                 splitTunneling
             )
         }

@@ -1,8 +1,9 @@
-package net.mullvad.mullvadvpn.service
+package net.mullvad.mullvadvpn.service.endpoint
 
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.talpid.util.EventNotifier
 
