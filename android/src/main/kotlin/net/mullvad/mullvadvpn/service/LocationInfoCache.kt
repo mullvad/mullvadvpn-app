@@ -10,12 +10,15 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.withTimeout
+import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeoIpLocation
+import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.Relay
 import net.mullvad.mullvadvpn.relaylist.RelayCity
 import net.mullvad.mullvadvpn.relaylist.RelayCountry
 import net.mullvad.mullvadvpn.relaylist.RelayItem
+import net.mullvad.mullvadvpn.service.endpoint.SettingsListener
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
 import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.talpid.ConnectivityListener
@@ -24,6 +27,7 @@ import net.mullvad.talpid.util.autoSubscribable
 
 class LocationInfoCache(
     val connectivityListener: ConnectivityListener,
+    val settingsListener: SettingsListener,
     val daemon: Intermittent<MullvadDaemon>
 ) {
     companion object {
@@ -84,11 +88,15 @@ class LocationInfoCache(
                 fetchRequestChannel.sendBlocking(RequestFetch.ForRealLocation)
             }
         }
+
+        settingsListener.relaySettingsNotifier.subscribe(this, ::updateSelectedLocation)
     }
 
     fun onDestroy() {
         connectivityListener.connectivityNotifier.unsubscribe(this)
+        settingsListener.relaySettingsNotifier.unsubscribe(this)
         stateEvents = null
+
         fetchRequestChannel.close()
 
         onNewLocation = null
@@ -170,5 +178,12 @@ class LocationInfoCache(
         }
 
         location = newLocation
+    }
+
+    private fun updateSelectedLocation(relaySettings: RelaySettings?) {
+        val settings = relaySettings as? RelaySettings.Normal
+        val constraint = settings?.relayConstraints?.location as? Constraint.Only
+
+        selectedRelayLocation = constraint?.value?.location
     }
 }
