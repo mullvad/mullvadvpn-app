@@ -110,8 +110,10 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
-        settingsListener.settingsNotifier.subscribe(this) { settings ->
-            updateUi(settings)
+        settingsListener.settingsNotifier.subscribe(this) { maybeSettings ->
+            maybeSettings?.let { settings ->
+                updateUi(settings)
+            }
         }
     }
 
