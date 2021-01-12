@@ -1057,8 +1057,8 @@ msgstr "Bunu araştıracağız."
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi garanti altına almak için lütfen hemen %s sürümüne yükseltin"
 
-msgid "e.g. 123.456.789.111"
-msgstr "ör. 123.456.789.111"
+msgid "e.g. 10.0.0.4"
+msgstr "ör. 10.0.0.4"
 
 msgid "Copied to clipboard"
 msgstr "Panoya kopyalandı"

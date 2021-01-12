@@ -1057,8 +1057,8 @@ msgstr "Dette skal vi følge opp."
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "Du kjører en appversjon som ikke er støttet. Oppdater til %s for å ha den beste sikkerheten"
 
-msgid "e.g. 123.456.789.111"
-msgstr "f.eks. 123.456.789.111"
+msgid "e.g. 10.0.0.4"
+msgstr "f.eks. 10.0.0.4"
 
 msgid "Copied to clipboard"
 msgstr "Kopiert til utklippstavlen"
