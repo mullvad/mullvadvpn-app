@@ -1151,6 +1151,10 @@ class ApplicationMain {
     IpcMainEventChannel.app.handleOpenUrl((url) => shell.openExternal(url));
     IpcMainEventChannel.app.handleOpenPath((path) => shell.openPath(path));
     IpcMainEventChannel.app.handleShowOpenDialog((options) => dialog.showOpenDialog(options));
+
+    IpcMainEventChannel.logging.handleLog(({ level, data }) =>
+      this.rendererLog?.log(LogLevels[level], ...data),
+    );
   }
 
   private async createNewAccount(): Promise<string> {
