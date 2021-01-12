@@ -34,14 +34,14 @@ class RelayListListener(val daemon: MullvadDaemon, val settingsListener: Setting
         }
 
     init {
-        settingsListener.onRelaySettingsChange = { newRelaySettings ->
+        settingsListener.relaySettingsNotifier.subscribe(this) { newRelaySettings ->
             relaySettingsChanged(newRelaySettings)
         }
     }
 
     fun onDestroy() {
         setUpJob.cancel()
-        settingsListener.onRelaySettingsChange = null
+        settingsListener.relaySettingsNotifier.unsubscribe(this)
         daemon.onRelayListChange = null
     }
 
