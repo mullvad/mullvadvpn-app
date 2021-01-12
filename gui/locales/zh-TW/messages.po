@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2020-10-19 12:23\n"
+"PO-Revision-Date: 2021-01-12 14:52\n"
 
 msgid "Back"
 msgstr "返回"
@@ -51,17 +51,56 @@ msgstr "保護連線失敗"
 msgid "Invalid account number"
 msgstr "帳號無效"
 
+msgid "Open URL"
+msgstr "開啟 URL"
+
 msgid "Reconnect"
 msgstr "重新連線"
 
 msgid "SECURE CONNECTION"
 msgstr "安全連線"
 
+msgid "Settings"
+msgstr "設定"
+
 msgid "System default"
 msgstr "系統預設"
 
 msgid "UNSECURED CONNECTION"
 msgstr "不安全的連線"
+
+msgctxt "accessibility"
+msgid "%(title)s, View loaded"
+msgstr "%(title)s，已載入視圖"
+
+msgctxt "accessibility"
+msgid "Collapse %(location)s"
+msgstr "折疊 %(location)s"
+
+msgctxt "accessibility"
+msgid "Expand %(location)s"
+msgstr "展開 %(location)s"
+
+msgctxt "accessibility"
+msgid "Forget %(accountToken)s"
+msgstr "忘記 %(accountToken)s"
+
+#. This is used by screenreaders to communicate the login button.
+msgctxt "accessibility"
+msgid "Login"
+msgstr "登入"
+
+msgctxt "accessibility"
+msgid "Opens externally"
+msgstr "在外部開啟"
+
+msgctxt "accessibility"
+msgid "Remove item"
+msgstr "移除項目"
+
+msgctxt "accessibility"
+msgid "Select location. Current location is %(location)s"
+msgstr "選擇位置。目前位置為 %(location)s"
 
 #. The remaining time left on the account measured in days.
 #. Available placeholders:
@@ -77,6 +116,7 @@ msgctxt "account-expiry"
 msgid "%(duration)s left"
 msgstr "剩餘 %(duration)s"
 
+#. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
 msgstr "帳戶"
@@ -105,6 +145,14 @@ msgstr "支付至"
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "進階"
+
+msgctxt "advanced-settings-view"
+msgid "Add a server"
+msgstr "新增伺服器"
+
+msgctxt "advanced-settings-view"
+msgid "Add anyway"
+msgstr "仍要新增"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -142,6 +190,10 @@ msgstr "啟用 IPv6"
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "透過通道啟用 IPv6 通訊。"
+
+msgctxt "advanced-settings-view"
+msgid "Enable to add at least one DNS server."
+msgstr "啟用以新增至少一個 DNS 伺服器。"
 
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
@@ -203,6 +255,10 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr "應用程式內建緊停開關 (Kill Switch) 始終處於開啟狀態。如果按一下「中斷連線」或「退出」，此設定還將封鎖您的網路。"
 
 msgctxt "advanced-settings-view"
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr "您嘗試新增的是公共 DNS 伺服器，因此可能無效。目前我們僅支援本機 DNS 伺服器。"
+
+msgctxt "advanced-settings-view"
 msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
 msgstr "若要啟用 WireGuard，請在底下「Wireguard 金鑰」設定下產生金鑰。"
 
@@ -213,6 +269,10 @@ msgstr "通道通訊協定"
 msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
+
+msgctxt "advanced-settings-view"
+msgid "Use custom DNS server"
+msgstr "使用自訂 DNS 伺服器"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard"
@@ -235,20 +295,20 @@ msgid "missing key"
 msgstr "金鑰遺失"
 
 msgctxt "auth-failure"
-msgid "Account authentication failed."
-msgstr "帳戶驗證失敗。"
+msgid "Blocking internet: account is out of time"
+msgstr "正在封鎖網路：帳戶已逾時"
 
 msgctxt "auth-failure"
-msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
-msgstr "此帳戶有太多的同時連線。請中斷其他裝置的連線，或是稍後再次嘗試連線。"
+msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
+msgstr "此帳戶的同步連線數過多。請中斷另一台裝置的連線，或者稍後再次嘗試連線。"
 
 msgctxt "auth-failure"
-msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "您在此帳戶沒有更多 VPN 時間了。請登入我們的網站，購買更多點數。"
+msgid "Unable to authenticate account. Please contact support."
+msgstr "無法驗證帳戶。請聯絡技術支援。"
 
 msgctxt "auth-failure"
-msgid "You've logged in with an account number that is not valid. Please log out and try another one."
-msgstr "您登入時使用的帳號是無效的。請登出並使用另一個。"
+msgid "You are logged in with an invalid account number. Please log out and try another one."
+msgstr "您登入時所使用的帳號無效。請登出並嘗試其他帳號。"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -351,75 +411,36 @@ msgid "\"Always require VPN\" is enabled."
 msgstr "「始終需要 VPN」已啟用。"
 
 msgctxt "in-app-notifications"
+msgid "%(duration)s. Buy more credit."
+msgstr "%(duration)s。購買更多點數。"
+
+msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "帳戶點數即將到期"
 
 msgctxt "in-app-notifications"
-msgid "An application prevented the policy from being set"
-msgstr "某應用程式導致原則無法設定"
+msgid "APP IS OUT OF SYNC"
+msgstr "應用程式未同步"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "封鎖網際網路"
 
 msgctxt "in-app-notifications"
-msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
-msgstr "無法配置 IPv6，請在我們系統啟用，或在應用程式中停用"
+msgid "Install the latest app version to stay up to date."
+msgstr "安裝最新版本的應用程式以保持最新狀態。"
 
 msgctxt "in-app-notifications"
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "無法套用防火牆規則。裝置目前可能不安全"
+msgid "Manage keys under Advanced settings."
+msgstr "在「進階」設定下管理金鑰。"
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic"
-msgstr "無法封鎖所有網路流量"
+msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
+msgstr "網路流量可能正在洩漏"
 
 msgctxt "in-app-notifications"
-msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
-msgstr "無法解析自訂通道的主機。請考慮變更設定"
-
-msgctxt "in-app-notifications"
-msgid "Failed to set system DNS server"
-msgstr "無法設定系統 DNS 伺服器"
-
-msgctxt "in-app-notifications"
-msgid "Failed to start tunnel connection"
-msgstr "無法啟動通道連線"
-
-msgctxt "in-app-notifications"
-msgid "Inconsistent internal version information, please restart the app"
-msgstr "內部版本資訊不一致，請重新啟動應用程式"
-
-msgctxt "in-app-notifications"
-msgid "INCONSISTENT VERSION"
-msgstr "版本不一致"
-
-#. The in-app banner displayed to the user when the app update is available.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "Install Mullvad VPN (%(version)s) to stay up to date"
-msgstr "安裝 Mullvad VPN (%(version)s) 以保持最新狀態"
-
-msgctxt "in-app-notifications"
-msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
-msgstr "沒有轉送伺服器與目前的設定相符。您可以嘗試變更位置或轉送設定。"
-
-msgctxt "in-app-notifications"
-msgid "Original block reason"
-msgstr "原始封鎖原因"
-
-msgctxt "in-app-notifications"
-msgid "This device is offline, no tunnels can be established"
-msgstr "此裝置目前離線中，無法建立通道"
-
-msgctxt "in-app-notifications"
-msgid "This might be caused by third party security software"
-msgstr "這可能是由第三方安全軟體所引起的"
-
-msgctxt "in-app-notifications"
-msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
-msgstr "在裝置上偵測不到運作中的 TAP 配接器。如果您已停用，請再次啟用。否則，請重新安裝應用程式"
+msgid "Please quit and restart the app."
+msgstr "請退出應用程式並重新啟動。"
 
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
@@ -430,16 +451,8 @@ msgid "UPDATE AVAILABLE"
 msgstr "可用的更新"
 
 msgctxt "in-app-notifications"
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr "缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。"
-
-msgctxt "in-app-notifications"
-msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
-msgstr "您的網路流量可能正在洩露"
-
-msgctxt "in-app-notifications"
-msgid "Your kernel may be outdated"
-msgstr "您的核心已過期"
+msgid "VALID WIREGUARD KEY IS MISSING"
+msgstr "缺少有效的 WireGuard 金鑰"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -520,24 +533,24 @@ msgstr "設定"
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
 msgctxt "notifications"
-msgid "Account credit expires in %(duration)s"
-msgstr "帳戶點數將在 %(duration)s 後到期"
+msgid "Account credit expires in %(duration)s. Buy more credit."
+msgstr "帳戶點數將在 %(duration)s 後到期。購買更多點數。"
 
 msgctxt "notifications"
-msgid "Blocking internet"
-msgstr "正在封鎖網路"
+msgid "Account is out of time"
+msgstr "帳戶已逾時"
 
 msgctxt "notifications"
-msgid "Blocking internet:"
-msgstr "正在封鎖網路："
-
-msgctxt "notifications"
-msgid "Blocking internet: Valid WireGuard key is missing"
-msgstr "正在封鎖網路：缺少有效的 WireGuard 金鑰"
+msgid "App is out of sync. Please quit and restart."
+msgstr "應用程式未同步。請退出並重新啟動。"
 
 msgctxt "notifications"
 msgid "Buy more"
 msgstr "購買更多"
+
+msgctxt "notifications"
+msgid "Connected"
+msgstr "已連線"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -558,44 +571,77 @@ msgid "Connecting to %(location)s"
 msgstr "正在連線到 %(location)s"
 
 msgctxt "notifications"
-msgid "Critical error (your attention is required)"
-msgstr "嚴重錯誤 (需注意)"
+msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
+msgstr "無法配置 IPv6。請在應用程式中將其停用，或是在您的裝置上啟用它。"
 
 msgctxt "notifications"
-msgid "Inconsistent internal version information, please restart the app"
-msgstr "內部版本資訊不一致，請重新啟動應用程式"
-
-#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
-msgctxt "notifications"
-msgid "Please upgrade to %(version)s now to ensure your security"
-msgstr "請立即升級至 %(version)s 以確保安全"
+msgid "Disconnected and unsecured"
+msgstr "已中斷連線且未受保護"
 
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "正在重新連線"
 
 msgctxt "notifications"
-msgid "Secured"
-msgstr "安全"
+msgid "Unable to apply firewall rules."
+msgstr "無法套用防火牆規則。"
 
 msgctxt "notifications"
-msgid "Unsecured"
-msgstr "不安全"
+msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
+msgstr "無法套用防火牆規則。請嘗試停用任何第三方防毒軟體或安全軟體。"
+
+msgctxt "notifications"
+msgid "Unable to apply firewall rules. Try updating your kernel."
+msgstr "無法套用防火牆規則。請嘗試更新核心。"
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Please troubleshoot or contact support."
+msgstr "無法封鎖所有網路流量。請排除故障或聯絡技術支援。"
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
+msgstr "無法封鎖所有網路流量。請嘗試停用任何第三方防毒軟體或安全軟體，或是請聯絡技術支援。"
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try updating your kernel or contact support."
+msgstr "無法封鎖所有網路流量。請嘗試更新您的核心或聯絡技術支援。"
+
+msgctxt "notifications"
+msgid "Unable to resolve host of custom tunnel. Try changing your settings."
+msgstr "無法解析自訂通道的主機。請嘗試變更您的設定。"
+
+msgctxt "notifications"
+msgid "Unable to set system DNS server. Please contact support."
+msgstr "無法設定系統 DNS 伺服器。請聯絡技術支援。"
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. Please contact support."
+msgstr "無法啟動通道連線。請聯絡技術支援。"
+
+msgctxt "notifications"
+msgid "Update available. Install the latest app version to stay up to date"
+msgstr "有可用更新。請安裝最新版本的應用程式以保持最新狀態"
 
 msgctxt "notifications"
 msgid "Upgrade"
 msgstr "升級"
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
-msgid "You are running an unsupported app version."
-msgstr "您所執行的應用程式版本不受支援。"
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。"
 
 msgctxt "notifications"
-msgid "You have no more VPN time left on this account."
-msgstr "您這個帳戶已經沒有剩餘的 VPN 時間了。"
+msgid "Your device is offline. Try connecting when it's back online."
+msgstr "您的裝置已離線。在裝置重新上線後嘗試連線。"
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version. Please update now."
+msgstr "此應用程式版本不受支援，因此您的隱私可能存在風險。請立即更新。"
+
+msgctxt "notifications"
+msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
+msgstr "您所選擇的伺服器與通道的通訊協定不符。請調整您的設定。"
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -625,6 +671,10 @@ msgstr "啟用或停用系統通知。重要通知一律會顯示。"
 msgctxt "preferences-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "啟用後，即可在新測試版應用程式發佈時獲得通知"
+
+msgctxt "preferences-view"
+msgid "Enable to move the app around as a free-standing window."
+msgstr "啟用以將應用程式作為獨立視窗自由移動。"
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -657,6 +707,10 @@ msgstr "啟動時永遠最小化"
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "測試版無法使用此選項。"
+
+msgctxt "preferences-view"
+msgid "Unpin app from taskbar"
+msgstr "將應用程式從工作列中取消釘選"
 
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -830,6 +884,7 @@ msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
 msgstr "如有需要，我們將以 %(email)s 與您聯繫"
 
+#. Title label in navigation bar
 msgctxt "support-view"
 msgid "Report a problem"
 msgstr "回報問題"
@@ -851,8 +906,8 @@ msgid "Sent"
 msgstr "已傳送"
 
 msgctxt "support-view"
-msgid "Thanks! We will look into this."
-msgstr "謝謝！我們會對此進行調查。"
+msgid "Thanks!"
+msgstr "謝謝！"
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -869,6 +924,10 @@ msgstr "將應用程式升級"
 msgctxt "support-view"
 msgid "View app logs"
 msgstr "檢視應用程式日誌"
+
+msgctxt "support-view"
+msgid "We will look into this."
+msgstr "我們會對此進行調查。"
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
@@ -967,4 +1026,152 @@ msgstr "進階"
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard 金鑰"
+
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr "您嘗試新增的是公共 DNS 伺服器，因此可能無效。目前我們僅支援本機 DNS 伺服器。"
+
+msgid "WireGuard error"
+msgstr "WireGuard 錯誤"
+
+msgid "Account time reminders"
+msgstr "帳戶時間提醒"
+
+msgid "WireGuard public key"
+msgstr "WireGuard 公開金鑰"
+
+msgid "Copied WireGuard public key to clipboard"
+msgstr "已將 WireGuard 公開金鑰複製到剪貼簿"
+
+msgid "Account credit expires soon"
+msgstr "帳戶點數即將到期"
+
+msgid "Account credit expires in a few minutes"
+msgstr "帳戶點數將在幾分鐘後到期"
+
+msgid "Thanks!"
+msgstr "謝謝！"
+
+msgid "We will look into this."
+msgstr "我們會對此進行調查。"
+
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr "您正在執行不受支援的應用程式版本。請立即升級到 %s，以確保您的安全"
+
+msgid "e.g. 10.0.0.4"
+msgstr "例如 10.0.0.4"
+
+msgid "Copied to clipboard"
+msgstr "已複製到剪貼簿"
+
+msgid "Too many WireGuard keys registered to account"
+msgstr "帳戶中註冊的 WireGuard 金鑰過多"
+
+msgid "Shows current VPN tunnel status"
+msgstr "顯示目前的 VPN 通道狀態"
+
+msgid "Copied Mullvad account number to clipboard"
+msgstr "已將 Mullvad 帳號複製到剪貼簿"
+
+msgid "Use custom DNS server"
+msgstr "使用自訂 DNS 伺服器"
+
+msgid "Add anyway"
+msgstr "仍要新增"
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "無法封鎖所有網路流量。請排除故障或向我們回報問題。"
+
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr "利用拆分通道，您可以選擇哪些應用程式不應透過 VPN 通道進行路由。"
+
+msgid "less than a day left"
+msgstr "剩餘時間不足 1 天"
+
+msgid "Blocking all connections"
+msgstr "正在封鎖所有連線"
+
+msgid "Could not configure IPv6"
+msgstr "無法配置 IPv6"
+
+msgid "Disconnecting"
+msgstr "正在中斷連線"
+
+msgid "Enable to add at least one DNS server."
+msgstr "啟用以新增至少一個 DNS 伺服器。"
+
+msgid "Enable"
+msgstr "啟用"
+
+msgid "No relay server matches the current settings"
+msgstr "沒有與目前設定相符的中繼伺服器"
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr "建立通道時，VPN 權限被拒絕。請嘗試重新連線。"
+
+msgid "No bridge relay server matches the current settings"
+msgstr "沒有與目前設定相符的橋接中繼伺服器"
+
+msgid "Shows reminders when the account time is about to expire"
+msgstr "在帳戶時間即將到期時顯示提醒"
+
+msgid "Add a server"
+msgstr "新增伺服器"
+
+msgid "Mullvad account number"
+msgstr "Mullvad 帳號"
+
+msgid "less than a minute ago"
+msgstr "不到 1 分鐘前"
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr "無法解析自訂伺服器的主機名稱"
+
+msgid "Virtual adapter error"
+msgstr "虛擬配接器錯誤"
+
+msgid "Exclude applications"
+msgstr "排除應用程式"
+
+msgid "VPN tunnel status"
+msgstr "VPN 通道狀態"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "剩餘 %d 年"
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] "剩餘 %d 個月"
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] "剩餘 %d 天"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "%d 分鐘前"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "%d 小時前"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "%d 天前"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "%d 個月前"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "%d 年前"
+
+msgid "Account credit expires in a day"
+msgid_plural "Account credit expires in %d days"
+msgstr[0] "帳戶點數將在 %d 天後到期"
+
+msgid "Account credit expires in an hour"
+msgid_plural "Account credit expires in %d hours"
+msgstr[0] "帳戶點數將在 %d 小時後到期"
 

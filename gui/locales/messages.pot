@@ -41,16 +41,55 @@ msgstr ""
 msgid "Invalid account number"
 msgstr ""
 
+msgid "Open URL"
+msgstr ""
+
 msgid "Reconnect"
 msgstr ""
 
 msgid "SECURE CONNECTION"
 msgstr ""
 
+msgid "Settings"
+msgstr ""
+
 msgid "System default"
 msgstr ""
 
 msgid "UNSECURED CONNECTION"
+msgstr ""
+
+msgctxt "accessibility"
+msgid "%(title)s, View loaded"
+msgstr ""
+
+msgctxt "accessibility"
+msgid "Collapse %(location)s"
+msgstr ""
+
+msgctxt "accessibility"
+msgid "Expand %(location)s"
+msgstr ""
+
+msgctxt "accessibility"
+msgid "Forget %(accountToken)s"
+msgstr ""
+
+#. This is used by screenreaders to communicate the login button.
+msgctxt "accessibility"
+msgid "Login"
+msgstr ""
+
+msgctxt "accessibility"
+msgid "Opens externally"
+msgstr ""
+
+msgctxt "accessibility"
+msgid "Remove item"
+msgstr ""
+
+msgctxt "accessibility"
+msgid "Select location. Current location is %(location)s"
 msgstr ""
 
 #. The remaining time left on the account measured in days.
@@ -67,6 +106,7 @@ msgctxt "account-expiry"
 msgid "%(duration)s left"
 msgstr ""
 
+#. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
 msgstr ""
@@ -94,6 +134,14 @@ msgstr ""
 #. Title label in navigation bar
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Add a server"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Add anyway"
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -131,6 +179,10 @@ msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Enable to add at least one DNS server."
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -193,6 +245,10 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr ""
 
 msgctxt "advanced-settings-view"
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr ""
+
+msgctxt "advanced-settings-view"
 msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
 msgstr ""
 
@@ -202,6 +258,10 @@ msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "UDP"
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Use custom DNS server"
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -225,19 +285,19 @@ msgid "missing key"
 msgstr ""
 
 msgctxt "auth-failure"
-msgid "Account authentication failed."
+msgid "Blocking internet: account is out of time"
 msgstr ""
 
 msgctxt "auth-failure"
-msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
+msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
 msgstr ""
 
 msgctxt "auth-failure"
-msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
+msgid "Unable to authenticate account. Please contact support."
 msgstr ""
 
 msgctxt "auth-failure"
-msgid "You've logged in with an account number that is not valid. Please log out and try another one."
+msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr ""
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
@@ -341,11 +401,15 @@ msgid "\"Always require VPN\" is enabled."
 msgstr ""
 
 msgctxt "in-app-notifications"
+msgid "%(duration)s. Buy more credit."
+msgstr ""
+
+msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "An application prevented the policy from being set"
+msgid "APP IS OUT OF SYNC"
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -353,62 +417,19 @@ msgid "BLOCKING INTERNET"
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
+msgid "Install the latest app version to stay up to date."
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgid "Manage keys under Advanced settings."
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic"
+msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "Failed to set system DNS server"
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "Failed to start tunnel connection"
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "Inconsistent internal version information, please restart the app"
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "INCONSISTENT VERSION"
-msgstr ""
-
-#. The in-app banner displayed to the user when the app update is available.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "Install Mullvad VPN (%(version)s) to stay up to date"
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "Original block reason"
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "This device is offline, no tunnels can be established"
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "This might be caused by third party security software"
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
+msgid "Please quit and restart the app."
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -420,15 +441,7 @@ msgid "UPDATE AVAILABLE"
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
-msgstr ""
-
-msgctxt "in-app-notifications"
-msgid "Your kernel may be outdated"
+msgid "VALID WIREGUARD KEY IS MISSING"
 msgstr ""
 
 msgctxt "launch-view"
@@ -510,23 +523,23 @@ msgstr ""
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
 msgctxt "notifications"
-msgid "Account credit expires in %(duration)s"
+msgid "Account credit expires in %(duration)s. Buy more credit."
 msgstr ""
 
 msgctxt "notifications"
-msgid "Blocking internet"
+msgid "Account is out of time"
 msgstr ""
 
 msgctxt "notifications"
-msgid "Blocking internet:"
-msgstr ""
-
-msgctxt "notifications"
-msgid "Blocking internet: Valid WireGuard key is missing"
+msgid "App is out of sync. Please quit and restart."
 msgstr ""
 
 msgctxt "notifications"
 msgid "Buy more"
+msgstr ""
+
+msgctxt "notifications"
+msgid "Connected"
 msgstr ""
 
 #. The message showed when a server has been connected to.
@@ -548,18 +561,11 @@ msgid "Connecting to %(location)s"
 msgstr ""
 
 msgctxt "notifications"
-msgid "Critical error (your attention is required)"
+msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
 msgstr ""
 
 msgctxt "notifications"
-msgid "Inconsistent internal version information, please restart the app"
-msgstr ""
-
-#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
-msgctxt "notifications"
-msgid "Please upgrade to %(version)s now to ensure your security"
+msgid "Disconnected and unsecured"
 msgstr ""
 
 msgctxt "notifications"
@@ -567,24 +573,64 @@ msgid "Reconnecting"
 msgstr ""
 
 msgctxt "notifications"
-msgid "Secured"
+msgid "Unable to apply firewall rules."
 msgstr ""
 
 msgctxt "notifications"
-msgid "Unsecured"
+msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
+msgstr ""
+
+msgctxt "notifications"
+msgid "Unable to apply firewall rules. Try updating your kernel."
+msgstr ""
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Please troubleshoot or contact support."
+msgstr ""
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
+msgstr ""
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try updating your kernel or contact support."
+msgstr ""
+
+msgctxt "notifications"
+msgid "Unable to resolve host of custom tunnel. Try changing your settings."
+msgstr ""
+
+msgctxt "notifications"
+msgid "Unable to set system DNS server. Please contact support."
+msgstr ""
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. Please contact support."
+msgstr ""
+
+msgctxt "notifications"
+msgid "Update available. Install the latest app version to stay up to date"
 msgstr ""
 
 msgctxt "notifications"
 msgid "Upgrade"
 msgstr ""
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
-msgid "You are running an unsupported app version."
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
 msgstr ""
 
 msgctxt "notifications"
-msgid "You have no more VPN time left on this account."
+msgid "Your device is offline. Try connecting when it's back online."
+msgstr ""
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version. Please update now."
+msgstr ""
+
+msgctxt "notifications"
+msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
 msgstr ""
 
 #. Title label in navigation bar
@@ -617,6 +663,10 @@ msgid "Enable to get notified when new beta versions of the app are released."
 msgstr ""
 
 msgctxt "preferences-view"
+msgid "Enable to move the app around as a free-standing window."
+msgstr ""
+
+msgctxt "preferences-view"
 msgid "Launch app on start-up"
 msgstr ""
 
@@ -646,6 +696,10 @@ msgstr ""
 
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
+msgstr ""
+
+msgctxt "preferences-view"
+msgid "Unpin app from taskbar"
 msgstr ""
 
 msgctxt "preferences-view"
@@ -820,6 +874,7 @@ msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
 msgstr ""
 
+#. Title label in navigation bar
 msgctxt "support-view"
 msgid "Report a problem"
 msgstr ""
@@ -841,7 +896,7 @@ msgid "Sent"
 msgstr ""
 
 msgctxt "support-view"
-msgid "Thanks! We will look into this."
+msgid "Thanks!"
 msgstr ""
 
 msgctxt "support-view"
@@ -858,6 +913,10 @@ msgstr ""
 
 msgctxt "support-view"
 msgid "View app logs"
+msgstr ""
+
+msgctxt "support-view"
+msgid "We will look into this."
 msgstr ""
 
 msgctxt "support-view"
@@ -957,3 +1016,161 @@ msgstr ""
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr ""
+
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr ""
+
+msgid "WireGuard error"
+msgstr ""
+
+msgid "Account time reminders"
+msgstr ""
+
+msgid "WireGuard public key"
+msgstr ""
+
+msgid "Copied WireGuard public key to clipboard"
+msgstr ""
+
+msgid "Account credit expires soon"
+msgstr ""
+
+msgid "Account credit expires in a few minutes"
+msgstr ""
+
+msgid "Thanks!"
+msgstr ""
+
+msgid "We will look into this."
+msgstr ""
+
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr ""
+
+msgid "e.g. 10.0.0.4"
+msgstr ""
+
+msgid "Copied to clipboard"
+msgstr ""
+
+msgid "Too many WireGuard keys registered to account"
+msgstr ""
+
+msgid "Shows current VPN tunnel status"
+msgstr ""
+
+msgid "Copied Mullvad account number to clipboard"
+msgstr ""
+
+msgid "Use custom DNS server"
+msgstr ""
+
+msgid "Add anyway"
+msgstr ""
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr ""
+
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr ""
+
+msgid "less than a day left"
+msgstr ""
+
+msgid "Blocking all connections"
+msgstr ""
+
+msgid "Could not configure IPv6"
+msgstr ""
+
+msgid "Disconnecting"
+msgstr ""
+
+msgid "Enable to add at least one DNS server."
+msgstr ""
+
+msgid "Enable"
+msgstr ""
+
+msgid "No relay server matches the current settings"
+msgstr ""
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr ""
+
+msgid "No bridge relay server matches the current settings"
+msgstr ""
+
+msgid "Shows reminders when the account time is about to expire"
+msgstr ""
+
+msgid "Add a server"
+msgstr ""
+
+msgid "Mullvad account number"
+msgstr ""
+
+msgid "less than a minute ago"
+msgstr ""
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr ""
+
+msgid "Virtual adapter error"
+msgstr ""
+
+msgid "Exclude applications"
+msgstr ""
+
+msgid "VPN tunnel status"
+msgstr ""
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Account credit expires in a day"
+msgid_plural "Account credit expires in %d days"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Account credit expires in an hour"
+msgid_plural "Account credit expires in %d hours"
+msgstr[0] ""
+msgstr[1] ""

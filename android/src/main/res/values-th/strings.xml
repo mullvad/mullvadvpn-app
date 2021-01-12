@@ -95,6 +95,7 @@
     <string name="update_available_footer">มีการอัปเดตให้ใช้งาน ดาวน์โหลดเพื่อยกระดับความปลอดภัย</string>
     <string name="user_email_hint">อีเมลของคุณ (ไม่บังคับ)</string>
     <string name="user_message_hint">ระบุปัญหาของคุณ</string>
+    <string name="view_logs">ดูบันทึกของแอป</string>
     <string name="voucher_already_used">รหัสบัตรกำนัลถูกใช้ไปแล้ว</string>
     <string name="wg_key_url">https://mullvad.net/th/account/ports</string>
     <string name="wireguard">WireGuard</string>

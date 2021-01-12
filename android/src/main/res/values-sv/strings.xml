@@ -95,6 +95,7 @@
     <string name="update_available_footer">Uppdatering tillgänglig. Ladda ned för att vara säker.</string>
     <string name="user_email_hint">Din e-postadress (valfritt)</string>
     <string name="user_message_hint">Beskriv ditt problem</string>
+    <string name="view_logs">Visa appens loggar</string>
     <string name="voucher_already_used">Kupongkoden har redan använts.</string>
     <string name="wg_key_url">https://mullvad.net/sv/account/ports</string>
     <string name="wireguard">WireGuard</string>

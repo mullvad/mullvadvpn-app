@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2020-10-19 12:23\n"
+"PO-Revision-Date: 2021-01-12 14:52\n"
 
 msgid "Back"
 msgstr "Tillbaka"
@@ -51,17 +51,56 @@ msgstr "DET GICK INTE ATT SÄKRA ANSLUTNINGEN"
 msgid "Invalid account number"
 msgstr "Ogiltigt kontonummer"
 
+msgid "Open URL"
+msgstr "Öppna URL"
+
 msgid "Reconnect"
 msgstr "Återanslut"
 
 msgid "SECURE CONNECTION"
 msgstr "SÄKER ANSLUTNING"
 
+msgid "Settings"
+msgstr "Inställningar"
+
 msgid "System default"
 msgstr "Systemstandard"
 
 msgid "UNSECURED CONNECTION"
 msgstr "OSÄKER ANSLUTNING"
+
+msgctxt "accessibility"
+msgid "%(title)s, View loaded"
+msgstr "%(title)s, visa laddad"
+
+msgctxt "accessibility"
+msgid "Collapse %(location)s"
+msgstr "Dölj %(location)s"
+
+msgctxt "accessibility"
+msgid "Expand %(location)s"
+msgstr "Visa %(location)s"
+
+msgctxt "accessibility"
+msgid "Forget %(accountToken)s"
+msgstr "Glöm %(accountToken)s"
+
+#. This is used by screenreaders to communicate the login button.
+msgctxt "accessibility"
+msgid "Login"
+msgstr "Logga in"
+
+msgctxt "accessibility"
+msgid "Opens externally"
+msgstr "Öppnar externt"
+
+msgctxt "accessibility"
+msgid "Remove item"
+msgstr "Ta bort föremål"
+
+msgctxt "accessibility"
+msgid "Select location. Current location is %(location)s"
+msgstr "Välj plats. Nuvarande plats är %(location)s"
 
 #. The remaining time left on the account measured in days.
 #. Available placeholders:
@@ -77,6 +116,7 @@ msgctxt "account-expiry"
 msgid "%(duration)s left"
 msgstr "%(duration)s kvar"
 
+#. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
 msgstr "Konto"
@@ -105,6 +145,14 @@ msgstr "Betalat till"
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "Avancerat"
+
+msgctxt "advanced-settings-view"
+msgid "Add a server"
+msgstr "Lägg till en server"
+
+msgctxt "advanced-settings-view"
+msgid "Add anyway"
+msgstr "Lägg till ändå"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -142,6 +190,10 @@ msgstr "Aktivera IPv6"
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "Aktivera IPv6-kommunikation genom tunneln."
+
+msgctxt "advanced-settings-view"
+msgid "Enable to add at least one DNS server."
+msgstr "Aktivera för att lägga till minst en DNS-server."
 
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
@@ -203,6 +255,10 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr "Appens inbyggda Kill Switch är alltid på. Den här inställningen kommer dessutom blockera internet när du klickar på Koppla från eller Avsluta."
 
 msgctxt "advanced-settings-view"
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr "DNS-servern du försöker lägga till kanske inte fungerar eftersom den är offentlig. För närvarande stöder vi bara lokala DNS-servrar."
+
+msgctxt "advanced-settings-view"
 msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
 msgstr "För att aktivera WireGuard kan du generera en nyckel i inställningen \"WireGuard-nyckel\" nedanför."
 
@@ -213,6 +269,10 @@ msgstr "Tunnelprotokoll"
 msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
+
+msgctxt "advanced-settings-view"
+msgid "Use custom DNS server"
+msgstr "Använd anpassad DNS-server"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard"
@@ -235,20 +295,20 @@ msgid "missing key"
 msgstr "nyckel saknas"
 
 msgctxt "auth-failure"
-msgid "Account authentication failed."
-msgstr "Autentiseringen av kontot misslyckades."
+msgid "Blocking internet: account is out of time"
+msgstr "Blockerar internet: kontots tidsgräns har uppnåtts"
 
 msgctxt "auth-failure"
-msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
-msgstr "Detta konto har för många samtidiga anslutningar. Koppla från en annan enhet eller försök att ansluta igen inom kort."
+msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
+msgstr "Det här kontot har för många samtidiga anslutningar. Koppla från en annan enhet eller försök att ansluta igen inom kort."
 
 msgctxt "auth-failure"
-msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "Du har ingen VPN-tid kvar på kontot. Logga in på vår hemsida för att köpa mer kredit."
+msgid "Unable to authenticate account. Please contact support."
+msgstr "Det går inte att autentisera kontot. Kontakta supporten."
 
 msgctxt "auth-failure"
-msgid "You've logged in with an account number that is not valid. Please log out and try another one."
-msgstr "Du har loggat in med ett konto som inte är giltigt. Logga ut och försök med ett annat."
+msgid "You are logged in with an invalid account number. Please log out and try another one."
+msgstr "Du är inloggad med ett ogiltigt kontonummer. Logga ut och försök med ett annat."
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -351,75 +411,36 @@ msgid "\"Always require VPN\" is enabled."
 msgstr "\"Kräv alltid VPN\" är aktiverat."
 
 msgctxt "in-app-notifications"
+msgid "%(duration)s. Buy more credit."
+msgstr "%(duration)s. Köp mer kredit."
+
+msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "KONTOKREDITEN GÅR SNART UT"
 
 msgctxt "in-app-notifications"
-msgid "An application prevented the policy from being set"
-msgstr "Ett program hindrade policyn från att ställas in"
+msgid "APP IS OUT OF SYNC"
+msgstr "APPEN ÄR INTE SYNKRONISERAD"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "BLOCKERAR INTERNET"
 
 msgctxt "in-app-notifications"
-msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
-msgstr "IPv6 kunde inte konfigureras. Aktivera det på ditt system eller stäng av det i appen"
+msgid "Install the latest app version to stay up to date."
+msgstr "Installera den senaste appversionen för att hålla dig uppdaterad."
 
 msgctxt "in-app-notifications"
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "Det gick inte att tillämpa brandväggsregler. Enheten kan för närvarande vara osäker"
+msgid "Manage keys under Advanced settings."
+msgstr "Hantera nycklar i Avancerade inställningar."
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic"
-msgstr "Det gick inte att blockera all nätverkstrafik"
+msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
+msgstr "NÄTVERKSTRAFIKEN KANSKE LÄCKER"
 
 msgctxt "in-app-notifications"
-msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
-msgstr "Det gick inte att lösa värd för anpassad tunnel. Överväg att ändra inställningarna"
-
-msgctxt "in-app-notifications"
-msgid "Failed to set system DNS server"
-msgstr "Det gick inte att ange systemets DNS-server"
-
-msgctxt "in-app-notifications"
-msgid "Failed to start tunnel connection"
-msgstr "Det gick inte att starta tunnelanslutning"
-
-msgctxt "in-app-notifications"
-msgid "Inconsistent internal version information, please restart the app"
-msgstr "Inkonsekvent intern versionsinformation, starta om appen"
-
-msgctxt "in-app-notifications"
-msgid "INCONSISTENT VERSION"
-msgstr "INKONSEKVENT VERSION"
-
-#. The in-app banner displayed to the user when the app update is available.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "Install Mullvad VPN (%(version)s) to stay up to date"
-msgstr "Installera Mullvad VPN (%(version)s) för att hålla dig uppdaterad"
-
-msgctxt "in-app-notifications"
-msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
-msgstr "Ingen reläserver matchar de aktuella inställningarna. Du kan prova att ändra plats eller reläinställningarna."
-
-msgctxt "in-app-notifications"
-msgid "Original block reason"
-msgstr "Ursprunglig blockeringsorsak"
-
-msgctxt "in-app-notifications"
-msgid "This device is offline, no tunnels can be established"
-msgstr "Denna enhet är frånkopplad, inga tunnlar kan skapas"
-
-msgctxt "in-app-notifications"
-msgid "This might be caused by third party security software"
-msgstr "Detta kan ha orsakats av säkerhetsmjukvara från tredje part"
-
-msgctxt "in-app-notifications"
-msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
-msgstr "Det går inte att upptäcka en fungerande TAP-adapter på den här enheten. Aktivera den om den är inaktiverad. Installera om appen i annat fall"
+msgid "Please quit and restart the app."
+msgstr "Avsluta och starta om appen."
 
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
@@ -430,16 +451,8 @@ msgid "UPDATE AVAILABLE"
 msgstr "UPPDATERING TILLGÄNGLIG"
 
 msgctxt "in-app-notifications"
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr "Giltig WireGuard-nyckel saknas. Hantera nycklar i avancerade inställningar."
-
-msgctxt "in-app-notifications"
-msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
-msgstr "DU KANSKE HAR LÄCKAGE I NÄTVERKSTRAFIKEN"
-
-msgctxt "in-app-notifications"
-msgid "Your kernel may be outdated"
-msgstr "Din kernel kan vara föråldrad"
+msgid "VALID WIREGUARD KEY IS MISSING"
+msgstr "GILTIG WIREGUARD-NYCKEL SAKNAS"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -520,24 +533,24 @@ msgstr "Inställningar"
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
 msgctxt "notifications"
-msgid "Account credit expires in %(duration)s"
-msgstr "Kontokrediten slutar gälla om %(duration)s"
+msgid "Account credit expires in %(duration)s. Buy more credit."
+msgstr "Kontokrediten slutar gälla om %(duration)s. Köp mer kredit."
 
 msgctxt "notifications"
-msgid "Blocking internet"
-msgstr "Blockerar internet"
+msgid "Account is out of time"
+msgstr "Kontots tidsgräns har uppnåtts"
 
 msgctxt "notifications"
-msgid "Blocking internet:"
-msgstr "Blockerar internet:"
-
-msgctxt "notifications"
-msgid "Blocking internet: Valid WireGuard key is missing"
-msgstr "Blockerar internet: giltig WireGuard-nyckel saknas"
+msgid "App is out of sync. Please quit and restart."
+msgstr "Appen är inte synkroniserad. Avsluta och starta om."
 
 msgctxt "notifications"
 msgid "Buy more"
 msgstr "Köp mer"
+
+msgctxt "notifications"
+msgid "Connected"
+msgstr "Ansluten"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -558,44 +571,77 @@ msgid "Connecting to %(location)s"
 msgstr "Ansluter till %(location)s"
 
 msgctxt "notifications"
-msgid "Critical error (your attention is required)"
-msgstr "Kritiskt fel (kräver din uppmärksamhet)"
+msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
+msgstr "Det gick inte att konfigurera IPv6. Inaktivera det i appen eller aktivera det på din enhet."
 
 msgctxt "notifications"
-msgid "Inconsistent internal version information, please restart the app"
-msgstr "Inkonsekvent intern versionsinformation, starta om appen"
-
-#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
-msgctxt "notifications"
-msgid "Please upgrade to %(version)s now to ensure your security"
-msgstr "Uppgradera till %(version)s nu för att garantera din säkerhet"
+msgid "Disconnected and unsecured"
+msgstr "Frånkopplad och oskyddad"
 
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "Återansluter"
 
 msgctxt "notifications"
-msgid "Secured"
-msgstr "Skyddad"
+msgid "Unable to apply firewall rules."
+msgstr "Det går inte att använda brandväggsregler."
 
 msgctxt "notifications"
-msgid "Unsecured"
-msgstr "Oskyddad"
+msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
+msgstr "Det går inte att använda brandväggsregler. Försök att inaktivera antivirus- eller säkerhetsprogram från tredje part."
+
+msgctxt "notifications"
+msgid "Unable to apply firewall rules. Try updating your kernel."
+msgstr "Det går inte att använda brandväggsregler. Testa att uppdatera din operativsystemkärna."
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Please troubleshoot or contact support."
+msgstr "Det går inte att blockera all nätverkstrafik. Felsök eller kontakta supporten."
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
+msgstr "Det går inte att blockera all nätverkstrafik. Testa att inaktivera antivirus- eller säkerhetsprogram från tredje part eller kontakta supporten."
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try updating your kernel or contact support."
+msgstr "Det går inte att blockera all nätverkstrafik. Uppdatera din operativsystemkärna eller kontakta supporten."
+
+msgctxt "notifications"
+msgid "Unable to resolve host of custom tunnel. Try changing your settings."
+msgstr "Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna."
+
+msgctxt "notifications"
+msgid "Unable to set system DNS server. Please contact support."
+msgstr "Det går inte att konfigurera DNS-server. Kontakta supporten."
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. Please contact support."
+msgstr "Det går inte att starta tunnelanslutning. Kontakta supporten."
+
+msgctxt "notifications"
+msgid "Update available. Install the latest app version to stay up to date"
+msgstr "Uppdatering tillgänglig. Installera den senaste appversionen för att hålla dig uppdaterad"
 
 msgctxt "notifications"
 msgid "Upgrade"
 msgstr "Uppgradera"
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
-msgid "You are running an unsupported app version."
-msgstr "Du kör en appversion som inte stöds."
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "Giltig WireGuard-nyckel saknas. Hantera nycklar i avancerade inställningar."
 
 msgctxt "notifications"
-msgid "You have no more VPN time left on this account."
-msgstr "Du har ingen VPN-tid kvar på det här kontot."
+msgid "Your device is offline. Try connecting when it's back online."
+msgstr "Din enhet är offline. Försök att ansluta när den är online igen."
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version. Please update now."
+msgstr "Din sekretess kan vara utsatt för risk med den här appversionen som inte stöds. Uppdatera nu."
+
+msgctxt "notifications"
+msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
+msgstr "Din valda server och ditt tunnelprotokoll matchar inte. Justera dina inställningar."
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -625,6 +671,10 @@ msgstr "Aktivera eller inaktivera systemmeddelanden. De kritiska meddelandena ko
 msgctxt "preferences-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Aktivera för att få en avisering när nya betaversioner av appen släpps."
+
+msgctxt "preferences-view"
+msgid "Enable to move the app around as a free-standing window."
+msgstr "Aktivera för att flytta runt appen som ett fristående fönster."
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -657,6 +707,10 @@ msgstr "Starta minimerat"
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Det här alternativet är inte tillgängligt när du använder en betaversion."
+
+msgctxt "preferences-view"
+msgid "Unpin app from taskbar"
+msgstr "Lossa appen från aktivitetsfältet"
 
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -830,6 +884,7 @@ msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
 msgstr "Om det behövs kontaktar vi dig på %(email)s"
 
+#. Title label in navigation bar
 msgctxt "support-view"
 msgid "Report a problem"
 msgstr "Rapportera ett problem"
@@ -851,8 +906,8 @@ msgid "Sent"
 msgstr "Skickat"
 
 msgctxt "support-view"
-msgid "Thanks! We will look into this."
-msgstr "Tack! Vi kommer att undersöka detta."
+msgid "Thanks!"
+msgstr "Tack!"
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -869,6 +924,10 @@ msgstr "Uppgradera appen"
 msgctxt "support-view"
 msgid "View app logs"
 msgstr "Visa appens loggar"
+
+msgctxt "support-view"
+msgid "We will look into this."
+msgstr "Vi kommer att undersöka detta."
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
@@ -967,4 +1026,162 @@ msgstr "Avancerat"
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard-nyckel"
+
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr "DNS-servern du försöker lägga till kanske inte fungerar eftersom den är offentlig. För närvarande stöder vi bara lokala DNS-servrar."
+
+msgid "WireGuard error"
+msgstr "WireGuard-fel"
+
+msgid "Account time reminders"
+msgstr "Påminnelser om kontotid"
+
+msgid "WireGuard public key"
+msgstr "Offentlig nyckel för WireGuard"
+
+msgid "Copied WireGuard public key to clipboard"
+msgstr "Kopierade offentlig nyckel för WireGuard till urklipp"
+
+msgid "Account credit expires soon"
+msgstr "Kontokrediten slutar snart gälla"
+
+msgid "Account credit expires in a few minutes"
+msgstr "Kontokrediten slutar gälla om några minuter"
+
+msgid "Thanks!"
+msgstr "Tack!"
+
+msgid "We will look into this."
+msgstr "Vi kommer att undersöka detta."
+
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr "Du kör en appversion som inte stöds. Uppgradera till %s nu för att garantera din säkerhet"
+
+msgid "e.g. 10.0.0.4"
+msgstr "t.ex. 10.0.0.4"
+
+msgid "Copied to clipboard"
+msgstr "Kopierat till urklipp"
+
+msgid "Too many WireGuard keys registered to account"
+msgstr "För många WireGuard-nycklar registrerade på kontot"
+
+msgid "Shows current VPN tunnel status"
+msgstr "Visar nuvarande status för VPN-tunnel"
+
+msgid "Copied Mullvad account number to clipboard"
+msgstr "Kopierade Mullvad-kontonummer till urklipp"
+
+msgid "Use custom DNS server"
+msgstr "Använd anpassad DNS-server"
+
+msgid "Add anyway"
+msgstr "Lägg till ändå"
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "Det gick inte att blockera all nätverkstrafik. Felsök eller anmäl problemet till oss."
+
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr "Delade tunnlar gör det möjligt att välja vilka applikationer som inte ska dirigeras genom VPN-tunneln."
+
+msgid "less than a day left"
+msgstr "mindre än en dag kvar"
+
+msgid "Blocking all connections"
+msgstr "Blockerar alla anslutningar"
+
+msgid "Could not configure IPv6"
+msgstr "Det gick inte att konfigurera IPv6"
+
+msgid "Disconnecting"
+msgstr "Kopplar från"
+
+msgid "Enable to add at least one DNS server."
+msgstr "Aktivera för att lägga till minst en DNS-server."
+
+msgid "Enable"
+msgstr "Aktivera"
+
+msgid "No relay server matches the current settings"
+msgstr "Ingen reläserver matchar de aktuella inställningarna"
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr "VPN-behörighet nekades när tunneln skapades. Försök att ansluta igen."
+
+msgid "No bridge relay server matches the current settings"
+msgstr "Ingen bryggreläserver matchar de aktuella inställningarna"
+
+msgid "Shows reminders when the account time is about to expire"
+msgstr "Visar påminnelser när kontots tidsgräns uppnås"
+
+msgid "Add a server"
+msgstr "Lägg till en server"
+
+msgid "Mullvad account number"
+msgstr "Mullvad-kontonummer"
+
+msgid "less than a minute ago"
+msgstr "mindre än en minut sedan"
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr "Det gick inte att lösa värdnamnet för den anpassade servern"
+
+msgid "Virtual adapter error"
+msgstr "Fel med virtuell adapter"
+
+msgid "Exclude applications"
+msgstr "Exkludera applikationer"
+
+msgid "VPN tunnel status"
+msgstr "VPN-tunnelstatus"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "1 år kvar"
+msgstr[1] "%d år kvar"
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] "1 månad kvar"
+msgstr[1] "%d månader kvar"
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] "1 dag kvar"
+msgstr[1] "%d dagar kvar"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "en minut sedan"
+msgstr[1] "%d minuter sedan"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "en timme sedan"
+msgstr[1] "%d timmar sedan"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "en dag sedan"
+msgstr[1] "%d dagar sedan"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "en månad sedan"
+msgstr[1] "%d månader sedan"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "ett år sedan"
+msgstr[1] "%d år sedan"
+
+msgid "Account credit expires in a day"
+msgid_plural "Account credit expires in %d days"
+msgstr[0] "Kontokrediten slutar gälla om en dag"
+msgstr[1] "Kontokrediten slutar gälla om %d dagar"
+
+msgid "Account credit expires in an hour"
+msgid_plural "Account credit expires in %d hours"
+msgstr[0] "Kontokrediten slutar gälla om en timme"
+msgstr[1] "Kontokrediten slutar gälla om %d timmar"
 

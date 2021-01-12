@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2020-10-19 12:23\n"
+"PO-Revision-Date: 2021-01-12 14:52\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -343,6 +343,10 @@ msgstr "プラハ"
 #. IN PNQ
 msgid "Pune"
 msgstr "プネー"
+
+#. US RAG
+msgid "Raleigh, NC"
+msgstr "ローリー、NC"
 
 #. US RIC
 msgid "Richmond, VA"

@@ -95,6 +95,7 @@
     <string name="update_available_footer">업데이트 사용 가능, 안전을 유지하기 위해 다운로드하세요.</string>
     <string name="user_email_hint">이메일(선택 사항)</string>
     <string name="user_message_hint">문제 설명</string>
+    <string name="view_logs">앱 로그 보기</string>
     <string name="voucher_already_used">이미 사용된 바우처 코드입니다.</string>
     <string name="wg_key_url">https://mullvad.net/ko/account/ports</string>
     <string name="wireguard">WireGuard</string>

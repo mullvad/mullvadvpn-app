@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2020-10-19 12:23\n"
+"PO-Revision-Date: 2021-01-12 14:52\n"
 
 msgid "Back"
 msgstr "Terug"
@@ -51,17 +51,56 @@ msgstr "VERBINDING BEVEILIGEN MISLUKT"
 msgid "Invalid account number"
 msgstr "Ongeldig accountnummer"
 
+msgid "Open URL"
+msgstr "URL openen"
+
 msgid "Reconnect"
 msgstr "Opnieuw verbinden"
 
 msgid "SECURE CONNECTION"
 msgstr "BEVEILIGDE VERBINDING"
 
+msgid "Settings"
+msgstr "Instellingen"
+
 msgid "System default"
 msgstr "Systeemstandaard"
 
 msgid "UNSECURED CONNECTION"
 msgstr "NIET-BEVEILIGDE VERBINDING"
+
+msgctxt "accessibility"
+msgid "%(title)s, View loaded"
+msgstr "%(title)s, weergave geladen"
+
+msgctxt "accessibility"
+msgid "Collapse %(location)s"
+msgstr "%(location)s samenvouwen"
+
+msgctxt "accessibility"
+msgid "Expand %(location)s"
+msgstr "%(location)s uitvouwen"
+
+msgctxt "accessibility"
+msgid "Forget %(accountToken)s"
+msgstr "%(accountToken)s vergeten"
+
+#. This is used by screenreaders to communicate the login button.
+msgctxt "accessibility"
+msgid "Login"
+msgstr "Aanmelden"
+
+msgctxt "accessibility"
+msgid "Opens externally"
+msgstr "Opent extern"
+
+msgctxt "accessibility"
+msgid "Remove item"
+msgstr "Item verwijderen"
+
+msgctxt "accessibility"
+msgid "Select location. Current location is %(location)s"
+msgstr "Selecteer locatie. Huidige locatie is %(location)s"
 
 #. The remaining time left on the account measured in days.
 #. Available placeholders:
@@ -77,6 +116,7 @@ msgctxt "account-expiry"
 msgid "%(duration)s left"
 msgstr "%(duration)s resterend"
 
+#. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
 msgstr "Account"
@@ -105,6 +145,14 @@ msgstr "Betaald tot"
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "Geavanceerd"
+
+msgctxt "advanced-settings-view"
+msgid "Add a server"
+msgstr "Server toevoegen"
+
+msgctxt "advanced-settings-view"
+msgid "Add anyway"
+msgstr "Toch toevoegen"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -142,6 +190,10 @@ msgstr "IPv6 activeren"
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "Activeer IPv6-communicatie door de tunnel."
+
+msgctxt "advanced-settings-view"
+msgid "Enable to add at least one DNS server."
+msgstr "Schakel in om minimaal één DNS-server toe te voegen."
 
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
@@ -203,6 +255,10 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr "De ingebouwde killswitch van de app staat altijd aan. Deze instelling blokkeert het internet bovendien als men op Verbinding verbreken of Afsluiten klikt."
 
 msgctxt "advanced-settings-view"
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr "De DNS-server die u probeert toe te voegen, werkt mogelijk niet omdat deze openbaar is. Momenteel ondersteunen we alleen lokale DNS-servers."
+
+msgctxt "advanced-settings-view"
 msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
 msgstr "Genereer een sleutel onder de instelling \"WireGuard-sleutel\" hieronder om WireGuard in te schakelen."
 
@@ -213,6 +269,10 @@ msgstr "Tunnelprotocol"
 msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
+
+msgctxt "advanced-settings-view"
+msgid "Use custom DNS server"
+msgstr "Aangepaste DNS-server gebruiken"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard"
@@ -235,20 +295,20 @@ msgid "missing key"
 msgstr "ontbrekende sleutel"
 
 msgctxt "auth-failure"
-msgid "Account authentication failed."
-msgstr "Authenticatie van account mislukt."
+msgid "Blocking internet: account is out of time"
+msgstr "Internet geblokkeerd: account heeft geen tijd meer"
 
 msgctxt "auth-failure"
-msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
-msgstr "Dit account heeft te veel gelijktijdige verbindingen. Verbreek de verbinding met een ander toestel of probeer later opnieuw te verbinden."
+msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
+msgstr "Te veel gelijktijdige verbindingen op dit account. Verbreek de verbinding van een ander apparaat of probeer later opnieuw te verbinden."
 
 msgctxt "auth-failure"
-msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "U hebt geen VPN-tijd meer op dit account. Meld u aan op onze website voor meer krediet."
+msgid "Unable to authenticate account. Please contact support."
+msgstr "Kan account niet verifiëren. Neem contact op met de ondersteuning."
 
 msgctxt "auth-failure"
-msgid "You've logged in with an account number that is not valid. Please log out and try another one."
-msgstr "U hebt ingelogd met een ongeldig accountnummer. Meld u af en probeer een ander nummer."
+msgid "You are logged in with an invalid account number. Please log out and try another one."
+msgstr "U bent aangemeld met een ongeldig accountnummer. Meld af en probeer een ander account."
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -351,75 +411,36 @@ msgid "\"Always require VPN\" is enabled."
 msgstr "\"Altijd VPN vereisen\" is ingeschakeld."
 
 msgctxt "in-app-notifications"
+msgid "%(duration)s. Buy more credit."
+msgstr "%(duration)s. Koop meer krediet."
+
+msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "ACCOUNTKREDIET VERVALT BINNENKORT"
 
 msgctxt "in-app-notifications"
-msgid "An application prevented the policy from being set"
-msgstr "Een toepassing verhinderde dat het beleid werd ingesteld"
+msgid "APP IS OUT OF SYNC"
+msgstr "APP IS NIET GESYNCHRONISEERD"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "INTERNET GEBLOKKEERD"
 
 msgctxt "in-app-notifications"
-msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
-msgstr "Kan IPv6 niet configureren. Schakel dit in op het systeem of schakel het uit in de app"
+msgid "Install the latest app version to stay up to date."
+msgstr "Installeer de nieuwste appversie om up-to-date te blijven."
 
 msgctxt "in-app-notifications"
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "Toepassen van firewallregels is mislukt. Het toestel is nu mogelijk niet beveiligd"
+msgid "Manage keys under Advanced settings."
+msgstr "Beheer sleutels onder Geavanceerde instellingen."
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic"
-msgstr "Kon niet alle netwerkverkeer blokkeren"
+msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
+msgstr "NETWERKVERKEER KAN LEKKEN"
 
 msgctxt "in-app-notifications"
-msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
-msgstr "Omzetten van host van aangepaste tunnel mislukt. Overweeg om de instellingen te wijzigen"
-
-msgctxt "in-app-notifications"
-msgid "Failed to set system DNS server"
-msgstr "Instellen van DNS-server van systeem is mislukt"
-
-msgctxt "in-app-notifications"
-msgid "Failed to start tunnel connection"
-msgstr "Starten van tunnelverbinding is mislukt"
-
-msgctxt "in-app-notifications"
-msgid "Inconsistent internal version information, please restart the app"
-msgstr "Inconsistente interne versie-informatie, start de app opnieuw."
-
-msgctxt "in-app-notifications"
-msgid "INCONSISTENT VERSION"
-msgstr "INCONSISTENTE VERSIE"
-
-#. The in-app banner displayed to the user when the app update is available.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "Install Mullvad VPN (%(version)s) to stay up to date"
-msgstr "Installeer Mullvad VPN (%(version)s) om up-to-date te blijven"
-
-msgctxt "in-app-notifications"
-msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
-msgstr "Geen enkele relaisserver komt overeen met de huidige instellingen. U kunt proberen de locatie of de relaisinstellingen te wijzigen."
-
-msgctxt "in-app-notifications"
-msgid "Original block reason"
-msgstr "Oorspronkelijke reden blokkering"
-
-msgctxt "in-app-notifications"
-msgid "This device is offline, no tunnels can be established"
-msgstr "Dit toestel is offline, er kunnen geen tunnels worden gemaakt"
-
-msgctxt "in-app-notifications"
-msgid "This might be caused by third party security software"
-msgstr "Dit wordt mogelijk veroorzaakt door beveiligingssoftware van derden"
-
-msgctxt "in-app-notifications"
-msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
-msgstr "Kan geen werkende TAP-adapter detecteren op dit toestel. Als u deze hebt uitgeschakeld, schakel deze dan opnieuw in. Anders moet u de app opnieuw installeren"
+msgid "Please quit and restart the app."
+msgstr "Sluit en herstart de app."
 
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
@@ -430,16 +451,8 @@ msgid "UPDATE AVAILABLE"
 msgstr "UPDATE BESCHIKBAAR"
 
 msgctxt "in-app-notifications"
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr "Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen."
-
-msgctxt "in-app-notifications"
-msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
-msgstr "U LEKT MOGELIJK NETWERKVERKEER"
-
-msgctxt "in-app-notifications"
-msgid "Your kernel may be outdated"
-msgstr "De kernel is wellicht verouderd"
+msgid "VALID WIREGUARD KEY IS MISSING"
+msgstr "GELDIGE WIREGUARD-SLEUTEL ONTBREEKT"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -520,24 +533,24 @@ msgstr "Instellingen"
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
 msgctxt "notifications"
-msgid "Account credit expires in %(duration)s"
-msgstr "Accountkrediet verloopt over %(duration)s"
+msgid "Account credit expires in %(duration)s. Buy more credit."
+msgstr "Accountkrediet verloopt over %(duration)s. Koop meer krediet."
 
 msgctxt "notifications"
-msgid "Blocking internet"
-msgstr "Internet blokkeren"
+msgid "Account is out of time"
+msgstr "Account heeft geen tijd meer"
 
 msgctxt "notifications"
-msgid "Blocking internet:"
-msgstr "Internet blokkeren:"
-
-msgctxt "notifications"
-msgid "Blocking internet: Valid WireGuard key is missing"
-msgstr "Internet blokkeren: Geldige WireGuard-sleutel ontbreekt"
+msgid "App is out of sync. Please quit and restart."
+msgstr "App is niet gesynchroniseerd. Sluit en start opnieuw."
 
 msgctxt "notifications"
 msgid "Buy more"
 msgstr "Meer kopen"
+
+msgctxt "notifications"
+msgid "Connected"
+msgstr "Verbonden"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -558,44 +571,77 @@ msgid "Connecting to %(location)s"
 msgstr "Verbinden met %(location)s"
 
 msgctxt "notifications"
-msgid "Critical error (your attention is required)"
-msgstr "Kritieke fout (uw aandacht is vereist)"
+msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
+msgstr "Kon IPv6 niet configureren. Schakel het uit in de app of schakel het in op uw apparaat."
 
 msgctxt "notifications"
-msgid "Inconsistent internal version information, please restart the app"
-msgstr "Inconsistente interne versie-informatie, start de app opnieuw "
-
-#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
-msgctxt "notifications"
-msgid "Please upgrade to %(version)s now to ensure your security"
-msgstr "Upgrade nu naar %(version)s om uw veiligheid te waarborgen"
+msgid "Disconnected and unsecured"
+msgstr "Verbinding verbroken en niet beveiligd"
 
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "Opnieuw verbinden"
 
 msgctxt "notifications"
-msgid "Secured"
-msgstr "Beveiligd"
+msgid "Unable to apply firewall rules."
+msgstr "Kan firewallregels niet toepassen."
 
 msgctxt "notifications"
-msgid "Unsecured"
-msgstr "Niet beveiligd"
+msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
+msgstr "Kan firewallregels niet toepassen. Probeer antivirus- of beveiligingssoftware van derden uit te schakelen."
+
+msgctxt "notifications"
+msgid "Unable to apply firewall rules. Try updating your kernel."
+msgstr "Kan firewallregels niet toepassen. Probeer uw kernel te updaten."
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Please troubleshoot or contact support."
+msgstr "Kan niet alle netwerkverkeer blokkeren. Los problemen op of neem contact op met de ondersteuning."
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
+msgstr "Kan niet alle netwerkverkeer blokkeren. Probeer antivirus- of beveiligingssoftware van derden uit te schakelen of neem contact op met de ondersteuning."
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try updating your kernel or contact support."
+msgstr "Kan niet alle netwerkverkeer blokkeren. Probeer uw kernel te updaten of neem contact op met de ondersteuning."
+
+msgctxt "notifications"
+msgid "Unable to resolve host of custom tunnel. Try changing your settings."
+msgstr "Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen."
+
+msgctxt "notifications"
+msgid "Unable to set system DNS server. Please contact support."
+msgstr "Kan DNS-server van systeem niet instellen. Neem contact op met de ondersteuning."
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. Please contact support."
+msgstr "Kan de tunnelverbinding niet starten. Neem contact op met de ondersteuning."
+
+msgctxt "notifications"
+msgid "Update available. Install the latest app version to stay up to date"
+msgstr "Update beschikbaar. Installeer de nieuwste appversie om up-to-date te blijven"
 
 msgctxt "notifications"
 msgid "Upgrade"
 msgstr "Upgraden"
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
-msgid "You are running an unsupported app version."
-msgstr "U gebruikt een niet-ondersteunde appversie."
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen."
 
 msgctxt "notifications"
-msgid "You have no more VPN time left on this account."
-msgstr "U hebt geen VPN-tijd meer op dit account."
+msgid "Your device is offline. Try connecting when it's back online."
+msgstr "Uw apparaat is offline. Probeer te verbinden wanneer het weer online is."
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version. Please update now."
+msgstr "Uw privacy kan risico lopen met deze niet-ondersteunde appversie. Werk de app nu bij."
+
+msgctxt "notifications"
+msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
+msgstr "Uw geselecteerde server- en tunnelprotocol komen niet overeen, Pas uw instellingen aan."
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -625,6 +671,10 @@ msgstr "Schakel systeemnotificaties in of uit. Kritieke notificaties worden alti
 msgctxt "preferences-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "Schakel dit in om meldingen te ontvangen wanneer er nieuwe bètaversies van de app worden uitgebracht."
+
+msgctxt "preferences-view"
+msgid "Enable to move the app around as a free-standing window."
+msgstr "Schakel de optie in om de app rond te bewegen als een vrijstaand scherm."
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -657,6 +707,10 @@ msgstr "Geminimaliseerd opstarten"
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "Deze optie is niet beschikbaar in een bètaversie."
+
+msgctxt "preferences-view"
+msgid "Unpin app from taskbar"
+msgstr "App losmaken van taakbalk"
 
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -830,6 +884,7 @@ msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
 msgstr "Indien nodig nemen we u contact op via %(email)s"
 
+#. Title label in navigation bar
 msgctxt "support-view"
 msgid "Report a problem"
 msgstr "Een probleem rapporteren"
@@ -851,8 +906,8 @@ msgid "Sent"
 msgstr "Verzonden"
 
 msgctxt "support-view"
-msgid "Thanks! We will look into this."
-msgstr "Bedankt! We gaan het bekijken."
+msgid "Thanks!"
+msgstr "Bedankt!"
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -869,6 +924,10 @@ msgstr "App upgraden"
 msgctxt "support-view"
 msgid "View app logs"
 msgstr "Applogboeken weergeven"
+
+msgctxt "support-view"
+msgid "We will look into this."
+msgstr "We gaan het bekijken."
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
@@ -967,4 +1026,162 @@ msgstr "Geavanceerd"
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard-sleutel"
+
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr "De DNS-server die u probeert toe te voegen, werkt mogelijk niet omdat deze openbaar is. Momenteel ondersteunen we alleen lokale DNS-servers."
+
+msgid "WireGuard error"
+msgstr "WireGuard-fout"
+
+msgid "Account time reminders"
+msgstr "Accounttijdsherinneringen"
+
+msgid "WireGuard public key"
+msgstr "Openbare WireGuard-sleutel"
+
+msgid "Copied WireGuard public key to clipboard"
+msgstr "Openbare WireGuard-sleutel gekopieerd naar klembord"
+
+msgid "Account credit expires soon"
+msgstr "Accountkrediet verloopt binnenkort"
+
+msgid "Account credit expires in a few minutes"
+msgstr "Accountkrediet verloopt over enkele minuten"
+
+msgid "Thanks!"
+msgstr "Bedankt!"
+
+msgid "We will look into this."
+msgstr "We gaan het bekijken."
+
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr "U gebruikt een niet-ondersteunde versie van de app. Upgrade nu naar %s om uw veiligheid te waarborgen"
+
+msgid "e.g. 10.0.0.4"
+msgstr "bijv. 10.0.0.4"
+
+msgid "Copied to clipboard"
+msgstr "Gekopieerd naar klembord"
+
+msgid "Too many WireGuard keys registered to account"
+msgstr "Te veel WireGuard-sleutels geregistreerd op account"
+
+msgid "Shows current VPN tunnel status"
+msgstr "Toont huidige status van VPN-tunnel"
+
+msgid "Copied Mullvad account number to clipboard"
+msgstr "Mullvad-accountnummer gekopieerd naar klembord"
+
+msgid "Use custom DNS server"
+msgstr "Aangepaste DNS-server gebruiken"
+
+msgid "Add anyway"
+msgstr "Toch toevoegen"
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "Kon alle netwerkverkeer niet blokkeren. Los problemen op of meld het aan ons."
+
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr "Split tunneling maakt het mogelijk te kiezen welke toepassingen niet via de VPN-tunnel moeten worden omgeleid."
+
+msgid "less than a day left"
+msgstr "minder dan een dag over"
+
+msgid "Blocking all connections"
+msgstr "Alle verbindingen worden geblokkeerd"
+
+msgid "Could not configure IPv6"
+msgstr "Kon IPv6 niet configureren"
+
+msgid "Disconnecting"
+msgstr "Verbinding wordt verbroken"
+
+msgid "Enable to add at least one DNS server."
+msgstr "Schakel in om minimaal één DNS-server toe te voegen."
+
+msgid "Enable"
+msgstr "Inschakelen"
+
+msgid "No relay server matches the current settings"
+msgstr "Er komt geen relaisserver overeen met de huidige instellingen"
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr "VPN-toestemming is geweigerd tijdens opzetten van de tunnel. Probeer opnieuw te verbinden."
+
+msgid "No bridge relay server matches the current settings"
+msgstr "Er komt geen bridge-relaisserver overeen met de huidige instellingen"
+
+msgid "Shows reminders when the account time is about to expire"
+msgstr "Toont herinneringen wanneer de accounttijd op het punt staat te verlopen"
+
+msgid "Add a server"
+msgstr "Server toevoegen"
+
+msgid "Mullvad account number"
+msgstr "Mullvad-accountnummer"
+
+msgid "less than a minute ago"
+msgstr "minder dan een minuut geleden"
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr "Kon de hostnaam van de aangepaste server niet omzetten"
+
+msgid "Virtual adapter error"
+msgstr "Fout virtuele adapter"
+
+msgid "Exclude applications"
+msgstr "Toepassingen uitsluiten"
+
+msgid "VPN tunnel status"
+msgstr "Status VPN-tunnel"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "1 jaar resterend"
+msgstr[1] "%d jaar resterend"
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] "1 maand resterend"
+msgstr[1] "%d maanden resterend"
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] "1 dag resterend"
+msgstr[1] "%d dagen resterend"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "een minuut geleden"
+msgstr[1] "%d minuten geleden"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "een uur geleden"
+msgstr[1] "%d uur geleden"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "een dag geleden"
+msgstr[1] "%d dagen geleden"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "een maand geleden"
+msgstr[1] "%d maanden geleden"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "een jaar geleden"
+msgstr[1] "%d jaar geleden"
+
+msgid "Account credit expires in a day"
+msgid_plural "Account credit expires in %d days"
+msgstr[0] "Accountkrediet verloopt over een dag"
+msgstr[1] "Accountkrediet verloopt over %d dagen"
+
+msgid "Account credit expires in an hour"
+msgid_plural "Account credit expires in %d hours"
+msgstr[0] "Accountkrediet verloopt over een uur"
+msgstr[1] "Accountkrediet verloopt over %d uur"
 

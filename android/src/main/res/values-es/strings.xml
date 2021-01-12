@@ -95,6 +95,7 @@
     <string name="update_available_footer">Actualización disponible, descárguela para garantizar su seguridad.</string>
     <string name="user_email_hint">Su correo electrónico (opcional)</string>
     <string name="user_message_hint">Describa el problema</string>
+    <string name="view_logs">Ver registros de la aplicación</string>
     <string name="voucher_already_used">El código del cupón ya se ha usado.</string>
     <string name="wg_key_url">https://mullvad.net/es/account/ports</string>
     <string name="wireguard">WireGuard</string>
