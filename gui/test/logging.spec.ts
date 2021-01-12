@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
 import { it, describe, before, beforeEach, after } from 'mocha';
-import * as logging from '../src/shared/logging';
+import { backupLogFile, rotateOrDeleteFile } from '../src/main/logging';
 
 const aPath = 'log-directory/a.log';
 const oldAPath = 'log-directory/a.old.log';
@@ -51,7 +51,7 @@ describe('Logging', () => {
   });
 
   it('should backup log file', () => {
-    logging.backupLogFile(aPath);
+    backupLogFile(aPath);
     const oldA = fs.readFileSync(oldAPath).toString();
 
     expect(fs.accessSync.bind(null, aPath)).to.throw();
@@ -59,7 +59,7 @@ describe('Logging', () => {
   });
 
   it('should replace backup file', () => {
-    logging.backupLogFile(bPath);
+    backupLogFile(bPath);
     const oldB = fs.readFileSync(oldBPath).toString();
 
     expect(fs.accessSync.bind(null, bPath)).to.throw();
@@ -67,13 +67,13 @@ describe('Logging', () => {
   });
 
   it('should clean up old log files', () => {
-    logging.rotateOrDeleteFile(bPath);
+    rotateOrDeleteFile(bPath);
     const oldB = fs.readFileSync(oldBPath).toString();
 
     expect(fs.accessSync.bind(null, bPath)).to.throw();
     expect(oldB).to.equal(initialFileState[bPath]);
 
-    logging.rotateOrDeleteFile(bPath);
+    rotateOrDeleteFile(bPath);
 
     expect(fs.accessSync.bind(null, bPath)).to.throw();
     expect(fs.accessSync.bind(null, oldBPath)).to.throw();
