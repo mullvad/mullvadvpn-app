@@ -4,17 +4,13 @@ import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.talpid.util.EventNotifier
 
 class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings) {
-    var settings: Settings = initialSettings
-        private set(value) {
-            settingsNotifier.notify(value)
-            field = value
-        }
-
-    private val settingsNotifier: EventNotifier<Settings> = EventNotifier(settings)
-
     val accountNumberNotifier = EventNotifier(initialSettings.accountToken)
     val dnsOptionsNotifier = EventNotifier(initialSettings.tunnelOptions.dnsOptions)
     val relaySettingsNotifier = EventNotifier(initialSettings.relaySettings)
+    val settingsNotifier: EventNotifier<Settings> = EventNotifier(initialSettings)
+
+    var settings by settingsNotifier.notifiable()
+        private set
 
     init {
         daemon.onSettingsChange.subscribe(this) { maybeSettings ->
