@@ -91,7 +91,6 @@ class ConnectFragment :
 
         relayListListener.onRelayListChange = { _, selectedRelayItem ->
             jobTracker.newUiJob("updateSelectedRelayItem") {
-                locationInfoCache.selectedRelay = selectedRelayItem
                 switchLocationButton.location = selectedRelayItem
             }
         }
