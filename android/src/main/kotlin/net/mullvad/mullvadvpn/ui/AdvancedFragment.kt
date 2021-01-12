@@ -109,8 +109,10 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
-        settingsListener.settingsNotifier.subscribe(this) { settings ->
-            updateUi(settings)
+        settingsListener.settingsNotifier.subscribe(this) { maybeSettings ->
+            maybeSettings?.let { settings ->
+                updateUi(settings)
+            }
         }
     }
 
@@ -125,8 +127,9 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private suspend fun confirmAddAddress(address: InetAddress): Boolean {
         return when {
             address.isLinkLocalAddress() || address.isSiteLocalAddress() -> {
-                settingsListener.settings.allowLan ||
-                    showConfirmDnsServerDialog(R.string.confirm_local_dns)
+                val allowLanEnabled = settingsListener.settings?.allowLan ?: false
+
+                allowLanEnabled || showConfirmDnsServerDialog(R.string.confirm_local_dns)
             }
             else -> showConfirmDnsServerDialog(R.string.confirm_public_dns)
         }

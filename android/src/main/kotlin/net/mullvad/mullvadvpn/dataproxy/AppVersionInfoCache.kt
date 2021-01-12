@@ -54,8 +54,10 @@ class AppVersionInfoCache(
         private set
 
     init {
-        settingsListener.settingsNotifier.subscribe(this) { settings ->
-            showBetaReleases = settings.showBetaReleases
+        settingsListener.settingsNotifier.subscribe(this) { maybeSettings ->
+            maybeSettings?.let { settings ->
+                showBetaReleases = settings.showBetaReleases
+            }
         }
     }
 
