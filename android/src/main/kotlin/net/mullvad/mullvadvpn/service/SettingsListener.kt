@@ -1,9 +1,10 @@
 package net.mullvad.mullvadvpn.service
 
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.talpid.util.EventNotifier
 
-class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings) {
+class SettingsListener(val initialSettings: Settings, val daemon: Intermittent<MullvadDaemon>) {
     val accountNumberNotifier = EventNotifier(initialSettings.accountToken)
     val dnsOptionsNotifier = EventNotifier(initialSettings.tunnelOptions.dnsOptions)
     val relaySettingsNotifier = EventNotifier(initialSettings.relaySettings)
@@ -13,13 +14,25 @@ class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings)
         private set
 
     init {
-        daemon.onSettingsChange.subscribe(this) { maybeSettings ->
-            maybeSettings?.let { settings -> handleNewSettings(settings) }
+        daemon.registerListener(this) { maybeNewDaemon ->
+            maybeNewDaemon?.let { newDaemon ->
+                newDaemon.onSettingsChange.subscribe(this@SettingsListener) { maybeSettings ->
+                    synchronized(this@SettingsListener) {
+                        maybeSettings?.let { newSettings -> handleNewSettings(newSettings) }
+                    }
+                }
+
+                synchronized(this@SettingsListener) {
+                    newDaemon.getSettings()?.let { newSettings ->
+                        handleNewSettings(newSettings)
+                    }
+                }
+            }
         }
     }
 
     fun onDestroy() {
-        daemon.onSettingsChange.unsubscribe(this)
+        daemon.unregisterListener(this)
 
         accountNumberNotifier.unsubscribeAll()
         dnsOptionsNotifier.unsubscribeAll()
