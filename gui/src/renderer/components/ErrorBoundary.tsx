@@ -1,8 +1,8 @@
-import log from 'electron-log';
 import React from 'react';
 import styled from 'styled-components';
 import { colors, links } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import log from '../../shared/logging';
 import PlatformWindowContainer from '../containers/PlatformWindowContainer';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';

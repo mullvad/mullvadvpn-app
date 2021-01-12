@@ -1,7 +1,7 @@
-import log from 'electron-log';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import log from '../../shared/logging';
 import { useMounted } from '../lib/utilityHooks';
 import { StyledButtonContent, StyledLabel, StyledLabelContainer } from './AppButtonStyles';
 import ImageView from './ImageView';

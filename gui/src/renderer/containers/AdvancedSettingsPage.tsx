@@ -1,4 +1,3 @@
-import log from 'electron-log';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import {
@@ -7,6 +6,7 @@ import {
   RelayProtocol,
   TunnelProtocol,
 } from '../../shared/daemon-rpc-types';
+import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import AdvancedSettings from '../components/AdvancedSettings';
 
