@@ -1,8 +1,8 @@
 import child_process from 'child_process';
-import log from 'electron-log';
 import fs from 'fs';
 import path from 'path';
 import { ILinuxApplication } from '../shared/application-types';
+import log from '../shared/logging';
 
 type DirectoryDescription = string | RegExp;
 

@@ -1,8 +1,8 @@
 import { app, nativeImage, NativeImage, Notification } from 'electron';
-import log from 'electron-log';
 import os from 'os';
 import path from 'path';
 import { TunnelState } from '../shared/daemon-rpc-types';
+import log from '../shared/logging';
 import {
   ConnectedNotificationProvider,
   ConnectingNotificationProvider,
