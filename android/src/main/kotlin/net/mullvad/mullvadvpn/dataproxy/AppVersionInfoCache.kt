@@ -6,7 +6,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.service.MullvadDaemon
-import net.mullvad.mullvadvpn.service.SettingsListener
+import net.mullvad.mullvadvpn.service.endpoint.SettingsListener
 
 class AppVersionInfoCache(
     val context: Context,
