@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2020-10-19 12:23\n"
+"PO-Revision-Date: 2021-01-12 14:52\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -346,7 +346,7 @@ msgstr "浦那"
 
 #. US RAG
 msgid "Raleigh, NC"
-msgstr ""
+msgstr "羅利，NC"
 
 #. US RIC
 msgid "Richmond, VA"
@@ -487,3 +487,4 @@ msgstr "維也納"
 #. CH ZRH
 msgid "Zurich"
 msgstr "蘇黎世"
+
