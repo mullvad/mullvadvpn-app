@@ -1,7 +1,7 @@
-import log from 'electron-log';
 import * as React from 'react';
 import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
+import log from '../../shared/logging';
 import { Scheduler } from '../../shared/scheduler';
 
 interface IProps {

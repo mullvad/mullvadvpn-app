@@ -1,6 +1,6 @@
-import log from 'electron-log';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import log from '../../shared/logging';
 import ExpiredAccountErrorView from '../components/ExpiredAccountErrorView';
 import accountActions from '../redux/account/actions';
 

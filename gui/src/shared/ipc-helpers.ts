@@ -1,6 +1,6 @@
 import { ipcMain, ipcRenderer, WebContents } from 'electron';
-import log from 'electron-log';
 import { capitalize } from './string-helpers';
+import log from './logging';
 
 type Handler<T, R> = (callback: (arg: T) => R) => void;
 type Sender<T, R> = (arg: T) => R;

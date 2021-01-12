@@ -1,6 +1,6 @@
-import log from 'electron-log';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
+import log from '../../shared/logging';
 import consumePromise from '../../shared/promise';
 import Preferences from '../components/Preferences';
 import withAppContext, { IAppContext } from '../context';

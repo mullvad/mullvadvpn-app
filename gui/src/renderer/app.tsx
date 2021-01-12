@@ -1,4 +1,3 @@
-import log from 'electron-log';
 import * as React from 'react';
 import { Provider } from 'react-redux';
 import { Router } from 'react-router';
@@ -21,7 +20,7 @@ import { loadTranslations, messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcRendererEventChannel, IRelayListPair } from '../shared/ipc-event-channel';
 import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
-import { getRendererLogFile, setupLogging } from '../shared/logging';
+import log, { SharedLogger } from '../shared/logging';
 import consumePromise from '../shared/promise';
 import History from './lib/history';
 
@@ -43,6 +42,8 @@ import {
   TunnelState,
   VoucherResponse,
 } from '../shared/daemon-rpc-types';
+import RendererLogger from './lib/logger';
+import { LogLevels } from '../shared/logging-types';
 
 interface IPreferredLocaleDescriptor {
   name: string;
@@ -94,7 +95,7 @@ export default class AppRenderer {
   private loginTimer?: NodeJS.Timeout;
 
   constructor() {
-    setupLogging(getRendererLogFile());
+    (log as SharedLogger & RendererLogger).init(LogLevels.debug, LogLevels.debug);
 
     IpcRendererEventChannel.locale.listen((locale) => {
       // load translations for the new locale
