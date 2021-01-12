@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2020-10-19 12:23\n"
+"PO-Revision-Date: 2021-01-12 14:52\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -346,7 +346,7 @@ msgstr "ปูเน"
 
 #. US RAG
 msgid "Raleigh, NC"
-msgstr ""
+msgstr "ราลี นอร์ทแคโรไลนา"
 
 #. US RIC
 msgid "Richmond, VA"
@@ -487,3 +487,4 @@ msgstr "วีน"
 #. CH ZRH
 msgid "Zurich"
 msgstr "ซือริช"
+

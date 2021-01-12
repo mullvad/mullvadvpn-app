@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2020-10-19 12:23\n"
+"PO-Revision-Date: 2021-01-12 14:52\n"
 
 msgid "Back"
 msgstr "뒤로"
@@ -51,17 +51,56 @@ msgstr "보안 연결 실패"
 msgid "Invalid account number"
 msgstr "유효하지 않은 계정 번호"
 
+msgid "Open URL"
+msgstr "URL 열기"
+
 msgid "Reconnect"
 msgstr "다시 연결"
 
 msgid "SECURE CONNECTION"
 msgstr "보안 연결"
 
+msgid "Settings"
+msgstr "설정"
+
 msgid "System default"
 msgstr "시스템 기본값"
 
 msgid "UNSECURED CONNECTION"
 msgstr "비보안 연결"
+
+msgctxt "accessibility"
+msgid "%(title)s, View loaded"
+msgstr "%(title)s, 보기 로드됨"
+
+msgctxt "accessibility"
+msgid "Collapse %(location)s"
+msgstr "%(location)s 축소"
+
+msgctxt "accessibility"
+msgid "Expand %(location)s"
+msgstr "%(location)s 확장"
+
+msgctxt "accessibility"
+msgid "Forget %(accountToken)s"
+msgstr "%(accountToken)s 지우기"
+
+#. This is used by screenreaders to communicate the login button.
+msgctxt "accessibility"
+msgid "Login"
+msgstr "로그인"
+
+msgctxt "accessibility"
+msgid "Opens externally"
+msgstr "외부에서 열립니다"
+
+msgctxt "accessibility"
+msgid "Remove item"
+msgstr "항목 제거"
+
+msgctxt "accessibility"
+msgid "Select location. Current location is %(location)s"
+msgstr "위치를 선택하세요. 현재 위치는 %(location)s입니다"
 
 #. The remaining time left on the account measured in days.
 #. Available placeholders:
@@ -77,6 +116,7 @@ msgctxt "account-expiry"
 msgid "%(duration)s left"
 msgstr "%(duration)s 남음"
 
+#. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
 msgstr "계정"
@@ -105,6 +145,14 @@ msgstr "유효 기간"
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "고급"
+
+msgctxt "advanced-settings-view"
+msgid "Add a server"
+msgstr "서버 추가"
+
+msgctxt "advanced-settings-view"
+msgid "Add anyway"
+msgstr "추가"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -142,6 +190,10 @@ msgstr "IPv6 사용"
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "터널을 통한 IPv6 통신 사용"
+
+msgctxt "advanced-settings-view"
+msgid "Enable to add at least one DNS server."
+msgstr "하나 이상의 DNS 서버를 추가할 수 있습니다."
 
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
@@ -203,6 +255,10 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr "앱에서 기본 제공되는 중단 스위치는 항상 켜져 있습니다. 연결 끊기 또는 종료를 클릭하면 이 설정으로 인해 인터넷이 추가로 차단됩니다."
 
 msgctxt "advanced-settings-view"
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr "추가하려는 DNS 서버가 공용이므로 작동하지 않을 수 있습니다. 현재, 로컬 DNS 서버만 지원됩니다."
+
+msgctxt "advanced-settings-view"
 msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
 msgstr "WireGuard를 사용하려면, 아래의 \"WireGuard 키\" 설정에서 키를 생성하세요."
 
@@ -213,6 +269,10 @@ msgstr "터널 프로토콜"
 msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
+
+msgctxt "advanced-settings-view"
+msgid "Use custom DNS server"
+msgstr "사용자 지정 DNS 서버 사용"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard"
@@ -235,20 +295,20 @@ msgid "missing key"
 msgstr "키 없음"
 
 msgctxt "auth-failure"
-msgid "Account authentication failed."
-msgstr "계정 인증에 실패했습니다."
+msgid "Blocking internet: account is out of time"
+msgstr "인터넷 차단: 계정 시간 초과"
 
 msgctxt "auth-failure"
-msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
-msgstr "이 계정에 동시 연결이 너무 많습니다. 다른 장치의 연결을 끊거나 잠시 후 다시 연결하세요."
+msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
+msgstr "이 계정에 동시 연결이 너무 많습니다. 다른 장치의 연결을 끊거나 잠시 후 다시 연결해 보세요."
 
 msgctxt "auth-failure"
-msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "이 계정에 더 이상 VPN 시간이 없습니다. 추가 크레딧을 구매하려면 웹 사이트에 로그인하세요."
+msgid "Unable to authenticate account. Please contact support."
+msgstr "계정을 인증할 수 없습니다. 지원팀에 문의하세요."
 
 msgctxt "auth-failure"
-msgid "You've logged in with an account number that is not valid. Please log out and try another one."
-msgstr "유효하지 않은 계정 번호로 로그인했습니다. 로그아웃하고 다시 시도하세요."
+msgid "You are logged in with an invalid account number. Please log out and try another one."
+msgstr "잘못된 계정 번호로 로그인했습니다. 로그아웃한 후 다른 계정 번호로 시도하세요."
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -351,75 +411,36 @@ msgid "\"Always require VPN\" is enabled."
 msgstr "\"항상 VPN 필요\"가 활성화되었습니다."
 
 msgctxt "in-app-notifications"
+msgid "%(duration)s. Buy more credit."
+msgstr "%(duration)s. 추가 크레딧을 구매하세요."
+
+msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "계정 크레딧이 곧 만료됩니다"
 
 msgctxt "in-app-notifications"
-msgid "An application prevented the policy from being set"
-msgstr "애플리케이션으로 인해 정책이 설정되지 않았습니다"
+msgid "APP IS OUT OF SYNC"
+msgstr "앱이 동기화되지 않음"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "인터넷 차단"
 
 msgctxt "in-app-notifications"
-msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
-msgstr "IPv6를 구성할 수 없습니다. 시스템에서 활성화하거나 앱에서 비활성화하세요."
+msgid "Install the latest app version to stay up to date."
+msgstr "최신 앱 버전을 설치하여 최신 상태로 유지하세요."
 
 msgctxt "in-app-notifications"
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "방화벽 규칙을 적용하지 못했습니다. 장치가 현재 안전하지 않을 수 있습니다."
+msgid "Manage keys under Advanced settings."
+msgstr "고급 설정에서 키를 관리하세요."
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic"
-msgstr "모든 네트워크 트래픽을 차단하지 못했습니다"
+msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
+msgstr "네트워크 트래픽이 유출될 수 있음"
 
 msgctxt "in-app-notifications"
-msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
-msgstr "사용자 지정 터널의 호스트를 확인하지 못했습니다. 설정 변경을 고려하세요."
-
-msgctxt "in-app-notifications"
-msgid "Failed to set system DNS server"
-msgstr "시스템 DNS 서버를 설정하지 못했습니다."
-
-msgctxt "in-app-notifications"
-msgid "Failed to start tunnel connection"
-msgstr "터널 연결을 시작하지 못했습니다."
-
-msgctxt "in-app-notifications"
-msgid "Inconsistent internal version information, please restart the app"
-msgstr "내부 버전 정보가 일치하지 않습니다. 앱을 다시 시작하세요"
-
-msgctxt "in-app-notifications"
-msgid "INCONSISTENT VERSION"
-msgstr "버전 불일치"
-
-#. The in-app banner displayed to the user when the app update is available.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "Install Mullvad VPN (%(version)s) to stay up to date"
-msgstr "Mullvad VPN(%(version)s)을 설치하여 최신 상태로 유지하세요."
-
-msgctxt "in-app-notifications"
-msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
-msgstr "현재 설정과 일치하는 릴레이 서버가 없습니다. 위치 또는 릴레이 설정을 변경할 수 있습니다."
-
-msgctxt "in-app-notifications"
-msgid "Original block reason"
-msgstr "원래 차단 이유"
-
-msgctxt "in-app-notifications"
-msgid "This device is offline, no tunnels can be established"
-msgstr "장치가 오프라인 상태이며, 터널을 설정할 수 없습니다"
-
-msgctxt "in-app-notifications"
-msgid "This might be caused by third party security software"
-msgstr "이 문제는 타사 보안 소프트웨어로 인해 발생할 수 있습니다."
-
-msgctxt "in-app-notifications"
-msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
-msgstr "장치에서 작동하는 TAP 어댑터를 감지할 수 없습니다. 비활성화한 경우, 다시 활성화하세요. 아니면 앱을 다시 설치하세요"
+msgid "Please quit and restart the app."
+msgstr "앱을 종료한 후 다시 시작하세요."
 
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
@@ -430,16 +451,8 @@ msgid "UPDATE AVAILABLE"
 msgstr "업데이트 사용 가능"
 
 msgctxt "in-app-notifications"
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr "유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요."
-
-msgctxt "in-app-notifications"
-msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
-msgstr "네트워크 트래픽이 유출될 수 있음"
-
-msgctxt "in-app-notifications"
-msgid "Your kernel may be outdated"
-msgstr "오래된 커널일 수 있음"
+msgid "VALID WIREGUARD KEY IS MISSING"
+msgstr "유효한 WireGuard 키가 누락됨"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -520,24 +533,24 @@ msgstr "설정"
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
 msgctxt "notifications"
-msgid "Account credit expires in %(duration)s"
-msgstr "계정 크레딧이 %(duration)s 후 만료됩니다"
+msgid "Account credit expires in %(duration)s. Buy more credit."
+msgstr "계정 크레딧이 %(duration)s 후에 만료됩니다. 추가 크레딧을 구매하세요."
 
 msgctxt "notifications"
-msgid "Blocking internet"
-msgstr "인터넷 차단"
+msgid "Account is out of time"
+msgstr "계정 시간 초과"
 
 msgctxt "notifications"
-msgid "Blocking internet:"
-msgstr "인터넷 차단:"
-
-msgctxt "notifications"
-msgid "Blocking internet: Valid WireGuard key is missing"
-msgstr "인터넷 차단: 유효한 WireGuard 키가 없습니다"
+msgid "App is out of sync. Please quit and restart."
+msgstr "앱이 동기화되지 않았습니다. 종료한 후 다시 시작하세요."
 
 msgctxt "notifications"
 msgid "Buy more"
 msgstr "추가 구매"
+
+msgctxt "notifications"
+msgid "Connected"
+msgstr "연결됨"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -558,44 +571,77 @@ msgid "Connecting to %(location)s"
 msgstr "%(location)s에 연결 중"
 
 msgctxt "notifications"
-msgid "Critical error (your attention is required)"
-msgstr "심각한 오류(주의가 필요함)"
+msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
+msgstr "IPv6을 구성할 수 없습니다. 앱에서 비활성화하거나 장치에서 활성화하세요."
 
 msgctxt "notifications"
-msgid "Inconsistent internal version information, please restart the app"
-msgstr "내부 버전 정보가 일치하지 않습니다. 앱을 다시 시작하세요"
-
-#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
-msgctxt "notifications"
-msgid "Please upgrade to %(version)s now to ensure your security"
-msgstr "보안을 위해 지금 %(version)s(으)로 업그레이드하세요."
+msgid "Disconnected and unsecured"
+msgstr "연결이 끊기고 보안이 해제됨"
 
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "다시 연결 중"
 
 msgctxt "notifications"
-msgid "Secured"
-msgstr "안전함"
+msgid "Unable to apply firewall rules."
+msgstr "방화벽 규칙을 적용할 수 없습니다."
 
 msgctxt "notifications"
-msgid "Unsecured"
-msgstr "비보안"
+msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
+msgstr "방화벽 규칙을 적용할 수 없습니다. 타사 바이러스 백신 또는 보안 소프트웨어를 비활성화해 보세요."
+
+msgctxt "notifications"
+msgid "Unable to apply firewall rules. Try updating your kernel."
+msgstr "방화벽 규칙을 적용할 수 없습니다. 커널을 업데이트해 보세요."
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Please troubleshoot or contact support."
+msgstr "모든 네트워크 트래픽을 차단할 수 없습니다. 문제를 해결하거나 지원팀에 문의하세요."
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
+msgstr "모든 네트워크 트래픽을 차단할 수 없습니다. 타사 바이러스 백신 또는 보안 소프트웨어를 비활성화하거나 지원팀에 문의하세요."
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try updating your kernel or contact support."
+msgstr "모든 네트워크 트래픽을 차단할 수 없습니다. 커널을 업데이트하거나 지원팀에 문의하세요."
+
+msgctxt "notifications"
+msgid "Unable to resolve host of custom tunnel. Try changing your settings."
+msgstr "사용자 지정 터널의 호스트를 확인할 수 없습니다. 설정을 변경해 보세요."
+
+msgctxt "notifications"
+msgid "Unable to set system DNS server. Please contact support."
+msgstr "시스템 DNS 서버를 설정할 수 없습니다. 지원팀에 문의하세요."
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. Please contact support."
+msgstr "터널 연결을 시작할 수 없습니다. 지원팀에 문의하세요."
+
+msgctxt "notifications"
+msgid "Update available. Install the latest app version to stay up to date"
+msgstr "업데이트를 사용할 수 있습니다. 최신 앱 버전을 설치하여 최신 상태로 유지하세요."
 
 msgctxt "notifications"
 msgid "Upgrade"
 msgstr "업그레이드"
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
-msgid "You are running an unsupported app version."
-msgstr "지원되지 않는 앱 버전을 실행 중입니다."
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요."
 
 msgctxt "notifications"
-msgid "You have no more VPN time left on this account."
-msgstr "이 계정에 남은 VPN 시간이 더 이상 없습니다."
+msgid "Your device is offline. Try connecting when it's back online."
+msgstr "장치가 오프라인 상태입니다. 다시 온라인 상태가 되면 연결을 시도하세요."
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version. Please update now."
+msgstr "지원되지 않는 이 앱 버전으로 인해 개인 정보가 위험할 수 있습니다. 지금 업데이트하세요."
+
+msgctxt "notifications"
+msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
+msgstr "선택한 서버와 터널 프로토콜이 일치하지 않습니다. 설정을 조정하세요."
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -625,6 +671,10 @@ msgstr "시스템 알림을 활성화 또는 비활성화합니다. 중요한 �
 msgctxt "preferences-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "베타 버전의 새로운 앱이 출시될 때 알림을 받도록 설정합니다."
+
+msgctxt "preferences-view"
+msgid "Enable to move the app around as a free-standing window."
+msgstr "앱을 독립 실행 창으로 이동할 수 있습니다."
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -657,6 +707,10 @@ msgstr "최소화 상태로 시작"
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "이 옵션은 베타 버전을 사용하는 동안 사용할 수 없습니다."
+
+msgctxt "preferences-view"
+msgid "Unpin app from taskbar"
+msgstr "작업 표시줄에서 앱 고정 해제"
 
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -830,6 +884,7 @@ msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
 msgstr "필요하면 %(email)s(으)로 연락드리겠습니다"
 
+#. Title label in navigation bar
 msgctxt "support-view"
 msgid "Report a problem"
 msgstr "문제 신고"
@@ -851,8 +906,8 @@ msgid "Sent"
 msgstr "전송 완료"
 
 msgctxt "support-view"
-msgid "Thanks! We will look into this."
-msgstr "감사합니다! 조사해보겠습니다."
+msgid "Thanks!"
+msgstr "감사합니다!"
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -869,6 +924,10 @@ msgstr "앱 업그레이드"
 msgctxt "support-view"
 msgid "View app logs"
 msgstr "앱 로그 보기"
+
+msgctxt "support-view"
+msgid "We will look into this."
+msgstr "조사해보겠습니다."
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
@@ -967,4 +1026,152 @@ msgstr "고급"
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard 키"
+
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr "추가하려는 DNS 서버가 공용이므로 작동하지 않을 수 있습니다. 현재, 로컬 DNS 서버만 지원됩니다."
+
+msgid "WireGuard error"
+msgstr "WireGuard 오류"
+
+msgid "Account time reminders"
+msgstr "계정 시간 알림"
+
+msgid "WireGuard public key"
+msgstr "WireGuard 공개 키"
+
+msgid "Copied WireGuard public key to clipboard"
+msgstr "WireGuard 공개 키가 클립보드에 복사됨"
+
+msgid "Account credit expires soon"
+msgstr "계정 크레딧이 곧 만료됨"
+
+msgid "Account credit expires in a few minutes"
+msgstr "계정 크레딧이 몇 분 후에 만료됨"
+
+msgid "Thanks!"
+msgstr "감사합니다!"
+
+msgid "We will look into this."
+msgstr "조사해보겠습니다."
+
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr "지원되지 않는 앱 버전을 실행 중입니다. 지금 %s(으)로 업그레이드하여 보안을 유지하세요."
+
+msgid "e.g. 123.456.789.111"
+msgstr "예: 123.456.789.111"
+
+msgid "Copied to clipboard"
+msgstr "클립보드에 복사됨"
+
+msgid "Too many WireGuard keys registered to account"
+msgstr "계정에 너무 많은 WireGuard 키가 등록됨"
+
+msgid "Shows current VPN tunnel status"
+msgstr "현재 VPN 터널 상태 표시"
+
+msgid "Copied Mullvad account number to clipboard"
+msgstr "클립보드에 Mullvad 계정 번호 복사됨"
+
+msgid "Use custom DNS server"
+msgstr "사용자 지정 DNS 서버 사용"
+
+msgid "Add anyway"
+msgstr "추가"
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "모든 네트워크 트래픽을 차단하지 못했습니다. 문제를 해결하거나 당사에 보고해 주세요."
+
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr "분할 터널링을 사용하면 VPN 터널을 통해 라우팅되지 않아야 하는 애플리케이션을 선택할 수 있습니다."
+
+msgid "less than a day left"
+msgstr "1일 이내"
+
+msgid "Blocking all connections"
+msgstr "모든 연결 차단 중"
+
+msgid "Could not configure IPv6"
+msgstr "IPv6을 구성할 수 없습니다."
+
+msgid "Disconnecting"
+msgstr "연결 해제 중"
+
+msgid "Enable to add at least one DNS server."
+msgstr "하나 이상의 DNS 서버를 추가할 수 있습니다."
+
+msgid "Enable"
+msgstr "사용"
+
+msgid "No relay server matches the current settings"
+msgstr "현재 설정과 일치하는 릴레이 서버가 없습니다."
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr "터널을 만드는 동안 VPN 사용 권한이 거부되었습니다. 다시 연결해 보세요."
+
+msgid "No bridge relay server matches the current settings"
+msgstr "현재 설정과 일치하는 브리지 릴레이 서버가 없습니다."
+
+msgid "Shows reminders when the account time is about to expire"
+msgstr "계정 시간이 만료되려고 할 때 알림 표시"
+
+msgid "Add a server"
+msgstr "서버 추가"
+
+msgid "Mullvad account number"
+msgstr "Mullvad 계정 번호"
+
+msgid "less than a minute ago"
+msgstr "1분 이내"
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr "사용자 지정 서버의 호스트 이름을 확인하지 못했습니다."
+
+msgid "Virtual adapter error"
+msgstr "가상 어댑터 오류"
+
+msgid "Exclude applications"
+msgstr "애플리케이션 제외"
+
+msgid "VPN tunnel status"
+msgstr "VPN 터널 상태"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "%d년 남음"
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] "%d개월 남음"
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] "%d일 남음"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "%d분 전"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "%d시간 전"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "%d일 전"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "%d개월 전"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "%d년 전"
+
+msgid "Account credit expires in a day"
+msgid_plural "Account credit expires in %d days"
+msgstr[0] "계정 크레딧이 %d일 후에 만료됩니다."
+
+msgid "Account credit expires in an hour"
+msgid_plural "Account credit expires in %d hours"
+msgstr[0] "계정 크레딧이 %d시간 후에 만료됩니다."
 

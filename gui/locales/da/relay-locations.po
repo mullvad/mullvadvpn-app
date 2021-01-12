@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Danish\n"
 "Language: da_DK\n"
-"PO-Revision-Date: 2020-10-19 12:23\n"
+"PO-Revision-Date: 2021-01-12 14:52\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -346,7 +346,7 @@ msgstr "Pune"
 
 #. US RAG
 msgid "Raleigh, NC"
-msgstr ""
+msgstr "Raleigh, NC"
 
 #. US RIC
 msgid "Richmond, VA"
@@ -487,3 +487,4 @@ msgstr "Wien"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zürich"
+

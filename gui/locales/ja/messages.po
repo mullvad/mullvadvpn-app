@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2020-10-19 12:23\n"
+"PO-Revision-Date: 2021-01-12 14:52\n"
 
 msgid "Back"
 msgstr "戻る"
@@ -51,17 +51,56 @@ msgstr "セキュリティ保護接続を確立できませんでした"
 msgid "Invalid account number"
 msgstr "アカウント番号が正しくありません"
 
+msgid "Open URL"
+msgstr "URLを開く"
+
 msgid "Reconnect"
 msgstr "再接続"
 
 msgid "SECURE CONNECTION"
 msgstr "セキュリティ保護された接続"
 
+msgid "Settings"
+msgstr "設定"
+
 msgid "System default"
 msgstr "システムデフォルト"
 
 msgid "UNSECURED CONNECTION"
 msgstr "セキュリティ保護されていない接続"
+
+msgctxt "accessibility"
+msgid "%(title)s, View loaded"
+msgstr "%(title)s、ビューが読み込まれました"
+
+msgctxt "accessibility"
+msgid "Collapse %(location)s"
+msgstr "%(location)sを折りたたむ"
+
+msgctxt "accessibility"
+msgid "Expand %(location)s"
+msgstr "%(location)sを展開する"
+
+msgctxt "accessibility"
+msgid "Forget %(accountToken)s"
+msgstr "%(accountToken)sを忘れる"
+
+#. This is used by screenreaders to communicate the login button.
+msgctxt "accessibility"
+msgid "Login"
+msgstr "ログイン"
+
+msgctxt "accessibility"
+msgid "Opens externally"
+msgstr "外部ブラウザで開く"
+
+msgctxt "accessibility"
+msgid "Remove item"
+msgstr "アイテムを削除する"
+
+msgctxt "accessibility"
+msgid "Select location. Current location is %(location)s"
+msgstr "場所を選択します。現在の場所は%(location)sです"
 
 #. The remaining time left on the account measured in days.
 #. Available placeholders:
@@ -77,6 +116,7 @@ msgctxt "account-expiry"
 msgid "%(duration)s left"
 msgstr "残り%(duration)s"
 
+#. Title label in navigation bar
 msgctxt "account-view"
 msgid "Account"
 msgstr "アカウント"
@@ -105,6 +145,14 @@ msgstr "次の日時まで支払い済み"
 msgctxt "advanced-settings-nav"
 msgid "Advanced"
 msgstr "詳細"
+
+msgctxt "advanced-settings-view"
+msgid "Add a server"
+msgstr "サーバーを追加"
+
+msgctxt "advanced-settings-view"
+msgid "Add anyway"
+msgstr "追加を続ける"
 
 msgctxt "advanced-settings-view"
 msgid "Advanced"
@@ -142,6 +190,10 @@ msgstr "IPv6を有効化する"
 msgctxt "advanced-settings-view"
 msgid "Enable IPv6 communication through the tunnel."
 msgstr "トンネルを通じてIPv6 通信を有効化する"
+
+msgctxt "advanced-settings-view"
+msgid "Enable to add at least one DNS server."
+msgstr "1つ以上のDNSサーバーを追加できるようにします。"
 
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
@@ -203,6 +255,10 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr "アプリに組み込まれているキルスイッチは常にオンになっています。この設定を有効にすると、「接続解除」または「終了」をクリックした場合にインターネットが補助的にブロックされます。"
 
 msgctxt "advanced-settings-view"
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr "追加しようとしているDNSサーバーはパブリックのため、機能しない可能性があります。現在はローカルDNSサーバーのみをサポートしています。"
+
+msgctxt "advanced-settings-view"
 msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
 msgstr "WireGuardを有効にするには、以下の「WireGuard鍵」の設定で鍵を生成します。"
 
@@ -213,6 +269,10 @@ msgstr "トンネルプロトコル"
 msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
+
+msgctxt "advanced-settings-view"
+msgid "Use custom DNS server"
+msgstr "カスタムDNSサーバーを使う"
 
 msgctxt "advanced-settings-view"
 msgid "WireGuard"
@@ -235,20 +295,20 @@ msgid "missing key"
 msgstr "見つからない鍵"
 
 msgctxt "auth-failure"
-msgid "Account authentication failed."
-msgstr "アカウントの認証に失敗しました。"
+msgid "Blocking internet: account is out of time"
+msgstr "インターネットのブロック：アカウントが時間切れです"
 
 msgctxt "auth-failure"
-msgid "This account has too many simultaneous connections. Disconnect another device or try connecting again shortly."
-msgstr "このアカウントの同時接続数が多すぎます。別のデバイスの接続を解除するか、しばらく待ってから再接続してください。"
+msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
+msgstr "このアカウントの同時接続が多すぎます。他のデバイスを切断するか、少し待ってから再接続してみてください。"
 
 msgctxt "auth-failure"
-msgid "You have no more VPN time left on this account. Please log in on our website to buy more credit."
-msgstr "このアカウントにはもうVPNの残り時間がありません。弊社ウェブサイトにログインして、追加クレジットを購入してください。"
+msgid "Unable to authenticate account. Please contact support."
+msgstr "アカウントを認証できません。サポートにお問い合わせください。"
 
 msgctxt "auth-failure"
-msgid "You've logged in with an account number that is not valid. Please log out and try another one."
-msgstr "無効なアカウント番号でログインしました。いったんログアウトして、別のアカウント番号でもう一度ログインしてください。"
+msgid "You are logged in with an invalid account number. Please log out and try another one."
+msgstr "無効なアカウント番号でログインしています。いったんログアウトして、別のアカウント番号を試してください。"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -351,75 +411,36 @@ msgid "\"Always require VPN\" is enabled."
 msgstr "「常にVPNを要求する」が有効になっています。"
 
 msgctxt "in-app-notifications"
+msgid "%(duration)s. Buy more credit."
+msgstr "%(duration)s。追加クレジットを購入してください。"
+
+msgctxt "in-app-notifications"
 msgid "ACCOUNT CREDIT EXPIRES SOON"
 msgstr "アカウントのクレジットがもうすぐ無効になります。"
 
 msgctxt "in-app-notifications"
-msgid "An application prevented the policy from being set"
-msgstr "アプリケーションによってポリシーの設定が妨げられました"
+msgid "APP IS OUT OF SYNC"
+msgstr "アプリが同期していません"
 
 msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "インターネットをブロック中"
 
 msgctxt "in-app-notifications"
-msgid "Could not configure IPv6, please enable it on your system or disable it in the app"
-msgstr "IPv6を設定できませんでした。IPv6をお使いのシステムで有効化するか、アプリ内で無効化してください。"
+msgid "Install the latest app version to stay up to date."
+msgstr "アプリの最新バージョンをインストールして、最新の状態を維持してください。"
 
 msgctxt "in-app-notifications"
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "ファイヤーウォール規則の適用に失敗しました。現在、デバイスがセキュリティ保護されていない可能性があります。"
+msgid "Manage keys under Advanced settings."
+msgstr "詳細設定で鍵を管理してください。"
 
 msgctxt "in-app-notifications"
-msgid "Failed to block all network traffic"
-msgstr "すべてのネットワークトラフィックをブロックできませんでした"
+msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
+msgstr "ネットワークトラフィックが漏れている可能性があります"
 
 msgctxt "in-app-notifications"
-msgid "Failed to resolve host of custom tunnel. Consider changing the settings"
-msgstr "カスタムトンネルのホストを解決できませんでした。設定変更を検討してください。"
-
-msgctxt "in-app-notifications"
-msgid "Failed to set system DNS server"
-msgstr "システムの DNS サーバーの設定に失敗しました"
-
-msgctxt "in-app-notifications"
-msgid "Failed to start tunnel connection"
-msgstr "トンネル接続の開始に失敗しました"
-
-msgctxt "in-app-notifications"
-msgid "Inconsistent internal version information, please restart the app"
-msgstr "内部バージョン情報が一致しません。アプリを再起動してください。"
-
-msgctxt "in-app-notifications"
-msgid "INCONSISTENT VERSION"
-msgstr "バージョンの不一致"
-
-#. The in-app banner displayed to the user when the app update is available.
-#. Available placeholders:
-#. %(version)s - the newest available version of the app
-msgctxt "in-app-notifications"
-msgid "Install Mullvad VPN (%(version)s) to stay up to date"
-msgstr "Mullvad VPN (%(version)s) をインストールして常に最新の状態を保ちましょう"
-
-msgctxt "in-app-notifications"
-msgid "No relay server matches the current settings. You can try changing the location or the relay settings."
-msgstr "現在の設定に一致する中継サーバーはありません。場所または中継の設定を変更してみてください。"
-
-msgctxt "in-app-notifications"
-msgid "Original block reason"
-msgstr "本来のブロックの理由"
-
-msgctxt "in-app-notifications"
-msgid "This device is offline, no tunnels can be established"
-msgstr "このデバイスはオフラインであるため、トンネルを作成できません。"
-
-msgctxt "in-app-notifications"
-msgid "This might be caused by third party security software"
-msgstr "これはサードパーティー製の製品が原因である可能性があります。"
-
-msgctxt "in-app-notifications"
-msgid "Unable to detect a working TAP adapter on this device. If you've disabled it, enable it again. Otherwise, please reinstall the app"
-msgstr "このデバイスでは動作中のTAPアダプタを検知できませんでした。無効化している場合は、もう一度有効化してください。または、アプリを再インストールしてください。"
+msgid "Please quit and restart the app."
+msgstr "アプリをいったん終了して、再起動してください。"
 
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
@@ -430,16 +451,8 @@ msgid "UPDATE AVAILABLE"
 msgstr "アップデート可"
 
 msgctxt "in-app-notifications"
-msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
-msgstr "有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。"
-
-msgctxt "in-app-notifications"
-msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
-msgstr "ネットワーク通信が漏洩している可能性があります。"
-
-msgctxt "in-app-notifications"
-msgid "Your kernel may be outdated"
-msgstr "お使いのカーネルが古い可能性があります"
+msgid "VALID WIREGUARD KEY IS MISSING"
+msgstr "有効なWireGuard鍵がありません"
 
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
@@ -520,24 +533,24 @@ msgstr "設定"
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
 msgctxt "notifications"
-msgid "Account credit expires in %(duration)s"
-msgstr "アカウントのクレジットが%(duration)s後に無効になります"
+msgid "Account credit expires in %(duration)s. Buy more credit."
+msgstr "アカウントクレジットは %(duration)sで期限切れになります。追加クレジットを購入してください。"
 
 msgctxt "notifications"
-msgid "Blocking internet"
-msgstr "インターネットをブロック中"
+msgid "Account is out of time"
+msgstr "アカウントが時間切れです"
 
 msgctxt "notifications"
-msgid "Blocking internet:"
-msgstr "インターネットをブロック中:"
-
-msgctxt "notifications"
-msgid "Blocking internet: Valid WireGuard key is missing"
-msgstr "インターネットをブロック中：有効なWireGuard鍵が見つかりません"
+msgid "App is out of sync. Please quit and restart."
+msgstr "アプリが同期していません。いったん終了して、再起動してください。"
 
 msgctxt "notifications"
 msgid "Buy more"
 msgstr "さらに購入する"
+
+msgctxt "notifications"
+msgid "Connected"
+msgstr "接続済み"
 
 #. The message showed when a server has been connected to.
 #. Available placeholder:
@@ -558,44 +571,77 @@ msgid "Connecting to %(location)s"
 msgstr "%(location)sに接続中"
 
 msgctxt "notifications"
-msgid "Critical error (your attention is required)"
-msgstr "クレジットエラー（ご注意ください）"
+msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
+msgstr "IPv6を設定できませんでした。アプリで無効にするか、デバイスで有効にしてください。"
 
 msgctxt "notifications"
-msgid "Inconsistent internal version information, please restart the app"
-msgstr "内部バージョン情報が一致しません。アプリを再起動してください。"
-
-#. Appendix to the system notification and in-app banner about the app becoming unsupported with the suggested supported version.
-#. Available placeholder:
-#. %(version) - the newest available version of the app
-msgctxt "notifications"
-msgid "Please upgrade to %(version)s now to ensure your security"
-msgstr "セキュリティを確保するため、今すぐ%(version)sにアップグレードしてください"
+msgid "Disconnected and unsecured"
+msgstr "接続が解除され、保護されていません"
 
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "再接続中"
 
 msgctxt "notifications"
-msgid "Secured"
-msgstr "セキュリティ保護されています"
+msgid "Unable to apply firewall rules."
+msgstr "ファイアウォール規則を適用できません。"
 
 msgctxt "notifications"
-msgid "Unsecured"
-msgstr "セキュリティ保護されていません"
+msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
+msgstr "ファイアウォール規則を適用できません。サードパーティのウイルス対策ソフトウェアか、セキュリティソフトウェアを無効にしてみてください。"
+
+msgctxt "notifications"
+msgid "Unable to apply firewall rules. Try updating your kernel."
+msgstr "ファイアウォール規則を適用できません。カーネルを更新してみてください。"
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Please troubleshoot or contact support."
+msgstr "すべてのネットワークトラフィックをブロックできません。問題に対処するか、サポートにお問い合わせください。"
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
+msgstr "すべてのネットワークトラフィックをブロックできません。サードパーティのウイルス対策ソフトウェアまたはセキュリティソフトウェアを無効にするか、サポートにお問い合わせください。"
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try updating your kernel or contact support."
+msgstr "すべてのネットワークトラフィックをブロックできません。カーネルを更新するか、サポートにお問い合わせください。"
+
+msgctxt "notifications"
+msgid "Unable to resolve host of custom tunnel. Try changing your settings."
+msgstr "カスタムトンネルのホストを解決できません。設定を変更してみてください。"
+
+msgctxt "notifications"
+msgid "Unable to set system DNS server. Please contact support."
+msgstr "システムのDNSサーバーを設定できません。サポートにお問い合わせください。"
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. Please contact support."
+msgstr "トンネル接続を開始できません。サポートにお問い合わせください。"
+
+msgctxt "notifications"
+msgid "Update available. Install the latest app version to stay up to date"
+msgstr "アップデートできます。アプリの最新バージョンをインストールして、最新の状態を維持してください"
 
 msgctxt "notifications"
 msgid "Upgrade"
 msgstr "アップグレード"
 
-#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
 msgctxt "notifications"
-msgid "You are running an unsupported app version."
-msgstr "サポートされていないバージョンのアプリを実行しています。"
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。"
 
 msgctxt "notifications"
-msgid "You have no more VPN time left on this account."
-msgstr "このアカウントには、もう残っているVPN時間がありません。"
+msgid "Your device is offline. Try connecting when it's back online."
+msgstr "お使いのデバイスがオフラインになっています。オンラインに戻ったら接続してみてください。"
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version. Please update now."
+msgstr "このアプリバージョンはサポートされていないため、プライバシーが危険にさらされる可能性があります。今すぐアップデートしてください。"
+
+msgctxt "notifications"
+msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
+msgstr "選択したサーバーとトンネルのプロトコルが一致していません。設定を調整してください。"
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -625,6 +671,10 @@ msgstr "システム通知を有効または無効にします。重要な通知
 msgctxt "preferences-view"
 msgid "Enable to get notified when new beta versions of the app are released."
 msgstr "有効化すると、アプリの新しいベータ版がリリースされたとき通知が届きます。"
+
+msgctxt "preferences-view"
+msgid "Enable to move the app around as a free-standing window."
+msgstr "アプリを独立したウィンドウとして移動できるようにします。"
 
 msgctxt "preferences-view"
 msgid "Launch app on start-up"
@@ -657,6 +707,10 @@ msgstr "最小化状態で起動"
 msgctxt "preferences-view"
 msgid "This option is unavailable while using a beta version."
 msgstr "ベータ版を使用中はこのオプションを利用できません。"
+
+msgctxt "preferences-view"
+msgid "Unpin app from taskbar"
+msgstr "タスクバーからアプリの固定を解除"
 
 msgctxt "preferences-view"
 msgid "Use a monochromatic tray icon instead of a colored one."
@@ -830,6 +884,7 @@ msgctxt "support-view"
 msgid "If needed we will contact you on %(email)s"
 msgstr "必要に応じて %(email)s までご連絡いたします"
 
+#. Title label in navigation bar
 msgctxt "support-view"
 msgid "Report a problem"
 msgstr "問題を報告する"
@@ -851,8 +906,8 @@ msgid "Sent"
 msgstr "送信済み"
 
 msgctxt "support-view"
-msgid "Thanks! We will look into this."
-msgstr "ありがとうございます！この問題を調査いたします。"
+msgid "Thanks!"
+msgstr "ありがとうございます！"
 
 msgctxt "support-view"
 msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
@@ -869,6 +924,10 @@ msgstr "アプリを更新する"
 msgctxt "support-view"
 msgid "View app logs"
 msgstr "アプリのログを表示"
+
+msgctxt "support-view"
+msgid "We will look into this."
+msgstr "この問題を調査いたします。"
 
 msgctxt "support-view"
 msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
@@ -967,4 +1026,162 @@ msgstr "詳細"
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard鍵"
+
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr "追加しようとしているDNSサーバーはパブリックのため、機能しない可能性があります。現在、ローカルDNSサーバーのみをサポートしています。"
+
+msgid "WireGuard error"
+msgstr "WireGuardエラー"
+
+msgid "Account time reminders"
+msgstr "アカウント時間のリマインダー"
+
+msgid "WireGuard public key"
+msgstr "WireGuard公開鍵"
+
+msgid "Copied WireGuard public key to clipboard"
+msgstr "WireGuard公開鍵をクリップボードにコピーしました"
+
+msgid "Account credit expires soon"
+msgstr "アカウントのクレジットがもうすぐ無効になります"
+
+msgid "Account credit expires in a few minutes"
+msgstr "アカウントクレジットは数分後に無効になります"
+
+msgid "Thanks!"
+msgstr "ありがとうございます！"
+
+msgid "We will look into this."
+msgstr "この問題を調査いたします。"
+
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr "未対応のアプリバージョンを実行中です。今すぐ %s にアップデートしてセキュリティを確保してください。"
+
+msgid "e.g. 123.456.789.111"
+msgstr "例：123.456.789.111"
+
+msgid "Copied to clipboard"
+msgstr "クリップボードにコピーしました"
+
+msgid "Too many WireGuard keys registered to account"
+msgstr "アカウントに登録されているWireGuard鍵が多すぎます"
+
+msgid "Shows current VPN tunnel status"
+msgstr "現在のVPNトンネルのステータスを表示します"
+
+msgid "Copied Mullvad account number to clipboard"
+msgstr "Mullvadアカウント番号をクリップボードにコピーしました"
+
+msgid "Use custom DNS server"
+msgstr "カスタムDNSサーバーを使う"
+
+msgid "Add anyway"
+msgstr "追加を続ける"
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "すべてのネットワーク通信をブロックできませんでした。問題に対処するか、当社に問題を報告してください。"
+
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr "スプリットトンネリングを使用すると、VPNトンネルを介してルーティングするべきでないアプリケーションを選択できます。"
+
+msgid "less than a day left"
+msgstr "残り1日未満"
+
+msgid "Blocking all connections"
+msgstr "すべての接続をブロックしています"
+
+msgid "Could not configure IPv6"
+msgstr "IPv6を設定できませんでした"
+
+msgid "Disconnecting"
+msgstr "接続解除中"
+
+msgid "Enable to add at least one DNS server."
+msgstr "1つ以上のDNSサーバーを追加できるようにします。"
+
+msgid "Enable"
+msgstr "有効化する"
+
+msgid "No relay server matches the current settings"
+msgstr "現在の設定に一致する中継サーバーはありません"
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr "トンネルを作成中にVPN許可が拒否されました。もう一度接続してみてください。"
+
+msgid "No bridge relay server matches the current settings"
+msgstr "現在の設定に一致するブリッジ中継サーバーはありません"
+
+msgid "Shows reminders when the account time is about to expire"
+msgstr "アカウントの期限切れが迫っているときにリマインダーを表示します"
+
+msgid "Add a server"
+msgstr "サーバーを追加"
+
+msgid "Mullvad account number"
+msgstr "Mullvadアカウント番号"
+
+msgid "less than a minute ago"
+msgstr "1分未満前"
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr "カスタムサーバーのホスト名を解決できませんでした"
+
+msgid "Virtual adapter error"
+msgstr "仮想アダプタエラー"
+
+msgid "Exclude applications"
+msgstr "アプリケーションを除外する"
+
+msgid "VPN tunnel status"
+msgstr "VPNトンネルのステータス"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "残り1年\n\n"
+"残り%d年"
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] "残り1ヶ月\n\n"
+"残り%d ヶ月"
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] "残り1日\n\n"
+"残り%d日"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "残り1分\n\n"
+"残り%d 分"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "1時間前\n\n"
+"%d時間前"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "1日前\n\n"
+"%d 日前"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "1ヶ月前\n\n"
+"%d ヶ月前"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "1年前\n\n"
+"%d 年前"
+
+msgid "Account credit expires in a day"
+msgid_plural "Account credit expires in %d days"
+msgstr[0] "アカウントのクレジットが1日後に無効になります\n\n"
+"アカウントのクレジットが%d日後に無効になります"
+
+msgid "Account credit expires in an hour"
+msgid_plural "Account credit expires in %d hours"
+msgstr[0] "アカウントのクレジットが1時間後に無効になります\n\n"
+"アカウントのクレジットが%d時間後に無効になります"
 
