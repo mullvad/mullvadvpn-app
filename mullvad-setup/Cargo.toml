@@ -39,6 +39,6 @@ winapi = "0.3"
 [package.metadata.winres]
 ProductName = "Mullvad VPN"
 CompanyName = "Mullvad VPN AB"
-LegalCopyright = "(c) 2020 Mullvad VPN AB"
+LegalCopyright = "(c) 2021 Mullvad VPN AB"
 InternalName = "mullvad-setup"
 OriginalFilename = "mullvad-setup.exe"

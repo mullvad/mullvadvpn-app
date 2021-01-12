@@ -12,7 +12,7 @@ BEGIN
         VALUE "FileDescription", "Mullvad VPN DNS module"
         VALUE "FileVersion", PRODUCT_VERSION
         VALUE "InternalName", "windns"
-        VALUE "LegalCopyright", "(c) 2020 Mullvad VPN AB"
+        VALUE "LegalCopyright", "(c) 2021 Mullvad VPN AB"
         VALUE "OriginalFilename", "windns.dll"
         VALUE "ProductName", "Mullvad VPN"
         VALUE "ProductVersion", PRODUCT_VERSION
