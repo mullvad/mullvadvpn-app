@@ -39,6 +39,9 @@ Line wrap the file at 100 chars.                                              Th
   WireGuard kernel module, SystemD.
 
 ### Fixed
+- Fix Turkish translations for on/off in the bridge settings. They were inverted, so it was
+  confusing to change the setting.
+
 #### Linux
 - Fix missing app window icon in Xfce.
 
