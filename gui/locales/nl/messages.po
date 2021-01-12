@@ -1057,8 +1057,8 @@ msgstr "We gaan het bekijken."
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "U gebruikt een niet-ondersteunde versie van de app. Upgrade nu naar %s om uw veiligheid te waarborgen"
 
-msgid "e.g. 123.456.789.111"
-msgstr "bijv. 123.456.789.111"
+msgid "e.g. 10.0.0.4"
+msgstr "bijv. 10.0.0.4"
 
 msgid "Copied to clipboard"
 msgstr "Gekopieerd naar klembord"

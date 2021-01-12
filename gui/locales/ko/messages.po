@@ -1057,8 +1057,8 @@ msgstr "조사해보겠습니다."
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "지원되지 않는 앱 버전을 실행 중입니다. 지금 %s(으)로 업그레이드하여 보안을 유지하세요."
 
-msgid "e.g. 123.456.789.111"
-msgstr "예: 123.456.789.111"
+msgid "e.g. 10.0.0.4"
+msgstr "예: 10.0.0.4"
 
 msgid "Copied to clipboard"
 msgstr "클립보드에 복사됨"

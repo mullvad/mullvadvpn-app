@@ -1057,8 +1057,8 @@ msgstr "เราจะตรวจสอบปัญหานี้"
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "คุณกำลังใช้งานแอปในเวอร์ชันที่ไม่ได้รับการรองรับ โปรดอัปเกรดเป็นเวอร์ชัน %s ทันทีเพื่อความปลอดภัยของคุณ"
 
-msgid "e.g. 123.456.789.111"
-msgstr "เช่น 123.456.789.111"
+msgid "e.g. 10.0.0.4"
+msgstr "เช่น 10.0.0.4"
 
 msgid "Copied to clipboard"
 msgstr "คัดลอกไปยังคลิปบอร์ดแล้ว"

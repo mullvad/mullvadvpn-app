@@ -1057,8 +1057,8 @@ msgstr "Sprawdzimy to."
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "Używasz nieobsługiwanej wersji aplikacji. Aby zapewnić sobie bezpieczeństwo, uaktualnij teraz do wersji %s"
 
-msgid "e.g. 123.456.789.111"
-msgstr "np. 123.456.789.111"
+msgid "e.g. 10.0.0.4"
+msgstr "np. 10.0.0.4"
 
 msgid "Copied to clipboard"
 msgstr "Skopiowano do schowka"

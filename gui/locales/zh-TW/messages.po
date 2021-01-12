@@ -1057,8 +1057,8 @@ msgstr "我們會對此進行調查。"
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "您正在執行不受支援的應用程式版本。請立即升級到 %s，以確保您的安全"
 
-msgid "e.g. 123.456.789.111"
-msgstr "例如 123.456.789.111"
+msgid "e.g. 10.0.0.4"
+msgstr "例如 10.0.0.4"
 
 msgid "Copied to clipboard"
 msgstr "已複製到剪貼簿"

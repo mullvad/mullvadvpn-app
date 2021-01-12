@@ -1057,8 +1057,8 @@ msgstr "Tutkimme asiaa."
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "Sovellusversiosi ei ole tuettu. Taataksesi turvallisuutesi päivitä heti versioon %s."
 
-msgid "e.g. 123.456.789.111"
-msgstr "esim. 123.456.789.111"
+msgid "e.g. 10.0.0.4"
+msgstr "esim. 10.0.0.4"
 
 msgid "Copied to clipboard"
 msgstr "Kopioitu leikepöydälle"
