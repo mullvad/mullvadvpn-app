@@ -1,25 +1,38 @@
 package net.mullvad.mullvadvpn.service
 
+import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.talpid.util.EventNotifier
 
-class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings) {
+class SettingsListener(val initialSettings: Settings) {
     val accountNumberNotifier = EventNotifier(initialSettings.accountToken)
     val dnsOptionsNotifier = EventNotifier(initialSettings.tunnelOptions.dnsOptions)
     val relaySettingsNotifier = EventNotifier(initialSettings.relaySettings)
     val settingsNotifier: EventNotifier<Settings> = EventNotifier(initialSettings)
 
-    var settings by settingsNotifier.notifiable()
-        private set
+    var daemon by observable<MullvadDaemon?>(null) { _, oldDaemon, maybeNewDaemon ->
+        oldDaemon?.onSettingsChange?.unsubscribe(this@SettingsListener)
 
-    init {
-        daemon.onSettingsChange.subscribe(this) { maybeSettings ->
-            maybeSettings?.let { settings -> handleNewSettings(settings) }
+        maybeNewDaemon?.let { newDaemon ->
+            newDaemon.onSettingsChange.subscribe(this@SettingsListener) { maybeSettings ->
+                synchronized(this@SettingsListener) {
+                    maybeSettings?.let { newSettings -> handleNewSettings(newSettings) }
+                }
+            }
+
+            synchronized(this@SettingsListener) {
+                newDaemon.getSettings()?.let { newSettings ->
+                    handleNewSettings(newSettings)
+                }
+            }
         }
     }
 
+    var settings by settingsNotifier.notifiable()
+        private set
+
     fun onDestroy() {
-        daemon.onSettingsChange.unsubscribe(this)
+        daemon = null
 
         accountNumberNotifier.unsubscribeAll()
         settingsNotifier.unsubscribeAll()
