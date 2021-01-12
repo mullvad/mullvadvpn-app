@@ -152,12 +152,12 @@ async fn reset_firewall() -> Result<(), Error> {
 }
 
 async fn clear_history() -> Result<(), Error> {
-    let (user_cache_path, settings_path) = get_paths()?;
+    let (cache_path, settings_path) = get_paths()?;
 
     let mut rpc_runtime = MullvadRpcRuntime::with_cache(
         tokio::runtime::Handle::current(),
         None,
-        &user_cache_path,
+        &cache_path,
         false,
         |_| Ok(()),
     )
@@ -165,7 +165,7 @@ async fn clear_history() -> Result<(), Error> {
     .map_err(Error::RpcInitializationError)?;
 
     let mut account_history = account_history::AccountHistory::new(
-        &user_cache_path,
+        &cache_path,
         &settings_path,
         rpc_runtime.mullvad_rest_handle(),
     )
@@ -180,15 +180,15 @@ async fn clear_history() -> Result<(), Error> {
 
 #[cfg(not(windows))]
 fn get_paths() -> Result<(PathBuf, PathBuf), Error> {
-    let user_cache_path = mullvad_paths::user_cache_dir().map_err(Error::CachePathError)?;
+    let cache_path = mullvad_paths::cache_dir().map_err(Error::CachePathError)?;
     let settings_path = mullvad_paths::settings_dir().map_err(Error::SettingsPathError)?;
-    Ok((user_cache_path, settings_path))
+    Ok((cache_path, settings_path))
 }
 
 #[cfg(windows)]
 fn get_paths() -> Result<(PathBuf, PathBuf), Error> {
-    let user_cache_path = mullvad_paths::user_cache_dir().map_err(Error::CachePathError)?;
+    let cache_path = mullvad_paths::cache_dir().map_err(Error::CachePathError)?;
     let settings_path =
         daemon_paths::get_mullvad_daemon_settings_path().map_err(Error::SettingsPathError)?;
-    Ok((user_cache_path, settings_path))
+    Ok((cache_path, settings_path))
 }

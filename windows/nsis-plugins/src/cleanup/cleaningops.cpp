@@ -105,6 +105,12 @@ std::wstring GetSystemUserLocalAppData()
 	return common::fs::GetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, processToken);
 }
 
+std::filesystem::path GetSystemCacheDirectory()
+{
+	const auto programData = common::fs::GetKnownFolderPath(FOLDERID_ProgramData, KF_FLAG_DEFAULT, nullptr);
+	return std::filesystem::path(programData).append(L"Mullvad VPN").append(L"cache");
+}
+
 template <class It>
 size_t EqualTokensCount(It lhsBegin, It lhsEnd, It rhsBegin, It rhsEnd)
 {
@@ -124,6 +130,48 @@ size_t EqualTokensCount(It lhsBegin, It lhsEnd, It rhsBegin, It rhsEnd)
 
 namespace cleaningops
 {
+
+//
+// Migrate cache for versions <= 2020.8-beta2.
+//
+void MigrateCacheServiceUser()
+{
+	const auto newCacheDir = GetSystemCacheDirectory();
+	common::fs::Mkdir(newCacheDir);
+
+	const auto localAppData = GetSystemUserLocalAppData();
+	const auto oldCacheDir = std::filesystem::path(localAppData).append(L"Mullvad VPN");
+
+	common::fs::ScopedNativeFileSystem nativeFileSystem;
+
+	common::security::AddAdminToObjectDacl(oldCacheDir, SE_FILE_OBJECT);
+
+	{
+		common::fs::FileEnumerator files(oldCacheDir);
+
+		auto notNamedSet = std::make_unique<common::fs::FilterNotNamedSet>();
+
+		notNamedSet->addObject(L"account-history.json");
+		notNamedSet->addObject(L"settings.json");
+
+		files.addFilter(std::move(notNamedSet));
+		files.addFilter(std::make_unique<common::fs::FilterFiles>());
+
+		WIN32_FIND_DATAW file;
+
+		while (files.next(file))
+		{
+			const auto source = std::filesystem::path(files.getDirectory()).append(file.cFileName);
+			const auto target = std::filesystem::path(newCacheDir).append(file.cFileName);
+			std::filesystem::rename(source, target);
+		}
+	}
+
+	//
+	// This fails unless the directory is empty. Settings remain in this directory.
+	//
+	RemoveDirectoryW(std::wstring(L"\\\\?\\").append(oldCacheDir).c_str());
+}
 
 void RemoveLogsCacheCurrentUser()
 {
@@ -238,27 +286,8 @@ void RemoveLogsServiceUser()
 	const auto programData = common::fs::GetKnownFolderPath(FOLDERID_ProgramData, KF_FLAG_DEFAULT, nullptr);
 	const auto appdir = std::filesystem::path(programData).append(L"Mullvad VPN");
 
-	std::filesystem::remove_all(appdir);
-}
-
-void RemoveCacheServiceUser()
-{
-	const auto localAppData = GetSystemUserLocalAppData();
-	const auto mullvadAppData = std::filesystem::path(localAppData).append(L"Mullvad VPN");
-
-	common::fs::ScopedNativeFileSystem nativeFileSystem;
-
-	common::security::AddAdminToObjectDacl(mullvadAppData, SE_FILE_OBJECT);
-
 	{
-		common::fs::FileEnumerator files(mullvadAppData);
-
-		auto notNamedSet = std::make_unique<common::fs::FilterNotNamedSet>();
-
-		notNamedSet->addObject(L"account-history.json");
-		notNamedSet->addObject(L"settings.json");
-
-		files.addFilter(std::move(notNamedSet));
+		common::fs::FileEnumerator files(appdir);
 		files.addFilter(std::make_unique<common::fs::FilterFiles>());
 
 		WIN32_FIND_DATAW file;
@@ -272,11 +301,18 @@ void RemoveCacheServiceUser()
 		}
 	}
 
-	//
-	// This fails unless the directory is empty.
-	// Which is what we want, since removing cache and settings files are separate operations.
-	//
-	RemoveDirectoryW(std::wstring(L"\\\\?\\").append(mullvadAppData).c_str());
+	RemoveDirectoryW(std::wstring(L"\\\\?\\").append(appdir).c_str());
+}
+
+void RemoveCacheServiceUser()
+{
+	const auto cacheDir = GetSystemCacheDirectory();
+
+	std::error_code dummy;
+	std::filesystem::remove_all(cacheDir, dummy);
+
+	const auto appdir = cacheDir.parent_path();
+	RemoveDirectoryW(std::wstring(L"\\\\?\\").append(appdir).c_str());
 }
 
 void RemoveSettingsServiceUser()
@@ -288,60 +324,18 @@ void RemoveSettingsServiceUser()
 
 	common::security::AddAdminToObjectDacl(mullvadAppData, SE_FILE_OBJECT);
 
-	{
-		common::fs::FileEnumerator files(mullvadAppData);
-
-		auto filter = std::make_unique<common::fs::FilterNamedSet>();
-
-		filter->addObject(L"account-history.json");
-		filter->addObject(L"settings.json");
-
-		files.addFilter(std::move(filter));
-		files.addFilter(std::make_unique<common::fs::FilterFiles>());
-
-		WIN32_FIND_DATAW file;
-
-		while (files.next(file))
-		{
-			const auto target = std::filesystem::path(files.getDirectory()).append(file.cFileName);
-
-			std::error_code dummy;
-			std::filesystem::remove(target, dummy);
-		}
-	}
-
-	//
-	// This fails unless the directory is empty.
-	// Which is what we want, since removing cache and settings files are separate operations.
-	//
-	RemoveDirectoryW(std::wstring(L"\\\\?\\").append(mullvadAppData).c_str());
+	std::filesystem::remove_all(mullvadAppData);
 }
 
 void RemoveRelayCacheServiceUser()
 {
-	const auto localAppData = GetSystemUserLocalAppData();
-	const auto mullvadAppData = std::filesystem::path(localAppData).append(L"Mullvad VPN");
-
-	common::fs::ScopedNativeFileSystem nativeFileSystem;
-
-	common::security::AddAdminToObjectDacl(mullvadAppData, SE_FILE_OBJECT);
-
-	const auto cacheFile = std::filesystem::path(mullvadAppData).append(L"relays.json");
-
+	const auto cacheFile = GetSystemCacheDirectory().append(L"relays.json");
 	std::filesystem::remove(cacheFile);
 }
 
 void RemoveApiAddressCacheServiceUser()
 {
-	const auto programData = common::fs::GetKnownFolderPath(FOLDERID_ProgramData, KF_FLAG_DEFAULT, nullptr);
-	const auto mullvadProgramData = std::filesystem::path(programData).append(L"Mullvad VPN");
-
-	common::fs::ScopedNativeFileSystem nativeFileSystem;
-
-	common::security::AddAdminToObjectDacl(mullvadProgramData, SE_FILE_OBJECT);
-
-	const auto cacheFile = std::filesystem::path(mullvadProgramData).append(L"api-ip-address.txt");
-
+	const auto cacheFile = GetSystemCacheDirectory().append(L"api-ip-address.txt");
 	std::filesystem::remove(cacheFile);
 }
 
