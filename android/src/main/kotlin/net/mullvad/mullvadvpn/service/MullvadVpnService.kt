@@ -232,7 +232,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
-        val settingsListener = SettingsListener(daemon, settings)
+        val settingsListener = SettingsListener(settings, daemonInstance.intermittentDaemon)
         val connectionProxy = ConnectionProxy(this, daemon)
         val customDns = CustomDns(daemon, settingsListener)
         val splitTunneling = splitTunneling.await()

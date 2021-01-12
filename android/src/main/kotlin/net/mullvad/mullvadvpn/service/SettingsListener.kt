@@ -1,9 +1,10 @@
 package net.mullvad.mullvadvpn.service
 
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.talpid.util.EventNotifier
 
-class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings) {
+class SettingsListener(val initialSettings: Settings, val daemon: Intermittent<MullvadDaemon>) {
     val accountNumberNotifier = EventNotifier(initialSettings.accountToken)
     val dnsOptionsNotifier = EventNotifier(initialSettings.tunnelOptions.dnsOptions)
     val relaySettingsNotifier = EventNotifier(initialSettings.relaySettings)
@@ -13,13 +14,16 @@ class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings)
         private set
 
     init {
-        daemon.onSettingsChange.subscribe(this) { maybeSettings ->
-            maybeSettings?.let { settings -> handleNewSettings(settings) }
+        daemon.registerListener(this) { newDaemon ->
+            if (newDaemon != null) {
+                registerListener(newDaemon)
+                fetchInitialSettings(newDaemon)
+            }
         }
     }
 
     fun onDestroy() {
-        daemon.onSettingsChange.unsubscribe(this)
+        daemon.unregisterListener(this)
 
         accountNumberNotifier.unsubscribeAll()
         dnsOptionsNotifier.unsubscribeAll()
@@ -33,6 +37,22 @@ class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings)
 
     fun unsubscribe(id: Any) {
         settingsNotifier.unsubscribe(id)
+    }
+
+    private fun registerListener(daemon: MullvadDaemon) {
+        daemon.onSettingsChange.subscribe(this) { maybeSettings ->
+            synchronized(this) {
+                maybeSettings?.let { newSettings -> handleNewSettings(newSettings) }
+            }
+        }
+    }
+
+    private fun fetchInitialSettings(daemon: MullvadDaemon) {
+        synchronized(this) {
+            daemon.getSettings()?.let { newSettings ->
+                handleNewSettings(newSettings)
+            }
+        }
     }
 
     private fun handleNewSettings(newSettings: Settings) {
