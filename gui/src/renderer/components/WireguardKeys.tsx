@@ -1,9 +1,9 @@
-import log from 'electron-log';
 import moment from 'moment';
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import log from '../../shared/logging';
 import { IWgKey, WgKeyState } from '../redux/settings/reducers';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';

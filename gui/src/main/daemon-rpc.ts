@@ -4,7 +4,6 @@ import {
   StringValue,
   UInt32Value,
 } from 'google-protobuf/google/protobuf/wrappers_pb.js';
-import log from 'electron-log';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb.js';
 import { promisify } from 'util';
 import {
@@ -50,6 +49,7 @@ import {
   TunnelProtocol,
   IDnsOptions,
 } from '../shared/daemon-rpc-types';
+import log from '../shared/logging';
 
 import * as managementInterface from './management_interface/management_interface_grpc_pb';
 import * as grpcTypes from './management_interface/management_interface_pb';

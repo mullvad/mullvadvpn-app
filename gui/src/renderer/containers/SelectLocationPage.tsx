@@ -1,9 +1,9 @@
-import log from 'electron-log';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { bindActionCreators } from 'redux';
 import BridgeSettingsBuilder from '../../shared/bridge-settings-builder';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
+import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import SelectLocation from '../components/SelectLocation';
 import withAppContext, { IAppContext } from '../context';
