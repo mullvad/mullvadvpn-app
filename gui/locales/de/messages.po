@@ -1058,8 +1058,8 @@ msgstr "Wir werden uns das anschauen."
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "Sie führen eine nicht unterstützte App-Version aus. Bitte führen Sie jetzt ein Upgrade auf %s durch, um Ihre Sicherheit zu gewährleisten"
 
-msgid "e.g. 123.456.789.111"
-msgstr "z. B. 123.356.789.111"
+msgid "e.g. 10.0.0.4"
+msgstr "z. B. 10.0.0.4"
 
 msgid "Copied to clipboard"
 msgstr "In die Zwischenablage kopiert"

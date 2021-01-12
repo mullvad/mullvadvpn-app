@@ -1057,8 +1057,8 @@ msgstr "Мы рассмотрим эту проблему."
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "Вы используете неподдерживаемую версию приложения. Чтобы обеспечить безопасность, обновитесь до версии %s"
 
-msgid "e.g. 123.456.789.111"
-msgstr "напр., 123.456.789.111"
+msgid "e.g. 10.0.0.4"
+msgstr "напр., 10.0.0.4"
 
 msgid "Copied to clipboard"
 msgstr "Скопировано в буфер обмена"

@@ -1057,8 +1057,8 @@ msgstr "この問題を調査いたします。"
 msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
 msgstr "未対応のアプリバージョンを実行中です。今すぐ %s にアップデートしてセキュリティを確保してください。"
 
-msgid "e.g. 123.456.789.111"
-msgstr "例：123.456.789.111"
+msgid "e.g. 10.0.0.4"
+msgstr "例：10.0.0.4"
 
 msgid "Copied to clipboard"
 msgstr "クリップボードにコピーしました"
