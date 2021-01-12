@@ -22,6 +22,5 @@ class ServiceInstance(
         customDns.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
-        settingsListener.onDestroy()
     }
 }
