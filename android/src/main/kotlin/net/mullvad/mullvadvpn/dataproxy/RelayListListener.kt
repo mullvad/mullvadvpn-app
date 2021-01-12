@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.service.MullvadDaemon
-import net.mullvad.mullvadvpn.service.SettingsListener
+import net.mullvad.mullvadvpn.service.endpoint.SettingsListener
 
 class RelayListListener(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
     private val setUpJob = setUp()
