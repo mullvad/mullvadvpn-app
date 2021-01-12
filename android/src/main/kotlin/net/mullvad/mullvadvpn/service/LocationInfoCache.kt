@@ -10,7 +10,10 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.withTimeout
+import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeoIpLocation
+import net.mullvad.mullvadvpn.model.LocationConstraint
+import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.relaylist.Relay
 import net.mullvad.mullvadvpn.relaylist.RelayCity
@@ -24,6 +27,7 @@ import net.mullvad.talpid.util.autoSubscribable
 
 class LocationInfoCache(
     val connectivityListener: ConnectivityListener,
+    val settingsListener: SettingsListener,
     val daemon: Intermittent<MullvadDaemon>
 ) {
     companion object {
@@ -84,11 +88,36 @@ class LocationInfoCache(
                 fetchRequestChannel.sendBlocking(RequestFetch.ForRealLocation)
             }
         }
+
+        settingsListener.relaySettingsNotifier.subscribe(this) { relaySettings ->
+            selectedRelayLocation = (relaySettings as? RelaySettings.Normal)?.let { settings ->
+                when (val constraint = settings.relayConstraints.location) {
+                    is Constraint.Any -> null
+                    is Constraint.Only -> when (val location = constraint.value) {
+                        is LocationConstraint.Country -> {
+                            GeoIpLocation(null, null, location.countryCode, null, null)
+                        }
+                        is LocationConstraint.City -> {
+                            GeoIpLocation(null, null, location.countryCode, location.cityCode, null)
+                        }
+                        is LocationConstraint.Hostname -> GeoIpLocation(
+                            null,
+                            null,
+                            location.countryCode,
+                            location.cityCode,
+                            location.hostname
+                        )
+                    }
+                }
+            }
+        }
     }
 
     fun onDestroy() {
         connectivityListener.connectivityNotifier.unsubscribe(this)
+        settingsListener.relaySettingsNotifier.unsubscribe(this)
         stateEvents = null
+
         fetchRequestChannel.close()
 
         onNewLocation = null

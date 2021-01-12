@@ -18,7 +18,7 @@ class ServiceInstance(
     val keyStatusListener = KeyStatusListener(daemon)
 
     val locationInfoCache =
-        LocationInfoCache(connectivityListener, intermittentDaemon).apply {
+        LocationInfoCache(connectivityListener, settingsListener, intermittentDaemon).apply {
             stateEvents = connectionProxy.onStateChange
         }
 
