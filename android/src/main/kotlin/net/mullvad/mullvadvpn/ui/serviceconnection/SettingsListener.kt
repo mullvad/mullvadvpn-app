@@ -20,6 +20,10 @@ class SettingsListener(val connection: Messenger, eventDispatcher: EventDispatch
         get() = accountNumberNotifier.latestEvent
         set(value) { connection.send(Request.SetAccount(value).message) }
 
+    var wireguardMtu: Int?
+        get() = settingsNotifier.latestEvent?.tunnelOptions?.wireguard?.mtu
+        set(value) { connection.send(Request.SetWireGuardMtu(value).message) }
+
     init {
         eventDispatcher.registerHandler(Event.Type.SettingsUpdate) { event: Event.SettingsUpdate ->
             event.settings?.let { newSettings ->
