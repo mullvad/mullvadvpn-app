@@ -1,12 +1,26 @@
 package net.mullvad.mullvadvpn.service
 
 import kotlin.properties.Delegates.observable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.talpid.util.EventNotifier
 
 class SettingsListener {
+    private sealed class Command {
+        class SetWireGuardMtu(val mtu: Int?) : Command()
+    }
+
+    private val availableDaemon = Intermittent<MullvadDaemon>()
+    private val commandChannel = spawnActor()
+
     val accountNumberNotifier = EventNotifier<String?>(null)
     val dnsOptionsNotifier = EventNotifier<DnsOptions?>(null)
     val relaySettingsNotifier = EventNotifier<RelaySettings?>(null)
@@ -28,12 +42,19 @@ class SettingsListener {
                 }
             }
         }
+
+        availableDaemon.spawnUpdate(maybeNewDaemon)
     }
 
     var settings by settingsNotifier.notifiable()
         private set
 
+    var wireguardMtu: Int?
+        get() = settingsNotifier.latestEvent?.tunnelOptions?.wireguard?.mtu
+        set(value) = commandChannel.sendBlocking(Command.SetWireGuardMtu(value))
+
     fun onDestroy() {
+        commandChannel.close()
         daemon = null
 
         accountNumberNotifier.unsubscribeAll()
@@ -69,6 +90,22 @@ class SettingsListener {
             }
 
             settings = newSettings
+        }
+    }
+
+    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+        try {
+            while (true) {
+                val command = channel.receive()
+
+                when (command) {
+                    is Command.SetWireGuardMtu -> {
+                        availableDaemon.await().setWireguardMtu(command.mtu)
+                    }
+                }
+            }
+        } catch (exception: ClosedReceiveChannelException) {
+            // Closed sender, so stop the actor
         }
     }
 }
