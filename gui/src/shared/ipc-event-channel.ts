@@ -26,6 +26,12 @@ import {
   notifyRenderer,
   send,
 } from './ipc-helpers';
+import { LogLevel } from './logging-types';
+
+interface ILogEntry {
+  level: LogLevel;
+  message: string;
+}
 
 export interface IRelayListPair {
   relays: IRelayList;
@@ -181,6 +187,9 @@ const ipc = {
   problemReport: {
     collectLogs: invoke<string[], string>(),
     sendReport: invoke<{ email: string; message: string; savedReport: string }, void>(),
+  },
+  logging: {
+    log: send<ILogEntry>(),
   },
 };
 
