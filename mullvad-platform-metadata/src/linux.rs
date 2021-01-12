@@ -58,5 +58,41 @@ fn parse_lsb_release() -> Option<String> {
 }
 
 pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
-    std::iter::empty()
+    [kernel_version, nm_version, wg_version, systemd_version]
+        .iter()
+        .filter_map(|f| f())
+}
+
+/// `uname -r` outputs a single line containing only the kernel version:
+/// > 5.9.15
+fn kernel_version() -> Option<(String, String)> {
+    let kernel = command_stdout_lossy("uname", &["-r"])?;
+    Some(("kernel".to_string(), kernel))
+}
+
+/// NetworkManager's version is returned as a numeric version string
+/// > 1.26.0
+fn nm_version() -> Option<(String, String)> {
+    let nm = talpid_dbus::network_manager::NetworkManager::new().ok()?;
+    Some(("nm".to_string(), nm.version().ok()?))
+}
+
+/// `/sys/module/wireguard/version` contains only a numeric version string
+/// > 1.0.0
+fn wg_version() -> Option<(String, String)> {
+    let wireguard_version = std::fs::read_to_string("/sys/module/wireguard/version")
+        .ok()?
+        .trim()
+        .to_string();
+    Some(("wireguard".to_string(), wireguard_version))
+}
+
+/// `systemctl --version` usually outpus two lines - one with the version, and another listing
+/// features:
+/// > systemd 246 (246)
+/// > +PAM +AUDIT -SELINUX +IMA +APPARMOR +SMACK -SYSVINIT +UTMP +LIBCRYPTSETUP +GCRYPT -GNUTLS +ACL
+fn systemd_version() -> Option<(String, String)> {
+    let systemd_version_output = command_stdout_lossy("systemctl", &["--version"])?;
+    let version = systemd_version_output.lines().next()?.to_string();
+    Some(("systemd".to_string(), version))
 }

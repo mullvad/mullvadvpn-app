@@ -1327,6 +1327,7 @@ name = "mullvad-platform-metadata"
 version = "0.1.0"
 dependencies = [
  "rs-release",
+ "talpid-dbus",
 ]
 
 [[package]]
@@ -2529,7 +2530,6 @@ dependencies = [
  "byteorder",
  "cfg-if 1.0.0",
  "chrono",
- "dbus",
  "duct",
  "err-derive",
  "failure",
@@ -2565,6 +2565,7 @@ dependencies = [
  "shell-escape",
  "socket2",
  "system-configuration",
+ "talpid-dbus",
  "talpid-types",
  "tempfile",
  "tokio",
@@ -2578,6 +2579,16 @@ dependencies = [
  "winapi 0.3.9",
  "winreg",
  "zeroize",
+]
+
+[[package]]
+name = "talpid-dbus"
+version = "0.1.0"
+dependencies = [
+ "dbus",
+ "err-derive",
+ "lazy_static",
+ "log 0.4.11",
 ]
 
 [[package]]

@@ -1,9 +1,7 @@
 //! NetworkManager is the one-stop-shop of network configuration on Linux.
-use crate::tunnel::wireguard::{
-    config::Config as WireguardConfig, wireguard_kernel::MULLVAD_INTERFACE_NAME,
-};
+pub use dbus::arg::{RefArg, Variant};
 use dbus::{
-    arg::{self, RefArg, Variant},
+    arg,
     blocking::{stdintf::org_freedesktop_dbus::Properties, Proxy, SyncConnection},
     message::MatchRule,
 };
@@ -110,11 +108,11 @@ pub struct NetworkManager {
 impl NetworkManager {
     pub fn new() -> Result<Self> {
         Ok(Self {
-            connection: crate::linux::dbus::get_connection()?,
+            connection: crate::get_connection()?,
         })
     }
 
-    pub fn create_wg_tunnel(&self, config: &WireguardConfig) -> Result<WireguardTunnel> {
+    pub fn create_wg_tunnel(&self, config: &DeviceConfig) -> Result<WireguardTunnel> {
         self.ensure_nm_is_new_enough_for_wireguard()?;
         let tunnel = self.create_wg_tunnel_inner(config)?;
         if let Err(err) = self.wait_until_device_is_ready(&tunnel.device_path) {
@@ -143,13 +141,11 @@ impl NetworkManager {
             .map_err(Error::Dbus)
     }
 
-    fn create_wg_tunnel_inner(&self, config: &WireguardConfig) -> Result<WireguardTunnel> {
-        let settings_map = Self::convert_config_to_dbus(config);
-
-        let config_path: dbus::Path<'static> = match self.add_connection_2(&settings_map) {
+    fn create_wg_tunnel_inner(&self, config: &DeviceConfig) -> Result<WireguardTunnel> {
+        let config_path: dbus::Path<'static> = match self.add_connection_2(&config) {
             Ok((path, _result)) => path,
             Err(Error::Dbus(dbus_error)) if dbus_error.name() == Some(DBUS_UNKNOWN_METHOD) => {
-                self.add_connection_unsaved(&settings_map)?.0
+                self.add_connection_unsaved(&config)?.0
             }
             Err(err) => {
                 log::error!(
@@ -188,10 +184,9 @@ impl NetworkManager {
     }
 
     fn ensure_nm_is_new_enough_for_wireguard(&self) -> Result<()> {
-        let manager = self.nm_manager();
-        let version_string: String = manager.get(NM_MANAGER, "Version").map_err(Error::Dbus)?;
-        let version_too_old = || Error::NMTooOld(version_string.clone());
-        let mut parts = version_string
+        let version: String = self.version()?;
+        let version_too_old = || Error::NMTooOld(version.clone());
+        let mut parts = version
             .split(".")
             .map(|part| part.parse().map_err(|_| version_too_old()));
 
@@ -199,12 +194,18 @@ impl NetworkManager {
         let minor_version: u32 = parts.next().ok_or_else(|| version_too_old())??;
 
         if major_version < MINIMUM_SUPPORTED_MAJOR_VERSION
-            || minor_version < MINIMUM_SUPPORTED_MINOR_VERSION
+            || (minor_version < MINIMUM_SUPPORTED_MINOR_VERSION
+                && major_version == MINIMUM_SUPPORTED_MAJOR_VERSION)
         {
             Err(version_too_old())
         } else {
             Ok(())
         }
+    }
+
+    pub fn version(&self) -> Result<String> {
+        let manager = self.nm_manager();
+        manager.get(NM_MANAGER, "Version").map_err(Error::Dbus)
     }
 
     fn add_connection_2(
@@ -358,112 +359,6 @@ impl NetworkManager {
 
     fn nm_manager(&self) -> Proxy<'_, &SyncConnection> {
         Proxy::new(NM_BUS, NM_MANAGER_PATH, RPC_TIMEOUT, &*self.connection)
-    }
-
-    fn convert_config_to_dbus(config: &WireguardConfig) -> DeviceConfig {
-        let mut ipv6_config: VariantMap = HashMap::new();
-        let mut ipv4_config: VariantMap = HashMap::new();
-        let mut wireguard_config: VariantMap = HashMap::new();
-        let mut connection_config: VariantMap = HashMap::new();
-        let mut peer_configs = vec![];
-
-        wireguard_config.insert("mtu".into(), Variant(Box::new(config.mtu as u32)));
-        wireguard_config.insert("fwmark".into(), Variant(Box::new(config.fwmark as u32)));
-        wireguard_config.insert("peer-routes".into(), Variant(Box::new(false)));
-        wireguard_config.insert(
-            "private-key".into(),
-            Variant(Box::new(config.tunnel.private_key.to_base64())),
-        );
-        wireguard_config.insert("private-key-flags".into(), Variant(Box::new(0x0u32)));
-
-        for peer in config.peers.iter() {
-            let mut peer_config: VariantMap = HashMap::new();
-            let allowed_ips = peer
-                .allowed_ips
-                .iter()
-                .map(ToString::to_string)
-                .collect::<Vec<_>>();
-
-
-            peer_config.insert("allowed-ips".into(), Variant(Box::new(allowed_ips)));
-            peer_config.insert(
-                "endpoint".into(),
-                Variant(Box::new(peer.endpoint.to_string())),
-            );
-            peer_config.insert(
-                "public-key".into(),
-                Variant(Box::new(peer.public_key.to_base64())),
-            );
-
-            peer_configs.push(peer_config);
-        }
-        wireguard_config.insert("peers".into(), Variant(Box::new(peer_configs)));
-
-        connection_config.insert("type".into(), Variant(Box::new("wireguard".to_string())));
-        connection_config.insert(
-            "id".into(),
-            Variant(Box::new(MULLVAD_INTERFACE_NAME.to_string())),
-        );
-        connection_config.insert(
-            "interface-name".into(),
-            Variant(Box::new(MULLVAD_INTERFACE_NAME.to_string())),
-        );
-        connection_config.insert("autoconnect".into(), Variant(Box::new(true)));
-
-
-        let ipv4_addrs: Vec<_> = config
-            .tunnel
-            .addresses
-            .iter()
-            .filter(|ip| ip.is_ipv4())
-            .map(Self::convert_address_to_dbus)
-            .collect();
-
-        let ipv6_addrs: Vec<_> = config
-            .tunnel
-            .addresses
-            .iter()
-            .filter(|ip| ip.is_ipv6())
-            .map(Self::convert_address_to_dbus)
-            .collect();
-
-        ipv4_config.insert("address-data".into(), Variant(Box::new(ipv4_addrs)));
-        ipv4_config.insert("ignore-auto-routes".into(), Variant(Box::new(true)));
-        ipv4_config.insert("ignore-auto-dns".into(), Variant(Box::new(true)));
-        ipv4_config.insert("may-fail".into(), Variant(Box::new(true)));
-        ipv4_config.insert("method".into(), Variant(Box::new("manual".to_string())));
-        ipv4_config.insert("never-default".into(), Variant(Box::new(true)));
-
-        if !ipv6_addrs.is_empty() {
-            ipv6_config.insert("method".into(), Variant(Box::new("manual".to_string())));
-            ipv6_config.insert("address-data".into(), Variant(Box::new(ipv6_addrs)));
-            ipv6_config.insert("ignore-auto-routes".into(), Variant(Box::new(true)));
-            ipv6_config.insert("ignore-auto-dns".into(), Variant(Box::new(true)));
-            ipv6_config.insert("may-fail".into(), Variant(Box::new(true)));
-        }
-
-
-        let mut settings = HashMap::new();
-        settings.insert("ipv4".into(), ipv4_config);
-        if !ipv6_config.is_empty() {
-            settings.insert("ipv6".into(), ipv6_config);
-        }
-        settings.insert("wireguard".into(), wireguard_config);
-        settings.insert("connection".into(), connection_config);
-
-        settings
-    }
-
-    fn convert_address_to_dbus(address: &IpAddr) -> VariantMap {
-        let mut map: VariantMap = HashMap::new();
-        map.insert(
-            "address".to_string(),
-            Variant(Box::new(address.to_string())),
-        );
-        let prefix: u32 = if address.is_ipv4() { 32 } else { 128 };
-        map.insert("prefix".to_string(), Variant(Box::new(prefix)));
-
-        map
     }
 
     pub fn ensure_network_manager_exists(&self) -> Result<()> {
@@ -636,10 +531,9 @@ impl NetworkManager {
         }
 
         if let Some(wg_config) = settings.get_mut("wireguard") {
-            wg_config.insert(
-                "fwmark".to_string(),
-                Variant(Box::new(crate::linux::TUNNEL_FW_MARK) as Box<dyn RefArg>),
-            );
+            if !wg_config.contains_key("fwmark") {
+                log::error!("WireGuard config doesn't contain the firewall mark");
+            }
         }
 
         self.reapply_settings(&device_path, settings, version_id)?;
@@ -716,6 +610,19 @@ impl NetworkManager {
             return Ok(device_path.clone());
         }
         Err(Error::DeviceNotFound)
+    }
+
+
+    pub fn convert_address_to_dbus(address: &IpAddr) -> VariantMap {
+        let mut map: VariantMap = HashMap::new();
+        map.insert(
+            "address".to_string(),
+            Variant(Box::new(address.to_string())),
+        );
+        let prefix: u32 = if address.is_ipv4() { 32 } else { 128 };
+        map.insert("prefix".to_string(), Variant(Box::new(prefix)));
+
+        map
     }
 }
 
