@@ -75,11 +75,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
     private fun configureHeader(view: View) {
         wireguardMtuInput = view.findViewById<MtuCell>(R.id.wireguard_mtu).apply {
-            onSubmit = { mtu ->
-                jobTracker.newBackgroundJob("updateMtu") {
-                    daemon.setWireguardMtu(mtu)
-                }
-            }
+            onSubmit = { mtu -> settingsListener.wireguardMtu = mtu }
         }
 
         view.findViewById<NavigateCell>(R.id.wireguard_keys).apply {
