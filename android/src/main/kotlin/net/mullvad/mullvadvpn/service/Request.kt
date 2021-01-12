@@ -252,6 +252,30 @@ sealed class Request {
         }
     }
 
+    class SetWireGuardMtu(val mtu: Int?) : Request() {
+        companion object {
+            private val mtuKey = "mtu"
+
+            fun buildMtu(data: Bundle): Int? {
+                if (data.containsKey(mtuKey)) {
+                    return data.getInt(mtuKey)
+                } else {
+                    return null
+                }
+            }
+        }
+
+        override val type = Type.SetWireGuardMtu
+
+        constructor(data: Bundle) : this(data.getParcelable(mtuKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            if (mtu != null) {
+                data.putInt(mtuKey, mtu)
+            }
+        }
+    }
+
     class VpnPermissionResponse(val vpnPermission: Boolean) : Request() {
         companion object {
             private val vpnPermissionKey = "vpnPermission"
@@ -297,6 +321,7 @@ sealed class Request {
         SetAccount({ message -> SetAccount(message.data) }),
         SetEnableCustomDns({ message -> SetEnableCustomDns(message.data) }),
         SetEnableSplitTunneling({ message -> SetEnableSplitTunneling(message.data) }),
+        SetWireGuardMtu({ message -> SetWireGuardMtu(message.data) }),
         VpnPermissionResponse({ message -> VpnPermissionResponse(message.data) }),
         WireGuardGenerateKey({ _ -> WireGuardGenerateKey() }),
         WireGuardVerifyKey({ _ -> WireGuardVerifyKey() }),

@@ -132,6 +132,7 @@ class ServiceHandler(
             is Request.SetAccount -> accountCache.account = request.account
             is Request.SetEnableCustomDns -> customDns.setEnabled(request.enable)
             is Request.SetEnableSplitTunneling -> splitTunneling.enabled = request.enable
+            is Request.SetWireGuardMtu -> settingsListener.wireguardMtu = request.mtu
             is Request.VpnPermissionResponse -> {
                 connectionProxy.vpnPermission.spawnUpdate(request.vpnPermission)
             }
