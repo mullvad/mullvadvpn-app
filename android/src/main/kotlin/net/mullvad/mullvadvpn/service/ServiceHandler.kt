@@ -17,7 +17,11 @@ class ServiceHandler(looper: Looper, connectivityListener: ConnectivityListener)
         }
     }
 
-    val accountCache = AccountCache(settingsListener)
+    val accountCache = AccountCache(settingsListener).apply {
+        onLoginStatusChange.subscribe(this@ServiceHandler) { status ->
+            sendEvent(Event.LoginStatus(status))
+        }
+    }
 
     val keyStatusListener = KeyStatusListener().apply {
         onKeyStatusChange.subscribe(this@ServiceHandler) { keyStatus ->
@@ -64,6 +68,7 @@ class ServiceHandler(looper: Looper, connectivityListener: ConnectivityListener)
         listeners.add(listener)
 
         listener.apply {
+            send(Event.LoginStatus(accountCache.onLoginStatusChange.latestEvent).message)
             send(Event.SettingsUpdate(settingsListener.settings).message)
             send(Event.NewLocation(locationInfoCache.location).message)
             send(Event.WireGuardKeyStatus(keyStatusListener.keyStatus).message)
