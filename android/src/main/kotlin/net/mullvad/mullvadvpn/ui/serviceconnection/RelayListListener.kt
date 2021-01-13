@@ -1,14 +1,18 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
+import android.os.Messenger
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
+import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
+import net.mullvad.mullvadvpn.model.LocationConstraint
 import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 
 class RelayListListener(
+    val connection: Messenger,
     eventDispatcher: DispatchingHandler<Event>,
     val settingsListener: SettingsListener
 ) {
@@ -17,6 +21,17 @@ class RelayListListener(
 
     var selectedRelayItem: RelayItem? = null
         private set
+
+    var selectedRelayLocation: LocationConstraint?
+        get() {
+            val settings = relaySettings as? RelaySettings.Normal
+            val location = settings?.relayConstraints?.location as? Constraint.Only
+
+            return location?.value
+        }
+        set(value) {
+            connection.send(Request.SetRelayLocation(value).message)
+        }
 
     var onRelayListChange: ((RelayList, RelayItem?) -> Unit)? = null
         set(value) {
