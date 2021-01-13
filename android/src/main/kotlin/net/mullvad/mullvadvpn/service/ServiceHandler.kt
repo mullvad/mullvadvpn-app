@@ -58,13 +58,12 @@ class ServiceHandler(
         }
     }
 
-    val locationInfoCache = LocationInfoCache(connectivityListener, settingsListener).apply {
-        stateEvents = connectionProxy.onStateChange
-
-        onNewLocation = { location ->
-            sendEvent(Event.NewLocation(location))
+    val locationInfoCache =
+        LocationInfoCache(connectionProxy, connectivityListener, settingsListener).apply {
+            onNewLocation = { location ->
+                sendEvent(Event.NewLocation(location))
+            }
         }
-    }
 
     val relayListListener = RelayListListener().apply {
         relayListNotifier.subscribe(this@ServiceHandler) { relayList ->
