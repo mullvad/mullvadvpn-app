@@ -239,6 +239,20 @@ sealed class Request {
         }
     }
 
+    class SetAutoConnect(val autoConnect: Boolean) : Request() {
+        companion object {
+            private val autoConnectKey = "autoConnect"
+        }
+
+        override val type = Type.SetAutoConnect
+
+        constructor(data: Bundle) : this(data.getBoolean(autoConnectKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putBoolean(autoConnectKey, autoConnect)
+        }
+    }
+
     class SetEnableCustomDns(val enable: Boolean) : Request() {
         companion object {
             private val enableKey = "enable"
@@ -349,6 +363,7 @@ sealed class Request {
         ReplaceCustomDnsServer({ message -> ReplaceCustomDnsServer(message.data) }),
         SetAccount({ message -> SetAccount(message.data) }),
         SetAllowLan({ message -> SetAllowLan(message.data) }),
+        SetAutoConnect({ message -> SetAutoConnect(message.data) }),
         SetEnableCustomDns({ message -> SetEnableCustomDns(message.data) }),
         SetEnableSplitTunneling({ message -> SetEnableSplitTunneling(message.data) }),
         SetRelayLocation({ message -> SetRelayLocation(message.data) }),
