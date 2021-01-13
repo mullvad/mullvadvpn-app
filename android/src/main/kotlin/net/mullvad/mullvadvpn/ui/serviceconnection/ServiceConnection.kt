@@ -44,7 +44,7 @@ class ServiceConnection(private val service: ServiceInstance) : KoinScopeCompone
 
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(service.messenger, settingsListener)
-    var relayListListener = RelayListListener(dispatcher, settingsListener)
+    var relayListListener = RelayListListener(service.messenger, dispatcher, settingsListener)
 
     init {
         registerListener()
