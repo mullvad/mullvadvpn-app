@@ -91,6 +91,7 @@ class ServiceEndpoint(
             listeners.add(listener)
 
             val initialEvents = listOf(
+                Event.LoginStatus(accountCache.onLoginStatusChange.latestEvent),
                 Event.SettingsUpdate(settingsListener.settings),
                 Event.NewLocation(locationInfoCache.location),
                 Event.WireGuardKeyStatus(keyStatusListener.keyStatus),

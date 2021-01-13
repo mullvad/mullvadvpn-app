@@ -7,6 +7,7 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.delay
+import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.model.LoginStatus
@@ -62,6 +63,10 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     init {
         endpoint.settingsListener.accountNumberNotifier.subscribe(this) { accountNumber ->
             handleNewAccountNumber(accountNumber)
+        }
+
+        onLoginStatusChange.subscribe(this) { status ->
+            endpoint.sendEvent(Event.LoginStatus(status))
         }
 
         endpoint.dispatcher.apply {
