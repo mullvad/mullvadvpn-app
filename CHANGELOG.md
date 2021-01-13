@@ -51,6 +51,10 @@ Line wrap the file at 100 chars.                                              Th
   OpenVPN by correctly applying the fix for
   [CVE-2019-14899](https://seclists.org/oss-sec/2019/q4/122).
 
+#### Windows
+- Deny network access to the OpenVPN plugin pipe, which allowed for anonymous write access when
+  passwordless file sharing was enabled.
+
 ### Changed
 - Allow the API to be accessed while in a blocking state.
 - Prefer the last used API endpoint when the service starts back up, as well as in other tools such
