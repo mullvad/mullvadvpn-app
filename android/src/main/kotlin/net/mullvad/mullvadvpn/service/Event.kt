@@ -6,11 +6,15 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
+import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
 import net.mullvad.mullvadvpn.model.Settings
 
 sealed class Event : Parcelable {
     @Parcelize
     class ListenerReady : Event(), Parcelable
+
+    @Parcelize
+    class LoginStatus(val status: LoginStatusData?) : Event(), Parcelable
 
     @Parcelize
     class NewLocation(val location: GeoIpLocation?) : Event(), Parcelable
