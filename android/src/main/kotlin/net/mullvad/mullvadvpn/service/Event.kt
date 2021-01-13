@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Message
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
+import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
 import net.mullvad.mullvadvpn.model.Settings
 
 sealed class Event {
@@ -18,6 +19,20 @@ sealed class Event {
         }
 
     open fun prepareData(data: Bundle) {}
+
+    class LoginStatus(val status: LoginStatusData?) : Event() {
+        companion object {
+            private val statusKey = "status"
+        }
+
+        override val type = Type.LoginStatus
+
+        constructor(data: Bundle) : this(data.getParcelable(statusKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putParcelable(statusKey, status)
+        }
+    }
 
     class NewLocation(val location: GeoIpLocation?) : Event() {
         companion object {
@@ -62,6 +77,7 @@ sealed class Event {
     }
 
     enum class Type(val build: (Bundle) -> Event) {
+        LoginStatus({ data -> LoginStatus(data) }),
         NewLocation({ data -> NewLocation(data) }),
         SettingsUpdate({ data -> SettingsUpdate(data) }),
         WireGuardKeyStatus({ data -> WireGuardKeyStatus(data) }),
