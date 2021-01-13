@@ -72,6 +72,9 @@ sealed class Request : Message.RequestMessage() {
     data class SetAllowLan(val allow: Boolean) : Request()
 
     @Parcelize
+    data class SetAutoConnect(val autoConnect: Boolean) : Request()
+
+    @Parcelize
     data class SetEnableCustomDns(val enable: Boolean) : Request()
 
     @Parcelize

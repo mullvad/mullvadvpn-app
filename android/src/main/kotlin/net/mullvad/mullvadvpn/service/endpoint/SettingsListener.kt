@@ -17,6 +17,7 @@ import net.mullvad.talpid.util.EventNotifier
 class SettingsListener(endpoint: ServiceEndpoint) {
     private sealed class Command {
         class SetAllowLan(val allow: Boolean) : Command()
+        class SetAutoConnect(val autoConnect: Boolean) : Command()
         class SetWireGuardMtu(val mtu: Int?) : Command()
     }
 
@@ -46,6 +47,10 @@ class SettingsListener(endpoint: ServiceEndpoint) {
         endpoint.dispatcher.apply {
             registerHandler(Request.SetAllowLan::class) { request ->
                 commandChannel.sendBlocking(Command.SetAllowLan(request.allow))
+            }
+
+            registerHandler(Request.SetAutoConnect::class) { request ->
+                commandChannel.sendBlocking(Command.SetAutoConnect(request.autoConnect))
             }
 
             registerHandler(Request.SetWireGuardMtu::class) { request ->
@@ -113,6 +118,7 @@ class SettingsListener(endpoint: ServiceEndpoint) {
 
                 when (command) {
                     is Command.SetAllowLan -> daemon.await().setAllowLan(command.allow)
+                    is Command.SetAutoConnect -> daemon.await().setAutoConnect(command.autoConnect)
                     is Command.SetWireGuardMtu -> daemon.await().setWireguardMtu(command.mtu)
                 }
             }
