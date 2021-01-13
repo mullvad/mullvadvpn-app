@@ -130,6 +130,7 @@ class ServiceHandler(
                 customDns.replaceDnsServer(request.oldAddress, request.newAddress)
             }
             is Request.SetAccount -> accountCache.account = request.account
+            is Request.SetAllowLan -> settingsListener.allowLan = request.allow
             is Request.SetEnableCustomDns -> customDns.setEnabled(request.enable)
             is Request.SetEnableSplitTunneling -> splitTunneling.enabled = request.enable
             is Request.SetRelayLocation -> {

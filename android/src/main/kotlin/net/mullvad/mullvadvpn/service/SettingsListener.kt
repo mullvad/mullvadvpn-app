@@ -15,6 +15,7 @@ import net.mullvad.talpid.util.EventNotifier
 
 class SettingsListener {
     private sealed class Command {
+        class SetAllowLan(val allow: Boolean) : Command()
         class SetWireGuardMtu(val mtu: Int?) : Command()
     }
 
@@ -48,6 +49,10 @@ class SettingsListener {
 
     var settings by settingsNotifier.notifiable()
         private set
+
+    var allowLan: Boolean
+        get() = settingsNotifier.latestEvent?.allowLan ?: false
+        set(value) = commandChannel.sendBlocking(Command.SetAllowLan(value))
 
     var wireguardMtu: Int?
         get() = settingsNotifier.latestEvent?.tunnelOptions?.wireguard?.mtu
@@ -99,6 +104,7 @@ class SettingsListener {
                 val command = channel.receive()
 
                 when (command) {
+                    is Command.SetAllowLan -> availableDaemon.await().setAllowLan(command.allow)
                     is Command.SetWireGuardMtu -> {
                         availableDaemon.await().setWireguardMtu(command.mtu)
                     }

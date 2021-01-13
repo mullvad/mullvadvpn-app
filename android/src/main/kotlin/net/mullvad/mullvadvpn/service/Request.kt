@@ -225,6 +225,20 @@ sealed class Request {
         }
     }
 
+    class SetAllowLan(val allow: Boolean) : Request() {
+        companion object {
+            private val allowKey = "allow"
+        }
+
+        override val type = Type.SetAllowLan
+
+        constructor(data: Bundle) : this(data.getBoolean(allowKey)) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putBoolean(allowKey, allow)
+        }
+    }
+
     class SetEnableCustomDns(val enable: Boolean) : Request() {
         companion object {
             private val enableKey = "enable"
@@ -334,6 +348,7 @@ sealed class Request {
         RemoveCustomDnsServer({ message -> RemoveCustomDnsServer(message.data) }),
         ReplaceCustomDnsServer({ message -> ReplaceCustomDnsServer(message.data) }),
         SetAccount({ message -> SetAccount(message.data) }),
+        SetAllowLan({ message -> SetAllowLan(message.data) }),
         SetEnableCustomDns({ message -> SetEnableCustomDns(message.data) }),
         SetEnableSplitTunneling({ message -> SetEnableSplitTunneling(message.data) }),
         SetRelayLocation({ message -> SetRelayLocation(message.data) }),
