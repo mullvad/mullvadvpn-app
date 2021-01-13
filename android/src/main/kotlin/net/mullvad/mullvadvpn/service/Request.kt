@@ -71,6 +71,9 @@ sealed class Request : Parcelable {
     class SetAllowLan(val allow: Boolean) : Request(), Parcelable
 
     @Parcelize
+    class SetAutoConnect(val autoConnect: Boolean) : Request(), Parcelable
+
+    @Parcelize
     class SetEnableCustomDns(val enable: Boolean) : Request(), Parcelable
 
     @Parcelize
