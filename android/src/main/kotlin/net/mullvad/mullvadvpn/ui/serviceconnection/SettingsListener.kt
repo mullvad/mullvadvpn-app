@@ -24,6 +24,10 @@ class SettingsListener(val connection: Messenger, eventDispatcher: EventDispatch
         get() = settingsNotifier.latestEvent?.allowLan ?: false
         set(value) { connection.send(Request.SetAllowLan(value).message) }
 
+    var autoConnect: Boolean
+        get() = settingsNotifier.latestEvent?.autoConnect ?: false
+        set(value) { connection.send(Request.SetAutoConnect(value).message) }
+
     var wireguardMtu: Int?
         get() = settingsNotifier.latestEvent?.tunnelOptions?.wireguard?.mtu
         set(value) { connection.send(Request.SetWireGuardMtu(value).message) }
