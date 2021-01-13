@@ -1310,7 +1310,6 @@ dependencies = [
  "tonic-build",
  "tower",
  "triggered",
- "winapi 0.3.9",
 ]
 
 [[package]]
