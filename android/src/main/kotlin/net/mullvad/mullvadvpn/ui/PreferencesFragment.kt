@@ -28,8 +28,8 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
         allowLanToggle = view.findViewById<ToggleCell>(R.id.allow_lan).apply {
             listener = { state ->
                 when (state) {
-                    CellSwitch.State.ON -> daemon.setAllowLan(true)
-                    CellSwitch.State.OFF -> daemon.setAllowLan(false)
+                    CellSwitch.State.ON -> settingsListener.allowLan = true
+                    CellSwitch.State.OFF -> settingsListener.allowLan = false
                 }
             }
         }
@@ -37,8 +37,8 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
         autoConnectToggle = view.findViewById<ToggleCell>(R.id.auto_connect).apply {
             listener = { state ->
                 when (state) {
-                    CellSwitch.State.ON -> daemon.setAutoConnect(true)
-                    CellSwitch.State.OFF -> daemon.setAutoConnect(false)
+                    CellSwitch.State.ON -> settingsListener.autoConnect = true
+                    CellSwitch.State.OFF -> settingsListener.autoConnect = false
                 }
             }
         }
