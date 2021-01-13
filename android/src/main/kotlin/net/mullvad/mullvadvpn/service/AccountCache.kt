@@ -63,6 +63,10 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
             handleNewAccountNumber(accountNumber)
         }
 
+        onLoginStatusChange.subscribe(this) { status ->
+            endpoint.sendEvent(Event.LoginStatus(status))
+        }
+
         endpoint.dispatcher.apply {
             registerHandler(Request.CreateAccount::class) { _ ->
                 commandChannel.sendBlocking(Command.CreateAccount())
