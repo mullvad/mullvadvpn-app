@@ -32,7 +32,7 @@ rand = "0.7"
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 openvpn-plugin = { version = "0.4", features = ["serde", "auth-failed-event"] }
-parity-tokio-ipc = "0.7"
+parity-tokio-ipc = "0.8"
 triggered = "0.1.1"
 tonic = "0.3.1"
 prost = "0.6"
