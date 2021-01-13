@@ -15,11 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.KeygenEvent
-import net.mullvad.mullvadvpn.model.LocationConstraint
-import net.mullvad.mullvadvpn.model.RelayConstraintsUpdate
-import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
@@ -46,7 +42,7 @@ class SelectLocationFragment :
         relayListAdapter = RelayListAdapter(context.resources).apply {
             onSelect = { relayItem ->
                 jobTracker.newBackgroundJob("selectRelay") {
-                    updateLocationConstraint(relayItem)
+                    relayListListener.selectedRelayLocation = relayItem?.location
                     maybeConnect()
 
                     jobTracker.newUiJob("close") {
@@ -150,13 +146,6 @@ class SelectLocationFragment :
 
     fun close() {
         activity?.onBackPressed()
-    }
-
-    private fun updateLocationConstraint(relayItem: RelayItem?) {
-        val constraint: Constraint<LocationConstraint> =
-            relayItem?.run { Constraint.Only(location) } ?: Constraint.Any()
-
-        daemon.updateRelaySettings(RelaySettingsUpdate.Normal(RelayConstraintsUpdate(constraint)))
     }
 
     private fun updateRelayList(relayList: RelayList, selectedItem: RelayItem?) {
