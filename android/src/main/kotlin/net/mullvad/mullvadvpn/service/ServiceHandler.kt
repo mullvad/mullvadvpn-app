@@ -24,7 +24,15 @@ class ServiceHandler(looper: Looper) : Handler(looper) {
         val request = Request.fromMessage(message)
 
         when (request) {
-            is Request.RegisterListener -> listeners.add(request.listener)
+            is Request.RegisterListener -> registerListener(request.listener)
+        }
+    }
+
+    private fun registerListener(listener: Messenger) {
+        listeners.add(listener)
+
+        listener.apply {
+            send(Event.SettingsUpdate(settingsListener.settings).message)
         }
     }
 
