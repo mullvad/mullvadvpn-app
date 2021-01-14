@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.service.endpoint
 
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
+import net.mullvad.mullvadvpn.model.LoginStatus
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.talpid.util.EventNotifier
@@ -26,6 +27,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
     val onAccountHistoryChange = EventNotifier<List<String>>(listOf<String>())
+    val onLoginStatusChange = EventNotifier<LoginStatus?>(null)
 
     var newlyCreatedAccount = false
         private set
@@ -38,6 +40,9 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
     private var createdAccountExpiry: DateTime? = null
     private var oldAccountExpiry: DateTime? = null
+
+    var loginStatus by onLoginStatusChange.notifiable()
+        private set
 
     init {
         endpoint.settingsListener.accountNumberNotifier.subscribe(this) { accountNumber ->
@@ -111,6 +116,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         onAccountNumberChange.unsubscribeAll()
         onAccountExpiryChange.unsubscribeAll()
         onAccountHistoryChange.unsubscribeAll()
+        onLoginStatusChange.unsubscribeAll()
     }
 
     private fun fetchAccountHistory() {
@@ -130,6 +136,10 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         synchronized(this) {
             accountExpiry = null
             accountNumber = newAccountNumber
+
+            loginStatus = newAccountNumber?.let { account ->
+                LoginStatus(account, null, newlyCreatedAccount)
+            }
 
             fetchAccountExpiry()
             fetchAccountHistory()
@@ -151,6 +161,10 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
             if (newAccountExpiry != oldAccountExpiry || retryAttempt >= MAX_INVALIDATED_RETRIES) {
                 accountExpiry = newAccountExpiry
                 oldAccountExpiry = null
+
+                loginStatus = loginStatus?.let { currentStatus ->
+                    LoginStatus(currentStatus.account, newAccountExpiry, currentStatus.isNewAccount)
+                }
 
                 if (accountExpiry != null && newlyCreatedAccount) {
                     if (createdAccountExpiry == null) {
