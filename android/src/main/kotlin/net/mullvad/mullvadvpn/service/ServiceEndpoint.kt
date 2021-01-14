@@ -76,6 +76,7 @@ class ServiceEndpoint(
         listeners.add(listener)
 
         listener.apply {
+            send(Event.SettingsUpdate(settingsListener.settings).message)
             send(Event.ListenerReady().message)
         }
     }
