@@ -81,7 +81,10 @@ class ServiceEndpoint(
         synchronized(this) {
             listeners.add(listener)
 
-            val initialEvents = listOf(Event.ListenerReady)
+            val initialEvents = listOf(
+                Event.SettingsUpdate(settingsListener.settings),
+                Event.ListenerReady
+            )
 
             initialEvents.forEach { event ->
                 listener.send(event.message)
