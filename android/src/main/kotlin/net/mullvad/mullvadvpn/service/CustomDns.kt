@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.service
 
 import java.net.InetAddress
 import java.util.ArrayList
+import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
@@ -9,8 +10,9 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.model.DnsOptions
+import net.mullvad.mullvadvpn.util.Intermittent
 
-class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
+class CustomDns(val settingsListener: SettingsListener) {
     private sealed class Command {
         class AddDnsServer(val server: InetAddress) : Command()
         class RemoveDnsServer(val server: InetAddress) : Command()
@@ -18,10 +20,15 @@ class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListene
         class SetEnabled(val enabled: Boolean) : Command()
     }
 
+    private val availableDaemon = Intermittent<MullvadDaemon>()
     private val commandChannel = spawnActor()
 
     private var dnsServers = ArrayList<InetAddress>()
     private var enabled = false
+
+    var daemon by observable<MullvadDaemon?>(null) { _, _, newDaemon ->
+        availableDaemon.spawnUpdate(newDaemon)
+    }
 
     init {
         settingsListener.dnsOptionsNotifier.subscribe(this) { maybeDnsOptions ->
@@ -35,6 +42,7 @@ class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListene
     fun onDestroy() {
         settingsListener.dnsOptionsNotifier.unsubscribe(this)
         commandChannel.close()
+        daemon = null
     }
 
     fun addDnsServer(server: InetAddress) {
@@ -72,14 +80,14 @@ class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListene
         }
     }
 
-    private fun doAddDnsServer(server: InetAddress) {
+    private suspend fun doAddDnsServer(server: InetAddress) {
         if (!dnsServers.contains(server)) {
             dnsServers.add(server)
             changeDnsOptions(enabled, dnsServers)
         }
     }
 
-    private fun doReplaceDnsServer(oldServer: InetAddress, newServer: InetAddress) {
+    private suspend fun doReplaceDnsServer(oldServer: InetAddress, newServer: InetAddress) {
         if (oldServer != newServer && !dnsServers.contains(newServer)) {
             val index = dnsServers.indexOf(oldServer)
 
@@ -91,15 +99,15 @@ class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListene
         }
     }
 
-    private fun doRemoveDnsServer(server: InetAddress) {
+    private suspend fun doRemoveDnsServer(server: InetAddress) {
         if (dnsServers.remove(server)) {
             changeDnsOptions(enabled, dnsServers)
         }
     }
 
-    private fun changeDnsOptions(enable: Boolean, dnsServers: ArrayList<InetAddress>) {
+    private suspend fun changeDnsOptions(enable: Boolean, dnsServers: ArrayList<InetAddress>) {
         val options = DnsOptions(enable, dnsServers)
 
-        daemon.setDnsOptions(options)
+        availableDaemon.await().setDnsOptions(options)
     }
 }
