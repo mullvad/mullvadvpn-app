@@ -14,7 +14,6 @@ import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
-import net.mullvad.mullvadvpn.service.CustomDns
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.persistence.SplitTunnelingPersistence
 import net.mullvad.mullvadvpn.util.Intermittent
@@ -41,11 +40,10 @@ class ServiceEndpoint(
     val settingsListener = SettingsListener(this)
 
     val accountCache = AccountCache(this)
+    val customDns = CustomDns(this)
     val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)
     val splitTunneling = SplitTunneling(SplitTunnelingPersistence(context), this)
-
-    var customDns: CustomDns? = null
 
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
@@ -59,6 +57,7 @@ class ServiceEndpoint(
 
         accountCache.onDestroy()
         connectionProxy.onDestroy()
+        customDns.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
