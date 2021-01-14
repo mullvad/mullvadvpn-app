@@ -8,21 +8,21 @@ import android.view.ViewGroup
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
-import net.mullvad.mullvadvpn.service.endpoint.AccountCache
+import net.mullvad.mullvadvpn.model.LoginStatus
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.Button
-import org.joda.time.DateTime
 
 class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), NavigationBarPainter {
-    enum class LoginResult {
-        ExistingAccountWithTime,
-        ExistingAccountOutOfTime,
-        NewAccount;
+    companion object {
+        private enum class State {
+            Starting,
+            Idle,
+            LoggingIn,
+            CreatingAccount,
+        }
     }
 
     private lateinit var title: TextView
@@ -34,7 +34,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
     private lateinit var scrollArea: ScrollView
     private lateinit var background: View
 
-    private val loggedIn = CompletableDeferred<LoginResult>()
+    private var loginStatus: LoginStatus? = null
+    private var state = State.Starting
 
     override fun onSafelyCreateView(
         inflater: LayoutInflater,
@@ -71,29 +72,27 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
     override fun onSafelyStart() {
         accountLogin.state = LoginState.Initial
 
-        jobTracker.newBackgroundJob("checkIfAlreadyLoggedIn") {
-            if (accountCache.onAccountNumberChange.latestEvent != null) {
-                val loginResult = if (accountCache.newlyCreatedAccount) {
-                    LoginResult.NewAccount
-                } else {
-                    loginResultForExpiry(accountCache.onAccountExpiryChange.latestEvent)
-                }
-
-                loggedIn.complete(loginResult)
-            }
-        }
-
-        jobTracker.newUiJob("advanceToNextScreen") {
-            when (loggedIn.await()) {
-                LoginResult.ExistingAccountWithTime -> openNextScreen(ConnectFragment())
-                LoginResult.ExistingAccountOutOfTime -> openNextScreen(OutOfTimeFragment())
-                LoginResult.NewAccount -> openNextScreen(WelcomeFragment())
-            }
-        }
-
         accountCache.onAccountHistoryChange.subscribe(this) { history ->
             jobTracker.newUiJob("updateHistory") {
                 accountLogin.accountHistory = history
+            }
+        }
+
+        accountCache.onLoginStatusChange.subscribe(this) { status ->
+            jobTracker.newUiJob("updateLoginStatus") {
+                loginStatus = status
+
+                if (status == null) {
+                    if (state == State.LoggingIn || state == State.CreatingAccount) {
+                        loginFailure()
+                    }
+                } else {
+                    if (state == State.Starting) {
+                        openNextScreen()
+                    } else {
+                        loggedIn()
+                    }
+                }
             }
         }
 
@@ -105,6 +104,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
                 false
             }
         }
+
+        state = State.Idle
     }
 
     override fun onResume() {
@@ -115,6 +116,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
     override fun onSafelyStop() {
         jobTracker.cancelJob("advanceToNextScreen")
         accountCache.onAccountHistoryChange.unsubscribe(this)
+        accountCache.onLoginStatusChange.unsubscribe(this)
         parentActivity.backButtonHandler = null
     }
 
@@ -125,6 +127,8 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
     }
 
     private suspend fun createAccount() {
+        state = State.CreatingAccount
+
         title.setText(R.string.logging_in_title)
         subtitle.setText(R.string.creating_new_account)
 
@@ -136,18 +140,12 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
 
         scrollToShow(loggingInStatus)
 
-        val accountToken = jobTracker.runOnBackground {
-            accountCache.createNewAccount()
-        }
-
-        if (accountToken == null) {
-            loginFailure(R.string.failed_to_create_account)
-        } else {
-            loggedIn(resources.getString(R.string.account_created), LoginResult.NewAccount)
-        }
+        accountCache.createNewAccount()
     }
 
     private fun login(accountToken: String) {
+        state = State.LoggingIn
+
         title.setText(R.string.logging_in_title)
         subtitle.setText(R.string.logging_in_description)
 
@@ -165,39 +163,26 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
     }
 
     private fun performLogin(accountToken: String) {
-        jobTracker.newUiJob("login") {
-            val loginResult = jobTracker.runOnBackground {
-                val accountDataResult = daemon.getAccountData(accountToken)
+        jobTracker.newBackgroundJob("login") {
+            val accountDataResult = daemon.getAccountData(accountToken)
+            val loginSucceded = accountDataResult is GetAccountDataResult.Ok
+                || accountDataResult is GetAccountDataResult.RpcError
 
-                when (accountDataResult) {
-                    is GetAccountDataResult.Ok -> {
-                        accountCache.login(accountToken)
-
-                        val expiryString = accountDataResult.accountData.expiry
-                        val expiry = DateTime.parse(expiryString, AccountCache.EXPIRY_FORMAT)
-
-                        loginResultForExpiry(expiry)
-                    }
-                    is GetAccountDataResult.RpcError -> {
-                        accountCache.login(accountToken)
-                        LoginResult.ExistingAccountWithTime
-                    }
-                    else -> null
-                }
-            }
-
-            if (loginResult != null) {
-                loggedIn("", loginResult)
-            } else {
-                loginFailure(R.string.login_fail_description)
+            if (loginSucceded) {
+                accountCache.login(accountToken)
             }
         }
     }
 
-    private suspend fun loggedIn(subtitleMessage: String, result: LoginResult) {
-        showLoggedInMessage(subtitleMessage)
+    private suspend fun loggedIn() {
+        if (loginStatus?.isNewAccount ?: false) {
+            showLoggedInMessage(resources.getString(R.string.account_created))
+        } else {
+            showLoggedInMessage("")
+        }
+
         delay(1000)
-        loggedIn.complete(result)
+        openNextScreen()
     }
 
     private fun showLoggedInMessage(subtitleMessage: String) {
@@ -213,14 +198,31 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
         scrollToShow(loggedInStatus)
     }
 
-    private fun openNextScreen(fragment: Fragment) {
+    private fun openNextScreen() {
+        val status = loginStatus
+
+        val fragment = when {
+            status == null -> return
+            status.isNewAccount -> WelcomeFragment()
+            status.isExpired -> OutOfTimeFragment()
+            else -> ConnectFragment()
+        }
+
         parentFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, fragment)
             commit()
         }
     }
 
-    private fun loginFailure(description: Int) {
+    private fun loginFailure() {
+        val description = when (state) {
+            State.LoggingIn -> R.string.login_fail_description
+            State.CreatingAccount -> R.string.failed_to_create_account
+            State.Idle, State.Starting -> return
+        }
+
+        state = State.Idle
+
         title.setText(R.string.login_fail_title)
         subtitle.setText(description)
 
@@ -231,13 +233,5 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
         accountLogin.state = LoginState.Failure
 
         scrollToShow(accountLogin)
-    }
-
-    private fun loginResultForExpiry(expiry: DateTime?): LoginResult {
-        if (expiry == null || expiry.isAfterNow()) {
-            return LoginResult.ExistingAccountWithTime
-        } else {
-            return LoginResult.ExistingAccountOutOfTime
-        }
     }
 }
