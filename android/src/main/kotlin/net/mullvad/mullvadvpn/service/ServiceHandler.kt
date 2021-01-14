@@ -52,6 +52,7 @@ class ServiceHandler(
         settingsListener.daemon = newDaemon
         accountCache.daemon = newDaemon
         connectionProxy.daemon = newDaemon
+        customDns?.daemon = newDaemon
         keyStatusListener.daemon = newDaemon
         locationInfoCache.daemon = newDaemon
     }
