@@ -33,11 +33,10 @@ class ServiceEndpoint(
     val settingsListener = SettingsListener(this)
 
     val accountCache = AccountCache(this)
+    val customDns = CustomDns(this)
     val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)
     val splitTunneling = SplitTunneling(context, this)
-
-    var customDns: CustomDns? = null
 
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
@@ -51,6 +50,7 @@ class ServiceEndpoint(
 
         accountCache.onDestroy()
         connectionProxy.onDestroy()
+        customDns.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
