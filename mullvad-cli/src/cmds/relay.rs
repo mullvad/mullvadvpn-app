@@ -8,10 +8,11 @@ use std::{
 
 use mullvad_management_interface::types::{
     connection_config::{self, OpenvpnConfig, WireguardConfig},
-    relay_settings, relay_settings_update, ConnectionConfig, CustomRelaySettings,
-    NormalRelaySettingsUpdate, OpenvpnConstraints, ProviderUpdate, RelayListCountry, RelayLocation,
-    RelaySettingsUpdate, TransportProtocol, TransportProtocolConstraint, TunnelType,
-    TunnelTypeConstraint, TunnelTypeUpdate, WireguardConstraints,
+    relay_settings, relay_settings_update, ConnectionConfig, CustomRelaySettings, IpVersion,
+    IpVersionConstraint, NormalRelaySettingsUpdate, OpenvpnConstraints, ProviderUpdate,
+    RelayListCountry, RelayLocation, RelaySettingsUpdate, TransportProtocol,
+    TransportProtocolConstraint, TunnelType, TunnelTypeConstraint, TunnelTypeUpdate,
+    WireguardConstraints,
 };
 use mullvad_types::relay_constraints::Constraint;
 use talpid_types::net::all_of_the_internet;
@@ -153,6 +154,13 @@ impl Command for Relay {
                                     .required(false)
                                     .default_value("any")
                                     .possible_values(&["any", "udp", "tcp"]),
+                            )
+                            .arg(
+                                clap::Arg::with_name("ip protocol")
+                                    .long("ip")
+                                    .required(false)
+                                    .default_value("any")
+                                    .possible_values(&["any", "4", "6"]),
                             ),
 
                     )
@@ -466,6 +474,7 @@ impl Relay {
         let vpn_protocol = matches.value_of("vpn protocol").unwrap();
         let port = parse_port_constraint(matches.value_of("port").unwrap())?;
         let protocol = parse_protocol_constraint(matches.value_of("transport protocol").unwrap());
+        let ip_proto = parse_ip_protocol_constraint(matches.value_of("ip protocol").unwrap());
 
         match vpn_protocol {
             "wireguard" => {
@@ -477,6 +486,11 @@ impl Relay {
                         NormalRelaySettingsUpdate {
                             wireguard_constraints: Some(WireguardConstraints {
                                 port: port.unwrap_or(0) as u32,
+                                ip_protocol: ip_proto.option().map(|protocol| {
+                                    IpVersionConstraint {
+                                        protocol: protocol as i32,
+                                    }
+                                }),
                             }),
                             ..Default::default()
                         },
@@ -485,6 +499,11 @@ impl Relay {
                 .await
             }
             "openvpn" => {
+                if let Constraint::Only(_) = ip_proto {
+                    return Err(Error::InvalidCommand(
+                        "OpenVPN does not support the IP version constraint",
+                    ));
+                }
                 self.update_constraints(RelaySettingsUpdate {
                     r#type: Some(relay_settings_update::Type::Normal(
                         NormalRelaySettingsUpdate {
@@ -736,6 +755,15 @@ fn parse_protocol_constraint(raw_protocol: &str) -> Constraint<TransportProtocol
         "any" => Constraint::Any,
         "udp" => Constraint::Only(TransportProtocol::Udp),
         "tcp" => Constraint::Only(TransportProtocol::Tcp),
+        _ => unreachable!(),
+    }
+}
+
+fn parse_ip_protocol_constraint(raw_protocol: &str) -> Constraint<IpVersion> {
+    match raw_protocol {
+        "any" => Constraint::Any,
+        "4" => Constraint::Only(IpVersion::V4),
+        "6" => Constraint::Only(IpVersion::V6),
         _ => unreachable!(),
     }
 }
