@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.service
 
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
+import net.mullvad.mullvadvpn.model.LoginStatus
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
 import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.mullvadvpn.util.JobTracker
@@ -24,6 +25,7 @@ class AccountCache(val settingsListener: SettingsListener) {
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
     val onAccountHistoryChange = EventNotifier<ArrayList<String>>(ArrayList())
+    val onLoginStatusChange = EventNotifier<LoginStatus?>(null)
 
     var newlyCreatedAccount = false
         private set
@@ -39,6 +41,9 @@ class AccountCache(val settingsListener: SettingsListener) {
     private var oldAccountExpiry: DateTime? = null
 
     var daemon by availableDaemon.source()
+
+    var loginStatus by onLoginStatusChange.notifiable()
+        private set
 
     init {
         settingsListener.accountNumberNotifier.subscribe(this) { accountNumber ->
@@ -128,6 +133,10 @@ class AccountCache(val settingsListener: SettingsListener) {
             accountExpiry = null
             accountNumber = newAccountNumber
 
+            loginStatus = newAccountNumber?.let { account ->
+                LoginStatus(account, null, newlyCreatedAccount)
+            }
+
             fetchAccountExpiry()
             fetchAccountHistory()
         }
@@ -148,6 +157,10 @@ class AccountCache(val settingsListener: SettingsListener) {
             if (newAccountExpiry != oldAccountExpiry || retryAttempt >= MAX_INVALIDATED_RETRIES) {
                 accountExpiry = newAccountExpiry
                 oldAccountExpiry = null
+
+                loginStatus = loginStatus?.let { currentStatus ->
+                    LoginStatus(currentStatus.account, newAccountExpiry, currentStatus.isNew)
+                }
 
                 if (accountExpiry != null && newlyCreatedAccount) {
                     if (createdAccountExpiry == null) {
