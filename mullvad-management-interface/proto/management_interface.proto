@@ -302,9 +302,20 @@ message OpenvpnConstraints {
 	uint32 port = 1;
 	TransportProtocolConstraint protocol = 2;
 }
+
+enum IpVersion {
+	V4 = 0;
+	V6 = 1;
+}
+
+message IpVersionConstraint {
+	IpVersion protocol = 1;
+}
+
 message WireguardConstraints {
 	// NOTE: optional
 	uint32 port = 1;
+	IpVersionConstraint ip_protocol = 2;
 }
 
 message CustomRelaySettings {
