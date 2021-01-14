@@ -38,7 +38,20 @@ Line wrap the file at 100 chars.                                              Th
 - Add version data to problem reports for the following software: the kernel, NetworkManager,
   WireGuard kernel module, SystemD.
 
+### Changed
+- Allow the API to be accessed while in a blocking state.
+- Prefer the last used API endpoint when the service starts back up, as well as in other tools such
+  as the problem report tool.
+- Migrate cache to a directory readable by all users, consistent with Android and Linux.
+
+#### Linux
+- Improve offline check to query the routing table to allow users to use a bridged adapter as their
+  primary interface.
+
 ### Fixed
+- Fix Turkish translations for on/off in the bridge settings. They were inverted, so it was
+  confusing to change the setting.
+
 #### Linux
 - Fix missing app window icon in Xfce.
 
@@ -55,15 +68,6 @@ Line wrap the file at 100 chars.                                              Th
 - Deny network access to the OpenVPN plugin pipe, which allowed for anonymous write access when
   passwordless file sharing was enabled.
 
-### Changed
-- Allow the API to be accessed while in a blocking state.
-- Prefer the last used API endpoint when the service starts back up, as well as in other tools such
-  as the problem report tool.
-- Migrate cache to a directory readable by all users, consistent with Android and Linux.
-
-#### Linux
-- Improve offline check to query the routing table to allow users to use a bridged adapter as their
-  primary interface.
 
 ## [2020.8-beta2] - 2020-12-11
 This release is for desktop only.
