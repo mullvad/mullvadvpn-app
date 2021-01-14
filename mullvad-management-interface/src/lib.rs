@@ -38,9 +38,6 @@ pub enum Error {
     PermissionsError(#[error(source)] io::Error),
 }
 
-#[cfg(target_os = "windows")]
-mod windows_permissions;
-
 pub async fn new_rpc_client() -> Result<ManagementServiceClient, Error> {
     let ipc_path = mullvad_paths::get_rpc_socket_path();
 
@@ -78,9 +75,6 @@ pub async fn spawn_rpc_server<T: ManagementService>(
 
     #[cfg(unix)]
     fs::set_permissions(&socket_path, PermissionsExt::from_mode(0o766))
-        .map_err(Error::PermissionsError)?;
-    #[cfg(windows)]
-    crate::windows_permissions::deny_network_access(&socket_path)
         .map_err(Error::PermissionsError)?;
 
     let _ = server_start_tx.send(());
