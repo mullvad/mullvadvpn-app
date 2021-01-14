@@ -32,6 +32,8 @@ class ServiceHandler(
         }
     }
 
+    val customDns = CustomDns(settingsListener)
+
     val keyStatusListener = KeyStatusListener().apply {
         onKeyStatusChange.subscribe(this@ServiceHandler) { keyStatus ->
             sendEvent(Event.WireGuardKeyStatus(keyStatus))
@@ -46,13 +48,11 @@ class ServiceHandler(
         }
     }
 
-    var customDns: CustomDns? = null
-
     var daemon by observable<MullvadDaemon?>(null) { _, _, newDaemon ->
         settingsListener.daemon = newDaemon
         accountCache.daemon = newDaemon
         connectionProxy.daemon = newDaemon
-        customDns?.daemon = newDaemon
+        customDns.daemon = newDaemon
         keyStatusListener.daemon = newDaemon
         locationInfoCache.daemon = newDaemon
     }
@@ -71,7 +71,7 @@ class ServiceHandler(
         val request = Request.fromMessage(message)
 
         when (request) {
-            is Request.AddCustomDnsServer -> customDns?.addDnsServer(request.address)
+            is Request.AddCustomDnsServer -> customDns.addDnsServer(request.address)
             is Request.Connect -> connectionProxy.connect()
             is Request.CreateAccount -> accountCache.createNewAccount()
             is Request.Disconnect -> connectionProxy.disconnect()
@@ -99,11 +99,11 @@ class ServiceHandler(
                     accountCache.removeAccountFromHistory(account)
                 }
             }
-            is Request.RemoveCustomDnsServer -> customDns?.removeDnsServer(request.address)
+            is Request.RemoveCustomDnsServer -> customDns.removeDnsServer(request.address)
             is Request.ReplaceCustomDnsServer -> {
-                customDns?.replaceDnsServer(request.oldAddress, request.newAddress)
+                customDns.replaceDnsServer(request.oldAddress, request.newAddress)
             }
-            is Request.SetEnableCustomDns -> customDns?.setEnabled(request.enable)
+            is Request.SetEnableCustomDns -> customDns.setEnabled(request.enable)
             is Request.SetEnableSplitTunneling -> splitTunneling.enabled = request.enable
             is Request.VpnPermissionResponse -> {
                 connectionProxy.vpnPermission.spawnUpdate(request.vpnPermission)
@@ -115,6 +115,7 @@ class ServiceHandler(
 
     fun onDestroy() {
         accountCache.onDestroy()
+        customDns.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
