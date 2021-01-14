@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.service
+package net.mullvad.mullvadvpn.service.endpoint
 
 import java.net.InetAddress
 import java.util.ArrayList
@@ -10,7 +10,6 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.DnsOptions
-import net.mullvad.mullvadvpn.service.endpoint.ServiceEndpoint
 
 class CustomDns(private val endpoint: ServiceEndpoint) {
     private sealed class Command {
