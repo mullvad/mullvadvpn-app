@@ -212,7 +212,7 @@ class MullvadVpnService : TalpidVpnService() {
         } else {
             Log.d(TAG, "Daemon has stopped")
             instance = null
-            handler.settingsListener.daemon = null
+            handler.daemon = null
 
             if (state == State.Running) {
                 restart()
@@ -235,7 +235,7 @@ class MullvadVpnService : TalpidVpnService() {
         val customDns = CustomDns(daemon, handler.settingsListener)
         val splitTunneling = splitTunneling.await()
 
-        handler.settingsListener.daemon = daemon
+        handler.daemon = daemon
 
         splitTunneling.onChange = { excludedApps ->
             disallowedApps = excludedApps
