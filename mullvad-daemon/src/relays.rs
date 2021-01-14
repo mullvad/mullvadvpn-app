@@ -30,7 +30,10 @@ use std::{
 };
 use talpid_core::future_retry::{retry_future_with_backoff, ExponentialBackoff, Jittered};
 use talpid_types::{
-    net::{all_of_the_internet, openvpn::ProxySettings, wireguard, TransportProtocol, TunnelType},
+    net::{
+        all_of_the_internet, openvpn::ProxySettings, wireguard, IpVersion, TransportProtocol,
+        TunnelType,
+    },
     ErrorExt,
 };
 use tokio::fs::File;
@@ -460,6 +463,7 @@ impl RelaySelector {
 
         self.pick_random_relay(&matching_relays)
             .and_then(|selected_relay| {
+                // TODO: Print v6 addr_in depending on whether it's enabled
                 info!(
                     "Selected relay {} at {}",
                     selected_relay.hostname, selected_relay.ipv4_addr_in
@@ -634,6 +638,30 @@ impl RelaySelector {
         relay: &Relay,
         constraints: &RelayConstraints,
     ) -> Option<MullvadEndpoint> {
+        let mut new_wg_endpoint = || {
+            relay
+                .tunnels
+                .wireguard
+                .choose(&mut self.rng)
+                .cloned()
+                .and_then(|wg_tunnel| {
+                    let addr_in = match constraints.wireguard_constraints.ip_protocol {
+                        Constraint::Any | Constraint::Only(IpVersion::V4) => {
+                            relay.ipv4_addr_in.into()
+                        }
+                        Constraint::Only(IpVersion::V6) => relay
+                            .ipv6_addr_in
+                            .map(|addr| addr.into())
+                            .unwrap_or_else(|| {
+                                log::error!("Missing IPv6 address");
+                                relay.ipv4_addr_in.into()
+                            }),
+                    };
+
+                    self.wg_data_to_endpoint(addr_in, wg_tunnel, constraints.wireguard_constraints)
+                })
+        };
+
         match constraints.tunnel_protocol {
             // TODO: Handle Constraint::Any case by selecting from both openvpn and wireguard
             // tunnels once wireguard is mature enough
@@ -644,31 +672,9 @@ impl RelaySelector {
                 .choose(&mut self.rng)
                 .cloned()
                 .map(|endpoint| endpoint.into_mullvad_endpoint(relay.ipv4_addr_in.into())),
-            Constraint::Only(TunnelType::Wireguard) => relay
-                .tunnels
-                .wireguard
-                .choose(&mut self.rng)
-                .cloned()
-                .and_then(|wg_tunnel| {
-                    self.wg_data_to_endpoint(
-                        relay.ipv4_addr_in.into(),
-                        wg_tunnel,
-                        constraints.wireguard_constraints,
-                    )
-                }),
+            Constraint::Only(TunnelType::Wireguard) => new_wg_endpoint(),
             #[cfg(target_os = "android")]
-            Constraint::Any => relay
-                .tunnels
-                .wireguard
-                .choose(&mut self.rng)
-                .cloned()
-                .and_then(|wg_tunnel| {
-                    self.wg_data_to_endpoint(
-                        relay.ipv4_addr_in.into(),
-                        wg_tunnel,
-                        WireguardConstraints::default(),
-                    )
-                }),
+            Constraint::Any => new_wg_endpoint(),
             #[cfg(target_os = "android")]
             Constraint::Only(TunnelType::OpenVpn) => None,
         }

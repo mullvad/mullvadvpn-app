@@ -10,7 +10,7 @@ use crate::{
 use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Serialize};
 use std::fmt;
-use talpid_types::net::{openvpn::ProxySettings, TransportProtocol, TunnelType};
+use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
 
 
 pub trait Match<T> {
@@ -391,8 +391,10 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
 
 /// [`Constraint`]s applicable to WireGuard relay servers.
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(default)]
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
+    pub ip_protocol: Constraint<IpVersion>,
 }
 
 impl fmt::Display for WireguardConstraints {
