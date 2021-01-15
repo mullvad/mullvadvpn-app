@@ -1,9 +1,21 @@
 package net.mullvad.mullvadvpn.model
 
-sealed class VoucherSubmissionResult {
-    class Ok(val submission: VoucherSubmission) : VoucherSubmissionResult()
-    object InvalidVoucher : VoucherSubmissionResult()
-    object VoucherAlreadyUsed : VoucherSubmissionResult()
-    object RpcError : VoucherSubmissionResult()
-    object OtherError : VoucherSubmissionResult()
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+sealed class VoucherSubmissionResult : Parcelable {
+    @Parcelize
+    class Ok(val submission: VoucherSubmission) : VoucherSubmissionResult(), Parcelable
+
+    @Parcelize
+    object InvalidVoucher : VoucherSubmissionResult(), Parcelable
+
+    @Parcelize
+    object VoucherAlreadyUsed : VoucherSubmissionResult(), Parcelable
+
+    @Parcelize
+    object RpcError : VoucherSubmissionResult(), Parcelable
+
+    @Parcelize
+    object OtherError : VoucherSubmissionResult(), Parcelable
 }
