@@ -108,13 +108,13 @@ export interface IUpdateDnsOptionsAction {
   dns: IDnsOptions;
 }
 
-export interface ISplitTunnelingEnableExclusions {
-  type: 'SPLIT_TUNNELING_ENABLE_EXCLUSIONS';
+export interface IUpdateSplitTunnelingStateAction {
+  type: 'UPDATE_SPLIT_TUNNELING_STATE';
   enabled: boolean;
 }
 
-export interface ISplitTunnelingApplications {
-  type: 'SPLIT_TUNNELING_APPLICATIONS';
+export interface ISetSplitTunnelingApplicationsAction {
+  type: 'SET_SPLIT_TUNNELING_APPLICATIONS';
   applications: IApplication[];
 }
 
@@ -139,8 +139,8 @@ export type SettingsAction =
   | IWireguardKeygenEvent
   | IWireguardKeyVerifiedAction
   | IUpdateDnsOptionsAction
-  | ISplitTunnelingEnableExclusions
-  | ISplitTunnelingApplications;
+  | IUpdateSplitTunnelingStateAction
+  | ISetSplitTunnelingApplicationsAction;
 
 function updateGuiSettings(guiSettings: IGuiSettingsState): IUpdateGuiSettingsAction {
   return {
@@ -292,16 +292,18 @@ function updateDnsOptions(dns: IDnsOptions): IUpdateDnsOptionsAction {
   };
 }
 
-function updateSplitTunneling(enabled: boolean): ISplitTunnelingEnableExclusions {
+function updateSplitTunnelingState(enabled: boolean): IUpdateSplitTunnelingStateAction {
   return {
-    type: 'SPLIT_TUNNELING_ENABLE_EXCLUSIONS',
+    type: 'UPDATE_SPLIT_TUNNELING_STATE',
     enabled,
   };
 }
 
-function setSplitTunnelingApplications(applications: IApplication[]): ISplitTunnelingApplications {
+function setSplitTunnelingApplications(
+  applications: IApplication[],
+): ISetSplitTunnelingApplicationsAction {
   return {
-    type: 'SPLIT_TUNNELING_APPLICATIONS',
+    type: 'SET_SPLIT_TUNNELING_APPLICATIONS',
     applications,
   };
 }
@@ -327,6 +329,6 @@ export default {
   verifyWireguardKey,
   completeWireguardKeyVerification,
   updateDnsOptions,
-  updateSplitTunneling,
+  updateSplitTunnelingState,
   setSplitTunnelingApplications,
 };
