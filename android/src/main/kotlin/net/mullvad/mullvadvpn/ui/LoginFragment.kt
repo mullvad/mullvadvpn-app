@@ -9,7 +9,6 @@ import android.widget.ScrollView
 import android.widget.TextView
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.model.LoginStatus
 import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.Button
@@ -153,19 +152,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
         scrollToShow(loggingInStatus)
 
-        performLogin(accountToken)
-    }
-
-    private fun performLogin(accountToken: String) {
-        jobTracker.newBackgroundJob("login") {
-            val accountDataResult = daemon.getAccountData(accountToken)
-            val loginSucceded = accountDataResult is GetAccountDataResult.Ok
-                || accountDataResult is GetAccountDataResult.RpcError
-
-            if (loginSucceded) {
-                accountCache.login(accountToken)
-            }
-        }
+        accountCache.login(accountToken)
     }
 
     private suspend fun loggedIn() {
