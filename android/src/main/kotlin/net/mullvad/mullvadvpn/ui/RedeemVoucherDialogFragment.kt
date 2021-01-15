@@ -33,7 +33,6 @@ class RedeemVoucherDialogFragment : DialogFragment() {
 
     private var accountCache: AccountCache? = null
     private var accountExpiry: DateTime? = null
-    private var accountExpiryListener: Int? = null
     private var redeemButton: Button? = null
 
     private var daemon: MullvadDaemon? = null
@@ -125,10 +124,6 @@ class RedeemVoucherDialogFragment : DialogFragment() {
 
     override fun onDetach() {
         parentActivity.serviceNotifier.unsubscribe(this)
-
-        accountExpiryListener?.let { id ->
-            accountCache?.onAccountExpiryChange?.unsubscribe(id)
-        }
 
         super.onDetach()
     }
