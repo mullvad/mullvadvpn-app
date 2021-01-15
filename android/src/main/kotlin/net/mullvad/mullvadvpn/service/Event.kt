@@ -10,6 +10,7 @@ import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.model.VoucherSubmissionResult as VoucherSubmissionResultData
 
 sealed class Event {
     abstract val type: Type
@@ -184,6 +185,28 @@ sealed class Event {
         }
     }
 
+    class VoucherSubmissionResult(
+        val voucher: String,
+        val result: VoucherSubmissionResultData
+    ) : Event() {
+        companion object {
+            private val voucherKey = "voucher"
+            private val resultKey = "result"
+        }
+
+        override val type = Type.VoucherSubmissionResult
+
+        constructor(data: Bundle) : this(
+            data.getString(voucherKey) ?: "",
+            data.getParcelable(resultKey) ?: VoucherSubmissionResultData.OtherError()
+        ) {}
+
+        override fun prepareData(data: Bundle) {
+            data.putString(voucherKey, voucher)
+            data.putParcelable(resultKey, result)
+        }
+    }
+
     class WireGuardKeyStatus(val keyStatus: KeygenEvent?) : Event() {
         companion object {
             private val keyStatusKey = "keyStatus"
@@ -210,6 +233,7 @@ sealed class Event {
         SettingsUpdate({ data -> SettingsUpdate(data) }),
         SplitTunnelingUpdate({ data -> SplitTunnelingUpdate(data) }),
         TunnelStateChange({ data -> TunnelStateChange(data) }),
+        VoucherSubmissionResult({ data -> VoucherSubmissionResult(data) }),
         WireGuardKeyStatus({ data -> WireGuardKeyStatus(data) }),
     }
 
