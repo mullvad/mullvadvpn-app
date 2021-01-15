@@ -449,13 +449,13 @@ export default class AppRenderer {
   }
 
   public getSplitTunnelingApplications() {
-    return IpcRendererEventChannel.splitTunneling.getApplications();
+    return IpcRendererEventChannel.linuxSplitTunneling.getApplications();
   }
 
   public launchExcludedApplication(
     application: ILinuxSplitTunnelingApplication | string,
   ): Promise<LaunchApplicationResult> {
-    return IpcRendererEventChannel.splitTunneling.launchApplication(application);
+    return IpcRendererEventChannel.linuxSplitTunneling.launchApplication(application);
   }
 
   public collectProblemReport(toRedact?: string): Promise<string> {
