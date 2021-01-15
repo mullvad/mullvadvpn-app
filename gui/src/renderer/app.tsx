@@ -472,8 +472,8 @@ export default class AppRenderer {
     return IpcRendererEventChannel.linuxSplitTunneling.launchApplication(application);
   }
 
-  public setSplitTunnelingState(enabled: boolean) {
-    consumePromise(IpcRendererEventChannel.windowsSplitTunneling.setState(enabled));
+  public setSplitTunnelingState(enabled: boolean): Promise<void> {
+    return IpcRendererEventChannel.windowsSplitTunneling.setState(enabled);
   }
 
   public addSplitTunnelingApplication(application: IApplication | string): Promise<void> {
@@ -742,7 +742,7 @@ export default class AppRenderer {
     reduxSettings.updateWireguardMtu(newSettings.tunnelOptions.wireguard.mtu);
     reduxSettings.updateBridgeState(newSettings.bridgeState);
     reduxSettings.updateDnsOptions(newSettings.tunnelOptions.dns);
-    reduxSettings.updateSplitTunneling(newSettings.splitTunnel);
+    reduxSettings.updateSplitTunnelingState(newSettings.splitTunnel);
 
     this.setRelaySettings(newSettings.relaySettings);
     this.setBridgeSettings(newSettings.bridgeSettings);

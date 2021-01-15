@@ -33,7 +33,7 @@ export const StyledButtonCellGroup = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  marginBottom: '22px',
+  marginBottom: '20px',
 });
 
 export const StyledNoWireguardKeyErrorContainer = styled(Cell.Footer)({
