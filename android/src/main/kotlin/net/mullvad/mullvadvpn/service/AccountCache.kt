@@ -1,5 +1,11 @@
 package net.mullvad.mullvadvpn.service
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.model.LoginStatus
@@ -20,7 +26,14 @@ class AccountCache(val settingsListener: SettingsListener) {
         // This is only used if the expiry was invalidated and fetching a new expiry returns the
         // same value as before the invalidation.
         private const val MAX_INVALIDATED_RETRIES = 7
+
+        private sealed class Command {
+            class CreateAccount() : Command()
+            class Login(val account: String) : Command()
+        }
     }
+
+    private val commandChannel = spawnActor()
 
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
@@ -51,18 +64,12 @@ class AccountCache(val settingsListener: SettingsListener) {
         }
     }
 
-    suspend fun createNewAccount() {
-        newlyCreatedAccount = true
-        createdAccountExpiry = null
-
-        availableDaemon.await().createNewAccount()
+    fun createNewAccount() {
+        commandChannel.sendBlocking(Command.CreateAccount())
     }
 
-    suspend fun login(account: String) {
-        if (account != accountNumber) {
-            markAccountAsNotNew()
-            availableDaemon.await().setAccount(account)
-        }
+    fun login(account: String) {
+        commandChannel.sendBlocking(Command.Login(account))
     }
 
     fun fetchAccountExpiry() {
@@ -113,6 +120,33 @@ class AccountCache(val settingsListener: SettingsListener) {
     fun onDestroy() {
         settingsListener.accountNumberNotifier.unsubscribe(this)
         jobTracker.cancelAllJobs()
+    }
+
+    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+        try {
+            val command = channel.receive()
+
+            when (command) {
+                is Command.CreateAccount -> doCreateAccount()
+                is Command.Login -> doLogin(command.account)
+            }
+        } catch (exception: ClosedReceiveChannelException) {
+            // Command channel was closed, stop the actor
+        }
+    }
+
+    private suspend fun doCreateAccount() {
+        newlyCreatedAccount = true
+        createdAccountExpiry = null
+
+        availableDaemon.await().createNewAccount()
+    }
+
+    private suspend fun doLogin(account: String) {
+        if (account != accountNumber) {
+            markAccountAsNotNew()
+            availableDaemon.await().setAccount(account)
+        }
     }
 
     private fun fetchAccountHistory() {
