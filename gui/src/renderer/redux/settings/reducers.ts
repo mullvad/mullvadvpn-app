@@ -325,13 +325,13 @@ export default function (
         dns: action.dns,
       };
 
-    case 'SPLIT_TUNNELING_ENABLE_EXCLUSIONS':
+    case 'UPDATE_SPLIT_TUNNELING_STATE':
       return {
         ...state,
         splitTunneling: action.enabled,
       };
 
-    case 'SPLIT_TUNNELING_APPLICATIONS':
+    case 'SET_SPLIT_TUNNELING_APPLICATIONS':
       return {
         ...state,
         splitTunnelingApplications: action.applications,

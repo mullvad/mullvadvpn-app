@@ -1191,10 +1191,10 @@ class ApplicationMain {
         throw Error('linuxSplitTunneling.getApplications function called without being imported');
       }
     });
-    IpcMainEventChannel.windowsSplitTunneling.handleGetApplications((updateCache: boolean) => {
+    IpcMainEventChannel.windowsSplitTunneling.handleGetApplications((updateCaches: boolean) => {
       if (windowsSplitTunneling) {
         return windowsSplitTunneling.getApplications({
-          updateCache,
+          updateCaches,
         });
       } else {
         throw Error('windowsSplitTunneling.getApplications function called without being imported');
