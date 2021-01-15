@@ -1,7 +1,7 @@
-import log from 'electron-log';
 import moment from 'moment';
 import { hasExpired } from '../shared/account-expiry';
 import { AccountToken, IAccountData } from '../shared/daemon-rpc-types';
+import log from '../shared/logging';
 import consumePromise from '../shared/promise';
 import { Scheduler } from '../shared/scheduler';
 import { InvalidAccountError } from './errors';

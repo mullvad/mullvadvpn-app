@@ -1,8 +1,8 @@
-import log from 'electron-log';
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { sprintf } from 'sprintf-js';
 import { messages } from '../../shared/gettext';
+import log from '../../shared/logging';
 import Connect from '../components/Connect';
 import withAppContext, { IAppContext } from '../context';
 import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';

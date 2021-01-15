@@ -1,4 +1,3 @@
-import log from 'electron-log';
 import {
   BridgeState,
   KeygenEvent,
@@ -9,6 +8,7 @@ import {
   TunnelProtocol,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
+import log from '../../../shared/logging';
 import { ReduxAction } from '../store';
 
 export type RelaySettingsRedux =

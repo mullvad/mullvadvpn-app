@@ -10,8 +10,6 @@ import {
   shell,
   Tray,
 } from 'electron';
-import log from 'electron-log';
-import mkdirp from 'mkdirp';
 import moment from 'moment';
 import * as path from 'path';
 import { sprintf } from 'sprintf-js';
@@ -39,14 +37,8 @@ import {
 import { loadTranslations, messages } from '../shared/gettext';
 import { SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import { IpcMainEventChannel } from '../shared/ipc-event-channel';
-import {
-  backupLogFile,
-  cleanUpLogDirectory,
-  getLogsDirectory,
-  getMainLogFile,
-  getRendererLogFile,
-  setupLogging,
-} from '../shared/logging';
+import log, { ConsoleOutput, Logger } from '../shared/logging';
+import { LogLevel } from '../shared/logging-types';
 import {
   AccountExpiredNotificationProvider,
   CloseToAccountExpiryNotificationProvider,
@@ -63,6 +55,16 @@ import { InvalidAccountError } from './errors';
 import Expectation from './expectation';
 import GuiSettings from './gui-settings';
 import { getAppIcon } from './linux-desktop-entry';
+import {
+  backupLogFile,
+  cleanUpLogDirectory,
+  createLoggingDirectory,
+  FileOutput,
+  getMainLogPath,
+  getRendererLogPath,
+  IpcInput,
+  OLD_LOG_FILES,
+} from './logging';
 import NotificationController from './notification-controller';
 import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
@@ -201,6 +203,8 @@ class ApplicationMain {
   private autoConnectOnWireguardKeyEvent = false;
   private autoConnectFallbackScheduler = new Scheduler();
 
+  private rendererLog?: Logger;
+
   public run() {
     // Remove window animations to combat window flickering when opening window. Can be removed when
     // this issue has been resolved: https://github.com/electron/electron/issues/12130
@@ -252,28 +256,35 @@ class ApplicationMain {
       if (appDataDir) {
         app.setPath('appData', appDataDir);
         app.setPath('userData', path.join(appDataDir, app.name));
+        app.setPath('logs', path.join(appDataDir, app.name, 'logs'));
       } else {
         throw new Error('Missing %LOCALAPPDATA% environment variable');
       }
+    } else if (process.platform === 'linux') {
+      const userDataDir = app.getPath('userData');
+      app.setPath('logs', path.join(userDataDir, 'logs'));
     }
   }
 
   private initLogging() {
-    const logDirectory = getLogsDirectory();
-    const mainLogFile = getMainLogFile();
-    const logFiles = [mainLogFile, getRendererLogFile()];
+    const mainLogPath = getMainLogPath();
+    const rendererLogPath = getRendererLogPath();
 
     if (process.env.NODE_ENV !== 'development') {
-      // Ensure log directory exists
-      mkdirp.sync(logDirectory);
+      createLoggingDirectory();
+      cleanUpLogDirectory(OLD_LOG_FILES);
 
-      for (const logFile of logFiles) {
-        backupLogFile(logFile);
-      }
+      backupLogFile(mainLogPath);
+      backupLogFile(rendererLogPath);
+
+      log.addOutput(new FileOutput(LogLevel.debug, mainLogPath));
+
+      this.rendererLog = new Logger();
+      this.rendererLog.addInput(new IpcInput());
+      this.rendererLog.addOutput(new FileOutput(LogLevel.debug, rendererLogPath));
     }
 
-    cleanUpLogDirectory();
-    setupLogging(mainLogFile);
+    log.addOutput(new ConsoleOutput(LogLevel.debug));
   }
 
   private onActivate = () => {
@@ -340,6 +351,9 @@ class ApplicationMain {
     }
 
     this.daemonRpc.disconnect();
+
+    log.dispose();
+    this.rendererLog?.dispose();
   }
 
   private detectLocale(): string {
