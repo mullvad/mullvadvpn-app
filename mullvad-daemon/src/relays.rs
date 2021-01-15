@@ -663,8 +663,6 @@ impl RelaySelector {
         };
 
         match constraints.tunnel_protocol {
-            // TODO: Handle Constraint::Any case by selecting from both openvpn and wireguard
-            // tunnels once wireguard is mature enough
             #[cfg(not(target_os = "android"))]
             Constraint::Only(TunnelType::OpenVpn) | Constraint::Any => relay
                 .tunnels
