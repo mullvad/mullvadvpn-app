@@ -5,7 +5,7 @@ import Launch from './components/Launch';
 import KeyboardNavigation from './components/KeyboardNavigation';
 import MainView from './components/MainView';
 import Focus, { IFocusHandle } from './components/Focus';
-import LinuxSplitTunnelingSettings from './components/LinuxSplitTunnelingSettings';
+import SplitTunnelingSettings from './components/SplitTunnelingSettings';
 import TransitionContainer, { TransitionView } from './components/TransitionContainer';
 import AccountPage from './containers/AccountPage';
 import AdvancedSettingsPage from './containers/AdvancedSettingsPage';
@@ -96,8 +96,8 @@ class AppRoutes extends React.Component<IHistoryProps, IAppRoutesState> {
                   />
                   <Route
                     exact={true}
-                    path="/settings/advanced/linux-split-tunneling"
-                    component={LinuxSplitTunnelingSettings}
+                    path="/settings/advanced/split-tunneling"
+                    component={SplitTunnelingSettings}
                   />
                   <Route exact={true} path="/settings/support" component={SupportPage} />
                   <Route exact={true} path="/select-location" component={SelectLocationPage} />
