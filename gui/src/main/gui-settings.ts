@@ -81,7 +81,7 @@ export default class GuiSettings {
     return this.stateValue.unpinnedWindow;
   }
 
-  public addBrowsedForSplitTunnelingapplications(newApp: string) {
+  public addBrowsedForSplitTunnelingApplications(newApp: string) {
     this.changeStateAndNotify({
       ...this.stateValue,
       browsedForSplitTunnelingApplications: [...this.browsedForSplitTunnelingApplications, newApp],
