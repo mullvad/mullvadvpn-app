@@ -29,6 +29,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         private sealed class Command {
             object CreateAccount : Command()
             data class Login(val account: String) : Command()
+            object Logout : Command()
         }
     }
 
@@ -69,6 +70,10 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
     fun login(account: String) {
         commandChannel.sendBlocking(Command.Login(account))
+    }
+
+    fun logout() {
+        commandChannel.sendBlocking(Command.Logout)
     }
 
     fun fetchAccountExpiry() {
@@ -135,6 +140,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
             when (command) {
                 is Command.CreateAccount -> doCreateAccount()
                 is Command.Login -> doLogin(command.account)
+                is Command.Logout -> doLogout()
             }
         } catch (exception: ClosedReceiveChannelException) {
             // Command channel was closed, stop the actor
@@ -152,6 +158,12 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         if (account != accountNumber) {
             markAccountAsNotNew()
             daemon.await().setAccount(account)
+        }
+    }
+
+    private suspend fun doLogout() {
+        if (accountNumber != null) {
+            daemon.await().setAccount(null)
         }
     }
 
