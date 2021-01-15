@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
@@ -50,9 +49,6 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
     lateinit var customDns: CustomDns
         private set
 
-    lateinit var daemon: MullvadDaemon
-        private set
-
     lateinit var keyStatusListener: KeyStatusListener
         private set
 
@@ -76,7 +72,6 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
         authTokenCache = serviceConnection.authTokenCache
         connectionProxy = serviceConnection.connectionProxy
         customDns = serviceConnection.customDns
-        daemon = serviceConnection.daemon
         keyStatusListener = serviceConnection.keyStatusListener
         locationInfoCache = serviceConnection.locationInfoCache
         relayListListener = serviceConnection.relayListListener
