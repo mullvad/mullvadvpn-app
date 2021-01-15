@@ -25,7 +25,7 @@ pub enum Error {
     #[error(display = "Management interface error")]
     ManagementInterfaceError(#[error(source)] mullvad_management_interface::Error),
 
-    #[error(display = "Failed to communicate with mullvad-daemon over RPC")]
+    #[error(display = "The daemon returned an error")]
     GrpcClientError(#[error(source)] mullvad_management_interface::Status),
 
     /// The given command is not correct in some way
