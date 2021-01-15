@@ -25,7 +25,6 @@ class ServiceConnection(private val service: ServiceInstance) {
         Event.fromMessage(message)
     }
 
-    val daemon = service.daemon
     val accountCache = AccountCache(service.messenger, dispatcher)
     val authTokenCache = AuthTokenCache(service.messenger, dispatcher)
     val connectionProxy = ConnectionProxy(service.messenger, dispatcher)
