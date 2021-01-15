@@ -71,6 +71,10 @@ class ServiceHandler(
         }
     }
 
+    val voucherRedeemer = VoucherRedeemer() { voucher, result ->
+        sendEvent(Event.VoucherSubmissionResult(voucher, result))
+    }
+
     var daemon by observable<MullvadDaemon?>(null) { _, _, newDaemon ->
         settingsListener.daemon = newDaemon
         accountCache.daemon = newDaemon
@@ -138,6 +142,7 @@ class ServiceHandler(
                 relayListListener.selectedRelayLocation = request.relayLocation
             }
             is Request.SetWireGuardMtu -> settingsListener.wireguardMtu = request.mtu
+            is Request.SubmitVoucher -> voucherRedeemer.submit(request.voucher)
             is Request.VpnPermissionResponse -> {
                 connectionProxy.vpnPermission.spawnUpdate(request.vpnPermission)
             }
@@ -155,6 +160,7 @@ class ServiceHandler(
         locationInfoCache.onDestroy()
         relayListListener.onDestroy()
         settingsListener.onDestroy()
+        voucherRedeemer.onDestroy()
 
         connectionProxy.onStateChange.unsubscribe(this)
         splitTunneling.onChange.unsubscribe(this)

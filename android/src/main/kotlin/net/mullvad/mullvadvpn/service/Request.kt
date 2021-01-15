@@ -319,6 +319,20 @@ sealed class Request {
         }
     }
 
+    class SubmitVoucher(val voucher: String) : Request() {
+        companion object {
+            private val voucherKey = "voucher"
+        }
+
+        override val type = Type.SubmitVoucher
+
+        constructor(data: Bundle) : this(data.getString(voucherKey) ?: "") {}
+
+        override fun prepareData(data: Bundle) {
+            data.putString(voucherKey, voucher)
+        }
+    }
+
     class VpnPermissionResponse(val vpnPermission: Boolean) : Request() {
         companion object {
             private val vpnPermissionKey = "vpnPermission"
@@ -368,6 +382,7 @@ sealed class Request {
         SetEnableSplitTunneling({ message -> SetEnableSplitTunneling(message.data) }),
         SetRelayLocation({ message -> SetRelayLocation(message.data) }),
         SetWireGuardMtu({ message -> SetWireGuardMtu(message.data) }),
+        SubmitVoucher({ message -> SubmitVoucher(message.data) }),
         VpnPermissionResponse({ message -> VpnPermissionResponse(message.data) }),
         WireGuardGenerateKey({ _ -> WireGuardGenerateKey() }),
         WireGuardVerifyKey({ _ -> WireGuardVerifyKey() }),
