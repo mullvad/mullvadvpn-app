@@ -51,11 +51,11 @@ class AccountCache(val settingsListener: SettingsListener) {
         }
     }
 
-    suspend fun createNewAccount(): String? {
+    suspend fun createNewAccount() {
         newlyCreatedAccount = true
         createdAccountExpiry = null
 
-        return availableDaemon.await().createNewAccount()
+        availableDaemon.await().createNewAccount()
     }
 
     suspend fun login(account: String) {
