@@ -463,13 +463,13 @@ impl RelaySelector {
 
         self.pick_random_relay(&matching_relays)
             .and_then(|selected_relay| {
-                // TODO: Print v6 addr_in depending on whether it's enabled
-                info!(
-                    "Selected relay {} at {}",
-                    selected_relay.hostname, selected_relay.ipv4_addr_in
-                );
-                self.get_random_tunnel(&selected_relay, &constraints)
-                    .map(|endpoint| (selected_relay.clone(), endpoint))
+                let endpoint = self.get_random_tunnel(&selected_relay, &constraints);
+                let addr_in = endpoint
+                    .as_ref()
+                    .map(|endpoint| endpoint.to_endpoint().address.ip())
+                    .unwrap_or(IpAddr::from(selected_relay.ipv4_addr_in));
+                info!("Selected relay {} at {}", selected_relay.hostname, addr_in);
+                endpoint.map(|endpoint| (selected_relay.clone(), endpoint))
             })
     }
 
