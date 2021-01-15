@@ -84,7 +84,7 @@ interface IProps {
   setWireguardRelayPort: (port?: number) => void;
   setDnsOptions: (dns: IDnsOptions) => Promise<void>;
   onViewWireguardKeys: () => void;
-  onViewLinuxSplitTunneling: () => void;
+  onViewSplitTunneling: () => void;
   onClose: () => void;
 }
 
@@ -437,9 +437,11 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                     </Cell.Label>
                     <Cell.Icon height={12} width={7} source="icon-chevron" />
                   </Cell.CellButton>
+                </StyledButtonCellGroup>
 
-                  {window.platform === 'linux' && (
-                    <Cell.CellButton onClick={this.props.onViewLinuxSplitTunneling}>
+                <StyledButtonCellGroup>
+                  {(window.platform === 'linux' || window.platform === 'win32') && (
+                    <Cell.CellButton onClick={this.props.onViewSplitTunneling}>
                       <Cell.Label>
                         {messages.pgettext('advanced-settings-view', 'Split tunneling')}
                       </Cell.Label>
