@@ -224,18 +224,18 @@ class MullvadVpnService : TalpidVpnService() {
             val settings = daemon.getSettings()
 
             if (settings != null) {
-                setUpInstance(daemon, settings)
+                setUpInstance(settings)
             } else {
                 restart()
             }
         }
     }
 
-    private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
+    private suspend fun setUpInstance(settings: Settings) {
         handlePendingAction(settings)
 
         if (state == State.Running) {
-            instance = ServiceInstance(endpoint.messenger, daemon)
+            instance = ServiceInstance(endpoint.messenger)
         }
     }
 
