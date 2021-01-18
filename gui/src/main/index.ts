@@ -1478,17 +1478,21 @@ class ApplicationMain {
         return appWindow;
       }
 
-      case 'win32':
+      case 'win32': {
         // setup window flags to mimic an overlay window
-        return new BrowserWindow({
+        const appWindow = new BrowserWindow({
           ...options,
           // Due to a bug in Electron the app is sometimes placed behind other apps when opened.
           // Setting alwaysOnTop to true ensures that the app is placed on top. Electron issue:
           // https://github.com/electron/electron/issues/25915
           alwaysOnTop: !this.guiSettings.unpinnedWindow,
           skipTaskbar: !this.guiSettings.unpinnedWindow,
-          autoHideMenuBar: true,
         });
+
+        appWindow.removeMenu();
+
+        return appWindow;
+      }
 
       case 'linux':
         return new BrowserWindow({
