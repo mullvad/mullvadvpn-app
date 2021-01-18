@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Enable isolation of the Electron renderer process to protect against potentially malicious third
   party dependencies.
+- Add option to connect to WireGuard relays over IPv6.
 
 #### Android
 - Allow reaching the API server when connecting, disconnecting or in a blocked state.
