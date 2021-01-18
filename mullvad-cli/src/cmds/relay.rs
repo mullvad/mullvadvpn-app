@@ -668,6 +668,14 @@ impl Relay {
         Ok(())
     }
 
+    fn format_ip_version(protocol: Option<IpVersion>) -> &'static str {
+        match protocol {
+            None => "IPv4 or IPv6",
+            Some(IpVersion::V4) => "IPv4",
+            Some(IpVersion::V6) => "IPv6",
+        }
+    }
+
     fn format_transport_protocol(protocol: Option<TransportProtocol>) -> &'static str {
         match protocol {
             None => "any transport protocol",
@@ -703,9 +711,18 @@ impl Relay {
 
     fn format_wireguard_constraints(constraints: Option<&WireguardConstraints>) -> String {
         if let Some(constraints) = constraints {
-            Self::format_port(constraints.port)
+            format!(
+                "{} over {}",
+                Self::format_port(constraints.port),
+                Self::format_ip_version(
+                    constraints
+                        .ip_protocol
+                        .clone()
+                        .map(|protocol| IpVersion::from_i32(protocol.protocol).unwrap())
+                )
+            )
         } else {
-            "any port".to_string()
+            "any port over IPv4 or IPv6".to_string()
         }
     }
 
