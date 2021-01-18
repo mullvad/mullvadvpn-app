@@ -1,5 +1,6 @@
 use crate::{location, new_rpc_client, Command, Error, Result};
 use clap::{value_t, values_t};
+use itertools::Itertools;
 use std::{
     io::{self, BufRead},
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
@@ -643,9 +644,16 @@ impl Relay {
                         (false, true) => "WireGuard",
                         _ => unreachable!("Bug in relay filtering earlier on"),
                     };
+                    let mut addresses = vec![&relay.ipv4_addr_in];
+                    if !relay.ipv6_addr_in.is_empty() {
+                        addresses.push(&relay.ipv6_addr_in);
+                    }
                     println!(
                         "\t\t{} ({}) - {}, hosted by {}",
-                        relay.hostname, relay.ipv4_addr_in, support_msg, relay.provider
+                        relay.hostname,
+                        addresses.iter().join(", "),
+                        support_msg,
+                        relay.provider
                     );
                 }
             }
