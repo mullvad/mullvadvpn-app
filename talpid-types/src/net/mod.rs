@@ -170,6 +170,15 @@ impl Default for IpVersion {
     }
 }
 
+impl fmt::Display for IpVersion {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match *self {
+            IpVersion::V4 => "IPv4".fmt(f),
+            IpVersion::V6 => "IPv6".fmt(f),
+        }
+    }
+}
+
 /// Representation of a transport protocol, either UDP or TCP.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

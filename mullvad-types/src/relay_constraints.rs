@@ -443,8 +443,13 @@ pub struct WireguardConstraints {
 impl fmt::Display for WireguardConstraints {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self.port {
-            Constraint::Any => write!(f, "any port"),
-            Constraint::Only(port) => write!(f, "port {}", port),
+            Constraint::Any => write!(f, "any port")?,
+            Constraint::Only(port) => write!(f, "port {}", port)?,
+        }
+        write!(f, " over ")?;
+        match self.ip_protocol {
+            Constraint::Any => write!(f, "IPv4 or IPv6"),
+            Constraint::Only(protocol) => write!(f, "{}", protocol),
         }
     }
 }
