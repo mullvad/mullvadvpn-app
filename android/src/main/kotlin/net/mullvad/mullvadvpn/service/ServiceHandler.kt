@@ -8,7 +8,11 @@ import android.os.Messenger
 import kotlin.properties.Delegates.observable
 import net.mullvad.talpid.ConnectivityListener
 
-class ServiceHandler(looper: Looper, connectivityListener: ConnectivityListener) : Handler(looper) {
+class ServiceHandler(
+    looper: Looper,
+    connectivityListener: ConnectivityListener,
+    val splitTunneling: SplitTunneling
+) : Handler(looper) {
     private val listeners = mutableListOf<Messenger>()
 
     val settingsListener = SettingsListener().apply {

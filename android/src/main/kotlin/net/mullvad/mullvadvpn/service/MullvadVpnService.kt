@@ -117,7 +117,7 @@ class MullvadVpnService : TalpidVpnService() {
             handleDaemonInstance(daemon)
         }
 
-        handler = ServiceHandler(Looper.getMainLooper(), connectivityListener)
+        handler = ServiceHandler(Looper.getMainLooper(), connectivityListener, splitTunneling)
         messenger = Messenger(handler)
 
         notificationManager =
