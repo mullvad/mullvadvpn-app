@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.service
 import android.content.Context
 import java.io.File
 import kotlin.properties.Delegates.observable
+import net.mullvad.talpid.util.EventNotifier
 
 // The spelling of the shared preferences location can't be changed to American English without
 // either having users lose their preferences on update or implementing some migration code.
@@ -16,19 +17,10 @@ class SplitTunneling(context: Context, endpoint: ServiceEndpoint) {
     private val excludedApps = HashSet<String>()
     private val preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
 
-    val excludedAppList
-        get() = if (enabled) {
-            excludedApps.toList()
-        } else {
-            null
-        }
+    val onChange = EventNotifier<List<String>?>(null)
 
     var enabled by observable(preferences.getBoolean(KEY_ENABLED, false)) { _, _, _ ->
         enabledChanged()
-    }
-
-    var onChange by observable<((List<String>?) -> Unit)?>(null) { _, _, _ ->
-        update()
     }
 
     init {
@@ -77,7 +69,7 @@ class SplitTunneling(context: Context, endpoint: ServiceEndpoint) {
     }
 
     fun onDestroy() {
-        onChange = null
+        onChange.unsubscribeAll()
     }
 
     private fun enabledChanged() {
@@ -90,6 +82,10 @@ class SplitTunneling(context: Context, endpoint: ServiceEndpoint) {
     }
 
     private fun update() {
-        onChange?.invoke(excludedAppList)
+        if (enabled) {
+            onChange.notify(excludedApps.toList())
+        } else {
+            onChange.notify(null)
+        }
     }
 }
