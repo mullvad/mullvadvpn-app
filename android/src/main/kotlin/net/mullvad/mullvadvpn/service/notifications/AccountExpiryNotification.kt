@@ -17,7 +17,7 @@ import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
 import org.joda.time.Duration
 
-class AccountExpiryNotification(val context: Context, val accountCache: AccountCache) {
+class AccountExpiryNotification(val context: Context) {
     companion object {
         val NOTIFICATION_ID: Int = 2
         val REMAINING_TIME_FOR_REMINDERS = Duration.standardDays(2)
@@ -38,6 +38,14 @@ class AccountExpiryNotification(val context: Context, val accountCache: AccountC
         NotificationManager.IMPORTANCE_HIGH
     )
 
+    var accountCache by observable<AccountCache?>(null) { _, oldAccountCache, newAccountCache ->
+        oldAccountCache?.onAccountExpiryChange?.unsubscribe(this@AccountExpiryNotification)
+
+        newAccountCache?.onLoginStatusChange?.subscribe(this) { newStatus ->
+            loginStatus = newStatus
+        }
+    }
+
     var loginStatus by observable<LoginStatus?>(null) { _, oldValue, newValue ->
         if (oldValue != newValue) {
             jobTracker.newUiJob("update") { update(newValue) }
@@ -46,14 +54,8 @@ class AccountExpiryNotification(val context: Context, val accountCache: AccountC
 
     var daemon by availableDaemon.source()
 
-    init {
-        accountCache.onLoginStatusChange.subscribe(this) { newStatus ->
-            loginStatus = newStatus
-        }
-    }
-
     fun onDestroy() {
-        accountCache.onAccountNumberChange.unsubscribe(this)
+        accountCache = null
         loginStatus = null
     }
 
