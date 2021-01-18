@@ -107,7 +107,7 @@ class MullvadVpnService : TalpidVpnService() {
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
         splitTunneling = SplitTunneling(this@MullvadVpnService).apply {
-            onChange = { excludedApps ->
+            onChange.subscribe(this@MullvadVpnService) { excludedApps ->
                 disallowedApps = excludedApps
                 markTunAsStale()
             }
@@ -237,7 +237,7 @@ class MullvadVpnService : TalpidVpnService() {
 
         handler.daemon = daemon
 
-        splitTunneling.onChange = { excludedApps ->
+        splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps ->
             disallowedApps = excludedApps
             markTunAsStale()
             connectionProxy.reconnect()
