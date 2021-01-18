@@ -92,7 +92,7 @@ class SplitTunnelingViewModel(
 
     private suspend fun fetchData() {
         appsProvider.getAppsList()
-            .partition { app -> splitTunneling.excludedAppList?.contains(app.packageName) ?: false }
+            .partition { app -> splitTunneling.isAppExcluded(app.packageName) }
             .let { (excludedAppsList, notExcludedAppsList) ->
                 // TODO: remove potential package names from splitTunneling list
                 //       if they already uninstalled or filtered; but not in ViewModel
