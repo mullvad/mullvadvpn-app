@@ -22,7 +22,8 @@ class AppListAdapter(
     private val thisPackageName = context.packageName
 
     private val applicationFilterPredicate: (ApplicationInfo) -> Boolean = { appInfo ->
-        hasInternetPermission(appInfo.packageName) && !isSelfApplication(appInfo.packageName)
+        hasInternetPermission(appInfo.packageName) && !isSelfApplication(appInfo.packageName) &&
+            isLaunchable(appInfo.packageName)
     }
 
     var onListReady: (suspend () -> Unit)? = null
@@ -85,5 +86,9 @@ class AppListAdapter(
 
     private fun isSelfApplication(packageName: String): Boolean {
         return packageName == thisPackageName
+    }
+
+    private fun isLaunchable(packageName: String): Boolean {
+        return packageManager.getLaunchIntentForPackage(packageName) != null
     }
 }
