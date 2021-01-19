@@ -2,10 +2,13 @@ const { exec } = require('child_process');
 const { dest, series, parallel } = require('gulp');
 const ts = require('gulp-typescript');
 const inject = require('gulp-inject-string');
+const sourcemaps = require('gulp-sourcemaps');
 const TscWatchClient = require('tsc-watch/client');
 const browserify = require('browserify');
 const buffer = require('vinyl-buffer');
 const source = require('vinyl-source-stream');
+
+const isDevelopment = process.argv.includes('--development');
 
 function makeWatchCompiler(onFirstSuccess) {
   let firstBuild = true;
@@ -23,7 +26,7 @@ function makeWatchCompiler(onFirstSuccess) {
         }
       }),
     );
-    watch.start('--noClear', '--inlineSourceMap', '--incremental', '--project', '.');
+    watch.start('--noClear', '--sourceMap', '--inlineSources', '--incremental', '--project', '.');
     return watch.tsc;
   };
   compileScripts.displayName = 'compile-scripts-watch';
@@ -42,22 +45,26 @@ function compileScripts() {
 }
 
 function browserifyRenderer() {
-  return browserify({ entries: './build/src/renderer/index.js' })
+  return browserify({ entries: './build/src/renderer/index.js', debug: isDevelopment })
     .bundle()
     .pipe(source('bundle.js'))
     .pipe(buffer())
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(sourcemaps.write())
     .pipe(dest('./build/src/renderer/'));
 }
 
 function browserifyPreload() {
   return browserify({
     entries: './build/src/renderer/preload.js',
+    debug: isDevelopment,
   })
-    .exclude('fs')
     .exclude('electron')
     .bundle()
     .pipe(source('preloadBundle.js'))
     .pipe(buffer())
+    .pipe(sourcemaps.init({ loadMaps: true }))
+    .pipe(sourcemaps.write())
     .pipe(dest('./build/src/renderer/'));
 }
 
