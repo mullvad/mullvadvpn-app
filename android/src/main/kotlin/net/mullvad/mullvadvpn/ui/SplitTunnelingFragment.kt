@@ -4,10 +4,10 @@ import android.animation.Animator
 import android.animation.Animator.AnimatorListener
 import android.animation.ObjectAnimator
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.LinearLayoutManager
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.applist.AppListAdapter
 import net.mullvad.mullvadvpn.ui.widget.CellSwitch
