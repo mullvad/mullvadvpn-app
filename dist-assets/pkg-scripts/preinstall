@@ -11,6 +11,12 @@ exec 2>&1 > $LOG_DIR/preinstall.log
 
 echo "Running preinstall at $(date)"
 
+# Notify the running daemon that we are going to kill it and replace it with a newer version.
+# This will make the daemon save it's state to a file and then lock the firewall to prevent
+# leaks during the upgrade.
+"$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" prepare-restart || \
+    echo "Failed to send 'prepare-restart' command to old mullvad-daemon"
+
 # Migrate cache files from <=2020.8-beta2 paths
 OLD_CACHE_DIR="/var/root/Library/Caches/mullvad-vpn"
 NEW_CACHE_DIR="/Library/Caches/mullvad-vpn"
@@ -26,9 +32,3 @@ fi
 # There is a risk that they're incompatible with the format this version wants
 rm "$NEW_CACHE_DIR/relays.json" || true
 rm "$NEW_CACHE_DIR/api-ip-address.txt" || true
-
-# Notify the running daemon that we are going to kill it and replace it with a newer version.
-# This will make the daemon save it's state to a file and then lock the firewall to prevent
-# leaks during the upgrade.
-"$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" prepare-restart || \
-    echo "Failed to send 'prepare-restart' command to old mullvad-daemon"
