@@ -693,5 +693,9 @@ the License, or (at your option) any later version.
 
 For the full license agreement, see the LICENSE.md file
 
+The source code for the iOS app is GPL-3 licensed like everything else in this repository.
+But the distributed app on the Apple App Store is not GPL licensed,
+it falls under the [Apple App Store EULA].
 
+[Apple App Store EULA]: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 [Mullvad's Open Source page]: https://mullvad.net/en/guides/open-source/
