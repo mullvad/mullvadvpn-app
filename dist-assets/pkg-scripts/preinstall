@@ -12,8 +12,6 @@ exec 2>&1 > $LOG_DIR/preinstall.log
 echo "Running preinstall at $(date)"
 
 # Notify the running daemon that we are going to kill it and replace it with a newer version.
-# This will make the daemon save it's state to a file and then lock the firewall to prevent
-# leaks during the upgrade.
 "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" prepare-restart || \
     echo "Failed to send 'prepare-restart' command to old mullvad-daemon"
 
