@@ -23,6 +23,8 @@ use futures::{
     channel::{mpsc, oneshot},
     stream, StreamExt,
 };
+#[cfg(target_os = "android")]
+use std::os::unix::io::RawFd;
 use std::{
     collections::HashSet,
     io,
@@ -171,6 +173,9 @@ pub enum TunnelCommand {
     Disconnect,
     /// Disconnect any open tunnel and block all network access
     Block(ErrorStateCause),
+    /// Bypass a socket, allowing traffic to flow through outside the tunnel.
+    #[cfg(target_os = "android")]
+    BypassSocket(RawFd, oneshot::Sender<()>),
 }
 
 type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>>;
@@ -404,6 +409,14 @@ impl SharedTunnelStateValues {
         } else {
             log::trace!("Connectivity check wasn't disabled by the daemon");
         }
+    }
+
+    #[cfg(target_os = "android")]
+    pub fn bypass_socket(&mut self, fd: RawFd, tx: oneshot::Sender<()>) {
+        if let Err(err) = self.tun_provider.bypass(fd) {
+            log::error!("Failed to bypass socket {}", err);
+        }
+        let _ = tx.send(());
     }
 }
 

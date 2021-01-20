@@ -151,6 +151,12 @@ impl TunnelState for ErrorState {
             Some(TunnelCommand::Block(reason)) => {
                 NewState(ErrorState::enter(shared_values, reason))
             }
+
+            #[cfg(target_os = "android")]
+            Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
+                shared_values.bypass_socket(fd, done_tx);
+                SameState(self.into())
+            }
         }
     }
 }

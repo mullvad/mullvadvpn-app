@@ -136,8 +136,8 @@ impl AndroidTunProvider {
         })
     }
 
-    /// Open a tunnel device that routes everything but `allowed_endpoint`, custom DNS, and (potentially)
-    /// LAN routes via the tunnel device.
+    /// Open a tunnel device that routes everything but `allowed_endpoint`, custom DNS, and
+    /// (potentially) LAN routes via the tunnel device.
     ///
     /// Will open a new tunnel if there is already an active tunnel. The previous tunnel will be
     /// closed.
@@ -321,6 +321,33 @@ impl AndroidTunProvider {
         }
     }
 
+    /// Allow a socket to bypass the tunnel.
+    pub fn bypass(&mut self, socket: RawFd) -> Result<(), Error> {
+        let env = JnixEnv::from(
+            self.jvm
+                .attach_current_thread_as_daemon()
+                .map_err(|cause| Error::AttachJvmToThread(cause))?,
+        );
+        let create_tun_method = env
+            .get_method_id(&self.class, "bypass", "(I)Z")
+            .map_err(|cause| Error::FindMethod("bypass", cause))?;
+
+        let result = env
+            .call_method_unchecked(
+                self.object.as_obj(),
+                create_tun_method,
+                JavaType::Primitive(Primitive::Boolean),
+                &[JValue::Int(socket)],
+            )
+            .map_err(|cause| Error::CallMethod("bypass", cause))?;
+
+        match result {
+            JValue::Bool(0) => Err(Error::Bypass),
+            JValue::Bool(_) => Ok(()),
+            value => Err(Error::InvalidMethodResult("bypass", format!("{:?}", value))),
+        }
+    }
+
     fn call_method(
         &self,
         name: &'static str,
@@ -385,11 +412,10 @@ impl VpnServiceTun {
             )
             .map_err(|cause| Error::CallMethod("bypass", cause))?;
 
-        match result {
-            JValue::Bool(0) => Err(Error::Bypass),
-            JValue::Bool(_) => Ok(()),
-            value => Err(Error::InvalidMethodResult("bypass", format!("{:?}", value))),
+        if !bool::from_java(&env, result) {
+            return Err(Error::Bypass);
         }
+        Ok(())
     }
 }
 
