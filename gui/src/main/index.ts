@@ -1454,6 +1454,7 @@ class ApplicationMain {
         nodeIntegrationInSubFrames: false,
         enableRemoteModule: false,
         sandbox: process.platform !== 'linux',
+        contextIsolation: true,
         spellcheck: false,
         devTools: process.env.NODE_ENV === 'development',
       },
