@@ -33,6 +33,9 @@ talpid-types = { path = "../talpid-types" }
 filetime = "0.2"
 tempfile = "3.0"
 
+[target.'cfg(target_os="android")'.dependencies]
+socket2 = "0.3"
+
 [[bin]]
 name = "relay_list"
 

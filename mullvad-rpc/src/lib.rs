@@ -1,6 +1,8 @@
 #![deny(rust_2018_idioms)]
 
 use chrono::{offset::Utc, DateTime};
+#[cfg(target_os = "android")]
+use futures::channel::mpsc;
 use hyper::Method;
 use mullvad_types::{
     account::{AccountToken, VoucherSubmission},
@@ -20,6 +22,8 @@ pub mod rest;
 
 mod https_client_with_sni;
 use crate::https_client_with_sni::HttpsConnectorWithSni;
+#[cfg(target_os = "android")]
+pub use crate::https_client_with_sni::SocketBypassRequest;
 mod tcp_stream;
 
 mod address_cache;
@@ -44,6 +48,8 @@ const API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
 pub struct MullvadRpcRuntime {
     handle: tokio::runtime::Handle,
     pub address_cache: AddressCache,
+    #[cfg(target_os = "android")]
+    socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -65,6 +71,8 @@ impl MullvadRpcRuntime {
                 None,
                 Arc::new(Box::new(|_| Ok(()))),
             )?,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx: None,
         })
     }
 
@@ -77,6 +85,7 @@ impl MullvadRpcRuntime {
         cache_dir: &Path,
         write_changes: bool,
         address_change_listener: impl Fn(SocketAddr) -> Result<(), ()> + Send + Sync + 'static,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
         let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
         let write_file = if write_changes {
@@ -127,6 +136,8 @@ impl MullvadRpcRuntime {
         Ok(MullvadRpcRuntime {
             handle,
             address_cache,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx,
         })
     }
 
@@ -135,6 +146,8 @@ impl MullvadRpcRuntime {
         let https_connector = HttpsConnectorWithSni::new(
             self.handle.clone(),
             sni_hostname,
+            #[cfg(target_os = "android")]
+            self.socket_bypass_tx.clone(),
         );
 
         let service = rest::RequestService::new(

@@ -39,6 +39,8 @@ pub struct HttpsConnectorWithSni {
     handle: Handle,
     sni_hostname: Option<String>,
     service_tx: Option<mpsc::Sender<RequestCommand>>,
+    #[cfg(target_os = "android")]
+    socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     tls: Arc<rustls::ClientConfig>,
 }
 
@@ -52,7 +54,11 @@ impl HttpsConnectorWithSni {
     ///
     /// This uses hyper's default `HttpConnector`, and default `TlsConnector`.
     /// If you wish to use something besides the defaults, use `From::from`.
-    pub fn new(handle: Handle, sni_hostname: Option<String>) -> Self {
+    pub fn new(
+        handle: Handle,
+        sni_hostname: Option<String>,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+    ) -> Self {
         let mut config = rustls::ClientConfig::new();
         config.enable_sni = true;
         config.root_store = Self::read_cert_store();
@@ -61,6 +67,8 @@ impl HttpsConnectorWithSni {
             next_socket_id: 0,
             handle,
             sni_hostname,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx,
             service_tx: None,
             tls: Arc::new(config),
         }
@@ -98,8 +106,32 @@ impl HttpsConnectorWithSni {
         next_id
     }
 
+    #[cfg(not(target_os = "android"))]
     async fn open_socket(addr: SocketAddr) -> std::io::Result<TokioTcpStream> {
         TokioTcpStream::connect(addr).await
+    }
+
+    #[cfg(target_os = "android")]
+    async fn open_socket(
+        addr: SocketAddr,
+        socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+    ) -> std::io::Result<TokioTcpStream> {
+        use socket2::{Domain, Protocol, Socket, Type};
+        let domain = match addr {
+            SocketAddr::V4(_) => Domain::ipv4(),
+            SocketAddr::V6(_) => Domain::ipv6(),
+        };
+        let socket = Socket::new(domain, Type::stream(), Some(Protocol::tcp()))?.into_tcp_stream();
+
+        if let Some(mut tx) = socket_bypass_tx {
+            let (done_tx, done_rx) = oneshot::channel();
+            let _ = tx.send((socket.as_raw_fd(), done_tx)).await;
+            if let Err(_) = done_rx.await {
+                log::error!("Failed to bypass socket, connection might fail");
+            }
+        }
+
+        TokioTcpStream::connect_std(socket, &addr).await
     }
 
     async fn resolve_address(hostname: &str) -> io::Result<SocketAddr> {
@@ -161,6 +193,8 @@ impl Service<Uri> for HttpsConnectorWithSni {
 
         let socket_id = self.next_id();
         let handle = self.handle.clone();
+        #[cfg(target_os = "android")]
+        let socket_bypass_tx = self.socket_bypass_tx.clone();
 
         let fut = async move {
             if uri.scheme() != Some(&Scheme::HTTPS) {
@@ -178,7 +212,12 @@ impl Service<Uri> for HttpsConnectorWithSni {
                 .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid hostname"))?;
             let addr = Self::resolve_address(host_addr).await?;
 
-            let tokio_connection = Self::open_socket(addr).await?;
+            let tokio_connection = Self::open_socket(
+                addr,
+                #[cfg(target_os = "android")]
+                socket_bypass_tx,
+            )
+            .await?;
 
             let (socket_shutdown_tx, socket_shutdown_rx) = oneshot::channel();
 
