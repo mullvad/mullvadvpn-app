@@ -44,7 +44,12 @@ async fn main() {
     let exit_code = match run().await {
         Ok(_) => 0,
         Err(error) => {
-            eprintln!("{}", error.display_chain());
+            match error {
+                Error::GrpcClientError(error) => {
+                    eprintln!("{:?}: {}", error.code(), error.message())
+                }
+                error => eprintln!("{}", error.display_chain()),
+            }
             1
         }
     };
