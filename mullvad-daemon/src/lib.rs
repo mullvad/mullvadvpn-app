@@ -208,7 +208,7 @@ pub enum DaemonCommand {
     /// Verify if the currently set wireguard key is valid.
     VerifyWireguardKey(oneshot::Sender<bool>),
     /// Get information about the currently running and latest app versions
-    GetVersionInfo(oneshot::Sender<AppVersionInfo>),
+    GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Get current version of the app
     GetCurrentVersion(oneshot::Sender<AppVersion>),
     /// Remove settings and clear the cache
@@ -467,7 +467,7 @@ pub struct Daemon<L: EventListener> {
     relay_selector: relays::RelaySelector,
     last_generated_relay: Option<Relay>,
     last_generated_bridge_relay: Option<Relay>,
-    app_version_info: AppVersionInfo,
+    app_version_info: Option<AppVersionInfo>,
     shutdown_callbacks: Vec<Box<dyn FnOnce()>>,
     /// oneshot channel that completes once the tunnel state machine has been shut down
     tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
@@ -1221,7 +1221,7 @@ where
     }
 
     fn handle_new_app_version_info(&mut self, app_version_info: AppVersionInfo) {
-        self.app_version_info = app_version_info.clone();
+        self.app_version_info = Some(app_version_info.clone());
         self.event_listener.notify_app_version(app_version_info);
     }
 
@@ -1468,7 +1468,7 @@ where
         }
     }
 
-    fn on_get_version_info(&mut self, tx: oneshot::Sender<AppVersionInfo>) {
+    fn on_get_version_info(&mut self, tx: oneshot::Sender<Option<AppVersionInfo>>) {
         Self::oneshot_send(
             tx,
             self.app_version_info.clone(),

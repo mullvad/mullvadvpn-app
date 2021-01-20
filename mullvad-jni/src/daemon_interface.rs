@@ -144,7 +144,9 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetVersionInfo(tx))?;
 
-        block_on(rx).map_err(|_| Error::NoResponse)
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .ok_or(Error::NoResponse)
     }
 
     pub fn reconnect(&self) -> Result<()> {
