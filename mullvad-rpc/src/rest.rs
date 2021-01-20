@@ -1,4 +1,7 @@
-use crate::address_cache::AddressCache;
+use crate::{
+    address_cache::AddressCache, https_client_with_sni::HttpsConnectorWithSni,
+    tcp_stream::TcpStreamHandle,
+};
 use futures::{
     channel::{mpsc, oneshot},
     future::{abortable, AbortHandle, Aborted},
@@ -7,7 +10,7 @@ use futures::{
     TryFutureExt,
 };
 use hyper::{
-    client::{connect::Connect, Client},
+    client::Client,
     header::{self, HeaderValue},
     Method, Uri,
 };
@@ -73,30 +76,37 @@ pub enum Error {
 
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
-pub(crate) struct RequestService<C> {
+pub(crate) struct RequestService {
     command_tx: mpsc::Sender<RequestCommand>,
     command_rx: mpsc::Receiver<RequestCommand>,
-    client: hyper::Client<C, hyper::Body>,
-    connector: C,
+    sockets: BTreeMap<usize, TcpStreamHandle>,
+    client: hyper::Client<HttpsConnectorWithSni, hyper::Body>,
     handle: Handle,
     next_id: u64,
     in_flight_requests: BTreeMap<u64, AbortHandle>,
     address_cache: AddressCache,
 }
 
-impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
+impl RequestService {
     /// Constructs a new request service.
-    pub fn new(connector: C, handle: Handle, address_cache: AddressCache) -> RequestService<C> {
-        let client = Self::new_client(connector.clone());
-
+    pub fn new(
+        mut connector: HttpsConnectorWithSni,
+        handle: Handle,
+        address_cache: AddressCache,
+    ) -> RequestService {
         let (command_tx, command_rx) = mpsc::channel(1);
+
+        connector.set_service_tx(command_tx.clone());
+        let client = Client::builder().build(connector);
+
+
         Self {
             command_tx,
             command_rx,
+            sockets: BTreeMap::new(),
             client,
             in_flight_requests: BTreeMap::new(),
             next_id: 0,
-            connector,
             handle,
             address_cache,
         }
@@ -108,10 +118,6 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
             tx: self.command_tx.clone(),
             handle: self.handle.clone(),
         }
-    }
-
-    fn new_client(connector: C) -> Client<C, hyper::Body> {
-        Client::builder().pool_max_idle_per_host(0).build(connector)
     }
 
     fn process_command(&mut self, command: RequestCommand) {
@@ -173,12 +179,19 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
                 self.in_flight_requests.insert(id, abort_handle);
             }
 
+            RequestCommand::SocketOpened(id, socket) => {
+                self.sockets.insert(id, socket);
+            }
+            RequestCommand::SocketClosed(id) => {
+                self.sockets.remove(&id);
+            }
             RequestCommand::RequestFinished(id) => {
                 self.in_flight_requests.remove(&id);
             }
 
-            RequestCommand::Reset => {
+            RequestCommand::Reset(tx) => {
                 self.reset();
+                let _ = tx.send(());
             }
         }
     }
@@ -188,7 +201,12 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
         for (_, abort_handle) in old_requests.into_iter() {
             abort_handle.abort();
         }
-        let _ = mem::replace(&mut self.client, Self::new_client(self.connector.clone()));
+
+        let old_sockets = mem::replace(&mut self.sockets, BTreeMap::new());
+        for (_, socket) in old_sockets.into_iter() {
+            socket.close();
+        }
+
         self.next_id = 0;
     }
 
@@ -202,6 +220,7 @@ impl<C: Connect + Clone + Send + Sync + 'static> RequestService<C> {
         while let Some(command) = self.command_rx.next().await {
             self.process_command(command);
         }
+        self.reset();
     }
 }
 
@@ -229,8 +248,10 @@ impl RequestServiceHandle {
     /// Resets the corresponding RequestService, dropping all in-flight requests.
     pub async fn reset(&self) {
         let mut tx = self.tx.clone();
+        let (done_tx, done_rx) = oneshot::channel();
 
-        let _ = tx.send(RequestCommand::Reset).await;
+        let _ = tx.send(RequestCommand::Reset(done_tx)).await;
+        let _ = done_rx.await;
     }
 
     /// Submits a `RestRequest` for exectuion to the request service.
@@ -252,13 +273,15 @@ impl RequestServiceHandle {
 }
 
 #[derive(Debug)]
-enum RequestCommand {
+pub(crate) enum RequestCommand {
     NewRequest(
         RestRequest,
         oneshot::Sender<std::result::Result<Response, Error>>,
     ),
     RequestFinished(u64),
-    Reset,
+    SocketOpened(usize, TcpStreamHandle),
+    SocketClosed(usize),
+    Reset(oneshot::Sender<()>),
 }
 
 
