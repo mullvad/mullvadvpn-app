@@ -42,6 +42,7 @@ class RelayListListener(val daemon: MullvadDaemon, val settingsListener: Setting
         setUpJob.cancel()
         settingsListener.relaySettingsNotifier.unsubscribe(this)
         daemon.onRelayListChange = null
+        onRelayListChange = null
     }
 
     private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
