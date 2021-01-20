@@ -21,9 +21,10 @@ use std::{
     str::{self, FromStr},
     sync::Arc,
     task::{Context, Poll},
+    time::Duration,
 };
 
-use tokio::{net::TcpStream as TokioTcpStream, runtime::Handle};
+use tokio::{net::TcpStream as TokioTcpStream, runtime::Handle, time::timeout};
 use tokio_rustls::rustls;
 use webpki::DNSNameRef;
 
@@ -31,6 +32,8 @@ use webpki::DNSNameRef;
 const OLD_ROOT_CERT: &[u8] = include_bytes!("../old_le_root_cert.pem");
 // New LetsEncrypt root certificate
 const NEW_ROOT_CERT: &[u8] = include_bytes!("../new_le_root_cert.pem");
+
+const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// A Connector for the `https` scheme.
 #[derive(Clone)]
@@ -108,7 +111,9 @@ impl HttpsConnectorWithSni {
 
     #[cfg(not(target_os = "android"))]
     async fn open_socket(addr: SocketAddr) -> std::io::Result<TokioTcpStream> {
-        TokioTcpStream::connect(addr).await
+        timeout(CONNECT_TIMEOUT, TokioTcpStream::connect(addr))
+            .await
+            .map_err(|err| io::Error::new(io::ErrorKind::TimedOut, err))?
     }
 
     #[cfg(target_os = "android")]
@@ -131,7 +136,9 @@ impl HttpsConnectorWithSni {
             }
         }
 
-        TokioTcpStream::connect_std(socket, &addr).await
+        timeout(CONNECT_TIMEOUT, TokioTcpStream::connect_std(socket, &addr))
+            .await
+            .map_err(|err| io::Error::new(io::ErrorKind::TimedOut, err))?
     }
 
     async fn resolve_address(hostname: &str) -> io::Result<SocketAddr> {
