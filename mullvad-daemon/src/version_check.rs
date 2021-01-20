@@ -89,18 +89,41 @@ pub(crate) struct VersionUpdater {
     platform_version: String,
     next_update_time: Instant,
     show_beta_releases: bool,
-    rx: Option<mpsc::Receiver<bool>>,
+    rx: Option<mpsc::Receiver<VersionUpdaterCommand>>,
 }
 
 #[derive(Clone)]
 pub(crate) struct VersionUpdaterHandle {
-    tx: mpsc::Sender<bool>,
+    tx: mpsc::Sender<VersionUpdaterCommand>,
+}
+
+enum VersionUpdaterCommand {
+    SetShowBetaReleases(bool),
+    RunVersionCheck,
 }
 
 impl VersionUpdaterHandle {
     pub async fn set_show_beta_releases(&mut self, show_beta_releases: bool) {
-        if self.tx.send(show_beta_releases).await.is_err() {
+        if self
+            .tx
+            .send(VersionUpdaterCommand::SetShowBetaReleases(
+                show_beta_releases,
+            ))
+            .await
+            .is_err()
+        {
             log::error!("Version updater already down, can't send new `show_beta_releases` state");
+        }
+    }
+
+    pub async fn run_version_check(&mut self) {
+        if self
+            .tx
+            .send(VersionUpdaterCommand::RunVersionCheck)
+            .await
+            .is_err()
+        {
+            log::error!("Version updater already down");
         }
     }
 }
@@ -244,15 +267,22 @@ impl VersionUpdater {
 
         loop {
             futures::select! {
-                show_beta_releases = rx.next() => {
-                    match show_beta_releases {
-                        Some(show_beta_releases ) => {
+                command = rx.next() => {
+                    match command {
+                        Some(VersionUpdaterCommand::SetShowBetaReleases(show_beta_releases)) => {
                             self.show_beta_releases = show_beta_releases;
-                        },
+                        }
+                        Some(VersionUpdaterCommand::RunVersionCheck) => {
+                            if self.update_sender.is_closed() {
+                                return;
+                            }
+                            let download_future = self.create_update_future().fuse();
+                            version_check = download_future;
+                        }
                         // time to shut down
                         None => {
                             return;
-                        },
+                        }
                     }
                 },
 
