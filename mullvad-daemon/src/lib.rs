@@ -1098,7 +1098,7 @@ where
             GenerateWireguardKey(tx) => self.on_generate_wireguard_key(tx).await,
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
             VerifyWireguardKey(tx) => self.on_verify_wireguard_key(tx).await,
-            GetVersionInfo(tx) => self.on_get_version_info(tx),
+            GetVersionInfo(tx) => self.on_get_version_info(tx).await,
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
             FactoryReset(tx) => self.on_factory_reset(tx).await,
@@ -1468,7 +1468,13 @@ where
         }
     }
 
-    fn on_get_version_info(&mut self, tx: oneshot::Sender<Option<AppVersionInfo>>) {
+    async fn on_get_version_info(&mut self, tx: oneshot::Sender<Option<AppVersionInfo>>) {
+        if self.app_version_info.is_none() {
+            log::debug!("No version cache found. Fetching new info");
+            let mut handle = self.version_updater_handle.clone();
+            handle.run_version_check().await;
+        }
+
         Self::oneshot_send(
             tx,
             self.app_version_info.clone(),
