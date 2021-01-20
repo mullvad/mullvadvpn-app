@@ -26,6 +26,7 @@ class SettingsListener(val daemon: MullvadDaemon, val initialSettings: Settings)
         daemon.onSettingsChange.unsubscribe(this)
 
         accountNumberNotifier.unsubscribeAll()
+        dnsOptionsNotifier.unsubscribeAll()
         relaySettingsNotifier.unsubscribeAll()
         settingsNotifier.unsubscribeAll()
     }
