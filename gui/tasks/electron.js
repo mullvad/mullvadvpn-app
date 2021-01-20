@@ -4,7 +4,7 @@ const electron = require('electron');
 let subprocess;
 
 function startElectron(done) {
-  subprocess = spawn(electron, ['.', '--no-sandbox'], {
+  subprocess = spawn(electron, ['.'], {
     env: { ...process.env, NODE_ENV: 'development' },
     stdio: 'inherit',
   });
