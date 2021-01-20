@@ -1669,8 +1669,9 @@ fn map_rest_error(error: RestError) -> Status {
         {
             Status::new(Code::Unauthenticated, message)
         }
-        RestError::TimeoutError(_elapsed) => Status::deadline_exceeded("REST request timeout"),
-        error => Status::unknown(format!("REST error: {}", error)),
+        RestError::TimeoutError(_elapsed) => Status::deadline_exceeded("API request timed out"),
+        RestError::HyperError(_) => Status::unavailable("Cannot reach the API"),
+        error => Status::unknown(error.display_chain_with_msg("REST error")),
     }
 }
 
