@@ -140,13 +140,7 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
                   <StyledRowValue>{this.state.ageOfKeyString}</StyledRowValue>
                 </StyledRow>
 
-                <StyledMessages>
-                  {this.props.isOffline ? (
-                    this.offlineLabel()
-                  ) : (
-                    <StyledMessage success={false}>{this.getStatusMessage()}</StyledMessage>
-                  )}
-                </StyledMessages>
+                <StyledMessages>{this.getStatusMessage()}</StyledMessages>
 
                 <StyledButtonRow>{this.getGenerateButton()}</StyledButtonRow>
                 <StyledButtonRow>
@@ -189,21 +183,8 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
     );
   }
 
-  private offlineLabel() {
-    return (
-      <StyledMessage success={this.state.recentlyGeneratedKey}>
-        {this.state.recentlyGeneratedKey
-          ? messages.pgettext('wireguard-key-view', 'Reconnecting with new WireGuard key...')
-          : messages.pgettext(
-              'wireguard-key-view',
-              'Unable to manage keys while in a blocked state',
-            )}
-      </StyledMessage>
-    );
-  }
-
   private isVerifyButtonDisabled(): boolean {
-    return this.props.keyState.type !== 'key-set' || this.props.isOffline;
+    return this.props.keyState.type !== 'key-set';
   }
 
   private handleVerifyKeyPress = () => {
@@ -228,7 +209,7 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
     let buttonText = messages.pgettext('wireguard-key-view', 'Generate key');
     const regenerateText = messages.pgettext('wireguard-key-view', 'Regenerate key');
 
-    let disabled = this.props.isOffline;
+    let disabled = false;
     let generateKey = this.props.onGenerateKey;
     switch (this.props.keyState.type) {
       case 'key-set': {
@@ -311,28 +292,40 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
     });
   };
 
-  private getStatusMessage(): string {
-    switch (this.props.keyState.type) {
-      case 'key-set': {
-        const key = this.props.keyState.key;
-        if (key.replacementFailure) {
-          switch (key.replacementFailure) {
-            case 'too_many_keys':
-              return this.formatKeygenFailure('too-many-keys');
-            case 'generation_failure':
-              return this.formatKeygenFailure('generation-failure');
+  private getStatusMessage() {
+    if (this.props.isOffline && this.state.recentlyGeneratedKey) {
+      return (
+        <StyledMessage success={this.state.recentlyGeneratedKey}>
+          {messages.pgettext('wireguard-key-view', 'Reconnecting with new WireGuard key...')}
+        </StyledMessage>
+      );
+    } else {
+      let message = '';
+      switch (this.props.keyState.type) {
+        case 'key-set': {
+          const key = this.props.keyState.key;
+          if (key.replacementFailure) {
+            switch (key.replacementFailure) {
+              case 'too_many_keys':
+                message = this.formatKeygenFailure('too-many-keys');
+                break;
+              case 'generation_failure':
+                message = this.formatKeygenFailure('generation-failure');
+                break;
+            }
+          } else if (key.verificationFailed) {
+            message = messages.pgettext('wireguard-key-view', 'Key verification failed');
           }
-        } else if (key.verificationFailed) {
-          return messages.pgettext('wireguard-key-view', 'Key verification failed');
-        }
 
-        return '';
+          break;
+        }
+        case 'too-many-keys':
+        case 'generation-failure':
+          message = this.formatKeygenFailure(this.props.keyState.type);
+          break;
       }
-      case 'too-many-keys':
-      case 'generation-failure':
-        return this.formatKeygenFailure(this.props.keyState.type);
-      default:
-        return '';
+
+      return <StyledMessage success={false}>{message}</StyledMessage>;
     }
   }
 
