@@ -62,7 +62,7 @@ use talpid_core::{
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 use talpid_types::{
-    net::{openvpn, Endpoint, TransportProtocol, TunnelParameters, TunnelType},
+    net::{openvpn, Endpoint, TransportProtocol, TunnelEndpoint, TunnelParameters, TunnelType},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
 };
@@ -794,17 +794,8 @@ where
         &mut self,
         tunnel_state_transition: TunnelStateTransition,
     ) {
-        match &tunnel_state_transition {
-            TunnelStateTransition::Disconnected
-            | TunnelStateTransition::Connected(_)
-            | TunnelStateTransition::Error(_) => {
-                // Reset the RPCs so that they fail immediately after the underlying socket gets
-                // invalidated due to the tunnel either coming up or breaking.
-                self.rpc_handle.service().reset().await;
-            }
-            _ => (),
-        };
-
+        self.reset_rpc_sockets_on_tunnel_state_transition(&tunnel_state_transition)
+            .await;
         let tunnel_state = match tunnel_state_transition {
             TunnelStateTransition::Disconnected => TunnelState::Disconnected,
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
@@ -849,6 +840,19 @@ where
 
         self.tunnel_state = tunnel_state.clone();
         self.event_listener.notify_new_state(tunnel_state);
+    }
+
+    async fn reset_rpc_sockets_on_tunnel_state_transition(
+        &mut self,
+        tunnel_state_transition: &TunnelStateTransition,
+    ) {
+        match (&self.tunnel_state, &tunnel_state_transition) {
+            // only reset the API sockets if when connected or leaving the connected state
+            (&TunnelState::Connected { .. }, _) | (_, &TunnelStateTransition::Connected(_)) => {
+                self.rpc_handle.service().reset().await;
+            }
+            _ => (),
+        };
     }
 
     async fn handle_generate_tunnel_parameters(
@@ -2026,10 +2030,7 @@ where
     }
 
     fn get_connected_tunnel_type(&self) -> Option<TunnelType> {
-        use talpid_types::net::TunnelEndpoint;
-        use TunnelState::Connected;
-
-        if let Connected {
+        if let TunnelState::Connected {
             endpoint: TunnelEndpoint { tunnel_type, .. },
             ..
         } = self.tunnel_state
@@ -2037,6 +2038,20 @@ where
             Some(tunnel_type)
         } else {
             None
+        }
+    }
+
+    fn get_target_tunnel_type(&self) -> Option<TunnelType> {
+        match self.tunnel_state {
+            TunnelState::Connected {
+                endpoint: TunnelEndpoint { tunnel_type, .. },
+                ..
+            }
+            | TunnelState::Connecting {
+                endpoint: TunnelEndpoint { tunnel_type, .. },
+                ..
+            } => Some(tunnel_type),
+            _ => None,
         }
     }
 
