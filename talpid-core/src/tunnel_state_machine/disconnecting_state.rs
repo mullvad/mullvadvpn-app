@@ -54,6 +54,11 @@ impl DisconnectingState {
                 Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
                 Some(TunnelCommand::Disconnect) | None => AfterDisconnect::Nothing,
                 Some(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
+                #[cfg(target_os = "android")]
+                Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
+                    shared_values.bypass_socket(fd, done_tx);
+                    AfterDisconnect::Nothing
+                }
             },
             AfterDisconnect::Block(reason) => match command {
                 Some(TunnelCommand::AllowLan(allow_lan)) => {
@@ -86,6 +91,11 @@ impl DisconnectingState {
                 Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
                 Some(TunnelCommand::Disconnect) => AfterDisconnect::Nothing,
                 Some(TunnelCommand::Block(new_reason)) => AfterDisconnect::Block(new_reason),
+                #[cfg(target_os = "android")]
+                Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
+                    shared_values.bypass_socket(fd, done_tx);
+                    AfterDisconnect::Block(reason)
+                }
                 None => AfterDisconnect::Block(reason),
             },
             AfterDisconnect::Reconnect(retry_attempt) => match command {
@@ -119,6 +129,11 @@ impl DisconnectingState {
                 Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(retry_attempt),
                 Some(TunnelCommand::Disconnect) | None => AfterDisconnect::Nothing,
                 Some(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
+                #[cfg(target_os = "android")]
+                Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
+                    shared_values.bypass_socket(fd, done_tx);
+                    AfterDisconnect::Reconnect(retry_attempt)
+                }
             },
         };
 

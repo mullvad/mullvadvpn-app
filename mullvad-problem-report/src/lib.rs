@@ -282,6 +282,8 @@ pub fn send_problem_report(
             cache_dir,
             false,
             |_| Ok(()),
+            #[cfg(target_os = "android")]
+            None,
         ))
         .map_err(Error::CreateRpcClientError)?;
     let rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_manager.mullvad_rest_handle());
