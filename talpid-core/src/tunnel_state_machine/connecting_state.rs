@@ -284,6 +284,11 @@ impl ConnectingState {
             Some(TunnelCommand::Block(reason)) => {
                 self.disconnect(shared_values, AfterDisconnect::Block(reason))
             }
+            #[cfg(target_os = "android")]
+            Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
+                shared_values.bypass_socket(fd, done_tx);
+                SameState(self.into())
+            }
         }
     }
 
