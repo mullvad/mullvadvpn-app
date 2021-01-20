@@ -71,6 +71,7 @@ class AppVersionInfoCache(
         setUpJob.cancel()
         settingsListener.settingsNotifier.unsubscribe(this)
         daemon.onAppVersionInfoChange = null
+        onUpdate = null
     }
 
     private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
