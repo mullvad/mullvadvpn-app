@@ -1,6 +1,7 @@
 import { app } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileExistsSync } from '../shared/file-helpers';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import log from '../shared/logging';
 
@@ -80,17 +81,24 @@ export default class GuiSettings {
   private stateValue: IGuiSettingsState = { ...defaultSettings };
 
   public load() {
-    try {
-      const settingsFile = this.filePath();
-      const contents = fs.readFileSync(settingsFile, 'utf8');
-      const rawJson = JSON.parse(contents);
+    const settingsFile = this.filePath();
 
-      this.stateValue = {
-        ...defaultSettings,
-        ...this.validateSettings(rawJson),
-      };
-    } catch (error) {
-      log.error(`Failed to read GUI settings file: ${error}`);
+    // Read settings if the file exists, otherwise write the default settings to it.
+    if (fileExistsSync(settingsFile)) {
+      try {
+        const contents = fs.readFileSync(settingsFile, 'utf8');
+        const rawJson = JSON.parse(contents);
+
+        this.stateValue = {
+          ...defaultSettings,
+          ...this.validateSettings(rawJson),
+        };
+      } catch (error) {
+        log.error(`Failed to read GUI settings file: ${error}`);
+      }
+    } else {
+      log.debug('Creating gui-settings file and writing the default settings to it');
+      this.store();
     }
   }
 
