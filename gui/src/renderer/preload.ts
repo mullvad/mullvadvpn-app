@@ -1,3 +1,4 @@
+import { contextBridge } from 'electron';
 import { IpcRendererEventChannel } from './lib/ipc-event-channel';
 
-window.ipc = IpcRendererEventChannel;
+contextBridge.exposeInMainWorld('ipc', IpcRendererEventChannel);
