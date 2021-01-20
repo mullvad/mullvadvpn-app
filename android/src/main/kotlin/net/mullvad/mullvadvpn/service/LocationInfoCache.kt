@@ -90,6 +90,8 @@ class LocationInfoCache(
         connectivityListener.connectivityNotifier.unsubscribe(this)
         connectionProxy.onStateChange.unsubscribe(this)
         fetchRequestChannel.close()
+
+        onNewLocation = null
     }
 
     private fun updateSelectedRelayLocation(relayItem: RelayItem?) {
