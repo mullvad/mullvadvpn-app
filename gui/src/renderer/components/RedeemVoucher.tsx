@@ -1,12 +1,10 @@
 import React, { useCallback, useContext, useState } from 'react';
-import { useSelector } from 'react-redux';
 import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import accountActions from '../redux/account/actions';
-import { IReduxState } from '../redux/store';
 import * as AppButton from './AppButton';
 import { ModalAlert } from './Modal';
 import {
@@ -218,7 +216,6 @@ interface IRedeemVoucherButtonProps {
 }
 
 export function RedeemVoucherButton(props: IRedeemVoucherButtonProps) {
-  const isBlocked = useSelector((state: IReduxState) => state.connection.isBlocked);
   const [showAlert, setShowAlert] = useState(false);
 
   const onClick = useCallback(() => setShowAlert(true), []);
@@ -226,7 +223,7 @@ export function RedeemVoucherButton(props: IRedeemVoucherButtonProps) {
 
   return (
     <>
-      <AppButton.GreenButton disabled={isBlocked} onClick={onClick} className={props.className}>
+      <AppButton.GreenButton onClick={onClick} className={props.className}>
         {messages.pgettext('redeem-voucher-alert', 'Redeem voucher')}
       </AppButton.GreenButton>
       {showAlert && (
