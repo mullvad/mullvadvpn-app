@@ -1,15 +1,29 @@
+use crate::{rest::RequestCommand, tcp_stream::TcpStream};
+use futures::{
+    channel::{mpsc, oneshot},
+    sink::SinkExt,
+};
 use http::uri::Scheme;
-use hyper::{client::HttpConnector, service::Service, Uri};
+use hyper::{
+    client::connect::dns::{GaiResolver, Name},
+    service::Service,
+    Uri,
+};
 use hyper_rustls::MaybeHttpsStream;
+#[cfg(target_os = "android")]
+use std::os::unix::io::{AsRawFd, RawFd};
 use std::{
     fmt,
     future::Future,
     io::{self, BufReader},
+    net::{IpAddr, SocketAddr},
     pin::Pin,
-    str,
+    str::{self, FromStr},
     sync::Arc,
     task::{Context, Poll},
 };
+
+use tokio::{net::TcpStream as TokioTcpStream, runtime::Handle};
 use tokio_rustls::rustls;
 use webpki::DNSNameRef;
 
@@ -21,10 +35,15 @@ const NEW_ROOT_CERT: &[u8] = include_bytes!("../new_le_root_cert.pem");
 /// A Connector for the `https` scheme.
 #[derive(Clone)]
 pub struct HttpsConnectorWithSni {
+    next_socket_id: usize,
+    handle: Handle,
     sni_hostname: Option<String>,
-    http: HttpConnector,
+    service_tx: Option<mpsc::Sender<RequestCommand>>,
     tls: Arc<rustls::ClientConfig>,
 }
+
+#[cfg(target_os = "android")]
+pub type SocketBypassRequest = (RawFd, oneshot::Sender<()>);
 
 impl HttpsConnectorWithSni {
     /// Construct a new HttpsConnectorWithSni.
@@ -33,15 +52,18 @@ impl HttpsConnectorWithSni {
     ///
     /// This uses hyper's default `HttpConnector`, and default `TlsConnector`.
     /// If you wish to use something besides the defaults, use `From::from`.
-    pub fn new() -> Self {
-        let mut http = HttpConnector::new();
-        http.enforce_http(false);
-
+    pub fn new(handle: Handle, sni_hostname: Option<String>) -> Self {
         let mut config = rustls::ClientConfig::new();
         config.enable_sni = true;
         config.root_store = Self::read_cert_store();
 
-        HttpsConnectorWithSni::from((http, config))
+        HttpsConnectorWithSni {
+            next_socket_id: 0,
+            handle,
+            sni_hostname,
+            service_tx: None,
+            tls: Arc::new(config),
+        }
     }
 
     fn read_cert_store() -> rustls::RootCertStore {
@@ -65,22 +87,47 @@ impl HttpsConnectorWithSni {
     }
 
 
-    /// Configure a hostname to use with SNI.
-    ///
-    /// Configures the TLS connection handshake to request a certificate for a given domain,
-    /// instead of the domain obtained from the URI. Use `None` to use the domain from the URI.
-    pub fn set_sni_hostname(&mut self, hostname: Option<String>) {
-        self.sni_hostname = hostname;
+    /// Set a channel to register sockets with the request service.
+    pub(crate) fn set_service_tx(&mut self, service_tx: mpsc::Sender<RequestCommand>) {
+        self.service_tx = Some(service_tx);
     }
-}
 
-impl From<(HttpConnector, rustls::ClientConfig)> for HttpsConnectorWithSni {
-    fn from(args: (HttpConnector, rustls::ClientConfig)) -> HttpsConnectorWithSni {
-        HttpsConnectorWithSni {
-            sni_hostname: None,
-            http: args.0,
-            tls: Arc::new(args.1),
+    fn next_id(&mut self) -> usize {
+        let next_id = self.next_socket_id;
+        self.next_socket_id = self.next_socket_id.wrapping_add(1);
+        next_id
+    }
+
+    async fn open_socket(addr: SocketAddr) -> std::io::Result<TokioTcpStream> {
+        TokioTcpStream::connect(addr).await
+    }
+
+    async fn resolve_address(hostname: &str) -> io::Result<SocketAddr> {
+        match Self::parse_addr(&hostname) {
+            Some(addr) => Ok(addr),
+            None => {
+                let mut addrs = GaiResolver::new()
+                    .call(
+                        Name::from_str(&hostname)
+                            .map_err(|err| io::Error::new(io::ErrorKind::InvalidInput, err))?,
+                    )
+                    .await
+                    .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
+                let addr = addrs
+                    .next()
+                    .ok_or(io::Error::new(io::ErrorKind::Other, "Empty DNS response"))?;
+                Ok(SocketAddr::new(addr, 443))
+            }
         }
+    }
+
+
+    fn parse_addr(hostname: &str) -> Option<SocketAddr> {
+        if let Ok(addr) = hostname.parse::<SocketAddr>() {
+            return Some(addr);
+        }
+        let ip = hostname.parse::<IpAddr>().ok()?;
+        Some(SocketAddr::new(ip, 443))
     }
 }
 
@@ -90,8 +137,9 @@ impl fmt::Debug for HttpsConnectorWithSni {
     }
 }
 
+
 impl Service<Uri> for HttpsConnectorWithSni {
-    type Response = MaybeHttpsStream<tokio::net::TcpStream>;
+    type Response = MaybeHttpsStream<TcpStream>;
     type Error = io::Error;
     type Future =
         Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + Send + 'static>>;
@@ -102,7 +150,6 @@ impl Service<Uri> for HttpsConnectorWithSni {
 
     fn call(&mut self, uri: Uri) -> Self::Future {
         let tls_connector: tokio_rustls::TlsConnector = self.tls.clone().into();
-        let mut http = self.http.clone();
         let sni_hostname = self
             .sni_hostname
             .clone()
@@ -110,7 +157,10 @@ impl Service<Uri> for HttpsConnectorWithSni {
             .ok_or_else(|| {
                 io::Error::new(io::ErrorKind::InvalidInput, "invalid url, missing host")
             });
+        let service_tx = self.service_tx.clone();
 
+        let socket_id = self.next_id();
+        let handle = self.handle.clone();
 
         let fut = async move {
             if uri.scheme() != Some(&Scheme::HTTPS) {
@@ -119,14 +169,44 @@ impl Service<Uri> for HttpsConnectorWithSni {
                     "invalid url, not https",
                 ));
             }
+            let host_addr = uri.host().ok_or(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "invalid url, missing host",
+            ))?;
             let hostname = sni_hostname?;
             let host = DNSNameRef::try_from_ascii_str(&hostname)
                 .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid hostname"))?;
-            let connection = http
-                .call(uri)
-                .await
-                .map_err(|err| io::Error::new(io::ErrorKind::Other, err))?;
-            let tls_connection = tls_connector.connect(host, connection).await?;
+            let addr = Self::resolve_address(host_addr).await?;
+
+            let tokio_connection = Self::open_socket(addr).await?;
+
+            let (socket_shutdown_tx, socket_shutdown_rx) = oneshot::channel();
+
+
+            let (tcp_stream, socket_handle) =
+                TcpStream::new(tokio_connection, socket_id, Some(socket_shutdown_tx));
+            if let Some(mut service_tx) = service_tx {
+                if service_tx
+                    .send(RequestCommand::SocketOpened(socket_id, socket_handle))
+                    .await
+                    .is_err()
+                {
+                    log::error!("Failed to submit new socket to request service");
+                }
+                handle.spawn(async move {
+                    let _ = socket_shutdown_rx.await;
+                    if service_tx
+                        .send(RequestCommand::SocketClosed(socket_id))
+                        .await
+                        .is_err()
+                    {
+                        log::error!("Failed to send socket closure command to request service");
+                    }
+                });
+            }
+
+
+            let tls_connection = tls_connector.connect(host, tcp_stream).await?;
 
             Ok(MaybeHttpsStream::Https(tls_connection))
         };
@@ -135,6 +215,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
         Box::pin(fut)
     }
 }
+
 
 #[cfg(test)]
 mod test {

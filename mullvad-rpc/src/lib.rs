@@ -42,7 +42,6 @@ const API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
 
 /// A type that helps with the creation of RPC connections.
 pub struct MullvadRpcRuntime {
-    https_connector: HttpsConnectorWithSni,
     handle: tokio::runtime::Handle,
     pub address_cache: AddressCache,
 }
@@ -60,7 +59,6 @@ impl MullvadRpcRuntime {
     /// Create a new `MullvadRpcRuntime`.
     pub fn new(handle: tokio::runtime::Handle) -> Result<Self, Error> {
         Ok(MullvadRpcRuntime {
-            https_connector: HttpsConnectorWithSni::new(),
             handle,
             address_cache: AddressCache::new(
                 vec![API_ADDRESS.into()],
@@ -126,10 +124,7 @@ impl MullvadRpcRuntime {
             }
         };
 
-        let https_connector = HttpsConnectorWithSni::new();
-
         Ok(MullvadRpcRuntime {
-            https_connector,
             handle,
             address_cache,
         })
@@ -137,8 +132,10 @@ impl MullvadRpcRuntime {
 
     /// Creates a new request service and returns a handle to it.
     fn new_request_service(&mut self, sni_hostname: Option<String>) -> rest::RequestServiceHandle {
-        let mut https_connector = self.https_connector.clone();
-        https_connector.set_sni_hostname(sni_hostname);
+        let https_connector = HttpsConnectorWithSni::new(
+            self.handle.clone(),
+            sni_hostname,
+        );
 
         let service = rest::RequestService::new(
             https_connector,
