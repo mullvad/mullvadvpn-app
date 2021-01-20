@@ -68,7 +68,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private var hasConnectivity = true
         set(value) {
             if (field != value) {
-                field = value
+                field = true
                 updateStatusMessage()
                 updateGenerateKeyButtonState()
                 updateVerifyKeyButtonState()
