@@ -150,8 +150,9 @@ impl ManagementService for ManagementServiceImpl {
 
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetVersionInfo(tx))?;
-        rx.await
-            .map_err(|_| Status::internal("internal error"))
+        let version_info = rx.await.map_err(|_| Status::internal("internal error"))?;
+        version_info
+            .ok_or(Status::not_found("no version cache"))
             .map(|version_info| convert_version_info(&version_info))
             .map(Response::new)
     }
