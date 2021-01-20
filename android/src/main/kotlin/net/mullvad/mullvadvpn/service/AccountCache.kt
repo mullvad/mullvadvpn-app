@@ -105,6 +105,10 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
     fun onDestroy() {
         settingsListener.accountNumberNotifier.unsubscribe(this)
         jobTracker.cancelAllJobs()
+
+        onAccountNumberChange.unsubscribeAll()
+        onAccountExpiryChange.unsubscribeAll()
+        onAccountHistoryChange.unsubscribeAll()
     }
 
     private fun fetchAccountHistory() {
