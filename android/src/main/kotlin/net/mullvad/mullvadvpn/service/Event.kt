@@ -71,6 +71,8 @@ sealed class Event : Parcelable {
         fun fromMessage(message: Message): Event {
             val data = message.data
 
+            data.classLoader = Event::class.java.classLoader
+
             return data.getParcelable(EVENT_KEY)!!
         }
     }

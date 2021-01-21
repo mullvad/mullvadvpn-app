@@ -111,6 +111,8 @@ sealed class Request : Parcelable {
         fun fromMessage(message: Message): Request {
             val data = message.data
 
+            data.classLoader = Request::class.java.classLoader
+
             return data.getParcelable(REQUEST_KEY)!!
         }
     }
