@@ -50,7 +50,8 @@
             </intent-filter>
         </activity>
         <service android:name="net.mullvad.mullvadvpn.service.MullvadVpnService"
-                 android:permission="android.permission.BIND_VPN_SERVICE">
+                 android:permission="android.permission.BIND_VPN_SERVICE"
+                 android:process=":mullvadvpn_daemon">
             <intent-filter>
                 <action android:name="android.net.VpnService" />
             </intent-filter>
