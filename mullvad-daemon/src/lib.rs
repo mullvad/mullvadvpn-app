@@ -566,7 +566,11 @@ where
                     Err(Error::OpenCachedTargetState(e))
                 }
             }
-        }?;
+        }
+        .unwrap_or_else(|error| {
+            error!("{}", error.display_chain());
+            Some(TargetState::Secured)
+        });
         if let Some(cached_target_state) = &cached_target_state {
             info!(
                 "Loaded cached target state \"{}\" from {}",
