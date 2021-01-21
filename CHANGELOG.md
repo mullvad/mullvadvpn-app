@@ -59,6 +59,8 @@ Line wrap the file at 100 chars.                                              Th
 - Resolve single-label hostnames correctly.
 
 ### Security
+- Default to connecting when the daemon starts if the target state cache cannot be read or parsed.
+
 #### Linux
 - Prevent the private tunnel IPv6 address from being detectable on a local network when using
   OpenVPN by correctly applying the fix for
