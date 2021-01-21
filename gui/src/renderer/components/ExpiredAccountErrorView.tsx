@@ -256,11 +256,7 @@ export default class ExpiredAccountErrorView extends React.Component<
   }
 
   private onOpenRedeemVoucherAlert = () => {
-    if (this.getRecoveryAction() === RecoveryAction.disableBlockedWhenDisconnected) {
-      this.setState({ showBlockWhenDisconnectedAlert: true });
-    } else {
-      this.setState({ showRedeemVoucherAlert: true });
-    }
+    this.setState({ showRedeemVoucherAlert: true });
   };
 
   private onCloseRedeemVoucherAlert = () => {
