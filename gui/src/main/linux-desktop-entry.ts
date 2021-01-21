@@ -1,4 +1,5 @@
 import child_process from 'child_process';
+import { nativeImage } from 'electron';
 import fs from 'fs';
 import path from 'path';
 import { ILinuxApplication } from '../shared/application-types';
@@ -45,7 +46,7 @@ export async function getAppIcon(name?: string) {
 
   // Chromium doesn't support .xpm files
   const extensions = ['svg', 'png'];
-  return findIcon(name, extensions, [
+  const iconPath = await findIcon(name, extensions, [
     getIconDirectories(),
     await getGtkThemeDirectories(),
     // Begin with preferred sized but if nothing matches other sizes should be considered as well.
@@ -53,6 +54,19 @@ export async function getAppIcon(name?: string) {
     // Search in all categories of icons.
     [/.*/],
   ]);
+
+  if (iconPath && path.extname(iconPath) === '.svg') {
+    try {
+      const contents = await fs.promises.readFile(iconPath);
+      return `data:image/svg+xml;base64,${contents.toString('base64')}`;
+    } catch (error) {
+      log.error(`Failed to read icon of application: ${name},`, error);
+    }
+  } else if (iconPath) {
+    return nativeImage.createFromPath(iconPath).toDataURL();
+  }
+
+  return undefined;
 }
 
 // Implemented according to freedesktop specification.
