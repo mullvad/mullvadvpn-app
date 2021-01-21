@@ -215,13 +215,15 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
-    private fun setUpDaemon(daemon: MullvadDaemon) = GlobalScope.launch(Dispatchers.Default) {
-        val settings = daemon.getSettings()
+    private fun setUpDaemon(daemon: MullvadDaemon) = GlobalScope.launch(Dispatchers.Main) {
+        if (state != State.Stopped) {
+            val settings = daemon.getSettings()
 
-        if (settings != null) {
-            setUpInstance(daemon, settings)
-        } else {
-            restart()
+            if (settings != null) {
+                setUpInstance(daemon, settings)
+            } else {
+                restart()
+            }
         }
     }
 
