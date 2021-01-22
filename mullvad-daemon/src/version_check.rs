@@ -85,22 +85,45 @@ pub(crate) struct VersionUpdater {
     version_proxy: AppVersionProxy,
     cache_path: PathBuf,
     update_sender: DaemonEventSender<AppVersionInfo>,
-    last_app_version_info: AppVersionInfo,
+    last_app_version_info: Option<AppVersionInfo>,
     platform_version: String,
     next_update_time: Instant,
     show_beta_releases: bool,
-    rx: Option<mpsc::Receiver<bool>>,
+    rx: Option<mpsc::Receiver<VersionUpdaterCommand>>,
 }
 
 #[derive(Clone)]
 pub(crate) struct VersionUpdaterHandle {
-    tx: mpsc::Sender<bool>,
+    tx: mpsc::Sender<VersionUpdaterCommand>,
+}
+
+enum VersionUpdaterCommand {
+    SetShowBetaReleases(bool),
+    RunVersionCheck,
 }
 
 impl VersionUpdaterHandle {
     pub async fn set_show_beta_releases(&mut self, show_beta_releases: bool) {
-        if self.tx.send(show_beta_releases).await.is_err() {
+        if self
+            .tx
+            .send(VersionUpdaterCommand::SetShowBetaReleases(
+                show_beta_releases,
+            ))
+            .await
+            .is_err()
+        {
             log::error!("Version updater already down, can't send new `show_beta_releases` state");
+        }
+    }
+
+    pub async fn run_version_check(&mut self) {
+        if self
+            .tx
+            .send(VersionUpdaterCommand::RunVersionCheck)
+            .await
+            .is_err()
+        {
+            log::error!("Version updater already down");
         }
     }
 }
@@ -110,7 +133,7 @@ impl VersionUpdater {
         mut rpc_handle: MullvadRestHandle,
         cache_dir: PathBuf,
         update_sender: DaemonEventSender<AppVersionInfo>,
-        last_app_version_info: AppVersionInfo,
+        last_app_version_info: Option<AppVersionInfo>,
         show_beta_releases: bool,
     ) -> (Self, VersionUpdaterHandle) {
         rpc_handle.factory.timeout = DOWNLOAD_TIMEOUT;
@@ -158,6 +181,13 @@ impl VersionUpdater {
     }
 
     async fn write_cache(&self) -> Result<(), Error> {
+        let last_app_version_info = match self.last_app_version_info.as_ref() {
+            Some(version_info) => version_info,
+            None => {
+                log::debug!("The version cache is empty -- not writing");
+                return Ok(());
+            }
+        };
         log::debug!(
             "Writing version check cache to {}",
             self.cache_path.display()
@@ -165,7 +195,7 @@ impl VersionUpdater {
         let mut file = File::create(&self.cache_path)
             .await
             .map_err(Error::WriteVersionCache)?;
-        let cached_app_version = CachedAppVersionInfo::from(self.last_app_version_info.clone());
+        let cached_app_version = CachedAppVersionInfo::from(last_app_version_info.clone());
         let mut buf = serde_json::to_vec_pretty(&cached_app_version).map_err(Error::Serialize)?;
         let mut read_buf: &[u8] = buf.as_mut();
 
@@ -237,15 +267,22 @@ impl VersionUpdater {
 
         loop {
             futures::select! {
-                show_beta_releases = rx.next() => {
-                    match show_beta_releases {
-                        Some(show_beta_releases ) => {
+                command = rx.next() => {
+                    match command {
+                        Some(VersionUpdaterCommand::SetShowBetaReleases(show_beta_releases)) => {
                             self.show_beta_releases = show_beta_releases;
-                        },
+                        }
+                        Some(VersionUpdaterCommand::RunVersionCheck) => {
+                            if self.update_sender.is_closed() {
+                                return;
+                            }
+                            let download_future = self.create_update_future().fuse();
+                            version_check = download_future;
+                        }
                         // time to shut down
                         None => {
                             return;
-                        },
+                        }
                     }
                 },
 
@@ -277,7 +314,7 @@ impl VersionUpdater {
                                 return;
                             }
 
-                            self.last_app_version_info = new_version_info;
+                            self.last_app_version_info = Some(new_version_info);
                             if let Err(err) = self.write_cache().await {
                                 log::error!("Failed to save version cache to disk: {}", err);
 
@@ -309,21 +346,15 @@ fn try_load_cache(cache_dir: &Path) -> Result<AppVersionInfo, Error> {
     }
 }
 
-pub fn load_cache(cache_dir: &Path) -> AppVersionInfo {
+pub fn load_cache(cache_dir: &Path) -> Option<AppVersionInfo> {
     match try_load_cache(cache_dir) {
-        Ok(app_version_info) => app_version_info,
+        Ok(app_version_info) => Some(app_version_info),
         Err(error) => {
             log::warn!(
                 "{}",
                 error.display_chain_with_msg("Unable to load cached version info")
             );
-            // If we don't have a cache, start out with sane defaults.
-            AppVersionInfo {
-                supported: !*IS_DEV_BUILD,
-                latest_stable: PRODUCT_VERSION.to_owned(),
-                latest_beta: PRODUCT_VERSION.to_owned(),
-                suggested_upgrade: None,
-            }
+            None
         }
     }
 }

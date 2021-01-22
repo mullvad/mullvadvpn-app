@@ -208,7 +208,7 @@ pub enum DaemonCommand {
     /// Verify if the currently set wireguard key is valid.
     VerifyWireguardKey(oneshot::Sender<bool>),
     /// Get information about the currently running and latest app versions
-    GetVersionInfo(oneshot::Sender<AppVersionInfo>),
+    GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Get current version of the app
     GetCurrentVersion(oneshot::Sender<AppVersion>),
     /// Remove settings and clear the cache
@@ -467,7 +467,7 @@ pub struct Daemon<L: EventListener> {
     relay_selector: relays::RelaySelector,
     last_generated_relay: Option<Relay>,
     last_generated_bridge_relay: Option<Relay>,
-    app_version_info: AppVersionInfo,
+    app_version_info: Option<AppVersionInfo>,
     shutdown_callbacks: Vec<Box<dyn FnOnce()>>,
     /// oneshot channel that completes once the tunnel state machine has been shut down
     tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
@@ -1098,7 +1098,7 @@ where
             GenerateWireguardKey(tx) => self.on_generate_wireguard_key(tx).await,
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
             VerifyWireguardKey(tx) => self.on_verify_wireguard_key(tx).await,
-            GetVersionInfo(tx) => self.on_get_version_info(tx),
+            GetVersionInfo(tx) => self.on_get_version_info(tx).await,
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
             FactoryReset(tx) => self.on_factory_reset(tx).await,
@@ -1221,7 +1221,7 @@ where
     }
 
     fn handle_new_app_version_info(&mut self, app_version_info: AppVersionInfo) {
-        self.app_version_info = app_version_info.clone();
+        self.app_version_info = Some(app_version_info.clone());
         self.event_listener.notify_app_version(app_version_info);
     }
 
@@ -1468,7 +1468,13 @@ where
         }
     }
 
-    fn on_get_version_info(&mut self, tx: oneshot::Sender<AppVersionInfo>) {
+    async fn on_get_version_info(&mut self, tx: oneshot::Sender<Option<AppVersionInfo>>) {
+        if self.app_version_info.is_none() {
+            log::debug!("No version cache found. Fetching new info");
+            let mut handle = self.version_updater_handle.clone();
+            handle.run_version_check().await;
+        }
+
         Self::oneshot_send(
             tx,
             self.app_version_info.clone(),
