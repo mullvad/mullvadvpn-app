@@ -139,6 +139,8 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         onRelayListChange = null
         onTunnelStateChange = null
         onDaemonStopped = null
+
+        deinitialize()
     }
 
     private external fun initialize(
@@ -208,9 +210,5 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
 
     private fun notifyDaemonStopped() {
         onDaemonStopped?.invoke()
-    }
-
-    private fun finalize() {
-        deinitialize()
     }
 }
