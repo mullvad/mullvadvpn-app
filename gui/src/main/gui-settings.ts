@@ -15,7 +15,7 @@ const settingsSchema = {
 
 const defaultSettings: IGuiSettingsState = {
   preferredLocale: SYSTEM_PREFERRED_LOCALE_KEY,
-  autoConnect: true,
+  autoConnect: false,
   enableSystemNotifications: true,
   monochromaticIcon: false,
   startMinimized: false,
