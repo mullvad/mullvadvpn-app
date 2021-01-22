@@ -28,6 +28,8 @@ Line wrap the file at 100 chars.                                              Th
   vulnerability checks.
 - Add `TALPID_DISABLE_OFFLINE_MONITOR` environment variable to allow users to disable offline
   detection.
+- Enable isolation of the Electron renderer process to protect against potentially malicious third
+  party dependencies.
 
 #### Android
 - Allow to configure the tunnel to use custom DNS servers.
