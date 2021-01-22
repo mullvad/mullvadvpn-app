@@ -21,7 +21,8 @@ class DaemonInstance(val vpnService: MullvadVpnService, val listener: (MullvadDa
 
     private val commandChannel = spawnActor()
 
-    private var daemon by observable<MullvadDaemon?>(null) { _, _, newInstance ->
+    private var daemon by observable<MullvadDaemon?>(null) { _, oldInstance, newInstance ->
+        oldInstance?.onDestroy()
         listener(newInstance)
     }
 
