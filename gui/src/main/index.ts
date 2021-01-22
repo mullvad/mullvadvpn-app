@@ -1184,7 +1184,7 @@ class ApplicationMain {
         log.warn(`Failed to get account data, logging in anyway: ${verification.error.message}`);
       }
 
-      this.autoConnectOnWireguardKeyEvent = true;
+      this.autoConnectOnWireguardKeyEvent = this.guiSettings.autoConnect;
       await this.daemonRpc.setAccount(accountToken);
 
       // Fallback if daemon doesn't send event.
