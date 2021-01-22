@@ -53,6 +53,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix Turkish translations for on/off in the bridge settings. They were inverted, so it was
   confusing to change the setting.
+- Stop returning bogus version information when there is no version cache.
 
 #### Linux
 - Fix missing app window icon in Xfce.
