@@ -155,10 +155,27 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     }
 
     private suspend fun doLogin(account: String) {
-        if (account != accountNumber) {
-            markAccountAsNotNew()
-            daemon.await().setAccount(account)
+        if (account == accountNumber) {
+            return
         }
+
+        val result = daemon.await().getAccountData(account)
+
+        val expiry = when (result) {
+            is GetAccountDataResult.Ok -> DateTime.parse(result.accountData.expiry, EXPIRY_FORMAT)
+            is GetAccountDataResult.RpcError -> null
+            else -> return
+        }
+
+        synchronized(this) {
+            markAccountAsNotNew()
+
+            accountNumber = account
+            accountExpiry = expiry
+            loginStatus = LoginStatus(account, expiry, false)
+        }
+
+        daemon.await().setAccount(account)
     }
 
     private suspend fun doLogout() {
