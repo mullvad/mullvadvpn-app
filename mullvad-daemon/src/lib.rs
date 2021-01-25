@@ -41,6 +41,8 @@ use mullvad_types::{
     wireguard::KeygenEvent,
 };
 use settings::SettingsPersister;
+#[cfg(target_os = "android")]
+use std::os::unix::io::RawFd;
 #[cfg(not(target_os = "android"))]
 use std::path::Path;
 use std::{
@@ -62,7 +64,7 @@ use talpid_core::{
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 use talpid_types::{
-    net::{openvpn, Endpoint, TransportProtocol, TunnelParameters, TunnelType},
+    net::{openvpn, Endpoint, TransportProtocol, TunnelEndpoint, TunnelParameters, TunnelType},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
 };
@@ -231,6 +233,8 @@ pub enum DaemonCommand {
     /// Saves the target tunnel state and enters a blocking state. The state is restored
     /// upon restart.
     PrepareRestart,
+    #[cfg(target_os = "android")]
+    BypassSocket(RawFd, oneshot::Sender<()>),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -513,6 +517,8 @@ where
                     result_rx.await.map_err(|_| ())
                 })
             },
+            #[cfg(target_os = "android")]
+            Self::create_bypass_tx(&internal_event_tx),
         )
         .await
         .map_err(Error::InitRpcFactory)?;
@@ -522,6 +528,7 @@ where
         let on_relay_list_update = move |relay_list: &RelayList| {
             relay_list_listener.notify_relay_list(relay_list.clone());
         };
+
         let mut relay_selector = relays::RelaySelector::new(
             rpc_handle.clone(),
             on_relay_list_update,
@@ -794,17 +801,8 @@ where
         &mut self,
         tunnel_state_transition: TunnelStateTransition,
     ) {
-        match &tunnel_state_transition {
-            TunnelStateTransition::Disconnected
-            | TunnelStateTransition::Connected(_)
-            | TunnelStateTransition::Error(_) => {
-                // Reset the RPCs so that they fail immediately after the underlying socket gets
-                // invalidated due to the tunnel either coming up or breaking.
-                self.rpc_handle.service().reset().await;
-            }
-            _ => (),
-        };
-
+        self.reset_rpc_sockets_on_tunnel_state_transition(&tunnel_state_transition)
+            .await;
         let tunnel_state = match tunnel_state_transition {
             TunnelStateTransition::Disconnected => TunnelState::Disconnected,
             TunnelStateTransition::Connecting(endpoint) => TunnelState::Connecting {
@@ -849,6 +847,19 @@ where
 
         self.tunnel_state = tunnel_state.clone();
         self.event_listener.notify_new_state(tunnel_state);
+    }
+
+    async fn reset_rpc_sockets_on_tunnel_state_transition(
+        &mut self,
+        tunnel_state_transition: &TunnelStateTransition,
+    ) {
+        match (&self.tunnel_state, &tunnel_state_transition) {
+            // only reset the API sockets if when connected or leaving the connected state
+            (&TunnelState::Connected { .. }, _) | (_, &TunnelStateTransition::Connected(_)) => {
+                self.rpc_handle.service().reset().await;
+            }
+            _ => (),
+        };
     }
 
     async fn handle_generate_tunnel_parameters(
@@ -1112,6 +1123,8 @@ where
             ClearSplitTunnelProcesses(tx) => self.on_clear_split_tunnel_processes(tx),
             Shutdown => self.trigger_shutdown_event(),
             PrepareRestart => self.on_prepare_restart(),
+            #[cfg(target_os = "android")]
+            BypassSocket(fd, tx) => self.on_bypass_socket(fd, tx),
         }
     }
 
@@ -1288,10 +1301,9 @@ where
     }
 
     fn get_geo_location(&mut self) -> impl Future<Output = Result<GeoIpLocation, ()>> {
-        let https_handle = self.rpc_runtime.rest_handle();
-
+        let rpc_service = self.rpc_runtime.rest_handle();
         async {
-            geoip::send_location_request(https_handle)
+            geoip::send_location_request(rpc_service)
                 .await
                 .map_err(|e| {
                     warn!("Unable to fetch GeoIP location: {}", e.display_chain());
@@ -1865,7 +1877,7 @@ where
                     .map_err(|e| {
                         format!("Failed to add new wireguard key to account data: {}", e)
                     })?;
-                if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
+                if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
                     self.reconnect_tunnel();
                 }
                 let keygen_event = KeygenEvent::NewKey(public_key);
@@ -1974,6 +1986,34 @@ where
         self.clean_up_target_cache = false;
     }
 
+    #[cfg(target_os = "android")]
+    fn on_bypass_socket(&mut self, fd: RawFd, tx: oneshot::Sender<()>) {
+        match self.tunnel_state {
+            // When connected, the API connection shouldn't be bypassed.
+            TunnelState::Connected { .. } => (),
+            _ => {
+                self.send_tunnel_command(TunnelCommand::BypassSocket(fd, tx));
+            }
+        }
+    }
+
+    #[cfg(target_os = "android")]
+    fn create_bypass_tx(
+        event_sender: &DaemonEventSender,
+    ) -> Option<mpsc::Sender<mullvad_rpc::SocketBypassRequest>> {
+        let (bypass_tx, mut bypass_rx) = mpsc::channel(1);
+        let daemon_tx = event_sender.to_specialized_sender();
+        tokio::runtime::Handle::current().spawn(async move {
+            while let Some((raw_fd, done_tx)) = bypass_rx.next().await {
+                if let Err(_) = daemon_tx.send(DaemonCommand::BypassSocket(raw_fd, done_tx)) {
+                    log::error!("Can't send socket bypass request to daemon");
+                    break;
+                }
+            }
+        });
+        Some(bypass_tx)
+    }
+
     /// Set the target state of the client. If it changed trigger the operations needed to
     /// progress towards that state.
     /// Returns a bool representing whether or not a state change was initiated.
@@ -2026,10 +2066,7 @@ where
     }
 
     fn get_connected_tunnel_type(&self) -> Option<TunnelType> {
-        use talpid_types::net::TunnelEndpoint;
-        use TunnelState::Connected;
-
-        if let Connected {
+        if let TunnelState::Connected {
             endpoint: TunnelEndpoint { tunnel_type, .. },
             ..
         } = self.tunnel_state
@@ -2037,6 +2074,20 @@ where
             Some(tunnel_type)
         } else {
             None
+        }
+    }
+
+    fn get_target_tunnel_type(&self) -> Option<TunnelType> {
+        match self.tunnel_state {
+            TunnelState::Connected {
+                endpoint: TunnelEndpoint { tunnel_type, .. },
+                ..
+            }
+            | TunnelState::Connecting {
+                endpoint: TunnelEndpoint { tunnel_type, .. },
+                ..
+            } => Some(tunnel_type),
+            _ => None,
         }
     }
 
