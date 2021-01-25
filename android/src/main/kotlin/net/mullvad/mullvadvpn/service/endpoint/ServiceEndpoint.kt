@@ -28,6 +28,8 @@ class ServiceEndpoint(
     private val listeners = mutableSetOf<Messenger>()
     private val registrationQueue: SendChannel<Messenger> = startRegistrator()
 
+    private var version: String? = null
+
     internal val dispatcher = DispatchingHandler(looper) { message ->
         Request.fromMessage(message)
     }
@@ -48,6 +50,13 @@ class ServiceEndpoint(
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
             registrationQueue.sendBlocking(request.listener)
+        }
+
+        intermittentDaemon.registerListener(this) { newDaemon ->
+            if (version == null && newDaemon != null) {
+                version = newDaemon.getCurrentVersion()
+                sendEvent(Event.CurrentVersion(version))
+            }
         }
     }
 
@@ -109,6 +118,7 @@ class ServiceEndpoint(
                 Event.NewLocation(locationInfoCache.location),
                 Event.WireGuardKeyStatus(keyStatusListener.keyStatus),
                 Event.SplitTunnelingUpdate(splitTunneling.onChange.latestEvent),
+                Event.CurrentVersion(version),
                 Event.ListenerReady
             )
 
