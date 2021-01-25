@@ -8,7 +8,6 @@ import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.MessageDispatcher
 import net.mullvad.mullvadvpn.service.ServiceInstance
-import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
@@ -30,8 +29,8 @@ val appModule = module {
     }
 
     scope<ServiceConnection> {
-        scoped<ServiceConnection> { (service: ServiceInstance, mainActivity: MainActivity) ->
-            ServiceConnection(service, mainActivity)
+        scoped<ServiceConnection> { (service: ServiceInstance) ->
+            ServiceConnection(service)
         } onClose { it?.onDestroy() }
         scoped<SplitTunneling> { (messenger: Messenger, dispatcher: MessageDispatcher<Event>) ->
             SplitTunneling(messenger, dispatcher)

@@ -9,7 +9,6 @@ import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.service.ServiceInstance
-import net.mullvad.mullvadvpn.ui.MainActivity
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -20,8 +19,7 @@ import org.koin.core.parameter.parametersOf
 // The properties of this class can be used to send events to the service, to listen for events from
 // the service and to get values received from events.
 @OptIn(KoinApiExtension::class)
-class ServiceConnection(private val service: ServiceInstance, mainActivity: MainActivity) :
-    KoinComponent {
+class ServiceConnection(private val service: ServiceInstance) : KoinComponent {
     val dispatcher = DispatchingHandler(Looper.getMainLooper()) { message ->
         Event.fromMessage(message)
     }
@@ -37,12 +35,11 @@ class ServiceConnection(private val service: ServiceInstance, mainActivity: Main
     )
     val vpnPermission = VpnPermission(service.messenger)
 
-    val appVersionInfoCache = AppVersionInfoCache(mainActivity, dispatcher, settingsListener)
+    val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(service.messenger, settingsListener)
     var relayListListener = RelayListListener(daemon, settingsListener)
 
     init {
-        appVersionInfoCache.onCreate()
         registerListener()
     }
 

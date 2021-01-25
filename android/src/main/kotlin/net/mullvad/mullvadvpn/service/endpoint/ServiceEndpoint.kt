@@ -40,7 +40,7 @@ class ServiceEndpoint(
     val settingsListener = SettingsListener(this)
 
     val accountCache = AccountCache(this)
-    val appVersionInfoCache = AppVersionInfoCache(this)
+    val appVersionInfoCache = AppVersionInfoCache(context, this)
     val customDns = CustomDns(this)
     val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)

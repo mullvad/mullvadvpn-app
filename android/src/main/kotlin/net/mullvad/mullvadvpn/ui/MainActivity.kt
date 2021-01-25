@@ -61,7 +61,7 @@ open class MainActivity : FragmentActivity() {
                 val newConnection = service?.let { safeService ->
                     serviceConnectionScope = getKoin().createScope<ServiceConnection>()
                     serviceConnectionScope?.get<ServiceConnection>(
-                        parameters = { parametersOf(safeService, this@MainActivity) }
+                        parameters = { parametersOf(safeService) }
                     )
                 }
 
