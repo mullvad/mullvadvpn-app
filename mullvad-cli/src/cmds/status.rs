@@ -97,7 +97,7 @@ async fn print_location(rpc: &mut ManagementServiceClient) -> Result<()> {
                 println!("Location data unavailable");
                 return Ok(());
             } else {
-                return Err(Error::GrpcClientError(status));
+                return Err(Error::RpcFailed(status));
             }
         }
     };

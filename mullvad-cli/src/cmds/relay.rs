@@ -195,7 +195,7 @@ impl Relay {
         let mut rpc = new_rpc_client().await?;
         rpc.update_relay_settings(update)
             .await
-            .map_err(|error| Error::RpcFailed("Failed to update relay settings", error))?;
+            .map_err(|error| Error::RpcFailedExt("Failed to update relay settings", error))?;
         println!("Relay constraints updated");
         Ok(())
     }
@@ -685,7 +685,7 @@ impl Relay {
         let mut locations = rpc
             .get_relay_locations(())
             .await
-            .map_err(|error| Error::RpcFailed("Failed to obtain relay locations", error))?
+            .map_err(|error| Error::RpcFailedExt("Failed to obtain relay locations", error))?
             .into_inner();
 
         let mut countries = Vec::new();

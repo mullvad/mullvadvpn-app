@@ -407,7 +407,7 @@ impl Bridge {
         let mut locations = rpc
             .get_relay_locations(())
             .await
-            .map_err(|error| Error::RpcFailed("Failed to obtain relay locations", error))?
+            .map_err(|error| Error::RpcFailedExt("Failed to obtain relay locations", error))?
             .into_inner();
 
         let mut countries = Vec::new();

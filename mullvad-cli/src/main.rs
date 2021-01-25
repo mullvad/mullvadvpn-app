@@ -25,11 +25,11 @@ pub enum Error {
     #[error(display = "Management interface error")]
     ManagementInterfaceError(#[error(source)] mullvad_management_interface::Error),
 
-    #[error(display = "The daemon returned an error")]
-    GrpcClientError(#[error(source)] mullvad_management_interface::Status),
+    #[error(display = "RPC failed")]
+    RpcFailed(#[error(source)] mullvad_management_interface::Status),
 
     #[error(display = "RPC failed: {}", _0)]
-    RpcFailed(
+    RpcFailedExt(
         &'static str,
         #[error(source)] mullvad_management_interface::Status,
     ),
@@ -51,10 +51,10 @@ async fn main() {
         Ok(_) => 0,
         Err(error) => {
             match &error {
-                Error::GrpcClientError(status) => {
-                    eprintln!("{:?}: {}", status.code(), status.message())
+                Error::RpcFailed(status) => {
+                    eprintln!("{}: {:?}: {}", error, status.code(), status.message())
                 }
-                Error::RpcFailed(_message, status) => {
+                Error::RpcFailedExt(_message, status) => {
                     eprintln!(
                         "{}\nCaused by: {:?}: {}",
                         error,
