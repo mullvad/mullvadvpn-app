@@ -85,6 +85,8 @@ const AUTO_CONNECT_FALLBACK_DELAY = 6000;
 /// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
 const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
 
+const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
+
 enum AppQuitStage {
   unready,
   initiated,
@@ -209,10 +211,6 @@ class ApplicationMain {
       app.commandLine.appendSwitch('wm-window-animations-disabled');
     }
 
-    if (process.platform !== 'linux') {
-      app.enableSandbox();
-    }
-
     this.overrideAppPaths();
 
     if (this.ensureSingleInstance()) {
@@ -220,6 +218,11 @@ class ApplicationMain {
     }
 
     this.initLogging();
+
+    log.debug(`Chromium sandbox disabled: ${SANDBOX_DISABLED}`);
+    if (!SANDBOX_DISABLED) {
+      app.enableSandbox();
+    }
 
     log.info(`Running version ${app.getVersion()}`);
 
@@ -1453,7 +1456,7 @@ class ApplicationMain {
         nodeIntegrationInWorker: false,
         nodeIntegrationInSubFrames: false,
         enableRemoteModule: false,
-        sandbox: process.platform !== 'linux',
+        sandbox: !SANDBOX_DISABLED,
         contextIsolation: true,
         spellcheck: false,
         devTools: process.env.NODE_ENV === 'development',
