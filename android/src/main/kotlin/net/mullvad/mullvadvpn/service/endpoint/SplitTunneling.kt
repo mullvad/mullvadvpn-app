@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.service
+package net.mullvad.mullvadvpn.service.endpoint
 
 import android.content.Context
 import java.io.File
