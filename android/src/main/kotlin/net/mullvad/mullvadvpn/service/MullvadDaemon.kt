@@ -131,6 +131,18 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         return verifyWireguardKey(daemonInterfaceAddress)
     }
 
+    fun onDestroy() {
+        onSettingsChange.unsubscribeAll()
+
+        onAppVersionInfoChange = null
+        onKeygenEvent = null
+        onRelayListChange = null
+        onTunnelStateChange = null
+        onDaemonStopped = null
+
+        deinitialize()
+    }
+
     private external fun initialize(
         vpnService: MullvadVpnService,
         cacheDirectory: String,
@@ -198,9 +210,5 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
 
     private fun notifyDaemonStopped() {
         onDaemonStopped?.invoke()
-    }
-
-    private fun finalize() {
-        deinitialize()
     }
 }
