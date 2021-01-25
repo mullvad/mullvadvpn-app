@@ -14,7 +14,7 @@ import net.mullvad.mullvadvpn.util.Intermittent
 private const val API_IP_ADDRESS_FILE = "api-ip-address.txt"
 private const val RELAYS_FILE = "relays.json"
 
-class DaemonInstance(val vpnService: MullvadVpnService, val listener: (MullvadDaemon?) -> Unit) {
+class DaemonInstance(val vpnService: MullvadVpnService) {
     private enum class Command {
         START,
         STOP,
@@ -24,7 +24,6 @@ class DaemonInstance(val vpnService: MullvadVpnService, val listener: (MullvadDa
 
     private var daemon by observable<MullvadDaemon?>(null) { _, oldInstance, _ ->
         oldInstance?.onDestroy()
-        listener(newInstance)
     }
 
     val intermittentDaemon = Intermittent<MullvadDaemon>()

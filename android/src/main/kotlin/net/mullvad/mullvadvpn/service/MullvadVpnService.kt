@@ -104,11 +104,13 @@ class MullvadVpnService : TalpidVpnService() {
 
         notificationManager.acknowledgeStartForegroundService()
 
-        daemonInstance = DaemonInstance(this) { daemon ->
-            handleDaemonInstance(daemon)
-        }
+        daemonInstance = DaemonInstance(this).apply {
+            intermittentDaemon.registerListener(this@MullvadVpnService) { daemon ->
+                handleDaemonInstance(daemon)
+            }
 
-        daemonInstance.start()
+            start()
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
