@@ -18,6 +18,7 @@ import net.mullvad.mullvadvpn.ui.widget.InformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView.WhenMissing
 import net.mullvad.mullvadvpn.ui.widget.UrlButton
 import net.mullvad.mullvadvpn.util.TimeAgoFormatter
+import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 import org.joda.time.DateTimeZone
 import org.joda.time.format.DateTimeFormat
@@ -65,7 +66,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             }
         }
 
-    private var hasConnectivity = true
+    private var isOffline = true
         set(value) {
             if (field != value) {
                 field = value
@@ -153,9 +154,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                         reconnectionExpected = false
                     }
 
-                    hasConnectivity = uiState is TunnelState.Connected ||
-                        uiState is TunnelState.Disconnected ||
-                        (uiState is TunnelState.Error && !uiState.errorState.isBlocking)
+                    isOffline = uiState is TunnelState.Error &&
+                        uiState.errorState.cause is ErrorStateCause.IsOffline
                 }
             }
         }
@@ -225,7 +225,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
             is ActionState.Generating -> statusMessage.visibility = View.INVISIBLE
             is ActionState.Verifying -> statusMessage.visibility = View.INVISIBLE
             is ActionState.Idle -> {
-                if (hasConnectivity) {
+                if (!isOffline) {
                     updateKeyStatus(state.verified, keyStatus)
                 } else {
                     updateOfflineStatus()
@@ -237,8 +237,6 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private fun updateOfflineStatus() {
         if (reconnectionExpected) {
             setStatusMessage(R.string.wireguard_key_reconnecting, greenColor)
-        } else {
-            setStatusMessage(R.string.wireguard_key_blocked_state_message, redColor)
         }
     }
 
@@ -271,7 +269,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun updateGenerateKeyButtonState() {
-        generateKeyButton.setEnabled(actionState is ActionState.Idle && hasConnectivity)
+        generateKeyButton.setEnabled(actionState is ActionState.Idle && !isOffline)
     }
 
     private fun updateGenerateKeyButtonText() {
@@ -290,7 +288,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
         val isIdle = actionState is ActionState.Idle
         val hasKey = keyStatus is KeygenEvent.NewKey
 
-        verifyKeyButton.setEnabled(isIdle && hasConnectivity && hasKey)
+        verifyKeyButton.setEnabled(isIdle && hasKey && !isOffline)
     }
 
     private fun updateVerifyingKeySpinner() {

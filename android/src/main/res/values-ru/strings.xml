@@ -101,7 +101,6 @@
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">Сгенерировать ключ</string>
     <string name="wireguard_key">Ключ WireGuard</string>
-    <string name="wireguard_key_blocked_state_message">Управлять ключами в заблокированном состоянии нельзя</string>
     <string name="wireguard_key_generated">Ключ сгенерирован</string>
     <string name="wireguard_key_invalid">Ключ недействителен</string>
     <string name="wireguard_key_reconnecting">Повторное подключение с новым ключом WireGuard...</string>

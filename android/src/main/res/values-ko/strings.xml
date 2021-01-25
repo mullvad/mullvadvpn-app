@@ -101,7 +101,6 @@
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">키 생성</string>
     <string name="wireguard_key">WireGuard 키</string>
-    <string name="wireguard_key_blocked_state_message">차단된 상태에서 키를 관리할 수 ​​없습니다</string>
     <string name="wireguard_key_generated">키 생성됨</string>
     <string name="wireguard_key_invalid">유효하지 않은 키</string>
     <string name="wireguard_key_reconnecting">새 WireGuard 키로 다시 연결 중...</string>
