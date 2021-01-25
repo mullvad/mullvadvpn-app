@@ -101,7 +101,6 @@
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">สร้างคีย์</string>
     <string name="wireguard_key">คีย์ WireGuard</string>
-    <string name="wireguard_key_blocked_state_message">ไม่สามารถจัดการคีย์ ในขณะที่อยู่ในสถานะถูกบล็อกได้</string>
     <string name="wireguard_key_generated">สร้างคีย์แล้ว</string>
     <string name="wireguard_key_invalid">คีย์ไม่ถูกต้อง</string>
     <string name="wireguard_key_reconnecting">กำลังเชื่อมต่ออีกครั้งด้วยคีย์ WireGuard ใหม่...</string>

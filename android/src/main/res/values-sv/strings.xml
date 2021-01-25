@@ -101,7 +101,6 @@
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">Generera nyckel</string>
     <string name="wireguard_key">WireGuard-nyckel</string>
-    <string name="wireguard_key_blocked_state_message">Det går inte att hantera nycklar i blockerat tillstånd</string>
     <string name="wireguard_key_generated">Nyckel har genererats</string>
     <string name="wireguard_key_invalid">Nyckeln är ogiltig</string>
     <string name="wireguard_key_reconnecting">Återansluter med ny WireGuard-nyckel...</string>

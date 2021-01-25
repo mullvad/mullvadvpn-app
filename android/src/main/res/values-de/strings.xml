@@ -101,7 +101,6 @@
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">Schlüssel generieren</string>
     <string name="wireguard_key">WireGuard-Schlüssel</string>
-    <string name="wireguard_key_blocked_state_message">Schlüssel können in einem gesperrten Zustand nicht verwaltet werden</string>
     <string name="wireguard_key_generated">Schlüssel generiert</string>
     <string name="wireguard_key_invalid">Schlüssel ist ungültig</string>
     <string name="wireguard_key_reconnecting">Es wird mit einem neuem WireGuard-Schlüssel erneut verbunden ...</string>

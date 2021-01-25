@@ -101,7 +101,6 @@
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">Anahtar oluştur</string>
     <string name="wireguard_key">WireGuard anahtarı</string>
-    <string name="wireguard_key_blocked_state_message">Kilitli durumdayken anahtarları yönetemezsiniz</string>
     <string name="wireguard_key_generated">Anahtar oluşturuldu</string>
     <string name="wireguard_key_invalid">Anahtar geçersiz</string>
     <string name="wireguard_key_reconnecting">Yeni WireGuard anahtarıyla yeniden bağlanılıyor...</string>
