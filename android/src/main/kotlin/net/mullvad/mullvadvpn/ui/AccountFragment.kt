@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.ui.widget.CopyableInformationView
 import net.mullvad.mullvadvpn.ui.widget.InformationView
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
 import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
+import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 
 class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
@@ -39,7 +40,12 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         set(value) {
             field = value
             sitePaymentButton.setEnabled(value)
-            redeemVoucherButton.setEnabled(value)
+        }
+
+    private var isOffline = true
+        set(value) {
+            field = value
+            redeemVoucherButton.setEnabled(!value)
         }
 
     private lateinit var accountExpiryView: InformationView
@@ -105,6 +111,8 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
                 hasConnectivity = uiState is TunnelState.Connected ||
                     uiState is TunnelState.Disconnected ||
                     (uiState is TunnelState.Error && !uiState.errorState.isBlocking)
+                isOffline = uiState is TunnelState.Error &&
+                    uiState.errorState.cause is ErrorStateCause.IsOffline
             }
         }
 
