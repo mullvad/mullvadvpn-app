@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2021.1-beta1] - 2021-01-25
 ### Added
 - Add header containing OS version to version-check API call to enable OS specific compatibility and
   vulnerability checks.
