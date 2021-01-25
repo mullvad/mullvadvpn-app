@@ -14,6 +14,7 @@ import net.mullvad.mullvadvpn.ui.widget.HeaderBar
 import net.mullvad.mullvadvpn.ui.widget.RedeemVoucherButton
 import net.mullvad.mullvadvpn.ui.widget.SitePaymentButton
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
+import net.mullvad.talpid.tunnel.ErrorStateCause
 import org.joda.time.DateTime
 
 class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
@@ -114,10 +115,13 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     }
 
     private fun updateBuyButtons() {
-        val hasConnectivity = tunnelState is TunnelState.Disconnected
-
+        val currentState = tunnelState
+        val hasConnectivity = currentState is TunnelState.Disconnected
         sitePaymentButton.setEnabled(hasConnectivity)
-        redeemButton.setEnabled(hasConnectivity)
+
+        val isOffline = currentState is TunnelState.Error &&
+            currentState.errorState.cause is ErrorStateCause.IsOffline
+        redeemButton.setEnabled(!isOffline)
     }
 
     private fun checkExpiry(maybeExpiry: DateTime?) {
