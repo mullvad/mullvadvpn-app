@@ -16,6 +16,9 @@ sealed class Event : Message.EventMessage() {
     data class AccountHistory(val history: List<String>?) : Event()
 
     @Parcelize
+    data class CurrentVersion(val version: String?) : Event()
+
+    @Parcelize
     object ListenerReady : Event()
 
     @Parcelize
