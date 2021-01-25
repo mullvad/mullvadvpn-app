@@ -660,7 +660,7 @@ impl ManagementService for ManagementServiceImpl {
             let pids = self
                 .wait_for_result(rx)
                 .await?
-                .map_err(|error| Status::failed_precondition(error.display_chain()))?;
+                .map_err(|error| Status::failed_precondition(error.to_string()))?;
 
             let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
             tokio::spawn(async move {
@@ -686,7 +686,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::AddSplitTunnelProcess(tx, pid))?;
         self.wait_for_result(rx)
             .await?
-            .map_err(|error| Status::failed_precondition(error.display_chain()))?;
+            .map_err(|error| Status::failed_precondition(error.to_string()))?;
         Ok(Response::new(()))
     }
     #[cfg(not(target_os = "linux"))]
@@ -702,7 +702,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::RemoveSplitTunnelProcess(tx, pid))?;
         self.wait_for_result(rx)
             .await?
-            .map_err(|error| Status::failed_precondition(error.display_chain()))?;
+            .map_err(|error| Status::failed_precondition(error.to_string()))?;
         Ok(Response::new(()))
     }
     #[cfg(not(target_os = "linux"))]
@@ -718,7 +718,7 @@ impl ManagementService for ManagementServiceImpl {
             self.send_command_to_daemon(DaemonCommand::ClearSplitTunnelProcesses(tx))?;
             self.wait_for_result(rx)
                 .await?
-                .map_err(|error| Status::failed_precondition(error.display_chain()))?;
+                .map_err(|error| Status::failed_precondition(error.to_string()))?;
             Ok(Response::new(()))
         }
         #[cfg(not(target_os = "linux"))]
@@ -1639,9 +1639,9 @@ fn map_daemon_error(error: crate::Error) -> Status {
         DaemonError::SettingsError(error) => map_settings_error(error),
         DaemonError::AccountHistory(error) => map_account_history_error(error),
         DaemonError::NoAccountToken | DaemonError::NoAccountTokenHistory => {
-            Status::unauthenticated(error.display_chain())
+            Status::unauthenticated(error.to_string())
         }
-        error => Status::unknown(error.display_chain()),
+        error => Status::unknown(error.to_string()),
     }
 }
 
@@ -1671,7 +1671,7 @@ fn map_rest_error(error: RestError) -> Status {
         }
         RestError::TimeoutError(_elapsed) => Status::deadline_exceeded("API request timed out"),
         RestError::HyperError(_) => Status::unavailable("Cannot reach the API"),
-        error => Status::unknown(error.display_chain_with_msg("REST error")),
+        error => Status::unknown(format!("REST error: {}", error)),
     }
 }
 
@@ -1679,9 +1679,9 @@ fn map_rest_error(error: RestError) -> Status {
 fn map_settings_error(error: settings::Error) -> Status {
     match error {
         settings::Error::DeleteError(..) | settings::Error::WriteError(..) => {
-            Status::new(Code::FailedPrecondition, error.display_chain())
+            Status::new(Code::FailedPrecondition, error.to_string())
         }
-        settings::Error::SerializeError(..) => Status::new(Code::Internal, error.display_chain()),
+        settings::Error::SerializeError(..) => Status::new(Code::Internal, error.to_string()),
     }
 }
 
@@ -1689,10 +1689,10 @@ fn map_settings_error(error: settings::Error) -> Status {
 fn map_account_history_error(error: account_history::Error) -> Status {
     match error {
         account_history::Error::Read(..) | account_history::Error::Write(..) => {
-            Status::new(Code::FailedPrecondition, error.display_chain())
+            Status::new(Code::FailedPrecondition, error.to_string())
         }
         account_history::Error::Serialize(..) | account_history::Error::WriteCancelled(..) => {
-            Status::new(Code::Internal, error.display_chain())
+            Status::new(Code::Internal, error.to_string())
         }
     }
 }
