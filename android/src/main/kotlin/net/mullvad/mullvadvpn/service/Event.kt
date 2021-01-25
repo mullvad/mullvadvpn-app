@@ -16,6 +16,9 @@ sealed class Event : Parcelable {
     class AccountHistory(val history: ArrayList<String>?) : Event(), Parcelable
 
     @Parcelize
+    class CurrentVersion(val version: String?) : Event(), Parcelable
+
+    @Parcelize
     class ListenerReady : Event(), Parcelable
 
     @Parcelize
