@@ -48,6 +48,8 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate cache to a directory readable by all users, consistent with Android and Linux.
 - Change the default value of the GUI auto-connect setting to "off" and respect the setting when
   logging in.
+- Update Electron from 11.0.2 to 11.2.1 which includes a newer Chromium version and
+  security patches.
 
 #### Linux
 - Improve offline check to query the routing table to allow users to use a bridged adapter as their
