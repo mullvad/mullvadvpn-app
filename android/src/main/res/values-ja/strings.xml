@@ -101,7 +101,6 @@
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">鍵を生成</string>
     <string name="wireguard_key">WireGuard鍵</string>
-    <string name="wireguard_key_blocked_state_message">ブロックされた状態では鍵を管理できません</string>
     <string name="wireguard_key_generated">鍵が生成されました</string>
     <string name="wireguard_key_invalid">鍵は無効です</string>
     <string name="wireguard_key_reconnecting">新しいWireGuard鍵に再度接続中...</string>

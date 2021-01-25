@@ -101,7 +101,6 @@
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">產生金鑰</string>
     <string name="wireguard_key">WireGuard 金鑰</string>
-    <string name="wireguard_key_blocked_state_message">無法在封鎖狀態下管理金鑰</string>
     <string name="wireguard_key_generated">已產生金鑰</string>
     <string name="wireguard_key_invalid">金鑰無效</string>
     <string name="wireguard_key_reconnecting">正在使用新 WireGuard 金鑰重新連線...</string>

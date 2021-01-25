@@ -97,7 +97,6 @@
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">生成密钥</string>
     <string name="wireguard_key">WireGuard 密钥</string>
-    <string name="wireguard_key_blocked_state_message">无法在阻止状态下管理密钥</string>
     <string name="wireguard_key_generated">已生成密钥</string>
     <string name="wireguard_key_invalid">密钥无效</string>
     <string name="wireguard_key_reconnecting">正在使用新的 wireGuard 密钥重新连接…</string>

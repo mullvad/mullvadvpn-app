@@ -101,7 +101,6 @@
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">Luo avain</string>
     <string name="wireguard_key">WireGuard-avain</string>
-    <string name="wireguard_key_blocked_state_message">Avainten hallinta ei onnistu estetyssä tilassa</string>
     <string name="wireguard_key_generated">Avain luotu</string>
     <string name="wireguard_key_invalid">Virheellinen avain</string>
     <string name="wireguard_key_reconnecting">Yhdistetään uudelleen uudella WireGuard-avaimella...</string>

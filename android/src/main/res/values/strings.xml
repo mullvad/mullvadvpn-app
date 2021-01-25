@@ -154,8 +154,6 @@
     <string name="wireguard_replace_key">Regenerate key</string>
     <string name="wireguard_manage_keys">Manage keys</string>
     <string name="wireguard_key_reconnecting">Reconnecting with new WireGuard key...</string>
-    <string name="wireguard_key_blocked_state_message">Unable to manage keys while in a blocked
-    state</string>
     <string name="wireguard_key_valid">Key is valid</string>
     <string name="wireguard_key_invalid">Key is invalid</string>
     <string name="wireguard_key_verification_failure">Key verification failed</string>

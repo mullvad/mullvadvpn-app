@@ -101,7 +101,6 @@
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">Sleutel genereren</string>
     <string name="wireguard_key">WireGuard-sleutel</string>
-    <string name="wireguard_key_blocked_state_message">Kan sleutels niet beheren in geblokkeerde staat</string>
     <string name="wireguard_key_generated">Sleutel gegenereerd</string>
     <string name="wireguard_key_invalid">Sleutel is ongeldig</string>
     <string name="wireguard_key_reconnecting">Opnieuw verbinden met nieuwe WireGuard-sleutel...</string>
