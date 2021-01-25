@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.service
 
 import android.os.Messenger
+import net.mullvad.mullvadvpn.service.endpoint.SplitTunneling
 import net.mullvad.mullvadvpn.util.Intermittent
 
 class ServiceInstance(

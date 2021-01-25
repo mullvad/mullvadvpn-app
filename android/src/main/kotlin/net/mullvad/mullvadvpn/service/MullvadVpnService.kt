@@ -95,9 +95,6 @@ class MullvadVpnService : TalpidVpnService() {
         notificationManager.lockedToForeground = isUiVisible or isBound
     }
 
-    internal lateinit var splitTunneling: SplitTunneling
-        private set
-
     override fun onCreate() {
         super.onCreate()
         Log.d(TAG, "Initializing service")
@@ -106,14 +103,8 @@ class MullvadVpnService : TalpidVpnService() {
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
-        splitTunneling = SplitTunneling(this@MullvadVpnService).apply {
-            onChange = { excludedApps ->
-                disallowedApps = excludedApps
-                markTunAsStale()
-            }
-        }
-
         endpoint = ServiceEndpoint(
+            this,
             Looper.getMainLooper(),
             daemonInstance.intermittentDaemon,
             connectivityListener
@@ -239,7 +230,7 @@ class MullvadVpnService : TalpidVpnService() {
         val connectionProxy = ConnectionProxy(this, daemon)
         val customDns = CustomDns(daemon, endpoint.settingsListener)
 
-        splitTunneling.onChange = { excludedApps ->
+        endpoint.splitTunneling.onChange = { excludedApps ->
             disallowedApps = excludedApps
             markTunAsStale()
             connectionProxy.reconnect()
@@ -256,7 +247,7 @@ class MullvadVpnService : TalpidVpnService() {
                 daemonInstance.intermittentDaemon,
                 connectionProxy,
                 customDns,
-                splitTunneling
+                endpoint.splitTunneling
             )
         }
     }
