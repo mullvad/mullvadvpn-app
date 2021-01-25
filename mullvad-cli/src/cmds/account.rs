@@ -91,7 +91,8 @@ impl Account {
             println!("Mullvad account: {}", settings.account_token);
             let expiry = rpc
                 .get_account_data(settings.account_token)
-                .await?
+                .await
+                .map_err(|error| Error::RpcFailed("Failed to fetch account data", error))?
                 .into_inner();
             println!(
                 "Expires at     : {}",

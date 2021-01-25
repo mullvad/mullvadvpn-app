@@ -28,6 +28,12 @@ pub enum Error {
     #[error(display = "The daemon returned an error")]
     GrpcClientError(#[error(source)] mullvad_management_interface::Status),
 
+    #[error(display = "RPC failed: {}", _0)]
+    RpcFailed(
+        &'static str,
+        #[error(source)] mullvad_management_interface::Status,
+    ),
+
     /// The given command is not correct in some way
     #[error(display = "Invalid command: {}", _0)]
     InvalidCommand(&'static str),
@@ -44,9 +50,17 @@ async fn main() {
     let exit_code = match run().await {
         Ok(_) => 0,
         Err(error) => {
-            match error {
-                Error::GrpcClientError(error) => {
-                    eprintln!("{:?}: {}", error.code(), error.message())
+            match &error {
+                Error::GrpcClientError(status) => {
+                    eprintln!("{:?}: {}", status.code(), status.message())
+                }
+                Error::RpcFailed(_message, status) => {
+                    eprintln!(
+                        "{}\nCaused by: {:?}: {}",
+                        error,
+                        status.code(),
+                        status.message()
+                    )
                 }
                 error => eprintln!("{}", error.display_chain()),
             }
