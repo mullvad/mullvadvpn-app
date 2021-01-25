@@ -18,13 +18,13 @@ impl Command for Version {
         let current_version = rpc
             .get_current_version(())
             .await
-            .map_err(|error| Error::RpcFailed("Failed to obtain current version", error))?
+            .map_err(|error| Error::RpcFailedExt("Failed to obtain current version", error))?
             .into_inner();
         println!("Current version: {}", current_version);
         let version_info = rpc
             .get_version_info(())
             .await
-            .map_err(|error| Error::RpcFailed("Failed to obtain version info", error))?
+            .map_err(|error| Error::RpcFailedExt("Failed to obtain version info", error))?
             .into_inner();
         println!("\tIs supported: {}", version_info.supported);
 
