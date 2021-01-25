@@ -187,7 +187,7 @@ impl Tunnel {
                 if status.code() == mullvad_management_interface::Code::NotFound {
                     None
                 } else {
-                    return Err(Error::GrpcClientError(status));
+                    return Err(Error::RpcFailed("Failed to obtain key", status));
                 }
             }
         };
@@ -202,7 +202,11 @@ impl Tunnel {
             return Ok(());
         }
 
-        let is_valid = rpc.verify_wireguard_key(()).await?.into_inner();
+        let is_valid = rpc
+            .verify_wireguard_key(())
+            .await
+            .map_err(|error| Error::RpcFailed("Failed to verify key", error))?
+            .into_inner();
         println!("Key is valid for use with current account: {}", is_valid);
         Ok(())
     }

@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Result};
+use crate::{new_rpc_client, Command, Error, Result};
 
 pub struct Version;
 
@@ -15,9 +15,17 @@ impl Command for Version {
 
     async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        let current_version = rpc.get_current_version(()).await?.into_inner();
+        let current_version = rpc
+            .get_current_version(())
+            .await
+            .map_err(|error| Error::RpcFailed("Failed to obtain current version", error))?
+            .into_inner();
         println!("Current version: {}", current_version);
-        let version_info = rpc.get_version_info(()).await?.into_inner();
+        let version_info = rpc
+            .get_version_info(())
+            .await
+            .map_err(|error| Error::RpcFailed("Failed to obtain version info", error))?
+            .into_inner();
         println!("\tIs supported: {}", version_info.supported);
 
         if !version_info.suggested_upgrade.is_empty() {

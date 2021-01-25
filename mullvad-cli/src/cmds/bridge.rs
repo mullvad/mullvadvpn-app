@@ -1,4 +1,4 @@
-use crate::{location, new_rpc_client, Command, Result};
+use crate::{location, new_rpc_client, Command, Error, Result};
 use clap::value_t;
 
 use mullvad_management_interface::types::{
@@ -404,7 +404,11 @@ impl Bridge {
 
     async fn list_bridge_relays() -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        let mut locations = rpc.get_relay_locations(()).await?.into_inner();
+        let mut locations = rpc
+            .get_relay_locations(())
+            .await
+            .map_err(|error| Error::RpcFailed("Failed to obtain relay locations", error))?
+            .into_inner();
 
         let mut countries = Vec::new();
 
