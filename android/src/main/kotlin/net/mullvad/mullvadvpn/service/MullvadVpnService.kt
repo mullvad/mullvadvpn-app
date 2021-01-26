@@ -101,15 +101,16 @@ class MullvadVpnService : TalpidVpnService() {
 
         initializeSplitTunneling()
 
+        daemonInstance = DaemonInstance(this)
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         notificationManager = ForegroundNotificationManager(this, serviceNotifier, keyguardManager)
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
-        endpoint = ServiceEndpoint(Looper.getMainLooper())
+        endpoint = ServiceEndpoint(Looper.getMainLooper(), daemonInstance.intermittentDaemon)
 
         notificationManager.acknowledgeStartForegroundService()
 
-        daemonInstance = DaemonInstance(this).apply {
+        daemonInstance.apply {
             intermittentDaemon.registerListener(this@MullvadVpnService) { daemon ->
                 handleDaemonInstance(daemon)
             }
