@@ -36,7 +36,18 @@ const config = {
     name: 'mullvad-vpn',
   },
 
-  files: ['package.json', 'init.js', 'build/', 'node_modules/', '!**/*.tsbuildinfo'],
+  files: [
+    'package.json',
+    'init.js',
+    'build/',
+    '!build/src/renderer',
+    'build/src/renderer/index.html',
+    'build/src/renderer/bundle.js',
+    'build/src/renderer/preloadBundle.js',
+    'build/src/renderer/components/CustomScrollbars.css',
+    'node_modules/',
+    '!**/*.tsbuildinfo',
+  ],
 
   mac: {
     target: 'pkg',

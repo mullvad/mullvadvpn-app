@@ -1,6 +1,5 @@
-import { ICurrentAppVersionInfo } from '../main/index';
-import { IWindowShapeParameters } from '../main/window-controller';
-import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
+import { GetTextTranslations } from 'gettext-parser';
+import { ILinuxSplitTunnelingApplication } from './application-types';
 import {
   AccountToken,
   BridgeSettings,
@@ -18,19 +17,19 @@ import {
   VoucherResponse,
 } from './daemon-rpc-types';
 import { IGuiSettingsState } from './gui-settings-state';
-import {
-  createIpcMain,
-  createIpcRenderer,
-  invoke,
-  invokeSync,
-  notifyRenderer,
-  send,
-} from './ipc-helpers';
 import { LogLevel } from './logging-types';
 
 interface ILogEntry {
   level: LogLevel;
   message: string;
+}
+import { invoke, invokeSync, notifyRenderer, send } from './ipc-helpers';
+import { ICurrentAppVersionInfo, IWindowShapeParameters } from './ipc-types';
+
+export interface ITranslations {
+  locale: string;
+  messages?: GetTextTranslations;
+  relayLocations?: GetTextTranslations;
 }
 
 export interface IRelayListPair {
@@ -52,6 +51,9 @@ export interface IAppStateSnapshot {
   upgradeVersion: IAppVersionInfo;
   guiSettings: IGuiSettingsState;
   wireguardPublicKey?: IWireguardPublicKey;
+  translations: ITranslations;
+  platform: NodeJS.Platform;
+  runningInDevelopment: boolean;
 }
 
 // The different types of requests are:
@@ -93,12 +95,9 @@ export interface IAppStateSnapshot {
 //       listenFourth: (fn: (arg: boolean) => void) => void,
 //     },
 //   }
-const ipc = {
+export const ipcSchema = {
   state: {
     get: invokeSync<void, IAppStateSnapshot>(),
-  },
-  locale: {
-    '': notifyRenderer<string>(),
   },
   windowShape: {
     '': notifyRenderer<IWindowShapeParameters>(),
@@ -155,7 +154,7 @@ const ipc = {
     setAutoConnect: send<boolean>(),
     setStartMinimized: send<boolean>(),
     setMonochromaticIcon: send<boolean>(),
-    setPreferredLocale: send<string>(),
+    setPreferredLocale: invoke<string, ITranslations>(),
     setUnpinnedWindow: send<boolean>(),
   },
   account: {
@@ -192,6 +191,3 @@ const ipc = {
     log: send<ILogEntry>(),
   },
 };
-
-export const IpcMainEventChannel = createIpcMain(ipc);
-export const IpcRendererEventChannel = createIpcRenderer(ipc);

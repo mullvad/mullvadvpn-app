@@ -10,7 +10,7 @@ interface IPlatformWindowProps {
 export default styled.div({}, (props: IPlatformWindowProps) => {
   let mask: string | undefined;
 
-  if (process.platform === 'darwin' && !props.unpinnedWindow) {
+  if (window.platform === 'darwin' && !props.unpinnedWindow) {
     const arrowPositionCss =
       props.arrowPosition !== undefined ? `${props.arrowPosition - ARROW_WIDTH * 0.5}px` : '50%';
 

@@ -10,7 +10,7 @@ function watchMainScripts() {
 }
 
 function watchRendererScripts() {
-  return watch(['build/src/renderer/**/*.js'], series(hotreload.reload));
+  return watch(['build/src/renderer/(bundle|preloadBundle).js'], series(hotreload.reload));
 }
 
 function watchCss() {

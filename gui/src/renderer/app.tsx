@@ -15,14 +15,15 @@ import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
 import versionActions from './redux/version/actions';
 
-import { ICurrentAppVersionInfo } from '../main';
-import { loadTranslations, messages, relayLocations } from '../shared/gettext';
-import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
-import { IpcRendererEventChannel, IRelayListPair } from '../shared/ipc-event-channel';
+import { ICurrentAppVersionInfo } from '../shared/ipc-types';
 import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
+import { messages, relayLocations } from '../shared/gettext';
+import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import log, { ConsoleOutput } from '../shared/logging';
+import { IRelayListPair } from '../shared/ipc-schema';
 import consumePromise from '../shared/promise';
 import History from './lib/history';
+import { loadTranslations } from './lib/load-translations';
 
 import {
   AccountToken,
@@ -44,6 +45,8 @@ import {
 } from '../shared/daemon-rpc-types';
 import { LogLevel } from '../shared/logging-types';
 import IpcOutput from './lib/logging';
+
+const IpcRendererEventChannel = window.ipc;
 
 interface IPreferredLocaleDescriptor {
   name: string;
@@ -97,20 +100,6 @@ export default class AppRenderer {
   constructor() {
     log.addOutput(new ConsoleOutput(LogLevel.debug));
     log.addOutput(new IpcOutput(LogLevel.debug));
-
-    IpcRendererEventChannel.locale.listen((locale) => {
-      // load translations for the new locale
-      this.loadTranslations(locale);
-
-      // set current locale
-      this.setLocale(locale);
-
-      // refresh the relay list pair with the new translations
-      this.propagateRelayListPairToRedux();
-
-      // refresh the location with the new translations
-      this.propagateLocationToRedux();
-    });
 
     IpcRendererEventChannel.windowShape.listen((windowShapeParams) => {
       if (typeof windowShapeParams.arrowPosition === 'number') {
@@ -186,9 +175,20 @@ export default class AppRenderer {
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 
-    // Load translations
-    this.loadTranslations(initialState.locale);
+    window.platform = initialState.platform;
+    window.runningInDevelopment = initialState.runningInDevelopment;
+
     this.setLocale(initialState.locale);
+    loadTranslations(
+      messages,
+      initialState.translations.locale,
+      initialState.translations.messages,
+    );
+    loadTranslations(
+      relayLocations,
+      initialState.translations.locale,
+      initialState.translations.relayLocations,
+    );
 
     this.setAccountExpiry(initialState.accountData && initialState.accountData.expiry);
     this.handleAccountChange(undefined, initialState.settings.accountToken);
@@ -464,8 +464,23 @@ export default class AppRenderer {
     ];
   }
 
-  public setPreferredLocale(preferredLocale: string) {
-    IpcRendererEventChannel.guiSettings.setPreferredLocale(preferredLocale);
+  public async setPreferredLocale(preferredLocale: string): Promise<void> {
+    const translations = await IpcRendererEventChannel.guiSettings.setPreferredLocale(
+      preferredLocale,
+    );
+
+    // set current locale
+    this.setLocale(translations.locale);
+
+    // load translations for new locale
+    loadTranslations(messages, translations.locale, translations.messages);
+    loadTranslations(relayLocations, translations.locale, translations.relayLocations);
+
+    // refresh the relay list pair with the new translations
+    this.propagateRelayListPairToRedux();
+
+    // refresh the location with the new translations
+    this.propagateLocationToRedux();
   }
 
   public getPreferredLocaleDisplayName(localeCode: string): string {
@@ -477,12 +492,6 @@ export default class AppRenderer {
   private redirectToConnect() {
     // Redirect the user after some time to allow for the 'Logged in' screen to be visible
     this.loginTimer = global.setTimeout(() => this.history.resetWith('/connect'), 1000);
-  }
-
-  private loadTranslations(locale: string) {
-    for (const catalogue of [messages, relayLocations]) {
-      loadTranslations(locale, catalogue);
-    }
   }
 
   private setLocale(locale: string) {
@@ -576,7 +585,7 @@ export default class AppRenderer {
   }
 
   private async autoConnect() {
-    if (process.env.NODE_ENV === 'development') {
+    if (window.runningInDevelopment) {
       log.info('Skip autoconnect in development');
     } else if (this.autoConnected) {
       log.info('Skip autoconnect because it was done before');

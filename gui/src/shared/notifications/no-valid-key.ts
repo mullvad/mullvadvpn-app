@@ -14,7 +14,7 @@ export class NoValidKeyNotificationProvider implements InAppNotificationProvider
   public mayDisplay() {
     const usingWireGuard =
       this.context.tunnelProtocol === 'wireguard' ||
-      (this.context.tunnelProtocol === 'any' && process.platform !== 'win32');
+      (this.context.tunnelProtocol === 'any' && (process.platform ?? window.platform) !== 'win32');
     const keyInvalid =
       this.context.wireGuardKey.type === 'key-not-set' ||
       this.context.wireGuardKey.type === 'too-many-keys' ||
