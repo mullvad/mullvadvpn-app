@@ -17,7 +17,6 @@ function tidy-up-android-xml {
         android/src/main/res/anim*/*.xml \
         android/src/main/res/drawable*/*.xml \
         android/src/main/res/layout*/*.xml \
-        android/src/main/res/mipmap*/*.xml \
         android/src/main/res/values/*.xml
 
     # FIXME - when tidy learns to not leave whitespace around, remove the line below - https://github.com/htacg/tidy-html5/issues/864
