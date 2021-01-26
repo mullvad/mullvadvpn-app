@@ -124,6 +124,18 @@ pub enum Error {
     #[error(display = "Account history error")]
     AccountHistory(#[error(source)] account_history::Error),
 
+    #[error(display = "Failed to clear cache directory")]
+    ClearCacheError,
+
+    #[error(display = "Failed to clear logs directory")]
+    ClearLogsError,
+
+    #[error(display = "Failed to clear account history")]
+    ClearAccountHistoryError(#[error(source)] account_history::Error),
+
+    #[error(display = "Failed to clear settings")]
+    ClearSettingsError(#[error(source)] settings::Error),
+
     #[error(display = "Tunnel state machine error")]
     TunnelError(#[error(source)] tunnel_state_machine::Error),
 
@@ -1541,12 +1553,12 @@ where
 
         if let Err(e) = self.settings.reset() {
             log::error!("Failed to reset settings - {}", e);
-            last_error = Err(Error::SettingsError(e));
+            last_error = Err(Error::ClearSettingsError(e));
         }
 
         if let Err(e) = self.account_history.clear().await {
             log::error!("Failed to clear account history - {}", e);
-            last_error = Err(Error::AccountHistory(e));
+            last_error = Err(Error::ClearAccountHistoryError(e));
         }
 
         // Shut the daemon down.
@@ -1558,7 +1570,7 @@ where
                     "{}",
                     e.display_chain_with_msg("Failed to clear cache directory")
                 );
-                last_error = Err(e);
+                last_error = Err(Error::ClearCacheError);
             }
 
             if let Err(e) = Self::clear_log_directory() {
@@ -1566,7 +1578,7 @@ where
                     "{}",
                     e.display_chain_with_msg("Failed to clear log directory")
                 );
-                last_error = Err(e);
+                last_error = Err(Error::ClearLogsError);
             }
             Self::oneshot_send(tx, last_error, "factory_reset response");
         }));
