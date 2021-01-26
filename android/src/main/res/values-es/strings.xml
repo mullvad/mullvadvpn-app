@@ -101,7 +101,6 @@
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_generate_key">Generar clave</string>
     <string name="wireguard_key">Clave de WireGuard</string>
-    <string name="wireguard_key_blocked_state_message">No se pueden administrar las claves durante un estado de bloqueo</string>
     <string name="wireguard_key_generated">Clave generada</string>
     <string name="wireguard_key_invalid">La clave no es válida</string>
     <string name="wireguard_key_reconnecting">Volviendo a conectar con la nueva clave de WireGuard…</string>
