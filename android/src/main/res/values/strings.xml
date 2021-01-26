@@ -16,7 +16,8 @@
     <string name="connecting_to_daemon">Connecting to Mullvad system service...</string>
     <string name="login_title">Login</string>
     <string name="login_description">Enter your account number</string>
-    <string name="login_hint" translatable="false">0000 0000 0000 0000</string>
+    <string name="login_hint"
+            translatable="false">0000 0000 0000 0000</string>
     <string name="logging_in_title">Logging in...</string>
     <string name="logging_in_description">Checking account number</string>
     <string name="logged_in_title">Logged in</string>
@@ -35,7 +36,8 @@
     <string name="buy_more_credit">Buy more credit</string>
     <string name="redeem_voucher">Redeem voucher</string>
     <string name="enter_voucher_code">Enter voucher code</string>
-    <string name="voucher_hint" translatable="false">XXXX-XXXX-XXXX-XXXX</string>
+    <string name="voucher_hint"
+            translatable="false">XXXX-XXXX-XXXX-XXXX</string>
     <string name="redeem">Redeem</string>
     <string name="invalid_voucher">Voucher code is invalid.</string>
     <string name="voucher_already_used">Voucher code has already been used.</string>
