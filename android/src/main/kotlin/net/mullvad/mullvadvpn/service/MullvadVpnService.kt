@@ -110,6 +110,12 @@ class MullvadVpnService : TalpidVpnService() {
             this
         )
 
+        endpoint.splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps ->
+            disallowedApps = excludedApps
+            markTunAsStale()
+            connectionProxy.reconnect()
+        }
+
         tunnelStateUpdater = TunnelStateUpdater(this, connectionProxy)
 
         notificationManager =
@@ -232,12 +238,6 @@ class MullvadVpnService : TalpidVpnService() {
 
     private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
         val customDns = CustomDns(daemon, endpoint.settingsListener)
-
-        endpoint.splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps ->
-            disallowedApps = excludedApps
-            markTunAsStale()
-            connectionProxy.reconnect()
-        }
 
         handlePendingAction(settings)
 
