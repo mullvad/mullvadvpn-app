@@ -3,11 +3,18 @@ package net.mullvad.mullvadvpn.service
 import android.os.DeadObjectException
 import android.os.Looper
 import android.os.Messenger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.util.DispatchingHandler
 import net.mullvad.mullvadvpn.util.Intermittent
 
-class ServiceEndpoint(looper: Looper, intermittentDaemon: Intermittent<MullvadDaemon>) {
+class ServiceEndpoint(looper: Looper, private val intermittentDaemon: Intermittent<MullvadDaemon>) {
     private val listeners = mutableListOf<Messenger>()
+    private val registrationQueue = startRegistrator()
 
     internal val dispatcher = DispatchingHandler(looper) { message ->
         Request.fromMessage(message)
@@ -19,12 +26,13 @@ class ServiceEndpoint(looper: Looper, intermittentDaemon: Intermittent<MullvadDa
 
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
-            registerListener(request.listener)
+            registrationQueue.sendBlocking(request.listener)
         }
     }
 
     fun onDestroy() {
         dispatcher.onDestroy()
+        registrationQueue.close()
         settingsListener.onDestroy()
     }
 
@@ -41,6 +49,23 @@ class ServiceEndpoint(looper: Looper, intermittentDaemon: Intermittent<MullvadDa
 
         for (deadListener in deadListeners) {
             listeners.remove(deadListener)
+        }
+    }
+
+    private fun startRegistrator() = GlobalScope.actor<Messenger>(
+        Dispatchers.Default,
+        Channel.UNLIMITED
+    ) {
+        try {
+            while (true) {
+                val listener = channel.receive()
+
+                intermittentDaemon.await()
+
+                registerListener(listener)
+            }
+        } catch (exception: ClosedReceiveChannelException) {
+            // Registration queue closed; stop registrator
         }
     }
 
