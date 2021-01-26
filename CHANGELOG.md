@@ -24,17 +24,27 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Add header containing OS version to version-check API call to enable OS specific compatibility and
-  vulnerability checks.
-- Add `TALPID_DISABLE_OFFLINE_MONITOR` environment variable to allow users to disable offline
-  detection.
 - Enable isolation of the Electron renderer process to protect against potentially malicious third
   party dependencies.
 
 #### Android
+- Allow reaching the API server when connecting, disconnecting or in a blocked state.
+
+### Changed
+- Update Electron from 11.0.2 to 11.2.1 which includes a newer Chromium version and
+  security patches.
+
+
+## [2021.1-beta1] - 2021-01-25
+### Added
+- Add header containing OS version to version-check API call to enable OS specific compatibility and
+  vulnerability checks.
+- Add `TALPID_DISABLE_OFFLINE_MONITOR` environment variable to allow users to disable offline
+  detection.
+
+#### Android
 - Allow to configure the tunnel to use custom DNS servers.
 - Show only applications that has INTERNET permission on split tunnel screen.
-- Allow reaching the API server when connecting, disconnecting or in a blocked state.
 
 #### Linux
 - Improved compatiblitiy with newer versions of systemd-resolved.
@@ -48,8 +58,6 @@ Line wrap the file at 100 chars.                                              Th
 - Migrate cache to a directory readable by all users, consistent with Android and Linux.
 - Change the default value of the GUI auto-connect setting to "off" and respect the setting when
   logging in.
-- Update Electron from 11.0.2 to 11.2.1 which includes a newer Chromium version and
-  security patches.
 
 #### Linux
 - Improve offline check to query the routing table to allow users to use a bridged adapter as their
