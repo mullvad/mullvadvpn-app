@@ -82,6 +82,8 @@ const FIRST_KEY_PUSH_TIMEOUT: Duration = Duration::from_secs(5);
 /// Delay between generating a new WireGuard key and reconnecting
 const WG_RECONNECT_DELAY: Duration = Duration::from_secs(30);
 
+pub type ResponseTx<T, E> = oneshot::Sender<Result<T, E>>;
+
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -175,86 +177,80 @@ pub enum DaemonCommand {
     GetState(oneshot::Sender<TunnelState>),
     /// Get the current geographical location.
     GetCurrentLocation(oneshot::Sender<Option<GeoIpLocation>>),
-    CreateNewAccount(oneshot::Sender<Result<String, Error>>),
+    CreateNewAccount(ResponseTx<String, Error>),
     /// Request the metadata for an account.
     GetAccountData(
-        oneshot::Sender<Result<AccountData, mullvad_rpc::rest::Error>>,
+        ResponseTx<AccountData, mullvad_rpc::rest::Error>,
         AccountToken,
     ),
     /// Request www auth token for an account
-    GetWwwAuthToken(oneshot::Sender<Result<String, Error>>),
+    GetWwwAuthToken(ResponseTx<String, Error>),
     /// Submit voucher to add time to the current account. Returns time added in seconds
-    SubmitVoucher(oneshot::Sender<Result<VoucherSubmission, Error>>, String),
+    SubmitVoucher(ResponseTx<VoucherSubmission, Error>, String),
     /// Request account history
     GetAccountHistory(oneshot::Sender<Vec<AccountToken>>),
     /// Request account history
-    RemoveAccountFromHistory(oneshot::Sender<Result<(), Error>>, AccountToken),
+    RemoveAccountFromHistory(ResponseTx<(), Error>, AccountToken),
     /// Clear account history
-    ClearAccountHistory(oneshot::Sender<Result<(), Error>>),
+    ClearAccountHistory(ResponseTx<(), Error>),
     /// Get the list of countries and cities where there are relays.
     GetRelayLocations(oneshot::Sender<RelayList>),
     /// Trigger an asynchronous relay list update. This returns before the relay list is actually
     /// updated.
     UpdateRelayLocations,
     /// Set which account token to use for subsequent connection attempts.
-    SetAccount(
-        oneshot::Sender<Result<(), settings::Error>>,
-        Option<AccountToken>,
-    ),
+    SetAccount(ResponseTx<(), settings::Error>, Option<AccountToken>),
     /// Place constraints on the type of tunnel and relay
-    UpdateRelaySettings(
-        oneshot::Sender<Result<(), settings::Error>>,
-        RelaySettingsUpdate,
-    ),
+    UpdateRelaySettings(ResponseTx<(), settings::Error>, RelaySettingsUpdate),
     /// Set the allow LAN setting.
-    SetAllowLan(oneshot::Sender<Result<(), settings::Error>>, bool),
+    SetAllowLan(ResponseTx<(), settings::Error>, bool),
     /// Set the beta program setting.
-    SetShowBetaReleases(oneshot::Sender<Result<(), settings::Error>>, bool),
+    SetShowBetaReleases(ResponseTx<(), settings::Error>, bool),
     /// Set the block_when_disconnected setting.
-    SetBlockWhenDisconnected(oneshot::Sender<Result<(), settings::Error>>, bool),
+    SetBlockWhenDisconnected(ResponseTx<(), settings::Error>, bool),
     /// Set the auto-connect setting.
-    SetAutoConnect(oneshot::Sender<Result<(), settings::Error>>, bool),
+    SetAutoConnect(ResponseTx<(), settings::Error>, bool),
     /// Set the mssfix argument for OpenVPN
-    SetOpenVpnMssfix(oneshot::Sender<Result<(), settings::Error>>, Option<u16>),
+    SetOpenVpnMssfix(ResponseTx<(), settings::Error>, Option<u16>),
     /// Set proxy details for OpenVPN
-    SetBridgeSettings(oneshot::Sender<Result<(), settings::Error>>, BridgeSettings),
+    SetBridgeSettings(ResponseTx<(), settings::Error>, BridgeSettings),
     /// Set proxy state
-    SetBridgeState(oneshot::Sender<Result<(), settings::Error>>, BridgeState),
+    SetBridgeState(ResponseTx<(), settings::Error>, BridgeState),
     /// Set if IPv6 should be enabled in the tunnel
-    SetEnableIpv6(oneshot::Sender<Result<(), settings::Error>>, bool),
+    SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
     /// Set custom DNS servers to use instead of passing requests to the gateway
-    SetDnsOptions(oneshot::Sender<Result<(), settings::Error>>, DnsOptions),
+    SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
     /// Set MTU for wireguard tunnels
-    SetWireguardMtu(oneshot::Sender<Result<(), settings::Error>>, Option<u16>),
+    SetWireguardMtu(ResponseTx<(), settings::Error>, Option<u16>),
     /// Set automatic key rotation interval for wireguard tunnels
-    SetWireguardRotationInterval(oneshot::Sender<Result<(), settings::Error>>, Option<u32>),
+    SetWireguardRotationInterval(ResponseTx<(), settings::Error>, Option<u32>),
     /// Get the daemon settings
     GetSettings(oneshot::Sender<Settings>),
     /// Generate new wireguard key
-    GenerateWireguardKey(oneshot::Sender<Result<wireguard::KeygenEvent, Error>>),
+    GenerateWireguardKey(ResponseTx<wireguard::KeygenEvent, Error>),
     /// Return a public key of the currently set wireguard private key, if there is one
-    GetWireguardKey(oneshot::Sender<Result<Option<wireguard::PublicKey>, Error>>),
+    GetWireguardKey(ResponseTx<Option<wireguard::PublicKey>, Error>),
     /// Verify if the currently set wireguard key is valid.
-    VerifyWireguardKey(oneshot::Sender<Result<bool, Error>>),
+    VerifyWireguardKey(ResponseTx<bool, Error>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Get current version of the app
     GetCurrentVersion(oneshot::Sender<AppVersion>),
     /// Remove settings and clear the cache
     #[cfg(not(target_os = "android"))]
-    FactoryReset(oneshot::Sender<Result<(), Error>>),
+    FactoryReset(ResponseTx<(), Error>),
     /// Request list of processes excluded from the tunnel
     #[cfg(target_os = "linux")]
-    GetSplitTunnelProcesses(oneshot::Sender<Result<Vec<i32>, split_tunnel::Error>>),
+    GetSplitTunnelProcesses(ResponseTx<Vec<i32>, split_tunnel::Error>),
     /// Exclude traffic of a process (PID) from the tunnel
     #[cfg(target_os = "linux")]
-    AddSplitTunnelProcess(oneshot::Sender<Result<(), split_tunnel::Error>>, i32),
+    AddSplitTunnelProcess(ResponseTx<(), split_tunnel::Error>, i32),
     /// Remove process (PID) from list of processes excluded from the tunnel
     #[cfg(target_os = "linux")]
-    RemoveSplitTunnelProcess(oneshot::Sender<Result<(), split_tunnel::Error>>, i32),
+    RemoveSplitTunnelProcess(ResponseTx<(), split_tunnel::Error>, i32),
     /// Clear list of processes excluded from the tunnel
     #[cfg(target_os = "linux")]
-    ClearSplitTunnelProcesses(oneshot::Sender<Result<(), split_tunnel::Error>>),
+    ClearSplitTunnelProcesses(ResponseTx<(), split_tunnel::Error>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
     /// Saves the target tunnel state and enters a blocking state. The state is restored
@@ -1244,7 +1240,7 @@ where
     async fn handle_new_account_event(
         &mut self,
         new_token: AccountToken,
-        tx: oneshot::Sender<Result<String, Error>>,
+        tx: ResponseTx<String, Error>,
     ) {
         match self.set_account(Some(new_token.clone())).await {
             Ok(_) => {
@@ -1361,7 +1357,7 @@ where
         })
     }
 
-    async fn on_create_new_account(&mut self, tx: oneshot::Sender<Result<String, Error>>) {
+    async fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
         let daemon_tx = self.tx.clone();
         let future = self.accounts_proxy.create_account();
 
@@ -1379,7 +1375,7 @@ where
 
     async fn on_get_account_data(
         &mut self,
-        tx: oneshot::Sender<Result<AccountData, mullvad_rpc::rest::Error>>,
+        tx: ResponseTx<AccountData, mullvad_rpc::rest::Error>,
         account_token: AccountToken,
     ) {
         let expiry_fut = self.accounts_proxy.get_expiry(account_token);
@@ -1390,7 +1386,7 @@ where
         tokio::spawn(rpc_call);
     }
 
-    async fn on_get_www_auth_token(&mut self, tx: oneshot::Sender<Result<String, Error>>) {
+    async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
         if let Some(account_token) = self.settings.get_account_token() {
             let future = self.accounts_proxy.get_www_auth_token(account_token);
             let rpc_call = async {
@@ -1412,7 +1408,7 @@ where
 
     async fn on_submit_voucher(
         &mut self,
-        tx: oneshot::Sender<Result<VoucherSubmission, Error>>,
+        tx: ResponseTx<VoucherSubmission, Error>,
         voucher: String,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
@@ -1440,7 +1436,7 @@ where
 
     async fn on_set_account(
         &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
+        tx: ResponseTx<(), settings::Error>,
         account_token: Option<String>,
     ) {
         match self.set_account(account_token.clone()).await {
@@ -1497,7 +1493,7 @@ where
 
     async fn on_remove_account_from_history(
         &mut self,
-        tx: oneshot::Sender<Result<(), Error>>,
+        tx: ResponseTx<(), Error>,
         account_token: AccountToken,
     ) {
         let result = self
@@ -1508,7 +1504,7 @@ where
         Self::oneshot_send(tx, result, "remove_account_from_history response");
     }
 
-    async fn on_clear_account_history(&mut self, tx: oneshot::Sender<Result<(), Error>>) {
+    async fn on_clear_account_history(&mut self, tx: ResponseTx<(), Error>) {
         match self.account_history.clear().await {
             Ok(_) => {
                 self.set_target_state(TargetState::Unsecured);
@@ -1551,7 +1547,7 @@ where
     }
 
     #[cfg(not(target_os = "android"))]
-    async fn on_factory_reset(&mut self, tx: oneshot::Sender<Result<(), Error>>) {
+    async fn on_factory_reset(&mut self, tx: ResponseTx<(), Error>) {
         let mut last_error = Ok(());
 
 
@@ -1589,10 +1585,7 @@ where
     }
 
     #[cfg(target_os = "linux")]
-    fn on_get_split_tunnel_processes(
-        &mut self,
-        tx: oneshot::Sender<Result<Vec<i32>, split_tunnel::Error>>,
-    ) {
+    fn on_get_split_tunnel_processes(&mut self, tx: ResponseTx<Vec<i32>, split_tunnel::Error>) {
         let result = self.exclude_pids.list().map_err(|error| {
             error!("{}", error.display_chain_with_msg("Unable to obtain PIDs"));
             error
@@ -1601,11 +1594,7 @@ where
     }
 
     #[cfg(target_os = "linux")]
-    fn on_add_split_tunnel_process(
-        &mut self,
-        tx: oneshot::Sender<Result<(), split_tunnel::Error>>,
-        pid: i32,
-    ) {
+    fn on_add_split_tunnel_process(&mut self, tx: ResponseTx<(), split_tunnel::Error>, pid: i32) {
         let result = self.exclude_pids.add(pid).map_err(|error| {
             error!("{}", error.display_chain_with_msg("Unable to add PID"));
             error
@@ -1616,7 +1605,7 @@ where
     #[cfg(target_os = "linux")]
     fn on_remove_split_tunnel_process(
         &mut self,
-        tx: oneshot::Sender<Result<(), split_tunnel::Error>>,
+        tx: ResponseTx<(), split_tunnel::Error>,
         pid: i32,
     ) {
         let result = self.exclude_pids.remove(pid).map_err(|error| {
@@ -1627,10 +1616,7 @@ where
     }
 
     #[cfg(target_os = "linux")]
-    fn on_clear_split_tunnel_processes(
-        &mut self,
-        tx: oneshot::Sender<Result<(), split_tunnel::Error>>,
-    ) {
+    fn on_clear_split_tunnel_processes(&mut self, tx: ResponseTx<(), split_tunnel::Error>) {
         let result = self.exclude_pids.clear().map_err(|error| {
             error!("{}", error.display_chain_with_msg("Unable to clear PIDs"));
             error
@@ -1640,7 +1626,7 @@ where
 
     fn on_update_relay_settings(
         &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
+        tx: ResponseTx<(), settings::Error>,
         update: RelaySettingsUpdate,
     ) {
         let save_result = self.settings.update_relay_settings(update);
@@ -1661,11 +1647,7 @@ where
         }
     }
 
-    fn on_set_allow_lan(
-        &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
-        allow_lan: bool,
-    ) {
+    fn on_set_allow_lan(&mut self, tx: ResponseTx<(), settings::Error>, allow_lan: bool) {
         let save_result = self.settings.set_allow_lan(allow_lan);
         match save_result {
             Ok(settings_changed) => {
@@ -1685,7 +1667,7 @@ where
 
     async fn on_set_show_beta_releases(
         &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
+        tx: ResponseTx<(), settings::Error>,
         enabled: bool,
     ) {
         let save_result = self.settings.set_show_beta_releases(enabled);
@@ -1708,7 +1690,7 @@ where
 
     fn on_set_block_when_disconnected(
         &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
+        tx: ResponseTx<(), settings::Error>,
         block_when_disconnected: bool,
     ) {
         let save_result = self
@@ -1732,11 +1714,7 @@ where
         }
     }
 
-    fn on_set_auto_connect(
-        &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
-        auto_connect: bool,
-    ) {
+    fn on_set_auto_connect(&mut self, tx: ResponseTx<(), settings::Error>, auto_connect: bool) {
         let save_result = self.settings.set_auto_connect(auto_connect);
         match save_result {
             Ok(settings_changed) => {
@@ -1755,7 +1733,7 @@ where
 
     fn on_set_openvpn_mssfix(
         &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
+        tx: ResponseTx<(), settings::Error>,
         mssfix_arg: Option<u16>,
     ) {
         let save_result = self.settings.set_openvpn_mssfix(mssfix_arg);
@@ -1782,7 +1760,7 @@ where
 
     fn on_set_bridge_settings(
         &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
+        tx: ResponseTx<(), settings::Error>,
         new_settings: BridgeSettings,
     ) {
         match self.settings.set_bridge_settings(new_settings) {
@@ -1807,7 +1785,7 @@ where
 
     fn on_set_bridge_state(
         &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
+        tx: ResponseTx<(), settings::Error>,
         bridge_state: BridgeState,
     ) {
         let result = match self.settings.set_bridge_state(bridge_state) {
@@ -1832,11 +1810,7 @@ where
     }
 
 
-    fn on_set_enable_ipv6(
-        &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
-        enable_ipv6: bool,
-    ) {
+    fn on_set_enable_ipv6(&mut self, tx: ResponseTx<(), settings::Error>, enable_ipv6: bool) {
         let save_result = self.settings.set_enable_ipv6(enable_ipv6);
         match save_result {
             Ok(settings_changed) => {
@@ -1855,11 +1829,7 @@ where
         }
     }
 
-    fn on_set_dns_options(
-        &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
-        dns_options: DnsOptions,
-    ) {
+    fn on_set_dns_options(&mut self, tx: ResponseTx<(), settings::Error>, dns_options: DnsOptions) {
         let save_result = self.settings.set_dns_options(dns_options.clone());
         match save_result {
             Ok(settings_changed) => {
@@ -1879,11 +1849,7 @@ where
         }
     }
 
-    fn on_set_wireguard_mtu(
-        &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
-        mtu: Option<u16>,
-    ) {
+    fn on_set_wireguard_mtu(&mut self, tx: ResponseTx<(), settings::Error>, mtu: Option<u16>) {
         let save_result = self.settings.set_wireguard_mtu(mtu);
         match save_result {
             Ok(settings_changed) => {
@@ -1908,7 +1874,7 @@ where
 
     async fn on_set_wireguard_rotation_interval(
         &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
+        tx: ResponseTx<(), settings::Error>,
         interval: Option<u32>,
     ) {
         let save_result = self.settings.set_wireguard_rotation_interval(interval);
@@ -1948,7 +1914,7 @@ where
         }
     }
 
-    async fn on_generate_wireguard_key(&mut self, tx: oneshot::Sender<Result<KeygenEvent, Error>>) {
+    async fn on_generate_wireguard_key(&mut self, tx: ResponseTx<KeygenEvent, Error>) {
         match self.on_generate_wireguard_key_inner().await {
             Ok(key_event) => {
                 Self::oneshot_send(tx, Ok(key_event), "generate_wireguard_key");
@@ -2028,10 +1994,7 @@ where
         }
     }
 
-    async fn on_get_wireguard_key(
-        &mut self,
-        tx: oneshot::Sender<Result<Option<wireguard::PublicKey>, Error>>,
-    ) {
+    async fn on_get_wireguard_key(&mut self, tx: ResponseTx<Option<wireguard::PublicKey>, Error>) {
         let token = self.settings.get_account_token();
         let result = if let Some(token) = token {
             let entry = self.account_history.get(&token).await;
@@ -2049,7 +2012,7 @@ where
         Self::oneshot_send(tx, result, "get_wireguard_key response");
     }
 
-    async fn on_verify_wireguard_key(&mut self, tx: oneshot::Sender<Result<bool, Error>>) {
+    async fn on_verify_wireguard_key(&mut self, tx: ResponseTx<bool, Error>) {
         let account = match self.settings.get_account_token() {
             Some(account) => account,
             None => {
