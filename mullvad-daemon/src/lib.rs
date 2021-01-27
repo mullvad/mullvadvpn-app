@@ -1426,11 +1426,7 @@ where
             };
             tokio::spawn(rpc_call);
         } else {
-            Self::oneshot_send(
-                tx,
-                Err(Error::NoAccountToken),
-                "get_www_auth_token response",
-            );
+            Self::oneshot_send(tx, Err(Error::NoAccountToken), "submit_voucher response");
         }
     }
 
