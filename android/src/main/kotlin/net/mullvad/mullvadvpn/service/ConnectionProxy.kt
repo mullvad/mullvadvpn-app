@@ -56,6 +56,12 @@ class ConnectionProxy(val context: Context, endpoint: ServiceEndpoint) {
         onStateChange.subscribe(this) { tunnelState ->
             endpoint.sendEvent(Event.TunnelStateChange(tunnelState))
         }
+
+        endpoint.dispatcher.apply {
+            registerHandler(Request.Connect::class) { _ -> connect() }
+            registerHandler(Request.Reconnect::class) { _ -> reconnect() }
+            registerHandler(Request.Disconnect::class) { _ -> disconnect() }
+        }
     }
 
     fun connect() {
