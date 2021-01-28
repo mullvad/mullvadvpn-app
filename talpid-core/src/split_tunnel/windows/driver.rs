@@ -27,11 +27,11 @@ use winapi::{
     },
     um::{
         handleapi::CloseHandle,
-        ioapiset::{DeviceIoControl, GetOverlappedResultEx},
+        ioapiset::{DeviceIoControl, GetOverlappedResult},
         minwinbase::OVERLAPPED,
-        synchapi::CreateEventW,
+        synchapi::{CreateEventW, WaitForSingleObject},
         tlhelp32::TH32CS_SNAPPROCESS,
-        winbase::{FILE_FLAG_OVERLAPPED, INFINITE},
+        winbase::{FILE_FLAG_OVERLAPPED, INFINITE, WAIT_ABANDONED, WAIT_FAILED, WAIT_OBJECT_0},
         winioctl::{FILE_ANY_ACCESS, METHOD_BUFFERED, METHOD_NEITHER},
     },
 };
@@ -679,6 +679,8 @@ pub fn device_io_control_buffer(
         0
     };
 
+    let event = overlapped.hEvent;
+
     let mut returned_bytes = 0u32;
     let overlapped = overlapped as *const _ as *mut _;
 
@@ -707,17 +709,19 @@ pub fn device_io_control_buffer(
         return Err(last_error);
     }
 
-    let result = unsafe {
-        GetOverlappedResultEx(
-            device as *mut _,
-            overlapped,
-            &mut returned_bytes,
-            timeout
-                .map(|timeout| timeout.as_millis() as u32)
-                .unwrap_or(INFINITE),
-            FALSE,
-        )
-    };
+    let timeout = timeout
+        .map(|timeout| timeout.as_millis() as u32)
+        .unwrap_or(INFINITE);
+    let result = unsafe { WaitForSingleObject(event, timeout) };
+    match result {
+        WAIT_FAILED => return Err(io::Error::last_os_error()),
+        WAIT_ABANDONED => return Err(io::Error::new(io::ErrorKind::Other, "abandoned mutex")),
+        WAIT_OBJECT_0 => (),
+        error => return Err(io::Error::from_raw_os_error(error as i32)),
+    }
+
+    let result =
+        unsafe { GetOverlappedResult(device as *mut _, overlapped, &mut returned_bytes, FALSE) };
 
     if result == 0 {
         return Err(io::Error::last_os_error());
@@ -732,7 +736,7 @@ pub fn device_io_control_buffer(
 
 /// Send an IOCTL code to the given device handle.
 /// `input` specifies an optional buffer to send.
-/// The result must be obtained using `GetOverlappedResultEx`.
+/// The result must be obtained using `GetOverlappedResult[Ex]`.
 pub unsafe fn device_io_control_buffer_async(
     device: RawHandle,
     ioctl_code: u32,
