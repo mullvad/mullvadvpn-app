@@ -7,16 +7,12 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.KeygenEvent
-import net.mullvad.talpid.util.EventNotifier
 
 class KeyStatusListener(endpoint: ServiceEndpoint) {
     private val daemon = endpoint.intermittentDaemon
 
-    val onKeyStatusChange = EventNotifier<KeygenEvent?>(null)
-
     var keyStatus by observable<KeygenEvent?>(null) { _, _, status ->
         endpoint.sendEvent(Event.WireGuardKeyStatus(status))
-        onKeyStatusChange.notify(status)
     }
         private set
 
@@ -42,7 +38,11 @@ class KeyStatusListener(endpoint: ServiceEndpoint) {
         }
     }
 
-    fun generateKey() = GlobalScope.launch(Dispatchers.Default) {
+    fun onDestroy() {
+        daemon.unregisterListener(this)
+    }
+
+    private fun generateKey() = GlobalScope.launch(Dispatchers.Default) {
         val oldStatus = keyStatus
         val newStatus = daemon.await().generateWireguardKey()
         val newFailure = newStatus?.failure()
@@ -57,7 +57,7 @@ class KeyStatusListener(endpoint: ServiceEndpoint) {
         }
     }
 
-    fun verifyKey() = GlobalScope.launch(Dispatchers.Default) {
+    private fun verifyKey() = GlobalScope.launch(Dispatchers.Default) {
         // Only update verification status if the key is actually there
         (keyStatus as? KeygenEvent.NewKey)?.let { currentStatus ->
             keyStatus = KeygenEvent.NewKey(
@@ -66,10 +66,5 @@ class KeyStatusListener(endpoint: ServiceEndpoint) {
                 currentStatus.replacementFailure
             )
         }
-    }
-
-    fun onDestroy() {
-        daemon.unregisterListener(this)
-        onKeyStatusChange.unsubscribeAll()
     }
 }
