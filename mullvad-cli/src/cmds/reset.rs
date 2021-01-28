@@ -1,4 +1,4 @@
-use crate::{new_rpc_client, Command, Result};
+use crate::{new_rpc_client, Command, Error, Result};
 use std::io::stdin;
 
 pub struct Reset;
@@ -15,12 +15,11 @@ impl Command for Reset {
     async fn run(&self, _: &clap::ArgMatches<'_>) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         if Self::receive_confirmation() {
-            if rpc.factory_reset(()).await.is_err() {
-                eprintln!("FAILED TO PERFORM FACTORY RESET");
-            } else {
-                #[cfg(target_os = "linux")]
-                println!("If you're running systemd, to remove all logs, you must use journalctl");
-            }
+            rpc.factory_reset(())
+                .await
+                .map_err(|error| Error::RpcFailedExt("FAILED TO PERFORM FACTORY RESET", error))?;
+            #[cfg(target_os = "linux")]
+            println!("If you're running systemd, to remove all logs, you must use journalctl");
         }
         Ok(())
     }

@@ -25,8 +25,14 @@ pub enum Error {
     #[error(display = "Management interface error")]
     ManagementInterfaceError(#[error(source)] mullvad_management_interface::Error),
 
-    #[error(display = "Failed to communicate with mullvad-daemon over RPC")]
-    GrpcClientError(#[error(source)] mullvad_management_interface::Status),
+    #[error(display = "RPC failed")]
+    RpcFailed(#[error(source)] mullvad_management_interface::Status),
+
+    #[error(display = "RPC failed: {}", _0)]
+    RpcFailedExt(
+        &'static str,
+        #[error(source)] mullvad_management_interface::Status,
+    ),
 
     /// The given command is not correct in some way
     #[error(display = "Invalid command: {}", _0)]
@@ -44,7 +50,20 @@ async fn main() {
     let exit_code = match run().await {
         Ok(_) => 0,
         Err(error) => {
-            eprintln!("{}", error.display_chain());
+            match &error {
+                Error::RpcFailed(status) => {
+                    eprintln!("{}: {:?}: {}", error, status.code(), status.message())
+                }
+                Error::RpcFailedExt(_message, status) => {
+                    eprintln!(
+                        "{}\nCaused by: {:?}: {}",
+                        error,
+                        status.code(),
+                        status.message()
+                    )
+                }
+                error => eprintln!("{}", error.display_chain()),
+            }
             1
         }
     };

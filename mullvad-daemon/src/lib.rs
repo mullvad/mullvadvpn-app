@@ -82,6 +82,8 @@ const FIRST_KEY_PUSH_TIMEOUT: Duration = Duration::from_secs(5);
 /// Delay between generating a new WireGuard key and reconnecting
 const WG_RECONNECT_DELAY: Duration = Duration::from_secs(30);
 
+pub type ResponseTx<T, E> = oneshot::Sender<Result<T, E>>;
+
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -93,6 +95,9 @@ pub enum Error {
 
     #[error(display = "Unable to create RPC client")]
     InitRpcFactory(#[error(source)] mullvad_rpc::Error),
+
+    #[error(display = "REST request failed")]
+    RestError(#[error(source)] mullvad_rpc::rest::Error),
 
     #[error(display = "Unable to load account history with wireguard key cache")]
     LoadAccountHistory(#[error(source)] account_history::Error),
@@ -107,8 +112,29 @@ pub enum Error {
     #[error(display = "No bridge available")]
     NoBridgeAvailable,
 
-    #[error(display = "Account history problems")]
+    #[error(display = "No account token is set")]
+    NoAccountToken,
+
+    #[error(display = "No account history available for the token")]
+    NoAccountTokenHistory,
+
+    #[error(display = "Settings error")]
+    SettingsError(#[error(source)] settings::Error),
+
+    #[error(display = "Account history error")]
     AccountHistory(#[error(source)] account_history::Error),
+
+    #[error(display = "Failed to clear cache directory")]
+    ClearCacheError,
+
+    #[error(display = "Failed to clear logs directory")]
+    ClearLogsError,
+
+    #[error(display = "Failed to clear account history")]
+    ClearAccountHistoryError(#[error(source)] account_history::Error),
+
+    #[error(display = "Failed to clear settings")]
+    ClearSettingsError(#[error(source)] settings::Error),
 
     #[error(display = "Tunnel state machine error")]
     TunnelError(#[error(source)] tunnel_state_machine::Error),
@@ -151,83 +177,80 @@ pub enum DaemonCommand {
     GetState(oneshot::Sender<TunnelState>),
     /// Get the current geographical location.
     GetCurrentLocation(oneshot::Sender<Option<GeoIpLocation>>),
-    CreateNewAccount(oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>),
+    CreateNewAccount(ResponseTx<String, Error>),
     /// Request the metadata for an account.
     GetAccountData(
-        oneshot::Sender<Result<AccountData, mullvad_rpc::rest::Error>>,
+        ResponseTx<AccountData, mullvad_rpc::rest::Error>,
         AccountToken,
     ),
     /// Request www auth token for an account
-    GetWwwAuthToken(oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>),
+    GetWwwAuthToken(ResponseTx<String, Error>),
     /// Submit voucher to add time to the current account. Returns time added in seconds
-    SubmitVoucher(
-        oneshot::Sender<Result<VoucherSubmission, mullvad_rpc::rest::Error>>,
-        String,
-    ),
+    SubmitVoucher(ResponseTx<VoucherSubmission, Error>, String),
     /// Request account history
     GetAccountHistory(oneshot::Sender<Vec<AccountToken>>),
     /// Request account history
-    RemoveAccountFromHistory(oneshot::Sender<()>, AccountToken),
+    RemoveAccountFromHistory(ResponseTx<(), Error>, AccountToken),
     /// Clear account history
-    ClearAccountHistory(oneshot::Sender<()>),
+    ClearAccountHistory(ResponseTx<(), Error>),
     /// Get the list of countries and cities where there are relays.
     GetRelayLocations(oneshot::Sender<RelayList>),
     /// Trigger an asynchronous relay list update. This returns before the relay list is actually
     /// updated.
     UpdateRelayLocations,
     /// Set which account token to use for subsequent connection attempts.
-    SetAccount(oneshot::Sender<()>, Option<AccountToken>),
+    SetAccount(ResponseTx<(), settings::Error>, Option<AccountToken>),
     /// Place constraints on the type of tunnel and relay
-    UpdateRelaySettings(oneshot::Sender<()>, RelaySettingsUpdate),
+    UpdateRelaySettings(ResponseTx<(), settings::Error>, RelaySettingsUpdate),
     /// Set the allow LAN setting.
-    SetAllowLan(oneshot::Sender<()>, bool),
+    SetAllowLan(ResponseTx<(), settings::Error>, bool),
     /// Set the beta program setting.
-    SetShowBetaReleases(oneshot::Sender<()>, bool),
+    SetShowBetaReleases(ResponseTx<(), settings::Error>, bool),
     /// Set the block_when_disconnected setting.
-    SetBlockWhenDisconnected(oneshot::Sender<()>, bool),
+    SetBlockWhenDisconnected(ResponseTx<(), settings::Error>, bool),
     /// Set the auto-connect setting.
-    SetAutoConnect(oneshot::Sender<()>, bool),
+    SetAutoConnect(ResponseTx<(), settings::Error>, bool),
     /// Set the mssfix argument for OpenVPN
-    SetOpenVpnMssfix(oneshot::Sender<()>, Option<u16>),
+    SetOpenVpnMssfix(ResponseTx<(), settings::Error>, Option<u16>),
     /// Set proxy details for OpenVPN
-    SetBridgeSettings(oneshot::Sender<Result<(), settings::Error>>, BridgeSettings),
+    SetBridgeSettings(ResponseTx<(), settings::Error>, BridgeSettings),
     /// Set proxy state
-    SetBridgeState(oneshot::Sender<Result<(), settings::Error>>, BridgeState),
+    SetBridgeState(ResponseTx<(), settings::Error>, BridgeState),
     /// Set if IPv6 should be enabled in the tunnel
-    SetEnableIpv6(oneshot::Sender<()>, bool),
+    SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
     /// Set custom DNS servers to use instead of passing requests to the gateway
-    SetDnsOptions(oneshot::Sender<()>, DnsOptions),
+    SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
     /// Set MTU for wireguard tunnels
-    SetWireguardMtu(oneshot::Sender<()>, Option<u16>),
+    SetWireguardMtu(ResponseTx<(), settings::Error>, Option<u16>),
     /// Set automatic key rotation interval for wireguard tunnels
-    SetWireguardRotationInterval(oneshot::Sender<()>, Option<u32>),
+    SetWireguardRotationInterval(ResponseTx<(), settings::Error>, Option<u32>),
     /// Get the daemon settings
     GetSettings(oneshot::Sender<Settings>),
     /// Generate new wireguard key
-    GenerateWireguardKey(oneshot::Sender<wireguard::KeygenEvent>),
+    GenerateWireguardKey(ResponseTx<wireguard::KeygenEvent, Error>),
     /// Return a public key of the currently set wireguard private key, if there is one
-    GetWireguardKey(oneshot::Sender<Option<wireguard::PublicKey>>),
+    GetWireguardKey(ResponseTx<Option<wireguard::PublicKey>, Error>),
     /// Verify if the currently set wireguard key is valid.
-    VerifyWireguardKey(oneshot::Sender<bool>),
+    VerifyWireguardKey(ResponseTx<bool, Error>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Get current version of the app
     GetCurrentVersion(oneshot::Sender<AppVersion>),
     /// Remove settings and clear the cache
     #[cfg(not(target_os = "android"))]
-    FactoryReset(oneshot::Sender<()>),
+    FactoryReset(ResponseTx<(), Error>),
     /// Request list of processes excluded from the tunnel
     #[cfg(target_os = "linux")]
-    GetSplitTunnelProcesses(oneshot::Sender<Vec<i32>>),
+    GetSplitTunnelProcesses(ResponseTx<Vec<i32>, split_tunnel::Error>),
     /// Exclude traffic of a process (PID) from the tunnel
     #[cfg(target_os = "linux")]
-    AddSplitTunnelProcess(oneshot::Sender<()>, i32),
+    AddSplitTunnelProcess(ResponseTx<(), split_tunnel::Error>, i32),
     /// Remove process (PID) from list of processes excluded from the tunnel
     #[cfg(target_os = "linux")]
-    RemoveSplitTunnelProcess(oneshot::Sender<()>, i32),
+    RemoveSplitTunnelProcess(ResponseTx<(), split_tunnel::Error>, i32),
     /// Clear list of processes excluded from the tunnel
     #[cfg(target_os = "linux")]
-    ClearSplitTunnelProcesses(oneshot::Sender<()>),
+    ClearSplitTunnelProcesses(ResponseTx<(), split_tunnel::Error>),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
     /// Saves the target tunnel state and enters a blocking state. The state is restored
@@ -258,10 +281,7 @@ pub(crate) enum InternalDaemonEvent {
         ),
     ),
     /// New Account created
-    NewAccountEvent(
-        AccountToken,
-        oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>,
-    ),
+    NewAccountEvent(AccountToken, oneshot::Sender<Result<String, Error>>),
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
 }
@@ -1220,7 +1240,7 @@ where
     async fn handle_new_account_event(
         &mut self,
         new_token: AccountToken,
-        tx: oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>,
+        tx: ResponseTx<String, Error>,
     ) {
         match self.set_account(Some(new_token.clone())).await {
             Ok(_) => {
@@ -1228,7 +1248,11 @@ where
                 let _ = tx.send(Ok(new_token));
             }
             Err(err) => {
-                log::error!("Failed to save new account - {}", err);
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to save new account")
+                );
+                let _ = tx.send(Err(Error::SettingsError(err)));
             }
         };
     }
@@ -1333,10 +1357,7 @@ where
         })
     }
 
-    async fn on_create_new_account(
-        &mut self,
-        tx: oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>,
-    ) {
+    async fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
         let daemon_tx = self.tx.clone();
         let future = self.accounts_proxy.create_account();
 
@@ -1346,7 +1367,7 @@ where
                     let _ = daemon_tx.send(InternalDaemonEvent::NewAccountEvent(account_token, tx));
                 }
                 Err(err) => {
-                    let _ = tx.send(Err(err));
+                    let _ = tx.send(Err(Error::RestError(err)));
                 }
             }
         });
@@ -1354,7 +1375,7 @@ where
 
     async fn on_get_account_data(
         &mut self,
-        tx: oneshot::Sender<Result<AccountData, mullvad_rpc::rest::Error>>,
+        tx: ResponseTx<AccountData, mullvad_rpc::rest::Error>,
         account_token: AccountToken,
     ) {
         let expiry_fut = self.accounts_proxy.get_expiry(account_token);
@@ -1365,30 +1386,43 @@ where
         tokio::spawn(rpc_call);
     }
 
-    async fn on_get_www_auth_token(
-        &mut self,
-        tx: oneshot::Sender<Result<String, mullvad_rpc::rest::Error>>,
-    ) {
+    async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
         if let Some(account_token) = self.settings.get_account_token() {
             let future = self.accounts_proxy.get_www_auth_token(account_token);
             let rpc_call = async {
-                Self::oneshot_send(tx, future.await, "get_www_auth_token response");
+                Self::oneshot_send(
+                    tx,
+                    future.await.map_err(Error::RestError),
+                    "get_www_auth_token response",
+                );
             };
             tokio::spawn(rpc_call);
+        } else {
+            Self::oneshot_send(
+                tx,
+                Err(Error::NoAccountToken),
+                "get_www_auth_token response",
+            );
         }
     }
 
     async fn on_submit_voucher(
         &mut self,
-        tx: oneshot::Sender<Result<VoucherSubmission, mullvad_rpc::rest::Error>>,
+        tx: ResponseTx<VoucherSubmission, Error>,
         voucher: String,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
             let future = self.accounts_proxy.submit_voucher(account_token, voucher);
             let rpc_call = async {
-                Self::oneshot_send(tx, future.await, "submit_voucher response");
+                Self::oneshot_send(
+                    tx,
+                    future.await.map_err(Error::RestError),
+                    "submit_voucher response",
+                );
             };
             tokio::spawn(rpc_call);
+        } else {
+            Self::oneshot_send(tx, Err(Error::NoAccountToken), "submit_voucher response");
         }
     }
 
@@ -1400,7 +1434,11 @@ where
         self.relay_selector.update().await;
     }
 
-    async fn on_set_account(&mut self, tx: oneshot::Sender<()>, account_token: Option<String>) {
+    async fn on_set_account(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        account_token: Option<String>,
+    ) {
         match self.set_account(account_token.clone()).await {
             Ok(account_changed) => {
                 if account_changed {
@@ -1415,10 +1453,11 @@ where
                         }
                     };
                 }
-                Self::oneshot_send(tx, (), "set_account response");
+                Self::oneshot_send(tx, Ok(()), "set_account response");
             }
-            Err(e) => {
-                log::error!("Failed to set account - {}", e);
+            Err(error) => {
+                log::error!("{}", error.display_chain_with_msg("Failed to set account"));
+                Self::oneshot_send(tx, Err(error), "set_account response");
             }
         }
     }
@@ -1454,29 +1493,34 @@ where
 
     async fn on_remove_account_from_history(
         &mut self,
-        tx: oneshot::Sender<()>,
+        tx: ResponseTx<(), Error>,
         account_token: AccountToken,
     ) {
-        if self
+        let result = self
             .account_history
             .remove_account(&account_token)
             .await
-            .is_ok()
-        {
-            Self::oneshot_send(tx, (), "remove_account_from_history response");
-        }
+            .map_err(Error::AccountHistory);
+        Self::oneshot_send(tx, result, "remove_account_from_history response");
     }
 
-    async fn on_clear_account_history(&mut self, tx: oneshot::Sender<()>) {
+    async fn on_clear_account_history(&mut self, tx: ResponseTx<(), Error>) {
         match self.account_history.clear().await {
             Ok(_) => {
                 self.set_target_state(TargetState::Unsecured);
-                Self::oneshot_send(tx, (), "clear_account_history response");
+                Self::oneshot_send(tx, Ok(()), "clear_account_history response");
             }
-            Err(err) => log::error!(
-                "{}",
-                err.display_chain_with_msg("Failed to clear account history")
-            ),
+            Err(err) => {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to clear account history")
+                );
+                Self::oneshot_send(
+                    tx,
+                    Err(Error::AccountHistory(err)),
+                    "clear_account_history response",
+                );
+            }
         }
     }
 
@@ -1503,18 +1547,18 @@ where
     }
 
     #[cfg(not(target_os = "android"))]
-    async fn on_factory_reset(&mut self, tx: oneshot::Sender<()>) {
-        let mut failed = false;
+    async fn on_factory_reset(&mut self, tx: ResponseTx<(), Error>) {
+        let mut last_error = Ok(());
 
 
         if let Err(e) = self.settings.reset() {
             log::error!("Failed to reset settings - {}", e);
-            failed = true;
+            last_error = Err(Error::ClearSettingsError(e));
         }
 
         if let Err(e) = self.account_history.clear().await {
             log::error!("Failed to clear account history - {}", e);
-            failed = true;
+            last_error = Err(Error::ClearAccountHistoryError(e));
         }
 
         // Shut the daemon down.
@@ -1526,7 +1570,7 @@ where
                     "{}",
                     e.display_chain_with_msg("Failed to clear cache directory")
                 );
-                failed = true;
+                last_error = Err(Error::ClearCacheError);
             }
 
             if let Err(e) = Self::clear_log_directory() {
@@ -1534,51 +1578,61 @@ where
                     "{}",
                     e.display_chain_with_msg("Failed to clear log directory")
                 );
-                failed = true;
+                last_error = Err(Error::ClearLogsError);
             }
-            if !failed {
-                Self::oneshot_send(tx, (), "factory_reset response");
-            }
+            Self::oneshot_send(tx, last_error, "factory_reset response");
         }));
     }
 
     #[cfg(target_os = "linux")]
-    fn on_get_split_tunnel_processes(&mut self, tx: oneshot::Sender<Vec<i32>>) {
-        match self.exclude_pids.list() {
-            Ok(pids) => Self::oneshot_send(tx, pids, "get_split_tunnel_processes response"),
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to obtain PIDs")),
-        }
+    fn on_get_split_tunnel_processes(&mut self, tx: ResponseTx<Vec<i32>, split_tunnel::Error>) {
+        let result = self.exclude_pids.list().map_err(|error| {
+            error!("{}", error.display_chain_with_msg("Unable to obtain PIDs"));
+            error
+        });
+        Self::oneshot_send(tx, result, "get_split_tunnel_processes response");
     }
 
     #[cfg(target_os = "linux")]
-    fn on_add_split_tunnel_process(&mut self, tx: oneshot::Sender<()>, pid: i32) {
-        match self.exclude_pids.add(pid) {
-            Ok(()) => Self::oneshot_send(tx, (), "add_split_tunnel_process response"),
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to add PID")),
-        }
+    fn on_add_split_tunnel_process(&mut self, tx: ResponseTx<(), split_tunnel::Error>, pid: i32) {
+        let result = self.exclude_pids.add(pid).map_err(|error| {
+            error!("{}", error.display_chain_with_msg("Unable to add PID"));
+            error
+        });
+        Self::oneshot_send(tx, result, "add_split_tunnel_process response");
     }
 
     #[cfg(target_os = "linux")]
-    fn on_remove_split_tunnel_process(&mut self, tx: oneshot::Sender<()>, pid: i32) {
-        match self.exclude_pids.remove(pid) {
-            Ok(()) => Self::oneshot_send(tx, (), "remove_split_tunnel_process response"),
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to remove PID")),
-        }
+    fn on_remove_split_tunnel_process(
+        &mut self,
+        tx: ResponseTx<(), split_tunnel::Error>,
+        pid: i32,
+    ) {
+        let result = self.exclude_pids.remove(pid).map_err(|error| {
+            error!("{}", error.display_chain_with_msg("Unable to remove PID"));
+            error
+        });
+        Self::oneshot_send(tx, result, "remove_split_tunnel_process response");
     }
 
     #[cfg(target_os = "linux")]
-    fn on_clear_split_tunnel_processes(&mut self, tx: oneshot::Sender<()>) {
-        match self.exclude_pids.clear() {
-            Ok(()) => Self::oneshot_send(tx, (), "clear_split_tunnel_processes response"),
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to clear PIDs")),
-        }
+    fn on_clear_split_tunnel_processes(&mut self, tx: ResponseTx<(), split_tunnel::Error>) {
+        let result = self.exclude_pids.clear().map_err(|error| {
+            error!("{}", error.display_chain_with_msg("Unable to clear PIDs"));
+            error
+        });
+        Self::oneshot_send(tx, result, "clear_split_tunnel_processes response");
     }
 
-    fn on_update_relay_settings(&mut self, tx: oneshot::Sender<()>, update: RelaySettingsUpdate) {
+    fn on_update_relay_settings(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        update: RelaySettingsUpdate,
+    ) {
         let save_result = self.settings.update_relay_settings(update);
         match save_result {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "update_relay_settings response");
+                Self::oneshot_send(tx, Ok(()), "update_relay_settings response");
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
@@ -1586,30 +1640,40 @@ where
                     self.reconnect_tunnel();
                 }
             }
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+            Err(e) => {
+                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "update_relay_settings response");
+            }
         }
     }
 
-    fn on_set_allow_lan(&mut self, tx: oneshot::Sender<()>, allow_lan: bool) {
+    fn on_set_allow_lan(&mut self, tx: ResponseTx<(), settings::Error>, allow_lan: bool) {
         let save_result = self.settings.set_allow_lan(allow_lan);
         match save_result {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "set_allow_lan response");
+                Self::oneshot_send(tx, Ok(()), "set_allow_lan response");
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                     self.send_tunnel_command(TunnelCommand::AllowLan(allow_lan));
                 }
             }
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+            Err(e) => {
+                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_allow_lan response");
+            }
         }
     }
 
-    async fn on_set_show_beta_releases(&mut self, tx: oneshot::Sender<()>, enabled: bool) {
+    async fn on_set_show_beta_releases(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        enabled: bool,
+    ) {
         let save_result = self.settings.set_show_beta_releases(enabled);
         match save_result {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "set_show_beta_releases response");
+                Self::oneshot_send(tx, Ok(()), "set_show_beta_releases response");
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
@@ -1617,13 +1681,16 @@ where
                     handle.set_show_beta_releases(enabled).await;
                 }
             }
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+            Err(e) => {
+                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_show_beta_releases response");
+            }
         }
     }
 
     fn on_set_block_when_disconnected(
         &mut self,
-        tx: oneshot::Sender<()>,
+        tx: ResponseTx<(), settings::Error>,
         block_when_disconnected: bool,
     ) {
         let save_result = self
@@ -1631,7 +1698,7 @@ where
             .set_block_when_disconnected(block_when_disconnected);
         match save_result {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "set_block_when_disconnected response");
+                Self::oneshot_send(tx, Ok(()), "set_block_when_disconnected response");
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
@@ -1640,29 +1707,39 @@ where
                     ));
                 }
             }
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+            Err(e) => {
+                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_block_when_disconnected response");
+            }
         }
     }
 
-    fn on_set_auto_connect(&mut self, tx: oneshot::Sender<()>, auto_connect: bool) {
+    fn on_set_auto_connect(&mut self, tx: ResponseTx<(), settings::Error>, auto_connect: bool) {
         let save_result = self.settings.set_auto_connect(auto_connect);
         match save_result {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "set auto-connect response");
+                Self::oneshot_send(tx, Ok(()), "set auto-connect response");
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                 }
             }
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+            Err(e) => {
+                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set auto-connect response");
+            }
         }
     }
 
-    fn on_set_openvpn_mssfix(&mut self, tx: oneshot::Sender<()>, mssfix_arg: Option<u16>) {
+    fn on_set_openvpn_mssfix(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        mssfix_arg: Option<u16>,
+    ) {
         let save_result = self.settings.set_openvpn_mssfix(mssfix_arg);
         match save_result {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "set_openvpn_mssfix response");
+                Self::oneshot_send(tx, Ok(()), "set_openvpn_mssfix response");
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
@@ -1674,13 +1751,16 @@ where
                     }
                 }
             }
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+            Err(e) => {
+                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_openvpn_mssfix response");
+            }
         }
     }
 
     fn on_set_bridge_settings(
         &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
+        tx: ResponseTx<(), settings::Error>,
         new_settings: BridgeSettings,
     ) {
         match self.settings.set_bridge_settings(new_settings) {
@@ -1705,7 +1785,7 @@ where
 
     fn on_set_bridge_state(
         &mut self,
-        tx: oneshot::Sender<Result<(), settings::Error>>,
+        tx: ResponseTx<(), settings::Error>,
         bridge_state: BridgeState,
     ) {
         let result = match self.settings.set_bridge_state(bridge_state) {
@@ -1730,11 +1810,11 @@ where
     }
 
 
-    fn on_set_enable_ipv6(&mut self, tx: oneshot::Sender<()>, enable_ipv6: bool) {
+    fn on_set_enable_ipv6(&mut self, tx: ResponseTx<(), settings::Error>, enable_ipv6: bool) {
         let save_result = self.settings.set_enable_ipv6(enable_ipv6);
         match save_result {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "set_enable_ipv6 response");
+                Self::oneshot_send(tx, Ok(()), "set_enable_ipv6 response");
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
@@ -1742,15 +1822,18 @@ where
                     self.reconnect_tunnel();
                 }
             }
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+            Err(e) => {
+                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_enable_ipv6 response");
+            }
         }
     }
 
-    fn on_set_dns_options(&mut self, tx: oneshot::Sender<()>, dns_options: DnsOptions) {
+    fn on_set_dns_options(&mut self, tx: ResponseTx<(), settings::Error>, dns_options: DnsOptions) {
         let save_result = self.settings.set_dns_options(dns_options.clone());
         match save_result {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "set_dns_options response");
+                Self::oneshot_send(tx, Ok(()), "set_dns_options response");
                 if settings_changed {
                     let settings = self.settings.to_settings();
                     let resolvers =
@@ -1759,15 +1842,18 @@ where
                     self.send_tunnel_command(TunnelCommand::CustomDns(resolvers));
                 }
             }
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+            Err(e) => {
+                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_dns_options response");
+            }
         }
     }
 
-    fn on_set_wireguard_mtu(&mut self, tx: oneshot::Sender<()>, mtu: Option<u16>) {
+    fn on_set_wireguard_mtu(&mut self, tx: ResponseTx<(), settings::Error>, mtu: Option<u16>) {
         let save_result = self.settings.set_wireguard_mtu(mtu);
         match save_result {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "set_wireguard_mtu response");
+                Self::oneshot_send(tx, Ok(()), "set_wireguard_mtu response");
                 if settings_changed {
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
@@ -1779,26 +1865,32 @@ where
                     }
                 }
             }
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+            Err(e) => {
+                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_wireguard_mtu response");
+            }
         }
     }
 
     async fn on_set_wireguard_rotation_interval(
         &mut self,
-        tx: oneshot::Sender<()>,
+        tx: ResponseTx<(), settings::Error>,
         interval: Option<u32>,
     ) {
         let save_result = self.settings.set_wireguard_rotation_interval(interval);
         match save_result {
             Ok(settings_changed) => {
-                Self::oneshot_send(tx, (), "set_wireguard_rotation_interval response");
+                Self::oneshot_send(tx, Ok(()), "set_wireguard_rotation_interval response");
                 if settings_changed {
                     self.ensure_key_rotation().await;
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                 }
             }
-            Err(e) => error!("{}", e.display_chain_with_msg("Unable to save settings")),
+            Err(e) => {
+                error!("{}", e.display_chain_with_msg("Unable to save settings"));
+                Self::oneshot_send(tx, Err(e), "set_wireguard_rotation_interval response");
+            }
         }
     }
 
@@ -1822,28 +1914,29 @@ where
         }
     }
 
-    async fn on_generate_wireguard_key(&mut self, tx: oneshot::Sender<KeygenEvent>) {
+    async fn on_generate_wireguard_key(&mut self, tx: ResponseTx<KeygenEvent, Error>) {
         match self.on_generate_wireguard_key_inner().await {
             Ok(key_event) => {
-                Self::oneshot_send(tx, key_event, "generate_wireguard_key response");
+                Self::oneshot_send(tx, Ok(key_event), "generate_wireguard_key");
             }
             Err(e) => {
                 log::error!("Failed to generate new wireguard key - {}", e);
+                Self::oneshot_send(tx, Err(e), "generate_wireguard_key");
             }
         }
     }
 
-    async fn on_generate_wireguard_key_inner(&mut self) -> Result<KeygenEvent, String> {
+    async fn on_generate_wireguard_key_inner(&mut self) -> Result<KeygenEvent, Error> {
         let account_token = self
             .settings
             .get_account_token()
-            .ok_or_else(|| "No account token set".to_owned())?;
+            .ok_or(Error::NoAccountToken)?;
 
         let mut account_entry = self
             .account_history
             .get(&account_token)
             .await
-            .map_err(|e| format!("Failed to read account entry from history: {}", e))
+            .map_err(Error::AccountHistory)
             .map(|data| {
                 data.unwrap_or_else(|| {
                     log::error!("Account token set in settings but not in account history");
@@ -1874,9 +1967,7 @@ where
                 self.account_history
                     .insert(account_entry)
                     .await
-                    .map_err(|e| {
-                        format!("Failed to add new wireguard key to account data: {}", e)
-                    })?;
+                    .map_err(Error::AccountHistory)?;
                 if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
                     self.reconnect_tunnel();
                 }
@@ -1899,29 +1990,33 @@ where
                 Ok(keygen_event)
             }
             Err(wireguard::Error::TooManyKeys) => Ok(KeygenEvent::TooManyKeys),
-            Err(e) => Err(format!(
-                "Failed to generate new key - {}",
-                e.display_chain_with_msg("Failed to generate new wireguard key:")
-            )),
+            Err(wireguard::Error::RestError(error)) => Err(Error::RestError(error)),
         }
     }
 
-    async fn on_get_wireguard_key(&mut self, tx: oneshot::Sender<Option<wireguard::PublicKey>>) {
+    async fn on_get_wireguard_key(&mut self, tx: ResponseTx<Option<wireguard::PublicKey>, Error>) {
         let token = self.settings.get_account_token();
-        if let Some(token) = token {
+        let result = if let Some(token) = token {
             let entry = self.account_history.get(&token).await;
-            if let Ok(Some(entry)) = entry {
-                let key = entry.wireguard.map(|wg| wg.get_public_key());
-                Self::oneshot_send(tx, key, "get_wireguard_key response");
+            match entry {
+                Ok(Some(entry)) => {
+                    let key = entry.wireguard.map(|wg| wg.get_public_key());
+                    Ok(key)
+                }
+                Ok(None) => Err(Error::NoAccountTokenHistory),
+                Err(error) => Err(Error::AccountHistory(error)),
             }
-        }
+        } else {
+            Err(Error::NoAccountToken)
+        };
+        Self::oneshot_send(tx, result, "get_wireguard_key response");
     }
 
-    async fn on_verify_wireguard_key(&mut self, tx: oneshot::Sender<bool>) {
+    async fn on_verify_wireguard_key(&mut self, tx: ResponseTx<bool, Error>) {
         let account = match self.settings.get_account_token() {
             Some(account) => account,
             None => {
-                Self::oneshot_send(tx, false, "verify_wireguard_key response");
+                Self::oneshot_send(tx, Ok(false), "verify_wireguard_key response");
                 return;
             }
         };
@@ -1935,11 +2030,16 @@ where
         let public_key = match key {
             Ok(Some(public_key)) => public_key,
             Ok(None) => {
-                Self::oneshot_send(tx, false, "verify_wireguard_key response");
+                Self::oneshot_send(tx, Ok(false), "verify_wireguard_key response");
                 return;
             }
             Err(e) => {
                 log::error!("Failed to read key data: {}", e);
+                Self::oneshot_send(
+                    tx,
+                    Err(Error::AccountHistory(e)),
+                    "verify_wireguard_key response",
+                );
                 return;
             }
         };
@@ -1949,14 +2049,12 @@ where
             .verify_wireguard_key(account, public_key);
 
         tokio::spawn(async move {
-            match verification_rpc.await {
-                Ok(is_valid) => {
-                    Self::oneshot_send(tx, is_valid, "verify_wireguard_key response");
-                }
-                Err(err) => {
-                    log::error!("Failed to verify wireguard key - {}", err);
-                }
-            }
+            let result = match verification_rpc.await {
+                Ok(is_valid) => Ok(is_valid),
+                Err(wireguard::Error::RestError(error)) => Err(Error::RestError(error)),
+                Err(wireguard::Error::TooManyKeys) => return,
+            };
+            Self::oneshot_send(tx, result, "verify_wireguard_key response");
         });
     }
 

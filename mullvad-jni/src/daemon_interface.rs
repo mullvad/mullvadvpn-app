@@ -12,6 +12,7 @@ use mullvad_types::{
 };
 
 #[derive(Debug, err_derive::Error)]
+#[error(no_from)]
 pub enum Error {
     #[error(display = "Can't send command to daemon because it is not running")]
     NoDaemon(#[error(source)] mullvad_daemon::Error),
@@ -24,6 +25,21 @@ pub enum Error {
 
     #[error(display = "Error performing RPC with the remote API")]
     RpcError(#[error(source)] mullvad_rpc::rest::Error),
+
+    #[error(display = "Failed to update settings")]
+    SettingsError,
+
+    #[error(display = "Daemon returned an error")]
+    OtherError(#[error(source)] mullvad_daemon::Error),
+}
+
+impl From<mullvad_daemon::Error> for Error {
+    fn from(error: mullvad_daemon::Error) -> Error {
+        match error {
+            mullvad_daemon::Error::RestError(error) => Error::RpcError(error),
+            error => Error::OtherError(error),
+        }
+    }
 }
 
 type Result<T> = std::result::Result<T, Error>;
@@ -52,7 +68,7 @@ impl DaemonInterface {
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .map_err(Error::RpcError)
+            .map_err(Error::from)
     }
 
     pub fn disconnect(&self) -> Result<()> {
@@ -68,7 +84,9 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GenerateWireguardKey(tx))?;
 
-        block_on(rx).map_err(|_| Error::NoResponse)
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
     }
 
     pub fn get_account_data(&self, account_token: String) -> Result<AccountData> {
@@ -96,7 +114,7 @@ impl DaemonInterface {
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .map_err(Error::RpcError)
+            .map_err(Error::from)
     }
 
     pub fn get_current_location(&self) -> Result<Option<GeoIpLocation>> {
@@ -162,7 +180,9 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::RemoveAccountFromHistory(tx, account_token))?;
 
-        block_on(rx).map_err(|_| Error::NoResponse)
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
     }
 
     pub fn get_wireguard_key(&self) -> Result<Option<wireguard::PublicKey>> {
@@ -170,14 +190,18 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::GetWireguardKey(tx))?;
 
-        block_on(rx).map_err(|_| Error::NoResponse)
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
     }
 
     pub fn verify_wireguard_key(&self) -> Result<bool> {
         let (tx, rx) = oneshot::channel();
 
         self.send_command(DaemonCommand::VerifyWireguardKey(tx))?;
-        block_on(rx).map_err(|_| Error::NoResponse)
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(Error::from)
     }
 
     pub fn set_account(&self, account_token: Option<String>) -> Result<()> {
@@ -185,7 +209,9 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SetAccount(tx, account_token))?;
 
-        block_on(rx).map_err(|_| Error::NoResponse)
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(|_| Error::SettingsError)
     }
 
     pub fn set_allow_lan(&self, allow_lan: bool) -> Result<()> {
@@ -193,7 +219,9 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SetAllowLan(tx, allow_lan))?;
 
-        block_on(rx).map_err(|_| Error::NoResponse)
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(|_| Error::SettingsError)
     }
 
     pub fn set_auto_connect(&self, auto_connect: bool) -> Result<()> {
@@ -201,7 +229,9 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SetAutoConnect(tx, auto_connect))?;
 
-        block_on(rx).map_err(|_| Error::NoResponse)
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(|_| Error::SettingsError)
     }
 
     pub fn set_dns_options(&self, dns_options: DnsOptions) -> Result<()> {
@@ -209,7 +239,9 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SetDnsOptions(tx, dns_options))?;
 
-        block_on(rx).map_err(|_| Error::NoResponse)
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(|_| Error::SettingsError)
     }
 
     pub fn set_wireguard_mtu(&self, wireguard_mtu: Option<u16>) -> Result<()> {
@@ -217,7 +249,9 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::SetWireguardMtu(tx, wireguard_mtu))?;
 
-        block_on(rx).map_err(|_| Error::NoResponse)
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(|_| Error::SettingsError)
     }
 
     pub fn shutdown(&self) -> Result<()> {
@@ -231,7 +265,7 @@ impl DaemonInterface {
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?
-            .map_err(Error::RpcError)
+            .map_err(Error::from)
     }
 
     pub fn update_relay_settings(&self, update: RelaySettingsUpdate) -> Result<()> {
@@ -239,7 +273,9 @@ impl DaemonInterface {
 
         self.send_command(DaemonCommand::UpdateRelaySettings(tx, update))?;
 
-        block_on(rx).map_err(|_| Error::NoResponse)
+        block_on(rx)
+            .map_err(|_| Error::NoResponse)?
+            .map_err(|_| Error::SettingsError)
     }
 
     fn send_command(&self, command: DaemonCommand) -> Result<()> {

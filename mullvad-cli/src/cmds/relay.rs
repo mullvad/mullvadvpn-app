@@ -193,7 +193,9 @@ impl Command for Relay {
 impl Relay {
     async fn update_constraints(&self, update: RelaySettingsUpdate) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        rpc.update_relay_settings(update).await?;
+        rpc.update_relay_settings(update)
+            .await
+            .map_err(|error| Error::RpcFailedExt("Failed to update relay settings", error))?;
         println!("Relay constraints updated");
         Ok(())
     }
@@ -680,7 +682,11 @@ impl Relay {
 
     async fn get_filtered_relays() -> Result<Vec<RelayListCountry>> {
         let mut rpc = new_rpc_client().await?;
-        let mut locations = rpc.get_relay_locations(()).await?.into_inner();
+        let mut locations = rpc
+            .get_relay_locations(())
+            .await
+            .map_err(|error| Error::RpcFailedExt("Failed to obtain relay locations", error))?
+            .into_inner();
 
         let mut countries = Vec::new();
 

@@ -23,7 +23,7 @@ pub fn state_listen(mut rpc: ManagementServiceClient) -> Receiver<Result<TunnelS
                             _ => continue,
                         },
                         Ok(None) => break,
-                        Err(status) => Err(Error::GrpcClientError(status)),
+                        Err(status) => Err(Error::RpcFailed(status)),
                     };
 
                     if let Err(_) = sender.send(forward).await {
@@ -32,7 +32,7 @@ pub fn state_listen(mut rpc: ManagementServiceClient) -> Receiver<Result<TunnelS
                 }
             }
             Err(status) => {
-                let _ = sender.send(Err(Error::GrpcClientError(status))).await;
+                let _ = sender.send(Err(Error::RpcFailed(status))).await;
             }
         }
     });
