@@ -7,7 +7,6 @@ members = [
     "mullvad-problem-report",
     "mullvad-jni",
     "mullvad-paths",
-    "mullvad-platform-metadata",
     "mullvad-types",
     "mullvad-rpc",
 #    "mullvad-tests",
@@ -15,6 +14,7 @@ members = [
     "talpid-openvpn-plugin",
     "talpid-core",
     "talpid-dbus",
+    "talpid-platform-metadata",
     "mullvad-management-interface",
 ]
 exclude = ["dist-assets/binaries/shadowsocks-rust"]
