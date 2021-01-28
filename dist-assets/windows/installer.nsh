@@ -282,6 +282,18 @@
 		StrCpy $R0 "Failed to install Mullvad service"
 		log::LogWithDetails $R0 $1
 
+		#
+		# NSIS documentation indicates that failure to launch the target will return
+		# the string "error" on the top of the stack ($0 after we pop).
+		#
+		# However in practice, the failure code from CreateProcess is used.
+		# And naturally, comparing to 0xC0000139 fails because... NSIS
+		#
+		${If} $0 == -1073741511
+			log::Log "Failed to launch $\"mullvad-daemon$\" (API issue)"
+			Goto InstallService_return
+		${EndIf}
+
 		Goto InstallService_return
 	${EndIf}
 
