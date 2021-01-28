@@ -2607,6 +2607,8 @@ version = "0.1.0"
 dependencies = [
  "rs-release",
  "talpid-dbus",
+ "utf16_lit",
+ "winapi 0.3.9",
 ]
 
 [[package]]
