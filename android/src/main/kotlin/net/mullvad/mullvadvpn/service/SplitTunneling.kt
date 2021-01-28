@@ -18,11 +18,11 @@ class SplitTunneling(context: Context, endpoint: ServiceEndpoint) {
     private val excludedApps = HashSet<String>()
     private val preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
 
-    val onChange = EventNotifier<ArrayList<String>?>(null)
-
-    var enabled by observable(preferences.getBoolean(KEY_ENABLED, false)) { _, _, _ ->
+    private var enabled by observable(preferences.getBoolean(KEY_ENABLED, false)) { _, _, _ ->
         enabledChanged()
     }
+
+    val onChange = EventNotifier<ArrayList<String>?>(null)
 
     init {
         if (appListFile.exists()) {
@@ -37,13 +37,15 @@ class SplitTunneling(context: Context, endpoint: ServiceEndpoint) {
         endpoint.dispatcher.apply {
             registerHandler(Request.IncludeApp::class) { request ->
                 request.packageName?.let { packageName ->
-                    includeApp(packageName)
+                    excludedApps.remove(packageName)
+                    update()
                 }
             }
 
             registerHandler(Request.ExcludeApp::class) { request ->
                 request.packageName?.let { packageName ->
-                    excludeApp(packageName)
+                    excludedApps.add(packageName)
+                    update()
                 }
             }
 
@@ -52,25 +54,9 @@ class SplitTunneling(context: Context, endpoint: ServiceEndpoint) {
             }
 
             registerHandler(Request.PersistExcludedApps::class) { _ ->
-                persist()
+                appListFile.writeText(excludedApps.joinToString(separator = "\n"))
             }
         }
-    }
-
-    fun isAppExcluded(appPackageName: String) = excludedApps.contains(appPackageName)
-
-    fun excludeApp(appPackageName: String) {
-        excludedApps.add(appPackageName)
-        update()
-    }
-
-    fun includeApp(appPackageName: String) {
-        excludedApps.remove(appPackageName)
-        update()
-    }
-
-    fun persist() {
-        appListFile.writeText(excludedApps.joinToString(separator = "\n"))
     }
 
     fun onDestroy() {
