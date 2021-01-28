@@ -13,7 +13,7 @@ use winapi::{
     shared::minwindef::{FALSE, TRUE},
     um::{
         handleapi::CloseHandle,
-        ioapiset::GetOverlappedResultEx,
+        ioapiset::GetOverlappedResult,
         minwinbase::OVERLAPPED,
         synchapi::{CreateEventW, SetEvent, WaitForMultipleObjects, WaitForSingleObject},
         winbase::{INFINITE, WAIT_ABANDONED_0, WAIT_OBJECT_0},
@@ -143,12 +143,11 @@ impl SplitTunnel {
                 }
 
                 let result = unsafe {
-                    GetOverlappedResultEx(
+                    GetOverlappedResult(
                         event_context.handle,
                         &event_context.event_overlapped as *const _ as *mut _,
                         &mut returned_bytes,
-                        INFINITE,
-                        FALSE,
+                        TRUE,
                     )
                 };
 
@@ -156,7 +155,7 @@ impl SplitTunnel {
                     let error = io::Error::last_os_error();
                     log::error!(
                         "{}",
-                        error.display_chain_with_msg("GetOverlappedResultEx failed")
+                        error.display_chain_with_msg("GetOverlappedResult failed")
                     );
 
                     continue;
