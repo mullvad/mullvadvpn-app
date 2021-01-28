@@ -2,15 +2,9 @@ use crate::logging::windows::{log_sink, LogSink};
 
 use lazy_static::lazy_static;
 use log::{error, trace, warn};
-use std::{
-    env, ffi::OsString, io, iter, mem, net::IpAddr, os::windows::ffi::OsStrExt, path::Path, ptr,
-};
+use std::{env, io, net::IpAddr, path::Path};
 use talpid_types::ErrorExt;
 use widestring::WideCString;
-use winapi::um::{
-    libloaderapi::{GetModuleHandleW, GetProcAddress},
-    winnt::RTL_OSVERSIONINFOW,
-};
 use winreg::{
     enums::{HKEY_LOCAL_MACHINE, REG_MULTI_SZ},
     transaction::Transaction,
@@ -222,8 +216,8 @@ fn reset_dns_cache_policy() -> Result<(), Error> {
 }
 
 fn is_minimum_windows10() -> bool {
-    match is_minimum_windows10_inner() {
-        Ok(result) => result,
+    match talpid_platform_metadata::WindowsVersion::new() {
+        Ok(version_info) => version_info.major_version() >= 10,
         Err(error) => {
             error!(
                 "{}",
@@ -233,36 +227,6 @@ fn is_minimum_windows10() -> bool {
         }
     }
 }
-
-fn is_minimum_windows10_inner() -> Result<bool, io::Error> {
-    let rtl_get_version: extern "stdcall" fn(*mut RTL_OSVERSIONINFOW);
-
-    let module_name: Vec<u16> = OsString::from("ntdll")
-        .as_os_str()
-        .encode_wide()
-        .chain(iter::once(0u16))
-        .collect();
-
-    let ntdll = unsafe { GetModuleHandleW(module_name.as_ptr()) };
-    if ntdll == ptr::null_mut() {
-        return Err(io::Error::last_os_error());
-    }
-
-    let function_address =
-        unsafe { GetProcAddress(ntdll, b"RtlGetVersion\0" as *const _ as *const i8) };
-    if function_address == ptr::null_mut() {
-        return Err(io::Error::last_os_error());
-    }
-
-    rtl_get_version = unsafe { mem::transmute(function_address) };
-
-    let mut version_info: RTL_OSVERSIONINFOW = unsafe { std::mem::zeroed() };
-    version_info.dwOSVersionInfoSize = mem::size_of_val(&version_info) as u32;
-    rtl_get_version(&mut version_info);
-
-    Ok(version_info.dwMajorVersion >= 10)
-}
-
 
 ffi_error!(InitializationResult, Error::Initialization);
 ffi_error!(DeinitializationResult, Error::Deinitialization);

@@ -2559,6 +2559,7 @@ dependencies = [
  "socket2",
  "system-configuration",
  "talpid-dbus",
+ "talpid-platform-metadata",
  "talpid-types",
  "tempfile",
  "tokio",
@@ -2609,6 +2610,7 @@ version = "0.1.0"
 dependencies = [
  "rs-release",
  "talpid-dbus",
+ "winapi 0.3.9",
 ]
 
 [[package]]
