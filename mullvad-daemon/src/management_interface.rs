@@ -902,11 +902,30 @@ fn map_daemon_error(error: crate::Error) -> Status {
     match error {
         DaemonError::RestError(error) => map_rest_error(error),
         DaemonError::SettingsError(error) => map_settings_error(error),
+        #[cfg(windows)]
+        DaemonError::SplitTunnelError(error) => map_split_tunnel_error(error),
         DaemonError::AccountHistory(error) => map_account_history_error(error),
         DaemonError::NoAccountToken | DaemonError::NoAccountTokenHistory => {
             Status::unauthenticated(error.to_string())
         }
         error => Status::unknown(error.to_string()),
+    }
+}
+
+#[cfg(windows)]
+/// Converts [`talpid_core::split_tunnel::Error`] into a tonic status.
+fn map_split_tunnel_error(error: talpid_core::split_tunnel::Error) -> Status {
+    use talpid_core::split_tunnel::Error;
+
+    match &error {
+        Error::RegisterIps(io_error) | Error::SetConfiguration(io_error) => {
+            if io_error.kind() == std::io::ErrorKind::NotFound {
+                Status::not_found(format!("{}: {}", error, io_error))
+            } else {
+                Status::unknown(error.to_string())
+            }
+        }
+        _ => Status::unknown(error.to_string()),
     }
 }
 
