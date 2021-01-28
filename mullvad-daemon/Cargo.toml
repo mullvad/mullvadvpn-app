@@ -27,11 +27,11 @@ tokio = { version = "0.2", features =  [ "fs", "rt-threaded", "stream", "sync" ]
 uuid = { version = "0.8", features = ["v4"] }
 
 mullvad-paths = { path = "../mullvad-paths" }
-mullvad-platform-metadata = { path = "../mullvad-platform-metadata" }
 mullvad-types = { path = "../mullvad-types" }
 mullvad-rpc = { path = "../mullvad-rpc" }
 talpid-core = { path = "../talpid-core" }
 talpid-types = { path = "../talpid-types" }
+talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 
 [target.'cfg(not(target_os="android"))'.dependencies]
 triggered = "0.1.1"

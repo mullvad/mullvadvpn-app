@@ -9,7 +9,7 @@ pub fn collect() -> BTreeMap<String, String> {
         "mullvad-product-version".to_owned(),
         PRODUCT_VERSION.to_owned(),
     );
-    metadata.insert("os".to_owned(), mullvad_platform_metadata::version());
-    metadata.extend(mullvad_platform_metadata::extra_metadata());
+    metadata.insert("os".to_owned(), talpid_platform_metadata::version());
+    metadata.extend(talpid_platform_metadata::extra_metadata());
     metadata
 }
