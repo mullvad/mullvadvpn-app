@@ -22,7 +22,7 @@ lazy_static! {
     /// Specifies whether to override per-interface DNS resolvers with a global DNS policy.
     static ref GLOBAL_DNS_CACHE_POLICY: bool = env::var("TALPID_DNS_CACHE_POLICY")
         .map(|v| v != "0")
-        .unwrap_or(true);
+        .unwrap_or(false);
 }
 
 /// Errors that can happen when configuring DNS on Windows.
