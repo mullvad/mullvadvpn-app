@@ -1,4 +1,7 @@
-use crate::logging::windows::{log_sink, LogSink};
+use crate::{
+    firewall::IsLocalIpAddress,
+    logging::windows::{log_sink, LogSink},
+};
 
 use lazy_static::lazy_static;
 use log::{error, trace, warn};
@@ -70,12 +73,12 @@ impl super::DnsMonitorT for DnsMonitor {
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
         let ipv4 = servers
             .iter()
-            .filter(|ip| ip.is_ipv4())
+            .filter(|ip| ip.is_ipv4() && !ip.is_local_address())
             .map(ip_to_widestring)
             .collect::<Vec<_>>();
         let ipv6 = servers
             .iter()
-            .filter(|ip| ip.is_ipv6())
+            .filter(|ip| ip.is_ipv6() && !ip.is_local_address())
             .map(ip_to_widestring)
             .collect::<Vec<_>>();
 
@@ -105,7 +108,6 @@ impl super::DnsMonitorT for DnsMonitor {
         if *GLOBAL_DNS_CACHE_POLICY && is_minimum_windows10() {
             if let Err(error) = set_dns_cache_policy(servers) {
                 error!("{}", error.display_chain());
-                warn!("DNS resolution may be slowed down");
             }
         }
 

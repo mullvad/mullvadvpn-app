@@ -1,4 +1,4 @@
-use super::{FirewallArguments, FirewallPolicy, FirewallT};
+use super::{FirewallArguments, FirewallPolicy, FirewallT, IsLocalIpAddress};
 use ipnetwork::IpNetwork;
 use pfctl::{DropAction, FilterRuleAction, Uid};
 use std::{
@@ -161,7 +161,7 @@ impl Firewall {
     ) -> Result<Vec<pfctl::FilterRule>> {
         let mut rules = Vec::with_capacity(4);
 
-        let is_local = super::is_local_address(&server)
+        let is_local = server.is_local_address()
             && server != tunnel.ipv4_gateway
             && !tunnel
                 .ipv6_gateway

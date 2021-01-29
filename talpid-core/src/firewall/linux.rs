@@ -1,4 +1,4 @@
-use super::{FirewallArguments, FirewallPolicy, FirewallT};
+use super::{FirewallArguments, FirewallPolicy, FirewallT, IsLocalIpAddress};
 use crate::{split_tunnel, tunnel};
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
@@ -660,7 +660,7 @@ impl<'a> PolicyBatch<'a> {
     ) -> Result<()> {
         let (local_resolvers, remote_resolvers): (Vec<IpAddr>, Vec<IpAddr>) =
             dns_servers.iter().partition(|server| {
-                super::is_local_address(server)
+                server.is_local_address()
                     && *server != &tunnel.ipv4_gateway
                     && !tunnel
                         .ipv6_gateway
