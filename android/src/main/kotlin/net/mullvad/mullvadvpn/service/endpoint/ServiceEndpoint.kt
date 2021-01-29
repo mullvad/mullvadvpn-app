@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
+import android.os.DeadObjectException
 import android.os.Looper
 import android.os.Messenger
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
@@ -23,6 +24,22 @@ class ServiceEndpoint(looper: Looper) {
 
     fun onDestroy() {
         dispatcher.onDestroy()
+    }
+
+    internal fun sendEvent(event: Event) {
+        synchronized(this) {
+            val deadListeners = mutableSetOf<Messenger>()
+
+            for (listener in listeners) {
+                try {
+                    listener.send(event.message)
+                } catch (_: DeadObjectException) {
+                    deadListeners.add(listener)
+                }
+            }
+
+            deadListeners.forEach { listeners.remove(it) }
+        }
     }
 
     private fun registerListener(listener: Messenger) {
