@@ -382,10 +382,9 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
    WireGuard on Linux.
 
 * `TALPID_DNS_CACHE_POLICY` - On Windows, this changes how DNS is configured:
-  * `1`: The default. This sets a global list of DNS servers that `dnscache` will use instead of
-         the servers specified on each interface.
-  * `0`: Only set DNS servers on the tunnel interface. This will misbehave if local custom DNS
-         servers are used.
+  * `0`: The default. Only set DNS servers on the tunnel interface, excepting local addresses.
+  * `1`: This sets a global list of DNS servers that `dnscache` will use instead of the servers
+         specified on each interface.
 * `TALPID_DISABLE_OFFLINE_MONITOR` - Forces the daemon to always assume the host is online.
 
 
