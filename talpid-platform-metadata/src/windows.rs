@@ -9,16 +9,17 @@ use winapi::um::{
 };
 
 pub fn version() -> String {
-    let (major, build) = WindowsVersion::new()
+    let (major, minor, build) = WindowsVersion::new()
         .map(|version_info| {
             (
                 version_info.major_version().to_string(),
+                version_info.minor_version().to_string(),
                 version_info.build_number().to_string(),
             )
         })
-        .unwrap_or_else(|_| ("N/A".to_string(), "N/A".to_string()));
+        .unwrap_or_else(|_| ("N/A".to_string(), "N/A".to_string(), "N/A".to_string()));
 
-    format!("Windows {} Build {}", major, build)
+    format!("Windows {}.{} Build {}", major, minor, build)
 }
 
 pub fn short_version() -> String {
@@ -53,7 +54,7 @@ impl WindowsVersion {
         }
 
         let rtl_get_version: extern "stdcall" fn(*mut RTL_OSVERSIONINFOW) =
-            unsafe { mem::transmute(function_address) };
+            unsafe { *(&function_address as *const _ as *const _) };
 
         let mut version_info: MaybeUninit<RTL_OSVERSIONINFOW> = mem::MaybeUninit::zeroed();
         unsafe {
@@ -69,6 +70,10 @@ impl WindowsVersion {
 
     pub fn major_version(&self) -> u32 {
         self.inner.dwMajorVersion
+    }
+
+    pub fn minor_version(&self) -> u32 {
+        self.inner.dwMinorVersion
     }
 
     pub fn build_number(&self) -> u32 {
