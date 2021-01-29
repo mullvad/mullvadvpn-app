@@ -5,18 +5,20 @@ use winapi::um::{
 };
 
 pub fn version() -> String {
-    let (major, minor, build) = WindowsVersion::version_components()
-        .map(|(major, minor, build)| (major.to_string(), minor.to_string(), build.to_string()))
-        .unwrap_or_else(|_| ("N/A".to_string(), "N/A".to_string(), "N/A".to_string()));
-
-    format!("Windows {}.{} ({})", major, minor, build)
+    short_version()
 }
 
 pub fn short_version() -> String {
-    let major_version = WindowsVersion::new()
-        .map(|version| version.major_version().to_string())
+    let version_string = WindowsVersion::new()
+        .map(|version| {
+            format!(
+                "{} {}",
+                version.major_version().to_string(),
+                version.build_number().to_string()
+            )
+        })
         .unwrap_or("N/A".into());
-    format!("Windows {}", major_version)
+    format!("Windows {}", version_string)
 }
 
 pub fn extra_metadata() -> impl Iterator<Item = (String, String)> {
@@ -64,21 +66,8 @@ impl WindowsVersion {
         self.inner.dwMajorVersion
     }
 
-    pub fn minor_version(&self) -> u32 {
-        self.inner.dwMinorVersion
-    }
-
     pub fn build_number(&self) -> u32 {
         self.inner.dwBuildNumber
-    }
-
-    pub fn version_components() -> Result<(u32, u32, u32), io::Error> {
-        let current_version = Self::new()?;
-        Ok((
-            current_version.major_version(),
-            current_version.minor_version(),
-            current_version.build_number(),
-        ))
     }
 }
 
