@@ -43,6 +43,7 @@ class ServiceConnection(
     val splitTunneling = get<SplitTunneling>(
         parameters = { parametersOf(service.messenger, dispatcher) }
     )
+    val voucherRedeemer = VoucherRedeemer(service.messenger, dispatcher)
     val vpnPermission = VpnPermission(service.messenger)
 
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
@@ -67,6 +68,7 @@ class ServiceConnection(
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
+        voucherRedeemer.onDestroy()
 
         appVersionInfoCache.onDestroy()
         customDns.onDestroy()
