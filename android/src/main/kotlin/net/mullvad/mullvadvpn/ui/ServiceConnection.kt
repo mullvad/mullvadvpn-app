@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.LocationInfoCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.RelayListListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
+import net.mullvad.mullvadvpn.ui.serviceconnection.VoucherRedeemer
 import net.mullvad.mullvadvpn.util.DispatchingHandler
 
 class ServiceConnection(private val service: ServiceInstance) {
@@ -32,6 +33,7 @@ class ServiceConnection(private val service: ServiceInstance) {
     val locationInfoCache = LocationInfoCache(dispatcher)
     val settingsListener = SettingsListener(service.messenger, dispatcher)
     val splitTunneling = SplitTunneling(service.messenger, dispatcher)
+    val voucherRedeemer = VoucherRedeemer(service.messenger, dispatcher)
 
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(service.messenger, settingsListener)
@@ -50,6 +52,7 @@ class ServiceConnection(private val service: ServiceInstance) {
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
+        voucherRedeemer.onDestroy()
 
         appVersionInfoCache.onDestroy()
         customDns.onDestroy()
