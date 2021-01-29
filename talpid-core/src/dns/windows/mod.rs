@@ -70,15 +70,20 @@ impl super::DnsMonitorT for DnsMonitor {
         Ok(monitor)
     }
 
-    fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
+    fn set(
+        &mut self,
+        interface: &str,
+        gateways: &[IpAddr],
+        servers: &[IpAddr],
+    ) -> Result<(), Error> {
         let ipv4 = servers
             .iter()
-            .filter(|ip| ip.is_ipv4() && !ip.is_local_address())
+            .filter(|ip| ip.is_ipv4() && (gateways.contains(ip) || !ip.is_local_address()))
             .map(ip_to_widestring)
             .collect::<Vec<_>>();
         let ipv6 = servers
             .iter()
-            .filter(|ip| ip.is_ipv6() && !ip.is_local_address())
+            .filter(|ip| ip.is_ipv6() && (gateways.contains(ip) || !ip.is_local_address()))
             .map(ip_to_widestring)
             .collect::<Vec<_>>();
 

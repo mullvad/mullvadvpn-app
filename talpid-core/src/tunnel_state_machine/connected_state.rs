@@ -120,9 +120,16 @@ impl ConnectedState {
 
     fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
         let dns_ips = self.get_dns_servers(shared_values);
+
+        let mut tunnel_gateways = vec![];
+        tunnel_gateways.push(self.metadata.ipv4_gateway.into());
+        if let Some(ipv6_gateway) = self.metadata.ipv6_gateway {
+            tunnel_gateways.push(ipv6_gateway.into());
+        };
+
         shared_values
             .dns_monitor
-            .set(&self.metadata.interface, &dns_ips)
+            .set(&self.metadata.interface, &tunnel_gateways, &dns_ips)
             .map_err(BoxedError::new)?;
 
         Ok(())
