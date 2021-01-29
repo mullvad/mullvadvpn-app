@@ -2610,6 +2610,7 @@ version = "0.1.0"
 dependencies = [
  "rs-release",
  "talpid-dbus",
+ "utf16_lit",
  "winapi 0.3.9",
 ]
 
@@ -3137,6 +3138,12 @@ name = "urlencoding"
 version = "1.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c9232eb53352b4442e40d7900465dfc534e8cb2dc8f18656fcb2ac16112b5593"
+
+[[package]]
+name = "utf16_lit"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "403231d2fb8f0f55daf24cd03571f4fc1bb856e0fa98c1832bbae3f6ff7e7a07"
 
 [[package]]
 name = "uuid"

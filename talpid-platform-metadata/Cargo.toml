@@ -14,3 +14,4 @@ talpid-dbus = { path = "../talpid-dbus" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 winapi = { version = "0.3.6", features = ["winbase"] }
+utf16_lit = "1"
