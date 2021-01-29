@@ -18,9 +18,9 @@ uuid = { version = "0.8", features = ["v4"] }
 tokio = { version = "0.2", features = [ "rt-core" ] }
 
 mullvad-paths = { path = "../mullvad-paths" }
-mullvad-platform-metadata = { path = "../mullvad-platform-metadata" }
 mullvad-rpc = { path = "../mullvad-rpc" }
 talpid-types = { path = "../talpid-types" }
+talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 
 
 [target.'cfg(target_os = "android")'.dependencies]
