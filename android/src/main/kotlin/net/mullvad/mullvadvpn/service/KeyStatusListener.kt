@@ -23,6 +23,16 @@ class KeyStatusListener(endpoint: ServiceEndpoint) {
                 onKeygenEvent = { event -> keyStatus = event }
             }
         }
+
+        endpoint.dispatcher.apply {
+            registerHandler(Request.WireGuardGenerateKey::class) { _ ->
+                generateKey()
+            }
+
+            registerHandler(Request.WireGuardVerifyKey::class) { _ ->
+                verifyKey()
+            }
+        }
     }
 
     fun generateKey() = GlobalScope.launch(Dispatchers.Default) {
