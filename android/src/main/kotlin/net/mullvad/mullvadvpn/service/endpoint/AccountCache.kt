@@ -2,18 +2,13 @@ package net.mullvad.mullvadvpn.service.endpoint
 
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
-import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
-import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-class AccountCache(
-    val settingsListener: SettingsListener,
-    val daemon: Intermittent<MullvadDaemon>
-) {
+class AccountCache(private val endpoint: ServiceEndpoint) {
     companion object {
         public val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
 
@@ -24,6 +19,9 @@ class AccountCache(
         // same value as before the invalidation.
         private const val MAX_INVALIDATED_RETRIES = 7
     }
+
+    private val daemon
+        get() = endpoint.intermittentDaemon
 
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
@@ -42,7 +40,7 @@ class AccountCache(
     private var oldAccountExpiry: DateTime? = null
 
     init {
-        settingsListener.accountNumberNotifier.subscribe(this) { accountNumber ->
+        endpoint.settingsListener.accountNumberNotifier.subscribe(this) { accountNumber ->
             handleNewAccountNumber(accountNumber)
         }
     }
@@ -107,7 +105,7 @@ class AccountCache(
     }
 
     fun onDestroy() {
-        settingsListener.accountNumberNotifier.unsubscribe(this)
+        endpoint.settingsListener.accountNumberNotifier.unsubscribe(this)
         jobTracker.cancelAllJobs()
 
         onAccountNumberChange.unsubscribeAll()

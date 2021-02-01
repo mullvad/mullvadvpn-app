@@ -33,7 +33,7 @@ class ServiceEndpoint(
 
     val settingsListener = SettingsListener(this)
 
-    val accountCache = AccountCache(settingsListener, intermittentDaemon)
+    val accountCache = AccountCache(this)
     val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)
 
