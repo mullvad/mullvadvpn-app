@@ -34,6 +34,10 @@ Line wrap the file at 100 chars.                                              Th
 - Update Electron from 11.0.2 to 11.2.1 which includes a newer Chromium version and
   security patches.
 
+### Fixed
+#### MacOS
+- When applying empty list of custom DNS servers, the daemon won't get stuck in the offline state.
+
 
 ## [2021.1-beta1] - 2021-01-25
 ### Added
