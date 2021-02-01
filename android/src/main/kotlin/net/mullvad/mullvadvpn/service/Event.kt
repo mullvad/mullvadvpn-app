@@ -5,6 +5,7 @@ import android.os.Message
 import android.os.Parcelable
 import java.util.ArrayList
 import kotlinx.parcelize.Parcelize
+import net.mullvad.mullvadvpn.model.AppVersionInfo as AppVersionInfoData
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
@@ -14,6 +15,9 @@ import net.mullvad.mullvadvpn.model.TunnelState
 sealed class Event : Parcelable {
     @Parcelize
     class AccountHistory(val history: ArrayList<String>?) : Event(), Parcelable
+
+    @Parcelize
+    class AppVersionInfo(val versionInfo: AppVersionInfoData?) : Event(), Parcelable
 
     @Parcelize
     class CurrentVersion(val version: String?) : Event(), Parcelable
