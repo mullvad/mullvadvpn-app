@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.service.endpoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.talpid.util.EventNotifier
 
@@ -21,6 +22,16 @@ class KeyStatusListener(endpoint: ServiceEndpoint) {
                 }
 
                 onKeygenEvent = { event -> keyStatus = event }
+            }
+        }
+
+        endpoint.dispatcher.apply {
+            registerHandler(Request.WireGuardGenerateKey::class) { _ ->
+                generateKey()
+            }
+
+            registerHandler(Request.WireGuardVerifyKey::class) { _ ->
+                verifyKey()
             }
         }
     }
