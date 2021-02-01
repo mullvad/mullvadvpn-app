@@ -7,6 +7,7 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.delay
+import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.model.LoginStatus
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
@@ -61,6 +62,36 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     init {
         endpoint.settingsListener.accountNumberNotifier.subscribe(this) { accountNumber ->
             handleNewAccountNumber(accountNumber)
+        }
+
+        endpoint.dispatcher.apply {
+            registerHandler(Request.CreateAccount::class) { _ ->
+                commandChannel.sendBlocking(Command.CreateAccount)
+            }
+
+            registerHandler(Request.Login::class) { request ->
+                request.account?.let { account ->
+                    commandChannel.sendBlocking(Command.Login(account))
+                }
+            }
+
+            registerHandler(Request.Logout::class) { _ ->
+                commandChannel.sendBlocking(Command.Logout)
+            }
+
+            registerHandler(Request.FetchAccountExpiry::class) { _ ->
+                fetchAccountExpiry()
+            }
+
+            registerHandler(Request.InvalidateAccountExpiry::class) { request ->
+                invalidateAccountExpiry(request.expiry)
+            }
+
+            registerHandler(Request.RemoveAccountFromHistory::class) { request ->
+                request.account?.let { account ->
+                    removeAccountFromHistory(account)
+                }
+            }
         }
     }
 
