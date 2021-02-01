@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.ipc
 
 import android.os.Message as RawMessage
 import kotlinx.parcelize.Parcelize
+import net.mullvad.mullvadvpn.model.AppVersionInfo as AppVersionInfoData
 import net.mullvad.mullvadvpn.model.GeoIpLocation
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
@@ -14,6 +15,9 @@ sealed class Event : Message.EventMessage() {
 
     @Parcelize
     data class AccountHistory(val history: List<String>?) : Event()
+
+    @Parcelize
+    data class AppVersionInfo(val versionInfo: AppVersionInfoData?) : Event()
 
     @Parcelize
     data class CurrentVersion(val version: String?) : Event()
