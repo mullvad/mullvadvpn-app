@@ -104,19 +104,19 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         }
     }
 
-    fun createNewAccount() {
-        commandChannel.sendBlocking(Command.CreateAccount)
+    fun onDestroy() {
+        endpoint.settingsListener.accountNumberNotifier.unsubscribe(this)
+        jobTracker.cancelAllJobs()
+
+        onAccountNumberChange.unsubscribeAll()
+        onAccountExpiryChange.unsubscribeAll()
+        onAccountHistoryChange.unsubscribeAll()
+        onLoginStatusChange.unsubscribeAll()
+
+        commandChannel.close()
     }
 
-    fun login(account: String) {
-        commandChannel.sendBlocking(Command.Login(account))
-    }
-
-    fun logout() {
-        commandChannel.sendBlocking(Command.Logout)
-    }
-
-    fun fetchAccountExpiry() {
+    private fun fetchAccountExpiry() {
         synchronized(this) {
             accountNumber?.let { account ->
                 jobTracker.newBackgroundJob("fetch") {
@@ -145,7 +145,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         }
     }
 
-    fun invalidateAccountExpiry(accountExpiryToInvalidate: DateTime) {
+    private fun invalidateAccountExpiry(accountExpiryToInvalidate: DateTime) {
         synchronized(this) {
             if (accountExpiry == accountExpiryToInvalidate) {
                 oldAccountExpiry = accountExpiryToInvalidate
@@ -154,23 +154,11 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         }
     }
 
-    fun removeAccountFromHistory(accountToken: String) {
+    private fun removeAccountFromHistory(accountToken: String) {
         jobTracker.newBackgroundJob("removeAccountFromHistory $accountToken") {
             daemon.await().removeAccountFromHistory(accountToken)
             fetchAccountHistory()
         }
-    }
-
-    fun onDestroy() {
-        endpoint.settingsListener.accountNumberNotifier.unsubscribe(this)
-        jobTracker.cancelAllJobs()
-
-        onAccountNumberChange.unsubscribeAll()
-        onAccountExpiryChange.unsubscribeAll()
-        onAccountHistoryChange.unsubscribeAll()
-        onLoginStatusChange.unsubscribeAll()
-
-        commandChannel.close()
     }
 
     private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
