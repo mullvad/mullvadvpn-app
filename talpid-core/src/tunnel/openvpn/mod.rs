@@ -30,7 +30,7 @@ use std::{
 #[cfg(target_os = "linux")]
 use std::{collections::HashSet, net::IpAddr};
 #[cfg(windows)]
-use std::{ffi::OsStr, os::windows::ffi::OsStrExt, time::Instant};
+use std::{ffi::OsStr, os::windows::ffi::OsStrExt, sync::Mutex, time::Instant};
 use talpid_types::net::openvpn;
 #[cfg(any(windows, target_os = "linux"))]
 use talpid_types::ErrorExt;
@@ -60,9 +60,24 @@ mod windows;
 
 #[cfg(windows)]
 lazy_static! {
+    static ref WINTUN_DLL: Mutex<Option<Arc<windows::WintunDll>>> = Mutex::new(None);
     static ref ADAPTER_ALIAS: U16CString = U16CString::from_str("Mullvad").unwrap();
     static ref ADAPTER_POOL: U16CString = U16CString::from_str("Mullvad").unwrap();
     static ref ADAPTER_GUID_STR: String = windows::string_from_guid(&ADAPTER_GUID);
+}
+
+#[cfg(windows)]
+fn get_wintun_dll(resource_dir: &Path) -> Result<Arc<windows::WintunDll>> {
+    let mut dll = (*WINTUN_DLL).lock().expect("Wintun mutex poisoned");
+    match &*dll {
+        Some(dll) => Ok(dll.clone()),
+        None => {
+            let new_dll =
+                Arc::new(windows::WintunDll::new(resource_dir).map_err(Error::WintunDllError)?);
+            *dll = Some(new_dll.clone());
+            Ok(new_dll)
+        }
+    }
 }
 
 #[cfg(windows)]
@@ -347,8 +362,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 
         #[cfg(windows)]
         let wintun_adapter = {
-            let dll =
-                Arc::new(windows::WintunDll::new(resource_dir).map_err(Error::WintunDllError)?);
+            let dll = get_wintun_dll(resource_dir)?;
 
             {
                 match windows::WintunAdapter::open(dll.clone(), &*ADAPTER_ALIAS, &*ADAPTER_POOL) {
