@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.service.endpoint
 import android.content.Context
 import java.io.File
 import kotlin.properties.Delegates.observable
+import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.talpid.util.EventNotifier
 
@@ -28,6 +29,10 @@ class SplitTunneling(context: Context, endpoint: ServiceEndpoint) {
         if (appListFile.exists()) {
             excludedApps.addAll(appListFile.readLines())
             update()
+        }
+
+        onChange.subscribe(this) { excludedApps ->
+            endpoint.sendEvent(Event.SplitTunnelingUpdate(excludedApps))
         }
 
         endpoint.dispatcher.apply {
