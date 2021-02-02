@@ -39,21 +39,8 @@ export function shouldShowApplication(application: ILinuxApplication): boolean {
   );
 }
 
-export async function getAppIcon(name?: string) {
-  if (!name || path.isAbsolute(name)) {
-    return name;
-  }
-
-  // Chromium doesn't support .xpm files
-  const extensions = ['svg', 'png'];
-  const iconPath = await findIcon(name, extensions, [
-    getIconDirectories(),
-    await getGtkThemeDirectories(),
-    // Begin with preferred sized but if nothing matches other sizes should be considered as well.
-    ['scalable', '256x256', '512x512', '256x256@2x', '128x128@2x', '128x128', /^\d+x\d+(@2x)?$/],
-    // Search in all categories of icons.
-    [/.*/],
-  ]);
+export async function getAppIcon(name?: string): Promise<string | undefined> {
+  const iconPath = await getAppIconPath(name);
 
   if (iconPath && path.extname(iconPath) === '.svg') {
     try {
@@ -67,6 +54,23 @@ export async function getAppIcon(name?: string) {
   }
 
   return undefined;
+}
+
+export async function getAppIconPath(name?: string): Promise<string | undefined> {
+  if (!name || path.isAbsolute(name)) {
+    return name;
+  }
+
+  // Chromium doesn't support .xpm files
+  const extensions = ['svg', 'png'];
+  return findIcon(name, extensions, [
+    getIconDirectories(),
+    await getGtkThemeDirectories(),
+    // Begin with preferred sized but if nothing matches other sizes should be considered as well.
+    ['scalable', '256x256', '512x512', '256x256@2x', '128x128@2x', '128x128', /^\d+x\d+(@2x)?$/],
+    // Search in all categories of icons.
+    [/.*/],
+  ]);
 }
 
 // Implemented according to freedesktop specification.
