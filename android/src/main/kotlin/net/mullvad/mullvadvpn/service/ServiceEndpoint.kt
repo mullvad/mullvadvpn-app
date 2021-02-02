@@ -50,6 +50,7 @@ class ServiceEndpoint(
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
+        splitTunneling.onDestroy()
     }
 
     internal fun sendEvent(event: Event) {
