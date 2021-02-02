@@ -39,14 +39,27 @@ export function shouldShowApplication(application: ILinuxApplication): boolean {
   );
 }
 
-export async function getAppIcon(name?: string) {
-  if (!name || path.isAbsolute(name)) {
-    return name;
-  }
+export async function getImageDataUrl(imagePath: string): Promise<string> {
+  if (imagePath && path.extname(imagePath) === '.svg') {
+    const contents = await fs.promises.readFile(imagePath);
+    return `data:image/svg+xml;base64,${contents.toString('base64')}`;
+  } else {
+    const image = nativeImage.createFromPath(imagePath);
 
+    if (image.isEmpty()) {
+      log.error(`Failed to load nativeImage: ${imagePath}`);
+      throw new Error(`Failed to load nativeImage: ${imagePath}`);
+    } else {
+      return image.toDataURL();
+    }
+  }
+}
+
+// Returns the path of the icon with the specified name. If none is found it returns undefined.
+export async function findIconPath(name: string): Promise<string | undefined> {
   // Chromium doesn't support .xpm files
   const extensions = ['svg', 'png'];
-  const iconPath = await findIcon(name, extensions, [
+  return findIcon(name, extensions, [
     getIconDirectories(),
     await getGtkThemeDirectories(),
     // Begin with preferred sized but if nothing matches other sizes should be considered as well.
@@ -54,19 +67,6 @@ export async function getAppIcon(name?: string) {
     // Search in all categories of icons.
     [/.*/],
   ]);
-
-  if (iconPath && path.extname(iconPath) === '.svg') {
-    try {
-      const contents = await fs.promises.readFile(iconPath);
-      return `data:image/svg+xml;base64,${contents.toString('base64')}`;
-    } catch (error) {
-      log.error(`Failed to read icon of application: ${name},`, error);
-    }
-  } else if (iconPath) {
-    return nativeImage.createFromPath(iconPath).toDataURL();
-  }
-
-  return undefined;
 }
 
 // Implemented according to freedesktop specification.

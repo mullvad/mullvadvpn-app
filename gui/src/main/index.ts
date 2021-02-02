@@ -55,7 +55,7 @@ import { ConnectionObserver, DaemonRpc, SubscriptionListener } from './daemon-rp
 import { InvalidAccountError } from './errors';
 import Expectation from './expectation';
 import GuiSettings from './gui-settings';
-import { getAppIcon } from './linux-desktop-entry';
+import { findIconPath } from './linux-desktop-entry';
 import {
   backupLogFile,
   cleanUpLogDirectory,
@@ -1506,7 +1506,7 @@ class ApplicationMain {
       case 'linux':
         return new BrowserWindow({
           ...options,
-          icon: await getAppIcon('mullvad-vpn'),
+          icon: await findIconPath('mullvad-vpn'),
         });
 
       default: {
