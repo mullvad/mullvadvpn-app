@@ -50,6 +50,7 @@ pub struct WintunDll {
     func_delete: WintunDeleteAdapterFn,
 }
 
+unsafe impl Send for WintunDll {}
 unsafe impl Sync for WintunDll {}
 
 type RebootRequired = bool;
