@@ -949,8 +949,8 @@ fn convert_relay_settings_update(
             } else {
                 None
             };
-            let ip_protocol = if let Some(ref constraints) = settings.wireguard_constraints {
-                match &constraints.ip_protocol {
+            let ip_version = if let Some(ref constraints) = settings.wireguard_constraints {
+                match &constraints.ip_version {
                     Some(constraint) => match types::IpVersion::from_i32(constraint.protocol) {
                         Some(types::IpVersion::V4) => Some(IpVersion::V4),
                         Some(types::IpVersion::V6) => Some(IpVersion::V6),
@@ -975,7 +975,7 @@ fn convert_relay_settings_update(
                         } else {
                             Constraint::Any
                         },
-                        ip_protocol: Constraint::from(ip_protocol),
+                        ip_version: Constraint::from(ip_version),
                     }
                 }),
                 openvpn_constraints: settings.openvpn_constraints.map(|constraints| {
@@ -1018,9 +1018,9 @@ fn convert_relay_settings(settings: &RelaySettings) -> types::RelaySettings {
 
                 wireguard_constraints: Some(types::WireguardConstraints {
                     port: u32::from(constraints.wireguard_constraints.port.unwrap_or(0)),
-                    ip_protocol: constraints
+                    ip_version: constraints
                         .wireguard_constraints
-                        .ip_protocol
+                        .ip_version
                         .option()
                         .map(|version| match version {
                             IpVersion::V4 => types::IpVersion::V4,

@@ -692,7 +692,7 @@ impl RelaySelector {
         relay: &Relay,
         constraints: WireguardConstraints,
     ) -> Option<IpAddr> {
-        match constraints.ip_protocol {
+        match constraints.ip_version {
             Constraint::Any | Constraint::Only(IpVersion::V4) => Some(relay.ipv4_addr_in.into()),
             Constraint::Only(IpVersion::V6) => relay.ipv6_addr_in.map(|addr| addr.into()),
         }

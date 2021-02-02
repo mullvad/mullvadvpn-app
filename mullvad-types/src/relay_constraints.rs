@@ -437,7 +437,7 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
 #[serde(default)]
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
-    pub ip_protocol: Constraint<IpVersion>,
+    pub ip_version: Constraint<IpVersion>,
 }
 
 impl fmt::Display for WireguardConstraints {
@@ -447,7 +447,7 @@ impl fmt::Display for WireguardConstraints {
             Constraint::Only(port) => write!(f, "port {}", port)?,
         }
         write!(f, " over ")?;
-        match self.ip_protocol {
+        match self.ip_version {
             Constraint::Any => write!(f, "IPv4 or IPv6"),
             Constraint::Only(protocol) => write!(f, "{}", protocol),
         }
