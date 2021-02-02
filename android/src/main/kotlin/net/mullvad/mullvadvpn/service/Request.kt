@@ -86,6 +86,9 @@ sealed class Request : Parcelable {
     class SetWireGuardMtu(val mtu: Int?) : Request(), Parcelable
 
     @Parcelize
+    class SubmitVoucher(val voucher: String) : Request(), Parcelable
+
+    @Parcelize
     class VpnPermissionResponse(val vpnPermission: Boolean) : Request(), Parcelable
 
     @Parcelize
