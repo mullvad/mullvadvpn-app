@@ -449,18 +449,19 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                     <AriaInput>
                       <Cell.Switch
                         ref={this.customDnsSwitchRef}
-                        isOn={this.props.dns.custom}
+                        isOn={this.props.dns.custom || this.state.showAddCustomDns}
                         onChange={this.setCustomDnsEnabled}
                       />
                     </AriaInput>
                   </AriaInputGroup>
                 </StyledCustomDnsSwitchContainer>
-                <Accordion expanded={this.props.dns.custom}>
+                <Accordion expanded={this.props.dns.custom || this.state.showAddCustomDns}>
                   <CellList items={this.customDnsItems()} onRemove={this.removeDnsAddress} />
 
                   {this.state.showAddCustomDns && (
                     <div ref={this.customDnsInputContainerRef}>
                       <Cell.RowInput
+                        placeholder={messages.pgettext('advanced-settings-view', 'e.g. 10.0.0.4')}
                         onSubmit={this.addDnsAddress}
                         onChange={this.addDnsInputChange}
                         invalid={this.state.invalidDnsIp}
@@ -511,10 +512,12 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
   }
 
   private setCustomDnsEnabled = async (enabled: boolean) => {
-    await this.props.setDnsOptions({
-      custom: enabled,
-      addresses: this.props.dns.addresses,
-    });
+    if (this.props.dns.addresses.length > 0) {
+      await this.props.setDnsOptions({
+        custom: enabled,
+        addresses: this.props.dns.addresses,
+      });
+    }
 
     if (enabled && this.props.dns.addresses.length === 0) {
       this.showAddCustomDnsRow();
@@ -548,16 +551,13 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
     ) {
       event?.target.focus();
     } else {
-      this.hideAddCustomDnsRow(false);
+      this.hideAddCustomDnsRow();
     }
   };
 
-  private hideAddCustomDnsRow(justAdded: boolean) {
+  private hideAddCustomDnsRow() {
     if (!this.state.publicDnsIpToConfirm) {
       this.setState({ showAddCustomDns: false });
-      if (!justAdded && this.props.dns.addresses.length === 0) {
-        consumePromise(this.setCustomDnsEnabled(false));
-      }
     }
   }
 
@@ -581,10 +581,10 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
       } else {
         try {
           await this.props.setDnsOptions({
-            custom: this.props.dns.custom,
+            custom: this.props.dns.custom || this.state.showAddCustomDns,
             addresses: [...this.props.dns.addresses, address],
           });
-          this.hideAddCustomDnsRow(true);
+          this.hideAddCustomDnsRow();
         } catch (_e) {
           this.setState({ invalidDnsIp: true });
         }
