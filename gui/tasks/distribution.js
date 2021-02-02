@@ -2,13 +2,8 @@ const path = require('path');
 const fs = require('fs');
 const builder = require('electron-builder');
 const parseSemver = require('semver/functions/parse');
-const util = require('util');
 const { notarize } = require('electron-notarize');
 const { version } = require('../package.json');
-
-const renameAsync = util.promisify(fs.rename);
-const unlinkAsync = util.promisify(fs.unlink);
-const rimrafAsync = util.promisify(rimraf);
 
 const compression = process.argv.indexOf('--no-compression') !== -1 ? 'store' : 'normal';
 const noAppleNotarization = process.argv.indexOf('--no-apple-notarization') !== -1;
@@ -234,22 +229,18 @@ function packLinux() {
     targets: builder.Platform.LINUX.createTarget(),
     config: {
       ...config,
-      afterPack: (context) => {
+      afterPack: async (context) => {
         const sourceExecutable = path.join(context.appOutDir, 'mullvad-vpn');
         const targetExecutable = path.join(context.appOutDir, 'mullvad-gui');
         const launcherScript = path.join(context.appOutDir, 'mullvad-gui-launcher.sh');
         const chromeSandbox = path.join(context.appOutDir, 'chrome-sandbox');
 
-        return Promise.all([
-          // rename mullvad-vpn to mullvad-gui
-          renameAsync(sourceExecutable, targetExecutable),
-
-          // rename launcher script to mullvad-vpn
-          renameAsync(launcherScript, sourceExecutable),
-
-          // remove the chrome-sandbox file since we explicitly disable it
-          unlinkAsync(chromeSandbox),
-        ]);
+        // rename mullvad-vpn to mullvad-gui
+        await fs.promises.rename(sourceExecutable, targetExecutable);
+        // rename launcher script to mullvad-vpn
+        await fs.promises.rename(launcherScript, sourceExecutable);
+        // remove the chrome-sandbox file since we explicitly disable it
+        await fs.promises.unlink(chromeSandbox);
       },
     },
   });
