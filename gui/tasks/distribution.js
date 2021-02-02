@@ -233,14 +233,11 @@ function packLinux() {
         const sourceExecutable = path.join(context.appOutDir, 'mullvad-vpn');
         const targetExecutable = path.join(context.appOutDir, 'mullvad-gui');
         const launcherScript = path.join(context.appOutDir, 'mullvad-gui-launcher.sh');
-        const chromeSandbox = path.join(context.appOutDir, 'chrome-sandbox');
 
         // rename mullvad-vpn to mullvad-gui
         await fs.promises.rename(sourceExecutable, targetExecutable);
         // rename launcher script to mullvad-vpn
         await fs.promises.rename(launcherScript, sourceExecutable);
-        // remove the chrome-sandbox file since we explicitly disable it
-        await fs.promises.unlink(chromeSandbox);
       },
     },
   });
