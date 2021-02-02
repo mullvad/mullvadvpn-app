@@ -671,7 +671,7 @@ where
     }
 
     fn get_custom_resolvers(dns_options: &DnsOptions) -> Option<Vec<IpAddr>> {
-        if dns_options.custom {
+        if dns_options.custom && !dns_options.addresses.is_empty() {
             Some(dns_options.addresses.clone())
         } else {
             None

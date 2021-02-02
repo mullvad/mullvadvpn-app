@@ -24,6 +24,10 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+### Fixed
+#### MacOS
+- When applying empty list of custom DNS servers, the daemon won't get stuck in the offline state.
+
 
 ## [2021.1-beta1] - 2021-01-25
 ### Added
