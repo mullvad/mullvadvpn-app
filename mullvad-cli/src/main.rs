@@ -54,14 +54,12 @@ async fn main() {
                 Error::RpcFailed(status) => {
                     eprintln!("{}: {:?}: {}", error, status.code(), status.message())
                 }
-                Error::RpcFailedExt(_message, status) => {
-                    eprintln!(
-                        "{}\nCaused by: {:?}: {}",
-                        error,
-                        status.code(),
-                        status.message()
-                    )
-                }
+                Error::RpcFailedExt(_message, status) => eprintln!(
+                    "{}\nCaused by: {:?}: {}",
+                    error,
+                    status.code(),
+                    status.message()
+                ),
                 error => eprintln!("{}", error.display_chain()),
             }
             1
