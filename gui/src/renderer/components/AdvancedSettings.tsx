@@ -461,6 +461,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                   {this.state.showAddCustomDns && (
                     <div ref={this.customDnsInputContainerRef}>
                       <Cell.RowInput
+                        placeholder={messages.pgettext('advanced-settings-view', 'e.g. 10.0.0.4')}
                         onSubmit={this.addDnsAddress}
                         onChange={this.addDnsInputChange}
                         invalid={this.state.invalidDnsIp}
