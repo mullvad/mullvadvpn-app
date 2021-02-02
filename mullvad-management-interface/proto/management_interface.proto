@@ -315,7 +315,7 @@ message IpVersionConstraint {
 message WireguardConstraints {
 	// NOTE: optional
 	uint32 port = 1;
-	IpVersionConstraint ip_protocol = 2;
+	IpVersionConstraint ip_version = 2;
 }
 
 message CustomRelaySettings {

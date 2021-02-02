@@ -645,7 +645,7 @@ impl RelaySelector {
                 .choose(&mut self.rng)
                 .cloned()
                 .and_then(|wg_tunnel| {
-                    let addr_in = match constraints.wireguard_constraints.ip_protocol {
+                    let addr_in = match constraints.wireguard_constraints.ip_version {
                         Constraint::Any | Constraint::Only(IpVersion::V4) => {
                             relay.ipv4_addr_in.into()
                         }

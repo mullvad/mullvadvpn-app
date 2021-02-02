@@ -156,8 +156,8 @@ impl Command for Relay {
                                     .possible_values(&["any", "udp", "tcp"]),
                             )
                             .arg(
-                                clap::Arg::with_name("ip protocol")
-                                    .long("ip")
+                                clap::Arg::with_name("ip version")
+                                    .long("ipv")
                                     .required(false)
                                     .default_value("any")
                                     .possible_values(&["any", "4", "6"]),
@@ -473,7 +473,7 @@ impl Relay {
         let vpn_protocol = matches.value_of("vpn protocol").unwrap();
         let port = parse_port_constraint(matches.value_of("port").unwrap())?;
         let protocol = parse_protocol_constraint(matches.value_of("transport protocol").unwrap());
-        let ip_proto = parse_ip_protocol_constraint(matches.value_of("ip protocol").unwrap());
+        let ip_version = parse_ip_version_constraint(matches.value_of("ip version").unwrap());
 
         match vpn_protocol {
             "wireguard" => {
@@ -485,7 +485,7 @@ impl Relay {
                         NormalRelaySettingsUpdate {
                             wireguard_constraints: Some(WireguardConstraints {
                                 port: port.unwrap_or(0) as u32,
-                                ip_protocol: ip_proto.option().map(|protocol| {
+                                ip_version: ip_version.option().map(|protocol| {
                                     IpVersionConstraint {
                                         protocol: protocol as i32,
                                     }
@@ -498,7 +498,7 @@ impl Relay {
                 .await
             }
             "openvpn" => {
-                if let Constraint::Only(_) = ip_proto {
+                if let Constraint::Only(_) = ip_version {
                     return Err(Error::InvalidCommand(
                         "OpenVPN does not support the IP version constraint",
                     ));
@@ -714,7 +714,7 @@ impl Relay {
                 Self::format_port(constraints.port),
                 Self::format_ip_version(
                     constraints
-                        .ip_protocol
+                        .ip_version
                         .clone()
                         .map(|protocol| IpVersion::from_i32(protocol.protocol).unwrap())
                 )
@@ -782,7 +782,7 @@ fn parse_protocol_constraint(raw_protocol: &str) -> Constraint<TransportProtocol
     }
 }
 
-fn parse_ip_protocol_constraint(raw_protocol: &str) -> Constraint<IpVersion> {
+fn parse_ip_version_constraint(raw_protocol: &str) -> Constraint<IpVersion> {
     match raw_protocol {
         "any" => Constraint::Any,
         "4" => Constraint::Only(IpVersion::V4),
