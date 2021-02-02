@@ -9,6 +9,7 @@ import net.mullvad.mullvadvpn.model.LoginStatus as LoginStatusData
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.model.VoucherSubmissionResult as VoucherSubmissionResultData
 
 // Events that can be sent from the service
 sealed class Event : Message.EventMessage() {
@@ -46,6 +47,12 @@ sealed class Event : Message.EventMessage() {
 
     @Parcelize
     data class TunnelStateChange(val tunnelState: TunnelState) : Event()
+
+    @Parcelize
+    data class VoucherSubmissionResult(
+        val voucher: String,
+        val result: VoucherSubmissionResultData
+    ) : Event()
 
     @Parcelize
     data class WireGuardKeyStatus(val keyStatus: KeygenEvent?) : Event()
