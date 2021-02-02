@@ -34,6 +34,9 @@ Line wrap the file at 100 chars.                                              Th
 - Update Electron from 11.0.2 to 11.2.1 which includes a newer Chromium version and
   security patches.
 
+#### Android
+- WireGuard key is now rotated sooner: every four days instead of seven.
+
 ### Fixed
 #### MacOS
 - When applying empty list of custom DNS servers, the daemon won't get stuck in the offline state.
