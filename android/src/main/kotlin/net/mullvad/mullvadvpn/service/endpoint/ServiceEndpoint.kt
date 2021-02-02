@@ -38,7 +38,7 @@ class ServiceEndpoint(
     val accountCache = AccountCache(this)
     val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)
-    val splitTunneling = SplitTunneling(context)
+    val splitTunneling = SplitTunneling(context, this)
 
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->

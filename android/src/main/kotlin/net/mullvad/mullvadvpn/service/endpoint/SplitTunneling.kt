@@ -3,13 +3,14 @@ package net.mullvad.mullvadvpn.service.endpoint
 import android.content.Context
 import java.io.File
 import kotlin.properties.Delegates.observable
+import net.mullvad.mullvadvpn.ipc.Request
 
 // The spelling of the shared preferences location can't be changed to American English without
 // either having users lose their preferences on update or implementing some migration code.
 private const val SHARED_PREFERENCES = "split_tunnelling"
 private const val KEY_ENABLED = "enabled"
 
-class SplitTunneling(context: Context) {
+class SplitTunneling(context: Context, endpoint: ServiceEndpoint) {
     // The spelling of the app list file name can't be changed to American English without either
     // having users lose their preferences on update or implementing some migration code.
     private val appListFile = File(context.filesDir, "split-tunnelling.txt")
@@ -35,6 +36,24 @@ class SplitTunneling(context: Context) {
         if (appListFile.exists()) {
             excludedApps.addAll(appListFile.readLines())
             update()
+        }
+
+        endpoint.dispatcher.apply {
+            registerHandler(Request.IncludeApp::class) { request ->
+                includeApp(request.packageName)
+            }
+
+            registerHandler(Request.ExcludeApp::class) { request ->
+                excludeApp(request.packageName)
+            }
+
+            registerHandler(Request.SetEnableSplitTunneling::class) { request ->
+                enabled = request.enable
+            }
+
+            registerHandler(Request.PersistExcludedApps::class) { _ ->
+                persist()
+            }
         }
     }
 
