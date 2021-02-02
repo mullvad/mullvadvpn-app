@@ -1,5 +1,5 @@
+const fs = require('fs');
 const { task, series, parallel } = require('gulp');
-const rimraf = require('rimraf');
 
 const scripts = require('./tasks/scripts');
 const assets = require('./tasks/assets');
@@ -7,7 +7,7 @@ const watch = require('./tasks/watch');
 const dist = require('./tasks/distribution');
 
 task('clean', function (done) {
-  rimraf('./build', done);
+  fs.rmdir('./build', { recursive: true }, done);
 });
 task('build-proto', scripts.buildProto);
 task('build', series('clean', parallel(assets.copyAll, scripts.buildProto), scripts.build));

@@ -1,7 +1,6 @@
 const path = require('path');
 const fs = require('fs');
 const builder = require('electron-builder');
-const rimraf = require('rimraf');
 const parseSemver = require('semver/functions/parse');
 const util = require('util');
 const { notarize } = require('electron-notarize');
@@ -207,7 +206,7 @@ function packMac() {
           await notarizeMac(buildResult.artifactPaths[0]);
         }
         // remove the folder that contains the unpacked app
-        return rimrafAsync(appOutDir);
+        return fs.promises.rmdir(appOutDir, { recursive: true });
       },
       afterSign: noAppleNotarization
         ? undefined

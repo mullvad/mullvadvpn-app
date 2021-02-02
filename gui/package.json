@@ -88,7 +88,6 @@
     "gulp-sourcemaps": "^3.0.0",
     "gulp-typescript": "^5.0.1",
     "prettier": "^2.2.1",
-    "rimraf": "^2.7.1",
     "semver": "^7.3.2",
     "sinon": "^7.1.1",
     "spa-server": "^1.0.0",
