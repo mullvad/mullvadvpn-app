@@ -30,6 +30,10 @@ class SplitTunneling(context: Context, endpoint: ServiceEndpoint) {
             update()
         }
 
+        onChange.subscribe(this) { excludedApps ->
+            endpoint.sendEvent(Event.SplitTunnelingUpdate(excludedApps))
+        }
+
         endpoint.dispatcher.apply {
             registerHandler(Request.IncludeApp::class) { request ->
                 request.packageName?.let { packageName ->
