@@ -1243,7 +1243,6 @@ dependencies = [
  "log-panics",
  "mullvad-management-interface",
  "mullvad-paths",
- "mullvad-platform-metadata",
  "mullvad-rpc",
  "mullvad-types",
  "nix 0.19.0",
@@ -1254,6 +1253,7 @@ dependencies = [
  "serde_json",
  "simple-signal",
  "talpid-core",
+ "talpid-platform-metadata",
  "talpid-types",
  "tokio",
  "triggered",
@@ -1322,14 +1322,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "mullvad-platform-metadata"
-version = "0.1.0"
-dependencies = [
- "rs-release",
- "talpid-dbus",
-]
-
-[[package]]
 name = "mullvad-problem-report"
 version = "2021.1.0-beta1"
 dependencies = [
@@ -1340,9 +1332,9 @@ dependencies = [
  "err-derive",
  "lazy_static",
  "mullvad-paths",
- "mullvad-platform-metadata",
  "mullvad-rpc",
  "regex",
+ "talpid-platform-metadata",
  "talpid-types",
  "tokio",
  "uuid",
@@ -2565,6 +2557,7 @@ dependencies = [
  "socket2",
  "system-configuration",
  "talpid-dbus",
+ "talpid-platform-metadata",
  "talpid-types",
  "tempfile",
  "tokio",
@@ -2607,6 +2600,15 @@ dependencies = [
  "tower",
  "winapi 0.3.9",
  "winres",
+]
+
+[[package]]
+name = "talpid-platform-metadata"
+version = "0.1.0"
+dependencies = [
+ "rs-release",
+ "talpid-dbus",
+ "winapi 0.3.9",
 ]
 
 [[package]]
