@@ -54,6 +54,10 @@ class SplitTunneling(context: Context) {
         appListFile.writeText(excludedApps.joinToString(separator = "\n"))
     }
 
+    fun onDestroy() {
+        onChange = null
+    }
+
     private fun enabledChanged() {
         preferences.edit().apply {
             putBoolean(KEY_ENABLED, enabled)
