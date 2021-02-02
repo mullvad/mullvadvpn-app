@@ -244,6 +244,7 @@ interface IRowInputProps {
   paddingLeft?: number;
   invalid?: boolean;
   autofocus?: boolean;
+  placeholder?: string;
 }
 
 export function RowInput(props: IRowInputProps) {
@@ -309,6 +310,7 @@ export function RowInput(props: IRowInputProps) {
           invalid={props.invalid}
           onFocus={props.onFocus}
           onBlur={props.onBlur}
+          placeholder={props.placeholder}
         />
       </StyledInputWrapper>
       <StyledSubmitButton onClick={submit}>
