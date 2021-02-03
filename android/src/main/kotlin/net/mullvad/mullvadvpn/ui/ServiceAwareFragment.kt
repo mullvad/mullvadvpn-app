@@ -1,10 +1,10 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
-import androidx.fragment.app.Fragment
+import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
 import net.mullvad.mullvadvpn.util.JobTracker
 
-abstract class ServiceAwareFragment : Fragment() {
+abstract class ServiceAwareFragment : BaseFragment() {
     val jobTracker = JobTracker()
 
     open val isSecureScreen = false
