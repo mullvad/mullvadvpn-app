@@ -37,6 +37,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - WireGuard key is now rotated sooner: every four days instead of seven.
 
+
+## [2021.1-beta2] - 2021-02-03
 ### Fixed
 - Make it impossible to apply an empty list of custom DNS server IPs.
   Stops the daemon from getting stuck in the offline state on macOS.
