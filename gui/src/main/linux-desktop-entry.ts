@@ -39,25 +39,25 @@ export function shouldShowApplication(application: ILinuxApplication): boolean {
   );
 }
 
-export async function getAppIcon(name?: string): Promise<string | undefined> {
-  const iconPath = await getAppIconPath(name);
+export async function getImageDataUrl(imagePath: string): Promise<string> {
+  if (imagePath && path.extname(imagePath) === '.svg') {
+    const contents = await fs.promises.readFile(imagePath);
+    return `data:image/svg+xml;base64,${contents.toString('base64')}`;
+  } else {
+    const image = nativeImage.createFromPath(imagePath);
 
-  if (iconPath && path.extname(iconPath) === '.svg') {
-    try {
-      const contents = await fs.promises.readFile(iconPath);
-      return `data:image/svg+xml;base64,${contents.toString('base64')}`;
-    } catch (error) {
-      log.error(`Failed to read icon of application: ${name},`, error);
+    if (image.isEmpty()) {
+      log.error(`Failed to load nativeImage: ${imagePath}`);
+      throw new Error(`Failed to load nativeImage: ${imagePath}`);
+    } else {
+      return image.toDataURL();
     }
-  } else if (iconPath) {
-    return nativeImage.createFromPath(iconPath).toDataURL();
   }
-
-  return undefined;
 }
 
-export async function getAppIconPath(name?: string): Promise<string | undefined> {
-  if (!name || path.isAbsolute(name)) {
+// Returns the path of the icon with the specified name. If none is found it returns undefined.
+export async function findIconPath(name: string): Promise<string | undefined> {
+  if (path.isAbsolute(name)) {
     return name;
   }
 

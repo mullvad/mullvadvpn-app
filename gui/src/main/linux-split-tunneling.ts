@@ -4,7 +4,7 @@ import linuxAppList, { AppData } from 'linux-app-list';
 import path from 'path';
 import { pascalCaseToCamelCase } from './transform-object-keys';
 import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
-import { getAppIcon, shouldShowApplication } from './linux-desktop-entry';
+import { findIconPath, getImageDataUrl, shouldShowApplication } from './linux-desktop-entry';
 
 const PROBLEMATIC_APPLICATIONS = {
   launchingInExistingProcess: [
@@ -42,9 +42,28 @@ export function getApplications(locale: string): Promise<ILinuxSplitTunnelingApp
     .filter(shouldShowApplication)
     .map(addApplicationWarnings)
     .sort((a, b) => a.name.localeCompare(b.name))
-    .map(async (app) => ({ ...app, icon: await getAppIcon(app.icon) }));
+    .map(replaceIconNameWithDataUrl);
 
   return Promise.all(applications);
+}
+
+async function replaceIconNameWithDataUrl(
+  app: ILinuxSplitTunnelingApplication,
+): Promise<ILinuxSplitTunnelingApplication> {
+  try {
+    if (app.icon === undefined) {
+      return app;
+    }
+
+    const iconPath = await findIconPath(app.icon);
+    if (iconPath === undefined) {
+      return app;
+    }
+
+    return { ...app, icon: await getImageDataUrl(iconPath) };
+  } catch (e) {
+    return app;
+  }
 }
 
 function addApplicationWarnings(
