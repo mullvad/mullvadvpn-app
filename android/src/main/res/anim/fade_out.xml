@@ -2,5 +2,5 @@
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <alpha android:fromAlpha="1.0"
            android:toAlpha="0.0"
-           android:duration="450" />
+           android:duration="@integer/transition_animation_duration" />
 </set>
