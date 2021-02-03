@@ -159,6 +159,7 @@ matrix:
 
   allow_failures:
     - name: Desktop Frontend, Windows
+    - name: Daemon, Linux - nightly Rust
 
 notifications:
   email:
