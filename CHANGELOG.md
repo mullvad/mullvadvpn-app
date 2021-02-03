@@ -28,6 +28,10 @@ Line wrap the file at 100 chars.                                              Th
 - Make it impossible to apply an empty list of custom DNS server IPs.
   Stops the daemon from getting stuck in the offline state on macOS.
 
+#### Windows
+- Only load and unload the Wintun driver once instead of on every connection.
+  Will hopefully fix an issue where it gave an error
+
 
 ## [2021.1-beta1] - 2021-01-25
 ### Added
