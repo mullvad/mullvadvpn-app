@@ -11,22 +11,21 @@ use winapi::um::{
 };
 
 pub fn version() -> String {
-    let (major, minor, build) = WindowsVersion::new()
+    let (major, build) = WindowsVersion::new()
         .map(|version_info| {
             (
-                version_info.major_version().to_string(),
-                version_info.minor_version().to_string(),
+                version_info.windows_version_string(),
                 version_info.build_number().to_string(),
             )
         })
-        .unwrap_or_else(|_| ("N/A".to_string(), "N/A".to_string(), "N/A".to_string()));
+        .unwrap_or_else(|_| ("N/A".to_string(), "N/A".to_string()));
 
-    format!("Windows {}.{} Build {}", major, minor, build)
+    format!("Windows {} Build {}", major, build)
 }
 
 pub fn short_version() -> String {
     let version_string = WindowsVersion::new()
-        .map(|version| version.major_version().to_string())
+        .map(|version| version.windows_version_string())
         .unwrap_or("N/A".into());
     format!("Windows {}", version_string)
 }
@@ -72,6 +71,18 @@ impl WindowsVersion {
             Ok(WindowsVersion {
                 inner: version_info.assume_init(),
             })
+        }
+    }
+
+    pub fn windows_version_string(&self) -> String {
+        // Check https://en.wikipedia.org/wiki/List_of_Microsoft_Windows_versions#Personal_computer_versions 'Release version' column
+        // for the correct NT versions for specific windows releases.
+        match (self.major_version(), self.minor_version()) {
+            (6, 1) => "7".into(),
+            (6, 2) => "8".into(),
+            (6, 3) => "8.1".into(),
+            (10, 0) => "10".into(),
+            (major, minor) => format!("{}.{}", major, minor),
         }
     }
 
