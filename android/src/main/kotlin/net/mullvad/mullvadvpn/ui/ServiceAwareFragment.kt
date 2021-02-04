@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.ui
 
 import android.content.Context
 import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.mullvadvpn.util.JobTracker
 
 abstract class ServiceAwareFragment : BaseFragment() {

@@ -1,8 +1,9 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.service.ServiceInstance
+import net.mullvad.mullvadvpn.ui.MainActivity
 
 class ServiceConnection(private val service: ServiceInstance, val mainActivity: MainActivity) {
     val daemon = service.daemon
