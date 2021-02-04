@@ -13,7 +13,7 @@ crate-type = ["cdylib"]
 [dependencies]
 err-derive = "0.3.0"
 log = "0.4"
-env_logger = "0.7"
+env_logger = "0.8.2"
 parity-tokio-ipc = "0.8"
 tokio = { version = "0.2", features =  [ "rt-core" ] }
 

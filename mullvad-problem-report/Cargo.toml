@@ -10,7 +10,7 @@ publish = false
 [dependencies]
 clap = "2.25"
 dirs-next = "2.0"
-env_logger = "0.7"
+env_logger = "0.8.2"
 err-derive = "0.3.0"
 lazy_static = "1.0"
 regex = "1.0"
