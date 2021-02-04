@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 
 class LaunchFragment : ServiceAwareFragment() {
     private val hasAccountToken = CompletableDeferred<Boolean>()
