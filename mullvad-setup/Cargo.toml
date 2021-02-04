@@ -14,7 +14,7 @@ path = "src/main.rs"
 [dependencies]
 clap = "2.32"
 env_logger = "0.7"
-err-derive = "0.2.1"
+err-derive = "0.3.0"
 lazy_static = "1.1.0"
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }

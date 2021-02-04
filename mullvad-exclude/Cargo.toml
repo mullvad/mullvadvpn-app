@@ -8,5 +8,5 @@ publish = false
 
 [target.'cfg(target_os = "linux")'.dependencies]
 nix = "0.19"
-err-derive = "0.2.1"
+err-derive = "0.3.0"
 talpid-types = { path = "../talpid-types" }

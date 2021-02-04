@@ -10,7 +10,7 @@ publish = false
 [dependencies]
 bytes = "0.5"
 chrono = { version = "0.4", features = ["serde"] }
-err-derive = "0.2.1"
+err-derive = "0.3.0"
 futures = "0.3"
 http = "0.2"
 hyper = "0.13"

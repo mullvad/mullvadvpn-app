@@ -11,7 +11,7 @@ publish = false
 crate-type = ["cdylib"]
 
 [dependencies]
-err-derive = "0.2.1"
+err-derive = "0.3.0"
 log = "0.4"
 env_logger = "0.7"
 parity-tokio-ipc = "0.8"

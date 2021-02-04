@@ -468,6 +468,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "err-derive"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dcc7f65832b62ed38939f98966824eb6294911c3629b0e9a262bfb80836d9686"
+dependencies = [
+ "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "rustversion",
+ "syn",
+ "synstructure",
+]
+
+[[package]]
 name = "errno"
 version = "0.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1214,7 +1228,7 @@ dependencies = [
  "chrono",
  "clap",
  "env_logger",
- "err-derive",
+ "err-derive 0.3.0",
  "futures",
  "mullvad-management-interface",
  "mullvad-paths",
@@ -1238,7 +1252,7 @@ dependencies = [
  "ctrlc",
  "dirs-next",
  "duct",
- "err-derive",
+ "err-derive 0.3.0",
  "fern",
  "futures",
  "ipnetwork",
@@ -1272,7 +1286,7 @@ dependencies = [
 name = "mullvad-exclude"
 version = "2021.1.0-beta2"
 dependencies = [
- "err-derive",
+ "err-derive 0.3.0",
  "nix 0.19.1",
  "talpid-types",
 ]
@@ -1281,7 +1295,7 @@ dependencies = [
 name = "mullvad-jni"
 version = "0.1.0"
 dependencies = [
- "err-derive",
+ "err-derive 0.3.0",
  "futures",
  "ipnetwork",
  "jnix",
@@ -1304,7 +1318,7 @@ dependencies = [
 name = "mullvad-management-interface"
 version = "0.1.0"
 dependencies = [
- "err-derive",
+ "err-derive 0.3.0",
  "futures",
  "mullvad-paths",
  "parity-tokio-ipc",
@@ -1322,7 +1336,7 @@ name = "mullvad-paths"
 version = "0.1.0"
 dependencies = [
  "dirs-next",
- "err-derive",
+ "err-derive 0.3.0",
  "log 0.4.14",
 ]
 
@@ -1334,7 +1348,7 @@ dependencies = [
  "dirs-next",
  "duct",
  "env_logger",
- "err-derive",
+ "err-derive 0.3.0",
  "lazy_static",
  "mullvad-paths",
  "mullvad-rpc",
@@ -1353,7 +1367,7 @@ version = "0.1.0"
 dependencies = [
  "bytes 0.5.6",
  "chrono",
- "err-derive",
+ "err-derive 0.3.0",
  "filetime",
  "futures",
  "http",
@@ -1381,7 +1395,7 @@ version = "2021.1.0-beta2"
 dependencies = [
  "clap",
  "env_logger",
- "err-derive",
+ "err-derive 0.3.0",
  "lazy_static",
  "mullvad-daemon",
  "mullvad-management-interface",
@@ -1401,7 +1415,7 @@ name = "mullvad-types"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "err-derive",
+ "err-derive 0.3.0",
  "ipnetwork",
  "jnix",
  "lazy_static",
@@ -1513,12 +1527,12 @@ dependencies = [
 
 [[package]]
 name = "nftnl"
-version = "0.6.0"
+version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f8458833d3dd636d15b07f12aa22916d2f73c7607a072247068ecfe7cf28b660"
+checksum = "2453197ab3fcf147bf0ebd193557eeffa3998e6c84670eb8c9d86393bd09011f"
 dependencies = [
  "bitflags 1.2.1",
- "err-derive",
+ "err-derive 0.3.0",
  "log 0.4.14",
  "nftnl-sys",
 ]
@@ -2544,7 +2558,7 @@ dependencies = [
  "cfg-if 1.0.0",
  "chrono",
  "duct",
- "err-derive",
+ "err-derive 0.3.0",
  "failure",
  "futures",
  "hex",
@@ -2600,7 +2614,7 @@ name = "talpid-dbus"
 version = "0.1.0"
 dependencies = [
  "dbus",
- "err-derive",
+ "err-derive 0.3.0",
  "lazy_static",
  "log 0.4.14",
 ]
@@ -2610,7 +2624,7 @@ name = "talpid-openvpn-plugin"
 version = "2021.1.0-beta2"
 dependencies = [
  "env_logger",
- "err-derive",
+ "err-derive 0.3.0",
  "log 0.4.14",
  "openvpn-plugin",
  "parity-tokio-ipc",
@@ -2638,7 +2652,7 @@ name = "talpid-types"
 version = "0.1.0"
 dependencies = [
  "base64",
- "err-derive",
+ "err-derive 0.3.0",
  "ipnetwork",
  "jnix",
  "rand 0.7.3",
@@ -3367,7 +3381,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fdfb0437cd780b66551aa81b466470f1159b1878ed45438b738de8bc6e5012b6"
 dependencies = [
  "bitflags 1.2.1",
- "err-derive",
+ "err-derive 0.2.4",
  "widestring",
  "winapi 0.3.9",
 ]
