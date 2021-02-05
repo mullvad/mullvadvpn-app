@@ -39,16 +39,18 @@ class EditCustomDnsServerHolder(view: View, adapter: CustomDnsAdapter) : CustomD
         override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {}
     }
 
-    private var state by observable(State.Normal) { _, _, newState ->
-        input.apply {
-            when (newState) {
-                State.Normal -> {
-                    setTextColor(normalColor)
-                    removeTextChangedListener(watcher)
-                }
-                State.Error -> {
-                    setTextColor(errorColor)
-                    addTextChangedListener(watcher)
+    private var state by observable(State.Normal) { _, oldState, newState ->
+        if (oldState != newState) {
+            input.apply {
+                when (newState) {
+                    State.Normal -> {
+                        setTextColor(normalColor)
+                        removeTextChangedListener(watcher)
+                    }
+                    State.Error -> {
+                        setTextColor(errorColor)
+                        addTextChangedListener(watcher)
+                    }
                 }
             }
         }
