@@ -8,7 +8,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
-err-derive = "0.2.1"
+err-derive = "0.3.0"
 mullvad-paths = { path = "../mullvad-paths" }
 tonic = "0.3.1"
 tower = "0.3"

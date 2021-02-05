@@ -10,10 +10,10 @@ publish = false
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 ipnetwork = "0.16"
-base64 = "0.12"
+base64 = "0.13"
 x25519-dalek = { version = "1.1", features = [ "std", "u64_backend" ], default-features = false }
 rand = "0.7"
-err-derive = "0.2.1"
+err-derive = "0.3.0"
 
 [target.'cfg(target_os = "android")'.dependencies]
 jnix = { version = "0.3", features = ["derive"] }
