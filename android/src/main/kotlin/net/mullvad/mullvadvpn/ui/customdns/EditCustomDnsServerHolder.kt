@@ -70,9 +70,9 @@ class EditCustomDnsServerHolder(view: View, adapter: CustomDnsAdapter) : CustomD
 
     init {
         view.findViewById<View>(R.id.save).setOnClickListener {
-            adapter.saveDnsServer(input.text.toString(), onFailCallback) {
-                state = State.Error
-            }
+            val onFailCallback = { state = State.Error }
+
+            adapter.saveDnsServer(input.text.toString(), onFailCallback)
         }
     }
 }
