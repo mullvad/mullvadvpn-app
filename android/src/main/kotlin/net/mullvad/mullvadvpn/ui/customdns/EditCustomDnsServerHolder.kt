@@ -11,6 +11,11 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.talpid.util.addressString
 
 class EditCustomDnsServerHolder(view: View, adapter: CustomDnsAdapter) : CustomDnsItemHolder(view) {
+    private enum class State {
+        Normal,
+        Error,
+    }
+
     private val context = view.context
     private val errorColor = context.getColor(R.color.red)
     private val normalColor = context.getColor(R.color.blue)
@@ -25,15 +30,29 @@ class EditCustomDnsServerHolder(view: View, adapter: CustomDnsAdapter) : CustomD
         }
     }
 
-    private val watcher = object : TextWatcher {
+    private val watcher: TextWatcher = object : TextWatcher {
         override fun beforeTextChanged(text: CharSequence, start: Int, count: Int, after: Int) {}
 
         override fun afterTextChanged(text: Editable) {
-            input.setTextColor(normalColor)
-            input.removeTextChangedListener(this)
+            state = State.Normal
         }
 
         override fun onTextChanged(text: CharSequence, start: Int, before: Int, count: Int) {}
+    }
+
+    private var state by observable(State.Normal) { _, _, newState ->
+        input.apply {
+            when (newState) {
+                State.Normal -> {
+                    setTextColor(normalColor)
+                    removeTextChangedListener(watcher)
+                }
+                State.Error -> {
+                    setTextColor(errorColor)
+                    addTextChangedListener(watcher)
+                }
+            }
+        }
     }
 
     var serverAddress by observable<InetAddress?>(null) { _, _, address ->
@@ -51,11 +70,8 @@ class EditCustomDnsServerHolder(view: View, adapter: CustomDnsAdapter) : CustomD
 
     init {
         view.findViewById<View>(R.id.save).setOnClickListener {
-            adapter.saveDnsServer(input.text.toString()) {
-                input.apply {
-                    setTextColor(errorColor)
-                    addTextChangedListener(watcher)
-                }
+            adapter.saveDnsServer(input.text.toString(), onFailCallback) {
+                state = State.Error
             }
         }
     }
