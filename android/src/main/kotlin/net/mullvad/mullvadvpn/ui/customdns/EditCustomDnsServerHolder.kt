@@ -16,9 +16,8 @@ class EditCustomDnsServerHolder(view: View, adapter: CustomDnsAdapter) : CustomD
         Error,
     }
 
-    private val context = view.context
-    private val errorColor = context.getColor(R.color.red)
-    private val normalColor = context.getColor(R.color.blue)
+    private val errorColor = view.context.getColor(R.color.red)
+    private val normalColor = view.context.getColor(R.color.blue)
 
     private val input: EditText = view.findViewById<EditText>(R.id.input).apply {
         onFocusChangeListener = OnFocusChangeListener { _, hasFocus ->
