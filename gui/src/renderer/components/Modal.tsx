@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import log from '../../shared/logging';
-import { Scheduler } from '../../shared/scheduler';
 import ImageView from './ImageView';
 
 const MODAL_CONTAINER_ID = 'modal-container';
@@ -137,7 +136,6 @@ export function ModalAlert(props: IModalAlertProps) {
 class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalContext> {
   private element = document.createElement('div');
   private modalRef = React.createRef<HTMLDivElement>();
-  private appendScheduler = new Scheduler();
 
   constructor(props: IModalAlertProps & IModalContext) {
     super(props);
@@ -155,13 +153,8 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
 
     const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
     if (modalContainer) {
-      // Mounting the container element immediately results in a graphical issue with the dialog
-      // first rendering with the wrong proportions and then changing to the correct proportions.
-      // Postponing it to the next event cycle solves this issue.
-      this.appendScheduler.schedule(() => {
-        modalContainer.appendChild(this.element);
-        this.modalRef.current?.focus();
-      });
+      modalContainer.appendChild(this.element);
+      this.modalRef.current?.focus();
     } else {
       log.error('Modal container not found when mounting modal');
     }
@@ -170,8 +163,6 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
   public componentWillUnmount() {
     this.props.setActiveModal(false);
     document.removeEventListener('keydown', this.handleKeyPress, true);
-
-    this.appendScheduler.cancel();
 
     const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
     modalContainer?.removeChild(this.element);
