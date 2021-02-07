@@ -5,6 +5,8 @@ import { colors } from '../../config.json';
 import { Scheduler } from '../../shared/scheduler';
 import ImageView from './ImageView';
 
+const MODAL_CONTAINER_ID = 'modal-container';
+
 const ModalContent = styled.div({
   position: 'absolute',
   display: 'flex',
@@ -40,7 +42,6 @@ interface IModalContainerProps {
 interface IModalContext {
   activeModal: boolean;
   setActiveModal: (value: boolean) => void;
-  modalContainerRef: React.RefObject<HTMLDivElement>;
   previousActiveElement: React.MutableRefObject<HTMLElement | undefined>;
 }
 
@@ -52,9 +53,6 @@ const ActiveModalContext = React.createContext<IModalContext>({
   setActiveModal(_value) {
     throw noActiveModalContextError;
   },
-  get modalContainerRef(): React.RefObject<HTMLDivElement> {
-    throw noActiveModalContextError;
-  },
   get previousActiveElement(): React.MutableRefObject<HTMLElement | undefined> {
     throw noActiveModalContextError;
   },
@@ -63,13 +61,11 @@ const ActiveModalContext = React.createContext<IModalContext>({
 export function ModalContainer(props: IModalContainerProps) {
   const [activeModal, setActiveModal] = useState(false);
   const previousActiveElement = useRef<HTMLElement>();
-  const modalContainerRef = useRef() as React.RefObject<HTMLDivElement>;
 
   const contextValue = useMemo(
     () => ({
       activeModal,
       setActiveModal,
-      modalContainerRef,
       previousActiveElement,
     }),
     [activeModal],
@@ -83,7 +79,7 @@ export function ModalContainer(props: IModalContainerProps) {
 
   return (
     <ActiveModalContext.Provider value={contextValue}>
-      <StyledModalContainer ref={modalContainerRef}>
+      <StyledModalContainer id={MODAL_CONTAINER_ID}>
         <ModalContent aria-hidden={activeModal}>{props.children}</ModalContent>
       </StyledModalContainer>
     </ActiveModalContext.Provider>
@@ -156,7 +152,7 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
     // makes sure that this component catches the event before the escape hatch.
     document.addEventListener('keydown', this.handleKeyPress, true);
 
-    const modalContainer = this.props.modalContainerRef.current;
+    const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
     if (modalContainer) {
       // Mounting the container element immediately results in a graphical issue with the dialog
       // first rendering with the wrong proportions and then changing to the correct proportions.
@@ -175,7 +171,9 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
     document.removeEventListener('keydown', this.handleKeyPress, true);
 
     this.appendScheduler.cancel();
-    this.props.modalContainerRef.current?.removeChild(this.element);
+
+    const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
+    modalContainer?.removeChild(this.element);
   }
 
   public render() {
