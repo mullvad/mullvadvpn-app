@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import log from '../../shared/logging';
 import { Scheduler } from '../../shared/scheduler';
 import ImageView from './ImageView';
 
@@ -162,7 +163,7 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
         this.modalRef.current?.focus();
       });
     } else {
-      throw Error('Modal container not found when mounting modal');
+      log.error('Modal container not found when mounting modal');
     }
   }
 
