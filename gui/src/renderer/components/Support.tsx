@@ -58,6 +58,7 @@ interface ISupportProps {
   collectProblemReport: (accountsToRedact: string[]) => Promise<string>;
   sendProblemReport: (email: string, message: string, savedReport: string) => Promise<void>;
   outdatedVersion: boolean;
+  suggestedIsBeta: boolean;
   onExternalLink: (url: string) => void;
 }
 
@@ -272,7 +273,8 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     this.setState({ showOutdatedVersionWarning: false });
   };
 
-  private openDownloadLink = () => this.props.onExternalLink(links.download);
+  private openDownloadLink = () =>
+    this.props.onExternalLink(this.props.suggestedIsBeta ? links.betaDownload : links.download);
 
   private renderOutdateVersionWarningDialog() {
     const message = messages.pgettext(

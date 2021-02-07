@@ -9,6 +9,7 @@ import {
 
 interface UpdateAvailableNotificationContext {
   suggestedUpgrade?: string;
+  suggestedIsBeta?: boolean;
 }
 
 export class UpdateAvailableNotificationProvider
@@ -28,7 +29,10 @@ export class UpdateAvailableNotificationProvider
         'in-app-notifications',
         'Install the latest app version to stay up to date.',
       ),
-      action: { type: 'open-url', url: links.download },
+      action: {
+        type: 'open-url',
+        url: this.context.suggestedIsBeta ? links.betaDownload : links.download,
+      },
     };
   }
 
@@ -41,7 +45,7 @@ export class UpdateAvailableNotificationProvider
       critical: false,
       action: {
         type: 'open-url',
-        url: links.download,
+        url: this.context.suggestedIsBeta ? links.betaDownload : links.download,
         text: messages.pgettext('notifications', 'Upgrade'),
       },
       presentOnce: { value: true, name: this.constructor.name },

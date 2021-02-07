@@ -5,6 +5,7 @@ export interface IVersionReduxState {
   supported: boolean;
   isBeta: boolean;
   suggestedUpgrade?: string;
+  suggestedIsBeta?: boolean;
   consistent: boolean;
 }
 
@@ -13,6 +14,7 @@ const initialState: IVersionReduxState = {
   supported: true,
   isBeta: false,
   suggestedUpgrade: undefined,
+  suggestedIsBeta: false,
   consistent: true,
 };
 
@@ -26,6 +28,7 @@ export default function (
         ...state,
         supported: action.latestInfo.supported,
         suggestedUpgrade: action.latestInfo.suggestedUpgrade,
+        suggestedIsBeta: action.latestInfo.suggestedIsBeta,
       };
 
     case 'UPDATE_VERSION':

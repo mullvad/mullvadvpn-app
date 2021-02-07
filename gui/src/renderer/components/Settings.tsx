@@ -33,6 +33,7 @@ export interface IProps {
   appVersion: string;
   consistentVersion: boolean;
   upToDateVersion: boolean;
+  suggestedIsBeta: boolean;
   isOffline: boolean;
   onQuit: () => void;
   onClose: () => void;
@@ -85,7 +86,8 @@ export default class Settings extends React.Component<IProps> {
     );
   }
 
-  private openDownloadLink = () => this.props.onExternalLink(links.download);
+  private openDownloadLink = () =>
+    this.props.onExternalLink(this.props.suggestedIsBeta ? links.betaDownload : links.download);
   private openFaqLink = () => this.props.onExternalLink(links.faq);
 
   private renderQuitButton() {

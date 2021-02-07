@@ -11,6 +11,7 @@ interface UnsupportedVersionNotificationContext {
   supported: boolean;
   consistent: boolean;
   suggestedUpgrade?: string;
+  suggestedIsBeta?: boolean;
 }
 
 export class UnsupportedVersionNotificationProvider
@@ -27,7 +28,7 @@ export class UnsupportedVersionNotificationProvider
       critical: true,
       action: {
         type: 'open-url',
-        url: links.download,
+        url: this.context.suggestedIsBeta ? links.betaDownload : links.download,
         text: messages.pgettext('notifications', 'Upgrade'),
       },
       presentOnce: { value: true, name: this.constructor.name },
@@ -40,7 +41,10 @@ export class UnsupportedVersionNotificationProvider
       indicator: 'error',
       title: messages.pgettext('in-app-notifications', 'UNSUPPORTED VERSION'),
       subtitle: this.getMessage(),
-      action: { type: 'open-url', url: links.download },
+      action: {
+        type: 'open-url',
+        url: this.context.suggestedIsBeta ? links.betaDownload : links.download,
+      },
     };
   }
 
