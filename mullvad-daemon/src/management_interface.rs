@@ -13,7 +13,7 @@ use mullvad_types::{
     location::GeoIpLocation,
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
-        OpenVpnConstraints, Provider, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
+        OpenVpnConstraints, Providers, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
         WireguardConstraints,
     },
     relay_list::{Relay, RelayList, RelayListCountry},
@@ -241,12 +241,20 @@ impl ManagementService for ManagementServiceImpl {
                     None => Constraint::Any,
                     Some(location) => convert_proto_location(location),
                 };
-                let provider = match constraints.provider.as_ref() {
-                    "" => Constraint::Any,
-                    provider => Constraint::Only(String::from(provider)),
+                let providers = if constraints.providers.is_empty() {
+                    Constraint::Any
+                } else {
+                    Constraint::Only(
+                        Providers::new(constraints.providers.clone().into_iter()).map_err(
+                            |_| Status::invalid_argument("must specify at least one provider"),
+                        )?,
+                    )
                 };
 
-                BridgeSettings::Normal(BridgeConstraints { location, provider })
+                BridgeSettings::Normal(BridgeConstraints {
+                    location,
+                    providers,
+                })
             }
             BridgeSettingType::Local(proxy_settings) => {
                 let peer = proxy_settings
@@ -928,15 +936,23 @@ fn convert_relay_settings_update(
                 None
             };
 
+            let providers = if let Some(ref provider_update) = settings.providers {
+                if !provider_update.providers.is_empty() {
+                    Some(Constraint::Only(
+                        Providers::new(provider_update.providers.clone().into_iter()).map_err(
+                            |_| Status::invalid_argument("must specify at least one provider"),
+                        )?,
+                    ))
+                } else {
+                    Some(Constraint::Any)
+                }
+            } else {
+                None
+            };
+
             Ok(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
                 location,
-                provider: settings.provider.map(|provider_update| {
-                    if !provider_update.provider.is_empty() {
-                        Constraint::Only(provider_update.provider.clone())
-                    } else {
-                        Constraint::Any
-                    }
-                }),
+                providers,
                 tunnel_protocol,
                 wireguard_constraints: settings.wireguard_constraints.map(|constraints| {
                     WireguardConstraints {
@@ -975,7 +991,7 @@ fn convert_relay_settings(settings: &RelaySettings) -> types::RelaySettings {
         RelaySettings::Normal(constraints) => {
             relay_settings::Endpoint::Normal(types::NormalRelaySettings {
                 location: convert_location_constraint(&constraints.location),
-                provider: convert_provider_constraint(&constraints.provider),
+                providers: convert_providers_constraint(&constraints.providers),
                 tunnel_type: match constraints.tunnel_protocol {
                     Constraint::Any => None,
                     Constraint::Only(TunnelType::Wireguard) => Some(types::TunnelType::Wireguard),
@@ -1070,7 +1086,7 @@ fn convert_bridge_settings(settings: &BridgeSettings) -> types::BridgeSettings {
         BridgeSettings::Normal(constraints) => {
             BridgeSettingType::Normal(types::bridge_settings::BridgeConstraints {
                 location: convert_location_constraint(&constraints.location),
-                provider: convert_provider_constraint(&constraints.provider),
+                providers: convert_providers_constraint(&constraints.providers),
             })
         }
         BridgeSettings::Custom(proxy_settings) => match proxy_settings {
@@ -1157,10 +1173,10 @@ fn convert_location_constraint(
     })
 }
 
-fn convert_provider_constraint(provider: &Constraint<Provider>) -> String {
-    match provider.as_ref() {
-        Constraint::Any => "".to_string(),
-        Constraint::Only(ref provider) => provider.to_string(),
+fn convert_providers_constraint(providers: &Constraint<Providers>) -> Vec<String> {
+    match providers.as_ref() {
+        Constraint::Any => vec![],
+        Constraint::Only(providers) => Vec::from(providers.clone()),
     }
 }
 
