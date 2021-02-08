@@ -73,9 +73,9 @@ pub fn format_location(location: Option<&RelayLocation>) -> String {
     "any location".to_string()
 }
 
-pub fn format_provider(provider: &str) -> String {
-    if !provider.is_empty() {
-        format!("provider {}", provider)
+pub fn format_providers(providers: &Vec<String>) -> String {
+    if !providers.is_empty() {
+        format!("provider(s) {}", providers.join(", "))
     } else {
         "any provider".to_string()
     }
