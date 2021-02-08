@@ -9,7 +9,7 @@ use crate::{
 #[cfg(target_os = "android")]
 use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Serialize};
-use std::fmt;
+use std::{collections::HashSet, fmt};
 use talpid_types::net::{openvpn::ProxySettings, TransportProtocol, TunnelType};
 
 
@@ -307,6 +307,52 @@ impl Match<Relay> for LocationConstraint {
 /// Limits the set of [`crate::relay_list::Relay`]s used by a `RelaySelector` based on
 /// provider.
 pub type Provider = String;
+
+#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+pub struct Providers {
+    providers: HashSet<Provider>,
+}
+
+/// Returned if the iterator contained no providers.
+pub struct NoProviders(());
+
+impl Providers {
+    pub fn new(providers: impl Iterator<Item = Provider>) -> Result<Providers, NoProviders> {
+        let providers = Providers {
+            providers: providers.collect(),
+        };
+        if providers.providers.is_empty() {
+            return Err(NoProviders(()));
+        }
+        Ok(providers)
+    }
+}
+
+impl Match<Relay> for Providers {
+    fn matches(&self, relay: &Relay) -> bool {
+        self.providers.contains(&relay.provider)
+    }
+}
+
+impl From<Providers> for Vec<Provider> {
+    fn from(providers: Providers) -> Vec<Provider> {
+        providers.providers.into_iter().collect()
+    }
+}
+
+impl fmt::Display for Providers {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        write!(f, "provider(s) ")?;
+        for (i, provider) in self.providers.iter().enumerate() {
+            if i == 0 {
+                write!(f, "{}", provider)?;
+            } else {
+                write!(f, ", {}", provider)?;
+            }
+        }
+        Ok(())
+    }
+}
 
 impl fmt::Display for LocationConstraint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
