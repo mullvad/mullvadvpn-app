@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">Det gick inte att generera en nyckel</string>
     <string name="failed_to_send">Det gick inte att skicka</string>
     <string name="failed_to_send_details">Du kan behöva gå tillbaka till appens huvudskärm och klicka på Koppla från innan du försöker igen. Oroa dig inte, den information du angett i formuläret kommer att bli kvar där.</string>
+    <string name="faqs_and_guides">Vanliga frågor och guider</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/sv/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Visar nuvarande status för VPN-tunnel</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="here_is_your_account_number">Här är ditt kontonummer. Spara det!</string>

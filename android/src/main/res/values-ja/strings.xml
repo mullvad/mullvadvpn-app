@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">鍵の生成に失敗しました</string>
     <string name="failed_to_send">送信に失敗しました</string>
     <string name="failed_to_send_details">再試行する前に、アプリのメイン画面に戻って「接続解除」をクリックする必要があるかもしれません。すでにフォームに入力された情報が失われることはありませんので、ご安心ください。</string>
+    <string name="faqs_and_guides">よくある質問とガイド</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/ja/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">現在のVPNトンネルのステータスを表示します</string>
     <string name="foreground_notification_channel_name">VPNトンネルのステータス</string>
     <string name="here_is_your_account_number">これがあなたのアカウント番号です。保存してください！</string>

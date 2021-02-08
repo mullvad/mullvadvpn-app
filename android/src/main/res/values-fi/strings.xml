@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">Avaimen luominen epäonnistui</string>
     <string name="failed_to_send">Lähetys epäonnistui</string>
     <string name="failed_to_send_details">Ennen kuin yrität uudelleen sinun on ehkä palattava sovelluksen päänäytölle ja napsautettava yhteyden katkaisua. Älä huoli, syöttämäsi tiedot säilyvät lomakkeella.</string>
+    <string name="faqs_and_guides">UKK:t ja oppaat</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/fi/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Näyttää VPN-tunnelin nykyisen tilan</string>
     <string name="foreground_notification_channel_name">VPN-tunnelin tila</string>
     <string name="here_is_your_account_number">Tässä tulee tilisi numero. Laita se talteen!</string>

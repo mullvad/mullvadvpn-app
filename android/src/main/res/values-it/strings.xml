@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">Impossibile generare una chiave</string>
     <string name="failed_to_send">Impossibile inviare</string>
     <string name="failed_to_send_details">Prima di riprovare, potresti dover tornare alla schermata principale dell\'app e fare clic su Disconnetti. Non preoccuparti: le informazioni inserite rimarranno nel modulo.</string>
+    <string name="faqs_and_guides">FAQ e guide</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/it/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Mostra lo stato attuale del tunnel VPN</string>
     <string name="foreground_notification_channel_name">Stato del tunnel VPN</string>
     <string name="here_is_your_account_number">Ecco il tuo numero di account. Salvalo!</string>

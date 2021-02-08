@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">Generering av en nøkkel mislyktes</string>
     <string name="failed_to_send">Kunne ikke sende</string>
     <string name="failed_to_send_details">Du må gå tilbake til hovedskjermen til appen og trykke på \\\"Koble fra\\\" før du kan prøve på nytt. Men det er ingen grunn til bekymring, informasjonen du har skrevet i skjemaet blir ikke borte.</string>
+    <string name="faqs_and_guides">Ofte stilte spørsmål og veiledninger</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/nb/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Viser gjeldende VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="here_is_your_account_number">Dette er kontonummeret ditt. Ta vare på det!</string>

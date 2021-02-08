@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">Échec de la génération de clé</string>
     <string name="failed_to_send">Échec de l\'envoi</string>
     <string name="failed_to_send_details">Vous allez peut-être devoir retourner à l\'écran principal de l\'application pour cliquer sur Déconnexion avant de réessayer. Ne vous inquiétez pas, les informations saisies resteront dans le formulaire.</string>
+    <string name="faqs_and_guides">FAQ et guides</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/fr/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Affiche l\'état actuel du tunnel VPN</string>
     <string name="foreground_notification_channel_name">État du tunnel VPN</string>
     <string name="here_is_your_account_number">Voici votre numéro de compte. Gardez-le !</string>

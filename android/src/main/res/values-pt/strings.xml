@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">Não foi possível gerar uma chave</string>
     <string name="failed_to_send">Erro no envio</string>
     <string name="failed_to_send_details">Pode ter de voltar ao ecrã principal da app e clicar em Desligar antes de tentar novamente. Não se preocupe, a informação que introduziu permanecerá no formulário.</string>
+    <string name="faqs_and_guides">Perguntas frequentes e guias</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/pt/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Indica o estado atual do túnel VPN</string>
     <string name="foreground_notification_channel_name">Estado do túnel VPN</string>
     <string name="here_is_your_account_number">Aqui tem o seu número de conta. Guarde-o!</string>

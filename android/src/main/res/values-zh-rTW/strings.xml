@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">無法產生金鑰</string>
     <string name="failed_to_send">無法傳送</string>
     <string name="failed_to_send_details">在重試之前，您可能需要返回應用程式的主畫面，然後按一下「中斷連線」。請不用擔心，您輸入的資訊將保留在表單中。</string>
+    <string name="faqs_and_guides">常見問題集與指南</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/zh-hant/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">顯示目前的 VPN 通道狀態</string>
     <string name="foreground_notification_channel_name">VPN 通道狀態</string>
     <string name="here_is_your_account_number">以下是您的帳號。請妥善保管！</string>
