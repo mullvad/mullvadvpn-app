@@ -2,8 +2,10 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
-import { Scheduler } from '../../shared/scheduler';
+import log from '../../shared/logging';
 import ImageView from './ImageView';
+
+const MODAL_CONTAINER_ID = 'modal-container';
 
 const ModalContent = styled.div({
   position: 'absolute',
@@ -40,7 +42,6 @@ interface IModalContainerProps {
 interface IModalContext {
   activeModal: boolean;
   setActiveModal: (value: boolean) => void;
-  modalContainerRef: React.RefObject<HTMLDivElement>;
   previousActiveElement: React.MutableRefObject<HTMLElement | undefined>;
 }
 
@@ -52,9 +53,6 @@ const ActiveModalContext = React.createContext<IModalContext>({
   setActiveModal(_value) {
     throw noActiveModalContextError;
   },
-  get modalContainerRef(): React.RefObject<HTMLDivElement> {
-    throw noActiveModalContextError;
-  },
   get previousActiveElement(): React.MutableRefObject<HTMLElement | undefined> {
     throw noActiveModalContextError;
   },
@@ -63,13 +61,11 @@ const ActiveModalContext = React.createContext<IModalContext>({
 export function ModalContainer(props: IModalContainerProps) {
   const [activeModal, setActiveModal] = useState(false);
   const previousActiveElement = useRef<HTMLElement>();
-  const modalContainerRef = useRef() as React.RefObject<HTMLDivElement>;
 
   const contextValue = useMemo(
     () => ({
       activeModal,
       setActiveModal,
-      modalContainerRef,
       previousActiveElement,
     }),
     [activeModal],
@@ -83,7 +79,7 @@ export function ModalContainer(props: IModalContainerProps) {
 
   return (
     <ActiveModalContext.Provider value={contextValue}>
-      <StyledModalContainer ref={modalContainerRef}>
+      <StyledModalContainer id={MODAL_CONTAINER_ID}>
         <ModalContent aria-hidden={activeModal}>{props.children}</ModalContent>
       </StyledModalContainer>
     </ActiveModalContext.Provider>
@@ -140,7 +136,6 @@ export function ModalAlert(props: IModalAlertProps) {
 class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalContext> {
   private element = document.createElement('div');
   private modalRef = React.createRef<HTMLDivElement>();
-  private appendScheduler = new Scheduler();
 
   constructor(props: IModalAlertProps & IModalContext) {
     super(props);
@@ -156,17 +151,12 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
     // makes sure that this component catches the event before the escape hatch.
     document.addEventListener('keydown', this.handleKeyPress, true);
 
-    const modalContainer = this.props.modalContainerRef.current;
+    const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
     if (modalContainer) {
-      // Mounting the container element immediately results in a graphical issue with the dialog
-      // first rendering with the wrong proportions and then changing to the correct proportions.
-      // Postponing it to the next event cycle solves this issue.
-      this.appendScheduler.schedule(() => {
-        modalContainer.appendChild(this.element);
-        this.modalRef.current?.focus();
-      });
+      modalContainer.appendChild(this.element);
+      this.modalRef.current?.focus();
     } else {
-      throw Error('Modal container not found when mounting modal');
+      log.error('Modal container not found when mounting modal');
     }
   }
 
@@ -174,8 +164,8 @@ class ModalAlertWithContext extends React.Component<IModalAlertProps & IModalCon
     this.props.setActiveModal(false);
     document.removeEventListener('keydown', this.handleKeyPress, true);
 
-    this.appendScheduler.cancel();
-    this.props.modalContainerRef.current?.removeChild(this.element);
+    const modalContainer = document.getElementById(MODAL_CONTAINER_ID);
+    modalContainer?.removeChild(this.element);
   }
 
   public render() {
