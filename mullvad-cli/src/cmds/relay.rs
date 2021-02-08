@@ -128,11 +128,12 @@ impl Command for Relay {
                     )
                     .subcommand(
                         clap::SubCommand::with_name("provider")
-                            .about("Set a hosting provider to select relays from. The 'list' \
+                            .about("Set hosting provider(s) to select relays from. The 'list' \
                                    command shows the available relays and their providers.")
                             .arg(
                                 clap::Arg::with_name("provider")
-                                .help("The hosting provider to use, or 'any' for no preference.")
+                                .help("The hosting provider(s) to use, or 'any' for no preference.")
+                                .multiple(true)
                                 .required(true)
                             )
                     )
@@ -207,8 +208,8 @@ impl Relay {
             self.set_location(location_matches).await
         } else if let Some(relay_matches) = matches.subcommand_matches("hostname") {
             self.set_hostname(relay_matches).await
-        } else if let Some(provider_matches) = matches.subcommand_matches("provider") {
-            self.set_provider(provider_matches).await
+        } else if let Some(providers_matches) = matches.subcommand_matches("provider") {
+            self.set_providers(providers_matches).await
         } else if let Some(tunnel_matches) = matches.subcommand_matches("tunnel") {
             self.set_tunnel(tunnel_matches).await
         } else if let Some(tunnel_matches) = matches.subcommand_matches("tunnel-protocol") {
@@ -440,19 +441,20 @@ impl Relay {
         .await
     }
 
-    async fn set_provider(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let provider = value_t!(matches.value_of("provider"), String).unwrap_or_else(|e| e.exit());
+    async fn set_providers(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+        let providers =
+            values_t!(matches.values_of("provider"), String).unwrap_or_else(|e| e.exit());
+
+        let providers = if providers.iter().next().map(String::as_str) == Some("any") {
+            vec![]
+        } else {
+            providers
+        };
 
         self.update_constraints(RelaySettingsUpdate {
             r#type: Some(relay_settings_update::Type::Normal(
                 NormalRelaySettingsUpdate {
-                    provider: Some(ProviderUpdate {
-                        provider: if provider == "any" {
-                            "".to_string()
-                        } else {
-                            provider
-                        },
-                    }),
+                    providers: Some(ProviderUpdate { providers }),
                     ..Default::default()
                 },
             )),
@@ -545,7 +547,7 @@ impl Relay {
                         Self::format_openvpn_constraints(settings.openvpn_constraints.as_ref()),
                         Self::format_wireguard_constraints(settings.wireguard_constraints.as_ref()),
                         location::format_location(settings.location.as_ref()),
-                        location::format_provider(settings.provider.as_ref())
+                        location::format_providers(&settings.providers)
                     );
                 }
                 Some(constraint) => match TunnelType::from_i32(constraint.tunnel_type).unwrap() {
@@ -556,7 +558,7 @@ impl Relay {
                                 settings.wireguard_constraints.as_ref()
                             ),
                             location::format_location(settings.location.as_ref()),
-                            location::format_provider(settings.provider.as_ref())
+                            location::format_providers(&settings.providers)
                         );
                     }
                     TunnelType::Openvpn => {
@@ -564,7 +566,7 @@ impl Relay {
                             "OpenVPN over {} in {} using {}",
                             Self::format_openvpn_constraints(settings.openvpn_constraints.as_ref()),
                             location::format_location(settings.location.as_ref()),
-                            location::format_provider(settings.provider.as_ref())
+                            location::format_providers(&settings.providers)
                         );
                     }
                 },

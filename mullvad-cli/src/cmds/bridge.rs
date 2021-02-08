@@ -1,5 +1,5 @@
 use crate::{location, new_rpc_client, Command, Error, Result};
-use clap::value_t;
+use clap::{value_t, values_t};
 
 use mullvad_management_interface::types::{
     bridge_settings::{Type as BridgeSettingsType, *},
@@ -48,12 +48,13 @@ fn create_bridge_set_subcommand() -> clap::App<'static, 'static> {
         .subcommand(
             clap::SubCommand::with_name("provider")
                 .about(
-                    "Set a hosting provider to select bridge relays from. The 'list' \
+                    "Set hosting provider(s) to select bridge relays from. The 'list' \
                         command shows the available relays and their providers.",
                 )
                 .arg(
                     clap::Arg::with_name("provider")
-                        .help("The hosting provider to use, or 'any' for no preference.")
+                        .help("The hosting provider(s) to use, or 'any' for no preference.")
+                        .multiple(true)
                         .required(true),
                 ),
         )
@@ -192,7 +193,7 @@ impl Bridge {
                 println!(
                     "Bridge constraints - {}, {}",
                     location::format_location(constraints.location.as_ref()),
-                    location::format_provider(constraints.provider.as_ref())
+                    location::format_providers(&constraints.providers)
                 );
             }
         };
@@ -204,20 +205,20 @@ impl Bridge {
     }
 
     async fn handle_set_bridge_provider(matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let new_provider =
-            value_t!(matches.value_of("provider"), String).unwrap_or_else(|e| e.exit());
-        let new_provider = if new_provider == "any" {
-            "".to_string()
+        let providers =
+            values_t!(matches.values_of("provider"), String).unwrap_or_else(|e| e.exit());
+        let providers = if providers.iter().next().map(String::as_str) == Some("any") {
+            vec![]
         } else {
-            new_provider
+            providers
         };
 
-        Self::update_bridge_settings(None, Some(new_provider)).await
+        Self::update_bridge_settings(None, Some(providers)).await
     }
 
     async fn update_bridge_settings(
         location: Option<RelayLocation>,
-        provider: Option<String>,
+        providers: Option<Vec<String>>,
     ) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let settings = rpc.get_settings(()).await?.into_inner();
@@ -228,18 +229,18 @@ impl Bridge {
                 if let Some(new_location) = location {
                     constraints.location = Some(new_location);
                 }
-                if let Some(new_provider) = provider {
-                    constraints.provider = new_provider;
+                if let Some(new_providers) = providers {
+                    constraints.providers = new_providers;
                 }
                 constraints
             }
             _ => {
                 let location = location.unwrap_or_default();
-                let provider = provider.unwrap_or_default();
+                let providers = providers.unwrap_or_default();
 
                 BridgeConstraints {
                     location: Some(location),
-                    provider,
+                    providers,
                 }
             }
         };
