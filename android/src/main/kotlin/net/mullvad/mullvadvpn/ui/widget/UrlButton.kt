@@ -78,11 +78,16 @@ open class UrlButton : Button {
     }
 
     private fun loadAttributes(attributes: AttributeSet) {
-        val styleableId = R.styleable.UrlButton
-
-        context.theme.obtainStyledAttributes(attributes, styleableId, 0, 0).apply {
+        context.theme.obtainStyledAttributes(attributes, R.styleable.Url, 0, 0).apply {
             try {
-                url = getString(R.styleable.UrlButton_url)
+                url = getString(R.styleable.Url_url)
+            } finally {
+                recycle()
+            }
+        }
+
+        context.theme.obtainStyledAttributes(attributes, R.styleable.UrlButton, 0, 0).apply {
+            try {
                 withToken = getBoolean(R.styleable.UrlButton_withToken, false)
             } finally {
                 recycle()

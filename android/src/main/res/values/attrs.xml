@@ -47,9 +47,11 @@
         <attr name="text"
               format="reference|string" />
     </declare-styleable>
-    <declare-styleable name="UrlButton">
+    <declare-styleable name="Url">
         <attr name="url"
               format="reference|string" />
+    </declare-styleable>
+    <declare-styleable name="UrlButton">
         <attr name="withToken"
               format="boolean" />
     </declare-styleable>
