@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.ui.widget
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Typeface
 import android.net.Uri
 import android.util.AttributeSet
@@ -12,7 +11,7 @@ import android.widget.TextView
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 
-class AppVersionCell : Cell {
+class AppVersionCell : UrlCell {
     private val warningIcon = ImageView(context).apply {
         val iconSize = resources.getDimensionPixelSize(R.dimen.app_version_warning_icon_size)
 
@@ -38,13 +37,6 @@ class AppVersionCell : Cell {
         setTypeface(null, Typeface.BOLD)
 
         text = ""
-    }
-
-    private val externalLinkIcon = ImageView(context).apply {
-        layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, 0.0f)
-        alpha = 0.6f
-
-        setImageResource(R.drawable.icon_extlink)
     }
 
     var updateAvailable by observable(false) { _, _, updateAvailable ->
@@ -77,16 +69,10 @@ class AppVersionCell : Cell {
 
     init {
         cell.addView(warningIcon, 0)
-        cell.addView(versionLabel)
-        cell.addView(externalLinkIcon)
+        cell.addView(versionLabel, cell.getChildCount() - 1)
 
-        onClickListener = { openLink() }
-    }
-
-    private fun openLink() {
-        val url = context.getString(R.string.download_url)
-        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-
-        context.startActivity(intent)
+        if (url == null) {
+            url = Uri.parse(context.getString(R.string.download_url))
+        }
     }
 }
