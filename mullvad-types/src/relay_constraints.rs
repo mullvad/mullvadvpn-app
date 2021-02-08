@@ -186,7 +186,7 @@ impl RelaySettings {
 pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
     #[cfg_attr(target_os = "android", jnix(skip))]
-    pub provider: Constraint<Provider>,
+    pub providers: Constraint<Providers>,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub tunnel_protocol: Constraint<TunnelType>,
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -201,7 +201,7 @@ impl Default for RelayConstraints {
         RelayConstraints {
             tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
             location: Constraint::default(),
-            provider: Constraint::default(),
+            providers: Constraint::default(),
             wireguard_constraints: WireguardConstraints::default(),
             openvpn_constraints: OpenVpnConstraints::default(),
         }
@@ -212,7 +212,7 @@ impl RelayConstraints {
     pub fn merge(&self, update: RelayConstraintsUpdate) -> Self {
         RelayConstraints {
             location: update.location.unwrap_or_else(|| self.location.clone()),
-            provider: update.provider.unwrap_or_else(|| self.provider.clone()),
+            providers: update.providers.unwrap_or_else(|| self.providers.clone()),
             tunnel_protocol: update
                 .tunnel_protocol
                 .unwrap_or_else(|| self.tunnel_protocol.clone()),
@@ -252,12 +252,9 @@ impl fmt::Display for RelayConstraints {
             Constraint::Only(ref location_constraint) => location_constraint.fmt(f)?,
         }
         write!(f, " using ")?;
-        match self.provider {
+        match self.providers {
             Constraint::Any => write!(f, "any provider"),
-            Constraint::Only(ref constraint) => {
-                write!(f, "provider ")?;
-                constraint.fmt(f)
-            }
+            Constraint::Only(ref constraint) => constraint.fmt(f),
         }
     }
 }
@@ -480,7 +477,7 @@ pub enum BridgeSettings {
 #[serde(rename_all = "snake_case")]
 pub struct BridgeConstraints {
     pub location: Constraint<LocationConstraint>,
-    pub provider: Constraint<Provider>,
+    pub providers: Constraint<Providers>,
 }
 
 impl fmt::Display for BridgeConstraints {
@@ -518,7 +515,7 @@ impl fmt::Display for BridgeState {
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct InternalBridgeConstraints {
     pub location: Constraint<LocationConstraint>,
-    pub provider: Constraint<Provider>,
+    pub providers: Constraint<Providers>,
     pub transport_protocol: Constraint<TransportProtocol>,
 }
 
@@ -566,7 +563,7 @@ impl RelaySettingsUpdate {
 pub struct RelayConstraintsUpdate {
     pub location: Option<Constraint<LocationConstraint>>,
     #[cfg_attr(target_os = "android", jnix(default))]
-    pub provider: Option<Constraint<Provider>>,
+    pub providers: Option<Constraint<Providers>>,
     #[cfg_attr(target_os = "android", jnix(default))]
     pub tunnel_protocol: Option<Constraint<TunnelType>>,
     #[cfg_attr(target_os = "android", jnix(default))]
