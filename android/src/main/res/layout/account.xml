@@ -29,8 +29,8 @@
         </FrameLayout>
         <net.mullvad.mullvadvpn.ui.widget.ListenableScrollView android:id="@+id/scroll_area"
                                                                android:layout_width="match_parent"
-                                                               android:layout_height="match_parent">
-
+                                                               android:layout_height="match_parent"
+                                                               android:fillViewport="true">
             <LinearLayout android:layout_width="match_parent"
                           android:layout_height="match_parent"
                           android:layout_marginTop="2dp"
@@ -59,6 +59,9 @@
                                                                   android:paddingVertical="@dimen/half_vertical_space"
                                                                   mullvad:description="@string/paid_until"
                                                                   mullvad:whenMissing="hide" />
+                <Space android:layout_width="match_parent"
+                       android:layout_height="0dp"
+                       android:layout_weight="1" />
                 <include layout="@layout/payment_buttons" />
                 <net.mullvad.mullvadvpn.ui.widget.Button android:id="@+id/logout"
                                                          android:layout_width="match_parent"
