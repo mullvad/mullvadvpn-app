@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">Fehler beim Generieren eines Schlüssels</string>
     <string name="failed_to_send">Fehler beim Senden</string>
     <string name="failed_to_send_details">Möglicherweise müssen Sie zum Hauptbildschirm der App zurückgehen und auf Trennen klicken, bevor Sie es erneut versuchen. Keine Sorge, die eingegebenen Informationen bleiben im Formular gespeichert.</string>
+    <string name="faqs_and_guides">Häufig gestellte Fragen &amp; Anleitungen</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/de/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Zeigt den aktuellen VPN-Tunnel-Status an</string>
     <string name="foreground_notification_channel_name">VPN-Tunnel-Status</string>
     <string name="here_is_your_account_number">Hier ist Ihre Kundennummer. Verlieren Sie sie nicht!</string>

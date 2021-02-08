@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">Sleutel genereren mislukt</string>
     <string name="failed_to_send">Verzenden mislukt</string>
     <string name="failed_to_send_details">Voordat u het opnieuw probeert, keert u eventueel terug naar het hoofdscherm van de app en klikt u op Verbinding verbreken. Geen zorgen, de ingevoerde informatie blijft in het formulier staan.</string>
+    <string name="faqs_and_guides">Veelgestelde vragen en gidsen</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/nl/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Toont huidige status van VPN-tunnel</string>
     <string name="foreground_notification_channel_name">Status VPN-tunnel</string>
     <string name="here_is_your_account_number">Hier is uw accountnummer. Sla het op!</string>

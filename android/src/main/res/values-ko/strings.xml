@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">키를 생성하지 못함</string>
     <string name="failed_to_send">전송하지 못함</string>
     <string name="failed_to_send_details">다시 시도하기 전에 앱의 메인 화면으로 돌아가서 연결 끊기를 클릭해야 할 수도 있습니다. 입력한 정보는 양식에서 그대로 유지됩니다.</string>
+    <string name="faqs_and_guides">FAQ 및 가이드</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/ko/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">현재 VPN 터널 상태 표시</string>
     <string name="foreground_notification_channel_name">VPN 터널 상태</string>
     <string name="here_is_your_account_number">계정 번호는 다음과 같습니다. 저장하세요!</string>
