@@ -13,6 +13,7 @@ const mapStateToProps = (state: IReduxState) => ({
   accountHistory: state.account.accountHistory,
   isOffline: state.connection.isBlocked,
   outdatedVersion: state.version.suggestedUpgrade ? true : false,
+  suggestedIsBeta: state.version.suggestedIsBeta ?? false,
 });
 
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext & RouteComponentProps) => {

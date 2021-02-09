@@ -861,7 +861,13 @@ class ApplicationMain {
   }
 
   private setLatestVersion(latestVersionInfo: IAppVersionInfo) {
-    this.upgradeVersion = latestVersionInfo;
+    const suggestedIsBeta =
+      latestVersionInfo.suggestedUpgrade !== undefined &&
+      IS_BETA.test(latestVersionInfo.suggestedUpgrade);
+    this.upgradeVersion = {
+      ...latestVersionInfo,
+      suggestedIsBeta,
+    };
 
     // notify user to update the app if it became unsupported
     const notificationProviders = [
@@ -869,9 +875,11 @@ class ApplicationMain {
         supported: latestVersionInfo.supported,
         consistent: this.currentVersion.isConsistent,
         suggestedUpgrade: latestVersionInfo.suggestedUpgrade,
+        suggestedIsBeta,
       }),
       new UpdateAvailableNotificationProvider({
         suggestedUpgrade: latestVersionInfo.suggestedUpgrade,
+        suggestedIsBeta,
       }),
     ];
     const notificationProvider = notificationProviders.find((notificationProvider) =>

@@ -14,6 +14,7 @@ const mapStateToProps = (state: IReduxState, props: IAppContext) => ({
   appVersion: state.version.current,
   consistentVersion: state.version.consistent,
   upToDateVersion: state.version.suggestedUpgrade ? false : true,
+  suggestedIsBeta: state.version.suggestedIsBeta ?? false,
   isOffline: state.connection.isBlocked,
 });
 const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
