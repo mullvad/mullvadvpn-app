@@ -172,7 +172,7 @@ pub struct PluralVariant {
 
     /// The string value
     #[serde(rename = "$value")]
-    pub string: String,
+    pub string: StringValue,
 }
 
 /// A valid quantity for a plural variant.
@@ -225,7 +225,10 @@ impl PluralResource {
     /// the message and the quantity it should be used for.
     pub fn new(name: String, values: impl Iterator<Item = (PluralQuantity, String)>) -> Self {
         let items = values
-            .map(|(quantity, string)| PluralVariant { quantity, string })
+            .map(|(quantity, string)| PluralVariant {
+                quantity,
+                string: StringValue::from(&*string),
+            })
             .collect();
 
         PluralResource { name, items }

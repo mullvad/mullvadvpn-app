@@ -85,7 +85,7 @@ fn main() {
                 .items
                 .iter()
                 .find(|variant| variant.quantity == android::PluralQuantity::One)
-                .map(|variant| variant.string.clone())
+                .map(|variant| variant.string.to_string())
                 .expect("Missing singular plural variant");
 
             (singular, name)
@@ -171,14 +171,14 @@ fn main() {
                         .iter()
                         .position(|plural| plural.quantity == android::PluralQuantity::One)
                         .expect("Missing singular variant to use as msgid");
-                    let id = plural.items.remove(singular_position).string;
+                    let id = plural.items.remove(singular_position).string.to_string();
 
                     let other_position = plural
                         .items
                         .iter()
                         .position(|plural| plural.quantity == android::PluralQuantity::Other)
                         .expect("Missing other variant to use as msgid_plural");
-                    let plural_id = plural.items.remove(other_position).string;
+                    let plural_id = plural.items.remove(other_position).string.to_string();
 
                     gettext::MsgEntry {
                         id,
