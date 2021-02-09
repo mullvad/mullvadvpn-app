@@ -2,42 +2,42 @@
 <resources>
     <plurals name="years_left">
         <item quantity="one">1 vuosi jäljellä</item>
-        <item quantity="other">%d vuotta jäljellä</item>
+        <item quantity="other">%1$d vuotta jäljellä</item>
     </plurals>
     <plurals name="months_left">
         <item quantity="one">1 kuukausi jäljellä</item>
-        <item quantity="other">%d kuukautta jäljellä</item>
+        <item quantity="other">%1$d kuukautta jäljellä</item>
     </plurals>
     <plurals name="days_left">
         <item quantity="one">1 päivä jäljellä</item>
-        <item quantity="other">%d päivää jäljellä</item>
+        <item quantity="other">%1$d päivää jäljellä</item>
     </plurals>
     <plurals name="minutes_ago">
         <item quantity="one">minuutti sitten</item>
-        <item quantity="other">%d minuuttia sitten</item>
+        <item quantity="other">%1$d minuuttia sitten</item>
     </plurals>
     <plurals name="hours_ago">
         <item quantity="one">tunti sitten</item>
-        <item quantity="other">%d tuntia sitten</item>
+        <item quantity="other">%1$d tuntia sitten</item>
     </plurals>
     <plurals name="days_ago">
         <item quantity="one">1 päivä sitten</item>
-        <item quantity="other">%d päivää sitten</item>
+        <item quantity="other">%1$d päivää sitten</item>
     </plurals>
     <plurals name="months_ago">
         <item quantity="one">kuukausi sitten</item>
-        <item quantity="other">%d kuukautta sitten</item>
+        <item quantity="other">%1$d kuukautta sitten</item>
     </plurals>
     <plurals name="years_ago">
         <item quantity="one">vuosi sitten</item>
-        <item quantity="other">%d vuotta sitten</item>
+        <item quantity="other">%1$d vuotta sitten</item>
     </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Tilin käyttöaika päättyy vuorokauden kuluttua</item>
-        <item quantity="other">Tilin käyttöaika päättyy %d vuorokauden kuluttua</item>
+        <item quantity="other">Tilin käyttöaika päättyy %1$d vuorokauden kuluttua</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
         <item quantity="one">Tilin käyttöaika päättyy tunnin kuluttua</item>
-        <item quantity="other">Tilin käyttöaika päättyy %d tunnin kuluttua</item>
+        <item quantity="other">Tilin käyttöaika päättyy %1$d tunnin kuluttua</item>
     </plurals>
 </resources>

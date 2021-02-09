@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <plurals name="years_left">
-        <item quantity="other">คงเหลือ %d ปี</item>
+        <item quantity="other">คงเหลือ %1$d ปี</item>
     </plurals>
     <plurals name="months_left">
-        <item quantity="other">คงเหลือ %d เดือน</item>
+        <item quantity="other">คงเหลือ %1$d เดือน</item>
     </plurals>
     <plurals name="days_left">
-        <item quantity="other">คงเหลือ %d วัน</item>
+        <item quantity="other">คงเหลือ %1$d วัน</item>
     </plurals>
     <plurals name="minutes_ago">
-        <item quantity="other">%d นาทีก่อน</item>
+        <item quantity="other">%1$d นาทีก่อน</item>
     </plurals>
     <plurals name="hours_ago">
-        <item quantity="other">%d ชั่วโมงก่อน</item>
+        <item quantity="other">%1$d ชั่วโมงก่อน</item>
     </plurals>
     <plurals name="days_ago">
-        <item quantity="other">%d วันก่อน</item>
+        <item quantity="other">%1$d วันก่อน</item>
     </plurals>
     <plurals name="months_ago">
-        <item quantity="other">%d เดือนก่อน</item>
+        <item quantity="other">%1$d เดือนก่อน</item>
     </plurals>
     <plurals name="years_ago">
-        <item quantity="other">%d ปีก่อน</item>
+        <item quantity="other">%1$d ปีก่อน</item>
     </plurals>
     <plurals name="account_credit_expires_in_days">
-        <item quantity="other">เครดิตของบัญชีจะหมดอายุใน %d วัน</item>
+        <item quantity="other">เครดิตของบัญชีจะหมดอายุใน %1$d วัน</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
-        <item quantity="other">เครดิตของบัญชีจะหมดอายุใน %d ชั่วโมง</item>
+        <item quantity="other">เครดิตของบัญชีจะหมดอายุใน %1$d ชั่วโมง</item>
     </plurals>
 </resources>

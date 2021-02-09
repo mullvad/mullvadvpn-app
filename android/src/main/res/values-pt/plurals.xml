@@ -2,42 +2,42 @@
 <resources>
     <plurals name="years_left">
         <item quantity="one">1 ano restante</item>
-        <item quantity="other">%d anos restantes</item>
+        <item quantity="other">%1$d anos restantes</item>
     </plurals>
     <plurals name="months_left">
         <item quantity="one">1 mês restante</item>
-        <item quantity="other">%d meses restantes</item>
+        <item quantity="other">%1$d meses restantes</item>
     </plurals>
     <plurals name="days_left">
         <item quantity="one">1 dia restante</item>
-        <item quantity="other">%d dias restantes</item>
+        <item quantity="other">%1$d dias restantes</item>
     </plurals>
     <plurals name="minutes_ago">
         <item quantity="one">há um minuto</item>
-        <item quantity="other">há %d minutos</item>
+        <item quantity="other">há %1$d minutos</item>
     </plurals>
     <plurals name="hours_ago">
         <item quantity="one">há uma hora</item>
-        <item quantity="other">há %d horas</item>
+        <item quantity="other">há %1$d horas</item>
     </plurals>
     <plurals name="days_ago">
         <item quantity="one">há um dia</item>
-        <item quantity="other">há %d dias</item>
+        <item quantity="other">há %1$d dias</item>
     </plurals>
     <plurals name="months_ago">
         <item quantity="one">há um mês</item>
-        <item quantity="other">há %d meses</item>
+        <item quantity="other">há %1$d meses</item>
     </plurals>
     <plurals name="years_ago">
         <item quantity="one">há um ano</item>
-        <item quantity="other">há %d anos</item>
+        <item quantity="other">há %1$d anos</item>
     </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">O crédito da conta expira dentro de um dia</item>
-        <item quantity="other">O crédito da conta expira dentro de %d dias</item>
+        <item quantity="other">O crédito da conta expira dentro de %1$d dias</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
         <item quantity="one">O crédito da conta expira dentro de uma hora</item>
-        <item quantity="other">O crédito da conta expira dentro de %d horas</item>
+        <item quantity="other">O crédito da conta expira dentro de %1$d horas</item>
     </plurals>
 </resources>

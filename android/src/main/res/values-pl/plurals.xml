@@ -2,62 +2,62 @@
 <resources>
     <plurals name="years_left">
         <item quantity="one">Pozostał 1 rok</item>
-        <item quantity="few">Pozostały %d lata</item>
-        <item quantity="many">Pozostało %d lat</item>
-        <item quantity="other">Pozostało %d roku</item>
+        <item quantity="few">Pozostały %1$d lata</item>
+        <item quantity="many">Pozostało %1$d lat</item>
+        <item quantity="other">Pozostało %1$d roku</item>
     </plurals>
     <plurals name="months_left">
         <item quantity="one">Pozostał 1 miesiąc</item>
-        <item quantity="few">Pozostały %d miesiące</item>
-        <item quantity="many">Pozostało %d miesięcy</item>
-        <item quantity="other">Pozostało %d miesiąca</item>
+        <item quantity="few">Pozostały %1$d miesiące</item>
+        <item quantity="many">Pozostało %1$d miesięcy</item>
+        <item quantity="other">Pozostało %1$d miesiąca</item>
     </plurals>
     <plurals name="days_left">
         <item quantity="one">Pozostał 1 dzień</item>
-        <item quantity="few">Pozostały %d dni</item>
-        <item quantity="many">Pozostało %d dni</item>
-        <item quantity="other">Pozostało %d dnia</item>
+        <item quantity="few">Pozostały %1$d dni</item>
+        <item quantity="many">Pozostało %1$d dni</item>
+        <item quantity="other">Pozostało %1$d dnia</item>
     </plurals>
     <plurals name="minutes_ago">
         <item quantity="one">minutę temu</item>
-        <item quantity="few">%d minuty temu</item>
-        <item quantity="many">%d minut temu</item>
-        <item quantity="other">%d minuty temu</item>
+        <item quantity="few">%1$d minuty temu</item>
+        <item quantity="many">%1$d minut temu</item>
+        <item quantity="other">%1$d minuty temu</item>
     </plurals>
     <plurals name="hours_ago">
         <item quantity="one">godzinę temu</item>
-        <item quantity="few">%d godziny temu</item>
-        <item quantity="many">%d godzin temu</item>
-        <item quantity="other">%d godzuny temu</item>
+        <item quantity="few">%1$d godziny temu</item>
+        <item quantity="many">%1$d godzin temu</item>
+        <item quantity="other">%1$d godzuny temu</item>
     </plurals>
     <plurals name="days_ago">
         <item quantity="one">dzień temu</item>
-        <item quantity="few">%d dni temu</item>
-        <item quantity="many">%d dni temu</item>
-        <item quantity="other">%d dnia temu</item>
+        <item quantity="few">%1$d dni temu</item>
+        <item quantity="many">%1$d dni temu</item>
+        <item quantity="other">%1$d dnia temu</item>
     </plurals>
     <plurals name="months_ago">
         <item quantity="one">miesiąc temu</item>
-        <item quantity="few">%d miesiące temu</item>
-        <item quantity="many">%d miesięcy temu</item>
-        <item quantity="other">%d miesiąca temu</item>
+        <item quantity="few">%1$d miesiące temu</item>
+        <item quantity="many">%1$d miesięcy temu</item>
+        <item quantity="other">%1$d miesiąca temu</item>
     </plurals>
     <plurals name="years_ago">
         <item quantity="one">rok temu</item>
-        <item quantity="few">%d lata temu</item>
-        <item quantity="many">%d lat temu</item>
-        <item quantity="other">%d roku temu</item>
+        <item quantity="few">%1$d lata temu</item>
+        <item quantity="many">%1$d lat temu</item>
+        <item quantity="other">%1$d roku temu</item>
     </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Doładowanie konta wygasa za 1 dzień</item>
-        <item quantity="few">Doładowanie konta wygasa za %d dni</item>
-        <item quantity="many">Doładowanie konta wygasa za %d dni</item>
-        <item quantity="other">Doładowanie konta wygasa za %d dnia</item>
+        <item quantity="few">Doładowanie konta wygasa za %1$d dni</item>
+        <item quantity="many">Doładowanie konta wygasa za %1$d dni</item>
+        <item quantity="other">Doładowanie konta wygasa za %1$d dnia</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
         <item quantity="one">Doładowanie konta wygasa za 1 godzinę</item>
-        <item quantity="few">Doładowanie konta wygasa za %d godziny</item>
-        <item quantity="many">Doładowanie konta wygasa za %d godzin</item>
-        <item quantity="other">Doładowanie konta wygasa za %d godziny</item>
+        <item quantity="few">Doładowanie konta wygasa za %1$d godziny</item>
+        <item quantity="many">Doładowanie konta wygasa za %1$d godzin</item>
+        <item quantity="other">Doładowanie konta wygasa za %1$d godziny</item>
     </plurals>
 </resources>

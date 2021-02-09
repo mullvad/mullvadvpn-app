@@ -2,42 +2,42 @@
 <resources>
     <plurals name="years_left">
         <item quantity="one">1 år igjen</item>
-        <item quantity="other">%d år igjen</item>
+        <item quantity="other">%1$d år igjen</item>
     </plurals>
     <plurals name="months_left">
         <item quantity="one">1 måned igjen</item>
-        <item quantity="other">%d måneder igjen</item>
+        <item quantity="other">%1$d måneder igjen</item>
     </plurals>
     <plurals name="days_left">
         <item quantity="one">1 dag igjen</item>
-        <item quantity="other">%d dager igjen</item>
+        <item quantity="other">%1$d dager igjen</item>
     </plurals>
     <plurals name="minutes_ago">
         <item quantity="one">ett minutt siden</item>
-        <item quantity="other">%d minutter siden</item>
+        <item quantity="other">%1$d minutter siden</item>
     </plurals>
     <plurals name="hours_ago">
         <item quantity="one">én time siden</item>
-        <item quantity="other">%d timer siden</item>
+        <item quantity="other">%1$d timer siden</item>
     </plurals>
     <plurals name="days_ago">
         <item quantity="one">én dag siden</item>
-        <item quantity="other">%d dager siden</item>
+        <item quantity="other">%1$d dager siden</item>
     </plurals>
     <plurals name="months_ago">
         <item quantity="one">én måned siden</item>
-        <item quantity="other">%d måneder siden</item>
+        <item quantity="other">%1$d måneder siden</item>
     </plurals>
     <plurals name="years_ago">
         <item quantity="one">ett år siden</item>
-        <item quantity="other">%d år siden</item>
+        <item quantity="other">%1$d år siden</item>
     </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Kontokreditt utløper om én dag</item>
-        <item quantity="other">Kontokreditt utløper om %d dager</item>
+        <item quantity="other">Kontokreditt utløper om %1$d dager</item>
     </plurals>
     <plurals name="account_credit_expires_in_hours">
         <item quantity="one">Kontokreditt utløper om én time</item>
-        <item quantity="other">Kontokreditt utløper om %d timer</item>
+        <item quantity="other">Kontokreditt utløper om %1$d timer</item>
     </plurals>
 </resources>
