@@ -62,7 +62,7 @@ fn main() {
         };
 
         if destination
-            .insert(string.value.clone(), string.name)
+            .insert(string.value.to_string(), string.name)
             .is_some()
         {
             panic!(
