@@ -94,7 +94,10 @@ impl StringResource {
         let value_with_parameters = value
             .replace(r"\", r"\\")
             .replace("\"", "\\\"")
-            .replace(r"'", r"\'");
+            .replace(r"'", r"\'")
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;");
 
         let mut parts = value_with_parameters.split("%");
         let mut value = parts.next().unwrap().to_owned();
