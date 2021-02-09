@@ -1,5 +1,5 @@
 #![deny(rust_2018_idioms)]
-#![recursion_limit = "256"]
+#![recursion_limit = "512"]
 
 #[macro_use]
 extern crate serde;
