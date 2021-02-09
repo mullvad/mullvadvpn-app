@@ -1,3 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <plurals name="years_left">
+        <item quantity="one">1 år tilbage</item>
+        <item quantity="other">%d år tilbage</item>
+    </plurals>
+    <plurals name="months_left">
+        <item quantity="one">1 måned tilbage</item>
+        <item quantity="other">%d måneder tilbage</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 dag tilbage</item>
+        <item quantity="other">%d dage tilbage</item>
+    </plurals>
+    <plurals name="minutes_ago">
+        <item quantity="one">et minut siden</item>
+        <item quantity="other">%d minutter siden</item>
+    </plurals>
+    <plurals name="hours_ago">
+        <item quantity="one">en time siden</item>
+        <item quantity="other">%d timer siden</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">en dag siden</item>
+        <item quantity="other">%d dage siden</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">en måned siden</item>
+        <item quantity="other">%d måneder siden</item>
+    </plurals>
+    <plurals name="years_ago">
+        <item quantity="one">et år siden</item>
+        <item quantity="other">%d år siden</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="one">Kontokredit udløber om en dag</item>
+        <item quantity="other">Kontokredit udløber om %d dage</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="one">Kontokredit udløber om en time</item>
+        <item quantity="other">Kontokredit udløber om %d timer</item>
+    </plurals>
 </resources>

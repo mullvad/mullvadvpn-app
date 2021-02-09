@@ -1,3 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <plurals name="years_left">
+        <item quantity="one">1 Jahr übrig</item>
+        <item quantity="other">%d Jahre übrig</item>
+    </plurals>
+    <plurals name="months_left">
+        <item quantity="one">1 Monat übrig</item>
+        <item quantity="other">%d Monate übrig</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 Tag übrig</item>
+        <item quantity="other">%d Tage übrig</item>
+    </plurals>
+    <plurals name="minutes_ago">
+        <item quantity="one">vor einer Minute</item>
+        <item quantity="other">vor %d Minuten</item>
+    </plurals>
+    <plurals name="hours_ago">
+        <item quantity="one">vor einer Stunde</item>
+        <item quantity="other">vor %d Stunden</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">vor einem Tag</item>
+        <item quantity="other">vor %d Tagen</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">vor einem Monat</item>
+        <item quantity="other">vor %d Monaten</item>
+    </plurals>
+    <plurals name="years_ago">
+        <item quantity="one">vor einem Jahr</item>
+        <item quantity="other">vor %d Jahren</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="one">Kontoguthaben läuft in einem Tag ab</item>
+        <item quantity="other">Kontoguthaben läuft in %d Tagen ab</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="one">Kontoguthaben läuft in einer Stunde ab</item>
+        <item quantity="other">Kontoguthaben läuft in %d Stunden ab</item>
+    </plurals>
 </resources>
