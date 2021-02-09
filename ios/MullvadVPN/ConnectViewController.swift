@@ -91,7 +91,7 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
         }
     }
 
-    func tunnelPublicKeyDidChange(publicKeyMetadata: PublicKeyWithMetadata?) {
+    func tunnelPublicKeyDidChange(publicKeyWithMetadata: PublicKeyWithMetadata?) {
         // no-op
     }
 

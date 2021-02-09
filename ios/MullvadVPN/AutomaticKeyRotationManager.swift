@@ -19,7 +19,7 @@ private let kRotationInterval = 4
 /// A struct describing the key rotation result
 struct KeyRotationResult {
     var isNew: Bool
-    var publicKeyMetadata: PublicKeyWithMetadata
+    var publicKeyWithMetadata: PublicKeyWithMetadata
 }
 
 class AutomaticKeyRotationManager {
@@ -135,7 +135,7 @@ class AutomaticKeyRotationManager {
 
                         return KeyRotationResult(
                             isNew: true,
-                            publicKeyMetadata: newPrivateKey.publicKeyMetadata
+                            publicKeyWithMetadata: newPrivateKey.publicKeyWithMetadata
                         )
                     }
 
@@ -154,7 +154,7 @@ class AutomaticKeyRotationManager {
             } else {
                 let event = KeyRotationResult(
                     isNew: false,
-                    publicKeyMetadata: currentPrivateKey.publicKeyMetadata
+                    publicKeyWithMetadata: currentPrivateKey.publicKeyWithMetadata
                 )
 
                 self.didCompleteKeyRotation(result: .success(event))
@@ -170,12 +170,12 @@ class AutomaticKeyRotationManager {
         oldPublicKey: PublicKey,
         completionHandler: @escaping (Result<TunnelSettings, Error>) -> Void) -> Result<URLSessionDataTask, RestError>
     {
-        let newPrivateKeyMetadata = PrivateKeyWithMetadata()
+        let newPrivateKeyWithMetadata = PrivateKeyWithMetadata()
         let payload = TokenPayload(
             token: accountToken,
             payload: ReplaceWireguardKeyRequest(
                 old: oldPublicKey.rawValue,
-                new: newPrivateKeyMetadata.privateKey.publicKey.rawValue
+                new: newPrivateKeyWithMetadata.privateKey.publicKey.rawValue
             )
         )
 
@@ -189,17 +189,17 @@ class AutomaticKeyRotationManager {
                         ipv6Address: response.ipv6Address
                     )
 
-                    return self.updateTunnelSettings(privateKeyMetadata: newPrivateKeyMetadata, addresses: addresses)
+                    return self.updateTunnelSettings(privateKeyWithMetadata: newPrivateKeyWithMetadata, addresses: addresses)
                 }
                 completionHandler(updateResult)
             }
         }
     }
 
-    private func updateTunnelSettings(privateKeyMetadata: PrivateKeyWithMetadata, addresses: WireguardAssociatedAddresses) -> Result<TunnelSettings, Error> {
+    private func updateTunnelSettings(privateKeyWithMetadata: PrivateKeyWithMetadata, addresses: WireguardAssociatedAddresses) -> Result<TunnelSettings, Error> {
         let updateResult = TunnelSettingsManager.update(searchTerm: .persistentReference(self.persistentKeychainReference))
             { (tunnelSettings) in
-                tunnelSettings.interface.privateKey = privateKeyMetadata
+                tunnelSettings.interface.privateKey = privateKeyWithMetadata
                 tunnelSettings.interface.addresses = [
                     addresses.ipv4Address,
                     addresses.ipv6Address
@@ -222,7 +222,7 @@ class AutomaticKeyRotationManager {
                 }
             }
 
-            if let rotationDate = Self.nextRotation(creationDate: event.publicKeyMetadata.creationDate) {
+            if let rotationDate = Self.nextRotation(creationDate: event.publicKeyWithMetadata.creationDate) {
                 let interval = rotationDate.timeIntervalSinceNow
 
                 logger.info("Next private key rotation on \(rotationDate)")

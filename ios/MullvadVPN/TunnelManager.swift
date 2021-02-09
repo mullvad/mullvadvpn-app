@@ -9,6 +9,7 @@
 import Foundation
 import NetworkExtension
 import Logging
+import WireGuardKit
 
 enum MapConnectionStatusError: ChainedError {
     /// A failure to perform the IPC request because the tunnel IPC is already deallocated
@@ -108,7 +109,7 @@ extension TunnelState: CustomStringConvertible, CustomDebugStringConvertible {
 
 protocol TunnelObserver: class {
     func tunnelStateDidChange(tunnelState: TunnelState)
-    func tunnelPublicKeyDidChange(publicKeyMetadata: PublicKeyWithMetadata?)
+    func tunnelPublicKeyDidChange(publicKeyWithMetadata: PublicKeyWithMetadata?)
 }
 
 private class AnyTunnelObserver: WeakObserverBox, TunnelObserver {
@@ -125,8 +126,8 @@ private class AnyTunnelObserver: WeakObserverBox, TunnelObserver {
         self.inner?.tunnelStateDidChange(tunnelState: tunnelState)
     }
 
-    func tunnelPublicKeyDidChange(publicKeyMetadata: PublicKeyWithMetadata?) {
-        self.inner?.tunnelPublicKeyDidChange(publicKeyMetadata: publicKeyMetadata)
+    func tunnelPublicKeyDidChange(publicKeyWithMetadata: PublicKeyWithMetadata?) {
+        self.inner?.tunnelPublicKeyDidChange(publicKeyWithMetadata: publicKeyWithMetadata)
     }
 
     static func == (lhs: AnyTunnelObserver, rhs: AnyTunnelObserver) -> Bool {
@@ -256,7 +257,7 @@ class TunnelManager {
     private var accountToken: String?
 
     private var _tunnelState = TunnelState.disconnected
-    private var _publicKeyMetadata: PublicKeyWithMetadata?
+    private var _publicKeyWithMetadata: PublicKeyWithMetadata?
 
     private init() {}
 
@@ -284,21 +285,21 @@ class TunnelManager {
     }
 
     /// The last known public key
-    private(set) var publicKeyMetadata: PublicKeyWithMetadata? {
+    private(set) var publicKeyWithMetadata: PublicKeyWithMetadata? {
         set {
             stateLock.withCriticalBlock {
-                guard _publicKeyMetadata != newValue else { return }
+                guard _publicKeyWithMetadata != newValue else { return }
 
-                _publicKeyMetadata = newValue
+                _publicKeyWithMetadata = newValue
 
                 observerList.forEach { (observer) in
-                    observer.tunnelPublicKeyDidChange(publicKeyMetadata: newValue)
+                    observer.tunnelPublicKeyDidChange(publicKeyWithMetadata: newValue)
                 }
             }
         }
         get {
             stateLock.withCriticalBlock {
-                return _publicKeyMetadata
+                return _publicKeyWithMetadata
             }
         }
     }
@@ -468,11 +469,11 @@ class TunnelManager {
             }
 
             let interfaceSettings = tunnelSettings.interface
-            let publicKeyMetadata = interfaceSettings.privateKey.publicKeyMetadata
+            let publicKeyWithMetadata = interfaceSettings.privateKey.publicKeyWithMetadata
 
             let saveAccountData = {
                 // Save the last known public key
-                self.publicKeyMetadata = publicKeyMetadata
+                self.publicKeyWithMetadata = publicKeyWithMetadata
                 self.accountToken = accountToken
             }
 
@@ -483,7 +484,7 @@ class TunnelManager {
             }
 
             // Push wireguard key if addresses were not received yet
-            self.pushWireguardKeyAndUpdateSettings(accountToken: accountToken, publicKey: publicKeyMetadata) { (result) in
+            self.pushWireguardKeyAndUpdateSettings(accountToken: accountToken, publicKey: publicKeyWithMetadata.publicKey) { (result) in
                 if case .success = result {
                     saveAccountData()
                 }
@@ -507,7 +508,7 @@ class TunnelManager {
 
             let completeOperation = {
                 self.accountToken = nil
-                self.publicKeyMetadata = nil
+                self.publicKeyWithMetadata = nil
 
                 finish(.success(()))
             }
@@ -555,14 +556,13 @@ class TunnelManager {
 
             switch Self.loadTunnelSettings(accountToken: accountToken) {
             case .success(let keychainEntry):
-                let publicKeyMetadata = keychainEntry.tunnelSettings
+                let publicKey = keychainEntry.tunnelSettings
                     .interface
                     .privateKey
-                    .publicKeyMetadata
+                    .publicKeyWithMetadata
                     .publicKey
-                    .rawValue
 
-                self.removeWireguardKeyFromServer(accountToken: accountToken, publicKey: publicKeyMetadata) { (result) in
+                self.removeWireguardKeyFromServer(accountToken: accountToken, publicKey: publicKey) { (result) in
                     switch result {
                     case .success(let isRemoved):
                         self.logger.warning("Removed the WireGuard key from server: \(isRemoved)")
@@ -603,7 +603,7 @@ class TunnelManager {
                 .map { (keychainEntry) -> PublicKeyPayload<TokenPayload<EmptyPayload>> in
                     let publicKey = keychainEntry.tunnelSettings.interface
                         .privateKey
-                        .publicKeyMetadata.publicKey.rawValue
+                        .publicKeyWithMetadata.publicKey.rawValue
 
                     return PublicKeyPayload(
                         pubKey: publicKey,
@@ -645,7 +645,7 @@ class TunnelManager {
             let newPrivateKey = PrivateKeyWithMetadata()
             let oldPublicKeyMetadata = keychainEntry.tunnelSettings.interface
                 .privateKey
-                .publicKeyMetadata
+                .publicKeyWithMetadata
 
             self.replaceWireguardKeyAndUpdateSettings(accountToken: accountToken, oldPublicKey: oldPublicKeyMetadata, newPrivateKey: newPrivateKey) { (result) in
                 guard case .success = result else {
@@ -654,7 +654,7 @@ class TunnelManager {
                 }
 
                 // Save new public key
-                self.publicKeyMetadata = newPrivateKey.publicKeyMetadata
+                self.publicKeyWithMetadata = newPrivateKey.publicKeyWithMetadata
 
                 guard let tunnelIpc = self.tunnelIpc else {
                     finish(.success(()))
@@ -810,21 +810,21 @@ class TunnelManager {
     private func loadPublicKey(accountToken: String) {
         switch TunnelSettingsManager.load(searchTerm: .accountToken(accountToken)) {
         case .success(let entry):
-            self.publicKeyMetadata = entry.tunnelSettings.interface.privateKey.publicKeyMetadata
+            self.publicKeyWithMetadata = entry.tunnelSettings.interface.privateKey.publicKeyWithMetadata
 
         case .failure(let error):
             self.logger.error(chainedError: error, message: "Failed to load the public key")
 
-            self.publicKeyMetadata = nil
+            self.publicKeyWithMetadata = nil
         }
     }
 
     private func pushWireguardKeyAndUpdateSettings(
         accountToken: String,
-        publicKey: PublicKeyWithMetadata,
+        publicKey: PublicKey,
         completionHandler: @escaping (Result<(), Error>) -> Void)
     {
-        let payload = TokenPayload(token: accountToken, payload: PushWireguardKeyRequest(pubkey: publicKey.publicKey.rawValue))
+        let payload = TokenPayload(token: accountToken, payload: PushWireguardKeyRequest(pubkey: publicKey.rawValue))
         let operation = rest.pushWireguardKey().operation(payload: payload)
 
         operation.addDidFinishBlockObserver(queue: dispatchQueue) { (operation, result) in
@@ -847,8 +847,8 @@ class TunnelManager {
         operationQueue.addOperation(operation)
     }
 
-    private func removeWireguardKeyFromServer(accountToken: String, publicKey: Data, completionHandler: @escaping (Result<Bool, Error>) -> Void) {
-        let payload = PublicKeyPayload(pubKey: publicKey, payload: TokenPayload(token: accountToken, payload: EmptyPayload()))
+    private func removeWireguardKeyFromServer(accountToken: String, publicKey: PublicKey, completionHandler: @escaping (Result<Bool, Error>) -> Void) {
+        let payload = PublicKeyPayload(pubKey: publicKey.rawValue, payload: TokenPayload(token: accountToken, payload: EmptyPayload()))
         let operation = rest.deleteWireguardKey().operation(payload: payload)
 
         operation.addDidFinishBlockObserver(queue: dispatchQueue) { (operation, result) in
@@ -878,7 +878,7 @@ class TunnelManager {
             token: accountToken,
             payload: ReplaceWireguardKeyRequest(
                 old: oldPublicKey.publicKey.rawValue,
-                new: newPrivateKey.publicKeyMetadata.publicKey.rawValue
+                new: newPrivateKey.publicKeyWithMetadata.publicKey.rawValue
             )
         )
 

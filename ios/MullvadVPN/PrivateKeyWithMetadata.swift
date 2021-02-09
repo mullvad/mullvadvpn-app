@@ -19,7 +19,7 @@ struct PrivateKeyWithMetadata {
     let privateKey: PrivateKey
 
     /// Public key metadata
-    var publicKeyMetadata: PublicKeyWithMetadata {
+    var publicKeyWithMetadata: PublicKeyWithMetadata {
         return PublicKeyWithMetadata(publicKey: privateKey.publicKey, createdAt: creationDate)
     }
 
@@ -42,7 +42,7 @@ struct PublicKeyWithMetadata: Equatable {
     /// Refers to private key creation date
     let creationDate: Date
 
-    /// Inner public key
+    /// Public key
     let publicKey: PublicKey
 
     init(publicKey: PublicKey, createdAt: Date) {
