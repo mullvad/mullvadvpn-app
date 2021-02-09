@@ -10,6 +10,9 @@ lazy_static! {
     static ref LINE_BREAKS: Regex = Regex::new(r"\s*\n\s*").unwrap();
     static ref APOSTROPHES: Regex = Regex::new(r"\\'").unwrap();
     static ref PARAMETERS: Regex = Regex::new(r"%[0-9]*\$").unwrap();
+    static ref AMPERSANDS: Regex = Regex::new(r"&amp;").unwrap();
+    static ref LESS_THANS: Regex = Regex::new(r"&lt;").unwrap();
+    static ref GREATER_THANS: Regex = Regex::new(r"&gt;").unwrap();
 }
 
 /// Contents of an Android string resources file.
@@ -118,6 +121,12 @@ impl StringResource {
         let value = APOSTROPHES.replace_all(&value, "'");
         // Mark where parameters are positioned, removing the parameter index
         let value = PARAMETERS.replace_all(&value, "%");
+        // Unescape ampersands
+        let value = AMPERSANDS.replace_all(&value, "&");
+        // Unescape less thans
+        let value = LESS_THANS.replace_all(&value, "<");
+        // Unescape greater thans
+        let value = GREATER_THANS.replace_all(&value, ">");
 
         self.value = value.into_owned();
     }
