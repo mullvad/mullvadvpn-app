@@ -13,7 +13,13 @@ export const AccountContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  paddingBottom: '48px',
+  paddingBottom: '22px',
+});
+
+export const AccountRows = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
 });
 
 export const AccountRow = styled.div({
