@@ -10,9 +10,6 @@ lazy_static! {
     static ref LINE_BREAKS: Regex = Regex::new(r"\s*\n\s*").unwrap();
     static ref APOSTROPHES: Regex = Regex::new(r"\\'").unwrap();
     static ref PARAMETERS: Regex = Regex::new(r"%[0-9]*\$").unwrap();
-    static ref AMPERSANDS: Regex = Regex::new(r"&amp;").unwrap();
-    static ref LESS_THANS: Regex = Regex::new(r"&lt;").unwrap();
-    static ref GREATER_THANS: Regex = Regex::new(r"&gt;").unwrap();
 }
 
 /// Contents of an Android string resources file.
@@ -293,13 +290,10 @@ pub struct StringValue(String);
 
 impl From<&str> for StringValue {
     fn from(string: &str) -> Self {
-        let value_with_parameters = string
+        let value_with_parameters = htmlize::unescape(string)
             .replace(r"\", r"\\")
             .replace("\"", "\\\"")
-            .replace(r"'", r"\'")
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;");
+            .replace(r"'", r"\'");
 
         let mut parts = value_with_parameters.split("%");
         let mut value = parts.next().unwrap().to_owned();
@@ -324,14 +318,9 @@ impl StringValue {
         let value = APOSTROPHES.replace_all(&value, "'");
         // Mark where parameters are positioned, removing the parameter index
         let value = PARAMETERS.replace_all(&value, "%");
-        // Unescape ampersands
-        let value = AMPERSANDS.replace_all(&value, "&");
-        // Unescape less thans
-        let value = LESS_THANS.replace_all(&value, "<");
-        // Unescape greater thans
-        let value = GREATER_THANS.replace_all(&value, ">");
 
-        self.0 = value.into_owned();
+        // Unescape XML characters
+        self.0 = htmlize::escape_text(value.as_bytes());
     }
 
     /// Clones the internal string value.
