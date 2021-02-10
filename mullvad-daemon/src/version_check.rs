@@ -209,15 +209,12 @@ impl VersionUpdater {
         &mut self,
         response: mullvad_rpc::AppVersionResponse,
     ) -> AppVersionInfo {
-        let suggested_upgrade = if !*IS_DEV_BUILD {
-            Self::suggested_upgrade(
-                &*APP_VERSION,
-                &response,
-                self.show_beta_releases || is_beta_version(),
-            )
-        } else {
-            None
-        };
+        let suggested_upgrade = Self::suggested_upgrade(
+            &*APP_VERSION,
+            &response.latest_stable,
+            &response.latest_beta,
+            self.show_beta_releases || is_beta_version(),
+        );
 
         AppVersionInfo {
             supported: response.supported,
@@ -229,26 +226,42 @@ impl VersionUpdater {
 
     fn suggested_upgrade(
         current_version: &ParsedAppVersion,
-        response: &mullvad_rpc::AppVersionResponse,
+        latest_stable: &Option<String>,
+        latest_beta: &str,
         show_beta: bool,
     ) -> Option<String> {
-        let stable_version = response
-            .latest_stable
-            .as_ref()
-            .and_then(|stable| ParsedAppVersion::from_str(stable));
+        if !*IS_DEV_BUILD {
+            let stable_version = latest_stable
+                .as_ref()
+                .and_then(|stable| ParsedAppVersion::from_str(stable));
 
-        let beta_version = if show_beta {
-            ParsedAppVersion::from_str(&response.latest_beta)
+            let beta_version = if show_beta {
+                ParsedAppVersion::from_str(latest_beta)
+            } else {
+                None
+            };
+
+            let latest_version = stable_version.iter().chain(beta_version.iter()).max()?;
+
+            if current_version < latest_version {
+                Some(latest_version.to_string())
+            } else {
+                None
+            }
         } else {
             None
-        };
+        }
+    }
 
-        let latest_version = stable_version.iter().chain(beta_version.iter()).max()?;
+    async fn update_version_info(&mut self, new_version_info: AppVersionInfo) {
+        // if daemon can't be reached, return immediately
+        if self.update_sender.send(new_version_info.clone()).is_err() {
+            return;
+        }
 
-        if current_version < latest_version {
-            Some(latest_version.to_string())
-        } else {
-            None
+        self.last_app_version_info = Some(new_version_info);
+        if let Err(err) = self.write_cache().await {
+            log::error!("Failed to save version cache to disk: {}", err);
         }
     }
 
@@ -271,6 +284,25 @@ impl VersionUpdater {
                     match command {
                         Some(VersionUpdaterCommand::SetShowBetaReleases(show_beta_releases)) => {
                             self.show_beta_releases = show_beta_releases;
+
+                            if let Some(last_app_version_info) = self
+                                .last_app_version_info
+                                .clone()
+                            {
+                                let suggested_upgrade = Self::suggested_upgrade(
+                                    &*APP_VERSION,
+                                    &Some(last_app_version_info.latest_stable.clone()),
+                                    &last_app_version_info.latest_beta,
+                                    self.show_beta_releases || is_beta_version(),
+                                );
+
+                                self.update_version_info(AppVersionInfo {
+                                    supported: last_app_version_info.supported,
+                                    latest_stable: last_app_version_info.latest_stable,
+                                    latest_beta: last_app_version_info.latest_beta,
+                                    suggested_upgrade,
+                                }).await;
+                            }
                         }
                         Some(VersionUpdaterCommand::RunVersionCheck) => {
                             if self.update_sender.is_closed() {
@@ -308,17 +340,9 @@ impl VersionUpdater {
 
                     match response {
                         Ok(version_info_response) => {
-                            let new_version_info = self.response_to_version_info(version_info_response);
-                            // if daemon can't be reached, return immediately
-                            if self.update_sender.send(new_version_info.clone()).is_err() {
-                                return;
-                            }
-
-                            self.last_app_version_info = Some(new_version_info);
-                            if let Err(err) = self.write_cache().await {
-                                log::error!("Failed to save version cache to disk: {}", err);
-
-                            }
+                            let new_version_info =
+                                self.response_to_version_info(version_info_response);
+                            self.update_version_info(new_version_info).await;
                         },
                         Err(err) => {
                             log::error!("Failed to get fetch version info - {}", err);
@@ -365,12 +389,8 @@ mod test {
 
     #[test]
     fn test_version_upgrade_suggestions() {
-        let app_version_info = mullvad_rpc::AppVersionResponse {
-            supported: true,
-            latest: "2020.5-beta3".to_owned(),
-            latest_stable: Some("2020.4".to_string()),
-            latest_beta: "2020.5-beta3".to_string(),
-        };
+        let latest_stable = Some("2020.4".to_string());
+        let latest_beta = "2020.5-beta3";
 
         let older_stable = ParsedAppVersion::from_str("2020.3").unwrap();
         let current_stable = ParsedAppVersion::from_str("2020.4").unwrap();
@@ -381,51 +401,51 @@ mod test {
         let newer_beta = ParsedAppVersion::from_str("2021.5-beta3").unwrap();
 
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&older_stable, &app_version_info, false),
+            VersionUpdater::suggested_upgrade(&older_stable, &latest_stable, latest_beta, false),
             Some("2020.4".to_owned())
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&older_stable, &app_version_info, true),
+            VersionUpdater::suggested_upgrade(&older_stable, &latest_stable, latest_beta, true),
             Some("2020.5-beta3".to_owned())
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&current_stable, &app_version_info, false),
+            VersionUpdater::suggested_upgrade(&current_stable, &latest_stable, latest_beta, false),
             None
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&current_stable, &app_version_info, true),
+            VersionUpdater::suggested_upgrade(&current_stable, &latest_stable, latest_beta, true),
             Some("2020.5-beta3".to_owned())
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&newer_stable, &app_version_info, false),
+            VersionUpdater::suggested_upgrade(&newer_stable, &latest_stable, latest_beta, false),
             None
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&newer_stable, &app_version_info, true),
+            VersionUpdater::suggested_upgrade(&newer_stable, &latest_stable, latest_beta, true),
             None
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&older_beta, &app_version_info, false),
+            VersionUpdater::suggested_upgrade(&older_beta, &latest_stable, latest_beta, false),
             Some("2020.4".to_owned())
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&older_beta, &app_version_info, true),
+            VersionUpdater::suggested_upgrade(&older_beta, &latest_stable, latest_beta, true),
             Some("2020.5-beta3".to_owned())
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&current_beta, &app_version_info, false),
+            VersionUpdater::suggested_upgrade(&current_beta, &latest_stable, latest_beta, false),
             None
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&current_beta, &app_version_info, true),
+            VersionUpdater::suggested_upgrade(&current_beta, &latest_stable, latest_beta, true),
             None
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&newer_beta, &app_version_info, false),
+            VersionUpdater::suggested_upgrade(&newer_beta, &latest_stable, latest_beta, false),
             None
         );
         assert_eq!(
-            VersionUpdater::suggested_upgrade(&newer_beta, &app_version_info, true),
+            VersionUpdater::suggested_upgrade(&newer_beta, &latest_stable, latest_beta, true),
             None
         );
     }

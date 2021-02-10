@@ -38,6 +38,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - WireGuard key is now rotated sooner: every four days instead of seven.
 
+### Fixed
+- Fix delay in showing/hiding update notification when toggling beta program.
+
 
 ## [2021.1-beta2] - 2021-02-03
 ### Fixed
