@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Update Electron from 11.0.2 to 11.2.1 which includes a newer Chromium version and
   security patches.
+- Allow provider constraint to specify multiple hosting providers.
 
 #### Android
 - WireGuard key is now rotated sooner: every four days instead of seven.

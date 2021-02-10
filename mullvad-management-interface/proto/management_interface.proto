@@ -201,7 +201,7 @@ message AccountHistory {
 message BridgeSettings {
 	message BridgeConstraints {
 		RelayLocation location = 1;
-		string provider = 2;
+		repeated string providers = 2;
 	}
 
 	message LocalProxySettings {
@@ -271,7 +271,7 @@ message TunnelTypeConstraint {
 
 message NormalRelaySettings {
 	RelayLocation location = 1;
-	string provider = 2;
+	repeated string providers = 2;
 	TunnelTypeConstraint tunnel_type = 3;
 	WireguardConstraints wireguard_constraints = 4;
 	OpenvpnConstraints openvpn_constraints = 5;
@@ -280,14 +280,14 @@ message NormalRelaySettings {
 // Constraints are only updated for fields that are provided
 message NormalRelaySettingsUpdate {
 	RelayLocation location = 1;
-	ProviderUpdate provider = 2;
+	ProviderUpdate providers = 2;
 	TunnelTypeUpdate tunnel_type = 3;
 	WireguardConstraints wireguard_constraints = 4;
 	OpenvpnConstraints openvpn_constraints = 5;
 }
 
 message ProviderUpdate {
-	string provider = 1;
+	repeated string providers = 1;
 }
 
 message TunnelTypeUpdate {

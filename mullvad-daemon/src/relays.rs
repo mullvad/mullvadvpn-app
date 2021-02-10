@@ -14,7 +14,7 @@ use mullvad_types::{
     location::Location,
     relay_constraints::{
         BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
-        OpenVpnConstraints, Provider, RelayConstraints, WireguardConstraints,
+        OpenVpnConstraints, Providers, RelayConstraints, WireguardConstraints,
     },
     relay_list::{OpenVpnEndpointData, Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
@@ -253,7 +253,7 @@ impl RelaySelector {
                 self.preferred_tunnel_constraints(
                     retry_attempt,
                     &original_constraints.location,
-                    &original_constraints.provider,
+                    &original_constraints.providers,
                     wg_key_exists,
                 )
             } else {
@@ -378,7 +378,7 @@ impl RelaySelector {
         &self,
         retry_attempt: u32,
         location_constraint: &Constraint<LocationConstraint>,
-        provider_constraint: &Constraint<Provider>,
+        providers_constraint: &Constraint<Providers>,
         wg_key_exists: bool,
     ) -> (Constraint<u16>, TransportProtocol, TunnelType) {
         #[cfg(not(target_os = "windows"))]
@@ -388,7 +388,7 @@ impl RelaySelector {
                     relay.active
                         && !relay.tunnels.wireguard.is_empty()
                         && location_constraint.matches(relay)
-                        && provider_constraint.matches_eq(&relay.provider)
+                        && providers_constraint.matches(relay)
                 });
             // If location does not support WireGuard, defer to preferred OpenVPN tunnel
             // constraints
@@ -475,7 +475,7 @@ impl RelaySelector {
         if !constraints.location.matches(relay) {
             return None;
         }
-        if !constraints.provider.matches_eq(&relay.provider) {
+        if !constraints.providers.matches(&relay) {
             return None;
         }
 
@@ -543,7 +543,7 @@ impl RelaySelector {
         if !constraints.location.matches(relay) {
             return None;
         }
-        if !constraints.provider.matches_eq(&relay.provider) {
+        if !constraints.providers.matches(relay) {
             return None;
         }
 
