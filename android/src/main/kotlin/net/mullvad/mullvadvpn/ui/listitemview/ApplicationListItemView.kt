@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.util.AttributeSet
-import android.util.Log
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.list_item_base.view.*
