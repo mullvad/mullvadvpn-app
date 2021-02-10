@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.ui.listitemview
 
 import android.content.Context
 import android.util.AttributeSet
-import android.widget.Toast
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.list_item_action.view.*

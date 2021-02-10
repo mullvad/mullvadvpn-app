@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.model.WidgetState
 sealed class WidgetViewController<T : WidgetState>(val parent: ViewGroup) {
     @get:LayoutRes
     protected abstract val layoutRes: Int
+
     init {
         LayoutInflater.from(parent.context).inflate(layoutRes, parent)
         bind()
@@ -19,7 +20,8 @@ sealed class WidgetViewController<T : WidgetState>(val parent: ViewGroup) {
     abstract fun updateState(state: T)
     abstract fun bind()
 
-    class StandardController(parent: ViewGroup) : WidgetViewController<WidgetState.ImageState>(parent) {
+    class StandardController(parent: ViewGroup) :
+        WidgetViewController<WidgetState.ImageState>(parent) {
         override val layoutRes: Int
             get() = R.layout.list_item_widget_image
         private lateinit var imageView: ImageView
@@ -30,7 +32,9 @@ sealed class WidgetViewController<T : WidgetState>(val parent: ViewGroup) {
         override fun updateState(state: WidgetState.ImageState) =
             imageView.setImageResource(state.imageRes)
     }
-    class SwitchController(parent: ViewGroup) : WidgetViewController<WidgetState.SwitchState>(parent) {
+
+    class SwitchController(parent: ViewGroup) :
+        WidgetViewController<WidgetState.SwitchState>(parent) {
         override val layoutRes: Int
             get() = R.layout.list_item_widget_switch
         private lateinit var switch: SwitchCompat
@@ -38,6 +42,7 @@ sealed class WidgetViewController<T : WidgetState>(val parent: ViewGroup) {
         override fun bind() {
             switch = parent.findViewById(R.id.widgetSwitch)
         }
+
         override fun updateState(state: WidgetState.SwitchState) {
             switch.isChecked = state.isChecked
         }
