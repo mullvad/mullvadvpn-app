@@ -61,38 +61,19 @@ open class Cell : LinearLayout {
 
     var onClickListener: (() -> Unit)? = null
 
-    constructor(context: Context, footer: TextView? = null) : super(context) {
-        this.footer = footer
-    }
-
-    constructor(context: Context, attributes: AttributeSet, footer: TextView? = null) :
-        super(context, attributes) {
-            this.footer = footer
-            loadAttributes(attributes)
-        }
-
+    @JvmOverloads
     constructor(
         context: Context,
-        attributes: AttributeSet,
-        defaultStyleAttribute: Int,
-        footer: TextView? = null
-    ) : super(context, attributes, defaultStyleAttribute) {
-        this.footer = footer
-        loadAttributes(attributes)
-    }
-
-    constructor(
-        context: Context,
-        attributes: AttributeSet,
-        defaultStyleAttribute: Int,
-        defaultStyleResource: Int,
+        attributes: AttributeSet? = null,
+        defaultStyleAttribute: Int = 0,
+        defaultStyleResource: Int = 0,
         footer: TextView? = null
     ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource) {
         this.footer = footer
         loadAttributes(attributes)
     }
 
-    private fun loadAttributes(attributes: AttributeSet) {
+    private fun loadAttributes(attributes: AttributeSet?) {
         context.theme.obtainStyledAttributes(attributes, R.styleable.TextAttribute, 0, 0).apply {
             try {
                 label.text = getString(R.styleable.TextAttribute_text) ?: ""
