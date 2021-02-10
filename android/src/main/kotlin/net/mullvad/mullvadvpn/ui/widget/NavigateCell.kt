@@ -3,10 +3,8 @@ package net.mullvad.mullvadvpn.ui.widget
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.ImageView
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentTransaction
 import kotlin.reflect.KClass
 import net.mullvad.mullvadvpn.R
 
@@ -40,7 +38,6 @@ open class NavigateCell : Cell {
     init {
         cell.addView(chevron)
         onClickListener = { openSubFragment() }
-        // ViewCompat.setTransitionName(label, "title:" + label.text)
     }
 
     private fun openSubFragment() {
@@ -54,7 +51,6 @@ open class NavigateCell : Cell {
                     R.anim.fragment_half_enter_from_left,
                     R.anim.fragment_exit_to_right
                 )
-                // addSharedElement(label, "title:" + label.text)
                 replace(R.id.main_fragment, fragment)
                 addToBackStack(null)
                 commit()
