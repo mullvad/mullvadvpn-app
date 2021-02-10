@@ -42,6 +42,11 @@ Line wrap the file at 100 chars.                                              Th
 - Fix delay in showing/hiding update notification when toggling beta program.
 
 
+## [2021.1] - 2021-02-10
+### Fixed
+- Fix crash on desktop when entering problem report view when using an outdated app version.
+
+
 ## [2021.1-beta2] - 2021-02-03
 ### Fixed
 - Make it impossible to apply an empty list of custom DNS server IPs.
