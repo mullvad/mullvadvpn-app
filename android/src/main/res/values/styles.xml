@@ -3,6 +3,10 @@
            parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:windowBackground">@color/blue</item>
+        <item name="actionListItemViewStyle">@style/ListItem.Action</item>
+        <item name="applicationListItemViewStyle">@style/ListItem.Action.Application</item>
+        <item name="android:spotShadowAlpha">0</item>
+        <item name="actionBarSize">48dp</item>
     </style>
     <style name="InputText"
            parent="Widget.AppCompat.EditText">
@@ -33,24 +37,98 @@
            parent="Button">
         <item name="android:background">@drawable/red_button_background</item>
     </style>
-    <style name="BlueButton"
-           parent="Button">
+
+    <style name="BlueButton" parent="Button">
         <item name="android:background">@drawable/blue_button_background</item>
     </style>
-    <style name="White20Button"
-           parent="Button">
+
+    <style name="White20Button" parent="Button">
         <item name="android:background">@drawable/white20_button_background</item>
     </style>
+
     <style name="SettingsHeader">
         <item name="android:textColor">@color/white</item>
         <item name="android:textStyle">bold</item>
     </style>
-    <style name="SettingsExpandedHeader"
-           parent="SettingsHeader">
+
+    <style name="SettingsExpandedHeader" parent="SettingsHeader">
         <item name="android:textSize">@dimen/text_huge</item>
     </style>
-    <style name="SettingsCollapsedHeader"
-           parent="SettingsHeader">
+
+    <style name="SettingsCollapsedHeader" parent="SettingsHeader">
         <item name="android:textSize">@dimen/text_medium</item>
+    </style>
+
+    <style name="TextAppearance.Mullvad" parent="TextAppearance.AppCompat" />
+
+    <style name="TextAppearance.Mullvad.Title1">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/text_medium_plus</item>
+    </style>
+
+    <style name="TextAppearance.Mullvad.Title2">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">@dimen/text_medium</item>
+    </style>
+
+    <style name="TextAppearance.Mullvad.Small">
+        <item name="android:textColor">@color/white60</item>
+        <item name="android:textSize">@dimen/text_small</item>
+    </style>
+
+    <style name="ListItem">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="ListItem.DividerGroup">
+        <item name="android:layout_height">@dimen/vertical_space</item>
+    </style>
+
+    <style name="ListItem.PlainText">
+        <item name="android:focusable">false</item>
+        <item name="android:clickable">false</item>
+        <item name="android:paddingTop">5dp</item>
+    </style>
+
+    <style name="ListItem.Action">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:height">@dimen/cell_height</item>
+        <item name="android:layout_height">@dimen/cell_height</item>
+        <item name="android:background">@drawable/cell_button_background</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+    </style>
+
+    <style name="ListItem.Action.Application">
+        <item name="android:background">@drawable/app_list_item_background</item>
+    </style>
+
+    <style name="ListItem.Action.Double">
+        <item name="android:clickable">false</item>
+        <item name="android:focusable">false</item>
+    </style>
+
+    <style name="TextAppearance.Mullvad.CollapsingToolbar" >
+        <item name="android:textColor">@color/white</item>
+    </style>
+
+    <style name="TextAppearance.Mullvad.CollapsingToolbar.Expanded" >
+        <item name="android:textSize">30sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Mullvad.CollapsingToolbar.Collapsed">
+        <item name="android:textSize">20sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="AppTheme.Switch">
+        <item name="android:layout_width">@dimen/switch_width</item>
+        <item name="android:layout_height">@dimen/switch_height</item>
+        <item name="track">@drawable/switch_track</item>
+        <item name="android:thumb">@drawable/switch_thumb</item>
+        <item name="switchMinWidth">@dimen/switch_width</item>
+        <item name="showText">false</item>
     </style>
 </resources>

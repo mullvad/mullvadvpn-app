@@ -2,7 +2,8 @@ package net.mullvad.mullvadvpn.ipc
 
 import android.os.Message as RawMessage
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
+import kotlinx.android.parcel.Parcelize
+// import kotlinx.parcelize.Parcelize
 
 // Events that can be sent from the service
 sealed class Event : Message(), Parcelable {
