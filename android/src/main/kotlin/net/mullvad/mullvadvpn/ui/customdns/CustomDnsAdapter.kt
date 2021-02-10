@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.ui.customdns
 
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
@@ -282,6 +283,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
 
     private suspend fun withValidAddress(addressText: String, handler: (InetAddress) -> Unit) {
         jobTracker.runOnBackground {
+            Patterns.IP_ADDRESS
             if (inetAddressValidator.isValid(addressText)) {
                 val address = InetAddress.getByName(addressText)
 
