@@ -49,7 +49,7 @@ const MIN_WIREGUARD_MTU_VALUE = 1280;
 const MAX_WIREGUARD_MTU_VALUE = 1420;
 const UDP_PORTS = [1194, 1195, 1196, 1197, 1300, 1301, 1302];
 const TCP_PORTS = [80, 443];
-const WIREUGARD_UDP_PORTS = [53];
+const WIREUGARD_UDP_PORTS = [51820, 53];
 
 type OptionalPort = number | undefined;
 
