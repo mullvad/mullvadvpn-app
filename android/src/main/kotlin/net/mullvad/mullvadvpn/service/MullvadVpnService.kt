@@ -21,6 +21,7 @@ import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
 import net.mullvad.talpid.util.EventNotifier
+import org.koin.android.ext.android.get
 
 class MullvadVpnService : TalpidVpnService() {
     companion object {
@@ -197,7 +198,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private fun initializeSplitTunneling() = GlobalScope.launch(Dispatchers.Default) {
         splitTunneling.complete(
-            SplitTunneling(this@MullvadVpnService).apply {
+            get<SplitTunneling>().apply {
                 onChange = { excludedApps ->
                     disallowedApps = excludedApps
                     markTunAsStale()
