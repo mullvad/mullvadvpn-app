@@ -6,7 +6,10 @@ import android.content.pm.PackageManager
 import android.util.Log
 import kotlin.system.measureTimeMillis
 
-class ApplicationsProvider(private val packageManager: PackageManager, private val thisPackageName: String) {
+class ApplicationsProvider(
+    private val packageManager: PackageManager,
+    private val thisPackageName: String
+) {
     private val applicationFilterPredicate: (ApplicationInfo) -> Boolean = { appInfo ->
         hasInternetPermission(appInfo.packageName) &&
             isLaunchable(appInfo.packageName) &&

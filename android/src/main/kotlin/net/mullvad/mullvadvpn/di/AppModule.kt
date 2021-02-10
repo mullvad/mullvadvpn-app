@@ -11,9 +11,9 @@ import org.koin.dsl.module
 
 val appModule = module {
 
-    single<SplitTunneling> { SplitTunneling(get()) }
+    single { SplitTunneling(get()) }
 
-    single<ApplicationsProvider> { ApplicationsProvider(get<PackageManager>(), get<String>(named("packagename"))) }
+    single { ApplicationsProvider(get<PackageManager>(), get<String>(named("packagename"))) }
 
     single<PackageManager> { get<Context>().packageManager }
 

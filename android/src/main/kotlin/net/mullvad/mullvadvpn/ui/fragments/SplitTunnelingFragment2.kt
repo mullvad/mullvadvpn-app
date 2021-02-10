@@ -15,7 +15,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
+import kotlinx.coroutines.flow.onEach
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.applist.ProgressListItemAnimator
 import net.mullvad.mullvadvpn.applist.ViewIntent
@@ -42,8 +49,9 @@ class SplitTunnelingFragment2 : Fragment(R.layout.collapsed_title_layout) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         Log.e(this.javaClass.simpleName, "onViewCreated | ${this.hashCode()}")
-        val collapsingToolbar = view.findViewById(R.id.collapsing_toolbar) as CollapsingToolbarLayout
-        collapsingToolbar.title = resources.getString(R.string.split_tunneling)
+        (view.findViewById(R.id.collapsing_toolbar) as CollapsingToolbarLayout).apply {
+            title = resources.getString(R.string.split_tunneling)
+        }
         listItemsAdapter.listItemListener = listItemListener
         view.findViewById<RecyclerView>(R.id.recyclerView).apply {
             adapter = listItemsAdapter
@@ -98,7 +106,6 @@ class SplitTunnelingFragment2 : Fragment(R.layout.collapsed_title_layout) {
         val id = resources.getIdentifier("config_showNavigationBar", "bool", "android")
         val hasOnScreenNavBar = id > 0 && resources.getBoolean(id)
 
-        Log.e("test", "hasOnScreenNavBar=$hasOnScreenNavBar hasNoCapacitiveKeys=$hasNoCapacitiveKeys")
         return hasOnScreenNavBar || hasNoCapacitiveKeys
     }
 

@@ -53,7 +53,7 @@ class ListItemData internal constructor(builder: Builder) {
         if (other !is ListItemData)
             return false
 
-        if (other.identifier!= this.identifier ||
+        if (other.identifier != this.identifier ||
             other.type != this.type ||
             other.text != this.text ||
             other.iconRes != this.iconRes ||
