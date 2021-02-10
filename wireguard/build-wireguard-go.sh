@@ -72,7 +72,11 @@ function unix_target_triple {
     if [[ ("${platform}" == "Linux") ]]; then
         echo "x86_64-unknown-linux-gnu"
     elif [[ ("${platform}" == "Darwin") ]]; then
-        echo "x86_64-apple-darwin"
+        local arch="$(uname -m)"
+        if [[ ("${arch}" == "arm64") ]]; then
+            arch="aarch64"
+        fi
+        echo "${arch}-apple-darwin"
     else
         echo "Can't deduce target dir for $platform"
         return 1

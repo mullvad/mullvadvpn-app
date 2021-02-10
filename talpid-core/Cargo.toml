@@ -59,14 +59,14 @@ byteorder = "1"
 nftnl = { version = "0.6", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
 which = { version = "4.0", default-features = false }
-tun = "0.5"
+tun = { git = "https://github.com/Ch00k/rust-tun.git", branch = "bump-ioctl" }
 talpid-dbus = { path = "../talpid-dbus" }
 
 
 [target.'cfg(target_os = "macos")'.dependencies]
-pfctl = "0.4"
+pfctl = { git = "https://github.com/mullvad/pfctl-rs.git" }
 system-configuration = "0.4"
-tun = "0.5"
+tun = { git = "https://github.com/Ch00k/rust-tun.git", branch = "bump-ioctl" }
 
 
 [target.'cfg(windows)'.dependencies]
