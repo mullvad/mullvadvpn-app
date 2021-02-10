@@ -118,7 +118,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'com.android.tools.build:gradle:4.1.2'
         classpath 'com.github.triplet.gradle:play-publisher:2.7.5'
         classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.4.10'
     }
