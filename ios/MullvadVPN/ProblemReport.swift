@@ -86,6 +86,12 @@ class ProblemReport {
         logs.append(LogAttachment(label: message, content: redactedError))
     }
 
+    var string: String {
+        var body = ""
+        write(into: &body)
+        return body
+    }
+
     func write<Target: TextOutputStream>(into stream: inout Target) {
         print("System information:", to: &stream)
         for (key, value) in metadata {
