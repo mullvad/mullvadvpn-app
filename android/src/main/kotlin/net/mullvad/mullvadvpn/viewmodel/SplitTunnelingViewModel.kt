@@ -6,7 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.applist.AppInfo2
@@ -88,11 +92,15 @@ class SplitTunnelingViewModel(
 
     private fun fetchData() {
         viewModelScope.launch(Dispatchers.Default) {
-            appsProvider.getAppsList().map { it.packageName to it }.toMap().let { applicationsMap ->
-                val excludedPackages = applicationsMap.keys.intersect(splitTunneling.excludedAppList)
+            appsProvider.getAppsList().map { it.packageName to it }.toMap().let { applications ->
+                val excludedPackages = applications.keys.intersect(splitTunneling.excludedAppList)
                 // TODO: remove potential package names from splitTunneling list if they already uninstalled or filtered
-                excludedApps = applicationsMap.filterKeys { excludedPackages.contains(it) }.toMutableMap()
-                allAps = applicationsMap.filterKeys { applicationsMap.keys.subtract(excludedPackages).contains(it) }.toMutableMap()
+                excludedApps = applications
+                    .filterKeys { excludedPackages.contains(it) }
+                    .toMutableMap()
+                allAps = applications
+                    .filterKeys { applications.keys.subtract(excludedPackages).contains(it) }
+                    .toMutableMap()
                 delay(100)
                 publishList()
             }
@@ -124,13 +132,22 @@ class SplitTunnelingViewModel(
         _data.emit(listItems)
     }
 
-    private fun createApplicationItem(id: String, name: String, @DrawableRes icon: Int, checked: Boolean): ListItemData = ListItemData.Builder()
+    private fun createApplicationItem(
+        id: String,
+        name: String,
+        @DrawableRes icon: Int,
+        checked: Boolean
+    ): ListItemData = ListItemData.Builder()
         .setIdentifier(id)
         .setType(ListItemData.APPLICATION)
         .setText(name)
         .setIconRes(icon)
         .setAction(ListItemData.ItemAction(id))
-        .setWidget(WidgetState.ImageState(if (checked) R.drawable.ic_icons_remove else R.drawable.ic_icons_add))
+        .setWidget(
+            WidgetState.ImageState(
+                if (checked) R.drawable.ic_icons_remove else R.drawable.ic_icons_add
+            )
+        )
         .build()
 
     private fun createDivider(id: Int): ListItemData = ListItemData.Builder()

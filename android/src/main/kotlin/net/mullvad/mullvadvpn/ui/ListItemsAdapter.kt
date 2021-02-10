@@ -1,9 +1,18 @@
 package net.mullvad.mullvadvpn.ui
 
 import android.view.ViewGroup
-import androidx.recyclerview.widget.*
+import androidx.recyclerview.widget.AsyncDifferConfig
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListUpdateCallback
+import androidx.recyclerview.widget.RecyclerView
 import net.mullvad.mullvadvpn.model.ListItemData
-import net.mullvad.mullvadvpn.ui.listitemview.*
+import net.mullvad.mullvadvpn.ui.listitemview.ActionListItemView
+import net.mullvad.mullvadvpn.ui.listitemview.ApplicationListItemView
+import net.mullvad.mullvadvpn.ui.listitemview.DividerGroupListItemView
+import net.mullvad.mullvadvpn.ui.listitemview.ListItemView
+import net.mullvad.mullvadvpn.ui.listitemview.PlainListItemView
+import net.mullvad.mullvadvpn.ui.listitemview.ProgressListItemView
 
 class ListItemsAdapter : RecyclerView.Adapter<ListItemsAdapter.ViewHolder>() {
 
@@ -17,18 +26,20 @@ class ListItemsAdapter : RecyclerView.Adapter<ListItemsAdapter.ViewHolder>() {
 
     fun setItems(items: List<ListItemData?>) = listDiffer.submitList(items)
 
-    override fun onCreateViewHolder(parent: ViewGroup, @ListItemData.ItemType viewType: Int): ListItemsAdapter.ViewHolder {
-        return ViewHolder(
-            when (viewType) {
-                ListItemData.DIVIDER -> DividerGroupListItemView(parent.context)
-                ListItemData.PROGRESS -> ProgressListItemView(parent.context)
-                ListItemData.PLAIN -> PlainListItemView(parent.context)
-                ListItemData.ACTION -> ActionListItemView(parent.context)
-                ListItemData.APPLICATION -> ApplicationListItemView(parent.context)
-                else -> throw IllegalArgumentException("View type /'$viewType/' is not supported")
-            }
-        )
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, @ListItemData.ItemType viewType: Int):
+        ListItemsAdapter.ViewHolder {
+            return ViewHolder(
+                when (viewType) {
+                    ListItemData.DIVIDER -> DividerGroupListItemView(parent.context)
+                    ListItemData.PROGRESS -> ProgressListItemView(parent.context)
+                    ListItemData.PLAIN -> PlainListItemView(parent.context)
+                    ListItemData.ACTION -> ActionListItemView(parent.context)
+                    ListItemData.APPLICATION -> ApplicationListItemView(parent.context)
+                    else ->
+                        throw IllegalArgumentException("View type /'$viewType/' is not supported")
+                }
+            )
+        }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         (holder.itemView as ListItemView).update(getItem(position))
