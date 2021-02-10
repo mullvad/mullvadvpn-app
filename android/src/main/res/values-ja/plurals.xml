@@ -1,3 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <plurals name="years_left">
+        <item quantity="other">残り1年\\n\\n</item>
+    </plurals>
+    <plurals name="months_left">
+        <item quantity="other">残り1ヶ月\\n\\n</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="other">残り1日\\n\\n</item>
+    </plurals>
+    <plurals name="minutes_ago">
+        <item quantity="other">残り1分\\n\\n</item>
+    </plurals>
+    <plurals name="hours_ago">
+        <item quantity="other">1時間前\\n\\n</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="other">1日前\\n\\n</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="other">1ヶ月前\\n\\n</item>
+    </plurals>
+    <plurals name="years_ago">
+        <item quantity="other">1年前\\n\\n</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="other">アカウントのクレジットが1日後に無効になります\\n\\n</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="other">アカウントのクレジットが1時間後に無効になります\\n\\n</item>
+    </plurals>
 </resources>

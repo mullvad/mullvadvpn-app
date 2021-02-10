@@ -1,3 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <plurals name="years_left">
+        <item quantity="one">1 jaar resterend</item>
+        <item quantity="other">%1$d jaar resterend</item>
+    </plurals>
+    <plurals name="months_left">
+        <item quantity="one">1 maand resterend</item>
+        <item quantity="other">%1$d maanden resterend</item>
+    </plurals>
+    <plurals name="days_left">
+        <item quantity="one">1 dag resterend</item>
+        <item quantity="other">%1$d dagen resterend</item>
+    </plurals>
+    <plurals name="minutes_ago">
+        <item quantity="one">een minuut geleden</item>
+        <item quantity="other">%1$d minuten geleden</item>
+    </plurals>
+    <plurals name="hours_ago">
+        <item quantity="one">een uur geleden</item>
+        <item quantity="other">%1$d uur geleden</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">een dag geleden</item>
+        <item quantity="other">%1$d dagen geleden</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">een maand geleden</item>
+        <item quantity="other">%1$d maanden geleden</item>
+    </plurals>
+    <plurals name="years_ago">
+        <item quantity="one">een jaar geleden</item>
+        <item quantity="other">%1$d jaar geleden</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="one">Accountkrediet verloopt over een dag</item>
+        <item quantity="other">Accountkrediet verloopt over %1$d dagen</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="one">Accountkrediet verloopt over een uur</item>
+        <item quantity="other">Accountkrediet verloopt over %1$d uur</item>
+    </plurals>
 </resources>

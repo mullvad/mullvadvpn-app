@@ -33,7 +33,7 @@ pub struct StringResource {
 
     /// The string value.
     #[serde(rename = "$value")]
-    pub value: String,
+    pub value: StringValue,
 }
 
 impl StringResources {
@@ -88,23 +88,10 @@ impl StringResource {
     ///
     /// The name is the resource ID, and the value will be properly escaped.
     pub fn new(name: String, value: &str) -> Self {
-        let value_with_parameters = value
-            .replace(r"\", r"\\")
-            .replace("\"", "\\\"")
-            .replace(r"'", r"\'");
-
-        let mut parts = value_with_parameters.split("%");
-        let mut value = parts.next().unwrap().to_owned();
-
-        for (index, part) in parts.enumerate() {
-            value.push_str(&format!("%{}$", index + 1));
-            value.push_str(part);
-        }
-
         StringResource {
             name,
             translatable: true,
-            value,
+            value: StringValue::from(value),
         }
     }
 
@@ -112,14 +99,7 @@ impl StringResource {
     ///
     /// Makes it possible to compare the Android strings with the gettext messages.
     pub fn normalize(&mut self) {
-        // Collapse line breaks present in the XML file
-        let value = LINE_BREAKS.replace_all(&self.value, " ");
-        // Unescape apostrophes
-        let value = APOSTROPHES.replace_all(&value, "'");
-        // Mark where parameters are positioned, removing the parameter index
-        let value = PARAMETERS.replace_all(&value, "%");
-
-        self.value = value.into_owned();
+        self.value.normalize();
     }
 }
 
@@ -189,7 +169,7 @@ pub struct PluralVariant {
 
     /// The string value
     #[serde(rename = "$value")]
-    pub string: String,
+    pub string: StringValue,
 }
 
 /// A valid quantity for a plural variant.
@@ -242,7 +222,10 @@ impl PluralResource {
     /// the message and the quantity it should be used for.
     pub fn new(name: String, values: impl Iterator<Item = (PluralQuantity, String)>) -> Self {
         let items = values
-            .map(|(quantity, string)| PluralVariant { quantity, string })
+            .map(|(quantity, string)| PluralVariant {
+                quantity,
+                string: StringValue::from(&*string),
+            })
             .collect();
 
         PluralResource { name, items }
@@ -295,5 +278,67 @@ impl Display for PluralQuantity {
         };
 
         write!(formatter, "{}", quantity)
+    }
+}
+
+/// An Android string value
+///
+/// Handles escaping the string when it is created but also allows normalizing it for comparing it
+/// with gettext messages through a `normalize` method.
+#[derive(Clone, Debug, Eq, Deserialize, Hash, PartialEq, Serialize)]
+pub struct StringValue(String);
+
+impl From<&str> for StringValue {
+    fn from(string: &str) -> Self {
+        let value_with_parameters = htmlize::unescape(string)
+            .replace(r"\", r"\\")
+            .replace("\"", "\\\"")
+            .replace(r"'", r"\'");
+
+        let mut parts = value_with_parameters.split("%");
+        let mut value = parts.next().unwrap().to_owned();
+
+        for (index, part) in parts.enumerate() {
+            value.push_str(&format!("%{}$", index + 1));
+            value.push_str(part);
+        }
+
+        StringValue(value)
+    }
+}
+
+impl StringValue {
+    /// Normalize the string value into a common format.
+    ///
+    /// Makes it possible to compare the Android strings with the gettext messages.
+    pub fn normalize(&mut self) {
+        // Collapse line breaks present in the XML file
+        let value = LINE_BREAKS.replace_all(&self.0, " ");
+        // Unescape apostrophes
+        let value = APOSTROPHES.replace_all(&value, "'");
+        // Mark where parameters are positioned, removing the parameter index
+        let value = PARAMETERS.replace_all(&value, "%");
+
+        // Unescape XML characters
+        self.0 = htmlize::escape_text(value.as_bytes());
+    }
+
+    /// Clones the internal string value.
+    pub fn to_string(&self) -> String {
+        self.0.clone()
+    }
+}
+
+impl Deref for StringValue {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.0.as_str()
+    }
+}
+
+impl Display for StringValue {
+    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+        write!(formatter, "{}", self.0)
     }
 }
