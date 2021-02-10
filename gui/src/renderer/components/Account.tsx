@@ -7,6 +7,7 @@ import {
   AccountOutOfTime,
   AccountRow,
   AccountRowLabel,
+  AccountRows,
   AccountRowValue,
   StyledBuyCreditButton,
   StyledContainer,
@@ -60,23 +61,27 @@ export default class Account extends React.Component<IProps> {
                 <HeaderTitle>{messages.pgettext('account-view', 'Account')}</HeaderTitle>
               </SettingsHeader>
 
-              <AccountRow>
-                <AccountRowLabel>
-                  {messages.pgettext('account-view', 'Account number')}
-                </AccountRowLabel>
-                <AccountRowValue
-                  as={AccountTokenLabel}
-                  accountToken={this.props.accountToken || ''}
-                />
-              </AccountRow>
+              <AccountRows>
+                <AccountRow>
+                  <AccountRowLabel>
+                    {messages.pgettext('account-view', 'Account number')}
+                  </AccountRowLabel>
+                  <AccountRowValue
+                    as={AccountTokenLabel}
+                    accountToken={this.props.accountToken || ''}
+                  />
+                </AccountRow>
 
-              <AccountRow>
-                <AccountRowLabel>{messages.pgettext('account-view', 'Paid until')}</AccountRowLabel>
-                <FormattedAccountExpiry
-                  expiry={this.props.accountExpiry}
-                  locale={this.props.expiryLocale}
-                />
-              </AccountRow>
+                <AccountRow>
+                  <AccountRowLabel>
+                    {messages.pgettext('account-view', 'Paid until')}
+                  </AccountRowLabel>
+                  <FormattedAccountExpiry
+                    expiry={this.props.accountExpiry}
+                    locale={this.props.expiryLocale}
+                  />
+                </AccountRow>
+              </AccountRows>
 
               <AccountFooter>
                 <AppButton.BlockingButton
