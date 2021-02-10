@@ -8,7 +8,9 @@
 
 import Foundation
 
-class ApplicationConfiguration {
+enum ApplicationConfiguration {}
+
+extension ApplicationConfiguration {
 
     /// The application group identifier used for sharing application preferences between processes
     static let securityGroupIdentifier = "group.net.mullvad.MullvadVPN"
