@@ -10,7 +10,7 @@ import android.widget.TextView
 import net.mullvad.mullvadvpn.R
 
 open class Cell : LinearLayout {
-    private val label = TextView(context).apply {
+    protected val label = TextView(context).apply {
         val rightPadding = resources.getDimensionPixelSize(R.dimen.cell_inner_spacing)
         val verticalPadding = resources.getDimensionPixelSize(R.dimen.cell_label_vertical_padding)
 

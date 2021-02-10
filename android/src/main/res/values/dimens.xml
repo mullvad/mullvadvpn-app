@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <integer name="transition_animation_duration">350</integer>
+    <dimen name="progress_size">60dp</dimen>
 </resources>

@@ -140,7 +140,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     private fun openSwitchLocationScreen() {
-        fragmentManager?.beginTransaction()?.apply {
+        parentFragmentManager.beginTransaction().apply {
             setCustomAnimations(
                 R.anim.fragment_enter_from_bottom,
                 R.anim.do_nothing,
@@ -155,7 +155,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
     private fun openOutOfTimeScreen() {
         jobTracker.newUiJob("openOutOfTimeScreen") {
-            fragmentManager?.beginTransaction()?.apply {
+            parentFragmentManager.beginTransaction().apply {
                 replace(R.id.main_fragment, OutOfTimeFragment())
                 commit()
             }

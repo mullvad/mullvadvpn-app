@@ -51,14 +51,14 @@ class LaunchFragment : ServiceAwareFragment() {
     }
 
     private fun advanceToLoginScreen() {
-        fragmentManager?.beginTransaction()?.apply {
+        parentFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, LoginFragment())
             commit()
         }
     }
 
     private fun advanceToConnectScreen() {
-        fragmentManager?.beginTransaction()?.apply {
+        parentFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, ConnectFragment())
             commit()
         }

@@ -194,8 +194,9 @@ class MainActivity : FragmentActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
     fun requestVpnPermission(intent: Intent) {
-        startActivityForResult(intent, 0)
+        startActivityForResult(intent, 1)
     }
 
     private fun tryToConnect() {
