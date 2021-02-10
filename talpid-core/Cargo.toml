@@ -83,5 +83,5 @@ tonic-build = { version = "0.3", default-features = false, features = ["transpor
 
 [dev-dependencies]
 tempfile = "3.0"
-quickcheck = "0.9"
-quickcheck_macros = "0.9"
+quickcheck = "1.0"
+quickcheck_macros = "1.0"
