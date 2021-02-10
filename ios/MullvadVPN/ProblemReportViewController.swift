@@ -10,6 +10,22 @@ import UIKit
 
 class ProblemReportViewController: UIViewController, UITextFieldDelegate, ConditionalNavigation {
 
+    private lazy var problemReport: ProblemReport = {
+        let securityGroupIdentifier = ApplicationConfiguration.securityGroupIdentifier
+
+        // TODO: make sure we redact old tokens
+        let redactStrings = Account.shared.token.flatMap { [$0] } ?? []
+
+        let report = ProblemReport(
+            redactCustomStrings: redactStrings,
+            redactContainerPathsForSecurityGroupIdentifiers: [securityGroupIdentifier]
+        )
+
+        report.addLogFiles(fileURLs: ApplicationConfiguration.logFileURLs)
+
+        return report
+    }()
+
     /// Scroll view
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -191,7 +207,10 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     }
 
     @objc func handleViewLogsButtonTap() {
-        // TODO: implement
+        let reviewController = ProblemReportReviewViewController(reportString: problemReport.string)
+        let navigationController = UINavigationController(rootViewController: reviewController)
+
+        present(navigationController, animated: true)
     }
 
     // MARK: - Private
