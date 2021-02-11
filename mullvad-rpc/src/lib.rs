@@ -365,7 +365,7 @@ impl AppVersionProxy {
 
         async move {
             let mut request = request?;
-            request.add_header("M-Platform-Version", platform_version)?;
+            request.add_header("M-Platform-Version", &platform_version)?;
 
             let response = service.request(request).await?;
             let parsed_response = rest::parse_rest_response(response, StatusCode::OK).await?;

@@ -38,13 +38,12 @@ impl RelayListProxy {
             let mut request = request?;
             request.set_timeout(RELAY_LIST_TIMEOUT);
 
-            let has_tag = etag.is_some();
-            if let Some(tag) = etag {
-                request.add_header("If-None-Match", tag)?;
+            if let Some(ref tag) = etag {
+                request.add_header(header::IF_NONE_MATCH, tag)?;
             }
 
             let response = service.request(request).await?;
-            if has_tag && response.status() == StatusCode::NOT_MODIFIED {
+            if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
                 return Ok(None);
             }
             if response.status() != StatusCode::OK {
