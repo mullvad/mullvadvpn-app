@@ -826,7 +826,7 @@ impl RelayListUpdater {
                 cmd = cmd_rx.next() => {
                     match cmd {
                         Some(_) => {
-                            self.consume_new_relay_list(self.rpc_client.relay_list().await).await;
+                            self.consume_new_relay_list(self.rpc_client.relay_list(None).await).await;
                         },
                         None => {
                             log::error!("Relay list updater shutting down");
@@ -841,14 +841,15 @@ impl RelayListUpdater {
 
     async fn consume_new_relay_list(
         &mut self,
-        result: Result<RelayList, mullvad_rpc::rest::Error>,
+        result: Result<Option<RelayList>, mullvad_rpc::rest::Error>,
     ) {
         match result {
-            Ok(relay_list) => {
+            Ok(Some(relay_list)) => {
                 if let Err(err) = self.update_cache(relay_list).await {
                     log::error!("Failed to update relay list cache: {}", err);
                 }
             }
+            Ok(None) => log::debug!("Relay list is up-to-date"),
             Err(err) => {
                 log::error!(
                     "Failed to fetch new relay list: {}. Will retry in {} minutes",
@@ -875,8 +876,8 @@ impl RelayListUpdater {
 
     fn download_relay_list(
         rpc_handle: RelayListProxy,
-    ) -> impl Future<Output = Result<RelayList, mullvad_rpc::rest::Error>> + 'static {
-        let download_futures = move || rpc_handle.relay_list();
+    ) -> impl Future<Output = Result<Option<RelayList>, mullvad_rpc::rest::Error>> + 'static {
+        let download_futures = move || rpc_handle.relay_list(None);
 
         let exponential_backoff = ExponentialBackoff::from_millis(EXPONENTIAL_BACKOFF_DELAY_MS)
             .factor(EXPONENTIAL_BACKOFF_FACTOR)
