@@ -166,7 +166,7 @@ impl VersionUpdater {
             let response = version_proxy.version_check(
                 PRODUCT_VERSION.to_owned(),
                 PLATFORM,
-                platform_version.clone(),
+                &platform_version,
             );
             response.map_err(Error::Download)
         };

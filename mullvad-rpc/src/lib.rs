@@ -356,16 +356,18 @@ impl AppVersionProxy {
         &self,
         app_version: AppVersion,
         platform: &str,
-        platform_version: String,
+        platform_version: &str,
     ) -> impl Future<Output = Result<AppVersionResponse, rest::Error>> {
         let service = self.handle.service.clone();
 
         let path = format!("/v1/releases/{}/{}", platform, app_version);
         let request = self.handle.factory.request(&path, Method::GET);
 
+        let platform_version = platform_version.to_string();
+
         async move {
             let mut request = request?;
-            request.add_header("M-Platform-Version", platform_version)?;
+            request.add_header("M-Platform-Version", &platform_version)?;
 
             let response = service.request(request).await?;
             let parsed_response = rest::parse_rest_response(response, StatusCode::OK).await?;

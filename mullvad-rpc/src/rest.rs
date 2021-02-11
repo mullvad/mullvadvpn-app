@@ -342,9 +342,8 @@ impl RestRequest {
         self.timeout
     }
 
-    pub fn add_header(&mut self, key: &'static str, value: String) -> Result<()> {
-        let header_value =
-            http::HeaderValue::from_str(&value).map_err(Error::InvalidHeaderError)?;
+    pub fn add_header<T: header::IntoHeaderName>(&mut self, key: T, value: &str) -> Result<()> {
+        let header_value = http::HeaderValue::from_str(value).map_err(Error::InvalidHeaderError)?;
         self.request.headers_mut().insert(key, header_value);
         Ok(())
     }
