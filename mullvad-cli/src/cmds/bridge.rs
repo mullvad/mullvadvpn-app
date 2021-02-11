@@ -285,7 +285,7 @@ impl Bridge {
             };
             let packed_proxy = openvpn::ProxySettings::Local(local_proxy);
             if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
-                panic!(error);
+                panic!("{}", error);
             }
 
             let mut rpc = new_rpc_client().await?;
@@ -324,7 +324,7 @@ impl Bridge {
 
             let packed_proxy = openvpn::ProxySettings::Remote(proxy);
             if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
-                panic!(error);
+                panic!("{}", error);
             }
 
             let mut rpc = new_rpc_client().await?;
@@ -353,7 +353,7 @@ impl Bridge {
 
             let packed_proxy = openvpn::ProxySettings::Shadowsocks(proxy);
             if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
-                panic!(error);
+                panic!("{}", error);
             }
 
             let mut rpc = new_rpc_client().await?;

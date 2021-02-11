@@ -3,8 +3,8 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 /// Types of bridges that can be used to proxy a connection to a tunnel
-#[serde(rename_all = "snake_case")]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub enum ProxyType {
     Shadowsocks,
     Custom,
