@@ -9,11 +9,12 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
+import net.mullvad.mullvadvpn.util.Intermittent
 
 private const val API_IP_ADDRESS_FILE = "api-ip-address.txt"
 private const val RELAYS_FILE = "relays.json"
 
-class DaemonInstance(val vpnService: MullvadVpnService, val listener: (MullvadDaemon?) -> Unit) {
+class DaemonInstance(val vpnService: MullvadVpnService) {
     private enum class Command {
         START,
         STOP,
@@ -21,10 +22,11 @@ class DaemonInstance(val vpnService: MullvadVpnService, val listener: (MullvadDa
 
     private val commandChannel = spawnActor()
 
-    private var daemon by observable<MullvadDaemon?>(null) { _, oldInstance, newInstance ->
+    private var daemon by observable<MullvadDaemon?>(null) { _, oldInstance, _ ->
         oldInstance?.onDestroy()
-        listener(newInstance)
     }
+
+    val intermittentDaemon = Intermittent<MullvadDaemon>()
 
     fun start() {
         commandChannel.sendBlocking(Command.START)
@@ -36,6 +38,7 @@ class DaemonInstance(val vpnService: MullvadVpnService, val listener: (MullvadDa
 
     fun onDestroy() {
         commandChannel.close()
+        intermittentDaemon.onDestroy()
     }
 
     private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
@@ -91,12 +94,16 @@ class DaemonInstance(val vpnService: MullvadVpnService, val listener: (MullvadDa
         }
     }
 
-    private fun startDaemon() {
-        daemon = MullvadDaemon(vpnService).apply {
+    private suspend fun startDaemon() {
+        val newDaemon = MullvadDaemon(vpnService).apply {
             onDaemonStopped = {
+                intermittentDaemon.spawnUpdate(null)
                 daemon = null
             }
         }
+
+        daemon = newDaemon
+        intermittentDaemon.update(newDaemon)
     }
 
     private fun stopDaemon() {

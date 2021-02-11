@@ -11,7 +11,7 @@ import kotlin.properties.Delegates.observable
 // If the ID object class (or any of its super-classes) overrides `hashCode` or `equals`,
 // unsubscribe might not work correctly.
 class EventNotifier<T>(private val initialValue: T) {
-    private val listeners = HashMap<Any, (T) -> Unit>()
+    private val listeners = LinkedHashMap<Any, (T) -> Unit>()
 
     var latestEvent = initialValue
         private set
