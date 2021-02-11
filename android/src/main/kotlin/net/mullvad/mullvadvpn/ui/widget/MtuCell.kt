@@ -44,28 +44,19 @@ class MtuCell : Cell {
         }
     }
 
-    constructor(context: Context) : super(context, TextView(context)) {}
-
-    constructor(context: Context, attributes: AttributeSet) :
-        super(context, attributes, TextView(context)) {}
-
-    constructor(context: Context, attributes: AttributeSet, defaultStyleAttribute: Int) :
-        super(context, attributes, defaultStyleAttribute, TextView(context)) {}
-
+    @JvmOverloads
     constructor(
         context: Context,
-        attributes: AttributeSet,
-        defaultStyleAttribute: Int,
-        defaultStyleResource: Int
+        attributes: AttributeSet? = null,
+        defaultStyleAttribute: Int = 0,
+        defaultStyleResource: Int = 0
     ) : super(
         context,
         attributes,
         defaultStyleAttribute,
         defaultStyleResource,
         TextView(context)
-    ) {}
-
-    init {
+    ) {
         cell.apply {
             setEnabled(false)
             setFocusable(false)

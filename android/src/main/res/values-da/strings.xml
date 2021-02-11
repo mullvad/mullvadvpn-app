@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">Kunne ikke generere en nøgle</string>
     <string name="failed_to_send">Kunne ikke sende</string>
     <string name="failed_to_send_details">Du skal muligvis vende tilbage til appens hovedskærm og klikke på Afbryd forbindelse, før du prøver igen. Bare rolig, de angivne oplysninger bliver ikke slettet fra formularen.</string>
+    <string name="faqs_and_guides">Ofte stillede spørgsmål og vejledninger</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/da/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Viser den aktuelle VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="here_is_your_account_number">Her er dit kontonummer. Gem det!</string>

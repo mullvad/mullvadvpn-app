@@ -52,6 +52,7 @@
     <string name="failed_to_generate_key">无法生成密钥</string>
     <string name="failed_to_send">无法发送</string>
     <string name="failed_to_send_details">在重试之前，您需要返回应用的主屏幕并点击“断开连接”。别担心，您输入的信息将保留在窗体中。</string>
+    <string name="faqs_and_guides">常见问题解答与指南</string>
     <string name="foreground_notification_channel_description">显示当前的 VPN 隧道状态</string>
     <string name="foreground_notification_channel_name">VPN 隧道状态</string>
     <string name="here_is_your_account_number">以下是您的帐号。请妥善保存！</string>

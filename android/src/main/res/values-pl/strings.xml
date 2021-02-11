@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">Nie można wygenerować klucza</string>
     <string name="failed_to_send">Błąd wysyłania</string>
     <string name="failed_to_send_details">Być może przed ponowną próbą trzeba będzie wrócić do głównego ekranu aplikacji i kliknąć przycisk Rozłącz. Nie martw się, wprowadzone informacje pozostaną w formularzu.</string>
+    <string name="faqs_and_guides">Często zadawane pytania i poradniki</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/pl/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Pokazuje bieżący status tunelu VPN</string>
     <string name="foreground_notification_channel_name">Status tunelu VPN</string>
     <string name="here_is_your_account_number">Oto Twój numer konta. Zachowaj go!</string>

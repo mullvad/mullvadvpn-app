@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">Anahtar oluşturulamadı</string>
     <string name="failed_to_send">Gönderme başarısız</string>
     <string name="failed_to_send_details">Yeniden denemeden önce uygulamanın ana ekranına dönüp Bağlantıyı Kes\'e tıklamanız gerekebilir. Endişelenmeyin, girdiğiniz bilgiler formda kalacaktır.</string>
+    <string name="faqs_and_guides">SSS ve Kılavuzlar</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/tr/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Mevcut VPN tünelinin durumunu gösterir</string>
     <string name="foreground_notification_channel_name">VPN tüneli durumu</string>
     <string name="here_is_your_account_number">İşte hesap numaranız. Kaydedin!</string>

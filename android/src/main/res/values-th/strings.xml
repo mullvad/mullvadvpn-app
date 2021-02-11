@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">ไม่สามารถสร้างคีย์ได้</string>
     <string name="failed_to_send">ไม่สามารถส่งได้</string>
     <string name="failed_to_send_details">คุณอาจจำเป็นต้องย้อนกลับไปที่หน้าจอหลักของแอป และคลิกตัดการเชื่อมต่อ ก่อนที่จะลองใหม่อีกครั้ง และไม่ต้องกังวลไป เพราะข้อมูลที่คุณป้อนไว้จะยังคงอยู่ในแบบฟอร์มเหมือนเดิม</string>
+    <string name="faqs_and_guides">FAQ และคำแนะนำ</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/th/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">แสดงสถานะช่องทาง VPN ในปัจจุบัน</string>
     <string name="foreground_notification_channel_name">สถานะช่องทาง VPN</string>
     <string name="here_is_your_account_number">นี่คือหมายเลขบัญชีของคุณ จดบันทึกไว้ด้วยนะ!</string>

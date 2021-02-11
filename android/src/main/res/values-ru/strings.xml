@@ -55,6 +55,8 @@
     <string name="failed_to_generate_key">Не удалось сгенерировать ключ</string>
     <string name="failed_to_send">Ошибка отправки</string>
     <string name="failed_to_send_details">Прежде чем повторить попытку, может понадобиться вернуться на главный экран приложения и нажать «Отключить». Не волнуйтесь: введенные в форму данные сохранятся.</string>
+    <string name="faqs_and_guides">Ответы на вопросы и руководства</string>
+    <string name="faqs_and_guides_url">https://mullvad.net/ru/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Показывает текущее состояние VPN-туннеля</string>
     <string name="foreground_notification_channel_name">Состояние туннеля VPN</string>
     <string name="here_is_your_account_number">Вот номер вашей учетной записи. Сохраните его!</string>
