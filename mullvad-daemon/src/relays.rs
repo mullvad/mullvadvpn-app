@@ -831,7 +831,8 @@ impl RelayListUpdater {
                 cmd = cmd_rx.next() => {
                     match cmd {
                         Some(_) => {
-                            self.consume_new_relay_list(self.rpc_client.relay_list(None).await).await;
+                            let tag = self.parsed_relays.lock().tag().map(|tag| tag.to_string());
+                            self.consume_new_relay_list(self.rpc_client.relay_list(tag).await).await;
                         },
                         None => {
                             log::error!("Relay list updater shutting down");
