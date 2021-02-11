@@ -195,11 +195,11 @@ impl RelaySelector {
     }
 
     /// Download the newest relay list.
-    pub fn update(&mut self) -> impl Future<Output = ()> {
+    pub fn update(&mut self, force_update: bool) -> impl Future<Output = ()> {
         let mut updater = self.updater.clone();
         async move {
             updater
-                .update_relay_list()
+                .update_relay_list(force_update)
                 .await
                 .expect("Relay list updated thread has stopped unexpectedly");
         }
@@ -767,13 +767,13 @@ impl RelaySelector {
 
 #[derive(Clone)]
 pub struct RelayListUpdaterHandle {
-    tx: mpsc::Sender<()>,
+    tx: mpsc::Sender<bool>,
 }
 
 impl RelayListUpdaterHandle {
-    async fn update_relay_list(&mut self) -> Result<(), Error> {
+    async fn update_relay_list(&mut self, force_update: bool) -> Result<(), Error> {
         self.tx
-            .send(())
+            .send(force_update)
             .await
             .map_err(|_| Error::DownloaderShutDown)
     }
@@ -810,7 +810,7 @@ impl RelayListUpdater {
         RelayListUpdaterHandle { tx }
     }
 
-    async fn run(mut self, mut cmd_rx: mpsc::Receiver<()>) {
+    async fn run(mut self, mut cmd_rx: mpsc::Receiver<bool>) {
         let mut check_interval = tokio::time::interval(UPDATE_CHECK_INTERVAL).fuse();
         let mut download_future = Box::pin(Fuse::terminated());
         loop {
@@ -830,8 +830,13 @@ impl RelayListUpdater {
 
                 cmd = cmd_rx.next() => {
                     match cmd {
-                        Some(_) => {
-                            self.consume_new_relay_list(self.rpc_client.relay_list(None).await).await;
+                        Some(force_update) => {
+                            let tag = if force_update {
+                                None
+                            } else {
+                                self.parsed_relays.lock().tag().map(|tag| tag.to_string())
+                            };
+                            self.consume_new_relay_list(self.rpc_client.relay_list(tag).await).await;
                         },
                         None => {
                             log::error!("Relay list updater shutting down");

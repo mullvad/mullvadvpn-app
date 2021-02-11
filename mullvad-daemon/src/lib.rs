@@ -662,7 +662,7 @@ where
             wireguard::KeyManager::new(internal_event_tx.clone(), rpc_handle.clone());
 
         // Attempt to download a fresh relay list
-        relay_selector.update().await;
+        relay_selector.update(false).await;
 
         let mut daemon = Daemon {
             tunnel_command_tx,
@@ -1431,7 +1431,7 @@ where
     }
 
     async fn on_update_relay_locations(&mut self) {
-        self.relay_selector.update().await;
+        self.relay_selector.update(true).await;
     }
 
     async fn on_set_account(
