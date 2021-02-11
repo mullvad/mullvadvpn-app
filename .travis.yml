@@ -42,8 +42,8 @@ matrix:
       name: Android
       android:
         components:
-          - android-29
-          - build-tools-29.0.3
+          - android-30
+          - build-tools-30.0.3
       install:
         - curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable --profile minimal -y
         - source $HOME/.cargo/env
@@ -54,7 +54,7 @@ matrix:
         - sudo /opt/android/android-ndk-r20/build/tools/make-standalone-toolchain.sh --platform=android-21 --arch=arm64 --install-dir=/opt/android/toolchains/android21-aarch64
         - sudo apt install tidy
         - |
-            curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.37.0/ktlint &&
+            curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.40.0/ktlint &&
             chmod a+x ktlint &&
             sudo mv ktlint /usr/local/bin/
         - |
