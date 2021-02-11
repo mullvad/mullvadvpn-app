@@ -5,7 +5,6 @@
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
        tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
-
     <androidx.appcompat.widget.AppCompatTextView android:id="@+id/plain_text"
                                                  android:layout_width="0dp"
                                                  android:layout_height="wrap_content"
@@ -17,13 +16,11 @@
                                                  app:layout_constraintStart_toStartOf="@id/startGuideline"
                                                  app:layout_constraintTop_toTopOf="parent"
                                                  tools:text="Choose the apps you want to exclude from the VPN tunnel." />
-
     <androidx.constraintlayout.widget.Guideline android:id="@+id/startGuideline"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
                                                 android:orientation="vertical"
                                                 app:layout_constraintGuide_begin="@dimen/screen_vertical_margin" />
-
     <androidx.constraintlayout.widget.Guideline android:id="@+id/endGuideline"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
