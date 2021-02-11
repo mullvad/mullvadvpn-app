@@ -35,6 +35,10 @@ Line wrap the file at 100 chars.                                              Th
   security patches.
 - Allow provider constraint to specify multiple hosting providers.
 
+#### macOS
+- Change blocking firewall rules to not be _quick_ to allow for user specified rules in `pf` to
+  circumvent our rules.
+
 #### Android
 - WireGuard key is now rotated sooner: every four days instead of seven.
 

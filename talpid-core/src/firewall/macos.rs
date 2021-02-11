@@ -75,13 +75,11 @@ impl Firewall {
         let return_out_rule = self
             .create_rule_builder(FilterRuleAction::Drop(DropAction::Return))
             .direction(pfctl::Direction::Out)
-            .quick(true)
             .build()?;
         new_filter_rules.push(return_out_rule);
 
         let drop_all_rule = self
             .create_rule_builder(FilterRuleAction::Drop(DropAction::Drop))
-            .quick(true)
             .build()?;
         new_filter_rules.push(drop_all_rule);
 
