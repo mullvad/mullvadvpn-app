@@ -6,7 +6,6 @@
        android:layout_height="@dimen/cell_height"
        tools:background="@color/green"
        tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
-
     <androidx.appcompat.widget.AppCompatImageView android:id="@+id/itemIcon"
                                                   android:layout_width="@dimen/icon_size"
                                                   android:layout_height="@dimen/icon_size"
@@ -17,7 +16,6 @@
                                                   app:layout_constraintTop_toTopOf="parent"
                                                   tools:visibility="gone"
                                                   tools:src="@drawable/launch_logo" />
-
     <androidx.appcompat.widget.AppCompatTextView android:id="@+id/itemText"
                                                  android:layout_width="0dp"
                                                  android:layout_height="match_parent"
@@ -30,13 +28,11 @@
                                                  app:layout_constraintTop_toTopOf="parent"
                                                  tools:background="@color/white20"
                                                  tools:text="WireGuard MTU" />
-
     <androidx.constraintlayout.widget.Guideline android:id="@+id/startGuideline"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
                                                 android:orientation="vertical"
                                                 app:layout_constraintGuide_begin="@dimen/screen_vertical_margin" />
-
     <androidx.constraintlayout.widget.Barrier android:id="@+id/widgetBarrier"
                                               android:layout_width="wrap_content"
                                               android:layout_height="wrap_content"

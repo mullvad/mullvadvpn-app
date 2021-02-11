@@ -3,7 +3,6 @@
        xmlns:app="http://schemas.android.com/apk/res-auto"
        xmlns:tools="http://schemas.android.com/tools"
        tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
-
     <ProgressBar android:id="@+id/loading_spinner"
                  android:layout_width="@dimen/progress_size"
                  android:layout_height="@dimen/progress_size"
