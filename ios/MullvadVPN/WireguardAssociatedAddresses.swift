@@ -8,6 +8,7 @@
 
 import Foundation
 import Network
+import WireGuardKit
 
 struct WireguardAssociatedAddresses: Codable {
     let ipv4Address: IPAddressRange
