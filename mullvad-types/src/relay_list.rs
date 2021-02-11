@@ -21,12 +21,14 @@ use talpid_types::net::{
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayList {
+    pub etag: Option<String>,
     pub countries: Vec<RelayListCountry>,
 }
 
 impl RelayList {
     pub fn empty() -> Self {
         Self {
+            etag: None,
             countries: Vec::new(),
         }
     }
