@@ -55,6 +55,10 @@ Line wrap the file at 100 chars.                                              Th
 - Improve offline check to query the routing table to allow users to use a bridged adapter as their
   primary interface.
 
+#### macOS
+- Change blocking firewall rules to not be _quick_ to allow for user specified rules in `pf` to
+  circumvent our rules.
+
 ### Fixed
 - Fix Turkish translations for on/off in the bridge settings. They were inverted, so it was
   confusing to change the setting.
