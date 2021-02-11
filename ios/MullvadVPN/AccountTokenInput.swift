@@ -60,7 +60,7 @@ class AccountTokenInput: NSObject
 
         // Since removing separator alone makes no sense, this computation extends the string range
         // to include the digit preceding a separator.
-        if replacementString.isEmpty && emptySelection {
+        if replacementString.isEmpty && emptySelection && !formattedString.isEmpty  {
             let precedingDigitIndex = formattedString
                 .prefix(through: stringRange.lowerBound)
                 .lastIndex { Self.isDigit($0) } ?? formattedString.startIndex
