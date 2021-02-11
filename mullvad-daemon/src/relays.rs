@@ -140,6 +140,10 @@ impl ParsedRelays {
     pub fn relays(&self) -> &Vec<Relay> {
         &self.relays
     }
+
+    pub fn tag(&self) -> Option<&str> {
+        self.locations.etag.as_deref()
+    }
 }
 
 pub struct RelaySelector {
@@ -813,7 +817,8 @@ impl RelayListUpdater {
             futures::select! {
                 _check_update = check_interval.next() => {
                     if download_future.is_terminated() && self.should_update() {
-                        download_future = Box::pin(Self::download_relay_list(self.rpc_client.clone()).fuse());
+                        let tag = self.parsed_relays.lock().tag().map(|tag| tag.to_string());
+                        download_future = Box::pin(Self::download_relay_list(self.rpc_client.clone(), tag).fuse());
                         self.earliest_next_try = Instant::now() + UPDATE_INTERVAL;
                     }
                 },
@@ -876,8 +881,9 @@ impl RelayListUpdater {
 
     fn download_relay_list(
         rpc_handle: RelayListProxy,
+        tag: Option<String>,
     ) -> impl Future<Output = Result<Option<RelayList>, mullvad_rpc::rest::Error>> + 'static {
-        let download_futures = move || rpc_handle.relay_list(None);
+        let download_futures = move || rpc_handle.relay_list(tag.clone());
 
         let exponential_backoff = ExponentialBackoff::from_millis(EXPONENTIAL_BACKOFF_DELAY_MS)
             .factor(EXPONENTIAL_BACKOFF_FACTOR)
