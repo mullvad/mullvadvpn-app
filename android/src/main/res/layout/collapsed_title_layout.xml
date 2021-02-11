@@ -7,7 +7,6 @@
                                                      android:layout_height="match_parent"
                                                      android:background="@color/darkBlue"
                                                      android:fitsSystemWindows="false">
-
     <com.google.android.material.appbar.AppBarLayout android:id="@+id/appbar"
                                                      android:layout_width="match_parent"
                                                      android:layout_height="104dp"
@@ -31,7 +30,6 @@
                                                                     app:layout_scrollFlags="scroll|exitUntilCollapsed"
                                                                     app:title="@string/split_tunneling">
 
-
             <com.google.android.material.appbar.MaterialToolbar android:id="@+id/toolbar"
                                                                 android:layout_width="match_parent"
                                                                 android:layout_height="?attr/actionBarSize"
@@ -48,7 +46,6 @@
                                                                 app:contentInsetEnd="0dp"
                                                                 app:contentInsetStartWithNavigation="0dp"
                                                                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
             <net.mullvad.mullvadvpn.ui.widget.BackButton android:id="@+id/back"
                                                          android:layout_width="wrap_content"
                                                          android:layout_height="wrap_content"
@@ -58,7 +55,6 @@
                                                          app:text="@string/settings_advanced" />
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>
-
     <androidx.recyclerview.widget.RecyclerView android:id="@+id/recyclerView"
                                                android:layout_width="match_parent"
                                                android:layout_height="wrap_content"

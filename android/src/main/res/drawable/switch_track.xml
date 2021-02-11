@@ -4,17 +4,14 @@
        android:shape="rectangle"
        android:useLevel="false"
        android:visible="true">
-    <size
-        android:width="@dimen/switch_width"
-        android:height="@dimen/switch_height" />
-    <padding
-        android:bottom="@dimen/switch_thumb_padding"
-        android:left="@dimen/switch_thumb_padding"
-        android:right="@dimen/switch_thumb_padding"
-        android:top="@dimen/switch_thumb_padding" />
+    <size android:width="@dimen/switch_width"
+          android:height="@dimen/switch_height" />
+    <padding android:bottom="@dimen/switch_thumb_padding"
+             android:left="@dimen/switch_thumb_padding"
+             android:right="@dimen/switch_thumb_padding"
+             android:top="@dimen/switch_thumb_padding" />
     <solid android:color="@android:color/transparent" />
-    <stroke
-        android:width="@dimen/switch_track_stroke"
-        android:color="@color/white80" />
+    <stroke android:width="@dimen/switch_track_stroke"
+            android:color="@color/white80" />
     <corners android:radius="@dimen/switch_track_radius" />
 </shape>

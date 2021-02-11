@@ -4,9 +4,7 @@
        xmlns:tools="http://schemas.android.com/tools"
        style="@style/ListItem.Action"
        tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
-
     <include layout="@layout/list_item_base" />
-
     <FrameLayout android:id="@+id/widgetContainer"
                  android:layout_width="wrap_content"
                  android:layout_height="0dp"
@@ -16,14 +14,12 @@
                  app:layout_constraintBottom_toBottomOf="parent"
                  app:layout_constraintEnd_toEndOf="parent"
                  app:layout_constraintStart_toEndOf="@id/itemText"
-                 app:layout_constraintTop_toTopOf="parent"/>
-
+                 app:layout_constraintTop_toTopOf="parent" />
     <androidx.constraintlayout.widget.Guideline android:id="@+id/endGuideline"
                                                 android:layout_width="wrap_content"
                                                 android:layout_height="wrap_content"
                                                 android:orientation="vertical"
                                                 app:layout_constraintGuide_end="@dimen/cell_right_padding" />
-
     <androidx.constraintlayout.widget.Barrier android:id="@+id/widgetBarrier"
                                               android:layout_width="wrap_content"
                                               android:layout_height="wrap_content"
