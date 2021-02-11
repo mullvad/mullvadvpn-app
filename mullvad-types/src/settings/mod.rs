@@ -170,8 +170,8 @@ pub struct TunnelOptions {
 }
 
 /// Custom DNS config
-#[serde(default)]
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[serde(default)]
 #[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct DnsOptions {
