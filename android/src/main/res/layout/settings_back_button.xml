@@ -5,12 +5,10 @@
        tools:orientation="horizontal"
        tools:padding="12dp"
        tools:parentTag="android.widget.LinearLayout">
-
     <ImageView android:layout_width="24dp"
                android:layout_height="24dp"
                android:layout_marginRight="8dp"
                android:src="@drawable/icon_back" />
-
     <TextView android:id="@+id/label"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
