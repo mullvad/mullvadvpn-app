@@ -10,7 +10,11 @@ cd $script_dir
 export GOPATH=$script_dir/../../build/android-go-path/
 mkdir -p $GOPATH
 
-for arch in arm arm64 x86_64 x86; do
+if [ -z "$ARCHITECTURES" ]; then
+    ARCHITECTURES="arm arm64 x86_64 x86"
+fi
+
+for arch in $ARCHITECTURES; do
     case "$arch" in
         "arm64")
             export ANDROID_LLVM_TRIPLE="aarch64-linux-android"
