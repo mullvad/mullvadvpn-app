@@ -112,9 +112,13 @@ impl ServerRelayList {
         Self::add_wireguard_relays(&mut countries, wireguard);
         Self::add_bridge_relays(&mut countries, bridge);
 
-
         relay_list::RelayList {
-            etag,
+            etag: etag.map(|mut tag| {
+                if tag.starts_with("\"") {
+                    tag.insert_str(0, "W/");
+                }
+                tag
+            }),
             countries: countries
                 .into_iter()
                 .map(|(_key, country)| country)
