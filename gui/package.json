@@ -30,8 +30,7 @@
     "redux": "^4.0.5",
     "sprintf-js": "^1.1.2",
     "styled-components": "^5.1.1",
-    "uuid": "^3.0.1",
-    "nseventmonitor": "^0.0.19"
+    "uuid": "^3.0.1"
   },
   "optionalDependencies": {
     "nseventmonitor": "^1.0.0"
@@ -82,8 +81,8 @@
     "eslint-plugin-prettier": "^3.2.0",
     "eslint-plugin-react": "^7.18.3",
     "gettext-extractor": "^3.5.2",
-    "grpc-tools": "^1.9.1",
     "grpc_tools_node_protoc_ts": "^4.1.0",
+    "grpc-tools": "^1.9.1",
     "gulp": "^4.0.2",
     "gulp-inject-string": "^1.1.2",
     "gulp-sourcemaps": "^3.0.0",
