@@ -37,49 +37,6 @@ matrix:
       install: *node_install
       script: *node_script
 
-    # Android
-    - language: android
-      name: Android
-      android:
-        components:
-          - android-30
-          - build-tools-30.0.3
-      install:
-        - curl https://sh.rustup.rs -sSf | sh -s -- --default-toolchain stable --profile minimal -y
-        - source $HOME/.cargo/env
-        - rustup target add aarch64-linux-android
-        - curl -sf -L -o /tmp/ndk.zip https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip
-        - sudo mkdir /opt/android
-        - sudo unzip -q -d /opt/android/ /tmp/ndk.zip
-        - sudo /opt/android/android-ndk-r20/build/tools/make-standalone-toolchain.sh --platform=android-21 --arch=arm64 --install-dir=/opt/android/toolchains/android21-aarch64
-        - sudo apt install tidy
-        - |
-            curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.40.0/ktlint &&
-            chmod a+x ktlint &&
-            sudo mv ktlint /usr/local/bin/
-        - |
-            cat >> $HOME/.cargo/config << EOF
-            [target.aarch64-linux-android]
-            ar = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
-            linker = "/opt/android/android-ndk-r20/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang"
-      before_script:
-        - mkdir "$ANDROID_HOME/licenses" || true
-        - echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > "$ANDROID_HOME/licenses/android-sdk-license"
-        - export RUSTFLAGS="--deny warnings"
-        - export AR_aarch64_linux_android=/opt/android/toolchains/android21-aarch64/bin/aarch64-linux-android-ar
-        - export CC_aarch64_linux_android=/opt/android/toolchains/android21-aarch64/bin/aarch64-linux-android21-clang
-        - source env.sh aarch64-linux-android
-        - env
-      script:
-        - ./wireguard/build-wireguard-go.sh --android
-        - cargo build --target aarch64-linux-android --verbose --package mullvad-jni
-        - cd android
-        - ./gradlew --console plain assembleDebug
-        # Run ktlint with extra andorid rules
-        - ktlint -a
-        - cd ..
-        - source ci/ci-android-xml.sh && tidy-verify-xml
-
     # iOS
     - language: swift
       osx_image: xcode12.2
