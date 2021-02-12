@@ -17,14 +17,14 @@ import android.widget.EditText
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.ViewSwitcher
-import androidx.fragment.app.Fragment
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
+import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
 import net.mullvad.mullvadvpn.util.JobTracker
 
-class ProblemReportFragment : Fragment() {
+class ProblemReportFragment : BaseFragment() {
     private val jobTracker = JobTracker()
 
     private var showingEmail by observable(false) { _, oldValue, newValue ->

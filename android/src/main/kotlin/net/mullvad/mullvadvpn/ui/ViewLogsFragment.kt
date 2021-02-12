@@ -6,12 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
+import net.mullvad.mullvadvpn.ui.fragments.BaseFragment
 import net.mullvad.mullvadvpn.util.JobTracker
 
-class ViewLogsFragment : Fragment() {
+class ViewLogsFragment : BaseFragment() {
     private val jobTracker = JobTracker()
 
     private lateinit var problemReport: MullvadProblemReport
