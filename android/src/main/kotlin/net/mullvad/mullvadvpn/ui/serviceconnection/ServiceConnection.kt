@@ -5,6 +5,10 @@ import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.service.ServiceInstance
 import net.mullvad.mullvadvpn.ui.MainActivity
 
+// Container of classes that communicate with the service through an active connection
+//
+// The properties of this class can be used to send events to the service, to listen for events from
+// the service and to get values received from events.
 class ServiceConnection(private val service: ServiceInstance, val mainActivity: MainActivity) {
     val daemon = service.daemon
     val accountCache = service.accountCache
