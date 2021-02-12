@@ -87,7 +87,6 @@ export const StyledBackBarItemButton = styled.button({
   flexDirection: 'row',
   alignItems: 'center',
   backgroundColor: 'transparent',
-  zIndex: 1,
 });
 
 export const StyledBackBarItemIcon = styled(ImageView)({
