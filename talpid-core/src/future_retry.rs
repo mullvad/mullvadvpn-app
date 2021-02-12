@@ -139,7 +139,6 @@ fn apply_jitter(duration: Duration, jitter: f64) -> Duration {
 #[cfg(test)]
 mod test {
     use super::*;
-    use rand::SeedableRng;
 
     #[test]
     fn test_exponetnial_backoff() {
@@ -187,22 +186,10 @@ mod test {
         assert_eq!(apply_jitter(second, 1.0), second);
     }
 
-    #[derive(Clone, Debug)]
-    struct ArbitraryJitter(f64);
-    impl quickcheck::Arbitrary for ArbitraryJitter {
-        fn arbitrary(_g: &mut quickcheck::Gen) -> Self {
-            // This should not be private:
-            // g.gen_range
-
-            let mut rng = rand::rngs::SmallRng::from_entropy();
-            let jitter: f64 = rng.sample(OpenClosed01);
-            ArbitraryJitter(jitter)
-        }
-    }
-
     #[quickcheck_macros::quickcheck]
-    fn test_jitter(millis: u64, jitter: ArbitraryJitter) {
-        let jitter = jitter.0;
+    fn test_jitter(millis: u64, jitter: u64) {
+        let max_num = 2u64.checked_pow(f64::MANTISSA_DIGITS).unwrap();
+        let jitter = (jitter % max_num) as f64 / (max_num as f64);
         let unjittered_duration = Duration::from_millis(millis);
         let jittered_duration = apply_jitter(unjittered_duration, jitter);
         assert!(jittered_duration <= unjittered_duration);
