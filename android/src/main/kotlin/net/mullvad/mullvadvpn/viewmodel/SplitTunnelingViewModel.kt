@@ -94,16 +94,17 @@ class SplitTunnelingViewModel(
         viewModelScope.launch(Dispatchers.Default) {
             appsProvider.getAppsList().map { it.packageName to it }.toMap().let { applications ->
                 val excludedPackages = applications.keys.intersect(splitTunneling.excludedAppList)
-                // TODO: remove potential package names from splitTunneling list if they already uninstalled or filtered
+                // TODO: remove potential package names from splitTunneling list
+                //       if they already uninstalled or filtered
                 excludedApps = applications
                     .filterKeys { excludedPackages.contains(it) }
                     .toMutableMap()
                 allAps = applications
                     .filterKeys { applications.keys.subtract(excludedPackages).contains(it) }
                     .toMutableMap()
-                delay(100)
-                publishList()
             }
+            delay(100)
+            publishList()
         }
     }
 
