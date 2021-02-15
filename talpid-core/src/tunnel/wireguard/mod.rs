@@ -389,6 +389,11 @@ pub enum TunnelError {
     #[error(display = "Invalid tunnel interface name")]
     InterfaceNameError(#[error(source)] std::ffi::NulError),
 
+    /// Failed to convert adapter alias to UTF-8.
+    #[cfg(target_os = "windows")]
+    #[error(display = "Failed to convert adapter alias")]
+    InvalidAlias,
+
     /// Failed to set ip addresses on tunnel interface.
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to set IP addresses on WireGuard interface")]

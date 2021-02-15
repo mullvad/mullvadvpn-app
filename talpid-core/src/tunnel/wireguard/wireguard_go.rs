@@ -133,12 +133,15 @@ impl WgGoTunnel {
                 .iter()
                 .any(|config| config.allowed_ips.iter().any(|ip| ip.is_ipv6()));
 
+        let mut alias_ptr = std::ptr::null_mut();
+
         let handle = unsafe {
             wgTurnOn(
                 cstr_iface_name.as_ptr(),
                 config.mtu as i64,
                 wait_on_ipv6 as u8,
                 wg_config_str.as_ptr(),
+                &mut alias_ptr,
                 Some(logging_callback),
                 logging_context.0 as *mut libc::c_void,
             )
@@ -148,13 +151,25 @@ impl WgGoTunnel {
             return Err(TunnelError::FatalStartWireguardError);
         }
 
-        if !add_device_ip_addresses(&iface_name, &config.tunnel.addresses) {
+        let actual_iface_name = {
+            let actual_iface_name_c = unsafe { CStr::from_ptr(alias_ptr) };
+            let actual_iface_name = actual_iface_name_c
+                .to_str()
+                .map_err(|_| TunnelError::InvalidAlias)?
+                .to_string();
+            unsafe { wgFreePtr(alias_ptr as *mut c_void) };
+            actual_iface_name
+        };
+
+        log::debug!("Adapter alias: {}", actual_iface_name);
+
+        if !add_device_ip_addresses(&actual_iface_name, &config.tunnel.addresses) {
             // Todo: what kind of clean-up is required?
             return Err(TunnelError::SetIpAddressesError);
         }
 
         Ok(WgGoTunnel {
-            interface_name: iface_name.clone(),
+            interface_name: actual_iface_name,
             handle: Some(handle),
             _logging_context: logging_context,
         })
@@ -360,6 +375,7 @@ extern "C" {
         mtu: i64,
         wait_on_ipv6: u8,
         settings: *const i8,
+        iface_name_out: *const *mut std::os::raw::c_char,
         logging_callback: Option<LoggingCallback>,
         logging_context: *mut libc::c_void,
     ) -> i32;
