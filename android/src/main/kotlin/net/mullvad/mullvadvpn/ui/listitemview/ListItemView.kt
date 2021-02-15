@@ -1,10 +1,8 @@
 package net.mullvad.mullvadvpn.ui.listitemview
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import androidx.annotation.CallSuper
 import androidx.annotation.DimenRes
 import androidx.annotation.LayoutRes
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -28,24 +26,22 @@ abstract class ListItemView @JvmOverloads constructor(
     protected abstract val layoutRes: Int
 
     @get:DimenRes
-    protected abstract val heightRes: Int
+    protected abstract val heightRes: Int?
 
     init {
-        init()
-    }
-
-    @SuppressLint("ResourceType")
-    private fun init() {
         val view = inflater.inflate(layoutRes, this, true)
-        val height = if (heightRes > 0)
-            resources.getDimensionPixelSize(heightRes)
-        else
+        val height = if (heightRes != null) {
+            resources.getDimensionPixelSize(heightRes!!)
+        } else {
             LayoutParams.WRAP_CONTENT
+        }
         view.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, height)
     }
 
-    @CallSuper
-    open fun update(data: ListItemData) {
+    fun update(data: ListItemData) {
         itemData = data
+        onUpdate()
     }
+
+    protected open fun onUpdate() {}
 }

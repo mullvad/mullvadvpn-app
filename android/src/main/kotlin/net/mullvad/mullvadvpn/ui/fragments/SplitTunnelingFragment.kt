@@ -2,15 +2,10 @@ package net.mullvad.mullvadvpn.ui.fragments
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewConfiguration
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
-import androidx.core.view.ViewCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.CollapsingToolbarLayout
@@ -19,26 +14,33 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
-import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.applist.ProgressListItemAnimator
 import net.mullvad.mullvadvpn.applist.ViewIntent
+import net.mullvad.mullvadvpn.di.APPS_SCOPE
 import net.mullvad.mullvadvpn.model.ListItemData
 import net.mullvad.mullvadvpn.ui.ListItemDividerDecoration
 import net.mullvad.mullvadvpn.ui.ListItemListener
 import net.mullvad.mullvadvpn.ui.ListItemsAdapter
 import net.mullvad.mullvadvpn.util.setMargins
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.android.ext.android.getKoin
+import org.koin.androidx.viewmodel.ViewModelOwner
+import org.koin.androidx.viewmodel.scope.viewModel
+import org.koin.core.qualifier.named
+import org.koin.core.scope.Scope
 
-class SplitTunnelingFragment2 : Fragment(R.layout.collapsed_title_layout) {
-
+class SplitTunnelingFragment : BaseFragment(R.layout.collapsed_title_layout) {
     private val listItemsAdapter = ListItemsAdapter()
 
-    private val viewModel by viewModel<SplitTunnelingViewModel>()
+    private val scope: Scope = getKoin().createScope(APPS_SCOPE, named(APPS_SCOPE))
+    private val viewModel by scope.viewModel<SplitTunnelingViewModel>(
+        owner = {
+            ViewModelOwner.from(this, this)
+        }
+    )
     private val toggleExcludeChannel = Channel<ListItemData>(Channel.BUFFERED)
     private val listItemListener = object : ListItemListener {
         override fun onItemAction(item: ListItemData) {
@@ -48,7 +50,6 @@ class SplitTunnelingFragment2 : Fragment(R.layout.collapsed_title_layout) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.e(this.javaClass.simpleName, "onViewCreated | ${this.hashCode()}")
         (view.findViewById(R.id.collapsing_toolbar) as CollapsingToolbarLayout).apply {
             title = resources.getString(R.string.split_tunneling)
         }
@@ -56,39 +57,39 @@ class SplitTunnelingFragment2 : Fragment(R.layout.collapsed_title_layout) {
         view.findViewById<RecyclerView>(R.id.recyclerView).apply {
             adapter = listItemsAdapter
             addItemDecoration(
-                ListItemDividerDecoration(requireContext()).apply {
-                    topOffsetId = R.dimen.list_item_divider
-                }
+                ListItemDividerDecoration(
+                    topOffset = resources.getDimensionPixelSize(R.dimen.list_item_divider)
+                )
             )
             tweakMargin(this)
-            itemAnimator = ProgressListItemAnimator()
         }
         view.findViewById<View>(R.id.back).setOnClickListener {
             requireActivity().onBackPressed()
         }
 
         lifecycleScope.launchWhenStarted {
-            viewModel.data
+            viewModel.listItems
                 .onEach {
                     listItemsAdapter.setItems(it)
                 }
                 .catch { }
                 .collect()
         }
-
-        // pass view intent to view model
-        intents()
-            .onEach { viewModel.processIntent(it) }
-            .launchIn(lifecycleScope)
+        lifecycleScope.launchWhenResumed {
+            // pass view intent to view model
+            intents()
+                .onEach { viewModel.processIntent(it) }
+                .collect()
+        }
     }
 
     private fun intents(): Flow<ViewIntent> = merge(
+        transitionFinishedFlow.map { ViewIntent.ViewIsReady },
         toggleExcludeChannel.consumeAsFlow().map { ViewIntent.ChangeApplicationGroup(it) }
     )
 
     private fun tweakMargin(view: View) {
         if (!hasNavigationBar()) {
-            Log.e("test", "set padding 0 for RecyclerView")
             view.setMargins(b = 0)
         }
     }
@@ -109,26 +110,8 @@ class SplitTunnelingFragment2 : Fragment(R.layout.collapsed_title_layout) {
         return hasOnScreenNavBar || hasNoCapacitiveKeys
     }
 
-    override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
-        ViewCompat.setTranslationZ(requireView(), 1f)
-        if (nextAnim != 0 && enter) {
-            val animation = AnimationUtils.loadAnimation(context, nextAnim)
-            Log.e("test", "animation = $animation")
-            Log.e("test", "setListener")
-            animation.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationRepeat(animation: Animation?) {}
-
-                override fun onAnimationEnd(animation: Animation?) {
-                    Log.e("test", "animation end")
-                    // viewModel.fetchData()
-                }
-
-                override fun onAnimationStart(animation: Animation?) {
-                    Log.e("test", "animation start")
-                }
-            })
-            return animation
-        }
-        return super.onCreateAnimation(transit, enter, nextAnim)
+    override fun onDestroy() {
+        scope.close()
+        super.onDestroy()
     }
 }

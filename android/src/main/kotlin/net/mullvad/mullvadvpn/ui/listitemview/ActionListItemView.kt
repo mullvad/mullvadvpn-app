@@ -7,7 +7,6 @@ import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.list_item_action.view.*
 import kotlinx.android.synthetic.main.list_item_base.view.*
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.model.ListItemData
 import net.mullvad.mullvadvpn.model.WidgetState
 
 open class ActionListItemView @JvmOverloads constructor(
@@ -31,8 +30,7 @@ open class ActionListItemView @JvmOverloads constructor(
     override val heightRes: Int
         get() = R.dimen.cell_height
 
-    override fun update(data: ListItemData) {
-        super.update(data)
+    override fun onUpdate() {
         updateImage()
         updateText()
         updateWidget()

@@ -118,7 +118,7 @@ dependencies {
     implementation "commons-validator:commons-validator:1.7"
     implementation "joda-time:joda-time:2.10.2"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2"
     implementation "org.koin:koin-core:$koinVersion"
     implementation "org.koin:koin-core-ext:$koinVersion"

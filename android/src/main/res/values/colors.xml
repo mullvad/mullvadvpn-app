@@ -23,5 +23,7 @@
     <color name="red40">#66E34039</color>
     <color name="yellow">#FFD323</color>
     <color name="textInputBorder">#234161</color>
-    <color name="transparent">#0FFF</color>
+    <color name="switch_thumb_border">@android:color/transparent</color>
+    <color name="switch_track_fill">@android:color/transparent</color>
+    <color name="switch_track_border">@color/white80</color>
 </resources>
