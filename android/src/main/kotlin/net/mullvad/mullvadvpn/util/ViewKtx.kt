@@ -10,6 +10,6 @@ fun View.setMargins(l: Int? = null, t: Int? = null, r: Int? = null, b: Int? = nu
         p.setMargins(l ?: p.leftMargin, t ?: p.topMargin, r ?: p.rightMargin, b ?: p.bottomMargin)
         this.requestLayout()
     } else {
-        Log.w("ViewKtx", "setMargins is not supported")
+        Log.w("mullvad", "setMargins is not supported")
     }
 }
