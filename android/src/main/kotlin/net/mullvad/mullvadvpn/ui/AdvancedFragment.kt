@@ -9,7 +9,7 @@ import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.ui.customdns.CustomDnsAdapter
-import net.mullvad.mullvadvpn.ui.fragments.SplitTunnelingFragment2
+import net.mullvad.mullvadvpn.ui.fragments.SplitTunnelingFragment
 import net.mullvad.mullvadvpn.ui.widget.CellSwitch
 import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
 import net.mullvad.mullvadvpn.ui.widget.MtuCell
@@ -87,9 +87,6 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
         view.findViewById<NavigateCell>(R.id.split_tunneling).apply {
             targetFragment = SplitTunnelingFragment::class
-        }
-        view.findViewById<NavigateCell>(R.id.split_tunneling2).apply {
-            targetFragment = SplitTunnelingFragment2::class
         }
 
         customDnsToggle = view.findViewById<ToggleCell>(R.id.enable_custom_dns).apply {

@@ -1,11 +1,15 @@
 package net.mullvad.mullvadvpn.ui.fragments
 
 import android.view.animation.Animation
+import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import net.mullvad.mullvadvpn.R
 
-abstract class BaseFragment : Fragment() {
+abstract class BaseFragment : Fragment {
+    constructor() : super()
+    constructor (@LayoutRes contentLayoutId: Int) : super(contentLayoutId)
+
     override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
         val zAdjustment = if (animationsToAdjustZorder.contains(nextAnim)) {
             1f

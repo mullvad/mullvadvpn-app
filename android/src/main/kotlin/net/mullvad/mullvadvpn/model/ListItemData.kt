@@ -5,8 +5,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import java.lang.IllegalArgumentException
 
-class ListItemData internal constructor(builder: Builder) {
-
+class ListItemData private constructor(builder: Builder) {
     val identifier: String
 
     val text: String?
@@ -31,22 +30,22 @@ class ListItemData internal constructor(builder: Builder) {
     val action: ItemAction?
 
     init {
-        if (builder.getIdentifier() == null)
+        if (builder.identifier == null)
             throw IllegalArgumentException("ListItem must have identifier for proper animation")
 
-        this.identifier = builder.getIdentifier()!!
+        this.identifier = builder.identifier!!
 
-        this.type = builder.getType()
+        this.type = builder.type
 
-        if ((builder.getText() == null && builder.getTextRes() == null) && type > PROGRESS)
+        if ((builder.text == null && builder.textRes == null) && type > PROGRESS)
             throw IllegalArgumentException("ListItem should have configured with text")
 
-        this.text = builder.getText()
-        this.textRes = builder.getTextRes()
-        this.iconRes = builder.getIconRes()
-        this.isSelected = builder.isSelected()
-        this.widget = builder.getWidget()
-        this.action = builder.getAction()
+        this.text = builder.text
+        this.textRes = builder.textRes
+        this.iconRes = builder.iconRes
+        this.isSelected = builder.isSelected
+        this.widget = builder.widget
+        this.action = builder.action
     }
 
     override fun equals(other: Any?): Boolean {
@@ -65,81 +64,75 @@ class ListItemData internal constructor(builder: Builder) {
         return true
     }
 
+    override fun hashCode(): Int {
+        var result = identifier.hashCode()
+        result = 31 * result + (text?.hashCode() ?: 0)
+        result = 31 * result + (textRes ?: 0)
+        result = 31 * result + (iconRes ?: 0)
+        result = 31 * result + isSelected.hashCode()
+        result = 31 * result + type
+        result = 31 * result + (widget?.hashCode() ?: 0)
+        result = 31 * result + (action?.hashCode() ?: 0)
+        return result
+    }
+
     class Builder {
-        private var identifier: String? = null
+        var identifier: String? = null
+            private set
 
-        private var text: String? = null
+        var text: String? = null
+            private set
 
         @StringRes
-        private var textRes: Int? = null
+        var textRes: Int? = null
+            private set
 
         @DrawableRes
-        private var iconRes: Int? = null
-        private var isSelected: Boolean = false
+        var iconRes: Int? = null
+            private set
+        var isSelected: Boolean = false
+            private set
 
         @ItemType
-        private var type: Int = 0
+        var type: Int = 0
+            private set
 
-        private var widget: WidgetState? = null
-        private var action: ItemAction? = null
+        var widget: WidgetState? = null
+            private set
+        var action: ItemAction? = null
+            private set
 
-        fun setIdentifier(id: String): Builder {
+        fun setIdentifier(id: String): Builder = apply {
             this.identifier = id
-            return this
         }
 
-        fun setText(text: String): Builder {
+        fun setText(text: String): Builder = apply {
             this.text = text
-            return this
         }
 
-        fun setTextRes(@StringRes textRes: Int): Builder {
+        fun setTextRes(@StringRes textRes: Int): Builder = apply {
             this.textRes = textRes
-            return this
         }
 
-        fun setIconRes(@DrawableRes iconRes: Int): Builder {
+        fun setIconRes(@DrawableRes iconRes: Int): Builder = apply {
             this.iconRes = iconRes
-            return this
         }
 
-        fun setSelected(isSelected: Boolean): Builder {
+        fun setSelected(isSelected: Boolean): Builder = apply {
             this.isSelected = isSelected
-            return this
         }
 
-        fun setType(@ItemType type: Int): Builder {
+        fun setType(@ItemType type: Int): Builder = apply {
             this.type = type
-            return this
         }
 
-        fun setWidget(widget: WidgetState): Builder {
+        fun setWidget(widget: WidgetState): Builder = apply {
             this.widget = widget
-            return this
         }
 
-        fun setAction(action: ItemAction): Builder {
+        fun setAction(action: ItemAction): Builder = apply {
             this.action = action
-            return this
         }
-
-        fun getIdentifier() = identifier
-
-        fun getText() = text
-
-        @StringRes
-        fun getTextRes() = textRes
-
-        @DrawableRes
-        fun getIconRes() = iconRes
-        fun isSelected() = isSelected
-
-        @ItemType
-        fun getType() = type
-
-        fun getWidget() = widget
-
-        fun getAction() = action
 
         fun build(): ListItemData = ListItemData(this)
     }

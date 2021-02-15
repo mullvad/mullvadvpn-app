@@ -3,8 +3,6 @@ package net.mullvad.mullvadvpn.applist
 import android.Manifest
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.util.Log
-import kotlin.system.measureTimeMillis
 
 class ApplicationsProvider(
     private val packageManager: PackageManager,
@@ -16,28 +14,14 @@ class ApplicationsProvider(
             !isSelfApplication(appInfo.packageName)
     }
 
-    fun getAppsList(): List<AppInfo2> {
-        val list = ArrayList<ApplicationInfo>()
-        val fetchTime = measureTimeMillis {
-            list.addAll(packageManager.getInstalledApplications(PackageManager.GET_META_DATA))
-        }
-        Log.d("test", "fetchtime=$fetchTime")
-        val result = ArrayList<AppInfo2>()
-        val tempResult = ArrayList<ApplicationInfo>()
-        val filterTime = measureTimeMillis {
-            tempResult.addAll(list.filter(applicationFilterPredicate))
-        }
-        Log.d("test", "filter=$filterTime")
-        val mapTime = measureTimeMillis {
-            result.addAll(
-                tempResult.map { info ->
-                    AppInfo2(info.packageName, info.icon, info.loadLabel(packageManager).toString())
-                }
-            )
-        }
-        Log.d("test", "mapTime=$mapTime")
-        return result
-//            .sortedBy { info -> info.title }
+    fun getAppsList(): List<AppInfo> {
+        return packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+            .asSequence()
+            .filter(applicationFilterPredicate)
+            .map { info ->
+                AppInfo(info.packageName, info.icon, info.loadLabel(packageManager).toString())
+            }
+            .toList()
     }
 
     private fun hasInternetPermission(packageName: String): Boolean {
