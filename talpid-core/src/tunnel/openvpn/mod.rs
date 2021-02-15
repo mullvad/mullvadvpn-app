@@ -142,7 +142,7 @@ pub enum Error {
     #[error(display = "Failed to determine alias of Wintun adapter")]
     WintunFindAlias(#[error(source)] io::Error),
 
-    /// cannot create a wintun interface
+    /// cannot delete wintun interface
     #[cfg(windows)]
     #[error(display = "Failed to delete existing Wintun adapter")]
     WintunDeleteExistingError(#[error(source)] io::Error),
