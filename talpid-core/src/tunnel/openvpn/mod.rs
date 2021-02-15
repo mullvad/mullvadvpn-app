@@ -295,11 +295,16 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         #[cfg(target_os = "linux")]
         let route_manager_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
 
+        let ipv6_enabled = params.generic_options.enable_ipv6;
         let on_openvpn_event = move |event, env: HashMap<String, String>| {
             #[cfg(target_os = "linux")]
             if event == openvpn_plugin::EventType::Up {
                 tokio::task::block_in_place(|| {
-                    let routes = extract_routes(&env).unwrap();
+                    let routes = extract_routes(&env)
+                        .unwrap()
+                        .into_iter()
+                        .filter(|route| route.prefix.is_ipv4() || ipv6_enabled)
+                        .collect();
                     let route_manager_handle = route_manager_handle.clone();
                     if let Err(error) = route_manager_handle.add_routes(routes) {
                         log::error!("{}", error.display_chain());

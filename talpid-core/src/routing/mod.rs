@@ -64,7 +64,8 @@ impl fmt::Display for Route {
 /// default route.
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct RequiredRoute {
-    prefix: IpNetwork,
+    /// Route's prefix
+    pub prefix: IpNetwork,
     node: NetNode,
     #[cfg(target_os = "linux")]
     table_id: u32,
