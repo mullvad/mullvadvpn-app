@@ -36,7 +36,7 @@ class ListItemsAdapter : RecyclerView.Adapter<ListItemsAdapter.ViewHolder>() {
                     ListItemData.ACTION -> ActionListItemView(parent.context)
                     ListItemData.APPLICATION -> ApplicationListItemView(parent.context)
                     else ->
-                        throw IllegalArgumentException("View type /'$viewType/' is not supported")
+                        throw IllegalArgumentException("View type '$viewType' is not supported")
                 }
             )
         }

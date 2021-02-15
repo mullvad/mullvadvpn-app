@@ -10,8 +10,8 @@
              android:left="@dimen/switch_thumb_padding"
              android:right="@dimen/switch_thumb_padding"
              android:top="@dimen/switch_thumb_padding" />
-    <solid android:color="@android:color/transparent" />
+    <solid android:color="@color/switch_track_fill" />
     <stroke android:width="@dimen/switch_track_stroke"
-            android:color="@color/white80" />
+            android:color="@color/switch_track_border" />
     <corners android:radius="@dimen/switch_track_radius" />
 </shape>
