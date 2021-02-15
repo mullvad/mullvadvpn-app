@@ -1,11 +1,22 @@
 package net.mullvad.mullvadvpn.ui.fragments
 
 import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.util.transitionFinished
 
-abstract class BaseFragment : Fragment() {
+abstract class BaseFragment : Fragment {
+    constructor() : super()
+    constructor (@LayoutRes contentLayoutId: Int) : super(contentLayoutId)
+
+    protected var transitionFinishedFlow: Flow<Unit> = emptyFlow()
+        private set
+
     override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
         val zAdjustment = if (animationsToAdjustZorder.contains(nextAnim)) {
             1f
@@ -13,6 +24,11 @@ abstract class BaseFragment : Fragment() {
             0f
         }
         ViewCompat.setTranslationZ(requireView(), zAdjustment)
+        if (nextAnim != 0 && enter) {
+            return AnimationUtils.loadAnimation(context, nextAnim)?.apply {
+                transitionFinishedFlow = transitionFinished()
+            }
+        }
         return super.onCreateAnimation(transit, enter, nextAnim)
     }
 

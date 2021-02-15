@@ -14,6 +14,8 @@
                         <option name="values">
                           <map>
                             <entry key="assetSourceType" value="FILE" />
+                            <entry key="outputName" value="ic_icons_missing" />
+                            <entry key="sourceFile" value="$USER_HOME$/Documents/icons_icon_missing.svg" />
                           </map>
                         </option>
                       </PersistentState>
