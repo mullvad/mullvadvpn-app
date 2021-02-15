@@ -30,7 +30,12 @@ use std::{
 #[cfg(target_os = "linux")]
 use std::{collections::HashSet, net::IpAddr};
 #[cfg(windows)]
-use std::{ffi::OsStr, os::windows::ffi::OsStrExt, sync::Mutex, time::Instant};
+use std::{
+    ffi::{OsStr, OsString},
+    os::windows::ffi::OsStrExt,
+    sync::Mutex,
+    time::Instant,
+};
 use talpid_types::net::openvpn;
 #[cfg(any(windows, target_os = "linux"))]
 use talpid_types::ErrorExt;
@@ -48,7 +53,7 @@ use winapi::shared::{
         GetUnicastIpAddressTable, MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE,
     },
     nldef::{IpDadStatePreferred, IpDadStateTentative, NL_DAD_STATE},
-    winerror::{ERROR_FILE_NOT_FOUND, NO_ERROR},
+    winerror::NO_ERROR,
     ws2def::AF_UNSPEC,
 };
 #[cfg(windows)]
@@ -131,6 +136,11 @@ pub enum Error {
     #[cfg(windows)]
     #[error(display = "Failed to create Wintun adapter")]
     WintunError(#[error(source)] io::Error),
+
+    /// cannot determine adapter name
+    #[cfg(windows)]
+    #[error(display = "Failed to determine alias of Wintun adapter")]
+    WintunFindAlias(#[error(source)] io::Error),
 
     /// cannot create a wintun interface
     #[cfg(windows)]
@@ -354,36 +364,18 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 
         let proxy_monitor = Self::start_proxy(&params.proxy, &proxy_resources)?;
 
-        let cmd = Self::create_openvpn_cmd(
-            params,
-            user_pass_file.as_ref(),
-            match proxy_auth_file {
-                Some(ref file) => Some(file.as_ref()),
-                _ => None,
-            },
-            resource_dir,
-            &proxy_monitor,
-        )?;
-
-        let plugin_path = Self::get_plugin_path(resource_dir)?;
-
         #[cfg(windows)]
         let wintun_adapter = {
             let dll = get_wintun_dll(resource_dir)?;
 
             {
-                match windows::WintunAdapter::open(dll.clone(), &*ADAPTER_ALIAS, &*ADAPTER_POOL) {
-                    Ok(adapter) => {
-                        // Delete existing adapter in case it has residual config
-                        adapter
-                            .delete(false)
-                            .map_err(Error::WintunDeleteExistingError)?;
-                    }
-                    Err(error) => {
-                        if error.raw_os_error() != Some(ERROR_FILE_NOT_FOUND as i32) {
-                            return Err(Error::WintunError(error));
-                        }
-                    }
+                if let Ok(adapter) =
+                    windows::WintunAdapter::open(dll.clone(), &*ADAPTER_ALIAS, &*ADAPTER_POOL)
+                {
+                    // Delete existing adapter in case it has residual config
+                    adapter
+                        .delete(false)
+                        .map_err(Error::WintunDeleteExistingError)?;
                 }
             }
 
@@ -433,6 +425,26 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 
             adapter
         };
+
+        #[cfg(windows)]
+        let adapter_alias = wintun_adapter
+            .adapter()
+            .name()
+            .map_err(Error::WintunFindAlias)?;
+        #[cfg(windows)]
+        log::debug!("Adapter alias: {}", adapter_alias.to_string_lossy());
+
+        let cmd = Self::create_openvpn_cmd(
+            params,
+            user_pass_file.as_ref(),
+            proxy_auth_file.as_ref().map(AsRef::as_ref),
+            resource_dir,
+            &proxy_monitor,
+            #[cfg(windows)]
+            adapter_alias.to_os_string(),
+        )?;
+
+        let plugin_path = Self::get_plugin_path(resource_dir)?;
 
         Self::new_internal(
             cmd,
@@ -738,6 +750,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         proxy_auth_file: Option<&Path>,
         resource_dir: &Path,
         proxy_monitor: &Option<Box<dyn ProxyMonitor>>,
+        #[cfg(windows)] alias: OsString,
     ) -> Result<OpenVpnCommand> {
         let mut cmd = OpenVpnCommand::new(Self::get_openvpn_bin(resource_dir)?);
         if let Some(config) = Self::get_config_path(resource_dir) {
@@ -752,7 +765,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             .ca(resource_dir.join("ca.crt"));
         #[cfg(windows)]
         {
-            cmd.tunnel_alias(Some(ADAPTER_ALIAS.to_os_string()));
+            cmd.tunnel_alias(Some(alias));
             cmd.windows_driver(Some(crate::process::openvpn::WindowsDriver::Wintun));
         }
         if let Some(proxy_settings) = params.proxy.clone().take() {
