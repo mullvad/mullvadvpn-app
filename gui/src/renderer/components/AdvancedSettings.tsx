@@ -1,4 +1,3 @@
-import ip from 'ip';
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
@@ -10,6 +9,7 @@ import {
 } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import consumePromise from '../../shared/promise';
+import { IpAddress } from '../lib/ip';
 import { WgKeyState } from '../redux/settings/reducers';
 import {
   StyledButtonCellGroup,
@@ -575,21 +575,19 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
   };
 
   private addDnsAddress = async (address: string, confirmed?: boolean) => {
-    if (ip.isV4Format(address) || ip.isV6Format(address)) {
-      if (ip.isPublic(address) && !confirmed) {
-        this.setState({ publicDnsIpToConfirm: address });
+    try {
+      const ipAddress = IpAddress.fromString(address);
+
+      if (ipAddress.isLocal() || confirmed) {
+        await this.props.setDnsOptions({
+          custom: this.props.dns.custom || this.state.showAddCustomDns,
+          addresses: [...this.props.dns.addresses, address],
+        });
+        this.hideAddCustomDnsRow();
       } else {
-        try {
-          await this.props.setDnsOptions({
-            custom: this.props.dns.custom || this.state.showAddCustomDns,
-            addresses: [...this.props.dns.addresses, address],
-          });
-          this.hideAddCustomDnsRow();
-        } catch (_e) {
-          this.setState({ invalidDnsIp: true });
-        }
+        this.setState({ publicDnsIpToConfirm: address });
       }
-    } else {
+    } catch (e) {
       this.setState({ invalidDnsIp: true });
     }
   };
