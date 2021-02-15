@@ -12,11 +12,8 @@ import org.koin.dsl.module
 val appModule = module {
 
     single { SplitTunneling(get()) }
-
     single { ApplicationsProvider(get<PackageManager>(), get<String>(named("packagename"))) }
-
     single<PackageManager> { get<Context>().packageManager }
-
     single<String> (named("packagename")) { get<Context>().packageName }
 
     viewModel { SplitTunnelingViewModel(get(), get()) }
