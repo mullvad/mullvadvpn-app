@@ -48,11 +48,15 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [2021.1] - 2021-02-10
+This release is for desktop only.
+
 ### Fixed
 - Fix crash on desktop when entering problem report view when using an outdated app version.
 
 
 ## [2021.1-beta2] - 2021-02-03
+This release is for desktop only.
+
 ### Fixed
 - Make it impossible to apply an empty list of custom DNS server IPs.
   Stops the daemon from getting stuck in the offline state on macOS.
@@ -63,6 +67,8 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [2021.1-beta1] - 2021-01-25
+This release is for desktop only.
+
 ### Added
 - Add header containing OS version to version-check API call to enable OS specific compatibility and
   vulnerability checks.
