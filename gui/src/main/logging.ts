@@ -6,6 +6,12 @@ import { LogLevel, ILogInput, ILogOutput } from '../shared/logging-types';
 
 export const OLD_LOG_FILES = ['frontend-renderer.log'];
 
+function logError(...messages: string[]): void {
+  if (process.env.NODE_ENV !== 'test') {
+    console.error(messages);
+  }
+}
+
 export class FileOutput implements ILogOutput {
   private fileDescriptor?: number;
 
@@ -13,7 +19,7 @@ export class FileOutput implements ILogOutput {
     try {
       this.fileDescriptor = fs.openSync(filePath, fs.constants.O_CREAT | fs.constants.O_WRONLY);
     } catch (e) {
-      console.error(`Failed to open ${this.filePath}`);
+      logError(`Failed to open ${this.filePath}`);
     }
   }
 
@@ -22,7 +28,7 @@ export class FileOutput implements ILogOutput {
       try {
         fs.closeSync(this.fileDescriptor);
       } catch (e) {
-        console.error(`Failed to close ${this.filePath}`);
+        logError(`Failed to close ${this.filePath}`);
       }
     }
   }
@@ -31,7 +37,7 @@ export class FileOutput implements ILogOutput {
     if (this.fileDescriptor) {
       fs.write(this.fileDescriptor, `${message}\n`, (err) => {
         if (err) {
-          console.error(`Failed to log to ${this.filePath}`);
+          logError(`Failed to log to ${this.filePath}`);
         }
       });
     }
@@ -56,7 +62,7 @@ export function createLoggingDirectory(): void {
   try {
     fs.mkdirSync(getLogDirectoryDir(), { recursive: true });
   } catch (e) {
-    console.error('Failed to create logging directory');
+    logError('Failed to create logging directory');
   }
 }
 
@@ -75,7 +81,7 @@ export function backupLogFile(filePath: string): boolean {
     fs.renameSync(filePath, backupFilePath);
     return true;
   } catch (e) {
-    console.error(`Failed to backup ${filePath}`);
+    logError(`Failed to backup ${filePath}`);
     return false;
   }
 }
@@ -87,7 +93,7 @@ export function rotateOrDeleteFile(filePath: string): void {
       fs.accessSync(backupFilePath);
       fs.unlinkSync(backupFilePath);
     } catch (e) {
-      console.error(`Failed to delete ${filePath}`);
+      logError(`Failed to delete ${filePath}`);
     }
   }
 }
