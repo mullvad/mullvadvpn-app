@@ -7,10 +7,6 @@ import android.view.KeyCharacterMap
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewConfiguration
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
-import androidx.core.view.ViewCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.CollapsingToolbarLayout
@@ -34,7 +30,7 @@ import net.mullvad.mullvadvpn.util.setMargins
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class SplitTunnelingFragment2 : Fragment(R.layout.collapsed_title_layout) {
+class SplitTunnelingFragment : BaseFragment(R.layout.collapsed_title_layout) {
 
     private val listItemsAdapter = ListItemsAdapter()
 
@@ -48,7 +44,6 @@ class SplitTunnelingFragment2 : Fragment(R.layout.collapsed_title_layout) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.e(this.javaClass.simpleName, "onViewCreated | ${this.hashCode()}")
         (view.findViewById(R.id.collapsing_toolbar) as CollapsingToolbarLayout).apply {
             title = resources.getString(R.string.split_tunneling)
         }
@@ -107,28 +102,5 @@ class SplitTunnelingFragment2 : Fragment(R.layout.collapsed_title_layout) {
         val hasOnScreenNavBar = id > 0 && resources.getBoolean(id)
 
         return hasOnScreenNavBar || hasNoCapacitiveKeys
-    }
-
-    override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
-        ViewCompat.setTranslationZ(requireView(), 1f)
-        if (nextAnim != 0 && enter) {
-            val animation = AnimationUtils.loadAnimation(context, nextAnim)
-            Log.e("test", "animation = $animation")
-            Log.e("test", "setListener")
-            animation.setAnimationListener(object : Animation.AnimationListener {
-                override fun onAnimationRepeat(animation: Animation?) {}
-
-                override fun onAnimationEnd(animation: Animation?) {
-                    Log.e("test", "animation end")
-                    // viewModel.fetchData()
-                }
-
-                override fun onAnimationStart(animation: Animation?) {
-                    Log.e("test", "animation start")
-                }
-            })
-            return animation
-        }
-        return super.onCreateAnimation(transit, enter, nextAnim)
     }
 }
