@@ -295,7 +295,9 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         #[cfg(target_os = "linux")]
         let route_manager_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
 
+        #[cfg(target_os = "linux")]
         let ipv6_enabled = params.generic_options.enable_ipv6;
+
         let on_openvpn_event = move |event, env: HashMap<String, String>| {
             #[cfg(target_os = "linux")]
             if event == openvpn_plugin::EventType::Up {
