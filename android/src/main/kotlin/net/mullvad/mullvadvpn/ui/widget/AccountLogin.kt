@@ -166,9 +166,9 @@ class AccountLogin : RelativeLayout {
             adapter = historyAdapter
 
             addItemDecoration(
-                ListItemDividerDecoration(context).apply {
-                    topOffsetId = R.dimen.account_history_divider
-                }
+                ListItemDividerDecoration(
+                    topOffset = resources.getDimensionPixelSize(R.dimen.account_history_divider)
+                )
             )
         }
     }
