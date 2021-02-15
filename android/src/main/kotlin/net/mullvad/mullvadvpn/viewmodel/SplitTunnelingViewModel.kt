@@ -4,8 +4,8 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.applist.AppInfo2
+import net.mullvad.mullvadvpn.applist.AppInfo
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.applist.ViewIntent
 import net.mullvad.mullvadvpn.model.ListItemData
@@ -24,112 +24,94 @@ class SplitTunnelingViewModel(
     private val appsProvider: ApplicationsProvider,
     private val splitTunneling: SplitTunneling
 ) : ViewModel() {
-    private val _data = MutableSharedFlow<List<ListItemData>>(replay = 1)
-    val data = _data.asSharedFlow() // read-only public view
+    private val listItemsSink = MutableSharedFlow<List<ListItemData>>(replay = 1)
+    val listItems = listItemsSink.asSharedFlow() // read-only public view
 
-    private val _intentFlow = MutableSharedFlow<ViewIntent>()
+    private val intentFlow = MutableSharedFlow<ViewIntent>()
+    private val isUIReady = CompletableDeferred<Unit>()
+    private val excludedApps: MutableMap<String, AppInfo> = mutableMapOf()
+    private val notExcludedApps: MutableMap<String, AppInfo> = mutableMapOf()
 
-    private lateinit var excludedApps: MutableMap<String, AppInfo2>
-    private lateinit var allAps: MutableMap<String, AppInfo2>
-
-    private val defaultListItems = mutableListOf(
+    private val defaultListItems = listOf<ListItemData>(
         createTextItem(R.string.split_tunneling_description)
         // We will have search item in future
     )
 
     init {
         viewModelScope.launch(Dispatchers.Default) {
-            _intentFlow.shareIn(viewModelScope, SharingStarted.WhileSubscribed())
-                .collect { viewIntent ->
-                    when (viewIntent) {
-                        is ViewIntent.ChangeApplicationGroup -> {
-                            viewIntent.item.action?.let {
-                                if (excludedApps.containsKey(it.identifier)) {
-                                    removeFromExcluded(it.identifier)
-                                } else {
-                                    addToExcluded(it.identifier)
-                                }
-                                publishList()
-                            }
-                        }
-                    }
-                }
-        }
-
-        viewModelScope.launch(Dispatchers.Default) {
-            _data.emit(defaultListItems + createDivider(0) + createProgressItem())
-        }
-        fetchData()
-        viewModelScope.launch(Dispatchers.Default) {
+            listItemsSink.emit(defaultListItems + createDivider(0) + createProgressItem())
+            // this will be removed after changes on native to ignore enable parameter
             if (!splitTunneling.enabled)
                 splitTunneling.enabled = true
+            fetchData()
+        }
+        viewModelScope.launch(Dispatchers.Default) {
+            intentFlow.shareIn(viewModelScope, SharingStarted.WhileSubscribed())
+                .collect(::handleIntents)
+        }
+    }
+
+    private suspend fun handleIntents(viewIntent: ViewIntent) {
+        when (viewIntent) {
+            is ViewIntent.ChangeApplicationGroup -> {
+                viewIntent.item.action?.let {
+                    if (excludedApps.containsKey(it.identifier)) {
+                        removeFromExcluded(it.identifier)
+                    } else {
+                        addToExcluded(it.identifier)
+                    }
+                    publishList()
+                }
+            }
+            is ViewIntent.ViewIsReady -> {
+                isUIReady.complete(Unit)
+            }
         }
     }
 
     private fun removeFromExcluded(packageName: String) {
-        excludedApps.apply {
-            get(packageName)?.let { appInfo ->
-                allAps[packageName] = appInfo
-                viewModelScope.launch {
-                    splitTunneling.includeApp(packageName)
-                }
-            }
-            remove(packageName)
+        excludedApps.remove(packageName)?.let { appInfo ->
+            notExcludedApps[packageName] = appInfo
+            splitTunneling.includeApp(packageName)
         }
     }
 
     private fun addToExcluded(packageName: String) {
-        allAps.apply {
-            get(packageName)?.let { appInfo ->
-                excludedApps[packageName] = appInfo
-                viewModelScope.launch {
-                    splitTunneling.excludeApp(packageName)
-                }
-            }
-            remove(packageName)
+        notExcludedApps.remove(packageName)?.let { appInfo ->
+            excludedApps[packageName] = appInfo
+            splitTunneling.excludeApp(packageName)
         }
     }
 
-    private fun fetchData() {
-        viewModelScope.launch(Dispatchers.Default) {
-            appsProvider.getAppsList().map { it.packageName to it }.toMap().let { applications ->
-                val excludedPackages = applications.keys.intersect(splitTunneling.excludedAppList)
-                // TODO: remove potential package names from splitTunneling list if they already uninstalled or filtered
-                excludedApps = applications
-                    .filterKeys { excludedPackages.contains(it) }
-                    .toMutableMap()
-                allAps = applications
-                    .filterKeys { applications.keys.subtract(excludedPackages).contains(it) }
-                    .toMutableMap()
-                delay(100)
-                publishList()
-            }
+    private suspend fun fetchData() {
+        val (excludedAppsList, notExcludedAppsList) = appsProvider.getAppsList().partition { app ->
+            splitTunneling.excludedAppList.contains(app.packageName)
         }
+        // TODO: remove potential package names from splitTunneling list
+        //       if they already uninstalled or filtered; but not in ViewModel
+        excludedAppsList.map { it.packageName to it }.toMap(excludedApps)
+        notExcludedAppsList.map { it.packageName to it }.toMap(notExcludedApps)
+        isUIReady.await()
+        publishList()
     }
 
     private suspend fun publishList() {
-        val listItems = mutableListOf<ListItemData>()
-        listItems.addAll(defaultListItems)
+        val listItems = ArrayList(defaultListItems)
         if (excludedApps.isNotEmpty()) {
-            listItems.add(createDivider(0))
-            listItems.add(createMainItem(R.string.exclude_applications))
-            listItems.addAll(
-                excludedApps.values.sortedBy { it.name }.map { info ->
-                    createApplicationItem(info.packageName, info.name, info.iconRes, true)
-                }
-            )
+            listItems += createDivider(0)
+            listItems += createMainItem(R.string.exclude_applications)
+            listItems += excludedApps.values.sortedBy { it.name }.map { info ->
+                createApplicationItem(info.packageName, info.name, info.iconRes, true)
+            }
         }
-
-        if (allAps.isNotEmpty()) {
-            listItems.add(createDivider(1))
-            listItems.add(createMainItem(R.string.all_applications))
-            listItems.addAll(
-                allAps.values.sortedBy { it.name }.map { info ->
-                    createApplicationItem(info.packageName, info.name, info.iconRes, false)
-                }
-            )
+        if (notExcludedApps.isNotEmpty()) {
+            listItems += createDivider(1)
+            listItems += createMainItem(R.string.all_applications)
+            listItems += notExcludedApps.values.sortedBy { it.name }.map { info ->
+                createApplicationItem(info.packageName, info.name, info.iconRes, false)
+            }
         }
-        _data.emit(listItems)
+        listItemsSink.emit(listItems)
     }
 
     private fun createApplicationItem(
@@ -137,52 +119,44 @@ class SplitTunnelingViewModel(
         name: String,
         @DrawableRes icon: Int,
         checked: Boolean
-    ): ListItemData = ListItemData.Builder()
-        .setIdentifier(id)
-        .setType(ListItemData.APPLICATION)
-        .setText(name)
-        .setIconRes(icon)
-        .setAction(ListItemData.ItemAction(id))
-        .setWidget(
-            WidgetState.ImageState(
-                if (checked) R.drawable.ic_icons_remove else R.drawable.ic_icons_add
-            )
+    ): ListItemData = ListItemData.build {
+        identifier = id
+        type = ListItemData.APPLICATION
+        text = name
+        iconRes = icon
+        action = ListItemData.ItemAction(id)
+        widget = WidgetState.ImageState(
+            if (checked) R.drawable.ic_icons_remove else R.drawable.ic_icons_add
         )
-        .build()
+    }
 
-    private fun createDivider(id: Int): ListItemData = ListItemData.Builder()
-        .setIdentifier("space_$id")
-        .setType(ListItemData.DIVIDER)
-        .build()
+    private fun createDivider(id: Int): ListItemData = ListItemData.build {
+        identifier = "space_$id"
+        type = ListItemData.DIVIDER
+    }
 
-    private fun createMainItem(@StringRes text: Int): ListItemData = ListItemData.Builder()
-        .setIdentifier("header_$text")
-        .setType(ListItemData.ACTION)
-        .setTextRes(text)
-        .build()
+    private fun createMainItem(@StringRes text: Int): ListItemData = ListItemData.build {
+        identifier = "header_$text"
+        type = ListItemData.ACTION
+        textRes = text
+    }
 
-    private fun createTextItem(@StringRes text: Int): ListItemData = ListItemData.Builder()
-        .setIdentifier("text_$text")
-        .setType(ListItemData.PLAIN)
-        .setTextRes(text)
-        .setAction(ListItemData.ItemAction(text.toString()))
-        .build()
+    private fun createTextItem(@StringRes text: Int): ListItemData = ListItemData.build {
+        identifier = "text_$text"
+        type = ListItemData.PLAIN
+        textRes = text
+        action = ListItemData.ItemAction(text.toString())
+    }
 
-    private fun createProgressItem(): ListItemData = ListItemData.Builder()
-        .setIdentifier("progress")
-        .setType(ListItemData.PROGRESS)
-        .build()
+    private fun createProgressItem(): ListItemData = ListItemData.build {
+        identifier = "progress"
+        type = ListItemData.PROGRESS
+    }
 
-    suspend fun processIntent(intent: ViewIntent) = _intentFlow.emit(intent)
+    suspend fun processIntent(intent: ViewIntent) = intentFlow.emit(intent)
 
     override fun onCleared() {
         splitTunneling.persist()
         super.onCleared()
-    }
-
-    // Represents different states for the LatestNews screen
-    sealed class LatestNewsUiState {
-        data class Success(val news: List<ListItemData>) : LatestNewsUiState()
-        data class Error(val exception: Throwable) : LatestNewsUiState()
     }
 }
