@@ -39,7 +39,12 @@ class ApplicationListItemView @JvmOverloads constructor(
         itemIcon.isVisible = true
         itemData.iconRes?.let { iconRes ->
             appResources?.let { appRes ->
-                itemIcon.setImageDrawable(ResourcesCompat.getDrawable(appRes, iconRes, null))
+                val drawable = if (iconRes != 0) {
+                    ResourcesCompat.getDrawable(appRes, iconRes, null)
+                } else {
+                    ResourcesCompat.getDrawable(resources, R.drawable.ic_icons_missing, null)
+                }
+                itemIcon.setImageDrawable(drawable)
             }
         }
     }

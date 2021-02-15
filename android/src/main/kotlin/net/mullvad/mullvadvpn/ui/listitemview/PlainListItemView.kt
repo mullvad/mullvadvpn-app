@@ -2,8 +2,6 @@ package net.mullvad.mullvadvpn.ui.listitemview
 
 import android.content.Context
 import androidx.appcompat.view.ContextThemeWrapper
-import kotlinx.android.synthetic.main.list_item_base.view.*
-// import androidx.appcompat.widget.AppCompatTextView
 import kotlinx.android.synthetic.main.list_item_plain_text.view.*
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.ListItemData
@@ -28,7 +26,7 @@ class PlainListItemView(context: Context) :
             return
         }
         itemData.text?.let {
-            plain_text.setText(it)
+            plain_text.text = it
             return
         }
         plain_text.text = ""
