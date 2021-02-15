@@ -175,8 +175,7 @@
     <string name="add_anyway">Add anyway</string>
     <string name="exclude_applications"
             translatable="false">Excluded applications</string>
-    <string name="all_applications"
-            translatable="false">All applications</string>
+    <string name="all_applications">All applications</string>
     <string name="account_url">https://mullvad.net/en/account</string>
     <string name="wg_key_url">https://mullvad.net/en/account/ports</string>
     <string name="create_account_url">https://mullvad.net/en/account/create</string>
