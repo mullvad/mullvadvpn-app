@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.VpnService
 import android.os.Binder
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.CompletableDeferred
@@ -14,6 +15,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.Settings
+import net.mullvad.mullvadvpn.service.endpoint.ServiceEndpoint
 import net.mullvad.mullvadvpn.service.notifications.AccountExpiryNotification
 import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
 import net.mullvad.mullvadvpn.ui.MainActivity
@@ -69,6 +71,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private lateinit var daemonInstance: DaemonInstance
+    private lateinit var endpoint: ServiceEndpoint
     private lateinit var keyguardManager: KeyguardManager
     private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
@@ -98,13 +101,16 @@ class MullvadVpnService : TalpidVpnService() {
 
         initializeSplitTunneling()
 
+        daemonInstance = DaemonInstance(this)
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
         notificationManager = ForegroundNotificationManager(this, serviceNotifier, keyguardManager)
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
+        endpoint = ServiceEndpoint(Looper.getMainLooper(), daemonInstance.intermittentDaemon)
+
         notificationManager.acknowledgeStartForegroundService()
 
-        daemonInstance = DaemonInstance(this).apply {
+        daemonInstance.apply {
             intermittentDaemon.registerListener(this@MullvadVpnService) { daemon ->
                 handleDaemonInstance(daemon)
             }
@@ -241,6 +247,7 @@ class MullvadVpnService : TalpidVpnService() {
 
         if (state == State.Running) {
             instance = ServiceInstance(
+                endpoint.messenger,
                 daemon,
                 connectionProxy,
                 connectivityListener,

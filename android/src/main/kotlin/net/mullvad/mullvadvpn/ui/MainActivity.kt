@@ -19,7 +19,9 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
+import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.service.MullvadVpnService
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.talpid.util.EventNotifier
 
 class MainActivity : FragmentActivity() {
@@ -60,7 +62,14 @@ class MainActivity : FragmentActivity() {
                 }
 
                 serviceConnection = newConnection
-                serviceNotifier.notify(newConnection)
+
+                if (newConnection != null) {
+                    newConnection.dispatcher.registerHandler(Event.ListenerReady::class) { _ ->
+                        serviceNotifier.notify(newConnection)
+                    }
+                } else {
+                    serviceNotifier.notify(null)
+                }
 
                 if (shouldConnect) {
                     tryToConnect()
@@ -71,6 +80,7 @@ class MainActivity : FragmentActivity() {
         override fun onServiceDisconnected(className: ComponentName) {
             android.util.Log.d("mullvad", "UI lost the connection to the service")
             service?.serviceNotifier?.unsubscribe(this@MainActivity)
+            serviceConnection?.onDestroy()
             service = null
             serviceConnection = null
             serviceNotifier.notify(null)
