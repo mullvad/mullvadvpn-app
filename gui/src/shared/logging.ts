@@ -32,7 +32,13 @@ export class Logger {
   private outputMessage(level: LogLevel, message: string) {
     this.outputs
       .filter((output) => level <= output.level)
-      .forEach((output) => output.write(level, message));
+      .forEach(async (output) => {
+        try {
+          await output.write(level, message);
+        } catch (e) {
+          console.error(`${output.constructor.name}.write: ${e.message}`);
+        }
+      });
   }
 }
 
