@@ -7,7 +7,7 @@ use std::{
     sync::Arc,
 };
 use talpid_types::ErrorExt;
-use widestring::U16CStr;
+use widestring::{U16CStr, U16CString};
 use winapi::{
     shared::{
         guiddef::GUID,
@@ -22,6 +22,9 @@ use winapi::{
 };
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
+
+/// Longest possible adapter name (in characters), including null terminator
+const MAX_ADAPTER_NAME: usize = 128;
 
 type WintunOpenAdapterFn =
     unsafe extern "stdcall" fn(pool: *const u16, name: *const u16) -> RawHandle;
@@ -41,6 +44,9 @@ type WintunDeleteAdapterFn = unsafe extern "stdcall" fn(
     reboot_required: *mut BOOL,
 ) -> BOOL;
 
+type WintunGetAdapterNameFn =
+    unsafe extern "stdcall" fn(adapter: RawHandle, name: *mut u16) -> BOOL;
+
 
 pub struct WintunDll {
     handle: HINSTANCE,
@@ -48,6 +54,7 @@ pub struct WintunDll {
     func_create: WintunCreateAdapterFn,
     func_free: WintunFreeAdapterFn,
     func_delete: WintunDeleteAdapterFn,
+    func_get_adapter_name: WintunGetAdapterNameFn,
 }
 
 unsafe impl Send for WintunDll {}
@@ -71,6 +78,10 @@ impl TemporaryWintunAdapter {
         let (adapter, reboot_required) =
             WintunAdapter::create(dll_handle, pool, name, requested_guid)?;
         Ok((TemporaryWintunAdapter { adapter }, reboot_required))
+    }
+
+    pub fn adapter(&self) -> &WintunAdapter {
+        &self.adapter
     }
 }
 
@@ -129,6 +140,10 @@ impl WintunAdapter {
                 .delete_adapter(self.handle, force_close_sessions)
         }
     }
+
+    pub fn name(&self) -> io::Result<U16CString> {
+        unsafe { self.dll_handle.get_adapter_name(self.handle) }
+    }
 }
 
 impl Drop for WintunAdapter {
@@ -181,6 +196,12 @@ impl WintunDll {
                 std::mem::transmute(Self::get_proc_address(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunFreeAdapter\0").unwrap(),
+                )?)
+            },
+            func_get_adapter_name: unsafe {
+                std::mem::transmute(Self::get_proc_address(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WintunGetAdapterName\0").unwrap(),
                 )?)
             },
         })
@@ -238,6 +259,16 @@ impl WintunDll {
 
     pub unsafe fn free_adapter(&self, adapter: RawHandle) {
         (self.func_free)(adapter);
+    }
+
+    pub unsafe fn get_adapter_name(&self, adapter: RawHandle) -> io::Result<U16CString> {
+        let mut alias_buffer = vec![0u16; MAX_ADAPTER_NAME];
+        let result = (self.func_get_adapter_name)(adapter, alias_buffer.as_mut_ptr());
+        if result == 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(U16CString::from_vec_with_nul(alias_buffer)
+            .map_err(|_| io::Error::new(io::ErrorKind::Other, "missing null terminator"))?)
     }
 }
 
