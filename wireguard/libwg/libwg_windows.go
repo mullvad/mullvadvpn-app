@@ -6,8 +6,10 @@
 
 package main
 
+// #include <stdlib.h>
+import "C"
+
 import (
-	"C"
 	"bufio"
 	"fmt"
 	"strings"
@@ -64,8 +66,11 @@ func createInterfaceWatcherEvents(waitOnIpv6 bool, tunLuid uint64) []interfacewa
 }
 
 //export wgTurnOn
-func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, logSink LogSink, logContext LogContext) int32 {
+func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, cIfaceNameOut **C.char, logSink LogSink, logContext LogContext) int32 {
 	logger := logging.NewLogger(logSink, logContext)
+	if cIfaceNameOut != nil {
+		*cIfaceNameOut = nil
+	}
 
 	if cIfaceName == nil {
 		logger.Error.Println("cIfaceName is null")
@@ -109,13 +114,10 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, l
 		logger.Error.Println("Failed to determine name of wintun adapter")
 		return ERROR_GENERAL_FAILURE
 	}
-
 	if actualInterfaceName != ifaceName {
 		// WireGuard picked a different name for the adapter than the one we expected.
 		// This indicates there is already an adapter with the name we intended to use.
-		nativeTun.Close()
-		logger.Error.Println("Failed to create adapter with specific name")
-		return ERROR_GENERAL_FAILURE
+		logger.Debug.Println("Failed to create adapter with specific name")
 	}
 
 	device := device.NewDevice(wintun, logger)
@@ -152,6 +154,10 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, l
 		logger.Error.Println(err)
 		device.Close()
 		return ERROR_GENERAL_FAILURE
+	}
+
+	if cIfaceNameOut != nil {
+		*cIfaceNameOut = C.CString(actualInterfaceName)
 	}
 
 	return handle
