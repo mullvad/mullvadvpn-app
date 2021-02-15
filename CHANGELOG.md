@@ -43,6 +43,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix delay in showing/hiding update notification when toggling beta program.
 
+#### Linux
+- Fix crash when trying to apply IPv6 rotues for OpenVPN when IPv6 is disabled.
+
 
 ## [2021.1] - 2021-02-10
 ### Fixed
