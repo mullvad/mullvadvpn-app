@@ -140,6 +140,10 @@ impl ParsedRelays {
     pub fn relays(&self) -> &Vec<Relay> {
         &self.relays
     }
+
+    pub fn tag(&self) -> Option<&str> {
+        self.locations.etag.as_deref()
+    }
 }
 
 pub struct RelaySelector {
@@ -813,7 +817,8 @@ impl RelayListUpdater {
             futures::select! {
                 _check_update = check_interval.next() => {
                     if download_future.is_terminated() && self.should_update() {
-                        download_future = Box::pin(Self::download_relay_list(self.rpc_client.clone()).fuse());
+                        let tag = self.parsed_relays.lock().tag().map(|tag| tag.to_string());
+                        download_future = Box::pin(Self::download_relay_list(self.rpc_client.clone(), tag).fuse());
                         self.earliest_next_try = Instant::now() + UPDATE_INTERVAL;
                     }
                 },
@@ -826,7 +831,8 @@ impl RelayListUpdater {
                 cmd = cmd_rx.next() => {
                     match cmd {
                         Some(_) => {
-                            self.consume_new_relay_list(self.rpc_client.relay_list().await).await;
+                            let tag = self.parsed_relays.lock().tag().map(|tag| tag.to_string());
+                            self.consume_new_relay_list(self.rpc_client.relay_list(tag).await).await;
                         },
                         None => {
                             log::error!("Relay list updater shutting down");
@@ -841,14 +847,15 @@ impl RelayListUpdater {
 
     async fn consume_new_relay_list(
         &mut self,
-        result: Result<RelayList, mullvad_rpc::rest::Error>,
+        result: Result<Option<RelayList>, mullvad_rpc::rest::Error>,
     ) {
         match result {
-            Ok(relay_list) => {
+            Ok(Some(relay_list)) => {
                 if let Err(err) = self.update_cache(relay_list).await {
                     log::error!("Failed to update relay list cache: {}", err);
                 }
             }
+            Ok(None) => log::debug!("Relay list is up-to-date"),
             Err(err) => {
                 log::error!(
                     "Failed to fetch new relay list: {}. Will retry in {} minutes",
@@ -875,8 +882,9 @@ impl RelayListUpdater {
 
     fn download_relay_list(
         rpc_handle: RelayListProxy,
-    ) -> impl Future<Output = Result<RelayList, mullvad_rpc::rest::Error>> + 'static {
-        let download_futures = move || rpc_handle.relay_list();
+        tag: Option<String>,
+    ) -> impl Future<Output = Result<Option<RelayList>, mullvad_rpc::rest::Error>> + 'static {
+        let download_futures = move || rpc_handle.relay_list(tag.clone());
 
         let exponential_backoff = ExponentialBackoff::from_millis(EXPONENTIAL_BACKOFF_DELAY_MS)
             .factor(EXPONENTIAL_BACKOFF_FACTOR)

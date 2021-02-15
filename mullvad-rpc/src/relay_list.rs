@@ -1,7 +1,7 @@
 /// A module dedicated to retrieving the relay list from the master API.
 use crate::rest;
 
-use hyper::{Method, StatusCode};
+use hyper::{header, Method, StatusCode};
 use mullvad_types::{location, relay_list};
 use talpid_types::net::wireguard;
 
@@ -27,7 +27,10 @@ impl RelayListProxy {
     }
 
     /// Fetch the relay list
-    pub fn relay_list(&self) -> impl Future<Output = Result<relay_list::RelayList, rest::Error>> {
+    pub fn relay_list(
+        &self,
+        etag: Option<String>,
+    ) -> impl Future<Output = Result<Option<relay_list::RelayList>, rest::Error>> {
         let service = self.handle.service.clone();
         let request = self.handle.factory.request("/v1/relays", Method::GET);
 
@@ -35,13 +38,34 @@ impl RelayListProxy {
             let mut request = request?;
             request.set_timeout(RELAY_LIST_TIMEOUT);
 
+            if let Some(ref tag) = etag {
+                request.add_header(header::IF_NONE_MATCH, tag)?;
+            }
+
             let response = service.request(request).await?;
+            if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
+                return Ok(None);
+            }
             if response.status() != StatusCode::OK {
                 return rest::handle_error_response(response).await;
             }
-            Ok(rest::deserialize_body::<ServerRelayList>(response)
-                .await?
-                .into_relay_list())
+
+            let etag = response
+                .headers()
+                .get(header::ETAG)
+                .and_then(|tag| match tag.to_str() {
+                    Ok(tag) => Some(tag.to_string()),
+                    Err(_) => {
+                        log::error!("Ignoring invalid tag from server: {:?}", tag.as_bytes());
+                        None
+                    }
+                });
+
+            Ok(Some(
+                rest::deserialize_body::<ServerRelayList>(response)
+                    .await?
+                    .into_relay_list(etag),
+            ))
         };
         future
     }
@@ -57,7 +81,7 @@ struct ServerRelayList {
 }
 
 impl ServerRelayList {
-    fn into_relay_list(self) -> relay_list::RelayList {
+    fn into_relay_list(self, etag: Option<String>) -> relay_list::RelayList {
         let mut countries = BTreeMap::new();
         let Self {
             locations,
@@ -88,8 +112,13 @@ impl ServerRelayList {
         Self::add_wireguard_relays(&mut countries, wireguard);
         Self::add_bridge_relays(&mut countries, bridge);
 
-
         relay_list::RelayList {
+            etag: etag.map(|mut tag| {
+                if tag.starts_with("\"") {
+                    tag.insert_str(0, "W/");
+                }
+                tag
+            }),
             countries: countries
                 .into_iter()
                 .map(|(_key, country)| country)
