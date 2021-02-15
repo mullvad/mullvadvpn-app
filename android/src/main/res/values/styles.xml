@@ -84,7 +84,6 @@
         <item name="android:paddingTop">5dp</item>
     </style>
     <style name="ListItem.Action">
-        <item name="android:layout_width">match_parent</item>
         <item name="android:height">@dimen/cell_height</item>
         <item name="android:layout_height">@dimen/cell_height</item>
         <item name="android:background">@drawable/cell_button_background</item>
