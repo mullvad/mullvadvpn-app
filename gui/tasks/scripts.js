@@ -1,4 +1,5 @@
 const { exec } = require('child_process');
+const fs = require('fs');
 const { dest, series, parallel } = require('gulp');
 const ts = require('gulp-typescript');
 const inject = require('gulp-inject-string');
@@ -8,8 +9,10 @@ const browserify = require('browserify');
 const buffer = require('vinyl-buffer');
 const source = require('vinyl-source-stream');
 
-function makeWatchCompiler(onFirstSuccess) {
+function makeWatchCompiler(onFirstSuccess, onSuccess) {
   let firstBuild = true;
+  let lastBundle;
+  let lastPreloadBundle;
 
   const compileScripts = function () {
     const watch = new TscWatchClient();
@@ -17,10 +20,23 @@ function makeWatchCompiler(onFirstSuccess) {
       parallel(
         makeBrowserifyRenderer(true),
         makeBrowserifyPreload(true),
-      )(() => {
+      )(async () => {
         if (firstBuild) {
           firstBuild = false;
           onFirstSuccess();
+        }
+
+        let bundle = await fs.promises.readFile('./build/src/renderer/bundle.js');
+        let preloadBundle = await fs.promises.readFile('./build/src/renderer/preloadBundle.js');
+        if (
+          !lastBundle ||
+          !preloadBundle ||
+          !lastBundle.equals(bundle) ||
+          !lastPreloadBundle.equals(preloadBundle)
+        ) {
+          lastBundle = bundle;
+          lastPreloadBundle = preloadBundle;
+          onSuccess();
         }
       }),
     );

@@ -9,10 +9,6 @@ function watchMainScripts() {
   return watch(['build/src/main/**/*.js'], series(electron.stop, electron.start));
 }
 
-function watchRendererScripts() {
-  return watch(['build/src/renderer/(bundle|preloadBundle).js'], series(hotreload.reload));
-}
-
 function watchCss() {
   return watch(['src/renderer/**/*.css'], series(assets.copyCss, hotreload.reload));
 }
@@ -33,7 +29,6 @@ function watchStaticAssets() {
 }
 
 watchMainScripts.displayName = 'watch-main-scripts';
-watchRendererScripts.displayName = 'watch-renderer-scripts';
 watchCss.displayName = 'watch-css';
 watchConfig.displayName = 'watch-config';
 watchHtml.displayName = 'watch-html';
@@ -51,14 +46,8 @@ exports.start = series(
       devServer.start,
       hotreload.start,
       electron.start,
-      parallel(
-        watchMainScripts,
-        watchRendererScripts,
-        watchCss,
-        watchConfig,
-        watchHtml,
-        watchStaticAssets,
-      ),
+      parallel(watchMainScripts, watchCss, watchConfig, watchHtml, watchStaticAssets),
     ),
+    hotreload.reload,
   ),
 );
