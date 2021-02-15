@@ -275,17 +275,21 @@ class ApplicationMain {
     const rendererLogPath = getRendererLogPath();
 
     if (process.env.NODE_ENV !== 'development') {
-      createLoggingDirectory();
-      cleanUpLogDirectory(OLD_LOG_FILES);
-
-      backupLogFile(mainLogPath);
-      backupLogFile(rendererLogPath);
-
-      log.addOutput(new FileOutput(LogLevel.debug, mainLogPath));
-
       this.rendererLog = new Logger();
       this.rendererLog.addInput(new IpcInput());
-      this.rendererLog.addOutput(new FileOutput(LogLevel.debug, rendererLogPath));
+
+      try {
+        createLoggingDirectory();
+        cleanUpLogDirectory(OLD_LOG_FILES);
+
+        backupLogFile(mainLogPath);
+        backupLogFile(rendererLogPath);
+
+        log.addOutput(new FileOutput(LogLevel.debug, mainLogPath));
+        this.rendererLog.addOutput(new FileOutput(LogLevel.debug, rendererLogPath));
+      } catch (e) {
+        console.error('Failed to initialize logging:', e);
+      }
     }
 
     log.addOutput(new ConsoleOutput(LogLevel.debug));
@@ -356,8 +360,13 @@ class ApplicationMain {
 
     this.daemonRpc.disconnect();
 
-    log.dispose();
-    this.rendererLog?.dispose();
+    for (const logger of [log, this.rendererLog]) {
+      try {
+        logger?.dispose();
+      } catch (e) {
+        console.error('Failed to dispose logger:', e);
+      }
+    }
   }
 
   private detectLocale(): string {

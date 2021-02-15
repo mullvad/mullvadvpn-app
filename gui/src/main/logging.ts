@@ -7,34 +7,26 @@ import { LogLevel, ILogInput, ILogOutput } from '../shared/logging-types';
 export const OLD_LOG_FILES = ['frontend-renderer.log'];
 
 export class FileOutput implements ILogOutput {
-  private fileDescriptor?: number;
+  private fileDescriptor: number;
 
-  constructor(public level: LogLevel, private filePath: string) {
-    try {
-      this.fileDescriptor = fs.openSync(filePath, fs.constants.O_CREAT | fs.constants.O_WRONLY);
-    } catch (e) {
-      console.error(`Failed to open ${this.filePath}`);
-    }
+  constructor(public level: LogLevel, filePath: string) {
+    this.fileDescriptor = fs.openSync(filePath, fs.constants.O_CREAT | fs.constants.O_WRONLY);
   }
 
   public dispose() {
-    if (this.fileDescriptor) {
-      try {
-        fs.closeSync(this.fileDescriptor);
-      } catch (e) {
-        console.error(`Failed to close ${this.filePath}`);
-      }
-    }
+    fs.closeSync(this.fileDescriptor);
   }
 
-  public write(_level: LogLevel, message: string) {
-    if (this.fileDescriptor) {
+  public write(_level: LogLevel, message: string): Promise<void> {
+    return new Promise((resolve, reject) => {
       fs.write(this.fileDescriptor, `${message}\n`, (err) => {
         if (err) {
-          console.error(`Failed to log to ${this.filePath}`);
+          reject(err);
+        } else {
+          resolve();
         }
       });
-    }
+    });
   }
 }
 
@@ -53,11 +45,7 @@ export function getRendererLogPath() {
 }
 
 export function createLoggingDirectory(): void {
-  try {
-    fs.mkdirSync(getLogDirectoryDir(), { recursive: true });
-  } catch (e) {
-    console.error('Failed to create logging directory');
-  }
+  fs.mkdirSync(getLogDirectoryDir(), { recursive: true });
 }
 
 // When cleaning up old log files they are first backed up and the next time removed.
@@ -68,27 +56,19 @@ export function cleanUpLogDirectory(fileNames: string[]): void {
   });
 }
 
-export function backupLogFile(filePath: string): boolean {
+export function backupLogFile(filePath: string) {
   const backupFilePath = getBackupFilePath(filePath);
-  try {
-    fs.accessSync(filePath);
+  if (fileExists(filePath)) {
     fs.renameSync(filePath, backupFilePath);
-    return true;
-  } catch (e) {
-    console.error(`Failed to backup ${filePath}`);
-    return false;
   }
 }
 
 export function rotateOrDeleteFile(filePath: string): void {
-  if (!backupLogFile(filePath)) {
-    const backupFilePath = getBackupFilePath(filePath);
-    try {
-      fs.accessSync(backupFilePath);
-      fs.unlinkSync(backupFilePath);
-    } catch (e) {
-      console.error(`Failed to delete ${filePath}`);
-    }
+  const backupFilePath = getBackupFilePath(filePath);
+  if (fileExists(filePath)) {
+    backupLogFile(filePath);
+  } else if (fileExists(backupFilePath)) {
+    fs.unlinkSync(backupFilePath);
   }
 }
 
@@ -100,4 +80,13 @@ function getBackupFilePath(filePath: string): string {
 
 function getLogDirectoryDir() {
   return app.getPath('logs');
+}
+
+function fileExists(filePath: string): boolean {
+  try {
+    fs.accessSync(filePath);
+    return true;
+  } catch (e) {
+    return false;
+  }
 }
