@@ -5,18 +5,6 @@
 #include <libcommon/error.h>
 #include <libcommon/string.h>
 
-namespace
-{
-
-// Interface description substrings found for virtual adapters.
-const wchar_t *TUNNEL_INTERFACE_DESCS[] = {
-	L"WireGuard",
-	L"Wintun",
-	L"Mullvad"
-};
-
-} // anonymous namespace
-
 namespace shared::network
 {
 
