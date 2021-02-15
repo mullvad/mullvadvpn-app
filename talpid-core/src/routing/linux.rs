@@ -162,6 +162,13 @@ impl RouteManagerImpl {
 
             while let Some(message) = response.next().await {
                 if let NetlinkPayload::Error(error) = message.payload {
+                    if rule.header.family == AF_INET6 as u8 && error.code == -libc::EAFNOSUPPORT {
+                        log::error!(
+                            "Failed to add an IPv6 rule {}. Ignoring the error and continuing",
+                            Error::NetlinkError(rtnetlink::Error::NetlinkError(error)),
+                        );
+                        continue;
+                    }
                     return Err(Error::NetlinkError(rtnetlink::Error::NetlinkError(error)));
                 }
             }
