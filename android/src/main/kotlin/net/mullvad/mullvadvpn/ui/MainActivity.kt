@@ -24,7 +24,7 @@ import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.talpid.util.EventNotifier
 
-class MainActivity : FragmentActivity() {
+open class MainActivity : FragmentActivity() {
     companion object {
         val KEY_SHOULD_CONNECT = "should_connect"
     }
