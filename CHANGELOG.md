@@ -47,6 +47,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Fix crash when trying to apply IPv6 rotues for OpenVPN when IPv6 is disabled.
 
+#### Windows
+- Fix failure when Wintun adapter name conflicts with that of a non-Wintun adapter.
+
 
 ## [2021.1] - 2021-02-10
 This release is for desktop only.
