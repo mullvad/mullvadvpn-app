@@ -65,10 +65,13 @@ impl RouteManagerHandle {
 
     /// Ensure that packets are routed using the correct tables.
     #[cfg(target_os = "linux")]
-    pub fn create_routing_rules(&self) -> Result<(), Error> {
+    pub fn create_routing_rules(&self, enable_ipv6: bool) -> Result<(), Error> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
-            .unbounded_send(RouteManagerCommand::CreateRoutingRules(response_tx))
+            .unbounded_send(RouteManagerCommand::CreateRoutingRules(
+                enable_ipv6,
+                response_tx,
+            ))
             .map_err(|_| Error::RouteManagerDown)?;
         self.runtime
             .block_on(response_rx)
@@ -100,7 +103,7 @@ pub(crate) enum RouteManagerCommand {
     ClearRoutes,
     Shutdown(oneshot::Sender<()>),
     #[cfg(target_os = "linux")]
-    CreateRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
+    CreateRoutingRules(bool, oneshot::Sender<Result<(), PlatformError>>),
     #[cfg(target_os = "linux")]
     ClearRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
 }
@@ -185,8 +188,8 @@ impl RouteManager {
 
     /// Ensure that packets are routed using the correct tables.
     #[cfg(target_os = "linux")]
-    pub fn create_routing_rules(&mut self) -> Result<(), Error> {
-        self.handle()?.create_routing_rules()
+    pub fn create_routing_rules(&mut self, enable_ipv6: bool) -> Result<(), Error> {
+        self.handle()?.create_routing_rules(enable_ipv6)
     }
 
     /// Remove any routing rules created by [`create_routing_rules`].
