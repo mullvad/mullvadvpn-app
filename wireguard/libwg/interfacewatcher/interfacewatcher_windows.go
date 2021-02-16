@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: MIT
  *
  * Copyright (C) 2019 WireGuard LLC. All Rights Reserved.
- * Copyright (C) 2020 Mullvad VPN AB. All Rights Reserved.
+ * Copyright (C) 2021 Mullvad VPN AB. All Rights Reserved.
  */
 
 package interfacewatcher
