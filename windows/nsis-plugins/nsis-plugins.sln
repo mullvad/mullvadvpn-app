@@ -43,6 +43,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msiutil", "src\msiutil\msiu
 		{1344152F-2BAD-4198-8E51-31AAC32BFBB2} = {1344152F-2BAD-4198-8E51-31AAC32BFBB2}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "os", "src\os\os.vcxproj", "{5ECCC4BC-599B-4F49-8D8F-63A2CF64764F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B52E2D10-A94A-4605-914A-2DCEF6A757EF} = {B52E2D10-A94A-4605-914A-2DCEF6A757EF}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -81,6 +86,10 @@ Global
 		{83487059-2549-4DF9-A785-A4FD5211234B}.Debug|x86.Build.0 = Debug|Win32
 		{83487059-2549-4DF9-A785-A4FD5211234B}.Release|x86.ActiveCfg = Release|Win32
 		{83487059-2549-4DF9-A785-A4FD5211234B}.Release|x86.Build.0 = Release|Win32
+		{5ECCC4BC-599B-4F49-8D8F-63A2CF64764F}.Debug|x86.ActiveCfg = Debug|Win32
+		{5ECCC4BC-599B-4F49-8D8F-63A2CF64764F}.Debug|x86.Build.0 = Debug|Win32
+		{5ECCC4BC-599B-4F49-8D8F-63A2CF64764F}.Release|x86.ActiveCfg = Release|Win32
+		{5ECCC4BC-599B-4F49-8D8F-63A2CF64764F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
