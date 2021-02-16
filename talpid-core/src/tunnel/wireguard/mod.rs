@@ -163,7 +163,7 @@ impl WireguardMonitor {
                         log::error!(
                             "{}",
                             err.display_chain_with_msg(
-                                "Failed to initialize WireGuard tunnel via NetworkManager, will try netlink directly"
+                                "Failed to initialize WireGuard tunnel via NetworkManager"
                             )
                         );
                     }
@@ -186,7 +186,7 @@ impl WireguardMonitor {
             }
         }
 
-        #[cfg(traget_os = "linux")]
+        #[cfg(target_os = "linux")]
         log::debug!("Using userspace WireGuard implementation");
         Ok(Box::new(WgGoTunnel::start_tunnel(
             &config,
