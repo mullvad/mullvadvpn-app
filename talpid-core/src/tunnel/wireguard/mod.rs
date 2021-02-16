@@ -85,7 +85,7 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "linux")]
         route_manager
-            .create_routing_rules()
+            .create_routing_rules(config.enable_ipv6)
             .map_err(Error::SetupRoutingError)?;
 
         route_manager
