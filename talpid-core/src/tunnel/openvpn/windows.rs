@@ -172,34 +172,41 @@ impl WintunDll {
             return Err(io::Error::last_os_error());
         }
 
+        Self::new_inner(handle, Self::get_proc_address)
+    }
+
+    fn new_inner(
+        handle: HMODULE,
+        get_proc_fn: unsafe fn(HMODULE, &CStr) -> io::Result<FARPROC>,
+    ) -> io::Result<Self> {
         Ok(WintunDll {
             handle,
             func_open: unsafe {
-                std::mem::transmute(Self::get_proc_address(
+                std::mem::transmute(get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunOpenAdapter\0").unwrap(),
                 )?)
             },
             func_create: unsafe {
-                std::mem::transmute(Self::get_proc_address(
+                std::mem::transmute(get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunCreateAdapter\0").unwrap(),
                 )?)
             },
             func_delete: unsafe {
-                std::mem::transmute(Self::get_proc_address(
+                std::mem::transmute(get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunDeleteAdapter\0").unwrap(),
                 )?)
             },
             func_free: unsafe {
-                std::mem::transmute(Self::get_proc_address(
+                std::mem::transmute(get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunFreeAdapter\0").unwrap(),
                 )?)
             },
             func_get_adapter_name: unsafe {
-                std::mem::transmute(Self::get_proc_address(
+                std::mem::transmute(get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunGetAdapterName\0").unwrap(),
                 )?)
@@ -321,4 +328,18 @@ pub fn find_adapter_registry_key(find_guid: &str, permissions: REGSAM) -> io::Re
     }
 
     Err(io::Error::new(io::ErrorKind::NotFound, "device not found"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_proc_fn(_handle: HMODULE, _symbol: &CStr) -> io::Result<FARPROC> {
+        Ok(std::ptr::null_mut())
+    }
+
+    #[test]
+    fn test_wintun_imports() {
+        WintunDll::new_inner(ptr::null_mut(), get_proc_fn).unwrap();
+    }
 }
