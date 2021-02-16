@@ -46,6 +46,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Linux
 - Fix crash when trying to apply IPv6 rotues for OpenVPN when IPv6 is disabled.
+- Ignore failure to  add IPv6 split-tunneling routing rules when they fail due to IPv6 being
+  unavailable.
 
 
 ## [2021.1] - 2021-02-10
