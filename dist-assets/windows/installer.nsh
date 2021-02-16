@@ -22,6 +22,11 @@
 !define MULLVAD_GENERAL_ERROR 0
 !define MULLVAD_SUCCESS 1
 
+# Return codes for KB2921916 check
+!define PATCH_ERROR 0
+!define PATCH_PRESENT 1
+!define PATCH_MISSING 2
+
 # Return codes from driverlogic
 !define DL_ADAPTER_NOT_FOUND -2
 !define DL_GENERAL_ERROR -1
@@ -89,13 +94,19 @@
 
 	log::Log "InstallWin7Hotfix()"
 
-	nsExec::ExecToStack '"$SYSDIR\cmd.exe" /c ""$SYSDIR\wbem\wmic.exe" qfe get hotfixid | "$SYSDIR\find.exe" "KB2921916""'
+	os::CheckWindows7Patch
 	Pop $0
 	Pop $1
 
-	${If} $0 == 0
-		log::Log "KB2921916 is already installed"
+	${If} $0 == ${PATCH_PRESENT}
+		log::Log "KB2921916 is already installed or superseded"
 		Goto InstallWin7Hotfix_return_success
+	${EndIf}
+
+	${If} $0 == ${PATCH_ERROR}
+		log::LogWithDetails "Detection of KB2921916 failed" $1
+		MessageBox MB_OK "Detection of KB2921916 failed"
+		Goto InstallWin7Hotfix_return_abort
 	${EndIf}
 
 	MessageBox MB_ICONINFORMATION|MB_YESNO "Windows hotfix KB2921916 must be installed for this app to work. Continue?" IDNO InstallWin7Hotfix_return_abort
@@ -115,6 +126,8 @@
 		${If} $0 == 3010
 			MessageBox MB_OK "You may need to restart your computer for the patch to take effect."
 		${Else}
+			StrCpy $R0 "Failed to install the hotfix: error $0"
+			log::Log $R0
 			MessageBox MB_OK "Failed to install the hotfix."
 			Goto InstallWin7Hotfix_return_abort
 		${EndIf}
