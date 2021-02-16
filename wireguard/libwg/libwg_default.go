@@ -4,7 +4,7 @@
 /* SPDX-License-Identifier: Apache-2.0
  *
  * Copyright (C) 2017-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
- * Copyright (C) 2020 Mullvad VPN AB. All Rights Reserved.
+ * Copyright (C) 2021 Mullvad VPN AB. All Rights Reserved.
  */
 
 package main
