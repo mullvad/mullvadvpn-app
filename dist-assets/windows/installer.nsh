@@ -94,7 +94,7 @@
 
 	log::Log "InstallWin7Hotfix()"
 
-	osinfo::CheckWindows7Patch
+	osinfo::HasWindows7Sha2Fix
 	Pop $0
 	Pop $1
 
