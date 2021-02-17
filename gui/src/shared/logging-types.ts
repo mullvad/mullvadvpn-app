@@ -8,7 +8,7 @@ export enum LogLevel {
 
 export interface ILogOutput {
   level: LogLevel;
-  write(level: LogLevel, message: string): void;
+  write(level: LogLevel, message: string): void | Promise<void>;
   dispose?(): void;
 }
 

@@ -32,7 +32,16 @@ export class Logger {
   private outputMessage(level: LogLevel, message: string) {
     this.outputs
       .filter((output) => level <= output.level)
-      .forEach((output) => output.write(level, message));
+      .forEach(async (output) => {
+        const maybePromise = output.write(level, message);
+        if (maybePromise instanceof Promise) {
+          try {
+            await maybePromise;
+          } catch (e) {
+            console.error(`${output.constructor.name}.write: ${e.message}`);
+          }
+        }
+      });
   }
 }
 
