@@ -16,8 +16,21 @@ sealed class KeygenEvent {
             this.replacementFailure = replacementFailure
         }
     }
-    class TooManyKeys : KeygenEvent()
-    class GenerationFailure : KeygenEvent()
+
+    class TooManyKeys : KeygenEvent() {
+        companion object {
+            @JvmStatic
+            val INSTANCE = TooManyKeys()
+        }
+    }
+
+    class GenerationFailure : KeygenEvent() {
+        companion object {
+            @JvmStatic
+            val INSTANCE = GenerationFailure()
+        }
+    }
+
 
     fun failure(): KeygenFailure? {
         return when (this) {
