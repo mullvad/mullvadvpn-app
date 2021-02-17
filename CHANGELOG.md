@@ -29,6 +29,9 @@ Line wrap the file at 100 chars.                                              Th
 - Ignore failure to add IPv6 split-tunneling routing rules when they fail due to IPv6 being
   unavailable.
 
+#### Windows
+- Fix failure when Wintun adapter name conflicts with that of a non-Wintun adapter.
+
 
 ## [2021.1] - 2021-02-10
 ### Fixed
