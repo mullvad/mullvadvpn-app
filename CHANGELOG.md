@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Fix failure when Wintun adapter name conflicts with that of a non-Wintun adapter.
+- Fix detection of SetupAPI patch when not installed by KB2921916.
 
 
 ## [2021.1] - 2021-02-10
