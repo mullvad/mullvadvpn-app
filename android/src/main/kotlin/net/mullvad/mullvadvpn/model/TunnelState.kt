@@ -6,7 +6,13 @@ import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
 
 sealed class TunnelState() {
-    class Disconnected() : TunnelState()
+    class Disconnected() : TunnelState() {
+        companion object {
+            @JvmStatic
+            val INSTANCE = Disconnected()
+        }
+    }
+
     class Connecting(val endpoint: TunnelEndpoint?, val location: GeoIpLocation?) : TunnelState()
     class Connected(val endpoint: TunnelEndpoint, val location: GeoIpLocation?) : TunnelState()
     class Disconnecting(val actionAfterDisconnect: ActionAfterDisconnect) : TunnelState()

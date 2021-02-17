@@ -19,6 +19,17 @@ sealed class CreateTunResult {
             get() = true
     }
 
-    class PermissionDenied : CreateTunResult()
-    class TunnelDeviceError : CreateTunResult()
+    class PermissionDenied : CreateTunResult() {
+        companion object {
+            @JvmStatic
+            val INSTANCE = PermissionDenied()
+        }
+    }
+
+    class TunnelDeviceError : CreateTunResult() {
+        companion object {
+            @JvmStatic
+            val INSTANCE = TunnelDeviceError()
+        }
+    }
 }
