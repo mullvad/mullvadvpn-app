@@ -23,9 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
-
+### Fixed
 #### Linux
-- Fix crash when trying to apply IPv6 rotues for OpenVPN when IPv6 is disabled.
+- Fix crash when trying to apply IPv6 routes for OpenVPN when IPv6 is disabled.
 
 
 ## [2021.1] - 2021-02-10
