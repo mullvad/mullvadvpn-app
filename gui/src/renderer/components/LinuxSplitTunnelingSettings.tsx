@@ -119,7 +119,11 @@ export default function LinuxSplitTunnelingSettings() {
     setBrowsing(false);
 
     if (file.filePaths[0]) {
-      launchExcludedApplication(file.filePaths[0]);
+      try {
+        await launchExcludedApplication(file.filePaths[0]);
+      } catch (e) {
+        // TODO: Show user that app couldn't be launched
+      }
     }
   }, []);
 

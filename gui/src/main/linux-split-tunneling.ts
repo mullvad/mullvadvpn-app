@@ -25,9 +25,26 @@ const PROBLEMATIC_APPLICATIONS = {
   launchingElsewhere: ['gnome-terminal'],
 };
 
-export function launchApplication(app: ILinuxSplitTunnelingApplication | string) {
-  const excludeArguments = typeof app === 'string' ? [app] : formatExec(app.exec);
-  child_process.spawn('mullvad-exclude', excludeArguments, { detached: true });
+export async function launchApplication(
+  app: ILinuxSplitTunnelingApplication | string,
+): Promise<void> {
+  let excludeArguments: string[] | undefined;
+  if (typeof app === 'object') {
+    excludeArguments = formatExec(app.exec);
+  } else if (path.extname(app) === '.desktop') {
+    const entry = await readDesktopEntry(app);
+    if (entry.exec !== undefined) {
+      excludeArguments = formatExec(entry.exec);
+    }
+  } else {
+    excludeArguments = [app];
+  }
+
+  if (excludeArguments !== undefined && excludeArguments.length > 0) {
+    child_process.spawn('mullvad-exclude', excludeArguments, { detached: true });
+  } else {
+    throw new Error('Invalid application');
+  }
 }
 
 // Removes placeholder arguments and separates command into list of strings

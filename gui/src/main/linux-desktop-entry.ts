@@ -39,7 +39,7 @@ const LIST_KEYS = ['onlyShowIn', 'notShowIn'];
 // Parses a desktop entry at a specific path. Implemented in accordance with the freedesktop.org's
 // Desktop Entry Specification:
 // https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
-export async function readDesktopEntry(entryPath: string, locale: string): Promise<DesktopEntry> {
+export async function readDesktopEntry(entryPath: string, locale?: string): Promise<DesktopEntry> {
   // First the lines corresponding to desktop entry group is extracted from the file
   const contents = (await fs.promises.readFile(entryPath)).toString().split('\n');
   // The group start is indicated by `[Desktop Entry]`
@@ -56,7 +56,7 @@ export async function readDesktopEntry(entryPath: string, locale: string): Promi
 function parseDesktopEntry(
   absolutepath: string,
   desktopEntry: string[],
-  locale: string,
+  locale?: string,
 ): DesktopEntry {
   const parsed: Partial<DesktopEntry> = desktopEntry.reduce(
     (entry, line) => parseDesktopEntryLine(entry, line, locale),
@@ -75,7 +75,7 @@ function parseDesktopEntry(
 function parseDesktopEntryLine(
   entry: Partial<DesktopEntry>,
   line: string,
-  locale: string,
+  locale?: string,
 ): Partial<DesktopEntry> {
   // Comments start with `#` and keys and values are seperated by a `=`
   if (!line.startsWith('#') && line.includes('=')) {

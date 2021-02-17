@@ -1132,8 +1132,7 @@ class ApplicationMain {
     });
     IpcMainEventChannel.splitTunneling.handleLaunchApplication((application) => {
       if (linuxSplitTunneling) {
-        linuxSplitTunneling.launchApplication(application);
-        return Promise.resolve();
+        return linuxSplitTunneling.launchApplication(application);
       } else {
         throw Error('linuxSplitTunneling called without being imported');
       }
