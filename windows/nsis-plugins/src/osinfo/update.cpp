@@ -73,7 +73,7 @@ bool HasSetupApiSha2Fix()
 
 	if (0 == VirtualQuery(bytes, &meminfo, sizeof(meminfo)))
 	{
-		THROW_WINDOWS_ERROR(GetLastError(), "CreateFileW");
+		THROW_WINDOWS_ERROR(GetLastError(), "VirtualQuery");
 	}
 
 	constexpr auto PATCH_MARKER_SIZE = sizeof(PATCH_MARKER) - 1;
