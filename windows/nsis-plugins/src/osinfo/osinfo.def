@@ -2,4 +2,4 @@ LIBRARY osinfo
 
 EXPORTS
 
-CheckWindows7Patch
+HasWindows7Sha2Fix
