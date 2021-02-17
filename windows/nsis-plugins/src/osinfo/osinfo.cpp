@@ -14,7 +14,7 @@ enum PatchStatus
 	PATCH_MISSING
 };
 
-void __declspec(dllexport) NSISCALL CheckWindows7Patch
+void __declspec(dllexport) NSISCALL HasWindows7Sha2Fix
 (
 	HWND hwndParent,
 	int string_size,
