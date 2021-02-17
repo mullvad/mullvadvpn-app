@@ -323,7 +323,7 @@ WinFw_ApplyPolicyConnected(
 	const wchar_t *tunnelInterfaceAlias,
 	const wchar_t *v4Gateway,
 	const wchar_t *v6Gateway,
-	const wchar_t **dnsServers,
+	const wchar_t * const *dnsServers,
 	size_t numDnsServers
 )
 {
