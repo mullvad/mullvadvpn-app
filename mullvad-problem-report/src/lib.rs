@@ -270,7 +270,8 @@ pub fn send_problem_report(
         ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
 
     let mut runtime = tokio::runtime::Builder::new()
-        .basic_scheduler()
+        .threaded_scheduler()
+        .core_threads(2)
         .enable_all()
         .build()
         .map_err(Error::CreateRuntime)?;
