@@ -7,7 +7,7 @@ use std::{
     sync::Arc,
 };
 use talpid_types::ErrorExt;
-use widestring::U16CStr;
+use widestring::{U16CStr, U16CString};
 use winapi::{
     shared::{
         guiddef::GUID,
@@ -22,6 +22,9 @@ use winapi::{
 };
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
+
+/// Longest possible adapter name (in characters), including null terminator
+const MAX_ADAPTER_NAME: usize = 128;
 
 type WintunOpenAdapterFn =
     unsafe extern "stdcall" fn(pool: *const u16, name: *const u16) -> RawHandle;
@@ -41,6 +44,9 @@ type WintunDeleteAdapterFn = unsafe extern "stdcall" fn(
     reboot_required: *mut BOOL,
 ) -> BOOL;
 
+type WintunGetAdapterNameFn =
+    unsafe extern "stdcall" fn(adapter: RawHandle, name: *mut u16) -> BOOL;
+
 
 pub struct WintunDll {
     handle: HINSTANCE,
@@ -48,6 +54,7 @@ pub struct WintunDll {
     func_create: WintunCreateAdapterFn,
     func_free: WintunFreeAdapterFn,
     func_delete: WintunDeleteAdapterFn,
+    func_get_adapter_name: WintunGetAdapterNameFn,
 }
 
 unsafe impl Send for WintunDll {}
@@ -71,6 +78,10 @@ impl TemporaryWintunAdapter {
         let (adapter, reboot_required) =
             WintunAdapter::create(dll_handle, pool, name, requested_guid)?;
         Ok((TemporaryWintunAdapter { adapter }, reboot_required))
+    }
+
+    pub fn adapter(&self) -> &WintunAdapter {
+        &self.adapter
     }
 }
 
@@ -129,6 +140,10 @@ impl WintunAdapter {
                 .delete_adapter(self.handle, force_close_sessions)
         }
     }
+
+    pub fn name(&self) -> io::Result<U16CString> {
+        unsafe { self.dll_handle.get_adapter_name(self.handle) }
+    }
 }
 
 impl Drop for WintunAdapter {
@@ -157,30 +172,43 @@ impl WintunDll {
             return Err(io::Error::last_os_error());
         }
 
+        Self::new_inner(handle, Self::get_proc_address)
+    }
+
+    fn new_inner(
+        handle: HMODULE,
+        get_proc_fn: unsafe fn(HMODULE, &CStr) -> io::Result<FARPROC>,
+    ) -> io::Result<Self> {
         Ok(WintunDll {
             handle,
             func_open: unsafe {
-                std::mem::transmute(Self::get_proc_address(
+                std::mem::transmute(get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunOpenAdapter\0").unwrap(),
                 )?)
             },
             func_create: unsafe {
-                std::mem::transmute(Self::get_proc_address(
+                std::mem::transmute(get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunCreateAdapter\0").unwrap(),
                 )?)
             },
             func_delete: unsafe {
-                std::mem::transmute(Self::get_proc_address(
+                std::mem::transmute(get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunDeleteAdapter\0").unwrap(),
                 )?)
             },
             func_free: unsafe {
-                std::mem::transmute(Self::get_proc_address(
+                std::mem::transmute(get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunFreeAdapter\0").unwrap(),
+                )?)
+            },
+            func_get_adapter_name: unsafe {
+                std::mem::transmute(get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WintunGetAdapterName\0").unwrap(),
                 )?)
             },
         })
@@ -239,6 +267,16 @@ impl WintunDll {
     pub unsafe fn free_adapter(&self, adapter: RawHandle) {
         (self.func_free)(adapter);
     }
+
+    pub unsafe fn get_adapter_name(&self, adapter: RawHandle) -> io::Result<U16CString> {
+        let mut alias_buffer = vec![0u16; MAX_ADAPTER_NAME];
+        let result = (self.func_get_adapter_name)(adapter, alias_buffer.as_mut_ptr());
+        if result == 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(U16CString::from_vec_with_nul(alias_buffer)
+            .map_err(|_| io::Error::new(io::ErrorKind::Other, "missing null terminator"))?)
+    }
 }
 
 impl Drop for WintunDll {
@@ -290,4 +328,18 @@ pub fn find_adapter_registry_key(find_guid: &str, permissions: REGSAM) -> io::Re
     }
 
     Err(io::Error::new(io::ErrorKind::NotFound, "device not found"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn get_proc_fn(_handle: HMODULE, _symbol: &CStr) -> io::Result<FARPROC> {
+        Ok(std::ptr::null_mut())
+    }
+
+    #[test]
+    fn test_wintun_imports() {
+        WintunDll::new_inner(ptr::null_mut(), get_proc_fn).unwrap();
+    }
 }
