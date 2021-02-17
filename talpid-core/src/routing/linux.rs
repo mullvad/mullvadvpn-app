@@ -149,12 +149,15 @@ impl RouteManagerImpl {
         Ok(monitor)
     }
 
-    async fn create_routing_rules(&mut self) -> Result<()> {
+    async fn create_routing_rules(&mut self, enable_ipv6: bool) -> Result<()> {
         use netlink_packet_route::constants::*;
 
         self.clear_routing_rules().await?;
 
-        for rule in &*ALL_RULES {
+        for rule in ALL_RULES
+            .iter()
+            .filter(|rule| rule.header.family as u16 == AF_INET || enable_ipv6)
+        {
             let mut req = NetlinkMessage::from(RtnlMessage::NewRule((*rule).clone()));
             req.header.flags = NLM_F_REQUEST | NLM_F_ACK | NLM_F_CREATE | NLM_F_REPLACE;
 
@@ -338,8 +341,8 @@ impl RouteManagerImpl {
                 log::debug!("Adding routes: {:?}", routes);
                 let _ = result_tx.send(self.add_required_routes(routes.clone()).await);
             }
-            RouteManagerCommand::CreateRoutingRules(result_tx) => {
-                let _ = result_tx.send(self.create_routing_rules().await);
+            RouteManagerCommand::CreateRoutingRules(enable_ipv6, result_tx) => {
+                let _ = result_tx.send(self.create_routing_rules(enable_ipv6).await);
             }
             RouteManagerCommand::ClearRoutingRules(result_tx) => {
                 let _ = result_tx.send(self.clear_routing_rules().await);

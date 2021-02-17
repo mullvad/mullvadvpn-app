@@ -20,6 +20,9 @@ pub struct Config {
     /// Firewall mark
     #[cfg(target_os = "linux")]
     pub fwmark: u32,
+    /// Enable IPv6 routing rules
+    #[cfg(target_os = "linux")]
+    pub enable_ipv6: bool,
 }
 
 const DEFAULT_MTU: u16 = 1380;
@@ -101,6 +104,8 @@ impl Config {
             mtu,
             #[cfg(target_os = "linux")]
             fwmark: crate::linux::TUNNEL_FW_MARK,
+            #[cfg(target_os = "linux")]
+            enable_ipv6: generic_options.enable_ipv6,
         })
     }
 
