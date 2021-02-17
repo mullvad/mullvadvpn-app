@@ -37,6 +37,7 @@ Line wrap the file at 100 chars.                                              Th
   security patches.
 - Allow provider constraint to specify multiple hosting providers.
 - Only download a new relay list if it has been modified.
+- Connect to the API only via TLS 1.3
 
 #### Android
 - WireGuard key is now rotated sooner: every four days instead of seven.

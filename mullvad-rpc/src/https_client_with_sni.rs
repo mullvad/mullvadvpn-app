@@ -25,7 +25,7 @@ use std::{
 };
 
 use tokio::{net::TcpStream as TokioTcpStream, runtime::Handle, time::timeout};
-use tokio_rustls::rustls;
+use tokio_rustls::rustls::{self, ProtocolVersion};
 use webpki::DNSNameRef;
 
 // Old LetsEncrypt root certificate
@@ -65,6 +65,7 @@ impl HttpsConnectorWithSni {
         let mut config = rustls::ClientConfig::new();
         config.enable_sni = true;
         config.root_store = Self::read_cert_store();
+        config.versions = vec![ProtocolVersion::TLSv1_3];
 
         HttpsConnectorWithSni {
             next_socket_id: 0,
