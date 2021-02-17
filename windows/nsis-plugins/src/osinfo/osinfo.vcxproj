@@ -14,7 +14,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{5ECCC4BC-599B-4F49-8D8F-63A2CF64764F}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>os</RootNamespace>
+    <RootNamespace>osinfo</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -59,7 +59,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;os_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)../../../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../../../windows-libraries/src/</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
@@ -72,7 +72,7 @@
       <AdditionalLibraryDirectories>$(ProjectDir)../../../../dist-assets/binaries/x86_64-pc-windows-msvc/nsis/;$(SolutionDir)bin\$(Platform)-$(Configuration)\</AdditionalLibraryDirectories>
       <AdditionalDependencies>libcommon.lib;pluginapi-x86-unicode.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libc.lib</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>os.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>osinfo.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -83,7 +83,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;os_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)../../../../dist-assets/binaries/x86_64-pc-windows-msvc/;$(ProjectDir)../../../windows-libraries/src/</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -98,7 +98,7 @@
       <AdditionalLibraryDirectories>$(ProjectDir)../../../../dist-assets/binaries/x86_64-pc-windows-msvc/nsis/;$(SolutionDir)bin\$(Platform)-$(Configuration)\</AdditionalLibraryDirectories>
       <AdditionalDependencies>libcommon.lib;pluginapi-x86-unicode.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>libc.lib</IgnoreSpecificDefaultLibraries>
-      <ModuleDefinitionFile>os.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>osinfo.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -109,14 +109,14 @@
   <ItemGroup>
     <ClCompile Include="update.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="os.cpp" />
+    <ClCompile Include="osinfo.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="os.def" />
+    <None Include="osinfo.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

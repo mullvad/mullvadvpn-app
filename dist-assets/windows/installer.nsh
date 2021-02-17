@@ -94,7 +94,7 @@
 
 	log::Log "InstallWin7Hotfix()"
 
-	os::CheckWindows7Patch
+	osinfo::CheckWindows7Patch
 	Pop $0
 	Pop $1
 
