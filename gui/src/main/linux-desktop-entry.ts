@@ -7,10 +7,172 @@ import log from '../shared/logging';
 
 type DirectoryDescription = string | RegExp;
 
+export interface DesktopEntry {
+  absolutepath: string;
+  name: string;
+  type: string;
+  icon?: string;
+  exec?: string;
+  terminal?: string;
+  noDisplay?: string;
+  hidden?: string;
+  onlyShowIn?: string[];
+  notShowIn?: string[];
+  tryExec?: string;
+}
+
+const DESKTOP_ENTRY_KEYS = [
+  'name',
+  'type',
+  'icon',
+  'exec',
+  'terminal',
+  'noDisplay',
+  'hidden',
+  'onlyShowIn',
+  'notShowIn',
+  'tryExec',
+];
+
+const LIST_KEYS = ['onlyShowIn', 'notShowIn'];
+
+// Parses a desktop entry at a specific path. Implemented in accordance with the freedesktop.org's
+// Desktop Entry Specification:
+// https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
+export async function readDesktopEntry(entryPath: string, locale: string): Promise<DesktopEntry> {
+  // First the lines corresponding to desktop entry group is extracted from the file
+  const contents = (await fs.promises.readFile(entryPath)).toString().split('\n');
+  // The group start is indicated by `[Desktop Entry]`
+  const startIndex = contents.indexOf('[Desktop Entry]') + 1;
+  const contentsFromDesktopEntry = contents.slice(startIndex);
+  // The group ens when the next group start
+  const endIndex = contentsFromDesktopEntry.findIndex((line) => /^\[.*\]$/.test(line));
+  const desktopEntry = contentsFromDesktopEntry.slice(0, endIndex);
+
+  return parseDesktopEntry(entryPath, desktopEntry, locale);
+}
+
+// Parses the values within the desktop entry group in a desktop entry file
+function parseDesktopEntry(
+  absolutepath: string,
+  desktopEntry: string[],
+  locale: string,
+): DesktopEntry {
+  const parsed: Partial<DesktopEntry> = desktopEntry.reduce(
+    (entry, line) => parseDesktopEntryLine(entry, line, locale),
+    { absolutepath } as Partial<DesktopEntry>,
+  );
+
+  // If the dekstop entry is lacking some of the required keys it's invalid
+  if (isDesktopEntry(parsed)) {
+    return parsed;
+  } else {
+    throw new Error('Not a correctly formatted desktop entry');
+  }
+}
+
+// Parses a line in a desktop entry
+function parseDesktopEntryLine(
+  entry: Partial<DesktopEntry>,
+  line: string,
+  locale: string,
+): Partial<DesktopEntry> {
+  // Comments start with `#` and keys and values are seperated by a `=`
+  if (!line.startsWith('#') && line.includes('=')) {
+    const firstEqualSign = line.indexOf('=');
+    const keyWithLocale = line.slice(0, firstEqualSign).replace(' ', '');
+    const value = line.slice(firstEqualSign + 1).trim();
+
+    // Key values can be suffixed by a locale enclosed in `[]`
+    const pascalCaseKey = keyWithLocale.replace(/\[.*\]/, '');
+    const key = pascalCaseKey[0].toLowerCase() + pascalCaseKey.slice(1);
+    const keyLocale = keyWithLocale.match(/\[.*\]/)?.[0].replace(/(\[|\])/g, '');
+
+    // If the key locale match the provided locale the value is used, otherwise it's only used if
+    // there isn't a value already
+    if (isDesktopEntryKey(key) && (keyLocale ? keyLocale === locale : entry[key] === undefined)) {
+      // Some values are lists of values and they have to be split on `;` and ofter contain a
+      // trailing `;`
+      if (LIST_KEYS.includes(key)) {
+        const arrayValue = value.replace(/;$/, '').split(';');
+        return { ...entry, [key]: arrayValue };
+      } else {
+        return { ...entry, [key]: value };
+      }
+    }
+  }
+
+  return entry;
+}
+
+function isDesktopEntryKey(key: string): key is keyof DesktopEntry {
+  return DESKTOP_ENTRY_KEYS.includes(key);
+}
+
+function isDesktopEntry(entry: Partial<DesktopEntry>): entry is DesktopEntry {
+  return entry.absolutepath !== undefined && entry.name !== undefined && entry.type !== undefined;
+}
+
+// Scans for desktop entries in accordance with the Desktop Entry Specification
+export async function getDesktopEntries(): Promise<string[]> {
+  const directories = getDesktopEntryDirectories();
+
+  const entries = await directories.reduce(
+    async (entries, directory) => getDesktopEntriesInDirectory(directory, await entries),
+    Promise.resolve({}),
+  );
+
+  return Object.values(entries);
+}
+
+async function getDesktopEntriesInDirectory(
+  directory: string,
+  previousEntries: { [id: string]: string },
+  prefix = '',
+): Promise<{ [id: string]: string }> {
+  let currentEntries = { ...previousEntries };
+  try {
+    const contents = await fs.promises.readdir(directory);
+
+    for (const item of contents) {
+      const id = prefix + item;
+      if (path.extname(item) === '.desktop') {
+        if (currentEntries[id] === undefined) {
+          currentEntries[id] = path.join(directory, item);
+        }
+      } else {
+        const nextDirectory = path.join(directory, item);
+        currentEntries = await getDesktopEntriesInDirectory(
+          nextDirectory,
+          currentEntries,
+          `${prefix}${item}-`,
+        );
+      }
+    }
+  } catch (e) {
+    // no-op
+  }
+
+  return currentEntries;
+}
+
+function getDesktopEntryDirectories() {
+  const directories: string[] = [];
+
+  if (process.env.HOME) {
+    directories.push(path.join(process.env.HOME, '.local', 'share', 'applications'));
+  }
+
+  const xdgDataDirs = getXdgDataDirs().map((dir) => path.join(dir, 'applications'));
+  directories.push(...xdgDataDirs);
+
+  return directories;
+}
+
 // Implemented according to freedesktop specification
 // https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
 // TODO: Respect "TryExec"
-export function shouldShowApplication(application: ILinuxApplication): boolean {
+export function shouldShowApplication(application: DesktopEntry): application is ILinuxApplication {
   const originalXdgCurrentDesktop = process.env.ORIGINAL_XDG_CURRENT_DESKTOP?.split(':') ?? [];
   const xdgCurrentDesktop = process.env.XDG_CURRENT_DESKTOP?.split(':') ?? [];
   const desktopEnvironments = originalXdgCurrentDesktop.concat(xdgCurrentDesktop);
@@ -79,14 +241,15 @@ function getIconDirectories() {
     directories.push(path.join(process.env.HOME, '.local', 'share', 'icons')); // For KDE Plasma
   }
 
-  if (process.env.XDG_DATA_DIRS) {
-    const dataDirs = process.env.XDG_DATA_DIRS.split(':').map((dir) => path.join(dir, 'icons'));
-    directories.push(...dataDirs);
-  }
-
+  const xdgDataDirs = getXdgDataDirs().map((dir) => path.join(dir, 'icons'));
+  directories.push(...xdgDataDirs);
   directories.push('/usr/share/pixmaps');
 
   return directories;
+}
+
+function getXdgDataDirs(): string[] {
+  return process.env.XDG_DATA_DIRS?.split(':') ?? ['/usr/local/share/', '/usr/share/'];
 }
 
 function getGtkThemeDirectories(): Promise<DirectoryDescription[]> {

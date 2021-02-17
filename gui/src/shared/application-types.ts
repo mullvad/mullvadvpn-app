@@ -12,8 +12,8 @@ export interface ILinuxApplication extends IApplication {
   terminal?: string;
   noDisplay?: string;
   hidden?: string;
-  onlyShowIn?: string | string[];
-  notShowIn?: string | string[];
+  onlyShowIn?: string[];
+  notShowIn?: string[];
   tryExec?: string;
 }
 

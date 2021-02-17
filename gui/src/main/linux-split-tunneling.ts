@@ -1,10 +1,15 @@
 import argvSplit from 'argv-split';
 import child_process from 'child_process';
-import linuxAppList, { AppData } from 'linux-app-list';
 import path from 'path';
-import { pascalCaseToCamelCase } from './transform-object-keys';
 import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
-import { findIconPath, getImageDataUrl, shouldShowApplication } from './linux-desktop-entry';
+import {
+  getDesktopEntries,
+  readDesktopEntry,
+  findIconPath,
+  getImageDataUrl,
+  shouldShowApplication,
+  DesktopEntry,
+} from './linux-desktop-entry';
 
 const PROBLEMATIC_APPLICATIONS = {
   launchingInExistingProcess: [
@@ -30,15 +35,19 @@ function formatExec(exec: string) {
   return argvSplit(exec).filter((argument: string) => !/%[cdDfFikmnNuUv]/.test(argument));
 }
 
-// TODO: Switch to asyncronous reading of .desktop files
-export function getApplications(locale: string): Promise<ILinuxSplitTunnelingApplication[]> {
-  const appList = linuxAppList();
-  const applications = appList
-    .list()
-    .map((filename) => {
-      const applications = localizeNameAndIcon(appList.data(filename), locale);
-      return pascalCaseToCamelCase<ILinuxSplitTunnelingApplication>(applications);
-    })
+export async function getApplications(locale: string): Promise<ILinuxSplitTunnelingApplication[]> {
+  const desktopEntryPaths = await getDesktopEntries();
+  const desktopEntries: DesktopEntry[] = [];
+
+  for (const entryPath of desktopEntryPaths) {
+    try {
+      desktopEntries.push(await readDesktopEntry(entryPath, locale));
+    } catch (e) {
+      // no-op
+    }
+  }
+
+  const applications = desktopEntries
     .filter(shouldShowApplication)
     .map(addApplicationWarnings)
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -52,11 +61,11 @@ async function replaceIconNameWithDataUrl(
 ): Promise<ILinuxSplitTunnelingApplication> {
   try {
     // Either the app has no icon or it's already an absolute path.
-    if (app.icon === undefined || path.isAbsolute(app.icon)) {
+    if (app.icon === undefined) {
       return app;
     }
 
-    const iconPath = await findIconPath(app.icon);
+    const iconPath = path.isAbsolute(app.icon) ? app.icon : await findIconPath(app.icon);
     if (iconPath === undefined) {
       return app;
     }
@@ -84,18 +93,4 @@ function addApplicationWarnings(
   } else {
     return application;
   }
-}
-
-function localizeNameAndIcon(application: AppData, locale: string) {
-  if (application.lang) {
-    // linux-app-list prefixes and suffixes the locale keys with a space for some reason.
-    const lang = Object.fromEntries(
-      Object.entries(application.lang).map(([locale, value]) => [locale.trim(), value]),
-    )[locale];
-
-    application.Name = lang?.Name ?? application.Name;
-    application.Icon = lang?.Icon ?? application.Icon;
-  }
-
-  return application;
 }
