@@ -21,6 +21,7 @@ use talpid_types::net::{
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct RelayList {
+    #[cfg_attr(target_os = "android", jnix(skip))]
     pub etag: Option<String>,
     pub countries: Vec<RelayListCountry>,
 }
