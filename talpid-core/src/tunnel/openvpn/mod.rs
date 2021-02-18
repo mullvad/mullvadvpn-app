@@ -68,7 +68,6 @@ lazy_static! {
     static ref WINTUN_DLL: Mutex<Option<Arc<windows::WintunDll>>> = Mutex::new(None);
     static ref ADAPTER_ALIAS: U16CString = U16CString::from_str("Mullvad").unwrap();
     static ref ADAPTER_POOL: U16CString = U16CString::from_str("Mullvad").unwrap();
-    static ref ADAPTER_GUID_STR: String = windows::string_from_guid(&ADAPTER_GUID);
 }
 
 #[cfg(windows)]
@@ -391,10 +390,20 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 log::warn!("You may need to restart Windows to complete the install of Wintun");
             }
 
+            let assigned_guid = adapter.adapter().guid();
+            let assigned_guid = assigned_guid.as_ref().unwrap_or_else(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Cannot identify adapter guid")
+                );
+                &ADAPTER_GUID
+            });
+            let assigned_guid_string = windows::string_from_guid(assigned_guid);
+
             // Workaround: OpenVPN looks up "ComponentId" to identify tunnel devices.
             // If Wintun fails to create this registry value, create it here.
             let adapter_key =
-                windows::find_adapter_registry_key(&*ADAPTER_GUID_STR, KEY_READ | KEY_WRITE);
+                windows::find_adapter_registry_key(&assigned_guid_string, KEY_READ | KEY_WRITE);
             match adapter_key {
                 Ok(adapter_key) => {
                     let component_id: io::Result<String> = adapter_key.get_value("ComponentId");
