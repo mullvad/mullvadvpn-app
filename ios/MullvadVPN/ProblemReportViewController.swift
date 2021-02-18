@@ -10,13 +10,14 @@ import UIKit
 
 class ProblemReportViewController: UIViewController, UITextFieldDelegate, ConditionalNavigation {
 
-    private lazy var problemReport: ProblemReport = {
+    private let mullvadRest = MullvadRest(session: URLSession(configuration: .ephemeral))
+    private lazy var consolidatedLog: ConsolidatedApplicationLog = {
         let securityGroupIdentifier = ApplicationConfiguration.securityGroupIdentifier
 
         // TODO: make sure we redact old tokens
         let redactStrings = Account.shared.token.flatMap { [$0] } ?? []
 
-        let report = ProblemReport(
+        let report = ConsolidatedApplicationLog(
             redactCustomStrings: redactStrings,
             redactContainerPathsForSecurityGroupIdentifiers: [securityGroupIdentifier]
         )
@@ -54,7 +55,6 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         return textLabel
     }()
 
-    /// Email text field
     private lazy var emailTextField: CustomTextField = {
         let textField = CustomTextField()
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -74,12 +74,11 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         return textField
     }()
 
-    /// Description text view
-    private lazy var descriptionTextView: CustomTextView = {
+    private lazy var messageTextView: CustomTextView = {
         let textView = CustomTextView()
         textView.translatesAutoresizingMaskIntoConstraints = false
         textView.backgroundColor = .white
-        textView.inputAccessoryView = descriptionAccessoryToolbar
+        textView.inputAccessoryView = messageAccessoryToolbar
         textView.font = UIFont.systemFont(ofSize: 17)
         textView.placeholder = NSLocalizedString("Describe your problem", comment: "")
         textView.contentInsetAdjustmentBehavior = .never
@@ -95,13 +94,13 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     }()
 
     /// Constraints used when description text view is active
-    private var activeDescriptionTextViewConstraints = [NSLayoutConstraint]()
+    private var activeMessageTextViewConstraints = [NSLayoutConstraint]()
 
     /// Constraints used when description text view is inactive
-    private var inactiveDescriptionTextViewConstraints = [NSLayoutConstraint]()
+    private var inactiveMessageTextViewConstraints = [NSLayoutConstraint]()
 
     /// Flag indicating when the text view is expanded to fill the entire view
-    private var descriptionTextViewExpanded = false
+    private var isMessageTextViewExpanded = false
 
     /// Keyboard intersection with the controller view
     private var keyboardIntersectionRect = CGRect.zero
@@ -113,7 +112,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
     /// Placeholder view used to fill the space within the scroll view when the text view is
     /// expanded to fill the entire view
-    private lazy var descriptionPlaceholder: UIView = {
+    private lazy var messagePlaceholder: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .clear
@@ -150,9 +149,26 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         return makeKeyboardToolbar(canGoBackward: false, canGoForward: true)
     }()
 
-    private lazy var descriptionAccessoryToolbar: UIToolbar = {
+    private lazy var messageAccessoryToolbar: UIToolbar = {
         return makeKeyboardToolbar(canGoBackward: true, canGoForward: false)
     }()
+
+    private lazy var submissionOverlayView: ProblemReportSubmissionOverlayView = {
+        let overlay = ProblemReportSubmissionOverlayView()
+        overlay.translatesAutoresizingMaskIntoConstraints = false
+
+        overlay.editButtonAction = { [weak self] in
+            self?.hideSubmissionOverlay()
+        }
+
+        overlay.retryButtonAction = { [weak self] in
+            self?.sendProblemReport()
+        }
+
+        return overlay
+    }()
+
+    // MARK: - View lifecycle
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -169,12 +185,12 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         // Set hugging & compression priorities so that description text view wants to grow
         emailTextField.setContentHuggingPriority(.defaultHigh, for: .vertical)
         emailTextField.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
-        descriptionTextView.setContentHuggingPriority(.defaultLow, for: .vertical)
-        descriptionTextView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
+        messageTextView.setContentHuggingPriority(.defaultLow, for: .vertical)
+        messageTextView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 
         textFieldsHolder.addSubview(emailTextField)
-        textFieldsHolder.addSubview(descriptionPlaceholder)
-        textFieldsHolder.addSubview(descriptionTextView)
+        textFieldsHolder.addSubview(messagePlaceholder)
+        textFieldsHolder.addSubview(messageTextView)
 
         view.addSubview(scrollView)
         scrollView.addSubview(containerView)
@@ -183,10 +199,18 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         containerView.addSubview(buttonsStackView)
 
         addConstraints()
+        registerForNotifications()
 
-        registerKeyboardNotifications()
-        registerDescriptionTextViewNotifications()
+        loadPersistentViewModel()
     }
+
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+
+        updateScrollViewContentInsets()
+        updateMessageTextViewContentInsets()
+    }
+
 
     // MARK: - Actions
 
@@ -195,7 +219,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     }
 
     @objc func focusDescriptionTextView() {
-        descriptionTextView.becomeFirstResponder()
+        messageTextView.becomeFirstResponder()
     }
 
     @objc func dismissKeyboard() {
@@ -203,11 +227,23 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     }
 
     @objc func handleSendButtonTap() {
-        // TODO: implement
+        let proceedWithSubmission = {
+            self.sendProblemReport()
+        }
+
+        if Self.persistentViewModel.email.isEmpty {
+            presentEmptyEmailConfirmationAlert { (shouldSend) in
+                if shouldSend {
+                    proceedWithSubmission()
+                }
+            }
+        } else {
+            proceedWithSubmission()
+        }
     }
 
     @objc func handleViewLogsButtonTap() {
-        let reviewController = ProblemReportReviewViewController(reportString: problemReport.string)
+        let reviewController = ProblemReportReviewViewController(reportString: consolidatedLog.string)
         let navigationController = UINavigationController(rootViewController: reviewController)
 
         present(navigationController, animated: true)
@@ -215,23 +251,24 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
     // MARK: - Private
 
-    private func registerKeyboardNotifications() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChangeFrame(_:)),
-                                               name: UIWindow.keyboardWillChangeFrameNotification,
-                                               object: nil)
-    }
-
-    private func registerDescriptionTextViewNotifications() {
+    private func registerForNotifications() {
         let notificationCenter = NotificationCenter.default
 
-        notificationCenter.addObserver(forName: UITextView.textDidBeginEditingNotification, object: descriptionTextView, queue: OperationQueue.main) { [weak self] (note) in
-            // begin editing
-            self?.setDescriptionFieldExpanded(true)
-        }
-        notificationCenter.addObserver(forName: UITextView.textDidEndEditingNotification, object: descriptionTextView, queue: OperationQueue.main) { [weak self] (note) in
-            // begin editing
-            self?.setDescriptionFieldExpanded(false)
-        }
+        notificationCenter.addObserver(self, selector: #selector(keyboardWillChangeFrame(_:)),
+                                       name: UIWindow.keyboardWillChangeFrameNotification,
+                                       object: nil)
+        notificationCenter.addObserver(self, selector: #selector(emailTextFieldDidChange),
+                                       name: UITextField.textDidChangeNotification,
+                                       object: emailTextField)
+        notificationCenter.addObserver(self, selector: #selector(messageTextViewDidBeginEditing),
+                                       name: UITextView.textDidBeginEditingNotification,
+                                       object: messageTextView)
+        notificationCenter.addObserver(self, selector: #selector(messageTextViewDidEndEditing),
+                                       name: UITextView.textDidEndEditingNotification,
+                                       object: messageTextView)
+        notificationCenter.addObserver(self, selector: #selector(messageTextViewDidChange),
+                                       name: UITextView.textDidChangeNotification,
+                                       object: messageTextView)
     }
 
     private func makeKeyboardToolbar(canGoBackward: Bool, canGoForward: Bool) -> UIToolbar {
@@ -279,18 +316,18 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     }
 
     private func addConstraints() {
-        self.activeDescriptionTextViewConstraints = [
-            descriptionTextView.topAnchor.constraint(equalTo: view.topAnchor),
-            descriptionTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            descriptionTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            descriptionTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        self.activeMessageTextViewConstraints = [
+            messageTextView.topAnchor.constraint(equalTo: view.topAnchor),
+            messageTextView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            messageTextView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            messageTextView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ]
 
-        self.inactiveDescriptionTextViewConstraints = [
-            descriptionTextView.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 12),
-            descriptionTextView.leadingAnchor.constraint(equalTo: textFieldsHolder.leadingAnchor),
-            descriptionTextView.trailingAnchor.constraint(equalTo: textFieldsHolder.trailingAnchor),
-            descriptionTextView.bottomAnchor.constraint(equalTo: textFieldsHolder.bottomAnchor),
+        self.inactiveMessageTextViewConstraints = [
+            messageTextView.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 12),
+            messageTextView.leadingAnchor.constraint(equalTo: textFieldsHolder.leadingAnchor),
+            messageTextView.trailingAnchor.constraint(equalTo: textFieldsHolder.trailingAnchor),
+            messageTextView.bottomAnchor.constraint(equalTo: textFieldsHolder.bottomAnchor),
         ]
 
         var constraints = [
@@ -311,11 +348,11 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
             emailTextField.leadingAnchor.constraint(equalTo: textFieldsHolder.leadingAnchor),
             emailTextField.trailingAnchor.constraint(equalTo: textFieldsHolder.trailingAnchor),
 
-            descriptionPlaceholder.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 12),
-            descriptionPlaceholder.leadingAnchor.constraint(equalTo: textFieldsHolder.leadingAnchor),
-            descriptionPlaceholder.trailingAnchor.constraint(equalTo: textFieldsHolder.trailingAnchor),
-            descriptionPlaceholder.bottomAnchor.constraint(equalTo: textFieldsHolder.bottomAnchor),
-            descriptionPlaceholder.heightAnchor.constraint(equalTo: descriptionTextView.heightAnchor),
+            messagePlaceholder.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 12),
+            messagePlaceholder.leadingAnchor.constraint(equalTo: textFieldsHolder.leadingAnchor),
+            messagePlaceholder.trailingAnchor.constraint(equalTo: textFieldsHolder.trailingAnchor),
+            messagePlaceholder.bottomAnchor.constraint(equalTo: textFieldsHolder.bottomAnchor),
+            messagePlaceholder.heightAnchor.constraint(equalTo: messageTextView.heightAnchor),
 
             scrollView.frameLayoutGuide.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.frameLayoutGuide.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -330,10 +367,10 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
             scrollView.contentLayoutGuide.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
             scrollView.contentLayoutGuide.heightAnchor.constraint(greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide.heightAnchor),
 
-            descriptionTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 150),
+            messageTextView.heightAnchor.constraint(greaterThanOrEqualToConstant: 150),
         ]
 
-        constraints.append(contentsOf: self.inactiveDescriptionTextViewConstraints)
+        constraints.append(contentsOf: self.inactiveMessageTextViewConstraints)
 
         NSLayoutConstraint.activate(constraints)
     }
@@ -344,33 +381,33 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
             self.navigationItem.largeTitleDisplayMode = .never
 
             // Move the text view above scroll view
-            view.addSubview(self.descriptionTextView)
+            view.addSubview(self.messageTextView)
 
             // Re-add old constraints
-            NSLayoutConstraint.activate(self.inactiveDescriptionTextViewConstraints)
+            NSLayoutConstraint.activate(self.inactiveMessageTextViewConstraints)
 
             // Do a layout pass
             view.layoutIfNeeded()
 
             // Swap constraints
-            NSLayoutConstraint.deactivate(self.inactiveDescriptionTextViewConstraints)
-            NSLayoutConstraint.activate(self.activeDescriptionTextViewConstraints)
+            NSLayoutConstraint.deactivate(self.inactiveMessageTextViewConstraints)
+            NSLayoutConstraint.activate(self.activeMessageTextViewConstraints)
 
             // Enable content inset adjustment on text view
-            self.descriptionTextView.contentInsetAdjustmentBehavior = .always
+            self.messageTextView.contentInsetAdjustmentBehavior = .always
 
             // Animate constraints & rounded corners on the text view
             animateDescriptionTextView(animations: {
                 // Turn off rounded corners as the text view fills in the entire view
-                self.descriptionTextView.roundCorners = false
+                self.messageTextView.roundCorners = false
 
                 self.view.layoutIfNeeded()
 
             }) { (completed) in
                 // no-op
-                self.descriptionTextViewExpanded = true
+                self.isMessageTextViewExpanded = true
 
-                self.updateDescriptionTextViewContentInsets()
+                self.updateMessageTextViewContentInsets()
             }
 
         } else {
@@ -378,23 +415,23 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
             self.navigationItem.largeTitleDisplayMode = .automatic
 
             // Swap constraints
-            NSLayoutConstraint.deactivate(self.activeDescriptionTextViewConstraints)
-            NSLayoutConstraint.activate(self.inactiveDescriptionTextViewConstraints)
+            NSLayoutConstraint.deactivate(self.activeMessageTextViewConstraints)
+            NSLayoutConstraint.activate(self.inactiveMessageTextViewConstraints)
 
             // Animate constraints & rounded corners on the text view
             animateDescriptionTextView(animations: {
                 // Turn on rounded corners as the text view returns back to where it was
-                self.descriptionTextView.roundCorners = true
+                self.messageTextView.roundCorners = true
 
                 self.view.layoutIfNeeded()
             }) { (completed) in
                 // Revert the content adjustment behavior
-                self.descriptionTextView.contentInsetAdjustmentBehavior = .never
+                self.messageTextView.contentInsetAdjustmentBehavior = .never
 
                 // Add the text view inside of the scroll view
-                self.textFieldsHolder.addSubview(self.descriptionTextView)
+                self.textFieldsHolder.addSubview(self.messageTextView)
 
-                self.descriptionTextViewExpanded = false
+                self.isMessageTextViewExpanded = false
             }
         }
     }
@@ -406,33 +443,201 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         scrollView.scrollIndicatorInsets.bottom = scrollViewBottomInset
     }
 
-    private func updateDescriptionTextViewContentInsets() {
+    private func updateMessageTextViewContentInsets() {
         // Ignore updating text view insets until it's fully expanded
-        guard descriptionTextViewExpanded else { return }
+        guard isMessageTextViewExpanded else { return }
 
         let textViewBottomInset: CGFloat
 
-        if descriptionTextView.isFirstResponder {
+        if messageTextView.isFirstResponder {
             textViewBottomInset = scrollViewBottomContentInsetAccountingForKeyboard
         } else {
             textViewBottomInset = 0
         }
 
-        descriptionTextView.contentInset.bottom = textViewBottomInset
-        descriptionTextView.scrollIndicatorInsets.bottom = textViewBottomInset
-    }
-
-    override func viewSafeAreaInsetsDidChange() {
-        super.viewSafeAreaInsetsDidChange()
-
-        updateScrollViewContentInsets()
-        updateDescriptionTextViewContentInsets()
+        messageTextView.contentInset.bottom = textViewBottomInset
+        messageTextView.scrollIndicatorInsets.bottom = textViewBottomInset
     }
 
     private func animateDescriptionTextView(animations: @escaping () -> Void, completion: @escaping (Bool) -> Void) {
         UIView.animate(withDuration: 0.25, animations: animations) { (completed) in
             completion(completed)
         }
+    }
+
+    private func presentEmptyEmailConfirmationAlert(completion: @escaping (Bool) -> Void) {
+        let message = NSLocalizedString("You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.", comment: "")
+
+        let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+
+        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
+            completion(false)
+        }
+        let sendAction = UIAlertAction(title: NSLocalizedString("Send anyway", comment: ""), style: .destructive) { _ in
+            completion(true)
+        }
+
+        alertController.addAction(cancelAction)
+        alertController.addAction(sendAction)
+
+        present(alertController, animated: true)
+    }
+
+    // MARK: - Private: Problem report submission
+
+    private var showsSubmissionOverlay = false
+
+    private func showSubmissionOverlay() {
+        guard !showsSubmissionOverlay else { return }
+
+        self.showsSubmissionOverlay = true
+
+        view.addSubview(submissionOverlayView)
+
+        NSLayoutConstraint.activate([
+            submissionOverlayView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            submissionOverlayView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            submissionOverlayView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            submissionOverlayView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+        ])
+
+        UIView.transition(from: scrollView, to: submissionOverlayView, duration: 0.25, options: [.showHideTransitionViews, .transitionCrossDissolve]) { (success) in
+            // success
+        }
+    }
+
+    private func hideSubmissionOverlay() {
+        guard showsSubmissionOverlay else { return }
+
+        self.showsSubmissionOverlay = false
+
+        UIView.transition(from: submissionOverlayView, to: scrollView, duration: 0.25, options: [.showHideTransitionViews, .transitionCrossDissolve]) { (success) in
+            // success
+            self.submissionOverlayView.removeFromSuperview()
+        }
+    }
+
+    // MARK: - Data model
+
+    private struct ViewModel {
+        let email: String
+        let message: String
+
+        init() {
+            email = ""
+            message = ""
+        }
+
+        init(email: String, message: String) {
+            self.email = email.trimmingCharacters(in: .whitespacesAndNewlines)
+            self.message = message.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+
+        var isValid: Bool {
+            return !message.isEmpty
+        }
+    }
+
+    private static var persistentViewModel = ViewModel()
+
+    private func loadPersistentViewModel() {
+        emailTextField.text = Self.persistentViewModel.email
+        messageTextView.text = Self.persistentViewModel.message
+
+        validateForm()
+    }
+
+    private func updatePersistentViewModel() {
+        Self.persistentViewModel = ViewModel(
+            email: emailTextField.text ?? "",
+            message: messageTextView.text
+        )
+
+        validateForm()
+    }
+
+    private func clearPersistentViewModel() {
+        Self.persistentViewModel = ViewModel()
+    }
+
+    // MARK: - Form validation
+
+    private func validateForm() {
+        sendButton.isEnabled = Self.persistentViewModel.isValid
+    }
+
+    // MARK: - Problem submission progress handling
+
+    private func willSendProblemReport() {
+        showSubmissionOverlay()
+
+        submissionOverlayView.state = .sending
+        navigationItem.setHidesBackButton(true, animated: true)
+    }
+
+    private func didSendProblemReport(viewModel: ViewModel, result: Result<(), RestError>) {
+        switch result {
+        case .success:
+            submissionOverlayView.state = .sent(viewModel.email)
+
+            // Clear persistent view model upon successful submission
+            clearPersistentViewModel()
+
+        case .failure(let error):
+            submissionOverlayView.state = .failure(error)
+        }
+
+        navigationItem.setHidesBackButton(false, animated: true)
+    }
+
+    // MARK: - Problem report submission helpers
+
+    private func sendProblemReport() {
+        let viewModel = Self.persistentViewModel
+
+        willSendProblemReport()
+        sendProblemReportHelper(with: viewModel) { [weak self] (result) in
+            self?.didSendProblemReport(viewModel: viewModel, result: result)
+        }
+    }
+
+    private func sendProblemReportHelper(with viewModel: ViewModel, completion: @escaping (Result<(), RestError>) -> Void) {
+        let log = consolidatedLog.string
+        let metadata = consolidatedLog.metadata.reduce(into: [:]) { (output, entry) in
+            output[entry.key.rawValue] = entry.value
+        }
+
+        let request = ProblemReportRequest(address: viewModel.email, message: viewModel.message, log: log, metadata: metadata)
+        let result = mullvadRest.sendProblemReport().dataTask(payload: request) { (result) in
+            DispatchQueue.main.async {
+                completion(result)
+            }
+        }
+
+        switch result {
+        case .success(let task):
+            task.resume()
+        case .failure(let error):
+            completion(.failure(error))
+        }
+    }
+
+    // MARK: - Input fields' notifications
+
+    @objc private func messageTextViewDidBeginEditing() {
+        setDescriptionFieldExpanded(true)
+    }
+
+    @objc private func messageTextViewDidEndEditing() {
+        setDescriptionFieldExpanded(false)
+    }
+
+    @objc private func messageTextViewDidChange() {
+        updatePersistentViewModel()
+    }
+
+    @objc private func emailTextFieldDidChange() {
+        updatePersistentViewModel()
     }
 
     // MARK: - Keyboard notifications
@@ -445,13 +650,13 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         keyboardIntersectionRect = screenRect.intersection(keyboardFrameValue.cgRectValue)
 
         updateScrollViewContentInsets()
-        updateDescriptionTextViewContentInsets()
+        updateMessageTextViewContentInsets()
     }
 
     // MARK: - UITextFieldDelegate
 
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        descriptionTextView.becomeFirstResponder()
+        messageTextView.becomeFirstResponder()
         return false
     }
 
@@ -461,10 +666,10 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         switch trigger {
         case .interactiveGesture:
             // Disable swipe when editing
-            return !emailTextField.isFirstResponder && !descriptionTextView.isFirstResponder
+            return !emailTextField.isFirstResponder && !messageTextView.isFirstResponder
 
         case .backButton:
-            // Dismiss the keyboard to fix some visual glitching
+            // Dismiss the keyboard to fix a visual glitch when moving back to the previous controller
             view.endEditing(true)
             return true
         }

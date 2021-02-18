@@ -1,5 +1,5 @@
 //
-//  ProblemReport.swift
+//  ConsolidatedApplicationLog.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 29/10/2020.
@@ -14,7 +14,7 @@ private let kRedactedPlaceholder = "[REDACTED]"
 private let kRedactedAccountPlaceholder = "[REDACTED ACCOUNT NUMBER]"
 private let kRedactedContainerPlaceholder = "[REDACTED CONTAINER PATH]"
 
-class ProblemReport {
+class ConsolidatedApplicationLog: TextOutputStreamable {
 
     typealias Metadata = KeyValuePairs<MetadataKey, String>
 
@@ -88,11 +88,11 @@ class ProblemReport {
 
     var string: String {
         var body = ""
-        write(into: &body)
+        write(to: &body)
         return body
     }
 
-    func write<Target: TextOutputStream>(into stream: inout Target) {
+    func write<Target: TextOutputStream>(to stream: inout Target) {
         print("System information:", to: &stream)
         for (key, value) in metadata {
             print("\(key.rawValue): \(value)", to: &stream)
