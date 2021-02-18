@@ -72,7 +72,7 @@ tun = "0.5"
 [target.'cfg(windows)'.dependencies]
 widestring = "0.4"
 winreg = { version = "0.7", features = ["transactions"] }
-winapi = { version = "0.3.6", features = [ "combaseapi", "handleapi", "ifdef", "libloaderapi", "netioapi", "stringapiset", "synchapi", "winbase", "winuser"] }
+winapi = { version = "0.3.6", features = ["combaseapi", "handleapi", "ifdef", "libloaderapi", "netioapi", "stringapiset", "synchapi", "winbase", "winerror", "winuser"] }
 socket2 = "0.3"
 pnet_packet = "0.26"
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }

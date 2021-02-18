@@ -13,6 +13,8 @@ use winapi::{
         guiddef::GUID,
         ifdef::NET_LUID,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
+        netioapi::ConvertInterfaceLuidToGuid,
+        winerror::NO_ERROR,
     },
     um::{
         libloaderapi::{
@@ -151,6 +153,15 @@ impl WintunAdapter {
 
     pub fn luid(&self) -> NET_LUID {
         unsafe { self.dll_handle.get_adapter_luid(self.handle) }
+    }
+
+    pub fn guid(&self) -> io::Result<GUID> {
+        let mut guid = mem::MaybeUninit::zeroed();
+        let result = unsafe { ConvertInterfaceLuidToGuid(&self.luid(), guid.as_mut_ptr()) };
+        if result != NO_ERROR {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(unsafe { guid.assume_init() })
     }
 }
 
