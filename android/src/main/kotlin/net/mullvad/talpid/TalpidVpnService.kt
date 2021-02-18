@@ -98,7 +98,7 @@ open class TalpidVpnService : VpnService() {
     private fun createTun(config: TunConfig): CreateTunResult {
         if (VpnService.prepare(this) != null) {
             // VPN permission wasn't granted
-            return CreateTunResult.PermissionDenied()
+            return CreateTunResult.PermissionDenied
         }
 
         var invalidDnsServerAddresses = ArrayList<InetAddress>()
@@ -138,7 +138,7 @@ open class TalpidVpnService : VpnService() {
         val tunFd = vpnInterface?.detachFd()
 
         if (tunFd == null) {
-            return CreateTunResult.TunnelDeviceError()
+            return CreateTunResult.TunnelDeviceError
         }
 
         waitForTunnelUp(tunFd, config.routes.any { route -> route.isIpv6 })
