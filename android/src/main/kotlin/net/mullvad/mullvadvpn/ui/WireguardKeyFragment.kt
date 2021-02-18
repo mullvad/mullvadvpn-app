@@ -306,8 +306,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
 
     private fun failureMessage(failure: KeygenFailure): Int {
         when (failure) {
-            is KeygenFailure.TooManyKeys -> return R.string.too_many_keys
-            is KeygenFailure.GenerationFailure -> return R.string.failed_to_generate_key
+            KeygenFailure.TooManyKeys -> return R.string.too_many_keys
+            KeygenFailure.GenerationFailure -> return R.string.failed_to_generate_key
         }
     }
 
