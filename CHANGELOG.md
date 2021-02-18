@@ -45,9 +45,12 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix delay in showing/hiding update notification when toggling beta program.
 
+
+## [2021.2-beta1] - 2021-02-17
+### Fixed
 #### Linux
-- Fix crash when trying to apply IPv6 rotues for OpenVPN when IPv6 is disabled.
-- Ignore failure to  add IPv6 split-tunneling routing rules when they fail due to IPv6 being
+- Fix crash when trying to apply IPv6 routes for OpenVPN when IPv6 is disabled.
+- Ignore failure to add IPv6 split-tunneling routing rules when they fail due to IPv6 being
   unavailable.
 
 #### Windows
