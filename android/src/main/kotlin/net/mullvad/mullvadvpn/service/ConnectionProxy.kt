@@ -22,7 +22,7 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
     private var activeAction: Job? = null
     private var resetAnticipatedStateJob: Job? = null
 
-    private val initialState: TunnelState = TunnelState.Disconnected()
+    private val initialState: TunnelState = TunnelState.Disconnected
 
     var onStateChange = EventNotifier(initialState)
     var onUiStateChange = EventNotifier(initialState)

@@ -24,7 +24,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     private lateinit var disconnectButton: Button
     private lateinit var redeemButton: RedeemVoucherButton
 
-    private var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, state ->
+    private var tunnelState by observable<TunnelState>(TunnelState.Disconnected) { _, _, state ->
         updateDisconnectButton()
         updateBuyButtons()
         headerBar.tunnelState = state

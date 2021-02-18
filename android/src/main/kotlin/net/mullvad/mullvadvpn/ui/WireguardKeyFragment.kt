@@ -40,7 +40,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private var greenColor: Int = 0
     private var redColor: Int = 0
 
-    private var tunnelState: TunnelState = TunnelState.Disconnected()
+    private var tunnelState: TunnelState = TunnelState.Disconnected
 
     private var actionState: ActionState = ActionState.Idle(false)
         set(value) {

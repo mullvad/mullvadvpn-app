@@ -37,7 +37,7 @@ class LocationInfo(val parentView: View, val context: Context) {
             updateOutAddress(value)
         }
 
-    var state: TunnelState = TunnelState.Disconnected()
+    var state: TunnelState = TunnelState.Disconnected
         set(value) {
             field = value
 
