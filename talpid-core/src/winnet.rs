@@ -73,26 +73,6 @@ pub fn ensure_best_metric_for_interface(interface_alias: &str) -> Result<bool, E
     }
 }
 
-/// Enables IPv6 for a given interface.
-pub fn enable_ipv6_for_adapter(interface_guid: &str) -> Result<(), Error> {
-    let interface_guid_ws =
-        WideCString::from_str(interface_guid).map_err(Error::InvalidInterfaceAlias)?;
-
-    let result = unsafe {
-        WinNet_EnableIpv6ForAdapter(
-            interface_guid_ws.as_ptr(),
-            Some(log_sink),
-            logging_context(),
-        )
-    };
-
-    if result {
-        Ok(())
-    } else {
-        Err(Error::EnableIpv6)
-    }
-}
-
 #[allow(dead_code)]
 #[repr(u32)]
 pub enum WinNetAddrFamily {
@@ -442,13 +422,6 @@ mod api {
             sink: Option<LogSink>,
             sink_context: *const u8,
         ) -> u32;
-
-        #[link_name = "WinNet_EnableIpv6ForAdapter"]
-        pub fn WinNet_EnableIpv6ForAdapter(
-            tunnel_interface_alias: *const wchar_t,
-            sink: Option<LogSink>,
-            sink_context: *const u8,
-        ) -> bool;
 
         // TODO: Remove "allow(dead_code)" this is in use.
         #[allow(dead_code)]
