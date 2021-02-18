@@ -1,6 +1,6 @@
 {
   "name": "mullvad-vpn",
-  "version": "2021.1.0",
+  "version": "2021.2.0-beta1",
   "productName": "Mullvad VPN",
   "private": true,
   "description": "Mullvad VPN client",
@@ -29,7 +29,8 @@
     "redux": "^4.0.5",
     "sprintf-js": "^1.1.2",
     "styled-components": "^5.1.1",
-    "uuid": "^3.0.1"
+    "uuid": "^3.0.1",
+    "nseventmonitor": "^1.0.0"
   },
   "optionalDependencies": {
     "nseventmonitor": "^1.0.0"
