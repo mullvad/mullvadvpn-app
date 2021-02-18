@@ -107,6 +107,7 @@ export default function LinuxSplitTunnelingSettings() {
   const [applications, setApplications] = useState<ILinuxSplitTunnelingApplication[]>();
   const [applicationListHeight, setApplicationListHeight] = useState<number>();
   const [browsing, setBrowsing] = useState(false);
+  const [showBrowseFailureDialog, setShowBrowseFailureDialog] = useState(false);
 
   const applicationListRef = useRef() as React.RefObject<HTMLDivElement>;
 
@@ -122,10 +123,12 @@ export default function LinuxSplitTunnelingSettings() {
       try {
         await launchExcludedApplication(file.filePaths[0]);
       } catch (e) {
-        // TODO: Show user that app couldn't be launched
+        setShowBrowseFailureDialog(true);
       }
     }
   }, []);
+
+  const hideBrowseFailureDialog = useCallback(() => setShowBrowseFailureDialog(false), []);
 
   useEffect(() => {
     consumePromise(getSplitTunnelingApplications().then(setApplications));
@@ -200,6 +203,19 @@ export default function LinuxSplitTunnelingSettings() {
             </NavigationContainer>
           </StyledContainer>
         </Layout>
+        {showBrowseFailureDialog && (
+          <ModalAlert
+            type={ModalAlertType.warning}
+            iconColor={colors.red}
+            message={messages.pgettext('split-tunneling-view', 'Failed to launch application')}
+            buttons={[
+              <AppButton.BlueButton key="close" onClick={hideBrowseFailureDialog}>
+                {messages.gettext('Close')}
+              </AppButton.BlueButton>,
+            ]}
+            close={hideBrowseFailureDialog}
+          />
+        )}
       </ModalContainer>
     </>
   );
