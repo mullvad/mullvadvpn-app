@@ -28,13 +28,11 @@ sealed class TunnelState() {
                 CONNECTED -> TunnelState.Connected(endpoint!!, null)
                 RECONNECTING -> TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect)
                 DISCONNECTING -> TunnelState.Disconnecting(ActionAfterDisconnect.Nothing)
-                BLOCKING -> TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError(), true))
+                BLOCKING -> TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, true))
                 ERROR -> {
-                    TunnelState.Error(ErrorState(ErrorStateCause.SetFirewallPolicyError(), false))
+                    TunnelState.Error(ErrorState(ErrorStateCause.SetFirewallPolicyError, false))
                 }
-                else -> {
-                    TunnelState.Error(ErrorState(ErrorStateCause.SetFirewallPolicyError(), false))
-                }
+                else -> TunnelState.Error(ErrorState(ErrorStateCause.SetFirewallPolicyError, false))
             }
         }
     }
