@@ -107,9 +107,19 @@ export default function LinuxSplitTunnelingSettings() {
   const [applications, setApplications] = useState<ILinuxSplitTunnelingApplication[]>();
   const [applicationListHeight, setApplicationListHeight] = useState<number>();
   const [browsing, setBrowsing] = useState(false);
-  const [showBrowseFailureDialog, setShowBrowseFailureDialog] = useState(false);
+  const [browseError, setBrowseError] = useState<string>();
 
   const applicationListRef = useRef() as React.RefObject<HTMLDivElement>;
+
+  const launchApplication = useCallback(
+    async (application: ILinuxSplitTunnelingApplication | string) => {
+      const result = await launchExcludedApplication(application);
+      if ('error' in result) {
+        setBrowseError(result.error);
+      }
+    },
+    [],
+  );
 
   const launchWithFilePicker = useCallback(async () => {
     setBrowsing(true);
@@ -120,15 +130,11 @@ export default function LinuxSplitTunnelingSettings() {
     setBrowsing(false);
 
     if (file.filePaths[0]) {
-      try {
-        await launchExcludedApplication(file.filePaths[0]);
-      } catch (e) {
-        setShowBrowseFailureDialog(true);
-      }
+      await launchApplication(file.filePaths[0]);
     }
   }, []);
 
-  const hideBrowseFailureDialog = useCallback(() => setShowBrowseFailureDialog(false), []);
+  const hideBrowseFailureDialog = useCallback(() => setBrowseError(undefined), []);
 
   useEffect(() => {
     consumePromise(getSplitTunnelingApplications().then(setApplications));
@@ -188,7 +194,7 @@ export default function LinuxSplitTunnelingSettings() {
                           <ApplicationRow
                             key={application.absolutepath}
                             application={application}
-                            launchApplication={launchExcludedApplication}
+                            launchApplication={launchApplication}
                           />
                         ))
                       )}
@@ -203,11 +209,18 @@ export default function LinuxSplitTunnelingSettings() {
             </NavigationContainer>
           </StyledContainer>
         </Layout>
-        {showBrowseFailureDialog && (
+        {browseError && (
           <ModalAlert
             type={ModalAlertType.warning}
             iconColor={colors.red}
-            message={messages.pgettext('split-tunneling-view', 'Failed to launch application')}
+            message={sprintf(
+              // TRANSLATORS: Error message showed in a dialog when an application failes to launch.
+              messages.pgettext(
+                'split-tunneling-view',
+                'Unable to launch selection. %(detailedErrorMessage)s',
+              ),
+              { detailedErrorMessage: browseError },
+            )}
             buttons={[
               <AppButton.BlueButton key="close" onClick={hideBrowseFailureDialog}>
                 {messages.gettext('Close')}

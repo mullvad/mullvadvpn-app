@@ -2,6 +2,9 @@ import argvSplit from 'argv-split';
 import child_process from 'child_process';
 import path from 'path';
 import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
+import { messages } from '../shared/gettext';
+import { LaunchApplicationResult } from '../shared/ipc-schema';
+import { Scheduler } from '../shared/scheduler';
 import {
   getDesktopEntries,
   readDesktopEntry,
@@ -25,25 +28,74 @@ const PROBLEMATIC_APPLICATIONS = {
   launchingElsewhere: ['gnome-terminal'],
 };
 
+// Launches an application. The application parameter could be a path the an executable or .desktop
+// file or an object representing an application
 export async function launchApplication(
   app: ILinuxSplitTunnelingApplication | string,
-): Promise<void> {
-  let excludeArguments: string[] | undefined;
+): Promise<LaunchApplicationResult> {
+  let excludeArguments: string[];
+  try {
+    excludeArguments = await getLaunchCommand(app);
+  } catch (e) {
+    return { error: e.message };
+  }
+
+  return new Promise((resolve, _reject) => {
+    const scheduler = new Scheduler();
+    const proc = child_process.spawn('mullvad-exclude', excludeArguments, { detached: true });
+
+    // If the process exits within 200 milliseconds the user is notified that it failed to launch.
+    scheduler.schedule(() => {
+      proc.removeAllListeners();
+      resolve({ success: true });
+    }, 200);
+
+    proc.stderr.on('data', (data) => {
+      if (data.includes('Failed to launch the process') && data.includes('ENOENT')) {
+        scheduler.cancel();
+        proc.removeAllListeners();
+        resolve({
+          error:
+            // TRANSLATORS: This error message is shown if the user tries to launch an app that
+            // TRANSLATORS: doesn't exist.
+            messages.pgettext('split-tunneling-view', 'Please try again or contact support.'),
+        });
+      }
+    });
+    proc.once('exit', (code) => {
+      scheduler.cancel();
+      proc.removeAllListeners();
+
+      if (code === 1) {
+        resolve({
+          error:
+            // TRANSLATORS: This error message is shown if an application failes during startup.
+            messages.pgettext('split-tunneling-view', 'Please try again or contact support.'),
+        });
+      } else {
+        resolve({ success: true });
+      }
+    });
+  });
+}
+
+// Takes the same argument as launchApplication and returns the command to run
+async function getLaunchCommand(app: ILinuxSplitTunnelingApplication | string): Promise<string[]> {
   if (typeof app === 'object') {
-    excludeArguments = formatExec(app.exec);
+    return formatExec(app.exec);
   } else if (path.extname(app) === '.desktop') {
     const entry = await readDesktopEntry(app);
     if (entry.exec !== undefined) {
-      excludeArguments = formatExec(entry.exec);
+      return formatExec(entry.exec);
+    } else {
+      throw new Error(
+        // TRANSLATORS: This error message is shown if the user tries to launch a Linux desktop
+        // TRANSLATORS: entry file that doesn't contain the required 'Exec' value.
+        messages.pgettext('split-tunneling-view', 'Please contact support.'),
+      );
     }
   } else {
-    excludeArguments = [app];
-  }
-
-  if (excludeArguments !== undefined && excludeArguments.length > 0) {
-    child_process.spawn('mullvad-exclude', excludeArguments, { detached: true });
-  } else {
-    throw new Error('Invalid application');
+    return [app];
   }
 }
 

@@ -37,6 +37,8 @@ export interface IRelayListPair {
   bridges: IRelayList;
 }
 
+export type LaunchApplicationResult = { success: true } | { error: string };
+
 export interface IAppStateSnapshot {
   locale: string;
   isConnected: boolean;
@@ -181,7 +183,7 @@ export const ipcSchema = {
   },
   splitTunneling: {
     getApplications: invoke<void, ILinuxSplitTunnelingApplication[]>(),
-    launchApplication: invoke<ILinuxSplitTunnelingApplication | string, void>(),
+    launchApplication: invoke<ILinuxSplitTunnelingApplication | string, LaunchApplicationResult>(),
   },
   problemReport: {
     collectLogs: invoke<string[], string>(),
