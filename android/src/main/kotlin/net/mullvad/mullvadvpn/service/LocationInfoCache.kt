@@ -45,7 +45,7 @@ class LocationInfoCache(
         onNewLocation?.invoke(newLocation)
     }
 
-    var state by observable<TunnelState>(TunnelState.Disconnected()) { _, _, newState ->
+    var state by observable<TunnelState>(TunnelState.Disconnected) { _, _, newState ->
         when (newState) {
             is TunnelState.Disconnected -> {
                 location = lastKnownRealLocation

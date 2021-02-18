@@ -49,7 +49,7 @@ class ForegroundNotificationManager(
 
     private var tunnelStateEvents by autoSubscribable<TunnelState>(
         this,
-        TunnelState.Disconnected()
+        TunnelState.Disconnected
     ) { newState ->
         updater.sendBlocking(UpdaterMessage.NewTunnelState(newState))
     }
@@ -63,7 +63,7 @@ class ForegroundNotificationManager(
     }
 
     private val tunnelState
-        get() = tunnelStateEvents?.latestEvent ?: TunnelState.Disconnected()
+        get() = tunnelStateEvents?.latestEvent ?: TunnelState.Disconnected
 
     private val shouldBeOnForeground
         get() = lockedToForeground || !(tunnelState is TunnelState.Disconnected)
