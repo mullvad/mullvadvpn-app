@@ -242,18 +242,8 @@ impl TunnelMonitor {
 
     fn ensure_ipv6_can_be_used_if_enabled(tunnel_parameters: &TunnelParameters) -> Result<()> {
         let options = tunnel_parameters.get_generic_options();
-
-        #[cfg(target_os = "windows")]
         if options.enable_ipv6 {
-            try_enabling_ipv6()
-        } else {
-            Ok(())
-        }
-
-        #[cfg(not(target_os = "windows"))]
-        if options.enable_ipv6 {
-            let enabled = is_ipv6_enabled_in_os()?;
-            if enabled {
+            if is_ipv6_enabled_in_os() {
                 Ok(())
             } else {
                 Err(Error::EnableIpv6Error)
@@ -365,7 +355,7 @@ impl InternalTunnelMonitor {
 
 
 #[cfg(target_os = "windows")]
-fn try_enabling_ipv6() -> Result<()> {
+fn is_ipv6_enabled_in_os() -> bool {
     use winreg::{enums::*, RegKey};
 
     const IPV6_DISABLED_ON_TUNNELS_MASK: u32 = 0x01;
@@ -378,28 +368,24 @@ fn try_enabling_ipv6() -> Result<()> {
         .map(|ipv6_disabled_bits: u32| (ipv6_disabled_bits & IPV6_DISABLED_ON_TUNNELS_MASK) == 0)
         .unwrap_or(true);
 
-    if !globally_enabled {
-        // TODO: Try to globally enable IPv6
+    if globally_enabled {
+        true
+    } else {
         log::debug!("IPv6 disabled in all tunnel interfaces");
-        return Err(Error::EnableIpv6Error);
+        false
     }
-
-    let guid = "{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}";
-    crate::winnet::enable_ipv6_for_adapter(&guid).map_err(Error::WinnetError)
 }
 
 #[cfg(not(target_os = "windows"))]
-fn is_ipv6_enabled_in_os() -> Result<bool> {
+fn is_ipv6_enabled_in_os() -> bool {
     #[cfg(target_os = "linux")]
     {
-        Ok(
-            std::fs::read_to_string("/proc/sys/net/ipv6/conf/all/disable_ipv6")
-                .map(|disable_ipv6| disable_ipv6.trim() == "0")
-                .unwrap_or(false),
-        )
+        std::fs::read_to_string("/proc/sys/net/ipv6/conf/all/disable_ipv6")
+            .map(|disable_ipv6| disable_ipv6.trim() == "0")
+            .unwrap_or(false)
     }
     #[cfg(any(target_os = "macos", target_os = "android"))]
     {
-        Ok(true)
+        true
     }
 }
