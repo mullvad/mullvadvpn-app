@@ -1,6 +1,6 @@
 use std::{
     ffi::CStr,
-    fmt, io, iter,
+    fmt, io, iter, mem,
     os::windows::{ffi::OsStrExt, io::RawHandle},
     path::Path,
     ptr,
@@ -11,6 +11,7 @@ use widestring::{U16CStr, U16CString};
 use winapi::{
     shared::{
         guiddef::GUID,
+        ifdef::NET_LUID,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
     },
     um::{
@@ -47,6 +48,8 @@ type WintunDeleteAdapterFn = unsafe extern "stdcall" fn(
 type WintunGetAdapterNameFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, name: *mut u16) -> BOOL;
 
+type WintunGetAdapterLuidFn = unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID);
+
 
 pub struct WintunDll {
     handle: HINSTANCE,
@@ -55,6 +58,7 @@ pub struct WintunDll {
     func_free: WintunFreeAdapterFn,
     func_delete: WintunDeleteAdapterFn,
     func_get_adapter_name: WintunGetAdapterNameFn,
+    func_get_adapter_luid: WintunGetAdapterLuidFn,
 }
 
 unsafe impl Send for WintunDll {}
@@ -144,6 +148,10 @@ impl WintunAdapter {
     pub fn name(&self) -> io::Result<U16CString> {
         unsafe { self.dll_handle.get_adapter_name(self.handle) }
     }
+
+    pub fn luid(&self) -> NET_LUID {
+        unsafe { self.dll_handle.get_adapter_luid(self.handle) }
+    }
 }
 
 impl Drop for WintunAdapter {
@@ -211,6 +219,12 @@ impl WintunDll {
                     CStr::from_bytes_with_nul(b"WintunGetAdapterName\0").unwrap(),
                 )?)
             },
+            func_get_adapter_luid: unsafe {
+                std::mem::transmute(get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WintunGetAdapterLUID\0").unwrap(),
+                )?)
+            },
         })
     }
 
@@ -276,6 +290,12 @@ impl WintunDll {
         }
         Ok(U16CString::from_vec_with_nul(alias_buffer)
             .map_err(|_| io::Error::new(io::ErrorKind::Other, "missing null terminator"))?)
+    }
+
+    pub unsafe fn get_adapter_luid(&self, adapter: RawHandle) -> NET_LUID {
+        let mut luid = mem::MaybeUninit::<NET_LUID>::zeroed();
+        (self.func_get_adapter_luid)(adapter, luid.as_mut_ptr());
+        luid.assume_init()
     }
 }
 
