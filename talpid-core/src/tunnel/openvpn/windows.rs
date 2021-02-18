@@ -342,4 +342,35 @@ mod tests {
     fn test_wintun_imports() {
         WintunDll::new_inner(ptr::null_mut(), get_proc_fn).unwrap();
     }
+
+    #[test]
+    fn guid_to_string() {
+        let guids = [
+            (
+                "{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}",
+                GUID {
+                    Data1: 0xAFE43773,
+                    Data2: 0xE1F8,
+                    Data3: 0x4EBB,
+                    Data4: [0x85, 0x36, 0x57, 0x6A, 0xB8, 0x6A, 0xFE, 0x9A],
+                },
+            ),
+            (
+                "{00000000-0000-0000-0000-000000000000}",
+                GUID {
+                    Data1: 0,
+                    Data2: 0,
+                    Data3: 0,
+                    Data4: [0; 8],
+                },
+            ),
+        ];
+
+        for (expected_str, guid) in &guids {
+            assert_eq!(
+                string_from_guid(guid).as_str().to_lowercase(),
+                expected_str.to_lowercase()
+            );
+        }
+    }
 }
