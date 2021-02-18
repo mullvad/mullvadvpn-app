@@ -17,20 +17,8 @@ sealed class KeygenEvent {
         }
     }
 
-    class TooManyKeys : KeygenEvent() {
-        companion object {
-            @JvmStatic
-            val INSTANCE = TooManyKeys()
-        }
-    }
-
-    class GenerationFailure : KeygenEvent() {
-        companion object {
-            @JvmStatic
-            val INSTANCE = GenerationFailure()
-        }
-    }
-
+    object TooManyKeys : KeygenEvent()
+    object GenerationFailure : KeygenEvent()
 
     fun failure(): KeygenFailure? {
         return when (this) {
