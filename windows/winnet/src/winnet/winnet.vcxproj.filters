@@ -21,7 +21,6 @@
       <Filter>routing</Filter>
     </ClCompile>
     <ClCompile Include="converters.cpp" />
-    <ClCompile Include="netconfig.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
@@ -44,7 +43,6 @@
       <Filter>routing</Filter>
     </ClInclude>
     <ClInclude Include="converters.h" />
-    <ClInclude Include="netconfig.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="winnet.def" />

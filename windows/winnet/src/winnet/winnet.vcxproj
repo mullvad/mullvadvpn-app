@@ -28,7 +28,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="converters.cpp" />
-    <ClCompile Include="netconfig.cpp" />
     <ClCompile Include="networkadaptermonitor.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="InterfacePair.cpp" />
@@ -43,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="converters.h" />
-    <ClInclude Include="netconfig.h" />
     <ClInclude Include="networkadaptermonitor.h" />
     <ClInclude Include="InterfacePair.h" />
     <ClInclude Include="offlinemonitor.h" />

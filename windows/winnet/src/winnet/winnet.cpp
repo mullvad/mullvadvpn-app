@@ -4,7 +4,6 @@
 #include "offlinemonitor.h"
 #include "routing/routemanager.h"
 #include "converters.h"
-#include "netconfig.h"
 #include <libshared/logging/logsinkadapter.h>
 #include <libshared/logging/unwind.h>
 #include <libshared/network/interfaceutils.h>
@@ -64,34 +63,6 @@ WinNet_EnsureBestMetric(
 		return WINNET_EBM_STATUS_FAILURE;
 	}
 };
-
-extern "C"
-WINNET_LINKAGE
-bool
-WINNET_API
-WinNet_EnableIpv6ForAdapter(
-	const wchar_t *deviceGuid,
-	MullvadLogSink logSink,
-	void *logSinkContext
-)
-{
-	try
-	{
-		if (nullptr == deviceGuid)
-		{
-			THROW_ERROR("Invalid argument: deviceGuid");
-		}
-
-		EnableIpv6ForAdapter(deviceGuid);
-		return true;
-	}
-	catch (const std::exception & err)
-	{
-		shared::logging::UnwindAndLog(logSink, logSinkContext, err);
-		return false;
-	}
-	return false;
-}
 
 extern "C"
 WINNET_LINKAGE
