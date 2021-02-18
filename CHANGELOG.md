@@ -46,7 +46,14 @@ Line wrap the file at 100 chars.                                              Th
 - Fix delay in showing/hiding update notification when toggling beta program.
 
 
+## [2021.2] - 2021-02-18
+This release is for desktop only.
+
+This release is identical to 2021.2-beta1
+
 ## [2021.2-beta1] - 2021-02-17
+This release is for desktop only.
+
 ### Fixed
 #### Linux
 - Fix crash when trying to apply IPv6 routes for OpenVPN when IPv6 is disabled.
