@@ -330,7 +330,10 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
           </StyledFormEmailRow>
           <StyledFormMessageRow>
             <StyledMessageInput
-              placeholder={messages.pgettext('support-view', 'Describe your problem')}
+              placeholder={messages.pgettext(
+                'support-view',
+                'Please describe your problem in English or Swedish.',
+              )}
               defaultValue={this.state.message}
               onChange={this.onChangeDescription}
             />
