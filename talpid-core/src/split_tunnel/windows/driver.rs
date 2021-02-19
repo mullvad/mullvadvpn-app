@@ -23,6 +23,7 @@ use winapi::{
         in6addr::IN6_ADDR,
         inaddr::IN_ADDR,
         minwindef::{FALSE, TRUE},
+        ntdef::NTSTATUS,
         winerror::{ERROR_INVALID_PARAMETER, ERROR_IO_PENDING},
     },
     um::{
@@ -91,6 +92,8 @@ pub enum EventId {
     ErrorStartSplittingProcess = 0x80000001,
     ErrorStopSplittingProcess,
 
+    ErrorMessage,
+
     Unknown,
 }
 
@@ -103,6 +106,10 @@ pub enum EventBody {
     SplittingError {
         process_id: u32,
         image: OsString,
+    },
+    ErrorMessage {
+        status: NTSTATUS,
+        message: OsString,
     },
 }
 
@@ -544,6 +551,12 @@ struct SplittingErrorEventHeader {
     image_name_length: u16,
 }
 
+#[repr(C)]
+struct ErrorMessageEventHeader {
+    status: NTSTATUS,
+    error_message_length: u16,
+}
+
 pub fn parse_event_buffer(buffer: &Vec<u8>) -> Option<(EventId, EventBody)> {
     let mut raw_event_id = 0u32;
     unsafe {
@@ -631,6 +644,39 @@ pub fn parse_event_buffer(buffer: &Vec<u8>) -> Option<(EventId, EventBody)> {
                 EventBody::SplittingError {
                     process_id: event.process_id,
                     image: OsStringExt::from_wide(&image_name),
+                },
+            ))
+        }
+        EventId::ErrorMessage => {
+            let mut event: ErrorMessageEventHeader = unsafe { mem::zeroed() };
+            unsafe {
+                ptr::copy_nonoverlapping(
+                    &buffer[mem::size_of_val(&event_header)],
+                    &mut event as *mut _ as *mut u8,
+                    mem::size_of_val(&event),
+                )
+            };
+
+            let mut error_message = Vec::new();
+            error_message.resize(
+                event.error_message_length as usize / mem::size_of::<u16>(),
+                0u16,
+            );
+
+            unsafe {
+                ptr::copy_nonoverlapping(
+                    &buffer[mem::size_of_val(&event_header) + mem::size_of_val(&event)] as *const _
+                        as *const u16,
+                    error_message.as_mut_ptr(),
+                    error_message.len(),
+                )
+            };
+
+            Some((
+                event_header.event_id,
+                EventBody::ErrorMessage {
+                    status: event.status,
+                    message: OsStringExt::from_wide(&error_message),
                 },
             ))
         }
