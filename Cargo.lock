@@ -2617,7 +2617,9 @@ dependencies = [
  "dbus",
  "err-derive 0.3.0",
  "lazy_static",
+ "libc",
  "log 0.4.14",
+ "talpid-types",
 ]
 
 [[package]]

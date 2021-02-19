@@ -1,311 +1,109 @@
-use super::RESOLV_CONF_PATH;
-use crate::linux::iface_index;
-use lazy_static::lazy_static;
-use libc::{AF_INET, AF_INET6};
-use std::{fs, io, net::IpAddr, path::Path, sync::Arc, time::Duration};
-use talpid_dbus::dbus::{
-    self,
-    arg::RefArg,
-    blocking::{stdintf::org_freedesktop_dbus::Properties, Proxy, SyncConnection},
+use crate::linux::{iface_index, IfaceIndexLookupError};
+use std::{
+    net::IpAddr,
+    sync::{Arc, Mutex},
+    thread,
 };
-use talpid_types::ErrorExt as _;
+use talpid_dbus::systemd_resolved::{DnsState, SystemdResolved as DbusInterface};
+
+pub(crate) use talpid_dbus::systemd_resolved::Error as SystemdDbusError;
+use talpid_types::ErrorExt;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(err_derive::Error, Debug)]
-#[error(no_from)]
 pub enum Error {
-    #[error(display = "Failed to initialize a connection to D-Bus")]
-    ConnectDBus(#[error(source)] dbus::Error),
+    #[error(display = "systemd-resolved operation failed")]
+    SystemdResolvedError(#[error(source)] SystemdDbusError),
 
-    #[error(display = "Failed to read /etc/resolv.conf: _0")]
-    ReadResolvConfError(#[error(source)] io::Error),
-
-    #[error(display = "/etc/resolv.conf contents do not match systemd-resolved resolv.conf")]
-    ResolvConfDiffers,
-
-    #[error(display = "/etc/resolv.conf is not a symlink to Systemd resolved")]
-    NotSymlinkedToResolvConf,
-
-    #[error(display = "Static stub file does not point to localhost")]
-    StaticStubNotPointingToLocalhost,
-
-    #[error(display = "Systemd resolved not detected")]
-    NoSystemdResolved(#[error(source)] dbus::Error),
-
-    #[error(display = "Invalid network interface name")]
-    InvalidInterfaceName(#[error(source)] crate::linux::IfaceIndexLookupError),
-
-    #[error(display = "Failed to find link interface in resolved manager")]
-    GetLinkError(#[error(source)] Box<Error>),
-
-    #[error(display = "Failed to configure DNS domains")]
-    SetDomainsError(#[error(source)] dbus::Error),
-
-    #[error(display = "Failed to revert DNS settings of interface: {}", _0)]
-    RevertDnsError(String, #[error(source)] dbus::Error),
-
-    #[error(display = "Failed to perform RPC call on D-Bus")]
-    DBusRpcError(#[error(source)] dbus::Error),
+    #[error(display = "Failed to resolve interface index with error {}", _0)]
+    InterfaceNameError(#[error(source)] IfaceIndexLookupError),
 }
-
-lazy_static! {
-    static ref RESOLVED_STUB_PATHS: Vec<&'static Path> = vec![
-        Path::new("/run/systemd/resolve/stub-resolv.conf"),
-        Path::new("/run/systemd/resolve/resolv.conf"),
-        Path::new("/var/run/systemd/resolve/stub-resolv.conf"),
-        Path::new("/var/run/systemd/resolve/resolv.conf"),
-    ];
-}
-
-const STATIC_STUB_PATH: &str = "/usr/lib/systemd/resolv.conf";
-
-const RESOLVED_BUS: &str = "org.freedesktop.resolve1";
-const RPC_TIMEOUT: Duration = Duration::from_secs(1);
-
-const LINK_INTERFACE: &str = "org.freedesktop.resolve1.Link";
-const MANAGER_INTERFACE: &str = "org.freedesktop.resolve1.Manager";
-const GET_LINK_METHOD: &str = "GetLink";
-const SET_DNS_METHOD: &str = "SetDNS";
-const SET_DOMAINS_METHOD: &str = "SetDomains";
-const REVERT_METHOD: &str = "Revert";
 
 pub struct SystemdResolved {
-    pub dbus_connection: Arc<SyncConnection>,
-    interface_link: Option<(String, dbus::Path<'static>)>,
+    pub dbus_interface: DbusInterface,
+    state: Option<Arc<Mutex<Option<DnsState>>>>,
+    watcher_thread: Option<thread::JoinHandle<()>>,
 }
+
 
 impl SystemdResolved {
     pub fn new() -> Result<Self> {
-        let dbus_connection = talpid_dbus::get_connection().map_err(Error::ConnectDBus)?;
+        let dbus_interface = DbusInterface::new()?;
 
         let systemd_resolved = SystemdResolved {
-            dbus_connection,
-            interface_link: None,
+            dbus_interface,
+            state: None,
+            watcher_thread: None,
         };
 
-        systemd_resolved.ensure_resolved_exists()?;
-        Self::ensure_resolv_conf_is_resolved_symlink()?;
         Ok(systemd_resolved)
     }
 
-    fn ensure_resolved_exists(&self) -> Result<()> {
-        let _: Box<dyn RefArg> = self
-            .as_manager_object()
-            .get(&MANAGER_INTERFACE, "DNS")
-            .map_err(Error::NoSystemdResolved)?;
-
-        Ok(())
-    }
-
-    fn ensure_resolv_conf_is_resolved_symlink() -> Result<()> {
-        match fs::read_link(RESOLV_CONF_PATH) {
-            Ok(link_target) => {
-                // if /etc/resolv.conf is not symlinked to the stub resolve.conf file , managing DNS
-                // through systemd-resolved will not ensure that our resolver is given priority -
-                // sometimes this will mean adding 1 and 2 seconds of latency to DNS
-                // queries, other times our resolver won't be considered at all. In
-                // this case, it's better to fall back to cruder management methods.
-                if Self::path_is_resolvconf_stub(&link_target)
-                    || Self::resolv_conf_is_static_stub(&link_target)?
-                    || Self::ensure_resolvconf_contents().is_ok()
-                {
-                    Ok(())
-                } else {
-                    Err(Error::NotSymlinkedToResolvConf)
-                }
-            }
-            // etc/resolv.conf is not a symlink
-            Err(err) if err.kind() == io::ErrorKind::InvalidInput => {
-                Self::ensure_resolvconf_contents()
-            }
-            Err(err) => {
-                log::trace!("Failed to read /etc/resolv.conf symlink - {}", err);
-                Err(Error::NotSymlinkedToResolvConf)
-            }
-        }
-    }
-
-    fn ensure_resolvconf_contents() -> Result<()> {
-        let resolv_conf =
-            fs::read_to_string(RESOLV_CONF_PATH).map_err(Error::ReadResolvConfError)?;
-        if RESOLVED_STUB_PATHS
-            .iter()
-            .filter_map(|path| fs::read_to_string(path).ok())
-            .any(|link_contents| link_contents == resolv_conf)
-        {
-            Ok(())
-        } else {
-            Err(Error::ResolvConfDiffers)
-        }
-    }
-
-    fn path_is_resolvconf_stub(link_path: &Path) -> bool {
-        // if link path is relative to /etc/resolv.conf, resolve the path and compare it.
-        if link_path.is_relative() {
-            match Path::new("/etc/").join(link_path).canonicalize() {
-                Ok(link_destination) => RESOLVED_STUB_PATHS.contains(&link_destination.as_ref()),
-                Err(e) => {
-                    log::error!(
-                        "Failed to canonicalize resolv conf path {} - {}",
-                        link_path.display(),
-                        e
-                    );
-                    false
-                }
-            }
-        } else {
-            RESOLVED_STUB_PATHS.contains(&link_path)
-        }
-    }
-
-    /// Checks if path is pointing to the systemd-resolved _static_ resolv.conf file. If it's not,
-    /// it returns false, otherwise it checks whether the static stub file points to the local
-    /// resolver. If not, the file has been _meddled_ with, so we can't trust it.
-    fn resolv_conf_is_static_stub(link_path: &Path) -> Result<bool> {
-        if link_path == &STATIC_STUB_PATH.as_ref() {
-            let points_to_localhost = fs::read_to_string(link_path)
-                .map(|contents| {
-                    let parts = contents.trim().split(' ');
-                    parts
-                        .map(str::parse::<IpAddr>)
-                        .map(|maybe_ip| maybe_ip.map(|addr| addr.is_loopback()).unwrap_or(false))
-                        .any(|is_loopback| is_loopback)
-                })
-                .unwrap_or(false);
-
-            if points_to_localhost {
-                Ok(true)
-            } else {
-                Err(Error::StaticStubNotPointingToLocalhost)
-            }
-        } else {
-            Ok(false)
-        }
-    }
-
-
-    fn as_manager_object(&self) -> Proxy<'_, &SyncConnection> {
-        Proxy::new(
-            RESOLVED_BUS,
-            "/org/freedesktop/resolve1",
-            RPC_TIMEOUT,
-            &self.dbus_connection,
-        )
-    }
-
-    fn as_link_object<'a>(
-        &'a self,
-        link_object_path: dbus::Path<'a>,
-    ) -> Proxy<'a, &'a SyncConnection> {
-        Proxy::new(
-            RESOLVED_BUS,
-            link_object_path,
-            RPC_TIMEOUT,
-            &self.dbus_connection,
-        )
-    }
-
     pub fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
-        let link_object_path = self
-            .fetch_link(interface_name)
-            .map_err(|e| Error::GetLinkError(Box::new(e)))?;
-        if let Err(e) = self.reset() {
-            log::debug!(
-                "Failed to reset previous DNS settings - {}",
-                e.display_chain()
+        let iface_index = iface_index(interface_name)?;
+        let dns_state = self.dbus_interface.set_dns(iface_index, servers)?;
+        let cloned_dns_state = self.set_dns_state(dns_state);
+        let weak_dns_state = Arc::downgrade(&cloned_dns_state);
+        let dns_state_should_continue = weak_dns_state.clone();
+
+        let dbus_interface = self.dbus_interface.clone();
+        let mut applied_servers: Vec<_> = servers.iter().cloned().collect();
+        applied_servers.sort();
+        let applied_servers = Arc::new(applied_servers);
+
+        self.watcher_thread = Some(std::thread::spawn(move || {
+            let result = dbus_interface.clone().watch_dns_changes(
+                move |new_servers| {
+                    (|| {
+                        let dns_state_lock = weak_dns_state.upgrade()?;
+                        let dns_state = dns_state_lock.lock().ok()?;
+                        let dns_state_ref: &DnsState = &*dns_state.as_ref()?;
+
+                        let mut current_servers: Vec<IpAddr> = new_servers
+                                .into_iter()
+                                .filter(|server| server.iface_index == iface_index as i32)
+                                .map(|server| server.address)
+                                .collect();
+                        current_servers.sort();
+                        if current_servers != *dns_state_ref.set_servers {
+                            log::debug!("DNS config for tunnel interface changed, currently applied servers - {:?}", current_servers);
+                            if let Err(err) = dbus_interface.set_dns(iface_index, &applied_servers) {
+                                log::error!("Failed to re-apply DNS config - {}", err);
+                            }
+                        }
+                        Some(())
+                    })();
+                },
+                || dns_state_should_continue.upgrade().is_some(),
             );
-        }
-
-        self.set_link_dns(&link_object_path, servers)?;
-        self.interface_link = Some((interface_name.to_string(), link_object_path));
-
+            if let Err(err) = result {
+                log::error!("Failed to watch DNS config updates: {}", err);
+            }
+        }));
         Ok(())
     }
 
-    fn fetch_link(&self, interface_name: &str) -> Result<dbus::Path<'static>> {
-        let interface_index = iface_index(interface_name).map_err(Error::InvalidInterfaceName)?;
-
-        self.as_manager_object()
-            .method_call(
-                MANAGER_INTERFACE,
-                GET_LINK_METHOD,
-                (interface_index as i32,),
-            )
-            .map_err(Error::DBusRpcError)
-            .map(|result: (dbus::Path<'static>,)| result.0)
-    }
-
-    fn set_link_dns<'a, 'b: 'a>(
-        &'a self,
-        link_object_path: &'b dbus::Path<'static>,
-        servers: &[IpAddr],
-    ) -> Result<()> {
-        let servers = servers
-            .iter()
-            .map(|addr| (ip_version(addr), ip_to_bytes(addr)))
-            .collect::<Vec<_>>();
-        self.as_link_object(link_object_path.clone())
-            .method_call(LINK_INTERFACE, SET_DNS_METHOD, (servers,))
-            .map_err(Error::DBusRpcError)?;
-
-        // set the search domain to catch all DNS requests, forces the link to be the prefered
-        // resolver, otherwise systemd-resolved will use other interfaces to do DNS lookups
-        let dns_domains: &[_] = &[(&".", true)];
-
-        Proxy::new(
-            RESOLVED_BUS,
-            link_object_path,
-            RPC_TIMEOUT,
-            &*self.dbus_connection,
-        )
-        .method_call(LINK_INTERFACE, SET_DOMAINS_METHOD, (dns_domains,))
-        .map_err(Error::SetDomainsError)
+    fn set_dns_state(&mut self, dns_state: DnsState) -> Arc<Mutex<Option<DnsState>>> {
+        let new_state = Arc::new(Mutex::new(Some(dns_state)));
+        self.state = Some(new_state.clone());
+        new_state
     }
 
     pub fn reset(&mut self) -> Result<()> {
-        if let Some((interface_name, link_object_path)) = self.interface_link.take() {
-            self.revert_link(link_object_path, &interface_name)
-                .map_err(|e| Error::RevertDnsError(interface_name.to_owned(), e))
-        } else {
-            log::trace!("No DNS settings to reset");
-            Ok(())
-        }
-    }
-
-    fn revert_link(
-        &mut self,
-        link_object_path: dbus::Path<'static>,
-        interface_name: &str,
-    ) -> std::result::Result<(), dbus::Error> {
-        let link = self.as_link_object(link_object_path);
-
-        if let Err(error) = link.method_call::<(), _, _, _>(LINK_INTERFACE, REVERT_METHOD, ()) {
-            if error.name() == Some("org.freedesktop.DBus.Error.UnknownObject") {
-                log::trace!(
-                    "Not resetting DNS of interface {} because it no longer exists",
-                    interface_name
-                );
-                Ok(())
-            } else {
-                Err(error)
+        if let Some(state_lock) = self.state.take() {
+            if let Some(dns_state) = state_lock.lock().expect("DNS state lock poisoned").take() {
+                if let Err(err) = self.dbus_interface.revert_link(dns_state) {
+                    log::error!("Failed to revert DNS config - {}", err.display_chain());
+                }
             }
         } else {
-            Ok(())
+            log::trace!("No DNS settings to reset");
         }
-    }
-}
+        if let Some(join_handle) = self.watcher_thread.take() {
+            let _ = join_handle.join();
+        }
 
-fn ip_version(address: &IpAddr) -> i32 {
-    match address {
-        IpAddr::V4(_) => AF_INET,
-        IpAddr::V6(_) => AF_INET6,
-    }
-}
-
-fn ip_to_bytes(address: &IpAddr) -> Vec<u8> {
-    match address {
-        IpAddr::V4(v4_address) => v4_address.octets().to_vec(),
-        IpAddr::V6(v6_address) => v6_address.octets().to_vec(),
+        Ok(())
     }
 }

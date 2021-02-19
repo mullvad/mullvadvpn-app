@@ -1,4 +1,5 @@
 //! NetworkManager is the one-stop-shop of network configuration on Linux.
+use super::systemd_resolved;
 pub use dbus::arg::{RefArg, Variant};
 use dbus::{
     arg,
@@ -67,6 +68,12 @@ pub enum Error {
 
     #[error(display = "Failed to match the returned D-Bus object with expected type")]
     MatchDBusTypeError(#[error(source)] dbus::arg::TypeMismatchError),
+
+    #[error(
+        display = "NM is configured to manage DNS via systemd-resolved but systemd-resolved is not managing /etc/resolv.conf: {}",
+        _0
+    )]
+    SystemdResolvedNotManagingResolvconf(systemd_resolved::Error),
 
     #[error(display = "Configuration has no device associated to it")]
     NoDevice,
@@ -414,6 +421,13 @@ impl NetworkManager {
             .get(NM_DNS_MANAGER, RC_MANAGEMENT_MODE_KEY)?;
         if management_mode == "unmanaged" {
             return Err(Error::NetworkManagerNotManagingDns);
+        }
+
+        if management_mode == "systemd-resolved" {
+            return match systemd_resolved::SystemdResolved::new() {
+                Ok(_) => Ok(()),
+                Err(err) => Err(Error::SystemdResolvedNotManagingResolvconf(err)),
+            };
         }
 
         let dns_mode: String = self
