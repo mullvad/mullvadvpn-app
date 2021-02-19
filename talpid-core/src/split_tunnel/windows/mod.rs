@@ -182,6 +182,19 @@ impl SplitTunnel {
                 };
 
                 match event_body {
+                    EventBody::SplittingEvent {
+                        process_id,
+                        reason,
+                        image,
+                    } => {
+                        log::trace!(
+                            "{}:\n\tpid: {}\n\treason: {:?}\n\timage: {:?}",
+                            event_str,
+                            process_id,
+                            reason,
+                            image,
+                        );
+                    }
                     EventBody::SplittingError { process_id, image } => {
                         log::error!(
                             "FAILED: {}:\n\tpid: {}\n\timage: {:?}",
@@ -193,7 +206,6 @@ impl SplitTunnel {
                     EventBody::ErrorMessage { status, message } => {
                         log::error!("NTSTATUS {:#x}: {}", status, message.to_string_lossy())
                     }
-                    _ => (),
                 }
             }
 
