@@ -31,7 +31,7 @@ function injectBrowserSync() {
 
 function reloadBrowser(done) {
   browserSync.reload();
-  done();
+  done && done();
 }
 
 startBrowserSync.displayName = 'start-hotreload';
