@@ -163,7 +163,12 @@ impl SplitTunnel {
 
                 unsafe { data_buffer.set_len(returned_bytes as usize) };
 
-                let (event_id, event_body) = driver::parse_event_buffer(&data_buffer);
+                let event = driver::parse_event_buffer(&data_buffer);
+
+                let (event_id, event_body) = match event {
+                    Some((event_id, event_body)) => (event_id, event_body),
+                    None => continue,
+                };
 
                 let event_str = match &event_id {
                     EventId::StartSplittingProcess | EventId::ErrorStartSplittingProcess => {
@@ -172,6 +177,7 @@ impl SplitTunnel {
                     EventId::StopSplittingProcess | EventId::ErrorStopSplittingProcess => {
                         "Stop splitting process"
                     }
+                    _ => "Unknown event ID",
                 };
 
                 match event_body {
