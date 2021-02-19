@@ -10,3 +10,5 @@ dbus = "0.9"
 err-derive = "0.3.0"
 lazy_static = "1.0"
 log = "0.4"
+libc = "0.2"
+talpid-types = { path = "../talpid-types" }

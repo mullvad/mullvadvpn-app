@@ -1,7 +1,7 @@
 mod network_manager;
 mod resolvconf;
 mod static_resolv_conf;
-mod systemd_resolved;
+pub(self) mod systemd_resolved;
 
 use self::{
     network_manager::NetworkManager, resolvconf::Resolvconf, static_resolv_conf::StaticResolvConf,
@@ -106,9 +106,11 @@ impl DnsMonitorHolder {
             .map(DnsMonitorHolder::SystemdResolved)
             .or_else(|err| {
                 match err {
-                    systemd_resolved::Error::NoSystemdResolved(_) => (),
+                    systemd_resolved::Error::SystemdResolvedError(
+                        systemd_resolved::SystemdDbusError::NoSystemdResolved(_),
+                    ) => (),
                     other_error => {
-                        log::debug!("systemd-resolved is not being used because {}", other_error)
+                        log::debug!("NetworkManager is not being used because {}", other_error)
                     }
                 }
                 NetworkManager::new().map(DnsMonitorHolder::NetworkManager)
