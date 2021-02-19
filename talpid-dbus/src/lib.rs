@@ -4,6 +4,7 @@ pub use dbus;
 use dbus::blocking::SyncConnection;
 use std::sync::{Arc, Mutex};
 pub mod network_manager;
+pub mod systemd_resolved;
 
 lazy_static::lazy_static! {
     static ref DBUS_CONNECTION: Mutex<Option<Arc<SyncConnection>>> = Mutex::new(None);

@@ -51,6 +51,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix "cannot find the file" error while creating a Wintun adapter by upgrading Wintun.
 
+#### Linux
+- Fix DNS issues where NM would overwrite Mullvad tunnel's DNS config in systemd-resolved.
+
 
 ## [2021.2] - 2021-02-18
 This release is for desktop only.
