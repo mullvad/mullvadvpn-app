@@ -16,19 +16,20 @@ sealed class KeygenEvent {
             this.replacementFailure = replacementFailure
         }
     }
-    class TooManyKeys : KeygenEvent()
-    class GenerationFailure : KeygenEvent()
+
+    object TooManyKeys : KeygenEvent()
+    object GenerationFailure : KeygenEvent()
 
     fun failure(): KeygenFailure? {
         return when (this) {
-            is KeygenEvent.TooManyKeys -> KeygenFailure.TooManyKeys()
-            is KeygenEvent.GenerationFailure -> KeygenFailure.GenerationFailure()
-            else -> { null }
+            is KeygenEvent.TooManyKeys -> KeygenFailure.TooManyKeys
+            is KeygenEvent.GenerationFailure -> KeygenFailure.GenerationFailure
+            else -> null
         }
     }
 }
 
-sealed class KeygenFailure() {
-    class TooManyKeys() : KeygenFailure()
-    class GenerationFailure() : KeygenFailure()
+enum class KeygenFailure {
+    TooManyKeys,
+    GenerationFailure,
 }

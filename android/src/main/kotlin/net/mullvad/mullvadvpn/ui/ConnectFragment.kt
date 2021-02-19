@@ -43,7 +43,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         val view = inflater.inflate(R.layout.connect, container, false)
 
         headerBar = view.findViewById<HeaderBar>(R.id.header_bar).apply {
-            tunnelState = TunnelState.Disconnected()
+            tunnelState = TunnelState.Disconnected
         }
 
         notificationBanner = view.findViewById<NotificationBanner>(R.id.notification_banner).apply {

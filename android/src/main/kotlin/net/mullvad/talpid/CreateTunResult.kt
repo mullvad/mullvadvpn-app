@@ -19,6 +19,7 @@ sealed class CreateTunResult {
             get() = true
     }
 
-    class PermissionDenied : CreateTunResult()
-    class TunnelDeviceError : CreateTunResult()
+    object PermissionDenied : CreateTunResult()
+
+    object TunnelDeviceError : CreateTunResult()
 }

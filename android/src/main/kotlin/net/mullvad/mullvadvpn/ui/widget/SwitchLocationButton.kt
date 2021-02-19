@@ -35,7 +35,7 @@ class SwitchLocationButton : FrameLayout {
         buttonWithLocation.text = location?.locationName ?: ""
     }
 
-    var tunnelState by observable<TunnelState>(TunnelState.Disconnected()) { _, _, state ->
+    var tunnelState by observable<TunnelState>(TunnelState.Disconnected) { _, _, state ->
         when (state) {
             is TunnelState.Disconnected -> showLocation()
             is TunnelState.Disconnecting -> {

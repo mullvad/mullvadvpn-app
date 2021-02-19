@@ -33,7 +33,7 @@ class ConnectActionButton(val parentView: View) {
             }
         }
 
-    var tunnelState: TunnelState = TunnelState.Disconnected()
+    var tunnelState: TunnelState = TunnelState.Disconnected
         set(value) {
             when (value) {
                 is TunnelState.Disconnected -> disconnected()

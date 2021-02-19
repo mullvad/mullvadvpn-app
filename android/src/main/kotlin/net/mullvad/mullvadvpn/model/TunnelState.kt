@@ -6,7 +6,7 @@ import net.mullvad.talpid.tunnel.ErrorState
 import net.mullvad.talpid.tunnel.ErrorStateCause
 
 sealed class TunnelState() {
-    class Disconnected() : TunnelState()
+    object Disconnected : TunnelState()
     class Connecting(val endpoint: TunnelEndpoint?, val location: GeoIpLocation?) : TunnelState()
     class Connected(val endpoint: TunnelEndpoint, val location: GeoIpLocation?) : TunnelState()
     class Disconnecting(val actionAfterDisconnect: ActionAfterDisconnect) : TunnelState()
@@ -23,18 +23,16 @@ sealed class TunnelState() {
 
         fun fromString(description: String, endpoint: TunnelEndpoint?): TunnelState {
             return when (description) {
-                DISCONNECTED -> TunnelState.Disconnected()
+                DISCONNECTED -> TunnelState.Disconnected
                 CONNECTING -> TunnelState.Connecting(endpoint, null)
                 CONNECTED -> TunnelState.Connected(endpoint!!, null)
                 RECONNECTING -> TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect)
                 DISCONNECTING -> TunnelState.Disconnecting(ActionAfterDisconnect.Nothing)
-                BLOCKING -> TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError(), true))
+                BLOCKING -> TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, true))
                 ERROR -> {
-                    TunnelState.Error(ErrorState(ErrorStateCause.SetFirewallPolicyError(), false))
+                    TunnelState.Error(ErrorState(ErrorStateCause.SetFirewallPolicyError, false))
                 }
-                else -> {
-                    TunnelState.Error(ErrorState(ErrorStateCause.SetFirewallPolicyError(), false))
-                }
+                else -> TunnelState.Error(ErrorState(ErrorStateCause.SetFirewallPolicyError, false))
             }
         }
     }

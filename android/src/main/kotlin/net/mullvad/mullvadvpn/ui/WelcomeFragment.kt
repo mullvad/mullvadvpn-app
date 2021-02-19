@@ -30,7 +30,7 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         val view = inflater.inflate(R.layout.welcome, container, false)
 
         view.findViewById<HeaderBar>(R.id.header_bar).apply {
-            tunnelState = TunnelState.Disconnected()
+            tunnelState = TunnelState.Disconnected
         }
 
         accountLabel = view.findViewById<TextView>(R.id.account_number).apply {
