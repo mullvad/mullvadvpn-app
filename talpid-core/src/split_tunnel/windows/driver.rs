@@ -2,6 +2,7 @@ use super::windows::{
     get_final_path_name, get_process_creation_time, get_process_device_path, open_process,
     ProcessAccess, ProcessSnapshot,
 };
+use memoffset::offset_of;
 use std::{
     cell::RefCell,
     collections::HashMap,
@@ -99,12 +100,12 @@ pub enum EventId {
 
 pub enum EventBody {
     SplittingEvent {
-        process_id: u32,
+        process_id: usize,
         reason: SplittingChangeReason,
         image: OsString,
     },
     SplittingError {
-        process_id: u32,
+        process_id: usize,
         image: OsString,
     },
     ErrorMessage {
@@ -561,25 +562,29 @@ fn serialize_process_tree(processes: Vec<ProcessInfo>) -> Result<Vec<u8>, io::Er
 struct EventHeader {
     event_id: EventId,
     event_size: usize,
+    event_data: [u8; 1],
 }
 
 #[repr(C)]
 struct SplittingEventHeader {
-    process_id: u32,
+    process_id: usize,
     reason: SplittingChangeReason,
     image_name_length: u16,
+    image_name_data: [u16; 1],
 }
 
 #[repr(C)]
 struct SplittingErrorEventHeader {
-    process_id: u32,
+    process_id: usize,
     image_name_length: u16,
+    image_name_data: [u16; 1],
 }
 
 #[repr(C)]
 struct ErrorMessageEventHeader {
     status: NTSTATUS,
     error_message_length: u16,
+    error_message_data: [u16; 1],
 }
 
 pub fn parse_event_buffer(buffer: &Vec<u8>) -> Option<(EventId, EventBody)> {
@@ -600,7 +605,7 @@ pub fn parse_event_buffer(buffer: &Vec<u8>) -> Option<(EventId, EventBody)> {
         ptr::copy_nonoverlapping(
             &buffer[0],
             &mut event_header as *mut _ as *mut u8,
-            mem::size_of_val(&event_header),
+            offset_of!(EventHeader, event_data),
         )
     };
 
@@ -609,9 +614,9 @@ pub fn parse_event_buffer(buffer: &Vec<u8>) -> Option<(EventId, EventBody)> {
             let mut event: SplittingEventHeader = unsafe { mem::zeroed() };
             unsafe {
                 ptr::copy_nonoverlapping(
-                    &buffer[mem::size_of_val(&event_header)],
+                    &buffer[offset_of!(EventHeader, event_data)],
                     &mut event as *mut _ as *mut u8,
-                    mem::size_of_val(&event),
+                    offset_of!(SplittingEventHeader, image_name_data),
                 )
             };
 
@@ -621,10 +626,12 @@ pub fn parse_event_buffer(buffer: &Vec<u8>) -> Option<(EventId, EventBody)> {
                 0u16,
             );
 
+            let string_byte_offset = offset_of!(EventHeader, event_data)
+                + offset_of!(SplittingEventHeader, image_name_data);
+
             unsafe {
                 ptr::copy_nonoverlapping(
-                    &buffer[mem::size_of_val(&event_header) + mem::size_of_val(&event)] as *const _
-                        as *const u16,
+                    &buffer[string_byte_offset] as *const _ as *const u16,
                     image_name.as_mut_ptr(),
                     image_name.len(),
                 )
@@ -643,9 +650,9 @@ pub fn parse_event_buffer(buffer: &Vec<u8>) -> Option<(EventId, EventBody)> {
             let mut event: SplittingErrorEventHeader = unsafe { mem::zeroed() };
             unsafe {
                 ptr::copy_nonoverlapping(
-                    &buffer[mem::size_of_val(&event_header)],
+                    &buffer[offset_of!(EventHeader, event_data)],
                     &mut event as *mut _ as *mut u8,
-                    mem::size_of_val(&event),
+                    offset_of!(SplittingErrorEventHeader, image_name_data),
                 )
             };
 
@@ -655,10 +662,12 @@ pub fn parse_event_buffer(buffer: &Vec<u8>) -> Option<(EventId, EventBody)> {
                 0u16,
             );
 
+            let string_byte_offset = offset_of!(EventHeader, event_data)
+                + offset_of!(SplittingErrorEventHeader, image_name_data);
+
             unsafe {
                 ptr::copy_nonoverlapping(
-                    &buffer[mem::size_of_val(&event_header) + mem::size_of_val(&event)] as *const _
-                        as *const u16,
+                    &buffer[string_byte_offset] as *const _ as *const u16,
                     image_name.as_mut_ptr(),
                     image_name.len(),
                 )
@@ -676,9 +685,9 @@ pub fn parse_event_buffer(buffer: &Vec<u8>) -> Option<(EventId, EventBody)> {
             let mut event: ErrorMessageEventHeader = unsafe { mem::zeroed() };
             unsafe {
                 ptr::copy_nonoverlapping(
-                    &buffer[mem::size_of_val(&event_header)],
+                    &buffer[offset_of!(EventHeader, event_data)],
                     &mut event as *mut _ as *mut u8,
-                    mem::size_of_val(&event),
+                    offset_of!(ErrorMessageEventHeader, error_message_data),
                 )
             };
 
@@ -688,10 +697,12 @@ pub fn parse_event_buffer(buffer: &Vec<u8>) -> Option<(EventId, EventBody)> {
                 0u16,
             );
 
+            let string_byte_offset = offset_of!(EventHeader, event_data)
+                + offset_of!(ErrorMessageEventHeader, error_message_data);
+
             unsafe {
                 ptr::copy_nonoverlapping(
-                    &buffer[mem::size_of_val(&event_header) + mem::size_of_val(&event)] as *const _
-                        as *const u16,
+                    &buffer[string_byte_offset] as *const _ as *const u16,
                     error_message.as_mut_ptr(),
                     error_message.len(),
                 )
