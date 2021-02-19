@@ -177,6 +177,7 @@ impl SplitTunnel {
                     EventId::StopSplittingProcess | EventId::ErrorStopSplittingProcess => {
                         "Stop splitting process"
                     }
+                    EventId::ErrorMessage => "ErrorMessage",
                     _ => "Unknown event ID",
                 };
 
@@ -188,6 +189,9 @@ impl SplitTunnel {
                             process_id,
                             image,
                         );
+                    }
+                    EventBody::ErrorMessage { status, message } => {
+                        log::error!("NTSTATUS {:#x}: {}", status, message.to_string_lossy())
                     }
                     _ => (),
                 }
