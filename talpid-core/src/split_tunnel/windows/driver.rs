@@ -90,6 +90,8 @@ pub enum EventId {
     // ErrorFlag = 0x80000000,
     ErrorStartSplittingProcess = 0x80000001,
     ErrorStopSplittingProcess,
+
+    Unknown,
 }
 
 pub enum EventBody {
@@ -542,9 +544,20 @@ struct SplittingErrorEventHeader {
     image_name_length: u16,
 }
 
-pub fn parse_event_buffer(buffer: &Vec<u8>) -> (EventId, EventBody) {
-    let mut event_header: EventHeader = unsafe { mem::zeroed() };
+pub fn parse_event_buffer(buffer: &Vec<u8>) -> Option<(EventId, EventBody)> {
+    let mut raw_event_id = 0u32;
+    unsafe {
+        ptr::copy_nonoverlapping(
+            &buffer[0],
+            &mut raw_event_id as *mut _ as *mut u8,
+            mem::size_of::<u32>(),
+        )
+    };
+    if raw_event_id >= EventId::Unknown as u32 {
+        return None;
+    }
 
+    let mut event_header: EventHeader = unsafe { mem::zeroed() };
     unsafe {
         ptr::copy_nonoverlapping(
             &buffer[0],
@@ -579,14 +592,14 @@ pub fn parse_event_buffer(buffer: &Vec<u8>) -> (EventId, EventBody) {
                 )
             };
 
-            (
+            Some((
                 event_header.event_id,
                 EventBody::SplittingEvent {
                     process_id: event.process_id,
                     reason: event.reason,
                     image: OsStringExt::from_wide(&image_name),
                 },
-            )
+            ))
         }
         EventId::ErrorStartSplittingProcess | EventId::ErrorStopSplittingProcess => {
             let mut event: SplittingErrorEventHeader = unsafe { mem::zeroed() };
@@ -613,14 +626,15 @@ pub fn parse_event_buffer(buffer: &Vec<u8>) -> (EventId, EventBody) {
                 )
             };
 
-            (
+            Some((
                 event_header.event_id,
                 EventBody::SplittingError {
                     process_id: event.process_id,
                     image: OsStringExt::from_wide(&image_name),
                 },
-            )
+            ))
         }
+        EventId::Unknown => None,
     }
 }
 
