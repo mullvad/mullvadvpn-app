@@ -169,8 +169,6 @@
 		58C3B06724EA768100C0348E /* LogStreamerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3B06624EA768100C0348E /* LogStreamerViewController.swift */; };
 		58C3B06924EAA25000C0348E /* StringStreamIterator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3B06824EAA25000C0348E /* StringStreamIterator.swift */; };
 		58C4CB0124EBE5A700A22D49 /* LogEntryParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C4CB0024EBE5A700A22D49 /* LogEntryParser.swift */; };
-		58C6B35E22BBBFE3003C19AD /* Data+HexCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C6B35D22BBBFE3003C19AD /* Data+HexCoding.swift */; };
-		58C6B35F22BBBFE3003C19AD /* Data+HexCoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C6B35D22BBBFE3003C19AD /* Data+HexCoding.swift */; };
 		58CB0EE024B86751001EF0D8 /* MullvadRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CB0EDF24B86751001EF0D8 /* MullvadRest.swift */; };
 		58CB0EE124B86751001EF0D8 /* MullvadRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CB0EDF24B86751001EF0D8 /* MullvadRest.swift */; };
 		58CC40EF24A601900019D96E /* ObserverList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CC40EE24A601900019D96E /* ObserverList.swift */; };
@@ -365,7 +363,6 @@
 		58C3B06824EAA25000C0348E /* StringStreamIterator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringStreamIterator.swift; sourceTree = "<group>"; };
 		58C4CB0024EBE5A700A22D49 /* LogEntryParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogEntryParser.swift; sourceTree = "<group>"; };
 		58C6B35322BB87C4003C19AD /* PrivateKeyWithMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivateKeyWithMetadata.swift; sourceTree = "<group>"; };
-		58C6B35D22BBBFE3003C19AD /* Data+HexCoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+HexCoding.swift"; sourceTree = "<group>"; };
 		58CB0EDF24B86751001EF0D8 /* MullvadRest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadRest.swift; sourceTree = "<group>"; };
 		58CC40EE24A601900019D96E /* ObserverList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObserverList.swift; sourceTree = "<group>"; };
 		58CCA00F224249A1004F3011 /* ConnectViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectViewController.swift; sourceTree = "<group>"; };
@@ -570,7 +567,6 @@
 				58293FB625138B88005D0BB5 /* CustomNavigationController.swift */,
 				58293FB025124117005D0BB5 /* CustomTextField.swift */,
 				58293FB2251241B3005D0BB5 /* CustomTextView.swift */,
-				58C6B35D22BBBFE3003C19AD /* Data+HexCoding.swift */,
 				58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */,
 				58B9EB142489139B00095626 /* DisplayChainedError.swift */,
 				5873884C239E6D7E00E96C4E /* EmbeddedViewContainerView.swift */,
@@ -1064,7 +1060,6 @@
 				5815039D24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */,
 				581CBCEE229826FD00727D7F /* StaticTableViewDataSource.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
-				58C6B35E22BBBFE3003C19AD /* Data+HexCoding.swift in Sources */,
 				5857F24324C8662600CF6F47 /* SelectLocationHeaderView.swift in Sources */,
 				58AEEF652344A36000C9BBD5 /* KeychainError.swift in Sources */,
 				58C3B06924EAA25000C0348E /* StringStreamIterator.swift in Sources */,
@@ -1134,7 +1129,6 @@
 				581503A724D6F4AE00C9C50E /* Logging.swift in Sources */,
 				58FAEE0424533AC000CB0F5B /* KeychainClass.swift in Sources */,
 				58AEEF6C2344A49D00C9BBD5 /* TunnelSettingsManager.swift in Sources */,
-				58C6B35F22BBBFE3003C19AD /* Data+HexCoding.swift in Sources */,
 				581503A424D6F1EC00C9C50E /* ChainedError+Logger.swift in Sources */,
 				5815039824D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */,
 				5840250522B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */,
