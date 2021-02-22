@@ -109,19 +109,13 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
     }
 
     private static func makeMetadata() -> Metadata {
-        let bundle = Bundle.main
-        let version = bundle.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "nil"
-        let buildNumber = bundle.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as? String ?? "nil"
-
-        let operatingSystemVersion: String = {
-            let version = ProcessInfo.processInfo.operatingSystemVersion
-            return "iOS \(version.majorVersion).\(version.minorVersion).\(version.patchVersion)"
-        }()
+        let osVersion = ProcessInfo.processInfo.operatingSystemVersion
+        let osVersionString = "iOS \(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)"
 
         return [
             .id : UUID().uuidString,
-            .productVersion: "\(version)-b\(buildNumber)",
-            .os: operatingSystemVersion
+            .productVersion: Bundle.main.productVersion,
+            .os: osVersionString
         ]
     }
 
