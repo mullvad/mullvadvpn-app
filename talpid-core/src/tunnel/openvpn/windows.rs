@@ -1,6 +1,6 @@
 use std::{
     ffi::CStr,
-    fmt, io, iter,
+    fmt, io, iter, mem,
     os::windows::{ffi::OsStrExt, io::RawHandle},
     path::Path,
     ptr,
@@ -11,7 +11,10 @@ use widestring::{U16CStr, U16CString};
 use winapi::{
     shared::{
         guiddef::GUID,
+        ifdef::NET_LUID,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
+        netioapi::ConvertInterfaceLuidToGuid,
+        winerror::NO_ERROR,
     },
     um::{
         libloaderapi::{
@@ -47,6 +50,8 @@ type WintunDeleteAdapterFn = unsafe extern "stdcall" fn(
 type WintunGetAdapterNameFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, name: *mut u16) -> BOOL;
 
+type WintunGetAdapterLuidFn = unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID);
+
 
 pub struct WintunDll {
     handle: HINSTANCE,
@@ -55,6 +60,7 @@ pub struct WintunDll {
     func_free: WintunFreeAdapterFn,
     func_delete: WintunDeleteAdapterFn,
     func_get_adapter_name: WintunGetAdapterNameFn,
+    func_get_adapter_luid: WintunGetAdapterLuidFn,
 }
 
 unsafe impl Send for WintunDll {}
@@ -144,6 +150,19 @@ impl WintunAdapter {
     pub fn name(&self) -> io::Result<U16CString> {
         unsafe { self.dll_handle.get_adapter_name(self.handle) }
     }
+
+    pub fn luid(&self) -> NET_LUID {
+        unsafe { self.dll_handle.get_adapter_luid(self.handle) }
+    }
+
+    pub fn guid(&self) -> io::Result<GUID> {
+        let mut guid = mem::MaybeUninit::zeroed();
+        let result = unsafe { ConvertInterfaceLuidToGuid(&self.luid(), guid.as_mut_ptr()) };
+        if result != NO_ERROR {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(unsafe { guid.assume_init() })
+    }
 }
 
 impl Drop for WintunAdapter {
@@ -209,6 +228,12 @@ impl WintunDll {
                 std::mem::transmute(get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunGetAdapterName\0").unwrap(),
+                )?)
+            },
+            func_get_adapter_luid: unsafe {
+                std::mem::transmute(get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WintunGetAdapterLUID\0").unwrap(),
                 )?)
             },
         })
@@ -277,6 +302,12 @@ impl WintunDll {
         Ok(U16CString::from_vec_with_nul(alias_buffer)
             .map_err(|_| io::Error::new(io::ErrorKind::Other, "missing null terminator"))?)
     }
+
+    pub unsafe fn get_adapter_luid(&self, adapter: RawHandle) -> NET_LUID {
+        let mut luid = mem::MaybeUninit::<NET_LUID>::zeroed();
+        (self.func_get_adapter_luid)(adapter, luid.as_mut_ptr());
+        luid.assume_init()
+    }
 }
 
 impl Drop for WintunDll {
@@ -341,5 +372,36 @@ mod tests {
     #[test]
     fn test_wintun_imports() {
         WintunDll::new_inner(ptr::null_mut(), get_proc_fn).unwrap();
+    }
+
+    #[test]
+    fn guid_to_string() {
+        let guids = [
+            (
+                "{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}",
+                GUID {
+                    Data1: 0xAFE43773,
+                    Data2: 0xE1F8,
+                    Data3: 0x4EBB,
+                    Data4: [0x85, 0x36, 0x57, 0x6A, 0xB8, 0x6A, 0xFE, 0x9A],
+                },
+            ),
+            (
+                "{00000000-0000-0000-0000-000000000000}",
+                GUID {
+                    Data1: 0,
+                    Data2: 0,
+                    Data3: 0,
+                    Data4: [0; 8],
+                },
+            ),
+        ];
+
+        for (expected_str, guid) in &guids {
+            assert_eq!(
+                string_from_guid(guid).as_str().to_lowercase(),
+                expected_str.to_lowercase()
+            );
+        }
     }
 }
