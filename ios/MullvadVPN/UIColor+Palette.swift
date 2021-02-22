@@ -30,6 +30,11 @@ extension UIColor {
         }
     }
 
+    enum TextField {
+        static let placeholderTextColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 0.40)
+        static let textColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 1.00)
+    }
+
     enum AppButton {
         static let normalTitleColor = UIColor.white
         static let highlightedTitleColor = UIColor.lightGray
