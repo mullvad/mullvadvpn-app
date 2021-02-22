@@ -33,16 +33,6 @@ WinNet_EnsureBestMetric(
 	void *logSinkContext
 );
 
-extern "C"
-WINNET_LINKAGE
-bool
-WINNET_API
-WinNet_EnableIpv6ForAdapter(
-	const wchar_t *deviceGuid,
-	MullvadLogSink logSink,
-	void *logSinkContext
-);
-
 typedef void (WINNET_API *WinNetConnectivityMonitorCallback)(bool connected, void *context);
 
 extern "C"

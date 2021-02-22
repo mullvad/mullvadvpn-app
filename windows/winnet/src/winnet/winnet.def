@@ -1,7 +1,6 @@
 LIBRARY winnet
 EXPORTS
 	WinNet_EnsureBestMetric
-	WinNet_EnableIpv6ForAdapter
 	WinNet_ActivateConnectivityMonitor
 	WinNet_DeactivateConnectivityMonitor
 	WinNet_ActivateRouteManager
