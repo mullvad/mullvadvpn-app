@@ -42,8 +42,14 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - WireGuard key is now rotated sooner: every four days instead of seven.
 
+#### Windows
+- Upgrade Wintun from 0.9.2 to 0.10.1.
+
 ### Fixed
 - Fix delay in showing/hiding update notification when toggling beta program.
+
+#### Windows
+- Fix "cannot find the file" error while creating a Wintun adapter by upgrading Wintun.
 
 
 ## [2021.2] - 2021-02-18
