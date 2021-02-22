@@ -124,7 +124,7 @@
 
 	${If} $0 != 0
 		${If} $0 == 3010
-			MessageBox MB_OK "You may need to restart your computer for the patch to take effect."
+			SetRebootFlag true
 		${Else}
 			StrCpy $R0 "Failed to install the hotfix: error $0"
 			log::Log $R0
