@@ -64,7 +64,7 @@ talpid-dbus = { path = "../talpid-dbus" }
 
 
 [target.'cfg(target_os = "macos")'.dependencies]
-pfctl = { git = "https://github.com/mullvad/pfctl-rs.git" }
+pfctl = "0.4.1"
 system-configuration = "0.4"
 tun = { git = "https://github.com/Ch00k/rust-tun.git", branch = "bump-ioctl" }
 
