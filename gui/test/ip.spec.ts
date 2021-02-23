@@ -76,7 +76,7 @@ const publicIpAddresses = [
   '192.169.0.0',
 ];
 
-describe('Logging', () => {
+describe('IP', () => {
   it('should detect that valid IPv4 addresses are valid', () => {
     validIpv4Addresses.forEach((ipAddress) => {
       const valid = ip.IPv4Address.isValid(ipAddress);

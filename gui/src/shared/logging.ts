@@ -14,7 +14,8 @@ export class Logger {
 
   public log(level: LogLevel, ...data: unknown[]) {
     const time = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
-    const message = `[${time}][${LogLevel[level]}] ${data.join(' ')}`;
+    const stringifiedData = data.map(this.stringifyData).join(' ');
+    const message = `[${time}][${LogLevel[level]}] ${stringifiedData}`;
 
     this.outputMessage(level, message);
   }
@@ -27,6 +28,10 @@ export class Logger {
 
   public dispose() {
     this.outputs.forEach((output) => output.dispose?.());
+  }
+
+  private stringifyData(data: unknown): string {
+    return typeof data === 'string' ? data : JSON.stringify(data);
   }
 
   private outputMessage(level: LogLevel, message: string) {

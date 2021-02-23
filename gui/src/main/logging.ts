@@ -4,7 +4,7 @@ import path from 'path';
 import { IpcMainEventChannel } from './ipc-event-channel';
 import { LogLevel, ILogInput, ILogOutput } from '../shared/logging-types';
 
-export const OLD_LOG_FILES = ['frontend-renderer.log'];
+export const OLD_LOG_FILES = ['main.log', 'renderer.log'];
 
 export class FileOutput implements ILogOutput {
   private fileDescriptor: number;
@@ -37,11 +37,11 @@ export class IpcInput implements ILogInput {
 }
 
 export function getMainLogPath() {
-  return path.join(getLogDirectoryDir(), 'main.log');
+  return path.join(getLogDirectoryDir(), 'frontend-main.log');
 }
 
 export function getRendererLogPath() {
-  return path.join(getLogDirectoryDir(), 'renderer.log');
+  return path.join(getLogDirectoryDir(), 'frontend-renderer.log');
 }
 
 export function createLoggingDirectory(): void {
