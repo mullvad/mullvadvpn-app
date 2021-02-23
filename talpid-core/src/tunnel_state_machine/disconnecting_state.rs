@@ -197,13 +197,15 @@ impl TunnelState for DisconnectingState {
         use self::EventConsequence::*;
 
         let result = if self.tunnel_close_event.is_terminated() {
-            let mut nothing = futures::future::ready(());
-            runtime.block_on(async move {
-                futures::select! {
-                    command = commands.next() => EventResult::Command(command),
-                    _result = nothing => EventResult::Close(Ok(None)),
+            if commands.is_done() {
+                EventResult::Close(Ok(None))
+            } else {
+                if let Ok(command) = commands.get_mut().try_next() {
+                    EventResult::Command(command)
+                } else {
+                    EventResult::Close(Ok(None))
                 }
-            })
+            }
         } else {
             runtime.block_on(async {
                 futures::select! {
