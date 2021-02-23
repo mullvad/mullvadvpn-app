@@ -1724,8 +1724,9 @@ dependencies = [
 
 [[package]]
 name = "pfctl"
-version = "0.4.0"
-source = "git+https://github.com/mullvad/pfctl-rs.git#351b0ed6a27ca7bdae4c223b1e69096aff197a0b"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "26d091ecb01c905b5a31757cd43a6d00b484c835831e41e8b20385dec08514fc"
 dependencies = [
  "derive_builder",
  "errno",
@@ -3103,8 +3104,9 @@ checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
 
 [[package]]
 name = "tun"
-version = "0.5.0"
-source = "git+https://github.com/Ch00k/rust-tun.git?branch=bump-ioctl#b7e4de6e9f8c0ed74125d94aae56968dd4045b00"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cde2c6cb9cc8643fda7ef1b093de76a682bccd6b2868eeea7e96afde072c44fd"
 dependencies = [
  "ioctl-sys",
  "libc",
