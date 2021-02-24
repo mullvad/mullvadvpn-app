@@ -22,7 +22,7 @@ namespace
 
 using Adapters = common::network::Adapters;
 
-NET_LUID InterfaceLuidFromGateway(const NodeAddress &gateway)
+RouteManager::Status InterfaceLuidFromGateway(const NodeAddress &gateway, NET_LUID &result)
 {
 	const DWORD adapterFlags = GAA_FLAG_SKIP_ANYCAST | GAA_FLAG_SKIP_MULTICAST | GAA_FLAG_SKIP_DNS_SERVER
 		| GAA_FLAG_SKIP_FRIENDLY_NAME | GAA_FLAG_INCLUDE_GATEWAYS;
@@ -52,7 +52,7 @@ NET_LUID InterfaceLuidFromGateway(const NodeAddress &gateway)
 
 	if (matches.empty())
 	{
-		THROW_ERROR("Unable to find network adapter with specified gateway");
+		return RouteManager::Status::GatewayNotFound;
 	}
 
 	//
@@ -75,7 +75,8 @@ NET_LUID InterfaceLuidFromGateway(const NodeAddress &gateway)
 	// Select the interface with the best (lowest) metric.
 	//
 
-	return matches[0]->Luid;
+	result = matches[0]->Luid;
+	return RouteManager::Status::Ok;
 }
 
 bool ParseStringEncodedLuid(const std::wstring &encodedLuid, NET_LUID &luid)
@@ -112,7 +113,7 @@ bool ParseStringEncodedLuid(const std::wstring &encodedLuid, NET_LUID &luid)
 	return true;
 }
 
-InterfaceAndGateway ResolveNode(ADDRESS_FAMILY family, const std::optional<Node> &optionalNode)
+RouteManager::Status ResolveNode(ADDRESS_FAMILY family, const std::optional<Node> &optionalNode, InterfaceAndGateway &result)
 {
 	//
 	// There are four cases:
@@ -128,9 +129,10 @@ InterfaceAndGateway ResolveNode(ADDRESS_FAMILY family, const std::optional<Node>
 		const auto default_route = GetBestDefaultRoute(family);
 		if (!default_route.has_value())
 		{
-			THROW_ERROR("Unable to determine details of default route");
+			return RouteManager::Status::NoDefaultRoute;
 		}
-		return default_route.value();
+		result = default_route.value();
+		return RouteManager::Status::Ok;
 	}
 
 	const auto &node = optionalNode.value();
@@ -143,10 +145,7 @@ InterfaceAndGateway ResolveNode(ADDRESS_FAMILY family, const std::optional<Node>
 		if (false == ParseStringEncodedLuid(deviceName, luid)
 			&& 0 != ConvertInterfaceAliasToLuid(deviceName.c_str(), &luid))
 		{
-			const auto msg = std::string("Unable to derive interface LUID from interface alias: ")
-				.append(common::string::ToAnsi(deviceName));
-
-			THROW_ERROR(msg.c_str());
+			return RouteManager::Status::NameNotFound;
 		}
 
 		auto onLinkProvider = [&family]()
@@ -157,14 +156,16 @@ InterfaceAndGateway ResolveNode(ADDRESS_FAMILY family, const std::optional<Node>
 			return onLink;
 		};
 
-		return InterfaceAndGateway{ luid, node.gateway().value_or(onLinkProvider()) };
+		result = InterfaceAndGateway{ luid, node.gateway().value_or(onLinkProvider()) };
+		return RouteManager::Status::Ok;
 	}
 
 	//
 	// The node is specified only by gateway.
 	//
 
-	return InterfaceAndGateway{ InterfaceLuidFromGateway(node.gateway().value()), node.gateway().value() };
+	result.gateway = node.gateway().value();
+	return InterfaceLuidFromGateway(result.gateway, result.iface);
 }
 
 std::wstring FormatNetwork(const Network &network)
@@ -217,7 +218,7 @@ RouteManager::~RouteManager()
 	deleteAppliedRoutes();
 }
 
-void RouteManager::addRoutes(const std::vector<Route> &routes)
+RouteManager::Status RouteManager::addRoutes(const std::vector<Route> &routes)
 {
 	AutoLockType lock(m_routesLock);
 
@@ -227,7 +228,16 @@ void RouteManager::addRoutes(const std::vector<Route> &routes)
 	{
 		try
 		{
-			RouteRecord newRecord{ route, addIntoRoutingTable(route) };
+			RegisteredRoute registeredRoute;
+			const auto routeStatus = addIntoRoutingTable(route, registeredRoute);
+
+			if (routeStatus != Status::Ok)
+			{
+				undoEvents(eventLog);
+				return routeStatus;
+			}
+
+			RouteRecord newRecord{ route, registeredRoute };
 
 			eventLog.emplace_back(EventEntry{ EventType::ADD_ROUTE, newRecord });
 
@@ -249,6 +259,8 @@ void RouteManager::addRoutes(const std::vector<Route> &routes)
 			THROW_ERROR("Failed during batch insertion of routes");
 		}
 	}
+
+	return Status::Ok;
 }
 
 void RouteManager::deleteRoutes(const std::vector<Route> &routes)
@@ -355,9 +367,16 @@ std::list<RouteManager::RouteRecord>::iterator RouteManager::findRouteRecordFrom
 	});
 }
 
-RouteManager::RegisteredRoute RouteManager::addIntoRoutingTable(const Route &route)
+RouteManager::Status RouteManager::addIntoRoutingTable(const Route &route, RegisteredRoute &result)
 {
-	const auto node = ResolveNode(route.network().Prefix.si_family, route.node());
+	InterfaceAndGateway node;
+
+	const auto resolveStatus = ResolveNode(route.network().Prefix.si_family, route.node(), node);
+
+	if (resolveStatus != Status::Ok)
+	{
+		return resolveStatus;
+	}
 
 	MIB_IPFORWARD_ROW2 spec;
 
@@ -393,7 +412,11 @@ RouteManager::RegisteredRoute RouteManager::addIntoRoutingTable(const Route &rou
 		THROW_WINDOWS_ERROR(status, "Register route in routing table");
 	}
 
-	return RegisteredRoute { route.network(), node.iface, node.gateway };
+	result.network = route.network();
+	result.luid = node.iface;
+	result.nextHop = node.gateway;
+
+	return Status::Ok;
 }
 
 void RouteManager::restoreIntoRoutingTable(const RegisteredRoute &route)

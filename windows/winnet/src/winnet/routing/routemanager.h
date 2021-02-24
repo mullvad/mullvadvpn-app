@@ -22,6 +22,18 @@ class RouteManager
 {
 public:
 
+	enum class Status
+	{
+		Ok,
+		NoDefaultRoute,
+
+		// No device with a matching name was found
+		NameNotFound,
+
+		// No device with a matching gateway was found
+		GatewayNotFound
+	};
+
 	RouteManager(std::shared_ptr<common::logging::ILogSink> logSink);
 	~RouteManager();
 
@@ -30,7 +42,7 @@ public:
 	RouteManager &operator=(const RouteManager &) = delete;
 	RouteManager &operator=(RouteManager &&) = delete;
 	
-	void addRoutes(const std::vector<Route> &routes);
+	Status addRoutes(const std::vector<Route> &routes);
 	void deleteRoutes(const std::vector<Route> &routes);
 	void deleteAppliedRoutes();
 
@@ -104,7 +116,7 @@ private:
 	//
 	std::list<RouteRecord>::iterator findRouteRecordFromSpec(const Route &route);
 
-	RegisteredRoute addIntoRoutingTable(const Route &route);
+	Status addIntoRoutingTable(const Route &route, RegisteredRoute &result);
 	void restoreIntoRoutingTable(const RegisteredRoute &route);
 	void deleteFromRoutingTable(const RegisteredRoute &route);
 

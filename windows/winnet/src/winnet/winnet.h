@@ -96,9 +96,18 @@ WinNet_ActivateRouteManager(
 	void *logSinkContext
 );
 
+enum WINNET_AR_STATUS
+{
+	WINNET_AR_STATUS_SUCCESS = 0,
+	WINNET_AR_STATUS_GENERAL_ERROR = 1,
+	WINNET_AR_STATUS_NO_DEFAULT_ROUTE = 2,
+	WINNET_AR_STATUS_NAME_NOT_FOUND = 3,
+	WINNET_AR_STATUS_GATEWAY_NOT_FOUND = 4,
+};
+
 extern "C"
 WINNET_LINKAGE
-bool
+WINNET_AR_STATUS
 WINNET_API
 WinNet_AddRoutes(
 	const WINNET_ROUTE *routes,
@@ -107,7 +116,7 @@ WinNet_AddRoutes(
 
 extern "C"
 WINNET_LINKAGE
-bool
+WINNET_AR_STATUS
 WINNET_API
 WinNet_AddRoute(
 	const WINNET_ROUTE *route

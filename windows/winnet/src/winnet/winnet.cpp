@@ -280,7 +280,7 @@ WinNet_ActivateRouteManager(
 
 extern "C"
 WINNET_LINKAGE
-bool
+WINNET_AR_STATUS
 WINNET_API
 WinNet_AddRoutes(
 	const WINNET_ROUTE *routes,
@@ -291,7 +291,7 @@ WinNet_AddRoutes(
 
 	if (nullptr == g_RouteManager)
 	{
-		return false;
+		return WINNET_AR_STATUS_GENERAL_ERROR;
 	}
 
 	try
@@ -301,23 +301,31 @@ WinNet_AddRoutes(
 			THROW_ERROR("Invalid argument: routes");
 		}
 
-		g_RouteManager->addRoutes(winnet::ConvertRoutes(routes, numRoutes));
-		return true;
+		static const std::pair<RouteManager::Status, WINNET_AR_STATUS> statusMap[] =
+		{
+			{ RouteManager::Status::Ok, WINNET_AR_STATUS_SUCCESS },
+			{ RouteManager::Status::NoDefaultRoute, WINNET_AR_STATUS_NO_DEFAULT_ROUTE },
+			{ RouteManager::Status::NameNotFound, WINNET_AR_STATUS_NAME_NOT_FOUND },
+			{ RouteManager::Status::GatewayNotFound, WINNET_AR_STATUS_GATEWAY_NOT_FOUND }
+		};
+
+		const auto status = g_RouteManager->addRoutes(winnet::ConvertRoutes(routes, numRoutes));
+		return common::ValueMapper::Map<>(status, statusMap);
 	}
 	catch (const std::exception &err)
 	{
 		common::error::UnwindException(err, g_RouteManagerLogSink);
-		return false;
+		return WINNET_AR_STATUS_GENERAL_ERROR;
 	}
 	catch (...)
 	{
-		return false;
+		return WINNET_AR_STATUS_GENERAL_ERROR;
 	}
 }
 
 extern "C"
 WINNET_LINKAGE
-bool
+WINNET_AR_STATUS
 WINNET_API
 WinNet_AddRoute(
 	const WINNET_ROUTE *route
