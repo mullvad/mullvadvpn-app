@@ -24,7 +24,7 @@ class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListene
         settingsListener.dnsOptionsNotifier.subscribe(this) { maybeDnsOptions ->
             maybeDnsOptions?.let { dnsOptions ->
                 enabled = dnsOptions.custom
-                dnsServers = ArrayList(dnsOptions.addresses)
+                dnsServers = dnsOptions.addresses
             }
         }
     }
