@@ -80,7 +80,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         textView.backgroundColor = .white
         textView.inputAccessoryView = messageAccessoryToolbar
         textView.font = UIFont.systemFont(ofSize: 17)
-        textView.placeholder = NSLocalizedString("Describe your problem", comment: "")
+        textView.placeholder = NSLocalizedString("Please describe your problem in English or Swedish", comment: "")
         textView.contentInsetAdjustmentBehavior = .never
 
         return textView
