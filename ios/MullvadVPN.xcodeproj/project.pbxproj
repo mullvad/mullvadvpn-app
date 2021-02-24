@@ -127,6 +127,7 @@
 		58906DE02445C7A5002F0673 /* NEProviderStopReason+Debug.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */; };
 		58907D9524D17B4E00CFC3F5 /* DisconnectSplitButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */; };
 		5891BF1C25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */; };
+		5891BF5125E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5891BF5025E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift */; };
 		5896AE7E246ACE65005B36CB /* KeychainAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */; };
 		5896AE7F246ACE76005B36CB /* Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEDF6245088E100CB0F5B /* Keychain.swift */; };
 		5896AE80246ACE79005B36CB /* KeychainClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FAEE0024533A9C00CB0F5B /* KeychainClass.swift */; };
@@ -336,6 +337,7 @@
 		58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NEProviderStopReason+Debug.swift"; sourceTree = "<group>"; };
 		58907D9424D17B4E00CFC3F5 /* DisconnectSplitButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisconnectSplitButton.swift; sourceTree = "<group>"; };
 		5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+ProductVersion.swift"; sourceTree = "<group>"; };
+		5891BF5025E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBarButtonItem+KeyboardNavigation.swift"; sourceTree = "<group>"; };
 		5894E725236B2801008A2793 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateComponentsFormatting.swift; sourceTree = "<group>"; };
 		5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateComponentsFormattingTests.swift; sourceTree = "<group>"; };
@@ -638,6 +640,7 @@
 				58EF580A25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift */,
 				58EF581025D69DB400AEBA94 /* StatusImageView.swift */,
 				5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */,
+				5891BF5025E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -987,6 +990,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				58BFA5CC22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
+				5891BF5125E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift in Sources */,
 				58BA692E23E99EFF009DC256 /* Locking.swift in Sources */,
 				580EE21E24B3237F00F9D8A1 /* OutputOperation.swift in Sources */,
 				5840250122B1124600E4CFEC /* IPAddress+Codable.swift in Sources */,

@@ -272,7 +272,15 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     }
 
     private func makeKeyboardToolbar(canGoBackward: Bool, canGoForward: Bool) -> UIToolbar {
-        var toolbarItems = makeKeyboardNavigationItems(canGoBackward: canGoBackward, canGoForward: canGoForward)
+        var toolbarItems = UIBarButtonItem.makeKeyboardNavigationItems { (prevButton, nextButton) in
+            prevButton.target = self
+            prevButton.action = #selector(focusEmailTextField)
+            prevButton.isEnabled = canGoBackward
+
+            nextButton.target = self
+            nextButton.action = #selector(focusDescriptionTextView)
+            nextButton.isEnabled = canGoForward
+        }
 
         toolbarItems.append(contentsOf: [
             UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
@@ -282,37 +290,6 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 100, height: 44))
         toolbar.items = toolbarItems
         return toolbar
-    }
-
-    private func makeKeyboardNavigationItems(canGoBackward: Bool, canGoForward: Bool) -> [UIBarButtonItem] {
-        let prevButton: UIBarButtonItem
-        let nextButton: UIBarButtonItem
-
-        if #available(iOS 13, *) {
-            prevButton = UIBarButtonItem(image: UIImage(systemName: "chevron.up"), style: .plain, target: self, action: #selector(focusEmailTextField))
-        } else {
-            prevButton = UIBarButtonItem(title: NSLocalizedString("Previous", comment: ""), style: .plain, target: self, action: #selector(focusEmailTextField))
-        }
-
-        prevButton.accessibilityLabel = NSLocalizedString("Previous", comment: "")
-        prevButton.isEnabled = canGoBackward
-
-        if #available(iOS 13, *) {
-            nextButton = UIBarButtonItem(image: UIImage(systemName: "chevron.down"), style: .plain, target: self, action: #selector(focusDescriptionTextView))
-        } else {
-            nextButton = UIBarButtonItem(title: NSLocalizedString("Next", comment: ""), style: .plain, target: self, action: #selector(focusDescriptionTextView))
-        }
-
-        nextButton.accessibilityLabel = NSLocalizedString("Next", comment: "")
-        nextButton.isEnabled = canGoForward
-
-        if #available(iOS 13, *) {
-            let spacer = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil, action: nil)
-            spacer.width = 8
-            return [prevButton, spacer, nextButton]
-        } else {
-            return [prevButton, nextButton]
-        }
     }
 
     private func addConstraints() {
