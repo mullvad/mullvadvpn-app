@@ -131,14 +131,7 @@ class ProblemReportSubmissionOverlayView: UIView {
     }
 
     private func addSubviews() {
-        // Add a spacer view that's used to push the bodyLabel from the bottom when buttons stack is invisible.
-        let spacerView = UIView()
-
-        // Set low hugging and compression constants to make that view eager to shrink or grow
-        spacerView.setContentHuggingPriority(.defaultLow, for: .vertical)
-        spacerView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
-
-        for subview in [spacerView, titleLabel, bodyLabel, activityIndicator, statusImageView, buttonsStackView] {
+        for subview in [titleLabel, bodyLabel, activityIndicator, statusImageView, buttonsStackView] {
             subview.translatesAutoresizingMaskIntoConstraints = false
             addSubview(subview)
         }
@@ -161,12 +154,7 @@ class ProblemReportSubmissionOverlayView: UIView {
 
             buttonsStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             buttonsStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            buttonsStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
-
-            spacerView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
-            spacerView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
-            spacerView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
-            spacerView.topAnchor.constraint(equalTo: bodyLabel.bottomAnchor),
+            buttonsStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
         ])
     }
 
