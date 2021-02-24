@@ -280,7 +280,7 @@ WinNet_ActivateRouteManager(
 
 extern "C"
 WINNET_LINKAGE
-bool
+WINNET_AR_STATUS
 WINNET_API
 WinNet_AddRoutes(
 	const WINNET_ROUTE *routes,
@@ -291,7 +291,7 @@ WinNet_AddRoutes(
 
 	if (nullptr == g_RouteManager)
 	{
-		return false;
+		return WINNET_AR_STATUS_GENERAL_ERROR;
 	}
 
 	try
@@ -302,22 +302,37 @@ WinNet_AddRoutes(
 		}
 
 		g_RouteManager->addRoutes(winnet::ConvertRoutes(routes, numRoutes));
-		return true;
+		return WINNET_AR_STATUS_SUCCESS;
+	}
+	catch (const winnet::routing::error::NoDefaultRoute &err)
+	{
+		common::error::UnwindException(err, g_RouteManagerLogSink);
+		return WINNET_AR_STATUS_NO_DEFAULT_ROUTE;
+	}
+	catch (const winnet::routing::error::DeviceNameNotFound &err)
+	{
+		common::error::UnwindException(err, g_RouteManagerLogSink);
+		return WINNET_AR_STATUS_NAME_NOT_FOUND;
+	}
+	catch (const winnet::routing::error::DeviceGatewayNotFound &err)
+	{
+		common::error::UnwindException(err, g_RouteManagerLogSink);
+		return WINNET_AR_STATUS_GATEWAY_NOT_FOUND;
 	}
 	catch (const std::exception &err)
 	{
 		common::error::UnwindException(err, g_RouteManagerLogSink);
-		return false;
+		return WINNET_AR_STATUS_GENERAL_ERROR;
 	}
 	catch (...)
 	{
-		return false;
+		return WINNET_AR_STATUS_GENERAL_ERROR;
 	}
 }
 
 extern "C"
 WINNET_LINKAGE
-bool
+WINNET_AR_STATUS
 WINNET_API
 WinNet_AddRoute(
 	const WINNET_ROUTE *route

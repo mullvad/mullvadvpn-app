@@ -52,7 +52,7 @@ NET_LUID InterfaceLuidFromGateway(const NodeAddress &gateway)
 
 	if (matches.empty())
 	{
-		THROW_ERROR("Unable to find network adapter with specified gateway");
+		THROW_ERROR_TYPE(error::DeviceGatewayNotFound, "Unable to find network adapter with specified gateway");
 	}
 
 	//
@@ -128,7 +128,7 @@ InterfaceAndGateway ResolveNode(ADDRESS_FAMILY family, const std::optional<Node>
 		const auto default_route = GetBestDefaultRoute(family);
 		if (!default_route.has_value())
 		{
-			THROW_ERROR("Unable to determine details of default route");
+			THROW_ERROR_TYPE(error::NoDefaultRoute, "Unable to determine details of default route");
 		}
 		return default_route.value();
 	}
@@ -145,8 +145,7 @@ InterfaceAndGateway ResolveNode(ADDRESS_FAMILY family, const std::optional<Node>
 		{
 			const auto msg = std::string("Unable to derive interface LUID from interface alias: ")
 				.append(common::string::ToAnsi(deviceName));
-
-			THROW_ERROR(msg.c_str());
+			THROW_ERROR_TYPE(error::DeviceNameNotFound, msg.c_str());
 		}
 
 		auto onLinkProvider = [&family]()
@@ -242,11 +241,15 @@ void RouteManager::addRoutes(const std::vector<Route> &routes)
 				*existingRecord = std::move(newRecord);
 			}
 		}
+		catch (const error::RouteManagerError&)
+		{
+			undoEvents(eventLog);
+			throw;
+		}
 		catch (...)
 		{
 			undoEvents(eventLog);
-
-			THROW_ERROR("Failed during batch insertion of routes");
+			THROW_ERROR("Unexpected error during batch insertion of routes");
 		}
 	}
 }

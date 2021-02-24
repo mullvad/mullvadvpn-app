@@ -18,6 +18,51 @@
 namespace winnet::routing
 {
 
+namespace error
+{
+
+class RouteManagerError : public std::runtime_error
+{
+public:
+
+	RouteManagerError(const char* message)
+		: std::runtime_error(message)
+	{
+	}
+};
+
+class NoDefaultRoute : public RouteManagerError
+{
+public:
+
+	NoDefaultRoute(const char* message)
+		: RouteManagerError(message)
+	{
+	}
+};
+
+class DeviceNameNotFound : public RouteManagerError
+{
+public:
+
+	DeviceNameNotFound(const char* message)
+		: RouteManagerError(message)
+	{
+	}
+};
+
+class DeviceGatewayNotFound : public RouteManagerError
+{
+public:
+
+	DeviceGatewayNotFound(const char* message)
+		: RouteManagerError(message)
+	{
+	}
+};
+
+}
+
 class RouteManager
 {
 public:
