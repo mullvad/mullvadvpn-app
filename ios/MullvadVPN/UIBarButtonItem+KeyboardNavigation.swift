@@ -51,7 +51,7 @@ extension UIBarButtonItem {
             spacer.width = 8
 
             configurationBlock(prevButton, nextButton)
-            
+
             return [prevButton, spacer, nextButton]
         } else {
             return [prevButton, nextButton]
