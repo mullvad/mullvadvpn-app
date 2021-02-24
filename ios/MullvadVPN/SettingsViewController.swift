@@ -137,10 +137,8 @@ class SettingsViewController: UITableViewController, AccountViewControllerDelega
         let middleSection = StaticTableViewSection()
         let versionRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
             let cell = cell as! SettingsCell
-            let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
-
             cell.titleLabel.text = NSLocalizedString("App version", comment: "")
-            cell.detailTitleLabel.text = version
+            cell.detailTitleLabel.text = Bundle.main.productVersion
         }
         versionRow.isSelectable = false
 
@@ -163,6 +161,24 @@ class SettingsViewController: UITableViewController, AccountViewControllerDelega
         }
         middleSection.addRows([logStreamerRow])
         #endif
+
+        let bottomSection = StaticTableViewSection()
+
+        let problemReportRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (indexPath, cell) in
+            let cell = cell as! SettingsCell
+
+            cell.titleLabel.text = NSLocalizedString("Report a problem", comment: "")
+            cell.accessoryType = .disclosureIndicator
+        }
+
+        problemReportRow.actionBlock = { [weak self] (indexPath) in
+            let controller = ProblemReportViewController()
+
+            self?.navigationController?.pushViewController(controller, animated: true)
+        }
+
+        bottomSection.addRows([problemReportRow])
+        staticDataSource.addSections([bottomSection])
     }
 
 }

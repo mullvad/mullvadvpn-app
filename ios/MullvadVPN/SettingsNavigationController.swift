@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class SettingsNavigationController: UINavigationController {
+class SettingsNavigationController: CustomNavigationController {
 
     override func viewDidLoad() {
         super.viewDidLoad()

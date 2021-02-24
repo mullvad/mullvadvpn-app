@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -41,9 +41,9 @@
                                 <constraint firstAttribute="height" constant="48" id="tdi-f8-eAx"/>
                             </constraints>
                         </view>
-                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="IconSuccess" translatesAutoresizingMaskIntoConstraints="NO" id="L2c-40-K8a">
+                        <view clipsSubviews="YES" userInteractionEnabled="NO" alpha="0.0" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="L2c-40-K8a" customClass="StatusImageView" customModule="MullvadVPN" customModuleProvider="target">
                             <rect key="frame" x="177" y="259.5" width="60" height="60"/>
-                        </imageView>
+                        </view>
                         <view contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" translatesAutoresizingMaskIntoConstraints="NO" id="h09-lb-ltN" userLabel="Form">
                             <rect key="frame" x="0.0" y="343.5" width="414" height="125.5"/>
                             <subviews>
@@ -143,6 +143,7 @@
                     <edgeInsets key="layoutMargins" top="16" left="0.0" bottom="24" right="0.0"/>
                 </view>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="nNG-OH-fpp"/>
             <color key="backgroundColor" name="Primary"/>
             <constraints>
                 <constraint firstItem="Hlu-LB-fs2" firstAttribute="top" secondItem="nNG-OH-fpp" secondAttribute="top" id="9Wj-KC-bOY"/>
@@ -154,7 +155,6 @@
                 <constraint firstAttribute="trailing" secondItem="OWx-up-Gr3" secondAttribute="trailing" id="jUk-Gq-dMy"/>
             </constraints>
             <edgeInsets key="layoutMargins" top="0.0" left="24" bottom="0.0" right="24"/>
-            <viewLayoutGuide key="safeArea" id="nNG-OH-fpp"/>
             <point key="canvasLocation" x="139" y="153"/>
         </view>
         <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="eMY-ag-aGA">
@@ -179,9 +179,16 @@
             <point key="canvasLocation" x="138" y="517"/>
         </toolbar>
     </objects>
+    <designables>
+        <designable name="M05-uw-Xgl">
+            <size key="intrinsicContentSize" width="207.5" height="25.5"/>
+        </designable>
+        <designable name="yyj-Bk-eOB">
+            <size key="intrinsicContentSize" width="123" height="22"/>
+        </designable>
+    </designables>
     <resources>
         <image name="DefaultButton" width="9" height="9"/>
-        <image name="IconSuccess" width="60" height="60"/>
         <namedColor name="Primary">
             <color red="0.16078431372549021" green="0.30196078431372547" blue="0.45098039215686275" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
