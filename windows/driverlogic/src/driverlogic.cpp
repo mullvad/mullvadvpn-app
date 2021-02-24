@@ -818,23 +818,23 @@ std::filesystem::path GetCurrentModulePath()
 
 	SetLastError(ERROR_SUCCESS);
 
-	size_t nextCapacity = 256;
+	size_t nextCapacity = MAX_PATH;
+	DWORD writtenChars = 0;
 
 	do
 	{
-		pathBuffer.reserve(nextCapacity);
-
-		const auto writtenChars = GetModuleFileNameW(nullptr, &pathBuffer[0], static_cast<DWORD>(pathBuffer.capacity()));
+		pathBuffer.resize(nextCapacity);
+		writtenChars = GetModuleFileNameW(nullptr, &pathBuffer[0], static_cast<DWORD>(pathBuffer.size()));
 
 		if (0 == writtenChars)
 		{
 			THROW_WINDOWS_ERROR(GetLastError(), "GetModuleFileNameW");
 		}
 
-		pathBuffer.resize(writtenChars);
-
-		nextCapacity = 2 * pathBuffer.capacity();
+		nextCapacity = 2 * pathBuffer.size();
 	} while (ERROR_INSUFFICIENT_BUFFER == GetLastError());
+
+	pathBuffer.resize(writtenChars);
 
 	return std::filesystem::path(pathBuffer.begin(), pathBuffer.end());
 }
