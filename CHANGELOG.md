@@ -53,6 +53,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Fix "cannot find the file" error while creating a Wintun adapter by upgrading Wintun.
+- Retry when creating a WireGuard tunnel fails due to no default routes being found.
 
 
 ## [2021.2] - 2021-02-18
