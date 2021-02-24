@@ -5,7 +5,7 @@ use super::{
 };
 use crate::{
     firewall::FirewallPolicy,
-    routing::RouteManager,
+    routing::{self, RouteManager},
     tunnel::{
         self, tun_provider::TunProvider, CloseHandle, TunnelEvent, TunnelMetadata, TunnelMonitor,
     },
@@ -28,6 +28,9 @@ use talpid_types::{
     tunnel::{ErrorStateCause, FirewallPolicyError},
     ErrorExt,
 };
+
+#[cfg(windows)]
+use crate::winnet;
 
 #[cfg(target_os = "android")]
 use crate::tunnel::tun_provider;
@@ -343,8 +346,10 @@ impl ConnectingState {
 }
 
 fn should_retry(error: &tunnel::Error) -> bool {
+    use tunnel::wireguard::Error;
     #[cfg(not(windows))]
-    use tunnel::wireguard::{Error, TunnelError};
+    use tunnel::wireguard::TunnelError;
+
     match error {
         #[cfg(not(windows))]
         tunnel::Error::WireguardTunnelMonitoringError(Error::TunnelError(
@@ -356,6 +361,28 @@ fn should_retry(error: &tunnel::Error) -> bool {
             TunnelError::BypassError(_),
         )) => true,
 
+        tunnel::Error::WireguardTunnelMonitoringError(Error::SetupRoutingError(error)) => {
+            is_recoverable_routing_error(error)
+        }
+
+        _ => false,
+    }
+}
+
+fn is_recoverable_routing_error(error: &crate::routing::Error) -> bool {
+    #[cfg(not(windows))]
+    {
+        false
+    }
+
+    #[cfg(windows)]
+    match error {
+        routing::Error::AddRoutesFailed(error) => match error {
+            winnet::Error::GetDefaultRoute
+            | winnet::Error::GetDeviceByName
+            | winnet::Error::GetDeviceByGateway => true,
+            _ => false,
+        },
         _ => false,
     }
 }
