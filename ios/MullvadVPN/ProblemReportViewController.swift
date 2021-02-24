@@ -381,7 +381,6 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
                 self.view.layoutIfNeeded()
 
             }) { (completed) in
-                // no-op
                 self.isMessageTextViewExpanded = true
 
                 self.updateMessageTextViewContentInsets()
