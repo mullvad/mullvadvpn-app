@@ -98,7 +98,7 @@ msgstr "Chicago, IL"
 
 #. MD KIV
 msgid "Chisinau"
-msgstr "Chișinău"
+msgstr "Kischinau"
 
 #. US CLE
 msgid "Cleveland, OH"
@@ -442,7 +442,7 @@ msgstr "Tirana"
 
 #. JP TYO
 msgid "Tokyo"
-msgstr "Präfektur Tokio"
+msgstr "Tokio"
 
 #. CA TOR
 msgid "Toronto"
