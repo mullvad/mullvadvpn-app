@@ -3,10 +3,22 @@ package net.mullvad.mullvadvpn.ui.notification
 import kotlin.properties.Delegates.observable
 
 class InAppNotificationController(private val onNotificationChanged: (InAppNotification?) -> Unit) {
+    private val notificationPrioritizer = object : Comparator<InAppNotification> {
+        override fun compare(left: InAppNotification, right: InAppNotification) =
+            if (left.shouldShow != right.shouldShow) {
+                if (left.shouldShow) { -1 } else { 1 }
+            } else if (left.status != right.status) {
+                StatusLevel.compare(left.status, right.status)
+            } else if (left != right) {
+                Int.compare(indices.get(left), indices.get(right))
+            } else {
+                0
+            }
+    }
+
+    private val activeNotifications = PriorityQueue(notificationPrioritizer)
     private val indices = HashMap<InAppNotification, Int>()
     private val notifications = ArrayList<InAppNotification>()
-
-    private var currentIndex: Int? = null
 
     var current by observable<InAppNotification?>(null) { _, oldNotification, newNotification ->
         if (oldNotification != newNotification) {
@@ -43,19 +55,12 @@ class InAppNotificationController(private val onNotificationChanged: (InAppNotif
 
     fun notificationChanged(notification: InAppNotification) {
         if (notification.shouldShow) {
-            maybeShowNotification(notification)
+            activeNotifications.add(notification)
         } else {
-            maybeHideNotification(notification)
+            activeNotifications.remove(notification)
         }
-    }
 
-    private fun maybeShowNotification(notification: InAppNotification) {
-        indices.get(notification)?.let { index ->
-            if (index <= (currentIndex ?: Int.MAX_VALUE)) {
-                current = notification
-                currentIndex = index
-            }
-        }
+        current = activeNotifications.peek()
     }
 
     private fun maybeHideNotification(notification: InAppNotification) {
