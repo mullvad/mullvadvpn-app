@@ -52,6 +52,18 @@ type WintunGetAdapterNameFn =
 
 type WintunGetAdapterLuidFn = unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID);
 
+type WintunLoggerCbFn = extern "stdcall" fn(WintunLoggerLevel, *const u16);
+
+type WintunSetLoggerFn = unsafe extern "stdcall" fn(Option<WintunLoggerCbFn>);
+
+#[repr(C)]
+#[allow(dead_code)]
+enum WintunLoggerLevel {
+    Info,
+    Warn,
+    Err,
+}
+
 
 pub struct WintunDll {
     handle: HINSTANCE,
@@ -61,6 +73,7 @@ pub struct WintunDll {
     func_delete: WintunDeleteAdapterFn,
     func_get_adapter_name: WintunGetAdapterNameFn,
     func_get_adapter_luid: WintunGetAdapterLuidFn,
+    func_set_logger: WintunSetLoggerFn,
 }
 
 unsafe impl Send for WintunDll {}
@@ -190,7 +203,6 @@ impl WintunDll {
         if handle == ptr::null_mut() {
             return Err(io::Error::last_os_error());
         }
-
         Self::new_inner(handle, Self::get_proc_address)
     }
 
@@ -234,6 +246,12 @@ impl WintunDll {
                 std::mem::transmute(get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunGetAdapterLUID\0").unwrap(),
+                )?)
+            },
+            func_set_logger: unsafe {
+                std::mem::transmute(get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WintunSetLogger\0").unwrap(),
                 )?)
             },
         })
@@ -308,11 +326,57 @@ impl WintunDll {
         (self.func_get_adapter_luid)(adapter, luid.as_mut_ptr());
         luid.assume_init()
     }
+
+    pub fn activate_logging(self: &Arc<Self>) -> WintunLoggerHandle {
+        WintunLoggerHandle::from_handle(self.clone())
+    }
+
+    fn set_logger(&self, logger: Option<WintunLoggerCbFn>) {
+        unsafe { (self.func_set_logger)(logger) };
+    }
 }
 
 impl Drop for WintunDll {
     fn drop(&mut self) {
         unsafe { FreeLibrary(self.handle) };
+    }
+}
+
+pub struct WintunLoggerHandle {
+    dll_handle: Arc<WintunDll>,
+}
+
+impl WintunLoggerHandle {
+    fn from_handle(dll_handle: Arc<WintunDll>) -> Self {
+        dll_handle.set_logger(Some(Self::callback));
+        Self { dll_handle }
+    }
+
+    extern "stdcall" fn callback(level: WintunLoggerLevel, message: *const u16) {
+        if message.is_null() {
+            return;
+        }
+        let message = unsafe { U16CStr::from_ptr_str(message) };
+
+        use WintunLoggerLevel::*;
+
+        match level {
+            Info => log::info!("[Wintun] {}", message.to_string_lossy()),
+            Warn => log::warn!("[Wintun] {}", message.to_string_lossy()),
+            Err => log::error!("[Wintun] {}", message.to_string_lossy()),
+        }
+    }
+}
+
+impl fmt::Debug for WintunLoggerHandle {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("WintunLogger").finish()
+    }
+}
+
+impl Drop for WintunLoggerHandle {
+    fn drop(&mut self) {
+        self.dll_handle.set_logger(None);
     }
 }
 

@@ -270,6 +270,8 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
 
     #[cfg(windows)]
     wintun_adapter: Option<windows::TemporaryWintunAdapter>,
+    #[cfg(windows)]
+    _wintun_logger: Option<windows::WintunLoggerHandle>,
 }
 
 
@@ -364,9 +366,12 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         let proxy_monitor = Self::start_proxy(&params.proxy, &proxy_resources)?;
 
         #[cfg(windows)]
-        let wintun_adapter = {
-            let dll = get_wintun_dll(resource_dir)?;
+        let dll = get_wintun_dll(resource_dir)?;
+        #[cfg(windows)]
+        let wintun_logger = dll.activate_logging();
 
+        #[cfg(windows)]
+        let wintun_adapter = {
             {
                 if let Ok(adapter) =
                     windows::WintunAdapter::open(dll.clone(), &*ADAPTER_ALIAS, &*ADAPTER_POOL)
@@ -465,6 +470,8 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             proxy_monitor,
             #[cfg(windows)]
             Some(wintun_adapter),
+            #[cfg(windows)]
+            Some(wintun_logger),
         )
     }
 }
@@ -518,6 +525,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         proxy_auth_file: Option<mktemp::TempFile>,
         proxy_monitor: Option<Box<dyn ProxyMonitor>>,
         #[cfg(windows)] wintun_adapter: Option<windows::TemporaryWintunAdapter>,
+        #[cfg(windows)] wintun_logger: Option<windows::WintunLoggerHandle>,
     ) -> Result<OpenVpnMonitor<C>>
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
@@ -574,6 +582,8 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
 
             #[cfg(windows)]
             wintun_adapter,
+            #[cfg(windows)]
+            _wintun_logger: wintun_logger,
         })
     }
 
@@ -1191,6 +1201,8 @@ mod tests {
             None,
             #[cfg(windows)]
             None,
+            #[cfg(windows)]
+            None,
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_plugin")),
@@ -1208,6 +1220,8 @@ mod tests {
             Some(PathBuf::from("./my_test_log_file")),
             TempFile::new(),
             None,
+            None,
+            #[cfg(windows)]
             None,
             #[cfg(windows)]
             None,
@@ -1232,6 +1246,8 @@ mod tests {
             None,
             #[cfg(windows)]
             None,
+            #[cfg(windows)]
+            None,
         )
         .unwrap();
         assert!(testee.wait().is_ok());
@@ -1248,6 +1264,8 @@ mod tests {
             None,
             TempFile::new(),
             None,
+            None,
+            #[cfg(windows)]
             None,
             #[cfg(windows)]
             None,
@@ -1270,6 +1288,8 @@ mod tests {
             None,
             #[cfg(windows)]
             None,
+            #[cfg(windows)]
+            None,
         )
         .unwrap();
         testee.close_handle().close().unwrap();
@@ -1286,6 +1306,8 @@ mod tests {
             None,
             TempFile::new(),
             None,
+            None,
+            #[cfg(windows)]
             None,
             #[cfg(windows)]
             None,
