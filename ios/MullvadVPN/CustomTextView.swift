@@ -109,7 +109,7 @@ class CustomTextView: UITextView {
             case .leading:
                 constraint.constant = textInset.left
             case .trailing:
-                constraint.constant = textInset.right
+                constraint.constant = -textInset.right
             default:
                 break
             }
