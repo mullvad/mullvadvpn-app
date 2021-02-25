@@ -4,7 +4,7 @@
     "manageKeys": "https://mullvad.net/account/ports/",
     "faq": "https://mullvad.net/help/tag/mullvad-app/",
     "download": "https://mullvad.net/download/",
-    "betaDownload": "https://mullvad.net/download/#beta",
+    "betaDownload": "https://mullvad.net/download/beta",
     "supportEmail": "support@mullvad.net"
   },
   "colors": {
