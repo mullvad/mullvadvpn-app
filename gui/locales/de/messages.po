@@ -160,7 +160,7 @@ msgstr "Erweitert"
 
 msgctxt "advanced-settings-view"
 msgid "Always require VPN"
-msgstr "Immer VPN erfordern"
+msgstr "VPN immer erforderlich"
 
 msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
@@ -321,7 +321,7 @@ msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
 msgid "Always require VPN"
-msgstr "Immer VPN erfordern"
+msgstr "VPN immer erforderlich"
 
 msgctxt "connect-view"
 msgid "Congrats!"
@@ -337,7 +337,7 @@ msgstr "Kaufen Sie entweder Guthaben über unsere Seite oder lösen Sie einen Gu
 
 msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
-msgstr "Hier ist Ihre Kundennummer. Verlieren Sie sie nicht!"
+msgstr "Hier ist Ihre Kontonummer. Verlieren Sie sie nicht!"
 
 msgctxt "connect-view"
 msgid "Out of time"
@@ -365,7 +365,7 @@ msgstr "Sie haben keine VPN-Zeit mehr auf diesem Konto."
 
 msgctxt "connect-view"
 msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
-msgstr "Sie müssen „Immer VPN erfordern“ deaktivieren, um auf das Internet zuzugreifen und Zeit hinzuzufügen."
+msgstr "Sie müssen „VPN immer erforderlich“ deaktivieren, um auf das Internet zuzugreifen und Zeit hinzuzufügen."
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -408,7 +408,7 @@ msgstr "MULLVAD-VPN"
 
 msgctxt "in-app-notifications"
 msgid "\"Always require VPN\" is enabled."
-msgstr "„Immer VPN erfordern“ ist aktiviert."
+msgstr "„VPN immer erforderlich“ ist aktiviert."
 
 msgctxt "in-app-notifications"
 msgid "%(duration)s. Buy more credit."
@@ -436,7 +436,7 @@ msgstr "Schlüssel verwaltet man unter Erweiterte Einstellungen."
 
 msgctxt "in-app-notifications"
 msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
-msgstr "ES KÖNNTE NETZWERK-TRAFFIC LEAKEN"
+msgstr "ES KÖNNTE NETZWERKVERKEHR LEAKEN"
 
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
@@ -596,15 +596,15 @@ msgstr "Firewallregeln konnten nicht angewendet werden. Versuchen Sie, Ihren Ker
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Please troubleshoot or contact support."
-msgstr "Der Netzwerk-Traffic konnte nicht gänzlich blockiert werden. Bitte beheben Sie den Fehler oder kontaktieren Sie den Support."
+msgstr "Der Netzwerkverkehr konnte nicht gänzlich blockiert werden. Bitte beheben Sie den Fehler oder kontaktieren Sie den Support."
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
-msgstr "Der Netzwerk-Traffic konnte nicht gänzlich blockiert werden. Versuchen Sie, jegliche Antivirus- oder Sicherheitssoftware von Drittanbietern zu deaktivieren oder kontaktieren Sie den Support."
+msgstr "Der Netzwerkverkehr konnte nicht gänzlich blockiert werden. Versuchen Sie, jegliche Antivirus- oder Sicherheitssoftware von Drittanbietern zu deaktivieren oder kontaktieren Sie den Support."
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or contact support."
-msgstr "Der Netzwerk-Traffic konnte nicht gänzlich blockiert werden. Versuchen Sie, Ihren Kernel zu aktualisieren oder den Support zu kontaktieren."
+msgstr "Der Netzwerkverkehr konnte nicht gänzlich blockiert werden. Versuchen Sie, Ihren Kernel zu aktualisieren oder den Support zu kontaktieren."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -1035,7 +1035,7 @@ msgid "WireGuard error"
 msgstr "WireGuard Fehler"
 
 msgid "Account time reminders"
-msgstr "Kontozeiterinnerungen"
+msgstr "Erinnerungen an die Kontozeit"
 
 msgid "WireGuard public key"
 msgstr "Öffentlicher WireGuard Schlüssel"
@@ -1068,7 +1068,7 @@ msgid "Too many WireGuard keys registered to account"
 msgstr "Zu viele WireGuard-Schlüssel wurden auf das Konto registriert"
 
 msgid "Shows current VPN tunnel status"
-msgstr "Zeigt den aktuellen VPN-Tunnel-Status an"
+msgstr "Zeigt den aktuellen Status des VPN-Tunnels an"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad-Kontonummer wurde in die Zwischenablage kopiert"
@@ -1080,7 +1080,7 @@ msgid "Add anyway"
 msgstr "Trotzdem hinzufügen"
 
 msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Sperren des gesamten Netzwerk-Traffics fehlgeschlagen. Bitte beheben Sie den Fehler oder melden Sie uns das Problem."
+msgstr "Es konnte nicht der gesamten Netzwerkverkehr blockiert werden. Bitte beheben Sie den Fehler oder melden Sie uns das Problem."
 
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
 msgstr "Split-Tunnel-Steuerung macht es möglich, auszuwählen, welche Anwendungen nicht durch den VPN-Tunnel geroutet werden."
@@ -1134,7 +1134,7 @@ msgid "Exclude applications"
 msgstr "Anwendungen ausschließen"
 
 msgid "VPN tunnel status"
-msgstr "VPN-Tunnel-Status"
+msgstr "Status des VPN-Tunnels"
 
 msgid "1 year left"
 msgid_plural "%d years left"
