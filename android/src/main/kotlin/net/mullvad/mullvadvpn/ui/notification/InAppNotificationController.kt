@@ -8,8 +8,10 @@ class InAppNotificationController(private val onNotificationChanged: (InAppNotif
 
     private var currentIndex: Int? = null
 
-    var current by observable<InAppNotification?>(null) { _, _, notification ->
-        onNotificationChanged.invoke(notification)
+    var current by observable<InAppNotification?>(null) { _, oldNotification, newNotification ->
+        if (oldNotification != newNotification) {
+            onNotificationChanged.invoke(newNotification)
+        }
     }
 
     fun register(notification: InAppNotification) {
