@@ -68,9 +68,10 @@ class CustomTextView: UITextView {
 
         // Create placeholder constraints
         placeholderConstraints = [
-            placeholderTextLabel.topAnchor.constraint(equalTo: topAnchor),
-            placeholderTextLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            placeholderTextLabel.trailingAnchor.constraint(equalTo: trailingAnchor)
+            placeholderTextLabel.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
+            placeholderTextLabel.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
+            placeholderTextLabel.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
+            placeholderTextLabel.bottomAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.bottomAnchor),
         ]
         NSLayoutConstraint.activate(placeholderConstraints)
 
@@ -110,6 +111,8 @@ class CustomTextView: UITextView {
                 constraint.constant = textInset.left
             case .trailing:
                 constraint.constant = -textInset.right
+            case .bottom:
+                constraint.constant = -textInset.bottom
             default:
                 break
             }
