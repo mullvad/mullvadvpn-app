@@ -352,6 +352,9 @@ impl WintunDll {
     extern "stdcall" fn inner_logger(level: WintunLoggerLevel, message: *const u16) {
         // TODO: We have no context. So this is global for now.
         if let Some(ref mut logger) = *LOGGER.lock().expect("logger mutex poisoned") {
+            if message.is_null() {
+                return;
+            }
             logger(level, unsafe { U16CStr::from_ptr_str(message) });
         }
     }
