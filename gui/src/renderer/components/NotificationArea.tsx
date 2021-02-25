@@ -53,7 +53,6 @@ export default function NotificationArea(props: IProps) {
     new NoValidKeyNotificationProvider({ tunnelProtocol, wireGuardKey }),
     new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
     new UnsupportedVersionNotificationProvider(version),
-    new UpdateAvailableNotificationProvider(version),
   ];
 
   if (accountExpiry) {
@@ -61,6 +60,8 @@ export default function NotificationArea(props: IProps) {
       new CloseToAccountExpiryNotificationProvider({ accountExpiry, locale }),
     );
   }
+
+  notificationProviders.push(new UpdateAvailableNotificationProvider(version));
 
   const notificationProvider = notificationProviders.find((notification) =>
     notification.mayDisplay(),
