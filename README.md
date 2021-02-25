@@ -312,8 +312,16 @@ To build the management interface proto files there is a script (execute it on a
 ./build_mi_proto.sh
 ```
 
-After that transfer the resulting build directory to your Apple ARM64 platform, set the value of
-`MI_PROTO_BUILD_DIR` to the transfer destination, and run `./build.sh`:
+After that transfer the resulting build directory to your Apple ARM64 platform, and set the value of
+`MI_PROTO_BUILD_DIR` to the transfer destination while running the main build.
+
+Another prerequisite is `protobuf`, which can be installed by running:
+
+```bash
+brew install protobuf
+```
+
+When all is done run the main build:
 
 ```bash
 MI_PROTO_BUILD_DIR=/Users/doe/mullvadvpn-app/dist-assets/mi_proto ./build.sh --dev-build
