@@ -43,7 +43,7 @@ use tokio::task;
 #[cfg(target_os = "linux")]
 use which;
 #[cfg(windows)]
-use widestring::U16CString;
+use widestring::{U16CStr, U16CString};
 #[cfg(windows)]
 use winapi::shared::{
     guiddef::GUID,
@@ -252,6 +252,17 @@ const OPENVPN_BIN_FILENAME: &str = "openvpn";
 #[cfg(windows)]
 const OPENVPN_BIN_FILENAME: &str = "openvpn.exe";
 
+#[cfg(windows)]
+#[derive(Debug)]
+struct WintunLoggerDropper(());
+
+#[cfg(windows)]
+impl Drop for WintunLoggerDropper {
+    fn drop(&mut self) {
+        windows::WintunDll::set_logger(None::<fn(windows::WintunLoggerLevel, &U16CStr)>);
+    }
+}
+
 /// Struct for monitoring an OpenVPN process.
 #[derive(Debug)]
 pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
@@ -270,6 +281,13 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
 
     #[cfg(windows)]
     wintun_adapter: Option<windows::TemporaryWintunAdapter>,
+}
+
+#[cfg(windows)]
+impl<C: OpenVpnBuilder> Drop for OpenVpnMonitor<C> {
+    fn drop(&mut self) {
+        WintunLoggerDropper(());
+    }
 }
 
 
@@ -364,8 +382,21 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         let proxy_monitor = Self::start_proxy(&params.proxy, &proxy_resources)?;
 
         #[cfg(windows)]
+        let wintun_logger_dropper = WintunLoggerDropper(());
+
+        #[cfg(windows)]
         let wintun_adapter = {
             let dll = get_wintun_dll(resource_dir)?;
+
+            windows::WintunDll::set_logger(Some(|level, message: &U16CStr| {
+                use windows::WintunLoggerLevel::*;
+
+                match level {
+                    Info => log::info!("[Wintun] {}", message.to_string_lossy()),
+                    Warn => log::warn!("[Wintun] {}", message.to_string_lossy()),
+                    Err => log::error!("[Wintun] {}", message.to_string_lossy()),
+                }
+            }));
 
             {
                 if let Ok(adapter) =
@@ -455,7 +486,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 
         let plugin_path = Self::get_plugin_path(resource_dir)?;
 
-        Self::new_internal(
+        let monitor = Self::new_internal(
             cmd,
             on_openvpn_event,
             &plugin_path,
@@ -465,7 +496,12 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             proxy_monitor,
             #[cfg(windows)]
             Some(wintun_adapter),
-        )
+        )?;
+
+        #[cfg(windows)]
+        std::mem::forget(wintun_logger_dropper);
+
+        Ok(monitor)
     }
 }
 
