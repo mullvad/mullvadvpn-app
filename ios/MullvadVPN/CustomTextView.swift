@@ -63,6 +63,7 @@ class CustomTextView: UITextView {
         placeholderTextLabel.textColor = UIColor.TextField.placeholderTextColor
         placeholderTextLabel.highlightedTextColor = UIColor.TextField.placeholderTextColor
         placeholderTextLabel.translatesAutoresizingMaskIntoConstraints = false
+        placeholderTextLabel.numberOfLines = 0
         addSubview(placeholderTextLabel)
 
         // Create placeholder constraints
