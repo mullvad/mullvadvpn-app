@@ -309,6 +309,7 @@ Due to inability to build the management interface proto files on ARM64 (see
 To build the management interface proto files there is a script (execute it on a non-ARM64 platform):
 
 ```bash
+cd gui/scripts
 ./build_mi_proto.sh
 ```
 
@@ -324,7 +325,7 @@ brew install protobuf
 When all is done run the main build:
 
 ```bash
-MI_PROTO_BUILD_DIR=/Users/doe/mullvadvpn-app/dist-assets/mi_proto ./build.sh --dev-build
+MI_PROTO_BUILD_DIR=/Users/doe/mullvadvpn-app/gui/scripts/mi_proto ./build.sh --dev-build
 ```
 
 If you want to build each component individually, or run in development mode, read the following
