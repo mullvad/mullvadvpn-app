@@ -1,12 +1,17 @@
 package net.mullvad.mullvadvpn.ui.notification
 
+import java.util.PriorityQueue
 import kotlin.properties.Delegates.observable
 
 class InAppNotificationController(private val onNotificationChanged: (InAppNotification?) -> Unit) {
+    private val notificationPrioritizer =
+        compareByDescending<InAppNotification> { it.shouldShow }
+            .thenBy { it.status }
+            .thenBy { indices.get(it)!! }
+
+    private val activeNotifications = PriorityQueue(notificationPrioritizer)
     private val indices = HashMap<InAppNotification, Int>()
     private val notifications = ArrayList<InAppNotification>()
-
-    private var currentIndex: Int? = null
 
     var current by observable<InAppNotification?>(null) { _, oldNotification, newNotification ->
         if (oldNotification != newNotification) {
@@ -42,39 +47,12 @@ class InAppNotificationController(private val onNotificationChanged: (InAppNotif
     }
 
     fun notificationChanged(notification: InAppNotification) {
-        if (notification.shouldShow) {
-            maybeShowNotification(notification)
+        if (notification.shouldShow && !activeNotifications.contains(notification)) {
+            activeNotifications.add(notification)
         } else {
-            maybeHideNotification(notification)
+            activeNotifications.remove(notification)
         }
-    }
 
-    private fun maybeShowNotification(notification: InAppNotification) {
-        indices.get(notification)?.let { index ->
-            if (index <= (currentIndex ?: Int.MAX_VALUE)) {
-                current = notification
-                currentIndex = index
-            }
-        }
-    }
-
-    private fun maybeHideNotification(notification: InAppNotification) {
-        if (current == notification) {
-            val start = currentIndex!! + 1
-            val end = notifications.size
-
-            for (index in start until end) {
-                val candidate = notifications.get(index)
-
-                if (candidate.shouldShow) {
-                    current = candidate
-                    currentIndex = index
-                    return
-                }
-            }
-
-            current = null
-            currentIndex = null
-        }
+        current = activeNotifications.peek()
     }
 }
