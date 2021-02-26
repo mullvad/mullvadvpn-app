@@ -759,7 +759,7 @@ std::optional<NetworkAdapter> FindAdapterByAlias(const std::set<NetworkAdapter> 
 	return std::nullopt;
 }
 
-bool RemoveNetDevice(const std::wstring &tapHardwareId, const std::wstring &guid)
+bool RemoveNetDevice(const std::optional<std::wstring> tapHardwareId, const std::wstring &guid)
 {
 	bool deletedAdapter = false;
 
@@ -806,7 +806,7 @@ void RemoveNetAdapterByAlias(const std::wstring &hardwareId, const std::wstring 
 	// and delete any adapter whose GUID matches that of the "Mullvad" adapter.
 	//
 
-	if (!RemoveNetDevice(hardwareId, guid))
+	if (!RemoveNetDevice(std::make_optional(hardwareId), guid))
 	{
 		THROW_ERROR("The virtual adapter could not be removed");
 	}
@@ -818,23 +818,23 @@ std::filesystem::path GetCurrentModulePath()
 
 	SetLastError(ERROR_SUCCESS);
 
-	size_t nextCapacity = 256;
+	size_t nextCapacity = MAX_PATH;
+	DWORD writtenChars = 0;
 
 	do
 	{
-		pathBuffer.reserve(nextCapacity);
-
-		const auto writtenChars = GetModuleFileNameW(nullptr, &pathBuffer[0], static_cast<DWORD>(pathBuffer.capacity()));
+		pathBuffer.resize(nextCapacity);
+		writtenChars = GetModuleFileNameW(nullptr, &pathBuffer[0], static_cast<DWORD>(pathBuffer.size()));
 
 		if (0 == writtenChars)
 		{
 			THROW_WINDOWS_ERROR(GetLastError(), "GetModuleFileNameW");
 		}
 
-		pathBuffer.resize(writtenChars);
-
-		nextCapacity = 2 * pathBuffer.capacity();
+		nextCapacity = 2 * pathBuffer.size();
 	} while (ERROR_INSUFFICIENT_BUFFER == GetLastError());
+
+	pathBuffer.resize(writtenChars);
 
 	return std::filesystem::path(pathBuffer.begin(), pathBuffer.end());
 }
@@ -1037,6 +1037,20 @@ int wmain(int argc, const wchar_t * argv[], const wchar_t * [])
 			const wchar_t *baseName = argv[3];
 
 			RemoveNetAdapterByAlias(hardwareId, baseName);
+		}
+		else if (0 == _wcsicmp(argv[1], L"remove-device-by-guid"))
+		{
+			if (3 != argc)
+			{
+				goto INVALID_ARGUMENTS;
+			}
+
+			const wchar_t *guid = argv[2];
+
+			if (!RemoveNetDevice(std::nullopt, guid))
+			{
+				return ADAPTER_NOT_FOUND;
+			}
 		}
 		else if (0 == _wcsicmp(argv[1], L"device-exists"))
 		{

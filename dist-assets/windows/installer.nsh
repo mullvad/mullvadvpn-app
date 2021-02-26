@@ -51,6 +51,7 @@
 
 !define BLOCK_OUTBOUND_IPV4_FILTER_GUID "{a81c5411-0fd0-43a9-a9be-313f299de64f}"
 !define PERSISTENT_BLOCK_OUTBOUND_IPV4_FILTER_GUID "{79860c64-9a5e-48a3-b5f3-d64b41659aa5}"
+!define WINTUN_ADAPTER_GUID "{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}"
 
 #
 # ExtractWintun
@@ -192,6 +193,43 @@
 !macroend
 
 !define RemoveWintun '!insertmacro "RemoveWintun"'
+
+#
+# RemoveAbandonedWintunAdapter
+#
+# Removes old Wintun interface, even if it belongs to a different pool.
+#
+!macro RemoveAbandonedWintunAdapter
+	Push $0
+	Push $1
+
+	log::Log "RemoveAbandonedWintunAdapter()"
+
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" remove-device-by-guid ${WINTUN_ADAPTER_GUID}'
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${DL_GENERAL_SUCCESS}
+	${AndIf} $0 != ${DL_ADAPTER_NOT_FOUND}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to remove network adapter: error $0"
+		log::LogWithDetails $R0 $1
+		Goto RemoveAbandonedWintunAdapter_return_only
+	${EndIf}
+
+	log::Log "RemoveAbandonedWintunAdapter() completed successfully"
+
+	Push 0
+	Pop $R0
+
+	RemoveAbandonedWintunAdapter_return_only:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define RemoveAbandonedWintunAdapter '!insertmacro "RemoveAbandonedWintunAdapter"'
 
 #
 # InstallService
@@ -678,6 +716,10 @@
 	${MigrateCache}
 	${RemoveRelayCache}
 	${RemoveApiAddressCache}
+
+	SetOutPath "$TEMP"
+	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
+	${RemoveAbandonedWintunAdapter}
 
 	${If} ${AtMostWin7}
 		${InstallWin7Hotfix}
