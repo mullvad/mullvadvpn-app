@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Migrate to WireGuardKit framework.
 - Fix crash when pasting empty string into account input field.
+- Fix invalid initial text color of "unsecured connection" label on iOS 12.
 
 ## [2020.5] - 2020-11-04
 ### Fixed
