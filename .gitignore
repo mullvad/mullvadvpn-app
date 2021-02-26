@@ -29,7 +29,6 @@
 /dist-assets/sslocal
 /dist-assets/sslocal.exe
 /dist-assets/shell-completions/
-/gui/scripts/mi_proto/
 /windows/**/bin/
 /windows/**/*.user
 /android/keystore.properties

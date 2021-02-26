@@ -217,14 +217,7 @@ pushd "$SCRIPT_DIR/gui"
 
 echo "Installing JavaScript dependencies..."
 
-# Add `--no-optional` flag when running on non-macOS environments because `npm ci` attempts to
-# install optional dependencies that aren't even available on other platforms.
-NPM_CI_ARGS=""
-if [ "$(uname -s)" != "Darwin" ]; then
-    NPM_CI_ARGS+="--no-optional"
-fi
-
-npm ci $NPM_CI_ARGS
+npm ci
 
 ################################################################################
 # Package release.
