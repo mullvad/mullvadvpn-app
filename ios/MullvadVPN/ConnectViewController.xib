@@ -31,7 +31,7 @@
                             <rect key="frame" x="0.0" y="0.0" width="366" height="24"/>
                             <accessibility key="accessibilityConfiguration" identifier="SecureConnectionLabel"/>
                             <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
-                            <color key="textColor" name="Success"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <nil key="highlightedColor"/>
                         </label>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="daZ-9L-RFn">
@@ -108,9 +108,6 @@
     <resources>
         <namedColor name="Primary">
             <color red="0.16078431372549021" green="0.30196078431372547" blue="0.45098039215686275" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
-        <namedColor name="Success">
-            <color red="0.26666666666666666" green="0.67843137254901964" blue="0.30196078431372547" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>
