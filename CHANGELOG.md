@@ -47,6 +47,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix delay in showing/hiding update notification when toggling beta program.
+- Improve responsiveness when reconnecting after some failed connection attempts.
 
 #### Windows
 - Fix "cannot find the file" error while creating a Wintun adapter by upgrading Wintun.
