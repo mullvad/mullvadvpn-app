@@ -78,7 +78,7 @@
     will be attached to this message. Your data will remain secure and private, as it is anonymised
     before being sent over an encrypted channel.</string>
     <string name="user_email_hint">Your email (optional)</string>
-    <string name="user_message_hint">Describe your problem</string>
+    <string name="user_message_hint">Please describe your problem in English or Swedish</string>
     <string name="view_logs">View app logs</string>
     <string name="send">Send</string>
     <string name="sending">Sending...</string>
