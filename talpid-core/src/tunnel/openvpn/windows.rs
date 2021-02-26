@@ -53,9 +53,9 @@ type WintunGetAdapterNameFn =
 
 type WintunGetAdapterLuidFn = unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID);
 
-type WintunLoggerCFn = extern "stdcall" fn(WintunLoggerLevel, *const u16);
+type WintunLoggerCbFn = extern "stdcall" fn(WintunLoggerLevel, *const u16);
 
-type WintunSetLoggerFn = unsafe extern "stdcall" fn(Option<WintunLoggerCFn>);
+type WintunSetLoggerFn = unsafe extern "stdcall" fn(Option<WintunLoggerCbFn>);
 
 #[repr(C)]
 #[allow(dead_code)]
@@ -81,11 +81,6 @@ unsafe impl Send for WintunDll {}
 unsafe impl Sync for WintunDll {}
 
 type RebootRequired = bool;
-
-lazy_static! {
-    static ref LOGGER: Mutex<Option<Box<dyn FnMut(WintunLoggerLevel, &U16CStr) + Send + 'static>>> =
-        Mutex::new(None);
-}
 
 /// A new Wintun adapter that is destroyed when dropped.
 #[derive(Debug)]
@@ -209,12 +204,7 @@ impl WintunDll {
         if handle == ptr::null_mut() {
             return Err(io::Error::last_os_error());
         }
-
-        let dll = Self::new_inner(handle, Self::get_proc_address)?;
-
-        unsafe { (dll.func_set_logger)(Some(Self::inner_logger)) };
-
-        Ok(dll)
+        Self::new_inner(handle, Self::get_proc_address)
     }
 
     fn new_inner(
@@ -338,33 +328,52 @@ impl WintunDll {
         luid.assume_init()
     }
 
-    pub fn set_logger<F>(logger: Option<F>)
-    where
-        F: FnMut(WintunLoggerLevel, &U16CStr) + Send + 'static,
-    {
-        let mut log_opt = LOGGER.lock().expect("logger mutex poisoned");
-        match logger {
-            Some(logger) => *log_opt = Some(Box::new(logger)),
-            None => *log_opt = None,
-        }
-    }
-
-    extern "stdcall" fn inner_logger(level: WintunLoggerLevel, message: *const u16) {
-        // TODO: We have no context. So this is global for now.
-        if let Some(ref mut logger) = *LOGGER.lock().expect("logger mutex poisoned") {
-            if message.is_null() {
-                return;
-            }
-            logger(level, unsafe { U16CStr::from_ptr_str(message) });
-        }
+    pub fn set_logger(&self, logger: Option<WintunLoggerCbFn>) {
+        unsafe { (self.func_set_logger)(logger) };
     }
 }
 
 impl Drop for WintunDll {
     fn drop(&mut self) {
         unsafe { FreeLibrary(self.handle) };
+    }
+}
 
-        *LOGGER.lock().expect("logger mutex poisoned") = None;
+pub struct WintunLogger {
+    dll_handle: Arc<WintunDll>,
+}
+
+impl WintunLogger {
+    pub fn new(dll_handle: Arc<WintunDll>) -> WintunLogger {
+        dll_handle.set_logger(Some(Self::callback));
+        Self { dll_handle }
+    }
+
+    extern "stdcall" fn callback(level: WintunLoggerLevel, message: *const u16) {
+        if message.is_null() {
+            return;
+        }
+        let message = unsafe { U16CStr::from_ptr_str(message) };
+
+        use WintunLoggerLevel::*;
+
+        match level {
+            Info => log::info!("[Wintun] {}", message.to_string_lossy()),
+            Warn => log::warn!("[Wintun] {}", message.to_string_lossy()),
+            Err => log::error!("[Wintun] {}", message.to_string_lossy()),
+        }
+    }
+}
+
+impl fmt::Debug for WintunLogger {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("WintunLogger").finish()
+    }
+}
+
+impl Drop for WintunLogger {
+    fn drop(&mut self) {
+        self.dll_handle.set_logger(None);
     }
 }
 
