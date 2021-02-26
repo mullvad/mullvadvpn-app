@@ -109,10 +109,12 @@ void Policy::processConnecting(const KeyValuePairs &arguments)
 		GetArgumentValue(arguments, L"protocol")
 	);
 
-	auto success = WinFw_ApplyPolicyConnecting
+	auto success = WINFW_POLICY_STATUS_SUCCESS == WinFw_ApplyPolicyConnecting
 	(
 		&settings,
 		&relay,
+		GetArgumentValue(arguments, L"client").c_str(),
+		nullptr,
 		nullptr
 	);
 
@@ -138,13 +140,19 @@ void Policy::processConnected(const KeyValuePairs &arguments)
 		GetArgumentValue(arguments, L"protocol")
 	);
 
-	auto success = WinFw_ApplyPolicyConnected
+	const auto v4Gateway = GetArgumentValue(arguments, L"v4Gateway");
+	const auto dnsCstr = v4Gateway.c_str();
+
+	auto success = WINFW_POLICY_STATUS_SUCCESS == WinFw_ApplyPolicyConnected
 	(
 		&settings,
 		&relay,
+		GetArgumentValue(arguments, L"client").c_str(),
 		GetArgumentValue(arguments, L"tunnel").c_str(),
-		GetArgumentValue(arguments, L"dns").c_str(),
-		nullptr
+		dnsCstr,
+		nullptr,
+		&dnsCstr,
+		1
 	);
 
 	m_messageSink((success
@@ -160,7 +168,7 @@ void Policy::processBlocked(const KeyValuePairs &arguments)
 		GetArgumentValue(arguments, L"lan")
 	);
 
-	auto success = WinFw_ApplyPolicyBlocked(&settings);
+	auto success = WINFW_POLICY_STATUS_SUCCESS == WinFw_ApplyPolicyBlocked(&settings, nullptr);
 
 	m_messageSink((success
 		? L"Successfully applied policy."
@@ -169,7 +177,7 @@ void Policy::processBlocked(const KeyValuePairs &arguments)
 
 void Policy::processReset()
 {
-	auto success = WinFw_Reset();
+	auto success = WINFW_POLICY_STATUS_SUCCESS == WinFw_Reset();
 
 	m_messageSink((success
 		? L"Successfully reset policy."
