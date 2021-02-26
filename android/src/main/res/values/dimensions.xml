@@ -41,4 +41,11 @@
     <dimen name="button_separation">18dp</dimen>
     <dimen name="screen_vertical_margin">22dp</dimen>
     <dimen name="app_list_item_icon_size">35dp</dimen>
+    <!-- Switch Dimens-->
+    <dimen name="switch_width">46dp</dimen>
+    <dimen name="switch_height">30dp</dimen>
+    <dimen name="switch_thumb_size">30dp</dimen>
+    <dimen name="switch_thumb_padding">8dp</dimen>
+    <dimen name="switch_track_radius">16dp</dimen>
+    <dimen name="switch_track_stroke">2dp</dimen>
 </resources>

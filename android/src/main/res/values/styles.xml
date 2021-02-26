@@ -3,6 +3,7 @@
            parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="android:windowBackground">@color/blue</item>
+        <item name="switchStyle">@style/AppTheme.Switch</item>
     </style>
     <style name="InputText"
            parent="Widget.AppCompat.EditText">
@@ -52,5 +53,14 @@
     <style name="SettingsCollapsedHeader"
            parent="SettingsHeader">
         <item name="android:textSize">@dimen/text_medium</item>
+    </style>
+    <!-- Switch Style -->
+    <style name="AppTheme.Switch">
+        <item name="android:layout_width">@dimen/switch_width</item>
+        <item name="android:layout_height">@dimen/switch_height</item>
+        <item name="track">@drawable/switch_track</item>
+        <item name="android:thumb">@drawable/switch_thumb</item>
+        <item name="switchMinWidth">@dimen/switch_width</item>
+        <item name="showText">false</item>
     </style>
 </resources>
