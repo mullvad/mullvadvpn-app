@@ -1,11 +1,10 @@
-use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
     fmt, io, iter, mem,
     os::windows::{ffi::OsStrExt, io::RawHandle},
     path::Path,
     ptr,
-    sync::{Arc, Mutex},
+    sync::Arc,
 };
 use talpid_types::ErrorExt;
 use widestring::{U16CStr, U16CString};
@@ -59,7 +58,7 @@ type WintunSetLoggerFn = unsafe extern "stdcall" fn(Option<WintunLoggerCbFn>);
 
 #[repr(C)]
 #[allow(dead_code)]
-pub enum WintunLoggerLevel {
+enum WintunLoggerLevel {
     Info,
     Warn,
     Err,
@@ -328,7 +327,11 @@ impl WintunDll {
         luid.assume_init()
     }
 
-    pub fn set_logger(&self, logger: Option<WintunLoggerCbFn>) {
+    pub fn activate_logging(self: &Arc<Self>) -> WintunLoggerHandle {
+        WintunLoggerHandle::from_handle(self.clone())
+    }
+
+    fn set_logger(&self, logger: Option<WintunLoggerCbFn>) {
         unsafe { (self.func_set_logger)(logger) };
     }
 }
@@ -339,12 +342,12 @@ impl Drop for WintunDll {
     }
 }
 
-pub struct WintunLogger {
+pub struct WintunLoggerHandle {
     dll_handle: Arc<WintunDll>,
 }
 
-impl WintunLogger {
-    pub fn new(dll_handle: Arc<WintunDll>) -> WintunLogger {
+impl WintunLoggerHandle {
+    fn from_handle(dll_handle: Arc<WintunDll>) -> Self {
         dll_handle.set_logger(Some(Self::callback));
         Self { dll_handle }
     }
@@ -365,13 +368,13 @@ impl WintunLogger {
     }
 }
 
-impl fmt::Debug for WintunLogger {
+impl fmt::Debug for WintunLoggerHandle {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("WintunLogger").finish()
     }
 }
 
-impl Drop for WintunLogger {
+impl Drop for WintunLoggerHandle {
     fn drop(&mut self) {
         self.dll_handle.set_logger(None);
     }

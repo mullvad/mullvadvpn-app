@@ -271,7 +271,7 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     #[cfg(windows)]
     wintun_adapter: Option<windows::TemporaryWintunAdapter>,
     #[cfg(windows)]
-    _wintun_logger: windows::WintunLogger,
+    _wintun_logger: windows::WintunLoggerHandle,
 }
 
 
@@ -368,7 +368,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         #[cfg(windows)]
         let dll = get_wintun_dll(resource_dir)?;
         #[cfg(windows)]
-        let wintun_logger = windows::WintunLogger::new(dll.clone());
+        let wintun_logger = dll.activate_logging();
 
         #[cfg(windows)]
         let wintun_adapter = {
@@ -525,7 +525,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         proxy_auth_file: Option<mktemp::TempFile>,
         proxy_monitor: Option<Box<dyn ProxyMonitor>>,
         #[cfg(windows)] wintun_adapter: Option<windows::TemporaryWintunAdapter>,
-        #[cfg(windows)] wintun_logger: windows::WintunLogger,
+        #[cfg(windows)] wintun_logger: windows::WintunLoggerHandle,
     ) -> Result<OpenVpnMonitor<C>>
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
