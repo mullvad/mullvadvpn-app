@@ -20,6 +20,7 @@
                  android:theme="@style/AppTheme"
                  android:extractNativeLibs="true"
                  android:allowBackup="false"
+                 android:banner="@drawable/banner"
                  tools:ignore="GoogleAppIndexingWarning">
         <activity android:name="net.mullvad.mullvadvpn.ui.MainActivity"
                   android:label="@string/app_name"
