@@ -297,6 +297,40 @@ This should produce an installer exe, pkg or rpm+deb file in the `dist/` directo
 
 Building this requires at least 1GB of memory.
 
+#### Apple ARM64 (aka Apple Silicon)
+
+Due to inability to build the management interface proto files on ARM64 (see
+[this](https://github.com/grpc/grpc-node/issues/1497) issue) the Apple ARM64 build must be done in 2 stages:
+
+1. Build management interface proto files on a non-ARM64 platform
+2. Use the built proto files during the main build by setting the `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR`
+   environment variable to the path the proto files
+
+To build the management interface proto files there is a script (execute it on a non-ARM64 platform):
+
+```bash
+cd gui/scripts
+npm ci
+./build-proto.sh
+```
+
+After that copy the files from `gui/src/main/management_interface/` and `gui/build/src/main/management_interface/`
+directories into a single directory on your Apple Silicon Mac, and set the value of
+`MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` to that directory while running the main build.
+
+On your Apple Silicon Mac install `protobuf` by running:
+
+```bash
+brew install protobuf
+```
+
+When all is done run the main build. Assuming that you copied the proto files into `/tmp/management_interface_proto`
+directory, the build command will look as follows:
+
+```bash
+MANAGEMENT_INTERFACE_PROTO_BUILD_DIR=/tmp/management_interface_proto ./build.sh --dev-build
+```
+
 If you want to build each component individually, or run in development mode, read the following
 sections.
 

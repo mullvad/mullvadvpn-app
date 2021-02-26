@@ -945,9 +945,9 @@ dependencies = [
 
 [[package]]
 name = "ioctl-sys"
-version = "0.5.2"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5e2c4b26352496eaaa8ca7cfa9bd99e93419d3f7983dc6e99c2a35fe9e33504a"
+checksum = "1c429fffa658f288669529fc26565f728489a2e39bc7b24a428aaaf51355182e"
 
 [[package]]
 name = "iovec"
@@ -1724,9 +1724,9 @@ dependencies = [
 
 [[package]]
 name = "pfctl"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bfaa4493763cdea373bba96f1ae88f2012f97293ed58bfcc2ca09737132c833"
+checksum = "26d091ecb01c905b5a31757cd43a6d00b484c835831e41e8b20385dec08514fc"
 dependencies = [
  "derive_builder",
  "errno",
@@ -3104,9 +3104,9 @@ checksum = "59547bce71d9c38b83d9c0e92b6066c4253371f15005def0c30d9657f50c7642"
 
 [[package]]
 name = "tun"
-version = "0.5.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25229e5c4fd761c0e5cd7ae4dfcbaf0d98ded8a4367434f255639d6e554cf564"
+checksum = "cde2c6cb9cc8643fda7ef1b093de76a682bccd6b2868eeea7e96afde072c44fd"
 dependencies = [
  "ioctl-sys",
  "libc",
