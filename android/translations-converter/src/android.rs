@@ -290,7 +290,7 @@ pub struct StringValue(String);
 
 impl From<&str> for StringValue {
     fn from(string: &str) -> Self {
-        let value_with_parameters = htmlize::unescape(string)
+        let value_with_parameters = htmlize::escape_text(string)
             .replace(r"\", r"\\")
             .replace("\"", "\\\"")
             .replace(r"'", r"\'");
@@ -320,7 +320,7 @@ impl StringValue {
         let value = PARAMETERS.replace_all(&value, "%");
 
         // Unescape XML characters
-        self.0 = htmlize::escape_text(value.as_bytes());
+        self.0 = htmlize::unescape(value.as_bytes());
     }
 
     /// Clones the internal string value.
