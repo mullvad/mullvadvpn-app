@@ -204,6 +204,7 @@ open class MainActivity : FragmentActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
     fun requestVpnPermission(intent: Intent) {
         startActivityForResult(intent, 0)
     }

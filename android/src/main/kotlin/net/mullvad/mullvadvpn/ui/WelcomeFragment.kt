@@ -47,7 +47,7 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         }
 
         view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
-            prepare(fragmentManager, jobTracker)
+            prepare(parentFragmentManager, jobTracker)
         }
 
         return view
@@ -119,7 +119,7 @@ class WelcomeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     private fun advanceToConnectScreen() {
-        fragmentManager?.beginTransaction()?.apply {
+        parentFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, ConnectFragment())
             commit()
         }
