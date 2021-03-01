@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.ui.widget.AccountCell
 import net.mullvad.mullvadvpn.ui.widget.AppVersionCell
 import net.mullvad.mullvadvpn.ui.widget.NavigateCell
 
-class SettingsFragment : ServiceAwareFragment(), StatusBarPainter {
+class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBarPainter {
     private lateinit var accountMenu: AccountCell
     private lateinit var appVersionMenu: AppVersionCell
     private lateinit var preferencesMenu: View
@@ -83,6 +83,11 @@ class SettingsFragment : ServiceAwareFragment(), StatusBarPainter {
                 paintStatusBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
     }
 
     override fun onStart() {
