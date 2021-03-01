@@ -55,4 +55,8 @@
         <attr name="withToken"
               format="boolean" />
     </declare-styleable>
+    <attr name="actionListItemViewStyle"
+          type="reference" />
+    <attr name="applicationListItemViewStyle"
+          type="reference" />
 </resources>

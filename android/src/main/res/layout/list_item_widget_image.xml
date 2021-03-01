@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.AppCompatImageView xmlns:android="http://schemas.android.com/apk/res/android"
+                                              xmlns:tools="http://schemas.android.com/tools"
+                                              android:id="@+id/widgetImage"
+                                              android:layout_width="@dimen/icon_size"
+                                              android:layout_height="@dimen/icon_size"
+                                              android:layout_gravity="center"
+                                              android:tint="@color/white40"
+                                              android:tintMode="multiply"
+                                              tools:src="@drawable/icon_extlink" />
