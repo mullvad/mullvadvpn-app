@@ -53,6 +53,8 @@ const DBUS_UNKNOWN_METHOD: &str = "org.freedesktop.DBus.Error.UnknownMethod";
 const MINIMUM_SUPPORTED_MAJOR_VERSION: u32 = 1;
 const MINIMUM_SUPPORTED_MINOR_VERSION: u32 = 16;
 
+const MAXIMUM_SUPPORTED_MAJOR_VERSION: u32 = 1;
+const MAXIMUM_SUPPORTED_MINOR_VERSION: u32 = 26;
 
 const NM_DEVICE_STATE_CHANGED: &'static str = "StateChanged";
 
@@ -69,8 +71,14 @@ pub enum Error {
     #[error(display = "Configuration has no device associated to it")]
     NoDevice,
 
-    #[error(display = "NetworkManager is too old - {}", _0)]
-    NMTooOld(String),
+    #[error(display = "NetworkManager is too old - {}.{}", _0, _1)]
+    NMTooOld(u32, u32),
+
+    #[error(display = "NetworkManager is too new to manage DNS - {}.{}", _0, _1)]
+    NMTooNewFroDns(u32, u32),
+
+    #[error(display = "Failed to parse NetworkManager version string - {}", _0)]
+    ParseNmVersionError(String),
 
     #[error(display = "Device inactive: {}", _0)]
     DeviceNotReady(u32),
@@ -113,7 +121,7 @@ impl NetworkManager {
     }
 
     pub fn create_wg_tunnel(&self, config: &DeviceConfig) -> Result<WireguardTunnel> {
-        self.ensure_nm_is_new_enough_for_wireguard()?;
+        self.nm_supports_wireguard()?;
         let tunnel = self.create_wg_tunnel_inner(config)?;
         if let Err(err) = self.wait_until_device_is_ready(&tunnel.device_path) {
             if let Err(removal_error) = self.remove_tunnel(tunnel) {
@@ -183,29 +191,54 @@ impl NetworkManager {
         })
     }
 
-    fn ensure_nm_is_new_enough_for_wireguard(&self) -> Result<()> {
-        let version: String = self.version()?;
-        let version_too_old = || Error::NMTooOld(version.clone());
-        let mut parts = version
-            .split(".")
-            .map(|part| part.parse().map_err(|_| version_too_old()));
+    pub fn nm_supports_wireguard(&self) -> Result<()> {
+        let (major, minor) = self.version()?;
+        Self::ensure_nm_is_new_enough_for_wireguard(major, minor)?;
+        Self::ensure_nm_is_old_enough_for_dns(major, minor)
+    }
 
-        let major_version: u32 = parts.next().ok_or_else(|| version_too_old())??;
-        let minor_version: u32 = parts.next().ok_or_else(|| version_too_old())??;
+    pub fn nm_version_dns_works(&self) -> Result<()> {
+        let (major, minor) = self.version()?;
+        Self::ensure_nm_is_old_enough_for_dns(major, minor)
+    }
 
-        if major_version < MINIMUM_SUPPORTED_MAJOR_VERSION
-            || (minor_version < MINIMUM_SUPPORTED_MINOR_VERSION
-                && major_version == MINIMUM_SUPPORTED_MAJOR_VERSION)
+    pub fn version_string(&self) -> Result<String> {
+        let manager = self.nm_manager();
+        manager.get(NM_MANAGER, "Version").map_err(Error::Dbus)
+    }
+
+    fn ensure_nm_is_new_enough_for_wireguard(major: u32, minor: u32) -> Result<()> {
+        if major < MINIMUM_SUPPORTED_MAJOR_VERSION
+            || (minor < MINIMUM_SUPPORTED_MINOR_VERSION && major == MINIMUM_SUPPORTED_MAJOR_VERSION)
         {
-            Err(version_too_old())
+            Err(Error::NMTooOld(major, minor))
         } else {
             Ok(())
         }
     }
 
-    pub fn version(&self) -> Result<String> {
-        let manager = self.nm_manager();
-        manager.get(NM_MANAGER, "Version").map_err(Error::Dbus)
+    fn ensure_nm_is_old_enough_for_dns(major_version: u32, minor_version: u32) -> Result<()> {
+        if major_version > MAXIMUM_SUPPORTED_MAJOR_VERSION
+            || (minor_version > MAXIMUM_SUPPORTED_MINOR_VERSION
+                && major_version >= MAXIMUM_SUPPORTED_MAJOR_VERSION)
+        {
+            Err(Error::NMTooNewFroDns(major_version, minor_version))
+        } else {
+            Ok(())
+        }
+    }
+
+    fn version(&self) -> Result<(u32, u32)> {
+        let version = self.version_string()?;
+        Self::parse_nm_version(&version).ok_or(Error::ParseNmVersionError(version))
+    }
+
+    fn parse_nm_version(version: &str) -> Option<(u32, u32)> {
+        let mut parts = version.split(".").map(|part| part.parse().ok());
+
+        let major_version: u32 = parts.next()??;
+        let minor_version: u32 = parts.next()??;
+        Some((major_version, minor_version))
     }
 
     fn add_connection_2(
@@ -708,4 +741,17 @@ fn eq_file_content<P: AsRef<Path>>(a: &P, b: &P) -> bool {
             (Ok(a), Ok(b)) => a != b,
             _ => false,
         })
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_valid_versions() {
+        NetworkManager::ensure_nm_is_new_enough_for_wireguard(1, 16).unwrap();
+        NetworkManager::ensure_nm_is_old_enough_for_dns(1, 26).unwrap();
+        assert!(NetworkManager::ensure_nm_is_new_enough_for_wireguard(1, 14).is_err());
+        assert!(NetworkManager::ensure_nm_is_old_enough_for_dns(1, 28).is_err());
+    }
 }

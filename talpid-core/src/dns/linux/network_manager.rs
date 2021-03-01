@@ -17,6 +17,7 @@ impl NetworkManager {
         let connection = DBus::new()?;
         connection.ensure_resolv_conf_is_managed()?;
         connection.ensure_network_manager_exists()?;
+        connection.nm_version_dns_works()?;
         let manager = NetworkManager {
             connection,
             device: None,
