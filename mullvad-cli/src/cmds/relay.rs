@@ -1,5 +1,6 @@
 use crate::{location, new_rpc_client, Command, Error, Result};
 use clap::{value_t, values_t};
+use itertools::Itertools;
 use std::{
     io::{self, BufRead},
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
@@ -8,10 +9,11 @@ use std::{
 
 use mullvad_management_interface::types::{
     connection_config::{self, OpenvpnConfig, WireguardConfig},
-    relay_settings, relay_settings_update, ConnectionConfig, CustomRelaySettings,
-    NormalRelaySettingsUpdate, OpenvpnConstraints, ProviderUpdate, RelayListCountry, RelayLocation,
-    RelaySettingsUpdate, TransportProtocol, TransportProtocolConstraint, TunnelType,
-    TunnelTypeConstraint, TunnelTypeUpdate, WireguardConstraints,
+    relay_settings, relay_settings_update, ConnectionConfig, CustomRelaySettings, IpVersion,
+    IpVersionConstraint, NormalRelaySettingsUpdate, OpenvpnConstraints, ProviderUpdate,
+    RelayListCountry, RelayLocation, RelaySettingsUpdate, TransportProtocol,
+    TransportProtocolConstraint, TunnelType, TunnelTypeConstraint, TunnelTypeUpdate,
+    WireguardConstraints,
 };
 use mullvad_types::relay_constraints::Constraint;
 use talpid_types::net::all_of_the_internet;
@@ -153,6 +155,13 @@ impl Command for Relay {
                                     .required(false)
                                     .default_value("any")
                                     .possible_values(&["any", "udp", "tcp"]),
+                            )
+                            .arg(
+                                clap::Arg::with_name("ip version")
+                                    .long("ipv")
+                                    .required(false)
+                                    .default_value("any")
+                                    .possible_values(&["any", "4", "6"]),
                             ),
 
                     )
@@ -466,6 +475,7 @@ impl Relay {
         let vpn_protocol = matches.value_of("vpn protocol").unwrap();
         let port = parse_port_constraint(matches.value_of("port").unwrap())?;
         let protocol = parse_protocol_constraint(matches.value_of("transport protocol").unwrap());
+        let ip_version = parse_ip_version_constraint(matches.value_of("ip version").unwrap());
 
         match vpn_protocol {
             "wireguard" => {
@@ -477,6 +487,11 @@ impl Relay {
                         NormalRelaySettingsUpdate {
                             wireguard_constraints: Some(WireguardConstraints {
                                 port: port.unwrap_or(0) as u32,
+                                ip_version: ip_version.option().map(|protocol| {
+                                    IpVersionConstraint {
+                                        protocol: protocol as i32,
+                                    }
+                                }),
                             }),
                             ..Default::default()
                         },
@@ -485,6 +500,11 @@ impl Relay {
                 .await
             }
             "openvpn" => {
+                if let Constraint::Only(_) = ip_version {
+                    return Err(Error::InvalidCommand(
+                        "OpenVPN does not support the IP version constraint",
+                    ));
+                }
                 self.update_constraints(RelaySettingsUpdate {
                     r#type: Some(relay_settings_update::Type::Normal(
                         NormalRelaySettingsUpdate {
@@ -624,9 +644,16 @@ impl Relay {
                         (false, true) => "WireGuard",
                         _ => unreachable!("Bug in relay filtering earlier on"),
                     };
+                    let mut addresses = vec![&relay.ipv4_addr_in];
+                    if !relay.ipv6_addr_in.is_empty() {
+                        addresses.push(&relay.ipv6_addr_in);
+                    }
                     println!(
                         "\t\t{} ({}) - {}, hosted by {}",
-                        relay.hostname, relay.ipv4_addr_in, support_msg, relay.provider
+                        relay.hostname,
+                        addresses.iter().join(", "),
+                        support_msg,
+                        relay.provider
                     );
                 }
             }
@@ -639,6 +666,14 @@ impl Relay {
         new_rpc_client().await?.update_relay_locations(()).await?;
         println!("Updating relay list in the background...");
         Ok(())
+    }
+
+    fn format_ip_version(protocol: Option<IpVersion>) -> &'static str {
+        match protocol {
+            None => "IPv4 or IPv6",
+            Some(IpVersion::V4) => "IPv4",
+            Some(IpVersion::V6) => "IPv6",
+        }
     }
 
     fn format_transport_protocol(protocol: Option<TransportProtocol>) -> &'static str {
@@ -676,9 +711,18 @@ impl Relay {
 
     fn format_wireguard_constraints(constraints: Option<&WireguardConstraints>) -> String {
         if let Some(constraints) = constraints {
-            Self::format_port(constraints.port)
+            format!(
+                "{} over {}",
+                Self::format_port(constraints.port),
+                Self::format_ip_version(
+                    constraints
+                        .ip_version
+                        .clone()
+                        .map(|protocol| IpVersion::from_i32(protocol.protocol).unwrap())
+                )
+            )
         } else {
-            "any port".to_string()
+            "any port over IPv4 or IPv6".to_string()
         }
     }
 
@@ -736,6 +780,15 @@ fn parse_protocol_constraint(raw_protocol: &str) -> Constraint<TransportProtocol
         "any" => Constraint::Any,
         "udp" => Constraint::Only(TransportProtocol::Udp),
         "tcp" => Constraint::Only(TransportProtocol::Tcp),
+        _ => unreachable!(),
+    }
+}
+
+fn parse_ip_version_constraint(raw_protocol: &str) -> Constraint<IpVersion> {
+    match raw_protocol {
+        "any" => Constraint::Any,
+        "4" => Constraint::Only(IpVersion::V4),
+        "6" => Constraint::Only(IpVersion::V6),
         _ => unreachable!(),
     }
 }

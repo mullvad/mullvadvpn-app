@@ -27,7 +27,7 @@ use std::{
     sync::{mpsc, Arc},
 };
 use talpid_types::{
-    net::{TransportProtocol, TunnelType},
+    net::{IpVersion, TransportProtocol, TunnelType},
     ErrorExt,
 };
 
@@ -949,6 +949,20 @@ fn convert_relay_settings_update(
             } else {
                 None
             };
+            let ip_version = if let Some(ref constraints) = settings.wireguard_constraints {
+                match &constraints.ip_version {
+                    Some(constraint) => match types::IpVersion::from_i32(constraint.protocol) {
+                        Some(types::IpVersion::V4) => Some(IpVersion::V4),
+                        Some(types::IpVersion::V6) => Some(IpVersion::V6),
+                        None => {
+                            return Err(Status::invalid_argument("unknown ip protocol version"))
+                        }
+                    },
+                    None => None,
+                }
+            } else {
+                None
+            };
 
             Ok(RelaySettingsUpdate::Normal(RelayConstraintsUpdate {
                 location,
@@ -961,6 +975,7 @@ fn convert_relay_settings_update(
                         } else {
                             Constraint::Any
                         },
+                        ip_version: Constraint::from(ip_version),
                     }
                 }),
                 openvpn_constraints: settings.openvpn_constraints.map(|constraints| {
@@ -1003,6 +1018,17 @@ fn convert_relay_settings(settings: &RelaySettings) -> types::RelaySettings {
 
                 wireguard_constraints: Some(types::WireguardConstraints {
                     port: u32::from(constraints.wireguard_constraints.port.unwrap_or(0)),
+                    ip_version: constraints
+                        .wireguard_constraints
+                        .ip_version
+                        .option()
+                        .map(|version| match version {
+                            IpVersion::V4 => types::IpVersion::V4,
+                            IpVersion::V6 => types::IpVersion::V6,
+                        })
+                        .map(|version| types::IpVersionConstraint {
+                            protocol: i32::from(version),
+                        }),
                 }),
 
                 openvpn_constraints: Some(types::OpenvpnConstraints {

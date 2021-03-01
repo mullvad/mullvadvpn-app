@@ -30,7 +30,10 @@ use std::{
 };
 use talpid_core::future_retry::{retry_future_with_backoff, ExponentialBackoff, Jittered};
 use talpid_types::{
-    net::{all_of_the_internet, openvpn::ProxySettings, wireguard, TransportProtocol, TunnelType},
+    net::{
+        all_of_the_internet, openvpn::ProxySettings, wireguard, IpVersion, TransportProtocol,
+        TunnelType,
+    },
     ErrorExt,
 };
 use tokio::fs::File;
@@ -464,12 +467,13 @@ impl RelaySelector {
 
         self.pick_random_relay(&matching_relays)
             .and_then(|selected_relay| {
-                info!(
-                    "Selected relay {} at {}",
-                    selected_relay.hostname, selected_relay.ipv4_addr_in
-                );
-                self.get_random_tunnel(&selected_relay, &constraints)
-                    .map(|endpoint| (selected_relay.clone(), endpoint))
+                let endpoint = self.get_random_tunnel(&selected_relay, &constraints);
+                let addr_in = endpoint
+                    .as_ref()
+                    .map(|endpoint| endpoint.to_endpoint().address.ip())
+                    .unwrap_or(IpAddr::from(selected_relay.ipv4_addr_in));
+                info!("Selected relay {} at {}", selected_relay.hostname, addr_in);
+                endpoint.map(|endpoint| (selected_relay.clone(), endpoint))
             })
     }
 
@@ -638,52 +642,38 @@ impl RelaySelector {
         relay: &Relay,
         constraints: &RelayConstraints,
     ) -> Option<MullvadEndpoint> {
+        let mut new_wg_endpoint = || {
+            relay
+                .tunnels
+                .wireguard
+                .choose(&mut self.rng)
+                .cloned()
+                .and_then(|wg_tunnel| {
+                    self.wg_data_to_endpoint(relay, wg_tunnel, constraints.wireguard_constraints)
+                })
+        };
+
+        #[cfg(not(target_os = "android"))]
         match constraints.tunnel_protocol {
-            // TODO: Handle Constraint::Any case by selecting from both openvpn and wireguard
-            // tunnels once wireguard is mature enough
-            #[cfg(not(target_os = "android"))]
             Constraint::Only(TunnelType::OpenVpn) | Constraint::Any => relay
                 .tunnels
                 .openvpn
                 .choose(&mut self.rng)
                 .cloned()
                 .map(|endpoint| endpoint.into_mullvad_endpoint(relay.ipv4_addr_in.into())),
-            Constraint::Only(TunnelType::Wireguard) => relay
-                .tunnels
-                .wireguard
-                .choose(&mut self.rng)
-                .cloned()
-                .and_then(|wg_tunnel| {
-                    self.wg_data_to_endpoint(
-                        relay.ipv4_addr_in.into(),
-                        wg_tunnel,
-                        constraints.wireguard_constraints,
-                    )
-                }),
-            #[cfg(target_os = "android")]
-            Constraint::Any => relay
-                .tunnels
-                .wireguard
-                .choose(&mut self.rng)
-                .cloned()
-                .and_then(|wg_tunnel| {
-                    self.wg_data_to_endpoint(
-                        relay.ipv4_addr_in.into(),
-                        wg_tunnel,
-                        WireguardConstraints::default(),
-                    )
-                }),
-            #[cfg(target_os = "android")]
-            Constraint::Only(TunnelType::OpenVpn) => None,
+            Constraint::Only(TunnelType::Wireguard) => new_wg_endpoint(),
         }
+        #[cfg(target_os = "android")]
+        new_wg_endpoint()
     }
 
     fn wg_data_to_endpoint(
         &mut self,
-        host: IpAddr,
+        relay: &Relay,
         data: WireguardEndpointData,
         constraints: WireguardConstraints,
     ) -> Option<MullvadEndpoint> {
+        let host = self.get_address_for_wireguard_relay(relay, constraints)?;
         let port = self.get_port_for_wireguard_relay(&data, constraints)?;
         let peer_config = wireguard::PeerConfig {
             public_key: data.public_key,
@@ -695,6 +685,17 @@ impl RelaySelector {
             ipv4_gateway: data.ipv4_gateway,
             ipv6_gateway: data.ipv6_gateway,
         })
+    }
+
+    fn get_address_for_wireguard_relay(
+        &mut self,
+        relay: &Relay,
+        constraints: WireguardConstraints,
+    ) -> Option<IpAddr> {
+        match constraints.ip_version {
+            Constraint::Any | Constraint::Only(IpVersion::V4) => Some(relay.ipv4_addr_in.into()),
+            Constraint::Only(IpVersion::V6) => relay.ipv6_addr_in.map(|addr| addr.into()),
+        }
     }
 
     fn get_port_for_wireguard_relay(

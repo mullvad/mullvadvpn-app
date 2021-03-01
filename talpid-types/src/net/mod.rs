@@ -156,6 +156,29 @@ impl fmt::Display for Endpoint {
     }
 }
 
+/// IP protocol version.
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum IpVersion {
+    V4,
+    V6,
+}
+
+impl Default for IpVersion {
+    fn default() -> IpVersion {
+        IpVersion::V4
+    }
+}
+
+impl fmt::Display for IpVersion {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
+        match *self {
+            IpVersion::V4 => "IPv4".fmt(f),
+            IpVersion::V6 => "IPv6".fmt(f),
+        }
+    }
+}
+
 /// Representation of a transport protocol, either UDP or TCP.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

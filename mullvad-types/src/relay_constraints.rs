@@ -10,7 +10,7 @@ use crate::{
 use jnix::{FromJava, IntoJava};
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt};
-use talpid_types::net::{openvpn::ProxySettings, TransportProtocol, TunnelType};
+use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
 
 
 pub trait Match<T> {
@@ -434,15 +434,22 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
 
 /// [`Constraint`]s applicable to WireGuard relay servers.
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[serde(default)]
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
+    pub ip_version: Constraint<IpVersion>,
 }
 
 impl fmt::Display for WireguardConstraints {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self.port {
-            Constraint::Any => write!(f, "any port"),
-            Constraint::Only(port) => write!(f, "port {}", port),
+            Constraint::Any => write!(f, "any port")?,
+            Constraint::Only(port) => write!(f, "port {}", port)?,
+        }
+        write!(f, " over ")?;
+        match self.ip_version {
+            Constraint::Any => write!(f, "IPv4 or IPv6"),
+            Constraint::Only(protocol) => write!(f, "{}", protocol),
         }
     }
 }

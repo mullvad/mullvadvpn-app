@@ -20,6 +20,7 @@ env_logger = "0.8.2"
 futures = "0.3"
 natord = "1.0.9"
 serde = "1.0"
+itertools = "0.10"
 
 mullvad-types = { path = "../mullvad-types" }
 mullvad-paths = { path = "../mullvad-paths" }
