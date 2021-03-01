@@ -20,7 +20,7 @@ pub enum Error {
     FailedToStartManager,
     /// Failure to add routes
     #[error(display = "Failed to add routes")]
-    AddRoutesFailed,
+    AddRoutesFailed(#[error(source)] winnet::Error),
     /// Failure to clear routes
     #[error(display = "Failed to clear applied routes")]
     ClearRoutesFailed,
@@ -118,11 +118,9 @@ impl RouteManager {
                         })
                         .collect();
 
-                    if winnet::routing_manager_add_routes(&routes) {
-                        let _ = tx.send(Ok(()));
-                    } else {
-                        let _ = tx.send(Err(Error::AddRoutesFailed));
-                    }
+                    let _ = tx.send(
+                        winnet::routing_manager_add_routes(&routes).map_err(Error::AddRoutesFailed),
+                    );
                 }
                 RouteManagerCommand::Shutdown => {
                     break;

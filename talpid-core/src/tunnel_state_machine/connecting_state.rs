@@ -29,6 +29,9 @@ use talpid_types::{
     ErrorExt,
 };
 
+#[cfg(windows)]
+use crate::{routing, winnet};
+
 #[cfg(target_os = "android")]
 use crate::tunnel::tun_provider;
 
@@ -343,8 +346,10 @@ impl ConnectingState {
 }
 
 fn should_retry(error: &tunnel::Error) -> bool {
+    use tunnel::wireguard::Error;
     #[cfg(not(windows))]
-    use tunnel::wireguard::{Error, TunnelError};
+    use tunnel::wireguard::TunnelError;
+
     match error {
         #[cfg(not(windows))]
         tunnel::Error::WireguardTunnelMonitoringError(Error::TunnelError(
@@ -356,6 +361,24 @@ fn should_retry(error: &tunnel::Error) -> bool {
             TunnelError::BypassError(_),
         )) => true,
 
+        #[cfg(windows)]
+        tunnel::Error::WireguardTunnelMonitoringError(Error::SetupRoutingError(error)) => {
+            is_recoverable_routing_error(error)
+        }
+
+        _ => false,
+    }
+}
+
+#[cfg(windows)]
+fn is_recoverable_routing_error(error: &crate::routing::Error) -> bool {
+    match error {
+        routing::Error::AddRoutesFailed(route_error) => match route_error {
+            winnet::Error::GetDefaultRoute
+            | winnet::Error::GetDeviceByName
+            | winnet::Error::GetDeviceByGateway => true,
+            _ => false,
+        },
         _ => false,
     }
 }

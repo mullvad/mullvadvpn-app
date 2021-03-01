@@ -28,6 +28,18 @@ pub enum Error {
     #[error(display = "Failed to obtain default route")]
     GetDefaultRoute,
 
+    /// Failed to get a network device.
+    #[error(display = "Failed to obtain network interface by name")]
+    GetDeviceByName,
+
+    /// Failed to get a network device.
+    #[error(display = "Failed to obtain network interface by gateway")]
+    GetDeviceByGateway,
+
+    /// Unexpected error while adding routes
+    #[error(display = "Winnet returned an error while adding routes")]
+    GeneralAddRoutesError,
+
     /// Failed to obtain an IP address given a LUID.
     #[error(display = "Failed to obtain IP address for the given interface")]
     GetIpAddressFromLuid,
@@ -310,10 +322,16 @@ pub fn add_default_route_change_callback<T: 'static>(
     }
 }
 
-pub fn routing_manager_add_routes(routes: &[WinNetRoute]) -> bool {
+pub fn routing_manager_add_routes(routes: &[WinNetRoute]) -> Result<(), Error> {
     let ptr = routes.as_ptr();
     let length: u32 = routes.len() as u32;
-    unsafe { WinNet_AddRoutes(ptr, length) }
+    match unsafe { WinNet_AddRoutes(ptr, length) } {
+        WinNetAddRouteStatus::Success => Ok(()),
+        WinNetAddRouteStatus::GeneralError => Err(Error::GeneralAddRoutesError),
+        WinNetAddRouteStatus::NoDefaultRoute => Err(Error::GetDefaultRoute),
+        WinNetAddRouteStatus::NameNotFound => Err(Error::GetDeviceByName),
+        WinNetAddRouteStatus::GatewayNotFound => Err(Error::GetDeviceByGateway),
+    }
 }
 
 pub fn routing_manager_delete_applied_routes() -> bool {
@@ -394,15 +412,28 @@ mod api {
         Failure = 2,
     }
 
+    #[allow(dead_code)]
+    #[repr(u32)]
+    pub enum WinNetAddRouteStatus {
+        Success = 0,
+        GeneralError = 1,
+        NoDefaultRoute = 2,
+        NameNotFound = 3,
+        GatewayNotFound = 4,
+    }
+
     extern "system" {
         #[link_name = "WinNet_ActivateRouteManager"]
         pub fn WinNet_ActivateRouteManager(sink: Option<LogSink>, sink_context: *const u8) -> bool;
 
         #[link_name = "WinNet_AddRoutes"]
-        pub fn WinNet_AddRoutes(routes: *const super::WinNetRoute, num_routes: u32) -> bool;
+        pub fn WinNet_AddRoutes(
+            routes: *const super::WinNetRoute,
+            num_routes: u32,
+        ) -> WinNetAddRouteStatus;
 
         // #[link_name = "WinNet_AddRoute"]
-        // pub fn WinNet_AddRoute(route: *const super::WinNetRoute) -> bool;
+        // pub fn WinNet_AddRoute(route: *const super::WinNetRoute) -> WinNetAddRouteStatus;
 
         // #[link_name = "WinNet_DeleteRoutes"]
         // pub fn WinNet_DeleteRoutes(routes: *const super::WinNetRoute, num_routes: u32) -> bool;
