@@ -208,7 +208,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     private fun openNextScreen(fragment: Fragment) {
-        fragmentManager?.beginTransaction()?.apply {
+        parentFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, fragment)
             commit()
         }
