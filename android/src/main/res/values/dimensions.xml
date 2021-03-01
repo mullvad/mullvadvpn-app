@@ -42,6 +42,8 @@
     <dimen name="button_separation">18dp</dimen>
     <dimen name="screen_vertical_margin">22dp</dimen>
     <dimen name="app_list_item_icon_size">35dp</dimen>
+    <dimen name="progress_size">60dp</dimen>
+    <dimen name="icon_size">24dp</dimen>
     <!-- Switch Dimens-->
     <dimen name="switch_width">46dp</dimen>
     <dimen name="switch_height">30dp</dimen>
