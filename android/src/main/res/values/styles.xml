@@ -2,6 +2,7 @@
     <style name="AppTheme"
            parent="Theme.AppCompat.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="android:navigationBarColor">@color/blue</item>
         <item name="android:statusBarColor">@color/blue</item>
         <item name="android:windowBackground">@color/blue</item>
         <item name="switchStyle">@style/AppTheme.Switch</item>
