@@ -19,7 +19,8 @@ import org.joda.time.DateTime
 
 val KEY_IS_TUNNEL_INFO_EXPANDED = "is_tunnel_info_expanded"
 
-class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), NavigationBarPainter {
+class ConnectFragment :
+    ServiceDependentFragment(OnNoService.GoToLaunchScreen), NavigationBarPainter {
     private lateinit var actionButton: ConnectActionButton
     private lateinit var switchLocationButton: SwitchLocationButton
     private lateinit var headerBar: HeaderBar
