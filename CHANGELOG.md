@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 - Allow reaching the API server when connecting, disconnecting or in a blocked state.
 - Add FAQs & Guides menu entry to the Settings screen.
 - Add TV banner for better user experience and requirements.
+- Style StatucBar and NavigationBar to make our app a bit more beautiful.
 
 ### Changed
 - Update Electron from 11.0.2 to 11.2.1 which includes a newer Chromium version and
