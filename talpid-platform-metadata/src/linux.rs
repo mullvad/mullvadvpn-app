@@ -94,7 +94,7 @@ fn kernel_version() -> Option<(String, String)> {
 /// > 1.26.0
 fn nm_version() -> Option<(String, String)> {
     let nm = talpid_dbus::network_manager::NetworkManager::new().ok()?;
-    Some(("nm".to_string(), nm.version().ok()?))
+    Some(("nm".to_string(), nm.version_string().ok()?))
 }
 
 /// `/sys/module/wireguard/version` contains only a numeric version string
