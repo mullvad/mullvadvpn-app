@@ -54,9 +54,4 @@ class HeaderBar @JvmOverloads constructor(
             (context as? MainActivity)?.openSettings()
         }
     }
-
-    override fun onDetachedFromWindow() {
-        findViewById<View>(R.id.settings)?.setOnClickListener(null)
-        super.onDetachedFromWindow()
-    }
 }
