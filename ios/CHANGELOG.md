@@ -23,15 +23,22 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+- Add ability to report a problem inside the app. Sends logs to support.
+
 ### Changed
 - Migrate to WireGuardKit framework.
+
+### Fixed
 - Fix crash when pasting empty string into account input field.
 - Fix invalid initial text color of "unsecured connection" label on iOS 12.
+
 
 ## [2020.5] - 2020-11-04
 ### Fixed
 - Fix regression where "Internal error" was displayed instead of server error (i.e too many 
   WireGuard keys)
+
 
 ## [2020.4] - 2020-09-10
 ### Added
