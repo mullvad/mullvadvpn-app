@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -18,7 +19,7 @@ import org.joda.time.DateTime
 
 val KEY_IS_TUNNEL_INFO_EXPANDED = "is_tunnel_info_expanded"
 
-class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), NavigationBarPainter {
     private lateinit var actionButton: ConnectActionButton
     private lateinit var switchLocationButton: SwitchLocationButton
     private lateinit var headerBar: HeaderBar
@@ -57,7 +58,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
         status = ConnectionStatus(view, parentActivity)
 
-        locationInfo = LocationInfo(view, context!!)
+        locationInfo = LocationInfo(view, requireContext())
         locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded
 
         actionButton = ConnectActionButton(view)
@@ -128,6 +129,11 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     override fun onSafelySaveInstanceState(state: Bundle) {
         isTunnelInfoExpanded = locationInfo.isTunnelInfoExpanded
         state.putBoolean(KEY_IS_TUNNEL_INFO_EXPANDED, isTunnelInfoExpanded)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.blue))
     }
 
     private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) {

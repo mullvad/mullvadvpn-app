@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
 import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
 class SelectLocationFragment :
-    ServiceDependentFragment(OnNoService.GoToLaunchScreen), StatusBarPainter {
+    ServiceDependentFragment(OnNoService.GoToLaunchScreen), StatusBarPainter, NavigationBarPainter {
     private enum class RelayListState {
         Initializing,
         Loading,
@@ -141,6 +141,11 @@ class SelectLocationFragment :
                 paintStatusBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
     }
 
     fun close() {
