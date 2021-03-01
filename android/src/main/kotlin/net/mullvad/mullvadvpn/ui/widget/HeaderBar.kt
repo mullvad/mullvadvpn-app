@@ -6,22 +6,25 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.ui.MainActivity
+import net.mullvad.mullvadvpn.ui.StatusBarPainter
+import net.mullvad.mullvadvpn.ui.paintStatusBar
 
-class HeaderBar : LinearLayout {
-    private val container =
-        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE).let { service ->
-            val inflater = service as LayoutInflater
+class HeaderBar @JvmOverloads constructor(
+    context: Context,
+    attributes: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+    defStyleRes: Int = 0
+) : LinearLayout(context, attributes, defStyleAttr, defStyleRes), StatusBarPainter {
+    private val container = LayoutInflater.from(context).inflate(R.layout.header_bar, this)
 
-            inflater.inflate(R.layout.header_bar, this)
-        }
-
-    private val disabledColor = context.getColor(android.R.color.transparent)
-    private val securedColor = context.getColor(R.color.green)
-    private val unsecuredColor = context.getColor(R.color.red)
+    private val disabledColor = ContextCompat.getColor(context, android.R.color.transparent)
+    private val securedColor = ContextCompat.getColor(context, R.color.green)
+    private val unsecuredColor = ContextCompat.getColor(context, R.color.red)
 
     var tunnelState by observable<TunnelState?>(null) { _, _, state ->
         val backgroundColor = when (state) {
@@ -40,24 +43,8 @@ class HeaderBar : LinearLayout {
         }
 
         container.setBackgroundColor(backgroundColor)
+        paintStatusBar(backgroundColor)
     }
-
-    constructor(context: Context) : super(context) {}
-
-    constructor(context: Context, attributes: AttributeSet) : super(context, attributes) {}
-
-    constructor(
-        context: Context,
-        attributes: AttributeSet,
-        defaultStyleAttribute: Int
-    ) : super(context, attributes, defaultStyleAttribute) {}
-
-    constructor(
-        context: Context,
-        attributes: AttributeSet,
-        defaultStyleAttribute: Int,
-        defaultStyleResource: Int
-    ) : super(context, attributes, defaultStyleAttribute, defaultStyleResource) {}
 
     init {
         gravity = Gravity.CENTER_VERTICAL
@@ -66,5 +53,10 @@ class HeaderBar : LinearLayout {
         findViewById<View>(R.id.settings).setOnClickListener {
             (context as? MainActivity)?.openSettings()
         }
+    }
+
+    override fun onDetachedFromWindow() {
+        findViewById<View>(R.id.settings)?.setOnClickListener(null)
+        super.onDetachedFromWindow()
     }
 }
