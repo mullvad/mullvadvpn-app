@@ -14,6 +14,7 @@ lazy_static! {
 }
 
 /// A parsed gettext translation file.
+#[derive(Clone, Debug)]
 pub struct Translation {
     pub plural_form: Option<PluralForm>,
     entries: Vec<MsgEntry>,
