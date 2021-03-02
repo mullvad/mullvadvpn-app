@@ -89,6 +89,7 @@ impl ConnectingState {
     }
 
     fn start_tunnel(
+        runtime: tokio::runtime::Handle,
         parameters: TunnelParameters,
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
@@ -102,6 +103,7 @@ impl ConnectingState {
         };
 
         let monitor = TunnelMonitor::start(
+            runtime,
             &parameters,
             log_dir,
             resource_dir,
@@ -420,6 +422,7 @@ impl TunnelState for ConnectingState {
                     }
 
                     match Self::start_tunnel(
+                        shared_values.runtime.clone(),
                         tunnel_parameters,
                         &shared_values.log_dir,
                         &shared_values.resource_dir,

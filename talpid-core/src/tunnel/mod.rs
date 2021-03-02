@@ -148,6 +148,7 @@ impl TunnelMonitor {
     /// on tunnel state changes.
     #[cfg_attr(any(target_os = "android", windows), allow(unused_variables))]
     pub fn start<L>(
+        runtime: tokio::runtime::Handle,
         tunnel_parameters: &TunnelParameters,
         log_dir: &Option<PathBuf>,
         resource_dir: &Path,
@@ -170,6 +171,7 @@ impl TunnelMonitor {
             TunnelParameters::OpenVpn(_) => Err(Error::UnsupportedPlatform),
 
             TunnelParameters::Wireguard(config) => Self::start_wireguard_tunnel(
+                runtime,
                 &config,
                 log_file,
                 on_event,
@@ -200,6 +202,7 @@ impl TunnelMonitor {
     }
 
     fn start_wireguard_tunnel<L>(
+        runtime: tokio::runtime::Handle,
         params: &wireguard_types::TunnelParameters,
         log: Option<PathBuf>,
         on_event: L,
@@ -211,6 +214,7 @@ impl TunnelMonitor {
     {
         let config = wireguard::config::Config::from_parameters(&params)?;
         let monitor = wireguard::WireguardMonitor::start(
+            runtime,
             &config,
             log.as_ref().map(|p| p.as_path()),
             on_event,
