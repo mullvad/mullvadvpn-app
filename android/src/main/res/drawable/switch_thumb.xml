@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+       android:dither="true"
+       android:shape="oval"
+       android:useLevel="false"
+       android:visible="true">
+    <size android:width="@dimen/switch_thumb_size"
+          android:height="@dimen/switch_thumb_size" />
+    <padding android:bottom="@dimen/switch_thumb_padding"
+             android:left="@dimen/switch_thumb_padding"
+             android:right="@dimen/switch_thumb_padding"
+             android:top="@dimen/switch_thumb_padding" />
+    <solid android:color="@color/switch_thumb_fill" />
+    <stroke android:width="@dimen/switch_thumb_padding"
+            android:color="@color/switch_thumb_border" />
+</shape>
