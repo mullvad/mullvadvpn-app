@@ -215,7 +215,7 @@ impl TunnelMonitor {
         let config = wireguard::config::Config::from_parameters(&params)?;
         let monitor = wireguard::WireguardMonitor::start(
             runtime,
-            &config,
+            config,
             log.as_ref().map(|p| p.as_path()),
             on_event,
             tun_provider,
