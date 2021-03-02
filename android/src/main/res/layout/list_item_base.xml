@@ -10,6 +10,7 @@
                                                   android:layout_width="@dimen/icon_size"
                                                   android:layout_height="@dimen/icon_size"
                                                   android:layout_marginEnd="@dimen/cell_inner_spacing"
+                                                  android:background="@null"
                                                   app:layout_constraintBottom_toBottomOf="parent"
                                                   app:layout_constraintEnd_toStartOf="@id/itemText"
                                                   app:layout_constraintStart_toStartOf="@id/startGuideline"
@@ -22,6 +23,7 @@
                                                  android:gravity="center_vertical"
                                                  android:textAppearance="@style/TextAppearance.Mullvad.Title1"
                                                  android:textStyle="bold"
+                                                 android:background="@null"
                                                  app:layout_constraintBottom_toBottomOf="parent"
                                                  app:layout_constraintEnd_toStartOf="@id/widgetBarrier"
                                                  app:layout_constraintStart_toEndOf="@id/itemIcon"
@@ -36,6 +38,7 @@
     <androidx.constraintlayout.widget.Barrier android:id="@+id/widgetBarrier"
                                               android:layout_width="wrap_content"
                                               android:layout_height="wrap_content"
+                                              android:tag="base"
                                               app:barrierDirection="start"
                                               app:constraint_referenced_ids="parent" />
 </merge>

@@ -1,11 +1,11 @@
 package net.mullvad.mullvadvpn.ui.listitemview
 
 import android.content.Context
+import android.content.res.Resources
 import android.util.AttributeSet
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.WidgetState
@@ -16,20 +16,23 @@ open class ActionListItemView @JvmOverloads constructor(
     defStyleAttr: Int = R.attr.actionListItemViewStyle,
     defStyleRes: Int = 0
 ) : ListItemView(context, attrs, defStyleAttr, defStyleRes) {
-    override val layoutRes: Int
-        get() = R.layout.list_item_action
 
-    override val heightRes: Int
-        get() = R.dimen.cell_height
     protected var widgetController: WidgetViewController<*>? = null
+    protected val itemText: TextView = findViewById(R.id.itemText)
+    protected val itemIcon: ImageView = findViewById(R.id.itemIcon)
+    protected val widgetContainer: ViewGroup = findViewById(R.id.widgetContainer)
+
     protected val clickListener = OnClickListener {
         itemData.action?.let { _ ->
             listItemListener?.onItemAction(itemData)
         }
     }
-    protected val itemIcon: ImageView = findViewById(R.id.itemIcon)
-    protected val itemText: TextView = findViewById(R.id.itemText)
-    protected val widgetContainer: ViewGroup = findViewById(R.id.widgetContainer)
+
+    override val layoutRes: Int
+        get() = R.layout.list_item_action
+
+    override val heightRes: Int
+        get() = R.dimen.cell_height
 
     override fun onUpdate() {
         updateImage()
@@ -39,9 +42,15 @@ open class ActionListItemView @JvmOverloads constructor(
     }
 
     protected open fun updateImage() {
-        itemData.iconRes?.let {
+        try {
+            itemData.iconRes?.let {
+                itemIcon.isVisible = true
+                itemIcon.setImageResource(it)
+                return
+            }
+        } catch (ignore: Resources.NotFoundException) {
             itemIcon.isVisible = true
-            itemIcon.setImageResource(it)
+            itemIcon.setImageResource(R.drawable.ic_icons_missing)
             return
         }
 
@@ -61,7 +70,7 @@ open class ActionListItemView @JvmOverloads constructor(
         itemText.text = ""
     }
 
-    private fun updateAction() {
+    protected open fun updateAction() {
         if (itemData.action == null) {
             setOnClickListener(null)
             isClickable = false
@@ -96,10 +105,15 @@ open class ActionListItemView @JvmOverloads constructor(
                     if (widgetController != null) {
                         widgetController = null
                         widgetContainer.removeAllViews()
-                        widgetContainer.isInvisible = true
+                        widgetContainer.isVisible = false
                     }
                 }
             }
         }
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        widgetContainer.requestLayout()
     }
 }
