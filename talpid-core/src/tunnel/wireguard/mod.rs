@@ -74,12 +74,15 @@ lazy_static! {
 impl WireguardMonitor {
     /// Starts a WireGuard tunnel with the given config
     pub fn start<F: Fn(TunnelEvent) + Send + Sync + Clone + 'static>(
+        runtime: tokio::runtime::Handle,
         config: &Config,
         log_path: Option<&Path>,
         on_event: F,
         tun_provider: &mut TunProvider,
         route_manager: &mut routing::RouteManager,
     ) -> Result<WireguardMonitor> {
+        // FIXME: Set up udp2tcp and use it for peer config here
+
         let tunnel = Self::open_tunnel(&config, log_path, tun_provider, route_manager)?;
         let iface_name = tunnel.get_interface_name().to_string();
 
