@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
   party dependencies.
 - Add 51820 to list of WireGuard ports in app settings.
 - Add option to connect to WireGuard relays over IPv6.
+- Add Burmese translations.
 
 #### Android
 - Allow reaching the API server when connecting, disconnecting or in a blocked state.

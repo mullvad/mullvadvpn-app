@@ -63,6 +63,7 @@ const SUPPORTED_LOCALE_LIST = [
   { name: 'Italiano', code: 'it' },
   { name: '日本語', code: 'ja' },
   { name: '한국어', code: 'ko' },
+  { name: 'မြန်မာဘာသာ', code: 'my' },
   { name: 'Nederlands', code: 'nl' },
   { name: 'Norsk', code: 'nb' },
   { name: 'Język polski', code: 'pl' },
