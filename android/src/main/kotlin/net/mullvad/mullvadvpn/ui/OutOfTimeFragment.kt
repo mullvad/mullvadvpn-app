@@ -57,7 +57,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
         }
 
         redeemButton = view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
-            prepare(fragmentManager, jobTracker)
+            prepare(parentFragmentManager, jobTracker)
         }
 
         connectionProxy.onStateChange.subscribe(this) { newState ->
@@ -135,7 +135,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
     }
 
     private fun advanceToConnectScreen() {
-        fragmentManager?.beginTransaction()?.apply {
+        parentFragmentManager.beginTransaction().apply {
             replace(R.id.main_fragment, ConnectFragment())
             commit()
         }

@@ -74,7 +74,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         redeemVoucherButton = view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
-            prepare(fragmentManager, jobTracker)
+            prepare(parentFragmentManager, jobTracker)
         }
 
         view.findViewById<Button>(R.id.logout).setOnClickAction("logout", jobTracker) {
@@ -147,7 +147,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     private fun showRedeemVoucherDialog() {
-        val transaction = requireFragmentManager().beginTransaction()
+        val transaction = parentFragmentManager.beginTransaction()
 
         transaction.addToBackStack(null)
 
@@ -167,7 +167,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     private fun clearBackStack() {
-        fragmentManager?.apply {
+        parentFragmentManager.apply {
             val firstEntry = getBackStackEntryAt(0)
 
             popBackStack(firstEntry.id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
@@ -175,7 +175,7 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     private fun goToLoginScreen() {
-        fragmentManager?.beginTransaction()?.apply {
+        parentFragmentManager.beginTransaction().apply {
             setCustomAnimations(
                 R.anim.do_nothing,
                 R.anim.fragment_exit_to_bottom,

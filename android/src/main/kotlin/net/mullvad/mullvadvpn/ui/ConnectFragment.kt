@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -18,7 +19,8 @@ import org.joda.time.DateTime
 
 val KEY_IS_TUNNEL_INFO_EXPANDED = "is_tunnel_info_expanded"
 
-class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+class ConnectFragment :
+    ServiceDependentFragment(OnNoService.GoToLaunchScreen), NavigationBarPainter {
     private lateinit var actionButton: ConnectActionButton
     private lateinit var switchLocationButton: SwitchLocationButton
     private lateinit var headerBar: HeaderBar
@@ -57,7 +59,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
         status = ConnectionStatus(view, parentActivity)
 
-        locationInfo = LocationInfo(view, context!!)
+        locationInfo = LocationInfo(view, requireContext())
         locationInfo.isTunnelInfoExpanded = isTunnelInfoExpanded
 
         actionButton = ConnectActionButton(view)
@@ -130,6 +132,11 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
         state.putBoolean(KEY_IS_TUNNEL_INFO_EXPANDED, isTunnelInfoExpanded)
     }
 
+    override fun onResume() {
+        super.onResume()
+        paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.blue))
+    }
+
     private fun updateTunnelState(uiState: TunnelState, realState: TunnelState) {
         locationInfo.state = realState
         headerBar.tunnelState = realState
@@ -140,7 +147,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
     }
 
     private fun openSwitchLocationScreen() {
-        fragmentManager?.beginTransaction()?.apply {
+        parentFragmentManager.beginTransaction().apply {
             setCustomAnimations(
                 R.anim.fragment_enter_from_bottom,
                 R.anim.do_nothing,
@@ -155,7 +162,7 @@ class ConnectFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
 
     private fun openOutOfTimeScreen() {
         jobTracker.newUiJob("openOutOfTimeScreen") {
-            fragmentManager?.beginTransaction()?.apply {
+            parentFragmentManager.beginTransaction().apply {
                 replace(R.id.main_fragment, OutOfTimeFragment())
                 commit()
             }

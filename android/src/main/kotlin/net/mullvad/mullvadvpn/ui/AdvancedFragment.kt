@@ -124,7 +124,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     private fun showConfirmPublicDnsServerDialog(confirmation: CompletableDeferred<Boolean>) {
-        val transaction = requireFragmentManager().beginTransaction()
+        val transaction = parentFragmentManager.beginTransaction()
 
         detachBackButtonHandler()
         transaction.addToBackStack(null)

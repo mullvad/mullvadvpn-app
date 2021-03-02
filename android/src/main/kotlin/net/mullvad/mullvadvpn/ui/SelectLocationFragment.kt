@@ -9,8 +9,11 @@ import android.view.animation.Animation
 import android.view.animation.Animation.AnimationListener
 import android.view.animation.AnimationUtils
 import android.widget.ImageButton
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.KeygenEvent
@@ -23,7 +26,8 @@ import net.mullvad.mullvadvpn.relaylist.RelayListAdapter
 import net.mullvad.mullvadvpn.ui.widget.CustomRecyclerView
 import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
-class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+class SelectLocationFragment :
+    ServiceDependentFragment(OnNoService.GoToLaunchScreen), StatusBarPainter, NavigationBarPainter {
     private enum class RelayListState {
         Initializing,
         Loading,
@@ -128,6 +132,20 @@ class SelectLocationFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
 
     override fun onSafelyDestroyView() {
         titleController.onDestroy()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        lifecycleScope.launchWhenResumed {
+            transitionFinishedFlow.collect {
+                paintStatusBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
     }
 
     fun close() {

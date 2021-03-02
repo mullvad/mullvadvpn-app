@@ -5,6 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.flow.collect
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.service.AccountCache
@@ -13,7 +16,7 @@ import net.mullvad.mullvadvpn.ui.widget.AccountCell
 import net.mullvad.mullvadvpn.ui.widget.AppVersionCell
 import net.mullvad.mullvadvpn.ui.widget.NavigateCell
 
-class SettingsFragment : ServiceAwareFragment() {
+class SettingsFragment : ServiceAwareFragment(), StatusBarPainter, NavigationBarPainter {
     private lateinit var accountMenu: AccountCell
     private lateinit var appVersionMenu: AppVersionCell
     private lateinit var preferencesMenu: View
@@ -71,6 +74,20 @@ class SettingsFragment : ServiceAwareFragment() {
         titleController = CollapsibleTitleController(view)
 
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        lifecycleScope.launchWhenResumed {
+            transitionFinishedFlow.collect {
+                paintStatusBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
     }
 
     override fun onStart() {

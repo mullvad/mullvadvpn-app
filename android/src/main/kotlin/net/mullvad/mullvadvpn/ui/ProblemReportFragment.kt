@@ -144,7 +144,7 @@ class ProblemReportFragment : BaseFragment() {
     }
 
     private fun showLogs() {
-        fragmentManager?.beginTransaction()?.apply {
+        parentFragmentManager.beginTransaction().apply {
             setCustomAnimations(
                 R.anim.fragment_enter_from_right,
                 R.anim.fragment_half_exit_to_left,
@@ -197,7 +197,7 @@ class ProblemReportFragment : BaseFragment() {
     }
 
     private fun showConfirmNoEmailDialog() {
-        val transaction = requireFragmentManager().beginTransaction()
+        val transaction = parentFragmentManager.beginTransaction()
 
         transaction.addToBackStack(null)
 
