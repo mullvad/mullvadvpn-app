@@ -28,6 +28,7 @@ zeroize = "1"
 chrono = "0.4"
 tokio = { version = "0.2", features =  [ "process", "rt-threaded", "stream" ] }
 rand = "0.7"
+udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "942483b" }
 
 
 [target.'cfg(not(target_os="android"))'.dependencies]
