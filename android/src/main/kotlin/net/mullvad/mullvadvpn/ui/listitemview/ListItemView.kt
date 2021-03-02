@@ -15,7 +15,6 @@ abstract class ListItemView @JvmOverloads constructor(
     defStyleAttr: Int = 0,
     defStyleRes: Int = 0
 ) : ConstraintLayout(context, attrs, defStyleAttr, defStyleRes) {
-    private val inflater: LayoutInflater = LayoutInflater.from(context)
     @get:LayoutRes
     protected abstract val layoutRes: Int
     @get:DimenRes
@@ -24,7 +23,7 @@ abstract class ListItemView @JvmOverloads constructor(
     var listItemListener: ListItemListener? = null
 
     init {
-        val view = inflater.inflate(layoutRes, this, true)
+        val view = LayoutInflater.from(context).inflate(layoutRes, this, true)
         val height = if (heightRes != null) {
             resources.getDimensionPixelSize(heightRes!!)
         } else {
