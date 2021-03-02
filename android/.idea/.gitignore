@@ -5,6 +5,8 @@ dictionaries
 vcs.xml
 usage.statistics.xml
 shelf
+assetWizardSettings.xml
+modules/android.iml
 
 # Gradle:
 gradle.xml
