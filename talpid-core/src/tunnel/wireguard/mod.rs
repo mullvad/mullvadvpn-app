@@ -3,16 +3,19 @@ use self::config::Config;
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::routing::{self, RequiredRoute};
+use futures::future::abortable;
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
 #[cfg(target_os = "linux")]
 use std::env;
 use std::{
     collections::HashSet,
+    net::SocketAddr,
     path::Path,
     sync::{mpsc, Arc, Mutex},
 };
-use talpid_types::ErrorExt;
+use talpid_types::{net::TransportProtocol, ErrorExt};
+use udp_over_tcp::{TcpOptions, Udp2Tcp};
 
 /// WireGuard config data-types
 pub mod config;
@@ -29,6 +32,7 @@ type Result<T> = std::result::Result<T, Error>;
 
 /// Errors that can happen in the Wireguard tunnel monitor.
 #[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum Error {
     /// Failed to set up routing.
     #[error(display = "Failed to setup routing")]
@@ -41,6 +45,14 @@ pub enum Error {
     /// An interaction with a tunnel failed
     #[error(display = "Tunnel failed")]
     TunnelError(#[error(source)] TunnelError),
+
+    /// Failed to set up Udp2Tcp
+    #[error(display = "Failed to start UDP-over-TCP proxy")]
+    Udp2TcpError(#[error(source)] udp_over_tcp::udp2tcp::ConnectError),
+
+    /// Failed to obtain the local UDP socket address
+    #[error(display = "Failed obtain local address for the UDP socket in Udp2Tcp")]
+    GetLocalUdpAddress(#[error(source)] std::io::Error),
 
     /// Failed to setup connectivity monitor
     #[error(display = "Connectivity monitor failed")]
@@ -57,6 +69,7 @@ pub struct WireguardMonitor {
     close_msg_sender: mpsc::Sender<CloseMsg>,
     close_msg_receiver: mpsc::Receiver<CloseMsg>,
     pinger_stop_sender: mpsc::Sender<()>,
+    _tcp_proxies: Vec<TcpProxy>,
 }
 
 #[cfg(target_os = "linux")]
@@ -71,17 +84,77 @@ lazy_static! {
         .unwrap_or(false);
 }
 
+struct TcpProxy {
+    local_addr: SocketAddr,
+    abort_handle: futures::future::AbortHandle,
+}
+
+impl TcpProxy {
+    pub fn new(runtime: &tokio::runtime::Handle, endpoint: SocketAddr) -> Result<Self> {
+        let listen_addr = if endpoint.is_ipv4() {
+            SocketAddr::new("127.0.0.1".parse().unwrap(), 0)
+        } else {
+            SocketAddr::new("::1".parse().unwrap(), 0)
+        };
+
+        let udp2tcp = runtime
+            .block_on(Udp2Tcp::new(
+                listen_addr,
+                endpoint,
+                Some(&TcpOptions {
+                    #[cfg(target_os = "linux")]
+                    fwmark: Some(crate::linux::TUNNEL_FW_MARK),
+                    ..TcpOptions::default()
+                }),
+            ))
+            .map_err(Error::Udp2TcpError)?;
+
+        let local_addr = udp2tcp
+            .local_udp_addr()
+            .map_err(Error::GetLocalUdpAddress)?;
+
+        let (udp2tcp_future, abort_handle) = abortable(udp2tcp.run());
+        runtime.spawn(udp2tcp_future);
+
+        Ok(Self {
+            local_addr,
+            abort_handle,
+        })
+    }
+
+    pub fn local_udp_addr(&self) -> SocketAddr {
+        self.local_addr
+    }
+}
+
+impl Drop for TcpProxy {
+    fn drop(&mut self) {
+        self.abort_handle.abort();
+    }
+}
+
 impl WireguardMonitor {
     /// Starts a WireGuard tunnel with the given config
     pub fn start<F: Fn(TunnelEvent) + Send + Sync + Clone + 'static>(
         runtime: tokio::runtime::Handle,
-        config: &Config,
+        mut config: Config,
         log_path: Option<&Path>,
         on_event: F,
         tun_provider: &mut TunProvider,
         route_manager: &mut routing::RouteManager,
     ) -> Result<WireguardMonitor> {
-        // FIXME: Set up udp2tcp and use it for peer config here
+        let mut tcp_proxies = vec![];
+
+        for peer in &mut config.peers {
+            if peer.protocol == TransportProtocol::Tcp {
+                let udp2tcp = TcpProxy::new(&runtime, peer.endpoint.clone())?;
+
+                // Replace remote peer with proxy
+                peer.endpoint = udp2tcp.local_udp_addr();
+
+                tcp_proxies.push(udp2tcp);
+            }
+        }
 
         let tunnel = Self::open_tunnel(&config, log_path, tun_provider, route_manager)?;
         let iface_name = tunnel.get_interface_name().to_string();
@@ -108,6 +181,7 @@ impl WireguardMonitor {
             close_msg_sender,
             close_msg_receiver,
             pinger_stop_sender: pinger_tx,
+            _tcp_proxies: tcp_proxies,
         };
 
         let metadata = Self::tunnel_metadata(&iface_name, &config);
@@ -118,7 +192,8 @@ impl WireguardMonitor {
             iface_name.to_string(),
             Arc::downgrade(&monitor.tunnel),
             pinger_rx,
-        )?;
+        )
+        .map_err(Error::ConnectivityMonitorError)?;
 
         std::thread::spawn(move || {
             match connectivity_monitor.establish_connectivity() {
@@ -191,12 +266,15 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "linux")]
         log::debug!("Using userspace WireGuard implementation");
-        Ok(Box::new(WgGoTunnel::start_tunnel(
-            &config,
-            log_path,
-            tun_provider,
-            Self::get_tunnel_routes(config),
-        )?))
+        Ok(Box::new(
+            WgGoTunnel::start_tunnel(
+                &config,
+                log_path,
+                tun_provider,
+                Self::get_tunnel_routes(config),
+            )
+            .map_err(Error::TunnelError)?,
+        ))
     }
 
     /// Returns a close handle for the tunnel
