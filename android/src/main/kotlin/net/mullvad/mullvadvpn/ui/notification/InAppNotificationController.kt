@@ -1,78 +1,56 @@
 package net.mullvad.mullvadvpn.ui.notification
 
+import java.util.PriorityQueue
 import kotlin.properties.Delegates.observable
 
 class InAppNotificationController(private val onNotificationChanged: (InAppNotification?) -> Unit) {
-    private val indices = HashMap<InAppNotification, Int>()
-    private val notifications = ArrayList<InAppNotification>()
+    private val notificationPrioritizer =
+        compareByDescending<InAppNotification> { it.shouldShow }
+            .thenBy { it.status }
+            .thenBy { notifications.get(it)!! }
 
-    private var currentIndex: Int? = null
+    private val activeNotifications = PriorityQueue(notificationPrioritizer)
+    private val notifications = HashMap<InAppNotification, Int>()
 
-    var current by observable<InAppNotification?>(null) { _, _, notification ->
-        onNotificationChanged.invoke(notification)
+    var current by observable<InAppNotification?>(null) { _, oldNotification, newNotification ->
+        if (oldNotification != newNotification) {
+            onNotificationChanged.invoke(newNotification)
+        }
     }
 
     fun register(notification: InAppNotification) {
         notification.controller = this
 
-        indices.put(notification, notifications.size)
-        notifications.add(notification)
+        notifications.put(notification, notifications.size)
 
         notificationChanged(notification)
     }
 
     fun onResume() {
-        for (notification in notifications) {
+        for (notification in notifications.keys) {
             notification.onResume()
         }
     }
 
     fun onPause() {
-        for (notification in notifications) {
+        for (notification in notifications.keys) {
             notification.onPause()
         }
     }
 
     fun onDestroy() {
-        for (notification in notifications) {
+        for (notification in notifications.keys) {
             notification.onDestroy()
         }
     }
 
     fun notificationChanged(notification: InAppNotification) {
-        if (notification.shouldShow) {
-            maybeShowNotification(notification)
+        if (notification.shouldShow && !activeNotifications.contains(notification)) {
+            activeNotifications.add(notification)
         } else {
-            maybeHideNotification(notification)
+            activeNotifications.remove(notification)
         }
-    }
 
-    private fun maybeShowNotification(notification: InAppNotification) {
-        indices.get(notification)?.let { index ->
-            if (index <= (currentIndex ?: Int.MAX_VALUE)) {
-                current = notification
-                currentIndex = index
-            }
-        }
-    }
-
-    private fun maybeHideNotification(notification: InAppNotification) {
-        if (current == notification) {
-            val start = currentIndex!! + 1
-            val end = notifications.size
-
-            for (index in start until end) {
-                val candidate = notifications.get(index)
-
-                if (candidate.shouldShow) {
-                    current = candidate
-                    currentIndex = index
-                    return
-                }
-            }
-
-            current = null
-            currentIndex = null
-        }
+        current = activeNotifications.peek()
     }
 }
