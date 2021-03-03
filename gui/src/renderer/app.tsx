@@ -20,7 +20,7 @@ import { ILinuxSplitTunnelingApplication } from '../shared/application-types';
 import { messages, relayLocations } from '../shared/gettext';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import log, { ConsoleOutput } from '../shared/logging';
-import { IRelayListPair } from '../shared/ipc-schema';
+import { IRelayListPair, LaunchApplicationResult } from '../shared/ipc-schema';
 import consumePromise from '../shared/promise';
 import History from './lib/history';
 import { loadTranslations } from './lib/load-translations';
@@ -419,8 +419,10 @@ export default class AppRenderer {
     return IpcRendererEventChannel.splitTunneling.getApplications();
   }
 
-  public launchExcludedApplication(application: ILinuxSplitTunnelingApplication | string) {
-    consumePromise(IpcRendererEventChannel.splitTunneling.launchApplication(application));
+  public launchExcludedApplication(
+    application: ILinuxSplitTunnelingApplication | string,
+  ): Promise<LaunchApplicationResult> {
+    return IpcRendererEventChannel.splitTunneling.launchApplication(application);
   }
 
   public collectProblemReport(toRedact: string[]): Promise<string> {
