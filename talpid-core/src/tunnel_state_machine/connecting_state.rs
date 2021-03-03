@@ -112,7 +112,7 @@ impl ConnectingState {
             route_manager,
         )?;
         let close_handle = Some(monitor.close_handle());
-        let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(monitor);
+        let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(Some(monitor));
 
         Ok(ConnectingState {
             tunnel_events: event_rx.fuse(),
@@ -123,17 +123,19 @@ impl ConnectingState {
         })
     }
 
-    fn spawn_tunnel_monitor_wait_thread(tunnel_monitor: TunnelMonitor) -> TunnelCloseEvent {
+    fn spawn_tunnel_monitor_wait_thread(tunnel_monitor: Option<TunnelMonitor>) -> TunnelCloseEvent {
         let (tunnel_close_event_tx, tunnel_close_event_rx) = oneshot::channel();
 
         thread::spawn(move || {
             let start = Instant::now();
 
-            let block_reason = Self::wait_for_tunnel_monitor(tunnel_monitor);
-            debug!(
-                "Tunnel monitor exited with block reason: {:?}",
-                block_reason
-            );
+            let block_reason = if let Some(monitor) = tunnel_monitor {
+                let reason = Self::wait_for_tunnel_monitor(monitor);
+                debug!("Tunnel monitor exited with block reason: {:?}", reason);
+                reason
+            } else {
+                None
+            };
 
             if block_reason.is_none() {
                 if let Some(remaining_time) = MIN_TUNNEL_ALIVE_TIME.checked_sub(start.elapsed()) {
@@ -446,7 +448,7 @@ impl TunnelState for ConnectingState {
                                     shared_values,
                                     (
                                         None,
-                                        Fuse::terminated(),
+                                        Self::spawn_tunnel_monitor_wait_thread(None),
                                         AfterDisconnect::Reconnect(retry_attempt + 1),
                                     ),
                                 )
