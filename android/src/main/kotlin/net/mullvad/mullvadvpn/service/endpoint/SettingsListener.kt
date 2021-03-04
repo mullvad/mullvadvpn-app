@@ -47,36 +47,32 @@ class SettingsListener(val daemon: Intermittent<MullvadDaemon>) {
     }
 
     private fun registerListener(daemon: MullvadDaemon) {
-        daemon.onSettingsChange.subscribe(this) { maybeSettings ->
-            synchronized(this) {
-                maybeSettings?.let { newSettings -> handleNewSettings(newSettings) }
-            }
-        }
+        daemon.onSettingsChange.subscribe(this, ::handleNewSettings)
     }
 
     private fun fetchInitialSettings(daemon: MullvadDaemon) {
         synchronized(this) {
-            daemon.getSettings()?.let { newSettings ->
-                handleNewSettings(newSettings)
-            }
+            handleNewSettings(daemon.getSettings())
         }
     }
 
-    private fun handleNewSettings(newSettings: Settings) {
-        synchronized(this) {
-            if (settings?.accountToken != newSettings.accountToken) {
-                accountNumberNotifier.notify(newSettings.accountToken)
-            }
+    private fun handleNewSettings(newSettings: Settings?) {
+        if (newSettings != null) {
+            synchronized(this) {
+                if (settings?.accountToken != newSettings.accountToken) {
+                    accountNumberNotifier.notify(newSettings.accountToken)
+                }
 
-            if (settings?.tunnelOptions?.dnsOptions != newSettings.tunnelOptions.dnsOptions) {
-                dnsOptionsNotifier.notify(newSettings.tunnelOptions.dnsOptions)
-            }
+                if (settings?.tunnelOptions?.dnsOptions != newSettings.tunnelOptions.dnsOptions) {
+                    dnsOptionsNotifier.notify(newSettings.tunnelOptions.dnsOptions)
+                }
 
-            if (settings?.relaySettings != newSettings.relaySettings) {
-                relaySettingsNotifier.notify(newSettings.relaySettings)
-            }
+                if (settings?.relaySettings != newSettings.relaySettings) {
+                    relaySettingsNotifier.notify(newSettings.relaySettings)
+                }
 
-            settings = newSettings
+                settings = newSettings
+            }
         }
     }
 }
