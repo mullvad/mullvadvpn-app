@@ -73,7 +73,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 updateStatusMessage()
                 updateGenerateKeyButtonState()
                 updateVerifyKeyButtonState()
-                manageKeysButton.setEnabled(value)
+                manageKeysButton.setEnabled(!value)
             }
         }
 
