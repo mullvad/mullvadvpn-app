@@ -6,6 +6,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.MeasureSpec
 import android.view.View.OnLayoutChangeListener
 import android.view.inputmethod.InputMethodManager
 import android.widget.RelativeLayout
@@ -68,7 +69,9 @@ class AccountLogin : RelativeLayout {
         }
     }
 
-    private var collapsedHeight by observable(0) { _, oldCollapsedHeight, newCollapsedHeight ->
+    private var collapsedHeight by observable(
+        calculateInitialInputHeight()
+    ) { _, oldCollapsedHeight, newCollapsedHeight ->
         if (newCollapsedHeight != oldCollapsedHeight) {
             historyAnimation.setIntValues(newCollapsedHeight, expandedHeight)
             reposition()
@@ -176,6 +179,17 @@ class AccountLogin : RelativeLayout {
     fun onDestroy() {
         input.onFocusChanged.unsubscribe(this)
         input.onTextChanged.unsubscribe(this)
+    }
+
+    private fun calculateInitialInputHeight(): Int {
+        if (input.height == 0) {
+            val widthMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.EXACTLY)
+            val heightMeasureSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+
+            input.measure(widthMeasureSpec, heightMeasureSpec)
+        }
+
+        return input.height
     }
 
     private fun updateBorder() {
