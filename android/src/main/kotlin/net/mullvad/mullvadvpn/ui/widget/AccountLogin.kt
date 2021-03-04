@@ -212,7 +212,7 @@ class AccountLogin : RelativeLayout {
     }
 
     private fun reposition() {
-        historyAnimation.end()
+        historyAnimation.cancel()
 
         if (shouldShowAccountHistory) {
             updateHeight(expandedHeight)
