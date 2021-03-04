@@ -73,12 +73,12 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, c
 	}
 
 	if cIfaceName == nil {
-		logger.Error.Println("cIfaceName is null")
+		logger.Errorf("cIfaceName is null\n")
 		return ERROR_GENERAL_FAILURE
 	}
 
 	if cSettings == nil {
-		logger.Error.Println("cSettings is null")
+		logger.Errorf("cSettings is null\n")
 		return ERROR_GENERAL_FAILURE
 	}
 
@@ -90,7 +90,7 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, c
 
 	watcher, err := interfacewatcher.NewWatcher()
 	if err != nil {
-		logger.Error.Println(err)
+		logger.Errorf("%s\n", err)
 		return ERROR_GENERAL_FAILURE
 	}
 	defer watcher.Destroy()
@@ -101,8 +101,8 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, c
 
 	wintun, err := tun.CreateTUNWithRequestedGUID(ifaceName, &networkId, mtu)
 	if err != nil {
-		logger.Error.Println("Failed to create tunnel")
-		logger.Error.Println(err)
+		logger.Errorf("Failed to create tunnel\n")
+		logger.Errorf("%s\n", err)
 		return ERROR_GENERAL_FAILURE
 	}
 
@@ -111,21 +111,21 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, c
 	actualInterfaceName, err := nativeTun.Name()
 	if err != nil {
 		nativeTun.Close()
-		logger.Error.Println("Failed to determine name of wintun adapter")
+		logger.Errorf("Failed to determine name of wintun adapter\n")
 		return ERROR_GENERAL_FAILURE
 	}
 	if actualInterfaceName != ifaceName {
 		// WireGuard picked a different name for the adapter than the one we expected.
 		// This indicates there is already an adapter with the name we intended to use.
-		logger.Debug.Println("Failed to create adapter with specific name")
+		logger.Verbosef("Failed to create adapter with specific name\n")
 	}
 
-	device := device.NewDevice(wintun, logger)
+	device := device.NewDevice(wintun, conn.NewDefaultBind(), logger)
 
 	setError := device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
 	if setError != nil {
-		logger.Error.Println("Failed to set device configuration")
-		logger.Error.Println(setError)
+		logger.Errorf("Failed to set device configuration\n")
+		logger.Errorf("%s\n", setError)
 		device.Close()
 		return ERROR_GENERAL_FAILURE
 	}
@@ -134,15 +134,15 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, c
 
 	interfaces := createInterfaceWatcherEvents(waitOnIpv6, nativeTun.LUID())
 
-	logger.Debug.Println("Waiting for interfaces to attach")
+	logger.Verbosef("Waiting for interfaces to attach\n")
 
 	if !watcher.Join(interfaces, 5) {
-		logger.Error.Println("Failed to wait for IP interfaces to become available")
+		logger.Errorf("Failed to wait for IP interfaces to become available\n")
 		device.Close()
 		return ERROR_GENERAL_FAILURE
 	}
 
-	logger.Debug.Println("Interfaces OK")
+	logger.Verbosef("Interfaces OK\n")
 
 	context := tunnelcontainer.Context{
 		Device: device,
@@ -151,7 +151,7 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, c
 
 	handle, err := tunnels.Insert(context)
 	if err != nil {
-		logger.Error.Println(err)
+		logger.Errorf("%s\n", err)
 		device.Close()
 		return ERROR_GENERAL_FAILURE
 	}
@@ -170,16 +170,16 @@ func wgRebindTunnelSocket(family uint16, interfaceIndex uint32) {
 		bind := tunnel.Device.Bind().(conn.BindSocketToInterface)
 
 		if family == windows.AF_INET {
-			tunnel.Logger.Info.Printf("Binding v4 socket to interface %d (blackhole=%v)", interfaceIndex, blackhole)
+			tunnel.Logger.Verbosef("Binding v4 socket to interface %d (blackhole=%v)\n", interfaceIndex, blackhole)
 			err := bind.BindSocketToInterface4(interfaceIndex, blackhole)
 			if err != nil {
-				tunnel.Logger.Info.Println(err)
+				tunnel.Logger.Verbosef("%s\n", err)
 			}
 		} else if family == windows.AF_INET6 {
-			tunnel.Logger.Info.Printf("Binding v6 socket to interface %d (blackhole=%v)", interfaceIndex, blackhole)
+			tunnel.Logger.Verbosef("Binding v6 socket to interface %d (blackhole=%v)\n", interfaceIndex, blackhole)
 			err := bind.BindSocketToInterface6(interfaceIndex, blackhole)
 			if err != nil {
-				tunnel.Logger.Info.Println(err)
+				tunnel.Logger.Verbosef("%s\n", err)
 			}
 		}
 	})

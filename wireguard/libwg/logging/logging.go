@@ -45,21 +45,16 @@ func (l *Logger) Write(message []byte) (int, error) {
 func NewLogger(logSink LogSink, logContext LogContext) *device.Logger {
 	logger := new(device.Logger)
 
-	logger.Debug = log.New(
-		&Logger{sink: logSink, context: logContext, level: device.LogLevelDebug},
+	logger.Verbosef = log.New(
+		&Logger{sink: logSink, context: logContext, level: device.LogLevelVerbose},
 		"",
 		0,
-	)
-	logger.Info = log.New(
-		&Logger{sink: logSink, context: logContext, level: device.LogLevelInfo},
-		"",
-		0,
-	)
-	logger.Error = log.New(
+	).Printf
+	logger.Errorf = log.New(
 		&Logger{sink: logSink, context: logContext, level: device.LogLevelError},
 		"",
 		0,
-	)
+	).Printf
 
 	return logger
 }

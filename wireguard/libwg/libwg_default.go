@@ -17,6 +17,7 @@ import (
 	"strings"
 	"unsafe"
 
+	"golang.zx2c4.com/wireguard/conn"
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
 
@@ -35,7 +36,7 @@ func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext Lo
 	logger := logging.NewLogger(logSink, logContext)
 
 	if cSettings == nil {
-		logger.Error.Println("cSettings is null")
+		logger.Errorf("cSettings is null\n")
 		return ERROR_GENERAL_FAILURE
 	}
 	settings := C.GoString(cSettings)
@@ -43,18 +44,18 @@ func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext Lo
 	file := os.NewFile(uintptr(fd), "")
 	tunDevice, err := tun.CreateTUNFromFile(file, mtu)
 	if err != nil {
-		logger.Error.Println(err)
+		logger.Errorf("%s\n", err)
 		if err.Error() == "bad file descriptor" {
 			return ERROR_INTERMITTENT_FAILURE
 		}
 		return ERROR_GENERAL_FAILURE
 	}
 
-	device := device.NewDevice(tunDevice, logger)
+	device := device.NewDevice(tunDevice, conn.NewDefaultBind(), logger)
 
 	setErr := device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
 	if setErr != nil {
-		logger.Error.Println(setErr)
+		logger.Errorf("%s\n", setErr)
 		device.Close()
 		return ERROR_INTERMITTENT_FAILURE
 	}
@@ -68,7 +69,7 @@ func wgTurnOn(mtu int, cSettings *C.char, fd int, logSink LogSink, logContext Lo
 
 	handle, err := tunnels.Insert(context)
 	if err != nil {
-		logger.Error.Println(err)
+		logger.Errorf("%s\n", err)
 		device.Close()
 		return ERROR_GENERAL_FAILURE
 	}

@@ -32,14 +32,14 @@ func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext)
 	logger := logging.NewLogger(logSink, logContext)
 
 	if cSettings == nil {
-		logger.Error.Println("cSettings is null")
+		logger.Errorf("cSettings is null\n")
 		return ERROR_GENERAL_FAILURE
 	}
 	settings := C.GoString(cSettings)
 
 	tunDevice, _, err := tun.CreateUnmonitoredTUNFromFD(fd)
 	if err != nil {
-		logger.Error.Println(err)
+		logger.Errorf("%s\n", err)
 		unix.Close(fd)
 		if err.Error() == "bad file descriptor" {
 			return ERROR_INTERMITTENT_FAILURE
@@ -47,11 +47,11 @@ func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext)
 		return ERROR_GENERAL_FAILURE
 	}
 
-	device := device.NewDevice(tunDevice, logger)
+	device := device.NewDevice(tunDevice, conn.NewDefaultBind(), logger)
 
 	setErr := device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
 	if setErr != nil {
-		logger.Error.Println(setErr)
+		logger.Errorf("%s\n", setErr)
 		device.Close()
 		return ERROR_INTERMITTENT_FAILURE
 	}
@@ -66,7 +66,7 @@ func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext)
 
 	handle, err := tunnels.Insert(context)
 	if err != nil {
-		logger.Error.Println(err)
+		logger.Errorf("%s\n", err)
 		device.Close()
 		return ERROR_GENERAL_FAILURE
 	}
