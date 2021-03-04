@@ -18,6 +18,7 @@ use talpid_types::net::{Endpoint, TransportProtocol};
 
 /// Priority for rules that tag split tunneling packets. Equals NF_IP_PRI_MANGLE.
 const MANGLE_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_MANGLE;
+const PREROUTING_CHAIN_PRIORITY: i32 = -1000;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -60,6 +61,7 @@ lazy_static! {
     static ref TABLE_NAME: CString = CString::new("mullvad").unwrap();
     static ref IN_CHAIN_NAME: CString = CString::new("input").unwrap();
     static ref OUT_CHAIN_NAME: CString = CString::new("output").unwrap();
+    static ref ALLOW_TUNNEL_TRAFFIC_CHAIN_NAME: CString = CString::new("allow_relay_prerouting").unwrap();
 
     /// We need two separate tables for compatibility with older kernels (holds true for kernel
     /// version 4.19 but not 5.6), where the base filter type may not be `nftnl::ChainType::Route`
@@ -209,6 +211,7 @@ struct PolicyBatch<'a> {
     batch: Batch,
     in_chain: Chain<'a>,
     out_chain: Chain<'a>,
+    allow_tunnel_chain: Chain<'a>,
     mangle_chain_v4: Chain<'a>,
     mangle_chain_v6: Chain<'a>,
     nat_chain_v4: Chain<'a>,
@@ -220,6 +223,10 @@ impl<'a> PolicyBatch<'a> {
     /// table and chains.
     pub fn new(tables: &'a FirewallTables) -> Self {
         let mut batch = Batch::new();
+        let mut allow_tunnel_chain = Chain::new(&*ALLOW_TUNNEL_TRAFFIC_CHAIN_NAME, &tables.main);
+        allow_tunnel_chain.set_hook(nftnl::Hook::PreRouting, PREROUTING_CHAIN_PRIORITY);
+        allow_tunnel_chain.set_type(nftnl::ChainType::Filter);
+
         let mut out_chain = Chain::new(&*OUT_CHAIN_NAME, &tables.main);
         let mut in_chain = Chain::new(&*IN_CHAIN_NAME, &tables.main);
         out_chain.set_hook(nftnl::Hook::Out, 0);
@@ -228,8 +235,10 @@ impl<'a> PolicyBatch<'a> {
         in_chain.set_policy(nftnl::Policy::Drop);
 
         Self::flush_table(&mut batch, &tables.main);
+        batch.add(&allow_tunnel_chain, nftnl::MsgType::Add);
         batch.add(&out_chain, nftnl::MsgType::Add);
         batch.add(&in_chain, nftnl::MsgType::Add);
+
 
         Self::flush_table(&mut batch, &tables.mangle_v4);
         Self::flush_table(&mut batch, &tables.mangle_v6);
@@ -262,6 +271,7 @@ impl<'a> PolicyBatch<'a> {
             batch,
             in_chain,
             out_chain,
+            allow_tunnel_chain,
             mangle_chain_v4,
             mangle_chain_v6,
             nat_chain_v4,
@@ -590,6 +600,13 @@ impl<'a> PolicyBatch<'a> {
     }
 
     fn add_allow_tunnel_endpoint_rules(&mut self, endpoint: &Endpoint, use_fwmark: bool) {
+        let mut prerouting_rule = Rule::new(&self.allow_tunnel_chain);
+        check_endpoint(&mut prerouting_rule, End::Src, endpoint);
+        prerouting_rule.add_expr(&nft_expr!(immediate data crate::linux::TUNNEL_FW_MARK));
+        prerouting_rule.add_expr(&nft_expr!(meta mark set));
+
+        self.batch.add(&prerouting_rule, nftnl::MsgType::Add);
+
         let mut in_rule = Rule::new(&self.in_chain);
         check_endpoint(&mut in_rule, End::Src, endpoint);
 

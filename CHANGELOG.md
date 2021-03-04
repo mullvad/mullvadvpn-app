@@ -62,6 +62,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Linux
 - Fix DNS issues where NM would overwrite Mullvad tunnel's DNS config in systemd-resolved.
+- Fix issues with hosts where the firewall is doing reverse path filtering.
 
 #### Android
 - Fix input area sometimes disappearing when returning to the Login screen.
