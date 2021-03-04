@@ -62,6 +62,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Linux
 - Fix DNS issues where NM would overwrite Mullvad tunnel's DNS config in systemd-resolved.
+- Fix inability to connect when user has set reverse-path filtering.
 
 
 ## [2021.2] - 2021-02-18
