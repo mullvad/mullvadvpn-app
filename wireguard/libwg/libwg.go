@@ -16,7 +16,6 @@ import (
 	"unsafe"
 
 	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/tunnelcontainer"
-	"golang.zx2c4.com/wireguard/device"
 )
 
 const (
@@ -53,7 +52,7 @@ func wgGetConfig(tunnelHandle int32) *C.char {
 	settings := new(bytes.Buffer)
 	writer := bufio.NewWriter(settings)
 	if err := tunnel.Device.IpcGetOperation(writer); err != nil {
-		tunnel.Logger.Error.Println("Failed to get config for tunnel: ", err)
+		tunnel.Logger.Errorf("Failed to get config for tunnel: %s\n", err)
 		return nil
 	}
 	writer.Flush()
@@ -63,11 +62,6 @@ func wgGetConfig(tunnelHandle int32) *C.char {
 //export wgFreePtr
 func wgFreePtr(ptr unsafe.Pointer) {
 	C.free(ptr)
-}
-
-//export wgVersion
-func wgVersion() *C.char {
-	return C.CString(device.WireGuardGoVersion)
 }
 
 func main() {}
