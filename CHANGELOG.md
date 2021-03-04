@@ -63,6 +63,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Fix DNS issues where NM would overwrite Mullvad tunnel's DNS config in systemd-resolved.
 
+#### Android
+- Fix input area sometimes disappearing when returning to the Login screen.
+
 
 ## [2021.2] - 2021-02-18
 This release is for desktop only.
