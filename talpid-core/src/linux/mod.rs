@@ -1,7 +1,12 @@
 use std::{
     ffi::{self, CString},
-    io,
+    fs, io,
 };
+
+const PROC_SYS_NET_IPV4_CONF_SRC_VLAID_MARK: &'static str =
+    "/proc/sys/net/ipv4/conf/all/src_valid_mark";
+const PROC_SYS_NET_IPV6_CONF_SRC_VLAID_MARK: &'static str =
+    "/proc/sys/net/ipv6/conf/all/src_valid_mark";
 
 /// Converts an interface name into the corresponding index.
 pub fn iface_index(name: &str) -> Result<libc::c_uint, IfaceIndexLookupError> {
@@ -29,3 +34,13 @@ pub enum IfaceIndexLookupError {
 // b"mole" is [ 0x6d, 0x6f 0x6c, 0x65 ]
 pub const TUNNEL_FW_MARK: u32 = 0x6d6f6c65;
 pub const TUNNEL_TABLE_ID: u32 = 0x6d6f6c65;
+
+pub fn set_src_valid_mark_sysctl_ipv4() -> io::Result<()> {
+    let _ipv4_set = fs::write(PROC_SYS_NET_IPV4_CONF_SRC_VLAID_MARK, b"1")?;
+    Ok(())
+}
+
+pub fn set_src_valid_mark_sysctl_ipv6() -> io::Result<()> {
+    let _ipv6_set = fs::write(PROC_SYS_NET_IPV6_CONF_SRC_VLAID_MARK, b"1")?;
+    Ok(())
+}

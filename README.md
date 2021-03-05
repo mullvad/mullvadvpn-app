@@ -428,6 +428,8 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
   * `0`: Only set DNS servers on the tunnel interface. This will misbehave if local custom DNS
          servers are used.
 * `TALPID_DISABLE_OFFLINE_MONITOR` - Forces the daemon to always assume the host is online.
+* `TALPID_FIREWALL_DONT_SET_SRC_VALID_MARK` - Forces the daemon to not set `src_valid_mark` config
+    on Linux.
 
 
 ## Building and running the desktop Electron GUI app
