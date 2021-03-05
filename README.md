@@ -428,6 +428,11 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
   * `0`: Only set DNS servers on the tunnel interface. This will misbehave if local custom DNS
          servers are used.
 * `TALPID_DISABLE_OFFLINE_MONITOR` - Forces the daemon to always assume the host is online.
+* `TALPID_FIREWALL_DONT_SET_SRC_VALID_MARK` - Forces the daemon to not set `src_valid_mark` config
+    on Linux. The kernel config option is set because otherwise strict reverse path filtering may
+    prevent relay traffic from reaching our daemon. If `rp_filter` is set to `1` on the interface
+    that will be receiving relay traffic, and `src_valid_mark` is not set to `1`, the daemon will
+    not be able to receive relay traffic.
 
 
 ## Building and running the desktop Electron GUI app

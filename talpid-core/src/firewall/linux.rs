@@ -76,6 +76,10 @@ lazy_static! {
     static ref ADD_COUNTERS: bool = env::var("TALPID_FIREWALL_DEBUG")
         .map(|v| v != "0")
         .unwrap_or(false);
+
+    static ref DONT_SET_SRC_VALID_MARK: bool = env::var("TALPID_FIREWALL_DONT_SET_SRC_VALID_MARK")
+        .map(|v| v != "0")
+        .unwrap_or(false);
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
@@ -114,6 +118,7 @@ impl FirewallT for Firewall {
         };
         let batch = PolicyBatch::new(&tables).finalize(&policy)?;
         self.send_and_process(&batch)?;
+        Self::apply_kernel_config(&policy);
         self.verify_tables(&[&TABLE_NAME, &MANGLE_TABLE_NAME_V4, &MANGLE_TABLE_NAME_V6])
     }
 
@@ -139,6 +144,19 @@ impl FirewallT for Firewall {
 }
 
 impl Firewall {
+    fn apply_kernel_config(policy: &FirewallPolicy) {
+        if *DONT_SET_SRC_VALID_MARK {
+            log::debug!("Not setting src_valid_mark");
+            return;
+        }
+
+        if let FirewallPolicy::Connecting { .. } = policy {
+            if let Err(err) = crate::linux::set_src_valid_mark_sysctl() {
+                log::error!("Failed to apply src_valid_mark: {}", err);
+            }
+        }
+    }
+
     fn send_and_process(&self, batch: &FinalizedBatch) -> Result<()> {
         let socket = mnl::Socket::new(mnl::Bus::Netfilter).map_err(Error::NetlinkOpenError)?;
         socket.send_all(batch).map_err(Error::NetlinkSendError)?;
