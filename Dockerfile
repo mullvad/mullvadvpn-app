@@ -2,9 +2,8 @@
 # docker build . -t quay.io/mullvad/mullvadvpn-app-build
 # To push the image to Quay.io:
 # docker push quay.io/mullvad/mullvadvpn-app-build
-FROM debian:stable@sha256:75f7d0590b45561bfa443abad0b3e0f86e2811b1fc176f786cd30eb078d1846f
-RUN apt update -y
-RUN apt install build-essential \
+FROM debian:stretch@sha256:a5934d79acb9d1182ef5c747e23e462784f6345479e33b40c979fbe8dce5db40
+RUN apt update -y && apt install build-essential \
 	gcc \
 	libdbus-1-dev \
 	rpm \
@@ -15,20 +14,19 @@ RUN apt install build-essential \
 
 
 # Install golang
-ENV GOLANG_VERSION 1.13.5
+ENV GOLANG_VERSION 1.16
 # Found on https://golang.org/dl/
-ENV GOLANG_HASH 512103d7ad296467814a6e3f635631bd35574cab3369a97a323c9a585ccaa569
+ENV GOLANG_HASH 013a489ebb3e24ef3d915abe5b94c3286c070dfe0818d5bca8108f1d6e8440d2
 RUN curl -Lo go.tgz https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
 	echo $(sha256sum go.tgz) && \
 	echo "${GOLANG_HASH} go.tgz" | sha256sum -c - && \
 	tar -C /usr/local -xzf go.tgz && \
 	rm go.tgz && \
-	rm -rf /var/lib/apt/lists/* && \
-	export PATH="/usr/local/go/bin:$PATH" && \
-	go version
+	rm -rf /var/lib/apt/lists/*
 
 ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+RUN go version
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
 
 RUN mkdir /mvd
