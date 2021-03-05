@@ -36,6 +36,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add TV banner for better user experience and requirements.
 - Style StatucBar and NavigationBar to make our app a bit more beautiful.
 
+#### Linux
+- Always enable `src_valid_mark` config option when connecting to allow policty based routing.
+
 ### Changed
 - Update Electron from 11.0.2 to 11.2.1 which includes a newer Chromium version and
   security patches.
