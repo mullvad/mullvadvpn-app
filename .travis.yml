@@ -70,7 +70,7 @@ matrix:
         # --privileged is required because nightly cargo uses statx instead of stat, and that
         # syscall is so new that it's not on the docker whitelist yet.
         # https://github.com/rust-lang/rust/issues/65662
-        - docker run -d --privileged --name mvd-build -v $(pwd):/travis -w /travis  quay.io/mullvad/mullvadvpn-app-build:latest tail -f /dev/null
+        - docker run -d --privileged --name mvd-build -v $(pwd):/travis -w /travis quay.io/mullvad/mullvadvpn-app-build@sha256:bdccd0bd76929509f1fb979f4cbf5065f92434d988241debf5f319f6896d51d8 tail -f /dev/null
         - docker ps
       script:
         - docker exec -t mvd-build bash ci/ci-rust-script.sh nightly
