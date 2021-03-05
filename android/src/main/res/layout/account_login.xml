@@ -6,7 +6,7 @@
                                                          android:layout_alignParentBottom="true" />
     <net.mullvad.mullvadvpn.ui.widget.AccountInput android:id="@+id/input"
                                                    android:layout_width="match_parent"
-                                                   android:layout_height="48dp"
+                                                   android:layout_height="@dimen/account_login_input_height"
                                                    android:layout_alignParentTop="true"
                                                    android:orientation="horizontal" />
     <androidx.recyclerview.widget.RecyclerView android:id="@+id/history"
