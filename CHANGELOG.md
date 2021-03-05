@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Preserve log of old daemon instance when upgrading on Desktop.
+- Support WireGuard over TCP for custom VPN relays in the CLI.
 
 #### Linux
 - Always enable `src_valid_mark` config option when connecting to allow policty based routing.
