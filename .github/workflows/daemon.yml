@@ -1,0 +1,65 @@
+name: Mullvad VPN daemon CI
+on:
+    # Build whenever a file that affects a Rust crate is changed by a push
+    push:
+        paths:
+            - .github/workflows/daemon.yml
+            - mullvad-cli/**
+            - mullvad-daemon/**
+            - mullvad-exclude/**
+            - mullvad-management-interface/**
+            - mullvad-paths/**
+            - mullvad-problem-report/**
+            - mullvad-rpc/**
+            - mullvad-setup/**
+            - mullvad-tests/**
+            - mullvad-types/**
+            - talpid-core/**
+            - talpid-dbus/**
+            - talpid-openvpn-plugin/**
+            - talpid-platform-metadata/**
+            - talpid-types/**
+            - wireguard/**
+            - Cargo.toml
+    # Build if requested manually from the Actions tab
+    workflow_dispatch:
+jobs:
+    build:
+        strategy:
+            matrix:
+                rust: [stable, beta, nightly]
+
+        runs-on: ubuntu-latest
+        steps:
+            # Checkout repository
+            - uses: actions/checkout@v2
+
+            # Checkout binaries submodule
+            - run: |
+                git submodule update --init --depth=1 dist-assets/binaries
+                cd dist-assets/binaries
+                # For some reason openssl, libmnl and libnftnl fail to fetch with --depth=1
+                git submodule update --init openssl
+                git submodule update --init libmnl
+                git submodule update --init libnftnl
+                git submodule update --init --depth=1
+
+            # Install Rust
+            - uses: ATiltedTree/setup-rust@v1.0.4
+              with:
+                  rust-version: ${{ matrix.rust }}
+
+            # Install Go
+            - uses: actions/setup-go@v2.1.3
+              with:
+                  go-version: 1.16
+
+            # Build and test crates
+            - env:
+                RUSTFLAGS: --deny warnings
+              run: |
+                ./wireguard/build-wireguard-go.sh
+                sudo apt-get install libdbus-1-dev
+                source env.sh
+                time cargo build --locked --verbose
+                time cargo test --locked --verbose
