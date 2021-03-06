@@ -18,7 +18,8 @@ import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.Button
 import org.joda.time.DateTime
 
-class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), NavigationBarPainter {
+class LoginFragment :
+    ServiceDependentFragment(OnNoService.GoToLaunchScreen), NavigationBarPainter, StatusBarPainter {
     enum class LoginResult {
         ExistingAccountWithTime,
         ExistingAccountOutOfTime,
@@ -110,6 +111,7 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), Na
     override fun onResume() {
         super.onResume()
         paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
+        paintStatusBar(ContextCompat.getColor(requireContext(), R.color.blue))
     }
 
     override fun onSafelyStop() {
