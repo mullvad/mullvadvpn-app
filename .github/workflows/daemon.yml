@@ -1,0 +1,63 @@
+name: Mullvad VPN daemon CI
+on:
+    # Build whenever a file that affects a Rust crate is changed by a push
+    push:
+        paths-ignore:
+            - '**/*.md'
+            - .github/workflows/android*.yml
+            - .github/workflows/rustfmt.yml
+            - android/**
+            - audits/**
+            - ci/buildserver-*
+            - ci/ci-*
+            - dist-assets/**
+            - docs/**
+            - graphics/**
+            - gui/**
+            - ios/**
+            - mullvad-jni/**
+            - scripts/**
+            - '.*ignore'
+            - .editorconfig
+            - .gitattributes
+            - .travis.yml
+            - Dockerfile
+            - build.sh
+            - build-apk.sh
+            - integration-tests.sh
+            - prepare-release.sh
+            - rustfmt.toml
+            - update-api-address.sh
+            - update-relays.sh
+            - version-metadata.sh
+    # Build if requested manually from the Actions tab
+    workflow_dispatch:
+jobs:
+    build:
+        strategy:
+            matrix:
+                rust: [stable, beta, nightly]
+
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Checkout binaries submodule
+              run: git submodule update --init --depth=1 dist-assets/binaries
+
+            - name: Install Rust
+              uses: ATiltedTree/setup-rust@v1.0.4
+              with:
+                  rust-version: ${{ matrix.rust }}
+
+            - name: Install Go
+              uses: actions/setup-go@v2.1.3
+              with:
+                  go-version: 1.16
+
+            - name: Install build dependencies
+              run: sudo apt-get install libdbus-1-dev
+
+            - name: Build and test crates
+              run: ./ci/check-rust.sh
