@@ -173,6 +173,8 @@ class AccountLogin : RelativeLayout {
                 }
             )
         }
+
+        historyAnimation.setIntValues(collapsedHeight, expandedHeight)
     }
 
     fun onDestroy() {
