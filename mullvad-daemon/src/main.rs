@@ -98,7 +98,7 @@ async fn run_standalone(log_dir: Option<PathBuf>) -> Result<(), String> {
         return Err("Another instance of the daemon is already running".to_owned());
     }
 
-    #[cfg(not(windows))]
+    #[cfg(any(target_os = "macos", target_os = "linux"))]
     if let Err(err) = tokio::fs::remove_file(mullvad_paths::get_rpc_socket_path()).await {
         if err.kind() != std::io::ErrorKind::NotFound {
             log::error!("Failed to remove old RPC socket: {}", err);
