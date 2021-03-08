@@ -33,7 +33,7 @@ on:
     # Build if requested manually from the Actions tab
     workflow_dispatch:
 jobs:
-    build:
+    build-linux:
         strategy:
             matrix:
                 rust: [stable, beta, nightly]
@@ -58,6 +58,25 @@ jobs:
 
             - name: Install build dependencies
               run: sudo apt-get install libdbus-1-dev
+
+            - name: Build and test crates
+              run: ./ci/check-rust.sh
+
+    build-macos:
+        runs-on: macos-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Install Rust
+              uses: ATiltedTree/setup-rust@v1.0.4
+              with:
+                  rust-version: stable
+
+            - name: Install Go
+              uses: actions/setup-go@v2.1.3
+              with:
+                  go-version: 1.16
 
             - name: Build and test crates
               run: ./ci/check-rust.sh
