@@ -1,6 +1,6 @@
 export interface ICurrentAppVersionInfo {
   gui: string;
-  daemon: string;
+  daemon?: string;
   isConsistent: boolean;
   isBeta: boolean;
 }

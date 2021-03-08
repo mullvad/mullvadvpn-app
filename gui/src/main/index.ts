@@ -82,6 +82,7 @@ const DAEMON_RPC_PATH =
 
 const AUTO_CONNECT_FALLBACK_DELAY = 6000;
 
+const GUI_VERSION = app.getVersion().replace('.0', '');
 /// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
 const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
 
@@ -165,10 +166,10 @@ class ApplicationMain {
   private relays: IRelayList = { countries: [] };
 
   private currentVersion: ICurrentAppVersionInfo = {
-    daemon: '',
-    gui: '',
+    daemon: undefined,
+    gui: GUI_VERSION,
     isConsistent: true,
-    isBeta: false,
+    isBeta: IS_BETA.test(GUI_VERSION),
   };
 
   private upgradeVersion: IAppVersionInfo = {
@@ -224,7 +225,7 @@ class ApplicationMain {
       app.enableSandbox();
     }
 
-    log.info(`Running version ${app.getVersion()}`);
+    log.info(`Running version ${this.currentVersion.gui}`);
 
     if (process.platform === 'win32') {
       app.setAppUserModelId('net.mullvad.vpn');
@@ -548,14 +549,6 @@ class ApplicationMain {
     // fetch the latest version info in background
     consumePromise(this.fetchLatestVersion());
 
-    // notify user about inconsistent version
-    const notificationProvider = new InconsistentVersionNotificationProvider({
-      consistent: this.currentVersion.isConsistent,
-    });
-    if (notificationProvider.mayDisplay()) {
-      this.notificationController.notify(notificationProvider.getSystemNotification());
-    }
-
     // reset the reconnect backoff when connection established.
     this.reconnectBackoff.reset();
 
@@ -603,12 +596,6 @@ class ApplicationMain {
       }
     } else {
       log.info('Disconnected from the daemon');
-    }
-
-    // Set GUI version info if it hasn't already been done. Only happens if the app starts without a
-    // connection to the daemon.
-    if (this.currentVersion.gui === '') {
-      this.setDaemonVersion('');
     }
   };
 
@@ -848,15 +835,28 @@ class ApplicationMain {
   }
 
   private setDaemonVersion(daemonVersion: string) {
-    const guiVersion = app.getVersion().replace('.0', '');
     const versionInfo = {
+      ...this.currentVersion,
       daemon: daemonVersion,
-      gui: guiVersion,
-      isConsistent: daemonVersion === guiVersion,
-      isBeta: IS_BETA.test(guiVersion),
+      isConsistent: daemonVersion === this.currentVersion.gui,
     };
 
     this.currentVersion = versionInfo;
+
+    if (!versionInfo.isConsistent) {
+      log.info('Inconsistent version', {
+        guiVersion: versionInfo.gui,
+        daemonVersion: versionInfo.daemon,
+      });
+    }
+
+    // notify user about inconsistent version
+    const notificationProvider = new InconsistentVersionNotificationProvider({
+      consistent: versionInfo.isConsistent,
+    });
+    if (notificationProvider.mayDisplay()) {
+      this.notificationController.notify(notificationProvider.getSystemNotification());
+    }
 
     // notify renderer
     if (this.windowController) {
