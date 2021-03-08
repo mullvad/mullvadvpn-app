@@ -93,7 +93,6 @@ export default class AppRenderer {
   private tunnelState!: TunnelState;
   private settings!: ISettings;
   private guiSettings!: IGuiSettingsState;
-  private connectedToDaemon = false;
   private autoConnected = false;
   private doingLogin = false;
   private loginTimer?: NodeJS.Timeout;
@@ -108,12 +107,12 @@ export default class AppRenderer {
       }
     });
 
-    IpcRendererEventChannel.daemonConnected.listen(() => {
+    IpcRendererEventChannel.daemon.listenConnected(() => {
       consumePromise(this.onDaemonConnected());
     });
 
-    IpcRendererEventChannel.daemonDisconnected.listen((errorMessage?: string) => {
-      this.onDaemonDisconnected(errorMessage ? new Error(errorMessage) : undefined);
+    IpcRendererEventChannel.daemon.listenDisconnected(() => {
+      this.onDaemonDisconnected();
     });
 
     IpcRendererEventChannel.account.listen((newAccountData?: IAccountData) => {
@@ -559,14 +558,6 @@ export default class AppRenderer {
   }
 
   private async onDaemonConnected() {
-    // Filter out the calls coming from IPC events arriving right after the constructor finished
-    // execution.
-    if (this.connectedToDaemon) {
-      return;
-    }
-
-    this.connectedToDaemon = true;
-
     if (this.settings.accountToken) {
       this.history.resetWith('/connect');
 
@@ -577,14 +568,8 @@ export default class AppRenderer {
     }
   }
 
-  private onDaemonDisconnected(error?: Error) {
-    const wasConnected = this.connectedToDaemon;
-
-    this.connectedToDaemon = false;
-
-    if (error && wasConnected) {
-      this.history.resetWith('/');
-    }
+  private onDaemonDisconnected() {
+    this.history.resetWith('/');
   }
 
   private async autoConnect() {

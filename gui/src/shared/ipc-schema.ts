@@ -107,11 +107,9 @@ export const ipcSchema = {
   windowFocus: {
     '': notifyRenderer<boolean>(),
   },
-  daemonConnected: {
-    '': notifyRenderer<void>(),
-  },
-  daemonDisconnected: {
-    '': notifyRenderer<string | undefined>(),
+  daemon: {
+    connected: notifyRenderer<void>(),
+    disconnected: notifyRenderer<void>(),
   },
   location: {
     '': notifyRenderer<ILocation>(),
