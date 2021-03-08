@@ -429,7 +429,9 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
          servers are used.
 * `TALPID_DISABLE_OFFLINE_MONITOR` - Forces the daemon to always assume the host is online.
 * `TALPID_FIREWALL_DONT_SET_SRC_VALID_MARK` - Forces the daemon to not set `src_valid_mark` config
-    on Linux.
+    on Linux. The kernel config option is set because otherwise strict reverse path filtering may
+    prevent relay traffic from reaching our daemon. Without enabling `src_valid_mark` and setting
+    `rp_filter` to `1`, our daemon will not work.
 
 
 ## Building and running the desktop Electron GUI app
