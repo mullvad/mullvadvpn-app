@@ -755,7 +755,7 @@ where
         mem::drop(event_listener);
         mem::drop(rpc_runtime);
 
-        #[cfg(not(windows))]
+        #[cfg(any(target_os = "macos", target_os = "linux"))]
         if let Err(err) = fs::remove_file(mullvad_paths::get_rpc_socket_path()) {
             if err.kind() != std::io::ErrorKind::NotFound {
                 log::error!("Failed to remove old RPC socket: {}", err);
