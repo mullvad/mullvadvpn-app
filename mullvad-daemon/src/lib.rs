@@ -1927,7 +1927,10 @@ where
                 Self::oneshot_send(tx, Ok(key_event), "generate_wireguard_key");
             }
             Err(e) => {
-                log::error!("Failed to generate new wireguard key - {}", e);
+                log::error!(
+                    "{}",
+                    e.display_chain_with_msg("Failed to generate new wireguard key")
+                );
                 Self::oneshot_send(tx, Err(e), "generate_wireguard_key");
             }
         }
