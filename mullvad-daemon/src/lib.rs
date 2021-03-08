@@ -755,6 +755,13 @@ where
         mem::drop(event_listener);
         mem::drop(rpc_runtime);
 
+        #[cfg(not(windows))]
+        if let Err(err) = fs::remove_file(mullvad_paths::get_rpc_socket_path()) {
+            if err.kind() != std::io::ErrorKind::NotFound {
+                log::error!("Failed to remove old RPC socket: {}", err);
+            }
+        }
+
         if clean_up_target_cache {
             let target_cache = cache_dir.join(TARGET_START_STATE_FILE);
             let _ = fs::remove_file(target_cache).map_err(|e| {
