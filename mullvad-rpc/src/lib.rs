@@ -38,6 +38,9 @@ pub const VOUCHER_USED: &str = "VOUCHER_USED";
 /// Error code returned by the Mullvad API if the voucher code is invalid.
 pub const INVALID_VOUCHER: &str = "INVALID_VOUCHER";
 
+/// Error code returned by the Mullvad API if the account token is invalid.
+pub const INVALID_ACCOUNT: &str = "INVALID_ACCOUNT";
+
 const API_HOST: &str = "api.mullvad.net";
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 const API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));

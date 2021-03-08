@@ -156,6 +156,14 @@ impl KeyManager {
         }
     }
 
+    fn should_retry(error: &RestError) -> bool {
+        if let RestError::ApiError(_status, code) = &error {
+            code != mullvad_rpc::INVALID_ACCOUNT && code != mullvad_rpc::KEY_LIMIT_REACHED
+        } else {
+            true
+        }
+    }
+
 
     /// Generate a new private key asynchronously. The new keys will be sent to the daemon channel.
     pub async fn spawn_key_generation_task(
@@ -181,11 +189,7 @@ impl KeyManager {
                 match response {
                     Ok(addresses) => Ok(addresses),
                     Err(err) => {
-                        let should_retry = if let RestError::ApiError(_status, code) = &err {
-                            code != mullvad_rpc::KEY_LIMIT_REACHED
-                        } else {
-                            true
-                        };
+                        let should_retry = Self::should_retry(&err);
                         let _ = error_tx.send(InternalDaemonEvent::WgKeyEvent((
                             error_account,
                             Err(Self::map_rpc_error(err)),
@@ -373,12 +377,17 @@ impl KeyManager {
                     log::error!("Account has too many keys, stopping automatic rotation");
                     return;
                 }
-                Err(err) => {
-                    log::error!(
-                        "{}. Retrying in {} seconds",
-                        err.display_chain_with_msg("Key rotation failed:"),
-                        AUTOMATIC_ROTATION_RETRY_DELAY.as_secs(),
-                    );
+                Err(Error::RestError(err)) => {
+                    if Self::should_retry(&err) {
+                        log::error!(
+                            "{}. Retrying in {} seconds",
+                            err.display_chain_with_msg("Key rotation failed:"),
+                            AUTOMATIC_ROTATION_RETRY_DELAY.as_secs(),
+                        );
+                    } else {
+                        log::debug!("{}", err.display_chain_with_msg("Stopping automatic rotation"));
+                        return;
+                    }
                 }
             }
         }
