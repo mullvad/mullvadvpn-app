@@ -30,6 +30,10 @@ const DEFAULT_AUTOMATIC_KEY_ROTATION: Duration = if cfg!(target_os = "android") 
 const AUTOMATIC_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(60 * 15);
 /// How long to wait before starting the first key rotation.
 const ROTATION_START_DELAY: Duration = Duration::from_secs(60 * 3);
+/// How long to wait before reattempting key push after the first attempt fails
+const INITIAL_PUSH_ROTATION_RETRY_DELAY: Duration = Duration::from_millis(300);
+/// How long to wait before reattempting key push at most
+const MAX_PUSH_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(24 * 60 * 60);
 /// How often to check whether the key has expired.
 /// A short interval is used in case the computer is ever suspended.
 const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(60);
@@ -200,7 +204,8 @@ impl KeyManager {
 
 
         let retry_strategy = Jittered::jitter(
-            ExponentialBackoff::from_millis(300).max_delay(Duration::from_secs(60 * 60)),
+            ExponentialBackoff::from_millis(INITIAL_PUSH_ROTATION_RETRY_DELAY.as_millis() as u64)
+                .max_delay(MAX_PUSH_ROTATION_RETRY_DELAY),
         );
 
         let should_retry = move |result: &std::result::Result<_, bool>| -> bool {
