@@ -165,16 +165,8 @@ export class DaemonRpc {
 
   public addConnectionObserver(observer: ConnectionObserver) {
     this.connectionObservers.push(observer);
-    const currentState = this.client.getChannel()?.getConnectivityState(true);
-    if (
-      currentState === grpc.connectivityState.SHUTDOWN ||
-      currentState === grpc.connectivityState.TRANSIENT_FAILURE ||
-      currentState === grpc.connectivityState.IDLE
-    ) {
-      observer.onClose();
-    } else {
-      observer.onOpen();
-    }
+    // Call getConnectivityState(true) to start connecting if idle
+    this.client.getChannel()?.getConnectivityState(true);
   }
 
   public removeConnectionObserver(observer: ConnectionObserver) {
