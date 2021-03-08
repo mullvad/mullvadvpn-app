@@ -1,0 +1,42 @@
+name: Rust formatting check CI
+on:
+    # Check whenever a file that affects Android is changed by a push
+    push:
+        paths:
+            - .github/workflows/rustfmt.yml
+            - mullvad-cli/**/*.rs
+            - mullvad-daemon/**/*.rs
+            - mullvad-exclude/**/*.rs
+            - mullvad-jni/**/*.rs
+            - mullvad-management-interface/**/*.rs
+            - mullvad-paths/**/*.rs
+            - mullvad-problem-report/**/*.rs
+            - mullvad-rpc/**/*.rs
+            - mullvad-setup/**/*.rs
+            - mullvad-tests/**/*.rs
+            - mullvad-types/**/*.rs
+            - talpid-core/**/*.rs
+            - talpid-dbus/**/*.rs
+            - talpid-openvpn-plugin/**/*.rs
+            - talpid-platform-metadata/**/*.rs
+            - talpid-types/**/*.rs
+    # Check if requested manually from the Actions tab
+    workflow_dispatch:
+jobs:
+    check-formatting:
+        runs-on: ubuntu-latest
+        steps:
+            # Checkout repository
+            - uses: actions/checkout@v2
+
+            # Install nightly Rust
+            - uses: ATiltedTree/setup-rust@v1.0.4
+              with:
+                rust-version: nightly
+                components: rustfmt
+
+            # Check formatting
+            - run: |
+                rustfmt --version
+                cargo fmt -- --check --unstable-features
+
