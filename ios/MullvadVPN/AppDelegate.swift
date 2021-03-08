@@ -142,6 +142,17 @@ extension AppDelegate: RootContainerViewControllerDelegate {
 
         controller.present(navController, animated: animated)
     }
+
+    func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController) -> UIInterfaceOrientationMask {
+        switch self.window?.traitCollection.userInterfaceIdiom {
+        case .pad:
+            return [.landscape, .portrait]
+        case .phone:
+            return [.portrait]
+        default:
+            fatalError("Not supported")
+        }
+    }
 }
 
 extension AppDelegate: LoginViewControllerDelegate {
