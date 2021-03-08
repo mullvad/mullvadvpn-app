@@ -29,7 +29,7 @@ pub enum Error {
 }
 
 static ACCOUNT_HISTORY_FILE: &str = "account-history.json";
-static ACCOUNT_HISTORY_LIMIT: usize = 3;
+static ACCOUNT_HISTORY_LIMIT: usize = 1;
 
 /// A trivial MRU cache of account data
 pub struct AccountHistory {
@@ -186,7 +186,7 @@ impl AccountHistory {
         accounts.retain(|entry| entry.account != new_entry.account);
         accounts.push_front(new_entry);
 
-        if accounts.len() > ACCOUNT_HISTORY_LIMIT {
+        while accounts.len() > ACCOUNT_HISTORY_LIMIT {
             let last_entry = accounts.pop_back().unwrap();
             if let Some(wg_data) = last_entry.wireguard {
                 tokio::spawn(self.create_remove_wg_key_rpc(&last_entry.account, &wg_data));
