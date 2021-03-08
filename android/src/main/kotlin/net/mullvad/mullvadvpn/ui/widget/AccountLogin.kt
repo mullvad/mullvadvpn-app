@@ -59,9 +59,9 @@ class AccountLogin : RelativeLayout {
         get() = MAX_ACCOUNT_HISTORY_ENTRIES * (historyEntryHeight + dividerHeight)
 
     private val expandedHeight: Int
-        get() = collapsedHeight + historyHeight
+        get() = collapsedHeight + (historyHeight ?: 0)
 
-    private var historyHeight by observable(0) { _, oldHistoryHeight, newHistoryHeight ->
+    private var historyHeight by observable<Int?>(null) { _, oldHistoryHeight, newHistoryHeight ->
         if (newHistoryHeight != oldHistoryHeight) {
             historyAnimation.setIntValues(collapsedHeight, expandedHeight)
             reposition()
@@ -173,6 +173,8 @@ class AccountLogin : RelativeLayout {
                 }
             )
         }
+
+        historyAnimation.setIntValues(collapsedHeight, expandedHeight)
     }
 
     fun onDestroy() {
