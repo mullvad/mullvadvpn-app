@@ -80,3 +80,31 @@ jobs:
 
             - name: Build and test crates
               run: ./ci/check-rust.sh
+
+    build-windows:
+        runs-on: windows-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Checkout submodules
+              run: git submodule update --init --depth=1
+
+            - name: Install Rust
+              uses: ATiltedTree/setup-rust@v1.0.4
+              with:
+                  rust-version: stable
+
+            - name: Install Go
+              uses: actions/setup-go@v2.1.3
+              with:
+                  go-version: 1.16
+
+            - name: Install msbuild
+              uses: microsoft/setup-msbuild@v1.0.2
+              with:
+                  vs-version: 16
+
+            - name: Build and test crates
+              shell: bash
+              run: ./ci/check-rust.sh
