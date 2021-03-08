@@ -88,3 +88,43 @@ jobs:
                 source env.sh
                 time cargo build --locked --verbose
                 time cargo test --locked --verbose
+
+    build-windows:
+        runs-on: windows-latest
+        steps:
+            # Checkout repository
+            - uses: actions/checkout@v2
+
+            # Checkout submodules
+            - run: |
+                git submodule update --init --depth=1
+                cd dist-assets/binaries
+                # For some reason openssl, libmnl and libnftnl fail to fetch with --depth=1
+                git submodule update --init openssl
+                git submodule update --init libmnl
+                git submodule update --init libnftnl
+                git submodule update --init --depth=1
+
+            # Install Rust
+            - uses: ATiltedTree/setup-rust@v1.0.4
+              with:
+                  rust-version: stable
+
+            # Install Go
+            - uses: actions/setup-go@v2.1.3
+              with:
+                  go-version: 1.16
+
+            # Install msbuild
+            - uses: microsoft/setup-msbuild@v1.0.2
+
+            # Build and test crates
+            - env:
+                RUSTFLAGS: --deny warnings
+              shell: bash
+              run: |
+                ./wireguard/build-wireguard-go.sh
+                time ./build_windows_modules.sh --dev-build
+                source env.sh
+                time cargo build --locked --verbose
+                time cargo test --locked --verbose
