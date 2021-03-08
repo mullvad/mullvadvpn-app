@@ -1,0 +1,28 @@
+name: Rust formatting check CI
+on:
+    # Check whenever a file that affects Rust formatting is changed by a push
+    push:
+        paths:
+            - .github/workflows/rustfmt.yml
+            - rustfmt.toml
+            - '**/*.rs'
+    # Check if requested manually from the Actions tab
+    workflow_dispatch:
+jobs:
+    check-formatting:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Install nightly Rust
+              uses: ATiltedTree/setup-rust@v1.0.4
+              with:
+                rust-version: nightly
+                components: rustfmt
+
+            - name: Check formatting
+              run: |
+                rustfmt --version
+                cargo fmt -- --check --unstable-features
+
