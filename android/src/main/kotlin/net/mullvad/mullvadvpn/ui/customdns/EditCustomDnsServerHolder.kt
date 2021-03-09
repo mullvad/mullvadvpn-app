@@ -2,15 +2,21 @@ package net.mullvad.mullvadvpn.ui.customdns
 
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.KeyEvent
 import android.view.View
 import android.view.View.OnFocusChangeListener
 import android.widget.EditText
+import android.widget.TextView
+import android.widget.TextView.OnEditorActionListener
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.talpid.util.addressString
 
-class EditCustomDnsServerHolder(view: View, adapter: CustomDnsAdapter) : CustomDnsItemHolder(view) {
+class EditCustomDnsServerHolder(
+    view: View,
+    val adapter: CustomDnsAdapter
+) : CustomDnsItemHolder(view) {
     private enum class State {
         Normal,
         Error,
@@ -27,6 +33,13 @@ class EditCustomDnsServerHolder(view: View, adapter: CustomDnsAdapter) : CustomD
                 }
             }
         }
+
+        setOnEditorActionListener(object : OnEditorActionListener {
+            override fun onEditorAction(view: TextView, actionId: Int, event: KeyEvent?): Boolean {
+                saveDnsServer()
+                return false
+            }
+        })
     }
 
     private val watcher: TextWatcher = object : TextWatcher {
@@ -71,9 +84,13 @@ class EditCustomDnsServerHolder(view: View, adapter: CustomDnsAdapter) : CustomD
 
     init {
         view.findViewById<View>(R.id.save).setOnClickListener {
-            val onFailCallback = { state = State.Error }
-
-            adapter.saveDnsServer(input.text.toString(), onFailCallback)
+            saveDnsServer()
         }
+    }
+
+    private fun saveDnsServer() {
+        val onFailCallback = { state = State.Error }
+
+        adapter.saveDnsServer(input.text.toString(), onFailCallback)
     }
 }
