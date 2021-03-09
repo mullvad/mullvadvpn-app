@@ -35,6 +35,7 @@ pub enum Error {
 /// events.
 pub static INTERESTING_EVENTS: &'static [EventType] = &[
     EventType::AuthFailed,
+    #[cfg(target_os = "linux")]
     EventType::Up,
     EventType::RouteUp,
     EventType::RoutePredown,
