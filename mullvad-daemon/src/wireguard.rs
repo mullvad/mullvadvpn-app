@@ -17,17 +17,17 @@ pub use talpid_types::net::wireguard::{
 use talpid_types::ErrorExt;
 
 /// Default automatic key rotation
-const DEFAULT_AUTOMATIC_KEY_ROTATION: Duration = if cfg!(target_os = "android") {
+const DEFAULT_AUTO_KEY_ROTATION: Duration = if cfg!(target_os = "android") {
     Duration::from_secs(4 * 24 * 60 * 60)
 } else {
     Duration::from_secs(7 * 24 * 60 * 60)
 };
 /// How long to wait before reattempting to rotate keys on failure after first attempt
-const INITIAL_AUTOMATIC_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(60);
+const INITIAL_AUTO_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(60);
 /// How long to wait before reattempting to rotate keys on failure at most
-const MAX_AUTOMATIC_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(24 * 60 * 60);
+const MAX_AUTO_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(24 * 60 * 60);
 /// How long to wait before starting the first key rotation.
-const ROTATION_START_DELAY: Duration = Duration::from_secs(60 * 3);
+const AUTO_ROTATION_START_DELAY: Duration = Duration::from_secs(60 * 3);
 /// How long to wait before reattempting key push after the first attempt fails
 const INITIAL_PUSH_ROTATION_RETRY_DELAY: Duration = Duration::from_millis(300);
 /// How long to wait before reattempting key push at most
@@ -98,8 +98,7 @@ impl KeyManager {
         account_token: AccountToken,
         auto_rotation_interval: Option<Duration>,
     ) {
-        self.auto_rotation_interval =
-            auto_rotation_interval.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION);
+        self.auto_rotation_interval = auto_rotation_interval.unwrap_or(DEFAULT_AUTO_KEY_ROTATION);
 
         self.reset_rotation(account_history, account_token).await;
     }
@@ -355,16 +354,16 @@ impl KeyManager {
         rotation_interval_secs: u64,
         account_token: AccountToken,
     ) {
-        tokio::time::delay_for(ROTATION_START_DELAY).await;
+        tokio::time::delay_for(AUTO_ROTATION_START_DELAY).await;
 
         loop {
             Self::wait_for_key_expiry(&public_key, rotation_interval_secs).await;
 
             let retry_strategy = Jittered::jitter(
                 ExponentialBackoff::from_millis(
-                    INITIAL_AUTOMATIC_ROTATION_RETRY_DELAY.as_millis() as u64
+                    INITIAL_AUTO_ROTATION_RETRY_DELAY.as_millis() as u64
                 )
-                .max_delay(MAX_AUTOMATIC_ROTATION_RETRY_DELAY),
+                .max_delay(MAX_AUTO_ROTATION_RETRY_DELAY),
             );
             let should_retry = move |result: &Result<PublicKey>| -> bool {
                 match result {
