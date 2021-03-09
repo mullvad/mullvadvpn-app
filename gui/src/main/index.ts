@@ -484,6 +484,8 @@ class ApplicationMain {
   private onDaemonConnected = async () => {
     this.connectedToDaemon = true;
 
+    log.info('Connected to the daemon');
+
     // subscribe to events
     try {
       this.daemonEventListener = this.subscribeEvents();
