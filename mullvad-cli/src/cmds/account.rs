@@ -2,6 +2,7 @@ use crate::{new_rpc_client, Command, Error, Result};
 use clap::value_t_or_exit;
 use mullvad_management_interface::{types::Timestamp, Code};
 use mullvad_types::account::AccountToken;
+use itertools::Itertools;
 
 pub struct Account;
 
@@ -53,7 +54,8 @@ impl Command for Account {
 
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
-            let token = value_t_or_exit!(set_matches.value_of("token"), String);
+            let mut token = value_t_or_exit!(set_matches.value_of("token"), String);
+            token = token.split_whitespace().join("").to_string();
             self.set(Some(token)).await
         } else if let Some(_matches) = matches.subcommand_matches("get") {
             self.get().await
