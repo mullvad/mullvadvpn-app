@@ -156,12 +156,12 @@ export default class Settings extends React.Component<IProps> {
     if (!this.props.consistentVersion || !this.props.upToDateVersion) {
       const inconsistentVersionMessage = messages.pgettext(
         'settings-view',
-        'Inconsistent internal version information, please restart the app.',
+        'App is out of sync. Please quit and restart.',
       );
 
       const updateAvailableMessage = messages.pgettext(
         'settings-view',
-        'Update available, download to remain safe.',
+        'Update available. Install the latest app version to stay up to date.',
       );
 
       const message = !this.props.consistentVersion
