@@ -411,6 +411,12 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
     * Set to `"pass"` to add logging to rules allowing packets.
     * Set to `"drop"` to add logging to rules blocking packets.
 
+* `TALPID_FIREWALL_DONT_SET_SRC_VALID_MARK` - Forces the daemon to not set `src_valid_mark` config
+    on Linux. The kernel config option is set because otherwise strict reverse path filtering may
+    prevent relay traffic from reaching the daemon. If `rp_filter` is set to `1` on the interface
+    that will be receiving relay traffic, and `src_valid_mark` is not set to `1`, the daemon will
+    not be able to receive relay traffic.
+
 * `TALPID_DNS_MODULE` - Allows changing the method that will be used for DNS configuration on Linux.
   By default this is automatically detected, but you can set it to one of the options below to
   choose a specific method:
