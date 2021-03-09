@@ -323,21 +323,20 @@ impl KeyManager {
         let new_key = PrivateKey::new_from_random();
         let rpc_result =
             Self::replace_key_rpc(http_handle, account_token.clone(), old_key, new_key);
-        let account_token_copy = account_token.clone();
 
         Box::pin(async move {
             match rpc_result.await {
                 Ok(data) => {
                     // Update account data
                     let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
-                        account_token_copy,
+                        account_token,
                         Ok(data.clone()),
                     )));
                     Ok(data.get_public_key())
                 }
                 Err(Error::TooManyKeys) => {
                     let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
-                        account_token_copy,
+                        account_token,
                         Err(Error::TooManyKeys),
                     )));
                     Err(Error::TooManyKeys)
@@ -355,6 +354,10 @@ impl KeyManager {
         account_token: AccountToken,
     ) {
         tokio::time::delay_for(AUTO_ROTATION_START_DELAY).await;
+
+        let rotate_key = move |old_key: &PublicKey| {
+            Self::rotate_key_generator(daemon_tx, http_handle, account_token, old_key.clone())
+        };
 
         loop {
             Self::wait_for_key_expiry(&public_key, rotation_interval_secs).await;
@@ -374,20 +377,16 @@ impl KeyManager {
                     },
                 }
             };
-            let daemon_tx_copy = daemon_tx.clone();
-            let http_handle_copy = http_handle.clone();
-            let account_token_copy = account_token.clone();
             let old_key = public_key.clone();
+            let rotate_key_copy = rotate_key.clone();
 
-            let future_generator = move || {
-                Self::rotate_key_generator(
-                    daemon_tx_copy.clone(),
-                    http_handle_copy.clone(),
-                    account_token_copy.clone(),
-                    old_key.clone(),
-                )
-            };
-            match retry_future_with_backoff(future_generator, should_retry, retry_strategy).await {
+            match retry_future_with_backoff(
+                move || rotate_key_copy.clone()(&old_key),
+                should_retry,
+                retry_strategy,
+            )
+            .await
+            {
                 Ok(key) => public_key = key,
                 Err(error) => {
                     log::error!(
