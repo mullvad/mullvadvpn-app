@@ -82,6 +82,7 @@ const DAEMON_RPC_PATH =
 
 const AUTO_CONNECT_FALLBACK_DELAY = 6000;
 
+const GUI_VERSION = app.getVersion().replace('.0', '');
 /// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
 const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
 
@@ -165,10 +166,10 @@ class ApplicationMain {
   private relays: IRelayList = { countries: [] };
 
   private currentVersion: ICurrentAppVersionInfo = {
-    daemon: '',
-    gui: '',
+    daemon: undefined,
+    gui: GUI_VERSION,
     isConsistent: true,
-    isBeta: false,
+    isBeta: IS_BETA.test(GUI_VERSION),
   };
 
   private upgradeVersion: IAppVersionInfo = {
@@ -224,7 +225,7 @@ class ApplicationMain {
       app.enableSandbox();
     }
 
-    log.info(`Running version ${app.getVersion()}`);
+    log.info(`Running version ${this.currentVersion.gui}`);
 
     if (process.platform === 'win32') {
       app.setAppUserModelId('net.mullvad.vpn');
@@ -483,6 +484,8 @@ class ApplicationMain {
   private onDaemonConnected = async () => {
     this.connectedToDaemon = true;
 
+    log.info('Connected to the daemon');
+
     // subscribe to events
     try {
       this.daemonEventListener = this.subscribeEvents();
@@ -548,20 +551,13 @@ class ApplicationMain {
     // fetch the latest version info in background
     consumePromise(this.fetchLatestVersion());
 
-    // notify user about inconsistent version
-    const notificationProvider = new InconsistentVersionNotificationProvider({
-      consistent: this.currentVersion.isConsistent,
-    });
-    if (notificationProvider.mayDisplay()) {
-      this.notificationController.notify(notificationProvider.getSystemNotification());
-    }
-
     // reset the reconnect backoff when connection established.
     this.reconnectBackoff.reset();
 
-    // notify renderer
-    if (this.windowController) {
-      IpcMainEventChannel.daemonConnected.notify(this.windowController.webContents);
+    // notify renderer, this.connectedToDaemon could have changed if the daemon disconnected again
+    // before this if-statement is reached.
+    if (this.windowController && this.connectedToDaemon) {
+      IpcMainEventChannel.daemon.notifyConnected(this.windowController.webContents);
     }
 
     // show window when account is not set
@@ -581,9 +577,6 @@ class ApplicationMain {
     // Reset the daemon event listener since it's going to be invalidated on disconnect
     this.daemonEventListener = undefined;
 
-    // TODO: GRPC doesn't set an error, but without an error, the UI won't be updated
-    error = error === undefined && wasConnected ? new Error('Connection to daemon lost') : error;
-
     if (wasConnected) {
       this.connectedToDaemon = false;
 
@@ -592,10 +585,7 @@ class ApplicationMain {
 
       // notify renderer process
       if (this.windowController) {
-        IpcMainEventChannel.daemonDisconnected.notify(
-          this.windowController.webContents,
-          error ? error.message : undefined,
-        );
+        IpcMainEventChannel.daemon.notifyDisconnected(this.windowController.webContents);
       }
     }
 
@@ -608,12 +598,6 @@ class ApplicationMain {
       }
     } else {
       log.info('Disconnected from the daemon');
-    }
-
-    // Set GUI version info if it hasn't already been done. Only happens if the app starts without a
-    // connection to the daemon.
-    if (this.currentVersion.gui === '') {
-      this.setDaemonVersion('');
     }
   };
 
@@ -853,15 +837,28 @@ class ApplicationMain {
   }
 
   private setDaemonVersion(daemonVersion: string) {
-    const guiVersion = app.getVersion().replace('.0', '');
     const versionInfo = {
+      ...this.currentVersion,
       daemon: daemonVersion,
-      gui: guiVersion,
-      isConsistent: daemonVersion === guiVersion,
-      isBeta: IS_BETA.test(guiVersion),
+      isConsistent: daemonVersion === this.currentVersion.gui,
     };
 
     this.currentVersion = versionInfo;
+
+    if (!versionInfo.isConsistent) {
+      log.info('Inconsistent version', {
+        guiVersion: versionInfo.gui,
+        daemonVersion: versionInfo.daemon,
+      });
+    }
+
+    // notify user about inconsistent version
+    const notificationProvider = new InconsistentVersionNotificationProvider({
+      consistent: versionInfo.isConsistent,
+    });
+    if (notificationProvider.mayDisplay()) {
+      this.notificationController.notify(notificationProvider.getSystemNotification());
+    }
 
     // notify renderer
     if (this.windowController) {
