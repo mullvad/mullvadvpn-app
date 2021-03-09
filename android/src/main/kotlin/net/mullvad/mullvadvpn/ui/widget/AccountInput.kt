@@ -16,6 +16,7 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.ui.LoginState
 import net.mullvad.mullvadvpn.util.SegmentedInputFormatter
+import net.mullvad.mullvadvpn.util.setOnEnterOrDoneAction
 import net.mullvad.talpid.util.EventNotifier
 
 const val MIN_ACCOUNT_TOKEN_LENGTH = 10
@@ -46,6 +47,7 @@ class AccountInput : LinearLayout {
 
     private val input = container.findViewById<EditText>(R.id.login_input).apply {
         addTextChangedListener(inputWatcher)
+        setOnEnterOrDoneAction(::login)
 
         onFocusChangeListener = OnFocusChangeListener { view, inputHasFocus ->
             hasFocus = inputHasFocus && view.isEnabled
@@ -63,9 +65,7 @@ class AccountInput : LinearLayout {
     }
 
     private val button = container.findViewById<ImageButton>(R.id.login_button).apply {
-        setOnClickListener {
-            onLogin?.invoke(input.text.replace(Regex("[^0-9]"), ""))
-        }
+        setOnClickListener { login() }
     }
 
     val onFocusChanged = EventNotifier(false)
@@ -108,6 +108,10 @@ class AccountInput : LinearLayout {
     fun loginWith(accountNumber: String) {
         input.setText(accountNumber)
         onLogin?.invoke(accountNumber)
+    }
+
+    private fun login() {
+        onLogin?.invoke(input.text.replace(Regex("[^0-9]"), ""))
     }
 
     private fun initialState() {
