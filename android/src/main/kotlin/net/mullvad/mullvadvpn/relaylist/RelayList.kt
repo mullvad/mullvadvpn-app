@@ -21,7 +21,7 @@ class RelayList {
                     for (relay in validCityRelays) {
                         relays.add(Relay(relayCity, relay.hostname, relay.active))
                     }
-                    relays.sortBy({ it.name })
+                    relays.sortWith(RelayNameComparator)
 
                     if (relays.isNotEmpty()) {
                         cities.add(relayCity)
