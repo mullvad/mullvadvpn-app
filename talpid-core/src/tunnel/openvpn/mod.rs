@@ -324,7 +324,6 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                         panic!("Failed to add routes");
                     }
 
-                    #[cfg(target_os = "linux")]
                     if let Err(error) = route_manager_handle.create_routing_rules(ipv6_enabled) {
                         log::error!("{}", error.display_chain());
                         panic!("Failed to add routes");
