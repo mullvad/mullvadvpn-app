@@ -485,6 +485,8 @@ class ApplicationMain {
     const wasConnected = this.connectedToDaemon;
     this.connectedToDaemon = true;
 
+    log.info('Connected to the daemon');
+
     // subscribe to events
     try {
       this.daemonEventListener = this.subscribeEvents();
