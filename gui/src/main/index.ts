@@ -355,7 +355,7 @@ class ApplicationMain {
     // closing normally, even programmatically. Therefore re-enable the close button just before
     // quitting the app.
     // Github issue: https://github.com/electron/electron/issues/15008
-    if (process.platform === 'darwin' && this.windowController) {
+    if (process.platform === 'darwin' && this.windowController?.window) {
       this.windowController.window.closable = true;
     }
 
@@ -435,9 +435,9 @@ class ApplicationMain {
   };
 
   private async initializeWindow() {
-    if (this.windowController && this.tray) {
+    if (this.windowController?.window && this.tray) {
       this.registerWindowListener(this.windowController);
-      this.addContextMenu(this.windowController.window);
+      this.addContextMenu(this.windowController);
 
       if (process.env.NODE_ENV === 'development') {
         await this.installDevTools();
@@ -466,18 +466,20 @@ class ApplicationMain {
       const filePath = path.resolve(path.join(__dirname, '../renderer/index.html'));
       try {
         if (process.env.NODE_ENV === 'development') {
-          await this.windowController?.window.loadURL(
+          await this.windowController.window.loadURL(
             'http://localhost:8080/src/renderer/index.html',
           );
         } else {
-          await this.windowController?.window.loadFile(filePath);
+          await this.windowController.window.loadFile(filePath);
         }
       } catch (error) {
         log.error(`Failed to load index file: ${error.message}`);
       }
 
       // disable pinch to zoom
-      consumePromise(this.windowController.webContents.setVisualZoomLevelLimits(1, 1));
+      if (this.windowController.webContents) {
+        consumePromise(this.windowController.webContents.setVisualZoomLevelLimits(1, 1));
+      }
     }
   }
 
@@ -990,14 +992,14 @@ class ApplicationMain {
   }
 
   private registerWindowListener(windowController: WindowController) {
-    windowController.window.on('show', () => {
+    windowController.window?.on('show', () => {
       // cancel notifications when window appears
       this.notificationController.cancelPendingNotifications();
 
       this.updateAccountData();
     });
 
-    windowController.window.on('hide', () => {
+    windowController.window?.on('hide', () => {
       // ensure notification guard is reset
       this.notificationController.resetTunnelStateAnnouncements();
     });
@@ -1613,7 +1615,7 @@ class ApplicationMain {
     }
   }
 
-  private addContextMenu(window: BrowserWindow) {
+  private addContextMenu(windowController: WindowController) {
     const menuTemplate: Electron.MenuItemConstructorOptions[] = [
       { role: 'cut' },
       { role: 'copy' },
@@ -1623,15 +1625,15 @@ class ApplicationMain {
     ];
 
     // add inspect element on right click menu
-    window.webContents.on(
+    windowController.window?.webContents.on(
       'context-menu',
       (_e: Event, props: { x: number; y: number; isEditable: boolean }) => {
         const inspectTemplate = [
           {
             label: 'Inspect element',
             click() {
-              window.webContents.openDevTools({ mode: 'detach' });
-              window.webContents.inspectElement(props.x, props.y);
+              windowController.window?.webContents.openDevTools({ mode: 'detach' });
+              windowController.window?.webContents.inspectElement(props.x, props.y);
             },
           },
         ];
@@ -1644,14 +1646,14 @@ class ApplicationMain {
               ...inspectTemplate,
             ];
 
-            Menu.buildFromTemplate(inputMenu).popup({ window });
+            Menu.buildFromTemplate(inputMenu).popup({ window: windowController.window });
           } else {
-            Menu.buildFromTemplate(menuTemplate).popup({ window });
+            Menu.buildFromTemplate(menuTemplate).popup({ window: windowController.window });
           }
         } else if (process.env.NODE_ENV === 'development') {
           // display inspect element for all non-editable
           // elements when in development mode
-          Menu.buildFromTemplate(inspectTemplate).popup({ window });
+          Menu.buildFromTemplate(inspectTemplate).popup({ window: windowController.window });
         }
       },
     );
@@ -1685,7 +1687,7 @@ class ApplicationMain {
 
   private installWindowsMenubarAppWindowHandlers(tray: Tray, windowController: WindowController) {
     if (!this.guiSettings.unpinnedWindow) {
-      windowController.window.on('blur', () => {
+      windowController.window?.on('blur', () => {
         // Detect if blur happened when user had a cursor above the tray icon.
         const trayBounds = tray.getBounds();
         const cursorPos = screen.getCursorScreenPoint();
@@ -1709,14 +1711,18 @@ class ApplicationMain {
       const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
       const macEventMonitor = new NSEventMonitor();
       const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;
-      const window = windowController.window;
 
-      window.on('show', () => macEventMonitor.start(eventMask, () => windowController.hide()));
-      window.on('hide', () => macEventMonitor.stop());
-      window.on('blur', () => {
+      windowController.window?.on('show', () =>
+        macEventMonitor.start(eventMask, () => windowController.hide()),
+      );
+      windowController.window?.on('hide', () => macEventMonitor.stop());
+      windowController.window?.on('blur', () => {
         // Make sure to hide the menubar window when other program captures the focus.
         // But avoid doing that when dev tools capture the focus to make it possible to inspect the UI
-        if (window.isVisible() && !window.webContents.isDevToolsFocused()) {
+        if (
+          windowController.window?.isVisible() &&
+          !windowController.window?.webContents.isDevToolsFocused()
+        ) {
           windowController.hide();
         }
       });
@@ -1725,7 +1731,7 @@ class ApplicationMain {
 
   private installWindowCloseHandler(windowController: WindowController) {
     if (this.guiSettings.unpinnedWindow) {
-      windowController.window.on('close', (closeEvent: Event) => {
+      windowController.window?.on('close', (closeEvent: Event) => {
         if (this.quitStage !== AppQuitStage.ready) {
           closeEvent.preventDefault();
           windowController.hide();
@@ -1735,10 +1741,10 @@ class ApplicationMain {
   }
 
   private installGenericFocusHandlers(windowController: WindowController) {
-    windowController.window.on('focus', () => {
+    windowController.window?.on('focus', () => {
       IpcMainEventChannel.windowFocus.notify(windowController.webContents, true);
     });
-    windowController.window.on('blur', () => {
+    windowController.window?.on('blur', () => {
       IpcMainEventChannel.windowFocus.notify(windowController.webContents, false);
     });
   }
