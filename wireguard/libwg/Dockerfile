@@ -16,12 +16,12 @@ RUN apt-get update -y && apt-get install -y \
 
 # Install Android NDK
 RUN cd /tmp && \
-    curl -sf -L -O https://dl.google.com/android/repository/android-ndk-r20-linux-x86_64.zip && \
-    test $(sha256sum android-ndk-r20-linux-x86_64.zip | cut -f1 -d' ') = "57435158f109162f41f2f43d5563d2164e4d5d0364783a9a6fab3ef12cb06ce0" && \
+    curl -sf -L -o ndk.zip https://dl.google.com/android/repository/android-ndk-r20b-linux-x86_64.zip && \
+    echo "8381c440fe61fcbb01e209211ac01b519cd6adf51ab1c2281d5daad6ca4c8c8c ndk.zip" | sha256sum -c - && \
     mkdir /opt/android && \
     cd /opt/android && \
-    unzip -q /tmp/android-ndk-r20-linux-x86_64.zip && \
-    rm /tmp/android-ndk-r20-linux-x86_64.zip
+    unzip -q /tmp/ndk.zip && \
+    rm /tmp/ndk.zip
 
 
 ENV ANDROID_NDK_HOME="/opt/android/android-ndk-r20"
@@ -33,7 +33,7 @@ ENV GOLANG_HASH 013a489ebb3e24ef3d915abe5b94c3286c070dfe0818d5bca8108f1d6e8440d2
 COPY goruntime-boottime-over-monotonic.diff /opt/goruntime-boottime-over-monotonic.diff
 RUN cd /tmp && \
     curl -sf -L -o go.tgz https://golang.org/dl/go${GOLANG_VERSION}.linux-amd64.tar.gz && \
-    echo "${GOLANG_HASH} go.tgz" | sha256sum --check && \
+    echo "${GOLANG_HASH} go.tgz" | sha256sum -c - && \
     cd /opt && \
     tar -xzf /tmp/go.tgz && \
     rm /tmp/go.tgz && \
