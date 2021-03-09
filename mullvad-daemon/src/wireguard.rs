@@ -3,11 +3,7 @@ use chrono::offset::Utc;
 use mullvad_rpc::rest::{Error as RestError, MullvadRestHandle};
 use mullvad_types::account::AccountToken;
 pub use mullvad_types::wireguard::*;
-use std::{
-    future::Future,
-    pin::Pin,
-    time::{Duration, Instant},
-};
+use std::{future::Future, pin::Pin, time::Duration};
 
 use futures::future::{abortable, AbortHandle};
 use talpid_core::{
@@ -20,23 +16,23 @@ pub use talpid_types::net::wireguard::{
 };
 use talpid_types::ErrorExt;
 
-/// Default automatic key rotation
-const DEFAULT_AUTOMATIC_KEY_ROTATION: Duration = if cfg!(target_os = "android") {
+/// Default automatic key rotation interval
+const DEFAULT_KEY_ROTATION: Duration = if cfg!(target_os = "android") {
     Duration::from_secs(4 * 24 * 60 * 60)
 } else {
     Duration::from_secs(7 * 24 * 60 * 60)
 };
-/// How long to wait before reattempting to rotate keys on failure
-const AUTOMATIC_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(60 * 15);
-/// How long to wait before starting the first key rotation.
+
+/// How long to wait before starting key rotation
 const ROTATION_START_DELAY: Duration = Duration::from_secs(60 * 3);
+
 /// How often to check whether the key has expired.
 /// A short interval is used in case the computer is ever suspended.
 const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(60);
 
-const RETRY_KEY_PUSH_INITIAL: Duration = Duration::from_millis(300);
-const RETRY_KEY_PUSH_FACTOR: u32 = 300;
-const RETRY_KEY_PUSH_MAX: Duration = Duration::from_secs(60 * 60);
+const RETRY_INTERVAL_INITIAL: Duration = Duration::from_secs(4);
+const RETRY_INTERVAL_FACTOR: u32 = 5;
+const RETRY_INTERVAL_MAX: Duration = Duration::from_secs(24 * 60 * 60);
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -100,8 +96,7 @@ impl KeyManager {
         account_token: AccountToken,
         auto_rotation_interval: Option<Duration>,
     ) {
-        self.auto_rotation_interval =
-            auto_rotation_interval.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION);
+        self.auto_rotation_interval = auto_rotation_interval.unwrap_or(DEFAULT_KEY_ROTATION);
 
         self.reset_rotation(account_history, account_token).await;
     }
@@ -200,10 +195,9 @@ impl KeyManager {
             }
         };
 
-
         let retry_strategy = Jittered::jitter(
-            ExponentialBackoff::new(RETRY_KEY_PUSH_INITIAL, RETRY_KEY_PUSH_FACTOR)
-                .max_delay(RETRY_KEY_PUSH_MAX),
+            ExponentialBackoff::new(RETRY_INTERVAL_INITIAL, RETRY_INTERVAL_FACTOR)
+                .max_delay(RETRY_INTERVAL_MAX),
         );
 
         let should_retry = move |result: &std::result::Result<_, bool>| -> bool {
@@ -303,7 +297,7 @@ impl KeyManager {
         }
     }
 
-    async fn key_rotation_timer(key: PublicKey, rotation_interval_secs: u64) {
+    async fn wait_for_key_expiry(key: &PublicKey, rotation_interval_secs: u64) {
         let mut interval = tokio::time::interval(KEY_CHECK_INTERVAL);
         loop {
             interval.tick().await;
@@ -315,39 +309,6 @@ impl KeyManager {
         }
     }
 
-    async fn next_automatic_rotation(
-        daemon_tx: DaemonEventSender,
-        http_handle: MullvadRestHandle,
-        public_key: PublicKey,
-        rotation_interval_secs: u64,
-        account_token: AccountToken,
-    ) -> Result<PublicKey> {
-        let account_token_copy = account_token.clone();
-        Self::key_rotation_timer(public_key.clone(), rotation_interval_secs).await;
-
-        let private_key = PrivateKey::new_from_random();
-        let rpc_result =
-            Self::replace_key_rpc(http_handle, account_token, public_key, private_key).await;
-        match rpc_result {
-            Ok(data) => {
-                // Update account data
-                let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
-                    account_token_copy,
-                    Ok(data.clone()),
-                )));
-                Ok(data.get_public_key())
-            }
-            Err(Error::TooManyKeys) => {
-                let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
-                    account_token_copy,
-                    Err(Error::TooManyKeys),
-                )));
-                Err(Error::TooManyKeys)
-            }
-            Err(unknown_err) => Err(unknown_err),
-        }
-    }
-
     async fn create_automatic_rotation(
         daemon_tx: DaemonEventSender,
         http_handle: MullvadRestHandle,
@@ -355,42 +316,96 @@ impl KeyManager {
         rotation_interval_secs: u64,
         account_token: AccountToken,
     ) {
-        let mut interval = tokio::time::interval_at(
-            (Instant::now() + ROTATION_START_DELAY).into(),
-            AUTOMATIC_ROTATION_RETRY_DELAY,
-        );
+        tokio::time::delay_for(ROTATION_START_DELAY).await;
+
+        let rotate_key_for_account = move |old_key: &PublicKey| {
+            Self::rotate_key(
+                daemon_tx.clone(),
+                http_handle.clone(),
+                account_token.clone(),
+                old_key.clone(),
+            )
+        };
 
         loop {
-            let daemon_tx = daemon_tx.clone();
-            interval.tick().await;
-            let new_key_result = Self::next_automatic_rotation(
-                daemon_tx,
-                http_handle.clone(),
-                public_key.clone(),
-                rotation_interval_secs,
-                account_token.clone(),
-            )
-            .await;
-            match new_key_result {
+            Self::wait_for_key_expiry(&public_key, rotation_interval_secs).await;
+
+            let rotate_key_for_account_copy = rotate_key_for_account.clone();
+            match Self::rotate_key_with_retries(public_key.clone(), rotate_key_for_account_copy)
+                .await
+            {
                 Ok(new_key) => public_key = new_key,
-                Err(Error::TooManyKeys) => {
-                    log::error!("Account has too many keys, stopping automatic rotation");
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Stopping automatic key rotation due to an error"
+                        )
+                    );
                     return;
-                }
-                Err(Error::RestError(err)) => {
-                    if Self::should_retry(&err) {
-                        log::error!(
-                            "{}. Retrying in {} seconds",
-                            err.display_chain_with_msg("Key rotation failed:"),
-                            AUTOMATIC_ROTATION_RETRY_DELAY.as_secs(),
-                        );
-                    } else {
-                        log::debug!("{}", err.display_chain_with_msg("Stopping automatic rotation"));
-                        return;
-                    }
                 }
             }
         }
+    }
+
+    fn rotate_key(
+        daemon_tx: DaemonEventSender,
+        http_handle: MullvadRestHandle,
+        account_token: AccountToken,
+        old_key: PublicKey,
+    ) -> std::pin::Pin<Box<dyn Future<Output = Result<PublicKey>> + Send>> {
+        let new_key = PrivateKey::new_from_random();
+        let rpc_result =
+            Self::replace_key_rpc(http_handle, account_token.clone(), old_key, new_key);
+
+        Box::pin(async move {
+            match rpc_result.await {
+                Ok(data) => {
+                    // Update account data
+                    let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
+                        account_token,
+                        Ok(data.clone()),
+                    )));
+                    Ok(data.get_public_key())
+                }
+                Err(Error::TooManyKeys) => {
+                    let _ = daemon_tx.send(InternalDaemonEvent::WgKeyEvent((
+                        account_token,
+                        Err(Error::TooManyKeys),
+                    )));
+                    Err(Error::TooManyKeys)
+                }
+                Err(unknown) => Err(unknown),
+            }
+        })
+    }
+
+    async fn rotate_key_with_retries<F>(old_key: PublicKey, rotate_key: F) -> Result<PublicKey>
+    where
+        F: FnMut(&PublicKey) -> std::pin::Pin<Box<dyn Future<Output = Result<PublicKey>> + Send>>
+            + Clone
+            + 'static,
+    {
+        let retry_strategy = Jittered::jitter(
+            ExponentialBackoff::new(RETRY_INTERVAL_INITIAL, RETRY_INTERVAL_FACTOR)
+                .max_delay(RETRY_INTERVAL_MAX),
+        );
+        let should_retry = move |result: &Result<PublicKey>| -> bool {
+            match result {
+                Ok(_) => false,
+                Err(error) => match error {
+                    Error::RestError(error) => Self::should_retry(error),
+                    _ => false,
+                },
+            }
+        };
+
+        retry_future_with_backoff(
+            move || rotate_key.clone()(&old_key),
+            should_retry,
+            retry_strategy,
+        )
+        .await
     }
 
     async fn run_automatic_rotation(&mut self, account_token: AccountToken, public_key: PublicKey) {
