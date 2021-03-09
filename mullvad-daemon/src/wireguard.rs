@@ -16,22 +16,25 @@ pub use talpid_types::net::wireguard::{
 };
 use talpid_types::ErrorExt;
 
-/// Default automatic key rotation
-const DEFAULT_AUTOMATIC_KEY_ROTATION: Duration = if cfg!(target_os = "android") {
+/// Default automatic key rotation interval
+const DEFAULT_KEY_ROTATION: Duration = if cfg!(target_os = "android") {
     Duration::from_secs(4 * 24 * 60 * 60)
 } else {
     Duration::from_secs(7 * 24 * 60 * 60)
 };
-/// How long to wait before reattempting to rotate keys on failure after first attempt
-const INITIAL_AUTOMATIC_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(60);
-/// How long to wait before reattempting to rotate keys on failure at most
-const MAX_AUTOMATIC_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(24 * 60 * 60);
-/// How long to wait before starting the first key rotation.
+
+const EXPONENTIAL_BACKOFF_ROTATION_RETRY_BASE_MS: u64 = 60;
+const EXPONENTIAL_BACKOFF_ROTATION_RETRY_FACTOR: u64 = 1000;
+/// How long to wait before starting key rotation
 const ROTATION_START_DELAY: Duration = Duration::from_secs(60 * 3);
-/// How long to wait before reattempting key push after the first attempt fails
-const INITIAL_PUSH_ROTATION_RETRY_DELAY: Duration = Duration::from_millis(300);
-/// How long to wait before reattempting key push at most
-const MAX_PUSH_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(24 * 60 * 60);
+/// Maximum amount of time to wait before reattempting to rotate a key on failure
+const MAX_ROTATION_RETRY_DELAY: Duration = Duration::from_secs(24 * 60 * 60);
+
+const EXPONENTIAL_BACKOFF_PUSH_RETRY_BASE_MS: u64 = 4;
+const EXPONENTIAL_BACKOFF_PUSH_RETRY_FACTOR: u64 = 1000;
+/// Maximum amount of time to wait before reattempting to push a key on failure
+const MAX_PUSH_RETRY_DELAY: Duration = Duration::from_secs(24 * 60 * 60);
+
 /// How often to check whether the key has expired.
 /// A short interval is used in case the computer is ever suspended.
 const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(60);
@@ -98,8 +101,7 @@ impl KeyManager {
         account_token: AccountToken,
         auto_rotation_interval: Option<Duration>,
     ) {
-        self.auto_rotation_interval =
-            auto_rotation_interval.unwrap_or(DEFAULT_AUTOMATIC_KEY_ROTATION);
+        self.auto_rotation_interval = auto_rotation_interval.unwrap_or(DEFAULT_KEY_ROTATION);
 
         self.reset_rotation(account_history, account_token).await;
     }
@@ -200,10 +202,10 @@ impl KeyManager {
             }
         };
 
-
         let retry_strategy = Jittered::jitter(
-            ExponentialBackoff::from_millis(INITIAL_PUSH_ROTATION_RETRY_DELAY.as_millis() as u64)
-                .max_delay(MAX_PUSH_ROTATION_RETRY_DELAY),
+            ExponentialBackoff::from_millis(EXPONENTIAL_BACKOFF_PUSH_RETRY_BASE_MS)
+                .factor(EXPONENTIAL_BACKOFF_PUSH_RETRY_FACTOR)
+                .max_delay(MAX_PUSH_RETRY_DELAY),
         );
 
         let should_retry = move |result: &std::result::Result<_, bool>| -> bool {
@@ -364,10 +366,9 @@ impl KeyManager {
             Self::wait_for_key_expiry(&public_key, rotation_interval_secs).await;
 
             let retry_strategy = Jittered::jitter(
-                ExponentialBackoff::from_millis(
-                    INITIAL_AUTOMATIC_ROTATION_RETRY_DELAY.as_millis() as u64
-                )
-                .max_delay(MAX_AUTOMATIC_ROTATION_RETRY_DELAY),
+                ExponentialBackoff::from_millis(EXPONENTIAL_BACKOFF_ROTATION_RETRY_BASE_MS)
+                    .factor(EXPONENTIAL_BACKOFF_ROTATION_RETRY_FACTOR)
+                    .max_delay(MAX_ROTATION_RETRY_DELAY),
             );
             let should_retry = move |result: &Result<PublicKey>| -> bool {
                 match result {
