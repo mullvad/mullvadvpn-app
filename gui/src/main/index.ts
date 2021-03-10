@@ -387,6 +387,7 @@ class ApplicationMain {
 
     this.blockPermissionRequests();
     this.blockRequests();
+    this.blockNavigation();
 
     this.translations = this.updateCurrentLocale();
 
@@ -1436,6 +1437,14 @@ class ApplicationMain {
         }
       },
     );
+  }
+
+  private blockNavigation() {
+    app.on('web-contents-created', (_event, contents) => {
+      contents.on('will-navigate', (event) => {
+        event.preventDefault();
+      });
+    });
   }
 
   private async installDevTools() {
