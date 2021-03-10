@@ -460,9 +460,13 @@ export default class AppRenderer {
   public async sendProblemReport(
     email: string,
     message: string,
-    savedReport: string,
+    savedReportId: string,
   ): Promise<void> {
-    await IpcRendererEventChannel.problemReport.sendReport({ email, message, savedReport });
+    await IpcRendererEventChannel.problemReport.sendReport({ email, message, savedReportId });
+  }
+
+  public viewLog(id: string): Promise<string> {
+    return IpcRendererEventChannel.problemReport.viewLog(id);
   }
 
   public quit(): void {
@@ -471,10 +475,6 @@ export default class AppRenderer {
 
   public openUrl(url: string): Promise<void> {
     return IpcRendererEventChannel.app.openUrl(url);
-  }
-
-  public openPath(path: string): Promise<string> {
-    return IpcRendererEventChannel.app.openPath(path);
   }
 
   public showOpenDialog(

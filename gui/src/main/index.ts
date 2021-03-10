@@ -1141,7 +1141,8 @@ class ApplicationMain {
     });
 
     IpcMainEventChannel.problemReport.handleCollectLogs((toRedact) => {
-      const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
+      const id = uuid.v4();
+      const reportPath = this.getProblemReportPath(id);
       const executable = resolveBin('mullvad-problem-report');
       const args = ['collect', '--output', reportPath];
       if (toRedact.length > 0) {
@@ -1159,15 +1160,16 @@ class ApplicationMain {
             reject(error.message);
           } else {
             log.debug(`Problem report was written to ${reportPath}`);
-            resolve(reportPath);
+            resolve(id);
           }
         });
       });
     });
 
-    IpcMainEventChannel.problemReport.handleSendReport(({ email, message, savedReport }) => {
+    IpcMainEventChannel.problemReport.handleSendReport(({ email, message, savedReportId }) => {
       const executable = resolveBin('mullvad-problem-report');
-      const args = ['send', '--email', email, '--message', message, '--report', savedReport];
+      const reportPath = this.getProblemReportPath(savedReportId);
+      const args = ['send', '--email', email, '--message', message, '--report', reportPath];
 
       return new Promise((resolve, reject) => {
         execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
@@ -1186,13 +1188,16 @@ class ApplicationMain {
       });
     });
 
+    IpcMainEventChannel.problemReport.handleViewLog((savedReportId) =>
+      shell.openPath(this.getProblemReportPath(savedReportId)),
+    );
+
     IpcMainEventChannel.app.handleQuit(() => app.quit());
     IpcMainEventChannel.app.handleOpenUrl(async (url) => {
       if (Object.values(config.links).find((link) => url.startsWith(link))) {
         await shell.openExternal(url);
       }
     });
-    IpcMainEventChannel.app.handleOpenPath((path) => shell.openPath(path));
     IpcMainEventChannel.app.handleShowOpenDialog((options) => dialog.showOpenDialog(options));
   }
 
@@ -1794,6 +1799,10 @@ class ApplicationMain {
     } else {
       return shell.openExternal(url);
     }
+  }
+
+  private getProblemReportPath(id: string): string {
+    return path.join(app.getPath('temp'), `${id}.log`);
   }
 }
 

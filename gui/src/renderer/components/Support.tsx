@@ -40,7 +40,7 @@ enum SendState {
 interface ISupportState {
   email: string;
   message: string;
-  savedReport?: string;
+  savedReportId?: string;
   sendState: SendState;
   disableActions: boolean;
   showOutdatedVersionWarning: boolean;
@@ -56,7 +56,7 @@ interface ISupportProps {
   saveReportForm: (form: ISupportReportForm) => void;
   clearReportForm: () => void;
   collectProblemReport: (accountsToRedact: string[]) => Promise<string>;
-  sendProblemReport: (email: string, message: string, savedReport: string) => Promise<void>;
+  sendProblemReport: (email: string, message: string, savedReportId: string) => Promise<void>;
   outdatedVersion: boolean;
   suggestedIsBeta: boolean;
   onExternalLink: (url: string) => void;
@@ -66,7 +66,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
   public state = {
     email: '',
     message: '',
-    savedReport: undefined,
+    savedReportId: undefined,
     sendState: SendState.initial,
     disableActions: false,
     showOutdatedVersionWarning: false,
@@ -102,8 +102,8 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
   public onViewLog = () => {
     this.performWithActionsDisabled(async () => {
       try {
-        const reportPath = await this.collectLog();
-        this.props.viewLog(reportPath);
+        const reportId = await this.collectLog();
+        this.props.viewLog(reportId);
       } catch (error) {
         // TODO: handle error
       }
@@ -199,9 +199,9 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
       this.collectLogPromise = collectPromise;
 
       try {
-        const reportPath = await collectPromise;
+        const reportId = await collectPromise;
         return new Promise((resolve) => {
-          this.setState({ savedReport: reportPath }, () => resolve(reportPath));
+          this.setState({ savedReportId: reportId }, () => resolve(reportId));
         });
       } catch (error) {
         this.collectLogPromise = undefined;
@@ -216,8 +216,8 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
       this.setState({ sendState: SendState.sending }, async () => {
         try {
           const { email, message } = this.state;
-          const reportPath = await this.collectLog();
-          await this.props.sendProblemReport(email, message, reportPath);
+          const reportId = await this.collectLog();
+          await this.props.sendProblemReport(email, message, reportId);
           this.props.clearReportForm();
           this.setState({ sendState: SendState.success }, () => {
             resolve();
