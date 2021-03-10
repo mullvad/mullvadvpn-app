@@ -385,6 +385,7 @@ class ApplicationMain {
     // fetching.  https://github.com/electron/electron/issues/22995
     session.defaultSession.setSpellCheckerDictionaryDownloadURL('https://00.00/');
 
+    this.blockPermissionRequests();
     this.blockRequests();
 
     this.translations = this.updateCurrentLocale();
@@ -1397,6 +1398,13 @@ class ApplicationMain {
       messages: messagesTranslations,
       relayLocations: relayLocationsTranslations,
     };
+  }
+
+  private blockPermissionRequests() {
+    session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => {
+      callback(false);
+    });
+    session.defaultSession.setPermissionCheckHandler(() => false);
   }
 
   // Since the app frontend never performs any network requests, all requests originating from the
