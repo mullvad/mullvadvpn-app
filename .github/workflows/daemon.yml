@@ -37,12 +37,6 @@ jobs:
             # Checkout binaries submodule
             - run: |
                 git submodule update --init --depth=1 dist-assets/binaries
-                cd dist-assets/binaries
-                # For some reason openssl, libmnl and libnftnl fail to fetch with --depth=1
-                git submodule update --init openssl
-                git submodule update --init libmnl
-                git submodule update --init libnftnl
-                git submodule update --init --depth=1
 
             # Install Rust
             - uses: ATiltedTree/setup-rust@v1.0.4
@@ -99,11 +93,6 @@ jobs:
             - run: |
                 git submodule update --init --depth=1
                 cd dist-assets/binaries
-                # For some reason openssl, libmnl and libnftnl fail to fetch with --depth=1
-                git submodule update --init openssl
-                git submodule update --init libmnl
-                git submodule update --init libnftnl
-                git submodule update --init --depth=1
 
             # Install Rust
             - uses: ATiltedTree/setup-rust@v1.0.4
