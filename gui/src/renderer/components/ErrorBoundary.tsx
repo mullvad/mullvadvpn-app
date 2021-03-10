@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { colors, links } from '../../config.json';
+import { colors, supportEmail } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import PlatformWindowContainer from '../containers/PlatformWindowContainer';
@@ -71,7 +71,7 @@ export default class ErrorBoundary extends React.Component<IProps, IState> {
         messages
           .pgettext('error-boundary-view', 'Something went wrong. Please contact us at %(email)s')
           .split('%(email)s', 2);
-      reachBackMessage.splice(1, 0, <Email>{links.supportEmail}</Email>);
+      reachBackMessage.splice(1, 0, <Email>{supportEmail}</Email>);
 
       return (
         <PlatformWindowContainer>

@@ -14,6 +14,7 @@ import moment from 'moment';
 import * as path from 'path';
 import { sprintf } from 'sprintf-js';
 import * as uuid from 'uuid';
+import config from '../config.json';
 import { hasExpired } from '../shared/account-expiry';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import {
@@ -1186,7 +1187,11 @@ class ApplicationMain {
     });
 
     IpcMainEventChannel.app.handleQuit(() => app.quit());
-    IpcMainEventChannel.app.handleOpenUrl((url) => shell.openExternal(url));
+    IpcMainEventChannel.app.handleOpenUrl(async (url) => {
+      if (Object.values(config.links).find((link) => url.startsWith(link))) {
+        await shell.openExternal(url);
+      }
+    });
     IpcMainEventChannel.app.handleOpenPath((path) => shell.openPath(path));
     IpcMainEventChannel.app.handleShowOpenDialog((options) => dialog.showOpenDialog(options));
   }
