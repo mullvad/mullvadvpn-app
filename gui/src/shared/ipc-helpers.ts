@@ -4,7 +4,7 @@ import log from './logging';
 
 type Handler<T, R> = (callback: (arg: T) => R) => void;
 type Sender<T, R> = (arg: T) => R;
-type Notifier<T> = (webContents: WebContents, arg: T) => void;
+type Notifier<T> = (webContents: WebContents | undefined, arg: T) => void;
 type Listener<T> = (callback: (arg: T) => void) => void;
 
 interface MainToRenderer<T> {
@@ -152,8 +152,8 @@ export function notifyRenderer<T>(): MainToRenderer<T> {
 }
 
 function notifyRendererImpl<T>(event: string, _ipcMain: EIpcMain): Notifier<T> {
-  return (webContents: WebContents, value: T) => {
-    if (webContents.isDestroyed()) {
+  return (webContents, value) => {
+    if (webContents === undefined) {
       log.error(`sender(${event}): webContents is already destroyed!`);
     } else {
       webContents.send(event, value);

@@ -135,12 +135,12 @@ export default class WindowController {
   private windowPositioning: IWindowPositioning;
   private isWindowReady = false;
 
-  get window(): BrowserWindow {
-    return this.windowValue;
+  get window(): BrowserWindow | undefined {
+    return this.windowValue.isDestroyed() ? undefined : this.windowValue;
   }
 
-  get webContents(): WebContents {
-    return this.webContentsValue;
+  get webContents(): WebContents | undefined {
+    return this.webContentsValue.isDestroyed() ? undefined : this.webContentsValue;
   }
 
   constructor(windowValue: BrowserWindow, private tray: Tray, unpinnedWindow: boolean) {
@@ -158,8 +158,8 @@ export default class WindowController {
   }
 
   public replaceWindow(window: BrowserWindow, unpinnedWindow: boolean) {
-    this.window.removeAllListeners();
-    this.window.destroy();
+    this.window?.removeAllListeners();
+    this.window?.destroy();
 
     this.windowValue = window;
     this.webContentsValue = window.webContents;
@@ -181,11 +181,11 @@ export default class WindowController {
   }
 
   public hide() {
-    this.windowValue.hide();
+    this.window?.hide();
   }
 
   public toggle() {
-    if (this.windowValue.isVisible()) {
+    if (this.window?.isVisible()) {
       this.hide();
     } else {
       this.show();
@@ -193,11 +193,11 @@ export default class WindowController {
   }
 
   public isVisible(): boolean {
-    return this.windowValue.isVisible();
+    return this.window?.isVisible() ?? false;
   }
 
   private showImmediately() {
-    const window = this.windowValue;
+    const window = this.window;
 
     // When running with unpinned window on Windows there's a bug that causes the app to become
     // wider if opened from minimized if the updated position is set before the window is opened.
@@ -207,8 +207,8 @@ export default class WindowController {
       process.platform === 'win32' &&
       this.windowPositioning instanceof StandaloneWindowPositioning
     ) {
-      window.show();
-      window.focus();
+      window?.show();
+      window?.focus();
 
       this.updatePosition();
       this.notifyUpdateWindowShape();
@@ -216,29 +216,35 @@ export default class WindowController {
       this.updatePosition();
       this.notifyUpdateWindowShape();
 
-      window.show();
-      window.focus();
+      window?.show();
+      window?.focus();
     }
   }
 
   private updatePosition() {
-    const { x, y } = this.windowPositioning.getPosition(this.windowValue);
-    this.windowValue.setPosition(x, y, false);
+    if (this.window) {
+      const { x, y } = this.windowPositioning.getPosition(this.window);
+      this.window.setPosition(x, y, false);
+    }
   }
 
   private notifyUpdateWindowShape() {
-    const shapeParameters = this.windowPositioning.getWindowShapeParameters(this.windowValue);
+    if (this.window) {
+      const shapeParameters = this.windowPositioning.getWindowShapeParameters(this.window);
 
-    IpcMainEventChannel.windowShape.notify(this.webContentsValue, shapeParameters);
+      IpcMainEventChannel.windowShape.notify(this.webContentsValue, shapeParameters);
+    }
   }
 
   // Installs display event handlers to update the window position on any changes in the display or
   // workarea dimensions.
   private installDisplayMetricsHandler() {
-    screen.addListener('display-metrics-changed', this.onDisplayMetricsChanged);
-    this.windowValue.once('closed', () => {
-      screen.removeListener('display-metrics-changed', this.onDisplayMetricsChanged);
-    });
+    if (this.window) {
+      screen.addListener('display-metrics-changed', this.onDisplayMetricsChanged);
+      this.window.once('closed', () => {
+        screen.removeListener('display-metrics-changed', this.onDisplayMetricsChanged);
+      });
+    }
   }
 
   private onDisplayMetricsChanged = (
@@ -246,7 +252,7 @@ export default class WindowController {
     _display: Display,
     changedMetrics: string[],
   ) => {
-    if (changedMetrics.includes('workArea') && this.windowValue.isVisible()) {
+    if (changedMetrics.includes('workArea') && this.window?.isVisible()) {
       this.updatePosition();
       this.notifyUpdateWindowShape();
     }
@@ -260,11 +266,11 @@ export default class WindowController {
   };
 
   private forceResizeWindow() {
-    this.windowValue.setSize(this.width, this.height);
+    this.window?.setSize(this.width, this.height);
   }
 
   private installWindowReadyHandlers() {
-    this.windowValue.once('ready-to-show', () => {
+    this.window?.once('ready-to-show', () => {
       this.isWindowReady = true;
     });
   }
@@ -273,7 +279,7 @@ export default class WindowController {
     if (this.isWindowReady) {
       closure();
     } else {
-      this.windowValue.once('ready-to-show', () => {
+      this.window?.once('ready-to-show', () => {
         closure();
       });
     }
