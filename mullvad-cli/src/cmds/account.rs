@@ -1,8 +1,9 @@
 use crate::{new_rpc_client, Command, Error, Result};
 use clap::value_t_or_exit;
+use itertools::Itertools;
 use mullvad_management_interface::{types::Timestamp, Code};
 use mullvad_types::account::AccountToken;
-use itertools::Itertools;
+use std::io::{self, Write};
 
 pub struct Account;
 
@@ -21,8 +22,12 @@ impl Command for Account {
                     .about("Change account")
                     .arg(
                         clap::Arg::with_name("token")
-                            .help("The Mullvad account token to configure the client with")
-                            .required(true),
+                            .long("account")
+                            .short("a")
+                            .takes_value(true)
+                            .required(false)
+                            .multiple(false)
+                            .help("Specify account number as an argument"),
                     ),
             )
             .subcommand(
@@ -54,7 +59,19 @@ impl Command for Account {
 
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         if let Some(set_matches) = matches.subcommand_matches("set") {
-            let mut token = value_t_or_exit!(set_matches.value_of("token"), String);
+            let mut token = match set_matches.value_of("token") {
+                Some(token) => token.to_string(),
+                None => {
+                    let mut token = String::new();
+                    io::stdout()
+                        .write_all(b"Enter account token: ")
+                        .expect("Failed to write to STDOUT");
+                    io::stdin()
+                        .read_line(&mut token)
+                        .expect("Failed to read from STDIN");
+                    token
+                }
+            };
             token = token.split_whitespace().join("").to_string();
             self.set(Some(token)).await
         } else if let Some(_matches) = matches.subcommand_matches("get") {
