@@ -102,8 +102,8 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
   public onViewLog = () => {
     this.performWithActionsDisabled(async () => {
       try {
-        const reportPath = await this.collectLog();
-        this.props.viewLog(reportPath);
+        const reportId = await this.collectLog();
+        this.props.viewLog(reportId);
       } catch (error) {
         // TODO: handle error
       }
@@ -199,9 +199,9 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
       this.collectLogPromise = collectPromise;
 
       try {
-        const reportPath = await collectPromise;
+        const reportId = await collectPromise;
         return new Promise((resolve) => {
-          this.setState({ savedReport: reportPath }, () => resolve(reportPath));
+          this.setState({ savedReport: reportId }, () => resolve(reportId));
         });
       } catch (error) {
         this.collectLogPromise = undefined;
@@ -216,8 +216,8 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
       this.setState({ sendState: SendState.sending }, async () => {
         try {
           const { email, message } = this.state;
-          const reportPath = await this.collectLog();
-          await this.props.sendProblemReport(email, message, reportPath);
+          const reportId = await this.collectLog();
+          await this.props.sendProblemReport(email, message, reportId);
           this.props.clearReportForm();
           this.setState({ sendState: SendState.success }, () => {
             resolve();

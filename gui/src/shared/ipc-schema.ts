@@ -126,7 +126,6 @@ export const ipcSchema = {
   app: {
     quit: send<void>(),
     openUrl: invoke<string, void>(),
-    openPath: invoke<string, string>(),
     showOpenDialog: invoke<Electron.OpenDialogOptions, Electron.OpenDialogReturnValue>(),
   },
   tunnel: {
@@ -186,6 +185,7 @@ export const ipcSchema = {
   problemReport: {
     collectLogs: invoke<string[], string>(),
     sendReport: invoke<{ email: string; message: string; savedReport: string }, void>(),
+    viewLog: invoke<string, string>(),
   },
   logging: {
     log: send<ILogEntry>(),

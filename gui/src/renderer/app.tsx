@@ -436,16 +436,16 @@ export default class AppRenderer {
     await IpcRendererEventChannel.problemReport.sendReport({ email, message, savedReport });
   }
 
+  public viewLog(id: string): Promise<string> {
+    return IpcRendererEventChannel.problemReport.viewLog(id);
+  }
+
   public quit(): void {
     IpcRendererEventChannel.app.quit();
   }
 
   public openUrl(url: string): Promise<void> {
     return IpcRendererEventChannel.app.openUrl(url);
-  }
-
-  public openPath(path: string): Promise<string> {
-    return IpcRendererEventChannel.app.openPath(path);
   }
 
   public showOpenDialog(
