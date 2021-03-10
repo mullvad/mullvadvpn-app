@@ -317,7 +317,46 @@ impl KeyManager {
         }
     }
 
-    fn rotate_key_generator(
+    async fn create_automatic_rotation(
+        daemon_tx: DaemonEventSender,
+        http_handle: MullvadRestHandle,
+        mut public_key: PublicKey,
+        rotation_interval_secs: u64,
+        account_token: AccountToken,
+    ) {
+        tokio::time::delay_for(ROTATION_START_DELAY).await;
+
+        let rotate_key_for_account = move |old_key: &PublicKey| {
+            Self::rotate_key(
+                daemon_tx.clone(),
+                http_handle.clone(),
+                account_token.clone(),
+                old_key.clone(),
+            )
+        };
+
+        loop {
+            Self::wait_for_key_expiry(&public_key, rotation_interval_secs).await;
+
+            let rotate_key_for_account_copy = rotate_key_for_account.clone();
+            match Self::rotate_key_with_retries(public_key.clone(), rotate_key_for_account_copy)
+                .await
+            {
+                Ok(new_key) => public_key = new_key,
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Stopping automatic key rotation due to an error"
+                        )
+                    );
+                    return;
+                }
+            }
+        }
+    }
+
+    fn rotate_key(
         daemon_tx: DaemonEventSender,
         http_handle: MullvadRestHandle,
         account_token: AccountToken,
@@ -349,58 +388,33 @@ impl KeyManager {
         })
     }
 
-    async fn create_automatic_rotation(
-        daemon_tx: DaemonEventSender,
-        http_handle: MullvadRestHandle,
-        mut public_key: PublicKey,
-        rotation_interval_secs: u64,
-        account_token: AccountToken,
-    ) {
-        tokio::time::delay_for(ROTATION_START_DELAY).await;
-
-        let rotate_key = move |old_key: &PublicKey| {
-            Self::rotate_key_generator(daemon_tx, http_handle, account_token, old_key.clone())
+    async fn rotate_key_with_retries<F>(old_key: PublicKey, rotate_key: F) -> Result<PublicKey>
+    where
+        F: FnMut(&PublicKey) -> std::pin::Pin<Box<dyn Future<Output = Result<PublicKey>> + Send>>
+            + Clone
+            + 'static,
+    {
+        let retry_strategy = Jittered::jitter(
+            ExponentialBackoff::from_millis(EXPONENTIAL_BACKOFF_ROTATION_RETRY_BASE_MS)
+                .factor(EXPONENTIAL_BACKOFF_ROTATION_RETRY_FACTOR)
+                .max_delay(MAX_ROTATION_RETRY_DELAY),
+        );
+        let should_retry = move |result: &Result<PublicKey>| -> bool {
+            match result {
+                Ok(_) => false,
+                Err(error) => match error {
+                    Error::RestError(error) => Self::should_retry(error),
+                    _ => false,
+                },
+            }
         };
 
-        loop {
-            Self::wait_for_key_expiry(&public_key, rotation_interval_secs).await;
-
-            let retry_strategy = Jittered::jitter(
-                ExponentialBackoff::from_millis(EXPONENTIAL_BACKOFF_ROTATION_RETRY_BASE_MS)
-                    .factor(EXPONENTIAL_BACKOFF_ROTATION_RETRY_FACTOR)
-                    .max_delay(MAX_ROTATION_RETRY_DELAY),
-            );
-            let should_retry = move |result: &Result<PublicKey>| -> bool {
-                match result {
-                    Ok(_) => false,
-                    Err(error) => match error {
-                        Error::RestError(error) => Self::should_retry(error),
-                        _ => false,
-                    },
-                }
-            };
-            let old_key = public_key.clone();
-            let rotate_key_copy = rotate_key.clone();
-
-            match retry_future_with_backoff(
-                move || rotate_key_copy.clone()(&old_key),
-                should_retry,
-                retry_strategy,
-            )
-            .await
-            {
-                Ok(key) => public_key = key,
-                Err(error) => {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg(
-                            "Stopping automatic key rotation due to an error"
-                        )
-                    );
-                    return;
-                }
-            }
-        }
+        retry_future_with_backoff(
+            move || rotate_key.clone()(&old_key),
+            should_retry,
+            retry_strategy,
+        )
+        .await
     }
 
     async fn run_automatic_rotation(&mut self, account_token: AccountToken, public_key: PublicKey) {
