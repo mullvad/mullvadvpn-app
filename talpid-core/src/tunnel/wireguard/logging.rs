@@ -66,8 +66,7 @@ pub unsafe extern "system" fn logging_callback(
         };
 
         let level_str = match level {
-            WG_GO_LOG_DEBUG => "DEBUG",
-            WG_GO_LOG_INFO => "INFO",
+            WG_GO_LOG_VERBOSE => "VERBOSE",
             WG_GO_LOG_ERROR | _ => "ERROR",
         };
 
@@ -88,5 +87,4 @@ pub type WgLogLevel = u32;
 // wireguard-go supports log levels 0 through 3 with 3 being the most verbose
 // const WG_GO_LOG_SILENT: WgLogLevel = 0;
 const WG_GO_LOG_ERROR: WgLogLevel = 1;
-const WG_GO_LOG_INFO: WgLogLevel = 2;
-const WG_GO_LOG_DEBUG: WgLogLevel = 3;
+const WG_GO_LOG_VERBOSE: WgLogLevel = 2;
