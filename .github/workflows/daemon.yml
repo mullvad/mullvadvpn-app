@@ -48,12 +48,14 @@ jobs:
               with:
                   go-version: 1.16
 
+            # Install build dependencies
+            - run: sudo apt-get install libdbus-1-dev
+
             # Build and test crates
             - env:
                 RUSTFLAGS: --deny warnings
               run: |
                 ./wireguard/build-wireguard-go.sh
-                sudo apt-get install libdbus-1-dev
                 source env.sh
                 time cargo build --locked --verbose
                 time cargo test --locked --verbose
