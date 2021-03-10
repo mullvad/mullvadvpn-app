@@ -1186,7 +1186,11 @@ class ApplicationMain {
     });
 
     IpcMainEventChannel.app.handleQuit(() => app.quit());
-    IpcMainEventChannel.app.handleOpenUrl((url) => shell.openExternal(url));
+    IpcMainEventChannel.app.handleOpenUrl(async (url) => {
+      if (url.startsWith('https://mullvad.net/')) {
+        await shell.openExternal(url);
+      }
+    });
     IpcMainEventChannel.app.handleOpenPath((path) => shell.openPath(path));
     IpcMainEventChannel.app.handleShowOpenDialog((options) => dialog.showOpenDialog(options));
   }
