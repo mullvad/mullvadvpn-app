@@ -95,12 +95,13 @@ function build_unix {
 
 function build_android {
     echo "Building for android"
-    local docker_image_hash="f432cb779611284ce69aca59a90a8a601171d4c29728561ae32bd228b1699198"
+    local docker_image_hash="25151087eb355a6e609db01a9498df0af4a8bec5d59ad561521512ece7bd21e9"
 
     if is_docker_build $@; then
         docker run --rm \
             -v "$(pwd)/../":/workspace \
             --entrypoint "/workspace/wireguard/libwg/build-android.sh" \
+            --env ANDROID_NDK_HOME="/opt/android/android-ndk-r20b" \
             quay.io/mullvad/mullvad-android-app-build@sha256:$docker_image_hash
     else
         ./libwg/build-android.sh
