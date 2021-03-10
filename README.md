@@ -276,9 +276,8 @@ storePassword = keystore-password
    #### Windows
    Download the Node.js installer from the official website.
 
-1. Install Go (ideally version `1.13.6`) by following the [official
-   instructions](https://golang.org/doc/install).  Newer versions of Go may be used. Earlier
-   versions may be used, but versions older than `1.12` are known to not work, newer versions may
+1. Install Go (ideally version `1.16`) by following the [official
+   instructions](https://golang.org/doc/install).  Newer versions may work
    too. Since `cgo` is being used, make sure to have a C compiler in your path. [*On
    Windows*](https://github.com/golang/go/wiki/cgo#windows) `mingw`'s `gcc` compiler should work.
    `gcc` on most Linux distributions should work, and `clang` for MacOS.

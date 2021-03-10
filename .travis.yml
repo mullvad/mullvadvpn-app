@@ -52,7 +52,8 @@ matrix:
       before_script:
         - env
         # installing Go
-        - curl -s https://dl.google.com/go/go1.13.6.darwin-amd64.pkg --output go-installer.pkg
+        - curl -s https://dl.google.com/go/go1.16.darwin-amd64.pkg --output go-installer.pkg
+        - echo "2906bd8e6bf60d0e15d2e771318ed382f67da88509bb86f9b21018022ab788b1 go-installer.pkg" | sha256sum -c
         - sudo installer -pkg ./go-installer.pkg -target /
         - export PATH="/usr/local/go/bin:$PATH"
       script:
@@ -69,7 +70,7 @@ matrix:
         # --privileged is required because nightly cargo uses statx instead of stat, and that
         # syscall is so new that it's not on the docker whitelist yet.
         # https://github.com/rust-lang/rust/issues/65662
-        - docker run -d --privileged --name mvd-build -v $(pwd):/travis -w /travis  quay.io/mullvad/mullvadvpn-app-build:latest tail -f /dev/null
+        - docker run -d --privileged --name mvd-build -v $(pwd):/travis -w /travis quay.io/mullvad/mullvadvpn-app-build@sha256:bdccd0bd76929509f1fb979f4cbf5065f92434d988241debf5f319f6896d51d8 tail -f /dev/null
         - docker ps
       script:
         - docker exec -t mvd-build bash ci/ci-rust-script.sh nightly
@@ -103,9 +104,10 @@ matrix:
         - ./vs_BuildTools.exe --wait -q --norestart --add Microsoft.VisualStudio.Workload.VCTools\;includeRecommended --add Microsoft.Component.MSBuild
         - git submodule update --init
         # Installing Go
-        - curl -s https://dl.google.com/go/go1.13.6.windows-amd64.msi --output go-installer.msi
+        - curl -s https://dl.google.com/go/go1.16.windows-amd64.msi --output go-installer.msi
+        - echo "0fd550a74f6c8ef5df405751f5e39a0ba25786930c5d61503bf71d3c3efa2414 go-installer.msi" | sha256sum -c
         - cmd.exe '/c msiexec /i go-installer.msi /quiet /qn'
-        - export PATH="/c/Go/bin/:$PATH"
+        - export PATH="/c/Program Files/Go/bin/:$PATH"
       script: &rust_windows_script
         - ./ci/ci-rust-script.sh $RUST_VERSION
 
