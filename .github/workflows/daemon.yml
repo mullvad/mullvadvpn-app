@@ -53,7 +53,8 @@ jobs:
                   rust-version: ${{ matrix.rust }}
 
             # Install Go
-            - uses: actions/setup-go@v2.1.3
+            - &install-go
+              uses: actions/setup-go@v2.1.3
               with:
                   go-version: 1.16
 
@@ -61,8 +62,10 @@ jobs:
             - run: sudo apt-get install libdbus-1-dev
 
             # Build and test crates
-            - env:
+            - &build-and-test-crates
+              env:
                 RUSTFLAGS: --deny warnings
+              shell: bash
               run: |
                 ./wireguard/build-wireguard-go.sh
                 source env.sh
@@ -76,23 +79,16 @@ jobs:
             - uses: actions/checkout@v2
 
             # Install Rust
-            - uses: ATiltedTree/setup-rust@v1.0.4
+            - &install-stable-rust
+              uses: ATiltedTree/setup-rust@v1.0.4
               with:
                   rust-version: stable
 
             # Install Go
-            - uses: actions/setup-go@v2.1.3
-              with:
-                  go-version: 1.16
+            - *install-go
 
             # Build and test crates
-            - env:
-                RUSTFLAGS: --deny warnings
-              run: |
-                ./wireguard/build-wireguard-go.sh
-                source env.sh
-                time cargo build --locked --verbose
-                time cargo test --locked --verbose
+            - *build-and-test-crates
 
     build-windows:
         runs-on: windows-latest
@@ -104,27 +100,19 @@ jobs:
             - run: git submodule update --init --depth=1
 
             # Install Rust
-            - uses: ATiltedTree/setup-rust@v1.0.4
-              with:
-                  rust-version: stable
+            - *install-stable-rust
 
             # Install Go
-            - uses: actions/setup-go@v2.1.3
-              with:
-                  go-version: 1.16
+            - *install-go
 
             # Install msbuild
             - uses: microsoft/setup-msbuild@v1.0.2
               with:
                   vs-version: 16
 
+            # Build Windows modules
+            - shell: bash
+              run: time ./build_windows_modules --dev-build
+
             # Build and test crates
-            - env:
-                RUSTFLAGS: --deny warnings
-              shell: bash
-              run: |
-                ./wireguard/build-wireguard-go.sh
-                time ./build_windows_modules.sh --dev-build
-                source env.sh
-                time cargo build --locked --verbose
-                time cargo test --locked --verbose
+            - *build-and-test-crates
