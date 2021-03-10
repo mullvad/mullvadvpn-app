@@ -1,6 +1,6 @@
 name: Rust formatting check CI
 on:
-    # Check whenever a file that affects Android is changed by a push
+    # Check whenever a file that affects Rust formatting is changed by a push
     push:
         paths:
             - .github/workflows/rustfmt.yml
