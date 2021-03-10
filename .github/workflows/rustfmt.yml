@@ -4,22 +4,7 @@ on:
     push:
         paths:
             - .github/workflows/rustfmt.yml
-            - mullvad-cli/**/*.rs
-            - mullvad-daemon/**/*.rs
-            - mullvad-exclude/**/*.rs
-            - mullvad-jni/**/*.rs
-            - mullvad-management-interface/**/*.rs
-            - mullvad-paths/**/*.rs
-            - mullvad-problem-report/**/*.rs
-            - mullvad-rpc/**/*.rs
-            - mullvad-setup/**/*.rs
-            - mullvad-tests/**/*.rs
-            - mullvad-types/**/*.rs
-            - talpid-core/**/*.rs
-            - talpid-dbus/**/*.rs
-            - talpid-openvpn-plugin/**/*.rs
-            - talpid-platform-metadata/**/*.rs
-            - talpid-types/**/*.rs
+            - '**/*.rs'
     # Check if requested manually from the Actions tab
     workflow_dispatch:
 jobs:
