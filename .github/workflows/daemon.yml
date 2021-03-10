@@ -2,25 +2,34 @@ name: Mullvad VPN daemon CI
 on:
     # Build whenever a file that affects a Rust crate is changed by a push
     push:
-        paths:
-            - .github/workflows/daemon.yml
-            - mullvad-cli/**
-            - mullvad-daemon/**
-            - mullvad-exclude/**
-            - mullvad-management-interface/**
-            - mullvad-paths/**
-            - mullvad-problem-report/**
-            - mullvad-rpc/**
-            - mullvad-setup/**
-            - mullvad-tests/**
-            - mullvad-types/**
-            - talpid-core/**
-            - talpid-dbus/**
-            - talpid-openvpn-plugin/**
-            - talpid-platform-metadata/**
-            - talpid-types/**
-            - wireguard/**
-            - Cargo.toml
+        paths-ignore:
+            - .github/*.md
+            - .github/workflows/android*.yml
+            - .github/workflows/rustfmt.yml
+            - android/**
+            - audits/**
+            - ci/**
+            - dist-assets/**
+            - docs/**
+            - graphics/**
+            - gui/**
+            - ios/**
+            - mullvad-jni/**
+            - scripts/**
+            - '**/*.md'
+            - '.*ignore'
+            - .editorconfig
+            - .gitattributes
+            - .travis.yml
+            - Dockerfile
+            - build.sh
+            - build-apk.sh
+            - integration-tests.sh
+            - prepare-release.sh
+            - rustfmt.toml
+            - update-api-address.sh
+            - update-relays.sh
+            - version-metadata.sh
     # Build if requested manually from the Actions tab
     workflow_dispatch:
 jobs:
