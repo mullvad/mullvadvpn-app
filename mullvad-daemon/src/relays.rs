@@ -47,9 +47,8 @@ const UPDATE_CHECK_INTERVAL: Duration = Duration::from_secs(60 * 15);
 /// How old the cached relays need to be to trigger an update
 const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
 
-/// First delay of exponential backoff in milliseconds
-const EXPONENTIAL_BACKOFF_DELAY_MS: u64 = 30;
-const EXPONENTIAL_BACKOFF_FACTOR: u64 = 2000;
+const EXPONENTIAL_BACKOFF_INITIAL: Duration = Duration::from_secs(16);
+const EXPONENTIAL_BACKOFF_FACTOR: u32 = 8;
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -887,9 +886,9 @@ impl RelayListUpdater {
     ) -> impl Future<Output = Result<Option<RelayList>, mullvad_rpc::rest::Error>> + 'static {
         let download_futures = move || rpc_handle.relay_list(tag.clone());
 
-        let exponential_backoff = ExponentialBackoff::from_millis(EXPONENTIAL_BACKOFF_DELAY_MS)
-            .factor(EXPONENTIAL_BACKOFF_FACTOR)
-            .max_delay(UPDATE_INTERVAL * 2);
+        let exponential_backoff =
+            ExponentialBackoff::new(EXPONENTIAL_BACKOFF_INITIAL, EXPONENTIAL_BACKOFF_FACTOR)
+                .max_delay(UPDATE_INTERVAL * 2);
 
         let download_future = retry_future_with_backoff(
             download_futures,
