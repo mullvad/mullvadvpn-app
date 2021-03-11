@@ -1,3 +1,4 @@
+const cp = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const builder = require('electron-builder');
@@ -5,8 +6,11 @@ const parseSemver = require('semver/functions/parse');
 const { notarize } = require('electron-notarize');
 const { version } = require('../package.json');
 
-const compression = process.argv.indexOf('--no-compression') !== -1 ? 'store' : 'normal';
-const noAppleNotarization = process.argv.indexOf('--no-apple-notarization') !== -1;
+const compression = process.argv.includes('--no-compression') ? 'store' : 'normal';
+const noAppleNotarization = process.argv.includes('--no-apple-notarization');
+
+const arm64 = process.argv.includes('--arm64');
+const universal = process.argv.includes('--universal');
 
 const config = {
   appId: 'net.mullvad.vpn',
@@ -44,7 +48,10 @@ const config = {
   ],
 
   mac: {
-    target: 'pkg',
+    target: {
+      target: 'pkg',
+      arch: getMacArch(),
+    },
     artifactName: 'MullvadVPN-${version}.${ext}',
     category: 'public.app-category.tools',
     extendInfo: {
@@ -52,13 +59,13 @@ const config = {
       NSUserNotificationAlertStyle: 'alert',
     },
     extraResources: [
-      { from: distAssets('mullvad'), to: '.' },
-      { from: distAssets('mullvad-problem-report'), to: '.' },
-      { from: distAssets('mullvad-daemon'), to: '.' },
-      { from: distAssets('mullvad-setup'), to: '.' },
-      { from: distAssets('libtalpid_openvpn_plugin.dylib'), to: '.' },
-      { from: distAssets('binaries/x86_64-apple-darwin/openvpn'), to: '.' },
-      { from: distAssets('binaries/x86_64-apple-darwin/sslocal'), to: '.' },
+      { from: getMacBinaryPath('mullvad'), to: '.' },
+      { from: getMacBinaryPath('mullvad-problem-report'), to: '.' },
+      { from: getMacBinaryPath('mullvad-daemon'), to: '.' },
+      { from: getMacBinaryPath('mullvad-setup'), to: '.' },
+      { from: getMacBinaryPath('libtalpid_openvpn_plugin.dylib'), to: '.' },
+      { from: getMacThirdPartyBinaryPath('openvpn'), to: '.' },
+      { from: getMacThirdPartyBinaryPath('sslocal'), to: '.' },
       { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
       { from: distAssets('shell-completions/_mullvad'), to: '.' },
       { from: distAssets('shell-completions/mullvad.fish'), to: '.' },
@@ -252,6 +259,33 @@ function distAssets(relativePath) {
 
 function root(relativePath) {
   return path.join(path.resolve(__dirname, '../../'), relativePath);
+}
+
+function getMacArch() {
+  if (universal) {
+    return ['universal'];
+  } else if (arm64) {
+    return ['arm64'];
+  } else {
+    return undefined;
+  }
+}
+
+function getMacBinaryPath(relativePath) {
+  if (universal) {
+    return distAssets(path.join('${arch}', relativePath));
+  } else {
+    return distAssets(relativePath);
+  }
+}
+
+function getMacThirdPartyBinaryPath(relativePath) {
+  if (universal) {
+    return getMacBinaryPath(relativePath);
+  } else {
+    const arch = process.arch === 'arm64' || arm64 ? 'aarch64' : 'x86_64';
+    return distAssets(path.join('binaries', `${arch}-apple-darwin`, relativePath));
+  }
 }
 
 // Replace '-' between components with a tilde to make the version comparison understand that

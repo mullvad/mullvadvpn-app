@@ -29,6 +29,8 @@
 /dist-assets/sslocal
 /dist-assets/sslocal.exe
 /dist-assets/shell-completions/
+/dist-assets/arm64/
+/dist-assets/x64/
 /windows/**/bin/
 /windows/**/*.user
 /android/keystore.properties
