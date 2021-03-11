@@ -47,6 +47,7 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
                 }
             } else {
                 notifyItemRangeRemoved(0, cachedCustomDnsServers.size + 1)
+                editingPosition = null
             }
         }
     }
