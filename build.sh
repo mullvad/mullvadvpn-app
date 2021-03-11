@@ -15,15 +15,34 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 RUSTC_VERSION=$(rustc +stable --version)
 PRODUCT_VERSION=$(node -p "require('./gui/package.json').version" | sed -Ee 's/\.0//g')
-CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"$SCRIPT_DIR/target"}
+CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 
 CARGO_ARGS=()
 NPM_PACK_ARGS=()
 
-source env.sh
+BUILD_MODE="release"
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --dev-build) BUILD_MODE="dev" ;;
+        --target)
+            TARGET=("$2")
+            shift
+            ;;
+        *)
+            echo "Unknown parameter: $1"
+            exit 1
+            ;;
+    esac
+    shift
+done
 
-if [[ "${1:-""}" != "--dev-build" ]]; then
-    BUILD_MODE="release"
+if [[ "$(uname -s)" == "Darwin" && -z ${TARGET:-""} ]]; then
+    echo "Defaulting to universal macOS target since no target was provided"
+    TARGET=(x86_64-apple-darwin aarch64-apple-darwin)
+    NPM_PACK_ARGS+=(--universal)
+fi
+
+if [[ "$BUILD_MODE" == "release" ]]; then
     if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
         echo "Dirty working directory!"
         echo "You should only build releases in clean working directories in order to make it"
@@ -57,7 +76,6 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
         export CSC_IDENTITY_AUTO_DISCOVERY=false
     fi
 else
-    BUILD_MODE="dev"
     NPM_PACK_ARGS+=(--no-compression)
     echo "!! Development build. Not for general distribution !!"
     unset CSC_LINK CSC_KEY_PASSWORD
@@ -78,8 +96,52 @@ else
     CARGO_ARGS+=(--locked)
 fi
 
+if [[ "${TARGET:-""}" == "aarch64-apple-darwin" ]]; then
+    NPM_PACK_ARGS+=(--arm64)
+fi
+
+if [[ ("$(uname -s)" == "Darwin") ]]; then
+    BINARIES=(
+        mullvad-daemon
+        mullvad
+        mullvad-problem-report
+        libtalpid_openvpn_plugin.dylib
+        mullvad-setup
+    )
+elif [[ ("$(uname -s)" == "Linux") ]]; then
+    BINARIES=(
+        mullvad-daemon
+        mullvad
+        mullvad-problem-report
+        libtalpid_openvpn_plugin.so
+        mullvad-setup
+        mullvad-exclude
+    )
+elif [[ ("$(uname -s)" == "MINGW"*) ]]; then
+    BINARIES=(
+        mullvad-daemon.exe
+        mullvad.exe
+        mullvad-problem-report.exe
+        talpid_openvpn_plugin.dll
+        mullvad-setup.exe
+    )
+fi
+
+function restore_metadata_backups() {
+    pushd "$SCRIPT_DIR"
+    echo "Restoring version metadata files..."
+    ./version-metadata.sh restore-backup --desktop
+    mv Cargo.lock.bak Cargo.lock || true
+    popd
+}
+trap 'restore_metadata_backups' EXIT
+
+echo "Updating version in metadata files..."
+cp Cargo.lock Cargo.lock.bak
+./version-metadata.sh inject "$PRODUCT_VERSION" --desktop
+
 function sign_win() {
-    NUM_RETRIES=3
+    local NUM_RETRIES=3
 
     for binary in "$@"; do
         # Try multiple times in case the timestamp server cannot
@@ -105,96 +167,99 @@ function sign_win() {
     return 0
 }
 
-echo "Building Mullvad VPN $PRODUCT_VERSION"
+function build() {
+    local current_target=${1:-""}
+    local for_target_string=""
+    if [[ -n $current_target ]]; then
+        for_target_string=" for $current_target"
+    fi
 
-function restore_metadata_backups() {
-    pushd "$SCRIPT_DIR"
-    echo "Restoring version metadata files..."
-    ./version-metadata.sh restore-backup --desktop
-    mv Cargo.lock.bak Cargo.lock || true
-    popd
+    echo "Building Mullvad VPN $PRODUCT_VERSION$for_target_string"
+
+    ################################################################################
+    # Compile and link all binaries.
+    ################################################################################
+
+    if [[ "$(uname -s)" == "MINGW"* ]]; then
+        CPP_BUILD_MODES="Release" ./build_windows_modules.sh "$@"
+    fi
+
+    ################################################################################
+    # Compile wireguard-go
+    ################################################################################
+
+    ./wireguard/build-wireguard-go.sh "$current_target"
+
+    export MULLVAD_ADD_MANIFEST="1"
+
+    echo "Building Rust code in release mode using $RUSTC_VERSION$for_target_string..."
+
+    CARGO_TARGET_ARG=()
+    if [[ -n $current_target ]]; then
+        CARGO_TARGET_ARG+=(--target="$current_target")
+    fi
+
+    cargo +stable build "${CARGO_TARGET_ARG[@]}" "${CARGO_ARGS[@]}" --release
+
+    ################################################################################
+    # Move binaries to correct locations in dist-assets
+    ################################################################################
+
+    for binary in ${BINARIES[*]}; do
+        if [[ -n $current_target ]]; then
+            SRC="$CARGO_TARGET_DIR/$current_target/release/$binary"
+        else
+            SRC="$CARGO_TARGET_DIR/release/$binary"
+        fi
+        if [[ "$(uname -s)" == "Darwin" ]]; then
+            # To make it easier to package universal builds on macOS the binaries are located in a
+            # directory with the name of the target triple.
+            DST_DIR="dist-assets/$current_target"
+            DST="$DST_DIR/$binary"
+            mkdir -p "$DST_DIR"
+        else
+            DST="dist-assets/$binary"
+        fi
+
+        if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* ]]; then
+            sign_win "$SRC"
+        fi
+
+        if [[ "$(uname -s)" == "MINGW"* || "$binary" == *.dylib ]]; then
+            echo "Copying $SRC => $DST"
+            cp "$SRC" "$DST"
+        else
+            echo "Stripping $SRC => $DST"
+            strip "$SRC" -o "$DST"
+        fi
+    done
 }
-trap 'restore_metadata_backups' EXIT
 
-echo "Updating version in metadata files..."
-cp Cargo.lock Cargo.lock.bak
-./version-metadata.sh inject "$PRODUCT_VERSION" --desktop
-
-
-################################################################################
-# Compile and link all binaries.
-################################################################################
-
-if [[ "$(uname -s)" == "MINGW"* ]]; then
-    CPP_BUILD_MODES="Release" ./build_windows_modules.sh "$@"
-fi
-
-################################################################################
-# Compile wireguard-go
-################################################################################
-./wireguard/build-wireguard-go.sh
-
-export MULLVAD_ADD_MANIFEST="1"
-
-echo "Building Rust code in release mode using $RUSTC_VERSION..."
-
-cargo +stable build "${CARGO_ARGS[@]}" --release
+function buildTargets() {
+    if [[ -n ${TARGET:-""} ]]; then
+        for t in ${TARGET[*]}; do
+            source env.sh "$t"
+            build "$t"
+        done
+    else
+        source env.sh
+        build
+    fi
+}
 
 if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "Linux" ]]; then
-    mkdir -p "$SCRIPT_DIR/dist-assets/shell-completions"
+    mkdir -p "dist-assets/shell-completions"
     for sh in bash zsh fish; do
         echo "Generating shell completion script for $sh..."
         cargo +stable run --bin mullvad "${CARGO_ARGS[@]}" --release -- shell-completions "$sh" \
-            "$SCRIPT_DIR/dist-assets/shell-completions/"
+            "dist-assets/shell-completions/"
     done
 fi
 
-################################################################################
-# Other work to prepare the release.
-################################################################################
+./update-relays.sh
+./update-api-address.sh
 
-if [[ ("$(uname -s)" == "Darwin") ]]; then
-    binaries=(
-        mullvad-daemon
-        mullvad
-        mullvad-problem-report
-        libtalpid_openvpn_plugin.dylib
-        mullvad-setup
-    )
-elif [[ ("$(uname -s)" == "Linux") ]]; then
-    binaries=(
-        mullvad-daemon
-        mullvad
-        mullvad-problem-report
-        libtalpid_openvpn_plugin.so
-        mullvad-setup
-        mullvad-exclude
-    )
-elif [[ ("$(uname -s)" == "MINGW"*) ]]; then
-    binaries=(
-        mullvad-daemon.exe
-        mullvad.exe
-        mullvad-problem-report.exe
-        talpid_openvpn_plugin.dll
-        mullvad-setup.exe
-    )
-fi
-for binary in ${binaries[*]}; do
-    SRC="$CARGO_TARGET_DIR/release/$binary"
-    DST="$SCRIPT_DIR/dist-assets/$binary"
-
-    if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* ]]; then
-        sign_win "$SRC"
-    fi
-
-    if [[ "$(uname -s)" == "MINGW"* || "$binary" == *.dylib ]]; then
-        echo "Copying $SRC => $DST"
-        cp "$SRC" "$DST"
-    else
-        echo "Stripping $SRC => $DST"
-        strip "$SRC" -o "$DST"
-    fi
-done
+buildTargets
 
 if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* ]]; then
     signdep=(
@@ -208,12 +273,7 @@ if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* ]]; then
     sign_win "${signdep[@]}"
 fi
 
-
-./update-relays.sh
-./update-api-address.sh
-
-
-pushd "$SCRIPT_DIR/gui"
+pushd gui
 
 echo "Installing JavaScript dependencies..."
 
