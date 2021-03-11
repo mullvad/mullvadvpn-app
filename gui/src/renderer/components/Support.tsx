@@ -386,7 +386,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
       // TRANSLATORS: Available placeholders:
       // TRANSLATORS: %(email)s
       messages
-        .pgettext('support-view', 'If needed we will contact you on %(email)s')
+        .pgettext('support-view', 'If needed we will contact you at %(email)s')
         .split('%(email)s', 2);
     reachBackMessage.splice(1, 0, <StyledEmail key="email">{this.state.email}</StyledEmail>);
 
@@ -421,7 +421,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
           <StyledSentMessage>
             {messages.pgettext(
               'support-view',
-              "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form.",
+              'If you exit the form and try again later, the information you already entered will still be here.',
             )}
           </StyledSentMessage>
         </StyledForm>
