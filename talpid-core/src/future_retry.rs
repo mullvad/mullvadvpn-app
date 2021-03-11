@@ -40,30 +40,22 @@ async fn sleep(mut delay: Duration) {
 
 /// Provides an exponential back-off timer to delay the next retry of a failed operation.
 pub struct ExponentialBackoff {
-    current: u64,
-    base: u64,
-    factor: u64,
+    next: Duration,
+    factor: u32,
     max_delay: Option<Duration>,
 }
 
 impl ExponentialBackoff {
-    /// Creates a `ExponentialBackoff` with the provided number of milliseconds as a base.
+    /// Creates a `ExponentialBackoff` starting with the provided duration.
     ///
-    /// All else staying the same, the first delay will be `millis` milliseconds long, the second
-    /// one will be `millis^2`, third `millis^3` and so on.
-    pub fn from_millis(millis: u64) -> ExponentialBackoff {
+    /// All else staying the same, the first delay will be `initial` long, the second
+    /// one will be `initial * factor`, third `initial * factor^2` and so on.
+    pub fn new(initial: Duration, factor: u32) -> ExponentialBackoff {
         ExponentialBackoff {
-            current: millis,
-            base: millis,
-            factor: 1u64,
+            next: initial,
+            factor,
             max_delay: None,
         }
-    }
-
-    /// Sets the constant factor of the delays. The default value is 1.
-    pub fn factor(mut self, factor: u64) -> ExponentialBackoff {
-        self.factor = factor;
-        self
     }
 
     /// Set the maximum delay. By default, there is no maximum value set, but the practical limit
@@ -75,25 +67,20 @@ impl ExponentialBackoff {
 
     /// Returns the value of the delay and advances the next back-off delay.
     fn next_delay(&mut self) -> Duration {
-        let delay_msec = self
-            .current
-            .checked_mul(self.factor)
-            .unwrap_or(std::u64::MAX);
-        let delay = Duration::from_millis(delay_msec);
+        let next = self.next;
 
         if let Some(max_delay) = self.max_delay {
-            if delay > max_delay {
+            if next > max_delay {
                 return max_delay;
             }
         }
 
-        self.current = self.current.checked_mul(self.base).unwrap_or(std::u64::MAX);
-        delay
-    }
+        // TODO: Use Duration::MAX when it is available
+        self.next = next
+            .checked_mul(self.factor)
+            .unwrap_or(Duration::from_secs(u64::MAX));
 
-    /// Resets the delay to it's initial state.
-    pub fn reset(&mut self) {
-        self.current = self.base;
+        next
     }
 }
 
@@ -141,43 +128,47 @@ mod test {
     use super::*;
 
     #[test]
-    fn test_exponetnial_backoff() {
-        let mut backoff = ExponentialBackoff::from_millis(2).factor(1000);
+    fn test_exponential_backoff() {
+        let mut backoff = ExponentialBackoff::new(Duration::from_secs(2), 3);
 
         assert_eq!(backoff.next(), Some(Duration::from_secs(2)));
-        assert_eq!(backoff.next(), Some(Duration::from_secs(4)));
-        assert_eq!(backoff.next(), Some(Duration::from_secs(8)));
-        backoff.reset();
-        assert_eq!(backoff.next(), Some(Duration::from_secs(2)));
+        assert_eq!(backoff.next(), Some(Duration::from_secs(6)));
+        assert_eq!(backoff.next(), Some(Duration::from_secs(18)));
     }
 
     #[test]
     fn test_at_maximum_value() {
-        let mut backoff = ExponentialBackoff::from_millis(std::u64::MAX - 1);
+        let max = Duration::from_secs(u64::MAX);
+        let mu = Duration::from_micros(1);
+        let mut backoff = ExponentialBackoff::new(max - mu, 2);
 
-        assert_eq!(
-            backoff.next(),
-            Some(Duration::from_millis(std::u64::MAX - 1))
-        );
-        assert_eq!(backoff.next(), Some(Duration::from_millis(std::u64::MAX)));
-        assert_eq!(backoff.next(), Some(Duration::from_millis(std::u64::MAX)));
+        assert_eq!(backoff.next(), Some(max - mu));
+        assert_eq!(backoff.next(), Some(max));
+        assert_eq!(backoff.next(), Some(max));
     }
 
     #[test]
     fn test_maximum_bound() {
-        let mut backoff = ExponentialBackoff::from_millis(2).max_delay(Duration::from_millis(4));
+        let mut backoff = ExponentialBackoff::new(Duration::from_millis(2), 3)
+            .max_delay(Duration::from_millis(7));
 
         assert_eq!(backoff.next(), Some(Duration::from_millis(2)));
-        assert_eq!(backoff.next(), Some(Duration::from_millis(4)));
-        assert_eq!(backoff.next(), Some(Duration::from_millis(4)));
+        assert_eq!(backoff.next(), Some(Duration::from_millis(6)));
+        assert_eq!(backoff.next(), Some(Duration::from_millis(7)));
     }
 
     #[test]
     fn test_minimum_value() {
-        let mut backoff = ExponentialBackoff::from_millis(0);
+        let zero = Duration::from_millis(0);
+        let mut backoff = ExponentialBackoff::new(zero, 10);
 
-        assert_eq!(backoff.next(), Some(Duration::from_millis(0)));
-        assert_eq!(backoff.next(), Some(Duration::from_millis(0)));
+        assert_eq!(backoff.next(), Some(zero));
+        assert_eq!(backoff.next(), Some(zero));
+
+        let mut backoff = ExponentialBackoff::new(Duration::from_millis(1), 0);
+
+        assert_eq!(backoff.next(), Some(Duration::from_millis(1)));
+        assert_eq!(backoff.next(), Some(zero));
     }
 
     #[test]
