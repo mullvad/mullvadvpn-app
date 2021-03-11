@@ -37,6 +37,7 @@
 !define LOG_VOID 1
 
 # Windows error codes
+!define ERROR_SERVICE_DOES_NOT_EXIST 1060
 !define ERROR_SERVICE_MARKED_FOR_DELETE 1072
 !define ERROR_SERVICE_DEPENDENCY_DELETED 1075
 
@@ -852,7 +853,44 @@
 	Pop $0
 	Pop $1
 
+	${If} $0 != 0
+	${AndIf} $0 != ${ERROR_SERVICE_MARKED_FOR_DELETE}
+		log::Log "Failed to delete Mullvad service: $0"
+	${EndIf}
+
 	Sleep 1000
+
+	#
+	# Forcibly kill the service (likely marked for deletion)
+	#
+
+	Var /GLOBAL DeleteService_Counter
+	Push 0
+	Pop $DeleteService_Counter
+
+	customRemoveFiles_CheckServiceDeleted:
+
+	nsExec::ExecToStack '"$SYSDIR\sc.exe" query mullvadvpn'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${ERROR_SERVICE_DOES_NOT_EXIST}
+		log::Log "Attempting to forcibly kill Mullvad service"
+
+		nsExec::ExecToStack '"$SYSDIR\taskkill.exe" /f /fi "SERVICES eq mullvadvpn"'
+		Pop $0
+		Pop $1
+
+		# Check again whether it was deleted
+		IntOp $DeleteService_Counter $DeleteService_Counter + 1
+		${If} $DeleteService_Counter < 3
+			Sleep 1000
+			Goto customRemoveFiles_CheckServiceDeleted
+		${EndIf}
+
+		log::Log "Failed to kill Mullvad service"
+	${EndIf}
 
 	${RemoveCLIFromEnvironPath}
 
