@@ -34,6 +34,10 @@ const ROTATION_START_DELAY: Duration = Duration::from_secs(60 * 3);
 /// A short interval is used in case the computer is ever suspended.
 const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(60);
 
+const RETRY_KEY_PUSH_INITIAL: Duration = Duration::from_millis(300);
+const RETRY_KEY_PUSH_FACTOR: u32 = 300;
+const RETRY_KEY_PUSH_MAX: Duration = Duration::from_secs(60 * 60);
+
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
     #[error(display = "Unexpected HTTP request error")]
@@ -194,7 +198,8 @@ impl KeyManager {
 
 
         let retry_strategy = Jittered::jitter(
-            ExponentialBackoff::from_millis(300).max_delay(Duration::from_secs(60 * 60)),
+            ExponentialBackoff::new(RETRY_KEY_PUSH_INITIAL, RETRY_KEY_PUSH_FACTOR)
+                .max_delay(RETRY_KEY_PUSH_MAX),
         );
 
         let should_retry = move |result: &std::result::Result<_, bool>| -> bool {
