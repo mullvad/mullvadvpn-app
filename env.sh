@@ -6,28 +6,43 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 case "$(uname -s)" in
   Linux*)
-    TARGET="x86_64-unknown-linux-gnu"
+    HOST="x86_64-unknown-linux-gnu"
     ;;
   Darwin*)
-    TARGET="x86_64-apple-darwin"
+    arch="$(uname -m)"
+    if [[ ("${arch}" == "arm64") ]]; then
+        arch="aarch64"
+    fi
+    HOST="${arch}-apple-darwin"
     ;;
   MINGW*|MSYS_NT*)
-    TARGET="x86_64-pc-windows-msvc"
+    HOST="x86_64-pc-windows-msvc"
     ;;
 esac
 
-case "$TARGET" in
+ENV_TARGET=${1:-$HOST}
+
+case "$ENV_TARGET" in
   *linux*)
-    export LIBMNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$TARGET"
-    export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$TARGET"
+    export LIBMNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$ENV_TARGET"
+    export LIBNFTNL_LIB_DIR="$SCRIPT_DIR/dist-assets/binaries/$ENV_TARGET"
     ;;
-  *darwin*)
+  x86_64-*-darwin*)
     export MACOSX_DEPLOYMENT_TARGET="10.7"
+    ;;
+  aarch64-*-darwin*)
+    export MACOSX_DEPLOYMENT_TARGET="11.0"
+
+    if [[ $HOST != "$ENV_TARGET" ]]; then
+        # Required for building daemon
+        SDKROOT=$(xcrun --show-sdk-path)
+        export SDKROOT
+    fi
     ;;
   *windows*)
     ;;
   *)
-    echo "Unknown target \"$TARGET\"" >&2
+    echo "Unknown target \"$ENV_TARGET\"" >&2
     exit 1
     ;;
 esac

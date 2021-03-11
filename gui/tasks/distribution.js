@@ -5,8 +5,11 @@ const parseSemver = require('semver/functions/parse');
 const { notarize } = require('electron-notarize');
 const { version } = require('../package.json');
 
-const compression = process.argv.indexOf('--no-compression') !== -1 ? 'store' : 'normal';
-const noAppleNotarization = process.argv.indexOf('--no-apple-notarization') !== -1;
+const compression = process.argv.includes('--no-compression') ? 'store' : 'normal';
+const noAppleNotarization = process.argv.includes('--no-apple-notarization');
+
+const arm64 = process.argv.includes('--arm64');
+const universal = process.argv.includes('--universal');
 
 const config = {
   appId: 'net.mullvad.vpn',
@@ -44,7 +47,10 @@ const config = {
   ],
 
   mac: {
-    target: 'pkg',
+    target: {
+      target: 'pkg',
+      arch: getMacArch(),
+    },
     artifactName: 'MullvadVPN-${version}.${ext}',
     category: 'public.app-category.tools',
     extendInfo: {
@@ -52,13 +58,16 @@ const config = {
       NSUserNotificationAlertStyle: 'alert',
     },
     extraResources: [
-      { from: distAssets('mullvad'), to: '.' },
-      { from: distAssets('mullvad-problem-report'), to: '.' },
-      { from: distAssets('mullvad-daemon'), to: '.' },
-      { from: distAssets('mullvad-setup'), to: '.' },
-      { from: distAssets('libtalpid_openvpn_plugin.dylib'), to: '.' },
-      { from: distAssets('binaries/x86_64-apple-darwin/openvpn'), to: '.' },
-      { from: distAssets('binaries/x86_64-apple-darwin/sslocal'), to: '.' },
+      { from: distAssets(path.join('${env.TARGET_TRIPLE}', 'mullvad')), to: '.' },
+      { from: distAssets(path.join('${env.TARGET_TRIPLE}', 'mullvad-problem-report')), to: '.' },
+      { from: distAssets(path.join('${env.TARGET_TRIPLE}', 'mullvad-daemon')), to: '.' },
+      { from: distAssets(path.join('${env.TARGET_TRIPLE}', 'mullvad-setup')), to: '.' },
+      {
+        from: distAssets(path.join('${env.TARGET_TRIPLE}', 'libtalpid_openvpn_plugin.dylib')),
+        to: '.',
+      },
+      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
+      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'sslocal')), to: '.' },
       { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
       { from: distAssets('shell-completions/_mullvad'), to: '.' },
       { from: distAssets('shell-completions/mullvad.fish'), to: '.' },
@@ -195,7 +204,24 @@ function packMac() {
     config: {
       ...config,
       asarUnpack: ['**/*.node'],
+      beforeBuild: (options) => {
+        switch (options.arch) {
+          case 'x64':
+            process.env.TARGET_TRIPLE = 'x86_64-apple-darwin';
+            break;
+          case 'arm64':
+            process.env.TARGET_TRIPLE = 'aarch64-apple-darwin';
+            break;
+          default:
+            delete process.env.TARGET_TRIPLE;
+            break;
+        }
+
+        return true;
+      },
       afterPack: (context) => {
+        delete process.env.TARGET_TRIPLE;
+
         appOutDir = context.appOutDir;
         return Promise.resolve();
       },
@@ -252,6 +278,17 @@ function distAssets(relativePath) {
 
 function root(relativePath) {
   return path.join(path.resolve(__dirname, '../../'), relativePath);
+}
+
+function getMacArch() {
+  if (universal) {
+    return 'universal';
+  } else if (arm64) {
+    return 'arm64';
+  } else {
+    // Not specifying an arch makes Electron builder build for the arch it's running on.
+    return undefined;
+  }
 }
 
 // Replace '-' between components with a tilde to make the version comparison understand that
