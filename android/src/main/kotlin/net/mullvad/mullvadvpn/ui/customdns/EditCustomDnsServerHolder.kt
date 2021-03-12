@@ -2,14 +2,13 @@ package net.mullvad.mullvadvpn.ui.customdns
 
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.KeyEvent
 import android.view.View
 import android.view.View.OnFocusChangeListener
-import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.util.setOnEnterOrDoneAction
 import net.mullvad.talpid.util.addressString
 
 class EditCustomDnsServerHolder(
@@ -33,13 +32,7 @@ class EditCustomDnsServerHolder(
             }
         }
 
-        setOnEditorActionListener { _, action, event ->
-            if (action == EditorInfo.IME_ACTION_DONE || event?.keyCode == KeyEvent.KEYCODE_ENTER) {
-                saveDnsServer()
-            }
-
-            false
-        }
+        setOnEnterOrDoneAction(::saveDnsServer)
     }
 
     private val watcher: TextWatcher = object : TextWatcher {
