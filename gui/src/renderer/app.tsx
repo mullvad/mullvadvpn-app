@@ -96,6 +96,7 @@ export default class AppRenderer {
   private autoConnected = false;
   private doingLogin = false;
   private loginTimer?: NodeJS.Timeout;
+  private connectedToDaemon = false;
 
   constructor() {
     log.addOutput(new ConsoleOutput(LogLevel.debug));
@@ -493,7 +494,11 @@ export default class AppRenderer {
 
   private redirectToConnect() {
     // Redirect the user after some time to allow for the 'Logged in' screen to be visible
-    this.loginTimer = global.setTimeout(() => this.history.resetWith('/connect'), 1000);
+    this.loginTimer = global.setTimeout(() => {
+      if (this.connectedToDaemon) {
+        this.history.resetWith('/connect');
+      }
+    }, 1000);
   }
 
   private setLocale(locale: string) {
@@ -558,6 +563,7 @@ export default class AppRenderer {
   }
 
   private async onDaemonConnected() {
+    this.connectedToDaemon = true;
     if (this.settings.accountToken) {
       this.history.resetWith('/connect');
 
@@ -569,6 +575,7 @@ export default class AppRenderer {
   }
 
   private onDaemonDisconnected() {
+    this.connectedToDaemon = false;
     this.history.resetWith('/');
   }
 
@@ -674,19 +681,21 @@ export default class AppRenderer {
   }
 
   private handleAccountChange(oldAccount?: string, newAccount?: string) {
-    const reduxAccount = this.reduxActions.account;
+    if (this.connectedToDaemon) {
+      const reduxAccount = this.reduxActions.account;
 
-    if (oldAccount && !newAccount) {
-      if (this.loginTimer) {
-        clearTimeout(this.loginTimer);
-      }
-      reduxAccount.loggedOut();
-      this.history.resetWith('/login');
-    } else if (newAccount && oldAccount !== newAccount && !this.doingLogin) {
-      reduxAccount.updateAccountToken(newAccount);
-      reduxAccount.loggedIn();
-      if (!oldAccount) {
-        this.history.resetWith('/connect');
+      if (oldAccount && !newAccount) {
+        if (this.loginTimer) {
+          clearTimeout(this.loginTimer);
+        }
+        reduxAccount.loggedOut();
+        this.history.resetWith('/login');
+      } else if (newAccount && oldAccount !== newAccount && !this.doingLogin) {
+        reduxAccount.updateAccountToken(newAccount);
+        reduxAccount.loggedIn();
+        if (!oldAccount) {
+          this.history.resetWith('/connect');
+        }
       }
     }
 
