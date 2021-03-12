@@ -1423,18 +1423,9 @@ class ApplicationMain {
   // dependencies. There are a few exceptions which are described further down.
   private blockRequests() {
     session.defaultSession.webRequest.onBeforeRequest(
-      { urls: ['*://*/*'] },
+      { urls: ['*://*/*', 'file://*/*'] },
       (details, callback) => {
-        if (
-          process.env.NODE_ENV === 'development' &&
-          // Local web server providing assests (index.html, index.js and css files)
-          (details.url.startsWith('http://localhost:8080/') ||
-            // Automatic reloading performed by the browser-sync module
-            details.url.startsWith('http://localhost:35829/browser-sync/') ||
-            // Downloading of React and Redux developer tools.
-            details.url.startsWith('https://clients2.google.com') ||
-            details.url.startsWith('https://clients2.googleusercontent.com'))
-        ) {
+        if (this.allowFileAccess(details.url) || this.allowDevelopmentRequest(details.url)) {
           callback({});
         } else {
           log.error(`${details.method} request blocked: ${details.url}`);
@@ -1446,6 +1437,32 @@ class ApplicationMain {
           }
         }
       },
+    );
+  }
+
+  private allowFileAccess(url: string): boolean {
+    const buildDir = path.normalize(path.join(__dirname, '..', '..'));
+    if (url.startsWith('file:')) {
+      // Remove 'file:' or 'file://' from start of URL.
+      const filePath = decodeURI(url)
+        .replace(/^file:/, '')
+        .replace(/^\/\//, '');
+      return path.normalize(filePath).startsWith(buildDir);
+    } else {
+      return false;
+    }
+  }
+
+  private allowDevelopmentRequest(url: string): boolean {
+    return (
+      process.env.NODE_ENV === 'development' &&
+      // Local web server providing assests (index.html, index.js and css files)
+      (url.startsWith('http://localhost:8080/') ||
+        // Automatic reloading performed by the browser-sync module
+        url.startsWith('http://localhost:35829/browser-sync/') ||
+        // Downloading of React and Redux developer tools.
+        url.startsWith('https://clients2.google.com') ||
+        url.startsWith('https://clients2.googleusercontent.com'))
     );
   }
 
