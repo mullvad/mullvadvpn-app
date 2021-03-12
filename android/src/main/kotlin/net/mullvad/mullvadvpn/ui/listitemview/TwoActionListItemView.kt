@@ -9,13 +9,12 @@ class TwoActionListItemView(context: Context) :
     ActionListItemView(ContextThemeWrapper(context, R.style.ListItem_Action_Double)) {
     override val layoutRes: Int
         get() = R.layout.list_item_two_action
+    private val container: ViewGroup = findViewById(R.id.container_without_widget)
 
     init {
         isClickable = false
         isFocusable = false
     }
-
-    private val container: ViewGroup = findViewById(R.id.container_without_widget)
 
     override fun updateAction() {
         if (itemData.action == null) {
