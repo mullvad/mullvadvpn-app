@@ -1421,18 +1421,14 @@ class ApplicationMain {
   // renderer process are blocked to protect against the potential threat of malicious third party
   // dependencies. There are a few exceptions which are described further down.
   private blockRequests() {
+    const buildDir = 'file:' + path.normalize(path.join(__dirname, '..', '..'));
+
     session.defaultSession.webRequest.onBeforeRequest(
-      { urls: ['*://*/*'] },
+      { urls: ['*://*/*', 'file://*/*'] },
       (details, callback) => {
         if (
-          process.env.NODE_ENV === 'development' &&
-          // Local web server providing assests (index.html, index.js and css files)
-          (details.url.startsWith('http://localhost:8080/') ||
-            // Automatic reloading performed by the browser-sync module
-            details.url.startsWith('http://localhost:35829/browser-sync/') ||
-            // Downloading of React and Redux developer tools.
-            details.url.startsWith('https://clients2.google.com') ||
-            details.url.startsWith('https://clients2.googleusercontent.com'))
+          path.normalize(details.url).startsWith(buildDir) ||
+          this.allowDevelopmentRequest(details.url)
         ) {
           callback({});
         } else {
@@ -1445,6 +1441,19 @@ class ApplicationMain {
           }
         }
       },
+    );
+  }
+
+  private allowDevelopmentRequest(url: string): boolean {
+    return (
+      process.env.NODE_ENV === 'development' &&
+      // Local web server providing assests (index.html, index.js and css files)
+      (url.startsWith('http://localhost:8080/') ||
+        // Automatic reloading performed by the browser-sync module
+        url.startsWith('http://localhost:35829/browser-sync/') ||
+        // Downloading of React and Redux developer tools.
+        url.startsWith('https://clients2.google.com') ||
+        url.startsWith('https://clients2.googleusercontent.com'))
     );
   }
 
