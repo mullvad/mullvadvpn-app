@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:app="http://schemas.android.com/apk/res-auto"
+       xmlns:tools="http://schemas.android.com/tools"
+       android:layout_width="match_parent"
+       android:layout_height="@dimen/cell_height"
+       tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
+    <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/container_without_widget"
+                                                       android:layout_width="0dp"
+                                                       android:layout_height="0dp"
+                                                       android:background="?android:attr/selectableItemBackground"
+                                                       app:layout_constraintBottom_toBottomOf="parent"
+                                                       app:layout_constraintEnd_toStartOf="@id/widgetBarrier"
+                                                       app:layout_constraintStart_toStartOf="parent"
+                                                       app:layout_constraintTop_toTopOf="parent">
+        <include layout="@layout/list_item_base" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <FrameLayout android:id="@+id/widgetContainer"
+                 android:layout_width="wrap_content"
+                 android:layout_height="0dp"
+                 android:background="?android:attr/selectableItemBackground"
+                 android:paddingStart="@dimen/widget_padding"
+                 android:paddingEnd="@dimen/widget_padding"
+                 app:layout_constraintBottom_toBottomOf="parent"
+                 app:layout_constraintEnd_toEndOf="parent"
+                 android:visibility="visible"
+                 app:layout_constraintStart_toEndOf="@id/container_without_widget"
+                 app:layout_constraintTop_toTopOf="parent" />
+    <androidx.constraintlayout.widget.Guideline android:id="@+id/endGuideline"
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:orientation="vertical"
+                                                app:layout_constraintGuide_end="@dimen/cell_right_padding" />
+    <androidx.constraintlayout.widget.Barrier android:id="@+id/widgetBarrier"
+                                              android:layout_width="wrap_content"
+                                              android:layout_height="wrap_content"
+                                              app:barrierDirection="start"
+                                              app:constraint_referenced_ids="widgetContainer,endGuideline" />
+</merge>
