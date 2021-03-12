@@ -1910,12 +1910,12 @@ where
                 .map(|entry| entry.map(|e| e.wireguard.is_none()).unwrap_or(true))
                 .unwrap_or(true)
             {
-                log::info!("Automatically generating new wireguard key for account");
+                log::info!("Generating new WireGuard key for account");
                 self.wireguard_key_manager
                     .spawn_key_generation_task(account, Some(FIRST_KEY_PUSH_TIMEOUT))
                     .await;
             } else {
-                log::info!("Account already has wireguard key, starting key rotation.");
+                log::info!("Account already has WireGuard key");
                 self.ensure_key_rotation().await;
             }
         }
