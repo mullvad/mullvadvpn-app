@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -96,7 +97,7 @@ class ConnectFragment :
         }
 
         connectionProxy.onUiStateChange.subscribe(this) { uiState ->
-            jobTracker.newUiJob("updateTunnelState") {
+            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
                 updateTunnelState(uiState, connectionProxy.state)
             }
         }
