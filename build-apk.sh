@@ -95,18 +95,22 @@ ARCHITECTURES="aarch64 armv7 x86_64 i686"
 for ARCHITECTURE in $ARCHITECTURES; do
     case "$ARCHITECTURE" in
         "x86_64")
+            LLVM_TRIPLE="x86_64-linux-android"
             TARGET="x86_64-linux-android"
             ABI="x86_64"
             ;;
         "i686")
+            LLVM_TRIPLE="i686-linux-android"
             TARGET="i686-linux-android"
             ABI="x86"
             ;;
         "aarch64")
+            LLVM_TRIPLE="aarch64-linux-android"
             TARGET="aarch64-linux-android"
             ABI="arm64-v8a"
             ;;
         "armv7")
+            LLVM_TRIPLE="arm-linux-androideabi"
             TARGET="armv7-linux-androideabi"
             ABI="armeabi-v7a"
             ;;
@@ -115,7 +119,11 @@ for ARCHITECTURE in $ARCHITECTURES; do
     echo "Building mullvad-daemon for $TARGET"
     cargo +stable build $CARGO_ARGS --target "$TARGET" --package mullvad-jni
 
-    cp "$SCRIPT_DIR/target/$TARGET/$BUILD_TYPE/libmullvad_jni.so" "$SCRIPT_DIR/android/build/extraJni/$ABI/"
+    STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/${LLVM_TRIPLE}-strip"
+    STRIPPED_LIB_PATH="$SCRIPT_DIR/android/build/extraJni/$ABI/libmullvad_jni.so"
+    UNSTRIPPED_LIB_PATH="$SCRIPT_DIR/target/$TARGET/$BUILD_TYPE/libmullvad_jni.so"
+
+    $STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
 done
 
 ./update-relays.sh
