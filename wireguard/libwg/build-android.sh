@@ -35,7 +35,9 @@ for arch in $ARCHITECTURES; do
             ;;
     esac
 
-    export ANDROID_C_COMPILER="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/${ANDROID_LLVM_TRIPLE}21-clang"
+    export ANDROID_TOOLS_DIR="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
+    export ANDROID_C_COMPILER="${ANDROID_TOOLS_DIR}/${ANDROID_LLVM_TRIPLE}21-clang"
+    export ANDROID_STRIP_TOOL="${ANDROID_TOOLS_DIR}/${ANDROID_LLVM_TRIPLE}-strip"
     export ANDROID_ARCH_NAME=$arch
 
     # Build Wireguard-Go
@@ -45,13 +47,19 @@ for arch in $ARCHITECTURES; do
     export CFLAGS="-D__ANDROID_API__=21"
 
     make -f Android.mk
+
+    # Strip compiled library
+    OUTPUT_PATH="../../android/build/extraJni/$ANDROID_ABI/libwg.so"
+
+    $ANDROID_STRIP_TOOL --strip-unneeded --strip-debug "$OUTPUT_PATH"
+
     # Copy build artifacts to `build/libs/$RUST_TARGET_TRIPLE` to be able to build `mullvad-jni`
     chmod 777 ../../android/build/
     chmod 777 ../../android/build/extraJni
     chmod 777 ../../android/build/extraJni/*
     mkdir -p ../../build/lib/$RUST_TARGET_TRIPLE
-    cp ../../android/build/extraJni/$ANDROID_ABI/libwg.so ../../build/lib/$RUST_TARGET_TRIPLE
-    chmod 777 ../../android/build/extraJni/$ANDROID_ABI/libwg.so ../../build/lib/$RUST_TARGET_TRIPLE
+    cp "$OUTPUT_PATH" ../../build/lib/$RUST_TARGET_TRIPLE
+    chmod 777 "$OUTPUT_PATH" ../../build/lib/$RUST_TARGET_TRIPLE
     rm -rf build
 done
 
