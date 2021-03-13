@@ -35,7 +35,9 @@ for arch in $ARCHITECTURES; do
             ;;
     esac
 
-    export ANDROID_C_COMPILER="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/${ANDROID_LLVM_TRIPLE}21-clang"
+    export ANDROID_TOOLS_DIR="${ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin"
+    export ANDROID_C_COMPILER="${ANDROID_TOOLS_DIR}/${ANDROID_LLVM_TRIPLE}21-clang"
+    export ANDROID_STRIP_TOOL="${ANDROID_TOOLS_DIR}/${ANDROID_LLVM_TRIPLE}-strip"
     export ANDROID_ARCH_NAME=$arch
 
     # Build Wireguard-Go
@@ -45,9 +47,15 @@ for arch in $ARCHITECTURES; do
     export CFLAGS="-D__ANDROID_API__=21"
 
     make -f Android.mk
-    # Copy build artifacts to `android/build/extraJni/$ANDROID_ABI` to be able to build the APK
-    mkdir -p ../../android/build/extraJni/$ANDROID_ABI
-    cp ../../build/lib/$RUST_TARGET_TRIPLE/libwg.so ../../android/build/extraJni/$ANDROID_ABI
+
+    # Strip and copy the libray to `android/build/extraJni/$ANDROID_ABI` to be able to build the APK
+    UNSTRIPPED_LIB_PATH="../../build/lib/$RUST_TARGET_TRIPLE/libwg.so"
+    STRIPPED_LIB_PATH="../../android/build/extraJni/$ANDROID_ABI/libwg.so"
+
+    mkdir -p "$(dirname "$STRIPPED_LIB_PATH")"
+
+    $ANDROID_STRIP_TOOL --strip-unneeded --strip-debug -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
+
     rm -rf build
 done
 
