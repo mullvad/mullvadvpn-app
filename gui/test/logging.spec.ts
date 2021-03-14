@@ -2,14 +2,15 @@ import { expect, spy } from 'chai';
 import fs from 'fs';
 import sinon from 'sinon';
 import { it, describe, before, beforeEach, after } from 'mocha';
+import path from 'path';
 import { Logger } from '../src/shared/logging';
 import { backupLogFile, rotateOrDeleteFile } from '../src/main/logging';
 import { LogLevel } from '../src/shared/logging-types';
 
-const aPath = 'log-directory/a.log';
-const oldAPath = 'log-directory/a.old.log';
-const bPath = 'log-directory/b.log';
-const oldBPath = 'log-directory/b.old.log';
+const aPath = path.normalize('log-directory/a.log');
+const oldAPath = path.normalize('log-directory/a.old.log');
+const bPath = path.normalize('log-directory/b.log');
+const oldBPath = path.normalize('log-directory/b.old.log');
 
 const initialFileState = {
   [aPath]: 'a',
@@ -24,23 +25,28 @@ describe('Logging', () => {
   before(() => {
     sandbox = sinon.createSandbox();
 
-    sandbox.stub(fs, 'accessSync').callsFake((path) => {
-      if (files[path as string] === undefined) {
+    sandbox.stub(fs, 'accessSync').callsFake((filePath) => {
+      const normalizedPath = path.normalize(filePath as string);
+      if (files[normalizedPath] === undefined) {
         throw Error('File not found');
       }
     });
 
     sandbox.stub(fs, 'renameSync').callsFake((oldPath, newPath) => {
-      files[newPath as string] = files[oldPath as string];
-      fs.unlinkSync(oldPath);
+      const normalizedOldPath = path.normalize(oldPath as string);
+      const normalizedNewPath = path.normalize(newPath as string);
+      files[normalizedNewPath] = files[normalizedOldPath];
+      fs.unlinkSync(normalizedOldPath);
     });
 
-    sandbox.stub(fs, 'unlinkSync').callsFake((path) => {
-      delete files[path as string];
+    sandbox.stub(fs, 'unlinkSync').callsFake((filePath) => {
+      const normalizedPath = path.normalize(filePath as string);
+      delete files[normalizedPath];
     });
 
-    sandbox.stub(fs, 'readFileSync').callsFake((path) => {
-      return files[path as string] ?? '';
+    sandbox.stub(fs, 'readFileSync').callsFake((filePath) => {
+      const normalizedPath = path.normalize(filePath as string);
+      return files[normalizedPath] ?? '';
     });
   });
 
