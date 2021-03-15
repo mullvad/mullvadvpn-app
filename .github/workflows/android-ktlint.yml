@@ -4,7 +4,7 @@ on:
     push:
         paths:
             - .github/workflows/android-ktlint.yml
-            - android/**/*.kt
+            - android/src/main/**/*.kt
     # Run linter if requested manually from the Actions tab
     workflow_dispatch:
 jobs:
