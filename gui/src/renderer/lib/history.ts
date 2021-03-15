@@ -80,6 +80,13 @@ export default class History {
     this.notify(affectedEntries);
   };
 
+  public resetWithIfDifferent = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
+    const location = this.createLocation(nextLocation, nextState);
+    if (this.entries[0].pathname !== location.pathname) {
+      this.resetWith(nextLocation, nextState);
+    }
+  };
+
   public canGo(n: number) {
     const nextIndex = this.index + n;
     return nextIndex >= 0 && nextIndex < this.entries.length;

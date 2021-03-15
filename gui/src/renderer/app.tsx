@@ -22,6 +22,7 @@ import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-se
 import log, { ConsoleOutput } from '../shared/logging';
 import { IRelayListPair, LaunchApplicationResult } from '../shared/ipc-schema';
 import consumePromise from '../shared/promise';
+import { Scheduler } from '../shared/scheduler';
 import History from './lib/history';
 import { loadTranslations } from './lib/load-translations';
 
@@ -95,7 +96,7 @@ export default class AppRenderer {
   private guiSettings!: IGuiSettingsState;
   private autoConnected = false;
   private doingLogin = false;
-  private loginTimer?: NodeJS.Timeout;
+  private loginScheduler = new Scheduler();
   private connectedToDaemon = false;
 
   constructor() {
@@ -494,11 +495,7 @@ export default class AppRenderer {
 
   private redirectToConnect() {
     // Redirect the user after some time to allow for the 'Logged in' screen to be visible
-    this.loginTimer = global.setTimeout(() => {
-      if (this.connectedToDaemon) {
-        this.history.resetWith('/connect');
-      }
-    }, 1000);
+    this.loginScheduler.schedule(() => this.resetNavigation(), 1000);
   }
 
   private setLocale(locale: string) {
@@ -564,19 +561,25 @@ export default class AppRenderer {
 
   private async onDaemonConnected() {
     this.connectedToDaemon = true;
-    if (this.settings.accountToken) {
-      this.history.resetWith('/connect');
-
-      // try to autoconnect the tunnel
-      await this.autoConnect();
-    } else {
-      this.history.resetWith('/login');
-    }
+    await this.autoConnect();
+    this.resetNavigation();
   }
 
   private onDaemonDisconnected() {
     this.connectedToDaemon = false;
-    this.history.resetWith('/');
+    this.resetNavigation();
+  }
+
+  private resetNavigation() {
+    if (this.connectedToDaemon) {
+      if (this.settings.accountToken) {
+        this.history.resetWithIfDifferent('/connect');
+      } else {
+        this.history.resetWithIfDifferent('/login');
+      }
+    } else {
+      this.history.resetWithIfDifferent('/');
+    }
   }
 
   private async autoConnect() {
@@ -681,22 +684,18 @@ export default class AppRenderer {
   }
 
   private handleAccountChange(oldAccount?: string, newAccount?: string) {
-    if (this.connectedToDaemon) {
-      const reduxAccount = this.reduxActions.account;
+    const reduxAccount = this.reduxActions.account;
 
-      if (oldAccount && !newAccount) {
-        if (this.loginTimer) {
-          clearTimeout(this.loginTimer);
-        }
-        reduxAccount.loggedOut();
-        this.history.resetWith('/login');
-      } else if (newAccount && oldAccount !== newAccount && !this.doingLogin) {
-        reduxAccount.updateAccountToken(newAccount);
-        reduxAccount.loggedIn();
-        if (!oldAccount) {
-          this.history.resetWith('/connect');
-        }
-      }
+    if (oldAccount && !newAccount) {
+      this.loginScheduler.cancel();
+      reduxAccount.loggedOut();
+
+      this.resetNavigation();
+    } else if (newAccount && oldAccount !== newAccount && !this.doingLogin) {
+      reduxAccount.updateAccountToken(newAccount);
+      reduxAccount.loggedIn();
+
+      this.resetNavigation();
     }
 
     this.doingLogin = false;
