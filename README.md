@@ -434,6 +434,10 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
          servers are used.
 * `TALPID_DISABLE_OFFLINE_MONITOR` - Forces the daemon to always assume the host is online.
 
+#### Tips & tricks
+- On macOS, one can set an environment variable for all of the running `launchctl` services via
+ `sudo launchctl setenv TALPID_DISABLE_OFFLINE_MONITOR 1`
+
 
 ## Building and running the desktop Electron GUI app
 
