@@ -25,18 +25,6 @@ matrix:
         - npm run build
         - npm test
 
-    - os: windows
-      language: node_js
-      node_js: '12'
-      name: Desktop Frontend, Windows
-      cache: npm
-      before_install:
-        # npm fails to upgrade itself if just doing `npm install -g npm`. See this issue:
-        # https://travis-ci.community/t/command-npm-i-g-npm-latest-fails/431/5
-        - node `npm prefix -g`/node_modules/npm/bin/npm-cli.js i -g npm@latest
-      install: *node_install
-      script: *node_script
-
     # iOS
     - language: swift
       osx_image: xcode12.2
@@ -117,9 +105,6 @@ matrix:
       language: shell
       before_install: *rust_windows_before_install
       script: *rust_windows_script
-
-  allow_failures:
-    - name: Desktop Frontend, Windows
 
 notifications:
   email:

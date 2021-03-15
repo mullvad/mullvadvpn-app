@@ -12,10 +12,13 @@ jobs:
     check-frontend:
         strategy:
             matrix:
-                os: [ubuntu-latest]
+                os: [ubuntu-latest, windows-latest]
 
         runs-on: ${{ matrix.os }}
         steps:
+            # Prevent conversion of line-breaks on Windows
+            - run: git config --global core.autocrlf input
+
             - name: Checkout repository
               uses: actions/checkout@v2
 
