@@ -847,6 +847,10 @@
 	Pop $0
 	Pop $1
 
+	# Copy over the daemon log from the old install for debugging purposes
+	SetShellVarContext all
+	CopyFiles /SILENT /FILESONLY "$LOCALAPPDATA\Mullvad VPN\daemon.log" "$LOCALAPPDATA\Mullvad VPN\old-install-daemon.log"
+
 	nsExec::ExecToStack '"$SYSDIR\sc.exe" delete mullvadvpn'
 
 	# Discard return value
