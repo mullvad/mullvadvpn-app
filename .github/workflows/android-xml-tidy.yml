@@ -4,7 +4,7 @@ on:
     push:
         paths:
             - .github/workflows/android-xml-tidy.yml
-            - android/**/*.xml
+            - android/src/main/**/*.xml
     # Run verifier if requested manually from the Actions tab
     workflow_dispatch:
 jobs:

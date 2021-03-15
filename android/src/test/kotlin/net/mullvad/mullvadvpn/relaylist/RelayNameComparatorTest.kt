@@ -39,8 +39,7 @@ class RelayNameComparatorTest {
         val relay3 = Relay(mockedCity, "3", false)
         val relay100 = Relay(mockedCity, "100", false)
 
-        assertTrue(RelayNameComparator.compare(relay001, relay1) == 0)
-        assertTrue(RelayNameComparator.compare(relay1, relay001) == 0)
+        relay001 assertOrderBothDirection relay1
         relay001 assertOrderBothDirection relay3
         relay1 assertOrderBothDirection relay3
         relay3 assertOrderBothDirection relay100
