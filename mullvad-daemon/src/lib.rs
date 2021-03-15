@@ -1910,12 +1910,12 @@ where
                 .map(|entry| entry.map(|e| e.wireguard.is_none()).unwrap_or(true))
                 .unwrap_or(true)
             {
-                log::info!("Automatically generating new wireguard key for account");
+                log::info!("Generating new WireGuard key for account");
                 self.wireguard_key_manager
                     .spawn_key_generation_task(account, Some(FIRST_KEY_PUSH_TIMEOUT))
                     .await;
             } else {
-                log::info!("Account already has wireguard key, starting key rotation.");
+                log::info!("Account already has WireGuard key");
                 self.ensure_key_rotation().await;
             }
         }
@@ -1927,7 +1927,10 @@ where
                 Self::oneshot_send(tx, Ok(key_event), "generate_wireguard_key");
             }
             Err(e) => {
-                log::error!("Failed to generate new wireguard key - {}", e);
+                log::error!(
+                    "{}",
+                    e.display_chain_with_msg("Failed to generate new wireguard key")
+                );
                 Self::oneshot_send(tx, Err(e), "generate_wireguard_key");
             }
         }
