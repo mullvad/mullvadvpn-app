@@ -10,8 +10,8 @@ import UIKit
 
 @IBDesignable class RelayStatusIndicatorView: UIControl {
 
-    private let circleLayer: CAShapeLayer = {
-        let layer = CAShapeLayer()
+    private let circleLayer: CALayer = {
+        let layer = CALayer()
         layer.needsDisplayOnBoundsChange = true
         return layer
     }()
@@ -58,13 +58,13 @@ import UIKit
             y: (layer.bounds.height - shortSide) * 0.5
         )
         let circleSize = CGSize(width: shortSide, height: shortSide)
-        let bezierPath = UIBezierPath(ovalIn: CGRect(origin: .zero, size: circleSize))
 
         circleLayer.frame = CGRect(origin: circleOrigin, size: circleSize)
-        circleLayer.path = bezierPath.cgPath
+        circleLayer.cornerRadius = shortSide * 0.5
     }
 
     private func setup() {
+        isUserInteractionEnabled = false
         backgroundColor = UIColor.clear
 
         layer.addSublayer(circleLayer)
@@ -78,6 +78,9 @@ import UIKit
 
         let circleColor: UIColor = isHighlighted ? tintColor : baseColor
 
-        circleLayer.fillColor = circleColor.cgColor
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        circleLayer.backgroundColor = circleColor.cgColor
+        CATransaction.commit()
     }
 }
