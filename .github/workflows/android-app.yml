@@ -75,3 +75,4 @@ jobs:
                 cargo build --target aarch64-linux-android --verbose --package mullvad-jni
                 cd android
                 ./gradlew --console plain assembleDebug
+                ./gradlew testDebugUnitTest
