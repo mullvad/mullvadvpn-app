@@ -1,0 +1,49 @@
+name: Electron frontend CI
+on:
+    # Build whenever a file that affects the frontend is changed by a push
+    push:
+        paths:
+            - .github/workflows/frontend.yml
+            - gui/**
+            - mullvad-management-interface/proto/**
+    # Build if requested manually from the Actions tab
+    workflow_dispatch:
+jobs:
+    check-frontend:
+        strategy:
+            matrix:
+                os: [ubuntu-latest]
+
+        runs-on: ${{ matrix.os }}
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v2.1.5
+              with:
+                  node-version: '12'
+
+            - name: Update NPM
+              run: npm i -g npm
+
+            - name: Install and cache dependencies
+              uses: bahmutov/npm-install@v1
+              with:
+                  working-directory: gui
+                  install-command: npm ci
+
+            - name: Check formatting
+              working-directory: gui
+              run: npm run lint
+
+            - name: Build
+              working-directory: gui
+              run: npm run build
+
+            - name: Run headless test
+              uses: GabrielBB/xvfb-action@v1
+              with:
+                  working-directory: gui
+                  run: npm test
+
