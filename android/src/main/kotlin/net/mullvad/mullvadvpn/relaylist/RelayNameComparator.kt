@@ -24,7 +24,7 @@ internal object RelayNameComparator : Comparator<Relay> {
     private fun compareStringOrInt(s1: String, s2: String): Int {
         val int1 = s1.toIntOrNull()
         val int2 = s2.toIntOrNull()
-        return if (int1 == null || int2 == null) {
+        return if (int1 == null || int2 == null || int1 == int2) {
             s2.compareTo(s1)
         } else {
             int2.compareTo(int1)
