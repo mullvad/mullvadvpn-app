@@ -681,21 +681,23 @@ export default class AppRenderer {
   }
 
   private handleAccountChange(oldAccount?: string, newAccount?: string) {
-    if (this.connectedToDaemon) {
-      const reduxAccount = this.reduxActions.account;
+    const reduxAccount = this.reduxActions.account;
 
-      if (oldAccount && !newAccount) {
-        if (this.loginTimer) {
-          clearTimeout(this.loginTimer);
-        }
-        reduxAccount.loggedOut();
+    if (oldAccount && !newAccount) {
+      if (this.loginTimer) {
+        clearTimeout(this.loginTimer);
+      }
+      reduxAccount.loggedOut();
+
+      if (this.connectedToDaemon) {
         this.history.resetWith('/login');
-      } else if (newAccount && oldAccount !== newAccount && !this.doingLogin) {
-        reduxAccount.updateAccountToken(newAccount);
-        reduxAccount.loggedIn();
-        if (!oldAccount) {
-          this.history.resetWith('/connect');
-        }
+      }
+    } else if (newAccount && oldAccount !== newAccount && !this.doingLogin) {
+      reduxAccount.updateAccountToken(newAccount);
+      reduxAccount.loggedIn();
+
+      if (!oldAccount && this.connectedToDaemon) {
+        this.history.resetWith('/connect');
       }
     }
 
