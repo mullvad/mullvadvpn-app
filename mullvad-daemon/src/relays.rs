@@ -653,13 +653,32 @@ impl RelaySelector {
         };
 
         #[cfg(not(target_os = "android"))]
-        match constraints.tunnel_protocol {
-            Constraint::Only(TunnelType::OpenVpn) | Constraint::Any => relay
+        let mut thread_rng = self.rng.clone();
+        #[cfg(not(target_os = "android"))]
+        let mut new_openvpn_endpoint = || {
+            relay
                 .tunnels
                 .openvpn
-                .choose(&mut self.rng)
+                .choose(&mut thread_rng)
                 .cloned()
-                .map(|endpoint| endpoint.into_mullvad_endpoint(relay.ipv4_addr_in.into())),
+                .map(|endpoint| endpoint.into_mullvad_endpoint(relay.ipv4_addr_in.into()))
+        };
+
+        #[cfg(not(target_os = "android"))]
+        match constraints.tunnel_protocol {
+            Constraint::Only(TunnelType::OpenVpn) => new_openvpn_endpoint(),
+
+            #[cfg(target_os = "windows")]
+            Constraint::Any => new_openvpn_endpoint(),
+
+            #[cfg(not(target_os = "windows"))]
+            Constraint::Any => vec![new_openvpn_endpoint(), new_wg_endpoint()]
+                .into_iter()
+                .filter_map(|relay| relay)
+                .collect::<Vec<_>>()
+                .choose(&mut self.rng)
+                .cloned(),
+
             Constraint::Only(TunnelType::Wireguard) => new_wg_endpoint(),
         }
         #[cfg(target_os = "android")]
