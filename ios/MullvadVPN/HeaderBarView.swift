@@ -30,7 +30,12 @@ class HeaderBarView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        layoutMargins = UIEdgeInsets(top: 20, left: 12, bottom: 0, right: 16)
+        layoutMargins = UIEdgeInsets(
+            top: 0,
+            left: UIMetrics.contentLayoutMargins.left,
+            bottom: 0,
+            right: UIMetrics.contentLayoutMargins.right
+        )
 
         let constraints = [
             logoImageView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),

@@ -65,6 +65,7 @@
 		5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5835B7CB233B76CB0096D79F /* TunnelManager.swift */; };
 		583BC70724FE4DC500C9DE04 /* Optional+DispatchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583BC70624FE4DC400C9DE04 /* Optional+DispatchQueue.swift */; };
 		583BC70824FE4DC500C9DE04 /* Optional+DispatchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583BC70624FE4DC400C9DE04 /* Optional+DispatchQueue.swift */; };
+		583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583DA21325FA4B5C00318683 /* LocationDataSource.swift */; };
 		5840250122B1124600E4CFEC /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250022B1124600E4CFEC /* IPAddress+Codable.swift */; };
 		5840250222B1124600E4CFEC /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250022B1124600E4CFEC /* IPAddress+Codable.swift */; };
 		5840250422B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
@@ -200,7 +201,6 @@
 		58EF581125D69DB400AEBA94 /* StatusImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF581025D69DB400AEBA94 /* StatusImageView.swift */; };
 		58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */; };
 		58F3C0962492617E003E76BE /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E973DD24850EB600096F90 /* AsyncOperation.swift */; };
-		58F3C0A0249BBF1E003E76BE /* DiffableDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 58F3C09F249BBF1E003E76BE /* DiffableDataSources */; };
 		58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F3C0A3249CB069003E76BE /* HeaderBarView.swift */; };
 		58F3C0A624A50157003E76BE /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
 		58F3C0A724A50C02003E76BE /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
@@ -309,6 +309,7 @@
 		582BB1B42295780F0055B6EF /* AccountExpiry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiry.swift; sourceTree = "<group>"; };
 		5835B7CB233B76CB0096D79F /* TunnelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManager.swift; sourceTree = "<group>"; };
 		583BC70624FE4DC400C9DE04 /* Optional+DispatchQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Optional+DispatchQueue.swift"; sourceTree = "<group>"; };
+		583DA21325FA4B5C00318683 /* LocationDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDataSource.swift; sourceTree = "<group>"; };
 		5840250022B1124600E4CFEC /* IPAddress+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IPAddress+Codable.swift"; sourceTree = "<group>"; };
 		5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadEndpoint.swift; sourceTree = "<group>"; };
 		5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelIpc.swift; sourceTree = "<group>"; };
@@ -432,7 +433,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				585834F824D2BC1F00A8AF56 /* Logging in Frameworks */,
-				58F3C0A0249BBF1E003E76BE /* DiffableDataSources in Frameworks */,
 				58BA7947257901A5006FAEA0 /* WireGuardKit in Frameworks */,
 				586BD68422B7BBE400BB7F9F /* NetworkExtension.framework in Frameworks */,
 			);
@@ -644,6 +644,7 @@
 				5891BF5025E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift */,
 				5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */,
 				585CA70E25F8C44600B47C62 /* UIMetrics.swift */,
+				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -744,7 +745,6 @@
 			);
 			name = MullvadVPN;
 			packageProductDependencies = (
-				58F3C09F249BBF1E003E76BE /* DiffableDataSources */,
 				585834F724D2BC1F00A8AF56 /* Logging */,
 				58BA7946257901A5006FAEA0 /* WireGuardKit */,
 			);
@@ -845,7 +845,6 @@
 			);
 			mainGroup = 58CE5E57224146200008646E;
 			packageReferences = (
-				58F3C09E249BBF1E003E76BE /* XCRemoteSwiftPackageReference "DiffableDataSources" */,
 				585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */,
 				58BA79192578F092006FAEA0 /* XCRemoteSwiftPackageReference "wireguard-apple" */,
 			);
@@ -1006,6 +1005,7 @@
 				58B67B482602079E008EF58E /* RelaySelector.swift in Sources */,
 				58DF28A52417CB4B00E836B0 /* AppStorePaymentManager.swift in Sources */,
 				580EE22124B3240100F9D8A1 /* TransformOperationObserver.swift in Sources */,
+				583DA21425FA4B5C00318683 /* LocationDataSource.swift in Sources */,
 				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,
 				5873884D239E6D7E00E96C4E /* EmbeddedViewContainerView.swift in Sources */,
 				583BC70724FE4DC500C9DE04 /* Optional+DispatchQueue.swift in Sources */,
@@ -1593,14 +1593,6 @@
 				version = "1.0.12-22";
 			};
 		};
-		58F3C09E249BBF1E003E76BE /* XCRemoteSwiftPackageReference "DiffableDataSources" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ra1028/DiffableDataSources.git";
-			requirement = {
-				kind = exactVersion;
-				version = 0.4.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1628,11 +1620,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 58BA79192578F092006FAEA0 /* XCRemoteSwiftPackageReference "wireguard-apple" */;
 			productName = WireGuardKit;
-		};
-		58F3C09F249BBF1E003E76BE /* DiffableDataSources */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 58F3C09E249BBF1E003E76BE /* XCRemoteSwiftPackageReference "DiffableDataSources" */;
-			productName = DiffableDataSources;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

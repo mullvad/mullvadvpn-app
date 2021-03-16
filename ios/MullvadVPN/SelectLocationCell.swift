@@ -8,6 +8,8 @@
 
 import UIKit
 
+private let kCollapseButtonWidth: CGFloat = 24
+
 class SelectLocationCell: BasicTableViewCell {
     typealias CollapseHandler = (SelectLocationCell) -> Void
 
@@ -117,7 +119,7 @@ class SelectLocationCell: BasicTableViewCell {
             locationLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
             locationLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
 
-            collapseButton.widthAnchor.constraint(equalToConstant: 70),
+            collapseButton.widthAnchor.constraint(equalToConstant: UIMetrics.contentLayoutMargins.left + UIMetrics.contentLayoutMargins.right + kCollapseButtonWidth),
             collapseButton.topAnchor.constraint(equalTo: contentView.topAnchor),
             collapseButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             collapseButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
@@ -131,6 +133,7 @@ class SelectLocationCell: BasicTableViewCell {
 
     private func updateDisabled() {
         locationLabel.alpha = isDisabled ? 0.2 : 1
+        collapseButton.alpha = isDisabled ? 0.2 : 1
     }
 
     private func updateBackgroundColor() {
