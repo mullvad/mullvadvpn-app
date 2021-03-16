@@ -69,6 +69,21 @@ enum RelayLocation: Codable, Hashable {
     case city(String, String)
     case hostname(String, String, String)
 
+    init?(dashSeparatedString: String) {
+        let components = dashSeparatedString.split(separator: "-", maxSplits: 2).map(String.init)
+
+        switch components.count {
+        case 1:
+            self = .country(components[0])
+        case 2:
+            self = .city(components[0], components[1])
+        case 3:
+            self = .hostname(components[0], components[1], components[2])
+        default:
+            return nil
+        }
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
 
@@ -100,6 +115,20 @@ enum RelayLocation: Codable, Hashable {
 
         case .hostname(let countryCode, let cityCode, let hostname):
             try container.encode([countryCode, cityCode, hostname])
+        }
+    }
+
+    /// A list of `RelayLocation` items preceding the given one in the relay tree
+    var ascendants: [RelayLocation] {
+        switch self {
+        case .hostname(let country, let city, _):
+            return [.country(country), .city(country, city)]
+
+        case .city(let country, _):
+            return [.country(country)]
+
+        case .country:
+            return []
         }
     }
 

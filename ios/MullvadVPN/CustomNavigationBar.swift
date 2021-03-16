@@ -10,16 +10,50 @@ import UIKit
 
 class CustomNavigationBar: UINavigationBar {
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
-        commonInit()
+    var prefersOpaqueBackground: Bool {
+        didSet {
+            setOpaqueBackgroundAppearance(prefersOpaqueBackground)
+        }
     }
 
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+    // Returns the distance from the title label to the bottom of navigation bar
+    var titleLabelBottomInset: CGFloat {
+        // Go two levels deep only
+        let subviewsToExamine = subviews.flatMap { (view) -> [UIView] in
+            return [view] + view.subviews
+        }
 
-        commonInit()
+        let titleLabel = subviewsToExamine.first { (view) -> Bool in
+            return view is UILabel
+        }
+
+        if let titleLabel = titleLabel {
+            let titleFrame = titleLabel.convert(titleLabel.bounds, to: self)
+            return max(bounds.maxY - titleFrame.maxY, 0)
+        } else {
+            return 0
+        }
+    }
+
+    override init(frame: CGRect) {
+        if #available(iOS 13, *) {
+            prefersOpaqueBackground = false
+        } else {
+            prefersOpaqueBackground = true
+        }
+
+        super.init(frame: frame)
+
+        var margins = layoutMargins
+        margins.left = UIMetrics.contentLayoutMargins.left
+        margins.right = UIMetrics.contentLayoutMargins.right
+        layoutMargins = margins
+
+        setOpaqueBackgroundAppearance(prefersOpaqueBackground)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     private func commonInit() {
@@ -29,11 +63,23 @@ class CustomNavigationBar: UINavigationBar {
         layoutMargins = margins
 
         if #available(iOS 13, *) {
-            // no-op
+            prefersOpaqueBackground = false
         } else {
+            prefersOpaqueBackground = true
+        }
+    }
+
+    private func setOpaqueBackgroundAppearance(_ flag: Bool) {
+        if flag {
             barTintColor = .secondaryColor
+            backgroundColor = .secondaryColor
             shadowImage = UIImage()
             isTranslucent = false
+        } else {
+            barTintColor = nil
+            backgroundColor = nil
+            shadowImage = nil
+            isTranslucent = true
         }
     }
 

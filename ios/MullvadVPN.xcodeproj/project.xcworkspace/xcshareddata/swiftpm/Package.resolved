@@ -2,24 +2,6 @@
   "object": {
     "pins": [
       {
-        "package": "DiffableDataSources",
-        "repositoryURL": "https://github.com/ra1028/DiffableDataSources.git",
-        "state": {
-          "branch": null,
-          "revision": "581b4f8d1634e83c6b33caaafdc6a115a74650c3",
-          "version": "0.4.0"
-        }
-      },
-      {
-        "package": "DifferenceKit",
-        "repositoryURL": "https://github.com/ra1028/DifferenceKit.git",
-        "state": {
-          "branch": null,
-          "revision": "14c66681e12a38b81045f44c6c29724a0d4b0e72",
-          "version": "1.1.5"
-        }
-      },
-      {
         "package": "swift-log",
         "repositoryURL": "https://github.com/apple/swift-log.git",
         "state": {
