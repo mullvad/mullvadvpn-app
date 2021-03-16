@@ -123,7 +123,7 @@ class ProblemReportSubmissionOverlayView: UIView {
         addSubviews()
         transitionToState(state)
 
-        layoutMargins = UIEdgeInsets(top: 8, left: 24, bottom: 24, right: 24)
+        layoutMargins = UIMetrics.contentLayoutMargins
     }
 
     required init?(coder: NSCoder) {

@@ -58,8 +58,8 @@ class CustomNavigationBar: UINavigationBar {
 
     private func commonInit() {
         var margins = layoutMargins
-        margins.left = 24
-        margins.right = 24
+        margins.left = UIMetrics.contentLayoutMargins.left
+        margins.right = UIMetrics.contentLayoutMargins.right
         layoutMargins = margins
 
         if #available(iOS 13, *) {
