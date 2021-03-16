@@ -412,6 +412,9 @@ impl<'a> PolicyBatch<'a> {
             prerouting_rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
             prerouting_rule.add_expr(&nft_expr!(immediate data crate::linux::TUNNEL_FW_MARK));
             prerouting_rule.add_expr(&nft_expr!(meta mark set));
+            if *ADD_COUNTERS {
+                prerouting_rule.add_expr(&nft_expr!(counter));
+            }
             self.batch.add(&prerouting_rule, nftnl::MsgType::Add);
         }
 
@@ -634,6 +637,10 @@ impl<'a> PolicyBatch<'a> {
         check_endpoint(&mut prerouting_rule, End::Src, endpoint);
         prerouting_rule.add_expr(&nft_expr!(immediate data crate::linux::TUNNEL_FW_MARK));
         prerouting_rule.add_expr(&nft_expr!(meta mark set));
+
+        if *ADD_COUNTERS {
+            prerouting_rule.add_expr(&nft_expr!(counter));
+        }
 
         self.batch.add(&prerouting_rule, nftnl::MsgType::Add);
 
