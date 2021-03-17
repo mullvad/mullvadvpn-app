@@ -2,7 +2,7 @@
 #
 # Copyright © 2017-2019 WireGuard LLC. All Rights Reserved.
 
-DESTDIR ?= $(CURDIR)/../../android/build/extraJni/$(ANDROID_ABI)
+DESTDIR ?= $(CURDIR)/../../build/lib/$(RUST_TARGET_TRIPLE)
 
 NDK_GO_ARCH_MAP_x86 := 386
 NDK_GO_ARCH_MAP_x86_64 := amd64
