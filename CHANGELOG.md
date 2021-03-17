@@ -232,6 +232,7 @@ This release is for Android only.
 ### Fixed
 - Fix missing map animation after selecting a new location in the desktop app.
 - Fix crash on older kernels which report a default route through the loopback interface.
+- Fix relay selection failing to pick a WireGuard relay when no tunnel protocol is specified.
 
 #### Android
 - Fix connect action button sometimes showing itself as "Cancel" instead of "Secure my connection"
