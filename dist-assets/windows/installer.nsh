@@ -546,6 +546,8 @@
 #
 !macro ClearFirewallRules
 
+	log::Log "ClearFirewallRules()"
+
 	Push $0
 	Push $1
 
@@ -553,7 +555,11 @@
 	Pop $0
 	Pop $1
 
-	log::Log "Resetting firewall: $0 $1"
+	${If} $0 != ${MVSETUP_OK}
+		log::LogWithDetails "ClearFirewallRules() failed" $1
+	${Else}
+		log::Log "ClearFirewallRules() completed successfully"
+	${EndIf}
 
 	Pop $1
 	Pop $0
@@ -569,6 +575,8 @@
 #
 !macro ClearAccountHistory
 
+	log::Log "ClearAccountHistory()"
+
 	Push $0
 	Push $1
 
@@ -576,7 +584,11 @@
 	Pop $0
 	Pop $1
 
-	log::Log "Remove account history: $0 $1"
+	${If} $0 != ${MVSETUP_OK}
+		log::LogWithDetails "ClearAccountHistory() failed" $1
+	${Else}
+		log::Log "ClearAccountHistory() completed successfully"
+	${EndIf}
 
 	Pop $1
 	Pop $0
