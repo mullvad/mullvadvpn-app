@@ -140,8 +140,8 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         detachBackButtonHandler()
         transaction.addToBackStack(null)
 
-        ConfirmPublicDnsDialogFragment()
-            .apply { confirmPublicDns = confirmation }
+        ConfirmDnsDialogFragment()
+            .also { dialog -> dialog.confirmation = confirmation }
             .show(transaction, null)
 
         jobTracker.newUiJob("restoreBackButtonHandler") {
