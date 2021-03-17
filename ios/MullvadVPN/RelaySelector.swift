@@ -20,6 +20,17 @@ private struct RelayWithLocation {
     var location: Location
 }
 
+extension RelaySelectorResult {
+    var tunnelConnectionInfo: TunnelConnectionInfo {
+        return TunnelConnectionInfo(
+            ipv4Relay: self.endpoint.ipv4Relay,
+            ipv6Relay: self.endpoint.ipv6Relay,
+            hostname: self.relay.hostname,
+            location: self.location
+        )
+    }
+}
+
 struct RelaySelector {
 
     private let relays: ServerRelaysResponse
