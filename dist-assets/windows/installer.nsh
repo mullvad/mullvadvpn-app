@@ -57,7 +57,6 @@
 
 !define BLOCK_OUTBOUND_IPV4_FILTER_GUID "{a81c5411-0fd0-43a9-a9be-313f299de64f}"
 !define PERSISTENT_BLOCK_OUTBOUND_IPV4_FILTER_GUID "{79860c64-9a5e-48a3-b5f3-d64b41659aa5}"
-!define WINTUN_ADAPTER_GUID "{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}"
 
 #
 # ExtractWintun
@@ -197,7 +196,7 @@
 
 	log::Log "RemoveWintun()"
 
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun delete-pool-driver ${WINTUN_POOL}'
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun-delete-pool-driver ${WINTUN_POOL}'
 	Pop $0
 	Pop $1
 
@@ -233,12 +232,11 @@
 
 	log::Log "RemoveAbandonedWintunAdapter()"
 
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" remove-device-by-guid ${WINTUN_ADAPTER_GUID}'
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun-delete-abandoned-device'
 	Pop $0
 	Pop $1
 
 	${If} $0 != ${DL_GENERAL_SUCCESS}
-	${AndIf} $0 != ${DL_ADAPTER_NOT_FOUND}
 		IntFmt $0 "0x%X" $0
 		StrCpy $R0 "Failed to remove network adapter: error $0"
 		log::LogWithDetails $R0 $1
