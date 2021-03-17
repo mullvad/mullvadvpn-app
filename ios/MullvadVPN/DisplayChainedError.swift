@@ -144,8 +144,13 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
 
         case .sendReceipt(let restError):
             let reason = restError.errorChainDescription ?? ""
+            let format = NSLocalizedString(#"""
+Failed to send the receipt to server: %@
 
-            return String(format: NSLocalizedString(#"Failed to send the receipt to server: %@\n\nPlease retry by using the "Restore purchases" button."#, comment: ""), reason)
+Please retry by using the "Restore purchases" button.
+"""#, comment: "")
+
+            return String(format: format, reason)
 
         case .storePayment(let storeError):
             return storeError.localizedDescription
