@@ -47,7 +47,7 @@ func wgTurnOn(cSettings *C.char, fd int, logSink LogSink, logContext LogContext)
 		return ERROR_GENERAL_FAILURE
 	}
 
-	device := device.NewDevice(tunDevice, conn.NewDefaultBind(), logger)
+	device := device.NewDevice(tunDevice, conn.NewStdNetBind(), logger)
 
 	setErr := device.IpcSetOperation(bufio.NewReader(strings.NewReader(settings)))
 	if setErr != nil {
