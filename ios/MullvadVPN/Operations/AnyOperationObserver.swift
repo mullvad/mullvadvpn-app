@@ -10,6 +10,10 @@ import Foundation
 
 class AnyOperationObserver<OperationType: OperationProtocol>: OperationBlockObserver<OperationType> {
     init<T: OperationObserver>(_ observer: T) where T.OperationType == OperationType {
-        super.init(willFinish: observer.operationWillFinish, didFinish: observer.operationDidFinish)
+        super.init(
+            willExecute: observer.operationWillExecute,
+            willFinish: observer.operationWillFinish,
+            didFinish: observer.operationDidFinish
+        )
     }
 }
