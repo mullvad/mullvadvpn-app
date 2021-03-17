@@ -46,6 +46,7 @@
 !define MVSETUP_OK 0
 !define MVSETUP_ERROR 1
 !define MVSETUP_VERSION_NOT_OLDER 2
+!define MVSETUP_DAEMON_NOT_RUNNING 3
 
 # Override electron-builder generated application settings key.
 # electron-builder uses a GUID here rather than the application name.
@@ -916,7 +917,12 @@
 		Pop $0
 		Pop $1
 
-		# Ignore any errors -- the command will fail if the daemon is not running
+		${If} $0 != ${MVSETUP_OK}
+		${AndIf} $0 != ${MVSETUP_DAEMON_NOT_RUNNING}
+			StrCpy $R0 "Failed to send prepare-restart to service"
+			log::LogWithDetails $R0 $1
+			Goto customRemoveFiles_abort
+		${EndIf}
 	${EndIf}
 
 	${StopAndDeleteService}
