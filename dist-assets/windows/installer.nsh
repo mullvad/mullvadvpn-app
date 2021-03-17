@@ -697,6 +697,7 @@
 	Var /GLOBAL BlockFilterResult
 	Var /GLOBAL PersistentBlockFilterResult
 
+	Push $1
 	Push $R0
 
 	log::Initialize ${LOG_INSTALL}
@@ -773,6 +774,7 @@
 	customInstall_skip_abort:
 
 	Pop $R0
+	Pop $1
 
 !macroend
 
@@ -781,6 +783,114 @@
 # Uninstaller
 #
 ###############################################################################
+
+#
+# StopAndDeleteService
+#
+# Stops and deletes the service, attempting to forcibly kill it if necessary.
+#
+# Returns: 0 in $R0 on success. Otherwise, an error message in $R0 is returned.
+#
+!macro StopAndDeleteService
+
+	log::Log "StopAndDeleteService()"
+
+	Push $0
+	Push $1
+
+	nsExec::ExecToStack '"$SYSDIR\sc.exe" query mullvadvpn'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 == ${ERROR_SERVICE_DOES_NOT_EXIST}
+		Goto StopAndDeleteService_success
+	${EndIf}
+
+	log::Log "Stopping Mullvad service"
+
+	nsExec::ExecToStack '"$SYSDIR\net.exe" stop mullvadvpn'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != 0
+		log::LogWithDetails "Failed to stop the service: $0" $1
+
+		# It may be possible to recover by force-killing the service
+	${EndIf}
+
+	# Copy over the daemon log from the old install for debugging purposes
+	SetShellVarContext all
+	CopyFiles /SILENT /FILESONLY "$LOCALAPPDATA\Mullvad VPN\daemon.log" "$LOCALAPPDATA\Mullvad VPN\old-install-daemon.log"
+
+	log::Log "Removing Mullvad service"
+	nsExec::ExecToStack '"$SYSDIR\sc.exe" delete mullvadvpn'
+
+	Pop $0
+	Pop $R0
+
+	${If} $0 != 0
+	${AndIf} $0 != ${ERROR_SERVICE_MARKED_FOR_DELETE}
+		log::Log "Failed to delete the service: $0"
+		Goto StopAndDeleteService_done
+	${EndIf}
+
+	Sleep 1000
+
+	#
+	# Forcibly kill the service (if marked for deletion)
+	#
+
+	Var /GLOBAL DeleteService_Counter
+	Push 0
+	Pop $DeleteService_Counter
+
+	StopAndDeleteService_checkDelete:
+
+	nsExec::ExecToStack '"$SYSDIR\sc.exe" query mullvadvpn'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${ERROR_SERVICE_DOES_NOT_EXIST}
+		log::Log "Attempting to forcibly kill Mullvad service"
+
+		nsExec::ExecToStack '"$SYSDIR\taskkill.exe" /f /fi "SERVICES eq mullvadvpn"'
+		Pop $0
+		Pop $1
+
+		# Check again whether it was deleted
+		IntOp $DeleteService_Counter $DeleteService_Counter + 1
+		${If} $DeleteService_Counter < 3
+			Sleep 1000
+			Goto StopAndDeleteService_checkDelete
+		${EndIf}
+
+		StrCpy $R0 "Failed to kill Mullvad service"
+		log::Log $R0
+		Goto StopAndDeleteService_done
+	${EndIf}
+
+	StopAndDeleteService_success:
+
+	Push 0
+	Pop $R0
+
+	StopAndDeleteService_done:
+
+	${If} $R0 == 0
+		log::Log "StopAndDeleteService() completed successfully"
+	${Else}
+		log::Log "StopAndDeleteService() failed"
+	${EndIf}
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define StopAndDeleteService '!insertmacro "StopAndDeleteService"'
 
 #
 # customRemoveFiles
@@ -792,6 +902,7 @@
 
 	Push $0
 	Push $1
+	Push $R0
 
 	# Check command line arguments
 	Var /GLOBAL FullUninstall
@@ -839,62 +950,36 @@
 		nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" prepare-restart'
 		Pop $0
 		Pop $1
+
+		# Ignore any errors -- the command will fail if the daemon is not running
 	${EndIf}
 
-	nsExec::ExecToStack '"$SYSDIR\net.exe" stop mullvadvpn'
+	${StopAndDeleteService}
 
-	# Discard return value
-	Pop $0
-	Pop $1
-
-	# Copy over the daemon log from the old install for debugging purposes
-	SetShellVarContext all
-	CopyFiles /SILENT /FILESONLY "$LOCALAPPDATA\Mullvad VPN\daemon.log" "$LOCALAPPDATA\Mullvad VPN\old-install-daemon.log"
-
-	nsExec::ExecToStack '"$SYSDIR\sc.exe" delete mullvadvpn'
-
-	# Discard return value
-	Pop $0
-	Pop $1
-
-	${If} $0 != 0
-	${AndIf} $0 != ${ERROR_SERVICE_MARKED_FOR_DELETE}
-		log::Log "Failed to delete Mullvad service: $0"
+	${If} $R0 != 0
+		Goto customRemoveFiles_abort
 	${EndIf}
 
-	Sleep 1000
+	# Remove application files
+	log::Log "Deleting $INSTDIR"
+	RMDir /r $INSTDIR
+	IfErrors 0 customRemoveFiles_finalCleanup
 
-	#
-	# Forcibly kill the service (likely marked for deletion)
-	#
+	log::Log "Failed to remove application files"
 
-	Var /GLOBAL DeleteService_Counter
-	Push 0
-	Pop $DeleteService_Counter
+	customRemoveFiles_abort:
 
-	customRemoveFiles_CheckServiceDeleted:
+	# Break the install due to inconsistent state
+	Delete "$INSTDIR\mullvad vpn.exe"
 
-	nsExec::ExecToStack '"$SYSDIR\sc.exe" query mullvadvpn'
+	# Clear firewall rules, or risk leaving persistent filters
+	${ClearFirewallRules}
 
-	Pop $0
-	Pop $1
+	log::Log "Aborting uninstaller"
+	SetErrorLevel 1
+	Abort
 
-	${If} $0 != ${ERROR_SERVICE_DOES_NOT_EXIST}
-		log::Log "Attempting to forcibly kill Mullvad service"
-
-		nsExec::ExecToStack '"$SYSDIR\taskkill.exe" /f /fi "SERVICES eq mullvadvpn"'
-		Pop $0
-		Pop $1
-
-		# Check again whether it was deleted
-		IntOp $DeleteService_Counter $DeleteService_Counter + 1
-		${If} $DeleteService_Counter < 3
-			Sleep 1000
-			Goto customRemoveFiles_CheckServiceDeleted
-		${EndIf}
-
-		log::Log "Failed to kill Mullvad service"
-	${EndIf}
+	customRemoveFiles_finalCleanup:
 
 	${RemoveCLIFromEnvironPath}
 
@@ -911,11 +996,12 @@
 			${RemoveSettings}
 		${EndIf}
 		customRemoveFiles_after_remove_settings:
+	${Else}
+		SetShellVarContext all
+		Delete "$LOCALAPPDATA\Mullvad VPN\uninstall.log"
 	${EndIf}
 
-	# Original removal functionality provided by Electron-builder
-	RMDir /r $INSTDIR
-
+	Pop $R0
 	Pop $1
 	Pop $0
 
