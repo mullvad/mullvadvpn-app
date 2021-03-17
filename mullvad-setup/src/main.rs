@@ -19,6 +19,16 @@ enum ExitStatus {
     Ok = 0,
     Error = 1,
     VersionNotOlder = 2,
+    DaemonNotRunning = 3,
+}
+
+impl From<Error> for ExitStatus {
+    fn from(error: Error) -> ExitStatus {
+        match error {
+            Error::RpcConnectionError(_) => ExitStatus::DaemonNotRunning,
+            _ => ExitStatus::Error,
+        }
+    }
 }
 
 #[cfg(windows)]
@@ -112,7 +122,7 @@ async fn main() {
 
     if let Err(e) = result {
         eprintln!("{}", e.display_chain());
-        process::exit(ExitStatus::Error as i32);
+        process::exit(ExitStatus::from(e) as i32);
     }
 }
 
