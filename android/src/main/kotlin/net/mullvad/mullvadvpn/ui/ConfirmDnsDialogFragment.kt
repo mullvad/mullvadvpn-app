@@ -21,7 +21,7 @@ class ConfirmDnsDialogFragment @JvmOverloads constructor(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.confirm_public_dns, container, false)
+        val view = inflater.inflate(R.layout.confirm_dns, container, false)
 
         view.findViewById<Button>(R.id.back_button).setOnClickListener {
             activity?.onBackPressed()
