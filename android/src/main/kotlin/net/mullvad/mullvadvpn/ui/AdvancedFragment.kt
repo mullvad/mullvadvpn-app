@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
+import java.net.InetAddress
 import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.Settings
@@ -37,9 +38,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         titleController = CollapsibleTitleController(view, R.id.contents)
 
         customDnsAdapter = CustomDnsAdapter(customDns).apply {
-            showPublicDnsAddressWarning = { confirmation ->
-                showConfirmPublicDnsServerDialog(confirmation)
-            }
+            confirmAddAddress = ::confirmAddAddress
         }
 
         view.findViewById<CustomRecyclerView>(R.id.contents).apply {
@@ -121,6 +120,18 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
                 wireguardMtuInput.value = settings.tunnelOptions.wireguard.options.mtu
             }
         }
+    }
+
+    private suspend fun confirmAddAddress(address: InetAddress): Boolean {
+        if (address.isLinkLocalAddress() || address.isSiteLocalAddress()) {
+            return true
+        }
+
+        val confirmation = CompletableDeferred<Boolean>()
+
+        showConfirmPublicDnsServerDialog(confirmation)
+
+        return confirmation.await()
     }
 
     private fun showConfirmPublicDnsServerDialog(confirmation: CompletableDeferred<Boolean>) {
