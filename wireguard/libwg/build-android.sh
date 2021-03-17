@@ -45,13 +45,9 @@ for arch in $ARCHITECTURES; do
     export CFLAGS="-D__ANDROID_API__=21"
 
     make -f Android.mk
-    # Copy build artifacts to `build/libs/$RUST_TARGET_TRIPLE` to be able to build `mullvad-jni`
-    chmod 777 ../../android/build/
-    chmod 777 ../../android/build/extraJni
-    chmod 777 ../../android/build/extraJni/*
-    mkdir -p ../../build/lib/$RUST_TARGET_TRIPLE
-    cp ../../android/build/extraJni/$ANDROID_ABI/libwg.so ../../build/lib/$RUST_TARGET_TRIPLE
-    chmod 777 ../../android/build/extraJni/$ANDROID_ABI/libwg.so ../../build/lib/$RUST_TARGET_TRIPLE
+    # Copy build artifacts to `android/build/extraJni/$ANDROID_ABI` to be able to build the APK
+    mkdir -p ../../android/build/extraJni/$ANDROID_ABI
+    cp ../../build/lib/$RUST_TARGET_TRIPLE/libwg.so ../../android/build/extraJni/$ANDROID_ABI
     rm -rf build
 done
 
