@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.mullvad.mullvadvpn.R
@@ -55,7 +54,8 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
     val isEditing
         get() = editingPosition != null
 
-    var showPublicDnsAddressWarning: ((CompletableDeferred<Boolean>) -> Unit)? = null
+    // By default, refuse the address so that the dialog can be recreated by the user if needed
+    var confirmAddAddress: suspend (InetAddress) -> Boolean = { false }
 
     init {
         customDns.apply {
@@ -286,22 +286,10 @@ class CustomDnsAdapter(val customDns: CustomDns) : Adapter<CustomDnsItemHolder>(
             if (inetAddressValidator.isValid(addressText)) {
                 val address = InetAddress.getByName(addressText)
 
-                if (!address.isLoopbackAddress() && confirmAddIfPublicAddress(address)) {
+                if (!address.isLoopbackAddress() && confirmAddAddress(address)) {
                     handler(address)
                 }
             }
         }
-    }
-
-    private suspend fun confirmAddIfPublicAddress(address: InetAddress): Boolean {
-        if (address.isLinkLocalAddress() || address.isSiteLocalAddress()) {
-            return true
-        }
-
-        val confirmation = CompletableDeferred<Boolean>()
-
-        showPublicDnsAddressWarning?.invoke(confirmation)
-
-        return confirmation.await()
     }
 }
