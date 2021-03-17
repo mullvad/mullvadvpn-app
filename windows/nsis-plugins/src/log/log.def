@@ -2,7 +2,7 @@ LIBRARY log
 
 EXPORTS
 
-Initialize
+SetLogTarget
 Log
 LogWithDetails
 LogWindowsVersion

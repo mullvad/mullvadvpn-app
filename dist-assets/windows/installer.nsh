@@ -35,6 +35,7 @@
 # Log targets
 !define LOG_INSTALL 0
 !define LOG_UNINSTALL 1
+!define LOG_VOID 2
 
 # Windows error codes
 !define ERROR_SERVICE_DOES_NOT_EXIST 1060
@@ -650,7 +651,7 @@
 	Push $1
 	Push $R0
 
-	log::Initialize ${LOG_INSTALL}
+	log::SetLogTarget ${LOG_INSTALL}
 
 	log::Log "Running installer for ${PRODUCT_NAME} ${VERSION}"
 	log::LogWindowsVersion
@@ -859,7 +860,7 @@
 	Var /GLOBAL Silent
 	Var /GLOBAL NewVersion
 
-	log::Initialize ${LOG_UNINSTALL}
+	log::SetLogTarget ${LOG_UNINSTALL}
 
 	log::Log "Running uninstaller for ${PRODUCT_NAME} ${VERSION}"
 
@@ -940,6 +941,8 @@
 		${ExtractWintun}
 		${RemoveWintun}
 
+		log::SetLogTarget ${LOG_VOID}
+
 		${RemoveLogsAndCache}
 		${If} $Silent != 1
 			MessageBox MB_ICONQUESTION|MB_YESNO "Would you like to remove settings files as well?" IDNO customRemoveFiles_after_remove_settings
@@ -947,6 +950,8 @@
 		${EndIf}
 		customRemoveFiles_after_remove_settings:
 	${Else}
+		log::SetLogTarget ${LOG_VOID}
+
 		SetShellVarContext all
 		Delete "$LOCALAPPDATA\Mullvad VPN\uninstall.log"
 	${EndIf}

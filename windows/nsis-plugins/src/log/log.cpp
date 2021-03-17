@@ -184,17 +184,18 @@ std::wstring GetWindowsVersion()
 } // anonymous namespace
 
 //
-// Initialize
+// SetLogTarget
 //
 // Opens and maintains an open handle to the log file.
 //
 enum class LogTarget
 {
 	LOG_INSTALL = 0,
-	LOG_UNINSTALL = 1
+	LOG_UNINSTALL = 1,
+	LOG_VOID = 2
 };
 
-void __declspec(dllexport) NSISCALL Initialize
+void __declspec(dllexport) NSISCALL SetLogTarget
 (
 	HWND hwndParent,
 	int string_size,
@@ -224,6 +225,12 @@ void __declspec(dllexport) NSISCALL Initialize
 			{
 				logfile = L"uninstall.log";
 				break;
+			}
+			case static_cast<int>(LogTarget::LOG_VOID):
+			{
+				delete g_logger;
+				g_logger = nullptr;
+				return;
 			}
 			default:
 			{
@@ -263,7 +270,7 @@ void __declspec(dllexport) NSISCALL Initialize
 	{
 		std::stringstream ss;
 
-		ss << "Failed to initialize logging plugin."
+		ss << "Failed to set logging plugin target."
 			<< std::endl
 			<< err.what();
 
