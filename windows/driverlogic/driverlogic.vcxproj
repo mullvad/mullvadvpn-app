@@ -96,14 +96,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\devenum.cpp" />
+    <ClCompile Include="src\device.cpp" />
     <ClCompile Include="src\driverlogic.cpp" />
     <ClCompile Include="src\error.cpp" />
+    <ClCompile Include="src\log.cpp" />
+    <ClCompile Include="src\service.cpp" />
     <ClCompile Include="src\stdafx.cpp" />
+    <ClCompile Include="src\util.cpp" />
+    <ClCompile Include="src\version.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\devenum.h" />
+    <ClInclude Include="src\device.h" />
     <ClInclude Include="src\error.h" />
+    <ClInclude Include="src\log.h" />
+    <ClInclude Include="src\service.h" />
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\targetver.h" />
+    <ClInclude Include="src\util.h" />
+    <ClInclude Include="src\version.h" />
+    <ClInclude Include="src\wintun.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
