@@ -123,18 +123,15 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     private suspend fun confirmAddAddress(address: InetAddress): Boolean {
-        if (address.isLinkLocalAddress() || address.isSiteLocalAddress()) {
+        return if (address.isLinkLocalAddress() || address.isSiteLocalAddress()) {
             return true
+        } else {
+            showConfirmDnsServerDialog()
         }
-
-        val confirmation = CompletableDeferred<Boolean>()
-
-        showConfirmDnsServerDialog(confirmation)
-
-        return confirmation.await()
     }
 
-    private fun showConfirmDnsServerDialog(confirmation: CompletableDeferred<Boolean>) {
+    private suspend fun showConfirmDnsServerDialog(): Boolean {
+        val confirmation = CompletableDeferred<Boolean>()
         val transaction = parentFragmentManager.beginTransaction()
 
         detachBackButtonHandler()
@@ -144,10 +141,11 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             .also { dialog -> dialog.confirmation = confirmation }
             .show(transaction, null)
 
-        jobTracker.newUiJob("restoreBackButtonHandler") {
-            confirmation.await()
-            attachBackButtonHandler()
-        }
+        val result = confirmation.await()
+
+        attachBackButtonHandler()
+
+        return result
     }
 
     private fun attachBackButtonHandler() {
