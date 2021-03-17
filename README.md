@@ -434,6 +434,37 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
          servers are used.
 * `TALPID_DISABLE_OFFLINE_MONITOR` - Forces the daemon to always assume the host is online.
 
+#### Setting environment variable
+- On Windows, one can use `setx` from an elevated shell, like so
+  ```bat
+  setx TALPID_DISABLE_OFFLINE 1 /m
+  ```
+  For the change to take effect, one must restart the daemon
+  ```bat
+  sc.exe stop mullvadvpn
+  sc.exe start mullvadvpn
+  ```
+
+- On Linux, one should edit the systemd unit file via `systemctl edit mullvad-daemon.service` and edit
+  it like so
+  ```systemd
+  [Service]
+  Environment="TALPID_DISABLE_OFFLINE_MONITOR=1"
+  ```
+  For the change to take effect, one must restart the daemon
+  ```bash
+  sudo systemctl restart mullvad-daemon
+  ```
+
+- On macOS, one can use `launchctl` like so
+  ```bash
+  sudo launchctl setenv TALPID_DISABLE_OFFLINE_MONITOR 1
+  ```
+  For the change to take effect, one must restart the daemon
+  ```bash
+  launchctl unload -w /Library/LaunchDaemons/net.mullvad.daemon.plist
+  launchctl load -w /Library/LaunchDaemons/net.mullvad.daemon.plist
+  ```
 
 ## Building and running the desktop Electron GUI app
 
