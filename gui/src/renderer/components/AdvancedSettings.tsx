@@ -144,10 +144,6 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
       },
     ];
 
-    this.wireguardPortItems = [automaticPort].concat(
-      WIREUGARD_UDP_PORTS.map(mapPortToSelectorItem),
-    );
-
     this.bridgeStateItems = [
       {
         label: messages.pgettext('advanced-settings-view', 'Automatic'),
