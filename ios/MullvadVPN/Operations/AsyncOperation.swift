@@ -47,6 +47,7 @@ class AsyncOperation: Operation, OperationProtocol {
             if self.isCancelled {
                 self.finish()
             } else {
+                self.observers.forEach { $0.operationWillExecute(self) }
                 self.setExecuting(true)
                 self.main()
             }
