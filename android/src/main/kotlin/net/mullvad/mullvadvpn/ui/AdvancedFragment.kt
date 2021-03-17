@@ -129,12 +129,12 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
         val confirmation = CompletableDeferred<Boolean>()
 
-        showConfirmPublicDnsServerDialog(confirmation)
+        showConfirmDnsServerDialog(confirmation)
 
         return confirmation.await()
     }
 
-    private fun showConfirmPublicDnsServerDialog(confirmation: CompletableDeferred<Boolean>) {
+    private fun showConfirmDnsServerDialog(confirmation: CompletableDeferred<Boolean>) {
         val transaction = parentFragmentManager.beginTransaction()
 
         detachBackButtonHandler()
