@@ -190,8 +190,8 @@ std::wstring GetWindowsVersion()
 //
 enum class LogTarget
 {
-	LOG_FILE = 0,
-	LOG_VOID
+	LOG_INSTALL = 0,
+	LOG_UNINSTALL = 1
 };
 
 void __declspec(dllexport) NSISCALL Initialize
@@ -210,50 +210,54 @@ void __declspec(dllexport) NSISCALL Initialize
 	{
 		PinDll();
 
+		const wchar_t *logfile = nullptr;
+
 		int target = popint();
 		switch (target)
 		{
-			case static_cast<int>(LogTarget::LOG_FILE):
+			case static_cast<int>(LogTarget::LOG_INSTALL):
 			{
-				auto logpath = std::filesystem::path(common::fs::GetKnownFolderPath(
-					FOLDERID_ProgramData, 0, nullptr));
-
-				logpath.append(L"Mullvad VPN");
-
-				if (FALSE == CreateDirectoryW(logpath.c_str(), nullptr))
-				{
-					if (ERROR_ALREADY_EXISTS != GetLastError())
-					{
-						std::wstringstream ss;
-
-						ss << L"Cannot create folder: "
-							<< L"\""
-							<< logpath
-							<< L"\"";
-
-						THROW_ERROR(common::string::ToAnsi(ss.str()).c_str());
-					}
-				}
-
-				const auto logfile = decltype(logpath)(logpath).append(L"install.log");
-
-				g_logger = new Logger(std::make_unique<Utf8FileLogSink>(logfile, false));
-
+				logfile = L"install.log";
 				break;
-
 			}
-			case static_cast<int>(LogTarget::LOG_VOID):
+			case static_cast<int>(LogTarget::LOG_UNINSTALL):
 			{
-				g_logger = new Logger(std::make_unique<VoidLogSink>());
-
+				logfile = L"uninstall.log";
 				break;
-
 			}
 			default:
 			{
 				THROW_ERROR("Invalid log target");
 			}
 		}
+
+		if (nullptr == logfile)
+		{
+			THROW_ERROR("Invalid log target");
+		}
+
+		auto logpath = std::filesystem::path(common::fs::GetKnownFolderPath(
+			FOLDERID_ProgramData, 0, nullptr));
+		logpath.append(L"Mullvad VPN");
+
+		if (FALSE == CreateDirectoryW(logpath.c_str(), nullptr))
+		{
+			if (ERROR_ALREADY_EXISTS != GetLastError())
+			{
+				std::wstringstream ss;
+
+				ss << L"Cannot create folder: "
+					<< L"\""
+					<< logpath
+					<< L"\"";
+
+				THROW_ERROR(common::string::ToAnsi(ss.str()).c_str());
+			}
+		}
+
+		logpath.append(logfile);
+
+		g_logger = new Logger(std::make_unique<Utf8FileLogSink>(logpath, false));
 	}
 	catch (std::exception &err)
 	{

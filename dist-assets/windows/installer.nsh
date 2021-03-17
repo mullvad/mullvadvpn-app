@@ -33,8 +33,8 @@
 !define DL_GENERAL_SUCCESS 0
 
 # Log targets
-!define LOG_FILE 0
-!define LOG_VOID 1
+!define LOG_INSTALL 0
+!define LOG_UNINSTALL 1
 
 # Windows error codes
 !define ERROR_SERVICE_DOES_NOT_EXIST 1060
@@ -699,7 +699,7 @@
 
 	Push $R0
 
-	log::Initialize ${LOG_FILE}
+	log::Initialize ${LOG_INSTALL}
 
 	log::Log "Running installer for ${PRODUCT_NAME} ${VERSION}"
 	log::LogWindowsVersion
@@ -798,19 +798,19 @@
 	Var /GLOBAL Silent
 	Var /GLOBAL NewVersion
 
+	log::Initialize ${LOG_UNINSTALL}
+
+	log::Log "Running uninstaller for ${PRODUCT_NAME} ${VERSION}"
+
 	${GetParameters} $0
 	${GetOptions} $0 "/S" $1
 	${If} ${Errors}
 		Push 0
-		log::Initialize ${LOG_VOID}
 	${Else}
 		Push 1
-		log::Initialize ${LOG_FILE}
 	${EndIf}
 
 	Pop $Silent
-
-	log::Log "Running uninstaller for ${PRODUCT_NAME} ${VERSION}"
 
 	${ExtractMullvadSetup}
 
