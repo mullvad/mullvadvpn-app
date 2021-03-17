@@ -17,7 +17,7 @@ export const StyledSelectorContainer = styled.div({
   flex: 0,
 });
 
-export const StyledTunnelProtocolSelector = (styled(Selector)({
+export const StyledSelectorForFooter = (styled(Selector)({
   marginBottom: 0,
 }) as unknown) as new <T>() => Selector<T>;
 

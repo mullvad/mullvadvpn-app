@@ -19,7 +19,7 @@ import {
   StyledNoWireguardKeyError,
   StyledNoWireguardKeyErrorContainer,
   StyledSelectorContainer,
-  StyledTunnelProtocolSelector,
+  StyledSelectorForFooter,
   StyledTunnelProtocolContainer,
   StyledCustomDnsSwitchContainer,
   StyledCustomDnsFotter,
@@ -144,10 +144,6 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
       },
     ];
 
-    this.wireguardPortItems = [automaticPort].concat(
-      WIREUGARD_UDP_PORTS.map(mapPortToSelectorItem),
-    );
-
     this.bridgeStateItems = [
       {
         label: messages.pgettext('advanced-settings-view', 'Automatic'),
@@ -250,7 +246,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
 
                 <AriaInputGroup>
                   <StyledTunnelProtocolContainer>
-                    <StyledTunnelProtocolSelector
+                    <StyledSelectorForFooter
                       title={messages.pgettext('advanced-settings-view', 'Tunnel protocol')}
                       values={this.tunnelProtocolItems(hasWireguardKey)}
                       value={this.props.tunnelProtocol}
@@ -310,7 +306,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                 {this.props.tunnelProtocol === 'wireguard' ? (
                   <AriaInputGroup>
                     <StyledSelectorContainer>
-                      <Selector
+                      <StyledSelectorForFooter
                         // TRANSLATORS: The title for the shadowsocks bridge selector section.
                         title={messages.pgettext('advanced-settings-view', 'WireGuard port')}
                         values={this.wireguardPortItems}
@@ -318,6 +314,19 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                         onSelect={this.onSelectWireguardPort}
                       />
                     </StyledSelectorContainer>
+                    <Cell.Footer>
+                      <AriaDescription>
+                        <Cell.FooterText>
+                          {
+                            // TRANSLATORS: The hint displayed below the WireGuard port selector.
+                            messages.pgettext(
+                              'advanced-settings-view',
+                              'The automatic setting will randomly choose from a wide range of ports.',
+                            )
+                          }
+                        </Cell.FooterText>
+                      </AriaDescription>
+                    </Cell.Footer>
                   </AriaInputGroup>
                 ) : undefined}
 
