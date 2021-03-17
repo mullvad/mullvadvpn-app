@@ -11,12 +11,18 @@ import Foundation
 /// A private type erasing observer that type casts the input operation type to the expected
 /// operation type before calling the wrapped observer
 class TransformOperationObserver<S: OperationProtocol>: OperationObserver {
+    private let willExecute: (S) -> Void
     private let willFinish: (S) -> Void
     private let didFinish: (S) -> Void
 
     init<T: OperationObserver>(_ observer: T) {
+        willExecute = Self.wrap(observer.operationWillExecute)
         willFinish = Self.wrap(observer.operationWillFinish)
         didFinish = Self.wrap(observer.operationDidFinish)
+    }
+
+    func operationWillExecute(_ operation: S) {
+        willExecute(operation)
     }
 
     func operationWillFinish(_ operation: S) {
