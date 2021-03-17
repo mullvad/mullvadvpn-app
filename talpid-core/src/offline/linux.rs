@@ -1,29 +1,39 @@
 use crate::tunnel_state_machine::TunnelCommand;
 use futures::{
     channel::{mpsc::UnboundedSender, oneshot},
-    FutureExt, StreamExt, TryStreamExt,
+    FutureExt, StreamExt, TryStream, TryStreamExt,
 };
-use netlink_packet_route::rtnl::route::nlas::Nla as RouteNla;
+use netlink_packet_core::{NetlinkPayload, NLM_F_REQUEST};
+use netlink_packet_route::{
+    rtnl::route::nlas::Nla as RouteNla, NetlinkMessage, RouteFlags, RouteMessage, RtnlMessage,
+};
 use rtnetlink::{
     constants::{RTMGRP_IPV4_IFADDR, RTMGRP_IPV6_IFADDR, RTMGRP_LINK, RTMGRP_NOTIFY},
     sys::SocketAddr,
     Handle, IpVersion,
 };
 use std::{io, net::Ipv4Addr, sync::Weak};
+use talpid_types::ErrorExt;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    #[error(display = "Failed to get list of IP links")]
-    GetLinksError(#[error(source)] failure::Compat<rtnetlink::Error>),
+    #[error(display = "Failed to resolve output interface index")]
+    GetLinkError(#[error(source)] failure::Compat<rtnetlink::Error>),
+
+    #[error(display = "No netlink response for output interface query")]
+    NoLinkError,
 
     #[error(display = "Failed to get list of IP addresses")]
     GetAddressesError(#[error(source)] failure::Compat<rtnetlink::Error>),
 
     #[error(display = "Failed to get a route for an arbitrary IP address")]
     GetRouteError(#[error(source)] failure::Compat<rtnetlink::Error>),
+
+    #[error(display = "No netlink response for route query")]
+    NoRouteError,
 
     #[error(display = "Failed to connect to netlink socket")]
     NetlinkConnectionError(#[error(source)] io::Error),
@@ -101,7 +111,14 @@ pub async fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Resu
         while let Some(_new_message) = messages.next().await {
             match sender.upgrade() {
                 Some(sender) => {
-                    let new_offline_state = public_ip_unreachable(&handle).await.unwrap_or(false);
+                    let new_offline_state =
+                        public_ip_unreachable(&handle).await.unwrap_or_else(|err| {
+                            log::error!(
+                                "{}",
+                                err.display_chain_with_msg("Failed to infer offline state")
+                            );
+                            false
+                        });
                     if new_offline_state != is_offline {
                         is_offline = new_offline_state;
                         let _ = sender.unbounded_send(TunnelCommand::IsOffline(is_offline));
@@ -111,7 +128,6 @@ pub async fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Resu
             }
         }
     });
-
 
     Ok(monitor_handle)
 }
@@ -127,23 +143,44 @@ async fn public_ip_unreachable(handle: &Handle) -> Result<bool> {
         PUBLIC_INTERNET_ADDRESS.octets().to_vec(),
     ));
     message.header.destination_prefix_length = 32;
-    let mut stream = request.execute();
-    while let Some(message) = stream
-        .try_next()
-        .await
-        .map_err(failure::Fail::compat)
-        .map_err(Error::GetRouteError)?
-    {
-        for nla in message.nlas.iter() {
-            if message.header.table != libc::RT_TABLE_MAIN {
-                continue;
-            }
-            if let RouteNla::Gateway(_) | RouteNla::Oif(_) = nla {
-                return Ok(false);
-            }
+    message.header.flags = RouteFlags::RTM_F_LOOKUP_TABLE;
+    let mut stream = execute_route_get_request(handle.clone(), message.clone());
+    match stream.try_next().await {
+        // Presance of any route implies connectivity, even if it's a loopback route
+        Ok(Some(_)) => Ok(false),
+        Ok(None) => Err(Error::NoRouteError),
+        // ENETUNREACH implies that there exists no route that'd reach our random API address,
+        // as such, the host is assumed to be offline
+        Err(rtnetlink::Error::NetlinkError(nl_err)) if nl_err.code == -libc::ENETUNREACH => {
+            Ok(true)
         }
+        Err(err) => Err(Error::GetRouteError(failure::Fail::compat(err))),
     }
-    Ok(true)
+}
+
+pub fn execute_route_get_request(
+    mut handle: Handle,
+    message: RouteMessage,
+) -> impl TryStream<Ok = RouteMessage, Error = rtnetlink::Error> {
+    use futures::future::{self, Either};
+    use rtnetlink::Error;
+
+    let mut req = NetlinkMessage::from(RtnlMessage::GetRoute(message));
+    req.header.flags = NLM_F_REQUEST;
+
+    match handle.request(req) {
+        Ok(response) => Either::Left(response.map(move |msg| {
+            let (header, payload) = msg.into_parts();
+            match payload {
+                NetlinkPayload::InnerMessage(RtnlMessage::NewRoute(msg)) => Ok(msg),
+                NetlinkPayload::Error(err) => Err(Error::NetlinkError(err)),
+                _ => Err(Error::UnexpectedMessage(NetlinkMessage::new(
+                    header, payload,
+                ))),
+            }
+        })),
+        Err(e) => Either::Right(future::err::<RouteMessage, Error>(e).into_stream()),
+    }
 }
 
 #[cfg(test)]
