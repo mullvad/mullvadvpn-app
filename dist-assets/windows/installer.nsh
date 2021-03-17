@@ -666,6 +666,19 @@
 	SetShellVarContext current
 	RMDir /r "$LOCALAPPDATA\mullvad-vpn-updater"
 
+	#
+	# Hack to check whether the uninstaller succeeded.
+	# This assumes that it got far enough to create a log file.
+	# Note that the uninstaller has already been replaced at this point.
+	#
+	SetShellVarContext all
+	IfFileExists "$LOCALAPPDATA\Mullvad VPN\uninstall.log" 0 customInstall_uninstaller_succeeded
+
+	MessageBox MB_OK "Failed to uninstall a previous version. Contact support or see the logs for more information."
+	Goto customInstall_abort_installation
+
+	customInstall_uninstaller_succeeded:
+
 	${MigrateCache}
 	${RemoveRelayCache}
 	${RemoveApiAddressCache}
@@ -713,12 +726,12 @@
 
 	${If} $BlockFilterResult == 0
 	${OrIf} $PersistentBlockFilterResult == 0
-		MessageBox MB_ICONEXCLAMATION|MB_YESNO "Do you wish to unblock your internet access? Doing so will leave you with an unsecure connection." IDNO customInstall_abortInstallation_skip_firewall_revert
+		MessageBox MB_ICONEXCLAMATION|MB_YESNO "Do you wish to unblock your internet access? Doing so will leave you with an unsecure connection." IDNO customInstall_abort_installation_skip_firewall_revert
 		${ExtractMullvadSetup}
 		${ClearFirewallRules}
 	${EndIf}
 
-	customInstall_abortInstallation_skip_firewall_revert:
+	customInstall_abort_installation_skip_firewall_revert:
 
 	Abort
 
@@ -769,6 +782,7 @@
 		log::LogWithDetails "Failed to stop the service: $0" $1
 
 		# It may be possible to recover by force-killing the service
+		# This also "fails" with a generic error if the service isn't running
 	${EndIf}
 
 	# Copy over the daemon log from the old install for debugging purposes
@@ -797,7 +811,7 @@
 	Push 0
 	Pop $DeleteService_Counter
 
-	StopAndDeleteService_checkDelete:
+	StopAndDeleteService_check_delete:
 
 	nsExec::ExecToStack '"$SYSDIR\sc.exe" query mullvadvpn'
 
@@ -815,7 +829,7 @@
 		IntOp $DeleteService_Counter $DeleteService_Counter + 1
 		${If} $DeleteService_Counter < 3
 			Sleep 1000
-			Goto StopAndDeleteService_checkDelete
+			Goto StopAndDeleteService_check_delete
 		${EndIf}
 
 		StrCpy $R0 "Failed to kill Mullvad service"
@@ -914,7 +928,7 @@
 	# Remove application files
 	log::Log "Deleting $INSTDIR"
 	RMDir /r $INSTDIR
-	IfErrors 0 customRemoveFiles_finalCleanup
+	IfErrors 0 customRemoveFiles_final_cleanup
 
 	log::Log "Failed to remove application files"
 
@@ -930,7 +944,7 @@
 	SetErrorLevel 1
 	Abort
 
-	customRemoveFiles_finalCleanup:
+	customRemoveFiles_final_cleanup:
 
 	${RemoveCLIFromEnvironPath}
 
