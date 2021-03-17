@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
+import java.util.concurrent.atomic.AtomicLong
 import net.mullvad.mullvadvpn.model.ListItemData
 import net.mullvad.mullvadvpn.ui.listitemview.ActionListItemView
 import net.mullvad.mullvadvpn.ui.listitemview.DividerGroupListItemView
@@ -54,7 +55,7 @@ class ListItemsAdapter : RecyclerView.Adapter<ListItemsAdapter.ViewHolder>() {
     @ListItemData.ItemType
     override fun getItemViewType(position: Int): Int = getItem(position).type
 
-    override fun getItemId(position: Int): Long = getItem(position).identifier.hashCode().toLong()
+    override fun getItemId(position: Int): Long = getId(getItem(position).identifier)
 
     private fun getItem(position: Int): ListItemData = listDiffer.currentList[position]
 
@@ -101,5 +102,14 @@ class ListItemsAdapter : RecyclerView.Adapter<ListItemsAdapter.ViewHolder>() {
     }
 
     inner class ViewHolder(view: ListItemView) : RecyclerView.ViewHolder(view)
+
+    companion object StableIdProvider {
+        private val idCounter = AtomicLong(0)
+        private val mapIds = hashMapOf<String, Long>()
+
+        internal fun getId(stringId: String): Long = mapIds.computeIfAbsent(stringId) {
+            idCounter.decrementAndGet()
+        }
+    }
 }
 typealias DiffCallback = DiffUtil.ItemCallback<ListItemData>
