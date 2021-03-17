@@ -50,10 +50,33 @@ extension NETunnelProviderManager: VPNTunnelProviderManagerProtocol {}
 
 // MARK: - NEPacketTunnelProvider stubs
 
-protocol SimulatorTunnelProviderDelegate {
-    func startTunnel(options: [String: Any]?, completionHandler: @escaping (Error?) -> Void)
-    func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void)
-    func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?)
+class SimulatorTunnelProviderDelegate {
+    fileprivate(set) var connection: SimulatorVPNConnection?
+
+    var protocolConfiguration: NEVPNProtocol {
+        return connection?.protocolConfiguration ?? NEVPNProtocol()
+    }
+
+    var reasserting: Bool {
+        get {
+            return connection?.reasserting ?? false
+        }
+        set {
+            connection?.reasserting = newValue
+        }
+    }
+
+    func startTunnel(options: [String: Any]?, completionHandler: @escaping (Error?) -> Void) {
+        completionHandler(nil)
+    }
+
+    func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
+        completionHandler()
+    }
+
+    func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
+        completionHandler?(nil)
+    }
 }
 
 class SimulatorTunnelProvider {
@@ -84,6 +107,9 @@ class SimulatorTunnelProvider {
 
 class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
 
+    // Protocol configuration is automatically synced by `SimulatorTunnelInfo`
+    fileprivate var protocolConfiguration = NEVPNProtocol()
+
     private let lock = NSRecursiveLock()
 
     private var _status: NEVPNStatus = .disconnected
@@ -104,11 +130,36 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
         }
     }
 
+    private var statusBeforeReasserting: NEVPNStatus?
+    private var _reasserting = false
+    var reasserting: Bool {
+        get {
+            lock.withCriticalBlock { _reasserting }
+        }
+        set {
+            lock.withCriticalBlock {
+                if newValue != _reasserting {
+                    _reasserting = newValue
+
+                    if newValue {
+                        statusBeforeReasserting = status
+                        status = .reasserting
+                    } else if let newStatus = statusBeforeReasserting {
+                        status = newStatus
+                        statusBeforeReasserting = nil
+                    }
+                }
+            }
+        }
+    }
+
     func startVPNTunnel() throws {
         try startVPNTunnel(options: nil)
     }
 
     func startVPNTunnel(options: [String: NSObject]?) throws {
+        SimulatorTunnelProvider.shared.delegate.connection = self
+
         status = .connecting
 
         SimulatorTunnelProvider.shared.delegate.startTunnel(options: options) { (error) in
@@ -165,10 +216,17 @@ private struct SimulatorTunnelInfo {
     var onDemandRules = [NEOnDemandRule]()
 
     /// Protocol configuration
-    var protocolConfiguration: NEVPNProtocol?
+    var protocolConfiguration: NEVPNProtocol? {
+        didSet {
+            self.connection.protocolConfiguration = protocolConfiguration ?? NEVPNProtocol()
+        }
+    }
 
     /// Tunnel description
     var localizedDescription: String?
+
+    /// Designated initializer
+    init() {}
 }
 
 class SimulatorTunnelProviderManager: VPNTunnelProviderManagerProtocol, Equatable {
@@ -245,8 +303,8 @@ class SimulatorTunnelProviderManager: VPNTunnelProviderManagerProtocol, Equatabl
         }
     }
 
-    required init() {
-        self.tunnelInfo = SimulatorTunnelInfo()
+    required convenience init() {
+        self.init(tunnelInfo: SimulatorTunnelInfo())
     }
 
     private init(tunnelInfo: SimulatorTunnelInfo) {
