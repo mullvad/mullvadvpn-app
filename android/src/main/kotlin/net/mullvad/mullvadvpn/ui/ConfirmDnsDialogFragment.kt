@@ -9,11 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
 
 class ConfirmDnsDialogFragment @JvmOverloads constructor(
+    private val message: Int = R.string.confirm_public_dns,
     private var confirmation: CompletableDeferred<Boolean>? = null
 ) : DialogFragment() {
     override fun onCreateView(
@@ -22,6 +24,8 @@ class ConfirmDnsDialogFragment @JvmOverloads constructor(
         savedInstanceState: Bundle?
     ): View {
         val view = inflater.inflate(R.layout.confirm_dns, container, false)
+
+        view.findViewById<TextView>(R.id.message).setText(message)
 
         view.findViewById<Button>(R.id.back_button).setOnClickListener {
             activity?.onBackPressed()

@@ -137,7 +137,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         detachBackButtonHandler()
         transaction.addToBackStack(null)
 
-        ConfirmDnsDialogFragment(confirmation)
+        ConfirmDnsDialogFragment(R.string.confirm_public_dns, confirmation)
             .show(transaction, null)
 
         val result = confirmation.await()
