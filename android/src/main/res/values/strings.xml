@@ -170,6 +170,8 @@
     <string name="add_a_server">Add a server</string>
     <string name="custom_dns_example">e.g. 10.0.0.4</string>
     <string name="custom_dns_footer">Enable to add at least one DNS server.</string>
+    <string name="confirm_local_dns">The local DNS server will not work unless you enable \"Local
+    Network Sharing\" under Preferences.</string>
     <string name="confirm_public_dns">The DNS server you are trying to add might not work because
     it is public. Currently we only support local DNS servers.</string>
     <string name="add_anyway">Add anyway</string>

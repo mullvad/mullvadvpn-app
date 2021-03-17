@@ -124,13 +124,13 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
 
     private suspend fun confirmAddAddress(address: InetAddress): Boolean {
         return if (address.isLinkLocalAddress() || address.isSiteLocalAddress()) {
-            return true
+            showConfirmDnsServerDialog(R.string.confirm_local_dns)
         } else {
-            showConfirmDnsServerDialog()
+            showConfirmDnsServerDialog(R.string.confirm_public_dns)
         }
     }
 
-    private suspend fun showConfirmDnsServerDialog(): Boolean {
+    private suspend fun showConfirmDnsServerDialog(message: Int): Boolean {
         val confirmation = CompletableDeferred<Boolean>()
         val transaction = parentFragmentManager.beginTransaction()
 
@@ -138,7 +138,10 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         transaction.addToBackStack(null)
 
         ConfirmDnsDialogFragment()
-            .also { dialog -> dialog.confirmation = confirmation }
+            .also { dialog ->
+                dialog.confirmation = confirmation
+                dialog.message = message
+            }
             .show(transaction, null)
 
         val result = confirmation.await()
