@@ -38,6 +38,8 @@ protocol RootContainment {
 
 protocol RootContainerViewControllerDelegate: class {
     func rootContainerViewControllerShouldShowSettings(_ controller: RootContainerViewController, navigateTo route: SettingsNavigationRoute?, animated: Bool)
+
+    func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController) -> UIInterfaceOrientationMask
 }
 
 /// A root container view controller
@@ -52,6 +54,8 @@ class RootContainerViewController: UIViewController {
     private(set) var headerBarHidden = false
 
     private(set) var viewControllers = [UIViewController]()
+
+    private var interfaceOrientationMask: UIInterfaceOrientationMask?
 
     var topViewController: UIViewController? {
         return viewControllers.last
@@ -122,6 +126,16 @@ class RootContainerViewController: UIViewController {
         topViewController?.endAppearanceTransition()
     }
 
+    // MARK: - Autorotation
+
+    override var shouldAutorotate: Bool {
+        return true
+    }
+
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
+        return interfaceOrientationMask ?? super.supportedInterfaceOrientations
+    }
+
     // MARK: - Storyboard segue handling
 
     override func unwind(for unwindSegue: UIStoryboardSegue, towards subsequentVC: UIViewController) {
@@ -142,6 +156,11 @@ class RootContainerViewController: UIViewController {
                             animated: Bool,
                             completion: CompletionHandler? = nil)
     {
+        // Fetch the initial orientation mask
+        if interfaceOrientationMask == nil {
+            updateInterfaceOrientation(attemptRotateToDeviceOrientation: false)
+        }
+
         setViewControllersInternal(
             newViewControllers,
             isUnwinding: false,
@@ -259,6 +278,8 @@ class RootContainerViewController: UIViewController {
                     targetViewController?.endAppearanceTransition()
                 }
             }
+
+            self.updateInterfaceOrientation(attemptRotateToDeviceOrientation: true)
 
             completion?()
         }
@@ -405,6 +426,19 @@ class RootContainerViewController: UIViewController {
     private func updateHeaderBarHiddenFromChildPreferences(animated: Bool) {
         if let conforming = topViewController as? RootContainment {
             setHeaderBarHidden(conforming.prefersHeaderBarHidden, animated: animated)
+        }
+    }
+
+    private func updateInterfaceOrientation(attemptRotateToDeviceOrientation: Bool) {
+        let newSupportedOrientations = delegate?.rootContainerViewSupportedInterfaceOrientations(self)
+
+        if interfaceOrientationMask != newSupportedOrientations {
+            interfaceOrientationMask = newSupportedOrientations
+
+            // Tell UIKit to update the interface orientation
+            if attemptRotateToDeviceOrientation {
+                Self.attemptRotationToDeviceOrientation()
+            }
         }
     }
 
