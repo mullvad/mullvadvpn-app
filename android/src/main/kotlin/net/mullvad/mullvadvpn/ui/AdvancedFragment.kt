@@ -125,7 +125,8 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private suspend fun confirmAddAddress(address: InetAddress): Boolean {
         return when {
             address.isLinkLocalAddress() || address.isSiteLocalAddress() -> {
-                showConfirmDnsServerDialog(R.string.confirm_local_dns)
+                settingsListener.settings.allowLan ||
+                    showConfirmDnsServerDialog(R.string.confirm_local_dns)
             }
             else -> showConfirmDnsServerDialog(R.string.confirm_public_dns)
         }
