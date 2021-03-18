@@ -9,27 +9,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
 
-class ConfirmPublicDnsDialogFragment : DialogFragment() {
-    var confirmPublicDns: CompletableDeferred<Boolean>? = null
-
+class ConfirmDnsDialogFragment @JvmOverloads constructor(
+    private val message: Int = R.string.confirm_public_dns,
+    private var confirmation: CompletableDeferred<Boolean>? = null
+) : DialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val view = inflater.inflate(R.layout.confirm_public_dns, container, false)
+        val view = inflater.inflate(R.layout.confirm_dns, container, false)
+
+        view.findViewById<TextView>(R.id.message).setText(message)
 
         view.findViewById<Button>(R.id.back_button).setOnClickListener {
             activity?.onBackPressed()
         }
 
         view.findViewById<Button>(R.id.confirm_button).setOnClickListener {
-            confirmPublicDns?.complete(true)
-            confirmPublicDns = null
+            confirmation?.complete(true)
+            confirmation = null
             dismiss()
         }
 
@@ -49,17 +53,17 @@ class ConfirmPublicDnsDialogFragment : DialogFragment() {
 
         dialog?.window?.setLayout(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
 
-        if (confirmPublicDns == null) {
+        if (confirmation == null) {
             dismiss()
         }
     }
 
     override fun onDismiss(dialogInterface: DialogInterface) {
-        confirmPublicDns?.complete(false)
+        confirmation?.complete(false)
     }
 
     override fun onDestroy() {
-        confirmPublicDns?.cancel()
+        confirmation?.cancel()
 
         super.onDestroy()
     }
