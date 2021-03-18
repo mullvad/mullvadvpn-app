@@ -53,5 +53,7 @@ class HeaderBar @JvmOverloads constructor(
         findViewById<View>(R.id.settings).setOnClickListener {
             (context as? MainActivity)?.openSettings()
         }
+
+        tunnelState = null
     }
 }
