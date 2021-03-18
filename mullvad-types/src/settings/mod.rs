@@ -23,6 +23,9 @@ pub enum Error {
     #[error(display = "Malformed settings")]
     ParseError(#[error(source)] serde_json::Error),
 
+    #[error(display = "Settings version mismatch")]
+    VersionMismatch,
+
     #[error(display = "Unable to read any version of the settings")]
     NoMatchingVersion,
 }
@@ -74,14 +77,18 @@ impl Default for Settings {
             auto_connect: false,
             tunnel_options: TunnelOptions::default(),
             show_beta_releases: false,
-            settings_version: migrations::SettingsVersion::V2,
+            settings_version: migrations::CURRENT_SETTINGS_VERSION,
         }
     }
 }
 
 impl Settings {
     pub fn load_from_bytes(bytes: &[u8]) -> Result<Self> {
-        serde_json::from_slice(bytes).map_err(Error::ParseError)
+        let settings: Self = serde_json::from_slice(bytes).map_err(Error::ParseError)?;
+        if settings.settings_version < migrations::CURRENT_SETTINGS_VERSION {
+            return Err(Error::VersionMismatch);
+        }
+        Ok(settings)
     }
 
     pub fn migrate_from_bytes(bytes: &[u8]) -> Result<Self> {
