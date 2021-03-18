@@ -13,9 +13,9 @@ import androidx.fragment.app.DialogFragment
 import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
 
-class ConfirmDnsDialogFragment : DialogFragment() {
-    var confirmation: CompletableDeferred<Boolean>? = null
-
+class ConfirmDnsDialogFragment @JvmOverloads constructor(
+    private var confirmation: CompletableDeferred<Boolean>? = null
+) : DialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
