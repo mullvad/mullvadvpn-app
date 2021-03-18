@@ -95,7 +95,7 @@ function build_unix {
 
 function build_android {
     echo "Building for android"
-    local docker_image_hash="25151087eb355a6e609db01a9498df0af4a8bec5d59ad561521512ece7bd21e9"
+    local docker_image_hash="5e3ad65f2d344a891343633a7f545b56fd4cbc0a9776b921ce245773150cf781"
 
     if is_docker_build $@; then
         docker run --rm \
