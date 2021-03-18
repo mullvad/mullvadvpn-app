@@ -75,6 +75,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Fix input area sometimes disappearing when returning to the Login screen.
+- Fix status bar having the wrong color after logging out.
 
 
 ## [2021.2] - 2021-02-18
