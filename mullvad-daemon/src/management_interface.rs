@@ -1225,7 +1225,7 @@ fn convert_tunnel_options(options: &TunnelOptions) -> types::TunnelOptions {
             mssfix: u32::from(options.openvpn.mssfix.unwrap_or_default()),
         }),
         wireguard: Some(types::tunnel_options::WireguardOptions {
-            mtu: u32::from(options.wireguard.mtu.unwrap_or_default()),
+            mtu: u32::from(options.wireguard.options.mtu.unwrap_or_default()),
             automatic_rotation: options
                 .wireguard
                 .automatic_rotation

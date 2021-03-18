@@ -1,6 +1,9 @@
-use crate::relay_constraints::{
-    BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
-    RelayConstraints, RelaySettings, RelaySettingsUpdate,
+use crate::{
+    relay_constraints::{
+        BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
+        RelayConstraints, RelaySettings, RelaySettingsUpdate,
+    },
+    wireguard,
 };
 #[cfg(target_os = "android")]
 use jnix::{FromJava, IntoJava};
@@ -8,7 +11,7 @@ use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::net::IpAddr;
-use talpid_types::net::{openvpn, wireguard, GenericTunnelOptions};
+use talpid_types::net::{self, openvpn, GenericTunnelOptions};
 
 mod migrations;
 
@@ -186,7 +189,7 @@ impl Default for TunnelOptions {
         TunnelOptions {
             openvpn: openvpn::TunnelOptions::default(),
             wireguard: wireguard::TunnelOptions {
-                mtu: None,
+                options: net::wireguard::TunnelOptions::default(),
                 automatic_rotation: None,
             },
             generic: GenericTunnelOptions {

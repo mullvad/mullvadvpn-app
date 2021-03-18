@@ -118,7 +118,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private fun updateUi(settings: Settings) {
         jobTracker.newUiJob("updateUi") {
             if (!wireguardMtuInput.hasFocus) {
-                wireguardMtuInput.value = settings.tunnelOptions.wireguard.mtu
+                wireguardMtuInput.value = settings.tunnelOptions.wireguard.options.mtu
             }
         }
     }

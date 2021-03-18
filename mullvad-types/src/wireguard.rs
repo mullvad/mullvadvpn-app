@@ -24,6 +24,20 @@ impl WireguardData {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.WireguardTunnelOptions")
+)]
+pub struct TunnelOptions {
+    #[serde(flatten)]
+    pub options: wireguard::TunnelOptions,
+    /// Interval used for automatic key rotation, in hours
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub automatic_rotation: Option<u32>,
+}
+
 /// Represents a published public key
 #[derive(Serialize, Deserialize, Clone, Debug)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]

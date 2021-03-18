@@ -60,7 +60,7 @@ impl CustomTunnelEndpoint {
             .into(),
             ConnectionConfig::Wireguard(connection) => wireguard::TunnelParameters {
                 connection,
-                options: tunnel_options.wireguard.clone(),
+                options: tunnel_options.wireguard.options.clone(),
                 generic_options: tunnel_options.generic.clone(),
             }
             .into(),

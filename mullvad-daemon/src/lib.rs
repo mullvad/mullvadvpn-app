@@ -1063,7 +1063,7 @@ where
                         ipv4_gateway,
                         ipv6_gateway: Some(ipv6_gateway),
                     },
-                    options: tunnel_options.wireguard,
+                    options: tunnel_options.wireguard.options,
                     generic_options: tunnel_options.generic,
                 }
                 .into())
