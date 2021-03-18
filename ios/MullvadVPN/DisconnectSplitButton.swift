@@ -10,12 +10,15 @@ import Foundation
 import UIKit
 
 class DisconnectSplitButton: UIView {
+
+    private var secondaryButtonSize: CGSize {
+        return CGSize(width: 42, height: 42)
+    }
+
     let primaryButton = AppButton(style: .translucentDangerSplitLeft)
-    var secondaryButton = AppButton(style: .translucentDangerSplitRight)
+    let secondaryButton = AppButton(style: .translucentDangerSplitRight)
 
     private let stackView: UIStackView
-
-    private var secondaryButtonObserver: NSObjectProtocol?
 
     init() {
         stackView = UIStackView(arrangedSubviews: [primaryButton, secondaryButton])
@@ -26,24 +29,11 @@ class DisconnectSplitButton: UIView {
         stackView.spacing = 1
 
         primaryButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
-        primaryButton.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        primaryButton.setContentHuggingPriority(.defaultLow, for: .vertical)
-        primaryButton.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
-        primaryButton.setContentCompressionResistancePriority(.defaultHigh, for: .vertical)
-
         secondaryButton.setImage(UIImage(named: "IconReload"), for: .normal)
-        secondaryButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-        secondaryButton.setContentHuggingPriority(.defaultHigh, for: .vertical)
-        secondaryButton.setContentCompressionResistancePriority(UILayoutPriority(50), for: .horizontal)
-        secondaryButton.setContentCompressionResistancePriority(UILayoutPriority(50), for: .vertical)
 
         super.init(frame: .zero)
 
         addSubview(stackView)
-
-        secondaryButtonObserver = secondaryButton.observe(\.bounds, options: [.new]) { [weak self] (button, change) in
-            self?.adjustTitleLabelPosition()
-        }
 
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
@@ -51,9 +41,11 @@ class DisconnectSplitButton: UIView {
             stackView.topAnchor.constraint(equalTo: topAnchor),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-            primaryButton.heightAnchor.constraint(equalTo: secondaryButton.heightAnchor),
-            secondaryButton.widthAnchor.constraint(equalTo: secondaryButton.heightAnchor)
+            secondaryButton.widthAnchor.constraint(equalToConstant: self.secondaryButtonSize.width),
+            secondaryButton.heightAnchor.constraint(equalToConstant: self.secondaryButtonSize.height)
         ])
+
+        adjustTitleLabelPosition()
     }
 
     required init?(coder: NSCoder) {
@@ -62,7 +54,7 @@ class DisconnectSplitButton: UIView {
 
     private func adjustTitleLabelPosition() {
         var contentInsets = AppButton.defaultContentInsets
-        contentInsets.left = secondaryButton.frame.width + stackView.spacing
+        contentInsets.left = stackView.spacing + self.secondaryButtonSize.width
         contentInsets.right = 0
 
         primaryButton.contentEdgeInsets = contentInsets
