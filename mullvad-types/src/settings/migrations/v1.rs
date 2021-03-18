@@ -126,7 +126,7 @@ mod test {
       "enable_ipv6": false
     }
   },
-  "settings_version": 2
+  "settings_version": 3
 }
 "#;
 
