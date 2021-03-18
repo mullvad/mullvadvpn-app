@@ -154,6 +154,7 @@
 		58B0A2AC238EE6D500BC001D /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250022B1124600E4CFEC /* IPAddress+Codable.swift */; };
 		58B0A2AD238EE6EC00BC001D /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
 		58B67B482602079E008EF58E /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58781CD422AFBA39009B9D8E /* RelaySelector.swift */; };
+		58B43C1925F77DB60002C8C3 /* ConnectMainContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B43C1825F77DB60002C8C3 /* ConnectMainContentView.swift */; };
 		58B8743222B25A7600015324 /* WireguardAssociatedAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B8743122B25A7600015324 /* WireguardAssociatedAddresses.swift */; };
 		58B8743B22B788D200015324 /* PacketTunnelSettingsGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B8743722B25EAB00015324 /* PacketTunnelSettingsGenerator.swift */; };
 		58B9814E24FEA70D00C0D59E /* WireguardKeysViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58B9814D24FEA70D00C0D59E /* WireguardKeysViewController.xib */; };
@@ -193,7 +194,6 @@
 		58CE5E81224146470008646E /* PacketTunnel.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 58CE5E79224146470008646E /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		58D0C79E23F1CEBA00FE9BA7 /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D0C79D23F1CEBA00FE9BA7 /* SnapshotHelper.swift */; };
 		58D0C7A223F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D0C7A023F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift */; };
-		58D9AF6B2501111800B6FAB5 /* ConnectViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58D9AF6A2501111800B6FAB5 /* ConnectViewController.xib */; };
 		58DF28A52417CB4B00E836B0 /* AppStorePaymentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF28A42417CB4B00E836B0 /* AppStorePaymentManager.swift */; };
 		58E5BC2624FEB6DB00A53A76 /* AccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58E5BC2524FEB6DB00A53A76 /* AccountViewController.xib */; };
 		58E6771F24ADFE7800AA26E7 /* SettingsNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E6771E24ADFE7800AA26E7 /* SettingsNavigationController.swift */; };
@@ -357,6 +357,7 @@
 		58AEEF6A2344A46200C9BBD5 /* TunnelSettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsManager.swift; sourceTree = "<group>"; };
 		58B0A2A0238EE67E00BC001D /* MullvadVPNTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadVPNTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		58B0A2A4238EE67E00BC001D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		58B43C1825F77DB60002C8C3 /* ConnectMainContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectMainContentView.swift; sourceTree = "<group>"; };
 		58B8743122B25A7600015324 /* WireguardAssociatedAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardAssociatedAddresses.swift; sourceTree = "<group>"; };
 		58B8743722B25EAB00015324 /* PacketTunnelSettingsGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelSettingsGenerator.swift; sourceTree = "<group>"; };
 		58B9814D24FEA70D00C0D59E /* WireguardKeysViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WireguardKeysViewController.xib; sourceTree = "<group>"; };
@@ -393,7 +394,6 @@
 		58D0C79D23F1CEBA00FE9BA7 /* SnapshotHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotHelper.swift; sourceTree = "<group>"; };
 		58D0C79F23F1CECF00FE9BA7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		58D0C7A023F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MullvadVPNScreenshots.swift; sourceTree = "<group>"; };
-		58D9AF6A2501111800B6FAB5 /* ConnectViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ConnectViewController.xib; sourceTree = "<group>"; };
 		58DF28A42417CB4B00E836B0 /* AppStorePaymentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorePaymentManager.swift; sourceTree = "<group>"; };
 		58E5BC2524FEB6DB00A53A76 /* AccountViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AccountViewController.xib; sourceTree = "<group>"; };
 		58E6771E24ADFE7800AA26E7 /* SettingsNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsNavigationController.swift; sourceTree = "<group>"; };
@@ -564,7 +564,7 @@
 				58F840B12464491D0044E708 /* ChainedError.swift */,
 				58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */,
 				58CCA00F224249A1004F3011 /* ConnectViewController.swift */,
-				58D9AF6A2501111800B6FAB5 /* ConnectViewController.xib */,
+				58B43C1825F77DB60002C8C3 /* ConnectMainContentView.swift */,
 				58A99ED2240014A0006599E9 /* ConsentViewController.swift */,
 				58AB9DEB2501040C006C5526 /* ConsentViewController.xib */,
 				5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */,
@@ -873,7 +873,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58D9AF6B2501111800B6FAB5 /* ConnectViewController.xib in Resources */,
 				58AB9DEE25010636006C5526 /* LoginViewController.xib in Resources */,
 				58F3C0A624A50157003E76BE /* relays.json in Resources */,
 				58CE5E6E224146210008646E /* LaunchScreen.storyboard in Resources */,
@@ -1051,6 +1050,7 @@
 				581503A324D6F1EC00C9C50E /* ChainedError+Logger.swift in Sources */,
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				58C3B06724EA768100C0348E /* LogStreamerViewController.swift in Sources */,
+				58B43C1925F77DB60002C8C3 /* ConnectMainContentView.swift in Sources */,
 				58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
 				58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
