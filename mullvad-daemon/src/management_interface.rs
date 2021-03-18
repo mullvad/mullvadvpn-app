@@ -19,12 +19,16 @@ use mullvad_types::{
     relay_list::{Relay, RelayList, RelayListCountry},
     settings::{Settings, TunnelOptions},
     states::{TargetState, TunnelState},
-    version, wireguard, ConnectionConfig,
+    version,
+    wireguard::{self, RotationInterval, RotationIntervalError},
+    ConnectionConfig,
 };
 use parking_lot::RwLock;
 use std::{
     cmp,
+    convert::{TryFrom, TryInto},
     sync::{mpsc, Arc},
+    time::Duration,
 };
 use talpid_types::{
     net::{IpVersion, TransportProtocol, TunnelType},
@@ -595,8 +599,17 @@ impl ManagementService for ManagementServiceImpl {
     // WireGuard key management
     //
 
-    async fn set_wireguard_rotation_interval(&self, request: Request<u32>) -> ServiceResult<()> {
-        let interval = request.into_inner();
+    async fn set_wireguard_rotation_interval(
+        &self,
+        request: Request<types::Duration>,
+    ) -> ServiceResult<()> {
+        let interval: RotationInterval = Duration::try_from(request.into_inner())
+            .map_err(|_| Status::invalid_argument("unexpected negative rotation interval"))?
+            .try_into()
+            .map_err(|error| match error {
+                RotationIntervalError::TooSmall => Status::invalid_argument("interval too small"),
+                RotationIntervalError::TooLarge => Status::invalid_argument("interval too large"),
+            })?;
 
         log::debug!("set_wireguard_rotation_interval({:?})", interval);
         let (tx, rx) = oneshot::channel();
@@ -1218,18 +1231,16 @@ fn convert_bridge_state(state: &BridgeState) -> types::BridgeState {
 }
 
 fn convert_tunnel_options(options: &TunnelOptions) -> types::TunnelOptions {
-    use types::tunnel_options::wireguard_options::RotationInterval;
-
     types::TunnelOptions {
         openvpn: Some(types::tunnel_options::OpenvpnOptions {
             mssfix: u32::from(options.openvpn.mssfix.unwrap_or_default()),
         }),
         wireguard: Some(types::tunnel_options::WireguardOptions {
             mtu: u32::from(options.wireguard.options.mtu.unwrap_or_default()),
-            automatic_rotation: options
+            rotation_interval: options
                 .wireguard
-                .automatic_rotation
-                .map(|interval| RotationInterval { interval }),
+                .rotation_interval
+                .map(|ivl| types::Duration::from(Duration::from(ivl))),
         }),
         generic: Some(types::tunnel_options::GenericOptions {
             enable_ipv6: options.generic.enable_ipv6,

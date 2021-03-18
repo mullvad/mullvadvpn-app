@@ -197,7 +197,7 @@ impl Default for TunnelOptions {
             openvpn: openvpn::TunnelOptions::default(),
             wireguard: wireguard::TunnelOptions {
                 options: net::wireguard::TunnelOptions::default(),
-                automatic_rotation: None,
+                rotation_interval: None,
             },
             generic: GenericTunnelOptions {
                 // Enable IPv6 be default on Android

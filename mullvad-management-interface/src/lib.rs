@@ -1,7 +1,7 @@
 pub mod types {
     tonic::include_proto!("mullvad_daemon.management_interface");
 
-    pub use prost_types::Timestamp;
+    pub use prost_types::{Duration, Timestamp};
 }
 
 use parity_tokio_ipc::Endpoint as IpcEndpoint;

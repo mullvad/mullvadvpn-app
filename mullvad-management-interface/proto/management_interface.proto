@@ -5,6 +5,7 @@ package mullvad_daemon.management_interface;
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/wrappers.proto";
+import "google/protobuf/duration.proto";
 
 service ManagementService {
 	// Control and get tunnel state
@@ -52,7 +53,7 @@ service ManagementService {
 	rpc SubmitVoucher(google.protobuf.StringValue) returns (VoucherSubmission) {}
 
 	// WireGuard key management
-	rpc SetWireguardRotationInterval(google.protobuf.UInt32Value) returns (google.protobuf.Empty) {}
+	rpc SetWireguardRotationInterval(google.protobuf.Duration) returns (google.protobuf.Empty) {}
 	rpc ResetWireguardRotationInterval(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc GenerateWireguardKey(google.protobuf.Empty) returns (KeygenEvent) {}
 	rpc GetWireguardKey(google.protobuf.Empty) returns (PublicKey) {}
@@ -360,13 +361,9 @@ message TunnelOptions {
 		uint32 mssfix = 1;
 	}
 	message WireguardOptions {
-		message RotationInterval {
-			uint32 interval = 1;
-		}
-
 		// NOTE: optional
 		uint32 mtu = 1;
-		RotationInterval automatic_rotation = 2;
+		google.protobuf.Duration rotation_interval = 2;
 	}
 	message GenericOptions {
 		bool enable_ipv6 = 1;

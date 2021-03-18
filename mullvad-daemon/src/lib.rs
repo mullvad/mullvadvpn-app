@@ -38,7 +38,7 @@ use mullvad_types::{
     settings::{DnsOptions, Settings},
     states::{TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
-    wireguard::KeygenEvent,
+    wireguard::{KeygenEvent, RotationInterval},
 };
 use settings::SettingsPersister;
 #[cfg(target_os = "android")]
@@ -223,7 +223,7 @@ pub enum DaemonCommand {
     /// Set MTU for wireguard tunnels
     SetWireguardMtu(ResponseTx<(), settings::Error>, Option<u16>),
     /// Set automatic key rotation interval for wireguard tunnels
-    SetWireguardRotationInterval(ResponseTx<(), settings::Error>, Option<u32>),
+    SetWireguardRotationInterval(ResponseTx<(), settings::Error>, Option<RotationInterval>),
     /// Get the daemon settings
     GetSettings(oneshot::Sender<Settings>),
     /// Generate new wireguard key
@@ -1231,15 +1231,12 @@ where
 
     async fn ensure_key_rotation(&mut self) {
         if let Some(token) = self.settings.get_account_token() {
-            let rotation_interval = self
-                .settings
-                .tunnel_options
-                .wireguard
-                .automatic_rotation
-                .map(|hours| Duration::from_secs(60u64 * 60u64 * hours as u64));
-
             self.wireguard_key_manager
-                .set_rotation_interval(&mut self.account_history, token, rotation_interval)
+                .set_rotation_interval(
+                    &mut self.account_history,
+                    token,
+                    self.settings.tunnel_options.wireguard.rotation_interval,
+                )
                 .await;
         }
     }
@@ -1882,7 +1879,7 @@ where
     async fn on_set_wireguard_rotation_interval(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
-        interval: Option<u32>,
+        interval: Option<RotationInterval>,
     ) {
         let save_result = self.settings.set_wireguard_rotation_interval(interval);
         match save_result {
@@ -1989,11 +1986,7 @@ where
                     .set_rotation_interval(
                         &mut self.account_history,
                         account_token,
-                        self.settings
-                            .tunnel_options
-                            .wireguard
-                            .automatic_rotation
-                            .map(|hours| Duration::from_secs(60u64 * 60u64 * hours as u64)),
+                        self.settings.tunnel_options.wireguard.rotation_interval,
                     )
                     .await;
 

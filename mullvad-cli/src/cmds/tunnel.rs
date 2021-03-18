@@ -1,6 +1,7 @@
 use crate::{format::print_keygen_event, new_rpc_client, Command, Error, Result};
 use clap::value_t;
-use mullvad_management_interface::types::{Timestamp, TunnelOptions};
+use mullvad_management_interface::types::{self, Timestamp, TunnelOptions};
+use std::{convert::TryFrom, time::Duration};
 
 pub struct Tunnel;
 
@@ -61,7 +62,7 @@ fn create_wireguard_keys_subcommand() -> clap::App<'static, 'static> {
 
 fn create_wireguard_keys_rotation_interval_subcommand() -> clap::App<'static, 'static> {
     clap::SubCommand::with_name("rotation-interval")
-        .about("Manage automatic key rotation (specified in hours; 0 = disabled)")
+        .about("Manage automatic key rotation (given in hours)")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
         .subcommand(clap::SubCommand::with_name("get"))
         .subcommand(clap::SubCommand::with_name("reset").about("Use the default rotation interval"))
@@ -220,9 +221,10 @@ impl Tunnel {
 
     async fn process_wireguard_rotation_interval_get() -> Result<()> {
         let tunnel_options = Self::get_tunnel_options().await?;
-        match tunnel_options.wireguard.unwrap().automatic_rotation {
+        match tunnel_options.wireguard.unwrap().rotation_interval {
             Some(interval) => {
-                println!("Rotation interval: {} hour(s)", interval.interval);
+                let hours = Duration::try_from(interval).unwrap().as_secs() / 60 / 60;
+                println!("Rotation interval: {} hour(s)", hours);
             }
             None => println!("Rotation interval: default"),
         }
@@ -233,7 +235,10 @@ impl Tunnel {
         let rotate_interval =
             value_t!(matches.value_of("interval"), u32).unwrap_or_else(|e| e.exit());
         let mut rpc = new_rpc_client().await?;
-        rpc.set_wireguard_rotation_interval(rotate_interval).await?;
+        rpc.set_wireguard_rotation_interval(types::Duration::from(Duration::from_secs(u64::from(
+            60 * 60 * rotate_interval,
+        ))))
+        .await?;
         println!("Set key rotation interval: {} hour(s)", rotate_interval);
         Ok(())
     }
