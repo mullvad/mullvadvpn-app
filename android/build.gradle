@@ -65,6 +65,12 @@ android {
                 srcDirs += 'src/main/kotlin/'
             }
         }
+
+        test {
+            java {
+                srcDirs += 'src/test/kotlin/'
+            }
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -74,6 +80,17 @@ android {
     applicationVariants.all { variant ->
         variant.mergeAssetsProvider.configure {
             dependsOn copyExtraAssets
+        }
+    }
+
+    testOptions {
+        unitTests.all {
+            testLogging {
+                outputs.upToDateWhen { false }
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                showCauses true
+                showExceptions true
+            }
         }
     }
 }
@@ -109,9 +126,16 @@ dependencies {
     implementation 'joda-time:joda-time:2.10.2'
     implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.4.10'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2'
+
+    /* Test dependencies */
+    testImplementation "io.mockk:mockk:$mockkVersion"
+    testImplementation 'junit:junit:4.12'
 }
 
 buildscript {
+    ext {
+        mockkVersion = '1.10.6'
+    }
     repositories {
         jcenter()
         google()
