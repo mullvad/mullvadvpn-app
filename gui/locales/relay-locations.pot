@@ -122,6 +122,10 @@ msgstr ""
 msgid "Dublin"
 msgstr ""
 
+#. DE DUS
+msgid "Dusseldorf"
+msgstr ""
+
 #. FI
 msgid "Finland"
 msgstr ""

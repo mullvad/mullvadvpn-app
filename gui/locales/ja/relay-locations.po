@@ -132,6 +132,10 @@ msgstr "ドバイ"
 msgid "Dublin"
 msgstr "ダブリン"
 
+#. DE DUS
+msgid "Dusseldorf"
+msgstr "デュッセルドルフ"
+
 #. FI
 msgid "Finland"
 msgstr "フィンランド"
@@ -487,4 +491,3 @@ msgstr "ウィーン"
 #. CH ZRH
 msgid "Zurich"
 msgstr "チューリッヒ"
-
