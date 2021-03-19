@@ -53,9 +53,14 @@ for arch in $ARCHITECTURES; do
     UNSTRIPPED_LIB_PATH="../../build/lib/$RUST_TARGET_TRIPLE/libwg.so"
     STRIPPED_LIB_PATH="../../android/build/extraJni/$ANDROID_ABI/libwg.so"
 
-    mkdir -p "$(dirname "$STRIPPED_LIB_PATH")"
+    # Create the directories with RWX permissions for all users so that the build server can clean
+    # the directories afterwards
+    mkdir -m 777 -p "$(dirname "$STRIPPED_LIB_PATH")"
 
     $ANDROID_STRIP_TOOL --strip-unneeded --strip-debug -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
+
+    # Set permissions so that the build server can clean the outputs afterwards
+    chmod 777 "$STRIPPED_LIB_PATH"
 
     rm -rf build
 done
