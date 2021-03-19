@@ -18,6 +18,8 @@ import net.mullvad.mullvadvpn.ui.widget.ToggleCell
 import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
 class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
+    private var isAllowLanEnabled = false
+
     private lateinit var customDnsAdapter: CustomDnsAdapter
     private lateinit var customDnsToggle: ToggleCell
     private lateinit var wireguardMtuInput: MtuCell
@@ -113,6 +115,8 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             maybeSettings?.let { settings ->
                 updateUi(settings)
             }
+
+            isAllowLanEnabled = maybeSettings?.allowLan ?: false
         }
     }
 
@@ -127,9 +131,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private suspend fun confirmAddAddress(address: InetAddress): Boolean {
         return when {
             address.isLinkLocalAddress() || address.isSiteLocalAddress() -> {
-                val allowLanEnabled = settingsListener.settings?.allowLan ?: false
-
-                allowLanEnabled || showConfirmDnsServerDialog(R.string.confirm_local_dns)
+                isAllowLanEnabled || showConfirmDnsServerDialog(R.string.confirm_local_dns)
             }
             else -> showConfirmDnsServerDialog(R.string.confirm_public_dns)
         }
