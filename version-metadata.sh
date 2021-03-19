@@ -33,7 +33,8 @@ function inject_version {
         return 1
     fi
 
-    local semver_version=$(echo "$product_version" | sed -Ee 's/($|-.*)/.0\1/g')
+    local semver_version
+    semver_version=$(echo "$product_version" | sed -Ee 's/($|-.*)/.0\1/g')
     local semver_major="20${BASH_REMATCH[1]}"
     local semver_minor=${BASH_REMATCH[2]}
     local semver_patch="0"
@@ -60,10 +61,13 @@ EOF
 
     # Android
     if [[ ("$(uname -s)" == "Linux") ]]; then
-        local version_year=$(printf "%02d" "${BASH_REMATCH[1]}")
-        local version_number=$(printf "%02d" "${BASH_REMATCH[2]}")
+        local version_year
+        version_year=$(printf "%02d" "${BASH_REMATCH[1]}")
+        local version_number
+        version_number=$(printf "%02d" "${BASH_REMATCH[2]}")
         local version_patch="00" # Not used for now.
-        local version_beta=$(printf "%02d" "${BASH_REMATCH[4]:-99}")
+        local version_beta
+        version_beta=$(printf "%02d" "${BASH_REMATCH[4]:-99}")
         local android_version_code=${version_year}${version_number}${version_patch}${version_beta}
 
         cp android/build.gradle android/build.gradle.bak
