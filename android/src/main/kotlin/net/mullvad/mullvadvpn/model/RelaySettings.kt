@@ -1,6 +1,12 @@
 package net.mullvad.mullvadvpn.model
 
-sealed class RelaySettings {
-    object CustomTunnelEndpoint : RelaySettings()
-    class Normal(val relayConstraints: RelayConstraints) : RelaySettings()
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+sealed class RelaySettings : Parcelable {
+    @Parcelize
+    object CustomTunnelEndpoint : RelaySettings(), Parcelable
+
+    @Parcelize
+    class Normal(val relayConstraints: RelayConstraints) : RelaySettings(), Parcelable
 }
