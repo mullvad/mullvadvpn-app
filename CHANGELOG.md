@@ -71,6 +71,7 @@ Line wrap the file at 100 chars.                                              Th
 - Stop using NM for managing DNS if it's newer than 1.26.
 - Fix DNS issues where NM would overwrite Mullvad tunnel's DNS config in systemd-resolved.
 - Fix issues with hosts where the firewall is doing reverse path filtering.
+- Further improve offline monitor to properly receive `ENETUNREACH`.
 
 #### Android
 - Fix input area sometimes disappearing when returning to the Login screen.
