@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ScrollView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
@@ -17,7 +18,7 @@ import net.mullvad.mullvadvpn.ui.widget.AccountLogin
 import net.mullvad.mullvadvpn.ui.widget.Button
 import org.joda.time.DateTime
 
-class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
+class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen), NavigationBarPainter {
     enum class LoginResult {
         ExistingAccountWithTime,
         ExistingAccountOutOfTime,
@@ -104,6 +105,11 @@ class LoginFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen) {
                 false
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        paintNavigationBar(ContextCompat.getColor(requireContext(), R.color.darkBlue))
     }
 
     override fun onSafelyStop() {
