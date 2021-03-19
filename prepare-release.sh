@@ -8,14 +8,17 @@ set -eu
 PRODUCT_VERSION=""
 ANDROID="false"
 DESKTOP="false"
+VERSION_METADATA_ARGS=""
 
 for argument in "$@"; do
     case "$argument" in
         "--android")
             ANDROID="true"
+            VERSION_METADATA_ARGS+="--android "
             ;;
         "--desktop")
             DESKTOP="true"
+            VERSION_METADATA_ARGS+="--desktop "
             ;;
         -*)
             echo "Unknown option \"$argument\""
@@ -51,7 +54,7 @@ if [[ $(grep "^## \\[$PRODUCT_VERSION\\] - " CHANGELOG.md) == "" ]]; then
 fi
 
 echo "Updating version in metadata files..."
-./version-metadata.sh inject $PRODUCT_VERSION
+./version-metadata.sh inject $PRODUCT_VERSION $VERSION_METADATA_ARGS
 
 echo "Syncing Cargo.lock with new version numbers"
 source env.sh
