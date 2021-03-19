@@ -132,6 +132,10 @@ msgstr "Dubai"
 msgid "Dublin"
 msgstr "Dublino"
 
+#. DE DUS
+msgid "Dusseldorf"
+msgstr "Düsseldorf"
+
 #. FI
 msgid "Finland"
 msgstr "Finlandia"
@@ -487,4 +491,3 @@ msgstr "Vienna"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zurigo"
-
