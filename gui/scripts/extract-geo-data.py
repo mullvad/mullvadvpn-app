@@ -13,9 +13,9 @@ from polib import POFile, POEntry
 import colorful as c
 from terminaltables import AsciiTable
 
+import fiona
 # import order is important, see https://github.com/Toblerity/Shapely/issues/553
 from shapely.geometry import shape, mapping
-import fiona
 
 SCRIPT_DIR = path.dirname(path.realpath(__file__))
 
