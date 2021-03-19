@@ -1,14 +1,15 @@
-use super::{Error, Result, Settings};
+use super::{Error, Result};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::io::Read;
 mod v1;
 
 
-#[derive(Debug, PartialEq, Clone, Copy)]
+#[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
 #[repr(u32)]
 pub enum SettingsVersion {
     V2 = 2,
 }
+
+pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V2;
 
 impl<'de> Deserialize<'de> for SettingsVersion {
     fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
@@ -35,66 +36,33 @@ impl Serialize for SettingsVersion {
 }
 
 
-#[derive(Debug)]
-enum VersionedSettings {
-    V1(v1::Settings),
-    V2(crate::settings::Settings),
-}
-
-impl VersionedSettings {
-    /// Unrwaps the latest version of settings or panics.
-    fn unwrap(self) -> Settings {
-        match self {
-            VersionedSettings::V2(settings) => settings,
-            lower => {
-                panic!("Unexpected settings version - {:?}", lower);
-            }
-        }
-    }
-}
-
-
 trait SettingsMigration {
-    fn read(&self, reader: &mut dyn Read) -> Result<VersionedSettings>;
-    fn migrate(&self, settings: VersionedSettings) -> VersionedSettings;
-}
-
-fn migrations() -> Vec<Box<dyn SettingsMigration>> {
-    vec![Box::new(v1::Migration)]
+    fn version_matches(&self, settings: &mut serde_json::Value) -> bool;
+    fn migrate(&self, settings: &mut serde_json::Value) -> Result<()>;
 }
 
 pub fn try_migrate_settings(mut settings_file: &[u8]) -> Result<crate::settings::Settings> {
-    let mut migrations_to_apply = vec![];
-    let mut valid_settings = None;
+    let mut settings: serde_json::Value =
+        serde_json::from_reader(&mut settings_file).map_err(Error::ParseError)?;
 
-    let migrations = migrations();
-    for migration in migrations.iter() {
-        match migration.read(&mut settings_file) {
-            Ok(settings) => {
-                valid_settings = Some(migration.migrate(settings));
-                break;
-            }
-            Err(_e) => {
-                migrations_to_apply.push(migration);
-            }
-        };
+    if !settings.is_object() {
+        return Err(Error::NoMatchingVersion);
     }
 
-    if let Some(settings) = valid_settings {
-        let upgraded_settings = migrations_to_apply
-            .iter()
-            .rev()
-            .fold(settings, |old_settings, migration| {
-                migration.migrate(old_settings)
-            });
-        return Ok(upgraded_settings.unwrap());
+    for migration in &[Box::new(v1::Migration)] {
+        if !migration.version_matches(&mut settings) {
+            continue;
+        }
+        migration.migrate(&mut settings)?;
     }
-    return Err(Error::NoMatchingVersion);
+
+    serde_json::from_value(settings).map_err(Error::ParseError)
 }
 
 #[cfg(test)]
 mod test {
     use super::SettingsVersion;
+    use serde_json;
 
     #[test]
     #[should_panic]
