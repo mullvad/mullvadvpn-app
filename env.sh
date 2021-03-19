@@ -1,3 +1,5 @@
+# shellcheck shell=bash
+#
 # Sourcing this file should set up the environment to build the app
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
