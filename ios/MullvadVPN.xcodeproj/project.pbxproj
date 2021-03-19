@@ -151,6 +151,7 @@
 		58B0A2AA238EE6A900BC001D /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58781CD422AFBA39009B9D8E /* RelaySelector.swift */; };
 		58B0A2AC238EE6D500BC001D /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250022B1124600E4CFEC /* IPAddress+Codable.swift */; };
 		58B0A2AD238EE6EC00BC001D /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
+		58B67B482602079E008EF58E /* RelaySelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58781CD422AFBA39009B9D8E /* RelaySelector.swift */; };
 		58B8743222B25A7600015324 /* WireguardAssociatedAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B8743122B25A7600015324 /* WireguardAssociatedAddresses.swift */; };
 		58B8743B22B788D200015324 /* PacketTunnelSettingsGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B8743722B25EAB00015324 /* PacketTunnelSettingsGenerator.swift */; };
 		58B9814E24FEA70D00C0D59E /* WireguardKeysViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58B9814D24FEA70D00C0D59E /* WireguardKeysViewController.xib */; };
@@ -170,6 +171,8 @@
 		58C3B06724EA768100C0348E /* LogStreamerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3B06624EA768100C0348E /* LogStreamerViewController.swift */; };
 		58C3B06924EAA25000C0348E /* StringStreamIterator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C3B06824EAA25000C0348E /* StringStreamIterator.swift */; };
 		58C4CB0124EBE5A700A22D49 /* LogEntryParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C4CB0024EBE5A700A22D49 /* LogEntryParser.swift */; };
+		58CAF4EA26025927007C5886 /* PacketTunnelIpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */; };
+		58CAF4EF26025954007C5886 /* SimulatorTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA693023EADA6A009DC256 /* SimulatorTunnelProvider.swift */; };
 		58CB0EE024B86751001EF0D8 /* MullvadRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CB0EDF24B86751001EF0D8 /* MullvadRest.swift */; };
 		58CB0EE124B86751001EF0D8 /* MullvadRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CB0EDF24B86751001EF0D8 /* MullvadRest.swift */; };
 		58CC40EF24A601900019D96E /* ObserverList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CC40EE24A601900019D96E /* ObserverList.swift */; };
@@ -905,6 +908,7 @@
 				5896AE81246ACE81005B36CB /* KeychainMatchLimit.swift in Sources */,
 				5896AE80246ACE79005B36CB /* KeychainClass.swift in Sources */,
 				582AE3132440CA2700E6733A /* AccountTokenInput.swift in Sources */,
+				58CAF4EF26025954007C5886 /* SimulatorTunnelProvider.swift in Sources */,
 				5857F23724C8446400CF6F47 /* AssociatedValue.swift in Sources */,
 				5857F23B24C8448600CF6F47 /* OperationProtocol.swift in Sources */,
 				58B0A2AA238EE6A900BC001D /* RelaySelector.swift in Sources */,
@@ -928,6 +932,7 @@
 				5896AE7E246ACE65005B36CB /* KeychainAttributes.swift in Sources */,
 				58B0A2A9238EE6A100BC001D /* RelayConstraints.swift in Sources */,
 				5807E2C2243203D000F5FF30 /* StringTests.swift in Sources */,
+				58CAF4EA26025927007C5886 /* PacketTunnelIpc.swift in Sources */,
 				5857F23E24C844A000CF6F47 /* OperationBlockObserver.swift in Sources */,
 				5857F23024C843ED00CF6F47 /* ChainedError.swift in Sources */,
 				58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */,
@@ -994,6 +999,7 @@
 				580EE20F24B322E700F9D8A1 /* TransformOperation.swift in Sources */,
 				58B8743222B25A7600015324 /* WireguardAssociatedAddresses.swift in Sources */,
 				5850368C25A49E2200A43E93 /* PrivateKeyWithMetadata.swift in Sources */,
+				58B67B482602079E008EF58E /* RelaySelector.swift in Sources */,
 				58DF28A52417CB4B00E836B0 /* AppStorePaymentManager.swift in Sources */,
 				580EE22124B3240100F9D8A1 /* TransformOperationObserver.swift in Sources */,
 				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,

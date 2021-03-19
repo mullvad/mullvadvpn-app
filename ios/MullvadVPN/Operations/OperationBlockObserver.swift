@@ -9,15 +9,30 @@
 import Foundation
 
 class OperationBlockObserver<OperationType: OperationProtocol>: OperationObserver {
+    private var willExecute: ((OperationType) -> Void)?
     private var willFinish: ((OperationType) -> Void)?
     private var didFinish: ((OperationType) -> Void)?
 
     let queue: DispatchQueue?
 
-    init(queue: DispatchQueue? = nil, willFinish: ((OperationType) -> Void)? = nil, didFinish: ((OperationType) -> Void)? = nil) {
+    init(
+        queue: DispatchQueue? = nil,
+        willExecute: ((OperationType) -> Void)? = nil,
+        willFinish: ((OperationType) -> Void)? = nil,
+        didFinish: ((OperationType) -> Void)? = nil
+    ) {
         self.queue = queue
+        self.willExecute = willExecute
         self.willFinish = willFinish
         self.didFinish = didFinish
+    }
+
+    func operationWillExecute(_ operation: OperationType) {
+        if let willExecute = willExecute {
+            scheduleEvent {
+                willExecute(operation)
+            }
+        }
     }
 
     func operationWillFinish(_ operation: OperationType) {
