@@ -76,9 +76,9 @@ class SplitTunnelingFragment : ServiceDependentFragment(OnNoService.GoToLaunchSc
             }
 
             addItemDecoration(
-                ListItemDividerDecoration(parentActivity).apply {
-                    bottomOffsetId = R.dimen.list_item_divider
-                }
+                ListItemDividerDecoration(
+                    bottomOffset = resources.getDimensionPixelSize(R.dimen.list_item_divider)
+                )
             )
         }
 
