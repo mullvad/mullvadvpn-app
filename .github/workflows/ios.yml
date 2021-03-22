@@ -1,0 +1,30 @@
+name: iOS app CI
+on:
+    push:
+        paths:
+            - .github/workflows/ios.yml
+            - ios/**
+    # Build if requested manually from the Actions tab
+    workflow_dispatch:
+jobs:
+    test:
+        name: Unit tests
+        runs-on: macos-10.15
+        strategy:
+            matrix:
+                destination: ['platform=iOS Simulator,OS=12.4,name=iPhone 8']
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Prepare iOS 12 simulator
+              run: |
+                  sudo mkdir -p /Library/Developer/CoreSimulator/Profiles/Runtimes
+                  sudo ln -s /Applications/Xcode_10.3.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/Library/CoreSimulator/Profiles/Runtimes/iOS.simruntime /Library/Developer/CoreSimulator/Profiles/Runtimes/iOS\ 12.4.simruntime
+
+            - name: Build and test
+              run: |
+                  xcodebuild clean test -project MullvadVPN.xcodeproj -scheme MullvadVPNTests -destination "${destination}" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO
+              working-directory: ios
+              env:
+                  destination: ${{ matrix.destination }}
