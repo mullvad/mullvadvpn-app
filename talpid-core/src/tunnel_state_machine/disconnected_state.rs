@@ -1,3 +1,5 @@
+#[cfg(windows)]
+use super::windows;
 use super::{
     ConnectingState, ErrorState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelCommandReceiver, TunnelState, TunnelStateTransition, TunnelStateWrapper,
@@ -52,6 +54,25 @@ impl DisconnectedState {
             .expect("Thread unexpectedly panicked while holding the mutex");
         split_tunnel.set_paths(paths)
     }
+
+    #[cfg(windows)]
+    fn register_split_tunnel_addresses(
+        shared_values: &mut SharedTunnelStateValues,
+        should_reset_firewall: bool,
+    ) {
+        if should_reset_firewall && !shared_values.block_when_disconnected {
+            windows::clear_split_tunnel_addresses(shared_values);
+        } else {
+            if let Err(error) = windows::update_split_tunnel_addresses(None, shared_values) {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to register addresses with split tunnel driver"
+                    )
+                );
+            }
+        }
+    }
 }
 
 impl TunnelState for DisconnectedState {
@@ -61,6 +82,8 @@ impl TunnelState for DisconnectedState {
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
+        #[cfg(windows)]
+        Self::register_split_tunnel_addresses(shared_values, should_reset_firewall);
         Self::set_firewall_policy(shared_values, should_reset_firewall);
         #[cfg(target_os = "linux")]
         shared_values.reset_connectivity_check();
@@ -114,6 +137,8 @@ impl TunnelState for DisconnectedState {
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 if shared_values.block_when_disconnected != block_when_disconnected {
                     shared_values.block_when_disconnected = block_when_disconnected;
+                    #[cfg(windows)]
+                    Self::register_split_tunnel_addresses(shared_values, true);
                     Self::set_firewall_policy(shared_values, true);
                 }
                 SameState(self.into())

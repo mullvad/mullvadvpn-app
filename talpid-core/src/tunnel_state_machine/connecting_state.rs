@@ -34,6 +34,8 @@ use talpid_types::{
 };
 
 #[cfg(windows)]
+use super::windows;
+#[cfg(windows)]
 use crate::{routing, winnet};
 
 #[cfg(target_os = "android")]
@@ -446,6 +448,18 @@ impl TunnelState for ConnectingState {
                 ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
             }
             Ok(tunnel_parameters) => {
+                #[cfg(windows)]
+                if let Err(error) = windows::update_split_tunnel_addresses(None, shared_values) {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to register addresses with split tunnel driver"
+                        )
+                    );
+
+                    return ErrorState::enter(shared_values, ErrorStateCause::StartTunnelError);
+                }
+
                 if let Err(error) =
                     Self::set_firewall_policy(shared_values, &tunnel_parameters, &None)
                 {

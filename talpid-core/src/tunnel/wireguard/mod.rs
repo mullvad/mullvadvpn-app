@@ -171,6 +171,7 @@ impl WireguardMonitor {
             .add_routes(Self::get_routes(&iface_name, &config))
             .map_err(Error::SetupRoutingError)?;
 
+        // TODO: Call winnet::add_default_route_change_callback directly and keep the handle?
         #[cfg(target_os = "windows")]
         route_manager
             .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ());
