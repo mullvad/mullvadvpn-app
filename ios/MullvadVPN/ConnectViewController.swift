@@ -12,20 +12,15 @@ import Logging
 
 class ConnectViewController: UIViewController, RootContainment, TunnelObserver
 {
-    @IBOutlet var secureLabel: UILabel!
-    @IBOutlet var countryLabel: UILabel!
-    @IBOutlet var cityLabel: UILabel!
-    @IBOutlet var connectionPanel: ConnectionPanelView!
-    @IBOutlet var buttonsStackView: UIStackView!
+    private lazy var mainContentView: ConnectMainContentView = {
+        let view = ConnectMainContentView(frame: UIScreen.main.bounds)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
 
     private var relayConstraints: RelayConstraints?
 
     private let logger = Logger(label: "ConnectViewController")
-
-    private let connectButton = AppButton(style: .success)
-    private let selectLocationButton = AppButton(style: .translucentNeutral)
-    private let splitDisconnectButtonView = DisconnectSplitButton()
-
     private let alertPresenter = AlertPresenter()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
@@ -49,9 +44,8 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
     private var tunnelState: TunnelState = .disconnected {
         didSet {
             setNeedsHeaderBarStyleAppearanceUpdate()
-            updateSecureLabel()
             updateTunnelConnectionInfo()
-            updateButtons()
+            updateUserInterfaceForTunnelStateChange()
         }
     }
 
@@ -60,19 +54,20 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        for button in [connectButton, selectLocationButton] {
-            button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
-        }
+        mainContentView.connectionPanel.collapseButton.addTarget(self, action: #selector(handleConnectionPanelButton(_:)), for: .touchUpInside)
+        mainContentView.connectButton.addTarget(self, action: #selector(handleConnect(_:)), for: .touchUpInside)
+        mainContentView.splitDisconnectButton.primaryButton.addTarget(self, action: #selector(handleDisconnect(_:)), for: .touchUpInside)
+        mainContentView.splitDisconnectButton.secondaryButton.addTarget(self, action: #selector(handleReconnect(_:)), for: .touchUpInside)
 
-        selectLocationButton.accessibilityIdentifier = "SelectLocationButton"
-        splitDisconnectButtonView.primaryButton.accessibilityIdentifier = "DisconnectButton"
+        mainContentView.selectLocationButton.addTarget(self, action: #selector(handleSelectLocation(_:)), for: .touchUpInside)
 
-        connectionPanel.collapseButton.addTarget(self, action: #selector(handleConnectionPanelButton(_:)), for: .touchUpInside)
-        connectButton.addTarget(self, action: #selector(handleConnect(_:)), for: .touchUpInside)
-        splitDisconnectButtonView.primaryButton.addTarget(self, action: #selector(handleDisconnect(_:)), for: .touchUpInside)
-        splitDisconnectButtonView.secondaryButton.addTarget(self, action: #selector(handleReconnect(_:)), for: .touchUpInside)
-
-        selectLocationButton.addTarget(self, action: #selector(handleSelectLocation(_:)), for: .touchUpInside)
+        view.addSubview(mainContentView)
+        NSLayoutConstraint.activate([
+            mainContentView.topAnchor.constraint(equalTo: view.topAnchor),
+            mainContentView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            mainContentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            mainContentView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
 
         TunnelManager.shared.addObserver(self)
         self.tunnelState = TunnelManager.shared.tunnelState
@@ -100,44 +95,14 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
 
     // MARK: - Private
 
-    private func updateButtons() {
-        switch tunnelState {
-        case .disconnected, .disconnecting:
-            selectLocationButton.setTitle(NSLocalizedString("Select location", comment: ""), for: .normal)
-            connectButton.setTitle(NSLocalizedString("Secure connection", comment: ""), for: .normal)
+    private func updateUserInterfaceForTunnelStateChange() {
+        mainContentView.secureLabel.text = tunnelState.localizedTitleForSecureLabel.uppercased()
+        mainContentView.secureLabel.textColor = tunnelState.textColorForSecureLabel
 
-            setArrangedButtons([selectLocationButton, connectButton])
-
-        case .connecting:
-            selectLocationButton.setTitle(NSLocalizedString("Switch location", comment: ""), for: .normal)
-            splitDisconnectButtonView.primaryButton.setTitle(NSLocalizedString("Cancel", comment: ""), for: .normal)
-
-            setArrangedButtons([selectLocationButton, splitDisconnectButtonView])
-
-        case .connected, .reconnecting:
-            selectLocationButton.setTitle(NSLocalizedString("Switch location", comment: ""), for: .normal)
-            splitDisconnectButtonView.primaryButton.setTitle(NSLocalizedString("Disconnect", comment: ""), for: .normal)
-
-            setArrangedButtons([selectLocationButton, splitDisconnectButtonView])
-        }
-    }
-
-    private func setArrangedButtons(_ newButtons: [UIView]) {
-        buttonsStackView.arrangedSubviews.forEach { (button) in
-            if !newButtons.contains(button) {
-                buttonsStackView.removeArrangedSubview(button)
-                button.removeFromSuperview()
-            }
-        }
-
-        newButtons.forEach { (button) in
-            buttonsStackView.addArrangedSubview(button)
-        }
-    }
-
-    private func updateSecureLabel() {
-        secureLabel.text = tunnelState.textForSecureLabel().uppercased()
-        secureLabel.textColor = tunnelState.textColorForSecureLabel()
+        mainContentView.connectButton.setTitle(tunnelState.localizedTitleForConnectButton, for: .normal)
+        mainContentView.selectLocationButton.setTitle(tunnelState.localizedTitleForSelectLocationButton, for: .normal)
+        mainContentView.splitDisconnectButton.primaryButton.setTitle(tunnelState.localizedTitleForDisconnectButton, for: .normal)
+        mainContentView.setActionButtons(tunnelState.actionButtons)
     }
 
     private func attributedStringForLocation(string: String) -> NSAttributedString {
@@ -152,21 +117,21 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
         switch tunnelState {
         case .connected(let connectionInfo),
              .reconnecting(let connectionInfo):
-            cityLabel.attributedText = attributedStringForLocation(string: connectionInfo.location.city)
-            countryLabel.attributedText = attributedStringForLocation(string: connectionInfo.location.country)
+            mainContentView.cityLabel.attributedText = attributedStringForLocation(string: connectionInfo.location.city)
+            mainContentView.countryLabel.attributedText = attributedStringForLocation(string: connectionInfo.location.country)
 
-            connectionPanel.dataSource = ConnectionPanelData(
+            mainContentView.connectionPanel.dataSource = ConnectionPanelData(
                 inAddress: "\(connectionInfo.ipv4Relay) UDP",
                 outAddress: nil
             )
-            connectionPanel.isHidden = false
-            connectionPanel.collapseButton.setTitle(connectionInfo.hostname, for: .normal)
+            mainContentView.connectionPanel.isHidden = false
+            mainContentView.connectionPanel.collapseButton.setTitle(connectionInfo.hostname, for: .normal)
 
         case .connecting, .disconnected, .disconnecting:
-            cityLabel.attributedText = attributedStringForLocation(string: " ")
-            countryLabel.attributedText = attributedStringForLocation(string: " ")
-            connectionPanel.dataSource = nil
-            connectionPanel.isHidden = true
+            mainContentView.cityLabel.attributedText = attributedStringForLocation(string: " ")
+            mainContentView.countryLabel.attributedText = attributedStringForLocation(string: " ")
+            mainContentView.connectionPanel.dataSource = nil
+            mainContentView.connectionPanel.isHidden = true
         }
     }
 
@@ -304,7 +269,7 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
     // MARK: - Actions
 
     @objc func handleConnectionPanelButton(_ sender: Any) {
-        connectionPanel.toggleConnectionInfoVisibility()
+        mainContentView.connectionPanel.toggleConnectionInfoVisibility()
     }
 
     @objc func handleConnect(_ sender: Any) {
@@ -331,7 +296,7 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
 
 private extension TunnelState {
 
-    func textColorForSecureLabel() -> UIColor {
+    var textColorForSecureLabel: UIColor {
         switch self {
         case .connecting, .reconnecting:
             return .white
@@ -344,7 +309,7 @@ private extension TunnelState {
         }
     }
 
-    func textForSecureLabel() -> String {
+    var localizedTitleForSecureLabel: String {
         switch self {
         case .connecting, .reconnecting:
             return NSLocalizedString("Creating secure connection", comment: "")
@@ -354,6 +319,40 @@ private extension TunnelState {
 
         case .disconnecting, .disconnected:
             return NSLocalizedString("Unsecured connection", comment: "")
+        }
+    }
+
+    var localizedTitleForSelectLocationButton: String? {
+        switch self {
+        case .disconnected, .disconnecting:
+            return NSLocalizedString("Select location", comment: "")
+        case .connecting, .connected, .reconnecting:
+            return NSLocalizedString("Switch location", comment: "")
+        }
+    }
+
+    var localizedTitleForConnectButton: String? {
+        return NSLocalizedString("Secure connection", comment: "")
+    }
+
+    var localizedTitleForDisconnectButton: String? {
+        switch self {
+        case .connecting:
+            return NSLocalizedString("Cancel", comment: "")
+        case .connected, .reconnecting:
+            return NSLocalizedString("Disconnect", comment: "")
+        case .disconnecting, .disconnected:
+            return nil
+        }
+    }
+
+    var actionButtons: [ConnectMainContentView.ActionButton] {
+        switch self {
+        case .disconnected, .disconnecting:
+            return [.selectLocation, .connect]
+
+        case .connecting, .connected, .reconnecting:
+            return [.selectLocation, .disconnect]
         }
     }
 
