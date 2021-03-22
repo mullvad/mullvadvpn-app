@@ -39,7 +39,7 @@ pub const SILENCED_CRATES: &[&str] = &[
     "rustls",
     "netlink_proto",
     "netlink_sys",
-    "iproute2",
+    "tracing",
 ];
 const SLIGHTLY_SILENCED_CRATES: &[&str] = &["mnl", "nftnl"];
 
