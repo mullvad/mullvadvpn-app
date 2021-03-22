@@ -62,6 +62,7 @@ class ConnectMainContentView: UIView {
 
     lazy var selectLocationButton: AppButton = {
         let button = AppButton(style: .translucentNeutral)
+        button.accessibilityIdentifier = "SelectLocationButton"
         button.translatesAutoresizingMaskIntoConstraints = false
         button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         return button
@@ -69,6 +70,7 @@ class ConnectMainContentView: UIView {
 
     let splitDisconnectButton: DisconnectSplitButton = {
         let button = DisconnectSplitButton()
+        button.primaryButton.accessibilityIdentifier = "DisconnectButton"
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()

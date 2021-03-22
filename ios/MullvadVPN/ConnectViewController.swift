@@ -54,9 +54,6 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        mainContentView.selectLocationButton.accessibilityIdentifier = "SelectLocationButton"
-        mainContentView.splitDisconnectButton.primaryButton.accessibilityIdentifier = "DisconnectButton"
-
         mainContentView.connectionPanel.collapseButton.addTarget(self, action: #selector(handleConnectionPanelButton(_:)), for: .touchUpInside)
         mainContentView.connectButton.addTarget(self, action: #selector(handleConnect(_:)), for: .touchUpInside)
         mainContentView.splitDisconnectButton.primaryButton.addTarget(self, action: #selector(handleDisconnect(_:)), for: .touchUpInside)
