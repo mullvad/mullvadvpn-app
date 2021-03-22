@@ -10,14 +10,15 @@ import UIKit
 import NetworkExtension
 import Logging
 
-class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
-    SelectLocationDelegate
+class ConnectViewController: UIViewController, RootContainment, TunnelObserver
 {
     @IBOutlet var secureLabel: UILabel!
     @IBOutlet var countryLabel: UILabel!
     @IBOutlet var cityLabel: UILabel!
     @IBOutlet var connectionPanel: ConnectionPanelView!
     @IBOutlet var buttonsStackView: UIStackView!
+
+    private var relayConstraints: RelayConstraints?
 
     private let logger = Logger(label: "ConnectViewController")
 
@@ -75,6 +76,8 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
 
         TunnelManager.shared.addObserver(self)
         self.tunnelState = TunnelManager.shared.tunnelState
+
+        fetchRelayConstraints()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -93,33 +96,6 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
 
     func tunnelPublicKeyDidChange(publicKeyWithMetadata: PublicKeyWithMetadata?) {
         // no-op
-    }
-
-    // MARK: - SelectLocationDelegate
-
-    func selectLocationViewController(_ controller: SelectLocationViewController, didSelectLocation location: RelayLocation) {
-        controller.dismiss(animated: true) {
-            let relayConstraints = RelayConstraints(location: .only(location))
-
-            TunnelManager.shared.setRelayConstraints(relayConstraints) { [weak self] (result) in
-                DispatchQueue.main.async {
-                    guard let self = self else { return }
-
-                    switch result {
-                    case .success:
-                        self.logger.debug("Updated relay constraints: \(relayConstraints)")
-                        self.connectTunnel()
-
-                    case .failure(let error):
-                        self.logger.error(chainedError: error, message: "Failed to update relay constraints")
-                    }
-                }
-            }
-        }
-    }
-
-    func selectLocationViewControllerDidCancel(_ controller: SelectLocationViewController) {
-        controller.dismiss(animated: true)
     }
 
     // MARK: - Private
@@ -252,18 +228,76 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
         }
     }
 
-    private func showSelectLocation() {
-        let selectLocationController = SelectLocationNavigationController()
-        selectLocationController.selectLocationDelegate = self
+    private func showSelectLocationModal() {
+        let contentController = SelectLocationViewController()
+        contentController.navigationItem.title = NSLocalizedString("Select location", comment: "Navigation title")
+        contentController.navigationItem.largeTitleDisplayMode = .never
+        contentController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(handleDismissSelectLocationController(_:)))
 
-        // Disable root controller interaction
-        rootContainerController?.view.isUserInteractionEnabled = false
+        contentController.didSelectRelayLocation = { [weak self] (controller, relayLocation) in
+            controller.view.isUserInteractionEnabled = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(250)) {
+                controller.view.isUserInteractionEnabled = true
+                controller.dismiss(animated: true) {
+                    self?.selectLocationControllerDidSelectRelayLocation(relayLocation)
+                }
+            }
+        }
 
-        selectLocationController.prefetchData {
-            self.present(selectLocationController, animated: true)
+        let navController = SelectLocationNavigationController(contentController: contentController)
 
-            // Re-enable root controller interaction
-            self.rootContainerController?.view.isUserInteractionEnabled = true
+        view.isUserInteractionEnabled = false
+        contentController.setSelectedRelayLocation(self.relayConstraints?.location.value, animated: false, scrollPosition: .none)
+        contentController.prefetchData { (error) in
+            if let error = error {
+                self.logger.error(chainedError: error, message: "Failed to prefetch the relays for SelectLocationViewController")
+            }
+
+            self.present(navController, animated: true) {
+                self.view.isUserInteractionEnabled = true
+            }
+        }
+    }
+
+    private func fetchRelayConstraints() {
+        TunnelManager.shared.getRelayConstraints { (result) in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let relayConstraints):
+                    self.relayConstraints = relayConstraints
+
+                case .failure(let error):
+                    self.logger.error(chainedError: error)
+                }
+            }
+        }
+    }
+
+    private func selectLocationControllerDidSelectRelayLocation(_ relayLocation: RelayLocation) {
+        let relayConstraints = makeRelayConstraints(relayLocation)
+
+        self.setTunnelRelayConstraints(relayConstraints)
+        self.relayConstraints = relayConstraints
+    }
+
+    private func makeRelayConstraints(_ location: RelayLocation) -> RelayConstraints {
+        return RelayConstraints(location: .only(location))
+    }
+
+    private func setTunnelRelayConstraints(_ relayConstraints: RelayConstraints) {
+        TunnelManager.shared.setRelayConstraints(relayConstraints) { [weak self] (result) in
+            guard let self = self else { return }
+
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    self.logger.debug("Updated relay constraints: \(relayConstraints)")
+                    self.connectTunnel()
+
+                case .failure(let error):
+                    self.logger.error(chainedError: error, message: "Failed to update relay constraints")
+                }
+            }
         }
     }
 
@@ -286,7 +320,11 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver,
     }
 
     @objc func handleSelectLocation(_ sender: Any) {
-        showSelectLocation()
+        showSelectLocationModal()
+    }
+
+    @objc func handleDismissSelectLocationController(_ sender: Any) {
+        self.presentedViewController?.dismiss(animated: true)
     }
 
 }
