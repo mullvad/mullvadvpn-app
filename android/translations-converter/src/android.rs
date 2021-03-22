@@ -9,6 +9,7 @@ use std::{
 lazy_static! {
     static ref LINE_BREAKS: Regex = Regex::new(r"\s*\n\s*").unwrap();
     static ref APOSTROPHES: Regex = Regex::new(r"\\'").unwrap();
+    static ref DOUBLE_QUOTES: Regex = Regex::new(r#"\\""#).unwrap();
     static ref PARAMETERS: Regex = Regex::new(r"%[0-9]*\$").unwrap();
 }
 
@@ -316,6 +317,8 @@ impl StringValue {
         let value = LINE_BREAKS.replace_all(&self.0, " ");
         // Unescape apostrophes
         let value = APOSTROPHES.replace_all(&value, "'");
+        // Unescape double quotes
+        let value = DOUBLE_QUOTES.replace_all(&value, r#"""#);
         // Mark where parameters are positioned, removing the parameter index
         let value = PARAMETERS.replace_all(&value, "%");
 
