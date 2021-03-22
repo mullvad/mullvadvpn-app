@@ -8,9 +8,27 @@
 
 import UIKit
 
-@IBDesignable class AccountInputGroupView: UIView {
+class AccountInputGroupView: UIView {
 
-    @IBOutlet var textField: UITextField!
+    let textField: AccountTextField = {
+        let textField = AccountTextField()
+        textField.font = UIFont.systemFont(ofSize: 20)
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.attributedPlaceholder = NSAttributedString(
+            string: "0000 0000 0000 0000",
+            attributes: [.foregroundColor: UIColor.lightGray])
+        textField.textContentType = .username
+        textField.clearButtonMode = .never
+        textField.autocapitalizationType = .none
+        textField.autocorrectionType = .no
+        textField.smartDashesType = .no
+        textField.smartInsertDeleteType = .no
+        textField.smartQuotesType = .no
+        textField.spellCheckingType = .no
+        textField.keyboardType = .numberPad
+
+        return textField
+    }()
 
     enum Style {
         case normal, error, authenticating
@@ -73,9 +91,23 @@ import UIKit
 
     // MARK: - View lifecycle
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        setup()
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        addSubview(textField)
+
+        NSLayoutConstraint.activate([
+            textField.topAnchor.constraint(equalTo: topAnchor),
+            textField.leadingAnchor.constraint(equalTo: leadingAnchor),
+            textField.trailingAnchor.constraint(equalTo: trailingAnchor),
+            textField.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+
+        setupView()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     // MARK: - CALayerDelegate
@@ -113,7 +145,7 @@ import UIKit
 
     // MARK: - Private
 
-    private func setup() {
+    private func setupView() {
         backgroundColor = UIColor.clear
 
         borderLayer.lineWidth = borderWidth
