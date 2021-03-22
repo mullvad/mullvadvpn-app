@@ -28,17 +28,30 @@ protocol LoginViewControllerDelegate: class {
 
 class LoginViewController: UIViewController, RootContainment {
 
-    @IBOutlet var keyboardToolbar: UIToolbar!
-    @IBOutlet var keyboardToolbarLoginButton: UIBarButtonItem!
-    @IBOutlet var accountInputGroup: AccountInputGroupView!
-    @IBOutlet var accountTextField: AccountTextField!
-    @IBOutlet var titleLabel: UILabel!
-    @IBOutlet var messageLabel: UILabel!
-    @IBOutlet var loginForm: UIView!
-    @IBOutlet var loginFormWrapperBottomConstraint: NSLayoutConstraint!
-    @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
-    @IBOutlet var statusImageView: StatusImageView!
-    @IBOutlet var createAccountButton: AppButton!
+    private lazy var contentView: LoginContentView = {
+        let view = LoginContentView(frame: self.view.bounds)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    private lazy var accountInputAccessoryCancelButton: UIBarButtonItem = {
+        return UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(cancelLogin))
+    }()
+
+    private lazy var accountInputAccessoryLoginButton: UIBarButtonItem = {
+        return UIBarButtonItem(title: NSLocalizedString("Log in", comment: ""), style: .done, target: self, action: #selector(doLogin))
+    }()
+
+    private lazy var accountInputAccessoryToolbar: UIToolbar = {
+        let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 320, height: 44))
+        toolbar.items = [
+            self.accountInputAccessoryCancelButton,
+            UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil),
+            self.accountInputAccessoryLoginButton
+        ]
+        toolbar.sizeToFit()
+        return toolbar
+    }()
 
     private let logger = Logger(label: "LoginViewController")
 
@@ -65,10 +78,15 @@ class LoginViewController: UIViewController, RootContainment {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        accountTextField.inputAccessoryView = keyboardToolbar
-        accountTextField.attributedPlaceholder = NSAttributedString(
-            string: "0000 0000 0000 0000",
-            attributes: [.foregroundColor: UIColor.lightGray])
+        view.addSubview(contentView)
+        NSLayoutConstraint.activate([
+            contentView.topAnchor.constraint(equalTo: view.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+
+        contentView.accountTextField.inputAccessoryView = self.accountInputAccessoryToolbar
 
         updateDisplayedMessage()
         updateStatusIcon()
@@ -76,71 +94,23 @@ class LoginViewController: UIViewController, RootContainment {
 
         let notificationCenter = NotificationCenter.default
 
-        notificationCenter.addObserver(self,
-                                       selector: #selector(keyboardWillShow(_:)),
-                                       name: UIWindow.keyboardWillShowNotification,
-                                       object: nil)
-        notificationCenter.addObserver(self,
-                                       selector: #selector(keyboardWillChangeFrame(_:)),
-                                       name: UIWindow.keyboardWillChangeFrameNotification,
-                                       object: nil)
-        notificationCenter.addObserver(self,
-                                       selector: #selector(keyboardWillHide(_:)),
-                                       name: UIWindow.keyboardWillHideNotification,
-                                       object: nil)
-
-        notificationCenter.addObserver(self,
-                                       selector: #selector(textDidBeginEditing(_:)),
-                                       name: UITextField.textDidBeginEditingNotification,
-                                       object: accountTextField)
-
-        notificationCenter.addObserver(self,
-                                       selector: #selector(textDidEndEditing(_:)),
-                                       name: UITextField.textDidEndEditingNotification,
-                                       object: accountTextField)
+        contentView.createAccountButton.addTarget(self, action: #selector(createNewAccount), for: .touchUpInside)
 
         notificationCenter.addObserver(self,
                                        selector: #selector(textDidChange(_:)),
                                        name: UITextField.textDidChangeNotification,
-                                       object: accountTextField)
+                                       object: contentView.accountTextField)
     }
 
     // MARK: - Public
 
     func reset() {
         loginState = .default
-        accountTextField.autoformattingText = ""
+        contentView.accountTextField.autoformattingText = ""
         updateKeyboardToolbar()
     }
 
-    // MARK: - Keyboard notifications
-
-    @objc private func keyboardWillShow(_ notification: Notification) {
-        guard let keyboardFrameValue = notification.userInfo?[UIWindow.keyboardFrameEndUserInfoKey] as? NSValue else { return }
-
-        makeLoginFormVisible(keyboardFrame: keyboardFrameValue.cgRectValue)
-    }
-
-    @objc private func keyboardWillChangeFrame(_ notification: Notification) {
-        guard let keyboardFrameValue = notification.userInfo?[UIWindow.keyboardFrameEndUserInfoKey] as? NSValue else { return }
-
-        makeLoginFormVisible(keyboardFrame: keyboardFrameValue.cgRectValue)
-    }
-
-    @objc private func keyboardWillHide(_ notification: Notification) {
-        loginFormWrapperBottomConstraint.constant = 0
-        view.layoutIfNeeded()
-    }
-
     // MARK: - UITextField notifications
-
-    @objc func textDidBeginEditing(_ notification: Notification) {
-        updateStatusIcon()
-    }
-
-    @objc func textDidEndEditing(_ notification: Notification) {
-        updateStatusIcon()
-    }
 
     @objc func textDidChange(_ notification: Notification) {
         // Reset the text style as user start typing
@@ -154,12 +124,12 @@ class LoginViewController: UIViewController, RootContainment {
 
     // MARK: - Actions
 
-    @IBAction func cancelLogin() {
+    @objc func cancelLogin() {
         view.endEditing(true)
     }
 
-    @IBAction func doLogin() {
-        let accountToken = accountTextField.parsedToken
+    @objc func doLogin() {
+        let accountToken = contentView.accountTextField.parsedToken
 
         beginLogin(method: .existingAccount)
 
@@ -176,16 +146,16 @@ class LoginViewController: UIViewController, RootContainment {
         }
     }
 
-    @IBAction func createNewAccount() {
+    @objc func createNewAccount() {
         beginLogin(method: .newAccount)
 
-        accountTextField.autoformattingText = ""
+        contentView.accountTextField.autoformattingText = ""
         updateKeyboardToolbar()
 
         Account.shared.loginWithNewAccount { (result) in
             switch result {
             case .success(let response):
-                self.accountTextField.autoformattingText = response.token
+                self.contentView.accountTextField.autoformattingText = response.token
 
                 self.endLogin(.success(.newAccount))
             case .failure(let error):
@@ -199,15 +169,15 @@ class LoginViewController: UIViewController, RootContainment {
     // MARK: - Private
 
     private func loginStateDidChange() {
-        accountInputGroup.loginState = loginState
+        contentView.accountInputGroup.loginState = loginState
 
         // Keep the settings button disabled to prevent user from going to settings while
         // authentication or during the delay after the successful login and transition to the main
         // controller.
         switch loginState {
         case .authenticating:
-            activityIndicator.startAnimating()
-            createAccountButton.isEnabled = false
+            contentView.activityIndicator.startAnimating()
+            contentView.createAccountButton.isEnabled = false
 
             // Fallthrough to make sure that the settings button is disabled
             // in .authenticating and .success cases.
@@ -218,8 +188,8 @@ class LoginViewController: UIViewController, RootContainment {
 
         case .default, .failure:
             rootContainerController?.setEnableSettingsButton(true)
-            createAccountButton.isEnabled = true
-            activityIndicator.stopAnimating()
+            contentView.createAccountButton.isEnabled = true
+            contentView.activityIndicator.stopAnimating()
         }
 
         updateDisplayedMessage()
@@ -229,22 +199,13 @@ class LoginViewController: UIViewController, RootContainment {
     private func updateStatusIcon() {
         switch loginState {
         case .failure:
-            let opacity: CGFloat = self.accountTextField.isEditing ? 0 : 1
-            statusImageView.style = .failure
-            animateStatusImage(to: opacity)
+            contentView.setStatusImage(style: .failure, visible: true, animated: true)
 
         case .success:
-            statusImageView.style = .success
-            animateStatusImage(to: 1)
+            contentView.setStatusImage(style: .success, visible: true, animated: true)
 
         case .default, .authenticating:
-            animateStatusImage(to: 0)
-        }
-    }
-
-    private func animateStatusImage(to alpha: CGFloat) {
-        UIView.animate(withDuration: 0.25) {
-            self.statusImageView.alpha = alpha
+            contentView.setStatusImage(style: nil, visible: false, animated: true)
         }
     }
 
@@ -261,7 +222,7 @@ class LoginViewController: UIViewController, RootContainment {
 
         if case .authenticating(.existingAccount) = oldLoginState,
             case .failure = loginState {
-            accountTextField.becomeFirstResponder()
+            contentView.accountTextField.becomeFirstResponder()
         } else if case .success = loginState {
             // Navigate to the main view after 1s delay
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
@@ -273,23 +234,15 @@ class LoginViewController: UIViewController, RootContainment {
     }
 
     private func updateDisplayedMessage() {
-        titleLabel.text = loginState.localizedTitle
-        messageLabel.text = loginState.localizedMessage
+        contentView.titleLabel.text = loginState.localizedTitle
+        contentView.messageLabel.text = loginState.localizedMessage
     }
 
     private func updateKeyboardToolbar() {
-        let accountTokenLength = accountTextField.parsedToken.count
+        let accountTokenLength = contentView.accountTextField.parsedToken.count
         let enableButton = accountTokenLength >= kMinimumAccountTokenLength
 
-        keyboardToolbarLoginButton.isEnabled = enableButton
-    }
-
-    private func makeLoginFormVisible(keyboardFrame: CGRect) {
-        let convertedKeyboardFrame = view.convert(keyboardFrame, from: nil)
-        let (_, remainder) = view.frame.divided(atDistance: convertedKeyboardFrame.minY, from: CGRectEdge.minYEdge)
-
-        loginFormWrapperBottomConstraint.constant = remainder.height
-        view.layoutIfNeeded()
+        accountInputAccessoryLoginButton.isEnabled = enableButton
     }
 }
 

@@ -143,7 +143,6 @@
 		58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		58A99ED3240014A0006599E9 /* ConsentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A99ED2240014A0006599E9 /* ConsentViewController.swift */; };
 		58AB9DEC2501040C006C5526 /* ConsentViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58AB9DEB2501040C006C5526 /* ConsentViewController.xib */; };
-		58AB9DEE25010636006C5526 /* LoginViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58AB9DED25010636006C5526 /* LoginViewController.xib */; };
 		58AEEF652344A36000C9BBD5 /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF642344A36000C9BBD5 /* KeychainError.swift */; };
 		58AEEF662344A37400C9BBD5 /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF642344A36000C9BBD5 /* KeychainError.swift */; };
 		58AEEF6B2344A46200C9BBD5 /* TunnelSettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF6A2344A46200C9BBD5 /* TunnelSettingsManager.swift */; };
@@ -158,6 +157,7 @@
 		58B8743222B25A7600015324 /* WireguardAssociatedAddresses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B8743122B25A7600015324 /* WireguardAssociatedAddresses.swift */; };
 		58B8743B22B788D200015324 /* PacketTunnelSettingsGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B8743722B25EAB00015324 /* PacketTunnelSettingsGenerator.swift */; };
 		58B9814E24FEA70D00C0D59E /* WireguardKeysViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58B9814D24FEA70D00C0D59E /* WireguardKeysViewController.xib */; };
+		58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B993B02608A34500BA7811 /* LoginContentView.swift */; };
 		58B9EB132488ED2100095626 /* AlertPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB122488ED2100095626 /* AlertPresenter.swift */; };
 		58B9EB152489139B00095626 /* DisplayChainedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B9EB142489139B00095626 /* DisplayChainedError.swift */; };
 		58BA692E23E99EFF009DC256 /* Locking.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BA692D23E99EFF009DC256 /* Locking.swift */; };
@@ -352,7 +352,6 @@
 		58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionPanelView.swift; sourceTree = "<group>"; };
 		58A99ED2240014A0006599E9 /* ConsentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsentViewController.swift; sourceTree = "<group>"; };
 		58AB9DEB2501040C006C5526 /* ConsentViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ConsentViewController.xib; sourceTree = "<group>"; };
-		58AB9DED25010636006C5526 /* LoginViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LoginViewController.xib; sourceTree = "<group>"; };
 		58AEEF642344A36000C9BBD5 /* KeychainError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainError.swift; sourceTree = "<group>"; };
 		58AEEF6A2344A46200C9BBD5 /* TunnelSettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsManager.swift; sourceTree = "<group>"; };
 		58B0A2A0238EE67E00BC001D /* MullvadVPNTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadVPNTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -361,6 +360,7 @@
 		58B8743122B25A7600015324 /* WireguardAssociatedAddresses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardAssociatedAddresses.swift; sourceTree = "<group>"; };
 		58B8743722B25EAB00015324 /* PacketTunnelSettingsGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelSettingsGenerator.swift; sourceTree = "<group>"; };
 		58B9814D24FEA70D00C0D59E /* WireguardKeysViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WireguardKeysViewController.xib; sourceTree = "<group>"; };
+		58B993B02608A34500BA7811 /* LoginContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginContentView.swift; sourceTree = "<group>"; };
 		58B9EB122488ED2100095626 /* AlertPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresenter.swift; sourceTree = "<group>"; };
 		58B9EB142489139B00095626 /* DisplayChainedError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayChainedError.swift; sourceTree = "<group>"; };
 		58BA692D23E99EFF009DC256 /* Locking.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Locking.swift; sourceTree = "<group>"; };
@@ -592,7 +592,6 @@
 				58BA692D23E99EFF009DC256 /* Locking.swift */,
 				5815039F24D6ECF200C9C50E /* Logging */,
 				58CE5E65224146200008646E /* LoginViewController.swift */,
-				58AB9DED25010636006C5526 /* LoginViewController.xib */,
 				58C3B06624EA768100C0348E /* LogStreamerViewController.swift */,
 				58CE5E67224146200008646E /* Main.storyboard */,
 				5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */,
@@ -645,6 +644,7 @@
 				5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */,
 				585CA70E25F8C44600B47C62 /* UIMetrics.swift */,
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
+				58B993B02608A34500BA7811 /* LoginContentView.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -873,7 +873,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58AB9DEE25010636006C5526 /* LoginViewController.xib in Resources */,
+				58D9AF6B2501111800B6FAB5 /* ConnectViewController.xib in Resources */,
 				58F3C0A624A50157003E76BE /* relays.json in Resources */,
 				58CE5E6E224146210008646E /* LaunchScreen.storyboard in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
@@ -956,6 +956,7 @@
 				5857F24724C882D700CF6F47 /* SelectLocationNavigationController.swift in Sources */,
 				580EE21224B322FC00F9D8A1 /* ResultOperation.swift in Sources */,
 				58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */,
+				58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */,
 				58E6771F24ADFE7800AA26E7 /* SettingsNavigationController.swift in Sources */,
 				58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */,
 				582BB1B52295780F0055B6EF /* AccountExpiry.swift in Sources */,
