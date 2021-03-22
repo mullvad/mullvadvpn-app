@@ -1,0 +1,23 @@
+name: iOS app CI
+on:
+    push:
+        paths:
+            - .github/workflows/ios.yml
+            - ios/**
+    # Build if requested manually from the Actions tab
+    workflow_dispatch:
+jobs:
+    test:
+        name: Test
+        runs-on: macOS-latest
+        strategy:
+            matrix:
+                destination: ['platform=iOS Simulator,OS=12.4,name=iPhone 8']
+        steps:
+            - name: Build and test
+              run: |
+                  xcodebuild clean test -project MullvadVPN.xcodeproj -scheme MullvadVPN -destination "${destination}" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO
+              with:
+                  working-directory: ios
+              env:
+                  destination: ${{ matrix.destination }}
