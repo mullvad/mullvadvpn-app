@@ -18,20 +18,44 @@ INCLUDED_CRATES=(
 )
 MANIFESTS=( "${INCLUDED_CRATES[@]/%//Cargo.toml}" )
 
+# Parse arguments
+COMMAND="$1"
+shift 1
+
+PRODUCT_VERSION=""
+ANDROID="false"
+DESKTOP="false"
+for argument in "$@"; do
+    case "$argument" in
+        "--android")
+            ANDROID="true"
+            ;;
+        "--desktop")
+            DESKTOP="true"
+            ;;
+        -*)
+            echo "Unknown option \"$argument\""
+            exit 1
+            ;;
+        *)
+            PRODUCT_VERSION="$argument"
+            ;;
+    esac
+done
+
 function inject_version {
     # Regex that only matches valid Mullvad VPN versions. It also captures
     # relevant values into capture groups, read out via BASH_REMATCH[x].
     local VERSION_REGEX="^20([0-9]{2})\.([1-9][0-9]?)(-beta([1-9][0-9]?))?(-dev-[0-9a-f]+)?$"
-    local product_version="$1"
 
-    if [[ ! $product_version =~ $VERSION_REGEX ]]; then
+    if [[ ! $PRODUCT_VERSION =~ $VERSION_REGEX ]]; then
         echo "Invalid version format. Please specify version as:"
         echo "<YEAR>.<NUMBER>[-beta<NUMBER>]"
         return 1
     fi
 
     local semver_version
-    semver_version=$(echo "$product_version" | sed -Ee 's/($|-.*)/.0\1/g')
+    semver_version=$(echo "$PRODUCT_VERSION" | sed -Ee 's/($|-.*)/.0\1/g')
     local semver_major="20${BASH_REMATCH[1]}"
     local semver_minor=${BASH_REMATCH[2]}
     local semver_patch="0"
@@ -55,7 +79,7 @@ function inject_version {
 #define MAJOR_VERSION $semver_major
 #define MINOR_VERSION $semver_minor
 #define PATCH_VERSION $semver_patch
-#define PRODUCT_VERSION "$product_version"
+#define PRODUCT_VERSION "$PRODUCT_VERSION"
 EOF
     fi
 
@@ -70,12 +94,12 @@ EOF
         version_beta=$(printf "%02d" "${BASH_REMATCH[4]:-99}")
         local android_version_code=${version_year}${version_number}${version_patch}${version_beta}
 
-        echo "Setting Android versionName to $product_version and versionCode to $android_version_code"
+        echo "Setting Android versionName to $PRODUCT_VERSION and versionCode to $android_version_code"
 
         cp android/build.gradle android/build.gradle.bak
         sed -i -Ee "s/versionCode [0-9]+/versionCode $android_version_code/g" \
             android/build.gradle
-        sed -i -Ee "s/versionName \"[^\"]+\"/versionName \"$product_version\"/g" \
+        sed -i -Ee "s/versionName \"[^\"]+\"/versionName \"$PRODUCT_VERSION\"/g" \
             android/build.gradle
     fi
 }
@@ -128,32 +152,6 @@ function delete_backup {
     set -e
 }
 
-# Parse arguments
-COMMAND="$1"
-shift 1
-
-PRODUCT_VERSION=""
-ANDROID="false"
-DESKTOP="false"
-
-for argument in "$@"; do
-    case "$argument" in
-        "--android")
-            ANDROID="true"
-            ;;
-        "--desktop")
-            DESKTOP="true"
-            ;;
-        -*)
-            echo "Unknown option \"$argument\""
-            exit 1
-            ;;
-        *)
-            PRODUCT_VERSION="$argument"
-            ;;
-    esac
-done
-
 
 case "$COMMAND" in
     "inject")
@@ -162,7 +160,7 @@ case "$COMMAND" in
             echo "For example: '2018.1-beta3' for a beta release, or '2018.6' for a stable one."
             exit 1
         fi
-        inject_version "$PRODUCT_VERSION"
+        inject_version
         ;;
     "restore-backup")
         restore_backup
