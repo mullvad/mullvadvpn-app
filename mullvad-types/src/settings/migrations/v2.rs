@@ -14,6 +14,8 @@ impl super::SettingsMigration for Migration {
     }
 
     fn migrate(&self, settings: &mut serde_json::Value) -> Result<()> {
+        log::info!("Migrating settings format to V3");
+
         // `show_beta_releases` used to be nullable
         if settings
             .get_mut("show_beta_releases")

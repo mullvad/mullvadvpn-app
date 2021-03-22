@@ -18,6 +18,8 @@ impl super::SettingsMigration for Migration {
     }
 
     fn migrate(&self, settings: &mut serde_json::Value) -> Result<()> {
+        log::info!("Migrating settings format to V2");
+
         let old_relay_settings: RelaySettings =
             serde_json::from_value(settings["relay_settings"].clone())
                 .map_err(Error::ParseError)?;
