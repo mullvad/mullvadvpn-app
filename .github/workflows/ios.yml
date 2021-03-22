@@ -8,7 +8,7 @@ on:
     workflow_dispatch:
 jobs:
     test:
-        name: Test
+        name: Unit tests
         runs-on: macOS-latest
         strategy:
             matrix:
@@ -17,7 +17,6 @@ jobs:
             - name: Build and test
               run: |
                   xcodebuild clean test -project MullvadVPN.xcodeproj -scheme MullvadVPN -destination "${destination}" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO
-              with:
-                  working-directory: ios
+              working-directory: ios
               env:
                   destination: ${{ matrix.destination }}
