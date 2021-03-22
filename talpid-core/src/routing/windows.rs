@@ -24,6 +24,9 @@ pub enum Error {
     /// Failure to clear routes
     #[error(display = "Failed to clear applied routes")]
     ClearRoutesFailed,
+    /// WinNet returned an error while adding default route callback
+    #[error(display = "Failed to set callback for default route")]
+    FailedToAddDefaultRouteCallback,
     /// Attempt to use route manager that has been dropped
     #[error(display = "Cannot send message to route manager since it is down")]
     RouteManagerDown,
@@ -33,7 +36,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 /// Manages routes by calling into WinNet
 pub struct RouteManager {
-    callback_handles: Vec<winnet::WinNetCallbackHandle>,
     runtime: tokio::runtime::Handle,
     manage_tx: Option<UnboundedSender<RouteManagerCommand>>,
 }
@@ -73,7 +75,6 @@ impl RouteManager {
         }
         let (manage_tx, manage_rx) = mpsc::unbounded();
         let manager = Self {
-            callback_handles: vec![],
             runtime: runtime.clone(),
             manage_tx: Some(manage_tx),
         };
@@ -129,32 +130,16 @@ impl RouteManager {
     }
 
     /// Sets a callback that is called whenever the default route changes.
-    #[cfg(target_os = "windows")]
     pub fn add_default_route_callback<T: 'static>(
         &mut self,
         callback: Option<winnet::DefaultRouteChangedCallback>,
         context: T,
-    ) {
+    ) -> Result<winnet::WinNetCallbackHandle> {
         if self.manage_tx.is_none() {
-            return;
+            return Err(Error::RouteManagerDown);
         }
-
-        match winnet::add_default_route_change_callback(callback, context) {
-            Err(_e) => {
-                // not sure if this should panic
-                log::error!("Failed to add callback!");
-            }
-            Ok(handle) => {
-                self.callback_handles.push(handle);
-            }
-        }
-    }
-
-    /// Removes all routes previously applied in [`RouteManager::new`] or
-    /// [`RouteManager::add_routes`].
-    pub fn clear_default_route_callbacks(&mut self) {
-        // `WinNetCallbackHandle::drop` removes these callbacks.
-        self.callback_handles.clear();
+        winnet::add_default_route_change_callback(callback, context)
+            .map_err(|_| Error::FailedToAddDefaultRouteCallback)
     }
 
     /// Stops the routing manager and invalidates the route manager - no new default route callbacks
@@ -165,7 +150,6 @@ impl RouteManager {
                 log::error!("RouteManager channel already down or thread panicked");
             }
 
-            self.callback_handles.clear();
             winnet::deactivate_routing_manager();
         }
     }
