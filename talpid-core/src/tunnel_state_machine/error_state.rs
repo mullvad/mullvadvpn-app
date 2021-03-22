@@ -1,3 +1,5 @@
+#[cfg(windows)]
+use super::windows;
 use super::{
     ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelCommandReceiver, TunnelState, TunnelStateTransition, TunnelStateWrapper,
@@ -86,6 +88,16 @@ impl TunnelState for ErrorState {
         shared_values: &mut SharedTunnelStateValues,
         block_reason: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
+        #[cfg(windows)]
+        if let Err(error) = windows::update_split_tunnel_addresses(None, shared_values) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg(
+                    "Failed to register addresses with split tunnel driver"
+                )
+            );
+        }
+
         #[cfg(not(target_os = "android"))]
         let block_failure = Self::set_firewall_policy(shared_values).err();
         #[cfg(target_os = "android")]
