@@ -34,7 +34,7 @@ for argument in "$@"; do
             DESKTOP="true"
             ;;
         -*)
-            echo "Unknown option \"$argument\""
+            echo >&2 "Unknown option \"$argument\""
             exit 1
             ;;
         *)
@@ -49,8 +49,8 @@ function inject_version {
     local VERSION_REGEX="^20([0-9]{2})\.([1-9][0-9]?)(-beta([1-9][0-9]?))?(-dev-[0-9a-f]+)?$"
 
     if [[ ! $PRODUCT_VERSION =~ $VERSION_REGEX ]]; then
-        echo "Invalid version format. Please specify version as:"
-        echo "<YEAR>.<NUMBER>[-beta<NUMBER>]"
+        echo >&2 "Invalid version format. Please specify version as:"
+        echo >&2 "<YEAR>.<NUMBER>[-beta<NUMBER>]"
         return 1
     fi
 
@@ -152,14 +152,8 @@ function delete_backup {
     set -e
 }
 
-
 case "$COMMAND" in
     "inject")
-        if [ -z "$PRODUCT_VERSION" ]; then
-            echo "Please give the release version as an argument to this script."
-            echo "For example: '2018.1-beta3' for a beta release, or '2018.6' for a stable one."
-            exit 1
-        fi
         inject_version
         ;;
     "restore-backup")
@@ -169,7 +163,7 @@ case "$COMMAND" in
         delete_backup
         ;;
     *)
-        echo "Invalid command"
+        echo >&2 "Invalid command"
         exit 1
         ;;
 esac
