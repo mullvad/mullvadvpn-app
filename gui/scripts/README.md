@@ -3,13 +3,20 @@ This is a folder with the supporting scripts written in Python 3, node, bash.
 
 ## Dependency installation notes
 
-1. Run the following command in terminal to install python dependencies:
+1. Install GDAL/OGR dependencies, which are required by Fiona python package.
+   
+   You can install GDAL via Homebrew on macOS: 
+   `brew install gdal`
+   
+   For other platforms, please follow the guide on https://gdal.org/download.html#binaries
+
+2. Run the following command in terminal to install python dependencies:
    `pip3 install -r requirements.txt`
 
-2. Run `npm install -g topojson-server` to install `geo2topo` tool which is
+3. Run `npm install -g topojson-server` to install `geo2topo` tool which is
    used by python scripts to convert GeoJSON to TopoJSON
 
-3. Make sure you have gettext utilities installed.
+4. Make sure you have gettext utilities installed.
    https://www.gnu.org/software/gettext/
 
 
