@@ -240,6 +240,22 @@ impl SplitTunnel {
         internet_ipv4: Ipv4Addr,
         internet_ipv6: Option<Ipv6Addr>,
     ) -> Result<(), Error> {
+        log::debug!(
+            "Register IPs: {} {:?} {} {:?}",
+            tunnel_ipv4,
+            tunnel_ipv6,
+            internet_ipv4,
+            internet_ipv6
+        );
+
+        // If there is no valid internet IPv4 address, ignore any tunnel addresses.
+        // This should only be the case if a reserved tunnel IP is used to keep the driver engaged.
+        let tunnel_ipv4 = if internet_ipv4.is_unspecified() {
+            Ipv4Addr::new(0, 0, 0, 0)
+        } else {
+            tunnel_ipv4
+        };
+
         self.handle
             .register_ips(tunnel_ipv4, tunnel_ipv6, internet_ipv4, internet_ipv6)
             .map_err(Error::RegisterIps)

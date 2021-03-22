@@ -250,7 +250,7 @@ impl DeviceHandle {
         )?;
 
         let state = self.get_driver_state()?;
-        log::trace!("Split-tunnel driver state: {:?}", state);
+        log::debug!("Split-tunnel driver state: {:?}", state);
 
         Ok(())
     }
