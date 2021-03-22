@@ -15,29 +15,9 @@ class ConnectMainContentView: UIView {
         case selectLocation
     }
 
-    lazy var secureLabel: UILabel = {
-        let textLabel = UILabel()
-        textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.font = UIFont.boldSystemFont(ofSize: 20)
-        textLabel.textColor = .white
-        return textLabel
-    }()
-
-    lazy var countryLabel: UILabel = {
-        let textLabel = UILabel()
-        textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.font = UIFont.boldSystemFont(ofSize: 34)
-        textLabel.textColor = .white
-        return textLabel
-    }()
-
-    lazy var cityLabel: UILabel = {
-        let textLabel = UILabel()
-        textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.font = UIFont.boldSystemFont(ofSize: 34)
-        textLabel.textColor = .white
-        return textLabel
-    }()
+    let secureLabel = makeBoldTextLabel(ofSize: 20)
+    let countryLabel = makeBoldTextLabel(ofSize: 34)
+    let cityLabel = makeBoldTextLabel(ofSize: 34)
 
     lazy var connectionPanel: ConnectionPanelView = {
         let view = ConnectionPanelView()
@@ -98,6 +78,14 @@ class ConnectMainContentView: UIView {
         let views = actionButtons.map { self.view(forActionButton: $0) }
 
         setArrangedButtons(views)
+    }
+
+    private class func makeBoldTextLabel(ofSize fontSize: CGFloat) -> UILabel {
+        let textLabel = UILabel()
+        textLabel.translatesAutoresizingMaskIntoConstraints = false
+        textLabel.font = UIFont.boldSystemFont(ofSize: fontSize)
+        textLabel.textColor = .white
+        return textLabel
     }
 
     private func addSubviews() {
