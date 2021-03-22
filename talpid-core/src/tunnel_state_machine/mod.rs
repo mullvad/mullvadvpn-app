@@ -13,6 +13,8 @@ use self::{
 };
 #[cfg(windows)]
 use crate::split_tunnel;
+#[cfg(windows)]
+use crate::winnet::WinNetCallbackHandle;
 use crate::{
     dns::DnsMonitor,
     firewall::{Firewall, FirewallArguments},
@@ -45,6 +47,9 @@ use talpid_types::{
     net::{Endpoint, TunnelParameters},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
 };
+
+#[cfg(target_os = "windows")]
+mod windows;
 
 /// Errors that can happen when setting up or using the state machine.
 #[derive(err_derive::Error, Debug)]
@@ -283,6 +288,8 @@ impl TunnelStateMachine {
             connectivity_check_was_enabled: None,
             #[cfg(windows)]
             split_tunnel: Arc::new(Mutex::new(split_tunnel)),
+            #[cfg(windows)]
+            st_route_handler: None,
         };
 
         let (initial_state, _) = DisconnectedState::enter(&mut shared_values, reset_firewall);
@@ -367,6 +374,9 @@ struct SharedTunnelStateValues {
     /// Management of excluded apps.
     #[cfg(windows)]
     split_tunnel: Arc<Mutex<split_tunnel::SplitTunnel>>,
+    /// Management of excluded apps.
+    #[cfg(windows)]
+    st_route_handler: Option<WinNetCallbackHandle>,
 }
 
 impl SharedTunnelStateValues {
