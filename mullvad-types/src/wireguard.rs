@@ -38,6 +38,27 @@ pub enum RotationIntervalError {
     TooLarge,
 }
 
+impl fmt::Display for RotationIntervalError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use RotationIntervalError::*;
+
+        match *self {
+            TooSmall => write!(
+                f,
+                "Rotation interval must be at least {} hours",
+                MIN_ROTATION_INTERVAL.as_secs() / 60 / 60
+            ),
+            TooLarge => write!(
+                f,
+                "Rotation interval must be at most {} hours",
+                MAX_ROTATION_INTERVAL.as_secs() / 60 / 60
+            ),
+        }
+    }
+}
+
+impl std::error::Error for RotationIntervalError {}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct RotationInterval(Duration);
 

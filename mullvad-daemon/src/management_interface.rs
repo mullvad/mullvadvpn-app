@@ -606,9 +606,8 @@ impl ManagementService for ManagementServiceImpl {
         let interval: RotationInterval = Duration::try_from(request.into_inner())
             .map_err(|_| Status::invalid_argument("unexpected negative rotation interval"))?
             .try_into()
-            .map_err(|error| match error {
-                RotationIntervalError::TooSmall => Status::invalid_argument("interval too small"),
-                RotationIntervalError::TooLarge => Status::invalid_argument("interval too large"),
+            .map_err(|error: RotationIntervalError| {
+                Status::invalid_argument(error.display_chain())
             })?;
 
         log::debug!("set_wireguard_rotation_interval({:?})", interval);
