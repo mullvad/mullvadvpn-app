@@ -14,6 +14,9 @@ jobs:
             matrix:
                 destination: ['platform=iOS Simulator,OS=12.4,name=iPhone 8']
         steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
             - name: Build and test
               run: |
                   xcodebuild clean test -project MullvadVPN.xcodeproj -scheme MullvadVPN -destination "${destination}" CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO ONLY_ACTIVE_ARCH=NO
