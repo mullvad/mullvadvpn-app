@@ -69,13 +69,11 @@ pub(super) fn update_split_tunnel_addresses(
         .register_ips(tunnel_ipv4, tunnel_ipv6, internet_ipv4, internet_ipv6)
         .map_err(BoxedError::new)?;
 
-    // FIXME: Do this via the route manager
     shared_values.st_route_handler = Some(
-        crate::winnet::add_default_route_change_callback(
-            Some(split_tunnel_default_route_change_handler),
-            context,
-        )
-        .map_err(BoxedError::new)?,
+        shared_values
+            .route_manager
+            .add_default_route_callback(Some(split_tunnel_default_route_change_handler), context)
+            .map_err(BoxedError::new)?,
     );
 
     Ok(())
