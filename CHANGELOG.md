@@ -62,6 +62,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix GUI not showing correct view if disconnected from the daemon during app startup.
 - Fix incorrectly displayed "inconsistent version" text in settings if disconnected from daemon on
   startup.
+- Cache initial target state.
 
 #### Windows
 - Fix "cannot find the file" error while creating a Wintun adapter by upgrading Wintun.
