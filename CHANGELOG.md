@@ -77,6 +77,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix input area sometimes disappearing when returning to the Login screen.
 - Fix status bar having the wrong color after logging out.
 
+### Security
+- Fix small traffic leak window during upgrades.
+
 
 ## [2021.2] - 2021-02-18
 This release is for desktop only.
