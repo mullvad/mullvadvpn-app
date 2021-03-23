@@ -6,7 +6,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.service.MullvadDaemon
-import net.mullvad.mullvadvpn.service.SettingsListener
+import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 
 class AppVersionInfoCache(
     val context: Context,
@@ -54,8 +54,10 @@ class AppVersionInfoCache(
         private set
 
     init {
-        settingsListener.subscribe(this) { settings ->
-            showBetaReleases = settings.showBetaReleases
+        settingsListener.settingsNotifier.subscribe(this) { maybeSettings ->
+            maybeSettings?.let { settings ->
+                showBetaReleases = settings.showBetaReleases
+            }
         }
     }
 
@@ -68,7 +70,7 @@ class AppVersionInfoCache(
 
     fun onDestroy() {
         setUpJob.cancel()
-        settingsListener.unsubscribe(this)
+        settingsListener.settingsNotifier.unsubscribe(this)
         daemon.onAppVersionInfoChange = null
     }
 

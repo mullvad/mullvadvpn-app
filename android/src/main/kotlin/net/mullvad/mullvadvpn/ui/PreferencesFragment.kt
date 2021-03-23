@@ -26,8 +26,6 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         allowLanToggle = view.findViewById<ToggleCell>(R.id.allow_lan).apply {
-            forcefullySetState(boolToSwitchState(settingsListener.settings.allowLan))
-
             listener = { state ->
                 when (state) {
                     CellSwitch.State.ON -> daemon.setAllowLan(true)
@@ -37,8 +35,6 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
         }
 
         autoConnectToggle = view.findViewById<ToggleCell>(R.id.auto_connect).apply {
-            forcefullySetState(boolToSwitchState(settingsListener.settings.autoConnect))
-
             listener = { state ->
                 when (state) {
                     CellSwitch.State.ON -> daemon.setAutoConnect(true)
@@ -47,8 +43,10 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
-        settingsListener.subscribe(this) { settings ->
-            updateUi(settings)
+        settingsListener.settingsNotifier.subscribe(this) { maybeSettings ->
+            maybeSettings?.let { settings ->
+                updateUi(settings)
+            }
         }
 
         titleController = CollapsibleTitleController(view)
@@ -56,16 +54,24 @@ class PreferencesFragment : ServiceDependentFragment(OnNoService.GoBack) {
         return view
     }
 
-    private fun updateUi(settings: Settings) {
-        jobTracker.newUiJob("updateUi") {
-            allowLanToggle.state = boolToSwitchState(settings.allowLan)
-            autoConnectToggle.state = boolToSwitchState(settings.autoConnect)
-        }
-    }
-
     override fun onSafelyDestroyView() {
         titleController.onDestroy()
-        settingsListener.unsubscribe(this)
+        settingsListener.settingsNotifier.unsubscribe(this)
+    }
+
+    private fun updateUi(settings: Settings) {
+        jobTracker.newUiJob("updateUi") {
+            val allowLanState = boolToSwitchState(settings.allowLan)
+            val autoConnectState = boolToSwitchState(settings.autoConnect)
+
+            if (isVisible) {
+                allowLanToggle.state = allowLanState
+                autoConnectToggle.state = autoConnectState
+            } else {
+                allowLanToggle.forcefullySetState(allowLanState)
+                autoConnectToggle.forcefullySetState(autoConnectState)
+            }
+        }
     }
 
     private fun boolToSwitchState(pref: Boolean): CellSwitch.State {

@@ -18,6 +18,8 @@ import net.mullvad.mullvadvpn.ui.widget.ToggleCell
 import net.mullvad.mullvadvpn.util.AdapterWithHeader
 
 class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
+    private var isAllowLanEnabled = false
+
     private lateinit var customDnsAdapter: CustomDnsAdapter
     private lateinit var customDnsToggle: ToggleCell
     private lateinit var wireguardMtuInput: MtuCell
@@ -67,7 +69,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
         detachBackButtonHandler()
         customDnsAdapter.onDestroy()
         titleController.onDestroy()
-        settingsListener.unsubscribe(this)
+        settingsListener.settingsNotifier.unsubscribe(this)
     }
 
     private fun configureHeader(view: View) {
@@ -109,8 +111,12 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
             }
         }
 
-        settingsListener.subscribe(this) { settings ->
-            updateUi(settings)
+        settingsListener.settingsNotifier.subscribe(this) { maybeSettings ->
+            maybeSettings?.let { settings ->
+                updateUi(settings)
+            }
+
+            isAllowLanEnabled = maybeSettings?.allowLan ?: false
         }
     }
 
@@ -125,8 +131,7 @@ class AdvancedFragment : ServiceDependentFragment(OnNoService.GoBack) {
     private suspend fun confirmAddAddress(address: InetAddress): Boolean {
         return when {
             address.isLinkLocalAddress() || address.isSiteLocalAddress() -> {
-                settingsListener.settings.allowLan ||
-                    showConfirmDnsServerDialog(R.string.confirm_local_dns)
+                isAllowLanEnabled || showConfirmDnsServerDialog(R.string.confirm_local_dns)
             }
             else -> showConfirmDnsServerDialog(R.string.confirm_public_dns)
         }

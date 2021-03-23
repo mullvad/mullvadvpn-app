@@ -12,7 +12,9 @@ class LaunchFragment : ServiceAwareFragment() {
     private val hasAccountToken = CompletableDeferred<Boolean>()
 
     override fun onNewServiceConnection(serviceConnection: ServiceConnection) {
-        hasAccountToken.complete(serviceConnection.settingsListener.settings.accountToken != null)
+        serviceConnection.settingsListener.accountNumberNotifier.subscribe(this) { accountToken ->
+            hasAccountToken.complete(accountToken != null)
+        }
     }
 
     override fun onCreateView(

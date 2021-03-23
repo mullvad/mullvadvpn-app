@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 import net.mullvad.mullvadvpn.service.MullvadDaemon
-import net.mullvad.mullvadvpn.service.SettingsListener
+import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 
 class RelayListListener(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
     private val setUpJob = setUp()
@@ -34,14 +34,14 @@ class RelayListListener(val daemon: MullvadDaemon, val settingsListener: Setting
         }
 
     init {
-        settingsListener.onRelaySettingsChange = { newRelaySettings ->
+        settingsListener.relaySettingsNotifier.subscribe(this) { newRelaySettings ->
             relaySettingsChanged(newRelaySettings)
         }
     }
 
     fun onDestroy() {
         setUpJob.cancel()
-        settingsListener.onRelaySettingsChange = null
+        settingsListener.relaySettingsNotifier.unsubscribe(this)
         daemon.onRelayListChange = null
     }
 

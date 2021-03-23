@@ -1,10 +1,14 @@
 package net.mullvad.mullvadvpn.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Settings(
-    var accountToken: String?,
-    var relaySettings: RelaySettings,
-    var allowLan: Boolean,
-    var autoConnect: Boolean,
-    var tunnelOptions: TunnelOptions,
-    var showBetaReleases: Boolean
-)
+    val accountToken: String?,
+    val relaySettings: RelaySettings,
+    val allowLan: Boolean,
+    val autoConnect: Boolean,
+    val tunnelOptions: TunnelOptions,
+    val showBetaReleases: Boolean
+) : Parcelable

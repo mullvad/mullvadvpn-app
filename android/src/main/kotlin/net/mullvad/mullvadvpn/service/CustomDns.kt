@@ -4,6 +4,7 @@ import java.net.InetAddress
 import java.util.ArrayList
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.model.DnsOptions
+import net.mullvad.mullvadvpn.service.endpoint.SettingsListener
 import net.mullvad.talpid.util.EventNotifier
 
 class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
@@ -21,9 +22,11 @@ class CustomDns(val daemon: MullvadDaemon, val settingsListener: SettingsListene
     val onDnsServersChanged = EventNotifier<List<InetAddress>>(emptyList())
 
     init {
-        settingsListener.dnsOptionsNotifier.subscribe(this) { dnsOptions ->
-            enabled = dnsOptions.custom
-            dnsServers = ArrayList(dnsOptions.addresses)
+        settingsListener.dnsOptionsNotifier.subscribe(this) { maybeDnsOptions ->
+            maybeDnsOptions?.let { dnsOptions ->
+                enabled = dnsOptions.custom
+                dnsServers = dnsOptions.addresses
+            }
         }
     }
 
