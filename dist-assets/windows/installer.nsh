@@ -651,6 +651,36 @@
 !macroend
 
 #
+# customCheckAppRunning
+#
+# The default behavior may cause the daemon to disconnect.
+#
+!macro customCheckAppRunning
+
+	# This must be done here for compatibility with <= 2021.2,
+	# since those versions do not kill the GUI in the uninstaller.
+	# This is fine as long as /f is used.
+
+	${KillGui}
+
+!macroend
+
+#
+# KillGui
+#
+# Kill "Mullvad VPN.exe" if it is running. Killing without /f may cause the daemon to disconnect.
+#
+!macro KillGui
+
+	nsExec::Exec `taskkill /f /t /im "${APP_EXECUTABLE_FILENAME}"` $R0
+
+	Sleep 500
+
+!macroend
+
+!define KillGui '!insertmacro "KillGui"'
+
+#
 # customInstall
 #
 # This macro is activated towards the end of the installation
@@ -942,6 +972,8 @@
 	${If} $R0 != 0
 		Goto customRemoveFiles_abort
 	${EndIf}
+
+	${KillGui}
 
 	# Remove application files
 	log::Log "Deleting $INSTDIR"
