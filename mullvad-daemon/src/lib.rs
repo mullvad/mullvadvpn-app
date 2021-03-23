@@ -43,15 +43,13 @@ use mullvad_types::{
 use settings::SettingsPersister;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
-#[cfg(not(target_os = "android"))]
-use std::path::Path;
 use std::{
     fs::{self, File},
     io,
     marker::PhantomData,
     mem,
     net::IpAddr,
-    path::PathBuf,
+    path::{Path, PathBuf},
     sync::{mpsc as sync_mpsc, Arc, Weak},
     time::Duration,
 };
@@ -602,9 +600,6 @@ where
                 cached_target_state,
                 target_cache.display()
             );
-            let _ = fs::remove_file(target_cache).map_err(|e| {
-                error!("Cannot delete target tunnel state cache: {}", e);
-            });
         }
 
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
@@ -623,6 +618,7 @@ where
         } else {
             TargetState::Unsecured
         };
+        Self::cache_target_state(&cache_dir, initial_target_state);
 
         let initial_api_endpoint = Endpoint::from_socket_address(
             rpc_runtime.address_cache.peek_address(),
@@ -2124,22 +2120,7 @@ where
 
             if new_state != self.target_state {
                 self.target_state = new_state;
-
-                // Cache the current target state
-                let cache_file = self.cache_dir.join(TARGET_START_STATE_FILE);
-                log::trace!("Saving tunnel target state to {}", cache_file.display());
-                match File::create(&cache_file) {
-                    Ok(handle) => {
-                        if let Err(e) =
-                            serde_json::to_writer(io::BufWriter::new(handle), &self.target_state)
-                        {
-                            log::error!("Failed to cache target state: {}", e);
-                        }
-                    }
-                    Err(e) => {
-                        log::error!("Failed to cache target state: {}", e);
-                    }
-                }
+                Self::cache_target_state(&self.cache_dir, self.target_state);
             }
 
             match self.target_state {
@@ -2149,6 +2130,21 @@ where
             true
         } else {
             false
+        }
+    }
+
+    fn cache_target_state(cache_dir: &Path, target_state: TargetState) {
+        let cache_file = cache_dir.join(TARGET_START_STATE_FILE);
+        log::trace!("Saving tunnel target state to {}", cache_file.display());
+        match File::create(&cache_file) {
+            Ok(handle) => {
+                if let Err(e) = serde_json::to_writer(io::BufWriter::new(handle), &target_state) {
+                    log::error!("Failed to cache target state: {}", e);
+                }
+            }
+            Err(e) => {
+                log::error!("Failed to cache target state: {}", e);
+            }
         }
     }
 
