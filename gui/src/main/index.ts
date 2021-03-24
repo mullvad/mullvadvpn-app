@@ -112,6 +112,7 @@ class ApplicationMain {
   private daemonEventListener?: SubscriptionListener<DaemonEvent>;
   private reconnectBackoff = new ReconnectionBackoff();
   private connectedToDaemon = false;
+  private disconnectOnExit = true;
   private quitStage = AppQuitStage.unready;
 
   private accountData?: IAccountData = undefined;
@@ -215,7 +216,7 @@ class ApplicationMain {
 
     this.overrideAppPaths();
 
-    if (this.ensureSingleInstance()) {
+    if (this.handleSecondInstance()) {
       return;
     }
 
@@ -240,9 +241,18 @@ class ApplicationMain {
     app.on('before-quit', this.onBeforeQuit);
   }
 
-  private ensureSingleInstance() {
+  private handleSecondInstance() {
     if (app.requestSingleInstanceLock()) {
-      app.on('second-instance', (_event, _commandLine, _workingDirectory) => {
+      if (app.commandLine.hasSwitch('quit-without-disconnect')) {
+        app.quit();
+        return true;
+      }
+      app.on('second-instance', (_event, commandLine, _workingDirectory) => {
+        if (commandLine.indexOf('--quit-without-disconnect') !== -1) {
+          this.disconnectOnExit = false;
+          app.quit();
+          return;
+        }
         if (this.windowController) {
           this.windowController.show();
         }
@@ -330,11 +340,13 @@ class ApplicationMain {
 
   private async prepareToQuit() {
     if (this.connectedToDaemon) {
-      try {
-        await this.daemonRpc.disconnectTunnel();
-        log.info('Disconnected the tunnel');
-      } catch (e) {
-        log.error(`Failed to disconnect the tunnel: ${e.message}`);
+      if (this.disconnectOnExit) {
+        try {
+          await this.daemonRpc.disconnectTunnel();
+          log.info('Disconnected the tunnel');
+        } catch (e) {
+          log.error(`Failed to disconnect the tunnel: ${e.message}`);
+        }
       }
     } else {
       log.info('Cannot close the tunnel because there is no active connection to daemon.');
