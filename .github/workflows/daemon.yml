@@ -20,7 +20,6 @@ on:
             - '.*ignore'
             - .editorconfig
             - .gitattributes
-            - .travis.yml
             - Dockerfile
             - build.sh
             - build-apk.sh
