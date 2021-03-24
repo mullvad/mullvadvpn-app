@@ -10,6 +10,7 @@ use std::{
     fs::{self, File},
     io::{self, BufWriter, Read, Seek, SeekFrom, Write},
     path::{Path, PathBuf},
+    time::Duration,
 };
 use talpid_types::ErrorExt;
 
@@ -32,6 +33,9 @@ const LINE_SEPARATOR: &str = "\n";
 
 #[cfg(windows)]
 const LINE_SEPARATOR: &str = "\r\n";
+
+const MAX_SEND_ATTEMPTS: usize = 3;
+const RETRY_INTERVAL: Duration = Duration::from_millis(500);
 
 /// Custom macro to write a line to an output formatter that uses platform-specific newline
 /// character sequences.
@@ -64,8 +68,8 @@ pub enum Error {
     #[error(display = "Unable to create REST client")]
     CreateRpcClientError(#[error(source)] mullvad_rpc::Error),
 
-    #[error(display = "Error during RPC call")]
-    SendRpcError(#[error(source)] mullvad_rpc::rest::Error),
+    #[error(display = "Failed to send problem report")]
+    SendProblemReportError,
 
     #[error(display = "Unable to spawn Tokio runtime")]
     CreateRuntime(#[error(source)] io::Error),
@@ -289,9 +293,27 @@ pub fn send_problem_report(
         .map_err(Error::CreateRpcClientError)?;
     let rpc_client = mullvad_rpc::ProblemReportProxy::new(rpc_manager.mullvad_rest_handle());
 
-    runtime
-        .block_on(rpc_client.problem_report(user_email, user_message, &report_content, &metadata))
-        .map_err(Error::SendRpcError)
+    runtime.block_on(async move {
+        for _attempt in 0..MAX_SEND_ATTEMPTS {
+            match rpc_client
+                .problem_report(user_email, user_message, &report_content, &metadata)
+                .await
+            {
+                Ok(()) => {
+                    println!("Problem report sent.");
+                    return Ok(());
+                }
+                Err(error) => {
+                    eprintln!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to send problem report")
+                    )
+                }
+            }
+            tokio::time::delay_for(RETRY_INTERVAL).await;
+        }
+        Err(Error::SendProblemReportError)
+    })
 }
 
 fn write_problem_report(path: &Path, problem_report: &ProblemReport) -> io::Result<()> {

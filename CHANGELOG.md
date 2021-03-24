@@ -51,6 +51,7 @@ Line wrap the file at 100 chars.                                              Th
 - Read account token from standard input unless given as an argument in CLI.
 - Make WireGuard automatic key rotation interval mandatory and between 1 and 7 days.
 - Show default, minimum, and maximum key rotation intervals in CLI.
+- Attempt to send problem reports using other endpoints if using the primary one fails.
 
 #### Android
 - WireGuard key is now rotated sooner: every four days instead of seven.
