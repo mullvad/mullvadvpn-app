@@ -14,6 +14,7 @@ import moment from 'moment';
 import * as path from 'path';
 import { sprintf } from 'sprintf-js';
 import * as uuid from 'uuid';
+import config from '../config.json';
 import { hasExpired } from '../shared/account-expiry';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import {
@@ -385,7 +386,12 @@ class ApplicationMain {
     // fetching.  https://github.com/electron/electron/issues/22995
     session.defaultSession.setSpellCheckerDictionaryDownloadURL('https://00.00/');
 
+    // Blocks scripts in the renderer process from asking for any permission.
+    this.blockPermissionRequests();
+    // Blocks any http(s) and file requests that aren't supposed to happen.
     this.blockRequests();
+    // Blocks navigation since it's not needed.
+    this.blockNavigation();
 
     this.translations = this.updateCurrentLocale();
 
@@ -1138,7 +1144,8 @@ class ApplicationMain {
     });
 
     IpcMainEventChannel.problemReport.handleCollectLogs((toRedact) => {
-      const reportPath = path.join(app.getPath('temp'), uuid.v4() + '.log');
+      const id = uuid.v4();
+      const reportPath = this.getProblemReportPath(id);
       const executable = resolveBin('mullvad-problem-report');
       const args = ['collect', '--output', reportPath];
       if (toRedact.length > 0) {
@@ -1156,15 +1163,16 @@ class ApplicationMain {
             reject(error.message);
           } else {
             log.debug(`Problem report was written to ${reportPath}`);
-            resolve(reportPath);
+            resolve(id);
           }
         });
       });
     });
 
-    IpcMainEventChannel.problemReport.handleSendReport(({ email, message, savedReport }) => {
+    IpcMainEventChannel.problemReport.handleSendReport(({ email, message, savedReportId }) => {
       const executable = resolveBin('mullvad-problem-report');
-      const args = ['send', '--email', email, '--message', message, '--report', savedReport];
+      const reportPath = this.getProblemReportPath(savedReportId);
+      const args = ['send', '--email', email, '--message', message, '--report', reportPath];
 
       return new Promise((resolve, reject) => {
         execFile(executable, args, { windowsHide: true }, (error, stdout, stderr) => {
@@ -1183,9 +1191,16 @@ class ApplicationMain {
       });
     });
 
+    IpcMainEventChannel.problemReport.handleViewLog((savedReportId) =>
+      shell.openPath(this.getProblemReportPath(savedReportId)),
+    );
+
     IpcMainEventChannel.app.handleQuit(() => app.quit());
-    IpcMainEventChannel.app.handleOpenUrl((url) => shell.openExternal(url));
-    IpcMainEventChannel.app.handleOpenPath((path) => shell.openPath(path));
+    IpcMainEventChannel.app.handleOpenUrl(async (url) => {
+      if (Object.values(config.links).find((link) => url.startsWith(link))) {
+        await shell.openExternal(url);
+      }
+    });
     IpcMainEventChannel.app.handleShowOpenDialog((options) => dialog.showOpenDialog(options));
   }
 
@@ -1399,35 +1414,72 @@ class ApplicationMain {
     };
   }
 
+  private blockPermissionRequests() {
+    session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => {
+      callback(false);
+    });
+    session.defaultSession.setPermissionCheckHandler(() => false);
+  }
+
   // Since the app frontend never performs any network requests, all requests originating from the
   // renderer process are blocked to protect against the potential threat of malicious third party
   // dependencies. There are a few exceptions which are described further down.
   private blockRequests() {
-    session.defaultSession.webRequest.onBeforeRequest(
-      { urls: ['*://*/*'] },
-      (details, callback) => {
-        if (
-          process.env.NODE_ENV === 'development' &&
-          // Local web server providing assests (index.html, index.js and css files)
-          (details.url.startsWith('http://localhost:8080/') ||
-            // Automatic reloading performed by the browser-sync module
-            details.url.startsWith('http://localhost:35829/browser-sync/') ||
-            // Downloading of React and Redux developer tools.
-            details.url.startsWith('https://clients2.google.com') ||
-            details.url.startsWith('https://clients2.googleusercontent.com'))
-        ) {
-          callback({});
-        } else {
-          log.error(`${details.method} request blocked: ${details.url}`);
-          callback({ cancel: true });
+    session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
+      if (this.allowFileAccess(details.url) || this.allowDevelopmentRequest(details.url)) {
+        callback({});
+      } else {
+        log.error(`${details.method} request blocked: ${details.url}`);
+        callback({ cancel: true });
 
-          // Throw error in development to notify since this should never happen.
-          if (process.env.NODE_ENV === 'development') {
-            throw new Error('Web request blocked');
-          }
+        // Throw error in development to notify since this should never happen.
+        if (process.env.NODE_ENV === 'development') {
+          throw new Error('Web request blocked');
         }
-      },
+      }
+    });
+  }
+
+  private allowFileAccess(url: string): boolean {
+    const buildDir = path.normalize(path.join(path.resolve(__dirname), '..', '..'));
+
+    if (url.startsWith('file:')) {
+      // Extract the path from the URL
+      let filePath = decodeURI(new URL(url).pathname);
+      if (process.platform === 'win32') {
+        // Windows paths shouldn't start with a '/'
+        filePath = filePath.replace(/^\//, '');
+      }
+      filePath = path.resolve(filePath);
+
+      return !path.relative(buildDir, filePath).includes('..');
+    } else {
+      return false;
+    }
+  }
+
+  private allowDevelopmentRequest(url: string): boolean {
+    return (
+      process.env.NODE_ENV === 'development' &&
+      // Local web server providing assests (index.html, index.js and css files)
+      (url.startsWith('http://localhost:8080/') ||
+        // Automatic reloading performed by the browser-sync module
+        url.startsWith('ws://localhost:35829/browser-sync') ||
+        url.startsWith('http://localhost:35829/browser-sync/') ||
+        // Downloading of React and Redux developer tools.
+        url.startsWith('devtools://devtools/') ||
+        url.startsWith('chrome-extension://') ||
+        url.startsWith('https://clients2.google.com') ||
+        url.startsWith('https://clients2.googleusercontent.com'))
     );
+  }
+
+  private blockNavigation() {
+    app.on('web-contents-created', (_event, contents) => {
+      contents.on('will-navigate', (event) => {
+        event.preventDefault();
+      });
+    });
   }
 
   private async installDevTools() {
@@ -1772,6 +1824,10 @@ class ApplicationMain {
     } else {
       return shell.openExternal(url);
     }
+  }
+
+  private getProblemReportPath(id: string): string {
+    return path.join(app.getPath('temp'), `${id}.log`);
   }
 }
 

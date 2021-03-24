@@ -23,8 +23,8 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext & RouteC
     onClose() {
       props.history.goBack();
     },
-    viewLog(path: string) {
-      consumePromise(props.app.openPath(path));
+    viewLog(id: string) {
+      consumePromise(props.app.viewLog(id));
     },
     saveReportForm,
     clearReportForm,
