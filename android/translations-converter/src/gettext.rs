@@ -100,13 +100,17 @@ impl Translation {
         let mut current_plural_id = None;
         let mut plural_form = None;
         let mut variants = BTreeMap::new();
+
         let file = BufReader::new(File::open(file_path).expect("Failed to open gettext file"));
+        // Ensure there's an empty line at the end so that the "else" part of the string matching
+        // code will run for the last message in the file.
+        let lines = file
+            .lines()
+            .map(|line_result| line_result.expect("Failed to read from gettext file"))
+            .chain(Some(String::new()));
 
-        for line in file.lines() {
-            let line = line.expect("Failed to read from gettext file");
-            let line = line.trim();
-
-            match_str! { (line)
+        for line in lines {
+            match_str! { (line.trim())
                 ["msgid \"", msg_id, "\""] => {
                     current_id = Some(normalize(msg_id));
                 }
