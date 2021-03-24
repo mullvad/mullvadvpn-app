@@ -47,7 +47,34 @@ import {
 import { LogLevel } from '../shared/logging-types';
 import IpcOutput from './lib/logging';
 
-const IpcRendererEventChannel = window.ipc;
+// This function wraps all IPC calls to catch errors and then rethrow them without the
+// "Uncaught Error:" prefix that's added by Electron.
+// This is a temporary workaround which won't be required after this Electron PR has been merged and
+// released: https://github.com/electron/electron/pull/28346
+function handleReponse(ipc: typeof window.ipc): typeof window.ipc {
+  const wrappedIpc: Record<string, Record<string, unknown>> = {};
+
+  Object.entries(ipc).forEach(([groupName, group]) => {
+    wrappedIpc[groupName] = {} as typeof group;
+
+    Object.entries(group).forEach(([fnName, fn]) => {
+      wrappedIpc[groupName][fnName] = (...args: Parameters<typeof fn>) => {
+        const response = fn(...args);
+        if (response instanceof Promise) {
+          return response.catch((error: Error) => {
+            throw new Error(error.message?.replace(/^Uncaught Error: /, ''));
+          });
+        } else {
+          return response;
+        }
+      };
+    });
+  });
+
+  return wrappedIpc as typeof window.ipc;
+}
+
+const IpcRendererEventChannel = handleReponse(window.ipc);
 
 interface IPreferredLocaleDescriptor {
   name: string;
