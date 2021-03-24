@@ -10,6 +10,9 @@ import UIKit
 
 class ProblemReportViewController: UIViewController, UITextFieldDelegate, ConditionalNavigation {
 
+    private var textViewKeyboardResponder: AutomaticKeyboardResponder?
+    private var scrollViewKeyboardResponder: AutomaticKeyboardResponder?
+
     private let mullvadRest = MullvadRest(session: URLSession(configuration: .ephemeral))
     private lazy var consolidatedLog: ConsolidatedApplicationLog = {
         let securityGroupIdentifier = ApplicationConfiguration.securityGroupIdentifier
@@ -102,14 +105,6 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     /// Flag indicating when the text view is expanded to fill the entire view
     private var isMessageTextViewExpanded = false
 
-    /// Keyboard intersection with the controller view
-    private var keyboardIntersectionRect = CGRect.zero
-
-    /// Bottom content inset necessary to compensate for the keyboard overlapping
-    var scrollViewBottomContentInsetAccountingForKeyboard: CGFloat {
-        return max(0, keyboardIntersectionRect.height - view.safeAreaInsets.bottom)
-    }
-
     /// Placeholder view used to fill the space within the scroll view when the text view is
     /// expanded to fill the entire view
     private lazy var messagePlaceholder: UIView = {
@@ -177,6 +172,9 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
         navigationItem.title = NSLocalizedString("Report a problem", comment: "Navigation title")
 
+        textViewKeyboardResponder = AutomaticKeyboardResponder(targetView: messageTextView)
+        scrollViewKeyboardResponder = AutomaticKeyboardResponder(targetView: scrollView)
+
         // Make sure that the user can't easily dismiss the controller on iOS 13 and above
         if #available(iOS 13.0, *) {
             isModalInPresentation = true
@@ -207,10 +205,9 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     override func viewSafeAreaInsetsDidChange() {
         super.viewSafeAreaInsetsDidChange()
 
-        updateScrollViewContentInsets()
-        updateMessageTextViewContentInsets()
+        self.scrollViewKeyboardResponder?.updateContentInsets()
+        self.textViewKeyboardResponder?.updateContentInsets()
     }
-
 
     // MARK: - Actions
 
@@ -253,10 +250,6 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
     private func registerForNotifications() {
         let notificationCenter = NotificationCenter.default
-
-        notificationCenter.addObserver(self, selector: #selector(keyboardWillChangeFrame(_:)),
-                                       name: UIWindow.keyboardWillChangeFrameNotification,
-                                       object: nil)
         notificationCenter.addObserver(self, selector: #selector(emailTextFieldDidChange),
                                        name: UITextField.textDidChangeNotification,
                                        object: emailTextField)
@@ -382,7 +375,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
             }) { (completed) in
                 self.isMessageTextViewExpanded = true
 
-                self.updateMessageTextViewContentInsets()
+                self.textViewKeyboardResponder?.updateContentInsets()
             }
 
         } else {
@@ -409,29 +402,6 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
                 self.isMessageTextViewExpanded = false
             }
         }
-    }
-
-    private func updateScrollViewContentInsets() {
-        let scrollViewBottomInset = scrollViewBottomContentInsetAccountingForKeyboard
-
-        scrollView.contentInset.bottom = scrollViewBottomInset
-        scrollView.scrollIndicatorInsets.bottom = scrollViewBottomInset
-    }
-
-    private func updateMessageTextViewContentInsets() {
-        // Ignore updating text view insets until it's fully expanded
-        guard isMessageTextViewExpanded else { return }
-
-        let textViewBottomInset: CGFloat
-
-        if messageTextView.isFirstResponder {
-            textViewBottomInset = scrollViewBottomContentInsetAccountingForKeyboard
-        } else {
-            textViewBottomInset = 0
-        }
-
-        messageTextView.contentInset.bottom = textViewBottomInset
-        messageTextView.scrollIndicatorInsets.bottom = textViewBottomInset
     }
 
     private func animateDescriptionTextView(animations: @escaping () -> Void, completion: @escaping (Bool) -> Void) {
@@ -613,19 +583,6 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
     @objc private func emailTextFieldDidChange() {
         updatePersistentViewModel()
-    }
-
-    // MARK: - Keyboard notifications
-
-    @objc private func keyboardWillChangeFrame(_ notification: Notification) {
-        guard let keyboardFrameValue = notification.userInfo?[UIWindow.keyboardFrameEndUserInfoKey] as? NSValue else { return }
-
-        let screenRect = self.view.convert(self.view.bounds, to: nil)
-
-        keyboardIntersectionRect = screenRect.intersection(keyboardFrameValue.cgRectValue)
-
-        updateScrollViewContentInsets()
-        updateMessageTextViewContentInsets()
     }
 
     // MARK: - UITextFieldDelegate
