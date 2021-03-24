@@ -10,6 +10,7 @@ use std::{
 
 lazy_static! {
     static ref APOSTROPHE_VARIATION: Regex = Regex::new("’").unwrap();
+    static ref ESCAPED_DOUBLE_QUOTES: Regex = Regex::new(r#"\\""#).unwrap();
     static ref PARAMETERS: Regex = Regex::new(r"%\([^)]*\)").unwrap();
 }
 
@@ -270,6 +271,8 @@ fn normalize(string: &str) -> String {
     let string = APOSTROPHE_VARIATION.replace_all(&string, "'");
     // Mark where parameters are positioned, removing the parameter name
     let string = PARAMETERS.replace_all(&string, "%");
+    // Remove escaped double-quotes
+    let string = ESCAPED_DOUBLE_QUOTES.replace_all(&string, r#"""#);
 
     string.into_owned()
 }
