@@ -92,9 +92,6 @@ fn main() {
         })
         .collect();
 
-    let mut missing_translations = known_strings.clone();
-    let mut missing_plurals = known_plurals.clone();
-
     let locale_dir = Path::new("../../gui/locales");
     let locale_files = fs::read_dir(&locale_dir)
         .expect("Failed to open root locale directory")
@@ -125,12 +122,21 @@ fn main() {
             gettext::Translation::from_file(&locale_file),
             destination_dir.join("strings.xml"),
             destination_dir.join("plurals.xml"),
-            &mut missing_translations,
-            &mut missing_plurals,
         );
     }
 
     let template_path = locale_dir.join("messages.pot");
+    let template = gettext::Translation::from_file(&template_path);
+
+    let mut missing_translations = known_strings;
+    let mut missing_plurals: HashMap<_, _> = known_plurals;
+
+    for message in template {
+        match message.value {
+            gettext::MsgValue::Invariant(_) => missing_translations.remove(&message.id),
+            gettext::MsgValue::Plural { .. } => missing_plurals.remove(&message.id),
+        };
+    }
 
     if !missing_translations.is_empty() {
         println!("Appending missing translations to template file:");
@@ -153,8 +159,10 @@ fn main() {
 
         gettext::append_to_template(
             &template_path,
-            plural_resources
+            missing_plurals
                 .into_iter()
+                .filter_map(|(_, name)| plural_resources.iter().find(|plural| plural.name == name))
+                .cloned()
                 .inspect(|plural| {
                     let other_item = &plural
                         .items
@@ -232,8 +240,6 @@ fn generate_translations(
     translations: gettext::Translation,
     strings_output_path: impl AsRef<Path>,
     plurals_output_path: impl AsRef<Path>,
-    missing_translations: &mut HashMap<String, String>,
-    missing_plurals: &mut HashMap<String, String>,
 ) {
     let mut localized_strings = android::StringResources::new();
     let mut localized_plurals = android::PluralResources::new();
@@ -283,9 +289,6 @@ fn generate_translations(
 
     fs::write(plurals_output_path, localized_plurals.to_string())
         .expect("Failed to create Android plurals file");
-
-    missing_translations.retain(|translation, _| known_strings.contains_key(translation));
-    missing_plurals.retain(|translation, _| known_plurals.contains_key(translation));
 }
 
 /// Converts a gettext plural form into the plural quantities used by Android.

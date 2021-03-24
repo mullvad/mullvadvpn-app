@@ -10,10 +10,12 @@ use std::{
 
 lazy_static! {
     static ref APOSTROPHE_VARIATION: Regex = Regex::new("’").unwrap();
+    static ref ESCAPED_DOUBLE_QUOTES: Regex = Regex::new(r#"\\""#).unwrap();
     static ref PARAMETERS: Regex = Regex::new(r"%\([^)]*\)").unwrap();
 }
 
 /// A parsed gettext translation file.
+#[derive(Clone, Debug)]
 pub struct Translation {
     pub plural_form: Option<PluralForm>,
     entries: Vec<MsgEntry>,
@@ -99,13 +101,17 @@ impl Translation {
         let mut current_plural_id = None;
         let mut plural_form = None;
         let mut variants = BTreeMap::new();
+
         let file = BufReader::new(File::open(file_path).expect("Failed to open gettext file"));
+        // Ensure there's an empty line at the end so that the "else" part of the string matching
+        // code will run for the last message in the file.
+        let lines = file
+            .lines()
+            .map(|line_result| line_result.expect("Failed to read from gettext file"))
+            .chain(Some(String::new()));
 
-        for line in file.lines() {
-            let line = line.expect("Failed to read from gettext file");
-            let line = line.trim();
-
-            match_str! { (line)
+        for line in lines {
+            match_str! { (line.trim())
                 ["msgid \"", msg_id, "\""] => {
                     current_id = Some(normalize(msg_id));
                 }
@@ -265,6 +271,8 @@ fn normalize(string: &str) -> String {
     let string = APOSTROPHE_VARIATION.replace_all(&string, "'");
     // Mark where parameters are positioned, removing the parameter name
     let string = PARAMETERS.replace_all(&string, "%");
+    // Remove escaped double-quotes
+    let string = ESCAPED_DOUBLE_QUOTES.replace_all(&string, r#"""#);
 
     string.into_owned()
 }
