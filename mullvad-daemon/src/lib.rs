@@ -471,7 +471,7 @@ pub struct Daemon<L: EventListener> {
     tunnel_command_tx: Arc<mpsc::UnboundedSender<TunnelCommand>>,
     tunnel_state: TunnelState,
     target_state: TargetState,
-    clean_up_target_cache: bool,
+    lock_target_cache: bool,
     state: DaemonExecutionState,
     #[cfg(target_os = "linux")]
     exclude_pids: split_tunnel::PidManager,
@@ -664,7 +664,7 @@ where
             tunnel_command_tx,
             tunnel_state: TunnelState::Disconnected,
             target_state: initial_target_state,
-            clean_up_target_cache: true,
+            lock_target_cache: false,
             state: DaemonExecutionState::Running,
             #[cfg(target_os = "linux")]
             exclude_pids: split_tunnel::PidManager::new().map_err(Error::InitSplitTunneling)?,
@@ -733,7 +733,7 @@ where
             rpc_runtime,
             tunnel_state_machine_shutdown_signal,
             cache_dir,
-            clean_up_target_cache,
+            lock_target_cache,
         ) = self.shutdown();
         for cb in shutdown_callbacks {
             cb();
@@ -758,7 +758,7 @@ where
             }
         }
 
-        if clean_up_target_cache {
+        if !lock_target_cache {
             let target_cache = cache_dir.join(TARGET_START_STATE_FILE);
             let _ = fs::remove_file(target_cache).map_err(|e| {
                 error!("Cannot delete target tunnel state cache: {}", e);
@@ -784,7 +784,7 @@ where
             rpc_runtime,
             tunnel_state_machine_shutdown_signal,
             cache_dir,
-            clean_up_target_cache,
+            lock_target_cache,
             ..
         } = self;
         (
@@ -793,7 +793,7 @@ where
             rpc_runtime,
             tunnel_state_machine_shutdown_signal,
             cache_dir,
-            clean_up_target_cache,
+            lock_target_cache,
         )
     }
 
@@ -2080,7 +2080,7 @@ where
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
         }
 
-        self.clean_up_target_cache = false;
+        self.lock_target_cache = true;
     }
 
     #[cfg(target_os = "android")]
@@ -2120,7 +2120,9 @@ where
 
             if new_state != self.target_state {
                 self.target_state = new_state;
-                Self::cache_target_state(&self.cache_dir, self.target_state);
+                if !self.lock_target_cache {
+                    Self::cache_target_state(&self.cache_dir, self.target_state);
+                }
             }
 
             match self.target_state {
