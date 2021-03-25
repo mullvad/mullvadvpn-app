@@ -90,7 +90,7 @@ impl SystemdResolved {
                         Some(())
                     })();
                 },
-                || !shutdown_now.load(Ordering::Acquire),
+                move || !shutdown_now.load(Ordering::Acquire),
             );
             if let Err(err) = result {
                 log::error!("Failed to watch DNS config updates: {}", err);
