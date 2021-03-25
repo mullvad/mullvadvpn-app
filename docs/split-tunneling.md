@@ -21,7 +21,9 @@ or not running. But this is very hard/impossible to achieve on some platforms.
 One reason for this is that on some operating systems, programs call into a system service
 for name resolution. This system service will then perform the actual DNS lookup.
 Since all DNS requests then originate from the same process/system service, it becomes hard
-to know which ones are for excluded apps and which ones are not.
+to know which ones are for excluded apps and which ones are not. Because the DNS service is not
+excluded, DNS lookups **will fail** in the connecting, disconnecting, and error
+[states](architecture.md) whenever they must be sent through a tunnel.
 
 Some definitions of terms used later to describe behavior:
 
