@@ -27,6 +27,12 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
         }
     }
 
+    private val fetchRetryDelays = ExponentialBackoff().apply {
+        scale = 50
+        cap = 30 /* min */ * 60 /* s */ * 1000 /* ms */
+        count = 17 // ceil(log2(cap / scale) + 1)
+    }
+
     private val fetchRequestChannel = runFetcher()
 
     private val daemon
@@ -94,23 +100,17 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
     }
 
     private suspend fun fetcherLoop(channel: ReceiveChannel<RequestFetch>) {
-        val delays = ExponentialBackoff().apply {
-            scale = 50
-            cap = 30 /* min */ * 60 /* s */ * 1000 /* ms */
-            count = 17 // ceil(log2(cap / scale) + 1)
-        }
-
         while (true) {
             var fetchType = channel.receive()
             var newLocation = daemon.await().getCurrentLocation()
 
             while (newLocation == null || !channel.isEmpty) {
-                fetchType = delayOrReceive(delays, channel, fetchType)
+                fetchType = delayOrReceive(fetchRetryDelays, channel, fetchType)
                 newLocation = daemon.await().getCurrentLocation()
             }
 
             handleNewLocation(newLocation, fetchType)
-            delays.reset()
+            fetchRetryDelays.reset()
         }
     }
 
