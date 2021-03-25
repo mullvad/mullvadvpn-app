@@ -1,4 +1,5 @@
 import { execFile } from 'child_process';
+import find = require('find-process');
 import {
   app,
   BrowserWindow,
@@ -207,7 +208,7 @@ class ApplicationMain {
   private rendererLog?: Logger;
   private translations: ITranslations = { locale: this.locale };
 
-  public run() {
+  public async run() {
     // Remove window animations to combat window flickering when opening window. Can be removed when
     // this issue has been resolved: https://github.com/electron/electron/issues/12130
     if (process.platform === 'win32') {
@@ -216,7 +217,7 @@ class ApplicationMain {
 
     this.overrideAppPaths();
 
-    if (this.handleSecondInstance()) {
+    if (await this.handleSecondInstance()) {
       return;
     }
 
@@ -241,7 +242,57 @@ class ApplicationMain {
     app.on('before-quit', this.onBeforeQuit);
   }
 
-  private handleSecondInstance() {
+  private async killOtherInstances() {
+    const pidExists = function (pid: number) {
+      try {
+        process.kill(pid, 0);
+        return true;
+      } catch (ex) {
+        return false;
+      }
+    };
+
+    interface ProcessEntry {
+      pid: number;
+      ppid?: number;
+      name: string;
+      cmd: string;
+    }
+
+    const name = path.basename(process.execPath);
+
+    await find('name', name).then(async function (procs: ProcessEntry[]) {
+      await Promise.all(
+        procs.map(async function (proc: ProcessEntry) {
+          if (process.pid === proc['pid'] || process.pid === proc['ppid']) {
+            return;
+          }
+          if (!pidExists(proc['pid'])) {
+            return;
+          }
+          if (proc.name !== name) {
+            return;
+          }
+
+          const stillAlive = await new Promise((resolve) => {
+            setTimeout(() => {
+              resolve(pidExists(proc['pid']));
+            }, 1000);
+          });
+
+          if (stillAlive) {
+            try {
+              process.kill(proc['pid'], 'SIGKILL');
+            } catch (e) {
+              console.error('Failed to kill existing instance:', e);
+            }
+          }
+        }),
+      );
+    });
+  }
+
+  private async handleSecondInstance() {
     if (app.requestSingleInstanceLock()) {
       if (app.commandLine.hasSwitch('quit-without-disconnect')) {
         app.quit();
@@ -259,6 +310,9 @@ class ApplicationMain {
       });
       return false;
     } else {
+      if (app.commandLine.hasSwitch('quit-without-disconnect')) {
+        await this.killOtherInstances();
+      }
       app.quit();
       return true;
     }
@@ -1844,4 +1898,4 @@ class ApplicationMain {
 }
 
 const applicationMain = new ApplicationMain();
-applicationMain.run();
+void applicationMain.run();
