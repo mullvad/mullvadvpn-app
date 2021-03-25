@@ -43,15 +43,13 @@ use mullvad_types::{
 use settings::SettingsPersister;
 #[cfg(target_os = "android")]
 use std::os::unix::io::RawFd;
-#[cfg(not(target_os = "android"))]
-use std::path::Path;
 use std::{
     fs::{self, File},
     io,
     marker::PhantomData,
     mem,
     net::IpAddr,
-    path::PathBuf,
+    path::{Path, PathBuf},
     sync::{mpsc as sync_mpsc, Arc, Weak},
     time::Duration,
 };
@@ -473,7 +471,7 @@ pub struct Daemon<L: EventListener> {
     tunnel_command_tx: Arc<mpsc::UnboundedSender<TunnelCommand>>,
     tunnel_state: TunnelState,
     target_state: TargetState,
-    clean_up_target_cache: bool,
+    lock_target_cache: bool,
     state: DaemonExecutionState,
     #[cfg(target_os = "linux")]
     exclude_pids: split_tunnel::PidManager,
@@ -602,9 +600,6 @@ where
                 cached_target_state,
                 target_cache.display()
             );
-            let _ = fs::remove_file(target_cache).map_err(|e| {
-                error!("Cannot delete target tunnel state cache: {}", e);
-            });
         }
 
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
@@ -623,6 +618,7 @@ where
         } else {
             TargetState::Unsecured
         };
+        Self::cache_target_state(&cache_dir, initial_target_state);
 
         let initial_api_endpoint = Endpoint::from_socket_address(
             rpc_runtime.address_cache.peek_address(),
@@ -668,7 +664,7 @@ where
             tunnel_command_tx,
             tunnel_state: TunnelState::Disconnected,
             target_state: initial_target_state,
-            clean_up_target_cache: true,
+            lock_target_cache: false,
             state: DaemonExecutionState::Running,
             #[cfg(target_os = "linux")]
             exclude_pids: split_tunnel::PidManager::new().map_err(Error::InitSplitTunneling)?,
@@ -737,7 +733,7 @@ where
             rpc_runtime,
             tunnel_state_machine_shutdown_signal,
             cache_dir,
-            clean_up_target_cache,
+            lock_target_cache,
         ) = self.shutdown();
         for cb in shutdown_callbacks {
             cb();
@@ -762,7 +758,7 @@ where
             }
         }
 
-        if clean_up_target_cache {
+        if !lock_target_cache {
             let target_cache = cache_dir.join(TARGET_START_STATE_FILE);
             let _ = fs::remove_file(target_cache).map_err(|e| {
                 error!("Cannot delete target tunnel state cache: {}", e);
@@ -788,7 +784,7 @@ where
             rpc_runtime,
             tunnel_state_machine_shutdown_signal,
             cache_dir,
-            clean_up_target_cache,
+            lock_target_cache,
             ..
         } = self;
         (
@@ -797,7 +793,7 @@ where
             rpc_runtime,
             tunnel_state_machine_shutdown_signal,
             cache_dir,
-            clean_up_target_cache,
+            lock_target_cache,
         )
     }
 
@@ -2084,7 +2080,7 @@ where
             self.send_tunnel_command(TunnelCommand::BlockWhenDisconnected(true));
         }
 
-        self.clean_up_target_cache = false;
+        self.lock_target_cache = true;
     }
 
     #[cfg(target_os = "android")]
@@ -2124,21 +2120,8 @@ where
 
             if new_state != self.target_state {
                 self.target_state = new_state;
-
-                // Cache the current target state
-                let cache_file = self.cache_dir.join(TARGET_START_STATE_FILE);
-                log::trace!("Saving tunnel target state to {}", cache_file.display());
-                match File::create(&cache_file) {
-                    Ok(handle) => {
-                        if let Err(e) =
-                            serde_json::to_writer(io::BufWriter::new(handle), &self.target_state)
-                        {
-                            log::error!("Failed to cache target state: {}", e);
-                        }
-                    }
-                    Err(e) => {
-                        log::error!("Failed to cache target state: {}", e);
-                    }
+                if !self.lock_target_cache {
+                    Self::cache_target_state(&self.cache_dir, self.target_state);
                 }
             }
 
@@ -2149,6 +2132,21 @@ where
             true
         } else {
             false
+        }
+    }
+
+    fn cache_target_state(cache_dir: &Path, target_state: TargetState) {
+        let cache_file = cache_dir.join(TARGET_START_STATE_FILE);
+        log::trace!("Saving tunnel target state to {}", cache_file.display());
+        match File::create(&cache_file) {
+            Ok(handle) => {
+                if let Err(e) = serde_json::to_writer(io::BufWriter::new(handle), &target_state) {
+                    log::error!("Failed to cache target state: {}", e);
+                }
+            }
+            Err(e) => {
+                log::error!("Failed to cache target state: {}", e);
+            }
         }
     }
 

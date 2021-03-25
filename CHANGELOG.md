@@ -79,6 +79,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix input area sometimes disappearing when returning to the Login screen.
 - Fix status bar having the wrong color after logging out.
 
+### Security
+- Always reconnect appropriately after an upgrade. Previously, installing the app twice in
+  succession, with auto-connect disabled, would cause it to re-launch in the disconnected state.
+
 
 ## [2021.2] - 2021-02-18
 This release is for desktop only.
