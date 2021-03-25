@@ -271,8 +271,8 @@ impl SystemdResolved {
         .map_err(Error::SetDomainsError)
     }
 
-    pub fn revert_link(&mut self, dns_state: DnsState) -> std::result::Result<(), dbus::Error> {
-        let link = self.as_link_object(dns_state.interface_path);
+    pub fn revert_link(&mut self, dns_state: &DnsState) -> std::result::Result<(), dbus::Error> {
+        let link = self.as_link_object(dns_state.interface_path.clone());
 
         if let Err(error) = link.method_call::<(), _, _, _>(LINK_INTERFACE, REVERT_METHOD, ()) {
             if error.name() == Some("org.freedesktop.DBus.Error.UnknownObject") {
