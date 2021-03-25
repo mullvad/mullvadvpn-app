@@ -16,13 +16,6 @@ pub use talpid_types::net::wireguard::{
 };
 use talpid_types::ErrorExt;
 
-/// Default automatic key rotation interval
-const DEFAULT_KEY_ROTATION: Duration = if cfg!(target_os = "android") {
-    Duration::from_secs(4 * 24 * 60 * 60)
-} else {
-    Duration::from_secs(7 * 24 * 60 * 60)
-};
-
 /// How long to wait before starting key rotation
 const ROTATION_START_DELAY: Duration = Duration::from_secs(60 * 3);
 
@@ -50,7 +43,7 @@ pub struct KeyManager {
     current_job: Option<AbortHandle>,
 
     abort_scheduler_tx: Option<AbortHandle>,
-    auto_rotation_interval: Duration,
+    auto_rotation_interval: RotationInterval,
 }
 
 impl KeyManager {
@@ -60,7 +53,7 @@ impl KeyManager {
             http_handle,
             current_job: None,
             abort_scheduler_tx: None,
-            auto_rotation_interval: Duration::new(0, 0),
+            auto_rotation_interval: RotationInterval::default(),
         }
     }
 
@@ -88,15 +81,14 @@ impl KeyManager {
     }
 
     /// Update automatic key rotation interval
-    /// Passing `None` for the interval will use the default value.
-    /// A duration of `0` disables automatic key rotation.
+    /// Passing `None` for the interval will cause the default value to be used.
     pub async fn set_rotation_interval(
         &mut self,
         account_history: &mut AccountHistory,
         account_token: AccountToken,
-        auto_rotation_interval: Option<Duration>,
+        auto_rotation_interval: Option<RotationInterval>,
     ) {
-        self.auto_rotation_interval = auto_rotation_interval.unwrap_or(DEFAULT_KEY_ROTATION);
+        self.auto_rotation_interval = auto_rotation_interval.unwrap_or_default();
 
         self.reset_rotation(account_history, account_token).await;
     }
@@ -411,18 +403,13 @@ impl KeyManager {
     async fn run_automatic_rotation(&mut self, account_token: AccountToken, public_key: PublicKey) {
         self.stop_automatic_rotation();
 
-        if self.auto_rotation_interval == Duration::new(0, 0) {
-            log::debug!("Not running key rotation because it's disabled");
-            return;
-        }
-
         log::debug!("Starting automatic key rotation job");
         // Schedule cancellable series of repeating rotation tasks
         let fut = Self::create_automatic_rotation(
             self.daemon_tx.clone(),
             self.http_handle.clone(),
             public_key,
-            self.auto_rotation_interval.as_secs(),
+            self.auto_rotation_interval.as_duration().as_secs(),
             account_token,
         );
         let (request, abort_handle) = abortable(Box::pin(fut));

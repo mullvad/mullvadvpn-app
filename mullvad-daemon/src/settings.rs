@@ -2,6 +2,7 @@ use log::{debug, error, info};
 use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     settings::{DnsOptions, Settings},
+    wireguard::RotationInterval,
 };
 use std::{
     fs::{self, File},
@@ -224,11 +225,11 @@ impl SettingsPersister {
 
     pub fn set_wireguard_rotation_interval(
         &mut self,
-        automatic_rotation: Option<u32>,
+        interval: Option<RotationInterval>,
     ) -> Result<bool, Error> {
         let should_save = Self::update_field(
-            &mut self.settings.tunnel_options.wireguard.automatic_rotation,
-            automatic_rotation,
+            &mut self.settings.tunnel_options.wireguard.rotation_interval,
+            interval,
         );
         self.update(should_save)
     }

@@ -1,9 +1,17 @@
 use chrono::{offset::Utc, DateTime};
 #[cfg(target_os = "android")]
 use jnix::IntoJava;
-use serde::{Deserialize, Serialize};
-use std::fmt;
+use serde::{Deserialize, Deserializer, Serialize};
+use std::{convert::TryFrom, fmt, time::Duration};
 use talpid_types::net::wireguard;
+
+pub const MIN_ROTATION_INTERVAL: Duration = Duration::from_secs(1 * 24 * 60 * 60);
+pub const MAX_ROTATION_INTERVAL: Duration = Duration::from_secs(7 * 24 * 60 * 60);
+pub const DEFAULT_ROTATION_INTERVAL: Duration = if cfg!(target_os = "android") {
+    Duration::from_secs(4 * 24 * 60 * 60)
+} else {
+    Duration::from_secs(7 * 24 * 60 * 60)
+};
 
 /// Contains account specific wireguard data
 #[derive(Serialize, Deserialize, Clone, Debug)]
@@ -24,6 +32,87 @@ impl WireguardData {
     }
 }
 
+#[derive(Debug, Clone)]
+pub enum RotationIntervalError {
+    TooSmall,
+    TooLarge,
+}
+
+impl fmt::Display for RotationIntervalError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        use RotationIntervalError::*;
+
+        match *self {
+            TooSmall => write!(
+                f,
+                "Rotation interval must be at least {} hours",
+                MIN_ROTATION_INTERVAL.as_secs() / 60 / 60
+            ),
+            TooLarge => write!(
+                f,
+                "Rotation interval must be at most {} hours",
+                MAX_ROTATION_INTERVAL.as_secs() / 60 / 60
+            ),
+        }
+    }
+}
+
+impl std::error::Error for RotationIntervalError {}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub struct RotationInterval(Duration);
+
+impl RotationInterval {
+    pub fn new(interval: Duration) -> Result<RotationInterval, RotationIntervalError> {
+        if interval < MIN_ROTATION_INTERVAL {
+            Err(RotationIntervalError::TooSmall)
+        } else if interval > MAX_ROTATION_INTERVAL {
+            Err(RotationIntervalError::TooLarge)
+        } else {
+            Ok(RotationInterval(interval))
+        }
+    }
+
+    pub fn as_duration(&self) -> &Duration {
+        &self.0
+    }
+}
+
+impl<'de> Deserialize<'de> for RotationInterval {
+    fn deserialize<D>(deserializer: D) -> std::result::Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let ivl = <Duration>::deserialize(deserializer)?;
+        RotationInterval::new(ivl).map_err(|_error| {
+            serde::de::Error::invalid_value(
+                serde::de::Unexpected::Other("Duration"),
+                &"interval within allowed range",
+            )
+        })
+    }
+}
+
+impl TryFrom<Duration> for RotationInterval {
+    type Error = RotationIntervalError;
+
+    fn try_from(duration: Duration) -> Result<RotationInterval, RotationIntervalError> {
+        RotationInterval::new(duration)
+    }
+}
+
+impl From<RotationInterval> for Duration {
+    fn from(interval: RotationInterval) -> Duration {
+        *interval.as_duration()
+    }
+}
+
+impl Default for RotationInterval {
+    fn default() -> RotationInterval {
+        RotationInterval::new(DEFAULT_ROTATION_INTERVAL).unwrap()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(target_os = "android", derive(IntoJava))]
 #[cfg_attr(
@@ -33,9 +122,9 @@ impl WireguardData {
 pub struct TunnelOptions {
     #[serde(flatten)]
     pub options: wireguard::TunnelOptions,
-    /// Interval used for automatic key rotation, in hours
+    /// Interval used for automatic key rotation
     #[cfg_attr(target_os = "android", jnix(skip))]
-    pub automatic_rotation: Option<u32>,
+    pub rotation_interval: Option<RotationInterval>,
 }
 
 /// Represents a published public key

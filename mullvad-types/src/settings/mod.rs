@@ -55,7 +55,6 @@ pub struct Settings {
     /// might be located.
     pub tunnel_options: TunnelOptions,
     /// Whether to notify users of beta updates.
-    #[serde(deserialize_with = "deserialize_show_beta_releases")]
     pub show_beta_releases: bool,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
@@ -197,7 +196,7 @@ impl Default for TunnelOptions {
             openvpn: openvpn::TunnelOptions::default(),
             wireguard: wireguard::TunnelOptions {
                 options: net::wireguard::TunnelOptions::default(),
-                automatic_rotation: None,
+                rotation_interval: None,
             },
             generic: GenericTunnelOptions {
                 // Enable IPv6 be default on Android
@@ -208,21 +207,14 @@ impl Default for TunnelOptions {
     }
 }
 
-/// Used to deserialize the `show_beta_releases` field in the settings struct, as it used to be
-/// a nullable field, but it is no longer.
-fn deserialize_show_beta_releases<'de, D: serde::de::Deserializer<'de>>(
-    field: D,
-) -> std::result::Result<bool, D::Error> {
-    Option::deserialize(field).map(|value| value.unwrap_or(false))
-}
 
 #[cfg(test)]
 mod test {
     use super::*;
 
     #[test]
-    fn test_deserialization_of_2020_4_format() {
-        let old_settings = br#"{
+    fn test_deserialization() {
+        let settings = br#"{
               "account_token": "0000000000000000",
               "relay_settings": {
                 "normal": {
@@ -258,16 +250,16 @@ mod test {
                 },
                 "wireguard": {
                   "mtu": null,
-                  "automatic_rotation": null
+                  "rotation_interval": null
                 },
                 "generic": {
                   "enable_ipv6": true
                 }
               },
-              "settings_version": 2,
-              "show_beta_releases": null
+              "settings_version": 3,
+              "show_beta_releases": false
         }"#;
 
-        let _ = Settings::load_from_bytes(old_settings).unwrap();
+        let _ = Settings::load_from_bytes(settings).unwrap();
     }
 }
