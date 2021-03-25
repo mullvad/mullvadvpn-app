@@ -3,13 +3,16 @@ package net.mullvad.mullvadvpn.service.endpoint
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.receiveAsFlow
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.GeoIpLocation
@@ -100,39 +103,27 @@ class LocationInfoCache(private val endpoint: ServiceEndpoint) {
     }
 
     private suspend fun fetcherLoop(channel: ReceiveChannel<RequestFetch>) {
-        while (true) {
-            var fetchType = channel.receive()
-            var newLocation = daemon.await().getCurrentLocation()
-
-            while (newLocation == null || !channel.isEmpty) {
-                fetchType = delayOrReceive(fetchRetryDelays, channel, fetchType)
-                newLocation = daemon.await().getCurrentLocation()
-            }
-
-            handleNewLocation(newLocation, fetchType)
-            fetchRetryDelays.reset()
-        }
+        channel.receiveAsFlow()
+            .flatMapLatest(::fetchCurrentLocation)
+            .collect(::handleFetchedLocation)
     }
 
-    private suspend fun delayOrReceive(
-        delays: ExponentialBackoff,
-        channel: ReceiveChannel<RequestFetch>,
-        currentValue: RequestFetch
-    ): RequestFetch {
-        try {
-            val newValue = withTimeout(delays.next()) {
-                channel.receive()
-            }
+    private fun fetchCurrentLocation(fetchType: RequestFetch) = flow {
+        var newLocation = daemon.await().getCurrentLocation()
 
-            delays.reset()
+        fetchRetryDelays.reset()
 
-            return newValue
-        } catch (timeOut: TimeoutCancellationException) {
-            return currentValue
+        while (newLocation == null) {
+            delay(fetchRetryDelays.next())
+            newLocation = daemon.await().getCurrentLocation()
         }
+
+        emit(Pair(newLocation, fetchType))
     }
 
-    private fun handleNewLocation(newLocation: GeoIpLocation, fetchType: RequestFetch) {
+    private suspend fun handleFetchedLocation(pairItem: Pair<GeoIpLocation, RequestFetch>) {
+        val (newLocation, fetchType) = pairItem
+
         if (fetchType == RequestFetch.ForRealLocation) {
             lastKnownRealLocation = newLocation
         }
