@@ -4,14 +4,30 @@ import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
 sealed class LocationConstraint : Parcelable {
-    @Parcelize
-    data class Country(val countryCode: String) : LocationConstraint(), Parcelable
+    abstract val location: GeoIpLocation
 
     @Parcelize
-    data class City(val countryCode: String, val cityCode: String) :
-        LocationConstraint(), Parcelable
+    data class Country(val countryCode: String) : LocationConstraint(), Parcelable {
+        override val location: GeoIpLocation
+            get() = GeoIpLocation(null, null, countryCode, null, null)
+    }
 
     @Parcelize
-    data class Hostname(val countryCode: String, val cityCode: String, val hostname: String) :
-        LocationConstraint(), Parcelable
+    data class City(
+        val countryCode: String,
+        val cityCode: String
+    ) : LocationConstraint(), Parcelable {
+        override val location: GeoIpLocation
+            get() = GeoIpLocation(null, null, countryCode, cityCode, null)
+    }
+
+    @Parcelize
+    data class Hostname(
+        val countryCode: String,
+        val cityCode: String,
+        val hostname: String
+    ) : LocationConstraint(), Parcelable {
+        override val location: GeoIpLocation
+            get() = GeoIpLocation(null, null, countryCode, cityCode, hostname)
+    }
 }
