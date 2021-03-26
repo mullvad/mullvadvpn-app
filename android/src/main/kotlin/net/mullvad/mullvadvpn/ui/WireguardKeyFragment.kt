@@ -145,18 +145,16 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     override fun onSafelyStart() {
         connectionProxy.onUiStateChange.subscribe(this) { uiState ->
             jobTracker.newUiJob("tunnelStateUpdate") {
-                synchronized(this@WireguardKeyFragment) {
-                    tunnelState = uiState
+                tunnelState = uiState
 
-                    if (actionState is ActionState.Generating) {
-                        reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
-                    } else if (tunnelState is TunnelState.Connected) {
-                        reconnectionExpected = false
-                    }
-
-                    isOffline = uiState is TunnelState.Error &&
-                        uiState.errorState.cause is ErrorStateCause.IsOffline
+                if (actionState is ActionState.Generating) {
+                    reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
+                } else if (tunnelState is TunnelState.Connected) {
+                    reconnectionExpected = false
                 }
+
+                isOffline = uiState is TunnelState.Error &&
+                    uiState.errorState.cause is ErrorStateCause.IsOffline
             }
         }
 
@@ -312,10 +310,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private suspend fun onGenerateKeyPress() {
-        synchronized(this) {
-            actionState = ActionState.Generating(keyStatus is KeygenEvent.NewKey)
-            reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
-        }
+        actionState = ActionState.Generating(keyStatus is KeygenEvent.NewKey)
+        reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
 
         keyStatus = null
         keyStatusListener.generateKey().join()
@@ -330,7 +326,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private fun resetReconnectionExpected() {
-        jobTracker.newBackgroundJob("resetReconnectionExpected") {
+        jobTracker.newUiJob("resetReconnectionExpected") {
             delay(20_000)
 
             if (reconnectionExpected) {
