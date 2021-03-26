@@ -3,16 +3,31 @@ package net.mullvad.mullvadvpn.model
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
-sealed class LocationConstraint(val code: Array<String>) : Parcelable {
-    @Parcelize
-    data class Country(val countryCode: String) :
-        LocationConstraint(arrayOf(countryCode)), Parcelable
+sealed class LocationConstraint : Parcelable {
+    abstract val location: GeoIpLocation
 
     @Parcelize
-    data class City(val countryCode: String, val cityCode: String) :
-        LocationConstraint(arrayOf(countryCode, cityCode)), Parcelable
+    data class Country(val countryCode: String) : LocationConstraint(), Parcelable {
+        override val location: GeoIpLocation
+            get() = GeoIpLocation(null, null, countryCode, null, null)
+    }
 
     @Parcelize
-    data class Hostname(val countryCode: String, val cityCode: String, val hostname: String) :
-        LocationConstraint(arrayOf(countryCode, cityCode, hostname)), Parcelable
+    data class City(
+        val countryCode: String,
+        val cityCode: String
+    ) : LocationConstraint(), Parcelable {
+        override val location: GeoIpLocation
+            get() = GeoIpLocation(null, null, countryCode, cityCode, null)
+    }
+
+    @Parcelize
+    data class Hostname(
+        val countryCode: String,
+        val cityCode: String,
+        val hostname: String
+    ) : LocationConstraint(), Parcelable {
+        override val location: GeoIpLocation
+            get() = GeoIpLocation(null, null, countryCode, cityCode, hostname)
+    }
 }

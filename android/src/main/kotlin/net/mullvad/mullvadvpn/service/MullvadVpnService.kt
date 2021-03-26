@@ -105,7 +105,11 @@ class MullvadVpnService : TalpidVpnService() {
         notificationManager = ForegroundNotificationManager(this, serviceNotifier, keyguardManager)
         tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
-        endpoint = ServiceEndpoint(Looper.getMainLooper(), daemonInstance.intermittentDaemon)
+        endpoint = ServiceEndpoint(
+            Looper.getMainLooper(),
+            daemonInstance.intermittentDaemon,
+            connectivityListener
+        )
 
         notificationManager.acknowledgeStartForegroundService()
 
@@ -243,12 +247,14 @@ class MullvadVpnService : TalpidVpnService() {
 
         handlePendingAction(connectionProxy, settings)
 
+        endpoint.locationInfoCache.stateEvents = connectionProxy.onStateChange
+
         if (state == State.Running) {
             instance = ServiceInstance(
                 endpoint.messenger,
                 daemon,
+                daemonInstance.intermittentDaemon,
                 connectionProxy,
-                connectivityListener,
                 customDns,
                 endpoint.settingsListener,
                 splitTunneling

@@ -15,10 +15,12 @@ import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.util.Intermittent
+import net.mullvad.talpid.ConnectivityListener
 
 class ServiceEndpoint(
     looper: Looper,
-    internal val intermittentDaemon: Intermittent<MullvadDaemon>
+    internal val intermittentDaemon: Intermittent<MullvadDaemon>,
+    val connectivityListener: ConnectivityListener
 ) {
     private val listeners = mutableSetOf<Messenger>()
     private val registrationQueue: SendChannel<Messenger> = startRegistrator()
@@ -31,6 +33,8 @@ class ServiceEndpoint(
 
     val settingsListener = SettingsListener(this)
 
+    val locationInfoCache = LocationInfoCache(this)
+
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
             registrationQueue.sendBlocking(request.listener)
@@ -41,6 +45,7 @@ class ServiceEndpoint(
         dispatcher.onDestroy()
         registrationQueue.close()
 
+        locationInfoCache.onDestroy()
         settingsListener.onDestroy()
     }
 
@@ -83,6 +88,7 @@ class ServiceEndpoint(
 
             val initialEvents = listOf(
                 Event.SettingsUpdate(settingsListener.settings),
+                Event.NewLocation(locationInfoCache.location),
                 Event.ListenerReady
             )
 
