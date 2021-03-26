@@ -6,8 +6,8 @@ import kotlinx.parcelize.Parcelize
 sealed class Constraint<T>() : Parcelable {
     @Parcelize
     @Suppress("PARCELABLE_PRIMARY_CONSTRUCTOR_IS_EMPTY")
-    class Any<T>() : Constraint<T>(), Parcelable
+    class Any<T>() : Constraint<T>()
 
     @Parcelize
-    data class Only<T : Parcelable>(val value: T) : Constraint<T>(), Parcelable
+    data class Only<T : Parcelable>(val value: T) : Constraint<T>()
 }
