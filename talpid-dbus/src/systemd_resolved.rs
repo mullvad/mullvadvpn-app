@@ -271,8 +271,8 @@ impl SystemdResolved {
         .map_err(Error::SetDomainsError)
     }
 
-    pub fn revert_link(&mut self, dns_state: DnsState) -> std::result::Result<(), dbus::Error> {
-        let link = self.as_link_object(dns_state.interface_path);
+    pub fn revert_link(&mut self, dns_state: &DnsState) -> std::result::Result<(), dbus::Error> {
+        let link = self.as_link_object(dns_state.interface_path.clone());
 
         if let Err(error) = link.method_call::<(), _, _, _>(LINK_INTERFACE, REVERT_METHOD, ()) {
             if error.name() == Some("org.freedesktop.DBus.Error.UnknownObject") {
@@ -289,7 +289,10 @@ impl SystemdResolved {
         }
     }
 
-    pub fn watch_dns_changes<F: FnMut(Vec<DnsServer>) + Send + Sync + 'static, S: Fn() -> bool>(
+    pub fn watch_dns_changes<
+        F: FnMut(Vec<DnsServer>) + Send + Sync + 'static,
+        S: Fn() -> bool + Clone + Send + Sync + 'static,
+    >(
         &mut self,
         mut callback: F,
         should_continue: S,
@@ -298,6 +301,7 @@ impl SystemdResolved {
             MatchRule::new_signal(PropertiesPropertiesChanged::INTERFACE, DNS_SERVERS);
         match_rule.member = None;
         match_rule.path = Some(RESOLVED_MANAGER_PATH.into());
+        let should_continue_outer = should_continue.clone();
         let dns_matcher = self
             .dbus_connection
             .add_match(
@@ -319,12 +323,12 @@ impl SystemdResolved {
                             }
                         }
                     };
-                    true
+                    should_continue()
                 },
             )
             .map_err(Error::DnsUpdateMatchError)?;
 
-        while should_continue() {
+        while should_continue_outer() {
             if let Err(err) = self.dbus_connection.process(RPC_TIMEOUT) {
                 log::error!("Failed to process DBus messages: {}", err);
             }
