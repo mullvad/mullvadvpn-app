@@ -41,16 +41,13 @@ class KeyStatusListener(val daemon: Intermittent<MullvadDaemon>) {
     }
 
     fun verifyKey() = GlobalScope.launch(Dispatchers.Default) {
-        val verified = daemon.await().verifyWireguardKey()
         // Only update verification status if the key is actually there
-        when (val state = keyStatus) {
-            is KeygenEvent.NewKey -> {
-                keyStatus = KeygenEvent.NewKey(
-                    state.publicKey,
-                    verified,
-                    state.replacementFailure
-                )
-            }
+        (keyStatus as? KeygenEvent.NewKey)?.let { currentStatus ->
+            keyStatus = KeygenEvent.NewKey(
+                currentStatus.publicKey,
+                daemon.await().verifyWireguardKey(),
+                currentStatus.replacementFailure
+            )
         }
     }
 
