@@ -1,0 +1,50 @@
+name: Translation check CI
+on:
+    # Check whenever a file that affects Rust formatting is changed by a push
+    push:
+        paths:
+            - .github/workflows/translations.yml
+            - android/translations-converter/**
+            - android/src/**/plurals.xml
+            - android/src/**/strings.xml
+            - gui/**
+    # Check if requested manually from the Actions tab
+    workflow_dispatch:
+jobs:
+    check-translations:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Install Node.js
+              uses: actions/setup-node@v2
+              with:
+                node-version: '12'
+
+            - name: Update NPM
+              run: npm i -g npm
+
+            - name: Install and cache JS dependencies
+              uses: bahmutov/npm-install@v1
+              with:
+                  working-directory: gui
+                  install-command: npm ci
+
+            - name: Install nightly Rust
+              uses: ATiltedTree/setup-rust@v1.0.4
+              with:
+                rust-version: stable
+
+            - name: Extract messages from desktop GUI
+              working-directory: gui/locales
+              run: npm run update-translations
+
+            - name: Convert translations into Android resources
+              working-directory: android/translations-converter
+              run: cargo run
+
+            - name: Check if repository is up to date
+              run: |
+                git diff
+                ! git status -s | grep .
