@@ -2,9 +2,11 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
     collections::BTreeMap,
+    fmt::{self, Display, Formatter},
     fs::{File, OpenOptions},
     io::{self, BufRead, BufReader, BufWriter, Write},
     mem,
+    ops::Deref,
     path::Path,
 };
 
@@ -47,6 +49,10 @@ pub enum MsgValue {
         values: Vec<String>,
     },
 }
+
+/// A message string in a gettext translation file.
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct MsgString(String);
 
 /// A helper macro to match a string to various prefix and suffix combinations.
 macro_rules! match_str {
@@ -214,6 +220,33 @@ impl PluralForm {
             }
             other => panic!("Unknown plural formula: {}", other),
         }
+    }
+}
+
+impl From<String> for MsgString {
+    fn from(string: String) -> Self {
+        MsgString(string)
+    }
+}
+
+impl From<&str> for MsgString {
+    fn from(string: &str) -> Self {
+        string.to_owned().into()
+    }
+}
+
+impl Display for MsgString {
+    /// Write the ID message string with proper escaping.
+    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+        self.0.replace(r#"""#, r#"\""#).fmt(formatter)
+    }
+}
+
+impl Deref for MsgString {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.0.as_str()
     }
 }
 
