@@ -8,6 +8,7 @@ on:
             - .github/workflows/frontend.yml
             - .github/workflows/ios.yml
             - .github/workflows/rustfmt.yml
+            - .github/workflows/translations.yml
             - android/**
             - audits/**
             - ci/buildserver-*
