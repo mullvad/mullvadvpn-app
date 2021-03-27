@@ -115,7 +115,6 @@
     <string name="update_available">UPDATE BESCHIKBAAR</string>
     <string name="update_available_footer">Update beschikbaar, download deze voor optimale beveiliging.</string>
     <string name="user_email_hint">Uw e-mailadres (optioneel)</string>
-    <string name="user_message_hint">Beschrijf het probleem</string>
     <string name="view_logs">Applogboeken weergeven</string>
     <string name="virtual_adapter_problem">Fout virtuele adapter</string>
     <string name="voucher_already_used">Vouchercode is al gebruikt.</string>

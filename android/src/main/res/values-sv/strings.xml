@@ -115,7 +115,6 @@
     <string name="update_available">UPPDATERING TILLGÄNGLIG</string>
     <string name="update_available_footer">Uppdatering tillgänglig. Ladda ned för att vara säker.</string>
     <string name="user_email_hint">Din e-postadress (valfritt)</string>
-    <string name="user_message_hint">Beskriv ditt problem</string>
     <string name="view_logs">Visa appens loggar</string>
     <string name="virtual_adapter_problem">Fel med virtuell adapter</string>
     <string name="voucher_already_used">Kupongkoden har redan använts.</string>

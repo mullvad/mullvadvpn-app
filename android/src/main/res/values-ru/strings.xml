@@ -115,7 +115,6 @@
     <string name="update_available">ЕСТЬ ОБНОВЛЕНИЕ</string>
     <string name="update_available_footer">Есть обновление. Чтобы оставаться в безопасности, обновитесь.</string>
     <string name="user_email_hint">Ваша электронная почта (необязательно)</string>
-    <string name="user_message_hint">Опишите проблему</string>
     <string name="view_logs">Открыть журналы</string>
     <string name="virtual_adapter_problem">Ошибка виртуального адаптера</string>
     <string name="voucher_already_used">Этот код ваучера уже использовался.</string>

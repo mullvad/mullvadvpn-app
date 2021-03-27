@@ -115,7 +115,6 @@
     <string name="update_available">MISE À JOUR DISPONIBLE</string>
     <string name="update_available_footer">Mise à jour disponible. Téléchargez-la pour rester en sécurité.</string>
     <string name="user_email_hint">Votre e-mail (facultatif)</string>
-    <string name="user_message_hint">Décrivez votre problème</string>
     <string name="view_logs">Afficher les journaux de l\'application</string>
     <string name="virtual_adapter_problem">Erreur d\'adaptateur virtuel</string>
     <string name="voucher_already_used">Le code du bon a déjà été utilisé.</string>

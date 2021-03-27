@@ -115,7 +115,6 @@
     <string name="update_available">GÜNCELLEME MEVCUT</string>
     <string name="update_available_footer">Güncelleme mevcut, güvende olmak için indirin.</string>
     <string name="user_email_hint">E-posta adresiniz (isteğe bağlı)</string>
-    <string name="user_message_hint">Sorununuzu açıklayın</string>
     <string name="view_logs">Uygulama kayıtlarını görüntüle</string>
     <string name="virtual_adapter_problem">Sanal adaptör hatası</string>
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>

@@ -115,7 +115,6 @@
     <string name="update_available">OPDATERING TILGÆNGELIG</string>
     <string name="update_available_footer">Opdatering tilgængelig, download den for at forblive sikker.</string>
     <string name="user_email_hint">Din e-mail (valgfrit)</string>
-    <string name="user_message_hint">Beskriv dit problem</string>
     <string name="view_logs">Se app-logfiler</string>
     <string name="virtual_adapter_problem">Fejl ved virtuel adapter</string>
     <string name="voucher_already_used">Kuponkode er allerede brugt.</string>
