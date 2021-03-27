@@ -119,11 +119,11 @@ impl Translation {
         for line in lines {
             match_str! { (line.trim())
                 ["msgid \"", msg_id, "\""] => {
-                    current_id = Some(MsgString(normalize(msg_id)));
+                    current_id = Some(normalize(msg_id));
                 }
                 ["msgstr \"", translation, "\""] => {
                     if let Some(id) = current_id.take() {
-                        let value = MsgValue::from(normalize(translation));
+                        let value = MsgValue::Invariant(normalize(translation));
 
                         parsing_header = id.is_empty() && translation.is_empty();
 
@@ -134,7 +134,7 @@ impl Translation {
                     current_plural_id = None;
                 }
                 ["msgid_plural \"", plural_id, "\""] => {
-                    current_plural_id = Some(MsgString(normalize(plural_id)));
+                    current_plural_id = Some(normalize(plural_id));
                     parsing_header = false;
                 }
                 ["msgstr[", plural_translation, "\""] => {
@@ -148,7 +148,7 @@ impl Translation {
                     let variant_msg = parse_line(&plural_translation[variant_id_end..], "] \"", "")
                         .expect("Invalid plural msgstr");
 
-                    variants.insert(variant_id, MsgString(normalize(variant_msg)));
+                    variants.insert(variant_id, normalize(variant_msg));
                     parsing_header = false;
                 }
                 ["\"", header, "\\n\""] => {
@@ -302,7 +302,7 @@ fn parse_line<'l>(line: &'l str, prefix: &str, suffix: &str) -> Option<&'l str> 
     }
 }
 
-fn normalize(string: &str) -> String {
+fn normalize(string: &str) -> MsgString {
     // Use a single common apostrophe character
     let string = APOSTROPHE_VARIATION.replace_all(&string, "'");
     // Mark where parameters are positioned, removing the parameter name
@@ -310,5 +310,5 @@ fn normalize(string: &str) -> String {
     // Remove escaped double-quotes
     let string = ESCAPED_DOUBLE_QUOTES.replace_all(&string, r#"""#);
 
-    string.into_owned()
+    string.into_owned().into()
 }
