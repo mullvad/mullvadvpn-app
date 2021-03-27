@@ -170,6 +170,10 @@ msgid "Default"
 msgstr ""
 
 msgctxt "advanced-settings-view"
+msgid "e.g. 10.0.0.4"
+msgstr ""
+
+msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr ""
 
@@ -242,6 +246,11 @@ msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
+msgstr ""
+
+#. The hint displayed below the WireGuard port selector.
+msgctxt "advanced-settings-view"
+msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -779,16 +788,16 @@ msgid "Advanced"
 msgstr ""
 
 msgctxt "settings-view"
+msgid "App is out of sync. Please quit and restart."
+msgstr ""
+
+msgctxt "settings-view"
 msgid "App version"
 msgstr ""
 
 #. Link to the webpage
 msgctxt "settings-view"
 msgid "FAQs & Guides"
-msgstr ""
-
-msgctxt "settings-view"
-msgid "Inconsistent internal version information, please restart the app."
 msgstr ""
 
 #. Navigation button to the 'Language' settings view
@@ -815,7 +824,7 @@ msgid "Report a problem"
 msgstr ""
 
 msgctxt "settings-view"
-msgid "Update available, download to remain safe."
+msgid "Update available. Install the latest app version to stay up to date."
 msgstr ""
 
 #. Title label in navigation bar
@@ -847,16 +856,30 @@ msgctxt "split-tunneling-view"
 msgid "Launch application"
 msgstr ""
 
+#. This error message is shown if the user tries to launch a Linux desktop
+#. entry file that doesn't contain the required 'Exec' value.
+msgctxt "split-tunneling-view"
+msgid "Please contact support."
+msgstr ""
+
+#. This error message is shown if the user tries to launch an app that
+#. doesn't exist.
+#. This error message is shown if an application failes during startup.
+msgctxt "split-tunneling-view"
+msgid "Please try again or contact support."
+msgstr ""
+
 msgctxt "split-tunneling-view"
 msgid "Split tunneling"
 msgstr ""
 
-msgctxt "support-view"
-msgid "Continue anyway"
+#. Error message showed in a dialog when an application failes to launch.
+msgctxt "split-tunneling-view"
+msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr ""
 
 msgctxt "support-view"
-msgid "Describe your problem"
+msgid "Continue anyway"
 msgstr ""
 
 msgctxt "support-view"
@@ -871,7 +894,15 @@ msgstr ""
 #. Available placeholders:
 #. %(email)s
 msgctxt "support-view"
-msgid "If needed we will contact you on %(email)s"
+msgid "If needed we will contact you at %(email)s"
+msgstr ""
+
+msgctxt "support-view"
+msgid "If you exit the form and try again later, the information you already entered will still be here."
+msgstr ""
+
+msgctxt "support-view"
+msgid "Please describe your problem in English or Swedish."
 msgstr ""
 
 #. Title label in navigation bar
@@ -925,10 +956,6 @@ msgstr ""
 
 msgctxt "support-view"
 msgid "You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report."
-msgstr ""
-
-msgctxt "support-view"
-msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
 msgstr ""
 
 msgctxt "support-view"
@@ -996,10 +1023,6 @@ msgid "Regenerate key"
 msgstr ""
 
 msgctxt "wireguard-key-view"
-msgid "Unable to manage keys while in a blocked state"
-msgstr ""
-
-msgctxt "wireguard-key-view"
 msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
 msgstr ""
 
@@ -1016,161 +1039,3 @@ msgstr ""
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr ""
-
-msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
-msgstr ""
-
-msgid "WireGuard error"
-msgstr ""
-
-msgid "Account time reminders"
-msgstr ""
-
-msgid "WireGuard public key"
-msgstr ""
-
-msgid "Copied WireGuard public key to clipboard"
-msgstr ""
-
-msgid "Account credit expires soon"
-msgstr ""
-
-msgid "Account credit expires in a few minutes"
-msgstr ""
-
-msgid "Thanks!"
-msgstr ""
-
-msgid "We will look into this."
-msgstr ""
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr ""
-
-msgid "e.g. 10.0.0.4"
-msgstr ""
-
-msgid "Copied to clipboard"
-msgstr ""
-
-msgid "Too many WireGuard keys registered to account"
-msgstr ""
-
-msgid "Shows current VPN tunnel status"
-msgstr ""
-
-msgid "Copied Mullvad account number to clipboard"
-msgstr ""
-
-msgid "Use custom DNS server"
-msgstr ""
-
-msgid "Add anyway"
-msgstr ""
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr ""
-
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr ""
-
-msgid "less than a day left"
-msgstr ""
-
-msgid "Blocking all connections"
-msgstr ""
-
-msgid "Could not configure IPv6"
-msgstr ""
-
-msgid "Disconnecting"
-msgstr ""
-
-msgid "Enable to add at least one DNS server."
-msgstr ""
-
-msgid "Enable"
-msgstr ""
-
-msgid "No relay server matches the current settings"
-msgstr ""
-
-msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
-msgstr ""
-
-msgid "No bridge relay server matches the current settings"
-msgstr ""
-
-msgid "Shows reminders when the account time is about to expire"
-msgstr ""
-
-msgid "Add a server"
-msgstr ""
-
-msgid "Mullvad account number"
-msgstr ""
-
-msgid "less than a minute ago"
-msgstr ""
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr ""
-
-msgid "Virtual adapter error"
-msgstr ""
-
-msgid "Exclude applications"
-msgstr ""
-
-msgid "VPN tunnel status"
-msgstr ""
-
-msgid "1 year left"
-msgid_plural "%d years left"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "1 month left"
-msgid_plural "%d months left"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "1 day left"
-msgid_plural "%d days left"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "Account credit expires in a day"
-msgid_plural "Account credit expires in %d days"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "Account credit expires in an hour"
-msgid_plural "Account credit expires in %d hours"
-msgstr[0] ""
-msgstr[1] ""
