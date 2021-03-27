@@ -43,10 +43,10 @@ pub struct MsgEntry {
 /// A message string or plural set in a gettext translation file.
 #[derive(Clone, Debug)]
 pub enum MsgValue {
-    Invariant(String),
+    Invariant(MsgString),
     Plural {
         plural_id: String,
-        values: Vec<String>,
+        values: Vec<MsgString>,
     },
 }
 
@@ -148,7 +148,7 @@ impl Translation {
                     let variant_msg = parse_line(&plural_translation[variant_id_end..], "] \"", "")
                         .expect("Invalid plural msgstr");
 
-                    variants.insert(variant_id, normalize(variant_msg));
+                    variants.insert(variant_id, MsgString(normalize(variant_msg)));
                     parsing_header = false;
                 }
                 ["\"", header, "\\n\""] => {
@@ -252,7 +252,7 @@ impl Deref for MsgString {
 
 impl From<String> for MsgValue {
     fn from(string: String) -> Self {
-        MsgValue::Invariant(string)
+        MsgValue::Invariant(string.into())
     }
 }
 
@@ -277,12 +277,12 @@ pub fn append_to_template(
         writeln!(writer, "msgid {:?}", entry.id)?;
 
         match entry.value {
-            MsgValue::Invariant(value) => writeln!(writer, "msgstr {:?}", value)?,
+            MsgValue::Invariant(value) => writeln!(writer, r#"msgstr "{}""#, value)?,
             MsgValue::Plural { plural_id, values } => {
                 writeln!(writer, "msgid_plural {:?}", plural_id)?;
 
                 for (index, value) in values.into_iter().enumerate() {
-                    writeln!(writer, "msgstr[{}] {:?}", index, value)?;
+                    writeln!(writer, r#"msgstr[{}] "{}""#, index, value)?;
                 }
             }
         }

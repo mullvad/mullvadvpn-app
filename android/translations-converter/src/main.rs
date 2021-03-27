@@ -192,7 +192,7 @@ fn main() {
                         id,
                         value: gettext::MsgValue::Plural {
                             plural_id,
-                            values: vec!["".to_owned(), "".to_owned()],
+                            values: vec!["".into(), "".into()],
                         },
                     }
                 }),
@@ -262,6 +262,8 @@ fn generate_translations(
             }
             gettext::MsgValue::Plural { values, .. } => {
                 if let Some(android_key) = known_plurals.remove(&translation.id) {
+                    let values = values.into_iter().map(|message| message.to_string());
+
                     localized_plurals.push(android::PluralResource::new(
                         android_key,
                         plural_quantities.clone().zip(values),
