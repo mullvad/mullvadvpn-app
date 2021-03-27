@@ -36,7 +36,7 @@ pub enum PluralForm {
 /// A message entry in a gettext translation file.
 #[derive(Clone, Debug)]
 pub struct MsgEntry {
-    pub id: String,
+    pub id: MsgString,
     pub value: MsgValue,
 }
 
@@ -119,7 +119,7 @@ impl Translation {
         for line in lines {
             match_str! { (line.trim())
                 ["msgid \"", msg_id, "\""] => {
-                    current_id = Some(normalize(msg_id));
+                    current_id = Some(MsgString(normalize(msg_id)));
                 }
                 ["msgstr \"", translation, "\""] => {
                     if let Some(id) = current_id.take() {
@@ -274,7 +274,7 @@ pub fn append_to_template(
 
     for entry in sorted_entries {
         writeln!(writer)?;
-        writeln!(writer, "msgid {:?}", entry.id)?;
+        writeln!(writer, r#"msgid "{}""#, entry.id)?;
 
         match entry.value {
             MsgValue::Invariant(value) => writeln!(writer, r#"msgstr "{}""#, value)?,
