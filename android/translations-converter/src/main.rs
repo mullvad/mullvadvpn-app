@@ -191,7 +191,12 @@ fn main() {
                         .iter()
                         .position(|plural| plural.quantity == android::PluralQuantity::Other)
                         .expect("Missing other variant to use as msgid_plural");
-                    let plural_id = plural.items.remove(other_position).string.to_string();
+                    let plural_id = plural
+                        .items
+                        .remove(other_position)
+                        .string
+                        .to_string()
+                        .into();
 
                     gettext::MsgEntry {
                         id,

@@ -45,7 +45,7 @@ pub struct MsgEntry {
 pub enum MsgValue {
     Invariant(MsgString),
     Plural {
-        plural_id: String,
+        plural_id: MsgString,
         values: Vec<MsgString>,
     },
 }
@@ -134,7 +134,7 @@ impl Translation {
                     current_plural_id = None;
                 }
                 ["msgid_plural \"", plural_id, "\""] => {
-                    current_plural_id = Some(normalize(plural_id));
+                    current_plural_id = Some(MsgString(normalize(plural_id)));
                     parsing_header = false;
                 }
                 ["msgstr[", plural_translation, "\""] => {
@@ -279,7 +279,7 @@ pub fn append_to_template(
         match entry.value {
             MsgValue::Invariant(value) => writeln!(writer, r#"msgstr "{}""#, value)?,
             MsgValue::Plural { plural_id, values } => {
-                writeln!(writer, "msgid_plural {:?}", plural_id)?;
+                writeln!(writer, r#"msgid_plural "{}""#, plural_id)?;
 
                 for (index, value) in values.into_iter().enumerate() {
                     writeln!(writer, r#"msgstr[{}] "{}""#, index, value)?;
