@@ -234,9 +234,12 @@ pub fn append_to_template(
         .write(true)
         .append(true)
         .open(file_path)?;
+    let mut sorted_entries: Vec<_> = entries.collect();
     let mut writer = BufWriter::new(file);
 
-    for entry in entries {
+    sorted_entries.sort_by(|first, second| first.id.cmp(&second.id));
+
+    for entry in sorted_entries {
         writeln!(writer)?;
         writeln!(writer, "msgid {:?}", entry.id)?;
 
