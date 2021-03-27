@@ -1039,3 +1039,188 @@ msgstr ""
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr ""
+
+msgid "Account authentication failed."
+msgstr ""
+
+msgid "Account credit expires in a few minutes"
+msgstr ""
+
+msgid "Account credit expires soon"
+msgstr ""
+
+msgid "Account time reminders"
+msgstr ""
+
+msgid "Blocking all connections"
+msgstr ""
+
+msgid "Blocking internet"
+msgstr ""
+
+msgid "Copied Mullvad account number to clipboard"
+msgstr ""
+
+msgid "Copied WireGuard public key to clipboard"
+msgstr ""
+
+msgid "Copied to clipboard"
+msgstr ""
+
+msgid "Could not configure IPv6"
+msgstr ""
+
+msgid "Critical error (your attention is required)"
+msgstr ""
+
+msgid "Custom DNS server addresses %s are invalid"
+msgstr ""
+
+msgid "Disconnecting"
+msgstr ""
+
+msgid "Enable"
+msgstr ""
+
+msgid "Exclude applications"
+msgstr ""
+
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr ""
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr ""
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr ""
+
+msgid "Failed to set system DNS server"
+msgstr ""
+
+msgid "Failed to start tunnel connection"
+msgstr ""
+
+msgid "If needed we will contact you on %s"
+msgstr ""
+
+msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr ""
+
+msgid "Mullvad account number"
+msgstr ""
+
+msgid "No bridge relay server matches the current settings"
+msgstr ""
+
+msgid "No relay server matches the current settings"
+msgstr ""
+
+msgid "Secured"
+msgstr ""
+
+msgid "Shows current VPN tunnel status"
+msgstr ""
+
+msgid "Shows reminders when the account time is about to expire"
+msgstr ""
+
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr ""
+
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
+msgstr ""
+
+msgid "This device is offline, no tunnels can be established"
+msgstr ""
+
+msgid "Too many WireGuard keys registered to account"
+msgstr ""
+
+msgid "Unsecured"
+msgstr ""
+
+msgid "Update available, download to remain safe."
+msgstr ""
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr ""
+
+msgid "VPN tunnel status"
+msgstr ""
+
+msgid "Virtual adapter error"
+msgstr ""
+
+msgid "WireGuard error"
+msgstr ""
+
+msgid "WireGuard public key"
+msgstr ""
+
+msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
+msgstr ""
+
+msgid "You are running an unsupported app version."
+msgstr ""
+
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr ""
+
+msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+msgstr ""
+
+msgid "less than a day left"
+msgstr ""
+
+msgid "less than a minute ago"
+msgstr ""
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Account credit expires in a day"
+msgid_plural "Account credit expires in %d days"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Account credit expires in an hour"
+msgid_plural "Account credit expires in %d hours"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] ""
+msgstr[1] ""
