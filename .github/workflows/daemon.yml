@@ -5,6 +5,7 @@ on:
         paths-ignore:
             - '**/*.md'
             - .github/workflows/android*.yml
+            - .github/workflows/frontend.yml
             - .github/workflows/ios.yml
             - .github/workflows/rustfmt.yml
             - android/**
