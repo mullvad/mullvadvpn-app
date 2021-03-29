@@ -145,6 +145,61 @@ metadata that might be useful.
 
 ### Detecting device offline
 
+The tunnel state machine has an offline monitor that tries to detect when a device will certainly
+not be able to connect to a tunnel or reach the API. In doing so, the offline monitor cannot send
+any traffic. In general, this involves either relying on platform APIs specifically designed for
+this purpose or querying the system's networking config to enumerate network interface state or the
+routing table.
+
+#### Windows
+
+On Windows, connectivity is inferred if there exists an enabled interface with either an IPv4 or an
+IPv6 address and the machine is not suspended. The suspend/wakeup events matter because previously
+the TAP driver and currently Wintun might not work correctly early after boot, as such, the offline
+mode is used to enforce a grace period.
+
+The conditions are affirmed by doing the following:
+- Listening for changes in the network adapter state via [`NotifyIpInterfaceChange`] - receiving
+  callbacks whenever a network interface is changed or added via winnet.
+- Checking if the machine is suspended by listening for power state broadcasts by creating a window
+  and listening for power state messages.
+
+#### Linux
+
+On Linux, connectivity is inferred by checking if there exists a route to a public IP address.
+Currently the Mullvad API IP is used, but the actual IP does not matter as long as it's not a local
+one. This is done via Netlink and the route is queried via the exclusion firewall mark - otherwise,
+when a tunnel is connected, the address would always be routable as it'd be routed through the
+tunnel interface. As such, the offline monitor is somewhat coupled to routing and split tunelling on
+Linux.
+
+#### macOS
+
+On macOS,  the offline monitor uses [`SCNetworkReachability`] callbacks to detect changes in
+connectivity and then enumerates network interfaces via [`SCDynamicStore`] and assumes connectivity
+if an active physical interface exists. The interfaces are enumerated because sometimes
+`SCNetworkReachability` can trigger a callback signalling full connectivity even when there exists
+no default route.
+
+##### Issues
+
+After coming back from sleep, the network reachability callback won't be invoked until macOS has
+done some verification tasks, some of which may depend on DNS. Since our firewall will block DNS,
+the tasks will be delayed, and so will the callback. Circumventing the call back is of no use -
+until the timeouts are hit, macOS won't publish a default route to the routing table, which is
+needed for routing tunnel traffic.
+
+#### Android
+
+To detect connectivity on Android, the app relies on [`ConnectivityManager`] by listening for
+changes to the availability  of non-VPN networks that provide internet connectivity.  Connectivity
+is inferred if such a network exists.
+
+#### iOS
+
+The iOS app uses WireGuard kit's offline detection, which in turn uses [`NWPathMonitor`] to listen
+for changes to the route table and assumes connectivity if a default route exists.
+
 ### OpenVPN plugin and communication back to system service
 
 ### Split tunneling
@@ -160,3 +215,9 @@ See the [split tunneling documentation](split-tunneling.md).
 ### iOS
 
 ### CLI
+
+[`NotifyIpInterfaceChange`]: https://docs.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-notifyipinterfacechange
+[`SCNetworkReachability`]: https://developer.apple.com/documentation/systemconfiguration/scnetworkreachability-g7d
+[`SCDynamicStore`]: https://developer.apple.com/documentation/systemconfiguration/scdynamicstore-gb2
+[`ConnectivityManager`]: https://developer.android.com/reference/android/net/ConnectivityManager
+[`NWPathMonitor`]: https://developer.apple.com/documentation/network/nwpathmonitor
