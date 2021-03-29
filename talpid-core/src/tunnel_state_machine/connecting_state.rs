@@ -69,8 +69,6 @@ impl ConnectingState {
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
             #[cfg(windows)]
             relay_client: TunnelMonitor::get_relay_client(&shared_values.resource_dir, &params),
-            #[cfg(target_os = "linux")]
-            use_fwmark: params.get_proxy_endpoint().is_none(),
         };
         shared_values
             .firewall

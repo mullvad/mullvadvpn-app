@@ -113,8 +113,6 @@ impl ConnectedState {
                 &shared_values.resource_dir,
                 &self.tunnel_parameters,
             ),
-            #[cfg(target_os = "linux")]
-            use_fwmark: self.tunnel_parameters.get_proxy_endpoint().is_none(),
         }
     }
 
