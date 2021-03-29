@@ -40,7 +40,7 @@ class ApplicationsProviderTest {
             createApplicationInfo(selfPackageName, internet = true, launch = true)
         )
 
-        val result = testSubject.getAppsListAsync().await()
+        val result = testSubject.getAppsList().await()
         val expected = listOf(
             AppData(launchWithInternetPackageName, 0, launchWithInternetPackageName)
         )

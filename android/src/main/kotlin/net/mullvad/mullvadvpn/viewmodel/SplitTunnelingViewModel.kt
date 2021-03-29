@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,7 +22,8 @@ import net.mullvad.mullvadvpn.service.SplitTunneling
 
 class SplitTunnelingViewModel(
     private val appsProvider: ApplicationsProvider,
-    private val splitTunneling: SplitTunneling
+    private val splitTunneling: SplitTunneling,
+    dispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val listItemsSink = MutableSharedFlow<List<ListItemData>>(replay = 1)
     // read-only public view
@@ -39,14 +40,14 @@ class SplitTunnelingViewModel(
     )
 
     init {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatcher) {
             listItemsSink.emit(defaultListItems + createDivider(0) + createProgressItem())
             // this will be removed after changes on native to ignore enable parameter
             if (!splitTunneling.enabled)
                 splitTunneling.enabled = true
             fetchData()
         }
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(dispatcher) {
             intentFlow.shareIn(viewModelScope, SharingStarted.WhileSubscribed())
                 .collect(::handleIntents)
         }
@@ -90,7 +91,7 @@ class SplitTunnelingViewModel(
     }
 
     private suspend fun fetchData() {
-        appsProvider.getAppsListAsync().await()
+        appsProvider.getAppsList().await()
             .partition { app -> splitTunneling.excludedAppList.contains(app.packageName) }
             .let { (excludedAppsList, notExcludedAppsList) ->
                 // TODO: remove potential package names from splitTunneling list
