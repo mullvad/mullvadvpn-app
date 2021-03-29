@@ -11,6 +11,7 @@ const settingsSchema = {
   monochromaticIcon: 'boolean',
   startMinimized: 'boolean',
   unpinnedWindow: 'boolean',
+  browsedForSplitTunnelingApplications: 'Array<string>',
 };
 
 const defaultSettings: IGuiSettingsState = {
@@ -20,9 +21,14 @@ const defaultSettings: IGuiSettingsState = {
   monochromaticIcon: false,
   startMinimized: false,
   unpinnedWindow: process.platform !== 'win32' && process.platform !== 'darwin',
+  browsedForSplitTunnelingApplications: [],
 };
 
 export default class GuiSettings {
+  public onChange?: (newState: IGuiSettingsState, oldState: IGuiSettingsState) => void;
+
+  private stateValue: IGuiSettingsState = { ...defaultSettings };
+
   get state(): IGuiSettingsState {
     return this.stateValue;
   }
@@ -75,9 +81,16 @@ export default class GuiSettings {
     return this.stateValue.unpinnedWindow;
   }
 
-  public onChange?: (newState: IGuiSettingsState, oldState: IGuiSettingsState) => void;
+  public addBrowsedForSplitTunnelingapplications(newApp: string) {
+    this.changeStateAndNotify({
+      ...this.stateValue,
+      browsedForSplitTunnelingApplications: [...this.browsedForSplitTunnelingApplications, newApp],
+    });
+  }
 
-  private stateValue: IGuiSettingsState = { ...defaultSettings };
+  get browsedForSplitTunnelingApplications(): Array<string> {
+    return this.stateValue.browsedForSplitTunnelingApplications;
+  }
 
   public load() {
     try {
@@ -110,12 +123,27 @@ export default class GuiSettings {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private validateSettings(settings: any) {
+  private validateSettings(settings: Record<string, unknown>) {
     Object.entries(settingsSchema).forEach(([key, expectedType]) => {
-      const actualType = typeof settings[key];
-      if (key in settings && actualType !== expectedType) {
-        throw new Error(`Expected ${key} to be of type ${expectedType} but was ${actualType}`);
+      if (/^Array<.*>/.test(expectedType)) {
+        const value = settings[key];
+        if (!Array.isArray(value)) {
+          throw new Error(`Expected ${key} to be array but wasn't`);
+        } else {
+          const expectedInnerType = expectedType.replace(/^Array</, '').replace(/>$/, '');
+          const innerTypes: string[] = value.map((value) => typeof value);
+          if (
+            innerTypes.some((value) => value !== innerTypes[0]) ||
+            innerTypes[0] !== expectedInnerType
+          ) {
+            throw new Error(`Expected ${key} to to contain ${expectedInnerType}s`);
+          }
+        }
+      } else {
+        const actualType = typeof settings[key];
+        if (key in settings && actualType !== expectedType) {
+          throw new Error(`Expected ${key} to be of type ${expectedType} but was ${actualType}`);
+        }
       }
     });
 
