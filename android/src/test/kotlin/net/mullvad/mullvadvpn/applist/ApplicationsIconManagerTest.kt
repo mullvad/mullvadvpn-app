@@ -86,7 +86,7 @@ class ApplicationsIconManagerTest {
     }
 
     @Test
-    fun throw_exception_when_invoke_from_MainThread() {
+    fun test_throw_exception_when_invoke_from_MainThread() {
         val testPackageName = "test"
         every { mockedMainLooper.isCurrentThread } returns true
 

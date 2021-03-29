@@ -7,6 +7,8 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verifyAll
+import kotlinx.coroutines.test.runBlockingTest
+import net.mullvad.mullvadvpn.assertLists
 import org.junit.After
 import org.junit.Test
 
@@ -22,7 +24,7 @@ class ApplicationsProviderTest {
     }
 
     @Test
-    fun test_get_apps() {
+    fun test_get_apps() = runBlockingTest {
         val launchWithInternetPackageName = "launch_with_internet_package_name"
         val launchWithoutInternetPackageName = "launch_without_internet_package_name"
         val nonLaunchWithInternetPackageName = "non_launch_with_internet_package_name"
@@ -38,15 +40,12 @@ class ApplicationsProviderTest {
             createApplicationInfo(selfPackageName, internet = true, launch = true)
         )
 
-        val result = testSubject.getAppsList()
+        val result = testSubject.getAppsListAsync().await()
         val expected = listOf(
             AppData(launchWithInternetPackageName, 0, launchWithInternetPackageName)
         )
-        assert(
-            expected.size == result.size &&
-                expected.containsAll(result) &&
-                result.containsAll(expected)
-        )
+
+        assertLists(expected, result)
 
         verifyAll {
             mockedPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
