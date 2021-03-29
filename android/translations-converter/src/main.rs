@@ -133,8 +133,8 @@ fn main() {
 
     for message in template {
         match message.value {
-            gettext::MsgValue::Invariant(_) => missing_translations.remove(&message.id),
-            gettext::MsgValue::Plural { .. } => missing_plurals.remove(&message.id),
+            gettext::MsgValue::Invariant(_) => missing_translations.remove(&*message.id),
+            gettext::MsgValue::Plural { .. } => missing_plurals.remove(&*message.id),
         };
     }
 
@@ -147,7 +147,7 @@ fn main() {
                 .into_iter()
                 .inspect(|(missing_translation, id)| println!("  {}: {}", id, missing_translation))
                 .map(|(id, _)| gettext::MsgEntry {
-                    id,
+                    id: id.into(),
                     value: String::new().into(),
                 }),
         )
@@ -179,20 +179,30 @@ fn main() {
                         .iter()
                         .position(|plural| plural.quantity == android::PluralQuantity::One)
                         .expect("Missing singular variant to use as msgid");
-                    let id = plural.items.remove(singular_position).string.to_string();
+                    let id = plural
+                        .items
+                        .remove(singular_position)
+                        .string
+                        .to_string()
+                        .into();
 
                     let other_position = plural
                         .items
                         .iter()
                         .position(|plural| plural.quantity == android::PluralQuantity::Other)
                         .expect("Missing other variant to use as msgid_plural");
-                    let plural_id = plural.items.remove(other_position).string.to_string();
+                    let plural_id = plural
+                        .items
+                        .remove(other_position)
+                        .string
+                        .to_string()
+                        .into();
 
                     gettext::MsgEntry {
                         id,
                         value: gettext::MsgValue::Plural {
                             plural_id,
-                            values: vec!["".to_owned(), "".to_owned()],
+                            values: vec!["".into(), "".into()],
                         },
                     }
                 }),
@@ -253,7 +263,7 @@ fn generate_translations(
     for translation in translations {
         match translation.value {
             gettext::MsgValue::Invariant(translation_value) => {
-                if let Some(android_key) = known_strings.remove(&translation.id) {
+                if let Some(android_key) = known_strings.remove(&*translation.id) {
                     localized_strings.push(android::StringResource::new(
                         android_key,
                         &translation_value,
@@ -261,7 +271,9 @@ fn generate_translations(
                 }
             }
             gettext::MsgValue::Plural { values, .. } => {
-                if let Some(android_key) = known_plurals.remove(&translation.id) {
+                if let Some(android_key) = known_plurals.remove(&*translation.id) {
+                    let values = values.into_iter().map(|message| message.to_string());
+
                     localized_plurals.push(android::PluralResource::new(
                         android_key,
                         plural_quantities.clone().zip(values),

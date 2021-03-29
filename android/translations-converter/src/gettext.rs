@@ -2,9 +2,11 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
     collections::BTreeMap,
+    fmt::{self, Display, Formatter},
     fs::{File, OpenOptions},
     io::{self, BufRead, BufReader, BufWriter, Write},
     mem,
+    ops::Deref,
     path::Path,
 };
 
@@ -34,19 +36,23 @@ pub enum PluralForm {
 /// A message entry in a gettext translation file.
 #[derive(Clone, Debug)]
 pub struct MsgEntry {
-    pub id: String,
+    pub id: MsgString,
     pub value: MsgValue,
 }
 
 /// A message string or plural set in a gettext translation file.
 #[derive(Clone, Debug)]
 pub enum MsgValue {
-    Invariant(String),
+    Invariant(MsgString),
     Plural {
-        plural_id: String,
-        values: Vec<String>,
+        plural_id: MsgString,
+        values: Vec<MsgString>,
     },
 }
+
+/// A message string in a gettext translation file.
+#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+pub struct MsgString(String);
 
 /// A helper macro to match a string to various prefix and suffix combinations.
 macro_rules! match_str {
@@ -117,7 +123,7 @@ impl Translation {
                 }
                 ["msgstr \"", translation, "\""] => {
                     if let Some(id) = current_id.take() {
-                        let value = MsgValue::from(normalize(translation));
+                        let value = MsgValue::Invariant(normalize(translation));
 
                         parsing_header = id.is_empty() && translation.is_empty();
 
@@ -217,9 +223,36 @@ impl PluralForm {
     }
 }
 
+impl From<String> for MsgString {
+    fn from(string: String) -> Self {
+        MsgString(string)
+    }
+}
+
+impl From<&str> for MsgString {
+    fn from(string: &str) -> Self {
+        string.to_owned().into()
+    }
+}
+
+impl Display for MsgString {
+    /// Write the ID message string with proper escaping.
+    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
+        self.0.replace(r#"""#, r#"\""#).fmt(formatter)
+    }
+}
+
+impl Deref for MsgString {
+    type Target = str;
+
+    fn deref(&self) -> &Self::Target {
+        self.0.as_str()
+    }
+}
+
 impl From<String> for MsgValue {
     fn from(string: String) -> Self {
-        MsgValue::Invariant(string)
+        MsgValue::Invariant(string.into())
     }
 }
 
@@ -234,19 +267,22 @@ pub fn append_to_template(
         .write(true)
         .append(true)
         .open(file_path)?;
+    let mut sorted_entries: Vec<_> = entries.collect();
     let mut writer = BufWriter::new(file);
 
-    for entry in entries {
+    sorted_entries.sort_by(|first, second| first.id.cmp(&second.id));
+
+    for entry in sorted_entries {
         writeln!(writer)?;
-        writeln!(writer, "msgid {:?}", entry.id)?;
+        writeln!(writer, r#"msgid "{}""#, entry.id)?;
 
         match entry.value {
-            MsgValue::Invariant(value) => writeln!(writer, "msgstr {:?}", value)?,
+            MsgValue::Invariant(value) => writeln!(writer, r#"msgstr "{}""#, value)?,
             MsgValue::Plural { plural_id, values } => {
-                writeln!(writer, "msgid_plural {:?}", plural_id)?;
+                writeln!(writer, r#"msgid_plural "{}""#, plural_id)?;
 
                 for (index, value) in values.into_iter().enumerate() {
-                    writeln!(writer, "msgstr[{}] {:?}", index, value)?;
+                    writeln!(writer, r#"msgstr[{}] "{}""#, index, value)?;
                 }
             }
         }
@@ -266,7 +302,7 @@ fn parse_line<'l>(line: &'l str, prefix: &str, suffix: &str) -> Option<&'l str> 
     }
 }
 
-fn normalize(string: &str) -> String {
+fn normalize(string: &str) -> MsgString {
     // Use a single common apostrophe character
     let string = APOSTROPHE_VARIATION.replace_all(&string, "'");
     // Mark where parameters are positioned, removing the parameter name
@@ -274,5 +310,5 @@ fn normalize(string: &str) -> String {
     // Remove escaped double-quotes
     let string = ESCAPED_DOUBLE_QUOTES.replace_all(&string, r#"""#);
 
-    string.into_owned()
+    string.into_owned().into()
 }
