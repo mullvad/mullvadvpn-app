@@ -16,7 +16,7 @@ class ApplicationsProvider(
             !isSelfApplication(appInfo.packageName)
     }
 
-    fun getAppsListAsync(): Deferred<List<AppData>> = CompletableDeferred(
+    fun getAppsList(): Deferred<List<AppData>> = CompletableDeferred(
         packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
             .asSequence()
             .filter(applicationFilterPredicate)
