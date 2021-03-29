@@ -14,12 +14,10 @@ class ServiceInstance(
     val splitTunneling: SplitTunneling
 ) {
     val accountCache = AccountCache(daemon, settingsListener)
-    val keyStatusListener = KeyStatusListener(daemon)
 
     fun onDestroy() {
         accountCache.onDestroy()
         connectionProxy.onDestroy()
         customDns.onDestroy()
-        keyStatusListener.onDestroy()
     }
 }

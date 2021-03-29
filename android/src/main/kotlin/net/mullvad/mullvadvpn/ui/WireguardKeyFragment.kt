@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.KeygenEvent
@@ -40,6 +41,7 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     private var greenColor: Int = 0
     private var redColor: Int = 0
 
+    private var actionCompletion: CompletableDeferred<Unit>? = null
     private var tunnelState: TunnelState = TunnelState.Disconnected
 
     private var actionState: ActionState = ActionState.Idle(false)
@@ -63,6 +65,8 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
                 updateStatusMessage()
                 updateGenerateKeyButtonText()
                 updateVerifyKeyButtonState()
+
+                actionCompletion?.complete(Unit)
             }
         }
 
@@ -145,18 +149,16 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     override fun onSafelyStart() {
         connectionProxy.onUiStateChange.subscribe(this) { uiState ->
             jobTracker.newUiJob("tunnelStateUpdate") {
-                synchronized(this@WireguardKeyFragment) {
-                    tunnelState = uiState
+                tunnelState = uiState
 
-                    if (actionState is ActionState.Generating) {
-                        reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
-                    } else if (tunnelState is TunnelState.Connected) {
-                        reconnectionExpected = false
-                    }
-
-                    isOffline = uiState is TunnelState.Error &&
-                        uiState.errorState.cause is ErrorStateCause.IsOffline
+                if (actionState is ActionState.Generating) {
+                    reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
+                } else if (tunnelState is TunnelState.Connected) {
+                    reconnectionExpected = false
                 }
+
+                isOffline = uiState is TunnelState.Error &&
+                    uiState.errorState.cause is ErrorStateCause.IsOffline
             }
         }
 
@@ -312,25 +314,30 @@ class WireguardKeyFragment : ServiceDependentFragment(OnNoService.GoToLaunchScre
     }
 
     private suspend fun onGenerateKeyPress() {
-        synchronized(this) {
-            actionState = ActionState.Generating(keyStatus is KeygenEvent.NewKey)
-            reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
-        }
+        actionState = ActionState.Generating(keyStatus is KeygenEvent.NewKey)
+        reconnectionExpected = !(tunnelState is TunnelState.Disconnected)
 
         keyStatus = null
-        keyStatusListener.generateKey().join()
+
+        actionCompletion = CompletableDeferred()
+        keyStatusListener.generateKey()
+        actionCompletion?.await()
 
         actionState = ActionState.Idle(false)
     }
 
     private suspend fun onValidateKeyPress() {
         actionState = ActionState.Verifying()
-        keyStatusListener.verifyKey().join()
+
+        actionCompletion = CompletableDeferred()
+        keyStatusListener.verifyKey()
+        actionCompletion?.await()
+
         actionState = ActionState.Idle(true)
     }
 
     private fun resetReconnectionExpected() {
-        jobTracker.newBackgroundJob("resetReconnectionExpected") {
+        jobTracker.newUiJob("resetReconnectionExpected") {
             delay(20_000)
 
             if (reconnectionExpected) {
