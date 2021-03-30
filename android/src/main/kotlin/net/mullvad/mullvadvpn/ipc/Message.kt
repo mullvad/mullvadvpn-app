@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.os.Message as RawMessage
 import android.os.Parcelable
 
-abstract class Message : Parcelable {
-    protected abstract val messageId: Int
+sealed class Message(private val messageId: Int) : Parcelable {
+    abstract class EventMessage : Message(1)
+    abstract class RequestMessage : Message(2)
+
     protected abstract val messageKey: String
 
     val message: RawMessage

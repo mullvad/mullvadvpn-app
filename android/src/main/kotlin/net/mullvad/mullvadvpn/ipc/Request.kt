@@ -5,8 +5,7 @@ import android.os.Messenger
 import kotlinx.parcelize.Parcelize
 
 // Requests that the service can handle
-sealed class Request : Message() {
-    protected override val messageId = 2
+sealed class Request : Message.RequestMessage() {
     protected override val messageKey = MESSAGE_KEY
 
     @Parcelize
