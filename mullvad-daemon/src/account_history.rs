@@ -26,6 +26,9 @@ pub enum Error {
 
     #[error(display = "Write task panicked or was cancelled")]
     WriteCancelled(#[error(source)] tokio::task::JoinError),
+
+    #[error(display = "Failed to clear all account WireGuard keys")]
+    ClearKeys,
 }
 
 static ACCOUNT_HISTORY_FILE: &str = "account-history.json";
@@ -221,6 +224,37 @@ impl AccountHistory {
 
         let _ = self.accounts.lock().unwrap().pop_front();
         self.save_to_disk().await
+    }
+
+    /// Removes WireGuard keys associated with all accounts
+    pub async fn clear_keys(&mut self) -> Result<()> {
+        log::debug!("account_history::clear_keys");
+
+        let mut all_succeeded = true;
+        let mut rpc = WireguardKeyProxy::new(self.rpc_handle.clone());
+
+        for entry in self.accounts.lock().unwrap().iter_mut() {
+            if let Some(wg_data) = &entry.wireguard {
+                let public_key = wg_data.private_key.public_key();
+                if let Err(err) = rpc
+                    .remove_wireguard_key(entry.account.clone(), &public_key)
+                    .await
+                {
+                    log::error!("Failed to remove WireGuard key: {}", err);
+                    all_succeeded = false;
+                } else {
+                    entry.wireguard = None;
+                }
+            }
+        }
+
+        self.save_to_disk().await?;
+
+        if all_succeeded {
+            Ok(())
+        } else {
+            Err(Error::ClearKeys)
+        }
     }
 
     /// Remove account history

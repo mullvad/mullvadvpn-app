@@ -1746,5 +1746,6 @@ fn map_account_history_error(error: account_history::Error) -> Status {
         account_history::Error::Serialize(..) | account_history::Error::WriteCancelled(..) => {
             Status::new(Code::Internal, error.to_string())
         }
+        account_history::Error::ClearKeys => Status::new(Code::Internal, error.to_string()),
     }
 }
