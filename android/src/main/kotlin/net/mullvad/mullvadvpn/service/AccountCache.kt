@@ -23,7 +23,7 @@ class AccountCache(val daemon: MullvadDaemon, val settingsListener: SettingsList
 
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
-    val onAccountHistoryChange = EventNotifier<ArrayList<String>>(ArrayList())
+    val onAccountHistoryChange = EventNotifier<List<String>>(listOf<String>())
 
     var newlyCreatedAccount = false
         private set
