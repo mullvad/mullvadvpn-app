@@ -555,10 +555,10 @@ where
         );
 
 
-        let mut settings = SettingsPersister::load(&settings_dir);
+        let mut settings = SettingsPersister::load(&settings_dir).await;
 
         if version::is_beta_version() {
-            let _ = settings.set_show_beta_releases(true);
+            let _ = settings.set_show_beta_releases(true).await;
         }
 
         let app_version_info = version_check::load_cache(&cache_dir);
@@ -1111,21 +1111,22 @@ where
                 self.on_remove_account_from_history(tx, account_token).await
             }
             ClearAccountHistory(tx) => self.on_clear_account_history(tx).await,
-            UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update),
-            SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan),
+            UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update).await,
+            SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan).await,
             SetShowBetaReleases(tx, enabled) => self.on_set_show_beta_releases(tx, enabled).await,
             SetBlockWhenDisconnected(tx, block_when_disconnected) => {
                 self.on_set_block_when_disconnected(tx, block_when_disconnected)
+                    .await
             }
-            SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect),
-            SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg),
+            SetAutoConnect(tx, auto_connect) => self.on_set_auto_connect(tx, auto_connect).await,
+            SetOpenVpnMssfix(tx, mssfix_arg) => self.on_set_openvpn_mssfix(tx, mssfix_arg).await,
             SetBridgeSettings(tx, bridge_settings) => {
-                self.on_set_bridge_settings(tx, bridge_settings)
+                self.on_set_bridge_settings(tx, bridge_settings).await
             }
-            SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state),
-            SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6),
-            SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers),
-            SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu),
+            SetBridgeState(tx, bridge_state) => self.on_set_bridge_state(tx, bridge_state).await,
+            SetEnableIpv6(tx, enable_ipv6) => self.on_set_enable_ipv6(tx, enable_ipv6).await,
+            SetDnsOptions(tx, dns_servers) => self.on_set_dns_options(tx, dns_servers).await,
+            SetWireguardMtu(tx, mtu) => self.on_set_wireguard_mtu(tx, mtu).await,
             SetWireguardRotationInterval(tx, interval) => {
                 self.on_set_wireguard_rotation_interval(tx, interval).await
             }
@@ -1471,7 +1472,10 @@ where
         &mut self,
         account_token: Option<String>,
     ) -> Result<bool, settings::Error> {
-        let account_changed = self.settings.set_account_token(account_token.clone())?;
+        let account_changed = self
+            .settings
+            .set_account_token(account_token.clone())
+            .await?;
         if account_changed {
             self.event_listener
                 .notify_settings(self.settings.to_settings());
@@ -1556,7 +1560,7 @@ where
         let mut last_error = Ok(());
 
 
-        if let Err(e) = self.settings.reset() {
+        if let Err(e) = self.settings.reset().await {
             log::error!("Failed to reset settings - {}", e);
             last_error = Err(Error::ClearSettingsError(e));
         }
@@ -1629,12 +1633,12 @@ where
         Self::oneshot_send(tx, result, "clear_split_tunnel_processes response");
     }
 
-    fn on_update_relay_settings(
+    async fn on_update_relay_settings(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
         update: RelaySettingsUpdate,
     ) {
-        let save_result = self.settings.update_relay_settings(update);
+        let save_result = self.settings.update_relay_settings(update).await;
         match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "update_relay_settings response");
@@ -1652,8 +1656,8 @@ where
         }
     }
 
-    fn on_set_allow_lan(&mut self, tx: ResponseTx<(), settings::Error>, allow_lan: bool) {
-        let save_result = self.settings.set_allow_lan(allow_lan);
+    async fn on_set_allow_lan(&mut self, tx: ResponseTx<(), settings::Error>, allow_lan: bool) {
+        let save_result = self.settings.set_allow_lan(allow_lan).await;
         match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_allow_lan response");
@@ -1675,7 +1679,7 @@ where
         tx: ResponseTx<(), settings::Error>,
         enabled: bool,
     ) {
-        let save_result = self.settings.set_show_beta_releases(enabled);
+        let save_result = self.settings.set_show_beta_releases(enabled).await;
         match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_show_beta_releases response");
@@ -1693,14 +1697,15 @@ where
         }
     }
 
-    fn on_set_block_when_disconnected(
+    async fn on_set_block_when_disconnected(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
         block_when_disconnected: bool,
     ) {
         let save_result = self
             .settings
-            .set_block_when_disconnected(block_when_disconnected);
+            .set_block_when_disconnected(block_when_disconnected)
+            .await;
         match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_block_when_disconnected response");
@@ -1719,8 +1724,12 @@ where
         }
     }
 
-    fn on_set_auto_connect(&mut self, tx: ResponseTx<(), settings::Error>, auto_connect: bool) {
-        let save_result = self.settings.set_auto_connect(auto_connect);
+    async fn on_set_auto_connect(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        auto_connect: bool,
+    ) {
+        let save_result = self.settings.set_auto_connect(auto_connect).await;
         match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set auto-connect response");
@@ -1736,12 +1745,12 @@ where
         }
     }
 
-    fn on_set_openvpn_mssfix(
+    async fn on_set_openvpn_mssfix(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
         mssfix_arg: Option<u16>,
     ) {
-        let save_result = self.settings.set_openvpn_mssfix(mssfix_arg);
+        let save_result = self.settings.set_openvpn_mssfix(mssfix_arg).await;
         match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_openvpn_mssfix response");
@@ -1763,12 +1772,12 @@ where
         }
     }
 
-    fn on_set_bridge_settings(
+    async fn on_set_bridge_settings(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
         new_settings: BridgeSettings,
     ) {
-        match self.settings.set_bridge_settings(new_settings) {
+        match self.settings.set_bridge_settings(new_settings).await {
             Ok(settings_changes) => {
                 if settings_changes {
                     self.event_listener
@@ -1788,12 +1797,12 @@ where
         }
     }
 
-    fn on_set_bridge_state(
+    async fn on_set_bridge_state(
         &mut self,
         tx: ResponseTx<(), settings::Error>,
         bridge_state: BridgeState,
     ) {
-        let result = match self.settings.set_bridge_state(bridge_state) {
+        let result = match self.settings.set_bridge_state(bridge_state).await {
             Ok(settings_changed) => {
                 if settings_changed {
                     self.event_listener
@@ -1815,8 +1824,8 @@ where
     }
 
 
-    fn on_set_enable_ipv6(&mut self, tx: ResponseTx<(), settings::Error>, enable_ipv6: bool) {
-        let save_result = self.settings.set_enable_ipv6(enable_ipv6);
+    async fn on_set_enable_ipv6(&mut self, tx: ResponseTx<(), settings::Error>, enable_ipv6: bool) {
+        let save_result = self.settings.set_enable_ipv6(enable_ipv6).await;
         match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_enable_ipv6 response");
@@ -1834,8 +1843,12 @@ where
         }
     }
 
-    fn on_set_dns_options(&mut self, tx: ResponseTx<(), settings::Error>, dns_options: DnsOptions) {
-        let save_result = self.settings.set_dns_options(dns_options.clone());
+    async fn on_set_dns_options(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        dns_options: DnsOptions,
+    ) {
+        let save_result = self.settings.set_dns_options(dns_options.clone()).await;
         match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_dns_options response");
@@ -1854,8 +1867,12 @@ where
         }
     }
 
-    fn on_set_wireguard_mtu(&mut self, tx: ResponseTx<(), settings::Error>, mtu: Option<u16>) {
-        let save_result = self.settings.set_wireguard_mtu(mtu);
+    async fn on_set_wireguard_mtu(
+        &mut self,
+        tx: ResponseTx<(), settings::Error>,
+        mtu: Option<u16>,
+    ) {
+        let save_result = self.settings.set_wireguard_mtu(mtu).await;
         match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_mtu response");
@@ -1882,7 +1899,10 @@ where
         tx: ResponseTx<(), settings::Error>,
         interval: Option<RotationInterval>,
     ) {
-        let save_result = self.settings.set_wireguard_rotation_interval(interval);
+        let save_result = self
+            .settings
+            .set_wireguard_rotation_interval(interval)
+            .await;
         match save_result {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_rotation_interval response");
