@@ -47,6 +47,7 @@ Line wrap the file at 100 chars.                                              Th
 - Only download a new relay list if it has been modified.
 - Connect to the API only via TLS 1.3
 - Shrink account history capactity from 3 account entries to 1.
+- Remove WireGuard key from account history when logging out.
 - Allow whitespace in account token in CLI.
 - Read account token from standard input unless given as an argument in CLI.
 - Make WireGuard automatic key rotation interval mandatory and between 1 and 7 days.
