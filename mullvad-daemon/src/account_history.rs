@@ -223,6 +223,20 @@ impl AccountHistory {
         self.save_to_disk().await
     }
 
+    /// Removes WireGuard keys associated with all accounts
+    pub async fn clear_keys(&mut self) -> Result<()> {
+        log::debug!("account_history::clear_keys");
+
+        for entry in self.accounts.lock().unwrap().iter_mut() {
+            if let Some(wg_data) = &entry.wireguard {
+                tokio::spawn(self.create_remove_wg_key_rpc(&entry.account, &wg_data));
+                entry.wireguard = None;
+            }
+        }
+
+        self.save_to_disk().await
+    }
+
     /// Remove account history
     pub async fn clear(&mut self) -> Result<()> {
         log::debug!("account_history::clear");

@@ -1471,14 +1471,20 @@ where
             self.event_listener
                 .notify_settings(self.settings.to_settings());
 
-            // Bump account history if a token was set
-            if let Some(token) = account_token.clone() {
-                if let Err(e) = self.account_history.bump_history(&token).await {
-                    log::error!("Failed to bump account history: {}", e);
-                }
+            if let Err(error) = self.account_history.clear_keys().await {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Error while clearing account history keys")
+                );
             }
 
-            self.ensure_wireguard_keys_for_current_account().await;
+            if let Some(token) = &account_token {
+                // Bump account history if a token was set
+                if let Err(e) = self.account_history.bump_history(token).await {
+                    log::error!("Failed to bump account history: {}", e);
+                }
+                self.ensure_wireguard_keys_for_current_account().await;
+            }
         }
         Ok(account_changed)
     }
