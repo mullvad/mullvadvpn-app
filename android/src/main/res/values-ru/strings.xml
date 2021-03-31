@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">Введите код ваучера</string>
     <string name="error_occurred">Произошла ошибка.</string>
     <string name="error_state">НЕ УДАЛОСЬ УСТАНОВИТЬ БЕЗОПАСНОЕ ПОДКЛЮЧЕНИЕ</string>
-    <string name="exclude_applications">Исключить приложения</string>
     <string name="failed_to_block_internet">Не удалось заблокировать весь сетевой трафик. Устраните неисправность или сообщите нам о проблеме.</string>
     <string name="failed_to_create_account">Не удалось создать учетную запись</string>
     <string name="failed_to_generate_key">Не удалось сгенерировать ключ</string>

@@ -50,7 +50,6 @@
     <string name="enter_voucher_code">输入优惠码</string>
     <string name="error_occurred">出错了。</string>
     <string name="error_state">无法保护连接</string>
-    <string name="exclude_applications">排除应用程序</string>
     <string name="failed_to_block_internet">无法阻止所有网络流量。请排除故障或向我们报告问题。</string>
     <string name="failed_to_create_account">无法创建帐户</string>
     <string name="failed_to_generate_key">无法生成密钥</string>

@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">Skriv inn kupongkode</string>
     <string name="error_occurred">Det oppstod en feil.</string>
     <string name="error_state">KUNNE IKKE OPPRETTE SIKKER TILKOBLING</string>
-    <string name="exclude_applications">Ekskluder applikasjoner</string>
     <string name="failed_to_block_internet">Kunne ikke blokkere all nettverkstrafikk. Kjør feilsøking eller rapporter inn problemet til oss.</string>
     <string name="failed_to_create_account">Kunne ikke opprette konto</string>
     <string name="failed_to_generate_key">Generering av en nøkkel mislyktes</string>

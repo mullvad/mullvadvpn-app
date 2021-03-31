@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">輸入憑證兌換碼</string>
     <string name="error_occurred">發生錯誤了。</string>
     <string name="error_state">保護連線失敗</string>
-    <string name="exclude_applications">排除應用程式</string>
     <string name="failed_to_block_internet">無法封鎖所有網路流量。請排除故障或向我們回報問題。</string>
     <string name="failed_to_create_account">無法建立帳戶</string>
     <string name="failed_to_generate_key">無法產生金鑰</string>

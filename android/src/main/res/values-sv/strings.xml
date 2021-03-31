@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">Ange kupongkod</string>
     <string name="error_occurred">Ett fel har inträffat.</string>
     <string name="error_state">DET GICK INTE ATT SÄKRA ANSLUTNINGEN</string>
-    <string name="exclude_applications">Exkludera applikationer</string>
     <string name="failed_to_block_internet">Det gick inte att blockera all nätverkstrafik. Felsök eller anmäl problemet till oss.</string>
     <string name="failed_to_create_account">Det gick inte att skapa konto</string>
     <string name="failed_to_generate_key">Det gick inte att generera en nyckel</string>

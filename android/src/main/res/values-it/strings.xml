@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">Inserisci codice voucher</string>
     <string name="error_occurred">Si è verificato un errore.</string>
     <string name="error_state">IMPOSSIBILE STABILIRE UNA CONNESSIONE PROTETTA</string>
-    <string name="exclude_applications">Escludi applicazioni</string>
     <string name="failed_to_block_internet">Impossibile bloccare tutto il traffico di rete. Risolvi i problemi o segnalaceli.</string>
     <string name="failed_to_create_account">Impossibile creare l\'account</string>
     <string name="failed_to_generate_key">Impossibile generare una chiave</string>

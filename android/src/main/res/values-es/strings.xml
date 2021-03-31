@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">Escriba el código del cupón</string>
     <string name="error_occurred">Se produjo un error.</string>
     <string name="error_state">NO SE PUDO PROTEGER LA CONEXIÓN</string>
-    <string name="exclude_applications">Excluir aplicaciones</string>
     <string name="failed_to_block_internet">No se puede bloquear todo el tráfico de red. Intente solucionar el problema o póngase en contacto con nosotros.</string>
     <string name="failed_to_create_account">No se puede crear la cuenta</string>
     <string name="failed_to_generate_key">No se pudo generar una clave</string>

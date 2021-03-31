@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">Gutscheincode eingeben</string>
     <string name="error_occurred">Ein Fehler ist aufgetreten.</string>
     <string name="error_state">SICHERE VERBINDUNG KONNTE NICHT HERGESTELLT WERDEN</string>
-    <string name="exclude_applications">Anwendungen ausschließen</string>
     <string name="failed_to_block_internet">Sperren des gesamten Netzwerk-Traffics fehlgeschlagen. Bitte beheben Sie den Fehler oder melden Sie uns das Problem.</string>
     <string name="failed_to_create_account">Konto konnte nicht erstellt werden</string>
     <string name="failed_to_generate_key">Fehler beim Generieren eines Schlüssels</string>

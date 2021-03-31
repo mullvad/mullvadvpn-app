@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">Voer vouchercode in</string>
     <string name="error_occurred">Er is een fout opgetreden.</string>
     <string name="error_state">VERBINDING BEVEILIGEN MISLUKT</string>
-    <string name="exclude_applications">Toepassingen uitsluiten</string>
     <string name="failed_to_block_internet">Kon alle netwerkverkeer niet blokkeren. Los problemen op of meld het aan ons.</string>
     <string name="failed_to_create_account">Account aanmaken mislukt</string>
     <string name="failed_to_generate_key">Sleutel genereren mislukt</string>
