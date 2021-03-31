@@ -349,7 +349,7 @@ impl Relay {
             "udp" => TransportProtocol::Udp,
             "tcp" => TransportProtocol::Tcp,
             _ => clap::Error::with_description(
-                "unknown transport protocol",
+                "invalid transport protocol",
                 clap::ErrorKind::ValueValidation,
             )
             .exit(),

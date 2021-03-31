@@ -59,13 +59,13 @@ pub fn print_state(state: &TunnelState) {
 fn format_endpoint(endpoint: &TunnelEndpoint) -> String {
     let mut out = format!(
         "{} {} over {}",
-        match TunnelType::from_i32(endpoint.tunnel_type).expect("unknown tunnel protocol") {
+        match TunnelType::from_i32(endpoint.tunnel_type).expect("invalid tunnel protocol") {
             TunnelType::Wireguard => "WireGuard",
             TunnelType::Openvpn => "OpenVPN",
         },
         endpoint.address,
         format_protocol(
-            TransportProtocol::from_i32(endpoint.protocol).expect("unknown transport protocol")
+            TransportProtocol::from_i32(endpoint.protocol).expect("invalid transport protocol")
         ),
     );
 
@@ -73,13 +73,13 @@ fn format_endpoint(endpoint: &TunnelEndpoint) -> String {
         write!(
             &mut out,
             " via {} {} over {}",
-            match ProxyType::from_i32(proxy.proxy_type).expect("unknown proxy type") {
+            match ProxyType::from_i32(proxy.proxy_type).expect("invalid proxy type") {
                 ProxyType::Shadowsocks => "Shadowsocks",
                 ProxyType::Custom => "custom bridge",
             },
             proxy.address,
             format_protocol(
-                TransportProtocol::from_i32(proxy.protocol).expect("unknown transport protocol")
+                TransportProtocol::from_i32(proxy.protocol).expect("invalid transport protocol")
             ),
         )
         .unwrap();

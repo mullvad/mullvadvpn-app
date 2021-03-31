@@ -916,7 +916,7 @@ fn convert_relay_settings_update(
                         Some(types::TunnelType::Wireguard) => {
                             Some(Constraint::Only(TunnelType::Wireguard))
                         }
-                        None => return Err(Status::invalid_argument("unknown tunnel protocol")),
+                        None => return Err(Status::invalid_argument("invalid tunnel protocol")),
                     },
                     None => Some(Constraint::Any),
                 }
@@ -954,7 +954,7 @@ fn convert_relay_settings_update(
                         Some(types::IpVersion::V4) => Some(IpVersion::V4),
                         Some(types::IpVersion::V6) => Some(IpVersion::V6),
                         None => {
-                            return Err(Status::invalid_argument("unknown ip protocol version"))
+                            return Err(Status::invalid_argument("invalid ip protocol version"))
                         }
                     },
                     None => None,
