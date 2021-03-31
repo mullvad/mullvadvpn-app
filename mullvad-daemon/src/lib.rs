@@ -561,7 +561,7 @@ where
             let _ = settings.set_show_beta_releases(true).await;
         }
 
-        let app_version_info = version_check::load_cache(&cache_dir);
+        let app_version_info = version_check::load_cache(&cache_dir).await;
         let (version_updater, version_updater_handle) = version_check::VersionUpdater::new(
             rpc_handle.clone(),
             cache_dir.clone(),

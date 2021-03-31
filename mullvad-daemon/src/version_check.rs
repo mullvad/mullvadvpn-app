@@ -7,7 +7,6 @@ use mullvad_rpc::{rest::MullvadRestHandle, AppVersionProxy};
 use mullvad_types::version::{AppVersionInfo, ParsedAppVersion};
 use serde::{Deserialize, Serialize};
 use std::{
-    fs,
     future::Future,
     io,
     path::{Path, PathBuf},
@@ -15,7 +14,7 @@ use std::{
 };
 use talpid_core::mpsc::Sender;
 use talpid_types::ErrorExt;
-use tokio::fs::File;
+use tokio::fs::{self, File};
 
 const VERSION_INFO_FILENAME: &str = "version-info.json";
 
@@ -72,6 +71,9 @@ pub enum Error {
 
     #[error(display = "Failure in serialization of the version info")]
     Serialize(#[error(source)] serde_json::Error),
+
+    #[error(display = "Failure in deserialization of the version info")]
+    Deserialize(#[error(source)] serde_json::Error),
 
     #[error(display = "Failed to check the latest app version")]
     Download(#[error(source)] mullvad_rpc::rest::Error),
@@ -356,12 +358,14 @@ impl VersionUpdater {
     }
 }
 
-fn try_load_cache(cache_dir: &Path) -> Result<AppVersionInfo, Error> {
+async fn try_load_cache(cache_dir: &Path) -> Result<AppVersionInfo, Error> {
     let path = cache_dir.join(VERSION_INFO_FILENAME);
     log::debug!("Loading version check cache from {}", path.display());
-    let file = fs::File::open(&path).map_err(Error::ReadVersionCache)?;
+    let content = fs::read_to_string(&path)
+        .map_err(Error::ReadVersionCache)
+        .await?;
     let version_info: CachedAppVersionInfo =
-        serde_json::from_reader(io::BufReader::new(file)).map_err(Error::Serialize)?;
+        serde_json::from_str(&content).map_err(Error::Deserialize)?;
 
     if version_info.cached_from_version == PRODUCT_VERSION {
         Ok(version_info.version_info)
@@ -370,8 +374,8 @@ fn try_load_cache(cache_dir: &Path) -> Result<AppVersionInfo, Error> {
     }
 }
 
-pub fn load_cache(cache_dir: &Path) -> Option<AppVersionInfo> {
-    match try_load_cache(cache_dir) {
+pub async fn load_cache(cache_dir: &Path) -> Option<AppVersionInfo> {
+    match try_load_cache(cache_dir).await {
         Ok(app_version_info) => Some(app_version_info),
         Err(error) => {
             log::warn!(
