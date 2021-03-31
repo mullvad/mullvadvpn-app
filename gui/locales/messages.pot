@@ -1052,6 +1052,9 @@ msgstr ""
 msgid "Account time reminders"
 msgstr ""
 
+msgid "All applications"
+msgstr ""
+
 msgid "Blocking all connections"
 msgstr ""
 
@@ -1082,7 +1085,7 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
-msgid "Exclude applications"
+msgid "Excluded applications"
 msgstr ""
 
 msgid "Failed to apply firewall rules. The device might currently be unsecured"
