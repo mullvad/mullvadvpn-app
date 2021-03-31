@@ -3,8 +3,6 @@ package net.mullvad.mullvadvpn.applist
 import android.Manifest
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
 
 class ApplicationsProvider(
     private val packageManager: PackageManager,
@@ -16,15 +14,15 @@ class ApplicationsProvider(
             !isSelfApplication(appInfo.packageName)
     }
 
-    fun getAppsList(): Deferred<List<AppData>> = CompletableDeferred(
-        packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
+    fun getAppsList(): List<AppData> {
+        return packageManager.getInstalledApplications(PackageManager.GET_META_DATA)
             .asSequence()
             .filter(applicationFilterPredicate)
             .map { info ->
                 AppData(info.packageName, info.icon, info.loadLabel(packageManager).toString())
             }
             .toList()
-    )
+    }
 
     private fun hasInternetPermission(packageName: String): Boolean {
         return PackageManager.PERMISSION_GRANTED ==

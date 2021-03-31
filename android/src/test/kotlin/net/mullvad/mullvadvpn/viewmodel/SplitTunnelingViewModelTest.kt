@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.annotation.StringRes
 import androidx.lifecycle.viewModelScope
 import io.mockk.Runs
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -11,10 +10,8 @@ import io.mockk.unmockkAll
 import io.mockk.verify
 import io.mockk.verifyAll
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.TestCoroutineRule
@@ -39,18 +36,11 @@ class SplitTunnelingViewModelTest {
     val timeout = Timeout(3000L, TimeUnit.MILLISECONDS)
     private val mockedApplicationsProvider = mockk<ApplicationsProvider>()
     private val mockedSplitTunneling = mockk<SplitTunneling>()
-    private val appsProviderDeferred = CompletableDeferred<List<AppData>>()
     private lateinit var testSubject: SplitTunnelingViewModel
 
     @Before
     fun setup() {
         every { mockedSplitTunneling.enabled } returns true
-        coEvery { mockedApplicationsProvider.getAppsList() } returns appsProviderDeferred
-        testSubject = SplitTunnelingViewModel(
-            mockedApplicationsProvider,
-            mockedSplitTunneling,
-            testCoroutineRule.testDispatcher
-        )
     }
 
     @After
@@ -60,27 +50,26 @@ class SplitTunnelingViewModelTest {
     }
 
     @Test
-    fun test_has_progress_on_start() {
-        runBlocking(testCoroutineRule.testDispatcher) {
-            val actualList: List<ListItemData> = testSubject.listItems.first()
+    fun test_has_progress_on_start() = runBlockingTest(testCoroutineRule.testDispatcher) {
+        initTestSubject(emptyList())
+        val actualList: List<ListItemData> = testSubject.listItems.first()
 
-            val initialExpectedList = listOf(
-                createTextItem(R.string.split_tunneling_description),
-                createDivider(0), createProgressItem()
-            )
+        val initialExpectedList = listOf(
+            createTextItem(R.string.split_tunneling_description),
+            createDivider(0),
+            createProgressItem()
+        )
 
-            assertLists(initialExpectedList, actualList)
+        assertLists(initialExpectedList, actualList)
 
-            verify(exactly = 1) {
-                mockedApplicationsProvider.getAppsList()
-            }
+        verify(exactly = 1) {
+            mockedApplicationsProvider.getAppsList()
         }
     }
 
     @Test
     fun test_empty_app_list() = runBlockingTest(testCoroutineRule.testDispatcher) {
-        testCoroutineRule.testDispatcher.advanceUntilIdle()
-        appsProviderDeferred.complete(emptyList())
+        initTestSubject(emptyList())
         testSubject.processIntent(ViewIntent.ViewIsReady)
         val actualList = testSubject.listItems.first()
         val expectedList = listOf(createTextItem(R.string.split_tunneling_description))
@@ -93,7 +82,7 @@ class SplitTunnelingViewModelTest {
         val appNotExcluded = AppData("test.not.excluded", 0, "testName2")
         every { mockedSplitTunneling.excludedAppList } returns listOf(appExcluded.packageName)
 
-        appsProviderDeferred.complete(listOf(appExcluded, appNotExcluded))
+        initTestSubject(listOf(appExcluded, appNotExcluded))
         testSubject.processIntent(ViewIntent.ViewIsReady)
 
         val actualList = testSubject.listItems.first()
@@ -111,10 +100,7 @@ class SplitTunnelingViewModelTest {
         verifyAll {
             mockedSplitTunneling.enabled
             mockedSplitTunneling.excludedAppList
-            mockedSplitTunneling.excludedAppList
         }
-
-        testSubject.viewModelScope.coroutineContext.cancel()
     }
 
     @Test
@@ -123,7 +109,7 @@ class SplitTunnelingViewModelTest {
         every { mockedSplitTunneling.excludedAppList } returns listOf(app.packageName)
         every { mockedSplitTunneling.includeApp(app.packageName) } just Runs
 
-        appsProviderDeferred.complete(listOf(app))
+        initTestSubject(listOf(app))
         testSubject.processIntent(ViewIntent.ViewIsReady)
 
         val listBeforeAction = testSubject.listItems.first()
@@ -161,8 +147,8 @@ class SplitTunnelingViewModelTest {
         val app = AppData("test", 0, "testName")
         every { mockedSplitTunneling.excludedAppList } returns emptyList()
         every { mockedSplitTunneling.excludeApp(app.packageName) } just Runs
+        initTestSubject(listOf(app))
         testSubject.processIntent(ViewIntent.ViewIsReady)
-        appsProviderDeferred.complete(listOf(app))
 
         val listBeforeAction = testSubject.listItems.first()
         val expectedListBeforeAction = listOf(
@@ -192,6 +178,15 @@ class SplitTunnelingViewModelTest {
             mockedSplitTunneling.excludedAppList
             mockedSplitTunneling.excludeApp(app.packageName)
         }
+    }
+
+    private fun initTestSubject(appList: List<AppData>) {
+        every { mockedApplicationsProvider.getAppsList() } returns appList
+        testSubject = SplitTunnelingViewModel(
+            mockedApplicationsProvider,
+            mockedSplitTunneling,
+            testCoroutineRule.testDispatcher
+        )
     }
 
     private fun createApplicationItem(
