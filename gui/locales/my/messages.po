@@ -1,0 +1,1227 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Crowdin-Project: mullvad-app\n"
+"X-Crowdin-Project-ID: 350815\n"
+"X-Crowdin-Language: my\n"
+"X-Crowdin-File: messages.pot\n"
+"X-Crowdin-File-ID: 12\n"
+"Project-Id-Version: mullvad-app\n"
+"Language-Team: Burmese\n"
+"Language: my_MM\n"
+"PO-Revision-Date: 2021-03-31 13:39\n"
+
+msgid "Back"
+msgstr "နောက်သို့"
+
+msgid "BLOCKED CONNECTION"
+msgstr "ပိတ်ဆို့ထားသည့် ချိတ်ဆက်မှု"
+
+msgid "Buy credit"
+msgstr "ခရက်ဒစ် ဝယ်ရန်"
+
+msgid "Buy more credit"
+msgstr "ခရက်ဒစ်များ ဝယ်ရန်"
+
+msgid "Cancel"
+msgstr "မလုပ်တော့ပါ"
+
+msgid "Close"
+msgstr "ပိတ်ရန်"
+
+msgid "Connect"
+msgstr "ချိတ်ဆက်ရန်"
+
+msgid "COPIED TO CLIPBOARD!"
+msgstr "ကလစ်ဘုတ်တွင် ကူးယူပြီး။"
+
+msgid "CREATING SECURE CONNECTION"
+msgstr "လုံခြုံသည့် ချိတ်ဆက်မှုကို ဖန်တီးနေပါသည်"
+
+msgid "Disconnect"
+msgstr "ချိတ်ဆက်မှုဖြုတ်ရန်"
+
+msgid "Dismiss"
+msgstr "ဖယ်ပစ်ရန်"
+
+msgid "FAILED TO SECURE CONNECTION"
+msgstr "ချိတ်ဆက်မှုကို ကာကွယ်ရန် မအောင်မြင်ပါ"
+
+msgid "Invalid account number"
+msgstr "အကောင့်နံပါတ် မှားယွင်းနေပါသည်"
+
+msgid "Open URL"
+msgstr "URL ဖွင့်ရန်"
+
+msgid "Reconnect"
+msgstr "ပြန်ချိတ်ဆက်ရန်"
+
+msgid "SECURE CONNECTION"
+msgstr "လုံခြုံသည့် ချိတ်ဆက်မှု"
+
+msgid "Settings"
+msgstr "ဆက်တင်"
+
+msgid "System default"
+msgstr "စနစ် ပုံသေ"
+
+msgid "UNSECURED CONNECTION"
+msgstr "မလုံခြုံသည့် ချိတ်ဆက်မှု"
+
+msgctxt "accessibility"
+msgid "%(title)s, View loaded"
+msgstr "%(title)s ၊ ပြသမှု ထည့်သွင်းပြီး"
+
+msgctxt "accessibility"
+msgid "Collapse %(location)s"
+msgstr "%(location)s ကို ချုံ့ပြရန်"
+
+msgctxt "accessibility"
+msgid "Expand %(location)s"
+msgstr "%(location)s ကို ဖြန့်ပြရန်"
+
+msgctxt "accessibility"
+msgid "Forget %(accountToken)s"
+msgstr "%(accountToken)s ကို မမှတ်ရန်"
+
+#. This is used by screenreaders to communicate the login button.
+msgctxt "accessibility"
+msgid "Login"
+msgstr "ဝင်ရန်"
+
+msgctxt "accessibility"
+msgid "Opens externally"
+msgstr "ပြင်ပတွင် ဖွင့်ရန်"
+
+msgctxt "accessibility"
+msgid "Remove item"
+msgstr "ဖယ်ရှားရန်"
+
+msgctxt "accessibility"
+msgid "Select location. Current location is %(location)s"
+msgstr "တည်နေရာ ရွေးချယ်ပါ။ လက်ရှိတည်နေရာမှာ %(location)s ဖြစ်ပါသည်"
+
+#. The remaining time left on the account measured in days.
+#. Available placeholders:
+#. %(duration)s - The remaining time measured in days.
+msgctxt "account-expiry"
+msgid "%(duration)s days"
+msgstr "%(duration)s ရက်"
+
+#. The remaining time left on the account displayed across the app.
+#. Available placeholders:
+#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
+msgctxt "account-expiry"
+msgid "%(duration)s left"
+msgstr "%(duration)s ကျန်"
+
+#. Title label in navigation bar
+msgctxt "account-view"
+msgid "Account"
+msgstr "အကောင့်"
+
+msgctxt "account-view"
+msgid "Account number"
+msgstr "အကောင့် နံပါတ်"
+
+msgctxt "account-view"
+msgid "Currently unavailable"
+msgstr "လက်ရှိ၌ မရရှိနိုင်ပါ"
+
+msgctxt "account-view"
+msgid "Log out"
+msgstr "ထွက်ရန်"
+
+msgctxt "account-view"
+msgid "OUT OF TIME"
+msgstr "အချိန်စေ့သွားပါပြီ"
+
+msgctxt "account-view"
+msgid "Paid until"
+msgstr "ဖော်ပြပါအထိ ပေးချေထားပြီး"
+
+#. Title label in navigation bar
+msgctxt "advanced-settings-nav"
+msgid "Advanced"
+msgstr "အဆင့်မြင့်"
+
+msgctxt "advanced-settings-view"
+msgid "Add a server"
+msgstr "ဆာဗာ ပေါင်းထည့်ရန်"
+
+msgctxt "advanced-settings-view"
+msgid "Add anyway"
+msgstr "မည်သို့ပင်ဖြစ်စေ ပေါင်းထည့်ရန်"
+
+msgctxt "advanced-settings-view"
+msgid "Advanced"
+msgstr "အဆင့်မြင့်"
+
+msgctxt "advanced-settings-view"
+msgid "Always require VPN"
+msgstr "အမြဲတမ်း VPN လိုအပ်သည်"
+
+msgctxt "advanced-settings-view"
+msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
+msgstr "သတိပြုရန်- ၎င်းကို ဖွင့်ခြင်းဖြင့် အင်တာနက် သုံးရန်အတွက် Mullvad VPN ချိတ်ဆက်မှုကို အမြဲ လိုအပ်ပါမည်။"
+
+msgctxt "advanced-settings-view"
+msgid "Automatic"
+msgstr "အော်တိုမက်တစ်"
+
+#. The title for the shadowsocks bridge selector section.
+msgctxt "advanced-settings-view"
+msgid "Bridge mode"
+msgstr "ပေါင်းကူး မုဒ်"
+
+msgctxt "advanced-settings-view"
+msgid "Default"
+msgstr "မူလအတိုင်း"
+
+msgctxt "advanced-settings-view"
+msgid "e.g. 10.0.0.4"
+msgstr "ဥပမာ 10.0.0.4"
+
+msgctxt "advanced-settings-view"
+msgid "Enable anyway"
+msgstr "မည်သို့ပင်ဖြစ်စေ ဖွင့်ရန်"
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6"
+msgstr "IPv6 ကို ဖွင့်ရန်"
+
+msgctxt "advanced-settings-view"
+msgid "Enable IPv6 communication through the tunnel."
+msgstr "Tunnel မှတစ်ဆင့် IPv6 ဆက်သွယ်ရေးကို လုပ်ဆောင်စေနိုင်ပါသည်။"
+
+msgctxt "advanced-settings-view"
+msgid "Enable to add at least one DNS server."
+msgstr "အနည်းဆုံး DNS ဆာဗာတစ်ခုကို ပေါင်းထည့်ပါ။"
+
+msgctxt "advanced-settings-view"
+msgid "If you disconnect or quit the app, this setting will block your internet."
+msgstr "ဤအက်ပ်နှင့် ချိတ်ဆက်မှုပြတ်သွားပါက သို့မဟုတ် ထွက်လိုက်ပါက ဤဆက်တင်သည် သင့်အင်တာနက်ကို ပိတ်ဆို့သွားပါလိမ့်မည်။"
+
+msgctxt "advanced-settings-view"
+msgid "Off"
+msgstr "ပိတ်"
+
+msgctxt "advanced-settings-view"
+msgid "On"
+msgstr "ဖွင့်"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN"
+msgstr "OpenVPN"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "advanced-settings-view"
+msgid "OpenVPN %(portType)s port"
+msgstr "OpenVPN %(portType)s ပို့တ်"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN Mssfix"
+msgstr "OpenVPN Mssfix"
+
+msgctxt "advanced-settings-view"
+msgid "OpenVPN transport protocol"
+msgstr "OpenVPN ပို့ဆောင်ရေး ပရိုတိုကောလ်"
+
+#. The hint displayed below the Mssfix input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible mssfix value
+#. %(min)d - the minimum possible mssfix value
+msgctxt "advanced-settings-view"
+msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr "OpenVPN MSS တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %(min)d - %(max)d"
+
+#. The hint displayed below the WireGuard MTU input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible wireguard mtu value
+#. %(min)d - the minimum possible wireguard mtu value
+msgctxt "advanced-settings-view"
+msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgstr "WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %(min)d - %(max)d"
+
+msgctxt "advanced-settings-view"
+msgid "Split tunneling"
+msgstr "Split Tunneling"
+
+msgctxt "advanced-settings-view"
+msgid "TCP"
+msgstr "TCP"
+
+msgctxt "advanced-settings-view"
+msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
+msgstr "ဤအက်ပ်၏ မူလပါရှိသော Kill Switch ကို အမြဲဖွင့်ထားပါ။ ထို့အပြင် ချိတ်ဆက်မှုဖြုတ်ရန် သို့မဟုတ် ထွက်ရန်ကို နှိပ်ခြင်းဖြင့် ဤဆက်တင်သည် အင်တာနက်ကို ပိတ်ဆို့သွားပါလိမ့်မည်။"
+
+#. The hint displayed below the WireGuard port selector.
+msgctxt "advanced-settings-view"
+msgid "The automatic setting will randomly choose from a wide range of ports."
+msgstr "အော်တိုဆက်တင်သည် ပို့တ်များစွာမှ ကျပန်းရွေးသွားပါလိမ့်မည်။"
+
+msgctxt "advanced-settings-view"
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgstr "ပေါင်းထည့်ရန် ကြိုးစားနေသည့် DNS ဆာဗာသည် အများသုံးဖြစ်သောကြောင့် အလုပ်မလုပ်နိုင်ပါ။ လက်ရှိ၌ လိုကယ် DNS ဆာဗာများဖြင့်သာ တွဲဖက်လုပ်ဆောင်နိုင်ပါသည်။"
+
+msgctxt "advanced-settings-view"
+msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
+msgstr "WireGuard ကို လုပ်ဆောင်နိုင်စေရန် အောက်ပါ \"WireGuard ကီး\" ဆက်တင်အောက်တွင် ကီးကို ထုတ်ပေးပါ။ "
+
+msgctxt "advanced-settings-view"
+msgid "Tunnel protocol"
+msgstr "Tunnel ပရိုတိုကောလ်"
+
+msgctxt "advanced-settings-view"
+msgid "UDP"
+msgstr "UDP"
+
+msgctxt "advanced-settings-view"
+msgid "Use custom DNS server"
+msgstr "စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard"
+msgstr "WireGuard"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard key"
+msgstr "WireGuard ကီး"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard MTU"
+msgstr "WireGuard MTU"
+
+msgctxt "advanced-settings-view"
+msgid "WireGuard port"
+msgstr "WireGuard ပို့တ်"
+
+msgctxt "advanced-settings-view-wireguard"
+msgid "missing key"
+msgstr "ကီး မရှိပါ"
+
+msgctxt "auth-failure"
+msgid "Blocking internet: account is out of time"
+msgstr "အင်တာနက် ပိတ်ဆို့ထားပါသည်- အကောင့် အချိန်စေ့သွားပါပြီ"
+
+msgctxt "auth-failure"
+msgid "Too many simultaneous connections on this account. Disconnect another device or try connecting again shortly."
+msgstr "ဤအကောင့်တွင် တစ်ပြိုင်နက် ချိတ်ဆက်မှုများ များလွန်းနေပါသည်။ အခြားစက်တွင် ချိတ်ဆက်မှု ဖြုတ်ပေးပါ သို့မဟုတ် ခဏကြာပြီးနောက် ထပ်မံချိတ်ဆက်ကြည့်ပါ။"
+
+msgctxt "auth-failure"
+msgid "Unable to authenticate account. Please contact support."
+msgstr "အကောင့် စစ်မှန်ကြောင်း သက်သေပြ၍ မရပါ။ အကူအညီရယူရန် ဆက်သွယ်ပေးပါ။"
+
+msgctxt "auth-failure"
+msgid "You are logged in with an invalid account number. Please log out and try another one."
+msgstr "မှားနေသည့် အကောင့်နံပါတ်ဖြင့် စနစ်တွင်း ဝင်ရောက်ထားပါသည်။ စနစ်တွင်းမှ ထွက်ပြီး အခြားတစ်ခုဖြင့် ကြိုးစားကြည့်ပါ။"
+
+#. The selected location label displayed on the main view, when a user selected a specific host to connect to.
+#. Example: Malmö (se-mma-001)
+#. Available placeholders:
+#. %(city)s - a city name
+#. %(hostname)s - a hostname
+msgctxt "connect-container"
+msgid "%(city)s (%(hostname)s)"
+msgstr "%(city)s (%(hostname)s)"
+
+msgctxt "connect-view"
+msgid "Always require VPN"
+msgstr "အမြဲတမ်း VPN လိုအပ်သည်"
+
+msgctxt "connect-view"
+msgid "Congrats!"
+msgstr "ဝမ်းသာပါတယ်။"
+
+msgctxt "connect-view"
+msgid "Disconnect"
+msgstr "ချိတ်ဆက်မှုဖြုတ်ရန်"
+
+msgctxt "connect-view"
+msgid "Either buy credit on our website or redeem a voucher."
+msgstr "ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။"
+
+msgctxt "connect-view"
+msgid "Here’s your account number. Save it!"
+msgstr "ဤသည်မှာ သင့်အကောင့်နံပါတ် ဖြစ်ပါသည်။ သိမ်းမှတ်ထားပါ။"
+
+msgctxt "connect-view"
+msgid "Out of time"
+msgstr "အချိန်စေ့သွားပါပြီ"
+
+msgctxt "connect-view"
+msgid "Redeem voucher"
+msgstr "ဘောက်ချာဖြင့် လဲယူရန်"
+
+msgctxt "connect-view"
+msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
+msgstr "၎င်းကို ပိတ်ခြင်းဖြင့် အဆင့်မြင့် ဆက်တင်တွင် ၎င်းကို ပြန်မဖွင့်မချင်း VPN ချိတ်ဆက်မှုဖြုတ်ထားချိန်တွင် ကွန်ရက် ကူးလူးမှုကို ခွင့်ပြုသွားမည်ဖြစ်ကြောင်း မှတ်ထားပေးပါ။"
+
+msgctxt "connect-view"
+msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
+msgstr "နောက်ထပ် ပေါင်းထည့်ရန်အတွက် ချိတ်ဆက်မှုဖြုတ်ပြီး မလုံခြုံသည့် ချိတ်ဆက်မှုဖြင့် အင်တာနက် ရယူသုံးစွဲရန် လိုပါမည်။"
+
+msgctxt "connect-view"
+msgid "To start using the app, you first need to add time to your account."
+msgstr "အက်ပ်ကို စသုံးရန်အတွက် ဦးစွာ သင့်အကောင့်တွင် အချိန်ပေါင်းထည့်ပေးရန် လိုအပ်ပါသည်။"
+
+msgctxt "connect-view"
+msgid "You have no more VPN time left on this account."
+msgstr "ဤအကောင့်တွင် နောက်ထပ် VPN သုံးနိုင်ချိန် မကျန်တော့ပါ။"
+
+msgctxt "connect-view"
+msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
+msgstr "အချိန် ပေါင်းထည့်ရန် အင်တာနက် ရယူသုံးစွဲရန်အတွက် \"အမြဲတမ်း VPN လိုအပ်သည်\"ကို ပိတ်ရန် လိုအပ်ပါသည်။"
+
+#. The hostname line displayed below the country on the main screen
+#. Available placeholders:
+#. %(relay)s - the relay hostname
+#. %(bridge)s - the bridge hostname
+msgctxt "connection-info"
+msgid "%(relay)s via %(bridge)s"
+msgstr "%(bridge)s မှတစ်ဆင့် %(relay)s"
+
+#. The tunnel type line displayed below the hostname line on the main screen
+#. Available placeholders:
+#. %(tunnelType)s - the tunnel type, i.e OpenVPN
+#. %(bridgeType)s - the bridge type, i.e Shadowsocks
+msgctxt "connection-info"
+msgid "%(tunnelType)s via %(bridgeType)s"
+msgstr "%(bridgeType)s မှတစ်ဆင့် %(tunnelType)s"
+
+msgctxt "connection-info"
+msgid "In"
+msgstr "အဝင်"
+
+msgctxt "connection-info"
+msgid "Out"
+msgstr "အထွက်"
+
+#. The message displayed to the user in case of critical error in the GUI
+#. Available placeholders:
+#. %(email)s - support email
+msgctxt "error-boundary-view"
+msgid "Something went wrong. Please contact us at %(email)s"
+msgstr "တစ်စုံတစ်ခု မှားနေပါသည်။ %(email)s မှတစ်ဆင့် ကျွန်ုပ်တို့ထံ ဆက်သွယ်ပေးပါ"
+
+msgctxt "generic"
+msgid "Mullvad VPN"
+msgstr "Mullvad VPN"
+
+msgctxt "generic"
+msgid "MULLVAD VPN"
+msgstr "MULLVAD VPN"
+
+msgctxt "in-app-notifications"
+msgid "\"Always require VPN\" is enabled."
+msgstr "\"အမြဲတမ်း VPN လိုအပ်သည်\"ကို ဖွင့်ထားပါသည်။"
+
+msgctxt "in-app-notifications"
+msgid "%(duration)s. Buy more credit."
+msgstr "%(duration)s ။ နောက်ထပ် ခရက်ဒစ်များ ဝယ်ယူပါ။"
+
+msgctxt "in-app-notifications"
+msgid "ACCOUNT CREDIT EXPIRES SOON"
+msgstr "မကြာမီ အကောင့် ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်"
+
+msgctxt "in-app-notifications"
+msgid "APP IS OUT OF SYNC"
+msgstr "အက်ပ်သည် ကောင်းစွာ အလုပ်မလုပ်ပါ"
+
+msgctxt "in-app-notifications"
+msgid "BLOCKING INTERNET"
+msgstr "အင်တာနက် ပိတ်ဆို့နေပါသည်"
+
+msgctxt "in-app-notifications"
+msgid "Install the latest app version to stay up to date."
+msgstr "အပ်ဒိတ်ဖြစ်နေစေရန် နောက်ဆုံးထွက် အက်ပ်ဗားရှင်းကို ထည့်သွင်းပါ။"
+
+msgctxt "in-app-notifications"
+msgid "Manage keys under Advanced settings."
+msgstr "အဆင့်မြင့် ဆက်တင်များအောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။"
+
+msgctxt "in-app-notifications"
+msgid "NETWORK TRAFFIC MIGHT BE LEAKING"
+msgstr "ကွန်ရက် ကူးလူးမှု ပေါက်ကြားနေနိုင်ပါသည်"
+
+msgctxt "in-app-notifications"
+msgid "Please quit and restart the app."
+msgstr "ထွက်ပြီး အက်ပ်ကို အစမှ ပြန်ဖွင့်ပေးပါ။"
+
+msgctxt "in-app-notifications"
+msgid "UNSUPPORTED VERSION"
+msgstr "တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဗားရှင်း"
+
+msgctxt "in-app-notifications"
+msgid "UPDATE AVAILABLE"
+msgstr "အပ်ဒိတ် ရရှိနိုင်ပါပြီ"
+
+msgctxt "in-app-notifications"
+msgid "VALID WIREGUARD KEY IS MISSING"
+msgstr "အကျုံးဝင်သည့် WireGuard ကီး မရှိပါ"
+
+msgctxt "launch-view"
+msgid "Connecting to Mullvad system service..."
+msgstr "Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ..."
+
+msgctxt "login-view"
+msgid "Account created"
+msgstr "အကောင့် ဖန်တီးပြီး"
+
+msgctxt "login-view"
+msgid "Checking account number"
+msgstr "အကောင့်နံပါတ်ကို စစ်နေပါသည်"
+
+msgctxt "login-view"
+msgid "Create account"
+msgstr "အကောင့် ဖန်တီးရန်"
+
+msgctxt "login-view"
+msgid "Creating account..."
+msgstr "အကောင့် ဖန်တီးနေဆဲ..."
+
+msgctxt "login-view"
+msgid "Don't have an account number?"
+msgstr "အကောင့်နံပါတ် မရှိ ဖြစ်နေပါသလား။"
+
+msgctxt "login-view"
+msgid "Enter your account number"
+msgstr "သင့်အကောင့်နံပါတ်ကို ဖြည့်သွင်းပါ"
+
+msgctxt "login-view"
+msgid "Error"
+msgstr "ချို့ယွင်းချက်"
+
+msgctxt "login-view"
+msgid "Failed to create account"
+msgstr "အကောင့် ဖန်တီးရန် မအောင်မြင်ခဲ့ပါ"
+
+msgctxt "login-view"
+msgid "Logged in"
+msgstr "ဝင်ရောက်ထားပြီး"
+
+msgctxt "login-view"
+msgid "Logging in..."
+msgstr "ဝင်ရောက်နေဆဲ..."
+
+msgctxt "login-view"
+msgid "Login"
+msgstr "ဝင်ရန်"
+
+msgctxt "login-view"
+msgid "Login failed"
+msgstr "ဝင်ရောက်မှု မအောင်မြင်ပါ"
+
+msgctxt "login-view"
+msgid "Please wait"
+msgstr "ကျေးဇူးပြု၍ စောင့်ပေးပါ"
+
+msgctxt "login-view"
+msgid "Unknown error"
+msgstr "မသိသည့် ချို့ယွင်းချက်"
+
+msgctxt "login-view"
+msgid "Valid account number"
+msgstr "မှန်ကန်သည့် အကောင့်နံပါတ်"
+
+#. Back button in navigation bar
+msgctxt "navigation-bar"
+msgid "Advanced"
+msgstr "အဆင့်မြင့်"
+
+#. Back button in navigation bar
+#. Title label in navigation bar
+msgctxt "navigation-bar"
+msgid "Settings"
+msgstr "ဆက်တင်"
+
+#. The system notification displayed to the user when the account credit is close to expiry.
+#. Available placeholder:
+#. %(duration)s - remaining time, e.g. "2 days"
+msgctxt "notifications"
+msgid "Account credit expires in %(duration)s. Buy more credit."
+msgstr "အကောင့်ခရက်ဒစ်သည် %(duration)s တွင် သက်တမ်းကုန်ပါမည်။ နောက်ထပ် ခရက်ဒစ်များ ဝယ်ပါ။"
+
+msgctxt "notifications"
+msgid "Account is out of time"
+msgstr "အကောင့် အချိန်စေ့သွားပါပြီ"
+
+msgctxt "notifications"
+msgid "App is out of sync. Please quit and restart."
+msgstr "အက်ပ်သည် ကောင်းစွာ အလုပ်မလုပ်ပါ။ ထွက်ပြီး ပြန်ဖွင့်ပါ။"
+
+msgctxt "notifications"
+msgid "Buy more"
+msgstr "နောက်ထပ် ဝယ်ရန်"
+
+msgctxt "notifications"
+msgid "Connected"
+msgstr "ချိတ်ဆက်ပြီး"
+
+#. The message showed when a server has been connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connected to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connected to %(location)s"
+msgstr "%(location)s နှင့် ချိတ်ဆက်ထားပါသည်"
+
+msgctxt "notifications"
+msgid "Connecting"
+msgstr "ချိတ်ဆက်နေပါသည်"
+
+#. The message showed when a server is being connected to.
+#. Available placeholder:
+#. %(location) - name of the server location we're connecting to (e.g. "se-got-003")
+msgctxt "notifications"
+msgid "Connecting to %(location)s"
+msgstr "%(location)s နှင့် ချိတ်ဆက်နေပါသည်"
+
+msgctxt "notifications"
+msgid "Could not configure IPv6. Disable it in the app or enable it on your device."
+msgstr "IPv6 ကို သတ်မှတ်ချိန်ညှိ၍ မရနိုင်ပါ။ အက်ပ်တွင် ၎င်းကို ပိတ်ပါ သို့မဟုတ် သင့်စက်တွင် ၎င်းကို ဖွင့်ပါ။"
+
+msgctxt "notifications"
+msgid "Disconnected and unsecured"
+msgstr "ချိတ်ဆက်မှုဖြုတ်ပြီး မလုံခြုံတော့ပါ"
+
+msgctxt "notifications"
+msgid "Reconnecting"
+msgstr "ပြန်ချိတ်ဆက်နေပါသည်"
+
+msgctxt "notifications"
+msgid "Unable to apply firewall rules."
+msgstr "Firewall စည်းမျဉ်းများ သုံး၍ မရနိုင်ပါ။"
+
+msgctxt "notifications"
+msgid "Unable to apply firewall rules. Try disabling any third-party antivirus or security software."
+msgstr "Firewall စည်းမျဉ်းများ သုံး၍ မရနိုင်ပါ။ ပြင်ပအဖွဲ့အစည်း ဗိုင်းရပ်စ် ကာကွယ်ရေး သို့မဟုတ် လုံခြုံရေး ဆော့ဖ်ဝဲကို ပိတ်ကြည့်ပါ။"
+
+msgctxt "notifications"
+msgid "Unable to apply firewall rules. Try updating your kernel."
+msgstr "Firewall စည်းမျဉ်းများ သုံး၍ မရနိုင်ပါ။ သင့် Kernel ကို အပ်ဒိတ်လုပ်ကြည့်ပါ။"
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Please troubleshoot or contact support."
+msgstr "ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့၍ မရနိုင်ပါ။ ပြစ်ချက်ရှာဖွေ ဖယ်ရှားပေးပါ သို့မဟုတ် အကူအညီ ရယူရန် ဆက်သွယ်ပါ။"
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try disabling any third-party antivirus or security software or contact support."
+msgstr "ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့၍ မရနိုင်ပါ။ ပြင်ပအဖွဲ့အစည်း ဗိုင်းရပ်စ် ကာကွယ်ရေး သို့မဟုတ် လုံခြုံရေး ဆော့ဖ်ဝဲကို ပိတ်ကြည့်ပါ သို့မဟုတ် အကူအညီ ရယူရန် ဆက်သွယ်ပါ။"
+
+msgctxt "notifications"
+msgid "Unable to block all network traffic. Try updating your kernel or contact support."
+msgstr "ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့၍ မရနိုင်ပါ။ သင့် Kernel ကို အပ်ဒိတ်လုပ်ကြည့်ပါ သို့မဟုတ် အကူအညီ ရယူရန် ဆက်သွယ်ပါ။"
+
+msgctxt "notifications"
+msgid "Unable to resolve host of custom tunnel. Try changing your settings."
+msgstr "စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။"
+
+msgctxt "notifications"
+msgid "Unable to set system DNS server. Please contact support."
+msgstr "စနစ် DNS ဆာဗာကို သတ်မှတ်၍ မရနိုင်ပါ။ အကူအညီ ရယူရန် ဆက်သွယ်ပေးပါ။"
+
+msgctxt "notifications"
+msgid "Unable to start tunnel connection. Please contact support."
+msgstr "Tunnel ချိတ်ဆက်မှုကို စတင်၍ မရနိုင်ပါ။ အကူအညီ ရယူရန် ဆက်သွယ်ပေးပါ။"
+
+msgctxt "notifications"
+msgid "Update available. Install the latest app version to stay up to date"
+msgstr "အပ်ဒိတ် ရရှိနိုင်ပါပြီ။ အပ်ဒိတ်ဖြစ်နေစေရန် နောက်ဆုံးထွက် အက်ပ်ဗားရှင်းကို ထည့်သွင်းပါ"
+
+msgctxt "notifications"
+msgid "Upgrade"
+msgstr "အဆင့်မြှင့်တင်ရန်"
+
+msgctxt "notifications"
+msgid "Valid WireGuard key is missing. Manage keys under Advanced settings."
+msgstr "အကျုံးဝင်သည့် WireGuard ကီး မရှိပါ။ အဆင့်မြင့်ဆက်တင် အောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။"
+
+msgctxt "notifications"
+msgid "Your device is offline. Try connecting when it's back online."
+msgstr "သင့်စက်သည် အော့ဖ်လိုင်း ဖြစ်နေပါသည်။ အွန်လိုင်း ပြန်ဖြစ်ချိန်တွင် ချိတ်ဆက်ကြည့်ပါ။"
+
+#. The in-app banner and system notification which are displayed to the user when the running app becomes unsupported.
+msgctxt "notifications"
+msgid "Your privacy might be at risk with this unsupported app version. Please update now."
+msgstr "တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဤအက်ပ်ဗားရှင်းကြောင့် သင့်ကိုယ်ရေးအချက်အလက်များ အန္တရာယ် ရှိနိုင်ပါသည်။ ယခုပင် အပ်ဒိတ်လုပ်ပေးပါ။"
+
+msgctxt "notifications"
+msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
+msgstr "သင်ရွေးထားသည့် ဆာဗာနှင့် Tunnel ပရိုတိုကောလ်သည် ကိုက်ညီမှု မရှိပါ။ သင့်ဆက်တင်ကို ချိန်ပေးပါ။"
+
+#. Title label in navigation bar
+msgctxt "preferences-nav"
+msgid "Preferences"
+msgstr "လိုလားမှုများ"
+
+msgctxt "preferences-view"
+msgid "Allows access to other devices on the same network for sharing, printing etc."
+msgstr "ဝေမျှရန်၊ ပရင့်ထုတ်ရန်စသည်တို့အတွက် တူညီသည့် ကွန်ရက်ရှိ အခြားစက်များ ရယူသုံးစွဲခွင့်ပြုပေးပါသည်။"
+
+msgctxt "preferences-view"
+msgid "Auto-connect"
+msgstr "အော်တို ချိတ်ဆက်မှု"
+
+msgctxt "preferences-view"
+msgid "Automatically connect to a server when the app launches."
+msgstr "အက်ပ် စတင်ဆောင်ရွက်ချိန်တွင် ဆာဗာနှင့် အော်တို ချိတ်ဆက်သွားပါမည်။"
+
+msgctxt "preferences-view"
+msgid "Beta program"
+msgstr "စမ်းသပ် ပရိုဂရမ်"
+
+msgctxt "preferences-view"
+msgid "Enable or disable system notifications. The critical notifications will always be displayed."
+msgstr "စနစ် အသိပေးချက်များကို ဖွင့်ပါ သို့မဟုတ် ပိတ်ပါ။ အလွန်အရေးပါသည့် အသိပေးချက်များကို အမြဲပြသပါလိမ့်မည်။"
+
+msgctxt "preferences-view"
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr "အက်ပ်၏ စမ်းသပ်ဗားရှင်း အသစ်ကို ဖြန့်ချိသည့်အခါ အသိပေးစေရန် ဖွင့်ထားပါ။"
+
+msgctxt "preferences-view"
+msgid "Enable to move the app around as a free-standing window."
+msgstr "အက်ပ်အား လွတ်လပ်သည့် သီးသန့် ဝင်းဒိုးအဖြစ် ရွှေ့နိုင်စေပါသည်။"
+
+msgctxt "preferences-view"
+msgid "Launch app on start-up"
+msgstr "စက်အတွင်း စတင်ဝင်ရောက်ချိန်တွင် အက်ပ်ကို စတင်ဆောင်ရွက်မှု"
+
+msgctxt "preferences-view"
+msgid "Local network sharing"
+msgstr "လိုကယ် ကွန်ရက် ဝေမျှမှု"
+
+msgctxt "preferences-view"
+msgid "Monochromatic tray icon"
+msgstr "တစ်ရောင်တည်းပြ မီနျူးဘား အိုင်ကွန်"
+
+msgctxt "preferences-view"
+msgid "Notifications"
+msgstr "အသိပေးချက်များ"
+
+msgctxt "preferences-view"
+msgid "Preferences"
+msgstr "လိုလားမှုများ"
+
+msgctxt "preferences-view"
+msgid "Show only the tray icon when the app starts."
+msgstr "အက်ပ် စတင်ချိန်တွင် မီနျူးဘား အိုင်ကွန်ကိုသာ ပြသပါ။"
+
+msgctxt "preferences-view"
+msgid "Start minimized"
+msgstr "စတင်မှု အကျဉ်းချုံ့ထားမှု"
+
+msgctxt "preferences-view"
+msgid "This option is unavailable while using a beta version."
+msgstr "စမ်းသပ်ဗားရှင်းကို သုံးနေစဉ် ဤရွေးချယ်မှုကို မရရှိနိုင်ပါ။"
+
+msgctxt "preferences-view"
+msgid "Unpin app from taskbar"
+msgstr "အက်ပ်ကို လုပ်ဆောင်ချက်ဘားတွင် ပင်တွဲထားသည်မှ ဖြုတ်ရန်"
+
+msgctxt "preferences-view"
+msgid "Use a monochromatic tray icon instead of a colored one."
+msgstr "ရောင်စုံအစား တစ်ရောင်တည်းပြ မီနျူးဘား အိုင်ကွန်ကို သုံးပါသည်။"
+
+msgctxt "redeem-voucher-alert"
+msgid "Cancel"
+msgstr "မလုပ်တော့ပါ"
+
+msgctxt "redeem-voucher-alert"
+msgid "Enter voucher code"
+msgstr "ဘောက်ချာကုဒ် ဖြည့်သွင်းရန်"
+
+msgctxt "redeem-voucher-alert"
+msgid "Redeem voucher"
+msgstr "ဘောက်ချာဖြင့် လဲယူရန်"
+
+msgctxt "redeem-voucher-view"
+msgid "An error occurred."
+msgstr "ချို့ယွင်းချက် ဖြစ်ပေါ်ခဲ့ပါသည်။"
+
+msgctxt "redeem-voucher-view"
+msgid "Redeem"
+msgstr "လဲယူရန်"
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code has already been used."
+msgstr "ဘောက်ချာကုဒ် သုံးထားပြီးသား ဖြစ်ပါသည်။"
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher code is invalid."
+msgstr "ဘောက်ချာကုဒ် မှားနေပါသည်။"
+
+msgctxt "redeem-voucher-view"
+msgid "Voucher was successfully redeemed."
+msgstr "ဘောက်ချာကို အောင်မြင်စွာ လဲယူခဲ့ပါသည်။"
+
+#. Title label in navigation bar
+msgctxt "select-language-nav"
+msgid "Select language"
+msgstr "ဘာသာစကား ရွေးရန်"
+
+msgctxt "select-location-nav"
+msgid "Entry"
+msgstr "အဝင်"
+
+msgctxt "select-location-nav"
+msgid "Exit"
+msgstr "အထွက်"
+
+#. Title label in navigation bar
+msgctxt "select-location-nav"
+msgid "Select location"
+msgstr "တည်နေရာ ရွေးရန်"
+
+msgctxt "select-location-view"
+msgid "Closest to exit server"
+msgstr "ထွက်ရန် အနီးဆုံး ဆာဗာ"
+
+msgctxt "select-location-view"
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr "ချိတ်ဆက်ထားချိန်တွင် သင့်တည်နေရာအမှန်ကို ရွေးချယ်ထားသည့် ဒေသရှိ လျှို့ဝှက်လုံခြုံသည့် တည်နေရာဖြင့် ဖုံးကွယ်ထားပါသည်။"
+
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
+msgstr "ချိတ်ဆက်ထားစဉ် သင့်ကူးလူးမှုကို လုံခြုံသည့် အဝင်ပွိုင့် (ပေါင်းကူးဆာဗာ)နှင့် အထွက်ပွိုင့် (VPN ဆာဗာ) တည်နေရာ နှစ်ခုမှ လမ်းကြောင်းပေးပို့သွားမည် ဖြစ်ပါသည်။"
+
+#. Navigation button to the 'Account' view
+msgctxt "settings-view"
+msgid "Account"
+msgstr "အကောင့်"
+
+#. Navigation button to the 'Advanced' settings view
+msgctxt "settings-view"
+msgid "Advanced"
+msgstr "အဆင့်မြင့်"
+
+msgctxt "settings-view"
+msgid "App is out of sync. Please quit and restart."
+msgstr "အက်ပ်သည် ကောင်းစွာ အလုပ်မလုပ်ပါ။ ထွက်ပြီး ပြန်ဖွင့်ပေးပါ။"
+
+msgctxt "settings-view"
+msgid "App version"
+msgstr "အက်ပ်ဗားရှင်း"
+
+#. Link to the webpage
+msgctxt "settings-view"
+msgid "FAQs & Guides"
+msgstr "မေးလေ့ရှိသည့် မေးခွန်းများနှင့် လမ်းညွှန်များ"
+
+#. Navigation button to the 'Language' settings view
+msgctxt "settings-view"
+msgid "Language"
+msgstr "ဘာသာစကား"
+
+msgctxt "settings-view"
+msgid "OUT OF TIME"
+msgstr "အချိန်စေ့သွားပါပြီ"
+
+#. Navigation button to the 'Preferences' view
+msgctxt "settings-view"
+msgid "Preferences"
+msgstr "လိုလားမှုများ"
+
+msgctxt "settings-view"
+msgid "Quit app"
+msgstr "အက်ပ်မှ ထွက်ရန်"
+
+#. Navigation button to the 'Report a problem' help view
+msgctxt "settings-view"
+msgid "Report a problem"
+msgstr "ပြဿနာကို ရီပို့တ်လုပ်ရန်"
+
+msgctxt "settings-view"
+msgid "Update available. Install the latest app version to stay up to date."
+msgstr "အပ်ဒိတ် ရရှိနိုင်ပါပြီ။ အပ်ဒိတ်ဖြစ်နေစေရန် နောက်ဆုံးထွက် အက်ပ်ဗားရှင်းကို ထည့်သွင်းပါ။"
+
+#. Title label in navigation bar
+msgctxt "split-tunneling-nav"
+msgid "Split tunneling"
+msgstr "Split Tunneling"
+
+msgctxt "split-tunneling-view"
+msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
+msgstr "%(applicationName)s သည် ပြဿနာဖြစ်စေပြီး VPN Tunnel မှ ဖယ်၍ မရနိုင်ပါ။"
+
+msgctxt "split-tunneling-view"
+msgid "Browse"
+msgstr "လေ့လာရန်"
+
+msgctxt "split-tunneling-view"
+msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
+msgstr "၎င်းကို စတင်ဆောင်ရွက်ရန် အက်ပ်ကို နှိပ်ပါ။ ၎င်းကူးလူးမှုသည် ၎င်းကို သင်မပိတ်မချင်း VPN Tunnel ကို သုံး၍ ရှောင်ကွင်းသွားပါမည်။"
+
+msgctxt "split-tunneling-view"
+msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
+msgstr "၎င်းသည် လုပ်ဆောင်နေပြီး ဖြစ်ပါက ၎င်းကို ဤမှ စတင်မဆောင်ရွက်မီ %(applicationName)s ကို ပိတ်ပါ။ သို့မဟုတ်ပါက ၎င်းကို VPN Tunnel မှ ဖယ်၍ ရနိုင်မည် မဟုတ်ပါ။"
+
+msgctxt "split-tunneling-view"
+msgid "Launch"
+msgstr "စတင်ဆောင်ရွက်ရန်"
+
+msgctxt "split-tunneling-view"
+msgid "Launch application"
+msgstr "အပလီကေးရှင်းကို စတင်ဆောင်ရွက်ရန်"
+
+#. This error message is shown if the user tries to launch a Linux desktop
+#. entry file that doesn't contain the required 'Exec' value.
+msgctxt "split-tunneling-view"
+msgid "Please contact support."
+msgstr "အကူအညီ ရယူရန် ဆက်သွယ်ပေးပါ။"
+
+#. This error message is shown if the user tries to launch an app that
+#. doesn't exist.
+#. This error message is shown if an application failes during startup.
+msgctxt "split-tunneling-view"
+msgid "Please try again or contact support."
+msgstr "ထပ်ကြိုးစားပေးပါ သို့မဟုတ် အကူအညီ ရယူရန် ဆက်သွယ်ပေးပါ။"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling"
+msgstr "Split Tunneling"
+
+#. Error message showed in a dialog when an application failes to launch.
+msgctxt "split-tunneling-view"
+msgid "Unable to launch selection. %(detailedErrorMessage)s"
+msgstr "ရွေးချယ်မှုကို စတင်ဆောင်ရွက်၍ မရနိုင်ပါ။ %(detailedErrorMessage)s"
+
+msgctxt "support-view"
+msgid "Continue anyway"
+msgstr "မည်သို့ပင်ဖြစ်စေ ဆက်လုပ်ရန်"
+
+msgctxt "support-view"
+msgid "Edit message"
+msgstr "မက်ဆေ့ချ် တည်းဖြတ်ရန်"
+
+msgctxt "support-view"
+msgid "Failed to send"
+msgstr "ပို့ရန် မအောင်မြင်ခဲ့ပါ"
+
+#. The message displayed to the user after submitting the problem report, given that the user left his or her email for us to reach back.
+#. Available placeholders:
+#. %(email)s
+msgctxt "support-view"
+msgid "If needed we will contact you at %(email)s"
+msgstr "လိုအပ်ပါက %(email)s မှတစ်ဆင့် ကျွန်ုပ်တို့ထံ ဆက်သွယ်ပါ"
+
+msgctxt "support-view"
+msgid "If you exit the form and try again later, the information you already entered will still be here."
+msgstr "ဖောင်မှ ထွက်ပြီး နောက်မှ ထပ်ကြိုးစားကြည့်ပါ၊ သင်ဖြည့်ထားသည့် အချက်အလက်များသည် ဤတွင် ဆက်ရှိနေပါမည်။"
+
+msgctxt "support-view"
+msgid "Please describe your problem in English or Swedish."
+msgstr "သင့်ပြဿနာကို အင်္ဂလိပ်ဘာသာ သို့မဟုတ် ဆွီဒင်ဘာသာဖြင့် ဖော်ပြပေးပါ။"
+
+#. Title label in navigation bar
+msgctxt "support-view"
+msgid "Report a problem"
+msgstr "ပြဿနာ ရီပို့တ်လုပ်ရန်"
+
+msgctxt "support-view"
+msgid "Send"
+msgstr "ပို့ရန်"
+
+msgctxt "support-view"
+msgid "Send anyway"
+msgstr "မည်သို့ပင်ဖြစ်စေ ပို့ရန်"
+
+msgctxt "support-view"
+msgid "Sending..."
+msgstr "ပို့နေဆဲ..."
+
+msgctxt "support-view"
+msgid "Sent"
+msgstr "ပို့ပြီး"
+
+msgctxt "support-view"
+msgid "Thanks!"
+msgstr "ကျေးဇူးတင်ပါသည်။"
+
+msgctxt "support-view"
+msgid "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
+msgstr "သင့်အား ပိုမိုထိရောက်စွာ ကူညီနိုင်ရန် သင့်အက်ပ်၏ မှတ်တမ်းဖိုင်ကို ဤမက်ဆေ့ချ်နှင့်အတူ တွဲပေးသွားပါမည်။ ကုဒ်ပြောင်းဝှက်ထားသည့် ချန်နယ်မှတစ်ဆင့် မပေးပို့မီ သင့်ဒေတာများကို အမည်မဖော်ဘဲ ထားမည်ဖြစ်သောကြောင့် လျှို့ဝှက်လုံခြုံလျက် ရှိနေပါမည်။"
+
+msgctxt "support-view"
+msgid "Try again"
+msgstr "ထပ်ကြိုးစားရန်"
+
+msgctxt "support-view"
+msgid "Upgrade app"
+msgstr "အက်ပ်ကို အဆင့်မြှင့်တင်ရန်"
+
+msgctxt "support-view"
+msgid "View app logs"
+msgstr "အက်ပ်မှတ်တမ်းများ ကြည့်ရန်"
+
+msgctxt "support-view"
+msgid "We will look into this."
+msgstr "ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။"
+
+msgctxt "support-view"
+msgid "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address."
+msgstr "သင်သည် သင့်ထံ ကျွန်ုပ်တို့ ပြန်ဆက်သွယ်နိုင်မည့် နည်းလမ်း မပါဘဲ ပြဿနာ ရီပို့တ်ကို ပေးပို့တော့မည် ဖြစ်ပါသည်။ သင့်ရီပို့တ်အတွက် အဖြေ ရရှိလိုပါက အီမေးလိပ်စာ ဖြည့်သွင်းပေးရပါမည်။"
+
+msgctxt "support-view"
+msgid "You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report."
+msgstr "သင်သည် ဤအက်ပ်၏ ဗားရှင်းအဟောင်းကို သုံးနေပါသည်။ အဆင့်မြှင့်တင်ပေးပြီး ရီပို့တ် မပို့မီ ပြဿနာ ဆက်ရှိနေခြင်း ရှိ မရှိ စစ်ဆေးပေးပါ။"
+
+msgctxt "support-view"
+msgid "Your email (optional)"
+msgstr "သင့်အီးမေးလ် (မဖြည့်လည်း ရပါသည်)"
+
+msgctxt "tray-icon-context-menu"
+msgid "Open %(mullvadVpn)s"
+msgstr "%(mullvadVpn)s ကို ဖွင့်ရန်"
+
+msgctxt "tunnel-control"
+msgid "Secure my connection"
+msgstr "ကျွန်ုပ်၏ ချိတ်ဆက်မှုကို ကာကွယ်ရန်"
+
+msgctxt "tunnel-control"
+msgid "Switch location"
+msgstr "တည်နေရာ ပြောင်းရန်"
+
+msgctxt "wireguard-key-view"
+msgid "Failed to generate a key"
+msgstr "ကီး ထုတ်ရန် မအောင်မြင်ခဲ့ပါ"
+
+msgctxt "wireguard-key-view"
+msgid "Generate key"
+msgstr "ကီး ထုတ်ရန်"
+
+msgctxt "wireguard-key-view"
+msgid "Generating key"
+msgstr "ကီး ထုတ်နေပါသည်"
+
+msgctxt "wireguard-key-view"
+msgid "Key generated"
+msgstr "ကီး ထုတ်ပြီး"
+
+msgctxt "wireguard-key-view"
+msgid "Key is invalid"
+msgstr "ကီး မှားနေပါသည်"
+
+msgctxt "wireguard-key-view"
+msgid "Key is valid"
+msgstr "ကီး မှန်ပါသည်"
+
+msgctxt "wireguard-key-view"
+msgid "Key verification failed"
+msgstr "ကီးစစ်ဆေးမှု မအောင်မြင်ပါ"
+
+msgctxt "wireguard-key-view"
+msgid "Manage keys"
+msgstr "ကီးများ စီမံခန့်ခွဲရန်"
+
+msgctxt "wireguard-key-view"
+msgid "No key set"
+msgstr "သတ်မှတ်ထားသည့် ကီး မရှိပါ"
+
+msgctxt "wireguard-key-view"
+msgid "Public key"
+msgstr "အများသုံး ကီး"
+
+msgctxt "wireguard-key-view"
+msgid "Reconnecting with new WireGuard key..."
+msgstr "WireGuard ကီးအသစ်ဖြင့် ပြန်ချိတ်ဆက်နေဆဲ..."
+
+msgctxt "wireguard-key-view"
+msgid "Regenerate key"
+msgstr "ကီး ပြန်ထုတ်ရန်"
+
+msgctxt "wireguard-key-view"
+msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
+msgstr "ကီး ပြန်ထုတ်၍ မရနိုင်ပါ- သင့်တွင် ကီးအရေအတွက် အများဆုံး ပမာဏအထိ ရှိနေပြီ ဖြစ်ပါသည်။ ကီးအသစ် ထုတ်ရန်အတွက် ဦးစွာ \"ကီးများ စီမံခန့်ခွဲရန်\"အောက်တွင် တစ်ခုကို ရုပ်သိမ်းပေးရန် လိုပါသည်။"
+
+msgctxt "wireguard-key-view"
+msgid "Verify key"
+msgstr "ကီး စစ်ဆေးရန်"
+
+#. Back button in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "Advanced"
+msgstr "အဆင့်မြင့်"
+
+#. Title label in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "WireGuard key"
+msgstr "WireGuard ကီး"
+
+msgid "Blocking internet"
+msgstr "အင်တာနက် ပိတ်ဆို့ထားပါသည်"
+
+msgid "Copied Mullvad account number to clipboard"
+msgstr "Mullvad အကောင့်နံပါတ်ကို ကလစ်ဘုတ်တွင် ကူးထားပါသည်"
+
+msgid "No bridge relay server matches the current settings"
+msgstr "လက်ရှိဆက်တင်နှင့် ကိုက်ညီသည့် ပေါင်းကူး ထပ်ဆင့်ဆာဗာ မရှိပါ"
+
+msgid "less than a day left"
+msgstr "တစ်ရက်အောက်သာ ကျန်တော့သည်"
+
+msgid "less than a minute ago"
+msgstr "လွန်ခဲ့သော စက္ကန့်ပိုင်း"
+
+msgid "Copied WireGuard public key to clipboard"
+msgstr "WireGuard အများသုံး ကီးကို ကလစ်ဘုတ်တွင် ကူးထားပါသည်"
+
+msgid "Shows current VPN tunnel status"
+msgstr "လက်ရှိ VPN Tunnel အခြေအနေကို ပြသပေးပါသည်"
+
+msgid "Secured"
+msgstr "လုံခြုံပါသည်"
+
+msgid "Blocking all connections"
+msgstr "ချိတ်ဆက်မှု အားလုံးကို ပိတ်ဆို့ထားပါသည်"
+
+msgid "Account credit expires soon"
+msgstr "မကြာမီ အကောင့် ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်"
+
+msgid "Disconnecting"
+msgstr "ချိတ်ဆက်မှုဖြုတ်နေပါသည်"
+
+msgid "Too many WireGuard keys registered to account"
+msgstr "အကောင့်တွင် စာရင်းသွင်းထားသည့် WireGuard ကီးများ များလွန်းနေပါသည်"
+
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr "Split Tunneling သည် VPN Tunnel မှတစ်ဆင့် လမ်းကြောင်းအတိုင်း မပို့သင့်သည့် အက်ပ်များကို ရွေးချယ်နိုင်ပါသည်။"
+
+msgid "WireGuard public key"
+msgstr "WireGuard အများသုံး ကီး"
+
+msgid "Account authentication failed."
+msgstr "အကောင့် စစ်မှန်ကြောင်း သက်သေပြမှု မအောင်မြင်ပါ။"
+
+msgid "Could not configure IPv6"
+msgstr "IPv6 ကို သတ်မှတ်ချိန်ညှိ၍ မရနိုင်ပါ"
+
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr "သင်သည် တွဲဖက်မလုပ်ဆောင်နိုင်သည့် အက်ပ်ဗားရှင်းကို သုံးနေပါသည်။ သင့်လုံခြုံရေးအတွက် ယခုပင် %s အထိ အဆင့်မြှင့်တင်ပေးပါ"
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr "Tunnel ဖန်တီးနေစဉ် VPN ခွင့်ပြုချက်ကို ပယ်ချခဲ့ပါသည်။ ထပ်မံချိတ်ဆက်ပေးပါ။"
+
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr "Firewall စည်းမျဉ်းများ သုံး၍ မရနိုင်ပါ။ စက်သည် လက်ရှိ၌ မလုံခြုံနိုင်ပါ"
+
+msgid "Account time reminders"
+msgstr "အကောင့်အချိန် သတိပေးချက်များ"
+
+msgid "Enable"
+msgstr "ဖွင့်ရန်"
+
+msgid "WireGuard error"
+msgstr "WireGuard ချို့ယွင်းချက်"
+
+msgid "This device is offline, no tunnels can be established"
+msgstr "ဤစက်သည် အော့ဖ်လိုင်း ဖြစ်နေပါသည်၊ Tunnel များ ဖန်တီး၍ မရနိုင်ပါ"
+
+msgid "Update available, download to remain safe."
+msgstr "အပ်ဒိတ် ရရှိနိုင်ပါပြီ၊ ဆက်လက် လုံခြုံစေရန် ဒေါင်းလုဒ်လုပ်ပါ။"
+
+msgid "You may need to go back to the app\\'s main screen and click Disconnect before trying again. Don\\'t worry, the information you entered will remain in the form."
+msgstr "သင်သည် အက်ပ်၏ ပင်မ စာမျက်နှာသို့ ပြန်သွားရန် လိုပြီး ထပ်မကြိုးစားမီ ချိတ်ဆက်မှုဖြုတ်ရန်ကို နှိပ်ပါ။ စိတ်မပူပါနှင့်၊ သင်ဖြည့်သွင်းထားသည့် အချက်အလက်များသည် ဖောင်တွင် ကျန်ရှိနေပါမည်။"
+
+msgid "Virtual adapter error"
+msgstr "စက်တွင်း အဒက်တာ ချို့ယွင်းချက်"
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့ရန် မအောင်မြင်ပါ။ ပြစ်ချက်ရှာဖွေ ဖယ်ရှားပေးပါ သို့မဟုတ် ပြဿနာကို ကျွန်ုပ်တို့ထံ ရီပို့တ်လုပ်ပေးပါ။"
+
+msgid "Failed to set system DNS server"
+msgstr "စနစ် DNS ဆာဗာ သတ်မှတ်ချိန်ညှိရန် မအောင်မြင်ပါ"
+
+msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr "အပ်ဒိတ် ဖြစ်နေစေရန် Mullvad VPN (%s) ကို ထည့်သွင်းပါ"
+
+msgid "Critical error (your attention is required)"
+msgstr "အလွန်အရေးပါသည့် ချို့ယွင်းချက် (သင့်အာရုံစိုက်မှု လိုအပ်ပါသည်)"
+
+msgid "You are running an unsupported app version."
+msgstr "တွဲဖက်မလုပ်ဆောင်နိုင်သည့် အက်ပ်ဗားရှင်းဖြင့် လုပ်ဆောင်နေပါသည်။"
+
+msgid "Custom DNS server addresses %s are invalid"
+msgstr "စိတ်ကြိုက် DNS ဆာဗာလိပ်စာများ %s မှားနေပါသည်"
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr "စိတ်ကြိုက် ဆာဗာ၏ Hostname ကို ဖြေရှင်း၍ မရနိုင်ပါ"
+
+msgid "No relay server matches the current settings"
+msgstr "လက်ရှိဆက်တင်နှင့် ကိုက်ညီသည့် ထပ်ဆင့်ဆာဗာ မရှိပါ"
+
+msgid "Mullvad account number"
+msgstr "Mullvad အကောင့်နံပါတ်"
+
+msgid "If needed we will contact you on %s"
+msgstr "လိုအပ်ပါက %s မှတစ်ဆင့် ကျွန်ုပ်တို့ထံ ဆက်သွယ်ပါ"
+
+msgid "Account credit expires in a few minutes"
+msgstr "မိနစ်အနည်းငယ်အကြာတွင် အကောင့်ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်"
+
+msgid "Exclude applications"
+msgstr "အပလီကေးရှင်းများ ဖယ်ရန်"
+
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
+msgstr "လိုကယ် DNS ဆာဗာသည် လိုလားမှုများအောက်ရှိ \"လိုကယ် ကွန်ရက် ဝေမျှမှု\"ကို မဖွင့်မချင်း အလုပ်လုပ်မည် မဟုတ်ပါ။"
+
+msgid "Copied to clipboard"
+msgstr "ကလစ်ဘုတ်တွင် ကူးယူပြီး"
+
+msgid "Unsecured"
+msgstr "မလုံခြုံပါ"
+
+msgid "Failed to start tunnel connection"
+msgstr "Tunnel ချိတ်ဆက်မှုကို စတင်ရန် မအောင်မြင်ခဲ့ပါ"
+
+msgid "VPN tunnel status"
+msgstr "VPN Tunnel အခြေအနေ"
+
+msgid "Shows reminders when the account time is about to expire"
+msgstr "အကောင့်အချိန် သက်တမ်းကုန်ခါနီးချိန်၌ သတိပေးချက်များ ပြသပေးပါသည်"
+
+msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
+msgstr "ကွန်ရက် ကူးလူးမှု ပေါက်ကြားနေနိုင်ပါသည်"
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] "%d လသာ ကျန်တော့သည်"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "လွန်ခဲ့သော %d ရက်"
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] "%d ရက်သာ ကျန်တော့သည်"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "%d နှစ်သာ ကျန်တော့သည်"
+
+msgid "Account credit expires in a day"
+msgid_plural "Account credit expires in %d days"
+msgstr[0] "%d ရက်အကြာတွင် အကောင့်ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်"
+
+msgid "Account credit expires in an hour"
+msgid_plural "Account credit expires in %d hours"
+msgstr[0] "%d နာရီအကြာတွင် အကောင့်ခရက်ဒစ် သက်တမ်းကုန်ပါတော့မည်"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "လွန်ခဲ့သော %d မိနစ်"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "လွန်ခဲ့သော %d နာရီ"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "လွန်ခဲ့သော %d လ"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "လွန်ခဲ့သော %d နှစ်"
+

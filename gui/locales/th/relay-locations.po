@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2021-01-12 14:52\n"
+"PO-Revision-Date: 2021-03-31 13:39\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -134,7 +134,7 @@ msgstr "ดับลิน"
 
 #. DE DUS
 msgid "Dusseldorf"
-msgstr ""
+msgstr "ดึสเซิลดอร์ฟ"
 
 #. FI
 msgid "Finland"
@@ -491,3 +491,4 @@ msgstr "วีน"
 #. CH ZRH
 msgid "Zurich"
 msgstr "ซือริช"
+
