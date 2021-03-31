@@ -575,10 +575,9 @@ impl<'a> PolicyBatch<'a> {
                 pingable_hosts,
                 allow_lan,
                 allowed_endpoint,
-                use_fwmark,
             } => {
                 self.add_allow_icmp_pingable_hosts(&pingable_hosts);
-                self.add_allow_tunnel_endpoint_rules(peer_endpoint, *use_fwmark);
+                self.add_allow_tunnel_endpoint_rules(peer_endpoint);
                 self.add_allow_endpoint_rules(allowed_endpoint);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
@@ -591,9 +590,8 @@ impl<'a> PolicyBatch<'a> {
                 tunnel,
                 allow_lan,
                 dns_servers,
-                use_fwmark,
             } => {
-                self.add_allow_tunnel_endpoint_rules(peer_endpoint, *use_fwmark);
+                self.add_allow_tunnel_endpoint_rules(peer_endpoint);
                 self.add_allow_dns_rules(tunnel, &dns_servers, TransportProtocol::Udp)?;
                 self.add_allow_dns_rules(tunnel, &dns_servers, TransportProtocol::Tcp)?;
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
@@ -632,7 +630,7 @@ impl<'a> PolicyBatch<'a> {
         Ok(())
     }
 
-    fn add_allow_tunnel_endpoint_rules(&mut self, endpoint: &Endpoint, use_fwmark: bool) {
+    fn add_allow_tunnel_endpoint_rules(&mut self, endpoint: &Endpoint) {
         let mut prerouting_rule = Rule::new(&self.prerouting_chain);
         check_endpoint(&mut prerouting_rule, End::Src, endpoint);
         prerouting_rule.add_expr(&nft_expr!(immediate data crate::linux::TUNNEL_FW_MARK));
@@ -657,13 +655,8 @@ impl<'a> PolicyBatch<'a> {
 
         let mut out_rule = Rule::new(&self.out_chain);
         check_endpoint(&mut out_rule, End::Dst, endpoint);
-        if use_fwmark {
-            out_rule.add_expr(&nft_expr!(meta mark));
-            out_rule.add_expr(&nft_expr!(cmp == crate::linux::TUNNEL_FW_MARK));
-        } else {
-            out_rule.add_expr(&nft_expr!(meta skuid));
-            out_rule.add_expr(&nft_expr!(cmp == 0u32));
-        }
+        out_rule.add_expr(&nft_expr!(meta mark));
+        out_rule.add_expr(&nft_expr!(cmp == crate::linux::TUNNEL_FW_MARK));
         add_verdict(&mut out_rule, &Verdict::Accept);
 
         self.batch.add(&out_rule, nftnl::MsgType::Add);
