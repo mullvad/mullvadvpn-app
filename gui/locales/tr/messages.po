@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2021-01-12 14:52\n"
+"PO-Revision-Date: 2021-03-31 13:39\n"
 
 msgid "Back"
 msgstr "Geri"
@@ -180,6 +180,10 @@ msgid "Default"
 msgstr "Varsayılan"
 
 msgctxt "advanced-settings-view"
+msgid "e.g. 10.0.0.4"
+msgstr "ör. 10.0.0.4"
+
+msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "Yine de etkinleştir"
 
@@ -253,6 +257,11 @@ msgstr "TCP"
 msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "Uygulamanın dahili Kill Switch seçeneği her zaman açıktır. Bu ayar, Bağlantıyı Kes veya Çık seçeneklerini tıklamanız durumunda ayrıca İnternet'i de engeller."
+
+#. The hint displayed below the WireGuard port selector.
+msgctxt "advanced-settings-view"
+msgid "The automatic setting will randomly choose from a wide range of ports."
+msgstr "Otomatik ayar, çeşitli bağlantı noktaları arasından rastgele seçim yapacaktır."
 
 msgctxt "advanced-settings-view"
 msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
@@ -789,6 +798,10 @@ msgid "Advanced"
 msgstr "Gelişmiş"
 
 msgctxt "settings-view"
+msgid "App is out of sync. Please quit and restart."
+msgstr "Uygulama senkronize değil. Lütfen çıkış yapın ve yeniden başlatın."
+
+msgctxt "settings-view"
 msgid "App version"
 msgstr "Uygulama sürümü"
 
@@ -796,10 +809,6 @@ msgstr "Uygulama sürümü"
 msgctxt "settings-view"
 msgid "FAQs & Guides"
 msgstr "SSS ve Kılavuzlar"
-
-msgctxt "settings-view"
-msgid "Inconsistent internal version information, please restart the app."
-msgstr "Tutarsız iç sürüm bilgisi, lütfen uygulamayı yeniden başlatın."
 
 #. Navigation button to the 'Language' settings view
 msgctxt "settings-view"
@@ -825,8 +834,8 @@ msgid "Report a problem"
 msgstr "Bir sorun bildir"
 
 msgctxt "settings-view"
-msgid "Update available, download to remain safe."
-msgstr "Güncelleme mevcut, güvende olmak için indirin."
+msgid "Update available. Install the latest app version to stay up to date."
+msgstr "Güncelleme mevcut. Güncel kalmak için en son uygulama sürümünü yükleyin."
 
 #. Title label in navigation bar
 msgctxt "split-tunneling-nav"
@@ -857,17 +866,31 @@ msgctxt "split-tunneling-view"
 msgid "Launch application"
 msgstr "Uygulamayı başlat"
 
+#. This error message is shown if the user tries to launch a Linux desktop
+#. entry file that doesn't contain the required 'Exec' value.
+msgctxt "split-tunneling-view"
+msgid "Please contact support."
+msgstr "Lütfen destek ile iletişime geçin."
+
+#. This error message is shown if the user tries to launch an app that
+#. doesn't exist.
+#. This error message is shown if an application failes during startup.
+msgctxt "split-tunneling-view"
+msgid "Please try again or contact support."
+msgstr "Lütfen tekrar deneyin veya destek ekibiyle iletişime geçin."
+
 msgctxt "split-tunneling-view"
 msgid "Split tunneling"
 msgstr "Bölünmüş tünelleme"
 
+#. Error message showed in a dialog when an application failes to launch.
+msgctxt "split-tunneling-view"
+msgid "Unable to launch selection. %(detailedErrorMessage)s"
+msgstr "Başlatma seçenekleri kullanılamıyor %(detailedErrorMessage)s"
+
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr "Yine de devam et"
-
-msgctxt "support-view"
-msgid "Describe your problem"
-msgstr "Sorununuzu açıklayın"
 
 msgctxt "support-view"
 msgid "Edit message"
@@ -881,8 +904,16 @@ msgstr "Gönderme başarısız"
 #. Available placeholders:
 #. %(email)s
 msgctxt "support-view"
-msgid "If needed we will contact you on %(email)s"
+msgid "If needed we will contact you at %(email)s"
 msgstr "Gerektiğinde sizinle %(email)s adresinden iletişime geçeceğiz"
+
+msgctxt "support-view"
+msgid "If you exit the form and try again later, the information you already entered will still be here."
+msgstr "Formdan çıkıp daha sonra tekrar denerseniz, girmiş olduğunuz bilgiler hala burada olacaktır."
+
+msgctxt "support-view"
+msgid "Please describe your problem in English or Swedish."
+msgstr "Lütfen sorununuzu İngilizce veya Türkçe olarak tanımlayın."
 
 #. Title label in navigation bar
 msgctxt "support-view"
@@ -936,10 +967,6 @@ msgstr "Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekild
 msgctxt "support-view"
 msgid "You are using an old version of the app. Please upgrade and see if the problem still exists before sending a report."
 msgstr "Şu anda uygulamanın eski bir sürümünü kullanıyorsunuz. Lütfen yeni sürüme geçin ve rapor göndermeden önce sorunun hala devam edip etmediğine bakın."
-
-msgctxt "support-view"
-msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
-msgstr "Yeniden denemeden önce uygulamanın ana ekranına dönüp Bağlantıyı Kes'e tıklamanız gerekebilir. Endişelenmeyin, girdiğiniz bilgiler formda kalacaktır."
 
 msgctxt "support-view"
 msgid "Your email (optional)"
@@ -1006,10 +1033,6 @@ msgid "Regenerate key"
 msgstr "Yeniden anahtar oluştur"
 
 msgctxt "wireguard-key-view"
-msgid "Unable to manage keys while in a blocked state"
-msgstr "Kilitli durumdayken anahtarları yönetemezsiniz"
-
-msgctxt "wireguard-key-view"
 msgid "Unable to regenerate key: you already have the maximum number of keys. To generate a new key, you first need to revoke one under “Manage keys.”"
 msgstr "Anahtar yeniden oluşturulamıyor: zaten maksimum sayıda anahtara sahipsiniz. Yeni bir anahtar oluşturmak için önce \"Anahtarları yönet\" seçeneğinin altından bir anahtarı iptal etmeniz gerekir."
 
@@ -1027,128 +1050,170 @@ msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard anahtarı"
 
-msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
-msgstr "Eklemeye çalıştığınız DNS sunucusu genel olduğu için çalışmayabilir. Şu anda sadece yerel DNS sunucularını destekliyoruz."
-
-msgid "WireGuard error"
-msgstr "WireGuard hatası"
-
-msgid "Account time reminders"
-msgstr "Hesap süresi hatırlatıcıları"
-
-msgid "WireGuard public key"
-msgstr "WireGuard genel anahtarı"
-
-msgid "Copied WireGuard public key to clipboard"
-msgstr "WireGuard genel anahtarı panoya kopyalandı"
-
-msgid "Account credit expires soon"
-msgstr "Hesap kredisinin süresi yakında doluyor"
-
-msgid "Account credit expires in a few minutes"
-msgstr "Hesap kredisinin süresi birkaç dakika içinde doluyor"
-
-msgid "Thanks!"
-msgstr "Teşekkürler!"
-
-msgid "We will look into this."
-msgstr "Bunu araştıracağız."
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi garanti altına almak için lütfen hemen %s sürümüne yükseltin"
-
-msgid "e.g. 10.0.0.4"
-msgstr "ör. 10.0.0.4"
-
-msgid "Copied to clipboard"
-msgstr "Panoya kopyalandı"
-
-msgid "Too many WireGuard keys registered to account"
-msgstr "Hesaba kayıtlı çok fazla WireGuard anahtarı"
-
-msgid "Shows current VPN tunnel status"
-msgstr "Mevcut VPN tünelinin durumunu gösterir"
+msgid "Blocking internet"
+msgstr "İnternet bağlantısı engelleniyor"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad hesap numarası panoya kopyalandı"
 
-msgid "Use custom DNS server"
-msgstr "Özel DNS sunucusu kullanın"
-
-msgid "Add anyway"
-msgstr "Yine de ekle"
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Tüm ağ trafiği engellenemedi. Lütfen sorunu çözmeyi deneyin veya bize bildirin."
-
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr "Bölünmüş tünelleme, VPN tüneli üzerinden yönlendirilmemesi gereken uygulamaları seçmenize olanak tanır."
+msgid "No bridge relay server matches the current settings"
+msgstr "Geçerli ayarlarla eşleşen hiçbir köprü aktarma sunucusu yok"
 
 msgid "less than a day left"
 msgstr "bir günden az kaldı"
 
+msgid "less than a minute ago"
+msgstr "bir dakikadan az"
+
+msgid "Copied WireGuard public key to clipboard"
+msgstr "WireGuard genel anahtarı panoya kopyalandı"
+
+msgid "Shows current VPN tunnel status"
+msgstr "Mevcut VPN tünelinin durumunu gösterir"
+
+msgid "Secured"
+msgstr "Güvenli"
+
 msgid "Blocking all connections"
 msgstr "Tüm bağlantılar engelleniyor"
 
-msgid "Could not configure IPv6"
-msgstr "IPv6 yapılandırılamadı"
+msgid "Account credit expires soon"
+msgstr "Hesap kredisinin süresi yakında doluyor"
 
 msgid "Disconnecting"
 msgstr "Bağlantı kesiliyor"
 
-msgid "Enable to add at least one DNS server."
-msgstr "En az bir DNS sunucusu eklemek için etkinleştirin."
+msgid "Too many WireGuard keys registered to account"
+msgstr "Hesaba kayıtlı çok fazla WireGuard anahtarı"
 
-msgid "Enable"
-msgstr "Etkinleştir"
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr "Bölünmüş tünelleme, VPN tüneli üzerinden yönlendirilmemesi gereken uygulamaları seçmenize olanak tanır."
 
-msgid "No relay server matches the current settings"
-msgstr "Geçerli ayarlara uyan aktarma sunucusu yok"
+msgid "WireGuard public key"
+msgstr "WireGuard genel anahtarı"
+
+msgid "Account authentication failed."
+msgstr "Hesap kimlik doğrulaması başarısız oldu."
+
+msgid "Could not configure IPv6"
+msgstr "IPv6 yapılandırılamadı"
+
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr "Desteklenmeyen bir uygulama sürümü kullanıyorsunuz. Güvenliğinizi garanti altına almak için lütfen hemen %s sürümüne yükseltin"
 
 msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
 msgstr "Tünel oluşturulurken VPN izni reddedildi. Lütfen tekrar bağlanmayı deneyin."
 
-msgid "No bridge relay server matches the current settings"
-msgstr "Geçerli ayarlarla eşleşen hiçbir köprü aktarma sunucusu yok"
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr "Güvenlik duvarı kuralları uygulanamıyor. Cihaz şu an korumasız olabilir"
 
-msgid "Shows reminders when the account time is about to expire"
-msgstr "Hesap süresinin dolmasına kısa süre kala hatırlatıcıları gösterir"
+msgid "Account time reminders"
+msgstr "Hesap süresi hatırlatıcıları"
 
-msgid "Add a server"
-msgstr "Sunucu ekle"
+msgid "Enable"
+msgstr "Etkinleştir"
 
-msgid "Mullvad account number"
-msgstr "Mullvad hesap numarası"
+msgid "WireGuard error"
+msgstr "WireGuard hatası"
 
-msgid "less than a minute ago"
-msgstr "bir dakikadan az"
+msgid "This device is offline, no tunnels can be established"
+msgstr "Bu cihaz çevrimdışı, tünel oluşturulamaz"
 
-msgid "Failed to resolve the hostname of custom server"
-msgstr "Özel sunucu ana bilgisayar adı çözülemiyor"
+msgid "Update available, download to remain safe."
+msgstr "Güncelleme mevcut, güvende olmak için indirin."
+
+msgid "You may need to go back to the app\\'s main screen and click Disconnect before trying again. Don\\'t worry, the information you entered will remain in the form."
+msgstr "Tekrar denemeden önce uygulamanın ana ekranına dönüp Bağlantıyı Kes'e tıklamanız gerekebilir. Endişelenmeyin, girdiğiniz bilgiler formda kalacaktır."
 
 msgid "Virtual adapter error"
 msgstr "Sanal adaptör hatası"
 
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "Tüm ağ trafiği engellenemedi. Lütfen sorunu çözmeyi deneyin veya bize bildirin."
+
+msgid "Failed to set system DNS server"
+msgstr "Sistem DNS sunucusu ayarlanamıyor"
+
+msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr "Güncel kalmak için Mullvad VPN'in (%s) sürümünü yükleyin"
+
+msgid "Critical error (your attention is required)"
+msgstr "Kritik hata (lütfen dikkatli olun)"
+
+msgid "You are running an unsupported app version."
+msgstr "Desteklenmeyen bir uygulama sürümünü kullanıyorsunuz."
+
+msgid "Custom DNS server addresses %s are invalid"
+msgstr "Özel DNS sunucu adresleri (%s) geçersiz"
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr "Özel sunucu ana bilgisayar adı çözülemiyor"
+
+msgid "No relay server matches the current settings"
+msgstr "Geçerli ayarlara uyan aktarma sunucusu yok"
+
+msgid "Mullvad account number"
+msgstr "Mullvad hesap numarası"
+
+msgid "If needed we will contact you on %s"
+msgstr "Gerektiğinde sizinle %s üzerinden iletişime geçeceğiz"
+
+msgid "Account credit expires in a few minutes"
+msgstr "Hesap kredisinin süresi birkaç dakika içinde doluyor"
+
 msgid "Exclude applications"
 msgstr "Uygulamaları hariç tut"
+
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
+msgstr "Tercihler sekmesinin altındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirmediğiniz sürece yerel DNS sunucusu çalışmaz."
+
+msgid "Copied to clipboard"
+msgstr "Panoya kopyalandı"
+
+msgid "Unsecured"
+msgstr "Güvenli Değil"
+
+msgid "Failed to start tunnel connection"
+msgstr "Tünel bağlantısı başlatılamıyor"
 
 msgid "VPN tunnel status"
 msgstr "VPN tüneli durumu"
 
-msgid "1 year left"
-msgid_plural "%d years left"
-msgstr[0] "1 yıl kaldı"
-msgstr[1] "%d yıl kaldı"
+msgid "Shows reminders when the account time is about to expire"
+msgstr "Hesap süresinin dolmasına kısa süre kala hatırlatıcıları gösterir"
+
+msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
+msgstr "AĞ TRAFİĞİNİZDE SIZINTI OLABİLİR"
 
 msgid "1 month left"
 msgid_plural "%d months left"
 msgstr[0] "1 ay kaldı"
 msgstr[1] "%d ay kaldı"
 
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "bir gün önce"
+msgstr[1] "%d gün önce"
+
 msgid "1 day left"
 msgid_plural "%d days left"
 msgstr[0] "1 gün kaldı"
 msgstr[1] "%d gün kaldı"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "1 yıl kaldı"
+msgstr[1] "%d yıl kaldı"
+
+msgid "Account credit expires in a day"
+msgid_plural "Account credit expires in %d days"
+msgstr[0] "Hesap kredisi bir gün içinde sona eriyor"
+msgstr[1] "Hesap kredisi %d gün içinde sona eriyor"
+
+msgid "Account credit expires in an hour"
+msgid_plural "Account credit expires in %d hours"
+msgstr[0] "Hesap kredisi bir saat içinde sona eriyor"
+msgstr[1] "Hesap kredisi %d saat içinde sona eriyor"
 
 msgid "a minute ago"
 msgid_plural "%d minutes ago"
@@ -1160,11 +1225,6 @@ msgid_plural "%d hours ago"
 msgstr[0] "bir saat önce"
 msgstr[1] "%d saat önce"
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "bir gün önce"
-msgstr[1] "%d gün önce"
-
 msgid "a month ago"
 msgid_plural "%d months ago"
 msgstr[0] "bir ay önce"
@@ -1174,14 +1234,4 @@ msgid "a year ago"
 msgid_plural "%d years ago"
 msgstr[0] "bir yıl önce"
 msgstr[1] "%d yıl önce"
-
-msgid "Account credit expires in a day"
-msgid_plural "Account credit expires in %d days"
-msgstr[0] "Hesap kredisi bir gün içinde sona eriyor"
-msgstr[1] "Hesap kredisi %d gün içinde sona eriyor"
-
-msgid "Account credit expires in an hour"
-msgid_plural "Account credit expires in %d hours"
-msgstr[0] "Hesap kredisi bir saat içinde sona eriyor"
-msgstr[1] "Hesap kredisi %d saat içinde sona eriyor"
 
