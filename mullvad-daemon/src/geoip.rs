@@ -1,5 +1,5 @@
 use futures::join;
-use mullvad_rpc::{self, rest::RequestServiceHandle};
+use mullvad_rpc::{self, rest::{RequestServiceHandle, Error}};
 use mullvad_types::location::{AmIMullvad, GeoIpLocation};
 use talpid_types::ErrorExt;
 
@@ -8,16 +8,16 @@ const URI_V6: &str = "https://ipv6.am.i.mullvad.net/json";
 
 pub async fn send_location_request(
     request_sender: RequestServiceHandle,
-) -> Result<GeoIpLocation, mullvad_rpc::rest::Error> {
+) -> Result<GeoIpLocation, Error> {
     let v4_sender = request_sender.clone();
     let v4_future = async move {
         let location = send_location_request_internal(URI_V4, v4_sender).await?;
-        Ok::<GeoIpLocation, mullvad_rpc::rest::Error>(GeoIpLocation::from(location))
+        Ok::<GeoIpLocation, Error>(GeoIpLocation::from(location))
     };
     let v6_sender = request_sender.clone();
     let v6_future = async move {
         let location = send_location_request_internal(URI_V6, v6_sender).await?;
-        Ok::<GeoIpLocation, mullvad_rpc::rest::Error>(GeoIpLocation::from(location))
+        Ok::<GeoIpLocation, Error>(GeoIpLocation::from(location))
     };
 
     let (v4_result, v6_result) = join!(v4_future, v6_future);
@@ -49,7 +49,7 @@ pub async fn send_location_request(
 async fn send_location_request_internal(
     uri: &'static str,
     service: RequestServiceHandle,
-) -> Result<AmIMullvad, mullvad_rpc::rest::Error> {
+) -> Result<AmIMullvad, Error> {
     let future_service = service.clone();
     let request = mullvad_rpc::rest::RestRequest::get(uri)?;
     let response = future_service.request(request).await?;
