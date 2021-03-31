@@ -1224,3 +1224,9 @@ msgid "an hour ago"
 msgid_plural "%d hours ago"
 msgstr[0] ""
 msgstr[1] ""
+
+msgid "All applications"
+msgstr ""
+
+msgid "Excluded applications"
+msgstr ""
