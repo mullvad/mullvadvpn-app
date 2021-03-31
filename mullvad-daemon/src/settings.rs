@@ -1,3 +1,5 @@
+#[cfg(not(target_os = "android"))]
+use futures::TryFutureExt;
 use log::{debug, error, info};
 use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
@@ -5,12 +7,11 @@ use mullvad_types::{
     wireguard::RotationInterval,
 };
 use std::{
-    fs::{self, File},
-    io,
     ops::Deref,
     path::{Path, PathBuf},
 };
 use talpid_types::ErrorExt;
+use tokio::{fs, io};
 
 
 const SETTINGS_FILE: &str = "settings.json";
@@ -54,9 +55,9 @@ pub struct SettingsPersister {
 
 impl SettingsPersister {
     /// Loads user settings from file. If no file is present it returns the defaults.
-    pub fn load(settings_dir: &Path) -> Self {
+    pub async fn load(settings_dir: &Path) -> Self {
         let path = settings_dir.join(SETTINGS_FILE);
-        let (mut settings, mut should_save) = Self::load_settings(&path);
+        let (mut settings, mut should_save) = Self::load_settings(&path).await;
 
         // Force IPv6 to be enabled on Android
         if cfg!(target_os = "android") {
@@ -67,7 +68,7 @@ impl SettingsPersister {
         let mut persister = SettingsPersister { settings, path };
 
         if should_save {
-            if let Err(error) = persister.save() {
+            if let Err(error) = persister.save().await {
                 error!(
                     "{}",
                     error.display_chain_with_msg("Failed to save updated settings")
@@ -78,8 +79,8 @@ impl SettingsPersister {
         persister
     }
 
-    fn load_settings(path: &Path) -> (Settings, bool) {
-        let error = match Self::load_settings_from_file(path) {
+    async fn load_settings(path: &Path) -> (Settings, bool) {
+        let error = match Self::load_settings_from_file(path).await {
             Ok(value) => return value,
             Err(error) => error,
         };
@@ -90,7 +91,7 @@ impl SettingsPersister {
                 "No settings file found. Attempting migration from Windows update backup location"
             );
             match windows::migrate_after_windows_update() {
-                Ok(Some(())) => match Self::load_settings_from_file(path) {
+                Ok(Some(())) => match Self::load_settings_from_file(path).await {
                     Ok(value) => return value,
                     Err(error) => error,
                 },
@@ -113,10 +114,10 @@ impl SettingsPersister {
         (Settings::default(), true)
     }
 
-    fn load_settings_from_file(path: &Path) -> Result<(Settings, bool), LoadSettingsError> {
+    async fn load_settings_from_file(path: &Path) -> Result<(Settings, bool), LoadSettingsError> {
         info!("Loading settings from {}", path.display());
 
-        let settings_bytes = fs::read(path).map_err(|error| {
+        let settings_bytes = fs::read(path).await.map_err(|error| {
             if error.kind() == io::ErrorKind::NotFound {
                 LoadSettingsError::FileNotFound
             } else {
@@ -133,29 +134,32 @@ impl SettingsPersister {
     }
 
     /// Serializes the settings and saves them to the file it was loaded from.
-    fn save(&mut self) -> Result<(), Error> {
+    async fn save(&mut self) -> Result<(), Error> {
         debug!("Writing settings to {}", self.path.display());
-        let mut file = File::create(&self.path)
-            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
 
-        serde_json::to_writer_pretty(&mut file, &self.settings).map_err(Error::SerializeError)?;
-        file.sync_all()
+        let buffer = serde_json::to_string_pretty(&self.settings).map_err(Error::SerializeError)?;
+        fs::write(&self.path, &buffer)
+            .await
             .map_err(|e| Error::WriteError(self.path.display().to_string(), e))
     }
 
     /// Resets default settings
     #[cfg(not(target_os = "android"))]
-    pub fn reset(&mut self) -> Result<(), Error> {
+    pub async fn reset(&mut self) -> Result<(), Error> {
         self.settings = Settings::default();
-        self.save().or_else(|e| {
-            log::error!(
-                "{}",
-                e.display_chain_with_msg("Unable to save default settings")
-            );
-            log::info!("Will attempt to remove settings file");
-            fs::remove_file(&self.path)
-                .map_err(|e| Error::DeleteError(self.path.display().to_string(), e))
-        })
+        let path = self.path.clone();
+        self.save()
+            .or_else(|e| async move {
+                log::error!(
+                    "{}",
+                    e.display_chain_with_msg("Unable to save default settings")
+                );
+                log::info!("Will attempt to remove settings file");
+                fs::remove_file(&path)
+                    .map_err(|e| Error::DeleteError(path.display().to_string(), e))
+                    .await
+            })
+            .await
     }
 
     pub fn to_settings(&self) -> Settings {
@@ -164,22 +168,28 @@ impl SettingsPersister {
 
     /// Changes account number to the one given. Also saves the new settings to disk.
     /// The boolean in the Result indicates if the account token changed or not
-    pub fn set_account_token(&mut self, account_token: Option<String>) -> Result<bool, Error> {
+    pub async fn set_account_token(
+        &mut self,
+        account_token: Option<String>,
+    ) -> Result<bool, Error> {
         let should_save = self.settings.set_account_token(account_token);
-        self.update(should_save)
+        self.update(should_save).await
     }
 
-    pub fn update_relay_settings(&mut self, update: RelaySettingsUpdate) -> Result<bool, Error> {
+    pub async fn update_relay_settings(
+        &mut self,
+        update: RelaySettingsUpdate,
+    ) -> Result<bool, Error> {
         let should_save = self.settings.update_relay_settings(update);
-        self.update(should_save)
+        self.update(should_save).await
     }
 
-    pub fn set_allow_lan(&mut self, allow_lan: bool) -> Result<bool, Error> {
+    pub async fn set_allow_lan(&mut self, allow_lan: bool) -> Result<bool, Error> {
         let should_save = Self::update_field(&mut self.settings.allow_lan, allow_lan);
-        self.update(should_save)
+        self.update(should_save).await
     }
 
-    pub fn set_block_when_disconnected(
+    pub async fn set_block_when_disconnected(
         &mut self,
         block_when_disconnected: bool,
     ) -> Result<bool, Error> {
@@ -187,43 +197,43 @@ impl SettingsPersister {
             &mut self.settings.block_when_disconnected,
             block_when_disconnected,
         );
-        self.update(should_save)
+        self.update(should_save).await
     }
 
-    pub fn set_auto_connect(&mut self, auto_connect: bool) -> Result<bool, Error> {
+    pub async fn set_auto_connect(&mut self, auto_connect: bool) -> Result<bool, Error> {
         let should_save = Self::update_field(&mut self.settings.auto_connect, auto_connect);
-        self.update(should_save)
+        self.update(should_save).await
     }
 
-    pub fn set_openvpn_mssfix(&mut self, openvpn_mssfix: Option<u16>) -> Result<bool, Error> {
+    pub async fn set_openvpn_mssfix(&mut self, openvpn_mssfix: Option<u16>) -> Result<bool, Error> {
         let should_save = Self::update_field(
             &mut self.settings.tunnel_options.openvpn.mssfix,
             openvpn_mssfix,
         );
-        self.update(should_save)
+        self.update(should_save).await
     }
 
-    pub fn set_enable_ipv6(&mut self, enable_ipv6: bool) -> Result<bool, Error> {
+    pub async fn set_enable_ipv6(&mut self, enable_ipv6: bool) -> Result<bool, Error> {
         let should_save = Self::update_field(
             &mut self.settings.tunnel_options.generic.enable_ipv6,
             enable_ipv6,
         );
-        self.update(should_save)
+        self.update(should_save).await
     }
 
-    pub fn set_dns_options(&mut self, options: DnsOptions) -> Result<bool, Error> {
+    pub async fn set_dns_options(&mut self, options: DnsOptions) -> Result<bool, Error> {
         let should_save =
             Self::update_field(&mut self.settings.tunnel_options.dns_options, options);
-        self.update(should_save)
+        self.update(should_save).await
     }
 
-    pub fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> Result<bool, Error> {
+    pub async fn set_wireguard_mtu(&mut self, mtu: Option<u16>) -> Result<bool, Error> {
         let should_save =
             Self::update_field(&mut self.settings.tunnel_options.wireguard.options.mtu, mtu);
-        self.update(should_save)
+        self.update(should_save).await
     }
 
-    pub fn set_wireguard_rotation_interval(
+    pub async fn set_wireguard_rotation_interval(
         &mut self,
         interval: Option<RotationInterval>,
     ) -> Result<bool, Error> {
@@ -231,23 +241,29 @@ impl SettingsPersister {
             &mut self.settings.tunnel_options.wireguard.rotation_interval,
             interval,
         );
-        self.update(should_save)
+        self.update(should_save).await
     }
 
-    pub fn set_show_beta_releases(&mut self, show_beta_releases: bool) -> Result<bool, Error> {
+    pub async fn set_show_beta_releases(
+        &mut self,
+        show_beta_releases: bool,
+    ) -> Result<bool, Error> {
         let should_save =
             Self::update_field(&mut self.settings.show_beta_releases, show_beta_releases);
-        self.update(should_save)
+        self.update(should_save).await
     }
 
-    pub fn set_bridge_settings(&mut self, bridge_settings: BridgeSettings) -> Result<bool, Error> {
+    pub async fn set_bridge_settings(
+        &mut self,
+        bridge_settings: BridgeSettings,
+    ) -> Result<bool, Error> {
         let should_save = Self::update_field(&mut self.settings.bridge_settings, bridge_settings);
-        self.update(should_save)
+        self.update(should_save).await
     }
 
-    pub fn set_bridge_state(&mut self, bridge_state: BridgeState) -> Result<bool, Error> {
+    pub async fn set_bridge_state(&mut self, bridge_state: BridgeState) -> Result<bool, Error> {
         let should_save = self.settings.set_bridge_state(bridge_state);
-        self.update(should_save)
+        self.update(should_save).await
     }
 
     fn update_field<T: Eq>(field: &mut T, new_value: T) -> bool {
@@ -259,9 +275,9 @@ impl SettingsPersister {
         }
     }
 
-    fn update(&mut self, should_save: bool) -> Result<bool, Error> {
+    async fn update(&mut self, should_save: bool) -> Result<bool, Error> {
         if should_save {
-            self.save().map(|_| true)
+            self.save().await.map(|_| true)
         } else {
             Ok(false)
         }
