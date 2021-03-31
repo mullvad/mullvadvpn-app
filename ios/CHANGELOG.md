@@ -24,6 +24,11 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Enable option to "Select all" when viewing app logs.
+
+
+## [2021.1] - 2021-03-16
+### Added
 - Add ability to report a problem inside the app. Sends logs to support.
 
 ### Changed
