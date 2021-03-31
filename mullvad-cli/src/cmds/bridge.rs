@@ -66,31 +66,48 @@ fn create_bridge_set_subcommand() -> clap::App<'static, 'static> {
 
 
 fn create_set_custom_settings_subcommand() -> clap::App<'static, 'static> {
+    #[allow(unused_mut)]
+    let mut local_subcommand = clap::SubCommand::with_name("local")
+        .about("Registers a local SOCKS5 proxy")
+        .arg(
+            clap::Arg::with_name("local-port")
+                .help("Specifies the port the local proxy server is listening on")
+                .required(true)
+                .index(1),
+        )
+        .arg(
+            clap::Arg::with_name("remote-ip")
+                .help("Specifies the IP of the proxy server peer")
+                .required(true)
+                .index(2),
+        )
+        .arg(
+            clap::Arg::with_name("remote-port")
+                .help("Specifies the port of the proxy server peer")
+                .required(true)
+                .index(3),
+        );
+
+    #[cfg(target_os = "linux")]
+    {
+        local_subcommand = local_subcommand.about(
+            "Registers a local SOCKS5 proxy. The server must be excluded using \
+           'mullvad-exclude', or `SO_MARK` must be set to '0x6d6f6c65', in order \
+           to bypass firewall restrictions",
+        );
+    }
+    #[cfg(target_os = "macos")]
+    {
+        local_subcommand = local_subcommand.help(
+            "Registers a local SOCKS5 proxy. The server must run as root to bypass \
+            firewall restrictions",
+        );
+    }
+
     clap::SubCommand::with_name("custom")
         .about("Configure a SOCKS5 proxy")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
-        .subcommand(
-            clap::SubCommand::with_name("local")
-                .about("Registers a local SOCKS5 proxy")
-                .arg(
-                    clap::Arg::with_name("local-port")
-                        .help("Specifies the port the local proxy server is listening on")
-                        .required(true)
-                        .index(1),
-                )
-                .arg(
-                    clap::Arg::with_name("remote-ip")
-                        .help("Specifies the IP of the proxy server peer")
-                        .required(true)
-                        .index(2),
-                )
-                .arg(
-                    clap::Arg::with_name("remote-port")
-                        .help("Specifies the port of the proxy server peer")
-                        .required(true)
-                        .index(3),
-                ),
-        )
+        .subcommand(local_subcommand)
         .subcommand(
             clap::SubCommand::with_name("remote")
                 .about("Registers a remote SOCKS5 proxy")
