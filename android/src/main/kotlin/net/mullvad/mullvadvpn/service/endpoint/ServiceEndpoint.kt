@@ -33,6 +33,7 @@ class ServiceEndpoint(
 
     val settingsListener = SettingsListener(this)
 
+    val accountCache = AccountCache(this)
     val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)
 
@@ -46,6 +47,7 @@ class ServiceEndpoint(
         dispatcher.onDestroy()
         registrationQueue.close()
 
+        accountCache.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
@@ -89,6 +91,8 @@ class ServiceEndpoint(
             listeners.add(listener)
 
             val initialEvents = listOf(
+                Event.LoginStatus(accountCache.onLoginStatusChange.latestEvent),
+                Event.AccountHistory(accountCache.onAccountHistoryChange.latestEvent),
                 Event.SettingsUpdate(settingsListener.settings),
                 Event.NewLocation(locationInfoCache.location),
                 Event.WireGuardKeyStatus(keyStatusListener.keyStatus),

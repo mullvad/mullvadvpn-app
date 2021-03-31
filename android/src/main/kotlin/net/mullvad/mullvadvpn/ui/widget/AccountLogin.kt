@@ -99,7 +99,7 @@ class AccountLogin : RelativeLayout {
     val hasFocus
         get() = focused
 
-    var accountHistory by observable<ArrayList<String>?>(null) { _, _, history ->
+    var accountHistory by observable<List<String>?>(null) { _, _, history ->
         val entryCount = history?.size ?: 0
 
         historyHeight = entryCount * (historyEntryHeight + dividerHeight)

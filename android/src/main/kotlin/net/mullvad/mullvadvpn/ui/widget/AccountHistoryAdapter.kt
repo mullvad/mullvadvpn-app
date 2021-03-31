@@ -14,7 +14,7 @@ class AccountHistoryAdapter : Adapter<AccountHistoryHolder>() {
         }
     }
 
-    var accountHistory by observable(ArrayList<String>()) { _, _, _ ->
+    var accountHistory by observable(listOf<String>()) { _, _, _ ->
         notifyDataSetChanged()
     }
 

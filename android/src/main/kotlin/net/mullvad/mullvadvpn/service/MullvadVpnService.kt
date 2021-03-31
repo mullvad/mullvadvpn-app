@@ -58,7 +58,7 @@ class MullvadVpnService : TalpidVpnService() {
             oldInstance?.onDestroy()
 
             accountExpiryNotification = newInstance?.let { instance ->
-                AccountExpiryNotification(this, instance.daemon, instance.accountCache)
+                AccountExpiryNotification(this, instance.daemon, endpoint.accountCache)
             }
 
             serviceNotifier.notify(newInstance)
@@ -239,6 +239,8 @@ class MullvadVpnService : TalpidVpnService() {
         val customDns = CustomDns(daemon, endpoint.settingsListener)
         val splitTunneling = splitTunneling.await()
 
+        notificationManager.accountNumberEvents = endpoint.settingsListener.accountNumberNotifier
+
         splitTunneling.onChange = { excludedApps ->
             disallowedApps = excludedApps
             markTunAsStale()
@@ -256,7 +258,6 @@ class MullvadVpnService : TalpidVpnService() {
                 daemonInstance.intermittentDaemon,
                 connectionProxy,
                 customDns,
-                endpoint.settingsListener,
                 splitTunneling
             )
         }

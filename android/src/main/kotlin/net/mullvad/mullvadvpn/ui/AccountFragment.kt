@@ -155,15 +155,9 @@ class AccountFragment : ServiceDependentFragment(OnNoService.GoBack) {
     }
 
     private suspend fun logout() {
-        clearAccountNumber()
+        accountCache.logout()
         clearBackStack()
         goToLoginScreen()
-    }
-
-    private suspend fun clearAccountNumber() {
-        jobTracker.runOnBackground {
-            daemon.setAccount(null)
-        }
     }
 
     private fun clearBackStack() {
