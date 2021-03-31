@@ -59,6 +59,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Upgrade Wintun from 0.9.2 to 0.10.1.
 
+#### Linux
+- Only allow packets with the mark set to `0x6d6f6c65` to communicate with the relay server.
+  Previously, bridges were expected to run as root instead.
+
 ### Fixed
 - Fix delay in showing/hiding update notification when toggling beta program.
 - Improve responsiveness when reconnecting after some failed connection attempts.
