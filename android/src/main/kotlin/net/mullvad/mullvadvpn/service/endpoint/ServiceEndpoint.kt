@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
-import android.content.Context
 import android.os.DeadObjectException
 import android.os.Looper
 import android.os.Messenger
@@ -15,14 +14,15 @@ import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.mullvadvpn.service.persistence.SplitTunnelingPersistence
 import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.talpid.ConnectivityListener
 
 class ServiceEndpoint(
-    context: Context,
     looper: Looper,
     internal val intermittentDaemon: Intermittent<MullvadDaemon>,
-    val connectivityListener: ConnectivityListener
+    val connectivityListener: ConnectivityListener,
+    splitTunnelingPersistence: SplitTunnelingPersistence
 ) {
     private val listeners = mutableSetOf<Messenger>()
     private val registrationQueue: SendChannel<Messenger> = startRegistrator()
@@ -38,7 +38,7 @@ class ServiceEndpoint(
     val accountCache = AccountCache(this)
     val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)
-    val splitTunneling = SplitTunneling(context, this)
+    val splitTunneling = SplitTunneling(splitTunnelingPersistence, this)
 
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
