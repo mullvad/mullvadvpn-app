@@ -1,36 +1,22 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
-import android.content.Context
-import java.io.File
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.service.persistence.SplitTunnelingPersistence
 import net.mullvad.talpid.util.EventNotifier
 
-// The spelling of the shared preferences location can't be changed to American English without
-// either having users lose their preferences on update or implementing some migration code.
-private const val SHARED_PREFERENCES = "split_tunnelling"
-private const val KEY_ENABLED = "enabled"
+class SplitTunneling(persistence: SplitTunnelingPersistence, endpoint: ServiceEndpoint) {
+    private val excludedApps = persistence.excludedApps.toMutableSet()
 
-class SplitTunneling(context: Context, endpoint: ServiceEndpoint) {
-    // The spelling of the app list file name can't be changed to American English without either
-    // having users lose their preferences on update or implementing some migration code.
-    private val appListFile = File(context.filesDir, "split-tunnelling.txt")
-    private val excludedApps = HashSet<String>()
-    private val preferences = context.getSharedPreferences(SHARED_PREFERENCES, Context.MODE_PRIVATE)
-
-    private var enabled by observable(preferences.getBoolean(KEY_ENABLED, false)) { _, _, _ ->
-        enabledChanged()
+    private var enabled by observable(persistence.enabled) { _, _, isEnabled ->
+        persistence.enabled = isEnabled
+        update()
     }
 
     val onChange = EventNotifier<List<String>?>(null)
 
     init {
-        if (appListFile.exists()) {
-            excludedApps.addAll(appListFile.readLines())
-            update()
-        }
-
         onChange.subscribe(this) { excludedApps ->
             endpoint.sendEvent(Event.SplitTunnelingUpdate(excludedApps))
         }
@@ -51,22 +37,13 @@ class SplitTunneling(context: Context, endpoint: ServiceEndpoint) {
             }
 
             registerHandler(Request.PersistExcludedApps::class) { _ ->
-                appListFile.writeText(excludedApps.joinToString(separator = "\n"))
+                persistence.excludedApps = excludedApps
             }
         }
     }
 
     fun onDestroy() {
         onChange.unsubscribeAll()
-    }
-
-    private fun enabledChanged() {
-        preferences.edit().apply {
-            putBoolean(KEY_ENABLED, enabled)
-            apply()
-        }
-
-        update()
     }
 
     private fun update() {
