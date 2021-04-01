@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">Wprowadź kod kuponu</string>
     <string name="error_occurred">Wystąpił błąd.</string>
     <string name="error_state">BŁĄD ZABEZPIECZANIA POŁĄCZENIA</string>
-    <string name="exclude_applications">Wyklucz aplikacje</string>
     <string name="failed_to_block_internet">Nie można zablokować całego ruchu sieciowego. Rozwiąż problem lub zgłoś go nam.</string>
     <string name="failed_to_create_account">Nie można utworzyć konta</string>
     <string name="failed_to_generate_key">Nie można wygenerować klucza</string>

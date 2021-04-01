@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">바우처 코드 입력</string>
     <string name="error_occurred">오류가 발생했습니다.</string>
     <string name="error_state">보안 연결 실패</string>
-    <string name="exclude_applications">애플리케이션 제외</string>
     <string name="failed_to_block_internet">모든 네트워크 트래픽을 차단하지 못했습니다. 문제를 해결하거나 당사에 보고해 주세요.</string>
     <string name="failed_to_create_account">계정을 만들지 못함</string>
     <string name="failed_to_generate_key">키를 생성하지 못함</string>

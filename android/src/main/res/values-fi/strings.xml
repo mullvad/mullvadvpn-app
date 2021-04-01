@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">Syötä kuponkikoodi</string>
     <string name="error_occurred">Ilmeni virhe.</string>
     <string name="error_state">YHTEYDEN SUOJAAMINEN EPÄONNISTUI</string>
-    <string name="exclude_applications">Sulje sovellukset pois</string>
     <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen epäonnistui. Käytä vianetsintää tai raportoi meille ongelmasta.</string>
     <string name="failed_to_create_account">Tilin luonti epäonnistui</string>
     <string name="failed_to_generate_key">Avaimen luominen epäonnistui</string>

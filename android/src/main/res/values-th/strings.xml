@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">ป้อนรหัสบัตรกำนัล</string>
     <string name="error_occurred">เกิดข้อผิดพลาดขึ้น</string>
     <string name="error_state">ไม่สามารถเชื่อมต่ออย่างปลอดภัยได้</string>
-    <string name="exclude_applications">ไม่รวมแอปพลิเคชัน</string>
     <string name="failed_to_block_internet">ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือรายงานปัญหามาที่เรา</string>
     <string name="failed_to_create_account">ไม่สามารถสร้างบัญชีได้</string>
     <string name="failed_to_generate_key">ไม่สามารถสร้างคีย์ได้</string>

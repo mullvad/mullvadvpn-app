@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">Saisissez un code de bon</string>
     <string name="error_occurred">Une erreur est survenue.</string>
     <string name="error_state">ÉCHEC DE LA SÉCURISATION DE LA CONNEXION</string>
-    <string name="exclude_applications">Exclure des applications</string>
     <string name="failed_to_block_internet">Impossible de bloquer tout le trafic du réseau. Veuillez dépanner ou nous signaler le problème.</string>
     <string name="failed_to_create_account">Échec de la création du compte</string>
     <string name="failed_to_generate_key">Échec de la génération de clé</string>

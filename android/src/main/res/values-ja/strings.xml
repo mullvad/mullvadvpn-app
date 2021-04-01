@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">バウチャーコードを入力</string>
     <string name="error_occurred">エラー発生。</string>
     <string name="error_state">セキュリティ保護接続を確立できませんでした</string>
-    <string name="exclude_applications">アプリケーションを除外する</string>
     <string name="failed_to_block_internet">すべてのネットワーク通信をブロックできませんでした。問題に対処するか、当社に問題を報告してください。</string>
     <string name="failed_to_create_account">アカウントを作成できませんでした</string>
     <string name="failed_to_generate_key">鍵の生成に失敗しました</string>

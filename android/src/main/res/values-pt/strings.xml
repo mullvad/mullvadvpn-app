@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">Introduza o código do voucher</string>
     <string name="error_occurred">Ocorreu um erro.</string>
     <string name="error_state">ERRO AO ESTABELECER LIGAÇÃO SEGURA</string>
-    <string name="exclude_applications">Excluir aplicações</string>
     <string name="failed_to_block_internet">Não foi possível bloquear todo o tráfego de rede. Experimente a resolução de problemas ou comunique-nos o problema.</string>
     <string name="failed_to_create_account">Não foi possível criar a conta</string>
     <string name="failed_to_generate_key">Não foi possível gerar uma chave</string>

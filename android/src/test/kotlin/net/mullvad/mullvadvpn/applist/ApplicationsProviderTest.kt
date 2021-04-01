@@ -7,6 +7,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verifyAll
+import net.mullvad.mullvadvpn.assertLists
 import org.junit.After
 import org.junit.Test
 
@@ -42,11 +43,8 @@ class ApplicationsProviderTest {
         val expected = listOf(
             AppData(launchWithInternetPackageName, 0, launchWithInternetPackageName)
         )
-        assert(
-            expected.size == result.size &&
-                expected.containsAll(result) &&
-                result.containsAll(expected)
-        )
+
+        assertLists(expected, result)
 
         verifyAll {
             mockedPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
