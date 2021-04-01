@@ -53,7 +53,6 @@
     <string name="enter_voucher_code">ဘောက်ချာကုဒ် ဖြည့်သွင်းရန်</string>
     <string name="error_occurred">ချို့ယွင်းချက် ဖြစ်ပေါ်ခဲ့ပါသည်။</string>
     <string name="error_state">ချိတ်ဆက်မှုကို ကာကွယ်ရန် မအောင်မြင်ပါ</string>
-    <string name="exclude_applications">အပလီကေးရှင်းများ ဖယ်ရန်</string>
     <string name="failed_to_block_internet">ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့ရန် မအောင်မြင်ပါ။ ပြစ်ချက်ရှာဖွေ ဖယ်ရှားပေးပါ သို့မဟုတ် ပြဿနာကို ကျွန်ုပ်တို့ထံ ရီပို့တ်လုပ်ပေးပါ။</string>
     <string name="failed_to_create_account">အကောင့် ဖန်တီးရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="failed_to_generate_key">ကီး ထုတ်ရန် မအောင်မြင်ခဲ့ပါ</string>
