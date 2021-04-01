@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Spanish\n"
 "Language: es_ES\n"
-"PO-Revision-Date: 2021-01-12 14:52\n"
+"PO-Revision-Date: 2021-03-31 13:39\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -131,6 +131,10 @@ msgstr "Dubái"
 #. IE DUB
 msgid "Dublin"
 msgstr "Dublín"
+
+#. DE DUS
+msgid "Dusseldorf"
+msgstr "Düsseldorf"
 
 #. FI
 msgid "Finland"

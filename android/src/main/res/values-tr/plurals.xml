@@ -1,16 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="years_left">
-        <item quantity="one">1 yıl kaldı</item>
-        <item quantity="other">%1$d yıl kaldı</item>
-    </plurals>
     <plurals name="months_left">
         <item quantity="one">1 ay kaldı</item>
         <item quantity="other">%1$d ay kaldı</item>
     </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">bir gün önce</item>
+        <item quantity="other">%1$d gün önce</item>
+    </plurals>
     <plurals name="days_left">
         <item quantity="one">1 gün kaldı</item>
         <item quantity="other">%1$d gün kaldı</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="one">1 yıl kaldı</item>
+        <item quantity="other">%1$d yıl kaldı</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="one">Hesap kredisi bir gün içinde sona eriyor</item>
+        <item quantity="other">Hesap kredisi %1$d gün içinde sona eriyor</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="one">Hesap kredisi bir saat içinde sona eriyor</item>
+        <item quantity="other">Hesap kredisi %1$d saat içinde sona eriyor</item>
     </plurals>
     <plurals name="minutes_ago">
         <item quantity="one">bir dakika önce</item>
@@ -20,10 +32,6 @@
         <item quantity="one">bir saat önce</item>
         <item quantity="other">%1$d saat önce</item>
     </plurals>
-    <plurals name="days_ago">
-        <item quantity="one">bir gün önce</item>
-        <item quantity="other">%1$d gün önce</item>
-    </plurals>
     <plurals name="months_ago">
         <item quantity="one">bir ay önce</item>
         <item quantity="other">%1$d ay önce</item>
@@ -31,13 +39,5 @@
     <plurals name="years_ago">
         <item quantity="one">bir yıl önce</item>
         <item quantity="other">%1$d yıl önce</item>
-    </plurals>
-    <plurals name="account_credit_expires_in_days">
-        <item quantity="one">Hesap kredisi bir gün içinde sona eriyor</item>
-        <item quantity="other">Hesap kredisi %1$d gün içinde sona eriyor</item>
-    </plurals>
-    <plurals name="account_credit_expires_in_hours">
-        <item quantity="one">Hesap kredisi bir saat içinde sona eriyor</item>
-        <item quantity="other">Hesap kredisi %1$d saat içinde sona eriyor</item>
     </plurals>
 </resources>
