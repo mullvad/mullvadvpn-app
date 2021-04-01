@@ -1,22 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="years_left">
-        <item quantity="one">Остался %1$d год</item>
-        <item quantity="few">Осталось %1$d года</item>
-        <item quantity="many">Осталось %1$d лет</item>
-        <item quantity="other">Осталось %1$d года</item>
-    </plurals>
     <plurals name="months_left">
         <item quantity="one">Остался %1$d месяц</item>
         <item quantity="few">Осталось %1$d месяца</item>
         <item quantity="many">Осталось %1$d месяцев</item>
         <item quantity="other">Осталось %1$d месяца</item>
     </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">%1$d день назад</item>
+        <item quantity="few">%1$d дня назад</item>
+        <item quantity="many">%1$d дней назад</item>
+        <item quantity="other">%1$d дня назад</item>
+    </plurals>
     <plurals name="days_left">
         <item quantity="one">Остался %1$d день</item>
         <item quantity="few">Осталось %1$d дня</item>
         <item quantity="many">Осталось %1$d дней</item>
         <item quantity="other">Осталось %1$d дня</item>
+    </plurals>
+    <plurals name="years_left">
+        <item quantity="one">Остался %1$d год</item>
+        <item quantity="few">Осталось %1$d года</item>
+        <item quantity="many">Осталось %1$d лет</item>
+        <item quantity="other">Осталось %1$d года</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="one">Срок действия баланса учетной записи истекает через %1$d день</item>
+        <item quantity="few">Срок действия баланса учетной записи истекает через %1$d дня</item>
+        <item quantity="many">Срок действия баланса учетной записи истекает через %1$d дней</item>
+        <item quantity="other">Срок действия баланса учетной записи истекает через %1$d дня</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="one">Срок действия баланса учетной записи истекает через %1$d час</item>
+        <item quantity="few">Срок действия баланса учетной записи истекает через %1$d часа</item>
+        <item quantity="many">Срок действия баланса учетной записи истекает через %1$d часов</item>
+        <item quantity="other">Срок действия баланса учетной записи истекает через %1$d часа</item>
     </plurals>
     <plurals name="minutes_ago">
         <item quantity="one">%1$d минуту назад</item>
@@ -30,12 +48,6 @@
         <item quantity="many">%1$d часов назад</item>
         <item quantity="other">%1$d часа назад</item>
     </plurals>
-    <plurals name="days_ago">
-        <item quantity="one">%1$d день назад</item>
-        <item quantity="few">%1$d дня назад</item>
-        <item quantity="many">%1$d дней назад</item>
-        <item quantity="other">%1$d дня назад</item>
-    </plurals>
     <plurals name="months_ago">
         <item quantity="one">%1$d месяц назад</item>
         <item quantity="few">%1$d месяца назад</item>
@@ -47,17 +59,5 @@
         <item quantity="few">%1$d года назад</item>
         <item quantity="many">%1$d лет назад</item>
         <item quantity="other">%1$d года назад</item>
-    </plurals>
-    <plurals name="account_credit_expires_in_days">
-        <item quantity="one">Срок действия баланса учетной записи истекает через %1$d день</item>
-        <item quantity="few">Срок действия баланса учетной записи истекает через %1$d дня</item>
-        <item quantity="many">Срок действия баланса учетной записи истекает через %1$d дней</item>
-        <item quantity="other">Срок действия баланса учетной записи истекает через %1$d дня</item>
-    </plurals>
-    <plurals name="account_credit_expires_in_hours">
-        <item quantity="one">Срок действия баланса учетной записи истекает через %1$d час</item>
-        <item quantity="few">Срок действия баланса учетной записи истекает через %1$d часа</item>
-        <item quantity="many">Срок действия баланса учетной записи истекает через %1$d часов</item>
-        <item quantity="other">Срок действия баланса учетной записи истекает через %1$d часа</item>
     </plurals>
 </resources>
