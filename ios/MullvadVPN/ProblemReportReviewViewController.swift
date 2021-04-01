@@ -55,6 +55,10 @@ class ProblemReportReviewViewController: UIViewController {
         view.layoutIfNeeded()
     }
 
+    override func selectAll(_ sender: Any?) {
+        textView.selectAll(sender)
+    }
+
     // MARK: - Actions
 
     @objc func handleDismissButton(_ sender: Any) {
