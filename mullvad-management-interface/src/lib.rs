@@ -84,23 +84,19 @@ pub async fn spawn_rpc_server<T: ManagementService>(
     endpoint.set_security_attributes(
         SecurityAttributes::allow_everyone_create()
             .map_err(Error::SecurityAttributes)?
-            .set_mode(777)
+            .set_mode(0o766)
             .map_err(Error::SecurityAttributes)?,
     );
     let incoming = endpoint.incoming().map_err(Error::StartServerError)?;
 
     #[cfg(unix)]
-    match &*MULLVAD_MANAGEMENT_SOCKET_GROUP {
-        None => fs::set_permissions(&socket_path, PermissionsExt::from_mode(0o766))
-            .map_err(Error::PermissionsError)?,
-        Some(group_name) => {
-            let group = nix::unistd::Group::from_name(&group_name)
-                .map_err(Error::ObtainGidError)?
-                .ok_or(Error::NoGidError)?;
-            nix::unistd::chown(&socket_path, None, Some(group.gid)).map_err(Error::SetGidError)?;
-            fs::set_permissions(&socket_path, PermissionsExt::from_mode(0o760))
-                .map_err(Error::PermissionsError)?;
-        }
+    if let Some(group_name) = &*MULLVAD_MANAGEMENT_SOCKET_GROUP {
+        let group = nix::unistd::Group::from_name(group_name)
+            .map_err(Error::ObtainGidError)?
+            .ok_or(Error::NoGidError)?;
+        nix::unistd::chown(&socket_path, None, Some(group.gid)).map_err(Error::SetGidError)?;
+        fs::set_permissions(&socket_path, PermissionsExt::from_mode(0o760))
+            .map_err(Error::PermissionsError)?;
     }
 
     let _ = server_start_tx.send(());
