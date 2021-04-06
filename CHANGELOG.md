@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+## [android/2021.1-beta1] - 2021-04-06
+This releas is for Android only. From now on, Android releases will have this new header format
+that is the same as the git tag they receive: `android/<version>`.
+
 ### Added
 - Enable isolation of the Electron renderer process to protect against potentially malicious third
   party dependencies.

@@ -1,5 +1,7 @@
-- Support navigating on Android TVs and other touchless devices
-- Fix bug where excluded apps would go in the tunnel after restart of the VPN app
-- Remove the quit button. Instead quit the app by swiping away the notification when disconnected
-- Make more resistant to DNS poisoning of the API server addresses
+- Support custom (local) DNS resolvers
+- Smarter split tunneling app view. Only shows apps that use internet
+- Add Burmese language support
+- Add ability to view app logs directly in problem report UI
+- Rotate WireGuard keys every four days instead of seven
+- Better Android TV support
 - Lots of bugfixes
