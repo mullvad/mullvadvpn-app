@@ -19,5 +19,9 @@ futures = "0.3"
 tokio = { version = "0.2", features =  [ "rt-util" ] }
 triggered = "0.1.1"
 
+[target.'cfg(unix)'.dependencies]
+nix = "0.19"
+lazy_static = "1.0"
+
 [build-dependencies]
 tonic-build = { version = "0.3", default-features = false, features = ["transport", "prost"] }
