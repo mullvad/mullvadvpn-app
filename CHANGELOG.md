@@ -73,6 +73,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix "cannot find the file" error while creating a Wintun adapter by upgrading Wintun.
 - Retry when creating a WireGuard tunnel fails due to no default routes being found.
+- Prevent tray icons from being extraced to `%TEMP%` directory.
 
 #### Linux
 - Stop using NM for managing DNS if it's newer than 1.26.
