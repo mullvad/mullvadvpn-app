@@ -8,6 +8,8 @@
         <item name="switchStyle">@style/AppTheme.Switch</item>
         <item name="actionListItemViewStyle">@style/ListItem.Action</item>
         <item name="applicationListItemViewStyle">@style/ListItem.Action.Application</item>
+        <item name="android:spotShadowAlpha">0</item>
+        <item name="actionBarSize">48dp</item>
     </style>
     <style name="InputText"
            parent="Widget.AppCompat.EditText">
