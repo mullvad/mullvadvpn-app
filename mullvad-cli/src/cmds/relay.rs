@@ -52,32 +52,28 @@ impl Command for Relay {
                                         .required(true),
                                 )
                                 .arg(
-                                    clap::Arg::with_name("protocol")
-                                        .help("Transport protocol")
-                                        .default_value("udp")
-                                        .possible_values(&["udp", "tcp"])
-                                        .required(true),
-                                )
-                                .arg(
-                                    clap::Arg::with_name("peer-key")
+                                    clap::Arg::with_name("peer-pubkey")
                                         .help("Base64 encoded peer public key")
-                                        .required(true)
-                                        .takes_value(true),
-                                )
-                                .arg(
-                                    clap::Arg::with_name("addr")
-                                        .help("Local address of wireguard tunnel")
-                                        .long("addr")
-                                        .required(true)
-                                        .takes_value(true)
-                                        .multiple(true),
+                                        .required(true),
                                 )
                                 .arg(
                                     clap::Arg::with_name("v4-gateway")
                                         .help("IPv4 gateway address")
-                                        .long("v4-gateway")
+                                        .required(true),
+                                )
+                                .arg(
+                                    clap::Arg::with_name("addr")
+                                        .help("Local address of wireguard tunnel")
                                         .required(true)
-                                        .takes_value(true),
+                                        .multiple(true),
+                                )
+                                .arg(
+                                    clap::Arg::with_name("protocol")
+                                        .help("Transport protocol")
+                                        .long("protocol")
+                                        .default_value("udp")
+                                        .possible_values(&["udp", "tcp"])
+                                        .required(true),
                                 )
                                 .arg(
                                     clap::Arg::with_name("v6-gateway")
@@ -90,31 +86,30 @@ impl Command for Relay {
                                 .arg(
                                     clap::Arg::with_name("host")
                                         .help("Hostname or IP")
-                                        .required(true)
-                                        .index(1),
+                                        .required(true),
                                 )
                                 .arg(
                                     clap::Arg::with_name("port")
                                         .help("Remote network port")
-                                        .required(true)
-                                        .index(2),
-                                )
-                                .arg(
-                                    clap::Arg::with_name("protocol")
-                                        .help("Transport protocol")
-                                        .index(3)
-                                        .default_value("udp")
-                                        .possible_values(&["udp", "tcp"]),
+                                        .required(true),
                                 )
                                 .arg(
                                     clap::Arg::with_name("username")
                                         .help("Username to be used with the OpenVpn relay")
-                                        .index(4),
+                                        .required(true),
                                 )
                                 .arg(
                                     clap::Arg::with_name("password")
                                         .help("Password to be used with the OpenVpn relay")
-                                        .index(5),
+                                        .required(true),
+                                )
+                                .arg(
+                                    clap::Arg::with_name("protocol")
+                                        .help("Transport protocol")
+                                        .long("protocol")
+                                        .default_value("udp")
+                                        .possible_values(&["udp", "tcp"])
+                                        .required(true),
                                 )
                             )
                     )
