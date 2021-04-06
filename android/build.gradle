@@ -72,9 +72,15 @@ android {
             }
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn" // Opt-in option for Koin annotation of KoinComponent.
     }
 
     applicationVariants.all { variant ->
@@ -126,17 +132,24 @@ dependencies {
     implementation "commons-validator:commons-validator:1.7"
     implementation "joda-time:joda-time:2.10.2"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3"
+    implementation "org.koin:koin-core:$koinVersion"
+    implementation "org.koin:koin-core-ext:$koinVersion"
+    implementation "org.koin:koin-androidx-fragment:$koinVersion"
+    implementation "org.koin:koin-androidx-scope:$koinVersion"
+    implementation "org.koin:koin-androidx-viewmodel:$koinVersion"
 
     /* Test dependencies */
     testImplementation "io.mockk:mockk:$mockkVersion"
     testImplementation "junit:junit:4.13"
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.3"
+    testImplementation "org.koin:koin-test:$koinVersion"
 }
 
 buildscript {
     ext {
+        koinVersion = '2.2.2'
         kotlinVersion = '1.4.31'
         mockkVersion = '1.10.6'
     }
