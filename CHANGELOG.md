@@ -24,21 +24,58 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Preserve log of old daemon instance when upgrading on Desktop.
+
+#### Linux
+- Always enable `src_valid_mark` config option when connecting to allow policty based routing.
+
+### Changed
+- Allow whitespace in account token in CLI.
+- Read account token from standard input unless given as an argument in CLI.
+- Make WireGuard automatic key rotation interval mandatory and between 1 and 7 days.
+- Show default, minimum, and maximum key rotation intervals in CLI.
+- Attempt to send problem reports using other endpoints if using the primary one fails.
+
+#### Linux
+- Only allow packets with the mark set to `0x6d6f6c65` to communicate with the relay server.
+  Previously, bridges were expected to run as root instead.
+
+### Fixed
+- Fix GUI not showing correct view if disconnected from the daemon during app startup.
+- Fix incorrectly displayed "inconsistent version" text in settings if disconnected from daemon on
+  startup.
+- Fix relay selection failing to pick a WireGuard relay when no tunnel protocol is specified.
+
+#### Windows
+- Prevent tray icons from being extraced to `%TEMP%` directory.
+
+#### Linux
+- Further improve offline monitor to properly receive `ENETUNREACH`.
+
+#### Android
+- Fix status bar having the wrong color after logging out.
+
+### Security
+- Always reconnect appropriately after an upgrade. Previously, installing the app twice in
+  succession, with auto-connect disabled, would cause it to re-launch in the disconnected state.
+
+
+## [android/2021.1-beta1] - 2021-04-06
+This releas is for Android only. From now on, Android releases will have this new header format
+that is the same as the git tag they receive: `android/<version>`.
+
+### Added
 - Enable isolation of the Electron renderer process to protect against potentially malicious third
   party dependencies.
 - Add 51820 to list of WireGuard ports in app settings.
 - Add option to connect to WireGuard relays over IPv6.
 - Add Burmese translations.
-- Preserve log of old daemon instance when upgrading on Desktop.
 
 #### Android
 - Allow reaching the API server when connecting, disconnecting or in a blocked state.
 - Add FAQs & Guides menu entry to the Settings screen.
 - Add TV banner for better user experience and requirements.
 - Style StatucBar and NavigationBar to make our app a bit more beautiful.
-
-#### Linux
-- Always enable `src_valid_mark` config option when connecting to allow policty based routing.
 
 ### Changed
 - Update Electron from 11.0.2 to 11.2.1 which includes a newer Chromium version and
@@ -47,11 +84,6 @@ Line wrap the file at 100 chars.                                              Th
 - Only download a new relay list if it has been modified.
 - Connect to the API only via TLS 1.3
 - Shrink account history capactity from 3 account entries to 1.
-- Allow whitespace in account token in CLI.
-- Read account token from standard input unless given as an argument in CLI.
-- Make WireGuard automatic key rotation interval mandatory and between 1 and 7 days.
-- Show default, minimum, and maximum key rotation intervals in CLI.
-- Attempt to send problem reports using other endpoints if using the primary one fails.
 
 #### Android
 - WireGuard key is now rotated sooner: every four days instead of seven.
@@ -59,35 +91,21 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Upgrade Wintun from 0.9.2 to 0.10.1.
 
-#### Linux
-- Only allow packets with the mark set to `0x6d6f6c65` to communicate with the relay server.
-  Previously, bridges were expected to run as root instead.
-
 ### Fixed
 - Fix delay in showing/hiding update notification when toggling beta program.
 - Improve responsiveness when reconnecting after some failed connection attempts.
-- Fix GUI not showing correct view if disconnected from the daemon during app startup.
-- Fix incorrectly displayed "inconsistent version" text in settings if disconnected from daemon on
-  startup.
 
 #### Windows
 - Fix "cannot find the file" error while creating a Wintun adapter by upgrading Wintun.
 - Retry when creating a WireGuard tunnel fails due to no default routes being found.
-- Prevent tray icons from being extraced to `%TEMP%` directory.
 
 #### Linux
 - Stop using NM for managing DNS if it's newer than 1.26.
 - Fix DNS issues where NM would overwrite Mullvad tunnel's DNS config in systemd-resolved.
 - Fix issues with hosts where the firewall is doing reverse path filtering.
-- Further improve offline monitor to properly receive `ENETUNREACH`.
 
 #### Android
 - Fix input area sometimes disappearing when returning to the Login screen.
-- Fix status bar having the wrong color after logging out.
-
-### Security
-- Always reconnect appropriately after an upgrade. Previously, installing the app twice in
-  succession, with auto-connect disabled, would cause it to re-launch in the disconnected state.
 
 
 ## [2021.2] - 2021-02-18
@@ -248,7 +266,6 @@ This release is for Android only.
 ### Fixed
 - Fix missing map animation after selecting a new location in the desktop app.
 - Fix crash on older kernels which report a default route through the loopback interface.
-- Fix relay selection failing to pick a WireGuard relay when no tunnel protocol is specified.
 
 #### Android
 - Fix connect action button sometimes showing itself as "Cancel" instead of "Secure my connection"
