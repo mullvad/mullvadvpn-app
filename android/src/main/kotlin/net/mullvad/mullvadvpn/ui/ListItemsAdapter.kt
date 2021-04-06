@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import java.util.concurrent.atomic.AtomicLong
 import net.mullvad.mullvadvpn.model.ListItemData
 import net.mullvad.mullvadvpn.ui.listitemview.ActionListItemView
+import net.mullvad.mullvadvpn.ui.listitemview.ApplicationListItemView
 import net.mullvad.mullvadvpn.ui.listitemview.DividerGroupListItemView
 import net.mullvad.mullvadvpn.ui.listitemview.ListItemView
 import net.mullvad.mullvadvpn.ui.listitemview.PlainListItemView
@@ -33,6 +34,7 @@ class ListItemsAdapter : RecyclerView.Adapter<ListItemsAdapter.ViewHolder>() {
                     ListItemData.PROGRESS -> ProgressListItemView(parent.context)
                     ListItemData.PLAIN -> PlainListItemView(parent.context)
                     ListItemData.ACTION -> ActionListItemView(parent.context)
+                    ListItemData.APPLICATION -> ApplicationListItemView(parent.context)
                     ListItemData.DOUBLE_ACTION -> TwoActionListItemView(parent.context)
                     else ->
                         throw IllegalArgumentException("View type '$viewType' is not supported")

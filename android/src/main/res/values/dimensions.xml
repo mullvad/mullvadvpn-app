@@ -45,6 +45,7 @@
     <dimen name="progress_size">60dp</dimen>
     <dimen name="icon_size">24dp</dimen>
     <dimen name="widget_padding">16dp</dimen>
+    <dimen name="expanded_toolbar_height">104dp</dimen>
     <!-- Switch Dimens-->
     <dimen name="switch_width">46dp</dimen>
     <dimen name="switch_height">30dp</dimen>
