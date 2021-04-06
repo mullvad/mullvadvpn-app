@@ -16,6 +16,7 @@ fern = { version = "0.6", features = ["colored"] }
 futures = "0.3"
 ipnetwork = "0.16"
 lazy_static = "1.0"
+libc = "0.2"
 log = "0.4"
 log-panics = "2.0.0"
 parking_lot = "0.11"
@@ -41,7 +42,6 @@ mullvad-management-interface = { path = "../mullvad-management-interface" }
 android_logger = "0.8"
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2"
 nix = "0.19"
 simple-signal = "1.1"
 
