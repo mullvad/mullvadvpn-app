@@ -434,6 +434,10 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
          servers are used.
 * `TALPID_DISABLE_OFFLINE_MONITOR` - Forces the daemon to always assume the host is online.
 
+* `MULLVAD_MANAGEMENT_SOCKET_GROUP` - On Linux and macOS, this restricts access to the management
+  interface UDS socket to users in the specified group. This means that only users in that group can
+  use the CLI and GUI. By default, everyone has access to the socket.
+
 #### Setting environment variable
 - On Windows, one can use `setx` from an elevated shell, like so
   ```bat
