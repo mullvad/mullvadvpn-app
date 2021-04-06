@@ -180,7 +180,10 @@ const config = {
 function packWin() {
   return builder.build({
     targets: builder.Platform.WINDOWS.createTarget(),
-    config: config,
+    config: {
+      ...config,
+      asarUnpack: ['build/assets/images/menubar icons/win32/lock-*.ico'],
+    },
   });
 }
 
