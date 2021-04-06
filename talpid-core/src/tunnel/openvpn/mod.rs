@@ -901,7 +901,7 @@ impl ProcessHandle for OpenVpnProcHandle {
 
 mod event_server {
     use futures::stream::TryStreamExt;
-    use parity_tokio_ipc::{Endpoint as IpcEndpoint, SecurityAttributes};
+    use parity_tokio_ipc::Endpoint as IpcEndpoint;
     use std::{
         collections::HashMap,
         convert::TryFrom,
@@ -973,8 +973,7 @@ mod event_server {
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
     {
-        let mut endpoint = IpcEndpoint::new(ipc_path.clone());
-        endpoint.set_security_attributes(SecurityAttributes::allow_everyone_create().unwrap());
+        let endpoint = IpcEndpoint::new(ipc_path);
         let incoming = endpoint.incoming().map_err(Error::StartServer)?;
         let _ = server_start_tx.send(());
 
