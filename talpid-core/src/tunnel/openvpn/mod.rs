@@ -924,10 +924,15 @@ mod event_server {
     };
 
     #[derive(err_derive::Error, Debug)]
+    #[error(no_from)]
     pub enum Error {
         /// Failure to set up the IPC server.
         #[error(display = "Failed to create pipe or Unix socket")]
         StartServer(#[error(source)] std::io::Error),
+
+        /// Failure to set IPC server UDS/pipe permissions.
+        #[error(display = "Failed to set UDS/pipe permissions")]
+        SetPipePermissions(#[error(source)] std::io::Error),
 
         /// An error occurred while the server was running.
         #[error(display = "Tonic error")]
@@ -974,7 +979,12 @@ mod event_server {
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
     {
         let mut endpoint = IpcEndpoint::new(ipc_path.clone());
-        endpoint.set_security_attributes(SecurityAttributes::allow_everyone_create().unwrap());
+        endpoint.set_security_attributes(
+            SecurityAttributes::allow_everyone_create()
+                .map_err(Error::SetPipePermissions)?
+                .set_mode(0o600)
+                .map_err(Error::SetPipePermissions)?,
+        );
         let incoming = endpoint.incoming().map_err(Error::StartServer)?;
         let _ = server_start_tx.send(());
 
