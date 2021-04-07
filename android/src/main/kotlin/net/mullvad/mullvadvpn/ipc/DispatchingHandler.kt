@@ -11,11 +11,11 @@ import kotlin.reflect.KClass
 class DispatchingHandler<T : Any>(
     looper: Looper,
     private val extractor: (Message) -> T?
-) : Handler(looper) {
+) : Handler(looper), MessageDispatcher<T> {
     private val handlers = HashMap<KClass<out T>, (T) -> Unit>()
     private val lock = ReentrantReadWriteLock()
 
-    fun <V : T> registerHandler(variant: KClass<V>, handler: (V) -> Unit) {
+    override fun <V : T> registerHandler(variant: KClass<V>, handler: (V) -> Unit) {
         lock.writeLock().withLock {
             handlers.put(variant) { instance ->
                 @Suppress("UNCHECKED_CAST")
