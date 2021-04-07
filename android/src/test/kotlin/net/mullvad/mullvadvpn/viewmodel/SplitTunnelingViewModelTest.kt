@@ -80,7 +80,8 @@ class SplitTunnelingViewModelTest {
     fun test_apps_list_delivered() = runBlockingTest(testCoroutineRule.testDispatcher) {
         val appExcluded = AppData("test.excluded", 0, "testName1")
         val appNotExcluded = AppData("test.not.excluded", 0, "testName2")
-        every { mockedSplitTunneling.excludedAppList } returns listOf(appExcluded.packageName)
+        every { mockedSplitTunneling.isAppExcluded(appExcluded.packageName) } returns true
+        every { mockedSplitTunneling.isAppExcluded(appNotExcluded.packageName) } returns false
 
         initTestSubject(listOf(appExcluded, appNotExcluded))
         testSubject.processIntent(ViewIntent.ViewIsReady)
@@ -99,14 +100,15 @@ class SplitTunnelingViewModelTest {
         assertLists(expectedList, actualList)
         verifyAll {
             mockedSplitTunneling.enabled
-            mockedSplitTunneling.excludedAppList
+            mockedSplitTunneling.isAppExcluded(appExcluded.packageName)
+            mockedSplitTunneling.isAppExcluded(appNotExcluded.packageName)
         }
     }
 
     @Test
     fun test_remove_app_from_excluded() = runBlockingTest(testCoroutineRule.testDispatcher) {
         val app = AppData("test", 0, "testName")
-        every { mockedSplitTunneling.excludedAppList } returns listOf(app.packageName)
+        every { mockedSplitTunneling.isAppExcluded(app.packageName) } returns true
         every { mockedSplitTunneling.includeApp(app.packageName) } just Runs
 
         initTestSubject(listOf(app))
@@ -137,7 +139,7 @@ class SplitTunnelingViewModelTest {
 
         verifyAll {
             mockedSplitTunneling.enabled
-            mockedSplitTunneling.excludedAppList
+            mockedSplitTunneling.isAppExcluded(app.packageName)
             mockedSplitTunneling.includeApp(app.packageName)
         }
     }
@@ -145,7 +147,7 @@ class SplitTunnelingViewModelTest {
     @Test
     fun test_add_app_to_excluded() = runBlockingTest(testCoroutineRule.testDispatcher) {
         val app = AppData("test", 0, "testName")
-        every { mockedSplitTunneling.excludedAppList } returns emptyList()
+        every { mockedSplitTunneling.isAppExcluded(app.packageName) } returns false
         every { mockedSplitTunneling.excludeApp(app.packageName) } just Runs
         initTestSubject(listOf(app))
         testSubject.processIntent(ViewIntent.ViewIsReady)
@@ -175,7 +177,7 @@ class SplitTunnelingViewModelTest {
 
         verifyAll {
             mockedSplitTunneling.enabled
-            mockedSplitTunneling.excludedAppList
+            mockedSplitTunneling.isAppExcluded(app.packageName)
             mockedSplitTunneling.excludeApp(app.packageName)
         }
     }
