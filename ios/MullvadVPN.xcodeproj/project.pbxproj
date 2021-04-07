@@ -1376,7 +1376,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2021.1;
+				MARKETING_VERSION = 2021.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Mullvad VPN Development";
@@ -1404,7 +1404,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2021.1;
+				MARKETING_VERSION = 2021.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Mullvad VPN Release";
@@ -1431,7 +1431,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2021.1;
+				MARKETING_VERSION = 2021.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Packet Tunnel Development";
@@ -1458,7 +1458,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				MARKETING_VERSION = 2021.1;
+				MARKETING_VERSION = 2021.2;
 				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPN.PacketTunnel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "Packet Tunnel Release";
