@@ -51,6 +51,9 @@ This release is for desktop only.
 #### Linux
 - Always enable `src_valid_mark` config option when connecting to allow policty based routing.
 
+#### Android
+- Added support of adaptive icons (available only from Android 8).
+
 ### Changed
 - Allow whitespace in account token in CLI.
 - Read account token from standard input unless given as an argument in CLI.
