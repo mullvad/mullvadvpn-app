@@ -10,7 +10,6 @@ import {
   shell,
   Tray,
 } from 'electron';
-import moment from 'moment';
 import * as path from 'path';
 import { sprintf } from 'sprintf-js';
 import * as uuid from 'uuid';
@@ -1339,7 +1338,7 @@ class ApplicationMain {
         this.notificationController.notify(closeToExpiryNotification.getSystemNotification());
 
         const twelveHours = 12 * 60 * 60 * 1000;
-        const remainingMilliseconds = moment(this.accountData.expiry).diff(new Date());
+        const remainingMilliseconds = new Date(this.accountData.expiry).getTime() - Date.now();
         const delay = Math.min(twelveHours, remainingMilliseconds);
         this.accountExpiryNotificationScheduler.schedule(() => this.handleAccountExpiry(), delay);
       }
