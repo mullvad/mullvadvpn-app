@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
+import android.content.Context
 import android.os.DeadObjectException
 import android.os.Looper
 import android.os.Messenger
@@ -23,7 +24,7 @@ class ServiceEndpoint(
     internal val intermittentDaemon: Intermittent<MullvadDaemon>,
     val connectivityListener: ConnectivityListener,
     splitTunnelingPersistence: SplitTunnelingPersistence,
-    vpnPermission: VpnPermission
+    context: Context
 ) {
     private val listeners = mutableSetOf<Messenger>()
     private val registrationQueue: SendChannel<Messenger> = startRegistrator()
@@ -33,6 +34,8 @@ class ServiceEndpoint(
     }
 
     val messenger = Messenger(dispatcher)
+
+    val vpnPermission = VpnPermission(context)
 
     val connectionProxy = ConnectionProxy(vpnPermission, this)
     val settingsListener = SettingsListener(this)
