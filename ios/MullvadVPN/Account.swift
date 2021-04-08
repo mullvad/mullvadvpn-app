@@ -18,6 +18,37 @@ private enum UserDefaultsKeys: String {
     case accountExpiry = "accountExpiry"
 }
 
+protocol AccountObserver: class {
+    func account(_ account: Account, didUpdateExpiry expiry: Date)
+    func account(_ account: Account, didLoginWithToken token: String, expiry: Date)
+    func accountDidLogout(_ account: Account)
+}
+
+/// A type-erasing weak container for `AccountObserver`
+private class AnyAccountObserver: AccountObserver, WeakObserverBox, Equatable {
+    private(set) weak var inner: AccountObserver?
+
+    init<T: AccountObserver>(_ inner: T) {
+        self.inner = inner
+    }
+
+    func account(_ account: Account, didUpdateExpiry expiry: Date) {
+        inner?.account(account, didUpdateExpiry: expiry)
+    }
+
+    func account(_ account: Account, didLoginWithToken token: String, expiry: Date) {
+        inner?.account(account, didLoginWithToken: token, expiry: expiry)
+    }
+
+    func accountDidLogout(_ account: Account) {
+        inner?.accountDidLogout(account)
+    }
+
+    static func == (lhs: AnyAccountObserver, rhs: AnyAccountObserver) -> Bool {
+        return lhs.inner === rhs.inner
+    }
+}
+
 /// A class that groups the account related operations
 class Account {
 
@@ -32,16 +63,11 @@ class Account {
         case tunnelConfiguration(TunnelManager.Error)
     }
 
-    /// A notification name used to broadcast the changes to account expiry
-    static let didUpdateAccountExpiryNotification = Notification.Name("didUpdateAccountExpiry")
-
-    /// A notification userInfo key that holds the `Date` with the new account expiry
-    static let newAccountExpiryUserInfoKey = "newAccountExpiry"
-
     /// A shared instance of `Account`
     static let shared = Account()
 
     private let logger = Logger(label: "Account")
+    private var observerList = ObserverList<AnyAccountObserver>()
 
     /// Returns true if user agreed to terms of service, otherwise false
     var isAgreedToTermsOfService: Bool {
@@ -96,6 +122,11 @@ class Account {
             switch result {
             case .success(let response):
                 self.setupTunnel(accountToken: response.token, expiry: response.expires) { (result) in
+                    if case .success = result {
+                        self.observerList.forEach { (observer) in
+                            observer.account(self, didLoginWithToken: response.token, expiry: response.expires)
+                        }
+                    }
                     completionHandler(result.map { response })
                 }
 
@@ -117,6 +148,11 @@ class Account {
             switch result {
             case .success(let response):
                 self.setupTunnel(accountToken: response.token, expiry: response.expires) { (result) in
+                    if case .success = result {
+                        self.observerList.forEach { (observer) in
+                            observer.account(self, didLoginWithToken: response.token, expiry: response.expires)
+                        }
+                    }
                     completionHandler(result.map { response })
                 }
 
@@ -136,6 +172,9 @@ class Account {
                     switch result {
                     case .success:
                         self.removeFromPreferences()
+                        self.observerList.forEach { (observer) in
+                            observer.accountDidLogout(self)
+                        }
 
                         finish(.success(()))
 
@@ -168,7 +207,9 @@ class Account {
             switch result {
             case .success(let response):
                 self.expiry = response.expires
-                self.postExpiryUpdateNotification(newExpiry: response.expires)
+                self.observerList.forEach { (observer) in
+                    observer.account(self, didUpdateExpiry: response.expires)
+                }
 
             case .failure(let error):
                 self.logger.error(chainedError: error, message: "Failed to update account expiry")
@@ -200,14 +241,16 @@ class Account {
 
         preferences.removeObject(forKey: UserDefaultsKeys.accountToken.rawValue)
         preferences.removeObject(forKey: UserDefaultsKeys.accountExpiry.rawValue)
-
     }
 
-    fileprivate func postExpiryUpdateNotification(newExpiry: Date) {
-        NotificationCenter.default.post(
-            name: Self.didUpdateAccountExpiryNotification,
-            object: self, userInfo: [Self.newAccountExpiryUserInfoKey: newExpiry]
-        )
+    // MARK: - Account observation
+
+    func addObserver<T: AccountObserver>(_ observer: T) {
+        observerList.append(AnyAccountObserver(observer))
+    }
+
+    func removeObserver<T: AccountObserver>(_ observer: T) {
+        observerList.remove(AnyAccountObserver(observer))
     }
 }
 
@@ -229,7 +272,9 @@ extension Account: AppStorePaymentObserver {
                 // Make sure that payment corresponds to the active account token
                 if self.token == accountToken {
                     self.expiry = newExpiry
-                    self.postExpiryUpdateNotification(newExpiry: newExpiry)
+                    self.observerList.forEach { (observer) in
+                        observer.account(self, didUpdateExpiry: newExpiry)
+                    }
                 }
 
                 finish()
