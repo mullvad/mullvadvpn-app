@@ -9,21 +9,13 @@
 import Foundation
 import UIKit
 
-enum SettingsNavigationRoute {
-    case account
-    case wireguardKeys
-}
-
-enum SettingsDismissReason {
-    case none
-    case userLoggedOut
-}
-
 protocol SettingsViewControllerDelegate: class {
-    func settingsViewController(_ controller: SettingsViewController, didFinishWithReason reason: SettingsDismissReason)
+    func settingsViewControllerDidFinish(_ controller: SettingsViewController)
 }
 
-class SettingsViewController: UITableViewController, AccountViewControllerDelegate {
+class SettingsViewController: UITableViewController {
+
+    weak var delegate: SettingsViewControllerDelegate?
 
     private enum CellIdentifier: String {
         case accountCell = "AccountCell"
@@ -35,7 +27,17 @@ class SettingsViewController: UITableViewController, AccountViewControllerDelega
     private weak var accountRow: StaticTableViewRow?
     private var accountExpiryObserver: NSObjectProtocol?
 
-    weak var settingsDelegate: SettingsViewControllerDelegate?
+    private var settingsNavigationController: SettingsNavigationController? {
+        return self.navigationController as? SettingsNavigationController
+    }
+
+    init() {
+        super.init(style: .grouped)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -72,30 +74,7 @@ class SettingsViewController: UITableViewController, AccountViewControllerDelega
     // MARK: - IBActions
 
     @IBAction func handleDismiss() {
-        settingsDelegate?.settingsViewController(self, didFinishWithReason: .none)
-    }
-
-    // MARK: - Navigation
-
-    func navigate(to route: SettingsNavigationRoute) {
-        switch route {
-        case .account:
-            let controller = AccountViewController()
-            controller.delegate = self
-
-            navigationController?.pushViewController(controller, animated: true)
-
-        case .wireguardKeys:
-            let controller = WireguardKeysViewController()
-
-            navigationController?.pushViewController(controller, animated: true)
-        }
-    }
-
-    // MARK: - AccountViewControllerDelegate
-
-    func accountViewControllerDidLogout(_ controller: AccountViewController) {
-        settingsDelegate?.settingsViewController(self, didFinishWithReason: .userLoggedOut)
+        delegate?.settingsViewControllerDidFinish(self)
     }
 
     // MARK: - Private
@@ -113,7 +92,7 @@ class SettingsViewController: UITableViewController, AccountViewControllerDelega
             }
 
             accountRow.actionBlock = { [weak self] (indexPath) in
-                self?.navigate(to: .account)
+                self?.settingsNavigationController?.navigate(to: .account, animated: true)
             }
 
             let wireguardKeyRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
@@ -125,7 +104,7 @@ class SettingsViewController: UITableViewController, AccountViewControllerDelega
             }
 
             wireguardKeyRow.actionBlock = { [weak self] (indexPath) in
-                self?.navigate(to: .wireguardKeys)
+                self?.settingsNavigationController?.navigate(to: .wireguardKeys, animated: true)
             }
 
             self.accountRow = accountRow
@@ -172,9 +151,7 @@ class SettingsViewController: UITableViewController, AccountViewControllerDelega
         }
 
         problemReportRow.actionBlock = { [weak self] (indexPath) in
-            let controller = ProblemReportViewController()
-
-            self?.navigationController?.pushViewController(controller, animated: true)
+            self?.settingsNavigationController?.navigate(to: .problemReport, animated: true)
         }
 
         bottomSection.addRows([problemReportRow])
