@@ -49,28 +49,12 @@ fn main() {
         serde_xml_rs::from_reader(strings_file).expect("Failed to read string resources file");
 
     string_resources.normalize();
-    string_resources.retain(|string| string.translatable);
 
-    let mut known_urls = HashMap::with_capacity(string_resources.len());
-    let mut known_strings = HashMap::with_capacity(string_resources.len());
-
-    for string in string_resources {
-        let destination = if string.value.starts_with("https://mullvad.net/en/") {
-            &mut known_urls
-        } else {
-            &mut known_strings
-        };
-
-        if destination
-            .insert(string.value.to_string(), string.name)
-            .is_some()
-        {
-            panic!(
-                "String {:?} has more than one Android resource ID",
-                string.value
-            );
-        }
-    }
+    let (known_urls, known_strings): (HashMap<_, _>, HashMap<_, _>) = string_resources
+        .into_iter()
+        .filter(|resource| resource.translatable)
+        .map(|resource| (resource.value.to_string(), resource.name))
+        .partition(|(string, _id)| string.starts_with("https://mullvad.net/en/"));
 
     let plurals_file = File::open(resources_dir.join("values/plurals.xml"))
         .expect("Failed to open plurals resources file");
