@@ -23,7 +23,6 @@ class ServiceEndpoint(
     looper: Looper,
     internal val intermittentDaemon: Intermittent<MullvadDaemon>,
     val connectivityListener: ConnectivityListener,
-    splitTunnelingPersistence: SplitTunnelingPersistence,
     context: Context
 ) {
     private val listeners = mutableSetOf<Messenger>()
@@ -43,7 +42,7 @@ class ServiceEndpoint(
     val accountCache = AccountCache(this)
     val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)
-    val splitTunneling = SplitTunneling(splitTunnelingPersistence, this)
+    val splitTunneling = SplitTunneling(SplitTunnelingPersistence(context), this)
 
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
