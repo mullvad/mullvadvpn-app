@@ -1,7 +1,7 @@
-import moment from 'moment';
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import { TunnelState } from '../../shared/daemon-rpc-types';
+import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { IWgKey, WgKeyState } from '../redux/settings/reducers';
@@ -35,7 +35,6 @@ import {
 export interface IProps {
   keyState: WgKeyState;
   isOffline: boolean;
-  locale: string;
   tunnelState: TunnelState;
   windowFocused: boolean;
 
@@ -56,14 +55,14 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
   public state = {
     recentlyGeneratedKey: false,
     userHasInitiatedVerification: false,
-    ageOfKeyString: WireguardKeys.ageOfKeyString(this.props.keyState, this.props.locale),
+    ageOfKeyString: WireguardKeys.ageOfKeyString(this.props.keyState),
   };
 
   private keyAgeUpdateInterval?: number;
 
   public static getDerivedStateFromProps(props: IProps) {
     return {
-      ageOfKeyString: WireguardKeys.ageOfKeyString(props.keyState, props.locale),
+      ageOfKeyString: WireguardKeys.ageOfKeyString(props.keyState),
     };
   }
 
@@ -276,11 +275,12 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
     }
   }
 
-  private static ageOfKeyString(keyState: WgKeyState, locale: string): string {
+  private static ageOfKeyString(keyState: WgKeyState): string {
     switch (keyState.type) {
       case 'key-set':
-      case 'being-verified':
-        return moment(keyState.key.created).locale(locale).fromNow();
+      case 'being-verified': {
+        return formatRelativeDate(new Date(), keyState.key.created, true);
+      }
       default:
         return '-';
     }
@@ -288,7 +288,7 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
 
   private setAgeOfKeyStringState = () => {
     this.setState({
-      ageOfKeyString: WireguardKeys.ageOfKeyString(this.props.keyState, this.props.locale),
+      ageOfKeyString: WireguardKeys.ageOfKeyString(this.props.keyState),
     });
   };
 

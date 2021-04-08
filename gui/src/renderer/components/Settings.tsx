@@ -29,7 +29,6 @@ export interface IProps {
   preferredLocaleDisplayName: string;
   loginState: LoginState;
   accountExpiry?: string;
-  expiryLocale: string;
   appVersion: string;
   consistentVersion: boolean;
   upToDateVersion: boolean;
@@ -106,7 +105,7 @@ export default class Settings extends React.Component<IProps> {
 
     const isOutOfTime = this.props.accountExpiry ? hasExpired(this.props.accountExpiry) : false;
     const formattedExpiry = this.props.accountExpiry
-      ? formatRemainingTime(this.props.accountExpiry, this.props.expiryLocale).toUpperCase()
+      ? formatRemainingTime(this.props.accountExpiry).toUpperCase()
       : '';
 
     const outOfTimeMessage = messages.pgettext('settings-view', 'OUT OF TIME');
