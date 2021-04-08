@@ -13,7 +13,13 @@ sealed class Request : Message.RequestMessage() {
     object CreateAccount : Request()
 
     @Parcelize
+    data class ExcludeApp(val packageName: String) : Request()
+
+    @Parcelize
     object FetchAccountExpiry : Request()
+
+    @Parcelize
+    data class IncludeApp(val packageName: String) : Request()
 
     @Parcelize
     data class InvalidateAccountExpiry(val expiry: DateTime) : Request()
@@ -25,10 +31,16 @@ sealed class Request : Message.RequestMessage() {
     object Logout : Request()
 
     @Parcelize
+    object PersistExcludedApps : Request()
+
+    @Parcelize
     data class RegisterListener(val listener: Messenger) : Request()
 
     @Parcelize
     data class RemoveAccountFromHistory(val account: String?) : Request()
+
+    @Parcelize
+    data class SetEnableSplitTunneling(val enable: Boolean) : Request()
 
     @Parcelize
     object WireGuardGenerateKey : Request()

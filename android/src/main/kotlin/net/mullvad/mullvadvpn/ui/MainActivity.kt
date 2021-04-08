@@ -23,6 +23,9 @@ import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.talpid.util.EventNotifier
+import org.koin.android.ext.android.getKoin
+import org.koin.core.parameter.parametersOf
+import org.koin.core.scope.Scope
 
 open class MainActivity : FragmentActivity() {
     companion object {
@@ -44,6 +47,7 @@ open class MainActivity : FragmentActivity() {
         uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
     }
 
+    private var serviceConnectionScope: Scope? = null
     private val serviceConnectionManager = object : android.content.ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             android.util.Log.d("mullvad", "UI successfully connected to the service")
@@ -55,10 +59,13 @@ open class MainActivity : FragmentActivity() {
 
             localBinder.serviceNotifier.subscribe(this@MainActivity) { service ->
                 android.util.Log.d("mullvad", "UI connection to the service changed: $service")
-                serviceConnection?.onDestroy()
+                serviceConnectionScope?.close()
 
                 val newConnection = service?.let { safeService ->
-                    ServiceConnection(safeService, this@MainActivity)
+                    serviceConnectionScope = getKoin().createScope<ServiceConnection>()
+                    serviceConnectionScope?.get<ServiceConnection>(
+                        parameters = { parametersOf(safeService, this@MainActivity) }
+                    )
                 }
 
                 serviceConnection = newConnection
@@ -80,7 +87,7 @@ open class MainActivity : FragmentActivity() {
         override fun onServiceDisconnected(className: ComponentName) {
             android.util.Log.d("mullvad", "UI lost the connection to the service")
             service?.serviceNotifier?.unsubscribe(this@MainActivity)
-            serviceConnection?.onDestroy()
+            serviceConnectionScope?.close()
             service = null
             serviceConnection = null
             serviceNotifier.notify(null)
@@ -154,7 +161,7 @@ open class MainActivity : FragmentActivity() {
 
     override fun onDestroy() {
         serviceNotifier.unsubscribeAll()
-        serviceConnection?.onDestroy()
+        serviceConnectionScope?.close()
 
         super.onDestroy()
     }

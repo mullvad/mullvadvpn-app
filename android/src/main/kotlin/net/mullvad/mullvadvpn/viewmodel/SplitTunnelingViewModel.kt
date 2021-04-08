@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.applist.ViewIntent
 import net.mullvad.mullvadvpn.model.ListItemData
 import net.mullvad.mullvadvpn.model.WidgetState
-import net.mullvad.mullvadvpn.service.SplitTunneling
+import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 
 class SplitTunnelingViewModel(
     private val appsProvider: ApplicationsProvider,
@@ -92,7 +92,7 @@ class SplitTunnelingViewModel(
 
     private suspend fun fetchData() {
         appsProvider.getAppsList()
-            .partition { app -> splitTunneling.excludedAppList.contains(app.packageName) }
+            .partition { app -> splitTunneling.isAppExcluded(app.packageName) }
             .let { (excludedAppsList, notExcludedAppsList) ->
                 // TODO: remove potential package names from splitTunneling list
                 //       if they already uninstalled or filtered; but not in ViewModel

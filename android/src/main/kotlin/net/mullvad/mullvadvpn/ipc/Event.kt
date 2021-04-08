@@ -27,6 +27,9 @@ sealed class Event : Message.EventMessage() {
     data class SettingsUpdate(val settings: Settings?) : Event()
 
     @Parcelize
+    data class SplitTunnelingUpdate(val excludedApps: List<String>?) : Event()
+
+    @Parcelize
     data class WireGuardKeyStatus(val keyStatus: KeygenEvent?) : Event()
 
     companion object {
