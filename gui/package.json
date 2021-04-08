@@ -17,7 +17,6 @@
     "d3-geo": "^1.12.1",
     "gettext-parser": "^4.0.3",
     "google-protobuf": "^3.14.0",
-    "moment": "^2.29.1",
     "node-gettext": "^3.0.0",
     "rbush": "^2.0.2",
     "react": "^17.0.1",
