@@ -23,6 +23,8 @@ enum LoginState {
 }
 
 protocol LoginViewControllerDelegate: class {
+    func loginViewController(_ controller: LoginViewController, loginWithAccountToken accountToken: String, completion: @escaping (Result<AccountResponse, Account.Error>) -> Void)
+    func loginViewControllerLoginWithNewAccount(_ controller: LoginViewController, completion: @escaping (Result<AccountResponse, Account.Error>) -> Void)
     func loginViewControllerDidLogin(_ controller: LoginViewController)
 }
 
@@ -88,6 +90,20 @@ class LoginViewController: UIViewController, RootContainment {
 
         contentView.accountTextField.inputAccessoryView = self.accountInputAccessoryToolbar
 
+        // The return key on iPad should behave the same way as "Log in" button in the toolbar
+        if case .pad = UIDevice.current.userInterfaceIdiom {
+            contentView.accountTextField.onReturnKey = { [weak self] _ in
+                guard let self = self else { return true }
+
+                if self.canBeginLogin() {
+                    self.doLogin()
+                    return true
+                } else {
+                    return false
+                }
+            }
+        }
+
         updateDisplayedMessage()
         updateStatusIcon()
         updateKeyboardToolbar()
@@ -132,18 +148,14 @@ class LoginViewController: UIViewController, RootContainment {
         let accountToken = contentView.accountTextField.parsedToken
 
         beginLogin(method: .existingAccount)
-
-        Account.shared.login(with: accountToken) { (result) in
+        self.delegate?.loginViewController(self, loginWithAccountToken: accountToken, completion: { [weak self] (result) in
             switch result {
             case .success:
-                self.endLogin(.success(.existingAccount))
-
+                self?.endLogin(.success(.existingAccount))
             case .failure(let error):
-                self.logger.error(chainedError: error, message: "Failed to log in with existing account")
-
-                self.endLogin(.failure(error))
+                self?.endLogin(.failure(error))
             }
-        }
+        })
     }
 
     @objc func createNewAccount() {
@@ -152,18 +164,15 @@ class LoginViewController: UIViewController, RootContainment {
         contentView.accountTextField.autoformattingText = ""
         updateKeyboardToolbar()
 
-        Account.shared.loginWithNewAccount { (result) in
+        self.delegate?.loginViewControllerLoginWithNewAccount(self, completion: { [weak self] (result) in
             switch result {
             case .success(let response):
-                self.contentView.accountTextField.autoformattingText = response.token
-
-                self.endLogin(.success(.newAccount))
+                self?.contentView.accountTextField.autoformattingText = response.token
+                self?.endLogin(.success(.newAccount))
             case .failure(let error):
-                self.logger.error(chainedError: error, message: "Failed to log in with new account")
-
-                self.endLogin(.failure(error))
+                self?.endLogin(.failure(error))
             }
-        }
+        })
     }
 
     // MARK: - Private
@@ -179,15 +188,10 @@ class LoginViewController: UIViewController, RootContainment {
             contentView.activityIndicator.startAnimating()
             contentView.createAccountButton.isEnabled = false
 
-            // Fallthrough to make sure that the settings button is disabled
-            // in .authenticating and .success cases.
-            fallthrough
-
         case .success:
-            rootContainerController?.setEnableSettingsButton(false)
+            break
 
         case .default, .failure:
-            rootContainerController?.setEnableSettingsButton(true)
             contentView.createAccountButton.isEnabled = true
             contentView.activityIndicator.stopAnimating()
         }
@@ -226,8 +230,6 @@ class LoginViewController: UIViewController, RootContainment {
         } else if case .success = loginState {
             // Navigate to the main view after 1s delay
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-                self.rootContainerController?.setEnableSettingsButton(true)
-
                 self.delegate?.loginViewControllerDidLogin(self)
             }
         }
@@ -239,10 +241,13 @@ class LoginViewController: UIViewController, RootContainment {
     }
 
     private func updateKeyboardToolbar() {
-        let accountTokenLength = contentView.accountTextField.parsedToken.count
-        let enableButton = accountTokenLength >= kMinimumAccountTokenLength
+        accountInputAccessoryLoginButton.isEnabled = canBeginLogin()
+        contentView.accountTextField.enableReturnKey = canBeginLogin()
+    }
 
-        accountInputAccessoryLoginButton.isEnabled = enableButton
+    private func canBeginLogin() -> Bool {
+        let accountTokenLength = contentView.accountTextField.parsedToken.count
+        return accountTokenLength >= kMinimumAccountTokenLength
     }
 }
 
