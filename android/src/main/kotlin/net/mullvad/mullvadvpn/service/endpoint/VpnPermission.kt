@@ -3,11 +3,18 @@ package net.mullvad.mullvadvpn.service.endpoint
 import android.content.Context
 import android.content.Intent
 import android.net.VpnService
+import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.util.Intermittent
 
-class VpnPermission(private val context: Context) {
+class VpnPermission(private val context: Context, endpoint: ServiceEndpoint) {
     private val isGranted = Intermittent<Boolean>()
+
+    init {
+        endpoint.dispatcher.registerHandler(Request.VpnPermissionResponse::class) { request ->
+            isGranted.spawnUpdate(request.isGranted)
+        }
+    }
 
     suspend fun request(): Boolean {
         val intent = VpnService.prepare(context)
@@ -27,9 +34,5 @@ class VpnPermission(private val context: Context) {
         }
 
         return isGranted.await()
-    }
-
-    suspend fun grant(permission: Boolean) {
-        isGranted.update(permission)
     }
 }
