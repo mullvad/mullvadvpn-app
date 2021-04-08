@@ -12,11 +12,22 @@ import UIKit
 class DisconnectSplitButton: UIView {
 
     private var secondaryButtonSize: CGSize {
-        return CGSize(width: 42, height: 42)
+        // TODO: make it less hardcoded
+        switch self.traitCollection.userInterfaceIdiom {
+        case .phone:
+            return CGSize(width: 42, height: 42)
+        case .pad:
+            return CGSize(width: 52, height: 52)
+        default:
+            return .zero
+        }
     }
 
     let primaryButton = AppButton(style: .translucentDangerSplitLeft)
     let secondaryButton = AppButton(style: .translucentDangerSplitRight)
+
+    private let secondaryButtonWidthConstraint: NSLayoutConstraint
+    private let secondaryButtonHeightConstraint: NSLayoutConstraint
 
     private let stackView: UIStackView
 
@@ -31,6 +42,10 @@ class DisconnectSplitButton: UIView {
         primaryButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         secondaryButton.setImage(UIImage(named: "IconReload"), for: .normal)
 
+        primaryButton.overrideContentEdgeInsets = true
+        secondaryButtonWidthConstraint = secondaryButton.widthAnchor.constraint(equalToConstant: 0)
+        secondaryButtonHeightConstraint = secondaryButton.heightAnchor.constraint(equalToConstant: 0)
+
         super.init(frame: .zero)
 
         addSubview(stackView)
@@ -41,19 +56,34 @@ class DisconnectSplitButton: UIView {
             stackView.topAnchor.constraint(equalTo: topAnchor),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
 
-            secondaryButton.widthAnchor.constraint(equalToConstant: self.secondaryButtonSize.width),
-            secondaryButton.heightAnchor.constraint(equalToConstant: self.secondaryButtonSize.height)
+            secondaryButtonWidthConstraint,
+            secondaryButtonHeightConstraint
         ])
 
-        adjustTitleLabelPosition()
+        updateTraitConstraints()
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if traitCollection.userInterfaceIdiom != previousTraitCollection?.userInterfaceIdiom {
+            updateTraitConstraints()
+        }
+    }
+
+    private func updateTraitConstraints() {
+        let newSize = self.secondaryButtonSize
+        secondaryButtonWidthConstraint.constant = newSize.width
+        secondaryButtonHeightConstraint.constant = newSize.height
+        adjustTitleLabelPosition()
+    }
+
     private func adjustTitleLabelPosition() {
-        var contentInsets = AppButton.defaultContentInsets
+        var contentInsets = primaryButton.defaultContentInsets
         contentInsets.left = stackView.spacing + self.secondaryButtonSize.width
         contentInsets.right = 0
 
