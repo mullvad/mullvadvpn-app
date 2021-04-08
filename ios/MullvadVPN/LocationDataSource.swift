@@ -30,6 +30,8 @@ class LocationDataSource: NSObject, UITableViewDataSource {
     private let cellProvider: CellProviderBlock
 
     private(set) var selectedRelayLocation: RelayLocation?
+    private var lastShowHiddenParents = false
+    private var lastScrollPosition: UITableView.ScrollPosition = .none
 
     private class func makeRootNode() -> Node {
         return Node(
@@ -52,6 +54,8 @@ class LocationDataSource: NSObject, UITableViewDataSource {
 
     func setSelectedRelayLocation(_ relayLocation: RelayLocation?, showHiddenParents: Bool, animated: Bool, scrollPosition: UITableView.ScrollPosition, completion: (() -> Void)? = nil) {
         self.selectedRelayLocation = relayLocation
+        self.lastShowHiddenParents = showHiddenParents
+        self.lastScrollPosition = scrollPosition
 
         if relayLocation == nil {
             if let indexPath = tableView.indexPathForSelectedRow {
@@ -78,6 +82,7 @@ class LocationDataSource: NSObject, UITableViewDataSource {
     func setRelays(_ response: ServerRelaysResponse) {
         let rootNode = Self.makeRootNode()
         var nodeByLocation = [RelayLocation: Node]()
+        let dataSourceWasEmpty = locationList.isEmpty
 
         for relay in response.wireguard.relays {
             guard case .city(let countryCode, let cityCode) = RelayLocation(dashSeparatedString: relay.location),
@@ -140,8 +145,26 @@ class LocationDataSource: NSObject, UITableViewDataSource {
         self.locationList = rootNode.flatRelayLocationList()
 
         tableView.reloadData()
-        if let indexPath = self.indexPathForSelectedRelay() {
-            tableView.selectRow(at: indexPath, animated: false, scrollPosition: .none)
+
+        let setSelection = { (_ scrollPosition: UITableView.ScrollPosition) in
+            if let indexPath = self.indexPathForSelectedRelay() {
+                self.tableView.selectRow(at: indexPath, animated: false, scrollPosition: scrollPosition)
+            }
+        }
+
+        // Sometimes the selected relay may be set before the data source is populated with relays.
+        // In that case restore the selection using cached parameters from the last call to
+        // `setSelectedRelayLocation`.
+        if let selectedRelayLocation = self.selectedRelayLocation, dataSourceWasEmpty {
+            if lastShowHiddenParents {
+                showParents(selectedRelayLocation, animated: false) {
+                    setSelection(self.lastScrollPosition)
+                }
+            } else {
+                setSelection(self.lastScrollPosition)
+            }
+        } else {
+            setSelection(.none)
         }
     }
 
