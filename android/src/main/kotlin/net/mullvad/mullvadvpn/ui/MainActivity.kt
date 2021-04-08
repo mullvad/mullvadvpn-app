@@ -231,6 +231,6 @@ open class MainActivity : FragmentActivity() {
     }
 
     private fun setVpnPermission(allow: Boolean) = GlobalScope.launch(Dispatchers.Default) {
-        serviceConnection?.connectionProxy?.vpnPermission?.grant(allow)
+        serviceConnection?.vpnPermission?.grant(allow)
     }
 }
