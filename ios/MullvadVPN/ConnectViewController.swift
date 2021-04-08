@@ -71,18 +71,6 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
         addSubviews()
     }
 
-    func setMainContentHidden(_ isHidden: Bool, animated: Bool) {
-        let actions = {
-            self.mainContentView.containerView.alpha = isHidden ? 0 : 1
-        }
-
-        if animated {
-            UIView.animate(withDuration: 0.25, animations: actions)
-        } else {
-            actions()
-        }
-    }
-
     private func addSubviews() {
         view.addSubview(mainContentView)
         NSLayoutConstraint.activate([
