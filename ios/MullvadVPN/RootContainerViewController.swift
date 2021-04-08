@@ -169,16 +169,16 @@ class RootContainerViewController: UIViewController {
         )
     }
 
-    func pushViewController(_ viewController: UIViewController, animated: Bool) {
+    func pushViewController(_ viewController: UIViewController, animated: Bool, completion: CompletionHandler? = nil) {
         var newViewControllers = viewControllers.filter({ $0 != viewController })
         newViewControllers.append(viewController)
 
-        setViewControllersInternal(newViewControllers, isUnwinding: false, animated: animated)
+        setViewControllersInternal(newViewControllers, isUnwinding: false, animated: animated, completion: completion)
     }
 
-    func popToRootViewController(animated: Bool) {
+    func popToRootViewController(animated: Bool, completion: CompletionHandler? = nil) {
         if let rootController = self.viewControllers.first, self.viewControllers.count > 1 {
-            setViewControllersInternal([rootController], isUnwinding: true, animated: animated)
+            setViewControllersInternal([rootController], isUnwinding: true, animated: animated, completion: completion)
         }
     }
 
