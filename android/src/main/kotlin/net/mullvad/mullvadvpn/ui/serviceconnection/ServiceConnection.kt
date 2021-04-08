@@ -37,6 +37,7 @@ class ServiceConnection(private val service: ServiceInstance, mainActivity: Main
     val splitTunneling = get<SplitTunneling>(
         parameters = { parametersOf(service.messenger, dispatcher) }
     )
+    val vpnPermission = VpnPermission(service.messenger)
 
     val appVersionInfoCache = AppVersionInfoCache(mainActivity, daemon, settingsListener)
     var relayListListener = RelayListListener(daemon, settingsListener)
