@@ -49,7 +49,7 @@ protocol AppStorePaymentObserver: class {
 }
 
 /// A type-erasing weak container for `AppStorePaymentObserver`
-private class AnyAppStorePaymentObserver: WeakObserverBox, Equatable {
+private class AnyAppStorePaymentObserver: AppStorePaymentObserver, WeakObserverBox, Equatable {
     private(set) weak var inner: AppStorePaymentObserver?
 
     init<T: AppStorePaymentObserver>(_ inner: T) {
