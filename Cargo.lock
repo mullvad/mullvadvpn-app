@@ -1331,7 +1331,9 @@ version = "0.1.0"
 dependencies = [
  "err-derive 0.3.0",
  "futures",
+ "lazy_static",
  "mullvad-paths",
+ "nix 0.19.1",
  "parity-tokio-ipc",
  "prost",
  "prost-types",

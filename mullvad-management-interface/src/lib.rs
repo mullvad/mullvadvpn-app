@@ -6,7 +6,7 @@ pub mod types {
 
 use parity_tokio_ipc::Endpoint as IpcEndpoint;
 #[cfg(unix)]
-use std::{fs, os::unix::fs::PermissionsExt};
+use std::{env, fs, os::unix::fs::PermissionsExt};
 use std::{
     io,
     pin::Pin,
@@ -22,6 +22,12 @@ pub type ManagementServiceClient =
     types::management_service_client::ManagementServiceClient<Channel>;
 pub use types::management_service_server::{ManagementService, ManagementServiceServer};
 
+#[cfg(unix)]
+lazy_static::lazy_static! {
+    static ref MULLVAD_MANAGEMENT_SOCKET_GROUP: Option<String> = env::var("MULLVAD_MANAGEMENT_SOCKET_GROUP")
+        .ok();
+}
+
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -36,6 +42,18 @@ pub enum Error {
 
     #[error(display = "Unable to set permissions for IPC endpoint")]
     PermissionsError(#[error(source)] io::Error),
+
+    #[cfg(unix)]
+    #[error(display = "Group not found")]
+    NoGidError,
+
+    #[cfg(unix)]
+    #[error(display = "Failed to obtain group ID")]
+    ObtainGidError(#[error(source)] nix::Error),
+
+    #[cfg(unix)]
+    #[error(display = "Failed to set group ID")]
+    SetGidError(#[error(source)] nix::Error),
 }
 
 pub async fn new_rpc_client() -> Result<ManagementServiceClient, Error> {
@@ -60,22 +78,26 @@ pub async fn spawn_rpc_server<T: ManagementService>(
     use futures::stream::TryStreamExt;
     use parity_tokio_ipc::SecurityAttributes;
 
-    let socket_path = mullvad_paths::get_rpc_socket_path()
-        .to_string_lossy()
-        .to_string();
+    let socket_path = mullvad_paths::get_rpc_socket_path();
 
-    let mut endpoint = IpcEndpoint::new(socket_path.to_string());
+    let mut endpoint = IpcEndpoint::new(socket_path.to_string_lossy().to_string());
     endpoint.set_security_attributes(
         SecurityAttributes::allow_everyone_create()
             .map_err(Error::SecurityAttributes)?
-            .set_mode(777)
+            .set_mode(0o766)
             .map_err(Error::SecurityAttributes)?,
     );
     let incoming = endpoint.incoming().map_err(Error::StartServerError)?;
 
     #[cfg(unix)]
-    fs::set_permissions(&socket_path, PermissionsExt::from_mode(0o766))
-        .map_err(Error::PermissionsError)?;
+    if let Some(group_name) = &*MULLVAD_MANAGEMENT_SOCKET_GROUP {
+        let group = nix::unistd::Group::from_name(group_name)
+            .map_err(Error::ObtainGidError)?
+            .ok_or(Error::NoGidError)?;
+        nix::unistd::chown(&socket_path, None, Some(group.gid)).map_err(Error::SetGidError)?;
+        fs::set_permissions(&socket_path, PermissionsExt::from_mode(0o760))
+            .map_err(Error::PermissionsError)?;
+    }
 
     let _ = server_start_tx.send(());
 
