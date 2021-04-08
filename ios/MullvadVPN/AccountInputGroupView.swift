@@ -26,6 +26,8 @@ class AccountInputGroupView: UIView {
         textField.smartQuotesType = .no
         textField.spellCheckingType = .no
         textField.keyboardType = .numberPad
+        textField.returnKeyType = .join
+        textField.enablesReturnKeyAutomatically = false
 
         return textField
     }()
