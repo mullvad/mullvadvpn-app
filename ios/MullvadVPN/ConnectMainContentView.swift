@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import MapKit
 
 class ConnectMainContentView: UIView {
     enum ActionButton {
@@ -14,6 +15,14 @@ class ConnectMainContentView: UIView {
         case disconnect
         case selectLocation
     }
+
+    lazy var mapView: MKMapView = {
+        let mapView = MKMapView()
+        mapView.translatesAutoresizingMaskIntoConstraints = true
+        mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        mapView.showsUserLocation = false
+        return mapView
+    }()
 
     let secureLabel = makeBoldTextLabel(ofSize: 20)
     let countryLabel = makeBoldTextLabel(ofSize: 34)
@@ -89,6 +98,9 @@ class ConnectMainContentView: UIView {
     }
 
     private func addSubviews() {
+        mapView.frame = self.bounds
+        addSubview(mapView)
+
         addSubview(containerView)
         [secureLabel, countryLabel, cityLabel, connectionPanel, buttonsStackView].forEach { containerView.addSubview($0) }
 

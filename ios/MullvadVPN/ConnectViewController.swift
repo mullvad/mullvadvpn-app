@@ -7,7 +7,16 @@
 //
 
 import UIKit
+import MapKit
 import Logging
+
+class CustomOverlayRenderer: MKOverlayRenderer {
+    override func draw(_ mapRect: MKMapRect, zoomScale: MKZoomScale, in context: CGContext) {
+        let drawRect = self.rect(for: mapRect)
+        context.setFillColor(UIColor.secondaryColor.cgColor)
+        context.fill(drawRect)
+    }
+}
 
 protocol ConnectViewControllerDelegate: class {
     func connectViewControllerShouldShowSelectLocationPicker(_ controller: ConnectViewController)
@@ -16,7 +25,7 @@ protocol ConnectViewControllerDelegate: class {
     func connectViewControllerShouldReconnectTunnel(_ controller: ConnectViewController)
 }
 
-class ConnectViewController: UIViewController, RootContainment, TunnelObserver, AccountObserver
+class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainment, TunnelObserver, AccountObserver
 {
     weak var delegate: ConnectViewControllerDelegate?
 
@@ -28,6 +37,8 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver, 
 
     private let logger = Logger(label: "ConnectViewController")
 
+    private var lastLocation: CLLocationCoordinate2D?
+    private let locationMarker = MKPointAnnotation()
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -55,6 +66,12 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver, 
             setNeedsHeaderBarStyleAppearanceUpdate()
             updateTunnelConnectionInfo()
             updateUserInterfaceForTunnelStateChange()
+
+            // Avoid unnecessary animations, particularly when this property is changed from inside
+            // the `viewDidLoad`.
+            let isViewVisible = self.viewIfLoaded?.window != nil
+
+            updateLocation(animated: isViewVisible)
         }
     }
 
@@ -72,6 +89,8 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver, 
         self.tunnelState = TunnelManager.shared.tunnelState
 
         addSubviews()
+        setupMapView()
+        updateLocation(animated: false)
 
         Account.shared.addObserver(self)
     }
@@ -180,6 +199,74 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver, 
         }
     }
 
+    private func locationMarkerOffset() -> CGPoint {
+        // The spacing between the secure label and the marker
+        let markerSecureLabelSpacing = CGFloat(22)
+
+        // Compute the secure label's frame within the view coordinate system
+        let secureLabelFrame = mainContentView.secureLabel.convert(mainContentView.secureLabel.bounds, to: view)
+
+        // The marker's center coincides with the geo coordinate
+        let markerAnchorOffsetInPoints = locationMarkerSecureImage.size.height * 0.5
+
+        // Compute the distance from the top of the label's frame to the center of the map
+        let secureLabelDistanceToMapCenterY = secureLabelFrame.minY - mainContentView.mapView.frame.midY
+
+        // Compute the marker offset needed to position it above the secure label
+        let offsetY = secureLabelDistanceToMapCenterY - markerAnchorOffsetInPoints - markerSecureLabelSpacing
+
+        return CGPoint(x: 0, y: offsetY)
+    }
+
+    private func computeCoordinateRegion(centerCoordinate: CLLocationCoordinate2D, centerOffsetInPoints: CGPoint) -> MKCoordinateRegion  {
+        let span = MKCoordinateSpan(latitudeDelta: 30, longitudeDelta: 30)
+        var region = MKCoordinateRegion(center: centerCoordinate, span: span)
+        region = mainContentView.mapView.regionThatFits(region)
+
+        let latitudeDeltaPerPoint = region.span.latitudeDelta / Double(mainContentView.mapView.frame.height)
+        var offsetCenter = centerCoordinate
+        offsetCenter.latitude += CLLocationDegrees(latitudeDeltaPerPoint * Double(centerOffsetInPoints.y))
+        region.center = offsetCenter
+
+        return region
+    }
+
+    private func updateLocation(animated: Bool) {
+        switch tunnelState {
+        case .connected(let connectionInfo),
+             .reconnecting(let connectionInfo):
+            let coordinate = connectionInfo.location.geoCoordinate
+            if let lastLocation = self.lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
+                return
+            }
+
+            let markerOffset = locationMarkerOffset()
+            let region = computeCoordinateRegion(centerCoordinate: coordinate, centerOffsetInPoints: markerOffset)
+
+            locationMarker.coordinate = coordinate
+            mainContentView.mapView.addAnnotation(locationMarker)
+            mainContentView.mapView.setRegion(region, animated: animated)
+
+            self.lastLocation = coordinate
+
+        case .disconnected, .disconnecting:
+            let coordinate = CLLocationCoordinate2D(latitude: 0, longitude: 0)
+            if let lastLocation = self.lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
+                return
+            }
+
+            let span = MKCoordinateSpan(latitudeDelta: 90, longitudeDelta: 90)
+            let region = MKCoordinateRegion(center: coordinate, span: span)
+            mainContentView.mapView.removeAnnotation(locationMarker)
+            mainContentView.mapView.setRegion(region, animated: animated)
+
+            self.lastLocation = coordinate
+
+        case .connecting:
+            break
+        }
+    }
+
     // MARK: - Actions
 
     @objc func handleConnectionPanelButton(_ sender: Any) {
@@ -200,6 +287,89 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver, 
 
     @objc func handleSelectLocation(_ sender: Any) {
         delegate?.connectViewControllerShouldShowSelectLocationPicker(self)
+    }
+
+    // MARK: - MKMapViewDelegate
+
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        if let polygon = overlay as? MKPolygon {
+            let renderer = MKPolygonRenderer(polygon: polygon)
+            renderer.fillColor = UIColor.primaryColor
+            renderer.strokeColor = UIColor.secondaryColor
+            renderer.lineWidth = 1.0
+            renderer.lineCap = .round
+            renderer.lineJoin = .round
+
+            return renderer
+        }
+
+        if #available(iOS 13, *) {
+            if let multiPolygon = overlay as? MKMultiPolygon {
+                let renderer = MKMultiPolygonRenderer(multiPolygon: multiPolygon)
+                renderer.fillColor = UIColor.primaryColor
+                renderer.strokeColor = UIColor.secondaryColor
+                renderer.lineWidth = 1.0
+                renderer.lineCap = .round
+                renderer.lineJoin = .round
+                return renderer
+            }
+        }
+
+        if let tileOverlay = overlay as? MKTileOverlay {
+            return CustomOverlayRenderer(overlay: tileOverlay)
+        }
+
+        fatalError()
+    }
+
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        if annotation === locationMarker {
+            let view = mapView.dequeueReusableAnnotationView(withIdentifier: "location", for: annotation)
+            view.isDraggable = false
+            view.canShowCallout = false
+            view.image = self.locationMarkerSecureImage
+            return view
+        }
+        return nil
+    }
+
+    // MARK: - Private
+
+    private var locationMarkerSecureImage: UIImage {
+        return UIImage(named: "LocationMarkerSecure")!
+    }
+
+    private func setupMapView() {
+        mainContentView.mapView.insetsLayoutMarginsFromSafeArea = false
+        mainContentView.mapView.delegate = self
+        mainContentView.mapView.register(MKAnnotationView.self, forAnnotationViewWithReuseIdentifier: "location")
+
+        if #available(iOS 13.0, *) {
+            // Use dark style for the map to dim the map grid
+            mainContentView.mapView.overrideUserInterfaceStyle = .dark
+        }
+
+        addTileOverlay()
+        loadGeoJSONData()
+    }
+
+    private func addTileOverlay() {
+        // Use `nil` for template URL to make sure that Apple maps do not load
+        // tiles from remote.
+        let tileOverlay = MKTileOverlay(urlTemplate: nil)
+
+        // Replace the default map tiles
+        tileOverlay.canReplaceMapContent = true
+
+        mainContentView.mapView.addOverlay(tileOverlay)
+    }
+
+    private func loadGeoJSONData() {
+        let fileURL = Bundle.main.url(forResource: "countries.geo", withExtension: "json")!
+        let data = try! Data(contentsOf: fileURL)
+
+        let overlays = try! GeoJSON.decodeGeoJSON(data)
+        mainContentView.mapView.addOverlays(overlays, level: .aboveLabels)
     }
 }
 
@@ -280,4 +450,11 @@ private extension TunnelState {
         }
     }
 
+}
+
+private extension CLLocationCoordinate2D {
+    func approximatelyEqualTo(_ other: CLLocationCoordinate2D) -> Bool {
+        return fabs(self.latitude - other.latitude) <= .ulpOfOne &&
+            fabs(self.longitude - other.longitude) <= .ulpOfOne
+    }
 }
