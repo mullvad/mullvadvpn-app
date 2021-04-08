@@ -15,6 +15,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.service.endpoint.ServiceEndpoint
+import net.mullvad.mullvadvpn.service.endpoint.VpnPermission
 import net.mullvad.mullvadvpn.service.notifications.AccountExpiryNotification
 import net.mullvad.mullvadvpn.service.persistence.SplitTunnelingPersistence
 import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
@@ -75,6 +76,7 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var keyguardManager: KeyguardManager
     private lateinit var notificationManager: ForegroundNotificationManager
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
+    private lateinit var vpnPermission: VpnPermission
 
     private var pendingAction by observable<PendingAction?>(null) { _, _, _ ->
         val connectionProxy = instance?.connectionProxy
@@ -124,6 +126,8 @@ class MullvadVpnService : TalpidVpnService() {
 
             start()
         }
+
+        vpnPermission = VpnPermission(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -230,7 +234,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
-        val connectionProxy = ConnectionProxy(this, daemonInstance.intermittentDaemon)
+        val connectionProxy = ConnectionProxy(vpnPermission, daemonInstance.intermittentDaemon)
         val customDns = CustomDns(daemon, endpoint.settingsListener)
 
         endpoint.splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps ->

@@ -1,8 +1,5 @@
 package net.mullvad.mullvadvpn.service
 
-import android.content.Context
-import android.content.Intent
-import android.net.VpnService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -13,6 +10,7 @@ import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.service.endpoint.VpnPermission
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
@@ -20,7 +18,7 @@ import net.mullvad.talpid.util.EventNotifier
 
 val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
 
-class ConnectionProxy(val context: Context, val daemon: Intermittent<MullvadDaemon>) {
+class ConnectionProxy(val vpnPermission: VpnPermission, val daemon: Intermittent<MullvadDaemon>) {
     private enum class Command {
         CONNECT,
         RECONNECT,
@@ -34,8 +32,6 @@ class ConnectionProxy(val context: Context, val daemon: Intermittent<MullvadDaem
     private var resetAnticipatedStateJob: Job? = null
 
     private val initialState: TunnelState = TunnelState.Disconnected
-
-    val vpnPermission = Intermittent<Boolean>()
 
     var onStateChange = EventNotifier(initialState)
     var onUiStateChange = EventNotifier(initialState)
@@ -88,8 +84,7 @@ class ConnectionProxy(val context: Context, val daemon: Intermittent<MullvadDaem
 
                 when (command) {
                     Command.CONNECT -> {
-                        requestVpnPermission()
-                        vpnPermission.await()
+                        vpnPermission.request()
                         daemon.await().connect()
                     }
                     Command.RECONNECT -> daemon.await().reconnect()
@@ -181,32 +176,6 @@ class ConnectionProxy(val context: Context, val daemon: Intermittent<MullvadDaem
 
         currentJob = newJob
         resetAnticipatedStateJob = newJob
-    }
-
-    private suspend fun requestVpnPermission() {
-        val intent = VpnService.prepare(context)
-
-        vpnPermission.update(null)
-
-        if (intent == null) {
-            vpnPermission.update(true)
-        } else {
-            val activity = mainActivity
-
-            if (activity != null) {
-                activity.requestVpnPermission(intent)
-            } else {
-                val activityIntent = Intent(context, MainActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    putExtra(MainActivity.KEY_SHOULD_CONNECT, true)
-                }
-
-                uiState = state
-
-                context.startActivity(activityIntent)
-            }
-        }
     }
 
     private fun fetchInitialState() = GlobalScope.launch(Dispatchers.Default) {
