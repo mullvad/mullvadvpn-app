@@ -347,12 +347,27 @@ private extension TunnelState {
     }
 
     var actionButtons: [ConnectMainContentView.ActionButton] {
-        switch self {
-        case .disconnected, .disconnecting:
-            return [.selectLocation, .connect]
+        switch UIDevice.current.userInterfaceIdiom {
+        case .phone:
+            switch self {
+            case .disconnected, .disconnecting:
+                return [.selectLocation, .connect]
 
-        case .connecting, .connected, .reconnecting:
-            return [.selectLocation, .disconnect]
+            case .connecting, .connected, .reconnecting:
+                return [.selectLocation, .disconnect]
+            }
+
+        case .pad:
+            switch self {
+            case .disconnected, .disconnecting:
+                return [.connect]
+
+            case .connecting, .connected, .reconnecting:
+                return [.disconnect]
+            }
+
+        default:
+            fatalError("Not supported")
         }
     }
 

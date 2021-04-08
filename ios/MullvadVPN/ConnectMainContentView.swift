@@ -61,11 +61,13 @@ class ConnectMainContentView: UIView {
         return view
     }()
 
+    private var traitConstraints = [NSLayoutConstraint]()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         backgroundColor = .primaryColor
-        layoutMargins = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)
+        layoutMargins = UIMetrics.contentLayoutMargins
 
         addSubviews()
     }
@@ -95,7 +97,6 @@ class ConnectMainContentView: UIView {
         NSLayoutConstraint.activate([
             containerView.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
             containerView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
-            containerView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
             containerView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor),
 
             secureLabel.topAnchor.constraint(greaterThanOrEqualTo: containerView.topAnchor),
@@ -119,6 +120,43 @@ class ConnectMainContentView: UIView {
             buttonsStackView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
             buttonsStackView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor)
         ])
+
+        updateTraitConstraints()
+    }
+
+    private func updateTraitConstraints() {
+        var layoutConstraints = [NSLayoutConstraint]()
+
+        switch traitCollection.userInterfaceIdiom {
+        case .pad:
+            // Max container width is 70% width of iPad in portrait mode
+            let maxWidth = min(UIScreen.main.nativeBounds.width * 0.7, UIMetrics.maximumSplitViewContentContainerWidth)
+            let containerWidthConstraint = containerView.widthAnchor.constraint(equalToConstant: maxWidth)
+            containerWidthConstraint.priority = .defaultHigh
+
+            layoutConstraints.append(contentsOf:[
+                containerView.trailingAnchor.constraint(lessThanOrEqualTo: layoutMarginsGuide.trailingAnchor),
+                containerWidthConstraint
+            ])
+
+        case .phone:
+            layoutConstraints.append(containerView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor))
+
+        default:
+            break
+        }
+
+        traitConstraints = layoutConstraints
+        removeConstraints(traitConstraints)
+        NSLayoutConstraint.activate(layoutConstraints)
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if traitCollection.userInterfaceIdiom != previousTraitCollection?.userInterfaceIdiom {
+            updateTraitConstraints()
+        }
     }
 
     private func setArrangedButtons(_ newButtons: [UIView]) {
