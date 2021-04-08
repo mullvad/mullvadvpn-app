@@ -35,7 +35,7 @@ class ServiceEndpoint(
 
     val messenger = Messenger(dispatcher)
 
-    val vpnPermission = VpnPermission(context)
+    val vpnPermission = VpnPermission(context, this)
 
     val connectionProxy = ConnectionProxy(vpnPermission, this)
     val settingsListener = SettingsListener(this)
