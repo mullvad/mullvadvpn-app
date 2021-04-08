@@ -15,7 +15,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.service.endpoint.ServiceEndpoint
-import net.mullvad.mullvadvpn.service.endpoint.VpnPermission
 import net.mullvad.mullvadvpn.service.notifications.AccountExpiryNotification
 import net.mullvad.mullvadvpn.service.persistence.SplitTunnelingPersistence
 import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
@@ -111,7 +110,7 @@ class MullvadVpnService : TalpidVpnService() {
             daemonInstance.intermittentDaemon,
             connectivityListener,
             SplitTunnelingPersistence(this),
-            VpnPermission(this)
+            this
         )
 
         notificationManager =
