@@ -10,7 +10,6 @@ const mapStateToProps = (state: IReduxState, props: IAppContext) => ({
   ),
   loginState: state.account.status,
   accountExpiry: state.account.expiry,
-  expiryLocale: state.userInterface.locale,
   appVersion: state.version.current,
   consistentVersion: state.version.consistent,
   upToDateVersion: state.version.suggestedUpgrade ? false : true,

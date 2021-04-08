@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { ILogInput, ILogOutput, LogLevel } from './logging-types';
 
 export class Logger {
@@ -13,7 +12,7 @@ export class Logger {
   }
 
   public log(level: LogLevel, ...data: unknown[]) {
-    const time = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+    const time = this.getDateString();
     const stringifiedData = data.map(this.stringifyData).join(' ');
     const message = `[${time}][${LogLevel[level]}] ${stringifiedData}`;
 
@@ -28,6 +27,20 @@ export class Logger {
 
   public dispose() {
     this.outputs.forEach((output) => output.dispose?.());
+  }
+
+  private getDateString(): string {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = Number(date.getMonth() + 1)
+      .toString()
+      .padStart(2, '0');
+    const day = Number(date.getDate()).toString().padStart(2, '0');
+    const hour = Number(date.getHours()).toString().padStart(2, '0');
+    const minute = Number(date.getMinutes()).toString().padStart(2, '0');
+    const second = Number(date.getSeconds()).toString().padStart(2, '0');
+    const millisecond = Number(date.getMilliseconds()).toString().padStart(3, '0');
+    return `${year}-${month}-${day} ${hour}:${minute}:${second}.${millisecond}`;
   }
 
   private stringifyData(data: unknown): string {
