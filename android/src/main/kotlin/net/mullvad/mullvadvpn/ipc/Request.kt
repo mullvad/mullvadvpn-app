@@ -52,6 +52,9 @@ sealed class Request : Message.RequestMessage() {
     data class SetEnableSplitTunneling(val enable: Boolean) : Request()
 
     @Parcelize
+    data class VpnPermissionResponse(val isGranted: Boolean) : Request()
+
+    @Parcelize
     object WireGuardGenerateKey : Request()
 
     @Parcelize
