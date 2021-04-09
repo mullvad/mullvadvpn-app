@@ -144,13 +144,13 @@ extension AppDelegate: RootContainerViewControllerDelegate {
     }
 
     func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController) -> UIInterfaceOrientationMask {
-        switch self.window?.traitCollection.userInterfaceIdiom {
+        switch UIDevice.current.userInterfaceIdiom {
         case .pad:
             return [.landscape, .portrait]
         case .phone:
             return [.portrait]
         default:
-            fatalError("Not supported")
+            return controller.supportedInterfaceOrientations
         }
     }
 }
