@@ -10,6 +10,11 @@ import UIKit
 
 class CustomNavigationBar: UINavigationBar {
 
+    private static let setupAppearanceOnce: Void = {
+        let buttonAppearance = UIBarButtonItem.appearance(whenContainedInInstancesOf: [CustomNavigationBar.self])
+        buttonAppearance.setBackButtonTitlePositionAdjustment(UIOffset(horizontal: 4, vertical: 0), for: .default)
+    }()
+
     var prefersOpaqueBackground: Bool {
         didSet {
             setOpaqueBackgroundAppearance(prefersOpaqueBackground)
@@ -36,6 +41,8 @@ class CustomNavigationBar: UINavigationBar {
     }
 
     override init(frame: CGRect) {
+        Self.setupAppearanceOnce
+
         if #available(iOS 13, *) {
             prefersOpaqueBackground = false
         } else {
@@ -48,6 +55,9 @@ class CustomNavigationBar: UINavigationBar {
         margins.left = UIMetrics.contentLayoutMargins.left
         margins.right = UIMetrics.contentLayoutMargins.right
         layoutMargins = margins
+
+        backIndicatorImage = UIImage(named: "IconBack")
+        backIndicatorTransitionMaskImage = UIImage(named: "IconBackTransitionMask")
 
         setOpaqueBackgroundAppearance(prefersOpaqueBackground)
     }
