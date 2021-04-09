@@ -100,6 +100,7 @@ class ServiceEndpoint(
             listeners.add(listener)
 
             val initialEvents = listOf(
+                Event.TunnelStateChange(connectionProxy.state),
                 Event.LoginStatus(accountCache.onLoginStatusChange.latestEvent),
                 Event.AccountHistory(accountCache.onAccountHistoryChange.latestEvent),
                 Event.SettingsUpdate(settingsListener.settings),
