@@ -17,3 +17,8 @@ following command:
 ```
 rsvg-convert ./icon-square.svg -w 512 -h 512 -o ../android/src/main/play/listings/en-US/graphics/icon/icon.png
 ```
+
+The icon `adaptive-icon-source.svg` is used for Android adaptive icon. The icon converted to
+Android Vector Drawable format and used as foreground layer for adaptive icon. For background layer is used
+solid color layer. Full documentation about adaptive icon available on link below:
+https://developer.android.com/guide/practices/ui_guidelines/icon_design_adaptive

@@ -32,7 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 - Always enable `src_valid_mark` config option when connecting to allow policty based routing.
 
 #### Android
-- Added support of adaptive icons (available only from Android 8).
+- Add support of adaptive icons (available only from Android 8).
 
 ### Changed
 - Allow whitespace in account token in CLI.
