@@ -6,7 +6,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.channels.sendBlocking
-import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.TunnelState
@@ -23,8 +22,6 @@ class ConnectionProxy(val vpnPermission: VpnPermission, endpoint: ServiceEndpoin
     private val daemon = endpoint.intermittentDaemon
     private val initialState = TunnelState.Disconnected
 
-    private val fetchInitialStateJob = fetchInitialState()
-
     var onStateChange = EventNotifier<TunnelState>(initialState)
 
     var state by onStateChange.notifiable()
@@ -32,7 +29,9 @@ class ConnectionProxy(val vpnPermission: VpnPermission, endpoint: ServiceEndpoin
 
     init {
         daemon.registerListener(this) { newDaemon ->
-            newDaemon?.onTunnelStateChange = { newState -> state = newState }
+            newDaemon?.onTunnelStateChange?.subscribe(this@ConnectionProxy) { newState ->
+                state = newState
+            }
         }
 
         onStateChange.subscribe(this) { tunnelState ->
@@ -60,7 +59,6 @@ class ConnectionProxy(val vpnPermission: VpnPermission, endpoint: ServiceEndpoin
 
     fun onDestroy() {
         commandChannel.close()
-        fetchInitialStateJob.cancel()
         onStateChange.unsubscribeAll()
         daemon.unregisterListener(this)
     }
@@ -81,16 +79,6 @@ class ConnectionProxy(val vpnPermission: VpnPermission, endpoint: ServiceEndpoin
             }
         } catch (exception: ClosedReceiveChannelException) {
             // Closed sender, so stop the actor
-        }
-    }
-
-    private fun fetchInitialState() = GlobalScope.launch(Dispatchers.Default) {
-        val currentState = daemon.await().getState()
-
-        synchronized(this) {
-            if (state === initialState && currentState != null) {
-                state = currentState
-            }
         }
     }
 }

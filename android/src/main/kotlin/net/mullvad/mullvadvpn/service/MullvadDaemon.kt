@@ -17,11 +17,11 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     protected var daemonInterfaceAddress = 0L
 
     val onSettingsChange = EventNotifier<Settings?>(null)
+    var onTunnelStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected)
 
     var onAppVersionInfoChange: ((AppVersionInfo) -> Unit)? = null
     var onKeygenEvent: ((KeygenEvent) -> Unit)? = null
     var onRelayListChange: ((RelayList) -> Unit)? = null
-    var onTunnelStateChange: ((TunnelState) -> Unit)? = null
     var onDaemonStopped: (() -> Unit)? = null
 
     init {
@@ -29,6 +29,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         initialize(vpnService, vpnService.cacheDir.absolutePath, vpnService.filesDir.absolutePath)
 
         onSettingsChange.notify(getSettings())
+        onTunnelStateChange.notify(getState() ?: TunnelState.Disconnected)
     }
 
     fun connect() {
@@ -133,11 +134,11 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
 
     fun onDestroy() {
         onSettingsChange.unsubscribeAll()
+        onTunnelStateChange.unsubscribeAll()
 
         onAppVersionInfoChange = null
         onKeygenEvent = null
         onRelayListChange = null
-        onTunnelStateChange = null
         onDaemonStopped = null
 
         deinitialize()
@@ -205,7 +206,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     }
 
     private fun notifyTunnelStateEvent(event: TunnelState) {
-        onTunnelStateChange?.invoke(event)
+        onTunnelStateChange.notify(event)
     }
 
     private fun notifyDaemonStopped() {
