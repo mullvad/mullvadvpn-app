@@ -61,6 +61,7 @@ lazy_static! {
     static ref TABLE_NAME: CString = CString::new("mullvad").unwrap();
     static ref IN_CHAIN_NAME: CString = CString::new("input").unwrap();
     static ref OUT_CHAIN_NAME: CString = CString::new("output").unwrap();
+    static ref FORWARD_CHAIN_NAME: CString = CString::new("forward").unwrap();
     static ref PREROUTING_CHAIN_NAME: CString = CString::new("prerouting").unwrap();
 
     /// We need two separate tables for compatibility with older kernels (holds true for kernel
@@ -229,6 +230,7 @@ struct PolicyBatch<'a> {
     batch: Batch,
     in_chain: Chain<'a>,
     out_chain: Chain<'a>,
+    forward_chain: Chain<'a>,
     prerouting_chain: Chain<'a>,
     mangle_chain_v4: Chain<'a>,
     mangle_chain_v6: Chain<'a>,
@@ -246,16 +248,22 @@ impl<'a> PolicyBatch<'a> {
         prerouting_chain.set_type(nftnl::ChainType::Filter);
 
         let mut out_chain = Chain::new(&*OUT_CHAIN_NAME, &tables.main);
-        let mut in_chain = Chain::new(&*IN_CHAIN_NAME, &tables.main);
         out_chain.set_hook(nftnl::Hook::Out, 0);
-        in_chain.set_hook(nftnl::Hook::In, 0);
         out_chain.set_policy(nftnl::Policy::Drop);
+
+        let mut in_chain = Chain::new(&*IN_CHAIN_NAME, &tables.main);
+        in_chain.set_hook(nftnl::Hook::In, 0);
         in_chain.set_policy(nftnl::Policy::Drop);
+
+        let mut forward_chain = Chain::new(&*FORWARD_CHAIN_NAME, &tables.main);
+        forward_chain.set_hook(nftnl::Hook::Forward, 0);
+        forward_chain.set_policy(nftnl::Policy::Drop);
 
         Self::flush_table(&mut batch, &tables.main);
         batch.add(&prerouting_chain, nftnl::MsgType::Add);
         batch.add(&out_chain, nftnl::MsgType::Add);
         batch.add(&in_chain, nftnl::MsgType::Add);
+        batch.add(&forward_chain, nftnl::MsgType::Add);
 
 
         Self::flush_table(&mut batch, &tables.mangle_v4);
@@ -289,6 +297,7 @@ impl<'a> PolicyBatch<'a> {
             batch,
             in_chain,
             out_chain,
+            forward_chain,
             prerouting_chain,
             mangle_chain_v4,
             mangle_chain_v6,
