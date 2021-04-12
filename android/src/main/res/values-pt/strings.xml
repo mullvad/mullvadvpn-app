@@ -26,7 +26,6 @@
     <string name="cancel">Cancelar</string>
     <string name="confirm_local_dns">O servidor DNS local não funcionará exceto se ativar \"Partilha de rede local\" em Preferências.</string>
     <string name="confirm_no_email">Está prestes a enviar o relatório de problema sem que tenhamos uma forma de lhe responder. Se pretender uma resposta ao seu relatório, tem de introduzir um endereço de email.</string>
-    <string name="confirm_public_dns">O servidor DNS que está a tentar adicionar pode não funcionar porque é público. De momento suportamos apenas servidores DNS locais.</string>
     <string name="congrats">Parabéns!</string>
     <string name="connect">Tornar a minha ligação segura</string>
     <string name="connecting">A ligar</string>

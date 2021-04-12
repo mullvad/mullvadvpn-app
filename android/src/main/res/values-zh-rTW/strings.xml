@@ -26,7 +26,6 @@
     <string name="cancel">取消</string>
     <string name="confirm_local_dns">若要使本機 DNS 伺服器運作，需先在「偏好設定」下啟用「本機網路共用」。</string>
     <string name="confirm_no_email">您即將傳送的問題報告未包含回覆方式資訊。如果想收到您這份報告的回覆，請輸入您的電子郵件位址。</string>
-    <string name="confirm_public_dns">您嘗試新增的是公共 DNS 伺服器，因此可能無效。目前我們僅支援本機 DNS 伺服器。</string>
     <string name="congrats">恭喜！</string>
     <string name="connect">保護我的連線</string>
     <string name="connecting">連線中</string>

@@ -26,7 +26,6 @@
     <string name="cancel">Annulla</string>
     <string name="confirm_local_dns">Il server DNS locale non funzionerà a meno che non si abiliti \"Condivisione rete locale\" in Preferenze.</string>
     <string name="confirm_no_email">Stai inviando la segnalazione di un problema senza averci indicato un modo per ricontattarti. Se desideri ricevere risposta, inserisci un indirizzo e-mail.</string>
-    <string name="confirm_public_dns">Il server DNS che stai tentando di aggiungere potrebbe non funzionare poiché è pubblico. Attualmente supportiamo solo server DNS locali.</string>
     <string name="congrats">Complimenti!</string>
     <string name="connect">Proteggi mia connessione</string>
     <string name="connecting">Connessione</string>

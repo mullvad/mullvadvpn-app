@@ -26,7 +26,6 @@
     <string name="cancel">Abbrechen</string>
     <string name="confirm_local_dns">Der lokale DNS-Server wird nicht funktionieren, solange „Teilen im lokalen Netzwerk“ nicht in den Einstellungen aktiviert ist.</string>
     <string name="confirm_no_email">Sie wollen einen Problembericht senden, ohne uns die Möglichkeit zu geben, Sie zu erreichen. Wenn Sie sich eine Antwort zu Ihrem Problem wünschen, müssen Sie eine E-Mail-Adresse eingeben.</string>
-    <string name="confirm_public_dns">Der DNS-Server, den Sie hinzufügen möchten, könnte ggf. nicht funktionieren, da er öffentlich ist. Aktuell unterstützen wir nur lokale DNS-Server.</string>
     <string name="congrats">Glückwunsch!</string>
     <string name="connect">Meine Verbindung sichern</string>
     <string name="connecting">Verbinden</string>
