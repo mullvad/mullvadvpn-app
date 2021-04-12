@@ -72,7 +72,7 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
                     is Command.ReplaceDnsServer -> {
                         doReplaceDnsServer(command.oldServer, command.newServer)
                     }
-                    is Command.SetEnabled -> changeDnsOptions(command.enabled, dnsServers)
+                    is Command.SetEnabled -> changeDnsOptions(command.enabled)
                 }
             }
         } catch (exception: ClosedReceiveChannelException) {
@@ -83,7 +83,7 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
     private suspend fun doAddDnsServer(server: InetAddress) {
         if (!dnsServers.contains(server)) {
             dnsServers.add(server)
-            changeDnsOptions(enabled, dnsServers)
+            changeDnsOptions(enabled)
         }
     }
 
@@ -94,18 +94,18 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
             if (index >= 0) {
                 dnsServers.removeAt(index)
                 dnsServers.add(index, newServer)
-                changeDnsOptions(enabled, dnsServers)
+                changeDnsOptions(enabled)
             }
         }
     }
 
     private suspend fun doRemoveDnsServer(server: InetAddress) {
         if (dnsServers.remove(server)) {
-            changeDnsOptions(enabled, dnsServers)
+            changeDnsOptions(enabled)
         }
     }
 
-    private suspend fun changeDnsOptions(enable: Boolean, dnsServers: ArrayList<InetAddress>) {
+    private suspend fun changeDnsOptions(enable: Boolean) {
         val options = DnsOptions(enable, dnsServers)
 
         daemon.await().setDnsOptions(options)
