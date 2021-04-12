@@ -37,6 +37,7 @@ Line wrap the file at 100 chars.                                              Th
 - Make WireGuard automatic key rotation interval mandatory and between 1 and 7 days.
 - Show default, minimum, and maximum key rotation intervals in CLI.
 - Attempt to send problem reports using other endpoints if using the primary one fails.
+- Upgrade OpenVPN from 2.5.0 to 2.5.1.
 
 #### Linux
 - Only allow packets with the mark set to `0x6d6f6c65` to communicate with the relay server.
