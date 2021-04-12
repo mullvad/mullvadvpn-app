@@ -638,12 +638,14 @@ impl<'a> PolicyBatch<'a> {
         }
 
         // Reject any remaining outgoing traffic
-        let mut reject_rule = Rule::new(&self.out_chain);
-        add_verdict(
-            &mut reject_rule,
-            &Verdict::Reject(RejectionType::Icmp(IcmpCode::PortUnreach)),
-        );
-        self.batch.add(&reject_rule, nftnl::MsgType::Add);
+        for chain in &[&self.out_chain, &self.forward_chain] {
+            let mut reject_rule = Rule::new(chain);
+            add_verdict(
+                &mut reject_rule,
+                &Verdict::Reject(RejectionType::Icmp(IcmpCode::PortUnreach)),
+            );
+            self.batch.add(&reject_rule, nftnl::MsgType::Add);
+        }
 
         Ok(())
     }
