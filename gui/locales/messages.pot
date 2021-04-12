@@ -254,7 +254,7 @@ msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
+msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -1128,6 +1128,9 @@ msgid "Shows reminders when the account time is about to expire"
 msgstr ""
 
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr ""
+
+msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
 msgstr ""
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
