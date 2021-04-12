@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
+import android.content.Context
 import android.os.DeadObjectException
 import android.os.Looper
 import android.os.Messenger
@@ -22,7 +23,7 @@ class ServiceEndpoint(
     looper: Looper,
     internal val intermittentDaemon: Intermittent<MullvadDaemon>,
     val connectivityListener: ConnectivityListener,
-    splitTunnelingPersistence: SplitTunnelingPersistence
+    context: Context
 ) {
     private val listeners = mutableSetOf<Messenger>()
     private val registrationQueue: SendChannel<Messenger> = startRegistrator()
@@ -33,12 +34,15 @@ class ServiceEndpoint(
 
     val messenger = Messenger(dispatcher)
 
+    val vpnPermission = VpnPermission(context, this)
+
+    val connectionProxy = ConnectionProxy(vpnPermission, this)
     val settingsListener = SettingsListener(this)
 
     val accountCache = AccountCache(this)
     val keyStatusListener = KeyStatusListener(this)
     val locationInfoCache = LocationInfoCache(this)
-    val splitTunneling = SplitTunneling(splitTunnelingPersistence, this)
+    val splitTunneling = SplitTunneling(SplitTunnelingPersistence(context), this)
 
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
@@ -51,6 +55,7 @@ class ServiceEndpoint(
         registrationQueue.close()
 
         accountCache.onDestroy()
+        connectionProxy.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
@@ -95,6 +100,7 @@ class ServiceEndpoint(
             listeners.add(listener)
 
             val initialEvents = listOf(
+                Event.TunnelStateChange(connectionProxy.state),
                 Event.LoginStatus(accountCache.onLoginStatusChange.latestEvent),
                 Event.AccountHistory(accountCache.onAccountHistoryChange.latestEvent),
                 Event.SettingsUpdate(settingsListener.settings),

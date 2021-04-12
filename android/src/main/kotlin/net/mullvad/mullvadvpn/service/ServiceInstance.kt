@@ -7,11 +7,9 @@ class ServiceInstance(
     val messenger: Messenger,
     val daemon: MullvadDaemon,
     val intermittentDaemon: Intermittent<MullvadDaemon>,
-    val connectionProxy: ConnectionProxy,
     val customDns: CustomDns,
 ) {
     fun onDestroy() {
-        connectionProxy.onDestroy()
         customDns.onDestroy()
     }
 }

@@ -16,7 +16,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.service.endpoint.ServiceEndpoint
 import net.mullvad.mullvadvpn.service.notifications.AccountExpiryNotification
-import net.mullvad.mullvadvpn.service.persistence.SplitTunnelingPersistence
 import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
@@ -49,6 +48,9 @@ class MullvadVpnService : TalpidVpnService() {
     private val binder = LocalBinder()
     private val serviceNotifier = EventNotifier<ServiceInstance?>(null)
 
+    private val connectionProxy
+        get() = endpoint.connectionProxy
+
     private var state = State.Running
 
     private var setUpDaemonJob: Job? = null
@@ -77,13 +79,11 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var tunnelStateUpdater: TunnelStateUpdater
 
     private var pendingAction by observable<PendingAction?>(null) { _, _, _ ->
-        val connectionProxy = instance?.connectionProxy
-
         // The service instance awaits the split tunneling initialization, which also starts the
         // endpoint. So if the instance is not null, the endpoint has certainly been initialized.
-        if (connectionProxy != null) {
+        if (instance != null) {
             endpoint.settingsListener.settings?.let { settings ->
-                handlePendingAction(connectionProxy, settings)
+                handlePendingAction(settings)
             }
         }
     }
@@ -102,17 +102,24 @@ class MullvadVpnService : TalpidVpnService() {
 
         daemonInstance = DaemonInstance(this)
         keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
-        tunnelStateUpdater = TunnelStateUpdater(this, serviceNotifier)
 
         endpoint = ServiceEndpoint(
             Looper.getMainLooper(),
             daemonInstance.intermittentDaemon,
             connectivityListener,
-            SplitTunnelingPersistence(this)
+            this
         )
 
+        endpoint.splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps ->
+            disallowedApps = excludedApps
+            markTunAsStale()
+            connectionProxy.reconnect()
+        }
+
+        tunnelStateUpdater = TunnelStateUpdater(this, connectionProxy)
+
         notificationManager =
-            ForegroundNotificationManager(this, serviceNotifier, keyguardManager).apply {
+            ForegroundNotificationManager(this, connectionProxy, keyguardManager).apply {
                 acknowledgeStartForegroundService()
                 accountNumberEvents = endpoint.settingsListener.accountNumberNotifier
             }
@@ -230,25 +237,15 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     private suspend fun setUpInstance(daemon: MullvadDaemon, settings: Settings) {
-        val connectionProxy = ConnectionProxy(this, daemon)
         val customDns = CustomDns(daemon, endpoint.settingsListener)
 
-        endpoint.splitTunneling.onChange.subscribe(this@MullvadVpnService) { excludedApps ->
-            disallowedApps = excludedApps
-            markTunAsStale()
-            connectionProxy.reconnect()
-        }
-
-        handlePendingAction(connectionProxy, settings)
-
-        endpoint.locationInfoCache.stateEvents = connectionProxy.onStateChange
+        handlePendingAction(settings)
 
         if (state == State.Running) {
             instance = ServiceInstance(
                 endpoint.messenger,
                 daemon,
                 daemonInstance.intermittentDaemon,
-                connectionProxy,
                 customDns
             )
         }
@@ -276,7 +273,7 @@ class MullvadVpnService : TalpidVpnService() {
         }
     }
 
-    private fun handlePendingAction(connectionProxy: ConnectionProxy, settings: Settings) {
+    private fun handlePendingAction(settings: Settings) {
         when (pendingAction) {
             PendingAction.Connect -> {
                 if (settings.accountToken != null) {

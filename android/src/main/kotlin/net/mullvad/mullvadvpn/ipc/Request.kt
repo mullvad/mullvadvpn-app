@@ -10,7 +10,13 @@ sealed class Request : Message.RequestMessage() {
     protected override val messageKey = MESSAGE_KEY
 
     @Parcelize
+    object Connect : Request()
+
+    @Parcelize
     object CreateAccount : Request()
+
+    @Parcelize
+    object Disconnect : Request()
 
     @Parcelize
     data class ExcludeApp(val packageName: String) : Request()
@@ -34,6 +40,9 @@ sealed class Request : Message.RequestMessage() {
     object PersistExcludedApps : Request()
 
     @Parcelize
+    object Reconnect : Request()
+
+    @Parcelize
     data class RegisterListener(val listener: Messenger) : Request()
 
     @Parcelize
@@ -41,6 +50,9 @@ sealed class Request : Message.RequestMessage() {
 
     @Parcelize
     data class SetEnableSplitTunneling(val enable: Boolean) : Request()
+
+    @Parcelize
+    data class VpnPermissionResponse(val isGranted: Boolean) : Request()
 
     @Parcelize
     object WireGuardGenerateKey : Request()

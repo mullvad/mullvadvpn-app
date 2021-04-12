@@ -1,93 +1,66 @@
-package net.mullvad.mullvadvpn.service
+package net.mullvad.mullvadvpn.ui.serviceconnection
 
-import android.content.Context
-import android.content.Intent
-import android.net.VpnService
-import kotlinx.coroutines.CompletableDeferred
+import android.os.Messenger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.ipc.DispatchingHandler
+import net.mullvad.mullvadvpn.ipc.Event
+import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 import net.mullvad.talpid.util.EventNotifier
 
 val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
 
-class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
-    var mainActivity: MainActivity? = null
-
-    private var activeAction: Job? = null
+class ConnectionProxy(val connection: Messenger, eventDispatcher: DispatchingHandler<Event>) {
     private var resetAnticipatedStateJob: Job? = null
 
-    private val initialState: TunnelState = TunnelState.Disconnected
-
-    var onStateChange = EventNotifier(initialState)
-    var onUiStateChange = EventNotifier(initialState)
-    var vpnPermission = CompletableDeferred<Boolean>()
+    val onStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected)
+    val onUiStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected)
 
     var state by onStateChange.notifiable()
         private set
     var uiState by onUiStateChange.notifiable()
         private set
 
-    private val fetchInitialStateJob = fetchInitialState()
-
     init {
-        daemon.onTunnelStateChange = { newState ->
-            synchronized(this) {
-                resetAnticipatedStateJob?.cancel()
-                state = newState
-                uiState = newState
-            }
+        eventDispatcher.registerHandler(Event.TunnelStateChange::class) { event ->
+            handleNewState(event.tunnelState)
         }
     }
 
     fun connect() {
         if (anticipateConnectingState()) {
-            cancelActiveAction()
-
-            requestVpnPermission()
-
-            activeAction = GlobalScope.launch(Dispatchers.Default) {
-                vpnPermission.await()
-                daemon.connect()
-            }
-        }
-    }
-
-    fun reconnect() {
-        if (anticipateReconnectingState()) {
-            cancelActiveAction()
-            activeAction = GlobalScope.launch(Dispatchers.Default) {
-                daemon.reconnect()
-            }
+            connection.send(Request.Connect.message)
         }
     }
 
     fun disconnect() {
-        if (anticipateDisconnectingState()) {
-            cancelActiveAction()
-            activeAction = GlobalScope.launch(Dispatchers.Default) {
-                daemon.disconnect()
-            }
+        if (anticipateReconnectingState()) {
+            connection.send(Request.Disconnect.message)
         }
     }
 
-    fun cancelActiveAction() {
-        activeAction?.cancel()
+    fun reconnect() {
+        if (anticipateDisconnectingState()) {
+            connection.send(Request.Reconnect.message)
+        }
     }
 
     fun onDestroy() {
-        daemon.onTunnelStateChange = null
-
-        onUiStateChange.unsubscribeAll()
         onStateChange.unsubscribeAll()
+        onUiStateChange.unsubscribeAll()
+    }
 
-        fetchInitialStateJob.cancel()
-        cancelActiveAction()
+    private fun handleNewState(newState: TunnelState) {
+        synchronized(this) {
+            resetAnticipatedStateJob?.cancel()
+            state = newState
+            uiState = newState
+        }
     }
 
     private fun anticipateConnectingState(): Boolean {
@@ -162,41 +135,5 @@ class ConnectionProxy(val context: Context, val daemon: MullvadDaemon) {
 
         currentJob = newJob
         resetAnticipatedStateJob = newJob
-    }
-
-    private fun requestVpnPermission() {
-        val intent = VpnService.prepare(context)
-
-        vpnPermission = CompletableDeferred()
-
-        if (intent == null) {
-            vpnPermission.complete(true)
-        } else {
-            val activity = mainActivity
-
-            if (activity != null) {
-                activity.requestVpnPermission(intent)
-            } else {
-                val activityIntent = Intent(context, MainActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    putExtra(MainActivity.KEY_SHOULD_CONNECT, true)
-                }
-
-                uiState = state
-
-                context.startActivity(activityIntent)
-            }
-        }
-    }
-
-    private fun fetchInitialState() = GlobalScope.launch(Dispatchers.Default) {
-        val currentState = daemon.getState()
-
-        synchronized(this) {
-            if (state === initialState && currentState != null) {
-                state = currentState
-            }
-        }
     }
 }

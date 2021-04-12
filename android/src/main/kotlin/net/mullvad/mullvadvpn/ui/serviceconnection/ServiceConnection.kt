@@ -29,7 +29,7 @@ class ServiceConnection(private val service: ServiceInstance, mainActivity: Main
 
     val daemon = service.daemon
     val accountCache = AccountCache(service.messenger, dispatcher)
-    val connectionProxy = service.connectionProxy
+    val connectionProxy = ConnectionProxy(service.messenger, dispatcher)
     val customDns = service.customDns
     val keyStatusListener = KeyStatusListener(service.messenger, dispatcher)
     val locationInfoCache = LocationInfoCache(dispatcher)
@@ -37,13 +37,13 @@ class ServiceConnection(private val service: ServiceInstance, mainActivity: Main
     val splitTunneling = get<SplitTunneling>(
         parameters = { parametersOf(service.messenger, dispatcher) }
     )
+    val vpnPermission = VpnPermission(service.messenger)
 
     val appVersionInfoCache = AppVersionInfoCache(mainActivity, daemon, settingsListener)
     var relayListListener = RelayListListener(daemon, settingsListener)
 
     init {
         appVersionInfoCache.onCreate()
-        connectionProxy.mainActivity = mainActivity
         registerListener()
     }
 
@@ -51,13 +51,13 @@ class ServiceConnection(private val service: ServiceInstance, mainActivity: Main
         dispatcher.onDestroy()
 
         accountCache.onDestroy()
+        connectionProxy.onDestroy()
         keyStatusListener.onDestroy()
         locationInfoCache.onDestroy()
         settingsListener.onDestroy()
 
         appVersionInfoCache.onDestroy()
         relayListListener.onDestroy()
-        connectionProxy.mainActivity = null
     }
 
     private fun registerListener() {
