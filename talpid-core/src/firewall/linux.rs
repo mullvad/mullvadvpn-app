@@ -847,24 +847,32 @@ impl<'a> PolicyBatch<'a> {
     }
 
     fn add_allow_lan_rules(&mut self) {
+        // Output and forward chains
+        for chain in &[&self.out_chain, &self.forward_chain] {
+            // LAN -> LAN
+            for net in &*super::ALLOWED_LAN_NETS {
+                let mut out_rule = Rule::new(chain);
+                check_net(&mut out_rule, End::Dst, *net);
+                add_verdict(&mut out_rule, &Verdict::Accept);
+                self.batch.add(&out_rule, nftnl::MsgType::Add);
+            }
+
+            // LAN -> Multicast
+            for net in &*super::ALLOWED_LAN_MULTICAST_NETS {
+                let mut rule = Rule::new(chain);
+                check_net(&mut rule, End::Dst, *net);
+                add_verdict(&mut rule, &Verdict::Accept);
+                self.batch.add(&rule, nftnl::MsgType::Add);
+            }
+        }
+
+        // Input chain
         // LAN -> LAN
         for net in &*super::ALLOWED_LAN_NETS {
-            let mut out_rule = Rule::new(&self.out_chain);
-            check_net(&mut out_rule, End::Dst, *net);
-            add_verdict(&mut out_rule, &Verdict::Accept);
-            self.batch.add(&out_rule, nftnl::MsgType::Add);
-
             let mut in_rule = Rule::new(&self.in_chain);
             check_net(&mut in_rule, End::Src, *net);
             add_verdict(&mut in_rule, &Verdict::Accept);
             self.batch.add(&in_rule, nftnl::MsgType::Add);
-        }
-        // LAN -> Multicast
-        for net in &*super::ALLOWED_LAN_MULTICAST_NETS {
-            let mut rule = Rule::new(&self.out_chain);
-            check_net(&mut rule, End::Dst, *net);
-            add_verdict(&mut rule, &Verdict::Accept);
-            self.batch.add(&rule, nftnl::MsgType::Add);
         }
         self.add_dhcp_server_rules();
     }
