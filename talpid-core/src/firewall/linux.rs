@@ -600,6 +600,15 @@ impl<'a> PolicyBatch<'a> {
                 allow_lan,
                 dns_servers,
             } => {
+                // The forward chain is also hit by the tunnel
+                self.batch.add(
+                    &allow_interface_rule(
+                        &self.forward_chain,
+                        Direction::In,
+                        &tunnel.interface[..],
+                    )?,
+                    nftnl::MsgType::Add,
+                );
                 self.add_allow_tunnel_endpoint_rules(peer_endpoint);
                 self.add_allow_dns_rules(tunnel, &dns_servers, TransportProtocol::Udp)?;
                 self.add_allow_dns_rules(tunnel, &dns_servers, TransportProtocol::Tcp)?;
