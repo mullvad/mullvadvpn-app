@@ -826,6 +826,10 @@ impl<'a> PolicyBatch<'a> {
             nftnl::MsgType::Add,
         );
         self.batch.add(
+            &allow_interface_rule(&self.forward_chain, Direction::Out, &tunnel.interface[..])?,
+            nftnl::MsgType::Add,
+        );
+        self.batch.add(
             &allow_interface_rule(&self.in_chain, Direction::In, &tunnel.interface[..])?,
             nftnl::MsgType::Add,
         );
