@@ -20,18 +20,19 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
     }
 
     private val commandChannel = spawnActor()
+    private val dnsServers = ArrayList<InetAddress>()
 
     private val daemon
         get() = endpoint.intermittentDaemon
 
-    private var dnsServers = ArrayList<InetAddress>()
     private var enabled = false
 
     init {
         endpoint.settingsListener.dnsOptionsNotifier.subscribe(this) { maybeDnsOptions ->
             maybeDnsOptions?.let { dnsOptions ->
                 enabled = dnsOptions.custom
-                dnsServers = dnsOptions.addresses
+                dnsServers.clear()
+                dnsServers.addAll(dnsOptions.addresses)
             }
         }
 
