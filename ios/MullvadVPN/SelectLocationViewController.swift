@@ -9,7 +9,11 @@
 import UIKit
 import Logging
 
-class SelectLocationViewController: UIViewController, RelayCacheObserver, UITableViewDelegate {
+protocol SelectLocationViewControllerDelegate: class {
+    func selectLocationViewController(_ controller: SelectLocationViewController, didSelectRelayLocation relayLocation: RelayLocation)
+}
+
+class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
     private enum ReuseIdentifiers: String {
         case cell
@@ -37,9 +41,10 @@ class SelectLocationViewController: UIViewController, RelayCacheObserver, UITabl
     private var dataSource: LocationDataSource?
     private var setCachedRelaysOnViewDidLoad: CachedRelays?
     private var setRelayLocationOnViewDidLoad: RelayLocation?
+    private var setScrollPositionOnViewDidLoad: UITableView.ScrollPosition = .none
     private var isViewAppeared = false
 
-    var didSelectRelayLocation: ((SelectLocationViewController, RelayLocation) -> Void)?
+    weak var delegate: SelectLocationViewControllerDelegate?
     var scrollToSelectedRelayOnViewWillAppear = true
 
     init() {
@@ -91,11 +96,9 @@ class SelectLocationViewController: UIViewController, RelayCacheObserver, UITabl
                 setRelayLocationOnViewDidLoad,
                 showHiddenParents: true,
                 animated: false,
-                scrollPosition: .none
+                scrollPosition: setScrollPositionOnViewDidLoad
             )
         }
-
-        RelayCache.shared.addObserver(self)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -118,6 +121,16 @@ class SelectLocationViewController: UIViewController, RelayCacheObserver, UITabl
         super.viewDidDisappear(animated)
 
         isViewAppeared = false
+    }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+
+        coordinator.animate { (context) in
+            if let indexPath = self.dataSource?.indexPathForSelectedRelay() {
+                self.tableView.scrollToRow(at: indexPath, at: .middle, animated: false)
+            }
+        }
     }
 
     // MARK: - UITableViewDelegate
@@ -145,7 +158,8 @@ class SelectLocationViewController: UIViewController, RelayCacheObserver, UITabl
             animated: false,
             scrollPosition: .none
         )
-        didSelectRelayLocation?(self, item.location)
+
+        self.delegate?.selectLocationViewController(self, didSelectRelayLocation: item.location)
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -162,34 +176,20 @@ class SelectLocationViewController: UIViewController, RelayCacheObserver, UITabl
         return view
     }
 
-    // MARK: - RelayCacheObserver
-
-    func relayCache(_ relayCache: RelayCache, didUpdateCachedRelays cachedRelays: CachedRelays) {
-        DispatchQueue.main.async {
-            self.didReceiveCachedRelays(cachedRelays)
-        }
-    }
-
     // MARK: - Public
 
-    func prefetchData(completionHandler: @escaping (RelayCacheError?) -> Void) {
-        RelayCache.shared.read { (result) in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let cachedRelays):
-                    self.didReceiveCachedRelays(cachedRelays)
-                    completionHandler(nil)
-
-                case .failure(let error):
-                    completionHandler(error)
-                }
-            }
+    func setCachedRelays(_ cachedRelays: CachedRelays) {
+        guard isViewLoaded else {
+            self.setCachedRelaysOnViewDidLoad = cachedRelays
+            return
         }
+        self.dataSource?.setRelays(cachedRelays.relays)
     }
 
     func setSelectedRelayLocation(_ relayLocation: RelayLocation?, animated: Bool, scrollPosition: UITableView.ScrollPosition) {
         guard isViewLoaded else {
             self.setRelayLocationOnViewDidLoad = relayLocation
+            self.setScrollPositionOnViewDidLoad = scrollPosition
             return
         }
 
@@ -199,16 +199,6 @@ class SelectLocationViewController: UIViewController, RelayCacheObserver, UITabl
             animated: animated,
             scrollPosition: scrollPosition
         )
-    }
-
-    // MARK: - Relay list handling
-
-    private func didReceiveCachedRelays(_ cachedRelays: CachedRelays) {
-        guard isViewLoaded else {
-            self.setCachedRelaysOnViewDidLoad = cachedRelays
-            return
-        }
-        self.dataSource?.setRelays(cachedRelays.relays)
     }
 
     // MARK: - Collapsible cells
