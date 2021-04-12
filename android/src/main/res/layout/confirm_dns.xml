@@ -13,14 +13,13 @@
                    android:layout_marginTop="8dp"
                    android:layout_gravity="center"
                    android:src="@drawable/icon_alert" />
-        <TextView android:id="@+id/message"
-                  android:layout_width="wrap_content"
+        <TextView android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
                   android:layout_weight="0"
                   android:layout_marginTop="16dp"
                   android:textColor="@color/white80"
                   android:textSize="@dimen/text_small"
-                  android:text="" />
+                  android:text="@string/confirm_local_dns" />
         <Button android:id="@+id/confirm_button"
                 android:layout_marginVertical="@dimen/button_separation"
                 android:text="@string/add_anyway"
