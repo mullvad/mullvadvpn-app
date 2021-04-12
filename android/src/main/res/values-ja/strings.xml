@@ -26,7 +26,6 @@
     <string name="cancel">キャンセル</string>
     <string name="confirm_local_dns">環境設定で「ローカルネットワーク共有」を有効にしない限り、ローカルDNSサーバーは機能しません。</string>
     <string name="confirm_no_email">お客様への返信先を入力せずに問題の報告を送信しようとしています。ご報告に対する返信が必要な場合は、返信先のメールアドレスを入力する必要があります。</string>
-    <string name="confirm_public_dns">追加しようとしているDNSサーバーはパブリックのため、機能しない可能性があります。現在はローカルDNSサーバーのみをサポートしています。</string>
     <string name="congrats">おめでとうございます！</string>
     <string name="connect">接続を保護する</string>
     <string name="connecting">接続中</string>

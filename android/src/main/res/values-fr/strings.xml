@@ -26,7 +26,6 @@
     <string name="cancel">Annuler</string>
     <string name="confirm_local_dns">Le serveur DNS local ne fonctionnera pas si vous n\'activez pas le « Partage du réseau local » dans les préférences.</string>
     <string name="confirm_no_email">Vous êtes sur le point d\'envoyer un signalement de problème sans nous fournir un moyen de vous contacter. Si vous désirez une réponse à votre signalement, vous devez saisir une adresse e-mail.</string>
-    <string name="confirm_public_dns">Le serveur DNS que vous essayez d\'ajouter pourrait ne pas fonctionner car il est public. Nous ne prenons actuellement en charge que les serveurs DNS locaux.</string>
     <string name="congrats">Félicitations !</string>
     <string name="connect">Sécuriser ma connexion</string>
     <string name="connecting">Connexion</string>

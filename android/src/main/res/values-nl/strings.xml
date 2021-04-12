@@ -26,7 +26,6 @@
     <string name="cancel">Annuleren</string>
     <string name="confirm_local_dns">De lokale DNS-server werkt niet tenzij u \"Lokale netwerken delen\" inschakelt onder Voorkeuren.</string>
     <string name="confirm_no_email">U staat op het punt om het probleemrapport te verzenden zonder een contactmethode op te geven. Voer een e-mailadres in als u een antwoord wenst op het rapport.</string>
-    <string name="confirm_public_dns">De DNS-server die u probeert toe te voegen, werkt mogelijk niet omdat deze openbaar is. Momenteel ondersteunen we alleen lokale DNS-servers.</string>
     <string name="congrats">Gefeliciteerd!</string>
     <string name="connect">Mijn verbinding beveiligen</string>
     <string name="connecting">Verbinden</string>

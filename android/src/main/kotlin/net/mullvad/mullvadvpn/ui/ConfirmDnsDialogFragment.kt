@@ -15,7 +15,7 @@ import kotlinx.coroutines.CompletableDeferred
 import net.mullvad.mullvadvpn.R
 
 class ConfirmDnsDialogFragment @JvmOverloads constructor(
-    private val message: Int = R.string.confirm_public_dns,
+    private val message: Int = R.string.confirm_local_dns,
     private var confirmation: CompletableDeferred<Boolean>? = null
 ) : DialogFragment() {
     override fun onCreateView(

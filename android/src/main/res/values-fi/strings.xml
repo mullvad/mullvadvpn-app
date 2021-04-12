@@ -26,7 +26,6 @@
     <string name="cancel">Peruuta</string>
     <string name="confirm_local_dns">Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamisasetusta käyttöön Asetuksissa.</string>
     <string name="confirm_no_email">Olet aikeissa lähettää ongelmaraportin ilman yhteystietojasi. Mikäli haluat vastauksen raporttiisi, anna sähköpostosoite.</string>
-    <string name="confirm_public_dns">DNS-palvelin jota yrität lisätä ei ehkä toimi, sillä se on julkinen. Tällä hetkellä tuemme vain paikallisia DNS-palvelimia.</string>
     <string name="congrats">Onnittelut!</string>
     <string name="connect">Suojaa yhteyteni</string>
     <string name="connecting">Yhdistetään</string>

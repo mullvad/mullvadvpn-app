@@ -26,7 +26,6 @@
     <string name="cancel">Avbryt</string>
     <string name="confirm_local_dns">Den lokale DNS-serveren fungerer ikke med mindre du aktiverer «Deling av lokalt nettverk» under Innstillinger.</string>
     <string name="confirm_no_email">Problemrapporten blir nå sendt uten en måte for oss å kontakte deg på. Hvis du ønsker svar på rapporten, må du oppgi en e-postadresse.</string>
-    <string name="confirm_public_dns">DNS-serveren du prøver å legge til fungerer kanskje ikke fordi den er offentlig. Vi støtter for øyeblikket bare lokale DNS-servere.</string>
     <string name="congrats">Gratulerer!</string>
     <string name="connect">Gjør tilkoblingen sikker</string>
     <string name="connecting">Kobler til</string>
