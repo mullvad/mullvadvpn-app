@@ -81,6 +81,10 @@ This release is for desktop only.
 - Always reconnect appropriately after an upgrade. Previously, installing the app twice in
   succession, with auto-connect disabled, would cause it to re-launch in the disconnected state.
 
+#### Linux
+- Drop packets being forwarded unless they are approved by the same rules as incoming or outgoing
+  traffic.
+
 
 ## [android/2021.1-beta1] - 2021-04-06
 This releas is for Android only. From now on, Android releases will have this new header format
