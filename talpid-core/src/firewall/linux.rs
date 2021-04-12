@@ -476,8 +476,8 @@ impl<'a> PolicyBatch<'a> {
     fn add_dhcp_client_rules(&mut self) {
         use self::TransportProtocol::Udp;
         // Outgoing DHCPv4 request
-        {
-            let mut out_v4 = Rule::new(&self.out_chain);
+        for chain in &[&self.out_chain, &self.forward_chain] {
+            let mut out_v4 = Rule::new(chain);
             check_port(&mut out_v4, Udp, End::Src, super::DHCPV4_CLIENT_PORT);
             check_ip(&mut out_v4, End::Dst, IpAddr::V4(Ipv4Addr::BROADCAST));
             check_port(&mut out_v4, Udp, End::Dst, super::DHCPV4_SERVER_PORT);
@@ -493,14 +493,16 @@ impl<'a> PolicyBatch<'a> {
             self.batch.add(&in_v4, nftnl::MsgType::Add);
         }
 
-        for dhcpv6_server in &*super::DHCPV6_SERVER_ADDRS {
-            let mut out_v6 = Rule::new(&self.out_chain);
-            check_net(&mut out_v6, End::Src, *super::IPV6_LINK_LOCAL);
-            check_port(&mut out_v6, Udp, End::Src, super::DHCPV6_CLIENT_PORT);
-            check_ip(&mut out_v6, End::Dst, *dhcpv6_server);
-            check_port(&mut out_v6, Udp, End::Dst, super::DHCPV6_SERVER_PORT);
-            add_verdict(&mut out_v6, &Verdict::Accept);
-            self.batch.add(&out_v6, nftnl::MsgType::Add);
+        for chain in &[&self.out_chain, &self.forward_chain] {
+            for dhcpv6_server in &*super::DHCPV6_SERVER_ADDRS {
+                let mut out_v6 = Rule::new(chain);
+                check_net(&mut out_v6, End::Src, *super::IPV6_LINK_LOCAL);
+                check_port(&mut out_v6, Udp, End::Src, super::DHCPV6_CLIENT_PORT);
+                check_ip(&mut out_v6, End::Dst, *dhcpv6_server);
+                check_port(&mut out_v6, Udp, End::Dst, super::DHCPV6_SERVER_PORT);
+                add_verdict(&mut out_v6, &Verdict::Accept);
+                self.batch.add(&out_v6, nftnl::MsgType::Add);
+            }
         }
         {
             let mut in_v6 = Rule::new(&self.in_chain);
@@ -512,8 +514,8 @@ impl<'a> PolicyBatch<'a> {
             self.batch.add(&in_v6, nftnl::MsgType::Add);
         }
         // Outgoing Router solicitation (part of NDP)
-        {
-            let mut rule = Rule::new(&self.out_chain);
+        for chain in &[&self.out_chain, &self.forward_chain] {
+            let mut rule = Rule::new(chain);
             check_ip(
                 &mut rule,
                 End::Dst,
@@ -895,8 +897,8 @@ impl<'a> PolicyBatch<'a> {
     fn add_dhcp_server_rules(&mut self) {
         use TransportProtocol::Udp;
         // Outgoing DHCPv4 response
-        {
-            let mut out_v4 = Rule::new(&self.out_chain);
+        for chain in &[&self.out_chain, &self.forward_chain] {
+            let mut out_v4 = Rule::new(chain);
             check_port(&mut out_v4, Udp, End::Src, super::DHCPV4_SERVER_PORT);
             check_port(&mut out_v4, Udp, End::Dst, super::DHCPV4_CLIENT_PORT);
             add_verdict(&mut out_v4, &Verdict::Accept);
