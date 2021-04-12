@@ -195,7 +195,7 @@ class RelayCache {
             }
 
         case .failure(let readError):
-            self.logger.error(chainedError: readError, message: "Failed to read the relay cache")
+            self.logger.error(chainedError: readError, message: "Failed to read the relay cache to determine if it needs to be updated")
 
             if Self.shouldDownloadRelaysOnReadFailure(readError) {
                 self.downloadRelays()
