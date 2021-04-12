@@ -62,6 +62,10 @@ This release is for desktop only.
 - Show default, minimum, and maximum key rotation intervals in CLI.
 - Attempt to send problem reports using other endpoints if using the primary one fails.
 
+#### Android
+- Remove dialog warning that only custom local DNS servers are supported, since public custom DNS
+  servers are now supported.
+
 ### Fixed
 - Fix GUI not showing correct view if disconnected from the daemon during app startup.
 - Fix incorrectly displayed "inconsistent version" text in settings if disconnected from daemon on
