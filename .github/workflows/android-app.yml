@@ -27,53 +27,119 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-            # Checkout repository
-            - uses: actions/checkout@v2
+            - name: Checkout repository
+              uses: actions/checkout@v2
 
-            # Install Rust
-            - uses: ATiltedTree/setup-rust@v1.0.4
+            - name: Declare commit sha variable
+              id: vars
+              shell: bash
+              run: |
+                echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+            - name: Configure Rust
+              uses: ATiltedTree/setup-rust@v1.0.4
               with:
                   rust-version: stable
-                  targets: aarch64-linux-android
+                  targets: x86_64-linux-android
 
-            # Install Go
-            - uses: actions/setup-go@v2.1.3
+            - name: Configure Go
+              uses: actions/setup-go@v2.1.3
               with:
                   go-version: 1.16
 
-            # Install Android SDK
-            - uses: maxim-lobanov/setup-android-tools@v1
+            - name: Configure Android SDK
+              uses: maxim-lobanov/setup-android-tools@v1
               with:
                   packages: |
                       platforms;android-30
                       build-tools;30.0.3
                   cache: true
 
-            # Install Android NDK
-            - id: install-android-ndk
+            - name: Configure Android NDK
+              id: install-android-ndk
               uses: nttld/setup-ndk@v1
               with:
                   ndk-version: r20b
 
-            # Configure Cargo to use NDK toolchain
-            - run: |
+            - name: Configure cache
+              uses: actions/cache@v2
+              with:
+                path: |
+                    ~/.gradle/caches
+                    ~/.gradle/wrapper
+                    ./android/build
+                key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}-${{ steps.vars.outputs.sha_short }}
+                restore-keys: |
+                    gradle-${{ steps.vars.outputs.sha_short }}
+
+            - name: Bind Cargo with NDK
+              run: |
                 cat >> $HOME/.cargo/config << EOF
-                [target.aarch64-linux-android]
-                ar = "${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar"
-                linker = "${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang"
+                [target.x86_64-linux-android]
+                ar = "${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar"
+                linker = "${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang"
                 EOF
 
-            # Build APK
-            - env:
+            - name: Build and run unit tests
+              env:
                 RUSTFLAGS: --deny warnings
                 NDK_TOOLCHAIN_DIR: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
-                AR_aarch64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar
-                CC_aarch64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android21-clang
-                ARCHITECTURES: arm64
+                AR_x86_64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar
+                CC_x86_64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang
+                ARCHITECTURES: arm64 x86_64
               run: |
                 ./wireguard/build-wireguard-go.sh --android --no-docker
-                source env.sh aarch64-linux-android
-                cargo build --target aarch64-linux-android --verbose --package mullvad-jni
+                source env.sh x86_64-linux-android
+                cargo build --target x86_64-linux-android --verbose --package mullvad-jni
                 cd android
                 ./gradlew --console plain assembleDebug
                 ./gradlew testDebugUnitTest
+
+    instrumented-tests:
+        name: Instrumented tests
+        runs-on: macos-latest
+        timeout-minutes: 30
+        needs:
+          - build
+        strategy:
+            fail-fast: false
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Declare commit sha variable
+              id: vars
+              shell: bash
+              run: |
+                echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
+            - name: Set up Java
+              uses: actions/setup-java@v1
+              with:
+                java-version: 1.8
+
+            - uses: gradle/wrapper-validation-action@v1
+
+            - name: Configure cache
+              uses: actions/cache@v2
+              with:
+                path: |
+                    ~/.gradle/caches
+                    ~/.gradle/wrapper
+                    ./android/build
+                key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}-${{ steps.vars.outputs.sha_short }}
+                restore-keys: |
+                    gradle-${{ steps.vars.outputs.sha_short }}
+
+            - name: Run Android instrumented tests
+              uses: reactivecircus/android-emulator-runner@v2
+              with:
+                api-level: 29
+                arch: x86_64
+                emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot-load -noaudio -no-boot-anim
+                disable-animations: true
+                profile: pixel
+                script: ./gradlew connectedCheck --stacktrace
+                working-directory: ./android
+              env:
+                API_LEVEL: 29
