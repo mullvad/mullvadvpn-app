@@ -1,7 +1,6 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
 import java.net.InetAddress
-import java.util.ArrayList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
