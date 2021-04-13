@@ -24,10 +24,29 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-- Preserve log of old daemon instance when upgrading on Desktop.
 - When `MULLVAD_MANAGEMENT_SOCKET_GROUP` is set, only allow the specified group to access the
   management interface UDS socket. This means that only users in that group can use the CLI and GUI.
 - Support WireGuard over TCP for custom VPN relays in the CLI.
+
+### Changed
+- Upgrade OpenVPN from 2.5.0 to 2.5.1.
+
+#### Linux
+- Only allow packets with the mark set to `0x6d6f6c65` to communicate with the relay server.
+  Previously, bridges were expected to run as root instead.
+
+### Fixed
+- Fix relay selection failing to pick a WireGuard relay when no tunnel protocol is specified.
+
+#### Windows
+- Prevent tray icons from being extraced to `%TEMP%` directory.
+
+
+## [2021.3-beta1] - 2021-04-13
+This release is for desktop only.
+
+### Added
+- Preserve log of old daemon instance when upgrading on Desktop.
 
 #### Linux
 - Always enable `src_valid_mark` config option when connecting to allow policty based routing.
@@ -38,20 +57,11 @@ Line wrap the file at 100 chars.                                              Th
 - Make WireGuard automatic key rotation interval mandatory and between 1 and 7 days.
 - Show default, minimum, and maximum key rotation intervals in CLI.
 - Attempt to send problem reports using other endpoints if using the primary one fails.
-- Upgrade OpenVPN from 2.5.0 to 2.5.1.
-
-#### Linux
-- Only allow packets with the mark set to `0x6d6f6c65` to communicate with the relay server.
-  Previously, bridges were expected to run as root instead.
 
 ### Fixed
 - Fix GUI not showing correct view if disconnected from the daemon during app startup.
 - Fix incorrectly displayed "inconsistent version" text in settings if disconnected from daemon on
   startup.
-- Fix relay selection failing to pick a WireGuard relay when no tunnel protocol is specified.
-
-#### Windows
-- Prevent tray icons from being extraced to `%TEMP%` directory.
 
 #### Linux
 - Further improve offline monitor to properly receive `ENETUNREACH`.
