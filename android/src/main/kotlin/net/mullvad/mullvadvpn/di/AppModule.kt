@@ -7,9 +7,6 @@ import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.MessageDispatcher
-import net.mullvad.mullvadvpn.service.ServiceInstance
-import net.mullvad.mullvadvpn.ui.MainActivity
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import org.koin.android.ext.koin.androidContext
@@ -29,14 +26,12 @@ val appModule = module {
         scoped { ApplicationsProvider(get(), get(named(SELF_PACKAGE_NAME))) }
     }
 
-    scope<ServiceConnection> {
-        scoped<ServiceConnection> { (service: ServiceInstance, mainActivity: MainActivity) ->
-            ServiceConnection(service, mainActivity)
-        } onClose { it?.onDestroy() }
+    scope(named(SERVICE_CONNECTION_SCOPE)) {
         scoped<SplitTunneling> { (messenger: Messenger, dispatcher: MessageDispatcher<Event>) ->
             SplitTunneling(messenger, dispatcher)
         }
     }
 }
 const val APPS_SCOPE = "APPS_SCOPE"
+const val SERVICE_CONNECTION_SCOPE = "SERVICE_CONNECTION_SCOPE"
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"

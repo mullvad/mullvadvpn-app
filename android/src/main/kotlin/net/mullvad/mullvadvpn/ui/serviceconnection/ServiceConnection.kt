@@ -6,15 +6,17 @@ import android.os.RemoteException
 import android.util.Log
 import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
+import net.mullvad.mullvadvpn.di.SERVICE_CONNECTION_SCOPE
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.service.ServiceInstance
 import net.mullvad.mullvadvpn.ui.MainActivity
 import org.koin.core.component.KoinApiExtension
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.get
 import org.koin.core.parameter.parametersOf
+import org.koin.core.qualifier.named
+import org.koin.core.scope.KoinScopeComponent
+import org.koin.core.scope.get
 
 // Container of classes that communicate with the service through an active connection
 //
@@ -22,7 +24,12 @@ import org.koin.core.parameter.parametersOf
 // the service and to get values received from events.
 @OptIn(KoinApiExtension::class)
 class ServiceConnection(private val service: ServiceInstance, mainActivity: MainActivity) :
-    KoinComponent {
+    KoinScopeComponent {
+    override val scope = getKoin().createScope(
+        SERVICE_CONNECTION_SCOPE,
+        named(SERVICE_CONNECTION_SCOPE), this
+    )
+
     val dispatcher = DispatchingHandler(Looper.getMainLooper()) { message ->
         Event.fromMessage(message)
     }
@@ -48,6 +55,7 @@ class ServiceConnection(private val service: ServiceInstance, mainActivity: Main
     }
 
     fun onDestroy() {
+        closeScope()
         dispatcher.onDestroy()
 
         accountCache.onDestroy()

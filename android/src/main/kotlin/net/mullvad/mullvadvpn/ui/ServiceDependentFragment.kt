@@ -17,7 +17,8 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 
-abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceAwareFragment() {
+abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
+    ServiceAwareFragment() {
     enum class OnNoService {
         GoBack, GoToLaunchScreen
     }
@@ -109,12 +110,12 @@ abstract class ServiceDependentFragment(val onNoService: OnNoService) : ServiceA
         savedInstanceState: Bundle?
     ): View {
         synchronized(this) {
-            when (state) {
+            return when (state) {
                 State.Initialized, State.Active, State.Stopped -> {
-                    return onSafelyCreateView(inflater, container, savedInstanceState)
+                    onSafelyCreateView(inflater, container, savedInstanceState)
                 }
                 State.Uninitialized, State.LostConnection, State.WaitingForReconnection -> {
-                    return inflater.inflate(R.layout.missing_service, container, false)
+                    inflater.inflate(R.layout.missing_service, container, false)
                 }
             }
         }

@@ -6,7 +6,6 @@ import io.mockk.unmockkAll
 import kotlin.test.assertEquals
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.MessageDispatcher
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import org.junit.After
 import org.junit.Rule
@@ -32,7 +31,10 @@ class AppModuleTest : KoinTest {
     @Test
     fun test_scope_linking() {
         val appsScope: Scope = getKoin().createScope(APPS_SCOPE, named(APPS_SCOPE))
-        val serviceConnectionScope = getKoin().createScope<ServiceConnection>()
+        val serviceConnectionScope = getKoin().createScope(
+            SERVICE_CONNECTION_SCOPE,
+            named(SERVICE_CONNECTION_SCOPE)
+        )
 
         appsScope.linkTo(serviceConnectionScope)
 
