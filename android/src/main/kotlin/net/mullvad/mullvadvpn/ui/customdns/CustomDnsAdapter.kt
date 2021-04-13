@@ -8,7 +8,7 @@ import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.service.CustomDns
+import net.mullvad.mullvadvpn.ui.serviceconnection.CustomDns
 import net.mullvad.mullvadvpn.util.JobTracker
 import org.apache.commons.validator.routines.InetAddressValidator
 
