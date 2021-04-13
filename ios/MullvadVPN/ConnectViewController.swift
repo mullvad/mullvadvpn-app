@@ -71,6 +71,27 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
         addSubviews()
     }
 
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if previousTraitCollection?.userInterfaceIdiom != traitCollection.userInterfaceIdiom ||
+            previousTraitCollection?.horizontalSizeClass != traitCollection.horizontalSizeClass {
+            updateTraitDependentViews()
+        }
+    }
+
+    func setMainContentHidden(_ isHidden: Bool, animated: Bool) {
+        let actions = {
+            self.mainContentView.containerView.alpha = isHidden ? 0 : 1
+        }
+
+        if animated {
+            UIView.animate(withDuration: 0.25, animations: actions)
+        } else {
+            actions()
+        }
+    }
+
     private func addSubviews() {
         view.addSubview(mainContentView)
         NSLayoutConstraint.activate([
@@ -102,7 +123,12 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
         mainContentView.connectButton.setTitle(tunnelState.localizedTitleForConnectButton, for: .normal)
         mainContentView.selectLocationButton.setTitle(tunnelState.localizedTitleForSelectLocationButton, for: .normal)
         mainContentView.splitDisconnectButton.primaryButton.setTitle(tunnelState.localizedTitleForDisconnectButton, for: .normal)
-        mainContentView.setActionButtons(tunnelState.actionButtons)
+
+        updateTraitDependentViews()
+    }
+
+    private func updateTraitDependentViews() {
+        mainContentView.setActionButtons(tunnelState.actionButtons(traitCollection: self.traitCollection))
     }
 
     private func attributedStringForLocation(string: String) -> NSAttributedString {
@@ -210,9 +236,9 @@ private extension TunnelState {
         }
     }
 
-    var actionButtons: [ConnectMainContentView.ActionButton] {
-        switch UIDevice.current.userInterfaceIdiom {
-        case .phone:
+    func actionButtons(traitCollection: UITraitCollection) -> [ConnectMainContentView.ActionButton] {
+        switch (traitCollection.userInterfaceIdiom, traitCollection.horizontalSizeClass) {
+        case (.phone, _), (.pad, .compact):
             switch self {
             case .disconnected, .disconnecting:
                 return [.selectLocation, .connect]
@@ -221,7 +247,7 @@ private extension TunnelState {
                 return [.selectLocation, .disconnect]
             }
 
-        case .pad:
+        case (.pad, .regular):
             switch self {
             case .disconnected, .disconnecting:
                 return [.connect]
