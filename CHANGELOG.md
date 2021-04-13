@@ -23,22 +23,56 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2021.3-beta1] - 2021-04-13
+This release is for desktop only.
+
+### Added
+- Preserve log of old daemon instance when upgrading on Desktop.
+
+#### Linux
+- Always enable `src_valid_mark` config option when connecting to allow policty based routing.
+
+### Changed
+- Allow whitespace in account token in CLI.
+- Read account token from standard input unless given as an argument in CLI.
+- Make WireGuard automatic key rotation interval mandatory and between 1 and 7 days.
+- Show default, minimum, and maximum key rotation intervals in CLI.
+- Attempt to send problem reports using other endpoints if using the primary one fails.
+
+### Fixed
+- Fix GUI not showing correct view if disconnected from the daemon during app startup.
+- Fix incorrectly displayed "inconsistent version" text in settings if disconnected from daemon on
+  startup.
+
+#### Linux
+- Further improve offline monitor to properly receive `ENETUNREACH`.
+
+#### Android
+- Fix status bar having the wrong color after logging out.
+
+### Security
+- Always reconnect appropriately after an upgrade. Previously, installing the app twice in
+  succession, with auto-connect disabled, would cause it to re-launch in the disconnected state.
+
+
+## [android/2021.1-beta1] - 2021-04-06
+This releas is for Android only. From now on, Android releases will have this new header format
+that is the same as the git tag they receive: `android/<version>`.
+
 ### Added
 - Enable isolation of the Electron renderer process to protect against potentially malicious third
   party dependencies.
 - Add 51820 to list of WireGuard ports in app settings.
 - Add option to connect to WireGuard relays over IPv6.
 - Add Burmese translations.
-- Preserve log of old daemon instance when upgrading on Desktop.
 
 #### Android
 - Allow reaching the API server when connecting, disconnecting or in a blocked state.
 - Add FAQs & Guides menu entry to the Settings screen.
 - Add TV banner for better user experience and requirements.
 - Style StatucBar and NavigationBar to make our app a bit more beautiful.
-
-#### Linux
-- Always enable `src_valid_mark` config option when connecting to allow policty based routing.
 
 ### Changed
 - Update Electron from 11.0.2 to 11.2.1 which includes a newer Chromium version and
@@ -47,11 +81,6 @@ Line wrap the file at 100 chars.                                              Th
 - Only download a new relay list if it has been modified.
 - Connect to the API only via TLS 1.3
 - Shrink account history capactity from 3 account entries to 1.
-- Allow whitespace in account token in CLI.
-- Read account token from standard input unless given as an argument in CLI.
-- Make WireGuard automatic key rotation interval mandatory and between 1 and 7 days.
-- Show default, minimum, and maximum key rotation intervals in CLI.
-- Attempt to send problem reports using other endpoints if using the primary one fails.
 
 #### Android
 - WireGuard key is now rotated sooner: every four days instead of seven.
@@ -62,9 +91,6 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix delay in showing/hiding update notification when toggling beta program.
 - Improve responsiveness when reconnecting after some failed connection attempts.
-- Fix GUI not showing correct view if disconnected from the daemon during app startup.
-- Fix incorrectly displayed "inconsistent version" text in settings if disconnected from daemon on
-  startup.
 
 #### Windows
 - Fix "cannot find the file" error while creating a Wintun adapter by upgrading Wintun.
@@ -74,15 +100,9 @@ Line wrap the file at 100 chars.                                              Th
 - Stop using NM for managing DNS if it's newer than 1.26.
 - Fix DNS issues where NM would overwrite Mullvad tunnel's DNS config in systemd-resolved.
 - Fix issues with hosts where the firewall is doing reverse path filtering.
-- Further improve offline monitor to properly receive `ENETUNREACH`.
 
 #### Android
 - Fix input area sometimes disappearing when returning to the Login screen.
-- Fix status bar having the wrong color after logging out.
-
-### Security
-- Always reconnect appropriately after an upgrade. Previously, installing the app twice in
-  succession, with auto-connect disabled, would cause it to re-launch in the disconnected state.
 
 
 ## [2021.2] - 2021-02-18
