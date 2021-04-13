@@ -808,15 +808,7 @@ fn convert_relay_settings_update(
                     ConnectionConfig::OpenVpn(openvpn::ConnectionConfig {
                         endpoint: net::Endpoint {
                             address,
-                            protocol: match types::TransportProtocol::from_i32(config.protocol) {
-                                Some(types::TransportProtocol::Udp) => TransportProtocol::Udp,
-                                Some(types::TransportProtocol::Tcp) => TransportProtocol::Tcp,
-                                None => {
-                                    return Err(Status::invalid_argument(
-                                        "invalid transport protocol",
-                                    ))
-                                }
-                            },
+                            protocol: convert_proto_transport_protocol(config.protocol)?,
                         },
                         username: config.username.clone(),
                         password: config.password.clone(),
@@ -893,6 +885,7 @@ fn convert_relay_settings_update(
                             public_key: wireguard::PublicKey::from(public_key),
                             allowed_ips,
                             endpoint,
+                            protocol: convert_proto_transport_protocol(peer.protocol)?,
                         },
                         ipv4_gateway,
                         ipv6_gateway,
@@ -923,7 +916,7 @@ fn convert_relay_settings_update(
                         Some(types::TunnelType::Wireguard) => {
                             Some(Constraint::Only(TunnelType::Wireguard))
                         }
-                        None => return Err(Status::invalid_argument("unknown tunnel protocol")),
+                        None => return Err(Status::invalid_argument("invalid tunnel protocol")),
                     },
                     None => Some(Constraint::Any),
                 }
@@ -934,13 +927,7 @@ fn convert_relay_settings_update(
             let transport_protocol = if let Some(ref constraints) = settings.openvpn_constraints {
                 match &constraints.protocol {
                     Some(constraint) => {
-                        match types::TransportProtocol::from_i32(constraint.protocol) {
-                            Some(types::TransportProtocol::Udp) => Some(TransportProtocol::Udp),
-                            Some(types::TransportProtocol::Tcp) => Some(TransportProtocol::Tcp),
-                            None => {
-                                return Err(Status::invalid_argument("unknown transport protocol"))
-                            }
-                        }
+                        Some(convert_proto_transport_protocol(constraint.protocol)?)
                     }
                     None => None,
                 }
@@ -967,7 +954,7 @@ fn convert_relay_settings_update(
                         Some(types::IpVersion::V4) => Some(IpVersion::V4),
                         Some(types::IpVersion::V6) => Some(IpVersion::V6),
                         None => {
-                            return Err(Status::invalid_argument("unknown ip protocol version"))
+                            return Err(Status::invalid_argument("invalid ip protocol version"))
                         }
                     },
                     None => None,
@@ -1103,6 +1090,10 @@ fn convert_connection_config(config: &ConnectionConfig) -> types::ConnectionConf
                             .map(|address| address.to_string())
                             .collect(),
                         endpoint: config.peer.endpoint.to_string(),
+                        protocol: i32::from(match config.peer.protocol {
+                            TransportProtocol::Udp => types::TransportProtocol::Udp,
+                            TransportProtocol::Tcp => types::TransportProtocol::Tcp,
+                        }),
                     }),
                     ipv4_gateway: config.ipv4_gateway.to_string(),
                     ipv6_gateway: config
@@ -1543,6 +1534,14 @@ fn convert_proto_location(location: types::RelayLocation) -> Constraint<Location
         Constraint::Only(LocationConstraint::Country(location.country))
     } else {
         Constraint::Any
+    }
+}
+
+fn convert_proto_transport_protocol(protocol: i32) -> Result<TransportProtocol, Status> {
+    match types::TransportProtocol::from_i32(protocol) {
+        Some(types::TransportProtocol::Udp) => Ok(TransportProtocol::Udp),
+        Some(types::TransportProtocol::Tcp) => Ok(TransportProtocol::Tcp),
+        None => Err(Status::invalid_argument("invalid transport protocol")),
     }
 }
 

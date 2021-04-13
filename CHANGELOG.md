@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Preserve log of old daemon instance when upgrading on Desktop.
 - When `MULLVAD_MANAGEMENT_SOCKET_GROUP` is set, only allow the specified group to access the
   management interface UDS socket. This means that only users in that group can use the CLI and GUI.
+- Support WireGuard over TCP for custom VPN relays in the CLI.
 
 #### Linux
 - Always enable `src_valid_mark` config option when connecting to allow policty based routing.

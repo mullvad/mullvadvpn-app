@@ -340,6 +340,7 @@ message ConnectionConfig {
 			bytes public_key = 1;
 			repeated string allowed_ips = 2;
 			string endpoint = 3;
+			TransportProtocol protocol = 4;
 		}
 
 		TunnelConfig tunnel = 1;

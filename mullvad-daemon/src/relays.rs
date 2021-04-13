@@ -697,6 +697,7 @@ impl RelaySelector {
             public_key: data.public_key,
             endpoint: SocketAddr::new(host, port),
             allowed_ips: all_of_the_internet(),
+            protocol: TransportProtocol::Udp,
         };
         Some(MullvadEndpoint::Wireguard {
             peer: peer_config,

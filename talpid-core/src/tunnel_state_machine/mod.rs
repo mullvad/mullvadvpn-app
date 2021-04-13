@@ -139,7 +139,7 @@ pub async fn spawn(
             }
         };
 
-        state_machine.run(runtime, state_change_listener);
+        state_machine.run(state_change_listener);
 
         if shutdown_tx.send(()).is_err() {
             log::error!("Can't send shutdown completion to daemon");
@@ -222,9 +222,10 @@ impl TunnelStateMachine {
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
         let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
-        let route_manager =
-            RouteManager::new(runtime, HashSet::new()).map_err(Error::InitRouteManagerError)?;
+        let route_manager = RouteManager::new(runtime.clone(), HashSet::new())
+            .map_err(Error::InitRouteManagerError)?;
         let mut shared_values = SharedTunnelStateValues {
+            runtime,
             firewall,
             dns_monitor,
             route_manager,
@@ -250,12 +251,10 @@ impl TunnelStateMachine {
         })
     }
 
-    fn run(
-        mut self,
-        runtime: tokio::runtime::Handle,
-        change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
-    ) {
+    fn run(mut self, change_listener: impl Sender<TunnelStateTransition> + Send + 'static) {
         use EventConsequence::*;
+
+        let runtime = self.shared_values.runtime.clone();
 
         while let Some(state_wrapper) = self.current_state.take() {
             match state_wrapper.handle_event(&runtime, &mut self.commands, &mut self.shared_values)
@@ -295,6 +294,7 @@ pub trait TunnelParametersGenerator: Send + 'static {
 
 /// Values that are common to all tunnel states.
 struct SharedTunnelStateValues {
+    runtime: tokio::runtime::Handle,
     firewall: Firewall,
     dns_monitor: DnsMonitor,
     route_manager: RouteManager,
