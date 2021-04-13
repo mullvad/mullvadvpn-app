@@ -20,22 +20,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         case header
     }
 
-    private lazy var tableView: UITableView = {
-        let tableView = UITableView(frame: view.bounds, style: .plain)
-        tableView.translatesAutoresizingMaskIntoConstraints = true
-        tableView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        tableView.backgroundColor = .clear
-        tableView.separatorColor = .secondaryColor
-        tableView.separatorInset = .zero
-        tableView.estimatedRowHeight = 53
-        tableView.estimatedSectionHeaderHeight = 109
-        tableView.indicatorStyle = .white
-
-        tableView.register(SelectLocationHeaderView.self, forHeaderFooterViewReuseIdentifier: ReuseIdentifiers.header.rawValue)
-        tableView.register(SelectLocationCell.self, forCellReuseIdentifier: ReuseIdentifiers.cell.rawValue)
-
-        return tableView
-    }()
+    private var tableView: UITableView?
 
     private let logger = Logger(label: "SelectLocationController")
     private var dataSource: LocationDataSource?
@@ -60,11 +45,25 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        let tableView = UITableView(frame: view.bounds, style: .plain)
+        tableView.translatesAutoresizingMaskIntoConstraints = true
+        tableView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        tableView.backgroundColor = .clear
+        tableView.separatorColor = .secondaryColor
+        tableView.separatorInset = .zero
+        tableView.estimatedRowHeight = 53
+        tableView.estimatedSectionHeaderHeight = 109
+        tableView.indicatorStyle = .white
+
+        tableView.register(SelectLocationHeaderView.self, forHeaderFooterViewReuseIdentifier: ReuseIdentifiers.header.rawValue)
+        tableView.register(SelectLocationCell.self, forCellReuseIdentifier: ReuseIdentifiers.cell.rawValue)
+
+        self.tableView = tableView
         view.backgroundColor = .secondaryColor
         view.addSubview(tableView)
 
         dataSource = LocationDataSource(
-            tableView: self.tableView,
+            tableView: tableView,
             cellProvider: { [weak self] (tableView, indexPath, item) -> UITableViewCell? in
                 guard let self = self else { return nil }
 
@@ -105,7 +104,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         super.viewWillAppear(animated)
 
         if let indexPath = dataSource?.indexPathForSelectedRelay(), scrollToSelectedRelayOnViewWillAppear, !isViewAppeared {
-            self.tableView.scrollToRow(at: indexPath, at: .middle, animated: false)
+            self.tableView?.scrollToRow(at: indexPath, at: .middle, animated: false)
         }
     }
 
@@ -114,7 +113,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
         isViewAppeared = true
 
-        tableView.flashScrollIndicators()
+        tableView?.flashScrollIndicators()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -128,7 +127,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
         coordinator.animate { (context) in
             if let indexPath = self.dataSource?.indexPathForSelectedRelay() {
-                self.tableView.scrollToRow(at: indexPath, at: .middle, animated: false)
+                self.tableView?.scrollToRow(at: indexPath, at: .middle, animated: false)
             }
         }
     }
@@ -204,7 +203,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
     // MARK: - Collapsible cells
 
     private func collapseCell(_ cell: SelectLocationCell) {
-        guard let cellIndexPath = tableView.indexPath(for: cell),
+        guard let cellIndexPath = tableView?.indexPath(for: cell),
               let dataSource = dataSource, let location = dataSource.relayLocation(for: cellIndexPath) else {
             return
         }
