@@ -29,6 +29,12 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
     private var setScrollPositionOnViewDidLoad: UITableView.ScrollPosition = .none
     private var isViewAppeared = false
 
+    private var showHeaderViewAtTheBottom = false {
+        didSet {
+            setTableHeaderFooterDimensions()
+        }
+    }
+
     weak var delegate: SelectLocationViewControllerDelegate?
     var scrollToSelectedRelayOnViewWillAppear = true
 
@@ -59,6 +65,9 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         tableView.register(SelectLocationCell.self, forCellReuseIdentifier: ReuseIdentifiers.cell.rawValue)
 
         self.tableView = tableView
+
+        setTableHeaderFooterDimensions()
+
         view.backgroundColor = .secondaryColor
         view.addSubview(tableView)
 
@@ -102,6 +111,10 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+
+        // Show header view at the bottoom when controller is presented inline and show header view
+        // at the top of the view when controller is presented modally.
+        showHeaderViewAtTheBottom = self.presentingViewController == nil
 
         if let indexPath = dataSource?.indexPathForSelectedRelay(), scrollToSelectedRelayOnViewWillAppear, !isViewAppeared {
             self.tableView?.scrollToRow(at: indexPath, at: .middle, animated: false)
@@ -164,15 +177,27 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         assert(section == 0)
 
-        let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifiers.header.rawValue) as! SelectLocationHeaderView
+        if showHeaderViewAtTheBottom {
+            return nil
+        } else {
+            let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifiers.header.rawValue) as! SelectLocationHeaderView
+            updateTopLayoutMargin(forHeaderView: view)
 
-        // When contained within the navigation controller, we want the distance between the navigation title
-        // and the table header label to be exactly 24pt.
-        if let navigationBar = navigationController?.navigationBar as? CustomNavigationBar {
-            view.topLayoutMarginAdjustmentForNavigationBarTitle = navigationBar.titleLabelBottomInset
+            return view
         }
+    }
 
-        return view
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        assert(section == 0)
+
+        if showHeaderViewAtTheBottom {
+            let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifiers.header.rawValue) as! SelectLocationHeaderView
+            view.topLayoutMarginAdjustmentForNavigationBarTitle = 0
+
+            return view
+        } else {
+            return nil
+        }
     }
 
     // MARK: - Public
@@ -209,5 +234,29 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         }
 
         dataSource.toggleChildren(location, animated: true)
+    }
+
+    // MARK: - Private
+
+    private func updateTopLayoutMargin(forHeaderView view: SelectLocationHeaderView) {
+        // When contained within the navigation controller, we want the distance between the navigation title
+        // and the table header label to be exactly 24pt.
+        if let navigationBar = navigationController?.navigationBar as? CustomNavigationBar {
+            view.topLayoutMarginAdjustmentForNavigationBarTitle = navigationBar.titleLabelBottomInset
+        } else {
+            view.topLayoutMarginAdjustmentForNavigationBarTitle = 0
+        }
+    }
+
+    private func setTableHeaderFooterDimensions() {
+        let headerFooterHeight: CGFloat = 109
+
+        if showHeaderViewAtTheBottom {
+            self.tableView?.estimatedSectionHeaderHeight = 0
+            self.tableView?.estimatedSectionFooterHeight = headerFooterHeight
+        } else {
+            self.tableView?.estimatedSectionHeaderHeight = headerFooterHeight
+            self.tableView?.estimatedSectionFooterHeight = 0
+        }
     }
 }
