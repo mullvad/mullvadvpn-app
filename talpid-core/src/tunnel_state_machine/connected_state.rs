@@ -1,20 +1,14 @@
-#[cfg(windows)]
-use super::windows;
 use super::{
     AfterDisconnect, ConnectingState, DisconnectingState, ErrorState, EventConsequence,
     EventResult, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
     TunnelStateTransition, TunnelStateWrapper,
 };
-#[cfg(windows)]
-use crate::split_tunnel;
 use crate::{
     firewall::FirewallPolicy,
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
 use cfg_if::cfg_if;
 use futures::{channel::mpsc, stream::Fuse, StreamExt};
-#[cfg(windows)]
-use std::ffi::OsStr;
 use std::net::IpAddr;
 use talpid_types::{
     net::TunnelParameters,
@@ -151,18 +145,6 @@ impl ConnectedState {
         }
     }
 
-    #[cfg(windows)]
-    fn apply_split_tunnel_config<T: AsRef<OsStr>>(
-        shared_values: &SharedTunnelStateValues,
-        paths: &[T],
-    ) -> Result<(), split_tunnel::Error> {
-        let split_tunnel = shared_values
-            .split_tunnel
-            .lock()
-            .expect("Thread unexpectedly panicked while holding the mutex");
-        split_tunnel.set_paths(paths)
-    }
-
     fn disconnect(
         self,
         shared_values: &mut SharedTunnelStateValues,
@@ -272,7 +254,7 @@ impl ConnectedState {
             }
             #[cfg(windows)]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                let _ = result_tx.send(Self::apply_split_tunnel_config(shared_values, &paths));
+                let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
                 SameState(self.into())
             }
         }
@@ -325,8 +307,9 @@ impl TunnelState for ConnectedState {
         let tunnel_endpoint = connected_state.tunnel_parameters.get_tunnel_endpoint();
 
         #[cfg(target_os = "windows")]
-        if let Err(error) =
-            windows::update_split_tunnel_addresses(Some(&connected_state.metadata), shared_values)
+        if let Err(error) = shared_values
+            .split_tunnel
+            .set_tunnel_addresses(Some(&connected_state.metadata))
         {
             log::error!(
                 "{}",
