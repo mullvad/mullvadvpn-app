@@ -651,7 +651,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
         close={this.hideCustomDnsConfirmationDialog}
         message={messages.pgettext(
           'advanced-settings-view',
-          'The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers.',
+          'The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the "Tunnel protocol" (in Advanced settings) to WireGuard.',
         )}></ModalAlert>
     );
   };
