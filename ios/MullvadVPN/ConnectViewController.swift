@@ -16,7 +16,7 @@ protocol ConnectViewControllerDelegate: class {
     func connectViewControllerShouldReconnectTunnel(_ controller: ConnectViewController)
 }
 
-class ConnectViewController: UIViewController, RootContainment, TunnelObserver
+class ConnectViewController: UIViewController, RootContainment, TunnelObserver, AccountObserver
 {
     weak var delegate: ConnectViewControllerDelegate?
 
@@ -34,6 +34,9 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
     }
 
     var preferredHeaderBarStyle: HeaderBarStyle {
+        if !Account.shared.isLoggedIn {
+            return .default
+        }
         switch tunnelState {
         case .connecting, .reconnecting, .connected:
             return .secured
@@ -69,6 +72,8 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
         self.tunnelState = TunnelManager.shared.tunnelState
 
         addSubviews()
+
+        Account.shared.addObserver(self)
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -100,6 +105,20 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
             mainContentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             mainContentView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+    }
+
+    // MARK: - AccountObserver
+
+    func account(_ account: Account, didLoginWithToken token: String, expiry: Date) {
+        setNeedsHeaderBarStyleAppearanceUpdate()
+    }
+
+    func account(_ account: Account, didUpdateExpiry expiry: Date) {
+        // no-op
+    }
+
+    func accountDidLogout(_ account: Account) {
+        setNeedsHeaderBarStyleAppearanceUpdate()
     }
 
     // MARK: - TunnelObserver
