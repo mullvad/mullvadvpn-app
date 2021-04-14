@@ -13,8 +13,6 @@ use self::{
 };
 #[cfg(windows)]
 use crate::split_tunnel;
-#[cfg(windows)]
-use crate::winnet::WinNetCallbackHandle;
 use crate::{
     dns::DnsMonitor,
     firewall::{Firewall, FirewallArguments},
@@ -25,8 +23,6 @@ use crate::{
 };
 #[cfg(windows)]
 use std::ffi::OsString;
-#[cfg(windows)]
-use std::sync::Mutex;
 
 use futures::{
     channel::{mpsc, oneshot},
@@ -47,9 +43,6 @@ use talpid_types::{
     net::{Endpoint, TunnelParameters},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
 };
-
-#[cfg(target_os = "windows")]
-mod windows;
 
 /// Errors that can happen when setting up or using the state machine.
 #[derive(err_derive::Error, Debug)]
@@ -287,9 +280,7 @@ impl TunnelStateMachine {
             #[cfg(target_os = "linux")]
             connectivity_check_was_enabled: None,
             #[cfg(windows)]
-            split_tunnel: Arc::new(Mutex::new(split_tunnel)),
-            #[cfg(windows)]
-            st_route_handler: None,
+            split_tunnel,
         };
 
         let (initial_state, _) = DisconnectedState::enter(&mut shared_values, reset_firewall);
@@ -373,10 +364,7 @@ struct SharedTunnelStateValues {
     connectivity_check_was_enabled: Option<bool>,
     /// Management of excluded apps.
     #[cfg(windows)]
-    split_tunnel: Arc<Mutex<split_tunnel::SplitTunnel>>,
-    /// Management of excluded apps.
-    #[cfg(windows)]
-    st_route_handler: Option<WinNetCallbackHandle>,
+    split_tunnel: split_tunnel::SplitTunnel,
 }
 
 impl SharedTunnelStateValues {
