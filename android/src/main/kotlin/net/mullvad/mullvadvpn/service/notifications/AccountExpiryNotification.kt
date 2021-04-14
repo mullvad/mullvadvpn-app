@@ -9,15 +9,17 @@ import android.net.Uri
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.model.LoginStatus
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.endpoint.AccountCache
+import net.mullvad.mullvadvpn.util.Intermittent
 import net.mullvad.mullvadvpn.util.JobTracker
 import org.joda.time.DateTime
 import org.joda.time.Duration
 
 class AccountExpiryNotification(
     val context: Context,
-    val daemon: MullvadDaemon,
+    val daemon: Intermittent<MullvadDaemon>,
     val accountCache: AccountCache
 ) {
     companion object {
@@ -39,29 +41,30 @@ class AccountExpiryNotification(
         NotificationManager.IMPORTANCE_HIGH
     )
 
-    var accountExpiry by observable<DateTime?>(null) { _, oldValue, newValue ->
+    var loginStatus by observable<LoginStatus?>(null) { _, oldValue, newValue ->
         if (oldValue != newValue) {
             jobTracker.newUiJob("update") { update(newValue) }
         }
     }
 
     init {
-        accountCache.onAccountExpiryChange.subscribe(this) { newExpiry ->
-            accountExpiry = newExpiry
+        accountCache.onLoginStatusChange.subscribe(this) { newStatus ->
+            loginStatus = newStatus
         }
     }
 
     fun onDestroy() {
         accountCache.onAccountNumberChange.unsubscribe(this)
-        accountExpiry = null
+        loginStatus = null
     }
 
-    private suspend fun update(accountExpiry: DateTime?) {
-        val remainingTime = accountExpiry?.let { expiry -> Duration(DateTime.now(), expiry) }
+    private suspend fun update(loginStatus: LoginStatus?) {
+        val remainingTime = loginStatus?.expiry?.let { expiry -> Duration(DateTime.now(), expiry) }
         val closeToExpire = remainingTime?.isShorterThan(REMAINING_TIME_FOR_REMINDERS) ?: false
+        val accountIsNew = loginStatus?.isNewAccount ?: false
 
-        if (closeToExpire && !accountCache.newlyCreatedAccount) {
-            val notification = build(accountExpiry!!, remainingTime!!)
+        if (closeToExpire && !accountIsNew) {
+            val notification = build(loginStatus!!.expiry!!, remainingTime!!)
 
             channel.notificationManager.notify(NOTIFICATION_ID, notification)
 
@@ -74,12 +77,12 @@ class AccountExpiryNotification(
 
     private suspend fun scheduleUpdate() {
         delay(TIME_BETWEEN_CHECKS)
-        update(accountExpiry)
+        update(loginStatus)
     }
 
     private suspend fun build(expiry: DateTime, remainingTime: Duration): Notification {
         val url = jobTracker.runOnBackground {
-            Uri.parse("$buyMoreTimeUrl?token=${daemon.getWwwAuthToken()}")
+            Uri.parse("$buyMoreTimeUrl?token=${daemon.await().getWwwAuthToken()}")
         }
 
         val intent = Intent(Intent.ACTION_VIEW, url)
