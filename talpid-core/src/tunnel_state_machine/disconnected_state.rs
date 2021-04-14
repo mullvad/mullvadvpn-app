@@ -1,15 +1,9 @@
-#[cfg(windows)]
-use super::windows;
 use super::{
     ConnectingState, ErrorState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelCommandReceiver, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::firewall::FirewallPolicy;
-#[cfg(windows)]
-use crate::split_tunnel;
 use futures::StreamExt;
-#[cfg(windows)]
-use std::ffi::OsStr;
 use talpid_types::ErrorExt;
 
 /// No tunnel is running.
@@ -44,26 +38,21 @@ impl DisconnectedState {
     }
 
     #[cfg(windows)]
-    fn apply_split_tunnel_config<T: AsRef<OsStr>>(
-        shared_values: &SharedTunnelStateValues,
-        paths: &[T],
-    ) -> Result<(), split_tunnel::Error> {
-        let split_tunnel = shared_values
-            .split_tunnel
-            .lock()
-            .expect("Thread unexpectedly panicked while holding the mutex");
-        split_tunnel.set_paths(paths)
-    }
-
-    #[cfg(windows)]
     fn register_split_tunnel_addresses(
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: bool,
     ) {
         if should_reset_firewall && !shared_values.block_when_disconnected {
-            windows::clear_split_tunnel_addresses(shared_values);
+            if let Err(error) = shared_values.split_tunnel.clear_tunnel_addresses() {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to unregister addresses with split tunnel driver"
+                    )
+                );
+            }
         } else {
-            if let Err(error) = windows::update_split_tunnel_addresses(None, shared_values) {
+            if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg(
@@ -158,7 +147,7 @@ impl TunnelState for DisconnectedState {
             }
             #[cfg(windows)]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                let _ = result_tx.send(Self::apply_split_tunnel_config(shared_values, &paths));
+                let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
                 SameState(self.into())
             }
             Some(_) => SameState(self.into()),
