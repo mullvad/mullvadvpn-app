@@ -1,8 +1,8 @@
-import moment from 'moment';
 import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
-import { formatDurationUntilExpiry, formatRemainingTime, hasExpired } from '../account-expiry';
+import { closeToExpiry, formatRemainingTime } from '../account-expiry';
+import { formatRelativeDate } from '../date-helper';
 import {
   InAppNotification,
   InAppNotificationProvider,
@@ -19,13 +19,7 @@ export class CloseToAccountExpiryNotificationProvider
   implements InAppNotificationProvider, SystemNotificationProvider {
   public constructor(private context: CloseToAccountExpiryNotificationContext) {}
 
-  public mayDisplay() {
-    const willHaveExpiredInThreeDays = moment(this.context.accountExpiry).isSameOrBefore(
-      moment().add(3, 'days'),
-    );
-
-    return !hasExpired(this.context.accountExpiry) && willHaveExpiredInThreeDays;
-  }
+  public mayDisplay = () => closeToExpiry(this.context.accountExpiry);
 
   public getSystemNotification(): SystemNotification {
     const message = sprintf(
@@ -37,7 +31,7 @@ export class CloseToAccountExpiryNotificationProvider
         'Account credit expires in %(duration)s. Buy more credit.',
       ),
       {
-        duration: formatDurationUntilExpiry(this.context.accountExpiry, this.context.locale),
+        duration: formatRelativeDate(new Date(), this.context.accountExpiry),
       },
     );
 
@@ -56,7 +50,7 @@ export class CloseToAccountExpiryNotificationProvider
   public getInAppNotification(): InAppNotification {
     const subtitle = sprintf(
       messages.pgettext('in-app-notifications', '%(duration)s. Buy more credit.'),
-      { duration: formatRemainingTime(this.context.accountExpiry, this.context.locale, true) },
+      { duration: formatRemainingTime(this.context.accountExpiry, true) },
     );
 
     return {

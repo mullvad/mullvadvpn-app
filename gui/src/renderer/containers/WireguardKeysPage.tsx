@@ -9,7 +9,6 @@ import { IReduxState, ReduxDispatch } from '../redux/store';
 const mapStateToProps = (state: IReduxState) => ({
   keyState: state.settings.wireguardKeyState,
   isOffline: state.connection.isBlocked,
-  locale: state.userInterface.locale,
   tunnelState: state.connection.status,
   windowFocused: state.userInterface.windowFocused,
 });

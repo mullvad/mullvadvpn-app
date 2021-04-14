@@ -1,6 +1,6 @@
-import moment from 'moment';
-import { hasExpired } from '../shared/account-expiry';
+import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import { AccountToken, IAccountData } from '../shared/daemon-rpc-types';
+import { DateComponent, dateByAddingComponent } from '../shared/date-helper';
 import log from '../shared/logging';
 import consumePromise from '../shared/promise';
 import { Scheduler } from '../shared/scheduler';
@@ -105,13 +105,12 @@ export default class AccountDataCache {
 
   private calculateRefetchDelay(accountExpiry: string) {
     const currentDate = new Date();
-    const oneMinuteBeforeExpiry = moment(accountExpiry).subtract(1, 'minute');
-    const closeToExpiry = moment(accountExpiry).isSameOrBefore(moment().add(3, 'days'));
+    const oneMinuteBeforeExpiry = dateByAddingComponent(accountExpiry, DateComponent.minute, -1);
 
     if (hasExpired(accountExpiry)) {
       return EXPIRED_ACCOUNT_REFRESH_PERIOD;
-    } else if (oneMinuteBeforeExpiry.isSameOrAfter(currentDate) && closeToExpiry) {
-      return oneMinuteBeforeExpiry.diff(currentDate);
+    } else if (oneMinuteBeforeExpiry >= currentDate && closeToExpiry(accountExpiry)) {
+      return oneMinuteBeforeExpiry.getTime() - currentDate.getTime();
     } else {
       return undefined;
     }

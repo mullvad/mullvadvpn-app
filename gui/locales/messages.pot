@@ -2,6 +2,61 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
+msgid "1 day"
+msgid_plural "%d days"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 month"
+msgid_plural "%d months"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 year"
+msgid_plural "%d years"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "Back"
 msgstr ""
 
@@ -39,6 +94,15 @@ msgid "FAILED TO SECURE CONNECTION"
 msgstr ""
 
 msgid "Invalid account number"
+msgstr ""
+
+msgid "less than a day"
+msgstr ""
+
+msgid "less than a day left"
+msgstr ""
+
+msgid "less than a minute ago"
 msgstr ""
 
 msgid "Open URL"
@@ -90,20 +154,6 @@ msgstr ""
 
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
-msgstr ""
-
-#. The remaining time left on the account measured in days.
-#. Available placeholders:
-#. %(duration)s - The remaining time measured in days.
-msgctxt "account-expiry"
-msgid "%(duration)s days"
-msgstr ""
-
-#. The remaining time left on the account displayed across the app.
-#. Available placeholders:
-#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
-msgctxt "account-expiry"
-msgid "%(duration)s left"
 msgstr ""
 
 #. Title label in navigation bar
@@ -1175,27 +1225,6 @@ msgstr ""
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
 msgstr ""
 
-msgid "less than a day left"
-msgstr ""
-
-msgid "less than a minute ago"
-msgstr ""
-
-msgid "1 day left"
-msgid_plural "%d days left"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "1 month left"
-msgid_plural "%d months left"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "1 year left"
-msgid_plural "%d years left"
-msgstr[0] ""
-msgstr[1] ""
-
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
 msgstr[0] ""
@@ -1203,30 +1232,5 @@ msgstr[1] ""
 
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
 msgstr[0] ""
 msgstr[1] ""
