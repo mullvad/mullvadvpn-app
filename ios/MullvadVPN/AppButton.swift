@@ -98,7 +98,16 @@ private extension UIControl.State {
 /// A subclass that implements action buttons used across the app
 @IBDesignable class AppButton: CustomButton {
 
-    static let defaultContentInsets = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+    var defaultContentInsets: UIEdgeInsets {
+        switch traitCollection.userInterfaceIdiom {
+        case .phone:
+            return UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
+        case .pad:
+            return UIEdgeInsets(top: 15, left: 15, bottom: 15, right: 15)
+        default:
+            return .zero
+        }
+    }
 
     enum Style: Int {
         case `default`
@@ -146,6 +155,8 @@ private extension UIControl.State {
         }
     }
 
+    var overrideContentEdgeInsets = false
+
     init(style: Style) {
         self.style = style
         super.init(frame: .zero)
@@ -168,19 +179,19 @@ private extension UIControl.State {
         var contentInsets = contentEdgeInsets
 
         if contentInsets.top == 0 {
-            contentInsets.top = Self.defaultContentInsets.top
+            contentInsets.top = self.defaultContentInsets.top
         }
 
         if contentInsets.bottom == 0 {
-            contentInsets.bottom = Self.defaultContentInsets.bottom
+            contentInsets.bottom = self.defaultContentInsets.bottom
         }
 
         if contentInsets.right == 0 {
-            contentInsets.right = Self.defaultContentInsets.right
+            contentInsets.right = self.defaultContentInsets.right
         }
 
         if contentInsets.left == 0 {
-            contentInsets.left = Self.defaultContentInsets.left
+            contentInsets.left = self.defaultContentInsets.left
         }
 
         contentEdgeInsets = contentInsets
@@ -203,6 +214,14 @@ private extension UIControl.State {
 
     private func updateButtonBackground() {
         setBackgroundImage(style.backgroundImage, for: .normal)
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if traitCollection.userInterfaceIdiom != previousTraitCollection?.userInterfaceIdiom, !overrideContentEdgeInsets {
+            contentEdgeInsets = self.defaultContentInsets
+        }
     }
 
 }
