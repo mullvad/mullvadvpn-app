@@ -52,6 +52,7 @@ class RootContainerViewController: UIViewController {
 
     private(set) var headerBarStyle = HeaderBarStyle.default
     private(set) var headerBarHidden = false
+    private(set) var overrideHeaderBarHidden: Bool?
 
     private(set) var viewControllers = [UIViewController]()
 
@@ -187,6 +188,10 @@ class RootContainerViewController: UIViewController {
         updateHeaderBarStyleFromChildPreferences(animated: UIView.areAnimationsEnabled)
     }
 
+    func updateHeaderBarHiddenAppearance() {
+        updateHeaderBarHiddenFromChildPreferences(animated: UIView.areAnimationsEnabled)
+    }
+
     /// Request to display settings controller
     func showSettings(navigateTo route: SettingsNavigationRoute? = nil, animated: Bool) {
         delegate?.rootContainerViewControllerShouldShowSettings(self, navigateTo: route, animated: animated)
@@ -195,6 +200,16 @@ class RootContainerViewController: UIViewController {
     /// Enable or disable the settings bar button displayed in the header bar
     func setEnableSettingsButton(_ isEnabled: Bool) {
         headerBarView.settingsButton.isEnabled = isEnabled
+    }
+
+    func setOverrideHeaderBarHidden(_ isHidden: Bool?, animated: Bool) {
+        overrideHeaderBarHidden = isHidden
+
+        if let isHidden = isHidden {
+            setHeaderBarHidden(isHidden, animated: animated)
+        } else {
+            updateHeaderBarHiddenFromChildPreferences(animated: animated)
+        }
     }
 
     // MARK: - Private
@@ -424,6 +439,8 @@ class RootContainerViewController: UIViewController {
     }
 
     private func updateHeaderBarHiddenFromChildPreferences(animated: Bool) {
+        guard overrideHeaderBarHidden == nil else { return }
+
         if let conforming = topViewController as? RootContainment {
             setHeaderBarHidden(conforming.prefersHeaderBarHidden, animated: animated)
         }
@@ -468,6 +485,10 @@ extension UIViewController {
 
     func setNeedsHeaderBarStyleAppearanceUpdate() {
         rootContainerController?.updateHeaderBarAppearance()
+    }
+
+    func setNeedsHeaderBarHiddenAppearanceUpdate() {
+        rootContainerController?.updateHeaderBarHiddenAppearance()
     }
 
 }
