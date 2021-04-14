@@ -90,6 +90,11 @@ The following network traffic is allowed or blocked independent of state:
      * Incoming UDP from `*:68` to `255.255.255.255:67`
      * Outgoing UDP from `*:67` to `*:68`
 
+#### Packet forwarding
+
+On Linux, any situation that permits incoming or outgoing traffic also allows that traffic to be
+forwarded. All other forward traffic is rejected.
+
 #### macOS deviations
 
 * The app does not look at ICMPv6 type and code headers. So all ICMPv6 is allowed between the
