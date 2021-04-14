@@ -3,12 +3,8 @@ use super::{
     EventConsequence, EventResult, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver,
     TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
-#[cfg(windows)]
-use crate::split_tunnel;
 use crate::tunnel::CloseHandle;
 use futures::{future::FusedFuture, StreamExt};
-#[cfg(windows)]
-use std::ffi::OsStr;
 use std::thread;
 use talpid_types::{
     tunnel::{ActionAfterDisconnect, ErrorStateCause},
@@ -65,7 +61,7 @@ impl DisconnectingState {
                 }
                 #[cfg(windows)]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    let _ = result_tx.send(Self::apply_split_tunnel_config(shared_values, &paths));
+                    let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
                     AfterDisconnect::Nothing
                 }
             },
@@ -107,7 +103,7 @@ impl DisconnectingState {
                 }
                 #[cfg(windows)]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    let _ = result_tx.send(Self::apply_split_tunnel_config(shared_values, &paths));
+                    let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
                     AfterDisconnect::Block(reason)
                 }
                 None => AfterDisconnect::Block(reason),
@@ -150,25 +146,13 @@ impl DisconnectingState {
                 }
                 #[cfg(windows)]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    let _ = result_tx.send(Self::apply_split_tunnel_config(shared_values, &paths));
+                    let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
             },
         };
 
         EventConsequence::SameState(self.into())
-    }
-
-    #[cfg(windows)]
-    fn apply_split_tunnel_config<T: AsRef<OsStr>>(
-        shared_values: &SharedTunnelStateValues,
-        paths: &[T],
-    ) -> Result<(), split_tunnel::Error> {
-        let split_tunnel = shared_values
-            .split_tunnel
-            .lock()
-            .expect("Thread unexpectedly panicked while holding the mutex");
-        split_tunnel.set_paths(paths)
     }
 
     fn after_disconnect(
