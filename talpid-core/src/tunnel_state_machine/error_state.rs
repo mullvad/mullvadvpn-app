@@ -1,15 +1,9 @@
-#[cfg(windows)]
-use super::windows;
 use super::{
     ConnectingState, DisconnectedState, EventConsequence, SharedTunnelStateValues, TunnelCommand,
     TunnelCommandReceiver, TunnelState, TunnelStateTransition, TunnelStateWrapper,
 };
 use crate::firewall::FirewallPolicy;
-#[cfg(windows)]
-use crate::split_tunnel;
 use futures::StreamExt;
-#[cfg(windows)]
-use std::ffi::OsStr;
 use talpid_types::{
     tunnel::{self as talpid_tunnel, ErrorStateCause, FirewallPolicyError},
     ErrorExt,
@@ -67,18 +61,6 @@ impl ErrorState {
             }
         }
     }
-
-    #[cfg(windows)]
-    fn apply_split_tunnel_config<T: AsRef<OsStr>>(
-        shared_values: &SharedTunnelStateValues,
-        paths: &[T],
-    ) -> Result<(), split_tunnel::Error> {
-        let split_tunnel = shared_values
-            .split_tunnel
-            .lock()
-            .expect("Thread unexpectedly panicked while holding the mutex");
-        split_tunnel.set_paths(paths)
-    }
 }
 
 impl TunnelState for ErrorState {
@@ -89,7 +71,7 @@ impl TunnelState for ErrorState {
         block_reason: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         #[cfg(windows)]
-        if let Err(error) = windows::update_split_tunnel_addresses(None, shared_values) {
+        if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
             log::error!(
                 "{}",
                 error.display_chain_with_msg(
@@ -186,8 +168,7 @@ impl TunnelState for ErrorState {
             }
             #[cfg(windows)]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                // TODO: Do nothing here?
-                let _ = result_tx.send(Self::apply_split_tunnel_config(shared_values, &paths));
+                let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
                 SameState(self.into())
             }
         }
