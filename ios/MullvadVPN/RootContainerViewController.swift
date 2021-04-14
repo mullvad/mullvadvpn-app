@@ -49,6 +49,7 @@ class RootContainerViewController: UIViewController {
 
     private let headerBarView = HeaderBarView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
     private let transitionContainer = UIView(frame: UIScreen.main.bounds)
+    private var presentationContainerSettingsButton: UIButton?
 
     private(set) var headerBarStyle = HeaderBarStyle.default
     private(set) var headerBarHidden = false
@@ -200,6 +201,39 @@ class RootContainerViewController: UIViewController {
     /// Enable or disable the settings bar button displayed in the header bar
     func setEnableSettingsButton(_ isEnabled: Bool) {
         headerBarView.settingsButton.isEnabled = isEnabled
+        presentationContainerSettingsButton?.isEnabled = isEnabled
+    }
+
+    /// Add settings bar button into the presentation container to make settings accessible even
+    /// when the root container is covered with modal.
+    func addSettingsButtonToPresentationContainer(_ presentationContainer: UIView) {
+        let settingsButton: UIButton
+
+        if let transitionViewSettingsButton = presentationContainerSettingsButton {
+            transitionViewSettingsButton.removeFromSuperview()
+            settingsButton = transitionViewSettingsButton
+        } else {
+            settingsButton = HeaderBarView.makeSettingsButton()
+            settingsButton.isEnabled = headerBarView.settingsButton.isEnabled
+            settingsButton.addTarget(self, action: #selector(handleSettingsButtonTap), for: .touchUpInside)
+
+            presentationContainerSettingsButton = settingsButton
+        }
+
+        // Hide the settings button inside the header bar to avoid color blending issues
+        headerBarView.settingsButton.alpha = 0
+
+        presentationContainer.addSubview(settingsButton)
+
+        NSLayoutConstraint.activate([
+            settingsButton.centerXAnchor.constraint(equalTo: headerBarView.settingsButton.centerXAnchor),
+            settingsButton.centerYAnchor.constraint(equalTo: headerBarView.settingsButton.centerYAnchor),
+        ])
+    }
+
+    func removeSettingsButtonFromPresentationContainer() {
+        presentationContainerSettingsButton?.removeFromSuperview()
+        headerBarView.settingsButton.alpha = 1
     }
 
     func setOverrideHeaderBarHidden(_ isHidden: Bool?, animated: Bool) {
@@ -240,11 +274,7 @@ class RootContainerViewController: UIViewController {
         // Prevent automatic layout margins adjustment as we manually control them.
         headerBarView.insetsLayoutMarginsFromSafeArea = false
 
-        headerBarView.settingsButton.addTarget(
-            self,
-            action: #selector(handleSettingsButtonTap),
-            for: .touchUpInside
-        )
+        headerBarView.settingsButton.addTarget(self, action: #selector(handleSettingsButtonTap), for: .touchUpInside)
 
         view.addSubview(headerBarView)
 
