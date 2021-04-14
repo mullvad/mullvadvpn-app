@@ -27,31 +27,42 @@ interface ShortcutDetails {
   args?: string;
 }
 
+// Applications are found by scanning the start menu directories
 const APPLICATION_PATHS = [
   `${process.env.ProgramData}/Microsoft/Windows/Start Menu/Programs`,
   `${process.env.AppData}/Microsoft/Windows/Start Menu/Programs`,
 ];
 
+// Some applications might be falsely filtered from the application list. This allow-list specifies
+// apps that are falsely filtered but should be included.
 const APPLICATION_ALLOW_LIST = ['firefox.exe', 'chrome.exe'];
 
+// Cache of all previously scanned shortcuts.
 const shortcutCache: Record<string, ShortcutDetails> = {};
+// Cache of all previously scanned applications.
 const applicationCache: Record<string, IApplication> = {};
+// List of shortcuts that have been added manually by the user.
 const additionalShortcuts: ShortcutDetails[] = [];
 
 // Finds applications by searching through the startmenu for shortcuts with and exe-file as target.
+// If applicationPaths has a value, the returned applications are only the ones corresponding to
+// those paths.
 export async function getApplications(options: {
   applicationPaths?: string[];
   updateCaches?: boolean;
 }): Promise<{ fromCache: boolean; applications: IApplication[] }> {
   const cacheIsEmpty = Object.keys(shortcutCache).length === 0;
 
-  options.applicationPaths?.forEach(addApplicationToAdditionalShortcuts);
-
   if (options.updateCaches || cacheIsEmpty) {
     await updateShortcutCache();
   }
 
+  // Add excluded apps that are missing from the shortcut cache to it
+  options.applicationPaths?.forEach(addApplicationToAdditionalShortcuts);
+
   await updateApplicationCache();
+  // If applicationPaths is supplied the returnvalue should only contain the applications
+  // corresponding to those paths.
   const applications = Object.values(applicationCache)
     .filter(
       (application) =>
@@ -62,10 +73,11 @@ export async function getApplications(options: {
 
   return {
     fromCache: !options.updateCaches && !cacheIsEmpty,
-    applications: applications,
+    applications,
   };
 }
 
+// Adds either a shortcut or an executable to the additionalShortcuts list
 export function addApplicationPathToCache(applicationPath: string): string {
   const parsedPath = path.parse(applicationPath);
   if (parsedPath.ext === '.lnk') {
@@ -78,6 +90,9 @@ export function addApplicationPathToCache(applicationPath: string): string {
   }
 }
 
+// Reads the start-menu directories and adds all shortcuts, targeting applications using networking,
+// to the shortcuts cache. Wheter or not an application use networking is determined by checking for
+// "WS2_32.dll" in it's imports.
 async function updateShortcutCache(): Promise<void> {
   const links = await Promise.all(APPLICATION_PATHS.map(findAllLinks));
   const resolvedLinks = removeDuplicates(resolveLinks(links.flat()));
@@ -108,6 +123,7 @@ async function updateApplicationCache(): Promise<void> {
   );
 }
 
+// Add excluded apps that are missing from the shortcut cache to it
 function addApplicationToAdditionalShortcuts(applicationPath: string): void {
   if (
     shortcutCache[applicationPath] === undefined &&
@@ -120,6 +136,7 @@ function addApplicationToAdditionalShortcuts(applicationPath: string): void {
   }
 }
 
+// Fins all links in a directory.
 async function findAllLinks(path: string): Promise<string[]> {
   if (path.endsWith('.lnk')) {
     return [path];
@@ -157,6 +174,7 @@ function resolveLinks(linkPaths: string[]): ShortcutDetails[] {
     );
 }
 
+// Removes all duplicate shortcuts.
 function removeDuplicates(shortcuts: ShortcutDetails[]): ShortcutDetails[] {
   const unique = shortcuts.reduce((shortcuts, shortcut) => {
     if (shortcuts[shortcut.target]) {
@@ -191,6 +209,7 @@ async function retrieveIcon(exe: string) {
   return icon.toDataURL();
 }
 
+// Checks if the application at the supplied path imports a specific dll.
 async function importsDll(path: string, dllName: string): Promise<boolean> {
   let fileHandle: fs.promises.FileHandle;
   try {
@@ -260,9 +279,11 @@ async function readString(
   }
 }
 
+// Finds and returns the NT header.
 async function getNtHeader(
   fileHandle: fs.promises.FileHandle,
 ): Promise<StructValue<ImageNtHeadersUnion>> {
+  // Check whether or not the file follows the PE format.
   const dosHeader = await Value.fromFile(fileHandle, 0, DOS_HEADER);
   const eMagic = dosHeader.get<PrimitiveValue>('e_magic').value<number>();
   if (eMagic !== 0x5a4d) {
@@ -271,17 +292,20 @@ async function getNtHeader(
 
   const ntHeaderOffset = dosHeader.get<PrimitiveValue>('e_lfanew').value<number>();
 
+  // Check if this is a 32- or 64-bit exe-file and return the correct datatype.
   const ntHeader32 = await Value.fromFile(fileHandle, ntHeaderOffset, IMAGE_NT_HEADERS);
   const magic = ntHeader32
     .get<StructValue<typeof IMAGE_OPTIONAL_HEADER32>>('OptionalHeader')
     .get<PrimitiveValue>('Magic')
     .value<number>();
 
+  // magic is 0x20b for 64-bit executables.
   return magic === 0x20b
     ? Value.fromFile(fileHandle, ntHeaderOffset, IMAGE_NT_HEADERS64)
     : ntHeader32;
 }
 
+// Reads the import table and returns a list of the imported DLLs.
 async function getImportModuleNames(
   fileHandle: fs.promises.FileHandle,
   importSectionOffset: number,

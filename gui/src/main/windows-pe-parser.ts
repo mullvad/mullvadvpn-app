@@ -12,6 +12,7 @@ export type ArrayWrapper = { array: Array<Datatype> };
 
 export type Datatype = PrimitiveWrapper | StructWrapper | ArrayWrapper;
 
+// Type that represent the correct value-type for a given Datatype.
 type ValueType<T extends Datatype> = T extends PrimitiveWrapper
   ? PrimitiveValue<T>
   : T extends ArrayWrapper
@@ -20,6 +21,8 @@ type ValueType<T extends Datatype> = T extends PrimitiveWrapper
   ? StructValue<T>
   : never;
 
+// Represents any kind of parseable value within the PE headers. Value is extended by
+// PrimitiveValue, ArrayValue and StructValue.
 export class Value<T extends Datatype> {
   public constructor(
     protected fileHandle: fs.FileHandle,
@@ -48,6 +51,7 @@ export class Value<T extends Datatype> {
     }
   }
 
+  // Reads a datatype from a file handle and returns the correct subclass of Value.
   public static async fromFile<T extends Datatype>(
     fileHandle: fs.FileHandle,
     offset: number,
@@ -94,11 +98,13 @@ export class Value<T extends Datatype> {
     } else if (Value.isStruct(datatype)) {
       return new StructValue(fileHandle, buffer, datatype, offset) as ValueType<T>;
     } else {
-      throw new Error('Not possible');
+      // This will never happen since the value can't be anything else than the above types.
+      throw new Error('No matching value type.');
     }
   }
 }
 
+// Calculates the byteoffset from a relative virtual address.
 export async function rvaToOffset(
   fileHandle: fs.FileHandle,
   rva: number,
@@ -125,6 +131,7 @@ export async function rvaToOffset(
 }
 
 export class PrimitiveValue<T extends PrimitiveWrapper = PrimitiveWrapper> extends Value<T> {
+  // Parses and returns the value.
   public value<U extends ReturnType<T['primitive']['reader']>>(): ReturnType<
     T['primitive']['reader']
   > {
@@ -138,6 +145,7 @@ export class PrimitiveValue<T extends PrimitiveWrapper = PrimitiveWrapper> exten
 }
 
 export class ArrayValue<T extends ArrayWrapper = ArrayWrapper> extends Value<T> {
+  // Parses and returns the value at the specified index.
   public nth<U extends ValueType<T['array'][number]>>(index: number): U {
     const datatype = this.datatype.array[0];
     const itemSize = Value.sizeOf(datatype);
@@ -149,6 +157,7 @@ export class ArrayValue<T extends ArrayWrapper = ArrayWrapper> extends Value<T> 
 }
 
 export class StructValue<T extends StructWrapper = StructWrapper> extends Value<T> {
+  // Parses and returns the value for the specified key.
   public get<
     U extends ValueType<T['struct'][number]['datatype']>,
     V extends StructItem = T['struct'][number]
@@ -169,6 +178,7 @@ export class StructValue<T extends StructWrapper = StructWrapper> extends Value<
   }
 }
 
+// Datatype specifications
 export const ARRAY = <T>(length: number, innerType: T) => ({
   array: Array<T>(length).fill(innerType),
 });
