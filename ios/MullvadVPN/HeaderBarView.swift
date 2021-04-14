@@ -10,22 +10,30 @@ import Foundation
 import UIKit
 
 class HeaderBarView: UIView {
-    let logoImageView = UIImageView(image: UIImage(named: "LogoIcon"))
+    let logoImageView: UIImageView = {
+        let imageView = UIImageView(image: UIImage(named: "LogoIcon"))
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
 
     lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = "MULLVAD VPN"
         titleLabel.font = UIFont.boldSystemFont(ofSize: 24)
         titleLabel.textColor = UIColor.white.withAlphaComponent(0.8)
         return titleLabel
     }()
 
-    lazy var settingsButton: UIButton = {
+    let settingsButton = makeSettingsButton()
+
+    class func makeSettingsButton() -> UIButton {
         let settingsButton = UIButton(type: .custom)
         settingsButton.setImage(UIImage(named: "IconSettings"), for: .normal)
+        settingsButton.translatesAutoresizingMaskIntoConstraints = false
         settingsButton.accessibilityIdentifier = "SettingsButton"
         return settingsButton
-    }()
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -52,10 +60,7 @@ class HeaderBarView: UIView {
             settingsButton.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor)
         ]
 
-        for view in [logoImageView, titleLabel, settingsButton] {
-            view.translatesAutoresizingMaskIntoConstraints = false
-            addSubview(view)
-        }
+        [logoImageView, titleLabel, settingsButton].forEach { addSubview($0) }
 
         NSLayoutConstraint.activate(constraints)
     }
