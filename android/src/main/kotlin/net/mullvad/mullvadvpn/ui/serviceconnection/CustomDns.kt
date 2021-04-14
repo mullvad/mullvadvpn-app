@@ -29,11 +29,11 @@ class CustomDns(val connection: Messenger, val settingsListener: SettingsListene
     }
 
     fun addDnsServer(server: InetAddress): Boolean {
-        val alreadyHadServer = onDnsServersChanged.latestEvent.contains(server)
+        val didntAlreadyHaveServer = !onDnsServersChanged.latestEvent.contains(server)
 
         connection.send(Request.AddCustomDnsServer(server).message)
 
-        return alreadyHadServer
+        return didntAlreadyHaveServer
     }
 
     fun replaceDnsServer(oldServer: InetAddress, newServer: InetAddress): Boolean {
