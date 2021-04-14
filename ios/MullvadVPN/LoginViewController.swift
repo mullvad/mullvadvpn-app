@@ -69,8 +69,8 @@ class LoginViewController: UIViewController, RootContainment {
         return .lightContent
     }
 
-    var preferredHeaderBarStyle: HeaderBarStyle {
-        return .transparent
+    var preferredHeaderBarPresentation: HeaderBarPresentation {
+        return HeaderBarPresentation(style: .transparent, showsDivider: false)
     }
 
     var prefersHeaderBarHidden: Bool {

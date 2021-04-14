@@ -35,6 +35,22 @@ class HeaderBarView: UIView {
         return settingsButton
     }
 
+    private let borderLayer: CALayer = {
+        let layer = CALayer()
+        layer.backgroundColor = UIColor.HeaderBar.dividerColor.cgColor
+        return layer
+    }()
+
+    var showsDivider = false {
+        didSet {
+            if showsDivider {
+                layer.addSublayer(borderLayer)
+            } else {
+                borderLayer.removeFromSuperlayer()
+            }
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -67,5 +83,11 @@ class HeaderBarView: UIView {
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        borderLayer.frame = CGRect(x: 0, y: frame.maxY - 1, width: frame.width, height: 1)
     }
 }

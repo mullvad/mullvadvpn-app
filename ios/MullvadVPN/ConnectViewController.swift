@@ -44,16 +44,16 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         return .lightContent
     }
 
-    var preferredHeaderBarStyle: HeaderBarStyle {
+    var preferredHeaderBarPresentation: HeaderBarPresentation {
         if !Account.shared.isLoggedIn {
-            return .default
+            return HeaderBarPresentation(style: .default, showsDivider: true)
         }
         switch tunnelState {
         case .connecting, .reconnecting, .connected:
-            return .secured
+            return HeaderBarPresentation(style: .secured, showsDivider: false)
 
         case .disconnecting, .disconnected:
-            return .unsecured
+            return HeaderBarPresentation(style: .unsecured, showsDivider: false)
         }
     }
 

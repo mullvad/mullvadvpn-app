@@ -25,11 +25,20 @@ enum HeaderBarStyle {
     }
 }
 
+struct HeaderBarPresentation {
+    let style: HeaderBarStyle
+    let showsDivider: Bool
+
+    static var `default`: HeaderBarPresentation {
+        return HeaderBarPresentation(style: .default, showsDivider: false)
+    }
+}
+
 /// A protocol that defines the relationship between the root container and its child controllers
 protocol RootContainment {
 
     /// Return the preferred header bar style
-    var preferredHeaderBarStyle: HeaderBarStyle { get }
+    var preferredHeaderBarPresentation: HeaderBarPresentation { get }
 
     /// Return true if the view controller prefers header bar hidden
     var prefersHeaderBarHidden: Bool { get }
@@ -51,7 +60,7 @@ class RootContainerViewController: UIViewController {
     private let transitionContainer = UIView(frame: UIScreen.main.bounds)
     private var presentationContainerSettingsButton: UIButton?
 
-    private(set) var headerBarStyle = HeaderBarStyle.default
+    private(set) var headerBarPresentation = HeaderBarPresentation.default
     private(set) var headerBarHidden = false
     private(set) var overrideHeaderBarHidden: Bool?
 
@@ -430,8 +439,8 @@ class RootContainerViewController: UIViewController {
         }
     }
 
-    private func setHeaderBarStyle(_ style: HeaderBarStyle, animated: Bool) {
-        headerBarStyle = style
+    private func setHeaderBarPresentation(_ presentation: HeaderBarPresentation, animated: Bool) {
+        headerBarPresentation = presentation
 
         let action = {
             self.updateHeaderBarBackground()
@@ -459,12 +468,13 @@ class RootContainerViewController: UIViewController {
     }
 
     private func updateHeaderBarBackground() {
-        headerBarView.backgroundColor = headerBarStyle.backgroundColor()
+        headerBarView.backgroundColor = headerBarPresentation.style.backgroundColor()
+        headerBarView.showsDivider = headerBarPresentation.showsDivider
     }
 
     private func updateHeaderBarStyleFromChildPreferences(animated: Bool) {
         if let conforming = topViewController as? RootContainment {
-            setHeaderBarStyle(conforming.preferredHeaderBarStyle, animated: animated)
+            setHeaderBarPresentation(conforming.preferredHeaderBarPresentation, animated: animated)
         }
     }
 
