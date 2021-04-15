@@ -296,7 +296,12 @@ This should produce an installer exe, pkg or rpm+deb file in the `dist/` directo
 
 Building this requires at least 1GB of memory.
 
-#### Apple ARM64 (aka Apple Silicon)
+#### macOS
+
+By default a universal app is built on macOS. To build specifically for x86_64 or ARM64 add
+`--target x86_64-apple-darwin` or `--target aarch64-apple-darwin`.
+
+##### Apple ARM64 (aka Apple Silicon)
 
 Due to inability to build the management interface proto files on ARM64 (see
 [this](https://github.com/grpc/grpc-node/issues/1497) issue) the Apple ARM64 build must be done in 2 stages:
