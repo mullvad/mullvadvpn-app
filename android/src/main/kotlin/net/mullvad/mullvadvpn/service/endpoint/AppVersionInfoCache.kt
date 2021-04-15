@@ -1,16 +1,11 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
-import android.content.Context
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.model.AppVersionInfo
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 
-class AppVersionInfoCache(context: Context, endpoint: ServiceEndpoint) {
-    companion object {
-        val LEGACY_SHARED_PREFERENCES = "app_version_info_cache"
-    }
-
+class AppVersionInfoCache(endpoint: ServiceEndpoint) {
     private val daemon = endpoint.intermittentDaemon
 
     var appVersionInfo by observable<AppVersionInfo?>(null) { _, _, info ->
@@ -24,11 +19,6 @@ class AppVersionInfoCache(context: Context, endpoint: ServiceEndpoint) {
         private set
 
     init {
-        context.getSharedPreferences(LEGACY_SHARED_PREFERENCES, Context.MODE_PRIVATE)
-            .edit()
-            .clear()
-            .commit()
-
         daemon.registerListener(this) { newDaemon ->
             newDaemon?.let { daemon ->
                 initializeCurrentVersion(daemon)
