@@ -1180,9 +1180,6 @@ msgstr ""
 msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
 msgstr ""
 
-msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
-msgstr ""
-
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
 msgstr ""
 
