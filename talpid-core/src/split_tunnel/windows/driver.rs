@@ -1,5 +1,5 @@
 use super::windows::{
-    get_final_path_name, get_process_creation_time, get_process_device_path, open_process,
+    get_device_path, get_process_creation_time, get_process_device_path, open_process,
     ProcessAccess, ProcessSnapshot,
 };
 use memoffset::offset_of;
@@ -266,7 +266,7 @@ impl DeviceHandle {
     pub fn set_config<T: AsRef<OsStr>>(&self, apps: &[T]) -> io::Result<()> {
         let mut device_paths = Vec::with_capacity(apps.len());
         for app in apps.as_ref() {
-            device_paths.push(get_final_path_name(app)?);
+            device_paths.push(get_device_path(app.as_ref())?);
         }
 
         log::debug!("Excluded device paths:");
