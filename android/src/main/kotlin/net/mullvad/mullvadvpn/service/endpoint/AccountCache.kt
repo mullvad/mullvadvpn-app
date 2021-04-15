@@ -163,12 +163,12 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
     private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
         try {
-            val command = channel.receive()
-
-            when (command) {
-                is Command.CreateAccount -> doCreateAccount()
-                is Command.Login -> doLogin(command.account)
-                is Command.Logout -> doLogout()
+            for (command in channel) {
+                when (command) {
+                    is Command.CreateAccount -> doCreateAccount()
+                    is Command.Login -> doLogin(command.account)
+                    is Command.Logout -> doLogout()
+                }
             }
         } catch (exception: ClosedReceiveChannelException) {
             // Command channel was closed, stop the actor
