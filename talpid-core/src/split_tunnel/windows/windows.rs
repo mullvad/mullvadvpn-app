@@ -3,12 +3,12 @@
 
 use std::{
     ffi::{OsStr, OsString},
-    fs::OpenOptions,
-    io, mem,
+    io, iter, mem,
     os::windows::{
-        ffi::OsStringExt,
-        io::{AsRawHandle, RawHandle},
+        ffi::{OsStrExt, OsStringExt},
+        io::RawHandle,
     },
+    path::Path,
     ptr,
 };
 use winapi::{
@@ -18,7 +18,7 @@ use winapi::{
         winerror::{ERROR_INSUFFICIENT_BUFFER, ERROR_NO_MORE_FILES},
     },
     um::{
-        fileapi::GetFinalPathNameByHandleW,
+        fileapi::QueryDosDeviceW,
         handleapi::{CloseHandle, INVALID_HANDLE_VALUE},
         processthreadsapi::{GetProcessTimes, OpenProcess},
         psapi::K32GetProcessImageFileNameW,
@@ -26,9 +26,6 @@ use winapi::{
         winnt::{HANDLE, PROCESS_QUERY_LIMITED_INFORMATION},
     },
 };
-
-/// Return path with the volume device path.
-const VOLUME_NAME_NT: u32 = 0x02;
 
 pub struct ProcessSnapshot {
     handle: HANDLE,
@@ -108,43 +105,73 @@ impl Iterator for ProcessSnapshotEntries<'_> {
     }
 }
 
-pub fn get_final_path_name<T: AsRef<OsStr>>(path: T) -> Result<OsString, io::Error> {
-    // TODO: verify that all flags, including security flags, are ok
-    // TODO: verify that the file is a PE executable?
-    // TODO: verify that the executable is on a physical drive?
-    let file = OpenOptions::new().read(true).open(path.as_ref())?;
-    get_final_path_name_by_handle(file.as_raw_handle())
+/// Obtains a device path without resolving links or mount points.
+pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
+    if !path.as_ref().is_absolute() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "path must be absolute",
+        ));
+    }
+
+    let drive_comp = path.as_ref().components().next();
+    let drive = match drive_comp {
+        Some(std::path::Component::Prefix(prefix)) => prefix.as_os_str(),
+        _ => {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "invalid drive label",
+            ))
+        }
+    };
+
+    let mut new_path = query_dos_device(drive)?;
+    let suffix = path
+        .as_ref()
+        .strip_prefix(drive_comp.unwrap())
+        .expect("path missing own component");
+    new_path.push(suffix);
+
+    Ok(new_path)
 }
 
-pub fn get_final_path_name_by_handle(raw_handle: RawHandle) -> Result<OsString, io::Error> {
-    let buffer_size = unsafe {
-        GetFinalPathNameByHandleW(raw_handle as *mut _, ptr::null_mut(), 0u32, VOLUME_NAME_NT)
-    } as usize;
+/// Obtains the real device path for a label (such as C:).
+/// The underlying function may return multiple paths, but only the first is returned.
+fn query_dos_device<T: AsRef<OsStr>>(device_name: T) -> io::Result<OsString> {
+    let device_name_c: Vec<u16> = device_name
+        .as_ref()
+        .encode_wide()
+        .chain(iter::once(0u16))
+        .collect();
+    let mut new_prefix = vec![0u16; 64];
 
-    if buffer_size == 0 {
-        return Err(io::Error::last_os_error());
+    loop {
+        let prefix_len = unsafe {
+            QueryDosDeviceW(
+                device_name_c.as_ptr(),
+                new_prefix.as_mut_ptr(),
+                new_prefix.len() as u32,
+            ) as usize
+        };
+
+        if prefix_len == 0 {
+            let last_error = io::Error::last_os_error();
+            if last_error.raw_os_error() == Some(ERROR_INSUFFICIENT_BUFFER as i32) {
+                // resize buffer and try again
+                new_prefix.resize(2 * new_prefix.len(), 0);
+                continue;
+            }
+            break Err(last_error);
+        }
+
+        // We must scan for the first null terminator
+        // Because `new_prefix` may contain multiple strings.
+
+        let real_len = new_prefix.iter().position(|&c| c == 0u16).unwrap();
+        unsafe { new_prefix.set_len(real_len) };
+
+        break Ok(OsString::from_wide(&new_prefix));
     }
-
-    let mut buffer = Vec::new();
-    buffer.reserve_exact(buffer_size);
-
-    let status = unsafe {
-        GetFinalPathNameByHandleW(
-            raw_handle as *mut _,
-            buffer.as_mut_ptr(),
-            buffer_size as u32,
-            VOLUME_NAME_NT,
-        )
-    } as usize;
-
-    if status == 0 {
-        return Err(io::Error::last_os_error());
-    }
-
-    unsafe { buffer.set_len(buffer_size - 1) };
-
-    // TODO: can this be done by stealing 'buffer' instead of copying it?
-    Ok(OsStringExt::from_wide(&buffer))
 }
 
 /// Object that frees its handle when dropped.
