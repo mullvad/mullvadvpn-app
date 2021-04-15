@@ -13,15 +13,17 @@ set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
-RUSTC_VERSION=`rustc +stable --version`
+RUSTC_VERSION=$(rustc +stable --version)
 PRODUCT_VERSION=$(node -p "require('./gui/package.json').version" | sed -Ee 's/\.0//g')
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"$SCRIPT_DIR/target"}
+
+CARGO_ARGS=()
+NPM_PACK_ARGS=()
 
 source env.sh
 
 if [[ "${1:-""}" != "--dev-build" ]]; then
     BUILD_MODE="release"
-    NPM_PACK_ARGS=""
     if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
         echo "Dirty working directory!"
         echo "You should only build releases in clean working directories in order to make it"
@@ -29,7 +31,7 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
         exit 1
     fi
 
-    if [[ ("$(uname -s)" == "Darwin") || "$(uname -s)" == "MINGW"* ]]; then
+    if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "MINGW"* ]]; then
         echo "Configuring environment for signing of binaries"
         if [[ -z ${CSC_LINK-} ]]; then
             echo "The variable CSC_LINK is not set. It needs to point to a file containing the"
@@ -37,11 +39,11 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
             exit 1
         fi
         if [[ -z ${CSC_KEY_PASSWORD-} ]]; then
-            read -sp "CSC_KEY_PASSWORD = " CSC_KEY_PASSWORD
+            read -spr "CSC_KEY_PASSWORD = " CSC_KEY_PASSWORD
             echo ""
             export CSC_KEY_PASSWORD
         fi
-        # MacOs: This needs to be set to 'true' to activate signing, even when CSC_LINK is set.
+        # macOS: This needs to be set to 'true' to activate signing, even when CSC_LINK is set.
         export CSC_IDENTITY_AUTO_DISCOVERY=true
 
         if [[ "$(uname -s)" == "MINGW"* ]]; then
@@ -56,42 +58,40 @@ if [[ "${1:-""}" != "--dev-build" ]]; then
     fi
 else
     BUILD_MODE="dev"
-    NPM_PACK_ARGS="--no-compression"
+    NPM_PACK_ARGS+=(--no-compression)
     echo "!! Development build. Not for general distribution !!"
     unset CSC_LINK CSC_KEY_PASSWORD
     export CSC_IDENTITY_AUTO_DISCOVERY=false
 fi
 
-product_version_commit_hash=$(git rev-parse $PRODUCT_VERSION^{commit} || echo "")
-current_head_commit_hash=$(git rev-parse HEAD^{commit})
-if [[ "$BUILD_MODE" == "dev" || $product_version_commit_hash != $current_head_commit_hash ]]; then
+product_version_commit_hash=$(git rev-parse "$PRODUCT_VERSION^{commit}" || echo "")
+current_head_commit_hash=$(git rev-parse "HEAD^{commit}")
+if [[ "$BUILD_MODE" == "dev" || $product_version_commit_hash != "$current_head_commit_hash" ]]; then
     PRODUCT_VERSION="$PRODUCT_VERSION-dev-${current_head_commit_hash:0:6}"
     echo "Modifying product version to $PRODUCT_VERSION"
 
-    echo "Disabling Apple notarization (macOs only) of installer in this dev build"
-    NPM_PACK_ARGS+=" --no-apple-notarization"
-    CARGO_ARGS=""
+    echo "Disabling Apple notarization (macOS only) of installer in this dev build"
+    NPM_PACK_ARGS+=(--no-apple-notarization)
 else
     echo "Removing old Rust build artifacts"
     cargo +stable clean
-    CARGO_ARGS="--locked"
+    CARGO_ARGS+=(--locked)
 fi
 
-sign_win() {
+function sign_win() {
     NUM_RETRIES=3
 
     for binary in "$@"; do
         # Try multiple times in case the timestamp server cannot
         # be contacted.
         for i in $(seq 0 ${NUM_RETRIES}); do
-            signtool sign \
-            -tr http://timestamp.digicert.com -td sha256 \
-            -fd sha256 -d "Mullvad VPN" \
-            -du "https://github.com/mullvad/mullvadvpn-app#readme" \
-            -f "$CERT_FILE" \
-            -p "$CERT_PASSPHRASE" "$binary"
-
-            if [ "$?" -eq "0" ]; then
+            if signtool sign \
+                -tr http://timestamp.digicert.com -td sha256 \
+                -fd sha256 -d "Mullvad VPN" \
+                -du "https://github.com/mullvad/mullvadvpn-app#readme" \
+                -f "$CERT_FILE" \
+                -p "$CERT_PASSPHRASE" "$binary"
+            then
                 break
             fi
 
@@ -118,7 +118,7 @@ trap 'restore_metadata_backups' EXIT
 
 echo "Updating version in metadata files..."
 cp Cargo.lock Cargo.lock.bak
-./version-metadata.sh inject $PRODUCT_VERSION --desktop
+./version-metadata.sh inject "$PRODUCT_VERSION" --desktop
 
 
 ################################################################################
@@ -126,7 +126,7 @@ cp Cargo.lock Cargo.lock.bak
 ################################################################################
 
 if [[ "$(uname -s)" == "MINGW"* ]]; then
-    CPP_BUILD_MODES="Release" ./build_windows_modules.sh $@
+    CPP_BUILD_MODES="Release" ./build_windows_modules.sh "$@"
 fi
 
 ################################################################################
@@ -138,13 +138,13 @@ export MULLVAD_ADD_MANIFEST="1"
 
 echo "Building Rust code in release mode using $RUSTC_VERSION..."
 
-cargo +stable build $CARGO_ARGS --release
+cargo +stable build "${CARGO_ARGS[@]}" --release
 
-if [[ ("$(uname -s)" == "Darwin") || ("$(uname -s)" == "Linux") ]]; then
+if [[ "$(uname -s)" == "Darwin" || "$(uname -s)" == "Linux" ]]; then
     mkdir -p "$SCRIPT_DIR/dist-assets/shell-completions"
     for sh in bash zsh fish; do
         echo "Generating shell completion script for $sh..."
-        cargo +stable run --bin mullvad $CARGO_ARGS --release -- shell-completions "$sh" \
+        cargo +stable run --bin mullvad "${CARGO_ARGS[@]}" --release -- shell-completions "$sh" \
             "$SCRIPT_DIR/dist-assets/shell-completions/"
     done
 fi
@@ -226,18 +226,18 @@ npm ci
 echo "Packing final release artifact..."
 
 case "$(uname -s)" in
-    Linux*)     npm run pack:linux -- $NPM_PACK_ARGS;;
-    Darwin*)    npm run pack:mac -- $NPM_PACK_ARGS;;
-    MINGW*)     npm run pack:win -- $NPM_PACK_ARGS;;
+    Linux*)     npm run pack:linux -- "${NPM_PACK_ARGS[@]}";;
+    Darwin*)    npm run pack:mac -- "${NPM_PACK_ARGS[@]}";;
+    MINGW*)     npm run pack:win -- "${NPM_PACK_ARGS[@]}";;
 esac
 
 popd
 
-SEMVER_VERSION=$(echo $PRODUCT_VERSION | sed -Ee 's/($|-.*)/.0\1/g')
-for semver_path in dist/*$SEMVER_VERSION*; do
-    product_path=$(echo $semver_path | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
+SEMVER_VERSION=$(echo "$PRODUCT_VERSION" | sed -Ee 's/($|-.*)/.0\1/g')
+for semver_path in dist/*"$SEMVER_VERSION"*; do
+    product_path=$(echo "$semver_path" | sed -Ee "s/$SEMVER_VERSION/$PRODUCT_VERSION/g")
     echo "Moving $semver_path -> $product_path"
-    mv $semver_path $product_path
+    mv "$semver_path" "$product_path"
 
     if [[ "$BUILD_MODE" == "release" && "$(uname -s)" == "MINGW"* && "$product_path" == *.exe ]]
     then
