@@ -1,19 +1,17 @@
-package net.mullvad.mullvadvpn.dataproxy
+package net.mullvad.mullvadvpn.ui.serviceconnection
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.ipc.DispatchingHandler
+import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.RelayConstraints
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
-import net.mullvad.mullvadvpn.service.MullvadDaemon
-import net.mullvad.mullvadvpn.ui.serviceconnection.SettingsListener
 
-class RelayListListener(val daemon: MullvadDaemon, val settingsListener: SettingsListener) {
-    private val setUpJob = setUp()
-
+class RelayListListener(
+    eventDispatcher: DispatchingHandler<Event>,
+    val settingsListener: SettingsListener
+) {
     private var relayList: RelayList? = null
     private var relaySettings: RelaySettings? = null
 
@@ -34,36 +32,20 @@ class RelayListListener(val daemon: MullvadDaemon, val settingsListener: Setting
         }
 
     init {
+        eventDispatcher.registerHandler(Event.NewRelayList::class) { event ->
+            event.relayList?.let { relayLocations ->
+                relayListChanged(RelayList(relayLocations))
+            }
+        }
+
         settingsListener.relaySettingsNotifier.subscribe(this) { newRelaySettings ->
             relaySettingsChanged(newRelaySettings)
         }
     }
 
     fun onDestroy() {
-        setUpJob.cancel()
         settingsListener.relaySettingsNotifier.unsubscribe(this)
-        daemon.onRelayListChange = null
-    }
-
-    private fun setUp() = GlobalScope.launch(Dispatchers.Default) {
-        setUpListener()
-        fetchInitialRelayList()
-    }
-
-    private fun setUpListener() {
-        daemon.onRelayListChange = { relayLocations ->
-            relayListChanged(RelayList(relayLocations))
-        }
-    }
-
-    private fun fetchInitialRelayList() {
-        val relayLocations = daemon.getRelayLocations()
-
-        synchronized(this) {
-            if (relayList == null && relayLocations != null) {
-                relayListChanged(RelayList(relayLocations))
-            }
-        }
+        onRelayListChange = null
     }
 
     private fun relaySettingsChanged(newRelaySettings: RelaySettings?) {

@@ -4,7 +4,6 @@ import android.os.Looper
 import android.os.Messenger
 import android.os.RemoteException
 import android.util.Log
-import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.di.SERVICE_CONNECTION_SCOPE
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
@@ -44,7 +43,7 @@ class ServiceConnection(private val service: ServiceInstance) : KoinScopeCompone
 
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(service.messenger, settingsListener)
-    var relayListListener = RelayListListener(daemon, settingsListener)
+    var relayListListener = RelayListListener(dispatcher, settingsListener)
 
     init {
         registerListener()
