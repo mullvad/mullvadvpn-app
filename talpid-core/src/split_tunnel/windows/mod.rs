@@ -3,10 +3,12 @@ mod windows;
 
 use crate::{
     tunnel::TunnelMetadata,
+    tunnel_state_machine::TunnelCommand,
     winnet::{
         self, get_best_default_route, interface_luid_to_ip, WinNetAddrFamily, WinNetCallbackHandle,
     },
 };
+use futures::channel::mpsc;
 use lazy_static::lazy_static;
 use std::{
     ffi::OsStr,
@@ -14,9 +16,9 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::io::{AsRawHandle, RawHandle},
     ptr,
-    sync::{Arc, Mutex},
+    sync::{Arc, Mutex, Weak},
 };
-use talpid_types::ErrorExt;
+use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
 use winapi::{
     shared::minwindef::{FALSE, TRUE},
     um::{
@@ -77,6 +79,7 @@ pub struct SplitTunnel {
     event_thread: Option<std::thread::JoinHandle<()>>,
     quit_event: RawHandle,
     _route_change_callback: Option<WinNetCallbackHandle>,
+    daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
 }
 
 struct EventThreadContext {
@@ -88,7 +91,7 @@ unsafe impl Send for EventThreadContext {}
 
 impl SplitTunnel {
     /// Initialize the driver.
-    pub fn new() -> Result<Self, Error> {
+    pub fn new(daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>) -> Result<Self, Error> {
         let handle = driver::DeviceHandle::new().map_err(Error::InitializationFailed)?;
 
         let mut event_overlapped: OVERLAPPED = unsafe { mem::zeroed() };
@@ -248,6 +251,7 @@ impl SplitTunnel {
             event_thread: Some(event_thread),
             quit_event,
             _route_change_callback: None,
+            daemon_tx,
         })
     }
 
@@ -303,6 +307,7 @@ impl SplitTunnel {
 
         let context = SplitTunnelDefaultRouteChangeHandlerContext::new(
             self.handle.clone(),
+            self.daemon_tx.clone(),
             tunnel_ipv4,
             tunnel_ipv6,
             internet_ipv4,
@@ -399,6 +404,7 @@ impl Drop for SplitTunnel {
 
 struct SplitTunnelDefaultRouteChangeHandlerContext {
     handle: Arc<Mutex<driver::DeviceHandle>>,
+    pub daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
     pub tunnel_ipv4: Ipv4Addr,
     pub tunnel_ipv6: Option<Ipv6Addr>,
     pub internet_ipv4: Ipv4Addr,
@@ -408,6 +414,7 @@ struct SplitTunnelDefaultRouteChangeHandlerContext {
 impl SplitTunnelDefaultRouteChangeHandlerContext {
     pub fn new(
         handle: Arc<Mutex<driver::DeviceHandle>>,
+        daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         tunnel_ipv4: Ipv4Addr,
         tunnel_ipv6: Option<Ipv6Addr>,
         internet_ipv4: Ipv4Addr,
@@ -415,6 +422,7 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
     ) -> Self {
         SplitTunnelDefaultRouteChangeHandlerContext {
             handle,
+            daemon_tx,
             tunnel_ipv4,
             tunnel_ipv6,
             internet_ipv4,
@@ -442,6 +450,13 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
     // Update the "internet interface" IP when best default route changes
     let ctx = &mut *(ctx as *mut SplitTunnelDefaultRouteChangeHandlerContext);
 
+    let daemon_tx = ctx.daemon_tx.upgrade();
+    let maybe_send = move |content| {
+        if let Some(tx) = daemon_tx {
+            let _ = tx.unbounded_send(content);
+        }
+    };
+
     let result = match event_type {
         winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged => {
             let ip = interface_luid_to_ip(address_family.clone(), default_route.interface_luid);
@@ -450,7 +465,7 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
                 Ok(Some(ip)) => ip,
                 Ok(None) => {
                     log::error!("Failed to obtain new default route address: none found",);
-                    // TODO: Send tunnel command
+                    maybe_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
                     return;
                 }
                 Err(error) => {
@@ -458,7 +473,7 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
                         "{}",
                         error.display_chain_with_msg("Failed to obtain new default route address")
                     );
-                    // TODO: Send tunnel command
+                    maybe_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
                     return;
                 }
             };
@@ -491,10 +506,10 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
     };
 
     if let Err(error) = result {
-        // TODO: Send tunnel command
         log::error!(
             "{}",
             error.display_chain_with_msg("Failed to register new addresses in split tunnel driver")
         );
+        maybe_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
     }
 }
