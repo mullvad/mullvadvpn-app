@@ -118,6 +118,8 @@ pub async fn spawn(
     let runtime = tokio::runtime::Handle::current();
 
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
+    #[cfg(windows)]
+    let command_tx2 = command_tx.clone();
     std::thread::spawn(move || {
         let state_machine = TunnelStateMachine::new(
             runtime.clone(),
@@ -133,6 +135,8 @@ pub async fn spawn(
             cache_dir,
             command_rx,
             reset_firewall,
+            #[cfg(windows)]
+            command_tx2,
             #[cfg(windows)]
             exclude_paths,
         );
@@ -225,8 +229,9 @@ impl TunnelStateMachine {
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: impl AsRef<Path>,
-        commands: mpsc::UnboundedReceiver<TunnelCommand>,
+        commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
         reset_firewall: bool,
+        #[cfg(windows)] commands_tx: Arc<mpsc::UnboundedSender<TunnelCommand>>,
         #[cfg(windows)] exclude_paths: Vec<OsString>,
     ) -> Result<Self, Error> {
         let args = FirewallArguments {
@@ -241,7 +246,8 @@ impl TunnelStateMachine {
             .map_err(Error::InitRouteManagerError)?;
 
         #[cfg(windows)]
-        let split_tunnel = split_tunnel::SplitTunnel::new().map_err(Error::InitSplitTunneling)?;
+        let split_tunnel = split_tunnel::SplitTunnel::new(Arc::downgrade(&commands_tx))
+            .map_err(Error::InitSplitTunneling)?;
         #[cfg(windows)]
         split_tunnel
             .set_paths(&exclude_paths)
@@ -271,7 +277,7 @@ impl TunnelStateMachine {
 
         Ok(TunnelStateMachine {
             current_state: Some(initial_state),
-            commands: commands.fuse(),
+            commands: commands_rx.fuse(),
             shared_values,
         })
     }

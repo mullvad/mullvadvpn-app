@@ -105,6 +105,7 @@ message ErrorState {
 		TUNNEL_PARAMETER_ERROR = 5;
 		IS_OFFLINE = 6;
 		VPN_PERMISSION_DENIED = 7;
+		SPLIT_TUNNEL_ERROR = 8;
 	}
 
 	enum GenerationError {
