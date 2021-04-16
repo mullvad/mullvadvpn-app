@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.ui.notification
 
 import android.content.Context
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoCache
 
 class VersionInfoNotification(
     context: Context,

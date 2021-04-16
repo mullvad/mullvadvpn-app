@@ -4,14 +4,12 @@ import android.os.Looper
 import android.os.Messenger
 import android.os.RemoteException
 import android.util.Log
-import net.mullvad.mullvadvpn.dataproxy.AppVersionInfoCache
 import net.mullvad.mullvadvpn.dataproxy.RelayListListener
 import net.mullvad.mullvadvpn.di.SERVICE_CONNECTION_SCOPE
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.service.ServiceInstance
-import net.mullvad.mullvadvpn.ui.MainActivity
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
@@ -23,8 +21,7 @@ import org.koin.core.scope.get
 // The properties of this class can be used to send events to the service, to listen for events from
 // the service and to get values received from events.
 @OptIn(KoinApiExtension::class)
-class ServiceConnection(private val service: ServiceInstance, mainActivity: MainActivity) :
-    KoinScopeComponent {
+class ServiceConnection(private val service: ServiceInstance) : KoinScopeComponent {
     override val scope = getKoin().createScope(
         SERVICE_CONNECTION_SCOPE,
         named(SERVICE_CONNECTION_SCOPE), this
@@ -45,12 +42,11 @@ class ServiceConnection(private val service: ServiceInstance, mainActivity: Main
     )
     val vpnPermission = VpnPermission(service.messenger)
 
-    val appVersionInfoCache = AppVersionInfoCache(mainActivity, daemon, settingsListener)
+    val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(service.messenger, settingsListener)
     var relayListListener = RelayListListener(daemon, settingsListener)
 
     init {
-        appVersionInfoCache.onCreate()
         registerListener()
     }
 
