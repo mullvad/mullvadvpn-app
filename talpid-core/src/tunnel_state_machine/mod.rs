@@ -218,7 +218,7 @@ impl TunnelStateMachine {
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: impl AsRef<Path>,
-        commands: mpsc::UnboundedReceiver<TunnelCommand>,
+        commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
         reset_firewall: bool,
         #[cfg(target_os = "android")] android_context: AndroidContext,
         #[cfg(windows)] exclude_paths: Vec<OsString>,
@@ -243,7 +243,7 @@ impl TunnelStateMachine {
         )
         .map_err(Error::InitDnsMonitorError)?;
         let mut offline_monitor = offline::spawn_monitor(
-            command_tx,
+            command_tx.clone(),
             #[cfg(target_os = "linux")]
             route_manager
                 .handle()
@@ -256,7 +256,8 @@ impl TunnelStateMachine {
         let is_offline = offline_monitor.is_offline().await;
 
         #[cfg(windows)]
-        let split_tunnel = split_tunnel::SplitTunnel::new().map_err(Error::InitSplitTunneling)?;
+        let split_tunnel =
+            split_tunnel::SplitTunnel::new(command_tx).map_err(Error::InitSplitTunneling)?;
         #[cfg(windows)]
         split_tunnel
             .set_paths(&exclude_paths)
@@ -287,7 +288,7 @@ impl TunnelStateMachine {
 
         Ok(TunnelStateMachine {
             current_state: Some(initial_state),
-            commands: commands.fuse(),
+            commands: commands_rx.fuse(),
             shared_values,
         })
     }

@@ -143,6 +143,10 @@ impl From<mullvad_types::states::TunnelState> for TunnelState {
                             talpid_tunnel::ErrorStateCause::VpnPermissionDenied => {
                                 i32::from(Cause::VpnPermissionDenied)
                             }
+                            #[cfg(target_os = "windows")]
+                            talpid_tunnel::ErrorStateCause::SplitTunnelError => {
+                                i32::from(Cause::SplitTunnelError)
+                            }
                         },
                         blocking_error: error_state.block_failure().map(map_firewall_error),
                         auth_fail_reason: if let talpid_tunnel::ErrorStateCause::AuthFailed(
