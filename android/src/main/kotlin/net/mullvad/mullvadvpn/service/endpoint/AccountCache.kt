@@ -183,10 +183,6 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     }
 
     private suspend fun doLogin(account: String) {
-        if (account == accountNumber) {
-            return
-        }
-
         val result = daemon.await().getAccountData(account)
 
         val expiry = when (result) {
