@@ -220,10 +220,6 @@ msgid "Default"
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "e.g. 10.0.0.4"
-msgstr ""
-
-msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr ""
 
@@ -237,6 +233,10 @@ msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
+msgstr ""
+
+msgctxt "advanced-settings-view"
+msgid "Enter IP"
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -1220,6 +1220,9 @@ msgid "You are running an unsupported app version. Please upgrade to %s now to e
 msgstr ""
 
 msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+msgstr ""
+
+msgid "e.g. 10.0.0.4"
 msgstr ""
 
 msgid "Account credit expires in a day"
