@@ -10,6 +10,7 @@ class ApplicationsIconManager(private val packageManager: PackageManager) {
     private val iconsCache = LruCache<String, Drawable>(500)
 
     @WorkerThread
+    @Throws(PackageManager.NameNotFoundException::class)
     fun getAppIcon(packageName: String): Drawable {
         check(!Looper.getMainLooper().isCurrentThread) { "Should not be called from MainThread" }
         iconsCache.get(packageName)?.let {
