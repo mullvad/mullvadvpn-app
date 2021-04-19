@@ -711,6 +711,7 @@ class ApplicationMain {
     this.notificationController.notifyTunnelState(
       newState,
       this.settings.blockWhenDisconnected,
+      this.settings.splitTunnel && this.settings.splitTunnelAppsList.length > 0,
       this.accountData?.expiry,
     );
 
