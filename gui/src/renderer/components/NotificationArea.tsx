@@ -44,12 +44,20 @@ export default function NotificationArea(props: IProps) {
       : undefined,
   );
   const wireGuardKey = useSelector((state: IReduxState) => state.settings.wireguardKeyState);
+  const hasExcludedApps = useSelector(
+    (state: IReduxState) =>
+      state.settings.splitTunneling && state.settings.splitTunnelingApplications.length > 0,
+  );
 
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
-    new BlockWhenDisconnectedNotificationProvider({ tunnelState, blockWhenDisconnected }),
-    new ErrorNotificationProvider({ tunnelState, accountExpiry }),
+    new BlockWhenDisconnectedNotificationProvider({
+      tunnelState,
+      blockWhenDisconnected,
+      hasExcludedApps,
+    }),
+    new ErrorNotificationProvider({ tunnelState, accountExpiry, hasExcludedApps }),
     new NoValidKeyNotificationProvider({ tunnelProtocol, wireGuardKey }),
     new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
     new UnsupportedVersionNotificationProvider(version),

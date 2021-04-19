@@ -51,6 +51,7 @@ export default class NotificationController {
   public notifyTunnelState(
     tunnelState: TunnelState,
     blockWhenDisconnected: boolean,
+    hasExcludedApps: boolean,
     accountExpiry?: string,
   ) {
     const notificationProviders: SystemNotificationProvider[] = [
@@ -58,7 +59,7 @@ export default class NotificationController {
       new ConnectedNotificationProvider(tunnelState),
       new ReconnectingNotificationProvider(tunnelState),
       new DisconnectedNotificationProvider({ tunnelState, blockWhenDisconnected }),
-      new ErrorNotificationProvider({ tunnelState, accountExpiry }),
+      new ErrorNotificationProvider({ tunnelState, accountExpiry, hasExcludedApps }),
     ];
 
     const notificationProvider = notificationProviders.find((notification) =>
