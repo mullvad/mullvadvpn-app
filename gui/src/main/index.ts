@@ -438,8 +438,8 @@ class ApplicationMain {
     this.blockPermissionRequests();
     // Blocks any http(s) and file requests that aren't supposed to happen.
     this.blockRequests();
-    // Blocks navigation since it's not needed.
-    this.blockNavigation();
+    // Blocks navigation and window.open since it's not needed.
+    this.blockNavigationAndWindowOpen();
 
     this.updateCurrentLocale();
 
@@ -1648,11 +1648,11 @@ class ApplicationMain {
     );
   }
 
-  private blockNavigation() {
+  // Blocks navigation and window.open since it's not needed.
+  private blockNavigationAndWindowOpen() {
     app.on('web-contents-created', (_event, contents) => {
-      contents.on('will-navigate', (event) => {
-        event.preventDefault();
-      });
+      contents.on('will-navigate', (event) => event.preventDefault());
+      contents.setWindowOpenHandler(() => ({ action: 'deny' }));
     });
   }
 
