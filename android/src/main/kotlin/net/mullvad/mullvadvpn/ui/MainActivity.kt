@@ -22,17 +22,12 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.talpid.util.EventNotifier
 
 open class MainActivity : FragmentActivity() {
-    companion object {
-        const val KEY_SHOULD_CONNECT = "should_connect"
-    }
-
     val problemReport = MullvadProblemReport()
     val serviceNotifier = EventNotifier<ServiceConnection?>(null)
 
     private var isUiVisible = false
     private var service: MullvadVpnService.LocalBinder? = null
     private var serviceConnection: ServiceConnection? = null
-    private var shouldConnect = false
     private var visibleSecureScreens = HashSet<Fragment>()
 
     private val deviceIsTv by lazy {
@@ -62,10 +57,6 @@ open class MainActivity : FragmentActivity() {
 
                 if (service == null) {
                     serviceNotifier.notify(null)
-                }
-
-                if (shouldConnect) {
-                    tryToConnect()
                 }
             }
         }
@@ -98,11 +89,6 @@ open class MainActivity : FragmentActivity() {
 
         if (savedInstanceState == null) {
             addInitialFragment()
-        }
-
-        if (intent.getBooleanExtra(KEY_SHOULD_CONNECT, false)) {
-            shouldConnect = true
-            tryToConnect()
         }
     }
 
@@ -206,13 +192,6 @@ open class MainActivity : FragmentActivity() {
         val intent = VpnService.prepare(this)
 
         startActivityForResult(intent, 0)
-    }
-
-    private fun tryToConnect() {
-        serviceConnection?.apply {
-            connectionProxy.connect()
-            shouldConnect = false
-        }
     }
 
     private fun addInitialFragment() {
