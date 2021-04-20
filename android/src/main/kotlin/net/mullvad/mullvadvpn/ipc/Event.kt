@@ -55,6 +55,9 @@ sealed class Event : Message.EventMessage() {
     ) : Event()
 
     @Parcelize
+    object VpnPermissionRequest : Event()
+
+    @Parcelize
     data class WireGuardKeyStatus(val keyStatus: KeygenEvent?) : Event()
 
     companion object {
