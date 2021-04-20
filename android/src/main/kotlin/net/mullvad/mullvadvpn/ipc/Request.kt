@@ -29,6 +29,9 @@ sealed class Request : Message.RequestMessage() {
     object FetchAccountExpiry : Request()
 
     @Parcelize
+    object FetchAuthToken : Request()
+
+    @Parcelize
     data class IncludeApp(val packageName: String) : Request()
 
     @Parcelize

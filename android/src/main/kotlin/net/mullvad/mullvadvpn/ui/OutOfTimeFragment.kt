@@ -53,7 +53,7 @@ class OutOfTimeFragment : ServiceDependentFragment(OnNoService.GoToLaunchScreen)
 
         sitePaymentButton = view.findViewById<SitePaymentButton>(R.id.site_payment).apply {
             newAccount = false
-            prepare(daemon, jobTracker)
+            prepare(authTokenCache, jobTracker)
         }
 
         redeemButton = view.findViewById<RedeemVoucherButton>(R.id.redeem_voucher).apply {
