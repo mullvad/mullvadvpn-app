@@ -55,7 +55,9 @@ open class MainActivity : FragmentActivity() {
                 serviceConnection?.onDestroy()
 
                 serviceConnection = service?.let { safeService ->
-                    ServiceConnection(safeService, ::handleNewServiceConnection)
+                    ServiceConnection(safeService, ::handleNewServiceConnection).apply {
+                        vpnPermission.onRequest = ::requestVpnPermission
+                    }
                 }
 
                 if (service == null) {
