@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -194,13 +195,15 @@ open class MainActivity : FragmentActivity() {
         }
     }
 
-    @Suppress("DEPRECATION")
-    fun requestVpnPermission(intent: Intent) {
-        startActivityForResult(intent, 0)
-    }
-
     private fun handleNewServiceConnection(connection: ServiceConnection) {
         serviceNotifier.notify(connection)
+    }
+
+    @Suppress("DEPRECATION")
+    private fun requestVpnPermission() {
+        val intent = VpnService.prepare(this)
+
+        startActivityForResult(intent, 0)
     }
 
     private fun tryToConnect() {
