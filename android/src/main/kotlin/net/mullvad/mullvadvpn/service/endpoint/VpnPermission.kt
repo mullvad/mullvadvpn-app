@@ -30,7 +30,6 @@ class VpnPermission(private val context: Context, private val endpoint: ServiceE
             val activityIntent = Intent(context, MainActivity::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                putExtra(MainActivity.KEY_SHOULD_CONNECT, true)
             }
 
             isGranted.update(null)
