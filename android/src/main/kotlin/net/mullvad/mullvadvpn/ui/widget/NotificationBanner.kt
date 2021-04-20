@@ -110,6 +110,7 @@ class NotificationBanner : FrameLayout {
 
     fun onDestroy() {
         notifications.onDestroy()
+        jobTracker.cancelAllJobs()
     }
 
     protected override fun onSizeChanged(width: Int, height: Int, oldWidth: Int, oldHeight: Int) {
