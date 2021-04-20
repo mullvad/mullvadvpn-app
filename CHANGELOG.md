@@ -45,6 +45,10 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Fix find `mullvad-vpn.desktop` in `XDG_DATA_DIRS` instead of using hardcoded path.
 
+#### MacOS
+- Set correct permissions for daemon's launch file in installer.
+
+
 ## [2021.3-beta1] - 2021-04-13
 This release is for desktop only.
 
