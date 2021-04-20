@@ -11,8 +11,12 @@ import net.mullvad.mullvadvpn.util.Intermittent
 class VpnPermission(private val context: Context, private val endpoint: ServiceEndpoint) {
     private val isGranted = Intermittent<Boolean>()
 
+    var waitingForResponse = false
+        private set
+
     init {
         endpoint.dispatcher.registerHandler(Request.VpnPermissionResponse::class) { request ->
+            waitingForResponse = false
             isGranted.spawnUpdate(request.isGranted)
         }
     }
@@ -30,6 +34,7 @@ class VpnPermission(private val context: Context, private val endpoint: ServiceE
             }
 
             isGranted.update(null)
+            waitingForResponse = true
 
             context.startActivity(activityIntent)
             endpoint.sendEvent(Event.VpnPermissionRequest)
