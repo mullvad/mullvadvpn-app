@@ -1,0 +1,23 @@
+name: Audit Rust dependencies CI
+on:
+    push:
+        paths:
+            - .github/workflows/cargo-audit.yml
+            - Cargo.lock
+    # Check if requested manually from the Actions tab
+    workflow_dispatch:
+jobs:
+    audit:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Install cargo-audit
+              uses: actions-rs/install@v0.1.2
+              with:
+                  crate: cargo-audit
+                  version: latest
+
+            - name: Audit
+              run: cargo audit
