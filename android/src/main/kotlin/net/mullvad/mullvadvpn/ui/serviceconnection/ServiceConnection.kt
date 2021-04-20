@@ -44,7 +44,7 @@ class ServiceConnection(
         parameters = { parametersOf(service.messenger, dispatcher) }
     )
     val voucherRedeemer = VoucherRedeemer(service.messenger, dispatcher)
-    val vpnPermission = VpnPermission(service.messenger)
+    val vpnPermission = VpnPermission(service.messenger, dispatcher)
 
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(service.messenger, settingsListener)
