@@ -43,7 +43,7 @@ class ServiceConnection(
     val splitTunneling = get<SplitTunneling>(
         parameters = { parametersOf(service.messenger, dispatcher) }
     )
-    val vpnPermission = VpnPermission(service.messenger)
+    val vpnPermission = VpnPermission(service.messenger, dispatcher)
 
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(service.messenger, settingsListener)
