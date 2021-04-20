@@ -16,7 +16,6 @@ import androidx.fragment.app.FragmentManager
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
-import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.talpid.util.EventNotifier
@@ -54,17 +53,13 @@ open class MainActivity : FragmentActivity() {
                 android.util.Log.d("mullvad", "UI connection to the service changed: $service")
                 serviceConnection?.onDestroy()
 
-                val newConnection = service?.let { safeService ->
-                    ServiceConnection(safeService)
+                serviceConnection = service?.let { safeService ->
+                    ServiceConnection(safeService) { connection ->
+                        serviceNotifier.notify(connection)
+                    }
                 }
 
-                serviceConnection = newConnection
-
-                if (newConnection != null) {
-                    newConnection.dispatcher.registerHandler(Event.ListenerReady::class) { _ ->
-                        serviceNotifier.notify(newConnection)
-                    }
-                } else {
+                if (service == null) {
                     serviceNotifier.notify(null)
                 }
 
