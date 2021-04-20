@@ -54,9 +54,7 @@ open class MainActivity : FragmentActivity() {
                 serviceConnection?.onDestroy()
 
                 serviceConnection = service?.let { safeService ->
-                    ServiceConnection(safeService) { connection ->
-                        serviceNotifier.notify(connection)
-                    }
+                    ServiceConnection(safeService, ::handleNewServiceConnection)
                 }
 
                 if (service == null) {
@@ -199,6 +197,10 @@ open class MainActivity : FragmentActivity() {
     @Suppress("DEPRECATION")
     fun requestVpnPermission(intent: Intent) {
         startActivityForResult(intent, 0)
+    }
+
+    private fun handleNewServiceConnection(connection: ServiceConnection) {
+        serviceNotifier.notify(connection)
     }
 
     private fun tryToConnect() {
