@@ -42,6 +42,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Prevent tray icons from being extraced to `%TEMP%` directory.
 
+#### MacOS
+- Set correct permissions for daemon's launch file in installer.
+
 
 ## [2021.3-beta1] - 2021-04-13
 This release is for desktop only.

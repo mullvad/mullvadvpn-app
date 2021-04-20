@@ -59,6 +59,7 @@ pkill -x "Mullvad VPN" || echo "Unable to kill GUI, not running?"
 sleep 1
 
 echo "$DAEMON_PLIST" > $DAEMON_PLIST_PATH
+chmod 644 $DAEMON_PLIST_PATH
 launchctl load -w $DAEMON_PLIST_PATH
 
 mkdir -p /usr/local/bin
