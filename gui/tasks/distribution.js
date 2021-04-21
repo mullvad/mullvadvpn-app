@@ -69,6 +69,7 @@ const config = {
     allowAnywhere: false,
     allowCurrentUserHome: false,
     isRelocatable: false,
+    isVersionChecked: false,
   },
 
   nsis: {
