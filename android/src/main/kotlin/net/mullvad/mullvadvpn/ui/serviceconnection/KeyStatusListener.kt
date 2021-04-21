@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.KeygenEvent
 import net.mullvad.talpid.util.EventNotifier
 
-class KeyStatusListener(val connection: Messenger, val eventDispatcher: EventDispatcher) {
+class KeyStatusListener(private val connection: Messenger, eventDispatcher: EventDispatcher) {
     val onKeyStatusChange = EventNotifier<KeygenEvent?>(null)
 
     var keyStatus by onKeyStatusChange.notifiable()

@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
 
-class AuthTokenCache(val connection: Messenger, eventDispatcher: EventDispatcher) {
+class AuthTokenCache(private val connection: Messenger, eventDispatcher: EventDispatcher) {
     private val fetchQueue = LinkedList<CompletableDeferred<String>>()
 
     init {

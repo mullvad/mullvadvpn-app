@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.talpid.util.EventNotifier
 
-class SettingsListener(val connection: Messenger, eventDispatcher: EventDispatcher) {
+class SettingsListener(private val connection: Messenger, eventDispatcher: EventDispatcher) {
     val accountNumberNotifier = EventNotifier<String?>(null)
     val dnsOptionsNotifier = EventNotifier<DnsOptions?>(null)
     val relaySettingsNotifier = EventNotifier<RelaySettings?>(null)

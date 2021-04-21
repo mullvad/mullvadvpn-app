@@ -5,7 +5,7 @@ import java.net.InetAddress
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.talpid.util.EventNotifier
 
-class CustomDns(val connection: Messenger, val settingsListener: SettingsListener) {
+class CustomDns(private val connection: Messenger, private val settingsListener: SettingsListener) {
     val onEnabledChanged = EventNotifier(false)
     val onDnsServersChanged = EventNotifier<List<InetAddress>>(emptyList())
 
