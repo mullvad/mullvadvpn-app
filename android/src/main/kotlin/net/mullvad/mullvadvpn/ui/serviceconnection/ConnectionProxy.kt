@@ -6,8 +6,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
+import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
@@ -15,7 +15,7 @@ import net.mullvad.talpid.util.EventNotifier
 
 val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
 
-class ConnectionProxy(val connection: Messenger, eventDispatcher: DispatchingHandler<Event>) {
+class ConnectionProxy(val connection: Messenger, eventDispatcher: EventDispatcher) {
     private var resetAnticipatedStateJob: Job? = null
 
     val onStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected)
