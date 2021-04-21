@@ -87,6 +87,10 @@ abstract class ServiceDependentFragment(private val onNoService: OnNoService) :
             when (state) {
                 State.Uninitialized -> state = State.Initialized
                 State.WaitingForReconnection -> state = State.Stopped
+                State.Active -> {
+                    onSafelyStop()
+                    onSafelyStart()
+                }
                 else -> {}
             }
         }
