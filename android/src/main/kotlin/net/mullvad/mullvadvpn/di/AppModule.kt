@@ -5,8 +5,7 @@ import android.os.Messenger
 import kotlinx.coroutines.Dispatchers
 import net.mullvad.mullvadvpn.applist.ApplicationsIconManager
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.MessageDispatcher
+import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import org.koin.android.ext.koin.androidContext
@@ -27,7 +26,7 @@ val appModule = module {
     }
 
     scope(named(SERVICE_CONNECTION_SCOPE)) {
-        scoped<SplitTunneling> { (messenger: Messenger, dispatcher: MessageDispatcher<Event>) ->
+        scoped<SplitTunneling> { (messenger: Messenger, dispatcher: EventDispatcher) ->
             SplitTunneling(messenger, dispatcher)
         }
     }
