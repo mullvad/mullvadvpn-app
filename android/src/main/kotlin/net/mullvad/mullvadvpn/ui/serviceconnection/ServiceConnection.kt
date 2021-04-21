@@ -20,15 +20,18 @@ import org.koin.core.scope.get
 // The properties of this class can be used to send events to the service, to listen for events from
 // the service and to get values received from events.
 @OptIn(KoinApiExtension::class)
-class ServiceConnection(private val service: ServiceInstance) : KoinScopeComponent {
+class ServiceConnection(
+    private val service: ServiceInstance,
+    onServiceReady: (ServiceConnection) -> Unit
+) : KoinScopeComponent {
+    private val dispatcher = DispatchingHandler(Looper.getMainLooper()) { message ->
+        Event.fromMessage(message)
+    }
+
     override val scope = getKoin().createScope(
         SERVICE_CONNECTION_SCOPE,
         named(SERVICE_CONNECTION_SCOPE), this
     )
-
-    val dispatcher = DispatchingHandler(Looper.getMainLooper()) { message ->
-        Event.fromMessage(message)
-    }
 
     val daemon = service.daemon
     val accountCache = AccountCache(service.messenger, dispatcher)
@@ -47,6 +50,10 @@ class ServiceConnection(private val service: ServiceInstance) : KoinScopeCompone
     var relayListListener = RelayListListener(service.messenger, dispatcher, settingsListener)
 
     init {
+        dispatcher.registerHandler(Event.ListenerReady::class) { _ ->
+            onServiceReady(this@ServiceConnection)
+        }
+
         registerListener()
     }
 
