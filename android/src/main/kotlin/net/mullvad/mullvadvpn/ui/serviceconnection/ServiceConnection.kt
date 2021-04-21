@@ -24,14 +24,14 @@ class ServiceConnection(
     private val service: ServiceInstance,
     onServiceReady: (ServiceConnection) -> Unit
 ) : KoinScopeComponent {
+    private val dispatcher = DispatchingHandler(Looper.getMainLooper()) { message ->
+        Event.fromMessage(message)
+    }
+
     override val scope = getKoin().createScope(
         SERVICE_CONNECTION_SCOPE,
         named(SERVICE_CONNECTION_SCOPE), this
     )
-
-    val dispatcher = DispatchingHandler(Looper.getMainLooper()) { message ->
-        Event.fromMessage(message)
-    }
 
     val daemon = service.daemon
     val accountCache = AccountCache(service.messenger, dispatcher)
