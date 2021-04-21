@@ -57,6 +57,14 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     private var createdAccountExpiry: DateTime? = null
     private var oldAccountExpiry: DateTime? = null
 
+    var account: String?
+        get() = endpoint.settingsListener.accountNumberNotifier.latestEvent
+        set(value) {
+            jobTracker.newBackgroundJob("setAccount") {
+                daemon.await().setAccount(value)
+            }
+        }
+
     var loginStatus by onLoginStatusChange.notifiable()
         private set
 

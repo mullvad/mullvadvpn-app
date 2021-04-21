@@ -4,6 +4,7 @@ import android.os.Message as RawMessage
 import android.os.Messenger
 import java.net.InetAddress
 import kotlinx.parcelize.Parcelize
+import net.mullvad.mullvadvpn.model.LocationConstraint
 import org.joda.time.DateTime
 
 // Requests that the service can handle
@@ -65,10 +66,25 @@ sealed class Request : Message.RequestMessage() {
     ) : Request()
 
     @Parcelize
+    data class SetAccount(val account: String?) : Request()
+
+    @Parcelize
+    data class SetAllowLan(val allow: Boolean) : Request()
+
+    @Parcelize
+    data class SetAutoConnect(val autoConnect: Boolean) : Request()
+
+    @Parcelize
     data class SetEnableCustomDns(val enable: Boolean) : Request()
 
     @Parcelize
     data class SetEnableSplitTunneling(val enable: Boolean) : Request()
+
+    @Parcelize
+    data class SetRelayLocation(val relayLocation: LocationConstraint?) : Request()
+
+    @Parcelize
+    data class SetWireGuardMtu(val mtu: Int?) : Request()
 
     @Parcelize
     data class VpnPermissionResponse(val isGranted: Boolean) : Request()

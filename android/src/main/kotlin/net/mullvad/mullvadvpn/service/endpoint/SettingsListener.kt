@@ -1,6 +1,13 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.ipc.Event
+import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
@@ -8,6 +15,13 @@ import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.talpid.util.EventNotifier
 
 class SettingsListener(endpoint: ServiceEndpoint) {
+    private sealed class Command {
+        class SetAllowLan(val allow: Boolean) : Command()
+        class SetAutoConnect(val autoConnect: Boolean) : Command()
+        class SetWireGuardMtu(val mtu: Int?) : Command()
+    }
+
+    private val commandChannel = spawnActor()
     private val daemon = endpoint.intermittentDaemon
 
     val accountNumberNotifier = EventNotifier<String?>(null)
@@ -29,9 +43,24 @@ class SettingsListener(endpoint: ServiceEndpoint) {
         settingsNotifier.subscribe(this) { settings ->
             endpoint.sendEvent(Event.SettingsUpdate(settings))
         }
+
+        endpoint.dispatcher.apply {
+            registerHandler(Request.SetAllowLan::class) { request ->
+                commandChannel.sendBlocking(Command.SetAllowLan(request.allow))
+            }
+
+            registerHandler(Request.SetAutoConnect::class) { request ->
+                commandChannel.sendBlocking(Command.SetAutoConnect(request.autoConnect))
+            }
+
+            registerHandler(Request.SetWireGuardMtu::class) { request ->
+                commandChannel.sendBlocking(Command.SetWireGuardMtu(request.mtu))
+            }
+        }
     }
 
     fun onDestroy() {
+        commandChannel.close()
         daemon.unregisterListener(this)
 
         accountNumberNotifier.unsubscribeAll()
@@ -79,6 +108,20 @@ class SettingsListener(endpoint: ServiceEndpoint) {
 
                 settings = newSettings
             }
+        }
+    }
+
+    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
+        try {
+            for (command in channel) {
+                when (command) {
+                    is Command.SetAllowLan -> daemon.await().setAllowLan(command.allow)
+                    is Command.SetAutoConnect -> daemon.await().setAutoConnect(command.autoConnect)
+                    is Command.SetWireGuardMtu -> daemon.await().setWireguardMtu(command.mtu)
+                }
+            }
+        } catch (exception: ClosedReceiveChannelException) {
+            // Closed sender, so stop the actor
         }
     }
 }

@@ -36,7 +36,7 @@ class ServiceConnection(private val service: ServiceInstance) : KoinScopeCompone
     val connectionProxy = ConnectionProxy(service.messenger, dispatcher)
     val keyStatusListener = KeyStatusListener(service.messenger, dispatcher)
     val locationInfoCache = LocationInfoCache(dispatcher)
-    val settingsListener = SettingsListener(dispatcher)
+    val settingsListener = SettingsListener(service.messenger, dispatcher)
     val splitTunneling = get<SplitTunneling>(
         parameters = { parametersOf(service.messenger, dispatcher) }
     )
@@ -44,7 +44,7 @@ class ServiceConnection(private val service: ServiceInstance) : KoinScopeCompone
 
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
     val customDns = CustomDns(service.messenger, settingsListener)
-    var relayListListener = RelayListListener(dispatcher, settingsListener)
+    var relayListListener = RelayListListener(service.messenger, dispatcher, settingsListener)
 
     init {
         registerListener()
