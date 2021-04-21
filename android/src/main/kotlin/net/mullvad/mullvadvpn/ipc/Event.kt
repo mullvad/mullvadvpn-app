@@ -56,3 +56,5 @@ sealed class Event : Message.EventMessage() {
         fun fromMessage(message: RawMessage): Event? = Message.fromMessage(message, MESSAGE_KEY)
     }
 }
+
+typealias EventDispatcher = MessageDispatcher<Event>
