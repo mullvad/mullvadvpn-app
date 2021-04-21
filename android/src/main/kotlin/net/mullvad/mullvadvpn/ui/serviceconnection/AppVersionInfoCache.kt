@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.model.AppVersionInfo
 
 class AppVersionInfoCache(
     eventDispatcher: EventDispatcher,
-    val settingsListener: SettingsListener
+    private val settingsListener: SettingsListener
 ) {
     private var appVersionInfo by observable<AppVersionInfo?>(null) { _, _, _ ->
         onUpdate?.invoke()

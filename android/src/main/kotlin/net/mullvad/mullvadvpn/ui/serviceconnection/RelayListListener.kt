@@ -12,9 +12,9 @@ import net.mullvad.mullvadvpn.relaylist.RelayItem
 import net.mullvad.mullvadvpn.relaylist.RelayList
 
 class RelayListListener(
-    val connection: Messenger,
+    private val connection: Messenger,
     eventDispatcher: EventDispatcher,
-    val settingsListener: SettingsListener
+    private val settingsListener: SettingsListener
 ) {
     private var relayList: RelayList? = null
     private var relaySettings: RelaySettings? = null

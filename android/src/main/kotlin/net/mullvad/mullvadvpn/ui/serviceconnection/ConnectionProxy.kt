@@ -15,7 +15,7 @@ import net.mullvad.talpid.util.EventNotifier
 
 val ANTICIPATED_STATE_TIMEOUT_MS = 1500L
 
-class ConnectionProxy(val connection: Messenger, eventDispatcher: EventDispatcher) {
+class ConnectionProxy(private val connection: Messenger, eventDispatcher: EventDispatcher) {
     private var resetAnticipatedStateJob: Job? = null
 
     val onStateChange = EventNotifier<TunnelState>(TunnelState.Disconnected)

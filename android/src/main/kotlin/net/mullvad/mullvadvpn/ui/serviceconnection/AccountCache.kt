@@ -8,7 +8,7 @@ import net.mullvad.mullvadvpn.model.LoginStatus
 import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 
-class AccountCache(val connection: Messenger, eventDispatcher: EventDispatcher) {
+class AccountCache(private val connection: Messenger, eventDispatcher: EventDispatcher) {
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
     val onAccountHistoryChange = EventNotifier<List<String>>(listOf<String>())
