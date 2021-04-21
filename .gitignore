@@ -29,6 +29,8 @@
 /dist-assets/sslocal
 /dist-assets/sslocal.exe
 /dist-assets/shell-completions/
+/dist-assets/aarch64-apple-darwin/
+/dist-assets/x86_64-apple-darwin/
 /windows/**/bin/
 /windows/**/*.user
 /android/keystore.properties

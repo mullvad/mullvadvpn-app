@@ -86,8 +86,22 @@ function unix_target_triple {
 
 function build_unix {
     echo "Building wireguard-go for $1"
+
+    # Flags for cross compiling for M1 macs
+    if [[ "$(unix_target_triple)" != "$1" && "$1" == "aarch64-apple-darwin" ]]; then
+        export CGO_ENABLED=1
+        export GOOS=darwin
+        export GOARCH=arm64
+        export CC="$(xcrun -sdk $SDKROOT --find clang) -arch $GOARCH -isysroot $SDKROOT"
+        export CFLAGS="-isysroot $SDKROOT -arch $GOARCH -I$SDKROOT/usr/include"
+        export LD_LIBRARY_PATH="$SDKROOT/usr/lib"
+        export CGO_CFLAGS="-isysroot $SDKROOT -arch $GOARCH"
+        export CGO_LDFLAGS="-isysroot $SDKROOT -arch $GOARCH"
+    fi
+
     pushd libwg
-        target_triple_dir="../../build/lib/$(unix_target_triple)"
+        target_triple_dir="../../build/lib/$1"
+
         mkdir -p $target_triple_dir
         go build -v -o $target_triple_dir/libwg.a -buildmode c-archive
     popd
@@ -116,7 +130,7 @@ function build_wireguard_go {
 
     local platform="$(uname -s)";
     case  "$platform" in
-        Linux*|Darwin*) build_unix $platform;;
+        Linux*|Darwin*) build_unix ${1:-$(unix_target_triple)};;
         MINGW*|MSYS_NT*) build_windows;;
     esac
 }
