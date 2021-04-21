@@ -50,6 +50,11 @@ Line wrap the file at 100 chars.                                              Th
 - Set correct permissions for daemon's launch file in installer.
 - Fix downgrades on macOS silently keeping previous version.
 
+#### Android
+- Fix request to connect from notification or quick-settings tile not connecting if VPN permission
+  isn't granted to the app. The app will now show the UI to ask for the permission and correctly
+  connect after it is granted.
+
 
 ## [2021.3-beta1] - 2021-04-13
 This release is for desktop only.
