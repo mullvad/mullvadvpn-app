@@ -255,6 +255,9 @@ storePassword = keystore-password
 
 ### All platforms
 
+1. Make sure to use a recent version of `bash`. The default version in macOS (3.2.57) isn't
+   supported.
+
 1. Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
 1. *This can be skipped for Android builds*.
