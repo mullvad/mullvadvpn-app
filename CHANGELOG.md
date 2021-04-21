@@ -48,6 +48,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### MacOS
 - Set correct permissions for daemon's launch file in installer.
+- Fix downgrades on macOS silently keeping previous version.
 
 
 ## [2021.3-beta1] - 2021-04-13
