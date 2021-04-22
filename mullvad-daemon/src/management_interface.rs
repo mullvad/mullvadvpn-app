@@ -765,7 +765,9 @@ fn convert_settings(settings: &Settings) -> types::Settings {
     types::Settings {
         account_token: settings.get_account_token().unwrap_or_default(),
         relay_settings: Some(types::RelaySettings::from(settings.get_relay_settings())),
-        bridge_settings: Some(convert_bridge_settings(&settings.bridge_settings)),
+        bridge_settings: Some(types::BridgeSettings::from(
+            settings.bridge_settings.clone(),
+        )),
         bridge_state: Some(convert_bridge_state(settings.get_bridge_state())),
         allow_lan: settings.allow_lan,
         block_when_disconnected: settings.block_when_disconnected,
@@ -998,54 +1000,6 @@ fn convert_relay_settings_update(
     }
 }
 
-fn convert_bridge_settings(settings: &BridgeSettings) -> types::BridgeSettings {
-    use talpid_types::net;
-    use types::bridge_settings::{self, Type as BridgeSettingType};
-
-    let settings = match settings {
-        BridgeSettings::Normal(constraints) => {
-            BridgeSettingType::Normal(types::bridge_settings::BridgeConstraints {
-                location: constraints
-                    .location
-                    .clone()
-                    .option()
-                    .map(types::RelayLocation::from),
-                providers: convert_providers_constraint(&constraints.providers),
-            })
-        }
-        BridgeSettings::Custom(proxy_settings) => match proxy_settings {
-            net::openvpn::ProxySettings::Local(proxy_settings) => {
-                BridgeSettingType::Local(bridge_settings::LocalProxySettings {
-                    port: u32::from(proxy_settings.port),
-                    peer: proxy_settings.peer.to_string(),
-                })
-            }
-            net::openvpn::ProxySettings::Remote(proxy_settings) => {
-                BridgeSettingType::Remote(bridge_settings::RemoteProxySettings {
-                    address: proxy_settings.address.to_string(),
-                    auth: proxy_settings.auth.as_ref().map(|auth| {
-                        bridge_settings::RemoteProxyAuth {
-                            username: auth.username.clone(),
-                            password: auth.password.clone(),
-                        }
-                    }),
-                })
-            }
-            net::openvpn::ProxySettings::Shadowsocks(proxy_settings) => {
-                BridgeSettingType::Shadowsocks(bridge_settings::ShadowsocksProxySettings {
-                    peer: proxy_settings.peer.to_string(),
-                    password: proxy_settings.password.clone(),
-                    cipher: proxy_settings.cipher.clone(),
-                })
-            }
-        },
-    };
-
-    types::BridgeSettings {
-        r#type: Some(settings),
-    }
-}
-
 fn convert_wireguard_key_event(
     event: &mullvad_types::wireguard::KeygenEvent,
 ) -> types::KeygenEvent {
@@ -1073,13 +1027,6 @@ fn convert_public_key(public_key: &wireguard::PublicKey) -> types::PublicKey {
             seconds: public_key.created.timestamp(),
             nanos: 0,
         }),
-    }
-}
-
-fn convert_providers_constraint(providers: &Constraint<Providers>) -> Vec<String> {
-    match providers.as_ref() {
-        Constraint::Any => vec![],
-        Constraint::Only(providers) => Vec::from(providers.clone()),
     }
 }
 

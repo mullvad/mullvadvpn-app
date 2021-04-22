@@ -119,6 +119,56 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for RelayLocatio
     }
 }
 
+impl From<mullvad_types::relay_constraints::BridgeSettings> for BridgeSettings {
+    fn from(settings: mullvad_types::relay_constraints::BridgeSettings) -> Self {
+        use mullvad_types::relay_constraints::BridgeSettings as MullvadBridgeSettings;
+        use talpid_types::net as talpid_net;
+
+        let settings = match settings {
+            MullvadBridgeSettings::Normal(constraints) => {
+                bridge_settings::Type::Normal(bridge_settings::BridgeConstraints {
+                    location: constraints
+                        .location
+                        .clone()
+                        .option()
+                        .map(RelayLocation::from),
+                    providers: convert_providers_constraint(&constraints.providers),
+                })
+            }
+            MullvadBridgeSettings::Custom(proxy_settings) => match proxy_settings {
+                talpid_net::openvpn::ProxySettings::Local(proxy_settings) => {
+                    bridge_settings::Type::Local(bridge_settings::LocalProxySettings {
+                        port: u32::from(proxy_settings.port),
+                        peer: proxy_settings.peer.to_string(),
+                    })
+                }
+                talpid_net::openvpn::ProxySettings::Remote(proxy_settings) => {
+                    bridge_settings::Type::Remote(bridge_settings::RemoteProxySettings {
+                        address: proxy_settings.address.to_string(),
+                        auth: proxy_settings.auth.as_ref().map(|auth| {
+                            bridge_settings::RemoteProxyAuth {
+                                username: auth.username.clone(),
+                                password: auth.password.clone(),
+                            }
+                        }),
+                    })
+                }
+                talpid_net::openvpn::ProxySettings::Shadowsocks(proxy_settings) => {
+                    bridge_settings::Type::Shadowsocks(bridge_settings::ShadowsocksProxySettings {
+                        peer: proxy_settings.peer.to_string(),
+                        password: proxy_settings.password.clone(),
+                        cipher: proxy_settings.cipher.clone(),
+                    })
+                }
+            },
+        };
+
+        BridgeSettings {
+            r#type: Some(settings),
+        }
+    }
+}
+
 impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
     fn from(settings: mullvad_types::relay_constraints::RelaySettings) -> Self {
         use mullvad_types::relay_constraints::RelaySettings as MullvadRelaySettings;
