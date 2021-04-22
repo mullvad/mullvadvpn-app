@@ -119,6 +119,19 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for RelayLocatio
     }
 }
 
+impl From<mullvad_types::relay_constraints::BridgeState> for BridgeState {
+    fn from(state: mullvad_types::relay_constraints::BridgeState) -> Self {
+        use mullvad_types::relay_constraints::BridgeState;
+        Self {
+            state: i32::from(match state {
+                BridgeState::Auto => bridge_state::State::Auto,
+                BridgeState::On => bridge_state::State::On,
+                BridgeState::Off => bridge_state::State::Off,
+            }),
+        }
+    }
+}
+
 impl From<mullvad_types::relay_constraints::BridgeSettings> for BridgeSettings {
     fn from(settings: mullvad_types::relay_constraints::BridgeSettings) -> Self {
         use mullvad_types::relay_constraints::BridgeSettings as MullvadBridgeSettings;
