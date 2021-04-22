@@ -3,11 +3,11 @@ package net.mullvad.mullvadvpn.ui.serviceconnection
 import android.os.Messenger
 import java.util.LinkedList
 import kotlinx.coroutines.CompletableDeferred
-import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
+import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
 
-class AuthTokenCache(val connection: Messenger, eventDispatcher: DispatchingHandler<Event>) {
+class AuthTokenCache(private val connection: Messenger, eventDispatcher: EventDispatcher) {
     private val fetchQueue = LinkedList<CompletableDeferred<String>>()
 
     init {

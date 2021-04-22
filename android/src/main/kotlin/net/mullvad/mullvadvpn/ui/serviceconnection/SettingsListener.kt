@@ -1,15 +1,15 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.os.Messenger
-import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
+import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.DnsOptions
 import net.mullvad.mullvadvpn.model.RelaySettings
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.talpid.util.EventNotifier
 
-class SettingsListener(val connection: Messenger, eventDispatcher: DispatchingHandler<Event>) {
+class SettingsListener(private val connection: Messenger, eventDispatcher: EventDispatcher) {
     val accountNumberNotifier = EventNotifier<String?>(null)
     val dnsOptionsNotifier = EventNotifier<DnsOptions?>(null)
     val relaySettingsNotifier = EventNotifier<RelaySettings?>(null)

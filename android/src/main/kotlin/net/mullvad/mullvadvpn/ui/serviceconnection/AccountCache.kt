@@ -1,14 +1,14 @@
 package net.mullvad.mullvadvpn.ui.serviceconnection
 
 import android.os.Messenger
-import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
+import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.LoginStatus
 import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 
-class AccountCache(val connection: Messenger, eventDispatcher: DispatchingHandler<Event>) {
+class AccountCache(private val connection: Messenger, eventDispatcher: EventDispatcher) {
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
     val onAccountHistoryChange = EventNotifier<List<String>>(listOf<String>())
