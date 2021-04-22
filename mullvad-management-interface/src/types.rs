@@ -77,6 +77,23 @@ impl From<TransportProtocol> for TransportProtocolConstraint {
     }
 }
 
+impl From<talpid_types::net::IpVersion> for IpVersion {
+    fn from(version: talpid_types::net::IpVersion) -> Self {
+        match version {
+            talpid_types::net::IpVersion::V4 => Self::V4,
+            talpid_types::net::IpVersion::V6 => Self::V6,
+        }
+    }
+}
+
+impl From<IpVersion> for IpVersionConstraint {
+    fn from(version: IpVersion) -> Self {
+        Self {
+            protocol: i32::from(version),
+        }
+    }
+}
+
 impl From<TransportProtocol> for talpid_types::net::TransportProtocol {
     fn from(protocol: TransportProtocol) -> Self {
         match protocol {

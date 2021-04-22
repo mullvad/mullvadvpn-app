@@ -1027,13 +1027,8 @@ fn convert_relay_settings(settings: &RelaySettings) -> types::RelaySettings {
                         .wireguard_constraints
                         .ip_version
                         .option()
-                        .map(|version| match version {
-                            IpVersion::V4 => types::IpVersion::V4,
-                            IpVersion::V6 => types::IpVersion::V6,
-                        })
-                        .map(|version| types::IpVersionConstraint {
-                            protocol: i32::from(version),
-                        }),
+                        .map(types::IpVersion::from)
+                        .map(types::IpVersionConstraint::from),
                 }),
 
                 openvpn_constraints: Some(types::OpenvpnConstraints {
