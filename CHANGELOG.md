@@ -51,6 +51,16 @@ Line wrap the file at 100 chars.                                              Th
 - Fix downgrades on macOS silently keeping previous version.
 
 
+## [2021.3-beta2] - 2021-04-22
+This release is for Windows only.
+This release has no functional changes compared to 2021.3-beta1. The only
+difference is that the installer and the binaries are signed with our
+new code signing certificate. The old one is expiring.
+
+The new certificate is brand new and Windows does not really trust it yet.
+So there might be warnings when installing this for a while.
+
+
 ## [2021.3-beta1] - 2021-04-13
 This release is for desktop only.
 
