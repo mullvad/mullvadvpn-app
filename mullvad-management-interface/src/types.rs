@@ -290,6 +290,99 @@ impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
     }
 }
 
+impl From<mullvad_types::relay_list::RelayListCountry> for RelayListCountry {
+    fn from(country: mullvad_types::relay_list::RelayListCountry) -> Self {
+        let mut proto_country = RelayListCountry {
+            name: country.name,
+            code: country.code,
+            cities: Vec::with_capacity(country.cities.len()),
+        };
+
+        for city in country.cities.into_iter() {
+            proto_country.cities.push(RelayListCity {
+                name: city.name,
+                code: city.code,
+                latitude: city.latitude,
+                longitude: city.longitude,
+                relays: city.relays.into_iter().map(Relay::from).collect(),
+            });
+        }
+
+        proto_country
+    }
+}
+
+impl From<mullvad_types::relay_list::Relay> for Relay {
+    fn from(relay: mullvad_types::relay_list::Relay) -> Self {
+        Self {
+            hostname: relay.hostname,
+            ipv4_addr_in: relay.ipv4_addr_in.to_string(),
+            ipv6_addr_in: relay
+                .ipv6_addr_in
+                .map(|addr| addr.to_string())
+                .unwrap_or_default(),
+            include_in_country: relay.include_in_country,
+            active: relay.active,
+            owned: relay.owned,
+            provider: relay.provider,
+            weight: relay.weight,
+            tunnels: Some(RelayTunnels {
+                openvpn: relay
+                    .tunnels
+                    .openvpn
+                    .iter()
+                    .map(|endpoint| OpenVpnEndpointData {
+                        port: u32::from(endpoint.port),
+                        protocol: i32::from(TransportProtocol::from(endpoint.protocol)),
+                    })
+                    .collect(),
+                wireguard: relay
+                    .tunnels
+                    .wireguard
+                    .iter()
+                    .map(|endpoint| {
+                        let port_ranges = endpoint
+                            .port_ranges
+                            .iter()
+                            .map(|range| PortRange {
+                                first: u32::from(range.0),
+                                last: u32::from(range.1),
+                            })
+                            .collect();
+                        WireguardEndpointData {
+                            port_ranges,
+                            ipv4_gateway: endpoint.ipv4_gateway.to_string(),
+                            ipv6_gateway: endpoint.ipv6_gateway.to_string(),
+                            public_key: endpoint.public_key.as_bytes().to_vec(),
+                        }
+                    })
+                    .collect(),
+            }),
+            bridges: Some(RelayBridges {
+                shadowsocks: relay
+                    .bridges
+                    .shadowsocks
+                    .into_iter()
+                    .map(|endpoint| ShadowsocksEndpointData {
+                        port: u32::from(endpoint.port),
+                        cipher: endpoint.cipher,
+                        password: endpoint.password,
+                        protocol: i32::from(TransportProtocol::from(endpoint.protocol)),
+                    })
+                    .collect(),
+            }),
+            location: relay.location.map(|location| Location {
+                country: location.country,
+                country_code: location.country_code,
+                city: location.city,
+                city_code: location.city_code,
+                latitude: location.latitude,
+                longitude: location.longitude,
+            }),
+        }
+    }
+}
+
 impl From<TransportProtocol> for talpid_types::net::TransportProtocol {
     fn from(protocol: TransportProtocol) -> Self {
         match protocol {
