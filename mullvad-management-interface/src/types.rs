@@ -1,5 +1,7 @@
 pub use prost_types::{Duration, Timestamp};
 
+use mullvad_types::relay_constraints::Constraint;
+
 tonic::include_proto!("mullvad_daemon.management_interface");
 
 impl From<mullvad_types::version::AppVersionInfo> for AppVersionInfo {
@@ -90,6 +92,29 @@ impl From<IpVersion> for IpVersionConstraint {
     fn from(version: IpVersion) -> Self {
         Self {
             protocol: i32::from(version),
+        }
+    }
+}
+
+impl From<mullvad_types::relay_constraints::LocationConstraint> for RelayLocation {
+    fn from(location: mullvad_types::relay_constraints::LocationConstraint) -> Self {
+        use mullvad_types::relay_constraints::LocationConstraint;
+
+        match location {
+            LocationConstraint::Country(country) => Self {
+                country,
+                ..Default::default()
+            },
+            LocationConstraint::City(country, city) => Self {
+                country,
+                city,
+                ..Default::default()
+            },
+            LocationConstraint::Hostname(country, city, hostname) => Self {
+                country,
+                city,
+                hostname,
+            },
         }
     }
 }
