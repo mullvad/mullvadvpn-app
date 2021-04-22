@@ -768,7 +768,7 @@ fn convert_settings(settings: &Settings) -> types::Settings {
         bridge_settings: Some(types::BridgeSettings::from(
             settings.bridge_settings.clone(),
         )),
-        bridge_state: Some(convert_bridge_state(settings.get_bridge_state())),
+        bridge_state: Some(types::BridgeState::from(settings.get_bridge_state())),
         allow_lan: settings.allow_lan,
         block_when_disconnected: settings.block_when_disconnected,
         auto_connect: settings.auto_connect,
@@ -1027,17 +1027,6 @@ fn convert_public_key(public_key: &wireguard::PublicKey) -> types::PublicKey {
             seconds: public_key.created.timestamp(),
             nanos: 0,
         }),
-    }
-}
-
-fn convert_bridge_state(state: &BridgeState) -> types::BridgeState {
-    let state = match state {
-        BridgeState::Auto => types::bridge_state::State::Auto,
-        BridgeState::On => types::bridge_state::State::On,
-        BridgeState::Off => types::bridge_state::State::Off,
-    };
-    types::BridgeState {
-        state: i32::from(state),
     }
 }
 

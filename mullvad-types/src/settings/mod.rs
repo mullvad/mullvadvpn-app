@@ -143,8 +143,8 @@ impl Settings {
         }
     }
 
-    pub fn get_bridge_state(&self) -> &BridgeState {
-        &self.bridge_state
+    pub fn get_bridge_state(&self) -> BridgeState {
+        self.bridge_state
     }
 
     pub fn set_bridge_state(&mut self, bridge_state: BridgeState) -> bool {

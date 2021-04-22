@@ -218,7 +218,7 @@ impl RelaySelector {
     pub fn get_tunnel_endpoint(
         &mut self,
         relay_constraints: &RelayConstraints,
-        bridge_state: &BridgeState,
+        bridge_state: BridgeState,
         retry_attempt: u32,
         wg_key_exists: bool,
     ) -> Result<(Relay, MullvadEndpoint), Error> {
@@ -250,12 +250,12 @@ impl RelaySelector {
     fn preferred_constraints(
         &self,
         original_constraints: &RelayConstraints,
-        bridge_state: &BridgeState,
+        bridge_state: BridgeState,
         retry_attempt: u32,
         wg_key_exists: bool,
     ) -> RelayConstraints {
         let (preferred_port, preferred_protocol, preferred_tunnel) =
-            if *bridge_state != BridgeState::On {
+            if bridge_state != BridgeState::On {
                 self.preferred_tunnel_constraints(
                     retry_attempt,
                     &original_constraints.location,
@@ -277,7 +277,7 @@ impl RelaySelector {
             Constraint::Any => {
                 if original_constraints.openvpn_constraints.port.is_any()
                     && original_constraints.openvpn_constraints.protocol.is_any()
-                    || *bridge_state == BridgeState::On
+                    || bridge_state == BridgeState::On
                 {
                     relay_constraints.openvpn_constraints = OpenVpnConstraints {
                         port: preferred_port,
@@ -297,7 +297,7 @@ impl RelaySelector {
             Constraint::Only(TunnelType::OpenVpn) => {
                 let openvpn_constraints = &mut relay_constraints.openvpn_constraints;
                 *openvpn_constraints = original_constraints.openvpn_constraints;
-                if *bridge_state == BridgeState::On && openvpn_constraints.protocol.is_any() {
+                if bridge_state == BridgeState::On && openvpn_constraints.protocol.is_any() {
                     // FIXME: This is temporary while talpid-core only supports TCP proxies
                     openvpn_constraints.protocol = Constraint::Only(TransportProtocol::Tcp);
                 } else if openvpn_constraints.port.is_any() && openvpn_constraints.protocol.is_any()

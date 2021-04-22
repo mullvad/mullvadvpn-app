@@ -498,7 +498,7 @@ impl fmt::Display for BridgeConstraints {
 }
 
 /// Setting indicating whether to connect to a bridge server, or to handle it automatically.
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum BridgeState {
     Auto,
