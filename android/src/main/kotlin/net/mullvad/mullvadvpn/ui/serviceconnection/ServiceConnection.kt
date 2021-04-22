@@ -8,7 +8,6 @@ import net.mullvad.mullvadvpn.di.SERVICE_CONNECTION_SCOPE
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
-import net.mullvad.mullvadvpn.service.ServiceInstance
 import org.koin.core.component.KoinApiExtension
 import org.koin.core.parameter.parametersOf
 import org.koin.core.qualifier.named
@@ -21,7 +20,7 @@ import org.koin.core.scope.get
 // the service and to get values received from events.
 @OptIn(KoinApiExtension::class)
 class ServiceConnection(
-    private val service: ServiceInstance,
+    connection: Messenger,
     onServiceReady: (ServiceConnection) -> Unit
 ) : KoinScopeComponent {
     private val dispatcher = DispatchingHandler(Looper.getMainLooper()) { message ->
@@ -33,28 +32,26 @@ class ServiceConnection(
         named(SERVICE_CONNECTION_SCOPE), this
     )
 
-    val accountCache = AccountCache(service.messenger, dispatcher)
-    val authTokenCache = AuthTokenCache(service.messenger, dispatcher)
-    val connectionProxy = ConnectionProxy(service.messenger, dispatcher)
-    val keyStatusListener = KeyStatusListener(service.messenger, dispatcher)
+    val accountCache = AccountCache(connection, dispatcher)
+    val authTokenCache = AuthTokenCache(connection, dispatcher)
+    val connectionProxy = ConnectionProxy(connection, dispatcher)
+    val keyStatusListener = KeyStatusListener(connection, dispatcher)
     val locationInfoCache = LocationInfoCache(dispatcher)
-    val settingsListener = SettingsListener(service.messenger, dispatcher)
-    val splitTunneling = get<SplitTunneling>(
-        parameters = { parametersOf(service.messenger, dispatcher) }
-    )
-    val voucherRedeemer = VoucherRedeemer(service.messenger, dispatcher)
-    val vpnPermission = VpnPermission(service.messenger, dispatcher)
+    val settingsListener = SettingsListener(connection, dispatcher)
+    val splitTunneling = get<SplitTunneling>(parameters = { parametersOf(connection, dispatcher) })
+    val voucherRedeemer = VoucherRedeemer(connection, dispatcher)
+    val vpnPermission = VpnPermission(connection, dispatcher)
 
     val appVersionInfoCache = AppVersionInfoCache(dispatcher, settingsListener)
-    val customDns = CustomDns(service.messenger, settingsListener)
-    var relayListListener = RelayListListener(service.messenger, dispatcher, settingsListener)
+    val customDns = CustomDns(connection, settingsListener)
+    var relayListListener = RelayListListener(connection, dispatcher, settingsListener)
 
     init {
         dispatcher.registerHandler(Event.ListenerReady::class) { _ ->
             onServiceReady(this@ServiceConnection)
         }
 
-        registerListener()
+        registerListener(connection)
     }
 
     fun onDestroy() {
@@ -74,12 +71,12 @@ class ServiceConnection(
         relayListListener.onDestroy()
     }
 
-    private fun registerListener() {
+    private fun registerListener(connection: Messenger) {
         val listener = Messenger(dispatcher)
         val request = Request.RegisterListener(listener)
 
         try {
-            service.messenger.send(request.message)
+            connection.send(request.message)
         } catch (exception: RemoteException) {
             Log.e("mullvad", "Failed to register listener for service events", exception)
         }

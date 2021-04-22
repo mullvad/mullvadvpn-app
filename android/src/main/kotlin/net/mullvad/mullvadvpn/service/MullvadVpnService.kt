@@ -158,7 +158,7 @@ class MullvadVpnService : TalpidVpnService() {
         Log.d(TAG, "New connection to service")
         isBound = true
 
-        return super.onBind(intent) ?: binder
+        return super.onBind(intent) ?: endpoint.messenger.binder
     }
 
     override fun onRebind(intent: Intent) {
