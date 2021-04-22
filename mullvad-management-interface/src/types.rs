@@ -1,6 +1,7 @@
 pub use prost_types::{Duration, Timestamp};
 
 use mullvad_types::relay_constraints::Constraint;
+use std::convert::TryFrom;
 
 tonic::include_proto!("mullvad_daemon.management_interface");
 
@@ -294,6 +295,304 @@ impl From<TransportProtocol> for talpid_types::net::TransportProtocol {
         match protocol {
             TransportProtocol::Udp => talpid_types::net::TransportProtocol::Udp,
             TransportProtocol::Tcp => talpid_types::net::TransportProtocol::Tcp,
+        }
+    }
+}
+
+pub enum FromProtobufTypeError {
+    InvalidArgument(&'static str),
+}
+
+impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySettingsUpdate {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(
+        settings: RelaySettingsUpdate,
+    ) -> Result<mullvad_types::relay_constraints::RelaySettingsUpdate, Self::Error> {
+        use mullvad_types::CustomTunnelEndpoint;
+        use talpid_types::net::{self, openvpn, wireguard};
+
+        use mullvad_types::relay_constraints as mullvad_constraints;
+
+        let update_value =
+            settings
+                .r#type
+                .clone()
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "missing relay settings",
+                ))?;
+
+        match update_value {
+            relay_settings_update::Type::Custom(settings) => {
+                let config = settings
+                    .config
+                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                        "missing relay settings",
+                    ))?;
+                let config = config.config.ok_or(FromProtobufTypeError::InvalidArgument(
+                    "missing relay settings",
+                ))?;
+                let config = match config {
+                    connection_config::Config::Openvpn(config) => {
+                        let address = match config.address.parse() {
+                            Ok(address) => address,
+                            Err(_) => {
+                                return Err(FromProtobufTypeError::InvalidArgument(
+                                    "invalid address",
+                                ))
+                            }
+                        };
+
+                        mullvad_types::ConnectionConfig::OpenVpn(openvpn::ConnectionConfig {
+                            endpoint: net::Endpoint {
+                                address,
+                                protocol: TransportProtocol::from_i32(config.protocol)
+                                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                                        "invalid transport protocol",
+                                    ))?
+                                    .into(),
+                            },
+                            username: config.username,
+                            password: config.password,
+                        })
+                    }
+                    connection_config::Config::Wireguard(config) => {
+                        let tunnel = config.tunnel.ok_or(
+                            FromProtobufTypeError::InvalidArgument("missing tunnel config"),
+                        )?;
+
+                        // Copy the private key to an array
+                        if tunnel.private_key.len() != 32 {
+                            return Err(FromProtobufTypeError::InvalidArgument(
+                                "invalid private key",
+                            ));
+                        }
+
+                        let mut private_key = [0; 32];
+                        let buffer = &tunnel.private_key[..private_key.len()];
+                        private_key.copy_from_slice(buffer);
+
+                        let peer = config.peer.ok_or(FromProtobufTypeError::InvalidArgument(
+                            "missing peer config",
+                        ))?;
+
+                        // Copy the public key to an array
+                        if peer.public_key.len() != 32 {
+                            return Err(FromProtobufTypeError::InvalidArgument(
+                                "invalid public key",
+                            ));
+                        }
+
+                        let mut public_key = [0; 32];
+                        let buffer = &peer.public_key[..public_key.len()];
+                        public_key.copy_from_slice(buffer);
+
+                        let ipv4_gateway = match config.ipv4_gateway.parse() {
+                            Ok(address) => address,
+                            Err(_) => {
+                                return Err(FromProtobufTypeError::InvalidArgument(
+                                    "invalid IPv4 gateway",
+                                ))
+                            }
+                        };
+                        let ipv6_gateway = if !config.ipv6_gateway.is_empty() {
+                            let address = match config.ipv6_gateway.parse() {
+                                Ok(address) => address,
+                                Err(_) => {
+                                    return Err(FromProtobufTypeError::InvalidArgument(
+                                        "invalid IPv6 gateway",
+                                    ))
+                                }
+                            };
+                            Some(address)
+                        } else {
+                            None
+                        };
+
+                        let endpoint = match peer.endpoint.parse() {
+                            Ok(address) => address,
+                            Err(_) => {
+                                return Err(FromProtobufTypeError::InvalidArgument(
+                                    "invalid peer address",
+                                ))
+                            }
+                        };
+
+                        let mut tunnel_addresses = Vec::new();
+                        for address in tunnel.addresses {
+                            let address = address.parse().map_err(|_| {
+                                FromProtobufTypeError::InvalidArgument("invalid address")
+                            })?;
+                            tunnel_addresses.push(address);
+                        }
+
+                        let mut allowed_ips = Vec::new();
+                        for address in peer.allowed_ips {
+                            let address = address.parse().map_err(|_| {
+                                FromProtobufTypeError::InvalidArgument("invalid address")
+                            })?;
+                            allowed_ips.push(address);
+                        }
+
+                        mullvad_types::ConnectionConfig::Wireguard(wireguard::ConnectionConfig {
+                            tunnel: wireguard::TunnelConfig {
+                                private_key: wireguard::PrivateKey::from(private_key),
+                                addresses: tunnel_addresses,
+                            },
+                            peer: wireguard::PeerConfig {
+                                public_key: wireguard::PublicKey::from(public_key),
+                                allowed_ips,
+                                endpoint,
+                                protocol: TransportProtocol::from_i32(peer.protocol)
+                                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                                        "invalid transport protocol",
+                                    ))?
+                                    .into(),
+                            },
+                            ipv4_gateway,
+                            ipv6_gateway,
+                        })
+                    }
+                };
+
+                Ok(
+                    mullvad_constraints::RelaySettingsUpdate::CustomTunnelEndpoint(
+                        CustomTunnelEndpoint {
+                            host: settings.host,
+                            config,
+                        },
+                    ),
+                )
+            }
+
+            relay_settings_update::Type::Normal(settings) => {
+                // If `location` isn't provided, no changes are made.
+                // If `location` is provided, but is an empty vector,
+                // then the constraint is set to `Constraint::Any`.
+                let location = settings
+                    .location
+                    .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from);
+
+                let tunnel_protocol = if let Some(update) = settings.tunnel_type {
+                    match update.tunnel_type {
+                        Some(constraint) => match TunnelType::from_i32(constraint.tunnel_type) {
+                            Some(TunnelType::Openvpn) => {
+                                Some(Constraint::Only(net::TunnelType::OpenVpn))
+                            }
+                            Some(TunnelType::Wireguard) => {
+                                Some(Constraint::Only(net::TunnelType::Wireguard))
+                            }
+                            None => {
+                                return Err(FromProtobufTypeError::InvalidArgument(
+                                    "invalid tunnel protocol",
+                                ))
+                            }
+                        },
+                        None => Some(Constraint::Any),
+                    }
+                } else {
+                    None
+                };
+
+                let transport_protocol = if let Some(ref constraints) = settings.openvpn_constraints
+                {
+                    match &constraints.protocol {
+                        Some(constraint) => Some(
+                            TransportProtocol::from_i32(constraint.protocol)
+                                .ok_or(FromProtobufTypeError::InvalidArgument(
+                                    "invalid transport protocol",
+                                ))?
+                                .into(),
+                        ),
+                        None => None,
+                    }
+                } else {
+                    None
+                };
+
+                let providers = if let Some(ref provider_update) = settings.providers {
+                    if !provider_update.providers.is_empty() {
+                        Some(Constraint::Only(
+                            mullvad_constraints::Providers::new(
+                                provider_update.providers.clone().into_iter(),
+                            )
+                            .map_err(|_| {
+                                FromProtobufTypeError::InvalidArgument(
+                                    "must specify at least one provider",
+                                )
+                            })?,
+                        ))
+                    } else {
+                        Some(Constraint::Any)
+                    }
+                } else {
+                    None
+                };
+                let ip_version = if let Some(ref constraints) = settings.wireguard_constraints {
+                    match &constraints.ip_version {
+                        Some(constraint) => match IpVersion::from_i32(constraint.protocol) {
+                            Some(IpVersion::V4) => Some(net::IpVersion::V4),
+                            Some(IpVersion::V6) => Some(net::IpVersion::V6),
+                            None => {
+                                return Err(FromProtobufTypeError::InvalidArgument(
+                                    "invalid ip protocol version",
+                                ))
+                            }
+                        },
+                        None => None,
+                    }
+                } else {
+                    None
+                };
+
+                Ok(mullvad_constraints::RelaySettingsUpdate::Normal(
+                    mullvad_constraints::RelayConstraintsUpdate {
+                        location,
+                        providers,
+                        tunnel_protocol,
+                        wireguard_constraints: settings.wireguard_constraints.map(|constraints| {
+                            mullvad_constraints::WireguardConstraints {
+                                port: if constraints.port != 0 {
+                                    Constraint::Only(constraints.port as u16)
+                                } else {
+                                    Constraint::Any
+                                },
+                                ip_version: Constraint::from(ip_version),
+                            }
+                        }),
+                        openvpn_constraints: settings.openvpn_constraints.map(|constraints| {
+                            mullvad_constraints::OpenVpnConstraints {
+                                port: if constraints.port != 0 {
+                                    Constraint::Only(constraints.port as u16)
+                                } else {
+                                    Constraint::Any
+                                },
+                                protocol: Constraint::from(transport_protocol),
+                            }
+                        }),
+                    },
+                ))
+            }
+        }
+    }
+}
+
+impl From<RelayLocation> for Constraint<mullvad_types::relay_constraints::LocationConstraint> {
+    fn from(location: RelayLocation) -> Self {
+        use mullvad_types::relay_constraints::LocationConstraint;
+
+        if !location.hostname.is_empty() {
+            Constraint::Only(LocationConstraint::Hostname(
+                location.country,
+                location.city,
+                location.hostname,
+            ))
+        } else if !location.city.is_empty() {
+            Constraint::Only(LocationConstraint::City(location.country, location.city))
+        } else if !location.country.is_empty() {
+            Constraint::Only(LocationConstraint::Country(location.country))
+        } else {
+            Constraint::Any
         }
     }
 }
