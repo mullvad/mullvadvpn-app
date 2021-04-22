@@ -31,7 +31,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::{
-    net::{IpVersion, TransportProtocol, TunnelType},
+    net::{IpVersion, TunnelType},
     ErrorExt,
 };
 
@@ -157,7 +157,7 @@ impl ManagementService for ManagementServiceImpl {
         self.wait_for_result(rx)
             .await?
             .ok_or(Status::not_found("no version cache"))
-            .map(|version_info| convert_version_info(&version_info))
+            .map(types::AppVersionInfo::from)
             .map(Response::new)
     }
 
@@ -808,7 +808,9 @@ fn convert_relay_settings_update(
                     ConnectionConfig::OpenVpn(openvpn::ConnectionConfig {
                         endpoint: net::Endpoint {
                             address,
-                            protocol: convert_proto_transport_protocol(config.protocol)?,
+                            protocol: types::TransportProtocol::from_i32(config.protocol)
+                                .ok_or(Status::invalid_argument("invalid transport protocol"))?
+                                .into(),
                         },
                         username: config.username.clone(),
                         password: config.password.clone(),
@@ -885,7 +887,9 @@ fn convert_relay_settings_update(
                             public_key: wireguard::PublicKey::from(public_key),
                             allowed_ips,
                             endpoint,
-                            protocol: convert_proto_transport_protocol(peer.protocol)?,
+                            protocol: types::TransportProtocol::from_i32(peer.protocol)
+                                .ok_or(Status::invalid_argument("invalid transport protocol"))?
+                                .into(),
                         },
                         ipv4_gateway,
                         ipv6_gateway,
@@ -926,9 +930,11 @@ fn convert_relay_settings_update(
 
             let transport_protocol = if let Some(ref constraints) = settings.openvpn_constraints {
                 match &constraints.protocol {
-                    Some(constraint) => {
-                        Some(convert_proto_transport_protocol(constraint.protocol)?)
-                    }
+                    Some(constraint) => Some(
+                        types::TransportProtocol::from_i32(constraint.protocol)
+                            .ok_or(Status::invalid_argument("invalid transport protocol"))?
+                            .into(),
+                    ),
                     None => None,
                 }
             } else {
@@ -999,7 +1005,7 @@ fn convert_relay_settings(settings: &RelaySettings) -> types::RelaySettings {
         RelaySettings::CustomTunnelEndpoint(endpoint) => {
             relay_settings::Endpoint::Custom(types::CustomRelaySettings {
                 host: endpoint.host.clone(),
-                config: Some(convert_connection_config(&endpoint.config)),
+                config: Some(types::ConnectionConfig::from(&endpoint.config)),
             })
         }
         RelaySettings::Normal(constraints) => {
@@ -1037,13 +1043,8 @@ fn convert_relay_settings(settings: &RelaySettings) -> types::RelaySettings {
                         .protocol
                         .as_ref()
                         .option()
-                        .map(|protocol| match protocol {
-                            TransportProtocol::Tcp => types::TransportProtocol::Tcp,
-                            TransportProtocol::Udp => types::TransportProtocol::Udp,
-                        })
-                        .map(|protocol| types::TransportProtocolConstraint {
-                            protocol: i32::from(protocol),
-                        }),
+                        .map(|protocol| types::TransportProtocol::from(*protocol))
+                        .map(types::TransportProtocolConstraint::from),
                 }),
             })
         }
@@ -1051,59 +1052,6 @@ fn convert_relay_settings(settings: &RelaySettings) -> types::RelaySettings {
 
     types::RelaySettings {
         endpoint: Some(endpoint),
-    }
-}
-
-fn convert_connection_config(config: &ConnectionConfig) -> types::ConnectionConfig {
-    use types::connection_config;
-
-    types::ConnectionConfig {
-        config: Some(match config {
-            ConnectionConfig::OpenVpn(config) => {
-                connection_config::Config::Openvpn(connection_config::OpenvpnConfig {
-                    address: config.endpoint.address.to_string(),
-                    protocol: match config.endpoint.protocol {
-                        TransportProtocol::Tcp => i32::from(types::TransportProtocol::Tcp),
-                        TransportProtocol::Udp => i32::from(types::TransportProtocol::Udp),
-                    },
-                    username: config.username.clone(),
-                    password: config.password.clone(),
-                })
-            }
-            ConnectionConfig::Wireguard(config) => {
-                connection_config::Config::Wireguard(connection_config::WireguardConfig {
-                    tunnel: Some(connection_config::wireguard_config::TunnelConfig {
-                        private_key: config.tunnel.private_key.to_bytes().to_vec(),
-                        addresses: config
-                            .tunnel
-                            .addresses
-                            .iter()
-                            .map(|address| address.to_string())
-                            .collect(),
-                    }),
-                    peer: Some(connection_config::wireguard_config::PeerConfig {
-                        public_key: config.peer.public_key.as_bytes().to_vec(),
-                        allowed_ips: config
-                            .peer
-                            .allowed_ips
-                            .iter()
-                            .map(|address| address.to_string())
-                            .collect(),
-                        endpoint: config.peer.endpoint.to_string(),
-                        protocol: i32::from(match config.peer.protocol {
-                            TransportProtocol::Udp => types::TransportProtocol::Udp,
-                            TransportProtocol::Tcp => types::TransportProtocol::Tcp,
-                        }),
-                    }),
-                    ipv4_gateway: config.ipv4_gateway.to_string(),
-                    ipv6_gateway: config
-                        .ipv6_gateway
-                        .as_ref()
-                        .map(|address| address.to_string())
-                        .unwrap_or_default(),
-                })
-            }
-        }),
     }
 }
 
@@ -1292,15 +1240,9 @@ fn convert_relay(relay: &Relay) -> types::Relay {
                 .tunnels
                 .openvpn
                 .iter()
-                .map(|endpoint| {
-                    let protocol = match endpoint.protocol {
-                        TransportProtocol::Udp => types::TransportProtocol::Udp,
-                        TransportProtocol::Tcp => types::TransportProtocol::Tcp,
-                    };
-                    types::OpenVpnEndpointData {
-                        port: u32::from(endpoint.port),
-                        protocol: i32::from(protocol),
-                    }
+                .map(|endpoint| types::OpenVpnEndpointData {
+                    port: u32::from(endpoint.port),
+                    protocol: i32::from(types::TransportProtocol::from(endpoint.protocol)),
                 })
                 .collect(),
             wireguard: relay
@@ -1330,17 +1272,11 @@ fn convert_relay(relay: &Relay) -> types::Relay {
                 .bridges
                 .shadowsocks
                 .iter()
-                .map(|endpoint| {
-                    let protocol = match endpoint.protocol {
-                        TransportProtocol::Udp => types::TransportProtocol::Udp,
-                        TransportProtocol::Tcp => types::TransportProtocol::Tcp,
-                    };
-                    types::ShadowsocksEndpointData {
-                        port: u32::from(endpoint.port),
-                        cipher: endpoint.cipher.clone(),
-                        password: endpoint.password.clone(),
-                        protocol: i32::from(protocol),
-                    }
+                .map(|endpoint| types::ShadowsocksEndpointData {
+                    port: u32::from(endpoint.port),
+                    cipher: endpoint.cipher.clone(),
+                    password: endpoint.password.clone(),
+                    protocol: i32::from(types::TransportProtocol::from(endpoint.protocol)),
                 })
                 .collect(),
         }),
@@ -1476,20 +1412,14 @@ fn convert_endpoint(endpoint: talpid_types::net::TunnelEndpoint) -> types::Tunne
 
     types::TunnelEndpoint {
         address: endpoint.endpoint.address.to_string(),
-        protocol: match endpoint.endpoint.protocol {
-            TransportProtocol::Tcp => i32::from(types::TransportProtocol::Tcp),
-            TransportProtocol::Udp => i32::from(types::TransportProtocol::Udp),
-        },
+        protocol: i32::from(types::TransportProtocol::from(endpoint.endpoint.protocol)),
         tunnel_type: match endpoint.tunnel_type {
             net::TunnelType::Wireguard => i32::from(types::TunnelType::Wireguard),
             net::TunnelType::OpenVpn => i32::from(types::TunnelType::Openvpn),
         },
         proxy: endpoint.proxy.map(|proxy_ep| types::ProxyEndpoint {
             address: proxy_ep.endpoint.address.to_string(),
-            protocol: match proxy_ep.endpoint.protocol {
-                TransportProtocol::Tcp => i32::from(types::TransportProtocol::Tcp),
-                TransportProtocol::Udp => i32::from(types::TransportProtocol::Udp),
-            },
+            protocol: i32::from(types::TransportProtocol::from(proxy_ep.endpoint.protocol)),
             proxy_type: match proxy_ep.proxy_type {
                 net::proxy::ProxyType::Shadowsocks => i32::from(types::ProxyType::Shadowsocks),
                 net::proxy::ProxyType::Custom => i32::from(types::ProxyType::Custom),
@@ -1512,15 +1442,6 @@ fn convert_geoip_location(geoip: GeoIpLocation) -> types::GeoIpLocation {
     }
 }
 
-fn convert_version_info(version_info: &version::AppVersionInfo) -> types::AppVersionInfo {
-    types::AppVersionInfo {
-        supported: version_info.supported,
-        latest_stable: version_info.latest_stable.clone(),
-        latest_beta: version_info.latest_beta.clone(),
-        suggested_upgrade: version_info.suggested_upgrade.clone().unwrap_or_default(),
-    }
-}
-
 fn convert_proto_location(location: types::RelayLocation) -> Constraint<LocationConstraint> {
     if !location.hostname.is_empty() {
         Constraint::Only(LocationConstraint::Hostname(
@@ -1534,14 +1455,6 @@ fn convert_proto_location(location: types::RelayLocation) -> Constraint<Location
         Constraint::Only(LocationConstraint::Country(location.country))
     } else {
         Constraint::Any
-    }
-}
-
-fn convert_proto_transport_protocol(protocol: i32) -> Result<TransportProtocol, Status> {
-    match types::TransportProtocol::from_i32(protocol) {
-        Some(types::TransportProtocol::Udp) => Ok(TransportProtocol::Udp),
-        Some(types::TransportProtocol::Tcp) => Ok(TransportProtocol::Tcp),
-        None => Err(Status::invalid_argument("invalid transport protocol")),
     }
 }
 
@@ -1652,7 +1565,7 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
 
     fn notify_app_version(&self, app_version_info: version::AppVersionInfo) {
         log::debug!("Broadcasting new app version info");
-        let new_info = convert_version_info(&app_version_info);
+        let new_info = types::AppVersionInfo::from(app_version_info);
         self.notify(types::DaemonEvent {
             event: Some(daemon_event::Event::VersionInfo(new_info)),
         })
