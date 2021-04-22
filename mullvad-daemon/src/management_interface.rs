@@ -17,7 +17,7 @@ use mullvad_types::{
         WireguardConstraints,
     },
     relay_list::{Relay, RelayList, RelayListCountry},
-    settings::{Settings, TunnelOptions},
+    settings::Settings,
     states::{TargetState, TunnelState},
     version,
     wireguard::{self, RotationInterval, RotationIntervalError},
@@ -772,7 +772,7 @@ fn convert_settings(settings: &Settings) -> types::Settings {
         allow_lan: settings.allow_lan,
         block_when_disconnected: settings.block_when_disconnected,
         auto_connect: settings.auto_connect,
-        tunnel_options: Some(convert_tunnel_options(&settings.tunnel_options)),
+        tunnel_options: Some(types::TunnelOptions::from(&settings.tunnel_options)),
         show_beta_releases: settings.show_beta_releases,
     }
 }
@@ -1027,36 +1027,6 @@ fn convert_public_key(public_key: &wireguard::PublicKey) -> types::PublicKey {
             seconds: public_key.created.timestamp(),
             nanos: 0,
         }),
-    }
-}
-
-fn convert_tunnel_options(options: &TunnelOptions) -> types::TunnelOptions {
-    types::TunnelOptions {
-        openvpn: Some(types::tunnel_options::OpenvpnOptions {
-            mssfix: u32::from(options.openvpn.mssfix.unwrap_or_default()),
-        }),
-        wireguard: Some(types::tunnel_options::WireguardOptions {
-            mtu: u32::from(options.wireguard.options.mtu.unwrap_or_default()),
-            rotation_interval: options
-                .wireguard
-                .rotation_interval
-                .map(|ivl| types::Duration::from(Duration::from(ivl))),
-        }),
-        generic: Some(types::tunnel_options::GenericOptions {
-            enable_ipv6: options.generic.enable_ipv6,
-        }),
-        #[cfg(not(target_os = "android"))]
-        dns_options: Some(types::DnsOptions {
-            custom: options.dns_options.custom,
-            addresses: options
-                .dns_options
-                .addresses
-                .iter()
-                .map(|addr| addr.to_string())
-                .collect(),
-        }),
-        #[cfg(target_os = "android")]
-        dns_options: None,
     }
 }
 

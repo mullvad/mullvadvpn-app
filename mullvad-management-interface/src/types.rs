@@ -241,6 +241,38 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
     }
 }
 
+impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
+    fn from(options: &mullvad_types::settings::TunnelOptions) -> Self {
+        Self {
+            openvpn: Some(tunnel_options::OpenvpnOptions {
+                mssfix: u32::from(options.openvpn.mssfix.unwrap_or_default()),
+            }),
+            wireguard: Some(tunnel_options::WireguardOptions {
+                mtu: u32::from(options.wireguard.options.mtu.unwrap_or_default()),
+                rotation_interval: options
+                    .wireguard
+                    .rotation_interval
+                    .map(|ivl| Duration::from(std::time::Duration::from(ivl))),
+            }),
+            generic: Some(tunnel_options::GenericOptions {
+                enable_ipv6: options.generic.enable_ipv6,
+            }),
+            #[cfg(not(target_os = "android"))]
+            dns_options: Some(DnsOptions {
+                custom: options.dns_options.custom,
+                addresses: options
+                    .dns_options
+                    .addresses
+                    .iter()
+                    .map(|addr| addr.to_string())
+                    .collect(),
+            }),
+            #[cfg(target_os = "android")]
+            dns_options: None,
+        }
+    }
+}
+
 impl From<TransportProtocol> for talpid_types::net::TransportProtocol {
     fn from(protocol: TransportProtocol) -> Self {
         match protocol {
