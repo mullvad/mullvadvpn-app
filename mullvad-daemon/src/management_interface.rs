@@ -13,7 +13,7 @@ use mullvad_types::{
     location::GeoIpLocation,
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
-        OpenVpnConstraints, Providers, RelayConstraintsUpdate, RelaySettings, RelaySettingsUpdate,
+        OpenVpnConstraints, Providers, RelayConstraintsUpdate, RelaySettingsUpdate,
         WireguardConstraints,
     },
     relay_list::{Relay, RelayList, RelayListCountry},
@@ -764,7 +764,7 @@ impl ManagementServiceImpl {
 fn convert_settings(settings: &Settings) -> types::Settings {
     types::Settings {
         account_token: settings.get_account_token().unwrap_or_default(),
-        relay_settings: Some(convert_relay_settings(&settings.get_relay_settings())),
+        relay_settings: Some(types::RelaySettings::from(settings.get_relay_settings())),
         bridge_settings: Some(convert_bridge_settings(&settings.bridge_settings)),
         bridge_state: Some(convert_bridge_state(settings.get_bridge_state())),
         allow_lan: settings.allow_lan,
@@ -998,58 +998,6 @@ fn convert_relay_settings_update(
     }
 }
 
-fn convert_relay_settings(settings: &RelaySettings) -> types::RelaySettings {
-    use types::relay_settings;
-
-    let endpoint = match settings {
-        RelaySettings::CustomTunnelEndpoint(endpoint) => {
-            relay_settings::Endpoint::Custom(types::CustomRelaySettings {
-                host: endpoint.host.clone(),
-                config: Some(types::ConnectionConfig::from(&endpoint.config)),
-            })
-        }
-        RelaySettings::Normal(constraints) => {
-            relay_settings::Endpoint::Normal(types::NormalRelaySettings {
-                location: convert_location_constraint(&constraints.location),
-                providers: convert_providers_constraint(&constraints.providers),
-                tunnel_type: match constraints.tunnel_protocol {
-                    Constraint::Any => None,
-                    Constraint::Only(TunnelType::Wireguard) => Some(types::TunnelType::Wireguard),
-                    Constraint::Only(TunnelType::OpenVpn) => Some(types::TunnelType::Openvpn),
-                }
-                .map(|tunnel_type| types::TunnelTypeConstraint {
-                    tunnel_type: i32::from(tunnel_type),
-                }),
-
-                wireguard_constraints: Some(types::WireguardConstraints {
-                    port: u32::from(constraints.wireguard_constraints.port.unwrap_or(0)),
-                    ip_version: constraints
-                        .wireguard_constraints
-                        .ip_version
-                        .option()
-                        .map(types::IpVersion::from)
-                        .map(types::IpVersionConstraint::from),
-                }),
-
-                openvpn_constraints: Some(types::OpenvpnConstraints {
-                    port: u32::from(constraints.openvpn_constraints.port.unwrap_or(0)),
-                    protocol: constraints
-                        .openvpn_constraints
-                        .protocol
-                        .as_ref()
-                        .option()
-                        .map(|protocol| types::TransportProtocol::from(*protocol))
-                        .map(types::TransportProtocolConstraint::from),
-                }),
-            })
-        }
-    };
-
-    types::RelaySettings {
-        endpoint: Some(endpoint),
-    }
-}
-
 fn convert_bridge_settings(settings: &BridgeSettings) -> types::BridgeSettings {
     use talpid_types::net;
     use types::bridge_settings::{self, Type as BridgeSettingType};
@@ -1057,7 +1005,11 @@ fn convert_bridge_settings(settings: &BridgeSettings) -> types::BridgeSettings {
     let settings = match settings {
         BridgeSettings::Normal(constraints) => {
             BridgeSettingType::Normal(types::bridge_settings::BridgeConstraints {
-                location: convert_location_constraint(&constraints.location),
+                location: constraints
+                    .location
+                    .clone()
+                    .option()
+                    .map(types::RelayLocation::from),
                 providers: convert_providers_constraint(&constraints.providers),
             })
         }
@@ -1122,27 +1074,6 @@ fn convert_public_key(public_key: &wireguard::PublicKey) -> types::PublicKey {
             nanos: 0,
         }),
     }
-}
-
-fn convert_location_constraint(
-    location: &Constraint<LocationConstraint>,
-) -> Option<types::RelayLocation> {
-    location.as_ref().option().map(|location| match location {
-        LocationConstraint::Country(country) => types::RelayLocation {
-            country: country.to_string(),
-            ..Default::default()
-        },
-        LocationConstraint::City(country, city) => types::RelayLocation {
-            country: country.to_string(),
-            city: city.to_string(),
-            ..Default::default()
-        },
-        LocationConstraint::Hostname(country, city, hostname) => types::RelayLocation {
-            country: country.to_string(),
-            city: city.to_string(),
-            hostname: hostname.to_string(),
-        },
-    })
 }
 
 fn convert_providers_constraint(providers: &Constraint<Providers>) -> Vec<String> {

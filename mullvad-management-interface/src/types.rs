@@ -15,16 +15,16 @@ impl From<mullvad_types::version::AppVersionInfo> for AppVersionInfo {
     }
 }
 
-impl From<&mullvad_types::ConnectionConfig> for ConnectionConfig {
-    fn from(config: &mullvad_types::ConnectionConfig) -> Self {
+impl From<mullvad_types::ConnectionConfig> for ConnectionConfig {
+    fn from(config: mullvad_types::ConnectionConfig) -> Self {
         Self {
             config: Some(match config {
                 mullvad_types::ConnectionConfig::OpenVpn(config) => {
                     connection_config::Config::Openvpn(connection_config::OpenvpnConfig {
                         address: config.endpoint.address.to_string(),
                         protocol: i32::from(TransportProtocol::from(config.endpoint.protocol)),
-                        username: config.username.clone(),
-                        password: config.password.clone(),
+                        username: config.username,
+                        password: config.password,
                     })
                 }
                 mullvad_types::ConnectionConfig::Wireguard(config) => {
@@ -119,11 +119,79 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for RelayLocatio
     }
 }
 
+impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
+    fn from(settings: mullvad_types::relay_constraints::RelaySettings) -> Self {
+        use mullvad_types::relay_constraints::RelaySettings as MullvadRelaySettings;
+        use talpid_types::net as talpid_net;
+
+        let endpoint = match settings {
+            MullvadRelaySettings::CustomTunnelEndpoint(endpoint) => {
+                relay_settings::Endpoint::Custom(CustomRelaySettings {
+                    host: endpoint.host,
+                    config: Some(ConnectionConfig::from(endpoint.config)),
+                })
+            }
+            MullvadRelaySettings::Normal(constraints) => {
+                relay_settings::Endpoint::Normal(NormalRelaySettings {
+                    location: constraints.location.option().map(RelayLocation::from),
+                    providers: convert_providers_constraint(&constraints.providers),
+                    tunnel_type: match constraints.tunnel_protocol {
+                        Constraint::Any => None,
+                        Constraint::Only(talpid_net::TunnelType::Wireguard) => {
+                            Some(TunnelType::Wireguard)
+                        }
+                        Constraint::Only(talpid_net::TunnelType::OpenVpn) => {
+                            Some(TunnelType::Openvpn)
+                        }
+                    }
+                    .map(|tunnel_type| TunnelTypeConstraint {
+                        tunnel_type: i32::from(tunnel_type),
+                    }),
+
+                    wireguard_constraints: Some(WireguardConstraints {
+                        port: u32::from(constraints.wireguard_constraints.port.unwrap_or(0)),
+                        ip_version: constraints
+                            .wireguard_constraints
+                            .ip_version
+                            .option()
+                            .map(IpVersion::from)
+                            .map(IpVersionConstraint::from),
+                    }),
+
+                    openvpn_constraints: Some(OpenvpnConstraints {
+                        port: u32::from(constraints.openvpn_constraints.port.unwrap_or(0)),
+                        protocol: constraints
+                            .openvpn_constraints
+                            .protocol
+                            .as_ref()
+                            .option()
+                            .map(|protocol| TransportProtocol::from(*protocol))
+                            .map(TransportProtocolConstraint::from),
+                    }),
+                })
+            }
+        };
+
+        Self {
+            endpoint: Some(endpoint),
+        }
+    }
+}
+
 impl From<TransportProtocol> for talpid_types::net::TransportProtocol {
     fn from(protocol: TransportProtocol) -> Self {
         match protocol {
             TransportProtocol::Udp => talpid_types::net::TransportProtocol::Udp,
             TransportProtocol::Tcp => talpid_types::net::TransportProtocol::Tcp,
         }
+    }
+}
+
+fn convert_providers_constraint(
+    providers: &Constraint<mullvad_types::relay_constraints::Providers>,
+) -> Vec<String> {
+    match providers.as_ref() {
+        Constraint::Any => vec![],
+        Constraint::Only(providers) => Vec::from(providers.clone()),
     }
 }
