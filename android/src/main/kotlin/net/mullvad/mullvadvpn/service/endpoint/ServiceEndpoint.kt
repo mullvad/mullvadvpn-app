@@ -109,7 +109,7 @@ class ServiceEndpoint(
         synchronized(this) {
             listeners.add(listener)
 
-            val initialEvents = listOf(
+            val initialEvents = mutableListOf(
                 Event.TunnelStateChange(connectionProxy.state),
                 Event.LoginStatus(accountCache.onLoginStatusChange.latestEvent),
                 Event.AccountHistory(accountCache.onAccountHistoryChange.latestEvent),
@@ -123,6 +123,10 @@ class ServiceEndpoint(
                 Event.AuthToken(authTokenCache.authToken),
                 Event.ListenerReady
             )
+
+            if (vpnPermission.waitingForResponse) {
+                initialEvents.add(Event.VpnPermissionRequest)
+            }
 
             initialEvents.forEach { event ->
                 listener.send(event.message)
