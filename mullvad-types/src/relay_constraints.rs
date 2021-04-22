@@ -434,11 +434,12 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
 }
 
 /// [`Constraint`]s applicable to WireGuard relay servers.
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(default)]
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
+    pub exit_location: Option<LocationConstraint>,
 }
 
 impl fmt::Display for WireguardConstraints {
