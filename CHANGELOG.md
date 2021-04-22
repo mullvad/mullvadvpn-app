@@ -36,6 +36,9 @@ Line wrap the file at 100 chars.                                              Th
 - Only allow packets with the mark set to `0x6d6f6c65` to communicate with the relay server.
   Previously, bridges were expected to run as root instead.
 
+#### Android
+- Improve stability by running the UI and the tunnel management logic in separate processes.
+
 ### Fixed
 - Fix relay selection failing to pick a WireGuard relay when no tunnel protocol is specified.
 - Fix time left not always being translated in desktop app settings.
