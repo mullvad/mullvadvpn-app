@@ -342,7 +342,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::GetSettings(tx))?;
         self.wait_for_result(rx)
             .await
-            .map(|settings| Response::new(convert_settings(&settings)))
+            .map(|settings| Response::new(types::Settings::from(&settings)))
     }
 
     async fn set_allow_lan(&self, request: Request<bool>) -> ServiceResult<()> {
@@ -758,22 +758,6 @@ impl ManagementServiceImpl {
 
     async fn wait_for_result<T>(&self, rx: oneshot::Receiver<T>) -> Result<T, Status> {
         rx.await.map_err(|_| Status::internal("sender was dropped"))
-    }
-}
-
-fn convert_settings(settings: &Settings) -> types::Settings {
-    types::Settings {
-        account_token: settings.get_account_token().unwrap_or_default(),
-        relay_settings: Some(types::RelaySettings::from(settings.get_relay_settings())),
-        bridge_settings: Some(types::BridgeSettings::from(
-            settings.bridge_settings.clone(),
-        )),
-        bridge_state: Some(types::BridgeState::from(settings.get_bridge_state())),
-        allow_lan: settings.allow_lan,
-        block_when_disconnected: settings.block_when_disconnected,
-        auto_connect: settings.auto_connect,
-        tunnel_options: Some(types::TunnelOptions::from(&settings.tunnel_options)),
-        show_beta_releases: settings.show_beta_releases,
     }
 }
 
@@ -1376,7 +1360,9 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
     fn notify_settings(&self, settings: Settings) {
         log::debug!("Broadcasting new settings");
         self.notify(types::DaemonEvent {
-            event: Some(daemon_event::Event::Settings(convert_settings(&settings))),
+            event: Some(daemon_event::Event::Settings(types::Settings::from(
+                &settings,
+            ))),
         })
     }
 
