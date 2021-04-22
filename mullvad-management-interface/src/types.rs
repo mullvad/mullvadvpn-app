@@ -119,6 +119,22 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for RelayLocatio
     }
 }
 
+impl From<&mullvad_types::settings::Settings> for Settings {
+    fn from(settings: &mullvad_types::settings::Settings) -> Self {
+        Self {
+            account_token: settings.get_account_token().unwrap_or_default(),
+            relay_settings: Some(RelaySettings::from(settings.get_relay_settings())),
+            bridge_settings: Some(BridgeSettings::from(settings.bridge_settings.clone())),
+            bridge_state: Some(BridgeState::from(settings.get_bridge_state())),
+            allow_lan: settings.allow_lan,
+            block_when_disconnected: settings.block_when_disconnected,
+            auto_connect: settings.auto_connect,
+            tunnel_options: Some(TunnelOptions::from(&settings.tunnel_options)),
+            show_beta_releases: settings.show_beta_releases,
+        }
+    }
+}
+
 impl From<mullvad_types::relay_constraints::BridgeState> for BridgeState {
     fn from(state: mullvad_types::relay_constraints::BridgeState) -> Self {
         use mullvad_types::relay_constraints::BridgeState;
