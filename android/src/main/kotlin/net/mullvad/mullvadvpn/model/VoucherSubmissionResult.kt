@@ -5,7 +5,7 @@ import kotlinx.parcelize.Parcelize
 
 sealed class VoucherSubmissionResult : Parcelable {
     @Parcelize
-    class Ok(val submission: VoucherSubmission) : VoucherSubmissionResult(), Parcelable
+    data class Ok(val submission: VoucherSubmission) : VoucherSubmissionResult(), Parcelable
 
     @Parcelize
     object InvalidVoucher : VoucherSubmissionResult(), Parcelable
