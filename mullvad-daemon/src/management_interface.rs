@@ -14,7 +14,7 @@ use mullvad_types::{
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, Constraint, Providers, RelaySettingsUpdate,
     },
-    relay_list::{Relay, RelayList, RelayListCountry},
+    relay_list::RelayList,
     settings::Settings,
     states::{TargetState, TunnelState},
     version,
@@ -199,9 +199,9 @@ impl ManagementService for ManagementServiceImpl {
             tokio::sync::mpsc::channel(cmp::max(1, locations.countries.len()));
 
         tokio::spawn(async move {
-            for country in &locations.countries {
+            for country in locations.countries.into_iter() {
                 if let Err(error) = stream_tx
-                    .send(Ok(convert_relay_list_country(country)))
+                    .send(Ok(types::RelayListCountry::from(country)))
                     .await
                 {
                     log::error!(
@@ -792,99 +792,6 @@ fn convert_public_key(public_key: &wireguard::PublicKey) -> types::PublicKey {
     }
 }
 
-fn convert_relay_list_country(country: &RelayListCountry) -> types::RelayListCountry {
-    let mut proto_country = types::RelayListCountry {
-        name: country.name.clone(),
-        code: country.code.clone(),
-        cities: Vec::with_capacity(country.cities.len()),
-    };
-
-    for city in &country.cities {
-        proto_country.cities.push(types::RelayListCity {
-            name: city.name.clone(),
-            code: city.code.clone(),
-            latitude: city.latitude,
-            longitude: city.longitude,
-            relays: city
-                .relays
-                .iter()
-                .map(|relay| convert_relay(relay))
-                .collect(),
-        });
-    }
-
-    proto_country
-}
-
-fn convert_relay(relay: &Relay) -> types::Relay {
-    types::Relay {
-        hostname: relay.hostname.clone(),
-        ipv4_addr_in: relay.ipv4_addr_in.to_string(),
-        ipv6_addr_in: relay
-            .ipv6_addr_in
-            .map(|addr| addr.to_string())
-            .unwrap_or_default(),
-        include_in_country: relay.include_in_country,
-        active: relay.active,
-        owned: relay.owned,
-        provider: relay.provider.clone(),
-        weight: relay.weight,
-        tunnels: Some(types::RelayTunnels {
-            openvpn: relay
-                .tunnels
-                .openvpn
-                .iter()
-                .map(|endpoint| types::OpenVpnEndpointData {
-                    port: u32::from(endpoint.port),
-                    protocol: i32::from(types::TransportProtocol::from(endpoint.protocol)),
-                })
-                .collect(),
-            wireguard: relay
-                .tunnels
-                .wireguard
-                .iter()
-                .map(|endpoint| {
-                    let port_ranges = endpoint
-                        .port_ranges
-                        .iter()
-                        .map(|range| types::PortRange {
-                            first: u32::from(range.0),
-                            last: u32::from(range.1),
-                        })
-                        .collect();
-                    types::WireguardEndpointData {
-                        port_ranges,
-                        ipv4_gateway: endpoint.ipv4_gateway.to_string(),
-                        ipv6_gateway: endpoint.ipv6_gateway.to_string(),
-                        public_key: endpoint.public_key.as_bytes().to_vec(),
-                    }
-                })
-                .collect(),
-        }),
-        bridges: Some(types::RelayBridges {
-            shadowsocks: relay
-                .bridges
-                .shadowsocks
-                .iter()
-                .map(|endpoint| types::ShadowsocksEndpointData {
-                    port: u32::from(endpoint.port),
-                    cipher: endpoint.cipher.clone(),
-                    password: endpoint.password.clone(),
-                    protocol: i32::from(types::TransportProtocol::from(endpoint.protocol)),
-                })
-                .collect(),
-        }),
-        location: relay.location.as_ref().map(|location| types::Location {
-            country: location.country.clone(),
-            country_code: location.country_code.clone(),
-            city: location.city.clone(),
-            city_code: location.city_code.clone(),
-            latitude: location.latitude,
-            longitude: location.longitude,
-        }),
-    }
-}
-
 fn convert_state(state: TunnelState) -> types::TunnelState {
     use talpid_types::tunnel::{
         ActionAfterDisconnect, ErrorStateCause, FirewallPolicyError, ParameterGenerationError,
@@ -1135,8 +1042,10 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
             countries: Vec::new(),
         };
         new_list.countries.reserve(relay_list.countries.len());
-        for country in &relay_list.countries {
-            new_list.countries.push(convert_relay_list_country(country));
+        for country in relay_list.countries.into_iter() {
+            new_list
+                .countries
+                .push(types::RelayListCountry::from(country));
         }
         self.notify(types::DaemonEvent {
             event: Some(daemon_event::Event::RelayList(new_list)),
