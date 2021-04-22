@@ -15,8 +15,8 @@ import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
-import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
+import net.mullvad.mullvadvpn.ui.serviceconnection.VoucherRedeemer
 import net.mullvad.mullvadvpn.ui.widget.Button
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.mullvadvpn.util.SegmentedInputFormatter
@@ -33,14 +33,8 @@ class RedeemVoucherDialogFragment : DialogFragment() {
 
     private var accountCache: AccountCache? = null
     private var accountExpiry: DateTime? = null
-    private var accountExpiryListener: Int? = null
     private var redeemButton: Button? = null
-
-    private var daemon: MullvadDaemon? = null
-        set(value) {
-            field = value
-            updateRedeemButton()
-        }
+    private var voucherRedeemer: VoucherRedeemer? = null
 
     private var voucherInputIsValid = false
         set(value) {
@@ -54,8 +48,6 @@ class RedeemVoucherDialogFragment : DialogFragment() {
         parentActivity = context as MainActivity
 
         parentActivity.serviceNotifier.subscribe(this) { connection ->
-            daemon = connection?.daemon
-
             accountCache?.onAccountExpiryChange?.unsubscribe(this@RedeemVoucherDialogFragment)
 
             accountCache = connection?.accountCache?.apply {
@@ -64,6 +56,10 @@ class RedeemVoucherDialogFragment : DialogFragment() {
                         accountExpiry = newAccountExpiry
                     }
             }
+
+            voucherRedeemer = connection?.voucherRedeemer
+
+            updateRedeemButton()
         }
     }
 
@@ -126,25 +122,19 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     override fun onDetach() {
         parentActivity.serviceNotifier.unsubscribe(this)
 
-        accountExpiryListener?.let { id ->
-            accountCache?.onAccountExpiryChange?.unsubscribe(id)
-        }
-
         super.onDetach()
     }
 
     private fun updateRedeemButton() {
         redeemButton?.apply {
-            setEnabled(voucherInputIsValid && daemon != null)
+            setEnabled(voucherInputIsValid && voucherRedeemer != null)
         }
     }
 
     private suspend fun submitVoucher() {
         errorMessage.visibility = View.INVISIBLE
 
-        val result = jobTracker.runOnBackground {
-            daemon?.submitVoucher(voucherInput.text.toString())
-        }
+        val result = voucherRedeemer?.submit(voucherInput.text.toString())
 
         when (result) {
             is VoucherSubmissionResult.Ok -> handleAddedTime(result.submission.timeAdded)
