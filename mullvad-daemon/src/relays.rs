@@ -310,7 +310,7 @@ impl RelaySelector {
             }
             Constraint::Only(TunnelType::Wireguard) => {
                 relay_constraints.wireguard_constraints =
-                    original_constraints.wireguard_constraints;
+                    original_constraints.wireguard_constraints.clone();
                 // This ensures that if after the first 2 failed attempts the daemon does not
                 // connect, then afterwards 2 of each 4 successive attempts will try to connect on
                 // port 53.
@@ -493,7 +493,7 @@ impl RelaySelector {
                 relay.tunnels = RelayTunnels {
                     wireguard: Self::matching_wireguard_tunnels(
                         &relay.tunnels,
-                        constraints.wireguard_constraints,
+                        &constraints.wireguard_constraints,
                     ),
                     openvpn: Self::matching_openvpn_tunnels(
                         &relay.tunnels,
@@ -507,7 +507,7 @@ impl RelaySelector {
                 relay.tunnels = RelayTunnels {
                     wireguard: Self::matching_wireguard_tunnels(
                         &relay.tunnels,
-                        constraints.wireguard_constraints,
+                        &constraints.wireguard_constraints,
                     ),
                     openvpn: vec![],
                 };
@@ -580,7 +580,7 @@ impl RelaySelector {
 
     fn matching_wireguard_tunnels(
         tunnels: &RelayTunnels,
-        constraints: WireguardConstraints,
+        constraints: &WireguardConstraints,
     ) -> Vec<WireguardEndpointData> {
         tunnels
             .wireguard
@@ -660,7 +660,7 @@ impl RelaySelector {
                 .choose(&mut self.rng)
                 .cloned()
                 .and_then(|wg_tunnel| {
-                    self.wg_data_to_endpoint(relay, wg_tunnel, constraints.wireguard_constraints)
+                    self.wg_data_to_endpoint(relay, wg_tunnel, &constraints.wireguard_constraints)
                 })
         };
 
@@ -689,7 +689,7 @@ impl RelaySelector {
         &mut self,
         relay: &Relay,
         data: WireguardEndpointData,
-        constraints: WireguardConstraints,
+        constraints: &WireguardConstraints,
     ) -> Option<MullvadEndpoint> {
         let host = self.get_address_for_wireguard_relay(relay, constraints)?;
         let port = self.get_port_for_wireguard_relay(&data, constraints)?;
@@ -709,7 +709,7 @@ impl RelaySelector {
     fn get_address_for_wireguard_relay(
         &mut self,
         relay: &Relay,
-        constraints: WireguardConstraints,
+        constraints: &WireguardConstraints,
     ) -> Option<IpAddr> {
         match constraints.ip_version {
             Constraint::Any | Constraint::Only(IpVersion::V4) => Some(relay.ipv4_addr_in.into()),
@@ -720,7 +720,7 @@ impl RelaySelector {
     fn get_port_for_wireguard_relay(
         &mut self,
         data: &WireguardEndpointData,
-        constraints: WireguardConstraints,
+        constraints: &WireguardConstraints,
     ) -> Option<u16> {
         match constraints.port {
             Constraint::Any => {

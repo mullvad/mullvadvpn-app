@@ -317,6 +317,7 @@ message WireguardConstraints {
 	// NOTE: optional
 	uint32 port = 1;
 	IpVersionConstraint ip_version = 2;
+	RelayLocation exit_location = 3;
 }
 
 message CustomRelaySettings {

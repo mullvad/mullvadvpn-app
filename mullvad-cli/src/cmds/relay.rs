@@ -526,6 +526,7 @@ impl Relay {
                         ip_version: ip_version.option().map(|protocol| IpVersionConstraint {
                             protocol: protocol as i32,
                         }),
+                        exit_location: None,
                     }),
                     ..Default::default()
                 },
