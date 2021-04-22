@@ -50,6 +50,10 @@ Line wrap the file at 100 chars.                                              Th
 - Set correct permissions for daemon's launch file in installer.
 - Fix downgrades on macOS silently keeping previous version.
 
+#### Android
+- Fix UI sometimes not updating correctly while no split screen or after having a dialog from
+  another app appear on top.
+
 
 ## [2021.3-beta2] - 2021-04-22
 This release is for Windows only.
