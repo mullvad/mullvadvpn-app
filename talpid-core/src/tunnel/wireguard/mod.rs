@@ -1,9 +1,9 @@
 use self::config::Config;
-use cfg_if::cfg_if;
 #[cfg(not(windows))]
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::routing::{self, RequiredRoute};
+use cfg_if::cfg_if;
 use futures::future::abortable;
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
