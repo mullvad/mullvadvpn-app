@@ -21,6 +21,8 @@ sealed class Message(private val messageId: Int) : Parcelable {
         internal fun <T : Parcelable> fromMessage(message: RawMessage, key: String): T? {
             val data = message.data
 
+            data.classLoader = Message::class.java.classLoader
+
             return data.getParcelable(key)
         }
     }

@@ -10,10 +10,12 @@ import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.os.Messenger
 import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
+import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
@@ -26,8 +28,6 @@ open class MainActivity : FragmentActivity() {
     val serviceNotifier = EventNotifier<ServiceConnection?>(null)
 
     private var isUiVisible = false
-    private var service: MullvadVpnService.LocalBinder? = null
-    private var serviceConnection: ServiceConnection? = null
     private var visibleSecureScreens = HashSet<Fragment>()
 
     private val deviceIsTv by lazy {
@@ -36,36 +36,24 @@ open class MainActivity : FragmentActivity() {
         uiModeManager.currentModeType == Configuration.UI_MODE_TYPE_TELEVISION
     }
 
+    private var serviceConnection by observable<ServiceConnection?>(
+        null
+    ) { _, oldConnection, newConnection ->
+        oldConnection?.onDestroy()
+
+        if (newConnection == null) {
+            serviceNotifier.notify(null)
+        }
+    }
+
     private val serviceConnectionManager = object : android.content.ServiceConnection {
         override fun onServiceConnected(className: ComponentName, binder: IBinder) {
             android.util.Log.d("mullvad", "UI successfully connected to the service")
-            val localBinder = binder as MullvadVpnService.LocalBinder
-
-            service = localBinder
-
-            localBinder.isUiVisible = isUiVisible
-
-            localBinder.serviceNotifier.subscribe(this@MainActivity) { service ->
-                android.util.Log.d("mullvad", "UI connection to the service changed: $service")
-                serviceConnection?.onDestroy()
-
-                serviceConnection = service?.let { safeService ->
-                    ServiceConnection(safeService, ::handleNewServiceConnection).apply {
-                        vpnPermission.onRequest = ::requestVpnPermission
-                    }
-                }
-
-                if (service == null) {
-                    serviceNotifier.notify(null)
-                }
-            }
+            serviceConnection = ServiceConnection(Messenger(binder), ::handleNewServiceConnection)
         }
 
         override fun onServiceDisconnected(className: ComponentName) {
             android.util.Log.d("mullvad", "UI lost the connection to the service")
-            service?.serviceNotifier?.unsubscribe(this@MainActivity)
-            serviceConnection?.onDestroy()
-            service = null
             serviceConnection = null
             serviceNotifier.notify(null)
         }
@@ -124,8 +112,6 @@ open class MainActivity : FragmentActivity() {
     override fun onStop() {
         android.util.Log.d("mullvad", "Stoping main activity")
         isUiVisible = false
-        service?.isUiVisible = false
-        service = null
         unbindService(serviceConnectionManager)
 
         super.onStop()
@@ -133,7 +119,7 @@ open class MainActivity : FragmentActivity() {
 
     override fun onDestroy() {
         serviceNotifier.unsubscribeAll()
-        serviceConnection?.onDestroy()
+        serviceConnection = null
 
         super.onDestroy()
     }
