@@ -218,7 +218,7 @@ impl Bridge {
     }
 
     async fn handle_set_bridge_location(matches: &clap::ArgMatches<'_>) -> Result<()> {
-        Self::update_bridge_settings(Some(location::get_constraint(matches)), None).await
+        Self::update_bridge_settings(Some(location::get_constraint_from_args(matches)), None).await
     }
 
     async fn handle_set_bridge_provider(matches: &clap::ArgMatches<'_>) -> Result<()> {

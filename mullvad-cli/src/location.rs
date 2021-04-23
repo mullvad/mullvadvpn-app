@@ -22,11 +22,22 @@ pub fn get_subcommand() -> clap::App<'static, 'static> {
         )
 }
 
-pub fn get_constraint(matches: &clap::ArgMatches<'_>) -> RelayLocation {
-    let country_original = matches.value_of("country").unwrap();
+pub fn get_constraint_from_args(matches: &clap::ArgMatches<'_>) -> RelayLocation {
+    let country = matches.value_of("country").unwrap();
+    let city = matches.value_of("city");
+    let hostname = matches.value_of("hostname");
+    get_constraint(country, city, hostname)
+}
+
+pub fn get_constraint<T: AsRef<str>>(
+    country: T,
+    city: Option<T>,
+    hostname: Option<T>,
+) -> RelayLocation {
+    let country_original = country.as_ref();
     let country = country_original.to_lowercase();
-    let city = matches.value_of("city").map(str::to_lowercase);
-    let hostname = matches.value_of("hostname").map(str::to_lowercase);
+    let city = city.map(|s| s.as_ref().to_lowercase());
+    let hostname = hostname.map(|s| s.as_ref().to_lowercase());
 
     match (country_original, city, hostname) {
         ("any", None, None) => RelayLocation::default(),
@@ -81,16 +92,16 @@ pub fn format_providers(providers: &Vec<String>) -> String {
     }
 }
 
-fn country_code_validator(code: String) -> std::result::Result<(), String> {
-    if code.len() == 2 || code == "any" {
+pub fn country_code_validator<T: AsRef<str>>(code: T) -> std::result::Result<(), String> {
+    if code.as_ref().len() == 2 || code.as_ref() == "any" {
         Ok(())
     } else {
         Err(String::from("Country codes must be two letters, or 'any'."))
     }
 }
 
-fn city_code_validator(code: String) -> std::result::Result<(), String> {
-    if code.len() == 3 {
+pub fn city_code_validator<T: AsRef<str>>(code: T) -> std::result::Result<(), String> {
+    if code.as_ref().len() == 3 {
         Ok(())
     } else {
         Err(String::from("City codes must be three letters"))
