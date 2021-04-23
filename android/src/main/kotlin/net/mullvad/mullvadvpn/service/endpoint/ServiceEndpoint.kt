@@ -4,16 +4,10 @@ import android.content.Context
 import android.os.DeadObjectException
 import android.os.Looper
 import android.os.Messenger
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.ipc.DispatchingHandler
 import net.mullvad.mullvadvpn.ipc.Event
 import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.ipc.RequestDispatcher
 import net.mullvad.mullvadvpn.service.MullvadDaemon
 import net.mullvad.mullvadvpn.service.persistence.SplitTunnelingPersistence
 import net.mullvad.mullvadvpn.util.Intermittent
@@ -24,40 +18,39 @@ class ServiceEndpoint(
     internal val intermittentDaemon: Intermittent<MullvadDaemon>,
     val connectivityListener: ConnectivityListener,
     context: Context
-) {
+) : Actor<Messenger>() {
     private val listeners = mutableSetOf<Messenger>()
-    private val registrationQueue: SendChannel<Messenger> = startRegistrator()
 
-    internal val dispatcher = DispatchingHandler(looper) { message ->
+    val dispatcher = DispatchingHandler(looper) { message ->
         Request.fromMessage(message)
     }
 
     val messenger = Messenger(dispatcher)
 
-    val vpnPermission = VpnPermission(context, this)
+    private val vpnPermission = VpnPermission(context, this)
 
     val connectionProxy = ConnectionProxy(vpnPermission, this)
     val settingsListener = SettingsListener(this)
 
     val accountCache = AccountCache(this)
-    val appVersionInfoCache = AppVersionInfoCache(this)
-    val authTokenCache = AuthTokenCache(this)
-    val customDns = CustomDns(this)
-    val keyStatusListener = KeyStatusListener(this)
-    val locationInfoCache = LocationInfoCache(this)
-    val relayListListener = RelayListListener(this)
+    private val appVersionInfoCache = AppVersionInfoCache(this)
+    private val authTokenCache = AuthTokenCache(this)
+    private val customDns = CustomDns(this)
+    private val keyStatusListener = KeyStatusListener(this)
+    private val locationInfoCache = LocationInfoCache(this)
+    private val relayListListener = RelayListListener(this)
     val splitTunneling = SplitTunneling(SplitTunnelingPersistence(context), this)
-    val voucherRedeemer = VoucherRedeemer(this)
+    private val voucherRedeemer = VoucherRedeemer(this)
 
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
-            registrationQueue.sendBlocking(request.listener)
+            sendBlocking(request.listener)
         }
     }
 
     fun onDestroy() {
         dispatcher.onDestroy()
-        registrationQueue.close()
+        closeActor()
 
         accountCache.onDestroy()
         appVersionInfoCache.onDestroy()
@@ -88,28 +81,16 @@ class ServiceEndpoint(
         }
     }
 
-    private fun startRegistrator() = GlobalScope.actor<Messenger>(
-        Dispatchers.Default,
-        Channel.UNLIMITED
-    ) {
-        try {
-            while (true) {
-                val listener = channel.receive()
-
-                intermittentDaemon.await()
-
-                registerListener(listener)
-            }
-        } catch (exception: ClosedReceiveChannelException) {
-            // Registration queue closed; stop registrator
-        }
+    override suspend fun onNewCommand(command: Messenger) {
+        intermittentDaemon.await()
+        registerListener(command)
     }
 
     private fun registerListener(listener: Messenger) {
         synchronized(this) {
             listeners.add(listener)
 
-            val initialEvents = mutableListOf(
+            sequenceOf(
                 Event.TunnelStateChange(connectionProxy.state),
                 Event.LoginStatus(accountCache.onLoginStatusChange.latestEvent),
                 Event.AccountHistory(accountCache.onAccountHistoryChange.latestEvent),
@@ -122,13 +103,13 @@ class ServiceEndpoint(
                 Event.NewRelayList(relayListListener.relayList),
                 Event.AuthToken(authTokenCache.authToken),
                 Event.ListenerReady
-            )
-
-            if (vpnPermission.waitingForResponse) {
-                initialEvents.add(Event.VpnPermissionRequest)
-            }
-
-            initialEvents.forEach { event ->
+            ).let { initialEvents ->
+                if (vpnPermission.waitingForResponse) {
+                    initialEvents + Event.VpnPermissionRequest
+                } else {
+                    initialEvents
+                }
+            }.forEach { event ->
                 listener.send(event.message)
             }
         }

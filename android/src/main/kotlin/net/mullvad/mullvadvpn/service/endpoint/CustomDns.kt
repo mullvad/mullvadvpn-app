@@ -1,24 +1,18 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
 import java.net.InetAddress
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.DnsOptions
+import net.mullvad.mullvadvpn.service.endpoint.CustomDns.Command
 
-class CustomDns(private val endpoint: ServiceEndpoint) {
-    private sealed class Command {
+class CustomDns(private val endpoint: ServiceEndpoint) : Actor<Command>() {
+    sealed class Command {
         class AddDnsServer(val server: InetAddress) : Command()
         class RemoveDnsServer(val server: InetAddress) : Command()
         class ReplaceDnsServer(val oldServer: InetAddress, val newServer: InetAddress) : Command()
         class SetEnabled(val enabled: Boolean) : Command()
     }
 
-    private val commandChannel = spawnActor()
     private val dnsServers = ArrayList<InetAddress>()
 
     private val daemon
@@ -35,49 +29,35 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
             }
         }
 
-        endpoint.dispatcher.apply {
+        endpoint.dispatcher.run {
             registerHandler(Request.AddCustomDnsServer::class) { request ->
-                commandChannel.sendBlocking(Command.AddDnsServer(request.address))
+                sendBlocking(Command.AddDnsServer(request.address))
             }
 
             registerHandler(Request.RemoveCustomDnsServer::class) { request ->
-                commandChannel.sendBlocking(Command.RemoveDnsServer(request.address))
+                sendBlocking(Command.RemoveDnsServer(request.address))
             }
 
             registerHandler(Request.ReplaceCustomDnsServer::class) { request ->
-                commandChannel.sendBlocking(
-                    Command.ReplaceDnsServer(request.oldAddress, request.newAddress)
-                )
+                sendBlocking(Command.ReplaceDnsServer(request.oldAddress, request.newAddress))
             }
 
             registerHandler(Request.SetEnableCustomDns::class) { request ->
-                commandChannel.sendBlocking(Command.SetEnabled(request.enable))
+                sendBlocking(Command.SetEnabled(request.enable))
             }
         }
     }
 
     fun onDestroy() {
         endpoint.settingsListener.dnsOptionsNotifier.unsubscribe(this)
-        commandChannel.close()
+        closeActor()
     }
 
-    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
-        try {
-            while (true) {
-                val command = channel.receive()
-
-                when (command) {
-                    is Command.AddDnsServer -> doAddDnsServer(command.server)
-                    is Command.RemoveDnsServer -> doRemoveDnsServer(command.server)
-                    is Command.ReplaceDnsServer -> {
-                        doReplaceDnsServer(command.oldServer, command.newServer)
-                    }
-                    is Command.SetEnabled -> changeDnsOptions(command.enabled)
-                }
-            }
-        } catch (exception: ClosedReceiveChannelException) {
-            // Closed sender, so stop the actor
-        }
+    override suspend fun onNewCommand(command: Command) = when (command) {
+        is Command.AddDnsServer -> doAddDnsServer(command.server)
+        is Command.RemoveDnsServer -> doRemoveDnsServer(command.server)
+        is Command.ReplaceDnsServer -> doReplaceDnsServer(command.oldServer, command.newServer)
+        is Command.SetEnabled -> changeDnsOptions(command.enabled)
     }
 
     private suspend fun doAddDnsServer(server: InetAddress) {
@@ -89,11 +69,8 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
 
     private suspend fun doReplaceDnsServer(oldServer: InetAddress, newServer: InetAddress) {
         if (oldServer != newServer && !dnsServers.contains(newServer)) {
-            val index = dnsServers.indexOf(oldServer)
-
-            if (index >= 0) {
-                dnsServers.removeAt(index)
-                dnsServers.add(index, newServer)
+            dnsServers.indexOf(oldServer).takeIf { it >= 0 }?.let { index ->
+                dnsServers[index] = newServer
                 changeDnsOptions(enabled)
             }
         }
@@ -105,9 +82,6 @@ class CustomDns(private val endpoint: ServiceEndpoint) {
         }
     }
 
-    private suspend fun changeDnsOptions(enable: Boolean) {
-        val options = DnsOptions(enable, dnsServers)
-
-        daemon.await().setDnsOptions(options)
-    }
+    private suspend fun changeDnsOptions(enable: Boolean) =
+        daemon.await().setDnsOptions(DnsOptions(enable, dnsServers))
 }

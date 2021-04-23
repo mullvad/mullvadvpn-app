@@ -1,25 +1,26 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
 import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.ipc.Request.CreateAccount
+import net.mullvad.mullvadvpn.ipc.Request.FetchAccountExpiry
+import net.mullvad.mullvadvpn.ipc.Request.InvalidateAccountExpiry
+import net.mullvad.mullvadvpn.ipc.Request.Login
+import net.mullvad.mullvadvpn.ipc.Request.Logout
+import net.mullvad.mullvadvpn.ipc.Request.RemoveAccountFromHistory
 import net.mullvad.mullvadvpn.model.GetAccountDataResult
 import net.mullvad.mullvadvpn.model.LoginStatus
+import net.mullvad.mullvadvpn.service.endpoint.AccountCache.Companion.Command
 import net.mullvad.mullvadvpn.util.ExponentialBackoff
 import net.mullvad.mullvadvpn.util.JobTracker
 import net.mullvad.talpid.util.EventNotifier
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 
-class AccountCache(private val endpoint: ServiceEndpoint) {
+class AccountCache(private val endpoint: ServiceEndpoint) : Actor<Command>() {
     companion object {
-        public val EXPIRY_FORMAT = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
+        val EXPIRY_FORMAT: DateTimeFormatter = DateTimeFormat.forPattern("YYYY-MM-dd HH:mm:ss z")
 
         // Number of retry attempts to check for a changed expiry before giving up.
         // Current value will force the cache to keep fetching for about four minutes or until a new
@@ -28,21 +29,19 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         // same value as before the invalidation.
         private const val MAX_INVALIDATED_RETRIES = 7
 
-        private sealed class Command {
+        sealed class Command {
             object CreateAccount : Command()
             data class Login(val account: String) : Command()
             object Logout : Command()
         }
     }
 
-    private val commandChannel = spawnActor()
-
     private val daemon
         get() = endpoint.intermittentDaemon
 
     val onAccountNumberChange = EventNotifier<String?>(null)
-    val onAccountExpiryChange = EventNotifier<DateTime?>(null)
-    val onAccountHistoryChange = EventNotifier<List<String>>(listOf<String>())
+    private val onAccountExpiryChange = EventNotifier<DateTime?>(null)
+    val onAccountHistoryChange = EventNotifier<List<String>>(emptyList())
     val onLoginStatusChange = EventNotifier<LoginStatus?>(null)
 
     var newlyCreatedAccount = false
@@ -69,9 +68,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         private set
 
     init {
-        endpoint.settingsListener.accountNumberNotifier.subscribe(this) { accountNumber ->
-            handleNewAccountNumber(accountNumber)
-        }
+        endpoint.settingsListener.accountNumberNotifier.subscribe(this, ::handleNewAccountNumber)
 
         onAccountHistoryChange.subscribe(this) { history ->
             endpoint.sendEvent(Event.AccountHistory(history))
@@ -81,33 +78,18 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
             endpoint.sendEvent(Event.LoginStatus(status))
         }
 
-        endpoint.dispatcher.apply {
-            registerHandler(Request.CreateAccount::class) { _ ->
-                commandChannel.sendBlocking(Command.CreateAccount)
+        endpoint.requestDispatcher.run {
+            registerHandler(CreateAccount::class) { sendBlocking(Command.CreateAccount) }
+            registerHandler(Login::class) { request ->
+                request.account?.let { account -> sendBlocking(Command.Login(account)) }
             }
-
-            registerHandler(Request.Login::class) { request ->
-                request.account?.let { account ->
-                    commandChannel.sendBlocking(Command.Login(account))
-                }
-            }
-
-            registerHandler(Request.Logout::class) { _ ->
-                commandChannel.sendBlocking(Command.Logout)
-            }
-
-            registerHandler(Request.FetchAccountExpiry::class) { _ ->
-                fetchAccountExpiry()
-            }
-
-            registerHandler(Request.InvalidateAccountExpiry::class) { request ->
+            registerHandler(Logout::class) { sendBlocking(Command.Logout) }
+            registerHandler(FetchAccountExpiry::class) { fetchAccountExpiry() }
+            registerHandler(InvalidateAccountExpiry::class) { request ->
                 invalidateAccountExpiry(request.expiry)
             }
-
-            registerHandler(Request.RemoveAccountFromHistory::class) { request ->
-                request.account?.let { account ->
-                    removeAccountFromHistory(account)
-                }
+            registerHandler(RemoveAccountFromHistory::class) { request ->
+                request.account?.let { account -> removeAccountFromHistory(account) }
             }
         }
     }
@@ -121,7 +103,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         onAccountHistoryChange.unsubscribeAll()
         onLoginStatusChange.unsubscribeAll()
 
-        commandChannel.close()
+        closeActor()
     }
 
     private fun fetchAccountExpiry() {
@@ -169,18 +151,10 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         }
     }
 
-    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
-        try {
-            for (command in channel) {
-                when (command) {
-                    is Command.CreateAccount -> doCreateAccount()
-                    is Command.Login -> doLogin(command.account)
-                    is Command.Logout -> doLogout()
-                }
-            }
-        } catch (exception: ClosedReceiveChannelException) {
-            // Command channel was closed, stop the actor
-        }
+    override suspend fun onNewCommand(command: Command) = when (command) {
+        is Command.CreateAccount -> doCreateAccount()
+        is Command.Login -> doLogin(command.account)
+        is Command.Logout -> doLogout()
     }
 
     private suspend fun doCreateAccount() {
@@ -190,19 +164,14 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         daemon.await().createNewAccount()
     }
 
-    private suspend fun doLogin(account: String) {
-        val result = daemon.await().getAccountData(account)
-
-        when (result) {
-            is GetAccountDataResult.Ok -> {
-                val expiry = DateTime.parse(result.accountData.expiry, EXPIRY_FORMAT)
-
-                finishLogin(account, expiry)
-            }
+    private suspend fun doLogin(account: String) =
+        when (val result = daemon.await().getAccountData(account)) {
+            is GetAccountDataResult.Ok -> finishLogin(account, result.accountData.expiry.toDate())
             is GetAccountDataResult.RpcError -> finishLogin(account, null)
             else -> finishLogin(null, null)
         }
-    }
+
+    private fun String.toDate(): DateTime = EXPIRY_FORMAT.parseDateTime(this)
 
     private suspend fun finishLogin(maybeAccount: String?, expiry: DateTime?) {
         synchronized(this) {
@@ -220,9 +189,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
     }
 
     private suspend fun doLogout() {
-        if (accountNumber != null) {
-            daemon.await().setAccount(null)
-        }
+        accountNumber?.run { daemon.await().setAccount(null) }
     }
 
     private fun fetchAccountHistory() {
@@ -256,34 +223,32 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         accountNumberUsedForFetch: String,
         expiryString: String,
         retryAttempt: Int
-    ): Boolean {
-        synchronized(this) {
-            if (accountNumber !== accountNumberUsedForFetch) {
-                return true
-            }
-
-            val newAccountExpiry = DateTime.parse(expiryString, EXPIRY_FORMAT)
-
-            if (newAccountExpiry != oldAccountExpiry || retryAttempt >= MAX_INVALIDATED_RETRIES) {
-                accountExpiry = newAccountExpiry
-                oldAccountExpiry = null
-
-                loginStatus = loginStatus?.let { currentStatus ->
-                    LoginStatus(currentStatus.account, newAccountExpiry, currentStatus.isNewAccount)
-                }
-
-                if (accountExpiry != null && newlyCreatedAccount) {
-                    if (createdAccountExpiry == null) {
-                        createdAccountExpiry = accountExpiry
-                    } else if (accountExpiry != createdAccountExpiry) {
-                        markAccountAsNotNew()
-                    }
-                }
-
-                return true
-            }
-
-            return false
+    ): Boolean = synchronized(this) {
+        if (accountNumber !== accountNumberUsedForFetch) {
+            return true
         }
+
+        val newAccountExpiry = DateTime.parse(expiryString, EXPIRY_FORMAT)
+
+        if (newAccountExpiry != oldAccountExpiry || retryAttempt >= MAX_INVALIDATED_RETRIES) {
+            accountExpiry = newAccountExpiry
+            oldAccountExpiry = null
+
+            loginStatus = loginStatus?.let { currentStatus ->
+                LoginStatus(currentStatus.account, newAccountExpiry, currentStatus.isNewAccount)
+            }
+
+            if (accountExpiry != null && newlyCreatedAccount) {
+                if (createdAccountExpiry == null) {
+                    createdAccountExpiry = accountExpiry
+                } else if (accountExpiry != createdAccountExpiry) {
+                    markAccountAsNotNew()
+                }
+            }
+
+            return true
+        }
+
+        return false
     }
 }

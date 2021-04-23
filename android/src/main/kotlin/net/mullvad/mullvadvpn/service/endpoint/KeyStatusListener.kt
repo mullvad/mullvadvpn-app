@@ -1,19 +1,15 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
 import kotlin.properties.Delegates.observable
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.ipc.Event.WireGuardKeyStatus
+import net.mullvad.mullvadvpn.ipc.Request.WireGuardGenerateKey
+import net.mullvad.mullvadvpn.ipc.Request.WireGuardVerifyKey
 import net.mullvad.mullvadvpn.model.KeygenEvent
+import net.mullvad.mullvadvpn.service.endpoint.KeyStatusListener.Companion.Command
 
-class KeyStatusListener(endpoint: ServiceEndpoint) {
+class KeyStatusListener(endpoint: ServiceEndpoint) : Actor<Command>() {
     companion object {
-        private enum class Command {
+        enum class Command {
             GenerateKey,
             VerifyKey,
         }
@@ -21,10 +17,8 @@ class KeyStatusListener(endpoint: ServiceEndpoint) {
 
     private val daemon = endpoint.intermittentDaemon
 
-    private val commandChannel = spawnActor()
-
     var keyStatus by observable<KeygenEvent?>(null) { _, _, status ->
-        endpoint.sendEvent(Event.WireGuardKeyStatus(status))
+        endpoint.sendEvent(WireGuardKeyStatus(status))
     }
         private set
 
@@ -39,46 +33,31 @@ class KeyStatusListener(endpoint: ServiceEndpoint) {
             }
         }
 
-        endpoint.dispatcher.apply {
-            registerHandler(Request.WireGuardGenerateKey::class) { _ ->
-                commandChannel.sendBlocking(Command.GenerateKey)
-            }
+        endpoint.dispatcher.run {
+            registerHandler(WireGuardGenerateKey::class) { sendBlocking(Command.GenerateKey) }
 
-            registerHandler(Request.WireGuardVerifyKey::class) { _ ->
-                commandChannel.sendBlocking(Command.VerifyKey)
-            }
+            registerHandler(WireGuardVerifyKey::class) { sendBlocking(Command.VerifyKey) }
         }
     }
 
     fun onDestroy() {
-        commandChannel.close()
+        closeActor()
         daemon.unregisterListener(this)
     }
 
-    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
-        try {
-            for (command in channel) {
-                when (command) {
-                    Command.GenerateKey -> generateKey()
-                    Command.VerifyKey -> verifyKey()
-                }
-            }
-        } catch (exception: ClosedReceiveChannelException) {
-        }
+    override suspend fun onNewCommand(command: Command) = when (command) {
+        Command.GenerateKey -> generateKey()
+        Command.VerifyKey -> verifyKey()
     }
 
     private suspend fun generateKey() {
         val oldStatus = keyStatus
         val newStatus = daemon.await().generateWireguardKey()
         val newFailure = newStatus?.failure()
-        if (oldStatus is KeygenEvent.NewKey && newFailure != null) {
-            keyStatus = KeygenEvent.NewKey(
-                oldStatus.publicKey,
-                oldStatus.verified,
-                newFailure
-            )
+        keyStatus = if (oldStatus is KeygenEvent.NewKey && newFailure != null) {
+            KeygenEvent.NewKey(oldStatus.publicKey, oldStatus.verified, newFailure)
         } else {
-            keyStatus = newStatus ?: KeygenEvent.GenerationFailure
+            newStatus ?: KeygenEvent.GenerationFailure
         }
     }
 

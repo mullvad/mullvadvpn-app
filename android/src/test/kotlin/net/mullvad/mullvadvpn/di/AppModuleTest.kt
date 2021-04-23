@@ -4,8 +4,7 @@ import android.os.Messenger
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import kotlin.test.assertEquals
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.MessageDispatcher
+import net.mullvad.mullvadvpn.ipc.EventDispatcher
 import net.mullvad.mullvadvpn.ui.serviceconnection.SplitTunneling
 import org.junit.After
 import org.junit.Rule
@@ -39,7 +38,7 @@ class AppModuleTest : KoinTest {
         appsScope.linkTo(serviceConnectionScope)
 
         val mockedMessenger = mockk<Messenger>()
-        val mockedEventMessageHandler = mockk<MessageDispatcher<Event>>(relaxed = true)
+        val mockedEventMessageHandler = mockk<EventDispatcher>(relaxed = true)
         val serviceConnectionSplitTunneling = serviceConnectionScope.get<SplitTunneling>(
             parameters = { parametersOf(mockedMessenger, mockedEventMessageHandler) }
         )

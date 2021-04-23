@@ -1,13 +1,7 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
 import kotlin.properties.Delegates.observable
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
-import net.mullvad.mullvadvpn.ipc.Event
+import net.mullvad.mullvadvpn.ipc.Event.NewRelayList
 import net.mullvad.mullvadvpn.ipc.Request
 import net.mullvad.mullvadvpn.model.Constraint
 import net.mullvad.mullvadvpn.model.LocationConstraint
@@ -15,23 +9,23 @@ import net.mullvad.mullvadvpn.model.RelayConstraintsUpdate
 import net.mullvad.mullvadvpn.model.RelayList
 import net.mullvad.mullvadvpn.model.RelaySettingsUpdate
 import net.mullvad.mullvadvpn.service.MullvadDaemon
+import net.mullvad.mullvadvpn.service.endpoint.RelayListListener.Companion.Command
 
-class RelayListListener(endpoint: ServiceEndpoint) {
+class RelayListListener(endpoint: ServiceEndpoint) : Actor<Command>() {
     companion object {
-        private enum class Command {
+        enum class Command {
             SetRelayLocation,
         }
     }
 
-    private val commandChannel = spawnActor()
     private val daemon = endpoint.intermittentDaemon
 
     private var selectedRelayLocation by observable<LocationConstraint?>(null) { _, _, _ ->
-        commandChannel.sendBlocking(Command.SetRelayLocation)
+        sendBlocking(Command.SetRelayLocation)
     }
 
     var relayList by observable<RelayList?>(null) { _, _, relays ->
-        endpoint.sendEvent(Event.NewRelayList(relays))
+        endpoint.sendEvent(NewRelayList(relays))
     }
         private set
 
@@ -49,7 +43,7 @@ class RelayListListener(endpoint: ServiceEndpoint) {
     }
 
     fun onDestroy() {
-        commandChannel.close()
+        closeActor()
         daemon.unregisterListener(this)
     }
 
@@ -67,16 +61,8 @@ class RelayListListener(endpoint: ServiceEndpoint) {
         }
     }
 
-    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.CONFLATED) {
-        try {
-            for (command in channel) {
-                when (command) {
-                    Command.SetRelayLocation -> updateRelayConstraints()
-                }
-            }
-        } catch (exception: ClosedReceiveChannelException) {
-            // Closed sender, so stop the actor
-        }
+    override suspend fun onNewCommand(command: Command) = when (command) {
+        Command.SetRelayLocation -> updateRelayConstraints()
     }
 
     private suspend fun updateRelayConstraints() {

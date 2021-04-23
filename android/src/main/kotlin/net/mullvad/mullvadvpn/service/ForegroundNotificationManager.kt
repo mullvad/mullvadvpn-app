@@ -9,11 +9,9 @@ import android.content.IntentFilter
 import android.os.Build
 import kotlin.properties.Delegates.observable
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
 import net.mullvad.mullvadvpn.model.TunnelState
+import net.mullvad.mullvadvpn.service.ForegroundNotificationManager.UpdaterMessage
+import net.mullvad.mullvadvpn.service.endpoint.Actor
 import net.mullvad.mullvadvpn.service.endpoint.ConnectionProxy
 import net.mullvad.mullvadvpn.service.notifications.TunnelStateNotification
 import net.mullvad.talpid.util.autoSubscribable
@@ -22,17 +20,14 @@ class ForegroundNotificationManager(
     val service: MullvadVpnService,
     val connectionProxy: ConnectionProxy,
     val keyguardManager: KeyguardManager
-) {
-    private sealed class UpdaterMessage {
+) : Actor<UpdaterMessage>(Dispatchers.Main) {
+    sealed class UpdaterMessage {
         class UpdateNotification : UpdaterMessage()
         class UpdateAction : UpdaterMessage()
         class NewTunnelState(val newState: TunnelState) : UpdaterMessage()
     }
 
-    private val updater = runUpdater()
-
     private val tunnelStateNotification = TunnelStateNotification(service)
-
     private val deviceLockListener = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
@@ -44,11 +39,11 @@ class ForegroundNotificationManager(
     }
 
     private var deviceIsUnlocked by observable(!keyguardManager.isDeviceLocked) { _, _, _ ->
-        updater.sendBlocking(UpdaterMessage.UpdateAction())
+        sendBlocking(UpdaterMessage.UpdateAction())
     }
 
     private var loggedIn by observable(false) { _, _, _ ->
-        updater.sendBlocking(UpdaterMessage.UpdateAction())
+        sendBlocking(UpdaterMessage.UpdateAction())
     }
 
     private val tunnelState
@@ -65,25 +60,23 @@ class ForegroundNotificationManager(
         private set
 
     var lockedToForeground by observable(false) { _, _, _ ->
-        updater.sendBlocking(UpdaterMessage.UpdateNotification())
+        sendBlocking(UpdaterMessage.UpdateNotification())
     }
 
     init {
         connectionProxy.onStateChange.subscribe(this) { newState ->
-            updater.sendBlocking(UpdaterMessage.NewTunnelState(newState))
+            sendBlocking(UpdaterMessage.NewTunnelState(newState))
         }
 
-        service.apply {
-            registerReceiver(
-                deviceLockListener,
-                IntentFilter().apply {
-                    addAction(Intent.ACTION_USER_PRESENT)
-                    addAction(Intent.ACTION_SCREEN_OFF)
-                }
-            )
-        }
+        service.registerReceiver(
+            deviceLockListener,
+            IntentFilter().apply {
+                addAction(Intent.ACTION_USER_PRESENT)
+                addAction(Intent.ACTION_SCREEN_OFF)
+            }
+        )
 
-        updater.sendBlocking(UpdaterMessage.UpdateNotification())
+        sendBlocking(UpdaterMessage.UpdateNotification())
     }
 
     fun onDestroy() {
@@ -92,7 +85,7 @@ class ForegroundNotificationManager(
         connectionProxy.onStateChange.unsubscribe(this)
         service.unregisterReceiver(deviceLockListener)
 
-        updater.close()
+        closeActor()
 
         tunnelStateNotification.visible = false
     }
@@ -108,19 +101,12 @@ class ForegroundNotificationManager(
         updateNotification()
     }
 
-    private fun runUpdater() = GlobalScope.actor<UpdaterMessage>(
-        Dispatchers.Main,
-        Channel.UNLIMITED
-    ) {
-        for (message in channel) {
-            when (message) {
-                is UpdaterMessage.UpdateNotification -> updateNotification()
-                is UpdaterMessage.UpdateAction -> updateNotificationAction()
-                is UpdaterMessage.NewTunnelState -> {
-                    tunnelStateNotification.tunnelState = message.newState
-                    updateNotification()
-                }
-            }
+    override suspend fun onNewCommand(command: UpdaterMessage) = when (command) {
+        is UpdaterMessage.UpdateNotification -> updateNotification()
+        is UpdaterMessage.UpdateAction -> updateNotificationAction()
+        is UpdaterMessage.NewTunnelState -> {
+            tunnelStateNotification.tunnelState = command.newState
+            updateNotification()
         }
     }
 

@@ -1,8 +1,11 @@
 package net.mullvad.mullvadvpn.service.endpoint
 
 import kotlin.properties.Delegates.observable
-import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.ipc.Event.SplitTunnelingUpdate
+import net.mullvad.mullvadvpn.ipc.Request.ExcludeApp
+import net.mullvad.mullvadvpn.ipc.Request.IncludeApp
+import net.mullvad.mullvadvpn.ipc.Request.PersistExcludedApps
+import net.mullvad.mullvadvpn.ipc.Request.SetEnableSplitTunneling
 import net.mullvad.mullvadvpn.service.persistence.SplitTunnelingPersistence
 import net.mullvad.talpid.util.EventNotifier
 
@@ -18,27 +21,22 @@ class SplitTunneling(persistence: SplitTunnelingPersistence, endpoint: ServiceEn
 
     init {
         onChange.subscribe(this) { excludedApps ->
-            endpoint.sendEvent(Event.SplitTunnelingUpdate(excludedApps))
+            endpoint.sendEvent(SplitTunnelingUpdate(excludedApps))
         }
 
-        endpoint.dispatcher.apply {
-            registerHandler(Request.IncludeApp::class) { request ->
+        endpoint.dispatcher.run {
+            registerHandler(IncludeApp::class) { request ->
                 excludedApps.remove(request.packageName)
                 update()
             }
 
-            registerHandler(Request.ExcludeApp::class) { request ->
+            registerHandler(ExcludeApp::class) { request ->
                 excludedApps.add(request.packageName)
                 update()
             }
 
-            registerHandler(Request.SetEnableSplitTunneling::class) { request ->
-                enabled = request.enable
-            }
-
-            registerHandler(Request.PersistExcludedApps::class) { _ ->
-                persistence.excludedApps = excludedApps
-            }
+            registerHandler(SetEnableSplitTunneling::class) { request -> enabled = request.enable }
+            registerHandler(PersistExcludedApps::class) { persistence.excludedApps = excludedApps }
         }
     }
 

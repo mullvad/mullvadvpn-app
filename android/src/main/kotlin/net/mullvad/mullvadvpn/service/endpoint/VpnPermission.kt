@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.VpnService
 import net.mullvad.mullvadvpn.ipc.Event
-import net.mullvad.mullvadvpn.ipc.Request
+import net.mullvad.mullvadvpn.ipc.Request.VpnPermissionResponse
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.util.Intermittent
 
@@ -15,7 +15,7 @@ class VpnPermission(private val context: Context, private val endpoint: ServiceE
         private set
 
     init {
-        endpoint.dispatcher.registerHandler(Request.VpnPermissionResponse::class) { request ->
+        endpoint.dispatcher.registerHandler(VpnPermissionResponse::class) { request ->
             waitingForResponse = false
             isGranted.spawnUpdate(request.isGranted)
         }
