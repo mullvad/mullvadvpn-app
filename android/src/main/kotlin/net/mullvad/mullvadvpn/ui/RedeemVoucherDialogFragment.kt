@@ -14,6 +14,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.model.VoucherSubmissionError
 import net.mullvad.mullvadvpn.model.VoucherSubmissionResult
 import net.mullvad.mullvadvpn.ui.serviceconnection.AccountCache
 import net.mullvad.mullvadvpn.ui.serviceconnection.VoucherRedeemer
@@ -126,9 +127,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     }
 
     private fun updateRedeemButton() {
-        redeemButton?.apply {
-            setEnabled(voucherInputIsValid && voucherRedeemer != null)
-        }
+        redeemButton?.setEnabled(voucherInputIsValid && voucherRedeemer != null)
     }
 
     private suspend fun submitVoucher() {
@@ -138,11 +137,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
 
         when (result) {
             is VoucherSubmissionResult.Ok -> handleAddedTime(result.submission.timeAdded)
-            is VoucherSubmissionResult.InvalidVoucher -> showError(R.string.invalid_voucher)
-            is VoucherSubmissionResult.VoucherAlreadyUsed -> {
-                showError(R.string.voucher_already_used)
-            }
-            else -> showError(R.string.error_occurred)
+            is VoucherSubmissionResult.Error -> showError(result.error)
         }
     }
 
@@ -156,7 +151,13 @@ class RedeemVoucherDialogFragment : DialogFragment() {
         }
     }
 
-    private fun showError(message: Int) {
+    private fun showError(error: VoucherSubmissionError) {
+        val message = when (error) {
+            VoucherSubmissionError.InvalidVoucher -> R.string.invalid_voucher
+            VoucherSubmissionError.VoucherAlreadyUsed -> R.string.voucher_already_used
+            else -> R.string.error_occurred
+        }
+
         errorMessage.apply {
             setText(message)
             visibility = View.VISIBLE

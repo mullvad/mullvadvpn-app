@@ -94,6 +94,12 @@ impl From<Result<AccountData, daemon_interface::Error>> for GetAccountDataResult
 #[jnix(package = "net.mullvad.mullvadvpn.model")]
 pub enum VoucherSubmissionResult {
     Ok(VoucherSubmission),
+    Error(VoucherSubmissionError),
+}
+
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum VoucherSubmissionError {
     InvalidVoucher,
     VoucherAlreadyUsed,
     RpcError,
@@ -104,15 +110,23 @@ impl From<Result<VoucherSubmission, daemon_interface::Error>> for VoucherSubmiss
     fn from(result: Result<VoucherSubmission, daemon_interface::Error>) -> Self {
         match result {
             Ok(submission) => VoucherSubmissionResult::Ok(submission),
-            Err(daemon_interface::Error::RpcError(RestError::ApiError(_, code))) => {
+            Err(error) => VoucherSubmissionResult::Error(error.into()),
+        }
+    }
+}
+
+impl From<daemon_interface::Error> for VoucherSubmissionError {
+    fn from(error: daemon_interface::Error) -> Self {
+        match error {
+            daemon_interface::Error::RpcError(RestError::ApiError(_, code)) => {
                 match code.as_str() {
-                    mullvad_rpc::INVALID_VOUCHER => VoucherSubmissionResult::InvalidVoucher,
-                    mullvad_rpc::VOUCHER_USED => VoucherSubmissionResult::VoucherAlreadyUsed,
-                    _ => VoucherSubmissionResult::RpcError,
+                    mullvad_rpc::INVALID_VOUCHER => VoucherSubmissionError::InvalidVoucher,
+                    mullvad_rpc::VOUCHER_USED => VoucherSubmissionError::VoucherAlreadyUsed,
+                    _ => VoucherSubmissionError::RpcError,
                 }
             }
-            Err(daemon_interface::Error::RpcError(_)) => VoucherSubmissionResult::RpcError,
-            _ => VoucherSubmissionResult::OtherError,
+            daemon_interface::Error::RpcError(_) => VoucherSubmissionError::RpcError,
+            _ => VoucherSubmissionError::OtherError,
         }
     }
 }
@@ -908,7 +922,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_submitV
 
         VoucherSubmissionResult::from(raw_result)
     } else {
-        VoucherSubmissionResult::OtherError
+        VoucherSubmissionResult::Error(VoucherSubmissionError::OtherError)
     };
 
     result.into_java(&env).forget()
