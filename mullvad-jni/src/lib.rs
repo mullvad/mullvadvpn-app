@@ -100,6 +100,15 @@ pub enum VoucherSubmissionResult {
     OtherError,
 }
 
+#[derive(IntoJava)]
+#[jnix(package = "net.mullvad.mullvadvpn.model")]
+pub enum VoucherSubmissionError {
+    InvalidVoucher,
+    VoucherAlreadyUsed,
+    RpcError,
+    OtherError,
+}
+
 impl From<Result<VoucherSubmission, daemon_interface::Error>> for VoucherSubmissionResult {
     fn from(result: Result<VoucherSubmission, daemon_interface::Error>) -> Self {
         match result {
@@ -113,6 +122,22 @@ impl From<Result<VoucherSubmission, daemon_interface::Error>> for VoucherSubmiss
             }
             Err(daemon_interface::Error::RpcError(_)) => VoucherSubmissionResult::RpcError,
             _ => VoucherSubmissionResult::OtherError,
+        }
+    }
+}
+
+impl From<daemon_interface::Error> for VoucherSubmissionError {
+    fn from(error: daemon_interface::Error) -> Self {
+        match error {
+            daemon_interface::Error::RpcError(RestError::ApiError(_, code)) => {
+                match code.as_str() {
+                    mullvad_rpc::INVALID_VOUCHER => VoucherSubmissionError::InvalidVoucher,
+                    mullvad_rpc::VOUCHER_USED => VoucherSubmissionError::VoucherAlreadyUsed,
+                    _ => VoucherSubmissionError::RpcError,
+                }
+            }
+            daemon_interface::Error::RpcError(_) => VoucherSubmissionError::RpcError,
+            _ => VoucherSubmissionError::OtherError,
         }
     }
 }
