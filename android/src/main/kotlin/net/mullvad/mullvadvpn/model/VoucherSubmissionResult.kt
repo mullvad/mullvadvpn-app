@@ -8,14 +8,5 @@ sealed class VoucherSubmissionResult : Parcelable {
     data class Ok(val submission: VoucherSubmission) : VoucherSubmissionResult()
 
     @Parcelize
-    object InvalidVoucher : VoucherSubmissionResult()
-
-    @Parcelize
-    object VoucherAlreadyUsed : VoucherSubmissionResult()
-
-    @Parcelize
-    object RpcError : VoucherSubmissionResult()
-
-    @Parcelize
-    object OtherError : VoucherSubmissionResult()
+    data class Error(val error: VoucherSubmissionError) : VoucherSubmissionResult()
 }
