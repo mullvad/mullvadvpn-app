@@ -1,4 +1,5 @@
 use self::config::Config;
+use cfg_if::cfg_if;
 #[cfg(not(windows))]
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
@@ -342,9 +343,25 @@ impl WireguardMonitor {
     }
 
     fn get_routes(iface_name: &str, config: &Config) -> HashSet<RequiredRoute> {
+        #[cfg(target_os = "linux")]
+        use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
+
         let node = routing::Node::device(iface_name.to_string());
         let mut routes: HashSet<RequiredRoute> = Self::get_tunnel_routes(config)
-            .map(|network| RequiredRoute::new(network, node.clone()))
+            .map(|network| {
+                cfg_if! {
+                    if #[cfg(target_os = "linux")] {
+                        if network.prefix() == 0 {
+                            RequiredRoute::new(network, node.clone())
+                        } else {
+                            RequiredRoute::new(network, node.clone())
+                                .table(u32::from(RT_TABLE_MAIN))
+                        }
+                    } else {
+                        RequiredRoute::new(network, node.clone())
+                    }
+                }
+            })
             .collect();
 
         // route endpoints with specific routes
@@ -360,8 +377,6 @@ impl WireguardMonitor {
         // using `mullvad-exclude`
         #[cfg(target_os = "linux")]
         {
-            use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
-
             routes.insert(
                 RequiredRoute::new(
                     ipnetwork::Ipv4Network::from(config.ipv4_gateway).into(),
