@@ -126,9 +126,7 @@ class RedeemVoucherDialogFragment : DialogFragment() {
     }
 
     private fun updateRedeemButton() {
-        redeemButton?.apply {
-            setEnabled(voucherInputIsValid && voucherRedeemer != null)
-        }
+        redeemButton?.setEnabled(voucherInputIsValid && voucherRedeemer != null)
     }
 
     private suspend fun submitVoucher() {
