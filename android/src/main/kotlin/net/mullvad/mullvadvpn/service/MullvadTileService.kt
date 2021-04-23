@@ -33,19 +33,7 @@ class MullvadTileService : TileService() {
     override fun onStartListening() {
         super.onStartListening()
 
-        listener.onStateChange = { state ->
-            secured = when (state) {
-                is TunnelState.Disconnected -> false
-                is TunnelState.Connecting -> true
-                is TunnelState.Connected -> true
-                is TunnelState.Disconnecting -> {
-                    state.actionAfterDisconnect == ActionAfterDisconnect.Reconnect
-                }
-                is TunnelState.Error -> {
-                    state.errorState.isBlocking
-                }
-            }
-        }
+        listener.onStateChange = ::updateTunnelState
 
         updateTileState()
     }
@@ -72,6 +60,18 @@ class MullvadTileService : TileService() {
         listener.onStateChange = null
 
         super.onStartListening()
+    }
+
+    private fun updateTunnelState(tunnelState: TunnelState) {
+        secured = when (tunnelState) {
+            is TunnelState.Disconnected -> false
+            is TunnelState.Connecting -> true
+            is TunnelState.Connected -> true
+            is TunnelState.Disconnecting -> {
+                tunnelState.actionAfterDisconnect == ActionAfterDisconnect.Reconnect
+            }
+            is TunnelState.Error -> tunnelState.errorState.isBlocking
+        }
     }
 
     private fun updateTileState() {
