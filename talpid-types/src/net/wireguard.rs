@@ -41,7 +41,7 @@ impl ConnectionConfig {
 
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug, Hash)]
 pub struct PeerConfig {
-    /// Public key corresponding to the private key in [`TunnelConfig`].
+    /// Peer's public key.
     pub public_key: PublicKey,
     /// Addresses that may be routed to the peer. Use `0.0.0.0/0` to route everything.
     pub allowed_ips: Vec<IpNetwork>,
