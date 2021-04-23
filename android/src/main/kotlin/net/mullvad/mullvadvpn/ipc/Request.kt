@@ -104,3 +104,5 @@ sealed class Request : Message.RequestMessage() {
         fun fromMessage(message: RawMessage): Request? = Message.fromMessage(message, MESSAGE_KEY)
     }
 }
+
+typealias RequestDispatcher = MessageDispatcher<Request>

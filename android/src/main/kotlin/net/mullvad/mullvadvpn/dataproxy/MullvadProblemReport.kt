@@ -6,15 +6,13 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.channels.actor
-import kotlinx.coroutines.channels.sendBlocking
+import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport.Command
+import net.mullvad.mullvadvpn.service.endpoint.Actor
 
 const val PROBLEM_REPORT_FILE = "problem_report.txt"
 
-class MullvadProblemReport {
-    private sealed class Command {
+class MullvadProblemReport : Actor<Command>() {
+    sealed class Command {
         class Collect() : Command()
         class Load(val logs: CompletableDeferred<String>) : Command()
         class Send(val result: CompletableDeferred<Boolean>) : Command()
@@ -23,8 +21,6 @@ class MullvadProblemReport {
 
     val logDirectory = CompletableDeferred<File>()
     val cacheDirectory = CompletableDeferred<File>()
-
-    private val commandChannel = spawnActor()
 
     private val problemReportPath = GlobalScope.async(Dispatchers.Default) {
         File(logDirectory.await(), PROBLEM_REPORT_FILE)
@@ -41,43 +37,30 @@ class MullvadProblemReport {
         System.loadLibrary("mullvad_jni")
     }
 
-    fun collect() {
-        commandChannel.sendBlocking(Command.Collect())
-    }
+    fun collect() = sendBlocking(Command.Collect())
 
     suspend fun load(): String {
         val logs = CompletableDeferred<String>()
-
-        commandChannel.send(Command.Load(logs))
-
+        send(Command.Load(logs))
         return logs.await()
     }
 
     fun send(): Deferred<Boolean> {
         val result = CompletableDeferred<Boolean>()
-
-        commandChannel.sendBlocking(Command.Send(result))
-
+        sendBlocking(Command.Send(result))
         return result
     }
 
     fun deleteReportFile() {
-        commandChannel.sendBlocking(Command.Delete())
+        sendBlocking(Command.Delete())
     }
 
-    private fun spawnActor() = GlobalScope.actor<Command>(Dispatchers.Default, Channel.UNLIMITED) {
-        try {
-            while (true) {
-                val command = channel.receive()
-
-                when (command) {
-                    is Command.Collect -> doCollect()
-                    is Command.Load -> command.logs.complete(doLoad())
-                    is Command.Send -> command.result.complete(doSend())
-                    is Command.Delete -> doDelete()
-                }
-            }
-        } catch (exception: ClosedReceiveChannelException) {
+    override suspend fun onNewCommand(command: Command) {
+        when (command) {
+            is Command.Collect -> doCollect()
+            is Command.Load -> command.logs.complete(doLoad())
+            is Command.Send -> command.result.complete(doSend())
+            is Command.Delete -> doDelete()
         }
     }
 
