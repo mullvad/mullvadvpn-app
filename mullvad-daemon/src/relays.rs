@@ -323,6 +323,40 @@ impl RelaySelector {
         relay_constraints
     }
 
+    pub fn get_tunnel_exit_endpoint(
+        &mut self,
+        relay_constraints: &RelayConstraints,
+    ) -> Option<(Relay, MullvadEndpoint)> {
+        if relay_constraints.tunnel_protocol != Constraint::Only(TunnelType::Wireguard)
+            && relay_constraints.tunnel_protocol != Constraint::Any
+        {
+            return None;
+        }
+        if relay_constraints
+            .wireguard_constraints
+            .exit_location
+            .is_none()
+        {
+            return None;
+        }
+
+        let exit_constraints = RelayConstraints {
+            location: relay_constraints
+                .wireguard_constraints
+                .exit_location
+                .clone()
+                .unwrap(),
+            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
+            providers: relay_constraints.providers.clone(),
+            wireguard_constraints: WireguardConstraints {
+                exit_location: None,
+                ..WireguardConstraints::default()
+            },
+            ..RelayConstraints::default()
+        };
+        self.get_tunnel_endpoint_internal(&exit_constraints)
+    }
+
     pub fn get_auto_proxy_settings(
         &mut self,
         bridge_constraints: &InternalBridgeConstraints,

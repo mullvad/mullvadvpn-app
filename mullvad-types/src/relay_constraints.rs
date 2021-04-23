@@ -439,7 +439,7 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
-    pub exit_location: Option<LocationConstraint>,
+    pub exit_location: Option<Constraint<LocationConstraint>>,
 }
 
 impl fmt::Display for WireguardConstraints {
