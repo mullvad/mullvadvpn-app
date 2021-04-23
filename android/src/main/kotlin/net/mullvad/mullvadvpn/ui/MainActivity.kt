@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.net.VpnService
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -21,17 +22,12 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.talpid.util.EventNotifier
 
 open class MainActivity : FragmentActivity() {
-    companion object {
-        const val KEY_SHOULD_CONNECT = "should_connect"
-    }
-
     val problemReport = MullvadProblemReport()
     val serviceNotifier = EventNotifier<ServiceConnection?>(null)
 
     private var isUiVisible = false
     private var service: MullvadVpnService.LocalBinder? = null
     private var serviceConnection: ServiceConnection? = null
-    private var shouldConnect = false
     private var visibleSecureScreens = HashSet<Fragment>()
 
     private val deviceIsTv by lazy {
@@ -54,15 +50,13 @@ open class MainActivity : FragmentActivity() {
                 serviceConnection?.onDestroy()
 
                 serviceConnection = service?.let { safeService ->
-                    ServiceConnection(safeService, ::handleNewServiceConnection)
+                    ServiceConnection(safeService, ::handleNewServiceConnection).apply {
+                        vpnPermission.onRequest = ::requestVpnPermission
+                    }
                 }
 
                 if (service == null) {
                     serviceNotifier.notify(null)
-                }
-
-                if (shouldConnect) {
-                    tryToConnect()
                 }
             }
         }
@@ -95,11 +89,6 @@ open class MainActivity : FragmentActivity() {
 
         if (savedInstanceState == null) {
             addInitialFragment()
-        }
-
-        if (intent.getBooleanExtra(KEY_SHOULD_CONNECT, false)) {
-            shouldConnect = true
-            tryToConnect()
         }
     }
 
@@ -194,20 +183,15 @@ open class MainActivity : FragmentActivity() {
         }
     }
 
-    @Suppress("DEPRECATION")
-    fun requestVpnPermission(intent: Intent) {
-        startActivityForResult(intent, 0)
-    }
-
     private fun handleNewServiceConnection(connection: ServiceConnection) {
         serviceNotifier.notify(connection)
     }
 
-    private fun tryToConnect() {
-        serviceConnection?.apply {
-            connectionProxy.connect()
-            shouldConnect = false
-        }
+    @Suppress("DEPRECATION")
+    private fun requestVpnPermission() {
+        val intent = VpnService.prepare(this)
+
+        startActivityForResult(intent, 0)
     }
 
     private fun addInitialFragment() {

@@ -53,6 +53,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Fix UI sometimes not updating correctly while no split screen or after having a dialog from
   another app appear on top.
+- Fix request to connect from notification or quick-settings tile not connecting if VPN permission
+  isn't granted to the app. The app will now show the UI to ask for the permission and correctly
+  connect after it is granted.
 
 
 ## [2021.3-beta2] - 2021-04-22
