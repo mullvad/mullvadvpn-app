@@ -24,6 +24,7 @@ use futures::{
     future::{abortable, AbortHandle, Future},
     SinkExt, StreamExt,
 };
+use ipnetwork::IpNetwork;
 use log::{debug, error, info, warn};
 use mullvad_rpc::AccountsProxy;
 use mullvad_types::{
@@ -1058,10 +1059,23 @@ where
                 .into())
             }
             MullvadEndpoint::Wireguard {
-                peer,
+                mut peer,
                 ipv4_gateway,
                 ipv6_gateway,
             } => {
+                let exit_peer = match self.settings.get_relay_settings() {
+                    RelaySettings::Normal(ref relay_constraints) => self
+                        .relay_selector
+                        .get_tunnel_exit_endpoint(relay_constraints)
+                        .and_then(|(_relay, mullvad_endpoint)| match mullvad_endpoint {
+                            MullvadEndpoint::Wireguard { peer, .. } => Some(peer),
+                            _ => None,
+                        }),
+                    _ => None,
+                };
+                if let Some(ref exit) = exit_peer {
+                    peer.allowed_ips = vec![IpNetwork::from(exit.endpoint.ip())];
+                }
                 let wg_data = self
                     .account_history
                     .get(&account_token)
@@ -1080,6 +1094,7 @@ where
                     connection: wireguard::ConnectionConfig {
                         tunnel,
                         peer,
+                        additional_peers: exit_peer.map(|peer| vec![peer]).unwrap_or(vec![]),
                         ipv4_gateway,
                         ipv6_gateway: Some(ipv6_gateway),
                     },
