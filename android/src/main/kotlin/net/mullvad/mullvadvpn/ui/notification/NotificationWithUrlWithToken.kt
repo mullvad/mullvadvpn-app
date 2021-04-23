@@ -3,12 +3,13 @@ package net.mullvad.mullvadvpn.ui.notification
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.annotation.StringRes
 import net.mullvad.mullvadvpn.ui.serviceconnection.AuthTokenCache
 
 abstract class NotificationWithUrlWithToken(
     protected val context: Context,
     protected val authTokenCache: AuthTokenCache,
-    urlId: Int
+    @StringRes urlId: Int
 ) : InAppNotification() {
     private val url = context.getString(urlId)
 
