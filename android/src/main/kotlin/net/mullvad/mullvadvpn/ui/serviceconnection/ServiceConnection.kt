@@ -21,7 +21,7 @@ import org.koin.core.scope.get
 @OptIn(KoinApiExtension::class)
 class ServiceConnection(
     connection: Messenger,
-    onServiceReady: (ServiceConnection) -> Unit
+    onServiceReady: ((ServiceConnection) -> Unit)? = null
 ) : KoinScopeComponent {
     private val dispatcher = DispatchingHandler(Looper.getMainLooper()) { message ->
         Event.fromMessage(message)
@@ -48,7 +48,7 @@ class ServiceConnection(
 
     init {
         dispatcher.registerHandler(Event.ListenerReady::class) { _ ->
-            onServiceReady(this@ServiceConnection)
+            onServiceReady?.invoke(this@ServiceConnection)
         }
 
         registerListener(connection)
