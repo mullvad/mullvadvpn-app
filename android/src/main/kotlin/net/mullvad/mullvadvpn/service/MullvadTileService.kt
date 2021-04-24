@@ -1,31 +1,52 @@
 package net.mullvad.mullvadvpn.service
 
+import android.content.ComponentName
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
+import android.os.IBinder
+import android.os.Messenger
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateListener
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class MullvadTileService : TileService() {
+    private val serviceConnectionManager = object : android.content.ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, binder: IBinder) {
+            serviceConnection = ServiceConnection(Messenger(binder))
+        }
+
+        override fun onServiceDisconnected(className: ComponentName) {
+            serviceConnection = null
+        }
+    }
+
+    private var serviceConnection by observable<ServiceConnection?>(
+        null
+    ) { _, oldConnection, newConnection ->
+        oldConnection?.onDestroy()
+
+        newConnection?.connectionProxy?.run {
+            onStateChange.subscribe(this@MullvadTileService, ::updateTunnelState)
+        }
+    }
+
     private var secured by observable(false) { _, wasSecured, isSecured ->
         if (wasSecured != isSecured) {
             updateTileState()
         }
     }
 
-    private lateinit var listener: TunnelStateListener
     private lateinit var securedIcon: Icon
     private lateinit var unsecuredIcon: Icon
 
     override fun onCreate() {
         super.onCreate()
 
-        listener = TunnelStateListener(this)
         securedIcon = Icon.createWithResource(this, R.drawable.small_logo_white)
         unsecuredIcon = Icon.createWithResource(this, R.drawable.small_logo_black)
     }
@@ -33,7 +54,9 @@ class MullvadTileService : TileService() {
     override fun onStartListening() {
         super.onStartListening()
 
-        listener.onStateChange = ::updateTunnelState
+        val intent = Intent(this, MullvadVpnService::class.java)
+
+        bindService(intent, serviceConnectionManager, BIND_IMPORTANT)
 
         updateTileState()
     }
@@ -57,7 +80,8 @@ class MullvadTileService : TileService() {
     }
 
     override fun onStopListening() {
-        listener.onStateChange = null
+        unbindService(serviceConnectionManager)
+        serviceConnection = null
 
         super.onStopListening()
     }
