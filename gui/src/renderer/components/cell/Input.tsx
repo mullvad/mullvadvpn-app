@@ -79,6 +79,8 @@ export class Input extends React.Component<IInputProps, IInputState> {
     focused: false,
   };
 
+  public inputRef = React.createRef<HTMLInputElement>();
+
   public componentDidUpdate(prevProps: IInputProps, _prevState: IInputState) {
     if (
       !this.state.focused &&
@@ -118,6 +120,7 @@ export class Input extends React.Component<IInputProps, IInputState> {
       <CellDisabledContext.Consumer>
         {(disabled) => (
           <StyledInput
+            ref={this.inputRef}
             type="text"
             valid={valid}
             aria-invalid={!valid}
@@ -157,6 +160,7 @@ export class Input extends React.Component<IInputProps, IInputState> {
   private onKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       this.props.onSubmitValue?.(this.state.value);
+      this.inputRef.current?.blur();
     }
     this.props.onKeyPress?.(event);
   };
