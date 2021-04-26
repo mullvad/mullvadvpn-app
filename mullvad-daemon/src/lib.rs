@@ -1094,7 +1094,7 @@ where
                     connection: wireguard::ConnectionConfig {
                         tunnel,
                         peer,
-                        additional_peers: exit_peer.map(|peer| vec![peer]).unwrap_or(vec![]),
+                        exit_peer,
                         ipv4_gateway,
                         ipv6_gateway: Some(ipv6_gateway),
                     },
