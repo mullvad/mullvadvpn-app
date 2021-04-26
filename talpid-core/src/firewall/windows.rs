@@ -93,6 +93,7 @@ impl FirewallT for Firewall {
         match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
+                exit_peer_endpoint,
                 pingable_hosts,
                 allow_lan,
                 allowed_endpoint,
@@ -102,6 +103,7 @@ impl FirewallT for Firewall {
                 // TODO: Determine interface alias at runtime
                 self.set_connecting_state(
                     &peer_endpoint,
+                    &exit_peer_endpoint,
                     &cfg,
                     "Mullvad".to_string(),
                     &allowed_endpoint,
@@ -153,6 +155,7 @@ impl Firewall {
     fn set_connecting_state(
         &mut self,
         endpoint: &Endpoint,
+        exit_endpoint: &Option<Endpoint>,
         winfw_settings: &WinFwSettings,
         _tunnel_iface_alias: String,
         allowed_endpoint: &Endpoint,
@@ -166,6 +169,15 @@ impl Firewall {
             port: endpoint.address.port(),
             protocol: WinFwProt::from(endpoint.protocol),
         };
+
+        let exit_ip_str = exit_endpoint
+            .as_ref()
+            .map(|endpoint| widestring_ip(endpoint.address.ip()));
+        let winfw_exit_relay = exit_endpoint.as_ref().map(|endpoint| WinFwEndpoint {
+            ip: exit_ip_str.as_ref().unwrap().as_ptr(),
+            port: endpoint.address.port(),
+            protocol: WinFwProt::from(endpoint.protocol),
+        });
 
         let mut relay_client: Vec<u16> = relay_client.as_os_str().encode_wide().collect();
         relay_client.push(0u16);
@@ -200,6 +212,7 @@ impl Firewall {
             WinFw_ApplyPolicyConnecting(
                 winfw_settings,
                 &winfw_relay,
+                winfw_exit_relay.as_ptr(),
                 relay_client.as_ptr(),
                 pingable_hosts.as_ptr(),
                 winfw_allowed_endpoint.as_ptr(),
@@ -435,6 +448,7 @@ mod winfw {
         pub fn WinFw_ApplyPolicyConnecting(
             settings: &WinFwSettings,
             relay: &WinFwEndpoint,
+            exit_relay: *const WinFwEndpoint,
             relayClient: *const libc::wchar_t,
             pingable_hosts: *const WinFwPingableHosts,
             allowed_endpoint: *const WinFwEndpoint,

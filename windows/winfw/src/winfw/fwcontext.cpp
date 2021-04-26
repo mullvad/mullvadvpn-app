@@ -20,6 +20,7 @@
 #include "rules/dns/permittunnel.h"
 #include "rules/dns/permitnontunnel.h"
 #include "rules/multi/permitvpnrelay.h"
+#include "rules/multi/permitvpnexitrelay.h"
 #include <libwfp/transaction.h>
 #include <libwfp/filterengine.h>
 #include <libcommon/error.h>
@@ -91,6 +92,32 @@ void AppendRelayRules
 	);
 
 	ruleset.emplace_back(std::make_unique<multi::PermitVpnRelay>(
+		wfp::IpAddress(relay.ip),
+		relay.port,
+		relay.protocol,
+		relayClient,
+		sublayer
+	));
+}
+
+//
+// Refer comment on `AppendSettingsRules`.
+//
+void AppendExitRelayRules
+(
+	FwContext::Ruleset &ruleset,
+	const WinFwEndpoint &relay,
+	const std::wstring &relayClient
+)
+{
+	auto sublayer =
+	(
+		DNS_SERVER_PORT == relay.port
+		? rules::multi::PermitVpnExitRelay::Sublayer::Dns
+		: rules::multi::PermitVpnExitRelay::Sublayer::Baseline
+	);
+
+	ruleset.emplace_back(std::make_unique<multi::PermitVpnExitRelay>(
 		wfp::IpAddress(relay.ip),
 		relay.port,
 		relay.protocol,
@@ -177,6 +204,7 @@ bool FwContext::applyPolicyConnecting
 (
 	const WinFwSettings &settings,
 	const WinFwEndpoint &relay,
+	const std::optional<WinFwEndpoint> &exitRelay,
 	const std::wstring &relayClient,
 	const std::optional<PingableHosts> &pingableHosts,
 	const std::optional<WinFwEndpoint> &allowedEndpoint
@@ -187,6 +215,11 @@ bool FwContext::applyPolicyConnecting
 	AppendNetBlockedRules(ruleset);
 	AppendSettingsRules(ruleset, settings);
 	AppendRelayRules(ruleset, relay, relayClient);
+
+	if (exitRelay.has_value())
+	{
+		AppendExitRelayRules(ruleset, *exitRelay, relayClient);
+	}
 
 	if (allowedEndpoint.has_value())
 	{

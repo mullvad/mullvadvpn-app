@@ -68,6 +68,7 @@ public:
 	static const GUID &Filter_Baseline_PermitDhcpServer_Outbound_Response_Ipv4();
 
 	static const GUID &Filter_Baseline_PermitVpnRelay();
+	static const GUID &Filter_Baseline_PermitVpnExitRelay();
 
 	static const GUID &Filter_Baseline_PermitEndpoint();
 

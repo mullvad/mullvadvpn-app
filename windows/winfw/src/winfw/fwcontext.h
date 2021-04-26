@@ -34,6 +34,7 @@ public:
 	(
 		const WinFwSettings &settings,
 		const WinFwEndpoint &relay,
+		const std::optional<WinFwEndpoint> &exitRelay,
 		const std::wstring &relayClient,
 		const std::optional<PingableHosts> &pingableHosts,
 		const std::optional<WinFwEndpoint> &allowedEndpoint

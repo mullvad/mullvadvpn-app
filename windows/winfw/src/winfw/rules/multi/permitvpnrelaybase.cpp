@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "permitvpnrelay.h"
+#include "permitvpnrelaybase.h"
 #include <winfw/mullvadguids.h>
 #include <winfw/winfw.h>
 #include <libwfp/filterbuilder.h>
@@ -44,12 +44,12 @@ std::unique_ptr<ConditionProtocol> CreateProtocolCondition(WinFwProtocol protoco
 	};
 }
 
-const GUID &TranslateSublayer(PermitVpnRelay::Sublayer sublayer)
+const GUID &TranslateSublayer(PermitVpnRelayBase::Sublayer sublayer)
 {
 	switch (sublayer)
 	{
-		case PermitVpnRelay::Sublayer::Baseline: return MullvadGuids::SublayerBaseline();
-		case PermitVpnRelay::Sublayer::Dns: return MullvadGuids::SublayerDns();
+		case PermitVpnRelayBase::Sublayer::Baseline: return MullvadGuids::SublayerBaseline();
+		case PermitVpnRelayBase::Sublayer::Dns: return MullvadGuids::SublayerDns();
 		default:
 		{
 			THROW_ERROR("Missing case handler in switch clause");
@@ -59,15 +59,17 @@ const GUID &TranslateSublayer(PermitVpnRelay::Sublayer sublayer)
 
 } // anonymous namespace
 
-PermitVpnRelay::PermitVpnRelay
+PermitVpnRelayBase::PermitVpnRelayBase
 (
+	const GUID &filterKey,
 	const wfp::IpAddress &relay,
 	uint16_t relayPort,
 	WinFwProtocol protocol,
 	const std::wstring &relayClient,
 	Sublayer sublayer
 )
-	: m_relay(relay)
+	: m_filterKey(filterKey)
+	, m_relay(relay)
 	, m_relayPort(relayPort)
 	, m_protocol(protocol)
 	, m_relayClient(relayClient)
@@ -75,7 +77,7 @@ PermitVpnRelay::PermitVpnRelay
 {
 }
 
-bool PermitVpnRelay::apply(IObjectInstaller &objectInstaller)
+bool PermitVpnRelayBase::apply(IObjectInstaller &objectInstaller)
 {
 	wfp::FilterBuilder filterBuilder;
 
@@ -84,7 +86,7 @@ bool PermitVpnRelay::apply(IObjectInstaller &objectInstaller)
 	//
 
 	filterBuilder
-		.key(MullvadGuids::Filter_Baseline_PermitVpnRelay())
+		.key(m_filterKey)
 		.name(L"Permit outbound connections to VPN relay")
 		.description(L"This filter is part of a rule that permits communication with a VPN relay")
 		.provider(MullvadGuids::Provider())

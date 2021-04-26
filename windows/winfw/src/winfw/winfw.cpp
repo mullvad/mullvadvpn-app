@@ -259,6 +259,7 @@ WINFW_API
 WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
+	const WinFwEndpoint *exitRelay,
 	const wchar_t *relayClient,
 	const PingableHosts *pingableHosts,
 	const WinFwEndpoint *allowedEndpoint
@@ -289,6 +290,7 @@ WinFw_ApplyPolicyConnecting(
 		return g_fwContext->applyPolicyConnecting(
 			*settings,
 			*relay,
+			MakeOptional(exitRelay),
 			relayClient,
 			ConvertPingableHosts(pingableHosts),
 			MakeOptional(allowedEndpoint)
