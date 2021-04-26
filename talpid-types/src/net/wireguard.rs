@@ -25,7 +25,7 @@ pub struct TunnelParameters {
 pub struct ConnectionConfig {
     pub tunnel: TunnelConfig,
     pub peer: PeerConfig,
-    pub additional_peers: Vec<PeerConfig>,
+    pub exit_peer: Option<PeerConfig>,
     /// Gateway used by the tunnel (a private address).
     pub ipv4_gateway: Ipv4Addr,
     pub ipv6_gateway: Option<Ipv6Addr>,

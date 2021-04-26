@@ -760,7 +760,7 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                                     ))?
                                     .into(),
                             },
-                            additional_peers: vec![],
+                            exit_peer: None,
                             ipv4_gateway,
                             ipv6_gateway,
                         })
