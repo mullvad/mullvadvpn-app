@@ -49,6 +49,14 @@ impl TunnelParameters {
         }
     }
 
+    // Returns the exit endpoint, if it differs from the next hop endpoint
+    pub fn get_exit_hop_endpoint(&self) -> Option<Endpoint> {
+        match self {
+            TunnelParameters::OpenVpn(_params) => None,
+            TunnelParameters::Wireguard(params) => params.connection.get_exit_endpoint(),
+        }
+    }
+
     pub fn get_proxy_endpoint(&self) -> Option<openvpn::ProxySettings> {
         match self {
             TunnelParameters::OpenVpn(params) => params.proxy.clone(),

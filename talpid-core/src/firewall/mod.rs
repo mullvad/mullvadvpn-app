@@ -103,6 +103,8 @@ pub enum FirewallPolicy {
     Connecting {
         /// The peer endpoint that should be allowed.
         peer_endpoint: Endpoint,
+        /// Second peer endpoint that should be allowed (inside the tunnel).
+        exit_peer_endpoint: Option<Endpoint>,
         /// Hosts that should be pingable whilst connecting.
         pingable_hosts: Vec<IpAddr>,
         /// Flag setting if communication with LAN networks should be possible.

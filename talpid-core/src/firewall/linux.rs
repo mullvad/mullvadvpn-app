@@ -577,12 +577,16 @@ impl<'a> PolicyBatch<'a> {
         let allow_lan = match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
+                exit_peer_endpoint,
                 pingable_hosts,
                 allow_lan,
                 allowed_endpoint,
             } => {
                 self.add_allow_icmp_pingable_hosts(&pingable_hosts);
                 self.add_allow_tunnel_endpoint_rules(peer_endpoint);
+                if let Some(exit_peer) = exit_peer_endpoint {
+                    self.add_allow_tunnel_endpoint_rules(exit_peer);
+                }
                 self.add_allow_endpoint_rules(allowed_endpoint);
 
                 // Important to block DNS after allow relay rule (so the relay can operate

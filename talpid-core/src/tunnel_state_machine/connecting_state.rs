@@ -64,6 +64,7 @@ impl ConnectingState {
 
         let policy = FirewallPolicy::Connecting {
             peer_endpoint,
+            exit_peer_endpoint: params.get_exit_hop_endpoint(),
             pingable_hosts: gateway_list_from_params(params),
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
