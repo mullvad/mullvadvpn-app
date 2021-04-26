@@ -450,9 +450,9 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
                             .option()
                             .map(IpVersion::from)
                             .map(IpVersionConstraint::from),
-                        exit_location: constraints
+                        entry_location: constraints
                             .wireguard_constraints
-                            .exit_location
+                            .entry_location
                             .and_then(|constraint| constraint.option().map(RelayLocation::from)),
                     }),
 
@@ -886,9 +886,11 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                                     Constraint::Any
                                 },
                                 ip_version: Constraint::from(ip_version),
-                                exit_location: constraints
-                                    .exit_location
-                                    .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from),
+                                entry_location: constraints.entry_location.map(
+                                    Constraint::<
+                                        mullvad_types::relay_constraints::LocationConstraint,
+                                    >::from,
+                                ),
                             }
                         }),
                         openvpn_constraints: settings.openvpn_constraints.map(|constraints| {

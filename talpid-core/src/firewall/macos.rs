@@ -97,7 +97,7 @@ impl Firewall {
         match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
-                tunnel_interface: _,
+                tunnel_interface,
                 allow_lan,
                 allowed_endpoint,
                 pingable_hosts,
@@ -105,10 +105,16 @@ impl Firewall {
                 let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
                 rules.extend(self.get_allow_pingable_hosts(&pingable_hosts)?);
+
+                // Important to block DNS after allow relay rule (so the relay can operate
+                // over port 53) but before allow LAN (so DNS does not leak to the LAN)
+                rules.append(&mut self.get_block_dns_rules()?);
+
+                if let Some(tunnel_interface) = tunnel_interface {
+                    rules.push(self.get_allow_tunnel_rule(tunnel_interface.as_str())?);
+                }
+
                 if allow_lan {
-                    // Important to block DNS after allow relay rule (so the relay can operate
-                    // over port 53) but before allow LAN (so DNS does not leak to the LAN)
-                    rules.append(&mut self.get_block_dns_rules()?);
                     rules.append(&mut self.get_allow_lan_rules()?);
                 }
                 Ok(rules)

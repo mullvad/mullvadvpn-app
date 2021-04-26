@@ -31,7 +31,10 @@ impl TunnelParameters {
             },
             TunnelParameters::Wireguard(params) => TunnelEndpoint {
                 tunnel_type: TunnelType::Wireguard,
-                endpoint: params.connection.get_endpoint(),
+                endpoint: params
+                    .connection
+                    .get_exit_endpoint()
+                    .unwrap_or(params.connection.get_endpoint()),
                 proxy: None,
             },
         }
@@ -49,10 +52,11 @@ impl TunnelParameters {
         }
     }
 
-    pub fn get_proxy_endpoint(&self) -> Option<openvpn::ProxySettings> {
+    // Returns the exit endpoint, if it differs from the next hop endpoint
+    pub fn get_exit_hop_endpoint(&self) -> Option<Endpoint> {
         match self {
-            TunnelParameters::OpenVpn(params) => params.proxy.clone(),
-            _ => None,
+            TunnelParameters::OpenVpn(_params) => None,
+            TunnelParameters::Wireguard(params) => params.connection.get_exit_endpoint(),
         }
     }
 

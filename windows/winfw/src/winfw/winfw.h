@@ -158,6 +158,7 @@ WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
 	const wchar_t *relayClient,
+	const wchar_t *tunnelInterfaceAlias,
 	const PingableHosts *pingableHosts,
 	const WinFwEndpoint *allowedEndpoint
 );

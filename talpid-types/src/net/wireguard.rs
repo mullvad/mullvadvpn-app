@@ -38,6 +38,13 @@ impl ConnectionConfig {
             protocol: self.peer.protocol,
         }
     }
+
+    pub fn get_exit_endpoint(&self) -> Option<Endpoint> {
+        self.exit_peer.as_ref().map(|peer| Endpoint {
+            address: peer.endpoint,
+            protocol: peer.protocol,
+        })
+    }
 }
 
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug, Hash)]

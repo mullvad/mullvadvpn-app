@@ -154,7 +154,7 @@ impl Firewall {
         &mut self,
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
-        _tunnel_iface_alias: &Option<String>,
+        tunnel_interface: &Option<String>,
         allowed_endpoint: &Endpoint,
         pingable_hosts: &Vec<IpAddr>,
         relay_client: &Path,
@@ -196,11 +196,21 @@ impl Firewall {
             protocol: WinFwProt::from(allowed_endpoint.protocol),
         });
 
+        let interface_wstr = tunnel_interface
+            .as_ref()
+            .map(|alias| WideCString::new(alias.encode_utf16().collect::<Vec<_>>()).unwrap());
+        let interface_wstr_ptr = if let Some(ref wstr) = interface_wstr {
+            wstr.as_ptr()
+        } else {
+            ptr::null()
+        };
+
         unsafe {
             WinFw_ApplyPolicyConnecting(
                 winfw_settings,
                 &winfw_relay,
                 relay_client.as_ptr(),
+                interface_wstr_ptr,
                 pingable_hosts.as_ptr(),
                 winfw_allowed_endpoint.as_ptr(),
             )
@@ -436,6 +446,7 @@ mod winfw {
             settings: &WinFwSettings,
             relay: &WinFwEndpoint,
             relayClient: *const libc::wchar_t,
+            tunnelIfaceAlias: *const libc::wchar_t,
             pingable_hosts: *const WinFwPingableHosts,
             allowed_endpoint: *const WinFwEndpoint,
         ) -> WinFwPolicyStatus;

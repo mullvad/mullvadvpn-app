@@ -178,6 +178,7 @@ bool FwContext::applyPolicyConnecting
 	const WinFwSettings &settings,
 	const WinFwEndpoint &relay,
 	const std::wstring &relayClient,
+	const std::optional<std::wstring> &tunnelInterfaceAlias,
 	const std::optional<PingableHosts> &pingableHosts,
 	const std::optional<WinFwEndpoint> &allowedEndpoint
 )
@@ -191,6 +192,17 @@ bool FwContext::applyPolicyConnecting
 	if (allowedEndpoint.has_value())
 	{
 		AppendAllowedEndpointRules(ruleset, allowedEndpoint.value());
+	}
+
+	if (tunnelInterfaceAlias.has_value())
+	{
+		ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnel>(
+			*tunnelInterfaceAlias
+		));
+
+		ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
+			*tunnelInterfaceAlias
+		));
 	}
 
 	//
