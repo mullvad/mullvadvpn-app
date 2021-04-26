@@ -137,6 +137,11 @@ macOS: the packet needs to originate from a process running as `root`.
 This process/user check is important to not allow unprivileged programs
 to leak packets to this IP outside the tunnel, as those packets can be fingerprinted.
 
+When WireGuard is used with two hops, traffic to the final hop is allowed on all interfaces, with
+the same restrictions as above. This is done to permit in-tunnel ICMP traffic to the exit endpoint
+(see below). It allows this on all interfaces: with the current architecture, the tunnel interface
+is unknown and may not even exist yet.
+
 Examples:
 1. No bridge is used and the tunnel protocol is OpenVPN trying to connect with UDP to a VPN
   server at IP `a.b.c.d` port `1301` - Allow traffic to `a.b.c.d:1301/UDP` for `openvpn.exe`
@@ -147,12 +152,13 @@ Examples:
   traffic. Do not allow any direct communication with the VPN server.
 1. Connecting to `a.b.c.d` port `1234` using WireGuard: Allow `a.b.c.d:1234/UDP` for
   `mullvad-daemon.exe` or any process running as `root`.
+1. Connecting to `a.b.c.d` port `1234` via `e.f.g.h` port `5678` using WireGuard: Allow
+  `a.b.c.d:1234/UDP` *and* traffic to `e.f.g.h:5678/UDP` for `mullvad-daemon.exe` or
+  any process running as `root`.
 
 If connecting via WireGuard, this state allows ICMP packets to and from the in-tunnel IPs
 (both v4 and v6) of the relay server the app is currently connecting to. That means the private
-network IPs where the relay will respond inside the tunnel. It allows this on all interfaces,
-since with the current architecture we don't know which network interface is the tunnel interface
-at this point.
+network IPs where the relay will respond inside the tunnel.
 
 ### Connected
 
