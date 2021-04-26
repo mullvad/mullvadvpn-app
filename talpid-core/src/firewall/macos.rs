@@ -97,11 +97,15 @@ impl Firewall {
         match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
+                exit_peer_endpoint,
                 allow_lan,
                 allowed_endpoint,
                 pingable_hosts,
             } => {
                 let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
+                if let Some(exit_peer) = exit_peer_endpoint {
+                    rules.push(self.get_allow_relay_rule(exit_peer)?);
+                }
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
                 rules.extend(self.get_allow_pingable_hosts(&pingable_hosts)?);
                 if allow_lan {
