@@ -358,7 +358,34 @@ impl RelaySelector {
         let entry_constraints =
             self.preferred_constraints(&entry_constraints, BridgeState::Off, retry_attempt, true);
 
-        let mut endpoint = self.get_tunnel_endpoint_internal(&entry_constraints)?;
+        let exit_peer_ip = exit_peer.endpoint.ip();
+        let matching_relays: Vec<Relay> = self
+            .parsed_relays
+            .lock()
+            .relays()
+            .iter()
+            .filter(|relay| {
+                relay.active
+                    && exit_peer_ip != IpAddr::V4(relay.ipv4_addr_in)
+                    && Some(exit_peer_ip) != relay.ipv6_addr_in.map(IpAddr::V6)
+            })
+            .filter_map(|relay| Self::matching_relay(relay, &entry_constraints))
+            .collect();
+
+        let mut endpoint = self
+            .pick_random_relay(&matching_relays)
+            .and_then(|selected_relay| {
+                let endpoint = self.get_random_tunnel(&selected_relay, &entry_constraints);
+                let addr_in = endpoint
+                    .as_ref()
+                    .map(|endpoint| endpoint.to_endpoint().address.ip())
+                    .unwrap_or(IpAddr::from(selected_relay.ipv4_addr_in));
+                info!(
+                    "Selected entry relay {} at {}",
+                    selected_relay.hostname, addr_in
+                );
+                endpoint.map(|endpoint| (selected_relay.clone(), endpoint))
+            })?;
 
         match endpoint.1 {
             MullvadEndpoint::Wireguard { ref mut peer, .. } => {
