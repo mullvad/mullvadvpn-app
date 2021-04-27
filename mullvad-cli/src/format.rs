@@ -57,9 +57,10 @@ pub fn print_state(state: &TunnelState) {
 }
 
 fn format_endpoint(endpoint: &TunnelEndpoint) -> String {
+    let tunnel_type = TunnelType::from_i32(endpoint.tunnel_type).expect("invalid tunnel protocol");
     let mut out = format!(
         "{} {} over {}",
-        match TunnelType::from_i32(endpoint.tunnel_type).expect("invalid tunnel protocol") {
+        match tunnel_type {
             TunnelType::Wireguard => "WireGuard",
             TunnelType::Openvpn => "OpenVPN",
         },
@@ -69,20 +70,39 @@ fn format_endpoint(endpoint: &TunnelEndpoint) -> String {
         ),
     );
 
-    if let Some(ref proxy) = endpoint.proxy {
-        write!(
-            &mut out,
-            " via {} {} over {}",
-            match ProxyType::from_i32(proxy.proxy_type).expect("invalid proxy type") {
-                ProxyType::Shadowsocks => "Shadowsocks",
-                ProxyType::Custom => "custom bridge",
-            },
-            proxy.address,
-            format_protocol(
-                TransportProtocol::from_i32(proxy.protocol).expect("invalid transport protocol")
-            ),
-        )
-        .unwrap();
+    match tunnel_type {
+        TunnelType::Openvpn => {
+            if let Some(ref proxy) = endpoint.proxy {
+                write!(
+                    &mut out,
+                    " via {} {} over {}",
+                    match ProxyType::from_i32(proxy.proxy_type).expect("invalid proxy type") {
+                        ProxyType::Shadowsocks => "Shadowsocks",
+                        ProxyType::Custom => "custom bridge",
+                    },
+                    proxy.address,
+                    format_protocol(
+                        TransportProtocol::from_i32(proxy.protocol)
+                            .expect("invalid transport protocol")
+                    ),
+                )
+                .unwrap();
+            }
+        }
+        TunnelType::Wireguard => {
+            if let Some(ref entry_endpoint) = endpoint.entry_endpoint {
+                write!(
+                    &mut out,
+                    " via {} over {}",
+                    entry_endpoint.address,
+                    format_protocol(
+                        TransportProtocol::from_i32(entry_endpoint.protocol)
+                            .expect("invalid transport protocol")
+                    )
+                )
+                .unwrap();
+            }
+        }
     }
 
     out
