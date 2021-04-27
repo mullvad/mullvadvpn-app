@@ -40,6 +40,10 @@ impl From<talpid_types::net::TunnelEndpoint> for TunnelEndpoint {
                     net::proxy::ProxyType::Custom => i32::from(ProxyType::Custom),
                 },
             }),
+            entry_endpoint: endpoint.entry_endpoint.map(|entry| Endpoint {
+                address: entry.address.to_string(),
+                protocol: i32::from(TransportProtocol::from(entry.protocol)),
+            }),
         }
     }
 }
