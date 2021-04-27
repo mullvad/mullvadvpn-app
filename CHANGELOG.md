@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 - Support WireGuard over TCP for custom VPN relays in the CLI.
 - Make app native on Apple Silicon.
 - Add DNS options for ad and tracker blocking to the CLI.
+- Support WireGuard multihop using an entry endpoint constraint.
 
 ### Changed
 - Upgrade OpenVPN from 2.5.0 to 2.5.1.
