@@ -25,6 +25,12 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2021.3] - 2021-04-28
+This release is for desktop only.
+
+This release is identical to 2021.3-beta2
+
+
 ## [2021.3-beta2] - 2021-04-22
 This release is for Windows only.
 This release has no functional changes compared to 2021.3-beta1. The only
