@@ -116,6 +116,9 @@ pub enum Error {
     #[error(display = "No bridge available")]
     NoBridgeAvailable,
 
+    #[error(display = "No matching entry relay was found")]
+    NoEntryRelayAvailable,
+
     #[error(display = "No account token is set")]
     NoAccountToken,
 
@@ -1063,13 +1066,22 @@ where
                 ipv6_gateway,
             } => {
                 let entry_peer = match self.settings.get_relay_settings() {
-                    RelaySettings::Normal(ref relay_constraints) => self
-                        .relay_selector
-                        .get_tunnel_entry_endpoint(&peer, relay_constraints, retry_attempt)
-                        .and_then(|(_relay, mullvad_endpoint)| match mullvad_endpoint {
-                            MullvadEndpoint::Wireguard { peer, .. } => Some(peer),
-                            _ => None,
-                        }),
+                    RelaySettings::Normal(ref relay_constraints)
+                        if relay_constraints
+                            .wireguard_constraints
+                            .entry_location
+                            .is_some() =>
+                    {
+                        Some(
+                            self.relay_selector
+                                .get_tunnel_entry_endpoint(&peer, relay_constraints, retry_attempt)
+                                .and_then(|(_relay, mullvad_endpoint)| match mullvad_endpoint {
+                                    MullvadEndpoint::Wireguard { peer, .. } => Some(peer),
+                                    _ => None,
+                                })
+                                .ok_or(Error::NoEntryRelayAvailable)?,
+                        )
+                    }
                     _ => None,
                 };
                 let exit_peer = entry_peer.as_ref().map(|_| peer.clone());
