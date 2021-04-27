@@ -118,6 +118,7 @@ impl Firewall {
             }
             FirewallPolicy::Connected {
                 peer_endpoint,
+                exit_peer_endpoint,
                 tunnel,
                 allow_lan,
                 dns_servers,
@@ -129,6 +130,11 @@ impl Firewall {
                 }
 
                 rules.push(self.get_allow_relay_rule(peer_endpoint)?);
+                if let Some(exit_peer) = exit_peer_endpoint {
+                    rules.push(
+                        self.get_allow_exit_relay_rule(exit_peer, tunnel.interface.as_str())?,
+                    );
+                }
 
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
@@ -250,6 +256,26 @@ impl Firewall {
             .direction(pfctl::Direction::Out)
             .to(relay_endpoint.address)
             .proto(pfctl_proto)
+            .keep_state(pfctl::StatePolicy::Keep)
+            .tcp_flags(Self::get_tcp_flags())
+            .user(Uid::from(ROOT_UID))
+            .quick(true)
+            .build()?)
+    }
+
+    fn get_allow_exit_relay_rule(
+        &self,
+        relay_endpoint: net::Endpoint,
+        tunnel_interface: &str,
+    ) -> Result<pfctl::FilterRule> {
+        let pfctl_proto = as_pfctl_proto(relay_endpoint.protocol);
+
+        Ok(self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .direction(pfctl::Direction::Out)
+            .to(relay_endpoint.address)
+            .proto(pfctl_proto)
+            .interface(tunnel_interface)
             .keep_state(pfctl::StatePolicy::Keep)
             .tcp_flags(Self::get_tcp_flags())
             .user(Uid::from(ROOT_UID))
