@@ -51,8 +51,6 @@ const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
 const EXPONENTIAL_BACKOFF_INITIAL: Duration = Duration::from_secs(16);
 const EXPONENTIAL_BACKOFF_FACTOR: u32 = 8;
 
-const PREFERRED_EXIT_WIREGUARD_PORT: u16 = 51820;
-
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
@@ -225,23 +223,12 @@ impl RelaySelector {
         retry_attempt: u32,
         wg_key_exists: bool,
     ) -> Result<(Relay, MullvadEndpoint), Error> {
-        let mut preferred_constraints = self.preferred_constraints(
+        let preferred_constraints = self.preferred_constraints(
             relay_constraints,
             bridge_state,
             retry_attempt,
             wg_key_exists,
         );
-        if preferred_constraints
-            .wireguard_constraints
-            .entry_location
-            .is_some()
-        {
-            // Ignore WG constraints for the exit endpoint
-            preferred_constraints.wireguard_constraints = WireguardConstraints {
-                port: Constraint::Only(PREFERRED_EXIT_WIREGUARD_PORT),
-                ..WireguardConstraints::default()
-            };
-        }
         if let Some((relay, endpoint)) = self.get_tunnel_endpoint_internal(&preferred_constraints) {
             debug!(
                 "Relay matched on highest preference for retry attempt {}",

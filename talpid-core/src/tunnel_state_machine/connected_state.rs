@@ -104,6 +104,7 @@ impl ConnectedState {
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {
         FirewallPolicy::Connected {
             peer_endpoint: self.tunnel_parameters.get_next_hop_endpoint(),
+            exit_peer_endpoint: self.tunnel_parameters.get_exit_hop_endpoint(),
             tunnel: self.metadata.clone(),
             allow_lan: shared_values.allow_lan,
             #[cfg(not(target_os = "android"))]

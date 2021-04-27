@@ -596,11 +596,15 @@ impl<'a> PolicyBatch<'a> {
             }
             FirewallPolicy::Connected {
                 peer_endpoint,
+                exit_peer_endpoint,
                 tunnel,
                 allow_lan,
                 dns_servers,
             } => {
                 self.add_allow_tunnel_endpoint_rules(peer_endpoint);
+                if let Some(exit_peer) = exit_peer_endpoint {
+                    self.add_allow_in_tunnel_endpoint_rules(exit_peer, &tunnel.interface)?;
+                }
                 self.add_allow_dns_rules(tunnel, &dns_servers, TransportProtocol::Udp)?;
                 self.add_allow_dns_rules(tunnel, &dns_servers, TransportProtocol::Tcp)?;
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
@@ -671,6 +675,34 @@ impl<'a> PolicyBatch<'a> {
         add_verdict(&mut out_rule, &Verdict::Accept);
 
         self.batch.add(&out_rule, nftnl::MsgType::Add);
+    }
+
+    fn add_allow_in_tunnel_endpoint_rules(
+        &mut self,
+        endpoint: &Endpoint,
+        interface: &str,
+    ) -> Result<()> {
+        let mut in_rule = Rule::new(&self.in_chain);
+        check_iface(&mut in_rule, Direction::In, interface)?;
+        check_endpoint(&mut in_rule, End::Src, endpoint);
+        in_rule.add_expr(&nft_expr!(ct state));
+        let allowed_states = nftnl::expr::ct::States::ESTABLISHED.bits();
+        in_rule.add_expr(&nft_expr!(bitwise mask allowed_states, xor 0u32));
+        in_rule.add_expr(&nft_expr!(cmp != 0u32));
+        add_verdict(&mut in_rule, &Verdict::Accept);
+
+        self.batch.add(&in_rule, nftnl::MsgType::Add);
+
+        let mut out_rule = Rule::new(&self.out_chain);
+        check_iface(&mut out_rule, Direction::Out, interface)?;
+        check_endpoint(&mut out_rule, End::Dst, endpoint);
+        out_rule.add_expr(&nft_expr!(meta mark));
+        out_rule.add_expr(&nft_expr!(cmp == crate::linux::TUNNEL_FW_MARK));
+        add_verdict(&mut out_rule, &Verdict::Accept);
+
+        self.batch.add(&out_rule, nftnl::MsgType::Add);
+
+        Ok(())
     }
 
     fn add_allow_endpoint_rules(&mut self, endpoint: &Endpoint) {

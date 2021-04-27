@@ -103,7 +103,7 @@ pub enum FirewallPolicy {
     Connecting {
         /// The peer endpoint that should be allowed.
         peer_endpoint: Endpoint,
-        /// Second peer endpoint that should be allowed (inside the tunnel).
+        /// Endpoint that should be allowed inside the tunnel.
         exit_peer_endpoint: Option<Endpoint>,
         /// Hosts that should be pingable whilst connecting.
         pingable_hosts: Vec<IpAddr>,
@@ -120,6 +120,8 @@ pub enum FirewallPolicy {
     Connected {
         /// The peer endpoint that should be allowed.
         peer_endpoint: Endpoint,
+        /// Endpoint that should be allowed inside the tunnel.
+        exit_peer_endpoint: Option<Endpoint>,
         /// Metadata about the tunnel and tunnel interface.
         tunnel: crate::tunnel::TunnelMetadata,
         /// Flag setting if communication with LAN networks should be possible.
