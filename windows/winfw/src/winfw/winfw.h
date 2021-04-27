@@ -187,6 +187,7 @@ WINFW_API
 WinFw_ApplyPolicyConnected(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
+	const WinFwEndpoint *exitRelay,
 	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
 	const wchar_t *v4Gateway,

@@ -113,13 +113,21 @@ impl FirewallT for Firewall {
             }
             FirewallPolicy::Connected {
                 peer_endpoint,
+                exit_peer_endpoint,
                 tunnel,
                 allow_lan,
                 dns_servers,
                 relay_client,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
-                self.set_connected_state(&peer_endpoint, &cfg, &tunnel, &dns_servers, &relay_client)
+                self.set_connected_state(
+                    &peer_endpoint,
+                    &exit_peer_endpoint,
+                    &cfg,
+                    &tunnel,
+                    &dns_servers,
+                    &relay_client,
+                )
             }
             FirewallPolicy::Blocked {
                 allow_lan,
@@ -225,6 +233,7 @@ impl Firewall {
     fn set_connected_state(
         &mut self,
         endpoint: &Endpoint,
+        exit_endpoint: &Option<Endpoint>,
         winfw_settings: &WinFwSettings,
         tunnel_metadata: &crate::tunnel::TunnelMetadata,
         dns_servers: &[IpAddr],
@@ -276,10 +285,20 @@ impl Firewall {
             .collect();
         let dns_servers: Vec<*const u16> = dns_servers.iter().map(|ip| ip.as_ptr()).collect();
 
+        let exit_ip_str = exit_endpoint
+            .as_ref()
+            .map(|endpoint| widestring_ip(endpoint.address.ip()));
+        let winfw_exit_relay = exit_endpoint.as_ref().map(|endpoint| WinFwEndpoint {
+            ip: exit_ip_str.as_ref().unwrap().as_ptr(),
+            port: endpoint.address.port(),
+            protocol: WinFwProt::from(endpoint.protocol),
+        });
+
         unsafe {
             WinFw_ApplyPolicyConnected(
                 winfw_settings,
                 &winfw_relay,
+                winfw_exit_relay.as_ptr(),
                 relay_client.as_ptr(),
                 tunnel_alias.as_ptr(),
                 v4_gateway.as_ptr(),
@@ -458,6 +477,7 @@ mod winfw {
         pub fn WinFw_ApplyPolicyConnected(
             settings: &WinFwSettings,
             relay: &WinFwEndpoint,
+            exit_relay: *const WinFwEndpoint,
             relayClient: *const libc::wchar_t,
             tunnelIfaceAlias: *const libc::wchar_t,
             v4Gateway: *const libc::wchar_t,

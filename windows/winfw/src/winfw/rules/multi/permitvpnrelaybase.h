@@ -4,6 +4,7 @@
 #include <winfw/winfw.h>
 #include <libwfp/ipaddress.h>
 #include <string>
+#include <optional>
 
 namespace rules::multi
 {
@@ -25,7 +26,8 @@ public:
 		uint16_t relayPort,
 		WinFwProtocol protocol,
 		const std::wstring &relayClient,
-		Sublayer sublayer
+		Sublayer sublayer,
+		const std::optional<std::wstring> &tunnelInterface
 	);
 
 	bool apply(IObjectInstaller &objectInstaller) override;
@@ -38,6 +40,7 @@ private:
 	const WinFwProtocol m_protocol;
 	const std::wstring m_relayClient;
 	const Sublayer m_sublayer;
+	const std::optional<std::wstring> m_tunnelInterface;
 };
 
 }

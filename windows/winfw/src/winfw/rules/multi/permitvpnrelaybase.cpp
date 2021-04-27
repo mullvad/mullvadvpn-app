@@ -5,6 +5,7 @@
 #include <libwfp/filterbuilder.h>
 #include <libwfp/conditionbuilder.h>
 #include <libwfp/conditions/conditionprotocol.h>
+#include <libwfp/conditions/conditioninterface.h>
 #include <libwfp/conditions/conditionip.h>
 #include <libwfp/conditions/conditionport.h>
 #include <libwfp/conditions/conditionapplication.h>
@@ -66,7 +67,8 @@ PermitVpnRelayBase::PermitVpnRelayBase
 	uint16_t relayPort,
 	WinFwProtocol protocol,
 	const std::wstring &relayClient,
-	Sublayer sublayer
+	Sublayer sublayer,
+	const std::optional<std::wstring> &tunnelInterface
 )
 	: m_filterKey(filterKey)
 	, m_relay(relay)
@@ -74,6 +76,7 @@ PermitVpnRelayBase::PermitVpnRelayBase
 	, m_protocol(protocol)
 	, m_relayClient(relayClient)
 	, m_sublayer(sublayer)
+	, m_tunnelInterface(tunnelInterface)
 {
 }
 
@@ -101,6 +104,11 @@ bool PermitVpnRelayBase::apply(IObjectInstaller &objectInstaller)
 	conditionBuilder.add_condition(ConditionPort::Remote(m_relayPort));
 	conditionBuilder.add_condition(CreateProtocolCondition(m_protocol));
 	conditionBuilder.add_condition(std::make_unique<ConditionApplication>(m_relayClient));
+
+	if (m_tunnelInterface.has_value())
+	{
+		conditionBuilder.add_condition(ConditionInterface::Alias(*m_tunnelInterface));
+	}
 
 	return objectInstaller.addFilter(filterBuilder, conditionBuilder);
 }

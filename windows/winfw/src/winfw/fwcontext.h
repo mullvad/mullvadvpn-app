@@ -44,6 +44,7 @@ public:
 	(
 		const WinFwSettings &settings,
 		const WinFwEndpoint &relay,
+		const std::optional<WinFwEndpoint> &exitRelay,
 		const std::wstring &relayClient,
 		const std::wstring &tunnelInterfaceAlias,
 		const std::vector<wfp::IpAddress> &tunnelDnsServers,

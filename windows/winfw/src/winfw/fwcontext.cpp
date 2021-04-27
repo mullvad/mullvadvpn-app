@@ -107,7 +107,8 @@ void AppendExitRelayRules
 (
 	FwContext::Ruleset &ruleset,
 	const WinFwEndpoint &relay,
-	const std::wstring &relayClient
+	const std::wstring &relayClient,
+	const std::optional<std::wstring> &tunnelInterface
 )
 {
 	auto sublayer =
@@ -122,7 +123,8 @@ void AppendExitRelayRules
 		relay.port,
 		relay.protocol,
 		relayClient,
-		sublayer
+		sublayer,
+		tunnelInterface
 	));
 }
 
@@ -218,7 +220,7 @@ bool FwContext::applyPolicyConnecting
 
 	if (exitRelay.has_value())
 	{
-		AppendExitRelayRules(ruleset, *exitRelay, relayClient);
+		AppendExitRelayRules(ruleset, *exitRelay, relayClient, std::nullopt);
 	}
 
 	if (allowedEndpoint.has_value())
@@ -253,6 +255,7 @@ bool FwContext::applyPolicyConnected
 (
 	const WinFwSettings &settings,
 	const WinFwEndpoint &relay,
+	const std::optional<WinFwEndpoint> &exitRelay,
 	const std::wstring &relayClient,
 	const std::wstring &tunnelInterfaceAlias,
 	const std::vector<wfp::IpAddress> &tunnelDnsServers,
@@ -264,6 +267,11 @@ bool FwContext::applyPolicyConnected
 	AppendNetBlockedRules(ruleset);
 	AppendSettingsRules(ruleset, settings);
 	AppendRelayRules(ruleset, relay, relayClient);
+
+	if (exitRelay.has_value())
+	{
+		AppendExitRelayRules(ruleset, *exitRelay, relayClient, std::make_optional(tunnelInterfaceAlias));
+	}
 
 	if (!tunnelDnsServers.empty())
 	{

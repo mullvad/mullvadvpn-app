@@ -17,7 +17,7 @@ public:
 		WinFwProtocol protocol,
 		const std::wstring &relayClient,
 		Sublayer sublayer
-	) : PermitVpnRelayBase(MullvadGuids::Filter_Baseline_PermitVpnRelay(), relay, relayPort, protocol, relayClient, sublayer)
+	) : PermitVpnRelayBase(MullvadGuids::Filter_Baseline_PermitVpnRelay(), relay, relayPort, protocol, relayClient, sublayer, std::nullopt)
 	{
 	}
 };
