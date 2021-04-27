@@ -7,6 +7,7 @@ use futures::{
     future::{Fuse, FusedFuture},
     FutureExt, SinkExt, StreamExt,
 };
+use ipnetwork::IpNetwork;
 use log::{debug, error, info, warn};
 use mullvad_rpc::{rest::MullvadRestHandle, RelayListProxy};
 use mullvad_types::{
@@ -49,6 +50,8 @@ const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
 
 const EXPONENTIAL_BACKOFF_INITIAL: Duration = Duration::from_secs(16);
 const EXPONENTIAL_BACKOFF_FACTOR: u32 = 8;
+
+const PREFERRED_EXIT_WIREGUARD_PORT: u16 = 51820;
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -222,12 +225,23 @@ impl RelaySelector {
         retry_attempt: u32,
         wg_key_exists: bool,
     ) -> Result<(Relay, MullvadEndpoint), Error> {
-        let preferred_constraints = self.preferred_constraints(
+        let mut preferred_constraints = self.preferred_constraints(
             relay_constraints,
             bridge_state,
             retry_attempt,
             wg_key_exists,
         );
+        if preferred_constraints
+            .wireguard_constraints
+            .entry_location
+            .is_some()
+        {
+            // Ignore WG constraints for the exit endpoint
+            preferred_constraints.wireguard_constraints = WireguardConstraints {
+                port: Constraint::Only(PREFERRED_EXIT_WIREGUARD_PORT),
+                ..WireguardConstraints::default()
+            };
+        }
         if let Some((relay, endpoint)) = self.get_tunnel_endpoint_internal(&preferred_constraints) {
             debug!(
                 "Relay matched on highest preference for retry attempt {}",
@@ -323,38 +337,37 @@ impl RelaySelector {
         relay_constraints
     }
 
-    pub fn get_tunnel_exit_endpoint(
+    pub fn get_tunnel_entry_endpoint(
         &mut self,
+        exit_peer: &wireguard::PeerConfig,
         relay_constraints: &RelayConstraints,
+        retry_attempt: u32,
     ) -> Option<(Relay, MullvadEndpoint)> {
-        if relay_constraints.tunnel_protocol != Constraint::Only(TunnelType::Wireguard)
-            && relay_constraints.tunnel_protocol != Constraint::Any
-        {
-            return None;
-        }
-        if relay_constraints
+        let entry_location = relay_constraints
             .wireguard_constraints
-            .exit_location
-            .is_none()
-        {
-            return None;
+            .entry_location
+            .clone()?;
+        let entry_constraints = RelayConstraints {
+            location: entry_location,
+            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
+            ..relay_constraints.clone()
+        };
+        let entry_constraints =
+            self.preferred_constraints(&entry_constraints, BridgeState::Off, retry_attempt, true);
+
+        let mut endpoint = self.get_tunnel_endpoint_internal(&entry_constraints)?;
+
+        match endpoint.1 {
+            MullvadEndpoint::Wireguard { ref mut peer, .. } => {
+                peer.allowed_ips = vec![IpNetwork::from(exit_peer.endpoint.ip())];
+            }
+            _ => {
+                log::error!("BUG: Endpoint must be WireGuard endpoint");
+                return None;
+            }
         }
 
-        let exit_constraints = RelayConstraints {
-            location: relay_constraints
-                .wireguard_constraints
-                .exit_location
-                .clone()
-                .unwrap(),
-            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-            providers: relay_constraints.providers.clone(),
-            wireguard_constraints: WireguardConstraints {
-                exit_location: None,
-                ..WireguardConstraints::default()
-            },
-            ..RelayConstraints::default()
-        };
-        self.get_tunnel_endpoint_internal(&exit_constraints)
+        Some(endpoint)
     }
 
     pub fn get_auto_proxy_settings(
