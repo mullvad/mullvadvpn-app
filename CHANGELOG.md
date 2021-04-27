@@ -28,6 +28,7 @@ Line wrap the file at 100 chars.                                              Th
   management interface UDS socket. This means that only users in that group can use the CLI and GUI.
 - Support WireGuard over TCP for custom VPN relays in the CLI.
 - Make app native on Apple Silicon.
+- Support WireGuard multihop using an entry endpoint constraint.
 
 ### Changed
 - Upgrade OpenVPN from 2.5.0 to 2.5.1.
