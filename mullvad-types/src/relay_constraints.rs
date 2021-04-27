@@ -450,8 +450,13 @@ impl fmt::Display for WireguardConstraints {
         }
         write!(f, " over ")?;
         match self.ip_version {
-            Constraint::Any => write!(f, "IPv4 or IPv6"),
-            Constraint::Only(protocol) => write!(f, "{}", protocol),
+            Constraint::Any => write!(f, "IPv4 or IPv6")?,
+            Constraint::Only(protocol) => write!(f, "{}", protocol)?,
+        }
+        if let Some(Constraint::Only(ref entry)) = self.entry_location {
+            write!(f, " (via {})", entry)
+        } else {
+            Ok(())
         }
     }
 }

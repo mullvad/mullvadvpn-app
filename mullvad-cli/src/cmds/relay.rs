@@ -2,6 +2,7 @@ use crate::{location, new_rpc_client, Command, Error, Result};
 use clap::{value_t, values_t};
 use itertools::Itertools;
 use std::{
+    fmt::Write,
     io::{self, BufRead},
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     str::FromStr,
@@ -733,7 +734,7 @@ impl Relay {
 
     fn format_wireguard_constraints(constraints: Option<&WireguardConstraints>) -> String {
         if let Some(constraints) = constraints {
-            format!(
+            let mut out = format!(
                 "{} over {}",
                 Self::format_port(constraints.port),
                 Self::format_ip_version(
@@ -742,7 +743,18 @@ impl Relay {
                         .clone()
                         .map(|protocol| IpVersion::from_i32(protocol.protocol).unwrap())
                 )
-            )
+            );
+
+            if let Some(ref entry) = constraints.entry_location {
+                write!(
+                    &mut out,
+                    " (via {})",
+                    location::format_location(Some(entry))
+                )
+                .unwrap();
+            }
+
+            out
         } else {
             "any port over IPv4 or IPv6".to_string()
         }

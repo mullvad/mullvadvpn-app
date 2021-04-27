@@ -315,6 +315,25 @@ impl From<IpVersion> for IpVersionConstraint {
     }
 }
 
+impl
+    From<
+        mullvad_types::relay_constraints::Constraint<
+            mullvad_types::relay_constraints::LocationConstraint,
+        >,
+    > for RelayLocation
+{
+    fn from(
+        location: mullvad_types::relay_constraints::Constraint<
+            mullvad_types::relay_constraints::LocationConstraint,
+        >,
+    ) -> Self {
+        location
+            .option()
+            .map(RelayLocation::from)
+            .unwrap_or_default()
+    }
+}
+
 impl From<mullvad_types::relay_constraints::LocationConstraint> for RelayLocation {
     fn from(location: mullvad_types::relay_constraints::LocationConstraint) -> Self {
         use mullvad_types::relay_constraints::LocationConstraint;
@@ -457,7 +476,7 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
                         entry_location: constraints
                             .wireguard_constraints
                             .entry_location
-                            .and_then(|constraint| constraint.option().map(RelayLocation::from)),
+                            .map(RelayLocation::from),
                     }),
 
                     openvpn_constraints: Some(OpenvpnConstraints {
