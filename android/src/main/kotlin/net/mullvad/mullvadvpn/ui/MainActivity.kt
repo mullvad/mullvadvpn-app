@@ -115,6 +115,8 @@ open class MainActivity : FragmentActivity() {
         unbindService(serviceConnectionManager)
 
         super.onStop()
+
+        serviceConnection = null
     }
 
     override fun onDestroy() {
