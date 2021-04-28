@@ -44,6 +44,149 @@ impl From<talpid_types::net::TunnelEndpoint> for TunnelEndpoint {
     }
 }
 
+impl From<mullvad_types::states::TunnelState> for TunnelState {
+    fn from(state: mullvad_types::states::TunnelState) -> Self {
+        use error_state::{
+            firewall_policy_error::ErrorType as PolicyErrorType, Cause, FirewallPolicyError,
+            GenerationError,
+        };
+        use mullvad_types::states::TunnelState as MullvadTunnelState;
+
+        use talpid_types::tunnel as talpid_tunnel;
+
+        let map_firewall_error =
+            |firewall_error: &talpid_tunnel::FirewallPolicyError| match firewall_error {
+                talpid_tunnel::FirewallPolicyError::Generic => FirewallPolicyError {
+                    r#type: i32::from(PolicyErrorType::Generic),
+                    ..Default::default()
+                },
+                #[cfg(windows)]
+                talpid_tunnel::FirewallPolicyError::Locked(blocking_app) => {
+                    let (lock_pid, lock_name) = match blocking_app {
+                        Some(app) => (app.pid, app.name.clone()),
+                        None => (0, "".to_string()),
+                    };
+
+                    FirewallPolicyError {
+                        r#type: i32::from(PolicyErrorType::Locked),
+                        lock_pid,
+                        lock_name,
+                    }
+                }
+            };
+
+        let state = match state {
+            MullvadTunnelState::Disconnected => {
+                tunnel_state::State::Disconnected(tunnel_state::Disconnected {})
+            }
+            MullvadTunnelState::Connecting { endpoint, location } => {
+                tunnel_state::State::Connecting(tunnel_state::Connecting {
+                    relay_info: Some(TunnelStateRelayInfo {
+                        tunnel_endpoint: Some(TunnelEndpoint::from(endpoint)),
+                        location: location.map(GeoIpLocation::from),
+                    }),
+                })
+            }
+            MullvadTunnelState::Connected { endpoint, location } => {
+                tunnel_state::State::Connected(tunnel_state::Connected {
+                    relay_info: Some(TunnelStateRelayInfo {
+                        tunnel_endpoint: Some(TunnelEndpoint::from(endpoint)),
+                        location: location.map(GeoIpLocation::from),
+                    }),
+                })
+            }
+            MullvadTunnelState::Disconnecting(after_disconnect) => {
+                tunnel_state::State::Disconnecting(tunnel_state::Disconnecting {
+                    after_disconnect: match after_disconnect {
+                        talpid_tunnel::ActionAfterDisconnect::Nothing => {
+                            i32::from(AfterDisconnect::Nothing)
+                        }
+                        talpid_tunnel::ActionAfterDisconnect::Block => {
+                            i32::from(AfterDisconnect::Block)
+                        }
+                        talpid_tunnel::ActionAfterDisconnect::Reconnect => {
+                            i32::from(AfterDisconnect::Reconnect)
+                        }
+                    },
+                })
+            }
+            MullvadTunnelState::Error(error_state) => {
+                tunnel_state::State::Error(tunnel_state::Error {
+                    error_state: Some(ErrorState {
+                        cause: match error_state.cause() {
+                            talpid_tunnel::ErrorStateCause::AuthFailed(_) => {
+                                i32::from(Cause::AuthFailed)
+                            }
+                            talpid_tunnel::ErrorStateCause::Ipv6Unavailable => {
+                                i32::from(Cause::Ipv6Unavailable)
+                            }
+                            talpid_tunnel::ErrorStateCause::SetFirewallPolicyError(_) => {
+                                i32::from(Cause::SetFirewallPolicyError)
+                            }
+                            talpid_tunnel::ErrorStateCause::SetDnsError => {
+                                i32::from(Cause::SetDnsError)
+                            }
+                            talpid_tunnel::ErrorStateCause::StartTunnelError => {
+                                i32::from(Cause::StartTunnelError)
+                            }
+                            talpid_tunnel::ErrorStateCause::TunnelParameterError(_) => {
+                                i32::from(Cause::TunnelParameterError)
+                            }
+                            talpid_tunnel::ErrorStateCause::IsOffline => {
+                                i32::from(Cause::IsOffline)
+                            }
+                            #[cfg(target_os = "android")]
+                            talpid_tunnel::ErrorStateCause::VpnPermissionDenied => {
+                                i32::from(Cause::VpnPermissionDenied)
+                            }
+                        },
+                        blocking_error: error_state.block_failure().map(map_firewall_error),
+                        auth_fail_reason: if let talpid_tunnel::ErrorStateCause::AuthFailed(
+                            reason,
+                        ) = error_state.cause()
+                        {
+                            reason.clone().unwrap_or_default()
+                        } else {
+                            "".to_string()
+                        },
+                        parameter_error:
+                            if let talpid_tunnel::ErrorStateCause::TunnelParameterError(reason) =
+                                error_state.cause()
+                            {
+                                match reason {
+                            talpid_tunnel::ParameterGenerationError::NoMatchingRelay => {
+                                i32::from(GenerationError::NoMatchingRelay)
+                            }
+                            talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay => {
+                                i32::from(GenerationError::NoMatchingBridgeRelay)
+                            }
+                            talpid_tunnel::ParameterGenerationError::NoWireguardKey => {
+                                i32::from(GenerationError::NoWireguardKey)
+                            }
+                            talpid_tunnel::ParameterGenerationError::CustomTunnelHostResultionError => {
+                                i32::from(GenerationError::CustomTunnelHostResolutionError)
+                            }
+                        }
+                            } else {
+                                0
+                            },
+                        policy_error:
+                            if let talpid_tunnel::ErrorStateCause::SetFirewallPolicyError(reason) =
+                                error_state.cause()
+                            {
+                                Some(map_firewall_error(reason))
+                            } else {
+                                None
+                            },
+                    }),
+                })
+            }
+        };
+
+        TunnelState { state: Some(state) }
+    }
+}
+
 impl From<mullvad_types::wireguard::KeygenEvent> for KeygenEvent {
     fn from(event: mullvad_types::wireguard::KeygenEvent) -> Self {
         use keygen_event::KeygenEvent as Event;
