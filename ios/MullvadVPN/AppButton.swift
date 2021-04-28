@@ -72,6 +72,7 @@ private extension UIControl.State {
 
     private func commonInit() {
         imageAlignment = .trailing
+        contentHorizontalAlignment = .leading
 
         let states: [UIControl.State] = [.normal, .highlighted, .disabled]
         states.forEach { (state) in
