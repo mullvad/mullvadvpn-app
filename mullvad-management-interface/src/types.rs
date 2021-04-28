@@ -5,6 +5,22 @@ use std::convert::TryFrom;
 
 tonic::include_proto!("mullvad_daemon.management_interface");
 
+impl From<mullvad_types::location::GeoIpLocation> for GeoIpLocation {
+    fn from(geoip: mullvad_types::location::GeoIpLocation) -> GeoIpLocation {
+        GeoIpLocation {
+            ipv4: geoip.ipv4.map(|ip| ip.to_string()).unwrap_or_default(),
+            ipv6: geoip.ipv6.map(|ip| ip.to_string()).unwrap_or_default(),
+            country: geoip.country,
+            city: geoip.city.unwrap_or_default(),
+            latitude: geoip.latitude,
+            longitude: geoip.longitude,
+            mullvad_exit_ip: geoip.mullvad_exit_ip,
+            hostname: geoip.hostname.unwrap_or_default(),
+            bridge_hostname: geoip.bridge_hostname.unwrap_or_default(),
+        }
+    }
+}
+
 impl From<talpid_types::net::TunnelEndpoint> for TunnelEndpoint {
     fn from(endpoint: talpid_types::net::TunnelEndpoint) -> Self {
         use talpid_types::net;
