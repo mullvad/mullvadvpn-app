@@ -70,6 +70,7 @@
 		5840250222B1124600E4CFEC /* IPAddress+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250022B1124600E4CFEC /* IPAddress+Codable.swift */; };
 		5840250422B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
 		5840250522B11AB700E4CFEC /* MullvadEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */; };
+		584592612639B4A200EF967F /* ConsentContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584592602639B4A200EF967F /* ConsentContentView.swift */; };
 		5845F842236CBACD00B2D93C /* PacketTunnelIpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */; };
 		5845F843236CBDAB00B2D93C /* PacketTunnelIpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */; };
 		584E96BC240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
@@ -143,7 +144,6 @@
 		58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */; };
 		58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
 		58A99ED3240014A0006599E9 /* ConsentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A99ED2240014A0006599E9 /* ConsentViewController.swift */; };
-		58AB9DEC2501040C006C5526 /* ConsentViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58AB9DEB2501040C006C5526 /* ConsentViewController.xib */; };
 		58AEEF652344A36000C9BBD5 /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF642344A36000C9BBD5 /* KeychainError.swift */; };
 		58AEEF662344A37400C9BBD5 /* KeychainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF642344A36000C9BBD5 /* KeychainError.swift */; };
 		58AEEF6B2344A46200C9BBD5 /* TunnelSettingsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58AEEF6A2344A46200C9BBD5 /* TunnelSettingsManager.swift */; };
@@ -314,6 +314,7 @@
 		583DA21325FA4B5C00318683 /* LocationDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDataSource.swift; sourceTree = "<group>"; };
 		5840250022B1124600E4CFEC /* IPAddress+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IPAddress+Codable.swift"; sourceTree = "<group>"; };
 		5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadEndpoint.swift; sourceTree = "<group>"; };
+		584592602639B4A200EF967F /* ConsentContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsentContentView.swift; sourceTree = "<group>"; };
 		5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelIpc.swift; sourceTree = "<group>"; };
 		584B26F3237434D00073B10E /* RelaySelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorTests.swift; sourceTree = "<group>"; };
 		5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IPAddressRange+Codable.swift"; sourceTree = "<group>"; };
@@ -354,7 +355,6 @@
 		58A1AA8623F43901009F7EA6 /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionPanelView.swift; sourceTree = "<group>"; };
 		58A99ED2240014A0006599E9 /* ConsentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsentViewController.swift; sourceTree = "<group>"; };
-		58AB9DEB2501040C006C5526 /* ConsentViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ConsentViewController.xib; sourceTree = "<group>"; };
 		58AEEF642344A36000C9BBD5 /* KeychainError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainError.swift; sourceTree = "<group>"; };
 		58AEEF6A2344A46200C9BBD5 /* TunnelSettingsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsManager.swift; sourceTree = "<group>"; };
 		58B0A2A0238EE67E00BC001D /* MullvadVPNTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadVPNTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -570,7 +570,7 @@
 				58CCA00F224249A1004F3011 /* ConnectViewController.swift */,
 				58B43C1825F77DB60002C8C3 /* ConnectMainContentView.swift */,
 				58A99ED2240014A0006599E9 /* ConsentViewController.swift */,
-				58AB9DEB2501040C006C5526 /* ConsentViewController.xib */,
+				584592602639B4A200EF967F /* ConsentContentView.swift */,
 				5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */,
 				582BB1B0229569620055B6EF /* CustomNavigationBar.swift */,
 				58293FB625138B88005D0BB5 /* CustomNavigationController.swift */,
@@ -883,7 +883,6 @@
 				58F3C0A624A50157003E76BE /* relays.json in Resources */,
 				58CE5E6E224146210008646E /* LaunchScreen.storyboard in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
-				58AB9DEC2501040C006C5526 /* ConsentViewController.xib in Resources */,
 				58CE5E69224146200008646E /* Main.storyboard in Resources */,
 				58E5BC2624FEB6DB00A53A76 /* AccountViewController.xib in Resources */,
 				58B9814E24FEA70D00C0D59E /* WireguardKeysViewController.xib in Resources */,
@@ -1048,6 +1047,7 @@
 				5868BD33261DCD2600E6027F /* CustomSplitViewController.swift in Sources */,
 				5888AD7F2279B6BF0051EB06 /* RelayStatusIndicatorView.swift in Sources */,
 				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
+				584592612639B4A200EF967F /* ConsentContentView.swift in Sources */,
 				587AD7CA2342283900E93A53 /* Account.swift in Sources */,
 				58F840AF2464382C0044E708 /* KeychainItemRevision.swift in Sources */,
 				58293FB725138B88005D0BB5 /* CustomNavigationController.swift in Sources */,
