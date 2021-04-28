@@ -13,7 +13,7 @@ protocol SettingsViewControllerDelegate: class {
     func settingsViewControllerDidFinish(_ controller: SettingsViewController)
 }
 
-class SettingsViewController: UITableViewController {
+class SettingsViewController: UITableViewController, AccountObserver {
 
     weak var delegate: SettingsViewControllerDelegate?
 
@@ -59,16 +59,24 @@ class SettingsViewController: UITableViewController {
         navigationItem.largeTitleDisplayMode = .always
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(handleDismiss))
 
-        accountExpiryObserver = NotificationCenter.default.addObserver(
-            forName: Account.didUpdateAccountExpiryNotification,
-            object: Account.shared,
-            queue: OperationQueue.main) { [weak self] (note) in
-                guard let accountRow = self?.accountRow else { return }
-
-                self?.staticDataSource.reloadRows([accountRow], with: .none)
-        }
-
+        Account.shared.addObserver(self)
         setupDataSource()
+    }
+
+    // MARK: - AccountObserver
+
+    func account(_ account: Account, didUpdateExpiry expiry: Date) {
+        guard let accountRow = accountRow else { return }
+
+        staticDataSource.reloadRows([accountRow], with: .none)
+    }
+
+    func account(_ account: Account, didLoginWithToken token: String, expiry: Date) {
+        // no-op
+    }
+
+    func accountDidLogout(_ account: Account) {
+        // no-op
     }
 
     // MARK: - IBActions

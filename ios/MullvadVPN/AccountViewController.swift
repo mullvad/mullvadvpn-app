@@ -14,7 +14,7 @@ protocol AccountViewControllerDelegate: class {
     func accountViewControllerDidLogout(_ controller: AccountViewController)
 }
 
-class AccountViewController: UIViewController, AppStorePaymentObserver {
+class AccountViewController: UIViewController, AppStorePaymentObserver, AccountObserver {
 
     @IBOutlet var accountTokenButton: UIButton!
     @IBOutlet var purchaseButton: InAppPurchaseButton!
@@ -24,7 +24,6 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
     @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
 
     private var copyToPasteboardWork: DispatchWorkItem?
-    private var accountExpiryObserver: NSObjectProtocol?
 
     private var pendingPayment: SKPayment?
     private let alertPresenter = AlertPresenter()
@@ -59,16 +58,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
         navigationItem.title = NSLocalizedString("Account", comment: "Navigation title")
 
         AppStorePaymentManager.shared.addPaymentObserver(self)
-
-        accountExpiryObserver = NotificationCenter.default.addObserver(
-            forName: Account.didUpdateAccountExpiryNotification,
-            object: Account.shared,
-            queue: OperationQueue.main) { [weak self] (note) in
-                guard let newExpiryDate = note
-                    .userInfo?[Account.newAccountExpiryUserInfoKey] as? Date else { return }
-
-                self?.updateAccountExpiry(expiryDate: newExpiryDate)
-        }
+        Account.shared.addObserver(self)
 
         accountTokenButton.setTitle(Account.shared.formattedToken, for: .normal)
 
@@ -264,6 +254,20 @@ class AccountViewController: UIViewController, AppStorePaymentObserver {
                 }
             }
         }
+    }
+
+    // MARK: - AccountObserver
+
+    func account(_ account: Account, didUpdateExpiry expiry: Date) {
+        updateAccountExpiry(expiryDate: expiry)
+    }
+
+    func account(_ account: Account, didLoginWithToken token: String, expiry: Date) {
+        // no-op
+    }
+
+    func accountDidLogout(_ account: Account) {
+        // no-op
     }
 
     // MARK: - AppStorePaymentObserver
