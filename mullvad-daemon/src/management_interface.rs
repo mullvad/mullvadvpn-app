@@ -10,9 +10,7 @@ use mullvad_rpc::{rest::Error as RestError, StatusCode};
 use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::AccountToken,
-    relay_constraints::{
-        BridgeConstraints, BridgeSettings, BridgeState, Constraint, Providers, RelaySettingsUpdate,
-    },
+    relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     relay_list::RelayList,
     settings::Settings,
     states::{TargetState, TunnelState},
@@ -229,80 +227,12 @@ impl ManagementService for ManagementServiceImpl {
         &self,
         request: Request<types::BridgeSettings>,
     ) -> ServiceResult<()> {
-        use talpid_types::net;
-        use types::bridge_settings::Type as BridgeSettingType;
-
-        let settings = request
-            .into_inner()
-            .r#type
-            .ok_or(Status::invalid_argument("no settings provided"))?;
-
-        let settings = match settings {
-            BridgeSettingType::Normal(constraints) => {
-                let location = match constraints.location {
-                    None => Constraint::Any,
-                    Some(location) => Constraint::<
-                        mullvad_types::relay_constraints::LocationConstraint,
-                    >::from(location),
-                };
-                let providers = if constraints.providers.is_empty() {
-                    Constraint::Any
-                } else {
-                    Constraint::Only(
-                        Providers::new(constraints.providers.clone().into_iter()).map_err(
-                            |_| Status::invalid_argument("must specify at least one provider"),
-                        )?,
-                    )
-                };
-
-                BridgeSettings::Normal(BridgeConstraints {
-                    location,
-                    providers,
-                })
-            }
-            BridgeSettingType::Local(proxy_settings) => {
-                let peer = proxy_settings
-                    .peer
-                    .parse()
-                    .map_err(|_| Status::invalid_argument("failed to parse peer address"))?;
-                let proxy_settings =
-                    net::openvpn::ProxySettings::Local(net::openvpn::LocalProxySettings {
-                        port: proxy_settings.port as u16,
-                        peer,
-                    });
-                BridgeSettings::Custom(proxy_settings)
-            }
-            BridgeSettingType::Remote(proxy_settings) => {
-                let address = proxy_settings
-                    .address
-                    .parse()
-                    .map_err(|_| Status::invalid_argument("failed to parse IP address"))?;
-                let auth = proxy_settings.auth.map(|auth| net::openvpn::ProxyAuth {
-                    username: auth.username,
-                    password: auth.password,
-                });
-                let proxy_settings =
-                    net::openvpn::ProxySettings::Remote(net::openvpn::RemoteProxySettings {
-                        address,
-                        auth,
-                    });
-                BridgeSettings::Custom(proxy_settings)
-            }
-            BridgeSettingType::Shadowsocks(proxy_settings) => {
-                let peer = proxy_settings
-                    .peer
-                    .parse()
-                    .map_err(|_| Status::invalid_argument("failed to parse peer address"))?;
-                let proxy_settings = net::openvpn::ProxySettings::Shadowsocks(
-                    net::openvpn::ShadowsocksProxySettings {
-                        peer,
-                        password: proxy_settings.password,
-                        cipher: proxy_settings.cipher,
-                    },
-                );
-                BridgeSettings::Custom(proxy_settings)
-            }
-        };
+        let settings =
+            BridgeSettings::try_from(request.into_inner()).map_err(|error| match error {
+                types::FromProtobufTypeError::InvalidArgument(error) => {
+                    Status::invalid_argument(error)
+                }
+            })?;
 
         log::debug!("set_bridge_settings({:?})", settings);
 

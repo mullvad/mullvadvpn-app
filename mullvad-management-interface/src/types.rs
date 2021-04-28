@@ -904,6 +904,91 @@ impl From<RelayLocation> for Constraint<mullvad_types::relay_constraints::Locati
     }
 }
 
+impl TryFrom<BridgeSettings> for mullvad_types::relay_constraints::BridgeSettings {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(settings: BridgeSettings) -> Result<Self, Self::Error> {
+        use mullvad_types::relay_constraints as mullvad_constraints;
+        use talpid_types::net as talpid_net;
+
+        match settings
+            .r#type
+            .ok_or(FromProtobufTypeError::InvalidArgument(
+                "no settings provided",
+            ))? {
+            bridge_settings::Type::Normal(constraints) => {
+                let location = match constraints.location {
+                    None => Constraint::Any,
+                    Some(location) => {
+                        Constraint::<mullvad_constraints::LocationConstraint>::from(location)
+                    }
+                };
+                let providers = if constraints.providers.is_empty() {
+                    Constraint::Any
+                } else {
+                    Constraint::Only(
+                        mullvad_constraints::Providers::new(
+                            constraints.providers.clone().into_iter(),
+                        )
+                        .map_err(|_| {
+                            FromProtobufTypeError::InvalidArgument(
+                                "must specify at least one provider",
+                            )
+                        })?,
+                    )
+                };
+
+                Ok(mullvad_constraints::BridgeSettings::Normal(
+                    mullvad_constraints::BridgeConstraints {
+                        location,
+                        providers,
+                    },
+                ))
+            }
+            bridge_settings::Type::Local(proxy_settings) => {
+                let peer = proxy_settings.peer.parse().map_err(|_| {
+                    FromProtobufTypeError::InvalidArgument("failed to parse peer address")
+                })?;
+                let proxy_settings = talpid_net::openvpn::ProxySettings::Local(
+                    talpid_net::openvpn::LocalProxySettings {
+                        port: proxy_settings.port as u16,
+                        peer,
+                    },
+                );
+                Ok(mullvad_constraints::BridgeSettings::Custom(proxy_settings))
+            }
+            bridge_settings::Type::Remote(proxy_settings) => {
+                let address = proxy_settings.address.parse().map_err(|_| {
+                    FromProtobufTypeError::InvalidArgument("failed to parse IP address")
+                })?;
+                let auth = proxy_settings
+                    .auth
+                    .map(|auth| talpid_net::openvpn::ProxyAuth {
+                        username: auth.username,
+                        password: auth.password,
+                    });
+                let proxy_settings = talpid_net::openvpn::ProxySettings::Remote(
+                    talpid_net::openvpn::RemoteProxySettings { address, auth },
+                );
+                Ok(mullvad_constraints::BridgeSettings::Custom(proxy_settings))
+            }
+            bridge_settings::Type::Shadowsocks(proxy_settings) => {
+                let peer = proxy_settings.peer.parse().map_err(|_| {
+                    FromProtobufTypeError::InvalidArgument("failed to parse peer address")
+                })?;
+                let proxy_settings = talpid_net::openvpn::ProxySettings::Shadowsocks(
+                    talpid_net::openvpn::ShadowsocksProxySettings {
+                        peer,
+                        password: proxy_settings.password,
+                        cipher: proxy_settings.cipher,
+                    },
+                );
+                Ok(mullvad_constraints::BridgeSettings::Custom(proxy_settings))
+            }
+        }
+    }
+}
+
 fn convert_providers_constraint(
     providers: &Constraint<mullvad_types::relay_constraints::Providers>,
 ) -> Vec<String> {
