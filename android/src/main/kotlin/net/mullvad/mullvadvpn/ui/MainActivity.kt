@@ -55,7 +55,6 @@ open class MainActivity : FragmentActivity() {
         override fun onServiceDisconnected(className: ComponentName) {
             android.util.Log.d("mullvad", "UI lost the connection to the service")
             serviceConnection = null
-            serviceNotifier.notify(null)
         }
     }
 
