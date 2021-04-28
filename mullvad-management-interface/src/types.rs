@@ -5,6 +5,29 @@ use std::convert::TryFrom;
 
 tonic::include_proto!("mullvad_daemon.management_interface");
 
+impl From<talpid_types::net::TunnelEndpoint> for TunnelEndpoint {
+    fn from(endpoint: talpid_types::net::TunnelEndpoint) -> Self {
+        use talpid_types::net;
+
+        TunnelEndpoint {
+            address: endpoint.endpoint.address.to_string(),
+            protocol: i32::from(TransportProtocol::from(endpoint.endpoint.protocol)),
+            tunnel_type: match endpoint.tunnel_type {
+                net::TunnelType::Wireguard => i32::from(TunnelType::Wireguard),
+                net::TunnelType::OpenVpn => i32::from(TunnelType::Openvpn),
+            },
+            proxy: endpoint.proxy.map(|proxy_ep| ProxyEndpoint {
+                address: proxy_ep.endpoint.address.to_string(),
+                protocol: i32::from(TransportProtocol::from(proxy_ep.endpoint.protocol)),
+                proxy_type: match proxy_ep.proxy_type {
+                    net::proxy::ProxyType::Shadowsocks => i32::from(ProxyType::Shadowsocks),
+                    net::proxy::ProxyType::Custom => i32::from(ProxyType::Custom),
+                },
+            }),
+        }
+    }
+}
+
 impl From<mullvad_types::wireguard::KeygenEvent> for KeygenEvent {
     fn from(event: mullvad_types::wireguard::KeygenEvent) -> Self {
         use keygen_event::KeygenEvent as Event;

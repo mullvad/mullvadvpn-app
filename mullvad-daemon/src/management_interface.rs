@@ -800,13 +800,13 @@ fn convert_state(state: TunnelState) -> types::TunnelState {
         Disconnected => ProtoState::Disconnected(tunnel_state::Disconnected {}),
         Connecting { endpoint, location } => ProtoState::Connecting(tunnel_state::Connecting {
             relay_info: Some(types::TunnelStateRelayInfo {
-                tunnel_endpoint: Some(convert_endpoint(endpoint)),
+                tunnel_endpoint: Some(types::TunnelEndpoint::from(endpoint)),
                 location: location.map(convert_geoip_location),
             }),
         }),
         Connected { endpoint, location } => ProtoState::Connected(tunnel_state::Connected {
             relay_info: Some(types::TunnelStateRelayInfo {
-                tunnel_endpoint: Some(convert_endpoint(endpoint)),
+                tunnel_endpoint: Some(types::TunnelEndpoint::from(endpoint)),
                 location: location.map(convert_geoip_location),
             }),
         }),
@@ -876,27 +876,6 @@ fn convert_state(state: TunnelState) -> types::TunnelState {
     };
 
     types::TunnelState { state: Some(state) }
-}
-
-fn convert_endpoint(endpoint: talpid_types::net::TunnelEndpoint) -> types::TunnelEndpoint {
-    use talpid_types::net;
-
-    types::TunnelEndpoint {
-        address: endpoint.endpoint.address.to_string(),
-        protocol: i32::from(types::TransportProtocol::from(endpoint.endpoint.protocol)),
-        tunnel_type: match endpoint.tunnel_type {
-            net::TunnelType::Wireguard => i32::from(types::TunnelType::Wireguard),
-            net::TunnelType::OpenVpn => i32::from(types::TunnelType::Openvpn),
-        },
-        proxy: endpoint.proxy.map(|proxy_ep| types::ProxyEndpoint {
-            address: proxy_ep.endpoint.address.to_string(),
-            protocol: i32::from(types::TransportProtocol::from(proxy_ep.endpoint.protocol)),
-            proxy_type: match proxy_ep.proxy_type {
-                net::proxy::ProxyType::Shadowsocks => i32::from(types::ProxyType::Shadowsocks),
-                net::proxy::ProxyType::Custom => i32::from(types::ProxyType::Custom),
-            },
-        }),
-    }
 }
 
 fn convert_geoip_location(geoip: GeoIpLocation) -> types::GeoIpLocation {
