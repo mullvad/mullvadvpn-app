@@ -10,7 +10,6 @@ use mullvad_rpc::{rest::Error as RestError, StatusCode};
 use mullvad_types::settings::DnsOptions;
 use mullvad_types::{
     account::AccountToken,
-    location::GeoIpLocation,
     relay_constraints::{
         BridgeConstraints, BridgeSettings, BridgeState, Constraint, Providers, RelaySettingsUpdate,
     },
@@ -221,7 +220,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::GetCurrentLocation(tx))?;
         let result = self.wait_for_result(rx).await?;
         match result {
-            Some(geoip) => Ok(Response::new(convert_geoip_location(geoip))),
+            Some(geoip) => Ok(Response::new(types::GeoIpLocation::from(geoip))),
             None => Err(Status::not_found("no location was found")),
         }
     }
@@ -801,13 +800,13 @@ fn convert_state(state: TunnelState) -> types::TunnelState {
         Connecting { endpoint, location } => ProtoState::Connecting(tunnel_state::Connecting {
             relay_info: Some(types::TunnelStateRelayInfo {
                 tunnel_endpoint: Some(types::TunnelEndpoint::from(endpoint)),
-                location: location.map(convert_geoip_location),
+                location: location.map(types::GeoIpLocation::from),
             }),
         }),
         Connected { endpoint, location } => ProtoState::Connected(tunnel_state::Connected {
             relay_info: Some(types::TunnelStateRelayInfo {
                 tunnel_endpoint: Some(types::TunnelEndpoint::from(endpoint)),
-                location: location.map(convert_geoip_location),
+                location: location.map(types::GeoIpLocation::from),
             }),
         }),
         Disconnecting(after_disconnect) => ProtoState::Disconnecting(tunnel_state::Disconnecting {
@@ -876,20 +875,6 @@ fn convert_state(state: TunnelState) -> types::TunnelState {
     };
 
     types::TunnelState { state: Some(state) }
-}
-
-fn convert_geoip_location(geoip: GeoIpLocation) -> types::GeoIpLocation {
-    types::GeoIpLocation {
-        ipv4: geoip.ipv4.map(|ip| ip.to_string()).unwrap_or_default(),
-        ipv6: geoip.ipv6.map(|ip| ip.to_string()).unwrap_or_default(),
-        country: geoip.country,
-        city: geoip.city.unwrap_or_default(),
-        latitude: geoip.latitude,
-        longitude: geoip.longitude,
-        mullvad_exit_ip: geoip.mullvad_exit_ip,
-        hostname: geoip.hostname.unwrap_or_default(),
-        bridge_hostname: geoip.bridge_hostname.unwrap_or_default(),
-    }
 }
 
 pub struct ManagementInterfaceServer {
