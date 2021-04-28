@@ -989,6 +989,25 @@ impl TryFrom<BridgeSettings> for mullvad_types::relay_constraints::BridgeSetting
     }
 }
 
+impl TryFrom<BridgeState> for mullvad_types::relay_constraints::BridgeState {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(state: BridgeState) -> Result<Self, Self::Error> {
+        match bridge_state::State::from_i32(state.state) {
+            Some(bridge_state::State::Auto) => {
+                Ok(mullvad_types::relay_constraints::BridgeState::Auto)
+            }
+            Some(bridge_state::State::On) => Ok(mullvad_types::relay_constraints::BridgeState::On),
+            Some(bridge_state::State::Off) => {
+                Ok(mullvad_types::relay_constraints::BridgeState::Off)
+            }
+            None => Err(FromProtobufTypeError::InvalidArgument(
+                "invalid bridge state",
+            )),
+        }
+    }
+}
+
 fn convert_providers_constraint(
     providers: &Constraint<mullvad_types::relay_constraints::Providers>,
 ) -> Vec<String> {
