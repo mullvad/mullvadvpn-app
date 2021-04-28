@@ -5,6 +5,38 @@ use std::convert::TryFrom;
 
 tonic::include_proto!("mullvad_daemon.management_interface");
 
+impl From<mullvad_types::wireguard::KeygenEvent> for KeygenEvent {
+    fn from(event: mullvad_types::wireguard::KeygenEvent) -> Self {
+        use keygen_event::KeygenEvent as Event;
+        use mullvad_types::wireguard::KeygenEvent as MullvadEvent;
+
+        KeygenEvent {
+            event: match event {
+                MullvadEvent::NewKey(_) => i32::from(Event::NewKey),
+                MullvadEvent::TooManyKeys => i32::from(Event::TooManyKeys),
+                MullvadEvent::GenerationFailure => i32::from(Event::GenerationFailure),
+            },
+            new_key: if let MullvadEvent::NewKey(key) = event {
+                Some(PublicKey::from(key))
+            } else {
+                None
+            },
+        }
+    }
+}
+
+impl From<mullvad_types::wireguard::PublicKey> for PublicKey {
+    fn from(public_key: mullvad_types::wireguard::PublicKey) -> Self {
+        PublicKey {
+            key: public_key.key.as_bytes().to_vec(),
+            created: Some(Timestamp {
+                seconds: public_key.created.timestamp(),
+                nanos: 0,
+            }),
+        }
+    }
+}
+
 impl From<mullvad_types::version::AppVersionInfo> for AppVersionInfo {
     fn from(version_info: mullvad_types::version::AppVersionInfo) -> Self {
         Self {

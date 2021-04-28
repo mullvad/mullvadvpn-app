@@ -18,7 +18,7 @@ use mullvad_types::{
     settings::Settings,
     states::{TargetState, TunnelState},
     version,
-    wireguard::{self, RotationInterval, RotationIntervalError},
+    wireguard::{RotationInterval, RotationIntervalError},
 };
 use parking_lot::RwLock;
 use std::{
@@ -641,7 +641,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::GenerateWireguardKey(tx))?;
         self.wait_for_result(rx)
             .await?
-            .map(|event| Response::new(convert_wireguard_key_event(&event)))
+            .map(|event| Response::new(types::KeygenEvent::from(event)))
             .map_err(map_daemon_error)
     }
 
@@ -651,7 +651,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::GetWireguardKey(tx))?;
         let key = self.wait_for_result(rx).await?.map_err(map_daemon_error)?;
         match key {
-            Some(key) => Ok(Response::new(convert_public_key(&key))),
+            Some(key) => Ok(Response::new(types::PublicKey::from(key))),
             None => Err(Status::not_found("no WireGuard key was found")),
         }
     }
@@ -759,36 +759,6 @@ impl ManagementServiceImpl {
 
     async fn wait_for_result<T>(&self, rx: oneshot::Receiver<T>) -> Result<T, Status> {
         rx.await.map_err(|_| Status::internal("sender was dropped"))
-    }
-}
-
-fn convert_wireguard_key_event(
-    event: &mullvad_types::wireguard::KeygenEvent,
-) -> types::KeygenEvent {
-    use mullvad_types::wireguard::KeygenEvent::*;
-    use types::keygen_event::KeygenEvent as ProtoEvent;
-
-    types::KeygenEvent {
-        event: match event {
-            NewKey(_) => i32::from(ProtoEvent::NewKey),
-            TooManyKeys => i32::from(ProtoEvent::TooManyKeys),
-            GenerationFailure => i32::from(ProtoEvent::GenerationFailure),
-        },
-        new_key: if let NewKey(key) = event {
-            Some(convert_public_key(&key))
-        } else {
-            None
-        },
-    }
-}
-
-fn convert_public_key(public_key: &wireguard::PublicKey) -> types::PublicKey {
-    types::PublicKey {
-        key: public_key.key.as_bytes().to_vec(),
-        created: Some(types::Timestamp {
-            seconds: public_key.created.timestamp(),
-            nanos: 0,
-        }),
     }
 }
 
@@ -1054,17 +1024,19 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
 
     fn notify_app_version(&self, app_version_info: version::AppVersionInfo) {
         log::debug!("Broadcasting new app version info");
-        let new_info = types::AppVersionInfo::from(app_version_info);
         self.notify(types::DaemonEvent {
-            event: Some(daemon_event::Event::VersionInfo(new_info)),
+            event: Some(daemon_event::Event::VersionInfo(
+                types::AppVersionInfo::from(app_version_info),
+            )),
         })
     }
 
     fn notify_key_event(&self, key_event: mullvad_types::wireguard::KeygenEvent) {
         log::debug!("Broadcasting new wireguard key event");
-        let new_event = convert_wireguard_key_event(&key_event);
         self.notify(types::DaemonEvent {
-            event: Some(daemon_event::Event::KeyEvent(new_event)),
+            event: Some(daemon_event::Event::KeyEvent(types::KeygenEvent::from(
+                key_event,
+            ))),
         })
     }
 }
