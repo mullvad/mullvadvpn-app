@@ -90,7 +90,7 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetState(tx))?;
         let state = self.wait_for_result(rx).await?;
-        Ok(Response::new(convert_state(state)))
+        Ok(Response::new(types::TunnelState::from(state)))
     }
 
     // Control the daemon and receive events
@@ -761,122 +761,6 @@ impl ManagementServiceImpl {
     }
 }
 
-fn convert_state(state: TunnelState) -> types::TunnelState {
-    use talpid_types::tunnel::{
-        ActionAfterDisconnect, ErrorStateCause, FirewallPolicyError, ParameterGenerationError,
-    };
-    use types::{
-        error_state::{
-            firewall_policy_error::ErrorType as PolicyErrorType, Cause as ProtoErrorCause,
-            FirewallPolicyError as ProtoFirewallPolicyError,
-            GenerationError as ProtoGenerationError,
-        },
-        tunnel_state::{self, State as ProtoState},
-    };
-    use TunnelState::*;
-
-    let map_firewall_error = |firewall_error: &FirewallPolicyError| match firewall_error {
-        FirewallPolicyError::Generic => ProtoFirewallPolicyError {
-            r#type: i32::from(PolicyErrorType::Generic),
-            ..Default::default()
-        },
-        #[cfg(windows)]
-        FirewallPolicyError::Locked(blocking_app) => {
-            let (lock_pid, lock_name) = match blocking_app {
-                Some(app) => (app.pid, app.name.clone()),
-                None => (0, "".to_string()),
-            };
-
-            ProtoFirewallPolicyError {
-                r#type: i32::from(PolicyErrorType::Locked),
-                lock_pid,
-                lock_name,
-            }
-        }
-    };
-
-    let state = match state {
-        Disconnected => ProtoState::Disconnected(tunnel_state::Disconnected {}),
-        Connecting { endpoint, location } => ProtoState::Connecting(tunnel_state::Connecting {
-            relay_info: Some(types::TunnelStateRelayInfo {
-                tunnel_endpoint: Some(types::TunnelEndpoint::from(endpoint)),
-                location: location.map(types::GeoIpLocation::from),
-            }),
-        }),
-        Connected { endpoint, location } => ProtoState::Connected(tunnel_state::Connected {
-            relay_info: Some(types::TunnelStateRelayInfo {
-                tunnel_endpoint: Some(types::TunnelEndpoint::from(endpoint)),
-                location: location.map(types::GeoIpLocation::from),
-            }),
-        }),
-        Disconnecting(after_disconnect) => ProtoState::Disconnecting(tunnel_state::Disconnecting {
-            after_disconnect: match after_disconnect {
-                ActionAfterDisconnect::Nothing => i32::from(types::AfterDisconnect::Nothing),
-                ActionAfterDisconnect::Block => i32::from(types::AfterDisconnect::Block),
-                ActionAfterDisconnect::Reconnect => i32::from(types::AfterDisconnect::Reconnect),
-            },
-        }),
-        Error(error_state) => ProtoState::Error(tunnel_state::Error {
-            error_state: Some(types::ErrorState {
-                cause: match error_state.cause() {
-                    ErrorStateCause::AuthFailed(_) => i32::from(ProtoErrorCause::AuthFailed),
-                    ErrorStateCause::Ipv6Unavailable => i32::from(ProtoErrorCause::Ipv6Unavailable),
-                    ErrorStateCause::SetFirewallPolicyError(_) => {
-                        i32::from(ProtoErrorCause::SetFirewallPolicyError)
-                    }
-                    ErrorStateCause::SetDnsError => i32::from(ProtoErrorCause::SetDnsError),
-                    ErrorStateCause::StartTunnelError => {
-                        i32::from(ProtoErrorCause::StartTunnelError)
-                    }
-                    ErrorStateCause::TunnelParameterError(_) => {
-                        i32::from(ProtoErrorCause::TunnelParameterError)
-                    }
-                    ErrorStateCause::IsOffline => i32::from(ProtoErrorCause::IsOffline),
-                    #[cfg(target_os = "android")]
-                    ErrorStateCause::VpnPermissionDenied => {
-                        i32::from(ProtoErrorCause::VpnPermissionDenied)
-                    }
-                },
-                blocking_error: error_state.block_failure().map(map_firewall_error),
-                auth_fail_reason: if let ErrorStateCause::AuthFailed(reason) = error_state.cause() {
-                    reason.clone().unwrap_or_default()
-                } else {
-                    "".to_string()
-                },
-                parameter_error: if let ErrorStateCause::TunnelParameterError(reason) =
-                    error_state.cause()
-                {
-                    match reason {
-                        ParameterGenerationError::NoMatchingRelay => {
-                            i32::from(ProtoGenerationError::NoMatchingRelay)
-                        }
-                        ParameterGenerationError::NoMatchingBridgeRelay => {
-                            i32::from(ProtoGenerationError::NoMatchingBridgeRelay)
-                        }
-                        ParameterGenerationError::NoWireguardKey => {
-                            i32::from(ProtoGenerationError::NoWireguardKey)
-                        }
-                        ParameterGenerationError::CustomTunnelHostResultionError => {
-                            i32::from(ProtoGenerationError::CustomTunnelHostResolutionError)
-                        }
-                    }
-                } else {
-                    0
-                },
-                policy_error: if let ErrorStateCause::SetFirewallPolicyError(reason) =
-                    error_state.cause()
-                {
-                    Some(map_firewall_error(reason))
-                } else {
-                    None
-                },
-            }),
-        }),
-    };
-
-    types::TunnelState { state: Some(state) }
-}
-
 pub struct ManagementInterfaceServer {
     subscriptions: Arc<RwLock<Vec<EventsListenerSender>>>,
     socket_path: String,
@@ -955,7 +839,9 @@ impl EventListener for ManagementInterfaceEventBroadcaster {
     /// Sends a new state update to all `new_state` subscribers of the management interface.
     fn notify_new_state(&self, new_state: TunnelState) {
         self.notify(types::DaemonEvent {
-            event: Some(daemon_event::Event::TunnelState(convert_state(new_state))),
+            event: Some(daemon_event::Event::TunnelState(types::TunnelState::from(
+                new_state,
+            ))),
         })
     }
 
