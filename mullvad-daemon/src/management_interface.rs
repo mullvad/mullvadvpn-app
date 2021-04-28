@@ -245,14 +245,12 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     async fn set_bridge_state(&self, request: Request<types::BridgeState>) -> ServiceResult<()> {
-        use types::bridge_state::State;
-
-        let bridge_state = match State::from_i32(request.into_inner().state) {
-            Some(State::Auto) => BridgeState::Auto,
-            Some(State::On) => BridgeState::On,
-            Some(State::Off) => BridgeState::Off,
-            None => return Err(Status::invalid_argument("unknown bridge state")),
-        };
+        let bridge_state =
+            BridgeState::try_from(request.into_inner()).map_err(|error| match error {
+                types::FromProtobufTypeError::InvalidArgument(error) => {
+                    Status::invalid_argument(error)
+                }
+            })?;
 
         log::debug!("set_bridge_state({:?})", bridge_state);
         let (tx, rx) = oneshot::channel();
