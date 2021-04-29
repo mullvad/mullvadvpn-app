@@ -16,10 +16,20 @@ import {
   IMAGE_OPTIONAL_HEADER32,
   ImageOptionalHeaderUnion,
   PrimitiveValue,
-  rvaToOffset,
+  rvaToOffset as rvaToOffsetImpl,
   StructValue,
   Value,
   DWORD,
+  IMAGE_DIRECTORY_ENTRY_RESOURCE,
+  IMAGE_RESOURCE_DIRECTORY,
+  IMAGE_RESOURCE_DIRECTORY_ENTRY,
+  IMAGE_RESOURCE_DIRECTORY_STRING_U,
+  IMAGE_RESOURCE_DIRECTORY_DATA_ENTRY,
+  VS_VERSIONINFO,
+  STRING_FILE_INFO,
+  STRING_TABLE,
+  StructWrapper,
+  STRING_TABLE_STRING,
 } from './windows-pe-parser';
 
 interface ShortcutDetails {
@@ -27,6 +37,8 @@ interface ShortcutDetails {
   name: string;
   args?: string;
 }
+
+type RvaToOffset = (rva: number) => Promise<number>;
 
 // Applications are found by scanning the start menu directories
 const APPLICATION_PATHS = [
@@ -59,7 +71,7 @@ export async function getApplications(options: {
   }
 
   // Add excluded apps that are missing from the shortcut cache to it
-  options.applicationPaths?.forEach(addApplicationToAdditionalShortcuts);
+  await Promise.all(options.applicationPaths?.map(addApplicationToAdditionalShortcuts) ?? []);
 
   await updateApplicationCache();
   // If applicationPaths is supplied the returnvalue should only contain the applications
@@ -79,14 +91,14 @@ export async function getApplications(options: {
 }
 
 // Adds either a shortcut or an executable to the additionalShortcuts list
-export function addApplicationPathToCache(applicationPath: string): string {
+export async function addApplicationPathToCache(applicationPath: string): Promise<string> {
   const parsedPath = path.parse(applicationPath);
   if (parsedPath.ext === '.lnk') {
     const shortcutDetiails = shell.readShortcutLink(path.resolve(applicationPath));
     additionalShortcuts.push({ ...shortcutDetiails, name: path.parse(applicationPath).name });
     return shortcutDetiails.target;
   } else {
-    addApplicationToAdditionalShortcuts(applicationPath);
+    await addApplicationToAdditionalShortcuts(applicationPath);
     return applicationPath;
   }
 }
@@ -96,10 +108,11 @@ export function addApplicationPathToCache(applicationPath: string): string {
 // "WS2_32.dll" in it's imports.
 async function updateShortcutCache(): Promise<void> {
   const links = await Promise.all(APPLICATION_PATHS.map(findAllLinks));
-  const resolvedLinks = removeDuplicates(resolveLinks(links.flat()));
+  const resolvedLinks = resolveLinks(links.flat());
+  const uniqueLinks = removeDuplicates(resolvedLinks);
 
   const shortcuts: ShortcutDetails[] = [];
-  for (const shortcut of resolvedLinks) {
+  for (const shortcut of uniqueLinks) {
     if (
       APPLICATION_ALLOW_LIST.includes(path.basename(shortcut.target)) ||
       (await importsDll(shortcut.target, 'WS2_32.dll'))
@@ -125,14 +138,14 @@ async function updateApplicationCache(): Promise<void> {
 }
 
 // Add excluded apps that are missing from the shortcut cache to it
-function addApplicationToAdditionalShortcuts(applicationPath: string): void {
+async function addApplicationToAdditionalShortcuts(applicationPath: string): Promise<void> {
   if (
     shortcutCache[applicationPath] === undefined &&
     !additionalShortcuts.some((shortcut) => shortcut.target === applicationPath)
   ) {
     additionalShortcuts.push({
       target: applicationPath,
-      name: path.parse(applicationPath).name,
+      name: (await getProgramName(applicationPath)) ?? path.parse(applicationPath).name,
     });
   }
 }
@@ -161,18 +174,26 @@ function resolveLinks(linkPaths: string[]): ShortcutDetails[] {
           ...shell.readShortcutLink(path.resolve(link)),
           name: path.parse(link).name,
         };
-      } catch (_e) {
+      } catch {
         return null;
       }
     })
     .filter(
       (shortcut): shortcut is ShortcutDetails =>
         shortcut !== null &&
-        shortcut.name !== 'Mullvad VPN' &&
+        !shortcut.target.endsWith('Mullvad VPN.exe') &&
         shortcut.target.endsWith('.exe') &&
-        !shortcut.target.toLowerCase().includes('uninstall') &&
-        !shortcut.name.toLowerCase().includes('uninstall'),
+        !shortcut.target.toLowerCase().includes('install') && // Covers "uninstall" as well.
+        !shortcut.name.toLowerCase().includes('install'),
     );
+}
+
+async function getProgramName(exePath: string): Promise<string | undefined> {
+  try {
+    return getProductName(exePath);
+  } catch (e) {
+    return undefined;
+  }
 }
 
 // Removes all duplicate shortcuts.
@@ -216,7 +237,6 @@ async function importsDll(path: string, dllName: string): Promise<boolean> {
   try {
     fileHandle = await fs.promises.open(path, fs.constants.O_RDONLY);
   } catch (e) {
-    log.error('Failed to create file handle.', e);
     return false;
   }
 
@@ -227,42 +247,14 @@ async function importsDll(path: string, dllName: string): Promise<boolean> {
 
 async function getExeImports(fileHandle: fs.promises.FileHandle, path: string): Promise<string[]> {
   try {
-    const ntHeader = await getNtHeader(fileHandle);
-    const fileHeader = ntHeader.get<StructValue<typeof IMAGE_FILE_HEADER>>('FileHeader');
-    const optionalHeader = ntHeader.get<StructValue<ImageOptionalHeaderUnion>>('OptionalHeader');
-
-    const importTableRva = optionalHeader
-      .get<ArrayValue<typeof IMAGE_DATA_DIRECTORY>>('DataDirectory')
-      .nth(IMAGE_DIRECTORY_ENTRY_IMPORT)
-      .get('VirtualAddress')
-      .value();
-
-    if (importTableRva === 0x0) {
+    const tableOffsetResult = await getTableOffset(fileHandle, IMAGE_DIRECTORY_ENTRY_IMPORT);
+    if (tableOffsetResult) {
+      const { offset: importTableOffset, rvaToOffset } = tableOffsetResult;
+      const moduleNames = await getImportModuleNames(fileHandle, importTableOffset, rvaToOffset);
+      return moduleNames;
+    } else {
       return [];
     }
-
-    const numberOfSections = fileHeader.get<PrimitiveValue>('NumberOfSections').value<number>();
-    const ntHeaderEndOffset =
-      ntHeader.offset +
-      ntHeader.get<PrimitiveValue<typeof DWORD>>('Signature').size +
-      fileHeader.size +
-      fileHeader.get<PrimitiveValue>('SizeOfOptionalHeader').value();
-
-    const importTableOffset = await rvaToOffset(
-      fileHandle,
-      importTableRva,
-      numberOfSections,
-      ntHeaderEndOffset,
-    );
-
-    const moduleNames = await getImportModuleNames(
-      fileHandle,
-      importTableOffset,
-      ntHeader.endOffset,
-      numberOfSections,
-    );
-
-    return moduleNames;
   } catch (e) {
     log.error(`Failed to read .exe import table for ${path}.`, e);
     return [];
@@ -272,14 +264,16 @@ async function getExeImports(fileHandle: fs.promises.FileHandle, path: string): 
 async function readString(
   fileHandle: fs.promises.FileHandle,
   offset: number,
+  bytes = 1,
+  encoding = 'ascii',
   buffer = Buffer.alloc(1000),
   index = 0,
 ): Promise<string> {
-  await fileHandle.read(buffer, index, 1, offset + index);
+  await fileHandle.read(buffer, index, bytes, offset + index);
   if (buffer[index] === 0x0) {
-    return buffer.slice(0, index).toString('ascii');
+    return buffer.slice(0, index).toString(encoding);
   } else {
-    return readString(fileHandle, offset, buffer, index + 1);
+    return readString(fileHandle, offset, bytes, encoding, buffer, index + bytes);
   }
 }
 
@@ -289,12 +283,12 @@ async function getNtHeader(
 ): Promise<StructValue<ImageNtHeadersUnion>> {
   // Check whether or not the file follows the PE format.
   const dosHeader = await Value.fromFile(fileHandle, 0, DOS_HEADER);
-  const eMagic = dosHeader.get<PrimitiveValue>('e_magic').value<number>();
+  const eMagic = dosHeader.get<PrimitiveValue>('e_magic').value();
   if (eMagic !== 0x5a4d) {
     throw new Error('Not a PE file');
   }
 
-  const ntHeaderOffset = dosHeader.get<PrimitiveValue>('e_lfanew').value<number>();
+  const ntHeaderOffset = dosHeader.get<PrimitiveValue>('e_lfanew').value();
 
   // Check if this is a 32- or 64-bit exe-file and return the correct datatype.
   const ntHeader32 = await Value.fromFile(fileHandle, ntHeaderOffset, IMAGE_NT_HEADERS);
@@ -306,7 +300,7 @@ async function getNtHeader(
   const magic = ntHeader32
     .get<StructValue<typeof IMAGE_OPTIONAL_HEADER32>>('OptionalHeader')
     .get<PrimitiveValue>('Magic')
-    .value<number>();
+    .value();
 
   // magic is 0x20b for 64-bit executables.
   return magic === 0x20b
@@ -318,8 +312,7 @@ async function getNtHeader(
 async function getImportModuleNames(
   fileHandle: fs.promises.FileHandle,
   importTableOffset: number,
-  firstSectionHeaderOffset: number,
-  numberOfSections: number,
+  rvaToOffset: RvaToOffset,
 ): Promise<string[]> {
   const moduleNames: string[] = [];
   const entrySize = Value.sizeOf(IMAGE_IMPORT_MODULE_DIRECTORY);
@@ -334,17 +327,296 @@ async function getImportModuleNames(
     const nameRva = importEntry.get('ModuleName').value();
 
     if (nameRva !== 0x0) {
-      const offset = await rvaToOffset(
-        fileHandle,
-        nameRva,
-        numberOfSections,
-        firstSectionHeaderOffset,
-      );
+      const offset = await rvaToOffset(nameRva);
 
       const name = await readString(fileHandle, offset);
       moduleNames.push(name);
     } else {
       return moduleNames;
     }
+  }
+}
+
+async function getProductName(path: string): Promise<string | undefined> {
+  let fileHandle: fs.promises.FileHandle;
+  try {
+    fileHandle = await fs.promises.open(path, fs.constants.O_RDONLY);
+  } catch {
+    return undefined;
+  }
+
+  try {
+    const getTableOffsetResult = await getTableOffset(fileHandle, IMAGE_DIRECTORY_ENTRY_RESOURCE);
+
+    if (getTableOffsetResult) {
+      const { offset: resourceTableOffset, rvaToOffset } = getTableOffsetResult;
+      const leafOffsets = await getResourceTreeLeafOffsets(
+        fileHandle,
+        resourceTableOffset,
+        resourceTableOffset,
+        rvaToOffset,
+        [[16], [1], [0, 1033]],
+      );
+
+      const productName = await leafOffsets.reduce(async (alreadyFoundValue, leafOffset) => {
+        const value = await alreadyFoundValue;
+        if (value) {
+          return value;
+        } else {
+          const strings = await getVsVersionInfoStrings(fileHandle, leafOffset);
+          return strings.get('ProductName') ?? strings.get('FileDescription');
+        }
+      }, Promise.resolve() as Promise<string | undefined>);
+
+      await fileHandle.close();
+      return productName;
+    } else {
+      await fileHandle.close();
+      throw 0;
+    }
+  } catch (e) {
+    await fileHandle.close();
+    throw e;
+  }
+}
+
+async function getTableOffset(
+  fileHandle: fs.promises.FileHandle,
+  tableIndex: number,
+): Promise<{ offset: number; rvaToOffset: RvaToOffset } | undefined> {
+  const ntHeader = await getNtHeader(fileHandle);
+  const fileHeader = ntHeader.get<StructValue<typeof IMAGE_FILE_HEADER>>('FileHeader');
+  const optionalHeader = ntHeader.get<StructValue<ImageOptionalHeaderUnion>>('OptionalHeader');
+
+  const importTableRva = optionalHeader
+    .get<ArrayValue<typeof IMAGE_DATA_DIRECTORY>>('DataDirectory')
+    .nth(tableIndex)
+    .get('VirtualAddress')
+    .value();
+
+  if (importTableRva === 0x0) {
+    return undefined;
+  }
+
+  const numberOfSections = fileHeader.get<PrimitiveValue>('NumberOfSections').value();
+  const ntHeaderEndOffset =
+    ntHeader.offset +
+    ntHeader.get<PrimitiveValue<typeof DWORD>>('Signature').size +
+    fileHeader.size +
+    fileHeader.get<PrimitiveValue>('SizeOfOptionalHeader').value();
+
+  const rvaToOffset = (rva: number) =>
+    rvaToOffsetImpl(fileHandle, rva, numberOfSections, ntHeaderEndOffset);
+
+  const importTableOffset = await rvaToOffset(importTableRva);
+
+  return { offset: importTableOffset, rvaToOffset };
+}
+
+// Searches the resource tree for the supplied paths and returns the leaves at the end of those
+// paths.
+async function getResourceTreeLeafOffsets(
+  fileHandle: fs.promises.FileHandle,
+  sectionOffset: number,
+  entryOffset: number,
+  rvaToOffset: (rva: number) => Promise<number>,
+  [ids, ...path]: number[][],
+): Promise<number[]> {
+  const entry = await Value.fromFile(fileHandle, entryOffset, IMAGE_RESOURCE_DIRECTORY);
+
+  const numberOfNameEntries = entry.get('NumberOfNameEntries').value();
+  const numberOfIdEntries = entry.get('NumberOfIdEntries').value();
+
+  const leaves: number[] = [];
+
+  let offset = entryOffset + entry.size;
+  for (let i = 0; i < numberOfNameEntries + numberOfIdEntries; i++) {
+    const entry = await Value.fromFile(fileHandle, offset, IMAGE_RESOURCE_DIRECTORY_ENTRY);
+
+    const nameOffsetOrId = entry.get('NameOrId').value();
+    let nameOrId = Number(nameOffsetOrId).toString();
+    // If the first bit is 1 then the value is an offset to a string and otherwise it's an ID
+    if (nameOffsetOrId & 0x80000000) {
+      const relativeOffset = nameOffsetOrId & 0x7fffffff;
+      nameOrId = await readResourceEntryName(fileHandle, offset + relativeOffset);
+    }
+
+    offset += entry.size;
+    if (!ids.map((id) => `${id}`).includes(nameOrId)) {
+      continue;
+    }
+
+    let offsetToData = entry.get('OffsetToData').value();
+    // If the first bit is 1 then the offset points to another node, otherwise it point to a leaf.
+    const leaf = (offsetToData & 0x80000000) === 0;
+    if (!leaf) {
+      offsetToData &= 0x7fffffff;
+    }
+
+    if (leaf && path.length === 0) {
+      const leafDataOffset = await getResourceTreeLeafValueOffset(
+        fileHandle,
+        sectionOffset + offsetToData,
+        rvaToOffset,
+      );
+
+      leaves.push(leafDataOffset);
+    } else {
+      return getResourceTreeLeafOffsets(
+        fileHandle,
+        sectionOffset,
+        sectionOffset + offsetToData,
+        rvaToOffset,
+        path,
+      );
+    }
+  }
+
+  return leaves;
+}
+
+// Finds the Strings structures within the VS_VERSIONINFO structure and returns the contents.
+async function getVsVersionInfoStrings(
+  fileHandle: fs.promises.FileHandle,
+  offset: number,
+): Promise<Map<string, string>> {
+  try {
+    const stringFileInfoOffset = await getVsVersionInfoChildrenOffset(fileHandle, offset);
+
+    const stringTableOffset = await getChildrenOffset(
+      fileHandle,
+      stringFileInfoOffset,
+      STRING_FILE_INFO,
+      (szKey) => szKey === 'StringFileInfo',
+    );
+    const stringTable = await Value.fromFile(fileHandle, stringTableOffset, STRING_TABLE);
+    const stringTableLength = stringTable.get<PrimitiveValue>('wLength').value();
+
+    const stringsOffset = await getChildrenOffset(
+      fileHandle,
+      stringTableOffset,
+      STRING_TABLE,
+      (szKey) => szKey.substr(4).toLowerCase() === '04b0',
+    );
+
+    const strings = await parseStrings(
+      fileHandle,
+      stringsOffset,
+      stringTableOffset + stringTableLength,
+    );
+
+    return strings;
+  } catch {
+    return new Map();
+  }
+}
+
+// Loops through the list of strings and returns a map with the contents.
+async function parseStrings(
+  fileHandle: fs.promises.FileHandle,
+  stringsOffset: number,
+  stringTableEnd: number,
+): Promise<Map<string, string>> {
+  const strings = new Map<string, string>();
+
+  let currentStringOffset = stringsOffset;
+  while (currentStringOffset < stringTableEnd) {
+    const stringValue = await Value.fromFile(fileHandle, currentStringOffset, STRING_TABLE_STRING);
+    const valueLength = stringValue.get<PrimitiveValue>('wValueLength').value();
+
+    const szKeyOffset = currentStringOffset + stringValue.size;
+    const szKey = await readString(fileHandle, szKeyOffset, 2, 'utf-16le');
+
+    const paddingOffset = szKeyOffset + szKey.length * 2;
+    const childrenOffset = (await findOffsetAfterPadding(fileHandle, paddingOffset, 2)) - 2;
+
+    const buffer = Buffer.alloc(valueLength * 2 - 2);
+    await fileHandle.read(buffer, 0, buffer.length, childrenOffset + 2);
+    const value = buffer.toString('utf-16le');
+
+    strings.set(szKey, value);
+
+    currentStringOffset = await findOffsetAfterPadding(
+      fileHandle,
+      childrenOffset + valueLength * 2,
+    );
+  }
+
+  return strings;
+}
+
+// Reads the name of a resource tree node.
+async function readResourceEntryName(
+  fileHandle: fs.promises.FileHandle,
+  offset: number,
+): Promise<string> {
+  const nameValue = await Value.fromFile(fileHandle, offset, IMAGE_RESOURCE_DIRECTORY_STRING_U);
+  const length = nameValue.get<PrimitiveValue>('Length');
+  const buffer = Buffer.alloc(length.value());
+  await fileHandle.read(buffer, 0, buffer.length, offset + length.size);
+  return buffer.toString('utf-8');
+}
+
+async function getResourceTreeLeafValueOffset(
+  fileHandle: fs.promises.FileHandle,
+  offset: number,
+  rvaToOffset: (rva: number) => Promise<number>,
+): Promise<number> {
+  const leaf = await Value.fromFile(fileHandle, offset, IMAGE_RESOURCE_DIRECTORY_DATA_ENTRY);
+  const valueRva = leaf.get<PrimitiveValue>('DataRVA').value();
+  const valueOffset = await rvaToOffset(valueRva);
+
+  return valueOffset;
+}
+
+// Finds the offset to the Children field in the VS_VERSIONINFO structure.
+async function getVsVersionInfoChildrenOffset(fileHandle: fs.promises.FileHandle, offset: number) {
+  const valueValueOffset = await getChildrenOffset(
+    fileHandle,
+    offset,
+    VS_VERSIONINFO,
+    (szKey) => szKey === 'VS_VERSION_INFO',
+  );
+  const versionInfo = await Value.fromFile(fileHandle, offset, VS_VERSIONINFO);
+  const versionInfoValueLength = versionInfo.get<PrimitiveValue>('wValueLength').value();
+  const valuePadding2Offset = valueValueOffset + versionInfoValueLength;
+  const valueChildrenOffset = await findOffsetAfterPadding(fileHandle, valuePadding2Offset);
+
+  return valueChildrenOffset;
+}
+
+// Finds the offset to the Children field in any of the STRING_FILE_INFO, STRING_TABLE and
+// STRING_TABLE_STRING structures.
+async function getChildrenOffset(
+  fileHandle: fs.promises.FileHandle,
+  offset: number,
+  datatype: StructWrapper,
+  validateSzKey?: (szKey: string) => boolean,
+) {
+  const value = await Value.fromFile(fileHandle, offset, datatype);
+  const szKey = value.get('szKey').buffer.toString('utf-16le');
+  if (validateSzKey && !validateSzKey(szKey)) {
+    throw new Error(`Invalid szKey "${szKey}"`);
+  }
+
+  const stringFileInfoPaddingOffset = offset + value.size;
+  return findOffsetAfterPadding(fileHandle, stringFileInfoPaddingOffset);
+}
+
+async function findOffsetAfterPadding(
+  fileHandle: fs.promises.FileHandle,
+  offset: number,
+  bytes = 1,
+): Promise<number> {
+  const buffer = Buffer.alloc(bytes);
+  await fileHandle.read(buffer, 0, buffer.length, offset);
+  if (buffer.readUInt8(0) === 0) {
+    if (offset % 4 === 0) {
+      return findOffsetAfterPadding(fileHandle, offset + 4);
+    } else {
+      return findOffsetAfterPadding(fileHandle, Math.ceil(offset / 4) * 4);
+    }
+  } else {
+    return offset;
   }
 }
