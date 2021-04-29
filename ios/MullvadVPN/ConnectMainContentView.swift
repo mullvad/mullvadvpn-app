@@ -36,7 +36,6 @@ class ConnectMainContentView: UIView {
     lazy var connectButton: AppButton = {
         let button = AppButton(style: .success)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         return button
     }()
 
@@ -44,7 +43,6 @@ class ConnectMainContentView: UIView {
         let button = AppButton(style: .translucentNeutral)
         button.accessibilityIdentifier = "SelectLocationButton"
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         return button
     }()
 

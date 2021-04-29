@@ -196,7 +196,7 @@ private extension UIControl.State {
         contentEdgeInsets = contentInsets
         imageAlignment = .trailingFixed
 
-        titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
+        titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
 
         let states: [UIControl.State] = [.normal, .highlighted, .disabled]
         states.forEach { (state) in
