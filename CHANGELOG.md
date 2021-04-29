@@ -59,6 +59,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix request to connect from notification or quick-settings tile not connecting if VPN permission
   isn't granted to the app. The app will now show the UI to ask for the permission and correctly
   connect after it is granted.
+- Fix quick-settings tile sometimes showing the wrong tunnel state.
 
 
 ## [2021.3] - 2021-04-28
