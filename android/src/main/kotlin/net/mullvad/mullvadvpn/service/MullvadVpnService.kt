@@ -108,6 +108,12 @@ class MullvadVpnService : TalpidVpnService() {
 
             start()
         }
+
+        // Remove any leftover tunnel state persistence data
+        getSharedPreferences("tunnel_state", MODE_PRIVATE)
+            .edit()
+            .clear()
+            .commit()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
