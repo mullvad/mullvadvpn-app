@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.model.Settings
 import net.mullvad.mullvadvpn.service.endpoint.ServiceEndpoint
 import net.mullvad.mullvadvpn.service.notifications.AccountExpiryNotification
-import net.mullvad.mullvadvpn.service.tunnelstate.TunnelStateUpdater
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.talpid.TalpidVpnService
 
@@ -55,7 +54,6 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var endpoint: ServiceEndpoint
     private lateinit var keyguardManager: KeyguardManager
     private lateinit var notificationManager: ForegroundNotificationManager
-    private lateinit var tunnelStateUpdater: TunnelStateUpdater
 
     private var pendingAction by observable<PendingAction?>(null) { _, _, _ ->
         endpoint.settingsListener.settings?.let { settings ->
@@ -91,8 +89,6 @@ class MullvadVpnService : TalpidVpnService() {
             connectionProxy.reconnect()
         }
 
-        tunnelStateUpdater = TunnelStateUpdater(this, connectionProxy)
-
         notificationManager =
             ForegroundNotificationManager(this, connectionProxy, keyguardManager).apply {
                 acknowledgeStartForegroundService()
@@ -112,6 +108,12 @@ class MullvadVpnService : TalpidVpnService() {
 
             start()
         }
+
+        // Remove any leftover tunnel state persistence data
+        getSharedPreferences("tunnel_state", MODE_PRIVATE)
+            .edit()
+            .clear()
+            .commit()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
