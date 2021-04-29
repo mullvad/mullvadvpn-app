@@ -196,6 +196,9 @@ export const ULONGLONG = {
     },
   },
 };
+export const WCHAR = {
+  primitive: { size: 2, reader: (buffer: Buffer) => buffer.readUInt16LE(0) },
+};
 export const WORD = {
   primitive: { size: 2, reader: (buffer: Buffer) => buffer.readUInt16LE(0) },
 };
@@ -371,7 +374,104 @@ export const IMAGE_IMPORT_MODULE_DIRECTORY = {
   ],
 };
 
+export const IMAGE_RESOURCE_DIRECTORY = {
+  struct: [
+    { name: 'Characteristics', datatype: DWORD },
+    { name: 'TimeDateStamp', datatype: DWORD },
+    { name: 'MajorVersion', datatype: WORD },
+    { name: 'MinorVersion', datatype: WORD },
+    { name: 'NumberOfNameEntries', datatype: WORD },
+    { name: 'NumberOfIdEntries', datatype: WORD },
+  ],
+};
+
+export const IMAGE_RESOURCE_DIRECTORY_ID_ENTRY = {
+  struct: [
+    { name: 'Id', datatype: DWORD },
+    { name: 'OffsetToData', datatype: DWORD },
+  ],
+};
+
+export const IMAGE_RESOURCE_DIRECTORY_DATA_ENTRY = {
+  struct: [
+    { name: 'DataRVA', datatype: DWORD },
+    { name: 'Size', datatype: DWORD },
+    { name: 'CodePage', datatype: DWORD },
+    { name: '_Reserved', datatype: DWORD },
+  ],
+};
+
+export const VS_FIXEDFILEINFO = {
+  struct: [
+    { name: 'dwSignature', datatype: DWORD },
+    { name: 'dwStrucVersion', datatype: DWORD },
+    { name: 'dwFileVersionMS', datatype: DWORD },
+    { name: 'dwFileVersionLS', datatype: DWORD },
+    { name: 'dwProductVersionMS', datatype: DWORD },
+    { name: 'dwProductVersionLS', datatype: DWORD },
+    { name: 'dwFileFlagsMask', datatype: DWORD },
+    { name: 'dwFileFlags', datatype: DWORD },
+    { name: 'dwFileOS', datatype: DWORD },
+    { name: 'dwFileType', datatype: DWORD },
+    { name: 'dwFileSubtype', datatype: DWORD },
+    { name: 'dwFileDateMS', datatype: DWORD },
+    { name: 'dwFileDateLS', datatype: DWORD },
+  ],
+};
+
+// This structure can't be expressed with this format since Padding1 and Padding2 has a variable
+// size.
+export const VS_VERSIONINFO = {
+  struct: [
+    { name: 'wLength', datatype: WORD },
+    { name: 'wValueLength', datatype: WORD },
+    { name: 'wType', datatype: WORD },
+    // { name: 'szKey', datatype: ARRAY(?, WCHAR) },
+    // { name: 'Padding1', datatype: WORD },
+    // { name: 'Value', datatype: VS_FIXEDFILEINFO },
+    // { name: 'Padding2', datatype: WORD },
+    // { name: 'Children', datatype: WORD },
+  ],
+};
+
+// This structure can't be expressed with this format since Padding has a variable size.
+export const STRING_FILE_INFO = {
+  struct: [
+    { name: 'wLength', datatype: WORD },
+    { name: 'wValueLength', datatype: WORD },
+    { name: 'wType', datatype: WORD },
+    // { name: 'szKey', datatype: ARRAY(?, WCHAR) },
+    // { name: 'Padding', datatype: WORD },
+    // { name: 'Children', datatype: WORD },
+  ],
+};
+
+// This structure can't be expressed with this format since Padding has a variable size.
+export const STRING_TABLE = {
+  struct: [
+    { name: 'wLength', datatype: WORD },
+    { name: 'wValueLength', datatype: WORD },
+    { name: 'wType', datatype: WORD },
+    // { name: 'szKey', datatype: ARRAY(?, WCHAR) },
+    // { name: 'Padding', datatype: WORD },
+    // { name: 'Children', datatype: WORD },
+  ],
+};
+
+// This structure can't be expressed with this format since Padding has a variable size.
+export const STRING_TABLE_STRING = {
+  struct: [
+    { name: 'wLength', datatype: WORD },
+    { name: 'wValueLength', datatype: WORD },
+    { name: 'wType', datatype: WORD },
+    // { name: 'szKey', datatype: ARRAY(?, WCHAR) },
+    // { name: 'Padding', datatype: WORD },
+    // { name: 'Value', datatype: WORD },
+  ],
+};
+
 export const IMAGE_DIRECTORY_ENTRY_IMPORT = 1;
+export const IMAGE_DIRECTORY_ENTRY_RESOURCE = 2;
 
 export type ImageNtHeadersUnion = typeof IMAGE_NT_HEADERS | typeof IMAGE_NT_HEADERS64;
 export type ImageOptionalHeaderUnion =
