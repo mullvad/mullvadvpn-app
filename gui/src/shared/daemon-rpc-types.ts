@@ -33,7 +33,12 @@ export type TunnelParameterError =
 
 export type ErrorStateCause =
   | {
-      reason: 'ipv6_unavailable' | 'set_dns_error' | 'start_tunnel_error' | 'is_offline';
+      reason:
+        | 'ipv6_unavailable'
+        | 'set_dns_error'
+        | 'start_tunnel_error'
+        | 'is_offline'
+        | 'split_tunnel_error';
     }
   | { reason: 'set_firewall_policy_error'; details: FirewallPolicyError }
   | { reason: 'tunnel_parameter_error'; details: TunnelParameterError }
