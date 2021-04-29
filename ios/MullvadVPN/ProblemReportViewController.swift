@@ -165,6 +165,11 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
     // MARK: - View lifecycle
 
+    override var disablesAutomaticKeyboardDismissal: Bool {
+        // Allow dismissing the keyboard in .formSheet presentation style
+        return false
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
