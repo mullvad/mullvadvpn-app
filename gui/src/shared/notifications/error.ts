@@ -138,6 +138,11 @@ function getMessage(errorDetails: IErrorState, accountExpiry?: string): string {
           'notifications',
           "Your device is offline. Try connecting when it's back online.",
         );
+      case 'split_tunnel_error':
+        return messages.pgettext(
+          'notifications',
+          'Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support.',
+        );
     }
   }
 }
