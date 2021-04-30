@@ -140,27 +140,38 @@ impl Command for Relay {
                     )
                     .subcommand(
                         clap::SubCommand::with_name("tunnel")
-                            .about("Set individual tunnel constraints")
-                            .arg(
-                                clap::Arg::with_name("vpn protocol")
-                                    .required(true)
-                                    .index(1)
-                                    .possible_values(&["wireguard", "openvpn"]),
+                            .about("Set tunnel protocol-specific constraints.")
+                            .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+                            .subcommand(
+                                clap::SubCommand::with_name("openvpn")
+                                    .about("Set OpenVPN-specific constraints")
+                                    .arg(
+                                        clap::Arg::with_name("port")
+                                            .help("Port to use. Either 'any' or a specific port")
+                                            .required(true)
+                                    )
+                                    .arg(
+                                        clap::Arg::with_name("transport protocol")
+                                            .long("protocol")
+                                            .default_value("any")
+                                            .possible_values(&["any", "udp", "tcp"]),
+                                    )
                             )
-                            .arg(clap::Arg::with_name("port").required(true).index(2))
-                            .arg(
-                                clap::Arg::with_name("transport protocol")
-                                    .long("protocol")
-                                    .default_value("any")
-                                    .possible_values(&["any", "udp", "tcp"]),
+                            .subcommand(
+                                clap::SubCommand::with_name("wireguard")
+                                    .about("Set WireGuard-specific constraints")
+                                    .arg(
+                                        clap::Arg::with_name("port")
+                                            .help("Port to use. Either 'any' or a specific port")
+                                            .required(true)
+                                    )
+                                    .arg(
+                                        clap::Arg::with_name("ip version")
+                                            .long("ipv")
+                                            .default_value("any")
+                                            .possible_values(&["any", "4", "6"]),
+                                    )
                             )
-                            .arg(
-                                clap::Arg::with_name("ip version")
-                                    .long("ipv")
-                                    .default_value("any")
-                                    .possible_values(&["any", "4", "6"]),
-                            ),
-
                     )
                     .subcommand(clap::SubCommand::with_name("tunnel-protocol")
                                 .about("Set tunnel protocol")
@@ -216,8 +227,14 @@ impl Relay {
             self.set_hostname(relay_matches).await
         } else if let Some(providers_matches) = matches.subcommand_matches("provider") {
             self.set_providers(providers_matches).await
-        } else if let Some(tunnel_matches) = matches.subcommand_matches("tunnel") {
-            self.set_tunnel(tunnel_matches).await
+        } else if let Some(matches) = matches.subcommand_matches("tunnel") {
+            if let Some(tunnel_matches) = matches.subcommand_matches("openvpn") {
+                self.set_openvpn_constraints(tunnel_matches).await
+            } else if let Some(tunnel_matches) = matches.subcommand_matches("wireguard") {
+                self.set_wireguard_constraints(tunnel_matches).await
+            } else {
+                unreachable!("Invalid tunnel protocol");
+            }
         } else if let Some(tunnel_matches) = matches.subcommand_matches("tunnel-protocol") {
             self.set_tunnel_protocol(tunnel_matches).await
         } else {
@@ -475,59 +492,46 @@ impl Relay {
         .await
     }
 
-    async fn set_tunnel(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let vpn_protocol = matches.value_of("vpn protocol").unwrap();
+    async fn set_openvpn_constraints(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let port = parse_port_constraint(matches.value_of("port").unwrap())?;
         let protocol = parse_protocol_constraint(matches.value_of("transport protocol").unwrap());
+
+        self.update_constraints(RelaySettingsUpdate {
+            r#type: Some(relay_settings_update::Type::Normal(
+                NormalRelaySettingsUpdate {
+                    openvpn_constraints: Some(OpenvpnConstraints {
+                        port: port.unwrap_or(0) as u32,
+                        protocol: protocol
+                            .option()
+                            .map(|protocol| TransportProtocolConstraint {
+                                protocol: protocol as i32,
+                            }),
+                    }),
+                    ..Default::default()
+                },
+            )),
+        })
+        .await
+    }
+
+    async fn set_wireguard_constraints(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
+        let port = parse_port_constraint(matches.value_of("port").unwrap())?;
         let ip_version = parse_ip_version_constraint(matches.value_of("ip version").unwrap());
 
-        match vpn_protocol {
-            "wireguard" => {
-                if let Constraint::Only(TransportProtocol::Tcp) = protocol {
-                    return Err(Error::InvalidCommand("WireGuard does not support TCP"));
-                }
-                self.update_constraints(RelaySettingsUpdate {
-                    r#type: Some(relay_settings_update::Type::Normal(
-                        NormalRelaySettingsUpdate {
-                            wireguard_constraints: Some(WireguardConstraints {
-                                port: port.unwrap_or(0) as u32,
-                                ip_version: ip_version.option().map(|protocol| {
-                                    IpVersionConstraint {
-                                        protocol: protocol as i32,
-                                    }
-                                }),
-                            }),
-                            ..Default::default()
-                        },
-                    )),
-                })
-                .await
-            }
-            "openvpn" => {
-                if let Constraint::Only(_) = ip_version {
-                    return Err(Error::InvalidCommand(
-                        "OpenVPN does not support the IP version constraint",
-                    ));
-                }
-                self.update_constraints(RelaySettingsUpdate {
-                    r#type: Some(relay_settings_update::Type::Normal(
-                        NormalRelaySettingsUpdate {
-                            openvpn_constraints: Some(OpenvpnConstraints {
-                                port: port.unwrap_or(0) as u32,
-                                protocol: protocol.option().map(|protocol| {
-                                    TransportProtocolConstraint {
-                                        protocol: protocol as i32,
-                                    }
-                                }),
-                            }),
-                            ..Default::default()
-                        },
-                    )),
-                })
-                .await
-            }
-            _ => unreachable!(),
-        }
+        self.update_constraints(RelaySettingsUpdate {
+            r#type: Some(relay_settings_update::Type::Normal(
+                NormalRelaySettingsUpdate {
+                    wireguard_constraints: Some(WireguardConstraints {
+                        port: port.unwrap_or(0) as u32,
+                        ip_version: ip_version.option().map(|protocol| IpVersionConstraint {
+                            protocol: protocol as i32,
+                        }),
+                    }),
+                    ..Default::default()
+                },
+            )),
+        })
+        .await
     }
 
     async fn set_tunnel_protocol(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
