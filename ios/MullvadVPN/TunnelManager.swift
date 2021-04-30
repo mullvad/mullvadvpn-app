@@ -216,7 +216,7 @@ class TunnelManager {
             case .removeTunnelSettings:
                 return "Failed to remove the tunnel settings"
             case .obtainPersistentKeychainReference:
-                return "Failed to obtain the persistent keychain refrence"
+                return "Failed to obtain the persistent keychain reference"
             case .pushWireguardKey:
                 return "Failed to push the WireGuard key to server"
             case .replaceWireguardKey:
