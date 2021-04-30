@@ -388,7 +388,8 @@ impl ProblemReport {
         let out1 = Self::redact_account_number(input);
         let out2 = Self::redact_home_dir(&out1);
         let out3 = Self::redact_network_info(&out2);
-        self.redact_custom_strings(&out3).to_string()
+        let out4 = Self::redact_guids(&out3);
+        self.redact_custom_strings(&out4).to_string()
     }
 
     fn redact_account_number(input: &str) -> Cow<'_, str> {
@@ -420,6 +421,16 @@ impl ProblemReport {
             };
         }
         RE.replace_all(input, "$start[REDACTED]")
+    }
+
+    fn redact_guids(input: &str) -> Cow<'_, str> {
+        lazy_static! {
+            static ref RE: Regex = Regex::new(
+                r#"(?i)\{?[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}\}?"#
+            )
+            .unwrap();
+        }
+        RE.replace_all(input, "[REDACTED]")
     }
 
     fn redact_custom_strings<'a>(&self, input: &'a str) -> Cow<'a, str> {
@@ -576,18 +587,12 @@ mod tests {
 
     #[test]
     fn redacts_ipv4() {
-        assert_redacts_ipv4("1.2.3.4");
-        assert_redacts_ipv4("10.127.0.1");
-        assert_redacts_ipv4("192.168.1.1");
-        assert_redacts_ipv4("10.0.16.1");
-        assert_redacts_ipv4("173.54.12.32");
-        assert_redacts_ipv4("68.4.4.1");
-    }
-
-    fn assert_redacts_ipv4(input: &str) {
-        let report = ProblemReport::new(vec![]);
-        let actual = report.redact(&format!("pre {} post", input));
-        assert_eq!("pre [REDACTED] post", actual);
+        assert_redacts("1.2.3.4");
+        assert_redacts("10.127.0.1");
+        assert_redacts("192.168.1.1");
+        assert_redacts("10.0.16.1");
+        assert_redacts("173.54.12.32");
+        assert_redacts("68.4.4.1");
     }
 
     #[test]
@@ -597,20 +602,20 @@ mod tests {
 
     #[test]
     fn redacts_ipv6() {
-        assert_redacts_ipv6("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
-        assert_redacts_ipv6("2001:db8:85a3:0:0:8a2e:370:7334");
-        assert_redacts_ipv6("2001:db8:85a3::8a2e:370:7334");
-        assert_redacts_ipv6("2001:db8:0:0:0:0:2:1");
-        assert_redacts_ipv6("2001:db8::2:1");
-        assert_redacts_ipv6("2001:db8:0000:1:1:1:1:1");
-        assert_redacts_ipv6("2001:db8:0:1:1:1:1:1");
-        assert_redacts_ipv6("2001:db8:0:0:1:0:0:1");
-        assert_redacts_ipv6("2001:db8::1:0:0:1");
-        assert_redacts_ipv6("abcd:dead:beef::");
-        assert_redacts_ipv6("abcd:dead:beef:1234::");
-        assert_redacts_ipv6("::dead:beef:1234");
-        assert_redacts_ipv6("0::0");
-        assert_redacts_ipv6("0:0:0:0::1");
+        assert_redacts("2001:0db8:85a3:0000:0000:8a2e:0370:7334");
+        assert_redacts("2001:db8:85a3:0:0:8a2e:370:7334");
+        assert_redacts("2001:db8:85a3::8a2e:370:7334");
+        assert_redacts("2001:db8:0:0:0:0:2:1");
+        assert_redacts("2001:db8::2:1");
+        assert_redacts("2001:db8:0000:1:1:1:1:1");
+        assert_redacts("2001:db8:0:1:1:1:1:1");
+        assert_redacts("2001:db8:0:0:1:0:0:1");
+        assert_redacts("2001:db8::1:0:0:1");
+        assert_redacts("abcd:dead:beef::");
+        assert_redacts("abcd:dead:beef:1234::");
+        assert_redacts("::dead:beef:1234");
+        assert_redacts("0::0");
+        assert_redacts("0:0:0:0::1");
     }
 
     #[test]
@@ -618,15 +623,28 @@ mod tests {
         assert_does_not_redact("[talpid_core::firewall]");
     }
 
-    fn assert_redacts_ipv6(input: &str) {
-        let report = ProblemReport::new(vec![]);
-        let actual = report.redact(&format!("pre {} post", input));
-        assert_eq!("pre [REDACTED] post", actual);
+    #[test]
+    fn redacts_guid() {
+        assert_redacts("6B29FC40-CA47-1067-B31D-00DD010662DA");
+        assert_redacts("123123ab-12ab-89cd-45ef-012345678901");
+        assert_redacts("{123123ab-12ab-89cd-45ef-012345678901}");
+    }
+
+    #[test]
+    fn doesnt_redact_not_guid() {
+        assert_does_not_redact("23123ab-12ab-89cd-45ef-012345678901");
+        assert_does_not_redact("GGGGGGGG-GGGG-GGGG-GGGG-GGGGGGGGGGGG");
     }
 
     #[test]
     fn does_not_redact_time() {
         assert_does_not_redact("09:47:59");
+    }
+
+    fn assert_redacts(input: &str) {
+        let report = ProblemReport::new(vec![]);
+        let actual = report.redact(&format!("pre {} post", input));
+        assert_eq!("pre [REDACTED] post", actual);
     }
 
     fn assert_does_not_redact(input: &str) {
