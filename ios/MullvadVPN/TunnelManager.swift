@@ -315,7 +315,7 @@ class TunnelManager {
                     if let error = error {
                         finish(.failure(.loadAllVPNConfigurations(error)))
                     } else {
-                        if let accountToken = self.accountToken {
+                        if let accountToken = accountToken {
                             // Migrate the tunnel settings if needed
                             self.migrateTunnelSettings(accountToken: accountToken)
 
