@@ -121,7 +121,7 @@ class ServiceEndpoint(
                 Event.AppVersionInfo(appVersionInfoCache.appVersionInfo),
                 Event.NewRelayList(relayListListener.relayList),
                 Event.AuthToken(authTokenCache.authToken),
-                Event.ListenerReady
+                Event.ListenerReady(messenger)
             )
 
             if (vpnPermission.waitingForResponse) {
