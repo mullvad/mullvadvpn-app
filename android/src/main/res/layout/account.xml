@@ -39,6 +39,7 @@
                           android:layout_height="wrap_content"
                           android:layout_marginBottom="@dimen/half_vertical_space"
                           android:layout_marginHorizontal="@dimen/side_margin"
+                          android:lines="1"
                           android:text="@string/settings_account"
                           style="@style/SettingsExpandedHeader" />
                 <net.mullvad.mullvadvpn.ui.widget.CopyableInformationView android:id="@+id/account_number"
