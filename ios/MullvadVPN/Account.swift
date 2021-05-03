@@ -192,6 +192,23 @@ class Account {
         exclusivityController.addOperation(operation, categories: [.exclusive])
     }
 
+    /// Forget that user was logged in, but do not attempt to unset account in `TunnelManager`.
+    /// This function is used in cases where the tunnel or tunnel settings are corrupt.
+    func forget(completionHandler: @escaping () -> Void) {
+        let operation = AsyncBlockOperation { (finish) in
+            DispatchQueue.main.async {
+                self.removeFromPreferences()
+                finish()
+            }
+        }
+
+        operation.addDidFinishBlockObserver(queue: .main) { (operation) in
+            completionHandler()
+        }
+
+        exclusivityController.addOperation(operation, categories: [.exclusive])
+    }
+
     func updateAccountExpiry() {
         let makeRequest = ResultOperation { () -> TokenPayload<EmptyPayload>? in
             return self.token.flatMap { (token) in
