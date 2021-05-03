@@ -245,6 +245,24 @@ extension TunnelSettingsManager {
         }
     }
 
+    /// Verify that the keychain entry exists.
+    /// Returns an error in case of failure to access Keychain.
+    static func exists(searchTerm: KeychainSearchTerm) -> Result<Bool> {
+        let query = searchTerm.makeKeychainAttributes()
+
+        return Keychain.findFirst(query: query)
+            .map({ (attributes) -> Bool in
+                return true
+            })
+            .flatMapError({ (error) -> Result<Bool> in
+                if case .itemNotFound = error {
+                    return .success(false)
+                } else {
+                    return .failure(.lookupEntry(error))
+                }
+            })
+    }
+
     private static func encode(tunnelConfig: TunnelSettings) -> Result<Data> {
         return Swift.Result { try JSONEncoder().encode(tunnelConfig) }
             .mapError { .encode($0) }
