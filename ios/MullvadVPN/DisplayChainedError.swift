@@ -76,6 +76,9 @@ extension TunnelManager.Error: DisplayChainedError {
         case .removeTunnelSettings(_):
             return NSLocalizedString("Failed to remove tunnel settings", comment: "")
 
+        case .migrateTunnelSettings(_):
+            return NSLocalizedString("Failed to migrate tunnel settings", comment: "")
+
         case .pushWireguardKey(let restError):
             let reason = restError.errorChainDescription ?? ""
             var message = String(format: NSLocalizedString("Failed to send the WireGuard key to server: %@", comment: ""), reason)

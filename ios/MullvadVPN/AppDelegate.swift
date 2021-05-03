@@ -73,49 +73,67 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         RelayCache.shared.updateRelays()
 
         // Load initial relays
+        self.logger?.debug("Load relays")
         RelayCache.shared.read { (result) in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let cachedRelays):
                     self.cachedRelays = cachedRelays
+                    self.logger?.debug("Loaded relays")
 
                 case .failure(let error):
-                    self.logger?.error(chainedError: error, message: "Failed to fetch initial relays")
+                    self.logger?.error(chainedError: error, message: "Failed to load initial relays")
                 }
             }
         }
 
         // Load tunnels
+        self.logger?.debug("Load tunnels")
         TunnelManager.shared.loadTunnel(accountToken: Account.shared.token) { (result) in
             DispatchQueue.main.async {
-                if case .failure(let error) = result {
-                    fatalError(error.displayChain(message: "Failed to load the tunnel for account"))
-                }
+                switch result {
+                case .success:
+                    self.logger?.debug("Loaded tunnels")
 
-                TunnelManager.shared.getRelayConstraints { (result) in
-                    DispatchQueue.main.async {
-                        switch result {
-                        case .success(let relayConstraints):
-                            self.relayConstraints = relayConstraints
+                    // Fetch relay constraints when logged in.
+                    if Account.shared.isLoggedIn {
+                        self.logger?.debug("Load relay constraints")
 
-                        case .failure(let error):
-                            self.logger?.error(chainedError: error, message: "Failed to load relay constraints")
+                        TunnelManager.shared.getRelayConstraints { (result) in
+                            DispatchQueue.main.async {
+                                switch result {
+                                case .success(let relayConstraints):
+                                    self.relayConstraints = relayConstraints
+                                    self.logger?.debug("Loaded relay constraints: \(relayConstraints)")
+
+                                case .failure(let error):
+                                    self.logger?.error(chainedError: error, message: "Failed to load relay constraints")
+                                }
+
+                                self.didFinishInitialization()
+                            }
+                        }
+                    } else {
+                        self.didFinishInitialization()
+                    }
+
+                case .failure(let error):
+                    self.logger?.error(chainedError: error, message: "Failed to load tunnels")
+
+                    switch error {
+                    case .loadAllVPNConfigurations(_), .removeInconsistentVPNConfiguration(_):
+                        // TODO: avoid throwing fatal error and show the problem report UI instead.
+                        fatalError(error.displayChain(message: "Failed to load tunnels"))
+
+                    case .migrateTunnelSettings(_), .readTunnelSettings(_):
+                        // Forget that user was logged in since tunnel settings are likely corrupt
+                        // or missing.
+                        Account.shared.forget {
+                            self.didFinishInitialization()
                         }
 
-                        self.rootContainer = RootContainerViewController()
-                        self.rootContainer?.delegate = self
-                        self.window?.rootViewController = self.rootContainer
-
-                        switch UIDevice.current.userInterfaceIdiom {
-                        case .pad:
-                            self.setupPadUI()
-
-                        case .phone:
-                            self.setupPhoneUI()
-
-                        default:
-                            fatalError()
-                        }
+                    default:
+                        fatalError("Unexpected error coming from loadTunnel()")
                     }
                 }
             }
@@ -123,8 +141,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         // Show the window
         self.window?.makeKeyAndVisible()
-
-        startPaymentQueueHandling()
 
         return true
     }
@@ -134,6 +150,35 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     // MARK: - Private
+
+    private func didFinishInitialization() {
+        self.logger?.debug("Finished initialization. Show user interface.")
+
+        self.rootContainer = RootContainerViewController()
+        self.rootContainer?.delegate = self
+        self.window?.rootViewController = self.rootContainer
+
+        switch UIDevice.current.userInterfaceIdiom {
+        case .pad:
+            self.setupPadUI()
+
+        case .phone:
+            self.setupPhoneUI()
+
+        default:
+            fatalError()
+        }
+
+        startPaymentQueueHandling()
+    }
+
+    private func startPaymentQueueHandling() {
+        let paymentManager = AppStorePaymentManager.shared
+        paymentManager.delegate = self
+
+        Account.shared.startPaymentMonitoring(with: paymentManager)
+        paymentManager.startPaymentQueueMonitoring()
+    }
 
     private func setupPadUI() {
         let selectLocationController = makeSelectLocationController()
@@ -316,7 +361,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             connectController?.setMainContentHidden(true, animated: animated)
         }
     }
-
 }
 
 // MARK: - RootContainerViewControllerDelegate
