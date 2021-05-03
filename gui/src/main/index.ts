@@ -1495,27 +1495,51 @@ class ApplicationMain {
     }
   }
 
-  private async createWindow(): Promise<BrowserWindow> {
+  // On both Linux and Windows the app height is applied incorrectly:
+  // https://github.com/electron/electron/issues/28777
+  private getContentHeight(): number {
+    // The height we want achieve.
     const contentHeight = 568;
-    // the size of transparent area around arrow on macOS
-    const headerBarArrowHeight = 12;
-    const height =
-      process.platform === 'darwin' && !this.guiSettings.unpinnedWindow
-        ? contentHeight + headerBarArrowHeight
-        : contentHeight;
+
+    switch (process.platform) {
+      case 'darwin': {
+        // The size of transparent area around arrow on macOS.
+        const headerBarArrowHeight = 12;
+
+        return this.guiSettings.unpinnedWindow
+          ? contentHeight
+          : contentHeight + headerBarArrowHeight;
+      }
+      case 'win32':
+        // On Windows the app height ends up slightly lower than we set it to if running in unpinned
+        // mode and the app becomes a tiny bit taller when pinned to task bar.
+        return this.guiSettings.unpinnedWindow ? contentHeight + 19 : contentHeight - 1;
+      case 'linux':
+        // On Linux the app ends up slightly lower than we set it to.
+        return contentHeight - 25;
+      default:
+        return contentHeight;
+    }
+  }
+
+  private async createWindow(): Promise<BrowserWindow> {
+    const height = this.getContentHeight();
+    const width = 320;
 
     const options: Electron.BrowserWindowConstructorOptions = {
-      width: 320,
-      minWidth: 320,
+      useContentSize: true,
+      width,
+      minWidth: width,
+      maxWidth: width,
       height,
       minHeight: height,
+      maxHeight: height,
       resizable: false,
       maximizable: false,
       fullscreenable: false,
       show: false,
       frame: this.guiSettings.unpinnedWindow,
       transparent: !this.guiSettings.unpinnedWindow,
-      useContentSize: true,
       webPreferences: {
         preload: path.join(__dirname, '../renderer/preloadBundle.js'),
         nodeIntegration: false,
@@ -1534,8 +1558,6 @@ class ApplicationMain {
         // setup window flags to mimic popover on macOS
         const appWindow = new BrowserWindow({
           ...options,
-          height: contentHeight + headerBarArrowHeight,
-          minHeight: contentHeight + headerBarArrowHeight,
           titleBarStyle: this.guiSettings.unpinnedWindow ? 'default' : 'customButtonsOnHover',
           minimizable: this.guiSettings.unpinnedWindow,
           closable: this.guiSettings.unpinnedWindow,
