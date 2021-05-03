@@ -39,7 +39,6 @@ class DisconnectSplitButton: UIView {
         stackView.alignment = .fill
         stackView.spacing = 1
 
-        primaryButton.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
         secondaryButton.setImage(UIImage(named: "IconReload"), for: .normal)
 
         primaryButton.overrideContentEdgeInsets = true

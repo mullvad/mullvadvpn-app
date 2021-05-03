@@ -62,23 +62,22 @@ private extension UIControl.State {
         commonInit()
     }
 
-    override func setTitle(_ title: String?, for state: UIControl.State) {
-        if let title = title {
-            setAttributedTitle(makeAttributedTitle(title, for: state), for: state)
-        } else {
-            setAttributedTitle(nil, for: state)
+    var titleString: String? {
+        didSet {
+            updateAttributedTitle(string: titleString)
         }
     }
 
     private func commonInit() {
         imageAlignment = .trailing
+        contentHorizontalAlignment = .leading
+    }
 
+    private func updateAttributedTitle(string: String?) {
         let states: [UIControl.State] = [.normal, .highlighted, .disabled]
         states.forEach { (state) in
-            if let title = self.title(for: state) {
-                let attributedTitle = makeAttributedTitle(title, for: state)
-                self.setAttributedTitle(attributedTitle, for: state)
-            }
+            let attributedTitle = string.flatMap { makeAttributedTitle($0, for: state) }
+            self.setAttributedTitle(attributedTitle, for: state)
         }
     }
 
@@ -197,7 +196,7 @@ private extension UIControl.State {
         contentEdgeInsets = contentInsets
         imageAlignment = .trailingFixed
 
-        titleLabel?.font = UIFont.systemFont(ofSize: 17, weight: .semibold)
+        titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .semibold)
 
         let states: [UIControl.State] = [.normal, .highlighted, .disabled]
         states.forEach { (state) in
