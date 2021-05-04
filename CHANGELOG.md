@@ -24,8 +24,16 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+
+## [android/2021.1] - 2021-05-04
+This release is for Android only.
+
+This release is identical to android/2021.1-beta1.
+This is our first non beta release for the Android platform!
+
+
 ## [android/2021.1-beta1] - 2021-04-06
-This releas is for Android only. From now on, Android releases will have this new header format
+This release is for Android only. From now on, Android releases will have this new header format
 that is the same as the git tag they receive: `android/<version>`.
 
 ### Added
