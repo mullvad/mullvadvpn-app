@@ -88,20 +88,23 @@ class LoginViewController: UIViewController, RootContainment {
             contentView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
-        contentView.accountTextField.inputAccessoryView = self.accountInputAccessoryToolbar
+        contentView.accountTextField.onReturnKey = { [weak self] _ in
+            guard let self = self else { return true }
 
-        // The return key on iPad should behave the same way as "Log in" button in the toolbar
-        if case .pad = UIDevice.current.userInterfaceIdiom {
-            contentView.accountTextField.onReturnKey = { [weak self] _ in
-                guard let self = self else { return true }
-
-                if self.canBeginLogin() {
-                    self.doLogin()
-                    return true
-                } else {
-                    return false
-                }
+            if self.canBeginLogin() {
+                self.doLogin()
+                return true
+            } else {
+                return false
             }
+        }
+
+        // There is no need to set the input accessory toolbar on iPad since it has a dedicated
+        // button to dismiss the keyboard.
+        if case .phone = UIDevice.current.userInterfaceIdiom {
+            contentView.accountTextField.inputAccessoryView = self.accountInputAccessoryToolbar
+        } else {
+            contentView.accountTextField.inputAccessoryView = nil
         }
 
         updateDisplayedMessage()
