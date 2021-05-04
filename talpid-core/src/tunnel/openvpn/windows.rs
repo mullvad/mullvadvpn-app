@@ -4,7 +4,7 @@ use std::{
     os::windows::{ffi::OsStrExt, io::RawHandle},
     path::Path,
     ptr,
-    sync::Arc,
+    sync::{Arc, Mutex},
 };
 use talpid_types::ErrorExt;
 use widestring::{U16CStr, U16CString};
@@ -13,7 +13,11 @@ use winapi::{
         guiddef::GUID,
         ifdef::NET_LUID,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
-        netioapi::ConvertInterfaceLuidToGuid,
+        netioapi::{
+            CancelMibChangeNotify2, ConvertInterfaceLuidToGuid, NotifyIpInterfaceChange,
+            MIB_IPINTERFACE_ROW,
+        },
+        ntdef::FALSE,
         winerror::NO_ERROR,
     },
     um::{
@@ -423,6 +427,68 @@ pub fn find_adapter_registry_key(find_guid: &str, permissions: REGSAM) -> io::Re
     }
 
     Err(io::Error::new(io::ErrorKind::NotFound, "device not found"))
+}
+
+pub struct IpNotifierHandle<'a> {
+    mutex: Mutex<()>,
+    callback: Option<Box<dyn FnMut(&MIB_IPINTERFACE_ROW, u32) + Send + 'a>>,
+    handle: RawHandle,
+}
+
+impl<'a> Drop for IpNotifierHandle<'a> {
+    fn drop(&mut self) {
+        // Inner callback may be called while destructing
+        unsafe { CancelMibChangeNotify2(self.handle as *mut _) };
+
+        let _ = self
+            .mutex
+            .lock()
+            .expect("NotifyIpInterfaceChange mutex poisoned");
+        let _ = self.callback.take();
+    }
+}
+
+unsafe extern "system" fn inner_callback(
+    context: *mut winapi::ctypes::c_void,
+    row: *mut MIB_IPINTERFACE_ROW,
+    notify_type: u32,
+) {
+    let context = &mut *(context as *mut IpNotifierHandle<'_>);
+    let _ = context
+        .mutex
+        .lock()
+        .expect("NotifyIpInterfaceChange mutex poisoned");
+
+    if let Some(ref mut callback) = context.callback {
+        callback(&*row, notify_type);
+    }
+}
+
+pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, u32) + Send + 'a>(
+    callback: T,
+    family: u16,
+) -> io::Result<Box<IpNotifierHandle<'a>>> {
+    let mut context = Box::new(IpNotifierHandle {
+        mutex: Mutex::default(),
+        callback: Some(Box::new(callback)),
+        handle: std::ptr::null_mut(),
+    });
+
+    let status = unsafe {
+        NotifyIpInterfaceChange(
+            family,
+            Some(inner_callback),
+            &mut *context as *mut _ as *mut _,
+            FALSE,
+            (&mut context.handle) as *mut _,
+        )
+    };
+
+    if status != NO_ERROR {
+        return Err(io::Error::last_os_error());
+    }
+
+    Ok(context)
 }
 
 #[cfg(test)]
