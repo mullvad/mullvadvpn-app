@@ -146,6 +146,11 @@ pub enum Error {
     #[error(display = "Failed to delete existing Wintun adapter")]
     WintunDeleteExistingError(#[error(source)] io::Error),
 
+    /// Error while waiting for IP interfaces to become available
+    #[cfg(windows)]
+    #[error(display = "Failed while waiting for IP interfaces")]
+    IpInterfacesError(#[error(source)] io::Error),
+
     /// Error returned from `ConvertInterfaceAliasToLuid`
     #[cfg(windows)]
     #[error(display = "Cannot find LUID for virtual adapter")]
@@ -393,6 +398,14 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             if reboot_required {
                 log::warn!("You may need to restart Windows to complete the install of Wintun");
             }
+
+            log::debug!("Wait for IP interfaces");
+            windows::wait_for_interfaces(
+                &adapter.adapter().luid(),
+                true,
+                params.generic_options.enable_ipv6,
+            )
+            .map_err(Error::IpInterfacesError)?;
 
             let assigned_guid = adapter.adapter().guid();
             let assigned_guid = assigned_guid.as_ref().unwrap_or_else(|error| {
