@@ -39,6 +39,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Improve stability by running the UI and the tunnel management logic in separate processes.
 
+#### macOS
+- Update shape of macOS icon to be in line with Apple's guidelines.
+
 ### Fixed
 - Fix relay selection failing to pick a WireGuard relay when no tunnel protocol is specified.
 - Fix time left not always being translated in desktop app settings.
