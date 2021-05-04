@@ -1,0 +1,1 @@
+- First stable release. Identical to last beta release.

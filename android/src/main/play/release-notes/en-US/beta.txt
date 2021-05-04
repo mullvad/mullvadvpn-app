@@ -1,5 +1,0 @@
-- Support navigating on Android TVs and other touchless devices
-- Fix bug where excluded apps would go in the tunnel after restart of the VPN app
-- Remove the quit button. Instead quit the app by swiping away the notification when disconnected
-- Make more resistant to DNS poisoning of the API server addresses
-- Lots of bugfixes
