@@ -240,6 +240,8 @@ export default class AppRenderer {
     if (initialState.isConnected) {
       consumePromise(this.onDaemonConnected());
     }
+
+    this.checkContentHeight();
   }
 
   public renderView() {
@@ -518,6 +520,24 @@ export default class AppRenderer {
     const preferredLocale = this.getPreferredLocaleList().find((item) => item.code === localeCode);
 
     return preferredLocale ? preferredLocale.name : '';
+  }
+
+  // Make sure that the content height is correct and log if it isn't. This is mostly for debugging
+  // purposes since there's a bug in Electron that causes the app height to be another value than
+  // the one we have set.
+  // https://github.com/electron/electron/issues/28777
+  private checkContentHeight(): void {
+    let expectedContentHeight = 568;
+
+    // The app content is 12px taller on macOS to fit the top arrow.
+    if (window.platform === 'darwin' && !this.guiSettings.unpinnedWindow) {
+      expectedContentHeight += 12;
+    }
+
+    const contentHeight = window.innerHeight;
+    if (contentHeight !== expectedContentHeight) {
+      log.error(`Wrong content height ${contentHeight}, expected ${expectedContentHeight}`);
+    }
   }
 
   private redirectToConnect() {
