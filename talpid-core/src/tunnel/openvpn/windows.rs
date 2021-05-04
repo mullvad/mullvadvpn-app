@@ -14,8 +14,8 @@ use winapi::{
         ifdef::NET_LUID,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
         netioapi::{
-            CancelMibChangeNotify2, ConvertInterfaceLuidToGuid, NotifyIpInterfaceChange,
-            MIB_IPINTERFACE_ROW,
+            CancelMibChangeNotify2, ConvertInterfaceLuidToGuid, GetIpInterfaceEntry,
+            NotifyIpInterfaceChange, MIB_IPINTERFACE_ROW,
         },
         ntdef::FALSE,
         winerror::NO_ERROR,
@@ -489,6 +489,19 @@ pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, u32) + Send
     }
 
     Ok(context)
+}
+
+pub fn get_ip_interface_entry(family: u16, luid: &NET_LUID) -> io::Result<MIB_IPINTERFACE_ROW> {
+    let mut row: MIB_IPINTERFACE_ROW = unsafe { mem::zeroed() };
+    row.Family = family;
+    row.InterfaceLuid = *luid;
+
+    let result = unsafe { GetIpInterfaceEntry(&mut row as *mut _) };
+    if result != NO_ERROR {
+        return Err(io::Error::last_os_error());
+    }
+
+    Ok(row)
 }
 
 #[cfg(test)]
