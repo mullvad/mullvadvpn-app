@@ -5,6 +5,7 @@ use std::{
     path::Path,
     ptr,
     sync::{Arc, Mutex},
+    time::Duration,
 };
 use talpid_types::ErrorExt;
 use widestring::{U16CStr, U16CString};
@@ -15,10 +16,11 @@ use winapi::{
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
         netioapi::{
             CancelMibChangeNotify2, ConvertInterfaceLuidToGuid, GetIpInterfaceEntry,
-            NotifyIpInterfaceChange, MIB_IPINTERFACE_ROW,
+            MibAddInstance, NotifyIpInterfaceChange, MIB_IPINTERFACE_ROW,
         },
         ntdef::FALSE,
         winerror::NO_ERROR,
+        ws2def::{AF_INET, AF_INET6, AF_UNSPEC},
     },
     um::{
         libloaderapi::{
@@ -32,6 +34,8 @@ use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
 /// Longest possible adapter name (in characters), including null terminator
 const MAX_ADAPTER_NAME: usize = 128;
+
+const INTERFACE_WAIT_TIMEOUT: Duration = Duration::from_secs(5);
 
 type WintunOpenAdapterFn =
     unsafe extern "stdcall" fn(pool: *const u16, name: *const u16) -> RawHandle;
@@ -502,6 +506,49 @@ pub fn get_ip_interface_entry(family: u16, luid: &NET_LUID) -> io::Result<MIB_IP
     }
 
     Ok(row)
+}
+
+pub fn wait_for_interfaces(luid: &NET_LUID, ipv4: bool, ipv6: bool) -> io::Result<()> {
+    let (tx, rx) = std::sync::mpsc::channel();
+
+    let mut found_ipv4 = if ipv4 { false } else { true };
+    let mut found_ipv6 = if ipv6 { false } else { true };
+
+    let _handle = notify_ip_interface_change(
+        move |row, notification_type| {
+            if found_ipv4 && found_ipv6 {
+                return;
+            }
+            if notification_type != MibAddInstance {
+                return;
+            }
+            if row.InterfaceLuid.Value != luid.Value {
+                return;
+            }
+            match row.Family as i32 {
+                AF_INET => found_ipv4 = true,
+                AF_INET6 => found_ipv6 = true,
+                _ => (),
+            }
+            if found_ipv4 && found_ipv6 {
+                let _ = tx.send(());
+            }
+        },
+        AF_UNSPEC as u16,
+    )?;
+
+    // Make sure they don't already exist
+    if (!ipv4 || get_ip_interface_entry(AF_INET as u16, luid).is_ok())
+        && (!ipv6 || get_ip_interface_entry(AF_INET6 as u16, luid).is_ok())
+    {
+        return Ok(());
+    }
+
+    let _ = rx
+        .recv_timeout(INTERFACE_WAIT_TIMEOUT)
+        .map_err(|_| io::Error::new(io::ErrorKind::TimedOut, "timed out waiting on interfaces"))?;
+
+    Ok(())
 }
 
 #[cfg(test)]
