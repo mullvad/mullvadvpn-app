@@ -1,7 +1,0 @@
-- Support custom (local) DNS resolvers
-- Smarter split tunneling app view. Only shows apps that use internet
-- Add Burmese language support
-- Add ability to view app logs directly in problem report UI
-- Rotate WireGuard keys every four days instead of seven
-- Better Android TV support
-- Lots of bugfixes
