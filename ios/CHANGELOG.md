@@ -26,6 +26,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Enable option to "Select all" when viewing app logs.
 
+### Fixed
+- Fix bug which caused the tunnel manager to become unresponsive in the rare event of failure to
+  disable on-demand when stopping the tunnel from within the app.
+
 
 ## [2021.1] - 2021-03-16
 ### Added
