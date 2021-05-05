@@ -13,14 +13,14 @@ private let kPrivacyPolicyURL = URL(string: "https://mullvad.net/en/help/privacy
 
 class ConsentViewController: UIViewController, RootContainment, SFSafariViewControllerDelegate {
 
-    var completionHandler: (() -> Void)?
+    var completionHandler: ((UIViewController) -> Void)?
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
     }
 
-    var preferredHeaderBarPresentation: HeaderBarPresentation {
-        return HeaderBarPresentation(style: .default, showsDivider: false)
+    var preferredHeaderBarStyle: HeaderBarStyle {
+        return .default
     }
 
     var prefersHeaderBarHidden: Bool {
