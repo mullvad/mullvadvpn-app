@@ -22,6 +22,9 @@ pub use self::connect::Connect;
 mod disconnect;
 pub use self::disconnect::Disconnect;
 
+mod dns;
+pub use self::dns::Dns;
+
 mod lan;
 pub use self::lan::Lan;
 
@@ -61,6 +64,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
         Box::new(Bridge),
         Box::new(Connect),
         Box::new(Disconnect),
+        Box::new(Dns),
         Box::new(Reconnect),
         Box::new(Lan),
         #[cfg(not(target_os = "android"))]
