@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix bug which caused the tunnel manager to become unresponsive in the rare event of failure to
   disable on-demand when stopping the tunnel from within the app.
+- Fix bug that caused the app to skip tunnel settings migration from older versions of the app.
 
 
 ## [2021.1] - 2021-03-16
