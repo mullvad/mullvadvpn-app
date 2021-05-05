@@ -378,17 +378,7 @@ extension AppDelegate: ConnectViewControllerDelegate {
 
                 case .failure(let error):
                     self.logger?.error(chainedError: error, message: "Failed to start the VPN tunnel")
-
-                    let alertController = UIAlertController(
-                        title: NSLocalizedString("Failed to start the VPN tunnel", comment: ""),
-                        message: error.errorChainDescription,
-                        preferredStyle: .alert
-                    )
-                    alertController.addAction(
-                        UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
-                    )
-
-                    self.alertPresenter.enqueue(alertController, presentingController: self.rootContainer!)
+                    self.presentTunnelError(error, alertTitle: NSLocalizedString("Failed to start the VPN tunnel", comment: ""))
                 }
             }
         }
@@ -402,19 +392,22 @@ extension AppDelegate: ConnectViewControllerDelegate {
 
             case .failure(let error):
                 self.logger?.error(chainedError: error, message: "Failed to stop the VPN tunnel")
-
-                let alertController = UIAlertController(
-                    title: NSLocalizedString("Failed to stop the VPN tunnel", comment: ""),
-                    message: error.errorChainDescription,
-                    preferredStyle: .alert
-                )
-                alertController.addAction(
-                    UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
-                )
-
-                self.alertPresenter.enqueue(alertController, presentingController: self.rootContainer!)
+                self.presentTunnelError(error, alertTitle: NSLocalizedString("Failed to stop the VPN tunnel", comment: ""))
             }
         }
+    }
+
+    private func presentTunnelError(_ error: TunnelManager.Error, alertTitle: String) {
+        let alertController = UIAlertController(
+            title: alertTitle,
+            message: error.errorChainDescription,
+            preferredStyle: .alert
+        )
+        alertController.addAction(
+            UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
+        )
+
+        self.alertPresenter.enqueue(alertController, presentingController: self.rootContainer!)
     }
 }
 
