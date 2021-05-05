@@ -40,6 +40,7 @@
                           android:layout_marginTop="2dp"
                           android:layout_marginBottom="8dp"
                           android:layout_marginHorizontal="@dimen/side_margin"
+                          android:lines="1"
                           android:text="@string/report_a_problem"
                           style="@style/SettingsExpandedHeader" />
                 <ViewSwitcher android:id="@+id/body_container"

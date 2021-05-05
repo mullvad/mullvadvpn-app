@@ -39,6 +39,7 @@
                           android:layout_height="wrap_content"
                           android:layout_marginTop="2dp"
                           android:layout_marginLeft="@dimen/side_margin"
+                          android:lines="1"
                           android:text="@string/settings_preferences"
                           style="@style/SettingsExpandedHeader" />
                 <net.mullvad.mullvadvpn.ui.widget.ToggleCell android:id="@+id/auto_connect"
