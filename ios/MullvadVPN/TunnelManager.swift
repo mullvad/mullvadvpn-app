@@ -422,7 +422,7 @@ class TunnelManager {
 
             tunnelProvider.saveToPreferences { (error) in
                 if let error = error {
-                    completionHandler(.failure(.saveVPNConfiguration(error)))
+                    finish(.failure(.saveVPNConfiguration(error)))
                 } else {
                     tunnelProvider.connection.stopVPNTunnel()
                     finish(.success(()))
