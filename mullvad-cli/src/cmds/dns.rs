@@ -21,6 +21,20 @@ impl Command for Dns {
                     .about("Set DNS servers to use")
                     .setting(clap::AppSettings::SubcommandRequiredElseHelp)
                     .subcommand(
+                        clap::SubCommand::with_name("default")
+                            .about("Use default DNS servers")
+                            .arg(
+                                clap::Arg::with_name("block ads")
+                                    .long("block-ads")
+                                    .help("Block domain names used for ads"),
+                            )
+                            .arg(
+                                clap::Arg::with_name("block trackers")
+                                    .long("block-trackers")
+                                    .help("Block domain names used for tracking"),
+                            ),
+                    )
+                    .subcommand(
                         clap::SubCommand::with_name("custom")
                             .about("Set a list of custom DNS servers")
                             .arg(
@@ -29,20 +43,19 @@ impl Command for Dns {
                                     .help("One or more IP addresses pointing to DNS resolvers.")
                                     .required(true),
                             ),
-                    )
+                    ),
             )
     }
 
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
-            ("set", Some(matches)) => {
-                match matches.subcommand() {
-                    ("custom", Some(matches)) => {
-                        self.set_custom(matches.values_of_lossy("servers")).await
-                    }
-                    _ => unreachable!("No custom-dns server command given"),
+            ("set", Some(matches)) => match matches.subcommand() {
+                ("default", _) => self.set_default().await,
+                ("custom", Some(matches)) => {
+                    self.set_custom(matches.values_of_lossy("servers")).await
                 }
-            }
+                _ => unreachable!("No custom-dns server command given"),
+            },
             ("get", _) => self.get().await,
             _ => unreachable!("No custom-dns command given"),
         }
@@ -50,11 +63,15 @@ impl Command for Dns {
 }
 
 impl Dns {
-    async fn set_default(&self, servers: Option<Vec<String>>) -> Result<()> {
+    async fn set_default(&self) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         rpc.set_dns_options(types::DnsOptions {
-            custom: true,
-            addresses: servers.unwrap_or_default(),
+            r#type: Some(types::dns_options::Type::Default(
+                types::DefaultDnsOptions {
+                    block_ads: false,
+                    block_trackers: false,
+                },
+            )),
         })
         .await?;
         println!("Updated DNS settings");
@@ -64,8 +81,9 @@ impl Dns {
     async fn set_custom(&self, servers: Option<Vec<String>>) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         rpc.set_dns_options(types::DnsOptions {
-            custom: true,
-            addresses: servers.unwrap_or_default(),
+            r#type: Some(types::dns_options::Type::Custom(types::CustomDnsOptions {
+                addresses: servers.unwrap_or_default(),
+            })),
         })
         .await?;
         println!("Updated DNS settings");
@@ -83,22 +101,7 @@ impl Dns {
             .dns_options
             .unwrap();
 
-        let state = if options.custom {
-            "enabled"
-        } else {
-            "disabled"
-        };
-        println!("Custom DNS: {}", state);
-
-        match options.addresses.len() {
-            0 => println!("No DNS servers are configured"),
-            _ => {
-                println!("Servers:");
-                for server in &options.addresses {
-                    println!("\t{}", server);
-                }
-            }
-        }
+        println!("DNS: {:?}", options);
 
         Ok(())
     }

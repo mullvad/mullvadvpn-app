@@ -472,6 +472,32 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
     }
 }
 
+impl From<&mullvad_types::settings::DnsOptions> for DnsOptions {
+    fn from(options: &mullvad_types::settings::DnsOptions) -> Self {
+        let inner_options = match options {
+            mullvad_types::settings::DnsOptions::Default(options) => {
+                dns_options::Type::Default(DefaultDnsOptions {
+                    block_ads: options.block_ads,
+                    block_trackers: options.block_trackers,
+                })
+            }
+            mullvad_types::settings::DnsOptions::Custom(options) => {
+                dns_options::Type::Custom(CustomDnsOptions {
+                    addresses: options
+                        .addresses
+                        .iter()
+                        .map(|addr| addr.to_string())
+                        .collect(),
+                })
+            }
+        };
+
+        DnsOptions {
+            r#type: Some(inner_options),
+        }
+    }
+}
+
 impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
     fn from(options: &mullvad_types::settings::TunnelOptions) -> Self {
         Self {
@@ -489,15 +515,7 @@ impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
                 enable_ipv6: options.generic.enable_ipv6,
             }),
             #[cfg(not(target_os = "android"))]
-            dns_options: Some(DnsOptions {
-                custom: options.dns_options.custom,
-                addresses: options
-                    .dns_options
-                    .addresses
-                    .iter()
-                    .map(|addr| addr.to_string())
-                    .collect(),
-            }),
+            dns_options: Some(DnsOptions::from(&options.dns_options)),
             #[cfg(target_os = "android")]
             dns_options: None,
         }
@@ -1003,6 +1021,42 @@ impl TryFrom<BridgeState> for mullvad_types::relay_constraints::BridgeState {
             }
             None => Err(FromProtobufTypeError::InvalidArgument(
                 "invalid bridge state",
+            )),
+        }
+    }
+}
+
+impl TryFrom<DnsOptions> for mullvad_types::settings::DnsOptions {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(options: DnsOptions) -> Result<Self, Self::Error> {
+        use mullvad_types::settings::{
+            CustomDnsOptions as MullvadCustomDnsOptions,
+            DefaultDnsOptions as MullvadDefaultDnsOptions, DnsOptions as MullvadDnsOptions,
+        };
+
+        match options.r#type {
+            Some(dns_options::Type::Default(options)) => {
+                Ok(MullvadDnsOptions::Default(MullvadDefaultDnsOptions {
+                    block_ads: options.block_ads,
+                    block_trackers: options.block_trackers,
+                }))
+            }
+            Some(dns_options::Type::Custom(options)) => {
+                Ok(MullvadDnsOptions::Custom(MullvadCustomDnsOptions {
+                    addresses: options
+                        .addresses
+                        .into_iter()
+                        .map(|addr| {
+                            addr.parse().map_err(|_| {
+                                FromProtobufTypeError::InvalidArgument("invalid IP address")
+                            })
+                        })
+                        .collect::<Result<Vec<_>, _>>()?,
+                }))
+            }
+            None => Err(FromProtobufTypeError::InvalidArgument(
+                "invalid DNS setting",
             )),
         }
     }

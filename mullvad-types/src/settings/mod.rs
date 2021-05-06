@@ -174,19 +174,36 @@ pub struct TunnelOptions {
     /// Contains generic tunnel options that may apply to more than a single tunnel type.
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub generic: GenericTunnelOptions,
-    /// Custom DNS options.
+    /// DNS options.
+    #[serde(default = "DnsOptions::default")]
     pub dns_options: DnsOptions,
+}
+
+/// DNS config
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+pub enum DnsOptions {
+    Default(DefaultDnsOptions),
+    Custom(CustomDnsOptions),
+}
+
+impl Default for DnsOptions {
+    fn default() -> Self {
+        DnsOptions::Default(DefaultDnsOptions::default())
+    }
+}
+
+/// Default DNS config
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+pub struct DefaultDnsOptions {
+    pub block_ads: bool,
+    pub block_trackers: bool,
 }
 
 /// Custom DNS config
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
-#[serde(default)]
-#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-pub struct DnsOptions {
-    /// Whether to use the addresses in `custom_dns`.
-    pub custom: bool,
-    /// Custom DNS servers to use.
+pub struct CustomDnsOptions {
     pub addresses: Vec<IpAddr>,
 }
 

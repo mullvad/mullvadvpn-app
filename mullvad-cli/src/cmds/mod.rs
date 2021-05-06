@@ -28,9 +28,6 @@ pub use self::dns::Dns;
 mod lan;
 pub use self::lan::Lan;
 
-mod custom_dns;
-pub use self::custom_dns::CustomDns;
-
 mod reconnect;
 pub use self::reconnect::Reconnect;
 
@@ -67,8 +64,6 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
         Box::new(Dns),
         Box::new(Reconnect),
         Box::new(Lan),
-        #[cfg(not(target_os = "android"))]
-        Box::new(CustomDns),
         Box::new(Relay),
         Box::new(Reset),
         #[cfg(target_os = "linux")]
