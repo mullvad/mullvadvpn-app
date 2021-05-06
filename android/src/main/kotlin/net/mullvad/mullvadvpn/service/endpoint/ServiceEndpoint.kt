@@ -25,7 +25,7 @@ class ServiceEndpoint(
     val connectivityListener: ConnectivityListener,
     context: Context
 ) {
-    private val listeners = mutableSetOf<Messenger>()
+    private val listeners = mutableMapOf<Int, Messenger>()
     private val registrationQueue: SendChannel<Messenger> = startRegistrator()
 
     internal val dispatcher = DispatchingHandler(looper) { message ->
@@ -76,13 +76,13 @@ class ServiceEndpoint(
 
     internal fun sendEvent(event: Event) {
         synchronized(this) {
-            val deadListeners = mutableSetOf<Messenger>()
+            val deadListeners = mutableSetOf<Int>()
 
-            for (listener in listeners) {
+            for ((id, listener) in listeners) {
                 try {
                     listener.send(event.message)
                 } catch (_: DeadObjectException) {
-                    deadListeners.add(listener)
+                    deadListeners.add(id)
                 }
             }
 
@@ -111,7 +111,7 @@ class ServiceEndpoint(
         synchronized(this) {
             val listenerId = newListenerId()
 
-            listeners.add(listener)
+            listeners.put(listenerId, listener)
 
             val initialEvents = mutableListOf(
                 Event.TunnelStateChange(connectionProxy.state),
