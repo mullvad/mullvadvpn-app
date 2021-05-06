@@ -90,6 +90,9 @@ sealed class Request : Message.RequestMessage() {
     data class SubmitVoucher(val voucher: String) : Request()
 
     @Parcelize
+    data class UnregisterListener(val listenerId: Int) : Request()
+
+    @Parcelize
     data class VpnPermissionResponse(val isGranted: Boolean) : Request()
 
     @Parcelize
