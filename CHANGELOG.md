@@ -45,6 +45,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Prevent tray icons from being extraced to `%TEMP%` directory.
+- Fix failure to create Wintun adapter due to a residual network interface by upgrading Wintun to
+  0.10.4.
 
 #### Linux
 - Fix find `mullvad-vpn.desktop` in `XDG_DATA_DIRS` instead of using hardcoded path.

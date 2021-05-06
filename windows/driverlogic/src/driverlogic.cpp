@@ -21,7 +21,7 @@
 #include <cfgmgr32.h>
 #include <io.h>
 #include <fcntl.h>
-#include <wintun.h>
+#include <wintun/wintun.h>
 
 
 namespace
