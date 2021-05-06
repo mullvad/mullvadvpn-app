@@ -25,8 +25,14 @@ class ServiceEndpoint(
     val connectivityListener: ConnectivityListener,
     context: Context
 ) {
+    companion object {
+        sealed class Command {
+            data class RegisterListener(val listener: Messenger) : Command()
+        }
+    }
+
     private val listeners = mutableMapOf<Int, Messenger>()
-    private val registrationQueue: SendChannel<Messenger> = startRegistrator()
+    private val commands: SendChannel<Command> = startRegistrator()
 
     internal val dispatcher = DispatchingHandler(looper) { message ->
         Request.fromMessage(message)
@@ -53,13 +59,13 @@ class ServiceEndpoint(
 
     init {
         dispatcher.registerHandler(Request.RegisterListener::class) { request ->
-            registrationQueue.sendBlocking(request.listener)
+            commands.sendBlocking(Command.RegisterListener(request.listener))
         }
     }
 
     fun onDestroy() {
         dispatcher.onDestroy()
-        registrationQueue.close()
+        commands.close()
 
         accountCache.onDestroy()
         appVersionInfoCache.onDestroy()
@@ -90,17 +96,19 @@ class ServiceEndpoint(
         }
     }
 
-    private fun startRegistrator() = GlobalScope.actor<Messenger>(
+    private fun startRegistrator() = GlobalScope.actor<Command>(
         Dispatchers.Default,
         Channel.UNLIMITED
     ) {
         try {
-            while (true) {
-                val listener = channel.receive()
+            for (command in channel) {
+                when (command) {
+                    is Command.RegisterListener -> {
+                        intermittentDaemon.await()
 
-                intermittentDaemon.await()
-
-                registerListener(listener)
+                        registerListener(command.listener)
+                    }
+                }
             }
         } catch (exception: ClosedReceiveChannelException) {
             // Registration queue closed; stop registrator
