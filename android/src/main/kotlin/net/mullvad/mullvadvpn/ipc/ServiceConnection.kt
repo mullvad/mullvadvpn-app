@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import net.mullvad.mullvadvpn.model.TunnelState
 import net.mullvad.mullvadvpn.service.MullvadVpnService
 import net.mullvad.mullvadvpn.util.DispatchingFlow
 import net.mullvad.mullvadvpn.util.bindServiceFlow
@@ -29,6 +30,9 @@ class ServiceConnection(context: Context, scope: CoroutineScope) {
 
     private lateinit var listenerRegistrations: StateFlow<Pair<Messenger, Int>?>
 
+    lateinit var tunnelState: StateFlow<TunnelState>
+        private set
+
     init {
         val dispatcher = handler
             .filterNotNull()
@@ -36,6 +40,12 @@ class ServiceConnection(context: Context, scope: CoroutineScope) {
                 listenerRegistrations = subscribeToState(Event.ListenerReady::class, scope) {
                     Pair(connection, listenerId)
                 }
+
+                tunnelState = subscribeToState(
+                    Event.TunnelStateChange::class,
+                    scope,
+                    TunnelState.Disconnected
+                ) { tunnelState }
             }
 
         scope.launch { connect(context) }
@@ -83,4 +93,11 @@ class ServiceConnection(context: Context, scope: CoroutineScope) {
         scope: CoroutineScope,
         dataExtractor: suspend V.() -> D
     ) = subscribe(event).map(dataExtractor).stateIn(scope, SharingStarted.Lazily, null)
+
+    private fun <V : Any, D> DispatchingFlow<in V>.subscribeToState(
+        event: KClass<V>,
+        scope: CoroutineScope,
+        initialValue: D,
+        dataExtractor: suspend V.() -> D
+    ) = subscribe(event).map(dataExtractor).stateIn(scope, SharingStarted.Lazily, initialValue)
 }
