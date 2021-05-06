@@ -28,6 +28,7 @@ class ServiceEndpoint(
     companion object {
         sealed class Command {
             data class RegisterListener(val listener: Messenger) : Command()
+            data class UnregisterListener(val listenerId: Int) : Command()
         }
     }
 
@@ -58,8 +59,14 @@ class ServiceEndpoint(
     val voucherRedeemer = VoucherRedeemer(this)
 
     init {
-        dispatcher.registerHandler(Request.RegisterListener::class) { request ->
-            commands.sendBlocking(Command.RegisterListener(request.listener))
+        dispatcher.apply {
+            registerHandler(Request.RegisterListener::class) { request ->
+                commands.sendBlocking(Command.RegisterListener(request.listener))
+            }
+
+            registerHandler(Request.UnregisterListener::class) { request ->
+                commands.sendBlocking(Command.UnregisterListener(request.listenerId))
+            }
         }
     }
 
@@ -108,6 +115,7 @@ class ServiceEndpoint(
 
                         registerListener(command.listener)
                     }
+                    is Command.UnregisterListener -> unregisterListener(command.listenerId)
                 }
             }
         } catch (exception: ClosedReceiveChannelException) {
@@ -143,6 +151,12 @@ class ServiceEndpoint(
             initialEvents.forEach { event ->
                 listener.send(event.message)
             }
+        }
+    }
+
+    private fun unregisterListener(listenerId: Int) {
+        synchronized(this) {
+            listeners.remove(listenerId)
         }
     }
 
