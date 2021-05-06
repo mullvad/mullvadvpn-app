@@ -29,7 +29,7 @@ sealed class Event : Message.EventMessage() {
     data class CurrentVersion(val version: String?) : Event()
 
     @Parcelize
-    data class ListenerReady(val connection: Messenger) : Event()
+    data class ListenerReady(val connection: Messenger, val listenerId: Int) : Event()
 
     @Parcelize
     data class LoginStatus(val status: LoginStatusData?) : Event()

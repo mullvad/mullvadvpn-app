@@ -32,6 +32,8 @@ class ServiceEndpoint(
         Request.fromMessage(message)
     }
 
+    private var listenerIdCounter = 0
+
     val messenger = Messenger(dispatcher)
 
     val vpnPermission = VpnPermission(context, this)
@@ -107,6 +109,8 @@ class ServiceEndpoint(
 
     private fun registerListener(listener: Messenger) {
         synchronized(this) {
+            val listenerId = newListenerId()
+
             listeners.add(listener)
 
             val initialEvents = mutableListOf(
@@ -121,7 +125,7 @@ class ServiceEndpoint(
                 Event.AppVersionInfo(appVersionInfoCache.appVersionInfo),
                 Event.NewRelayList(relayListListener.relayList),
                 Event.AuthToken(authTokenCache.authToken),
-                Event.ListenerReady(messenger)
+                Event.ListenerReady(messenger, listenerId)
             )
 
             if (vpnPermission.waitingForResponse) {
@@ -132,5 +136,13 @@ class ServiceEndpoint(
                 listener.send(event.message)
             }
         }
+    }
+
+    private fun newListenerId(): Int {
+        val listenerId = listenerIdCounter
+
+        listenerIdCounter += 1
+
+        return listenerId
     }
 }
