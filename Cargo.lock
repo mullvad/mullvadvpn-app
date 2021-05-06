@@ -962,6 +962,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "internet-checksum"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "efb330f277f0a5e05436ac5cc8188eea73a492532c8d7f58f3e335c0b6f28c7b"
+dependencies = [
+ "byteorder",
+]
+
+[[package]]
 name = "ioctl-sys"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2621,6 +2630,7 @@ dependencies = [
  "failure",
  "futures",
  "hex",
+ "internet-checksum",
  "ipnetwork",
  "jnix",
  "lazy_static",

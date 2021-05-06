@@ -1,10 +1,10 @@
-#[cfg(any(target_os = "android", target_os = "macos", target_os = "linux"))]
+#[cfg(any(target_os = "android", target_os = "macos"))]
 #[path = "unix.rs"]
 mod imp;
 
 
-#[cfg(target_os = "windows")]
-#[path = "win.rs"]
+#[cfg(any(target_os = "windows", target_os = "linux"))]
+#[path = "icmp.rs"]
 mod imp;
 
 pub use imp::Error;

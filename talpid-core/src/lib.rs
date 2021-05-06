@@ -1,6 +1,6 @@
 //! The core components of the talpidaemon VPN client.
 
-#![deny(missing_docs)]
+// #![deny(missing_docs)]
 #![deny(rust_2018_idioms)]
 #![recursion_limit = "1024"]
 
@@ -60,4 +60,4 @@ mod mktemp;
 mod linux;
 
 /// A pair of functions to monitor and establish connectivity with ICMP
-mod ping_monitor;
+pub mod ping_monitor;
