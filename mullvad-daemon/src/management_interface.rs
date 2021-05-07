@@ -54,7 +54,6 @@ impl ManagementService for ManagementServiceImpl {
     type GetRelayLocationsStream =
         tokio::sync::mpsc::Receiver<Result<types::RelayListCountry, Status>>;
     type GetSplitTunnelProcessesStream = tokio::sync::mpsc::UnboundedReceiver<Result<i32, Status>>;
-    type GetSplitTunnelAppsStream = tokio::sync::mpsc::UnboundedReceiver<Result<String, Status>>;
     type EventsListenStream = EventsListenerReceiver;
 
     // Control and get the tunnel state
@@ -657,35 +656,6 @@ impl ManagementService for ManagementServiceImpl {
         #[cfg(not(target_os = "linux"))]
         {
             Ok(Response::new(()))
-        }
-    }
-
-    async fn get_split_tunnel_apps(
-        &self,
-        _: Request<()>,
-    ) -> ServiceResult<Self::GetSplitTunnelAppsStream> {
-        #[cfg(windows)]
-        {
-            log::debug!("get_split_tunnel_apps");
-            let (tx, rx) = oneshot::channel();
-            self.send_command_to_daemon(DaemonCommand::GetSplitTunnelApps(tx))?;
-            let paths = rx.await.map_err(|_| Status::internal("internal error"))?;
-
-            let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-            tokio::spawn(async move {
-                for path in paths {
-                    let _ = tx.send(path.into_os_string().into_string().map_err(|os_path| {
-                        Status::internal(format!("failed to convert OS string: {:?}", os_path))
-                    }));
-                }
-            });
-
-            Ok(Response::new(rx))
-        }
-        #[cfg(not(windows))]
-        {
-            let (_, rx) = tokio::sync::mpsc::unbounded_channel();
-            Ok(Response::new(rx))
         }
     }
 
