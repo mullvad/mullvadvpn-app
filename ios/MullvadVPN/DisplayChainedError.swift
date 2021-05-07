@@ -31,6 +31,13 @@ extension RestError: DisplayChainedError {
             }
         case .encodePayload:
             return NSLocalizedString("Server request encoding error", comment: "")
+        case .badResponse(let statusCode):
+            return String(
+                format: NSLocalizedString("Server replied with unexpected status code: %d", comment: ""),
+                statusCode
+            )
+        case .invalidHTTPURLResponse:
+            return NSLocalizedString("Received invalid HTTP response", comment: "")
         case .decodeSuccessResponse:
             return NSLocalizedString("Server success response decoding error", comment: "")
         case .decodeErrorResponse:
