@@ -264,9 +264,6 @@ pub enum DaemonCommand {
     /// Clear list of processes excluded from the tunnel
     #[cfg(target_os = "linux")]
     ClearSplitTunnelProcesses(ResponseTx<(), split_tunnel::Error>),
-    /// Request list of apps to exclude from the tunnel
-    #[cfg(windows)]
-    GetSplitTunnelApps(oneshot::Sender<HashSet<PathBuf>>),
     /// Exclude traffic of an application from the tunnel
     #[cfg(windows)]
     AddSplitTunnelApp(ResponseTx<(), Error>, PathBuf),
@@ -1230,8 +1227,6 @@ where
             #[cfg(target_os = "linux")]
             ClearSplitTunnelProcesses(tx) => self.on_clear_split_tunnel_processes(tx),
             #[cfg(windows)]
-            GetSplitTunnelApps(tx) => self.on_get_split_tunnel_apps(tx),
-            #[cfg(windows)]
             AddSplitTunnelApp(tx, path) => self.on_add_split_tunnel_app(tx, path).await,
             #[cfg(windows)]
             RemoveSplitTunnelApp(tx, path) => self.on_remove_split_tunnel_app(tx, path).await,
@@ -1724,15 +1719,6 @@ where
             error
         });
         Self::oneshot_send(tx, result, "clear_split_tunnel_processes response");
-    }
-
-    #[cfg(windows)]
-    fn on_get_split_tunnel_apps(&mut self, tx: oneshot::Sender<HashSet<PathBuf>>) {
-        Self::oneshot_send(
-            tx,
-            self.settings.to_settings().split_tunnel.apps,
-            "get_split_tunnel_apps response",
-        );
     }
 
     /// Update the split app paths in both the settings and tunnel
