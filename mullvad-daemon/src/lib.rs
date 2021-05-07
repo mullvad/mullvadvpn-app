@@ -656,9 +656,10 @@ where
             TransportProtocol::Tcp,
         );
         #[cfg(windows)]
-        let exclude_apps = if settings.split_tunnel {
+        let exclude_apps = if settings.split_tunnel.enable_exclusions {
             settings
-                .split_tunnel_apps
+                .split_tunnel
+                .apps
                 .iter()
                 .map(|s| OsString::from(s))
                 .collect()
@@ -1729,7 +1730,7 @@ where
     fn on_get_split_tunnel_apps(&mut self, tx: oneshot::Sender<HashSet<PathBuf>>) {
         Self::oneshot_send(
             tx,
-            self.settings.to_settings().split_tunnel_apps,
+            self.settings.to_settings().split_tunnel.apps,
             "get_split_tunnel_apps response",
         );
     }
@@ -1743,12 +1744,12 @@ where
         settings: Settings,
         new_list: HashSet<PathBuf>,
     ) {
-        if new_list == settings.split_tunnel_apps {
+        if new_list == settings.split_tunnel.apps {
             Self::oneshot_send(tx, Ok(()), response_msg);
             return;
         }
 
-        if settings.split_tunnel {
+        if settings.split_tunnel.enable_exclusions {
             let (result_tx, result_rx) = oneshot::channel();
             self.send_tunnel_command(TunnelCommand::SetExcludedApps(
                 result_tx,
@@ -1796,7 +1797,7 @@ where
     async fn on_add_split_tunnel_app(&mut self, tx: ResponseTx<(), Error>, path: PathBuf) {
         let settings = self.settings.to_settings();
 
-        let mut new_list = settings.split_tunnel_apps.clone();
+        let mut new_list = settings.split_tunnel.apps.clone();
         new_list.insert(path);
 
         self.set_split_tunnel_paths(tx, "add_split_tunnel_app response", settings, new_list)
@@ -1807,7 +1808,7 @@ where
     async fn on_remove_split_tunnel_app(&mut self, tx: ResponseTx<(), Error>, path: PathBuf) {
         let settings = self.settings.to_settings();
 
-        let mut new_list = settings.split_tunnel_apps.clone();
+        let mut new_list = settings.split_tunnel.apps.clone();
         new_list.remove(&path);
 
         self.set_split_tunnel_paths(tx, "remove_split_tunnel_app response", settings, new_list)
@@ -1826,13 +1827,13 @@ where
     async fn on_set_split_tunnel_state(&mut self, tx: ResponseTx<(), Error>, enabled: bool) {
         let settings = self.settings.to_settings();
 
-        if enabled != settings.split_tunnel {
+        if enabled != settings.split_tunnel.enable_exclusions {
             let new_list = if enabled {
-                settings.split_tunnel_apps.clone()
+                settings.split_tunnel.apps.clone()
             } else {
                 HashSet::new()
             };
-            if !settings.split_tunnel_apps.is_empty() {
+            if !settings.split_tunnel.apps.is_empty() {
                 let (result_tx, result_rx) = oneshot::channel();
                 self.send_tunnel_command(TunnelCommand::SetExcludedApps(
                     result_tx,

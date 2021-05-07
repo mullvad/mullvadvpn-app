@@ -270,16 +270,17 @@ impl SettingsPersister {
 
     #[cfg(windows)]
     pub async fn set_split_tunnel_apps(&mut self, paths: HashSet<PathBuf>) -> Result<bool, Error> {
-        let should_save = paths != self.settings.split_tunnel_apps;
+        let should_save = paths != self.settings.split_tunnel.apps;
         if should_save {
-            self.settings.split_tunnel_apps = paths;
+            self.settings.split_tunnel.apps = paths;
         }
         self.update(should_save).await
     }
 
     #[cfg(windows)]
     pub async fn set_split_tunnel_state(&mut self, enabled: bool) -> Result<bool, Error> {
-        let should_save = Self::update_field(&mut self.settings.split_tunnel, enabled);
+        let should_save =
+            Self::update_field(&mut self.settings.split_tunnel.enable_exclusions, enabled);
         self.update(should_save).await
     }
 
