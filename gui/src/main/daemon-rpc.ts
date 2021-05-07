@@ -447,8 +447,16 @@ export class DaemonRpc {
 
   public async setDnsOptions(dns: IDnsOptions): Promise<void> {
     const dnsOptions = new grpcTypes.DnsOptions();
-    dnsOptions.setCustom(dns.custom);
-    dnsOptions.setAddressesList(dns.addresses);
+    if (dns.custom) {
+      const customOptions = new grpcTypes.CustomDnsOptions();
+      customOptions.setAddressesList(dns.addresses);
+      dnsOptions.setCustom(customOptions);
+    } else {
+      const defaultOptions = new grpcTypes.DefaultDnsOptions();
+      defaultOptions.setBlockAds(false);
+      defaultOptions.setBlockTrackers(false);
+      dnsOptions.setDefault(defaultOptions);
+    }
 
     await this.call<grpcTypes.DnsOptions, Empty>(this.client.setDnsOptions, dnsOptions);
   }
@@ -1029,8 +1037,8 @@ function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObjec
       enableIpv6: tunnelOptions.generic!.enableIpv6,
     },
     dns: {
-      custom: tunnelOptions.dnsOptions?.custom ?? false,
-      addresses: tunnelOptions.dnsOptions?.addressesList ?? [],
+      custom: !!tunnelOptions.dnsOptions?.custom,
+      addresses: tunnelOptions.dnsOptions?.custom?.addressesList ?? [],
     },
   };
 }
