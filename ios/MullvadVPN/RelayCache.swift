@@ -191,39 +191,53 @@ class RelayCache {
             let nextUpdate = Self.nextUpdateDate(lastUpdatedAt: cachedRelays.updatedAt)
 
             if let nextUpdate = nextUpdate, nextUpdate <= Date() {
-                self.downloadRelays()
+                self.downloadRelays(previouslyCachedRelays: cachedRelays)
             }
 
         case .failure(let readError):
             self.logger.error(chainedError: readError, message: "Failed to read the relay cache to determine if it needs to be updated")
 
             if Self.shouldDownloadRelaysOnReadFailure(readError) {
-                self.downloadRelays()
+                self.downloadRelays(previouslyCachedRelays: nil)
             }
         }
     }
 
-    private func downloadRelays() {
-        let taskResult = makeDownloadTask { (result) in
-            let result = result.flatMap { (relays) -> Result<CachedRelays, RelayCacheError> in
-                let cachedRelays = CachedRelays(relays: relays, updatedAt: Date())
-
-                return Self.write(cacheFileURL: self.cacheFileURL, record: cachedRelays)
-                    .map { cachedRelays }
-            }
-
+    private func downloadRelays(previouslyCachedRelays: CachedRelays?) {
+        let taskResult = makeDownloadTask(etag: previouslyCachedRelays?.etag) { (result) in
             switch result {
-            case .success(let cachedRelays):
-                let numRelays = cachedRelays.relays.wireguard.relays.count
+            case .success(.newContent(let etag, let relays)):
+                let numRelays = relays.wireguard.relays.count
 
                 self.logger.info("Downloaded \(numRelays) relays")
 
-                self.observerList.forEach { (observer) in
-                    observer.relayCache(self, didUpdateCachedRelays: cachedRelays)
+                let cachedRelays = CachedRelays(etag: etag, relays: relays, updatedAt: Date())
+                switch Self.write(cacheFileURL: self.cacheFileURL, record: cachedRelays) {
+                case .success:
+                    self.observerList.forEach { (observer) in
+                        observer.relayCache(self, didUpdateCachedRelays: cachedRelays)
+                    }
+
+                case .failure(let error):
+                    self.logger.error(chainedError: error, message: "Failed to store downloaded relays")
+                }
+
+            case .success(.notModified):
+                self.logger.info("Relays haven't changed since last check.")
+
+                var cachedRelays = previouslyCachedRelays!
+                cachedRelays.updatedAt = Date()
+
+                switch Self.write(cacheFileURL: self.cacheFileURL, record: cachedRelays) {
+                case .success:
+                    break
+
+                case .failure(let error):
+                    self.logger.error(chainedError: error, message: "Failed to update cached relays timestamp")
                 }
 
             case .failure(let error):
-                self.logger.error(chainedError: error, message: "Failed to update the relays")
+                self.logger.error(chainedError: error, message: "Failed to download relays")
             }
         }
 
@@ -256,8 +270,8 @@ class RelayCache {
         self.timerSource = timerSource
     }
 
-    private func makeDownloadTask(completionHandler: @escaping (Result<ServerRelaysResponse, RelayCacheError>) -> Void) -> Result<URLSessionDataTask, RestError> {
-        return rest.getRelays().dataTask(payload: EmptyPayload()) { (result) in
+    private func makeDownloadTask(etag: String?, completionHandler: @escaping (Result<HttpResourceCacheResponse<ServerRelaysResponse>, RelayCacheError>) -> Void) -> Result<URLSessionDataTask, RestError> {
+        return rest.getRelays().dataTask(payload: ETagPayload(etag: etag, enforceWeakValidator: true, payload: EmptyPayload())) { (result) in
             self.dispatchQueue.async {
                 completionHandler(result.mapError { RelayCacheError.rest($0) })
             }
@@ -369,6 +383,9 @@ class RelayCache {
 
 /// A struct that represents the relay cache on disk
 struct CachedRelays: Codable {
+    /// E-tag returned by server
+    var etag: String?
+
     /// The relay list stored within the cache entry
     var relays: ServerRelaysResponse
 
