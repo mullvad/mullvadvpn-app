@@ -524,10 +524,6 @@ WinNet_UnregisterDefaultRouteChangedCallback(
 
 	if (nullptr == g_RouteManager)
 	{
-		if (nullptr != g_RouteManagerLogSink)
-		{
-			g_RouteManagerLogSink->debug("Cannot remove default route callback for deactivated route manager");
-		}
 		return;
 	}
 
@@ -558,6 +554,8 @@ WinNet_DeactivateRouteManager(
 	{
 		delete g_RouteManager;
 		g_RouteManager = nullptr;
+
+		g_RouteManagerLogSink.reset();
 	}
 	catch (...)
 	{
