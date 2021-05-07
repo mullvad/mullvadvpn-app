@@ -11,6 +11,7 @@ use crate::{
 use futures::channel::mpsc;
 use lazy_static::lazy_static;
 use std::{
+    convert::TryFrom,
     ffi::OsStr,
     io, mem,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
@@ -71,6 +72,10 @@ pub enum Error {
     /// Failed to set up callback for monitoring default route changes
     #[error(display = "Failed to register default route change callback")]
     RegisterRouteChangeCallback,
+
+    /// Unexpected IP parsing error
+    #[error(display = "Failed to parse IP address")]
+    IpParseError,
 }
 
 /// Manages applications whose traffic to exclude from the tunnel.
@@ -302,8 +307,11 @@ impl SplitTunnel {
             .flatten();
 
         let tunnel_ipv4 = tunnel_ipv4.unwrap_or(*RESERVED_IP_V4);
-        let internet_ipv4 = Ipv4Addr::from(internet_ipv4.unwrap_or_default());
-        let internet_ipv6 = internet_ipv6.map(|addr| Ipv6Addr::from(addr));
+        let internet_ipv4 = Ipv4Addr::try_from(internet_ipv4.unwrap_or_default())
+            .map_err(|_| Error::IpParseError)?;
+        let internet_ipv6 = internet_ipv6
+            .map(|addr| Ipv6Addr::try_from(addr).map_err(|_| Error::IpParseError))
+            .transpose()?;
 
         let context = SplitTunnelDefaultRouteChangeHandlerContext::new(
             self.handle.clone(),
@@ -478,15 +486,9 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
                 }
             };
 
-            match address_family {
-                WinNetAddrFamily::IPV4 => {
-                    let ip = Ipv4Addr::from(ip);
-                    ctx.internet_ipv4 = ip;
-                }
-                WinNetAddrFamily::IPV6 => {
-                    let ip = Ipv6Addr::from(ip);
-                    ctx.internet_ipv6 = Some(ip);
-                }
+            match IpAddr::from(ip) {
+                IpAddr::V4(addr) => ctx.internet_ipv4 = addr,
+                IpAddr::V6(addr) => ctx.internet_ipv6 = Some(addr),
             }
 
             ctx.register_ips()
