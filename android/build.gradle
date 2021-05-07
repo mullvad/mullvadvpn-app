@@ -162,6 +162,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:1.1.2"
     androidTestImplementation "io.mockk:mockk-android:$mockkVersion"
     androidTestImplementation "org.koin:koin-test:$koinVersion"
+    androidTestImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
     // debugImplementation because LeakCanary should only run in debug builds.
     // debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
 }
