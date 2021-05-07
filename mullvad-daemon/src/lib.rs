@@ -216,7 +216,7 @@ pub enum DaemonCommand {
     SetBridgeState(ResponseTx<(), settings::Error>, BridgeState),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
-    /// Set custom DNS servers to use instead of passing requests to the gateway
+    /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
     /// Set MTU for wireguard tunnels
     SetWireguardMtu(ResponseTx<(), settings::Error>, Option<u16>),
@@ -1857,7 +1857,7 @@ where
                     let resolvers =
                         Self::get_custom_resolvers(&settings.tunnel_options.dns_options);
                     self.event_listener.notify_settings(settings);
-                    self.send_tunnel_command(TunnelCommand::CustomDns(resolvers));
+                    self.send_tunnel_command(TunnelCommand::Dns(resolvers));
                 }
             }
             Err(e) => {

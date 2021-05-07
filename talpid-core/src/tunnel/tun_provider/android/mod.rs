@@ -110,7 +110,7 @@ impl AndroidTunProvider {
         self.allowed_endpoint = endpoint;
     }
 
-    pub fn set_custom_dns_servers(&mut self, servers: Option<Vec<IpAddr>>) -> Result<(), Error> {
+    pub fn set_dns_servers(&mut self, servers: Option<Vec<IpAddr>>) -> Result<(), Error> {
         if self.custom_dns_servers != servers {
             self.custom_dns_servers = servers;
             self.recreate_tun_if_open()?;

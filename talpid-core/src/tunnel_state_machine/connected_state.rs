@@ -80,7 +80,7 @@ impl ConnectedState {
     #[allow(unused_variables)]
     fn get_dns_servers(&self, shared_values: &SharedTunnelStateValues) -> Vec<IpAddr> {
         #[cfg(not(target_os = "android"))]
-        if let Some(ref servers) = shared_values.custom_dns {
+        if let Some(ref servers) = shared_values.dns_servers {
             servers.clone()
         } else {
             let mut dns_ips = vec![];
@@ -197,41 +197,34 @@ impl ConnectedState {
                 }
                 SameState(self.into())
             }
-            Some(TunnelCommand::CustomDns(servers)) => {
-                match shared_values.set_custom_dns(servers) {
-                    Ok(true) => {
-                        if let Err(error) = self.set_firewall_policy(shared_values) {
-                            return self.disconnect(
-                                shared_values,
-                                AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(
-                                    error,
-                                )),
-                            );
-                        }
-
-                        match self.set_dns(shared_values) {
-                            #[cfg(target_os = "android")]
-                            Ok(()) => self.disconnect(shared_values, AfterDisconnect::Reconnect(0)),
-                            #[cfg(not(target_os = "android"))]
-                            Ok(()) => SameState(self.into()),
-                            Err(error) => {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg("Failed to set DNS")
-                                );
-                                self.disconnect(
-                                    shared_values,
-                                    AfterDisconnect::Block(ErrorStateCause::SetDnsError),
-                                )
-                            }
-                        }
+            Some(TunnelCommand::Dns(servers)) => match shared_values.set_dns_servers(servers) {
+                Ok(true) => {
+                    if let Err(error) = self.set_firewall_policy(shared_values) {
+                        return self.disconnect(
+                            shared_values,
+                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
+                        );
                     }
-                    Ok(false) => SameState(self.into()),
-                    Err(error_cause) => {
-                        self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
+
+                    match self.set_dns(shared_values) {
+                        #[cfg(target_os = "android")]
+                        Ok(()) => self.disconnect(shared_values, AfterDisconnect::Reconnect(0)),
+                        #[cfg(not(target_os = "android"))]
+                        Ok(()) => SameState(self.into()),
+                        Err(error) => {
+                            log::error!("{}", error.display_chain_with_msg("Failed to set DNS"));
+                            self.disconnect(
+                                shared_values,
+                                AfterDisconnect::Block(ErrorStateCause::SetDnsError),
+                            )
+                        }
                     }
                 }
-            }
+                Ok(false) => SameState(self.into()),
+                Err(error_cause) => {
+                    self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
+                }
+            },
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
                 SameState(self.into())

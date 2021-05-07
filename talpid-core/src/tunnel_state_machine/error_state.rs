@@ -123,8 +123,8 @@ impl TunnelState for ErrorState {
                 }
                 SameState(self.into())
             }
-            Some(TunnelCommand::CustomDns(servers)) => {
-                if let Err(error_state_cause) = shared_values.set_custom_dns(servers) {
+            Some(TunnelCommand::Dns(servers)) => {
+                if let Err(error_state_cause) = shared_values.set_dns_servers(servers) {
                     NewState(Self::enter(shared_values, error_state_cause))
                 } else {
                     SameState(self.into())
