@@ -270,8 +270,12 @@ message Settings {
 	bool auto_connect = 7;
 	TunnelOptions tunnel_options = 8;
 	bool show_beta_releases = 9;
-	bool split_tunnel = 10;
-	repeated string split_tunnel_apps = 11;
+	SplitTunnelSettings split_tunnel = 10;
+}
+
+message SplitTunnelSettings {
+	bool enable_exclusions = 1;
+	repeated string apps = 2;
 }
 
 message RelaySettings {

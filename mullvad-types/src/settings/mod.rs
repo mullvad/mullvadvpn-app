@@ -60,15 +60,21 @@ pub struct Settings {
     pub tunnel_options: TunnelOptions,
     /// Whether to notify users of beta updates.
     pub show_beta_releases: bool,
-    /// Whether to enable split tunneling for [`Settings::split_tunnel_apps`].
+    /// Split tunneling settings
     #[cfg(windows)]
-    pub split_tunnel: bool,
-    /// List of applications to exclude from the tunnel.
-    #[cfg(windows)]
-    pub split_tunnel_apps: HashSet<PathBuf>,
+    pub split_tunnel: SplitTunnelSettings,
     /// Specifies settings schema version
     #[cfg_attr(target_os = "android", jnix(skip))]
     settings_version: migrations::SettingsVersion,
+}
+
+#[cfg(windows)]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq)]
+pub struct SplitTunnelSettings {
+    /// Toggles split tunneling on or off
+    pub enable_exclusions: bool,
+    /// List of applications to exclude from the tunnel.
+    pub apps: HashSet<PathBuf>,
 }
 
 impl Default for Settings {
@@ -88,9 +94,7 @@ impl Default for Settings {
             tunnel_options: TunnelOptions::default(),
             show_beta_releases: false,
             #[cfg(windows)]
-            split_tunnel: false,
-            #[cfg(windows)]
-            split_tunnel_apps: HashSet::new(),
+            split_tunnel: SplitTunnelSettings::default(),
             settings_version: migrations::CURRENT_SETTINGS_VERSION,
         }
     }
