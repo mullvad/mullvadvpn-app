@@ -59,14 +59,17 @@ impl SplitTunnel {
     async fn handle_app_subcommand(matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("list", Some(_)) => {
-                let mut paths = new_rpc_client()
+                let paths = new_rpc_client()
                     .await?
-                    .get_split_tunnel_apps(())
+                    .get_settings(())
                     .await?
-                    .into_inner();
+                    .into_inner()
+                    .split_tunnel
+                    .unwrap()
+                    .apps;
 
                 println!("Excluded applications:");
-                while let Some(path) = paths.message().await? {
+                for path in &paths {
                     println!("    {}", path);
                 }
 
