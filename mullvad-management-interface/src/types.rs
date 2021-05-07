@@ -624,6 +624,7 @@ impl From<TransportProtocol> for talpid_types::net::TransportProtocol {
     }
 }
 
+#[derive(Debug)]
 pub enum FromProtobufTypeError {
     InvalidArgument(&'static str),
 }

@@ -1,5 +1,7 @@
 use crate::{new_rpc_client, Command, Result};
 use mullvad_management_interface::types;
+use mullvad_types::settings::DnsOptions;
+use std::convert::TryFrom;
 
 pub struct Dns;
 
@@ -109,7 +111,19 @@ impl Dns {
             .dns_options
             .unwrap();
 
-        println!("DNS: {:?}", options);
+        match DnsOptions::try_from(options).unwrap() {
+            DnsOptions::Default(options) => {
+                println!("Custom DNS: no");
+                println!("Block ads: {}", options.block_ads);
+                println!("Block trackers: {}", options.block_trackers);
+            }
+            DnsOptions::Custom(options) => {
+                println!("Custom DNS: yes\nServers:");
+                for server in &options.addresses {
+                    println!("{}", server);
+                }
+            }
+        }
 
         Ok(())
     }
