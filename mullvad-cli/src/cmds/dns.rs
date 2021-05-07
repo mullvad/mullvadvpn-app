@@ -26,11 +26,13 @@ impl Command for Dns {
                             .arg(
                                 clap::Arg::with_name("block ads")
                                     .long("block-ads")
+                                    .takes_value(false)
                                     .help("Block domain names used for ads"),
                             )
                             .arg(
                                 clap::Arg::with_name("block trackers")
                                     .long("block-trackers")
+                                    .takes_value(false)
                                     .help("Block domain names used for tracking"),
                             ),
                     )
@@ -50,7 +52,13 @@ impl Command for Dns {
     async fn run(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         match matches.subcommand() {
             ("set", Some(matches)) => match matches.subcommand() {
-                ("default", _) => self.set_default().await,
+                ("default", Some(matches)) => {
+                    self.set_default(
+                        matches.is_present("block ads"),
+                        matches.is_present("block trackers"),
+                    )
+                    .await
+                }
                 ("custom", Some(matches)) => {
                     self.set_custom(matches.values_of_lossy("servers")).await
                 }
@@ -63,13 +71,13 @@ impl Command for Dns {
 }
 
 impl Dns {
-    async fn set_default(&self) -> Result<()> {
+    async fn set_default(&self, block_ads: bool, block_trackers: bool) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         rpc.set_dns_options(types::DnsOptions {
             r#type: Some(types::dns_options::Type::Default(
                 types::DefaultDnsOptions {
-                    block_ads: false,
-                    block_trackers: false,
+                    block_ads,
+                    block_trackers,
                 },
             )),
         })

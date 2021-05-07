@@ -80,6 +80,12 @@ const FIRST_KEY_PUSH_TIMEOUT: Duration = Duration::from_secs(5);
 /// Delay between generating a new WireGuard key and reconnecting
 const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
 
+lazy_static::lazy_static! {
+    static ref DNS_AD_BLOCKING_SERVERS: [IpAddr; 1] = ["100.64.0.1".parse().unwrap()];
+    static ref DNS_TRACKER_BLOCKING_SERVERS: [IpAddr; 1] = ["100.64.0.2".parse().unwrap()];
+    static ref DNS_AD_TRACKER_BLOCKING_SERVERS: [IpAddr; 1] = ["100.64.0.3".parse().unwrap()];
+}
+
 pub type ResponseTx<T, E> = oneshot::Sender<Result<T, E>>;
 
 #[derive(err_derive::Error, Debug)]
@@ -629,7 +635,7 @@ where
         let tunnel_command_tx = tunnel_state_machine::spawn(
             settings.allow_lan,
             settings.block_when_disconnected,
-            Self::get_custom_resolvers(&settings.tunnel_options.dns_options),
+            Self::get_dns_resolvers(&settings.tunnel_options.dns_options),
             initial_api_endpoint,
             tunnel_parameters_generator,
             log_dir,
@@ -694,11 +700,28 @@ where
         Ok(daemon)
     }
 
-    fn get_custom_resolvers(dns_options: &DnsOptions) -> Option<Vec<IpAddr>> {
-        if let DnsOptions::Custom(options) = dns_options {
-            Some(options.addresses.clone())
-        } else {
-            None
+    fn get_dns_resolvers(dns_options: &DnsOptions) -> Option<Vec<IpAddr>> {
+        match dns_options {
+            DnsOptions::Default(options) => {
+                if options.block_ads {
+                    if options.block_trackers {
+                        Some(DNS_AD_TRACKER_BLOCKING_SERVERS.to_vec())
+                    } else {
+                        Some(DNS_AD_BLOCKING_SERVERS.to_vec())
+                    }
+                } else if options.block_trackers {
+                    Some(DNS_TRACKER_BLOCKING_SERVERS.to_vec())
+                } else {
+                    None
+                }
+            }
+            DnsOptions::Custom(options) => {
+                if options.addresses.is_empty() {
+                    None
+                } else {
+                    Some(options.addresses.clone())
+                }
+            }
         }
     }
 
@@ -1854,8 +1877,7 @@ where
                 Self::oneshot_send(tx, Ok(()), "set_dns_options response");
                 if settings_changed {
                     let settings = self.settings.to_settings();
-                    let resolvers =
-                        Self::get_custom_resolvers(&settings.tunnel_options.dns_options);
+                    let resolvers = Self::get_dns_resolvers(&settings.tunnel_options.dns_options);
                     self.event_listener.notify_settings(settings);
                     self.send_tunnel_command(TunnelCommand::Dns(resolvers));
                 }
