@@ -122,7 +122,7 @@ pub async fn spawn(
     let command_tx2 = command_tx.clone();
     std::thread::spawn(move || {
         let state_machine = TunnelStateMachine::new(
-            runtime.clone(),
+            runtime,
             allow_lan,
             block_when_disconnected,
             is_offline,
