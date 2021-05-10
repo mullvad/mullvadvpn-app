@@ -37,15 +37,6 @@ impl StringResources {
         }
     }
 
-    /// Normalize the strings into a common format.
-    ///
-    /// Allows the string values to be compared to the gettext messages.
-    pub fn normalize(&mut self) {
-        for entry in &mut self.entries {
-            entry.normalize();
-        }
-    }
-
     /// Sorts the entries alphabetically based on their IDs.
     pub fn sort(&mut self) {
         self.entries
@@ -86,13 +77,6 @@ impl StringResource {
             translatable: true,
             value: StringValue::from(value),
         }
-    }
-
-    /// Normalize the string value into a common format.
-    ///
-    /// Makes it possible to compare the Android strings with the gettext messages.
-    pub fn normalize(&mut self) {
-        self.value.normalize();
     }
 }
 
