@@ -53,6 +53,7 @@ const config = {
     },
     artifactName: 'MullvadVPN-${version}.${ext}',
     category: 'public.app-category.tools',
+    icon: distAssets('icon-macos.icns'),
     extendInfo: {
       LSUIElement: true,
       NSUserNotificationAlertStyle: 'alert',
@@ -121,6 +122,7 @@ const config = {
     target: ['deb', 'rpm'],
     artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
     category: 'Network',
+    icon: distAssets('icon.icns'),
     extraFiles: [{ from: distAssets('linux/mullvad-gui-launcher.sh'), to: '.' }],
     extraResources: [
       { from: distAssets('mullvad-problem-report'), to: '.' },

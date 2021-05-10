@@ -34,22 +34,31 @@ TMP_DIR=$(mktemp -d)
 TMP_ICO_DIR="$TMP_DIR/ico"
 TMP_ICONSET_DIR="$TMP_DIR/icon.iconset"
 
+mkdir $TMP_ICONSET_DIR
+mkdir $TMP_ICO_DIR
+
 COMPRESSION_OPTIONS="-define png:compression-filter=5 -define png:compression-level=9 \
     -define png:compression-strategy=1 -define png:exclude-chunk=all -strip"
 
-# MacOS and Linux .icns icon
-mkdir $TMP_ICONSET_DIR
+# macOS .icns icon
+for icon in "$GRAPHICS_DIR/macOS"/*; do
+    cp "$icon" "$TMP_ICONSET_DIR"/
+done
+
+iconutil --convert icns --output "$DIST_ASSETS_DIR/icon-macos.icns" "$TMP_ICONSET_DIR"
+rm "$TMP_ICONSET_DIR"/*
+
+# Linux .icns icon
 for size in 16 32 128 256 512; do
     double_size=$[$size * 2]
     rsvg-convert -o $TMP_ICONSET_DIR/icon-$size.png -w $size -h $size $SVG_SOURCE_PATH
     rsvg-convert -o $TMP_ICONSET_DIR/icon-$size@2x.png -w $double_size -h $double_size \
         $SVG_SOURCE_PATH
 done
-iconutil --convert icns --output  $DIST_ASSETS_DIR/icon.icns $TMP_ICONSET_DIR
+iconutil --convert icns --output $DIST_ASSETS_DIR/icon.icns $TMP_ICONSET_DIR
 rm -rf $TMP_ICONSET_DIR
 
 # Windows .ico icon
-mkdir $TMP_ICO_DIR
 for size in 16 20 24 30 32 36 40 48 60 64 72 80 96 256 512; do
     rsvg-convert -o $TMP_ICO_DIR/$size.png -w $size -h $size $SVG_SOURCE_PATH
 done
