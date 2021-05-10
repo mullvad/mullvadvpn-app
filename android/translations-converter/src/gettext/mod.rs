@@ -1,7 +1,6 @@
 mod msg_string;
 mod plural_form;
 
-use self::msg_string::MsgString;
 use lazy_static::lazy_static;
 use regex::Regex;
 use std::{
@@ -12,7 +11,7 @@ use std::{
     path::Path,
 };
 
-pub use self::plural_form::PluralForm;
+pub use self::{msg_string::MsgString, plural_form::PluralForm};
 
 lazy_static! {
     static ref APOSTROPHE_VARIATION: Regex = Regex::new("’").unwrap();
