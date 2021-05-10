@@ -1997,7 +1997,7 @@ where
                     .await
                     .map_err(Error::AccountHistory)?;
                 if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
-                    self.reconnect_tunnel();
+                    self.schedule_reconnect(WG_RECONNECT_DELAY).await;
                 }
                 let keygen_event = KeygenEvent::NewKey(public_key);
                 self.event_listener.notify_key_event(keygen_event.clone());
