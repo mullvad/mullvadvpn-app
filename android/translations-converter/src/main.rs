@@ -35,6 +35,7 @@ mod android;
 mod gettext;
 mod normalize;
 
+use crate::normalize::Normalize;
 use std::{
     collections::HashMap,
     fs::{self, File},
@@ -46,15 +47,13 @@ fn main() {
 
     let strings_file = File::open(resources_dir.join("values/strings.xml"))
         .expect("Failed to open string resources file");
-    let mut string_resources: android::StringResources =
+    let string_resources: android::StringResources =
         serde_xml_rs::from_reader(strings_file).expect("Failed to read string resources file");
-
-    string_resources.normalize();
 
     let (known_urls, known_strings): (HashMap<_, _>, HashMap<_, _>) = string_resources
         .into_iter()
         .filter(|resource| resource.translatable)
-        .map(|resource| (resource.value.to_string(), resource.name))
+        .map(|resource| (resource.value.normalize(), resource.name))
         .partition(|(string, _id)| string.starts_with("https://mullvad.net/en/"));
 
     let plurals_file = File::open(resources_dir.join("values/plurals.xml"))
