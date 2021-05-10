@@ -78,7 +78,7 @@ const TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 const FIRST_KEY_PUSH_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// Delay between generating a new WireGuard key and reconnecting
-const WG_RECONNECT_DELAY: Duration = Duration::from_secs(30);
+const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
 
 pub type ResponseTx<T, E> = oneshot::Sender<Result<T, E>>;
 
