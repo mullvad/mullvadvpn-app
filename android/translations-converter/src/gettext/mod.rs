@@ -1,8 +1,6 @@
 mod msg_string;
 mod plural_form;
 
-use lazy_static::lazy_static;
-use regex::Regex;
 use std::{
     collections::BTreeMap,
     fs::{File, OpenOptions},
@@ -12,12 +10,6 @@ use std::{
 };
 
 pub use self::{msg_string::MsgString, plural_form::PluralForm};
-
-lazy_static! {
-    static ref APOSTROPHE_VARIATION: Regex = Regex::new("’").unwrap();
-    static ref ESCAPED_DOUBLE_QUOTES: Regex = Regex::new(r#"\\""#).unwrap();
-    static ref PARAMETERS: Regex = Regex::new(r"%\([^)]*\)").unwrap();
-}
 
 /// A parsed gettext translation file.
 #[derive(Clone, Debug)]
@@ -63,9 +55,6 @@ macro_rules! match_str {
 impl Translation {
     /// Load message entries from a gettext translation file.
     ///
-    /// The messages are normalized into a common format so that they can be compared to Android
-    /// string resource entries.
-    ///
     /// The only metadata that is parsed from the file is the "Plural-Form" header. It is assumed
     /// that the header value is one of some hard-coded values, so if new languages that have new
     /// plurals are added, the code will have to be updated.
@@ -108,11 +97,11 @@ impl Translation {
         for line in lines {
             match_str! { (line.trim())
                 ["msgid \"", msg_id, "\""] => {
-                    current_id = Some(normalize(msg_id));
+                    current_id = Some(msg_id.into());
                 }
                 ["msgstr \"", translation, "\""] => {
                     if let Some(id) = current_id.take() {
-                        let value = MsgValue::Invariant(normalize(translation));
+                        let value = MsgValue::Invariant(MsgString::from_escaped(translation));
 
                         parsing_header = id.is_empty() && translation.is_empty();
 
@@ -123,7 +112,7 @@ impl Translation {
                     current_plural_id = None;
                 }
                 ["msgid_plural \"", plural_id, "\""] => {
-                    current_plural_id = Some(normalize(plural_id));
+                    current_plural_id = Some(MsgString::from_escaped(plural_id));
                     parsing_header = false;
                 }
                 ["msgstr[", plural_translation, "\""] => {
@@ -137,7 +126,7 @@ impl Translation {
                     let variant_msg = parse_line(&plural_translation[variant_id_end..], "] \"", "")
                         .expect("Invalid plural msgstr");
 
-                    variants.insert(variant_id, normalize(variant_msg));
+                    variants.insert(variant_id, MsgString::from_escaped(variant_msg));
                     parsing_header = false;
                 }
                 ["\"", header, "\\n\""] => {
@@ -240,15 +229,4 @@ fn parse_line<'l>(line: &'l str, prefix: &str, suffix: &str) -> Option<&'l str> 
     } else {
         None
     }
-}
-
-fn normalize(string: &str) -> MsgString {
-    // Use a single common apostrophe character
-    let string = APOSTROPHE_VARIATION.replace_all(&string, "'");
-    // Mark where parameters are positioned, removing the parameter name
-    let string = PARAMETERS.replace_all(&string, "%");
-    // Remove escaped double-quotes
-    let string = ESCAPED_DOUBLE_QUOTES.replace_all(&string, r#"""#);
-
-    MsgString::from_escaped(string)
 }

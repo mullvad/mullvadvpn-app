@@ -117,8 +117,8 @@ fn main() {
 
     for message in template {
         match message.value {
-            gettext::MsgValue::Invariant(_) => missing_translations.remove(&*message.id),
-            gettext::MsgValue::Plural { .. } => missing_plurals.remove(&*message.id),
+            gettext::MsgValue::Invariant(_) => missing_translations.remove(&message.id.normalize()),
+            gettext::MsgValue::Plural { .. } => missing_plurals.remove(&message.id.normalize()),
         };
     }
 
@@ -244,16 +244,16 @@ fn generate_translations(
     for translation in translations {
         match translation.value {
             gettext::MsgValue::Invariant(translation_value) => {
-                if let Some(android_key) = known_strings.remove(&*translation.id) {
+                if let Some(android_key) = known_strings.remove(&translation.id.normalize()) {
                     localized_strings.push(android::StringResource::new(
                         android_key,
-                        &translation_value,
+                        &translation_value.normalize(),
                     ));
                 }
             }
             gettext::MsgValue::Plural { values, .. } => {
-                if let Some(android_key) = known_plurals.remove(&*translation.id) {
-                    let values = values.into_iter().map(|message| message.to_string());
+                if let Some(android_key) = known_plurals.remove(&translation.id.normalize()) {
+                    let values = values.into_iter().map(|message| message.normalize());
 
                     localized_plurals.push(android::PluralResource::new(
                         android_key,
