@@ -33,6 +33,7 @@
 
 mod android;
 mod gettext;
+mod normalize;
 
 use std::{
     collections::HashMap,
