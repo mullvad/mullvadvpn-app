@@ -356,41 +356,32 @@ fn make_process_config<T: AsRef<OsStr>>(apps: &[T]) -> Vec<u8> {
     let mut buffer = Vec::<u8>::new();
     buffer.resize(total_buffer_size, 0);
 
+    let (header, tail) = buffer.split_at_mut(size_of::<ConfigurationHeader>());
+
     // Serialize configuration header
-    let header = ConfigurationHeader {
+    let header_struct = ConfigurationHeader {
         num_entries: apps.len(),
         total_length: total_buffer_size,
     };
-    unsafe {
-        ptr::copy_nonoverlapping(
-            &header as *const _ as *const u8,
-            buffer.as_mut_ptr(),
-            size_of::<ConfigurationHeader>(),
-        )
-    };
+    header.copy_from_slice(unsafe { as_u8_slice(&header_struct) });
 
     // Serialize configuration entries and strings
-    let mut entries = unsafe {
-        std::slice::from_raw_parts_mut(
-            &mut buffer[size_of::<ConfigurationHeader>()..] as *mut _ as *mut ConfigurationEntry,
-            apps.len(),
-        )
-    };
-    let string_data = unsafe {
-        std::slice::from_raw_parts_mut(
-            &mut buffer[(total_buffer_size - total_string_size)..] as *mut _ as *mut u16,
-            total_string_size / size_of::<u16>(),
-        )
-    };
+    let (entries, string_data) = tail.split_at_mut(apps.len() * size_of::<ConfigurationEntry>());
     let mut string_offset = 0;
 
     for (i, app) in apps.iter().enumerate() {
-        string_data[string_offset..string_offset + app.len()].copy_from_slice(app);
+        write_string_to_buffer(string_data, string_offset, &app);
 
-        entries[i].name_offset = string_offset * size_of::<u16>();
-        entries[i].name_length = (app.len() * size_of::<u16>()) as u16;
+        let app_bytelen = size_of::<u16>() * app.len();
+        let entry = ConfigurationEntry {
+            name_offset: string_offset,
+            name_length: app_bytelen as u16,
+        };
+        let entry_offset = size_of::<ConfigurationEntry>() * i;
+        entries[entry_offset..entry_offset + size_of::<ConfigurationEntry>()]
+            .copy_from_slice(unsafe { as_u8_slice(&entry) });
 
-        string_offset += app.len();
+        string_offset += app_bytelen;
     }
 
     buffer
@@ -505,46 +496,38 @@ fn serialize_process_tree(processes: Vec<ProcessInfo>) -> Result<Vec<u8>, io::Er
     let mut buffer = Vec::<u8>::new();
     buffer.resize(total_buffer_size, 0);
 
-    let header = ProcessRegistryHeader {
+    let (header, tail) = buffer.split_at_mut(size_of::<ProcessRegistryHeader>());
+    let header_struct = ProcessRegistryHeader {
         num_entries: processes.len(),
         total_length: total_buffer_size,
     };
-    unsafe {
-        ptr::copy_nonoverlapping(
-            &header as *const _ as *const u8,
-            buffer.as_mut_ptr(),
-            size_of::<ProcessRegistryHeader>(),
-        )
-    };
+    header.copy_from_slice(unsafe { as_u8_slice(&header_struct) });
 
-    let mut entries = unsafe {
-        std::slice::from_raw_parts_mut(
-            &mut buffer[size_of::<ProcessRegistryHeader>()..] as *mut _
-                as *mut ProcessRegistryEntry,
-            processes.len(),
-        )
-    };
+    let (entries, string_data) =
+        tail.split_at_mut(size_of::<ProcessRegistryEntry>() * processes.len());
 
-    let string_data = unsafe {
-        std::slice::from_raw_parts_mut(
-            &mut buffer[(total_buffer_size - total_string_size)..] as *mut _ as *mut u16,
-            total_string_size / size_of::<u16>(),
-        )
-    };
     let mut string_offset = 0;
 
     for (i, entry) in processes.into_iter().enumerate() {
-        entries[i].pid = entry.pid as usize as RawHandle;
-        entries[i].parent_pid = entry.parent_pid as usize as RawHandle;
+        let mut out_entry = ProcessRegistryEntry {
+            pid: entry.pid as usize as RawHandle,
+            parent_pid: entry.parent_pid as usize as RawHandle,
+            image_name_size: 0,
+            image_name_offset: 0,
+        };
 
         if !entry.device_path.is_empty() {
-            string_data[string_offset..string_offset + entry.device_path.len()]
-                .copy_from_slice(&entry.device_path);
-            entries[i].image_name_size = (entry.device_path.len() * size_of::<u16>()) as u16;
-            entries[i].image_name_offset = string_offset * size_of::<u16>();
+            write_string_to_buffer(string_data, string_offset, &entry.device_path);
+
+            out_entry.image_name_size = (entry.device_path.len() * size_of::<u16>()) as u16;
+            out_entry.image_name_offset = string_offset * size_of::<u16>();
 
             string_offset += entry.device_path.len();
         }
+
+        let entry_offset = size_of::<ProcessRegistryEntry>() * i;
+        entries[entry_offset..entry_offset + size_of::<ProcessRegistryEntry>()]
+            .copy_from_slice(unsafe { as_u8_slice(&out_entry) });
     }
 
     Ok(buffer)
@@ -881,4 +864,18 @@ pub unsafe fn deserialize_buffer<T: Sized>(buffer: &Vec<u8>) -> T {
     let mut instance: T = mem::zeroed();
     ptr::copy_nonoverlapping(buffer.as_ptr() as *const T, &mut instance as *mut _, 1);
     instance
+}
+
+fn write_string_to_buffer(buffer: &mut [u8], byte_offset: usize, string: &[u16]) {
+    for (i, byte) in string
+        .iter()
+        .flat_map(|word| std::array::IntoIter::new(word.to_ne_bytes()))
+        .enumerate()
+    {
+        buffer[byte_offset + i] = byte;
+    }
+}
+
+unsafe fn as_u8_slice<T: Sized>(object: &T) -> &[u8] {
+    std::slice::from_raw_parts(object as *const _ as *const _, size_of::<T>())
 }
