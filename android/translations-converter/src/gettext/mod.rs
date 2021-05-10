@@ -1,4 +1,5 @@
 mod msg_string;
+mod plural_form;
 
 use self::msg_string::MsgString;
 use lazy_static::lazy_static;
@@ -11,6 +12,8 @@ use std::{
     path::Path,
 };
 
+pub use self::plural_form::PluralForm;
+
 lazy_static! {
     static ref APOSTROPHE_VARIATION: Regex = Regex::new("’").unwrap();
     static ref ESCAPED_DOUBLE_QUOTES: Regex = Regex::new(r#"\\""#).unwrap();
@@ -22,16 +25,6 @@ lazy_static! {
 pub struct Translation {
     pub plural_form: Option<PluralForm>,
     entries: Vec<MsgEntry>,
-}
-
-/// Known plural forms.
-#[derive(Clone, Copy, Debug)]
-pub enum PluralForm {
-    Single,
-    SingularForOne,
-    SingularForZeroAndOne,
-    Polish,
-    Russian,
 }
 
 /// A message entry in a gettext translation file.
@@ -151,7 +144,7 @@ impl Translation {
                 ["\"", header, "\\n\""] => {
                     if parsing_header {
                         if let Some(plural_formula) = parse_line(header, "Plural-Forms: ", ";") {
-                            plural_form = Some(PluralForm::from_formula(plural_formula));
+                            plural_form = PluralForm::from_formula(plural_formula);
                         }
                     }
                 }
@@ -197,29 +190,6 @@ impl IntoIterator for Translation {
         self.entries.into_iter()
     }
 }
-
-impl PluralForm {
-    /// Obtain an instance based on a known plural formula.
-    ///
-    /// Plural variants need to be obtained using a formula. However, some locales have known
-    /// formulas, so they can be represented as a known plural form. This constructor can return a
-    /// plural form based on the formulas that are known to be used in the project.
-    pub fn from_formula(formula: &str) -> Self {
-        match formula {
-            "nplurals=1; plural=0" => PluralForm::Single,
-            "nplurals=2; plural=(n != 1)" => PluralForm::SingularForOne,
-            "nplurals=2; plural=(n > 1)" => PluralForm::SingularForZeroAndOne,
-            "nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3)" => {
-                PluralForm::Polish
-            }
-            "nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3))" => {
-                PluralForm::Russian
-            }
-            other => panic!("Unknown plural formula: {}", other),
-        }
-    }
-}
-
 
 impl From<String> for MsgValue {
     fn from(string: String) -> Self {
