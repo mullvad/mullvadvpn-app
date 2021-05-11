@@ -34,6 +34,8 @@ Line wrap the file at 100 chars.                                              Th
   disable on-demand when stopping the tunnel from within the app.
 - Fix bug that caused the app to skip tunnel settings migration from older versions of the app.
 - Localize some of well known StoreKit errors so that they look less cryptic when presented to user.
+- Improve tunnel settings verification to address issues with broken tunnel and missing Keychain
+  entries to tunnel settings in cases such as when setting up a new device from backup.
 
 
 ## [2021.1] - 2021-03-16
