@@ -18,4 +18,10 @@ extension UIMetrics {
     /// Maximum width of the split view content container on iPad
     static var maximumSplitViewContentContainerWidth: CGFloat = 810 * 0.7
 
+    /// Minimum sidebar width in points
+    static var minimumSplitViewSidebarWidth: CGFloat = 300
+
+    /// Maximum sidebar width in percentage points (0...1)
+    static var maximumSplitViewSidebarWidthFraction: CGFloat = 0.3
+
 }

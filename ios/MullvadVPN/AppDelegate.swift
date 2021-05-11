@@ -26,6 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     #endif
 
     private var rootContainer: RootContainerViewController?
+    private var splitViewController: CustomSplitViewController?
     private var selectLocationViewController: SelectLocationViewController?
     private var connectController: ConnectViewController?
 
@@ -105,7 +106,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         self.rootContainer?.delegate = self
                         self.window?.rootViewController = self.rootContainer
 
-                        self.setupPhoneUI()
+                        switch UIDevice.current.userInterfaceIdiom {
+                        case .pad:
+                            self.setupPadUI()
+
+                        case .phone:
+                            self.setupPhoneUI()
+
+                        default:
+                            fatalError()
+                        }
                     }
                 }
             }
@@ -124,6 +134,49 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     // MARK: - Private
+
+    private func setupPadUI() {
+        let selectLocationController = makeSelectLocationController()
+        let connectController = makeConnectViewController()
+
+        let splitViewController = CustomSplitViewController()
+        splitViewController.delegate = self
+        splitViewController.minimumPrimaryColumnWidth = UIMetrics.minimumSplitViewSidebarWidth
+        splitViewController.preferredPrimaryColumnWidthFraction = UIMetrics.maximumSplitViewSidebarWidthFraction
+        splitViewController.primaryEdge = .trailing
+        splitViewController.dividerColor = UIColor.MainSplitView.dividerColor
+        splitViewController.viewControllers = [selectLocationController, connectController]
+
+        self.selectLocationViewController = selectLocationController
+        self.splitViewController = splitViewController
+        self.connectController = connectController
+
+        self.rootContainer?.setViewControllers([splitViewController], animated: false)
+        showSplitViewMaster(Account.shared.isLoggedIn, animated: false)
+
+        let rootContainerWrapper = makeLoginContainerController()
+
+        if !Account.shared.isAgreedToTermsOfService {
+            let consentViewController = self.makeConsentController { [weak self] (viewController) in
+                guard let self = self else { return }
+
+                if Account.shared.isLoggedIn {
+                    rootContainerWrapper.dismiss(animated: true) {
+                        self.showAccountSettingsControllerIfAccountExpired()
+                    }
+                } else {
+                    rootContainerWrapper.pushViewController(self.makeLoginController(), animated: true)
+                }
+            }
+            rootContainerWrapper.setViewControllers([consentViewController], animated: false)
+            self.rootContainer?.present(rootContainerWrapper, animated: false)
+        } else if !Account.shared.isLoggedIn {
+            rootContainerWrapper.setViewControllers([makeLoginController()], animated: false)
+            self.rootContainer?.present(rootContainerWrapper, animated: false)
+        } else {
+            self.showAccountSettingsControllerIfAccountExpired()
+        }
+    }
 
     private func setupPhoneUI() {
         let showNextController = { [weak self] (_ animated: Bool) in
@@ -179,6 +232,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func makeConsentController(completion: @escaping (UIViewController) -> Void) -> ConsentViewController {
         let consentViewController = ConsentViewController()
 
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            consentViewController.modalPresentationStyle = .formSheet
+            if #available(iOS 13.0, *) {
+                consentViewController.isModalInPresentation = true
+            }
+        }
+
         consentViewController.completionHandler = { (consentViewController) in
             Account.shared.agreeToTermsOfService()
             completion(consentViewController)
@@ -187,9 +247,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return consentViewController
     }
 
+    private func makeLoginContainerController() -> RootContainerViewController {
+        let rootContainerWrapper = RootContainerViewController()
+        rootContainerWrapper.delegate = self
+        rootContainerWrapper.presentationController?.delegate = self
+        rootContainerWrapper.preferredContentSize = CGSize(width: 480, height: 600)
+
+        if #available(iOS 13.0, *) {
+            // Prevent swiping off the login or consent controllers
+            rootContainerWrapper.isModalInPresentation = true
+        }
+
+        return rootContainerWrapper
+    }
+
     private func makeLoginController() -> LoginViewController {
         let controller = LoginViewController()
         controller.delegate = self
+
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            controller.modalPresentationStyle = .formSheet
+            if #available(iOS 13.0, *) {
+                controller.isModalInPresentation = true
+            }
+        }
 
         return controller
     }
@@ -197,6 +278,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func makeSettingsNavigationController(route: SettingsNavigationRoute?) -> SettingsNavigationController {
         let navController = SettingsNavigationController()
         navController.settingsDelegate = self
+
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            navController.preferredContentSize = CGSize(width: 480, height: 568)
+            navController.modalPresentationStyle = .formSheet
+        }
+
         navController.presentationController?.delegate = navController
 
         if let route = route {
@@ -220,11 +307,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Account.shared.startPaymentMonitoring(with: paymentManager)
     }
 
+    private func showSplitViewMaster(_ show: Bool, animated: Bool) {
+        if show {
+            splitViewController?.preferredDisplayMode = .allVisible
+            connectController?.setMainContentHidden(false, animated: animated)
+        } else {
+            splitViewController?.preferredDisplayMode = .primaryHidden
+            connectController?.setMainContentHidden(true, animated: animated)
+        }
+    }
+
 }
 
 // MARK: - RootContainerViewControllerDelegate
 
 extension AppDelegate: RootContainerViewControllerDelegate {
+
     func rootContainerViewControllerShouldShowSettings(_ controller: RootContainerViewController, navigateTo route: SettingsNavigationRoute?, animated: Bool) {
         let navController = makeSettingsNavigationController(route: route)
 
@@ -305,11 +403,22 @@ extension AppDelegate: LoginViewControllerDelegate {
                     self.logger?.error(chainedError: error, message: "Failed to load relay constraints after log in")
                 }
 
-                let connectController = self.makeConnectViewController()
-                self.rootContainer?.pushViewController(connectController, animated: true) {
-                    self.showAccountSettingsControllerIfAccountExpired()
+                switch UIDevice.current.userInterfaceIdiom {
+                case .phone:
+                    let connectController = self.makeConnectViewController()
+                    self.rootContainer?.pushViewController(connectController, animated: true) {
+                        self.showAccountSettingsControllerIfAccountExpired()
+                    }
+                    self.connectController = connectController
+                case .pad:
+                    self.showSplitViewMaster(true, animated: true)
+
+                    controller.dismiss(animated: true) {
+                        self.showAccountSettingsControllerIfAccountExpired()
+                    }
+                default:
+                    fatalError()
                 }
-                self.connectController = connectController
 
                 self.window?.isUserInteractionEnabled = true
                 self.rootContainer?.setEnableSettingsButton(true)
@@ -324,14 +433,34 @@ extension AppDelegate: LoginViewControllerDelegate {
 extension AppDelegate: SettingsNavigationControllerDelegate {
 
     func settingsNavigationController(_ controller: SettingsNavigationController, didFinishWithReason reason: SettingsDismissReason) {
-        if case .userLoggedOut = reason {
-            rootContainer?.popToRootViewController(animated: false)
+        switch UIDevice.current.userInterfaceIdiom {
+        case .phone:
+            if case .userLoggedOut = reason {
+                rootContainer?.popToRootViewController(animated: false)
 
-            let loginController = rootContainer?.topViewController as? LoginViewController
+                let loginController = rootContainer?.topViewController as? LoginViewController
 
-            loginController?.reset()
+                loginController?.reset()
+            }
+            controller.dismiss(animated: true)
+
+        case .pad:
+            if case .userLoggedOut = reason {
+                self.showSplitViewMaster(false, animated: true)
+            }
+
+            controller.dismiss(animated: true) {
+                if case .userLoggedOut = reason {
+                    let rootContainerWrapper = self.makeLoginContainerController()
+                    rootContainerWrapper.setViewControllers([self.makeLoginController()], animated: false)
+                    self.rootContainer?.present(rootContainerWrapper, animated: true)
+                }
+            }
+
+        default:
+            fatalError()
         }
-        controller.dismiss(animated: true)
+
     }
 
 }
@@ -415,12 +544,17 @@ extension AppDelegate: ConnectViewControllerDelegate {
 
 extension AppDelegate: SelectLocationViewControllerDelegate {
     func selectLocationViewController(_ controller: SelectLocationViewController, didSelectRelayLocation relayLocation: RelayLocation) {
-        self.window?.isUserInteractionEnabled = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(250)) {
-            self.window?.isUserInteractionEnabled = true
-            controller.dismiss(animated: true) {
-                self.selectLocationControllerDidSelectRelayLocation(relayLocation)
+        // Dismiss view controller in modal presentation
+        if controller.presentingViewController != nil {
+            self.window?.isUserInteractionEnabled = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(250)) {
+                self.window?.isUserInteractionEnabled = true
+                controller.dismiss(animated: true) {
+                    self.selectLocationControllerDidSelectRelayLocation(relayLocation)
+                }
             }
+        } else {
+            selectLocationControllerDidSelectRelayLocation(relayLocation)
         }
     }
 
@@ -442,6 +576,36 @@ extension AppDelegate: SelectLocationViewControllerDelegate {
                     self.logger?.error(chainedError: error, message: "Failed to update relay constraints")
                 }
             }
+        }
+    }
+}
+
+// MARK: - UIAdaptivePresentationControllerDelegate
+
+extension AppDelegate: UIAdaptivePresentationControllerDelegate {
+
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+        if controller.presentedViewController is RootContainerViewController {
+            // Use .formSheet presentation in regular horizontal environment and .fullScreen
+            // in compact environment.
+            if traitCollection.horizontalSizeClass == .regular {
+                return .formSheet
+            } else {
+                return .fullScreen
+            }
+        } else {
+            return .none
+        }
+    }
+
+    func presentationController(_ controller: UIPresentationController, viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle) -> UIViewController? {
+        return nil
+    }
+
+    func presentationController(_ presentationController: UIPresentationController, willPresentWithAdaptiveStyle style: UIModalPresentationStyle, transitionCoordinator: UIViewControllerTransitionCoordinator?) {
+        // Force hide header bar in .formSheet presentation and show it in .fullScreen presentation
+        if let wrapper = presentationController.presentedViewController as? RootContainerViewController {
+            wrapper.setOverrideHeaderBarHidden(style == .formSheet, animated: false)
         }
     }
 }
@@ -468,6 +632,31 @@ extension AppDelegate: AppStorePaymentManagerDelegate {
         // Since we do not persist the relation between the payment and account token between the
         // app launches, we assume that all successful purchases belong to the active account token.
         return Account.shared.token
+    }
+
+}
+
+
+// MARK: - UISplitViewControllerDelegate
+
+extension AppDelegate: UISplitViewControllerDelegate {
+
+    func primaryViewController(forExpanding splitViewController: UISplitViewController) -> UIViewController? {
+        // Restore the select location controller as primary when expanding the split view
+        return selectLocationViewController
+    }
+
+    func primaryViewController(forCollapsing splitViewController: UISplitViewController) -> UIViewController? {
+        // Set the connect controller as primary when collapsing the split view
+        return connectController
+    }
+
+    func splitViewController(_ splitViewController: UISplitViewController, separateSecondaryFrom primaryViewController: UIViewController) -> UIViewController? {
+        // Dismiss the select location controller when expanding the split view
+        if self.selectLocationViewController?.presentingViewController != nil {
+            self.selectLocationViewController?.dismiss(animated: false)
+        }
+        return nil
     }
 
 }

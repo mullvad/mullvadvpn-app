@@ -16,7 +16,7 @@ protocol ConnectViewControllerDelegate: class {
     func connectViewControllerShouldReconnectTunnel(_ controller: ConnectViewController)
 }
 
-class ConnectViewController: UIViewController, RootContainment, TunnelObserver
+class ConnectViewController: UIViewController, RootContainment, TunnelObserver, AccountObserver
 {
     weak var delegate: ConnectViewControllerDelegate?
 
@@ -34,6 +34,9 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
     }
 
     var preferredHeaderBarStyle: HeaderBarStyle {
+        if !Account.shared.isLoggedIn {
+            return .default
+        }
         switch tunnelState {
         case .connecting, .reconnecting, .connected:
             return .secured
@@ -69,6 +72,29 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
         self.tunnelState = TunnelManager.shared.tunnelState
 
         addSubviews()
+
+        Account.shared.addObserver(self)
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+
+        if previousTraitCollection?.userInterfaceIdiom != traitCollection.userInterfaceIdiom ||
+            previousTraitCollection?.horizontalSizeClass != traitCollection.horizontalSizeClass {
+            updateTraitDependentViews()
+        }
+    }
+
+    func setMainContentHidden(_ isHidden: Bool, animated: Bool) {
+        let actions = {
+            self.mainContentView.containerView.alpha = isHidden ? 0 : 1
+        }
+
+        if animated {
+            UIView.animate(withDuration: 0.25, animations: actions)
+        } else {
+            actions()
+        }
     }
 
     private func addSubviews() {
@@ -79,6 +105,20 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
             mainContentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             mainContentView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
+    }
+
+    // MARK: - AccountObserver
+
+    func account(_ account: Account, didLoginWithToken token: String, expiry: Date) {
+        setNeedsHeaderBarStyleAppearanceUpdate()
+    }
+
+    func account(_ account: Account, didUpdateExpiry expiry: Date) {
+        // no-op
+    }
+
+    func accountDidLogout(_ account: Account) {
+        setNeedsHeaderBarStyleAppearanceUpdate()
     }
 
     // MARK: - TunnelObserver
@@ -102,7 +142,12 @@ class ConnectViewController: UIViewController, RootContainment, TunnelObserver
         mainContentView.connectButton.setTitle(tunnelState.localizedTitleForConnectButton, for: .normal)
         mainContentView.selectLocationButton.setTitle(tunnelState.localizedTitleForSelectLocationButton, for: .normal)
         mainContentView.splitDisconnectButton.primaryButton.setTitle(tunnelState.localizedTitleForDisconnectButton, for: .normal)
-        mainContentView.setActionButtons(tunnelState.actionButtons)
+
+        updateTraitDependentViews()
+    }
+
+    private func updateTraitDependentViews() {
+        mainContentView.setActionButtons(tunnelState.actionButtons(traitCollection: self.traitCollection))
     }
 
     private func attributedStringForLocation(string: String) -> NSAttributedString {
@@ -210,9 +255,9 @@ private extension TunnelState {
         }
     }
 
-    var actionButtons: [ConnectMainContentView.ActionButton] {
-        switch UIDevice.current.userInterfaceIdiom {
-        case .phone:
+    func actionButtons(traitCollection: UITraitCollection) -> [ConnectMainContentView.ActionButton] {
+        switch (traitCollection.userInterfaceIdiom, traitCollection.horizontalSizeClass) {
+        case (.phone, _), (.pad, .compact):
             switch self {
             case .disconnected, .disconnecting:
                 return [.selectLocation, .connect]
@@ -221,7 +266,7 @@ private extension TunnelState {
                 return [.selectLocation, .disconnect]
             }
 
-        case .pad:
+        case (.pad, .regular):
             switch self {
             case .disconnected, .disconnecting:
                 return [.connect]
@@ -231,7 +276,7 @@ private extension TunnelState {
             }
 
         default:
-            fatalError("Not supported")
+            return []
         }
     }
 
