@@ -131,8 +131,8 @@ fn main() {
                 .into_iter()
                 .inspect(|(missing_translation, id)| println!("  {}: {}", id, missing_translation))
                 .map(|(id, _)| gettext::MsgEntry {
-                    id: id.into(),
-                    value: String::new().into(),
+                    id: gettext::MsgString::from_unescaped(&id),
+                    value: gettext::MsgString::empty().into(),
                 }),
         )
         .expect("Failed to append missing translations to message template file");
@@ -163,30 +163,27 @@ fn main() {
                         .iter()
                         .position(|plural| plural.quantity == android::PluralQuantity::One)
                         .expect("Missing singular variant to use as msgid");
-                    let id = plural
-                        .items
-                        .remove(singular_position)
-                        .string
-                        .to_string()
-                        .into();
+                    let id = gettext::MsgString::from_escaped(
+                        plural.items.remove(singular_position).string.to_string(),
+                    );
 
                     let other_position = plural
                         .items
                         .iter()
                         .position(|plural| plural.quantity == android::PluralQuantity::Other)
                         .expect("Missing other variant to use as msgid_plural");
-                    let plural_id = plural
-                        .items
-                        .remove(other_position)
-                        .string
-                        .to_string()
-                        .into();
+                    let plural_id = gettext::MsgString::from_escaped(
+                        plural.items.remove(other_position).string.to_string(),
+                    );
 
                     gettext::MsgEntry {
                         id,
                         value: gettext::MsgValue::Plural {
                             plural_id,
-                            values: vec!["".into(), "".into()],
+                            values: vec![
+                                gettext::MsgString::empty().into(),
+                                gettext::MsgString::empty().into(),
+                            ],
                         },
                     }
                 }),

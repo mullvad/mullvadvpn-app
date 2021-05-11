@@ -190,9 +190,9 @@ impl IntoIterator for Translation {
     }
 }
 
-impl From<String> for MsgValue {
-    fn from(string: String) -> Self {
-        MsgValue::Invariant(string.into())
+impl From<MsgString> for MsgValue {
+    fn from(string: MsgString) -> Self {
+        MsgValue::Invariant(string)
     }
 }
 
@@ -250,5 +250,5 @@ fn normalize(string: &str) -> MsgString {
     // Remove escaped double-quotes
     let string = ESCAPED_DOUBLE_QUOTES.replace_all(&string, r#"""#);
 
-    string.into_owned().into()
+    MsgString::from_escaped(string)
 }

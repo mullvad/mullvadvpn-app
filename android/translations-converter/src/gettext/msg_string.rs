@@ -4,25 +4,34 @@ use std::{
 };
 
 /// A message string in a gettext translation file.
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(Clone, Debug)]
 pub struct MsgString(String);
 
-impl From<String> for MsgString {
-    fn from(string: String) -> Self {
-        MsgString(string)
+impl MsgString {
+    /// Create a new empty `MsgString`.
+    ///
+    /// Equivalent to `MsgString::from_escaped("")`.
+    pub fn empty() -> Self {
+        MsgString(String::new())
     }
-}
 
-impl From<&str> for MsgString {
-    fn from(string: &str) -> Self {
-        string.to_owned().into()
+    /// Create a new `MsgString` from string without any escaped characters.
+    ///
+    /// This will ensure that the string has the double quotes characters properly escaped.
+    pub fn from_unescaped(string: &str) -> Self {
+        MsgString(string.replace(r#"""#, r#"\""#))
+    }
+
+    /// Create a new `MsgString` from string that already has proper escaping.
+    pub fn from_escaped(string: impl Into<String>) -> Self {
+        MsgString(string.into())
     }
 }
 
 impl Display for MsgString {
     /// Write the ID message string with proper escaping.
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        self.0.replace(r#"""#, r#"\""#).fmt(formatter)
+        self.0.fmt(formatter)
     }
 }
 
