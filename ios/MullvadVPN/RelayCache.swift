@@ -69,7 +69,7 @@ class RelayCache {
     private let logger = Logger(label: "RelayCache")
 
     /// Mullvad REST client
-    private let rest: MullvadRest
+    private let rest = MullvadRest()
 
     /// The cache location used by the class instance
     private let cacheFileURL: URL
@@ -103,10 +103,9 @@ class RelayCache {
     private let observerList = ObserverList<AnyRelayCacheObserver>()
 
     /// A shared instance of `RelayCache`
-    static let shared = RelayCache(cacheFileURL: defaultCacheFileURL, networkSession: URLSession(configuration: .ephemeral))
+    static let shared = RelayCache(cacheFileURL: defaultCacheFileURL)
 
-    private init(cacheFileURL: URL, networkSession: URLSession) {
-        rest = MullvadRest(session: networkSession)
+    private init(cacheFileURL: URL) {
         self.cacheFileURL = cacheFileURL
     }
 
