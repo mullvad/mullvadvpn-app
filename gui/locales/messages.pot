@@ -120,7 +120,7 @@ msgstr ""
 msgid "System default"
 msgstr ""
 
-msgid "UNSECURED CONNECTION"
+msgid "UNSECURE CONNECTION"
 msgstr ""
 
 msgctxt "accessibility"
@@ -401,7 +401,7 @@ msgid "Remember, turning it off will allow network traffic while the VPN is disc
 msgstr ""
 
 msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
+msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
 msgstr ""
 
 msgctxt "connect-view"
@@ -624,7 +624,7 @@ msgid "Could not configure IPv6. Disable it in the app or enable it on your devi
 msgstr ""
 
 msgctxt "notifications"
-msgid "Disconnected and unsecured"
+msgid "Disconnected and unsecure"
 msgstr ""
 
 msgctxt "notifications"
@@ -1187,6 +1187,9 @@ msgid "This device is offline, no tunnels can be established"
 msgstr ""
 
 msgid "Too many WireGuard keys registered to account"
+msgstr ""
+
+msgid "UNSECURED CONNECTION"
 msgstr ""
 
 msgid "Unsecured"
