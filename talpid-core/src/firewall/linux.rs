@@ -577,6 +577,7 @@ impl<'a> PolicyBatch<'a> {
         let allow_lan = match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
+                tunnel_interface: _,
                 pingable_hosts,
                 allow_lan,
                 allowed_endpoint,

@@ -103,6 +103,8 @@ pub enum FirewallPolicy {
     Connecting {
         /// The peer endpoint that should be allowed.
         peer_endpoint: Endpoint,
+        /// Tunnel interface alias.
+        tunnel_interface: Option<String>,
         /// Hosts that should be pingable whilst connecting.
         pingable_hosts: Vec<IpAddr>,
         /// Flag setting if communication with LAN networks should be possible.
@@ -144,19 +146,25 @@ impl fmt::Display for FirewallPolicy {
         match self {
             FirewallPolicy::Connecting {
                 peer_endpoint,
+                tunnel_interface,
                 pingable_hosts,
                 allow_lan,
                 ..
             } => write!(
                 f,
-                "Connecting to {} with gateways {}, {} LAN",
+                "Connecting to {} with gateways {}, {} LAN, interface: {}",
                 peer_endpoint,
                 pingable_hosts
                     .iter()
                     .map(ToString::to_string)
                     .collect::<Vec<String>>()
                     .join(","),
-                if *allow_lan { "Allowing" } else { "Blocking" }
+                if *allow_lan { "Allowing" } else { "Blocking" },
+                if let Some(alias) = tunnel_interface {
+                    alias
+                } else {
+                    "none"
+                }
             ),
             FirewallPolicy::Connected {
                 peer_endpoint,

@@ -47,6 +47,7 @@ const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 pub struct ConnectingState {
     tunnel_events: TunnelEventsReceiver,
     tunnel_parameters: TunnelParameters,
+    tunnel_interface: Option<String>,
     tunnel_close_event: TunnelCloseEvent,
     close_handle: Option<CloseHandle>,
     retry_attempt: u32,
@@ -56,6 +57,7 @@ impl ConnectingState {
     fn set_firewall_policy(
         shared_values: &mut SharedTunnelStateValues,
         params: &TunnelParameters,
+        tunnel_interface: &Option<String>,
     ) -> Result<(), FirewallPolicyError> {
         #[cfg(target_os = "linux")]
         shared_values.disable_connectivity_check();
@@ -64,6 +66,7 @@ impl ConnectingState {
 
         let policy = FirewallPolicy::Connecting {
             peer_endpoint,
+            tunnel_interface: tunnel_interface.clone(),
             pingable_hosts: gateway_list_from_params(params),
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
@@ -117,6 +120,7 @@ impl ConnectingState {
         Ok(ConnectingState {
             tunnel_events: event_rx.fuse(),
             tunnel_parameters: parameters,
+            tunnel_interface: None,
             tunnel_close_event,
             close_handle,
             retry_attempt,
@@ -224,7 +228,11 @@ impl ConnectingState {
                 if let Err(error_cause) = shared_values.set_allow_lan(allow_lan) {
                     self.disconnect(shared_values, AfterDisconnect::Block(error_cause))
                 } else {
-                    match Self::set_firewall_policy(shared_values, &self.tunnel_parameters) {
+                    match Self::set_firewall_policy(
+                        shared_values,
+                        &self.tunnel_parameters,
+                        &self.tunnel_interface,
+                    ) {
                         Ok(()) => {
                             cfg_if! {
                                 if #[cfg(target_os = "android")] {
@@ -243,9 +251,11 @@ impl ConnectingState {
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 if shared_values.set_allowed_endpoint(endpoint) {
-                    if let Err(error) =
-                        Self::set_firewall_policy(shared_values, &self.tunnel_parameters)
-                    {
+                    if let Err(error) = Self::set_firewall_policy(
+                        shared_values,
+                        &self.tunnel_parameters,
+                        &self.tunnel_interface,
+                    ) {
                         return self.disconnect(
                             shared_values,
                             AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
@@ -298,7 +308,7 @@ impl ConnectingState {
     }
 
     fn handle_tunnel_events(
-        self,
+        mut self,
         event: Option<tunnel::TunnelEvent>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
@@ -309,6 +319,20 @@ impl ConnectingState {
                 shared_values,
                 AfterDisconnect::Block(ErrorStateCause::AuthFailed(reason)),
             ),
+            Some(TunnelEvent::InterfaceUp(interface)) => {
+                self.tunnel_interface = Some(interface);
+                match Self::set_firewall_policy(
+                    shared_values,
+                    &self.tunnel_parameters,
+                    &self.tunnel_interface,
+                ) {
+                    Ok(()) => SameState(self.into()),
+                    Err(error) => self.disconnect(
+                        shared_values,
+                        AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
+                    ),
+                }
+            }
             Some(TunnelEvent::Up(metadata)) => NewState(ConnectedState::enter(
                 shared_values,
                 self.into_connected_state_bootstrap(metadata),
@@ -403,7 +427,9 @@ impl TunnelState for ConnectingState {
                 ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
             }
             Ok(tunnel_parameters) => {
-                if let Err(error) = Self::set_firewall_policy(shared_values, &tunnel_parameters) {
+                if let Err(error) =
+                    Self::set_firewall_policy(shared_values, &tunnel_parameters, &None)
+                {
                     ErrorState::enter(
                         shared_values,
                         ErrorStateCause::SetFirewallPolicyError(error),

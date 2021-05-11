@@ -159,6 +159,8 @@ impl WireguardMonitor {
         let tunnel = Self::open_tunnel(&config, log_path, tun_provider, route_manager)?;
         let iface_name = tunnel.get_interface_name().to_string();
 
+        (on_event)(TunnelEvent::InterfaceUp(iface_name.clone()));
+
         #[cfg(target_os = "linux")]
         route_manager
             .create_routing_rules(config.enable_ipv6)
