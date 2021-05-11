@@ -102,7 +102,7 @@ class Account {
         case exclusive
     }
 
-    private let rest = MullvadRest(session: URLSession(configuration: .ephemeral))
+    private let rest = MullvadRest()
     private let operationQueue = OperationQueue()
     private lazy var exclusivityController = ExclusivityController<ExclusivityCategory>(operationQueue: operationQueue)
 

@@ -416,11 +416,7 @@ struct RestSessionEndpoint<Input, Response> where Input: RestPayload {
 // MARK: - REST interface
 
 struct MullvadRest {
-    let session: URLSession
-
-    init(session: URLSession = URLSession(configuration: .ephemeral)) {
-        self.session = session
-    }
+    let session = URLSession(configuration: .ephemeral)
 
     func createAccount() -> RestSessionEndpoint<EmptyPayload, AccountResponse> {
         return RestSessionEndpoint(session: session, endpoint: Self.createAccount())

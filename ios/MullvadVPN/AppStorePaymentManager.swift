@@ -127,7 +127,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     private let operationQueue = OperationQueue()
     private lazy var exclusivityController = ExclusivityController<ExlcusivityCategory>(operationQueue: operationQueue)
 
-    private let rest = MullvadRest(session: URLSession(configuration: .ephemeral))
+    private let rest = MullvadRest()
     private let queue: SKPaymentQueue
 
     private var observerList = ObserverList<AnyAppStorePaymentObserver>()

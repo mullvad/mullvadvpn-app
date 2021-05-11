@@ -243,7 +243,7 @@ class TunnelManager {
     private let logger = Logger(label: "TunnelManager")
     private let dispatchQueue = DispatchQueue(label: "net.mullvad.MullvadVPN.TunnelManager")
 
-    private let rest = MullvadRest(session: URLSession(configuration: .ephemeral))
+    private let rest = MullvadRest()
     private var tunnelProvider: TunnelProviderManagerType?
     private var tunnelIpc: PacketTunnelIpc?
 
