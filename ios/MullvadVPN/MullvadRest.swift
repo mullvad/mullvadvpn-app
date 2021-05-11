@@ -679,7 +679,7 @@ struct ServerWireguardTunnels: Codable {
 private extension HTTPURLResponse {
     func value(forCaseInsensitiveHTTPHeaderField headerField: String) -> String? {
         if #available(iOS 13.0, *) {
-            return self.value(forHTTPHeaderField: HttpHeader.etag)
+            return self.value(forHTTPHeaderField: headerField)
         } else {
             for case let key as String in self.allHeaderFields.keys {
                 if case .orderedSame = key.caseInsensitiveCompare(headerField) {
