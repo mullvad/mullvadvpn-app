@@ -101,9 +101,6 @@ enum RestError: ChainedError {
     /// A failure reported by server
     case server(ServerErrorResponse)
 
-    /// A failure to handle the server response because it replied with unexpected status code
-    case badResponse(_ statusCode: Int)
-
     /// A failure to cast the URLResponse to HTTPURLResponse
     case invalidHTTPURLResponse
 
@@ -121,8 +118,6 @@ enum RestError: ChainedError {
             return "Network error"
         case .server:
             return "Server error"
-        case .badResponse(let statusCode):
-            return "Server replied with unexpected status code: \(statusCode)"
         case .invalidHTTPURLResponse:
             return "Received an empty or invalid HTTP response"
         case .decodeErrorResponse:
@@ -197,24 +192,37 @@ final class RestOperation<Input, Response>: AsyncOperation, InputOperation, Outp
 protocol ResponseHandler {
     associatedtype Response
 
-    /// Decode the response and return a `Result` with associated `Response` type upon success, otherwise `RestError`.
-    /// It's expected that the implementation returns `RestError.badResponse` when unexpected response is received,
-    /// or `RestError.decodeSuccessResponse` in case of failure to decode data.
-    func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<Response, RestError>
+    /// Decode the response.
+    /// The implementation is expected to throw `BadResponseError` in case of failure to handle the HTTP response,
+    /// or any other `Error` in case of failure to decode the data.
+    func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<Response, ResponseHandlerError>
+}
+
+enum ResponseHandlerError: Error {
+    /// A failure to handle the response due to unexpected status code
+    case badResponse(_ statusCode: Int)
+
+    /// A failure to decode data
+    case decodeData(Error)
+}
+
+/// A placeholder error used to indicate that the server returned unexpected response.
+fileprivate struct BadResponseError: Error {
+    let statusCode: Int
 }
 
 /// Type-erasing response handler.
 struct AnyResponseHandler<Response>: ResponseHandler {
-    private let decodeResponseBlock: (HTTPURLResponse, Data) -> Result<Response, RestError>
+    private let decodeResponseBlock: (HTTPURLResponse, Data) -> Result<Response, ResponseHandlerError>
 
     init<T: ResponseHandler>(_ wrappedHandler: T) where T.Response == Response {
-        self.decodeResponseBlock = { (response, data) -> Result<Response, RestError> in
+        self.decodeResponseBlock = { (response, data) -> Result<Response, ResponseHandlerError> in
             return wrappedHandler.decodeResponse(response, data: data)
         }
     }
 
-    func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<Response, RestError> {
-        return decodeResponseBlock(httpResponse, data)
+    func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<Response, ResponseHandlerError> {
+        return self.decodeResponseBlock(httpResponse, data)
     }
 }
 
@@ -227,12 +235,12 @@ struct DecodingResponseHandler<Response: Decodable>: ResponseHandler {
         self.expectedStatus = expectedStatus
     }
 
-    func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<Response, RestError> {
+    func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<Response, ResponseHandlerError> {
         if httpResponse.statusCode == expectedStatus {
             return Result { try MullvadRest.makeJSONDecoder().decode(Response.self, from: data) }
-                .mapError { (error) -> RestError in
-                return .decodeSuccessResponse(error)
-            }
+                .mapError { (error) -> ResponseHandlerError in
+                    return .decodeData(error)
+                }
         } else {
             return .failure(.badResponse(httpResponse.statusCode))
         }
@@ -248,7 +256,7 @@ struct EmptyResponseHandler: ResponseHandler {
         self.expectedStatus = expectedStatus
     }
 
-    func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<(), RestError> {
+    func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<(), ResponseHandlerError> {
         if httpResponse.statusCode == expectedStatus {
             return .success(())
         } else {
@@ -267,14 +275,13 @@ struct HttpCacheDecodingResponseHandler<WrappedType: Decodable>: ResponseHandler
         self.etag = etag
     }
 
-    func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<Response, RestError> {
+    func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<Response, ResponseHandlerError> {
         switch httpResponse.statusCode {
         case HttpStatus.ok:
             return Result { try MullvadRest.makeJSONDecoder().decode(WrappedType.self, from: data) }
-                .mapError { (error) -> RestError in
-                    return .decodeSuccessResponse(error)
-                }
-                .map { (relays) -> Response in
+                .mapError { (error) -> ResponseHandlerError in
+                    return .decodeData(error)
+                }.map { (relays) -> Response in
                     let etag = httpResponse.value(forCaseInsensitiveHTTPHeaderField: HttpHeader.etag)
 
                     return .newContent(etag, relays)
@@ -364,14 +371,16 @@ struct RestEndpoint<Input, Response> where Input: RestPayload {
 
         return responseHandler.decodeResponse(httpResponse, data: data)
             .flatMapError { (error) -> Result<Response, RestError> in
-                if case .badResponse = error {
+                switch error {
+                case .badResponse:
                     // Try decoding the server error response in case when unexpected response is returned
                     return Self.decodeErrorResponse(httpResponse: httpResponse, data: data)
                         .flatMap { (serverErrorResponse) -> Result<Response, RestError> in
                             return .failure(.server(serverErrorResponse))
                         }
-                } else {
-                    return .failure(error)
+
+                case .decodeData(let decodingError):
+                    return .failure(.decodeSuccessResponse(decodingError))
                 }
             }
     }
