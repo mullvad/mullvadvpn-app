@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import StoreKit
 
 protocol DisplayChainedError {
     var errorChainDescription: String? { get }
@@ -113,7 +114,6 @@ extension TunnelManager.Error: DisplayChainedError {
 }
 
 extension Account.Error: DisplayChainedError {
-
     var errorChainDescription: String? {
         switch self {
         case .createAccount(let restError), .verifyAccount(let restError):
@@ -123,7 +123,25 @@ extension Account.Error: DisplayChainedError {
             return tunnelError.errorChainDescription
         }
     }
+}
 
+extension SKError: LocalizedError {
+    public var errorDescription: String? {
+        switch self.code {
+        case .unknown:
+            return NSLocalizedString("Unknown error", comment: "")
+        case .clientInvalid:
+            return NSLocalizedString("Client is not allowed to issue the request", comment: "")
+        case .paymentCancelled:
+            return NSLocalizedString("User cancelled the request", comment: "")
+        case .paymentInvalid:
+            return NSLocalizedString("Invalid purchase identifier", comment: "")
+        case .paymentNotAllowed:
+            return NSLocalizedString("This device is not allowed to make the payment", comment: "")
+        default:
+            return self.localizedDescription
+        }
+    }
 }
 
 extension AppStorePaymentManager.Error: DisplayChainedError {
@@ -135,7 +153,9 @@ extension AppStorePaymentManager.Error: DisplayChainedError {
         case .readReceipt(let readReceiptError):
             switch readReceiptError {
             case .refresh(let storeError):
-                return String(format: NSLocalizedString("Cannot refresh the AppStore receipt: %@", comment: ""), storeError.localizedDescription)
+                let skErrorMessage = (storeError as? SKError)?.errorDescription ?? storeError.localizedDescription
+
+                return String(format: NSLocalizedString("Cannot refresh the AppStore receipt: %@", comment: ""), skErrorMessage)
             case .io(let ioError):
                 return String(format: NSLocalizedString("Cannot read the AppStore receipt from disk: %@", comment: ""), ioError.localizedDescription)
             case .doesNotExist:
@@ -153,7 +173,7 @@ Please retry by using the "Restore purchases" button.
             return String(format: format, reason)
 
         case .storePayment(let storeError):
-            return storeError.localizedDescription
+            return (storeError as? SKError)?.errorDescription ?? storeError.localizedDescription
         }
     }
 }
