@@ -218,7 +218,7 @@ class RelayCache {
                     }
 
                 case .failure(let error):
-                    self.logger.error(chainedError: error, message: "Failed to update relays")
+                    self.logger.error(chainedError: error, message: "Failed to store downloaded relays")
                 }
 
             case .success(.notModified):
@@ -232,11 +232,11 @@ class RelayCache {
                     break
 
                 case .failure(let error):
-                    self.logger.error(chainedError: error, message: "Failed to update relays")
+                    self.logger.error(chainedError: error, message: "Failed to update cached relays timestamp")
                 }
 
             case .failure(let error):
-                self.logger.error(chainedError: error, message: "Failed to update relays")
+                self.logger.error(chainedError: error, message: "Failed to download relays")
             }
         }
 
