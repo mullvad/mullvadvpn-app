@@ -155,7 +155,7 @@ export default class ExpiredAccountErrorView extends React.Component<
       case RecoveryAction.disconnect:
         return messages.pgettext(
           'connect-view',
-          'To add more, you will need to disconnect and access the Internet with an unsecured connection.',
+          'To add more, you will need to disconnect and access the Internet with an unsecure connection.',
         );
     }
   }
