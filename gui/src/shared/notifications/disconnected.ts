@@ -15,7 +15,7 @@ export class DisconnectedNotificationProvider implements SystemNotificationProvi
 
   public getSystemNotification() {
     return {
-      message: messages.pgettext('notifications', 'Disconnected and unsecured'),
+      message: messages.pgettext('notifications', 'Disconnected and unsecure'),
       critical: false,
     };
   }

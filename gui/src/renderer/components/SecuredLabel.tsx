@@ -48,7 +48,7 @@ function getLabelText(displayStyle: SecuredDisplayStyle) {
       return messages.gettext('CREATING SECURE CONNECTION');
 
     case SecuredDisplayStyle.unsecured:
-      return messages.gettext('UNSECURED CONNECTION');
+      return messages.gettext('UNSECURE CONNECTION');
 
     case SecuredDisplayStyle.failedToSecure:
       return messages.gettext('FAILED TO SECURE CONNECTION');
