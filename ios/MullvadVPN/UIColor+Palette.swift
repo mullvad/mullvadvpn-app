@@ -74,7 +74,7 @@ extension UIColor {
         static let defaultBackgroundColor = primaryColor
         static let unsecuredBackgroundColor = dangerColor
         static let securedBackgroundColor = successColor
-        static let dividerColor = UIColor.black
+        static let dividerColor = secondaryColor
     }
 
     // Common colors
