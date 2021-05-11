@@ -97,6 +97,7 @@ impl Firewall {
         match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
+                tunnel_interface: _,
                 allow_lan,
                 allowed_endpoint,
                 pingable_hosts,

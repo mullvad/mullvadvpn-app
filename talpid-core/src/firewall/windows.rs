@@ -93,17 +93,17 @@ impl FirewallT for Firewall {
         match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
+                tunnel_interface,
                 pingable_hosts,
                 allow_lan,
                 allowed_endpoint,
                 relay_client,
             } => {
                 let cfg = &WinFwSettings::new(allow_lan);
-                // TODO: Determine interface alias at runtime
                 self.set_connecting_state(
                     &peer_endpoint,
                     &cfg,
-                    "Mullvad".to_string(),
+                    &tunnel_interface,
                     &allowed_endpoint,
                     &pingable_hosts,
                     &relay_client,
@@ -154,7 +154,7 @@ impl Firewall {
         &mut self,
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
-        _tunnel_iface_alias: String,
+        _tunnel_iface_alias: &Option<String>,
         allowed_endpoint: &Endpoint,
         pingable_hosts: &Vec<IpAddr>,
         relay_client: &Path,

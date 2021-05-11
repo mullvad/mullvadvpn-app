@@ -70,6 +70,8 @@ pub enum Error {
 pub enum TunnelEvent {
     /// Sent when the tunnel fails to connect due to an authentication error.
     AuthFailed(Option<String>),
+    /// Sent when the tunnel interface has been created.
+    InterfaceUp(String),
     /// Sent when the tunnel comes up and is ready for traffic.
     Up(TunnelMetadata),
     /// Sent when the tunnel goes down.
