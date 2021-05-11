@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix bug which caused the tunnel manager to become unresponsive in the rare event of failure to
   disable on-demand when stopping the tunnel from within the app.
 - Fix bug that caused the app to skip tunnel settings migration from older versions of the app.
+- Localize some of well known StoreKit errors so that they look less cryptic when presented to user.
 
 
 ## [2021.1] - 2021-03-16
