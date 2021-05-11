@@ -103,10 +103,10 @@ class RelayCache {
     private let observerList = ObserverList<AnyRelayCacheObserver>()
 
     /// A shared instance of `RelayCache`
-    static let shared = RelayCache(cacheFileURL: defaultCacheFileURL, networkSession: URLSession(configuration: .ephemeral))
+    static let shared = RelayCache(cacheFileURL: defaultCacheFileURL)
 
-    private init(cacheFileURL: URL, networkSession: URLSession) {
-        rest = MullvadRest(session: networkSession)
+    private init(cacheFileURL: URL) {
+        rest = MullvadRest()
         self.cacheFileURL = cacheFileURL
     }
 
