@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Enable option to "Select all" when viewing app logs.
 - Split view interface for iPad.
+- Add interactive map.
 
 ### Fixed
 - Fix bug which caused the tunnel manager to become unresponsive in the rare event of failure to
