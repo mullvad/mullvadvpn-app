@@ -31,8 +31,6 @@ extension RestError: DisplayChainedError {
             }
         case .encodePayload:
             return NSLocalizedString("Server request encoding error", comment: "")
-        case .invalidHTTPURLResponse:
-            return NSLocalizedString("Received invalid HTTP response", comment: "")
         case .decodeSuccessResponse:
             return NSLocalizedString("Server success response decoding error", comment: "")
         case .decodeErrorResponse:

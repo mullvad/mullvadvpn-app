@@ -312,9 +312,6 @@ private extension LoginState {
 
                         return message
 
-                    case .invalidHTTPURLResponse:
-                        return NSLocalizedString("Received invalid HTTP response", comment: "")
-
                     case .encodePayload, .decodeErrorResponse, .decodeSuccessResponse:
                         return NSLocalizedString("Internal error", comment: "")
                     }

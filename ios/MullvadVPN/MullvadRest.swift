@@ -101,9 +101,6 @@ enum RestError: ChainedError {
     /// A failure reported by server
     case server(ServerErrorResponse)
 
-    /// A failure to cast the URLResponse to HTTPURLResponse
-    case invalidHTTPURLResponse
-
     /// A failure to decode the error response from server
     case decodeErrorResponse(Error)
 
@@ -118,8 +115,6 @@ enum RestError: ChainedError {
             return "Network error"
         case .server:
             return "Server error"
-        case .invalidHTTPURLResponse:
-            return "Received an empty or invalid HTTP response"
         case .decodeErrorResponse:
             return "Failure to decode error response from server"
         case .decodeSuccessResponse:
@@ -364,7 +359,7 @@ struct RestEndpoint<Input, Response> where Input: RestPayload {
         }
 
         guard let httpResponse = urlResponse as? HTTPURLResponse else {
-            return .failure(.invalidHTTPURLResponse)
+            return .failure(.network(URLError(.unknown)))
         }
 
         let data = data ?? Data()
