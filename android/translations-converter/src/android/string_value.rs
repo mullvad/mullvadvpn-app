@@ -18,15 +18,21 @@ impl StringValue {
             .replace("\"", "\\\"")
             .replace(r"'", r"\'");
 
-        let mut parts = value_with_parameters.split("%");
-        let mut value = parts.next().unwrap().to_owned();
-
-        for (index, part) in parts.enumerate() {
-            value.push_str(&format!("%{}$", index + 1));
-            value.push_str(part);
-        }
+        let value = Self::ensure_parameters_are_indexed(value_with_parameters);
 
         StringValue(value)
+    }
+
+    fn ensure_parameters_are_indexed(original: String) -> String {
+        let mut parts = original.split("%");
+        let mut output = parts.next().unwrap().to_owned();
+
+        for (index, part) in parts.enumerate() {
+            output.push_str(&format!("%{}$", index + 1));
+            output.push_str(part);
+        }
+
+        output
     }
 }
 
