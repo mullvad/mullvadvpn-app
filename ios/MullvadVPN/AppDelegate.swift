@@ -344,14 +344,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         rootContainer?.showSettings(navigateTo: .account, animated: true)
     }
 
-    private func startPaymentQueueHandling() {
-        let paymentManager = AppStorePaymentManager.shared
-        paymentManager.delegate = self
-        paymentManager.startPaymentQueueMonitoring()
-
-        Account.shared.startPaymentMonitoring(with: paymentManager)
-    }
-
     private func showSplitViewMaster(_ show: Bool, animated: Bool) {
         if show {
             splitViewController?.preferredDisplayMode = .allVisible
