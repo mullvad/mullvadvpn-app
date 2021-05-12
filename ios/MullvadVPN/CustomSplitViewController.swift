@@ -10,9 +10,9 @@ import UIKit
 
 class CustomSplitViewController: UISplitViewController, RootContainment {
 
-    var preferredHeaderBarStyle: HeaderBarStyle {
+    var preferredHeaderBarPresentation: HeaderBarPresentation {
         for case let viewController as RootContainment in viewControllers {
-            return viewController.preferredHeaderBarStyle
+            return viewController.preferredHeaderBarPresentation
         }
         return .default
     }

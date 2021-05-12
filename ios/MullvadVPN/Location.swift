@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 struct Location: Codable, Equatable {
     var country: String
@@ -15,4 +16,8 @@ struct Location: Codable, Equatable {
     var cityCode: String
     var latitude: Double
     var longitude: Double
+
+    var geoCoordinate: CLLocationCoordinate2D {
+        return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
 }
