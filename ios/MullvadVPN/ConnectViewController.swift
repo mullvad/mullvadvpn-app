@@ -227,7 +227,7 @@ private extension TunnelState {
             return NSLocalizedString("Secure connection", comment: "")
 
         case .disconnecting, .disconnected:
-            return NSLocalizedString("Unsecured connection", comment: "")
+            return NSLocalizedString("Unsecure connection", comment: "")
         }
     }
 
