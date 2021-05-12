@@ -295,13 +295,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func makeLoginContainerController() -> RootContainerViewController {
         let rootContainerWrapper = RootContainerViewController()
         rootContainerWrapper.delegate = self
-        rootContainerWrapper.presentationController?.delegate = self
         rootContainerWrapper.preferredContentSize = CGSize(width: 480, height: 600)
 
-        if #available(iOS 13.0, *) {
-            // Prevent swiping off the login or consent controllers
-            rootContainerWrapper.isModalInPresentation = true
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            rootContainerWrapper.modalPresentationStyle = .formSheet
+            if #available(iOS 13.0, *) {
+                // Prevent swiping off the login or consent controllers
+                rootContainerWrapper.isModalInPresentation = true
+            }
         }
+
+        rootContainerWrapper.presentationController?.delegate = self
 
         return rootContainerWrapper
     }
@@ -309,14 +313,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func makeLoginController() -> LoginViewController {
         let controller = LoginViewController()
         controller.delegate = self
-
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            controller.modalPresentationStyle = .formSheet
-            if #available(iOS 13.0, *) {
-                controller.isModalInPresentation = true
-            }
-        }
-
         return controller
     }
 
