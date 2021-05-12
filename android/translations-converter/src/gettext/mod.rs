@@ -97,7 +97,7 @@ impl Translation {
         for line in lines {
             match_str! { (line.trim())
                 ["msgid \"", msg_id, "\""] => {
-                    current_id = Some(msg_id.into());
+                    current_id = Some(MsgString::from_escaped(msg_id));
                 }
                 ["msgstr \"", translation, "\""] => {
                     if let Some(id) = current_id.take() {
