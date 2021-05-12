@@ -18,15 +18,27 @@ impl StringValue {
             .replace("\"", "\\\"")
             .replace(r"'", r"\'");
 
-        let mut parts = value_with_parameters.split("%");
-        let mut value = parts.next().unwrap().to_owned();
-
-        for (index, part) in parts.enumerate() {
-            value.push_str(&format!("%{}$", index + 1));
-            value.push_str(part);
-        }
+        let value = Self::ensure_parameters_are_indexed(value_with_parameters);
 
         StringValue(value)
+    }
+
+    /// This helper method ensures parameters are in the form of `%4$d`, i.e., it will ensure that
+    /// there is the `<number>$` part.
+    ///
+    /// A typical input would be something like `Things are %d, %3$s and %s`, and this method
+    /// would update the string so that all parameters have indices: `Things are %1$d, %3$s and
+    /// %4$s`.
+    fn ensure_parameters_are_indexed(original: String) -> String {
+        let mut parts = original.split("%");
+        let mut output = parts.next().unwrap().to_owned();
+
+        for (index, part) in parts.enumerate() {
+            output.push_str(&format!("%{}$", index + 1));
+            output.push_str(part);
+        }
+
+        output
     }
 }
 
