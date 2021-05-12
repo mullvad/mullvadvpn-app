@@ -434,6 +434,9 @@ extension AppDelegate: LoginViewControllerDelegate {
     func loginViewControllerDidLogin(_ controller: LoginViewController) {
         self.window?.isUserInteractionEnabled = false
 
+        // Move the settings button back into header bar
+        self.rootContainer?.removeSettingsButtonFromPresentationContainer()
+
         TunnelManager.shared.getRelayConstraints { [weak self] (result) in
             guard let self = self else { return }
 
@@ -650,6 +653,28 @@ extension AppDelegate: UIAdaptivePresentationControllerDelegate {
         // Force hide header bar in .formSheet presentation and show it in .fullScreen presentation
         if let wrapper = presentationController.presentedViewController as? RootContainerViewController {
             wrapper.setOverrideHeaderBarHidden(style == .formSheet, animated: false)
+        }
+
+        guard style == .formSheet else {
+            // Move the settings button back into header bar
+            self.rootContainer?.removeSettingsButtonFromPresentationContainer()
+
+            return
+        }
+
+        // Add settings button into the modal container to make it accessible by user
+        if let transitionCoordinator = transitionCoordinator {
+            transitionCoordinator.animate(alongsideTransition: { (context) in
+                self.rootContainer?.addSettingsButtonToPresentationContainer(context.containerView)
+            }, completion: { (context) in
+                // no-op
+            })
+        } else {
+            if let containerView = presentationController.containerView {
+                self.rootContainer?.addSettingsButtonToPresentationContainer(containerView)
+            } else {
+                logger?.warning("Cannot obtain the containerView for presentation controller when presenting with adaptive style \(style.rawValue) and missing transition coordinator.")
+            }
         }
     }
 }
