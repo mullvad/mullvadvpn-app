@@ -35,7 +35,7 @@ use mullvad_types::{
         RelaySettingsUpdate,
     },
     relay_list::{Relay, RelayList},
-    settings::{DnsOptions, Settings},
+    settings::{DnsOptions, DnsState, Settings},
     states::{TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
     wireguard::{KeygenEvent, RotationInterval},
@@ -700,26 +700,26 @@ where
         Ok(daemon)
     }
 
-    fn get_dns_resolvers(dns_options: &DnsOptions) -> Option<Vec<IpAddr>> {
-        match dns_options {
-            DnsOptions::Default(options) => {
-                if options.block_ads {
-                    if options.block_trackers {
+    fn get_dns_resolvers(options: &DnsOptions) -> Option<Vec<IpAddr>> {
+        match options.state {
+            DnsState::Default => {
+                if options.default_options.block_ads {
+                    if options.default_options.block_trackers {
                         Some(DNS_AD_TRACKER_BLOCKING_SERVERS.to_vec())
                     } else {
                         Some(DNS_AD_BLOCKING_SERVERS.to_vec())
                     }
-                } else if options.block_trackers {
+                } else if options.default_options.block_trackers {
                     Some(DNS_TRACKER_BLOCKING_SERVERS.to_vec())
                 } else {
                     None
                 }
             }
-            DnsOptions::Custom(options) => {
-                if options.addresses.is_empty() {
+            DnsState::Custom => {
+                if options.custom_options.addresses.is_empty() {
                     None
                 } else {
-                    Some(options.addresses.clone())
+                    Some(options.custom_options.addresses.clone())
                 }
             }
         }

@@ -386,10 +386,13 @@ message CustomDnsOptions {
 }
 
 message DnsOptions {
-	oneof type {
-		DefaultDnsOptions default = 1;
-		CustomDnsOptions custom = 2;
+	enum DnsState {
+		DEFAULT = 0;
+		CUSTOM = 1;
 	}
+	DnsState state = 1;
+	DefaultDnsOptions default_options = 2;
+	CustomDnsOptions custom_options = 3;
 }
 
 message PublicKey {

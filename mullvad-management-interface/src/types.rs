@@ -474,26 +474,23 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
 
 impl From<&mullvad_types::settings::DnsOptions> for DnsOptions {
     fn from(options: &mullvad_types::settings::DnsOptions) -> Self {
-        let inner_options = match options {
-            mullvad_types::settings::DnsOptions::Default(options) => {
-                dns_options::Type::Default(DefaultDnsOptions {
-                    block_ads: options.block_ads,
-                    block_trackers: options.block_trackers,
-                })
-            }
-            mullvad_types::settings::DnsOptions::Custom(options) => {
-                dns_options::Type::Custom(CustomDnsOptions {
-                    addresses: options
-                        .addresses
-                        .iter()
-                        .map(|addr| addr.to_string())
-                        .collect(),
-                })
-            }
-        };
-
         DnsOptions {
-            r#type: Some(inner_options),
+            state: match options.state {
+                mullvad_types::settings::DnsState::Default => dns_options::DnsState::Default as i32,
+                mullvad_types::settings::DnsState::Custom => dns_options::DnsState::Custom as i32,
+            },
+            default_options: Some(DefaultDnsOptions {
+                block_ads: options.default_options.block_ads,
+                block_trackers: options.default_options.block_trackers,
+            }),
+            custom_options: Some(CustomDnsOptions {
+                addresses: options
+                    .custom_options
+                    .addresses
+                    .iter()
+                    .map(|addr| addr.to_string())
+                    .collect(),
+            }),
         }
     }
 }
@@ -1034,32 +1031,50 @@ impl TryFrom<DnsOptions> for mullvad_types::settings::DnsOptions {
         use mullvad_types::settings::{
             CustomDnsOptions as MullvadCustomDnsOptions,
             DefaultDnsOptions as MullvadDefaultDnsOptions, DnsOptions as MullvadDnsOptions,
+            DnsState as MullvadDnsState,
         };
 
-        match options.r#type {
-            Some(dns_options::Type::Default(options)) => {
-                Ok(MullvadDnsOptions::Default(MullvadDefaultDnsOptions {
-                    block_ads: options.block_ads,
-                    block_trackers: options.block_trackers,
-                }))
+        let state = match dns_options::DnsState::from_i32(options.state) {
+            Some(dns_options::DnsState::Default) => MullvadDnsState::Default,
+            Some(dns_options::DnsState::Custom) => MullvadDnsState::Custom,
+            None => {
+                return Err(FromProtobufTypeError::InvalidArgument(
+                    "invalid DNS options state",
+                ))
             }
-            Some(dns_options::Type::Custom(options)) => {
-                Ok(MullvadDnsOptions::Custom(MullvadCustomDnsOptions {
-                    addresses: options
-                        .addresses
-                        .into_iter()
-                        .map(|addr| {
-                            addr.parse().map_err(|_| {
-                                FromProtobufTypeError::InvalidArgument("invalid IP address")
-                            })
+        };
+
+        let default_options =
+            options
+                .default_options
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "missing default DNS options",
+                ))?;
+        let custom_options =
+            options
+                .custom_options
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "missing default DNS options",
+                ))?;
+
+        Ok(MullvadDnsOptions {
+            state,
+            default_options: MullvadDefaultDnsOptions {
+                block_ads: default_options.block_ads,
+                block_trackers: default_options.block_trackers,
+            },
+            custom_options: MullvadCustomDnsOptions {
+                addresses: custom_options
+                    .addresses
+                    .into_iter()
+                    .map(|addr| {
+                        addr.parse().map_err(|_| {
+                            FromProtobufTypeError::InvalidArgument("invalid IP address")
                         })
-                        .collect::<Result<Vec<_>, _>>()?,
-                }))
-            }
-            None => Err(FromProtobufTypeError::InvalidArgument(
-                "invalid DNS setting",
-            )),
-        }
+                    })
+                    .collect::<Result<Vec<_>, _>>()?,
+            },
+        })
     }
 }
 

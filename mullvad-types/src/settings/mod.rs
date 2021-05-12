@@ -175,23 +175,30 @@ pub struct TunnelOptions {
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub generic: GenericTunnelOptions,
     /// DNS options.
-    #[serde(default = "DnsOptions::default")]
     pub dns_options: DnsOptions,
 }
 
-/// DNS config
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
-#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-pub enum DnsOptions {
-    Default(DefaultDnsOptions),
-    Custom(CustomDnsOptions),
+#[serde(rename_all = "snake_case")]
+pub enum DnsState {
+    Default,
+    Custom,
 }
 
-impl Default for DnsOptions {
+impl Default for DnsState {
     fn default() -> Self {
-        DnsOptions::Default(DefaultDnsOptions::default())
+        Self::Default
     }
+}
+
+/// DNS config
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+pub struct DnsOptions {
+    pub state: DnsState,
+    pub default_options: DefaultDnsOptions,
+    pub custom_options: CustomDnsOptions,
 }
 
 /// Default DNS config

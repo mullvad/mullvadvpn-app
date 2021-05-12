@@ -1,7 +1,7 @@
 use crate::{new_rpc_client, Command, Result};
 use mullvad_management_interface::types;
-use mullvad_types::settings::DnsOptions;
-use std::convert::TryFrom;
+use mullvad_types::settings::{DnsOptions, DnsState};
+use std::convert::TryInto;
 
 pub struct Dns;
 
@@ -75,13 +75,14 @@ impl Command for Dns {
 impl Dns {
     async fn set_default(&self, block_ads: bool, block_trackers: bool) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
+        let settings = rpc.get_settings(()).await?.into_inner();
         rpc.set_dns_options(types::DnsOptions {
-            r#type: Some(types::dns_options::Type::Default(
-                types::DefaultDnsOptions {
-                    block_ads,
-                    block_trackers,
-                },
-            )),
+            state: types::dns_options::DnsState::Default as i32,
+            default_options: Some(types::DefaultDnsOptions {
+                block_ads,
+                block_trackers,
+            }),
+            ..settings.tunnel_options.unwrap().dns_options.unwrap()
         })
         .await?;
         println!("Updated DNS settings");
@@ -90,10 +91,13 @@ impl Dns {
 
     async fn set_custom(&self, servers: Option<Vec<String>>) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
+        let settings = rpc.get_settings(()).await?.into_inner();
         rpc.set_dns_options(types::DnsOptions {
-            r#type: Some(types::dns_options::Type::Custom(types::CustomDnsOptions {
+            state: types::dns_options::DnsState::Custom as i32,
+            custom_options: Some(types::CustomDnsOptions {
                 addresses: servers.unwrap_or_default(),
-            })),
+            }),
+            ..settings.tunnel_options.unwrap().dns_options.unwrap()
         })
         .await?;
         println!("Updated DNS settings");
@@ -102,24 +106,26 @@ impl Dns {
 
     async fn get(&self) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        let options = rpc
+        let options: DnsOptions = rpc
             .get_settings(())
             .await?
             .into_inner()
             .tunnel_options
             .unwrap()
             .dns_options
+            .unwrap()
+            .try_into()
             .unwrap();
 
-        match DnsOptions::try_from(options).unwrap() {
-            DnsOptions::Default(options) => {
+        match options.state {
+            DnsState::Default => {
                 println!("Custom DNS: no");
-                println!("Block ads: {}", options.block_ads);
-                println!("Block trackers: {}", options.block_trackers);
+                println!("Block ads: {}", options.default_options.block_ads);
+                println!("Block trackers: {}", options.default_options.block_trackers);
             }
-            DnsOptions::Custom(options) => {
+            DnsState::Custom => {
                 println!("Custom DNS: yes\nServers:");
-                for server in &options.addresses {
+                for server in &options.custom_options.addresses {
                     println!("{}", server);
                 }
             }
