@@ -1,10 +1,13 @@
 use std::{io, net::Ipv4Addr};
 
+/// Pinger errors
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
+    /// Failed to run `ping` process
     #[error(display = "Failed to run ping command")]
     PingError(#[error(source)] io::Error),
 
+    /// ICMP timed out
     #[error(display = "Ping timed out")]
     TimeoutError,
 }
@@ -17,6 +20,7 @@ pub struct Pinger {
 }
 
 impl Pinger {
+    /// Creates a new pinger that will send ICMP requests only through the specified interface
     pub fn new(addr: Ipv4Addr, interface_name: String) -> Result<Self, Error> {
         Ok(Self {
             processes: vec![],

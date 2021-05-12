@@ -60,4 +60,4 @@ mod mktemp;
 mod linux;
 
 /// A pair of functions to monitor and establish connectivity with ICMP
-mod ping_monitor;
+pub mod ping_monitor;

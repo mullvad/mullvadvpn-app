@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 #### Linux
 - Only allow packets with the mark set to `0x6d6f6c65` to communicate with the relay server.
   Previously, bridges were expected to run as root instead.
+- Use an ICMP socket instead of relying on a `ping` binary in `$PATH` to establish if a tunnel is
+  working.
 
 #### Android
 - Improve stability by running the UI and the tunnel management logic in separate processes.
