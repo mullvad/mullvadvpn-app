@@ -75,7 +75,7 @@ impl StringResource {
         StringResource {
             name,
             translatable: true,
-            value: StringValue::from(value),
+            value: StringValue::from_unescaped(value),
         }
     }
 }

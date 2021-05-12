@@ -8,8 +8,11 @@ use std::{
 #[derive(Clone, Debug, Eq, Deserialize, Hash, PartialEq, Serialize)]
 pub struct StringValue(String);
 
-impl From<&str> for StringValue {
-    fn from(string: &str) -> Self {
+impl StringValue {
+    /// Create a `StringValue` from an unescaped string.
+    ///
+    /// The string will be properly escaped, and all parameters will have indices added to them.
+    pub fn from_unescaped(string: &str) -> Self {
         let value_with_parameters = htmlize::escape_text(string)
             .replace(r"\", r"\\")
             .replace("\"", "\\\"")
