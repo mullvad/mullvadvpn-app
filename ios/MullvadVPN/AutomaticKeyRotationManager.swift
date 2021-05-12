@@ -48,7 +48,7 @@ class AutomaticKeyRotationManager {
 
     private let logger = Logger(label: "AutomaticKeyRotationManager")
 
-    private let rest = MullvadRest(session: URLSession(configuration: .ephemeral))
+    private let rest = MullvadRest()
     private let persistentKeychainReference: Data
 
     /// A dispatch queue used for synchronization

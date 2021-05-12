@@ -26,6 +26,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Enable option to "Select all" when viewing app logs.
 - Split view interface for iPad.
+- Reduce network traffic consumption by leveraging HTTP caching via ETag HTTP header to avoid 
+  re-downloading the relay list if it hasn't changed.
 
 ### Fixed
 - Fix bug which caused the tunnel manager to become unresponsive in the rare event of failure to

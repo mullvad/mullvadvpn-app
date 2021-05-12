@@ -13,7 +13,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     private var textViewKeyboardResponder: AutomaticKeyboardResponder?
     private var scrollViewKeyboardResponder: AutomaticKeyboardResponder?
 
-    private let mullvadRest = MullvadRest(session: URLSession(configuration: .ephemeral))
+    private let mullvadRest = MullvadRest()
     private lazy var consolidatedLog: ConsolidatedApplicationLog = {
         let securityGroupIdentifier = ApplicationConfiguration.securityGroupIdentifier
 
