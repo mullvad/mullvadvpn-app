@@ -160,6 +160,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
     }
 
     func startPaymentQueueMonitoring() {
+        self.logger.debug("Start payment queue monitoring.")
         queue.add(self)
     }
 

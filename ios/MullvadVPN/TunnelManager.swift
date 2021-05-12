@@ -159,9 +159,8 @@ class TunnelManager {
         /// A failure to remove the system VPN configuration
         case removeVPNConfiguration(Swift.Error)
 
-        /// A failure to perform a recovery (by removing the VPN configuration) when the
-        /// inconsistency between the given account token and the username saved in the tunnel
-        /// provider configuration is detected.
+        /// A failure to perform a recovery (by removing the VPN configuration) when a corrupt
+        /// VPN configuration is detected.
         case removeInconsistentVPNConfiguration(Swift.Error)
 
         /// A failure to read tunnel settings
@@ -175,6 +174,9 @@ class TunnelManager {
 
         /// A failure to remove the tunnel settings from Keychain
         case removeTunnelSettings(TunnelSettingsManager.Error)
+
+        /// A failure to migrate tunnel settings
+        case migrateTunnelSettings(TunnelSettingsManager.Error)
 
         /// Unable to obtain the persistent keychain reference for the tunnel settings
         case obtainPersistentKeychainReference(TunnelSettingsManager.Error)
@@ -215,6 +217,8 @@ class TunnelManager {
                 return "Failed to update the tunnel settings"
             case .removeTunnelSettings:
                 return "Failed to remove the tunnel settings"
+            case .migrateTunnelSettings:
+                return "Failed to migrate the tunnel settings"
             case .obtainPersistentKeychainReference:
                 return "Failed to obtain the persistent keychain reference"
             case .pushWireguardKey:
@@ -304,7 +308,7 @@ class TunnelManager {
         }
     }
 
-    /// Initialize the TunnelManager with the tunnel from the system
+    /// Initialize the TunnelManager with the tunnel from the system.
     ///
     /// The given account token is used to ensure that the system tunnel was configured for the same
     /// account. The system tunnel is removed in case of inconsistency.
@@ -315,44 +319,7 @@ class TunnelManager {
                     if let error = error {
                         finish(.failure(.loadAllVPNConfigurations(error)))
                     } else {
-                        if let accountToken = accountToken {
-                            // Migrate the tunnel settings if needed
-                            self.migrateTunnelSettings(accountToken: accountToken)
-
-                            // Load last known public key
-                            self.loadPublicKey(accountToken: accountToken)
-                        }
-
-                        if let tunnelProvider = tunnels?.first {
-                            // Ensure the consistency between the given account token and the one
-                            // saved in the system tunnel configuration.
-                            if let username = tunnelProvider.protocolConfiguration?.username,
-                                let accountToken = accountToken, accountToken == username {
-                                self.accountToken = accountToken
-
-                                self.setTunnelProvider(tunnelProvider: tunnelProvider)
-
-                                finish(.success(()))
-                            } else {
-                                // In case of inconsistency, remove the tunnel
-                                tunnelProvider.removeFromPreferences { (error) in
-                                    self.dispatchQueue.async {
-                                        if let error = error {
-                                            finish(.failure(.removeInconsistentVPNConfiguration(error)))
-                                        } else {
-                                            self.accountToken = accountToken
-
-                                            finish(.success(()))
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            // No tunnels found. Save the account token.
-                            self.accountToken = accountToken
-
-                            finish(.success(()))
-                        }
+                        self.initializeManager(accountToken: accountToken, tunnels: tunnels, completionHandler: finish)
                     }
                 }
             }
@@ -767,6 +734,141 @@ class TunnelManager {
 
     // MARK: - Private methods
 
+    private func initializeManager(accountToken: String?, tunnels: [TunnelProviderManagerType]?, completionHandler: @escaping (Result<(), TunnelManager.Error>) -> Void) {
+        // Migrate the tunnel settings if needed
+        let migrationResult = accountToken.flatMap { self.migrateTunnelSettings(accountToken: $0) }
+        switch migrationResult {
+        case .success, .none:
+            break
+        case .failure(let migrationError):
+            completionHandler(.failure(migrationError))
+            return
+        }
+
+        switch (tunnels?.first, accountToken) {
+        // Case 1: tunnel exists and account token is set.
+        // Verify that tunnel can access the configuration via the persistent keychain reference
+        // stored in `passwordReference` field of VPN configuration.
+        case (.some(let tunnelProvider), .some(let accountToken)):
+            let verificationResult = self.verifyTunnel(tunnelProvider: tunnelProvider, expectedAccountToken: accountToken)
+            let tunnelSettingsResult = TunnelSettingsManager.load(searchTerm: .accountToken(accountToken)).mapError { (error) -> Error in
+                return .readTunnelSettings(error)
+            }
+
+            switch (verificationResult, tunnelSettingsResult) {
+            case (.success(true), .success(let keychainEntry)):
+                self.accountToken = accountToken
+                self.publicKeyWithMetadata = keychainEntry.tunnelSettings.interface.privateKey.publicKeyWithMetadata
+                self.setTunnelProvider(tunnelProvider: tunnelProvider)
+
+                completionHandler(.success(()))
+
+            // Remove the tunnel when failed to verify it but successfuly loaded the tunnel
+            // settings.
+            case (.failure(let verificationError), .success(let keychainEntry)):
+                self.logger.error(chainedError: verificationError, message: "Failed to verify the tunnel but successfully loaded the tunnel settings. Removing the tunnel.")
+
+                // Identical code path as the case below.
+                fallthrough
+
+            // Remove the tunnel with corrupt configuration.
+            // It will be re-created upon the first attempt to connect the tunnel.
+            case (.success(false), .success(let keychainEntry)):
+                tunnelProvider.removeFromPreferences { (error) in
+                    self.dispatchQueue.async {
+                        if let error = error {
+                            completionHandler(.failure(.removeInconsistentVPNConfiguration(error)))
+                        } else {
+                            self.accountToken = accountToken
+                            self.publicKeyWithMetadata = keychainEntry.tunnelSettings.interface.privateKey.publicKeyWithMetadata
+
+                            completionHandler(.success(()))
+                        }
+                    }
+                }
+
+            // Remove the tunnel when failed to verify the tunnel and load tunnel settings.
+            case (.failure(let verificationError), .failure(_)):
+                self.logger.error(chainedError: verificationError, message: "Failed to verify the tunnel and load tunnel settings. Removing the tunnel.")
+
+                tunnelProvider.removeFromPreferences { (error) in
+                    if let error = error {
+                        completionHandler(.failure(.removeInconsistentVPNConfiguration(error)))
+                    } else {
+                        completionHandler(.failure(verificationError))
+                    }
+                }
+
+            // Remove the tunnel when the app is not able to read tunnel settings
+            case (.success(_), .failure(let settingsReadError)):
+                self.logger.error(chainedError: settingsReadError, message: "Failed to load tunnel settings. Removing the tunnel.")
+
+                tunnelProvider.removeFromPreferences { (error) in
+                    if let error = error {
+                        completionHandler(.failure(.removeInconsistentVPNConfiguration(error)))
+                    } else {
+                        completionHandler(.failure(settingsReadError))
+                    }
+                }
+            }
+
+        // Case 2: tunnel exists but account token is unset.
+        // Remove the orphaned tunnel.
+        case (.some(let tunnelProvider), .none):
+            tunnelProvider.removeFromPreferences { (error) in
+                self.dispatchQueue.async {
+                    if let error = error {
+                        completionHandler(.failure(.removeInconsistentVPNConfiguration(error)))
+                    } else {
+                        completionHandler(.success(()))
+                    }
+                }
+            }
+
+        // Case 3: tunnel does not exist but the account token is set.
+        // Verify that tunnel settings exists in keychain.
+        case (.none, .some(let accountToken)):
+            switch TunnelSettingsManager.load(searchTerm: .accountToken(accountToken)) {
+            case .success(let keychainEntry):
+                self.accountToken = accountToken
+                self.publicKeyWithMetadata = keychainEntry.tunnelSettings.interface.privateKey.publicKeyWithMetadata
+
+                completionHandler(.success(()))
+
+            case .failure(let error):
+                completionHandler(.failure(.readTunnelSettings(error)))
+            }
+
+        // Case 4: no tunnels exist and account token is unset.
+        case (.none, .none):
+            completionHandler(.success(()))
+        }
+    }
+
+    private func verifyTunnel(tunnelProvider: TunnelProviderManagerType, expectedAccountToken accountToken: String) -> Result<Bool, Error> {
+        // Check that the VPN configuration points to the same account token
+        guard let username = tunnelProvider.protocolConfiguration?.username, username == accountToken else {
+            logger.warning("The token assigned to the VPN configuration does not match the logged in account.")
+            return .success(false)
+        }
+
+        // Check that the passwordReference, containing the keychain reference for tunnel
+        // configuration, is set.
+        guard let keychainReference = tunnelProvider.protocolConfiguration?.passwordReference else {
+            logger.warning("VPN configuration is missing the passwordReference.")
+            return .success(false)
+        }
+
+        // Verify that the keychain reference points to the existing entry in Keychain.
+        // Bad reference is possible when migrating the user data from one device to the other.
+        return TunnelSettingsManager.exists(searchTerm: .persistentReference(keychainReference))
+            .mapError { (error) -> Error in
+                logger.error(chainedError: error, message: "Failed to verify the persistent keychain reference for tunnel settings.")
+
+                return Error.readTunnelSettings(error)
+            }
+    }
+
     /// Set the instance of the active tunnel and add the tunnel status observer
     private func setTunnelProvider(tunnelProvider: TunnelProviderManagerType) {
         guard self.tunnelProvider != tunnelProvider else {
@@ -1082,21 +1184,26 @@ class TunnelManager {
         }
     }
 
-    private func migrateTunnelSettings(accountToken: String) {
+    private func migrateTunnelSettings(accountToken: String) -> Result<Bool, Error> {
         let result = TunnelSettingsManager
             .migrateKeychainEntry(searchTerm: .accountToken(accountToken))
+            .mapError { (error) -> Error in
+                return .migrateTunnelSettings(error)
+            }
 
         switch result {
         case .success(let migrated):
             if migrated {
-                self.logger.info("Migrated Keychain tunnel configuration")
+                self.logger.info("Migrated Keychain tunnel configuration.")
             } else {
                 self.logger.info("Tunnel settings are up to date. No migration needed.")
             }
 
         case .failure(let error):
-            self.logger.error(chainedError: error, message: "Failed to migrate tunnel settings")
+            self.logger.error(chainedError: error)
         }
+
+        return result
     }
 
 }
