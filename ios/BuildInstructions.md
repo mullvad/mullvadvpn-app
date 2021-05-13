@@ -173,3 +173,12 @@ where `<KEYCHAIN>` is the name of the target Keychain where the signing credenti
 This guide does not use a separate Keychain store, so use `login.keychain-db` then.
 
 Reference: https://docs.travis-ci.com/user/common-build-problems/#mac-macos-sierra-1012-code-signing-errors
+
+# SSL pinning
+
+The iOS app utilizes SSL pinning. Root certificates can be updated by using the source certificates shipped along with `mullvad-rpc`:
+
+```
+openssl x509 -in ../mullvad-rpc/new_le_root_cert.pem -outform der -out Assets/new_le_root_cert.cer
+openssl x509 -in ../mullvad-rpc/old_le_root_cert.pem -outform der -out Assets/old_le_root_cert.cer
+```

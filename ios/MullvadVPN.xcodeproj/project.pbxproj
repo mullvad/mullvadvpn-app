@@ -73,6 +73,14 @@
 		584592612639B4A200EF967F /* ConsentContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584592602639B4A200EF967F /* ConsentContentView.swift */; };
 		5845F842236CBACD00B2D93C /* PacketTunnelIpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */; };
 		5845F843236CBDAB00B2D93C /* PacketTunnelIpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */; };
+		584789B8264D4A2A000E45FB /* old_le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 584789B4264D4A2A000E45FB /* old_le_root_cert.cer */; };
+		584789B9264D4A2A000E45FB /* old_le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 584789B4264D4A2A000E45FB /* old_le_root_cert.cer */; };
+		584789BE264D4A2A000E45FB /* new_le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 584789B7264D4A2A000E45FB /* new_le_root_cert.cer */; };
+		584789BF264D4A2A000E45FB /* new_le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 584789B7264D4A2A000E45FB /* new_le_root_cert.cer */; };
+		584789E026529D72000E45FB /* SSLPinningURLSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */; };
+		584789E126529D72000E45FB /* SSLPinningURLSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */; };
+		584789E626529DEF000E45FB /* SSLPinningURLSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */; };
+		584789EC2652A1A2000E45FB /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 584789EB2652A1A2000E45FB /* Logging */; };
 		584E96BC240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		584E96BD240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		584E96BE240FD4DB00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
@@ -318,6 +326,9 @@
 		5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadEndpoint.swift; sourceTree = "<group>"; };
 		584592602639B4A200EF967F /* ConsentContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsentContentView.swift; sourceTree = "<group>"; };
 		5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelIpc.swift; sourceTree = "<group>"; };
+		584789B4264D4A2A000E45FB /* old_le_root_cert.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = old_le_root_cert.cer; sourceTree = "<group>"; };
+		584789B7264D4A2A000E45FB /* new_le_root_cert.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = new_le_root_cert.cer; sourceTree = "<group>"; };
+		584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSLPinningURLSessionDelegate.swift; sourceTree = "<group>"; };
 		584B26F3237434D00073B10E /* RelaySelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorTests.swift; sourceTree = "<group>"; };
 		5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IPAddressRange+Codable.swift"; sourceTree = "<group>"; };
 		58561C98239A5D1500BD6B5E /* IPEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPEndpoint.swift; sourceTree = "<group>"; };
@@ -432,6 +443,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				584789EC2652A1A2000E45FB /* Logging in Frameworks */,
 				58871D1E25D535A3002297FA /* WireGuardKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -665,6 +677,7 @@
 				58B993B02608A34500BA7811 /* LoginContentView.swift */,
 				58FEEB57260B662E00A621A8 /* AutomaticKeyboardResponder.swift */,
 				5868BD32261DCD2600E6027F /* CustomSplitViewController.swift */,
+				584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */,
 			);
 			path = MullvadVPN;
 			sourceTree = "<group>";
@@ -703,6 +716,8 @@
 		58F3C0A824A50C0E003E76BE /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				584789B7264D4A2A000E45FB /* new_le_root_cert.cer */,
+				584789B4264D4A2A000E45FB /* old_le_root_cert.cer */,
 				58F3C0A524A50155003E76BE /* relays.json */,
 			);
 			path = Assets;
@@ -744,6 +759,7 @@
 			name = MullvadVPNTests;
 			packageProductDependencies = (
 				58871D1D25D535A3002297FA /* WireGuardKit */,
+				584789EB2652A1A2000E45FB /* Logging */,
 			);
 			productName = MullvadVPNTests;
 			productReference = 58B0A2A0238EE67E00BC001D /* MullvadVPNTests.xctest */;
@@ -897,6 +913,8 @@
 				586ADD4723FC13F400CE9E87 /* countries.geo.json in Resources */,
 				58CE5E6E224146210008646E /* LaunchScreen.storyboard in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
+				584789B8264D4A2A000E45FB /* old_le_root_cert.cer in Resources */,
+				584789BE264D4A2A000E45FB /* new_le_root_cert.cer in Resources */,
 				58CE5E69224146200008646E /* Main.storyboard in Resources */,
 				58E5BC2624FEB6DB00A53A76 /* AccountViewController.xib in Resources */,
 				58B9814E24FEA70D00C0D59E /* WireguardKeysViewController.xib in Resources */,
@@ -907,7 +925,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				584789B9264D4A2A000E45FB /* old_le_root_cert.cer in Resources */,
 				58F3C0A724A50C02003E76BE /* relays.json in Resources */,
+				584789BF264D4A2A000E45FB /* new_le_root_cert.cer in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -937,6 +957,7 @@
 				5807E2C3243203E700F5FF30 /* String+Split.swift in Sources */,
 				5896AE82246ACE84005B36CB /* KeychainReturn.swift in Sources */,
 				58B0A2A8238EE68200BC001D /* RelaySelectorTests.swift in Sources */,
+				584789E626529DEF000E45FB /* SSLPinningURLSessionDelegate.swift in Sources */,
 				584E96BE240FD4DB00D3334F /* Location.swift in Sources */,
 				5857F23F24C844AD00CF6F47 /* Locking.swift in Sources */,
 				5857F23424C8443700CF6F47 /* AsyncOperation.swift in Sources */,
@@ -985,6 +1006,7 @@
 				580EE21524B3231200F9D8A1 /* OperationBlockObserver.swift in Sources */,
 				58BFA5C622A7C97F00A6173D /* RelayCache.swift in Sources */,
 				582BB1B1229569620055B6EF /* CustomNavigationBar.swift in Sources */,
+				584789E026529D72000E45FB /* SSLPinningURLSessionDelegate.swift in Sources */,
 				588D2FE3248AC27F00E313F7 /* AsyncOperation.swift in Sources */,
 				5877153023981F7B001F8237 /* WireguardKeysViewController.swift in Sources */,
 				5850367F25A481D800A43E93 /* IPAddressRange+Codable.swift in Sources */,
@@ -1092,6 +1114,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				58CB0EE124B86751001EF0D8 /* MullvadRest.swift in Sources */,
+				584789E126529D72000E45FB /* SSLPinningURLSessionDelegate.swift in Sources */,
 				580EE21F24B3237F00F9D8A1 /* OutputOperation.swift in Sources */,
 				5850366825A47AC700A43E93 /* IPAddressRange+Codable.swift in Sources */,
 				58F7D310250FA12E0097BE4E /* AnyIPEndpoint.swift in Sources */,
@@ -1618,6 +1641,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		584789EB2652A1A2000E45FB /* Logging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */;
+			productName = Logging;
+		};
 		585834F724D2BC1F00A8AF56 /* Logging */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 585834F624D2BC1F00A8AF56 /* XCRemoteSwiftPackageReference "swift-log" */;

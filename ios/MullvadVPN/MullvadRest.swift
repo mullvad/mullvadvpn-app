@@ -8,6 +8,7 @@
 
 import Foundation
 import Network
+import Security
 import WireGuardKit
 
 /// REST API v1 base URL
@@ -415,8 +416,26 @@ struct RestSessionEndpoint<Input, Response> where Input: RestPayload {
 
 // MARK: - REST interface
 
-struct MullvadRest {
-    let session = URLSession(configuration: .ephemeral)
+class MullvadRest {
+    let session: URLSession
+
+    private let sessionDelegate: SSLPinningURLSessionDelegate
+
+    /// Returns array of trusted root certificates
+    private static var trustedRootCertificates: [SecCertificate] {
+        let oldRootCertificate = Bundle.main.path(forResource: "old_le_root_cert", ofType: "cer")!
+        let newRootCertificate = Bundle.main.path(forResource: "new_le_root_cert", ofType: "cer")!
+
+        return [oldRootCertificate, newRootCertificate].map { (path) -> SecCertificate in
+            let data = FileManager.default.contents(atPath: path)!
+            return SecCertificateCreateWithData(nil, data as CFData)!
+        }
+    }
+
+    init() {
+        sessionDelegate = SSLPinningURLSessionDelegate(trustedRootCertificates: Self.trustedRootCertificates)
+        session = URLSession(configuration: .ephemeral, delegate: sessionDelegate, delegateQueue: nil)
+    }
 
     func createAccount() -> RestSessionEndpoint<EmptyPayload, AccountResponse> {
         return RestSessionEndpoint(session: session, endpoint: Self.createAccount())
