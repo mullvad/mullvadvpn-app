@@ -140,4 +140,31 @@ mod tests {
 
         assert_eq!(input.to_string(), expected);
     }
+
+    #[test]
+    fn doesnt_change_parameter_indices() {
+        let original = "%1$d %3$s %9$s %6$d %7$d";
+
+        let input = StringValue::from_unescaped(original);
+
+        assert_eq!(input.to_string(), original);
+    }
+
+    #[test]
+    fn adds_parameter_indices() {
+        let input = StringValue::from_unescaped("%d %s %s %d");
+
+        let expected = "%1$d %2$s %3$s %4$d";
+
+        assert_eq!(input.to_string(), expected);
+    }
+
+    #[test]
+    fn correctly_updates_generated_index_offset_based_on_existing_indices() {
+        let input = StringValue::from_unescaped("%d %4$s %d %2$s %d");
+
+        let expected = "%1$d %4$s %5$d %2$s %3$d";
+
+        assert_eq!(input.to_string(), expected);
+    }
 }
