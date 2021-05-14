@@ -79,4 +79,23 @@ mod tests {
 
         assert_eq!(input.normalize(), expected);
     }
+
+    #[test]
+    fn normalize_gettext_msg_string() {
+        use crate::gettext::MsgString;
+
+        let input = MsgString::from_unescaped(concat!(
+            "'Inside single quotes'",
+            r#""Inside double quotes""#,
+            "With parameters: %(number)d, %(string)s",
+        ));
+
+        let expected = concat!(
+            "\'Inside single quotes\'",
+            r#""Inside double quotes""#,
+            "With parameters: %d, %s",
+        );
+
+        assert_eq!(input.normalize(), expected);
+    }
 }
