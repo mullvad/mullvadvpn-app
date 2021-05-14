@@ -1,5 +1,10 @@
 package net.mullvad.mullvadvpn.util
 
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
+import android.os.IBinder
 import android.view.animation.Animation
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.Dispatchers
@@ -26,3 +31,25 @@ fun Animation.transitionFinished(): Flow<Unit> = callbackFlow<Unit> {
         }
     }
 }.take(1)
+
+fun Context.bindServiceFlow(intent: Intent, flags: Int = 0): Flow<IBinder?> = callbackFlow {
+    val connectionCallback = object : ServiceConnection {
+        override fun onServiceConnected(className: ComponentName, binder: IBinder) {
+            safeOffer(binder)
+        }
+
+        override fun onServiceDisconnected(className: ComponentName) {
+            safeOffer(null)
+        }
+    }
+
+    bindService(intent, connectionCallback, flags)
+
+    awaitClose {
+        safeOffer(null)
+
+        Dispatchers.Default.dispatch(EmptyCoroutineContext) {
+            unbindService(connectionCallback)
+        }
+    }
+}

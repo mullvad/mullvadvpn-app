@@ -25,12 +25,21 @@ class ServiceEndpoint(
     val connectivityListener: ConnectivityListener,
     context: Context
 ) {
-    private val listeners = mutableSetOf<Messenger>()
-    private val registrationQueue: SendChannel<Messenger> = startRegistrator()
+    companion object {
+        sealed class Command {
+            data class RegisterListener(val listener: Messenger) : Command()
+            data class UnregisterListener(val listenerId: Int) : Command()
+        }
+    }
+
+    private val listeners = mutableMapOf<Int, Messenger>()
+    private val commands: SendChannel<Command> = startRegistrator()
 
     internal val dispatcher = DispatchingHandler(looper) { message ->
         Request.fromMessage(message)
     }
+
+    private var listenerIdCounter = 0
 
     val messenger = Messenger(dispatcher)
 
@@ -50,14 +59,20 @@ class ServiceEndpoint(
     val voucherRedeemer = VoucherRedeemer(this)
 
     init {
-        dispatcher.registerHandler(Request.RegisterListener::class) { request ->
-            registrationQueue.sendBlocking(request.listener)
+        dispatcher.apply {
+            registerHandler(Request.RegisterListener::class) { request ->
+                commands.sendBlocking(Command.RegisterListener(request.listener))
+            }
+
+            registerHandler(Request.UnregisterListener::class) { request ->
+                commands.sendBlocking(Command.UnregisterListener(request.listenerId))
+            }
         }
     }
 
     fun onDestroy() {
         dispatcher.onDestroy()
-        registrationQueue.close()
+        commands.close()
 
         accountCache.onDestroy()
         appVersionInfoCache.onDestroy()
@@ -74,13 +89,13 @@ class ServiceEndpoint(
 
     internal fun sendEvent(event: Event) {
         synchronized(this) {
-            val deadListeners = mutableSetOf<Messenger>()
+            val deadListeners = mutableSetOf<Int>()
 
-            for (listener in listeners) {
+            for ((id, listener) in listeners) {
                 try {
                     listener.send(event.message)
                 } catch (_: DeadObjectException) {
-                    deadListeners.add(listener)
+                    deadListeners.add(id)
                 }
             }
 
@@ -88,17 +103,20 @@ class ServiceEndpoint(
         }
     }
 
-    private fun startRegistrator() = GlobalScope.actor<Messenger>(
+    private fun startRegistrator() = GlobalScope.actor<Command>(
         Dispatchers.Default,
         Channel.UNLIMITED
     ) {
         try {
-            while (true) {
-                val listener = channel.receive()
+            for (command in channel) {
+                when (command) {
+                    is Command.RegisterListener -> {
+                        intermittentDaemon.await()
 
-                intermittentDaemon.await()
-
-                registerListener(listener)
+                        registerListener(command.listener)
+                    }
+                    is Command.UnregisterListener -> unregisterListener(command.listenerId)
+                }
             }
         } catch (exception: ClosedReceiveChannelException) {
             // Registration queue closed; stop registrator
@@ -107,7 +125,9 @@ class ServiceEndpoint(
 
     private fun registerListener(listener: Messenger) {
         synchronized(this) {
-            listeners.add(listener)
+            val listenerId = newListenerId()
+
+            listeners.put(listenerId, listener)
 
             val initialEvents = mutableListOf(
                 Event.TunnelStateChange(connectionProxy.state),
@@ -121,7 +141,7 @@ class ServiceEndpoint(
                 Event.AppVersionInfo(appVersionInfoCache.appVersionInfo),
                 Event.NewRelayList(relayListListener.relayList),
                 Event.AuthToken(authTokenCache.authToken),
-                Event.ListenerReady
+                Event.ListenerReady(messenger, listenerId)
             )
 
             if (vpnPermission.waitingForResponse) {
@@ -132,5 +152,19 @@ class ServiceEndpoint(
                 listener.send(event.message)
             }
         }
+    }
+
+    private fun unregisterListener(listenerId: Int) {
+        synchronized(this) {
+            listeners.remove(listenerId)
+        }
+    }
+
+    private fun newListenerId(): Int {
+        val listenerId = listenerIdCounter
+
+        listenerIdCounter += 1
+
+        return listenerId
     }
 }

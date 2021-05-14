@@ -1,45 +1,31 @@
 package net.mullvad.mullvadvpn.service
 
-import android.content.ComponentName
 import android.content.Intent
 import android.graphics.drawable.Icon
 import android.os.Build
-import android.os.IBinder
-import android.os.Messenger
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import kotlin.properties.Delegates.observable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.ipc.ServiceConnection
 import net.mullvad.mullvadvpn.model.TunnelState
-import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnection
 import net.mullvad.talpid.tunnel.ActionAfterDisconnect
 
 class MullvadTileService : TileService() {
-    private val serviceConnectionManager = object : android.content.ServiceConnection {
-        override fun onServiceConnected(className: ComponentName, binder: IBinder) {
-            serviceConnection = ServiceConnection(Messenger(binder))
-        }
-
-        override fun onServiceDisconnected(className: ComponentName) {
-            serviceConnection = null
-        }
-    }
-
-    private var serviceConnection by observable<ServiceConnection?>(
-        null
-    ) { _, oldConnection, newConnection ->
-        oldConnection?.onDestroy()
-
-        newConnection?.connectionProxy?.run {
-            onStateChange.subscribe(this@MullvadTileService, ::updateTunnelState)
-        }
-    }
-
     private var secured by observable(false) { _, wasSecured, isSecured ->
         if (wasSecured != isSecured) {
             updateTileState()
         }
     }
+
+    private lateinit var scope: CoroutineScope
 
     private lateinit var securedIcon: Icon
     private lateinit var unsecuredIcon: Icon
@@ -54,11 +40,9 @@ class MullvadTileService : TileService() {
     override fun onStartListening() {
         super.onStartListening()
 
-        val intent = Intent(this, MullvadVpnService::class.java)
+        scope = MainScope()
 
-        bindService(intent, serviceConnectionManager, BIND_IMPORTANT)
-
-        updateTileState()
+        scope.launch { listenToTunnelState() }
     }
 
     override fun onClick() {
@@ -80,10 +64,16 @@ class MullvadTileService : TileService() {
     }
 
     override fun onStopListening() {
-        unbindService(serviceConnectionManager)
-        serviceConnection = null
-
+        scope.cancel()
         super.onStopListening()
+    }
+
+    @OptIn(FlowPreview::class)
+    private suspend fun listenToTunnelState() {
+        ServiceConnection(this@MullvadTileService, scope)
+            .tunnelState
+            .debounce(300L)
+            .collect(::updateTunnelState)
     }
 
     private fun updateTunnelState(tunnelState: TunnelState) {
