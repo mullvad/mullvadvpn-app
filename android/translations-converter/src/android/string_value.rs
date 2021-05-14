@@ -125,4 +125,19 @@ mod tests {
 
         assert_eq!(input.to_string(), expected);
     }
+
+    #[test]
+    fn xml_escaping() {
+        let input = StringValue::from_unescaped(concat!(
+            "An ampersand: &",
+            "<tag>A dummy fake XML tag</tag>",
+        ));
+
+        let expected = concat!(
+            "An ampersand: &amp;",
+            r"&lt;tag&gt;A dummy fake XML tag&lt;/tag&gt;",
+        );
+
+        assert_eq!(input.to_string(), expected);
+    }
 }
