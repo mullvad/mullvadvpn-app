@@ -3,7 +3,6 @@ use self::config::Config;
 use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::routing::{self, RequiredRoute};
-use cfg_if::cfg_if;
 use futures::future::abortable;
 #[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
@@ -342,30 +341,28 @@ impl WireguardMonitor {
         }
     }
 
+    #[cfg(target_os = "windows")]
     fn get_routes(iface_name: &str, config: &Config) -> HashSet<RequiredRoute> {
-        #[cfg(target_os = "linux")]
-        use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
-
-        let node = routing::Node::device(iface_name.to_string());
-        let mut routes: HashSet<RequiredRoute> = Self::get_tunnel_routes(config)
-            .map(|network| {
-                cfg_if! {
-                    if #[cfg(target_os = "linux")] {
-                        if network.prefix() == 0 {
-                            RequiredRoute::new(network, node.clone())
-                        } else {
-                            RequiredRoute::new(network, node.clone())
-                                .table(u32::from(RT_TABLE_MAIN))
-                        }
+        let mut routes: HashSet<RequiredRoute> = {
+            let node_v4 =
+                routing::Node::new(config.ipv4_gateway.clone().into(), iface_name.to_string());
+            let node_v6 = if let Some(ipv6_gateway) = config.ipv6_gateway.as_ref() {
+                routing::Node::new(ipv6_gateway.clone().into(), iface_name.to_string())
+            } else {
+                routing::Node::device(iface_name.to_string())
+            };
+            Self::get_tunnel_routes(config)
+                .map(|network| {
+                    if network.is_ipv4() {
+                        RequiredRoute::new(network, node_v4.clone())
                     } else {
-                        RequiredRoute::new(network, node.clone())
+                        RequiredRoute::new(network, node_v6.clone())
                     }
-                }
-            })
-            .collect();
+                })
+                .collect()
+        };
 
         // route endpoints with specific routes
-        #[cfg(not(target_os = "linux"))]
         for peer in config.peers.iter() {
             routes.insert(RequiredRoute::new(
                 peer.endpoint.ip().into(),
@@ -373,24 +370,57 @@ impl WireguardMonitor {
             ));
         }
 
+        routes
+    }
+
+    #[cfg(target_os = "linux")]
+    fn get_routes(iface_name: &str, config: &Config) -> HashSet<RequiredRoute> {
+        use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
+
+        let node = routing::Node::device(iface_name.to_string());
+        let mut routes: HashSet<RequiredRoute> = Self::get_tunnel_routes(config)
+            .map(|network| {
+                if network.prefix() == 0 {
+                    RequiredRoute::new(network, node.clone())
+                } else {
+                    RequiredRoute::new(network, node.clone()).table(u32::from(RT_TABLE_MAIN))
+                }
+            })
+            .collect();
+
         // add routes for the gateway so that DNS requests can be made in the tunnel
         // using `mullvad-exclude`
-        #[cfg(target_os = "linux")]
-        {
-            routes.insert(
-                RequiredRoute::new(
-                    ipnetwork::Ipv4Network::from(config.ipv4_gateway).into(),
-                    node.clone(),
-                )
-                .table(u32::from(RT_TABLE_MAIN)),
-            );
+        routes.insert(
+            RequiredRoute::new(
+                ipnetwork::Ipv4Network::from(config.ipv4_gateway).into(),
+                node.clone(),
+            )
+            .table(u32::from(RT_TABLE_MAIN)),
+        );
 
-            if let Some(gateway) = config.ipv6_gateway {
-                routes.insert(
-                    RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), node.clone())
-                        .table(u32::from(RT_TABLE_MAIN)),
-                );
-            }
+        if let Some(gateway) = config.ipv6_gateway {
+            routes.insert(
+                RequiredRoute::new(ipnetwork::Ipv6Network::from(gateway).into(), node.clone())
+                    .table(u32::from(RT_TABLE_MAIN)),
+            );
+        }
+
+        routes
+    }
+
+    #[cfg(all(not(target_os = "linux"), not(windows)))]
+    fn get_routes(iface_name: &str, config: &Config) -> HashSet<RequiredRoute> {
+        let node = routing::Node::device(iface_name.to_string());
+        let mut routes: HashSet<RequiredRoute> = Self::get_tunnel_routes(config)
+            .map(|network| RequiredRoute::new(network, node.clone()))
+            .collect();
+
+        // route endpoints with specific routes
+        for peer in config.peers.iter() {
+            routes.insert(RequiredRoute::new(
+                peer.endpoint.ip().into(),
+                routing::NetNode::DefaultNode,
+            ));
         }
 
         routes
