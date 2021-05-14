@@ -467,29 +467,33 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
 
     let result = match event_type {
         winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged => {
-            let ip = interface_luid_to_ip(address_family.clone(), default_route.interface_luid);
-
-            let ip = match ip {
-                Ok(Some(ip)) => ip,
+            match interface_luid_to_ip(address_family.clone(), default_route.interface_luid) {
+                Ok(Some(ip)) => match IpAddr::from(ip) {
+                    IpAddr::V4(addr) => ctx.internet_ipv4 = addr,
+                    IpAddr::V6(addr) => ctx.internet_ipv6 = Some(addr),
+                },
                 Ok(None) => {
-                    log::error!("Failed to obtain new default route address: none found",);
-                    maybe_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
-                    return;
+                    log::warn!("Failed to obtain default route interface address");
+                    match address_family {
+                        WinNetAddrFamily::IPV4 => {
+                            ctx.internet_ipv4 = Ipv4Addr::new(0, 0, 0, 0);
+                        }
+                        WinNetAddrFamily::IPV6 => {
+                            ctx.internet_ipv6 = None;
+                        }
+                    }
                 }
                 Err(error) => {
                     log::error!(
                         "{}",
-                        error.display_chain_with_msg("Failed to obtain new default route address")
+                        error.display_chain_with_msg(
+                            "Failed to obtain default route interface address"
+                        )
                     );
                     maybe_send(TunnelCommand::Block(ErrorStateCause::SplitTunnelError));
                     return;
                 }
             };
-
-            match IpAddr::from(ip) {
-                IpAddr::V4(addr) => ctx.internet_ipv4 = addr,
-                IpAddr::V6(addr) => ctx.internet_ipv6 = Some(addr),
-            }
 
             ctx.register_ips()
         }
