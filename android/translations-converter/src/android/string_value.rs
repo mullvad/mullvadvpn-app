@@ -28,6 +28,12 @@ impl StringValue {
         StringValue(value)
     }
 
+    /// This helper method ensures parameters are in the form of `%4$d`, i.e., it will ensure that
+    /// there is the `<number>$` part.
+    ///
+    /// A typical input would be something like `Things are %d, %3$s and %s`, and this method
+    /// would update the string so that all parameters have indices: `Things are %1$d, %3$s and
+    /// %4$s`.
     fn ensure_parameters_are_indexed(original: String) -> String {
         lazy_static! {
             static ref PARAMETER_INDEX: Regex = Regex::new(r"^(\d+)\$").unwrap();
