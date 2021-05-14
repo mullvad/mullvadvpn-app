@@ -56,3 +56,27 @@ mod gettext {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::Normalize;
+
+    #[test]
+    fn normalize_android_string_value() {
+        use crate::android::StringValue;
+
+        let input = StringValue::from_unescaped(concat!(
+            "'Inside single quotes'",
+            r#""Inside double quotes""#,
+            "With parameters: %1$d, %2$s",
+        ));
+
+        let expected = concat!(
+            "\'Inside single quotes\'",
+            r#""Inside double quotes""#,
+            "With parameters: %d, %s",
+        );
+
+        assert_eq!(input.normalize(), expected);
+    }
+}
