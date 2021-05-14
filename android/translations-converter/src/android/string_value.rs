@@ -18,9 +18,20 @@ impl StringValue {
             .replace("\"", "\\\"")
             .replace(r"'", r"\'");
 
-        let value = Self::ensure_parameters_are_indexed(value_with_parameters);
+        let value_without_line_breaks = Self::collapse_line_breaks(value_with_parameters);
+        let value = Self::ensure_parameters_are_indexed(value_without_line_breaks);
 
         StringValue(value)
+    }
+
+    /// The input XML file might have line breaks inside the string, and they should be collapsed
+    /// into a single whitespace character.
+    fn collapse_line_breaks(original: String) -> String {
+        lazy_static! {
+            static ref LINE_BREAKS: Regex = Regex::new(r"\s*\n\s*").unwrap();
+        }
+
+        LINE_BREAKS.replace_all(&original, " ").into_owned()
     }
 
     /// This helper method ensures parameters are in the form of `%4$d`, i.e., it will ensure that
