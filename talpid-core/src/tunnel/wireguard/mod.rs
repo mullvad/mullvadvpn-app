@@ -342,10 +342,32 @@ impl WireguardMonitor {
     }
 
     fn get_routes(iface_name: &str, config: &Config) -> HashSet<RequiredRoute> {
-        let node = routing::Node::device(iface_name.to_string());
-        let mut routes: HashSet<RequiredRoute> = Self::get_tunnel_routes(config)
-            .map(|network| RequiredRoute::new(network, node.clone()))
-            .collect();
+        #[cfg(not(target_os = "windows"))]
+        let mut routes: HashSet<RequiredRoute> = {
+            let node = routing::Node::device(iface_name.to_string());
+            Self::get_tunnel_routes(config)
+                .map(|network| RequiredRoute::new(network, node.clone()))
+                .collect()
+        };
+        #[cfg(target_os = "windows")]
+        let mut routes: HashSet<RequiredRoute> = {
+            let node_v4 =
+                routing::Node::new(config.ipv4_gateway.clone().into(), iface_name.to_string());
+            let node_v6 = if let Some(ipv6_gateway) = config.ipv6_gateway.as_ref() {
+                routing::Node::new(ipv6_gateway.clone().into(), iface_name.to_string())
+            } else {
+                routing::Node::device(iface_name.to_string())
+            };
+            Self::get_tunnel_routes(config)
+                .map(|network| {
+                    if network.is_ipv4() {
+                        RequiredRoute::new(network, node_v4.clone())
+                    } else {
+                        RequiredRoute::new(network, node_v6.clone())
+                    }
+                })
+                .collect()
+        };
 
         // route endpoints with specific routes
         #[cfg(not(target_os = "linux"))]
