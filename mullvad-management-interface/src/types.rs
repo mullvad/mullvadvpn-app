@@ -472,6 +472,29 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
     }
 }
 
+impl From<&mullvad_types::settings::DnsOptions> for DnsOptions {
+    fn from(options: &mullvad_types::settings::DnsOptions) -> Self {
+        DnsOptions {
+            state: match options.state {
+                mullvad_types::settings::DnsState::Default => dns_options::DnsState::Default as i32,
+                mullvad_types::settings::DnsState::Custom => dns_options::DnsState::Custom as i32,
+            },
+            default_options: Some(DefaultDnsOptions {
+                block_ads: options.default_options.block_ads,
+                block_trackers: options.default_options.block_trackers,
+            }),
+            custom_options: Some(CustomDnsOptions {
+                addresses: options
+                    .custom_options
+                    .addresses
+                    .iter()
+                    .map(|addr| addr.to_string())
+                    .collect(),
+            }),
+        }
+    }
+}
+
 impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
     fn from(options: &mullvad_types::settings::TunnelOptions) -> Self {
         Self {
@@ -489,15 +512,7 @@ impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
                 enable_ipv6: options.generic.enable_ipv6,
             }),
             #[cfg(not(target_os = "android"))]
-            dns_options: Some(DnsOptions {
-                custom: options.dns_options.custom,
-                addresses: options
-                    .dns_options
-                    .addresses
-                    .iter()
-                    .map(|addr| addr.to_string())
-                    .collect(),
-            }),
+            dns_options: Some(DnsOptions::from(&options.dns_options)),
             #[cfg(target_os = "android")]
             dns_options: None,
         }
@@ -606,6 +621,7 @@ impl From<TransportProtocol> for talpid_types::net::TransportProtocol {
     }
 }
 
+#[derive(Debug)]
 pub enum FromProtobufTypeError {
     InvalidArgument(&'static str),
 }
@@ -1005,6 +1021,60 @@ impl TryFrom<BridgeState> for mullvad_types::relay_constraints::BridgeState {
                 "invalid bridge state",
             )),
         }
+    }
+}
+
+impl TryFrom<DnsOptions> for mullvad_types::settings::DnsOptions {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(options: DnsOptions) -> Result<Self, Self::Error> {
+        use mullvad_types::settings::{
+            CustomDnsOptions as MullvadCustomDnsOptions,
+            DefaultDnsOptions as MullvadDefaultDnsOptions, DnsOptions as MullvadDnsOptions,
+            DnsState as MullvadDnsState,
+        };
+
+        let state = match dns_options::DnsState::from_i32(options.state) {
+            Some(dns_options::DnsState::Default) => MullvadDnsState::Default,
+            Some(dns_options::DnsState::Custom) => MullvadDnsState::Custom,
+            None => {
+                return Err(FromProtobufTypeError::InvalidArgument(
+                    "invalid DNS options state",
+                ))
+            }
+        };
+
+        let default_options =
+            options
+                .default_options
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "missing default DNS options",
+                ))?;
+        let custom_options =
+            options
+                .custom_options
+                .ok_or(FromProtobufTypeError::InvalidArgument(
+                    "missing default DNS options",
+                ))?;
+
+        Ok(MullvadDnsOptions {
+            state,
+            default_options: MullvadDefaultDnsOptions {
+                block_ads: default_options.block_ads,
+                block_trackers: default_options.block_trackers,
+            },
+            custom_options: MullvadCustomDnsOptions {
+                addresses: custom_options
+                    .addresses
+                    .into_iter()
+                    .map(|addr| {
+                        addr.parse().map_err(|_| {
+                            FromProtobufTypeError::InvalidArgument("invalid IP address")
+                        })
+                    })
+                    .collect::<Result<Vec<_>, _>>()?,
+            },
+        })
     }
 }
 

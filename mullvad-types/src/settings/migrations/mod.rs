@@ -2,6 +2,7 @@ use super::{Error, Result};
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 mod v1;
 mod v2;
+mod v3;
 
 
 #[derive(Debug, PartialEq, PartialOrd, Clone, Copy)]
@@ -9,6 +10,7 @@ mod v2;
 pub enum SettingsVersion {
     V2 = 2,
     V3 = 3,
+    V4 = 4,
 }
 
 pub const CURRENT_SETTINGS_VERSION: SettingsVersion = SettingsVersion::V3;
@@ -21,6 +23,7 @@ impl<'de> Deserialize<'de> for SettingsVersion {
         match <u32>::deserialize(deserializer)? {
             v if v == SettingsVersion::V2 as u32 => Ok(SettingsVersion::V2),
             v if v == SettingsVersion::V3 as u32 => Ok(SettingsVersion::V3),
+            v if v == SettingsVersion::V4 as u32 => Ok(SettingsVersion::V4),
             v => Err(serde::de::Error::custom(format!(
                 "{} is not a valid SettingsVersion",
                 v
@@ -52,8 +55,11 @@ pub fn try_migrate_settings(mut settings_file: &[u8]) -> Result<crate::settings:
         return Err(Error::NoMatchingVersion);
     }
 
-    let migrations: Vec<Box<dyn SettingsMigration>> =
-        vec![Box::new(v1::Migration), Box::new(v2::Migration)];
+    let migrations: Vec<Box<dyn SettingsMigration>> = vec![
+        Box::new(v1::Migration),
+        Box::new(v2::Migration),
+        Box::new(v3::Migration),
+    ];
 
     for migration in &migrations {
         if !migration.version_matches(&mut settings) {
@@ -79,7 +85,7 @@ mod test {
     #[test]
     #[should_panic]
     fn test_deserialization_failure_version_too_big() {
-        let _version: SettingsVersion = serde_json::from_str("4").expect("Version too big");
+        let _version: SettingsVersion = serde_json::from_str("100").expect("Version too big");
     }
 
     #[test]

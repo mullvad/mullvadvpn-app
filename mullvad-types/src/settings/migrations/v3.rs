@@ -1,6 +1,5 @@
 use super::{Error, Result, SettingsVersion};
-use crate::wireguard::{MAX_ROTATION_INTERVAL, MIN_ROTATION_INTERVAL};
-use std::time::Duration;
+use crate::settings::{CustomDnsOptions, DefaultDnsOptions, DnsOptions, DnsState};
 
 
 pub(super) struct Migration;
@@ -9,51 +8,41 @@ impl super::SettingsMigration for Migration {
     fn version_matches(&self, settings: &mut serde_json::Value) -> bool {
         settings
             .get("settings_version")
-            .map(|version| version == SettingsVersion::V2 as u64)
+            .map(|version| version == SettingsVersion::V3 as u64)
             .unwrap_or(false)
     }
 
     fn migrate(&self, settings: &mut serde_json::Value) -> Result<()> {
-        log::info!("Migrating settings format to V3");
+        log::info!("Migrating settings format to V4");
 
-        // `show_beta_releases` used to be nullable
-        if settings
-            .get_mut("show_beta_releases")
-            .map(|val| val.is_null())
-            .unwrap_or(false)
-        {
-            settings
-                .as_object_mut()
-                .ok_or(Error::NoMatchingVersion)?
-                .remove("show_beta_releases");
-        }
-
-        let automatic_rotation = || -> Option<u64> {
-            settings
-                .get("tunnel_options")?
-                .get("wireguard")?
-                .get("automatic_rotation")
-                .map(|ivl| ivl.as_u64())?
+        let dns_options = || -> Option<&serde_json::Value> {
+            settings.get("tunnel_options")?.get("dns_options")
         }();
 
-        if let Some(interval) = automatic_rotation {
-            let new_ivl = match Duration::from_secs(60 * 60 * interval) {
-                ivl if ivl < MIN_ROTATION_INTERVAL => {
-                    log::warn!("Increasing key rotation interval since it is below minimum");
-                    MIN_ROTATION_INTERVAL
-                }
-                ivl if ivl > MAX_ROTATION_INTERVAL => {
-                    log::warn!("Decreasing key rotation interval since it is above maximum");
-                    MAX_ROTATION_INTERVAL
-                }
-                ivl => ivl,
+        if let Some(options) = dns_options {
+            let new_state = if options
+                .get("custom")
+                .map(|custom| custom.as_bool().unwrap_or(false))
+                .unwrap_or(false)
+            {
+                DnsState::Custom
+            } else {
+                DnsState::Default
+            };
+            let addresses = if let Some(addrs) = options.get("addresses") {
+                serde_json::from_value(addrs.clone()).map_err(Error::ParseError)?
+            } else {
+                vec![]
             };
 
-            settings["tunnel_options"]["wireguard"]["rotation_interval"] =
-                serde_json::json!(new_ivl);
+            settings["tunnel_options"]["dns_options"] = serde_json::json!(DnsOptions {
+                state: new_state,
+                default_options: DefaultDnsOptions::default(),
+                custom_options: CustomDnsOptions { addresses },
+            });
         }
 
-        settings["settings_version"] = serde_json::json!(SettingsVersion::V3);
+        settings["settings_version"] = serde_json::json!(SettingsVersion::V4);
 
         Ok(())
     }
@@ -64,7 +53,7 @@ mod test {
     use super::super::try_migrate_settings;
     use serde_json;
 
-    const V2_SETTINGS: &str = r#"
+    pub const V3_SETTINGS: &str = r#"
 {
   "account_token": "1234",
   "relay_settings": {
@@ -74,16 +63,16 @@ mod test {
           "country": "se"
         }
       },
-      "tunnel": {
-        "only": {
-          "openvpn": {
-            "port": {
-              "only": 53
-            },
-            "protocol": {
-              "only": "udp"
-            }
-          }
+      "tunnel_protocol": "any",
+      "wireguard_constraints": {
+        "port": "any"
+      },
+      "openvpn_constraints": {
+        "port": {
+          "only": 53
+        },
+        "protocol": {
+          "only": "udp"
         }
       }
     }
@@ -103,12 +92,23 @@ mod test {
     },
     "wireguard": {
       "mtu": null,
-      "automatic_rotation": 24
+      "rotation_interval": {
+          "secs": 86400,
+          "nanos": 0
+      }
     },
     "generic": {
       "enable_ipv6": false
+    },
+    "dns_options": {
+      "custom": false,
+      "addresses": [
+        "1.1.1.1",
+        "1.2.3.4"
+      ]
     }
-  }
+  },
+  "settings_version": 3
 }
 "#;
 
@@ -158,6 +158,19 @@ mod test {
     },
     "generic": {
       "enable_ipv6": false
+    },
+    "dns_options": {
+      "state": "default",
+      "default_options": {
+        "block_ads": false,
+        "block_trackers": false
+      },
+      "custom_options": {
+        "addresses": [
+          "1.1.1.1",
+          "1.2.3.4"
+        ]
+      }
     }
   },
   "settings_version": 4
@@ -166,9 +179,9 @@ mod test {
 
 
     #[test]
-    fn test_v2_migration() {
+    fn test_v3_migration() {
         let migrated_settings =
-            try_migrate_settings(V2_SETTINGS.as_bytes()).expect("Migration failed");
+            try_migrate_settings(V3_SETTINGS.as_bytes()).expect("Migration failed");
         let new_settings = serde_json::from_str(NEW_SETTINGS).unwrap();
 
         assert_eq!(&migrated_settings, &new_settings);

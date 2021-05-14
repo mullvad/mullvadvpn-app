@@ -35,7 +35,7 @@ use mullvad_types::{
         RelaySettingsUpdate,
     },
     relay_list::{Relay, RelayList},
-    settings::{DnsOptions, Settings},
+    settings::{DnsOptions, DnsState, Settings},
     states::{TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
     wireguard::{KeygenEvent, RotationInterval},
@@ -79,6 +79,12 @@ const FIRST_KEY_PUSH_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// Delay between generating a new WireGuard key and reconnecting
 const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
+
+lazy_static::lazy_static! {
+    static ref DNS_AD_BLOCKING_SERVERS: [IpAddr; 1] = ["100.64.0.1".parse().unwrap()];
+    static ref DNS_TRACKER_BLOCKING_SERVERS: [IpAddr; 1] = ["100.64.0.2".parse().unwrap()];
+    static ref DNS_AD_TRACKER_BLOCKING_SERVERS: [IpAddr; 1] = ["100.64.0.3".parse().unwrap()];
+}
 
 pub type ResponseTx<T, E> = oneshot::Sender<Result<T, E>>;
 
@@ -216,7 +222,7 @@ pub enum DaemonCommand {
     SetBridgeState(ResponseTx<(), settings::Error>, BridgeState),
     /// Set if IPv6 should be enabled in the tunnel
     SetEnableIpv6(ResponseTx<(), settings::Error>, bool),
-    /// Set custom DNS servers to use instead of passing requests to the gateway
+    /// Set DNS options or servers to use
     SetDnsOptions(ResponseTx<(), settings::Error>, DnsOptions),
     /// Set MTU for wireguard tunnels
     SetWireguardMtu(ResponseTx<(), settings::Error>, Option<u16>),
@@ -629,7 +635,7 @@ where
         let tunnel_command_tx = tunnel_state_machine::spawn(
             settings.allow_lan,
             settings.block_when_disconnected,
-            Self::get_custom_resolvers(&settings.tunnel_options.dns_options),
+            Self::get_dns_resolvers(&settings.tunnel_options.dns_options),
             initial_api_endpoint,
             tunnel_parameters_generator,
             log_dir,
@@ -694,11 +700,28 @@ where
         Ok(daemon)
     }
 
-    fn get_custom_resolvers(dns_options: &DnsOptions) -> Option<Vec<IpAddr>> {
-        if dns_options.custom && !dns_options.addresses.is_empty() {
-            Some(dns_options.addresses.clone())
-        } else {
-            None
+    fn get_dns_resolvers(options: &DnsOptions) -> Option<Vec<IpAddr>> {
+        match options.state {
+            DnsState::Default => {
+                if options.default_options.block_ads {
+                    if options.default_options.block_trackers {
+                        Some(DNS_AD_TRACKER_BLOCKING_SERVERS.to_vec())
+                    } else {
+                        Some(DNS_AD_BLOCKING_SERVERS.to_vec())
+                    }
+                } else if options.default_options.block_trackers {
+                    Some(DNS_TRACKER_BLOCKING_SERVERS.to_vec())
+                } else {
+                    None
+                }
+            }
+            DnsState::Custom => {
+                if options.custom_options.addresses.is_empty() {
+                    None
+                } else {
+                    Some(options.custom_options.addresses.clone())
+                }
+            }
         }
     }
 
@@ -1854,10 +1877,9 @@ where
                 Self::oneshot_send(tx, Ok(()), "set_dns_options response");
                 if settings_changed {
                     let settings = self.settings.to_settings();
-                    let resolvers =
-                        Self::get_custom_resolvers(&settings.tunnel_options.dns_options);
+                    let resolvers = Self::get_dns_resolvers(&settings.tunnel_options.dns_options);
                     self.event_listener.notify_settings(settings);
-                    self.send_tunnel_command(TunnelCommand::CustomDns(resolvers));
+                    self.send_tunnel_command(TunnelCommand::Dns(resolvers));
                 }
             }
             Err(e) => {

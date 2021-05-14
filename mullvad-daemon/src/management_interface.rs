@@ -361,31 +361,13 @@ impl ManagementService for ManagementServiceImpl {
 
     #[cfg(not(target_os = "android"))]
     async fn set_dns_options(&self, request: Request<types::DnsOptions>) -> ServiceResult<()> {
-        let options = request.into_inner();
-        log::debug!(
-            "set_dns_options({}, {:?})",
-            options.custom,
-            options.addresses
-        );
-
-        let mut servers_ip = vec![];
-        for server in options.addresses.into_iter() {
-            if let Ok(addr) = server.parse() {
-                servers_ip.push(addr);
-            } else {
-                let err_msg = format!("failed to parse IP address: {}", server);
-                return Err(Status::invalid_argument(err_msg));
-            }
-        }
+        let options = DnsOptions::try_from(request.into_inner()).map_err(|error| match error {
+            types::FromProtobufTypeError::InvalidArgument(error) => Status::invalid_argument(error),
+        })?;
+        log::debug!("set_dns_options({:?})", options);
 
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::SetDnsOptions(
-            tx,
-            DnsOptions {
-                custom: options.custom,
-                addresses: servers_ip,
-            },
-        ))?;
+        self.send_command_to_daemon(DaemonCommand::SetDnsOptions(tx, options))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)

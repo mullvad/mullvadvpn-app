@@ -6,7 +6,7 @@ use crate::{
     wireguard,
 };
 #[cfg(target_os = "android")]
-use jnix::{FromJava, IntoJava};
+use jnix::{jni::objects::JObject, FromJava, IntoJava, JnixEnv};
 use log::{debug, info};
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -174,19 +174,87 @@ pub struct TunnelOptions {
     /// Contains generic tunnel options that may apply to more than a single tunnel type.
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub generic: GenericTunnelOptions,
-    /// Custom DNS options.
+    /// DNS options.
     pub dns_options: DnsOptions,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[serde(rename_all = "snake_case")]
+pub enum DnsState {
+    Default,
+    Custom,
+}
+
+impl Default for DnsState {
+    fn default() -> Self {
+        Self::Default
+    }
+}
+
+/// DNS config
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[cfg_attr(target_os = "android", derive(IntoJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
+pub struct DnsOptions {
+    #[cfg_attr(target_os = "android", jnix(map = "|state| state == DnsState::Custom"))]
+    pub state: DnsState,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub default_options: DefaultDnsOptions,
+    #[cfg_attr(target_os = "android", jnix(map = "|opts| opts.addresses"))]
+    pub custom_options: CustomDnsOptions,
+}
+
+#[cfg(target_os = "android")]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+#[cfg_attr(target_os = "android", derive(FromJava))]
+#[cfg_attr(
+    target_os = "android",
+    jnix(class_name = "net.mullvad.mullvadvpn.model.DnsOptions")
+)]
+pub struct AndroidDnsOptions {
+    pub custom: bool,
+    pub addresses: Vec<IpAddr>,
+}
+
+#[cfg(target_os = "android")]
+impl From<AndroidDnsOptions> for DnsOptions {
+    fn from(options: AndroidDnsOptions) -> Self {
+        Self {
+            state: if options.custom {
+                DnsState::Custom
+            } else {
+                DnsState::Default
+            },
+            default_options: DefaultDnsOptions::default(),
+            custom_options: CustomDnsOptions {
+                addresses: options.addresses,
+            },
+        }
+    }
+}
+
+#[cfg(target_os = "android")]
+impl<'env, 'sub_env> FromJava<'env, JObject<'sub_env>> for DnsOptions
+where
+    'env: 'sub_env,
+{
+    const JNI_SIGNATURE: &'static str = "Lnet/mullvad/mullvadvpn/model/DnsOptions";
+
+    fn from_java(env: &JnixEnv<'env>, object: JObject<'sub_env>) -> Self {
+        AndroidDnsOptions::from_java(env, object).into()
+    }
+}
+
+/// Default DNS config
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
+pub struct DefaultDnsOptions {
+    pub block_ads: bool,
+    pub block_trackers: bool,
 }
 
 /// Custom DNS config
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, Hash)]
-#[serde(default)]
-#[cfg_attr(target_os = "android", derive(FromJava, IntoJava))]
-#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
-pub struct DnsOptions {
-    /// Whether to use the addresses in `custom_dns`.
-    pub custom: bool,
-    /// Custom DNS servers to use.
+pub struct CustomDnsOptions {
     pub addresses: Vec<IpAddr>,
 }
 

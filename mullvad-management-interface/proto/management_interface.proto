@@ -376,9 +376,23 @@ message TunnelOptions {
 	DnsOptions dns_options = 4;
 }
 
+message DefaultDnsOptions {
+	bool block_ads = 1;
+	bool block_trackers = 2;
+}
+
+message CustomDnsOptions {
+	repeated string addresses = 1;
+}
+
 message DnsOptions {
-	bool custom = 1;
-	repeated string addresses = 2;
+	enum DnsState {
+		DEFAULT = 0;
+		CUSTOM = 1;
+	}
+	DnsState state = 1;
+	DefaultDnsOptions default_options = 2;
+	CustomDnsOptions custom_options = 3;
 }
 
 message PublicKey {

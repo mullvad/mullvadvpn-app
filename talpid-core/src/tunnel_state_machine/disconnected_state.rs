@@ -87,10 +87,10 @@ impl TunnelState for DisconnectedState {
                 }
                 SameState(self.into())
             }
-            Some(TunnelCommand::CustomDns(servers)) => {
+            Some(TunnelCommand::Dns(servers)) => {
                 // Same situation as allow LAN above.
                 shared_values
-                    .set_custom_dns(servers)
+                    .set_dns_servers(servers)
                     .expect("Failed to reconnect after changing custom DNS servers");
 
                 SameState(self.into())

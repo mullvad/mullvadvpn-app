@@ -28,9 +28,11 @@ Line wrap the file at 100 chars.                                              Th
   management interface UDS socket. This means that only users in that group can use the CLI and GUI.
 - Support WireGuard over TCP for custom VPN relays in the CLI.
 - Make app native on Apple Silicon.
+- Add DNS options for ad and tracker blocking to the CLI.
 
 ### Changed
 - Upgrade OpenVPN from 2.5.0 to 2.5.1.
+- Replace CLI command `mullvad custom-dns` with the new command `mullvad dns`.
 
 #### Linux
 - Only allow packets with the mark set to `0x6d6f6c65` to communicate with the relay server.

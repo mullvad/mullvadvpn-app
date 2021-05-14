@@ -76,7 +76,7 @@ pub enum Error {
 pub async fn spawn(
     allow_lan: bool,
     block_when_disconnected: bool,
-    custom_dns: Option<Vec<IpAddr>>,
+    dns_servers: Option<Vec<IpAddr>>,
     allowed_endpoint: Endpoint,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
@@ -106,7 +106,7 @@ pub async fn spawn(
         #[cfg(target_os = "android")]
         allowed_endpoint.address.ip(),
         #[cfg(target_os = "android")]
-        custom_dns.clone(),
+        dns_servers.clone(),
     );
 
     let runtime = tokio::runtime::Handle::current();
@@ -118,7 +118,7 @@ pub async fn spawn(
             allow_lan,
             block_when_disconnected,
             is_offline,
-            custom_dns,
+            dns_servers,
             allowed_endpoint,
             tunnel_parameters_generator,
             tun_provider,
@@ -161,8 +161,8 @@ pub enum TunnelCommand {
     /// Endpoint that should never be blocked.
     /// If an error occurs, the sender is dropped.
     AllowEndpoint(Endpoint, oneshot::Sender<()>),
-    /// Set custom DNS servers to use.
-    CustomDns(Option<Vec<IpAddr>>),
+    /// Set DNS servers to use.
+    Dns(Option<Vec<IpAddr>>),
     /// Enable or disable the block_when_disconnected feature.
     BlockWhenDisconnected(bool),
     /// Notify the state machine of the connectivity of the device.
@@ -204,7 +204,7 @@ impl TunnelStateMachine {
         allow_lan: bool,
         block_when_disconnected: bool,
         is_offline: bool,
-        custom_dns: Option<Vec<IpAddr>>,
+        dns_servers: Option<Vec<IpAddr>>,
         allowed_endpoint: Endpoint,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
         tun_provider: TunProvider,
@@ -232,7 +232,7 @@ impl TunnelStateMachine {
             allow_lan,
             block_when_disconnected,
             is_offline,
-            custom_dns,
+            dns_servers,
             allowed_endpoint,
             tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
             tun_provider,
@@ -304,8 +304,8 @@ struct SharedTunnelStateValues {
     block_when_disconnected: bool,
     /// True when the computer is known to be offline.
     is_offline: bool,
-    /// Custom DNS servers to use.
-    custom_dns: Option<Vec<IpAddr>>,
+    /// DNS servers to use (overriding default).
+    dns_servers: Option<Vec<IpAddr>>,
     /// Endpoint that should not be blocked by the firewall.
     allowed_endpoint: Endpoint,
     /// The generator of new `TunnelParameter`s
@@ -359,20 +359,20 @@ impl SharedTunnelStateValues {
         }
     }
 
-    pub fn set_custom_dns(
+    pub fn set_dns_servers(
         &mut self,
-        custom_dns: Option<Vec<IpAddr>>,
+        dns_servers: Option<Vec<IpAddr>>,
     ) -> Result<bool, ErrorStateCause> {
-        if self.custom_dns != custom_dns {
-            self.custom_dns = custom_dns.clone();
+        if self.dns_servers != dns_servers {
+            self.dns_servers = dns_servers.clone();
 
             #[cfg(target_os = "android")]
             {
-                if let Err(error) = self.tun_provider.set_custom_dns_servers(custom_dns) {
+                if let Err(error) = self.tun_provider.set_dns_servers(dns_servers) {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg(
-                            "Failed to restart tunnel after changing custom DNS servers",
+                            "Failed to restart tunnel after changing DNS servers",
                         )
                     );
                     return Err(ErrorStateCause::StartTunnelError);
