@@ -104,3 +104,25 @@ impl Display for StringValue {
         write!(formatter, "{}", self.0)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::StringValue;
+
+    #[test]
+    fn android_escaping() {
+        let input = StringValue::from_unescaped(concat!(
+            r"A backslash \",
+            r#""Inside double quotes""#,
+            "'Inside single quotes'",
+        ));
+
+        let expected = concat!(
+            r"A backslash \\",
+            r#"\"Inside double quotes\""#,
+            r"\'Inside single quotes\'",
+        );
+
+        assert_eq!(input.to_string(), expected);
+    }
+}
