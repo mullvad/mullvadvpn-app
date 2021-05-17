@@ -53,4 +53,13 @@ mod tests {
 
         assert_eq!(input.to_string(), "");
     }
+
+    #[test]
+    fn escaping() {
+        let input = MsgString::from_unescaped(r#""Inside double quotes""#);
+
+        let expected = r#"\"Inside double quotes\""#;
+
+        assert_eq!(input.to_string(), expected);
+    }
 }
