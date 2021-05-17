@@ -25,6 +25,7 @@ pub struct TunnelParameters {
 pub struct ConnectionConfig {
     pub tunnel: TunnelConfig,
     pub peer: PeerConfig,
+    pub exit_peer: Option<PeerConfig>,
     /// Gateway used by the tunnel (a private address).
     pub ipv4_gateway: Ipv4Addr,
     pub ipv6_gateway: Option<Ipv6Addr>,
@@ -37,11 +38,18 @@ impl ConnectionConfig {
             protocol: self.peer.protocol,
         }
     }
+
+    pub fn get_exit_endpoint(&self) -> Option<Endpoint> {
+        self.exit_peer.as_ref().map(|peer| Endpoint {
+            address: peer.endpoint,
+            protocol: peer.protocol,
+        })
+    }
 }
 
 #[derive(Clone, Eq, PartialEq, Deserialize, Serialize, Debug, Hash)]
 pub struct PeerConfig {
-    /// Public key corresponding to the private key in [`TunnelConfig`].
+    /// Peer's public key.
     pub public_key: PublicKey,
     /// Addresses that may be routed to the peer. Use `0.0.0.0/0` to route everything.
     pub allowed_ips: Vec<IpNetwork>,

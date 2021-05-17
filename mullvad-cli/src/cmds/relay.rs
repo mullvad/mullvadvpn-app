@@ -2,6 +2,7 @@ use crate::{location, new_rpc_client, Command, Error, Result};
 use clap::{value_t, values_t};
 use itertools::Itertools;
 use std::{
+    fmt::Write,
     io::{self, BufRead},
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     str::FromStr,
@@ -170,6 +171,17 @@ impl Command for Relay {
                                             .long("ipv")
                                             .default_value("any")
                                             .possible_values(&["any", "4", "6"]),
+                                    )
+                                    .arg(
+                                        clap::Arg::with_name("entry location")
+                                            .help("Entry endpoint to use. This can be 'any', 'none', or \
+                                                   any location that is valid with 'set location', \
+                                                   such as 'se got'.")
+                                            .default_value("none")
+                                            .long("entry-location")
+                                            .multiple(true)
+                                            .min_values(1)
+                                            .max_values(3),
                                     )
                             )
                     )
@@ -415,7 +427,7 @@ impl Relay {
     }
 
     async fn set_location(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
-        let location_constraint = location::get_constraint(matches);
+        let location_constraint = location::get_constraint_from_args(matches);
         let mut found = false;
 
         if !location_constraint.country.is_empty() {
@@ -517,6 +529,8 @@ impl Relay {
     async fn set_wireguard_constraints(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let port = parse_port_constraint(matches.value_of("port").unwrap())?;
         let ip_version = parse_ip_version_constraint(matches.value_of("ip version").unwrap());
+        let entry_location =
+            parse_entry_location_constraint(matches.values_of("entry location").unwrap());
 
         self.update_constraints(RelaySettingsUpdate {
             r#type: Some(relay_settings_update::Type::Normal(
@@ -526,6 +540,7 @@ impl Relay {
                         ip_version: ip_version.option().map(|protocol| IpVersionConstraint {
                             protocol: protocol as i32,
                         }),
+                        entry_location,
                     }),
                     ..Default::default()
                 },
@@ -719,7 +734,7 @@ impl Relay {
 
     fn format_wireguard_constraints(constraints: Option<&WireguardConstraints>) -> String {
         if let Some(constraints) = constraints {
-            format!(
+            let mut out = format!(
                 "{} over {}",
                 Self::format_port(constraints.port),
                 Self::format_ip_version(
@@ -728,7 +743,18 @@ impl Relay {
                         .clone()
                         .map(|protocol| IpVersion::from_i32(protocol.protocol).unwrap())
                 )
-            )
+            );
+
+            if let Some(ref entry) = constraints.entry_location {
+                write!(
+                    &mut out,
+                    " (via {})",
+                    location::format_location(Some(entry))
+                )
+                .unwrap();
+            }
+
+            out
         } else {
             "any port over IPv4 or IPv6".to_string()
         }
@@ -799,4 +825,20 @@ fn parse_ip_version_constraint(raw_protocol: &str) -> Constraint<IpVersion> {
         "6" => Constraint::Only(IpVersion::V6),
         _ => unreachable!(),
     }
+}
+
+fn parse_entry_location_constraint<'a, T: Iterator<Item = &'a str>>(
+    mut location: T,
+) -> Option<RelayLocation> {
+    let country = location.next().unwrap();
+
+    if country == "none" {
+        return None;
+    }
+
+    Some(location::get_constraint(
+        country,
+        location.next(),
+        location.next(),
+    ))
 }

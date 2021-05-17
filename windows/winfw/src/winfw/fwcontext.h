@@ -35,6 +35,7 @@ public:
 		const WinFwSettings &settings,
 		const WinFwEndpoint &relay,
 		const std::wstring &relayClient,
+		const std::optional<std::wstring> &tunnelInterfaceAlias,
 		const std::optional<PingableHosts> &pingableHosts,
 		const std::optional<WinFwEndpoint> &allowedEndpoint
 	);

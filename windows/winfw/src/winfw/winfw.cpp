@@ -260,6 +260,7 @@ WinFw_ApplyPolicyConnecting(
 	const WinFwSettings *settings,
 	const WinFwEndpoint *relay,
 	const wchar_t *relayClient,
+	const wchar_t *tunnelInterfaceAlias,
 	const PingableHosts *pingableHosts,
 	const WinFwEndpoint *allowedEndpoint
 )
@@ -290,6 +291,7 @@ WinFw_ApplyPolicyConnecting(
 			*settings,
 			*relay,
 			relayClient,
+			tunnelInterfaceAlias != nullptr ? std::make_optional(tunnelInterfaceAlias) : std::nullopt,
 			ConvertPingableHosts(pingableHosts),
 			MakeOptional(allowedEndpoint)
 		) ? WINFW_POLICY_STATUS_SUCCESS : WINFW_POLICY_STATUS_GENERAL_FAILURE;

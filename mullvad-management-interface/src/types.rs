@@ -40,6 +40,10 @@ impl From<talpid_types::net::TunnelEndpoint> for TunnelEndpoint {
                     net::proxy::ProxyType::Custom => i32::from(ProxyType::Custom),
                 },
             }),
+            entry_endpoint: endpoint.entry_endpoint.map(|entry| Endpoint {
+                address: entry.address.to_string(),
+                protocol: i32::from(TransportProtocol::from(entry.protocol)),
+            }),
         }
     }
 }
@@ -311,6 +315,25 @@ impl From<IpVersion> for IpVersionConstraint {
     }
 }
 
+impl
+    From<
+        mullvad_types::relay_constraints::Constraint<
+            mullvad_types::relay_constraints::LocationConstraint,
+        >,
+    > for RelayLocation
+{
+    fn from(
+        location: mullvad_types::relay_constraints::Constraint<
+            mullvad_types::relay_constraints::LocationConstraint,
+        >,
+    ) -> Self {
+        location
+            .option()
+            .map(RelayLocation::from)
+            .unwrap_or_default()
+    }
+}
+
 impl From<mullvad_types::relay_constraints::LocationConstraint> for RelayLocation {
     fn from(location: mullvad_types::relay_constraints::LocationConstraint) -> Self {
         use mullvad_types::relay_constraints::LocationConstraint;
@@ -450,6 +473,10 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
                             .option()
                             .map(IpVersion::from)
                             .map(IpVersionConstraint::from),
+                        entry_location: constraints
+                            .wireguard_constraints
+                            .entry_location
+                            .map(RelayLocation::from),
                     }),
 
                     openvpn_constraints: Some(OpenvpnConstraints {
@@ -772,6 +799,7 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                                     ))?
                                     .into(),
                             },
+                            exit_peer: None,
                             ipv4_gateway,
                             ipv6_gateway,
                         })
@@ -881,6 +909,11 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                                     Constraint::Any
                                 },
                                 ip_version: Constraint::from(ip_version),
+                                entry_location: constraints.entry_location.map(
+                                    Constraint::<
+                                        mullvad_types::relay_constraints::LocationConstraint,
+                                    >::from,
+                                ),
                             }
                         }),
                         openvpn_constraints: settings.openvpn_constraints.map(|constraints| {

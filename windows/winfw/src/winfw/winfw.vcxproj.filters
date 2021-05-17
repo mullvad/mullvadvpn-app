@@ -55,14 +55,14 @@
     <ClCompile Include="rules\shared.cpp">
       <Filter>rules</Filter>
     </ClCompile>
-    <ClCompile Include="rules\multi\permitvpnrelay.cpp">
-      <Filter>rules\multi</Filter>
-    </ClCompile>
     <ClCompile Include="rules\persistent\blockall.cpp">
       <Filter>rules\persistent</Filter>
     </ClCompile>
     <ClCompile Include="rules\baseline\permitendpoint.cpp">
       <Filter>rules\baseline</Filter>
+    </ClCompile>
+    <ClCompile Include="rules\multi\permitvpnrelay.cpp">
+      <Filter>rules\multi</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -129,14 +129,14 @@
     <ClInclude Include="rules\shared.h">
       <Filter>rules</Filter>
     </ClInclude>
-    <ClInclude Include="rules\multi\permitvpnrelay.h">
-      <Filter>rules\multi</Filter>
-    </ClInclude>
     <ClInclude Include="rules\persistent\blockall.h">
       <Filter>rules\persistent</Filter>
     </ClInclude>
     <ClInclude Include="rules\baseline\permitendpoint.h">
       <Filter>rules\baseline</Filter>
+    </ClInclude>
+    <ClInclude Include="rules\multi\permitvpnrelay.h">
+      <Filter>rules\multi</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

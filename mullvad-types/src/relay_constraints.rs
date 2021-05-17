@@ -434,11 +434,12 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
 }
 
 /// [`Constraint`]s applicable to WireGuard relay servers.
-#[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(default)]
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
     pub ip_version: Constraint<IpVersion>,
+    pub entry_location: Option<Constraint<LocationConstraint>>,
 }
 
 impl fmt::Display for WireguardConstraints {
@@ -449,8 +450,13 @@ impl fmt::Display for WireguardConstraints {
         }
         write!(f, " over ")?;
         match self.ip_version {
-            Constraint::Any => write!(f, "IPv4 or IPv6"),
-            Constraint::Only(protocol) => write!(f, "{}", protocol),
+            Constraint::Any => write!(f, "IPv4 or IPv6")?,
+            Constraint::Only(protocol) => write!(f, "{}", protocol)?,
+        }
+        if let Some(Constraint::Only(ref entry)) = self.entry_location {
+            write!(f, " (via {})", entry)
+        } else {
+            Ok(())
         }
     }
 }

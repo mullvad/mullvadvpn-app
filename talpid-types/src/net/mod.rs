@@ -28,11 +28,19 @@ impl TunnelParameters {
                 tunnel_type: TunnelType::OpenVpn,
                 endpoint: params.config.endpoint,
                 proxy: params.proxy.as_ref().map(|proxy| proxy.get_endpoint()),
+                entry_endpoint: None,
             },
             TunnelParameters::Wireguard(params) => TunnelEndpoint {
                 tunnel_type: TunnelType::Wireguard,
-                endpoint: params.connection.get_endpoint(),
+                endpoint: params
+                    .connection
+                    .get_exit_endpoint()
+                    .unwrap_or(params.connection.get_endpoint()),
                 proxy: None,
+                entry_endpoint: params
+                    .connection
+                    .get_exit_endpoint()
+                    .map(|_| params.connection.get_endpoint()),
             },
         }
     }
@@ -49,10 +57,11 @@ impl TunnelParameters {
         }
     }
 
-    pub fn get_proxy_endpoint(&self) -> Option<openvpn::ProxySettings> {
+    // Returns the exit endpoint, if it differs from the next hop endpoint
+    pub fn get_exit_hop_endpoint(&self) -> Option<Endpoint> {
         match self {
-            TunnelParameters::OpenVpn(params) => params.proxy.clone(),
-            _ => None,
+            TunnelParameters::OpenVpn(_params) => None,
+            TunnelParameters::Wireguard(params) => params.connection.get_exit_endpoint(),
         }
     }
 
@@ -108,17 +117,28 @@ pub struct TunnelEndpoint {
     pub tunnel_type: TunnelType,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub proxy: Option<proxy::ProxyEndpoint>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    pub entry_endpoint: Option<Endpoint>,
 }
 
 impl fmt::Display for TunnelEndpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(f, "{} - {}", self.tunnel_type, self.endpoint)?;
-        if let Some(ref proxy) = self.proxy {
-            write!(
-                f,
-                " via {} {} over {}",
-                proxy.proxy_type, proxy.endpoint.address, proxy.endpoint.protocol
-            )?;
+        match self.tunnel_type {
+            TunnelType::OpenVpn => {
+                if let Some(ref proxy) = self.proxy {
+                    write!(
+                        f,
+                        " via {} {} over {}",
+                        proxy.proxy_type, proxy.endpoint.address, proxy.endpoint.protocol
+                    )?;
+                }
+            }
+            TunnelType::Wireguard => {
+                if let Some(ref entry_endpoint) = self.entry_endpoint {
+                    write!(f, " via {}", entry_endpoint)?;
+                }
+            }
         }
         Ok(())
     }

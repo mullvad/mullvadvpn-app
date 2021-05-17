@@ -7,6 +7,7 @@ use futures::{
     future::{Fuse, FusedFuture},
     FutureExt, SinkExt, StreamExt,
 };
+use ipnetwork::IpNetwork;
 use log::{debug, error, info, warn};
 use mullvad_rpc::{rest::MullvadRestHandle, RelayListProxy};
 use mullvad_types::{
@@ -49,6 +50,13 @@ const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60);
 
 const EXPONENTIAL_BACKOFF_INITIAL: Duration = Duration::from_secs(16);
 const EXPONENTIAL_BACKOFF_FACTOR: u32 = 8;
+
+const DEFAULT_WIREGUARD_PORT: u16 = 51820;
+const WIREGUARD_EXIT_CONSTRAINTS: WireguardConstraints = WireguardConstraints {
+    port: Constraint::Only(DEFAULT_WIREGUARD_PORT),
+    ip_version: Constraint::Only(IpVersion::V4),
+    entry_location: None,
+};
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -222,8 +230,16 @@ impl RelaySelector {
         retry_attempt: u32,
         wg_key_exists: bool,
     ) -> Result<(Relay, MullvadEndpoint), Error> {
+        let mut relay_constraints = relay_constraints.clone();
+        if relay_constraints
+            .wireguard_constraints
+            .entry_location
+            .is_some()
+        {
+            relay_constraints.wireguard_constraints = WIREGUARD_EXIT_CONSTRAINTS;
+        }
         let preferred_constraints = self.preferred_constraints(
-            relay_constraints,
+            &relay_constraints,
             bridge_state,
             retry_attempt,
             wg_key_exists,
@@ -234,7 +250,8 @@ impl RelaySelector {
                 retry_attempt
             );
             Ok((relay, endpoint))
-        } else if let Some((relay, endpoint)) = self.get_tunnel_endpoint_internal(relay_constraints)
+        } else if let Some((relay, endpoint)) =
+            self.get_tunnel_endpoint_internal(&relay_constraints)
         {
             debug!(
                 "Relay matched on second preference for retry attempt {}",
@@ -242,7 +259,7 @@ impl RelaySelector {
             );
             Ok((relay, endpoint))
         } else {
-            warn!("No relays matching {}", relay_constraints);
+            warn!("No relays matching {}", &relay_constraints);
             Err(Error::NoRelay)
         }
     }
@@ -310,7 +327,7 @@ impl RelaySelector {
             }
             Constraint::Only(TunnelType::Wireguard) => {
                 relay_constraints.wireguard_constraints =
-                    original_constraints.wireguard_constraints;
+                    original_constraints.wireguard_constraints.clone();
                 // This ensures that if after the first 2 failed attempts the daemon does not
                 // connect, then afterwards 2 of each 4 successive attempts will try to connect on
                 // port 53.
@@ -321,6 +338,66 @@ impl RelaySelector {
         }
 
         relay_constraints
+    }
+
+    pub fn get_tunnel_entry_endpoint(
+        &mut self,
+        exit_peer: &wireguard::PeerConfig,
+        relay_constraints: &RelayConstraints,
+        retry_attempt: u32,
+    ) -> Option<(Relay, MullvadEndpoint)> {
+        let entry_location = relay_constraints
+            .wireguard_constraints
+            .entry_location
+            .clone()?;
+        let entry_constraints = RelayConstraints {
+            location: entry_location,
+            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
+            ..relay_constraints.clone()
+        };
+        let entry_constraints =
+            self.preferred_constraints(&entry_constraints, BridgeState::Off, retry_attempt, true);
+
+        let exit_peer_ip = exit_peer.endpoint.ip();
+        let matching_relays: Vec<Relay> = self
+            .parsed_relays
+            .lock()
+            .relays()
+            .iter()
+            .filter(|relay| {
+                relay.active
+                    && exit_peer_ip != IpAddr::V4(relay.ipv4_addr_in)
+                    && Some(exit_peer_ip) != relay.ipv6_addr_in.map(IpAddr::V6)
+            })
+            .filter_map(|relay| Self::matching_relay(relay, &entry_constraints))
+            .collect();
+
+        let mut endpoint = self
+            .pick_random_relay(&matching_relays)
+            .and_then(|selected_relay| {
+                let endpoint = self.get_random_tunnel(&selected_relay, &entry_constraints);
+                let addr_in = endpoint
+                    .as_ref()
+                    .map(|endpoint| endpoint.to_endpoint().address.ip())
+                    .unwrap_or(IpAddr::from(selected_relay.ipv4_addr_in));
+                info!(
+                    "Selected entry relay {} at {}",
+                    selected_relay.hostname, addr_in
+                );
+                endpoint.map(|endpoint| (selected_relay.clone(), endpoint))
+            })?;
+
+        match endpoint.1 {
+            MullvadEndpoint::Wireguard { ref mut peer, .. } => {
+                peer.allowed_ips = vec![IpNetwork::from(exit_peer.endpoint.ip())];
+            }
+            _ => {
+                log::error!("BUG: Endpoint must be WireGuard endpoint");
+                return None;
+            }
+        }
+
+        Some(endpoint)
     }
 
     pub fn get_auto_proxy_settings(
@@ -493,7 +570,7 @@ impl RelaySelector {
                 relay.tunnels = RelayTunnels {
                     wireguard: Self::matching_wireguard_tunnels(
                         &relay.tunnels,
-                        constraints.wireguard_constraints,
+                        &constraints.wireguard_constraints,
                     ),
                     openvpn: Self::matching_openvpn_tunnels(
                         &relay.tunnels,
@@ -507,7 +584,7 @@ impl RelaySelector {
                 relay.tunnels = RelayTunnels {
                     wireguard: Self::matching_wireguard_tunnels(
                         &relay.tunnels,
-                        constraints.wireguard_constraints,
+                        &constraints.wireguard_constraints,
                     ),
                     openvpn: vec![],
                 };
@@ -580,7 +657,7 @@ impl RelaySelector {
 
     fn matching_wireguard_tunnels(
         tunnels: &RelayTunnels,
-        constraints: WireguardConstraints,
+        constraints: &WireguardConstraints,
     ) -> Vec<WireguardEndpointData> {
         tunnels
             .wireguard
@@ -660,7 +737,7 @@ impl RelaySelector {
                 .choose(&mut self.rng)
                 .cloned()
                 .and_then(|wg_tunnel| {
-                    self.wg_data_to_endpoint(relay, wg_tunnel, constraints.wireguard_constraints)
+                    self.wg_data_to_endpoint(relay, wg_tunnel, &constraints.wireguard_constraints)
                 })
         };
 
@@ -689,7 +766,7 @@ impl RelaySelector {
         &mut self,
         relay: &Relay,
         data: WireguardEndpointData,
-        constraints: WireguardConstraints,
+        constraints: &WireguardConstraints,
     ) -> Option<MullvadEndpoint> {
         let host = self.get_address_for_wireguard_relay(relay, constraints)?;
         let port = self.get_port_for_wireguard_relay(&data, constraints)?;
@@ -709,7 +786,7 @@ impl RelaySelector {
     fn get_address_for_wireguard_relay(
         &mut self,
         relay: &Relay,
-        constraints: WireguardConstraints,
+        constraints: &WireguardConstraints,
     ) -> Option<IpAddr> {
         match constraints.ip_version {
             Constraint::Any | Constraint::Only(IpVersion::V4) => Some(relay.ipv4_addr_in.into()),
@@ -720,7 +797,7 @@ impl RelaySelector {
     fn get_port_for_wireguard_relay(
         &mut self,
         data: &WireguardEndpointData,
-        constraints: WireguardConstraints,
+        constraints: &WireguardConstraints,
     ) -> Option<u16> {
         match constraints.port {
             Constraint::Any => {

@@ -170,11 +170,17 @@ message TunnelEndpoint {
 	TransportProtocol protocol = 2;
 	TunnelType tunnel_type = 3;
 	ProxyEndpoint proxy = 4;
+	Endpoint entry_endpoint = 5;
 }
 
 enum ProxyType {
 	SHADOWSOCKS = 0;
 	CUSTOM = 1;
+}
+
+message Endpoint {
+	string address = 1;
+	TransportProtocol protocol = 2;
 }
 
 message ProxyEndpoint {
@@ -317,6 +323,7 @@ message WireguardConstraints {
 	// NOTE: optional
 	uint32 port = 1;
 	IpVersionConstraint ip_version = 2;
+	RelayLocation entry_location = 3;
 }
 
 message CustomRelaySettings {

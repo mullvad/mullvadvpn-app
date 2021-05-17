@@ -577,7 +577,7 @@ impl<'a> PolicyBatch<'a> {
         let allow_lan = match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
-                tunnel_interface: _,
+                tunnel_interface,
                 pingable_hosts,
                 allow_lan,
                 allowed_endpoint,
@@ -589,6 +589,10 @@ impl<'a> PolicyBatch<'a> {
                 // Important to block DNS after allow relay rule (so the relay can operate
                 // over port 53) but before allow LAN (so DNS does not leak to the LAN)
                 self.add_drop_dns_rule();
+
+                if let Some(tunnel_interface) = tunnel_interface {
+                    self.add_allow_tunnel_rules(tunnel_interface)?;
+                }
                 *allow_lan
             }
             FirewallPolicy::Connected {
@@ -603,7 +607,7 @@ impl<'a> PolicyBatch<'a> {
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
                 self.add_drop_dns_rule();
-                self.add_allow_tunnel_rules(tunnel)?;
+                self.add_allow_tunnel_rules(&tunnel.interface)?;
                 if *allow_lan {
                     self.add_block_cve_2019_14899(tunnel);
                 }
@@ -820,22 +824,22 @@ impl<'a> PolicyBatch<'a> {
         }
     }
 
-    fn add_allow_tunnel_rules(&mut self, tunnel: &tunnel::TunnelMetadata) -> Result<()> {
+    fn add_allow_tunnel_rules(&mut self, tunnel_interface: &str) -> Result<()> {
         self.batch.add(
-            &allow_interface_rule(&self.out_chain, Direction::Out, &tunnel.interface[..])?,
+            &allow_interface_rule(&self.out_chain, Direction::Out, tunnel_interface)?,
             nftnl::MsgType::Add,
         );
         self.batch.add(
-            &allow_interface_rule(&self.forward_chain, Direction::Out, &tunnel.interface[..])?,
+            &allow_interface_rule(&self.forward_chain, Direction::Out, tunnel_interface)?,
             nftnl::MsgType::Add,
         );
         self.batch.add(
-            &allow_interface_rule(&self.in_chain, Direction::In, &tunnel.interface[..])?,
+            &allow_interface_rule(&self.in_chain, Direction::In, tunnel_interface)?,
             nftnl::MsgType::Add,
         );
 
         let mut interface_rule = Rule::new(&self.forward_chain);
-        check_iface(&mut interface_rule, Direction::In, &tunnel.interface)?;
+        check_iface(&mut interface_rule, Direction::In, tunnel_interface)?;
         interface_rule.add_expr(&nft_expr!(ct state));
         let allowed_states = nftnl::expr::ct::States::ESTABLISHED.bits();
         interface_rule.add_expr(&nft_expr!(bitwise mask allowed_states, xor 0u32));
