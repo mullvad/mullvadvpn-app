@@ -42,3 +42,15 @@ impl Deref for MsgString {
         self.0.as_str()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::MsgString;
+
+    #[test]
+    fn empty_constructor() {
+        let input = MsgString::empty();
+
+        assert_eq!(input.to_string(), "");
+    }
+}
