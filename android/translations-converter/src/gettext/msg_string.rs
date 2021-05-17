@@ -62,4 +62,13 @@ mod tests {
 
         assert_eq!(input.to_string(), expected);
     }
+
+    #[test]
+    fn not_escaping() {
+        let original = r#"\"Inside double quotes\""#;
+
+        let input = MsgString::from_escaped(original);
+
+        assert_eq!(input.to_string(), original);
+    }
 }
