@@ -86,6 +86,10 @@ class RootContainerViewController: UIViewController {
         return false
     }
 
+    override var disablesAutomaticKeyboardDismissal: Bool {
+        return topViewController?.disablesAutomaticKeyboardDismissal ?? super.disablesAutomaticKeyboardDismissal
+    }
+
     // MARK: - View lifecycle
 
     override func viewDidLoad() {
