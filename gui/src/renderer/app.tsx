@@ -742,7 +742,7 @@ export default class AppRenderer {
     reduxSettings.updateWireguardMtu(newSettings.tunnelOptions.wireguard.mtu);
     reduxSettings.updateBridgeState(newSettings.bridgeState);
     reduxSettings.updateDnsOptions(newSettings.tunnelOptions.dns);
-    reduxSettings.updateSplitTunnelingState(newSettings.splitTunnel);
+    reduxSettings.updateSplitTunnelingState(newSettings.splitTunnel.enableExclusions);
 
     this.setRelaySettings(newSettings.relaySettings);
     this.setBridgeSettings(newSettings.bridgeSettings);
