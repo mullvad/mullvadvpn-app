@@ -1,0 +1,24 @@
+name: Translations converter tool CI
+on:
+    # Run whenever a file that affects the translations converter tool is changed
+    push:
+        paths:
+            - .github/workflows/translations-converter.yml
+            - android/translations-converter/**
+    # Check if requested manually from the Actions tab
+    workflow_dispatch:
+jobs:
+    check-translations:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v2
+
+            - name: Install Rust
+              uses: ATiltedTree/setup-rust@v1.0.4
+              with:
+                rust-version: stable
+
+            - name: Build and test translations converter tool
+              working-directory: android/translations-converter
+              run: cargo test
