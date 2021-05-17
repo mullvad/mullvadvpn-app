@@ -880,12 +880,14 @@ function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefine
   const relaySettings = convertFromRelaySettings(settings.getRelaySettings())!;
   const bridgeSettings = convertFromBridgeSettings(settingsObject.bridgeSettings!);
   const tunnelOptions = convertFromTunnelOptions(settingsObject.tunnelOptions!);
+  const splitTunnel = settingsObject.splitTunnel ?? { enableExclusions: false, appsList: [] };
   return {
     ...settings.toObject(),
     bridgeState,
     relaySettings,
     bridgeSettings,
     tunnelOptions,
+    splitTunnel,
   };
 }
 

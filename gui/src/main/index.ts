@@ -129,8 +129,10 @@ class ApplicationMain {
     autoConnect: false,
     blockWhenDisconnected: false,
     showBetaReleases: false,
-    splitTunnel: false,
-    splitTunnelAppsList: [],
+    splitTunnel: {
+      enableExclusions: false,
+      appsList: [],
+    },
     relaySettings: {
       normal: {
         location: 'any',
@@ -726,7 +728,7 @@ class ApplicationMain {
     this.notificationController.notifyTunnelState(
       newState,
       this.settings.blockWhenDisconnected,
-      this.settings.splitTunnel && this.settings.splitTunnelAppsList.length > 0,
+      this.settings.splitTunnel.enableExclusions && this.settings.splitTunnel.appsList.length > 0,
       this.accountData?.expiry,
     );
 
@@ -761,7 +763,7 @@ class ApplicationMain {
       IpcMainEventChannel.settings.notify(this.windowController.webContents, newSettings);
 
       if (windowsSplitTunneling) {
-        consumePromise(this.updateSplitTunnelingApplications(newSettings.splitTunnelAppsList));
+        consumePromise(this.updateSplitTunnelingApplications(newSettings.splitTunnel.appsList));
       }
     }
 

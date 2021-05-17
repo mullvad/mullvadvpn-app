@@ -315,8 +315,7 @@ export interface ISettings {
   tunnelOptions: ITunnelOptions;
   bridgeSettings: BridgeSettings;
   bridgeState: BridgeState;
-  splitTunnel: boolean;
-  splitTunnelAppsList: string[];
+  splitTunnel: SplitTunnelSettings;
 }
 
 export type KeygenEvent = INewWireguardKey | KeygenFailure;
@@ -332,6 +331,11 @@ export interface IWireguardPublicKey {
 }
 
 export type BridgeState = 'auto' | 'on' | 'off';
+
+export type SplitTunnelSettings = {
+  enableExclusions: boolean;
+  appsList: string[];
+};
 
 export interface IBridgeConstraints {
   location: Constraint<RelayLocation>;
