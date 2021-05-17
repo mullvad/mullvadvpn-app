@@ -307,8 +307,9 @@ impl SplitTunnel {
             .flatten();
 
         let tunnel_ipv4 = tunnel_ipv4.unwrap_or(*RESERVED_IP_V4);
-        let internet_ipv4 = Ipv4Addr::try_from(internet_ipv4.unwrap_or_default())
-            .map_err(|_| Error::IpParseError)?;
+        let internet_ipv4 = internet_ipv4
+            .map(|addr| Ipv4Addr::try_from(addr).map_err(|_| Error::IpParseError))
+            .transpose()?;
         let internet_ipv6 = internet_ipv6
             .map(|addr| Ipv6Addr::try_from(addr).map_err(|_| Error::IpParseError))
             .transpose()?;
@@ -346,13 +347,7 @@ impl SplitTunnel {
     pub fn clear_tunnel_addresses(&mut self) -> Result<(), Error> {
         self._route_change_callback = None;
 
-        Self::register_ips(
-            &*self.handle,
-            Ipv4Addr::new(0, 0, 0, 0),
-            None,
-            Ipv4Addr::new(0, 0, 0, 0),
-            None,
-        )
+        Self::register_ips(&*self.handle, Ipv4Addr::new(0, 0, 0, 0), None, None, None)
     }
 
     /// Configures IP addresses used for socket rebinding.
@@ -360,20 +355,20 @@ impl SplitTunnel {
         handle: &Mutex<driver::DeviceHandle>,
         tunnel_ipv4: Ipv4Addr,
         tunnel_ipv6: Option<Ipv6Addr>,
-        internet_ipv4: Ipv4Addr,
+        internet_ipv4: Option<Ipv4Addr>,
         internet_ipv6: Option<Ipv6Addr>,
     ) -> Result<(), Error> {
         log::debug!(
-            "Register IPs: {} {:?} {} {:?}",
+            "Register IPs: tunnel: {} {:?}, LAN interface: {:?} {:?}",
             tunnel_ipv4,
             tunnel_ipv6,
             internet_ipv4,
             internet_ipv6
         );
 
-        // If there is no valid internet IPv4 address, ignore any tunnel addresses.
+        // If there is no valid internet address, ignore any tunnel addresses.
         // This should only be the case if a reserved tunnel IP is used to keep the driver engaged.
-        let tunnel_ipv4 = if internet_ipv4.is_unspecified() {
+        let tunnel_ipv4 = if internet_ipv4.is_none() && internet_ipv6.is_none() {
             Ipv4Addr::new(0, 0, 0, 0)
         } else {
             tunnel_ipv4
@@ -415,7 +410,7 @@ struct SplitTunnelDefaultRouteChangeHandlerContext {
     pub daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
     pub tunnel_ipv4: Ipv4Addr,
     pub tunnel_ipv6: Option<Ipv6Addr>,
-    pub internet_ipv4: Ipv4Addr,
+    pub internet_ipv4: Option<Ipv4Addr>,
     pub internet_ipv6: Option<Ipv6Addr>,
 }
 
@@ -425,7 +420,7 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
         daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         tunnel_ipv4: Ipv4Addr,
         tunnel_ipv6: Option<Ipv6Addr>,
-        internet_ipv4: Ipv4Addr,
+        internet_ipv4: Option<Ipv4Addr>,
         internet_ipv6: Option<Ipv6Addr>,
     ) -> Self {
         SplitTunnelDefaultRouteChangeHandlerContext {
@@ -469,14 +464,14 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
         winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged => {
             match interface_luid_to_ip(address_family.clone(), default_route.interface_luid) {
                 Ok(Some(ip)) => match IpAddr::from(ip) {
-                    IpAddr::V4(addr) => ctx.internet_ipv4 = addr,
+                    IpAddr::V4(addr) => ctx.internet_ipv4 = Some(addr),
                     IpAddr::V6(addr) => ctx.internet_ipv6 = Some(addr),
                 },
                 Ok(None) => {
                     log::warn!("Failed to obtain default route interface address");
                     match address_family {
                         WinNetAddrFamily::IPV4 => {
-                            ctx.internet_ipv4 = Ipv4Addr::new(0, 0, 0, 0);
+                            ctx.internet_ipv4 = None;
                         }
                         WinNetAddrFamily::IPV6 => {
                             ctx.internet_ipv6 = None;
@@ -501,7 +496,7 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
         winnet::WinNetDefaultRouteChangeEventType::DefaultRouteRemoved => {
             match address_family {
                 WinNetAddrFamily::IPV4 => {
-                    ctx.internet_ipv4 = Ipv4Addr::new(0, 0, 0, 0);
+                    ctx.internet_ipv4 = None;
                 }
                 WinNetAddrFamily::IPV6 => {
                     ctx.internet_ipv6 = None;
