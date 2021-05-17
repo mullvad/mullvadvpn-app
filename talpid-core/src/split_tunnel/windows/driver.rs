@@ -194,7 +194,7 @@ impl DeviceHandle {
         &self,
         tunnel_ipv4: Ipv4Addr,
         tunnel_ipv6: Option<Ipv6Addr>,
-        internet_ipv4: Ipv4Addr,
+        internet_ipv4: Option<Ipv4Addr>,
         internet_ipv6: Option<Ipv6Addr>,
     ) -> io::Result<()> {
         let mut addresses: SplitTunnelAddresses = unsafe { mem::zeroed() };
@@ -216,12 +216,14 @@ impl DeviceHandle {
                 );
             }
 
-            let internet_ipv4 = internet_ipv4.octets();
-            ptr::copy_nonoverlapping(
-                &internet_ipv4[0] as *const u8,
-                &mut addresses.internet_ipv4 as *mut _ as *mut u8,
-                internet_ipv4.len(),
-            );
+            if let Some(internet_ipv4) = internet_ipv4 {
+                let internet_ipv4 = internet_ipv4.octets();
+                ptr::copy_nonoverlapping(
+                    &internet_ipv4[0] as *const u8,
+                    &mut addresses.internet_ipv4 as *mut _ as *mut u8,
+                    internet_ipv4.len(),
+                );
+            }
 
             if let Some(internet_ipv6) = internet_ipv6 {
                 let internet_ipv6 = internet_ipv6.octets();
