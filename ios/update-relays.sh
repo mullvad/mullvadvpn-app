@@ -9,7 +9,11 @@ RELAYS_FILE="$PROJECT_DIR/Assets/relays.json"
 
 if [ $CONFIGURATION == "Release" ]; then
   echo "Remove relays file"
-  rm "$RELAYS_FILE" || true
+  if [ -f "$RELAYS_FILE" ]; then
+    rm "$RELAYS_FILE"
+  else
+    echo "Relays file does not exist"
+  fi
 fi
 
 if [ ! -f "$RELAYS_FILE" ]; then
