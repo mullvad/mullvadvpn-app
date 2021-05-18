@@ -100,11 +100,9 @@ impl Firewall {
                 tunnel_interface,
                 allow_lan,
                 allowed_endpoint,
-                pingable_hosts,
             } => {
                 let mut rules = vec![self.get_allow_relay_rule(peer_endpoint)?];
                 rules.push(self.get_allowed_endpoint_rule(allowed_endpoint)?);
-                rules.extend(self.get_allow_pingable_hosts(&pingable_hosts)?);
 
                 // Important to block DNS after allow relay rule (so the relay can operate
                 // over port 53) but before allow LAN (so DNS does not leak to the LAN)
@@ -293,40 +291,6 @@ impl Firewall {
             .build()?;
 
         Ok(vec![block_tcp_dns_rule, block_udp_dns_rule])
-    }
-
-    fn get_allow_pingable_hosts(
-        &self,
-        pingable_hosts: &[IpAddr],
-    ) -> Result<Vec<pfctl::FilterRule>> {
-        let mut rules = vec![];
-        for host in pingable_hosts.iter() {
-            let icmp_proto = match &host {
-                IpAddr::V4(_) => pfctl::Proto::Icmp,
-                IpAddr::V6(_) => pfctl::Proto::IcmpV6,
-            };
-
-            let out_rule = self
-                .create_rule_builder(FilterRuleAction::Pass)
-                .quick(true)
-                .direction(pfctl::Direction::Out)
-                .proto(icmp_proto)
-                .to(pfctl::Endpoint::new(*host, 0))
-                .keep_state(pfctl::StatePolicy::Keep)
-                .build()?;
-            rules.push(out_rule);
-
-            let in_rule = self
-                .create_rule_builder(FilterRuleAction::Pass)
-                .quick(true)
-                .direction(pfctl::Direction::In)
-                .proto(icmp_proto)
-                .from(pfctl::Endpoint::new(*host, 0))
-                .keep_state(pfctl::StatePolicy::Keep)
-                .build()?;
-            rules.push(in_rule);
-        }
-        Ok(rules)
     }
 
     fn get_allow_tunnel_rule(&self, tunnel_interface: &str) -> Result<pfctl::FilterRule> {

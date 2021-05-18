@@ -32,7 +32,6 @@
     <ClCompile Include="rules\baseline\permitlanservice.cpp" />
     <ClCompile Include="rules\baseline\permitloopback.cpp" />
     <ClCompile Include="rules\baseline\permitndp.cpp" />
-    <ClCompile Include="rules\baseline\permitping.cpp" />
     <ClCompile Include="rules\baseline\permitvpntunnel.cpp" />
     <ClCompile Include="rules\baseline\permitvpntunnelservice.cpp" />
     <ClCompile Include="rules\dns\blockall.cpp" />
@@ -67,7 +66,6 @@
     <ClInclude Include="rules\baseline\permitlanservice.h" />
     <ClInclude Include="rules\baseline\permitloopback.h" />
     <ClInclude Include="rules\baseline\permitndp.h" />
-    <ClInclude Include="rules\baseline\permitping.h" />
     <ClInclude Include="rules\baseline\permitvpntunnel.h" />
     <ClInclude Include="rules\baseline\permitvpntunnelservice.h" />
     <ClInclude Include="rules\dns\blockall.h" />

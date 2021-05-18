@@ -118,23 +118,6 @@ WinFw_Deinitialize(
 	WINFW_CLEANUP_POLICY cleanupPolicy
 );
 
-//
-// PingableHosts:
-//
-// Specifies a set of IP addresses that should be reachable by ICMP when the connecting
-// policy is effective.
-//
-// The interface alias is optional and can be used to restrict the traffic such
-// that it is only allowed on that specific interface.
-//
-typedef struct tag_PingableHosts
-{
-	const wchar_t *tunnelInterfaceAlias;
-	const wchar_t **hosts;
-	size_t numHosts;
-}
-PingableHosts;
-
 enum WINFW_POLICY_STATUS
 {
 	WINFW_POLICY_STATUS_SUCCESS = 0,
@@ -148,7 +131,7 @@ enum WINFW_POLICY_STATUS
 // Apply restrictions in the firewall that block all traffic, except:
 // - What is specified by settings
 // - Communication with the relay server
-// - ICMP (for ping) to/from tunnel gateway
+// - Non-DNS traffic inside the VPN tunnel
 //
 extern "C"
 WINFW_LINKAGE
@@ -159,7 +142,6 @@ WinFw_ApplyPolicyConnecting(
 	const WinFwEndpoint *relay,
 	const wchar_t *relayClient,
 	const wchar_t *tunnelInterfaceAlias,
-	const PingableHosts *pingableHosts,
 	const WinFwEndpoint *allowedEndpoint
 );
 

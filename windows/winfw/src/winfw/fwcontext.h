@@ -24,19 +24,12 @@ public:
 		const std::optional<WinFwEndpoint> &allowedEndpoint
 	);
 
-	struct PingableHosts
-	{
-		std::optional<std::wstring> tunnelInterfaceAlias;
-		std::vector<wfp::IpAddress> hosts;
-	};
-
 	bool applyPolicyConnecting
 	(
 		const WinFwSettings &settings,
 		const WinFwEndpoint &relay,
 		const std::wstring &relayClient,
 		const std::optional<std::wstring> &tunnelInterfaceAlias,
-		const std::optional<PingableHosts> &pingableHosts,
 		const std::optional<WinFwEndpoint> &allowedEndpoint
 	);
 
