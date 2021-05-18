@@ -1,13 +1,13 @@
 use lazy_static::lazy_static;
 use regex::Regex;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use std::{
     fmt::{self, Display, Formatter},
     ops::Deref,
 };
 
 /// An Android string value
-#[derive(Clone, Debug, Eq, Deserialize, Hash, PartialEq, Serialize)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct StringValue(String);
 
 impl StringValue {
@@ -102,6 +102,15 @@ impl Deref for StringValue {
 impl Display for StringValue {
     fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
         write!(formatter, "{}", self.0)
+    }
+}
+
+impl<'de> Deserialize<'de> for StringValue {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let raw_string = String::deserialize(deserializer)?;
+        let string_with_collapsed_newlines = Self::collapse_line_breaks(raw_string);
+
+        Ok(StringValue(string_with_collapsed_newlines))
     }
 }
 
