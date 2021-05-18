@@ -111,8 +111,24 @@ class AutomaticKeyboardResponder {
     }
 
     private var isFormSheetPresentation: Bool {
-        return UIDevice.current.userInterfaceIdiom == .pad &&
-            parentViewController?.modalPresentationStyle == .formSheet
+        // Form sheet is only supported on iPad
+        guard UIDevice.current.userInterfaceIdiom == .pad else { return false }
+
+        // Find the parent controller holding the view
+        guard let parent = parentViewController else { return false }
+
+        // Determine presentation style within the context
+        let presentationStyle: UIModalPresentationStyle
+
+        // Use the presentation style of a presented controller when parent controller is being presented as a child of
+        // other modal controller.
+        if let presented = parent.presentingViewController?.presentedViewController {
+            presentationStyle = presented.modalPresentationStyle
+        } else {
+            presentationStyle = parent.modalPresentationStyle
+        }
+
+        return presentationStyle == .formSheet
     }
 
     private func adjustContentInsets(keyboardRect: CGRect) {

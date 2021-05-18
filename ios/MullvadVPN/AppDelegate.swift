@@ -295,13 +295,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func makeLoginContainerController() -> RootContainerViewController {
         let rootContainerWrapper = RootContainerViewController()
         rootContainerWrapper.delegate = self
-        rootContainerWrapper.presentationController?.delegate = self
         rootContainerWrapper.preferredContentSize = CGSize(width: 480, height: 600)
 
-        if #available(iOS 13.0, *) {
-            // Prevent swiping off the login or consent controllers
-            rootContainerWrapper.isModalInPresentation = true
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            rootContainerWrapper.modalPresentationStyle = .formSheet
+            if #available(iOS 13.0, *) {
+                // Prevent swiping off the login or consent controllers
+                rootContainerWrapper.isModalInPresentation = true
+            }
         }
+
+        rootContainerWrapper.presentationController?.delegate = self
 
         return rootContainerWrapper
     }
@@ -309,14 +313,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func makeLoginController() -> LoginViewController {
         let controller = LoginViewController()
         controller.delegate = self
-
-        if UIDevice.current.userInterfaceIdiom == .pad {
-            controller.modalPresentationStyle = .formSheet
-            if #available(iOS 13.0, *) {
-                controller.isModalInPresentation = true
-            }
-        }
-
         return controller
     }
 
@@ -637,17 +633,22 @@ extension AppDelegate: UIAdaptivePresentationControllerDelegate {
         }
     }
 
-    func presentationController(_ controller: UIPresentationController, viewControllerForAdaptivePresentationStyle style: UIModalPresentationStyle) -> UIViewController? {
-        return nil
-    }
-
     func presentationController(_ presentationController: UIPresentationController, willPresentWithAdaptiveStyle style: UIModalPresentationStyle, transitionCoordinator: UIViewControllerTransitionCoordinator?) {
-        // Force hide header bar in .formSheet presentation and show it in .fullScreen presentation
-        if let wrapper = presentationController.presentedViewController as? RootContainerViewController {
-            wrapper.setOverrideHeaderBarHidden(style == .formSheet, animated: false)
+        let actualStyle: UIModalPresentationStyle
+
+        // When adaptive presentation is not changing, the `style` is set to `.none`
+        if case .none = style {
+            actualStyle = presentationController.presentedViewController.modalPresentationStyle
+        } else {
+            actualStyle = style
         }
 
-        guard style == .formSheet else {
+        // Force hide header bar in .formSheet presentation and show it in .fullScreen presentation
+        if let wrapper = presentationController.presentedViewController as? RootContainerViewController {
+            wrapper.setOverrideHeaderBarHidden(actualStyle == .formSheet, animated: false)
+        }
+
+        guard actualStyle == .formSheet else {
             // Move the settings button back into header bar
             self.rootContainer?.removeSettingsButtonFromPresentationContainer()
 
@@ -665,7 +666,7 @@ extension AppDelegate: UIAdaptivePresentationControllerDelegate {
             if let containerView = presentationController.containerView {
                 self.rootContainer?.addSettingsButtonToPresentationContainer(containerView)
             } else {
-                logger?.warning("Cannot obtain the containerView for presentation controller when presenting with adaptive style \(style.rawValue) and missing transition coordinator.")
+                logger?.warning("Cannot obtain the containerView for presentation controller when presenting with adaptive style \(actualStyle.rawValue) and missing transition coordinator.")
             }
         }
     }
