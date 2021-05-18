@@ -8,14 +8,14 @@ use std::{
 /// Contents of an Android string resources file.
 ///
 /// This type can be created directly deserializing the `strings.xml` file.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, Deserialize, PartialEq, Serialize)]
 pub struct StringResources {
     #[serde(rename = "string")]
     entries: Vec<StringResource>,
 }
 
 /// An entry in an Android string resources file.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Eq, Deserialize, PartialEq, Serialize)]
 pub struct StringResource {
     /// The string resource ID.
     pub name: String,
@@ -113,5 +113,38 @@ impl Display for StringResource {
                 self.name, self.value
             )
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{StringResource, StringResources, StringValue};
+
+    #[test]
+    fn deserialization() {
+        let xml_input = r#"<resources>
+            <string name="first">First string</string>
+            <string name="second" translatable="false">Second string</string>
+        </resources>"#;
+
+        let mut expected = StringResources::new();
+
+        expected.extend(vec![
+            StringResource {
+                name: "first".to_owned(),
+                translatable: true,
+                value: StringValue::from_unescaped("First string"),
+            },
+            StringResource {
+                name: "second".to_owned(),
+                translatable: false,
+                value: StringValue::from_unescaped("Second string"),
+            },
+        ]);
+
+        let deserialized: StringResources =
+            serde_xml_rs::from_str(xml_input).expect("malformed XML in test input");
+
+        assert_eq!(deserialized, expected);
     }
 }
