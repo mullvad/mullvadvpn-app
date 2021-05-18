@@ -72,6 +72,37 @@ openssl pkcs12 -export \
   -name "<FRIENDLY_KEYCHAIN_NAME>"
 ```
 
+# Remove old private key and certificates from Keychain
+
+__Skip this section if you create the private key in the very first time.__
+
+If you happen to re-create the keys, you will have to remove the old keys and certificates from 
+Keychain.
+
+You can list all certificates with corresponding keys by using the following command:
+
+```
+security find-identity
+```
+
+You'll get a list of identities that looks like that:
+
+```
+Valid identities only
+1) <HASH_ID> "Apple Distribution: <COMPANY NAME> (<TEAM ID>)"
+2) <HASH_ID> "Apple Development: <COMPANY NAME> (<TEAM ID>)"
+```
+
+Pick the one that you don't want anymore and copy the `<HASH_ID>` from the output, then paste into 
+the command below:
+
+```
+security delete-identity -Z <HASH_ID>
+```
+
+This should take care of removing both private keys and certificates. Repeat as many times as needed 
+if you wish to remove multiple identities.
+
 # Import private key and certificates into Keychain
 
 ```
