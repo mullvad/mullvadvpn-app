@@ -1,13 +1,8 @@
 import { messages } from '../../shared/gettext';
 import { TunnelState } from '../daemon-rpc-types';
-import {
-  InAppNotification,
-  InAppNotificationProvider,
-  SystemNotificationProvider,
-} from './notification';
+import { SystemNotificationProvider } from './notification';
 
-export class ReconnectingNotificationProvider
-  implements SystemNotificationProvider, InAppNotificationProvider {
+export class ReconnectingNotificationProvider implements SystemNotificationProvider {
   public constructor(private context: TunnelState) {}
 
   public mayDisplay() {
@@ -18,12 +13,6 @@ export class ReconnectingNotificationProvider
     return {
       message: messages.pgettext('notifications', 'Reconnecting'),
       critical: false,
-    };
-  }
-
-  public getInAppNotification(): InAppNotification {
-    return {
-      title: messages.pgettext('in-app-notifications', 'BLOCKING INTERNET'),
     };
   }
 }

@@ -4,13 +4,11 @@ import log from '../../shared/logging';
 import {
   BlockWhenDisconnectedNotificationProvider,
   CloseToAccountExpiryNotificationProvider,
-  ConnectingNotificationProvider,
   ErrorNotificationProvider,
   InAppNotificationProvider,
   InconsistentVersionNotificationProvider,
   NotificationAction,
   NoValidKeyNotificationProvider,
-  ReconnectingNotificationProvider,
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
 } from '../../shared/notifications/notification';
@@ -46,8 +44,6 @@ export default function NotificationArea(props: IProps) {
   const wireGuardKey = useSelector((state: IReduxState) => state.settings.wireguardKeyState);
 
   const notificationProviders: InAppNotificationProvider[] = [
-    new ConnectingNotificationProvider({ tunnelState }),
-    new ReconnectingNotificationProvider(tunnelState),
     new BlockWhenDisconnectedNotificationProvider({ tunnelState, blockWhenDisconnected }),
     new ErrorNotificationProvider({ tunnelState, accountExpiry }),
     new NoValidKeyNotificationProvider({ tunnelProtocol, wireGuardKey }),

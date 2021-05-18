@@ -1,19 +1,14 @@
 import { sprintf } from 'sprintf-js';
 import { messages } from '../../shared/gettext';
 import { TunnelState } from '../daemon-rpc-types';
-import {
-  InAppNotification,
-  InAppNotificationProvider,
-  SystemNotificationProvider,
-} from './notification';
+import { SystemNotificationProvider } from './notification';
 
 interface ConnectingNotificationContext {
   tunnelState: TunnelState;
   reconnecting?: boolean;
 }
 
-export class ConnectingNotificationProvider
-  implements SystemNotificationProvider, InAppNotificationProvider {
+export class ConnectingNotificationProvider implements SystemNotificationProvider {
   public constructor(private context: ConnectingNotificationContext) {}
 
   public mayDisplay() {
@@ -43,11 +38,5 @@ export class ConnectingNotificationProvider
     } else {
       return undefined;
     }
-  }
-
-  public getInAppNotification(): InAppNotification {
-    return {
-      title: messages.pgettext('in-app-notifications', 'BLOCKING INTERNET'),
-    };
   }
 }
