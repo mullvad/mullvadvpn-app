@@ -3,10 +3,10 @@ use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 #[cfg(unix)]
 use lazy_static::lazy_static;
 use std::fmt;
-#[cfg(windows)]
+#[cfg(not(target_os = "android"))]
 use std::net::IpAddr;
 #[cfg(unix)]
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
+use std::net::{Ipv4Addr, Ipv6Addr};
 #[cfg(windows)]
 use std::path::PathBuf;
 use talpid_types::net::Endpoint;
@@ -103,8 +103,8 @@ pub enum FirewallPolicy {
     Connecting {
         /// The peer endpoint that should be allowed.
         peer_endpoint: Endpoint,
-        /// Tunnel interface alias.
-        tunnel_interface: Option<String>,
+        /// Metadata about the tunnel and tunnel interface.
+        tunnel: Option<crate::tunnel::TunnelMetadata>,
         /// Flag setting if communication with LAN networks should be possible.
         allow_lan: bool,
         /// Host that should be reachable by the tunnel client while connecting.
@@ -144,20 +144,35 @@ impl fmt::Display for FirewallPolicy {
         match self {
             FirewallPolicy::Connecting {
                 peer_endpoint,
-                tunnel_interface,
+                tunnel,
                 allow_lan,
                 ..
-            } => write!(
-                f,
-                "Connecting to {}, {} LAN, interface: {}",
-                peer_endpoint,
-                if *allow_lan { "Allowing" } else { "Blocking" },
-                if let Some(alias) = tunnel_interface {
-                    alias
+            } => {
+                if let Some(tunnel) = tunnel {
+                    write!(
+                        f,
+                        "Connecting to {} over \"{}\" (ip: {}, v4 gw: {}, v6 gw: {:?}), {} LAN",
+                        peer_endpoint,
+                        tunnel.interface,
+                        tunnel
+                            .ips
+                            .iter()
+                            .map(|ip| ip.to_string())
+                            .collect::<Vec<_>>()
+                            .join(","),
+                        tunnel.ipv4_gateway,
+                        tunnel.ipv6_gateway,
+                        if *allow_lan { "Allowing" } else { "Blocking" }
+                    )
                 } else {
-                    "none"
+                    write!(
+                        f,
+                        "Connecting to {}, {} LAN, interface: none",
+                        peer_endpoint,
+                        if *allow_lan { "Allowing" } else { "Blocking" }
+                    )
                 }
-            ),
+            }
             FirewallPolicy::Connected {
                 peer_endpoint,
                 tunnel,

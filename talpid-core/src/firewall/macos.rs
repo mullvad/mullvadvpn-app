@@ -97,7 +97,7 @@ impl Firewall {
         match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
-                tunnel_interface,
+                tunnel,
                 allow_lan,
                 allowed_endpoint,
             } => {
@@ -108,8 +108,8 @@ impl Firewall {
                 // over port 53) but before allow LAN (so DNS does not leak to the LAN)
                 rules.append(&mut self.get_block_dns_rules()?);
 
-                if let Some(tunnel_interface) = tunnel_interface {
-                    rules.push(self.get_allow_tunnel_rule(tunnel_interface.as_str())?);
+                if let Some(tunnel) = tunnel {
+                    rules.push(self.get_allow_tunnel_rule(&tunnel.interface)?);
                 }
 
                 if allow_lan {

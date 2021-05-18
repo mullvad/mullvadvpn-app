@@ -1,4 +1,4 @@
-use crate::logging::windows::log_sink;
+use crate::{logging::windows::log_sink, tunnel::TunnelMetadata};
 
 use std::{ffi::OsString, iter, net::IpAddr, path::Path, ptr};
 
@@ -93,7 +93,7 @@ impl FirewallT for Firewall {
         match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
-                tunnel_interface,
+                tunnel,
                 allow_lan,
                 allowed_endpoint,
                 relay_client,
@@ -102,7 +102,7 @@ impl FirewallT for Firewall {
                 self.set_connecting_state(
                     &peer_endpoint,
                     &cfg,
-                    &tunnel_interface,
+                    &tunnel,
                     &allowed_endpoint,
                     &relay_client,
                 )
@@ -152,7 +152,7 @@ impl Firewall {
         &mut self,
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
-        tunnel_interface: &Option<String>,
+        tunnel_metadata: &Option<TunnelMetadata>,
         allowed_endpoint: &Endpoint,
         relay_client: &Path,
     ) -> Result<(), Error> {
@@ -174,9 +174,9 @@ impl Firewall {
             protocol: WinFwProt::from(allowed_endpoint.protocol),
         });
 
-        let interface_wstr = tunnel_interface
-            .as_ref()
-            .map(|alias| WideCString::new(alias.encode_utf16().collect::<Vec<_>>()).unwrap());
+        let interface_wstr = tunnel_metadata.as_ref().map(|metadata| {
+            WideCString::new(metadata.interface.encode_utf16().collect::<Vec<_>>()).unwrap()
+        });
         let interface_wstr_ptr = if let Some(ref wstr) = interface_wstr {
             wstr.as_ptr()
         } else {
@@ -200,7 +200,7 @@ impl Firewall {
         &mut self,
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
-        tunnel_metadata: &crate::tunnel::TunnelMetadata,
+        tunnel_metadata: &TunnelMetadata,
         dns_servers: &[IpAddr],
         relay_client: &Path,
     ) -> Result<(), Error> {

@@ -577,7 +577,7 @@ impl<'a> PolicyBatch<'a> {
         let allow_lan = match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
-                tunnel_interface,
+                tunnel,
                 allow_lan,
                 allowed_endpoint,
             } => {
@@ -588,8 +588,8 @@ impl<'a> PolicyBatch<'a> {
                 // over port 53) but before allow LAN (so DNS does not leak to the LAN)
                 self.add_drop_dns_rule();
 
-                if let Some(tunnel_interface) = tunnel_interface {
-                    self.add_allow_tunnel_rules(tunnel_interface)?;
+                if let Some(tunnel) = tunnel {
+                    self.add_allow_tunnel_rules(&tunnel.interface)?;
                 }
                 *allow_lan
             }
