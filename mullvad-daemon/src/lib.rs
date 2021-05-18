@@ -7,6 +7,9 @@ extern crate serde;
 mod account;
 pub mod account_history;
 pub mod exception_logging;
+#[cfg(target_os = "macos")]
+pub mod exclusion_gid;
+>>>>>>> 51cc8287d (Fix daemon code for GID exclusion)
 mod geoip;
 pub mod logging;
 #[cfg(not(target_os = "android"))]
@@ -555,6 +558,11 @@ where
         command_channel: DaemonCommandChannel,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
+        #[cfg(target_os = "macos")]
+        {
+            exclusion_gid::set_exclusion_gid();
+        };
+
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
         let runtime = tokio::runtime::Handle::current();
