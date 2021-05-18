@@ -147,4 +147,43 @@ mod tests {
 
         assert_eq!(deserialized, expected);
     }
+
+    #[test]
+    fn deserialization_of_multi_line_strings() {
+        let xml_input = r#"<resources>
+            <string name="first">First string is
+                split in two lines</string>
+            <string
+                name="second"
+                translatable="false"
+                >
+                Second string is also split
+                but it also has some weird whitespace
+                inside the tags and some indentation
+            </string>
+        </resources>"#;
+
+        let mut expected = StringResources::new();
+
+        expected.extend(vec![
+            StringResource {
+                name: "first".to_owned(),
+                translatable: true,
+                value: StringValue::from_unescaped("First string is split in two lines"),
+            },
+            StringResource {
+                name: "second".to_owned(),
+                translatable: false,
+                value: StringValue::from_unescaped(concat!(
+                    "Second string is also split but it also has some weird whitespace inside the ",
+                    "tags and some indentation",
+                )),
+            },
+        ]);
+
+        let deserialized: StringResources =
+            serde_xml_rs::from_str(xml_input).expect("malformed XML in test input");
+
+        assert_eq!(deserialized, expected);
+    }
 }
