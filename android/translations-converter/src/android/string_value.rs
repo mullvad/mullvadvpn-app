@@ -127,6 +127,20 @@ mod tests {
     }
 
     #[test]
+    fn newline_collapsing() {
+        let input = StringValue::from_unescaped(
+            "This is
+            a multi-line string		
+            that should be  
+            	collapsed into a single line",
+        );
+
+        let expected = "This is a multi-line string that should be collapsed into a single line";
+
+        assert_eq!(input.to_string(), expected);
+    }
+
+    #[test]
     fn xml_escaping() {
         let input = StringValue::from_unescaped(concat!(
             "An ampersand: &",
