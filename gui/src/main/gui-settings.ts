@@ -133,8 +133,9 @@ export default class GuiSettings {
           const expectedInnerType = expectedType.replace(/^Array</, '').replace(/>$/, '');
           const innerTypes: string[] = value.map((value) => typeof value);
           if (
-            innerTypes.some((value) => value !== innerTypes[0]) ||
-            innerTypes[0] !== expectedInnerType
+            innerTypes.length > 0 &&
+            (innerTypes.some((value) => value !== innerTypes[0]) ||
+              innerTypes[0] !== expectedInnerType)
           ) {
             throw new Error(`Expected ${key} to to contain ${expectedInnerType}s`);
           }
