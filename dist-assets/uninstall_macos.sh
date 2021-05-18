@@ -18,6 +18,9 @@ DAEMON_PLIST_PATH="/Library/LaunchDaemons/net.mullvad.daemon.plist"
 sudo launchctl unload -w "$DAEMON_PLIST_PATH"
 sudo rm -f "$DAEMON_PLIST_PATH"
 
+sudo dscl . -delete /groups/mullvad-exclusion || echo "Failed to remove 'mullvad-exclusion' group"
+
+
 echo "Resetting firewall"
 sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup reset-firewall
 sudo /Applications/Mullvad\ VPN.app/Contents/Resources/mullvad-setup remove-wireguard-key
