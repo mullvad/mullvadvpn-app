@@ -125,24 +125,27 @@ export default class GuiSettings {
 
   private validateSettings(settings: Record<string, unknown>) {
     Object.entries(settingsSchema).forEach(([key, expectedType]) => {
-      if (/^Array<.*>/.test(expectedType)) {
-        const value = settings[key];
-        if (!Array.isArray(value)) {
-          throw new Error(`Expected ${key} to be array but wasn't`);
-        } else {
-          const expectedInnerType = expectedType.replace(/^Array</, '').replace(/>$/, '');
-          const innerTypes: string[] = value.map((value) => typeof value);
-          if (
-            innerTypes.some((value) => value !== innerTypes[0]) ||
-            innerTypes[0] !== expectedInnerType
-          ) {
-            throw new Error(`Expected ${key} to to contain ${expectedInnerType}s`);
+      if (key in settings) {
+        if (/^Array<.*>/.test(expectedType)) {
+          const value = settings[key];
+          if (!Array.isArray(value)) {
+            throw new Error(`Expected ${key} to be array but wasn't`);
+          } else {
+            const expectedInnerType = expectedType.replace(/^Array</, '').replace(/>$/, '');
+            const innerTypes: string[] = value.map((value) => typeof value);
+            if (
+              innerTypes.length > 0 &&
+              (innerTypes.some((value) => value !== innerTypes[0]) ||
+                innerTypes[0] !== expectedInnerType)
+            ) {
+              throw new Error(`Expected ${key} to contain ${expectedInnerType}s`);
+            }
           }
-        }
-      } else {
-        const actualType = typeof settings[key];
-        if (key in settings && actualType !== expectedType) {
-          throw new Error(`Expected ${key} to be of type ${expectedType} but was ${actualType}`);
+        } else {
+          const actualType = typeof settings[key];
+          if (actualType !== expectedType) {
+            throw new Error(`Expected ${key} to be of type ${expectedType} but was ${actualType}`);
+          }
         }
       }
     });
