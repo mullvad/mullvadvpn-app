@@ -705,19 +705,6 @@
 	SetShellVarContext current
 	RMDir /r "$LOCALAPPDATA\mullvad-vpn-updater"
 
-	#
-	# Hack to check whether the uninstaller succeeded.
-	# This assumes that it got far enough to create a log file.
-	# Note that the uninstaller has already been replaced at this point.
-	#
-	SetShellVarContext all
-	IfFileExists "$LOCALAPPDATA\Mullvad VPN\uninstall.log" 0 customInstall_uninstaller_succeeded
-
-	MessageBox MB_OK "Failed to uninstall a previous version. Contact support or see the logs for more information."
-	Goto customInstall_abort_installation
-
-	customInstall_uninstaller_succeeded:
-
 	${MigrateCache}
 	${RemoveRelayCache}
 	${RemoveApiAddressCache}
@@ -763,6 +750,51 @@
 	customInstall_skip_abort:
 
 	Pop $R0
+
+!macroend
+
+#
+# customUnInstallCheck
+#
+# This is called from the installer during an upgrade after the old version
+# has been uninstalled or failed to uninstall.
+#
+# The error flag is set if the uninstaller failed to run. Otherwise, $R0
+# contains the exit status.
+#
+!macro customUnInstallCheck
+
+	IfErrors 0 customUnInstallCheck_CheckReturnCode
+
+	log::SetLogTarget ${LOG_UNINSTALL}
+	log::Log "Unable to launch uninstaller for previous ${PRODUCT_NAME} version"
+
+	#
+	# If $INSTDIR is gone or can be removed, proceed anyway
+	#
+	IfFileExists $INSTDIR\*.* 0 customUnInstallCheck_Done
+	RMDir /r $INSTDIR
+	IfErrors 0 customUnInstallCheck_Done
+
+	log::Log "Aborting since $INSTDIR exists"
+	Goto customUnInstallCheck_Abort
+
+	customUnInstallCheck_CheckReturnCode:
+
+	${if} $R0 == 0
+		Goto customUnInstallCheck_Done
+	${endif}
+
+	customUnInstallCheck_Abort:
+
+	${ExtractMullvadSetup}
+	${ClearFirewallRules}
+
+	MessageBox MB_OK "Failed to uninstall a previous version. Contact support or review the logs for more information."
+	SetErrorLevel 5
+	Abort
+
+	customUnInstallCheck_Done:
 
 !macroend
 
