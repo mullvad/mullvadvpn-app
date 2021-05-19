@@ -688,10 +688,6 @@
 #
 !macro customInstall
 
-	Var /GLOBAL BlockFilterResult
-	Var /GLOBAL PersistentBlockFilterResult
-
-	Push $1
 	Push $R0
 
 	log::SetLogTarget ${LOG_INSTALL}
@@ -759,29 +755,14 @@
 	#
 	Delete "$INSTDIR\mullvad vpn.exe"
 
-	nsExec::ExecToStack '"$SYSDIR\netsh.exe" wfp show security FILTER ${BLOCK_OUTBOUND_IPV4_FILTER_GUID}'
-	Pop $BlockFilterResult
-	Pop $1
-
-	nsExec::ExecToStack '"$SYSDIR\netsh.exe" wfp show security FILTER ${PERSISTENT_BLOCK_OUTBOUND_IPV4_FILTER_GUID}'
-	Pop $PersistentBlockFilterResult
-	Pop $1
-
-	${If} $BlockFilterResult == 0
-	${OrIf} $PersistentBlockFilterResult == 0
-		MessageBox MB_ICONEXCLAMATION|MB_YESNO "Do you wish to unblock your internet access? Doing so will leave you with an unsecure connection." IDNO customInstall_abort_installation_skip_firewall_revert
-		${ExtractMullvadSetup}
-		${ClearFirewallRules}
-	${EndIf}
-
-	customInstall_abort_installation_skip_firewall_revert:
+	${ExtractMullvadSetup}
+	${ClearFirewallRules}
 
 	Abort
 
 	customInstall_skip_abort:
 
 	Pop $R0
-	Pop $1
 
 !macroend
 
