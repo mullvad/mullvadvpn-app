@@ -1,36 +1,21 @@
-use lazy_static::lazy_static;
-use regex::Regex;
+mod msg_string;
+mod plural_form;
+
 use std::{
     collections::BTreeMap,
-    fmt::{self, Display, Formatter},
     fs::{File, OpenOptions},
     io::{self, BufRead, BufReader, BufWriter, Write},
     mem,
-    ops::Deref,
     path::Path,
 };
 
-lazy_static! {
-    static ref APOSTROPHE_VARIATION: Regex = Regex::new("’").unwrap();
-    static ref ESCAPED_DOUBLE_QUOTES: Regex = Regex::new(r#"\\""#).unwrap();
-    static ref PARAMETERS: Regex = Regex::new(r"%\([^)]*\)").unwrap();
-}
+pub use self::{msg_string::MsgString, plural_form::PluralForm};
 
 /// A parsed gettext translation file.
 #[derive(Clone, Debug)]
 pub struct Translation {
     pub plural_form: Option<PluralForm>,
     entries: Vec<MsgEntry>,
-}
-
-/// Known plural forms.
-#[derive(Clone, Copy, Debug)]
-pub enum PluralForm {
-    Single,
-    SingularForOne,
-    SingularForZeroAndOne,
-    Polish,
-    Russian,
 }
 
 /// A message entry in a gettext translation file.
@@ -49,10 +34,6 @@ pub enum MsgValue {
         values: Vec<MsgString>,
     },
 }
-
-/// A message string in a gettext translation file.
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct MsgString(String);
 
 /// A helper macro to match a string to various prefix and suffix combinations.
 macro_rules! match_str {
@@ -73,9 +54,6 @@ macro_rules! match_str {
 
 impl Translation {
     /// Load message entries from a gettext translation file.
-    ///
-    /// The messages are normalized into a common format so that they can be compared to Android
-    /// string resource entries.
     ///
     /// The only metadata that is parsed from the file is the "Plural-Form" header. It is assumed
     /// that the header value is one of some hard-coded values, so if new languages that have new
@@ -119,11 +97,11 @@ impl Translation {
         for line in lines {
             match_str! { (line.trim())
                 ["msgid \"", msg_id, "\""] => {
-                    current_id = Some(normalize(msg_id));
+                    current_id = Some(MsgString::from_escaped(msg_id));
                 }
                 ["msgstr \"", translation, "\""] => {
                     if let Some(id) = current_id.take() {
-                        let value = MsgValue::Invariant(normalize(translation));
+                        let value = MsgValue::Invariant(MsgString::from_escaped(translation));
 
                         parsing_header = id.is_empty() && translation.is_empty();
 
@@ -134,7 +112,7 @@ impl Translation {
                     current_plural_id = None;
                 }
                 ["msgid_plural \"", plural_id, "\""] => {
-                    current_plural_id = Some(normalize(plural_id));
+                    current_plural_id = Some(MsgString::from_escaped(plural_id));
                     parsing_header = false;
                 }
                 ["msgstr[", plural_translation, "\""] => {
@@ -148,13 +126,13 @@ impl Translation {
                     let variant_msg = parse_line(&plural_translation[variant_id_end..], "] \"", "")
                         .expect("Invalid plural msgstr");
 
-                    variants.insert(variant_id, normalize(variant_msg));
+                    variants.insert(variant_id, MsgString::from_escaped(variant_msg));
                     parsing_header = false;
                 }
                 ["\"", header, "\\n\""] => {
                     if parsing_header {
                         if let Some(plural_formula) = parse_line(header, "Plural-Forms: ", ";") {
-                            plural_form = Some(PluralForm::from_formula(plural_formula));
+                            plural_form = PluralForm::from_formula(plural_formula);
                         }
                     }
                 }
@@ -201,58 +179,9 @@ impl IntoIterator for Translation {
     }
 }
 
-impl PluralForm {
-    /// Obtain an instance based on a known plural formula.
-    ///
-    /// Plural variants need to be obtained using a formula. However, some locales have known
-    /// formulas, so they can be represented as a known plural form. This constructor can return a
-    /// plural form based on the formulas that are known to be used in the project.
-    pub fn from_formula(formula: &str) -> Self {
-        match formula {
-            "nplurals=1; plural=0" => PluralForm::Single,
-            "nplurals=2; plural=(n != 1)" => PluralForm::SingularForOne,
-            "nplurals=2; plural=(n > 1)" => PluralForm::SingularForZeroAndOne,
-            "nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && (n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3)" => {
-                PluralForm::Polish
-            }
-            "nplurals=4; plural=((n%10==1 && n%100!=11) ? 0 : ((n%10 >= 2 && n%10 <=4 && (n%100 < 12 || n%100 > 14)) ? 1 : ((n%10 == 0 || (n%10 >= 5 && n%10 <=9)) || (n%100 >= 11 && n%100 <= 14)) ? 2 : 3))" => {
-                PluralForm::Russian
-            }
-            other => panic!("Unknown plural formula: {}", other),
-        }
-    }
-}
-
-impl From<String> for MsgString {
-    fn from(string: String) -> Self {
-        MsgString(string)
-    }
-}
-
-impl From<&str> for MsgString {
-    fn from(string: &str) -> Self {
-        string.to_owned().into()
-    }
-}
-
-impl Display for MsgString {
-    /// Write the ID message string with proper escaping.
-    fn fmt(&self, formatter: &mut Formatter) -> fmt::Result {
-        self.0.replace(r#"""#, r#"\""#).fmt(formatter)
-    }
-}
-
-impl Deref for MsgString {
-    type Target = str;
-
-    fn deref(&self) -> &Self::Target {
-        self.0.as_str()
-    }
-}
-
-impl From<String> for MsgValue {
-    fn from(string: String) -> Self {
-        MsgValue::Invariant(string.into())
+impl From<MsgString> for MsgValue {
+    fn from(string: MsgString) -> Self {
+        MsgValue::Invariant(string)
     }
 }
 
@@ -300,15 +229,4 @@ fn parse_line<'l>(line: &'l str, prefix: &str, suffix: &str) -> Option<&'l str> 
     } else {
         None
     }
-}
-
-fn normalize(string: &str) -> MsgString {
-    // Use a single common apostrophe character
-    let string = APOSTROPHE_VARIATION.replace_all(&string, "'");
-    // Mark where parameters are positioned, removing the parameter name
-    let string = PARAMETERS.replace_all(&string, "%");
-    // Remove escaped double-quotes
-    let string = ESCAPED_DOUBLE_QUOTES.replace_all(&string, r#"""#);
-
-    string.into_owned().into()
 }
