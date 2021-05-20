@@ -261,8 +261,14 @@ export interface ITunnelOptions {
 }
 
 export interface IDnsOptions {
-  custom: boolean;
-  addresses: string[];
+  state: 'custom' | 'default';
+  customOptions: {
+    addresses: string[];
+  };
+  defaultOptions: {
+    blockAds: boolean;
+    blockTrackers: boolean;
+  };
 }
 
 export type ProxySettings = ILocalProxySettings | IRemoteProxySettings | IShadowsocksProxySettings;
