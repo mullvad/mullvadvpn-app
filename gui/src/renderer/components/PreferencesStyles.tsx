@@ -13,6 +13,6 @@ export const StyledContent = styled.div({
   marginBottom: '2px',
 });
 
-export const StyledSeparator = styled.div({
-  height: '1px',
-});
+export const StyledSeparator = styled.div((props: { height?: number }) => ({
+  height: `${props.height ?? 1}px`,
+}));

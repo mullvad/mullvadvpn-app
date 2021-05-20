@@ -1,5 +1,8 @@
 import * as React from 'react';
+import { sprintf } from 'sprintf-js';
+import { IDnsOptions } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { formatMarkdown } from '../markdown-formatter';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import { Layout } from './Layout';
@@ -24,6 +27,7 @@ export interface IProps {
   monochromaticIcon: boolean;
   startMinimized: boolean;
   unpinnedWindow: boolean;
+  dns: IDnsOptions;
   setAutoStart: (autoStart: boolean) => void;
   setEnableSystemNotifications: (flag: boolean) => void;
   setAutoConnect: (autoConnect: boolean) => void;
@@ -32,6 +36,7 @@ export interface IProps {
   setStartMinimized: (startMinimized: boolean) => void;
   setMonochromaticIcon: (monochromaticIcon: boolean) => void;
   setUnpinnedWindow: (unpinnedWindow: boolean) => void;
+  setDnsOptions: (dns: IDnsOptions) => Promise<void>;
   onClose: () => void;
 }
 
@@ -103,6 +108,47 @@ export default class Preferences extends React.Component<IProps> {
                     </AriaDescription>
                   </Cell.Footer>
                 </AriaInputGroup>
+
+                <AriaInputGroup>
+                  <Cell.Container disabled={this.props.dns.state === 'custom'}>
+                    <AriaLabel>
+                      <Cell.InputLabel>
+                        {messages.pgettext('preferences-view', 'Block ads')}
+                      </Cell.InputLabel>
+                    </AriaLabel>
+                    <AriaInput>
+                      <Cell.Switch
+                        isOn={
+                          this.props.dns.state === 'default' &&
+                          this.props.dns.defaultOptions.blockAds
+                        }
+                        onChange={this.setBlockAds}
+                      />
+                    </AriaInput>
+                  </Cell.Container>
+                </AriaInputGroup>
+                <StyledSeparator />
+                <AriaInputGroup>
+                  <Cell.Container disabled={this.props.dns.state === 'custom'}>
+                    <AriaLabel>
+                      <Cell.InputLabel>
+                        {messages.pgettext('preferences-view', 'Block trackers')}
+                      </Cell.InputLabel>
+                    </AriaLabel>
+                    <AriaInput>
+                      <Cell.Switch
+                        isOn={
+                          this.props.dns.state === 'default' &&
+                          this.props.dns.defaultOptions.blockTrackers
+                        }
+                        onChange={this.setBlockTrackers}
+                      />
+                    </AriaInput>
+                  </Cell.Container>
+                  {this.props.dns.state === 'custom' && <CustomDnsEnabledFooter />}
+                </AriaInputGroup>
+
+                {this.props.dns.state !== 'custom' && <StyledSeparator height={20} />}
 
                 <AriaInputGroup>
                   <Cell.Container>
@@ -275,4 +321,48 @@ export default class Preferences extends React.Component<IProps> {
       </Layout>
     );
   }
+
+  private setBlockAds = async (enabled: boolean) => {
+    await this.props.setDnsOptions({
+      ...this.props.dns,
+      defaultOptions: {
+        ...this.props.dns.defaultOptions,
+        blockAds: enabled,
+      },
+    });
+  };
+
+  private setBlockTrackers = async (enabled: boolean) => {
+    await this.props.setDnsOptions({
+      ...this.props.dns,
+      defaultOptions: {
+        ...this.props.dns.defaultOptions,
+        blockTrackers: enabled,
+      },
+    });
+  };
+}
+
+function CustomDnsEnabledFooter() {
+  const customDnsFeatureName = messages.pgettext('advanced-settings-view', 'Use custom DNS server');
+
+  // TRANSLATORS: This is displayed when the custom DNS setting is turned on which makes the block
+  // TRANSLATORS: ads/trackers settings disabled. The text enclosed in "**" will appear bold.
+  // TRANSLATORS: Advanced settings refer to the name of the page with the title "Advanced".
+  // TRANSLATORS: Available placeholders:
+  // TRANSLATORS: %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
+  const blockingDisabledText = messages.pgettext(
+    'preferences-view',
+    'Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings.',
+  );
+
+  return (
+    <Cell.Footer>
+      <AriaDescription>
+        <Cell.FooterText>
+          {formatMarkdown(sprintf(blockingDisabledText, { customDnsFeatureName }))}
+        </Cell.FooterText>
+      </AriaDescription>
+    </Cell.Footer>
+  );
 }

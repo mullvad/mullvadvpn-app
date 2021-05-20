@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
+import { IDnsOptions } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import consumePromise from '../../shared/promise';
 import Preferences from '../components/Preferences';
@@ -16,6 +17,7 @@ const mapStateToProps = (state: IReduxState) => ({
   monochromaticIcon: state.settings.guiSettings.monochromaticIcon,
   startMinimized: state.settings.guiSettings.startMinimized,
   unpinnedWindow: state.settings.guiSettings.unpinnedWindow,
+  dns: state.settings.dns,
 });
 
 const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
@@ -50,6 +52,9 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps
     },
     setUnpinnedWindow: (unpinnedWindow: boolean) => {
       props.app.setUnpinnedWindow(unpinnedWindow);
+    },
+    setDnsOptions: (dns: IDnsOptions) => {
+      return props.app.setDnsOptions(dns);
     },
   };
 };

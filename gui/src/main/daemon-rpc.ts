@@ -449,15 +449,15 @@ export class DaemonRpc {
     const dnsOptions = new grpcTypes.DnsOptions();
 
     const defaultOptions = new grpcTypes.DefaultDnsOptions();
-    defaultOptions.setBlockAds(false);
-    defaultOptions.setBlockTrackers(false);
+    defaultOptions.setBlockAds(dns.defaultOptions.blockAds);
+    defaultOptions.setBlockTrackers(dns.defaultOptions.blockTrackers);
     dnsOptions.setDefaultOptions(defaultOptions);
 
     const customOptions = new grpcTypes.CustomDnsOptions();
-    customOptions.setAddressesList(dns.addresses);
+    customOptions.setAddressesList(dns.customOptions.addresses);
     dnsOptions.setCustomOptions(customOptions);
 
-    if (dns.custom) {
+    if (dns.state === 'custom') {
       dnsOptions.setState(grpcTypes.DnsOptions.DnsState.CUSTOM);
     } else {
       dnsOptions.setState(grpcTypes.DnsOptions.DnsState.DEFAULT);
@@ -1042,8 +1042,17 @@ function convertFromTunnelOptions(tunnelOptions: grpcTypes.TunnelOptions.AsObjec
       enableIpv6: tunnelOptions.generic!.enableIpv6,
     },
     dns: {
-      custom: tunnelOptions.dnsOptions!.state! === grpcTypes.DnsOptions.DnsState.CUSTOM,
-      addresses: tunnelOptions.dnsOptions?.customOptions?.addressesList ?? [],
+      state:
+        tunnelOptions.dnsOptions?.state === grpcTypes.DnsOptions.DnsState.CUSTOM
+          ? 'custom'
+          : 'default',
+      defaultOptions: {
+        blockAds: tunnelOptions.dnsOptions?.defaultOptions?.blockAds ?? false,
+        blockTrackers: tunnelOptions.dnsOptions?.defaultOptions?.blockTrackers ?? false,
+      },
+      customOptions: {
+        addresses: tunnelOptions.dnsOptions?.customOptions?.addressesList ?? [],
+      },
     },
   };
 }
