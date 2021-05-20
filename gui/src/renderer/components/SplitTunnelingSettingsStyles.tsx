@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
+import BetaLabel from './BetaLabel';
 import * as Cell from './cell';
 import { mediumText, smallText } from './common-styles';
 import ImageView from './ImageView';
@@ -161,4 +162,9 @@ export const StyledNoResultSearchTerm = styled.span({
 export const StyledDisabledWarning = styled.span(smallText, {
   margin: '0 22px 18px',
   color: colors.red,
+});
+
+export const StyledBetaLabel = styled(BetaLabel)({
+  marginLeft: '8px',
+  verticalAlign: 'middle',
 });
