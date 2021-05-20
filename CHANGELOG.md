@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - Make app native on Apple Silicon.
 - Add DNS options for ad and tracker blocking to the CLI.
 - Support WireGuard multihop using an entry endpoint constraint.
+- Add DNS options for ad and tracker blocking to the desktop app.
 
 ### Changed
 - Upgrade OpenVPN from 2.5.0 to 2.5.1.
