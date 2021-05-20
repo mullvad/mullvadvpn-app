@@ -41,6 +41,12 @@ extension UIColor {
         static let disabledTitleColor = UIColor.lightGray
     }
 
+    enum Switch {
+        static let borderColor = UIColor(white: 1.0, alpha: 0.8)
+        static let onThumbColor = successColor
+        static let offThumbColor = dangerColor
+    }
+
     // Relay availability indicator view
     enum RelayStatusIndicator {
         static let activeColor = successColor.withAlphaComponent(0.9)
