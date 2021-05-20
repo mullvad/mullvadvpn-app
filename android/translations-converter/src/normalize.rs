@@ -75,7 +75,7 @@ mod tests {
         ));
 
         let expected = concat!(
-            "\'Inside single quotes\'",
+            "'Inside single quotes'",
             r#""Inside double quotes""#,
             "With parameters: %d, %s",
         );
@@ -87,14 +87,16 @@ mod tests {
     fn normalize_gettext_msg_string() {
         use crate::gettext::MsgString;
 
-        let input = MsgString::from_unescaped(concat!(
+        let input = MsgString::from_escaped(concat!(
             "'Inside single quotes'",
-            r#""Inside double quotes""#,
+            r"\'Inside escaped single quotes\'",
+            r#"\"Inside double quotes\""#,
             "With parameters: %(number)d, %(string)s",
         ));
 
         let expected = concat!(
-            "\'Inside single quotes\'",
+            "'Inside single quotes'",
+            "'Inside escaped single quotes'",
             r#""Inside double quotes""#,
             "With parameters: %d, %s",
         );
