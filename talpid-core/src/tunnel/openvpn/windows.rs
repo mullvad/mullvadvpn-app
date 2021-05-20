@@ -4,7 +4,8 @@ use std::{
     os::windows::{ffi::OsStrExt, io::RawHandle},
     path::Path,
     ptr,
-    sync::Arc,
+    sync::{Arc, Mutex},
+    time::Duration,
 };
 use talpid_types::ErrorExt;
 use widestring::{U16CStr, U16CString};
@@ -13,8 +14,13 @@ use winapi::{
         guiddef::GUID,
         ifdef::NET_LUID,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
-        netioapi::ConvertInterfaceLuidToGuid,
+        netioapi::{
+            CancelMibChangeNotify2, ConvertInterfaceLuidToGuid, GetIpInterfaceEntry,
+            MibAddInstance, NotifyIpInterfaceChange, MIB_IPINTERFACE_ROW,
+        },
+        ntdef::FALSE,
         winerror::NO_ERROR,
+        ws2def::{AF_INET, AF_INET6, AF_UNSPEC},
     },
     um::{
         libloaderapi::{
@@ -28,6 +34,8 @@ use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
 /// Longest possible adapter name (in characters), including null terminator
 const MAX_ADAPTER_NAME: usize = 128;
+
+const INTERFACE_WAIT_TIMEOUT: Duration = Duration::from_secs(5);
 
 type WintunOpenAdapterFn =
     unsafe extern "stdcall" fn(pool: *const u16, name: *const u16) -> RawHandle;
@@ -423,6 +431,124 @@ pub fn find_adapter_registry_key(find_guid: &str, permissions: REGSAM) -> io::Re
     }
 
     Err(io::Error::new(io::ErrorKind::NotFound, "device not found"))
+}
+
+pub struct IpNotifierHandle<'a> {
+    mutex: Mutex<()>,
+    callback: Option<Box<dyn FnMut(&MIB_IPINTERFACE_ROW, u32) + Send + 'a>>,
+    handle: RawHandle,
+}
+
+impl<'a> Drop for IpNotifierHandle<'a> {
+    fn drop(&mut self) {
+        // Inner callback may be called while destructing
+        unsafe { CancelMibChangeNotify2(self.handle as *mut _) };
+
+        let _ = self
+            .mutex
+            .lock()
+            .expect("NotifyIpInterfaceChange mutex poisoned");
+        let _ = self.callback.take();
+    }
+}
+
+unsafe extern "system" fn inner_callback(
+    context: *mut winapi::ctypes::c_void,
+    row: *mut MIB_IPINTERFACE_ROW,
+    notify_type: u32,
+) {
+    let context = &mut *(context as *mut IpNotifierHandle<'_>);
+    let _ = context
+        .mutex
+        .lock()
+        .expect("NotifyIpInterfaceChange mutex poisoned");
+
+    if let Some(ref mut callback) = context.callback {
+        callback(&*row, notify_type);
+    }
+}
+
+pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, u32) + Send + 'a>(
+    callback: T,
+    family: u16,
+) -> io::Result<Box<IpNotifierHandle<'a>>> {
+    let mut context = Box::new(IpNotifierHandle {
+        mutex: Mutex::default(),
+        callback: Some(Box::new(callback)),
+        handle: std::ptr::null_mut(),
+    });
+
+    let status = unsafe {
+        NotifyIpInterfaceChange(
+            family,
+            Some(inner_callback),
+            &mut *context as *mut _ as *mut _,
+            FALSE,
+            (&mut context.handle) as *mut _,
+        )
+    };
+
+    if status != NO_ERROR {
+        return Err(io::Error::last_os_error());
+    }
+
+    Ok(context)
+}
+
+pub fn get_ip_interface_entry(family: u16, luid: &NET_LUID) -> io::Result<MIB_IPINTERFACE_ROW> {
+    let mut row: MIB_IPINTERFACE_ROW = unsafe { mem::zeroed() };
+    row.Family = family;
+    row.InterfaceLuid = *luid;
+
+    let result = unsafe { GetIpInterfaceEntry(&mut row as *mut _) };
+    if result != NO_ERROR {
+        return Err(io::Error::last_os_error());
+    }
+
+    Ok(row)
+}
+
+pub fn wait_for_interfaces(luid: &NET_LUID, ipv4: bool, ipv6: bool) -> io::Result<()> {
+    let (tx, rx) = std::sync::mpsc::channel();
+
+    let mut found_ipv4 = if ipv4 { false } else { true };
+    let mut found_ipv6 = if ipv6 { false } else { true };
+
+    let _handle = notify_ip_interface_change(
+        move |row, notification_type| {
+            if found_ipv4 && found_ipv6 {
+                return;
+            }
+            if notification_type != MibAddInstance {
+                return;
+            }
+            if row.InterfaceLuid.Value != luid.Value {
+                return;
+            }
+            match row.Family as i32 {
+                AF_INET => found_ipv4 = true,
+                AF_INET6 => found_ipv6 = true,
+                _ => (),
+            }
+            if found_ipv4 && found_ipv6 {
+                let _ = tx.send(());
+            }
+        },
+        AF_UNSPEC as u16,
+    )?;
+
+    // Make sure they don't already exist
+    if (!ipv4 || get_ip_interface_entry(AF_INET as u16, luid).is_ok())
+        && (!ipv6 || get_ip_interface_entry(AF_INET6 as u16, luid).is_ok())
+    {
+        return Ok(());
+    }
+
+    let _ = rx
+        .recv_timeout(INTERFACE_WAIT_TIMEOUT)
+        .map_err(|_| io::Error::new(io::ErrorKind::TimedOut, "timed out waiting on interfaces"))?;
+
+    Ok(())
 }
 
 #[cfg(test)]
