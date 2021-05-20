@@ -440,13 +440,28 @@ extension PacketTunnelConfiguration {
             return peerConfig
         }
 
-        let dnsServers: [IPAddress] = [mullvadEndpoint.ipv4Gateway, mullvadEndpoint.ipv6Gateway]
         var interfaceConfig = InterfaceConfiguration(privateKey: tunnelSettings.interface.privateKey.privateKey)
         interfaceConfig.listenPort = 0
         interfaceConfig.dns = dnsServers.map { DNSServer(address: $0) }
         interfaceConfig.addresses = tunnelSettings.interface.addresses
 
         return TunnelConfiguration(name: nil, interface: interfaceConfig, peers: peerConfigs)
+    }
+
+    var dnsServers: [IPAddress] {
+        let mullvadEndpoint = selectorResult.endpoint
+        let dnsSettings = tunnelSettings.interface.dnsSettings
+
+        switch (dnsSettings.blockAdvertising, dnsSettings.blockTracking) {
+        case (true, false):
+            return [IPv4Address("100.64.0.1")!]
+        case (false, true):
+            return [IPv4Address("100.64.0.2")!]
+        case (true, true):
+            return [IPv4Address("100.64.0.3")!]
+        case (false, false):
+            return [mullvadEndpoint.ipv4Gateway, mullvadEndpoint.ipv6Gateway]
+        }
     }
 }
 
