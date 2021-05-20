@@ -39,6 +39,7 @@ mod gettext {
 
     lazy_static! {
         static ref APOSTROPHE_VARIATION: Regex = Regex::new("’").unwrap();
+        static ref ESCAPED_SINGLE_QUOTES: Regex = Regex::new(r"\\'").unwrap();
         static ref ESCAPED_DOUBLE_QUOTES: Regex = Regex::new(r#"\\""#).unwrap();
         static ref PARAMETERS: Regex = Regex::new(r"%\([^)]*\)").unwrap();
     }
@@ -49,6 +50,8 @@ mod gettext {
             let string = APOSTROPHE_VARIATION.replace_all(&*self, "'");
             // Mark where parameters are positioned, removing the parameter name
             let string = PARAMETERS.replace_all(&string, "%");
+            // Remove escaped single-quotes
+            let string = ESCAPED_SINGLE_QUOTES.replace_all(&string, r"'");
             // Remove escaped double-quotes
             let string = ESCAPED_DOUBLE_QUOTES.replace_all(&string, r#"""#);
 
