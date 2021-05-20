@@ -77,7 +77,7 @@
     "grpc_tools_node_protoc_ts": "^5.1.1",
     "gulp": "^4.0.2",
     "gulp-inject-string": "^1.1.2",
-    "gulp-sourcemaps": "^3.0.0",
+    "gulp-sourcemaps": "^2.6.5",
     "gulp-typescript": "^5.0.1",
     "prettier": "^2.2.1",
     "semver": "^7.3.2",
