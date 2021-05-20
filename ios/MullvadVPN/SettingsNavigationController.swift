@@ -11,6 +11,7 @@ import UIKit
 
 enum SettingsNavigationRoute {
     case account
+    case preferences
     case wireguardKeys
     case problemReport
 }
@@ -78,6 +79,9 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
             let controller = AccountViewController()
             controller.delegate = self
             pushViewController(controller, animated: animated)
+
+        case .preferences:
+            pushViewController(PreferencesViewController(), animated: animated)
 
         case .wireguardKeys:
             pushViewController(WireguardKeysViewController(), animated: animated)

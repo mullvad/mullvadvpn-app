@@ -103,6 +103,16 @@ class SettingsViewController: UITableViewController, AccountObserver {
                 self?.settingsNavigationController?.navigate(to: .account, animated: true)
             }
 
+            let preferencesRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
+                let cell = cell as! SettingsCell
+                cell.titleLabel.text = NSLocalizedString("Preferences", comment: "")
+                cell.accessoryType = .disclosureIndicator
+            }
+
+            preferencesRow.actionBlock = { [weak self] (indexPath) in
+                self?.settingsNavigationController?.navigate(to: .preferences, animated: true)
+            }
+
             let wireguardKeyRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
                 let cell = cell as! SettingsCell
 
@@ -117,7 +127,7 @@ class SettingsViewController: UITableViewController, AccountObserver {
 
             self.accountRow = accountRow
 
-            topSection.addRows([accountRow, wireguardKeyRow])
+            topSection.addRows([accountRow, preferencesRow, wireguardKeyRow])
             staticDataSource.addSections([topSection])
         }
 
