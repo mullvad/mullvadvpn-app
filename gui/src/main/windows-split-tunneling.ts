@@ -36,7 +36,13 @@ const APPLICATION_PATHS = [
 
 // Some applications might be falsely filtered from the application list. This allow-list specifies
 // apps that are falsely filtered but should be included.
-const APPLICATION_ALLOW_LIST = ['firefox.exe', 'chrome.exe'];
+const APPLICATION_ALLOW_LIST = [
+  'firefox.exe',
+  'chrome.exe',
+  'msedge.exe',
+  'brave.exe',
+  'iexplore.exe',
+];
 
 // Cache of all previously scanned shortcuts.
 const shortcutCache: Record<string, ShortcutDetails> = {};
