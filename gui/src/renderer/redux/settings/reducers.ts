@@ -6,6 +6,7 @@ import {
   RelayLocation,
   RelayProtocol,
   TunnelProtocol,
+  IDnsOptions,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import log from '../../../shared/logging';
@@ -133,10 +134,7 @@ export interface ISettingsReduxState {
   wireguard: {
     mtu?: number;
   };
-  dns: {
-    custom: boolean;
-    addresses: string[];
-  };
+  dns: IDnsOptions;
   wireguardKeyState: WgKeyState;
 }
 
@@ -180,8 +178,14 @@ const initialState: ISettingsReduxState = {
     type: 'key-not-set',
   },
   dns: {
-    custom: false,
-    addresses: [],
+    state: 'default',
+    defaultOptions: {
+      blockAds: false,
+      blockTrackers: false,
+    },
+    customOptions: {
+      addresses: [],
+    },
   },
 };
 
