@@ -12,7 +12,7 @@ import NetworkExtension
 import WireGuardKit
 
 /// A struct that holds a tun interface configuration.
-struct InterfaceSettings: Codable {
+struct InterfaceSettings: Codable, Equatable {
     var privateKey: PrivateKeyWithMetadata
     var addresses: [IPAddressRange]
     var dnsSettings: DNSSettings
@@ -48,13 +48,13 @@ struct InterfaceSettings: Codable {
 }
 
 /// A struct that holds the configuration passed via `NETunnelProviderProtocol`.
-struct TunnelSettings: Codable {
+struct TunnelSettings: Codable, Equatable {
     var relayConstraints = RelayConstraints()
     var interface = InterfaceSettings()
 }
 
 /// A struct that holds DNS settings.
-struct DNSSettings: Codable {
+struct DNSSettings: Codable, Equatable {
     /// Block advertising.
     var blockAdvertising: Bool = false
 
