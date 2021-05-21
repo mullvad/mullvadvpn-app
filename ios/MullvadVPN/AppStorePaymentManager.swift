@@ -257,11 +257,13 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                 createApplePaymentOperation.addDidFinishBlockObserver { (operation, result) in
                     switch result {
                     case .success(let response):
-                        self.logger.info("AppStore Receipt was processed. Time added: \(response.timeAdded), New expiry: \(response.newExpiry)")
+                        self.logger.info("AppStore receipt was processed. Time added: \(response.timeAdded), New expiry: \(response.newExpiry)")
 
                         completionHandler(.success(response))
 
                     case .failure(let error):
+                        self.logger.error(chainedError: error, message: "Failed to upload the AppStore receipt")
+
                         completionHandler(.failure(.sendReceipt(error)))
                     }
                 }
@@ -270,6 +272,7 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
 
             case .failure(let error):
                 self.logger.error(chainedError: error, message: "Failed to fetch the AppStore receipt")
+
                 completionHandler(.failure(.readReceipt(error)))
             }
         }
@@ -354,8 +357,6 @@ class AppStorePaymentManager: NSObject, SKPaymentTransactionObserver {
                     }
 
                 case .failure(let error):
-                    self.logger.error(chainedError: error, message: "Failed to upload the AppStore receipt")
-
                     self.observerList.forEach { (observer) in
                         observer.appStorePaymentManager(
                             self,
