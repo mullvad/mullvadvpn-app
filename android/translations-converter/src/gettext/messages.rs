@@ -1,4 +1,5 @@
 use super::{msg_string::MsgString, parse_line, plural_form::PluralForm};
+use derive_more::{Display, Error, From};
 use std::{
     collections::BTreeMap,
     fs::File,
@@ -57,7 +58,7 @@ impl Messages {
     /// msgstr[0] "Unu tradukita mesaĝo"
     /// msgstr[1] "%d tradukitaj mesaĝoj"
     /// ```
-    pub fn from_file(file_path: impl AsRef<Path>) -> Self {
+    pub fn from_file(file_path: impl AsRef<Path>) -> Result<Self, Error> {
         let mut parsing_header = false;
         let mut entries = Vec::new();
         let mut current_id = None;
@@ -68,12 +69,11 @@ impl Messages {
         let file = BufReader::new(File::open(file_path).expect("Failed to open gettext file"));
         // Ensure there's an empty line at the end so that the "else" part of the string matching
         // code will run for the last message in the file.
-        let lines = file
-            .lines()
-            .map(|line_result| line_result.expect("Failed to read from gettext file"))
-            .chain(Some(String::new()));
+        let lines = file.lines().chain(Some(Ok(String::new())));
 
-        for line in lines {
+        for line_result in lines {
+            let line = line_result?;
+
             match_str! { (line.trim())
                 ["msgid \"", msg_id, "\""] => {
                     current_id = Some(MsgString::from_escaped(msg_id));
@@ -142,10 +142,10 @@ impl Messages {
             }
         }
 
-        Self {
+        Ok(Messages {
             entries,
             plural_form,
-        }
+        })
     }
 }
 
@@ -162,4 +162,11 @@ impl From<MsgString> for MsgValue {
     fn from(string: MsgString) -> Self {
         MsgValue::Invariant(string)
     }
+}
+
+#[derive(Debug, Display, Error, From)]
+pub enum Error {
+    /// IO error while reading input file.
+    #[display(fmt = "Failed to read from the input file")]
+    Io(std::io::Error),
 }
