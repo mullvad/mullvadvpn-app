@@ -83,7 +83,8 @@ const DHCPV6_CLIENT_PORT: u16 = 546;
 
 
 #[cfg(all(unix, not(target_os = "android")))]
-fn is_local_address(address: &IpAddr) -> bool {
+/// Returns whether an address belongs to a private subnet.
+pub fn is_local_address(address: &IpAddr) -> bool {
     let address = address.clone();
     (&*ALLOWED_LAN_NETS)
         .iter()

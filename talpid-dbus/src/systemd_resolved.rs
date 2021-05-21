@@ -52,6 +52,9 @@ pub enum Error {
 
     #[error(display = "Failed to remove a match for DNS config updates")]
     DnsUpdateRemoveMatchError(#[error(source)] dbus::Error),
+
+    #[error(display = "Async D-Bus task failed")]
+    AsyncTaskError(#[error(source)] tokio::task::JoinError),
 }
 
 lazy_static! {
@@ -73,6 +76,7 @@ const RPC_TIMEOUT: Duration = Duration::from_secs(1);
 
 const LINK_INTERFACE: &str = "org.freedesktop.resolve1.Link";
 const MANAGER_INTERFACE: &str = "org.freedesktop.resolve1.Manager";
+const DNS_DOMAINS: &str = "Domains";
 const DNS_SERVERS: &str = "DNS";
 const GET_LINK_METHOD: &str = "GetLink";
 const SET_DNS_METHOD: &str = "SetDNS";
@@ -84,10 +88,16 @@ pub struct SystemdResolved {
     pub dbus_connection: Arc<SyncConnection>,
 }
 
+#[derive(Clone)]
 pub struct DnsState {
     pub interface_path: dbus::Path<'static>,
     pub interface_index: u32,
     pub set_servers: Vec<IpAddr>,
+}
+
+#[derive(Clone)]
+pub struct AsyncHandle {
+    dbus_interface: SystemdResolved,
 }
 
 impl SystemdResolved {
@@ -218,19 +228,48 @@ impl SystemdResolved {
         )
     }
 
-    pub fn set_dns(&self, interface_index: u32, servers: &[IpAddr]) -> Result<DnsState> {
+    pub fn get_dns(&self, interface_index: u32) -> Result<DnsState> {
         let link_object_path = self
             .fetch_link(interface_index)
             .map_err(|e| Error::GetLinkError(Box::new(e)))?;
+        let set_servers = self.get_link_dns(&link_object_path)?;
 
-        let mut set_servers = servers.to_vec();
-        set_servers.sort();
-        self.set_link_dns(&link_object_path, servers)?;
         Ok(DnsState {
             interface_path: link_object_path,
             interface_index,
             set_servers,
         })
+    }
+
+    pub fn set_dns_state(&self, state: DnsState) -> Result<()> {
+        self.set_link_dns(&state.interface_path, &state.set_servers)
+    }
+
+    pub fn set_dns(&self, interface_index: u32, servers: Vec<IpAddr>) -> Result<DnsState> {
+        let set_servers = servers.to_vec();
+        let link_object_path = self
+            .fetch_link(interface_index)
+            .map_err(|e| Error::GetLinkError(Box::new(e)))?;
+        self.set_link_dns(&link_object_path, &servers)?;
+        Ok(DnsState {
+            interface_path: link_object_path,
+            interface_index,
+            set_servers,
+        })
+    }
+
+    pub fn get_domains(&self, interface_index: u32) -> Result<Vec<(String, bool)>> {
+        let link_object_path = self
+            .fetch_link(interface_index)
+            .map_err(|e| Error::GetLinkError(Box::new(e)))?;
+        self.get_link_dns_domains(&link_object_path)
+    }
+
+    pub fn set_domains(&self, interface_index: u32, domains: &[(&str, bool)]) -> Result<()> {
+        let link_object_path = self
+            .fetch_link(interface_index)
+            .map_err(|e| Error::GetLinkError(Box::new(e)))?;
+        self.set_link_dns_domains(&link_object_path, domains)
     }
 
     fn fetch_link(&self, interface_index: u32) -> Result<dbus::Path<'static>> {
@@ -244,6 +283,21 @@ impl SystemdResolved {
             .map(|result: (dbus::Path<'static>,)| result.0)
     }
 
+    fn get_link_dns<'a, 'b: 'a>(
+        &'a self,
+        link_object_path: &'b dbus::Path<'static>,
+    ) -> Result<Vec<IpAddr>> {
+        let servers: Vec<(i32, Vec<u8>)> = self
+            .as_link_object(link_object_path.clone())
+            .get(LINK_INTERFACE, DNS_SERVERS)
+            .map_err(Error::DBusRpcError)?;
+
+        Ok(servers
+            .into_iter()
+            .filter_map(|(_family, addr)| ip_from_bytes(&addr))
+            .collect())
+    }
+
     fn set_link_dns<'a, 'b: 'a>(
         &'a self,
         link_object_path: &'b dbus::Path<'static>,
@@ -255,20 +309,18 @@ impl SystemdResolved {
             .collect::<Vec<_>>();
         self.as_link_object(link_object_path.clone())
             .method_call(LINK_INTERFACE, SET_DNS_METHOD, (servers,))
+            .map_err(Error::DBusRpcError)
+    }
+
+    fn get_link_dns_domains<'a, 'b: 'a>(
+        &'a self,
+        link_object_path: &'b dbus::Path<'static>,
+    ) -> Result<Vec<(String, bool)>> {
+        let domains: Vec<(String, bool)> = self
+            .as_link_object(link_object_path.clone())
+            .get(LINK_INTERFACE, DNS_DOMAINS)
             .map_err(Error::DBusRpcError)?;
-
-        // set the search domain to catch all DNS requests, forces the link to be the prefered
-        // resolver, otherwise systemd-resolved will use other interfaces to do DNS lookups
-        let dns_domains: &[_] = &[(&".", true)];
-
-        Proxy::new(
-            RESOLVED_BUS,
-            link_object_path,
-            RPC_TIMEOUT,
-            &*self.dbus_connection,
-        )
-        .method_call(LINK_INTERFACE, SET_DOMAINS_METHOD, (dns_domains,))
-        .map_err(Error::SetDomainsError)
+        Ok(domains)
     }
 
     pub fn revert_link(&mut self, dns_state: &DnsState) -> std::result::Result<(), dbus::Error> {
@@ -287,6 +339,21 @@ impl SystemdResolved {
         } else {
             Ok(())
         }
+    }
+
+    fn set_link_dns_domains<'a, 'b: 'a>(
+        &'a self,
+        link_object_path: &'b dbus::Path<'static>,
+        domains: &[(&str, bool)],
+    ) -> Result<()> {
+        Proxy::new(
+            RESOLVED_BUS,
+            link_object_path,
+            RPC_TIMEOUT,
+            &*self.dbus_connection,
+        )
+        .method_call(LINK_INTERFACE, SET_DOMAINS_METHOD, (domains,))
+        .map_err(Error::SetDomainsError)
     }
 
     pub fn watch_dns_changes<
@@ -337,6 +404,10 @@ impl SystemdResolved {
         self.dbus_connection
             .remove_match(dns_matcher)
             .map_err(Error::DnsUpdateRemoveMatchError)
+    }
+
+    pub fn async_handle(&self) -> AsyncHandle {
+        AsyncHandle::new(self.clone())
     }
 }
 
@@ -396,5 +467,56 @@ fn ip_from_bytes(bytes: &[u8]) -> Option<IpAddr> {
             Some(IpAddr::from(ipv6_bytes))
         }
         _ => None,
+    }
+}
+
+impl AsyncHandle {
+    fn new(dbus_interface: SystemdResolved) -> Self {
+        Self { dbus_interface }
+    }
+
+    pub async fn get_dns(&self, interface_index: u32) -> Result<DnsState> {
+        let interface = self.dbus_interface.clone();
+        tokio::task::spawn_blocking(move || interface.get_dns(interface_index))
+            .await
+            .map_err(Error::AsyncTaskError)?
+    }
+
+    pub async fn set_dns_state(&self, state: DnsState) -> Result<()> {
+        let interface = self.dbus_interface.clone();
+        tokio::task::spawn_blocking(move || interface.set_dns_state(state))
+            .await
+            .map_err(Error::AsyncTaskError)?
+    }
+
+    pub async fn set_dns(&self, interface_index: u32, servers: Vec<IpAddr>) -> Result<DnsState> {
+        let interface = self.dbus_interface.clone();
+        tokio::task::spawn_blocking(move || interface.set_dns(interface_index, servers))
+            .await
+            .map_err(Error::AsyncTaskError)?
+    }
+
+    pub async fn set_domains(
+        &self,
+        interface_index: u32,
+        domains: &[(&'static str, bool)],
+    ) -> Result<()> {
+        let interface = self.dbus_interface.clone();
+        let domains = domains.to_vec();
+        tokio::task::spawn_blocking(move || interface.set_domains(interface_index, &domains))
+            .await
+            .map_err(Error::AsyncTaskError)?
+    }
+
+    pub async fn revert_link(&self, state: DnsState) -> Result<()> {
+        let mut interface = self.dbus_interface.clone();
+        tokio::task::spawn_blocking(move || interface.revert_link(&state))
+            .await
+            .map_err(Error::AsyncTaskError)?
+            .map_err(Error::DBusRpcError)
+    }
+
+    pub fn handle(&self) -> &SystemdResolved {
+        &self.dbus_interface
     }
 }
