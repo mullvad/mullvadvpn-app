@@ -17,9 +17,17 @@ impl MsgString {
 
     /// Create a new `MsgString` from string without any escaped characters.
     ///
-    /// This will ensure that the string has the double quotes characters properly escaped.
+    /// This will ensure that the string has common C escape sequences properly created for special
+    /// characters. It will not attempt to escape non-ASCII characters and will just keep them as
+    /// UTF-8 characters.
     pub fn from_unescaped(string: &str) -> Self {
-        MsgString(string.replace(r#"""#, r#"\""#))
+        let string = string.replace(r"\", r"\\");
+        let string = string.replace("\n", r"\n");
+        let string = string.replace("\r", r"\r");
+        let string = string.replace("\t", r"\t");
+        let string = string.replace(r#"""#, r#"\""#);
+
+        MsgString(string)
     }
 
     /// Create a new `MsgString` from string that already has proper escaping.
@@ -56,9 +64,19 @@ mod tests {
 
     #[test]
     fn escaping() {
-        let input = MsgString::from_unescaped(r#""Inside double quotes""#);
+        let input = MsgString::from_unescaped(concat!(
+            r#""Inside double quotes""#,
+            r"'Inside single quotes'",
+            r"Back-slash character: \",
+            "Whitespace characters: \n\r\t",
+        ));
 
-        let expected = r#"\"Inside double quotes\""#;
+        let expected = concat!(
+            r#"\"Inside double quotes\""#,
+            "'Inside single quotes'",
+            r"Back-slash character: \\",
+            r"Whitespace characters: \n\r\t",
+        );
 
         assert_eq!(input.to_string(), expected);
     }

@@ -39,6 +39,7 @@ mod gettext {
 
     lazy_static! {
         static ref APOSTROPHE_VARIATION: Regex = Regex::new("’").unwrap();
+        static ref ESCAPED_SINGLE_QUOTES: Regex = Regex::new(r"\\'").unwrap();
         static ref ESCAPED_DOUBLE_QUOTES: Regex = Regex::new(r#"\\""#).unwrap();
         static ref PARAMETERS: Regex = Regex::new(r"%\([^)]*\)").unwrap();
     }
@@ -49,6 +50,8 @@ mod gettext {
             let string = APOSTROPHE_VARIATION.replace_all(&*self, "'");
             // Mark where parameters are positioned, removing the parameter name
             let string = PARAMETERS.replace_all(&string, "%");
+            // Remove escaped single-quotes
+            let string = ESCAPED_SINGLE_QUOTES.replace_all(&string, r"'");
             // Remove escaped double-quotes
             let string = ESCAPED_DOUBLE_QUOTES.replace_all(&string, r#"""#);
 
@@ -72,7 +75,7 @@ mod tests {
         ));
 
         let expected = concat!(
-            "\'Inside single quotes\'",
+            "'Inside single quotes'",
             r#""Inside double quotes""#,
             "With parameters: %d, %s",
         );
@@ -84,14 +87,16 @@ mod tests {
     fn normalize_gettext_msg_string() {
         use crate::gettext::MsgString;
 
-        let input = MsgString::from_unescaped(concat!(
+        let input = MsgString::from_escaped(concat!(
             "'Inside single quotes'",
-            r#""Inside double quotes""#,
+            r"\'Inside escaped single quotes\'",
+            r#"\"Inside double quotes\""#,
             "With parameters: %(number)d, %(string)s",
         ));
 
         let expected = concat!(
-            "\'Inside single quotes\'",
+            "'Inside single quotes'",
+            "'Inside escaped single quotes'",
             r#""Inside double quotes""#,
             "With parameters: %d, %s",
         );
