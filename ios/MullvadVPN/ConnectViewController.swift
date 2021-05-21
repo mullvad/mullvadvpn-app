@@ -148,7 +148,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         }
     }
 
-    func tunnelPublicKeyDidChange(publicKeyWithMetadata: PublicKeyWithMetadata?) {
+    func tunnelSettingsDidChange(tunnelSettings: TunnelSettings?) {
         // no-op
     }
 
