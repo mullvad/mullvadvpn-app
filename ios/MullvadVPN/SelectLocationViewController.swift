@@ -9,7 +9,7 @@
 import UIKit
 import Logging
 
-protocol SelectLocationViewControllerDelegate: class {
+protocol SelectLocationViewControllerDelegate: AnyObject {
     func selectLocationViewController(_ controller: SelectLocationViewController, didSelectRelayLocation relayLocation: RelayLocation)
 }
 

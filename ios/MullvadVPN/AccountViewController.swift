@@ -10,7 +10,7 @@ import StoreKit
 import UIKit
 import Logging
 
-protocol AccountViewControllerDelegate: class {
+protocol AccountViewControllerDelegate: AnyObject {
     func accountViewControllerDidLogout(_ controller: AccountViewController)
 }
 

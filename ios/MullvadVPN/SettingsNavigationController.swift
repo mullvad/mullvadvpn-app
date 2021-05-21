@@ -20,7 +20,7 @@ enum SettingsDismissReason {
     case userLoggedOut
 }
 
-protocol SettingsNavigationControllerDelegate: class {
+protocol SettingsNavigationControllerDelegate: AnyObject {
     func settingsNavigationController(_ controller: SettingsNavigationController, didFinishWithReason reason: SettingsDismissReason)
 }
 

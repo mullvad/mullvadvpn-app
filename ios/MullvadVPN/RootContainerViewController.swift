@@ -45,7 +45,7 @@ protocol RootContainment {
 
 }
 
-protocol RootContainerViewControllerDelegate: class {
+protocol RootContainerViewControllerDelegate: AnyObject {
     func rootContainerViewControllerShouldShowSettings(_ controller: RootContainerViewController, navigateTo route: SettingsNavigationRoute?, animated: Bool)
 
     func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController) -> UIInterfaceOrientationMask

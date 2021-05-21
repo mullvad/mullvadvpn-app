@@ -14,7 +14,7 @@ enum NavigationPopTrigger {
     case interactiveGesture
 }
 
-protocol ConditionalNavigation: class {
+protocol ConditionalNavigation: AnyObject {
     func shouldPopNavigationItem(_ navigationItem: UINavigationItem, trigger: NavigationPopTrigger) -> Bool
 }
 

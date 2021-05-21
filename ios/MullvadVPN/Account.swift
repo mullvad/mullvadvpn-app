@@ -18,7 +18,7 @@ private enum UserDefaultsKeys: String {
     case accountExpiry = "accountExpiry"
 }
 
-protocol AccountObserver: class {
+protocol AccountObserver: AnyObject {
     func account(_ account: Account, didUpdateExpiry expiry: Date)
     func account(_ account: Account, didLoginWithToken token: String, expiry: Date)
     func accountDidLogout(_ account: Account)

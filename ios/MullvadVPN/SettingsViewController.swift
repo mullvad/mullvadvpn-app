@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-protocol SettingsViewControllerDelegate: class {
+protocol SettingsViewControllerDelegate: AnyObject {
     func settingsViewControllerDidFinish(_ controller: SettingsViewController)
 }
 
