@@ -218,6 +218,19 @@ impl SystemdResolved {
         )
     }
 
+    pub fn get_dns(&self, interface_index: u32) -> Result<DnsState> {
+        let link_object_path = self
+            .fetch_link(interface_index)
+            .map_err(|e| Error::GetLinkError(Box::new(e)))?;
+        let set_servers = self.get_link_dns(&link_object_path)?;
+
+        Ok(DnsState {
+            interface_path: link_object_path,
+            interface_index,
+            set_servers,
+        })
+    }
+
     pub fn set_dns(&self, interface_index: u32, servers: &[IpAddr]) -> Result<DnsState> {
         let link_object_path = self
             .fetch_link(interface_index)
@@ -242,6 +255,21 @@ impl SystemdResolved {
             )
             .map_err(Error::DBusRpcError)
             .map(|result: (dbus::Path<'static>,)| result.0)
+    }
+
+    fn get_link_dns<'a, 'b: 'a>(
+        &'a self,
+        link_object_path: &'b dbus::Path<'static>,
+    ) -> Result<Vec<IpAddr>> {
+        let servers: Vec<(i32, Vec<u8>)> = self
+            .as_link_object(link_object_path.clone())
+            .get(LINK_INTERFACE, DNS_SERVERS)
+            .map_err(Error::DBusRpcError)?;
+
+        Ok(servers
+            .into_iter()
+            .filter_map(|(_family, addr)| ip_from_bytes(&addr))
+            .collect())
     }
 
     fn set_link_dns<'a, 'b: 'a>(
