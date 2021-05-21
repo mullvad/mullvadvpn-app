@@ -12,3 +12,4 @@ lazy_static = "1.0"
 log = "0.4"
 libc = "0.2"
 talpid-types = { path = "../talpid-types" }
+tokio = { version = "0.2", features = [ "blocking" ] }

@@ -1,5 +1,6 @@
 mod network_manager;
 mod resolvconf;
+mod routing;
 mod static_resolv_conf;
 pub(self) mod systemd_resolved;
 
@@ -39,28 +40,32 @@ pub enum Error {
 }
 
 pub struct DnsMonitor {
+    handle: tokio::runtime::Handle,
     inner: Option<DnsMonitorHolder>,
 }
 
 impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
-    fn new(_cache_dir: impl AsRef<Path>) -> Result<Self> {
-        Ok(DnsMonitor { inner: None })
+    fn new(handle: tokio::runtime::Handle, _cache_dir: impl AsRef<Path>) -> Result<Self> {
+        Ok(DnsMonitor {
+            handle,
+            inner: None,
+        })
     }
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
         self.reset()?;
         // Creating a new DNS monitor for each set, in case the system changed how it manages DNS.
         let mut inner = DnsMonitorHolder::new()?;
-        inner.set(interface, servers)?;
+        inner.set(&self.handle, interface, servers)?;
         self.inner = Some(inner);
         Ok(())
     }
 
     fn reset(&mut self) -> Result<()> {
         if let Some(mut inner) = self.inner.take() {
-            inner.reset()?;
+            inner.reset(&self.handle)?;
         }
         Ok(())
     }
@@ -120,7 +125,12 @@ impl DnsMonitorHolder {
             .map_err(|_| Error::NoDnsMonitor)
     }
 
-    fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
+    fn set(
+        &mut self,
+        handle: &tokio::runtime::Handle,
+        interface: &str,
+        servers: &[IpAddr],
+    ) -> Result<()> {
         use self::DnsMonitorHolder::*;
         match self {
             Resolvconf(ref mut resolvconf) => resolvconf.set_dns(interface, servers)?,
@@ -128,7 +138,7 @@ impl DnsMonitorHolder {
                 static_resolv_conf.set_dns(servers.to_vec())?
             }
             SystemdResolved(ref mut systemd_resolved) => {
-                systemd_resolved.set_dns(interface, &servers)?
+                handle.block_on(systemd_resolved.set_dns(interface, &servers))?
             }
             NetworkManager(ref mut network_manager) => {
                 network_manager.set_dns(interface, servers)?
@@ -137,12 +147,14 @@ impl DnsMonitorHolder {
         Ok(())
     }
 
-    fn reset(&mut self) -> Result<()> {
+    fn reset(&mut self, handle: &tokio::runtime::Handle) -> Result<()> {
         use self::DnsMonitorHolder::*;
         match self {
             Resolvconf(ref mut resolvconf) => resolvconf.reset()?,
             StaticResolvConf(ref mut static_resolv_conf) => static_resolv_conf.reset()?,
-            SystemdResolved(ref mut systemd_resolved) => systemd_resolved.reset()?,
+            SystemdResolved(ref mut systemd_resolved) => {
+                handle.block_on(systemd_resolved.reset())?
+            }
             NetworkManager(ref mut network_manager) => network_manager.reset()?,
         }
         Ok(())
