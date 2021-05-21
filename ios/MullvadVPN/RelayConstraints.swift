@@ -10,7 +10,7 @@ import Foundation
 
 private let kRelayConstraintAnyRepr = "any"
 
-enum RelayConstraint<T: Codable>: Codable {
+enum RelayConstraint<T>: Codable, Equatable where T: Codable & Equatable {
     case any
     case only(T)
 
@@ -166,7 +166,7 @@ extension RelayLocation: CustomDebugStringConvertible {
     }
 }
 
-struct RelayConstraints: Codable {
+struct RelayConstraints: Codable, Equatable {
     var location: RelayConstraint<RelayLocation> = .only(.country("se"))
 }
 
