@@ -83,7 +83,7 @@ impl Translation {
             match_str! { (line.trim())
                 ["msgid \"", msg_id, "\""] => {
                     current_id = Some(MsgString::from_escaped(msg_id));
-                }
+                },
                 ["msgstr \"", translation, "\""] => {
                     if let Some(id) = current_id.take() {
                         let value = MsgValue::Invariant(MsgString::from_escaped(translation));
@@ -95,11 +95,11 @@ impl Translation {
 
                     current_id = None;
                     current_plural_id = None;
-                }
+                },
                 ["msgid_plural \"", plural_id, "\""] => {
                     current_plural_id = Some(MsgString::from_escaped(plural_id));
                     parsing_header = false;
-                }
+                },
                 ["msgstr[", plural_translation, "\""] => {
                     let variant_id_end = plural_translation
                         .chars()
@@ -113,14 +113,14 @@ impl Translation {
 
                     variants.insert(variant_id, MsgString::from_escaped(variant_msg));
                     parsing_header = false;
-                }
+                },
                 ["\"", header, "\\n\""] => {
                     if parsing_header {
                         if let Some(plural_formula) = parse_line(header, "Plural-Forms: ", ";") {
                             plural_form = PluralForm::from_formula(plural_formula);
                         }
                     }
-                }
+                },
                 _ => {
                     if let Some(plural_id) = current_plural_id.take() {
                         let id = current_id.take().expect("Missing msgid for plural message");
