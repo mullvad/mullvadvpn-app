@@ -1,13 +1,15 @@
 use crate::linux::{iface_index, IfaceIndexLookupError};
+use futures::{channel::mpsc, StreamExt};
 use std::{
     net::IpAddr,
     sync::{
         atomic::{AtomicBool, Ordering},
-        Arc,
+        Arc, Mutex,
     },
     thread,
 };
 use talpid_dbus::systemd_resolved::{DnsState, SystemdResolved as DbusInterface};
+use talpid_types::ErrorExt;
 
 pub(crate) use talpid_dbus::systemd_resolved::Error as SystemdDbusError;
 
@@ -30,7 +32,7 @@ use super::routing::DnsRouteMonitor;
 pub struct SystemdResolved {
     pub dbus_interface: DbusInterface,
     state: Option<SetConfigState>,
-    local_configs: Vec<DnsState>,
+    local_configs: Arc<Mutex<Vec<DnsState>>>,
     _route_monitor: Option<DnsRouteMonitor>,
 }
 
@@ -48,7 +50,7 @@ impl SystemdResolved {
         let systemd_resolved = SystemdResolved {
             dbus_interface,
             state: None,
-            local_configs: vec![],
+            local_configs: Arc::new(Mutex::new(vec![])),
             _route_monitor: None,
         };
 
@@ -56,7 +58,8 @@ impl SystemdResolved {
     }
 
     pub async fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
-        let (monitor, initial_config) = super::routing::spawn_monitor(servers.to_vec())
+        let (update_tx, mut update_rx) = mpsc::unbounded();
+        let (monitor, initial_config) = super::routing::spawn_monitor(servers.to_vec(), update_tx)
             .await
             .map_err(Error::SpawnInterfaceMonitor)?;
         self._route_monitor = Some(monitor);
@@ -65,10 +68,18 @@ impl SystemdResolved {
         let mut last_result = Ok(());
 
         for iface_config in &initial_config {
-            let dns_state = match self
-                .dbus_interface
-                .set_dns(iface_config.interface, &iface_config.resolvers)
-            {
+            let initial_state = match self.dbus_interface.get_dns(iface_config.interface) {
+                Ok(state) => state,
+                Err(error) => {
+                    last_result = Err(Error::SystemdResolvedError(error));
+                    break;
+                }
+            };
+            let dns_state = match self.dbus_interface.set_dns(
+                iface_config.interface,
+                &iface_config.resolvers,
+                tunnel_index == iface_config.interface,
+            ) {
                 Ok(state) => state,
                 Err(error) => {
                     last_result = Err(Error::SystemdResolvedError(error));
@@ -85,7 +96,7 @@ impl SystemdResolved {
                     watcher_should_shutdown,
                 });
             } else {
-                self.local_configs.push(dns_state);
+                self.local_configs.lock().unwrap().push(initial_state);
             }
         }
 
@@ -93,6 +104,62 @@ impl SystemdResolved {
             let _ = self.reset();
             return Err(error);
         }
+
+        let mut dbus_interface = self.dbus_interface.clone();
+        let original_config = self.local_configs.clone();
+        tokio::spawn(async move {
+            while let Some(new_config) = update_rx.next().await {
+                log::debug!("DNS config for non-tunnel interface changed");
+
+                let mut config = original_config.lock().unwrap();
+                for dns_state in &*config {
+                    if let Err(err) = dbus_interface.revert_link(&dns_state) {
+                        log::error!("Failed to revert interface config: {}", err);
+                    }
+                }
+
+                config.sort_by(|a, b| a.interface_index.cmp(&b.interface_index));
+
+                for iface_config in &new_config {
+                    if tunnel_index == iface_config.interface {
+                        // All public addresses (plus the gateway) will be assigned
+                        // to the tunnel: we can assume nothing has changed.
+                        continue;
+                    }
+
+                    if let Err(index) =
+                        config.binary_search_by(|a| a.interface_index.cmp(&iface_config.interface))
+                    {
+                        let initial_state = match dbus_interface.get_dns(iface_config.interface) {
+                            Ok(state) => state,
+                            Err(error) => {
+                                log::error!(
+                                    "Failed to set resolvers: {}\n{}",
+                                    iface_config,
+                                    error.display_chain()
+                                );
+                                continue;
+                            }
+                        };
+                        if index <= config.len() {
+                            config.insert(index, initial_state);
+                        }
+                    }
+
+                    if let Err(error) = dbus_interface.set_dns(
+                        iface_config.interface,
+                        &iface_config.resolvers,
+                        false,
+                    ) {
+                        log::error!(
+                            "Failed to set resolvers: {}\n{}",
+                            iface_config,
+                            error.display_chain()
+                        );
+                    }
+                }
+            }
+        });
 
         Ok(())
     }
@@ -119,7 +186,7 @@ impl SystemdResolved {
                     current_servers.sort();
                     if current_servers != *dns_state.set_servers {
                         log::debug!("DNS config for tunnel interface changed, currently applied servers - {:?}", current_servers);
-                        if let Err(err) = dbus_interface.set_dns(dns_state.interface_index, &dns_state.set_servers) {
+                        if let Err(err) = dbus_interface.set_dns(dns_state.interface_index, &dns_state.set_servers, true) {
                             log::error!("Failed to re-apply DNS config - {}", err);
                         }
                     }
@@ -134,12 +201,6 @@ impl SystemdResolved {
     }
 
     pub fn reset(&mut self) -> Result<()> {
-        for iface_config in self.local_configs.drain(..) {
-            if let Err(err) = self.dbus_interface.revert_link(&iface_config) {
-                log::error!("Failed to revert interface config: {}", err);
-            }
-        }
-
         if let Some(SetConfigState {
             dns_config,
             watcher_thread,
@@ -153,6 +214,18 @@ impl SystemdResolved {
 
             if watcher_thread.join().is_err() {
                 log::error!("DNS watcher thread panicked!");
+            }
+        }
+
+        for state in self.local_configs.lock().unwrap().drain(..) {
+            if let Err(err) =
+                self.dbus_interface
+                    .set_dns(state.interface_index, &state.set_servers, false)
+            {
+                log::error!(
+                    "{}",
+                    err.display_chain_with_msg("Failed to revert interface config")
+                );
             }
         }
 
