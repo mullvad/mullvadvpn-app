@@ -103,14 +103,14 @@ fn main() {
             known_urls.clone(),
             known_strings.clone(),
             known_plurals.clone(),
-            gettext::Translation::from_file(&locale_file),
+            gettext::Messages::from_file(&locale_file),
             destination_dir.join("strings.xml"),
             destination_dir.join("plurals.xml"),
         );
     }
 
     let template_path = locale_dir.join("messages.pot");
-    let template = gettext::Translation::from_file(&template_path);
+    let template = gettext::Messages::from_file(&template_path);
 
     let mut missing_translations = known_strings;
     let mut missing_plurals: HashMap<_, _> = known_plurals;
@@ -228,7 +228,7 @@ fn generate_translations(
     known_urls: HashMap<String, String>,
     mut known_strings: HashMap<String, String>,
     mut known_plurals: HashMap<String, String>,
-    translations: gettext::Translation,
+    translations: gettext::Messages,
     strings_output_path: impl AsRef<Path>,
     plurals_output_path: impl AsRef<Path>,
 ) {

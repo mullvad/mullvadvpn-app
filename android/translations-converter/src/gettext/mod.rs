@@ -15,7 +15,7 @@ pub use self::{msg_string::MsgString, plural_form::PluralForm};
 
 /// A parsed gettext translation file.
 #[derive(Clone, Debug)]
-pub struct Translation {
+pub struct Messages {
     pub plural_form: Option<PluralForm>,
     entries: Vec<MsgEntry>,
 }
@@ -37,7 +37,7 @@ pub enum MsgValue {
     },
 }
 
-impl Translation {
+impl Messages {
     /// Load message entries from a gettext translation file.
     ///
     /// The only metadata that is parsed from the file is the "Plural-Form" header. It is assumed
@@ -155,7 +155,7 @@ impl Translation {
     }
 }
 
-impl IntoIterator for Translation {
+impl IntoIterator for Messages {
     type Item = MsgEntry;
     type IntoIter = std::vec::IntoIter<Self::Item>;
 
