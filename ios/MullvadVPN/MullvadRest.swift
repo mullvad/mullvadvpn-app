@@ -217,6 +217,10 @@ struct AnyResponseHandler<Response>: ResponseHandler {
         }
     }
 
+    init(block: @escaping (HTTPURLResponse, Data) -> Result<Response, ResponseHandlerError>) {
+        self.decodeResponseBlock = block
+    }
+
     func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<Response, ResponseHandlerError> {
         return self.decodeResponseBlock(httpResponse, data)
     }
@@ -233,10 +237,7 @@ struct DecodingResponseHandler<Response: Decodable>: ResponseHandler {
 
     func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<Response, ResponseHandlerError> {
         if httpResponse.statusCode == expectedStatus {
-            return Result { try MullvadRest.makeJSONDecoder().decode(Response.self, from: data) }
-                .mapError { (error) -> ResponseHandlerError in
-                    return .decodeData(error)
-                }
+            return MullvadRest.decodeSuccessResponse(Response.self, from: data)
         } else {
             return .failure(.badResponse(httpResponse.statusCode))
         }
@@ -274,10 +275,8 @@ struct HttpCacheDecodingResponseHandler<WrappedType: Decodable>: ResponseHandler
     func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<Response, ResponseHandlerError> {
         switch httpResponse.statusCode {
         case HttpStatus.ok:
-            return Result { try MullvadRest.makeJSONDecoder().decode(WrappedType.self, from: data) }
-                .mapError { (error) -> ResponseHandlerError in
-                    return .decodeData(error)
-                }.map { (relays) -> Response in
+            return MullvadRest.decodeSuccessResponse(WrappedType.self, from: data)
+                .map { (relays) -> Response in
                     let etag = httpResponse.value(forCaseInsensitiveHTTPHeaderField: HttpHeader.etag)
 
                     return .newContent(etag, relays)
@@ -370,7 +369,7 @@ struct RestEndpoint<Input, Response> where Input: RestPayload {
                 switch error {
                 case .badResponse:
                     // Try decoding the server error response in case when unexpected response is returned
-                    return Self.decodeErrorResponse(httpResponse: httpResponse, data: data)
+                    return MullvadRest.decodeErrorResponse(httpResponse: httpResponse, data: data)
                         .flatMap { (serverErrorResponse) -> Result<Response, RestError> in
                             return .failure(.server(serverErrorResponse))
                         }
@@ -379,15 +378,6 @@ struct RestEndpoint<Input, Response> where Input: RestPayload {
                     return .failure(.decodeSuccessResponse(decodingError))
                 }
             }
-    }
-
-    /// A private helper that parses the JSON response in case of error (Any HTTP code except 2xx)
-    private static func decodeErrorResponse(httpResponse: HTTPURLResponse, data: Data) -> Result<ServerErrorResponse, RestError> {
-        return Result { () -> ServerErrorResponse in
-            return try MullvadRest.makeJSONDecoder().decode(ServerErrorResponse.self, from: data)
-        }.mapError({ (error) -> RestError in
-            return .decodeErrorResponse(error)
-        })
     }
 }
 
@@ -557,7 +547,24 @@ extension MullvadRest {
             endpointURL: kRestBaseURL.appendingPathComponent("create-apple-payment"),
             httpMethod: .post,
             responseHandlerFactory: { (input) in
-                return DecodingResponseHandler(expectedStatus: HttpStatus.created)
+                return AnyResponseHandler { (httpResponse, data) -> Result<CreateApplePaymentResponse, ResponseHandlerError> in
+                    switch httpResponse.statusCode {
+                    case HttpStatus.ok:
+                        return MullvadRest.decodeSuccessResponse(CreateApplePaymentRawResponse.self, from: data)
+                            .map { (response) in
+                                return .noTimeAdded(response.newExpiry)
+                            }
+
+                    case HttpStatus.created:
+                        return MullvadRest.decodeSuccessResponse(CreateApplePaymentRawResponse.self, from: data)
+                            .map { (response) in
+                                return .timeAdded(response.timeAdded, response.newExpiry)
+                            }
+
+                    default:
+                        return .failure(.badResponse(httpResponse.statusCode))
+                    }
+                }
             }
         )
     }
@@ -588,6 +595,23 @@ extension MullvadRest {
         decoder.dateDecodingStrategy = .iso8601
         decoder.dataDecodingStrategy = .base64
         return decoder
+    }
+
+    /// A private helper that parses the JSON response into the given `Decodable` type.
+    fileprivate static func decodeSuccessResponse<T: Decodable>(_ type: T.Type, from data: Data) -> Result<T, ResponseHandlerError> {
+        return Result { try MullvadRest.makeJSONDecoder().decode(type, from: data) }
+            .mapError { (error) -> ResponseHandlerError in
+                return .decodeData(error)
+            }
+    }
+
+    /// A private helper that parses the JSON response in case of error (Any HTTP code except 2xx)
+    fileprivate static func decodeErrorResponse(httpResponse: HTTPURLResponse, data: Data) -> Result<ServerErrorResponse, RestError> {
+        return Result { () -> ServerErrorResponse in
+            return try MullvadRest.makeJSONDecoder().decode(ServerErrorResponse.self, from: data)
+        }.mapError({ (error) -> RestError in
+            return .decodeErrorResponse(error)
+        })
     }
 }
 
@@ -740,9 +764,25 @@ struct CreateApplePaymentRequest: Encodable, RestPayload {
     let receiptString: Data
 }
 
-struct CreateApplePaymentResponse: Decodable {
-    let timeAdded: Int
-    let newExpiry: Date
+enum CreateApplePaymentResponse {
+    case noTimeAdded(_ expiry: Date)
+    case timeAdded(_ timeAdded: Int, _ newExpiry: Date)
+
+    var newExpiry: Date {
+        switch self {
+        case .noTimeAdded(let expiry), .timeAdded(_, let expiry):
+            return expiry
+        }
+    }
+
+    var timeAdded: TimeInterval {
+        switch self {
+        case .noTimeAdded:
+            return 0
+        case .timeAdded(let timeAdded, _):
+            return TimeInterval(timeAdded)
+        }
+    }
 
     /// Returns a formatted string for the `timeAdded` interval, i.e "30 days"
     var formattedTimeAdded: String? {
@@ -750,8 +790,13 @@ struct CreateApplePaymentResponse: Decodable {
         formatter.allowedUnits = [.day, .hour]
         formatter.unitsStyle = .full
 
-        return formatter.string(from: TimeInterval(timeAdded))
+        return formatter.string(from: self.timeAdded)
     }
+}
+
+fileprivate struct CreateApplePaymentRawResponse: Decodable {
+    let timeAdded: Int
+    let newExpiry: Date
 }
 
 struct ProblemReportRequest: Encodable, RestPayload {

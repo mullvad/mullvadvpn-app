@@ -395,13 +395,17 @@ private extension CreateApplePaymentResponse {
                 formattedTimeAdded ?? ""
             )
         case .restoration:
-            return timeAdded == 0
-                ? NSLocalizedString(
+            switch self {
+            case .noTimeAdded:
+                return NSLocalizedString(
                     "Your previous purchases have already been added to this account.",
                     comment: "")
-                : String(
+            case .timeAdded:
+                return String(
                     format: NSLocalizedString("%@ have been added to your account", comment: ""),
-                    formattedTimeAdded ?? "")
+                    self.formattedTimeAdded ?? ""
+                )
+            }
         }
     }
 }
