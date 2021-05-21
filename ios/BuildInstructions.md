@@ -36,7 +36,7 @@ openssl req -new \
 WWDR certificate is used to verify the development and distribution certificates issued by Apple.
 
 ```
-curl https://developer.apple.com/certificationauthority/AppleWWDRCA.cer -O
+curl https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer -O
 ```
 
 # Convert certificates to PEM format
@@ -47,8 +47,8 @@ openssl x509 -inform der -outform pem \
   -out distribution.pem
 
 openssl x509 -inform der -outform pem \
-  -in AppleWWDRCA.cer \
-  -out AppleWWDRCA.pem
+  -in AppleWWDRCAG3.cer \
+  -out AppleWWDRCAG3.pem
 ```
 
 # Export private key and certificates
@@ -67,10 +67,41 @@ scratch.
 openssl pkcs12 -export \
   -inkey private_key.pem \
   -in distribution.pem \
-  -certfile AppleWWDRCA.pem \
+  -certfile AppleWWDRCAG3.pem \
   -out apple_code_signing.p12 \
   -name "<FRIENDLY_KEYCHAIN_NAME>"
 ```
+
+# Remove old private key and certificates from Keychain
+
+__Skip this section if you create the private key for the very first time.__
+
+If you happen to re-create the keys, you will have to remove the old keys and certificates from 
+Keychain.
+
+You can list all certificates with corresponding keys by using the following command:
+
+```
+security find-identity
+```
+
+You'll get a list of identities that looks like that:
+
+```
+Valid identities only
+1) <HASH_ID> "Apple Distribution: <COMPANY NAME> (<TEAM ID>)"
+2) <HASH_ID> "Apple Development: <COMPANY NAME> (<TEAM ID>)"
+```
+
+Pick the one that you don't want anymore and copy the `<HASH_ID>` from the output, then paste into 
+the command below:
+
+```
+security delete-identity -Z <HASH_ID>
+```
+
+This should take care of removing both private keys and certificates. Repeat as many times as needed 
+if you wish to remove multiple identities.
 
 # Import private key and certificates into Keychain
 
@@ -93,7 +124,7 @@ securely stored in Keychain now.
 
 ```
 rm distribution.{pem,cer} \
-  AppleWWDRCA.{pem,cer} \
+  AppleWWDRCAG3.{pem,cer} \
   cert_signing_request \
   apple_code_signing.p12 \
   private_key.pem
