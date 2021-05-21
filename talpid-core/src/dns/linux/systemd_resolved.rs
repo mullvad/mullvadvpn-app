@@ -20,11 +20,18 @@ pub enum Error {
 
     #[error(display = "Failed to resolve interface index with error {}", _0)]
     InterfaceNameError(#[error(source)] IfaceIndexLookupError),
+
+    #[error(display = "Failed to spawn DNS interface monitor")]
+    SpawnInterfaceMonitor(#[error(source)] super::routing::Error),
 }
+
+use super::routing::DnsRouteMonitor;
 
 pub struct SystemdResolved {
     pub dbus_interface: DbusInterface,
     state: Option<SetConfigState>,
+    local_configs: Vec<DnsState>,
+    _route_monitor: Option<DnsRouteMonitor>,
 }
 
 struct SetConfigState {
@@ -41,25 +48,51 @@ impl SystemdResolved {
         let systemd_resolved = SystemdResolved {
             dbus_interface,
             state: None,
+            local_configs: vec![],
+            _route_monitor: None,
         };
 
         Ok(systemd_resolved)
     }
 
-    pub fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
-        let iface_index = iface_index(interface_name)?;
-        let dns_state = self.dbus_interface.set_dns(iface_index, servers)?;
-        let dns_config = Arc::new(dns_state);
+    pub async fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
+        let (monitor, initial_config) = super::routing::spawn_monitor(servers.to_vec())
+            .await
+            .map_err(Error::SpawnInterfaceMonitor)?;
+        self._route_monitor = Some(monitor);
 
+        let tunnel_index = iface_index(interface_name)?;
+        let mut last_result = Ok(());
 
-        let (watcher_thread, watcher_should_shutdown) =
-            self.spawn_watcher_thread(dns_config.clone());
-        self.state = Some(SetConfigState {
-            dns_config,
-            watcher_thread,
-            watcher_should_shutdown,
-        });
+        for iface_config in &initial_config {
+            let dns_state = match self
+                .dbus_interface
+                .set_dns(iface_config.interface, &iface_config.resolvers)
+            {
+                Ok(state) => state,
+                Err(error) => {
+                    last_result = Err(Error::SystemdResolvedError(error));
+                    break;
+                }
+            };
+            if tunnel_index == iface_config.interface {
+                let dns_config = Arc::new(dns_state);
+                let (watcher_thread, watcher_should_shutdown) =
+                    self.spawn_watcher_thread(dns_config.clone());
+                self.state = Some(SetConfigState {
+                    dns_config,
+                    watcher_thread,
+                    watcher_should_shutdown,
+                });
+            } else {
+                self.local_configs.push(dns_state);
+            }
+        }
 
+        if let Err(error) = last_result {
+            let _ = self.reset();
+            return Err(error);
+        }
 
         Ok(())
     }
@@ -101,6 +134,12 @@ impl SystemdResolved {
     }
 
     pub fn reset(&mut self) -> Result<()> {
+        for iface_config in self.local_configs.drain(..) {
+            if let Err(err) = self.dbus_interface.revert_link(&iface_config) {
+                log::error!("Failed to revert interface config: {}", err);
+            }
+        }
+
         if let Some(SetConfigState {
             dns_config,
             watcher_thread,
