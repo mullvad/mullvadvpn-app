@@ -152,8 +152,14 @@ class ApplicationMain {
         mtu: undefined,
       },
       dns: {
-        custom: false,
-        addresses: [],
+        state: 'default',
+        defaultOptions: {
+          blockAds: false,
+          blockTrackers: false,
+        },
+        customOptions: {
+          addresses: [],
+        },
       },
     },
   };
