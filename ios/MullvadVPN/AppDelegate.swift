@@ -94,28 +94,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 switch result {
                 case .success:
                     self.logger?.debug("Loaded tunnels")
-
-                    // Fetch relay constraints when logged in.
-                    if Account.shared.isLoggedIn {
-                        self.logger?.debug("Load relay constraints")
-
-                        TunnelManager.shared.getRelayConstraints { (result) in
-                            DispatchQueue.main.async {
-                                switch result {
-                                case .success(let relayConstraints):
-                                    self.relayConstraints = relayConstraints
-                                    self.logger?.debug("Loaded relay constraints: \(relayConstraints)")
-
-                                case .failure(let error):
-                                    self.logger?.error(chainedError: error, message: "Failed to load relay constraints")
-                                }
-
-                                self.didFinishInitialization()
-                            }
-                        }
-                    } else {
-                        self.didFinishInitialization()
-                    }
+                    self.relayConstraints = TunnelManager.shared.tunnelSettings?.relayConstraints
+                    self.didFinishInitialization()
 
                 case .failure(let error):
                     self.logger?.error(chainedError: error, message: "Failed to load tunnels")
@@ -425,40 +405,28 @@ extension AppDelegate: LoginViewControllerDelegate {
         // Move the settings button back into header bar
         self.rootContainer?.removeSettingsButtonFromPresentationContainer()
 
-        TunnelManager.shared.getRelayConstraints { [weak self] (result) in
-            guard let self = self else { return }
+        self.relayConstraints = TunnelManager.shared.tunnelSettings?.relayConstraints
+        self.selectLocationViewController?.setSelectedRelayLocation(relayConstraints?.location.value, animated: false, scrollPosition: .middle)
 
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let relayConstraints):
-                    self.relayConstraints = relayConstraints
-                    self.selectLocationViewController?.setSelectedRelayLocation(relayConstraints.location.value, animated: false, scrollPosition: .middle)
-
-                case .failure(let error):
-                    self.logger?.error(chainedError: error, message: "Failed to load relay constraints after log in")
-                }
-
-                switch UIDevice.current.userInterfaceIdiom {
-                case .phone:
-                    let connectController = self.makeConnectViewController()
-                    self.rootContainer?.pushViewController(connectController, animated: true) {
-                        self.showAccountSettingsControllerIfAccountExpired()
-                    }
-                    self.connectController = connectController
-                case .pad:
-                    self.showSplitViewMaster(true, animated: true)
-
-                    controller.dismiss(animated: true) {
-                        self.showAccountSettingsControllerIfAccountExpired()
-                    }
-                default:
-                    fatalError()
-                }
-
-                self.window?.isUserInteractionEnabled = true
-                self.rootContainer?.setEnableSettingsButton(true)
+        switch UIDevice.current.userInterfaceIdiom {
+        case .phone:
+            let connectController = self.makeConnectViewController()
+            self.rootContainer?.pushViewController(connectController, animated: true) {
+                self.showAccountSettingsControllerIfAccountExpired()
             }
+            self.connectController = connectController
+        case .pad:
+            self.showSplitViewMaster(true, animated: true)
+
+            controller.dismiss(animated: true) {
+                self.showAccountSettingsControllerIfAccountExpired()
+            }
+        default:
+            fatalError()
         }
+
+        self.window?.isUserInteractionEnabled = true
+        self.rootContainer?.setEnableSettingsButton(true)
     }
 
 }
