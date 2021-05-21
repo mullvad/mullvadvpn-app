@@ -221,7 +221,8 @@ impl TunnelStateMachine {
         };
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
-        let dns_monitor = DnsMonitor::new(cache_dir).map_err(Error::InitDnsMonitorError)?;
+        let dns_monitor =
+            DnsMonitor::new(runtime.clone(), cache_dir).map_err(Error::InitDnsMonitorError)?;
         let route_manager = RouteManager::new(runtime.clone(), HashSet::new())
             .map_err(Error::InitRouteManagerError)?;
         let mut shared_values = SharedTunnelStateValues {

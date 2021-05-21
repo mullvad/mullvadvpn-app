@@ -28,9 +28,9 @@ pub struct DnsMonitor {
 
 impl DnsMonitor {
     /// Returns a new `DnsMonitor` that can set and monitor the system DNS.
-    pub fn new(cache_dir: impl AsRef<Path>) -> Result<Self, Error> {
+    pub fn new(handle: tokio::runtime::Handle, cache_dir: impl AsRef<Path>) -> Result<Self, Error> {
         Ok(DnsMonitor {
-            inner: imp::DnsMonitor::new(cache_dir)?,
+            inner: imp::DnsMonitor::new(handle, cache_dir)?,
         })
     }
 
@@ -58,7 +58,10 @@ impl DnsMonitor {
 trait DnsMonitorT: Sized {
     type Error: std::error::Error;
 
-    fn new(cache_dir: impl AsRef<Path>) -> Result<Self, Self::Error>;
+    fn new(
+        handle: tokio::runtime::Handle,
+        cache_dir: impl AsRef<Path>,
+    ) -> Result<Self, Self::Error>;
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Self::Error>;
 
