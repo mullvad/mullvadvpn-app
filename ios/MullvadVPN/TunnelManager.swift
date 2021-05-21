@@ -107,7 +107,7 @@ extension TunnelState: CustomStringConvertible, CustomDebugStringConvertible {
     }
 }
 
-protocol TunnelObserver: class {
+protocol TunnelObserver: AnyObject {
     func tunnelStateDidChange(tunnelState: TunnelState)
     func tunnelPublicKeyDidChange(publicKeyWithMetadata: PublicKeyWithMetadata?)
 }

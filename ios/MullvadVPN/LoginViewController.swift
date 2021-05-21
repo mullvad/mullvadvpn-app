@@ -22,7 +22,7 @@ enum LoginState {
     case success(AuthenticationMethod)
 }
 
-protocol LoginViewControllerDelegate: class {
+protocol LoginViewControllerDelegate: AnyObject {
     func loginViewController(_ controller: LoginViewController, loginWithAccountToken accountToken: String, completion: @escaping (Result<AccountResponse, Account.Error>) -> Void)
     func loginViewControllerLoginWithNewAccount(_ controller: LoginViewController, completion: @escaping (Result<AccountResponse, Account.Error>) -> Void)
     func loginViewControllerDidLogin(_ controller: LoginViewController)

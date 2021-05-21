@@ -42,7 +42,7 @@ enum RelayCacheError: ChainedError {
     }
 }
 
-protocol RelayCacheObserver: class {
+protocol RelayCacheObserver: AnyObject {
     func relayCache(_ relayCache: RelayCache, didUpdateCachedRelays cachedRelays: CachedRelays)
 }
 

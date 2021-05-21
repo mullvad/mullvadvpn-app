@@ -34,7 +34,7 @@ extension Set where Element == AppStoreSubscription {
     }
 }
 
-protocol AppStorePaymentObserver: class {
+protocol AppStorePaymentObserver: AnyObject {
     func appStorePaymentManager(
         _ manager: AppStorePaymentManager,
         transaction: SKPaymentTransaction,
@@ -85,7 +85,7 @@ private class AnyAppStorePaymentObserver: AppStorePaymentObserver, WeakObserverB
     }
 }
 
-protocol AppStorePaymentManagerDelegate: class {
+protocol AppStorePaymentManagerDelegate: AnyObject {
 
     /// Return the account token associated with the payment.
     /// Usually called for unfinished transactions coming back after the app was restarted.

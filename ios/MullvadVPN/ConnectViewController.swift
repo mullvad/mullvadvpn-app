@@ -18,7 +18,7 @@ class CustomOverlayRenderer: MKOverlayRenderer {
     }
 }
 
-protocol ConnectViewControllerDelegate: class {
+protocol ConnectViewControllerDelegate: AnyObject {
     func connectViewControllerShouldShowSelectLocationPicker(_ controller: ConnectViewController)
     func connectViewControllerShouldConnectTunnel(_ controller: ConnectViewController)
     func connectViewControllerShouldDisconnectTunnel(_ controller: ConnectViewController)
