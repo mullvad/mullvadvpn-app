@@ -231,7 +231,12 @@ impl SystemdResolved {
         })
     }
 
-    pub fn set_dns(&self, interface_index: u32, servers: &[IpAddr]) -> Result<DnsState> {
+    pub fn set_dns(
+        &self,
+        interface_index: u32,
+        servers: &[IpAddr],
+        catch_all: bool,
+    ) -> Result<DnsState> {
         let link_object_path = self
             .fetch_link(interface_index)
             .map_err(|e| Error::GetLinkError(Box::new(e)))?;
@@ -239,6 +244,10 @@ impl SystemdResolved {
         let mut set_servers = servers.to_vec();
         set_servers.sort();
         self.set_link_dns(&link_object_path, servers)?;
+        if catch_all {
+            // set the search domain to catch all DNS requests
+            self.set_link_dns_domains(&link_object_path, &[(".", true)])?;
+        }
         Ok(DnsState {
             interface_path: link_object_path,
             interface_index,
@@ -283,19 +292,21 @@ impl SystemdResolved {
             .collect::<Vec<_>>();
         self.as_link_object(link_object_path.clone())
             .method_call(LINK_INTERFACE, SET_DNS_METHOD, (servers,))
-            .map_err(Error::DBusRpcError)?;
+            .map_err(Error::DBusRpcError)
+    }
 
-        // set the search domain to catch all DNS requests, forces the link to be the prefered
-        // resolver, otherwise systemd-resolved will use other interfaces to do DNS lookups
-        let dns_domains: &[_] = &[(&".", true)];
-
+    fn set_link_dns_domains<'a, 'b: 'a>(
+        &'a self,
+        link_object_path: &'b dbus::Path<'static>,
+        domains: &[(&str, bool)],
+    ) -> Result<()> {
         Proxy::new(
             RESOLVED_BUS,
             link_object_path,
             RPC_TIMEOUT,
             &*self.dbus_connection,
         )
-        .method_call(LINK_INTERFACE, SET_DOMAINS_METHOD, (dns_domains,))
+        .method_call(LINK_INTERFACE, SET_DOMAINS_METHOD, (domains,))
         .map_err(Error::SetDomainsError)
     }
 
