@@ -86,7 +86,7 @@ jobs:
                 NDK_TOOLCHAIN_DIR: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin
                 AR_x86_64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android-ar
                 CC_x86_64_linux_android: ${{ steps.install-android-ndk.outputs.ndk-path }}/toolchains/llvm/prebuilt/linux-x86_64/bin/x86_64-linux-android21-clang
-                ARCHITECTURES: arm64 x86_64
+                ARCHITECTURES: aarch64 x86_64
               run: |
                 ./wireguard/build-wireguard-go.sh --android --no-docker
                 source env.sh x86_64-linux-android
