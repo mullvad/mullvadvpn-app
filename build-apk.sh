@@ -34,6 +34,8 @@ while [ ! -z "${1:-""}" ]; do
         EXTRA_WGGO_ARGS="--no-docker"
     elif [[ "${1:-""}" == "--app-bundle" ]]; then
         BUILD_BUNDLE="yes"
+    elif [[ "${1:-""}" == "--no-docker" ]]; then
+        EXTRA_WGGO_ARGS="--no-docker"
     fi
 
     shift 1
