@@ -109,6 +109,7 @@ This release is for desktop only.
 - Make WireGuard automatic key rotation interval mandatory and between 1 and 7 days.
 - Show default, minimum, and maximum key rotation intervals in CLI.
 - Attempt to send problem reports using other endpoints if using the primary one fails.
+- Upgrade wireguard-go to version 20210225140808 (Windows: v0.3.8)
 
 #### Android
 - Remove dialog warning that only custom local DNS servers are supported, since public custom DNS
