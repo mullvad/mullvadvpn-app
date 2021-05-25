@@ -41,7 +41,10 @@ class LoginViewController: UIViewController, RootContainment {
     }()
 
     private lazy var accountInputAccessoryLoginButton: UIBarButtonItem = {
-        return UIBarButtonItem(title: NSLocalizedString("Log in", comment: ""), style: .done, target: self, action: #selector(doLogin))
+        let barButtonItem = UIBarButtonItem(title: NSLocalizedString("Log in", comment: ""), style: .done, target: self, action: #selector(doLogin))
+        barButtonItem.accessibilityIdentifier = "LoginBarButtonItem"
+
+        return barButtonItem
     }()
 
     private lazy var accountInputAccessoryToolbar: UIToolbar = {
