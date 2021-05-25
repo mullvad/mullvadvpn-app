@@ -35,6 +35,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Upgrade OpenVPN from 2.5.0 to 2.5.1.
 - Replace CLI command `mullvad custom-dns` with the new command `mullvad dns`.
+- Upgrade wireguard-go to `20210521230051` (Windows: v0.3.14)
 
 #### Linux
 - Only allow packets with the mark set to `0x6d6f6c65` to communicate with the relay server.
