@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - Reduce network traffic consumption by leveraging HTTP caching via ETag HTTP header to avoid 
   re-downloading the relay list if it hasn't changed.
 - Pin root SSL certificates.
+- Add option to use Mullvad's ad-blocking DNS servers.
 
 ### Fixed
 - Fix bug which caused the tunnel manager to become unresponsive in the rare event of failure to
