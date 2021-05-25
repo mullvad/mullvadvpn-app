@@ -202,7 +202,6 @@
 		58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CCA01D2242787B004F3011 /* AccountTextField.swift */; };
 		58CE5E64224146200008646E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E63224146200008646E /* AppDelegate.swift */; };
 		58CE5E66224146200008646E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E65224146200008646E /* LoginViewController.swift */; };
-		58CE5E69224146200008646E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58CE5E67224146200008646E /* Main.storyboard */; };
 		58CE5E6B224146210008646E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 58CE5E6A224146210008646E /* Assets.xcassets */; };
 		58CE5E6E224146210008646E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 58CE5E6C224146210008646E /* LaunchScreen.storyboard */; };
 		58CE5E7C224146470008646E /* PacketTunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CE5E7B224146470008646E /* PacketTunnelProvider.swift */; };
@@ -409,7 +408,6 @@
 		58CE5E60224146200008646E /* MullvadVPN.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MullvadVPN.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		58CE5E63224146200008646E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		58CE5E65224146200008646E /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
-		58CE5E68224146200008646E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		58CE5E6A224146210008646E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		58CE5E6D224146210008646E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		58CE5E6F224146210008646E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -642,7 +640,6 @@
 				58B993B02608A34500BA7811 /* LoginContentView.swift */,
 				58CE5E65224146200008646E /* LoginViewController.swift */,
 				58C3B06624EA768100C0348E /* LogStreamerViewController.swift */,
-				58CE5E67224146200008646E /* Main.storyboard */,
 				5840250322B11AB700E4CFEC /* MullvadEndpoint.swift */,
 				58CB0EDF24B86751001EF0D8 /* MullvadRest.swift */,
 				5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */,
@@ -930,7 +927,6 @@
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
 				584789B8264D4A2A000E45FB /* old_le_root_cert.cer in Resources */,
 				584789BE264D4A2A000E45FB /* new_le_root_cert.cer in Resources */,
-				58CE5E69224146200008646E /* Main.storyboard in Resources */,
 				58E5BC2624FEB6DB00A53A76 /* AccountViewController.xib in Resources */,
 				58B9814E24FEA70D00C0D59E /* WireguardKeysViewController.xib in Resources */,
 			);
@@ -1224,14 +1220,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		58CE5E67224146200008646E /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				58CE5E68224146200008646E /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		58CE5E6C224146210008646E /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
