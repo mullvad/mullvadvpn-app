@@ -155,6 +155,21 @@ impl Messages {
             entries: Vec::new(),
         }
     }
+
+    /// Create a messages list with a single non-plural entry.
+    ///
+    /// The plural form for the messages is left unconfigured.
+    pub fn starting_with(id: MsgString, msg_str: MsgString) -> Self {
+        let first_entry = MsgEntry {
+            id,
+            value: MsgValue::Invariant(msg_str),
+        };
+
+        Messages {
+            plural_form: None,
+            entries: vec![first_entry],
+        }
+    }
 }
 
 impl IntoIterator for Messages {
