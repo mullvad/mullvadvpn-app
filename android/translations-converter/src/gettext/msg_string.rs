@@ -1,6 +1,6 @@
 use std::{
     fmt::{self, Display, Formatter},
-    ops::{AddAssign, Deref},
+    ops::{Add, AddAssign, Deref},
 };
 
 /// A message string in a gettext translation file.
@@ -63,6 +63,26 @@ where
 {
     fn add_assign(&mut self, other: M) {
         self.0 += &other.as_ref().0;
+    }
+}
+
+impl<M> Add<M> for MsgString
+where
+    M: AsRef<MsgString>,
+{
+    type Output = MsgString;
+
+    fn add(mut self, other: M) -> Self::Output {
+        self += other;
+        self
+    }
+}
+
+impl<'l, 'r> Add<&'r MsgString> for &'l MsgString {
+    type Output = MsgString;
+
+    fn add(self, other: &'r MsgString) -> Self::Output {
+        MsgString(self.0.clone() + &other.0)
     }
 }
 
