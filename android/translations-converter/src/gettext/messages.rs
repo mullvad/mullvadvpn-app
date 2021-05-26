@@ -180,6 +180,16 @@ impl Messages {
 
         self.entries.push(entry);
     }
+
+    /// Add a plural entry.
+    pub fn add_plural(&mut self, id: MsgString, plural_id: MsgString, values: Vec<MsgString>) {
+        let entry = MsgEntry {
+            id,
+            value: MsgValue::Plural { plural_id, values },
+        };
+
+        self.entries.push(entry);
+    }
 }
 
 impl IntoIterator for Messages {
