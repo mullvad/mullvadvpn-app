@@ -147,6 +147,14 @@ impl Messages {
             plural_form,
         })
     }
+
+    /// Construct an empty messages list configured with the specified plural form.
+    pub fn with_plural_form(plural_form: PluralForm) -> Self {
+        Messages {
+            plural_form: Some(plural_form),
+            entries: Vec::new(),
+        }
+    }
 }
 
 impl IntoIterator for Messages {
