@@ -1,6 +1,6 @@
 use std::{
     fmt::{self, Display, Formatter},
-    ops::Deref,
+    ops::{AddAssign, Deref},
 };
 
 /// A message string in a gettext translation file.
@@ -48,6 +48,21 @@ impl Deref for MsgString {
 
     fn deref(&self) -> &Self::Target {
         self.0.as_str()
+    }
+}
+
+impl AsRef<MsgString> for MsgString {
+    fn as_ref(&self) -> &Self {
+        self
+    }
+}
+
+impl<M> AddAssign<M> for MsgString
+where
+    M: AsRef<MsgString>,
+{
+    fn add_assign(&mut self, other: M) {
+        self.0 += &other.as_ref().0;
     }
 }
 
