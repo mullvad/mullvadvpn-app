@@ -1,4 +1,5 @@
 use super::{messages::Messages, msg_string::MsgString, parse_line, PluralForm};
+use derive_more::{Display, Error};
 use std::{collections::BTreeMap, mem};
 
 /// A gettext messages file parser.
@@ -61,11 +62,7 @@ impl Parser {
     }
 
     /// Parse an input line.
-    ///
-    /// # Panics
-    ///
-    /// The method will panic if the line can not be parsed.
-    pub fn parse_line(&mut self, line: &str) {
+    pub fn parse_line(&mut self, line: &str) -> Result<(), Error> {
         match_str! { (line.trim())
             ["msgid \"", msg_id, "\""] => {
                 self.current_id = Some(MsgString::from_escaped(msg_id));
@@ -87,12 +84,14 @@ impl Parser {
                 let variant_id_end = plural_translation
                     .chars()
                     .position(|character| character == ']')
-                    .expect("Invalid plural msgstr");
+                    .ok_or_else(|| Error::InvalidPluralVariant(plural_translation.to_owned()))?;
                 let variant_id: usize = plural_translation[..variant_id_end]
                     .parse()
-                    .expect("Invalid variant index");
+                    .map_err(|_| {
+                        Error::InvalidPluralIndex(plural_translation[..variant_id_end].to_owned())
+                    })?;
                 let variant_msg = parse_line(&plural_translation[variant_id_end..], "] \"", "")
-                    .expect("Invalid plural msgstr");
+                    .ok_or_else(|| Error::InvalidPluralVariant(plural_translation.to_owned()))?;
 
                 self.variants.insert(variant_id, MsgString::from_escaped(variant_msg));
                 self.parsing_header = false;
@@ -104,20 +103,22 @@ impl Parser {
                     }
                 }
             },
-            _ => {
+            line => {
                 if let Some(plural_id) = self.current_plural_id.take() {
-                    let id = self.current_id.take().expect("Missing msgid for plural message");
+                    let id = self.current_id.take()
+                        .ok_or_else(|| Error::UnexpectedLine(line.to_owned()))?;
+
                     let values = mem::replace(&mut self.variants, BTreeMap::new())
                         .into_iter()
                         .enumerate()
-                        .inspect(|(index, (variant_id, _))| {
-                            assert_eq!(
-                                index, variant_id,
-                                "Unexpected variant ID for plural msgstr"
-                            )
+                        .map(|(index, (variant_id, value))| {
+                            if index == variant_id {
+                                Ok(value)
+                            } else {
+                                Err(Error::IncompletePluralEntry(id.clone()))
+                            }
                         })
-                        .map(|(_, (_, value))| value)
-                        .collect();
+                        .collect::<Result<Vec<_>, Error>>()?;
 
                     self.messages.add_plural(id, plural_id, values);
                 }
@@ -128,11 +129,34 @@ impl Parser {
                 self.parsing_header = false;
             },
         }
+
+        Ok(())
     }
 
     /// Finish parsing and obtain the parsed [`Messages].
-    pub fn finish(mut self) -> Messages {
-        self.parse_line("");
-        self.messages
+    pub fn finish(mut self) -> Result<Messages, Error> {
+        self.parse_line("")?;
+
+        Ok(self.messages)
     }
+}
+
+/// Parsing errors.
+#[derive(Clone, Debug, Display, Error, Eq, PartialEq)]
+pub enum Error {
+    /// An unexpected line was read while parsing.
+    #[display(fmt = "Unexpected line parsing gettext messages: {}", _0)]
+    UnexpectedLine(#[error(not(source))] String),
+
+    /// Plural entry definition is missing a plural variant.
+    #[display(fmt = "Plural entry is missing a plural variant: {}", _0)]
+    IncompletePluralEntry(#[error(not(source))] MsgString),
+
+    /// Plural variant is invalid.
+    #[display(fmt = "Plural variant line is invalid: {}", _0)]
+    InvalidPluralVariant(#[error(not(source))] String),
+
+    /// Plural variant index was not parsable.
+    #[display(fmt = "Plural variant line contains an invalid index: {}", _0)]
+    InvalidPluralIndex(#[error(not(source))] String),
 }
