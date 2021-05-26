@@ -124,4 +124,40 @@ mod tests {
 
         assert_eq!(input.to_string(), original);
     }
+
+    #[test]
+    fn appending() {
+        let mut target = MsgString::from_unescaped(r#""Initial""#);
+        let extra = MsgString::from_escaped(r#"\"Extra\""#);
+
+        target += extra;
+
+        let expected = concat!(r#"\"Initial\"#, r#""\"Extra\""#);
+
+        assert_eq!(target.to_string(), expected);
+    }
+
+    #[test]
+    fn concatenating_by_moving() {
+        let start = MsgString::from_unescaped(r#""Start""#);
+        let end = MsgString::from_escaped(r#"\"End\""#);
+
+        let result = start + end;
+
+        let expected = concat!(r#"\"Start\"#, r#""\"End\""#);
+
+        assert_eq!(result.to_string(), expected);
+    }
+
+    #[test]
+    fn concatenating_by_borrowing() {
+        let start = MsgString::from_escaped(r#"\"Start\""#);
+        let end = MsgString::from_unescaped(r#""End""#);
+
+        let result = &start + &end;
+
+        let expected = concat!(r#"\"Start\"#, r#""\"End\""#);
+
+        assert_eq!(result.to_string(), expected);
+    }
 }
