@@ -44,6 +44,9 @@ pub enum Error {
     #[error(display = "Failed to revert DNS settings of interface: {}", _0)]
     RevertDnsError(String, #[error(source)] dbus::Error),
 
+    #[error(display = "Failed to replace DNS settings")]
+    ReplaceDnsError,
+
     #[error(display = "Failed to perform RPC call on D-Bus")]
     DBusRpcError(#[error(source)] dbus::Error),
 
@@ -318,7 +321,31 @@ impl SystemdResolved {
             .iter()
             .map(|addr| (ip_version(addr), ip_to_bytes(addr)))
             .collect::<Vec<_>>();
-        self.as_link_object(link_object_path.clone())
+        let link_object = self.as_link_object(link_object_path.clone());
+        let mut attempt = 0;
+        loop {
+            // Workaround for bug where old resolvers are not properly
+            // replaced in systemd-resolved.
+            // v248.3
+            link_object
+                .method_call(
+                    LINK_INTERFACE,
+                    SET_DNS_METHOD,
+                    (Vec::<(i32, Vec<u8>)>::new(),),
+                )
+                .map_err(Error::DBusRpcError)?;
+            let new_servers: Vec<(i32, Vec<u8>)> = link_object
+                .get(LINK_INTERFACE, DNS_SERVERS)
+                .map_err(Error::DBusRpcError)?;
+            if new_servers.is_empty() {
+                break;
+            }
+            if attempt == 10 {
+                return Err(Error::ReplaceDnsError);
+            }
+            attempt += 1;
+        }
+        link_object
             .method_call(LINK_INTERFACE, SET_DNS_METHOD, (servers,))
             .map_err(Error::DBusRpcError)
     }
