@@ -170,6 +170,16 @@ impl Messages {
             entries: vec![first_entry],
         }
     }
+
+    /// Add a non-plural entry.
+    pub fn add(&mut self, id: MsgString, msg_str: MsgString) {
+        let entry = MsgEntry {
+            id,
+            value: MsgValue::Invariant(msg_str),
+        };
+
+        self.entries.push(entry);
+    }
 }
 
 impl IntoIterator for Messages {
