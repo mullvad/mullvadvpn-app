@@ -68,12 +68,35 @@ pub enum Parser {
     /// Parsed a new message ID.
     NewEntry { id: MsgString, messages: Messages },
 
+    /// Parsing a message entry.
+    ///
+    /// Parsed a message ID and a message string, but the string could be incomplete with the rest
+    /// of it spread among more lines.
+    InvariantEntry {
+        id: MsgString,
+        message: MsgString,
+        messages: Messages,
+    },
+
     /// Detected that entry is for a plural.
     ///
-    /// Found a plural ID.
+    /// Found a plural ID, may have parsed variants.
+    NewPluralEntry {
+        id: MsgString,
+        plural_id: MsgString,
+        variants: BTreeMap<usize, MsgString>,
+        messages: Messages,
+    },
+
+    /// Parsing a plural entry variant.
+    ///
+    /// Parsed the start of a plural variant string, but the string could be incomplete with the
+    /// rest of it spread among more lines.
     PluralEntry {
         id: MsgString,
         plural_id: MsgString,
+        index: usize,
+        variant: MsgString,
         variants: BTreeMap<usize, MsgString>,
         messages: Messages,
     },
@@ -104,12 +127,25 @@ impl Parser {
             Parser::HeaderEnd(messages) => Self::parse_header_end(line, messages)?,
             Parser::Idle(messages) => Self::parse_idle(line, messages)?,
             Parser::NewEntry { id, messages } => Self::parse_new_entry(line, id, messages)?,
-            Parser::PluralEntry {
+            Parser::InvariantEntry {
+                id,
+                message,
+                messages,
+            } => Self::parse_invariant_entry(line, id, message, messages)?,
+            Parser::NewPluralEntry {
                 id,
                 plural_id,
                 variants,
                 messages,
-            } => Self::parse_plural_entry(line, id, plural_id, variants, messages)?,
+            } => Self::parse_new_plural_entry(line, id, plural_id, variants, messages)?,
+            Parser::PluralEntry {
+                id,
+                plural_id,
+                index,
+                variant,
+                variants,
+                messages,
+            } => Self::parse_plural_entry(line, id, plural_id, index, variant, variants, messages)?,
             Parser::Parsing => unreachable!("Parser should never stop on the Parsing state"),
         };
 
@@ -137,13 +173,31 @@ impl Parser {
             // Input file ends on an incomplete entry
             Parser::NewEntry { id, .. } => Err(Error::IncompleteEntry(id)),
 
+            // Input file ends on an invariant entry
+            Parser::InvariantEntry {
+                id,
+                message,
+                mut messages,
+            } => {
+                messages.add(id, message);
+
+                Ok(messages)
+            }
+
+            // Input file ends with an empty plural entry
+            Parser::NewPluralEntry { id, .. } => Err(Error::IncompletePluralEntry(id)),
+
             // Input file ends with a plural entry (it might be missing variants)
             Parser::PluralEntry {
                 id,
                 plural_id,
-                variants,
+                index,
+                variant,
+                mut variants,
                 mut messages,
             } => {
+                variants.insert(index, variant);
+
                 let variants = collect_variants(&id, variants)?;
 
                 messages.add_plural(id, plural_id, variants);
@@ -192,7 +246,7 @@ impl Parser {
             ),
 
             // A plural ID means this is the start of a plural entry with an empty ID
-            ["msgid_plural \"", plural_id, "\""] => Parser::PluralEntry {
+            ["msgid_plural \"", plural_id, "\""] => Parser::NewPluralEntry {
                 id: MsgString::empty(),
                 plural_id: MsgString::from_escaped(plural_id),
                 variants: BTreeMap::new(),
@@ -265,20 +319,20 @@ impl Parser {
         Ok(next_state)
     }
 
-    fn parse_new_entry(line: &str, id: MsgString, mut messages: Messages) -> Result<Parser, Error> {
+    fn parse_new_entry(line: &str, id: MsgString, messages: Messages) -> Result<Parser, Error> {
         let next_state = match_str! { (line)
             // Ignore comment lines
             ["#", ..] => Parser::NewEntry { id, messages },
 
             // A message string for an invariant entry
-            ["msgstr \"", string, "\""] => {
-                messages.add(id, MsgString::from_escaped(string));
-
-                Parser::Idle(messages)
+            ["msgstr \"", string, "\""] => Parser::InvariantEntry {
+                id,
+                message: MsgString::from_escaped(string),
+                messages,
             },
 
             // A plural ID means this is the start of a plural entry
-            ["msgid_plural \"", plural_id, "\""] => Parser::PluralEntry {
+            ["msgid_plural \"", plural_id, "\""] => Parser::NewPluralEntry {
                 id,
                 plural_id: MsgString::from_escaped(plural_id),
                 variants: BTreeMap::new(),
@@ -291,26 +345,56 @@ impl Parser {
         Ok(next_state)
     }
 
-    fn parse_plural_entry(
+    fn parse_invariant_entry(
         line: &str,
         id: MsgString,
-        plural_id: MsgString,
-        mut variants: BTreeMap<usize, MsgString>,
+        mut message: MsgString,
         mut messages: Messages,
     ) -> Result<Parser, Error> {
         let next_state = match_str! { (line)
             // Ignore comment lines
-            ["#", ..] => Parser::PluralEntry { id, plural_id, variants, messages },
+            ["#", ..] => Parser::InvariantEntry { id, message, messages },
+
+            // The entry message string continues on this line
+            ["\"", string, "\""] => {
+                message += MsgString::from_escaped(string);
+
+                Parser::InvariantEntry { id, message, messages }
+            },
+
+            // End of the entry
+            [""] => {
+                messages.add(id, message);
+
+                Parser::Idle(messages)
+            },
+
+            other => return Err(Error::UnexpectedLine(other.to_owned())),
+        };
+
+        Ok(next_state)
+    }
+
+    fn parse_new_plural_entry(
+        line: &str,
+        id: MsgString,
+        plural_id: MsgString,
+        variants: BTreeMap<usize, MsgString>,
+        mut messages: Messages,
+    ) -> Result<Parser, Error> {
+        let next_state = match_str! { (line)
+            // Ignore comment lines
+            ["#", ..] => Parser::NewPluralEntry { id, plural_id, variants, messages },
 
             // A message string for a plural variant
             ["msgstr[", index_and_string, "\""] => {
-                let (index, message) = extract_plural_variant(index_and_string)?;
-
-                variants.insert(index, message);
+                let (index, variant) = extract_plural_variant(index_and_string)?;
 
                 Parser::PluralEntry {
                     id,
                     plural_id,
+                    index,
+                    variant,
                     variants,
                     messages,
                 }
@@ -318,6 +402,69 @@ impl Parser {
 
             // An empty line marks the end of the plural entry
             [""] => {
+                let variants = collect_variants(&id, variants)?;
+
+                messages.add_plural(id, plural_id, variants);
+
+                Parser::Idle(messages)
+            },
+
+            other => return Err(Error::UnexpectedLine(other.to_owned())),
+        };
+
+        Ok(next_state)
+    }
+
+    fn parse_plural_entry(
+        line: &str,
+        id: MsgString,
+        plural_id: MsgString,
+        index: usize,
+        mut variant: MsgString,
+        mut variants: BTreeMap<usize, MsgString>,
+        mut messages: Messages,
+    ) -> Result<Parser, Error> {
+        let next_state = match_str! { (line)
+            // Ignore comment lines
+            ["#", ..] => {
+                Parser::PluralEntry { id, plural_id, index, variant, variants, messages }
+            },
+
+            // The variant message string continues on this line
+            ["\"", string, "\""] => {
+                variant += MsgString::from_escaped(string);
+
+                Parser::PluralEntry {
+                    id,
+                    plural_id,
+                    index,
+                    variant,
+                    variants,
+                    messages
+                }
+            },
+
+            // A message string indicating the end of the current variant and th start of another
+            ["msgstr[", index_and_string, "\""] => {
+                let (new_index, new_variant) = extract_plural_variant(index_and_string)?;
+
+                variants.insert(index, variant);
+
+                Parser::PluralEntry {
+                    id,
+                    plural_id,
+                    index: new_index,
+                    variant: new_variant,
+                    variants,
+                    messages,
+                }
+            },
+
+            // An empty line marks the end of the plural entry (and hence the current variant as
+            // well)
+            [""] => {
+                variants.insert(index, variant);
+
                 let variants = collect_variants(&id, variants)?;
 
                 messages.add_plural(id, plural_id, variants);
