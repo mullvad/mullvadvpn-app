@@ -121,7 +121,7 @@ impl SystemdResolved {
             ignore_config_changes.clone(),
         ));
 
-        let dbus_interface = self.dbus_interface.clone();
+        let dbus_interface = DbusInterface::new_connection()?.async_handle();
         let initial_states = self.initial_states.clone();
         let current_config = self.current_config.clone();
         let join_handle = tokio::spawn(async move {

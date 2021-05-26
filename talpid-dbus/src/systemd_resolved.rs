@@ -111,6 +111,17 @@ impl SystemdResolved {
         Ok(systemd_resolved)
     }
 
+    pub fn new_connection() -> Result<Self> {
+        let dbus_connection = SyncConnection::new_system().map_err(Error::ConnectDBus)?;
+        let systemd_resolved = SystemdResolved {
+            dbus_connection: Arc::new(dbus_connection),
+        };
+
+        systemd_resolved.ensure_resolved_exists()?;
+        Self::ensure_resolv_conf_is_resolved_symlink()?;
+        Ok(systemd_resolved)
+    }
+
     pub fn ensure_resolved_exists(&self) -> Result<()> {
         let _: Box<dyn RefArg> = self
             .as_manager_object()
