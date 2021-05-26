@@ -2,6 +2,7 @@
 mod match_str;
 mod messages;
 mod msg_string;
+mod parser;
 mod plural_form;
 
 use std::{
