@@ -4,7 +4,7 @@ use std::{
 };
 
 /// A message string in a gettext translation file.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct MsgString(String);
 
 impl MsgString {
