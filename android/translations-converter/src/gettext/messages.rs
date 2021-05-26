@@ -39,10 +39,10 @@ impl Messages {
         let mut parser = Parser::new();
 
         for line in file.lines() {
-            parser.parse_line(&line?);
+            parser.parse_line(&line?)?;
         }
 
-        Ok(parser.finish())
+        Ok(parser.finish()?)
     }
 
     /// Construct an empty messages list configured with the specified plural form.
@@ -106,6 +106,10 @@ impl From<MsgString> for MsgValue {
 
 #[derive(Debug, Display, Error, From)]
 pub enum Error {
+    /// Parser error while parsing file
+    #[display(fmt = "Failed to parse input file")]
+    Parse(super::parser::Error),
+
     /// IO error while reading input file.
     #[display(fmt = "Failed to read from the input file")]
     Io(std::io::Error),
