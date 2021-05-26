@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SelectLocationHeaderView: UITableViewHeaderFooterView {
+class SelectLocationHeaderView: UIView {
 
     lazy var textContentLabel: UILabel = {
         let textLabel = UILabel()
@@ -23,31 +23,24 @@ class SelectLocationHeaderView: UITableViewHeaderFooterView {
     var topLayoutMarginAdjustmentForNavigationBarTitle: CGFloat = 0 {
         didSet {
             let value = UIMetrics.contentLayoutMargins.top - topLayoutMarginAdjustmentForNavigationBarTitle
-            contentView.layoutMargins.top = max(value, 0)
+            layoutMargins.top = max(value, 0)
         }
     }
 
-    override init(reuseIdentifier: String?) {
-        super.init(reuseIdentifier: reuseIdentifier)
+    init() {
+        super.init(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
 
-        layoutMargins = .zero
-        contentView.layoutMargins = UIMetrics.contentLayoutMargins
-        contentView.addSubview(textContentLabel)
+        backgroundColor = .secondaryColor
+        layoutMargins = UIMetrics.contentLayoutMargins
+        insetsLayoutMarginsFromSafeArea = false
 
-        backgroundView = UIView()
-        backgroundView?.backgroundColor = .secondaryColor
-
-        let trailingConstraint = textContentLabel.trailingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor)
-        trailingConstraint.priority = UILayoutPriority(800)
-
-        let bottomConstraint = textContentLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor)
-        bottomConstraint.priority = UILayoutPriority(800)
+        addSubview(textContentLabel)
 
         NSLayoutConstraint.activate([
-            textContentLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
-            textContentLabel.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
-            trailingConstraint,
-            bottomConstraint
+            textContentLabel.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
+            textContentLabel.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
+            textContentLabel.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
+            textContentLabel.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)
         ])
     }
 
