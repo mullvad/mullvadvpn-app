@@ -51,14 +51,3 @@ pub fn append_to_template(
 
     Ok(())
 }
-
-fn parse_line<'l>(line: &'l str, prefix: &str, suffix: &str) -> Option<&'l str> {
-    if line.starts_with(prefix) && line.ends_with(suffix) {
-        let start = prefix.len();
-        let end = line.len() - suffix.len();
-
-        Some(&line[start..end])
-    } else {
-        None
-    }
-}
