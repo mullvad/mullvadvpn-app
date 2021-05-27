@@ -514,7 +514,15 @@ extension MullvadRest {
             endpointURL: kRestBaseURL.appendingPathComponent("wireguard-keys"),
             httpMethod: .post,
             responseHandlerFactory: { (input) in
-                return DecodingResponseHandler(expectedStatus: HttpStatus.created)
+                return AnyResponseHandler { (httpResponse, data) -> Result<WireguardAddressesResponse, ResponseHandlerError> in
+                    switch httpResponse.statusCode {
+                    case HttpStatus.ok, HttpStatus.created:
+                        return MullvadRest.decodeSuccessResponse(WireguardAddressesResponse.self, from: data)
+
+                    default:
+                        return .failure(.badResponse(httpResponse.statusCode))
+                    }
+                }
             }
         )
     }
