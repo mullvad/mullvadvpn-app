@@ -54,6 +54,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix time left not always being translated in desktop app settings.
 - Fix API address cache to use the supplied ports instead of always using port 443.
 - Do not try to parse an empty account history.
+- Assign local DNS servers to more appropriate interfaces when using systemd-resolved.
 
 #### Windows
 - Prevent tray icons from being extraced to `%TEMP%` directory.
