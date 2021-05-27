@@ -59,7 +59,6 @@
     "@types/uuid": "^3.4.4",
     "@typescript-eslint/eslint-plugin": "^4.21.0",
     "@typescript-eslint/parser": "^4.21.0",
-    "browser-sync": "^2.26.13",
     "browserify": "^17.0.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
