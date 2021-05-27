@@ -10,7 +10,7 @@ import Foundation
 import WireGuardKit
 
 /// A struct holding a private WireGuard key with associated metadata
-struct PrivateKeyWithMetadata {
+struct PrivateKeyWithMetadata: Equatable {
 
     /// When the key was created
     let creationDate: Date
