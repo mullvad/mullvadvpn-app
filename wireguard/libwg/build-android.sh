@@ -10,36 +10,37 @@ cd $script_dir
 export GOPATH=$script_dir/../../build/android-go-path/
 mkdir -p $GOPATH
 
-ARCHITECTURES="${ARCHITECTURES:-"arm arm64 x86_64 x86"}"
-for arch in $ARCHITECTURES; do
+for arch in ${ARCHITECTURES:-armv7 aarch64 x86_64 i686}; do
     case "$arch" in
-        "arm64")
+        "aarch64")
             export ANDROID_C_COMPILER="${NDK_TOOLCHAIN_DIR}/aarch64-linux-android21-clang"
             export ANDROID_STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/aarch64-linux-android-strip"
             export RUST_TARGET_TRIPLE="aarch64-linux-android"
             export ANDROID_ABI="arm64-v8a"
+            export ANDROID_ARCH_NAME="arm64"
             ;;
         "x86_64")
             export ANDROID_C_COMPILER="${NDK_TOOLCHAIN_DIR}/x86_64-linux-android21-clang"
             export ANDROID_STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/x86_64-linux-android-strip"
             export RUST_TARGET_TRIPLE="x86_64-linux-android"
             export ANDROID_ABI="x86_64"
+            export ANDROID_ARCH_NAME="x86_64"
             ;;
-        "arm")
+        "armv7")
             export ANDROID_C_COMPILER="${NDK_TOOLCHAIN_DIR}/armv7a-linux-androideabi21-clang"
             export ANDROID_STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/arm-linux-androideabi-strip"
             export RUST_TARGET_TRIPLE="armv7-linux-androideabi"
             export ANDROID_ABI="armeabi-v7a"
+            export ANDROID_ARCH_NAME="arm"
             ;;
-        "x86")
+        "i686")
             export ANDROID_C_COMPILER="${NDK_TOOLCHAIN_DIR}/i686-linux-android21-clang"
             export ANDROID_STRIP_TOOL="${NDK_TOOLCHAIN_DIR}/i686-linux-android-strip"
             export RUST_TARGET_TRIPLE="i686-linux-android"
             export ANDROID_ABI="x86"
+            export ANDROID_ARCH_NAME="x86"
             ;;
     esac
-
-    export ANDROID_ARCH_NAME=$arch
 
     # Build Wireguard-Go
     echo $(pwd)

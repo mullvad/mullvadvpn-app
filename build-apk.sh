@@ -34,6 +34,8 @@ while [ ! -z "${1:-""}" ]; do
         EXTRA_WGGO_ARGS="--no-docker"
     elif [[ "${1:-""}" == "--app-bundle" ]]; then
         BUILD_BUNDLE="yes"
+    elif [[ "${1:-""}" == "--no-docker" ]]; then
+        EXTRA_WGGO_ARGS="--no-docker"
     fi
 
     shift 1
@@ -90,9 +92,7 @@ cp Cargo.lock Cargo.lock.bak
 
 ./wireguard/build-wireguard-go.sh --android $EXTRA_WGGO_ARGS
 
-
-ARCHITECTURES="aarch64 armv7 x86_64 i686"
-for ARCHITECTURE in $ARCHITECTURES; do
+for ARCHITECTURE in ${ARCHITECTURES:-aarch64 armv7 x86_64 i686}; do
     case "$ARCHITECTURE" in
         "x86_64")
             LLVM_TRIPLE="x86_64-linux-android"
