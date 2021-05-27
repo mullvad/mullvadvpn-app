@@ -15,12 +15,13 @@ protocol SelectLocationViewControllerDelegate: AnyObject {
 
 class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
-    private enum ReuseIdentifiers: String {
-        case cell
-        case header
-    }
+    static let cellReuseIdentifier = "Cell"
 
     private var tableView: UITableView?
+
+    private let tableHeaderFooterView = SelectLocationHeaderView()
+    private var tableHeaderFooterViewTopConstraints: [NSLayoutConstraint] = []
+    private var tableHeaderFooterViewBottomConstraints: [NSLayoutConstraint] = []
 
     private let logger = Logger(label: "SelectLocationController")
     private var dataSource: LocationDataSource?
@@ -31,7 +32,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
     private var showHeaderViewAtTheBottom = false {
         didSet {
-            setTableHeaderFooterDimensions()
+            setTableHeaderFooterConstraints()
         }
     }
 
@@ -52,31 +53,30 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         super.viewDidLoad()
 
         let tableView = UITableView(frame: view.bounds, style: .plain)
-        tableView.translatesAutoresizingMaskIntoConstraints = true
-        tableView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .clear
         tableView.separatorColor = .secondaryColor
         tableView.separatorInset = .zero
         tableView.estimatedRowHeight = 53
         tableView.indicatorStyle = .white
 
-        tableView.register(SelectLocationHeaderView.self, forHeaderFooterViewReuseIdentifier: ReuseIdentifiers.header.rawValue)
-        tableView.register(SelectLocationCell.self, forCellReuseIdentifier: ReuseIdentifiers.cell.rawValue)
+        tableView.register(SelectLocationCell.self, forCellReuseIdentifier: Self.cellReuseIdentifier)
 
         self.tableView = tableView
 
-        setTableHeaderFooterDimensions()
-
         view.backgroundColor = .secondaryColor
         view.addSubview(tableView)
+
+        tableHeaderFooterView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tableHeaderFooterView)
 
         dataSource = LocationDataSource(
             tableView: tableView,
             cellProvider: { [weak self] (tableView, indexPath, item) -> UITableViewCell? in
                 guard let self = self else { return nil }
 
-                let cell = tableView.dequeueReusableCell(
-                    withIdentifier: ReuseIdentifiers.cell.rawValue, for: indexPath) as! SelectLocationCell
+                let cell = tableView.dequeueReusableCell(withIdentifier: Self.cellReuseIdentifier, for: indexPath)
+                    as! SelectLocationCell
 
                 cell.accessibilityIdentifier = item.location.stringRepresentation
                 cell.isDisabled = !item.isActive
@@ -93,6 +93,25 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
         tableView.delegate = self
         tableView.dataSource = dataSource
+
+        tableHeaderFooterViewTopConstraints = [
+            tableHeaderFooterView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.topAnchor.constraint(equalTo: tableHeaderFooterView.bottomAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ]
+        tableHeaderFooterViewBottomConstraints = [
+            tableHeaderFooterView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.bottomAnchor.constraint(equalTo: tableHeaderFooterView.topAnchor)
+        ]
+
+        NSLayoutConstraint.activate([
+            tableHeaderFooterView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableHeaderFooterView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
+        setTableHeaderFooterConstraints()
 
         if let setCachedRelaysOnViewDidLoad = self.setCachedRelaysOnViewDidLoad {
             dataSource?.setRelays(setCachedRelaysOnViewDidLoad.relays)
@@ -144,6 +163,12 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         }
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        updateTableHeaderTopLayoutMargin()
+    }
+
     // MARK: - UITableViewDelegate
 
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
@@ -171,32 +196,6 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
         )
 
         self.delegate?.selectLocationViewController(self, didSelectRelayLocation: item.location)
-    }
-
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        assert(section == 0)
-
-        if showHeaderViewAtTheBottom {
-            return nil
-        } else {
-            let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifiers.header.rawValue) as! SelectLocationHeaderView
-            updateTopLayoutMargin(forHeaderView: view)
-
-            return view
-        }
-    }
-
-    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        assert(section == 0)
-
-        if showHeaderViewAtTheBottom {
-            let view = tableView.dequeueReusableHeaderFooterView(withIdentifier: ReuseIdentifiers.header.rawValue) as! SelectLocationHeaderView
-            view.topLayoutMarginAdjustmentForNavigationBarTitle = 0
-
-            return view
-        } else {
-            return nil
-        }
     }
 
     // MARK: - Public
@@ -237,25 +236,26 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
     // MARK: - Private
 
-    private func updateTopLayoutMargin(forHeaderView view: SelectLocationHeaderView) {
+    private func updateTableHeaderTopLayoutMargin() {
         // When contained within the navigation controller, we want the distance between the navigation title
         // and the table header label to be exactly 24pt.
-        if let navigationBar = navigationController?.navigationBar as? CustomNavigationBar {
-            view.topLayoutMarginAdjustmentForNavigationBarTitle = navigationBar.titleLabelBottomInset
+        if let navigationBar = navigationController?.navigationBar as? CustomNavigationBar, !showHeaderViewAtTheBottom {
+            tableHeaderFooterView.topLayoutMarginAdjustmentForNavigationBarTitle = navigationBar.titleLabelBottomInset
         } else {
-            view.topLayoutMarginAdjustmentForNavigationBarTitle = 0
+            tableHeaderFooterView.topLayoutMarginAdjustmentForNavigationBarTitle = 0
         }
     }
 
-    private func setTableHeaderFooterDimensions() {
-        let headerFooterHeight: CGFloat = 109
-
+    private func setTableHeaderFooterConstraints() {
         if showHeaderViewAtTheBottom {
-            self.tableView?.estimatedSectionHeaderHeight = 0
-            self.tableView?.estimatedSectionFooterHeight = headerFooterHeight
+            NSLayoutConstraint.deactivate(
+                tableHeaderFooterViewTopConstraints)
+            NSLayoutConstraint.activate(tableHeaderFooterViewBottomConstraints)
         } else {
-            self.tableView?.estimatedSectionHeaderHeight = headerFooterHeight
-            self.tableView?.estimatedSectionFooterHeight = 0
+            NSLayoutConstraint.deactivate(
+                tableHeaderFooterViewBottomConstraints)
+            NSLayoutConstraint.activate(tableHeaderFooterViewTopConstraints)
         }
+        view.layoutIfNeeded()
     }
 }
