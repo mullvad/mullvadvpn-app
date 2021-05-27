@@ -226,7 +226,7 @@ class ApplicationMain {
 
     this.initLogging();
 
-    log.debug(`Chromium sandbox disabled: ${SANDBOX_DISABLED}`);
+    log.debug(`Chromium sandbox is ${SANDBOX_DISABLED ? 'disabled' : 'enabled'}`);
     if (!SANDBOX_DISABLED) {
       app.enableSandbox();
     }
