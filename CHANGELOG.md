@@ -32,6 +32,9 @@ Line wrap the file at 100 chars.                                              Th
 - Support WireGuard multihop using an entry endpoint constraint.
 - Add DNS options for ad and tracker blocking to the desktop app.
 
+#### Windows
+- Add split tunneling as a beta feature. Allows excluding some applications from the VPN tunnel.
+
 ### Changed
 - Upgrade OpenVPN from 2.5.0 to 2.5.1.
 - Replace CLI command `mullvad custom-dns` with the new command `mullvad dns`.
