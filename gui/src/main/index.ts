@@ -237,6 +237,14 @@ class ApplicationMain {
       app.setAppUserModelId('net.mullvad.vpn');
     }
 
+    // While running in development the watch script triggers a reload of the renderer by sending
+    // the signal `SIGUSR2`.
+    if (process.env.NODE_ENV === 'development') {
+      process.on('SIGUSR2', () => {
+        this.windowController?.window?.reload();
+      });
+    }
+
     this.guiSettings.load();
 
     app.on('activate', this.onActivate);
@@ -1468,9 +1476,6 @@ class ApplicationMain {
       process.env.NODE_ENV === 'development' &&
       // Local web server providing assests (index.html, index.js and css files)
       (url.startsWith('http://localhost:8080/') ||
-        // Automatic reloading performed by the browser-sync module
-        url.startsWith('ws://localhost:35829/browser-sync') ||
-        url.startsWith('http://localhost:35829/browser-sync/') ||
         // Downloading of React and Redux developer tools.
         url.startsWith('devtools://devtools/') ||
         url.startsWith('chrome-extension://') ||
