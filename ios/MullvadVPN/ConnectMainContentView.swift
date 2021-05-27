@@ -21,6 +21,9 @@ class ConnectMainContentView: UIView {
         mapView.translatesAutoresizingMaskIntoConstraints = true
         mapView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         mapView.showsUserLocation = false
+        mapView.isZoomEnabled = false
+        mapView.isScrollEnabled = false
+        mapView.isUserInteractionEnabled = false
         return mapView
     }()
 
