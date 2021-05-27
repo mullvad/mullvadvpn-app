@@ -45,11 +45,17 @@ class MullvadVPNScreenshots: XCTestCase {
         textField.typeText(accountToken)
 
         // Tap "Log in" button to log in
-        app.toolbars["Toolbar"].buttons["LoginBarButtonItem"].tap()
+        if case .phone = UIDevice.current.userInterfaceIdiom {
+            app.toolbars["Toolbar"].buttons["LoginBarButtonItem"].tap()
+        } else {
+            textField.typeText("\n")
+        }
 
         // Select Australia, Melbourne in Select location controller
-        _ = app.buttons["SelectLocationButton"].waitForExistence(timeout: 10)
-        app.buttons["SelectLocationButton"].tap()
+        if case .phone = UIDevice.current.userInterfaceIdiom {
+            _ = app.buttons["SelectLocationButton"].waitForExistence(timeout: 10)
+            app.buttons["SelectLocationButton"].tap()
+        }
 
         let countryCell = app.cells["au"]
         let cityCell = app.cells["au-mel"]
@@ -68,13 +74,15 @@ class MullvadVPNScreenshots: XCTestCase {
 
         snapshot("MainSecured")
 
-        // Re-open Select location controller
-        app.buttons["SelectLocationButton"].tap()
-        cityCell.buttons["CollapseButton"].tap()
-        snapshot("SelectLocation")
+        // Re-open Select location controller (iPhone only)
+        if case .phone = UIDevice.current.userInterfaceIdiom {
+            app.buttons["SelectLocationButton"].tap()
+            cityCell.buttons["CollapseButton"].tap()
+            snapshot("SelectLocation")
 
-        // Tap the "Done" button to dismiss the "Select location" controller
-        app.navigationBars.buttons.firstMatch.tap()
+            // Tap the "Done" button to dismiss the "Select location" controller
+            app.navigationBars.buttons.firstMatch.tap()
+        }
 
         // Open Settings
         app.buttons["SettingsButton"].tap()

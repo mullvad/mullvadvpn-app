@@ -99,6 +99,8 @@ class LoginContentView: UIView {
         backgroundColor = .primaryColor
         layoutMargins = UIMetrics.contentLayoutMargins
 
+        accountTextField.accessibilityIdentifier = "LoginTextField"
+
         keyboardResponder = AutomaticKeyboardResponder(targetView: self, handler: { [weak self] (view, adjustment) in
             self?.contentContainerBottomConstraint?.constant = adjustment
 

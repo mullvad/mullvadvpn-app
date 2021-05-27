@@ -58,6 +58,7 @@ We strongly believe in retaining as little data as possible because we want you 
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString("Agree and continue", comment: ""), for: .normal)
+        button.accessibilityIdentifier = "AgreeButton"
         return button
     }()
 
