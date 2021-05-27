@@ -35,13 +35,14 @@ class PreferencesViewController: UITableViewController, TunnelObserver {
         tableView.separatorColor = .secondaryColor
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
-        tableView.sectionHeaderHeight = 18
-        tableView.sectionFooterHeight = 18
+        tableView.sectionHeaderHeight = UIMetrics.contentLayoutMargins.top
+        tableView.sectionFooterHeight = 0
 
         tableView.dataSource = staticDataSource
         tableView.delegate = staticDataSource
 
         tableView.register(SettingsSwitchCell.self, forCellReuseIdentifier: CellIdentifier.switchCell.rawValue)
+        tableView.register(EmptyTableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: EmptyTableViewHeaderFooterView.reuseIdentifier)
 
         navigationItem.title = NSLocalizedString("Preferences", comment: "Navigation title")
         navigationItem.largeTitleDisplayMode = .always
@@ -115,12 +116,8 @@ class PreferencesTableViewDataSource: StaticTableViewDataSource {
 
     // MARK: - UITableViewDelegate
 
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 24
-    }
-
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 0.01
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        return tableView.dequeueReusableHeaderFooterView(withIdentifier: EmptyTableViewHeaderFooterView.reuseIdentifier)
     }
 
 }
