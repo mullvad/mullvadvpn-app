@@ -254,6 +254,8 @@ impl TunnelStateMachine {
             .map_err(Error::InitSplitTunneling)?;
 
         let mut shared_values = SharedTunnelStateValues {
+            #[cfg(windows)]
+            split_tunnel,
             runtime,
             firewall,
             dns_monitor,
@@ -269,8 +271,6 @@ impl TunnelStateMachine {
             resource_dir,
             #[cfg(target_os = "linux")]
             connectivity_check_was_enabled: None,
-            #[cfg(windows)]
-            split_tunnel,
         };
 
         let (initial_state, _) = DisconnectedState::enter(&mut shared_values, reset_firewall);
@@ -325,6 +325,11 @@ pub trait TunnelParametersGenerator: Send + 'static {
 
 /// Values that are common to all tunnel states.
 struct SharedTunnelStateValues {
+    /// Management of excluded apps.
+    /// This object should be dropped before deinitializing WinFw (dropping the `Firewall`
+    /// instance), since the driver may add filters to the same sublayer.
+    #[cfg(windows)]
+    split_tunnel: split_tunnel::SplitTunnel,
     runtime: tokio::runtime::Handle,
     firewall: Firewall,
     dns_monitor: DnsMonitor,
@@ -351,9 +356,6 @@ struct SharedTunnelStateValues {
     /// NetworkManager's connecitivity check state.
     #[cfg(target_os = "linux")]
     connectivity_check_was_enabled: Option<bool>,
-    /// Management of excluded apps.
-    #[cfg(windows)]
-    split_tunnel: split_tunnel::SplitTunnel,
 }
 
 impl SharedTunnelStateValues {
