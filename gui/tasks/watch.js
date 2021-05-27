@@ -1,31 +1,27 @@
 const { parallel, series, watch } = require('gulp');
 const electron = require('./electron');
-const hotreload = require('./hotreload');
 const devServer = require('./dev-server');
 const assets = require('./assets');
 const scripts = require('./scripts');
 
 function watchMainScripts() {
-  return watch(['build/src/main/**/*.js'], series(electron.stop, electron.start));
+  return watch(['build/src/main/**/*.js'], series(electron.reloadMain));
 }
 
 function watchCss() {
-  return watch(['src/renderer/**/*.css'], series(assets.copyCss, hotreload.reload));
+  return watch(['src/renderer/**/*.css'], series(assets.copyCss, electron.reloadRenderer));
 }
 
 function watchConfig() {
-  return watch(['src/config.json'], series(assets.copyConfig, hotreload.reload));
+  return watch(['src/config.json'], series(assets.copyConfig, electron.reloadRenderer));
 }
 
 function watchHtml() {
-  return watch(
-    ['src/renderer/index.html'],
-    series(assets.copyHtml, hotreload.inject, hotreload.reload),
-  );
+  return watch(['src/renderer/index.html'], series(assets.copyHtml, electron.reloadRenderer));
 }
 
 function watchStaticAssets() {
-  return watch(['assets/**'], series(assets.copyStaticAssets, hotreload.reload));
+  return watch(['assets/**'], series(assets.copyStaticAssets, electron.reloadRenderer));
 }
 
 watchMainScripts.displayName = 'watch-main-scripts';
@@ -44,10 +40,9 @@ exports.start = series(
     // successful build
     series(
       devServer.start,
-      hotreload.start,
       electron.start,
       parallel(watchMainScripts, watchCss, watchConfig, watchHtml, watchStaticAssets),
     ),
-    hotreload.reload,
+    electron.reloadRenderer,
   ),
 );

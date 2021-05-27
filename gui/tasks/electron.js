@@ -16,8 +16,19 @@ function stopElectron() {
   return subprocess;
 }
 
+function reloadMain(done) {
+  stopElectron();
+  startElectron(done);
+}
+
+function reloadRenderer() {
+  subprocess.kill('SIGUSR2');
+}
+
 startElectron.displayName = 'start-electron';
-stopElectron.displayName = 'stop-electron';
+reloadMain.displayName = 'reload-main-process';
+reloadRenderer.displayName = 'reload-renderer-process';
 
 exports.start = startElectron;
-exports.stop = stopElectron;
+exports.reloadMain = reloadMain;
+exports.reloadRenderer = reloadRenderer;

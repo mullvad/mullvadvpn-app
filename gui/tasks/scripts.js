@@ -21,6 +21,7 @@ function makeWatchCompiler(onFirstSuccess, onSuccess) {
         makeBrowserifyRenderer(true),
         makeBrowserifyPreload(true),
       )(async () => {
+        const wasFirstBuild = firstBuild;
         if (firstBuild) {
           firstBuild = false;
           onFirstSuccess();
@@ -36,7 +37,7 @@ function makeWatchCompiler(onFirstSuccess, onSuccess) {
         ) {
           lastBundle = bundle;
           lastPreloadBundle = preloadBundle;
-          onSuccess();
+          !wasFirstBuild && onSuccess();
         }
       }),
     );
