@@ -25,6 +25,7 @@ impl StringValue {
 
         let value = Self::collapse_line_breaks(value);
         let value = Self::ensure_parameters_are_indexed(value);
+        let value = Self::replace_bold_markers_with_tags(value);
 
         StringValue(value)
     }
@@ -80,6 +81,42 @@ impl StringValue {
             output.push_str(part);
         }
 
+        output
+    }
+
+    /// Replaces markdown bold markers (`**`bold text`**`) with HTML bold tags (`<b>`bold
+    /// text`</b>`).
+    fn replace_bold_markers_with_tags(original: String) -> String {
+        static MARKER: &str = "**";
+
+        let mut output = String::new();
+        let mut current_position = 0;
+
+        while let Some(starting_marker_offset) = original[current_position..].find(MARKER) {
+            // Append normal text until the marker
+            let starting_marker_position = current_position + starting_marker_offset;
+
+            output.push_str(&original[current_position..starting_marker_position]);
+            current_position = starting_marker_position + MARKER.len();
+
+            if let Some(ending_marker_offset) = original[current_position..].find(MARKER) {
+                // Found an ending marker, append bold text surrounded by tags
+                let ending_marker_position = current_position + ending_marker_offset;
+
+                output.push_str("<b>");
+                output.push_str(&original[current_position..ending_marker_position]);
+                output.push_str("</b>");
+
+                current_position = ending_marker_position + MARKER.len();
+            } else {
+                // Didn't find ending marker, treat the starting marker as a literal `**` and stop
+                output.push_str(MARKER);
+                break;
+            }
+        }
+
+        // Append remaining part of the string before finishing
+        output.push_str(&original[current_position..]);
         output
     }
 }
