@@ -98,6 +98,11 @@ impl RouteManager {
         }
     }
 
+    /// Retrieve handle for the tokio runtime.
+    pub fn runtime_handle(&self) -> tokio::runtime::Handle {
+        self.runtime.clone()
+    }
+
     async fn listen(mut manage_rx: UnboundedReceiver<RouteManagerCommand>) {
         while let Some(command) = manage_rx.next().await {
             match command {

@@ -21,9 +21,7 @@ import (
 	"golang.zx2c4.com/wireguard/device"
 	"golang.zx2c4.com/wireguard/tun"
 	"golang.zx2c4.com/wireguard/tun/wintun"
-	"golang.zx2c4.com/wireguard/windows/tunnel/winipcfg"
 
-	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/interfacewatcher"
 	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/logging"
 	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/tunnelcontainer"
 )
@@ -43,30 +41,8 @@ func init() {
 	}
 }
 
-func createInterfaceWatcherEvents(waitOnIpv6 bool, tunLuid uint64) []interfacewatcher.Event {
-	if waitOnIpv6 {
-		return []interfacewatcher.Event{
-			{
-				Luid:   winipcfg.LUID(tunLuid),
-				Family: windows.AF_INET,
-			},
-			interfacewatcher.Event {
-				Luid:   winipcfg.LUID(tunLuid),
-				Family: windows.AF_INET6,
-			},
-		}
-	} else {
-		return []interfacewatcher.Event{
-			{
-				Luid:   winipcfg.LUID(tunLuid),
-				Family: windows.AF_INET,
-			},
-		}
-	}
-}
-
 //export wgTurnOn
-func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, cIfaceNameOut **C.char, logSink LogSink, logContext LogContext) int32 {
+func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, cIfaceNameOut **C.char, cLuidOut *uint64, logSink LogSink, logContext LogContext) int32 {
 	logger := logging.NewLogger(logSink, logContext)
 	if cIfaceNameOut != nil {
 		*cIfaceNameOut = nil
@@ -87,13 +63,6 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, c
 
 	// {AFE43773-E1F8-4EBB-8536-576AB86AFE9A}
 	networkId := windows.GUID{0xafe43773, 0xe1f8, 0x4ebb, [8]byte{0x85, 0x36, 0x57, 0x6a, 0xb8, 0x6a, 0xfe, 0x9a}}
-
-	watcher, err := interfacewatcher.NewWatcher()
-	if err != nil {
-		logger.Errorf("%s\n", err)
-		return ERROR_GENERAL_FAILURE
-	}
-	defer watcher.Destroy()
 
 	if tun.WintunPool != MullvadPool {
 		tun.WintunPool = MullvadPool
@@ -132,18 +101,6 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, c
 
 	device.Up()
 
-	interfaces := createInterfaceWatcherEvents(waitOnIpv6, nativeTun.LUID())
-
-	logger.Verbosef("Waiting for interfaces to attach\n")
-
-	if !watcher.Join(interfaces, 5) {
-		logger.Errorf("Failed to wait for IP interfaces to become available\n")
-		device.Close()
-		return ERROR_GENERAL_FAILURE
-	}
-
-	logger.Verbosef("Interfaces OK\n")
-
 	context := tunnelcontainer.Context{
 		Device: device,
 		Logger: logger,
@@ -158,6 +115,9 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, c
 
 	if cIfaceNameOut != nil {
 		*cIfaceNameOut = C.CString(actualInterfaceName)
+	}
+	if cLuidOut != nil {
+		*cLuidOut = nativeTun.LUID()
 	}
 
 	return handle
