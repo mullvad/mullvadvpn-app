@@ -167,6 +167,15 @@ impl ConnectingState {
                     log::debug!("WireGuard tunnel timed out");
                     None
                 }
+                error @ tunnel::Error::WireguardTunnelMonitoringError(..)
+                    if !should_retry(&error) =>
+                {
+                    error!(
+                        "{}",
+                        error.display_chain_with_msg("Tunnel has stopped unexpectedly")
+                    );
+                    Some(ErrorStateCause::StartTunnelError)
+                }
                 error => {
                     warn!(
                         "{}",
