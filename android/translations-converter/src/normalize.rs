@@ -16,6 +16,7 @@ mod android {
         static ref APOSTROPHES: Regex = Regex::new(r"\\'").unwrap();
         static ref DOUBLE_QUOTES: Regex = Regex::new(r#"\\""#).unwrap();
         static ref PARAMETERS: Regex = Regex::new(r"%[0-9]*\$").unwrap();
+        static ref BOLD_TAGS: Regex = Regex::new(r"<b>|</b>").unwrap();
     }
 
     impl Normalize for StringValue {
@@ -26,6 +27,8 @@ mod android {
             let value = DOUBLE_QUOTES.replace_all(&value, r#"""#);
             // Mark where parameters are positioned, removing the parameter index
             let value = PARAMETERS.replace_all(&value, "%");
+            // Replace bold tags with bold markdown markers
+            let value = BOLD_TAGS.replace_all(&value, "**");
 
             // Unescape XML characters
             htmlize::unescape(value.as_bytes())
