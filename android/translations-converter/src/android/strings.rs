@@ -210,7 +210,7 @@ mod tests {
     use super::{StringResource, StringResources, StringValue};
 
     #[test]
-    fn deserialization() {
+    fn parsing() {
         let xml_input = r#"<resources>
             <string name="first">First string</string>
             <string name="second" translatable="false">Second string</string>
@@ -231,14 +231,13 @@ mod tests {
             },
         ]);
 
-        let deserialized: StringResources =
-            serde_xml_rs::from_str(xml_input).expect("malformed XML in test input");
+        let parsed: StringResources = xml_input.parse().expect("malformed XML in test input");
 
-        assert_eq!(deserialized, expected);
+        assert_eq!(parsed, expected);
     }
 
     #[test]
-    fn deserialization_of_multi_line_strings() {
+    fn parsing_of_multi_line_strings() {
         let xml_input = r#"<resources>
             <string name="first">First string is
                 split in two lines</string>
@@ -270,9 +269,8 @@ mod tests {
             },
         ]);
 
-        let deserialized: StringResources =
-            serde_xml_rs::from_str(xml_input).expect("malformed XML in test input");
+        let parsed: StringResources = xml_input.parse().expect("malformed XML in test input");
 
-        assert_eq!(deserialized, expected);
+        assert_eq!(parsed, expected);
     }
 }
