@@ -12,5 +12,6 @@ derive_more = "0.99"
 htmlize = "0.5"
 lazy_static = "1"
 regex = "1"
+roxmltree = "0.14"
 serde = { version = "1", features = ["derive"] }
 serde-xml-rs = "0.4"

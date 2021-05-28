@@ -30,6 +30,45 @@ impl StringValue {
         StringValue(value)
     }
 
+    /// Create a `StringValue` from a `string` XML node.
+    ///
+    /// The node is assumed to be a valid `string` node, and the `StringValue` will be built from
+    /// the children of the node.
+    pub fn from_string_xml_node(node: &roxmltree::Node<'_, '_>) -> Self {
+        // Fetch an iterator of all the child nodes of the `string` node.
+        let mut value_nodes = node.children();
+        let first_value_node = value_nodes.next();
+        let last_value_node = value_nodes.next_back();
+
+        let value = match (first_value_node, last_value_node) {
+            (Some(start_node), Some(end_node)) => {
+                // Use the raw input string starting from the start of the first element until the
+                // end of the last element
+                let start = start_node.range().start;
+                let end = end_node.range().end;
+
+                node.document().input_text()[start..end].trim().to_owned()
+            }
+            (Some(single_node), None) => {
+                // Use the raw input string that spans the single child of the `string` node
+                let range = single_node.range();
+                let start = range.start;
+                let end = range.end;
+
+                node.document().input_text()[start..end].trim().to_owned()
+            }
+            _ => {
+                // Somehow, the node is an empty string
+                "".to_owned()
+            }
+        };
+
+        // Remove line breaks present in the raw XML input string
+        let value = Self::collapse_line_breaks(value);
+
+        StringValue(value)
+    }
+
     /// The input XML file might have line breaks inside the string, and they should be collapsed
     /// into a single whitespace character.
     fn collapse_line_breaks(original: String) -> String {
