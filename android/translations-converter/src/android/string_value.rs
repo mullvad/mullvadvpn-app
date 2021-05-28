@@ -339,24 +339,19 @@ mod tests {
     }
 
     #[test]
-    fn deserialization() {
-        #[derive(serde::Deserialize)]
-        pub struct Wrapper {
-            #[serde(rename = "$value")]
-            value: StringValue,
-        }
-
-        let serialized_input = r#"<root>A multi-line string value
+    fn creation_from_xml_node() {
+        let xml_input = r#"<string>A multi-line string value
             with \"quotes\" and  
-            parameters %2$s %d %1$d</root>"#;
+            parameters %2$s %d %1$d</string>"#;
+        let xml_document =
+            roxmltree::Document::parse(xml_input).expect("invalid XML input test data");
 
-        let deserialized: Wrapper =
-            serde_xml_rs::from_str(serialized_input).expect("Mal-formed serialized input");
+        let parsed = StringValue::from_string_xml_node(&xml_document.root_element());
 
         let expected = StringValue(
             r#"A multi-line string value with \"quotes\" and parameters %2$s %d %1$d"#.to_owned(),
         );
 
-        assert_eq!(deserialized.value, expected);
+        assert_eq!(parsed, expected);
     }
 }
