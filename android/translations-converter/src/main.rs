@@ -45,10 +45,11 @@ use std::{
 fn main() {
     let resources_dir = Path::new("../src/main/res");
 
-    let strings_file = File::open(resources_dir.join("values/strings.xml"))
-        .expect("Failed to open string resources file");
-    let string_resources: android::StringResources =
-        serde_xml_rs::from_reader(strings_file).expect("Failed to read string resources file");
+    let strings_file = fs::read_to_string(resources_dir.join("values/strings.xml"))
+        .expect("Failed to read string resources file");
+    let string_resources: android::StringResources = strings_file
+        .parse()
+        .expect("Failed to parse string resources file");
 
     let (known_urls, known_strings): (HashMap<_, _>, HashMap<_, _>) = string_resources
         .into_iter()
