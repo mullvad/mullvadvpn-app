@@ -1,6 +1,5 @@
 use super::string_value::StringValue;
 use derive_more::{Display, Error, From};
-use serde::{Deserialize, Serialize};
 use std::{
     fmt::{self, Display, Formatter},
     ops::{Deref, DerefMut},
@@ -10,24 +9,21 @@ use std::{
 /// Contents of an Android string resources file.
 ///
 /// This type can be created directly parsing the `strings.xml` file.
-#[derive(Clone, Debug, Eq, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct StringResources {
-    #[serde(rename = "string")]
     entries: Vec<StringResource>,
 }
 
 /// An entry in an Android string resources file.
-#[derive(Clone, Debug, Eq, Deserialize, PartialEq, Serialize)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct StringResource {
     /// The string resource ID.
     pub name: String,
 
     /// If the string should be translated or not.
-    #[serde(default = "default_translatable")]
     pub translatable: bool,
 
     /// The string value.
-    #[serde(rename = "$value")]
     pub value: StringValue,
 }
 
@@ -147,10 +143,6 @@ fn tag_name_to_string(tag_name: roxmltree::ExpandedName<'_, '_>) -> String {
         Some(namespace) => format!("{}:{}", namespace, tag_name.name()),
         None => tag_name.name().to_owned(),
     }
-}
-
-fn default_translatable() -> bool {
-    true
 }
 
 impl Display for StringResources {
