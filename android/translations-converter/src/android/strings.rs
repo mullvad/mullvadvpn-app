@@ -273,4 +273,42 @@ mod tests {
 
         assert_eq!(parsed, expected);
     }
+
+    #[test]
+    fn parsing_of_inner_tags() {
+        let xml_input = r#"<resources>
+            <string name="first">First string has a <b>bold</b> part</string>
+            <string
+                name="second"
+                translatable="false"
+                >
+                Second string also has some 
+                <b>bold
+                text</b> that is split between
+                	multiple lines
+            </string>
+        </resources>"#;
+
+        let mut expected = StringResources::new();
+
+        expected.extend(vec![
+            StringResource {
+                name: "first".to_owned(),
+                translatable: true,
+                value: StringValue::from_escaped("First string has a <b>bold</b> part"),
+            },
+            StringResource {
+                name: "second".to_owned(),
+                translatable: false,
+                value: StringValue::from_escaped(concat!(
+                    "Second string also has some <b>bold text</b> that is split between multiple ",
+                    "lines"
+                )),
+            },
+        ]);
+
+        let parsed: StringResources = xml_input.parse().expect("malformed XML in test input");
+
+        assert_eq!(parsed, expected);
+    }
 }
