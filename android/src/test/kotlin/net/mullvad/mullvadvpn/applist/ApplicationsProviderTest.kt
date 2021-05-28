@@ -28,6 +28,9 @@ class ApplicationsProviderTest {
         val launchWithoutInternetPackageName = "launch_without_internet_package_name"
         val nonLaunchWithInternetPackageName = "non_launch_with_internet_package_name"
         val nonLaunchWithoutInternetPackageName = "non_launch_without_internet_package_name"
+        val leanbackLaunchWithInternetPackageName = "leanback_launch_with_internet_package_name"
+        val leanbackLaunchWithoutInternetPackageName =
+            "leanback_launch_without_internet_package_name"
 
         every {
             mockedPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
@@ -36,12 +39,19 @@ class ApplicationsProviderTest {
             createApplicationInfo(launchWithoutInternetPackageName, launch = true),
             createApplicationInfo(nonLaunchWithInternetPackageName, internet = true),
             createApplicationInfo(nonLaunchWithoutInternetPackageName),
+            createApplicationInfo(
+                leanbackLaunchWithInternetPackageName,
+                leanback = true,
+                internet = true
+            ),
+            createApplicationInfo(leanbackLaunchWithoutInternetPackageName, leanback = true),
             createApplicationInfo(selfPackageName, internet = true, launch = true)
         )
 
         val result = testSubject.getAppsList()
         val expected = listOf(
-            AppData(launchWithInternetPackageName, 0, launchWithInternetPackageName)
+            AppData(launchWithInternetPackageName, 0, launchWithInternetPackageName),
+            AppData(leanbackLaunchWithInternetPackageName, 0, leanbackLaunchWithInternetPackageName)
         )
 
         assertLists(expected, result)
@@ -49,21 +59,40 @@ class ApplicationsProviderTest {
         verifyAll {
             mockedPackageManager.getInstalledApplications(PackageManager.GET_META_DATA)
 
-            mockedPackageManager.checkPermission(internet, launchWithInternetPackageName)
-            mockedPackageManager.checkPermission(internet, launchWithoutInternetPackageName)
-            mockedPackageManager.checkPermission(internet, nonLaunchWithInternetPackageName)
-            mockedPackageManager.checkPermission(internet, nonLaunchWithoutInternetPackageName)
-            mockedPackageManager.checkPermission(internet, selfPackageName)
+            listOf(
+                launchWithInternetPackageName,
+                launchWithoutInternetPackageName,
+                nonLaunchWithInternetPackageName,
+                nonLaunchWithoutInternetPackageName,
+                leanbackLaunchWithInternetPackageName,
+                leanbackLaunchWithoutInternetPackageName,
+                selfPackageName
+            ).forEach { packageName ->
+                mockedPackageManager.checkPermission(internet, packageName)
+            }
 
-            mockedPackageManager.getLaunchIntentForPackage(launchWithInternetPackageName)
-            mockedPackageManager.getLaunchIntentForPackage(nonLaunchWithInternetPackageName)
-            mockedPackageManager.getLaunchIntentForPackage(selfPackageName)
+            listOf(
+                launchWithInternetPackageName,
+                nonLaunchWithInternetPackageName,
+                leanbackLaunchWithInternetPackageName,
+                selfPackageName
+            ).forEach { packageName ->
+                mockedPackageManager.getLaunchIntentForPackage(packageName)
+            }
+
+            listOf(
+                nonLaunchWithInternetPackageName,
+                leanbackLaunchWithInternetPackageName,
+            ).forEach { packageName ->
+                mockedPackageManager.getLeanbackLaunchIntentForPackage(packageName)
+            }
         }
     }
 
     private fun createApplicationInfo(
         packageName: String,
         launch: Boolean = false,
+        leanback: Boolean = false,
         internet: Boolean = false
     ): ApplicationInfo {
         val mockApplicationInfo = mockk<ApplicationInfo>()
@@ -76,6 +105,13 @@ class ApplicationsProviderTest {
         every {
             mockedPackageManager.getLaunchIntentForPackage(packageName)
         } returns if (launch)
+            mockk()
+        else
+            null
+
+        every {
+            mockedPackageManager.getLeanbackLaunchIntentForPackage(packageName)
+        } returns if (leanback)
             mockk()
         else
             null

@@ -30,7 +30,8 @@ class ApplicationsProvider(
     }
 
     private fun isLaunchable(packageName: String): Boolean {
-        return packageManager.getLaunchIntentForPackage(packageName) != null
+        return packageManager.getLaunchIntentForPackage(packageName) != null ||
+            packageManager.getLeanbackLaunchIntentForPackage(packageName) != null
     }
 
     private fun isSelfApplication(packageName: String): Boolean {
