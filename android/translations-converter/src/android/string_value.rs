@@ -202,6 +202,69 @@ mod tests {
     }
 
     #[test]
+    fn replaces_bold_markers_with_tags() {
+        let input = StringValue::from_unescaped("Start **bold**, then **boldly** end");
+
+        let expected = "Start <b>bold</b>, then <b>boldly</b> end";
+
+        assert_eq!(input.to_string(), expected);
+    }
+
+    #[test]
+    fn replaces_bold_markers_with_tags_even_at_extremities() {
+        let input = StringValue::from_unescaped("**Start** bold, **then** boldly **end**");
+
+        let expected = "<b>Start</b> bold, <b>then</b> boldly <b>end</b>";
+
+        assert_eq!(input.to_string(), expected);
+    }
+
+    #[test]
+    fn leaves_literal_asterisks_at_the_start() {
+        let input = StringValue::from_unescaped("**This is not bold");
+
+        let expected = "**This is not bold";
+
+        assert_eq!(input.to_string(), expected);
+    }
+
+    #[test]
+    fn leaves_literal_asterisks_in_the_middle() {
+        let input = StringValue::from_unescaped("**This is bold**, but **this is not");
+
+        let expected = "<b>This is bold</b>, but **this is not";
+
+        assert_eq!(input.to_string(), expected);
+    }
+
+    #[test]
+    fn leaves_literal_asterisks_at_the_end() {
+        let input = StringValue::from_unescaped("**This is bold**, but this is not**");
+
+        let expected = "<b>This is bold</b>, but this is not**";
+
+        assert_eq!(input.to_string(), expected);
+    }
+
+    #[test]
+    fn leaves_literal_asterisks_at_the_end_after_bold_text() {
+        let input = StringValue::from_unescaped("**This is bold****");
+
+        let expected = "<b>This is bold</b>**";
+
+        assert_eq!(input.to_string(), expected);
+    }
+
+    #[test]
+    fn replaces_markers_with_tags_even_for_empty_bold_text() {
+        let input = StringValue::from_unescaped("****Some leftover ****bold markers****");
+
+        let expected = "<b></b>Some leftover <b></b>bold markers<b></b>";
+
+        assert_eq!(input.to_string(), expected);
+    }
+
+    #[test]
     fn doesnt_change_parameter_indices() {
         let original = "%1$d %3$s %9$s %6$d %7$d";
 
