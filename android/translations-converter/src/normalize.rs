@@ -66,11 +66,10 @@ mod gettext {
 #[cfg(test)]
 mod tests {
     use super::Normalize;
+    use crate::{android::StringValue, gettext::MsgString};
 
     #[test]
     fn normalize_android_string_value() {
-        use crate::android::StringValue;
-
         let input = StringValue::from_unescaped(concat!(
             "'Inside single quotes'",
             r#""Inside double quotes""#,
@@ -88,8 +87,6 @@ mod tests {
 
     #[test]
     fn normalize_gettext_msg_string() {
-        use crate::gettext::MsgString;
-
         let input = MsgString::from_escaped(concat!(
             "'Inside single quotes'",
             r"\'Inside escaped single quotes\'",
