@@ -69,6 +69,14 @@ impl StringValue {
         StringValue(value)
     }
 
+    /// Create a `StringValue` from an escaped string.
+    ///
+    /// The string will be stored as is.
+    #[cfg(test)]
+    pub fn from_escaped(string: impl Into<String>) -> Self {
+        StringValue(string.into())
+    }
+
     /// The input XML file might have line breaks inside the string, and they should be collapsed
     /// into a single whitespace character.
     fn collapse_line_breaks(original: String) -> String {
