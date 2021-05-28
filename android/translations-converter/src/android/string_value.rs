@@ -18,13 +18,13 @@ impl StringValue {
     /// specified index plus one, or starting from one if there aren't any previously specified
     /// indices.
     pub fn from_unescaped(string: &str) -> Self {
-        let value_with_parameters = htmlize::escape_text(string)
+        let value = htmlize::escape_text(string)
             .replace(r"\", r"\\")
             .replace("\"", "\\\"")
             .replace(r"'", r"\'");
 
-        let value_without_line_breaks = Self::collapse_line_breaks(value_with_parameters);
-        let value = Self::ensure_parameters_are_indexed(value_without_line_breaks);
+        let value = Self::collapse_line_breaks(value);
+        let value = Self::ensure_parameters_are_indexed(value);
 
         StringValue(value)
     }
