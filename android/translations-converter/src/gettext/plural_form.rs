@@ -1,3 +1,6 @@
+use derive_more::{Display, Error};
+use std::str::FromStr;
+
 /// Known plural forms.
 #[derive(Clone, Copy, Debug)]
 pub enum PluralForm {
@@ -29,3 +32,19 @@ impl PluralForm {
         }
     }
 }
+
+impl FromStr for PluralForm {
+    type Err = UnsupportedPluralFormulaError;
+
+    fn from_str(string: &str) -> Result<Self, Self::Err> {
+        PluralForm::from_formula(string)
+            .ok_or_else(|| UnsupportedPluralFormulaError(string.to_owned()))
+    }
+}
+
+/// Failed to create [`PluralForm`] from specified plural formula.
+///
+/// The formula could be an invalid formula, or support for it hasn't been added yet.
+#[derive(Clone, Debug, Display, Error)]
+#[display(fmt = "Unsupported plural formula: {}", _0)]
+pub struct UnsupportedPluralFormulaError(#[error(not(source))] String);
