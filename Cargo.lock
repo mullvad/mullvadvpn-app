@@ -2524,6 +2524,7 @@ dependencies = [
 name = "talpid-core"
 version = "0.1.0"
 dependencies = [
+ "async-trait",
  "atty",
  "byteorder",
  "cfg-if 1.0.0",

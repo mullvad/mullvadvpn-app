@@ -8,6 +8,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
+async-trait = "0.1"
 atty = "0.2"
 cfg-if = "1.0"
 duct = "0.13"

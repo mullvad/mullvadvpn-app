@@ -134,6 +134,7 @@ impl fmt::Debug for WintunAdapter {
 }
 
 unsafe impl Send for WintunAdapter {}
+unsafe impl Sync for WintunAdapter {}
 
 impl WintunAdapter {
     pub fn open(dll_handle: Arc<WintunDll>, pool: &U16CStr, name: &U16CStr) -> io::Result<Self> {

@@ -281,15 +281,52 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     server_join_handle: Option<task::JoinHandle<std::result::Result<(), event_server::Error>>>,
 
     #[cfg(windows)]
-    wintun: WintunContext,
+    wintun: Arc<Box<dyn WintunContext>>,
+}
+
+#[cfg(windows)]
+#[async_trait::async_trait]
+trait WintunContext: Send + Sync {
+    fn luid(&self) -> NET_LUID;
+    fn ipv6(&self) -> bool;
+    async fn wait_for_interfaces(&self) -> io::Result<()>;
+}
+
+#[cfg(windows)]
+impl std::fmt::Debug for dyn WintunContext {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "WintunContext {{ luid: {}, ipv6: {} }}",
+            self.luid().Value,
+            self.ipv6()
+        )
+    }
 }
 
 #[cfg(windows)]
 #[derive(Debug)]
-struct WintunContext {
+struct WintunContextImpl {
     adapter: windows::TemporaryWintunAdapter,
     wait_v6_interface: bool,
     _logger: windows::WintunLoggerHandle,
+}
+
+#[cfg(windows)]
+#[async_trait::async_trait]
+impl WintunContext for WintunContextImpl {
+    fn luid(&self) -> NET_LUID {
+        self.adapter.adapter().luid()
+    }
+
+    fn ipv6(&self) -> bool {
+        self.wait_v6_interface
+    }
+
+    async fn wait_for_interfaces(&self) -> io::Result<()> {
+        let luid = self.adapter.adapter().luid();
+        super::windows::wait_for_interfaces(luid, true, self.wait_v6_interface).await
+    }
 }
 
 
@@ -486,11 +523,11 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             proxy_auth_file,
             proxy_monitor,
             #[cfg(windows)]
-            WintunContext {
+            Box::new(WintunContextImpl {
                 adapter: wintun_adapter,
                 wait_v6_interface: params.generic_options.enable_ipv6,
                 _logger: wintun_logger,
-            },
+            }),
         )
     }
 }
@@ -543,7 +580,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         user_pass_file: mktemp::TempFile,
         proxy_auth_file: Option<mktemp::TempFile>,
         proxy_monitor: Option<Box<dyn ProxyMonitor>>,
-        #[cfg(windows)] wintun: WintunContext,
+        #[cfg(windows)] wintun: Box<dyn WintunContext>,
     ) -> Result<OpenVpnMonitor<C>>
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
@@ -580,14 +617,15 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
                 .unwrap_err());
         }
 
+        #[cfg(windows)]
+        let wintun = Arc::new(wintun);
+
         cmd.plugin(plugin_path, vec![ipc_path])
             .log(log_path.as_ref().map(|p| p.as_path()));
         let (spawn_task, abort_spawn) = futures::future::abortable(Self::prepare_process(
             cmd,
             #[cfg(windows)]
-            wintun.adapter.adapter().luid(),
-            #[cfg(windows)]
-            wintun.wait_v6_interface,
+            wintun.clone(),
         ));
         let spawn_task = runtime.spawn(spawn_task);
 
@@ -611,13 +649,12 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
     async fn prepare_process(
         cmd: C,
-        #[cfg(windows)] luid: NET_LUID,
-        #[cfg(windows)] wait_on_ipv6: bool,
+        #[cfg(windows)] wintun: Arc<Box<dyn WintunContext>>,
     ) -> io::Result<C::ProcessHandle> {
         #[cfg(windows)]
         {
             log::debug!("Wait for IP interfaces");
-            super::windows::wait_for_interfaces(&luid, true, wait_on_ipv6).await?;
+            wintun.wait_for_interfaces().await?;
         }
         cmd.start()
     }
@@ -1220,6 +1257,24 @@ mod tests {
         sync::Arc,
     };
 
+    #[cfg(windows)]
+    #[derive(Debug)]
+    struct TestWintunContext {}
+
+    #[cfg(windows)]
+    #[async_trait::async_trait]
+    impl WintunContext for TestWintunContext {
+        fn luid(&self) -> NET_LUID {
+            NET_LUID { Value: 0u64 }
+        }
+        fn ipv6(&self) -> bool {
+            false
+        }
+        async fn wait_for_interfaces(&self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+
     #[derive(Debug, Default, Clone)]
     struct TestOpenVpnBuilder {
         pub plugin: Arc<Mutex<Option<PathBuf>>>,
@@ -1279,7 +1334,7 @@ mod tests {
             None,
             None,
             #[cfg(windows)]
-            None,
+            Box::new(TestWintunContext {}),
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_plugin")),
@@ -1299,7 +1354,7 @@ mod tests {
             None,
             None,
             #[cfg(windows)]
-            None,
+            Box::new(TestWintunContext {}),
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_log_file")),
@@ -1320,7 +1375,7 @@ mod tests {
             None,
             None,
             #[cfg(windows)]
-            None,
+            Box::new(TestWintunContext {}),
         )
         .unwrap();
         assert!(testee.wait().is_ok());
@@ -1339,7 +1394,7 @@ mod tests {
             None,
             None,
             #[cfg(windows)]
-            None,
+            Box::new(TestWintunContext {}),
         )
         .unwrap();
         assert!(testee.wait().is_err());
@@ -1358,7 +1413,7 @@ mod tests {
             None,
             None,
             #[cfg(windows)]
-            None,
+            Box::new(TestWintunContext {}),
         )
         .unwrap();
         testee.close_handle().close().unwrap();
@@ -1377,7 +1432,7 @@ mod tests {
             None,
             None,
             #[cfg(windows)]
-            None,
+            Box::new(TestWintunContext {}),
         )
         .unwrap();
         match result.wait() {

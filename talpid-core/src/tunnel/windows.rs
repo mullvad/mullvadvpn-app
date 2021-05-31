@@ -93,7 +93,7 @@ pub fn get_ip_interface_entry(family: u16, luid: &NET_LUID) -> io::Result<MIB_IP
 }
 
 /// Waits until the specified IP interfaces have attached to a given network interface.
-pub async fn wait_for_interfaces(luid: &NET_LUID, ipv4: bool, ipv6: bool) -> io::Result<()> {
+pub async fn wait_for_interfaces(luid: NET_LUID, ipv4: bool, ipv6: bool) -> io::Result<()> {
     let (tx, rx) = futures::channel::oneshot::channel();
 
     let mut found_ipv4 = if ipv4 { false } else { true };
@@ -127,8 +127,8 @@ pub async fn wait_for_interfaces(luid: &NET_LUID, ipv4: bool, ipv6: bool) -> io:
     )?;
 
     // Make sure they don't already exist
-    if (!ipv4 || get_ip_interface_entry(AF_INET as u16, luid).is_ok())
-        && (!ipv6 || get_ip_interface_entry(AF_INET6 as u16, luid).is_ok())
+    if (!ipv4 || get_ip_interface_entry(AF_INET as u16, &luid).is_ok())
+        && (!ipv6 || get_ip_interface_entry(AF_INET6 as u16, &luid).is_ok())
     {
         return Ok(());
     }
