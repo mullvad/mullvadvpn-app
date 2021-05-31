@@ -6,7 +6,7 @@ use winapi::shared::{
         MIB_IPINTERFACE_ROW,
     },
     ntdef::FALSE,
-    winerror::NO_ERROR,
+    winerror::{ERROR_NOT_FOUND, NO_ERROR},
     ws2def::{AF_INET, AF_INET6, AF_UNSPEC},
 };
 
@@ -85,11 +85,21 @@ pub fn get_ip_interface_entry(family: u16, luid: &NET_LUID) -> io::Result<MIB_IP
     row.InterfaceLuid = *luid;
 
     let result = unsafe { GetIpInterfaceEntry(&mut row as *mut _) };
-    if result != NO_ERROR {
-        return Err(io::Error::last_os_error());
+    if result == NO_ERROR {
+        Ok(row)
+    } else {
+        Err(io::Error::from_raw_os_error(result as i32))
     }
+}
 
-    Ok(row)
+fn ip_interface_entry_exists(family: u16, luid: &NET_LUID) -> io::Result<bool> {
+    match get_ip_interface_entry(family, luid) {
+        Ok(_) => Ok(true),
+        Err(error) => match error.raw_os_error() {
+            Some(code) if code == ERROR_NOT_FOUND as i32 => Ok(false),
+            _ => Err(error),
+        },
+    }
 }
 
 /// Waits until the specified IP interfaces have attached to a given network interface.
@@ -127,8 +137,8 @@ pub async fn wait_for_interfaces(luid: NET_LUID, ipv4: bool, ipv6: bool) -> io::
     )?;
 
     // Make sure they don't already exist
-    if (!ipv4 || get_ip_interface_entry(AF_INET as u16, &luid).is_ok())
-        && (!ipv6 || get_ip_interface_entry(AF_INET6 as u16, &luid).is_ok())
+    if (!ipv4 || ip_interface_entry_exists(AF_INET as u16, &luid)?)
+        && (!ipv6 || ip_interface_entry_exists(AF_INET6 as u16, &luid)?)
     {
         return Ok(());
     }
