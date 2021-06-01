@@ -95,10 +95,8 @@ pub fn get_ip_interface_entry(family: u16, luid: &NET_LUID) -> io::Result<MIB_IP
 fn ip_interface_entry_exists(family: u16, luid: &NET_LUID) -> io::Result<bool> {
     match get_ip_interface_entry(family, luid) {
         Ok(_) => Ok(true),
-        Err(error) => match error.raw_os_error() {
-            Some(code) if code == ERROR_NOT_FOUND as i32 => Ok(false),
-            _ => Err(error),
-        },
+        Err(error) if error.raw_os_error() == Some(ERROR_NOT_FOUND as i32) => Ok(false),
+        Err(error) => Err(error),
     }
 }
 
