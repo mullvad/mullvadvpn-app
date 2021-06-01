@@ -717,7 +717,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
     }
 
     /// Supplement `inner_wait_tunnel()` with logging and error handling.
-    fn wait_tunnel(&mut self) -> Result<()> {
+    fn wait_tunnel(self) -> Result<()> {
         let result = self.inner_wait_tunnel();
         match result {
             WaitResult::Preparation(result) => match result {
@@ -755,17 +755,10 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
 
     /// Waits for both the child process and the event dispatcher in parallel. After both have
     /// returned this returns the earliest result.
-    fn inner_wait_tunnel(&mut self) -> WaitResult {
-        let spawn_task = match self.spawn_task.take() {
-            Some(task) => task,
-            None => {
-                log::error!("BUG: spawn_task == None");
-                return WaitResult::Preparation(Ok(()));
-            }
-        };
+    fn inner_wait_tunnel(mut self) -> WaitResult {
         let child = match self
             .runtime
-            .block_on(spawn_task)
+            .block_on(self.spawn_task.take().unwrap())
             .expect("spawn task panicked")
         {
             Ok(Ok(child)) => Arc::new(child),
