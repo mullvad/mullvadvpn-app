@@ -177,8 +177,6 @@ impl WireguardMonitor {
         #[cfg(windows)]
         let iface_luid = tunnel.get_interface_luid();
 
-        (on_event)(TunnelEvent::InterfaceUp(iface_name.clone()));
-
         #[cfg(target_os = "windows")]
         let callback_handle = route_manager
             .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ())
@@ -206,7 +204,6 @@ impl WireguardMonitor {
             _callback_handle: callback_handle,
         };
 
-        let metadata = Self::tunnel_metadata(&iface_name, &config);
         let gateway = config.ipv4_gateway;
         let close_sender = monitor.close_msg_sender.clone();
         let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
@@ -221,7 +218,11 @@ impl WireguardMonitor {
         #[cfg(windows)]
         let runtime = route_manager.runtime_handle();
 
+        let metadata = Self::tunnel_metadata(&iface_name, &config);
+
         std::thread::spawn(move || {
+            (on_event)(TunnelEvent::InterfaceUp(metadata.clone()));
+
             #[cfg(windows)]
             {
                 let iface_close_sender = close_sender.clone();

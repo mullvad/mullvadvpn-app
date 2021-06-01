@@ -200,7 +200,7 @@ type TunnelCommandReceiver = stream::Fuse<mpsc::UnboundedReceiver<TunnelCommand>
 
 enum EventResult {
     Command(Option<TunnelCommand>),
-    Event(Option<TunnelEvent>),
+    Event(Option<(TunnelEvent, sync_mpsc::Sender<()>)>),
     Close(Result<Option<ErrorStateCause>, oneshot::Canceled>),
 }
 

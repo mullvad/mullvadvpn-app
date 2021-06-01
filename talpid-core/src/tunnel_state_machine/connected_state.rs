@@ -9,7 +9,7 @@ use crate::{
 };
 use cfg_if::cfg_if;
 use futures::{channel::mpsc, stream::Fuse, StreamExt};
-use std::net::IpAddr;
+use std::{net::IpAddr, sync::mpsc as sync_mpsc};
 use talpid_types::{
     net::TunnelParameters,
     tunnel::{ErrorStateCause, FirewallPolicyError},
@@ -21,7 +21,8 @@ use crate::tunnel::TunnelMonitor;
 
 use super::connecting_state::TunnelCloseEvent;
 
-pub(crate) type TunnelEventsReceiver = Fuse<mpsc::UnboundedReceiver<TunnelEvent>>;
+pub(crate) type TunnelEventsReceiver =
+    Fuse<mpsc::UnboundedReceiver<(TunnelEvent, sync_mpsc::Sender<()>)>>;
 
 
 pub struct ConnectedStateBootstrap {
@@ -262,13 +263,13 @@ impl ConnectedState {
 
     fn handle_tunnel_events(
         self,
-        event: Option<TunnelEvent>,
+        event: Option<(TunnelEvent, sync_mpsc::Sender<()>)>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
         use self::EventConsequence::*;
 
         match event {
-            Some(TunnelEvent::Down) | None => {
+            Some((TunnelEvent::Down, _)) | None => {
                 self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
             }
             Some(_) => SameState(self.into()),

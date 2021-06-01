@@ -73,8 +73,8 @@ pub enum Error {
 pub enum TunnelEvent {
     /// Sent when the tunnel fails to connect due to an authentication error.
     AuthFailed(Option<String>),
-    /// Sent when the tunnel interface has been created.
-    InterfaceUp(String),
+    /// Sent when the tunnel interface has been created, before routes are set up.
+    InterfaceUp(TunnelMetadata),
     /// Sent when the tunnel comes up and is ready for traffic.
     Up(TunnelMetadata),
     /// Sent when the tunnel goes down.
@@ -107,38 +107,45 @@ impl TunnelEvent {
                 let reason = env.get("auth_failed_reason").cloned();
                 Some(TunnelEvent::AuthFailed(reason))
             }
+            openvpn_plugin::EventType::Up => {
+                Some(TunnelEvent::InterfaceUp(Self::metadata_from_env(env)))
+            }
             openvpn_plugin::EventType::RouteUp => {
-                let interface = env
-                    .get("dev")
-                    .expect("No \"dev\" in tunnel up event")
-                    .to_owned();
-                let mut ips = vec![env
-                    .get("ifconfig_local")
-                    .expect("No \"ifconfig_local\" in tunnel up event")
-                    .parse()
-                    .expect("Tunnel IP not in valid format")];
-                if let Some(ipv6_address) = env.get("ifconfig_ipv6_local") {
-                    ips.push(ipv6_address.parse().expect("Tunnel IP not in valid format"));
-                }
-                let ipv4_gateway = env
-                    .get("route_vpn_gateway")
-                    .expect("No \"route_vpn_gateway\" in tunnel up event")
-                    .parse()
-                    .expect("Tunnel gateway IP not in valid format");
-                let ipv6_gateway = env.get("route_ipv6_gateway_1").map(|v6_str| {
-                    v6_str
-                        .parse()
-                        .expect("V6 Tunnel gateway IP not in valid format")
-                });
-                Some(TunnelEvent::Up(TunnelMetadata {
-                    interface,
-                    ips,
-                    ipv4_gateway,
-                    ipv6_gateway,
-                }))
+                Some(TunnelEvent::Up(Self::metadata_from_env(env)))
             }
             openvpn_plugin::EventType::RoutePredown => Some(TunnelEvent::Down),
             _ => None,
+        }
+    }
+
+    fn metadata_from_env(env: &HashMap<String, String>) -> TunnelMetadata {
+        let interface = env
+            .get("dev")
+            .expect("No \"dev\" in tunnel up event")
+            .to_owned();
+        let mut ips = vec![env
+            .get("ifconfig_local")
+            .expect("No \"ifconfig_local\" in tunnel up event")
+            .parse()
+            .expect("Tunnel IP not in valid format")];
+        if let Some(ipv6_address) = env.get("ifconfig_ipv6_local") {
+            ips.push(ipv6_address.parse().expect("Tunnel IP not in valid format"));
+        }
+        let ipv4_gateway = env
+            .get("route_vpn_gateway")
+            .expect("No \"route_vpn_gateway\" in tunnel up event")
+            .parse()
+            .expect("Tunnel gateway IP not in valid format");
+        let ipv6_gateway = env.get("route_ipv6_gateway_1").map(|v6_str| {
+            v6_str
+                .parse()
+                .expect("V6 Tunnel gateway IP not in valid format")
+        });
+        TunnelMetadata {
+            interface,
+            ips,
+            ipv4_gateway,
+            ipv6_gateway,
         }
     }
 }
