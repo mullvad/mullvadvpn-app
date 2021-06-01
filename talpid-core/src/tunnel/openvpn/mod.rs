@@ -365,8 +365,8 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         let ipv6_enabled = params.generic_options.enable_ipv6;
 
         let on_openvpn_event = move |event, env: HashMap<String, String>| {
-            #[cfg(target_os = "linux")]
-            if event == openvpn_plugin::EventType::Up {
+            if event == openvpn_plugin::EventType::RouteUp {
+                #[cfg(target_os = "linux")]
                 tokio::task::block_in_place(|| {
                     let routes = extract_routes(&env)
                         .unwrap()
@@ -384,9 +384,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                         panic!("Failed to add routes");
                     }
                 });
-                return;
-            }
-            if event == openvpn_plugin::EventType::RouteUp {
+
                 // The user-pass file has been read. Try to delete it early.
                 let _ = fs::remove_file(&user_pass_file_path);
 
@@ -400,10 +398,10 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                     wait_for_ready_device(env.get("dev").expect("missing tunnel alias")).unwrap();
                 });
             }
-            match TunnelEvent::from_openvpn_event(event, &env) {
+            tokio::task::block_in_place(|| match TunnelEvent::from_openvpn_event(event, &env) {
                 Some(tunnel_event) => on_event(tunnel_event),
                 None => log::debug!("Ignoring OpenVpnEvent {:?}", event),
-            }
+            });
         };
 
         let log_dir: Option<PathBuf> = if let Some(ref log_path) = log_path {
