@@ -226,15 +226,12 @@ impl WireguardMonitor {
 
                     futures::select! {
                         result = setup_future.fuse() => {
-                            match result {
-                                Ok(()) => Ok(()),
-                                Err(error) => {
-                                    let _ = iface_close_sender.send(CloseMsg::SetupError(
-                                        Error::IpInterfacesError(error)
-                                    ));
-                                    Err(())
-                                }
-                            }
+                            result.map_err(|error|
+                                iface_close_sender.send(CloseMsg::SetupError(
+                                    Error::IpInterfacesError(error)
+                                ))
+                                .unwrap_or(())
+                            )
                         }
                         _ = stop_setup_rx.fuse() => Err(()),
                     }
