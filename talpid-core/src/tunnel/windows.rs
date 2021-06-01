@@ -13,8 +13,7 @@ use winapi::shared::{
 /// Context for [`notify_ip_interface_change`]. When it is dropped,
 /// the callback is unregistered.
 pub struct IpNotifierHandle<'a> {
-    mutex: Mutex<()>,
-    callback: Option<Box<dyn FnMut(&MIB_IPINTERFACE_ROW, u32) + Send + 'a>>,
+    callback: Mutex<Box<dyn FnMut(&MIB_IPINTERFACE_ROW, u32) + Send + 'a>>,
     handle: RawHandle,
 }
 
@@ -22,14 +21,7 @@ unsafe impl Send for IpNotifierHandle<'_> {}
 
 impl<'a> Drop for IpNotifierHandle<'a> {
     fn drop(&mut self) {
-        // Inner callback may be called while destructing
         unsafe { CancelMibChangeNotify2(self.handle as *mut _) };
-
-        let _ = self
-            .mutex
-            .lock()
-            .expect("NotifyIpInterfaceChange mutex poisoned");
-        let _ = self.callback.take();
     }
 }
 
@@ -39,14 +31,10 @@ unsafe extern "system" fn inner_callback(
     notify_type: u32,
 ) {
     let context = &mut *(context as *mut IpNotifierHandle<'_>);
-    let _ = context
-        .mutex
+    context
+        .callback
         .lock()
-        .expect("NotifyIpInterfaceChange mutex poisoned");
-
-    if let Some(ref mut callback) = context.callback {
-        callback(&*row, notify_type);
-    }
+        .expect("NotifyIpInterfaceChange mutex poisoned")(&*row, notify_type);
 }
 
 /// Registers a callback function that is invoked when an interface is added, removed,
@@ -56,8 +44,7 @@ pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, u32) + Send
     family: u16,
 ) -> io::Result<Box<IpNotifierHandle<'a>>> {
     let mut context = Box::new(IpNotifierHandle {
-        mutex: Mutex::default(),
-        callback: Some(Box::new(callback)),
+        callback: Mutex::new(Box::new(callback)),
         handle: std::ptr::null_mut(),
     });
 
