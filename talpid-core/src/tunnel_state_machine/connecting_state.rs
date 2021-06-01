@@ -446,7 +446,7 @@ impl TunnelState for ConnectingState {
                         )
                     );
 
-                    return ErrorState::enter(shared_values, ErrorStateCause::StartTunnelError);
+                    return ErrorState::enter(shared_values, ErrorStateCause::SplitTunnelError);
                 }
 
                 if let Err(error) =

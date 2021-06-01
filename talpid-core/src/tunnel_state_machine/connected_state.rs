@@ -323,7 +323,7 @@ impl TunnelState for ConnectedState {
                 (
                     connected_state.close_handle,
                     connected_state.tunnel_close_event,
-                    AfterDisconnect::Block(ErrorStateCause::StartTunnelError),
+                    AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
                 ),
             );
         }
