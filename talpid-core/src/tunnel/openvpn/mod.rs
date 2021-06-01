@@ -935,10 +935,10 @@ impl<H: ProcessHandle> OpenVpnCloseHandle<H> {
     /// Kills the underlying OpenVPN process, making the `OpenVpnMonitor::wait` method return.
     pub fn close(self) -> io::Result<()> {
         if !self.closed.swap(true, Ordering::SeqCst) {
+            self.abort_spawn.abort();
             if let Some(child) = self.child.lock().unwrap().as_ref() {
                 child.kill()
             } else {
-                self.abort_spawn.abort();
                 Ok(())
             }
         } else {
