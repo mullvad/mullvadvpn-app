@@ -68,6 +68,7 @@ impl EventProcessor {
             openvpn_plugin::EventType::AuthFailed => {
                 self.runtime.block_on(self.ipc_client.auth_failed(details))
             }
+            openvpn_plugin::EventType::Up => self.runtime.block_on(self.ipc_client.up(details)),
             openvpn_plugin::EventType::RouteUp => {
                 self.runtime.block_on(self.ipc_client.route_up(details))
             }

@@ -79,7 +79,7 @@ pub struct WireguardMonitor {
     tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
     /// Callback to signal tunnel events
     event_callback: Box<
-        dyn (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+        dyn (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
             + Send
             + Sync
             + 'static,
@@ -158,7 +158,7 @@ impl Drop for TcpProxy {
 impl WireguardMonitor {
     /// Starts a WireGuard tunnel with the given config
     pub fn start<
-        F: (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+        F: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
             + Send
             + Sync
             + Clone
@@ -188,9 +188,6 @@ impl WireguardMonitor {
         let iface_name = tunnel.get_interface_name().to_string();
         #[cfg(windows)]
         let iface_luid = tunnel.get_interface_luid();
-
-        let metadata = Self::tunnel_metadata(&iface_name, &config);
-        runtime.block_on((on_event)(TunnelEvent::InterfaceUp(metadata.clone())));
 
         #[cfg(target_os = "windows")]
         let callback_handle = route_manager
@@ -232,7 +229,11 @@ impl WireguardMonitor {
 
         let route_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
 
+        let metadata = Self::tunnel_metadata(&iface_name, &config);
+
         std::thread::spawn(move || {
+            runtime.block_on((on_event)(TunnelEvent::InterfaceUp(metadata.clone())));
+
             #[cfg(windows)]
             {
                 let iface_close_sender = close_sender.clone();

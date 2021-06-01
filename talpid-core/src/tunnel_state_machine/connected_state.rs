@@ -8,7 +8,11 @@ use crate::{
     tunnel::{CloseHandle, TunnelEvent, TunnelMetadata},
 };
 use cfg_if::cfg_if;
-use futures::{channel::mpsc, stream::Fuse, StreamExt};
+use futures::{
+    channel::{mpsc, oneshot},
+    stream::Fuse,
+    StreamExt,
+};
 use std::net::IpAddr;
 use talpid_types::{
     net::TunnelParameters,
@@ -21,7 +25,8 @@ use crate::tunnel::TunnelMonitor;
 
 use super::connecting_state::TunnelCloseEvent;
 
-pub(crate) type TunnelEventsReceiver = Fuse<mpsc::UnboundedReceiver<TunnelEvent>>;
+pub(crate) type TunnelEventsReceiver =
+    Fuse<mpsc::UnboundedReceiver<(TunnelEvent, oneshot::Sender<()>)>>;
 
 
 pub struct ConnectedStateBootstrap {
@@ -265,13 +270,13 @@ impl ConnectedState {
 
     fn handle_tunnel_events(
         self,
-        event: Option<TunnelEvent>,
+        event: Option<(TunnelEvent, oneshot::Sender<()>)>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
         use self::EventConsequence::*;
 
         match event {
-            Some(TunnelEvent::Down) | None => {
+            Some((TunnelEvent::Down, _)) | None => {
                 self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
             }
             Some(_) => SameState(self.into()),
@@ -308,28 +313,6 @@ impl TunnelState for ConnectedState {
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
         let connected_state = ConnectedState::from(bootstrap);
         let tunnel_endpoint = connected_state.tunnel_parameters.get_tunnel_endpoint();
-
-        #[cfg(target_os = "windows")]
-        if let Err(error) = shared_values
-            .split_tunnel
-            .set_tunnel_addresses(Some(&connected_state.metadata))
-        {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg(
-                    "Failed to register addresses with split tunnel driver"
-                )
-            );
-
-            return DisconnectingState::enter(
-                shared_values,
-                (
-                    connected_state.close_handle,
-                    connected_state.tunnel_close_event,
-                    AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
-                ),
-            );
-        }
 
         if let Err(error) = connected_state.set_firewall_policy(shared_values) {
             DisconnectingState::enter(
