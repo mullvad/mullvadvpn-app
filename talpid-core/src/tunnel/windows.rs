@@ -71,11 +71,11 @@ pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, u32) + Send
         )
     };
 
-    if status != NO_ERROR {
-        return Err(io::Error::last_os_error());
+    if status == NO_ERROR {
+        Ok(context)
+    } else {
+        Err(io::Error::from_raw_os_error(status as i32))
     }
-
-    Ok(context)
 }
 
 /// Returns information about a network IP interface.
