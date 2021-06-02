@@ -15,7 +15,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    #[error(display = "Unable to read account history file")]
+    #[error(display = "Unable to open or read account history file")]
     Read(#[error(source)] io::Error),
 
     #[error(display = "Failed to serialize account history")]
@@ -60,32 +60,45 @@ impl AccountHistory {
             options.share_mode(0);
         }
         let path = settings_dir.join(ACCOUNT_HISTORY_FILE);
-        log::info!("Opening account history file in {}", path.display());
-        let mut reader = options
-            .write(true)
-            .read(true)
-            .create(true)
-            .open(path)
-            .map(io::BufReader::new)
-            .map_err(Error::Read)?;
+        let (file, accounts) = if path.is_file() {
+            log::info!("Opening account history file in {}", path.display());
+            let mut reader = options
+                .write(true)
+                .read(true)
+                .open(path)
+                .map(io::BufReader::new)
+                .map_err(Error::Read)?;
 
-        let accounts: VecDeque<AccountEntry> = match serde_json::from_reader(&mut reader) {
-            Err(e) => {
-                log::warn!(
-                    "{}",
-                    e.display_chain_with_msg("Failed to read+deserialize account history")
-                );
-                Self::try_old_format(&mut reader)?
-                    .into_iter()
-                    .map(|account| AccountEntry {
-                        account,
-                        wireguard: None,
-                    })
-                    .collect()
-            }
-            Ok(accounts) => accounts,
+            let accounts: VecDeque<AccountEntry> = match serde_json::from_reader(&mut reader) {
+                Err(e) => {
+                    log::warn!(
+                        "{}",
+                        e.display_chain_with_msg("Failed to read+deserialize account history")
+                    );
+                    Self::try_old_format(&mut reader)?
+                        .into_iter()
+                        .map(|account| AccountEntry {
+                            account,
+                            wireguard: None,
+                        })
+                        .collect()
+                }
+                Ok(accounts) => accounts,
+            };
+
+            (reader.into_inner(), accounts)
+        } else {
+            log::info!("Creating account history file in {}", path.display());
+            (
+                options
+                    .write(true)
+                    .create(true)
+                    .open(path)
+                    .map_err(Error::Read)?,
+                VecDeque::new(),
+            )
         };
-        let file = io::BufWriter::new(reader.into_inner());
+        let file = io::BufWriter::new(file);
         let mut history = AccountHistory {
             file: Arc::new(Mutex::new(file)),
             accounts: Arc::new(Mutex::new(accounts)),

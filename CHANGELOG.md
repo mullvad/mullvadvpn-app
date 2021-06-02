@@ -53,6 +53,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix relay selection failing to pick a WireGuard relay when no tunnel protocol is specified.
 - Fix time left not always being translated in desktop app settings.
 - Fix API address cache to use the supplied ports instead of always using port 443.
+- Do not try to parse an empty account history.
 
 #### Windows
 - Prevent tray icons from being extraced to `%TEMP%` directory.
