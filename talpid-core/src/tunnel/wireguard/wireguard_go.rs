@@ -29,7 +29,7 @@ use {
 type Result<T> = std::result::Result<T, TunnelError>;
 
 #[cfg(target_os = "windows")]
-use crate::winnet::{self, add_device_ip_addresses};
+use crate::winnet;
 
 #[cfg(not(target_os = "windows"))]
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
@@ -44,6 +44,8 @@ impl Drop for LoggingContext {
 
 pub struct WgGoTunnel {
     interface_name: String,
+    #[cfg(windows)]
+    interface_luid: u64,
     handle: Option<i32>,
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
@@ -134,6 +136,7 @@ impl WgGoTunnel {
                 .any(|config| config.allowed_ips.iter().any(|ip| ip.is_ipv6()));
 
         let mut alias_ptr = std::ptr::null_mut();
+        let mut interface_luid = 0u64;
 
         let handle = unsafe {
             wgTurnOn(
@@ -142,6 +145,7 @@ impl WgGoTunnel {
                 wait_on_ipv6 as u8,
                 wg_config_str.as_ptr(),
                 &mut alias_ptr,
+                &mut interface_luid,
                 Some(logging_callback),
                 logging_context.0 as *mut libc::c_void,
             )
@@ -163,13 +167,9 @@ impl WgGoTunnel {
 
         log::debug!("Adapter alias: {}", actual_iface_name);
 
-        if !add_device_ip_addresses(&actual_iface_name, &config.tunnel.addresses) {
-            // Todo: what kind of clean-up is required?
-            return Err(TunnelError::SetIpAddressesError);
-        }
-
         Ok(WgGoTunnel {
             interface_name: actual_iface_name,
+            interface_luid,
             handle: Some(handle),
             _logging_context: logging_context,
         })
@@ -302,6 +302,11 @@ impl Tunnel for WgGoTunnel {
         self.interface_name.clone()
     }
 
+    #[cfg(target_os = "windows")]
+    fn get_interface_luid(&self) -> u64 {
+        self.interface_luid
+    }
+
     fn get_tunnel_stats(&self) -> Result<Stats> {
         let config_str = unsafe {
             let ptr = wgGetConfig(self.handle.unwrap());
@@ -376,6 +381,7 @@ extern "C" {
         wait_on_ipv6: u8,
         settings: *const i8,
         iface_name_out: *const *mut std::os::raw::c_char,
+        iface_luid_out: *mut u64,
         logging_callback: Option<LoggingCallback>,
         logging_context: *mut libc::c_void,
     ) -> i32;

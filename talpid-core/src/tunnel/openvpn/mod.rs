@@ -22,7 +22,7 @@ use std::{
     process::ExitStatus,
     sync::{
         atomic::{AtomicBool, Ordering},
-        mpsc, Arc,
+        mpsc, Arc, Mutex,
     },
     thread,
     time::Duration,
@@ -33,12 +33,9 @@ use std::{collections::HashSet, net::IpAddr};
 use std::{
     ffi::{OsStr, OsString},
     os::windows::ffi::OsStrExt,
-    sync::Mutex,
     time::Instant,
 };
-use talpid_types::net::openvpn;
-#[cfg(any(windows, target_os = "linux"))]
-use talpid_types::ErrorExt;
+use talpid_types::{net::openvpn, ErrorExt};
 use tokio::task;
 #[cfg(target_os = "linux")]
 use which;
@@ -180,6 +177,10 @@ pub enum Error {
     #[error(display = "OpenVPN process died unexpectedly")]
     ChildProcessDied,
 
+    /// Failed before OpenVPN started
+    #[error(display = "Failed to start OpenVPN")]
+    StartProcessError,
+
     /// The IP routing program was not found.
     #[cfg(target_os = "linux")]
     #[error(display = "The IP routing program `ip` was not found")]
@@ -260,9 +261,15 @@ const OPENVPN_BIN_FILENAME: &str = "openvpn.exe";
 /// Struct for monitoring an OpenVPN process.
 #[derive(Debug)]
 pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
-    child: Arc<C::ProcessHandle>,
+    spawn_task: Option<
+        tokio::task::JoinHandle<
+            std::result::Result<io::Result<C::ProcessHandle>, futures::future::Aborted>,
+        >,
+    >,
+    abort_spawn: futures::future::AbortHandle,
+
+    child: Arc<Mutex<Option<Arc<C::ProcessHandle>>>>,
     proxy_monitor: Option<Box<dyn ProxyMonitor>>,
-    log_path: Option<PathBuf>,
     closed: Arc<AtomicBool>,
     /// Keep the `TempFile` for the user-pass file in the struct, so it's removed on drop.
     _user_pass_file: mktemp::TempFile,
@@ -274,9 +281,52 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     server_join_handle: Option<task::JoinHandle<std::result::Result<(), event_server::Error>>>,
 
     #[cfg(windows)]
-    wintun_adapter: Option<windows::TemporaryWintunAdapter>,
-    #[cfg(windows)]
-    _wintun_logger: Option<windows::WintunLoggerHandle>,
+    wintun: Arc<Box<dyn WintunContext>>,
+}
+
+#[cfg(windows)]
+#[async_trait::async_trait]
+trait WintunContext: Send + Sync {
+    fn luid(&self) -> NET_LUID;
+    fn ipv6(&self) -> bool;
+    async fn wait_for_interfaces(&self) -> io::Result<()>;
+}
+
+#[cfg(windows)]
+impl std::fmt::Debug for dyn WintunContext {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "WintunContext {{ luid: {}, ipv6: {} }}",
+            self.luid().Value,
+            self.ipv6()
+        )
+    }
+}
+
+#[cfg(windows)]
+#[derive(Debug)]
+struct WintunContextImpl {
+    adapter: windows::TemporaryWintunAdapter,
+    wait_v6_interface: bool,
+    _logger: windows::WintunLoggerHandle,
+}
+
+#[cfg(windows)]
+#[async_trait::async_trait]
+impl WintunContext for WintunContextImpl {
+    fn luid(&self) -> NET_LUID {
+        self.adapter.adapter().luid()
+    }
+
+    fn ipv6(&self) -> bool {
+        self.wait_v6_interface
+    }
+
+    async fn wait_for_interfaces(&self) -> io::Result<()> {
+        let luid = self.adapter.adapter().luid();
+        super::windows::wait_for_interfaces(luid, true, self.wait_v6_interface).await
+    }
 }
 
 
@@ -399,14 +449,6 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 log::warn!("You may need to restart Windows to complete the install of Wintun");
             }
 
-            log::debug!("Wait for IP interfaces");
-            windows::wait_for_interfaces(
-                &adapter.adapter().luid(),
-                true,
-                params.generic_options.enable_ipv6,
-            )
-            .map_err(Error::IpInterfacesError)?;
-
             let assigned_guid = adapter.adapter().guid();
             let assigned_guid = assigned_guid.as_ref().unwrap_or_else(|error| {
                 log::error!(
@@ -475,15 +517,17 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         Self::new_internal(
             cmd,
             on_openvpn_event,
-            &plugin_path,
+            plugin_path,
             log_path,
             user_pass_file,
             proxy_auth_file,
             proxy_monitor,
             #[cfg(windows)]
-            Some(wintun_adapter),
-            #[cfg(windows)]
-            Some(wintun_logger),
+            Box::new(WintunContextImpl {
+                adapter: wintun_adapter,
+                wait_v6_interface: params.generic_options.enable_ipv6,
+                _logger: wintun_logger,
+            }),
         )
     }
 }
@@ -527,17 +571,16 @@ fn extract_routes(env: &HashMap<String, String>) -> Result<HashSet<RequiredRoute
     Ok(routes)
 }
 
-impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
+impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
     fn new_internal<L>(
         mut cmd: C,
         on_event: L,
-        plugin_path: impl AsRef<Path>,
+        plugin_path: PathBuf,
         log_path: Option<PathBuf>,
         user_pass_file: mktemp::TempFile,
         proxy_auth_file: Option<mktemp::TempFile>,
         proxy_monitor: Option<Box<dyn ProxyMonitor>>,
-        #[cfg(windows)] wintun_adapter: Option<windows::TemporaryWintunAdapter>,
-        #[cfg(windows)] wintun_logger: Option<windows::WintunLoggerHandle>,
+        #[cfg(windows)] wintun: Box<dyn WintunContext>,
     ) -> Result<OpenVpnMonitor<C>>
     where
         L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
@@ -574,16 +617,23 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
                 .unwrap_err());
         }
 
-        let child = cmd
-            .plugin(plugin_path, vec![ipc_path])
-            .log(log_path.as_ref().map(|p| p.as_path()))
-            .start()
-            .map_err(|e| Error::ChildProcessError("Failed to start", e))?;
+        #[cfg(windows)]
+        let wintun = Arc::new(wintun);
+
+        cmd.plugin(plugin_path, vec![ipc_path])
+            .log(log_path.as_ref().map(|p| p.as_path()));
+        let (spawn_task, abort_spawn) = futures::future::abortable(Self::prepare_process(
+            cmd,
+            #[cfg(windows)]
+            wintun.clone(),
+        ));
+        let spawn_task = runtime.spawn(spawn_task);
 
         Ok(OpenVpnMonitor {
-            child: Arc::new(child),
+            spawn_task: Some(spawn_task),
+            abort_spawn,
+            child: Arc::new(Mutex::new(None)),
             proxy_monitor,
-            log_path,
             closed: Arc::new(AtomicBool::new(false)),
             _user_pass_file: user_pass_file,
             _proxy_auth_file: proxy_auth_file,
@@ -593,10 +643,20 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
             server_join_handle: Some(server_join_handle),
 
             #[cfg(windows)]
-            wintun_adapter,
-            #[cfg(windows)]
-            _wintun_logger: wintun_logger,
+            wintun,
         })
+    }
+
+    async fn prepare_process(
+        cmd: C,
+        #[cfg(windows)] wintun: Arc<Box<dyn WintunContext>>,
+    ) -> io::Result<C::ProcessHandle> {
+        #[cfg(windows)]
+        {
+            log::debug!("Wait for IP interfaces");
+            wintun.wait_for_interfaces().await?;
+        }
+        cmd.start()
     }
 
     /// Creates a handle to this monitor, allowing the tunnel to be closed while some other
@@ -604,6 +664,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
     pub fn close_handle(&self) -> OpenVpnCloseHandle<C::ProcessHandle> {
         OpenVpnCloseHandle {
             child: self.child.clone(),
+            abort_spawn: self.abort_spawn.clone(),
             closed: self.closed.clone(),
         }
     }
@@ -656,9 +717,19 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
     }
 
     /// Supplement `inner_wait_tunnel()` with logging and error handling.
-    fn wait_tunnel(&mut self) -> Result<()> {
+    fn wait_tunnel(self) -> Result<()> {
         let result = self.inner_wait_tunnel();
         match result {
+            WaitResult::Preparation(result) => match result {
+                Err(error) => {
+                    log::debug!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to start OpenVPN")
+                    );
+                    Err(Error::StartProcessError)
+                }
+                _ => Ok(()),
+            },
             WaitResult::Child(Ok(exit_status), closed) => {
                 if exit_status.success() || closed {
                     log::debug!(
@@ -684,8 +755,28 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
 
     /// Waits for both the child process and the event dispatcher in parallel. After both have
     /// returned this returns the earliest result.
-    fn inner_wait_tunnel(&mut self) -> WaitResult {
-        let child_wait_handle = self.child.clone();
+    fn inner_wait_tunnel(mut self) -> WaitResult {
+        let child = match self
+            .runtime
+            .block_on(self.spawn_task.take().unwrap())
+            .expect("spawn task panicked")
+        {
+            Ok(Ok(child)) => Arc::new(child),
+            Ok(Err(error)) => {
+                self.closed.swap(true, Ordering::SeqCst);
+                return WaitResult::Preparation(Err(error));
+            }
+            Err(_) => return WaitResult::Preparation(Ok(())),
+        };
+
+        if self.closed.load(Ordering::SeqCst) {
+            return WaitResult::Preparation(Ok(()));
+        }
+
+        {
+            self.child.lock().unwrap().replace(child.clone());
+        }
+
         let closed_handle = self.closed.clone();
         let child_close_handle = self.close_handle();
 
@@ -695,7 +786,7 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
         let event_server_abort_tx = self.event_server_abort_tx.clone();
 
         thread::spawn(move || {
-            let result = child_wait_handle.wait();
+            let result = child.wait();
             let closed = closed_handle.load(Ordering::SeqCst);
             child_tx.send(WaitResult::Child(result, closed)).unwrap();
             event_server_abort_tx.trigger();
@@ -835,7 +926,8 @@ impl<C: OpenVpnBuilder + 'static> OpenVpnMonitor<C> {
 /// A handle to an `OpenVpnMonitor` for closing it.
 #[derive(Debug, Clone)]
 pub struct OpenVpnCloseHandle<H: ProcessHandle = OpenVpnProcHandle> {
-    child: Arc<H>,
+    child: Arc<Mutex<Option<Arc<H>>>>,
+    abort_spawn: futures::future::AbortHandle,
     closed: Arc<AtomicBool>,
 }
 
@@ -843,7 +935,12 @@ impl<H: ProcessHandle> OpenVpnCloseHandle<H> {
     /// Kills the underlying OpenVPN process, making the `OpenVpnMonitor::wait` method return.
     pub fn close(self) -> io::Result<()> {
         if !self.closed.swap(true, Ordering::SeqCst) {
-            self.child.kill()
+            self.abort_spawn.abort();
+            if let Some(child) = self.child.lock().unwrap().as_ref() {
+                child.kill()
+            } else {
+                Ok(())
+            }
         } else {
             Ok(())
         }
@@ -853,6 +950,7 @@ impl<H: ProcessHandle> OpenVpnCloseHandle<H> {
 /// Internal enum to differentiate between if the child process or the event dispatcher died first.
 #[derive(Debug)]
 enum WaitResult {
+    Preparation(io::Result<()>),
     Child(io::Result<ExitStatus>, bool),
     EventDispatcher,
 }
@@ -1152,6 +1250,24 @@ mod tests {
         sync::Arc,
     };
 
+    #[cfg(windows)]
+    #[derive(Debug)]
+    struct TestWintunContext {}
+
+    #[cfg(windows)]
+    #[async_trait::async_trait]
+    impl WintunContext for TestWintunContext {
+        fn luid(&self) -> NET_LUID {
+            NET_LUID { Value: 0u64 }
+        }
+        fn ipv6(&self) -> bool {
+            false
+        }
+        async fn wait_for_interfaces(&self) -> io::Result<()> {
+            Ok(())
+        }
+    }
+
     #[derive(Debug, Default, Clone)]
     struct TestOpenVpnBuilder {
         pub plugin: Arc<Mutex<Option<PathBuf>>>,
@@ -1205,15 +1321,13 @@ mod tests {
         let _ = OpenVpnMonitor::new_internal(
             builder.clone(),
             |_, _| {},
-            "./my_test_plugin",
+            "./my_test_plugin".into(),
             None,
             TempFile::new(),
             None,
             None,
             #[cfg(windows)]
-            None,
-            #[cfg(windows)]
-            None,
+            Box::new(TestWintunContext {}),
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_plugin")),
@@ -1227,15 +1341,13 @@ mod tests {
         let _ = OpenVpnMonitor::new_internal(
             builder.clone(),
             |_, _| {},
-            "",
+            "".into(),
             Some(PathBuf::from("./my_test_log_file")),
             TempFile::new(),
             None,
             None,
             #[cfg(windows)]
-            None,
-            #[cfg(windows)]
-            None,
+            Box::new(TestWintunContext {}),
         );
         assert_eq!(
             Some(PathBuf::from("./my_test_log_file")),
@@ -1250,15 +1362,13 @@ mod tests {
         let testee = OpenVpnMonitor::new_internal(
             builder,
             |_, _| {},
-            "",
+            "".into(),
             None,
             TempFile::new(),
             None,
             None,
             #[cfg(windows)]
-            None,
-            #[cfg(windows)]
-            None,
+            Box::new(TestWintunContext {}),
         )
         .unwrap();
         assert!(testee.wait().is_ok());
@@ -1271,15 +1381,13 @@ mod tests {
         let testee = OpenVpnMonitor::new_internal(
             builder,
             |_, _| {},
-            "",
+            "".into(),
             None,
             TempFile::new(),
             None,
             None,
             #[cfg(windows)]
-            None,
-            #[cfg(windows)]
-            None,
+            Box::new(TestWintunContext {}),
         )
         .unwrap();
         assert!(testee.wait().is_err());
@@ -1292,15 +1400,13 @@ mod tests {
         let testee = OpenVpnMonitor::new_internal(
             builder,
             |_, _| {},
-            "",
+            "".into(),
             None,
             TempFile::new(),
             None,
             None,
             #[cfg(windows)]
-            None,
-            #[cfg(windows)]
-            None,
+            Box::new(TestWintunContext {}),
         )
         .unwrap();
         testee.close_handle().close().unwrap();
@@ -1310,22 +1416,20 @@ mod tests {
     #[test]
     fn failed_process_start() {
         let builder = TestOpenVpnBuilder::default();
-        let error = OpenVpnMonitor::new_internal(
+        let result = OpenVpnMonitor::new_internal(
             builder,
             |_, _| {},
-            "",
+            "".into(),
             None,
             TempFile::new(),
             None,
             None,
             #[cfg(windows)]
-            None,
-            #[cfg(windows)]
-            None,
+            Box::new(TestWintunContext {}),
         )
-        .unwrap_err();
-        match error {
-            Error::ChildProcessError(..) => (),
+        .unwrap();
+        match result.wait() {
+            Err(Error::StartProcessError) => (),
             _ => panic!("Wrong error"),
         }
     }

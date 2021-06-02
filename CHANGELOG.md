@@ -59,7 +59,8 @@ Line wrap the file at 100 chars.                                              Th
 - Prevent tray icons from being extraced to `%TEMP%` directory.
 - Fix failure to create Wintun adapter due to a residual network interface by upgrading Wintun to
   0.10.4.
-- Wait for IP interfaces to be added to the Wintun adapter before setting metrics on them.
+- Wait indefinitely for IP interfaces to attach to the tunnel device to prevent early timeouts,
+  and errors setting interface metrics.
 - Prevent Microsoft Store from dropping packets in WireGuard tunnels.
 
 #### Linux

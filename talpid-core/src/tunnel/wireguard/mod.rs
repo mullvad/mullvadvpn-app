@@ -8,6 +8,8 @@ use futures::future::abortable;
 use lazy_static::lazy_static;
 #[cfg(target_os = "linux")]
 use std::env;
+#[cfg(windows)]
+use std::io;
 use std::{
     collections::HashSet,
     net::SocketAddr,
@@ -54,9 +56,19 @@ pub enum Error {
     #[error(display = "Failed obtain local address for the UDP socket in Udp2Tcp")]
     GetLocalUdpAddress(#[error(source)] std::io::Error),
 
-    /// Failed to setup connectivity monitor
+    /// Failed to set up connectivity monitor
     #[error(display = "Connectivity monitor failed")]
     ConnectivityMonitorError(#[error(source)] connectivity_check::Error),
+
+    /// Failed to set up IP interfaces.
+    #[cfg(windows)]
+    #[error(display = "Failed while waiting on IP interfaces")]
+    IpInterfacesError(#[error(source)] io::Error),
+
+    /// Failed to set IP addresses on WireGuard interface
+    #[cfg(target_os = "windows")]
+    #[error(display = "Failed to set IP addresses on WireGuard interface")]
+    SetIpAddressesError,
 }
 
 
@@ -68,6 +80,8 @@ pub struct WireguardMonitor {
     event_callback: Box<dyn Fn(TunnelEvent) + Send + Sync + 'static>,
     close_msg_sender: mpsc::Sender<CloseMsg>,
     close_msg_receiver: mpsc::Receiver<CloseMsg>,
+    #[cfg(target_os = "windows")]
+    stop_setup_tx: Option<futures::channel::oneshot::Sender<()>>,
     pinger_stop_sender: mpsc::Sender<()>,
     _tcp_proxies: Vec<TcpProxy>,
 }
@@ -158,17 +172,10 @@ impl WireguardMonitor {
 
         let tunnel = Self::open_tunnel(&config, log_path, tun_provider, route_manager)?;
         let iface_name = tunnel.get_interface_name().to_string();
+        #[cfg(windows)]
+        let iface_luid = tunnel.get_interface_luid();
 
         (on_event)(TunnelEvent::InterfaceUp(iface_name.clone()));
-
-        #[cfg(target_os = "linux")]
-        route_manager
-            .create_routing_rules(config.enable_ipv6)
-            .map_err(Error::SetupRoutingError)?;
-
-        route_manager
-            .add_routes(Self::get_routes(&iface_name, &config))
-            .map_err(Error::SetupRoutingError)?;
 
         #[cfg(target_os = "windows")]
         route_manager
@@ -177,11 +184,15 @@ impl WireguardMonitor {
         let event_callback = Box::new(on_event.clone());
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
         let (pinger_tx, pinger_rx) = mpsc::channel();
+        #[cfg(target_os = "windows")]
+        let (stop_setup_tx, stop_setup_rx) = futures::channel::oneshot::channel();
         let monitor = WireguardMonitor {
             tunnel: Arc::new(Mutex::new(Some(tunnel))),
             event_callback,
             close_msg_sender,
             close_msg_receiver,
+            #[cfg(target_os = "windows")]
+            stop_setup_tx: Some(stop_setup_tx),
             pinger_stop_sender: pinger_tx,
             _tcp_proxies: tcp_proxies,
         };
@@ -191,13 +202,67 @@ impl WireguardMonitor {
         let close_sender = monitor.close_msg_sender.clone();
         let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
             gateway,
-            iface_name.to_string(),
+            iface_name.clone(),
             Arc::downgrade(&monitor.tunnel),
             pinger_rx,
         )
         .map_err(Error::ConnectivityMonitorError)?;
 
+        let route_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
+        #[cfg(windows)]
+        let runtime = route_manager.runtime_handle();
+
         std::thread::spawn(move || {
+            #[cfg(windows)]
+            {
+                let iface_close_sender = close_sender.clone();
+                let enable_ipv6 = config.ipv6_gateway.is_some();
+
+                let result = runtime.block_on(async move {
+                    use futures::future::FutureExt;
+                    use winapi::shared::ifdef::NET_LUID;
+                    let luid = NET_LUID { Value: iface_luid };
+                    let setup_future = super::windows::wait_for_interfaces(luid, true, enable_ipv6);
+
+                    futures::select! {
+                        result = setup_future.fuse() => {
+                            result.map_err(|error|
+                                iface_close_sender.send(CloseMsg::SetupError(
+                                    Error::IpInterfacesError(error)
+                                ))
+                                .unwrap_or(())
+                            )
+                        }
+                        _ = stop_setup_rx.fuse() => Err(()),
+                    }
+                });
+
+                if result.is_err() {
+                    return;
+                }
+            }
+
+            let setup_iface_routes = move || -> Result<()> {
+                #[cfg(target_os = "windows")]
+                if !crate::winnet::add_device_ip_addresses(&iface_name, &config.tunnel.addresses) {
+                    return Err(Error::SetIpAddressesError);
+                }
+
+                #[cfg(target_os = "linux")]
+                route_handle
+                    .create_routing_rules(config.enable_ipv6)
+                    .map_err(Error::SetupRoutingError)?;
+
+                route_handle
+                    .add_routes(Self::get_routes(&iface_name, &config))
+                    .map_err(Error::SetupRoutingError)
+            };
+
+            if let Err(error) = setup_iface_routes() {
+                let _ = close_sender.send(CloseMsg::SetupError(error));
+                return;
+            }
+
             match connectivity_monitor.establish_connectivity() {
                 Ok(true) => {
                     (on_event)(TunnelEvent::Up(metadata));
@@ -291,9 +356,14 @@ impl WireguardMonitor {
         let wait_result = match self.close_msg_receiver.recv() {
             Ok(CloseMsg::PingErr) => Err(Error::TimeoutError),
             Ok(CloseMsg::Stop) => Ok(()),
+            Ok(CloseMsg::SetupError(error)) => Err(error),
             Err(_) => Ok(()),
         };
 
+        #[cfg(windows)]
+        if let Some(stop_tx) = self.stop_setup_tx.take() {
+            let _ = stop_tx.send(());
+        }
         let _ = self.pinger_stop_sender.send(());
 
         self.stop_tunnel();
@@ -439,6 +509,7 @@ impl WireguardMonitor {
 enum CloseMsg {
     Stop,
     PingErr,
+    SetupError(Error),
 }
 
 /// Close handle for a WireGuard tunnel.
@@ -458,6 +529,8 @@ impl CloseHandle {
 
 pub(crate) trait Tunnel: Send {
     fn get_interface_name(&self) -> String;
+    #[cfg(target_os = "windows")]
+    fn get_interface_luid(&self) -> u64;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     fn get_tunnel_stats(&self) -> std::result::Result<stats::Stats, TunnelError>;
     #[cfg(target_os = "linux")]
@@ -521,11 +594,6 @@ pub enum TunnelError {
     #[cfg(target_os = "windows")]
     #[error(display = "Failed to convert adapter alias")]
     InvalidAlias,
-
-    /// Failed to set ip addresses on tunnel interface.
-    #[cfg(target_os = "windows")]
-    #[error(display = "Failed to set IP addresses on WireGuard interface")]
-    SetIpAddressesError,
 
     /// Failure to set up logging
     #[error(display = "Failed to set up logging")]
