@@ -111,7 +111,7 @@ type RequestTx = sync_mpsc::SyncSender<(Request, RequestResponseTx)>;
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 
 struct EventThreadContext {
-    handle: RawHandle,
+    handle: Arc<Mutex<driver::DeviceHandle>>,
     event_overlapped: OVERLAPPED,
     quit_event: RawHandle,
 }
@@ -121,6 +121,7 @@ impl SplitTunnel {
     /// Initialize the driver.
     pub fn new(daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>) -> Result<Self, Error> {
         let handle = driver::DeviceHandle::new().map_err(Error::InitializationFailed)?;
+        let handle = Arc::new(Mutex::new(handle));
 
         let mut event_overlapped: OVERLAPPED = unsafe { mem::zeroed() };
         event_overlapped.hEvent =
@@ -132,7 +133,7 @@ impl SplitTunnel {
         let quit_event = unsafe { CreateEventW(ptr::null_mut(), TRUE, FALSE, ptr::null()) };
 
         let event_context = EventThreadContext {
-            handle: handle.as_raw_handle(),
+            handle: handle.clone(),
             event_overlapped,
             quit_event,
         };
@@ -156,7 +157,7 @@ impl SplitTunnel {
 
                 if let Err(error) = unsafe {
                     driver::device_io_control_buffer_async(
-                        event_context.handle,
+                        event_context.handle.lock().unwrap().as_raw_handle(),
                         driver::DriverIoctlCode::DequeEvent as u32,
                         Some(&mut data_buffer),
                         None,
@@ -204,7 +205,7 @@ impl SplitTunnel {
 
                 let result = unsafe {
                     GetOverlappedResult(
-                        event_context.handle,
+                        event_context.handle.lock().unwrap().as_raw_handle(),
                         &event_context.event_overlapped as *const _ as *mut _,
                         &mut returned_bytes,
                         TRUE,
@@ -272,9 +273,8 @@ impl SplitTunnel {
             log::debug!("Stopping split tunnel event thread");
 
             unsafe { CloseHandle(event_context.event_overlapped.hEvent) };
+            unsafe { CloseHandle(event_context.quit_event) };
         });
-
-        let handle = Arc::new(Mutex::new(handle));
 
         Ok(SplitTunnel {
             request_tx: Self::spawn_command_thread(handle),
@@ -435,19 +435,16 @@ impl SplitTunnel {
 
 impl Drop for SplitTunnel {
     fn drop(&mut self) {
-        if let Some(event_thread) = self.event_thread.take() {
-            if unsafe { SetEvent(self.quit_event) } != 0 {
-                let _ = event_thread.join();
-            } else {
+        if let Some(_event_thread) = self.event_thread.take() {
+            if unsafe { SetEvent(self.quit_event) } == 0 {
                 let error = io::Error::last_os_error();
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to close ST event thread")
                 );
             }
+            // Not joining `event_thread`: It may be unresponsive.
         }
-
-        unsafe { CloseHandle(self.quit_event) };
 
         let paths: [&OsStr; 0] = [];
         if let Err(error) = self.set_paths(&paths) {
