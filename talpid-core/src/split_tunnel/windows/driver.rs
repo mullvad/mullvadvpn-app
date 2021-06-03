@@ -127,6 +127,8 @@ pub struct DeviceHandle {
     overlapped: OVERLAPPED,
 }
 
+unsafe impl Send for DeviceHandle {}
+
 impl DeviceHandle {
     pub fn new() -> io::Result<Self> {
         let mut overlapped: OVERLAPPED = unsafe { mem::zeroed() };
@@ -192,7 +194,7 @@ impl DeviceHandle {
 
     pub fn register_ips(
         &self,
-        tunnel_ipv4: Ipv4Addr,
+        tunnel_ipv4: Option<Ipv4Addr>,
         tunnel_ipv6: Option<Ipv6Addr>,
         internet_ipv4: Option<Ipv4Addr>,
         internet_ipv6: Option<Ipv6Addr>,
@@ -200,12 +202,14 @@ impl DeviceHandle {
         let mut addresses: SplitTunnelAddresses = unsafe { mem::zeroed() };
 
         unsafe {
-            let tunnel_ipv4 = tunnel_ipv4.octets();
-            ptr::copy_nonoverlapping(
-                &tunnel_ipv4[0] as *const u8,
-                &mut addresses.tunnel_ipv4 as *mut _ as *mut u8,
-                tunnel_ipv4.len(),
-            );
+            if let Some(tunnel_ipv4) = tunnel_ipv4 {
+                let tunnel_ipv4 = tunnel_ipv4.octets();
+                ptr::copy_nonoverlapping(
+                    &tunnel_ipv4[0] as *const u8,
+                    &mut addresses.tunnel_ipv4 as *mut _ as *mut u8,
+                    tunnel_ipv4.len(),
+                );
+            }
 
             if let Some(tunnel_ipv6) = tunnel_ipv6 {
                 let tunnel_ipv6 = tunnel_ipv6.octets();
