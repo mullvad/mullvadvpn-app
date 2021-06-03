@@ -12,12 +12,13 @@ use futures::channel::mpsc;
 use lazy_static::lazy_static;
 use std::{
     convert::TryFrom,
-    ffi::OsStr,
+    ffi::{OsStr, OsString},
     io, mem,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::io::{AsRawHandle, RawHandle},
     ptr,
-    sync::{Arc, Mutex, Weak},
+    sync::{mpsc as sync_mpsc, Arc, Mutex, Weak},
+    time::Duration,
 };
 use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
 use winapi::{
@@ -76,16 +77,38 @@ pub enum Error {
     /// Unexpected IP parsing error
     #[error(display = "Failed to parse IP address")]
     IpParseError,
+
+    /// The request handling thread is stuck
+    #[error(display = "The ST request thread is stuck")]
+    RequestThreadStuck,
+
+    /// The request handling thread is down
+    #[error(display = "The ST request thread is down")]
+    RequestThreadDown,
 }
 
 /// Manages applications whose traffic to exclude from the tunnel.
 pub struct SplitTunnel {
-    handle: Arc<Mutex<driver::DeviceHandle>>,
+    request_tx: RequestTx,
     event_thread: Option<std::thread::JoinHandle<()>>,
     quit_event: RawHandle,
     _route_change_callback: Option<WinNetCallbackHandle>,
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
 }
+
+enum Request {
+    SetPaths(Vec<OsString>),
+    RegisterIps(
+        Option<Ipv4Addr>,
+        Option<Ipv6Addr>,
+        Option<Ipv4Addr>,
+        Option<Ipv6Addr>,
+    ),
+}
+type RequestResponseTx = sync_mpsc::Sender<Result<(), Error>>;
+type RequestTx = sync_mpsc::SyncSender<(Request, RequestResponseTx)>;
+
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 
 struct EventThreadContext {
     handle: RawHandle,
@@ -251,8 +274,10 @@ impl SplitTunnel {
             unsafe { CloseHandle(event_context.event_overlapped.hEvent) };
         });
 
+        let handle = Arc::new(Mutex::new(handle));
+
         Ok(SplitTunnel {
-            handle: Arc::new(Mutex::new(handle)),
+            request_tx: Self::spawn_command_thread(handle),
             event_thread: Some(event_thread),
             quit_event,
             _route_change_callback: None,
@@ -260,21 +285,80 @@ impl SplitTunnel {
         })
     }
 
+    fn spawn_command_thread(handle: Arc<Mutex<driver::DeviceHandle>>) -> RequestTx {
+        let (tx, rx): (RequestTx, _) = sync_mpsc::sync_channel(3);
+
+        std::thread::spawn(move || {
+            while let Ok((request, response_tx)) = rx.recv() {
+                let response = match request {
+                    Request::SetPaths(paths) => {
+                        if paths.len() > 0 {
+                            handle
+                                .lock()
+                                .expect("ST driver mutex poisoned")
+                                .set_config(&paths)
+                                .map_err(Error::SetConfiguration)
+                        } else {
+                            handle
+                                .lock()
+                                .expect("ST driver mutex poisoned")
+                                .clear_config()
+                                .map_err(Error::SetConfiguration)
+                        }
+                    }
+                    Request::RegisterIps(
+                        mut tunnel_ipv4,
+                        mut tunnel_ipv6,
+                        internet_ipv4,
+                        internet_ipv6,
+                    ) => {
+                        if internet_ipv4.is_none() && internet_ipv6.is_none() {
+                            tunnel_ipv4 = None;
+                            tunnel_ipv6 = None;
+                        }
+                        handle
+                            .lock()
+                            .expect("ST driver mutex poisoned")
+                            .register_ips(tunnel_ipv4, tunnel_ipv6, internet_ipv4, internet_ipv6)
+                            .map_err(Error::RegisterIps)
+                    }
+                };
+                if response_tx.send(response).is_err() {
+                    log::error!("A response could not be sent for a completed request");
+                }
+            }
+        });
+
+        tx
+    }
+
+    fn send_request(&self, request: Request) -> Result<(), Error> {
+        Self::send_request_inner(&self.request_tx, request)
+    }
+
+    fn send_request_inner(request_tx: &RequestTx, request: Request) -> Result<(), Error> {
+        let (response_tx, response_rx) = sync_mpsc::channel();
+
+        request_tx
+            .try_send((request, response_tx))
+            .map_err(|error| match error {
+                sync_mpsc::TrySendError::Disconnected(_) => Error::RequestThreadDown,
+                sync_mpsc::TrySendError::Full(_) => Error::RequestThreadStuck,
+            })?;
+
+        response_rx
+            .recv_timeout(REQUEST_TIMEOUT)
+            .map_err(|_| Error::RequestThreadStuck)?
+    }
+
     /// Set a list of applications to exclude from the tunnel.
     pub fn set_paths<T: AsRef<OsStr>>(&self, paths: &[T]) -> Result<(), Error> {
-        if paths.len() > 0 {
-            self.handle
-                .lock()
-                .expect("ST driver mutex poisoned")
-                .set_config(paths)
-                .map_err(Error::SetConfiguration)
-        } else {
-            self.handle
-                .lock()
-                .expect("ST driver mutex poisoned")
-                .clear_config()
-                .map_err(Error::SetConfiguration)
-        }
+        self.send_request(Request::SetPaths(
+            paths
+                .iter()
+                .map(|path| path.as_ref().to_os_string())
+                .collect(),
+        ))
     }
 
     /// Instructs the driver to redirect traffic from sockets bound to 0.0.0.0, ::, or the
@@ -306,7 +390,7 @@ impl SplitTunnel {
             .map_err(Error::LuidToIp)?
             .flatten();
 
-        let tunnel_ipv4 = tunnel_ipv4.unwrap_or(*RESERVED_IP_V4);
+        let tunnel_ipv4 = Some(tunnel_ipv4.unwrap_or(*RESERVED_IP_V4));
         let internet_ipv4 = internet_ipv4
             .map(|addr| Ipv4Addr::try_from(addr).map_err(|_| Error::IpParseError))
             .transpose()?;
@@ -315,7 +399,7 @@ impl SplitTunnel {
             .transpose()?;
 
         let context = SplitTunnelDefaultRouteChangeHandlerContext::new(
-            self.handle.clone(),
+            self.request_tx.clone(),
             self.daemon_tx.clone(),
             tunnel_ipv4,
             tunnel_ipv6,
@@ -325,13 +409,12 @@ impl SplitTunnel {
 
         self._route_change_callback = None;
 
-        Self::register_ips(
-            &*self.handle,
+        self.send_request(Request::RegisterIps(
             tunnel_ipv4,
             tunnel_ipv6,
             internet_ipv4,
             internet_ipv6,
-        )?;
+        ))?;
 
         self._route_change_callback = winnet::add_default_route_change_callback(
             Some(split_tunnel_default_route_change_handler),
@@ -346,36 +429,7 @@ impl SplitTunnel {
     /// Instructs the driver to stop redirecting tunnel traffic and INADDR_ANY.
     pub fn clear_tunnel_addresses(&mut self) -> Result<(), Error> {
         self._route_change_callback = None;
-
-        Self::register_ips(&*self.handle, Ipv4Addr::new(0, 0, 0, 0), None, None, None)
-    }
-
-    /// Configures IP addresses used for socket rebinding.
-    fn register_ips(
-        handle: &Mutex<driver::DeviceHandle>,
-        mut tunnel_ipv4: Ipv4Addr,
-        mut tunnel_ipv6: Option<Ipv6Addr>,
-        internet_ipv4: Option<Ipv4Addr>,
-        internet_ipv6: Option<Ipv6Addr>,
-    ) -> Result<(), Error> {
-        log::debug!(
-            "Register IPs: tunnel: {} {:?}, LAN interface: {:?} {:?}",
-            tunnel_ipv4,
-            tunnel_ipv6,
-            internet_ipv4,
-            internet_ipv6
-        );
-
-        if internet_ipv4.is_none() && internet_ipv6.is_none() {
-            tunnel_ipv4 = Ipv4Addr::new(0, 0, 0, 0);
-            tunnel_ipv6 = None;
-        }
-
-        handle
-            .lock()
-            .expect("ST driver mutex poisoned")
-            .register_ips(tunnel_ipv4, tunnel_ipv6, internet_ipv4, internet_ipv6)
-            .map_err(Error::RegisterIps)
+        self.send_request(Request::RegisterIps(None, None, None, None))
     }
 }
 
@@ -403,9 +457,9 @@ impl Drop for SplitTunnel {
 }
 
 struct SplitTunnelDefaultRouteChangeHandlerContext {
-    handle: Arc<Mutex<driver::DeviceHandle>>,
+    request_tx: RequestTx,
     pub daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
-    pub tunnel_ipv4: Ipv4Addr,
+    pub tunnel_ipv4: Option<Ipv4Addr>,
     pub tunnel_ipv6: Option<Ipv6Addr>,
     pub internet_ipv4: Option<Ipv4Addr>,
     pub internet_ipv6: Option<Ipv6Addr>,
@@ -413,15 +467,15 @@ struct SplitTunnelDefaultRouteChangeHandlerContext {
 
 impl SplitTunnelDefaultRouteChangeHandlerContext {
     pub fn new(
-        handle: Arc<Mutex<driver::DeviceHandle>>,
+        request_tx: RequestTx,
         daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
-        tunnel_ipv4: Ipv4Addr,
+        tunnel_ipv4: Option<Ipv4Addr>,
         tunnel_ipv6: Option<Ipv6Addr>,
         internet_ipv4: Option<Ipv4Addr>,
         internet_ipv6: Option<Ipv6Addr>,
     ) -> Self {
         SplitTunnelDefaultRouteChangeHandlerContext {
-            handle,
+            request_tx,
             daemon_tx,
             tunnel_ipv4,
             tunnel_ipv6,
@@ -431,12 +485,14 @@ impl SplitTunnelDefaultRouteChangeHandlerContext {
     }
 
     pub fn register_ips(&self) -> Result<(), Error> {
-        SplitTunnel::register_ips(
-            &*self.handle,
-            self.tunnel_ipv4,
-            self.tunnel_ipv6,
-            self.internet_ipv4,
-            self.internet_ipv6,
+        SplitTunnel::send_request_inner(
+            &self.request_tx,
+            Request::RegisterIps(
+                self.tunnel_ipv4,
+                self.tunnel_ipv6,
+                self.internet_ipv4,
+                self.internet_ipv6,
+            ),
         )
     }
 }
