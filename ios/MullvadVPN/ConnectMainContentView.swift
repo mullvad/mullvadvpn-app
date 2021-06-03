@@ -24,6 +24,7 @@ class ConnectMainContentView: UIView {
         mapView.isZoomEnabled = false
         mapView.isScrollEnabled = false
         mapView.isUserInteractionEnabled = false
+        mapView.accessibilityElementsHidden = true
         return mapView
     }()
 
