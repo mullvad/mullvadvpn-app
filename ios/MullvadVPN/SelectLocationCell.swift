@@ -139,6 +139,12 @@ class SelectLocationCell: BasicTableViewCell {
     private func updateBackgroundColor() {
         backgroundView?.backgroundColor = backgroundColorForIdentationLevel()
         selectedBackgroundView?.backgroundColor = selectedBackgroundColorForIndentationLevel()
+
+        if isDisabled {
+            accessibilityTraits.insert(.notEnabled)
+        } else {
+            accessibilityTraits.remove(.notEnabled)
+        }
     }
 
     private func backgroundColorForIdentationLevel() -> UIColor {
