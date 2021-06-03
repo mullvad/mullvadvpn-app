@@ -6,4 +6,5 @@
   Copyright © 2021 Mullvad VPN AB. All rights reserved.
 */
 
+"HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL" = "Settings";
 "RECONNECT_BUTTON_ACCESSIBILITY_LABEL" = "Reconnect";
