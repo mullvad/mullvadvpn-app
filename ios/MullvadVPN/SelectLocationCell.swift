@@ -134,6 +134,12 @@ class SelectLocationCell: BasicTableViewCell {
     private func updateDisabled() {
         locationLabel.alpha = isDisabled ? 0.2 : 1
         collapseButton.alpha = isDisabled ? 0.2 : 1
+
+        if isDisabled {
+            accessibilityTraits.insert(.notEnabled)
+        } else {
+            accessibilityTraits.remove(.notEnabled)
+        }
     }
 
     private func updateBackgroundColor() {
