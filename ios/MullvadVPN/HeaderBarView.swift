@@ -32,6 +32,7 @@ class HeaderBarView: UIView {
         settingsButton.setImage(UIImage(named: "IconSettings"), for: .normal)
         settingsButton.translatesAutoresizingMaskIntoConstraints = false
         settingsButton.accessibilityIdentifier = "SettingsButton"
+        settingsButton.accessibilityLabel = NSLocalizedString("HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL", comment: "")
         return settingsButton
     }
 
@@ -53,6 +54,8 @@ class HeaderBarView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+
+        accessibilityTraits = [.header]
 
         layoutMargins = UIEdgeInsets(
             top: 0,
