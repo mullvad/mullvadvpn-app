@@ -124,20 +124,13 @@ pub enum SplittingChangeReason {
 
 pub struct DeviceHandle {
     handle: fs::File,
-    overlapped: OVERLAPPED,
 }
 
+unsafe impl Sync for DeviceHandle {}
 unsafe impl Send for DeviceHandle {}
 
 impl DeviceHandle {
     pub fn new() -> io::Result<Self> {
-        let mut overlapped: OVERLAPPED = unsafe { mem::zeroed() };
-        overlapped.hEvent = unsafe { CreateEventW(ptr::null_mut(), TRUE, FALSE, ptr::null()) };
-
-        if overlapped.hEvent == ptr::null_mut() {
-            return Err(io::Error::last_os_error());
-        }
-
         // Connect to the driver
         log::trace!("Connecting to the driver");
         let handle = OpenOptions::new()
@@ -148,7 +141,7 @@ impl DeviceHandle {
             .attributes(0)
             .open(DRIVER_SYMBOLIC_NAME)?;
 
-        let device = Self { handle, overlapped };
+        let device = Self { handle };
 
         // Initialize the driver
         let state = device.get_driver_state()?;
@@ -173,7 +166,6 @@ impl DeviceHandle {
             DriverIoctlCode::Initialize as u32,
             None,
             0,
-            &self.overlapped,
             Some(DRIVER_IO_TIMEOUT),
         )?;
         Ok(())
@@ -186,7 +178,6 @@ impl DeviceHandle {
             DriverIoctlCode::RegisterProcesses as u32,
             Some(&process_tree_buffer),
             0,
-            &self.overlapped,
             Some(DRIVER_IO_TIMEOUT),
         )?;
         Ok(())
@@ -248,7 +239,6 @@ impl DeviceHandle {
             DriverIoctlCode::RegisterIpAddresses as u32,
             Some(buffer),
             0,
-            &self.overlapped,
             Some(DRIVER_IO_TIMEOUT),
         )?;
 
@@ -261,7 +251,6 @@ impl DeviceHandle {
             DriverIoctlCode::GetState as u32,
             None,
             size_of::<u64>() as u32,
-            &self.overlapped,
             Some(DRIVER_IO_TIMEOUT),
         )?
         .unwrap();
@@ -287,7 +276,6 @@ impl DeviceHandle {
             DriverIoctlCode::SetConfiguration as u32,
             Some(&config),
             0,
-            &self.overlapped,
             Some(DRIVER_IO_TIMEOUT),
         )?;
 
@@ -300,17 +288,10 @@ impl DeviceHandle {
             DriverIoctlCode::ClearConfiguration as u32,
             None,
             0,
-            &self.overlapped,
             Some(DRIVER_IO_TIMEOUT),
         )?;
 
         Ok(())
-    }
-}
-
-impl Drop for DeviceHandle {
-    fn drop(&mut self) {
-        unsafe { CloseHandle(self.overlapped.hEvent) };
     }
 }
 
@@ -709,9 +690,28 @@ pub fn device_io_control(
     ioctl_code: u32,
     input: Option<&[u8]>,
     output_size: u32,
-    overlapped: &OVERLAPPED,
     timeout: Option<Duration>,
 ) -> Result<Option<Vec<u8>>, io::Error> {
+    struct HandleOwner {
+        handle: RawHandle,
+    }
+    impl Drop for HandleOwner {
+        fn drop(&mut self) {
+            unsafe { CloseHandle(self.handle) };
+        }
+    }
+
+    let mut overlapped: OVERLAPPED = unsafe { mem::zeroed() };
+    overlapped.hEvent = unsafe { CreateEventW(ptr::null_mut(), TRUE, FALSE, ptr::null()) };
+
+    if overlapped.hEvent == ptr::null_mut() {
+        return Err(io::Error::last_os_error());
+    }
+
+    let _handle_owner = HandleOwner {
+        handle: overlapped.hEvent,
+    };
+
     let mut out_buffer = if output_size > 0 {
         Some(Vec::with_capacity(output_size as usize))
     } else {
@@ -723,7 +723,7 @@ pub fn device_io_control(
         ioctl_code,
         input,
         out_buffer.as_mut(),
-        overlapped,
+        &overlapped,
         timeout,
     )
     .map(|()| out_buffer)
