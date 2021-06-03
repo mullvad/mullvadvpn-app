@@ -17,7 +17,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::io::{AsRawHandle, RawHandle},
     ptr,
-    sync::{mpsc as sync_mpsc, Arc, Mutex, Weak},
+    sync::{mpsc as sync_mpsc, Arc, Weak},
     time::Duration,
 };
 use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
@@ -111,7 +111,7 @@ type RequestTx = sync_mpsc::SyncSender<(Request, RequestResponseTx)>;
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 
 struct EventThreadContext {
-    handle: Arc<Mutex<driver::DeviceHandle>>,
+    handle: Arc<driver::DeviceHandle>,
     event_overlapped: OVERLAPPED,
     quit_event: RawHandle,
 }
@@ -121,7 +121,7 @@ impl SplitTunnel {
     /// Initialize the driver.
     pub fn new(daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>) -> Result<Self, Error> {
         let handle = driver::DeviceHandle::new().map_err(Error::InitializationFailed)?;
-        let handle = Arc::new(Mutex::new(handle));
+        let handle = Arc::new(handle);
 
         let mut event_overlapped: OVERLAPPED = unsafe { mem::zeroed() };
         event_overlapped.hEvent =
@@ -157,7 +157,7 @@ impl SplitTunnel {
 
                 if let Err(error) = unsafe {
                     driver::device_io_control_buffer_async(
-                        event_context.handle.lock().unwrap().as_raw_handle(),
+                        event_context.handle.as_raw_handle(),
                         driver::DriverIoctlCode::DequeEvent as u32,
                         Some(&mut data_buffer),
                         None,
@@ -205,7 +205,7 @@ impl SplitTunnel {
 
                 let result = unsafe {
                     GetOverlappedResult(
-                        event_context.handle.lock().unwrap().as_raw_handle(),
+                        event_context.handle.as_raw_handle(),
                         &event_context.event_overlapped as *const _ as *mut _,
                         &mut returned_bytes,
                         TRUE,
@@ -285,7 +285,7 @@ impl SplitTunnel {
         })
     }
 
-    fn spawn_command_thread(handle: Arc<Mutex<driver::DeviceHandle>>) -> RequestTx {
+    fn spawn_command_thread(handle: Arc<driver::DeviceHandle>) -> RequestTx {
         let (tx, rx): (RequestTx, _) = sync_mpsc::sync_channel(3);
 
         std::thread::spawn(move || {
@@ -293,17 +293,9 @@ impl SplitTunnel {
                 let response = match request {
                     Request::SetPaths(paths) => {
                         if paths.len() > 0 {
-                            handle
-                                .lock()
-                                .expect("ST driver mutex poisoned")
-                                .set_config(&paths)
-                                .map_err(Error::SetConfiguration)
+                            handle.set_config(&paths).map_err(Error::SetConfiguration)
                         } else {
-                            handle
-                                .lock()
-                                .expect("ST driver mutex poisoned")
-                                .clear_config()
-                                .map_err(Error::SetConfiguration)
+                            handle.clear_config().map_err(Error::SetConfiguration)
                         }
                     }
                     Request::RegisterIps(
@@ -317,8 +309,6 @@ impl SplitTunnel {
                             tunnel_ipv6 = None;
                         }
                         handle
-                            .lock()
-                            .expect("ST driver mutex poisoned")
                             .register_ips(tunnel_ipv4, tunnel_ipv6, internet_ipv4, internet_ipv6)
                             .map_err(Error::RegisterIps)
                     }
