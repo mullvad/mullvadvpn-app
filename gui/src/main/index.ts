@@ -10,6 +10,7 @@ import {
   shell,
   Tray,
 } from 'electron';
+import os from 'os';
 import * as path from 'path';
 import { sprintf } from 'sprintf-js';
 import * as uuid from 'uuid';
@@ -1764,7 +1765,19 @@ class ApplicationMain {
       }
       this.tray?.on('click', () => this.windowController?.show());
     } else {
-      this.tray?.on('click', () => this.windowController?.toggle());
+      this.tray?.on('click', () => {
+        const isMacOsBigSur = process.platform === 'darwin' && parseInt(os.release(), 10) >= 20;
+        if (isMacOsBigSur && !this.windowController?.isVisible()) {
+          // This is a workaround for this Electron issue, when it's resolved
+          // `this.windowController?.toggle()` should do the trick on all platforms:
+          // https://github.com/electron/electron/issues/28776
+          const contextMenu = Menu.buildFromTemplate([]);
+          contextMenu.on('menu-will-show', () => this.windowController?.show());
+          this.tray?.popUpContextMenu(contextMenu);
+        } else {
+          this.windowController?.toggle();
+        }
+      });
       this.tray?.on('right-click', () => this.windowController?.hide());
     }
   }
