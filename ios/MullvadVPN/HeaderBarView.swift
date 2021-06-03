@@ -22,6 +22,7 @@ class HeaderBarView: UIView {
         titleLabel.text = "MULLVAD VPN"
         titleLabel.font = UIFont.boldSystemFont(ofSize: 24)
         titleLabel.textColor = UIColor.white.withAlphaComponent(0.8)
+        titleLabel.accessibilityTraits.insert(.header)
         return titleLabel
     }()
 
@@ -32,6 +33,7 @@ class HeaderBarView: UIView {
         settingsButton.setImage(UIImage(named: "IconSettings"), for: .normal)
         settingsButton.translatesAutoresizingMaskIntoConstraints = false
         settingsButton.accessibilityIdentifier = "SettingsButton"
+        settingsButton.accessibilityLabel = NSLocalizedString("HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL", comment: "")
         return settingsButton
     }
 
