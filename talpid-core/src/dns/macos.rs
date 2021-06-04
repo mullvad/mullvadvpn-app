@@ -149,7 +149,7 @@ impl super::DnsMonitorT for DnsMonitor {
         })
     }
 
-    fn set(&mut self, _interface: &str, servers: &[IpAddr]) -> Result<()> {
+    fn set(&mut self, _interface: &str, _gateways: &[IpAddr], servers: &[IpAddr]) -> Result<()> {
         let servers: Vec<DnsServer> = servers.iter().map(|ip| ip.to_string()).collect();
         let settings = DnsSettings::from_server_addresses(&servers);
         let mut state_lock = self.state.lock();

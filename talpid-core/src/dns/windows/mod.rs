@@ -1,4 +1,7 @@
-use crate::logging::windows::{log_sink, LogSink};
+use crate::{
+    firewall::IsLocalIpAddress,
+    logging::windows::{log_sink, LogSink},
+};
 
 use lazy_static::lazy_static;
 use log::{error, trace, warn};
@@ -22,7 +25,7 @@ lazy_static! {
     /// Specifies whether to override per-interface DNS resolvers with a global DNS policy.
     static ref GLOBAL_DNS_CACHE_POLICY: bool = env::var("TALPID_DNS_CACHE_POLICY")
         .map(|v| v != "0")
-        .unwrap_or(true);
+        .unwrap_or(false);
 }
 
 /// Errors that can happen when configuring DNS on Windows.
@@ -67,15 +70,20 @@ impl super::DnsMonitorT for DnsMonitor {
         Ok(monitor)
     }
 
-    fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
+    fn set(
+        &mut self,
+        interface: &str,
+        gateways: &[IpAddr],
+        servers: &[IpAddr],
+    ) -> Result<(), Error> {
         let ipv4 = servers
             .iter()
-            .filter(|ip| ip.is_ipv4())
+            .filter(|ip| ip.is_ipv4() && (gateways.contains(ip) || !ip.is_local_address()))
             .map(ip_to_widestring)
             .collect::<Vec<_>>();
         let ipv6 = servers
             .iter()
-            .filter(|ip| ip.is_ipv6())
+            .filter(|ip| ip.is_ipv6() && (gateways.contains(ip) || !ip.is_local_address()))
             .map(ip_to_widestring)
             .collect::<Vec<_>>();
 
@@ -105,7 +113,6 @@ impl super::DnsMonitorT for DnsMonitor {
         if *GLOBAL_DNS_CACHE_POLICY && is_minimum_windows10() {
             if let Err(error) = set_dns_cache_policy(servers) {
                 error!("{}", error.display_chain());
-                warn!("DNS resolution may be slowed down");
             }
         }
 

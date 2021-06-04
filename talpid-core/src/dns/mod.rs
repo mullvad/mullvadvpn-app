@@ -35,7 +35,12 @@ impl DnsMonitor {
     }
 
     /// Set DNS to the given servers. And start monitoring the system for changes.
-    pub fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Error> {
+    pub fn set(
+        &mut self,
+        interface: &str,
+        gateways: &[IpAddr],
+        servers: &[IpAddr],
+    ) -> Result<(), Error> {
         log::info!(
             "Setting DNS servers to {}",
             servers
@@ -44,7 +49,7 @@ impl DnsMonitor {
                 .collect::<Vec<String>>()
                 .join(", ")
         );
-        self.inner.set(interface, servers)
+        self.inner.set(interface, gateways, servers)
     }
 
     /// Reset system DNS settings to what it was before being set by this instance.
@@ -60,7 +65,12 @@ trait DnsMonitorT: Sized {
 
     fn new(cache_dir: impl AsRef<Path>) -> Result<Self, Self::Error>;
 
-    fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Self::Error>;
+    fn set(
+        &mut self,
+        interface: &str,
+        gateways: &[IpAddr],
+        servers: &[IpAddr],
+    ) -> Result<(), Self::Error>;
 
     fn reset(&mut self) -> Result<(), Self::Error>;
 }

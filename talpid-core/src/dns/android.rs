@@ -14,7 +14,12 @@ impl super::DnsMonitorT for DnsMonitor {
         Ok(DnsMonitor)
     }
 
-    fn set(&mut self, _interface: &str, _servers: &[IpAddr]) -> Result<(), Self::Error> {
+    fn set(
+        &mut self,
+        _interface: &str,
+        _gateways: &[IpAddr],
+        _servers: &[IpAddr],
+    ) -> Result<(), Self::Error> {
         Ok(())
     }
 

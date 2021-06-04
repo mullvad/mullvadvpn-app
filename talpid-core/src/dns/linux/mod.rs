@@ -49,7 +49,7 @@ impl super::DnsMonitorT for DnsMonitor {
         Ok(DnsMonitor { inner: None })
     }
 
-    fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
+    fn set(&mut self, interface: &str, _gateways: &[IpAddr], servers: &[IpAddr]) -> Result<()> {
         self.reset()?;
         // Creating a new DNS monitor for each set, in case the system changed how it manages DNS.
         let mut inner = DnsMonitorHolder::new()?;

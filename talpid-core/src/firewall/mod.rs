@@ -1,14 +1,11 @@
-#[cfg(unix)]
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
-#[cfg(unix)]
 use lazy_static::lazy_static;
-use std::fmt;
-#[cfg(windows)]
-use std::net::IpAddr;
-#[cfg(unix)]
-use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 #[cfg(windows)]
 use std::path::PathBuf;
+use std::{
+    fmt,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
+};
 use talpid_types::net::Endpoint;
 
 
@@ -30,7 +27,6 @@ mod imp;
 
 pub use self::imp::Error;
 
-#[cfg(unix)]
 lazy_static! {
     /// When "allow local network" is enabled the app will allow traffic to and from these networks.
     pub(crate) static ref ALLOWED_LAN_NETS: [IpNetwork; 6] = [
@@ -82,13 +78,25 @@ const DHCPV6_SERVER_PORT: u16 = 547;
 const DHCPV6_CLIENT_PORT: u16 = 546;
 
 
-#[cfg(all(unix, not(target_os = "android")))]
-fn is_local_address(address: &IpAddr) -> bool {
+#[cfg(not(target_os = "android"))]
+pub(crate) fn is_local_address(address: &IpAddr) -> bool {
     let address = address.clone();
     (&*ALLOWED_LAN_NETS)
         .iter()
         .chain(&*LOOPBACK_NETS)
         .any(|net| net.contains(address))
+}
+
+#[cfg(not(target_os = "android"))]
+pub(crate) trait IsLocalIpAddress {
+    fn is_local_address(&self) -> bool;
+}
+
+#[cfg(not(target_os = "android"))]
+impl IsLocalIpAddress for IpAddr {
+    fn is_local_address(&self) -> bool {
+        is_local_address(self)
+    }
 }
 
 /// A enum that describes network security strategy
