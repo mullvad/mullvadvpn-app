@@ -340,6 +340,22 @@ impl ConnectingState {
                 AfterDisconnect::Block(ErrorStateCause::AuthFailed(reason)),
             ),
             Some((TunnelEvent::InterfaceUp(metadata), _done_tx)) => {
+                #[cfg(windows)]
+                if let Err(error) = shared_values
+                    .split_tunnel
+                    .set_tunnel_addresses(Some(&metadata))
+                {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to register addresses with split tunnel driver"
+                        )
+                    );
+                    return self.disconnect(
+                        shared_values,
+                        AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
+                    );
+                }
                 self.tunnel_metadata = Some(metadata);
                 match Self::set_firewall_policy(
                     shared_values,

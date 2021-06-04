@@ -307,28 +307,6 @@ impl TunnelState for ConnectedState {
         let connected_state = ConnectedState::from(bootstrap);
         let tunnel_endpoint = connected_state.tunnel_parameters.get_tunnel_endpoint();
 
-        #[cfg(target_os = "windows")]
-        if let Err(error) = shared_values
-            .split_tunnel
-            .set_tunnel_addresses(Some(&connected_state.metadata))
-        {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg(
-                    "Failed to register addresses with split tunnel driver"
-                )
-            );
-
-            return DisconnectingState::enter(
-                shared_values,
-                (
-                    connected_state.close_handle,
-                    connected_state.tunnel_close_event,
-                    AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
-                ),
-            );
-        }
-
         if let Err(error) = connected_state.set_firewall_policy(shared_values) {
             DisconnectingState::enter(
                 shared_values,
