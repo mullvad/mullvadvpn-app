@@ -161,6 +161,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         mainContentView.connectButton.setTitle(tunnelState.localizedTitleForConnectButton, for: .normal)
         mainContentView.selectLocationButton.setTitle(tunnelState.localizedTitleForSelectLocationButton, for: .normal)
         mainContentView.splitDisconnectButton.primaryButton.setTitle(tunnelState.localizedTitleForDisconnectButton, for: .normal)
+        mainContentView.splitDisconnectButton.secondaryButton.accessibilityLabel = NSLocalizedString("RECONNECT_BUTTON_ACCESSIBILITY_LABEL", comment: "")
 
         updateTraitDependentViews()
     }

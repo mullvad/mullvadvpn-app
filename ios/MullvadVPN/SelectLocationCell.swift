@@ -31,12 +31,14 @@ class SelectLocationCell: BasicTableViewCell {
     var isExpanded = false {
         didSet {
             updateCollapseImage()
+            updateAccessibilityCustomActions()
         }
     }
 
     var showsCollapseControl = false {
         didSet {
             collapseButton.isHidden = !showsCollapseControl
+            updateAccessibilityCustomActions()
         }
     }
 
@@ -92,8 +94,8 @@ class SelectLocationCell: BasicTableViewCell {
         tickImageView.tintColor = .white
 
         collapseButton.accessibilityIdentifier = "CollapseButton"
+        collapseButton.isAccessibilityElement = false
         collapseButton.tintColor = .white
-        collapseButton.setImage(chevronDown, for: .normal)
         collapseButton.addTarget(self, action: #selector(handleCollapseButton(_ :)), for: .touchUpInside)
 
         [locationLabel, tickImageView, statusIndicator, collapseButton].forEach { (subview) in
@@ -102,6 +104,7 @@ class SelectLocationCell: BasicTableViewCell {
         }
 
         updateCollapseImage()
+        updateAccessibilityCustomActions()
         updateDisabled()
         updateBackgroundColor()
 
@@ -134,6 +137,12 @@ class SelectLocationCell: BasicTableViewCell {
     private func updateDisabled() {
         locationLabel.alpha = isDisabled ? 0.2 : 1
         collapseButton.alpha = isDisabled ? 0.2 : 1
+
+        if isDisabled {
+            accessibilityTraits.insert(.notEnabled)
+        } else {
+            accessibilityTraits.remove(.notEnabled)
+        }
     }
 
     private func updateBackgroundColor() {
@@ -164,9 +173,28 @@ class SelectLocationCell: BasicTableViewCell {
         didCollapseHandler?(self)
     }
 
+    @objc private func toggleCollapseAccessibilityAction() -> Bool {
+        didCollapseHandler?(self)
+        return true
+    }
+
     private func updateCollapseImage() {
         let image = isExpanded ? chevronUp : chevronDown
 
         collapseButton.setImage(image, for: .normal)
+    }
+
+    private func updateAccessibilityCustomActions() {
+        if showsCollapseControl {
+            let actionName = isExpanded
+                ? NSLocalizedString("SELECT_LOCATION_COLLAPSE_ACCESSIBILITY_ACTION", comment: "")
+                : NSLocalizedString("SELECT_LOCATION_EXPAND_ACCESSIBILITY_ACTION", comment: "")
+
+            accessibilityCustomActions = [
+                UIAccessibilityCustomAction(name: actionName, target: self, selector: #selector(toggleCollapseAccessibilityAction))
+            ]
+        } else {
+            accessibilityCustomActions = nil
+        }
     }
 }

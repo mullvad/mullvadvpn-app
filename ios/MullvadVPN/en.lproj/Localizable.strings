@@ -1,0 +1,13 @@
+/* 
+  Localizable.strings
+  MullvadVPN
+
+  Created by pronebird on 31/05/2021.
+  Copyright © 2021 Mullvad VPN AB. All rights reserved.
+*/
+
+"HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL" = "Settings";
+"RECONNECT_BUTTON_ACCESSIBILITY_LABEL" = "Reconnect";
+
+"SELECT_LOCATION_COLLAPSE_ACCESSIBILITY_ACTION" = "Collapse location";
+"SELECT_LOCATION_EXPAND_ACCESSIBILITY_ACTION" = "Expand location";
