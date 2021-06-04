@@ -20,6 +20,7 @@ class HeaderBarView: UIView {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = "MULLVAD VPN"
+        titleLabel.accessibilityLabel = "Mullvad VPN"
         titleLabel.font = UIFont.boldSystemFont(ofSize: 24)
         titleLabel.textColor = UIColor.white.withAlphaComponent(0.8)
         titleLabel.accessibilityTraits.insert(.header)
