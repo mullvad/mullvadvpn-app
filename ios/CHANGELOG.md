@@ -23,6 +23,9 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+
+
+## [2021.2] - 2021-06-03
 ### Added
 - Enable option to "Select all" when viewing app logs.
 - Split view interface for iPad.
