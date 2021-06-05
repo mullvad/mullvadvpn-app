@@ -1,8 +1,10 @@
-use super::string_value::StringValue;
+use super::{string_value::StringValue, tag_name_to_string};
+use derive_more::{Display, Error, From};
 use serde::{Deserialize, Serialize};
 use std::{
     fmt::{self, Display, Formatter},
     ops::{Deref, DerefMut},
+    str::FromStr,
 };
 
 /// Contents of an Android plurals resources file.
@@ -81,6 +83,33 @@ impl PluralResources {
     }
 }
 
+impl FromStr for PluralResources {
+    type Err = ParseError;
+
+    /// Parse a plural resources XML document string.
+    fn from_str(input: &str) -> Result<Self, Self::Err> {
+        let document = roxmltree::Document::parse(input)?;
+        let root_node = document.root_element();
+        let root_node_name = root_node.tag_name();
+
+        // Ensure the root element has the correct name (`resources`, without a namespace)
+        if root_node_name.name() != "resources" || root_node_name.namespace().is_some() {
+            return Err(ParseError::UnexpectedRootNode(tag_name_to_string(
+                root_node_name,
+            )));
+        }
+
+        // Parse each entry from each plurals node
+        let entries = root_node
+            .children()
+            .filter(|node| node.is_element())
+            .map(|element| PluralResource::from_xml_node(&element))
+            .collect::<Result<Vec<_>, _>>()?;
+
+        Ok(PluralResources { entries })
+    }
+}
+
 impl PluralResource {
     /// Create a plural resource representation.
     ///
@@ -95,6 +124,79 @@ impl PluralResource {
             .collect();
 
         PluralResource { name, items }
+    }
+
+    /// Parse an Android plural resource from an XML node.
+    pub fn from_xml_node(node: &roxmltree::Node<'_, '_>) -> Result<Self, ParseError> {
+        let tag_name = node.tag_name();
+
+        // Ensure the element name is `plurals` without a namespace
+        if tag_name.name() != "plurals" || tag_name.namespace().is_some() {
+            return Err(ParseError::UnexpectedNode {
+                expected: "plurals",
+                found: tag_name_to_string(tag_name),
+            });
+        }
+
+        // Extract the name attribute
+        let name = node
+            .attribute("name")
+            .ok_or_else(|| {
+                ParseError::MissingName(node.document().text_pos_at(node.range().start))
+            })?
+            .to_owned();
+
+        // Parse the plural variants
+        let items = node
+            .children()
+            .filter(|node| node.is_element())
+            .map(|element| PluralVariant::from_xml_node(&element))
+            .collect::<Result<Vec<_>, _>>()?;
+
+        Ok(PluralResource { name, items })
+    }
+}
+
+impl PluralVariant {
+    /// Parse an Android plural variant from an XML node.
+    pub fn from_xml_node(node: &roxmltree::Node<'_, '_>) -> Result<Self, ParseError> {
+        let tag_name = node.tag_name();
+
+        // Ensure the element name is `item` without a namespace
+        if tag_name.name() != "item" || tag_name.namespace().is_some() {
+            return Err(ParseError::UnexpectedNode {
+                expected: "item",
+                found: tag_name_to_string(tag_name),
+            });
+        }
+
+        // Extract the name attribute
+        let quantity = node
+            .attribute("quantity")
+            .ok_or_else(|| {
+                ParseError::MissingQuantity(node.document().text_pos_at(node.range().start))
+            })?
+            .parse()?;
+
+        // Build the string value from the node's children
+        let string = StringValue::from_string_xml_node(node);
+
+        Ok(PluralVariant { quantity, string })
+    }
+}
+
+impl FromStr for PluralQuantity {
+    type Err = ParseError;
+
+    fn from_str(string: &str) -> Result<Self, Self::Err> {
+        match string {
+            "zero" => Ok(PluralQuantity::Zero),
+            "one" => Ok(PluralQuantity::One),
+            "few" => Ok(PluralQuantity::Few),
+            "many" => Ok(PluralQuantity::Many),
+            "other" => Ok(PluralQuantity::Other),
+            unknown => Err(ParseError::InvalidPluralQuantity(unknown.to_owned())),
+        }
     }
 }
 
@@ -145,4 +247,34 @@ impl Display for PluralQuantity {
 
         write!(formatter, "{}", quantity)
     }
+}
+
+/// Failure to parse a plural resources XML input
+#[derive(Debug, Display, Error, From)]
+pub enum ParseError {
+    #[display(fmt = "Failed to parse XML in string resources input")]
+    ParseXml(roxmltree::Error),
+
+    #[display(fmt = "Expected a `resources` root node, found: {}", _0)]
+    #[from(ignore)]
+    UnexpectedRootNode(#[error(not(source))] String),
+
+    #[display(fmt = "Expected a `{}` node, found: {}", expected, found)]
+    #[from(ignore)]
+    UnexpectedNode {
+        expected: &'static str,
+        found: String,
+    },
+
+    #[display(fmt = "Plurals node has no `name` attribute at {}", _0)]
+    #[from(ignore)]
+    MissingName(#[error(not(source))] roxmltree::TextPos),
+
+    #[display(fmt = "Plural variant item node has no `quantity` attribute at {}", _0)]
+    #[from(ignore)]
+    MissingQuantity(#[error(not(source))] roxmltree::TextPos),
+
+    #[display(fmt = "Invalid plural quantity value: {}", _0)]
+    #[from(ignore)]
+    InvalidPluralQuantity(#[error(not(source))] String),
 }
