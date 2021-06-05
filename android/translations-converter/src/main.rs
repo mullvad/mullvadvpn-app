@@ -36,11 +36,7 @@ mod gettext;
 mod normalize;
 
 use crate::normalize::Normalize;
-use std::{
-    collections::HashMap,
-    fs::{self, File},
-    path::Path,
-};
+use std::{collections::HashMap, fs, path::Path};
 
 fn main() {
     let resources_dir = Path::new("../src/main/res");
@@ -57,10 +53,11 @@ fn main() {
         .map(|resource| (resource.value.normalize(), resource.name))
         .partition(|(string, _id)| string.starts_with("https://mullvad.net/en/"));
 
-    let plurals_file = File::open(resources_dir.join("values/plurals.xml"))
-        .expect("Failed to open plurals resources file");
-    let plural_resources: android::PluralResources =
-        serde_xml_rs::from_reader(plurals_file).expect("Failed to read plural resources file");
+    let plurals_file = fs::read_to_string(resources_dir.join("values/plurals.xml"))
+        .expect("Failed to read plurals resources file");
+    let plural_resources: android::PluralResources = plurals_file
+        .parse()
+        .expect("Failed to parse plural resources file");
 
     let known_plurals: HashMap<_, _> = plural_resources
         .iter()
