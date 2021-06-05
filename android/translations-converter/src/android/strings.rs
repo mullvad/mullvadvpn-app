@@ -1,4 +1,4 @@
-use super::string_value::StringValue;
+use super::{string_value::StringValue, tag_name_to_string};
 use derive_more::{Display, Error, From};
 use std::{
     fmt::{self, Display, Formatter},
@@ -135,13 +135,6 @@ impl StringResource {
             translatable,
             value,
         })
-    }
-}
-
-fn tag_name_to_string(tag_name: roxmltree::ExpandedName<'_, '_>) -> String {
-    match tag_name.namespace() {
-        Some(namespace) => format!("{}:{}", namespace, tag_name.name()),
-        None => tag_name.name().to_owned(),
     }
 }
 
