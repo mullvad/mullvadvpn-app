@@ -1,6 +1,5 @@
 use super::{string_value::StringValue, tag_name_to_string};
 use derive_more::{Display, Error, From};
-use serde::{Deserialize, Serialize};
 use std::{
     fmt::{self, Display, Formatter},
     ops::{Deref, DerefMut},
@@ -10,39 +9,35 @@ use std::{
 /// Contents of an Android plurals resources file.
 ///
 /// This type can be created directly deserializing the `plurals.xml` file.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug)]
 pub struct PluralResources {
-    #[serde(rename = "plurals")]
     entries: Vec<PluralResource>,
 }
 
 /// An entry in an Android plurals resources file.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug)]
 pub struct PluralResource {
     /// The plural resource ID.
     pub name: String,
 
     /// The items of the plural resource, one for each quantity variant.
-    #[serde(rename = "item")]
     pub items: Vec<PluralVariant>,
 }
 
 /// A string resource for a specific quantity.
 ///
 /// This is part of a plural resource.
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug)]
 pub struct PluralVariant {
     /// The quantity for this variant to be used.
     pub quantity: PluralQuantity,
 
     /// The string value
-    #[serde(rename = "$value")]
     pub string: StringValue,
 }
 
 /// A valid quantity for a plural variant.
-#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[serde(rename_all = "snake_case")]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum PluralQuantity {
     Zero,
     One,
