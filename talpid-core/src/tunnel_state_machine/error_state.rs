@@ -70,6 +70,16 @@ impl TunnelState for ErrorState {
         shared_values: &mut SharedTunnelStateValues,
         block_reason: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
+        #[cfg(windows)]
+        if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg(
+                    "Failed to register addresses with split tunnel driver"
+                )
+            );
+        }
+
         #[cfg(not(target_os = "android"))]
         let block_failure = Self::set_firewall_policy(shared_values).err();
         #[cfg(target_os = "android")]
@@ -151,10 +161,14 @@ impl TunnelState for ErrorState {
             Some(TunnelCommand::Block(reason)) => {
                 NewState(ErrorState::enter(shared_values, reason))
             }
-
             #[cfg(target_os = "android")]
             Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
                 shared_values.bypass_socket(fd, done_tx);
+                SameState(self.into())
+            }
+            #[cfg(windows)]
+            Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
                 SameState(self.into())
             }
         }

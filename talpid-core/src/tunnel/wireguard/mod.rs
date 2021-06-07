@@ -84,6 +84,8 @@ pub struct WireguardMonitor {
     stop_setup_tx: Option<futures::channel::oneshot::Sender<()>>,
     pinger_stop_sender: mpsc::Sender<()>,
     _tcp_proxies: Vec<TcpProxy>,
+    #[cfg(target_os = "windows")]
+    _callback_handle: Option<crate::winnet::WinNetCallbackHandle>,
 }
 
 #[cfg(target_os = "linux")]
@@ -175,11 +177,14 @@ impl WireguardMonitor {
         #[cfg(windows)]
         let iface_luid = tunnel.get_interface_luid();
 
-        (on_event)(TunnelEvent::InterfaceUp(iface_name.clone()));
-
         #[cfg(target_os = "windows")]
-        route_manager
-            .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ());
+        let callback_handle = route_manager
+            .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ())
+            .ok();
+        #[cfg(target_os = "windows")]
+        if callback_handle.is_none() {
+            log::warn!("Failed to register default route callback");
+        }
 
         let event_callback = Box::new(on_event.clone());
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
@@ -195,9 +200,10 @@ impl WireguardMonitor {
             stop_setup_tx: Some(stop_setup_tx),
             pinger_stop_sender: pinger_tx,
             _tcp_proxies: tcp_proxies,
+            #[cfg(target_os = "windows")]
+            _callback_handle: callback_handle,
         };
 
-        let metadata = Self::tunnel_metadata(&iface_name, &config);
         let gateway = config.ipv4_gateway;
         let close_sender = monitor.close_msg_sender.clone();
         let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
@@ -212,7 +218,11 @@ impl WireguardMonitor {
         #[cfg(windows)]
         let runtime = route_manager.runtime_handle();
 
+        let metadata = Self::tunnel_metadata(&iface_name, &config);
+
         std::thread::spawn(move || {
+            (on_event)(TunnelEvent::InterfaceUp(metadata.clone()));
+
             #[cfg(windows)]
             {
                 let iface_close_sender = close_sender.clone();

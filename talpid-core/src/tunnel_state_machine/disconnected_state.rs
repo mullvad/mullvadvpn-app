@@ -36,6 +36,32 @@ impl DisconnectedState {
             log::error!("{}", error_chain);
         }
     }
+
+    #[cfg(windows)]
+    fn register_split_tunnel_addresses(
+        shared_values: &mut SharedTunnelStateValues,
+        should_reset_firewall: bool,
+    ) {
+        if should_reset_firewall && !shared_values.block_when_disconnected {
+            if let Err(error) = shared_values.split_tunnel.clear_tunnel_addresses() {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to unregister addresses with split tunnel driver"
+                    )
+                );
+            }
+        } else {
+            if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to register addresses with split tunnel driver"
+                    )
+                );
+            }
+        }
+    }
 }
 
 impl TunnelState for DisconnectedState {
@@ -45,6 +71,8 @@ impl TunnelState for DisconnectedState {
         shared_values: &mut SharedTunnelStateValues,
         should_reset_firewall: Self::Bootstrap,
     ) -> (TunnelStateWrapper, TunnelStateTransition) {
+        #[cfg(windows)]
+        Self::register_split_tunnel_addresses(shared_values, should_reset_firewall);
         Self::set_firewall_policy(shared_values, should_reset_firewall);
         #[cfg(target_os = "linux")]
         shared_values.reset_connectivity_check();
@@ -98,6 +126,8 @@ impl TunnelState for DisconnectedState {
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected)) => {
                 if shared_values.block_when_disconnected != block_when_disconnected {
                     shared_values.block_when_disconnected = block_when_disconnected;
+                    #[cfg(windows)]
+                    Self::register_split_tunnel_addresses(shared_values, true);
                     Self::set_firewall_policy(shared_values, true);
                 }
                 SameState(self.into())
@@ -113,6 +143,11 @@ impl TunnelState for DisconnectedState {
             #[cfg(target_os = "android")]
             Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
                 shared_values.bypass_socket(fd, done_tx);
+                SameState(self.into())
+            }
+            #[cfg(windows)]
+            Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
                 SameState(self.into())
             }
             Some(_) => SameState(self.into()),

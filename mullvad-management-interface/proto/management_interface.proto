@@ -59,11 +59,17 @@ service ManagementService {
 	rpc GetWireguardKey(google.protobuf.Empty) returns (PublicKey) {}
 	rpc VerifyWireguardKey(google.protobuf.Empty) returns (google.protobuf.BoolValue) {}
 
-	// Split tunneling
+	// Split tunneling (Linux)
 	rpc GetSplitTunnelProcesses(google.protobuf.Empty) returns (stream google.protobuf.Int32Value) {}
 	rpc AddSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
 	rpc RemoveSplitTunnelProcess(google.protobuf.Int32Value) returns (google.protobuf.Empty) {}
 	rpc ClearSplitTunnelProcesses(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	// Split tunneling (Windows)
+	rpc AddSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+	rpc RemoveSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+	rpc ClearSplitTunnelApps(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc SetSplitTunnelState(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 }
 
 message RelaySettingsUpdate {
@@ -98,6 +104,7 @@ message ErrorState {
 		TUNNEL_PARAMETER_ERROR = 5;
 		IS_OFFLINE = 6;
 		VPN_PERMISSION_DENIED = 7;
+		SPLIT_TUNNEL_ERROR = 8;
 	}
 
 	enum GenerationError {
@@ -263,6 +270,12 @@ message Settings {
 	bool auto_connect = 7;
 	TunnelOptions tunnel_options = 8;
 	bool show_beta_releases = 9;
+	SplitTunnelSettings split_tunnel = 10;
+}
+
+message SplitTunnelSettings {
+	bool enable_exclusions = 1;
+	repeated string apps = 2;
 }
 
 message RelaySettings {

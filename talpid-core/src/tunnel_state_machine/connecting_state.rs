@@ -20,6 +20,7 @@ use log::{debug, error, info, trace, warn};
 use std::{
     net::IpAddr,
     path::{Path, PathBuf},
+    sync::mpsc as sync_mpsc,
     thread,
     time::{Duration, Instant},
 };
@@ -47,7 +48,7 @@ const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 pub struct ConnectingState {
     tunnel_events: TunnelEventsReceiver,
     tunnel_parameters: TunnelParameters,
-    tunnel_interface: Option<String>,
+    tunnel_metadata: Option<TunnelMetadata>,
     tunnel_close_event: TunnelCloseEvent,
     close_handle: Option<CloseHandle>,
     retry_attempt: u32,
@@ -57,7 +58,7 @@ impl ConnectingState {
     fn set_firewall_policy(
         shared_values: &mut SharedTunnelStateValues,
         params: &TunnelParameters,
-        tunnel_interface: &Option<String>,
+        tunnel_metadata: &Option<TunnelMetadata>,
     ) -> Result<(), FirewallPolicyError> {
         #[cfg(target_os = "linux")]
         shared_values.disable_connectivity_check();
@@ -66,7 +67,9 @@ impl ConnectingState {
 
         let policy = FirewallPolicy::Connecting {
             peer_endpoint,
-            tunnel_interface: tunnel_interface.clone(),
+            tunnel_interface: tunnel_metadata
+                .as_ref()
+                .map(|metadata| metadata.interface.clone()),
             pingable_hosts: gateway_list_from_params(params),
             allow_lan: shared_values.allow_lan,
             allowed_endpoint: shared_values.allowed_endpoint.clone(),
@@ -102,7 +105,14 @@ impl ConnectingState {
     ) -> crate::tunnel::Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
         let on_tunnel_event = move |event| {
-            let _ = event_tx.unbounded_send(event);
+            let (tx, rx) = sync_mpsc::channel();
+            let _ = event_tx.unbounded_send((event, tx));
+            match rx.recv_timeout(std::time::Duration::from_secs(5)) {
+                Err(sync_mpsc::RecvTimeoutError::Timeout) => {
+                    log::error!("Tunnel event callback timeout");
+                }
+                _ => (),
+            }
         };
 
         let monitor = TunnelMonitor::start(
@@ -120,7 +130,7 @@ impl ConnectingState {
         Ok(ConnectingState {
             tunnel_events: event_rx.fuse(),
             tunnel_parameters: parameters,
-            tunnel_interface: None,
+            tunnel_metadata: None,
             tunnel_close_event,
             close_handle,
             retry_attempt,
@@ -198,8 +208,6 @@ impl ConnectingState {
     }
 
     fn reset_routes(shared_values: &mut SharedTunnelStateValues) {
-        #[cfg(windows)]
-        shared_values.route_manager.clear_default_route_callbacks();
         if let Err(error) = shared_values.route_manager.clear_routes() {
             log::error!("{}", error.display_chain_with_msg("Failed to clear routes"));
         }
@@ -240,7 +248,7 @@ impl ConnectingState {
                     match Self::set_firewall_policy(
                         shared_values,
                         &self.tunnel_parameters,
-                        &self.tunnel_interface,
+                        &self.tunnel_metadata,
                     ) {
                         Ok(()) => {
                             cfg_if! {
@@ -263,7 +271,7 @@ impl ConnectingState {
                     if let Err(error) = Self::set_firewall_policy(
                         shared_values,
                         &self.tunnel_parameters,
-                        &self.tunnel_interface,
+                        &self.tunnel_metadata,
                     ) {
                         return self.disconnect(
                             shared_values,
@@ -311,27 +319,48 @@ impl ConnectingState {
                 shared_values.bypass_socket(fd, done_tx);
                 SameState(self.into())
             }
+            #[cfg(windows)]
+            Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
+                SameState(self.into())
+            }
         }
     }
 
     fn handle_tunnel_events(
         mut self,
-        event: Option<tunnel::TunnelEvent>,
+        event: Option<(tunnel::TunnelEvent, sync_mpsc::Sender<()>)>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
         use self::EventConsequence::*;
 
         match event {
-            Some(TunnelEvent::AuthFailed(reason)) => self.disconnect(
+            Some((TunnelEvent::AuthFailed(reason), _)) => self.disconnect(
                 shared_values,
                 AfterDisconnect::Block(ErrorStateCause::AuthFailed(reason)),
             ),
-            Some(TunnelEvent::InterfaceUp(interface)) => {
-                self.tunnel_interface = Some(interface);
+            Some((TunnelEvent::InterfaceUp(metadata), _done_tx)) => {
+                #[cfg(windows)]
+                if let Err(error) = shared_values
+                    .split_tunnel
+                    .set_tunnel_addresses(Some(&metadata))
+                {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to register addresses with split tunnel driver"
+                        )
+                    );
+                    return self.disconnect(
+                        shared_values,
+                        AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
+                    );
+                }
+                self.tunnel_metadata = Some(metadata);
                 match Self::set_firewall_policy(
                     shared_values,
                     &self.tunnel_parameters,
-                    &self.tunnel_interface,
+                    &self.tunnel_metadata,
                 ) {
                     Ok(()) => SameState(self.into()),
                     Err(error) => self.disconnect(
@@ -340,11 +369,11 @@ impl ConnectingState {
                     ),
                 }
             }
-            Some(TunnelEvent::Up(metadata)) => NewState(ConnectedState::enter(
+            Some((TunnelEvent::Up(metadata), _)) => NewState(ConnectedState::enter(
                 shared_values,
                 self.into_connected_state_bootstrap(metadata),
             )),
-            Some(TunnelEvent::Down) => SameState(self.into()),
+            Some((TunnelEvent::Down, _)) => SameState(self.into()),
             None => {
                 // The channel was closed
                 debug!("The tunnel disconnected unexpectedly");
@@ -434,6 +463,18 @@ impl TunnelState for ConnectingState {
                 ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
             }
             Ok(tunnel_parameters) => {
+                #[cfg(windows)]
+                if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to register addresses with split tunnel driver"
+                        )
+                    );
+
+                    return ErrorState::enter(shared_values, ErrorStateCause::SplitTunnelError);
+                }
+
                 if let Err(error) =
                     Self::set_firewall_policy(shared_values, &tunnel_parameters, &None)
                 {

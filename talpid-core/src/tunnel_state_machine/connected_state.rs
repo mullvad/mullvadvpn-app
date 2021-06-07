@@ -9,7 +9,7 @@ use crate::{
 };
 use cfg_if::cfg_if;
 use futures::{channel::mpsc, stream::Fuse, StreamExt};
-use std::net::IpAddr;
+use std::{net::IpAddr, sync::mpsc as sync_mpsc};
 use talpid_types::{
     net::TunnelParameters,
     tunnel::{ErrorStateCause, FirewallPolicyError},
@@ -21,7 +21,8 @@ use crate::tunnel::TunnelMonitor;
 
 use super::connecting_state::TunnelCloseEvent;
 
-pub(crate) type TunnelEventsReceiver = Fuse<mpsc::UnboundedReceiver<TunnelEvent>>;
+pub(crate) type TunnelEventsReceiver =
+    Fuse<mpsc::UnboundedReceiver<(TunnelEvent, sync_mpsc::Sender<()>)>>;
 
 
 pub struct ConnectedStateBootstrap {
@@ -133,8 +134,6 @@ impl ConnectedState {
     }
 
     fn reset_routes(shared_values: &mut SharedTunnelStateValues) {
-        #[cfg(windows)]
-        shared_values.route_manager.clear_default_route_callbacks();
         if let Err(error) = shared_values.route_manager.clear_routes() {
             log::error!("{}", error.display_chain_with_msg("Failed to clear routes"));
         }
@@ -254,18 +253,23 @@ impl ConnectedState {
                 shared_values.bypass_socket(fd, done_tx);
                 SameState(self.into())
             }
+            #[cfg(windows)]
+            Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
+                SameState(self.into())
+            }
         }
     }
 
     fn handle_tunnel_events(
         self,
-        event: Option<TunnelEvent>,
+        event: Option<(TunnelEvent, sync_mpsc::Sender<()>)>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
         use self::EventConsequence::*;
 
         match event {
-            Some(TunnelEvent::Down) | None => {
+            Some((TunnelEvent::Down, _)) | None => {
                 self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
             }
             Some(_) => SameState(self.into()),

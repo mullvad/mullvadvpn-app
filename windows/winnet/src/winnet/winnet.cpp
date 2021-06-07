@@ -554,6 +554,8 @@ WinNet_DeactivateRouteManager(
 	{
 		delete g_RouteManager;
 		g_RouteManager = nullptr;
+
+		g_RouteManagerLogSink.reset();
 	}
 	catch (...)
 	{

@@ -143,6 +143,10 @@ impl From<mullvad_types::states::TunnelState> for TunnelState {
                             talpid_tunnel::ErrorStateCause::VpnPermissionDenied => {
                                 i32::from(Cause::VpnPermissionDenied)
                             }
+                            #[cfg(target_os = "windows")]
+                            talpid_tunnel::ErrorStateCause::SplitTunnelError => {
+                                i32::from(Cause::SplitTunnelError)
+                            }
                         },
                         blocking_error: error_state.block_failure().map(map_firewall_error),
                         auth_fail_reason: if let talpid_tunnel::ErrorStateCause::AuthFailed(
@@ -359,6 +363,26 @@ impl From<mullvad_types::relay_constraints::LocationConstraint> for RelayLocatio
 
 impl From<&mullvad_types::settings::Settings> for Settings {
     fn from(settings: &mullvad_types::settings::Settings) -> Self {
+        #[cfg(windows)]
+        let split_tunnel = {
+            let mut converted_list = vec![];
+            for path in settings.split_tunnel.apps.clone().iter() {
+                match path.as_path().as_os_str().to_str() {
+                    Some(path) => converted_list.push(path.to_string()),
+                    None => {
+                        log::error!("failed to convert OS string: {:?}", path);
+                    }
+                }
+            }
+
+            Some(SplitTunnelSettings {
+                enable_exclusions: settings.split_tunnel.enable_exclusions,
+                apps: converted_list,
+            })
+        };
+        #[cfg(not(windows))]
+        let split_tunnel = None;
+
         Self {
             account_token: settings.get_account_token().unwrap_or_default(),
             relay_settings: Some(RelaySettings::from(settings.get_relay_settings())),
@@ -369,6 +393,7 @@ impl From<&mullvad_types::settings::Settings> for Settings {
             auto_connect: settings.auto_connect,
             tunnel_options: Some(TunnelOptions::from(&settings.tunnel_options)),
             show_beta_releases: settings.show_beta_releases,
+            split_tunnel,
         }
     }
 }

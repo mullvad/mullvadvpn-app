@@ -18,6 +18,8 @@ use mullvad_types::{
     wireguard::{RotationInterval, RotationIntervalError},
 };
 use parking_lot::RwLock;
+#[cfg(windows)]
+use std::path::PathBuf;
 use std::{
     cmp,
     convert::{TryFrom, TryInto},
@@ -656,6 +658,69 @@ impl ManagementService for ManagementServiceImpl {
             Ok(Response::new(()))
         }
     }
+
+    #[cfg(windows)]
+    async fn add_split_tunnel_app(&self, request: Request<String>) -> ServiceResult<()> {
+        log::debug!("add_split_tunnel_app");
+        let path = PathBuf::from(request.into_inner());
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::AddSplitTunnelApp(tx, path))?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_daemon_error)
+            .map(Response::new)
+    }
+    #[cfg(not(windows))]
+    async fn add_split_tunnel_app(&self, _: Request<String>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
+
+    #[cfg(windows)]
+    async fn remove_split_tunnel_app(&self, request: Request<String>) -> ServiceResult<()> {
+        log::debug!("remove_split_tunnel_app");
+        let path = PathBuf::from(request.into_inner());
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::RemoveSplitTunnelApp(tx, path))?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_daemon_error)
+            .map(Response::new)
+    }
+    #[cfg(not(windows))]
+    async fn remove_split_tunnel_app(&self, _: Request<String>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
+
+    #[cfg(windows)]
+    async fn clear_split_tunnel_apps(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("clear_split_tunnel_apps");
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::ClearSplitTunnelApps(tx))?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_daemon_error)
+            .map(Response::new)
+    }
+    #[cfg(not(windows))]
+    async fn clear_split_tunnel_apps(&self, _: Request<()>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
+
+    #[cfg(windows)]
+    async fn set_split_tunnel_state(&self, request: Request<bool>) -> ServiceResult<()> {
+        log::debug!("set_split_tunnel_state");
+        let enabled = request.into_inner();
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::SetSplitTunnelState(tx, enabled))?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_daemon_error)
+            .map(Response::new)
+    }
+    #[cfg(not(windows))]
+    async fn set_split_tunnel_state(&self, _: Request<bool>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
 }
 
 impl ManagementServiceImpl {
@@ -822,11 +887,30 @@ fn map_daemon_error(error: crate::Error) -> Status {
     match error {
         DaemonError::RestError(error) => map_rest_error(error),
         DaemonError::SettingsError(error) => map_settings_error(error),
+        #[cfg(windows)]
+        DaemonError::SplitTunnelError(error) => map_split_tunnel_error(error),
         DaemonError::AccountHistory(error) => map_account_history_error(error),
         DaemonError::NoAccountToken | DaemonError::NoAccountTokenHistory => {
             Status::unauthenticated(error.to_string())
         }
         error => Status::unknown(error.to_string()),
+    }
+}
+
+#[cfg(windows)]
+/// Converts [`talpid_core::split_tunnel::Error`] into a tonic status.
+fn map_split_tunnel_error(error: talpid_core::split_tunnel::Error) -> Status {
+    use talpid_core::split_tunnel::Error;
+
+    match &error {
+        Error::RegisterIps(io_error) | Error::SetConfiguration(io_error) => {
+            if io_error.kind() == std::io::ErrorKind::NotFound {
+                Status::not_found(format!("{}: {}", error, io_error))
+            } else {
+                Status::unknown(error.to_string())
+            }
+        }
+        _ => Status::unknown(error.to_string()),
     }
 }
 
