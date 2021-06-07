@@ -103,6 +103,8 @@ class RootContainerViewController: UIViewController {
         addTransitionView()
         addHeaderBarView()
         updateHeaderBarBackground()
+
+        accessibilityElements = [headerBarView, transitionContainer]
     }
 
     override func viewDidLayoutSubviews() {
