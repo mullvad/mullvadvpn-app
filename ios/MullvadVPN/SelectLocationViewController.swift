@@ -81,7 +81,6 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
                 cell.accessibilityIdentifier = item.location.stringRepresentation
                 cell.isDisabled = !item.isActive
                 cell.locationLabel.text = item.displayName
-                cell.statusIndicator.isActive = item.isActive
                 cell.showsCollapseControl = item.isCollapsible
                 cell.isExpanded = item.showsChildren
                 cell.didCollapseHandler = { [weak self] (cell) in
