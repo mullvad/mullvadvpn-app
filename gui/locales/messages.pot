@@ -60,6 +60,9 @@ msgstr[1] ""
 msgid "Back"
 msgstr ""
 
+msgid "BETA"
+msgstr ""
+
 msgid "BLOCKED CONNECTION"
 msgstr ""
 
@@ -632,6 +635,10 @@ msgid "Reconnecting"
 msgstr ""
 
 msgctxt "notifications"
+msgid "The apps excluded with split tunneling might not work properly right now."
+msgstr ""
+
+msgctxt "notifications"
 msgid "Unable to apply firewall rules."
 msgstr ""
 
@@ -653,6 +660,10 @@ msgstr ""
 
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or contact support."
+msgstr ""
+
+msgctxt "notifications"
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
 msgstr ""
 
 msgctxt "notifications"
@@ -915,11 +926,31 @@ msgid "%(applicationName)s is problematic and can’t be excluded from the VPN t
 msgstr ""
 
 msgctxt "split-tunneling-view"
-msgid "Browse"
+msgid "Add"
+msgstr ""
+
+msgctxt "split-tunneling-view"
+msgid "All apps"
+msgstr ""
+
+msgctxt "split-tunneling-view"
+msgid "Choose the apps you want to exclude from the VPN tunnel."
 msgstr ""
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
+msgstr ""
+
+msgctxt "split-tunneling-view"
+msgid "Excluded apps"
+msgstr ""
+
+msgctxt "split-tunneling-view"
+msgid "Filter..."
+msgstr ""
+
+msgctxt "split-tunneling-view"
+msgid "Find another app"
 msgstr ""
 
 msgctxt "split-tunneling-view"
@@ -931,7 +962,7 @@ msgid "Launch"
 msgstr ""
 
 msgctxt "split-tunneling-view"
-msgid "Launch application"
+msgid "No result for %(searchTerm)s."
 msgstr ""
 
 #. This error message is shown if the user tries to launch a Linux desktop
@@ -949,6 +980,14 @@ msgstr ""
 
 msgctxt "split-tunneling-view"
 msgid "Split tunneling"
+msgstr ""
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling has been disabled from the CLI and will automatically be enabled when adding or removing applications from the lists below."
+msgstr ""
+
+msgctxt "split-tunneling-view"
+msgid "Try a different search."
 msgstr ""
 
 #. Error message showed in a dialog when an application failes to launch.

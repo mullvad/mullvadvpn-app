@@ -11,6 +11,7 @@ import {
 interface ErrorNotificationContext {
   tunnelState: TunnelState;
   accountExpiry?: string;
+  hasExcludedApps: boolean;
 }
 
 export class ErrorNotificationProvider
@@ -20,25 +21,45 @@ export class ErrorNotificationProvider
   public mayDisplay = () => this.context.tunnelState.state === 'error';
 
   public getSystemNotification() {
-    return this.context.tunnelState.state === 'error'
-      ? {
-          message: getMessage(this.context.tunnelState.details, this.context.accountExpiry),
-          critical: !!this.context.tunnelState.details.blockFailure,
-        }
-      : undefined;
+    if (this.context.tunnelState.state === 'error') {
+      let message = getMessage(this.context.tunnelState.details, this.context.accountExpiry);
+      if (!this.context.tunnelState.details.blockFailure && this.context.hasExcludedApps) {
+        message = `${message} ${messages.pgettext(
+          'notifications',
+          'The apps excluded with split tunneling might not work properly right now.',
+        )}`;
+      }
+
+      return {
+        message,
+        critical: !!this.context.tunnelState.details.blockFailure,
+      };
+    } else {
+      return undefined;
+    }
   }
 
   public getInAppNotification(): InAppNotification | undefined {
-    return this.context.tunnelState.state === 'error'
-      ? {
-          indicator:
-            this.context.tunnelState.details.cause.reason === 'is_offline' ? 'warning' : 'error',
-          title: !this.context.tunnelState.details.blockFailure
-            ? messages.pgettext('in-app-notifications', 'BLOCKING INTERNET')
-            : messages.pgettext('in-app-notifications', 'NETWORK TRAFFIC MIGHT BE LEAKING'),
-          subtitle: getMessage(this.context.tunnelState.details, this.context.accountExpiry),
-        }
-      : undefined;
+    if (this.context.tunnelState.state === 'error') {
+      let subtitle = getMessage(this.context.tunnelState.details, this.context.accountExpiry);
+      if (!this.context.tunnelState.details.blockFailure && this.context.hasExcludedApps) {
+        subtitle = `${subtitle} ${messages.pgettext(
+          'notifications',
+          'The apps excluded with split tunneling might not work properly right now.',
+        )}`;
+      }
+
+      return {
+        indicator:
+          this.context.tunnelState.details.cause.reason === 'is_offline' ? 'warning' : 'error',
+        title: !this.context.tunnelState.details.blockFailure
+          ? messages.pgettext('in-app-notifications', 'BLOCKING INTERNET')
+          : messages.pgettext('in-app-notifications', 'NETWORK TRAFFIC MIGHT BE LEAKING'),
+        subtitle,
+      };
+    } else {
+      return undefined;
+    }
   }
 }
 
@@ -116,6 +137,11 @@ function getMessage(errorDetails: IErrorState, accountExpiry?: string): string {
         return messages.pgettext(
           'notifications',
           "Your device is offline. Try connecting when it's back online.",
+        );
+      case 'split_tunnel_error':
+        return messages.pgettext(
+          'notifications',
+          'Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support.',
         );
     }
   }

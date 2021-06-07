@@ -1,3 +1,4 @@
+import { IApplication } from '../../../shared/application-types';
 import {
   BridgeState,
   KeygenEvent,
@@ -136,6 +137,8 @@ export interface ISettingsReduxState {
   };
   dns: IDnsOptions;
   wireguardKeyState: WgKeyState;
+  splitTunneling: boolean;
+  splitTunnelingApplications: IApplication[];
 }
 
 const initialState: ISettingsReduxState = {
@@ -187,6 +190,8 @@ const initialState: ISettingsReduxState = {
       addresses: [],
     },
   },
+  splitTunneling: false,
+  splitTunnelingApplications: [],
 };
 
 export default function (
@@ -318,6 +323,18 @@ export default function (
       return {
         ...state,
         dns: action.dns,
+      };
+
+    case 'UPDATE_SPLIT_TUNNELING_STATE':
+      return {
+        ...state,
+        splitTunneling: action.enabled,
+      };
+
+    case 'SET_SPLIT_TUNNELING_APPLICATIONS':
+      return {
+        ...state,
+        splitTunnelingApplications: action.applications,
       };
 
     default:
