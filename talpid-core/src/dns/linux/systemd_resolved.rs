@@ -65,23 +65,26 @@ impl SystemdResolved {
         self.tunnel_index = tunnel_index;
         let mut last_result = Ok(());
 
-        for iface_config in &initial_config {
-            let initial_state = match self.dbus_interface.get_dns(iface_config.interface).await {
-                Ok(state) => state,
-                Err(error) => {
+        {
+            let mut initial_states = self.initial_states.lock().unwrap();
+            for iface_config in &initial_config {
+                let initial_state = match self.dbus_interface.get_dns(iface_config.interface).await {
+                    Ok(state) => state,
+                    Err(error) => {
+                        last_result = Err(Error::SystemdResolvedError(error));
+                        break;
+                    }
+                };
+                if let Err(error) = self
+                    .dbus_interface
+                    .set_dns(iface_config.interface, iface_config.resolvers.clone())
+                    .await
+                {
                     last_result = Err(Error::SystemdResolvedError(error));
                     break;
                 }
-            };
-            if let Err(error) = self
-                .dbus_interface
-                .set_dns(iface_config.interface, iface_config.resolvers.clone())
-                .await
-            {
-                last_result = Err(Error::SystemdResolvedError(error));
-                break;
+                initial_states.push(initial_state);
             }
-            self.initial_states.lock().unwrap().push(initial_state);
         }
 
         if last_result.is_ok() {
