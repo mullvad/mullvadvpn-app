@@ -198,6 +198,9 @@ class Account {
         let operation = AsyncBlockOperation { (finish) in
             DispatchQueue.main.async {
                 self.removeFromPreferences()
+                self.observerList.forEach { (observer) in
+                    observer.accountDidLogout(self)
+                }
                 finish()
             }
         }
@@ -223,9 +226,11 @@ class Account {
         sendRequest.addDidFinishBlockObserver(queue: .main) { (operation, result) in
             switch result {
             case .success(let response):
-                self.expiry = response.expires
-                self.observerList.forEach { (observer) in
-                    observer.account(self, didUpdateExpiry: response.expires)
+                if self.expiry != response.expires {
+                    self.expiry = response.expires
+                    self.observerList.forEach { (observer) in
+                        observer.account(self, didUpdateExpiry: response.expires)
+                    }
                 }
 
             case .failure(let error):
@@ -287,7 +292,7 @@ extension Account: AppStorePaymentObserver {
         let operation = AsyncBlockOperation { (finish) in
             DispatchQueue.main.async {
                 // Make sure that payment corresponds to the active account token
-                if self.token == accountToken {
+                if self.token == accountToken, self.expiry != newExpiry {
                     self.expiry = newExpiry
                     self.observerList.forEach { (observer) in
                         observer.account(self, didUpdateExpiry: newExpiry)
