@@ -28,9 +28,12 @@
 !define PATCH_MISSING 2
 
 # Return codes from driverlogic
-!define DL_ADAPTER_NOT_FOUND -2
-!define DL_GENERAL_ERROR -1
 !define DL_GENERAL_SUCCESS 0
+!define DL_GENERAL_ERROR 1
+!define DL_ST_DRIVER_NONE_INSTALLED 2
+!define DL_ST_DRIVER_SAME_VERSION_INSTALLED 3
+!define DL_ST_DRIVER_OLDER_VERSION_INSTALLED 4
+!define DL_ST_DRIVER_NEWER_VERSION_INSTALLED 5
 
 # Log targets
 !define LOG_INSTALL 0
@@ -54,7 +57,6 @@
 
 !define BLOCK_OUTBOUND_IPV4_FILTER_GUID "{a81c5411-0fd0-43a9-a9be-313f299de64f}"
 !define PERSISTENT_BLOCK_OUTBOUND_IPV4_FILTER_GUID "{79860c64-9a5e-48a3-b5f3-d64b41659aa5}"
-!define WINTUN_ADAPTER_GUID "{AFE43773-E1F8-4EBB-8536-576AB86AFE9A}"
 
 #
 # ExtractWintun
@@ -162,6 +164,28 @@
 !define InstallWin7Hotfix '!insertmacro "InstallWin7Hotfix"'
 
 #
+# ExtractSplitTunnelDriver
+#
+# Extract split tunnel driver and associated files into $TEMP\mullvad-split-tunnel
+#
+!macro ExtractSplitTunnelDriver
+
+	SetOutPath "$TEMP\mullvad-split-tunnel"
+
+	${If} ${AtLeastWin10}
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\win10\*"
+	${Else}
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\legacy\*"
+		File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\split-tunnel\meta\mullvad-ev.cer"
+	${EndIf}
+
+	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
+
+!macroend
+
+!define ExtractSplitTunnelDriver '!insertmacro "ExtractSplitTunnelDriver"'
+
+#
 # RemoveWintun
 #
 # Try to remove Wintun
@@ -172,7 +196,7 @@
 
 	log::Log "RemoveWintun()"
 
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun delete-pool-driver ${WINTUN_POOL}'
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun-delete-pool-driver ${WINTUN_POOL}'
 	Pop $0
 	Pop $1
 
@@ -208,12 +232,11 @@
 
 	log::Log "RemoveAbandonedWintunAdapter()"
 
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" remove-device-by-guid ${WINTUN_ADAPTER_GUID}'
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wintun-delete-abandoned-device'
 	Pop $0
 	Pop $1
 
 	${If} $0 != ${DL_GENERAL_SUCCESS}
-	${AndIf} $0 != ${DL_ADAPTER_NOT_FOUND}
 		IntFmt $0 "0x%X" $0
 		StrCpy $R0 "Failed to remove network adapter: error $0"
 		log::LogWithDetails $R0 $1
@@ -259,6 +282,18 @@
 		StrCpy $R0 "Failed to install Mullvad service"
 		log::LogWithDetails $R0 $1
 
+		#
+		# NSIS documentation indicates that failure to launch the target will return
+		# the string "error" on the top of the stack ($0 after we pop).
+		#
+		# However in practice, the failure code from CreateProcess is used.
+		# And naturally, comparing to 0xC0000139 fails because... NSIS
+		#
+		${If} $0 == -1073741511
+			log::Log "Failed to launch $\"mullvad-daemon$\" (API issue)"
+			Goto InstallService_return
+		${EndIf}
+
 		Goto InstallService_return
 	${EndIf}
 
@@ -293,6 +328,162 @@
 !macroend
 
 !define InstallService '!insertmacro "InstallService"'
+
+#
+# InstallSplitTunnelDriverCert
+#
+# Install driver certificate in trusted publishers store
+#
+!macro InstallSplitTunnelDriverCert
+
+	${IfNot} ${AtLeastWin10}
+		log::Log "Adding Split Tunnel driver certificate to certificate store"
+
+		nsExec::ExecToStack '"$SYSDIR\certutil.exe" -f -addstore TrustedPublisher "$TEMP\mullvad-split-tunnel\mullvad-ev.cer"'
+		Pop $0
+		Pop $1
+
+		${If} $0 != 0
+			StrCpy $R0 "Failed to add trusted publisher certificate: error $0"
+			log::LogWithDetails $R0 $1
+		${EndIf}
+	${EndIf}
+
+!macroend
+
+!define InstallSplitTunnelDriverCert '!insertmacro "InstallSplitTunnelDriverCert"'
+
+#
+# InstallSplitTunnelDriver
+#
+# Install split tunnel driver
+#
+# Returns: 0 in $R0 on success, otherwise an error message in $R0
+#
+!macro InstallSplitTunnelDriver
+
+	log::Log "InstallSplitTunnelDriver()"
+
+	Push $0
+	Push $1
+
+	log::Log "Searching for and evaluating already installed Split Tunneling driver"
+	nsExec::ExecToStack '"$TEMP\mullvad-split-tunnel\driverlogic.exe" st-evaluate "$TEMP\mullvad-split-tunnel\mullvad-split-tunnel.inf"'
+
+	Pop $0
+	Pop $1
+
+	${If} $0 == ${DL_ST_DRIVER_NONE_INSTALLED}
+		log::Log "No currently installed Split Tunneling driver"
+		Goto InstallSplitTunnelDriver_new_install
+	${OrIf} $0 == ${DL_ST_DRIVER_SAME_VERSION_INSTALLED}
+		log::Log "Up-to-date Split Tunneling driver already installed"
+		Goto InstallSplitTunnelDriver_success
+	${OrIf} $0 == ${DL_ST_DRIVER_OLDER_VERSION_INSTALLED}
+		log::Log "An older version of the Split Tunneling driver is installed"
+		Goto InstallSplitTunnelDriver_force_install
+	${OrIf} $0 == ${DL_ST_DRIVER_NEWER_VERSION_INSTALLED}
+		log::Log "A newer version of the Split Tunneling driver is installed"
+		Goto InstallSplitTunnelDriver_force_install
+	${Else}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to search for and evaluate driver: error $0"
+		log::LogWithDetails $R0 $1
+		Goto InstallSplitTunnelDriver_return
+	${EndIf}
+
+	InstallSplitTunnelDriver_new_install:
+	
+	${InstallSplitTunnelDriverCert}
+	
+	log::Log "Installing Split Tunneling driver"
+	nsExec::ExecToStack '"$TEMP\mullvad-split-tunnel\driverlogic.exe" st-new-install "$TEMP\mullvad-split-tunnel\mullvad-split-tunnel.inf"'
+	
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${DL_GENERAL_SUCCESS}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to install driver: error $0"
+		log::LogWithDetails $R0 $1
+		Goto InstallSplitTunnelDriver_return
+	${EndIf}
+
+	Goto InstallSplitTunnelDriver_success
+
+	InstallSplitTunnelDriver_force_install:
+
+	#
+	# Would be possible to check driver state here and warn the user if driver is engaged.
+	#
+
+	log::Log "Installing Split Tunneling driver"
+	nsExec::ExecToStack '"$TEMP\mullvad-split-tunnel\driverlogic.exe" st-force-install "$TEMP\mullvad-split-tunnel\mullvad-split-tunnel.inf"'
+	
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${DL_GENERAL_SUCCESS}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to install driver: error $0"
+		log::LogWithDetails $R0 $1
+		Goto InstallSplitTunnelDriver_return
+	${EndIf}
+
+	InstallSplitTunnelDriver_success:
+	
+	log::Log "InstallSplitTunnelDriver() completed successfully"
+
+	Push 0
+	Pop $R0
+
+	InstallSplitTunnelDriver_return:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define InstallSplitTunnelDriver '!insertmacro "InstallSplitTunnelDriver"'
+
+#
+# RemoveSplitTunnelDriver
+#
+# Reset and remove split tunnel driver
+#
+!macro RemoveSplitTunnelDriver
+
+	log::Log "RemoveSplitTunnelDriver()"
+
+	Push $0
+	Push $1
+
+	log::Log "Removing Split Tunneling driver"
+	nsExec::ExecToStack '"$TEMP\mullvad-split-tunnel\driverlogic.exe" st-remove'
+	
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${DL_GENERAL_SUCCESS}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to remove driver: error $0"
+		log::LogWithDetails $R0 $1
+		Goto RemoveSplitTunnelDriver_return
+	${EndIf}
+	
+	log::Log "RemoveSplitTunnelDriver() completed successfully"
+
+	Push 0
+	Pop $R0
+
+	RemoveSplitTunnelDriver_return:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define RemoveSplitTunnelDriver '!insertmacro "RemoveSplitTunnelDriver"'
 
 #
 # InstallTrayIcon
@@ -737,6 +928,14 @@
 		${EndIf}
 	${EndIf}
 
+	${ExtractSplitTunnelDriver}
+	${InstallSplitTunnelDriver}
+
+	${If} $R0 != 0
+		MessageBox MB_OK "$R0"
+		Goto customInstall_abort_installation
+	${EndIf}
+	
 	${InstallService}
 
 	${If} $R0 != 0
@@ -1004,6 +1203,9 @@
 
 		${ExtractWintun}
 		${RemoveWintun}
+
+		${ExtractSplitTunnelDriver}
+		${RemoveSplitTunnelDriver}
 
 		log::SetLogTarget ${LOG_VOID}
 
