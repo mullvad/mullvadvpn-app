@@ -129,8 +129,13 @@
 		587AD7C623421D7000E93A53 /* TunnelSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587AD7C523421D7000E93A53 /* TunnelSettings.swift */; };
 		587AD7C723421D8600E93A53 /* TunnelSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587AD7C523421D7000E93A53 /* TunnelSettings.swift */; };
 		587AD7CA2342283900E93A53 /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587AD7C92342283900E93A53 /* Account.swift */; };
-		587B7545266922BF00DEF7E9 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 587B7543266922BF00DEF7E9 /* Localizable.strings */; };
+		587B7536266528A200DEF7E9 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B7535266528A200DEF7E9 /* NotificationManager.swift */; };
+		587B753B2666467500DEF7E9 /* NotificationBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B753A2666467500DEF7E9 /* NotificationBannerView.swift */; };
+		587B753D2666468F00DEF7E9 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B753C2666468F00DEF7E9 /* NotificationController.swift */; };
+		587B753F2668E5A700DEF7E9 /* NotificationContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B753E2668E5A700DEF7E9 /* NotificationContainerView.swift */; };
+		587B75412668FD7800DEF7E9 /* AccountExpiryNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B75402668FD7700DEF7E9 /* AccountExpiryNotificationProvider.swift */; };
 		587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587CBFE222807F530028DED3 /* UIColor+Helpers.swift */; };
+		5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 587B7543266922BF00DEF7E9 /* Localizable.strings */; };
 		588534BF246193D90018B744 /* AutomaticKeyRotationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588534BD246193C00018B744 /* AutomaticKeyRotationManager.swift */; };
 		58871D1825D5359B002297FA /* MullvadRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CB0EDF24B86751001EF0D8 /* MullvadRest.swift */; };
 		58871D1E25D535A3002297FA /* WireGuardKit in Frameworks */ = {isa = PBXBuildFile; productRef = 58871D1D25D535A3002297FA /* WireGuardKit */; };
@@ -358,6 +363,11 @@
 		587A01FB23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelProviderHost.swift; sourceTree = "<group>"; };
 		587AD7C523421D7000E93A53 /* TunnelSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelSettings.swift; sourceTree = "<group>"; };
 		587AD7C92342283900E93A53 /* Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
+		587B7535266528A200DEF7E9 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		587B753A2666467500DEF7E9 /* NotificationBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationBannerView.swift; sourceTree = "<group>"; };
+		587B753C2666468F00DEF7E9 /* NotificationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationController.swift; sourceTree = "<group>"; };
+		587B753E2668E5A700DEF7E9 /* NotificationContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationContainerView.swift; sourceTree = "<group>"; };
+		587B75402668FD7700DEF7E9 /* AccountExpiryNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryNotificationProvider.swift; sourceTree = "<group>"; };
 		587B7544266922BF00DEF7E9 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		587CBFE222807F530028DED3 /* UIColor+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Helpers.swift"; sourceTree = "<group>"; };
 		588534BD246193C00018B744 /* AutomaticKeyRotationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyRotationManager.swift; sourceTree = "<group>"; };
@@ -429,6 +439,7 @@
 		58F19E34228C15BA00C7710B /* SpinnerActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinnerActivityIndicatorView.swift; sourceTree = "<group>"; };
 		58F3C0A3249CB069003E76BE /* HeaderBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBarView.swift; sourceTree = "<group>"; };
 		58F3C0A524A50155003E76BE /* relays.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = relays.json; sourceTree = "<group>"; };
+		58F7A23D2665179C00524A8B /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
 		58F7D30E250FA12E0097BE4E /* AnyIPEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyIPEndpoint.swift; sourceTree = "<group>"; };
 		58F840AE2464382C0044E708 /* KeychainItemRevision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainItemRevision.swift; sourceTree = "<group>"; };
 		58F840B12464491D0044E708 /* ChainedError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainedError.swift; sourceTree = "<group>"; };
@@ -489,6 +500,7 @@
 		0E15C74FDCF763609B367486 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				58F7A23D2665179C00524A8B /* UserNotifications.framework */,
 				5894E725236B2801008A2793 /* SwiftUI.framework */,
 				586BD68222B7BBD800BB7F9F /* NetworkExtension.framework */,
 			);
@@ -539,6 +551,14 @@
 				586ADD4523FC13F400CE9E87 /* countries.geo.json */,
 			);
 			path = GeoJSON;
+			sourceTree = "<group>";
+		};
+		587B75422669034500DEF7E9 /* Notifications */ = {
+			isa = PBXGroup;
+			children = (
+				587B75402668FD7700DEF7E9 /* AccountExpiryNotificationProvider.swift */,
+			);
+			path = Notifications;
 			sourceTree = "<group>";
 		};
 		58B0A2A1238EE67E00BC001D /* MullvadVPNTests */ = {
@@ -621,6 +641,9 @@
 				5892A45D265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift */,
 				58FEEB45260A028D00A621A8 /* GeoJSON.swift */,
 				58F3C0A3249CB069003E76BE /* HeaderBarView.swift */,
+				587B753A2666467500DEF7E9 /* NotificationBannerView.swift */,
+				587B753E2668E5A700DEF7E9 /* NotificationContainerView.swift */,
+				587B753C2666468F00DEF7E9 /* NotificationController.swift */,
 				58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */,
 				58CE5E6F224146210008646E /* Info.plist */,
 				5840250022B1124600E4CFEC /* IPAddress+Codable.swift */,
@@ -646,6 +669,8 @@
 				5866F39B2243B82D00168AE5 /* MullvadVPN.entitlements */,
 				58906DDF2445C7A5002F0673 /* NEProviderStopReason+Debug.swift */,
 				5811DE4F239014550011EB53 /* NEVPNStatus+Debug.swift */,
+				587B7535266528A200DEF7E9 /* NotificationManager.swift */,
+				587B75422669034500DEF7E9 /* Notifications */,
 				5871FB9F254C26BF0051A0A4 /* NSRegularExpression+IPAddress.swift */,
 				58CC40EE24A601900019D96E /* ObserverList.swift */,
 				580EE1FF24B3218800F9D8A1 /* Operations */,
@@ -925,7 +950,7 @@
 				58727283265D173C00F315B2 /* LaunchScreen.storyboard in Resources */,
 				586ADD4723FC13F400CE9E87 /* countries.geo.json in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
-				587B7545266922BF00DEF7E9 /* Localizable.strings in Resources */,
+				5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */,
 				584789B8264D4A2A000E45FB /* old_le_root_cert.cer in Resources */,
 				584789BE264D4A2A000E45FB /* new_le_root_cert.cer in Resources */,
 				58E5BC2624FEB6DB00A53A76 /* AccountViewController.xib in Resources */,
@@ -1002,12 +1027,14 @@
 			files = (
 				58BFA5CC22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
 				5891BF5125E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift in Sources */,
+				587B75412668FD7800DEF7E9 /* AccountExpiryNotificationProvider.swift in Sources */,
 				58BA692E23E99EFF009DC256 /* Locking.swift in Sources */,
 				580EE21E24B3237F00F9D8A1 /* OutputOperation.swift in Sources */,
 				5840250122B1124600E4CFEC /* IPAddress+Codable.swift in Sources */,
 				5857F24724C882D700CF6F47 /* SelectLocationNavigationController.swift in Sources */,
 				580EE21224B322FC00F9D8A1 /* ResultOperation.swift in Sources */,
 				58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */,
+				587B753B2666467500DEF7E9 /* NotificationBannerView.swift in Sources */,
 				58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */,
 				58E6771F24ADFE7800AA26E7 /* SettingsNavigationController.swift in Sources */,
 				58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */,
@@ -1022,6 +1049,7 @@
 				58ACF6492655365700ACE4B7 /* PreferencesViewController.swift in Sources */,
 				588D2FE3248AC27F00E313F7 /* AsyncOperation.swift in Sources */,
 				5877153023981F7B001F8237 /* WireguardKeysViewController.swift in Sources */,
+				587B7536266528A200DEF7E9 /* NotificationManager.swift in Sources */,
 				58ACF64D26567A5000ACE4B7 /* CustomSwitch.swift in Sources */,
 				5850367F25A481D800A43E93 /* IPAddressRange+Codable.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
@@ -1097,6 +1125,7 @@
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
 				589AB4F7227B64450039131E /* BasicTableViewCell.swift in Sources */,
 				58B9EB152489139B00095626 /* DisplayChainedError.swift in Sources */,
+				587B753F2668E5A700DEF7E9 /* NotificationContainerView.swift in Sources */,
 				5868BD33261DCD2600E6027F /* CustomSplitViewController.swift in Sources */,
 				58CCA01E2242787B004F3011 /* AccountTextField.swift in Sources */,
 				584592612639B4A200EF967F /* ConsentContentView.swift in Sources */,
@@ -1122,6 +1151,7 @@
 				58FAEDFF24533A7000CB0F5B /* KeychainReturn.swift in Sources */,
 				58ACF64B26553C3F00ACE4B7 /* SettingsSwitchCell.swift in Sources */,
 				580EE20C24B3225F00F9D8A1 /* DelayOperation.swift in Sources */,
+				587B753D2666468F00DEF7E9 /* NotificationController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
