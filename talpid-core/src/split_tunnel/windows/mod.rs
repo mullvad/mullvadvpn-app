@@ -120,8 +120,7 @@ unsafe impl Send for EventThreadContext {}
 impl SplitTunnel {
     /// Initialize the driver.
     pub fn new(daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>) -> Result<Self, Error> {
-        let handle = driver::DeviceHandle::new().map_err(Error::InitializationFailed)?;
-        let handle = Arc::new(handle);
+        let (request_tx, handle) = Self::spawn_request_thread()?;
 
         let mut event_overlapped: OVERLAPPED = unsafe { mem::zeroed() };
         event_overlapped.hEvent =
@@ -277,7 +276,7 @@ impl SplitTunnel {
         });
 
         Ok(SplitTunnel {
-            request_tx: Self::spawn_command_thread(handle),
+            request_tx,
             event_thread: Some(event_thread),
             quit_event,
             _route_change_callback: None,
@@ -285,10 +284,25 @@ impl SplitTunnel {
         })
     }
 
-    fn spawn_command_thread(handle: Arc<driver::DeviceHandle>) -> RequestTx {
+    fn spawn_request_thread() -> Result<(RequestTx, Arc<driver::DeviceHandle>), Error> {
         let (tx, rx): (RequestTx, _) = sync_mpsc::sync_channel(3);
+        let (init_tx, init_rx) = sync_mpsc::channel();
 
         std::thread::spawn(move || {
+            let result = driver::DeviceHandle::new()
+                .map(Arc::new)
+                .map_err(Error::InitializationFailed);
+            let handle = match result {
+                Ok(handle) => {
+                    let _ = init_tx.send(Ok(handle.clone()));
+                    handle
+                }
+                Err(error) => {
+                    let _ = init_tx.send(Err(error));
+                    return;
+                }
+            };
+
             while let Ok((request, response_tx)) = rx.recv() {
                 let response = match request {
                     Request::SetPaths(paths) => {
@@ -319,7 +333,11 @@ impl SplitTunnel {
             }
         });
 
-        tx
+        let handle = init_rx
+            .recv_timeout(REQUEST_TIMEOUT)
+            .map_err(|_| Error::RequestThreadStuck)??;
+
+        Ok((tx, handle))
     }
 
     fn send_request(&self, request: Request) -> Result<(), Error> {
