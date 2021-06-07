@@ -85,7 +85,7 @@ impl SystemdResolved {
         }
 
         if last_result.is_ok() {
-            if initial_config.len() == 1 && initial_config[0].interface == tunnel_index {
+            if has_only_tunnel_config(&initial_config, tunnel_index) {
                 if let Err(error) = self
                     .dbus_interface
                     .set_domains(tunnel_index, &[(".", true)])
@@ -186,12 +186,11 @@ impl SystemdResolved {
                     }
                 }
 
-                let tunnel_domains =
-                    if new_config.len() == 1 && new_config[0].interface == tunnel_index {
-                        &[(".", true)][..]
-                    } else {
-                        &[][..]
-                    };
+                let tunnel_domains = if has_only_tunnel_config(&new_config, tunnel_index) {
+                    &[(".", true)][..]
+                } else {
+                    &[][..]
+                };
                 if let Err(error) = dbus_interface
                     .set_domains(tunnel_index, tunnel_domains)
                     .await
@@ -253,7 +252,7 @@ impl SystemdResolved {
                         }
                     }
                     if anything_changed {
-                        let result = if configs.len() == 1 && configs[0].interface == tunnel_index {
+                        let result = if has_only_tunnel_config(&configs, tunnel_index) {
                             dbus_interface.set_domains(tunnel_index, &[(".", true)])
                         } else {
                             dbus_interface.set_domains(tunnel_index, &[])
@@ -303,4 +302,8 @@ impl SystemdResolved {
 
         Ok(())
     }
+}
+
+fn has_only_tunnel_config(configs: &[DnsConfig], tunnel_index: u32) -> bool {
+    configs.len() == 1 && configs[0].interface == tunnel_index
 }
