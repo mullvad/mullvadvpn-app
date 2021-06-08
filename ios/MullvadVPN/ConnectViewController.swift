@@ -200,6 +200,8 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             mainContentView.connectionPanel.dataSource = nil
             mainContentView.connectionPanel.isHidden = true
         }
+
+        mainContentView.locationContainerView.accessibilityLabel = tunnelState.localizedAccessibilityLabel
     }
 
     private func locationMarkerOffset() -> CGPoint {
@@ -437,6 +439,29 @@ private extension TunnelState {
             return NSLocalizedString("Disconnect", comment: "")
         case .disconnecting, .disconnected:
             return nil
+        }
+    }
+
+    var localizedAccessibilityLabel: String {
+        switch self {
+        case .connecting:
+            return NSLocalizedString("Creating secure connection", comment: "")
+
+        case .connected(let tunnelInfo):
+            return String(format: NSLocalizedString("Secure connection. Connected to %@, %@", comment: ""),
+                          tunnelInfo.location.city,
+                          tunnelInfo.location.country)
+
+        case .disconnected:
+            return NSLocalizedString("Unsecured connection", comment: "")
+
+        case .reconnecting(let tunnelInfo):
+            return String(format: NSLocalizedString("Reconnecting to %@, %@", comment: ""),
+                          tunnelInfo.location.city,
+                          tunnelInfo.location.country)
+
+        case .disconnecting:
+            return NSLocalizedString("Disconnecting", comment: "")
         }
     }
 
