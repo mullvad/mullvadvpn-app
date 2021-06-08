@@ -13,7 +13,6 @@
 #include "rules/baseline/permitloopback.h"
 #include "rules/baseline/permitvpntunnel.h"
 #include "rules/baseline/permitvpntunnelservice.h"
-#include "rules/baseline/permitping.h"
 #include "rules/baseline/permitdns.h"
 #include "rules/baseline/permitendpoint.h"
 #include "rules/dns/blockall.h"
@@ -179,7 +178,6 @@ bool FwContext::applyPolicyConnecting
 	const WinFwEndpoint &relay,
 	const std::wstring &relayClient,
 	const std::optional<std::wstring> &tunnelInterfaceAlias,
-	const std::optional<PingableHosts> &pingableHosts,
 	const std::optional<WinFwEndpoint> &allowedEndpoint
 )
 {
@@ -202,19 +200,6 @@ bool FwContext::applyPolicyConnecting
 
 		ruleset.emplace_back(std::make_unique<baseline::PermitVpnTunnelService>(
 			*tunnelInterfaceAlias
-		));
-	}
-
-	//
-	// Permit pinging the gateway inside the tunnel.
-	//
-	if (pingableHosts.has_value())
-	{
-		const auto &ph = pingableHosts.value();
-
-		ruleset.emplace_back(std::make_unique<baseline::PermitPing>(
-			ph.tunnelInterfaceAlias,
-			ph.hosts
 		));
 	}
 

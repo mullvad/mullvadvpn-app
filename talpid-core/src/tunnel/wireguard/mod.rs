@@ -175,7 +175,8 @@ impl WireguardMonitor {
         #[cfg(windows)]
         let iface_luid = tunnel.get_interface_luid();
 
-        (on_event)(TunnelEvent::InterfaceUp(iface_name.clone()));
+        let metadata = Self::tunnel_metadata(&iface_name, &config);
+        (on_event)(TunnelEvent::InterfaceUp(metadata.clone()));
 
         #[cfg(target_os = "windows")]
         route_manager
@@ -197,7 +198,6 @@ impl WireguardMonitor {
             _tcp_proxies: tcp_proxies,
         };
 
-        let metadata = Self::tunnel_metadata(&iface_name, &config);
         let gateway = config.ipv4_gateway;
         let close_sender = monitor.close_msg_sender.clone();
         let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(

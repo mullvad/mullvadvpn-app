@@ -148,11 +148,8 @@ Examples:
 1. Connecting to `a.b.c.d` port `1234` using WireGuard: Allow `a.b.c.d:1234/UDP` for
   `mullvad-daemon.exe` or any process running as `root`.
 
-If connecting via WireGuard, this state allows ICMP packets to and from the in-tunnel IPs
-(both v4 and v6) of the relay server the app is currently connecting to. That means the private
-network IPs where the relay will respond inside the tunnel. It allows this on all interfaces,
-since with the current architecture we don't know which network interface is the tunnel interface
-at this point.
+When using WireGuard, traffic inside the tunnel is permitted immediately after the tunnel device
+has been created. See the [connected] state for details on this.
 
 ### Connected
 

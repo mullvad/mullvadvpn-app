@@ -1,4 +1,4 @@
-use crate::logging::windows::log_sink;
+use crate::{logging::windows::log_sink, tunnel::TunnelMetadata};
 
 use std::{ffi::OsString, iter, net::IpAddr, path::Path, ptr};
 
@@ -93,8 +93,7 @@ impl FirewallT for Firewall {
         match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
-                tunnel_interface,
-                pingable_hosts,
+                tunnel,
                 allow_lan,
                 allowed_endpoint,
                 relay_client,
@@ -103,9 +102,8 @@ impl FirewallT for Firewall {
                 self.set_connecting_state(
                     &peer_endpoint,
                     &cfg,
-                    &tunnel_interface,
+                    &tunnel,
                     &allowed_endpoint,
-                    &pingable_hosts,
                     &relay_client,
                 )
             }
@@ -154,9 +152,8 @@ impl Firewall {
         &mut self,
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
-        tunnel_interface: &Option<String>,
+        tunnel_metadata: &Option<TunnelMetadata>,
         allowed_endpoint: &Endpoint,
-        pingable_hosts: &Vec<IpAddr>,
         relay_client: &Path,
     ) -> Result<(), Error> {
         trace!("Applying 'connecting' firewall policy");
@@ -170,25 +167,6 @@ impl Firewall {
         let mut relay_client: Vec<u16> = relay_client.as_os_str().encode_wide().collect();
         relay_client.push(0u16);
 
-        let pingable_addresses = pingable_hosts
-            .iter()
-            .map(|ip| widestring_ip(*ip))
-            .collect::<Vec<_>>();
-        let pingable_address_ptrs = pingable_addresses
-            .iter()
-            .map(|ip| ip.as_ptr())
-            .collect::<Vec<_>>();
-
-        let pingable_hosts = if !pingable_address_ptrs.is_empty() {
-            Some(WinFwPingableHosts {
-                interfaceAlias: ptr::null(),
-                addresses: pingable_address_ptrs.as_ptr(),
-                num_addresses: pingable_addresses.len(),
-            })
-        } else {
-            None
-        };
-
         let allowed_endpoint_ip = widestring_ip(allowed_endpoint.address.ip());
         let winfw_allowed_endpoint = Some(WinFwEndpoint {
             ip: allowed_endpoint_ip.as_ptr(),
@@ -196,9 +174,9 @@ impl Firewall {
             protocol: WinFwProt::from(allowed_endpoint.protocol),
         });
 
-        let interface_wstr = tunnel_interface
-            .as_ref()
-            .map(|alias| WideCString::new(alias.encode_utf16().collect::<Vec<_>>()).unwrap());
+        let interface_wstr = tunnel_metadata.as_ref().map(|metadata| {
+            WideCString::new(metadata.interface.encode_utf16().collect::<Vec<_>>()).unwrap()
+        });
         let interface_wstr_ptr = if let Some(ref wstr) = interface_wstr {
             wstr.as_ptr()
         } else {
@@ -211,7 +189,6 @@ impl Firewall {
                 &winfw_relay,
                 relay_client.as_ptr(),
                 interface_wstr_ptr,
-                pingable_hosts.as_ptr(),
                 winfw_allowed_endpoint.as_ptr(),
             )
             .into_result()
@@ -223,7 +200,7 @@ impl Firewall {
         &mut self,
         endpoint: &Endpoint,
         winfw_settings: &WinFwSettings,
-        tunnel_metadata: &crate::tunnel::TunnelMetadata,
+        tunnel_metadata: &TunnelMetadata,
         dns_servers: &[IpAddr],
         relay_client: &Path,
     ) -> Result<(), Error> {
@@ -374,14 +351,6 @@ mod winfw {
         }
     }
 
-    #[repr(C)]
-    pub struct WinFwPingableHosts {
-        // a null pointer implies that all interfaces will be able to ping the supplied addresses
-        pub interfaceAlias: *const libc::wchar_t,
-        pub addresses: *const *const libc::wchar_t,
-        pub num_addresses: usize,
-    }
-
     #[allow(dead_code)]
     #[repr(u32)]
     #[derive(Clone, Copy)]
@@ -447,7 +416,6 @@ mod winfw {
             relay: &WinFwEndpoint,
             relayClient: *const libc::wchar_t,
             tunnelIfaceAlias: *const libc::wchar_t,
-            pingable_hosts: *const WinFwPingableHosts,
             allowed_endpoint: *const WinFwEndpoint,
         ) -> WinFwPolicyStatus;
 
