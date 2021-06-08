@@ -1,6 +1,7 @@
 use crate::linux::{iface_index, IfaceIndexLookupError};
 use futures::{channel::mpsc, StreamExt};
 use std::{
+    collections::BTreeMap,
     net::IpAddr,
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -31,8 +32,8 @@ use super::routing::{DnsConfig, DnsRouteMonitor};
 
 pub struct SystemdResolved {
     pub dbus_interface: AsyncHandle,
-    current_config: Arc<Mutex<Vec<DnsConfig>>>,
-    initial_states: Arc<Mutex<Vec<DnsState>>>,
+    current_config: Arc<Mutex<BTreeMap<u32, DnsConfig>>>,
+    initial_states: Arc<Mutex<BTreeMap<u32, DnsState>>>,
     tunnel_index: u32,
     route_monitor: Option<(DnsRouteMonitor, tokio::task::JoinHandle<()>)>,
     watcher: Option<(thread::JoinHandle<()>, Arc<AtomicBool>)>,
@@ -45,8 +46,8 @@ impl SystemdResolved {
 
         let systemd_resolved = SystemdResolved {
             dbus_interface,
-            current_config: Arc::new(Mutex::new(vec![])),
-            initial_states: Arc::new(Mutex::new(vec![])),
+            current_config: Arc::new(Mutex::new(BTreeMap::new())),
+            initial_states: Arc::new(Mutex::new(BTreeMap::new())),
             tunnel_index: 0,
             route_monitor: None,
             watcher: None,
@@ -67,8 +68,8 @@ impl SystemdResolved {
 
         {
             let mut initial_states = self.initial_states.lock().unwrap();
-            for iface_config in &initial_config {
-                let initial_state = match self.dbus_interface.get_dns(iface_config.interface).await {
+            for (iface_index, iface_config) in &initial_config {
+                let initial_state = match self.dbus_interface.get_dns(*iface_index).await {
                     Ok(state) => state,
                     Err(error) => {
                         last_result = Err(Error::SystemdResolvedError(error));
@@ -77,13 +78,13 @@ impl SystemdResolved {
                 };
                 if let Err(error) = self
                     .dbus_interface
-                    .set_dns(iface_config.interface, iface_config.resolvers.clone())
+                    .set_dns(*iface_index, iface_config.resolvers.clone())
                     .await
                 {
                     last_result = Err(Error::SystemdResolvedError(error));
                     break;
                 }
-                initial_states.push(initial_state);
+                initial_states.insert(*iface_index, initial_state);
             }
         }
 
@@ -124,66 +125,57 @@ impl SystemdResolved {
         let initial_states = self.initial_states.clone();
         let current_config = self.current_config.clone();
         let join_handle = tokio::spawn(async move {
-            while let Some(mut new_config) = update_rx.next().await {
+            while let Some(new_config) = update_rx.next().await {
                 let mut new_initial_states = { initial_states.lock().unwrap().clone() };
-                new_initial_states.sort_by(|a, b| a.interface_index.cmp(&b.interface_index));
-                new_config.sort_by(|a, b| a.interface.cmp(&b.interface));
 
                 let disable_watcher = ignore_config_changes.clone();
                 disable_watcher.store(true, Ordering::Release);
 
                 // Revert interfaces no longer in use
-                let mut state_index = new_initial_states.len();
-                while state_index > 0 {
-                    let state = &new_initial_states[state_index - 1];
-                    match new_config.binary_search_by(|a| a.interface.cmp(&state.interface_index)) {
-                        Ok(_) => state_index -= 1,
-                        Err(_index) => {
-                            log::debug!(
-                                "Reverting DNS config on interface {}",
-                                state.interface_index
-                            );
-                            if let Err(err) = dbus_interface.set_dns_state(state.clone()).await {
-                                log::error!("Failed to revert interface config: {}", err);
-                            }
-                            new_initial_states.remove(state_index - 1);
+                let keys = new_initial_states.keys().cloned().collect::<Vec<u32>>();
+                for iface in keys {
+                    if !new_config.contains_key(&iface) {
+                        log::debug!("Reverting DNS config on interface {}", iface);
+                        if let Err(err) = dbus_interface
+                            .set_dns_state(new_initial_states[&iface].clone())
+                            .await
+                        {
+                            log::error!("Failed to revert interface config: {}", err);
                         }
+                        new_initial_states.remove(&iface);
                     }
                 }
 
-                for iface_config in &new_config {
-                    if tunnel_index == iface_config.interface {
+                for (iface, config) in &new_config {
+                    if tunnel_index == *iface {
                         // All public addresses (plus the gateway) will be assigned
                         // to the tunnel: we can assume nothing has changed.
                         continue;
                     }
 
                     // Store new interfaces
-                    if let Err(index) = new_initial_states
-                        .binary_search_by(|a| a.interface_index.cmp(&iface_config.interface))
-                    {
-                        let initial_state =
-                            match dbus_interface.get_dns(iface_config.interface).await {
-                                Ok(state) => state,
-                                Err(error) => {
-                                    log::error!(
-                                        "Failed to get resolvers: {}\n{}",
-                                        iface_config,
-                                        error.display_chain()
-                                    );
-                                    continue;
-                                }
-                            };
-                        new_initial_states.insert(index, initial_state);
+                    if !new_initial_states.contains_key(iface) {
+                        let initial_state = match dbus_interface.get_dns(*iface).await {
+                            Ok(state) => state,
+                            Err(error) => {
+                                log::error!(
+                                    "Failed to get resolvers: {}\n{}",
+                                    config,
+                                    error.display_chain()
+                                );
+                                continue;
+                            }
+                        };
+                        new_initial_states.insert(*iface, initial_state);
                     }
 
                     if let Err(error) = dbus_interface
-                        .set_dns(iface_config.interface, iface_config.resolvers.clone())
+                        .set_dns(*iface, config.resolvers.clone())
                         .await
                     {
                         log::error!(
                             "Failed to set resolvers: {}\n{}",
-                            iface_config,
+                            config,
                             error.display_chain()
                         );
                     }
@@ -199,8 +191,7 @@ impl SystemdResolved {
                     .await
                 {
                     log::error!(
-                        "Failed to set DNS domains: {}\n{}",
-                        new_config[0],
+                        "Failed to set DNS domains on tunnel interface\n{}",
                         error.display_chain()
                     );
                 }
@@ -221,7 +212,7 @@ impl SystemdResolved {
     fn spawn_watcher_thread(
         &mut self,
         tunnel_index: u32,
-        current_config: Arc<Mutex<Vec<DnsConfig>>>,
+        current_config: Arc<Mutex<BTreeMap<u32, DnsConfig>>>,
         disable_watcher: Arc<AtomicBool>,
     ) -> (thread::JoinHandle<()>, Arc<AtomicBool>) {
         let dbus_interface = self.dbus_interface.handle().clone();
@@ -239,15 +230,15 @@ impl SystemdResolved {
                     }
                     let configs = current_config.lock().unwrap();
                     let mut anything_changed = false;
-                    for config in &*configs {
+                    for (iface, config) in &*configs {
                         let current_servers: Vec<IpAddr> = new_servers
                             .iter()
-                            .filter(|server| server.iface_index == config.interface as i32)
+                            .filter(|server| server.iface_index == *iface as i32)
                             .map(|server| server.address)
                             .collect();
                         if current_servers != config.resolvers {
-                            log::debug!("DNS config for interface {} changed, currently applied servers - {:?}", config.interface, current_servers);
-                            if let Err(err) = dbus_interface.set_dns(config.interface, config.resolvers.clone())
+                            log::trace!("DNS config for interface {} changed, currently applied servers - {:?}", iface, current_servers);
+                            if let Err(err) = dbus_interface.set_dns(*iface, config.resolvers.clone())
                             {
                                 log::error!("Failed to re-apply DNS config - {}", err);
                             }
@@ -287,11 +278,12 @@ impl SystemdResolved {
             let _ = join_handle.await;
         }
 
-        for state in self.initial_states.lock().unwrap().drain(..) {
-            let result = if state.interface_index == self.tunnel_index {
+        let mut initial_states = self.initial_states.lock().unwrap();
+        for (iface, state) in &*initial_states {
+            let result = if *iface == self.tunnel_index {
                 self.dbus_interface.revert_link(state.clone()).await
             } else {
-                self.dbus_interface.set_dns_state(state).await
+                self.dbus_interface.set_dns_state(state.clone()).await
             };
             if let Err(err) = result {
                 log::error!(
@@ -300,6 +292,7 @@ impl SystemdResolved {
                 );
             }
         }
+        initial_states.clear();
 
         self.current_config.lock().unwrap().clear();
 
@@ -307,6 +300,6 @@ impl SystemdResolved {
     }
 }
 
-fn has_only_tunnel_config(configs: &[DnsConfig], tunnel_index: u32) -> bool {
-    configs.len() == 1 && configs[0].interface == tunnel_index
+fn has_only_tunnel_config(configs: &BTreeMap<u32, DnsConfig>, tunnel_index: u32) -> bool {
+    configs.len() == 1 && configs.contains_key(&tunnel_index)
 }

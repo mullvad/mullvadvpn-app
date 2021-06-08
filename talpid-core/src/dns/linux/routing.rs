@@ -12,6 +12,7 @@ use rtnetlink::{
     Handle, IpVersion,
 };
 use std::{
+    collections::BTreeMap,
     fmt, io,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
@@ -70,8 +71,8 @@ impl fmt::Display for DnsConfig {
 
 pub async fn spawn_monitor(
     destinations: Vec<IpAddr>,
-    update_tx: UnboundedSender<Vec<DnsConfig>>,
-) -> Result<(DnsRouteMonitor, Vec<DnsConfig>)> {
+    update_tx: UnboundedSender<BTreeMap<u32, DnsConfig>>,
+) -> Result<(DnsRouteMonitor, BTreeMap<u32, DnsConfig>)> {
     let (mut connection, handle, messages) =
         rtnetlink::new_connection().expect("Failed to create a netlink connection");
 
@@ -131,8 +132,11 @@ pub async fn spawn_monitor(
     Ok((monitor, initial_config))
 }
 
-async fn setup_configurations(handle: &Handle, destinations: &[IpAddr]) -> Result<Vec<DnsConfig>> {
-    let mut interface_to_destinations = std::collections::HashMap::<u32, Vec<IpAddr>>::new();
+async fn setup_configurations(
+    handle: &Handle,
+    destinations: &[IpAddr],
+) -> Result<BTreeMap<u32, DnsConfig>> {
+    let mut interface_to_destinations = BTreeMap::<u32, DnsConfig>::new();
     for destination in destinations {
         let interface = if destination.is_loopback() {
             get_default_route_interface(handle, get_ip_version(destination), true).await?
@@ -145,10 +149,16 @@ async fn setup_configurations(handle: &Handle, destinations: &[IpAddr]) -> Resul
         };
         match interface {
             Some(iface) => {
-                if let Some(addresses) = interface_to_destinations.get_mut(&iface) {
-                    addresses.push(*destination);
+                if let Some(config) = interface_to_destinations.get_mut(&iface) {
+                    config.resolvers.push(*destination);
                 } else {
-                    interface_to_destinations.insert(iface, vec![*destination]);
+                    interface_to_destinations.insert(
+                        iface,
+                        DnsConfig {
+                            interface: iface,
+                            resolvers: vec![*destination],
+                        },
+                    );
                 }
             }
             None => {
@@ -160,13 +170,7 @@ async fn setup_configurations(handle: &Handle, destinations: &[IpAddr]) -> Resul
         }
     }
 
-    Ok(interface_to_destinations
-        .into_iter()
-        .map(|(interface, resolvers)| DnsConfig {
-            interface,
-            resolvers,
-        })
-        .collect())
+    Ok(interface_to_destinations)
 }
 
 async fn get_default_route_interface(
