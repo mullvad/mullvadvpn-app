@@ -51,6 +51,7 @@ extension UIColor {
     enum RelayStatusIndicator {
         static let activeColor = successColor.withAlphaComponent(0.9)
         static let inactiveColor = dangerColor.withAlphaComponent(0.95)
+        static let highlightColor = UIColor.white
     }
 
     enum MainSplitView {

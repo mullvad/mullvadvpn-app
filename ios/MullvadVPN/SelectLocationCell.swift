@@ -9,12 +9,20 @@
 import UIKit
 
 private let kCollapseButtonWidth: CGFloat = 24
+private let kRelayIndicatorSize: CGFloat = 16
 
 class SelectLocationCell: BasicTableViewCell {
     typealias CollapseHandler = (SelectLocationCell) -> Void
 
     let locationLabel = UILabel()
-    let statusIndicator = RelayStatusIndicatorView()
+    let statusIndicator: UIView = {
+        let view = UIView()
+        view.layer.cornerRadius = kRelayIndicatorSize * 0.5
+        if #available(iOS 13.0, *) {
+            view.layer.cornerCurve = .circular
+        }
+        return view
+    }()
     let tickImageView = UIImageView(image: UIImage(named: "IconTick"))
     let collapseButton = UIButton(type: .custom)
 
@@ -25,6 +33,7 @@ class SelectLocationCell: BasicTableViewCell {
         didSet {
             updateDisabled()
             updateBackgroundColor()
+            updateStatusIndicatorColor()
         }
     }
 
@@ -75,10 +84,17 @@ class SelectLocationCell: BasicTableViewCell {
         )
     }
 
+    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
+        super.setHighlighted(highlighted, animated: animated)
+
+        updateStatusIndicatorColor()
+    }
+
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         updateTickImage()
+        updateStatusIndicatorColor()
     }
 
     private func setupCell() {
@@ -90,7 +106,6 @@ class SelectLocationCell: BasicTableViewCell {
         locationLabel.font = UIFont.systemFont(ofSize: 17)
         locationLabel.textColor = .white
 
-        statusIndicator.tintColor = .white
         tickImageView.tintColor = .white
 
         collapseButton.accessibilityIdentifier = "CollapseButton"
@@ -112,8 +127,8 @@ class SelectLocationCell: BasicTableViewCell {
             tickImageView.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
             tickImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
 
-            statusIndicator.widthAnchor.constraint(equalToConstant: 16),
-            statusIndicator.heightAnchor.constraint(equalToConstant: 16),
+            statusIndicator.widthAnchor.constraint(equalToConstant: kRelayIndicatorSize),
+            statusIndicator.heightAnchor.constraint(equalTo: statusIndicator.widthAnchor),
             statusIndicator.centerXAnchor.constraint(equalTo: tickImageView.centerXAnchor),
             statusIndicator.centerYAnchor.constraint(equalTo: tickImageView.centerYAnchor),
 
@@ -132,6 +147,10 @@ class SelectLocationCell: BasicTableViewCell {
     private func updateTickImage() {
         statusIndicator.isHidden = isSelected
         tickImageView.isHidden = !isSelected
+    }
+
+    private func updateStatusIndicatorColor() {
+        statusIndicator.backgroundColor = statusIndicatorColor()
     }
 
     private func updateDisabled() {
@@ -166,6 +185,16 @@ class SelectLocationCell: BasicTableViewCell {
             return UIColor.Cell.disabledSelectedBackgroundColor
         } else {
             return UIColor.Cell.selectedBackgroundColor
+        }
+    }
+
+    private func statusIndicatorColor() -> UIColor {
+        if isDisabled {
+            return UIColor.RelayStatusIndicator.inactiveColor
+        } else if isHighlighted {
+            return UIColor.RelayStatusIndicator.highlightColor
+        } else {
+            return UIColor.RelayStatusIndicator.activeColor
         }
     }
 
