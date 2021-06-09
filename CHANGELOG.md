@@ -74,6 +74,7 @@ This release is for desktop only.
 - Wait indefinitely for IP interfaces to attach to the tunnel device to prevent early timeouts,
   and errors setting interface metrics.
 - Prevent Microsoft Store from dropping packets in WireGuard tunnels.
+- Fix failure to start the daemon when resuming from "fast startup" hibernation.
 
 #### Linux
 - Fix find `mullvad-vpn.desktop` in `XDG_DATA_DIRS` instead of using hardcoded path.
