@@ -35,6 +35,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Add split tunneling as a beta feature. Allows excluding some applications from the VPN tunnel.
 
+#### Android
+- Added support of adaptive icons (available only from Android 8).
+
 ### Changed
 - Upgrade OpenVPN from 2.5.0 to 2.5.1.
 - Replace CLI command `mullvad custom-dns` with the new command `mullvad dns`.
@@ -48,6 +51,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Improve stability by running the UI and the tunnel management logic in separate processes.
+- Remove dialog warning that only custom local DNS servers are supported, since public custom DNS
+  servers are now supported.
 
 #### macOS
 - Update shape of macOS icon to be in line with Apple's guidelines.
@@ -83,6 +88,11 @@ Line wrap the file at 100 chars.                                              Th
 - Fix quick-settings tile sometimes showing the wrong tunnel state.
 - Fix TV-only apps not appearing in the Split Tunneling screen.
 
+### Security
+#### Linux
+- Drop packets being *forwarded* unless they are approved by the same rules as incoming or outgoing
+  traffic.
+
 
 ## [2021.3] - 2021-04-28
 This release is for desktop only.
@@ -109,9 +119,6 @@ This release is for desktop only.
 #### Linux
 - Always enable `src_valid_mark` config option when connecting to allow policty based routing.
 
-#### Android
-- Added support of adaptive icons (available only from Android 8).
-
 ### Changed
 - Allow whitespace in account token in CLI.
 - Read account token from standard input unless given as an argument in CLI.
@@ -119,10 +126,6 @@ This release is for desktop only.
 - Show default, minimum, and maximum key rotation intervals in CLI.
 - Attempt to send problem reports using other endpoints if using the primary one fails.
 - Upgrade wireguard-go to version 20210225140808 (Windows: v0.3.8)
-
-#### Android
-- Remove dialog warning that only custom local DNS servers are supported, since public custom DNS
-  servers are now supported.
 
 ### Fixed
 - Fix GUI not showing correct view if disconnected from the daemon during app startup.
@@ -138,11 +141,6 @@ This release is for desktop only.
 ### Security
 - Always reconnect appropriately after an upgrade. Previously, installing the app twice in
   succession, with auto-connect disabled, would cause it to re-launch in the disconnected state.
-
-#### Linux
-- Drop packets being forwarded unless they are approved by the same rules as incoming or outgoing
-  traffic.
-
 
 
 ## [android/2021.1] - 2021-05-04
