@@ -4,6 +4,7 @@ import { colors, supportEmail } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import PlatformWindowContainer from '../containers/PlatformWindowContainer';
+import { sourceSansPro } from './common-styles';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
 
@@ -24,9 +25,8 @@ const StyledContainer = styled(Container)({
 });
 
 const Title = styled.h1({
-  fontFamily: 'DINPro',
+  ...sourceSansPro,
   fontSize: '24px',
-  fontWeight: 900,
   lineHeight: '30px',
   color: colors.white60,
   marginBottom: '4px',

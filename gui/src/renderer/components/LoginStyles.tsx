@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import ImageView from './ImageView';
 import * as Cell from './cell';
-import { bigText, smallText } from './common-styles';
+import { bigText, smallText, sourceSansPro } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
 
 export const StyledAccountDropdownContainer = styled.ul({
@@ -156,12 +156,11 @@ export const StyledSubtitle = styled.span(smallText, {
 });
 
 export const StyledInput = styled(FormattableTextInput)({
+  ...sourceSansPro,
   minWidth: 0,
   borderWidth: 0,
   padding: '10px 12px 12px',
-  fontFamily: 'DINPro',
   fontSize: '20px',
-  fontWeight: 900,
   lineHeight: '26px',
   color: colors.blue,
   backgroundColor: 'transparent',
