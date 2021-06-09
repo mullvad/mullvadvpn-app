@@ -80,7 +80,6 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        mainContentView.connectionPanel.collapseButton.addTarget(self, action: #selector(handleConnectionPanelButton(_:)), for: .touchUpInside)
         mainContentView.connectButton.addTarget(self, action: #selector(handleConnect(_:)), for: .touchUpInside)
         mainContentView.splitDisconnectButton.primaryButton.addTarget(self, action: #selector(handleDisconnect(_:)), for: .touchUpInside)
         mainContentView.splitDisconnectButton.secondaryButton.addTarget(self, action: #selector(handleReconnect(_:)), for: .touchUpInside)
@@ -288,10 +287,6 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     }
 
     // MARK: - Actions
-
-    @objc func handleConnectionPanelButton(_ sender: Any) {
-        mainContentView.connectionPanel.toggleConnectionInfoVisibility()
-    }
 
     @objc func handleConnect(_ sender: Any) {
         delegate?.connectViewControllerShouldConnectTunnel(self)

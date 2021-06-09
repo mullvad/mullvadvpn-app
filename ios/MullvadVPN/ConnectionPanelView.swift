@@ -35,12 +35,11 @@ class ConnectionPanelView: UIView {
         return button
     }()
 
-    private let protocolRow = ConnectionPanelProtocolTypeRow()
     private let inAddressRow = ConnectionPanelAddressRow()
     private let outAddressRow = ConnectionPanelAddressRow()
 
     private lazy var stackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [protocolRow, inAddressRow, outAddressRow])
+        let stackView = UIStackView(arrangedSubviews: [inAddressRow, outAddressRow])
         stackView.axis = .vertical
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
@@ -54,39 +53,18 @@ class ConnectionPanelView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        commonInit()
-    }
 
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        commonInit()
-    }
-
-    func didChangeDataSource() {
-        inAddressRow.detailTextLabel.text = dataSource?.inAddress
-        outAddressRow.detailTextLabel.text = dataSource?.outAddress
-    }
-
-    func toggleConnectionInfoVisibility() {
-        showsConnectionInfo = !showsConnectionInfo
-    }
-
-    private func updateConnectionInfoVisibility() {
-        stackView.isHidden = !showsConnectionInfo
-        collapseButton.style = showsConnectionInfo ? .up : .down
-    }
-
-    private func commonInit() {
-        protocolRow.translatesAutoresizingMaskIntoConstraints = false
         inAddressRow.translatesAutoresizingMaskIntoConstraints = false
         outAddressRow.translatesAutoresizingMaskIntoConstraints = false
 
         // TODO: Unhide it when we have out address
         outAddressRow.isHidden = true
 
-        protocolRow.textLabel.text = NSLocalizedString("WireGuard", comment: "")
-        inAddressRow.textLabel.text = NSLocalizedString("In", comment: "")
-        outAddressRow.textLabel.text = NSLocalizedString("Out", comment: "")
+        inAddressRow.textLabel.text = NSLocalizedString("CONNECTION_PANEL_IN_ADDRESS_LABEL", comment: "")
+        outAddressRow.textLabel.text = NSLocalizedString("CONNECTION_PANEL_OUT_ADDRESS_LABEL", comment: "")
+
+        inAddressRow.accessibilityLabel = NSLocalizedString("CONNECTION_PANEL_IN_ADDRESS_ACCESSIBILITY_LABEL", comment: "")
+        outAddressRow.accessibilityLabel = NSLocalizedString("CONNECTION_PANEL_OUT_ADDRESS_ACCESSIBILITY_LABEL", comment: "")
 
         addSubview(collapseButton)
         addSubview(stackView)
@@ -110,31 +88,38 @@ class ConnectionPanelView: UIView {
         ])
 
         updateConnectionInfoVisibility()
-    }
-}
 
-class ConnectionPanelProtocolTypeRow: UIView {
-    let textLabel = UILabel()
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
-        textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.font = UIFont.systemFont(ofSize: 17)
-        textLabel.textColor = .white
-
-        addSubview(textLabel)
-
-        NSLayoutConstraint.activate([
-            textLabel.topAnchor.constraint(equalTo: topAnchor),
-            textLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
-            textLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            textLabel.trailingAnchor.constraint(equalTo: trailingAnchor)
-        ])
+        collapseButton.addTarget(self, action: #selector(toggleCollapse(_:)), for: .touchUpInside)
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private func didChangeDataSource() {
+        inAddressRow.detailTextLabel.text = dataSource?.inAddress
+        outAddressRow.detailTextLabel.text = dataSource?.outAddress
+
+        inAddressRow.accessibilityValue = dataSource?.inAddress
+        outAddressRow.accessibilityValue = dataSource?.outAddress
+    }
+
+    private func toggleConnectionInfoVisibility() {
+        showsConnectionInfo = !showsConnectionInfo
+    }
+
+    @objc private func toggleCollapse(_ sender: Any) {
+        toggleConnectionInfoVisibility()
+    }
+
+    private func updateConnectionInfoVisibility() {
+        stackView.isHidden = !showsConnectionInfo
+        collapseButton.style = showsConnectionInfo ? .up : .down
+
+        if collapseButton.accessibilityElementIsFocused() {
+            let nextAccessibleElement = showsConnectionInfo ? stackView.arrangedSubviews.first : collapseButton
+            UIAccessibility.post(notification: .layoutChanged, argument: nextAccessibleElement)
+        }
     }
 }
 
@@ -144,7 +129,6 @@ class ConnectionPanelAddressRow: UIView {
     let stackView: UIStackView
 
     override init(frame: CGRect) {
-
         let font = UIFont.systemFont(ofSize: 17)
 
         textLabel.font = font
