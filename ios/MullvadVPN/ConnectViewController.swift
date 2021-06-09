@@ -427,18 +427,16 @@ private extension TunnelState {
         }
     }
 
-    var localizedTitleForConnectButton: String? {
+    var localizedTitleForConnectButton: String {
         return NSLocalizedString("Secure connection", comment: "")
     }
 
-    var localizedTitleForDisconnectButton: String? {
+    var localizedTitleForDisconnectButton: String {
         switch self {
         case .connecting:
             return NSLocalizedString("Cancel", comment: "")
-        case .connected, .reconnecting:
+        case .connected, .reconnecting, .disconnecting, .disconnected:
             return NSLocalizedString("Disconnect", comment: "")
-        case .disconnecting, .disconnected:
-            return nil
         }
     }
 
