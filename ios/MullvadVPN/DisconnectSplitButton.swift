@@ -32,7 +32,10 @@ class DisconnectSplitButton: UIView {
     private let stackView: UIStackView
 
     init() {
-        stackView = UIStackView(arrangedSubviews: [primaryButton, secondaryButton])
+        let primaryButtonBlurView = TranslucentButtonBlurView(button: primaryButton)
+        let secondaryButtonBlurView = TranslucentButtonBlurView(button: secondaryButton)
+
+        stackView = UIStackView(arrangedSubviews: [primaryButtonBlurView, secondaryButtonBlurView])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
         stackView.distribution = .fill

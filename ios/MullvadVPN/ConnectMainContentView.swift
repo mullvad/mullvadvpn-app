@@ -59,6 +59,10 @@ class ConnectMainContentView: UIView {
         return button
     }()
 
+    lazy var selectLocationBlurView: TranslucentButtonBlurView = {
+        return TranslucentButtonBlurView(button: selectLocationButton)
+    }()
+
     let splitDisconnectButton: DisconnectSplitButton = {
         let button = DisconnectSplitButton()
         button.primaryButton.accessibilityIdentifier = "DisconnectButton"
@@ -193,7 +197,7 @@ class ConnectMainContentView: UIView {
         case .disconnect:
             return splitDisconnectButton
         case .selectLocation:
-            return selectLocationButton
+            return selectLocationBlurView
         }
     }
 }
