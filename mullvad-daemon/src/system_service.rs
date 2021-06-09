@@ -2,7 +2,7 @@ use crate::cli;
 use mullvad_daemon::{runtime::new_runtime_builder, DaemonShutdownHandle};
 use std::{
     env,
-    ffi::OsString,
+    ffi::{OsStr, OsString},
     ptr, slice,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
@@ -45,6 +45,8 @@ static SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 
 const SERVICE_RECOVERY_LAST_RESTART_DELAY: Duration = Duration::from_secs(60 * 10);
 const SERVICE_FAILURE_RESET_PERIOD: Duration = Duration::from_secs(60 * 15);
+
+const SERVICE_RESTART_TIMEOUT: Duration = Duration::from_secs(60 * 2);
 
 lazy_static::lazy_static! {
     static ref SERVICE_ACCESS: ServiceAccess = ServiceAccess::QUERY_CONFIG
@@ -388,6 +390,57 @@ fn get_service_info() -> ServiceInfo {
         ],
         account_name: None, // run as System
         account_password: None,
+    }
+}
+
+#[derive(err_derive::Error, Debug)]
+#[error(no_from)]
+pub enum RestartError {
+    #[error(display = "Unable to connect to service manager")]
+    ConnectServiceManager(#[error(source)] windows_service::Error),
+
+    #[error(display = "Unable to open service")]
+    OpenService(#[error(source)] windows_service::Error),
+
+    #[error(display = "Failed to query service status")]
+    QueryStatus(#[error(source)] windows_service::Error),
+
+    #[error(display = "Failed to stop service")]
+    StopService(#[error(source)] windows_service::Error),
+
+    #[error(display = "Failed to start service")]
+    StartService(#[error(source)] windows_service::Error),
+
+    #[error(display = "Timed out while stopping service")]
+    Timeout,
+}
+
+pub fn restart_service() -> Result<(), RestartError> {
+    let manager_access = ServiceManagerAccess::CONNECT;
+    let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)
+        .map_err(RestartError::ConnectServiceManager)?;
+
+    let service_access = ServiceAccess::QUERY_STATUS | ServiceAccess::START | ServiceAccess::STOP;
+    let service = service_manager
+        .open_service(SERVICE_NAME, service_access)
+        .map_err(RestartError::OpenService)?;
+
+    service.stop().map_err(RestartError::StopService)?;
+
+    let start_time = Instant::now();
+
+    loop {
+        let status = service.query_status().map_err(RestartError::QueryStatus)?;
+        if status.current_state == ServiceState::Stopped {
+            let args: [&OsStr; 0] = [];
+            break service.start(&args).map_err(RestartError::StartService);
+        }
+
+        if start_time.elapsed() > SERVICE_RESTART_TIMEOUT {
+            break Err(RestartError::Timeout);
+        }
+
+        std::thread::sleep(Duration::from_secs(1));
     }
 }
 
