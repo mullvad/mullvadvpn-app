@@ -16,15 +16,12 @@ use winapi::{
     ctypes::c_void,
     shared::{
         minwindef::ULONG,
-        ntdef::{LUID, PVOID, WCHAR},
+        ntdef::{LUID, PVOID},
         ntstatus::STATUS_SUCCESS,
     },
-    um::{
-        ntlsa::{
-            LsaEnumerateLogonSessions, LsaFreeReturnBuffer, LsaGetLogonSessionData,
-            SECURITY_LOGON_SESSION_DATA,
-        },
-        sysinfoapi::GetSystemDirectoryW,
+    um::ntlsa::{
+        LsaEnumerateLogonSessions, LsaFreeReturnBuffer, LsaGetLogonSessionData,
+        SECURITY_LOGON_SESSION_DATA,
     },
 };
 use windows_service::{
@@ -518,40 +515,20 @@ impl HibernationDetector {
 
     /// Performs a clean shutdown and restart of the daemon.
     fn restart_daemon() -> Result<(), String> {
-        let sysdir = unsafe { Self::get_system_directory() }?;
-        let cmd_path = format!("{}cmd.exe", sysdir);
-        let commands = vec!["net stop", SERVICE_NAME, "& net start", SERVICE_NAME];
-        let args = vec!["/C".to_string(), commands.join(" ")];
-        duct::cmd(cmd_path, args)
-            .dir(sysdir)
+        let daemon_path = env::current_exe()
+            .map_err(|e| e.display_chain_with_msg("Failed to obtain daemon path"))?;
+        let working_dir = daemon_path
+            .parent()
+            .ok_or("Failed to obtain resource directory".to_string())?
+            .to_path_buf();
+        let args = vec!["--restart-service".to_string()];
+        duct::cmd(daemon_path, args)
+            .dir(working_dir)
             .stdin_null()
             .stdout_null()
             .stderr_null()
             .start()
             .map(|_| ())
             .map_err(|e| e.display_chain_with_msg("Failed to start helper process"))
-    }
-
-    /// Returns the absolute path of the system directory.
-    /// Always includes a terminating backslash.
-    unsafe fn get_system_directory() -> Result<String, String> {
-        // Returned count is including null terminator.
-        let chars_required = GetSystemDirectoryW(ptr::null_mut(), 0);
-        if chars_required != 0 {
-            let mut buffer: Vec<WCHAR> = Vec::with_capacity(chars_required as usize);
-            // Returned count is excluding null terminator.
-            let chars_written = GetSystemDirectoryW(buffer.as_mut_ptr(), chars_required);
-            if chars_written == (chars_required - 1) {
-                buffer.set_len(chars_written as usize);
-                let mut path = String::from_utf16(&buffer).map_err(|e| {
-                    e.display_chain_with_msg("Failed to convert system directory path string")
-                })?;
-                if !path.ends_with("\\") {
-                    path.push('\\');
-                }
-                return Ok(path);
-            }
-        }
-        Err("Failed to resolve system directory".into())
     }
 }
