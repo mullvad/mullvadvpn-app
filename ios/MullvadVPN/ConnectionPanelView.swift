@@ -99,6 +99,7 @@ class ConnectionPanelView: UIView {
         ])
 
         updateConnectionInfoVisibility()
+        updateCollapseButtonAccessibilityHint()
 
         collapseButton.addTarget(self, action: #selector(toggleCollapse(_:)), for: .touchUpInside)
     }
@@ -127,9 +128,17 @@ class ConnectionPanelView: UIView {
         stackView.isHidden = !showsConnectionInfo
         collapseButton.style = showsConnectionInfo ? .up : .down
 
-        if collapseButton.accessibilityElementIsFocused() {
-            let nextAccessibleElement = showsConnectionInfo ? stackView.arrangedSubviews.first : collapseButton
-            UIAccessibility.post(notification: .layoutChanged, argument: nextAccessibleElement)
+        if collapseButton.accessibilityElementIsFocused(), showsConnectionInfo {
+            UIAccessibility.post(notification: .layoutChanged, argument: stackView.arrangedSubviews.first)
+        }
+        updateCollapseButtonAccessibilityHint()
+    }
+
+    private func updateCollapseButtonAccessibilityHint() {
+        if showsConnectionInfo {
+            collapseButton.accessibilityHint = NSLocalizedString("CONNECTION_PANEL_COLLAPSE_BUTTON_ACCESSIBILITY_HINT", comment: "")
+        } else {
+            collapseButton.accessibilityHint = NSLocalizedString("CONNECTION_PANEL_EXPAND_BUTTON_ACCESSIBILITY_HINT", comment: "")
         }
     }
 }
