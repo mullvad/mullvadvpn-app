@@ -521,7 +521,10 @@ impl HibernationDetector {
             .parent()
             .ok_or("Failed to obtain resource directory".to_string())?
             .to_path_buf();
-        let args = vec!["--restart-service".to_string()];
+        let args = vec![
+            "--restart-service".to_string(),
+            "--disable-log-to-file".to_string(),
+        ];
         duct::cmd(daemon_path, args)
             .dir(working_dir)
             .stdin_null()
