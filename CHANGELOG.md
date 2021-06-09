@@ -29,6 +29,9 @@ Line wrap the file at 100 chars.                                              Th
 - Make offline monitor aware of routing table changes.
 - Assign local DNS servers to more appropriate interfaces when using systemd-resolved.
 
+#### Windows
+- Fix failure to restart the daemon when resuming from "fast startup" hibernation.
+
 
 ## [2021.4-beta1] - 2021-06-09
 This release is for desktop only.
