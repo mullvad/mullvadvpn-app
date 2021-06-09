@@ -57,7 +57,7 @@ echo "Updating version in metadata files..."
 ./version-metadata.sh inject $PRODUCT_VERSION $VERSION_METADATA_ARGS
 
 echo "Syncing Cargo.lock with new version numbers"
-source env.sh
+source env.sh ""
 # If cargo exits with a non zero exit status and it's not a timeout (exit code 124) it's an error
 set +e
 timeout 5s cargo +stable build

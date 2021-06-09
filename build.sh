@@ -242,7 +242,7 @@ function buildTargets() {
             build "$t"
         done
     else
-        source env.sh
+        source env.sh ""
         build
     fi
 }
