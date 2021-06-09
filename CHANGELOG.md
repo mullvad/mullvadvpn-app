@@ -24,6 +24,11 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+### Fixed
+#### Linux
+- Make offline monitor aware of routing table changes.
+- Assign local DNS servers to more appropriate interfaces when using systemd-resolved.
+
 
 ## [2021.4-beta1] - 2021-06-09
 This release is for desktop only.
@@ -77,7 +82,6 @@ This release is for desktop only.
 
 #### Linux
 - Fix find `mullvad-vpn.desktop` in `XDG_DATA_DIRS` instead of using hardcoded path.
-- Make offline monitor aware of routing table changes.
 
 #### MacOS
 - Set correct permissions for daemon's launch file in installer.
