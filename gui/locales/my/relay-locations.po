@@ -136,6 +136,10 @@ msgstr "ဒါဘလင်"
 msgid "Dusseldorf"
 msgstr "ဒူဆင်ဒေါ့ဖ်"
 
+#. EE
+msgid "Estonia"
+msgstr ""
+
 #. FI
 msgid "Finland"
 msgstr "ဖင်လန်"
@@ -436,6 +440,10 @@ msgstr "ဆွစ်ဇာလန်"
 msgid "Sydney"
 msgstr "ဆစ်ဒနီ"
 
+#. EE TLL
+msgid "Tallinn"
+msgstr ""
+
 #. IL TLV
 msgid "Tel Aviv"
 msgstr "တဲလ်အဗစ်"
@@ -491,4 +499,3 @@ msgstr "ဗင်း"
 #. CH ZRH
 msgid "Zurich"
 msgstr "ဇူးရစ်ချ်"
-

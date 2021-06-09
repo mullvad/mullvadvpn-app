@@ -136,6 +136,10 @@ msgstr "Dublin"
 msgid "Dusseldorf"
 msgstr "Düsseldorf"
 
+#. EE
+msgid "Estonia"
+msgstr "Estonya"
+
 #. FI
 msgid "Finland"
 msgstr "Finlandiya"
@@ -436,6 +440,10 @@ msgstr "İsviçre"
 msgid "Sydney"
 msgstr "Sidney"
 
+#. EE TLL
+msgid "Tallinn"
+msgstr "Tallinn"
+
 #. IL TLV
 msgid "Tel Aviv"
 msgstr "Tel Aviv"
@@ -491,4 +499,3 @@ msgstr "Viyana"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zürih"
-

@@ -126,6 +126,10 @@ msgstr ""
 msgid "Dusseldorf"
 msgstr ""
 
+#. EE
+msgid "Estonia"
+msgstr ""
+
 #. FI
 msgid "Finland"
 msgstr ""
@@ -424,6 +428,10 @@ msgstr ""
 
 #. AU SYD
 msgid "Sydney"
+msgstr ""
+
+#. EE TLL
+msgid "Tallinn"
 msgstr ""
 
 #. IL TLV
