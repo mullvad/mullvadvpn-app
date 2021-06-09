@@ -49,6 +49,8 @@ protocol RootContainerViewControllerDelegate: AnyObject {
     func rootContainerViewControllerShouldShowSettings(_ controller: RootContainerViewController, navigateTo route: SettingsNavigationRoute?, animated: Bool)
 
     func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController) -> UIInterfaceOrientationMask
+
+    func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController) -> Bool
 }
 
 /// A root container view controller
@@ -269,6 +271,12 @@ class RootContainerViewController: UIViewController {
         } else {
             updateHeaderBarHiddenFromChildPreferences(animated: animated)
         }
+    }
+
+    // MARK: - Accessibility
+
+    override func accessibilityPerformMagicTap() -> Bool {
+        return delegate?.rootContainerViewAccessibilityPerformMagicTap(self) ?? super.accessibilityPerformMagicTap()
     }
 
     // MARK: - Private
