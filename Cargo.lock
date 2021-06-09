@@ -1256,7 +1256,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-cli"
-version = "2021.3.0"
+version = "2021.4.0-beta1"
 dependencies = [
  "base64 0.13.0",
  "chrono",
@@ -1278,7 +1278,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-daemon"
-version = "2021.3.0"
+version = "2021.4.0-beta1"
 dependencies = [
  "android_logger",
  "cfg-if 1.0.0",
@@ -1319,7 +1319,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-exclude"
-version = "2021.3.0"
+version = "2021.4.0-beta1"
 dependencies = [
  "err-derive 0.3.0",
  "nix 0.19.1",
@@ -1381,7 +1381,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-problem-report"
-version = "2021.3.0"
+version = "2021.4.0-beta1"
 dependencies = [
  "clap",
  "dirs-next",
@@ -1430,7 +1430,7 @@ dependencies = [
 
 [[package]]
 name = "mullvad-setup"
-version = "2021.3.0"
+version = "2021.4.0-beta1"
 dependencies = [
  "clap",
  "env_logger 0.8.2",
@@ -2596,7 +2596,7 @@ dependencies = [
 
 [[package]]
 name = "talpid-openvpn-plugin"
-version = "2021.3.0"
+version = "2021.4.0-beta1"
 dependencies = [
  "env_logger 0.8.2",
  "err-derive 0.3.0",
