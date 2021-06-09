@@ -9,6 +9,7 @@ pub struct Config {
     pub log_stdout_timestamps: bool,
     pub run_as_service: bool,
     pub register_service: bool,
+    pub restart_service: bool,
 }
 
 pub fn get_config() -> &'static Config {
@@ -32,6 +33,7 @@ pub fn create_config() -> Config {
 
     let run_as_service = cfg!(windows) && matches.is_present("run_as_service");
     let register_service = cfg!(windows) && matches.is_present("register_service");
+    let restart_service = cfg!(windows) && matches.is_present("restart_service");
 
     Config {
         log_level,
@@ -39,6 +41,7 @@ pub fn create_config() -> Config {
         log_stdout_timestamps,
         run_as_service,
         register_service,
+        restart_service,
     }
 }
 
@@ -91,10 +94,16 @@ fn create_app() -> App<'static, 'static> {
             Arg::with_name("run_as_service")
                 .long("run-as-service")
                 .help("Run as a system service. On Windows this option must be used when running a system service"),
-        ).arg(
+        )
+        .arg(
             Arg::with_name("register_service")
                 .long("register-service")
                 .help("Register itself as a system service"),
+        )
+        .arg(
+            Arg::with_name("restart_service")
+                .long("restart-service")
+                .help("Restarts the existing system service"),
         )
     }
     app

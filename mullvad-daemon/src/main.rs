@@ -75,6 +75,12 @@ fn get_log_dir(config: &cli::Config) -> Result<Option<PathBuf>, String> {
 async fn run_platform(config: &cli::Config, log_dir: Option<PathBuf>) -> Result<(), String> {
     if config.run_as_service {
         system_service::run()
+    } else if config.restart_service {
+        let restart_result = system_service::restart_service().map_err(|e| e.display_chain());
+        if restart_result.is_ok() {
+            log::info!("Restarted the service.");
+        }
+        restart_result
     } else {
         if config.register_service {
             let install_result = system_service::install_service().map_err(|e| e.display_chain());
