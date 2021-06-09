@@ -17,7 +17,7 @@ const StyledContainer = styled(Container)({
 
 const Title = styled.h1({
   ...sourceSansPro,
-  fontSize: '24px',
+  fontSize: '26px',
   lineHeight: '30px',
   color: colors.white60,
   marginBottom: '4px',

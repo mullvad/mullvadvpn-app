@@ -72,7 +72,7 @@ const BrandContainer = styled.div({
 
 const Title = styled.span({
   ...sourceSansPro,
-  fontSize: '24px',
+  fontSize: '26px',
   lineHeight: '30px',
   color: colors.white80,
   marginLeft: '9px',

@@ -25,14 +25,15 @@ export const mediumText = {
 };
 
 export const buttonText = {
-  ...mediumText,
   ...sourceSansPro,
+  fontSize: '20px',
+  lineHeight: '24px',
   color: colors.white,
 };
 
 export const bigText = {
   ...sourceSansPro,
-  fontSize: '30px',
+  fontSize: '32px',
   lineHeight: '34px',
   color: colors.white,
 };
