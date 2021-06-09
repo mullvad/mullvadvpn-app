@@ -8,7 +8,7 @@ use netlink_packet_route::{
     rtnl::route::nlas::Nla as RouteNla, NetlinkMessage, RouteFlags, RouteMessage, RtnlMessage,
 };
 use rtnetlink::{
-    constants::{RTMGRP_IPV4_IFADDR, RTMGRP_IPV6_IFADDR, RTMGRP_LINK, RTMGRP_NOTIFY},
+    constants::{RTMGRP_IPV4_IFADDR, RTMGRP_IPV4_ROUTE, RTMGRP_IPV6_IFADDR, RTMGRP_IPV6_ROUTE, RTMGRP_LINK, RTMGRP_NOTIFY},
     sys::SocketAddr,
     Handle, IpVersion,
 };
@@ -82,7 +82,7 @@ pub async fn spawn_monitor(sender: Weak<UnboundedSender<TunnelCommand>>) -> Resu
     let (mut connection, handle, mut messages) =
         rtnetlink::new_connection().map_err(Error::NetlinkConnectionError)?;
 
-    let mgroup_flags = RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR | RTMGRP_LINK | RTMGRP_NOTIFY;
+    let mgroup_flags = RTMGRP_IPV4_IFADDR | RTMGRP_IPV4_ROUTE | RTMGRP_IPV6_IFADDR | RTMGRP_IPV6_ROUTE | RTMGRP_LINK | RTMGRP_NOTIFY;
     let addr = SocketAddr::new(0, mgroup_flags);
 
     connection
@@ -187,7 +187,7 @@ pub fn execute_route_get_request(
 mod test {
     use super::*;
     use rtnetlink::{
-        constants::{RTMGRP_IPV4_IFADDR, RTMGRP_IPV6_IFADDR, RTMGRP_LINK, RTMGRP_NOTIFY},
+        constants::{RTMGRP_IPV4_IFADDR, RTMGRP_IPV4_ROUTE, RTMGRP_IPV6_IFADDR, RTMGRP_IPV6_ROUTE, RTMGRP_LINK, RTMGRP_NOTIFY},
         sys::SocketAddr,
     };
 
@@ -200,7 +200,7 @@ mod test {
                 .expect("Failed to create a netlink connection")
         });
 
-        let mgroup_flags = RTMGRP_IPV4_IFADDR | RTMGRP_IPV6_IFADDR | RTMGRP_LINK | RTMGRP_NOTIFY;
+        let mgroup_flags = RTMGRP_IPV4_IFADDR | RTMGRP_IPV4_ROUTE | RTMGRP_IPV6_IFADDR | RTMGRP_IPV6_ROUTE | RTMGRP_LINK | RTMGRP_NOTIFY;
         let addr = SocketAddr::new(0, mgroup_flags);
 
         connection.socket_mut().bind(&addr).unwrap();

@@ -77,6 +77,7 @@ This release is for desktop only.
 
 #### Linux
 - Fix find `mullvad-vpn.desktop` in `XDG_DATA_DIRS` instead of using hardcoded path.
+- Make offline monitor aware of routing table changes.
 
 #### MacOS
 - Set correct permissions for daemon's launch file in installer.
