@@ -192,7 +192,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
                 outAddress: nil
             )
             mainContentView.connectionPanel.isHidden = false
-            mainContentView.connectionPanel.collapseButton.setTitle(connectionInfo.hostname, for: .normal)
+            mainContentView.connectionPanel.connectedRelayName = connectionInfo.hostname
 
         case .connecting, .disconnected, .disconnecting:
             mainContentView.countryLabel.attributedText = attributedStringForLocation(string: " ")

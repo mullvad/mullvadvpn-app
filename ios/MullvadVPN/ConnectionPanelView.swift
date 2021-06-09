@@ -28,7 +28,18 @@ class ConnectionPanelView: UIView {
         }
     }
 
-    let collapseButton: ConnectionPanelCollapseButton = {
+    var connectedRelayName: String = "" {
+        didSet {
+            collapseButton.setTitle(connectedRelayName, for: .normal)
+            collapseButton.accessibilityLabel = NSLocalizedString("CONNECTION_PANEL_RELAY_ACCESSIBILITY_LABEL", comment: "")
+            collapseButton.accessibilityAttributedValue = NSAttributedString(
+                string: connectedRelayName.replacingOccurrences(of: "-wireguard", with: " WireGuard"),
+                attributes: [ .accessibilitySpeechLanguage: "en" ]
+            )
+        }
+    }
+
+    private let collapseButton: ConnectionPanelCollapseButton = {
         let button = ConnectionPanelCollapseButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.tintColor = .white
@@ -145,6 +156,8 @@ class ConnectionPanelAddressRow: UIView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
 
         super.init(frame: frame)
+
+        isAccessibilityElement = true
 
         addSubview(stackView)
 
