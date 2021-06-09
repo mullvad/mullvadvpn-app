@@ -31,11 +31,10 @@ This release is for desktop only.
 ### Added
 - When `MULLVAD_MANAGEMENT_SOCKET_GROUP` is set, only allow the specified group to access the
   management interface UDS socket. This means that only users in that group can use the CLI and GUI.
-- Support WireGuard over TCP for custom VPN relays in the CLI.
+- Support WireGuard over TCP for custom VPN relays in the CLI. (Our relays don't support this yet).
 - Make app native on Apple Silicon.
-- Add DNS options for ad and tracker blocking to the CLI.
-- Support WireGuard multihop using an entry endpoint constraint.
-- Add DNS options for ad and tracker blocking to the desktop app.
+- Support WireGuard multihop using an entry endpoint constraint in the CLI.
+- Add Ad and tracker blocking to the desktop app. Implemented via DNS on the relays.
 
 #### Windows
 - Add split tunneling as a beta feature. Allows excluding some applications from the VPN tunnel.
@@ -69,7 +68,7 @@ This release is for desktop only.
 - Do not try to parse an empty account history.
 
 #### Windows
-- Prevent tray icons from being extraced to `%TEMP%` directory.
+- Prevent tray icons from being extracted to `%TEMP%` directory.
 - Fix failure to create Wintun adapter due to a residual network interface by upgrading Wintun to
   0.10.4.
 - Wait indefinitely for IP interfaces to attach to the tunnel device to prevent early timeouts,
