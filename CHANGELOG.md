@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 ### Fixed
+- Fix issue of OpenVPN being killed slowly when stopped soon after being spawned.
+
 #### Linux
 - Make offline monitor aware of routing table changes.
 - Assign local DNS servers to more appropriate interfaces when using systemd-resolved.

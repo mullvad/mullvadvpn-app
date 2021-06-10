@@ -9,6 +9,7 @@ use std::{
     ffi::{OsStr, OsString},
     fmt, io,
     path::{Path, PathBuf},
+    time::{Duration, Instant},
 };
 use talpid_types::net;
 
@@ -51,6 +52,8 @@ static BASE_ARGUMENTS: &[&[&str]] = &[
 
 static ALLOWED_TLS1_3_CIPHERS: &[&str] =
     &["TLS_AES_256_GCM_SHA384", "TLS_CHACHA20_POLY1305_SHA256"];
+
+static MIN_OPENVPN_ALIVE: Duration = Duration::from_millis(100);
 
 /// Tun driver to use, specified using `--windows-driver`.
 #[derive(Clone)]
@@ -407,6 +410,7 @@ pub struct OpenVpnProcHandle {
     pub inner: duct::Handle,
     /// Standard input handle
     pub stdin: Mutex<Option<PipeWriter>>,
+    started: Instant,
 }
 
 /// Impl for proc handle
@@ -427,6 +431,7 @@ impl OpenVpnProcHandle {
         Ok(Self {
             inner: proc_handle,
             stdin: Mutex::new(Some(writer)),
+            started: Instant::now(),
         })
     }
 }
@@ -434,6 +439,14 @@ impl OpenVpnProcHandle {
 impl StoppableProcess for OpenVpnProcHandle {
     /// Closes STDIN to stop the openvpn process
     fn stop(&self) {
+        // When the handle is dropped, `siginfo_static.signal_received = SIGTERM;` is set.
+        // This causes openvpn to shut down. But if set too soon, it is cleared and ignored.
+        // https://github.com/mullvad/openvpn/blob/mullvad-patches/src/openvpn/openvpn.c#L224
+        let elapsed = Instant::now().duration_since(self.started);
+        if elapsed < MIN_OPENVPN_ALIVE {
+            std::thread::sleep(MIN_OPENVPN_ALIVE - elapsed);
+        }
+
         // Dropping our stdin handle so that it is closed once. Closing the handle should
         // gracefully stop our openvpn child process.
         if self.stdin.lock().take().is_none() {
