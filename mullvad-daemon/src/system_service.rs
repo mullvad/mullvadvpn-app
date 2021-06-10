@@ -2,7 +2,7 @@ use crate::cli;
 use mullvad_daemon::{runtime::new_runtime_builder, DaemonShutdownHandle};
 use std::{
     env,
-    ffi::OsString,
+    ffi::{OsStr, OsString},
     ptr, slice,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
@@ -16,15 +16,12 @@ use winapi::{
     ctypes::c_void,
     shared::{
         minwindef::ULONG,
-        ntdef::{LUID, PVOID, WCHAR},
+        ntdef::{LUID, PVOID},
         ntstatus::STATUS_SUCCESS,
     },
-    um::{
-        ntlsa::{
-            LsaEnumerateLogonSessions, LsaFreeReturnBuffer, LsaGetLogonSessionData,
-            SECURITY_LOGON_SESSION_DATA,
-        },
-        sysinfoapi::GetSystemDirectoryW,
+    um::ntlsa::{
+        LsaEnumerateLogonSessions, LsaFreeReturnBuffer, LsaGetLogonSessionData,
+        SECURITY_LOGON_SESSION_DATA,
     },
 };
 use windows_service::{
@@ -45,6 +42,8 @@ static SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 
 const SERVICE_RECOVERY_LAST_RESTART_DELAY: Duration = Duration::from_secs(60 * 10);
 const SERVICE_FAILURE_RESET_PERIOD: Duration = Duration::from_secs(60 * 15);
+
+const SERVICE_RESTART_TIMEOUT: Duration = Duration::from_secs(60 * 2);
 
 lazy_static::lazy_static! {
     static ref SERVICE_ACCESS: ServiceAccess = ServiceAccess::QUERY_CONFIG
@@ -391,6 +390,57 @@ fn get_service_info() -> ServiceInfo {
     }
 }
 
+#[derive(err_derive::Error, Debug)]
+#[error(no_from)]
+pub enum RestartError {
+    #[error(display = "Unable to connect to service manager")]
+    ConnectServiceManager(#[error(source)] windows_service::Error),
+
+    #[error(display = "Unable to open service")]
+    OpenService(#[error(source)] windows_service::Error),
+
+    #[error(display = "Failed to query service status")]
+    QueryStatus(#[error(source)] windows_service::Error),
+
+    #[error(display = "Failed to stop service")]
+    StopService(#[error(source)] windows_service::Error),
+
+    #[error(display = "Failed to start service")]
+    StartService(#[error(source)] windows_service::Error),
+
+    #[error(display = "Timed out while stopping service")]
+    Timeout,
+}
+
+pub fn restart_service() -> Result<(), RestartError> {
+    let manager_access = ServiceManagerAccess::CONNECT;
+    let service_manager = ServiceManager::local_computer(None::<&str>, manager_access)
+        .map_err(RestartError::ConnectServiceManager)?;
+
+    let service_access = ServiceAccess::QUERY_STATUS | ServiceAccess::START | ServiceAccess::STOP;
+    let service = service_manager
+        .open_service(SERVICE_NAME, service_access)
+        .map_err(RestartError::OpenService)?;
+
+    service.stop().map_err(RestartError::StopService)?;
+
+    let start_time = Instant::now();
+
+    loop {
+        let status = service.query_status().map_err(RestartError::QueryStatus)?;
+        if status.current_state == ServiceState::Stopped {
+            let args: [&OsStr; 0] = [];
+            break service.start(&args).map_err(RestartError::StartService);
+        }
+
+        if start_time.elapsed() > SERVICE_RESTART_TIMEOUT {
+            break Err(RestartError::Timeout);
+        }
+
+        std::thread::sleep(Duration::from_secs(1));
+    }
+}
+
 /// Used to track events that taken together would mean the machine is heading towards being
 /// hibernated. Typically, the user's session if first terminated. Moments later we should receive a
 /// suspension event corresponding to the hibernation of session 0 (kernel and services).
@@ -465,40 +515,23 @@ impl HibernationDetector {
 
     /// Performs a clean shutdown and restart of the daemon.
     fn restart_daemon() -> Result<(), String> {
-        let sysdir = unsafe { Self::get_system_directory() }?;
-        let cmd_path = format!("{}cmd.exe", sysdir);
-        let commands = vec!["net stop", SERVICE_NAME, "& net start", SERVICE_NAME];
-        let args = vec!["/C".to_string(), commands.join(" ")];
-        duct::cmd(cmd_path, args)
-            .dir(sysdir)
+        let daemon_path = env::current_exe()
+            .map_err(|e| e.display_chain_with_msg("Failed to obtain daemon path"))?;
+        let working_dir = daemon_path
+            .parent()
+            .ok_or("Failed to obtain resource directory".to_string())?
+            .to_path_buf();
+        let args = vec![
+            "--restart-service".to_string(),
+            "--disable-log-to-file".to_string(),
+        ];
+        duct::cmd(daemon_path, args)
+            .dir(working_dir)
             .stdin_null()
             .stdout_null()
             .stderr_null()
             .start()
             .map(|_| ())
             .map_err(|e| e.display_chain_with_msg("Failed to start helper process"))
-    }
-
-    /// Returns the absolute path of the system directory.
-    /// Always includes a terminating backslash.
-    unsafe fn get_system_directory() -> Result<String, String> {
-        // Returned count is including null terminator.
-        let chars_required = GetSystemDirectoryW(ptr::null_mut(), 0);
-        if chars_required != 0 {
-            let mut buffer: Vec<WCHAR> = Vec::with_capacity(chars_required as usize);
-            // Returned count is excluding null terminator.
-            let chars_written = GetSystemDirectoryW(buffer.as_mut_ptr(), chars_required);
-            if chars_written == (chars_required - 1) {
-                buffer.set_len(chars_written as usize);
-                let mut path = String::from_utf16(&buffer).map_err(|e| {
-                    e.display_chain_with_msg("Failed to convert system directory path string")
-                })?;
-                if !path.ends_with("\\") {
-                    path.push('\\');
-                }
-                return Ok(path);
-            }
-        }
-        Err("Failed to resolve system directory".into())
     }
 }
