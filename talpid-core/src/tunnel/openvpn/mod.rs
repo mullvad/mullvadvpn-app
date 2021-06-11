@@ -10,12 +10,17 @@ use crate::{
     proxy::{self, ProxyMonitor, ProxyResourceData},
     routing,
 };
-#[cfg(target_os = "linux")]
-use ipnetwork::IpNetwork;
 #[cfg(windows)]
 use lazy_static::lazy_static;
+#[cfg(target_os = "linux")]
+use std::collections::{HashMap, HashSet};
+#[cfg(windows)]
 use std::{
-    collections::HashMap,
+    ffi::{OsStr, OsString},
+    os::windows::ffi::OsStrExt,
+    time::Instant,
+};
+use std::{
     fs,
     io::{self, Write},
     path::{Path, PathBuf},
@@ -26,14 +31,6 @@ use std::{
     },
     thread,
     time::Duration,
-};
-#[cfg(target_os = "linux")]
-use std::{collections::HashSet, net::IpAddr};
-#[cfg(windows)]
-use std::{
-    ffi::{OsStr, OsString},
-    os::windows::ffi::OsStrExt,
-    time::Instant,
 };
 use talpid_types::{net::openvpn, ErrorExt};
 use tokio::task;
@@ -218,11 +215,6 @@ pub enum Error {
     #[error(display = "Failure in Windows syscall")]
     WinnetError(#[error(source)] crate::winnet::Error),
 
-    /// Error routes from the provided map
-    #[cfg(target_os = "linux")]
-    #[error(display = "Failed to parse OpenVPN-provided routes")]
-    ParseRouteError(#[error(source)] RouteParseError),
-
     /// The map is missing 'dev'
     #[cfg(target_os = "linux")]
     #[error(display = "Failed to obtain tunnel interface name")]
@@ -347,63 +339,12 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         let user_pass_file =
             Self::create_credentials_file(&params.config.username, &params.config.password)
                 .map_err(Error::CredentialsWriteError)?;
-
         let proxy_auth_file =
             Self::create_proxy_auth_file(&params.proxy).map_err(Error::CredentialsWriteError)?;
-
         let user_pass_file_path = user_pass_file.to_path_buf();
-
         let proxy_auth_file_path = match proxy_auth_file {
             Some(ref file) => Some(file.to_path_buf()),
             _ => None,
-        };
-
-        #[cfg(target_os = "linux")]
-        let route_manager_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
-
-        #[cfg(target_os = "linux")]
-        let ipv6_enabled = params.generic_options.enable_ipv6;
-
-        let on_openvpn_event = move |event, env: HashMap<String, String>| {
-            #[cfg(target_os = "linux")]
-            if event == openvpn_plugin::EventType::Up {
-                tokio::task::block_in_place(|| {
-                    let routes = extract_routes(&env)
-                        .unwrap()
-                        .into_iter()
-                        .filter(|route| route.prefix.is_ipv4() || ipv6_enabled)
-                        .collect();
-                    let route_manager_handle = route_manager_handle.clone();
-                    if let Err(error) = route_manager_handle.add_routes(routes) {
-                        log::error!("{}", error.display_chain());
-                        panic!("Failed to add routes");
-                    }
-
-                    if let Err(error) = route_manager_handle.create_routing_rules(ipv6_enabled) {
-                        log::error!("{}", error.display_chain());
-                        panic!("Failed to add routes");
-                    }
-                });
-                return;
-            }
-            if event == openvpn_plugin::EventType::RouteUp {
-                // The user-pass file has been read. Try to delete it early.
-                let _ = fs::remove_file(&user_pass_file_path);
-
-                // The proxy auth file has been read. Try to delete it early.
-                if let Some(ref file_path) = &proxy_auth_file_path {
-                    let _ = fs::remove_file(file_path);
-                }
-
-                #[cfg(windows)]
-                tokio::task::block_in_place(|| {
-                    wait_for_ready_device(env.get("dev").expect("missing tunnel alias")).unwrap();
-                });
-            }
-            match TunnelEvent::from_openvpn_event(event, &env) {
-                Some(tunnel_event) => on_event(tunnel_event),
-                None => log::debug!("Ignoring OpenVpnEvent {:?}", event),
-            }
         };
 
         let log_dir: Option<PathBuf> = if let Some(ref log_path) = log_path {
@@ -514,9 +455,22 @@ impl OpenVpnMonitor<OpenVpnCommand> {
 
         let plugin_path = Self::get_plugin_path(resource_dir)?;
 
+        #[cfg(target_os = "linux")]
+        let ipv6_enabled = params.generic_options.enable_ipv6;
+        #[cfg(target_os = "linux")]
+        let route_manager_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
+
         Self::new_internal(
             cmd,
-            on_openvpn_event,
+            event_server::OpenvpnEventProxyImpl {
+                on_event,
+                user_pass_file_path: user_pass_file_path.clone(),
+                proxy_auth_file_path: proxy_auth_file_path.clone(),
+                #[cfg(target_os = "linux")]
+                route_manager_handle,
+                #[cfg(target_os = "linux")]
+                ipv6_enabled,
+            },
             plugin_path,
             log_path,
             user_pass_file,
@@ -530,34 +484,6 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             }),
         )
     }
-}
-
-#[cfg(target_os = "linux")]
-#[derive(Debug)]
-struct OpenVpnRoute {
-    network: IpNetwork,
-    gateway: IpAddr,
-}
-
-#[cfg(target_os = "linux")]
-#[derive(err_derive::Error, Debug)]
-#[error(no_from)]
-#[allow(missing_docs)]
-pub enum RouteParseError {
-    #[error(display = "The route contains no network")]
-    MissingNetwork,
-    #[error(display = "The route contains no gateway")]
-    MissingGateway,
-    #[error(display = "Failed to parse route network address")]
-    ParseNetworkAddress(#[error(source)] std::net::AddrParseError),
-    #[error(display = "Failed to parse route network")]
-    ParseNetwork(#[error(source)] ipnetwork::IpNetworkError),
-    #[error(display = "Failed to parse route mask address")]
-    ParseMaskAddress(#[error(source)] std::net::AddrParseError),
-    #[error(display = "Failed to convert route mask to prefix")]
-    ParseMask(#[error(source)] ipnetwork::IpNetworkError),
-    #[error(display = "Failed to parse route gateway address")]
-    ParseGatewayAddress(#[error(source)] std::net::AddrParseError),
 }
 
 #[cfg(target_os = "linux")]
@@ -583,7 +509,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         #[cfg(windows)] wintun: Box<dyn WintunContext>,
     ) -> Result<OpenVpnMonitor<C>>
     where
-        L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
+        L: event_server::OpenvpnEventProxy + Send + Sync + 'static,
     {
         let uuid = uuid::Uuid::new_v4().to_string();
         let ipc_path = if cfg!(windows) {
@@ -597,7 +523,6 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         let mut runtime = tokio::runtime::Builder::new()
             .threaded_scheduler()
             .core_threads(1)
-            .max_threads(1)
             .enable_all()
             .build()
             .map_err(Error::RuntimeError)?;
@@ -1015,11 +940,11 @@ mod event_server {
     use futures::stream::TryStreamExt;
     use parity_tokio_ipc::Endpoint as IpcEndpoint;
     use std::{
-        collections::HashMap,
-        convert::TryFrom,
         pin::Pin,
         task::{Context, Poll},
     };
+    #[cfg(any(target_os = "linux", windows))]
+    use talpid_types::ErrorExt;
     use tokio::io::{AsyncRead, AsyncWrite};
     use tonic::{
         self,
@@ -1030,9 +955,9 @@ mod event_server {
     mod proto {
         tonic::include_proto!("talpid_openvpn_plugin");
     }
-    use proto::{
+    pub use proto::{
         openvpn_event_proxy_server::{OpenvpnEventProxy, OpenvpnEventProxyServer},
-        EventType,
+        EventDetails,
     };
 
     #[derive(err_derive::Error, Debug)]
@@ -1047,31 +972,137 @@ mod event_server {
     }
 
     /// Implements a gRPC service used to process events sent to by OpenVPN.
-    #[derive(Debug)]
-    pub struct OpenvpnEventProxyImpl<L> {
-        on_event: L,
+    pub struct OpenvpnEventProxyImpl<L: Fn(super::TunnelEvent) + Send + Sync + 'static> {
+        pub on_event: L,
+        pub user_pass_file_path: super::PathBuf,
+        pub proxy_auth_file_path: Option<super::PathBuf>,
+        #[cfg(target_os = "linux")]
+        pub route_manager_handle: super::routing::RouteManagerHandle,
+        #[cfg(target_os = "linux")]
+        pub ipv6_enabled: bool,
     }
 
     #[tonic::async_trait]
-    impl<L> OpenvpnEventProxy for OpenvpnEventProxyImpl<L>
-    where
-        L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
+    impl<L: Fn(super::TunnelEvent) + Send + Sync + 'static> OpenvpnEventProxy
+        for OpenvpnEventProxyImpl<L>
     {
-        async fn event(
+        async fn auth_failed(
             &self,
-            request: Request<EventType>,
+            request: Request<EventDetails>,
         ) -> std::result::Result<Response<()>, tonic::Status> {
-            log::trace!("OpenVPN event {:?}", request);
+            let env = request.into_inner().env;
+            (self.on_event)(super::TunnelEvent::AuthFailed(
+                env.get("auth_failed_reason").cloned(),
+            ));
+            Ok(Response::new(()))
+        }
 
-            let request = request.into_inner();
+        async fn route_up(
+            &self,
+            request: Request<EventDetails>,
+        ) -> std::result::Result<Response<()>, tonic::Status> {
+            let env = request.into_inner().env;
 
-            let event_type =
-                openvpn_plugin::EventType::try_from(request.event).map_err(|event: i32| {
-                    tonic::Status::invalid_argument(format!("Unknown event type: {}", event))
+            let _ = tokio::fs::remove_file(&self.user_pass_file_path).await;
+            if let Some(ref file_path) = &self.proxy_auth_file_path {
+                let _ = tokio::fs::remove_file(file_path).await;
+            }
+
+            #[cfg(target_os = "linux")]
+            {
+                let route_handle = self.route_manager_handle.clone();
+                let ipv6_enabled = self.ipv6_enabled;
+
+                let routes = super::extract_routes(&env)
+                    .map_err(|err| {
+                        log::error!("{}", err.display_chain_with_msg("Failed to obtain routes"));
+                        tonic::Status::failed_precondition("Failed to obtain routes")
+                    })?
+                    .into_iter()
+                    .filter(|route| route.prefix.is_ipv4() || ipv6_enabled)
+                    .collect();
+
+                tokio::task::spawn_blocking(move || {
+                    if let Err(error) = route_handle.add_routes(routes) {
+                        log::error!("{}", error.display_chain());
+                        return Err(tonic::Status::failed_precondition("Failed to add routes"));
+                    }
+                    if let Err(error) = route_handle.create_routing_rules(ipv6_enabled) {
+                        log::error!("{}", error.display_chain());
+                        return Err(tonic::Status::failed_precondition("Failed to add routes"));
+                    }
+                    Ok(())
+                })
+                .await
+                .map_err(|_| tonic::Status::internal("task failed to complete"))??;
+            }
+
+            let tunnel_alias = env
+                .get("dev")
+                .ok_or(tonic::Status::invalid_argument("missing tunnel alias"))?
+                .to_string();
+
+            #[cfg(windows)]
+            {
+                let tunnel_device = tunnel_alias.clone();
+                tokio::task::spawn_blocking(move || super::wait_for_ready_device(&tunnel_device))
+                    .await
+                    .map_err(|_| tonic::Status::internal("task failed to complete"))?
+                    .map_err(|error| {
+                        log::error!(
+                            "{}",
+                            error.display_chain_with_msg("wait_for_ready_device failed")
+                        );
+                        tonic::Status::unavailable("wait_for_ready_device failed")
+                    })?;
+            }
+
+            let mut ips = vec![env
+                .get("ifconfig_local")
+                .ok_or(tonic::Status::invalid_argument(
+                    "missing \"ifconfig_local\" in up event",
+                ))?
+                .parse()
+                .map_err(|_| tonic::Status::invalid_argument("Invalid tunnel IPv4 address"))?];
+            if let Some(ipv6_address) = env.get("ifconfig_ipv6_local") {
+                ips.push(
+                    ipv6_address.parse().map_err(|_| {
+                        tonic::Status::invalid_argument("Invalid tunnel IPv6 address")
+                    })?,
+                );
+            }
+            let ipv4_gateway = env
+                .get("route_vpn_gateway")
+                .ok_or(tonic::Status::invalid_argument(
+                    "No \"route_vpn_gateway\" in tunnel up event",
+                ))?
+                .parse()
+                .map_err(|_| {
+                    tonic::Status::invalid_argument("Invalid tunnel gateway IPv4 address")
                 })?;
+            let ipv6_gateway = if let Some(ipv6_address) = env.get("route_ipv6_gateway_1") {
+                Some(ipv6_address.parse().map_err(|_| {
+                    tonic::Status::invalid_argument("Invalid tunnel gateway IPv6 address")
+                })?)
+            } else {
+                None
+            };
 
-            (self.on_event)(event_type, request.env);
+            (self.on_event)(super::TunnelEvent::Up(crate::tunnel::TunnelMetadata {
+                interface: tunnel_alias,
+                ips,
+                ipv4_gateway,
+                ipv6_gateway,
+            }));
 
+            Ok(Response::new(()))
+        }
+
+        async fn route_predown(
+            &self,
+            _request: Request<EventDetails>,
+        ) -> std::result::Result<Response<()>, tonic::Status> {
+            (self.on_event)(super::TunnelEvent::Down);
             Ok(Response::new(()))
         }
     }
@@ -1079,20 +1110,18 @@ mod event_server {
     pub async fn start<L>(
         ipc_path: String,
         server_start_tx: std::sync::mpsc::Sender<()>,
-        on_event: L,
+        event_proxy: L,
         abort_rx: triggered::Listener,
     ) -> std::result::Result<(), Error>
     where
-        L: Fn(openvpn_plugin::EventType, HashMap<String, String>) + Send + Sync + 'static,
+        L: OpenvpnEventProxy + Sync + Send + 'static,
     {
         let endpoint = IpcEndpoint::new(ipc_path);
         let incoming = endpoint.incoming().map_err(Error::StartServer)?;
         let _ = server_start_tx.send(());
 
-        let server = OpenvpnEventProxyImpl { on_event };
-
         Server::builder()
-            .add_service(OpenvpnEventProxyServer::new(server))
+            .add_service(OpenvpnEventProxyServer::new(event_proxy))
             .serve_with_incoming_shutdown(incoming.map_ok(StreamBox), abort_rx)
             .await
             .map_err(Error::TonicError)
@@ -1269,6 +1298,30 @@ mod tests {
         }
     }
 
+    struct TestOpenvpnEventProxy {}
+
+    #[async_trait::async_trait]
+    impl event_server::OpenvpnEventProxy for TestOpenvpnEventProxy {
+        async fn auth_failed(
+            &self,
+            _request: tonic::Request<event_server::EventDetails>,
+        ) -> std::result::Result<tonic::Response<()>, tonic::Status> {
+            Ok(tonic::Response::new(()))
+        }
+        async fn route_up(
+            &self,
+            _request: tonic::Request<event_server::EventDetails>,
+        ) -> std::result::Result<tonic::Response<()>, tonic::Status> {
+            Ok(tonic::Response::new(()))
+        }
+        async fn route_predown(
+            &self,
+            _request: tonic::Request<event_server::EventDetails>,
+        ) -> std::result::Result<tonic::Response<()>, tonic::Status> {
+            Ok(tonic::Response::new(()))
+        }
+    }
+
     #[derive(Debug, Default, Clone)]
     struct TestOpenVpnBuilder {
         pub plugin: Arc<Mutex<Option<PathBuf>>>,
@@ -1321,7 +1374,7 @@ mod tests {
         let builder = TestOpenVpnBuilder::default();
         let _ = OpenVpnMonitor::new_internal(
             builder.clone(),
-            |_, _| {},
+            TestOpenvpnEventProxy {},
             "./my_test_plugin".into(),
             None,
             TempFile::new(),
@@ -1341,7 +1394,7 @@ mod tests {
         let builder = TestOpenVpnBuilder::default();
         let _ = OpenVpnMonitor::new_internal(
             builder.clone(),
-            |_, _| {},
+            TestOpenvpnEventProxy {},
             "".into(),
             Some(PathBuf::from("./my_test_log_file")),
             TempFile::new(),
@@ -1362,7 +1415,7 @@ mod tests {
         builder.process_handle = Some(TestProcessHandle(0));
         let testee = OpenVpnMonitor::new_internal(
             builder,
-            |_, _| {},
+            TestOpenvpnEventProxy {},
             "".into(),
             None,
             TempFile::new(),
@@ -1381,7 +1434,7 @@ mod tests {
         builder.process_handle = Some(TestProcessHandle(1));
         let testee = OpenVpnMonitor::new_internal(
             builder,
-            |_, _| {},
+            TestOpenvpnEventProxy {},
             "".into(),
             None,
             TempFile::new(),
@@ -1400,7 +1453,7 @@ mod tests {
         builder.process_handle = Some(TestProcessHandle(1));
         let testee = OpenVpnMonitor::new_internal(
             builder,
-            |_, _| {},
+            TestOpenvpnEventProxy {},
             "".into(),
             None,
             TempFile::new(),
@@ -1419,7 +1472,7 @@ mod tests {
         let builder = TestOpenVpnBuilder::default();
         let result = OpenVpnMonitor::new_internal(
             builder,
-            |_, _| {},
+            TestOpenvpnEventProxy {},
             "".into(),
             None,
             TempFile::new(),
