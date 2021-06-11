@@ -62,11 +62,20 @@ impl EventProcessor {
     ) -> Result<(), Error> {
         log::debug!("Processing \"{:?}\" event", event);
 
-        let future = self.ipc_client.event(proto::EventType {
-            event: event as i16 as i32,
-            env,
-        });
-        let response = self.runtime.block_on(future);
+        let details = proto::EventDetails { env };
+
+        let response = match event {
+            openvpn_plugin::EventType::AuthFailed => {
+                self.runtime.block_on(self.ipc_client.auth_failed(details))
+            }
+            openvpn_plugin::EventType::RouteUp => {
+                self.runtime.block_on(self.ipc_client.route_up(details))
+            }
+            openvpn_plugin::EventType::RoutePredown => self
+                .runtime
+                .block_on(self.ipc_client.route_predown(details)),
+            other => return Err(Error::UnhandledEvent(other)),
+        };
         response.map(|_| ()).map_err(Error::SendEvent)
     }
 }

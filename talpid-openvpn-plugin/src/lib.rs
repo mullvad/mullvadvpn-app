@@ -28,6 +28,9 @@ pub enum Error {
 
     #[error(display = "Unable to parse arguments from OpenVPN")]
     ParseArgsFailed(#[error(source)] std::str::Utf8Error),
+
+    #[error(display = "Unhandled event type: {:?}", _0)]
+    UnhandledEvent(openvpn_plugin::EventType),
 }
 
 
@@ -35,8 +38,6 @@ pub enum Error {
 /// events.
 pub static INTERESTING_EVENTS: &'static [EventType] = &[
     EventType::AuthFailed,
-    #[cfg(target_os = "linux")]
-    EventType::Up,
     EventType::RouteUp,
     EventType::RoutePredown,
 ];
