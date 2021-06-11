@@ -770,6 +770,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         };
 
         if self.closed.load(Ordering::SeqCst) {
+            let _ = child.kill();
             return WaitResult::Preparation(Ok(()));
         }
 
