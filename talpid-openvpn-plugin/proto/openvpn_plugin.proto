@@ -5,10 +5,11 @@ package talpid_openvpn_plugin;
 import "google/protobuf/empty.proto";
 
 service OpenvpnEventProxy {
-    rpc Event(EventType) returns (google.protobuf.Empty) {}
+    rpc AuthFailed(EventDetails) returns (google.protobuf.Empty) {}
+    rpc RouteUp(EventDetails) returns (google.protobuf.Empty) {}
+    rpc RoutePredown(EventDetails) returns (google.protobuf.Empty) {}
 }
 
-message EventType {
-    int32 event = 1;
-    map<string, string> env = 2;
+message EventDetails {
+    map<string, string> env = 1;
 }
