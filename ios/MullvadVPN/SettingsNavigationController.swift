@@ -74,20 +74,29 @@ class SettingsNavigationController: CustomNavigationController, SettingsViewCont
     // MARK: - Navigation
 
     func navigate(to route: SettingsNavigationRoute, animated: Bool) {
+        let nextViewController = makeViewController(for: route)
+        if let rootController = self.viewControllers.first, viewControllers.count > 1 {
+            setViewControllers([rootController, nextViewController], animated: animated)
+        } else {
+            pushViewController(nextViewController, animated: animated)
+        }
+    }
+
+    private func makeViewController(for route: SettingsNavigationRoute) -> UIViewController {
         switch route {
         case .account:
             let controller = AccountViewController()
             controller.delegate = self
-            pushViewController(controller, animated: animated)
+            return controller
 
         case .preferences:
-            pushViewController(PreferencesViewController(), animated: animated)
+            return PreferencesViewController()
 
         case .wireguardKeys:
-            pushViewController(WireguardKeysViewController(), animated: animated)
+            return WireguardKeysViewController()
 
         case .problemReport:
-            pushViewController(ProblemReportViewController(), animated: animated)
+            return ProblemReportViewController()
         }
     }
 

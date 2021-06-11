@@ -84,10 +84,17 @@ extension UIColor {
         static let dividerColor = secondaryColor
     }
 
+    enum InAppNotificationBanner {
+        static let errorIndicatorColor = dangerColor
+        static let successIndicatorColor = successColor
+        static let warningIndicatorColor = warningColor
+    }
+
     // Common colors
     static let primaryColor = namedColor("Primary")
     static let secondaryColor = namedColor("Secondary")
     static let dangerColor = namedColor("Danger")
+    static let warningColor = namedColor("Warning")
     static let successColor = namedColor("Success")
 }
 
