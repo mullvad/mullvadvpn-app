@@ -2,7 +2,7 @@ import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
 import { hasExpired } from '../../shared/account-expiry';
-import { AccountToken } from '../../shared/daemon-rpc-types';
+import { AccountToken, TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { LoginState } from '../redux/account/reducers';
 import * as AppButton from './AppButton';
@@ -18,13 +18,16 @@ import {
   StyledCustomScrollbars,
   StyledDisconnectButton,
   StyledFooter,
+  StyledHeader,
   StyledMessage,
   StyledModalCellContainer,
   StyledStatusIcon,
   StyledTitle,
 } from './ExpiredAccountErrorViewStyles';
+import { calculateHeaderBarStyle, HeaderBarStyle } from './HeaderBar';
 import ImageView from './ImageView';
-import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
+import { Layout } from './Layout';
+import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';
 import { RedeemVoucherContainer, RedeemVoucherAlert } from './RedeemVoucher';
 
 export enum RecoveryAction {
@@ -39,6 +42,7 @@ interface IExpiredAccountErrorViewProps {
   accountToken?: AccountToken;
   accountExpiry?: string;
   loginState: LoginState;
+  tunnelState: TunnelState;
   hideWelcomeView: () => void;
   onExternalLinkWithAuth: (url: string) => Promise<void>;
   onDisconnect: () => Promise<void>;
@@ -66,33 +70,43 @@ export default class ExpiredAccountErrorView extends React.Component<
   }
 
   public render() {
+    const headerBarStyle =
+      this.props.loginState.type === 'ok' && this.props.loginState.method === 'new_account'
+        ? HeaderBarStyle.default
+        : calculateHeaderBarStyle(this.props.tunnelState);
+
     return (
-      <StyledCustomScrollbars fillContainer>
-        <StyledContainer>
-          <StyledBody>{this.renderContent()}</StyledBody>
+      <ModalContainer>
+        <Layout>
+          <StyledHeader barStyle={headerBarStyle} />
+          <StyledCustomScrollbars fillContainer>
+            <StyledContainer>
+              <StyledBody>{this.renderContent()}</StyledBody>
 
-          <StyledFooter>
-            {this.getRecoveryAction() === RecoveryAction.disconnect && (
-              <AppButton.BlockingButton onClick={this.props.onDisconnect}>
-                <StyledDisconnectButton>
-                  {messages.pgettext('connect-view', 'Disconnect')}
-                </StyledDisconnectButton>
-              </AppButton.BlockingButton>
-            )}
+              <StyledFooter>
+                {this.getRecoveryAction() === RecoveryAction.disconnect && (
+                  <AppButton.BlockingButton onClick={this.props.onDisconnect}>
+                    <StyledDisconnectButton>
+                      {messages.pgettext('connect-view', 'Disconnect')}
+                    </StyledDisconnectButton>
+                  </AppButton.BlockingButton>
+                )}
 
-            {this.renderExternalPaymentButton()}
+                {this.renderExternalPaymentButton()}
 
-            <AppButton.GreenButton
-              disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
-              onClick={this.onOpenRedeemVoucherAlert}>
-              {messages.pgettext('connect-view', 'Redeem voucher')}
-            </AppButton.GreenButton>
-          </StyledFooter>
+                <AppButton.GreenButton
+                  disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
+                  onClick={this.onOpenRedeemVoucherAlert}>
+                  {messages.pgettext('connect-view', 'Redeem voucher')}
+                </AppButton.GreenButton>
+              </StyledFooter>
 
-          {this.state.showRedeemVoucherAlert && this.renderRedeemVoucherAlert()}
-          {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
-        </StyledContainer>
-      </StyledCustomScrollbars>
+              {this.state.showRedeemVoucherAlert && this.renderRedeemVoucherAlert()}
+              {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
+            </StyledContainer>
+          </StyledCustomScrollbars>
+        </Layout>
+      </ModalContainer>
     );
   }
 
