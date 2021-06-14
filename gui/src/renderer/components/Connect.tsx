@@ -1,15 +1,13 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import { hasExpired } from '../../shared/account-expiry';
-import ExpiredAccountErrorViewContainer from '../containers/ExpiredAccountErrorViewContainer';
 import NotificationArea from '../components/NotificationArea';
 import { AuthFailureKind, parseAuthFailure } from '../../shared/auth-failure';
 import { LoginState } from '../redux/account/reducers';
 import { IConnectionReduxState } from '../redux/connection/reducers';
-import { FocusFallback } from './Focus';
-import { Brand, HeaderBarStyle, HeaderBarSettingsButton } from './HeaderBar';
+import { calculateHeaderBarStyle, DefaultHeaderBar } from './HeaderBar';
 import ImageView from './ImageView';
-import { Container, Header, Layout } from './Layout';
+import { Container, Layout } from './Layout';
 import Map, { MarkerStyle, ZoomLevel } from './Map';
 import { ModalContainer } from './Modal';
 import TunnelControl from './TunnelControl';
@@ -89,21 +87,8 @@ export default class Connect extends React.Component<IProps, IState> {
     return (
       <ModalContainer>
         <Layout>
-          <Header barStyle={this.headerBarStyle()}>
-            <FocusFallback>
-              <Brand />
-            </FocusFallback>
-            <HeaderBarSettingsButton />
-          </Header>
-          <StyledContainer>
-            {this.state.isAccountExpired ||
-            (this.props.loginState.type === 'ok' &&
-              this.props.loginState.method === 'new_account') ? (
-              <ExpiredAccountErrorViewContainer />
-            ) : (
-              this.renderMap()
-            )}
-          </StyledContainer>
+          <DefaultHeaderBar barStyle={calculateHeaderBarStyle(this.props.connection.status)} />
+          <StyledContainer>{this.renderMap()}</StyledContainer>
         </Layout>
       </ModalContainer>
     );
@@ -169,27 +154,6 @@ export default class Connect extends React.Component<IProps, IState> {
         </Content>
       </>
     );
-  }
-
-  private headerBarStyle(): HeaderBarStyle {
-    const { status } = this.props.connection;
-    switch (status.state) {
-      case 'disconnected':
-        return HeaderBarStyle.error;
-      case 'connecting':
-      case 'connected':
-        return HeaderBarStyle.success;
-      case 'error':
-        return !status.details.blockFailure ? HeaderBarStyle.success : HeaderBarStyle.error;
-      case 'disconnecting':
-        switch (status.details) {
-          case 'block':
-          case 'reconnect':
-            return HeaderBarStyle.success;
-          case 'nothing':
-            return HeaderBarStyle.error;
-        }
-    }
   }
 
   private getMapProps(): Map['props'] {

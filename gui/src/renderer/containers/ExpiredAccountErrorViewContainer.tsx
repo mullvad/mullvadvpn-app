@@ -11,6 +11,7 @@ const mapStateToProps = (state: IReduxState) => ({
   accountToken: state.account.accountToken,
   accountExpiry: state.account.expiry,
   loginState: state.account.status,
+  tunnelState: state.connection.status,
   isBlocked: state.connection.isBlocked,
   blockWhenDisconnected: state.settings.blockWhenDisconnected,
 });
