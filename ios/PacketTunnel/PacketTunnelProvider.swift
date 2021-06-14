@@ -364,9 +364,6 @@ enum PacketTunnelProviderError: ChainedError {
     /// Failure to read the tunnel settings from Keychain
     case cannotReadTunnelSettings(TunnelSettingsManager.Error)
 
-    /// Failure to set network settings
-    case setNetworkSettings(Error)
-
     /// Failure to start the Wireguard backend
     case startWireguardAdapter(WireGuardAdapterError)
 
@@ -396,9 +393,6 @@ enum PacketTunnelProviderError: ChainedError {
         case .cannotReadTunnelSettings:
             return "Failure to read tunnel settings"
 
-        case .setNetworkSettings:
-            return "Failure to set system network settings"
-
         case .startWireguardAdapter:
             return "Failure to start the WireGuard adapter"
 
@@ -424,15 +418,15 @@ extension PacketTunnelConfiguration {
 
     var wgTunnelConfig: TunnelConfiguration {
         let mullvadEndpoint = selectorResult.endpoint
-        var peers: [AnyIPEndpoint] = [.ipv4(mullvadEndpoint.ipv4Relay)]
-        if let ipv6Relay = mullvadEndpoint.ipv6Relay {
-            peers.append(.ipv6(ipv6Relay))
+        var peers = [mullvadEndpoint.ipv4RelayEndpoint]
+        if let ipv6RelayEndpoint = mullvadEndpoint.ipv6RelayEndpoint {
+            peers.append(ipv6RelayEndpoint)
         }
 
-        let peerConfigs = peers.map { (endpoint) -> PeerConfiguration in
+        let peerConfigs = peers.compactMap { (endpoint) -> PeerConfiguration in
             let pubKey = PublicKey(rawValue: selectorResult.endpoint.publicKey)!
             var peerConfig = PeerConfiguration(publicKey: pubKey)
-            peerConfig.endpoint = endpoint.wgEndpoint
+            peerConfig.endpoint = endpoint
             peerConfig.allowedIPs = [
                 IPAddressRange(from: "0.0.0.0/0")!,
                 IPAddressRange(from: "::/0")!
@@ -564,5 +558,17 @@ extension WireGuardLogLevel {
         case .error:
             return .error
         }
+    }
+}
+
+extension MullvadEndpoint {
+    var ipv4RelayEndpoint: Endpoint {
+        return Endpoint(host: .ipv4(ipv4Relay.ip), port: .init(integerLiteral: ipv4Relay.port))
+    }
+
+    var ipv6RelayEndpoint: Endpoint? {
+        guard let ipv6Relay = ipv6Relay else { return nil }
+
+        return Endpoint(host: .ipv6(ipv6Relay.ip), port: .init(integerLiteral: ipv6Relay.port))
     }
 }
