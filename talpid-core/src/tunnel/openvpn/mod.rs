@@ -334,7 +334,10 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         #[cfg(not(target_os = "linux"))] _route_manager: &mut routing::RouteManager,
     ) -> Result<Self>
     where
-        L: Fn(TunnelEvent) + Send + Sync + 'static,
+        L: (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+            + Send
+            + Sync
+            + 'static,
     {
         let user_pass_file =
             Self::create_credentials_file(&params.config.username, &params.config.password)
@@ -972,7 +975,12 @@ mod event_server {
     }
 
     /// Implements a gRPC service used to process events sent to by OpenVPN.
-    pub struct OpenvpnEventProxyImpl<L: Fn(super::TunnelEvent) + Send + Sync + 'static> {
+    pub struct OpenvpnEventProxyImpl<
+        L: (Fn(super::TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+            + Send
+            + Sync
+            + 'static,
+    > {
         pub on_event: L,
         pub user_pass_file_path: super::PathBuf,
         pub proxy_auth_file_path: Option<super::PathBuf>,
@@ -983,8 +991,12 @@ mod event_server {
     }
 
     #[tonic::async_trait]
-    impl<L: Fn(super::TunnelEvent) + Send + Sync + 'static> OpenvpnEventProxy
-        for OpenvpnEventProxyImpl<L>
+    impl<
+            L: (Fn(super::TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+                + Send
+                + Sync
+                + 'static,
+        > OpenvpnEventProxy for OpenvpnEventProxyImpl<L>
     {
         async fn auth_failed(
             &self,
@@ -993,7 +1005,8 @@ mod event_server {
             let env = request.into_inner().env;
             (self.on_event)(super::TunnelEvent::AuthFailed(
                 env.get("auth_failed_reason").cloned(),
-            ));
+            ))
+            .await;
             Ok(Response::new(()))
         }
 
@@ -1093,7 +1106,8 @@ mod event_server {
                 ips,
                 ipv4_gateway,
                 ipv6_gateway,
-            }));
+            }))
+            .await;
 
             Ok(Response::new(()))
         }
@@ -1102,7 +1116,7 @@ mod event_server {
             &self,
             _request: Request<EventDetails>,
         ) -> std::result::Result<Response<()>, tonic::Status> {
-            (self.on_event)(super::TunnelEvent::Down);
+            (self.on_event)(super::TunnelEvent::Down).await;
             Ok(Response::new(()))
         }
     }

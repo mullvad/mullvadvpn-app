@@ -112,7 +112,11 @@ impl TunnelMonitor {
         route_manager: &mut RouteManager,
     ) -> Result<Self>
     where
-        L: Fn(TunnelEvent) + Send + Clone + Sync + 'static,
+        L: (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+            + Send
+            + Clone
+            + Sync
+            + 'static,
     {
         Self::ensure_ipv6_can_be_used_if_enabled(&tunnel_parameters)?;
         let log_file = Self::prepare_tunnel_log_file(&tunnel_parameters, log_dir)?;
@@ -165,7 +169,11 @@ impl TunnelMonitor {
         route_manager: &mut RouteManager,
     ) -> Result<Self>
     where
-        L: Fn(TunnelEvent) + Send + Sync + Clone + 'static,
+        L: (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+            + Send
+            + Sync
+            + Clone
+            + 'static,
     {
         let config = wireguard::config::Config::from_parameters(&params)?;
         let monitor = wireguard::WireguardMonitor::start(
@@ -190,7 +198,10 @@ impl TunnelMonitor {
         route_manager: &mut RouteManager,
     ) -> Result<Self>
     where
-        L: Fn(TunnelEvent) + Send + Sync + 'static,
+        L: (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+            + Send
+            + Sync
+            + 'static,
     {
         let monitor =
             openvpn::OpenVpnMonitor::start(on_event, config, log, resource_dir, route_manager)?;
