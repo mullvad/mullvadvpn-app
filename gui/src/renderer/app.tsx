@@ -620,7 +620,7 @@ export default class AppRenderer {
   private resetNavigation() {
     if (this.connectedToDaemon) {
       if (this.settings.accountToken) {
-        this.history.resetWithIfDifferent('/connect');
+        this.history.resetWithIfDifferent('/main');
       } else {
         this.history.resetWithIfDifferent('/login');
       }

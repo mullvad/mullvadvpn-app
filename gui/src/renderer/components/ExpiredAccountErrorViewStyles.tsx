@@ -5,6 +5,12 @@ import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { bigText, smallText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
+import { DefaultHeaderBar } from './HeaderBar';
+import { Container } from './Layout';
+
+export const StyledHeader = styled(DefaultHeaderBar)({
+  flex: 0,
+});
 
 export const StyledAccountTokenLabel = styled(AccountTokenLabel)({
   fontFamily: 'Open Sans',
@@ -31,12 +37,10 @@ export const StyledCustomScrollbars = styled(CustomScrollbars)({
   flex: 1,
 });
 
-export const StyledContainer = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
+export const StyledContainer = styled(Container)({
   paddingTop: '22px',
   minHeight: '100%',
+  backgroundColor: colors.darkBlue,
 });
 
 export const StyledBody = styled.div({
@@ -51,7 +55,6 @@ export const StyledFooter = styled.div({
   flexDirection: 'column',
   flex: 0,
   padding: '18px 22px 22px',
-  backgroundColor: colors.darkBlue,
 });
 
 export const StyledTitle = styled.span(bigText, {
