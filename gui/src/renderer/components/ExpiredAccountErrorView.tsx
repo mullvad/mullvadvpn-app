@@ -28,7 +28,6 @@ import { calculateHeaderBarStyle, HeaderBarStyle } from './HeaderBar';
 import ImageView from './ImageView';
 import { Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';
-import { RedeemVoucherContainer, RedeemVoucherAlert } from './RedeemVoucher';
 
 export enum RecoveryAction {
   openBrowser,
@@ -47,11 +46,11 @@ interface IExpiredAccountErrorViewProps {
   onExternalLinkWithAuth: (url: string) => Promise<void>;
   onDisconnect: () => Promise<void>;
   setBlockWhenDisconnected: (value: boolean) => void;
+  navigateToRedeemVoucher: () => void;
 }
 
 interface IExpiredAccountErrorViewState {
   showBlockWhenDisconnectedAlert: boolean;
-  showRedeemVoucherAlert: boolean;
 }
 
 export default class ExpiredAccountErrorView extends React.Component<
@@ -60,7 +59,6 @@ export default class ExpiredAccountErrorView extends React.Component<
 > {
   public state: IExpiredAccountErrorViewState = {
     showBlockWhenDisconnectedAlert: false,
-    showRedeemVoucherAlert: false,
   };
 
   public componentDidUpdate() {
@@ -96,12 +94,11 @@ export default class ExpiredAccountErrorView extends React.Component<
 
                 <AppButton.GreenButton
                   disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
-                  onClick={this.onOpenRedeemVoucherAlert}>
+                  onClick={this.props.navigateToRedeemVoucher}>
                   {messages.pgettext('connect-view', 'Redeem voucher')}
                 </AppButton.GreenButton>
               </StyledFooter>
 
-              {this.state.showRedeemVoucherAlert && this.renderRedeemVoucherAlert()}
               {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
             </StyledContainer>
           </StyledCustomScrollbars>
@@ -202,14 +199,6 @@ export default class ExpiredAccountErrorView extends React.Component<
     );
   }
 
-  private renderRedeemVoucherAlert() {
-    return (
-      <RedeemVoucherContainer onSuccess={this.props.hideWelcomeView}>
-        <RedeemVoucherAlert onClose={this.onCloseRedeemVoucherAlert} />
-      </RedeemVoucherContainer>
-    );
-  }
-
   private renderBlockWhenDisconnectedAlert() {
     return (
       <ModalAlert
@@ -268,14 +257,6 @@ export default class ExpiredAccountErrorView extends React.Component<
       return RecoveryAction.openBrowser;
     }
   }
-
-  private onOpenRedeemVoucherAlert = () => {
-    this.setState({ showRedeemVoucherAlert: true });
-  };
-
-  private onCloseRedeemVoucherAlert = () => {
-    this.setState({ showRedeemVoucherAlert: false });
-  };
 
   private onCloseBlockWhenDisconnectedInstructions = () => {
     this.setState({ showBlockWhenDisconnectedAlert: false });

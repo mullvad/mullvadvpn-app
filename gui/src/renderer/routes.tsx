@@ -18,6 +18,12 @@ import SupportPage from './containers/SupportPage';
 import WireguardKeysPage from './containers/WireguardKeysPage';
 import History from './lib/history';
 import { getTransitionProps } from './transitions';
+import {
+  SetupFinished,
+  TimeAdded,
+  VoucherInput,
+  VoucherVerificationSuccess,
+} from './components/ExpiredAccountAddTime';
 
 interface IAppRoutesState {
   previousLocation?: RouteComponentProps['location'];
@@ -73,6 +79,14 @@ class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
                   <Route exact={true} path="/" component={Launch} />
                   <Route exact={true} path="/login" component={LoginPage} />
                   <Route exact={true} path="/main" component={MainView} />
+                  <Route exact={true} path="/main/voucher/redeem" component={VoucherInput} />
+                  <Route
+                    exact={true}
+                    path="/main/voucher/success"
+                    component={VoucherVerificationSuccess}
+                  />
+                  <Route exact={true} path="/main/time-added" component={TimeAdded} />
+                  <Route exact={true} path="/main/setup-finished" component={SetupFinished} />
                   <Route exact={true} path="/settings" component={SettingsPage} />
                   <Route exact={true} path="/settings/language" component={SelectLanguagePage} />
                   <Route exact={true} path="/settings/account" component={AccountPage} />

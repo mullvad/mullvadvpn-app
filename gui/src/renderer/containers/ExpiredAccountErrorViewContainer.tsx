@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { RouteComponentProps, withRouter } from 'react-router';
 import { bindActionCreators } from 'redux';
 import log from '../../shared/logging';
 import ExpiredAccountErrorView from '../components/ExpiredAccountErrorView';
@@ -15,7 +16,7 @@ const mapStateToProps = (state: IReduxState) => ({
   isBlocked: state.connection.isBlocked,
   blockWhenDisconnected: state.settings.blockWhenDisconnected,
 });
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
   const account = bindActionCreators(accountActions, dispatch);
   return {
     // Changes login method from "new_account" to "existing_account"
@@ -35,9 +36,12 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
         log.error('Failed to update block when disconnected', e.message);
       }
     },
+    navigateToRedeemVoucher: () => {
+      props.history.push('/main/voucher/redeem');
+    },
   };
 };
 
 export default withAppContext(
-  connect(mapStateToProps, mapDispatchToProps)(ExpiredAccountErrorView),
+  withRouter(connect(mapStateToProps, mapDispatchToProps)(ExpiredAccountErrorView)),
 );
