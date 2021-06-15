@@ -143,6 +143,18 @@ impl KeyManager {
         }
     }
 
+    /// Removes a key from an account
+    pub async fn remove_key(
+        &self,
+        account: AccountToken,
+        key: talpid_types::net::wireguard::PublicKey,
+    ) -> Result<()> {
+        let mut rpc = mullvad_rpc::WireguardKeyProxy::new(self.http_handle.clone());
+        rpc.remove_wireguard_key(account, &key)
+            .await
+            .map_err(Self::map_rpc_error)
+    }
+
     fn should_retry(error: &RestError) -> bool {
         if let RestError::ApiError(_status, code) = &error {
             code != mullvad_rpc::INVALID_ACCOUNT && code != mullvad_rpc::KEY_LIMIT_REACHED
@@ -255,7 +267,6 @@ impl KeyManager {
             };
         Box::new(push_future)
     }
-
 
     async fn replace_key_rpc(
         http_handle: MullvadRestHandle,
