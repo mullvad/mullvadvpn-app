@@ -196,10 +196,16 @@ class ApplicationMain {
       return this.daemonRpc.getAccountData(accountToken);
     },
     (accountData) => {
-      this.accountData = accountData;
+      this.accountData = accountData && {
+        ...accountData,
+        previousExpiry:
+          accountData.expiry !== this.accountData?.expiry
+            ? this.accountData?.expiry
+            : this.accountData?.previousExpiry,
+      };
 
       if (this.windowController) {
-        IpcMainEventChannel.account.notify(this.windowController.webContents, accountData);
+        IpcMainEventChannel.account.notify(this.windowController.webContents, this.accountData);
       }
 
       this.handleAccountExpiry();
