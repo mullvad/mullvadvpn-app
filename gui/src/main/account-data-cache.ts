@@ -1,5 +1,5 @@
 import { closeToExpiry, hasExpired } from '../shared/account-expiry';
-import { AccountToken, IAccountData } from '../shared/daemon-rpc-types';
+import { AccountToken, IAccountData, VoucherResponse } from '../shared/daemon-rpc-types';
 import { DateComponent, dateByAddingComponent } from '../shared/date-helper';
 import log from '../shared/logging';
 import consumePromise from '../shared/promise';
@@ -64,6 +64,12 @@ export default class AccountDataCache {
     this.notifyWatchers((watcher) => {
       watcher.onError(new Error('Cancelled'));
     });
+  }
+
+  public handleVoucherResponse(accountToken: AccountToken, voucherResponse: VoucherResponse) {
+    if (accountToken === this.currentAccount && voucherResponse.type === 'success') {
+      this.setValue({ expiry: voucherResponse.newExpiry });
+    }
   }
 
   private setValue(value: IAccountData) {
