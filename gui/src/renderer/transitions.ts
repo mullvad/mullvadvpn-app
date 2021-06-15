@@ -52,6 +52,7 @@ const transitionRules = [
   r('/main', '/main/voucher/redeem', transitions.push),
   r('/main/voucher/redeem', '/main/voucher/success', transitions.push),
   r('/main/voucher/success', '/main/setup-finished', transitions.push),
+  r('/main/voucher/success', '/main', transitions.push),
   r('/main/setup-finished', '/main', transitions.push),
   r(null, '/settings', transitions.slide),
   r(null, '/select-location', transitions.slide),
