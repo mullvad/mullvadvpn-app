@@ -80,6 +80,14 @@ export default class History {
     this.notify(affectedEntries);
   };
 
+  public resetWithCurrent = () => {
+    const affectedEntries = this.entries.slice(0, this.index);
+    this.entries = this.entries.slice(this.index);
+    this.lastAction = 'POP';
+    this.index = 0;
+    this.notify(affectedEntries);
+  };
+
   public resetWithIfDifferent = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
     const location = this.createLocation(nextLocation, nextState);
     if (this.entries[0].pathname !== location.pathname) {
