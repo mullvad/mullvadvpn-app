@@ -75,14 +75,20 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
       return;
     }
 
+    const submitTimestamp = Date.now();
     setSubmitting(true);
     onSubmit?.();
     const response = await submitVoucher(value);
 
+    // Show the spinner for at least half a second if it isn't successful.
+    const submitDuration = Date.now() - submitTimestamp;
+    if (response.type !== 'success' && submitDuration < 500) {
+      await new Promise((resolve) => setTimeout(resolve, 500 - submitDuration));
+    }
+
     setSubmitting(false);
     setResponse(response);
     if (response.type === 'success') {
-      setValue('');
       closeScheduler.schedule(() => {
         onSuccess?.();
       }, 1000);
