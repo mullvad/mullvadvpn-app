@@ -176,8 +176,7 @@ export function SetupFinished() {
   const { openUrl } = useAppContext();
 
   const navigateToMain = useCallback(() => {
-    history.push('/main');
-    setTimeout(() => history.resetWithCurrent(), 1000);
+    history.push('/main', undefined, () => history.resetWithCurrent());
   }, [history]);
 
   const openPrivacyLink = useCallback(() => openUrl(links.privacyGuide), [openUrl]);

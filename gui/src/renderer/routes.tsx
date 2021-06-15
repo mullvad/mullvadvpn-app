@@ -28,6 +28,7 @@ import {
 interface IAppRoutesState {
   previousLocation?: RouteComponentProps['location'];
   currentLocation: RouteComponentProps['location'];
+  callback?: () => void;
 }
 
 class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
@@ -47,10 +48,11 @@ class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
     // React throttles updates, so it's impossible to capture the intermediate navigation without
     // listening to the history directly.
     this.unobserveHistory = (this.props.history as History).listen(
-      (location, _action, affectedEntries) => {
+      (location, _action, affectedEntries, callback) => {
         this.setState({
           previousLocation: affectedEntries[0],
           currentLocation: location,
+          callback,
         });
       },
     );
@@ -115,6 +117,7 @@ class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
 
   private onNavigation = () => {
     this.focusRef.current?.resetFocus();
+    this.state.callback?.();
   };
 }
 

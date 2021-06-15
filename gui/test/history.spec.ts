@@ -102,6 +102,26 @@ describe('History', () => {
     expect(history.length).to.equal(1);
   });
 
+  it('should reset to current when last', () => {
+    history.resetWithCurrent();
+    expect(history.location.pathname).to.equal(FOURTH_PATH);
+    expect(history.length).to.equal(1);
+  });
+
+  it('should reset to current when first', () => {
+    history.go(-4);
+    history.resetWithCurrent();
+    expect(history.location.pathname).to.equal(BASE_PATH);
+    expect(history.length).to.equal(5);
+  });
+
+  it('should reset to current when middle', () => {
+    history.goBack();
+    history.resetWithCurrent();
+    expect(history.location.pathname).to.equal(THIRD_PATH);
+    expect(history.length).to.equal(2);
+  });
+
   it('should fail to go forward after navigating', () => {
     history.goBack();
     history.push(FIFTH_PATH);
