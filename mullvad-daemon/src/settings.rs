@@ -4,7 +4,7 @@ use log::{debug, error, info};
 use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     settings::{DnsOptions, Settings},
-    wireguard::RotationInterval,
+    wireguard::{RotationInterval, WireguardData},
 };
 use std::{
     ops::Deref,
@@ -173,6 +173,11 @@ impl SettingsPersister {
         account_token: Option<String>,
     ) -> Result<bool, Error> {
         let should_save = self.settings.set_account_token(account_token);
+        self.update(should_save).await
+    }
+
+    pub async fn set_wireguard(&mut self, wireguard: Option<WireguardData>) -> Result<bool, Error> {
+        let should_save = self.settings.set_wireguard(wireguard);
         self.update(should_save).await
     }
 
