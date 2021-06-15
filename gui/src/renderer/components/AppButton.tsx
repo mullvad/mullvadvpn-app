@@ -191,3 +191,26 @@ export const RedTransparentButton = styled(BaseButton)({
     backgroundColor: colors.red80,
   },
 });
+
+const StyledButtonWrapper = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 0,
+  ':not(:last-child)': {
+    marginBottom: '18px',
+  },
+});
+
+interface IButtonGroupProps {
+  children: React.ReactElement[];
+}
+
+export function ButtonGroup(props: IButtonGroupProps) {
+  return (
+    <>
+      {React.Children.map(props.children, (button, index) => (
+        <StyledButtonWrapper key={index}>{button}</StyledButtonWrapper>
+      ))}
+    </>
+  );
+}
