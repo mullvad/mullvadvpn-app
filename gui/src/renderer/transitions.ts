@@ -47,6 +47,12 @@ const transitionRules = [
   r('/settings/advanced', '/settings/advanced/wireguard-keys', transitions.push),
   r('/settings/advanced', '/settings/advanced/linux-split-tunneling', transitions.push),
   r('/settings', '/settings/support', transitions.push),
+  r('/main', '/main/time-added', transitions.push),
+  r('/main/time-added', '/main/setup-finished', transitions.push),
+  r('/main', '/main/voucher/redeem', transitions.push),
+  r('/main/voucher/redeem', '/main/voucher/success', transitions.push),
+  r('/main/voucher/success', '/main/setup-finished', transitions.push),
+  r('/main/setup-finished', '/main', transitions.push),
   r(null, '/settings', transitions.slide),
   r(null, '/select-location', transitions.slide),
 ];
