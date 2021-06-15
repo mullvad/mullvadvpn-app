@@ -1,5 +1,6 @@
 export interface IAccountData {
   expiry: string;
+  previousExpiry?: string;
 }
 export type AccountToken = string;
 export type Ip = string;
