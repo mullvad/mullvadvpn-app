@@ -50,6 +50,7 @@ interface IUpdateAccountHistoryAction {
 interface IUpdateAccountExpiryAction {
   type: 'UPDATE_ACCOUNT_EXPIRY';
   expiry?: string;
+  previousExpiry?: string;
 }
 
 export type AccountAction =
@@ -132,10 +133,11 @@ function updateAccountHistory(accountHistory?: AccountToken): IUpdateAccountHist
   };
 }
 
-function updateAccountExpiry(expiry?: string): IUpdateAccountExpiryAction {
+function updateAccountExpiry(expiry?: string, previousExpiry?: string): IUpdateAccountExpiryAction {
   return {
     type: 'UPDATE_ACCOUNT_EXPIRY',
     expiry,
+    previousExpiry,
   };
 }
 
