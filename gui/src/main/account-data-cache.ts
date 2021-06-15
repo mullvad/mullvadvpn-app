@@ -66,7 +66,7 @@ export default class AccountDataCache {
     });
   }
 
-  private setValue(value: IAccountData) {
+  public setValue(value: IAccountData) {
     this.expiresAt = new Date(Date.now() + 60 * 1000); // 60s expiration
     this.updateHandler(value);
     this.notifyWatchers((watcher) => watcher.onFinish());

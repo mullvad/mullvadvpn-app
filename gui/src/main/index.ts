@@ -1124,9 +1124,15 @@ class ApplicationMain {
     IpcMainEventChannel.account.handleLogin((token: AccountToken) => this.login(token));
     IpcMainEventChannel.account.handleLogout(() => this.logout());
     IpcMainEventChannel.account.handleGetWwwAuthToken(() => this.daemonRpc.getWwwAuthToken());
-    IpcMainEventChannel.account.handleSubmitVoucher((voucherCode: string) =>
-      this.daemonRpc.submitVoucher(voucherCode),
-    );
+    IpcMainEventChannel.account.handleSubmitVoucher(async (voucherCode: string) => {
+      const response = await this.daemonRpc.submitVoucher(voucherCode);
+
+      if (response.type === 'success') {
+        this.accountDataCache.setValue({ expiry: response.newExpiry });
+      }
+
+      return response;
+    });
 
     IpcMainEventChannel.accountHistory.handleRemoveItem(async (token: AccountToken) => {
       await this.daemonRpc.removeAccountFromHistory(token);
