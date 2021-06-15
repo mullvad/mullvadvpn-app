@@ -863,7 +863,9 @@ fn map_rest_error(error: RestError) -> Status {
 /// Converts an instance of [`mullvad_daemon::settings::Error`] into a tonic status.
 fn map_settings_error(error: settings::Error) -> Status {
     match error {
-        settings::Error::DeleteError(..) | settings::Error::WriteError(..) => {
+        settings::Error::DeleteError(..)
+        | settings::Error::WriteError(..)
+        | settings::Error::SetPermissions(..) => {
             Status::new(Code::FailedPrecondition, error.to_string())
         }
         settings::Error::SerializeError(..) => Status::new(Code::Internal, error.to_string()),

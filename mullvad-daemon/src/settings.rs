@@ -11,7 +11,10 @@ use std::{
     path::{Path, PathBuf},
 };
 use talpid_types::ErrorExt;
-use tokio::{fs, io};
+use tokio::{
+    fs,
+    io::{self, AsyncWriteExt},
+};
 
 
 const SETTINGS_FILE: &str = "settings.json";
@@ -28,6 +31,9 @@ pub enum Error {
 
     #[error(display = "Unable to write settings to {}", _0)]
     WriteError(String, #[error(source)] io::Error),
+
+    #[error(display = "Unable to set settings file permissions")]
+    SetPermissions(#[error(source)] io::Error),
 }
 
 #[derive(err_derive::Error, Debug)]
@@ -138,9 +144,44 @@ impl SettingsPersister {
         debug!("Writing settings to {}", self.path.display());
 
         let buffer = serde_json::to_string_pretty(&self.settings).map_err(Error::SerializeError)?;
-        fs::write(&self.path, &buffer)
+        let mut options = fs::OpenOptions::new();
+        #[cfg(unix)]
+        {
+            use fs::os::unix::OpenOptionsExt;
+            options.mode(0o600);
+        }
+        let mut file = options
+            .write(true)
+            .truncate(true)
+            .open(&self.path)
             .await
-            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))
+            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
+        file.write_all(&buffer.into_bytes())
+            .await
+            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
+
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            let mut permissions = file
+                .metadata()
+                .await
+                .map_err(Error::SetPermissions)?
+                .permissions();
+            if permissions.mode() & 0o777 != 0o600 {
+                log::debug!("Updating file permissions");
+                permissions.set_mode(0o600);
+                file.set_permissions(permissions)
+                    .await
+                    .map_err(Error::SetPermissions)?;
+            }
+        }
+
+        file.sync_all()
+            .await
+            .map_err(|e| Error::WriteError(self.path.display().to_string(), e))?;
+
+        Ok(())
     }
 
     /// Resets default settings
