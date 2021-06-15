@@ -127,11 +127,19 @@ interface ITimeAddedProps {
 }
 
 export function TimeAdded(props: ITimeAddedProps) {
-  const history = useHistory();
+  const history = useHistory() as History;
   const accountData = useSelector((state: IReduxState) => state.account);
+  const isNewAccount = useSelector(
+    (state: IReduxState) =>
+      state.account.status.type === 'ok' && state.account.status.method === 'new_account',
+  );
 
   const navigateToSetupFinished = useCallback(() => {
-    history.push('/main/setup-finished');
+    if (isNewAccount) {
+      history.push('/main/setup-finished');
+    } else {
+      history.resetTo('/main');
+    }
   }, [history]);
 
   const duration =
@@ -208,7 +216,7 @@ export function SetupFinished() {
                 <AriaDescribed>
                   <AppButton.BlueButton onClick={openPrivacyLink}>
                     <AppButton.Label>
-                      {messages.pgettext('connect-view', 'Learn more about privacy')}
+                      {messages.pgettext('connect-view', 'Learn about privacy')}
                     </AppButton.Label>
                     <AriaDescription>
                       <AppButton.Icon
