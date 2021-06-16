@@ -510,13 +510,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getAcco
         Some(daemon_interface) => daemon_interface
             .get_account_history()
             .map(|history| history.into_java(&env).forget())
-            .unwrap_or_else(|err| {
-                log::error!(
-                    "{}",
-                    err.display_chain_with_msg("Failed to get account history")
-                );
-                JObject::null()
-            }),
+            .unwrap_or(JObject::null()),
         None => JObject::null(),
     }
 }
@@ -758,21 +752,16 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_reconne
 
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_removeAccountFromHistory(
-    env: JNIEnv<'_>,
+pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_clearAccountHistory(
+    _: JNIEnv<'_>,
     _: JObject<'_>,
     daemon_interface_address: jlong,
-    accountToken: JString<'_>,
 ) {
-    let env = JnixEnv::from(env);
-
     if let Some(daemon_interface) = get_daemon_interface(daemon_interface_address) {
-        let account = String::from_java(&env, accountToken);
-
-        if let Err(error) = daemon_interface.remove_account_from_history(account) {
+        if let Err(error) = daemon_interface.clear_account_history() {
             log::error!(
                 "{}",
-                error.display_chain_with_msg("Failed to remove account from history")
+                error.display_chain_with_msg("Failed to clear account history")
             );
         }
     }

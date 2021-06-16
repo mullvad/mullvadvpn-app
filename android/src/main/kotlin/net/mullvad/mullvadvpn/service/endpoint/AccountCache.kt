@@ -42,7 +42,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
-    val onAccountHistoryChange = EventNotifier<List<String>>(listOf<String>())
+    val onAccountHistoryChange = EventNotifier<String?>(null)
     val onLoginStatusChange = EventNotifier<LoginStatus?>(null)
 
     var newlyCreatedAccount = false
@@ -104,10 +104,8 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
                 invalidateAccountExpiry(request.expiry)
             }
 
-            registerHandler(Request.RemoveAccountFromHistory::class) { request ->
-                request.account?.let { account ->
-                    removeAccountFromHistory(account)
-                }
+            registerHandler(Request.ClearAccountHistory::class) { _ ->
+                clearAccountHistory()
             }
         }
     }
@@ -162,9 +160,9 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         }
     }
 
-    private fun removeAccountFromHistory(accountToken: String) {
-        jobTracker.newBackgroundJob("removeAccountFromHistory $accountToken") {
-            daemon.await().removeAccountFromHistory(accountToken)
+    private fun clearAccountHistory() {
+        jobTracker.newBackgroundJob("clearAccountHistory") {
+            daemon.await().clearAccountHistory()
             fetchAccountHistory()
         }
     }
@@ -227,7 +225,7 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
 
     private fun fetchAccountHistory() {
         jobTracker.newBackgroundJob("fetchHistory") {
-            daemon.await().getAccountHistory()?.let { history ->
+            daemon.await().getAccountHistory().let { history ->
                 accountHistory = history
             }
         }

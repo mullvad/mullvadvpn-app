@@ -17,7 +17,7 @@ sealed class Event : Message.EventMessage() {
     protected override val messageKey = MESSAGE_KEY
 
     @Parcelize
-    data class AccountHistory(val history: List<String>?) : Event()
+    data class AccountHistory(val history: String?) : Event()
 
     @Parcelize
     data class AppVersionInfo(val versionInfo: AppVersionInfoData?) : Event()

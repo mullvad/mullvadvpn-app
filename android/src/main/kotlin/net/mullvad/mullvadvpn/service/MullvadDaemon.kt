@@ -52,7 +52,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         return getAccountData(daemonInterfaceAddress, accountToken)
     }
 
-    fun getAccountHistory(): ArrayList<String>? {
+    fun getAccountHistory(): String? {
         return getAccountHistory(daemonInterfaceAddress)
     }
 
@@ -92,8 +92,8 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         reconnect(daemonInterfaceAddress)
     }
 
-    fun removeAccountFromHistory(accountToken: String) {
-        removeAccountFromHistory(daemonInterfaceAddress, accountToken)
+    fun clearAccountHistory() {
+        clearAccountHistory(daemonInterfaceAddress)
     }
 
     fun setAccount(accountToken: String?) {
@@ -159,7 +159,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
         daemonInterfaceAddress: Long,
         accountToken: String
     ): GetAccountDataResult
-    private external fun getAccountHistory(daemonInterfaceAddress: Long): ArrayList<String>?
+    private external fun getAccountHistory(daemonInterfaceAddress: Long): String?
     private external fun getWwwAuthToken(daemonInterfaceAddress: Long): String?
     private external fun getCurrentLocation(daemonInterfaceAddress: Long): GeoIpLocation?
     private external fun getCurrentVersion(daemonInterfaceAddress: Long): String?
@@ -169,10 +169,7 @@ class MullvadDaemon(val vpnService: MullvadVpnService) {
     private external fun getVersionInfo(daemonInterfaceAddress: Long): AppVersionInfo?
     private external fun getWireguardKey(daemonInterfaceAddress: Long): PublicKey?
     private external fun reconnect(daemonInterfaceAddress: Long)
-    private external fun removeAccountFromHistory(
-        daemonInterfaceAddress: Long,
-        accountToken: String
-    )
+    private external fun clearAccountHistory(daemonInterfaceAddress: Long)
     private external fun setAccount(daemonInterfaceAddress: Long, accountToken: String?)
     private external fun setAllowLan(daemonInterfaceAddress: Long, allowLan: Boolean)
     private external fun setAutoConnect(daemonInterfaceAddress: Long, alwaysOn: Boolean)
