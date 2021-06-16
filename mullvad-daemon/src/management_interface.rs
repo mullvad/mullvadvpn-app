@@ -457,16 +457,6 @@ impl ManagementService for ManagementServiceImpl {
             .map_err(map_daemon_error)
     }
 
-    async fn clear_account_history(&self, _: Request<()>) -> ServiceResult<()> {
-        log::debug!("clear_account_history");
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::ClearAccountHistory(tx))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_daemon_error)
-    }
-
     async fn get_www_auth_token(&self, _: Request<()>) -> ServiceResult<String> {
         log::debug!("get_www_auth_token");
         let (tx, rx) = oneshot::channel();

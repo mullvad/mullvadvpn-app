@@ -48,7 +48,6 @@ service ManagementService {
 	rpc GetAccountData(google.protobuf.StringValue) returns (AccountData) {}
 	rpc GetAccountHistory(google.protobuf.Empty) returns (AccountHistory) {}
 	rpc RemoveAccountFromHistory(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
-	rpc ClearAccountHistory(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc GetWwwAuthToken(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
 	rpc SubmitVoucher(google.protobuf.StringValue) returns (VoucherSubmission) {}
 

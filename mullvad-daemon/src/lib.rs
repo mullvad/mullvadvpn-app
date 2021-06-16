@@ -201,8 +201,6 @@ pub enum DaemonCommand {
     GetAccountHistory(oneshot::Sender<Vec<AccountToken>>),
     /// Request account history
     RemoveAccountFromHistory(ResponseTx<(), Error>, AccountToken),
-    /// Clear account history
-    ClearAccountHistory(ResponseTx<(), Error>),
     /// Get the list of countries and cities where there are relays.
     GetRelayLocations(oneshot::Sender<RelayList>),
     /// Trigger an asynchronous relay list update. This returns before the relay list is actually
@@ -1160,7 +1158,6 @@ where
             RemoveAccountFromHistory(tx, account_token) => {
                 self.on_remove_account_from_history(tx, account_token).await
             }
-            ClearAccountHistory(tx) => self.on_clear_account_history(tx).await,
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update).await,
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan).await,
             SetShowBetaReleases(tx, enabled) => self.on_set_show_beta_releases(tx, enabled).await,
@@ -1621,39 +1618,6 @@ where
                 }
             } else {
                 Ok(())
-            }
-        }
-    }
-
-    async fn on_clear_account_history(&mut self, tx: ResponseTx<(), Error>) {
-        if let Err(error) = self.remove_current_key_rpc().await {
-            Self::oneshot_send(tx, Err(error), "clear_account_history response");
-            return;
-        }
-        if let Err(error) = self.account_history.clear().await {
-            Self::oneshot_send(
-                tx,
-                Err(Error::ClearAccountHistoryError(error)),
-                "clear_account_history response",
-            );
-            return;
-        }
-
-        match self.settings.set_wireguard(None).await {
-            Ok(_) => {
-                self.set_target_state(TargetState::Unsecured).await;
-                Self::oneshot_send(tx, Ok(()), "clear_account_history response");
-            }
-            Err(err) => {
-                log::error!(
-                    "{}",
-                    err.display_chain_with_msg("Failed to clear account history")
-                );
-                Self::oneshot_send(
-                    tx,
-                    Err(Error::SettingsError(err)),
-                    "clear_account_history response",
-                );
             }
         }
     }
