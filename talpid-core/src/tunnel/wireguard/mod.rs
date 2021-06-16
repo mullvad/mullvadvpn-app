@@ -74,10 +74,16 @@ pub enum Error {
 
 /// Spawns and monitors a wireguard tunnel
 pub struct WireguardMonitor {
+    runtime: tokio::runtime::Handle,
     /// Tunnel implementation
     tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
     /// Callback to signal tunnel events
-    event_callback: Box<dyn Fn(TunnelEvent) + Send + Sync + 'static>,
+    event_callback: Box<
+        dyn (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+            + Send
+            + Sync
+            + 'static,
+    >,
     close_msg_sender: mpsc::Sender<CloseMsg>,
     close_msg_receiver: mpsc::Receiver<CloseMsg>,
     #[cfg(target_os = "windows")]
@@ -149,7 +155,13 @@ impl Drop for TcpProxy {
 
 impl WireguardMonitor {
     /// Starts a WireGuard tunnel with the given config
-    pub fn start<F: Fn(TunnelEvent) + Send + Sync + Clone + 'static>(
+    pub fn start<
+        F: (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+            + Send
+            + Sync
+            + Clone
+            + 'static,
+    >(
         runtime: tokio::runtime::Handle,
         mut config: Config,
         log_path: Option<&Path>,
@@ -176,7 +188,7 @@ impl WireguardMonitor {
         let iface_luid = tunnel.get_interface_luid();
 
         let metadata = Self::tunnel_metadata(&iface_name, &config);
-        (on_event)(TunnelEvent::InterfaceUp(metadata.clone()));
+        runtime.block_on((on_event)(TunnelEvent::InterfaceUp(metadata.clone())));
 
         #[cfg(target_os = "windows")]
         route_manager
@@ -188,6 +200,7 @@ impl WireguardMonitor {
         #[cfg(target_os = "windows")]
         let (stop_setup_tx, stop_setup_rx) = futures::channel::oneshot::channel();
         let monitor = WireguardMonitor {
+            runtime: runtime.clone(),
             tunnel: Arc::new(Mutex::new(Some(tunnel))),
             event_callback,
             close_msg_sender,
@@ -209,8 +222,6 @@ impl WireguardMonitor {
         .map_err(Error::ConnectivityMonitorError)?;
 
         let route_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
-        #[cfg(windows)]
-        let runtime = route_manager.runtime_handle();
 
         std::thread::spawn(move || {
             #[cfg(windows)]
@@ -265,7 +276,7 @@ impl WireguardMonitor {
 
             match connectivity_monitor.establish_connectivity() {
                 Ok(true) => {
-                    (on_event)(TunnelEvent::Up(metadata));
+                    runtime.block_on((on_event)(TunnelEvent::Up(metadata)));
 
                     if let Err(error) = connectivity_monitor.run() {
                         log::error!(
@@ -368,7 +379,8 @@ impl WireguardMonitor {
 
         self.stop_tunnel();
 
-        (self.event_callback)(TunnelEvent::Down);
+        self.runtime
+            .block_on((self.event_callback)(TunnelEvent::Down));
         wait_result
     }
 

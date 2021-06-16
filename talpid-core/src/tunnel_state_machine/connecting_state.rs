@@ -99,9 +99,11 @@ impl ConnectingState {
         retry_attempt: u32,
     ) -> crate::tunnel::Result<Self> {
         let (event_tx, event_rx) = mpsc::unbounded();
-        let on_tunnel_event = move |event| {
-            let _ = event_tx.unbounded_send(event);
-        };
+        let on_tunnel_event =
+            move |event| -> Box<dyn std::future::Future<Output = ()> + Unpin + Send> {
+                let _ = event_tx.unbounded_send(event);
+                Box::new(futures::future::ready(()))
+            };
 
         let monitor = TunnelMonitor::start(
             runtime,

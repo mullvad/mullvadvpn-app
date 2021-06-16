@@ -28,6 +28,9 @@ pub enum Error {
 
     #[error(display = "Unable to parse arguments from OpenVPN")]
     ParseArgsFailed(#[error(source)] std::str::Utf8Error),
+
+    #[error(display = "Unhandled event type: {:?}", _0)]
+    UnhandledEvent(openvpn_plugin::EventType),
 }
 
 
@@ -35,8 +38,6 @@ pub enum Error {
 /// events.
 pub static INTERESTING_EVENTS: &'static [EventType] = &[
     EventType::AuthFailed,
-    #[cfg(target_os = "linux")]
-    EventType::Up,
     EventType::RouteUp,
     EventType::RoutePredown,
 ];
@@ -45,7 +46,7 @@ openvpn_plugin!(
     crate::openvpn_open,
     crate::openvpn_close,
     crate::openvpn_event,
-    crate::Mutex<EventProcessor>
+    crate::Mutex<Option<EventProcessor>>
 );
 
 pub struct Arguments {
@@ -55,7 +56,7 @@ pub struct Arguments {
 fn openvpn_open(
     args: Vec<CString>,
     _env: HashMap<CString, CString>,
-) -> Result<(Vec<EventType>, Mutex<EventProcessor>), Error> {
+) -> Result<(Vec<EventType>, Mutex<Option<EventProcessor>>), Error> {
     env_logger::init();
     log::debug!("Initializing plugin");
 
@@ -66,7 +67,7 @@ fn openvpn_open(
     );
     let processor = EventProcessor::new(arguments)?;
 
-    Ok((INTERESTING_EVENTS.to_vec(), Mutex::new(processor)))
+    Ok((INTERESTING_EVENTS.to_vec(), Mutex::new(Some(processor))))
 }
 
 fn parse_args(args: &[CString]) -> Result<Arguments, Error> {
@@ -81,7 +82,7 @@ fn parse_args(args: &[CString]) -> Result<Arguments, Error> {
 }
 
 
-fn openvpn_close(_handle: Mutex<EventProcessor>) {
+fn openvpn_close(_handle: Mutex<Option<EventProcessor>>) {
     log::info!("Unloading plugin");
 }
 
@@ -89,21 +90,26 @@ fn openvpn_event(
     event: EventType,
     _args: Vec<CString>,
     env: HashMap<CString, CString>,
-    handle: &mut Mutex<EventProcessor>,
+    handle: &mut Mutex<Option<EventProcessor>>,
 ) -> Result<EventResult, Error> {
     log::debug!("Received event: {:?}", event);
 
     let parsed_env = openvpn_plugin::ffi::parse::env_utf8(&env).map_err(Error::ParseEnvFailed)?;
 
-    let result = handle
+    let mut ctx = handle
         .lock()
-        .expect("failed to obtain mutex for EventProcessor")
-        .process_event(event, parsed_env);
-    match result {
-        Ok(()) => Ok(EventResult::Success),
-        Err(e) => {
-            log::error!("{}", e.display_chain());
-            Ok(EventResult::Failure)
+        .expect("failed to obtain mutex for EventProcessor");
+    if let Some(processor) = ctx.as_mut() {
+        match processor.process_event(event, parsed_env) {
+            Ok(()) => Ok(EventResult::Success),
+            Err(e) => {
+                log::error!("{}", e.display_chain());
+                *ctx = None;
+                Ok(EventResult::Failure)
+            }
         }
+    } else {
+        log::error!("Client has been closed");
+        Ok(EventResult::Failure)
     }
 }
