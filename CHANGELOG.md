@@ -31,6 +31,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Fix failure to restart the daemon when resuming from "fast startup" hibernation.
+- Disable notification actions for persistent notifications since they were called when pressing
+  close.
 
 
 ## [2021.4-beta1] - 2021-06-09
