@@ -1,15 +1,10 @@
 use clap::{crate_authors, crate_description, crate_name, SubCommand};
 use mullvad_management_interface::new_rpc_client;
 use mullvad_rpc::MullvadRpcRuntime;
-use mullvad_types::{settings, version::ParsedAppVersion};
-use std::{
-    io,
-    path::{Path, PathBuf},
-    process,
-};
+use mullvad_types::version::ParsedAppVersion;
+use std::{path::PathBuf, process};
 use talpid_core::firewall::{self, Firewall, FirewallArguments};
 use talpid_types::ErrorExt;
-use tokio::fs;
 
 pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
@@ -71,11 +66,8 @@ pub enum Error {
     #[error(display = "Failed to obtain cache directory path")]
     CachePathError(#[error(source)] mullvad_paths::Error),
 
-    #[error(display = "Failed to load settings")]
-    LoadSettingsError(#[error(source)] io::Error),
-
-    #[error(display = "Failed to parse settings")]
-    ParseSettingsError(#[error(source)] settings::Error),
+    #[error(display = "Failed to update the settings")]
+    SettingsError(#[error(source)] mullvad_daemon::settings::Error),
 
     #[error(display = "Cannot parse the version string")]
     ParseVersionStringError,
@@ -170,7 +162,7 @@ async fn reset_firewall() -> Result<(), Error> {
 
 async fn clear_history() -> Result<(), Error> {
     let (cache_path, settings_path) = get_paths()?;
-    let settings = load_settings(&settings_path).await?;
+    let mut settings = mullvad_daemon::settings::SettingsPersister::load(&settings_path).await;
 
     if let Some(token) = settings.get_account_token() {
         if let Some(wg_data) = settings.get_wireguard() {
@@ -189,16 +181,14 @@ async fn clear_history() -> Result<(), Error> {
                 .remove_wireguard_key(token, &wg_data.private_key.public_key())
                 .await
                 .map_err(Error::RemoveKeyError)?;
+            settings
+                .set_wireguard(None)
+                .await
+                .map_err(Error::SettingsError)?;
         }
     }
 
     Ok(())
-}
-
-async fn load_settings(settings_dir: &Path) -> Result<settings::Settings, Error> {
-    let path = settings_dir.join("settings.json");
-    let settings_bytes = fs::read(path).await.map_err(Error::LoadSettingsError)?;
-    settings::Settings::load_from_bytes(&settings_bytes).map_err(Error::ParseSettingsError)
 }
 
 #[cfg(not(windows))]

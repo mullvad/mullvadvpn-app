@@ -15,7 +15,7 @@ mod relays;
 #[cfg(not(target_os = "android"))]
 pub mod rpc_uniqueness_check;
 pub mod runtime;
-mod settings;
+pub mod settings;
 pub mod version;
 mod version_check;
 
