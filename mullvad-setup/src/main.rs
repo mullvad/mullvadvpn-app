@@ -1,11 +1,15 @@
 use clap::{crate_authors, crate_description, crate_name, SubCommand};
-use mullvad_daemon::account_history;
 use mullvad_management_interface::new_rpc_client;
 use mullvad_rpc::MullvadRpcRuntime;
-use mullvad_types::version::ParsedAppVersion;
-use std::{path::PathBuf, process};
+use mullvad_types::{settings, version::ParsedAppVersion};
+use std::{
+    io,
+    path::{Path, PathBuf},
+    process,
+};
 use talpid_core::firewall::{self, Firewall, FirewallArguments};
 use talpid_types::ErrorExt;
+use tokio::fs;
 
 pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
@@ -58,17 +62,20 @@ pub enum Error {
     #[error(display = "Failed to initialize mullvad RPC runtime")]
     RpcInitializationError(#[error(source)] mullvad_rpc::Error),
 
+    #[error(display = "Failed to remove WireGuard key for account")]
+    RemoveKeyError(#[error(source)] mullvad_rpc::rest::Error),
+
     #[error(display = "Failed to obtain settings directory path")]
     SettingsPathError(#[error(source)] SettingsPathErrorType),
 
     #[error(display = "Failed to obtain cache directory path")]
     CachePathError(#[error(source)] mullvad_paths::Error),
 
-    #[error(display = "Failed to initialize account history")]
-    InitializeAccountHistoryError(#[error(source)] account_history::Error),
+    #[error(display = "Failed to load settings")]
+    LoadSettingsError(#[error(source)] io::Error),
 
-    #[error(display = "Failed to initialize account history")]
-    ClearAccountHistoryError(#[error(source)] account_history::Error),
+    #[error(display = "Failed to parse settings")]
+    ParseSettingsError(#[error(source)] settings::Error),
 
     #[error(display = "Cannot parse the version string")]
     ParseVersionStringError,
@@ -163,29 +170,35 @@ async fn reset_firewall() -> Result<(), Error> {
 
 async fn clear_history() -> Result<(), Error> {
     let (cache_path, settings_path) = get_paths()?;
+    let settings = load_settings(&settings_path).await?;
 
-    let mut rpc_runtime = MullvadRpcRuntime::with_cache(
-        tokio::runtime::Handle::current(),
-        None,
-        &cache_path,
-        false,
-        |_| Ok(()),
-    )
-    .await
-    .map_err(Error::RpcInitializationError)?;
+    if let Some(token) = settings.get_account_token() {
+        if let Some(wg_data) = settings.get_wireguard() {
+            let mut rpc_runtime = MullvadRpcRuntime::with_cache(
+                tokio::runtime::Handle::current(),
+                None,
+                &cache_path,
+                false,
+                |_| Ok(()),
+            )
+            .await
+            .map_err(Error::RpcInitializationError)?;
+            let mut key_proxy =
+                mullvad_rpc::WireguardKeyProxy::new(rpc_runtime.mullvad_rest_handle());
+            key_proxy
+                .remove_wireguard_key(token, &wg_data.private_key.public_key())
+                .await
+                .map_err(Error::RemoveKeyError)?;
+        }
+    }
 
-    let mut account_history = account_history::AccountHistory::new(
-        &cache_path,
-        &settings_path,
-        rpc_runtime.mullvad_rest_handle(),
-    )
-    .await
-    .map_err(Error::InitializeAccountHistoryError)?;
-    account_history
-        .clear()
-        .await
-        .map_err(Error::ClearAccountHistoryError)?;
     Ok(())
+}
+
+async fn load_settings(settings_dir: &Path) -> Result<settings::Settings, Error> {
+    let path = settings_dir.join("settings.json");
+    let settings_bytes = fs::read(path).await.map_err(Error::LoadSettingsError)?;
+    settings::Settings::load_from_bytes(&settings_bytes).map_err(Error::ParseSettingsError)
 }
 
 #[cfg(not(windows))]
