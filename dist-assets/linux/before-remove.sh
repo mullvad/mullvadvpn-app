@@ -24,4 +24,4 @@ elif /sbin/init --version | grep upstart &> /dev/null; then
 fi
 
 /opt/Mullvad\ VPN/resources/mullvad-setup reset-firewall || echo "Failed to reset firewall"
-/opt/Mullvad\ VPN/resources/mullvad-setup clear-history || echo "Failed to remove leftover WireGuard keys"
+/opt/Mullvad\ VPN/resources/mullvad-setup remove-wireguard-key || echo "Failed to remove leftover WireGuard key"
