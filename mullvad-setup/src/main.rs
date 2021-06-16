@@ -82,7 +82,8 @@ async fn main() {
             .about("Move a running daemon into a blocking state and save its target state"),
         SubCommand::with_name("reset-firewall")
             .about("Remove any firewall rules introduced by the daemon"),
-        SubCommand::with_name("clear-history").about("Clear account history"),
+        SubCommand::with_name("remove-wireguard-key")
+            .about("Removes the WireGuard key from the active account"),
         SubCommand::with_name("is-older-version")
             .about("Checks whether the given version is older than the current version")
             .arg(
@@ -107,7 +108,7 @@ async fn main() {
     let result = match matches.subcommand() {
         ("prepare-restart", _) => prepare_restart().await,
         ("reset-firewall", _) => reset_firewall().await,
-        ("clear-history", _) => clear_history().await,
+        ("remove-wireguard-key", _) => remove_wireguard_key().await,
         ("is-older-version", Some(sub_matches)) => {
             let old_version = sub_matches.value_of("OLDVERSION").unwrap();
             match is_older_version(old_version).await {
@@ -160,7 +161,7 @@ async fn reset_firewall() -> Result<(), Error> {
     firewall.reset_policy().map_err(Error::FirewallError)
 }
 
-async fn clear_history() -> Result<(), Error> {
+async fn remove_wireguard_key() -> Result<(), Error> {
     let (cache_path, settings_path) = get_paths()?;
     let mut settings = mullvad_daemon::settings::SettingsPersister::load(&settings_path).await;
 
