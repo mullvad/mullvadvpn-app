@@ -582,9 +582,10 @@ where
             settings.show_beta_releases,
         );
         tokio::spawn(version_updater.run());
-        let account_history = account_history::AccountHistory::new(&cache_dir, &settings_dir)
-            .await
-            .map_err(Error::LoadAccountHistory)?;
+        let account_history =
+            account_history::AccountHistory::new(&cache_dir, &settings_dir, &mut settings)
+                .await
+                .map_err(Error::LoadAccountHistory)?;
 
         // Restore the tunnel to a previous state
         let target_cache = cache_dir.join(TARGET_START_STATE_FILE);

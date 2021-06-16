@@ -1,3 +1,4 @@
+use crate::settings::SettingsPersister;
 use mullvad_types::{account::AccountToken, wireguard::WireguardData};
 use regex::Regex;
 use std::{
@@ -39,7 +40,11 @@ lazy_static::lazy_static! {
 
 
 impl AccountHistory {
-    pub async fn new(cache_dir: &Path, settings_dir: &Path) -> Result<AccountHistory> {
+    pub async fn new(
+        cache_dir: &Path,
+        settings_dir: &Path,
+        settings: &mut SettingsPersister,
+    ) -> Result<AccountHistory> {
         Self::migrate_from_old_file_location(cache_dir, settings_dir).await;
 
         let mut options = fs::OpenOptions::new();
@@ -71,7 +76,17 @@ impl AccountHistory {
                 Ok(_) | Err(_) => {
                     log::warn!("Failed to parse account history. Trying old formats",);
                     match Self::try_format_v2(&mut reader)? {
-                        Some(token) => Some(token),
+                        Some((token, migrated_data)) => {
+                            if let Err(error) = settings.set_wireguard(migrated_data).await {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg(
+                                        "Failed to migrate WireGuard key from account history"
+                                    )
+                                );
+                            }
+                            Some(token)
+                        }
                         None => Self::try_format_v1(&mut reader)?,
                     }
                 }
@@ -130,7 +145,9 @@ impl AccountHistory {
             .unwrap_or_else(|_| None))
     }
 
-    fn try_format_v2(reader: &mut io::BufReader<fs::File>) -> Result<Option<AccountToken>> {
+    fn try_format_v2(
+        reader: &mut io::BufReader<fs::File>,
+    ) -> Result<Option<(AccountToken, Option<WireguardData>)>> {
         #[derive(Serialize, Deserialize, Clone, Debug)]
         pub struct AccountEntry {
             pub account: AccountToken,
@@ -138,7 +155,11 @@ impl AccountHistory {
         }
         reader.seek(io::SeekFrom::Start(0)).map_err(Error::Read)?;
         Ok(serde_json::from_reader(reader)
-            .map(|entries: Vec<AccountEntry>| entries.first().map(|entry| entry.account.clone()))
+            .map(|entries: Vec<AccountEntry>| {
+                entries
+                    .first()
+                    .map(|entry| (entry.account.clone(), entry.wireguard.clone()))
+            })
             .unwrap_or_else(|_| None))
     }
 
