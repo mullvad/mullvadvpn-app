@@ -1,3 +1,4 @@
+import { Action } from 'history';
 import * as React from 'react';
 import { Route, RouteComponentProps, Switch, withRouter } from 'react-router';
 import Launch from './components/Launch';
@@ -28,6 +29,7 @@ import {
 interface IAppRoutesState {
   previousLocation?: RouteComponentProps['location'];
   currentLocation: RouteComponentProps['location'];
+  action?: Action;
   callback?: () => void;
 }
 
@@ -48,10 +50,11 @@ class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
     // React throttles updates, so it's impossible to capture the intermediate navigation without
     // listening to the history directly.
     this.unobserveHistory = (this.props.history as History).listen(
-      (location, _action, affectedEntries, callback) => {
+      (location, action, affectedEntries, callback) => {
         this.setState({
           previousLocation: affectedEntries[0],
           currentLocation: location,
+          action,
           callback,
         });
       },
@@ -69,6 +72,7 @@ class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
     const transitionProps = getTransitionProps(
       this.state.previousLocation ? this.state.previousLocation.pathname : null,
       location.pathname,
+      this.state.action,
     );
 
     return (
