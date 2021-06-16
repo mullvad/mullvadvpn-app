@@ -115,7 +115,7 @@ class ApplicationMain {
   private quitStage = AppQuitStage.unready;
 
   private accountData?: IAccountData = undefined;
-  private accountHistory: AccountToken[] = [];
+  private accountHistory?: AccountToken = undefined;
   private tunnelState: TunnelState = { state: 'disconnected' };
   private settings: ISettings = {
     accountToken: undefined,
@@ -665,7 +665,7 @@ class ApplicationMain {
     return daemonEventListener;
   }
 
-  private setAccountHistory(accountHistory: AccountToken[]) {
+  private setAccountHistory(accountHistory?: AccountToken) {
     this.accountHistory = accountHistory;
 
     if (this.windowController) {
@@ -1128,8 +1128,8 @@ class ApplicationMain {
       this.daemonRpc.submitVoucher(voucherCode),
     );
 
-    IpcMainEventChannel.accountHistory.handleRemoveItem(async (token: AccountToken) => {
-      await this.daemonRpc.removeAccountFromHistory(token);
+    IpcMainEventChannel.accountHistory.handleClear(async () => {
+      await this.daemonRpc.clearAccountHistory();
       consumePromise(this.updateAccountHistory());
     });
 
@@ -1162,8 +1162,8 @@ class ApplicationMain {
       const reportPath = this.getProblemReportPath(id);
       const executable = resolveBin('mullvad-problem-report');
       const args = ['collect', '--output', reportPath];
-      if (toRedact.length > 0) {
-        args.push('--redact', ...toRedact);
+      if (toRedact) {
+        args.push('--redact', toRedact);
       }
 
       return new Promise((resolve, reject) => {

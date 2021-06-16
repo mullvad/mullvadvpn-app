@@ -54,7 +54,7 @@ sealed class Request : Message.RequestMessage() {
     data class RegisterListener(val listener: Messenger) : Request()
 
     @Parcelize
-    data class RemoveAccountFromHistory(val account: String?) : Request()
+    object ClearAccountHistory : Request()
 
     @Parcelize
     data class RemoveCustomDnsServer(val address: InetAddress) : Request()

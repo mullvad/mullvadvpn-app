@@ -198,10 +198,8 @@ pub enum DaemonCommand {
     /// Submit voucher to add time to the current account. Returns time added in seconds
     SubmitVoucher(ResponseTx<VoucherSubmission, Error>, String),
     /// Request account history
-    GetAccountHistory(oneshot::Sender<Vec<AccountToken>>),
-    /// Request account history
-    RemoveAccountFromHistory(ResponseTx<(), Error>, AccountToken),
-    /// Clear account history
+    GetAccountHistory(oneshot::Sender<Option<AccountToken>>),
+    /// Remove the last used account, if there is one
     ClearAccountHistory(ResponseTx<(), Error>),
     /// Get the list of countries and cities where there are relays.
     GetRelayLocations(oneshot::Sender<RelayList>),
@@ -1148,9 +1146,6 @@ where
             UpdateRelayLocations => self.on_update_relay_locations().await,
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token).await,
             GetAccountHistory(tx) => self.on_get_account_history(tx),
-            RemoveAccountFromHistory(tx, account_token) => {
-                self.on_remove_account_from_history(tx, account_token).await
-            }
             ClearAccountHistory(tx) => self.on_clear_account_history(tx).await,
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update).await,
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan).await,
@@ -1559,31 +1554,21 @@ where
         Ok(account_changed)
     }
 
-    fn on_get_account_history(&mut self, tx: oneshot::Sender<Vec<AccountToken>>) {
+    fn on_get_account_history(&mut self, tx: oneshot::Sender<Option<AccountToken>>) {
         Self::oneshot_send(
             tx,
-            self.account_history
-                .get()
-                .map(|token| vec![token])
-                .unwrap_or(vec![]),
+            self.account_history.get(),
             "get_account_history response",
         );
     }
 
-    async fn on_remove_account_from_history(
-        &mut self,
-        tx: ResponseTx<(), Error>,
-        account_token: AccountToken,
-    ) {
-        let result = if self.account_history.get() == Some(account_token) {
-            self.account_history
-                .clear()
-                .await
-                .map_err(Error::AccountHistory)
-        } else {
-            Ok(())
-        };
-        Self::oneshot_send(tx, result, "remove_account_from_history response");
+    async fn on_clear_account_history(&mut self, tx: ResponseTx<(), Error>) {
+        let result = self
+            .account_history
+            .clear()
+            .await
+            .map_err(Error::AccountHistory);
+        Self::oneshot_send(tx, result, "clear_account_history response");
     }
 
     // Remove the key associated with the current account, if there is one.
@@ -1613,39 +1598,6 @@ where
                 }
             } else {
                 Ok(())
-            }
-        }
-    }
-
-    async fn on_clear_account_history(&mut self, tx: ResponseTx<(), Error>) {
-        if let Err(error) = self.remove_current_key_rpc().await {
-            Self::oneshot_send(tx, Err(error), "clear_account_history response");
-            return;
-        }
-        if let Err(error) = self.account_history.clear().await {
-            Self::oneshot_send(
-                tx,
-                Err(Error::ClearAccountHistoryError(error)),
-                "clear_account_history response",
-            );
-            return;
-        }
-
-        match self.settings.set_wireguard(None).await {
-            Ok(_) => {
-                self.set_target_state(TargetState::Unsecured).await;
-                Self::oneshot_send(tx, Ok(()), "clear_account_history response");
-            }
-            Err(err) => {
-                log::error!(
-                    "{}",
-                    err.display_chain_with_msg("Failed to clear account history")
-                );
-                Self::oneshot_send(
-                    tx,
-                    Err(Error::SettingsError(err)),
-                    "clear_account_history response",
-                );
             }
         }
     }

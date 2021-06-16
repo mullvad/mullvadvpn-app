@@ -8,14 +8,14 @@ export type LoginState =
   | { type: 'failed'; method: LoginMethod; error: Error };
 export interface IAccountReduxState {
   accountToken?: AccountToken;
-  accountHistory: AccountToken[];
+  accountHistory?: AccountToken;
   expiry?: string; // ISO8601
   status: LoginState;
 }
 
 const initialState: IAccountReduxState = {
   accountToken: undefined,
-  accountHistory: [],
+  accountHistory: undefined,
   expiry: undefined,
   status: { type: 'none' },
 };

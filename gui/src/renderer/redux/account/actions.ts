@@ -44,7 +44,7 @@ interface IUpdateAccountTokenAction {
 
 interface IUpdateAccountHistoryAction {
   type: 'UPDATE_ACCOUNT_HISTORY';
-  accountHistory: AccountToken[];
+  accountHistory?: AccountToken;
 }
 
 interface IUpdateAccountExpiryAction {
@@ -125,7 +125,7 @@ function updateAccountToken(token: AccountToken): IUpdateAccountTokenAction {
   };
 }
 
-function updateAccountHistory(accountHistory: AccountToken[]): IUpdateAccountHistoryAction {
+function updateAccountHistory(accountHistory?: AccountToken): IUpdateAccountHistoryAction {
   return {
     type: 'UPDATE_ACCOUNT_HISTORY',
     accountHistory,
