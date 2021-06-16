@@ -1594,6 +1594,7 @@ where
 
     // Remove the key associated with the current account, if there is one.
     // This does not modify settings or account history.
+    #[cfg(not(target_os = "android"))]
     fn remove_current_key_rpc(&self) -> impl std::future::Future<Output = Result<(), Error>> {
         let remove_key = if let Some(token) = self.settings.get_account_token() {
             if let Some(wg_data) = self.settings.get_wireguard() {

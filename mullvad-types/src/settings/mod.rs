@@ -38,6 +38,7 @@ pub enum Error {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct Settings {
     account_token: Option<String>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
     wireguard: Option<wireguard::WireguardData>,
     relay_settings: RelaySettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
