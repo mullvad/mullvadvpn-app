@@ -418,13 +418,13 @@ export class DaemonRpc {
     }
   }
 
-  public async getAccountHistory(): Promise<AccountToken[]> {
-    const response = await this.callEmpty<grpcTypes.AccountHistory>(this.client.getAccountHistory);
-    return response.toObject().tokenList;
+  public async getAccountHistory(): Promise<AccountToken> {
+    const response = await this.callEmpty<StringValue>(this.client.getAccountHistory);
+    return response.getValue();
   }
 
-  public async removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
-    await this.callString(this.client.removeAccountFromHistory, accountToken);
+  public async clearAccountHistory(): Promise<void> {
+    await this.callEmpty(this.client.clearAccountHistory);
   }
 
   public async getCurrentVersion(): Promise<string> {

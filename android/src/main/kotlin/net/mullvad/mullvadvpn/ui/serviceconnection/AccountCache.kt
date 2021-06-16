@@ -11,7 +11,7 @@ import org.joda.time.DateTime
 class AccountCache(private val connection: Messenger, eventDispatcher: EventDispatcher) {
     val onAccountNumberChange = EventNotifier<String?>(null)
     val onAccountExpiryChange = EventNotifier<DateTime?>(null)
-    val onAccountHistoryChange = EventNotifier<List<String>>(listOf<String>())
+    val onAccountHistoryChange = EventNotifier<String?>(null)
     val onLoginStatusChange = EventNotifier<LoginStatus?>(null)
 
     private var accountHistory by onAccountHistoryChange.notifiable()
@@ -20,7 +20,7 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
     init {
         eventDispatcher.apply {
             registerHandler(Event.AccountHistory::class) { event ->
-                accountHistory = event.history ?: listOf<String>()
+                accountHistory = event.history
             }
 
             registerHandler(Event.LoginStatus::class) { event ->
@@ -54,8 +54,8 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
         connection.send(request.message)
     }
 
-    fun removeAccountFromHistory(account: String) {
-        connection.send(Request.RemoveAccountFromHistory(account).message)
+    fun clearAccountHistory() {
+        connection.send(Request.ClearAccountHistory.message)
     }
 
     fun onDestroy() {

@@ -14,12 +14,12 @@ class AccountHistoryAdapter : Adapter<AccountHistoryHolder>() {
         }
     }
 
-    var accountHistory by observable(listOf<String>()) { _, _, _ ->
+    var accountHistory by observable<String?>(null) { _, _, _ ->
         notifyDataSetChanged()
     }
 
     var onSelectEntry: ((String) -> Unit)? = null
-    var onRemoveEntry: ((String) -> Unit)? = null
+    var onRemoveEntry: (() -> Unit)? = null
     var onChildFocusChanged: ((String, Boolean) -> Unit)? = null
 
     override fun onCreateViewHolder(parentView: ViewGroup, type: Int): AccountHistoryHolder {
@@ -28,14 +28,14 @@ class AccountHistoryAdapter : Adapter<AccountHistoryHolder>() {
 
         return AccountHistoryHolder(view, formatter).apply {
             onSelect = { account -> onSelectEntry?.invoke(account) }
-            onRemove = { account -> onRemoveEntry?.invoke(account) }
+            onRemove = { _ -> onRemoveEntry?.invoke() }
             onFocusChanged = { account, hasFocus -> onChildFocusChanged?.invoke(account, hasFocus) }
         }
     }
 
     override fun onBindViewHolder(holder: AccountHistoryHolder, position: Int) {
-        holder.accountToken = accountHistory[position]
+        holder.accountToken = accountHistory ?: ""
     }
 
-    override fun getItemCount() = accountHistory.size
+    override fun getItemCount() = if (accountHistory !== null) 1 else 0
 }
