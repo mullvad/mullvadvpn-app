@@ -1,3 +1,5 @@
+import { Action } from 'history';
+
 export interface ITransitionDescriptor {
   name: string;
   duration: number;
@@ -16,15 +18,19 @@ export interface ITransitionMatch {
 export default class TransitionRule {
   constructor(private from: string | null, private to: string, private fork: ITransitionFork) {}
 
-  public match(fromRoute: string | null, toRoute: string): ITransitionMatch | null {
-    if ((!this.from || this.from === fromRoute) && this.to === toRoute) {
+  public match(
+    fromRoute: string | null,
+    toRoute: string,
+    action?: Action,
+  ): ITransitionMatch | null {
+    if (action !== 'POP' && (!this.from || this.from === fromRoute) && this.to === toRoute) {
       return {
         direction: 'forward',
         descriptor: this.fork.forward,
       };
     }
 
-    if ((!this.from || this.from === toRoute) && this.to === fromRoute) {
+    if (action !== 'PUSH' && (!this.from || this.from === toRoute) && this.to === fromRoute) {
       return {
         direction: 'backward',
         descriptor: this.fork.backward,
