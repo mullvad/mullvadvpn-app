@@ -7,7 +7,9 @@ import { links, colors } from '../../config.json';
 import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
+import useActions from '../lib/actionsHook';
 import History from '../lib/history';
+import account from '../redux/account/actions';
 import { IReduxState } from '../redux/store';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
@@ -127,7 +129,8 @@ interface ITimeAddedProps {
 }
 
 export function TimeAdded(props: ITimeAddedProps) {
-  const history = useHistory() as History;
+  const history = useHistory();
+  const finish = useFinishedCallback();
   const accountData = useSelector((state: IReduxState) => state.account);
   const isNewAccount = useSelector(
     (state: IReduxState) =>
@@ -138,9 +141,9 @@ export function TimeAdded(props: ITimeAddedProps) {
     if (isNewAccount) {
       history.push('/main/setup-finished');
     } else {
-      history.resetTo('/main');
+      finish();
     }
-  }, [history]);
+  }, [history, finish]);
 
   const duration =
     (accountData.expiry &&
@@ -180,12 +183,8 @@ export function TimeAdded(props: ITimeAddedProps) {
 }
 
 export function SetupFinished() {
-  const history = useHistory() as History;
+  const finish = useFinishedCallback();
   const { openUrl } = useAppContext();
-
-  const navigateToMain = useCallback(() => {
-    history.resetWith('/main');
-  }, [history]);
 
   const openPrivacyLink = useCallback(() => openUrl(links.privacyGuide), [openUrl]);
 
@@ -229,7 +228,7 @@ export function SetupFinished() {
                   </AppButton.BlueButton>
                 </AriaDescribed>
               </AriaDescriptionGroup>
-              <AppButton.GreenButton onClick={navigateToMain}>
+              <AppButton.GreenButton onClick={finish}>
                 {messages.pgettext('connect-view', 'Start using the app')}
               </AppButton.GreenButton>
             </AppButton.ButtonGroup>
@@ -251,4 +250,25 @@ function HeaderBar() {
     : calculateHeaderBarStyle(tunnelState);
 
   return <StyledHeader barStyle={headerBarStyle} />;
+}
+
+function useFinishedCallback() {
+  const { loggedIn } = useActions(account);
+
+  const history = useHistory() as History;
+  const isNewAccount = useSelector(
+    (state: IReduxState) =>
+      state.account.status.type === 'ok' && state.account.status.method === 'new_account',
+  );
+
+  const callback = useCallback(() => {
+    // Changes login method from "new_account" to "existing_account"
+    if (isNewAccount) {
+      loggedIn();
+    }
+
+    history.resetWith('/main');
+  }, [isNewAccount, loggedIn, history]);
+
+  return callback;
 }

@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
-import { hasExpired } from '../../shared/account-expiry';
 import { AccountToken, TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { LoginState } from '../redux/account/reducers';
@@ -39,10 +38,8 @@ interface IExpiredAccountErrorViewProps {
   isBlocked: boolean;
   blockWhenDisconnected: boolean;
   accountToken?: AccountToken;
-  accountExpiry?: string;
   loginState: LoginState;
   tunnelState: TunnelState;
-  hideWelcomeView: () => void;
   onExternalLinkWithAuth: (url: string) => Promise<void>;
   onDisconnect: () => Promise<void>;
   setBlockWhenDisconnected: (value: boolean) => void;
@@ -60,12 +57,6 @@ export default class ExpiredAccountErrorView extends React.Component<
   public state: IExpiredAccountErrorViewState = {
     showBlockWhenDisconnectedAlert: false,
   };
-
-  public componentDidUpdate() {
-    if (this.props.accountExpiry && !hasExpired(this.props.accountExpiry)) {
-      this.props.hideWelcomeView();
-    }
-  }
 
   public render() {
     const headerBarStyle =
