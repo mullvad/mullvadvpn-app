@@ -100,7 +100,7 @@ export function VoucherInput() {
               <StyledTitle>{messages.pgettext('connect-view', 'Redeem voucher')}</StyledTitle>
               <StyledLabel>{messages.pgettext('connect-view', 'Enter voucher code')}</StyledLabel>
               <StyledRedeemVoucherInput />
-              <RedeemVoucherResponse disableSuccessMessage />
+              <RedeemVoucherResponse />
             </StyledBody>
 
             <StyledFooter>
@@ -120,7 +120,9 @@ export function VoucherInput() {
 
 export function VoucherVerificationSuccess() {
   return (
-    <TimeAdded title={messages.pgettext('connect-view', 'Voucher was successfully redeemed')} />
+    <TimeAdded
+      title={messages.pgettext('redeem-voucher-view', 'Voucher was successfully redeemed')}
+    />
   );
 }
 
