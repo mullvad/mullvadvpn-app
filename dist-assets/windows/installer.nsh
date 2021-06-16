@@ -569,25 +569,25 @@
 !define ClearFirewallRules '!insertmacro "ClearFirewallRules"'
 
 #
-# ClearAccountHistory
+# RemoveWireGuardKey
 #
-# Removes account history and any associated keys
+# Remove the WireGuard key from the account, if there is one
 #
-!macro ClearAccountHistory
+!macro RemoveWireGuardKey
 
-	log::Log "ClearAccountHistory()"
+	log::Log "RemoveWireGuardKey()"
 
 	Push $0
 	Push $1
 
-	nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" clear-history'
+	nsExec::ExecToStack '"$TEMP\mullvad-setup.exe" remove-wireguard-key'
 	Pop $0
 	Pop $1
 
 	${If} $0 != ${MVSETUP_OK}
-		log::LogWithDetails "ClearAccountHistory() failed" $1
+		log::LogWithDetails "RemoveWireGuardKey() failed" $1
 	${Else}
-		log::Log "ClearAccountHistory() completed successfully"
+		log::Log "RemoveWireGuardKey() completed successfully"
 	${EndIf}
 
 	Pop $1
@@ -595,7 +595,7 @@
 
 !macroend
 
-!define ClearAccountHistory '!insertmacro "ClearAccountHistory"'
+!define RemoveWireGuardKey '!insertmacro "RemoveWireGuardKey"'
 
 
 #
@@ -1000,7 +1000,7 @@
 
 	${If} $FullUninstall == 1
 		${ClearFirewallRules}
-		${ClearAccountHistory}
+		${RemoveWireGuardKey}
 
 		${ExtractWintun}
 		${RemoveWintun}
