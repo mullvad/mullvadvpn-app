@@ -14,7 +14,7 @@ class AccountHistoryAdapter : Adapter<AccountHistoryHolder>() {
         }
     }
 
-    var accountHistory by observable(listOf<String>()) { _, _, _ ->
+    var accountHistory by observable<String?>(null) { _, _, _ ->
         notifyDataSetChanged()
     }
 
@@ -34,8 +34,8 @@ class AccountHistoryAdapter : Adapter<AccountHistoryHolder>() {
     }
 
     override fun onBindViewHolder(holder: AccountHistoryHolder, position: Int) {
-        holder.accountToken = accountHistory[position]
+        holder.accountToken = accountHistory ?: ""
     }
 
-    override fun getItemCount() = accountHistory.size
+    override fun getItemCount() = if (accountHistory !== null) 1 else 0
 }

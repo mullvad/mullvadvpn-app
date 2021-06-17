@@ -44,7 +44,7 @@ export interface IAppStateSnapshot {
   isConnected: boolean;
   autoStart: boolean;
   accountData?: IAccountData;
-  accountHistory: AccountToken[];
+  accountHistory?: AccountToken;
   tunnelState: TunnelState;
   settings: ISettings;
   location?: ILocation;
@@ -165,7 +165,7 @@ export const ipcSchema = {
     submitVoucher: invoke<string, VoucherResponse>(),
   },
   accountHistory: {
-    '': notifyRenderer<AccountToken[]>(),
+    '': notifyRenderer<AccountToken>(),
     removeItem: invoke<AccountToken, void>(),
   },
   autoStart: {
@@ -183,7 +183,7 @@ export const ipcSchema = {
     launchApplication: invoke<ILinuxSplitTunnelingApplication | string, LaunchApplicationResult>(),
   },
   problemReport: {
-    collectLogs: invoke<string[], string>(),
+    collectLogs: invoke<string | undefined, string>(),
     sendReport: invoke<{ email: string; message: string; savedReportId: string }, void>(),
     viewLog: invoke<string, string>(),
   },

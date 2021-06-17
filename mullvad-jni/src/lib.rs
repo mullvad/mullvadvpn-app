@@ -510,13 +510,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_getAcco
         Some(daemon_interface) => daemon_interface
             .get_account_history()
             .map(|history| history.into_java(&env).forget())
-            .unwrap_or_else(|err| {
-                log::error!(
-                    "{}",
-                    err.display_chain_with_msg("Failed to get account history")
-                );
-                JObject::null()
-            }),
+            .unwrap_or(JObject::null()),
         None => JObject::null(),
     }
 }

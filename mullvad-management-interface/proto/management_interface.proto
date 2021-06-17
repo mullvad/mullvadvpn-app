@@ -46,7 +46,7 @@ service ManagementService {
 	rpc CreateNewAccount(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
 	rpc SetAccount(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 	rpc GetAccountData(google.protobuf.StringValue) returns (AccountData) {}
-	rpc GetAccountHistory(google.protobuf.Empty) returns (AccountHistory) {}
+	rpc GetAccountHistory(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
 	rpc RemoveAccountFromHistory(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 	rpc GetWwwAuthToken(google.protobuf.Empty) returns (google.protobuf.StringValue) {}
 	rpc SubmitVoucher(google.protobuf.StringValue) returns (VoucherSubmission) {}
@@ -198,10 +198,6 @@ message GeoIpLocation {
 	bool mullvad_exit_ip = 7;
 	string hostname = 8;
 	string bridge_hostname = 9;
-}
-
-message AccountHistory {
-	repeated string token = 1;
 }
 
 message BridgeSettings {

@@ -49,13 +49,13 @@ interface ISupportState {
 interface ISupportProps {
   defaultEmail: string;
   defaultMessage: string;
-  accountHistory: AccountToken[];
+  account?: AccountToken;
   isOffline: boolean;
   onClose: () => void;
   viewLog: (path: string) => void;
   saveReportForm: (form: ISupportReportForm) => void;
   clearReportForm: () => void;
-  collectProblemReport: (accountsToRedact: string[]) => Promise<string>;
+  collectProblemReport: (accountToRedact?: string) => Promise<string>;
   sendProblemReport: (email: string, message: string, savedReportId: string) => Promise<void>;
   outdatedVersion: boolean;
   suggestedIsBeta: boolean;
@@ -193,7 +193,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     if (this.collectLogPromise) {
       return this.collectLogPromise;
     } else {
-      const collectPromise = this.props.collectProblemReport(this.props.accountHistory);
+      const collectPromise = this.props.collectProblemReport(this.props.account);
 
       // save promise to prevent subsequent requests
       this.collectLogPromise = collectPromise;

@@ -36,7 +36,7 @@ import { AriaControlGroup, AriaControlled, AriaControls } from './AriaGroup';
 
 interface IProps {
   accountToken?: AccountToken;
-  accountHistory: AccountToken[];
+  accountHistory?: AccountToken;
   loginState: LoginState;
   openExternalLink: (type: string) => void;
   login: (accountToken: AccountToken) => void;
@@ -208,7 +208,7 @@ export default class Login extends React.Component<IProps, IState> {
   }
 
   private shouldShowAccountHistory() {
-    return this.allowInteraction() && this.state.isActive && this.props.accountHistory.length > 0;
+    return this.allowInteraction() && this.state.isActive && !!this.props.accountHistory;
   }
 
   private shouldShowFooter() {
@@ -288,7 +288,7 @@ export default class Login extends React.Component<IProps, IState> {
           <Accordion expanded={this.shouldShowAccountHistory()}>
             <StyledAccountDropdownContainer>
               <AccountDropdown
-                items={this.props.accountHistory.slice().reverse()}
+                item={this.props.accountHistory!}
                 onSelect={this.onSelectAccountFromHistory}
                 onRemove={this.onRemoveAccountFromHistory}
               />
@@ -316,27 +316,23 @@ export default class Login extends React.Component<IProps, IState> {
 }
 
 interface IAccountDropdownProps {
-  items: AccountToken[];
+  item: AccountToken;
   onSelect: (value: AccountToken) => void;
   onRemove: (value: AccountToken) => void;
 }
 
 function AccountDropdown(props: IAccountDropdownProps) {
-  const uniqueItems = [...new Set(props.items)];
+  const token = props.item;
+  const label = formatAccountToken(token);
   return (
     <>
-      {uniqueItems.map((token) => {
-        const label = formatAccountToken(token);
-        return (
-          <AccountDropdownItem
-            key={token}
-            value={token}
-            label={label}
-            onSelect={props.onSelect}
-            onRemove={props.onRemove}
-          />
-        );
-      })}
+      <AccountDropdownItem
+        key={token}
+        value={token}
+        label={label}
+        onSelect={props.onSelect}
+        onRemove={props.onRemove}
+      />
     </>
   );
 }

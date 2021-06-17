@@ -198,7 +198,7 @@ pub enum DaemonCommand {
     /// Submit voucher to add time to the current account. Returns time added in seconds
     SubmitVoucher(ResponseTx<VoucherSubmission, Error>, String),
     /// Request account history
-    GetAccountHistory(oneshot::Sender<Vec<AccountToken>>),
+    GetAccountHistory(oneshot::Sender<Option<AccountToken>>),
     /// Request account history
     RemoveAccountFromHistory(ResponseTx<(), Error>, AccountToken),
     /// Get the list of countries and cities where there are relays.
@@ -1556,13 +1556,10 @@ where
         Ok(account_changed)
     }
 
-    fn on_get_account_history(&mut self, tx: oneshot::Sender<Vec<AccountToken>>) {
+    fn on_get_account_history(&mut self, tx: oneshot::Sender<Option<AccountToken>>) {
         Self::oneshot_send(
             tx,
-            self.account_history
-                .get()
-                .map(|token| vec![token])
-                .unwrap_or(vec![]),
+            self.account_history.get(),
             "get_account_history response",
         );
     }

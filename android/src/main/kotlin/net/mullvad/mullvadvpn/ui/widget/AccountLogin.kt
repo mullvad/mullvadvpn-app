@@ -99,13 +99,12 @@ class AccountLogin : RelativeLayout {
     val hasFocus
         get() = focused
 
-    var accountHistory by observable<List<String>?>(null) { _, _, history ->
-        val entryCount = history?.size ?: 0
-
-        historyHeight = entryCount * (historyEntryHeight + dividerHeight)
-
+    var accountHistory by observable<String?>(null) { _, _, history ->
         if (history != null) {
+            historyHeight = historyEntryHeight + dividerHeight
             historyAdapter.accountHistory = history
+        } else {
+            historyHeight = 0
         }
     }
 

@@ -1,7 +1,7 @@
 use futures::{channel::oneshot, executor::block_on};
 use mullvad_daemon::{DaemonCommand, DaemonCommandSender};
 use mullvad_types::{
-    account::{AccountData, VoucherSubmission},
+    account::{AccountData, AccountToken, VoucherSubmission},
     location::GeoIpLocation,
     relay_constraints::RelaySettingsUpdate,
     relay_list::RelayList,
@@ -99,7 +99,7 @@ impl DaemonInterface {
             .map_err(Error::RpcError)
     }
 
-    pub fn get_account_history(&self) -> Result<Vec<String>> {
+    pub fn get_account_history(&self) -> Result<Option<AccountToken>> {
         let (tx, rx) = oneshot::channel();
 
         self.send_command(DaemonCommand::GetAccountHistory(tx))?;
