@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Changed
 - Only use the account history file to store the last used account.
+- Updated the out of time-view and new account-view to make it more user friendly.
 
 ### Fixed
 - Fix link to download page not always using the beta URL when it should.
