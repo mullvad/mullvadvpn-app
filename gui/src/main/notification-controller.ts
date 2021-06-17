@@ -123,7 +123,7 @@ export default class NotificationController {
         notification.on('action', () => this.performAction(systemNotification.action));
       }
       notification.on('click', () => this.notificationControllerDelegate.openApp());
-    } else {
+    } else if (!(process.platform === 'win32' && systemNotification.critical)) {
       if (systemNotification.action) {
         notification.on('click', () => this.performAction(systemNotification.action));
       } else {
