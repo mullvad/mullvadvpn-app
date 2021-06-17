@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
-import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import accountActions from '../redux/account/actions';
@@ -60,7 +59,6 @@ interface IRedeemVoucherProps {
 export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
   const { onSubmit, onSuccess, onFailure } = props;
 
-  const closeScheduler = useScheduler();
   const { submitVoucher } = useAppContext();
   const { updateAccountExpiry } = useActions(accountActions);
 
@@ -89,9 +87,7 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
     setSubmitting(false);
     setResponse(response);
     if (response.type === 'success') {
-      closeScheduler.schedule(() => {
-        onSuccess?.();
-      }, 1000);
+      onSuccess?.();
     } else {
       onFailure?.();
     }
