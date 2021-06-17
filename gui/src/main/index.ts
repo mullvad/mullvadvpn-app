@@ -892,10 +892,13 @@ class ApplicationMain {
     const suggestedIsBeta =
       latestVersionInfo.suggestedUpgrade !== undefined &&
       IS_BETA.test(latestVersionInfo.suggestedUpgrade);
-    this.upgradeVersion = {
+
+    const upgradeVersion = {
       ...latestVersionInfo,
       suggestedIsBeta,
     };
+
+    this.upgradeVersion = upgradeVersion;
 
     // notify user to update the app if it became unsupported
     const notificationProviders = [
@@ -918,10 +921,7 @@ class ApplicationMain {
     }
 
     if (this.windowController) {
-      IpcMainEventChannel.upgradeVersion.notify(
-        this.windowController.webContents,
-        latestVersionInfo,
-      );
+      IpcMainEventChannel.upgradeVersion.notify(this.windowController.webContents, upgradeVersion);
     }
   }
 
