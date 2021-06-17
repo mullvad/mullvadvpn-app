@@ -9,8 +9,6 @@
 import UIKit
 import Logging
 
-private let kMinimumAccountTokenLength = 10
-
 enum AuthenticationMethod {
     case existingAccount, newAccount
 }
@@ -91,7 +89,15 @@ class LoginViewController: UIViewController, RootContainment {
             contentView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
 
-        contentView.accountTextField.onReturnKey = { [weak self] _ in
+        contentView.accountInputGroup.onSendButton = { [weak self] _ in
+            guard let self = self else { return }
+
+            if self.canBeginLogin() {
+                self.doLogin()
+            }
+        }
+
+        contentView.accountInputGroup.setOnReturnKey { [weak self] _ in
             guard let self = self else { return true }
 
             if self.canBeginLogin() {
@@ -105,9 +111,9 @@ class LoginViewController: UIViewController, RootContainment {
         // There is no need to set the input accessory toolbar on iPad since it has a dedicated
         // button to dismiss the keyboard.
         if case .phone = UIDevice.current.userInterfaceIdiom {
-            contentView.accountTextField.inputAccessoryView = self.accountInputAccessoryToolbar
+            contentView.accountInputGroup.textField.inputAccessoryView = self.accountInputAccessoryToolbar
         } else {
-            contentView.accountTextField.inputAccessoryView = nil
+            contentView.accountInputGroup.textField.inputAccessoryView = nil
         }
 
         updateDisplayedMessage()
@@ -121,7 +127,7 @@ class LoginViewController: UIViewController, RootContainment {
         notificationCenter.addObserver(self,
                                        selector: #selector(textDidChange(_:)),
                                        name: UITextField.textDidChangeNotification,
-                                       object: contentView.accountTextField)
+                                       object: contentView.accountInputGroup.textField)
     }
 
     override var disablesAutomaticKeyboardDismissal: Bool {
@@ -133,7 +139,7 @@ class LoginViewController: UIViewController, RootContainment {
 
     func reset() {
         loginState = .default
-        contentView.accountTextField.autoformattingText = ""
+        contentView.accountInputGroup.clearToken()
         updateKeyboardToolbar()
     }
 
@@ -156,7 +162,7 @@ class LoginViewController: UIViewController, RootContainment {
     }
 
     @objc func doLogin() {
-        let accountToken = contentView.accountTextField.parsedToken
+        let accountToken = contentView.accountInputGroup.parsedToken
 
         beginLogin(method: .existingAccount)
         self.delegate?.loginViewController(self, loginWithAccountToken: accountToken, completion: { [weak self] (result) in
@@ -172,13 +178,13 @@ class LoginViewController: UIViewController, RootContainment {
     @objc func createNewAccount() {
         beginLogin(method: .newAccount)
 
-        contentView.accountTextField.autoformattingText = ""
+        contentView.accountInputGroup.clearToken()
         updateKeyboardToolbar()
 
         self.delegate?.loginViewControllerLoginWithNewAccount(self, completion: { [weak self] (result) in
             switch result {
             case .success(let response):
-                self?.contentView.accountTextField.autoformattingText = response.token
+                self?.contentView.accountInputGroup.setToken(response.token)
                 self?.endLogin(.success(.newAccount))
             case .failure(let error):
                 self?.endLogin(.failure(error))
@@ -189,7 +195,7 @@ class LoginViewController: UIViewController, RootContainment {
     // MARK: - Private
 
     private func loginStateDidChange() {
-        contentView.accountInputGroup.loginState = loginState
+        contentView.accountInputGroup.setLoginState(loginState, animated: true)
 
         // Keep the settings button disabled to prevent user from going to settings while
         // authentication or during the delay after the successful login and transition to the main
@@ -235,9 +241,8 @@ class LoginViewController: UIViewController, RootContainment {
 
         loginState = nextLoginState
 
-        if case .authenticating(.existingAccount) = oldLoginState,
-            case .failure = loginState {
-            contentView.accountTextField.becomeFirstResponder()
+        if case .authenticating(.existingAccount) = oldLoginState, case .failure = loginState {
+            contentView.accountInputGroup.textField.becomeFirstResponder()
         } else if case .success = loginState {
             // Navigate to the main view after 1s delay
             DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
@@ -253,12 +258,10 @@ class LoginViewController: UIViewController, RootContainment {
 
     private func updateKeyboardToolbar() {
         accountInputAccessoryLoginButton.isEnabled = canBeginLogin()
-        contentView.accountTextField.enableReturnKey = canBeginLogin()
     }
 
     private func canBeginLogin() -> Bool {
-        let accountTokenLength = contentView.accountTextField.parsedToken.count
-        return accountTokenLength >= kMinimumAccountTokenLength
+        return contentView.accountInputGroup.satisfiesMinimumTokenLengthRequirement
     }
 }
 
