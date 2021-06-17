@@ -1,3 +1,4 @@
+use crate::settings::SettingsPersister;
 use mullvad_types::{account::AccountToken, wireguard::WireguardData};
 use regex::Regex;
 use std::{
@@ -31,7 +32,6 @@ static ACCOUNT_HISTORY_FILE: &str = "account-history.json";
 pub struct AccountHistory {
     file: Arc<Mutex<io::BufWriter<fs::File>>>,
     token: Option<AccountToken>,
-    migrated_wg_data: Option<WireguardData>,
 }
 
 lazy_static::lazy_static! {
@@ -40,10 +40,13 @@ lazy_static::lazy_static! {
 
 
 impl AccountHistory {
-    pub async fn new(cache_dir: &Path, settings_dir: &Path) -> Result<AccountHistory> {
+    pub async fn new(
+        cache_dir: &Path,
+        settings_dir: &Path,
+        settings: &mut SettingsPersister,
+    ) -> Result<AccountHistory> {
         Self::migrate_from_old_file_location(cache_dir, settings_dir).await;
 
-        let mut migrated_wg_data = None;
         let mut options = fs::OpenOptions::new();
         #[cfg(unix)]
         {
@@ -74,7 +77,14 @@ impl AccountHistory {
                     log::warn!("Failed to parse account history. Trying old formats",);
                     match Self::try_format_v2(&mut reader)? {
                         Some((token, migrated_data)) => {
-                            migrated_wg_data = migrated_data;
+                            if let Err(error) = settings.set_wireguard(migrated_data).await {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg(
+                                        "Failed to migrate WireGuard key from account history"
+                                    )
+                                );
+                            }
                             Some(token)
                         }
                         None => Self::try_format_v1(&mut reader)?,
@@ -98,7 +108,6 @@ impl AccountHistory {
         let mut history = AccountHistory {
             file: Arc::new(Mutex::new(file)),
             token,
-            migrated_wg_data,
         };
         if let Err(e) = history.save_to_disk().await {
             log::error!("Failed to save account cache after opening it: {}", e);
@@ -187,10 +196,5 @@ impl AccountHistory {
         })
         .await
         .map_err(Error::WriteCancelled)?
-    }
-
-    /// Take WG data read from V2 account history format.
-    pub fn take_migrated_wg_data(&mut self) -> Option<WireguardData> {
-        self.migrated_wg_data.take()
     }
 }

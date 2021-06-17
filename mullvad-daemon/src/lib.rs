@@ -580,19 +580,10 @@ where
             settings.show_beta_releases,
         );
         tokio::spawn(version_updater.run());
-        let mut account_history = account_history::AccountHistory::new(&cache_dir, &settings_dir)
-            .await
-            .map_err(Error::LoadAccountHistory)?;
-        if let Some(migrated_wg_data) = account_history.take_migrated_wg_data() {
-            if let Err(error) = settings.set_wireguard(Some(migrated_wg_data)).await {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg(
-                        "Failed to migrate WireGuard key from account history"
-                    )
-                );
-            }
-        }
+        let account_history =
+            account_history::AccountHistory::new(&cache_dir, &settings_dir, &mut settings)
+                .await
+                .map_err(Error::LoadAccountHistory)?;
 
         // Restore the tunnel to a previous state
         let target_cache = cache_dir.join(TARGET_START_STATE_FILE);
