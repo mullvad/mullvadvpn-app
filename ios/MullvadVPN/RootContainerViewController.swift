@@ -66,6 +66,8 @@ class RootContainerViewController: UIViewController {
 
     private(set) var viewControllers = [UIViewController]()
 
+    private var appearingController: UIViewController?
+    private var disappearingController: UIViewController?
     private var interfaceOrientationMask: UIInterfaceOrientationMask?
 
     var topViewController: UIViewController? {
@@ -122,25 +124,33 @@ class RootContainerViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        topViewController?.beginAppearanceTransition(true, animated: animated)
+        if let childController = topViewController {
+            beginChildControllerTransition(childController, isAppearing: true, animated: animated)
+        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        topViewController?.endAppearanceTransition()
+        if let childController = topViewController {
+            endChildControllerTransition(childController)
+        }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
-        topViewController?.beginAppearanceTransition(false, animated: animated)
+        if let childController = topViewController {
+            beginChildControllerTransition(childController, isAppearing: false, animated: animated)
+        }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
 
-        topViewController?.endAppearanceTransition()
+        if let childController = topViewController {
+            endChildControllerTransition(childController)
+        }
     }
 
     // MARK: - Autorotation
@@ -333,9 +343,12 @@ class RootContainerViewController: UIViewController {
 
             // Finish appearance transition
             if shouldHandleAppearanceEvents {
-                sourceViewController?.endAppearanceTransition()
-                if sourceViewController != targetViewController {
-                    targetViewController?.endAppearanceTransition()
+                if let sourceViewController = sourceViewController {
+                    self.endChildControllerTransition(sourceViewController)
+                }
+
+                if let targetViewController = targetViewController, sourceViewController != targetViewController {
+                    self.endChildControllerTransition(targetViewController)
                 }
             }
 
@@ -378,9 +391,11 @@ class RootContainerViewController: UIViewController {
 
         // Begin appearance transition
         if shouldHandleAppearanceEvents {
-            sourceViewController?.beginAppearanceTransition(false, animated: shouldAnimate)
-            if sourceViewController != targetViewController {
-                targetViewController?.beginAppearanceTransition(true, animated: shouldAnimate)
+            if let sourceViewController = sourceViewController {
+                beginChildControllerTransition(sourceViewController, isAppearing: false, animated: shouldAnimate)
+            }
+            if let targetViewController = targetViewController, sourceViewController != targetViewController {
+                beginChildControllerTransition(targetViewController, isAppearing: true, animated: shouldAnimate)
             }
         }
 
@@ -502,6 +517,30 @@ class RootContainerViewController: UIViewController {
             if attemptRotateToDeviceOrientation {
                 Self.attemptRotationToDeviceOrientation()
             }
+        }
+    }
+
+    private func beginChildControllerTransition(_ controller: UIViewController, isAppearing: Bool, animated: Bool) {
+        if appearingController != controller, isAppearing {
+            appearingController = controller
+            controller.beginAppearanceTransition(isAppearing, animated: animated)
+        }
+
+        if disappearingController != controller, !isAppearing {
+            disappearingController = controller
+            controller.beginAppearanceTransition(isAppearing, animated: animated)
+        }
+    }
+
+    private func endChildControllerTransition(_ controller: UIViewController) {
+        if controller == appearingController {
+            appearingController = nil
+            controller.endAppearanceTransition()
+        }
+
+        if controller == disappearingController {
+            disappearingController = nil
+            controller.endAppearanceTransition()
         }
     }
 
