@@ -34,10 +34,6 @@ class LoginContentView: UIView {
         return inputGroup
     }()
 
-    var accountTextField: AccountTextField {
-        return accountInputGroup.textField
-    }
-
     let statusImageView: StatusImageView = {
         let imageView = StatusImageView(style: .failure)
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -99,7 +95,7 @@ class LoginContentView: UIView {
         backgroundColor = .primaryColor
         layoutMargins = UIMetrics.contentLayoutMargins
 
-        accountTextField.accessibilityIdentifier = "LoginTextField"
+        accountInputGroup.textField.accessibilityIdentifier = "LoginTextField"
 
         keyboardResponder = AutomaticKeyboardResponder(targetView: self, handler: { [weak self] (view, adjustment) in
             self?.contentContainerBottomConstraint?.constant = adjustment
