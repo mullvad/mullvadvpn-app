@@ -34,10 +34,21 @@ export const StyledResponse = styled.span({
   fontFamily: 'Open Sans',
   fontSize: '13px',
   lineHeight: '20px',
+  fontWeight: 800,
+  color: colors.white,
+});
+
+export const StyledProgressWrapper = styled.div({
+  display: 'flex',
+  alignItems: 'center',
+  marginTop: '8px',
+});
+
+export const StyledProgressResponse = styled(StyledResponse)({
+  marginTop: 0,
 });
 
 export const StyledErrorResponse = styled(StyledResponse)({
-  fontWeight: 800,
   color: colors.red,
 });
 
@@ -47,7 +58,7 @@ export const StyledEmptyResponse = styled.span({
 });
 
 export const StyledSpinner = styled(ImageView)({
-  marginTop: '8px',
+  marginRight: '8px',
 });
 
 export const StyledStatusIcon = styled.div({

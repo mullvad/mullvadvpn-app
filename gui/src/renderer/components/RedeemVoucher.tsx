@@ -16,6 +16,8 @@ import {
   StyledErrorResponse,
   StyledInput,
   StyledLabel,
+  StyledProgressResponse,
+  StyledProgressWrapper,
   StyledSpinner,
   StyledStatusIcon,
   StyledTitle,
@@ -153,7 +155,16 @@ export function RedeemVoucherResponse() {
   const { response, submitting } = useContext(RedeemVoucherContext);
 
   if (submitting) {
-    return <StyledSpinner source="icon-spinner" height={20} width={20} />;
+    return (
+      <>
+        <StyledProgressWrapper>
+          <StyledSpinner source="icon-spinner" height={20} width={20} />
+          <StyledProgressResponse>
+            {messages.pgettext('redeem-voucher-view', 'Verifying voucher...')}
+          </StyledProgressResponse>
+        </StyledProgressWrapper>
+      </>
+    );
   }
 
   if (response) {
