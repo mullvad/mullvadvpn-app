@@ -42,7 +42,7 @@ interface IProps {
   login: (accountToken: AccountToken) => void;
   resetLoginError: () => void;
   updateAccountToken: (accountToken: AccountToken) => void;
-  removeAccountTokenFromHistory: (accountToken: AccountToken) => Promise<void>;
+  clearAccountHistory: () => Promise<void>;
   createNewAccount: () => void;
 }
 
@@ -223,13 +223,13 @@ export default class Login extends React.Component<IProps, IState> {
     this.props.login(accountToken);
   };
 
-  private onRemoveAccountFromHistory = (accountToken: string) => {
-    consumePromise(this.removeAccountFromHistory(accountToken));
+  private onClearAccountHistory = () => {
+    consumePromise(this.clearAccountHistory());
   };
 
-  private async removeAccountFromHistory(accountToken: AccountToken) {
+  private async clearAccountHistory() {
     try {
-      await this.props.removeAccountTokenFromHistory(accountToken);
+      await this.props.clearAccountHistory();
 
       // TODO: Remove account from memory
     } catch (error) {
@@ -290,7 +290,7 @@ export default class Login extends React.Component<IProps, IState> {
               <AccountDropdown
                 item={this.props.accountHistory!}
                 onSelect={this.onSelectAccountFromHistory}
-                onRemove={this.onRemoveAccountFromHistory}
+                onRemove={this.onClearAccountHistory}
               />
             </StyledAccountDropdownContainer>
           </Accordion>

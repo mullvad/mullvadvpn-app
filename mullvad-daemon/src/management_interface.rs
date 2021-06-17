@@ -442,14 +442,10 @@ impl ManagementService for ManagementServiceImpl {
             .map(|history| Response::new(history.unwrap_or_default()))
     }
 
-    async fn remove_account_from_history(
-        &self,
-        request: Request<AccountToken>,
-    ) -> ServiceResult<()> {
-        log::debug!("remove_account_from_history");
-        let account_token = request.into_inner();
+    async fn clear_account_history(&self, _: Request<()>) -> ServiceResult<()> {
+        log::debug!("clear_account_history");
         let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::RemoveAccountFromHistory(tx, account_token))?;
+        self.send_command_to_daemon(DaemonCommand::ClearAccountHistory(tx))?;
         self.wait_for_result(rx)
             .await?
             .map(Response::new)

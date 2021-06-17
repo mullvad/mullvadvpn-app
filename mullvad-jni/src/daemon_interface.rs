@@ -175,10 +175,10 @@ impl DaemonInterface {
         Ok(())
     }
 
-    pub fn remove_account_from_history(&self, account_token: String) -> Result<()> {
+    pub fn clear_account_history(&self) -> Result<()> {
         let (tx, rx) = oneshot::channel();
 
-        self.send_command(DaemonCommand::RemoveAccountFromHistory(tx, account_token))?;
+        self.send_command(DaemonCommand::ClearAccountHistory(tx))?;
 
         block_on(rx)
             .map_err(|_| Error::NoResponse)?

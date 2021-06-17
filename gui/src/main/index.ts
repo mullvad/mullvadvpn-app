@@ -1128,8 +1128,8 @@ class ApplicationMain {
       this.daemonRpc.submitVoucher(voucherCode),
     );
 
-    IpcMainEventChannel.accountHistory.handleRemoveItem(async (token: AccountToken) => {
-      await this.daemonRpc.removeAccountFromHistory(token);
+    IpcMainEventChannel.accountHistory.handleClear(async () => {
+      await this.daemonRpc.clearAccountHistory();
       consumePromise(this.updateAccountHistory());
     });
 

@@ -54,8 +54,8 @@ class AccountCache(private val connection: Messenger, eventDispatcher: EventDisp
         connection.send(request.message)
     }
 
-    fun removeAccountFromHistory(account: String) {
-        connection.send(Request.RemoveAccountFromHistory(account).message)
+    fun clearAccountHistory() {
+        connection.send(Request.ClearAccountHistory.message)
     }
 
     fun onDestroy() {

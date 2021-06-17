@@ -104,10 +104,8 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
                 invalidateAccountExpiry(request.expiry)
             }
 
-            registerHandler(Request.RemoveAccountFromHistory::class) { request ->
-                request.account?.let { account ->
-                    removeAccountFromHistory(account)
-                }
+            registerHandler(Request.ClearAccountHistory::class) { _ ->
+                clearAccountHistory()
             }
         }
     }
@@ -162,9 +160,9 @@ class AccountCache(private val endpoint: ServiceEndpoint) {
         }
     }
 
-    private fun removeAccountFromHistory(accountToken: String) {
-        jobTracker.newBackgroundJob("removeAccountFromHistory $accountToken") {
-            daemon.await().removeAccountFromHistory(accountToken)
+    private fun clearAccountHistory() {
+        jobTracker.newBackgroundJob("clearAccountHistory") {
+            daemon.await().clearAccountHistory()
             fetchAccountHistory()
         }
     }

@@ -337,8 +337,8 @@ export default class AppRenderer {
     return IpcRendererEventChannel.settings.setDnsOptions(dns);
   }
 
-  public removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
-    return IpcRendererEventChannel.accountHistory.removeItem(accountToken);
+  public clearAccountHistory(): Promise<void> {
+    return IpcRendererEventChannel.accountHistory.clear();
   }
 
   public async openLinkWithAuth(link: string): Promise<void> {

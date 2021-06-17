@@ -25,7 +25,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
     },
     openExternalLink: (url: string) => props.app.openUrl(url),
     updateAccountToken,
-    removeAccountTokenFromHistory: (token: string) => props.app.removeAccountFromHistory(token),
+    clearAccountHistory: () => props.app.clearAccountHistory(),
     createNewAccount: () => consumePromise(props.app.createNewAccount()),
   };
 };

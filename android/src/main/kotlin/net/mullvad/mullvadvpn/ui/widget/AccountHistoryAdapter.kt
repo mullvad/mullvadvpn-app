@@ -19,7 +19,7 @@ class AccountHistoryAdapter : Adapter<AccountHistoryHolder>() {
     }
 
     var onSelectEntry: ((String) -> Unit)? = null
-    var onRemoveEntry: ((String) -> Unit)? = null
+    var onRemoveEntry: (() -> Unit)? = null
     var onChildFocusChanged: ((String, Boolean) -> Unit)? = null
 
     override fun onCreateViewHolder(parentView: ViewGroup, type: Int): AccountHistoryHolder {
@@ -28,7 +28,7 @@ class AccountHistoryAdapter : Adapter<AccountHistoryHolder>() {
 
         return AccountHistoryHolder(view, formatter).apply {
             onSelect = { account -> onSelectEntry?.invoke(account) }
-            onRemove = { account -> onRemoveEntry?.invoke(account) }
+            onRemove = { _ -> onRemoveEntry?.invoke() }
             onFocusChanged = { account, hasFocus -> onChildFocusChanged?.invoke(account, hasFocus) }
         }
     }

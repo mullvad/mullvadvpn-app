@@ -166,7 +166,7 @@ export const ipcSchema = {
   },
   accountHistory: {
     '': notifyRenderer<AccountToken>(),
-    removeItem: invoke<AccountToken, void>(),
+    clear: invoke<void, void>(),
   },
   autoStart: {
     '': notifyRenderer<boolean>(),
