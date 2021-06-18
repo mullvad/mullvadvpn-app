@@ -10,7 +10,7 @@ import supportActions from '../redux/support/actions';
 const mapStateToProps = (state: IReduxState) => ({
   defaultEmail: state.support.email,
   defaultMessage: state.support.message,
-  account: state.account.accountToken,
+  accountHistory: state.account.accountHistory,
   isOffline: state.connection.isBlocked,
   outdatedVersion: state.version.suggestedUpgrade ? true : false,
   suggestedIsBeta: state.version.suggestedIsBeta ?? false,
