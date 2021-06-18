@@ -49,7 +49,7 @@ interface ISupportState {
 interface ISupportProps {
   defaultEmail: string;
   defaultMessage: string;
-  account?: AccountToken;
+  accountHistory?: AccountToken;
   isOffline: boolean;
   onClose: () => void;
   viewLog: (path: string) => void;
@@ -193,7 +193,7 @@ export default class Support extends React.Component<ISupportProps, ISupportStat
     if (this.collectLogPromise) {
       return this.collectLogPromise;
     } else {
-      const collectPromise = this.props.collectProblemReport(this.props.account);
+      const collectPromise = this.props.collectProblemReport(this.props.accountHistory);
 
       // save promise to prevent subsequent requests
       this.collectLogPromise = collectPromise;

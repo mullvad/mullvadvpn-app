@@ -101,7 +101,7 @@ impl AccountHistory {
                     .create(true)
                     .open(path)
                     .map_err(Error::Read)?,
-                None,
+                settings.get_account_token(),
             )
         };
         let file = io::BufWriter::new(file);
