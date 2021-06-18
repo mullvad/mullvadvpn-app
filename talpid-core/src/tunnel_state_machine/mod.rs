@@ -89,18 +89,10 @@ pub async fn spawn(
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
-    let mut offline_monitor = offline::spawn_monitor(
-        Arc::downgrade(&command_tx),
-        #[cfg(target_os = "android")]
-        android_context.clone(),
-    )
-    .await
-    .map_err(Error::OfflineMonitorError)?;
-    let is_offline = offline_monitor.is_offline().await;
 
     let tun_provider = TunProvider::new(
         #[cfg(target_os = "android")]
-        android_context,
+        android_context.clone(),
         #[cfg(target_os = "android")]
         allow_lan,
         #[cfg(target_os = "android")]
@@ -112,12 +104,13 @@ pub async fn spawn(
     let runtime = tokio::runtime::Handle::current();
 
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
+    let weak_command_tx = Arc::downgrade(&command_tx);
     std::thread::spawn(move || {
         let state_machine = runtime.block_on(TunnelStateMachine::new(
             runtime.clone(),
+            weak_command_tx,
             allow_lan,
             block_when_disconnected,
-            is_offline,
             dns_servers,
             allowed_endpoint,
             tunnel_parameters_generator,
@@ -127,6 +120,8 @@ pub async fn spawn(
             cache_dir,
             command_rx,
             reset_firewall,
+            #[cfg(target_os = "android")]
+            android_context,
         ));
         let state_machine = match state_machine {
             Ok(state_machine) => {
@@ -144,8 +139,6 @@ pub async fn spawn(
         if shutdown_tx.send(()).is_err() {
             log::error!("Can't send shutdown completion to daemon");
         }
-
-        std::mem::drop(offline_monitor);
     });
 
     startup_result_rx
@@ -201,9 +194,9 @@ struct TunnelStateMachine {
 impl TunnelStateMachine {
     async fn new(
         runtime: tokio::runtime::Handle,
+        command_tx: std::sync::Weak<mpsc::UnboundedSender<TunnelCommand>>,
         allow_lan: bool,
         block_when_disconnected: bool,
-        is_offline: bool,
         dns_servers: Option<Vec<IpAddr>>,
         allowed_endpoint: Endpoint,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
@@ -213,6 +206,7 @@ impl TunnelStateMachine {
         cache_dir: impl AsRef<Path>,
         commands: mpsc::UnboundedReceiver<TunnelCommand>,
         reset_firewall: bool,
+        #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         let args = FirewallArguments {
             initialize_blocked: block_when_disconnected || !reset_firewall,
@@ -226,11 +220,23 @@ impl TunnelStateMachine {
         let route_manager = RouteManager::new(runtime.clone(), HashSet::new())
             .await
             .map_err(Error::InitRouteManagerError)?;
+        let mut offline_monitor = offline::spawn_monitor(
+            route_manager
+                .handle()
+                .map_err(Error::InitRouteManagerError)?,
+            command_tx,
+            #[cfg(target_os = "android")]
+            android_context,
+        )
+        .await
+        .map_err(Error::OfflineMonitorError)?;
+        let is_offline = offline_monitor.is_offline().await;
         let mut shared_values = SharedTunnelStateValues {
             runtime,
             firewall,
             dns_monitor,
             route_manager,
+            offline_monitor,
             allow_lan,
             block_when_disconnected,
             is_offline,
@@ -300,6 +306,7 @@ struct SharedTunnelStateValues {
     firewall: Firewall,
     dns_monitor: DnsMonitor,
     route_manager: RouteManager,
+    offline_monitor: offline::MonitorHandle,
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,
     /// Should network access be allowed when in the disconnected state.
