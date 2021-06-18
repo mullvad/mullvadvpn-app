@@ -437,9 +437,10 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("get_account_history");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetAccountHistory(tx))?;
-        self.wait_for_result(rx)
-            .await
-            .map(|history| Response::new(history.unwrap_or_default()))
+        match self.wait_for_result(rx).await? {
+            Some(history) => Ok(Response::new(history)),
+            None => Err(Status::not_found("history is empty")),
+        }
     }
 
     async fn clear_account_history(&self, _: Request<()>) -> ServiceResult<()> {

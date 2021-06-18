@@ -165,7 +165,7 @@ export const ipcSchema = {
     submitVoucher: invoke<string, VoucherResponse>(),
   },
   accountHistory: {
-    '': notifyRenderer<AccountToken>(),
+    '': notifyRenderer<AccountToken | undefined>(),
     clear: invoke<void, void>(),
   },
   autoStart: {
