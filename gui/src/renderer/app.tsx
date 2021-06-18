@@ -148,7 +148,7 @@ export default class AppRenderer {
       this.setAccountExpiry(newAccountData && newAccountData.expiry);
     });
 
-    IpcRendererEventChannel.accountHistory.listen((newAccountHistory: AccountToken) => {
+    IpcRendererEventChannel.accountHistory.listen((newAccountHistory?: AccountToken) => {
       this.setAccountHistory(newAccountHistory);
     });
 

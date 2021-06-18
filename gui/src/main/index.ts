@@ -665,7 +665,7 @@ class ApplicationMain {
     return daemonEventListener;
   }
 
-  private setAccountHistory(accountHistory: AccountToken) {
+  private setAccountHistory(accountHistory?: AccountToken) {
     this.accountHistory = accountHistory;
 
     if (this.windowController) {

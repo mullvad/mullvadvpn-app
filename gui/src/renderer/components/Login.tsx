@@ -293,7 +293,7 @@ export default class Login extends React.Component<IProps, IState> {
           <Accordion expanded={this.shouldShowAccountHistory()}>
             <StyledAccountDropdownContainer>
               <AccountDropdown
-                item={this.props.accountHistory!}
+                item={this.props.accountHistory}
                 onSelect={this.onSelectAccountFromHistory}
                 onRemove={this.onClearAccountHistory}
               />
@@ -321,13 +321,16 @@ export default class Login extends React.Component<IProps, IState> {
 }
 
 interface IAccountDropdownProps {
-  item: AccountToken;
+  item?: AccountToken;
   onSelect: (value: AccountToken) => void;
   onRemove: (value: AccountToken) => void;
 }
 
 function AccountDropdown(props: IAccountDropdownProps) {
   const token = props.item;
+  if (!token) {
+    return null;
+  }
   const label = formatAccountToken(token);
   return (
     <AccountDropdownItem

@@ -418,9 +418,17 @@ export class DaemonRpc {
     }
   }
 
-  public async getAccountHistory(): Promise<AccountToken> {
-    const response = await this.callEmpty<StringValue>(this.client.getAccountHistory);
-    return response.getValue();
+  public async getAccountHistory(): Promise<AccountToken | undefined> {
+    try {
+      const response = await this.callEmpty<StringValue>(this.client.getAccountHistory);
+      return response.getValue();
+    } catch (error) {
+      switch (error.code) {
+        case grpc.status.NOT_FOUND:
+          return;
+      }
+      throw error;
+    }
   }
 
   public async clearAccountHistory(): Promise<void> {
