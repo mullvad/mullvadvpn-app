@@ -36,13 +36,13 @@ import { AriaControlGroup, AriaControlled, AriaControls } from './AriaGroup';
 
 interface IProps {
   accountToken?: AccountToken;
-  accountHistory: AccountToken[];
+  accountHistory?: AccountToken;
   loginState: LoginState;
   openExternalLink: (type: string) => void;
   login: (accountToken: AccountToken) => void;
   resetLoginError: () => void;
   updateAccountToken: (accountToken: AccountToken) => void;
-  removeAccountTokenFromHistory: (accountToken: AccountToken) => Promise<void>;
+  clearAccountHistory: () => Promise<void>;
   createNewAccount: () => void;
 }
 
@@ -208,7 +208,9 @@ export default class Login extends React.Component<IProps, IState> {
   }
 
   private shouldShowAccountHistory() {
-    return this.allowInteraction() && this.state.isActive && this.props.accountHistory.length > 0;
+    return (
+      this.allowInteraction() && this.state.isActive && this.props.accountHistory !== undefined
+    );
   }
 
   private shouldShowFooter() {
@@ -223,13 +225,13 @@ export default class Login extends React.Component<IProps, IState> {
     this.props.login(accountToken);
   };
 
-  private onRemoveAccountFromHistory = (accountToken: string) => {
-    consumePromise(this.removeAccountFromHistory(accountToken));
+  private onClearAccountHistory = () => {
+    consumePromise(this.clearAccountHistory());
   };
 
-  private async removeAccountFromHistory(accountToken: AccountToken) {
+  private async clearAccountHistory() {
     try {
-      await this.props.removeAccountTokenFromHistory(accountToken);
+      await this.props.clearAccountHistory();
 
       // TODO: Remove account from memory
     } catch (error) {
@@ -288,9 +290,9 @@ export default class Login extends React.Component<IProps, IState> {
           <Accordion expanded={this.shouldShowAccountHistory()}>
             <StyledAccountDropdownContainer>
               <AccountDropdown
-                items={this.props.accountHistory.slice().reverse()}
+                item={this.props.accountHistory}
                 onSelect={this.onSelectAccountFromHistory}
-                onRemove={this.onRemoveAccountFromHistory}
+                onRemove={this.onClearAccountHistory}
               />
             </StyledAccountDropdownContainer>
           </Accordion>
@@ -316,28 +318,24 @@ export default class Login extends React.Component<IProps, IState> {
 }
 
 interface IAccountDropdownProps {
-  items: AccountToken[];
+  item?: AccountToken;
   onSelect: (value: AccountToken) => void;
   onRemove: (value: AccountToken) => void;
 }
 
 function AccountDropdown(props: IAccountDropdownProps) {
-  const uniqueItems = [...new Set(props.items)];
+  const token = props.item;
+  if (!token) {
+    return null;
+  }
+  const label = formatAccountToken(token);
   return (
-    <>
-      {uniqueItems.map((token) => {
-        const label = formatAccountToken(token);
-        return (
-          <AccountDropdownItem
-            key={token}
-            value={token}
-            label={label}
-            onSelect={props.onSelect}
-            onRemove={props.onRemove}
-          />
-        );
-      })}
-    </>
+    <AccountDropdownItem
+      value={token}
+      label={label}
+      onSelect={props.onSelect}
+      onRemove={props.onRemove}
+    />
   );
 }
 

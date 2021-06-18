@@ -35,10 +35,6 @@ impl Command for Account {
                     .about("Removes the account number from the settings"),
             )
             .subcommand(
-                clap::SubCommand::with_name("clear-history")
-                    .about("Clear account history, along with removing all associated keys"),
-            )
-            .subcommand(
                 clap::SubCommand::with_name("create")
                     .about("Creates a new account and sets it as the active one"),
             )
@@ -75,8 +71,6 @@ impl Command for Account {
             self.get().await
         } else if let Some(_matches) = matches.subcommand_matches("unset") {
             self.set(None).await
-        } else if let Some(_matches) = matches.subcommand_matches("clear-history") {
-            self.clear_history().await
         } else if let Some(_matches) = matches.subcommand_matches("create") {
             self.create().await
         } else if let Some(matches) = matches.subcommand_matches("redeem") {
@@ -173,12 +167,5 @@ impl Account {
         let ndt = chrono::NaiveDateTime::from_timestamp(expiry.seconds, expiry.nanos as u32);
         let utc = chrono::DateTime::<chrono::Utc>::from_utc(ndt, chrono::Utc);
         utc.with_timezone(&chrono::Local).to_string()
-    }
-
-    async fn clear_history(&self) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        rpc.clear_account_history(()).await?;
-        println!("Removed account history and all associated keys");
-        Ok(())
     }
 }

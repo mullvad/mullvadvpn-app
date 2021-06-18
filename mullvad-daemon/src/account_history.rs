@@ -1,10 +1,9 @@
-use mullvad_rpc::{rest::MullvadRestHandle, WireguardKeyProxy};
+use crate::settings::SettingsPersister;
 use mullvad_types::{account::AccountToken, wireguard::WireguardData};
+use regex::Regex;
 use std::{
-    collections::VecDeque,
     fs,
-    future::Future,
-    io::{self, Seek, Write},
+    io::{self, Read, Seek, Write},
     path::Path,
     sync::{Arc, Mutex},
 };
@@ -29,13 +28,14 @@ pub enum Error {
 }
 
 static ACCOUNT_HISTORY_FILE: &str = "account-history.json";
-static ACCOUNT_HISTORY_LIMIT: usize = 1;
 
-/// A trivial MRU cache of account data
 pub struct AccountHistory {
     file: Arc<Mutex<io::BufWriter<fs::File>>>,
-    accounts: Arc<Mutex<VecDeque<AccountEntry>>>,
-    rpc_handle: MullvadRestHandle,
+    token: Option<AccountToken>,
+}
+
+lazy_static::lazy_static! {
+    static ref ACCOUNT_REGEX: Regex = Regex::new(r"^[0-9]+$").unwrap();
 }
 
 
@@ -43,7 +43,7 @@ impl AccountHistory {
     pub async fn new(
         cache_dir: &Path,
         settings_dir: &Path,
-        rpc_handle: MullvadRestHandle,
+        settings: &mut SettingsPersister,
     ) -> Result<AccountHistory> {
         Self::migrate_from_old_file_location(cache_dir, settings_dir).await;
 
@@ -60,7 +60,7 @@ impl AccountHistory {
             options.share_mode(0);
         }
         let path = settings_dir.join(ACCOUNT_HISTORY_FILE);
-        let (file, accounts) = if path.is_file() {
+        let (file, token) = if path.is_file() {
             log::info!("Opening account history file in {}", path.display());
             let mut reader = options
                 .write(true)
@@ -69,24 +69,30 @@ impl AccountHistory {
                 .map(io::BufReader::new)
                 .map_err(Error::Read)?;
 
-            let accounts: VecDeque<AccountEntry> = match serde_json::from_reader(&mut reader) {
-                Err(e) => {
-                    log::warn!(
-                        "{}",
-                        e.display_chain_with_msg("Failed to read+deserialize account history")
-                    );
-                    Self::try_old_format(&mut reader)?
-                        .into_iter()
-                        .map(|account| AccountEntry {
-                            account,
-                            wireguard: None,
-                        })
-                        .collect()
+            let mut buffer = String::new();
+            let token: Option<AccountToken> = match reader.read_to_string(&mut buffer) {
+                Ok(0) => None,
+                Ok(_) if ACCOUNT_REGEX.is_match(&buffer) => Some(buffer),
+                Ok(_) | Err(_) => {
+                    log::warn!("Failed to parse account history. Trying old formats",);
+                    match Self::try_format_v2(&mut reader)? {
+                        Some((token, migrated_data)) => {
+                            if let Err(error) = settings.set_wireguard(migrated_data).await {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg(
+                                        "Failed to migrate WireGuard key from account history"
+                                    )
+                                );
+                            }
+                            Some(token)
+                        }
+                        None => Self::try_format_v1(&mut reader)?,
+                    }
                 }
-                Ok(accounts) => accounts,
             };
 
-            (reader.into_inner(), accounts)
+            (reader.into_inner(), token)
         } else {
             log::info!("Creating account history file in {}", path.display());
             (
@@ -95,14 +101,13 @@ impl AccountHistory {
                     .create(true)
                     .open(path)
                     .map_err(Error::Read)?,
-                VecDeque::new(),
+                settings.get_account_token(),
             )
         };
         let file = io::BufWriter::new(file);
         let mut history = AccountHistory {
             file: Arc::new(Mutex::new(file)),
-            accounts: Arc::new(Mutex::new(accounts)),
-            rpc_handle,
+            token,
         };
         if let Err(e) = history.save_to_disk().await {
             log::error!("Failed to save account cache after opening it: {}", e);
@@ -129,175 +134,67 @@ impl AccountHistory {
         }
     }
 
-    fn try_old_format(reader: &mut io::BufReader<fs::File>) -> Result<Vec<AccountToken>> {
+    fn try_format_v1(reader: &mut io::BufReader<fs::File>) -> Result<Option<AccountToken>> {
         #[derive(Deserialize)]
         struct OldFormat {
             accounts: Vec<AccountToken>,
         }
         reader.seek(io::SeekFrom::Start(0)).map_err(Error::Read)?;
         Ok(serde_json::from_reader(reader)
-            .map(|old_format: OldFormat| old_format.accounts)
-            .unwrap_or_else(|_| Vec::new()))
+            .map(|old_format: OldFormat| old_format.accounts.first().cloned())
+            .unwrap_or_else(|_| None))
     }
 
-    /// Gets account data for a certain account id and bumps it's entry to the top of the list if
-    /// it isn't there already. Returns None if the account entry is not available.
-    pub async fn get(&mut self, account: &AccountToken) -> Result<Option<AccountEntry>> {
-        let (idx, entry) = match self
-            .accounts
-            .lock()
-            .unwrap()
-            .iter()
-            .enumerate()
-            .find(|(_idx, entry)| &entry.account == account)
-        {
-            Some((idx, entry)) => (idx, entry.clone()),
-            None => {
-                return Ok(None);
-            }
-        };
-        // this account is already on top
-        if idx == 0 {
-            return Ok(Some(entry));
+    fn try_format_v2(
+        reader: &mut io::BufReader<fs::File>,
+    ) -> Result<Option<(AccountToken, Option<WireguardData>)>> {
+        #[derive(Serialize, Deserialize, Clone, Debug)]
+        pub struct AccountEntry {
+            pub account: AccountToken,
+            pub wireguard: Option<WireguardData>,
         }
-        self.insert(entry.clone()).await?;
-        Ok(Some(entry))
+        reader.seek(io::SeekFrom::Start(0)).map_err(Error::Read)?;
+        Ok(serde_json::from_reader(reader)
+            .map(|entries: Vec<AccountEntry>| {
+                entries
+                    .first()
+                    .map(|entry| (entry.account.clone(), entry.wireguard.clone()))
+            })
+            .unwrap_or_else(|_| None))
     }
 
-    /// Bumps history of an account token. If the account token is not in history, it will be
-    /// added.
-    pub async fn bump_history(&mut self, account: &AccountToken) -> Result<()> {
-        if self.get(account).await?.is_none() {
-            let new_entry = AccountEntry {
-                account: account.to_string(),
-                wireguard: None,
-            };
-            self.insert(new_entry).await?;
-        }
-        Ok(())
+    /// Gets the account token in the history
+    pub fn get(&self) -> Option<AccountToken> {
+        self.token.clone()
     }
 
-    fn create_remove_wg_key_rpc(
-        &self,
-        account: &str,
-        wg_data: &WireguardData,
-    ) -> impl Future<Output = ()> + 'static {
-        let mut rpc = WireguardKeyProxy::new(self.rpc_handle.clone());
-        let pub_key = wg_data.private_key.public_key();
-        let account = String::from(account);
-
-        async move {
-            if let Err(err) = rpc.remove_wireguard_key(account, &pub_key).await {
-                log::error!("Failed to remove WireGuard key: {}", err);
-            }
-        }
-    }
-
-    /// Always inserts a new entry at the start of the list
-    pub async fn insert(&mut self, new_entry: AccountEntry) -> Result<()> {
-        let mut accounts = self.accounts.lock().unwrap();
-        accounts.retain(|entry| entry.account != new_entry.account);
-        accounts.push_front(new_entry);
-
-        while accounts.len() > ACCOUNT_HISTORY_LIMIT {
-            let last_entry = accounts.pop_back().unwrap();
-            if let Some(wg_data) = last_entry.wireguard {
-                tokio::spawn(self.create_remove_wg_key_rpc(&last_entry.account, &wg_data));
-            }
-        }
-
-        std::mem::drop(accounts);
-        self.save_to_disk().await
-    }
-
-    /// Retrieve account history.
-    pub fn get_account_history(&self) -> Vec<AccountToken> {
-        self.accounts
-            .lock()
-            .unwrap()
-            .iter()
-            .map(|entry| entry.account.clone())
-            .collect()
-    }
-
-    /// Remove account data
-    pub async fn remove_account(&mut self, account: &str) -> Result<()> {
-        let entry = self.get(&String::from(account)).await?;
-        let entry = match entry {
-            Some(entry) => entry,
-            None => return Ok(()),
-        };
-
-        if let Some(wg_data) = entry.wireguard {
-            tokio::spawn(self.create_remove_wg_key_rpc(account, &wg_data));
-        }
-
-        let _ = self.accounts.lock().unwrap().pop_front();
+    /// Replace the account token in the history
+    pub async fn set(&mut self, new_entry: AccountToken) -> Result<()> {
+        self.token = Some(new_entry);
         self.save_to_disk().await
     }
 
     /// Remove account history
     pub async fn clear(&mut self) -> Result<()> {
-        log::debug!("account_history::clear");
-
-        let rpc = WireguardKeyProxy::new(self.rpc_handle.clone());
-
-        let removal: Vec<_> = self
-            .accounts
-            .lock()
-            .unwrap()
-            .drain(0..)
-            .filter_map(move |entry| {
-                let account = entry.account.clone();
-                let mut rpc = rpc.clone();
-                entry.wireguard.map(move |wg_data| {
-                    let public_key = wg_data.private_key.public_key();
-                    async move {
-                        if let Err(err) = rpc.remove_wireguard_key(account, &public_key).await {
-                            log::error!("Failed to remove WireGuard key: {}", err);
-                        }
-                    }
-                })
-            })
-            .collect();
-
-
-        futures::future::join_all(removal).await;
-
-        {
-            let mut accounts = self.accounts.lock().unwrap();
-            *accounts = VecDeque::new();
-        }
+        self.token = None;
         self.save_to_disk().await
     }
 
     async fn save_to_disk(&mut self) -> Result<()> {
         let file = self.file.clone();
-        let accounts = self.accounts.clone();
+        let token = self.token.clone();
 
         tokio::task::spawn_blocking(move || {
             let mut file = file.lock().unwrap();
-            let accounts = accounts.lock().unwrap();
-            Self::save_to_disk_inner(&mut *file, &*accounts)
+            file.get_mut().set_len(0).map_err(Error::Write)?;
+            file.seek(io::SeekFrom::Start(0)).map_err(Error::Write)?;
+            if let Some(token) = token {
+                write!(&mut file, "{}", token).map_err(Error::Write)?;
+            }
+            file.flush().map_err(Error::Write)?;
+            file.get_mut().sync_all().map_err(Error::Write)
         })
         .await
         .map_err(Error::WriteCancelled)?
     }
-
-    fn save_to_disk_inner(
-        mut file: &mut io::BufWriter<fs::File>,
-        accounts: &VecDeque<AccountEntry>,
-    ) -> Result<()> {
-        file.get_mut().set_len(0).map_err(Error::Write)?;
-        file.seek(io::SeekFrom::Start(0)).map_err(Error::Write)?;
-        serde_json::to_writer_pretty(&mut file, accounts).map_err(Error::Serialize)?;
-        file.flush().map_err(Error::Write)?;
-        file.get_mut().sync_all().map_err(Error::Write)
-    }
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct AccountEntry {
-    pub account: AccountToken,
-    pub wireguard: Option<WireguardData>,
 }

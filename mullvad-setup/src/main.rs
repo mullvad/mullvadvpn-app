@@ -1,5 +1,4 @@
 use clap::{crate_authors, crate_description, crate_name, SubCommand};
-use mullvad_daemon::account_history;
 use mullvad_management_interface::new_rpc_client;
 use mullvad_rpc::MullvadRpcRuntime;
 use mullvad_types::version::ParsedAppVersion;
@@ -58,17 +57,17 @@ pub enum Error {
     #[error(display = "Failed to initialize mullvad RPC runtime")]
     RpcInitializationError(#[error(source)] mullvad_rpc::Error),
 
+    #[error(display = "Failed to remove WireGuard key for account")]
+    RemoveKeyError(#[error(source)] mullvad_rpc::rest::Error),
+
     #[error(display = "Failed to obtain settings directory path")]
     SettingsPathError(#[error(source)] SettingsPathErrorType),
 
     #[error(display = "Failed to obtain cache directory path")]
     CachePathError(#[error(source)] mullvad_paths::Error),
 
-    #[error(display = "Failed to initialize account history")]
-    InitializeAccountHistoryError(#[error(source)] account_history::Error),
-
-    #[error(display = "Failed to initialize account history")]
-    ClearAccountHistoryError(#[error(source)] account_history::Error),
+    #[error(display = "Failed to update the settings")]
+    SettingsError(#[error(source)] mullvad_daemon::settings::Error),
 
     #[error(display = "Cannot parse the version string")]
     ParseVersionStringError,
@@ -83,7 +82,8 @@ async fn main() {
             .about("Move a running daemon into a blocking state and save its target state"),
         SubCommand::with_name("reset-firewall")
             .about("Remove any firewall rules introduced by the daemon"),
-        SubCommand::with_name("clear-history").about("Clear account history"),
+        SubCommand::with_name("remove-wireguard-key")
+            .about("Removes the WireGuard key from the active account"),
         SubCommand::with_name("is-older-version")
             .about("Checks whether the given version is older than the current version")
             .arg(
@@ -108,7 +108,7 @@ async fn main() {
     let result = match matches.subcommand() {
         ("prepare-restart", _) => prepare_restart().await,
         ("reset-firewall", _) => reset_firewall().await,
-        ("clear-history", _) => clear_history().await,
+        ("remove-wireguard-key", _) => remove_wireguard_key().await,
         ("is-older-version", Some(sub_matches)) => {
             let old_version = sub_matches.value_of("OLDVERSION").unwrap();
             match is_older_version(old_version).await {
@@ -161,30 +161,34 @@ async fn reset_firewall() -> Result<(), Error> {
     firewall.reset_policy().map_err(Error::FirewallError)
 }
 
-async fn clear_history() -> Result<(), Error> {
+async fn remove_wireguard_key() -> Result<(), Error> {
     let (cache_path, settings_path) = get_paths()?;
+    let mut settings = mullvad_daemon::settings::SettingsPersister::load(&settings_path).await;
 
-    let mut rpc_runtime = MullvadRpcRuntime::with_cache(
-        tokio::runtime::Handle::current(),
-        None,
-        &cache_path,
-        false,
-        |_| Ok(()),
-    )
-    .await
-    .map_err(Error::RpcInitializationError)?;
+    if let Some(token) = settings.get_account_token() {
+        if let Some(wg_data) = settings.get_wireguard() {
+            let mut rpc_runtime = MullvadRpcRuntime::with_cache(
+                tokio::runtime::Handle::current(),
+                None,
+                &cache_path,
+                false,
+                |_| Ok(()),
+            )
+            .await
+            .map_err(Error::RpcInitializationError)?;
+            let mut key_proxy =
+                mullvad_rpc::WireguardKeyProxy::new(rpc_runtime.mullvad_rest_handle());
+            key_proxy
+                .remove_wireguard_key(token, &wg_data.private_key.public_key())
+                .await
+                .map_err(Error::RemoveKeyError)?;
+            settings
+                .set_wireguard(None)
+                .await
+                .map_err(Error::SettingsError)?;
+        }
+    }
 
-    let mut account_history = account_history::AccountHistory::new(
-        &cache_path,
-        &settings_path,
-        rpc_runtime.mullvad_rest_handle(),
-    )
-    .await
-    .map_err(Error::InitializeAccountHistoryError)?;
-    account_history
-        .clear()
-        .await
-        .map_err(Error::ClearAccountHistoryError)?;
     Ok(())
 }
 

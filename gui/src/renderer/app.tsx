@@ -148,7 +148,7 @@ export default class AppRenderer {
       this.setAccountExpiry(newAccountData && newAccountData.expiry);
     });
 
-    IpcRendererEventChannel.accountHistory.listen((newAccountHistory: AccountToken[]) => {
+    IpcRendererEventChannel.accountHistory.listen((newAccountHistory?: AccountToken) => {
       this.setAccountHistory(newAccountHistory);
     });
 
@@ -337,8 +337,8 @@ export default class AppRenderer {
     return IpcRendererEventChannel.settings.setDnsOptions(dns);
   }
 
-  public removeAccountFromHistory(accountToken: AccountToken): Promise<void> {
-    return IpcRendererEventChannel.accountHistory.removeItem(accountToken);
+  public clearAccountHistory(): Promise<void> {
+    return IpcRendererEventChannel.accountHistory.clear();
   }
 
   public async openLinkWithAuth(link: string): Promise<void> {
@@ -455,7 +455,7 @@ export default class AppRenderer {
     return IpcRendererEventChannel.splitTunneling.launchApplication(application);
   }
 
-  public collectProblemReport(toRedact: string[]): Promise<string> {
+  public collectProblemReport(toRedact?: string): Promise<string> {
     return IpcRendererEventChannel.problemReport.collectLogs(toRedact);
   }
 
@@ -653,7 +653,7 @@ export default class AppRenderer {
     }
   }
 
-  private setAccountHistory(accountHistory: AccountToken[]) {
+  private setAccountHistory(accountHistory?: AccountToken) {
     this.reduxActions.account.updateAccountHistory(accountHistory);
   }
 

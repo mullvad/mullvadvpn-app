@@ -38,6 +38,8 @@ pub enum Error {
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.mullvadvpn.model"))]
 pub struct Settings {
     account_token: Option<String>,
+    #[cfg_attr(target_os = "android", jnix(skip))]
+    wireguard: Option<wireguard::WireguardData>,
     relay_settings: RelaySettings,
     #[cfg_attr(target_os = "android", jnix(skip))]
     pub bridge_settings: BridgeSettings,
@@ -65,6 +67,7 @@ impl Default for Settings {
     fn default() -> Self {
         Settings {
             account_token: None,
+            wireguard: None,
             relay_settings: RelaySettings::Normal(RelayConstraints {
                 location: Constraint::Only(LocationConstraint::Country("se".to_owned())),
                 ..Default::default()
@@ -114,6 +117,19 @@ impl Settings {
                 info!("Changing account token")
             }
             self.account_token = account_token;
+            true
+        } else {
+            false
+        }
+    }
+
+    pub fn get_wireguard(&self) -> Option<wireguard::WireguardData> {
+        self.wireguard.clone()
+    }
+
+    pub fn set_wireguard(&mut self, wireguard: Option<wireguard::WireguardData>) -> bool {
+        if wireguard != self.wireguard {
+            self.wireguard = wireguard;
             true
         } else {
             false

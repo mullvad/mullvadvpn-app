@@ -49,13 +49,13 @@ interface ISupportState {
 interface ISupportProps {
   defaultEmail: string;
   defaultMessage: string;
-  accountHistory: AccountToken[];
+  accountHistory?: AccountToken;
   isOffline: boolean;
   onClose: () => void;
   viewLog: (path: string) => void;
   saveReportForm: (form: ISupportReportForm) => void;
   clearReportForm: () => void;
-  collectProblemReport: (accountsToRedact: string[]) => Promise<string>;
+  collectProblemReport: (accountToRedact?: string) => Promise<string>;
   sendProblemReport: (email: string, message: string, savedReportId: string) => Promise<void>;
   outdatedVersion: boolean;
   suggestedIsBeta: boolean;

@@ -1,4 +1,4 @@
-use crate::{account_history::AccountHistory, DaemonEventSender, InternalDaemonEvent};
+use crate::{DaemonEventSender, InternalDaemonEvent};
 use chrono::offset::Utc;
 use mullvad_rpc::rest::{Error as RestError, MullvadRestHandle};
 use mullvad_types::account::AccountToken;
@@ -59,38 +59,21 @@ impl KeyManager {
 
     /// Reset key rotation, cancelling the current one and starting a new one for the specified
     /// account
-    pub async fn reset_rotation(
-        &mut self,
-        account_history: &mut AccountHistory,
-        account_token: AccountToken,
-    ) {
-        match account_history
-            .get(&account_token)
+    pub async fn reset_rotation(&mut self, current_key: PublicKey, account_token: AccountToken) {
+        self.run_automatic_rotation(account_token, current_key)
             .await
-            .map(|entry| entry.map(|entry| entry.wireguard.map(|wg| wg.get_public_key())))
-        {
-            Ok(Some(Some(public_key))) => {
-                self.run_automatic_rotation(account_token, public_key).await
-            }
-            Ok(Some(None)) => {
-                log::error!("reset_rotation: failed to obtain public key for account entry.")
-            }
-            Ok(None) => log::error!("reset_rotation: account entry not found."),
-            Err(e) => log::error!("reset_rotation: failed to obtain account entry. {}", e),
-        };
     }
 
     /// Update automatic key rotation interval
     /// Passing `None` for the interval will cause the default value to be used.
     pub async fn set_rotation_interval(
         &mut self,
-        account_history: &mut AccountHistory,
+        current_key: PublicKey,
         account_token: AccountToken,
         auto_rotation_interval: Option<RotationInterval>,
     ) {
         self.auto_rotation_interval = auto_rotation_interval.unwrap_or_default();
-
-        self.reset_rotation(account_history, account_token).await;
+        self.reset_rotation(current_key, account_token).await;
     }
 
     /// Stop current key generation
@@ -140,6 +123,20 @@ impl KeyManager {
                 }
                 Err(err) => Err(Self::map_rpc_error(err)),
             }
+        }
+    }
+
+    /// Removes a key from an account
+    pub fn remove_key(
+        &self,
+        account: AccountToken,
+        key: talpid_types::net::wireguard::PublicKey,
+    ) -> impl Future<Output = Result<()>> {
+        let mut rpc = mullvad_rpc::WireguardKeyProxy::new(self.http_handle.clone());
+        async move {
+            rpc.remove_wireguard_key(account, &key)
+                .await
+                .map_err(Self::map_rpc_error)
         }
     }
 
@@ -255,7 +252,6 @@ impl KeyManager {
             };
         Box::new(push_future)
     }
-
 
     async fn replace_key_rpc(
         http_handle: MullvadRestHandle,

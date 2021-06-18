@@ -434,27 +434,12 @@ impl ManagementService for ManagementServiceImpl {
     }
 
     async fn get_account_history(&self, _: Request<()>) -> ServiceResult<types::AccountHistory> {
-        // TODO: this might be a stream
         log::debug!("get_account_history");
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetAccountHistory(tx))?;
         self.wait_for_result(rx)
             .await
             .map(|history| Response::new(types::AccountHistory { token: history }))
-    }
-
-    async fn remove_account_from_history(
-        &self,
-        request: Request<AccountToken>,
-    ) -> ServiceResult<()> {
-        log::debug!("remove_account_from_history");
-        let account_token = request.into_inner();
-        let (tx, rx) = oneshot::channel();
-        self.send_command_to_daemon(DaemonCommand::RemoveAccountFromHistory(tx, account_token))?;
-        self.wait_for_result(rx)
-            .await?
-            .map(Response::new)
-            .map_err(map_daemon_error)
     }
 
     async fn clear_account_history(&self, _: Request<()>) -> ServiceResult<()> {
@@ -863,7 +848,9 @@ fn map_rest_error(error: RestError) -> Status {
 /// Converts an instance of [`mullvad_daemon::settings::Error`] into a tonic status.
 fn map_settings_error(error: settings::Error) -> Status {
     match error {
-        settings::Error::DeleteError(..) | settings::Error::WriteError(..) => {
+        settings::Error::DeleteError(..)
+        | settings::Error::WriteError(..)
+        | settings::Error::SetPermissions(..) => {
             Status::new(Code::FailedPrecondition, error.to_string())
         }
         settings::Error::SerializeError(..) => Status::new(Code::Internal, error.to_string()),

@@ -24,6 +24,9 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+### Changed
+- Only use the account history file to store the last used account.
+
 ### Fixed
 - Fix link to download page not always using the beta URL when it should.
 

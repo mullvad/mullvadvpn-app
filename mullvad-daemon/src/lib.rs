@@ -15,7 +15,7 @@ mod relays;
 #[cfg(not(target_os = "android"))]
 pub mod rpc_uniqueness_check;
 pub mod runtime;
-mod settings;
+pub mod settings;
 pub mod version;
 mod version_check;
 
@@ -103,12 +103,15 @@ pub enum Error {
     #[error(display = "REST request failed")]
     RestError(#[error(source)] mullvad_rpc::rest::Error),
 
-    #[error(display = "Unable to load account history with wireguard key cache")]
+    #[error(display = "Unable to load account history")]
     LoadAccountHistory(#[error(source)] account_history::Error),
 
     #[cfg(target_os = "linux")]
     #[error(display = "Unable to initialize split tunneling")]
     InitSplitTunneling(#[error(source)] split_tunnel::Error),
+
+    #[error(display = "The account has too many wireguard keys")]
+    TooManyKeys,
 
     #[error(display = "No wireguard private key available")]
     NoKeyAvailable,
@@ -195,10 +198,8 @@ pub enum DaemonCommand {
     /// Submit voucher to add time to the current account. Returns time added in seconds
     SubmitVoucher(ResponseTx<VoucherSubmission, Error>, String),
     /// Request account history
-    GetAccountHistory(oneshot::Sender<Vec<AccountToken>>),
-    /// Request account history
-    RemoveAccountFromHistory(ResponseTx<(), Error>, AccountToken),
-    /// Clear account history
+    GetAccountHistory(oneshot::Sender<Option<AccountToken>>),
+    /// Remove the last used account, if there is one
     ClearAccountHistory(ResponseTx<(), Error>),
     /// Get the list of countries and cities where there are relays.
     GetRelayLocations(oneshot::Sender<RelayList>),
@@ -580,7 +581,7 @@ where
         );
         tokio::spawn(version_updater.run());
         let account_history =
-            account_history::AccountHistory::new(&cache_dir, &settings_dir, rpc_handle.clone())
+            account_history::AccountHistory::new(&cache_dir, &settings_dir, &mut settings)
                 .await
                 .map_err(Error::LoadAccountHistory)?;
 
@@ -938,12 +939,7 @@ where
                             &constraints,
                             self.settings.get_bridge_state(),
                             retry_attempt,
-                            self.account_history
-                                .get(&account_token)
-                                .await
-                                .unwrap_or(None)
-                                .and_then(|entry| entry.wireguard)
-                                .is_some(),
+                            self.settings.get_wireguard().is_some(),
                         )
                         .ok();
                     if let Some((relay, endpoint)) = endpoint {
@@ -1087,13 +1083,7 @@ where
                 let exit_peer = entry_peer.as_ref().map(|_| peer.clone());
                 let entry_peer = entry_peer.unwrap_or(peer);
 
-                let wg_data = self
-                    .account_history
-                    .get(&account_token)
-                    .await
-                    .map_err(Error::AccountHistory)?
-                    .and_then(|entry| entry.wireguard)
-                    .ok_or(Error::NoKeyAvailable)?;
+                let wg_data = self.settings.get_wireguard().ok_or(Error::NoKeyAvailable)?;
                 let tunnel = wireguard::TunnelConfig {
                     private_key: wg_data.private_key,
                     addresses: vec![
@@ -1156,9 +1146,6 @@ where
             UpdateRelayLocations => self.on_update_relay_locations().await,
             SetAccount(tx, account_token) => self.on_set_account(tx, account_token).await,
             GetAccountHistory(tx) => self.on_get_account_history(tx),
-            RemoveAccountFromHistory(tx, account_token) => {
-                self.on_remove_account_from_history(tx, account_token).await
-            }
             ClearAccountHistory(tx) => self.on_clear_account_history(tx).await,
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update).await,
             SetAllowLan(tx, allow_lan) => self.on_set_allow_lan(tx, allow_lan).await,
@@ -1225,27 +1212,15 @@ where
         match result {
             Ok(data) => {
                 let public_key = data.get_public_key();
-                let mut account_entry = self
-                    .account_history
-                    .get(&account)
-                    .await
-                    .ok()
-                    .and_then(|entry| entry)
-                    .unwrap_or_else(|| account_history::AccountEntry {
-                        account: account.clone(),
-                        wireguard: None,
-                    });
-                // if no key existed before
-                let first_key_for_account_on_host = account_entry.wireguard.is_none();
-                account_entry.wireguard = Some(data);
-                match self.account_history.insert(account_entry).await {
+                let is_first_key = self.settings.get_wireguard().is_none();
+                match self.settings.set_wireguard(Some(data)).await {
                     Ok(_) => {
                         if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
                             self.schedule_reconnect(WG_RECONNECT_DELAY).await;
                         }
                         self.event_listener
                             .notify_key_event(KeygenEvent::NewKey(public_key));
-                        if first_key_for_account_on_host {
+                        if is_first_key {
                             self.ensure_key_rotation().await;
                         }
                     }
@@ -1277,15 +1252,21 @@ where
     }
 
     async fn ensure_key_rotation(&mut self) {
-        if let Some(token) = self.settings.get_account_token() {
-            self.wireguard_key_manager
-                .set_rotation_interval(
-                    &mut self.account_history,
-                    token,
-                    self.settings.tunnel_options.wireguard.rotation_interval,
-                )
-                .await;
-        }
+        let token = match self.settings.get_account_token() {
+            Some(token) => token,
+            None => return,
+        };
+        let public_key = match self.settings.get_wireguard() {
+            Some(data) => data.get_public_key(),
+            None => return,
+        };
+        self.wireguard_key_manager
+            .set_rotation_interval(
+                public_key,
+                token,
+                self.settings.tunnel_options.wireguard.rotation_interval,
+            )
+            .await;
     }
 
     async fn handle_new_account_event(
@@ -1521,6 +1502,7 @@ where
         &mut self,
         account_token: Option<String>,
     ) -> Result<bool, settings::Error> {
+        let previous_token = self.settings.get_account_token();
         let account_changed = self
             .settings
             .set_account_token(account_token.clone())
@@ -1529,55 +1511,93 @@ where
             self.event_listener
                 .notify_settings(self.settings.to_settings());
 
-            // Bump account history if a token was set
-            if let Some(token) = account_token.clone() {
-                if let Err(e) = self.account_history.bump_history(&token).await {
-                    log::error!("Failed to bump account history: {}", e);
-                }
+            let history_token = match account_token {
+                Some(token) => token,
+                None => previous_token.clone().unwrap_or("".to_string()),
+            };
+            if let Err(error) = self.account_history.set(history_token).await {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to update account history")
+                );
             }
 
+            if let Some(previous_token) = previous_token {
+                if let Some(previous_key) = self
+                    .settings
+                    .get_wireguard()
+                    .map(|data| data.private_key.public_key())
+                {
+                    let remove_key = self
+                        .wireguard_key_manager
+                        .remove_key(previous_token, previous_key);
+                    tokio::spawn(async move {
+                        if let Err(error) = remove_key.await {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg(
+                                    "Failed to remove WireGuard key for previous account"
+                                )
+                            );
+                        }
+                    });
+                }
+            }
+            if let Err(error) = self.settings.set_wireguard(None).await {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Error resetting WireGuard key")
+                );
+            }
             self.ensure_wireguard_keys_for_current_account().await;
         }
         Ok(account_changed)
     }
 
-    fn on_get_account_history(&mut self, tx: oneshot::Sender<Vec<AccountToken>>) {
+    fn on_get_account_history(&mut self, tx: oneshot::Sender<Option<AccountToken>>) {
         Self::oneshot_send(
             tx,
-            self.account_history.get_account_history(),
+            self.account_history.get(),
             "get_account_history response",
         );
     }
 
-    async fn on_remove_account_from_history(
-        &mut self,
-        tx: ResponseTx<(), Error>,
-        account_token: AccountToken,
-    ) {
+    async fn on_clear_account_history(&mut self, tx: ResponseTx<(), Error>) {
         let result = self
             .account_history
-            .remove_account(&account_token)
+            .clear()
             .await
             .map_err(Error::AccountHistory);
-        Self::oneshot_send(tx, result, "remove_account_from_history response");
+        Self::oneshot_send(tx, result, "clear_account_history response");
     }
 
-    async fn on_clear_account_history(&mut self, tx: ResponseTx<(), Error>) {
-        match self.account_history.clear().await {
-            Ok(_) => {
-                self.set_target_state(TargetState::Unsecured).await;
-                Self::oneshot_send(tx, Ok(()), "clear_account_history response");
+    // Remove the key associated with the current account, if there is one.
+    // This does not modify settings or account history.
+    #[cfg(not(target_os = "android"))]
+    fn remove_current_key_rpc(&self) -> impl std::future::Future<Output = Result<(), Error>> {
+        let remove_key = if let Some(token) = self.settings.get_account_token() {
+            if let Some(wg_data) = self.settings.get_wireguard() {
+                Some(
+                    self.wireguard_key_manager
+                        .remove_key(token, wg_data.private_key.public_key()),
+                )
+            } else {
+                None
             }
-            Err(err) => {
-                log::error!(
-                    "{}",
-                    err.display_chain_with_msg("Failed to clear account history")
-                );
-                Self::oneshot_send(
-                    tx,
-                    Err(Error::AccountHistory(err)),
-                    "clear_account_history response",
-                );
+        } else {
+            None
+        };
+
+        async move {
+            if let Some(task) = remove_key {
+                match task.await {
+                    Err(wireguard::Error::RestError(error)) => Err(Error::RestError(error)),
+                    // This result should never occur
+                    Err(wireguard::Error::TooManyKeys) => Err(Error::TooManyKeys),
+                    _ => Ok(()),
+                }
+            } else {
+                Ok(())
             }
         }
     }
@@ -1608,15 +1628,29 @@ where
     async fn on_factory_reset(&mut self, tx: ResponseTx<(), Error>) {
         let mut last_error = Ok(());
 
+        let remove_key = self.remove_current_key_rpc();
+        tokio::spawn(async move {
+            if let Err(error) = remove_key.await {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to remove WireGuard key for previous account"
+                    )
+                );
+            }
+        });
+
+        if let Err(error) = self.account_history.clear().await {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to clear account history")
+            );
+            last_error = Err(Error::ClearAccountHistoryError(error));
+        }
 
         if let Err(e) = self.settings.reset().await {
             log::error!("Failed to reset settings - {}", e);
             last_error = Err(Error::ClearSettingsError(e));
-        }
-
-        if let Err(e) = self.account_history.clear().await {
-            log::error!("Failed to clear account history - {}", e);
-            last_error = Err(Error::ClearAccountHistoryError(e));
         }
 
         // Shut the daemon down.
@@ -1969,13 +2003,7 @@ where
 
     async fn ensure_wireguard_keys_for_current_account(&mut self) {
         if let Some(account) = self.settings.get_account_token() {
-            if self
-                .account_history
-                .get(&account)
-                .await
-                .map(|entry| entry.map(|e| e.wireguard.is_none()).unwrap_or(true))
-                .unwrap_or(true)
-            {
+            if self.settings.get_wireguard().is_none() {
                 log::info!("Generating new WireGuard key for account");
                 self.wireguard_key_manager
                     .spawn_key_generation_task(account, Some(FIRST_KEY_PUSH_TIMEOUT))
@@ -2007,23 +2035,9 @@ where
             .settings
             .get_account_token()
             .ok_or(Error::NoAccountToken)?;
+        let wireguard_data = self.settings.get_wireguard();
 
-        let mut account_entry = self
-            .account_history
-            .get(&account_token)
-            .await
-            .map_err(Error::AccountHistory)
-            .map(|data| {
-                data.unwrap_or_else(|| {
-                    log::error!("Account token set in settings but not in account history");
-                    account_history::AccountEntry {
-                        account: account_token.clone(),
-                        wireguard: None,
-                    }
-                })
-            })?;
-
-        let gen_result = match &account_entry.wireguard {
+        let gen_result = match &wireguard_data {
             Some(wireguard_data) => {
                 self.wireguard_key_manager
                     .replace_key(account_token.clone(), wireguard_data.get_public_key())
@@ -2039,21 +2053,20 @@ where
         match gen_result {
             Ok(new_data) => {
                 let public_key = new_data.get_public_key();
-                account_entry.wireguard = Some(new_data);
-                self.account_history
-                    .insert(account_entry)
+                self.settings
+                    .set_wireguard(Some(new_data))
                     .await
-                    .map_err(Error::AccountHistory)?;
+                    .map_err(Error::SettingsError)?;
                 if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
                     self.schedule_reconnect(WG_RECONNECT_DELAY).await;
                 }
-                let keygen_event = KeygenEvent::NewKey(public_key);
+                let keygen_event = KeygenEvent::NewKey(public_key.clone());
                 self.event_listener.notify_key_event(keygen_event.clone());
 
                 // update automatic rotation
                 self.wireguard_key_manager
                     .set_rotation_interval(
-                        &mut self.account_history,
+                        public_key,
                         account_token,
                         self.settings.tunnel_options.wireguard.rotation_interval,
                     )
@@ -2067,17 +2080,11 @@ where
     }
 
     async fn on_get_wireguard_key(&mut self, tx: ResponseTx<Option<wireguard::PublicKey>, Error>) {
-        let token = self.settings.get_account_token();
-        let result = if let Some(token) = token {
-            let entry = self.account_history.get(&token).await;
-            match entry {
-                Ok(Some(entry)) => {
-                    let key = entry.wireguard.map(|wg| wg.get_public_key());
-                    Ok(key)
-                }
-                Ok(None) => Err(Error::NoAccountTokenHistory),
-                Err(error) => Err(Error::AccountHistory(error)),
-            }
+        let result = if self.settings.get_account_token().is_some() {
+            Ok(self
+                .settings
+                .get_wireguard()
+                .map(|data| data.get_public_key()))
         } else {
             Err(Error::NoAccountToken)
         };
@@ -2092,26 +2099,10 @@ where
                 return;
             }
         };
-
-        let key = self
-            .account_history
-            .get(&account)
-            .await
-            .map(|entry| entry.and_then(|e| e.wireguard.map(|wg| wg.private_key.public_key())));
-
-        let public_key = match key {
-            Ok(Some(public_key)) => public_key,
-            Ok(None) => {
+        let public_key = match self.settings.get_wireguard() {
+            Some(wg_data) => wg_data.private_key.public_key(),
+            None => {
                 Self::oneshot_send(tx, Ok(false), "verify_wireguard_key response");
-                return;
-            }
-            Err(e) => {
-                log::error!("Failed to read key data: {}", e);
-                Self::oneshot_send(
-                    tx,
-                    Err(Error::AccountHistory(e)),
-                    "verify_wireguard_key response",
-                );
                 return;
             }
         };
