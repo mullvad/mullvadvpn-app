@@ -215,11 +215,17 @@ impl TunnelStateMachine {
         };
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
-        let dns_monitor =
-            DnsMonitor::new(runtime.clone(), cache_dir).map_err(Error::InitDnsMonitorError)?;
         let route_manager = RouteManager::new(runtime.clone(), HashSet::new())
             .await
             .map_err(Error::InitRouteManagerError)?;
+        let dns_monitor = DnsMonitor::new(
+            runtime.clone(),
+            route_manager
+                .handle()
+                .map_err(Error::InitRouteManagerError)?,
+            cache_dir,
+        )
+        .map_err(Error::InitDnsMonitorError)?;
         let mut offline_monitor = offline::spawn_monitor(
             route_manager
                 .handle()

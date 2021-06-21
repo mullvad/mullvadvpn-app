@@ -1,4 +1,7 @@
-use crate::linux::{iface_index, IfaceIndexLookupError};
+use crate::{
+    linux::{iface_index, IfaceIndexLookupError},
+    routing::RouteManagerHandle,
+};
 use futures::{channel::mpsc, StreamExt};
 use std::{
     collections::BTreeMap,
@@ -56,11 +59,17 @@ impl SystemdResolved {
         Ok(systemd_resolved)
     }
 
-    pub async fn set_dns(&mut self, interface_name: &str, servers: &[IpAddr]) -> Result<()> {
+    pub async fn set_dns(
+        &mut self,
+        route_manager: RouteManagerHandle,
+        interface_name: &str,
+        servers: &[IpAddr],
+    ) -> Result<()> {
         let (update_tx, mut update_rx) = mpsc::unbounded();
-        let (monitor, initial_config) = super::routing::spawn_monitor(servers.to_vec(), update_tx)
-            .await
-            .map_err(Error::SpawnInterfaceMonitor)?;
+        let (monitor, initial_config) =
+            super::routing::spawn_monitor(route_manager, servers.to_vec(), update_tx)
+                .await
+                .map_err(Error::SpawnInterfaceMonitor)?;
 
         let tunnel_index = iface_index(interface_name)?;
         self.tunnel_index = tunnel_index;

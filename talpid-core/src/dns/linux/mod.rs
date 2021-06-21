@@ -8,6 +8,7 @@ use self::{
     network_manager::NetworkManager, resolvconf::Resolvconf, static_resolv_conf::StaticResolvConf,
     systemd_resolved::SystemdResolved,
 };
+use crate::routing::RouteManagerHandle;
 use std::{env, fmt, net::IpAddr, path::Path};
 
 
@@ -40,6 +41,7 @@ pub enum Error {
 }
 
 pub struct DnsMonitor {
+    route_manager: RouteManagerHandle,
     handle: tokio::runtime::Handle,
     inner: Option<DnsMonitorHolder>,
 }
@@ -47,8 +49,13 @@ pub struct DnsMonitor {
 impl super::DnsMonitorT for DnsMonitor {
     type Error = Error;
 
-    fn new(handle: tokio::runtime::Handle, _cache_dir: impl AsRef<Path>) -> Result<Self> {
+    fn new(
+        handle: tokio::runtime::Handle,
+        route_manager: RouteManagerHandle,
+        _cache_dir: impl AsRef<Path>,
+    ) -> Result<Self> {
         Ok(DnsMonitor {
+            route_manager,
             handle,
             inner: None,
         })
@@ -58,7 +65,7 @@ impl super::DnsMonitorT for DnsMonitor {
         self.reset()?;
         // Creating a new DNS monitor for each set, in case the system changed how it manages DNS.
         let mut inner = DnsMonitorHolder::new()?;
-        inner.set(&self.handle, interface, servers)?;
+        inner.set(&self.handle, &self.route_manager, interface, servers)?;
         self.inner = Some(inner);
         Ok(())
     }
@@ -128,6 +135,7 @@ impl DnsMonitorHolder {
     fn set(
         &mut self,
         handle: &tokio::runtime::Handle,
+        route_manager: &RouteManagerHandle,
         interface: &str,
         servers: &[IpAddr],
     ) -> Result<()> {
@@ -137,9 +145,8 @@ impl DnsMonitorHolder {
             StaticResolvConf(ref mut static_resolv_conf) => {
                 static_resolv_conf.set_dns(servers.to_vec())?
             }
-            SystemdResolved(ref mut systemd_resolved) => {
-                handle.block_on(systemd_resolved.set_dns(interface, &servers))?
-            }
+            SystemdResolved(ref mut systemd_resolved) => handle
+                .block_on(systemd_resolved.set_dns(route_manager.clone(), interface, &servers))?,
             NetworkManager(ref mut network_manager) => {
                 network_manager.set_dns(interface, servers)?
             }
