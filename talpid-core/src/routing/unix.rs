@@ -3,14 +3,17 @@
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
 use super::{RequiredRoute, Route};
 
-use futures::{
-    channel::{
-        mpsc::{self, UnboundedSender},
-        oneshot,
-    },
-    stream::Stream,
+use futures::channel::{
+    mpsc::{self, UnboundedSender},
+    oneshot,
 };
 use std::{collections::HashSet, io};
+
+#[cfg(target_os = "linux")]
+use futures::stream::Stream;
+
+#[cfg(target_os = "linux")]
+use std::net::IpAddr;
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -103,6 +106,27 @@ impl RouteManagerHandle {
             .map_err(|_| Error::RouteManagerDown)?;
         response_rx.await.map_err(|_| Error::ManagerChannelDown)
     }
+
+    /// Listen for route changes.
+    #[cfg(target_os = "linux")]
+    pub async fn get_destination_route(
+        &self,
+        destination: IpAddr,
+        set_mark: bool,
+    ) -> Result<Option<Route>, Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::GetDestinationRoute(
+                destination,
+                set_mark,
+                response_tx,
+            ))
+            .map_err(|_| Error::RouteManagerDown)?;
+        response_rx
+            .await
+            .map_err(|_| Error::ManagerChannelDown)?
+            .map_err(Error::PlatformError)
+    }
 }
 
 /// Commands for the underlying route manager object.
@@ -120,6 +144,12 @@ pub(crate) enum RouteManagerCommand {
     ClearRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
     #[cfg(target_os = "linux")]
     NewChangeListener(oneshot::Sender<mpsc::UnboundedReceiver<CallbackMessage>>),
+    #[cfg(target_os = "linux")]
+    GetDestinationRoute(
+        IpAddr,
+        bool,
+        oneshot::Sender<Result<Option<Route>, PlatformError>>,
+    ),
 }
 
 #[derive(Debug, Clone)]

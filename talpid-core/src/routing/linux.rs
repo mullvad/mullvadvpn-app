@@ -17,7 +17,7 @@ use futures::{
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use netlink_packet_route::{
-    constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL},
+    constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL, NLM_F_REQUEST},
     link::{nlas::Nla as LinkNla, LinkMessage},
     route::{nlas::Nla as RouteNla, RouteHeader, RouteMessage},
     rtnl::{
@@ -33,7 +33,7 @@ use netlink_packet_route::{
 use rtnetlink::{
     constants::{RTMGRP_IPV4_ROUTE, RTMGRP_IPV6_ROUTE, RTMGRP_LINK, RTMGRP_NOTIFY},
     sys::SocketAddr,
-    Handle,
+    Handle, IpVersion,
 };
 
 use libc::{AF_INET, AF_INET6};
@@ -108,6 +108,12 @@ pub enum Error {
 
     #[error(display = "Unknown device index - {}", _0)]
     UnknownDeviceIndex(u32),
+
+    #[error(display = "Failed to get a route for the given IP address")]
+    GetRouteError(#[error(source)] rtnetlink::Error),
+
+    #[error(display = "No netlink response for route query")]
+    NoRouteError,
 
     /// Unable to create routing table for tagged connections and packets.
     #[error(display = "Cannot find a free routing table ID")]
@@ -358,6 +364,9 @@ impl RouteManagerImpl {
             }
             RouteManagerCommand::NewChangeListener(result_tx) => {
                 let _ = result_tx.send(self.listen());
+            }
+            RouteManagerCommand::GetDestinationRoute(destination, set_mark, result_tx) => {
+                let _ = result_tx.send(self.get_destination_route(&destination, set_mark).await);
             }
             RouteManagerCommand::ClearRoutes => {
                 log::debug!("Clearing routes");
@@ -715,6 +724,36 @@ impl RouteManagerImpl {
             );
         }
     }
+
+    async fn get_destination_route(
+        &self,
+        destination: &IpAddr,
+        set_mark: bool,
+    ) -> Result<Option<Route>> {
+        let mut request = self.handle.route().get(get_ip_version(destination));
+        let octets = match destination {
+            IpAddr::V4(address) => address.octets().to_vec(),
+            IpAddr::V6(address) => address.octets().to_vec(),
+        };
+        let message = request.message_mut();
+        if set_mark {
+            message
+                .nlas
+                .push(RouteNla::Mark(crate::linux::TUNNEL_FW_MARK));
+        }
+        message.header.destination_prefix_length = 8u8 * (octets.len() as u8);
+        message.header.flags = RouteFlags::RTM_F_FIB_MATCH;
+        message.nlas.push(RouteNla::Destination(octets));
+        let mut stream = execute_route_get_request(self.handle.clone(), message.clone());
+        match stream.try_next().await {
+            Ok(Some(route_msg)) => self.parse_route_message(route_msg),
+            Ok(None) => Err(Error::NoRouteError),
+            Err(rtnetlink::Error::NetlinkError(nl_err)) if nl_err.code == -libc::ENETUNREACH => {
+                Ok(None)
+            }
+            Err(err) => Err(Error::GetRouteError(err)),
+        }
+    }
 }
 
 fn ip_to_bytes(addr: IpAddr) -> Vec<u8> {
@@ -730,6 +769,39 @@ fn compat_table_id(id: u32) -> u8 {
         RT_TABLE_COMPAT
     } else {
         id as u8
+    }
+}
+
+fn get_ip_version(addr: &IpAddr) -> IpVersion {
+    if addr.is_ipv4() {
+        IpVersion::V4
+    } else {
+        IpVersion::V6
+    }
+}
+
+fn execute_route_get_request(
+    mut handle: Handle,
+    message: RouteMessage,
+) -> impl TryStream<Ok = RouteMessage, Error = rtnetlink::Error> {
+    use futures::future::{self, Either};
+    use rtnetlink::Error;
+
+    let mut req = NetlinkMessage::from(RtnlMessage::GetRoute(message));
+    req.header.flags = NLM_F_REQUEST;
+
+    match handle.request(req) {
+        Ok(response) => Either::Left(response.map(move |msg| {
+            let (header, payload) = msg.into_parts();
+            match payload {
+                NetlinkPayload::InnerMessage(RtnlMessage::NewRoute(msg)) => Ok(msg),
+                NetlinkPayload::Error(err) => Err(Error::NetlinkError(err)),
+                _ => Err(Error::UnexpectedMessage(NetlinkMessage::new(
+                    header, payload,
+                ))),
+            }
+        })),
+        Err(e) => Either::Right(future::err::<RouteMessage, Error>(e).into_stream()),
     }
 }
 
