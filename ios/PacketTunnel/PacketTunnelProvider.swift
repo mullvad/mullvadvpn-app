@@ -551,10 +551,8 @@ extension PacketTunnelState: CustomStringConvertible, CustomDebugStringConvertib
 extension WireGuardLogLevel {
     var loggerLevel: Logger.Level {
         switch self {
-        case .debug:
+        case .verbose:
             return .debug
-        case .info:
-            return .info
         case .error:
             return .error
         }
