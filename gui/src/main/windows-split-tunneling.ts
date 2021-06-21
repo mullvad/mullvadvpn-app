@@ -64,8 +64,16 @@ export async function getApplications(options: {
     await updateShortcutCache();
   }
 
+  const realApplicationPaths =
+    options.applicationPaths &&
+    (await Promise.all(
+      options.applicationPaths.map((applicationPath) => fs.promises.realpath(applicationPath)),
+    ));
+
   // Add excluded apps that are missing from the shortcut cache to it
-  options.applicationPaths?.forEach(addApplicationToAdditionalShortcuts);
+  if (realApplicationPaths) {
+    realApplicationPaths.forEach(addApplicationToAdditionalShortcuts);
+  }
 
   await updateApplicationCache();
   // If applicationPaths is supplied the returnvalue should only contain the applications
@@ -73,8 +81,8 @@ export async function getApplications(options: {
   const applications = Object.values(applicationCache)
     .filter(
       (application) =>
-        options.applicationPaths === undefined ||
-        options.applicationPaths.includes(application.absolutepath),
+        realApplicationPaths === undefined ||
+        realApplicationPaths.includes(application.absolutepath),
     )
     .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -85,15 +93,21 @@ export async function getApplications(options: {
 }
 
 // Adds either a shortcut or an executable to the additionalShortcuts list
-export function addApplicationPathToCache(applicationPath: string): string {
+export async function addApplicationPathToCache(applicationPath: string): Promise<string> {
   const parsedPath = path.parse(applicationPath);
   if (parsedPath.ext === '.lnk') {
     const shortcutDetiails = shell.readShortcutLink(path.resolve(applicationPath));
-    additionalShortcuts.push({ ...shortcutDetiails, name: path.parse(applicationPath).name });
+    const realpath = await fs.promises.realpath(shortcutDetiails.target);
+    additionalShortcuts.push({
+      ...shortcutDetiails,
+      target: realpath,
+      name: path.parse(applicationPath).name,
+    });
     return shortcutDetiails.target;
   } else {
-    addApplicationToAdditionalShortcuts(applicationPath);
-    return applicationPath;
+    const realpath = await fs.promises.realpath(applicationPath);
+    addApplicationToAdditionalShortcuts(realpath);
+    return realpath;
   }
 }
 
@@ -102,10 +116,11 @@ export function addApplicationPathToCache(applicationPath: string): string {
 // "WS2_32.dll" in it's imports.
 async function updateShortcutCache(): Promise<void> {
   const links = await Promise.all(APPLICATION_PATHS.map(findAllLinks));
-  const resolvedLinks = removeDuplicates(resolveLinks(links.flat()));
+  const resolvedLinks = await resolveLinks(links.flat());
+  const uniqueLinks = removeDuplicates(resolvedLinks);
 
   const shortcuts: ShortcutDetails[] = [];
-  for (const shortcut of resolvedLinks) {
+  for (const shortcut of uniqueLinks) {
     if (
       APPLICATION_ALLOW_LIST.includes(path.basename(shortcut.target)) ||
       (await importsDll(shortcut.target, 'WS2_32.dll'))
@@ -159,26 +174,30 @@ async function findAllLinks(path: string): Promise<string[]> {
   }
 }
 
-function resolveLinks(linkPaths: string[]): ShortcutDetails[] {
-  return linkPaths
-    .map((link) => {
+async function resolveLinks(linkPaths: string[]): Promise<ShortcutDetails[]> {
+  const applications = await Promise.all(
+    linkPaths.map(async (link) => {
       try {
+        const application = shell.readShortcutLink(path.resolve(link));
         return {
-          ...shell.readShortcutLink(path.resolve(link)),
+          ...application,
+          target: await fs.promises.realpath(application.target),
           name: path.parse(link).name,
         };
       } catch (_e) {
         return null;
       }
-    })
-    .filter(
-      (shortcut): shortcut is ShortcutDetails =>
-        shortcut !== null &&
-        shortcut.name !== 'Mullvad VPN' &&
-        shortcut.target.endsWith('.exe') &&
-        !shortcut.target.toLowerCase().includes('uninstall') &&
-        !shortcut.name.toLowerCase().includes('uninstall'),
-    );
+    }),
+  );
+
+  return applications.filter(
+    (shortcut): shortcut is ShortcutDetails =>
+      shortcut !== null &&
+      shortcut.name !== 'Mullvad VPN' &&
+      shortcut.target.endsWith('.exe') &&
+      !shortcut.target.toLowerCase().includes('uninstall') &&
+      !shortcut.name.toLowerCase().includes('uninstall'),
+  );
 }
 
 // Removes all duplicate shortcuts.

@@ -440,6 +440,14 @@ class ApplicationMain {
 
     this.registerIpcListeners();
 
+    if (windowsSplitTunneling) {
+      await Promise.all(
+        this.guiSettings.browsedForSplitTunnelingApplications.map(
+          windowsSplitTunneling.addApplicationPathToCache,
+        ),
+      );
+    }
+
     this.windowController = windowController;
     this.tray = tray;
 
@@ -1211,7 +1219,9 @@ class ApplicationMain {
         // that we want to add to the list of additional applications.
         if (typeof application === 'string') {
           this.guiSettings.addBrowsedForSplitTunnelingApplications(application);
-          const applicationPath = windowsSplitTunneling.addApplicationPathToCache(application);
+          const applicationPath = await windowsSplitTunneling.addApplicationPathToCache(
+            application,
+          );
           await this.daemonRpc.addSplitTunnelingApplication(applicationPath);
         } else {
           await this.daemonRpc.addSplitTunnelingApplication(application.absolutepath);
@@ -1301,12 +1311,6 @@ class ApplicationMain {
       this.browsingFiles = false;
       return response;
     });
-
-    if (windowsSplitTunneling) {
-      this.guiSettings.browsedForSplitTunnelingApplications.forEach(
-        windowsSplitTunneling.addApplicationPathToCache,
-      );
-    }
   }
 
   private async createNewAccount(): Promise<string> {
