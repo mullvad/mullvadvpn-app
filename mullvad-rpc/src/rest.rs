@@ -133,6 +133,7 @@ impl RequestService {
                 let (request_future, abort_handle) =
                     abortable(self.client.request(hyper_request).map_err(Error::from));
                 let address_cache = self.address_cache.clone();
+                let handle = self.handle.clone();
 
                 let future = async move {
                     let response =
@@ -145,19 +146,20 @@ impl RequestService {
                         if let Err(err) = &response {
                             match err {
                                 Error::HyperError(_) | Error::TimeoutError(_) => {
+                                    log::error!("HTTP request failed: {}", err);
                                     let current_address = address_cache.peek_address();
                                     if current_address == host_addr
                                         && address_cache.has_tried_current_address()
                                     {
-                                        address_cache.select_new_address().await;
-                                        let new_address = address_cache.peek_address();
-
-                                        log::error!(
-                                            "HTTP request failed: {}, using address {}. Trying next API address: {}",
-                                            err,
-                                            current_address,
-                                            new_address,
-                                        );
+                                        handle.spawn(async move {
+                                            address_cache.select_new_address().await;
+                                            let new_address = address_cache.peek_address();
+                                            log::error!(
+                                                "Request failed using address {}. Trying next API address: {}",
+                                                current_address,
+                                                new_address,
+                                            );
+                                        });
                                     }
                                 }
                                 _ => (),
