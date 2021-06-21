@@ -496,12 +496,12 @@ fn ip_from_bytes(bytes: &[u8]) -> Option<IpAddr> {
     match bytes.len() {
         4 => {
             let mut ipv4_bytes = [0u8; 4];
-            &mut ipv4_bytes.copy_from_slice(bytes);
+            ipv4_bytes.copy_from_slice(bytes);
             Some(IpAddr::from(ipv4_bytes))
         }
         16 => {
             let mut ipv6_bytes = [0u8; 16];
-            &mut ipv6_bytes.copy_from_slice(bytes);
+            ipv6_bytes.copy_from_slice(bytes);
             Some(IpAddr::from(ipv6_bytes))
         }
         _ => None,
