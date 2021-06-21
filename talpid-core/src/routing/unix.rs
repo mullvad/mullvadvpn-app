@@ -1,11 +1,14 @@
 #![cfg_attr(target_os = "android", allow(dead_code))]
 #![cfg_attr(target_os = "windows", allow(dead_code))]
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
-use super::RequiredRoute;
+use super::{RequiredRoute, Route};
 
-use futures::channel::{
-    mpsc::{self, UnboundedSender},
-    oneshot,
+use futures::{
+    channel::{
+        mpsc::{self, UnboundedSender},
+        oneshot,
+    },
+    stream::Stream,
 };
 use std::{collections::HashSet, io};
 
@@ -90,6 +93,16 @@ impl RouteManagerHandle {
             .map_err(|_| Error::ManagerChannelDown)?
             .map_err(Error::PlatformError)
     }
+
+    /// Listen for route changes.
+    #[cfg(target_os = "linux")]
+    pub async fn change_listener(&self) -> Result<impl Stream<Item = CallbackMessage>, Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::NewChangeListener(response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        response_rx.await.map_err(|_| Error::ManagerChannelDown)
+    }
 }
 
 /// Commands for the underlying route manager object.
@@ -105,6 +118,14 @@ pub(crate) enum RouteManagerCommand {
     CreateRoutingRules(bool, oneshot::Sender<Result<(), PlatformError>>),
     #[cfg(target_os = "linux")]
     ClearRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
+    #[cfg(target_os = "linux")]
+    NewChangeListener(oneshot::Sender<mpsc::UnboundedReceiver<CallbackMessage>>),
+}
+
+#[derive(Debug, Clone)]
+pub enum CallbackMessage {
+    NewRoute(Route),
+    DelRoute(Route),
 }
 
 /// RouteManager applies a set of routes to the route table.

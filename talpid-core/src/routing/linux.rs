@@ -1,4 +1,7 @@
-use crate::routing::{imp::RouteManagerCommand, NetNode, Node, RequiredRoute, Route};
+use crate::routing::{
+    imp::{CallbackMessage, RouteManagerCommand},
+    NetNode, Node, RequiredRoute, Route,
+};
 use std::{
     collections::{BTreeMap, HashSet},
     io,
@@ -6,7 +9,11 @@ use std::{
 };
 use talpid_types::ErrorExt;
 
-use futures::{channel::mpsc::UnboundedReceiver, future::FutureExt, StreamExt, TryStreamExt};
+use futures::{
+    channel::mpsc::{UnboundedReceiver, UnboundedSender},
+    future::FutureExt,
+    StreamExt, TryStream, TryStreamExt,
+};
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use netlink_packet_route::{
@@ -115,6 +122,7 @@ pub struct RouteManagerImpl {
     handle: Handle,
     messages: UnboundedReceiver<(NetlinkMessage<RtnlMessage>, SocketAddr)>,
     iface_map: BTreeMap<u32, NetworkInterface>,
+    listeners: Vec<UnboundedSender<CallbackMessage>>,
 
     // currently added routes
     added_routes: HashSet<Route>,
@@ -137,9 +145,10 @@ impl RouteManagerImpl {
         let iface_map = Self::initialize_link_map(&handle).await?;
 
         let mut monitor = Self {
-            iface_map,
             handle,
             messages,
+            iface_map,
+            listeners: vec![],
             added_routes: HashSet::new(),
         };
 
@@ -295,8 +304,8 @@ impl RouteManagerImpl {
             .map(|(idx, _name)| *idx)
     }
 
-    async fn process_deleted_route(&mut self, route: Route) -> Result<()> {
-        self.added_routes.remove(&route);
+    fn process_deleted_route(&mut self, route: &Route) -> Result<()> {
+        self.added_routes.remove(route);
         Ok(())
     }
 
@@ -347,6 +356,9 @@ impl RouteManagerImpl {
             RouteManagerCommand::ClearRoutingRules(result_tx) => {
                 let _ = result_tx.send(self.clear_routing_rules().await);
             }
+            RouteManagerCommand::NewChangeListener(result_tx) => {
+                let _ = result_tx.send(self.listen());
+            }
             RouteManagerCommand::ClearRoutes => {
                 log::debug!("Clearing routes");
                 self.cleanup_routes().await;
@@ -367,14 +379,25 @@ impl RouteManagerImpl {
                     self.iface_map.remove(&idx);
                 }
             }
+            NetlinkPayload::InnerMessage(RtnlMessage::NewRoute(new_route)) => {
+                if let Some(addition) = self.parse_route_message(new_route)? {
+                    self.notify_change_listeners(CallbackMessage::NewRoute(addition));
+                }
+            }
             NetlinkPayload::InnerMessage(RtnlMessage::DelRoute(old_route)) => {
                 if let Some(deletion) = self.parse_route_message(old_route)? {
-                    self.process_deleted_route(deletion).await?;
+                    self.process_deleted_route(&deletion)?;
+                    self.notify_change_listeners(CallbackMessage::DelRoute(deletion));
                 }
             }
             _ => (),
         };
         Ok(())
+    }
+
+    fn notify_change_listeners(&mut self, message: CallbackMessage) {
+        self.listeners
+            .retain(|listener| listener.unbounded_send(message.clone()).is_ok());
     }
 
     // Tries to coax a Route out of a RouteMessage
@@ -674,6 +697,12 @@ impl RouteManagerImpl {
         self.add_route_direct(route.clone()).await?;
         self.added_routes.insert(route);
         Ok(())
+    }
+
+    fn listen(&mut self) -> UnboundedReceiver<CallbackMessage> {
+        let (tx, rx) = futures::channel::mpsc::unbounded();
+        self.listeners.push(tx);
+        rx
     }
 
     async fn destructor(&mut self) {
