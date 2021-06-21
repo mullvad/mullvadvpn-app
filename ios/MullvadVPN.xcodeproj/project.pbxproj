@@ -223,6 +223,7 @@
 		58F3C0A624A50157003E76BE /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
 		58F3C0A724A50C02003E76BE /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 58F3C0A524A50155003E76BE /* relays.json */; };
 		58F558DD2695B85E00F630D0 /* Consent.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558DB2695B85E00F630D0 /* Consent.strings */; };
+		58F558E02695BD3E00F630D0 /* Login.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558DE2695BD3E00F630D0 /* Login.strings */; };
 		58F558E32695D1D800F630D0 /* Preferences.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558E12695D1D800F630D0 /* Preferences.strings */; };
 		58F5590E2697002100F630D0 /* Main.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559052697002000F630D0 /* Main.strings */; };
 		58F5590F2697002100F630D0 /* ConnectionPanel.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559072697002100F630D0 /* ConnectionPanel.strings */; };
@@ -443,6 +444,7 @@
 		58F3C0A3249CB069003E76BE /* HeaderBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderBarView.swift; sourceTree = "<group>"; };
 		58F3C0A524A50155003E76BE /* relays.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = relays.json; sourceTree = "<group>"; };
 		58F558DC2695B85E00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Consent.strings; sourceTree = "<group>"; };
+		58F558DF2695BD3E00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Login.strings; sourceTree = "<group>"; };
 		58F558E22695D1D800F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Preferences.strings; sourceTree = "<group>"; };
 		58F559062697002000F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		58F559082697002100F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ConnectionPanel.strings; sourceTree = "<group>"; };
@@ -555,9 +557,10 @@
 				58F559072697002100F630D0 /* ConnectionPanel.strings */,
 				58F558DB2695B85E00F630D0 /* Consent.strings */,
 				587B7543266922BF00DEF7E9 /* Localizable.strings */,
+				58F558DE2695BD3E00F630D0 /* Login.strings */,
 				58F559052697002000F630D0 /* Main.strings */,
-				582CFEE8269463B80072883A /* Settings.strings */,
 				58F558E12695D1D800F630D0 /* Preferences.strings */,
+				582CFEE8269463B80072883A /* Settings.strings */,
 				58F61F4D2692F21C00DCFC2B /* WireguardKeys.strings */,
 			);
 			name = Localizations;
@@ -968,6 +971,7 @@
 				58727283265D173C00F315B2 /* LaunchScreen.storyboard in Resources */,
 				586ADD4723FC13F400CE9E87 /* countries.geo.json in Resources */,
 				58F5590F2697002100F630D0 /* ConnectionPanel.strings in Resources */,
+				58F558E02695BD3E00F630D0 /* Login.strings in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
 				5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */,
 				58F558E32695D1D800F630D0 /* Preferences.strings in Resources */,
@@ -1311,6 +1315,14 @@
 				58F558DC2695B85E00F630D0 /* en */,
 			);
 			name = Consent.strings;
+			sourceTree = "<group>";
+		};
+		58F558DE2695BD3E00F630D0 /* Login.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58F558DF2695BD3E00F630D0 /* en */,
+			);
+			name = Login.strings;
 			sourceTree = "<group>";
 		};
 		58F558E12695D1D800F630D0 /* Preferences.strings */ = {
