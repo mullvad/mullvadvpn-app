@@ -377,18 +377,8 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    // Tries to coax a Route out of a RouteMessage, but only if it's a route from the main routing
-    // table
-    // TODO: Change to account for different routing tables.
-    fn parse_route_message(&self, msg: RouteMessage) -> Result<Option<Route>> {
-        if msg.header.table != RT_TABLE_MAIN {
-            return Ok(None);
-        }
-        self.parse_route_message_inner(msg)
-    }
-
     // Tries to coax a Route out of a RouteMessage
-    fn parse_route_message_inner(&self, msg: RouteMessage) -> Result<Option<Route>> {
+    fn parse_route_message(&self, msg: RouteMessage) -> Result<Option<Route>> {
         let af_spec = msg.header.address_family;
         let destination_length = msg.header.destination_prefix_length;
         let is_ipv4 = match af_spec as i32 {
