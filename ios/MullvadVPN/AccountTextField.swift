@@ -16,15 +16,7 @@ class AccountTextField: UITextField, UITextFieldDelegate {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setup()
-    }
 
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        setup()
-    }
-
-    private func setup() {
         backgroundColor = UIColor.clear
 
         delegate = self
@@ -36,6 +28,10 @@ class AccountTextField: UITextField, UITextFieldDelegate {
             name: UIWindow.keyboardWillShowNotification,
             object: nil
         )
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     var autoformattingText: String {
@@ -76,13 +72,15 @@ class AccountTextField: UITextField, UITextFieldDelegate {
         return onReturnKey?(self) ?? true
     }
 
-    // MARK: - Keyboard notifications
+    // MARK: - Notifications
 
     @objc private func keyboardWillShow(_ notification: Notification) {
         if self.isFirstResponder {
             updateKeyboardReturnKey()
         }
     }
+
+    // MARK: - Keyboard
 
     private func updateKeyboardReturnKey() {
         setEnableKeyboardReturnKey(enableReturnKey)
@@ -92,6 +90,21 @@ class AccountTextField: UITextField, UITextFieldDelegate {
         let selector = NSSelectorFromString("setReturnKeyEnabled:")
         if let inputDelegate = self.inputDelegate as? NSObject, inputDelegate.responds(to: selector) {
             inputDelegate.setValue(enableReturnKey, forKey: "returnKeyEnabled")
+        }
+    }
+
+    // MARK: - Accessibility
+
+    override var accessibilityValue: String? {
+        set {
+            super.accessibilityValue = newValue
+        }
+        get {
+            if self.text?.isEmpty ?? true {
+                return ""
+            } else {
+                return super.accessibilityValue
+            }
         }
     }
 
