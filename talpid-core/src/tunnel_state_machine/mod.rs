@@ -220,17 +220,19 @@ impl TunnelStateMachine {
             .map_err(Error::InitRouteManagerError)?;
         let dns_monitor = DnsMonitor::new(
             runtime.clone(),
+            cache_dir,
+            #[cfg(target_os = "linux")]
             route_manager
                 .handle()
                 .map_err(Error::InitRouteManagerError)?,
-            cache_dir,
         )
         .map_err(Error::InitDnsMonitorError)?;
         let mut offline_monitor = offline::spawn_monitor(
+            command_tx,
+            #[cfg(target_os = "linux")]
             route_manager
                 .handle()
                 .map_err(Error::InitRouteManagerError)?,
-            command_tx,
             #[cfg(target_os = "android")]
             android_context,
         )

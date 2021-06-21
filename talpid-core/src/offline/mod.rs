@@ -1,4 +1,6 @@
-use crate::{routing::RouteManagerHandle, tunnel_state_machine::TunnelCommand};
+#[cfg(target_os = "linux")]
+use crate::routing::RouteManagerHandle;
+use crate::tunnel_state_machine::TunnelCommand;
 use futures::channel::mpsc::UnboundedSender;
 use std::sync::Weak;
 #[cfg(target_os = "android")]
@@ -41,14 +43,16 @@ impl MonitorHandle {
 }
 
 pub async fn spawn_monitor(
-    route_manager: RouteManagerHandle,
     sender: Weak<UnboundedSender<TunnelCommand>>,
+    #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<MonitorHandle, Error> {
     let monitor = if !*FORCE_DISABLE_OFFLINE_MONITOR {
         Some(
             imp::spawn_monitor(
                 sender,
+                #[cfg(target_os = "linux")]
+                route_manager,
                 #[cfg(target_os = "android")]
                 android_context,
             )

@@ -32,11 +32,16 @@ impl DnsMonitor {
     /// Returns a new `DnsMonitor` that can set and monitor the system DNS.
     pub fn new(
         handle: tokio::runtime::Handle,
-        route_manager: RouteManagerHandle,
         cache_dir: impl AsRef<Path>,
+        #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
     ) -> Result<Self, Error> {
         Ok(DnsMonitor {
-            inner: imp::DnsMonitor::new(handle, route_manager, cache_dir)?,
+            inner: imp::DnsMonitor::new(
+                handle,
+                cache_dir,
+                #[cfg(target_os = "linux")]
+                route_manager,
+            )?,
         })
     }
 
@@ -66,8 +71,8 @@ trait DnsMonitorT: Sized {
 
     fn new(
         handle: tokio::runtime::Handle,
-        route_manager: RouteManagerHandle,
         cache_dir: impl AsRef<Path>,
+        #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
     ) -> Result<Self, Self::Error>;
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Self::Error>;

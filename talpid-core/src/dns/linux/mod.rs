@@ -51,8 +51,8 @@ impl super::DnsMonitorT for DnsMonitor {
 
     fn new(
         handle: tokio::runtime::Handle,
-        route_manager: RouteManagerHandle,
         _cache_dir: impl AsRef<Path>,
+        route_manager: RouteManagerHandle,
     ) -> Result<Self> {
         Ok(DnsMonitor {
             route_manager,
