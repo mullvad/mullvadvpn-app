@@ -25,6 +25,10 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 - Show a reminder to add more credits 3 days before account expiry via system notification and in-app message.
+- Add submit button next to account input field on login screen.
+
+### Fixed
+- Update WireGuardKit to the latest. Fixes iOS 15 support.
 
 ## [2021.2] - 2021-06-03
 ### Added
