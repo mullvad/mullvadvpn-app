@@ -107,8 +107,6 @@ class RootContainerViewController: UIViewController {
         addTransitionView()
         addHeaderBarView()
         updateHeaderBarBackground()
-
-        accessibilityElements = [headerBarView, transitionContainer]
     }
 
     override func viewDidLayoutSubviews() {
@@ -361,6 +359,7 @@ class RootContainerViewController: UIViewController {
             }
 
             self.updateInterfaceOrientation(attemptRotateToDeviceOrientation: true)
+            self.updateAccessibilityElementsAndNotifyScreenChange()
 
             completion?()
         }
@@ -550,6 +549,14 @@ class RootContainerViewController: UIViewController {
             disappearingController = nil
             controller.endAppearanceTransition()
         }
+    }
+
+    private func updateAccessibilityElementsAndNotifyScreenChange() {
+        // Update accessibility elements to define the correct navigation order: header bar, content view.
+        view.accessibilityElements = [headerBarView, topViewController?.view].compactMap { $0 }
+
+        // Tell accessibility that the significant part of screen was changed.
+        UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 
 }
