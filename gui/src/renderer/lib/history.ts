@@ -69,8 +69,18 @@ export default class History {
     this.notify(previousLocation);
   };
 
+  // Resets the history and reports the second entry as the previous location.
   public resetWith = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
     const previousLocation = this.entries[1];
+    this.entries = [this.createLocation(nextLocation, nextState)];
+    this.lastAction = 'REPLACE';
+    this.index = 0;
+    this.notify(previousLocation);
+  };
+
+  // Resets the history and reports the current entry as the previous location.
+  public resetTo = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
+    const previousLocation = this.location;
     this.entries = [this.createLocation(nextLocation, nextState)];
     this.lastAction = 'REPLACE';
     this.index = 0;
