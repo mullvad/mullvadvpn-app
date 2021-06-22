@@ -1,7 +1,9 @@
 #![cfg_attr(target_os = "android", allow(dead_code))]
 #![cfg_attr(target_os = "windows", allow(dead_code))]
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
-use super::{RequiredRoute, Route};
+use super::RequiredRoute;
+#[cfg(target_os = "linux")]
+use super::Route;
 
 use futures::channel::{
     mpsc::{self, UnboundedSender},
@@ -152,6 +154,7 @@ pub(crate) enum RouteManagerCommand {
     ),
 }
 
+#[cfg(target_os = "linux")]
 #[derive(Debug, Clone)]
 pub enum CallbackMessage {
     NewRoute(Route),

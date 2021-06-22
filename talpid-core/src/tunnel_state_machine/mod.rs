@@ -244,7 +244,7 @@ impl TunnelStateMachine {
             firewall,
             dns_monitor,
             route_manager,
-            offline_monitor,
+            _offline_monitor: offline_monitor,
             allow_lan,
             block_when_disconnected,
             is_offline,
@@ -314,7 +314,7 @@ struct SharedTunnelStateValues {
     firewall: Firewall,
     dns_monitor: DnsMonitor,
     route_manager: RouteManager,
-    offline_monitor: offline::MonitorHandle,
+    _offline_monitor: offline::MonitorHandle,
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,
     /// Should network access be allowed when in the disconnected state.
