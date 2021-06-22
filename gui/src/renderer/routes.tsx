@@ -41,9 +41,9 @@ class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
     // React throttles updates, so it's impossible to capture the intermediate navigation without
     // listening to the history directly.
     this.unobserveHistory = (this.props.history as History).listen(
-      (location, _action, affectedEntries) => {
+      (location, _action, previousLocation) => {
         this.setState({
-          previousLocation: affectedEntries[0],
+          previousLocation,
           currentLocation: location,
         });
       },
