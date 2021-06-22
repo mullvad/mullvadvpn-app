@@ -39,6 +39,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix failure to restart the daemon when resuming from "fast startup" hibernation.
 - Disable notification actions for persistent notifications since they were called when pressing
   close.
+- Remove deleted network devices from consideration in the offline monitor. Previously, the offline
+  monitor may have falsely reported the machine to be online due to a race condition.
 
 
 ## [2021.4-beta1] - 2021-06-09

@@ -10,6 +10,7 @@
 #include <functional>
 #include <vector>
 #include <mutex>
+#include <optional>
 
 class NetworkAdapterMonitor
 {
@@ -61,7 +62,7 @@ private:
 
 	std::mutex m_callbackLock;
 
-	MIB_IF_ROW2 getAdapter(NET_LUID luid) const;
+	std::optional<MIB_IF_ROW2> getAdapter(NET_LUID luid) const;
 
 	bool hasIPv4Interface(NET_LUID luid) const;
 	bool hasIPv6Interface(NET_LUID luid) const;
@@ -69,7 +70,7 @@ private:
 	std::map<ULONG64, MIB_IF_ROW2> m_adapters;
 	std::vector<MIB_IF_ROW2> m_filteredAdapters;
 
-	std::vector<MIB_IF_ROW2>::iterator findFilteredAdapter(const MIB_IF_ROW2 &adapter);
+	std::vector<MIB_IF_ROW2>::iterator findFilteredAdapter(const NET_LUID adapter);
 
 	HANDLE m_notificationHandle;
 	static void __stdcall Callback(void *context, MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE updateType);

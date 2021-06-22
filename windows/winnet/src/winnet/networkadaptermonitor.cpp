@@ -138,15 +138,15 @@ bool NetworkAdapterMonitor::hasIPv6Interface(NET_LUID luid) const
 	return false;
 }
 
-std::vector<MIB_IF_ROW2>::iterator NetworkAdapterMonitor::findFilteredAdapter(const MIB_IF_ROW2 &adapter)
+std::vector<MIB_IF_ROW2>::iterator NetworkAdapterMonitor::findFilteredAdapter(const NET_LUID adapter)
 {
 	return std::find_if(m_filteredAdapters.begin(), m_filteredAdapters.end(), [&adapter](const MIB_IF_ROW2 &elem)
 	{
-		return elem.InterfaceLuid.Value == adapter.InterfaceLuid.Value;
+		return elem.InterfaceLuid.Value == adapter.Value;
 	});
 }
 
-MIB_IF_ROW2 NetworkAdapterMonitor::getAdapter(NET_LUID luid) const
+std::optional<MIB_IF_ROW2> NetworkAdapterMonitor::getAdapter(NET_LUID luid) const
 {
 	MIB_IF_ROW2 rowOut = {0};
 	rowOut.InterfaceLuid = luid;
@@ -154,7 +154,11 @@ MIB_IF_ROW2 NetworkAdapterMonitor::getAdapter(NET_LUID luid) const
 
 	if (NO_ERROR == status)
 	{
-		return rowOut;
+		return std::make_optional(rowOut);
+	}
+	if (ERROR_FILE_NOT_FOUND == status)
+	{
+		return std::nullopt;
 	}
 
 	std::stringstream ss;
@@ -166,16 +170,19 @@ MIB_IF_ROW2 NetworkAdapterMonitor::getAdapter(NET_LUID luid) const
 
 void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFICATION_TYPE)
 {
-	MIB_IF_ROW2 iface = getAdapter(hint->InterfaceLuid);
+	const auto ifaceOpt = getAdapter(hint->InterfaceLuid);
 	
-	bool adapterEnabled = NET_IF_ADMIN_STATUS_UP == iface.AdminStatus
-		&& (hasIPv4Interface(iface.InterfaceLuid)
-			|| hasIPv6Interface(iface.InterfaceLuid));
+	bool adapterEnabled = ifaceOpt.has_value()
+		&& NET_IF_ADMIN_STATUS_UP == ifaceOpt->AdminStatus
+		&& (hasIPv4Interface(ifaceOpt->InterfaceLuid)
+			|| hasIPv6Interface(ifaceOpt->InterfaceLuid));
 
 	const auto adapterIt = m_adapters.find(hint->InterfaceLuid.Value);
 
 	if (adapterEnabled)
 	{
+		const auto &iface = *ifaceOpt;
+
 		//
 		// Check if the adapter has been added or updated
 		//
@@ -210,7 +217,7 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 			//
 			// Report Add event if this is new
 			//
-			if (m_filteredAdapters.end() == findFilteredAdapter(iface))
+			if (m_filteredAdapters.end() == findFilteredAdapter(iface.InterfaceLuid))
 			{
 				m_filteredAdapters.push_back(iface);
 				m_updateSink(m_filteredAdapters, &iface, UpdateType::Add);
@@ -226,7 +233,7 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 			// Synthesize a Delete event if we're no longer interested
 			// in this adapter
 			//
-			const auto filteredIt = findFilteredAdapter(iface);
+			const auto filteredIt = findFilteredAdapter(iface.InterfaceLuid);
 
 			if (m_filteredAdapters.end() != filteredIt)
 			{
@@ -252,10 +259,12 @@ void NetworkAdapterMonitor::callback(const MIB_IPINTERFACE_ROW *hint, MIB_NOTIFI
 
 		m_adapters.erase(adapterIt);
 
-		const auto filteredIt = findFilteredAdapter(iface);
+		const auto filteredIt = findFilteredAdapter(hint->InterfaceLuid);
 
 		if (m_filteredAdapters.end() != filteredIt)
 		{
+			const auto &iface = ifaceOpt.value_or(*filteredIt);
+
 			m_filteredAdapters.erase(filteredIt);
 
 			//
