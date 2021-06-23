@@ -1,4 +1,7 @@
-use crate::routing::{imp::RouteManagerCommand, NetNode, Node, RequiredRoute, Route};
+use crate::routing::{
+    imp::{CallbackMessage, RouteManagerCommand},
+    NetNode, Node, RequiredRoute, Route,
+};
 use std::{
     collections::{BTreeMap, HashSet},
     io,
@@ -6,11 +9,15 @@ use std::{
 };
 use talpid_types::ErrorExt;
 
-use futures::{channel::mpsc::UnboundedReceiver, future::FutureExt, StreamExt, TryStreamExt};
+use futures::{
+    channel::mpsc::{UnboundedReceiver, UnboundedSender},
+    future::FutureExt,
+    StreamExt, TryStream, TryStreamExt,
+};
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use netlink_packet_route::{
-    constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL},
+    constants::{ARPHRD_LOOPBACK, FIB_RULE_INVERT, FR_ACT_TO_TBL, NLM_F_REQUEST},
     link::{nlas::Nla as LinkNla, LinkMessage},
     route::{nlas::Nla as RouteNla, RouteHeader, RouteMessage},
     rtnl::{
@@ -26,7 +33,7 @@ use netlink_packet_route::{
 use rtnetlink::{
     constants::{RTMGRP_IPV4_ROUTE, RTMGRP_IPV6_ROUTE, RTMGRP_LINK, RTMGRP_NOTIFY},
     sys::SocketAddr,
-    Handle,
+    Handle, IpVersion,
 };
 
 use libc::{AF_INET, AF_INET6};
@@ -102,6 +109,12 @@ pub enum Error {
     #[error(display = "Unknown device index - {}", _0)]
     UnknownDeviceIndex(u32),
 
+    #[error(display = "Failed to get a route for the given IP address")]
+    GetRouteError(#[error(source)] rtnetlink::Error),
+
+    #[error(display = "No netlink response for route query")]
+    NoRouteError,
+
     /// Unable to create routing table for tagged connections and packets.
     #[error(display = "Cannot find a free routing table ID")]
     NoFreeRoutingTableId,
@@ -115,6 +128,7 @@ pub struct RouteManagerImpl {
     handle: Handle,
     messages: UnboundedReceiver<(NetlinkMessage<RtnlMessage>, SocketAddr)>,
     iface_map: BTreeMap<u32, NetworkInterface>,
+    listeners: Vec<UnboundedSender<CallbackMessage>>,
 
     // currently added routes
     added_routes: HashSet<Route>,
@@ -137,9 +151,10 @@ impl RouteManagerImpl {
         let iface_map = Self::initialize_link_map(&handle).await?;
 
         let mut monitor = Self {
-            iface_map,
             handle,
             messages,
+            iface_map,
+            listeners: vec![],
             added_routes: HashSet::new(),
         };
 
@@ -295,8 +310,8 @@ impl RouteManagerImpl {
             .map(|(idx, _name)| *idx)
     }
 
-    async fn process_deleted_route(&mut self, route: Route) -> Result<()> {
-        self.added_routes.remove(&route);
+    fn process_deleted_route(&mut self, route: &Route) -> Result<()> {
+        self.added_routes.remove(route);
         Ok(())
     }
 
@@ -347,6 +362,12 @@ impl RouteManagerImpl {
             RouteManagerCommand::ClearRoutingRules(result_tx) => {
                 let _ = result_tx.send(self.clear_routing_rules().await);
             }
+            RouteManagerCommand::NewChangeListener(result_tx) => {
+                let _ = result_tx.send(self.listen());
+            }
+            RouteManagerCommand::GetDestinationRoute(destination, set_mark, result_tx) => {
+                let _ = result_tx.send(self.get_destination_route(&destination, set_mark).await);
+            }
             RouteManagerCommand::ClearRoutes => {
                 log::debug!("Clearing routes");
                 self.cleanup_routes().await;
@@ -367,9 +388,15 @@ impl RouteManagerImpl {
                     self.iface_map.remove(&idx);
                 }
             }
+            NetlinkPayload::InnerMessage(RtnlMessage::NewRoute(new_route)) => {
+                if let Some(addition) = self.parse_route_message(new_route)? {
+                    self.notify_change_listeners(CallbackMessage::NewRoute(addition));
+                }
+            }
             NetlinkPayload::InnerMessage(RtnlMessage::DelRoute(old_route)) => {
                 if let Some(deletion) = self.parse_route_message(old_route)? {
-                    self.process_deleted_route(deletion).await?;
+                    self.process_deleted_route(&deletion)?;
+                    self.notify_change_listeners(CallbackMessage::DelRoute(deletion));
                 }
             }
             _ => (),
@@ -377,18 +404,13 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    // Tries to coax a Route out of a RouteMessage, but only if it's a route from the main routing
-    // table
-    // TODO: Change to account for different routing tables.
-    fn parse_route_message(&self, msg: RouteMessage) -> Result<Option<Route>> {
-        if msg.header.table != RT_TABLE_MAIN {
-            return Ok(None);
-        }
-        self.parse_route_message_inner(msg)
+    fn notify_change_listeners(&mut self, message: CallbackMessage) {
+        self.listeners
+            .retain(|listener| listener.unbounded_send(message.clone()).is_ok());
     }
 
     // Tries to coax a Route out of a RouteMessage
-    fn parse_route_message_inner(&self, msg: RouteMessage) -> Result<Option<Route>> {
+    fn parse_route_message(&self, msg: RouteMessage) -> Result<Option<Route>> {
         let af_spec = msg.header.address_family;
         let destination_length = msg.header.destination_prefix_length;
         let is_ipv4 = match af_spec as i32 {
@@ -686,6 +708,12 @@ impl RouteManagerImpl {
         Ok(())
     }
 
+    fn listen(&mut self) -> UnboundedReceiver<CallbackMessage> {
+        let (tx, rx) = futures::channel::mpsc::unbounded();
+        self.listeners.push(tx);
+        rx
+    }
+
     async fn destructor(&mut self) {
         self.cleanup_routes().await;
 
@@ -694,6 +722,36 @@ impl RouteManagerImpl {
                 "{}",
                 error.display_chain_with_msg("Failed to remove routing rules")
             );
+        }
+    }
+
+    async fn get_destination_route(
+        &self,
+        destination: &IpAddr,
+        set_mark: bool,
+    ) -> Result<Option<Route>> {
+        let mut request = self.handle.route().get(get_ip_version(destination));
+        let octets = match destination {
+            IpAddr::V4(address) => address.octets().to_vec(),
+            IpAddr::V6(address) => address.octets().to_vec(),
+        };
+        let message = request.message_mut();
+        if set_mark {
+            message
+                .nlas
+                .push(RouteNla::Mark(crate::linux::TUNNEL_FW_MARK));
+        }
+        message.header.destination_prefix_length = 8u8 * (octets.len() as u8);
+        message.header.flags = RouteFlags::RTM_F_FIB_MATCH;
+        message.nlas.push(RouteNla::Destination(octets));
+        let mut stream = execute_route_get_request(self.handle.clone(), message.clone());
+        match stream.try_next().await {
+            Ok(Some(route_msg)) => self.parse_route_message(route_msg),
+            Ok(None) => Err(Error::NoRouteError),
+            Err(rtnetlink::Error::NetlinkError(nl_err)) if nl_err.code == -libc::ENETUNREACH => {
+                Ok(None)
+            }
+            Err(err) => Err(Error::GetRouteError(err)),
         }
     }
 }
@@ -711,6 +769,39 @@ fn compat_table_id(id: u32) -> u8 {
         RT_TABLE_COMPAT
     } else {
         id as u8
+    }
+}
+
+fn get_ip_version(addr: &IpAddr) -> IpVersion {
+    if addr.is_ipv4() {
+        IpVersion::V4
+    } else {
+        IpVersion::V6
+    }
+}
+
+fn execute_route_get_request(
+    mut handle: Handle,
+    message: RouteMessage,
+) -> impl TryStream<Ok = RouteMessage, Error = rtnetlink::Error> {
+    use futures::future::{self, Either};
+    use rtnetlink::Error;
+
+    let mut req = NetlinkMessage::from(RtnlMessage::GetRoute(message));
+    req.header.flags = NLM_F_REQUEST;
+
+    match handle.request(req) {
+        Ok(response) => Either::Left(response.map(move |msg| {
+            let (header, payload) = msg.into_parts();
+            match payload {
+                NetlinkPayload::InnerMessage(RtnlMessage::NewRoute(msg)) => Ok(msg),
+                NetlinkPayload::Error(err) => Err(Error::NetlinkError(err)),
+                _ => Err(Error::UnexpectedMessage(NetlinkMessage::new(
+                    header, payload,
+                ))),
+            }
+        })),
+        Err(e) => Either::Right(future::err::<RouteMessage, Error>(e).into_stream()),
     }
 }
 

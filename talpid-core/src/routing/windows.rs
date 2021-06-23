@@ -41,20 +41,17 @@ pub struct RouteManager {
 /// Handle to a route manager.
 #[derive(Clone)]
 pub struct RouteManagerHandle {
-    runtime: tokio::runtime::Handle,
     tx: UnboundedSender<RouteManagerCommand>,
 }
 
 impl RouteManagerHandle {
     /// Applies the given routes while the route manager is running.
-    pub fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<()> {
+    pub async fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<()> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::AddRoutes(routes, response_tx))
             .map_err(|_| Error::RouteManagerDown)?;
-        self.runtime
-            .block_on(response_rx)
-            .map_err(|_| Error::ManagerChannelDown)?
+        response_rx.await.map_err(|_| Error::ManagerChannelDown)?
     }
 }
 
@@ -67,7 +64,7 @@ pub enum RouteManagerCommand {
 impl RouteManager {
     /// Creates a new route manager that will apply the provided routes and ensure they exist until
     /// it's stopped.
-    pub fn new(
+    pub async fn new(
         runtime: tokio::runtime::Handle,
         required_routes: HashSet<RequiredRoute>,
     ) -> Result<Self> {
@@ -89,10 +86,7 @@ impl RouteManager {
     /// Retrieve a sender directly to the command channel.
     pub fn handle(&self) -> Result<RouteManagerHandle> {
         if let Some(tx) = &self.manage_tx {
-            Ok(RouteManagerHandle {
-                runtime: self.runtime.clone(),
-                tx: tx.clone(),
-            })
+            Ok(RouteManagerHandle { tx: tx.clone() })
         } else {
             Err(Error::RouteManagerDown)
         }

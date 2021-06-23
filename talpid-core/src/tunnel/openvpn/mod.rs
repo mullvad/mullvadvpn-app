@@ -1028,19 +1028,14 @@ mod event_server {
                     .filter(|route| route.prefix.is_ipv4() || ipv6_enabled)
                     .collect();
 
-                tokio::task::spawn_blocking(move || {
-                    if let Err(error) = route_handle.add_routes(routes) {
-                        log::error!("{}", error.display_chain());
-                        return Err(tonic::Status::failed_precondition("Failed to add routes"));
-                    }
-                    if let Err(error) = route_handle.create_routing_rules(ipv6_enabled) {
-                        log::error!("{}", error.display_chain());
-                        return Err(tonic::Status::failed_precondition("Failed to add routes"));
-                    }
-                    Ok(())
-                })
-                .await
-                .map_err(|_| tonic::Status::internal("task failed to complete"))??;
+                if let Err(error) = route_handle.add_routes(routes).await {
+                    log::error!("{}", error.display_chain());
+                    return Err(tonic::Status::failed_precondition("Failed to add routes"));
+                }
+                if let Err(error) = route_handle.create_routing_rules(ipv6_enabled).await {
+                    log::error!("{}", error.display_chain());
+                    return Err(tonic::Status::failed_precondition("Failed to add routes"));
+                }
             }
 
             let tunnel_alias = env

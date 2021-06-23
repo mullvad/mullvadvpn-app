@@ -253,20 +253,24 @@ impl WireguardMonitor {
                 }
             }
 
-            let setup_iface_routes = move || -> Result<()> {
+            let setup_iface_routes = || -> Result<()> {
                 #[cfg(target_os = "windows")]
                 if !crate::winnet::add_device_ip_addresses(&iface_name, &config.tunnel.addresses) {
                     return Err(Error::SetIpAddressesError);
                 }
 
-                #[cfg(target_os = "linux")]
-                route_handle
-                    .create_routing_rules(config.enable_ipv6)
-                    .map_err(Error::SetupRoutingError)?;
+                runtime.block_on(async move {
+                    #[cfg(target_os = "linux")]
+                    route_handle
+                        .create_routing_rules(config.enable_ipv6)
+                        .await
+                        .map_err(Error::SetupRoutingError)?;
 
-                route_handle
-                    .add_routes(Self::get_routes(&iface_name, &config))
-                    .map_err(Error::SetupRoutingError)
+                    route_handle
+                        .add_routes(Self::get_routes(&iface_name, &config))
+                        .await
+                        .map_err(Error::SetupRoutingError)
+                })
             };
 
             if let Err(error) = setup_iface_routes() {

@@ -2,12 +2,20 @@
 #![cfg_attr(target_os = "windows", allow(dead_code))]
 // TODO: remove the allow(dead_code) for android once it's up to scratch.
 use super::RequiredRoute;
+#[cfg(target_os = "linux")]
+use super::Route;
 
 use futures::channel::{
     mpsc::{self, UnboundedSender},
     oneshot,
 };
 use std::{collections::HashSet, io};
+
+#[cfg(target_os = "linux")]
+use futures::stream::Stream;
+
+#[cfg(target_os = "linux")]
+use std::net::IpAddr;
 
 #[cfg(target_os = "macos")]
 #[path = "macos.rs"]
@@ -46,26 +54,25 @@ pub enum Error {
 /// Handle to a route manager.
 #[derive(Clone)]
 pub struct RouteManagerHandle {
-    runtime: tokio::runtime::Handle,
     tx: UnboundedSender<RouteManagerCommand>,
 }
 
 impl RouteManagerHandle {
     /// Applies the given routes while the route manager is running.
-    pub fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
+    pub async fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::AddRoutes(routes, response_tx))
             .map_err(|_| Error::RouteManagerDown)?;
-        self.runtime
-            .block_on(response_rx)
+        response_rx
+            .await
             .map_err(|_| Error::ManagerChannelDown)?
             .map_err(Error::PlatformError)
     }
 
     /// Ensure that packets are routed using the correct tables.
     #[cfg(target_os = "linux")]
-    pub fn create_routing_rules(&self, enable_ipv6: bool) -> Result<(), Error> {
+    pub async fn create_routing_rules(&self, enable_ipv6: bool) -> Result<(), Error> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::CreateRoutingRules(
@@ -73,21 +80,52 @@ impl RouteManagerHandle {
                 response_tx,
             ))
             .map_err(|_| Error::RouteManagerDown)?;
-        self.runtime
-            .block_on(response_rx)
+        response_rx
+            .await
             .map_err(|_| Error::ManagerChannelDown)?
             .map_err(Error::PlatformError)
     }
 
     /// Remove any routing rules created by [`create_routing_rules`].
     #[cfg(target_os = "linux")]
-    pub fn clear_routing_rules(&self) -> Result<(), Error> {
+    pub async fn clear_routing_rules(&self) -> Result<(), Error> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::ClearRoutingRules(response_tx))
             .map_err(|_| Error::RouteManagerDown)?;
-        self.runtime
-            .block_on(response_rx)
+        response_rx
+            .await
+            .map_err(|_| Error::ManagerChannelDown)?
+            .map_err(Error::PlatformError)
+    }
+
+    /// Listen for route changes.
+    #[cfg(target_os = "linux")]
+    pub async fn change_listener(&self) -> Result<impl Stream<Item = CallbackMessage>, Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::NewChangeListener(response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        response_rx.await.map_err(|_| Error::ManagerChannelDown)
+    }
+
+    /// Listen for route changes.
+    #[cfg(target_os = "linux")]
+    pub async fn get_destination_route(
+        &self,
+        destination: IpAddr,
+        set_mark: bool,
+    ) -> Result<Option<Route>, Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::GetDestinationRoute(
+                destination,
+                set_mark,
+                response_tx,
+            ))
+            .map_err(|_| Error::RouteManagerDown)?;
+        response_rx
+            .await
             .map_err(|_| Error::ManagerChannelDown)?
             .map_err(Error::PlatformError)
     }
@@ -106,6 +144,21 @@ pub(crate) enum RouteManagerCommand {
     CreateRoutingRules(bool, oneshot::Sender<Result<(), PlatformError>>),
     #[cfg(target_os = "linux")]
     ClearRoutingRules(oneshot::Sender<Result<(), PlatformError>>),
+    #[cfg(target_os = "linux")]
+    NewChangeListener(oneshot::Sender<mpsc::UnboundedReceiver<CallbackMessage>>),
+    #[cfg(target_os = "linux")]
+    GetDestinationRoute(
+        IpAddr,
+        bool,
+        oneshot::Sender<Result<Option<Route>, PlatformError>>,
+    ),
+}
+
+#[cfg(target_os = "linux")]
+#[derive(Debug, Clone)]
+pub enum CallbackMessage {
+    NewRoute(Route),
+    DelRoute(Route),
 }
 
 /// RouteManager applies a set of routes to the route table.
@@ -120,12 +173,12 @@ impl RouteManager {
     /// Constructs a RouteManager and applies the required routes.
     /// Takes a set of network destinations and network nodes as an argument, and applies said
     /// routes.
-    pub fn new(
+    pub async fn new(
         runtime: tokio::runtime::Handle,
         required_routes: HashSet<RequiredRoute>,
     ) -> Result<Self, Error> {
         let (manage_tx, manage_rx) = mpsc::unbounded();
-        let manager = runtime.block_on(imp::RouteManagerImpl::new(required_routes))?;
+        let manager = imp::RouteManagerImpl::new(required_routes).await?;
         runtime.spawn(manager.run(manage_rx));
 
         Ok(Self {
@@ -135,7 +188,7 @@ impl RouteManager {
     }
 
     /// Stops RouteManager and removes all of the applied routes.
-    pub fn stop(&mut self) {
+    pub async fn stop(&mut self) {
         if let Some(tx) = self.manage_tx.take() {
             let (wait_tx, wait_rx) = oneshot::channel();
 
@@ -147,14 +200,14 @@ impl RouteManager {
                 return;
             }
 
-            if self.runtime.block_on(wait_rx).is_err() {
+            if wait_rx.await.is_err() {
                 log::error!("{}", Error::ManagerChannelDown);
             }
         }
     }
 
     /// Applies the given routes until [`RouteManager::stop`] is called.
-    pub fn add_routes(&mut self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
+    pub async fn add_routes(&mut self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
         if let Some(tx) = &self.manage_tx {
             let (result_tx, result_rx) = oneshot::channel();
             if tx
@@ -164,8 +217,8 @@ impl RouteManager {
                 return Err(Error::RouteManagerDown);
             }
 
-            self.runtime
-                .block_on(result_rx)
+            result_rx
+                .await
                 .map_err(|_| Error::ManagerChannelDown)?
                 .map_err(Error::PlatformError)
         } else {
@@ -188,23 +241,20 @@ impl RouteManager {
 
     /// Ensure that packets are routed using the correct tables.
     #[cfg(target_os = "linux")]
-    pub fn create_routing_rules(&mut self, enable_ipv6: bool) -> Result<(), Error> {
-        self.handle()?.create_routing_rules(enable_ipv6)
+    pub async fn create_routing_rules(&mut self, enable_ipv6: bool) -> Result<(), Error> {
+        self.handle()?.create_routing_rules(enable_ipv6).await
     }
 
     /// Remove any routing rules created by [`create_routing_rules`].
     #[cfg(target_os = "linux")]
-    pub fn clear_routing_rules(&mut self) -> Result<(), Error> {
-        self.handle()?.clear_routing_rules()
+    pub async fn clear_routing_rules(&mut self) -> Result<(), Error> {
+        self.handle()?.clear_routing_rules().await
     }
 
     /// Retrieve a sender directly to the command channel.
     pub fn handle(&self) -> Result<RouteManagerHandle, Error> {
         if let Some(tx) = &self.manage_tx {
-            Ok(RouteManagerHandle {
-                runtime: self.runtime.clone(),
-                tx: tx.clone(),
-            })
+            Ok(RouteManagerHandle { tx: tx.clone() })
         } else {
             Err(Error::RouteManagerDown)
         }
@@ -219,6 +269,6 @@ impl RouteManager {
 
 impl Drop for RouteManager {
     fn drop(&mut self) {
-        self.stop();
+        self.runtime.clone().block_on(self.stop());
     }
 }

@@ -1,3 +1,5 @@
+#[cfg(target_os = "linux")]
+use crate::routing::RouteManagerHandle;
 use std::{net::IpAddr, path::Path};
 
 #[cfg(target_os = "macos")]
@@ -28,9 +30,18 @@ pub struct DnsMonitor {
 
 impl DnsMonitor {
     /// Returns a new `DnsMonitor` that can set and monitor the system DNS.
-    pub fn new(handle: tokio::runtime::Handle, cache_dir: impl AsRef<Path>) -> Result<Self, Error> {
+    pub fn new(
+        handle: tokio::runtime::Handle,
+        cache_dir: impl AsRef<Path>,
+        #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
+    ) -> Result<Self, Error> {
         Ok(DnsMonitor {
-            inner: imp::DnsMonitor::new(handle, cache_dir)?,
+            inner: imp::DnsMonitor::new(
+                handle,
+                cache_dir,
+                #[cfg(target_os = "linux")]
+                route_manager,
+            )?,
         })
     }
 
@@ -61,6 +72,7 @@ trait DnsMonitorT: Sized {
     fn new(
         handle: tokio::runtime::Handle,
         cache_dir: impl AsRef<Path>,
+        #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
     ) -> Result<Self, Self::Error>;
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<(), Self::Error>;

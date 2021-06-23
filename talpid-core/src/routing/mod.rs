@@ -45,6 +45,11 @@ impl Route {
         self.table_id = new_id;
         self
     }
+
+    /// Returns the network node of the route.
+    pub fn get_node(&self) -> &Node {
+        &self.node
+    }
 }
 
 impl fmt::Display for Route {

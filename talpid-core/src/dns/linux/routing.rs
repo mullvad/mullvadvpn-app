@@ -1,19 +1,16 @@
+use crate::{
+    linux::{iface_index, IfaceIndexLookupError},
+    routing::{self, RouteManagerHandle},
+};
 use futures::{
-    channel::mpsc::UnboundedSender, future::abortable, FutureExt, StreamExt, TryStream,
-    TryStreamExt,
+    channel::mpsc::UnboundedSender,
+    stream::{abortable, AbortHandle},
+    StreamExt,
 };
-use netlink_packet_core::{NetlinkPayload, NLM_F_REQUEST};
-use netlink_packet_route::{
-    rtnl::route::nlas::Nla as RouteNla, NetlinkMessage, RouteFlags, RouteMessage, RtnlMessage,
-};
-use rtnetlink::{
-    constants::{RTMGRP_IPV4_ROUTE, RTMGRP_IPV6_ROUTE, RTMGRP_NOTIFY},
-    sys::SocketAddr,
-    Handle, IpVersion,
-};
+use rtnetlink::IpVersion;
 use std::{
     collections::BTreeMap,
-    fmt, io,
+    fmt,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
 use talpid_types::ErrorExt;
@@ -27,29 +24,20 @@ const PUBLIC_INTERNET_ADDRESS_V6: IpAddr =
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    #[error(display = "Failed to get a route for an arbitrary IP address")]
-    GetRouteError(#[error(source)] failure::Compat<rtnetlink::Error>),
+    #[error(display = "The route manager returned an error")]
+    RouteManagerError(#[error(source)] routing::Error),
 
-    #[error(display = "Failed to connect to bind to netlink socket")]
-    BindError(#[error(source)] io::Error),
-
-    #[error(display = "No netlink response for route query")]
-    NoRouteError,
-
-    #[error(display = "Route is missing an output interface")]
-    RouteNoInterfaceError,
+    #[error(display = "Failed to resolve interface index with error {}", _0)]
+    InterfaceNameError(#[error(source)] IfaceIndexLookupError),
 }
 
 pub struct DnsRouteMonitor {
-    _handle: rtnetlink::Handle,
-    stop_tx: Option<futures::channel::oneshot::Sender<()>>,
+    abort_handle: AbortHandle,
 }
 
 impl Drop for DnsRouteMonitor {
     fn drop(&mut self) {
-        if let Some(stop_tx) = self.stop_tx.take() {
-            let _ = stop_tx.send(());
-        }
+        self.abort_handle.abort();
     }
 }
 
@@ -70,70 +58,50 @@ impl fmt::Display for DnsConfig {
 }
 
 pub async fn spawn_monitor(
+    route_manager: RouteManagerHandle,
     destinations: Vec<IpAddr>,
     update_tx: UnboundedSender<BTreeMap<u32, DnsConfig>>,
 ) -> Result<(DnsRouteMonitor, BTreeMap<u32, DnsConfig>)> {
-    let (mut connection, handle, messages) =
-        rtnetlink::new_connection().expect("Failed to create a netlink connection");
+    let listener = route_manager
+        .change_listener()
+        .await
+        .map_err(Error::RouteManagerError)?;
+    let (mut listener, abort_handle) = abortable(listener);
 
-    let mgroup_flags = RTMGRP_IPV4_ROUTE | RTMGRP_IPV6_ROUTE | RTMGRP_NOTIFY;
-    let addr = SocketAddr::new(0, mgroup_flags);
+    let monitor = DnsRouteMonitor { abort_handle };
 
-    connection
-        .socket_mut()
-        .bind(&addr)
-        .map_err(Error::BindError)?;
-
-    let (abortable_connection, abort_connection) = abortable(connection);
-    tokio::spawn(abortable_connection);
-
-    let (stop_tx, stop_rx) = futures::channel::oneshot::channel();
-
-    let monitor = DnsRouteMonitor {
-        _handle: handle.clone(),
-        stop_tx: Some(stop_tx),
-    };
-
-    let mut last_config = setup_configurations(&handle, &destinations).await?;
+    let mut last_config = setup_configurations(&route_manager, &destinations).await?;
     let initial_config = last_config.clone();
 
     tokio::spawn(async move {
-        let mut messages = messages.fuse();
-        let mut stop_rx = stop_rx.fuse();
-        loop {
-            futures::select! {
-                _new_message = messages.next() => {
-                    match setup_configurations(&handle, &destinations).await {
-                        Ok(new_config) => {
-                            if last_config != new_config {
-                                last_config = new_config.clone();
-                                if update_tx.unbounded_send(new_config).is_err() {
-                                    log::trace!("Stopping DNS monitor: channel is closed");
-                                    break;
-                                }
-                            }
-                        }
-                        Err(error) => {
-                            log::error!(
-                                "{}",
-                                error.display_chain_with_msg(
-                                    "Failed to determine new DNS interface settings"
-                                )
-                            );
+        while let Some(_event) = listener.next().await {
+            match setup_configurations(&route_manager, &destinations).await {
+                Ok(new_config) => {
+                    if last_config != new_config {
+                        last_config = new_config.clone();
+                        if update_tx.unbounded_send(new_config).is_err() {
+                            log::trace!("Stopping DNS monitor: channel is closed");
+                            break;
                         }
                     }
-                },
-                _ = stop_rx => break,
+                }
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg(
+                            "Failed to determine new DNS interface settings"
+                        )
+                    );
+                }
             }
         }
-        abort_connection.abort();
     });
 
     Ok((monitor, initial_config))
 }
 
 async fn setup_configurations(
-    handle: &Handle,
+    handle: &RouteManagerHandle,
     destinations: &[IpAddr],
 ) -> Result<BTreeMap<u32, DnsConfig>> {
     let mut interface_to_destinations = BTreeMap::<u32, DnsConfig>::new();
@@ -141,8 +109,8 @@ async fn setup_configurations(
         let interface = if destination.is_loopback() {
             get_default_route_interface(handle, get_ip_version(destination), true).await?
         } else {
-            if crate::firewall::is_local_address(&destination) {
-                get_destination_interface(handle, destination, true).await?
+            if crate::firewall::is_local_address(destination) {
+                get_destination_interface(handle, *destination, true).await?
             } else {
                 get_default_route_interface(handle, get_ip_version(destination), false).await?
             }
@@ -174,80 +142,34 @@ async fn setup_configurations(
 }
 
 async fn get_default_route_interface(
-    handle: &Handle,
+    handle: &RouteManagerHandle,
     ip_version: IpVersion,
     set_mark: bool,
 ) -> Result<Option<u32>> {
     match ip_version {
         IpVersion::V4 => {
-            get_destination_interface(handle, &PUBLIC_INTERNET_ADDRESS_V4, set_mark).await
+            get_destination_interface(handle, PUBLIC_INTERNET_ADDRESS_V4, set_mark).await
         }
         IpVersion::V6 => {
-            get_destination_interface(handle, &PUBLIC_INTERNET_ADDRESS_V6, set_mark).await
+            get_destination_interface(handle, PUBLIC_INTERNET_ADDRESS_V6, set_mark).await
         }
     }
 }
 
 async fn get_destination_interface(
-    handle: &Handle,
-    destination: &IpAddr,
+    handle: &RouteManagerHandle,
+    destination: IpAddr,
     set_mark: bool,
 ) -> Result<Option<u32>> {
-    let mut request = handle.route().get(get_ip_version(destination));
-    let octets = match destination {
-        IpAddr::V4(address) => address.octets().to_vec(),
-        IpAddr::V6(address) => address.octets().to_vec(),
-    };
-    let message = request.message_mut();
-    if set_mark {
-        message
-            .nlas
-            .push(RouteNla::Mark(crate::linux::TUNNEL_FW_MARK));
-    }
-    message.header.destination_prefix_length = 8u8 * (octets.len() as u8);
-    message.header.flags = RouteFlags::RTM_F_FIB_MATCH;
-    message.nlas.push(RouteNla::Destination(octets));
-    let mut stream = execute_route_get_request(handle.clone(), message.clone());
-    match stream.try_next().await {
-        Ok(Some(route_msg)) => {
-            for nla in &route_msg.nlas {
-                if let RouteNla::Oif(interface) = nla {
-                    return Ok(Some(*interface));
-                }
-            }
-            Err(Error::RouteNoInterfaceError)
-        }
-        Ok(None) => Err(Error::NoRouteError),
-        Err(rtnetlink::Error::NetlinkError(nl_err)) if nl_err.code == -libc::ENETUNREACH => {
-            Ok(None)
-        }
-        Err(err) => Err(Error::GetRouteError(failure::Fail::compat(err))),
-    }
-}
-
-pub fn execute_route_get_request(
-    mut handle: Handle,
-    message: RouteMessage,
-) -> impl TryStream<Ok = RouteMessage, Error = rtnetlink::Error> {
-    use futures::future::{self, Either};
-    use rtnetlink::Error;
-
-    let mut req = NetlinkMessage::from(RtnlMessage::GetRoute(message));
-    req.header.flags = NLM_F_REQUEST;
-
-    match handle.request(req) {
-        Ok(response) => Either::Left(response.map(move |msg| {
-            let (header, payload) = msg.into_parts();
-            match payload {
-                NetlinkPayload::InnerMessage(RtnlMessage::NewRoute(msg)) => Ok(msg),
-                NetlinkPayload::Error(err) => Err(Error::NetlinkError(err)),
-                _ => Err(Error::UnexpectedMessage(NetlinkMessage::new(
-                    header, payload,
-                ))),
-            }
-        })),
-        Err(e) => Either::Right(future::err::<RouteMessage, Error>(e).into_stream()),
-    }
+    let route = handle
+        .get_destination_route(destination, set_mark)
+        .await
+        .map_err(Error::RouteManagerError)?;
+    route
+        .map(|route| route.get_node().get_device().map(iface_index))
+        .flatten()
+        .transpose()
+        .map_err(Error::InterfaceNameError)
 }
 
 fn get_ip_version(addr: &IpAddr) -> IpVersion {
