@@ -20,7 +20,7 @@ jobs:
             - name: Install Node.js
               uses: actions/setup-node@v2
               with:
-                node-version: '12'
+                node-version: '14'
 
             - name: Update NPM
               run: npm i -g npm
