@@ -74,7 +74,10 @@ export async function getApplications(options: {
     .filter(
       (application) =>
         options.applicationPaths === undefined ||
-        options.applicationPaths.includes(application.absolutepath),
+        options.applicationPaths.find(
+          (applicationPath) =>
+            applicationPath.toLowerCase() === application.absolutepath.toLowerCase(),
+        ) !== undefined,
     )
     .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -107,11 +110,11 @@ async function updateShortcutCache(): Promise<void> {
   const shortcuts: ShortcutDetails[] = [];
   for (const shortcut of resolvedLinks) {
     if (
-      APPLICATION_ALLOW_LIST.includes(path.basename(shortcut.target)) ||
+      APPLICATION_ALLOW_LIST.includes(path.basename(shortcut.target.toLowerCase())) ||
       (await importsDll(shortcut.target, 'WS2_32.dll'))
     ) {
       shortcuts.push(shortcut);
-      shortcutCache[shortcut.target] = shortcut;
+      shortcutCache[shortcut.target.toLowerCase()] = shortcut;
     }
   }
 }
@@ -121,11 +124,12 @@ async function updateApplicationCache(): Promise<void> {
 
   await Promise.all(
     shortcuts.map(async (shortcut) => {
-      if (applicationCache[shortcut.target] === undefined) {
-        applicationCache[shortcut.target] = await convertToSplitTunnelingApplication(shortcut);
+      const lowercaseTarget = shortcut.target.toLowerCase();
+      if (applicationCache[lowercaseTarget] === undefined) {
+        applicationCache[lowercaseTarget] = await convertToSplitTunnelingApplication(shortcut);
       }
 
-      return applicationCache[shortcut.target];
+      return applicationCache[lowercaseTarget];
     }),
   );
 }
@@ -133,8 +137,10 @@ async function updateApplicationCache(): Promise<void> {
 // Add excluded apps that are missing from the shortcut cache to it
 function addApplicationToAdditionalShortcuts(applicationPath: string): void {
   if (
-    shortcutCache[applicationPath] === undefined &&
-    !additionalShortcuts.some((shortcut) => shortcut.target === applicationPath)
+    shortcutCache[applicationPath.toLowerCase()] === undefined &&
+    !additionalShortcuts.some(
+      (shortcut) => shortcut.target.toLowerCase() === applicationPath.toLowerCase(),
+    )
   ) {
     additionalShortcuts.push({
       target: applicationPath,
@@ -184,16 +190,17 @@ function resolveLinks(linkPaths: string[]): ShortcutDetails[] {
 // Removes all duplicate shortcuts.
 function removeDuplicates(shortcuts: ShortcutDetails[]): ShortcutDetails[] {
   const unique = shortcuts.reduce((shortcuts, shortcut) => {
-    if (shortcuts[shortcut.target]) {
+    const lowercaseTarget = shortcut.target.toLowerCase();
+    if (shortcuts[lowercaseTarget]) {
       if (
-        shortcuts[shortcut.target].args &&
-        shortcuts[shortcut.target].args !== '' &&
+        shortcuts[lowercaseTarget].args &&
+        shortcuts[lowercaseTarget].args !== '' &&
         (!shortcut.args || shortcut.args === '')
       ) {
-        shortcuts[shortcut.target] = shortcut;
+        shortcuts[lowercaseTarget] = shortcut;
       }
     } else {
-      shortcuts[shortcut.target] = shortcut;
+      shortcuts[lowercaseTarget] = shortcut;
     }
     return shortcuts;
   }, {} as Record<string, ShortcutDetails>);
