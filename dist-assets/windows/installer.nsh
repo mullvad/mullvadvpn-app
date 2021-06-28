@@ -568,6 +568,33 @@
 
 !define ClearFirewallRules '!insertmacro "ClearFirewallRules"'
 
+!macro FirewallWarningCheck
+
+	Push $0
+	Push $1
+	Push $2
+
+	nsExec::ExecToStack '"$SYSDIR\netsh.exe" wfp show security FILTER ${BLOCK_OUTBOUND_IPV4_FILTER_GUID}'
+	Pop $1
+	Pop $0
+
+	nsExec::ExecToStack '"$SYSDIR\netsh.exe" wfp show security FILTER ${PERSISTENT_BLOCK_OUTBOUND_IPV4_FILTER_GUID}'
+	Pop $2
+	Pop $0
+
+	${If} $1 == 0
+	${OrIf} $2 == 0
+		MessageBox MB_ICONEXCLAMATION|MB_OK "Installation failed. Your internet access will be unblocked."
+	${EndIf}
+
+	Pop $2
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define FirewallWarningCheck '!insertmacro "FirewallWarningCheck"'
+
 #
 # RemoveWireGuardKey
 #
@@ -742,6 +769,7 @@
 	#
 	Delete "$INSTDIR\mullvad vpn.exe"
 
+	${FirewallWarningCheck}
 	${ExtractMullvadSetup}
 	${ClearFirewallRules}
 
@@ -787,6 +815,7 @@
 
 	customUnInstallCheck_Abort:
 
+	${FirewallWarningCheck}
 	${ExtractMullvadSetup}
 	${ClearFirewallRules}
 
@@ -1000,8 +1029,9 @@
 	# Break the install due to inconsistent state
 	Delete "$INSTDIR\mullvad vpn.exe"
 
-	# Clear firewall rules, or risk leaving persistent filters
-	${ClearFirewallRules}
+	${If} $FullUninstall == 1
+		${ClearFirewallRules}
+	${EndIf}
 
 	log::Log "Aborting uninstaller"
 	SetErrorLevel 1
