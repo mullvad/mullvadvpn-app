@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2021-03-31 13:39\n"
+"PO-Revision-Date: 2021-06-28 11:50\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -135,6 +135,10 @@ msgstr "都柏林"
 #. DE DUS
 msgid "Dusseldorf"
 msgstr "杜塞道夫"
+
+#. EE
+msgid "Estonia"
+msgstr "愛沙尼亞"
 
 #. FI
 msgid "Finland"
@@ -435,6 +439,10 @@ msgstr "瑞士"
 #. AU SYD
 msgid "Sydney"
 msgstr "雪梨"
+
+#. EE TLL
+msgid "Tallinn"
+msgstr "塔林"
 
 #. IL TLV
 msgid "Tel Aviv"

@@ -10,10 +10,57 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2021-03-31 13:39\n"
+"PO-Revision-Date: 2021-06-28 11:50\n"
+
+msgid "1 day"
+msgid_plural "%d days"
+msgstr[0] "%d 天"
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] "剩余 %d 天"
+
+msgid "1 month"
+msgid_plural "%d months"
+msgstr[0] "%d 个月"
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] "剩余 %d 个月"
+
+msgid "1 year"
+msgid_plural "%d years"
+msgstr[0] "%d 年"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "剩余 %d 年"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "%d 天前"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "%d 分钟前"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "%d 个月前"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "%d 年前"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "%d 小时前"
 
 msgid "Back"
 msgstr "返回"
+
+msgid "BETA"
+msgstr "BETA"
 
 msgid "BLOCKED CONNECTION"
 msgstr "已阻止连接"
@@ -51,6 +98,15 @@ msgstr "无法保护连接"
 msgid "Invalid account number"
 msgstr "帐号无效"
 
+msgid "less than a day"
+msgstr "不足 1 天"
+
+msgid "less than a day left"
+msgstr "剩余时间不足 1 天"
+
+msgid "less than a minute ago"
+msgstr "不到 1 分钟前"
+
 msgid "Open URL"
 msgstr "打开网址"
 
@@ -66,8 +122,8 @@ msgstr "设置"
 msgid "System default"
 msgstr "系统默认值"
 
-msgid "UNSECURED CONNECTION"
-msgstr "未受保护的连接"
+msgid "UNSECURE CONNECTION"
+msgstr "不安全的连接"
 
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
@@ -101,20 +157,6 @@ msgstr "移除条目"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "选择位置。当前位置为 %(location)s"
-
-#. The remaining time left on the account measured in days.
-#. Available placeholders:
-#. %(duration)s - The remaining time measured in days.
-msgctxt "account-expiry"
-msgid "%(duration)s days"
-msgstr "%(duration)s 天"
-
-#. The remaining time left on the account displayed across the app.
-#. Available placeholders:
-#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
-msgctxt "account-expiry"
-msgid "%(duration)s left"
-msgstr "剩余 %(duration)s"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -180,10 +222,6 @@ msgid "Default"
 msgstr "默认"
 
 msgctxt "advanced-settings-view"
-msgid "e.g. 10.0.0.4"
-msgstr "例如 10.0.0.4"
-
-msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "仍然启用"
 
@@ -198,6 +236,10 @@ msgstr "启用通过隧道进行 IPv6 通信。"
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "启用以添加至少一个 DNS 服务器。"
+
+msgctxt "advanced-settings-view"
+msgid "Enter IP"
+msgstr "输入 IP"
 
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
@@ -264,8 +306,8 @@ msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "自动设置将从一系列端口中随机选择。"
 
 msgctxt "advanced-settings-view"
-msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
-msgstr "您尝试添加的 DNS 服务器可能无效，因为它是公共 DNS 服务器。目前我们仅支持本地 DNS 服务器。"
+msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
+msgstr "您想要添加的 DNS 服务器为公共服务器，仅可以与 WireGuard 搭配使用。为了确保它始终有效，请为 WireGuard 设置“隧道协议”（在“高级”设置中）。"
 
 msgctxt "advanced-settings-view"
 msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
@@ -361,8 +403,8 @@ msgid "Remember, turning it off will allow network traffic while the VPN is disc
 msgstr "注意，在 VPN 断开连接时关闭此选项将允许网络流量，直到您在“高级”设置下将其重新打开。"
 
 msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
-msgstr "要添加更多，您需要断开连接并使用不安全的连接访问网络。"
+msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
+msgstr "要添加更多时间，您需要断开连接并使用不安全的连接访问网络。"
 
 msgctxt "connect-view"
 msgid "To start using the app, you first need to add time to your account."
@@ -584,12 +626,16 @@ msgid "Could not configure IPv6. Disable it in the app or enable it on your devi
 msgstr "无法配置 IPv6。请在应用中将其禁用或在您的设备上将其启用。"
 
 msgctxt "notifications"
-msgid "Disconnected and unsecured"
+msgid "Disconnected and unsecure"
 msgstr "已断开连接且未受保护"
 
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "正在重新连接"
+
+msgctxt "notifications"
+msgid "The apps excluded with split tunneling might not work properly right now."
+msgstr "使用拆分隧道排除的应用目前可能无法正常运行。"
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules."
@@ -614,6 +660,10 @@ msgstr "无法阻止所有网络流量。请尝试禁用任何第三方防病毒
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or contact support."
 msgstr "无法阻止所有网络流量。请尝试更新您的内核或联系技术支持。"
+
+msgctxt "notifications"
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
+msgstr "无法与 Mullvad 内核驱动程序通信。请尝试重新连接或者联系支持团队。"
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -672,6 +722,34 @@ msgstr "在应用启动时自动连接到服务器。"
 msgctxt "preferences-view"
 msgid "Beta program"
 msgstr "测试计划"
+
+msgctxt "preferences-view"
+msgid "Block ads"
+msgstr "屏蔽广告"
+
+msgctxt "preferences-view"
+msgid "Block trackers"
+msgstr "屏蔽跟踪广告代码"
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
+#. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "preferences-view"
+msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "禁用**%(blockAdsFeatureName)s**和**%(blockTrackersFeatureName)s**（在“%(preferencesPageName)s”下）以激活此设置。"
+
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
+#. Advanced settings refer to the name of the page with the title "Advanced".
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
+msgctxt "preferences-view"
+msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
+msgstr "禁用**%(customDnsFeatureName)s**（在“高级”设置下）以激活这些设置。"
 
 msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -847,12 +925,32 @@ msgid "%(applicationName)s is problematic and can’t be excluded from the VPN t
 msgstr "%(applicationName)s 出现问题且无法从 VPN 隧道排除。"
 
 msgctxt "split-tunneling-view"
-msgid "Browse"
-msgstr "浏览"
+msgid "Add"
+msgstr "添加"
+
+msgctxt "split-tunneling-view"
+msgid "All apps"
+msgstr "所有应用"
+
+msgctxt "split-tunneling-view"
+msgid "Choose the apps you want to exclude from the VPN tunnel."
+msgstr "选择您想要从 VPN 隧道中排除的应用。"
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
 msgstr "点击应用以启动。它的流量会绕开 VPN 隧道，直到您将其关闭。"
+
+msgctxt "split-tunneling-view"
+msgid "Excluded apps"
+msgstr "排除的应用"
+
+msgctxt "split-tunneling-view"
+msgid "Filter..."
+msgstr "筛选…"
+
+msgctxt "split-tunneling-view"
+msgid "Find another app"
+msgstr "查找其他应用"
 
 msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
@@ -863,8 +961,8 @@ msgid "Launch"
 msgstr "启动"
 
 msgctxt "split-tunneling-view"
-msgid "Launch application"
-msgstr "启动应用程序"
+msgid "No result for %(searchTerm)s."
+msgstr "“%(searchTerm)s”没有搜索结果。"
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -882,6 +980,14 @@ msgstr "请重试或联系支持。"
 msgctxt "split-tunneling-view"
 msgid "Split tunneling"
 msgstr "拆分隧道"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling has been disabled from the CLI and will automatically be enabled when adding or removing applications from the lists below."
+msgstr "拆分隧道已从 CLI 禁用，如果您在下面的列表中添加或移除应用程序，该功能将自动启用。"
+
+msgctxt "split-tunneling-view"
+msgid "Try a different search."
+msgstr "尝试其他搜索词。"
 
 #. Error message showed in a dialog when an application failes to launch.
 msgctxt "split-tunneling-view"
@@ -1050,156 +1156,143 @@ msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard 密钥"
 
+msgid "Account authentication failed."
+msgstr "帐户身份验证失败。"
+
+msgid "Account credit expires in a few minutes"
+msgstr "帐户额度将在几分钟后到期"
+
+msgid "Account credit expires soon"
+msgstr "帐户额度即将到期"
+
+msgid "Account time reminders"
+msgstr "帐户时间提醒"
+
+msgid "All applications"
+msgstr "所有应用程序"
+
+msgid "Blocking all connections"
+msgstr "正在阻止所有连接"
+
 msgid "Blocking internet"
 msgstr "正在阻止网络"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "已将 Mullvad 帐号复制到剪贴板"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "没有与当前设置匹配的桥接中继服务器"
-
-msgid "less than a day left"
-msgstr "剩余时间不足 1 天"
-
-msgid "less than a minute ago"
-msgstr "不到 1 分钟前"
-
 msgid "Copied WireGuard public key to clipboard"
 msgstr "已将 WireGuard 公钥复制到剪贴板"
-
-msgid "Shows current VPN tunnel status"
-msgstr "显示当前的 VPN 隧道状态"
-
-msgid "Secured"
-msgstr "已受保护"
-
-msgid "Blocking all connections"
-msgstr "正在阻止所有连接"
-
-msgid "Account credit expires soon"
-msgstr "帐户额度即将到期"
-
-msgid "Disconnecting"
-msgstr "正在断开连接"
-
-msgid "Too many WireGuard keys registered to account"
-msgstr "帐户中注册的 WireGuard 密钥过多"
-
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr "利用拆分隧道，您可以选择哪些应用程序不应通过 VPN 隧道进行路由。"
-
-msgid "WireGuard public key"
-msgstr "WireGuard 公钥"
-
-msgid "Account authentication failed."
-msgstr "帐户身份验证失败。"
-
-msgid "Could not configure IPv6"
-msgstr "无法配置 IPv6"
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "您正在运行不受支持的应用版本。请立即升级到 %s 以确保您的安全"
-
-msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
-msgstr "创建隧道时，VPN 权限被拒绝。请尝试重新连接。"
-
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "无法应用防火墙规则。设备当前可能不会受到保护"
-
-msgid "Account time reminders"
-msgstr "帐户时间提醒"
-
-msgid "Enable"
-msgstr "启用"
-
-msgid "WireGuard error"
-msgstr "WireGuard 错误"
-
-msgid "This device is offline, no tunnels can be established"
-msgstr "此设备已离线，无法建立隧道"
-
-msgid "Update available, download to remain safe."
-msgstr "有可用更新，请下载以保持安全。"
-
-msgid "You may need to go back to the app\\'s main screen and click Disconnect before trying again. Don\\'t worry, the information you entered will remain in the form."
-msgstr "在重试之前，您需要返回应用的主屏幕并点击“断开连接”。别担心，您输入的信息将保留在窗体中。"
-
-msgid "Virtual adapter error"
-msgstr "虚拟适配器错误"
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "无法阻止所有网络流量。请排除故障或向我们报告问题。"
-
-msgid "Failed to set system DNS server"
-msgstr "无法设置系统 DNS 服务器"
-
-msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr "安装 Mullvad VPN (%s) 以保持最新状态"
-
-msgid "Critical error (your attention is required)"
-msgstr "严重错误（需要注意）"
-
-msgid "You are running an unsupported app version."
-msgstr "您正在运行不受支持的应用版本。"
-
-msgid "Custom DNS server addresses %s are invalid"
-msgstr "自定义 DNS 服务器地址 %s 无效"
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "无法解析自定义服务器的主机名"
-
-msgid "No relay server matches the current settings"
-msgstr "没有与当前设置匹配的中继服务器"
-
-msgid "Mullvad account number"
-msgstr "Mullvad 帐号"
-
-msgid "If needed we will contact you on %s"
-msgstr "如果需要，我们将通过 %s 与您联系"
-
-msgid "Account credit expires in a few minutes"
-msgstr "帐户额度将在几分钟后到期"
-
-msgid "Exclude applications"
-msgstr "排除应用程序"
-
-msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
-msgstr "除非您在“偏好设置”下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。"
 
 msgid "Copied to clipboard"
 msgstr "已复制到剪贴板"
 
-msgid "Unsecured"
-msgstr "未受保护"
+msgid "Could not configure IPv6"
+msgstr "无法配置 IPv6"
+
+msgid "Critical error (your attention is required)"
+msgstr "严重错误（需要注意）"
+
+msgid "Custom DNS server addresses %s are invalid"
+msgstr "自定义 DNS 服务器地址 %s 无效"
+
+msgid "Disconnecting"
+msgstr "正在断开连接"
+
+msgid "Enable"
+msgstr "启用"
+
+msgid "Excluded applications"
+msgstr "排除的应用程序"
+
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr "无法应用防火墙规则。设备当前可能不会受到保护"
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "无法阻止所有网络流量。请排除故障或向我们报告问题。"
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr "无法解析自定义服务器的主机名"
+
+msgid "Failed to set system DNS server"
+msgstr "无法设置系统 DNS 服务器"
 
 msgid "Failed to start tunnel connection"
 msgstr "无法启动隧道连接"
 
-msgid "VPN tunnel status"
-msgstr "VPN 隧道状态"
+msgid "If needed we will contact you on %s"
+msgstr "如果需要，我们将通过 %s 与您联系"
+
+msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr "安装 Mullvad VPN (%s) 以保持最新状态"
+
+msgid "Mullvad account number"
+msgstr "Mullvad 帐号"
+
+msgid "No bridge relay server matches the current settings"
+msgstr "没有与当前设置匹配的桥接中继服务器"
+
+msgid "No relay server matches the current settings"
+msgstr "没有与当前设置匹配的中继服务器"
+
+msgid "Secured"
+msgstr "已受保护"
+
+msgid "Shows current VPN tunnel status"
+msgstr "显示当前的 VPN 隧道状态"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "在帐户时间即将到期时显示提醒"
 
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr "利用拆分隧道，您可以选择哪些应用程序不应通过 VPN 隧道进行路由。"
+
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
+msgstr "除非您在“偏好设置”下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。"
+
+msgid "This device is offline, no tunnels can be established"
+msgstr "此设备已离线，无法建立隧道"
+
+msgid "Too many WireGuard keys registered to account"
+msgstr "帐户中注册的 WireGuard 密钥过多"
+
+msgid "UNSECURED CONNECTION"
+msgstr "未受保护的连接"
+
+msgid "Unsecured"
+msgstr "未受保护"
+
+msgid "Update available, download to remain safe."
+msgstr "有可用更新，请下载以保持安全。"
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr "创建隧道时，VPN 权限被拒绝。请尝试重新连接。"
+
+msgid "VPN tunnel status"
+msgstr "VPN 隧道状态"
+
+msgid "Virtual adapter error"
+msgstr "虚拟适配器错误"
+
+msgid "WireGuard error"
+msgstr "WireGuard 错误"
+
+msgid "WireGuard public key"
+msgstr "WireGuard 公钥"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "您的网络流量可能在泄露"
 
-msgid "1 month left"
-msgid_plural "%d months left"
-msgstr[0] "剩余 %d 个月"
+msgid "You are running an unsupported app version."
+msgstr "您正在运行不受支持的应用版本。"
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "%d 天前"
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr "您正在运行不受支持的应用版本。请立即升级到 %s 以确保您的安全"
 
-msgid "1 day left"
-msgid_plural "%d days left"
-msgstr[0] "剩余 %d 天"
+msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+msgstr "在重试之前，您需要返回应用的主屏幕并点击“断开连接”。别担心，您输入的信息将保留在窗体中。"
 
-msgid "1 year left"
-msgid_plural "%d years left"
-msgstr[0] "剩余 %d 年"
+msgid "e.g. 10.0.0.4"
+msgstr "例如 10.0.0.4"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1208,20 +1301,4 @@ msgstr[0] "帐户额度将在 %d 天后到期"
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "帐户额度将在 %d 小时后到期"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "%d 分钟前"
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "%d 小时前"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "%d 个月前"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "%d 年前"
 

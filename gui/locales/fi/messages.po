@@ -10,10 +10,68 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2021-03-31 13:39\n"
+"PO-Revision-Date: 2021-06-28 11:50\n"
+
+msgid "1 day"
+msgid_plural "%d days"
+msgstr[0] "1 päivä"
+msgstr[1] "%d päivää"
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] "1 päivä jäljellä"
+msgstr[1] "%d päivää jäljellä"
+
+msgid "1 month"
+msgid_plural "%d months"
+msgstr[0] "1 kuukausi"
+msgstr[1] "%d kuukautta"
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] "1 kuukausi jäljellä"
+msgstr[1] "%d kuukautta jäljellä"
+
+msgid "1 year"
+msgid_plural "%d years"
+msgstr[0] "1 vuosi"
+msgstr[1] "%d vuotta"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "1 vuosi jäljellä"
+msgstr[1] "%d vuotta jäljellä"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "1 päivä sitten"
+msgstr[1] "%d päivää sitten"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "minuutti sitten"
+msgstr[1] "%d minuuttia sitten"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "kuukausi sitten"
+msgstr[1] "%d kuukautta sitten"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "vuosi sitten"
+msgstr[1] "%d vuotta sitten"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "tunti sitten"
+msgstr[1] "%d tuntia sitten"
 
 msgid "Back"
 msgstr "Takaisin"
+
+msgid "BETA"
+msgstr "BETA"
 
 msgid "BLOCKED CONNECTION"
 msgstr "ESTETTY YHTEYS"
@@ -51,6 +109,15 @@ msgstr "YHTEYDEN SUOJAAMINEN EPÄONNISTUI"
 msgid "Invalid account number"
 msgstr "Virheellinen tilin numero"
 
+msgid "less than a day"
+msgstr "alle vuorokausi"
+
+msgid "less than a day left"
+msgstr "alle vuorokausi jäljellä"
+
+msgid "less than a minute ago"
+msgstr "alle minuutti sitten"
+
 msgid "Open URL"
 msgstr "Avaa URL"
 
@@ -66,7 +133,7 @@ msgstr "Asetukset"
 msgid "System default"
 msgstr "Järjestelmän oletusarvo"
 
-msgid "UNSECURED CONNECTION"
+msgid "UNSECURE CONNECTION"
 msgstr "SUOJAAMATON YHTEYS"
 
 msgctxt "accessibility"
@@ -101,20 +168,6 @@ msgstr "Poista kohde"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "Valitse sijainti. Nykyinen sijainti on %(location)s."
-
-#. The remaining time left on the account measured in days.
-#. Available placeholders:
-#. %(duration)s - The remaining time measured in days.
-msgctxt "account-expiry"
-msgid "%(duration)s days"
-msgstr "%(duration)s päivää"
-
-#. The remaining time left on the account displayed across the app.
-#. Available placeholders:
-#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
-msgctxt "account-expiry"
-msgid "%(duration)s left"
-msgstr "%(duration)s jäljellä"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -180,10 +233,6 @@ msgid "Default"
 msgstr "Oletus"
 
 msgctxt "advanced-settings-view"
-msgid "e.g. 10.0.0.4"
-msgstr "esim. 10.0.0.4"
-
-msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "Ota silti käyttöön"
 
@@ -198,6 +247,10 @@ msgstr "Salli IPv6-yhteys tunnelin kautta."
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "Ota käyttöön lisätäksesi vähintään yhden DNS-palvelimen."
+
+msgctxt "advanced-settings-view"
+msgid "Enter IP"
+msgstr "Anna IP-osoite"
 
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
@@ -264,8 +317,8 @@ msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "Automaattinen asetus valitsee satunnaisesti laajasta määrästä portteja."
 
 msgctxt "advanced-settings-view"
-msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
-msgstr "DNS-palvelin jota yrität lisätä ei ehkä toimi, sillä se on julkinen. Tällä hetkellä tuemme vain paikallisia DNS-palvelimia."
+msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
+msgstr "Lisättävä DNS-palvelin on julkinen ja toimii vain WireGuardin kanssa. Varmista, että se on aina toiminnassa asettamalla tunneliprotokollan asetukseksi WireGuard (lisäasetuksissa)."
 
 msgctxt "advanced-settings-view"
 msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
@@ -361,8 +414,8 @@ msgid "Remember, turning it off will allow network traffic while the VPN is disc
 msgstr "Muista, että asetuksen poistaminen käytöstä sallii verkkoliikenteen ilman VPN-yhteyttä, kunnes otat sen takaisin käyttöön lisäasetuksista."
 
 msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
-msgstr "Sinun on katkaistava yhteys ja käytettävä internetiä suojaamattoman yhteyden kautta."
+msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
+msgstr "Sinun on katkaistava yhteys ja käytettävä internetiä suojaamattoman yhteyden kautta, jotta voit lisätä lisää."
 
 msgctxt "connect-view"
 msgid "To start using the app, you first need to add time to your account."
@@ -584,12 +637,16 @@ msgid "Could not configure IPv6. Disable it in the app or enable it on your devi
 msgstr "IPv6:n määritys ei onnistunut. Poista se käytöstä sovelluksessa tai ota käyttöön laitteellasi."
 
 msgctxt "notifications"
-msgid "Disconnected and unsecured"
+msgid "Disconnected and unsecure"
 msgstr "Yhteys katkaistu ja suojaamaton"
 
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "Yhdistetään uudelleen"
+
+msgctxt "notifications"
+msgid "The apps excluded with split tunneling might not work properly right now."
+msgstr "Sovelluskohtaisen yhdistämisen kautta poissuljetut sovellukset eivät ehkä toimi oikein tällä hetkellä."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules."
@@ -614,6 +671,10 @@ msgstr "Kaiken verkkoliikenteen estäminen ei onnistu. Yritä poistaa kaikki kol
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or contact support."
 msgstr "Kaiken verkkoliikenteen estäminen ei onnistu. Kokeile ytimesi päivittämistä tai ota yhteyttä tukeen."
+
+msgctxt "notifications"
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
+msgstr "Kommunikoiminen Mullvad-ytimen ajurin kanssa ei onnistu. Kokeile muodostaa yhteys uudelleen tai ota yhteyttä tukeen."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -672,6 +733,34 @@ msgstr "Yhdistä palvelimeen automaattisesti, kun sovellus avataan."
 msgctxt "preferences-view"
 msgid "Beta program"
 msgstr "Betaohjelma"
+
+msgctxt "preferences-view"
+msgid "Block ads"
+msgstr "Estä mainokset"
+
+msgctxt "preferences-view"
+msgid "Block trackers"
+msgstr "Estä seurantapalvelimet"
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
+#. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "preferences-view"
+msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "Poista **%(blockAdsFeatureName)s** ja **%(blockTrackersFeatureName)s** käytöstä (kohdassa %(preferencesPageName)s) aktivoidaksesi tämän asetuksen."
+
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
+#. Advanced settings refer to the name of the page with the title "Advanced".
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
+msgctxt "preferences-view"
+msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
+msgstr "Poista **%(customDnsFeatureName)s** käytöstä (lisäasetuksista) aktivoidaksesi nämä asetukset."
 
 msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -847,12 +936,32 @@ msgid "%(applicationName)s is problematic and can’t be excluded from the VPN t
 msgstr "%(applicationName)s on ongelmallinen, eikä sitä voida sulkea pois VPN-tunnelista."
 
 msgctxt "split-tunneling-view"
-msgid "Browse"
-msgstr "Selaa"
+msgid "Add"
+msgstr "Lisää"
+
+msgctxt "split-tunneling-view"
+msgid "All apps"
+msgstr "Kaikki sovellukset"
+
+msgctxt "split-tunneling-view"
+msgid "Choose the apps you want to exclude from the VPN tunnel."
+msgstr "Valitse sovellukset, jotka haluat sulkea pois VPN-tunnelista."
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
 msgstr "Napsauta sovellusta käynnistääksesi sen. Sen liikenne ohittaa VPN-tunnelin, kunnes suljet sen."
+
+msgctxt "split-tunneling-view"
+msgid "Excluded apps"
+msgstr "Poissuljetut sovellukset"
+
+msgctxt "split-tunneling-view"
+msgid "Filter..."
+msgstr "Suodata..."
+
+msgctxt "split-tunneling-view"
+msgid "Find another app"
+msgstr "Etsi jokin muu sovellus"
 
 msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
@@ -863,8 +972,8 @@ msgid "Launch"
 msgstr "Käynnistä"
 
 msgctxt "split-tunneling-view"
-msgid "Launch application"
-msgstr "Käynnistä sovellus"
+msgid "No result for %(searchTerm)s."
+msgstr "Ei tuloksia haulle %(searchTerm)s."
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -882,6 +991,14 @@ msgstr "Yritä uudelleen tai ota yhteyttä tukeen."
 msgctxt "split-tunneling-view"
 msgid "Split tunneling"
 msgstr "Sovelluskohtainen yhdistäminen"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling has been disabled from the CLI and will automatically be enabled when adding or removing applications from the lists below."
+msgstr "Sovelluskohtainen yhdistäminen on poistettu käytöstä CLI:stä, ja se otetaan automaattisesti käyttöön, kun sovelluksia lisätään tai poistetaan alla olevista luetteloista."
+
+msgctxt "split-tunneling-view"
+msgid "Try a different search."
+msgstr "Kokeile toista hakua."
 
 #. Error message showed in a dialog when an application failes to launch.
 msgctxt "split-tunneling-view"
@@ -1050,160 +1167,143 @@ msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard-avain"
 
+msgid "Account authentication failed."
+msgstr "Tilin todentaminen epäonnistui."
+
+msgid "Account credit expires in a few minutes"
+msgstr "Tilin käyttöaika päättyy muutaman minuutin kuluttua"
+
+msgid "Account credit expires soon"
+msgstr "Tilin käyttöaika päättyy pian"
+
+msgid "Account time reminders"
+msgstr "Muistutukset tilin käyttöajasta"
+
+msgid "All applications"
+msgstr "Kaikki sovellukset"
+
+msgid "Blocking all connections"
+msgstr "Kaikki yhteydet estetään"
+
 msgid "Blocking internet"
 msgstr "Verkkoyhteys estetään"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Mullvad-tilin numero kopioitu leikepöydälle"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "Mikään siltausvälityspalvelin ei vastaa nykyisiä asetuksia"
-
-msgid "less than a day left"
-msgstr "alle vuorokausi jäljellä"
-
-msgid "less than a minute ago"
-msgstr "alle minuutti sitten"
-
 msgid "Copied WireGuard public key to clipboard"
 msgstr "Julkinen WireGuard-avain kopioitu leikepöydälle"
-
-msgid "Shows current VPN tunnel status"
-msgstr "Näyttää VPN-tunnelin nykyisen tilan"
-
-msgid "Secured"
-msgstr "Suojattu"
-
-msgid "Blocking all connections"
-msgstr "Kaikki yhteydet estetään"
-
-msgid "Account credit expires soon"
-msgstr "Tilin käyttöaika päättyy pian"
-
-msgid "Disconnecting"
-msgstr "Katkaistaan yhteyttä"
-
-msgid "Too many WireGuard keys registered to account"
-msgstr "Tilille on rekisteröity liian monta WireGuard-avainta"
-
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr "Jaettu tunnelointi antaa mahdollisuuden valita, mitä sovelluksia ei reititetä VPN-tunnelin kautta."
-
-msgid "WireGuard public key"
-msgstr "Julkinen WireGuard-avain"
-
-msgid "Account authentication failed."
-msgstr "Tilin todentaminen epäonnistui."
-
-msgid "Could not configure IPv6"
-msgstr "IPv6:n määritys epäonnistui"
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "Sovellusversiosi ei ole tuettu. Taataksesi turvallisuutesi päivitä heti versioon %s."
-
-msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
-msgstr "VPN-lupa evättiin tunnelia luotaessa. Yritä muodostaa yhteys uudelleen."
-
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "Palomuurisääntöjä ei voitu ottaa käyttöön. Laite ei välttämättä ole suojattu."
-
-msgid "Account time reminders"
-msgstr "Muistutukset tilin käyttöajasta"
-
-msgid "Enable"
-msgstr "Ota käyttöön"
-
-msgid "WireGuard error"
-msgstr "WireGuard-virhe"
-
-msgid "This device is offline, no tunnels can be established"
-msgstr "Tämä laite ei ole yhdistetty verkkoon. Tunneleita ei voida luoda."
-
-msgid "Update available, download to remain safe."
-msgstr "Päivitys saatavilla. Lataa se pysyäksesi suojattuna."
-
-msgid "You may need to go back to the app\\'s main screen and click Disconnect before trying again. Don\\'t worry, the information you entered will remain in the form."
-msgstr "Ennen kuin yrität uudelleen sinun on ehkä palattava sovelluksen päänäytölle ja napsautettava yhteyden katkaisua. Älä huolestu – jo syöttämäsi tiedot säilyvät lomakkeella."
-
-msgid "Virtual adapter error"
-msgstr "Virtuaalisovittimen virhe"
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Kaiken verkkoliikenteen estäminen epäonnistui. Käytä vianetsintää tai raportoi meille ongelmasta."
-
-msgid "Failed to set system DNS server"
-msgstr "Järjestelmän DNS-palvelimen asetus epäonnistui"
-
-msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr "Päivitä asentamalla Mullvad VPN:n versio (%s)"
-
-msgid "Critical error (your attention is required)"
-msgstr "Vakava virhe (vaatii huomiotasi)"
-
-msgid "You are running an unsupported app version."
-msgstr "Sovellusversiotasi ei tueta."
-
-msgid "Custom DNS server addresses %s are invalid"
-msgstr "Mukautetut DNS-palvelimen osoitteet %s ovat virheellisiä"
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "Mukautetun palvelimen isäntänimen selvittäminen epäonnistui"
-
-msgid "No relay server matches the current settings"
-msgstr "Mikään välityspalvelin ei vastaa nykyisiä asetuksia"
-
-msgid "Mullvad account number"
-msgstr "Mullvad-tilin numero"
-
-msgid "If needed we will contact you on %s"
-msgstr "Tarvittaessa otamme sinuun yhteyttä (yhteydenottotapa: %s)"
-
-msgid "Account credit expires in a few minutes"
-msgstr "Tilin käyttöaika päättyy muutaman minuutin kuluttua"
-
-msgid "Exclude applications"
-msgstr "Sulje sovellukset pois"
-
-msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
-msgstr "Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamisasetusta käyttöön Asetuksissa."
 
 msgid "Copied to clipboard"
 msgstr "Kopioitu leikepöydälle"
 
-msgid "Unsecured"
-msgstr "Suojaamaton"
+msgid "Could not configure IPv6"
+msgstr "IPv6:n määritys epäonnistui"
+
+msgid "Critical error (your attention is required)"
+msgstr "Vakava virhe (vaatii huomiotasi)"
+
+msgid "Custom DNS server addresses %s are invalid"
+msgstr "Mukautetut DNS-palvelimen osoitteet %s ovat virheellisiä"
+
+msgid "Disconnecting"
+msgstr "Katkaistaan yhteyttä"
+
+msgid "Enable"
+msgstr "Ota käyttöön"
+
+msgid "Excluded applications"
+msgstr "Poissuljetut sovellukset"
+
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr "Palomuurisääntöjä ei voitu ottaa käyttöön. Laite ei välttämättä ole suojattu."
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "Kaiken verkkoliikenteen estäminen epäonnistui. Käytä vianetsintää tai raportoi meille ongelmasta."
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr "Mukautetun palvelimen isäntänimen selvittäminen epäonnistui"
+
+msgid "Failed to set system DNS server"
+msgstr "Järjestelmän DNS-palvelimen asetus epäonnistui"
 
 msgid "Failed to start tunnel connection"
 msgstr "Tunneliyhteyden muodostaminen epäonnistui"
 
-msgid "VPN tunnel status"
-msgstr "VPN-tunnelin tila"
+msgid "If needed we will contact you on %s"
+msgstr "Tarvittaessa otamme sinuun yhteyttä (yhteydenottotapa: %s)"
+
+msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr "Päivitä asentamalla Mullvad VPN:n versio (%s)"
+
+msgid "Mullvad account number"
+msgstr "Mullvad-tilin numero"
+
+msgid "No bridge relay server matches the current settings"
+msgstr "Mikään siltausvälityspalvelin ei vastaa nykyisiä asetuksia"
+
+msgid "No relay server matches the current settings"
+msgstr "Mikään välityspalvelin ei vastaa nykyisiä asetuksia"
+
+msgid "Secured"
+msgstr "Suojattu"
+
+msgid "Shows current VPN tunnel status"
+msgstr "Näyttää VPN-tunnelin nykyisen tilan"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa"
 
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr "Jaettu tunnelointi antaa mahdollisuuden valita, mitä sovelluksia ei reititetä VPN-tunnelin kautta."
+
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
+msgstr "Paikallinen DNS-palvelin ei toimi, ellet ota paikallisen verkon jakamisasetusta käyttöön Asetuksissa."
+
+msgid "This device is offline, no tunnels can be established"
+msgstr "Tämä laite ei ole yhdistetty verkkoon. Tunneleita ei voida luoda."
+
+msgid "Too many WireGuard keys registered to account"
+msgstr "Tilille on rekisteröity liian monta WireGuard-avainta"
+
+msgid "UNSECURED CONNECTION"
+msgstr "SUOJAAMATON YHTEYS"
+
+msgid "Unsecured"
+msgstr "Suojaamaton"
+
+msgid "Update available, download to remain safe."
+msgstr "Päivitys saatavilla. Lataa se pysyäksesi suojattuna."
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr "VPN-lupa evättiin tunnelia luotaessa. Yritä muodostaa yhteys uudelleen."
+
+msgid "VPN tunnel status"
+msgstr "VPN-tunnelin tila"
+
+msgid "Virtual adapter error"
+msgstr "Virtuaalisovittimen virhe"
+
+msgid "WireGuard error"
+msgstr "WireGuard-virhe"
+
+msgid "WireGuard public key"
+msgstr "Julkinen WireGuard-avain"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "VERKKOLIIKENTEESI SAATTAA VUOTAA"
 
-msgid "1 month left"
-msgid_plural "%d months left"
-msgstr[0] "1 kuukausi jäljellä"
-msgstr[1] "%d kuukautta jäljellä"
+msgid "You are running an unsupported app version."
+msgstr "Sovellusversiotasi ei tueta."
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "1 päivä sitten"
-msgstr[1] "%d päivää sitten"
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr "Sovellusversiosi ei ole tuettu. Taataksesi turvallisuutesi päivitä heti versioon %s."
 
-msgid "1 day left"
-msgid_plural "%d days left"
-msgstr[0] "1 päivä jäljellä"
-msgstr[1] "%d päivää jäljellä"
+msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+msgstr "Ennen kuin yrität uudelleen, sinun on ehkä palattava sovelluksen päänäytölle ja napsautettava yhteyden katkaisua. Älä huoli – syöttämäsi tiedot säilyvät lomakkeella."
 
-msgid "1 year left"
-msgid_plural "%d years left"
-msgstr[0] "1 vuosi jäljellä"
-msgstr[1] "%d vuotta jäljellä"
+msgid "e.g. 10.0.0.4"
+msgstr "esim. 10.0.0.4"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1214,24 +1314,4 @@ msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "Tilin käyttöaika päättyy tunnin kuluttua"
 msgstr[1] "Tilin käyttöaika päättyy %d tunnin kuluttua"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "minuutti sitten"
-msgstr[1] "%d minuuttia sitten"
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "tunti sitten"
-msgstr[1] "%d tuntia sitten"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "kuukausi sitten"
-msgstr[1] "%d kuukautta sitten"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "vuosi sitten"
-msgstr[1] "%d vuotta sitten"
 
