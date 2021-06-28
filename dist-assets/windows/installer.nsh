@@ -568,6 +568,33 @@
 
 !define ClearFirewallRules '!insertmacro "ClearFirewallRules"'
 
+!macro FirewallWarningCheck
+
+	Push $0
+	Push $1
+	Push $2
+
+	nsExec::ExecToStack '"$SYSDIR\netsh.exe" wfp show security FILTER ${BLOCK_OUTBOUND_IPV4_FILTER_GUID}'
+	Pop $1
+	Pop $0
+
+	nsExec::ExecToStack '"$SYSDIR\netsh.exe" wfp show security FILTER ${PERSISTENT_BLOCK_OUTBOUND_IPV4_FILTER_GUID}'
+	Pop $2
+	Pop $0
+
+	${If} $1 == 0
+	${OrIf} $2 == 0
+		MessageBox MB_ICONEXCLAMATION|MB_OK "Installation failed. Your internet access will be unblocked."
+	${EndIf}
+
+	Pop $2
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define FirewallWarningCheck '!insertmacro "FirewallWarningCheck"'
+
 #
 # RemoveWireGuardKey
 #
@@ -688,10 +715,6 @@
 #
 !macro customInstall
 
-	Var /GLOBAL BlockFilterResult
-	Var /GLOBAL PersistentBlockFilterResult
-
-	Push $1
 	Push $R0
 
 	log::SetLogTarget ${LOG_INSTALL}
@@ -708,19 +731,6 @@
 	#
 	SetShellVarContext current
 	RMDir /r "$LOCALAPPDATA\mullvad-vpn-updater"
-
-	#
-	# Hack to check whether the uninstaller succeeded.
-	# This assumes that it got far enough to create a log file.
-	# Note that the uninstaller has already been replaced at this point.
-	#
-	SetShellVarContext all
-	IfFileExists "$LOCALAPPDATA\Mullvad VPN\uninstall.log" 0 customInstall_uninstaller_succeeded
-
-	MessageBox MB_OK "Failed to uninstall a previous version. Contact support or see the logs for more information."
-	Goto customInstall_abort_installation
-
-	customInstall_uninstaller_succeeded:
 
 	${MigrateCache}
 	${RemoveRelayCache}
@@ -759,29 +769,61 @@
 	#
 	Delete "$INSTDIR\mullvad vpn.exe"
 
-	nsExec::ExecToStack '"$SYSDIR\netsh.exe" wfp show security FILTER ${BLOCK_OUTBOUND_IPV4_FILTER_GUID}'
-	Pop $BlockFilterResult
-	Pop $1
-
-	nsExec::ExecToStack '"$SYSDIR\netsh.exe" wfp show security FILTER ${PERSISTENT_BLOCK_OUTBOUND_IPV4_FILTER_GUID}'
-	Pop $PersistentBlockFilterResult
-	Pop $1
-
-	${If} $BlockFilterResult == 0
-	${OrIf} $PersistentBlockFilterResult == 0
-		MessageBox MB_ICONEXCLAMATION|MB_YESNO "Do you wish to unblock your internet access? Doing so will leave you with an unsecure connection." IDNO customInstall_abort_installation_skip_firewall_revert
-		${ExtractMullvadSetup}
-		${ClearFirewallRules}
-	${EndIf}
-
-	customInstall_abort_installation_skip_firewall_revert:
+	${FirewallWarningCheck}
+	${ExtractMullvadSetup}
+	${ClearFirewallRules}
 
 	Abort
 
 	customInstall_skip_abort:
 
 	Pop $R0
-	Pop $1
+
+!macroend
+
+#
+# customUnInstallCheck
+#
+# This is called from the installer during an upgrade after the old version
+# has been uninstalled or failed to uninstall.
+#
+# The error flag is set if the uninstaller failed to run. Otherwise, $R0
+# contains the exit status.
+#
+!macro customUnInstallCheck
+
+	IfErrors 0 customUnInstallCheck_CheckReturnCode
+
+	log::SetLogTarget ${LOG_UNINSTALL}
+	log::Log "Unable to launch uninstaller for previous ${PRODUCT_NAME} version"
+
+	#
+	# If $INSTDIR is gone or can be removed, proceed anyway
+	#
+	IfFileExists $INSTDIR\*.* 0 customUnInstallCheck_Done
+	RMDir /r $INSTDIR
+	IfErrors 0 customUnInstallCheck_Done
+
+	log::Log "Aborting since $INSTDIR exists"
+	Goto customUnInstallCheck_Abort
+
+	customUnInstallCheck_CheckReturnCode:
+
+	${if} $R0 == 0
+		Goto customUnInstallCheck_Done
+	${endif}
+
+	customUnInstallCheck_Abort:
+
+	${FirewallWarningCheck}
+	${ExtractMullvadSetup}
+	${ClearFirewallRules}
+
+	MessageBox MB_OK "Failed to uninstall a previous version. Contact support or review the logs for more information."
+	SetErrorLevel 5
+	Abort
+
+	customUnInstallCheck_Done:
 
 !macroend
 
@@ -987,8 +1029,9 @@
 	# Break the install due to inconsistent state
 	Delete "$INSTDIR\mullvad vpn.exe"
 
-	# Clear firewall rules, or risk leaving persistent filters
-	${ClearFirewallRules}
+	${If} $FullUninstall == 1
+		${ClearFirewallRules}
+	${EndIf}
 
 	log::Log "Aborting uninstaller"
 	SetErrorLevel 1
