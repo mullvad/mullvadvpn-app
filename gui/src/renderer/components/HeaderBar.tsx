@@ -3,8 +3,10 @@ import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IReduxState } from '../redux/store';
+import { FocusFallback } from './Focus';
 import ImageView from './ImageView';
 
 export enum HeaderBarStyle {
@@ -117,4 +119,35 @@ export function HeaderBarSettingsButton() {
       />
     </HeaderBarSettingsButtonContainer>
   );
+}
+
+export function DefaultHeaderBar(props: IHeaderBarProps) {
+  return (
+    <HeaderBar {...props}>
+      <FocusFallback>
+        <Brand />
+      </FocusFallback>
+      <HeaderBarSettingsButton />
+    </HeaderBar>
+  );
+}
+
+export function calculateHeaderBarStyle(tunnelState: TunnelState): HeaderBarStyle {
+  switch (tunnelState.state) {
+    case 'disconnected':
+      return HeaderBarStyle.error;
+    case 'connecting':
+    case 'connected':
+      return HeaderBarStyle.success;
+    case 'error':
+      return !tunnelState.details.blockFailure ? HeaderBarStyle.success : HeaderBarStyle.error;
+    case 'disconnecting':
+      switch (tunnelState.details) {
+        case 'block':
+        case 'reconnect':
+          return HeaderBarStyle.success;
+        case 'nothing':
+          return HeaderBarStyle.error;
+      }
+  }
 }

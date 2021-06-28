@@ -196,10 +196,16 @@ class ApplicationMain {
       return this.daemonRpc.getAccountData(accountToken);
     },
     (accountData) => {
-      this.accountData = accountData;
+      this.accountData = accountData && {
+        ...accountData,
+        previousExpiry:
+          accountData.expiry !== this.accountData?.expiry
+            ? this.accountData?.expiry
+            : this.accountData?.previousExpiry,
+      };
 
       if (this.windowController) {
-        IpcMainEventChannel.account.notify(this.windowController.webContents, accountData);
+        IpcMainEventChannel.account.notify(this.windowController.webContents, this.accountData);
       }
 
       this.handleAccountExpiry();
@@ -1124,9 +1130,16 @@ class ApplicationMain {
     IpcMainEventChannel.account.handleLogin((token: AccountToken) => this.login(token));
     IpcMainEventChannel.account.handleLogout(() => this.logout());
     IpcMainEventChannel.account.handleGetWwwAuthToken(() => this.daemonRpc.getWwwAuthToken());
-    IpcMainEventChannel.account.handleSubmitVoucher((voucherCode: string) =>
-      this.daemonRpc.submitVoucher(voucherCode),
-    );
+    IpcMainEventChannel.account.handleSubmitVoucher(async (voucherCode: string) => {
+      const currentAccountToken = this.settings.accountToken;
+      const response = await this.daemonRpc.submitVoucher(voucherCode);
+
+      if (currentAccountToken) {
+        this.accountDataCache.handleVoucherResponse(currentAccountToken, response);
+      }
+
+      return response;
+    });
 
     IpcMainEventChannel.accountHistory.handleClear(async () => {
       await this.daemonRpc.clearAccountHistory();

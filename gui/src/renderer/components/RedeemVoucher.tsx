@@ -1,7 +1,6 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
-import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import accountActions from '../redux/account/actions';
@@ -60,7 +59,6 @@ interface IRedeemVoucherProps {
 export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
   const { onSubmit, onSuccess, onFailure } = props;
 
-  const closeScheduler = useScheduler();
   const { submitVoucher } = useAppContext();
   const { updateAccountExpiry } = useActions(accountActions);
 
@@ -75,18 +73,21 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
       return;
     }
 
+    const submitTimestamp = Date.now();
     setSubmitting(true);
     onSubmit?.();
     const response = await submitVoucher(value);
 
+    // Show the spinner for at least half a second if it isn't successful.
+    const submitDuration = Date.now() - submitTimestamp;
+    if (response.type !== 'success' && submitDuration < 500) {
+      await new Promise((resolve) => setTimeout(resolve, 500 - submitDuration));
+    }
+
     setSubmitting(false);
     setResponse(response);
     if (response.type === 'success') {
-      setValue('');
-      closeScheduler.schedule(() => {
-        updateAccountExpiry(response.newExpiry);
-        onSuccess?.();
-      }, 1000);
+      onSuccess?.();
     } else {
       onFailure?.();
     }
@@ -100,7 +101,11 @@ export function RedeemVoucherContainer(props: IRedeemVoucherProps) {
   );
 }
 
-export function RedeemVoucherInput() {
+interface IRedeemVoucherInputProps {
+  className?: string;
+}
+
+export function RedeemVoucherInput(props: IRedeemVoucherInputProps) {
   const { value, setValue, onSubmit, submitting, response } = useContext(RedeemVoucherContext);
   const disabled = submitting || response?.type === 'success';
 
@@ -122,6 +127,7 @@ export function RedeemVoucherInput() {
 
   return (
     <StyledInput
+      className={props.className}
       allowedCharacters="[A-Z0-9]"
       separator="-"
       uppercaseOnly
@@ -137,7 +143,11 @@ export function RedeemVoucherInput() {
   );
 }
 
-export function RedeemVoucherResponse() {
+interface IRedeemVoucherResponseProps {
+  disableSuccessMessage?: boolean;
+}
+
+export function RedeemVoucherResponse(props: IRedeemVoucherResponseProps) {
   const { response, submitting } = useContext(RedeemVoucherContext);
 
   if (submitting) {
@@ -147,11 +157,15 @@ export function RedeemVoucherResponse() {
   if (response) {
     switch (response.type) {
       case 'success':
-        return (
-          <StyledSuccessResponse>
-            {messages.pgettext('redeem-voucher-view', 'Voucher was successfully redeemed.')}
-          </StyledSuccessResponse>
-        );
+        if (props.disableSuccessMessage) {
+          return <StyledEmptyResponse />;
+        } else {
+          return (
+            <StyledSuccessResponse>
+              {messages.pgettext('redeem-voucher-view', 'Voucher was successfully redeemed.')}
+            </StyledSuccessResponse>
+          );
+        }
       case 'invalid':
         return (
           <StyledErrorResponse>

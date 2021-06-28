@@ -1,8 +1,7 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import { links } from '../../config.json';
-import { hasExpired } from '../../shared/account-expiry';
-import { AccountToken } from '../../shared/daemon-rpc-types';
+import { AccountToken, TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { LoginState } from '../redux/account/reducers';
 import * as AppButton from './AppButton';
@@ -18,14 +17,16 @@ import {
   StyledCustomScrollbars,
   StyledDisconnectButton,
   StyledFooter,
+  StyledHeader,
   StyledMessage,
   StyledModalCellContainer,
   StyledStatusIcon,
   StyledTitle,
 } from './ExpiredAccountErrorViewStyles';
+import { calculateHeaderBarStyle, HeaderBarStyle } from './HeaderBar';
 import ImageView from './ImageView';
-import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
-import { RedeemVoucherContainer, RedeemVoucherAlert } from './RedeemVoucher';
+import { Layout } from './Layout';
+import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';
 
 export enum RecoveryAction {
   openBrowser,
@@ -37,17 +38,16 @@ interface IExpiredAccountErrorViewProps {
   isBlocked: boolean;
   blockWhenDisconnected: boolean;
   accountToken?: AccountToken;
-  accountExpiry?: string;
   loginState: LoginState;
-  hideWelcomeView: () => void;
+  tunnelState: TunnelState;
   onExternalLinkWithAuth: (url: string) => Promise<void>;
   onDisconnect: () => Promise<void>;
   setBlockWhenDisconnected: (value: boolean) => void;
+  navigateToRedeemVoucher: () => void;
 }
 
 interface IExpiredAccountErrorViewState {
   showBlockWhenDisconnectedAlert: boolean;
-  showRedeemVoucherAlert: boolean;
 }
 
 export default class ExpiredAccountErrorView extends React.Component<
@@ -56,43 +56,45 @@ export default class ExpiredAccountErrorView extends React.Component<
 > {
   public state: IExpiredAccountErrorViewState = {
     showBlockWhenDisconnectedAlert: false,
-    showRedeemVoucherAlert: false,
   };
 
-  public componentDidUpdate() {
-    if (this.props.accountExpiry && !hasExpired(this.props.accountExpiry)) {
-      this.props.hideWelcomeView();
-    }
-  }
-
   public render() {
+    const headerBarStyle =
+      this.props.loginState.type === 'ok' && this.props.loginState.method === 'new_account'
+        ? HeaderBarStyle.default
+        : calculateHeaderBarStyle(this.props.tunnelState);
+
     return (
-      <StyledCustomScrollbars fillContainer>
-        <StyledContainer>
-          <StyledBody>{this.renderContent()}</StyledBody>
+      <ModalContainer>
+        <Layout>
+          <StyledHeader barStyle={headerBarStyle} />
+          <StyledCustomScrollbars fillContainer>
+            <StyledContainer>
+              <StyledBody>{this.renderContent()}</StyledBody>
 
-          <StyledFooter>
-            {this.getRecoveryAction() === RecoveryAction.disconnect && (
-              <AppButton.BlockingButton onClick={this.props.onDisconnect}>
-                <StyledDisconnectButton>
-                  {messages.pgettext('connect-view', 'Disconnect')}
-                </StyledDisconnectButton>
-              </AppButton.BlockingButton>
-            )}
+              <StyledFooter>
+                {this.getRecoveryAction() === RecoveryAction.disconnect && (
+                  <AppButton.BlockingButton onClick={this.props.onDisconnect}>
+                    <StyledDisconnectButton>
+                      {messages.pgettext('connect-view', 'Disconnect')}
+                    </StyledDisconnectButton>
+                  </AppButton.BlockingButton>
+                )}
 
-            {this.renderExternalPaymentButton()}
+                {this.renderExternalPaymentButton()}
 
-            <AppButton.GreenButton
-              disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
-              onClick={this.onOpenRedeemVoucherAlert}>
-              {messages.pgettext('connect-view', 'Redeem voucher')}
-            </AppButton.GreenButton>
-          </StyledFooter>
+                <AppButton.GreenButton
+                  disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
+                  onClick={this.props.navigateToRedeemVoucher}>
+                  {messages.pgettext('connect-view', 'Redeem voucher')}
+                </AppButton.GreenButton>
+              </StyledFooter>
 
-          {this.state.showRedeemVoucherAlert && this.renderRedeemVoucherAlert()}
-          {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
-        </StyledContainer>
-      </StyledCustomScrollbars>
+              {this.state.showBlockWhenDisconnectedAlert && this.renderBlockWhenDisconnectedAlert()}
+            </StyledContainer>
+          </StyledCustomScrollbars>
+        </Layout>
+      </ModalContainer>
     );
   }
 
@@ -188,14 +190,6 @@ export default class ExpiredAccountErrorView extends React.Component<
     );
   }
 
-  private renderRedeemVoucherAlert() {
-    return (
-      <RedeemVoucherContainer onSuccess={this.props.hideWelcomeView}>
-        <RedeemVoucherAlert onClose={this.onCloseRedeemVoucherAlert} />
-      </RedeemVoucherContainer>
-    );
-  }
-
   private renderBlockWhenDisconnectedAlert() {
     return (
       <ModalAlert
@@ -254,14 +248,6 @@ export default class ExpiredAccountErrorView extends React.Component<
       return RecoveryAction.openBrowser;
     }
   }
-
-  private onOpenRedeemVoucherAlert = () => {
-    this.setState({ showRedeemVoucherAlert: true });
-  };
-
-  private onCloseRedeemVoucherAlert = () => {
-    this.setState({ showRedeemVoucherAlert: false });
-  };
 
   private onCloseBlockWhenDisconnectedInstructions = () => {
     this.setState({ showBlockWhenDisconnectedAlert: false });

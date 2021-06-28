@@ -1,3 +1,4 @@
+import { Action } from 'history';
 import TransitionRule, { ITransitionDescriptor, ITransitionFork } from './lib/transition-rule';
 
 export interface ITransitionGroupProps {
@@ -47,6 +48,14 @@ const transitionRules = [
   r('/settings/advanced', '/settings/advanced/wireguard-keys', transitions.push),
   r('/settings/advanced', '/settings/advanced/linux-split-tunneling', transitions.push),
   r('/settings', '/settings/support', transitions.push),
+  r('/main', '/main/voucher/redeem', transitions.push),
+  r('/main/voucher/redeem', '/main/voucher/success', transitions.push),
+  r('/main/voucher/success', '/main/setup-finished', transitions.push),
+  r('/main/voucher/success', '/main', transitions.push),
+  r('/main/time-added', '/main/setup-finished', transitions.push),
+  r('/main/time-added', '/main', transitions.push),
+  r('/main', '/main/time-added', transitions.push),
+  r('/main/setup-finished', '/main', transitions.push),
   r(null, '/settings', transitions.slide),
   r(null, '/select-location', transitions.slide),
 ];
@@ -60,6 +69,7 @@ const transitionRules = [
 export function getTransitionProps(
   fromRoute: string | null,
   toRoute: string,
+  action?: Action,
 ): ITransitionGroupProps {
   // ignore initial transition and transition between the same routes
   if (!fromRoute || fromRoute === toRoute) {
@@ -67,7 +77,7 @@ export function getTransitionProps(
   }
 
   for (const rule of transitionRules) {
-    const match = rule.match(fromRoute, toRoute);
+    const match = rule.match(fromRoute, toRoute, action);
     if (match) {
       return toTransitionGroupProps(match.descriptor);
     }
