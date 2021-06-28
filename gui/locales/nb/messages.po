@@ -10,10 +10,68 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2021-03-31 13:39\n"
+"PO-Revision-Date: 2021-06-28 11:50\n"
+
+msgid "1 day"
+msgid_plural "%d days"
+msgstr[0] "1 dag"
+msgstr[1] "%d dager"
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] "1 dag igjen"
+msgstr[1] "%d dager igjen"
+
+msgid "1 month"
+msgid_plural "%d months"
+msgstr[0] "1 måned"
+msgstr[1] "%d måneder"
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] "1 måned igjen"
+msgstr[1] "%d måneder igjen"
+
+msgid "1 year"
+msgid_plural "%d years"
+msgstr[0] "1 år"
+msgstr[1] "%d år"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "1 år igjen"
+msgstr[1] "%d år igjen"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "én dag siden"
+msgstr[1] "%d dager siden"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "ett minutt siden"
+msgstr[1] "%d minutter siden"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "én måned siden"
+msgstr[1] "%d måneder siden"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "ett år siden"
+msgstr[1] "%d år siden"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "én time siden"
+msgstr[1] "%d timer siden"
 
 msgid "Back"
 msgstr "Tilbake"
+
+msgid "BETA"
+msgstr "BETA"
 
 msgid "BLOCKED CONNECTION"
 msgstr "TILKOBLING BLOKKERT"
@@ -51,6 +109,15 @@ msgstr "KUNNE IKKE OPPRETTE SIKKER TILKOBLING"
 msgid "Invalid account number"
 msgstr "Ugyldig kontonummer"
 
+msgid "less than a day"
+msgstr "mindre enn én dag"
+
+msgid "less than a day left"
+msgstr "mindre enn én dag igjen"
+
+msgid "less than a minute ago"
+msgstr "mindre enn ett minutt siden"
+
 msgid "Open URL"
 msgstr "Åpne URL"
 
@@ -66,7 +133,7 @@ msgstr "Innstillinger"
 msgid "System default"
 msgstr "Systemstandard"
 
-msgid "UNSECURED CONNECTION"
+msgid "UNSECURE CONNECTION"
 msgstr "USIKKER TILKOBLING"
 
 msgctxt "accessibility"
@@ -101,20 +168,6 @@ msgstr "Fjern element"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "Velg plassering. Gjeldende plassering er %(location)s"
-
-#. The remaining time left on the account measured in days.
-#. Available placeholders:
-#. %(duration)s - The remaining time measured in days.
-msgctxt "account-expiry"
-msgid "%(duration)s days"
-msgstr "%(duration)s dager"
-
-#. The remaining time left on the account displayed across the app.
-#. Available placeholders:
-#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
-msgctxt "account-expiry"
-msgid "%(duration)s left"
-msgstr "%(duration)s igjen"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -180,10 +233,6 @@ msgid "Default"
 msgstr "Standard"
 
 msgctxt "advanced-settings-view"
-msgid "e.g. 10.0.0.4"
-msgstr "f.eks. 10.0.0.4"
-
-msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "Aktiver uansett"
 
@@ -198,6 +247,10 @@ msgstr "Aktiver IPv6-kommunikasjon gjennom tunnelen."
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "Aktiver for å legge til minst én DNS-server."
+
+msgctxt "advanced-settings-view"
+msgid "Enter IP"
+msgstr "Angi IP"
 
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
@@ -264,8 +317,8 @@ msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "Den automatiske innstillingen vil tilfeldig velge fra en rekke porter."
 
 msgctxt "advanced-settings-view"
-msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
-msgstr "DNS-serveren du prøver å legge til fungerer kanskje ikke fordi den er offentlig. Vi støtter for øyeblikket bare lokale DNS-servere."
+msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
+msgstr "DNS-serveren du vil legge til er offentlig og fungerer bare med WireGuard. For å sikre at den alltid fungerer, se WireGuards «Tunnelprotokoll» (i avanserte innstillinger)."
 
 msgctxt "advanced-settings-view"
 msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
@@ -361,8 +414,8 @@ msgid "Remember, turning it off will allow network traffic while the VPN is disc
 msgstr "Husk at å slå den av vil tillate trafikk over nettverket mens VPN er frakoblet helt til du slår den på igjen under Avanserte innstillinger."
 
 msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
-msgstr "For å legge til mer må du koble fra og koble til internettet med en usikker tilkobling."
+msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
+msgstr "For å legge til mer, må du koble fra og koble til internettet med en usikker tilkobling."
 
 msgctxt "connect-view"
 msgid "To start using the app, you first need to add time to your account."
@@ -584,12 +637,16 @@ msgid "Could not configure IPv6. Disable it in the app or enable it on your devi
 msgstr "Kunne ikke konfigurere IPv6. Deaktiver den i appen eller aktiver den på enheten din."
 
 msgctxt "notifications"
-msgid "Disconnected and unsecured"
+msgid "Disconnected and unsecure"
 msgstr "Frakoblet og usikret"
 
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "Kobler til på nytt"
+
+msgctxt "notifications"
+msgid "The apps excluded with split tunneling might not work properly right now."
+msgstr "Appene som er ekskludert med delt tunnelering, fungerer kanskje ikke på riktig måte akkurat nå."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules."
@@ -614,6 +671,10 @@ msgstr "Kunne ikke blokkere all nettverkstrafikk. Forsøk å deaktivere eventuel
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or contact support."
 msgstr "Kunne ikke blokkere all nettverkstrafikk. Forsøk å oppdatere operativsystemet ditt eller kontakt kundestøtte."
+
+msgctxt "notifications"
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
+msgstr "Kan ikke kommunisere med Mullvad-kjernedriveren. Prøv å koble til på nytt eller kontakt support."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -672,6 +733,34 @@ msgstr "Kobler automatisk til en server når appen starter."
 msgctxt "preferences-view"
 msgid "Beta program"
 msgstr "Betaprogram"
+
+msgctxt "preferences-view"
+msgid "Block ads"
+msgstr "Blokker annonser"
+
+msgctxt "preferences-view"
+msgid "Block trackers"
+msgstr "Blokker sporere"
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
+#. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "preferences-view"
+msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "Deaktiver **%(blockAdsFeatureName)s** og **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) for å aktivere denne innstillingen."
+
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
+#. Advanced settings refer to the name of the page with the title "Advanced".
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
+msgctxt "preferences-view"
+msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
+msgstr "Deaktiver **%(customDnsFeatureName)s** (under Avanserte innstillinger) for å aktivere disse innstillingene."
 
 msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -847,12 +936,32 @@ msgid "%(applicationName)s is problematic and can’t be excluded from the VPN t
 msgstr "%(applicationName)s opplever problemer og kan ikke utelates fra VPN-tunnelen."
 
 msgctxt "split-tunneling-view"
-msgid "Browse"
-msgstr "Se gjennom"
+msgid "Add"
+msgstr "Legg til"
+
+msgctxt "split-tunneling-view"
+msgid "All apps"
+msgstr "Alle apper"
+
+msgctxt "split-tunneling-view"
+msgid "Choose the apps you want to exclude from the VPN tunnel."
+msgstr "Velg appene du vil ekskludere fra VPN-tunnelen."
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
 msgstr "Klikk på en app for å starte den. Trafikken fra appen vil føres utenom VPN-tunnelen inntil du avslutter den."
+
+msgctxt "split-tunneling-view"
+msgid "Excluded apps"
+msgstr "Ekskluder apper"
+
+msgctxt "split-tunneling-view"
+msgid "Filter..."
+msgstr "Filtrer …"
+
+msgctxt "split-tunneling-view"
+msgid "Find another app"
+msgstr "Finn en annen app"
 
 msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
@@ -863,8 +972,8 @@ msgid "Launch"
 msgstr "Start"
 
 msgctxt "split-tunneling-view"
-msgid "Launch application"
-msgstr "Start applikasjon"
+msgid "No result for %(searchTerm)s."
+msgstr "Ingen resultater for %(searchTerm)s."
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -882,6 +991,14 @@ msgstr "Prøv igjen eller kontakt kundestøtte."
 msgctxt "split-tunneling-view"
 msgid "Split tunneling"
 msgstr "Delt tunnel"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling has been disabled from the CLI and will automatically be enabled when adding or removing applications from the lists below."
+msgstr "Delt tunnelering er deaktivert fra CLI og blir automatisk aktivert når du legger til eller fjerner applikasjoner fra listen nedenfor."
+
+msgctxt "split-tunneling-view"
+msgid "Try a different search."
+msgstr "Prøv et annet søk."
 
 #. Error message showed in a dialog when an application failes to launch.
 msgctxt "split-tunneling-view"
@@ -1050,160 +1167,143 @@ msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard-nøkkel"
 
+msgid "Account authentication failed."
+msgstr "Autentisering av konto mislykket."
+
+msgid "Account credit expires in a few minutes"
+msgstr "Kontokreditt utløper om noen få minutter"
+
+msgid "Account credit expires soon"
+msgstr "Kontokreditt utløper snart"
+
+msgid "Account time reminders"
+msgstr "Påminnelser om tidsavbrudd for konto"
+
+msgid "All applications"
+msgstr "Alle applikasjoner"
+
+msgid "Blocking all connections"
+msgstr "Blokkerer alle tilkoblinger"
+
 msgid "Blocking internet"
 msgstr "Blokkerer internettet"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Kopierte Mullvad-kontonummer til utklippstavlen"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "Ingen bro-relayserver samsvarer med de gjeldende innstillingene"
-
-msgid "less than a day left"
-msgstr "mindre enn én dag igjen"
-
-msgid "less than a minute ago"
-msgstr "mindre enn ett minutt siden"
-
 msgid "Copied WireGuard public key to clipboard"
 msgstr "Kopierte WireGuard offentlig nøkkel til utklippstavlen"
-
-msgid "Shows current VPN tunnel status"
-msgstr "Viser gjeldende VPN-tunnelstatus"
-
-msgid "Secured"
-msgstr "Sikret"
-
-msgid "Blocking all connections"
-msgstr "Blokkerer alle tilkoblinger"
-
-msgid "Account credit expires soon"
-msgstr "Kontokreditt utløper snart"
-
-msgid "Disconnecting"
-msgstr "Kobler fra"
-
-msgid "Too many WireGuard keys registered to account"
-msgstr "For mange WireGuard-nøkler er registrert til kontoen din"
-
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr "Tunneldeling gjør det mulig å velge hvilke applikasjoner som ikke skal rutes gjennom VPN-tunnelen."
-
-msgid "WireGuard public key"
-msgstr "WireGuard offentlig nøkkel"
-
-msgid "Account authentication failed."
-msgstr "Autentisering av konto mislykket."
-
-msgid "Could not configure IPv6"
-msgstr "Kunne ikke konfigurere IPv6"
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "Du kjører en appversjon som ikke er støttet. Oppdater til %s for å ha den beste sikkerheten"
-
-msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
-msgstr "VPN-tillatelse ble avvist under opprettelsen av tunnelen. Prøv å koble til igjen."
-
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "Kunne ikke anvende brannmurregler. Enheten kan være usikker"
-
-msgid "Account time reminders"
-msgstr "Påminnelser om tidsavbrudd for konto"
-
-msgid "Enable"
-msgstr "Aktiver"
-
-msgid "WireGuard error"
-msgstr "WireGuard-feil"
-
-msgid "This device is offline, no tunnels can be established"
-msgstr "Enheten er frakoblet. Ingen tunneler kan opprettes"
-
-msgid "Update available, download to remain safe."
-msgstr "Oppdatering tilgjengelig. Last ned for å oppdatere sikkerheten."
-
-msgid "You may need to go back to the app\\'s main screen and click Disconnect before trying again. Don\\'t worry, the information you entered will remain in the form."
-msgstr "Du må gå tilbake til hovedskjermen til appen og trykke på \"Koble fra\" før du kan prøve på nytt. Men det er ingen grunn til bekymring, informasjonen du har skrevet i skjemaet blir ikke borte."
-
-msgid "Virtual adapter error"
-msgstr "Virtuell adapterfeil"
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Kunne ikke blokkere all nettverkstrafikk. Kjør feilsøking eller rapporter inn problemet til oss."
-
-msgid "Failed to set system DNS server"
-msgstr "Kunne ikke angi systemets DNS-server"
-
-msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr "Installer Mullvad VPN (%s) for å holde deg oppdatert"
-
-msgid "Critical error (your attention is required)"
-msgstr "Kritisk feil (krever din oppmerksomhet)"
-
-msgid "You are running an unsupported app version."
-msgstr "Du kjører en appversjon som ikke støttes."
-
-msgid "Custom DNS server addresses %s are invalid"
-msgstr "Egendefinerte DNS-serveradresser %s er ugyldige"
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "Kunne ikke løse vertsnavnet til den egendefinerte serveren"
-
-msgid "No relay server matches the current settings"
-msgstr "Ingen relayservere passer til innstillingene"
-
-msgid "Mullvad account number"
-msgstr "Mullvad-kontonummer"
-
-msgid "If needed we will contact you on %s"
-msgstr "Vi vil kontakte deg på %s ved behov"
-
-msgid "Account credit expires in a few minutes"
-msgstr "Kontokreditt utløper om noen få minutter"
-
-msgid "Exclude applications"
-msgstr "Ekskluder applikasjoner"
-
-msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
-msgstr "Den lokale DNS-serveren fungerer ikke med mindre du aktiverer «Deling av lokalt nettverk» under Innstillinger."
 
 msgid "Copied to clipboard"
 msgstr "Kopiert til utklippstavlen"
 
-msgid "Unsecured"
-msgstr "Usikret"
+msgid "Could not configure IPv6"
+msgstr "Kunne ikke konfigurere IPv6"
+
+msgid "Critical error (your attention is required)"
+msgstr "Kritisk feil (krever din oppmerksomhet)"
+
+msgid "Custom DNS server addresses %s are invalid"
+msgstr "Egendefinerte DNS-serveradresser %s er ugyldige"
+
+msgid "Disconnecting"
+msgstr "Kobler fra"
+
+msgid "Enable"
+msgstr "Aktiver"
+
+msgid "Excluded applications"
+msgstr "Ekskluder applikasjoner"
+
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr "Kunne ikke anvende brannmurregler. Enheten kan være usikker"
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "Kunne ikke blokkere all nettverkstrafikk. Kjør feilsøking eller rapporter inn problemet til oss."
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr "Kunne ikke løse vertsnavnet til den egendefinerte serveren"
+
+msgid "Failed to set system DNS server"
+msgstr "Kunne ikke angi systemets DNS-server"
 
 msgid "Failed to start tunnel connection"
 msgstr "Kunne ikke starte tunneltilkobling"
 
-msgid "VPN tunnel status"
-msgstr "VPN-tunnelstatus"
+msgid "If needed we will contact you on %s"
+msgstr "Vi vil kontakte deg på %s ved behov"
+
+msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr "Installer Mullvad VPN (%s) for å holde deg oppdatert"
+
+msgid "Mullvad account number"
+msgstr "Mullvad-kontonummer"
+
+msgid "No bridge relay server matches the current settings"
+msgstr "Ingen bro-relayserver samsvarer med de gjeldende innstillingene"
+
+msgid "No relay server matches the current settings"
+msgstr "Ingen relayservere passer til innstillingene"
+
+msgid "Secured"
+msgstr "Sikret"
+
+msgid "Shows current VPN tunnel status"
+msgstr "Viser gjeldende VPN-tunnelstatus"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Viser påminnelser når tidsavbrudd for kontoen er i ferd med å inntreffe"
 
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr "Tunneldeling gjør det mulig å velge hvilke applikasjoner som ikke skal rutes gjennom VPN-tunnelen."
+
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
+msgstr "Den lokale DNS-serveren fungerer ikke med mindre du aktiverer «Deling av lokalt nettverk» under Innstillinger."
+
+msgid "This device is offline, no tunnels can be established"
+msgstr "Enheten er frakoblet. Ingen tunneler kan opprettes"
+
+msgid "Too many WireGuard keys registered to account"
+msgstr "For mange WireGuard-nøkler er registrert til kontoen din"
+
+msgid "UNSECURED CONNECTION"
+msgstr "USIKKER TILKOBLING"
+
+msgid "Unsecured"
+msgstr "Usikret"
+
+msgid "Update available, download to remain safe."
+msgstr "Oppdatering tilgjengelig. Last ned for å oppdatere sikkerheten."
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr "VPN-tillatelse ble avvist under opprettelsen av tunnelen. Prøv å koble til igjen."
+
+msgid "VPN tunnel status"
+msgstr "VPN-tunnelstatus"
+
+msgid "Virtual adapter error"
+msgstr "Virtuell adapterfeil"
+
+msgid "WireGuard error"
+msgstr "WireGuard-feil"
+
+msgid "WireGuard public key"
+msgstr "WireGuard offentlig nøkkel"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "DET KAN VÆRE EN NETTVERKSLEKKASJE HOS DEG"
 
-msgid "1 month left"
-msgid_plural "%d months left"
-msgstr[0] "1 måned igjen"
-msgstr[1] "%d måneder igjen"
+msgid "You are running an unsupported app version."
+msgstr "Du kjører en appversjon som ikke støttes."
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "én dag siden"
-msgstr[1] "%d dager siden"
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr "Du kjører en appversjon som ikke er støttet. Oppdater til %s for å ha den beste sikkerheten"
 
-msgid "1 day left"
-msgid_plural "%d days left"
-msgstr[0] "1 dag igjen"
-msgstr[1] "%d dager igjen"
+msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+msgstr "Du må gå tilbake til hovedskjermen til appen og trykke på \"Koble fra\" før du kan prøve på nytt. Men det er ingen grunn til bekymring, informasjonen du har skrevet i skjemaet blir ikke borte."
 
-msgid "1 year left"
-msgid_plural "%d years left"
-msgstr[0] "1 år igjen"
-msgstr[1] "%d år igjen"
+msgid "e.g. 10.0.0.4"
+msgstr "f.eks. 10.0.0.4"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1214,24 +1314,4 @@ msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "Kontokreditt utløper om én time"
 msgstr[1] "Kontokreditt utløper om %d timer"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "ett minutt siden"
-msgstr[1] "%d minutter siden"
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "én time siden"
-msgstr[1] "%d timer siden"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "én måned siden"
-msgstr[1] "%d måneder siden"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "ett år siden"
-msgstr[1] "%d år siden"
 

@@ -10,10 +10,68 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Italian\n"
 "Language: it_IT\n"
-"PO-Revision-Date: 2021-03-31 13:39\n"
+"PO-Revision-Date: 2021-06-28 11:50\n"
+
+msgid "1 day"
+msgid_plural "%d days"
+msgstr[0] "1 giorno"
+msgstr[1] "%d giorni"
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] "1 giorno rimanente"
+msgstr[1] "%d giorni rimanenti"
+
+msgid "1 month"
+msgid_plural "%d months"
+msgstr[0] "1 mese"
+msgstr[1] "%d mesi"
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] "1 mese rimanente"
+msgstr[1] "%d mesi rimanenti"
+
+msgid "1 year"
+msgid_plural "%d years"
+msgstr[0] "1 anno"
+msgstr[1] "%d anni"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "1 anno rimanente"
+msgstr[1] "%d anni rimanenti"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "un giorno fa"
+msgstr[1] "%d giorni fa"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "un minuto fa"
+msgstr[1] "%d minuti fa"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "un mese fa"
+msgstr[1] "%d mesi fa"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "un anno fa"
+msgstr[1] "%d anni fa"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "un'ora fa"
+msgstr[1] "%d ore fa"
 
 msgid "Back"
 msgstr "Indietro"
+
+msgid "BETA"
+msgstr "BETA"
 
 msgid "BLOCKED CONNECTION"
 msgstr "CONNESSIONE BLOCCATA"
@@ -51,6 +109,15 @@ msgstr "IMPOSSIBILE STABILIRE UNA CONNESSIONE PROTETTA"
 msgid "Invalid account number"
 msgstr "Numero di account non valido"
 
+msgid "less than a day"
+msgstr "meno di un giorno"
+
+msgid "less than a day left"
+msgstr "meno di un giorno rimanente"
+
+msgid "less than a minute ago"
+msgstr "meno di un minuto fa"
+
 msgid "Open URL"
 msgstr "Apri URL"
 
@@ -66,7 +133,7 @@ msgstr "Impostazioni"
 msgid "System default"
 msgstr "Predefinito dal sistema"
 
-msgid "UNSECURED CONNECTION"
+msgid "UNSECURE CONNECTION"
 msgstr "CONNESSIONE NON PROTETTA"
 
 msgctxt "accessibility"
@@ -101,20 +168,6 @@ msgstr "Rimuovi elemento"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "Seleziona posizione. La posizione attuale è %(location)s"
-
-#. The remaining time left on the account measured in days.
-#. Available placeholders:
-#. %(duration)s - The remaining time measured in days.
-msgctxt "account-expiry"
-msgid "%(duration)s days"
-msgstr "%(duration)s giorni"
-
-#. The remaining time left on the account displayed across the app.
-#. Available placeholders:
-#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
-msgctxt "account-expiry"
-msgid "%(duration)s left"
-msgstr "%(duration)s residui"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -180,10 +233,6 @@ msgid "Default"
 msgstr "Predefinito"
 
 msgctxt "advanced-settings-view"
-msgid "e.g. 10.0.0.4"
-msgstr "esempio 10.0.0.4"
-
-msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "Abilita comunque"
 
@@ -198,6 +247,10 @@ msgstr "Attiva comunicazione IPv6 nel tunnel."
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "Abilita per aggiungere almeno un server DNS."
+
+msgctxt "advanced-settings-view"
+msgid "Enter IP"
+msgstr "Inserisci IP"
 
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
@@ -264,8 +317,8 @@ msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "L'impostazione automatica sceglierà in modo casuale da un ampio intervallo porte."
 
 msgctxt "advanced-settings-view"
-msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
-msgstr "Il server DNS che stai tentando di aggiungere potrebbe non funzionare poiché è pubblico. Attualmente supportiamo solo server DNS locali."
+msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
+msgstr "Il server DNS che desideri aggiungere è pubblico e funzionerà solo con WireGuard. Per assicurarti che funzioni sempre, imposta il \"Protocollo di tunneling\" (in Impostazioni avanzate) su WireGuard."
 
 msgctxt "advanced-settings-view"
 msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
@@ -361,7 +414,7 @@ msgid "Remember, turning it off will allow network traffic while the VPN is disc
 msgstr "Ricorda: la disattivazione consentirà il traffico di rete mentre la VPN è disconnessa, fino alla riattivazione in Impostazioni avanzate."
 
 msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
+msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
 msgstr "Per aggiungerne ancora, dovrai disconnetterti e accedere a Internet con una connessione non protetta."
 
 msgctxt "connect-view"
@@ -584,12 +637,16 @@ msgid "Could not configure IPv6. Disable it in the app or enable it on your devi
 msgstr "Impossibile configurare IPv6. Disabilitalo nell'app o abilitalo sul tuo dispositivo."
 
 msgctxt "notifications"
-msgid "Disconnected and unsecured"
+msgid "Disconnected and unsecure"
 msgstr "Disconnesso e non protetto"
 
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "Riconnessione"
+
+msgctxt "notifications"
+msgid "The apps excluded with split tunneling might not work properly right now."
+msgstr "Le app escluse con lo split tunneling potrebbero non funzionare correttamente in questo momento."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules."
@@ -614,6 +671,10 @@ msgstr "Impossibile bloccare tutto il traffico di rete. Prova a disabilitare qua
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or contact support."
 msgstr "Impossibile bloccare tutto il traffico di rete. Prova ad aggiornare il kernel o contatta l'assistenza."
+
+msgctxt "notifications"
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
+msgstr "Impossibile comunicare con il driver del kernel Mullvad. Prova a riconnetterti o contatta l'assistenza."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -672,6 +733,34 @@ msgstr "Connettiti automaticamente al server all'avvio dell'app."
 msgctxt "preferences-view"
 msgid "Beta program"
 msgstr "Programma beta"
+
+msgctxt "preferences-view"
+msgid "Block ads"
+msgstr "Blocca annunci"
+
+msgctxt "preferences-view"
+msgid "Block trackers"
+msgstr "Blocca tracker"
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
+#. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "preferences-view"
+msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "Disabilita **%(blockAdsFeatureName)s** e **%(blockTrackersFeatureName)s** (sotto %(preferencesPageName)s) per attivare questa impostazione."
+
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
+#. Advanced settings refer to the name of the page with the title "Advanced".
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
+msgctxt "preferences-view"
+msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
+msgstr "Disabilita **%(customDnsFeatureName)s** (in Impostazioni avanzate) per attivare queste impostazioni."
 
 msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -847,12 +936,32 @@ msgid "%(applicationName)s is problematic and can’t be excluded from the VPN t
 msgstr "L'applicazione %(applicationName)s causa problemi e non può essere esclusa dal tunnel VPN."
 
 msgctxt "split-tunneling-view"
-msgid "Browse"
-msgstr "Sfoglia"
+msgid "Add"
+msgstr "Aggiungi"
+
+msgctxt "split-tunneling-view"
+msgid "All apps"
+msgstr "Tutte le app"
+
+msgctxt "split-tunneling-view"
+msgid "Choose the apps you want to exclude from the VPN tunnel."
+msgstr "Scegli le app che desideri escludere dal tunnel VPN."
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
 msgstr "Clicca sull'app per avviarla. Il suo traffico non rientrerà nel tunnel VPN fino alla sua chiusura."
+
+msgctxt "split-tunneling-view"
+msgid "Excluded apps"
+msgstr "App escluse"
+
+msgctxt "split-tunneling-view"
+msgid "Filter..."
+msgstr "Filtra..."
+
+msgctxt "split-tunneling-view"
+msgid "Find another app"
+msgstr "Trova un'altra app"
 
 msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
@@ -863,8 +972,8 @@ msgid "Launch"
 msgstr "Avvia"
 
 msgctxt "split-tunneling-view"
-msgid "Launch application"
-msgstr "Avvia applicazione"
+msgid "No result for %(searchTerm)s."
+msgstr "Nessun risultato per %(searchTerm)s."
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -882,6 +991,14 @@ msgstr "Riprova o contatta l'assistenza."
 msgctxt "split-tunneling-view"
 msgid "Split tunneling"
 msgstr "Split tunneling"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling has been disabled from the CLI and will automatically be enabled when adding or removing applications from the lists below."
+msgstr "Lo split tunneling è stato disabilitato dalla CLI e verrà abilitato automaticamente quando si aggiungono o si rimuovono applicazioni dai seguenti elenchi."
+
+msgctxt "split-tunneling-view"
+msgid "Try a different search."
+msgstr "Prova un'altra ricerca."
 
 #. Error message showed in a dialog when an application failes to launch.
 msgctxt "split-tunneling-view"
@@ -1050,160 +1167,143 @@ msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "Chiave WireGuard"
 
+msgid "Account authentication failed."
+msgstr "Autenticazione account non riuscita."
+
+msgid "Account credit expires in a few minutes"
+msgstr "Il credito dell'account scadrà tra pochi minuti"
+
+msgid "Account credit expires soon"
+msgstr "Il credito dell'account scadrà presto"
+
+msgid "Account time reminders"
+msgstr "Promemoria temporali per l'account"
+
+msgid "All applications"
+msgstr "Tutte le applicazioni"
+
+msgid "Blocking all connections"
+msgstr "Blocco di tutte le connessioni"
+
 msgid "Blocking internet"
 msgstr "Blocco di Internet"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "Numero account di Mullvad copiato negli appunti"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "Nessun bridge relay server corrispondente alle impostazioni correnti"
-
-msgid "less than a day left"
-msgstr "meno di un giorno rimanente"
-
-msgid "less than a minute ago"
-msgstr "meno di un minuto fa"
-
 msgid "Copied WireGuard public key to clipboard"
 msgstr "Chiave pubblica WireGuard copiata negli appunti"
-
-msgid "Shows current VPN tunnel status"
-msgstr "Mostra lo stato attuale del tunnel VPN"
-
-msgid "Secured"
-msgstr "Protetto"
-
-msgid "Blocking all connections"
-msgstr "Blocco di tutte le connessioni"
-
-msgid "Account credit expires soon"
-msgstr "Il credito dell'account scadrà presto"
-
-msgid "Disconnecting"
-msgstr "Disconnessione"
-
-msgid "Too many WireGuard keys registered to account"
-msgstr "Troppe chiavi WireGuard registrate per l'account"
-
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr "Lo split tunneling consente di selezionare quali applicazioni non devono essere instradate attraverso il tunnel VPN."
-
-msgid "WireGuard public key"
-msgstr "Chiave pubblica WireGuard"
-
-msgid "Account authentication failed."
-msgstr "Autenticazione account non riuscita."
-
-msgid "Could not configure IPv6"
-msgstr "Impossibile configurare IPv6"
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "Stai utilizzando una versione dell'app non supportata. Aggiorna alla versione %s per continuare a essere protetto"
-
-msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
-msgstr "L'autorizzazione VPN è stata negata durante la creazione del tunnel. Prova a connetterti di nuovo."
-
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "Impossibile applicare le regole firewall. Il dispositivo potrebbe essere non protetto"
-
-msgid "Account time reminders"
-msgstr "Promemoria temporali per l'account"
-
-msgid "Enable"
-msgstr "Abilita"
-
-msgid "WireGuard error"
-msgstr "Errore WireGuard"
-
-msgid "This device is offline, no tunnels can be established"
-msgstr "Il dispositivo è offline. Impossibile stabilire tunnel"
-
-msgid "Update available, download to remain safe."
-msgstr "Aggiornamento disponibile; scarica per rimanere protetto."
-
-msgid "You may need to go back to the app\\'s main screen and click Disconnect before trying again. Don\\'t worry, the information you entered will remain in the form."
-msgstr "Prima di riprovare, potresti dover tornare alla schermata principale dell\\'app e fare clic su Disconnetti. Non preoccuparti: le informazioni inserite rimarranno nel modulo."
-
-msgid "Virtual adapter error"
-msgstr "Errore scheda virtuale"
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "Impossibile bloccare tutto il traffico di rete. Risolvi i problemi o segnalaceli."
-
-msgid "Failed to set system DNS server"
-msgstr "Impossibile impostare il server DNS di sistema"
-
-msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr "Installa Mullvad VPN (%s) per rimanere aggiornato"
-
-msgid "Critical error (your attention is required)"
-msgstr "Errore critico (è necessario intervenire)"
-
-msgid "You are running an unsupported app version."
-msgstr "Stai eseguendo una versione non supportata dell'app."
-
-msgid "Custom DNS server addresses %s are invalid"
-msgstr "Gli indirizzi del server DNS personalizzato %s non sono validi"
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "Impossibile risolvere il nome host del server personalizzato"
-
-msgid "No relay server matches the current settings"
-msgstr "Nessun relay server corrispondente alle impostazioni correnti"
-
-msgid "Mullvad account number"
-msgstr "Numero di account Mullvad"
-
-msgid "If needed we will contact you on %s"
-msgstr "Se necessario, ti contatteremo all'indirizzo %s"
-
-msgid "Account credit expires in a few minutes"
-msgstr "Il credito dell'account scadrà tra pochi minuti"
-
-msgid "Exclude applications"
-msgstr "Escludi applicazioni"
-
-msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
-msgstr "Il server DNS locale non funzionerà a meno che non si abiliti \"Condivisione rete locale\" in Preferenze."
 
 msgid "Copied to clipboard"
 msgstr "Copiato negli appunti"
 
-msgid "Unsecured"
-msgstr "Non protetto"
+msgid "Could not configure IPv6"
+msgstr "Impossibile configurare IPv6"
+
+msgid "Critical error (your attention is required)"
+msgstr "Errore critico (è necessario intervenire)"
+
+msgid "Custom DNS server addresses %s are invalid"
+msgstr "Gli indirizzi del server DNS personalizzato %s non sono validi"
+
+msgid "Disconnecting"
+msgstr "Disconnessione"
+
+msgid "Enable"
+msgstr "Abilita"
+
+msgid "Excluded applications"
+msgstr "Applicazioni escluse"
+
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr "Impossibile applicare le regole firewall. Il dispositivo potrebbe essere non protetto"
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "Impossibile bloccare tutto il traffico di rete. Risolvi i problemi o segnalaceli."
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr "Impossibile risolvere il nome host del server personalizzato"
+
+msgid "Failed to set system DNS server"
+msgstr "Impossibile impostare il server DNS di sistema"
 
 msgid "Failed to start tunnel connection"
 msgstr "Impossibile avviare la connessione tunnel"
 
-msgid "VPN tunnel status"
-msgstr "Stato del tunnel VPN"
+msgid "If needed we will contact you on %s"
+msgstr "Se necessario, ti contatteremo all'indirizzo %s"
+
+msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr "Installa Mullvad VPN (%s) per rimanere aggiornato"
+
+msgid "Mullvad account number"
+msgstr "Numero di account Mullvad"
+
+msgid "No bridge relay server matches the current settings"
+msgstr "Nessun bridge relay server corrispondente alle impostazioni correnti"
+
+msgid "No relay server matches the current settings"
+msgstr "Nessun relay server corrispondente alle impostazioni correnti"
+
+msgid "Secured"
+msgstr "Protetto"
+
+msgid "Shows current VPN tunnel status"
+msgstr "Mostra lo stato attuale del tunnel VPN"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Mostra promemoria quando il tempo dell'account sta per scadere"
 
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr "Lo split tunneling consente di selezionare quali applicazioni non devono essere instradate attraverso il tunnel VPN."
+
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
+msgstr "Il server DNS locale non funzionerà a meno che non si abiliti \"Condivisione rete locale\" in Preferenze."
+
+msgid "This device is offline, no tunnels can be established"
+msgstr "Il dispositivo è offline. Impossibile stabilire tunnel"
+
+msgid "Too many WireGuard keys registered to account"
+msgstr "Troppe chiavi WireGuard registrate per l'account"
+
+msgid "UNSECURED CONNECTION"
+msgstr "CONNESSIONE NON PROTETTA"
+
+msgid "Unsecured"
+msgstr "Non protetto"
+
+msgid "Update available, download to remain safe."
+msgstr "Aggiornamento disponibile; scarica per rimanere protetto."
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr "L'autorizzazione VPN è stata negata durante la creazione del tunnel. Prova a connetterti di nuovo."
+
+msgid "VPN tunnel status"
+msgstr "Stato del tunnel VPN"
+
+msgid "Virtual adapter error"
+msgstr "Errore scheda virtuale"
+
+msgid "WireGuard error"
+msgstr "Errore WireGuard"
+
+msgid "WireGuard public key"
+msgstr "Chiave pubblica WireGuard"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "POSSIBILI PERDITE NEL TRAFFICO DI RETE"
 
-msgid "1 month left"
-msgid_plural "%d months left"
-msgstr[0] "1 mese rimanente"
-msgstr[1] "%d mesi rimanenti"
+msgid "You are running an unsupported app version."
+msgstr "Stai eseguendo una versione non supportata dell'app."
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "un giorno fa"
-msgstr[1] "%d giorni fa"
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr "Stai utilizzando una versione dell'app non supportata. Aggiorna alla versione %s per continuare a essere protetto"
 
-msgid "1 day left"
-msgid_plural "%d days left"
-msgstr[0] "1 giorno rimanente"
-msgstr[1] "%d giorni rimanenti"
+msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+msgstr "Prima di riprovare, potresti dover tornare alla schermata principale dell'app e fare clic su Disconnetti. Non preoccuparti: le informazioni inserite rimarranno nel modulo."
 
-msgid "1 year left"
-msgid_plural "%d years left"
-msgstr[0] "1 anno rimanente"
-msgstr[1] "%d anni rimanenti"
+msgid "e.g. 10.0.0.4"
+msgstr "esempio 10.0.0.4"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1214,24 +1314,4 @@ msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "Il credito dell'account scade tra un'ora"
 msgstr[1] "Il credito dell'account scade tra %d ore"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "un minuto fa"
-msgstr[1] "%d minuti fa"
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "un'ora fa"
-msgstr[1] "%d ore fa"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "un mese fa"
-msgstr[1] "%d mesi fa"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "un anno fa"
-msgstr[1] "%d anni fa"
 

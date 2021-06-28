@@ -10,10 +10,57 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2021-03-31 13:39\n"
+"PO-Revision-Date: 2021-06-28 11:50\n"
+
+msgid "1 day"
+msgid_plural "%d days"
+msgstr[0] "%d일"
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] "%d일 남음"
+
+msgid "1 month"
+msgid_plural "%d months"
+msgstr[0] "%d개월"
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] "%d개월 남음"
+
+msgid "1 year"
+msgid_plural "%d years"
+msgstr[0] "%d년"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "%d년 남음"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "%d일 전"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "%d분 전"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "%d개월 전"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "%d년 전"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "%d시간 전"
 
 msgid "Back"
 msgstr "뒤로"
+
+msgid "BETA"
+msgstr "베타"
 
 msgid "BLOCKED CONNECTION"
 msgstr "연결 차단됨"
@@ -51,6 +98,15 @@ msgstr "보안 연결 실패"
 msgid "Invalid account number"
 msgstr "유효하지 않은 계정 번호"
 
+msgid "less than a day"
+msgstr "1일 미만"
+
+msgid "less than a day left"
+msgstr "1일 이내"
+
+msgid "less than a minute ago"
+msgstr "1분 이내"
+
 msgid "Open URL"
 msgstr "URL 열기"
 
@@ -66,8 +122,8 @@ msgstr "설정"
 msgid "System default"
 msgstr "시스템 기본값"
 
-msgid "UNSECURED CONNECTION"
-msgstr "비보안 연결"
+msgid "UNSECURE CONNECTION"
+msgstr "안전하지 않은 연결"
 
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
@@ -101,20 +157,6 @@ msgstr "항목 제거"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "위치를 선택하세요. 현재 위치는 %(location)s입니다"
-
-#. The remaining time left on the account measured in days.
-#. Available placeholders:
-#. %(duration)s - The remaining time measured in days.
-msgctxt "account-expiry"
-msgid "%(duration)s days"
-msgstr "%(duration)s일"
-
-#. The remaining time left on the account displayed across the app.
-#. Available placeholders:
-#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
-msgctxt "account-expiry"
-msgid "%(duration)s left"
-msgstr "%(duration)s 남음"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -180,10 +222,6 @@ msgid "Default"
 msgstr "기본값"
 
 msgctxt "advanced-settings-view"
-msgid "e.g. 10.0.0.4"
-msgstr "예: 10.0.0.4"
-
-msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "그래도 사용"
 
@@ -198,6 +236,10 @@ msgstr "터널을 통한 IPv6 통신 사용"
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "하나 이상의 DNS 서버를 추가할 수 있습니다."
+
+msgctxt "advanced-settings-view"
+msgid "Enter IP"
+msgstr "IP 입력"
 
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
@@ -264,8 +306,8 @@ msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "자동 설정은 다양한 포트에서 임의로 선택합니다."
 
 msgctxt "advanced-settings-view"
-msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
-msgstr "추가하려는 DNS 서버가 공용이므로 작동하지 않을 수 있습니다. 현재, 로컬 DNS 서버만 지원됩니다."
+msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
+msgstr "추가하려는 DNS 서버는 공용이며 WireGuard에서만 작동합니다. 항상 작동하는지 확인하려면 \"터널 프로토콜\"(고급 설정에서)을 WireGuard로 설정하세요."
 
 msgctxt "advanced-settings-view"
 msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
@@ -361,8 +403,8 @@ msgid "Remember, turning it off will allow network traffic while the VPN is disc
 msgstr "이 기능을 끄면 고급 설정에서 다시 켤 때까지, VPN 연결이 끊어진 동안에 네트워크 트래픽이 허용됩니다."
 
 msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
-msgstr "더 추가하려면 연결을 끊고 비보안 연결로 인터넷에 액세스해야 합니다."
+msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
+msgstr "더 추가하려면 연결을 끊고 안전하지 않은 연결로 인터넷에 액세스해야 합니다."
 
 msgctxt "connect-view"
 msgid "To start using the app, you first need to add time to your account."
@@ -584,12 +626,16 @@ msgid "Could not configure IPv6. Disable it in the app or enable it on your devi
 msgstr "IPv6을 구성할 수 없습니다. 앱에서 비활성화하거나 장치에서 활성화하세요."
 
 msgctxt "notifications"
-msgid "Disconnected and unsecured"
-msgstr "연결이 끊기고 보안이 해제됨"
+msgid "Disconnected and unsecure"
+msgstr "연결이 끊기고 안전하지 않음"
 
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "다시 연결 중"
+
+msgctxt "notifications"
+msgid "The apps excluded with split tunneling might not work properly right now."
+msgstr "분할 터널링으로 제외된 앱은 현재 제대로 작동하지 않을 수 있습니다."
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules."
@@ -614,6 +660,10 @@ msgstr "모든 네트워크 트래픽을 차단할 수 없습니다. 타사 바�
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or contact support."
 msgstr "모든 네트워크 트래픽을 차단할 수 없습니다. 커널을 업데이트하거나 지원팀에 문의하세요."
+
+msgctxt "notifications"
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
+msgstr "Mullvad 커널 드라이버와 통신할 수 없습니다. 다시 연결하거나 지원팀에 문의하세요."
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -672,6 +722,34 @@ msgstr "앱이 시작되면 자동으로 서버에 연결합니다."
 msgctxt "preferences-view"
 msgid "Beta program"
 msgstr "베타 프로그램"
+
+msgctxt "preferences-view"
+msgid "Block ads"
+msgstr "광고 차단"
+
+msgctxt "preferences-view"
+msgid "Block trackers"
+msgstr "블록 추적기"
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
+#. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "preferences-view"
+msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "이 설정을 활성화하려면 **%(blockAdsFeatureName)s** 및 **%(blockTrackersFeatureName)s**(%(preferencesPageName)s 아래)을(를) 비활성화하세요."
+
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
+#. Advanced settings refer to the name of the page with the title "Advanced".
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
+msgctxt "preferences-view"
+msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
+msgstr "이러한 설정을 활성화하려면 **%(customDnsFeatureName)s**(고급 설정 아래)을(를) 비활성화하세요."
 
 msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -847,12 +925,32 @@ msgid "%(applicationName)s is problematic and can’t be excluded from the VPN t
 msgstr "%(applicationName)s에 문제가 있으며 VPN 터널에서 제외할 수 없습니다."
 
 msgctxt "split-tunneling-view"
-msgid "Browse"
-msgstr "찾아보기"
+msgid "Add"
+msgstr "추가"
+
+msgctxt "split-tunneling-view"
+msgid "All apps"
+msgstr "모든 앱"
+
+msgctxt "split-tunneling-view"
+msgid "Choose the apps you want to exclude from the VPN tunnel."
+msgstr "VPN 터널에서 제외할 앱을 선택하세요."
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
 msgstr "앱을 클릭하여 실행하세요. 트래픽은 사용자가 닫을 때까지 VPN 터널을 우회합니다."
+
+msgctxt "split-tunneling-view"
+msgid "Excluded apps"
+msgstr "제외된 앱"
+
+msgctxt "split-tunneling-view"
+msgid "Filter..."
+msgstr "필터..."
+
+msgctxt "split-tunneling-view"
+msgid "Find another app"
+msgstr "다른 앱 찾기"
 
 msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
@@ -863,8 +961,8 @@ msgid "Launch"
 msgstr "실행"
 
 msgctxt "split-tunneling-view"
-msgid "Launch application"
-msgstr "애플리케이션 실행"
+msgid "No result for %(searchTerm)s."
+msgstr "%(searchTerm)s에 대한 결과가 없습니다."
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -882,6 +980,14 @@ msgstr "다시 시도하거나 지원 팀에 문의하세요."
 msgctxt "split-tunneling-view"
 msgid "Split tunneling"
 msgstr "분할 터널링"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling has been disabled from the CLI and will automatically be enabled when adding or removing applications from the lists below."
+msgstr "분할 터널링은 CLI에서 비활성화되었으며 아래 목록에서 애플리케이션을 추가하거나 제거할 때 자동으로 활성화됩니다."
+
+msgctxt "split-tunneling-view"
+msgid "Try a different search."
+msgstr "다른 검색어를 시도하세요."
 
 #. Error message showed in a dialog when an application failes to launch.
 msgctxt "split-tunneling-view"
@@ -1050,156 +1156,143 @@ msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard 키"
 
+msgid "Account authentication failed."
+msgstr "계정 인증에 실패했습니다."
+
+msgid "Account credit expires in a few minutes"
+msgstr "계정 크레딧이 몇 분 후에 만료됨"
+
+msgid "Account credit expires soon"
+msgstr "계정 크레딧이 곧 만료됨"
+
+msgid "Account time reminders"
+msgstr "계정 시간 알림"
+
+msgid "All applications"
+msgstr "모든 애플리케이션"
+
+msgid "Blocking all connections"
+msgstr "모든 연결 차단 중"
+
 msgid "Blocking internet"
 msgstr "인터넷 차단"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "클립보드에 Mullvad 계정 번호 복사됨"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "현재 설정과 일치하는 브리지 릴레이 서버가 없습니다."
-
-msgid "less than a day left"
-msgstr "1일 이내"
-
-msgid "less than a minute ago"
-msgstr "1분 이내"
-
 msgid "Copied WireGuard public key to clipboard"
 msgstr "WireGuard 공개 키가 클립보드에 복사됨"
-
-msgid "Shows current VPN tunnel status"
-msgstr "현재 VPN 터널 상태 표시"
-
-msgid "Secured"
-msgstr "안전함"
-
-msgid "Blocking all connections"
-msgstr "모든 연결 차단 중"
-
-msgid "Account credit expires soon"
-msgstr "계정 크레딧이 곧 만료됨"
-
-msgid "Disconnecting"
-msgstr "연결 해제 중"
-
-msgid "Too many WireGuard keys registered to account"
-msgstr "계정에 너무 많은 WireGuard 키가 등록됨"
-
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr "분할 터널링을 사용하면 VPN 터널을 통해 라우팅되지 않아야 하는 애플리케이션을 선택할 수 있습니다."
-
-msgid "WireGuard public key"
-msgstr "WireGuard 공개 키"
-
-msgid "Account authentication failed."
-msgstr "계정 인증에 실패했습니다."
-
-msgid "Could not configure IPv6"
-msgstr "IPv6을 구성할 수 없습니다."
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "지원되지 않는 앱 버전을 실행 중입니다. 지금 %s(으)로 업그레이드하여 보안을 유지하세요."
-
-msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
-msgstr "터널을 만드는 동안 VPN 사용 권한이 거부되었습니다. 다시 연결해 보세요."
-
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "방화벽 규칙을 적용하지 못했습니다. 장치가 현재 안전하지 않을 수 있습니다."
-
-msgid "Account time reminders"
-msgstr "계정 시간 알림"
-
-msgid "Enable"
-msgstr "사용"
-
-msgid "WireGuard error"
-msgstr "WireGuard 오류"
-
-msgid "This device is offline, no tunnels can be established"
-msgstr "장치가 오프라인 상태이며, 터널을 설정할 수 없습니다"
-
-msgid "Update available, download to remain safe."
-msgstr "업데이트를 사용할 수 있습니다. 안전을 유지하기 위해 다운로드하세요."
-
-msgid "You may need to go back to the app\\'s main screen and click Disconnect before trying again. Don\\'t worry, the information you entered will remain in the form."
-msgstr "다시 시도하기 전에 앱의 메인 화면으로 돌아가서 연결 끊기를 클릭해야 할 수도 있습니다. 입력한 정보는 양식에서 그대로 유지됩니다."
-
-msgid "Virtual adapter error"
-msgstr "가상 어댑터 오류"
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "모든 네트워크 트래픽을 차단하지 못했습니다. 문제를 해결하거나 당사에 보고해 주세요."
-
-msgid "Failed to set system DNS server"
-msgstr "시스템 DNS 서버를 설정하지 못했습니다."
-
-msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr "Mullvad VPN(%s)을 설치하여 최신 상태로 유지하세요."
-
-msgid "Critical error (your attention is required)"
-msgstr "심각한 오류(주의가 필요함)"
-
-msgid "You are running an unsupported app version."
-msgstr "지원되지 않는 앱 버전을 실행 중입니다."
-
-msgid "Custom DNS server addresses %s are invalid"
-msgstr "사용자 지정 DNS 서버 주소 %s이(가) 잘못되었습니다."
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "사용자 지정 서버의 호스트 이름을 확인하지 못했습니다."
-
-msgid "No relay server matches the current settings"
-msgstr "현재 설정과 일치하는 릴레이 서버가 없습니다."
-
-msgid "Mullvad account number"
-msgstr "Mullvad 계정 번호"
-
-msgid "If needed we will contact you on %s"
-msgstr "필요한 경우 %s(으)로 연락드리겠습니다."
-
-msgid "Account credit expires in a few minutes"
-msgstr "계정 크레딧이 몇 분 후에 만료됨"
-
-msgid "Exclude applications"
-msgstr "애플리케이션 제외"
-
-msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
-msgstr "환경 설정에서 ”로컬 네트워크 공유”를 활성화하지 않으면 로컬 DNS 서버가 작동하지 않습니다."
 
 msgid "Copied to clipboard"
 msgstr "클립보드에 복사됨"
 
-msgid "Unsecured"
-msgstr "안전하지 않음"
+msgid "Could not configure IPv6"
+msgstr "IPv6을 구성할 수 없습니다."
+
+msgid "Critical error (your attention is required)"
+msgstr "심각한 오류(주의가 필요함)"
+
+msgid "Custom DNS server addresses %s are invalid"
+msgstr "사용자 지정 DNS 서버 주소 %s이(가) 잘못되었습니다."
+
+msgid "Disconnecting"
+msgstr "연결 해제 중"
+
+msgid "Enable"
+msgstr "사용"
+
+msgid "Excluded applications"
+msgstr "제외된 애플리케이션"
+
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr "방화벽 규칙을 적용하지 못했습니다. 장치가 현재 안전하지 않을 수 있습니다."
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "모든 네트워크 트래픽을 차단하지 못했습니다. 문제를 해결하거나 당사에 보고해 주세요."
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr "사용자 지정 서버의 호스트 이름을 확인하지 못했습니다."
+
+msgid "Failed to set system DNS server"
+msgstr "시스템 DNS 서버를 설정하지 못했습니다."
 
 msgid "Failed to start tunnel connection"
 msgstr "터널 연결을 시작하지 못했습니다."
 
-msgid "VPN tunnel status"
-msgstr "VPN 터널 상태"
+msgid "If needed we will contact you on %s"
+msgstr "필요한 경우 %s(으)로 연락드리겠습니다."
+
+msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr "Mullvad VPN(%s)을 설치하여 최신 상태로 유지하세요."
+
+msgid "Mullvad account number"
+msgstr "Mullvad 계정 번호"
+
+msgid "No bridge relay server matches the current settings"
+msgstr "현재 설정과 일치하는 브리지 릴레이 서버가 없습니다."
+
+msgid "No relay server matches the current settings"
+msgstr "현재 설정과 일치하는 릴레이 서버가 없습니다."
+
+msgid "Secured"
+msgstr "안전함"
+
+msgid "Shows current VPN tunnel status"
+msgstr "현재 VPN 터널 상태 표시"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "계정 시간이 만료되려고 할 때 알림 표시"
 
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr "분할 터널링을 사용하면 VPN 터널을 통해 라우팅되지 않아야 하는 애플리케이션을 선택할 수 있습니다."
+
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
+msgstr "환경 설정에서 ”로컬 네트워크 공유”를 활성화하지 않으면 로컬 DNS 서버가 작동하지 않습니다."
+
+msgid "This device is offline, no tunnels can be established"
+msgstr "장치가 오프라인 상태이며, 터널을 설정할 수 없습니다"
+
+msgid "Too many WireGuard keys registered to account"
+msgstr "계정에 너무 많은 WireGuard 키가 등록됨"
+
+msgid "UNSECURED CONNECTION"
+msgstr "비보안 연결"
+
+msgid "Unsecured"
+msgstr "안전하지 않음"
+
+msgid "Update available, download to remain safe."
+msgstr "업데이트를 사용할 수 있습니다. 안전을 유지하기 위해 다운로드하세요."
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr "터널을 만드는 동안 VPN 사용 권한이 거부되었습니다. 다시 연결해 보세요."
+
+msgid "VPN tunnel status"
+msgstr "VPN 터널 상태"
+
+msgid "Virtual adapter error"
+msgstr "가상 어댑터 오류"
+
+msgid "WireGuard error"
+msgstr "WireGuard 오류"
+
+msgid "WireGuard public key"
+msgstr "WireGuard 공개 키"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "네트워크 트래픽이 유출될 수 있습니다."
 
-msgid "1 month left"
-msgid_plural "%d months left"
-msgstr[0] "%d개월 남음"
+msgid "You are running an unsupported app version."
+msgstr "지원되지 않는 앱 버전을 실행 중입니다."
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "%d일 전"
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr "지원되지 않는 앱 버전을 실행 중입니다. 지금 %s(으)로 업그레이드하여 보안을 유지하세요."
 
-msgid "1 day left"
-msgid_plural "%d days left"
-msgstr[0] "%d일 남음"
+msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+msgstr "다시 시도하기 전에 앱의 기본 화면으로 돌아가 연결 해제를 클릭해야 할 수 있습니다. 걱정하지 마세요. 입력한 정보는 양식에 남아 있습니다."
 
-msgid "1 year left"
-msgid_plural "%d years left"
-msgstr[0] "%d년 남음"
+msgid "e.g. 10.0.0.4"
+msgstr "예: 10.0.0.4"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1208,20 +1301,4 @@ msgstr[0] "계정 크레딧이 %d일 후에 만료됩니다."
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "계정 크레딧이 %d시간 후에 만료됩니다."
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "%d분 전"
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "%d시간 전"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "%d개월 전"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "%d년 전"
 
