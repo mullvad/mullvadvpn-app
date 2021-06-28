@@ -2,6 +2,9 @@ msgid ""
 msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 
+msgid "%(duration)s was added to your account."
+msgstr ""
+
 msgid "1 day"
 msgid_plural "%d days"
 msgstr[0] ""
@@ -93,6 +96,9 @@ msgstr ""
 msgid "FAILED TO SECURE CONNECTION"
 msgstr ""
 
+msgid "Got it!"
+msgstr ""
+
 msgid "Invalid account number"
 msgstr ""
 
@@ -103,6 +109,9 @@ msgid "less than a day left"
 msgstr ""
 
 msgid "less than a minute ago"
+msgstr ""
+
+msgid "Next"
 msgstr ""
 
 msgid "Open URL"
@@ -385,7 +394,19 @@ msgid "Either buy credit on our website or redeem a voucher."
 msgstr ""
 
 msgctxt "connect-view"
+msgid "Enter voucher code"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Go ahead and start using the app to begin reclaiming your online privacy."
+msgstr ""
+
+msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Learn about privacy"
 msgstr ""
 
 msgctxt "connect-view"
@@ -401,11 +422,27 @@ msgid "Remember, turning it off will allow network traffic while the VPN is disc
 msgstr ""
 
 msgctxt "connect-view"
+msgid "Start using the app"
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Time was successfully added"
+msgstr ""
+
+msgctxt "connect-view"
 msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
 msgstr ""
 
 msgctxt "connect-view"
+msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
+msgstr ""
+
+msgctxt "connect-view"
 msgid "To start using the app, you first need to add time to your account."
+msgstr ""
+
+msgctxt "connect-view"
+msgid "Voucher was successfully redeemed"
 msgstr ""
 
 msgctxt "connect-view"
@@ -414,6 +451,10 @@ msgstr ""
 
 msgctxt "connect-view"
 msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
+msgstr ""
+
+msgctxt "connect-view"
+msgid "You're all set!"
 msgstr ""
 
 #. The hostname line displayed below the country on the main screen
@@ -811,6 +852,10 @@ msgstr ""
 
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
+msgstr ""
+
+msgctxt "redeem-voucher-view"
+msgid "Verifying voucher..."
 msgstr ""
 
 msgctxt "redeem-voucher-view"

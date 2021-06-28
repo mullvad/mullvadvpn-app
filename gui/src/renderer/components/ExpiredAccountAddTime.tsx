@@ -120,9 +120,7 @@ export function VoucherInput() {
 
 export function VoucherVerificationSuccess() {
   return (
-    <TimeAdded
-      title={messages.pgettext('redeem-voucher-view', 'Voucher was successfully redeemed')}
-    />
+    <TimeAdded title={messages.pgettext('connect-view', 'Voucher was successfully redeemed')} />
   );
 }
 
@@ -166,10 +164,7 @@ export function TimeAdded(props: ITimeAddedProps) {
               {props.title ?? messages.pgettext('connect-view', 'Time was successfully added')}
             </StyledTitle>
             <StyledLabel>
-              {sprintf(
-                messages.pgettext('connect-view', '%(duration)s was added to your account.'),
-                { duration },
-              )}
+              {sprintf(messages.gettext('%(duration)s was added to your account.'), { duration })}
             </StyledLabel>
           </StyledBody>
 

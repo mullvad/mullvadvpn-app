@@ -236,12 +236,9 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
           {messages.pgettext('redeem-voucher-view', 'Voucher was successfully redeemed.')}
         </StyledTitle>
         <StyledLabel>
-          {sprintf(
-            messages.pgettext('redeem-voucher-view', '%(duration)s was added to your account.'),
-            {
-              duration,
-            },
-          )}
+          {sprintf(messages.gettext('%(duration)s was added to your account.'), {
+            duration,
+          })}
         </StyledLabel>
       </ModalAlert>
     );
