@@ -1,4 +1,6 @@
 import { Location, Action, LocationDescriptor } from 'history';
+import React from 'react';
+import { RouteComponentProps, useHistory as useReactRouterHistory, withRouter } from 'react-router';
 
 export interface ITransitionSpecification {
   name: string;
@@ -177,4 +179,20 @@ export default class History {
   private getRandomKey() {
     return Math.random().toString(36).substr(8);
   }
+}
+
+export function useHistory(): History {
+  return useReactRouterHistory() as History;
+}
+
+export interface IHistoryProps {
+  history: History;
+}
+
+export function withHistory<P>(BaseComponent: React.ComponentType<P & IHistoryProps>) {
+  return withRouter((props: P & RouteComponentProps) => {
+    const history = props.history as History;
+    const mergedProps = ({ ...props, history } as unknown) as P & IHistoryProps;
+    return <BaseComponent {...mergedProps} />;
+  });
 }
