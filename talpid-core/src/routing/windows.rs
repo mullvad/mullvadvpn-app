@@ -78,7 +78,7 @@ impl RouteManager {
             manage_tx: Some(manage_tx),
         };
         runtime.spawn(RouteManager::listen(manage_rx));
-        manager.add_routes(required_routes)?;
+        manager.add_routes(required_routes).await?;
 
         Ok(manager)
     }
@@ -171,7 +171,7 @@ impl RouteManager {
     }
 
     /// Applies the given routes until [`RouteManager::stop`] is called.
-    pub fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<()> {
+    pub async fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<()> {
         if let Some(tx) = &self.manage_tx {
             let (result_tx, result_rx) = oneshot::channel();
             if tx
@@ -180,9 +180,7 @@ impl RouteManager {
             {
                 return Err(Error::RouteManagerDown);
             }
-            self.runtime
-                .block_on(result_rx)
-                .map_err(|_| Error::ManagerChannelDown)?
+            result_rx.await.map_err(|_| Error::ManagerChannelDown)?
         } else {
             Err(Error::RouteManagerDown)
         }
