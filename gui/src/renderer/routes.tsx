@@ -1,6 +1,6 @@
 import { Action } from 'history';
 import * as React from 'react';
-import { Route, RouteComponentProps, Switch, withRouter } from 'react-router';
+import { Route, Switch } from 'react-router';
 import Launch from './components/Launch';
 import KeyboardNavigation from './components/KeyboardNavigation';
 import MainView from './components/MainView';
@@ -17,8 +17,7 @@ import SelectLocationPage from './containers/SelectLocationPage';
 import SettingsPage from './containers/SettingsPage';
 import SupportPage from './containers/SupportPage';
 import WireguardKeysPage from './containers/WireguardKeysPage';
-import History from './lib/history';
-import { getTransitionProps } from './transitions';
+import { IHistoryProps, ITransitionSpecification, transitions, withHistory } from './lib/history';
 import {
   SetupFinished,
   TimeAdded,
@@ -27,36 +26,35 @@ import {
 } from './components/ExpiredAccountAddTime';
 
 interface IAppRoutesState {
-  previousLocation?: RouteComponentProps['location'];
-  currentLocation: RouteComponentProps['location'];
+  currentLocation: IHistoryProps['history']['location'];
+  transition: ITransitionSpecification;
   action?: Action;
 }
 
-class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
+class AppRoutes extends React.Component<IHistoryProps, IAppRoutesState> {
   private unobserveHistory?: () => void;
 
   private focusRef = React.createRef<IFocusHandle>();
 
-  constructor(props: RouteComponentProps) {
+  constructor(props: IHistoryProps) {
     super(props);
 
     this.state = {
-      currentLocation: props.location,
+      currentLocation: props.history.location,
+      transition: transitions.none,
     };
   }
 
   public componentDidMount() {
     // React throttles updates, so it's impossible to capture the intermediate navigation without
     // listening to the history directly.
-    this.unobserveHistory = (this.props.history as History).listen(
-      (location, action, affectedEntries) => {
-        this.setState({
-          previousLocation: affectedEntries[0],
-          currentLocation: location,
-          action,
-        });
-      },
-    );
+    this.unobserveHistory = this.props.history.listen((location, action, transition) => {
+      this.setState({
+        currentLocation: location,
+        transition,
+        action,
+      });
+    });
   }
 
   public componentWillUnmount() {
@@ -67,17 +65,12 @@ class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
 
   public render() {
     const location = this.state.currentLocation;
-    const transitionProps = getTransitionProps(
-      this.state.previousLocation ? this.state.previousLocation.pathname : null,
-      location.pathname,
-      this.state.action,
-    );
 
     return (
       <PlatformWindowContainer>
         <KeyboardNavigation>
           <Focus ref={this.focusRef}>
-            <TransitionContainer onTransitionEnd={this.onNavigation} {...transitionProps}>
+            <TransitionContainer onTransitionEnd={this.onNavigation} {...this.state.transition}>
               <TransitionView viewId={location.key || ''}>
                 <Switch key={location.key} location={location}>
                   <Route exact={true} path="/" component={Launch} />
@@ -122,6 +115,6 @@ class AppRoutes extends React.Component<RouteComponentProps, IAppRoutesState> {
   };
 }
 
-const AppRoutesWithRouter = withRouter(AppRoutes);
+const AppRoutesWithRouter = withHistory(AppRoutes);
 
 export default AppRoutesWithRouter;
