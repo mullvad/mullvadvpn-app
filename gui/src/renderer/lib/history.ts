@@ -1,9 +1,44 @@
 import { Location, Action, LocationDescriptor } from 'history';
 
+export interface ITransitionSpecification {
+  name: string;
+  duration: number;
+}
+
+interface ITransitionMap {
+  [name: string]: ITransitionSpecification;
+}
+
+/**
+ * Transition descriptors
+ */
+export const transitions: ITransitionMap = {
+  show: {
+    name: 'slide-up',
+    duration: 450,
+  },
+  dismiss: {
+    name: 'slide-down',
+    duration: 450,
+  },
+  push: {
+    name: 'push',
+    duration: 450,
+  },
+  pop: {
+    name: 'pop',
+    duration: 450,
+  },
+  none: {
+    name: '',
+    duration: 0,
+  },
+};
+
 type LocationListener<S = unknown> = (
   location: Location<S>,
   action: Action,
-  entries: Location<S>[],
+  transition: ITransitionSpecification,
 ) => void;
 
 // It currently isn't possible to implement this correctly with support for a generic state. State
@@ -33,80 +68,90 @@ export default class History {
   }
 
   public push = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
-    const affectedEntries = [this.entries[this.index]];
-    const location = this.createLocation(nextLocation, nextState);
-    this.lastAction = 'PUSH';
-    this.index += 1;
-    this.entries.splice(this.index, this.entries.length - this.index, location);
-    this.notify(affectedEntries);
+    this.pushImpl(nextLocation, nextState);
+    this.notify(transitions.push);
   };
 
-  public replace = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
-    const affectedEntries = [this.entries[this.index]];
-    this.entries[this.index] = this.createLocation(nextLocation, nextState);
-    this.lastAction = 'REPLACE';
-    this.notify(affectedEntries);
-  };
-
-  public go = (n: number) => {
-    if (this.canGo(n)) {
-      const nextIndex = this.index + n;
-      const affectedEntries =
-        this.index < nextIndex
-          ? this.entries.slice(this.index, nextIndex)
-          : this.entries.slice(nextIndex + 1, this.index + 1);
-
-      this.index = nextIndex;
-      this.lastAction = 'POP';
-      this.notify(affectedEntries);
+  public pop = () => {
+    if (this.popImpl()) {
+      this.notify(transitions.pop);
     }
   };
 
-  public goBack = () => this.go(-1);
-  public goForward = () => this.go(1);
-
-  public reset = () => {
-    const affectedEntries = this.entries.slice(1);
-    this.lastAction = 'POP';
-    this.index = 0;
-    this.notify(affectedEntries);
+  public show = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
+    this.pushImpl(nextLocation, nextState);
+    this.notify(transitions.show);
   };
 
-  public resetWith = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
-    const affectedEntries = [...this.entries];
-    this.entries = [this.createLocation(nextLocation, nextState)];
-    this.lastAction = 'REPLACE';
-    this.index = 0;
-    this.notify(affectedEntries);
-  };
-
-  public resetWithIfDifferent = (nextLocation: LocationDescriptor<S>, nextState?: S) => {
-    const location = this.createLocation(nextLocation, nextState);
-    if (this.entries[0].pathname !== location.pathname) {
-      this.resetWith(nextLocation, nextState);
+  public dismiss = (all?: boolean) => {
+    if (this.popImpl(all ? this.index : 1)) {
+      this.notify(transitions.dismiss);
     }
   };
 
-  public canGo(n: number) {
-    const nextIndex = this.index + n;
-    return nextIndex >= 0 && nextIndex < this.entries.length;
-  }
+  public reset = (
+    nextLocation: LocationDescriptor<S>,
+    transition?: ITransitionSpecification,
+    nextState?: S,
+  ) => {
+    const location = this.createLocation(nextLocation, nextState);
+    this.lastAction = 'REPLACE';
+    this.index = 0;
+    this.entries = [location];
+
+    this.notify(transition ?? transitions.none);
+  };
 
   public listen(callback: LocationListener<S>) {
     this.listeners.push(callback);
     return () => (this.listeners = this.listeners.filter((listener) => listener !== callback));
   }
 
-  public block(): () => void {
+  public canGo(n: number) {
+    const nextIndex = this.index + n;
+    return nextIndex >= 0 && nextIndex < this.entries.length;
+  }
+
+  public block(): never {
+    throw Error('Not implemented');
+  }
+  public replace(): never {
+    throw Error('Not implemented');
+  }
+  public go(): never {
+    throw Error('Not implemented');
+  }
+  public goBack(): never {
+    throw Error('Not implemented');
+  }
+  public goForward(): never {
+    throw Error('Not implemented');
+  }
+  public createHref(): never {
     throw Error('Not implemented');
   }
 
-  public createHref(): string {
-    throw Error('Not implemented');
+  private pushImpl(nextLocation: LocationDescriptor<S>, nextState?: S) {
+    const location = this.createLocation(nextLocation, nextState);
+    this.lastAction = 'PUSH';
+    this.index += 1;
+    this.entries.splice(this.index, this.entries.length - this.index, location);
   }
 
-  private notify(affectedEntries: Location<S>[]) {
-    this.listeners.forEach((listener) => listener(this.location, this.action, affectedEntries));
+  private popImpl(n = 1): boolean {
+    if (this.canGo(-n)) {
+      this.lastAction = 'POP';
+      this.index -= n;
+      this.entries = this.entries.slice(0, this.index + 1);
+
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private notify(transition: ITransitionSpecification) {
+    this.listeners.forEach((listener) => listener(this.location, this.action, transition));
   }
 
   private createLocation(location: LocationDescriptor<S>, state?: S): Location<S> {

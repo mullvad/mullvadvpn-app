@@ -8,7 +8,6 @@ const SECOND_PATH = '/second-path';
 const THIRD_PATH = '/third-path';
 const FOURTH_PATH = '/fourth-path';
 const FIFTH_PATH = '/fifth-path';
-const SIXTH_PATH = '/sixth-path';
 
 describe('History', () => {
   let history: History;
@@ -30,139 +29,75 @@ describe('History', () => {
     expect(history.length).to.equal(5);
   });
 
-  it('should go back', () => {
-    history.goBack();
+  it('should pop', () => {
+    history.pop();
     expect(history.location.pathname).to.equal(THIRD_PATH);
-    expect(history.length).to.equal(5);
+    expect(history.length).to.equal(4);
   });
 
-  it('should go back three entries', () => {
-    history.go(-3);
-    expect(history.location.pathname).to.equal(FIRST_PATH);
-    expect(history.length).to.equal(5);
-  });
+  it('should fail to pop', () => {
+    history.pop();
+    history.pop();
+    history.pop();
+    history.pop();
 
-  it('should go forward', () => {
-    history.go(-3);
-    history.goForward();
-    expect(history.location.pathname).to.equal(SECOND_PATH);
-    expect(history.length).to.equal(5);
-  });
+    expect(history.location.pathname).to.equal(BASE_PATH);
+    expect(history.length).to.equal(1);
 
-  it('should go forward two entries', () => {
-    history.go(-3);
-    history.go(2);
-    expect(history.location.pathname).to.equal(THIRD_PATH);
-    expect(history.length).to.equal(5);
-  });
+    history.pop();
 
-  it('should fail to go forward', () => {
-    history.goForward();
-    expect(history.location.pathname).to.equal(FOURTH_PATH);
-    expect(history.length).to.equal(5);
+    expect(history.location.pathname).to.equal(BASE_PATH);
+    expect(history.length).to.equal(1);
   });
 
   it('should push', () => {
     history.push(FIFTH_PATH);
-    history.goBack();
-    expect(history.location.pathname).to.equal(FOURTH_PATH);
+    expect(history.location.pathname).to.equal(FIFTH_PATH);
     expect(history.length).to.equal(6);
   });
 
-  it('should replace', () => {
-    history.replace(FIFTH_PATH);
-    history.goBack();
-    expect(history.location.pathname).to.equal(THIRD_PATH);
-    expect(history.length).to.equal(5);
-  });
-
-  it('should fail to go backwards further than base path', () => {
-    history.go(-5);
-    expect(history.location.pathname).to.equal(FOURTH_PATH);
-    expect(history.length).to.equal(5);
-  });
-
   it('should go backward to base path', () => {
-    history.reset();
+    history.dismiss(true);
     expect(history.location.pathname).to.equal(BASE_PATH);
-    expect(history.length).to.equal(5);
+    expect(history.length).to.equal(1);
   });
 
   it('should reset entries with path', () => {
-    history.resetWith(THIRD_PATH);
+    history.reset(THIRD_PATH);
     expect(history.location.pathname).to.equal(THIRD_PATH);
     expect(history.length).to.equal(1);
-
-    history.goBack();
-    expect(history.location.pathname).to.equal(THIRD_PATH);
-    expect(history.length).to.equal(1);
-
-    history.goForward();
-    expect(history.location.pathname).to.equal(THIRD_PATH);
-    expect(history.length).to.equal(1);
-  });
-
-  it('should fail to go forward after navigating', () => {
-    history.goBack();
-    history.push(FIFTH_PATH);
-    history.goForward();
-    expect(history.location.pathname).to.equal(FIFTH_PATH);
-
-    history.goBack();
-    history.replace(SIXTH_PATH);
-    history.goForward();
-    expect(history.location.pathname).to.equal(FIFTH_PATH);
   });
 
   it('should add a listener', () => {
     const listenerA = spy();
     history.listen(listenerA);
-    history.goBack();
-    history.goForward();
+    history.pop();
+    history.push(FIFTH_PATH);
 
     const listenerB = spy();
     history.listen(listenerB);
-    history.reset();
+    history.dismiss(true);
     history.push(FIRST_PATH);
-    history.replace(SECOND_PATH);
 
-    expect(listenerA).to.have.been.called.exactly(5);
-    expect(listenerB).to.have.been.called.exactly(3);
+    expect(listenerA).to.have.been.called.exactly(4);
+    expect(listenerB).to.have.been.called.exactly(2);
   });
 
   it('should remove a listener', () => {
     const listenerA = spy();
     const removeListenerA = history.listen(listenerA);
-    history.goBack();
-    history.goForward();
+    history.pop();
+    history.push(FIFTH_PATH);
 
     const listenerB = spy();
     history.listen(listenerB);
-    history.reset();
+    history.dismiss(true);
 
     removeListenerA();
     history.push(FIRST_PATH);
-    history.replace(SECOND_PATH);
+    history.reset(SECOND_PATH);
 
     expect(listenerA).to.have.been.called.exactly(3);
     expect(listenerB).to.have.been.called.exactly(3);
-  });
-
-  it('should only remove listener once', () => {
-    const listenerA = spy();
-    const removeListenerA = history.listen(listenerA);
-    history.goBack();
-
-    const listenerB = spy();
-    history.listen(listenerB);
-    history.goForward();
-
-    removeListenerA();
-    removeListenerA();
-
-    history.reset();
-
-    expect(listenerA).to.have.been.called.exactly(2);
-    expect(listenerB).to.have.been.called.exactly(2);
   });
 });
