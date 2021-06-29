@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
 import {
   BridgeState,
   IDnsOptions,
@@ -11,6 +10,7 @@ import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import AdvancedSettings from '../components/AdvancedSettings';
 
 import withAppContext, { IAppContext } from '../context';
+import { IHistoryProps, withHistory } from '../lib/history';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
@@ -56,10 +56,10 @@ const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) =>
   }
 };
 
-const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
   return {
     onClose: () => {
-      props.history.goBack();
+      props.history.pop();
     },
     setOpenVpnRelayProtocolAndPort: async (protocol?: RelayProtocol, port?: number) => {
       const relayUpdate = RelaySettingsBuilder.normal()
@@ -169,5 +169,5 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps
 };
 
 export default withAppContext(
-  withRouter(connect(mapStateToProps, mapDispatchToProps)(AdvancedSettings)),
+  withHistory(connect(mapStateToProps, mapDispatchToProps)(AdvancedSettings)),
 );

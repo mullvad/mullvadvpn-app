@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
 import log from '../../shared/logging';
 import ExpiredAccountErrorView from '../components/ExpiredAccountErrorView';
+import { IHistoryProps, withHistory } from '../lib/history';
 
 import withAppContext, { IAppContext } from '../context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
@@ -13,7 +13,7 @@ const mapStateToProps = (state: IReduxState) => ({
   isBlocked: state.connection.isBlocked,
   blockWhenDisconnected: state.settings.blockWhenDisconnected,
 });
-const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
   return {
     onExternalLinkWithAuth: (url: string) => props.app.openLinkWithAuth(url),
     onDisconnect: async () => {
@@ -37,5 +37,5 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps
 };
 
 export default withAppContext(
-  withRouter(connect(mapStateToProps, mapDispatchToProps)(ExpiredAccountErrorView)),
+  withHistory(connect(mapStateToProps, mapDispatchToProps)(ExpiredAccountErrorView)),
 );

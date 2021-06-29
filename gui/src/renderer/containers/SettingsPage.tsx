@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
 import Settings from '../components/Settings';
 import withAppContext, { IAppContext } from '../context';
+import { IHistoryProps, withHistory } from '../lib/history';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState, props: IAppContext) => ({
@@ -16,10 +16,10 @@ const mapStateToProps = (state: IReduxState, props: IAppContext) => ({
   suggestedIsBeta: state.version.suggestedIsBeta ?? false,
   isOffline: state.connection.isBlocked,
 });
-const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
   return {
     onQuit: () => props.app.quit(),
-    onClose: () => props.history.goBack(),
+    onClose: () => props.history.dismiss(),
     onViewSelectLanguage: () => props.history.push('/settings/language'),
     onViewAccount: () => props.history.push('/settings/account'),
     onViewSupport: () => props.history.push('/settings/support'),
@@ -29,4 +29,4 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps
   };
 };
 
-export default withAppContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(Settings)));
+export default withAppContext(withHistory(connect(mapStateToProps, mapDispatchToProps)(Settings)));

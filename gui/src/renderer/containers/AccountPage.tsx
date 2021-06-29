@@ -1,10 +1,10 @@
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
 import { links } from '../../config.json';
 import consumePromise from '../../shared/promise';
 import Account from '../components/Account';
 
 import withAppContext, { IAppContext } from '../context';
+import { IHistoryProps, withHistory } from '../lib/history';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState) => ({
@@ -13,16 +13,16 @@ const mapStateToProps = (state: IReduxState) => ({
   expiryLocale: state.userInterface.locale,
   isOffline: state.connection.isBlocked,
 });
-const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
   return {
     onLogout: () => {
       consumePromise(props.app.logout());
     },
     onClose: () => {
-      props.history.goBack();
+      props.history.pop();
     },
     onBuyMore: () => props.app.openLinkWithAuth(links.purchase),
   };
 };
 
-export default withAppContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(Account)));
+export default withAppContext(withHistory(connect(mapStateToProps, mapDispatchToProps)(Account)));

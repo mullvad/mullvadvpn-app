@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
 import { bindActionCreators } from 'redux';
 import BridgeSettingsBuilder from '../../shared/bridge-settings-builder';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
@@ -7,6 +6,7 @@ import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import SelectLocation from '../components/SelectLocation';
 import withAppContext, { IAppContext } from '../context';
+import { IHistoryProps, withHistory } from '../lib/history';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 import userInterfaceActions from '../redux/userinterface/actions';
 import { LocationScope } from '../redux/userinterface/reducers';
@@ -40,17 +40,17 @@ const mapStateToProps = (state: IReduxState) => {
     allowBridgeSelection,
   };
 };
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
   const userInterface = bindActionCreators(userInterfaceActions, dispatch);
 
   return {
-    onClose: () => props.history.goBack(),
+    onClose: () => props.history.dismiss(),
     onChangeLocationScope: (scope: LocationScope) => {
       userInterface.setLocationScope(scope);
     },
     onSelectExitLocation: async (relayLocation: RelayLocation) => {
       // dismiss the view first
-      props.history.goBack();
+      props.history.dismiss();
 
       try {
         const relayUpdate = RelaySettingsBuilder.normal().location.fromRaw(relayLocation).build();
@@ -63,7 +63,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: RouteComponentProps 
     },
     onSelectBridgeLocation: async (bridgeLocation: RelayLocation) => {
       // dismiss the view first
-      props.history.goBack();
+      props.history.dismiss();
 
       try {
         await props.app.updateBridgeSettings(
@@ -75,7 +75,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: RouteComponentProps 
     },
     onSelectClosestToExit: async () => {
       // dismiss the view first
-      props.history.goBack();
+      props.history.dismiss();
 
       try {
         await props.app.updateBridgeSettings(new BridgeSettingsBuilder().location.any().build());
@@ -87,5 +87,5 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: RouteComponentProps 
 };
 
 export default withAppContext(
-  withRouter(connect(mapStateToProps, mapDispatchToProps)(SelectLocation)),
+  withHistory(connect(mapStateToProps, mapDispatchToProps)(SelectLocation)),
 );

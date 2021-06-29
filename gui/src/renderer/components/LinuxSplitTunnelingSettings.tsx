@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useHistory } from 'react-router';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
@@ -21,6 +20,7 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
+import { useHistory } from '../lib/history';
 
 const StyledPageCover = styled.div({}, (props: { show: boolean }) => ({
   position: 'absolute',
@@ -154,7 +154,7 @@ export default function LinuxSplitTunnelingSettings() {
             <NavigationContainer>
               <NavigationBar>
                 <NavigationItems>
-                  <BackBarItem action={history.goBack}>
+                  <BackBarItem action={history.pop}>
                     {
                       // TRANSLATORS: Back button in navigation bar
                       messages.pgettext('navigation-bar', 'Advanced')
