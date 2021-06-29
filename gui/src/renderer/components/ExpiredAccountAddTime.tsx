@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 import { links, colors } from '../../config.json';
@@ -8,7 +7,7 @@ import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import History from '../lib/history';
+import { transitions, useHistory } from '../lib/history';
 import account from '../redux/account/actions';
 import { IReduxState } from '../redux/store';
 import * as AppButton from './AppButton';
@@ -87,7 +86,7 @@ export function VoucherInput() {
   }, [history]);
 
   const navigateBack = useCallback(() => {
-    history.goBack();
+    history.pop();
   }, [history]);
 
   return (
@@ -252,7 +251,7 @@ function HeaderBar() {
 function useFinishedCallback() {
   const { loggedIn } = useActions(account);
 
-  const history = useHistory() as History;
+  const history = useHistory();
   const isNewAccount = useSelector(
     (state: IReduxState) =>
       state.account.status.type === 'ok' && state.account.status.method === 'new_account',
@@ -264,7 +263,7 @@ function useFinishedCallback() {
       loggedIn();
     }
 
-    history.resetWith('/main');
+    history.reset('/main', undefined, transitions.push);
   }, [isNewAccount, loggedIn, history]);
 
   return callback;

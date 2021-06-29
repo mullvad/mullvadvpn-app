@@ -1,10 +1,10 @@
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
 import { IDnsOptions } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import consumePromise from '../../shared/promise';
 import Preferences from '../components/Preferences';
 import withAppContext, { IAppContext } from '../context';
+import { IHistoryProps, withHistory } from '../lib/history';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState) => ({
@@ -20,10 +20,10 @@ const mapStateToProps = (state: IReduxState) => ({
   dns: state.settings.dns,
 });
 
-const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
   return {
     onClose: () => {
-      props.history.goBack();
+      props.history.pop();
     },
     setEnableSystemNotifications: (flag: boolean) => {
       props.app.setEnableSystemNotifications(flag);
@@ -60,5 +60,5 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps
 };
 
 export default withAppContext(
-  withRouter(connect(mapStateToProps, mapDispatchToProps)(Preferences)),
+  withHistory(connect(mapStateToProps, mapDispatchToProps)(Preferences)),
 );

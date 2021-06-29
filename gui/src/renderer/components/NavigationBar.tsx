@@ -1,9 +1,9 @@
 import React, { useCallback, useContext, useLayoutEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import useActions from '../lib/actionsHook';
+import { useHistory } from '../lib/history';
 import { useCombinedRefs } from '../lib/utilityHooks';
 import { IReduxState } from '../redux/store';
 import userInterface from '../redux/userinterface/actions';

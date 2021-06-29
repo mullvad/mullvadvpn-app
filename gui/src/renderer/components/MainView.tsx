@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router';
 import { hasExpired } from '../../shared/account-expiry';
 import { IReduxState } from '../redux/store';
 import ConnectPage from '../containers/ConnectPage';
 import ExpiredAccountErrorViewContainer from '../containers/ExpiredAccountErrorViewContainer';
+import { useHistory } from '../lib/history';
 
 export default function MainView() {
   const history = useHistory();

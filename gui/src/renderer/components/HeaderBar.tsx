@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
 import { useSelector } from 'react-redux';
-import { useHistory } from 'react-router';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { useHistory } from '../lib/history';
 import { IReduxState } from '../redux/store';
 import { FocusFallback } from './Focus';
 import ImageView from './ImageView';
@@ -103,7 +103,7 @@ export function HeaderBarSettingsButton() {
   const history = useHistory();
 
   const openSettings = useCallback(() => {
-    history.push('/settings');
+    history.show('/settings');
   }, [history]);
 
   return (

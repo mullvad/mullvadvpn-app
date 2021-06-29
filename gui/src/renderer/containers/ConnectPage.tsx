@@ -1,10 +1,10 @@
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
 import { sprintf } from 'sprintf-js';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import Connect from '../components/Connect';
 import withAppContext, { IAppContext } from '../context';
+import { IHistoryProps, withHistory } from '../lib/history';
 import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
@@ -71,10 +71,10 @@ const mapStateToProps = (state: IReduxState) => {
   };
 };
 
-const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
   return {
     onSelectLocation: () => {
-      props.history.push('/select-location');
+      props.history.show('/select-location');
     },
     onConnect: async () => {
       try {
@@ -100,4 +100,4 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps
   };
 };
 
-export default withAppContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(Connect)));
+export default withAppContext(withHistory(connect(mapStateToProps, mapDispatchToProps)(Connect)));
