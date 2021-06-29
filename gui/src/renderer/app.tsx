@@ -23,7 +23,7 @@ import log, { ConsoleOutput } from '../shared/logging';
 import { IRelayListPair, LaunchApplicationResult } from '../shared/ipc-schema';
 import consumePromise from '../shared/promise';
 import { Scheduler } from '../shared/scheduler';
-import History from './lib/history';
+import History, { transitions } from './lib/history';
 import { loadTranslations } from './lib/load-translations';
 
 import {
@@ -621,14 +621,27 @@ export default class AppRenderer {
   }
 
   private resetNavigation() {
+    const pathname = this.history.location.pathname;
+
     if (this.connectedToDaemon) {
       if (this.settings.accountToken) {
-        this.history.resetWithIfDifferent('/main');
+        const transition =
+          pathname === '/login' || pathname === '/' ? transitions.push : transitions.dismiss;
+        this.history.reset('/main', transition);
       } else {
-        this.history.resetWithIfDifferent('/login');
+        const transition =
+          pathname === '/main'
+            ? transitions.pop
+            : pathname === '/'
+            ? transitions.push
+            : transitions.none;
+
+        this.history.reset('/login', transition);
       }
     } else {
-      this.history.resetWithIfDifferent('/');
+      const transition =
+        pathname === '/login' || pathname === '/main' ? transitions.pop : transitions.dismiss;
+      this.history.reset('/', transition);
     }
   }
 
