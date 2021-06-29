@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import { ITransitionGroupProps } from '../transitions';
+import { ITransitionSpecification } from '../lib/history';
 
 interface ITransitioningViewProps {
   viewId: string;
@@ -10,10 +10,10 @@ type TransitioningView = React.ReactElement<ITransitioningViewProps>;
 
 interface ITransitionQueueItem {
   view: TransitioningView;
-  transition: ITransitionGroupProps;
+  transition: ITransitionSpecification;
 }
 
-interface IProps extends ITransitionGroupProps {
+interface IProps extends ITransitionSpecification {
   children: TransitioningView;
   onTransitionEnd: () => void;
 }
