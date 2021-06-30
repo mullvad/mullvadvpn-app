@@ -44,6 +44,12 @@ Line wrap the file at 100 chars.                                              Th
   monitor may have falsely reported the machine to be online due to a race condition.
 
 
+## [2021.4] - 2021-06-30
+This release is for desktop only.
+
+This release is identical to 2021.4-beta1 except that it has translations for new texts in the UI.
+
+
 ## [2021.4-beta1] - 2021-06-09
 This release is for desktop only.
 
