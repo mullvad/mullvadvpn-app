@@ -513,9 +513,14 @@ msgid "APP IS OUT OF SYNC"
 msgstr ""
 
 msgctxt "in-app-notifications"
+msgid "BETA UPDATE AVAILABLE"
+msgstr ""
+
+msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr ""
 
+#. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
 msgstr ""
@@ -530,6 +535,14 @@ msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
+msgstr ""
+
+#. The in-app banner displayed to the user when the app beta update is
+#. available.
+#. Available placeholders:
+#. %(version)s - The version number of the new beta version.
+msgctxt "in-app-notifications"
+msgid "Try out the newest beta version (%(version)s)."
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -632,6 +645,14 @@ msgstr ""
 
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
+msgstr ""
+
+#. The system notification that notifies the user when a beta update is
+#. available.
+#. Available placeholders:
+#. %(version)s - The version number of the new beta version.
+msgctxt "notifications"
+msgid "Beta update available. Try out the newest beta version (%(version)s)."
 msgstr ""
 
 msgctxt "notifications"
