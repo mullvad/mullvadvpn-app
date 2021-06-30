@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-setup"
-version = "2021.4.0-beta1"
+version = "2021.4.0"
 authors = ["Mullvad VPN"]
 description = "Tool used to manage daemon setup"
 license = "GPL-3.0"
