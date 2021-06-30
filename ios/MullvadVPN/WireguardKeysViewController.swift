@@ -21,21 +21,22 @@ private enum WireguardKeysViewState {
     case verifyingKey
     case verifiedKey(Bool)
     case regeneratingKey
+    case regeneratedKey(Bool)
 }
 
 class WireguardKeysViewController: UIViewController, TunnelObserver {
 
-    @IBOutlet var publicKeyButton: UIButton!
-    @IBOutlet var creationDateLabel: UILabel!
-    @IBOutlet var regenerateKeyButton: UIButton!
-    @IBOutlet var verifyKeyButton: UIButton!
-    @IBOutlet var wireguardKeyStatusView: WireguardKeyStatusView!
+    private let contentView: WireguardKeysContentView = {
+        let contentView = WireguardKeysContentView()
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        return contentView
+    }()
 
     private var publicKeyPeriodicUpdateTimer: DispatchSourceTimer?
     private var copyToPasteboardWork: DispatchWorkItem?
 
     private let alertPresenter = AlertPresenter()
-    private let logger = Logger(label: "WireguardKeysViewController")
+    private let logger = Logger(label: "WireguardKeys")
 
     private var state: WireguardKeysViewState = .default {
         didSet {
@@ -46,7 +47,34 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationItem.title = NSLocalizedString("WireGuard key", comment: "Navigation title")
+        view.backgroundColor = .secondaryColor
+
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(contentView)
+        view.addSubview(scrollView)
+
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.bottomAnchor.constraint(greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+        ])
+
+        navigationItem.title = NSLocalizedString("NAVIGATION_TITLE", tableName: "WireguardKeys", comment: "")
+
+        contentView.publicKeyRowView.actionHandler = { [weak self] in
+            self?.copyPublicKey()
+        }
+
+        contentView.regenerateKeyButton.addTarget(self, action: #selector(handleRegenerateKey(_:)), for: .touchUpInside)
+        contentView.verifyKeyButton.addTarget(self, action: #selector(handleVerifyKey(_:)), for: .touchUpInside)
 
         TunnelManager.shared.addObserver(self)
         updatePublicKey(tunnelSettings: TunnelManager.shared.tunnelSettings, animated: false)
@@ -78,15 +106,15 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         }
     }
 
-    // MARK: - IBActions
+    // MARK: - Actions
 
-    @IBAction func copyPublicKey(_ sender: Any) {
+    private func copyPublicKey() {
         guard let metadata = TunnelManager.shared.tunnelSettings?.interface.privateKey.publicKeyWithMetadata else { return }
 
         UIPasteboard.general.string = metadata.stringRepresentation()
 
         setPublicKeyTitle(
-            string: NSLocalizedString("COPIED TO PASTEBOARD!", comment: ""),
+            string: NSLocalizedString("COPIED_TO_PASTEBOARD_LABEL", tableName: "WireguardKeys", comment: ""),
             animated: true)
 
         let dispatchWork = DispatchWorkItem { [weak self] in
@@ -99,11 +127,11 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         self.copyToPasteboardWork = dispatchWork
     }
 
-    @IBAction func handleRegenerateKey(_ sender: Any) {
+    @objc private func handleRegenerateKey(_ sender: Any) {
         regeneratePrivateKey()
     }
 
-    @IBAction func handleVerifyKey(_ sender: Any) {
+    @objc private func handleVerifyKey(_ sender: Any) {
         verifyKey()
     }
 
@@ -115,12 +143,12 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
             to: Date(),
             unitsStyle: .full
         ).map { (formattedInterval) -> String in
-            return String(format: NSLocalizedString("%@ ago", comment: ""), formattedInterval)
+            return String(format: NSLocalizedString("KEY_GENERATED_SINCE_FORMAT", tableName: "WireguardKeys", comment: ""), formattedInterval)
         }
     }
 
     private func updateCreationDateLabel(with creationDate: Date) {
-        creationDateLabel.text = formatKeyGenerationElapsedTime(with: creationDate) ?? "-"
+        contentView.creationRowView.value = formatKeyGenerationElapsedTime(with: creationDate) ?? "-"
     }
 
     private func updatePublicKey(tunnelSettings: TunnelSettings?, animated: Bool) {
@@ -132,7 +160,7 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
             updateCreationDateLabel(with: publicKey.creationDate)
         } else {
             setPublicKeyTitle(string: "-", animated: animated)
-            creationDateLabel.text = "-"
+            contentView.creationRowView.value = "-"
         }
     }
 
@@ -140,25 +168,34 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         switch state {
         case .default:
             setKeyActionButtonsEnabled(true)
-            wireguardKeyStatusView.status = .default
+            contentView.publicKeyRowView.status = .default
 
         case .verifyingKey:
             setKeyActionButtonsEnabled(false)
-            wireguardKeyStatusView.status = .verifying
+            contentView.publicKeyRowView.status = .verifying
 
         case .verifiedKey(let isValid):
             setKeyActionButtonsEnabled(true)
-            wireguardKeyStatusView.status = .verified(isValid)
+            contentView.publicKeyRowView.status = .verified(isValid)
+            announceKeyVerificationResult(isValid: isValid)
 
         case .regeneratingKey:
             setKeyActionButtonsEnabled(false)
-            wireguardKeyStatusView.status = .verifying
+            contentView.publicKeyRowView.status = .regenerating
+
+        case .regeneratedKey(let success):
+            setKeyActionButtonsEnabled(true)
+            contentView.publicKeyRowView.status = .default
+            if success {
+                announceKeyRegenerated()
+            }
+
         }
     }
 
     private func setKeyActionButtonsEnabled(_ enabled: Bool) {
-        regenerateKeyButton.isEnabled = enabled
-        verifyKeyButton.isEnabled = enabled
+        contentView.regenerateKeyButton.isEnabled = enabled
+        contentView.verifyKeyButton.isEnabled = enabled
     }
 
     private func verifyKey() {
@@ -172,12 +209,12 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
 
                 case .failure(let error):
                     let alertController = UIAlertController(
-                        title: NSLocalizedString("Cannot verify the key", comment: ""),
+                        title: NSLocalizedString("VERIFY_KEY_FAILURE_ALERT_TITLE", tableName: "WireguardKeys", comment: ""),
                         message: error.errorChainDescription,
                         preferredStyle: .alert
                     )
                     alertController.addAction(
-                        UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
+                        UIAlertAction(title: NSLocalizedString("VERIFY_KEY_FAILURE_ALERT_OK_ACTION", tableName: "WireguardKeys", comment: ""), style: .cancel)
                     )
 
                     self.alertPresenter.enqueue(alertController, presentingController: self)
@@ -190,35 +227,38 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
     private func regeneratePrivateKey() {
         self.updateViewState(.regeneratingKey)
 
-        TunnelManager.shared.regeneratePrivateKey { (result) in
+        TunnelManager.shared.regeneratePrivateKey { [weak self] (result) in
             DispatchQueue.main.async {
+                guard let self = self else { return }
+
                 switch result {
                 case .success:
-                    break
+                    self.updateViewState(.regeneratedKey(true))
 
                 case .failure(let error):
                     let alertController = UIAlertController(
-                        title: NSLocalizedString("Cannot regenerate the key", comment: ""),
+                        title: NSLocalizedString("REGENERATE_KEY_FAILURE_ALERT_TITLE", tableName: "WireguardKeys", comment: ""),
                         message: error.errorChainDescription,
                         preferredStyle: .alert
                     )
                     alertController.addAction(
-                        UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
+                        UIAlertAction(title: NSLocalizedString("REGENERATE_KEY_FAILURE_ALERT_OK_ACTION", tableName: "WireguardKeys", comment: ""), style: .cancel)
                     )
 
                     self.logger.error(chainedError: error, message: "Failed to regenerate the private key")
 
                     self.alertPresenter.enqueue(alertController, presentingController: self)
-                }
 
-                self.updateViewState(.default)
+                    self.updateViewState(.regeneratedKey(false))
+                }
             }
         }
     }
 
     private func setPublicKeyTitle(string: String, animated: Bool) {
         let updateTitle = {
-            self.publicKeyButton.setTitle(string, for: .normal)
+            self.contentView.publicKeyRowView.value = string
+
         }
 
         if animated {
@@ -226,56 +266,41 @@ class WireguardKeysViewController: UIViewController, TunnelObserver {
         } else {
             UIView.performWithoutAnimation {
                 updateTitle()
-                publicKeyButton.layoutIfNeeded()
+                self.contentView.publicKeyRowView.layoutIfNeeded()
             }
         }
     }
 
-}
+    private func announceKeyVerificationResult(isValid: Bool) {
+        let announcementString: String
 
-class WireguardKeyStatusView: UIView {
-
-    enum Status {
-        case `default`, verifying, verified(Bool)
-    }
-
-    @IBOutlet var textLabel: UILabel!
-    @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
-
-    var status: Status = .default {
-        didSet {
-            updateView()
+        if isValid {
+            announcementString = NSLocalizedString(
+                "ACCESSIBILITY_ANNOUNCEMENT_VALID_KEY",
+                tableName: "WireguardKeys",
+                value: "Key is valid.",
+                comment: ""
+            )
+        } else {
+            announcementString = NSLocalizedString(
+                "ACCESSIBILITY_ANNOUNCEMENT_INVALID_KEY",
+                tableName: "WireguardKeys",
+                value: "Key is invalid.",
+                comment: ""
+            )
         }
+
+        UIAccessibility.post(notification: .announcement, argument: announcementString)
     }
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-
-        updateView()
-    }
-
-    private func updateView() {
-        switch status {
-        case .default:
-            textLabel.isHidden = true
-            activityIndicator.stopAnimating()
-
-        case .verifying:
-            textLabel.isHidden = true
-            activityIndicator.startAnimating()
-
-        case .verified(let isValid):
-            textLabel.isHidden = false
-            activityIndicator.stopAnimating()
-
-            if isValid {
-                textLabel.textColor = .successColor
-                textLabel.text = NSLocalizedString("Key is valid", comment: "")
-            } else {
-                textLabel.textColor = .dangerColor
-                textLabel.text = NSLocalizedString("Key is invalid", comment: "")
-            }
-        }
+    private func announceKeyRegenerated() {
+        let announcementString = NSLocalizedString(
+            "ACCESSIBILITY_ANNOUNCEMENT_REGENERATED_KEY",
+            tableName: "WireguardKeys",
+            value: "Key is regenerated.",
+            comment: ""
+        )
+        UIAccessibility.post(notification: .announcement, argument: announcementString)
     }
 
 }
