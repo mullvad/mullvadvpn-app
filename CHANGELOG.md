@@ -25,6 +25,12 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2021.4] - 2021-06-30
+This release is for desktop only.
+
+This release is identical to 2021.4-beta1 except that it has translations for new texts in the UI.
+
+
 ## [2021.4-beta1] - 2021-06-09
 This release is for desktop only.
 
