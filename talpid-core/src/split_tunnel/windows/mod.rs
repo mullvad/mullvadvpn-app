@@ -1,4 +1,5 @@
 mod driver;
+mod path_monitor;
 mod windows;
 
 use crate::{
@@ -17,7 +18,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::io::{AsRawHandle, RawHandle},
     ptr,
-    sync::{mpsc as sync_mpsc, Arc, Weak},
+    sync::{mpsc as sync_mpsc, Arc, Mutex, Weak},
     time::Duration,
 };
 use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
@@ -85,6 +86,10 @@ pub enum Error {
     /// The request handling thread is down
     #[error(display = "The ST request thread is down")]
     RequestThreadDown,
+
+    /// Failed to start the NTFS reparse point monitor
+    #[error(display = "Failed to start path monitor")]
+    StartPathMonitor(#[error(source)] io::Error),
 }
 
 /// Manages applications whose traffic to exclude from the tunnel.
@@ -288,6 +293,12 @@ impl SplitTunnel {
         let (tx, rx): (RequestTx, _) = sync_mpsc::sync_channel(3);
         let (init_tx, init_rx) = sync_mpsc::channel();
 
+        let (path_monitor, path_change_rx) =
+            path_monitor::PathMonitor::spawn().map_err(Error::StartPathMonitor)?;
+
+        let monitored_paths = Arc::new(Mutex::new(vec![]));
+        let monitored_paths_copy = monitored_paths.clone();
+
         std::thread::spawn(move || {
             let result = driver::DeviceHandle::new()
                 .map(Arc::new)
@@ -306,11 +317,27 @@ impl SplitTunnel {
             while let Ok((request, response_tx)) = rx.recv() {
                 let response = match request {
                     Request::SetPaths(paths) => {
-                        if paths.len() > 0 {
+                        let mut monitored_paths_guard = monitored_paths.lock().unwrap();
+
+                        let result = if paths.len() > 0 {
                             handle.set_config(&paths).map_err(Error::SetConfiguration)
                         } else {
                             handle.clear_config().map_err(Error::SetConfiguration)
+                        };
+
+                        if result.is_ok() {
+                            if let Err(error) = path_monitor.set_paths(&paths) {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg("Failed to update path monitor")
+                                );
+                                monitored_paths_guard.clear();
+                            } else {
+                                *monitored_paths_guard = paths.to_vec();
+                            }
                         }
+
+                        result
                     }
                     Request::RegisterIps(
                         mut tunnel_ipv4,
@@ -331,11 +358,38 @@ impl SplitTunnel {
                     log::error!("A response could not be sent for a completed request");
                 }
             }
+
+            if let Err(error) = path_monitor.shutdown() {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to shut down path monitor")
+                );
+            }
         });
 
         let handle = init_rx
             .recv_timeout(REQUEST_TIMEOUT)
             .map_err(|_| Error::RequestThreadStuck)??;
+
+        let handle_copy = handle.clone();
+
+        std::thread::spawn(move || {
+            while let Ok(()) = path_change_rx.recv() {
+                let paths = monitored_paths_copy.lock().unwrap();
+                let result = if paths.len() > 0 {
+                    log::debug!("Re-resolving excluded paths");
+                    handle_copy.set_config(&*paths)
+                } else {
+                    continue;
+                };
+                if let Err(error) = result {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to update excluded paths")
+                    );
+                }
+            }
+        });
 
         Ok((tx, handle))
     }
