@@ -1,18 +1,17 @@
 import React, { useCallback, useEffect } from 'react';
-import { useHistory } from 'react-router';
-import History from '../lib/history';
+import { useHistory } from '../lib/history';
 
 interface IKeyboardNavigationProps {
   children: React.ReactElement;
 }
 
 export default function KeyboardNavigation(props: IKeyboardNavigationProps) {
-  const history = useHistory() as History;
+  const history = useHistory();
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        history.reset();
+        history.dismiss(true);
       }
     },
     [history.reset],

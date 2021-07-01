@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
 import { links } from '../../config.json';
 import WireguardKeys from '../components/WireguardKeys';
 import withAppContext, { IAppContext } from '../context';
+import { IHistoryProps, withHistory } from '../lib/history';
 import { IWgKey } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
@@ -12,9 +12,9 @@ const mapStateToProps = (state: IReduxState) => ({
   tunnelState: state.connection.status,
   windowFocused: state.userInterface.windowFocused,
 });
-const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps & IAppContext) => {
+const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
   return {
-    onClose: () => props.history.goBack(),
+    onClose: () => props.history.pop(),
     onGenerateKey: () => props.app.generateWireguardKey(),
     onReplaceKey: (oldKey: IWgKey) => props.app.replaceWireguardKey(oldKey),
     onVerifyKey: (publicKey: IWgKey) => props.app.verifyWireguardKey(publicKey),
@@ -23,5 +23,5 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: RouteComponentProps
 };
 
 export default withAppContext(
-  withRouter(connect(mapStateToProps, mapDispatchToProps)(WireguardKeys)),
+  withHistory(connect(mapStateToProps, mapDispatchToProps)(WireguardKeys)),
 );

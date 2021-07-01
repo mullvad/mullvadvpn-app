@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router';
 import { bindActionCreators } from 'redux';
 import consumePromise from '../../shared/promise';
 import Support from '../components/Support';
 import withAppContext, { IAppContext } from '../context';
+import { IHistoryProps, withHistory } from '../lib/history';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 import supportActions from '../redux/support/actions';
 
@@ -16,12 +16,12 @@ const mapStateToProps = (state: IReduxState) => ({
   suggestedIsBeta: state.version.suggestedIsBeta ?? false,
 });
 
-const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext & RouteComponentProps) => {
+const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext & IHistoryProps) => {
   const { saveReportForm, clearReportForm } = bindActionCreators(supportActions, dispatch);
 
   return {
     onClose() {
-      props.history.goBack();
+      props.history.pop();
     },
     viewLog(id: string) {
       consumePromise(props.app.viewLog(id));
@@ -34,4 +34,4 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext & RouteC
   };
 };
 
-export default withAppContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(Support)));
+export default withAppContext(withHistory(connect(mapStateToProps, mapDispatchToProps)(Support)));
