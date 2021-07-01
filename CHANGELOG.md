@@ -33,6 +33,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix link to download page not always using the beta URL when it should.
 - Fix deadlock that may occur when the API cannot be reached while entering the connecting state.
+- Fix bug causing desktop app to log in if account number field was filled when removing account
+  history.
 
 #### Linux
 - Make offline monitor aware of routing table changes.
