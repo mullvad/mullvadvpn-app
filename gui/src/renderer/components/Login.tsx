@@ -276,8 +276,7 @@ export default class Login extends React.Component<IProps, IState> {
               aria-label={
                 // TRANSLATORS: This is used by screenreaders to communicate the login button.
                 messages.pgettext('accessibility', 'Login')
-              }
-              onClick={this.onSubmit}>
+              }>
               <StyledInputSubmitIcon
                 visible={this.props.loginState.type !== 'logging in'}
                 source="icon-arrow"
@@ -351,9 +350,14 @@ function AccountDropdownItem(props: IAccountDropdownItemProps) {
     props.onSelect(props.value);
   }, [props.onSelect, props.value]);
 
-  const handleRemove = useCallback(() => {
-    props.onRemove(props.value);
-  }, [props.onRemove, props.value]);
+  const handleRemove = useCallback(
+    (event) => {
+      // Prevent login form from submitting
+      event.preventDefault();
+      props.onRemove(props.value);
+    },
+    [props.onRemove, props.value],
+  );
 
   return (
     <>
