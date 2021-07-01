@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { sourceSansPro } from './common-styles';
 import { HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Header, Layout } from './Layout';
@@ -15,9 +16,8 @@ const StyledContainer = styled(Container)({
 });
 
 const Title = styled.h1({
-  fontFamily: 'DINPro',
-  fontSize: '24px',
-  fontWeight: 900,
+  ...sourceSansPro,
+  fontSize: '26px',
   lineHeight: '30px',
   color: colors.white60,
   marginBottom: '4px',

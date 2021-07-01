@@ -7,6 +7,7 @@ import { messages } from '../../shared/gettext';
 import { useHistory } from '../lib/history';
 import { IReduxState } from '../redux/store';
 import { FocusFallback } from './Focus';
+import { sourceSansPro } from './common-styles';
 import ImageView from './ImageView';
 
 export enum HeaderBarStyle {
@@ -70,9 +71,8 @@ const BrandContainer = styled.div({
 });
 
 const Title = styled.span({
-  fontFamily: 'DINPro',
-  fontSize: '24px',
-  fontWeight: 900,
+  ...sourceSansPro,
+  fontSize: '26px',
   lineHeight: '30px',
   color: colors.white80,
   marginLeft: '9px',

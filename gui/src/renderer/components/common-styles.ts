@@ -1,7 +1,17 @@
+import React from 'react';
 import { colors } from '../../config.json';
 
-export const smallText = {
+export const openSans: React.CSSProperties = {
   fontFamily: 'Open Sans',
+};
+
+export const sourceSansPro: React.CSSProperties = {
+  fontFamily: '"Source Sans Pro", "Noto Sans Myanmar", "Noto Sans Thai"',
+  fontWeight: 'bold',
+};
+
+export const smallText = {
+  ...openSans,
   fontSize: '13px',
   fontWeight: 600,
   lineHeight: '20px',
@@ -9,22 +19,21 @@ export const smallText = {
 };
 
 export const mediumText = {
-  fontFamily: 'Open Sans',
+  ...openSans,
   fontSize: '18px',
   lineHeight: '24px',
 };
 
 export const buttonText = {
-  ...mediumText,
-  fontFamily: 'DINPro',
-  fontWeight: 900,
+  ...sourceSansPro,
+  fontSize: '20px',
+  lineHeight: '24px',
   color: colors.white,
 };
 
 export const bigText = {
-  fontFamily: 'DINPro',
-  fontSize: '30px',
-  fontWeight: 900,
+  ...sourceSansPro,
+  fontSize: '32px',
   lineHeight: '34px',
   color: colors.white,
 };
