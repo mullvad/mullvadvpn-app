@@ -82,7 +82,7 @@ export default class Login extends React.Component<IProps, IState> {
   }
 
   public render() {
-    const showFooter = this.shouldShowFooter();
+    const showFooter = this.allowInteraction();
 
     return (
       <Layout>
@@ -208,16 +208,7 @@ export default class Login extends React.Component<IProps, IState> {
   }
 
   private shouldShowAccountHistory() {
-    return (
-      this.allowInteraction() && this.state.isActive && this.props.accountHistory !== undefined
-    );
-  }
-
-  private shouldShowFooter() {
-    return (
-      (this.props.loginState.type === 'none' || this.props.loginState.type === 'failed') &&
-      !this.shouldShowAccountHistory()
-    );
+    return this.allowInteraction() && this.props.accountHistory !== undefined;
   }
 
   private onSelectAccountFromHistory = (accountToken: string) => {
