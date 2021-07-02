@@ -157,6 +157,9 @@ impl DeviceHandle {
             device.register_processes()?;
         }
 
+        log::trace!("Clearing any existing exclusion config");
+        device.clear_config()?;
+
         Ok(device)
     }
 

@@ -223,6 +223,10 @@ impl TunnelStateMachine {
         #[cfg(target_os = "android")] android_context: AndroidContext,
         #[cfg(windows)] exclude_paths: Vec<OsString>,
     ) -> Result<Self, Error> {
+        #[cfg(windows)]
+        let split_tunnel = split_tunnel::SplitTunnel::new(command_tx.clone())
+            .map_err(Error::InitSplitTunneling)?;
+
         let args = FirewallArguments {
             initialize_blocked: block_when_disconnected || !reset_firewall,
             allow_lan,
@@ -243,7 +247,7 @@ impl TunnelStateMachine {
         )
         .map_err(Error::InitDnsMonitorError)?;
         let mut offline_monitor = offline::spawn_monitor(
-            command_tx.clone(),
+            command_tx,
             #[cfg(target_os = "linux")]
             route_manager
                 .handle()
@@ -255,9 +259,6 @@ impl TunnelStateMachine {
         .map_err(Error::OfflineMonitorError)?;
         let is_offline = offline_monitor.is_offline().await;
 
-        #[cfg(windows)]
-        let split_tunnel =
-            split_tunnel::SplitTunnel::new(command_tx).map_err(Error::InitSplitTunneling)?;
         #[cfg(windows)]
         split_tunnel
             .set_paths(&exclude_paths)
