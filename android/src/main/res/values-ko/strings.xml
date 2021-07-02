@@ -11,6 +11,7 @@
     <string name="add_a_server">서버 추가</string>
     <string name="add_anyway">추가</string>
     <string name="add_time_to_account">웹 사이트에서 크레딧을 구매하거나 바우처를 사용하세요.</string>
+    <string name="all_applications">모든 애플리케이션</string>
     <string name="allow_lan_footer">공유, 인쇄 등을 위해 동일한 네트워크의 다른 장치에 액세스할 수 있습니다.</string>
     <string name="app_name">Mullvad VPN</string>
     <string name="app_version">앱 버전</string>
@@ -52,10 +53,12 @@
     <string name="enter_voucher_code">바우처 코드 입력</string>
     <string name="error_occurred">오류가 발생했습니다.</string>
     <string name="error_state">보안 연결 실패</string>
+    <string name="exclude_applications">제외된 애플리케이션</string>
     <string name="failed_to_block_internet">모든 네트워크 트래픽을 차단하지 못했습니다. 문제를 해결하거나 당사에 보고해 주세요.</string>
     <string name="failed_to_create_account">계정을 만들지 못함</string>
     <string name="failed_to_generate_key">키를 생성하지 못함</string>
     <string name="failed_to_send">전송하지 못함</string>
+    <string name="failed_to_send_details">다시 시도하기 전에 앱의 기본 화면으로 돌아가 연결 해제를 클릭해야 할 수 있습니다. 걱정하지 마세요. 입력한 정보는 양식에 남아 있습니다.</string>
     <string name="faqs_and_guides">FAQ 및 가이드</string>
     <string name="faqs_and_guides_url">https://mullvad.net/ko/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">현재 VPN 터널 상태 표시</string>

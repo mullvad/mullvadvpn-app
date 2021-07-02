@@ -11,6 +11,7 @@
     <string name="add_a_server">Lisää palvelin</string>
     <string name="add_anyway">Lisää silti</string>
     <string name="add_time_to_account">Osta käyttöaikaa verkkosivustoltamme tai lunasta kuponki.</string>
+    <string name="all_applications">Kaikki sovellukset</string>
     <string name="allow_lan_footer">Sallii jakamisen, tulostuksen ym. saman verkon muille laitteille.</string>
     <string name="app_name">Mullvad VPN</string>
     <string name="app_version">Sovelluksen versio</string>
@@ -52,10 +53,12 @@
     <string name="enter_voucher_code">Syötä kuponkikoodi</string>
     <string name="error_occurred">Ilmeni virhe.</string>
     <string name="error_state">YHTEYDEN SUOJAAMINEN EPÄONNISTUI</string>
+    <string name="exclude_applications">Poissuljetut sovellukset</string>
     <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen epäonnistui. Käytä vianetsintää tai raportoi meille ongelmasta.</string>
     <string name="failed_to_create_account">Tilin luonti epäonnistui</string>
     <string name="failed_to_generate_key">Avaimen luominen epäonnistui</string>
     <string name="failed_to_send">Lähetys epäonnistui</string>
+    <string name="failed_to_send_details">Ennen kuin yrität uudelleen, sinun on ehkä palattava sovelluksen päänäytölle ja napsautettava yhteyden katkaisua. Älä huoli – syöttämäsi tiedot säilyvät lomakkeella.</string>
     <string name="faqs_and_guides">UKK:t ja oppaat</string>
     <string name="faqs_and_guides_url">https://mullvad.net/fi/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Näyttää VPN-tunnelin nykyisen tilan</string>

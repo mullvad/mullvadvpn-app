@@ -11,6 +11,7 @@
     <string name="add_a_server">サーバーを追加</string>
     <string name="add_anyway">追加を続ける</string>
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
+    <string name="all_applications">すべてのアプリケーション</string>
     <string name="allow_lan_footer">共有や印刷のため、同一ネットワーク上の他のデバイスへのアクセスを許可します。</string>
     <string name="app_name">Mullvad VPN</string>
     <string name="app_version">アプリのバージョン</string>
@@ -38,7 +39,7 @@
     <string name="creating_new_account">アカウントを作成中...</string>
     <string name="creating_secure_connection">セキュリティ保護接続を確立中</string>
     <string name="critical_error">重大なエラー (ご注意ください)</string>
-    <string name="custom_dns_example">例：10.0.0.4</string>
+    <string name="custom_dns_example">例: 10.0.0.4</string>
     <string name="custom_dns_footer">1つ以上のDNSサーバーを追加できるようにします。</string>
     <string name="custom_tunnel_host_resolution_error">カスタムサーバーのホスト名を解決できませんでした</string>
     <string name="disconnect">接続解除</string>
@@ -52,10 +53,12 @@
     <string name="enter_voucher_code">バウチャーコードを入力</string>
     <string name="error_occurred">エラー発生。</string>
     <string name="error_state">セキュリティ保護接続を確立できませんでした</string>
+    <string name="exclude_applications">除外対象アプリケーション</string>
     <string name="failed_to_block_internet">すべてのネットワーク通信をブロックできませんでした。問題に対処するか、当社に問題を報告してください。</string>
     <string name="failed_to_create_account">アカウントを作成できませんでした</string>
     <string name="failed_to_generate_key">鍵の生成に失敗しました</string>
     <string name="failed_to_send">送信に失敗しました</string>
+    <string name="failed_to_send_details">再試行する前に、アプリのメイン画面に戻って [接続解除] をクリックする必要があるかもしれません。すでにフォームに入力された情報が失われることはありませんので、ご安心ください。</string>
     <string name="faqs_and_guides">よくある質問とガイド</string>
     <string name="faqs_and_guides_url">https://mullvad.net/ja/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">現在のVPNトンネルのステータスを表示します</string>

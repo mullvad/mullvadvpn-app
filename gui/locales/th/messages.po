@@ -10,10 +10,57 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2021-03-31 13:39\n"
+"PO-Revision-Date: 2021-06-28 11:50\n"
+
+msgid "1 day"
+msgid_plural "%d days"
+msgstr[0] "%d วัน"
+
+msgid "1 day left"
+msgid_plural "%d days left"
+msgstr[0] "คงเหลือ %d วัน"
+
+msgid "1 month"
+msgid_plural "%d months"
+msgstr[0] "%d เดือน"
+
+msgid "1 month left"
+msgid_plural "%d months left"
+msgstr[0] "คงเหลือ %d เดือน"
+
+msgid "1 year"
+msgid_plural "%d years"
+msgstr[0] "%d ปี"
+
+msgid "1 year left"
+msgid_plural "%d years left"
+msgstr[0] "คงเหลือ %d ปี"
+
+msgid "a day ago"
+msgid_plural "%d days ago"
+msgstr[0] "%d วันก่อน"
+
+msgid "a minute ago"
+msgid_plural "%d minutes ago"
+msgstr[0] "%d นาทีก่อน"
+
+msgid "a month ago"
+msgid_plural "%d months ago"
+msgstr[0] "%d เดือนก่อน"
+
+msgid "a year ago"
+msgid_plural "%d years ago"
+msgstr[0] "%d ปีก่อน"
+
+msgid "an hour ago"
+msgid_plural "%d hours ago"
+msgstr[0] "%d ชั่วโมงก่อน"
 
 msgid "Back"
 msgstr "ย้อนกลับ"
+
+msgid "BETA"
+msgstr "เบต้า"
 
 msgid "BLOCKED CONNECTION"
 msgstr "การเชื่อมต่อที่ถูกบล็อก"
@@ -51,6 +98,15 @@ msgstr "ไม่สามารถเชื่อมต่ออย่างป
 msgid "Invalid account number"
 msgstr "หมายเลขบัญชีไม่ถูกต้อง"
 
+msgid "less than a day"
+msgstr "น้อยกว่าหนึ่งวัน"
+
+msgid "less than a day left"
+msgstr "เหลือเวลาน้อยกว่าหนึ่งวัน"
+
+msgid "less than a minute ago"
+msgstr "น้อยกว่าหนึ่งนาทีก่อน"
+
 msgid "Open URL"
 msgstr "Open URL"
 
@@ -66,7 +122,7 @@ msgstr "การตั้งค่า"
 msgid "System default"
 msgstr "ค่าเริ่มต้นของระบบ"
 
-msgid "UNSECURED CONNECTION"
+msgid "UNSECURE CONNECTION"
 msgstr "การเชื่อมต่อที่ไม่ปลอดภัย"
 
 msgctxt "accessibility"
@@ -101,20 +157,6 @@ msgstr "นำรายการออก"
 msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "เลือกตำแหน่งที่ตั้ง ตำแหน่งที่ตั้งปัจจุบันคือ %(location)s"
-
-#. The remaining time left on the account measured in days.
-#. Available placeholders:
-#. %(duration)s - The remaining time measured in days.
-msgctxt "account-expiry"
-msgid "%(duration)s days"
-msgstr "%(duration)s วัน"
-
-#. The remaining time left on the account displayed across the app.
-#. Available placeholders:
-#. %(duration)s - a localized remaining time (in minutes, hours, or days) until the account expiry
-msgctxt "account-expiry"
-msgid "%(duration)s left"
-msgstr "เหลือ %(duration)s"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -180,10 +222,6 @@ msgid "Default"
 msgstr "ค่าเริ่มต้น"
 
 msgctxt "advanced-settings-view"
-msgid "e.g. 10.0.0.4"
-msgstr "เช่น 10.0.0.4"
-
-msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "เปิดใช้งานต่อไป"
 
@@ -198,6 +236,10 @@ msgstr "เปิดใช้งานการสื่อสาร IPv6 ผ่
 msgctxt "advanced-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "เปิดเพื่อเพิ่มเซิร์ฟเวอร์ DNS อย่างน้อยหนึ่งรายการ"
+
+msgctxt "advanced-settings-view"
+msgid "Enter IP"
+msgstr "ป้อน IP"
 
 msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
@@ -264,8 +306,8 @@ msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากพอร์ตต่างๆ"
 
 msgctxt "advanced-settings-view"
-msgid "The DNS server you are trying to add might not work because it is public. Currently we only support local DNS servers."
-msgstr "เซิร์ฟเวอร์ DNS ที่คุณกำลังพยายามเพิ่มอาจไม่สามารถใช้งานได้ เนื่องจากนี่เป็นเซิร์ฟเวอร์สาธารณะ เพราะในปัจจุบัน เรารองรับเซิร์ฟเวอร์ DNS ท้องถิ่นเท่านั้น"
+msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
+msgstr "เซิร์ฟเวอร์ DNS ที่คุณต้องการเพิ่มเป็นแบบสาธารณะ และจะใช้งานกับ WireGuard ได้เท่านั้น ทั้งนี้ เพื่อใหม่มั่นใจว่าเซิร์ฟเวอร์จะทำงานได้ตลอด โปรดตั้งค่า \"โพรโทคอลอุโมงค์\" (ในการตั้งค่าขั้นสูง) เป็น WireGuard"
 
 msgctxt "advanced-settings-view"
 msgid "To enable WireGuard, generate a key under the \"WireGuard key\" setting below."
@@ -361,8 +403,8 @@ msgid "Remember, turning it off will allow network traffic while the VPN is disc
 msgstr "โปรดจำไว้ว่า การปิดใช้งานตัวเลือกนี้จะเป็นการอนุญาตให้มีการรับส่งข้อมูลทางเครือข่าย ในขณะที่ VPN ถูกตัดการเชื่อมต่ออยู่ จนกว่าคุณจะเปิดใช้งานตัวเลือกนี้ในการตั้งค่าขั้นสูงอีกครั้ง"
 
 msgctxt "connect-view"
-msgid "To add more, you will need to disconnect and access the Internet with an unsecured connection."
-msgstr "คุณจำเป็นต้องตัดการเชื่อมต่อ และเข้าถึงอินเทอร์เน็ตด้วยการเข้าถึงที่ไม่ปลอดภัยเพื่อเพิ่มเวลา"
+msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
+msgstr "ในการเพิ่ม คุณจำเป็นจะต้องตัดการเชื่อมต่อ และเข้าใช้อินเทอร์เน็ตผ่านการเชื่อมต่อที่ไม่ปลอดภัย"
 
 msgctxt "connect-view"
 msgid "To start using the app, you first need to add time to your account."
@@ -584,12 +626,16 @@ msgid "Could not configure IPv6. Disable it in the app or enable it on your devi
 msgstr "ไม่สามารถกำหนดค่า IPv6 ได้ โปรดปิดใช้งานรายการนี้ในแอป หรือเปิดใช้งานบนอุปกรณ์ของคุณ"
 
 msgctxt "notifications"
-msgid "Disconnected and unsecured"
+msgid "Disconnected and unsecure"
 msgstr "ตัดการเชื่อมต่อและไม่ปลอดภัย"
 
 msgctxt "notifications"
 msgid "Reconnecting"
 msgstr "กำลังเชื่อมต่อใหม่"
+
+msgctxt "notifications"
+msgid "The apps excluded with split tunneling might not work properly right now."
+msgstr "แอปที่ไม่รวมอยู่ในการแยกช่องทางอาจทำงานผิดปกติอยู่ในขณะนี้"
 
 msgctxt "notifications"
 msgid "Unable to apply firewall rules."
@@ -614,6 +660,10 @@ msgstr "ไม่สามารถบล็อกการรับส่งข
 msgctxt "notifications"
 msgid "Unable to block all network traffic. Try updating your kernel or contact support."
 msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดลองอัปเดตเคอร์เนลของคุณ หรือติดต่อฝ่ายสนับสนุน"
+
+msgctxt "notifications"
+msgid "Unable to communicate with Mullvad kernel driver. Try reconnecting or contact support."
+msgstr "ไม่สามารถสื่อสารกับไดรเวอร์เคอร์เนลของ Mullvad ได้ โปรดลองเชื่อมต่อใหม่หรือติดต่อฝ่ายสนับสนุน"
 
 msgctxt "notifications"
 msgid "Unable to resolve host of custom tunnel. Try changing your settings."
@@ -672,6 +722,34 @@ msgstr "เชื่อมต่อไปยังเซิร์ฟเวอร
 msgctxt "preferences-view"
 msgid "Beta program"
 msgstr "โปรแกรมรุ่นเบต้า"
+
+msgctxt "preferences-view"
+msgid "Block ads"
+msgstr "บล็อกโฆษณา"
+
+msgctxt "preferences-view"
+msgid "Block trackers"
+msgstr "บล็อกตัวติดตาม"
+
+#. This is displayed when either or both of the block ads/trackers settings are
+#. turned on which makes the custom DNS setting disabled. The text enclosed in "**"
+#. will appear bold.
+#. Available placeholders:
+#. %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
+#. %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
+#. %(preferencesPageName)s - The page title showed on top in the preferences page.
+msgctxt "preferences-view"
+msgid "Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting."
+msgstr "ปิดใช้งาน **%(blockAdsFeatureName)s** และ **%(blockTrackersFeatureName)s** (ภายใต้ %(preferencesPageName)s) เพื่อเปิดใช้การตั้งค่านี้"
+
+#. This is displayed when the custom DNS setting is turned on which makes the block
+#. ads/trackers settings disabled. The text enclosed in "**" will appear bold.
+#. Advanced settings refer to the name of the page with the title "Advanced".
+#. Available placeholders:
+#. %(customDnsFeatureName)s - The name displayed next to the custom DNS toggle.
+msgctxt "preferences-view"
+msgid "Disable **%(customDnsFeatureName)s** (under Advanced settings) to activate these settings."
+msgstr "ปิดใช้งาน **%(customDnsFeatureName)s** (ภายใต้การตั้งค่าขั้นสูง) เพื่อเปิดใช้งานการตั้งค่าเหล่านี้"
 
 msgctxt "preferences-view"
 msgid "Enable or disable system notifications. The critical notifications will always be displayed."
@@ -847,12 +925,32 @@ msgid "%(applicationName)s is problematic and can’t be excluded from the VPN t
 msgstr "%(applicationName)s ได้ก่อให้เกิดปัญหาขึ้น และไม่สามารถแยกออกจากช่องทาง VPN ได้"
 
 msgctxt "split-tunneling-view"
-msgid "Browse"
-msgstr "เรียกดู"
+msgid "Add"
+msgstr "เพิ่ม"
+
+msgctxt "split-tunneling-view"
+msgid "All apps"
+msgstr "แอปทั้งหมด"
+
+msgctxt "split-tunneling-view"
+msgid "Choose the apps you want to exclude from the VPN tunnel."
+msgstr "เลือกแอปที่คุณต้องการแยกออกจากช่องทาง VPN"
 
 msgctxt "split-tunneling-view"
 msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel until you close it."
 msgstr "คลิกบนแอปเพื่อเปิด การรับส่งข้อมูลของแอปดังกล่าวจะบายพาสช่องทาง VPN จนกว่าคุณจะปิดแอป"
+
+msgctxt "split-tunneling-view"
+msgid "Excluded apps"
+msgstr "แอปที่ยกเว้น"
+
+msgctxt "split-tunneling-view"
+msgid "Filter..."
+msgstr "ตัวกรอง..."
+
+msgctxt "split-tunneling-view"
+msgid "Find another app"
+msgstr "ค้นหาแอปอื่น"
 
 msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
@@ -863,8 +961,8 @@ msgid "Launch"
 msgstr "เปิด"
 
 msgctxt "split-tunneling-view"
-msgid "Launch application"
-msgstr "เปิดแอปพลิเคชัน"
+msgid "No result for %(searchTerm)s."
+msgstr "ไม่มีผลลัพธ์สำหรับ %(searchTerm)s"
 
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
@@ -882,6 +980,14 @@ msgstr "โปรดลองอีกครั้ง หรือติดต�
 msgctxt "split-tunneling-view"
 msgid "Split tunneling"
 msgstr "แยกช่องทาง"
+
+msgctxt "split-tunneling-view"
+msgid "Split tunneling has been disabled from the CLI and will automatically be enabled when adding or removing applications from the lists below."
+msgstr "การแยกช่องทางถูกปิดใช้งานจาก CLI และจะได้รับการเปิดใช้งานโดยอัตโนมัติ เมื่อมีการเพิ่มหรือนำแอปพลิเคชันออกจากรายการด้านล่าง"
+
+msgctxt "split-tunneling-view"
+msgid "Try a different search."
+msgstr "ลองใช้การค้นหาอื่น"
 
 #. Error message showed in a dialog when an application failes to launch.
 msgctxt "split-tunneling-view"
@@ -1050,156 +1156,143 @@ msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "คีย์ WireGuard"
 
+msgid "Account authentication failed."
+msgstr "ไม่สามารถรับรองความถูกต้องของบัญชีได้"
+
+msgid "Account credit expires in a few minutes"
+msgstr "เครดิตของบัญชีจะหมดอายุในอีกไม่กี่นาที"
+
+msgid "Account credit expires soon"
+msgstr "เครดิตของบัญชีจะหมดอายุในเร็วๆ นี้"
+
+msgid "Account time reminders"
+msgstr "การแจ้งเตือนเวลาบัญชี"
+
+msgid "All applications"
+msgstr "แอปพลิเคชันทั้งหมด"
+
+msgid "Blocking all connections"
+msgstr "บล็อกการเชื่อมต่อทั้งหมด"
+
 msgid "Blocking internet"
 msgstr "กำลังบล็อกอินเทอร์เน็ต"
 
 msgid "Copied Mullvad account number to clipboard"
 msgstr "คัดลอกหมายเลขบัญชี Mullvad ไปยังคลิปบอร์ด"
 
-msgid "No bridge relay server matches the current settings"
-msgstr "ไม่มีเซิร์ฟเวอร์บริดจ์รีเลย์ที่ตรงกับการตั้งค่าในปัจจุบัน"
-
-msgid "less than a day left"
-msgstr "เหลือเวลาน้อยกว่าหนึ่งวัน"
-
-msgid "less than a minute ago"
-msgstr "น้อยกว่าหนึ่งนาทีก่อน"
-
 msgid "Copied WireGuard public key to clipboard"
 msgstr "คัดลอกคีย์สาธารณะของ WireGuard ไปยังคลิปบอร์ด"
-
-msgid "Shows current VPN tunnel status"
-msgstr "แสดงสถานะช่องทาง VPN ในปัจจุบัน"
-
-msgid "Secured"
-msgstr "ปลอดภัย"
-
-msgid "Blocking all connections"
-msgstr "บล็อกการเชื่อมต่อทั้งหมด"
-
-msgid "Account credit expires soon"
-msgstr "เครดิตของบัญชีจะหมดอายุในเร็วๆ นี้"
-
-msgid "Disconnecting"
-msgstr "กำลังตัดการเชื่อมต่อ"
-
-msgid "Too many WireGuard keys registered to account"
-msgstr "มีคีย์ WireGuard ที่ลงทะเบียนไปยังบัญชีมากเกินไป"
-
-msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
-msgstr "การแยกช่องทางทำให้คุณสามารถเลือกได้ว่า แอปพลิเคชันใดไม่ควรได้รับการกำหนดเส้นทางผ่านช่องทาง VPN"
-
-msgid "WireGuard public key"
-msgstr "คีย์สาธารณะของ WireGuard"
-
-msgid "Account authentication failed."
-msgstr "ไม่สามารถรับรองความถูกต้องของบัญชีได้"
-
-msgid "Could not configure IPv6"
-msgstr "ไม่สามารถกำหนดค่า IPv6 ได้"
-
-msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
-msgstr "คุณกำลังใช้งานแอปในเวอร์ชันที่ไม่ได้รับการรองรับ โปรดอัปเกรดเป็นเวอร์ชัน %s ทันทีเพื่อความปลอดภัยของคุณ"
-
-msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
-msgstr "การให้สิทธิ์ VPN ถูกปฏิเสธ ในขณะที่สร้างช่องทาง โปรดลองเชื่อมต่อใหม่อีกครั้ง"
-
-msgid "Failed to apply firewall rules. The device might currently be unsecured"
-msgstr "ไม่สามารถปรับใช้งานกฎของไฟร์วอลล์ได้ อุปกรณ์อาจไม่มีความปลอดภัยในขณะนี้"
-
-msgid "Account time reminders"
-msgstr "การแจ้งเตือนเวลาบัญชี"
-
-msgid "Enable"
-msgstr "เปิดใช้งาน"
-
-msgid "WireGuard error"
-msgstr "ข้อผิดพลาด WireGuard"
-
-msgid "This device is offline, no tunnels can be established"
-msgstr "อุปกรณ์ออฟไลน์อยู่ในขณะนี้ ไม่สามารถสร้างช่องทางการเชื่อมต่อได้"
-
-msgid "Update available, download to remain safe."
-msgstr "มีอัปเดตพร้อมใช้งาน ดาวน์โหลดเพื่อคงความปลอดภัยไว้"
-
-msgid "You may need to go back to the app\\'s main screen and click Disconnect before trying again. Don\\'t worry, the information you entered will remain in the form."
-msgstr "คุณอาจจำเป็นต้องย้อนกลับไปที่หน้าจอหลักของแอป และคลิกตัดการเชื่อมต่อ ก่อนที่จะลองใหม่อีกครั้ง และไม่ต้องกังวลไป เพราะข้อมูลที่คุณป้อนไว้จะยังคงอยู่ในแบบฟอร์มเหมือนเดิม"
-
-msgid "Virtual adapter error"
-msgstr "ข้อผิดพลาดของอะแดปเตอร์เสมือน"
-
-msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
-msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือรายงานปัญหามาที่เรา"
-
-msgid "Failed to set system DNS server"
-msgstr "ไม่สามารถตั้งค่าเซิร์ฟเวอร์ DNS ของระบบได้"
-
-msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr "ติดตั้ง Mullvad VPN (%s) เพื่อรับอัปเดตล่าสุด"
-
-msgid "Critical error (your attention is required)"
-msgstr "ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)"
-
-msgid "You are running an unsupported app version."
-msgstr "คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน"
-
-msgid "Custom DNS server addresses %s are invalid"
-msgstr "ที่อยู่เซิร์ฟเวอร์ DNS %s ที่กำหนดเองไม่ถูกต้อง"
-
-msgid "Failed to resolve the hostname of custom server"
-msgstr "ไม่พบชื่อโฮสต์ของเซิร์ฟเวอร์แบบกำหนดเอง"
-
-msgid "No relay server matches the current settings"
-msgstr "ไม่มีเซิร์ฟเวอร์รีเลย์ที่ตรงกับการตั้งค่าในปัจจุบัน"
-
-msgid "Mullvad account number"
-msgstr "หมายเลขบัญชี Mullvad"
-
-msgid "If needed we will contact you on %s"
-msgstr "เราจะติดต่อคุณทาง %s หากจำเป็น"
-
-msgid "Account credit expires in a few minutes"
-msgstr "เครดิตของบัญชีจะหมดอายุในอีกไม่กี่นาที"
-
-msgid "Exclude applications"
-msgstr "ไม่รวมแอปพลิเคชัน"
-
-msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
-msgstr "เซิร์ฟเวอร์ DNS ในท้องถิ่นจะไม่ทำงาน เว้นแต่คุณจะเปิดใช้ \"การแชร์ในเครือข่ายท้องถิ่น\" ซึ่งอยู่ในส่วนการกำหนดค่า"
 
 msgid "Copied to clipboard"
 msgstr "คัดลอกไปยังคลิปบอร์ดแล้ว"
 
-msgid "Unsecured"
-msgstr "ไม่ปลอดภัย"
+msgid "Could not configure IPv6"
+msgstr "ไม่สามารถกำหนดค่า IPv6 ได้"
+
+msgid "Critical error (your attention is required)"
+msgstr "ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)"
+
+msgid "Custom DNS server addresses %s are invalid"
+msgstr "ที่อยู่เซิร์ฟเวอร์ DNS %s ที่กำหนดเองไม่ถูกต้อง"
+
+msgid "Disconnecting"
+msgstr "กำลังตัดการเชื่อมต่อ"
+
+msgid "Enable"
+msgstr "เปิดใช้งาน"
+
+msgid "Excluded applications"
+msgstr "แอปพลิเคชันที่แยกออก"
+
+msgid "Failed to apply firewall rules. The device might currently be unsecured"
+msgstr "ไม่สามารถปรับใช้งานกฎของไฟร์วอลล์ได้ อุปกรณ์อาจไม่มีความปลอดภัยในขณะนี้"
+
+msgid "Failed to block all network traffic. Please troubleshoot or report the problem to us."
+msgstr "ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือรายงานปัญหามาที่เรา"
+
+msgid "Failed to resolve the hostname of custom server"
+msgstr "ไม่พบชื่อโฮสต์ของเซิร์ฟเวอร์แบบกำหนดเอง"
+
+msgid "Failed to set system DNS server"
+msgstr "ไม่สามารถตั้งค่าเซิร์ฟเวอร์ DNS ของระบบได้"
 
 msgid "Failed to start tunnel connection"
 msgstr "ไม่สามารถเริ่มการเชื่อมต่อช่องทางได้"
 
-msgid "VPN tunnel status"
-msgstr "สถานะช่องทาง VPN"
+msgid "If needed we will contact you on %s"
+msgstr "เราจะติดต่อคุณทาง %s หากจำเป็น"
+
+msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr "ติดตั้ง Mullvad VPN (%s) เพื่อรับอัปเดตล่าสุด"
+
+msgid "Mullvad account number"
+msgstr "หมายเลขบัญชี Mullvad"
+
+msgid "No bridge relay server matches the current settings"
+msgstr "ไม่มีเซิร์ฟเวอร์บริดจ์รีเลย์ที่ตรงกับการตั้งค่าในปัจจุบัน"
+
+msgid "No relay server matches the current settings"
+msgstr "ไม่มีเซิร์ฟเวอร์รีเลย์ที่ตรงกับการตั้งค่าในปัจจุบัน"
+
+msgid "Secured"
+msgstr "ปลอดภัย"
+
+msgid "Shows current VPN tunnel status"
+msgstr "แสดงสถานะช่องทาง VPN ในปัจจุบัน"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "แสดงการแจ้งเตือน ในขณะที่เวลาบัญชีใกล้หมดอายุ"
 
+msgid "Split tunneling makes it possible to select which applications should not be routed through the VPN tunnel."
+msgstr "การแยกช่องทางทำให้คุณสามารถเลือกได้ว่า แอปพลิเคชันใดไม่ควรได้รับการกำหนดเส้นทางผ่านช่องทาง VPN"
+
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
+msgstr "เซิร์ฟเวอร์ DNS ในท้องถิ่นจะไม่ทำงาน เว้นแต่คุณจะเปิดใช้ \"การแชร์ในเครือข่ายท้องถิ่น\" ซึ่งอยู่ในส่วนการกำหนดค่า"
+
+msgid "This device is offline, no tunnels can be established"
+msgstr "อุปกรณ์ออฟไลน์อยู่ในขณะนี้ ไม่สามารถสร้างช่องทางการเชื่อมต่อได้"
+
+msgid "Too many WireGuard keys registered to account"
+msgstr "มีคีย์ WireGuard ที่ลงทะเบียนไปยังบัญชีมากเกินไป"
+
+msgid "UNSECURED CONNECTION"
+msgstr "การเชื่อมต่อที่ไม่ปลอดภัย"
+
+msgid "Unsecured"
+msgstr "ไม่ปลอดภัย"
+
+msgid "Update available, download to remain safe."
+msgstr "มีอัปเดตพร้อมใช้งาน ดาวน์โหลดเพื่อคงความปลอดภัยไว้"
+
+msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgstr "การให้สิทธิ์ VPN ถูกปฏิเสธ ในขณะที่สร้างช่องทาง โปรดลองเชื่อมต่อใหม่อีกครั้ง"
+
+msgid "VPN tunnel status"
+msgstr "สถานะช่องทาง VPN"
+
+msgid "Virtual adapter error"
+msgstr "ข้อผิดพลาดของอะแดปเตอร์เสมือน"
+
+msgid "WireGuard error"
+msgstr "ข้อผิดพลาด WireGuard"
+
+msgid "WireGuard public key"
+msgstr "คีย์สาธารณะของ WireGuard"
+
 msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
 msgstr "คุณอาจมีการรับส่งข้อมูลทางเครือข่ายที่รั่วไหลอยู่ในขณะนี้"
 
-msgid "1 month left"
-msgid_plural "%d months left"
-msgstr[0] "คงเหลือ %d เดือน"
+msgid "You are running an unsupported app version."
+msgstr "คุณกำลังใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุน"
 
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "%d วันก่อน"
+msgid "You are running an unsupported app version. Please upgrade to %s now to ensure your security"
+msgstr "คุณกำลังใช้งานแอปในเวอร์ชันที่ไม่ได้รับการรองรับ โปรดอัปเกรดเป็นเวอร์ชัน %s ทันทีเพื่อความปลอดภัยของคุณ"
 
-msgid "1 day left"
-msgid_plural "%d days left"
-msgstr[0] "คงเหลือ %d วัน"
+msgid "You may need to go back to the app's main screen and click Disconnect before trying again. Don't worry, the information you entered will remain in the form."
+msgstr "คุณอาจจำเป็นต้องย้อนกลับไปที่หน้าจอหลักของแอป และคลิกตัดการเชื่อมต่อ ก่อนที่จะลองใหม่อีกครั้ง และไม่ต้องกังวลไป เพราะข้อมูลที่คุณป้อนไว้จะยังคงอยู่ในแบบฟอร์มเหมือนเดิม"
 
-msgid "1 year left"
-msgid_plural "%d years left"
-msgstr[0] "คงเหลือ %d ปี"
+msgid "e.g. 10.0.0.4"
+msgstr "เช่น 10.0.0.4"
 
 msgid "Account credit expires in a day"
 msgid_plural "Account credit expires in %d days"
@@ -1208,20 +1301,4 @@ msgstr[0] "เครดิตของบัญชีจะหมดอายุ
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "เครดิตของบัญชีจะหมดอายุใน %d ชั่วโมง"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "%d นาทีก่อน"
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "%d ชั่วโมงก่อน"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "%d เดือนก่อน"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "%d ปีก่อน"
 

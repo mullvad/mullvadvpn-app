@@ -11,6 +11,7 @@
     <string name="add_a_server">新增伺服器</string>
     <string name="add_anyway">仍要新增</string>
     <string name="add_time_to_account">在我們網站上購買點數或兌換憑證。</string>
+    <string name="all_applications">所有應用程式</string>
     <string name="allow_lan_footer">允許存取同一網路上的其他裝置，以進行共用、列印等。</string>
     <string name="app_name">Mullvad VPN</string>
     <string name="app_version">應用程式版本</string>
@@ -52,10 +53,12 @@
     <string name="enter_voucher_code">輸入憑證兌換碼</string>
     <string name="error_occurred">發生錯誤了。</string>
     <string name="error_state">保護連線失敗</string>
+    <string name="exclude_applications">已排除的應用程式</string>
     <string name="failed_to_block_internet">無法封鎖所有網路流量。請排除故障或向我們回報問題。</string>
     <string name="failed_to_create_account">無法建立帳戶</string>
     <string name="failed_to_generate_key">無法產生金鑰</string>
     <string name="failed_to_send">無法傳送</string>
+    <string name="failed_to_send_details">在重試之前，您可能需要返回應用程式的主畫面，然後按一下「中斷連線」。請不用擔心，您輸入的資訊將保留在表單中。</string>
     <string name="faqs_and_guides">常見問題集與指南</string>
     <string name="faqs_and_guides_url">https://mullvad.net/zh-hant/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">顯示目前的 VPN 通道狀態</string>
