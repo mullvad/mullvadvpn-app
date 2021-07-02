@@ -72,10 +72,10 @@ export default class CustomScrollbars extends React.Component<IProps, IState> {
     this.updateScrollbarsHelper({ size: true });
   });
 
-  public scrollToTop() {
+  public scrollToTop(smooth = false) {
     const scrollable = this.scrollableRef.current;
     if (scrollable) {
-      scrollable.scrollTop = 0;
+      scrollable.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
     }
   }
 

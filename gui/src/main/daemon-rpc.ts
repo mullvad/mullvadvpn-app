@@ -476,6 +476,18 @@ export class DaemonRpc {
     return response.toObject();
   }
 
+  public async addSplitTunnelingApplication(path: string): Promise<void> {
+    await this.callString(this.client.addSplitTunnelApp, path);
+  }
+
+  public async removeSplitTunnelingApplication(path: string): Promise<void> {
+    await this.callString(this.client.removeSplitTunnelApp, path);
+  }
+
+  public async setSplitTunnelingState(enabled: boolean): Promise<void> {
+    await this.callBool(this.client.setSplitTunnelState, enabled);
+  }
+
   private subscriptionId(): number {
     const current = this.nextSubscriptionId;
     this.nextSubscriptionId += 1;
@@ -802,7 +814,7 @@ function convertFromTunnelStateErrorCause(
       return { reason: 'tunnel_parameter_error', details: parameterErrorMap[state.parameterError] };
     }
     case grpcTypes.ErrorState.Cause.SPLIT_TUNNEL_ERROR:
-      return { reason: 'start_tunnel_error' };
+      return { reason: 'split_tunnel_error' };
     case grpcTypes.ErrorState.Cause.VPN_PERMISSION_DENIED:
       // VPN_PERMISSION_DENIED is only ever created on Android
       throw invalidErrorStateCause;
@@ -868,12 +880,14 @@ function convertFromSettings(settings: grpcTypes.Settings): ISettings | undefine
   const relaySettings = convertFromRelaySettings(settings.getRelaySettings())!;
   const bridgeSettings = convertFromBridgeSettings(settingsObject.bridgeSettings!);
   const tunnelOptions = convertFromTunnelOptions(settingsObject.tunnelOptions!);
+  const splitTunnel = settingsObject.splitTunnel ?? { enableExclusions: false, appsList: [] };
   return {
     ...settings.toObject(),
     bridgeState,
     relaySettings,
     bridgeSettings,
     tunnelOptions,
+    splitTunnel,
   };
 }
 

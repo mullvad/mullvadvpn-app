@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import BetaLabel from './BetaLabel';
 import * as Cell from './cell';
 import { Container } from './Layout';
 import { NavigationScrollbars } from './NavigationBar';
@@ -33,7 +34,7 @@ export const StyledButtonCellGroup = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  marginBottom: '22px',
+  marginBottom: '20px',
 });
 
 export const StyledNoWireguardKeyErrorContainer = styled(Cell.Footer)({
@@ -70,3 +71,8 @@ export const StyledAddCustomDnsLabel = styled(Cell.Label)(
     marginRight: '25px',
   }),
 );
+
+export const StyledBetaLabel = styled(BetaLabel)({
+  marginRight: '8px',
+  verticalAlign: 'bottom',
+});

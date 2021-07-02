@@ -1,5 +1,5 @@
 import { GetTextTranslations } from 'gettext-parser';
-import { ILinuxSplitTunnelingApplication } from './application-types';
+import { IApplication, ILinuxSplitTunnelingApplication } from './application-types';
 import {
   AccountToken,
   BridgeSettings,
@@ -56,6 +56,7 @@ export interface IAppStateSnapshot {
   translations: ITranslations;
   platform: NodeJS.Platform;
   runningInDevelopment: boolean;
+  windowsSplitTunnelingApplications?: IApplication[];
 }
 
 // The different types of requests are:
@@ -178,10 +179,6 @@ export const ipcSchema = {
     generateKey: invoke<void, KeygenEvent>(),
     verifyKey: invoke<void, boolean>(),
   },
-  splitTunneling: {
-    getApplications: invoke<void, ILinuxSplitTunnelingApplication[]>(),
-    launchApplication: invoke<ILinuxSplitTunnelingApplication | string, LaunchApplicationResult>(),
-  },
   problemReport: {
     collectLogs: invoke<string | undefined, string>(),
     sendReport: invoke<{ email: string; message: string; savedReportId: string }, void>(),
@@ -189,5 +186,16 @@ export const ipcSchema = {
   },
   logging: {
     log: send<ILogEntry>(),
+  },
+  linuxSplitTunneling: {
+    getApplications: invoke<void, ILinuxSplitTunnelingApplication[]>(),
+    launchApplication: invoke<ILinuxSplitTunnelingApplication | string, LaunchApplicationResult>(),
+  },
+  windowsSplitTunneling: {
+    '': notifyRenderer<IApplication[]>(),
+    setState: invoke<boolean, void>(),
+    getApplications: invoke<boolean, { fromCache: boolean; applications: IApplication[] }>(),
+    addApplication: invoke<IApplication | string, void>(),
+    removeApplication: invoke<IApplication | string, void>(),
   },
 };

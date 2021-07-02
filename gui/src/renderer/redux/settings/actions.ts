@@ -5,6 +5,7 @@ import {
   KeygenEvent,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
+import { IApplication } from '../../../shared/application-types';
 import { BridgeSettingsRedux, IRelayLocationRedux, IWgKey, RelaySettingsRedux } from './reducers';
 
 export interface IUpdateGuiSettingsAction {
@@ -107,6 +108,16 @@ export interface IUpdateDnsOptionsAction {
   dns: IDnsOptions;
 }
 
+export interface IUpdateSplitTunnelingStateAction {
+  type: 'UPDATE_SPLIT_TUNNELING_STATE';
+  enabled: boolean;
+}
+
+export interface ISetSplitTunnelingApplicationsAction {
+  type: 'SET_SPLIT_TUNNELING_APPLICATIONS';
+  applications: IApplication[];
+}
+
 export type SettingsAction =
   | IUpdateGuiSettingsAction
   | IUpdateRelayAction
@@ -127,7 +138,9 @@ export type SettingsAction =
   | IWireguardReplaceKey
   | IWireguardKeygenEvent
   | IWireguardKeyVerifiedAction
-  | IUpdateDnsOptionsAction;
+  | IUpdateDnsOptionsAction
+  | IUpdateSplitTunnelingStateAction
+  | ISetSplitTunnelingApplicationsAction;
 
 function updateGuiSettings(guiSettings: IGuiSettingsState): IUpdateGuiSettingsAction {
   return {
@@ -279,6 +292,22 @@ function updateDnsOptions(dns: IDnsOptions): IUpdateDnsOptionsAction {
   };
 }
 
+function updateSplitTunnelingState(enabled: boolean): IUpdateSplitTunnelingStateAction {
+  return {
+    type: 'UPDATE_SPLIT_TUNNELING_STATE',
+    enabled,
+  };
+}
+
+function setSplitTunnelingApplications(
+  applications: IApplication[],
+): ISetSplitTunnelingApplicationsAction {
+  return {
+    type: 'SET_SPLIT_TUNNELING_APPLICATIONS',
+    applications,
+  };
+}
+
 export default {
   updateGuiSettings,
   updateRelay,
@@ -300,4 +329,6 @@ export default {
   verifyWireguardKey,
   completeWireguardKeyVerification,
   updateDnsOptions,
+  updateSplitTunnelingState,
+  setSplitTunnelingApplications,
 };
