@@ -464,7 +464,7 @@ impl TunnelState for ConnectingState {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg(
-                            "Failed to register addresses with split tunnel driver"
+                            "Failed to reset addresses in split tunnel driver"
                         )
                     );
 

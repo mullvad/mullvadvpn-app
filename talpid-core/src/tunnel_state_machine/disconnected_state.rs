@@ -55,9 +55,8 @@ impl DisconnectedState {
             if let Err(error) = shared_values.split_tunnel.set_tunnel_addresses(None) {
                 log::error!(
                     "{}",
-                    error.display_chain_with_msg(
-                        "Failed to register addresses with split tunnel driver"
-                    )
+                    error
+                        .display_chain_with_msg("Failed to reset addresses in split tunnel driver")
                 );
             }
         }
