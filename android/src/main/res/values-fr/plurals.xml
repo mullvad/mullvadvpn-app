@@ -1,36 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="months_left">
-        <item quantity="one">1 mois restant</item>
-        <item quantity="other">%1$d mois restants</item>
-    </plurals>
-    <plurals name="days_ago">
-        <item quantity="one">il y a un jour</item>
-        <item quantity="other">il y a %1$d jours</item>
-    </plurals>
     <plurals name="days_left">
         <item quantity="one">1 jour restant</item>
         <item quantity="other">%1$d jours restants</item>
+    </plurals>
+    <plurals name="months_left">
+        <item quantity="one">1 mois restant</item>
+        <item quantity="other">%1$d mois restants</item>
     </plurals>
     <plurals name="years_left">
         <item quantity="one">1 an restant</item>
         <item quantity="other">%1$d ans restants</item>
     </plurals>
-    <plurals name="account_credit_expires_in_days">
-        <item quantity="one">Les crédits du compte expirent dans un jour</item>
-        <item quantity="other">Les crédits du compte expirent dans %1$d jours</item>
-    </plurals>
-    <plurals name="account_credit_expires_in_hours">
-        <item quantity="one">Les crédits du compte expirent dans une heure</item>
-        <item quantity="other">Les crédits du compte expirent dans %1$d heures</item>
+    <plurals name="days_ago">
+        <item quantity="one">il y a un jour</item>
+        <item quantity="other">il y a %1$d jours</item>
     </plurals>
     <plurals name="minutes_ago">
         <item quantity="one">il y a une minute</item>
         <item quantity="other">il y a %1$d minutes</item>
-    </plurals>
-    <plurals name="hours_ago">
-        <item quantity="one">il y a une heure</item>
-        <item quantity="other">Il y a %1$d heures</item>
     </plurals>
     <plurals name="months_ago">
         <item quantity="one">il y a un mois</item>
@@ -39,5 +27,17 @@
     <plurals name="years_ago">
         <item quantity="one">il y a un an</item>
         <item quantity="other">il y a %1$d ans</item>
+    </plurals>
+    <plurals name="hours_ago">
+        <item quantity="one">il y a une heure</item>
+        <item quantity="other">Il y a %1$d heures</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_days">
+        <item quantity="one">Les crédits du compte expirent dans un jour</item>
+        <item quantity="other">Les crédits du compte expirent dans %1$d jours</item>
+    </plurals>
+    <plurals name="account_credit_expires_in_hours">
+        <item quantity="one">Les crédits du compte expirent dans une heure</item>
+        <item quantity="other">Les crédits du compte expirent dans %1$d heures</item>
     </plurals>
 </resources>

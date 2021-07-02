@@ -11,6 +11,7 @@
     <string name="add_a_server">Dodaj serwer</string>
     <string name="add_anyway">Mimo to dodaj</string>
     <string name="add_time_to_account">Doładuj w naszej witrynie internetowej lub zrealizuj kupon.</string>
+    <string name="all_applications">Wszystkie aplikacje</string>
     <string name="allow_lan_footer">Umożliwia dostęp do innych urządzeń w tej samej sieci w celu udostępniania, drukowania itd.</string>
     <string name="app_name">Mullvad VPN</string>
     <string name="app_version">Wersja aplikacji</string>
@@ -52,10 +53,12 @@
     <string name="enter_voucher_code">Wprowadź kod kuponu</string>
     <string name="error_occurred">Wystąpił błąd.</string>
     <string name="error_state">BŁĄD ZABEZPIECZANIA POŁĄCZENIA</string>
+    <string name="exclude_applications">Wykluczone aplikacje</string>
     <string name="failed_to_block_internet">Nie można zablokować całego ruchu sieciowego. Rozwiąż problem lub zgłoś go nam.</string>
     <string name="failed_to_create_account">Nie można utworzyć konta</string>
     <string name="failed_to_generate_key">Nie można wygenerować klucza</string>
     <string name="failed_to_send">Błąd wysyłania</string>
+    <string name="failed_to_send_details">Być może przed ponowną próbą trzeba będzie wrócić do ekranu głównego aplikacji i kliknąć przycisk Rozłącz. Nie martw się, wprowadzone informacje pozostaną w formularzu.</string>
     <string name="faqs_and_guides">Często zadawane pytania i poradniki</string>
     <string name="faqs_and_guides_url">https://mullvad.net/pl/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Pokazuje bieżący status tunelu VPN</string>

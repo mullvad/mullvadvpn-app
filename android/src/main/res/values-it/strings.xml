@@ -11,6 +11,7 @@
     <string name="add_a_server">Aggiungi un server</string>
     <string name="add_anyway">Aggiungi comunque</string>
     <string name="add_time_to_account">Acquista credito sul nostro sito web o riscatta un voucher.</string>
+    <string name="all_applications">Tutte le applicazioni</string>
     <string name="allow_lan_footer">Consenti l\'accesso ad altri dispositivi sulla stessa rete per condividere, stampare e altro.</string>
     <string name="app_name">Mullvad VPN</string>
     <string name="app_version">Versione app</string>
@@ -52,10 +53,12 @@
     <string name="enter_voucher_code">Inserisci codice voucher</string>
     <string name="error_occurred">Si è verificato un errore.</string>
     <string name="error_state">IMPOSSIBILE STABILIRE UNA CONNESSIONE PROTETTA</string>
+    <string name="exclude_applications">Applicazioni escluse</string>
     <string name="failed_to_block_internet">Impossibile bloccare tutto il traffico di rete. Risolvi i problemi o segnalaceli.</string>
     <string name="failed_to_create_account">Impossibile creare l\'account</string>
     <string name="failed_to_generate_key">Impossibile generare una chiave</string>
     <string name="failed_to_send">Impossibile inviare</string>
+    <string name="failed_to_send_details">Prima di riprovare, potresti dover tornare alla schermata principale dell\'app e fare clic su Disconnetti. Non preoccuparti: le informazioni inserite rimarranno nel modulo.</string>
     <string name="faqs_and_guides">FAQ e guide</string>
     <string name="faqs_and_guides_url">https://mullvad.net/it/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Mostra lo stato attuale del tunnel VPN</string>

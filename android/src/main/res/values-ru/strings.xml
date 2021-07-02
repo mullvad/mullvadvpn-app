@@ -11,6 +11,7 @@
     <string name="add_a_server">Добавить сервер</string>
     <string name="add_anyway">Всё равно добавить</string>
     <string name="add_time_to_account">Пополните баланс у нас на сайте или погасите ваучер.</string>
+    <string name="all_applications">Все приложения</string>
     <string name="allow_lan_footer">Разрешить доступ к другим устройствам в той же сети для передачи данных, печати и т. д.</string>
     <string name="app_name">Mullvad VPN</string>
     <string name="app_version">Версия приложения</string>
@@ -52,10 +53,12 @@
     <string name="enter_voucher_code">Введите код ваучера</string>
     <string name="error_occurred">Произошла ошибка.</string>
     <string name="error_state">НЕ УДАЛОСЬ УСТАНОВИТЬ БЕЗОПАСНОЕ ПОДКЛЮЧЕНИЕ</string>
+    <string name="exclude_applications">Исключенные приложения</string>
     <string name="failed_to_block_internet">Не удалось заблокировать весь сетевой трафик. Устраните неисправность или сообщите нам о проблеме.</string>
     <string name="failed_to_create_account">Не удалось создать учетную запись</string>
     <string name="failed_to_generate_key">Не удалось сгенерировать ключ</string>
     <string name="failed_to_send">Ошибка отправки</string>
+    <string name="failed_to_send_details">Возможно, потребуется вернуться на основной экран приложения и нажать кнопку «Отключить», прежде чем повторять попытку. Не волнуйтесь: введенные в форму данные сохранятся.</string>
     <string name="faqs_and_guides">Ответы на вопросы и руководства</string>
     <string name="faqs_and_guides_url">https://mullvad.net/ru/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Показывает текущее состояние VPN-туннеля</string>

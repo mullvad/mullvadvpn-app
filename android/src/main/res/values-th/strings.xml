@@ -11,6 +11,7 @@
     <string name="add_a_server">เพิ่มเซิร์ฟเวอร์</string>
     <string name="add_anyway">เพิ่มต่อไป</string>
     <string name="add_time_to_account">ซื้อเครดิตบนเว็บไซต์ของเรา หรือแลกรับบัตรกำนัล</string>
+    <string name="all_applications">แอปพลิเคชันทั้งหมด</string>
     <string name="allow_lan_footer">อนุญาตให้เข้าถึงอุปกรณ์อื่นบนเครือข่ายเดียวกันเพื่อแชร์ พิมพ์ ฯลฯ</string>
     <string name="app_name">Mullvad VPN</string>
     <string name="app_version">เวอร์ชันแอป</string>
@@ -52,10 +53,12 @@
     <string name="enter_voucher_code">ป้อนรหัสบัตรกำนัล</string>
     <string name="error_occurred">เกิดข้อผิดพลาดขึ้น</string>
     <string name="error_state">ไม่สามารถเชื่อมต่ออย่างปลอดภัยได้</string>
+    <string name="exclude_applications">แอปพลิเคชันที่แยกออก</string>
     <string name="failed_to_block_internet">ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือรายงานปัญหามาที่เรา</string>
     <string name="failed_to_create_account">ไม่สามารถสร้างบัญชีได้</string>
     <string name="failed_to_generate_key">ไม่สามารถสร้างคีย์ได้</string>
     <string name="failed_to_send">ไม่สามารถส่งได้</string>
+    <string name="failed_to_send_details">คุณอาจจำเป็นต้องย้อนกลับไปที่หน้าจอหลักของแอป และคลิกตัดการเชื่อมต่อ ก่อนที่จะลองใหม่อีกครั้ง และไม่ต้องกังวลไป เพราะข้อมูลที่คุณป้อนไว้จะยังคงอยู่ในแบบฟอร์มเหมือนเดิม</string>
     <string name="faqs_and_guides">FAQ และคำแนะนำ</string>
     <string name="faqs_and_guides_url">https://mullvad.net/th/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">แสดงสถานะช่องทาง VPN ในปัจจุบัน</string>

@@ -11,6 +11,7 @@
     <string name="add_a_server">ဆာဗာ ပေါင်းထည့်ရန်</string>
     <string name="add_anyway">မည်သို့ပင်ဖြစ်စေ ပေါင်းထည့်ရန်</string>
     <string name="add_time_to_account">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။</string>
+    <string name="all_applications">အပလီကေးရှင်း အားလုံး</string>
     <string name="allow_lan_footer">ဝေမျှရန်၊ ပရင့်ထုတ်ရန်စသည်တို့အတွက် တူညီသည့် ကွန်ရက်ရှိ အခြားစက်များ ရယူသုံးစွဲခွင့်ပြုပေးပါသည်။</string>
     <string name="app_name">Mullvad VPN</string>
     <string name="app_version">အက်ပ်ဗားရှင်း</string>
@@ -20,7 +21,7 @@
     <string name="back">နောက်သို့</string>
     <string name="blocked_connection">ပိတ်ဆို့ထားသည့် ချိတ်ဆက်မှု</string>
     <string name="blocking_all_connections">ချိတ်ဆက်မှု အားလုံးကို ပိတ်ဆို့ထားပါသည်</string>
-    <string name="blocking_internet">အင်တာနက် ပိတ်ဆို့ထားပါသည်</string>
+    <string name="blocking_internet">အင်တာနက် ပိတ်ဆို့နေပါသည်</string>
     <string name="buy_credit">ခရက်ဒစ် ဝယ်ရန်</string>
     <string name="buy_more_credit">ခရက်ဒစ်များ ဝယ်ရန်</string>
     <string name="cancel">မလုပ်တော့ပါ</string>
@@ -38,7 +39,7 @@
     <string name="creating_new_account">အကောင့် ဖန်တီးနေဆဲ...</string>
     <string name="creating_secure_connection">လုံခြုံသည့် ချိတ်ဆက်မှုကို ဖန်တီးနေပါသည်</string>
     <string name="critical_error">အလွန်အရေးပါသည့် ချို့ယွင်းချက် (သင့်အာရုံစိုက်မှု လိုအပ်ပါသည်)</string>
-    <string name="custom_dns_example">ဥပမာ 10.0.0.4</string>
+    <string name="custom_dns_example">ဥပမာ- 10.0.0.4</string>
     <string name="custom_dns_footer">အနည်းဆုံး DNS ဆာဗာတစ်ခုကို ပေါင်းထည့်ပါ။</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက် ဆာဗာ၏ Hostname ကို ဖြေရှင်း၍ မရနိုင်ပါ</string>
     <string name="disconnect">ချိတ်ဆက်မှုဖြုတ်ရန်</string>
@@ -52,10 +53,12 @@
     <string name="enter_voucher_code">ဘောက်ချာကုဒ် ဖြည့်သွင်းရန်</string>
     <string name="error_occurred">ချို့ယွင်းချက် ဖြစ်ပေါ်ခဲ့ပါသည်။</string>
     <string name="error_state">ချိတ်ဆက်မှုကို ကာကွယ်ရန် မအောင်မြင်ပါ</string>
+    <string name="exclude_applications">အပလီကေးရှင်းများ ဖယ်ထားပြီး</string>
     <string name="failed_to_block_internet">ကွန်ရက် ကူးလူးမှု အားလုံးကို ပိတ်ဆို့ရန် မအောင်မြင်ပါ။ ပြစ်ချက်ရှာဖွေ ဖယ်ရှားပေးပါ သို့မဟုတ် ပြဿနာကို ကျွန်ုပ်တို့ထံ ရီပို့တ်လုပ်ပေးပါ။</string>
     <string name="failed_to_create_account">အကောင့် ဖန်တီးရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="failed_to_generate_key">ကီး ထုတ်ရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="failed_to_send">ပို့ရန် မအောင်မြင်ခဲ့ပါ</string>
+    <string name="failed_to_send_details">သင်သည် အက်ပ်၏ ပင်မ စာမျက်နှာသို့ ပြန်သွားရန် လိုပြီး ထပ်မကြိုးစားမီ ချိတ်ဆက်မှုဖြုတ်ရန်ကို နှိပ်ပါ။ စိတ်မပူပါနှင့်၊ သင်ဖြည့်သွင်းထားသည့် အချက်အလက်များသည် ဖောင်တွင် ကျန်ရှိနေပါမည်။</string>
     <string name="faqs_and_guides">မေးလေ့ရှိသည့် မေးခွန်းများနှင့် လမ်းညွှန်များ</string>
     <string name="faqs_and_guides_url">https://mullvad.net/my/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">လက်ရှိ VPN Tunnel အခြေအနေကို ပြသပေးပါသည်</string>
@@ -92,7 +95,7 @@
     <string name="reconnecting">ပြန်ချိတ်ဆက်နေပါသည်</string>
     <string name="redeem">လဲယူရန်</string>
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>
-    <string name="report_a_problem">ပြဿနာကို ရီပို့တ်လုပ်ရန်</string>
+    <string name="report_a_problem">ပြဿနာ ရီပို့တ်လုပ်ရန်</string>
     <string name="secure_connection">လုံခြုံသည့် ချိတ်ဆက်မှု</string>
     <string name="secured">လုံခြုံပါသည်</string>
     <string name="select_location">တည်နေရာ ရွေးရန်</string>

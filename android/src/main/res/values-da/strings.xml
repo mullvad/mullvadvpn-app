@@ -11,6 +11,7 @@
     <string name="add_a_server">Tilføj en server</string>
     <string name="add_anyway">Tilføj alligevel</string>
     <string name="add_time_to_account">Køb enten kredit på vores hjemmeside, eller indløs en kupon.</string>
+    <string name="all_applications">Alle applikationer</string>
     <string name="allow_lan_footer">Giver adgang til andre enheder på det samme netværk til deling, udskrivning osv.</string>
     <string name="app_name">Mullvad VPN</string>
     <string name="app_version">App-version</string>
@@ -52,10 +53,12 @@
     <string name="enter_voucher_code">Indtast kuponkode</string>
     <string name="error_occurred">Der opstod en fejl.</string>
     <string name="error_state">KUNNE IKKE SIKRE FORBINDELSEN</string>
+    <string name="exclude_applications">Ekskluderede applikationer</string>
     <string name="failed_to_block_internet">Kunne ikke blokere al netværkstrafik. Løs problemet selv, eller rapporter problemet til os.</string>
     <string name="failed_to_create_account">Kunne ikke oprette konto</string>
     <string name="failed_to_generate_key">Kunne ikke generere en nøgle</string>
     <string name="failed_to_send">Kunne ikke sende</string>
+    <string name="failed_to_send_details">Du skal muligvis vende tilbage til appens hovedskærm og klikke på Afbryd forbindelse, før du prøver igen. Bare rolig, de angivne oplysninger bliver ikke slettet fra formularen.</string>
     <string name="faqs_and_guides">Ofte stillede spørgsmål og vejledninger</string>
     <string name="faqs_and_guides_url">https://mullvad.net/da/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Viser den aktuelle VPN-tunnelstatus</string>

@@ -11,6 +11,7 @@
     <string name="add_a_server">Sunucu ekle</string>
     <string name="add_anyway">Yine de ekle</string>
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
+    <string name="all_applications">Tüm uygulamalar</string>
     <string name="allow_lan_footer">Paylaşım, yazdırma vb. için aynı ağdaki diğer cihazlara erişime izin verir.</string>
     <string name="app_name">Mullvad VPN</string>
     <string name="app_version">Uygulama sürümü</string>
@@ -52,10 +53,12 @@
     <string name="enter_voucher_code">Kupon kodunu girin</string>
     <string name="error_occurred">Bir hata oluştu.</string>
     <string name="error_state">GÜVENLİ BAĞLANTI OLUŞTURULAMADI</string>
+    <string name="exclude_applications">Hariç tutulan uygulamalar</string>
     <string name="failed_to_block_internet">Tüm ağ trafiği engellenemedi. Lütfen sorunu çözmeyi deneyin veya bize bildirin.</string>
     <string name="failed_to_create_account">Hesap oluşturulamadı</string>
     <string name="failed_to_generate_key">Anahtar oluşturulamadı</string>
     <string name="failed_to_send">Gönderme başarısız</string>
+    <string name="failed_to_send_details">Yeniden denemeden önce uygulamanın ana ekranına dönüp Bağlantıyı Kes\'e tıklamanız gerekebilir. Endişelenmeyin, girdiğiniz bilgiler formda kalacaktır.</string>
     <string name="faqs_and_guides">SSS ve Kılavuzlar</string>
     <string name="faqs_and_guides_url">https://mullvad.net/tr/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Mevcut VPN tünelinin durumunu gösterir</string>
