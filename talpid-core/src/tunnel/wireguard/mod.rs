@@ -79,7 +79,7 @@ pub struct WireguardMonitor {
     tunnel: Arc<Mutex<Option<Box<dyn Tunnel>>>>,
     /// Callback to signal tunnel events
     event_callback: Box<
-        dyn (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+        dyn (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
             + Send
             + Sync
             + 'static,
@@ -90,6 +90,8 @@ pub struct WireguardMonitor {
     stop_setup_tx: Option<futures::channel::oneshot::Sender<()>>,
     pinger_stop_sender: mpsc::Sender<()>,
     _tcp_proxies: Vec<TcpProxy>,
+    #[cfg(target_os = "windows")]
+    _callback_handle: Option<crate::winnet::WinNetCallbackHandle>,
 }
 
 #[cfg(target_os = "linux")]
@@ -156,7 +158,7 @@ impl Drop for TcpProxy {
 impl WireguardMonitor {
     /// Starts a WireGuard tunnel with the given config
     pub fn start<
-        F: (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+        F: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
             + Send
             + Sync
             + Clone
@@ -187,12 +189,14 @@ impl WireguardMonitor {
         #[cfg(windows)]
         let iface_luid = tunnel.get_interface_luid();
 
-        let metadata = Self::tunnel_metadata(&iface_name, &config);
-        runtime.block_on((on_event)(TunnelEvent::InterfaceUp(metadata.clone())));
-
         #[cfg(target_os = "windows")]
-        route_manager
-            .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ());
+        let callback_handle = route_manager
+            .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ())
+            .ok();
+        #[cfg(target_os = "windows")]
+        if callback_handle.is_none() {
+            log::warn!("Failed to register default route callback");
+        }
 
         let event_callback = Box::new(on_event.clone());
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
@@ -209,6 +213,8 @@ impl WireguardMonitor {
             stop_setup_tx: Some(stop_setup_tx),
             pinger_stop_sender: pinger_tx,
             _tcp_proxies: tcp_proxies,
+            #[cfg(target_os = "windows")]
+            _callback_handle: callback_handle,
         };
 
         let gateway = config.ipv4_gateway;
@@ -223,7 +229,11 @@ impl WireguardMonitor {
 
         let route_handle = route_manager.handle().map_err(Error::SetupRoutingError)?;
 
+        let metadata = Self::tunnel_metadata(&iface_name, &config);
+
         std::thread::spawn(move || {
+            runtime.block_on((on_event)(TunnelEvent::InterfaceUp(metadata.clone())));
+
             #[cfg(windows)]
             {
                 let iface_close_sender = close_sender.clone();

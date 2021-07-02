@@ -334,7 +334,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         #[cfg(not(target_os = "linux"))] _route_manager: &mut routing::RouteManager,
     ) -> Result<Self>
     where
-        L: (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+        L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
             + Send
             + Sync
             + 'static,
@@ -945,9 +945,11 @@ impl ProcessHandle for OpenVpnProcHandle {
 
 
 mod event_server {
+    use crate::tunnel::TunnelMetadata;
     use futures::stream::TryStreamExt;
     use parity_tokio_ipc::Endpoint as IpcEndpoint;
     use std::{
+        collections::HashMap,
         pin::Pin,
         task::{Context, Poll},
     };
@@ -981,7 +983,9 @@ mod event_server {
 
     /// Implements a gRPC service used to process events sent to by OpenVPN.
     pub struct OpenvpnEventProxyImpl<
-        L: (Fn(super::TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+        L: (Fn(
+                super::TunnelEvent,
+            ) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
             + Send
             + Sync
             + 'static,
@@ -997,12 +1001,27 @@ mod event_server {
     }
 
     impl<
-            L: (Fn(super::TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+            L: (Fn(
+                    super::TunnelEvent,
+                )
+                    -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
                 + Send
                 + Sync
                 + 'static,
         > OpenvpnEventProxyImpl<L>
     {
+        async fn up_inner(
+            &self,
+            request: Request<EventDetails>,
+        ) -> std::result::Result<Response<()>, tonic::Status> {
+            let env = request.into_inner().env;
+            (self.on_event)(super::TunnelEvent::InterfaceUp(Self::get_tunnel_metadata(
+                &env,
+            )?))
+            .await;
+            Ok(Response::new(()))
+        }
+
         async fn route_up_inner(
             &self,
             request: Request<EventDetails>,
@@ -1038,14 +1057,11 @@ mod event_server {
                 }
             }
 
-            let tunnel_alias = env
-                .get("dev")
-                .ok_or(tonic::Status::invalid_argument("missing tunnel alias"))?
-                .to_string();
+            let metadata = Self::get_tunnel_metadata(&env)?;
 
             #[cfg(windows)]
             {
-                let tunnel_device = tunnel_alias.clone();
+                let tunnel_device = metadata.interface.clone();
                 tokio::task::spawn_blocking(move || super::wait_for_ready_device(&tunnel_device))
                     .await
                     .map_err(|_| tonic::Status::internal("task failed to complete"))?
@@ -1057,6 +1073,19 @@ mod event_server {
                         tonic::Status::unavailable("wait_for_ready_device failed")
                     })?;
             }
+
+            (self.on_event)(super::TunnelEvent::Up(metadata)).await;
+
+            Ok(Response::new(()))
+        }
+
+        fn get_tunnel_metadata(
+            env: &HashMap<String, String>,
+        ) -> std::result::Result<TunnelMetadata, tonic::Status> {
+            let tunnel_alias = env
+                .get("dev")
+                .ok_or(tonic::Status::invalid_argument("missing tunnel alias"))?
+                .to_string();
 
             let mut ips = vec![env
                 .get("ifconfig_local")
@@ -1089,21 +1118,21 @@ mod event_server {
                 None
             };
 
-            (self.on_event)(super::TunnelEvent::Up(crate::tunnel::TunnelMetadata {
+            Ok(TunnelMetadata {
                 interface: tunnel_alias,
                 ips,
                 ipv4_gateway,
                 ipv6_gateway,
-            }))
-            .await;
-
-            Ok(Response::new(()))
+            })
         }
     }
 
     #[tonic::async_trait]
     impl<
-            L: (Fn(super::TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+            L: (Fn(
+                    super::TunnelEvent,
+                )
+                    -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
                 + Send
                 + Sync
                 + 'static,
@@ -1119,6 +1148,16 @@ mod event_server {
             ))
             .await;
             Ok(Response::new(()))
+        }
+
+        async fn up(
+            &self,
+            request: Request<EventDetails>,
+        ) -> std::result::Result<Response<()>, tonic::Status> {
+            self.up_inner(request).await.map_err(|error| {
+                self.abort_server_tx.trigger();
+                error
+            })
         }
 
         async fn route_up(
@@ -1336,6 +1375,12 @@ mod tests {
     #[async_trait::async_trait]
     impl event_server::OpenvpnEventProxy for TestOpenvpnEventProxy {
         async fn auth_failed(
+            &self,
+            _request: tonic::Request<event_server::EventDetails>,
+        ) -> std::result::Result<tonic::Response<()>, tonic::Status> {
+            Ok(tonic::Response::new(()))
+        }
+        async fn up(
             &self,
             _request: tonic::Request<event_server::EventDetails>,
         ) -> std::result::Result<tonic::Response<()>, tonic::Status> {

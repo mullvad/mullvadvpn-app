@@ -4,6 +4,7 @@ use crate::{logging::windows::log_sink, routing::Node};
 use ipnetwork::IpNetwork;
 use libc::c_void;
 use std::{
+    convert::TryFrom,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ptr,
 };
@@ -85,6 +86,7 @@ pub fn ensure_best_metric_for_interface(interface_alias: &str) -> Result<bool, E
     }
 }
 
+#[derive(Debug, Clone)]
 #[allow(dead_code)]
 #[repr(u32)]
 pub enum WinNetAddrFamily {
@@ -121,15 +123,40 @@ pub struct WinNetDefaultRoute {
     pub gateway: WinNetIp,
 }
 
-impl From<WinNetIp> for IpAddr {
-    fn from(addr: WinNetIp) -> IpAddr {
+#[derive(Debug)]
+pub struct WrongIpFamilyError;
+
+impl TryFrom<WinNetIp> for Ipv4Addr {
+    type Error = WrongIpFamilyError;
+
+    fn try_from(addr: WinNetIp) -> Result<Ipv4Addr, WrongIpFamilyError> {
         match addr.addr_family {
             WinNetAddrFamily::IPV4 => {
                 let mut bytes: [u8; 4] = Default::default();
                 bytes.clone_from_slice(&addr.ip_bytes[..4]);
-                IpAddr::V4(Ipv4Addr::from(bytes))
+                Ok(Ipv4Addr::from(bytes))
             }
-            WinNetAddrFamily::IPV6 => IpAddr::V6(Ipv6Addr::from(addr.ip_bytes)),
+            WinNetAddrFamily::IPV6 => Err(WrongIpFamilyError),
+        }
+    }
+}
+
+impl TryFrom<WinNetIp> for Ipv6Addr {
+    type Error = WrongIpFamilyError;
+
+    fn try_from(addr: WinNetIp) -> Result<Ipv6Addr, WrongIpFamilyError> {
+        match addr.addr_family {
+            WinNetAddrFamily::IPV4 => Err(WrongIpFamilyError),
+            WinNetAddrFamily::IPV6 => Ok(Ipv6Addr::from(addr.ip_bytes)),
+        }
+    }
+}
+
+impl From<WinNetIp> for IpAddr {
+    fn from(addr: WinNetIp) -> IpAddr {
+        match addr.addr_family {
+            WinNetAddrFamily::IPV4 => IpAddr::V4(Ipv4Addr::try_from(addr).unwrap()),
+            WinNetAddrFamily::IPV6 => IpAddr::V6(Ipv6Addr::try_from(addr).unwrap()),
         }
     }
 }
@@ -362,8 +389,6 @@ pub fn get_best_default_route(
     }
 }
 
-// TODO: Remove attribute once this is in use.
-#[allow(dead_code)]
 pub fn interface_luid_to_ip(
     family: WinNetAddrFamily,
     luid: u64,

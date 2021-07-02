@@ -78,9 +78,10 @@ byteorder = "1"
 internet-checksum = "0.2"
 widestring = "0.4"
 winreg = { version = "0.7", features = ["transactions"] }
-winapi = { version = "0.3.6", features = ["combaseapi", "handleapi", "ifdef", "libloaderapi", "netioapi", "stringapiset", "synchapi", "winbase", "winerror", "winuser"] }
+winapi = { version = "0.3.6", features = ["combaseapi", "handleapi", "ifdef", "libloaderapi", "netioapi", "psapi", "stringapiset", "synchapi", "winbase", "winioctl", "winuser"] }
 socket2 = "0.3"
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
+memoffset = "0.6"
 
 [build-dependencies]
 tonic-build = { version = "0.3", default-features = false, features = ["transport", "prost"] }

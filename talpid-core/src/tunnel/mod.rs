@@ -71,7 +71,7 @@ pub enum Error {
 pub enum TunnelEvent {
     /// Sent when the tunnel fails to connect due to an authentication error.
     AuthFailed(Option<String>),
-    /// Sent when the tunnel interface has been created.
+    /// Sent when the tunnel interface has been created, before routes are set up.
     InterfaceUp(TunnelMetadata),
     /// Sent when the tunnel comes up and is ready for traffic.
     Up(TunnelMetadata),
@@ -112,7 +112,7 @@ impl TunnelMonitor {
         route_manager: &mut RouteManager,
     ) -> Result<Self>
     where
-        L: (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+        L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
             + Send
             + Clone
             + Sync
@@ -169,7 +169,7 @@ impl TunnelMonitor {
         route_manager: &mut RouteManager,
     ) -> Result<Self>
     where
-        L: (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+        L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
             + Send
             + Sync
             + Clone
@@ -198,7 +198,7 @@ impl TunnelMonitor {
         route_manager: &mut RouteManager,
     ) -> Result<Self>
     where
-        L: (Fn(TunnelEvent) -> Box<dyn std::future::Future<Output = ()> + Unpin + Send>)
+        L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
             + Send
             + Sync
             + 'static,

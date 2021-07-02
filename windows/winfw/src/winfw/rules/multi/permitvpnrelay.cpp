@@ -90,7 +90,7 @@ bool PermitVpnRelay::apply(IObjectInstaller &objectInstaller)
 		.provider(MullvadGuids::Provider())
 		.layer(LayerFromIp(m_relay))
 		.sublayer(TranslateSublayer(m_sublayer))
-		.weight(wfp::FilterBuilder::WeightClass::Max)
+		.weight(wfp::FilterBuilder::WeightClass::Medium)
 		.permit();
 
 	wfp::ConditionBuilder conditionBuilder(LayerFromIp(m_relay));
