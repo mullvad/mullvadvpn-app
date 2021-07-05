@@ -107,20 +107,13 @@ impl Iterator for ProcessSnapshotEntries<'_> {
 
 /// Obtains a device path without resolving links or mount points.
 pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
-    if !path.as_ref().is_absolute() {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "path must be absolute",
-        ));
-    }
-
     let drive_comp = path.as_ref().components().next();
     let drive = match drive_comp {
         Some(std::path::Component::Prefix(prefix)) => prefix.as_os_str(),
         _ => {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,
-                "invalid drive label",
+                "path must be absolute",
             ))
         }
     };
