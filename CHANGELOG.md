@@ -48,6 +48,7 @@ Line wrap the file at 100 chars.                                              Th
   monitor may have falsely reported the machine to be online due to a race condition.
 - Recover firewall state correctly when restarting the service after a crash. This would fail when
   paths were excluded.
+- Fix daemon not starting when a path is excluded on a drive that has since been removed.
 
 
 ## [2021.4] - 2021-06-30
