@@ -818,7 +818,8 @@ impl RelaySelector {
                     }
                     port_index -= ports_in_range;
                 }
-                panic!("Port selection algorithm is broken")
+                error!("Port selection algorithm is broken!");
+                None
             }
             Constraint::Only(port) => {
                 if data
