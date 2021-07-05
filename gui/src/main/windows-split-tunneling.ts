@@ -453,15 +453,12 @@ async function getResourceTreeLeafOffsets(
 
   const leaves: number[] = [];
 
-  let offset = tableOffset + table.size;
-  for (let i = 0; i < numberOfNameEntries + numberOfIdEntries; i++) {
-    const entryOffset = offset;
-    const entry = await Value.fromFile(fileHandle, entryOffset, IMAGE_RESOURCE_DIRECTORY_ID_ENTRY);
-    offset += entry.size;
-
-    if (i < numberOfNameEntries) {
-      continue;
-    }
+  for (let i = numberOfNameEntries; i < numberOfNameEntries + numberOfIdEntries; i++) {
+    const offset =
+      tableOffset +
+      Value.sizeOf(IMAGE_RESOURCE_DIRECTORY) +
+      i * Value.sizeOf(IMAGE_RESOURCE_DIRECTORY_ID_ENTRY);
+    const entry = await Value.fromFile(fileHandle, offset, IMAGE_RESOURCE_DIRECTORY_ID_ENTRY);
 
     const id = entry.get('Id').value();
     if (!ids.includes(id)) {
