@@ -19,6 +19,7 @@ use std::{
     ptr,
     time::Duration,
 };
+use talpid_types::ErrorExt;
 use winapi::{
     shared::{
         in6addr::IN6_ADDR,
@@ -265,7 +266,18 @@ impl DeviceHandle {
     pub fn set_config<T: AsRef<OsStr>>(&self, apps: &[T]) -> io::Result<()> {
         let mut device_paths = Vec::with_capacity(apps.len());
         for app in apps.as_ref() {
-            device_paths.push(get_device_path(app.as_ref())?);
+            match get_device_path(app.as_ref()) {
+                Err(error) if error.kind() == io::ErrorKind::NotFound => {
+                    log::warn!(
+                        "{}\nPath: {}",
+                        error
+                            .display_chain_with_msg("Skipping path with non-existent drive letter"),
+                        app.as_ref().to_string_lossy()
+                    );
+                }
+                Err(error) => return Err(error),
+                Ok(path) => device_paths.push(path),
+            }
         }
 
         log::debug!("Excluded device paths:");
