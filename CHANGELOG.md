@@ -46,6 +46,7 @@ Line wrap the file at 100 chars.                                              Th
   close.
 - Remove deleted network devices from consideration in the offline monitor. Previously, the offline
   monitor may have falsely reported the machine to be online due to a race condition.
+- Fix daemon not starting when a path is excluded on a drive that has since been removed.
 
 
 ## [2021.4] - 2021-06-30
