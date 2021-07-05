@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 - Update the out of time-view and new account-view to make it more user friendly.
 - Change the app update notification when the suggested version is a beta, to include that it's a
   beta.
+- Update Electron from 11.2.3 to 11.4.9.
 
 ### Fixed
 - Fix link to download page not always using the beta URL when it should.
