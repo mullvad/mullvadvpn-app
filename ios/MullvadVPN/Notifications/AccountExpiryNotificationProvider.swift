@@ -55,6 +55,15 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
     var notificationRequest: UNNotificationRequest? {
         guard let trigger = trigger else { return nil }
 
+        _ = NSLocalizedString(
+            "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE",
+            comment: "Title for system account expiry notification, fired 3 days prior to account expiry."
+        )
+        _ = NSLocalizedString(
+            "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY",
+            comment: "Message for system account expiry notification, fired 3 days prior to account expiry."
+        )
+
         let content = UNMutableNotificationContent()
         content.title = NSString.localizedUserNotificationString(forKey: "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE", arguments: nil)
         content.body = NSString.localizedUserNotificationString(forKey: "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_BODY", arguments: nil)
@@ -100,8 +109,16 @@ class AccountExpiryNotificationProvider: NotificationProvider, SystemNotificatio
         return InAppNotificationDescriptor(
             identifier: self.identifier,
             style: .warning,
-            title: NSLocalizedString("ACCOUNT_EXPIRY_INAPP_NOTIFICATION_TITLE", comment: ""),
-            body: String(format: NSLocalizedString("ACCOUNT_EXPIRY_INAPP_NOTIFICATION_BODY", comment: ""), duration)
+            title: NSLocalizedString(
+                "ACCOUNT_EXPIRY_INAPP_NOTIFICATION_TITLE",
+                comment: "Title for in-app notification, displayed within the last 3 days until account expiry."
+            ),
+            body: String(
+                format: NSLocalizedString(
+                    "ACCOUNT_EXPIRY_INAPP_NOTIFICATION_BODY",
+                    comment: "Message for in-app notification, displayed within the last 3 days until account expiry."
+                ), duration
+            )
         )
     }
 
