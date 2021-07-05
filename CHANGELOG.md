@@ -46,6 +46,8 @@ Line wrap the file at 100 chars.                                              Th
   close.
 - Remove deleted network devices from consideration in the offline monitor. Previously, the offline
   monitor may have falsely reported the machine to be online due to a race condition.
+- Recover firewall state correctly when restarting the service after a crash. This would fail when
+  paths were excluded.
 
 
 ## [2021.4] - 2021-06-30
