@@ -15,7 +15,7 @@ import * as path from 'path';
 import { sprintf } from 'sprintf-js';
 import * as uuid from 'uuid';
 import config from '../config.json';
-import { hasExpired } from '../shared/account-expiry';
+import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import { IApplication } from '../shared/application-types';
 import BridgeSettingsBuilder from '../shared/bridge-settings-builder';
 import {
@@ -1052,8 +1052,16 @@ class ApplicationMain {
     windowController.window?.on('show', () => {
       // cancel notifications when window appears
       this.notificationController.cancelPendingNotifications();
+    });
 
-      this.updateAccountData();
+    windowController.window?.on('focus', () => {
+      if (
+        !this.accountData ||
+        closeToExpiry(this.accountData.expiry, 4) ||
+        hasExpired(this.accountData.expiry)
+      ) {
+        this.updateAccountData();
+      }
     });
 
     windowController.window?.on('hide', () => {
