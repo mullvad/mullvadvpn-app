@@ -1,0 +1,68 @@
+/* Label displayed in place of account expiration when account is out of time. */
+"ACCOUNT_OUT_OF_TIME_LABEL" = "OUT OF TIME";
+
+/* Title for OK button in purchase failure dialog */
+"CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION" = "OK";
+
+/* Title for purchase failure dialog */
+"CANNOT_COMPLETE_PURCHASE_ALERT_TITLE" = "Cannot complete the purchase";
+
+/* Message, temporarily displayed in place account token, after copying the account token to pasteboard on tap. */
+"COPIED_TO_PASTEBOARD_LABEL" = "COPIED TO PASTEBOARD!";
+
+/* Modal message displayed during logout */
+"LOGGING_OUT_ALERT_TITLE" = "Logging out. Please wait...";
+
+/* Title for cancel button in logout dialog */
+"LOGOUT_CONFIRMATION_ALERT_CANCEL_ACTION" = "Cancel";
+
+/* Message for logout dialog */
+"LOGOUT_CONFIRMATION_ALERT_MESSAGE" = "Are you sure you want to log out?\n\nThis will erase the account number from this device. It is not possible for us to recover it for you. Make sure you have your account number saved somewhere, to be able to log back in.";
+
+/* Title for logout dialog */
+"LOGOUT_CONFIRMATION_ALERT_TITLE" = "Log out";
+
+/* Title for confirmation button in logout dialog */
+"LOGOUT_CONFIRMATION_ALERT_YES_ACTION" = "Log out";
+
+/* Message for logout failure alert */
+"LOGOUT_FAILURE_ALERT_OK_ACTION" = "OK";
+
+/* Title for logout failure alert */
+"LOGOUT_FAILURE_ALERT_TITLE" = "Failed to log out";
+
+/* Navigation title */
+"NAVIGATION_TITLE" = "Account";
+
+/* Purchase button title displayed when unable to load the price of in-app purchase. */
+"PURCHASE_BUTTON_CANNOT_CONNECT_TO_APPSTORE_LABEL" = "Cannot connect to AppStore";
+
+/* Purchase button title displayed when payments are restriced on device. */
+"PURCHASE_BUTTON_PAYMENTS_RESTRICTED_LABEL" = "Payments restricted";
+
+/* Purchase button title: <TITLE> (<PRICE>). The order can be changed by swapping %1 and %2. */
+"PURCHASE_BUTTON_TITLE_FORMAT" = "%1$@ (%2$@)";
+
+/* Message displayed when no time credited to user account during purchase restoration; communicates that user account has already been credited with all outstanding purchased time duration. */
+"RESTORE_PURCHASES_ALERT_NO_TIME_ADDED_MESSAGE" = "Your previous purchases have already been added to this account.";
+
+/* Message displayed upon successful restoration of existing purchases, containing the time duration credited to user account. Use %@ placeholder to position the localized text with duration added (i.e '30 days') */
+"RESTORE_PURCHASES_ALERT_TIME_ADDED_MESSAGE" = "%@ have been added to your account";
+
+/* Title for purchase restoration dialog */
+"RESTORE_PURCHASES_ALERT_TITLE" = "Restore purchases";
+
+/* Title for 'OK' button in failure dialog when restoring purchases */
+"RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION" = "OK";
+
+/* Title for failure dialog when restoring purchases */
+"RESTORE_PURCHASES_FAILURE_ALERT_TITLE" = "Cannot restore purchases";
+
+/* No comment provided by engineer. */
+"TIME_ADDED_ALERT_OK_ACTION" = "OK";
+
+/* Message displayed upon successful purchase and containing the time duration credited to user account. Use %@ placeholder to position the localized text with duration added (i.e '30 days') */
+"TIME_ADDED_ALERT_SUCCESS_MESSAGE" = "%@ have been added to your account";
+
+/* Title for purchase completion dialog */
+"TIME_ADDED_ALERT_SUCCESS_TITLE" = "Thanks for your purchase";
