@@ -43,6 +43,11 @@ open class MainActivity : FragmentActivity() {
 
         if (newConnection == null) {
             serviceNotifier.notify(null)
+        } else {
+            newConnection.vpnPermission.onRequest = { ->
+                Unit
+                this.requestVpnPermission()
+            }
         }
     }
 
