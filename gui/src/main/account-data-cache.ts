@@ -15,7 +15,7 @@ interface IAccountFetchWatcher {
 // cached value for 1 minute.
 export default class AccountDataCache {
   private currentAccount?: AccountToken;
-  private expiresAt?: Date;
+  private validUntil?: Date;
   private performingFetch = false;
   private waitStrategy = new WaitStrategy();
   private fetchRetryScheduler = new Scheduler();
@@ -34,7 +34,7 @@ export default class AccountDataCache {
     }
 
     // Only fetch if value has expired
-    if (this.isExpired()) {
+    if (!this.isValid()) {
       if (watcher) {
         this.watchers.push(watcher);
       }
@@ -57,7 +57,7 @@ export default class AccountDataCache {
     this.waitStrategy.reset();
 
     this.performingFetch = false;
-    this.expiresAt = undefined;
+    this.validUntil = undefined;
     this.updateHandler();
     this.notifyWatchers((watcher) => {
       watcher.onError(new Error('Cancelled'));
@@ -71,13 +71,13 @@ export default class AccountDataCache {
   }
 
   private setValue(value: IAccountData) {
-    this.expiresAt = new Date(Date.now() + 60 * 1000); // 60s expiration
+    this.validUntil = new Date(Date.now() + 60 * 1000); // 60s expiration
     this.updateHandler(value);
     this.notifyWatchers((watcher) => watcher.onFinish());
   }
 
-  private isExpired() {
-    return !this.expiresAt || this.expiresAt < new Date();
+  private isValid() {
+    return this.validUntil && this.validUntil > new Date();
   }
 
   private async performFetch(accountToken: AccountToken) {
