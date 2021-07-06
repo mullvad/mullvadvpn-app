@@ -1089,31 +1089,10 @@ where
             }
             MullvadEndpoint::Wireguard {
                 peer,
+                exit_peer,
                 ipv4_gateway,
                 ipv6_gateway,
             } => {
-                let entry_peer = match self.settings.get_relay_settings() {
-                    RelaySettings::Normal(ref relay_constraints)
-                        if relay_constraints
-                            .wireguard_constraints
-                            .entry_location
-                            .is_some() =>
-                    {
-                        Some(
-                            self.relay_selector
-                                .get_tunnel_entry_endpoint(&peer, relay_constraints, retry_attempt)
-                                .and_then(|(_relay, mullvad_endpoint)| match mullvad_endpoint {
-                                    MullvadEndpoint::Wireguard { peer, .. } => Some(peer),
-                                    _ => None,
-                                })
-                                .ok_or(Error::NoEntryRelayAvailable)?,
-                        )
-                    }
-                    _ => None,
-                };
-                let exit_peer = entry_peer.as_ref().map(|_| peer.clone());
-                let entry_peer = entry_peer.unwrap_or(peer);
-
                 let wg_data = self.settings.get_wireguard().ok_or(Error::NoKeyAvailable)?;
                 let tunnel = wireguard::TunnelConfig {
                     private_key: wg_data.private_key,
@@ -1125,7 +1104,7 @@ where
                 Ok(wireguard::TunnelParameters {
                     connection: wireguard::ConnectionConfig {
                         tunnel,
-                        peer: entry_peer,
+                        peer,
                         exit_peer,
                         ipv4_gateway,
                         ipv6_gateway: Some(ipv6_gateway),

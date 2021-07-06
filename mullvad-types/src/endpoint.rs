@@ -14,6 +14,7 @@ pub enum MullvadEndpoint {
     OpenVpn(Endpoint),
     Wireguard {
         peer: wireguard::PeerConfig,
+        exit_peer: Option<wireguard::PeerConfig>,
         ipv4_gateway: Ipv4Addr,
         ipv6_gateway: Ipv6Addr,
     },
