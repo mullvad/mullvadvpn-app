@@ -1,16 +1,16 @@
-import { combineReducers, createStore, Dispatch } from 'redux';
+import { combineReducers, compose, createStore, Dispatch } from 'redux';
 
-import { AccountAction } from './account/actions';
+import accountActions, { AccountAction } from './account/actions';
 import accountReducer, { IAccountReduxState } from './account/reducers';
-import { ConnectionAction } from './connection/actions';
+import connectionActions, { ConnectionAction } from './connection/actions';
 import connectionReducer, { IConnectionReduxState } from './connection/reducers';
-import { SettingsAction } from './settings/actions';
+import settingsActions, { SettingsAction } from './settings/actions';
 import settingsReducer, { ISettingsReduxState } from './settings/reducers';
-import { SupportAction } from './support/actions';
+import supportActions, { SupportAction } from './support/actions';
 import supportReducer, { ISupportReduxState } from './support/reducers';
-import { UserInterfaceAction } from './userinterface/actions';
+import userInterfaceActions, { UserInterfaceAction } from './userinterface/actions';
 import userInterfaceReducer, { IUserInterfaceReduxState } from './userinterface/reducers';
-import { VersionAction } from './version/actions';
+import versionActions, { VersionAction } from './version/actions';
 import versionReducer, { IVersionReduxState } from './version/reducers';
 
 export interface IReduxState {
@@ -32,7 +32,7 @@ export type ReduxAction =
 export type ReduxStore = ReturnType<typeof configureStore>;
 export type ReduxDispatch = Dispatch<ReduxAction>;
 
-export default function configureStore(initialState?: IReduxState) {
+export default function configureStore() {
   const reducers = {
     account: accountReducer,
     connection: connectionReducer,
@@ -44,11 +44,21 @@ export default function configureStore(initialState?: IReduxState) {
 
   const rootReducer = combineReducers(reducers);
 
-  if (initialState) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return createStore(rootReducer, initialState, (window as any).__REDUX_DEVTOOLS_EXTENSION__?.());
-  } else {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return createStore(rootReducer, (window as any).__REDUX_DEVTOOLS_EXTENSION__?.());
-  }
+  return createStore(rootReducer, composeEnhancers());
+}
+
+function composeEnhancers(): typeof compose {
+  const actionCreators = {
+    ...accountActions,
+    ...connectionActions,
+    ...settingsActions,
+    ...supportActions,
+    ...versionActions,
+    ...userInterfaceActions,
+  };
+
+  return window.env.development
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ actionCreators })()
+    : compose();
 }
