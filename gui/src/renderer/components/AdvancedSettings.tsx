@@ -441,11 +441,11 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                   </Cell.CellButton>
                 </StyledButtonCellGroup>
 
-                {(window.platform === 'linux' || window.platform === 'win32') && (
+                {(window.env.platform === 'linux' || window.env.platform === 'win32') && (
                   <StyledButtonCellGroup>
                     <Cell.CellButton onClick={this.props.onViewSplitTunneling}>
                       <Cell.Label>
-                        {window.platform === 'win32' && <StyledBetaLabel />}
+                        {window.env.platform === 'win32' && <StyledBetaLabel />}
                         {messages.pgettext('advanced-settings-view', 'Split tunneling')}
                       </Cell.Label>
                       <Cell.Icon height={12} width={7} source="icon-chevron" />
