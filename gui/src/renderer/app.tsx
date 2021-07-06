@@ -208,9 +208,6 @@ export default class AppRenderer {
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 
-    window.platform = initialState.platform;
-    window.runningInDevelopment = initialState.runningInDevelopment;
-
     this.setLocale(initialState.locale);
     loadTranslations(
       messages,
