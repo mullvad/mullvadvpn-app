@@ -41,3 +41,4 @@
 /wireguard/libwg/exports.def
 **/.vs/
 *.bak
+android/.idea
