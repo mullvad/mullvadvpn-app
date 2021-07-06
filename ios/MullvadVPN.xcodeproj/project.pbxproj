@@ -51,6 +51,7 @@
 		581503A624D6F4AE00C9C50E /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581503A524D6F4AE00C9C50E /* Logging.swift */; };
 		581503A724D6F4AE00C9C50E /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581503A524D6F4AE00C9C50E /* Logging.swift */; };
 		581CBCEE229826FD00727D7F /* StaticTableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */; };
+		581FC4FA2695ACE100AA97BA /* Account.strings in Resources */ = {isa = PBXBuildFile; fileRef = 581FC4F82695ACE100AA97BA /* Account.strings */; };
 		58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */; };
 		58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB025124117005D0BB5 /* CustomTextField.swift */; };
 		58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB2251241B3005D0BB5 /* CustomTextView.swift */; };
@@ -318,6 +319,7 @@
 		581503A224D6F1EC00C9C50E /* ChainedError+Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChainedError+Logger.swift"; sourceTree = "<group>"; };
 		581503A524D6F4AE00C9C50E /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticTableViewDataSource.swift; sourceTree = "<group>"; };
+		581FC4F92695ACE100AA97BA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Account.strings; sourceTree = "<group>"; };
 		58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportViewController.swift; sourceTree = "<group>"; };
 		58293FB025124117005D0BB5 /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		58293FB2251241B3005D0BB5 /* CustomTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
@@ -542,6 +544,7 @@
 		582CFEE1269448160072883A /* Localizations */ = {
 			isa = PBXGroup;
 			children = (
+				581FC4F82695ACE100AA97BA /* Account.strings */,
 				582CFEE526945FC30072883A /* AppStoreSubscriptions.strings */,
 				58F559072697002100F630D0 /* ConnectionPanel.strings */,
 				587B7543266922BF00DEF7E9 /* Localizable.strings */,
@@ -549,6 +552,7 @@
 				58F61F4D2692F21C00DCFC2B /* WireguardKeys.strings */,
 			);
 			name = Localizations;
+			path = MullvadVPN;
 			sourceTree = "<group>";
 		};
 		586ADD4323FC13AD00CE9E87 /* GeoJSON */ = {
@@ -586,6 +590,7 @@
 				58ECD29023F178FD004298B6 /* Configurations */,
 				0E15C74FDCF763609B367486 /* Frameworks */,
 				586ADD4323FC13AD00CE9E87 /* GeoJSON */,
+				582CFEE1269448160072883A /* Localizations */,
 				58CE5E62224146200008646E /* MullvadVPN */,
 				58D0C79423F1CE7000FE9BA7 /* MullvadVPNScreenshots */,
 				58B0A2A1238EE67E00BC001D /* MullvadVPNTests */,
@@ -660,7 +665,6 @@
 				58FAEDFC24533A5500CB0F5B /* KeychainMatchLimit.swift */,
 				58FAEDFE24533A7000CB0F5B /* KeychainReturn.swift */,
 				58727282265D173C00F315B2 /* LaunchScreen.storyboard */,
-				582CFEE1269448160072883A /* Localizations */,
 				58A1AA8623F43901009F7EA6 /* Location.swift */,
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
 				58BA692D23E99EFF009DC256 /* Locking.swift */,
@@ -962,6 +966,7 @@
 				58F61F4F2692F21C00DCFC2B /* WireguardKeys.strings in Resources */,
 				58E5BC2624FEB6DB00A53A76 /* AccountViewController.xib in Resources */,
 				58F5590E2697002100F630D0 /* Main.strings in Resources */,
+				581FC4FA2695ACE100AA97BA /* Account.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1256,6 +1261,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		581FC4F82695ACE100AA97BA /* Account.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				581FC4F92695ACE100AA97BA /* en */,
+			);
+			name = Account.strings;
+			sourceTree = "<group>";
+		};
 		582CFEE526945FC30072883A /* AppStoreSubscriptions.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
