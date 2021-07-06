@@ -62,6 +62,7 @@
 		582BB1B1229569620055B6EF /* CustomNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582BB1B0229569620055B6EF /* CustomNavigationBar.swift */; };
 		582BB1B3229574F40055B6EF /* SettingsAccountCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582BB1B2229574F40055B6EF /* SettingsAccountCell.swift */; };
 		582BB1B52295780F0055B6EF /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582BB1B42295780F0055B6EF /* AccountExpiry.swift */; };
+		582CFEE726945FC30072883A /* AppStoreSubscriptions.strings in Resources */ = {isa = PBXBuildFile; fileRef = 582CFEE526945FC30072883A /* AppStoreSubscriptions.strings */; };
 		5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5835B7CB233B76CB0096D79F /* TunnelManager.swift */; };
 		583BC70724FE4DC500C9DE04 /* Optional+DispatchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583BC70624FE4DC400C9DE04 /* Optional+DispatchQueue.swift */; };
 		583BC70824FE4DC500C9DE04 /* Optional+DispatchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583BC70624FE4DC400C9DE04 /* Optional+DispatchQueue.swift */; };
@@ -324,6 +325,7 @@
 		582BB1B0229569620055B6EF /* CustomNavigationBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomNavigationBar.swift; sourceTree = "<group>"; };
 		582BB1B2229574F40055B6EF /* SettingsAccountCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAccountCell.swift; sourceTree = "<group>"; };
 		582BB1B42295780F0055B6EF /* AccountExpiry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiry.swift; sourceTree = "<group>"; };
+		582CFEE626945FC30072883A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AppStoreSubscriptions.strings; sourceTree = "<group>"; };
 		5835B7CB233B76CB0096D79F /* TunnelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManager.swift; sourceTree = "<group>"; };
 		583BC70624FE4DC400C9DE04 /* Optional+DispatchQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Optional+DispatchQueue.swift"; sourceTree = "<group>"; };
 		583DA21325FA4B5C00318683 /* LocationDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDataSource.swift; sourceTree = "<group>"; };
@@ -529,6 +531,14 @@
 				58141EC824DAC0ED0013F79C /* TextFileStream.swift */,
 			);
 			path = Logging;
+			sourceTree = "<group>";
+		};
+		582CFEE1269448160072883A /* Localizations */ = {
+			isa = PBXGroup;
+			children = (
+				582CFEE526945FC30072883A /* AppStoreSubscriptions.strings */,
+			);
+			name = Localizations;
 			sourceTree = "<group>";
 		};
 		586ADD4323FC13AD00CE9E87 /* GeoJSON */ = {
@@ -935,6 +945,7 @@
 				586ADD4723FC13F400CE9E87 /* countries.geo.json in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
 				5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */,
+				582CFEE726945FC30072883A /* AppStoreSubscriptions.strings in Resources */,
 				584789B8264D4A2A000E45FB /* old_le_root_cert.cer in Resources */,
 				584789BE264D4A2A000E45FB /* new_le_root_cert.cer in Resources */,
 				58E5BC2624FEB6DB00A53A76 /* AccountViewController.xib in Resources */,
@@ -1232,6 +1243,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		582CFEE526945FC30072883A /* AppStoreSubscriptions.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				582CFEE626945FC30072883A /* en */,
+			);
+			name = AppStoreSubscriptions.strings;
+			sourceTree = "<group>";
+		};
 		587B7543266922BF00DEF7E9 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
