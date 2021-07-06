@@ -160,6 +160,10 @@ impl<'de> Deserialize<'de> for PrivateKey {
 #[derive(Clone)]
 pub struct PublicKey(x25519_dalek::PublicKey);
 
+/// Error returned if a base64 string represents an invalid key
+#[derive(Debug)]
+pub struct InvalidKeyError(());
+
 impl PublicKey {
     /// Get the public key as bytes
     pub fn as_bytes(&self) -> &[u8; 32] {
@@ -168,6 +172,16 @@ impl PublicKey {
 
     pub fn to_base64(&self) -> String {
         base64::encode(self.as_bytes())
+    }
+
+    pub fn from_base64(key: &str) -> Result<Self, InvalidKeyError> {
+        let bytes = base64::decode(key).map_err(|_| InvalidKeyError(()))?;
+        if bytes.len() != 32 {
+            return Err(InvalidKeyError(()));
+        }
+        let mut key = [0u8; 32];
+        key.copy_from_slice(&bytes);
+        Ok(From::from(key))
     }
 }
 
