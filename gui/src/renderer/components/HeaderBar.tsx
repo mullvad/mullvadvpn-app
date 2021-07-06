@@ -31,7 +31,7 @@ interface IHeaderBarContainerProps {
 
 const HeaderBarContainer = styled.header({}, (props: IHeaderBarContainerProps) => ({
   padding: '12px 16px',
-  paddingTop: window.platform === 'darwin' && !props.unpinnedWindow ? '24px' : '12px',
+  paddingTop: window.env.platform === 'darwin' && !props.unpinnedWindow ? '24px' : '12px',
   backgroundColor: headerBarStyleColorMap[props.barStyle ?? HeaderBarStyle.default],
 }));
 

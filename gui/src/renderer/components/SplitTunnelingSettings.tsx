@@ -102,13 +102,13 @@ interface IPlatformSplitTunnelingSettingsProps {
 }
 
 function PlatformSpecificSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps) {
-  switch (window.platform) {
+  switch (window.env.platform) {
     case 'linux':
       return <LinuxSplitTunnelingSettings {...props} />;
     case 'win32':
       return <WindowsSplitTunnelingSettings {...props} />;
     default:
-      throw new Error(`Split tunneling not implemented on ${window.platform}`);
+      throw new Error(`Split tunneling not implemented on ${window.env.platform}`);
   }
 }
 
