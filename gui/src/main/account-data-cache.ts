@@ -1,4 +1,4 @@
-import { closeToExpiry } from '../shared/account-expiry';
+import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import { AccountToken, IAccountData, VoucherResponse } from '../shared/daemon-rpc-types';
 import { DateComponent, dateByAddingComponent } from '../shared/date-helper';
 import log from '../shared/logging';
@@ -10,6 +10,11 @@ interface IAccountFetchWatcher {
   onFinish: () => void;
   onError: (error: Error) => void;
 }
+
+// Account data is valid for 1 minute unless the account has expired.
+const ACCOUNT_DATA_VALIDITY_SECONDS = 60_000;
+// Account data is valid for 10 seconds if the account has expired.
+const ACCOUNT_DATA_EXPIRED_VALIDITY_SECONDS = 10_000;
 
 // An account data cache that helps to throttle RPC requests to get_account_data and retain the
 // cached value for 1 minute.
@@ -70,14 +75,22 @@ export default class AccountDataCache {
     }
   }
 
-  private setValue(value: IAccountData) {
-    this.validUntil = new Date(Date.now() + 60 * 1000); // 60s expiration
-    this.updateHandler(value);
+  private setValue(accountData: IAccountData) {
+    this.validUntil = this.getValidUntil(accountData);
+    this.updateHandler(accountData);
     this.notifyWatchers((watcher) => watcher.onFinish());
   }
 
   private isValid() {
     return this.validUntil && this.validUntil > new Date();
+  }
+
+  private getValidUntil(accountData: IAccountData): Date {
+    if (hasExpired(accountData.expiry)) {
+      return new Date(Date.now() + ACCOUNT_DATA_EXPIRED_VALIDITY_SECONDS);
+    } else {
+      return new Date(Date.now() + ACCOUNT_DATA_VALIDITY_SECONDS);
+    }
   }
 
   private async performFetch(accountToken: AccountToken) {
