@@ -159,7 +159,7 @@ impl ParsedRelays {
 pub struct RelaySelector {
     parsed_relays: Arc<Mutex<ParsedRelays>>,
     rng: ThreadRng,
-    updater: RelayListUpdaterHandle,
+    updater: Option<RelayListUpdaterHandle>,
 }
 
 impl RelaySelector {
@@ -200,13 +200,13 @@ impl RelaySelector {
         RelaySelector {
             parsed_relays,
             rng: rand::thread_rng(),
-            updater,
+            updater: Some(updater),
         }
     }
 
     /// Download the newest relay list.
     pub fn update(&mut self) -> impl Future<Output = ()> {
-        let mut updater = self.updater.clone();
+        let mut updater = self.updater.as_ref().unwrap().clone();
         async move {
             updater
                 .update_relay_list()
@@ -1113,5 +1113,106 @@ impl RelayListUpdater {
             .await
             .map_err(Error::WriteRelayCache)?;
         Ok(())
+    }
+}
+
+
+#[cfg(test)]
+mod test {
+    use super::{Arc, Mutex, ParsedRelays, RelayList, RelaySelector, SystemTime};
+    use mullvad_types::relay_list::{
+        Relay, RelayBridges, RelayListCity, RelayListCountry, RelayTunnels, WireguardEndpointData,
+    };
+    use talpid_types::net::wireguard::PublicKey;
+
+    lazy_static::lazy_static! {
+        static ref RELAYS: RelayList = RelayList {
+            etag: None,
+            countries: vec![
+                RelayListCountry {
+                    name: "Sweden".to_string(),
+                    code: "se".to_string(),
+                    cities: vec![
+                        RelayListCity {
+                            name: "Gothenburg".to_string(),
+                            code: "got".to_string(),
+                            latitude: 57.70887,
+                            longitude: 11.97456,
+                            relays: vec![
+                                Relay {
+                                    hostname: "se9-wireguard".to_string(),
+                                    ipv4_addr_in: "185.213.154.68".parse().unwrap(),
+                                    ipv6_addr_in: Some("2a03:1b20:5:f011::a09f".parse().unwrap()),
+                                    include_in_country: true,
+                                    active: true,
+                                    owned: true,
+                                    provider: "31173".to_string(),
+                                    weight: 1,
+                                    tunnels: RelayTunnels {
+                                        openvpn: vec![],
+                                        wireguard: vec![
+                                            WireguardEndpointData {
+                                                port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
+                                                ipv4_gateway: "10.64.0.1".parse().unwrap(),
+                                                ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+                                                public_key: PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
+                                            },
+                                        ],
+                                    },
+                                    bridges: RelayBridges {
+                                        shadowsocks: vec![],
+                                    },
+                                    location: None,
+                                }
+                            ],
+                        },
+                        RelayListCity {
+                            name: "Gothenburg".to_string(),
+                            code: "got".to_string(),
+                            latitude: 57.70887,
+                            longitude: 11.97456,
+                            relays: vec![
+                                Relay {
+                                    hostname: "se10-wireguard".to_string(),
+                                    ipv4_addr_in: "185.213.154.69".parse().unwrap(),
+                                    ipv6_addr_in: Some("2a03:1b20:5:f011::a10f".parse().unwrap()),
+                                    include_in_country: true,
+                                    active: true,
+                                    owned: true,
+                                    provider: "31173".to_string(),
+                                    weight: 1,
+                                    tunnels: RelayTunnels {
+                                        openvpn: vec![],
+                                        wireguard: vec![
+                                            WireguardEndpointData {
+                                                port_ranges: vec![(53, 53), (4000, 33433), (33565, 51820), (52000, 60000)],
+                                                ipv4_gateway: "10.64.0.1".parse().unwrap(),
+                                                ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
+                                                public_key: PublicKey::from_base64("veGD6/aEY6sMfN3Ls7YWPmNgu3AheO7nQqsFT47YSws=").unwrap(),
+                                            },
+                                        ],
+                                    },
+                                    bridges: RelayBridges {
+                                        shadowsocks: vec![],
+                                    },
+                                    location: None,
+                                }
+                            ],
+                        },
+                    ],
+                }
+            ],
+        };
+    }
+
+    fn new_relay_selector() -> RelaySelector {
+        RelaySelector {
+            parsed_relays: Arc::new(Mutex::new(ParsedRelays::from_relay_list(
+                RELAYS.clone(),
+                SystemTime::now(),
+            ))),
+            rng: rand::thread_rng(),
+            updater: None,
+        }
     }
 }
