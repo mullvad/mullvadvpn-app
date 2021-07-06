@@ -1085,8 +1085,6 @@ class ApplicationMain {
       guiSettings: this.guiSettings.state,
       wireguardPublicKey: this.wireguardPublicKey,
       translations: this.translations,
-      platform: process.platform,
-      runningInDevelopment: process.env.NODE_ENV === 'development',
       windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
     }));
 
