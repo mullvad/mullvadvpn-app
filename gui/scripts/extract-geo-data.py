@@ -58,15 +58,15 @@ def extract_geometry():
     "features": features
   }
 
-  p = Popen(
+  with Popen(
     ['geo2topo', '-q', '5e3', 'geometry=-', '-o', output_path],
     stdin=PIPE, stdout=PIPE, stderr=PIPE
-  )
-  errors = p.communicate(input=json.dumps(my_layer).encode())[1]
-  if p.returncode == 0:
-    print(c.green("Extracted data to {}".format(output_path)))
-  else:
-    print(c.red("geo2topo exited with {}. {}".format(p.returncode, errors.decode().strip())))
+  ) as subproc:
+    errors = subproc.communicate(input=json.dumps(my_layer).encode())[1]
+    if subproc.returncode == 0:
+      print(c.green("Extracted data to {}".format(output_path)))
+    else:
+      print(c.red("geo2topo exited with {}. {}".format(subproc.returncode, errors.decode().strip())))
 
 
 def extract_provinces_and_states_lines():
@@ -86,15 +86,15 @@ def extract_provinces_and_states_lines():
     "features": features
   }
 
-  p = Popen(
+  with Popen(
     ['geo2topo', '-q', '5e3', 'geometry=-', '-o', output_path],
     stdin=PIPE, stdout=PIPE, stderr=PIPE
-  )
-  errors = p.communicate(input=json.dumps(my_layer).encode())[1]
-  if p.returncode == 0:
-    print(c.green("Extracted data to {}".format(output_path)))
-  else:
-    print(c.red("geo2topo exited with {}. {}".format(p.returncode, errors.decode().strip())))
+  ) as subproc:
+    errors = subproc.communicate(input=json.dumps(my_layer).encode())[1]
+    if subproc.returncode == 0:
+      print(c.green("Extracted data to {}".format(output_path)))
+    else:
+      print(c.red("geo2topo exited with {}. {}".format(subproc.returncode, errors.decode().strip())))
 
 
 def sort_pofile_entries(pofile):
@@ -460,7 +460,8 @@ def request_relays():
   data = json.dumps({"jsonrpc": "2.0", "id": "0", "method": "relay_list_v3"}).encode()
   request = urllib.request.Request("https://api.mullvad.net/rpc/", data=data)
   request.add_header("Content-Type", "application/json")
-  return json.load(urllib.request.urlopen(request))
+  with urllib.request.urlopen(request) as connection:
+    return json.load(connection)
 
 
 # Program main()
