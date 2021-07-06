@@ -17,6 +17,10 @@ pub trait Match<T> {
     fn matches(&self, other: &T) -> bool;
 }
 
+pub trait Set<T> {
+    fn is_subset(&self, other: &T) -> bool;
+}
+
 /// Limits the set of [`crate::relay_list::Relay`]s that a `RelaySelector` may select.
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -102,6 +106,20 @@ impl<T: fmt::Debug + Clone + Eq + Match<U>, U> Match<U> for Constraint<T> {
         match *self {
             Constraint::Any => true,
             Constraint::Only(ref value) => value.matches(other),
+        }
+    }
+}
+
+impl<T: fmt::Debug + Clone + Eq + Set<U>, U: fmt::Debug + Clone + Eq> Set<Constraint<U>>
+    for Constraint<T>
+{
+    fn is_subset(&self, other: &Constraint<U>) -> bool {
+        match self {
+            Constraint::Any => *other == Constraint::Any,
+            Constraint::Only(ref constraint) => match other {
+                Constraint::Only(ref other_constraint) => constraint.is_subset(other_constraint),
+                _ => true,
+            },
         }
     }
 }
@@ -298,6 +316,27 @@ impl Match<Relay> for LocationConstraint {
                         && relay.hostname == *hostname
                 })
             }
+        }
+    }
+}
+
+impl Set<LocationConstraint> for LocationConstraint {
+    /// Returns whether `self` is equal to or a subset of `other`.
+    fn is_subset(&self, other: &Self) -> bool {
+        match self {
+            LocationConstraint::Country(_) => self == other,
+            LocationConstraint::City(ref country, ref _city) => match other {
+                LocationConstraint::Country(ref other_country) => country == other_country,
+                LocationConstraint::City(..) => self == other,
+                _ => false,
+            },
+            LocationConstraint::Hostname(ref country, ref city, ref _hostname) => match other {
+                LocationConstraint::Country(ref other_country) => country == other_country,
+                LocationConstraint::City(ref other_country, ref other_city) => {
+                    country == other_country && city == other_city
+                }
+                LocationConstraint::Hostname(..) => self == other,
+            },
         }
     }
 }
