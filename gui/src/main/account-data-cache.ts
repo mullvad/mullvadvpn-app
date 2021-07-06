@@ -1,12 +1,10 @@
-import { closeToExpiry, hasExpired } from '../shared/account-expiry';
+import { closeToExpiry } from '../shared/account-expiry';
 import { AccountToken, IAccountData, VoucherResponse } from '../shared/daemon-rpc-types';
 import { DateComponent, dateByAddingComponent } from '../shared/date-helper';
 import log from '../shared/logging';
 import consumePromise from '../shared/promise';
 import { Scheduler } from '../shared/scheduler';
 import { InvalidAccountError } from './errors';
-
-const EXPIRED_ACCOUNT_REFRESH_PERIOD = 60_000;
 
 interface IAccountFetchWatcher {
   onFinish: () => void;
@@ -113,9 +111,7 @@ export default class AccountDataCache {
     const currentDate = new Date();
     const oneMinuteBeforeExpiry = dateByAddingComponent(accountExpiry, DateComponent.minute, -1);
 
-    if (hasExpired(accountExpiry)) {
-      return EXPIRED_ACCOUNT_REFRESH_PERIOD;
-    } else if (oneMinuteBeforeExpiry >= currentDate && closeToExpiry(accountExpiry)) {
+    if (oneMinuteBeforeExpiry >= currentDate && closeToExpiry(accountExpiry)) {
       return oneMinuteBeforeExpiry.getTime() - currentDate.getTime();
     } else {
       return undefined;
