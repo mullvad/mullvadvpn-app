@@ -66,7 +66,7 @@ export class ErrorNotificationProvider
 function getMessage(errorDetails: IErrorState, accountExpiry?: string): string {
   if (errorDetails.blockFailure) {
     if (errorDetails.cause.reason === 'set_firewall_policy_error') {
-      switch (process.platform ?? window.platform) {
+      switch (process.platform ?? window.env.platform) {
         case 'win32':
           return messages.pgettext(
             'notifications',
@@ -107,7 +107,7 @@ function getMessage(errorDetails: IErrorState, accountExpiry?: string): string {
           'Could not configure IPv6. Disable it in the app or enable it on your device.',
         );
       case 'set_firewall_policy_error':
-        switch (process.platform ?? window.platform) {
+        switch (process.platform ?? window.env.platform) {
           case 'win32':
             return messages.pgettext(
               'notifications',
