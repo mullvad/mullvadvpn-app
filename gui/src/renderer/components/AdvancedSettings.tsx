@@ -22,7 +22,7 @@ import {
   StyledSelectorForFooter,
   StyledTunnelProtocolContainer,
   StyledCustomDnsSwitchContainer,
-  StyledCustomDnsFotter,
+  StyledCustomDnsFooter,
   StyledAddCustomDnsLabel,
   StyledAddCustomDnsButton,
   StyledBetaLabel,
@@ -441,8 +441,8 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                   </Cell.CellButton>
                 </StyledButtonCellGroup>
 
-                <StyledButtonCellGroup>
-                  {(window.platform === 'linux' || window.platform === 'win32') && (
+                {(window.platform === 'linux' || window.platform === 'win32') && (
+                  <StyledButtonCellGroup>
                     <Cell.CellButton onClick={this.props.onViewSplitTunneling}>
                       <Cell.Label>
                         {window.platform === 'win32' && <StyledBetaLabel />}
@@ -450,8 +450,8 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                       </Cell.Label>
                       <Cell.Icon height={12} width={7} source="icon-chevron" />
                     </Cell.CellButton>
-                  )}
-                </StyledButtonCellGroup>
+                  </StyledButtonCellGroup>
+                )}
 
                 <StyledCustomDnsSwitchContainer disabled={!this.customDnsAvailable()}>
                   <AriaInputGroup>
@@ -509,7 +509,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                   </StyledAddCustomDnsButton>
                 </Accordion>
 
-                <StyledCustomDnsFotter>
+                <StyledCustomDnsFooter>
                   <Cell.FooterText>
                     {this.customDnsAvailable() ? (
                       messages.pgettext(
@@ -520,7 +520,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                       <CustomDnsDisabledMessage />
                     )}
                   </Cell.FooterText>
-                </StyledCustomDnsFotter>
+                </StyledCustomDnsFooter>
               </StyledNavigationScrollbars>
             </NavigationContainer>
           </StyledContainer>

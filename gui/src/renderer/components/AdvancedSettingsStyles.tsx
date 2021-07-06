@@ -50,7 +50,7 @@ export const StyledCustomDnsSwitchContainer = styled(Cell.Container)({
   marginBottom: '1px',
 });
 
-export const StyledCustomDnsFotter = styled(Cell.Footer)({
+export const StyledCustomDnsFooter = styled(Cell.Footer)({
   marginBottom: '2px',
 });
 
