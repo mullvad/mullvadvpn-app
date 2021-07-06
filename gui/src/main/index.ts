@@ -1049,12 +1049,10 @@ class ApplicationMain {
   }
 
   private registerWindowListener(windowController: WindowController) {
-    windowController.window?.on('show', () => {
+    windowController.window?.on('focus', () => {
       // cancel notifications when window appears
       this.notificationController.cancelPendingNotifications();
-    });
 
-    windowController.window?.on('focus', () => {
       if (
         !this.accountData ||
         closeToExpiry(this.accountData.expiry, 4) ||
@@ -1064,7 +1062,7 @@ class ApplicationMain {
       }
     });
 
-    windowController.window?.on('hide', () => {
+    windowController.window?.on('blur', () => {
       // ensure notification guard is reset
       this.notificationController.resetTunnelStateAnnouncements();
     });
