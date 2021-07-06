@@ -153,6 +153,7 @@ impl SettingsPersister {
             options.mode(0o600);
         }
         let mut file = options
+            .create(true)
             .write(true)
             .truncate(true)
             .open(&self.path)
