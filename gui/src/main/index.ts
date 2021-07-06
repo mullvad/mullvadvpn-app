@@ -1180,6 +1180,7 @@ class ApplicationMain {
 
       return response;
     });
+    IpcMainEventChannel.account.handleUpdateData(() => this.updateAccountData());
 
     IpcMainEventChannel.accountHistory.handleClear(async () => {
       await this.daemonRpc.clearAccountHistory();

@@ -164,6 +164,7 @@ export const ipcSchema = {
     logout: invoke<void, void>(),
     getWwwAuthToken: invoke<void, string>(),
     submitVoucher: invoke<string, VoucherResponse>(),
+    updateData: send<void>(),
   },
   accountHistory: {
     '': notifyRenderer<AccountToken | undefined>(),
