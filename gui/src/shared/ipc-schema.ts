@@ -39,6 +39,11 @@ export interface IRelayListPair {
 
 export type LaunchApplicationResult = { success: true } | { error: string };
 
+export interface IEnv {
+  nodeEnv?: string;
+  platform: NodeJS.Platform;
+}
+
 export interface IAppStateSnapshot {
   locale: string;
   isConnected: boolean;
@@ -54,8 +59,6 @@ export interface IAppStateSnapshot {
   guiSettings: IGuiSettingsState;
   wireguardPublicKey?: IWireguardPublicKey;
   translations: ITranslations;
-  platform: NodeJS.Platform;
-  runningInDevelopment: boolean;
   windowsSplitTunnelingApplications?: IApplication[];
 }
 
@@ -101,6 +104,9 @@ export interface IAppStateSnapshot {
 export const ipcSchema = {
   state: {
     get: invokeSync<void, IAppStateSnapshot>(),
+  },
+  env: {
+    get: invokeSync<void, IEnv>(),
   },
   windowShape: {
     '': notifyRenderer<IWindowShapeParameters>(),
