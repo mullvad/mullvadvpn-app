@@ -260,7 +260,7 @@ impl RelaySelector {
             bridge_state,
             retry_attempt,
             wg_key_exists,
-            entry_endpoint.as_ref().and_then(|endpoint| {
+            entry_endpoint.as_ref().and_then(|(_relay, endpoint)| {
                 if let MullvadEndpoint::Wireguard { peer, .. } = &endpoint {
                     Some(peer)
                 } else {
@@ -287,8 +287,13 @@ impl RelaySelector {
         });
 
         if let MullvadEndpoint::Wireguard { peer, .. } = &mut endpoint {
-            if let Some(mut entry_endpoint) = entry_endpoint.take() {
+            if let Some((entry_relay, mut entry_endpoint)) = entry_endpoint.take() {
                 self.set_entry_peers(peer, &mut entry_endpoint);
+                let addr_in = entry_endpoint.to_endpoint().address.ip();
+                info!(
+                    "Selected entry relay {} at {}",
+                    entry_relay.hostname, addr_in
+                );
                 return Ok((exit_relay, entry_endpoint));
             } else if relay_constraints
                 .wireguard_constraints
@@ -419,7 +424,7 @@ impl RelaySelector {
         exit_peer: Option<&wireguard::PeerConfig>,
         relay_constraints: &RelayConstraints,
         retry_attempt: u32,
-    ) -> Option<MullvadEndpoint> {
+    ) -> Option<(Relay, MullvadEndpoint)> {
         let entry_location = relay_constraints
             .wireguard_constraints
             .entry_location
@@ -444,13 +449,8 @@ impl RelaySelector {
         let relay = self
             .pick_random_relay(&matching_relays)
             .map(|relay| relay.clone())?;
-        let endpoint = self.get_random_tunnel(&relay, &entry_constraints);
-        let addr_in = endpoint
-            .as_ref()
-            .map(|endpoint| endpoint.to_endpoint().address.ip())
-            .unwrap_or(IpAddr::from(relay.ipv4_addr_in));
-        info!("Selected entry relay {} at {}", relay.hostname, addr_in);
-        endpoint
+        let endpoint = self.get_random_tunnel(&relay, &entry_constraints)?;
+        Some((relay, endpoint))
     }
 
     fn set_entry_peers(
@@ -760,11 +760,6 @@ impl RelaySelector {
     /// or all relays in it has zero weight.
     fn pick_random_relay<'a>(&mut self, relays: &'a [Relay]) -> Option<&'a Relay> {
         let total_weight: u64 = relays.iter().map(|relay| relay.weight).sum();
-        debug!(
-            "Selecting among {} relays with combined weight {}",
-            relays.len(),
-            total_weight
-        );
         if total_weight == 0 {
             None
         } else {
