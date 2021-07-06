@@ -52,3 +52,30 @@ bundle exec fastlane snapshot
 ```
 
 Once done all screenshots should be saved under `ios/Screenshots` folder.
+
+### Localizations
+
+#### Update localizations from source
+
+Run the following command in terminal:
+
+```
+python3 update_localizations.py
+```
+
+#### Locking Python dependencies
+
+1. Freeze dependencies:
+
+```
+pip3 freeze -r requirements.txt
+```
+
+and save the output into `requirements.txt`.
+
+
+2. Hash them with `hashin` tool:
+
+```
+hashin --python 3.7 --verbose --update-all
+```
