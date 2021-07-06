@@ -149,7 +149,7 @@ const initialState: ISettingsReduxState = {
     autoConnect: true,
     monochromaticIcon: false,
     startMinimized: false,
-    unpinnedWindow: window.platform !== 'win32' && window.platform !== 'darwin',
+    unpinnedWindow: window.env.platform !== 'win32' && window.env.platform !== 'darwin',
     browsedForSplitTunnelingApplications: [],
   },
   relaySettings: {
