@@ -1119,9 +1119,13 @@ impl RelayListUpdater {
 
 #[cfg(test)]
 mod test {
-    use super::{Arc, Mutex, ParsedRelays, RelayList, RelaySelector, SystemTime};
-    use mullvad_types::relay_list::{
-        Relay, RelayBridges, RelayListCity, RelayListCountry, RelayTunnels, WireguardEndpointData,
+    use super::*;
+    use mullvad_types::{
+        relay_constraints::RelayConstraints,
+        relay_list::{
+            Relay, RelayBridges, RelayListCity, RelayListCountry, RelayTunnels,
+            WireguardEndpointData,
+        },
     };
     use talpid_types::net::wireguard::PublicKey;
 
@@ -1214,5 +1218,94 @@ mod test {
             rng: rand::thread_rng(),
             updater: None,
         }
+    }
+
+    #[test]
+    fn test_wg_entry_hostname_collision() {
+        let mut relay_selector = new_relay_selector();
+
+        let location1 = LocationConstraint::Hostname(
+            "se".to_string(),
+            "got".to_string(),
+            "se9-wireguard".to_string(),
+        );
+        let location2 = LocationConstraint::Hostname(
+            "se".to_string(),
+            "got".to_string(),
+            "se10-wireguard".to_string(),
+        );
+
+        let mut relay_constraints = RelayConstraints {
+            location: Constraint::Only(location1.clone()),
+            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
+            ..RelayConstraints::default()
+        };
+
+        relay_constraints.wireguard_constraints.entry_location = Some(Constraint::Only(location1));
+
+        // The same host cannot be used for entry and exit
+        assert!(relay_selector
+            .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, true)
+            .is_err());
+
+        relay_constraints.wireguard_constraints.entry_location = Some(Constraint::Only(location2));
+
+        // If the entry and exit differ, this should succeed
+        assert!(relay_selector
+            .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, true)
+            .is_ok());
+    }
+
+    #[test]
+    fn test_wg_entry_filter() -> Result<(), String> {
+        let mut relay_selector = new_relay_selector();
+
+        let specific_hostname = "se10-wireguard";
+
+        let location_general = LocationConstraint::City("se".to_string(), "got".to_string());
+        let location_specific = LocationConstraint::Hostname(
+            "se".to_string(),
+            "got".to_string(),
+            specific_hostname.to_string(),
+        );
+
+        let mut relay_constraints = RelayConstraints {
+            location: Constraint::Only(location_general.clone()),
+            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
+            ..RelayConstraints::default()
+        };
+
+        relay_constraints.wireguard_constraints.entry_location =
+            Some(Constraint::Only(location_specific.clone()));
+
+        // The exit must not equal the entry
+        let (exit_relay, _exit_endpoint) = relay_selector
+            .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, true)
+            .map_err(|error| error.to_string())?;
+
+        assert_ne!(exit_relay.hostname, specific_hostname);
+
+
+        relay_constraints.location = Constraint::Only(location_specific);
+        relay_constraints.wireguard_constraints.entry_location =
+            Some(Constraint::Only(location_general));
+
+        // The entry must not equal the exit
+        let (exit_relay, exit_endpoint) = relay_selector
+            .get_tunnel_endpoint(&relay_constraints, BridgeState::Off, 0, true)
+            .map_err(|error| error.to_string())?;
+
+        assert_eq!(exit_relay.hostname, specific_hostname);
+        match exit_endpoint {
+            MullvadEndpoint::OpenVpn { .. } => return Err("Expected WireGuard relay".to_string()),
+            MullvadEndpoint::Wireguard {
+                peer, exit_peer, ..
+            } => {
+                assert_eq!(exit_relay.ipv4_addr_in, exit_peer.unwrap().endpoint.ip());
+                assert_ne!(exit_relay.ipv4_addr_in, peer.endpoint.ip());
+            }
+        }
+
+        Ok(())
     }
 }
