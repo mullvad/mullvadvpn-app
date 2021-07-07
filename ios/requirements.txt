@@ -1,0 +1,42 @@
+nslocalized==0.2.0 \
+    --hash=sha256:46d6f776b26e9da0e0d0c759d99782884882cade59d5c935005a85cba654db9e
+## The following requirements were added by pip freeze:
+astroid==2.6.2
+cffi==1.14.5 \
+    --hash=sha256:06d7cd1abac2ffd92e65c0609661866709b4b2d82dd15f611e602b9b188b0b69 \
+    --hash=sha256:0857f0ae312d855239a55c81ef453ee8fd24136eaba8e87a2eceba644c0d4c06 \
+    --hash=sha256:0f861a89e0043afec2a51fd177a567005847973be86f709bbb044d7f42fc4e05 \
+    --hash=sha256:2894f2df484ff56d717bead0a5c2abb6b9d2bf26d6960c4604d5c48bbc30ee73 \
+    --hash=sha256:35f27e6eb43380fa080dccf676dece30bef72e4a67617ffda586641cd4508d49 \
+    --hash=sha256:9cf8022fb8d07a97c178b02327b284521c7708d7c71a9c9c355c178ac4bbd3d4 \
+    --hash=sha256:9ff227395193126d82e60319a673a037d5de84633f11279e336f9c0f189ecc62 \
+    --hash=sha256:cc5a8e069b9ebfa22e26d0e6b97d6f9781302fe7f4f2b8776c3e1daea35f1adc \
+    --hash=sha256:cd2868886d547469123fadc46eac7ea5253ea7fcb139f12e1dfc2bbd406427d1 \
+    --hash=sha256:fd78e5fee591709f32ef6edb9a015b4aa1a5022598e36227500c8f4e02328d9c
+chardet==4.0.0 \
+    --hash=sha256:0d6f53a15db4120f2b08c94f11e7d93d2c911ee118b6b30a04ec3ee8310179fa \
+    --hash=sha256:f864054d66fd9118f2e67044ac8981a54775ec5b67aed0441892edb553d21da5
+click==8.0.1 \
+    --hash=sha256:8c04c11192119b1ef78ea049e0a6f0463e4c48ef00a30160c704337586f3ad7a \
+    --hash=sha256:fba402a4a47334742d782209a7c79bc448911afe1149d07bdabdf480b3e2f4b6
+GDAL==3.3.1 \
+    --hash=sha256:776ad8f499919d6824b7ba3ae8bd53b2df5d73a14dc047ebc8f33f9507c8dcc5
+hashin==0.15.0
+igenstrings==1.1.0
+isort==5.9.1
+lazy-object-proxy==1.6.0
+mccabe==0.6.1
+packaging==21.0
+pip-api==0.0.20
+pycparser==2.20
+pylint==2.9.3
+pyparsing==2.4.7
+six==1.16.0 \
+    --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
+    --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
+tinycss2==1.1.0 \
+    --hash=sha256:0353b5234bcaee7b1ac7ca3dea7e02cd338a9f8dcbb8f2dcd32a5795ec1e5f9a \
+    --hash=sha256:fbdcac3044d60eb85fdb2aa840ece43cf7dbe798e373e6ee0be545d4d134e18a
+toml==0.10.2
+webencodings==0.5.1
+wrapt==1.12.1
