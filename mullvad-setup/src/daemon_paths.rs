@@ -179,19 +179,18 @@ fn get_known_folder_path(
     user_token: HANDLE,
 ) -> std::io::Result<PathBuf> {
     let mut folder_path: PWSTR = ptr::null_mut();
-    let path = unsafe {
-        let status = SHGetKnownFolderPath(&folder_id, flags, user_token, &mut folder_path);
-        if status != S_OK || folder_path.is_null() {
-            return Err(io::Error::new(
-                io::ErrorKind::NotFound,
-                format!("Can't find known folder {:?}", &folder_id),
-            ));
-        }
-        WideCStr::from_ptr_str(folder_path)
+    let status = unsafe { SHGetKnownFolderPath(&folder_id, flags, user_token, &mut folder_path) };
+    let result = if status == S_OK {
+        let path = unsafe { WideCStr::from_ptr_str(folder_path) };
+        Ok(path.to_ustring().to_os_string().into())
+    } else {
+        Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("Can't find known folder {:?}", &folder_id),
+        ))
     };
 
-    let result = Ok(path.to_ustring().to_os_string().into());
-    unsafe { CoTaskMemFree(path.as_ptr() as *const _ as *mut _) };
+    unsafe { CoTaskMemFree(folder_path as *mut _) };
     result
 }
 
