@@ -69,9 +69,19 @@ struct ServerErrorResponse: LocalizedError, Decodable, Equatable {
     var errorDescription: String? {
         switch code {
         case Code.keyLimitReached.rawValue:
-            return NSLocalizedString("Too many WireGuard keys in use.", comment: "")
+            return NSLocalizedString(
+                "KEY_LIMIT_REACHED_ERROR_DESCRIPTION",
+                tableName: "MullvadRest",
+                value: "Too many WireGuard keys in use.",
+                comment: ""
+            )
         case Code.invalidAccount.rawValue:
-            return NSLocalizedString("Invalid account.", comment: "")
+            return NSLocalizedString(
+                "INVALID_ACCOUNT_ERROR_DESCRIPTION",
+                tableName: "MullvadRest",
+                value: "Invalid account.",
+                comment: ""
+            )
         default:
             return nil
         }
@@ -80,7 +90,12 @@ struct ServerErrorResponse: LocalizedError, Decodable, Equatable {
     var recoverySuggestion: String? {
         switch code {
         case Code.keyLimitReached.rawValue:
-            return NSLocalizedString("Please visit the website to revoke a key before login is possible.", comment: "")
+            return NSLocalizedString(
+                "KEY_LIMIT_REACHED_ERROR_RECOVERY_SUGGESTION",
+                tableName: "MullvadRest",
+                value: "Please visit the website to revoke a key before login is possible.",
+                comment: ""
+            )
         default:
             return nil
         }
