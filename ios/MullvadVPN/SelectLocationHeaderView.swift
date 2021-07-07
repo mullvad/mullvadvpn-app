@@ -16,7 +16,11 @@ class SelectLocationHeaderView: UIView {
         textLabel.font = UIFont.systemFont(ofSize: 17)
         textLabel.textColor = UIColor(white: 1, alpha: 0.6)
         textLabel.numberOfLines = 0
-        textLabel.text = NSLocalizedString("While connected, your real location is masked with a private and secure location in the selected region", comment: "")
+        textLabel.text = NSLocalizedString(
+            "SUBHEAD_LABEL",
+            tableName: "SelectLocation",
+            comment: "Subhead label displayed below navigation title."
+        )
         return textLabel
     }()
 
