@@ -110,12 +110,11 @@ def merge_gettext_catalogues(existing_catalogue_file, generated_catalogue_file):
 
 
 def run_program(*args):
-  p = Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+  with Popen(args, stdin=PIPE, stdout=PIPE, stderr=PIPE) as subproc:
+    print("Run: {}".format(' '.join(args)))
 
-  print("Run: {}".format(' '.join(args)))
-
-  errors = p.communicate()[1]
-  return (p.returncode, errors)
+    errors = subproc.communicate()[1]
+    return (subproc.returncode, errors)
 
 
 # Program main()
