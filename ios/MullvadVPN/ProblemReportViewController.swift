@@ -53,8 +53,11 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.numberOfLines = 0
         textLabel.textColor = .white
-        textLabel.text = NSLocalizedString("To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.", comment: "")
-
+        textLabel.text = NSLocalizedString(
+            "SUBHEAD_LABEL",
+            tableName: "ProblemReport",
+            comment: "Subhead label displayed below navigation title."
+        )
         return textLabel
     }()
 
@@ -72,7 +75,11 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         textField.backgroundColor = .white
         textField.inputAccessoryView = emailAccessoryToolbar
         textField.font = UIFont.systemFont(ofSize: 17)
-        textField.placeholder = NSLocalizedString("Your email (optional)", comment: "")
+        textField.placeholder = NSLocalizedString(
+            "EMAIL_TEXTFIELD_PLACEHOLDER",
+            tableName: "ProblemReport",
+            comment: "Placeholder for email text field."
+        )
 
         return textField
     }()
@@ -83,7 +90,11 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
         textView.backgroundColor = .white
         textView.inputAccessoryView = messageAccessoryToolbar
         textView.font = UIFont.systemFont(ofSize: 17)
-        textView.placeholder = NSLocalizedString("Please describe your problem in English or Swedish", comment: "")
+        textView.placeholder = NSLocalizedString(
+            "DESCRIPTION_TEXTVIEW_PLACEHOLDER",
+            tableName: "ProblemReport",
+            comment: "Placeholder for description text view."
+        )
         textView.contentInsetAdjustmentBehavior = .never
 
         return textView
@@ -127,7 +138,11 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     private lazy var viewLogsButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString("View app logs", comment: ""), for: .normal)
+        button.setTitle(NSLocalizedString(
+            "VIEW_APP_LOGS_BUTTON_TITLE",
+            tableName: "ProblemReport",
+            comment: "Title for button to view application logs"
+        ), for: .normal)
         button.addTarget(self, action: #selector(handleViewLogsButtonTap), for: .touchUpInside)
         return button
     }()
@@ -135,7 +150,11 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     private lazy var sendButton: AppButton = {
         let button = AppButton(style: .success)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString("Send", comment: ""), for: .normal)
+        button.setTitle(NSLocalizedString(
+            "SEND_BUTTON_TITLE",
+            tableName: "ProblemReport",
+            comment: "Title for button to send problem report."
+        ), for: .normal)
         button.addTarget(self, action: #selector(handleSendButtonTap), for: .touchUpInside)
         return button
     }()
@@ -175,7 +194,7 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
 
         view.backgroundColor = .secondaryColor
 
-        navigationItem.title = NSLocalizedString("Report a problem", comment: "Navigation title")
+        navigationItem.title = NSLocalizedString("NAVIGATION_TITLE", tableName: "ProblemReport", comment: "Navigation title")
 
         textViewKeyboardResponder = AutomaticKeyboardResponder(targetView: messageTextView)
         scrollViewKeyboardResponder = AutomaticKeyboardResponder(targetView: scrollView)
@@ -425,14 +444,26 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     }
 
     private func presentEmptyEmailConfirmationAlert(completion: @escaping (Bool) -> Void) {
-        let message = NSLocalizedString("You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.", comment: "")
+        let message = NSLocalizedString(
+            "EMPTY_EMAIL_ALERT_MESSAGE",
+            tableName: "ProblemReport",
+            comment: "Alert message warning users that they atttempt to send problem report without email address filled in."
+        )
 
         let alertController = UIAlertController(title: nil, message: message, preferredStyle: .alert)
 
-        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", comment: ""), style: .cancel) { _ in
+        let cancelAction = UIAlertAction(title: NSLocalizedString(
+            "EMPTY_EMAIL_ALERT_CANCEL_ACTION",
+            tableName: "ProblemReport",
+            comment: "Cancel button."
+        ), style: .cancel) { _ in
             completion(false)
         }
-        let sendAction = UIAlertAction(title: NSLocalizedString("Send anyway", comment: ""), style: .destructive) { _ in
+        let sendAction = UIAlertAction(title: NSLocalizedString(
+            "EMPTY_EMAIL_ALERT_SEND_ANYWAY_ACTION",
+            tableName: "ProblemReport",
+            comment: "Title for button to send problem report without email address filled in."
+        ), style: .destructive) { _ in
             completion(true)
         }
 

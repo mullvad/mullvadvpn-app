@@ -1,0 +1,50 @@
+/* No comment provided by engineer. */
+"CONTACT_BACK_EMAIL_MESSAGE_FORMAT" = "If needed we will contact you on %@";
+
+/* Placeholder for description text view. */
+"DESCRIPTION_TEXTVIEW_PLACEHOLDER" = "Please describe your problem in English or Swedish";
+
+/* No comment provided by engineer. */
+"EDIT_MESSAGE_BUTTON" = "Edit message";
+
+/* Placeholder for email text field. */
+"EMAIL_TEXTFIELD_PLACEHOLDER" = "Your email (optional)";
+
+/* Cancel button. */
+"EMPTY_EMAIL_ALERT_CANCEL_ACTION" = "Cancel";
+
+/* Alert message warning users that they atttempt to send problem report without email address filled in. */
+"EMPTY_EMAIL_ALERT_MESSAGE" = "You are about to send the problem report without a way for us to get back to you. If you want an answer to your report you will have to enter an email address.";
+
+/* Title for button to send problem report without email address filled in. */
+"EMPTY_EMAIL_ALERT_SEND_ANYWAY_ACTION" = "Send anyway";
+
+/* Navigation title */
+"NAVIGATION_TITLE" = "Report a problem";
+
+/* Title for button to send problem report. */
+"SEND_BUTTON_TITLE" = "Send";
+
+/* Subhead label displayed below navigation title. */
+"SUBHEAD_LABEL" = "To help you more effectively, your app's log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel.";
+
+/* No comment provided by engineer. */
+"SUBMISSION_STATUS_FAILURE" = "Failed to send";
+
+/* No comment provided by engineer. */
+"SUBMISSION_STATUS_SENDING" = "Sending...";
+
+/* No comment provided by engineer. */
+"SUBMISSION_STATUS_SENT" = "Sent";
+
+/* No comment provided by engineer. */
+"THANKS_MESSAGE" = "Thanks!";
+
+/* No comment provided by engineer. */
+"TRY_AGAIN_BUTTON" = "Try again";
+
+/* Title for button to view application logs */
+"VIEW_APP_LOGS_BUTTON_TITLE" = "View app logs";
+
+/* No comment provided by engineer. */
+"WE_WILL_LOOK_INTO_THIS_MESSAGE" = "We will look into this.";
