@@ -227,6 +227,7 @@
 		58F558E32695D1D800F630D0 /* Preferences.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558E12695D1D800F630D0 /* Preferences.strings */; };
 		58F558E62695D1F200F630D0 /* ProblemReport.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558E42695D1F200F630D0 /* ProblemReport.strings */; };
 		58F558E92695D20F00F630D0 /* SelectLocation.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558E72695D20F00F630D0 /* SelectLocation.strings */; };
+		58F558EF2695D50D00F630D0 /* ProblemReportReview.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558ED2695D50D00F630D0 /* ProblemReportReview.strings */; };
 		58F5590E2697002100F630D0 /* Main.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559052697002000F630D0 /* Main.strings */; };
 		58F5590F2697002100F630D0 /* ConnectionPanel.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559072697002100F630D0 /* ConnectionPanel.strings */; };
 		58F61F4F2692F21C00DCFC2B /* WireguardKeys.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F61F4D2692F21C00DCFC2B /* WireguardKeys.strings */; };
@@ -450,6 +451,7 @@
 		58F558E22695D1D800F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Preferences.strings; sourceTree = "<group>"; };
 		58F558E52695D1F200F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ProblemReport.strings; sourceTree = "<group>"; };
 		58F558E82695D20F00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/SelectLocation.strings; sourceTree = "<group>"; };
+		58F558EE2695D50D00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ProblemReportReview.strings; sourceTree = "<group>"; };
 		58F559062697002000F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		58F559082697002100F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ConnectionPanel.strings; sourceTree = "<group>"; };
 		58F61F4E2692F21C00DCFC2B /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/WireguardKeys.strings; sourceTree = "<group>"; };
@@ -565,6 +567,7 @@
 				58F559052697002000F630D0 /* Main.strings */,
 				58F558E12695D1D800F630D0 /* Preferences.strings */,
 				58F558E42695D1F200F630D0 /* ProblemReport.strings */,
+				58F558ED2695D50D00F630D0 /* ProblemReportReview.strings */,
 				58F558E72695D20F00F630D0 /* SelectLocation.strings */,
 				582CFEE8269463B80072883A /* Settings.strings */,
 				58F61F4D2692F21C00DCFC2B /* WireguardKeys.strings */,
@@ -983,6 +986,7 @@
 				5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */,
 				58F558E32695D1D800F630D0 /* Preferences.strings in Resources */,
 				582CFEE726945FC30072883A /* AppStoreSubscriptions.strings in Resources */,
+				58F558EF2695D50D00F630D0 /* ProblemReportReview.strings in Resources */,
 				584789B8264D4A2A000E45FB /* old_le_root_cert.cer in Resources */,
 				58F558E62695D1F200F630D0 /* ProblemReport.strings in Resources */,
 				584789BE264D4A2A000E45FB /* new_le_root_cert.cer in Resources */,
@@ -1355,6 +1359,14 @@
 				58F558E82695D20F00F630D0 /* en */,
 			);
 			name = SelectLocation.strings;
+			sourceTree = "<group>";
+		};
+		58F558ED2695D50D00F630D0 /* ProblemReportReview.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58F558EE2695D50D00F630D0 /* en */,
+			);
+			name = ProblemReportReview.strings;
 			sourceTree = "<group>";
 		};
 		58F559052697002000F630D0 /* Main.strings */ = {
