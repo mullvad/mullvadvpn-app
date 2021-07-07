@@ -27,7 +27,7 @@ mullvad-paths = { path = "../mullvad-paths" }
 talpid-types = { path = "../talpid-types" }
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
-tokio = { version = "0.2", features =  [ "rt-threaded" ] }
+tokio = { version = "1.8", features =  [ "rt-multi-thread" ] }
 
 [target.'cfg(windows)'.build-dependencies]
 winres = "0.1"
