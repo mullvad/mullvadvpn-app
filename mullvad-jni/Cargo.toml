@@ -20,7 +20,7 @@ log = "0.4"
 log-panics = "2"
 nix = "0.19"
 rand = "0.7"
-tokio = "0.2"
+tokio = "1.8"
 
 mullvad-daemon = { path = "../mullvad-daemon" }
 mullvad-paths = { path = "../mullvad-paths" }
