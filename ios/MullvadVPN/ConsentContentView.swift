@@ -17,7 +17,7 @@ class ConsentContentView: UIView {
         titleLabel.numberOfLines = 0
         titleLabel.textColor = .white
         titleLabel.allowsDefaultTighteningForTruncation = true
-        titleLabel.text = NSLocalizedString("Do you agree to remaining anonymous?", comment: "")
+        titleLabel.text = NSLocalizedString("PRIVACY_NOTICE_HEADING", tableName: "Consent", comment: "Heading.")
         titleLabel.lineBreakMode = .byWordWrapping
         if #available(iOS 14.0, *) {
             // Disable the new line break strategy used by UIKit that moves at least two words
@@ -29,27 +29,23 @@ class ConsentContentView: UIView {
     }()
 
     let bodyLabel: UILabel = {
-        let localizedText = NSLocalizedString("""
-You have a right to privacy. That’s why we never store activity logs, don't ask for personal information, and encourage anonymous payments.
-
-In some situations, as outlined in our privacy policy, we might process personal data that you choose to send, for example if you email us.
-
-We strongly believe in retaining as little data as possible because we want you to remain anonymous.
-""", comment: "")
-
         let bodyLabel = UILabel()
         bodyLabel.translatesAutoresizingMaskIntoConstraints = false
         bodyLabel.font = UIFont.systemFont(ofSize: 18)
         bodyLabel.textColor = .white
         bodyLabel.numberOfLines = 0
-        bodyLabel.text = localizedText
+        bodyLabel.text = NSLocalizedString("PRIVACY_NOTICE_BODY", tableName: "Consent", comment: "Body.")
         return bodyLabel
     }()
 
     let privacyPolicyLink: LinkButton = {
         let button = LinkButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.titleString = NSLocalizedString("Privacy policy", comment: "")
+        button.titleString = NSLocalizedString(
+            "PRIVACY_POLICY_LINK_TITLE",
+            tableName: "Consent",
+            comment: "Title for link to privacy policy web page."
+        )
         button.setImage(UIImage(named: "IconExtlink"), for: .normal)
         return button
     }()
@@ -57,8 +53,12 @@ We strongly believe in retaining as little data as possible because we want you 
     let agreeButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString("Agree and continue", comment: ""), for: .normal)
         button.accessibilityIdentifier = "AgreeButton"
+        button.setTitle(NSLocalizedString(
+            "CONTINUE_BUTTON_TITLE",
+            tableName: "Consent",
+            comment: "Title for button used for agreeing with privacy notice."
+        ), for: .normal)
         return button
     }()
 
