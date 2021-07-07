@@ -226,4 +226,92 @@ describe('IAccountData cache', () => {
 
     return expect(update).to.eventually.be.fulfilled;
   });
+
+  it('should invalidate after 60 seconds', async () => {
+    const fetchSpy = spy();
+    const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+    const update = new Promise<void>((resolve, reject) => {
+      const cache = new AccountDataCache(
+        (_accountToken) => {
+          fetchSpy();
+          return Promise.resolve({ expiry });
+        },
+        () => {},
+      );
+
+      cache.fetch(dummyAccountToken, {
+        onFinish: async () => {
+          clock.tick(59_000);
+          // Timeout to let asynchronous tasks finish
+          await new Promise((resolve) => setTimeout(resolve));
+
+          cache.fetch(dummyAccountToken, {
+            onFinish: async () => {
+              clock.tick(1_000);
+              // Timeout to let asynchronous tasks finish
+              await new Promise((resolve) => setTimeout(resolve));
+
+              cache.fetch(dummyAccountToken, {
+                onFinish: async () => {
+                  resolve();
+                },
+                onError: (_error: Error) => reject(),
+              });
+            },
+            onError: (_error: Error) => reject(),
+          });
+        },
+        onError: (_error: Error) => reject(),
+      });
+    });
+
+    return expect(update).to.eventually.be.fulfilled.then(() => {
+      expect(fetchSpy).to.have.been.called.twice;
+    });
+  });
+
+  it('should invalidate after 10 seconds when epired', async () => {
+    const fetchSpy = spy();
+    const expiry = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+    const update = new Promise<void>((resolve, reject) => {
+      const cache = new AccountDataCache(
+        (_accountToken) => {
+          fetchSpy();
+          return Promise.resolve({ expiry });
+        },
+        () => {},
+      );
+
+      cache.fetch(dummyAccountToken, {
+        onFinish: async () => {
+          clock.tick(9_000);
+          // Timeout to let asynchronous tasks finish
+          await new Promise((resolve) => setTimeout(resolve));
+
+          cache.fetch(dummyAccountToken, {
+            onFinish: async () => {
+              clock.tick(1_000);
+              // Timeout to let asynchronous tasks finish
+              await new Promise((resolve) => setTimeout(resolve));
+
+              cache.fetch(dummyAccountToken, {
+                onFinish: async () => {
+                  resolve();
+                },
+                onError: (_error: Error) => reject(),
+              });
+            },
+            onError: (_error: Error) => reject(),
+          });
+        },
+        onError: (_error: Error) => reject(),
+      });
+    });
+
+    return expect(update).to.eventually.be.fulfilled.then(() => {
+      expect(fetchSpy).to.have.been.called.twice;
+    });
+  });
 });
