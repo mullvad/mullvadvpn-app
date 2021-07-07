@@ -1,4 +1,3 @@
-use bytes::buf::Buf;
 use futures::channel::oneshot;
 use hyper::client::connect::{Connected, Connection};
 use std::{
@@ -9,7 +8,7 @@ use std::{
     task::{Context, Poll},
 };
 use tokio::{
-    io::{AsyncRead, AsyncWrite},
+    io::{AsyncRead, AsyncWrite, ReadBuf},
     net::TcpStream as TokioTcpStream,
 };
 
@@ -79,23 +78,15 @@ impl AsyncWrite for TcpStream {
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         buf: &[u8],
-    ) -> Poll<Result<usize, io::Error>> {
+    ) -> Poll<io::Result<usize>> {
         self.do_stream(|stream| Pin::new(stream).poll_write(cx, buf))
     }
 
-    fn poll_write_buf<B: Buf>(
-        self: Pin<&mut Self>,
-        cx: &mut Context<'_>,
-        buf: &mut B,
-    ) -> Poll<Result<usize, io::Error>> {
-        self.do_stream(|stream| Pin::new(stream).poll_write_buf(cx, buf))
-    }
-
-    fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), io::Error>> {
+    fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         self.do_stream(|stream| Pin::new(stream).poll_flush(cx))
     }
 
-    fn poll_shutdown(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), io::Error>> {
+    fn poll_shutdown(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
         self.do_stream(|stream| Pin::new(stream).poll_shutdown(cx))
     }
 }
@@ -104,8 +95,8 @@ impl AsyncRead for TcpStream {
     fn poll_read(
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
-        buf: &mut [u8],
-    ) -> Poll<Result<usize, io::Error>> {
+        buf: &mut ReadBuf<'_>,
+    ) -> Poll<io::Result<()>> {
         self.do_stream(|stream| Pin::new(stream).poll_read(cx, buf))
     }
 }
