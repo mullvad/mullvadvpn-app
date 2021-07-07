@@ -44,7 +44,7 @@ class PreferencesViewController: UITableViewController, TunnelObserver {
         tableView.register(SettingsSwitchCell.self, forCellReuseIdentifier: CellIdentifier.switchCell.rawValue)
         tableView.register(EmptyTableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: EmptyTableViewHeaderFooterView.reuseIdentifier)
 
-        navigationItem.title = NSLocalizedString("Preferences", comment: "Navigation title")
+        navigationItem.title = NSLocalizedString("NAVIGATION_TITLE", tableName: "Preferences", comment: "Navigation title")
         navigationItem.largeTitleDisplayMode = .always
 
         TunnelManager.shared.addObserver(self)
@@ -74,8 +74,8 @@ class PreferencesViewController: UITableViewController, TunnelObserver {
         let blockAdvertisingRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.switchCell.rawValue) { (indexPath, cell) in
             let cell = cell as! SettingsSwitchCell
 
-            cell.titleLabel.text = NSLocalizedString("Block ads", comment: "")
-            cell.setOn(self.dnsSettings?.blockAdvertising ?? false, animated: false)
+            cell.titleLabel.text = NSLocalizedString("BLOCK_ADS_CELL_LABEL", tableName: "Preferences", comment: "")
+            cell.switchControl.setOn(self.dnsSettings?.blockAdvertising ?? false, animated: false)
             cell.action = { [weak self] (isOn) in
                 self?.dnsSettings?.blockAdvertising = isOn
                 self?.saveDNSSettings()
@@ -86,8 +86,8 @@ class PreferencesViewController: UITableViewController, TunnelObserver {
         let blockTrackingRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.switchCell.rawValue) { (indexPath, cell) in
             let cell = cell as! SettingsSwitchCell
 
-            cell.titleLabel.text = NSLocalizedString("Block trackers", comment: "")
-            cell.setOn(self.dnsSettings?.blockTracking ?? false, animated: false)
+            cell.titleLabel.text = NSLocalizedString("BLOCK_TRACKERS_CELL_LABEL", tableName: "Preferences", comment: "")
+            cell.switchControl.setOn(self.dnsSettings?.blockTracking ?? false, animated: false)
             cell.action = { [weak self] (isOn) in
                 self?.dnsSettings?.blockTracking = isOn
                 self?.saveDNSSettings()
