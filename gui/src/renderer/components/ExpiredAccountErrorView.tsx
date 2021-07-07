@@ -83,9 +83,7 @@ export default class ExpiredAccountErrorView extends React.Component<
 
                 {this.renderExternalPaymentButton()}
 
-                <AppButton.GreenButton
-                  disabled={this.getRecoveryAction() === RecoveryAction.disconnect}
-                  onClick={this.props.navigateToRedeemVoucher}>
+                <AppButton.GreenButton onClick={this.props.navigateToRedeemVoucher}>
                   {messages.pgettext('connect-view', 'Redeem voucher')}
                 </AppButton.GreenButton>
               </StyledFooter>
