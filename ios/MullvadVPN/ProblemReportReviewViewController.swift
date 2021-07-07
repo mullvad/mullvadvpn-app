@@ -29,7 +29,11 @@ class ProblemReportReviewViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationItem.title = NSLocalizedString("App logs", comment: "")
+        navigationItem.title = NSLocalizedString(
+            "NAVIGATION_TITLE",
+            tableName: "ProblemReportReview",
+            comment: "Navigation title"
+        )
         navigationItem.rightBarButtonItem = dismissButtonItem
 
         textView.translatesAutoresizingMaskIntoConstraints = false
