@@ -511,7 +511,6 @@ extension AppDelegate: ConnectViewControllerDelegate {
 
     func connectViewControllerShouldShowSelectLocationPicker(_ controller: ConnectViewController) {
         let contentController = makeSelectLocationController()
-        contentController.navigationItem.title = NSLocalizedString("Select location", comment: "Navigation title")
         contentController.navigationItem.largeTitleDisplayMode = .never
         contentController.navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(handleDismissSelectLocationController(_:)))
 
