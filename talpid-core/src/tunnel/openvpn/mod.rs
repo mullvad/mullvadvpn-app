@@ -954,7 +954,7 @@ mod event_server {
     };
     #[cfg(any(target_os = "linux", windows))]
     use talpid_types::ErrorExt;
-    use tokio::io::{AsyncRead, AsyncWrite};
+    use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
     use tonic::{
         self,
         transport::{server::Connected, Server},
@@ -1205,8 +1205,8 @@ mod event_server {
         fn poll_read(
             mut self: Pin<&mut Self>,
             cx: &mut Context<'_>,
-            buf: &mut [u8],
-        ) -> Poll<std::io::Result<usize>> {
+            buf: &mut ReadBuf<'_>,
+        ) -> Poll<std::io::Result<()>> {
             Pin::new(&mut self.0).poll_read(cx, buf)
         }
     }
