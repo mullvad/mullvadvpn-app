@@ -35,6 +35,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix deadlock that may occur when the API cannot be reached while entering the connecting state.
 - Fix bug causing desktop app to log in if account number field was filled when removing account
   history.
+- Fix lack of account expiry updates when using the app in unpinned mode and improve updating of
+  account expiry overall.
 
 #### Linux
 - Make offline monitor aware of routing table changes.
