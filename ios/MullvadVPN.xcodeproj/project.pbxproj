@@ -156,6 +156,7 @@
 		5896AE84246D5889005B36CB /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
 		5896AE86246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */; };
 		5896AE88246D7FAF005B36CB /* CustomDateComponentsFormatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */; };
+		5896CEF226972DEB00B0FAE8 /* AccountContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5896CEF126972DEB00B0FAE8 /* AccountContentView.swift */; };
 		589AB4F7227B64450039131E /* BasicTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589AB4F6227B64450039131E /* BasicTableViewCell.swift */; };
 		58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */; };
 		58A8BE81239FBE62006B74AC /* IPEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58561C98239A5D1500BD6B5E /* IPEndpoint.swift */; };
@@ -212,7 +213,6 @@
 		58D0C79E23F1CEBA00FE9BA7 /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D0C79D23F1CEBA00FE9BA7 /* SnapshotHelper.swift */; };
 		58D0C7A223F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D0C7A023F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift */; };
 		58DF28A52417CB4B00E836B0 /* AppStorePaymentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF28A42417CB4B00E836B0 /* AppStorePaymentManager.swift */; };
-		58E5BC2624FEB6DB00A53A76 /* AccountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 58E5BC2524FEB6DB00A53A76 /* AccountViewController.xib */; };
 		58E6771F24ADFE7800AA26E7 /* SettingsNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E6771E24ADFE7800AA26E7 /* SettingsNavigationController.swift */; };
 		58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF580A25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift */; };
 		58EF581125D69DB400AEBA94 /* StatusImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF581025D69DB400AEBA94 /* StatusImageView.swift */; };
@@ -382,6 +382,7 @@
 		5892A45D265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyTableViewHeaderFooterView.swift; sourceTree = "<group>"; };
 		5896AE83246D5889005B36CB /* CustomDateComponentsFormatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateComponentsFormatting.swift; sourceTree = "<group>"; };
 		5896AE85246D6AD8005B36CB /* CustomDateComponentsFormattingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDateComponentsFormattingTests.swift; sourceTree = "<group>"; };
+		5896CEF126972DEB00B0FAE8 /* AccountContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountContentView.swift; sourceTree = "<group>"; };
 		589AB4F6227B64450039131E /* BasicTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicTableViewCell.swift; sourceTree = "<group>"; };
 		58A1AA8623F43901009F7EA6 /* Location.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Location.swift; sourceTree = "<group>"; };
 		58A1AA8B23F5584B009F7EA6 /* ConnectionPanelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionPanelView.swift; sourceTree = "<group>"; };
@@ -429,7 +430,6 @@
 		58D0C79F23F1CECF00FE9BA7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		58D0C7A023F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MullvadVPNScreenshots.swift; sourceTree = "<group>"; };
 		58DF28A42417CB4B00E836B0 /* AppStorePaymentManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorePaymentManager.swift; sourceTree = "<group>"; };
-		58E5BC2524FEB6DB00A53A76 /* AccountViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AccountViewController.xib; sourceTree = "<group>"; };
 		58E6771E24ADFE7800AA26E7 /* SettingsNavigationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsNavigationController.swift; sourceTree = "<group>"; };
 		58E973DD24850EB600096F90 /* AsyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOperation.swift; sourceTree = "<group>"; };
 		58ECD29123F178FD004298B6 /* Screenshots.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Screenshots.xcconfig; sourceTree = "<group>"; };
@@ -614,12 +614,12 @@
 			isa = PBXGroup;
 			children = (
 				587AD7C92342283900E93A53 /* Account.swift */,
+				5896CEF126972DEB00B0FAE8 /* AccountContentView.swift */,
 				582BB1B42295780F0055B6EF /* AccountExpiry.swift */,
 				58C3A4B122456F1A00340BDB /* AccountInputGroupView.swift */,
 				58CCA01D2242787B004F3011 /* AccountTextField.swift */,
 				582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */,
 				58CCA01722426713004F3011 /* AccountViewController.swift */,
-				58E5BC2524FEB6DB00A53A76 /* AccountViewController.xib */,
 				58B9EB122488ED2100095626 /* AlertPresenter.swift */,
 				5868585424054096000B8131 /* AppButton.swift */,
 				58CE5E63224146200008646E /* AppDelegate.swift */,
@@ -964,7 +964,6 @@
 				584789B8264D4A2A000E45FB /* old_le_root_cert.cer in Resources */,
 				584789BE264D4A2A000E45FB /* new_le_root_cert.cer in Resources */,
 				58F61F4F2692F21C00DCFC2B /* WireguardKeys.strings in Resources */,
-				58E5BC2624FEB6DB00A53A76 /* AccountViewController.xib in Resources */,
 				58F5590E2697002100F630D0 /* Main.strings in Resources */,
 				581FC4FA2695ACE100AA97BA /* Account.strings in Resources */,
 			);
@@ -1042,6 +1041,7 @@
 				587B75412668FD7800DEF7E9 /* AccountExpiryNotificationProvider.swift in Sources */,
 				58BA692E23E99EFF009DC256 /* Locking.swift in Sources */,
 				580EE21E24B3237F00F9D8A1 /* OutputOperation.swift in Sources */,
+				5896CEF226972DEB00B0FAE8 /* AccountContentView.swift in Sources */,
 				5840250122B1124600E4CFEC /* IPAddress+Codable.swift in Sources */,
 				5857F24724C882D700CF6F47 /* SelectLocationNavigationController.swift in Sources */,
 				580EE21224B322FC00F9D8A1 /* ResultOperation.swift in Sources */,

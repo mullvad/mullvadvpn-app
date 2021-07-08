@@ -1,5 +1,17 @@
+/* No comment provided by engineer. */
+"ACCOUNT_EXPIRY_LABEL" = "Paid until";
+
 /* Label displayed in place of account expiration when account is out of time. */
 "ACCOUNT_OUT_OF_TIME_LABEL" = "OUT OF TIME";
+
+/* No comment provided by engineer. */
+"ACCOUNT_TOKEN_ACCESSIBILITY_ACTION_TITLE" = "Copy account token to pasteboard";
+
+/* No comment provided by engineer. */
+"ACCOUNT_TOKEN_ACCESSIBILITY_HINT" = "Tap to copy to pasteboard.";
+
+/* No comment provided by engineer. */
+"ACCOUNT_TOKEN_LABEL" = "Account number";
 
 /* Title for OK button in purchase failure dialog */
 "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION" = "OK";
@@ -12,6 +24,9 @@
 
 /* Modal message displayed during logout */
 "LOGGING_OUT_ALERT_TITLE" = "Logging out. Please wait...";
+
+/* No comment provided by engineer. */
+"LOGOUT_BUTTON_TITLE" = "Log out";
 
 /* Title for cancel button in logout dialog */
 "LOGOUT_CONFIRMATION_ALERT_CANCEL_ACTION" = "Cancel";
@@ -51,6 +66,9 @@
 
 /* Title for purchase restoration dialog */
 "RESTORE_PURCHASES_ALERT_TITLE" = "Restore purchases";
+
+/* No comment provided by engineer. */
+"RESTORE_PURCHASES_BUTTON_TITLE" = "Restore purchases";
 
 /* Title for 'OK' button in failure dialog when restoring purchases */
 "RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION" = "OK";

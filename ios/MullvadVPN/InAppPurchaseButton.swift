@@ -25,17 +25,9 @@ class InAppPurchaseButton: AppButton {
         }
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        commonInit()
-    }
+    init() {
+        super.init(style: .success)
 
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-        commonInit()
-    }
-
-    private func commonInit() {
         addSubview(activityIndicator)
 
         // Make sure the buy button scales down the font size to fit the long labels.
@@ -43,6 +35,10 @@ class InAppPurchaseButton: AppButton {
         // being scaled down.
         titleLabel?.adjustsFontSizeToFitWidth = true
         titleLabel?.baselineAdjustment = .alignCenters
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 
     override func layoutSubviews() {
