@@ -15,7 +15,7 @@ use netlink_proto::{
     ConnectionHandle, Error as NetlinkError,
 };
 use std::{ffi::CString, net::IpAddr};
-use tokio::stream::StreamExt;
+use tokio_stream::StreamExt;
 
 mod parsers;
 
