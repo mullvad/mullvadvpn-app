@@ -149,7 +149,6 @@ impl SettingsPersister {
         let mut options = fs::OpenOptions::new();
         #[cfg(unix)]
         {
-            use fs::os::unix::OpenOptionsExt;
             options.mode(0o600);
         }
         let mut file = options
