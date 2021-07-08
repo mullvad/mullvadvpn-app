@@ -231,7 +231,7 @@ fn spawn_daemon(
         .map_err(Error::CreateGlobalReference)?;
     let (tx, rx) = mpsc::channel();
 
-    let mut runtime = new_runtime_builder()
+    let runtime = new_runtime_builder()
         .build()
         .map_err(Error::InitializeTokioRuntime)?;
 
