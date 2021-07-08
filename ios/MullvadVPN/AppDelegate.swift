@@ -544,7 +544,12 @@ extension AppDelegate: ConnectViewControllerDelegate {
 
                 case .failure(let error):
                     self.logger?.error(chainedError: error, message: "Failed to start the VPN tunnel")
-                    self.presentTunnelError(error, alertTitle: NSLocalizedString("Failed to start the VPN tunnel", comment: ""))
+                    self.presentTunnelError(error, alertTitle: NSLocalizedString(
+                        "START_VPN_TUNNEL_ERROR_ALERT_TITLE",
+                        tableName: "AppDelegate",
+                        value: "Failed to start the VPN tunnel",
+                        comment: ""
+                    ))
                 }
             }
         }
@@ -558,7 +563,12 @@ extension AppDelegate: ConnectViewControllerDelegate {
 
             case .failure(let error):
                 self.logger?.error(chainedError: error, message: "Failed to stop the VPN tunnel")
-                self.presentTunnelError(error, alertTitle: NSLocalizedString("Failed to stop the VPN tunnel", comment: ""))
+                self.presentTunnelError(error, alertTitle: NSLocalizedString(
+                    "STOP_VPN_TUNNEL_ERROR_ALERT_TITLE",
+                    tableName: "AppDelegate",
+                    value: "Failed to stop the VPN tunnel",
+                    comment: ""
+                ))
             }
         }
     }
@@ -576,7 +586,14 @@ extension AppDelegate: ConnectViewControllerDelegate {
             preferredStyle: .alert
         )
         alertController.addAction(
-            UIAlertAction(title: NSLocalizedString("OK", comment: ""), style: .cancel)
+            UIAlertAction(
+                title: NSLocalizedString(
+                    "TUNNEL_ERROR_ALERT_OK_BUTTON",
+                    tableName: "AppDelegate",
+                    comment: "Dismiss button in tunnel error alert."
+                ),
+                style: .cancel
+            )
         )
 
         self.alertPresenter.enqueue(alertController, presentingController: self.rootContainer!)
