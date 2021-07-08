@@ -310,7 +310,7 @@ pub fn send_problem_report(
                     )
                 }
             }
-            tokio::time::delay_for(RETRY_INTERVAL).await;
+            tokio::time::sleep(RETRY_INTERVAL).await;
         }
         Err(Error::SendProblemReportError)
     })
