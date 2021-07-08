@@ -25,10 +25,7 @@ pub struct EventProcessor {
 impl EventProcessor {
     pub fn new(arguments: Arguments) -> Result<EventProcessor, Error> {
         log::trace!("Creating EventProcessor");
-        let mut runtime = runtime::Builder::new()
-            .basic_scheduler()
-            .core_threads(1)
-            .max_threads(1)
+        let runtime = runtime::Builder::new_current_thread()
             .enable_all()
             .build()
             .map_err(Error::CreateRuntime)?;

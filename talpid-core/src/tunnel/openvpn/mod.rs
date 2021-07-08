@@ -528,9 +528,8 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
             format!("/tmp/talpid-openvpn-{}", uuid)
         };
 
-        let mut runtime = tokio::runtime::Builder::new()
-            .threaded_scheduler()
-            .core_threads(1)
+        let runtime = tokio::runtime::Builder::new_multi_thread()
+            .worker_threads(1)
             .enable_all()
             .build()
             .map_err(Error::RuntimeError)?;

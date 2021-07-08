@@ -826,7 +826,7 @@ mod test {
     /// Tests if dropping inside a tokio runtime panics
     #[test]
     fn test_drop_in_executor() {
-        let mut runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
+        let runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
         runtime.block_on(async {
             let manager = RouteManagerImpl::new(HashSet::new())
                 .await
@@ -838,7 +838,7 @@ mod test {
     /// Tests if dropping outside a runtime panics
     #[test]
     fn test_drop() {
-        let mut runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
+        let runtime = tokio::runtime::Runtime::new().expect("Failed to initialize runtime");
         let manager = runtime.block_on(async {
             RouteManagerImpl::new(HashSet::new())
                 .await
