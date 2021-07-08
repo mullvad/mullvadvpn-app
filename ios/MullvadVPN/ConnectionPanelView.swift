@@ -31,7 +31,11 @@ class ConnectionPanelView: UIView {
     var connectedRelayName: String = "" {
         didSet {
             collapseButton.setTitle(connectedRelayName, for: .normal)
-            collapseButton.accessibilityLabel = NSLocalizedString("CONNECTION_PANEL_RELAY_ACCESSIBILITY_LABEL", comment: "")
+            collapseButton.accessibilityLabel = NSLocalizedString(
+                "RELAY_ACCESSIBILITY_LABEL",
+                tableName: "ConnectionPanel",
+                comment: ""
+            )
             collapseButton.accessibilityAttributedValue = NSAttributedString(
                 string: connectedRelayName.replacingOccurrences(of: "-wireguard", with: " WireGuard"),
                 attributes: [ .accessibilitySpeechLanguage: "en" ]
@@ -71,11 +75,27 @@ class ConnectionPanelView: UIView {
         // TODO: Unhide it when we have out address
         outAddressRow.isHidden = true
 
-        inAddressRow.textLabel.text = NSLocalizedString("CONNECTION_PANEL_IN_ADDRESS_LABEL", comment: "")
-        outAddressRow.textLabel.text = NSLocalizedString("CONNECTION_PANEL_OUT_ADDRESS_LABEL", comment: "")
+        inAddressRow.textLabel.text = NSLocalizedString(
+            "IN_ADDRESS_LABEL",
+            tableName: "ConnectionPanel",
+            comment: ""
+        )
+        outAddressRow.textLabel.text = NSLocalizedString(
+            "OUT_ADDRESS_LABEL",
+            tableName: "ConnectionPanel",
+            comment: ""
+        )
 
-        inAddressRow.accessibilityLabel = NSLocalizedString("CONNECTION_PANEL_IN_ADDRESS_ACCESSIBILITY_LABEL", comment: "")
-        outAddressRow.accessibilityLabel = NSLocalizedString("CONNECTION_PANEL_OUT_ADDRESS_ACCESSIBILITY_LABEL", comment: "")
+        inAddressRow.accessibilityLabel = NSLocalizedString(
+            "IN_ADDRESS_ACCESSIBILITY_LABEL",
+            tableName: "ConnectionPanel",
+            comment: ""
+        )
+        outAddressRow.accessibilityLabel = NSLocalizedString(
+            "OUT_ADDRESS_ACCESSIBILITY_LABEL",
+            tableName: "ConnectionPanel",
+            comment: ""
+        )
 
         addSubview(collapseButton)
         addSubview(stackView)
@@ -136,9 +156,17 @@ class ConnectionPanelView: UIView {
 
     private func updateCollapseButtonAccessibilityHint() {
         if showsConnectionInfo {
-            collapseButton.accessibilityHint = NSLocalizedString("CONNECTION_PANEL_COLLAPSE_BUTTON_ACCESSIBILITY_HINT", comment: "")
+            collapseButton.accessibilityHint = NSLocalizedString(
+                "COLLAPSE_BUTTON_ACCESSIBILITY_HINT",
+                tableName: "ConnectionPanel",
+                comment: ""
+            )
         } else {
-            collapseButton.accessibilityHint = NSLocalizedString("CONNECTION_PANEL_EXPAND_BUTTON_ACCESSIBILITY_HINT", comment: "")
+            collapseButton.accessibilityHint = NSLocalizedString(
+                "EXPAND_BUTTON_ACCESSIBILITY_HINT",
+                tableName: "ConnectionPanel",
+                comment: ""
+            )
         }
     }
 }
