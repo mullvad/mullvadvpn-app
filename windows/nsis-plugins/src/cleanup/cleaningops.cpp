@@ -75,7 +75,7 @@ std::wstring GetSystemUserLocalAppData()
 		common::security::AdjustCurrentProcessTokenPrivilege(L"SeDebugPrivilege", false);
 	};
 
-	auto systemDir = common::fs::GetKnownFolderPath(FOLDERID_System, KF_FLAG_DEFAULT, NULL);
+	auto systemDir = common::fs::GetKnownFolderPath(FOLDERID_System);
 	auto lsassPath = std::filesystem::path(systemDir).append(L"lsass.exe");
 	auto lsassPid = common::process::GetProcessIdFromName(lsassPath);
 
@@ -107,7 +107,7 @@ std::wstring GetSystemUserLocalAppData()
 
 std::filesystem::path GetSystemCacheDirectory()
 {
-	const auto programData = common::fs::GetKnownFolderPath(FOLDERID_ProgramData, KF_FLAG_DEFAULT, nullptr);
+	const auto programData = common::fs::GetKnownFolderPath(FOLDERID_ProgramData);
 	return std::filesystem::path(programData).append(L"Mullvad VPN").append(L"cache");
 }
 
@@ -175,12 +175,12 @@ void MigrateCacheServiceUser()
 
 void RemoveLogsCacheCurrentUser()
 {
-	const auto localAppData = common::fs::GetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr);
+	const auto localAppData = common::fs::GetKnownFolderPath(FOLDERID_LocalAppData);
 	const auto appdir = std::filesystem::path(localAppData).append(L"Mullvad VPN");
 
 	std::filesystem::remove_all(appdir);
 
-	const auto roamingAppData = common::fs::GetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr);
+	const auto roamingAppData = common::fs::GetKnownFolderPath(FOLDERID_RoamingAppData);
 	const auto roamingAppdir = std::filesystem::path(roamingAppData).append(L"Mullvad VPN");
 
 	std::error_code dummy;
@@ -196,9 +196,9 @@ void RemoveLogsCacheOtherUsers()
 	// as a node somewhere beneath the home directory.
 	//
 
-	auto localAppData = common::fs::GetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr);
-	auto roamingAppData = common::fs::GetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr);
-	auto homeDir = common::fs::GetKnownFolderPath(FOLDERID_Profile, KF_FLAG_DEFAULT, nullptr);
+	auto localAppData = common::fs::GetKnownFolderPath(FOLDERID_LocalAppData);
+	auto roamingAppData = common::fs::GetKnownFolderPath(FOLDERID_RoamingAppData);
+	auto homeDir = common::fs::GetKnownFolderPath(FOLDERID_Profile);
 
 	//
 	// Tokenize to get rid of slashes pointing in different directions.
@@ -246,7 +246,7 @@ void RemoveLogsCacheOtherUsers()
 	// respective app data dirs.
 	//
 
-	auto parentHomeDir = common::fs::GetKnownFolderPath(FOLDERID_UserProfiles, KF_FLAG_DEFAULT, nullptr);
+	auto parentHomeDir = common::fs::GetKnownFolderPath(FOLDERID_UserProfiles);
 
 	common::fs::FileEnumerator files(parentHomeDir);
 
@@ -283,7 +283,7 @@ void RemoveLogsCacheOtherUsers()
 
 void RemoveLogsServiceUser()
 {
-	const auto programData = common::fs::GetKnownFolderPath(FOLDERID_ProgramData, KF_FLAG_DEFAULT, nullptr);
+	const auto programData = common::fs::GetKnownFolderPath(FOLDERID_ProgramData);
 	const auto appdir = std::filesystem::path(programData).append(L"Mullvad VPN");
 
 	{

@@ -36,7 +36,7 @@ __declspec(noreturn) void ThrowWithDetails(std::string &&error, common::process:
 NetSh::NetSh(std::shared_ptr<common::logging::ILogSink> logSink)
 	: m_logSink(logSink)
 {
-	const auto system32 = common::fs::GetKnownFolderPath(FOLDERID_System, 0, nullptr);
+	const auto system32 = common::fs::GetKnownFolderPath(FOLDERID_System);
 	m_netShPath = std::filesystem::path(system32).append(L"netsh.exe");
 }
 

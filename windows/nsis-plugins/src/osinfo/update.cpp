@@ -25,7 +25,7 @@ bool HasSetupApiSha2Fix()
 
 	common::fs::ScopedNativeFileSystem nativeFileSystem;
 
-	const auto systemDir = common::fs::GetKnownFolderPath(FOLDERID_System, KF_FLAG_DEFAULT, NULL);
+	const auto systemDir = common::fs::GetKnownFolderPath(FOLDERID_System);
 	const auto setupApiPath = std::filesystem::path(systemDir).append(L"setupapi.dll");
 
 	const auto setupApiHandle = CreateFileW(

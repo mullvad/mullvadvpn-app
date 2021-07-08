@@ -47,7 +47,7 @@ void UpdateRegistry(common::registry::RegistryKey &regkey, const std::wstring &v
 	// Construct path to 'explorer.exe'
 	//
 
-	const auto windir = common::fs::GetKnownFolderPath(FOLDERID_Windows, 0, nullptr);
+	const auto windir = common::fs::GetKnownFolderPath(FOLDERID_Windows);
 	const auto explorer = std::filesystem::path(windir).append(L"explorer.exe");
 
 	//
