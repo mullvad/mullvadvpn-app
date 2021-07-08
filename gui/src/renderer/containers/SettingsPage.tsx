@@ -26,6 +26,7 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
     onViewPreferences: () => props.history.push('/settings/preferences'),
     onViewAdvancedSettings: () => props.history.push('/settings/advanced'),
     onExternalLink: (url: string) => props.app.openUrl(url),
+    updateAccountData: () => props.app.updateAccountData(),
   };
 };
 

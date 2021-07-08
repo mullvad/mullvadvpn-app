@@ -2,6 +2,7 @@ import * as React from 'react';
 import { colors, links } from '../../config.json';
 import { hasExpired, formatRemainingTime } from '../../shared/account-expiry';
 import { messages } from '../../shared/gettext';
+import History from '../lib/history';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import * as Cell from './cell';
 import { Layout } from './Layout';
@@ -42,9 +43,17 @@ export interface IProps {
   onViewPreferences: () => void;
   onViewAdvancedSettings: () => void;
   onExternalLink: (url: string) => void;
+  updateAccountData: () => void;
+  history: History;
 }
 
 export default class Settings extends React.Component<IProps> {
+  public componentDidMount() {
+    if (this.props.history.action === 'PUSH') {
+      this.props.updateAccountData();
+    }
+  }
+
   public render() {
     const showLargeTitle = this.props.loginState.type !== 'ok';
 

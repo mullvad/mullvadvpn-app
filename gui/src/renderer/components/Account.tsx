@@ -31,9 +31,14 @@ interface IProps {
   onLogout: () => void;
   onClose: () => void;
   onBuyMore: () => Promise<void>;
+  updateAccountData: () => void;
 }
 
 export default class Account extends React.Component<IProps> {
+  public componentDidMount() {
+    this.props.updateAccountData();
+  }
+
   public render() {
     return (
       <ModalContainer>

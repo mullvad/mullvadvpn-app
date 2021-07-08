@@ -5,10 +5,10 @@ export function hasExpired(expiry: DateType): boolean {
   return new Date(expiry).getTime() < Date.now();
 }
 
-export function closeToExpiry(expiry: DateType): boolean {
+export function closeToExpiry(expiry: DateType, days = 3): boolean {
   return (
     !hasExpired(expiry) &&
-    new Date(expiry) <= dateByAddingComponent(new Date(), DateComponent.day, 3)
+    new Date(expiry) <= dateByAddingComponent(new Date(), DateComponent.day, days)
   );
 }
 

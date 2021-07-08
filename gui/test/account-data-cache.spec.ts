@@ -135,41 +135,6 @@ describe('IAccountData cache', () => {
     });
   });
 
-  it('should refetch if account has expired', async () => {
-    const expiredSpy = spy();
-    const nonExpiredSpy = spy();
-
-    const update = new Promise<void>((resolve, reject) => {
-      let firstAttempt = true;
-      const fetch = () => {
-        if (firstAttempt) {
-          expiredSpy();
-          firstAttempt = false;
-          setTimeout(() => clock.tick(60_000), 0);
-          return Promise.resolve({
-            expiry: new Date('1969-01-01').toISOString(),
-          });
-        } else {
-          nonExpiredSpy();
-          resolve();
-          return Promise.resolve(dummyAccountData);
-        }
-      };
-
-      const cache = new AccountDataCache(fetch, () => {});
-
-      cache.fetch(dummyAccountToken, {
-        onFinish: () => {},
-        onError: (_error: Error) => reject(),
-      });
-    });
-
-    return expect(update).to.eventually.be.fulfilled.then(() => {
-      expect(expiredSpy).to.have.been.called.once;
-      expect(nonExpiredSpy).to.have.been.called.once;
-    });
-  });
-
   it('should clear scheduled retry if another fetch is performed', async () => {
     const firstError = spy();
     const secondSuccess = spy();
@@ -260,5 +225,93 @@ describe('IAccountData cache', () => {
     });
 
     return expect(update).to.eventually.be.fulfilled;
+  });
+
+  it('should invalidate after 60 seconds', async () => {
+    const fetchSpy = spy();
+    const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+
+    const update = new Promise<void>((resolve, reject) => {
+      const cache = new AccountDataCache(
+        (_accountToken) => {
+          fetchSpy();
+          return Promise.resolve({ expiry });
+        },
+        () => {},
+      );
+
+      cache.fetch(dummyAccountToken, {
+        onFinish: async () => {
+          clock.tick(59_000);
+          // Timeout to let asynchronous tasks finish
+          await new Promise((resolve) => setTimeout(resolve));
+
+          cache.fetch(dummyAccountToken, {
+            onFinish: async () => {
+              clock.tick(1_000);
+              // Timeout to let asynchronous tasks finish
+              await new Promise((resolve) => setTimeout(resolve));
+
+              cache.fetch(dummyAccountToken, {
+                onFinish: async () => {
+                  resolve();
+                },
+                onError: (_error: Error) => reject(),
+              });
+            },
+            onError: (_error: Error) => reject(),
+          });
+        },
+        onError: (_error: Error) => reject(),
+      });
+    });
+
+    return expect(update).to.eventually.be.fulfilled.then(() => {
+      expect(fetchSpy).to.have.been.called.twice;
+    });
+  });
+
+  it('should invalidate after 10 seconds when epired', async () => {
+    const fetchSpy = spy();
+    const expiry = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
+    const update = new Promise<void>((resolve, reject) => {
+      const cache = new AccountDataCache(
+        (_accountToken) => {
+          fetchSpy();
+          return Promise.resolve({ expiry });
+        },
+        () => {},
+      );
+
+      cache.fetch(dummyAccountToken, {
+        onFinish: async () => {
+          clock.tick(9_000);
+          // Timeout to let asynchronous tasks finish
+          await new Promise((resolve) => setTimeout(resolve));
+
+          cache.fetch(dummyAccountToken, {
+            onFinish: async () => {
+              clock.tick(1_000);
+              // Timeout to let asynchronous tasks finish
+              await new Promise((resolve) => setTimeout(resolve));
+
+              cache.fetch(dummyAccountToken, {
+                onFinish: async () => {
+                  resolve();
+                },
+                onError: (_error: Error) => reject(),
+              });
+            },
+            onError: (_error: Error) => reject(),
+          });
+        },
+        onError: (_error: Error) => reject(),
+      });
+    });
+
+    return expect(update).to.eventually.be.fulfilled.then(() => {
+      expect(fetchSpy).to.have.been.called.twice;
+    });
   });
 });
