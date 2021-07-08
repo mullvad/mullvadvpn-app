@@ -16,12 +16,11 @@ protocol AccountViewControllerDelegate: AnyObject {
 
 class AccountViewController: UIViewController, AppStorePaymentObserver, AccountObserver {
 
-    @IBOutlet var accountTokenButton: UIButton!
-    @IBOutlet var purchaseButton: InAppPurchaseButton!
-    @IBOutlet var restoreButton: AppButton!
-    @IBOutlet var logoutButton: AppButton!
-    @IBOutlet var expiryLabel: UILabel!
-    @IBOutlet var activityIndicator: SpinnerActivityIndicatorView!
+    private let contentView: AccountContentView = {
+        let contentView = AccountContentView()
+        contentView.translatesAutoresizingMaskIntoConstraints = false
+        return contentView
+    }()
 
     private var copyToPasteboardWork: DispatchWorkItem?
 
@@ -34,7 +33,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
     private lazy var purchaseButtonInteractionRestriction =
         UserInterfaceInteractionRestriction { [weak self] (enableUserInteraction, _) in
             // Make sure to disable the button if the product is not loaded
-            self?.purchaseButton.isEnabled = enableUserInteraction &&
+            self?.contentView.purchaseButton.isEnabled = enableUserInteraction &&
                 self?.product != nil &&
                 AppStorePaymentManager.canMakePayments
     }
@@ -55,20 +54,45 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        view.backgroundColor = .secondaryColor
+
+        let scrollView = UIScrollView()
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(contentView)
+        view.addSubview(scrollView)
+
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.bottomAnchor.constraint(greaterThanOrEqualTo: scrollView.safeAreaLayoutGuide.bottomAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+        ])
+
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
             tableName: "Account",
             comment: "Navigation title"
         )
 
+        contentView.accountTokenRowView.value = Account.shared.formattedToken
+        contentView.accountTokenRowView.actionHandler = { [weak self] in
+            self?.copyAccountToken()
+        }
+
+        contentView.restorePurchasesButton.addTarget(self, action: #selector(restorePurchases), for: .touchUpInside)
+        contentView.purchaseButton.addTarget(self, action: #selector(doPurchase), for: .touchUpInside)
+        contentView.logoutButton.addTarget(self, action: #selector(doLogout), for: .touchUpInside)
+
         AppStorePaymentManager.shared.addPaymentObserver(self)
         Account.shared.addObserver(self)
 
-        accountTokenButton.setTitle(Account.shared.formattedToken, for: .normal)
-
-        if let expiryDate = Account.shared.expiry {
-            updateAccountExpiry(expiryDate: expiryDate)
-        }
+        updateAccountExpiry(expiryDate: Account.shared.expiry)
 
         // Make sure to disable IAPs when payments are restricted
         if AppStorePaymentManager.canMakePayments {
@@ -80,28 +104,15 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
     // MARK: - Private methods
 
-    private func updateAccountExpiry(expiryDate: Date) {
-        let accountExpiry = AccountExpiry(date: expiryDate)
-
-        if accountExpiry.isExpired {
-            expiryLabel.text = NSLocalizedString(
-                "ACCOUNT_OUT_OF_TIME_LABEL",
-                tableName: "Account",
-                value: "OUT OF TIME",
-                comment: "Label displayed in place of account expiration when account is out of time."
-            )
-            expiryLabel.textColor = .dangerColor
-        } else {
-            expiryLabel.text = accountExpiry.formattedDate
-            expiryLabel.textColor = .white
-        }
+    private func updateAccountExpiry(expiryDate: Date?) {
+        contentView.accountExpiryRowView.value = expiryDate
     }
 
     private func requestStoreProducts() {
         let inAppPurchase = AppStoreSubscription.thirtyDays
 
-        purchaseButton.setTitle(inAppPurchase.localizedTitle, for: .normal)
-        purchaseButton.isLoading = true
+        contentView.purchaseButton.setTitle(inAppPurchase.localizedTitle, for: .normal)
+        contentView.purchaseButton.isLoading = true
 
         purchaseButtonInteractionRestriction.increase(animated: true)
 
@@ -119,7 +130,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
                     self.didFailLoadingProducts(with: error)
                 }
 
-                self.purchaseButton.isLoading = false
+                self.contentView.purchaseButton.isLoading = false
                 self.purchaseButtonInteractionRestriction.decrease(animated: true)
             }
         }
@@ -139,7 +150,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         )
         let title = String(format: format, localizedTitle, localizedPrice)
 
-        purchaseButton.setTitle(title, for: .normal)
+        contentView.purchaseButton.setTitle(title, for: .normal)
     }
 
     private func didFailLoadingProducts(with error: Error) {
@@ -150,7 +161,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
             comment: "Purchase button title displayed when unable to load the price of in-app purchase."
         )
 
-        purchaseButton.setTitle(title, for: .normal)
+        contentView.purchaseButton.setTitle(title, for: .normal)
     }
 
     private func setPaymentsRestricted() {
@@ -161,13 +172,13 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
             comment: "Purchase button title displayed when payments are restriced on device."
         )
 
-        purchaseButton.setTitle(title, for: .normal)
-        purchaseButton.isEnabled = false
+        contentView.purchaseButton.setTitle(title, for: .normal)
+        contentView.purchaseButton.isEnabled = false
     }
 
     private func setEnableUserInteraction(_ enableUserInteraction: Bool, animated: Bool) {
         // Disable all buttons
-        [restoreButton, logoutButton].forEach { (button) in
+        [contentView.restorePurchasesButton, contentView.logoutButton].forEach { (button) in
             button?.isEnabled = enableUserInteraction
         }
 
@@ -186,9 +197,9 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
         // Show/hide the spinner next to "Paid until"
         if enableUserInteraction {
-            activityIndicator.stopAnimating()
+            contentView.accountExpiryRowView.activityIndicator.stopAnimating()
         } else {
-            activityIndicator.startAnimating()
+            contentView.accountExpiryRowView.activityIndicator.startAnimating()
         }
     }
 
@@ -372,7 +383,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
     // MARK: - Actions
 
-    @IBAction func doLogout() {
+    @objc private func doLogout() {
         showLogoutConfirmation(completion: { (confirmed) in
             if confirmed {
                 self.confirmLogout()
@@ -380,20 +391,17 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         }, animated: true)
     }
 
-    @IBAction func copyAccountToken() {
+    private func copyAccountToken() {
         UIPasteboard.general.string = Account.shared.token
 
-        accountTokenButton.setTitle(
-            NSLocalizedString(
-                "COPIED_TO_PASTEBOARD_LABEL",
-                tableName: "Account",
-                comment: "Message, temporarily displayed in place account token, after copying the account token to pasteboard on tap."
-            ),
-            for: .normal
+        contentView.accountTokenRowView.value = NSLocalizedString(
+            "COPIED_TO_PASTEBOARD_LABEL",
+            tableName: "Account",
+            comment: "Message, temporarily displayed in place account token, after copying the account token to pasteboard on tap."
         )
 
         let dispatchWork = DispatchWorkItem { [weak self] in
-            self?.accountTokenButton.setTitle(Account.shared.formattedToken, for: .normal)
+            self?.contentView.accountTokenRowView.value = Account.shared.formattedToken
         }
 
         DispatchQueue.main.asyncAfter(wallDeadline: .now() + .seconds(3), execute: dispatchWork)
@@ -402,7 +410,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         self.copyToPasteboardWork = dispatchWork
     }
 
-    @IBAction func doPurchase() {
+    @objc private func doPurchase() {
         guard let product = product, let accountToken = Account.shared.token else { return }
 
         let payment = SKPayment(product: product)
@@ -413,7 +421,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         AppStorePaymentManager.shared.addPayment(payment, for: accountToken)
     }
 
-    @IBAction func restorePurchases() {
+    @objc private func restorePurchases() {
         guard let accountToken = Account.shared.token else { return }
 
         compoundInteractionRestriction.increase(animated: true)
