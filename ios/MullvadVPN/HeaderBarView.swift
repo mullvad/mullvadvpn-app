@@ -33,7 +33,12 @@ class HeaderBarView: UIView {
         settingsButton.setImage(UIImage(named: "IconSettings"), for: .normal)
         settingsButton.translatesAutoresizingMaskIntoConstraints = false
         settingsButton.accessibilityIdentifier = "SettingsButton"
-        settingsButton.accessibilityLabel = NSLocalizedString("HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL", comment: "")
+        settingsButton.accessibilityLabel = NSLocalizedString(
+            "HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL",
+            tableName: "HeaderBar",
+            value: "Settings",
+            comment: ""
+        )
         return settingsButton
     }
 
