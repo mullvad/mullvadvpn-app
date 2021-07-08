@@ -105,7 +105,7 @@ pub fn handle_service_main(_arguments: Vec<OsString>) {
     let log_dir = crate::get_log_dir(cli::get_config()).expect("Log dir should be available here");
 
     let runtime = new_runtime_builder().build();
-    let mut runtime = match runtime {
+    let runtime = match runtime {
         Err(error) => {
             log::error!("{}", error.display_chain());
             persistent_service_status
