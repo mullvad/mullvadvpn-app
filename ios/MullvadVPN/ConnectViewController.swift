@@ -163,7 +163,12 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         mainContentView.connectButton.setTitle(tunnelState.localizedTitleForConnectButton, for: .normal)
         mainContentView.selectLocationButton.setTitle(tunnelState.localizedTitleForSelectLocationButton, for: .normal)
         mainContentView.splitDisconnectButton.primaryButton.setTitle(tunnelState.localizedTitleForDisconnectButton, for: .normal)
-        mainContentView.splitDisconnectButton.secondaryButton.accessibilityLabel = NSLocalizedString("RECONNECT_BUTTON_ACCESSIBILITY_LABEL", comment: "")
+        mainContentView.splitDisconnectButton.secondaryButton.accessibilityLabel = NSLocalizedString(
+            "RECONNECT_BUTTON_ACCESSIBILITY_LABEL",
+            tableName: "Main",
+            value: "Reconnect",
+            comment: ""
+        )
 
         updateTraitDependentViews()
     }
@@ -408,58 +413,127 @@ private extension TunnelState {
     var localizedTitleForSecureLabel: String {
         switch self {
         case .connecting, .reconnecting:
-            return NSLocalizedString("Creating secure connection", comment: "")
+            return NSLocalizedString(
+                "TUNNEL_STATE_CONNECTING",
+                tableName: "Main",
+                value: "Creating secure connection",
+                comment: ""
+            )
 
         case .connected:
-            return NSLocalizedString("Secure connection", comment: "")
+            return NSLocalizedString(
+                "TUNNEL_STATE_CONNECTED",
+                tableName: "Main",
+                value: "Secure connection",
+                comment: ""
+            )
 
         case .disconnecting, .disconnected:
-            return NSLocalizedString("Unsecure connection", comment: "")
+            return NSLocalizedString(
+                "TUNNEL_STATE_DISCONNECTED",
+                tableName: "Main",
+                value: "Unsecure connection",
+                comment: ""
+            )
         }
     }
 
     var localizedTitleForSelectLocationButton: String? {
         switch self {
         case .disconnected, .disconnecting:
-            return NSLocalizedString("Select location", comment: "")
+            return NSLocalizedString(
+                "SELECT_LOCATION_BUTTON_TITLE",
+                tableName: "Main",
+                value: "Select location",
+                comment: ""
+            )
         case .connecting, .connected, .reconnecting:
-            return NSLocalizedString("Switch location", comment: "")
+            return NSLocalizedString(
+                "SWITCH_LOCATION_BUTTON_TITLE",
+                tableName: "Main",
+                value: "Switch location",
+                comment: ""
+            )
         }
     }
 
     var localizedTitleForConnectButton: String {
-        return NSLocalizedString("Secure connection", comment: "")
+        return NSLocalizedString(
+            "CONNECT_BUTTON_TITLE",
+            tableName: "Main",
+            value: "Secure connection",
+            comment: ""
+        )
     }
 
     var localizedTitleForDisconnectButton: String {
         switch self {
         case .connecting:
-            return NSLocalizedString("Cancel", comment: "")
+            return NSLocalizedString(
+                "CANCEL_BUTTON_TITLE",
+                tableName: "Main",
+                value: "Cancel",
+                comment: ""
+            )
         case .connected, .reconnecting, .disconnecting, .disconnected:
-            return NSLocalizedString("Disconnect", comment: "")
+            return NSLocalizedString(
+                "DISCONNECT_BUTTON_TITLE",
+                tableName: "Main",
+                value: "Disconnect",
+                comment: ""
+            )
         }
     }
 
     var localizedAccessibilityLabel: String {
         switch self {
         case .connecting:
-            return NSLocalizedString("Creating secure connection", comment: "")
+            return NSLocalizedString(
+                "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
+                tableName: "Main",
+                value: "Creating secure connection",
+                comment: ""
+            )
 
         case .connected(let tunnelInfo):
-            return String(format: NSLocalizedString("Secure connection. Connected to %@, %@", comment: ""),
-                          tunnelInfo.location.city,
-                          tunnelInfo.location.country)
+            return String(
+                format: NSLocalizedString(
+                    "TUNNEL_STATE_CONNECTED_ACCESSIBILITY_LABEL",
+                    tableName: "Main",
+                    value: "Secure connection. Connected to %@, %@",
+                    comment: ""
+                ),
+                tunnelInfo.location.city,
+                tunnelInfo.location.country
+            )
 
         case .disconnected:
-            return NSLocalizedString("Unsecured connection", comment: "")
+            return NSLocalizedString(
+                "TUNNEL_STATE_DISCONNECTED_ACCESSIBILITY_LABEL",
+                tableName: "Main",
+                value: "Unsecured connection",
+                comment: ""
+            )
 
         case .reconnecting(let tunnelInfo):
-            return String(format: NSLocalizedString("Reconnecting to %@, %@", comment: ""),
-                          tunnelInfo.location.city,
-                          tunnelInfo.location.country)
+            return String(
+                format: NSLocalizedString(
+                    "TUNNEL_STATE_RECONNECTING_ACCESSIBILITY_LABEL",
+                    tableName: "Main",
+                    value: "Reconnecting to %@, %@",
+                    comment: ""
+                ),
+                tunnelInfo.location.city,
+                tunnelInfo.location.country
+            )
 
         case .disconnecting:
-            return NSLocalizedString("Disconnecting", comment: "")
+            return NSLocalizedString(
+                "TUNNEL_STATE_DISCONNECTING_ACCESSIBILITY_LABEL",
+                tableName: "Main",
+                value: "Disconnecting",
+                comment: ""
+            )
         }
     }
 
