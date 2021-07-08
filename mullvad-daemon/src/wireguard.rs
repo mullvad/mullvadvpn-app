@@ -304,7 +304,7 @@ impl KeyManager {
         rotation_interval_secs: u64,
         account_token: AccountToken,
     ) {
-        tokio::time::delay_for(ROTATION_START_DELAY).await;
+        tokio::time::sleep(ROTATION_START_DELAY).await;
 
         let rotate_key_for_account = move |old_key: &PublicKey| {
             Self::rotate_key(
