@@ -62,7 +62,7 @@ class WireguardKeysContentView: UIView {
         let stackView = UIStackView(arrangedSubviews: [regenerateKeyButton, verifyKeyButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.contentLayoutMargins.top
+        stackView.spacing = UIMetrics.interButtonSpacing
         return stackView
     }()
 
