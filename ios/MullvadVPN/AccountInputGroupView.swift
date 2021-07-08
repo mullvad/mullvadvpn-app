@@ -20,7 +20,12 @@ class AccountInputGroupView: UIView {
         let button = UIButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "IconArrow"), for: .normal)
-        button.accessibilityLabel = NSLocalizedString("ACCOUNT_INPUT_LOGIN_BUTTON_ACCESSIBILITY_LABEL", comment: "")
+        button.accessibilityLabel = NSLocalizedString(
+            "ACCOUNT_INPUT_LOGIN_BUTTON_ACCESSIBILITY_LABEL",
+            tableName: "AccountInput",
+            value: "Log in",
+            comment: "Accessibility label for submit button in account token input."
+        )
         return button
     }()
 
