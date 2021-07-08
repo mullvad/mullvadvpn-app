@@ -234,6 +234,7 @@
 		58F558FB2696EB1C00F630D0 /* AppStorePaymentManager.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558F72696EB1C00F630D0 /* AppStorePaymentManager.strings */; };
 		58F5590E2697002100F630D0 /* Main.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559052697002000F630D0 /* Main.strings */; };
 		58F5590F2697002100F630D0 /* ConnectionPanel.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559072697002100F630D0 /* ConnectionPanel.strings */; };
+		58F558FE2696F09100F630D0 /* KeyboardNavigation.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558FC2696F09100F630D0 /* KeyboardNavigation.strings */; };
 		58F61F4F2692F21C00DCFC2B /* WireguardKeys.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F61F4D2692F21C00DCFC2B /* WireguardKeys.strings */; };
 		58F7CA882692E34000FC59FD /* WireguardKeysContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */; };
 		58F840AF2464382C0044E708 /* KeychainItemRevision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840AE2464382C0044E708 /* KeychainItemRevision.swift */; };
@@ -462,6 +463,7 @@
 		58F558F82696EB1C00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AppStorePaymentManager.strings; sourceTree = "<group>"; };
 		58F559062697002000F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		58F559082697002100F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ConnectionPanel.strings; sourceTree = "<group>"; };
+		58F558FD2696F09100F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/KeyboardNavigation.strings; sourceTree = "<group>"; };
 		58F61F4E2692F21C00DCFC2B /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/WireguardKeys.strings; sourceTree = "<group>"; };
 		58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardKeysContentView.swift; sourceTree = "<group>"; };
 		58F840AE2464382C0044E708 /* KeychainItemRevision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainItemRevision.swift; sourceTree = "<group>"; };
@@ -571,6 +573,7 @@
 				582CFEE526945FC30072883A /* AppStoreSubscriptions.strings */,
 				58F559072697002100F630D0 /* ConnectionPanel.strings */,
 				58F558DB2695B85E00F630D0 /* Consent.strings */,
+				58F558FC2696F09100F630D0 /* KeyboardNavigation.strings */,
 				587B7543266922BF00DEF7E9 /* Localizable.strings */,
 				58F558DE2695BD3E00F630D0 /* Login.strings */,
 				58F559052697002000F630D0 /* Main.strings */,
@@ -1007,6 +1010,7 @@
 				584789BE264D4A2A000E45FB /* new_le_root_cert.cer in Resources */,
 				58F61F4F2692F21C00DCFC2B /* WireguardKeys.strings in Resources */,
 				58F5590E2697002100F630D0 /* Main.strings in Resources */,
+				58F558FE2696F09100F630D0 /* KeyboardNavigation.strings in Resources */,
 				581FC4FA2695ACE100AA97BA /* Account.strings in Resources */,
 				58F558EC2695D26A00F630D0 /* MullvadRest.strings in Resources */,
 				582CFEEA269463B80072883A /* Settings.strings in Resources */,
@@ -1431,6 +1435,14 @@
 				58F559082697002100F630D0 /* en */,
 			);
 			name = ConnectionPanel.strings;
+            sourceTree = "<group>";
+        };
+		58F558FC2696F09100F630D0 /* KeyboardNavigation.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58F558FD2696F09100F630D0 /* en */,
+			);
+			name = KeyboardNavigation.strings;
 			sourceTree = "<group>";
 		};
 		58F61F4D2692F21C00DCFC2B /* WireguardKeys.strings */ = {
