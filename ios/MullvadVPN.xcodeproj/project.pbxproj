@@ -238,6 +238,7 @@
 		58F5590B2697002100F630D0 /* CustomDateComponentsFormatting.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558FF2697002000F630D0 /* CustomDateComponentsFormatting.strings */; };
 		58F5590C2697002100F630D0 /* AppDelegate.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559012697002000F630D0 /* AppDelegate.strings */; };
 		58F5590D2697002100F630D0 /* AccountInput.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559032697002000F630D0 /* AccountInput.strings */; };
+		58F559102697002100F630D0 /* HeaderBar.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559092697002100F630D0 /* HeaderBar.strings */; };
 		58F61F4F2692F21C00DCFC2B /* WireguardKeys.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F61F4D2692F21C00DCFC2B /* WireguardKeys.strings */; };
 		58F7CA882692E34000FC59FD /* WireguardKeysContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */; };
 		58F840AF2464382C0044E708 /* KeychainItemRevision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840AE2464382C0044E708 /* KeychainItemRevision.swift */; };
@@ -470,6 +471,7 @@
 		58F559002697002000F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/CustomDateComponentsFormatting.strings; sourceTree = "<group>"; };
 		58F559022697002000F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AppDelegate.strings; sourceTree = "<group>"; };
 		58F559042697002000F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AccountInput.strings; sourceTree = "<group>"; };
+		58F5590A2697002100F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/HeaderBar.strings; sourceTree = "<group>"; };
 		58F61F4E2692F21C00DCFC2B /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/WireguardKeys.strings; sourceTree = "<group>"; };
 		58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardKeysContentView.swift; sourceTree = "<group>"; };
 		58F840AE2464382C0044E708 /* KeychainItemRevision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainItemRevision.swift; sourceTree = "<group>"; };
@@ -582,6 +584,7 @@
 				58F559072697002100F630D0 /* ConnectionPanel.strings */,
 				58F558DB2695B85E00F630D0 /* Consent.strings */,
 				58F558FF2697002000F630D0 /* CustomDateComponentsFormatting.strings */,
+				58F559092697002100F630D0 /* HeaderBar.strings */,
 				58F558FC2696F09100F630D0 /* KeyboardNavigation.strings */,
 				587B7543266922BF00DEF7E9 /* Localizable.strings */,
 				58F558DE2695BD3E00F630D0 /* Login.strings */,
@@ -1016,6 +1019,7 @@
 				584789B8264D4A2A000E45FB /* old_le_root_cert.cer in Resources */,
 				58F558E62695D1F200F630D0 /* ProblemReport.strings in Resources */,
 				58F5590D2697002100F630D0 /* AccountInput.strings in Resources */,
+				58F559102697002100F630D0 /* HeaderBar.strings in Resources */,
 				58F558F92696EB1C00F630D0 /* StoreKitErrors.strings in Resources */,
 				584789BE264D4A2A000E45FB /* new_le_root_cert.cer in Resources */,
 				58F61F4F2692F21C00DCFC2B /* WireguardKeys.strings in Resources */,
@@ -1479,6 +1483,14 @@
 				58F559042697002000F630D0 /* en */,
 			);
 			name = AccountInput.strings;
+			sourceTree = "<group>";
+		};
+		58F559092697002100F630D0 /* HeaderBar.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58F5590A2697002100F630D0 /* en */,
+			);
+			name = HeaderBar.strings;
 			sourceTree = "<group>";
 		};
 		58F61F4D2692F21C00DCFC2B /* WireguardKeys.strings */ = {
