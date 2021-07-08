@@ -40,7 +40,7 @@ class ConnectMainContentView: UIView {
 
     lazy var buttonsStackView: UIStackView = {
         let stackView = UIStackView()
-        stackView.spacing = 16
+        stackView.spacing = UIMetrics.interButtonSpacing
         stackView.axis = .vertical
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
