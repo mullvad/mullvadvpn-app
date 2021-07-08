@@ -27,6 +27,7 @@ use std::{
     time::Duration,
 };
 use talpid_types::ErrorExt;
+use tokio_stream::wrappers::{ReceiverStream, UnboundedReceiverStream};
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -42,8 +43,7 @@ struct ManagementServiceImpl {
 }
 
 pub type ServiceResult<T> = std::result::Result<Response<T>, Status>;
-type EventsListenerReceiver =
-    tokio::sync::mpsc::UnboundedReceiver<Result<types::DaemonEvent, Status>>;
+type EventsListenerReceiver = UnboundedReceiverStream<Result<types::DaemonEvent, Status>>;
 type EventsListenerSender = tokio::sync::mpsc::UnboundedSender<Result<types::DaemonEvent, Status>>;
 
 const INVALID_VOUCHER_MESSAGE: &str = "This voucher code is invalid";
@@ -51,9 +51,8 @@ const USED_VOUCHER_MESSAGE: &str = "This voucher code has already been used";
 
 #[mullvad_management_interface::async_trait]
 impl ManagementService for ManagementServiceImpl {
-    type GetRelayLocationsStream =
-        tokio::sync::mpsc::Receiver<Result<types::RelayListCountry, Status>>;
-    type GetSplitTunnelProcessesStream = tokio::sync::mpsc::UnboundedReceiver<Result<i32, Status>>;
+    type GetRelayLocationsStream = ReceiverStream<Result<types::RelayListCountry, Status>>;
+    type GetSplitTunnelProcessesStream = UnboundedReceiverStream<Result<i32, Status>>;
     type EventsListenStream = EventsListenerReceiver;
 
     // Control and get the tunnel state
@@ -102,7 +101,7 @@ impl ManagementService for ManagementServiceImpl {
         let mut subscriptions = self.subscriptions.write();
         subscriptions.push(tx);
 
-        Ok(Response::new(rx))
+        Ok(Response::new(UnboundedReceiverStream::new(rx)))
     }
 
     async fn prepare_restart(&self, _: Request<()>) -> ServiceResult<()> {
@@ -194,7 +193,7 @@ impl ManagementService for ManagementServiceImpl {
         self.send_command_to_daemon(DaemonCommand::GetRelayLocations(tx))?;
         let locations = self.wait_for_result(rx).await?;
 
-        let (mut stream_tx, stream_rx) =
+        let (stream_tx, stream_rx) =
             tokio::sync::mpsc::channel(cmp::max(1, locations.countries.len()));
 
         tokio::spawn(async move {
@@ -211,7 +210,7 @@ impl ManagementService for ManagementServiceImpl {
             }
         });
 
-        Ok(Response::new(stream_rx))
+        Ok(Response::new(ReceiverStream::new(stream_rx)))
     }
 
     async fn get_current_location(&self, _: Request<()>) -> ServiceResult<types::GeoIpLocation> {
@@ -586,12 +585,12 @@ impl ManagementService for ManagementServiceImpl {
                 }
             });
 
-            Ok(Response::new(rx))
+            Ok(Response::new(UnboundedReceiverStream::new(rx)))
         }
         #[cfg(not(target_os = "linux"))]
         {
             let (_, rx) = tokio::sync::mpsc::unbounded_channel();
-            Ok(Response::new(rx))
+            Ok(Response::new(UnboundedReceiverStream::new(rx)))
         }
     }
 
