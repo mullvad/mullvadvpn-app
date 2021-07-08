@@ -629,7 +629,8 @@ impl RouteManagerImpl {
                 let mut add_message = self
                     .handle
                     .route()
-                    .add_v4()
+                    .add()
+                    .v4()
                     .destination_prefix(v4_prefix.ip(), v4_prefix.prefix());
 
                 if v4_prefix.prefix() > 0 && v4_prefix.prefix() < 32 {
@@ -653,7 +654,8 @@ impl RouteManagerImpl {
                 let mut add_message = self
                     .handle
                     .route()
-                    .add_v6()
+                    .add()
+                    .v6()
                     .destination_prefix(v6_prefix.ip(), v6_prefix.prefix());
 
                 if v6_prefix.prefix() > 0 && v6_prefix.prefix() < 128 {
