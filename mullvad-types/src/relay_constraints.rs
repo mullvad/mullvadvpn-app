@@ -302,6 +302,27 @@ impl Match<Relay> for LocationConstraint {
     }
 }
 
+impl LocationConstraint {
+    /// Returns whether `self` is equal to or a subset of `other`.
+    pub fn is_subset(&self, other: &Self) -> bool {
+        match self {
+            LocationConstraint::Country(_) => self == other,
+            LocationConstraint::City(ref country, ref _city) => match other {
+                LocationConstraint::Country(ref other_country) => country == other_country,
+                LocationConstraint::City(..) => self == other,
+                _ => false,
+            },
+            LocationConstraint::Hostname(ref country, ref city, ref _hostname) => match other {
+                LocationConstraint::Country(ref other_country) => country == other_country,
+                LocationConstraint::City(ref other_country, ref other_city) => {
+                    country == other_country && city == other_city
+                }
+                LocationConstraint::Hostname(..) => self == other,
+            },
+        }
+    }
+}
+
 /// Limits the set of [`crate::relay_list::Relay`]s used by a `RelaySelector` based on
 /// provider.
 pub type Provider = String;

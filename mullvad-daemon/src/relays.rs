@@ -235,16 +235,10 @@ impl RelaySelector {
             exit_relay_constraints.wireguard_constraints.entry_location
         {
             let is_subset = match &exit_relay_constraints.location {
-                Constraint::Only(LocationConstraint::Country(_)) => match &entry_location {
-                    Constraint::Only(LocationConstraint::City(..))
-                    | Constraint::Only(LocationConstraint::Hostname(..)) => true,
-                    _ => false,
+                Constraint::Only(exit_location) => match entry_location {
+                    Constraint::Any => false,
+                    Constraint::Only(ref entry) => entry.is_subset(exit_location),
                 },
-                Constraint::Only(LocationConstraint::City(..)) => match &entry_location {
-                    Constraint::Only(LocationConstraint::Hostname(..)) => true,
-                    _ => false,
-                },
-                Constraint::Only(LocationConstraint::Hostname(..)) => false,
                 _ => true,
             };
             exit_relay_constraints.wireguard_constraints = WireguardConstraints {
