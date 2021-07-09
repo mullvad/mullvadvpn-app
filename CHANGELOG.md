@@ -37,6 +37,7 @@ Line wrap the file at 100 chars.                                              Th
   history.
 - Fix lack of account expiry updates when using the app in unpinned mode and improve updating of
   account expiry overall.
+- Fix incorrect WireGuard relay filtering when exit and entry locations overlap.
 
 #### Linux
 - Make offline monitor aware of routing table changes.
