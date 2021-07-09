@@ -93,7 +93,7 @@ std::wstring GetWindowsVersion()
 {
 	common::fs::ScopedNativeFileSystem nativeFileSystem;
 
-	const auto systemDir = common::fs::GetKnownFolderPath(FOLDERID_System, 0, nullptr);
+	const auto systemDir = common::fs::GetKnownFolderPath(FOLDERID_System);
 	const auto systemModule = std::filesystem::path(systemDir).append(L"ntoskrnl.exe");
 
 	DWORD dummy;
@@ -244,7 +244,7 @@ void __declspec(dllexport) NSISCALL SetLogTarget
 		}
 
 		auto logpath = std::filesystem::path(common::fs::GetKnownFolderPath(
-			FOLDERID_ProgramData, 0, nullptr));
+			FOLDERID_ProgramData));
 		logpath.append(L"Mullvad VPN");
 
 		if (FALSE == CreateDirectoryW(logpath.c_str(), nullptr))
