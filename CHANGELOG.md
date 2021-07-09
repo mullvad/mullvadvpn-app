@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 - Update the out of time-view and new account-view to make it more user friendly.
 - Change the app update notification when the suggested version is a beta, to include that it's a
   beta.
+- Upgrade OpenVPN from 2.5.1 to 2.5.3.
 
 ### Fixed
 - Fix link to download page not always using the beta URL when it should.
@@ -45,6 +46,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Fix failure to restart the daemon when resuming from "fast startup" hibernation.
+- Fix OpenVPN not responding to shutdown signals when they are sent early on, causing it to close
+  after 30 seconds.
 - Disable notification actions for persistent notifications since they were called when pressing
   close.
 - Remove deleted network devices from consideration in the offline monitor. Previously, the offline
