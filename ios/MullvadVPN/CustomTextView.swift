@@ -57,9 +57,37 @@ class CustomTextView: UITextView {
         return placeholderInset
     }
 
+    override var accessibilityLabel: String? {
+        set {
+            super.accessibilityLabel = newValue
+        }
+        get {
+            if self.text.isEmpty {
+                return placeholderTextLabel.text
+            } else {
+                return super.accessibilityLabel
+            }
+        }
+    }
+
+    override var accessibilityPath: UIBezierPath? {
+        set {
+            super.accessibilityPath = newValue
+        }
+        get {
+            if roundCorners {
+                return UIBezierPath(roundedRect: accessibilityFrame, cornerRadius: kTextViewCornerRadius)
+            } else {
+                return UIBezierPath(rect: accessibilityFrame)
+            }
+        }
+    }
+
     override init(frame: CGRect, textContainer: NSTextContainer?) {
         super.init(frame: frame, textContainer: textContainer)
 
+        placeholderTextLabel.isAccessibilityElement = false
+        placeholderTextLabel.accessibilityTraits = []
         placeholderTextLabel.textColor = UIColor.TextField.placeholderTextColor
         placeholderTextLabel.highlightedTextColor = UIColor.TextField.placeholderTextColor
         placeholderTextLabel.translatesAutoresizingMaskIntoConstraints = false
