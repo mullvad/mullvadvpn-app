@@ -75,7 +75,7 @@ class PreferencesViewController: UITableViewController, TunnelObserver {
             let cell = cell as! SettingsSwitchCell
 
             cell.titleLabel.text = NSLocalizedString("BLOCK_ADS_CELL_LABEL", tableName: "Preferences", comment: "")
-            cell.switchControl.setOn(self.dnsSettings?.blockAdvertising ?? false, animated: false)
+            cell.setOn(self.dnsSettings?.blockAdvertising ?? false, animated: false)
             cell.action = { [weak self] (isOn) in
                 self?.dnsSettings?.blockAdvertising = isOn
                 self?.saveDNSSettings()
@@ -87,7 +87,7 @@ class PreferencesViewController: UITableViewController, TunnelObserver {
             let cell = cell as! SettingsSwitchCell
 
             cell.titleLabel.text = NSLocalizedString("BLOCK_TRACKERS_CELL_LABEL", tableName: "Preferences", comment: "")
-            cell.switchControl.setOn(self.dnsSettings?.blockTracking ?? false, animated: false)
+            cell.setOn(self.dnsSettings?.blockTracking ?? false, animated: false)
             cell.action = { [weak self] (isOn) in
                 self?.dnsSettings?.blockTracking = isOn
                 self?.saveDNSSettings()
