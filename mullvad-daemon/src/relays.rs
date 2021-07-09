@@ -15,7 +15,7 @@ use mullvad_types::{
     location::Location,
     relay_constraints::{
         BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
-        OpenVpnConstraints, Providers, RelayConstraints, WireguardConstraints,
+        OpenVpnConstraints, Providers, RelayConstraints, Set, WireguardConstraints,
     },
     relay_list::{OpenVpnEndpointData, Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
@@ -234,13 +234,7 @@ impl RelaySelector {
         let wg_entry_is_subset = if let Some(entry_location) =
             exit_relay_constraints.wireguard_constraints.entry_location
         {
-            let is_subset = match &exit_relay_constraints.location {
-                Constraint::Only(exit_location) => match entry_location {
-                    Constraint::Any => false,
-                    Constraint::Only(ref entry) => entry.is_subset(exit_location),
-                },
-                _ => true,
-            };
+            let is_subset = entry_location.is_subset(&exit_relay_constraints.location);
             exit_relay_constraints.wireguard_constraints = WireguardConstraints {
                 entry_location: Some(entry_location),
                 ..WIREGUARD_EXIT_CONSTRAINTS
