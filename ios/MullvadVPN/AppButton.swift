@@ -71,6 +71,8 @@ private extension UIControl.State {
     private func commonInit() {
         imageAlignment = .trailing
         contentHorizontalAlignment = .leading
+
+        accessibilityTraits.insert(.link)
     }
 
     private func updateAttributedTitle(string: String?) {
