@@ -12,10 +12,10 @@ err-derive = "0.3.0"
 mullvad-types = { path = "../mullvad-types" }
 mullvad-paths = { path = "../mullvad-paths" }
 talpid-types = { path = "../talpid-types" }
-tonic = "0.4"
+tonic = "0.5"
 tower = "0.4"
-prost = "0.7"
-prost-types = "0.7"
+prost = "0.8"
+prost-types = "0.8"
 parity-tokio-ipc = "0.9"
 futures = "0.3"
 tokio = { version = "1.8", features =  [ "rt" ] }
@@ -27,4 +27,4 @@ nix = "0.19"
 lazy_static = "1.0"
 
 [build-dependencies]
-tonic-build = { version = "0.4", default-features = false, features = ["transport", "prost"] }
+tonic-build = { version = "0.5", default-features = false, features = ["transport", "prost"] }
