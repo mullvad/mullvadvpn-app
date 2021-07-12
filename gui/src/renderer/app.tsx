@@ -208,9 +208,6 @@ export default class AppRenderer {
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 
-    window.platform = initialState.platform;
-    window.runningInDevelopment = initialState.runningInDevelopment;
-
     this.setLocale(initialState.locale);
     loadTranslations(
       messages,
@@ -563,7 +560,7 @@ export default class AppRenderer {
     let expectedContentHeight = 568;
 
     // The app content is 12px taller on macOS to fit the top arrow.
-    if (window.platform === 'darwin' && !this.guiSettings.unpinnedWindow) {
+    if (window.env.platform === 'darwin' && !this.guiSettings.unpinnedWindow) {
       expectedContentHeight += 12;
     }
 
@@ -676,7 +673,7 @@ export default class AppRenderer {
   }
 
   private async autoConnect() {
-    if (window.runningInDevelopment) {
+    if (window.env.development) {
       log.info('Skip autoconnect in development');
     } else if (this.autoConnected) {
       log.info('Skip autoconnect because it was done before');

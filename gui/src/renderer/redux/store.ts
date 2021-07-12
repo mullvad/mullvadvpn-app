@@ -32,16 +32,7 @@ export type ReduxAction =
 export type ReduxStore = ReturnType<typeof configureStore>;
 export type ReduxDispatch = Dispatch<ReduxAction>;
 
-export default function configureStore(initialState?: IReduxState) {
-  const actionCreators = {
-    ...accountActions,
-    ...connectionActions,
-    ...settingsActions,
-    ...supportActions,
-    ...versionActions,
-    ...userInterfaceActions,
-  };
-
+export default function configureStore() {
   const reducers = {
     account: accountReducer,
     connection: connectionReducer,
@@ -51,21 +42,23 @@ export default function configureStore(initialState?: IReduxState) {
     userInterface: userInterfaceReducer,
   };
 
-  const composeEnhancers: typeof compose = (() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const reduxCompose = window && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
-    if (window.runningInDevelopment && reduxCompose) {
-      return reduxCompose({ actionCreators });
-    }
-    return compose;
-  })();
-
-  const enhancer = composeEnhancers();
   const rootReducer = combineReducers(reducers);
 
-  if (initialState) {
-    return createStore(rootReducer, initialState, enhancer);
-  } else {
-    return createStore(rootReducer, enhancer);
-  }
+  return createStore(rootReducer, composeEnhancers());
+}
+
+function composeEnhancers(): typeof compose {
+  const actionCreators = {
+    ...accountActions,
+    ...connectionActions,
+    ...settingsActions,
+    ...supportActions,
+    ...versionActions,
+    ...userInterfaceActions,
+  };
+
+  return window.env.development
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ actionCreators })()
+    : compose();
 }

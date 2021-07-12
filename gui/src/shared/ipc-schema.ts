@@ -54,8 +54,6 @@ export interface IAppStateSnapshot {
   guiSettings: IGuiSettingsState;
   wireguardPublicKey?: IWireguardPublicKey;
   translations: ITranslations;
-  platform: NodeJS.Platform;
-  runningInDevelopment: boolean;
   windowsSplitTunnelingApplications?: IApplication[];
 }
 

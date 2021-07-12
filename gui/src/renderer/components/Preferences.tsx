@@ -225,8 +225,8 @@ export default class Preferences extends React.Component<IProps> {
                   </Cell.Footer>
                 </AriaInputGroup>
 
-                {(window.platform === 'win32' ||
-                  (window.platform === 'darwin' && window.runningInDevelopment)) && (
+                {(window.env.platform === 'win32' ||
+                  (window.env.platform === 'darwin' && window.env.development)) && (
                   <AriaInputGroup>
                     <Cell.Container>
                       <AriaLabel>

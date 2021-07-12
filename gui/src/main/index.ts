@@ -503,13 +503,7 @@ class ApplicationMain {
 
       const filePath = path.resolve(path.join(__dirname, '../renderer/index.html'));
       try {
-        if (process.env.NODE_ENV === 'development') {
-          await this.windowController.window.loadURL(
-            'http://localhost:8080/src/renderer/index.html',
-          );
-        } else {
-          await this.windowController.window.loadFile(filePath);
-        }
+        await this.windowController.window.loadFile(filePath);
       } catch (error) {
         log.error(`Failed to load index file: ${error.message}`);
       }
@@ -1091,8 +1085,6 @@ class ApplicationMain {
       guiSettings: this.guiSettings.state,
       wireguardPublicKey: this.wireguardPublicKey,
       translations: this.translations,
-      platform: process.platform,
-      runningInDevelopment: process.env.NODE_ENV === 'development',
       windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
     }));
 
@@ -1588,10 +1580,8 @@ class ApplicationMain {
   private allowDevelopmentRequest(url: string): boolean {
     return (
       process.env.NODE_ENV === 'development' &&
-      // Local web server providing assests (index.html, index.js and css files)
-      (url.startsWith('http://localhost:8080/') ||
-        // Downloading of React and Redux developer tools.
-        url.startsWith('devtools://devtools/') ||
+      // Downloading of React and Redux developer tools.
+      (url.startsWith('devtools://devtools/') ||
         url.startsWith('chrome-extension://') ||
         url.startsWith('https://clients2.google.com') ||
         url.startsWith('https://clients2.googleusercontent.com'))
@@ -1613,7 +1603,10 @@ class ApplicationMain {
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
     for (const name of extensions) {
       try {
-        await installer.default(installer[name], forceDownload);
+        await installer.default(installer[name], {
+          forceDownload,
+          loadExtensionOptions: { allowFileAccess: true },
+        });
       } catch (e) {
         log.info(`Error installing ${name} extension: ${e.message}`);
       }

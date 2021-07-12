@@ -82,6 +82,7 @@ function makeBrowserifyPreload(debug) {
     let stream = browserify({
       entries: './build/src/renderer/preload.js',
       debug,
+      detectGlobals: false,
     })
       .exclude('electron')
       .bundle()

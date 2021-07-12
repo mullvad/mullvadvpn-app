@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - Change the app update notification when the suggested version is a beta, to include that it's a
   beta.
 - Upgrade OpenVPN from 2.5.1 to 2.5.3.
+- Update Electron from 11.2.3 to 11.4.9.
 
 ### Fixed
 - Fix link to download page not always using the beta URL when it should.
