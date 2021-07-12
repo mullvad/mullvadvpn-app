@@ -164,7 +164,7 @@ impl HttpsConnectorWithSni {
         let addr = addrs
             .next()
             .ok_or(io::Error::new(io::ErrorKind::Other, "Empty DNS response"))?;
-        Ok(SocketAddr::new(addr, port))
+        Ok(SocketAddr::new(addr.ip(), port))
     }
 }
 
