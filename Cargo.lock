@@ -467,11 +467,8 @@ version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "44533bbbb3bb3c1fa17d9f2e4e38bbbaf8396ba82193c4cb1b6445d711445d36"
 dependencies = [
- "atty",
- "humantime 1.3.0",
  "log",
  "regex",
- "termcolor",
 ]
 
 [[package]]
@@ -481,7 +478,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f26ecb66b4bdca6c1409b40fb255eefc2bd4f6d135dab3c3124f80ffa2a9661e"
 dependencies = [
  "atty",
- "humantime 2.1.0",
+ "humantime",
  "log",
  "regex",
  "termcolor",
@@ -730,7 +727,7 @@ dependencies = [
  "futures-sink",
  "futures-task",
  "memchr",
- "pin-project-lite 0.2.6",
+ "pin-project-lite",
  "pin-utils",
  "proc-macro-hack",
  "proc-macro-nested",
@@ -795,7 +792,7 @@ dependencies = [
  "http",
  "indexmap",
  "slab",
- "tokio 1.8.1",
+ "tokio",
  "tokio-util",
  "tracing",
 ]
@@ -859,7 +856,7 @@ checksum = "60daa14be0e0786db0f03a9e57cb404c9d756eed2b6c62b9ea98ec5743ec75a9"
 dependencies = [
  "bytes 1.0.1",
  "http",
- "pin-project-lite 0.2.6",
+ "pin-project-lite",
 ]
 
 [[package]]
@@ -873,15 +870,6 @@ name = "httpdate"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6456b8a6c8f33fee7d958fcd1b60d55b11940a79e63ae87013e6d22e26034440"
-
-[[package]]
-name = "humantime"
-version = "1.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "df004cfca50ef23c36850aaaa59ad52cc70d0e90243c3c7737a4dd32dc7a3c4f"
-dependencies = [
- "quick-error",
-]
 
 [[package]]
 name = "humantime"
@@ -905,9 +893,9 @@ dependencies = [
  "httparse",
  "httpdate",
  "itoa",
- "pin-project-lite 0.2.6",
+ "pin-project-lite",
  "socket2 0.4.0",
- "tokio 1.8.1",
+ "tokio",
  "tower-service",
  "tracing",
  "want",
@@ -925,7 +913,7 @@ dependencies = [
  "log",
  "rustls",
  "rustls-native-certs",
- "tokio 1.8.1",
+ "tokio",
  "tokio-rustls",
  "webpki",
 ]
@@ -1278,7 +1266,7 @@ dependencies = [
  "natord",
  "serde",
  "talpid-types",
- "tokio 1.8.1",
+ "tokio",
  "winapi 0.3.9",
  "winres",
 ]
@@ -1316,7 +1304,7 @@ dependencies = [
  "talpid-core",
  "talpid-platform-metadata",
  "talpid-types",
- "tokio 1.8.1",
+ "tokio",
  "tokio-stream",
  "triggered",
  "uuid",
@@ -1354,7 +1342,7 @@ dependencies = [
  "rand 0.7.3",
  "talpid-core",
  "talpid-types",
- "tokio 1.8.1",
+ "tokio",
 ]
 
 [[package]]
@@ -1372,7 +1360,7 @@ dependencies = [
  "prost",
  "prost-types",
  "talpid-types",
- "tokio 1.8.1",
+ "tokio",
  "tonic",
  "tonic-build",
  "tower",
@@ -1403,7 +1391,7 @@ dependencies = [
  "regex",
  "talpid-platform-metadata",
  "talpid-types",
- "tokio 1.8.1",
+ "tokio",
  "uuid",
  "winapi 0.3.9",
  "winres",
@@ -1431,7 +1419,7 @@ dependencies = [
  "socket2 0.3.19",
  "talpid-types",
  "tempfile",
- "tokio 1.8.1",
+ "tokio",
  "tokio-rustls",
  "urlencoding",
  "webpki",
@@ -1452,7 +1440,7 @@ dependencies = [
  "mullvad-types",
  "talpid-core",
  "talpid-types",
- "tokio 1.8.1",
+ "tokio",
  "widestring",
  "winapi 0.3.9",
  "winres",
@@ -1546,7 +1534,7 @@ dependencies = [
  "log",
  "netlink-packet-core",
  "netlink-sys",
- "tokio 1.8.1",
+ "tokio",
  "tokio-util",
 ]
 
@@ -1559,7 +1547,7 @@ dependencies = [
  "futures",
  "libc",
  "log",
- "tokio 1.8.1",
+ "tokio",
 ]
 
 [[package]]
@@ -1726,7 +1714,7 @@ dependencies = [
  "libc",
  "log",
  "rand 0.7.3",
- "tokio 1.8.1",
+ "tokio",
  "winapi 0.3.9",
 ]
 
@@ -1874,12 +1862,6 @@ dependencies = [
  "quote",
  "syn",
 ]
-
-[[package]]
-name = "pin-project-lite"
-version = "0.1.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "257b64915a082f7811703966789728173279bdebb956b143dbcd23f6f970a777"
 
 [[package]]
 name = "pin-project-lite"
@@ -2224,7 +2206,7 @@ dependencies = [
  "netlink-proto",
  "nix 0.19.1",
  "thiserror",
- "tokio 1.8.1",
+ "tokio",
 ]
 
 [[package]]
@@ -2586,7 +2568,7 @@ dependencies = [
  "talpid-platform-metadata",
  "talpid-types",
  "tempfile",
- "tokio 1.8.1",
+ "tokio",
  "tokio-stream",
  "tonic",
  "tonic-build",
@@ -2611,7 +2593,7 @@ dependencies = [
  "libc",
  "log",
  "talpid-types",
- "tokio 1.8.1",
+ "tokio",
 ]
 
 [[package]]
@@ -2625,7 +2607,7 @@ dependencies = [
  "parity-tokio-ipc",
  "prost",
  "talpid-types",
- "tokio 1.8.1",
+ "tokio",
  "tonic",
  "tonic-build",
  "tower",
@@ -2728,23 +2710,6 @@ dependencies = [
 
 [[package]]
 name = "tokio"
-version = "0.2.25"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6703a273949a90131b290be1fe7b039d0fc884aa1935860dfcbe056f28cd8092"
-dependencies = [
- "bytes 0.5.6",
- "iovec",
- "lazy_static",
- "memchr",
- "mio 0.6.23",
- "num_cpus",
- "pin-project-lite 0.1.12",
- "slab",
- "tokio-macros 0.2.6",
-]
-
-[[package]]
-name = "tokio"
 version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "98c8b05dc14c75ea83d63dd391100353789f5f24b8b3866542a5e85c8be8e985"
@@ -2756,21 +2721,10 @@ dependencies = [
  "mio 0.7.13",
  "num_cpus",
  "once_cell",
- "pin-project-lite 0.2.6",
+ "pin-project-lite",
  "signal-hook-registry",
- "tokio-macros 1.3.0",
+ "tokio-macros",
  "winapi 0.3.9",
-]
-
-[[package]]
-name = "tokio-macros"
-version = "0.2.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e44da00bfc73a25f814cd8d7e57a68a5c31b74b3152a0a1d1f590c97ed06265a"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
 ]
 
 [[package]]
@@ -2791,7 +2745,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc6844de72e57df1980054b38be3a9f4702aba4858be64dd700181a8a6d0e1b6"
 dependencies = [
  "rustls",
- "tokio 1.8.1",
+ "tokio",
  "webpki",
 ]
 
@@ -2802,8 +2756,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7b2f3f698253f03119ac0102beaa64f67a67e08074d03a22d18784104543727f"
 dependencies = [
  "futures-core",
- "pin-project-lite 0.2.6",
- "tokio 1.8.1",
+ "pin-project-lite",
+ "tokio",
 ]
 
 [[package]]
@@ -2816,8 +2770,8 @@ dependencies = [
  "futures-core",
  "futures-sink",
  "log",
- "pin-project-lite 0.2.6",
- "tokio 1.8.1",
+ "pin-project-lite",
+ "tokio",
 ]
 
 [[package]]
@@ -2849,7 +2803,7 @@ dependencies = [
  "pin-project 1.0.5",
  "prost",
  "prost-derive",
- "tokio 1.8.1",
+ "tokio",
  "tokio-stream",
  "tokio-util",
  "tower",
@@ -2882,7 +2836,7 @@ dependencies = [
  "pin-project 1.0.5",
  "rand 0.8.3",
  "slab",
- "tokio 1.8.1",
+ "tokio",
  "tokio-stream",
  "tokio-util",
  "tower-layer",
@@ -2910,7 +2864,7 @@ checksum = "9f47026cdc4080c07e49b37087de021820269d996f581aac150ef9e5583eefe3"
 dependencies = [
  "cfg-if 1.0.0",
  "log",
- "pin-project-lite 0.2.6",
+ "pin-project-lite",
  "tracing-attributes",
  "tracing-core",
 ]
@@ -2989,15 +2943,16 @@ checksum = "373c8a200f9e67a0c95e62a4f52fbf80c23b4381c05a17845531982fa99e6b33"
 [[package]]
 name = "udp-over-tcp"
 version = "0.1.0"
-source = "git+https://github.com/mullvad/udp-over-tcp?rev=3d1abafe112ee8c2db47ca401f8e286756454e7a#3d1abafe112ee8c2db47ca401f8e286756454e7a"
+source = "git+https://github.com/mullvad/udp-over-tcp?rev=1e27324362ed123b61fa2062b1599e5f9d569796#1e27324362ed123b61fa2062b1599e5f9d569796"
 dependencies = [
- "env_logger 0.7.1",
+ "env_logger 0.8.2",
  "err-context",
  "futures",
+ "lazy_static",
  "log",
  "nix 0.20.0",
  "structopt",
- "tokio 0.2.25",
+ "tokio",
 ]
 
 [[package]]

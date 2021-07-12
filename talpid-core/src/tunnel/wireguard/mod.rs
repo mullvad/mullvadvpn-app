@@ -123,11 +123,11 @@ impl TcpProxy {
             .block_on(Udp2Tcp::new(
                 listen_addr,
                 endpoint,
-                Some(&TcpOptions {
+                TcpOptions {
                     #[cfg(target_os = "linux")]
                     fwmark: Some(crate::linux::TUNNEL_FW_MARK),
                     ..TcpOptions::default()
-                }),
+                },
             ))
             .map_err(Error::Udp2TcpError)?;
 
