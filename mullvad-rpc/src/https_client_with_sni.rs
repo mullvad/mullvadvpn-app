@@ -24,7 +24,9 @@ use std::{
     time::Duration,
 };
 
-use tokio::{net::TcpStream as TokioTcpStream, runtime::Handle, time::timeout};
+#[cfg(not(target_os = "android"))]
+use tokio::time::timeout;
+use tokio::{net::TcpStream as TokioTcpStream, runtime::Handle};
 use tokio_rustls::rustls::{self, ProtocolVersion};
 use webpki::DNSNameRef;
 
@@ -123,11 +125,12 @@ impl HttpsConnectorWithSni {
         socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> std::io::Result<TokioTcpStream> {
         use socket2::{Domain, Protocol, Socket, Type};
+        use std::os::unix::io::{FromRawFd, IntoRawFd};
         let domain = match addr {
             SocketAddr::V4(_) => Domain::ipv4(),
             SocketAddr::V6(_) => Domain::ipv6(),
         };
-        let socket = Socket::new(domain, Type::stream(), Some(Protocol::tcp()))?.into_tcp_stream();
+        let socket = Socket::new(domain, Type::stream(), Some(Protocol::tcp()))?;
 
         if let Some(mut tx) = socket_bypass_tx {
             let (done_tx, done_rx) = oneshot::channel();
@@ -137,9 +140,15 @@ impl HttpsConnectorWithSni {
             }
         }
 
-        timeout(CONNECT_TIMEOUT, TokioTcpStream::connect_std(socket, &addr))
-            .await
-            .map_err(|err| io::Error::new(io::ErrorKind::TimedOut, err))?
+        tokio::task::spawn_blocking(move || {
+            socket.connect_timeout(&addr.into(), CONNECT_TIMEOUT)?;
+            socket.set_nonblocking(true)?;
+            TokioTcpStream::from_std(unsafe {
+                std::net::TcpStream::from_raw_fd(socket.into_raw_fd())
+            })
+        })
+        .await
+        .expect("connect task panicked")
     }
 
     async fn resolve_address(uri: &Uri) -> io::Result<SocketAddr> {
