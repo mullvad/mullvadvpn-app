@@ -37,8 +37,8 @@ udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "1e27324
 openvpn-plugin = { version = "0.4", features = ["serde", "auth-failed-event"] }
 parity-tokio-ipc = "0.9"
 triggered = "0.1.1"
-tonic = "0.4"
-prost = "0.7"
+tonic = "0.5"
+prost = "0.8"
 
 [target.'cfg(unix)'.dependencies]
 nix = "0.19"
@@ -85,7 +85,7 @@ talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 memoffset = "0.6"
 
 [build-dependencies]
-tonic-build = { version = "0.4", default-features = false, features = ["transport", "prost"] }
+tonic-build = { version = "0.5", default-features = false, features = ["transport", "prost"] }
 
 
 [dev-dependencies]

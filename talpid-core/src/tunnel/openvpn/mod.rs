@@ -1200,7 +1200,13 @@ mod event_server {
 
     #[derive(Debug)]
     pub struct StreamBox<T: AsyncRead + AsyncWrite>(pub T);
-    impl<T: AsyncRead + AsyncWrite> Connected for StreamBox<T> {}
+    impl<T: AsyncRead + AsyncWrite> Connected for StreamBox<T> {
+        type ConnectInfo = Option<()>;
+
+        fn connect_info(&self) -> Self::ConnectInfo {
+            None
+        }
+    }
     impl<T: AsyncRead + AsyncWrite + Unpin> AsyncRead for StreamBox<T> {
         fn poll_read(
             mut self: Pin<&mut Self>,
