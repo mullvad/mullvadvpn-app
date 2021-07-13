@@ -52,6 +52,8 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        navigationItem.largeTitleDisplayMode = .never
+
         let tableView = UITableView(frame: view.bounds, style: .plain)
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.backgroundColor = .clear

@@ -14,18 +14,12 @@ class SelectLocationNavigationController: UINavigationController {
     init(contentController: SelectLocationViewController) {
         super.init(navigationBarClass: CustomNavigationBar.self, toolbarClass: nil)
 
-        navigationBar.barStyle = .black
-        navigationBar.tintColor = .white
-        navigationBar.prefersLargeTitles = false
-
-        (navigationBar as? CustomNavigationBar)?.prefersOpaqueBackground = true
-
         self.viewControllers = [contentController]
     }
 
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        // This override has to exist to prevent crash on iOS 12 where `UINavigationController`
-        // calls `self.init(nibName:bundle:)` internally.
+        // This initializer exists to prevent crash on iOS 12.
+        // See: https://stackoverflow.com/a/38335090/351305
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
 
