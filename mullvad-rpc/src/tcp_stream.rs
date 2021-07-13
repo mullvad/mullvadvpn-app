@@ -1,3 +1,6 @@
+//! Wrapper around [`tokio::net::TcpStream`]. This allows in-flight requests to be cancelled
+//! immediately instead of after the socket times out.
+
 use futures::channel::oneshot;
 use hyper::client::connect::{Connected, Connection};
 use std::{
