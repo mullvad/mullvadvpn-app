@@ -40,7 +40,6 @@ export interface IRelayListPair {
 export type LaunchApplicationResult = { success: true } | { error: string };
 
 export interface IAppStateSnapshot {
-  locale: string;
   isConnected: boolean;
   autoStart: boolean;
   accountData?: IAccountData;

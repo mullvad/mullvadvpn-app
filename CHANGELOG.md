@@ -40,6 +40,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix lack of account expiry updates when using the app in unpinned mode and improve updating of
   account expiry overall.
 - Fix incorrect WireGuard relay filtering when exit and entry locations overlap.
+- Fix wrong translations when switching to/from unpinned window after changing language in the
+  desktop app.
 
 #### Linux
 - Make offline monitor aware of routing table changes.
