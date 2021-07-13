@@ -425,7 +425,7 @@ class ApplicationMain {
     // Blocks navigation since it's not needed.
     this.blockNavigation();
 
-    this.translations = this.updateCurrentLocale();
+    this.updateCurrentLocale();
 
     this.daemonRpc.addConnectionObserver(
       new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
@@ -1153,7 +1153,8 @@ class ApplicationMain {
 
     IpcMainEventChannel.guiSettings.handleSetPreferredLocale((locale: string) => {
       this.guiSettings.preferredLocale = locale;
-      return Promise.resolve(this.updateCurrentLocale());
+      this.updateCurrentLocale();
+      return Promise.resolve(this.translations);
     });
 
     IpcMainEventChannel.account.handleCreate(() => this.createNewAccount());
@@ -1526,7 +1527,8 @@ class ApplicationMain {
 
     const messagesTranslations = loadTranslations(this.locale, messages);
     const relayLocationsTranslations = loadTranslations(this.locale, relayLocations);
-    return {
+
+    this.translations = {
       locale: this.locale,
       messages: messagesTranslations,
       relayLocations: relayLocationsTranslations,
