@@ -23,6 +23,8 @@ use std::{
     task::{Context, Poll},
     time::Duration,
 };
+#[cfg(target_os = "android")]
+use tokio::net::TcpSocket;
 
 use tokio::{net::TcpStream as TokioTcpStream, runtime::Handle, time::timeout};
 use tokio_rustls::rustls::{self, ProtocolVersion};
@@ -122,12 +124,10 @@ impl HttpsConnectorWithSni {
         addr: SocketAddr,
         socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> std::io::Result<TokioTcpStream> {
-        use socket2::{Domain, Protocol, Socket, Type};
-        let domain = match addr {
-            SocketAddr::V4(_) => Domain::ipv4(),
-            SocketAddr::V6(_) => Domain::ipv6(),
+        let socket = match addr {
+            SocketAddr::V4(_) => TcpSocket::new_v4()?,
+            SocketAddr::V6(_) => TcpSocket::new_v6()?,
         };
-        let socket = Socket::new(domain, Type::stream(), Some(Protocol::tcp()))?.into_tcp_stream();
 
         if let Some(mut tx) = socket_bypass_tx {
             let (done_tx, done_rx) = oneshot::channel();
@@ -137,7 +137,7 @@ impl HttpsConnectorWithSni {
             }
         }
 
-        timeout(CONNECT_TIMEOUT, TokioTcpStream::connect_std(socket, &addr))
+        timeout(CONNECT_TIMEOUT, TokioTcpStream::connect(addr))
             .await
             .map_err(|err| io::Error::new(io::ErrorKind::TimedOut, err))?
     }
@@ -164,7 +164,7 @@ impl HttpsConnectorWithSni {
         let addr = addrs
             .next()
             .ok_or(io::Error::new(io::ErrorKind::Other, "Empty DNS response"))?;
-        Ok(SocketAddr::new(addr, port))
+        Ok(SocketAddr::new(addr.ip(), port))
     }
 }
 

@@ -25,14 +25,14 @@ jsonrpc-client-pubsub = { git = "https://github.com/mullvad/jsonrpc-client-rs", 
 futures = "0.1.23"
 tokio01 = { package = "tokio", version = "0.1" }
 tokio-timer = "0.1"
-tokio = { version = "0.2", features =  [ "io-util", "process", "rt-core", "rt-threaded", "stream", "fs"] }
-tonic = "0.3.1"
-tower = "0.3"
-prost = "0.6"
-parity-tokio-ipc = "0.8"
+tokio = { version = "1.8", features =  [ "io-util", "process", "rt", "rt-multi-thread", "fs"] }
+tonic = "0.5"
+tower = "0.4"
+prost = "0.8"
+parity-tokio-ipc = "0.9"
 
 [build-dependencies]
-tonic-build = { version = "0.3", default-features = false, features = ["transport", "prost"] }
+tonic-build = { version = "0.5", default-features = false, features = ["transport", "prost"] }
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"

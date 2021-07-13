@@ -1,4 +1,6 @@
-use bytes::buf::Buf;
+//! Wrapper around [`tokio::net::TcpStream`]. This allows in-flight requests to be cancelled
+//! immediately instead of after the socket times out.
+
 use futures::channel::oneshot;
 use hyper::client::connect::{Connected, Connection};
 use std::{
@@ -9,23 +11,27 @@ use std::{
     task::{Context, Poll},
 };
 use tokio::{
-    io::{AsyncRead, AsyncWrite},
+    io::{AsyncRead, AsyncWrite, ReadBuf},
     net::TcpStream as TokioTcpStream,
 };
 
 #[derive(Debug)]
 pub struct TcpStreamHandle {
-    inner: Weak<Mutex<StreamInner>>,
+    inner: Weak<Mutex<Option<StreamInner>>>,
 }
 
 impl TcpStreamHandle {
     pub fn close(self) {
         if let Some(inner_lock) = self.inner.upgrade() {
-            if let Ok(mut inner) = inner_lock.lock() {
-                if let Err(err) = inner.stream.shutdown(Shutdown::Both) {
+            if let Ok(Some(inner)) = inner_lock.lock().map(|mut inner| inner.take()) {
+                if let Err(err) = flatten_result(
+                    inner
+                        .stream
+                        .into_std()
+                        .map(|stream| stream.shutdown(Shutdown::Both)),
+                ) {
                     log::error!("Failed to shut down TCP socket: {}", err);
                 }
-                let _ = inner.shutdown_tx.take();
             }
         }
     }
@@ -33,7 +39,7 @@ impl TcpStreamHandle {
 
 
 pub struct TcpStream {
-    inner: Arc<Mutex<StreamInner>>,
+    inner: Arc<Mutex<Option<StreamInner>>>,
 }
 
 impl TcpStream {
@@ -42,30 +48,34 @@ impl TcpStream {
         id: usize,
         shutdown_tx: Option<oneshot::Sender<()>>,
     ) -> (Self, TcpStreamHandle) {
-        let inner = Arc::new(Mutex::new(StreamInner {
+        let inner = Arc::new(Mutex::new(Some(StreamInner {
             id,
             stream,
             shutdown_tx,
-        }));
-        (
-            Self {
-                inner: inner.clone(),
-            },
-            TcpStreamHandle {
-                inner: Arc::downgrade(&inner),
-            },
-        )
+        })));
+        let stream_handle = TcpStreamHandle {
+            inner: Arc::downgrade(&inner),
+        };
+        (Self { inner }, stream_handle)
     }
 
-    fn do_stream<T>(&self, mut stream_fn: impl FnMut(&mut TokioTcpStream) -> T) -> T {
+    fn do_stream<T>(
+        &self,
+        mut stream_fn: impl FnMut(&mut TokioTcpStream) -> T,
+        closed_value: T,
+    ) -> T {
         let mut inner = self.inner.lock().expect("TCP lock poisoned");
-        stream_fn(&mut inner.stream)
+        if let Some(inner) = &mut *inner {
+            stream_fn(&mut inner.stream)
+        } else {
+            closed_value
+        }
     }
 }
 
 impl Drop for TcpStream {
     fn drop(&mut self) {
-        if let Ok(mut inner) = self.inner.lock() {
+        if let Ok(Some(mut inner)) = self.inner.lock().map(|mut inner| inner.take()) {
             if let Some(tx) = inner.shutdown_tx.take() {
                 let _ = tx.send(());
             }
@@ -79,24 +89,25 @@ impl AsyncWrite for TcpStream {
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
         buf: &[u8],
-    ) -> Poll<Result<usize, io::Error>> {
-        self.do_stream(|stream| Pin::new(stream).poll_write(cx, buf))
+    ) -> Poll<io::Result<usize>> {
+        self.do_stream(
+            |stream| Pin::new(stream).poll_write(cx, buf),
+            Poll::Ready(Ok(0)),
+        )
     }
 
-    fn poll_write_buf<B: Buf>(
-        self: Pin<&mut Self>,
-        cx: &mut Context<'_>,
-        buf: &mut B,
-    ) -> Poll<Result<usize, io::Error>> {
-        self.do_stream(|stream| Pin::new(stream).poll_write_buf(cx, buf))
+    fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        self.do_stream(
+            |stream| Pin::new(stream).poll_flush(cx),
+            Poll::Ready(Ok(())),
+        )
     }
 
-    fn poll_flush(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), io::Error>> {
-        self.do_stream(|stream| Pin::new(stream).poll_flush(cx))
-    }
-
-    fn poll_shutdown(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), io::Error>> {
-        self.do_stream(|stream| Pin::new(stream).poll_shutdown(cx))
+    fn poll_shutdown(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+        self.do_stream(
+            |stream| Pin::new(stream).poll_shutdown(cx),
+            Poll::Ready(Ok(())),
+        )
     }
 }
 
@@ -104,9 +115,12 @@ impl AsyncRead for TcpStream {
     fn poll_read(
         self: Pin<&mut Self>,
         cx: &mut Context<'_>,
-        buf: &mut [u8],
-    ) -> Poll<Result<usize, io::Error>> {
-        self.do_stream(|stream| Pin::new(stream).poll_read(cx, buf))
+        buf: &mut ReadBuf<'_>,
+    ) -> Poll<io::Result<()>> {
+        self.do_stream(
+            |stream| Pin::new(stream).poll_read(cx, buf),
+            Poll::Ready(Ok(())),
+        )
     }
 }
 
@@ -121,4 +135,11 @@ struct StreamInner {
     id: usize,
     stream: TokioTcpStream,
     shutdown_tx: Option<oneshot::Sender<()>>,
+}
+
+fn flatten_result<T, E>(result: Result<Result<T, E>, E>) -> Result<T, E> {
+    match result {
+        Ok(value) => value,
+        Err(err) => Err(err),
+    }
 }

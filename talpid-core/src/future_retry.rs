@@ -32,10 +32,10 @@ pub async fn retry_future_with_backoff<
 async fn sleep(mut delay: Duration) {
     while delay > MAX_SINGLE_DELAY {
         delay -= MAX_SINGLE_DELAY;
-        tokio::time::delay_for(MAX_SINGLE_DELAY).await;
+        tokio::time::sleep(MAX_SINGLE_DELAY).await;
     }
 
-    tokio::time::delay_for(delay).await;
+    tokio::time::sleep(delay).await;
 }
 
 /// Provides an exponential back-off timer to delay the next retry of a failed operation.

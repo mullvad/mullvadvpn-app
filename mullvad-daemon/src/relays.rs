@@ -994,7 +994,10 @@ impl RelayListUpdater {
     }
 
     async fn run(mut self, mut cmd_rx: mpsc::Receiver<()>) {
-        let mut check_interval = tokio::time::interval(UPDATE_CHECK_INTERVAL).fuse();
+        let mut check_interval = tokio_stream::wrappers::IntervalStream::new(
+            tokio::time::interval(UPDATE_CHECK_INTERVAL),
+        )
+        .fuse();
         let mut download_future = Box::pin(Fuse::terminated());
         loop {
             futures::select! {

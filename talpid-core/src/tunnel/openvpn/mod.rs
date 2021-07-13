@@ -528,9 +528,8 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
             format!("/tmp/talpid-openvpn-{}", uuid)
         };
 
-        let mut runtime = tokio::runtime::Builder::new()
-            .threaded_scheduler()
-            .core_threads(1)
+        let runtime = tokio::runtime::Builder::new_multi_thread()
+            .worker_threads(1)
             .enable_all()
             .build()
             .map_err(Error::RuntimeError)?;
@@ -955,7 +954,7 @@ mod event_server {
     };
     #[cfg(any(target_os = "linux", windows))]
     use talpid_types::ErrorExt;
-    use tokio::io::{AsyncRead, AsyncWrite};
+    use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
     use tonic::{
         self,
         transport::{server::Connected, Server},
@@ -1201,13 +1200,19 @@ mod event_server {
 
     #[derive(Debug)]
     pub struct StreamBox<T: AsyncRead + AsyncWrite>(pub T);
-    impl<T: AsyncRead + AsyncWrite> Connected for StreamBox<T> {}
+    impl<T: AsyncRead + AsyncWrite> Connected for StreamBox<T> {
+        type ConnectInfo = Option<()>;
+
+        fn connect_info(&self) -> Self::ConnectInfo {
+            None
+        }
+    }
     impl<T: AsyncRead + AsyncWrite + Unpin> AsyncRead for StreamBox<T> {
         fn poll_read(
             mut self: Pin<&mut Self>,
             cx: &mut Context<'_>,
-            buf: &mut [u8],
-        ) -> Poll<std::io::Result<usize>> {
+            buf: &mut ReadBuf<'_>,
+        ) -> Poll<std::io::Result<()>> {
             Pin::new(&mut self.0).poll_read(cx, buf)
         }
     }

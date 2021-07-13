@@ -14,18 +14,18 @@ crate-type = ["cdylib"]
 err-derive = "0.3.0"
 log = "0.4"
 env_logger = "0.8.2"
-parity-tokio-ipc = "0.8"
-tokio = { version = "0.2", features =  [ "rt-core" ] }
+parity-tokio-ipc = "0.9"
+tokio = { version = "1.8", features =  [ "rt" ] }
 
 openvpn-plugin = { version = "0.4", features = ["serde", "log", "auth-failed-event"] }
 talpid-types = { path = "../talpid-types" }
 
-tonic = "0.3.1"
-tower = "0.3"
-prost = "0.6"
+tonic = "0.5"
+tower = "0.4"
+prost = "0.8"
 
 [build-dependencies]
-tonic-build = { version = "0.3", default-features = false, features = ["transport", "prost"] }
+tonic-build = { version = "0.5", default-features = false, features = ["transport", "prost"] }
 
 
 [target.'cfg(windows)'.build-dependencies]

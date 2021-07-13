@@ -269,7 +269,7 @@ impl VersionUpdater {
 
     pub async fn run(mut self) {
         let mut rx = self.rx.take().unwrap().fuse();
-        let next_delay = || tokio::time::delay_for(UPDATE_CHECK_INTERVAL).fuse();
+        let next_delay = || Box::pin(tokio::time::sleep(UPDATE_CHECK_INTERVAL)).fuse();
         let mut check_delay = next_delay();
         let mut version_check = futures::future::Fuse::terminated();
 

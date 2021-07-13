@@ -54,7 +54,7 @@ pub enum Error {
     HttpError(#[error(source)] http::Error),
 
     #[error(display = "Request timed out")]
-    TimeoutError(#[error(source)] tokio::time::Elapsed),
+    TimeoutError(#[error(source)] tokio::time::error::Elapsed),
 
     #[error(display = "Failed to deserialize data")]
     DeserializeError(#[error(source)] serde_json::Error),

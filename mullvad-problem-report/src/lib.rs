@@ -273,9 +273,8 @@ pub fn send_problem_report(
     let metadata =
         ProblemReport::parse_metadata(&report_content).unwrap_or_else(|| metadata::collect());
 
-    let mut runtime = tokio::runtime::Builder::new()
-        .threaded_scheduler()
-        .core_threads(2)
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .worker_threads(2)
         .enable_all()
         .build()
         .map_err(Error::CreateRuntime)?;
@@ -310,7 +309,7 @@ pub fn send_problem_report(
                     )
                 }
             }
-            tokio::time::delay_for(RETRY_INTERVAL).await;
+            tokio::time::sleep(RETRY_INTERVAL).await;
         }
         Err(Error::SendProblemReportError)
     })

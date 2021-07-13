@@ -13,6 +13,7 @@ use std::{
     process::{ExitStatus, Stdio},
 };
 use tokio::{io::AsyncBufReadExt, process::Command};
+use tokio_stream::wrappers::LinesStream;
 
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -332,7 +333,7 @@ async fn listen_for_default_route_changes() -> Result<impl Stream<Item = std::io
     let mut add_or_delete_message = false;
     let mut contains_default = false;
 
-    let monitor = lines.try_filter_map(move |line| {
+    let monitor = LinesStream::new(lines).try_filter_map(move |line| {
         if add_or_delete_message {
             if line.contains("default") {
                 contains_default = true;
