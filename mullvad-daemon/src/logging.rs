@@ -23,6 +23,7 @@ pub enum Error {
     SetLoggerError(#[error(source)] log::SetLoggerError),
 }
 
+pub const WARNING_SILENCED_CRATES: &[&str] = &["netlink_proto"];
 pub const SILENCED_CRATES: &[&str] = &[
     "h2",
     "tokio_core",
@@ -37,7 +38,6 @@ pub const SILENCED_CRATES: &[&str] = &[
     "hyper",
     "rtnetlink",
     "rustls",
-    "netlink_proto",
     "netlink_sys",
     "tracing",
 ];
@@ -65,6 +65,9 @@ pub fn init_logger(
     output_timestamp: bool,
 ) -> Result<(), Error> {
     let mut top_dispatcher = fern::Dispatch::new().level(log_level);
+    for silenced_crate in WARNING_SILENCED_CRATES {
+        top_dispatcher = top_dispatcher.level_for(*silenced_crate, log::LevelFilter::Error);
+    }
     for silenced_crate in SILENCED_CRATES {
         top_dispatcher = top_dispatcher.level_for(*silenced_crate, log::LevelFilter::Warn);
     }
