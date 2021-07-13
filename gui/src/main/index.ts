@@ -1064,7 +1064,6 @@ class ApplicationMain {
 
   private registerIpcListeners() {
     IpcMainEventChannel.state.handleGet(() => ({
-      locale: this.locale,
       isConnected: this.connectedToDaemon,
       autoStart: getOpenAtLogin(),
       accountData: this.accountData,
