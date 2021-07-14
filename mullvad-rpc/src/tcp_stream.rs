@@ -92,7 +92,10 @@ impl AsyncWrite for TcpStream {
     ) -> Poll<io::Result<usize>> {
         self.do_stream(
             |stream| Pin::new(stream).poll_write(cx, buf),
-            Poll::Ready(Ok(0)),
+            Poll::Ready(Err(io::Error::new(
+                io::ErrorKind::ConnectionReset,
+                "socket is closed",
+            ))),
         )
     }
 
@@ -119,7 +122,10 @@ impl AsyncRead for TcpStream {
     ) -> Poll<io::Result<()>> {
         self.do_stream(
             |stream| Pin::new(stream).poll_read(cx, buf),
-            Poll::Ready(Ok(())),
+            Poll::Ready(Err(io::Error::new(
+                io::ErrorKind::ConnectionReset,
+                "socket is closed",
+            ))),
         )
     }
 }
