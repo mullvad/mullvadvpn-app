@@ -23,7 +23,7 @@ import log, { ConsoleOutput } from '../shared/logging';
 import { IRelayListPair, LaunchApplicationResult } from '../shared/ipc-schema';
 import consumePromise from '../shared/promise';
 import { Scheduler } from '../shared/scheduler';
-import History, { transitions } from './lib/history';
+import History, { ITransitionSpecification, transitions } from './lib/history';
 import { loadTranslations } from './lib/load-translations';
 
 import {
@@ -105,7 +105,7 @@ const SUPPORTED_LOCALE_LIST = [
 ];
 
 export default class AppRenderer {
-  private history = new History('/');
+  private history: History;
   private reduxStore = configureStore();
   private reduxActions = {
     account: bindActionCreators(accountActions, this.reduxStore.dispatch),
@@ -224,9 +224,9 @@ export default class AppRenderer {
       initialState.accountData?.expiry,
       initialState.accountData?.previousExpiry,
     );
+    this.setSettings(initialState.settings);
     this.handleAccountChange(undefined, initialState.settings.accountToken);
     this.setAccountHistory(initialState.accountHistory);
-    this.setSettings(initialState.settings);
     this.setTunnelState(initialState.tunnelState);
     this.updateBlockedState(initialState.tunnelState, initialState.settings.blockWhenDisconnected);
 
@@ -252,6 +252,12 @@ export default class AppRenderer {
         initialState.windowsSplitTunnelingApplications,
       );
     }
+
+    const navigationBase = this.getNavigationBase(
+      initialState.isConnected,
+      initialState.settings.accountToken,
+    );
+    this.history = new History(navigationBase);
   }
 
   public renderView() {
@@ -648,27 +654,43 @@ export default class AppRenderer {
   }
 
   private resetNavigation() {
-    const pathname = this.history.location.pathname;
+    if (this.history) {
+      const pathname = this.history.location.pathname;
+      const nextPath = this.getNavigationBase(this.connectedToDaemon, this.settings.accountToken);
 
-    if (this.connectedToDaemon) {
-      if (this.settings.accountToken) {
-        const transition =
-          pathname === '/login' || pathname === '/' ? transitions.push : transitions.dismiss;
-        this.history.reset('/main', transition);
-      } else {
-        const transition =
-          pathname === '/main'
-            ? transitions.pop
-            : pathname === '/'
-            ? transitions.push
-            : transitions.none;
+      // First level contains the possible next locations and the second level contains the possible
+      // current locations.
+      const navigationTransitions: {
+        [from: string]: { [to: string]: ITransitionSpecification };
+      } = {
+        '/': {
+          '/login': transitions.pop,
+          '/main': transitions.pop,
+          '*': transitions.dismiss,
+        },
+        '/login': {
+          '/': transitions.push,
+          '/main': transitions.pop,
+          '*': transitions.none,
+        },
+        '/main': {
+          '/': transitions.push,
+          '/login': transitions.push,
+          '*': transitions.dismiss,
+        },
+      };
 
-        this.history.reset('/login', transition);
-      }
-    } else {
       const transition =
-        pathname === '/login' || pathname === '/main' ? transitions.pop : transitions.dismiss;
-      this.history.reset('/', transition);
+        navigationTransitions[nextPath][pathname] ?? navigationTransitions[nextPath]['*'];
+      this.history.reset(nextPath, transition);
+    }
+  }
+
+  private getNavigationBase(connectedToDaemon: boolean, accountToken?: string): string {
+    if (connectedToDaemon) {
+      return accountToken ? '/main' : '/login';
+    } else {
+      return '/';
     }
   }
 
