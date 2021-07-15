@@ -477,6 +477,7 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
 #[serde(default)]
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
+    pub protocol: Constraint<TransportProtocol>,
     pub ip_version: Constraint<IpVersion>,
     pub entry_location: Option<Constraint<LocationConstraint>>,
 }
