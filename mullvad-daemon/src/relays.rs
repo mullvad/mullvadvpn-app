@@ -54,6 +54,7 @@ const EXPONENTIAL_BACKOFF_FACTOR: u32 = 8;
 const DEFAULT_WIREGUARD_PORT: u16 = 51820;
 const WIREGUARD_EXIT_CONSTRAINTS: WireguardConstraints = WireguardConstraints {
     port: Constraint::Only(DEFAULT_WIREGUARD_PORT),
+    protocol: Constraint::Only(TransportProtocol::Udp),
     ip_version: Constraint::Only(IpVersion::V4),
     entry_location: None,
 };

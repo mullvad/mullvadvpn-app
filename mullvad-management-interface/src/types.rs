@@ -492,6 +492,13 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
 
                     wireguard_constraints: Some(WireguardConstraints {
                         port: u32::from(constraints.wireguard_constraints.port.unwrap_or(0)),
+                        protocol: constraints
+                            .wireguard_constraints
+                            .protocol
+                            .as_ref()
+                            .option()
+                            .map(|protocol| TransportProtocol::from(*protocol))
+                            .map(TransportProtocolConstraint::from),
                         ip_version: constraints
                             .wireguard_constraints
                             .ip_version
@@ -870,21 +877,36 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                     None
                 };
 
-                let transport_protocol = if let Some(ref constraints) = settings.openvpn_constraints
-                {
-                    match &constraints.protocol {
-                        Some(constraint) => Some(
-                            TransportProtocol::from_i32(constraint.protocol)
-                                .ok_or(FromProtobufTypeError::InvalidArgument(
-                                    "invalid transport protocol",
-                                ))?
-                                .into(),
-                        ),
-                        None => None,
-                    }
-                } else {
-                    None
-                };
+                let openvpn_transport_protocol =
+                    if let Some(ref constraints) = settings.openvpn_constraints {
+                        match &constraints.protocol {
+                            Some(constraint) => Some(
+                                TransportProtocol::from_i32(constraint.protocol)
+                                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                                        "invalid transport protocol",
+                                    ))?
+                                    .into(),
+                            ),
+                            None => None,
+                        }
+                    } else {
+                        None
+                    };
+                let wireguard_transport_protocol =
+                    if let Some(ref constraints) = settings.wireguard_constraints {
+                        match &constraints.protocol {
+                            Some(constraint) => Some(
+                                TransportProtocol::from_i32(constraint.protocol)
+                                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                                        "invalid transport protocol",
+                                    ))?
+                                    .into(),
+                            ),
+                            None => None,
+                        }
+                    } else {
+                        None
+                    };
 
                 let providers = if let Some(ref provider_update) = settings.providers {
                     if !provider_update.providers.is_empty() {
@@ -933,6 +955,7 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                                 } else {
                                     Constraint::Any
                                 },
+                                protocol: Constraint::from(wireguard_transport_protocol),
                                 ip_version: Constraint::from(ip_version),
                                 entry_location: constraints.entry_location.map(
                                     Constraint::<
@@ -948,7 +971,7 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                                 } else {
                                     Constraint::Any
                                 },
-                                protocol: Constraint::from(transport_protocol),
+                                protocol: Constraint::from(openvpn_transport_protocol),
                             }
                         }),
                     },
