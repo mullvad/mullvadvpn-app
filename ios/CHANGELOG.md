@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Update WireGuardKit to the latest. Fixes iOS 15 support.
+- Improve accessibility support.
 
 ## [2021.2] - 2021-06-03
 ### Added
