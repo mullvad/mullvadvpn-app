@@ -10,13 +10,13 @@ type Listener<T> = (callback: (arg: T) => void) => void;
 interface MainToRenderer<T> {
   direction: 'main-to-renderer';
   send: (event: string, ipcMain: EIpcMain) => Notifier<T>;
-  receive: (event: string, ipcRenderer: EIpcRenderer) => Listener<T>;
+  receive: (event: string, ipcRenderer: EIpcRenderer, once?: boolean) => Listener<T>;
 }
 
 interface RendererToMain<T, R> {
   direction: 'renderer-to-main';
   send: (event: string, ipcRenderer: EIpcRenderer) => Sender<T, R>;
-  receive: (event: string, ipcMain: EIpcMain) => Handler<T, R>;
+  receive: (event: string, ipcMain: EIpcMain, once?: boolean) => Handler<T, R>;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,8 +27,8 @@ type Schema = Record<string, Record<string, AnyIpcCall>>;
 // Renames all IPC calls, e.g. `callName` to either `notifyCallName` or `handleCallName` depending
 // on direction.
 type IpcMainKey<N extends string, I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
-  ? `notify${Capitalize<N>}`
-  : `handle${Capitalize<N>}`;
+  ? [`notify${Capitalize<N>}`]
+  : [`handle${Capitalize<N>}`, `handle${Capitalize<N>}Once`];
 
 // Selects either the send or receive function depending on direction.
 type IpcMainFn<I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
@@ -39,7 +39,9 @@ type IpcMainFn<I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
 type IpcRendererKey<
   N extends string,
   I extends AnyIpcCall
-> = I['direction'] extends 'main-to-renderer' ? `listen${Capitalize<N>}` : N;
+> = I['direction'] extends 'main-to-renderer'
+  ? [`listen${Capitalize<N>}`, `listen${Capitalize<N>}Once`]
+  : [N];
 
 // Selects either the send or receive function depending on direction.
 type IpcRendererFn<I extends AnyIpcCall> = I['direction'] extends 'main-to-renderer'
@@ -49,29 +51,33 @@ type IpcRendererFn<I extends AnyIpcCall> = I['direction'] extends 'main-to-rende
 // Transforms the provided schema to the correct type for the main event channel.
 type IpcMain<S extends Schema> = {
   [G in keyof S]: {
-    [K in keyof S[G] as IpcMainKey<string & K, S[G][K]>]: IpcMainFn<S[G][K]>;
+    [K in keyof S[G] as IpcMainKey<string & K, S[G][K]>[number]]: IpcMainFn<S[G][K]>;
   };
 };
 
 // Transforms the provided schema to the correct type for the renderer event channel.
 type IpcRenderer<S extends Schema> = {
   [G in keyof S]: {
-    [K in keyof S[G] as IpcRendererKey<string & K, S[G][K]>]: IpcRendererFn<S[G][K]>;
+    [K in keyof S[G] as IpcRendererKey<string & K, S[G][K]>[number]]: IpcRendererFn<S[G][K]>;
   };
 };
 
 // Preforms the transformation of the main event channel in accordance with the above types.
 export function createIpcMain<S extends Schema>(schema: S, ipcMain: EIpcMain): IpcMain<S> {
-  return createIpc(schema, (event, key, spec) => {
+  return createIpc(schema, (event, key, spec): [
+    string,
+    Notifier<unknown> | Handler<unknown, unknown>,
+  ][] => {
     const capitalizedKey = capitalize(key);
-    const newKey =
-      spec.direction === 'main-to-renderer' ? `notify${capitalizedKey}` : `handle${capitalizedKey}`;
-    const newValue =
-      spec.direction === 'main-to-renderer'
-        ? spec.send(event, ipcMain)
-        : spec.receive(event, ipcMain);
 
-    return [newKey, newValue];
+    if (spec.direction === 'main-to-renderer') {
+      return [[`notify${capitalizedKey}`, spec.send(event, ipcMain)]];
+    } else {
+      return [
+        [`handle${capitalizedKey}`, spec.receive(event, ipcMain)],
+        [`handle${capitalizedKey}Once`, spec.receive(event, ipcMain, true)],
+      ];
+    }
   });
 }
 
@@ -81,24 +87,25 @@ export function createIpcRenderer<S extends Schema>(
   ipcRenderer: EIpcRenderer,
 ): IpcRenderer<S> {
   return createIpc(schema, (event, key, spec) => {
-    const newKey = spec.direction === 'main-to-renderer' ? `listen${capitalize(key)}` : key;
-    const newValue =
-      spec.direction === 'main-to-renderer'
-        ? spec.receive(event, ipcRenderer)
-        : spec.send(event, ipcRenderer);
-
-    return [newKey, newValue];
+    if (spec.direction === 'main-to-renderer') {
+      return [
+        [`listen${capitalize(key)}`, spec.receive(event, ipcRenderer)],
+        [`listen${capitalize(key)}Once`, spec.receive(event, ipcRenderer, true)],
+      ];
+    } else {
+      return [[key, spec.send(event, ipcRenderer)]];
+    }
   });
 }
 
 function createIpc<S extends Schema, T, R extends IpcMain<S> | IpcRenderer<S>>(
   ipc: S,
-  fn: (event: string, key: string, spec: AnyIpcCall) => [newKey: string, newValue: T],
+  fn: (event: string, key: string, spec: AnyIpcCall) => [newKey: string, newValue: T][],
 ): R {
   return Object.fromEntries(
     Object.entries(ipc).map(([groupKey, group]) => {
       const newGroup = Object.fromEntries(
-        Object.entries(group).map(([key, spec]) => fn(`${groupKey}-${key}`, key, spec)),
+        Object.entries(group).flatMap(([key, spec]) => fn(`${groupKey}-${key}`, key, spec)),
       );
       return [groupKey, newGroup];
     }),
@@ -110,8 +117,9 @@ export function send<T>(): RendererToMain<T, void> {
   return {
     direction: 'renderer-to-main',
     send: (event, ipcRenderer) => (newValue: T) => ipcRenderer.send(event, newValue),
-    receive: (event, ipcMain) => (handlerFn: (value: T) => void) => {
-      ipcMain.on(event, (_event, newValue: T) => {
+    receive: (event, ipcMain, once = false) => (handlerFn: (value: T) => void) => {
+      const onFnKey = once ? 'once' : 'on';
+      ipcMain[onFnKey](event, (_event, newValue: T) => {
         handlerFn(newValue);
       });
     },
@@ -123,8 +131,9 @@ export function invokeSync<T, R>(): RendererToMain<T, R> {
   return {
     direction: 'renderer-to-main',
     send: (event, ipcRenderer) => (newValue: T) => ipcRenderer.sendSync(event, newValue),
-    receive: (event, ipcMain) => (handlerFn: (value: T) => R) => {
-      ipcMain.on(event, (ipcEvent, newValue: T) => {
+    receive: (event, ipcMain, once = false) => (handlerFn: (value: T) => R) => {
+      const onFnKey = once ? 'once' : 'on';
+      ipcMain[onFnKey](event, (ipcEvent, newValue: T) => {
         ipcEvent.returnValue = handlerFn(newValue);
       });
     },
@@ -145,8 +154,9 @@ export function notifyRenderer<T>(): MainToRenderer<T> {
   return {
     direction: 'main-to-renderer',
     send: notifyRendererImpl,
-    receive: (event, ipcRenderer) => (fn: (value: T) => void) => {
-      ipcRenderer.on(event, (_event, newState: T) => fn(newState));
+    receive: (event, ipcRenderer, once = false) => (fn: (value: T) => void) => {
+      const onFnKey = once ? 'once' : 'on';
+      ipcRenderer[onFnKey](event, (_event, newState: T) => fn(newState));
     },
   };
 }
@@ -175,9 +185,10 @@ function invokeImpl<T, R>(event: string, ipcRenderer: EIpcRenderer): Sender<T, P
   };
 }
 
-function handle<T, R>(event: string, ipcMain: EIpcMain): Handler<T, Promise<R>> {
+function handle<T, R>(event: string, ipcMain: EIpcMain, once = false): Handler<T, Promise<R>> {
   return (fn: (arg: T) => Promise<R>) => {
-    ipcMain.handle(event, async (_ipcEvent, arg: T) => {
+    const onFnKey = once ? 'handleOnce' : 'handle';
+    ipcMain[onFnKey](event, async (_ipcEvent, arg: T) => {
       try {
         return { type: 'success', value: await fn(arg) };
       } catch (error) {
