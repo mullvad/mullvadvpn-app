@@ -749,8 +749,14 @@ impl Relay {
     fn format_wireguard_constraints(constraints: Option<&WireguardConstraints>) -> String {
         if let Some(constraints) = constraints {
             let mut out = format!(
-                "{} over {}",
+                "{} over {} over {}",
                 Self::format_port(constraints.port),
+                Self::format_transport_protocol(
+                    constraints
+                        .protocol
+                        .clone()
+                        .map(|protocol| TransportProtocol::from_i32(protocol.protocol).unwrap())
+                ),
                 Self::format_ip_version(
                     constraints
                         .ip_version
@@ -770,7 +776,7 @@ impl Relay {
 
             out
         } else {
-            "any port over IPv4 or IPv6".to_string()
+            "any port over any protocol over IPv4 or IPv6".to_string()
         }
     }
 
