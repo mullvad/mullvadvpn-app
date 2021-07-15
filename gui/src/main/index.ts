@@ -466,7 +466,7 @@ class ApplicationMain {
     };
 
     if (this.shouldShowWindowOnStart() || process.env.NODE_ENV === 'development') {
-      windowController.show();
+      IpcMainEventChannel.status.handleReadyOnce(() => windowController.show());
     }
 
     await this.initializeWindow();
@@ -1515,7 +1515,7 @@ class ApplicationMain {
       this.windowController.replaceWindow(window, unpinnedWindow);
 
       await this.initializeWindow();
-      this.windowController.show();
+      IpcMainEventChannel.status.handleReadyOnce(() => this.windowController?.show());
     }
   }
 

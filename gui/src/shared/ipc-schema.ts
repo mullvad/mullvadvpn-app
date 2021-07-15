@@ -99,6 +99,9 @@ export const ipcSchema = {
   state: {
     get: invokeSync<void, IAppStateSnapshot>(),
   },
+  status: {
+    ready: send<void>(),
+  },
   windowShape: {
     '': notifyRenderer<IWindowShapeParameters>(),
   },

@@ -258,6 +258,9 @@ export default class AppRenderer {
       initialState.settings.accountToken,
     );
     this.history = new History(navigationBase);
+
+    // @ts-ignore
+    document.fonts.ready.then(() => IpcRendererEventChannel.status.ready());
   }
 
   public renderView() {
