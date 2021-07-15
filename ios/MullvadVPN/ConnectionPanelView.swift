@@ -28,19 +28,33 @@ class ConnectionPanelView: UIView {
         }
     }
 
-    let collapseButton: ConnectionPanelCollapseButton = {
+    var connectedRelayName: String = "" {
+        didSet {
+            collapseButton.setTitle(connectedRelayName, for: .normal)
+            collapseButton.accessibilityLabel = NSLocalizedString(
+                "RELAY_ACCESSIBILITY_LABEL",
+                tableName: "ConnectionPanel",
+                comment: ""
+            )
+            collapseButton.accessibilityAttributedValue = NSAttributedString(
+                string: connectedRelayName.replacingOccurrences(of: "-wireguard", with: " WireGuard"),
+                attributes: [ .accessibilitySpeechLanguage: "en" ]
+            )
+        }
+    }
+
+    private let collapseButton: ConnectionPanelCollapseButton = {
         let button = ConnectionPanelCollapseButton(type: .custom)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.tintColor = .white
         return button
     }()
 
-    private let protocolRow = ConnectionPanelProtocolTypeRow()
     private let inAddressRow = ConnectionPanelAddressRow()
     private let outAddressRow = ConnectionPanelAddressRow()
 
     private lazy var stackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [protocolRow, inAddressRow, outAddressRow])
+        let stackView = UIStackView(arrangedSubviews: [inAddressRow, outAddressRow])
         stackView.axis = .vertical
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
@@ -54,39 +68,23 @@ class ConnectionPanelView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        commonInit()
-    }
 
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-        commonInit()
-    }
-
-    func didChangeDataSource() {
-        inAddressRow.detailTextLabel.text = dataSource?.inAddress
-        outAddressRow.detailTextLabel.text = dataSource?.outAddress
-    }
-
-    func toggleConnectionInfoVisibility() {
-        showsConnectionInfo = !showsConnectionInfo
-    }
-
-    private func updateConnectionInfoVisibility() {
-        stackView.isHidden = !showsConnectionInfo
-        collapseButton.style = showsConnectionInfo ? .up : .down
-    }
-
-    private func commonInit() {
-        protocolRow.translatesAutoresizingMaskIntoConstraints = false
         inAddressRow.translatesAutoresizingMaskIntoConstraints = false
         outAddressRow.translatesAutoresizingMaskIntoConstraints = false
 
         // TODO: Unhide it when we have out address
         outAddressRow.isHidden = true
 
-        protocolRow.textLabel.text = NSLocalizedString("WireGuard", comment: "")
-        inAddressRow.textLabel.text = NSLocalizedString("In", comment: "")
-        outAddressRow.textLabel.text = NSLocalizedString("Out", comment: "")
+        inAddressRow.title = NSLocalizedString(
+            "IN_ADDRESS_LABEL",
+            tableName: "ConnectionPanel",
+            comment: ""
+        )
+        outAddressRow.title = NSLocalizedString(
+            "OUT_ADDRESS_LABEL",
+            tableName: "ConnectionPanel",
+            comment: ""
+        )
 
         addSubview(collapseButton)
         addSubview(stackView)
@@ -104,71 +102,127 @@ class ConnectionPanelView: UIView {
 
             // Align all text labels with the guide, so that they maintain equal width
             textLabelLayoutGuide.trailingAnchor
-                .constraint(equalTo: inAddressRow.textLabel.trailingAnchor),
+                .constraint(equalTo: inAddressRow.textLabelLayoutGuide.trailingAnchor),
             textLabelLayoutGuide.trailingAnchor
-                .constraint(equalTo: outAddressRow.textLabel.trailingAnchor)
+                .constraint(equalTo: outAddressRow.textLabelLayoutGuide.trailingAnchor)
         ])
 
         updateConnectionInfoVisibility()
-    }
-}
+        updateCollapseButtonAccessibilityHint()
 
-class ConnectionPanelProtocolTypeRow: UIView {
-    let textLabel = UILabel()
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
-        textLabel.translatesAutoresizingMaskIntoConstraints = false
-        textLabel.font = UIFont.systemFont(ofSize: 17)
-        textLabel.textColor = .white
-
-        addSubview(textLabel)
-
-        NSLayoutConstraint.activate([
-            textLabel.topAnchor.constraint(equalTo: topAnchor),
-            textLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
-            textLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
-            textLabel.trailingAnchor.constraint(equalTo: trailingAnchor)
-        ])
+        collapseButton.addTarget(self, action: #selector(toggleCollapse(_:)), for: .touchUpInside)
     }
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    private func didChangeDataSource() {
+        inAddressRow.value = dataSource?.inAddress
+        outAddressRow.value = dataSource?.outAddress
+    }
+
+    private func toggleConnectionInfoVisibility() {
+        showsConnectionInfo = !showsConnectionInfo
+    }
+
+    @objc private func toggleCollapse(_ sender: Any) {
+        toggleConnectionInfoVisibility()
+    }
+
+    private func updateConnectionInfoVisibility() {
+        stackView.isHidden = !showsConnectionInfo
+        collapseButton.style = showsConnectionInfo ? .up : .down
+
+        if collapseButton.accessibilityElementIsFocused(), showsConnectionInfo {
+            UIAccessibility.post(notification: .layoutChanged, argument: stackView.arrangedSubviews.first)
+        }
+        updateCollapseButtonAccessibilityHint()
+    }
+
+    private func updateCollapseButtonAccessibilityHint() {
+        if showsConnectionInfo {
+            collapseButton.accessibilityHint = NSLocalizedString(
+                "COLLAPSE_BUTTON_ACCESSIBILITY_HINT",
+                tableName: "ConnectionPanel",
+                comment: ""
+            )
+        } else {
+            collapseButton.accessibilityHint = NSLocalizedString(
+                "EXPAND_BUTTON_ACCESSIBILITY_HINT",
+                tableName: "ConnectionPanel",
+                comment: ""
+            )
+        }
+    }
 }
 
 class ConnectionPanelAddressRow: UIView {
-    let textLabel = UILabel()
-    let detailTextLabel = UILabel()
-    let stackView: UIStackView
 
-    override init(frame: CGRect) {
-
-        let font = UIFont.systemFont(ofSize: 17)
-
-        textLabel.font = font
+    private let textLabel: UILabel = {
+        let textLabel = UILabel()
+        textLabel.font = .systemFont(ofSize: 17)
         textLabel.textColor = .white
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        return textLabel
+    }()
 
-        detailTextLabel.font = font
+    private let detailTextLabel: UILabel = {
+        let detailTextLabel = UILabel()
+        detailTextLabel.font = .systemFont(ofSize: 17)
         detailTextLabel.textColor = .white
         detailTextLabel.translatesAutoresizingMaskIntoConstraints = false
+        return detailTextLabel
+    }()
 
-        stackView = UIStackView(arrangedSubviews: [textLabel, detailTextLabel])
+    private lazy var stackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [textLabel, detailTextLabel])
         stackView.spacing = UIStackView.spacingUseSystem
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }()
 
+    let textLabelLayoutGuide = UILayoutGuide()
+
+    var title: String? {
+        get {
+            return textLabel.text
+        }
+        set {
+            textLabel.text = newValue
+            accessibilityLabel = newValue
+        }
+    }
+
+    var value: String? {
+        get {
+            return detailTextLabel.text
+        }
+        set {
+            detailTextLabel.text = newValue
+            accessibilityValue = newValue
+        }
+    }
+
+    override init(frame: CGRect) {
         super.init(frame: frame)
 
+        isAccessibilityElement = true
+
         addSubview(stackView)
+        addLayoutGuide(textLabelLayoutGuide)
 
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: topAnchor),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor)
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
+
+            textLabelLayoutGuide.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
+            textLabelLayoutGuide.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
+            textLabelLayoutGuide.topAnchor.constraint(equalTo: textLabel.topAnchor),
+            textLabelLayoutGuide.bottomAnchor.constraint(equalTo: textLabel.bottomAnchor)
         ])
     }
 
