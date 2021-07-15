@@ -5,13 +5,7 @@
 "EXPAND_BUTTON_ACCESSIBILITY_HINT" = "Double tap to expand the connection info panel.";
 
 /* No comment provided by engineer. */
-"IN_ADDRESS_ACCESSIBILITY_LABEL" = "Input IP address";
-
-/* No comment provided by engineer. */
 "IN_ADDRESS_LABEL" = "In";
-
-/* No comment provided by engineer. */
-"OUT_ADDRESS_ACCESSIBILITY_LABEL" = "Output IP address";
 
 /* No comment provided by engineer. */
 "OUT_ADDRESS_LABEL" = "Out";
