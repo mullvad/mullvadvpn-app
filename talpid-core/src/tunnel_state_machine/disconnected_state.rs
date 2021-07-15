@@ -106,11 +106,15 @@ impl TunnelState for DisconnectedState {
                 SameState(self.into())
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                if shared_values.set_allowed_endpoint(endpoint) {
-                    Self::set_firewall_policy(shared_values, true);
-                }
-                if let Err(_) = tx.send(()) {
-                    log::error!("The AllowEndpoint receiver was dropped");
+                if shared_values.is_offline {
+                    log::trace!("Ignoring API IP rotation since the system is offline");
+                } else {
+                    if shared_values.set_allowed_endpoint(endpoint) {
+                        Self::set_firewall_policy(shared_values, true);
+                    }
+                    if let Err(_) = tx.send(()) {
+                        log::error!("The AllowEndpoint receiver was dropped");
+                    }
                 }
                 SameState(self.into())
             }

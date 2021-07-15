@@ -117,19 +117,25 @@ impl TunnelState for ErrorState {
                 }
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                if shared_values.set_allowed_endpoint(endpoint) {
-                    let _ = Self::set_firewall_policy(shared_values);
+                if shared_values.is_offline {
+                    log::trace!("Ignoring API IP rotation since the system is offline");
+                } else {
+                    if shared_values.set_allowed_endpoint(endpoint) {
+                        let _ = Self::set_firewall_policy(shared_values);
 
-                    #[cfg(target_os = "android")]
-                    if !Self::create_blocking_tun(shared_values) {
-                        return NewState(Self::enter(
-                            shared_values,
-                            ErrorStateCause::SetFirewallPolicyError(FirewallPolicyError::Generic),
-                        ));
+                        #[cfg(target_os = "android")]
+                        if !Self::create_blocking_tun(shared_values) {
+                            return NewState(Self::enter(
+                                shared_values,
+                                ErrorStateCause::SetFirewallPolicyError(
+                                    FirewallPolicyError::Generic,
+                                ),
+                            ));
+                        }
                     }
-                }
-                if let Err(_) = tx.send(()) {
-                    log::error!("The AllowEndpoint receiver was dropped");
+                    if let Err(_) = tx.send(()) {
+                        log::error!("The AllowEndpoint receiver was dropped");
+                    }
                 }
                 SameState(self.into())
             }
