@@ -16,6 +16,7 @@ use mullvad_types::{
     relay_constraints::{
         BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
         OpenVpnConstraints, Providers, RelayConstraints, Set, WireguardConstraints,
+        WIREGUARD_TCP_PORTS,
     },
     relay_list::{OpenVpnEndpointData, Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
@@ -58,6 +59,7 @@ const WIREGUARD_EXIT_CONSTRAINTS: WireguardConstraints = WireguardConstraints {
     ip_version: Constraint::Only(IpVersion::V4),
     entry_location: None,
 };
+
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -406,13 +408,19 @@ impl RelaySelector {
                 }
             }
             Constraint::Only(TunnelType::Wireguard) => {
-                relay_constraints.wireguard_constraints =
-                    original_constraints.wireguard_constraints.clone();
-                // This ensures that if after the first 2 failed attempts the daemon does not
-                // connect, then afterwards 2 of each 4 successive attempts will try to connect on
-                // port 53.
-                if retry_attempt % 4 > 1 && relay_constraints.wireguard_constraints.port.is_any() {
-                    relay_constraints.wireguard_constraints.port = Constraint::Only(53);
+                if relay_constraints.wireguard_constraints.protocol
+                    != Constraint::Only(TransportProtocol::Tcp)
+                {
+                    relay_constraints.wireguard_constraints =
+                        original_constraints.wireguard_constraints.clone();
+                    // This ensures that if after the first 2 failed attempts the daemon does not
+                    // connect, then afterwards 2 of each 4 successive attempts will try to connect
+                    // on port 53.
+                    if retry_attempt % 4 > 1
+                        && relay_constraints.wireguard_constraints.port.is_any()
+                    {
+                        relay_constraints.wireguard_constraints.port = Constraint::Only(53);
+                    }
                 }
             }
         }
@@ -859,7 +867,7 @@ impl RelaySelector {
             public_key: data.public_key,
             endpoint: SocketAddr::new(host, port),
             allowed_ips: all_of_the_internet(),
-            protocol: TransportProtocol::Udp,
+            protocol: constraints.protocol.unwrap_or(TransportProtocol::Udp),
         };
         Some(MullvadEndpoint::Wireguard {
             peer: peer_config,
@@ -885,11 +893,16 @@ impl RelaySelector {
         data: &WireguardEndpointData,
         constraints: &WireguardConstraints,
     ) -> Option<u16> {
+        let port_ranges = match constraints.protocol {
+            Constraint::Only(TransportProtocol::Tcp) => &WIREGUARD_TCP_PORTS[..],
+            _ => &data.port_ranges,
+        };
+
         match constraints.port {
             Constraint::Any => {
                 let get_port_amount =
                     |range: &(u16, u16)| -> u64 { (1 + range.1 - range.0) as u64 };
-                let port_amount: u64 = data.port_ranges.iter().map(get_port_amount).sum();
+                let port_amount: u64 = port_ranges.iter().map(get_port_amount).sum();
 
                 if port_amount < 1 {
                     return None;
@@ -897,7 +910,7 @@ impl RelaySelector {
 
                 let mut port_index = self.rng.gen_range(0, port_amount);
 
-                for range in data.port_ranges.iter() {
+                for range in port_ranges.iter() {
                     let ports_in_range = get_port_amount(range);
                     if port_index < ports_in_range {
                         return Some(port_index as u16 + range.0);
@@ -908,8 +921,7 @@ impl RelaySelector {
                 None
             }
             Constraint::Only(port) => {
-                if data
-                    .port_ranges
+                if port_ranges
                     .iter()
                     .any(|range| (range.0 <= port && port <= range.1))
                 {
