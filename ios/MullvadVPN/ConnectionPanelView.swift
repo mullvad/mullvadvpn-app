@@ -75,24 +75,13 @@ class ConnectionPanelView: UIView {
         // TODO: Unhide it when we have out address
         outAddressRow.isHidden = true
 
-        inAddressRow.textLabel.text = NSLocalizedString(
+        inAddressRow.title = NSLocalizedString(
             "IN_ADDRESS_LABEL",
             tableName: "ConnectionPanel",
             comment: ""
         )
-        outAddressRow.textLabel.text = NSLocalizedString(
+        outAddressRow.title = NSLocalizedString(
             "OUT_ADDRESS_LABEL",
-            tableName: "ConnectionPanel",
-            comment: ""
-        )
-
-        inAddressRow.accessibilityLabel = NSLocalizedString(
-            "IN_ADDRESS_ACCESSIBILITY_LABEL",
-            tableName: "ConnectionPanel",
-            comment: ""
-        )
-        outAddressRow.accessibilityLabel = NSLocalizedString(
-            "OUT_ADDRESS_ACCESSIBILITY_LABEL",
             tableName: "ConnectionPanel",
             comment: ""
         )
@@ -113,9 +102,9 @@ class ConnectionPanelView: UIView {
 
             // Align all text labels with the guide, so that they maintain equal width
             textLabelLayoutGuide.trailingAnchor
-                .constraint(equalTo: inAddressRow.textLabel.trailingAnchor),
+                .constraint(equalTo: inAddressRow.textLabelLayoutGuide.trailingAnchor),
             textLabelLayoutGuide.trailingAnchor
-                .constraint(equalTo: outAddressRow.textLabel.trailingAnchor)
+                .constraint(equalTo: outAddressRow.textLabelLayoutGuide.trailingAnchor)
         ])
 
         updateConnectionInfoVisibility()
@@ -129,11 +118,8 @@ class ConnectionPanelView: UIView {
     }
 
     private func didChangeDataSource() {
-        inAddressRow.detailTextLabel.text = dataSource?.inAddress
-        outAddressRow.detailTextLabel.text = dataSource?.outAddress
-
-        inAddressRow.accessibilityValue = dataSource?.inAddress
-        outAddressRow.accessibilityValue = dataSource?.outAddress
+        inAddressRow.value = dataSource?.inAddress
+        outAddressRow.value = dataSource?.outAddress
     }
 
     private func toggleConnectionInfoVisibility() {
@@ -172,37 +158,71 @@ class ConnectionPanelView: UIView {
 }
 
 class ConnectionPanelAddressRow: UIView {
-    let textLabel = UILabel()
-    let detailTextLabel = UILabel()
-    let stackView: UIStackView
 
-    override init(frame: CGRect) {
-        let font = UIFont.systemFont(ofSize: 17)
-
-        textLabel.font = font
+    private let textLabel: UILabel = {
+        let textLabel = UILabel()
+        textLabel.font = .systemFont(ofSize: 17)
         textLabel.textColor = .white
         textLabel.translatesAutoresizingMaskIntoConstraints = false
         textLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        return textLabel
+    }()
 
-        detailTextLabel.font = font
+    private let detailTextLabel: UILabel = {
+        let detailTextLabel = UILabel()
+        detailTextLabel.font = .systemFont(ofSize: 17)
         detailTextLabel.textColor = .white
         detailTextLabel.translatesAutoresizingMaskIntoConstraints = false
+        return detailTextLabel
+    }()
 
-        stackView = UIStackView(arrangedSubviews: [textLabel, detailTextLabel])
+    private lazy var stackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [textLabel, detailTextLabel])
         stackView.spacing = UIStackView.spacingUseSystem
         stackView.translatesAutoresizingMaskIntoConstraints = false
+        return stackView
+    }()
 
+    let textLabelLayoutGuide = UILayoutGuide()
+
+    var title: String? {
+        get {
+            return textLabel.text
+        }
+        set {
+            textLabel.text = newValue
+            accessibilityLabel = newValue
+        }
+    }
+
+    var value: String? {
+        get {
+            return detailTextLabel.text
+        }
+        set {
+            detailTextLabel.text = newValue
+            accessibilityValue = newValue
+        }
+    }
+
+    override init(frame: CGRect) {
         super.init(frame: frame)
 
         isAccessibilityElement = true
 
         addSubview(stackView)
+        addLayoutGuide(textLabelLayoutGuide)
 
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: topAnchor),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor),
             stackView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor)
+            stackView.trailingAnchor.constraint(equalTo: trailingAnchor),
+
+            textLabelLayoutGuide.leadingAnchor.constraint(equalTo: textLabel.leadingAnchor),
+            textLabelLayoutGuide.trailingAnchor.constraint(equalTo: textLabel.trailingAnchor),
+            textLabelLayoutGuide.topAnchor.constraint(equalTo: textLabel.topAnchor),
+            textLabelLayoutGuide.bottomAnchor.constraint(equalTo: textLabel.bottomAnchor)
         ])
     }
 
