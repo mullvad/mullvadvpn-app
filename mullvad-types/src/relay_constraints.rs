@@ -491,6 +491,11 @@ impl fmt::Display for WireguardConstraints {
             Constraint::Only(port) => write!(f, "port {}", port)?,
         }
         write!(f, " over ")?;
+        match self.protocol {
+            Constraint::Any => write!(f, "any protocol")?,
+            Constraint::Only(protocol) => write!(f, "{}", protocol)?,
+        }
+        write!(f, " over ")?;
         match self.ip_version {
             Constraint::Any => write!(f, "IPv4 or IPv6")?,
             Constraint::Only(protocol) => write!(f, "{}", protocol)?,
