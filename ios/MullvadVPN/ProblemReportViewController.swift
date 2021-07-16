@@ -351,6 +351,9 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
     }
 
     private func setDescriptionFieldExpanded(_ isExpanded: Bool) {
+        // Make voice over ignore siblings when expanded
+        self.messageTextView.accessibilityViewIsModal = isExpanded
+
         if isExpanded {
             // Disable the large title
             self.navigationItem.largeTitleDisplayMode = .never
@@ -381,6 +384,9 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
                 self.isMessageTextViewExpanded = true
 
                 self.textViewKeyboardResponder?.updateContentInsets()
+
+                // Tell accessibility engine to scan the new layout
+                UIAccessibility.post(notification: .layoutChanged, argument: nil)
             }
 
         } else {
@@ -405,6 +411,9 @@ class ProblemReportViewController: UIViewController, UITextFieldDelegate, Condit
                 self.textFieldsHolder.addSubview(self.messageTextView)
 
                 self.isMessageTextViewExpanded = false
+
+                // Tell accessibility engine to scan the new layout
+                UIAccessibility.post(notification: .layoutChanged, argument: nil)
             }
         }
     }
