@@ -63,6 +63,10 @@ class HeaderBarView: UIView {
             right: UIMetrics.contentLayoutMargins.right
         )
 
+        if #available(iOS 13.0, *) {
+            accessibilityContainerType = .semanticGroup
+        }
+
         let constraints = [
             logoImageView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             logoImageView.centerYAnchor.constraint(equalTo: titleLabel.centerYAnchor),

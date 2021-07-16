@@ -49,6 +49,8 @@ protocol RootContainerViewControllerDelegate: AnyObject {
     func rootContainerViewControllerShouldShowSettings(_ controller: RootContainerViewController, navigateTo route: SettingsNavigationRoute?, animated: Bool)
 
     func rootContainerViewSupportedInterfaceOrientations(_ controller: RootContainerViewController) -> UIInterfaceOrientationMask
+
+    func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController) -> Bool
 }
 
 /// A root container view controller
@@ -105,8 +107,6 @@ class RootContainerViewController: UIViewController {
         addTransitionView()
         addHeaderBarView()
         updateHeaderBarBackground()
-
-        accessibilityElements = [headerBarView, transitionContainer]
     }
 
     override func viewDidLayoutSubviews() {
@@ -271,6 +271,12 @@ class RootContainerViewController: UIViewController {
         }
     }
 
+    // MARK: - Accessibility
+
+    override func accessibilityPerformMagicTap() -> Bool {
+        return delegate?.rootContainerViewAccessibilityPerformMagicTap(self) ?? super.accessibilityPerformMagicTap()
+    }
+
     // MARK: - Private
 
     private func addTransitionView() {
@@ -353,6 +359,7 @@ class RootContainerViewController: UIViewController {
             }
 
             self.updateInterfaceOrientation(attemptRotateToDeviceOrientation: true)
+            self.updateAccessibilityElementsAndNotifyScreenChange()
 
             completion?()
         }
@@ -542,6 +549,14 @@ class RootContainerViewController: UIViewController {
             disappearingController = nil
             controller.endAppearanceTransition()
         }
+    }
+
+    private func updateAccessibilityElementsAndNotifyScreenChange() {
+        // Update accessibility elements to define the correct navigation order: header bar, content view.
+        view.accessibilityElements = [headerBarView, topViewController?.view].compactMap { $0 }
+
+        // Tell accessibility that the significant part of screen was changed.
+        UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 
 }

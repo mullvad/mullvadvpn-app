@@ -382,6 +382,18 @@ extension AppDelegate: RootContainerViewControllerDelegate {
             return controller.supportedInterfaceOrientations
         }
     }
+
+    func rootContainerViewAccessibilityPerformMagicTap(_ controller: RootContainerViewController) -> Bool {
+        guard Account.shared.isLoggedIn else { return false }
+
+        switch TunnelManager.shared.tunnelState {
+        case .connected, .connecting, .reconnecting:
+            reconnectTunnel()
+        case .disconnecting, .disconnected:
+            connectTunnel()
+        }
+        return true
+    }
 }
 
 // MARK: - LoginViewControllerDelegate
@@ -517,9 +529,7 @@ extension AppDelegate: ConnectViewControllerDelegate {
     }
 
     func connectViewControllerShouldReconnectTunnel(_ controller: ConnectViewController) {
-        TunnelManager.shared.reconnectTunnel {
-            self.logger?.debug("Re-connected VPN tunnel")
-        }
+        reconnectTunnel()
     }
 
     @objc private func handleDismissSelectLocationController(_ sender: Any) {
@@ -551,6 +561,12 @@ extension AppDelegate: ConnectViewControllerDelegate {
                 self.logger?.error(chainedError: error, message: "Failed to stop the VPN tunnel")
                 self.presentTunnelError(error, alertTitle: NSLocalizedString("Failed to stop the VPN tunnel", comment: ""))
             }
+        }
+    }
+
+    private func reconnectTunnel() {
+        TunnelManager.shared.reconnectTunnel {
+            self.logger?.debug("Re-connected VPN tunnel")
         }
     }
 
