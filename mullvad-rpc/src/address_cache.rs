@@ -122,7 +122,7 @@ impl AddressCache {
 
             tokio::task::block_in_place(move || {
                 if (*self.change_listener)(Self::get_address_inner(&transaction)).is_err() {
-                    log::error!("Failed to select a new API endpoint");
+                    log::debug!("Failed to select a new API endpoint");
                     return;
                 }
                 transaction.commit();
@@ -192,7 +192,7 @@ impl AddressCache {
 
                     tokio::task::block_in_place(move || {
                         if (*self.change_listener)(Self::get_address_inner(&transaction)).is_err() {
-                            log::error!("Failed to select a new API endpoint");
+                            log::debug!("Failed to select a new API endpoint");
                             return Err(io::Error::new(
                                 io::ErrorKind::Other,
                                 "callback returned an error",
