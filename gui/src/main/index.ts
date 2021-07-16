@@ -465,11 +465,11 @@ class ApplicationMain {
       }
     };
 
+    await this.initializeWindow();
+
     if (this.shouldShowWindowOnStart() || process.env.NODE_ENV === 'development') {
       windowController.show();
     }
-
-    await this.initializeWindow();
   };
 
   private async initializeWindow() {
