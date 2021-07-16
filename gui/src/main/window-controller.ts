@@ -133,7 +133,6 @@ export default class WindowController {
   private windowValue: BrowserWindow;
   private webContentsValue: WebContents;
   private windowPositioning: IWindowPositioning;
-  private isWindowReady = false;
 
   get window(): BrowserWindow | undefined {
     return this.windowValue.isDestroyed() ? undefined : this.windowValue;
@@ -154,7 +153,6 @@ export default class WindowController {
       : new AttachedToTrayWindowPositioning(tray);
 
     this.installDisplayMetricsHandler();
-    this.installWindowReadyHandlers();
   }
 
   public replaceWindow(window: BrowserWindow, unpinnedWindow: boolean) {
@@ -269,17 +267,11 @@ export default class WindowController {
     this.window?.setSize(this.width, this.height);
   }
 
-  private installWindowReadyHandlers() {
-    this.window?.once('ready-to-show', () => {
-      this.isWindowReady = true;
-    });
-  }
-
   private executeWhenWindowIsReady(closure: () => void) {
-    if (this.isWindowReady) {
+    if (this.webContents?.isLoading() === false && this.webContents?.getURL() !== '') {
       closure();
     } else {
-      this.window?.once('ready-to-show', () => {
+      this.webContents?.once('did-stop-loading', () => {
         closure();
       });
     }
