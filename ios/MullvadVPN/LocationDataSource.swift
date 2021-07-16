@@ -427,12 +427,12 @@ extension LocationDataSource {
         private func sortChildren() {
             switch nodeType {
             case .root, .country:
-                children.sort { (a, b) -> Bool in
-                    return lexicalSortComparator(a.displayName, b.displayName)
+                children.sort { (lhs, rhs) -> Bool in
+                    return lexicalSortComparator(lhs.displayName, rhs.displayName)
                 }
             case .city:
-                children.sort { (a, b) -> Bool in
-                    return fileSortComparator(a.location.stringRepresentation, b.location.stringRepresentation)
+                children.sort { (lhs, rhs) -> Bool in
+                    return fileSortComparator(lhs.location.stringRepresentation, rhs.location.stringRepresentation)
                 }
             case .relay:
                 break
@@ -457,10 +457,10 @@ extension LocationDataSource {
 
 }
 
-private func lexicalSortComparator(_ a: String, _ b: String) -> Bool {
-    return a.localizedCaseInsensitiveCompare(b) == .orderedAscending
+private func lexicalSortComparator(_ lhs: String, _ rhs: String) -> Bool {
+    return lhs.localizedCaseInsensitiveCompare(rhs) == .orderedAscending
 }
 
-private func fileSortComparator(_ a: String, _ b: String) -> Bool {
-    return a.localizedStandardCompare(b) == .orderedAscending
+private func fileSortComparator(_ lhs: String, _ rhs: String) -> Bool {
+    return lhs.localizedStandardCompare(rhs) == .orderedAscending
 }
