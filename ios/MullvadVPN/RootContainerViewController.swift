@@ -367,6 +367,7 @@ class RootContainerViewController: UIViewController {
         let alongSideAnimations = {
             self.updateHeaderBarStyleFromChildPreferences(animated: shouldAnimate)
             self.updateHeaderBarHiddenFromChildPreferences(animated: shouldAnimate)
+            self.setNeedsStatusBarAppearanceUpdate()
         }
 
         // Add new child controllers. The call to addChild() automatically calls child.willMove()
