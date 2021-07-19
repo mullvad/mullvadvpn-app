@@ -14,6 +14,7 @@ export interface ILocation {
   mullvadExitIp: boolean;
   hostname?: string;
   bridgeHostname?: string;
+  provider?: string;
 }
 
 export type FirewallPolicyError =
@@ -136,6 +137,7 @@ export type TunnelProtocol = 'wireguard' | 'openvpn';
 interface IRelaySettingsNormal<OpenVpn, Wireguard> {
   location: Constraint<RelayLocation>;
   tunnelProtocol: Constraint<TunnelProtocol>;
+  providers: string[];
   openvpnConstraints: OpenVpn;
   wireguardConstraints: Wireguard;
 }
@@ -213,6 +215,7 @@ export interface IRelayListCity {
 
 export interface IRelayListHostname {
   hostname: string;
+  provider: string;
   ipv4AddrIn: string;
   includeInCountry: boolean;
   active: boolean;
@@ -340,6 +343,7 @@ export type SplitTunnelSettings = {
 
 export interface IBridgeConstraints {
   location: Constraint<RelayLocation>;
+  providers: string[];
 }
 
 export type BridgeSettings = { normal: IBridgeConstraints } | { custom: ProxySettings };
