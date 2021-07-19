@@ -22,7 +22,7 @@ class SelectLocationHeaderView: UIView {
 
     var topLayoutMarginAdjustmentForNavigationBarTitle: CGFloat = 0 {
         didSet {
-            let value = UIMetrics.contentLayoutMargins.top - topLayoutMarginAdjustmentForNavigationBarTitle
+            let value = UIMetrics.sectionSpacing - topLayoutMarginAdjustmentForNavigationBarTitle
             layoutMargins.top = max(value, 0)
         }
     }

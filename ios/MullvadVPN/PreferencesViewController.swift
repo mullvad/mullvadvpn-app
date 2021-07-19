@@ -35,7 +35,7 @@ class PreferencesViewController: UITableViewController, TunnelObserver {
         tableView.separatorColor = .secondaryColor
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
-        tableView.sectionHeaderHeight = UIMetrics.contentLayoutMargins.top
+        tableView.sectionHeaderHeight = UIMetrics.sectionSpacing
         tableView.sectionFooterHeight = 0
 
         tableView.dataSource = staticDataSource

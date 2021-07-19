@@ -54,7 +54,7 @@ class WireguardKeysContentView: UIView {
         let stackView = UIStackView(arrangedSubviews: [publicKeyRowView, creationRowView])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.contentLayoutMargins.top
+        stackView.spacing = UIMetrics.sectionSpacing
         return stackView
     }()
 
@@ -62,7 +62,7 @@ class WireguardKeysContentView: UIView {
         let stackView = UIStackView(arrangedSubviews: [regenerateKeyButton, verifyKeyButton])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
-        stackView.spacing = UIMetrics.contentLayoutMargins.top
+        stackView.spacing = UIMetrics.interButtonSpacing
         return stackView
     }()
 
@@ -79,7 +79,7 @@ class WireguardKeysContentView: UIView {
             contentStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             contentStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
 
-            buttonStackView.topAnchor.constraint(greaterThanOrEqualTo: contentStackView.bottomAnchor, constant: UIMetrics.contentLayoutMargins.top),
+            buttonStackView.topAnchor.constraint(greaterThanOrEqualTo: contentStackView.bottomAnchor, constant: UIMetrics.sectionSpacing),
             buttonStackView.leadingAnchor.constraint(equalTo: layoutMarginsGuide.leadingAnchor),
             buttonStackView.trailingAnchor.constraint(equalTo: layoutMarginsGuide.trailingAnchor),
             buttonStackView.bottomAnchor.constraint(equalTo: layoutMarginsGuide.bottomAnchor)

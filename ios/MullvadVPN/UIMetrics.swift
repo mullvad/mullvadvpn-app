@@ -18,6 +18,12 @@ extension UIMetrics {
     /// Layout margins for in-app notification banner presentation
     static var inAppBannerNotificationLayoutMargins = UIEdgeInsets(top: 16, left: 24, bottom: 16, right: 24)
 
+    /// Spacing used in stack views of buttons
+    static var interButtonSpacing: CGFloat = 16
+
+    /// Spacing used between distinct sections of views
+    static var sectionSpacing: CGFloat = 24
+
     /// Maximum width of the split view content container on iPad
     static var maximumSplitViewContentContainerWidth: CGFloat = 810 * 0.7
 
