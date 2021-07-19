@@ -71,9 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         self.window = UIWindow(frame: UIScreen.main.bounds)
 
         // Set an empty view controller while loading tunnels
-        let launchController = UIViewController()
-        launchController.view.backgroundColor = .primaryColor
-        self.window?.rootViewController = launchController
+        self.window?.rootViewController = self.makeLaunchScreenController()
 
         // Update relays
         RelayCache.shared.addObserver(self)
@@ -242,6 +240,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
 
             self.rootContainer?.setViewControllers([consentViewController], animated: false)
+        }
+    }
+
+    private func makeLaunchScreenController() -> UIViewController {
+        let launchStoryboard = UIStoryboard(name: "LaunchScreen", bundle: .main)
+        if #available(iOS 13, *) {
+            // Load storyboard and swap the controller class
+            return launchStoryboard.instantiateInitialViewController { coder in
+                return LaunchScreenViewController(coder: coder)
+            }!
+        } else {
+            // Instantiate the launch screen controller and embed the storyboard controller into it.
+            let launchController = LaunchScreenViewController()
+
+            let storyboardController = launchStoryboard.instantiateInitialViewController()!
+            storyboardController.view.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+            storyboardController.view.frame = launchController.view.bounds
+
+            launchController.addChild(storyboardController)
+            launchController.view.addSubview(storyboardController.view)
+            launchController.didMove(toParent: storyboardController)
+
+            return launchController
         }
     }
 
