@@ -18,9 +18,9 @@ class AccountInputGroupView: UIView {
 
     let sendButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setImage(UIImage(named: "IconArrow"), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.backgroundColor = .successColor
+        button.setImage(UIImage(named: "IconArrow"), for: .normal)
+        button.accessibilityLabel = NSLocalizedString("ACCOUNT_INPUT_LOGIN_BUTTON_ACCESSIBILITY_LABEL", comment: "")
         return button
     }()
 
@@ -150,10 +150,11 @@ class AccountInputGroupView: UIView {
 
         updateAppearance()
         updateTextFieldEnabled()
-        updateSendButtonVisible(animated: false)
+        updateSendButtonAppearance(animated: false)
         updateKeyboardReturnKeyEnabled()
 
         addTextFieldNotificationObservers()
+        addAccessibilityNotificationObservers()
         sendButton.addTarget(self, action: #selector(handleSendButton(_:)), for: .touchUpInside)
     }
 
@@ -166,7 +167,7 @@ class AccountInputGroupView: UIView {
 
         updateAppearance()
         updateTextFieldEnabled()
-        updateSendButtonVisible(animated: animated)
+        updateSendButtonAppearance(animated: animated)
     }
 
     func setOnReturnKey(_ onReturnKey: ((AccountInputGroupView) -> Bool)?) {
@@ -183,12 +184,12 @@ class AccountInputGroupView: UIView {
 
     func setToken(_ token: String) {
         privateTextField.autoformattingText = token
-        updateSendButtonVisible(animated: false)
+        updateSendButtonAppearance(animated: false)
     }
 
     func clearToken() {
         privateTextField.autoformattingText = ""
-        updateSendButtonVisible(animated: false)
+        updateSendButtonAppearance(animated: false)
     }
 
     // MARK: - CALayerDelegate
@@ -219,7 +220,7 @@ class AccountInputGroupView: UIView {
     }
 
     @objc private func textDidChange() {
-        updateSendButtonVisible(animated: true)
+        updateSendButtonAppearance(animated: true)
         updateKeyboardReturnKeyEnabled()
     }
 
@@ -266,17 +267,28 @@ class AccountInputGroupView: UIView {
         }
     }
 
-    private func updateSendButtonVisible(animated: Bool) {
+    private func updateSendButtonAppearance(animated: Bool) {
         let actions = {
             switch self.loginState {
             case .authenticating, .success:
-                self.sendButton.alpha = 0
+                // Always show the send button when voice over is running to make it discoverable
+                self.sendButton.alpha = UIAccessibility.isVoiceOverRunning ? 1 : 0
+
+                self.sendButton.isEnabled = false
+                self.sendButton.backgroundColor = .lightGray
 
             case .default, .failure:
                 let isEnabled = self.satisfiesMinimumTokenLengthRequirement
 
-                self.sendButton.alpha = isEnabled ? 1 : 0
-                self.sendButton.isUserInteractionEnabled = isEnabled
+                // Always show the send button when voice over is running to make it discoverable
+                if UIAccessibility.isVoiceOverRunning {
+                    self.sendButton.alpha = 1
+                } else {
+                    self.sendButton.alpha = isEnabled ? 1 : 0
+                }
+
+                self.sendButton.isEnabled = isEnabled
+                self.sendButton.backgroundColor = isEnabled ? .successColor : .lightGray
             }
         }
 
@@ -288,7 +300,7 @@ class AccountInputGroupView: UIView {
             actions()
         }
     }
-    
+
     private func updateKeyboardReturnKeyEnabled() {
         privateTextField.enableReturnKey = satisfiesMinimumTokenLengthRequirement
     }
@@ -309,4 +321,15 @@ class AccountInputGroupView: UIView {
             borderPath.stroke(with: .clear, alpha: 0)
         }
     }
+
+    // MARK: - Accessibility
+
+    private func addAccessibilityNotificationObservers() {
+        NotificationCenter.default.addObserver(self, selector: #selector(voiceOverStatusDidChange(_:)), name: UIAccessibility.voiceOverStatusDidChangeNotification, object: nil)
+    }
+
+    @objc private func voiceOverStatusDidChange(_ notification: Notification) {
+        updateSendButtonAppearance(animated: true)
+    }
+
 }
