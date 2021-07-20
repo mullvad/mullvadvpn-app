@@ -167,6 +167,14 @@ impl Command for Relay {
                                             .required(true)
                                     )
                                     .arg(
+                                        clap::Arg::with_name("transport protocol")
+                                            .help("Transport protocol. If TCP is selected, traffic is \
+                                                   sent over TCP using a udp-over-tcp proxy")
+                                            .long("protocol")
+                                            .default_value("any")
+                                            .possible_values(&["any", "udp", "tcp"]),
+                                    )
+                                    .arg(
                                         clap::Arg::with_name("ip version")
                                             .long("ipv")
                                             .default_value("any")
@@ -528,6 +536,7 @@ impl Relay {
 
     async fn set_wireguard_constraints(&self, matches: &clap::ArgMatches<'_>) -> Result<()> {
         let port = parse_port_constraint(matches.value_of("port").unwrap())?;
+        let protocol = parse_protocol_constraint(matches.value_of("transport protocol").unwrap());
         let ip_version = parse_ip_version_constraint(matches.value_of("ip version").unwrap());
         let entry_location =
             parse_entry_location_constraint(matches.values_of("entry location").unwrap());
@@ -537,6 +546,11 @@ impl Relay {
                 NormalRelaySettingsUpdate {
                     wireguard_constraints: Some(WireguardConstraints {
                         port: port.unwrap_or(0) as u32,
+                        protocol: protocol
+                            .option()
+                            .map(|protocol| TransportProtocolConstraint {
+                                protocol: protocol as i32,
+                            }),
                         ip_version: ip_version.option().map(|protocol| IpVersionConstraint {
                             protocol: protocol as i32,
                         }),
@@ -735,8 +749,14 @@ impl Relay {
     fn format_wireguard_constraints(constraints: Option<&WireguardConstraints>) -> String {
         if let Some(constraints) = constraints {
             let mut out = format!(
-                "{} over {}",
+                "{} over {} over {}",
                 Self::format_port(constraints.port),
+                Self::format_transport_protocol(
+                    constraints
+                        .protocol
+                        .clone()
+                        .map(|protocol| TransportProtocol::from_i32(protocol.protocol).unwrap())
+                ),
                 Self::format_ip_version(
                     constraints
                         .ip_version
@@ -756,7 +776,7 @@ impl Relay {
 
             out
         } else {
-            "any port over IPv4 or IPv6".to_string()
+            "any port over any protocol over IPv4 or IPv6".to_string()
         }
     }
 

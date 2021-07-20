@@ -332,10 +332,10 @@ message IpVersionConstraint {
 }
 
 message WireguardConstraints {
-	// NOTE: optional
 	uint32 port = 1;
-	IpVersionConstraint ip_version = 2;
-	RelayLocation entry_location = 3;
+	TransportProtocolConstraint protocol = 2;
+	IpVersionConstraint ip_version = 3;
+	RelayLocation entry_location = 4;
 }
 
 message CustomRelaySettings {

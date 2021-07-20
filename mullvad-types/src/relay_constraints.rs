@@ -12,6 +12,8 @@ use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, fmt};
 use talpid_types::net::{openvpn::ProxySettings, IpVersion, TransportProtocol, TunnelType};
 
+pub const WIREGUARD_TCP_PORTS: [(u16, u16); 3] = [(80, 80), (443, 443), (5001, 5001)];
+
 
 pub trait Match<T> {
     fn matches(&self, other: &T) -> bool;
@@ -477,6 +479,7 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
 #[serde(default)]
 pub struct WireguardConstraints {
     pub port: Constraint<u16>,
+    pub protocol: Constraint<TransportProtocol>,
     pub ip_version: Constraint<IpVersion>,
     pub entry_location: Option<Constraint<LocationConstraint>>,
 }
@@ -486,6 +489,11 @@ impl fmt::Display for WireguardConstraints {
         match self.port {
             Constraint::Any => write!(f, "any port")?,
             Constraint::Only(port) => write!(f, "port {}", port)?,
+        }
+        write!(f, " over ")?;
+        match self.protocol {
+            Constraint::Any => write!(f, "any protocol")?,
+            Constraint::Only(protocol) => write!(f, "{}", protocol)?,
         }
         write!(f, " over ")?;
         match self.ip_version {
@@ -504,10 +512,15 @@ impl Match<WireguardEndpointData> for WireguardConstraints {
     fn matches(&self, endpoint: &WireguardEndpointData) -> bool {
         match self.port {
             Constraint::Any => true,
-            Constraint::Only(port) => endpoint
-                .port_ranges
-                .iter()
-                .any(|range| (port >= range.0 && port <= range.1)),
+            Constraint::Only(port) => match self.protocol {
+                Constraint::Only(TransportProtocol::Tcp) => WIREGUARD_TCP_PORTS
+                    .iter()
+                    .any(|range| (port >= range.0 && port <= range.1)),
+                _ => endpoint
+                    .port_ranges
+                    .iter()
+                    .any(|range| (port >= range.0 && port <= range.1)),
+            },
         }
     }
 }
