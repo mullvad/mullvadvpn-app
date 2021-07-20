@@ -64,6 +64,7 @@
 		582BB1B3229574F40055B6EF /* SettingsAccountCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582BB1B2229574F40055B6EF /* SettingsAccountCell.swift */; };
 		582BB1B52295780F0055B6EF /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 582BB1B42295780F0055B6EF /* AccountExpiry.swift */; };
 		582CFEE726945FC30072883A /* AppStoreSubscriptions.strings in Resources */ = {isa = PBXBuildFile; fileRef = 582CFEE526945FC30072883A /* AppStoreSubscriptions.strings */; };
+		582CFEEA269463B80072883A /* Settings.strings in Resources */ = {isa = PBXBuildFile; fileRef = 582CFEE8269463B80072883A /* Settings.strings */; };
 		5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5835B7CB233B76CB0096D79F /* TunnelManager.swift */; };
 		583BC70724FE4DC500C9DE04 /* Optional+DispatchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583BC70624FE4DC400C9DE04 /* Optional+DispatchQueue.swift */; };
 		583BC70824FE4DC500C9DE04 /* Optional+DispatchQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583BC70624FE4DC400C9DE04 /* Optional+DispatchQueue.swift */; };
@@ -331,6 +332,7 @@
 		582BB1B2229574F40055B6EF /* SettingsAccountCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsAccountCell.swift; sourceTree = "<group>"; };
 		582BB1B42295780F0055B6EF /* AccountExpiry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiry.swift; sourceTree = "<group>"; };
 		582CFEE626945FC30072883A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AppStoreSubscriptions.strings; sourceTree = "<group>"; };
+		582CFEE9269463B80072883A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Settings.strings; sourceTree = "<group>"; };
 		5835B7CB233B76CB0096D79F /* TunnelManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelManager.swift; sourceTree = "<group>"; };
 		583BC70624FE4DC400C9DE04 /* Optional+DispatchQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Optional+DispatchQueue.swift"; sourceTree = "<group>"; };
 		583DA21325FA4B5C00318683 /* LocationDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationDataSource.swift; sourceTree = "<group>"; };
@@ -549,6 +551,7 @@
 				58F559072697002100F630D0 /* ConnectionPanel.strings */,
 				587B7543266922BF00DEF7E9 /* Localizable.strings */,
 				58F559052697002000F630D0 /* Main.strings */,
+				582CFEE8269463B80072883A /* Settings.strings */,
 				58F61F4D2692F21C00DCFC2B /* WireguardKeys.strings */,
 			);
 			name = Localizations;
@@ -966,6 +969,7 @@
 				58F61F4F2692F21C00DCFC2B /* WireguardKeys.strings in Resources */,
 				58F5590E2697002100F630D0 /* Main.strings in Resources */,
 				581FC4FA2695ACE100AA97BA /* Account.strings in Resources */,
+				582CFEEA269463B80072883A /* Settings.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1275,6 +1279,14 @@
 				582CFEE626945FC30072883A /* en */,
 			);
 			name = AppStoreSubscriptions.strings;
+			sourceTree = "<group>";
+		};
+		582CFEE8269463B80072883A /* Settings.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				582CFEE9269463B80072883A /* en */,
+			);
+			name = Settings.strings;
 			sourceTree = "<group>";
 		};
 		587B7543266922BF00DEF7E9 /* Localizable.strings */ = {
