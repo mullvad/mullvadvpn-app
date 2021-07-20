@@ -367,6 +367,7 @@ class RootContainerViewController: UIViewController {
         let alongSideAnimations = {
             self.updateHeaderBarStyleFromChildPreferences(animated: shouldAnimate)
             self.updateHeaderBarHiddenFromChildPreferences(animated: shouldAnimate)
+            self.setNeedsStatusBarAppearanceUpdate()
         }
 
         // Add new child controllers. The call to addChild() automatically calls child.willMove()
@@ -559,15 +560,6 @@ class RootContainerViewController: UIViewController {
         UIAccessibility.post(notification: .screenChanged, argument: nil)
     }
 
-}
-
-class RootContainerPushSegue: UIStoryboardSegue {
-    override func perform() {
-        let container = source.rootContainerController!
-        let animated = UIView.areAnimationsEnabled
-
-        container.pushViewController(destination, animated: animated)
-    }
 }
 
 /// A UIViewController extension that gives view controllers an access to root container
