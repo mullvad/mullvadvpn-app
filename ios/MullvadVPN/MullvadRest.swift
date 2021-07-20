@@ -595,6 +595,22 @@ extension MullvadRest {
         )
     }
 
+    static func getClientIPAddress() -> RestEndpoint<EmptyPayload, String> {
+        return RestEndpoint(
+            endpointURL: URL(string: "https://am.i.mullvad.net/ip")!,
+            httpMethod: .get) { (input) in
+                return AnyResponseHandler { (response, data) -> Result<String, ResponseHandlerError> in
+                    if response.statusCode == HttpStatus.ok {
+                        let string = String(data: data, encoding: .utf8) ?? ""
+
+                        return .success(string)
+                    } else {
+                        return .failure(.badResponse(response.statusCode))
+                    }
+                }
+            }
+    }
+
     /// Returns a JSON encoder used by REST API
     static func makeJSONEncoder() -> JSONEncoder {
         let encoder = JSONEncoder()
