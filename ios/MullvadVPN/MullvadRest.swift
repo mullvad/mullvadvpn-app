@@ -204,8 +204,6 @@ protocol ResponseHandler {
     associatedtype Response
 
     /// Decode the response.
-    /// The implementation is expected to throw `BadResponseError` in case of failure to handle the HTTP response,
-    /// or any other `Error` in case of failure to decode the data.
     func decodeResponse(_ httpResponse: HTTPURLResponse, data: Data) -> Result<Response, ResponseHandlerError>
 }
 
@@ -215,11 +213,6 @@ enum ResponseHandlerError: Error {
 
     /// A failure to decode data
     case decodeData(Error)
-}
-
-/// A placeholder error used to indicate that the server returned unexpected response.
-fileprivate struct BadResponseError: Error {
-    let statusCode: Int
 }
 
 /// Type-erasing response handler.
