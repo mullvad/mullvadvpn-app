@@ -244,7 +244,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     private func makeLaunchScreenController() -> UIViewController {
-        let launchStoryboard = UIStoryboard(name: "LaunchScreen", bundle: .main)
+        let storyboardName = UIDevice.current.userInterfaceIdiom == .pad ? "LaunchScreenPad" : "LaunchScreenPhone"
+
+        let launchStoryboard = UIStoryboard(name: storyboardName, bundle: .main)
         if #available(iOS 13, *) {
             // Load storyboard and swap the controller class
             return launchStoryboard.instantiateInitialViewController { coder in
