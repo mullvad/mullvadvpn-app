@@ -56,7 +56,7 @@ class SettingsViewController: UITableViewController, AccountObserver {
         tableView.register(SettingsCell.self, forCellReuseIdentifier: CellIdentifier.basicCell.rawValue)
         tableView.register(EmptyTableViewHeaderFooterView.self, forHeaderFooterViewReuseIdentifier: EmptyTableViewHeaderFooterView.reuseIdentifier)
 
-        navigationItem.title = NSLocalizedString("Settings", comment: "Navigation title")
+        navigationItem.title = NSLocalizedString("NAVIGATION_TITLE", tableName: "Settings", comment: "Navigation title")
         navigationItem.largeTitleDisplayMode = .always
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(handleDismiss))
 
@@ -94,7 +94,7 @@ class SettingsViewController: UITableViewController, AccountObserver {
             let accountRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.accountCell.rawValue) { (_, cell) in
                 let cell = cell as! SettingsAccountCell
 
-                cell.titleLabel.text = NSLocalizedString("Account", comment: "")
+                cell.titleLabel.text = NSLocalizedString("ACCOUNT_CELL_LABEL", tableName: "Settings", comment: "")
                 cell.accountExpiryDate = Account.shared.expiry
                 cell.accessibilityIdentifier = "AccountCell"
                 cell.accessoryType = .disclosureIndicator
@@ -106,7 +106,7 @@ class SettingsViewController: UITableViewController, AccountObserver {
 
             let preferencesRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
                 let cell = cell as! SettingsCell
-                cell.titleLabel.text = NSLocalizedString("Preferences", comment: "")
+                cell.titleLabel.text = NSLocalizedString("PREFERENCES_CELL_LABEL", tableName: "Settings", comment: "")
                 cell.accessoryType = .disclosureIndicator
             }
 
@@ -117,7 +117,7 @@ class SettingsViewController: UITableViewController, AccountObserver {
             let wireguardKeyRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
                 let cell = cell as! SettingsCell
 
-                cell.titleLabel.text = NSLocalizedString("WireGuard key", comment: "")
+                cell.titleLabel.text = NSLocalizedString("WIREGUARD_KEY_CELL_LABEL", tableName: "Settings", comment: "")
                 cell.accessibilityIdentifier = "WireGuardKeyCell"
                 cell.accessoryType = .disclosureIndicator
             }
@@ -135,7 +135,7 @@ class SettingsViewController: UITableViewController, AccountObserver {
         let middleSection = StaticTableViewSection()
         let versionRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
             let cell = cell as! SettingsCell
-            cell.titleLabel.text = NSLocalizedString("App version", comment: "")
+            cell.titleLabel.text = NSLocalizedString("APP_VERSION_CELL_LABEL", tableName: "Settings", comment: "")
             cell.detailTitleLabel.text = Bundle.main.productVersion
         }
         versionRow.isSelectable = false
@@ -147,7 +147,7 @@ class SettingsViewController: UITableViewController, AccountObserver {
         let logStreamerRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
             let cell = cell as! SettingsCell
 
-            cell.titleLabel.text = NSLocalizedString("App logs", comment: "")
+            cell.titleLabel.text =  "App logs"
         }
         logStreamerRow.actionBlock = { [weak self] (indexPath) in
             let logController = LogStreamerViewController(fileURLs: ApplicationConfiguration.logFileURLs)
@@ -165,7 +165,7 @@ class SettingsViewController: UITableViewController, AccountObserver {
         let problemReportRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (indexPath, cell) in
             let cell = cell as! SettingsCell
 
-            cell.titleLabel.text = NSLocalizedString("Report a problem", comment: "")
+            cell.titleLabel.text = NSLocalizedString("REPORT_PROBLEM_CELL_LABEL", tableName: "Settings", comment: "")
             cell.accessoryType = .disclosureIndicator
         }
 

@@ -1,0 +1,23 @@
+/* No comment provided by engineer. */
+"ACCOUNT_CELL_LABEL" = "Account";
+
+/* Label displayed when user account ran out of time. */
+"ACCOUNT_CELL_OUT_OF_TIME_LABEL" = "OUT OF TIME";
+
+/* The amount of time left on user account. Use %@ placeholder to position the localized text with the time duration left (i.e 10 days). */
+"ACCOUNT_CELL_TIME_LEFT_LABEL_FORMAT" = "%@ left";
+
+/* No comment provided by engineer. */
+"APP_VERSION_CELL_LABEL" = "App version";
+
+/* Navigation title */
+"NAVIGATION_TITLE" = "Settings";
+
+/* No comment provided by engineer. */
+"PREFERENCES_CELL_LABEL" = "Preferences";
+
+/* No comment provided by engineer. */
+"REPORT_PROBLEM_CELL_LABEL" = "Report a problem";
+
+/* No comment provided by engineer. */
+"WIREGUARD_KEY_CELL_LABEL" = "WireGuard key";
