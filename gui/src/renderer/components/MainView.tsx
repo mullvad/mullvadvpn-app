@@ -5,6 +5,7 @@ import { IReduxState } from '../redux/store';
 import ConnectPage from '../containers/ConnectPage';
 import ExpiredAccountErrorViewContainer from '../containers/ExpiredAccountErrorViewContainer';
 import { useHistory } from '../lib/history';
+import { RoutePath } from '../lib/routes';
 
 export default function MainView() {
   const history = useHistory();
@@ -20,7 +21,7 @@ export default function MainView() {
     if (accountHasExpired) {
       setShowAccountExpired(true);
     } else if (showAccountExpired && !accountHasExpired) {
-      history.push('/main/time-added');
+      history.push(RoutePath.timeAdded);
     }
   }, [showAccountExpired, accountHasExpired]);
 

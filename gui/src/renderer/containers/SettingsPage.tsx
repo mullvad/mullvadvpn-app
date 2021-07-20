@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import Settings from '../components/Settings';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
+import { RoutePath } from '../lib/routes';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
 const mapStateToProps = (state: IReduxState, props: IAppContext) => ({
@@ -20,11 +21,11 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
   return {
     onQuit: () => props.app.quit(),
     onClose: () => props.history.dismiss(),
-    onViewSelectLanguage: () => props.history.push('/settings/language'),
-    onViewAccount: () => props.history.push('/settings/account'),
-    onViewSupport: () => props.history.push('/settings/support'),
-    onViewPreferences: () => props.history.push('/settings/preferences'),
-    onViewAdvancedSettings: () => props.history.push('/settings/advanced'),
+    onViewSelectLanguage: () => props.history.push(RoutePath.selectLanguage),
+    onViewAccount: () => props.history.push(RoutePath.accountSettings),
+    onViewSupport: () => props.history.push(RoutePath.support),
+    onViewPreferences: () => props.history.push(RoutePath.preferences),
+    onViewAdvancedSettings: () => props.history.push(RoutePath.advancedSettings),
     onExternalLink: (url: string) => props.app.openUrl(url),
     updateAccountData: () => props.app.updateAccountData(),
   };

@@ -8,6 +8,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { transitions, useHistory } from '../lib/history';
+import { RoutePath } from '../lib/routes';
 import account from '../redux/account/actions';
 import { IReduxState } from '../redux/store';
 import * as AppButton from './AppButton';
@@ -82,7 +83,7 @@ export function VoucherInput() {
   const history = useHistory();
 
   const onSuccess = useCallback(() => {
-    history.push('/main/voucher/success');
+    history.push(RoutePath.voucherSuccess);
   }, [history]);
 
   const navigateBack = useCallback(() => {
@@ -138,7 +139,7 @@ export function TimeAdded(props: ITimeAddedProps) {
 
   const navigateToSetupFinished = useCallback(() => {
     if (isNewAccount) {
-      history.push('/main/setup-finished');
+      history.push(RoutePath.setupFinished);
     } else {
       finish();
     }
@@ -263,7 +264,7 @@ function useFinishedCallback() {
       loggedIn();
     }
 
-    history.reset('/main', undefined, transitions.push);
+    history.reset(RoutePath.main, undefined, transitions.push);
   }, [isNewAccount, loggedIn, history]);
 
   return callback;

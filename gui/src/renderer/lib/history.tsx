@@ -1,6 +1,7 @@
-import { Location, Action, LocationDescriptor } from 'history';
+import { Location, Action, LocationDescriptorObject, History as OriginalHistory } from 'history';
 import React from 'react';
 import { RouteComponentProps, useHistory as useReactRouterHistory, withRouter } from 'react-router';
+import { RoutePath } from './routes';
 
 export interface ITransitionSpecification {
   name: string;
@@ -37,6 +38,8 @@ export const transitions: ITransitionMap = {
   },
 };
 
+type LocationDescriptor<S> = RoutePath | LocationDescriptorObject<S>;
+
 type LocationListener<S = unknown> = (
   location: Location<S>,
   action: Action,
@@ -53,7 +56,7 @@ export default class History {
   private index = 0;
   private lastAction: Action = 'POP';
 
-  public constructor(location: string | Location<S>, state?: S) {
+  public constructor(location: LocationDescriptor<S>, state?: S) {
     this.entries = [this.createLocation(location, state)];
   }
 
@@ -112,6 +115,14 @@ export default class History {
   public canGo(n: number) {
     const nextIndex = this.index + n;
     return nextIndex >= 0 && nextIndex < this.entries.length;
+  }
+
+  // This returns this object casted as History from the History module. The difference between this
+  // one and the one in the history module is that this one has stricter types for the paths.
+  // Instead of accepting any string it's limited to the paths we actually support. But this history
+  // implementation would handle any string as expected.
+  public get asHistory(): OriginalHistory {
+    return this as OriginalHistory;
   }
 
   public block(): never {

@@ -11,6 +11,7 @@ import AdvancedSettings from '../components/AdvancedSettings';
 
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
+import { RoutePath } from '../lib/routes';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
@@ -163,8 +164,8 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
       return props.app.setDnsOptions(dns);
     },
 
-    onViewWireguardKeys: () => props.history.push('/settings/advanced/wireguard-keys'),
-    onViewSplitTunneling: () => props.history.push('/settings/advanced/split-tunneling'),
+    onViewWireguardKeys: () => props.history.push(RoutePath.wireguardKeys),
+    onViewSplitTunneling: () => props.history.push(RoutePath.splitTunneling),
   };
 };
 
