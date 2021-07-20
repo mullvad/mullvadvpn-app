@@ -33,9 +33,13 @@ impl DisconnectingState {
                     AfterDisconnect::Nothing
                 }
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                    let _ = shared_values.set_allowed_endpoint(endpoint);
-                    if let Err(_) = tx.send(()) {
-                        log::error!("The AllowEndpoint receiver was dropped");
+                    if shared_values.is_offline {
+                        log::trace!("Ignoring API IP rotation since the system is offline");
+                    } else {
+                        let _ = shared_values.set_allowed_endpoint(endpoint);
+                        if let Err(_) = tx.send(()) {
+                            log::error!("The AllowEndpoint receiver was dropped");
+                        }
                     }
                     AfterDisconnect::Nothing
                 }
@@ -71,9 +75,13 @@ impl DisconnectingState {
                     AfterDisconnect::Block(reason)
                 }
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                    let _ = shared_values.set_allowed_endpoint(endpoint);
-                    if let Err(_) = tx.send(()) {
-                        log::error!("The AllowEndpoint receiver was dropped");
+                    if shared_values.is_offline {
+                        log::trace!("Ignoring API IP rotation since the system is offline");
+                    } else {
+                        let _ = shared_values.set_allowed_endpoint(endpoint);
+                        if let Err(_) = tx.send(()) {
+                            log::error!("The AllowEndpoint receiver was dropped");
+                        }
                     }
                     AfterDisconnect::Block(reason)
                 }
@@ -114,9 +122,13 @@ impl DisconnectingState {
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                    let _ = shared_values.set_allowed_endpoint(endpoint);
-                    if let Err(_) = tx.send(()) {
-                        log::error!("The AllowEndpoint receiver was dropped");
+                    if shared_values.is_offline {
+                        log::trace!("Ignoring API IP rotation since the system is offline");
+                    } else {
+                        let _ = shared_values.set_allowed_endpoint(endpoint);
+                        if let Err(_) = tx.send(()) {
+                            log::error!("The AllowEndpoint receiver was dropped");
+                        }
                     }
                     AfterDisconnect::Reconnect(retry_attempt)
                 }

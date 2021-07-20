@@ -263,20 +263,26 @@ impl ConnectingState {
                 }
             }
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                if shared_values.set_allowed_endpoint(endpoint) {
-                    if let Err(error) = Self::set_firewall_policy(
-                        shared_values,
-                        &self.tunnel_parameters,
-                        &self.tunnel_metadata,
-                    ) {
-                        return self.disconnect(
+                if shared_values.is_offline {
+                    log::trace!("Ignoring API IP rotation since the system is offline");
+                } else {
+                    if shared_values.set_allowed_endpoint(endpoint) {
+                        if let Err(error) = Self::set_firewall_policy(
                             shared_values,
-                            AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(error)),
-                        );
+                            &self.tunnel_parameters,
+                            &self.tunnel_metadata,
+                        ) {
+                            return self.disconnect(
+                                shared_values,
+                                AfterDisconnect::Block(ErrorStateCause::SetFirewallPolicyError(
+                                    error,
+                                )),
+                            );
+                        }
                     }
-                }
-                if let Err(_) = tx.send(()) {
-                    log::error!("The AllowEndpoint receiver was dropped");
+                    if let Err(_) = tx.send(()) {
+                        log::error!("The AllowEndpoint receiver was dropped");
+                    }
                 }
                 SameState(self.into())
             }

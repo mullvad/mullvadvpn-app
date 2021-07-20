@@ -22,6 +22,7 @@ use std::{
     str::FromStr,
     time::{Duration, Instant},
 };
+use talpid_types::ErrorExt;
 use tokio::runtime::Handle;
 
 pub use hyper::StatusCode;
@@ -146,7 +147,10 @@ impl RequestService {
                         if let Err(err) = &response {
                             match err {
                                 Error::HyperError(_) | Error::TimeoutError(_) => {
-                                    log::error!("HTTP request failed: {}", err);
+                                    log::error!(
+                                        "{}",
+                                        err.display_chain_with_msg("HTTP request failed")
+                                    );
                                     let current_address = address_cache.peek_address();
                                     if current_address == host_addr
                                         && address_cache.has_tried_current_address()
@@ -154,11 +158,13 @@ impl RequestService {
                                         handle.spawn(async move {
                                             address_cache.select_new_address().await;
                                             let new_address = address_cache.peek_address();
-                                            log::error!(
-                                                "Request failed using address {}. Trying next API address: {}",
-                                                current_address,
-                                                new_address,
-                                            );
+                                            if current_address != new_address {
+                                                log::error!(
+                                                    "Request failed using address {}. Trying next API address: {}",
+                                                    current_address,
+                                                    new_address,
+                                                );
+                                            }
                                         });
                                     }
                                 }

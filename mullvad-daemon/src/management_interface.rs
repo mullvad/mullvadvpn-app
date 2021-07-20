@@ -425,13 +425,7 @@ impl ManagementService for ManagementServiceImpl {
                     }),
                 })
             })
-            .map_err(|error: RestError| {
-                log::error!(
-                    "Unable to get account data from API: {}",
-                    error.display_chain()
-                );
-                map_rest_error(error)
-            })
+            .map_err(map_rest_error)
     }
 
     async fn get_account_history(&self, _: Request<()>) -> ServiceResult<types::AccountHistory> {
@@ -458,13 +452,7 @@ impl ManagementService for ManagementServiceImpl {
         let (tx, rx) = oneshot::channel();
         self.send_command_to_daemon(DaemonCommand::GetWwwAuthToken(tx))?;
         let result = self.wait_for_result(rx).await?;
-        result.map(Response::new).map_err(|error| {
-            log::error!(
-                "Unable to get account data from API: {}",
-                error.display_chain()
-            );
-            map_daemon_error(error)
-        })
+        result.map(Response::new).map_err(map_daemon_error)
     }
 
     async fn submit_voucher(
