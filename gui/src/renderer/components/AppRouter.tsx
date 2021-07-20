@@ -1,6 +1,6 @@
 import { Action } from 'history';
 import * as React from 'react';
-import { Route as ReactRouterRoute, Switch } from 'react-router';
+import { Route, Switch } from 'react-router';
 import Launch from './Launch';
 import KeyboardNavigation from './KeyboardNavigation';
 import MainView from './MainView';
@@ -30,18 +30,6 @@ interface IAppRoutesState {
   currentLocation: IHistoryProps['history']['location'];
   transition: ITransitionSpecification;
   action?: Action;
-}
-
-interface IRouteProps<T> {
-  component: React.ComponentType<T>;
-  path: RoutePath | RoutePath[];
-  exact?: boolean;
-}
-
-function Route<T>(props: IRouteProps<T>) {
-  return (
-    <ReactRouterRoute path={props.path} exact={props.exact ?? true} component={props.component} />
-  );
 }
 
 class AppRouter extends React.Component<IHistoryProps, IAppRoutesState> {
@@ -86,22 +74,26 @@ class AppRouter extends React.Component<IHistoryProps, IAppRoutesState> {
             <TransitionContainer onTransitionEnd={this.onNavigation} {...this.state.transition}>
               <TransitionView viewId={location.key || ''}>
                 <Switch key={location.key} location={location}>
-                  <Route path={RoutePath.launch} component={Launch} />
-                  <Route path={RoutePath.login} component={LoginPage} />
-                  <Route path={RoutePath.main} component={MainView} />
-                  <Route path={RoutePath.redeemVoucher} component={VoucherInput} />
-                  <Route path={RoutePath.voucherSuccess} component={VoucherVerificationSuccess} />
-                  <Route path={RoutePath.timeAdded} component={TimeAdded} />
-                  <Route path={RoutePath.setupFinished} component={SetupFinished} />
-                  <Route path={RoutePath.settings} component={SettingsPage} />
-                  <Route path={RoutePath.selectLanguage} component={SelectLanguagePage} />
-                  <Route path={RoutePath.accountSettings} component={AccountPage} />
-                  <Route path={RoutePath.preferences} component={PreferencesPage} />
-                  <Route path={RoutePath.advancedSettings} component={AdvancedSettingsPage} />
-                  <Route path={RoutePath.wireguardKeys} component={WireguardKeysPage} />
-                  <Route path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
-                  <Route path={RoutePath.support} component={SupportPage} />
-                  <Route path={RoutePath.selectLocation} component={SelectLocationPage} />
+                  <Route exact path={RoutePath.launch} component={Launch} />
+                  <Route exact path={RoutePath.login} component={LoginPage} />
+                  <Route exact path={RoutePath.main} component={MainView} />
+                  <Route exact path={RoutePath.redeemVoucher} component={VoucherInput} />
+                  <Route
+                    exact
+                    path={RoutePath.voucherSuccess}
+                    component={VoucherVerificationSuccess}
+                  />
+                  <Route exact path={RoutePath.timeAdded} component={TimeAdded} />
+                  <Route exact path={RoutePath.setupFinished} component={SetupFinished} />
+                  <Route exact path={RoutePath.settings} component={SettingsPage} />
+                  <Route exact path={RoutePath.selectLanguage} component={SelectLanguagePage} />
+                  <Route exact path={RoutePath.accountSettings} component={AccountPage} />
+                  <Route exact path={RoutePath.preferences} component={PreferencesPage} />
+                  <Route exact path={RoutePath.advancedSettings} component={AdvancedSettingsPage} />
+                  <Route exact path={RoutePath.wireguardKeys} component={WireguardKeysPage} />
+                  <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
+                  <Route exact path={RoutePath.support} component={SupportPage} />
+                  <Route exact path={RoutePath.selectLocation} component={SelectLocationPage} />
                 </Switch>
               </TransitionView>
             </TransitionContainer>

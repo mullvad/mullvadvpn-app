@@ -5,6 +5,7 @@ import log from '../../shared/logging';
 import Connect from '../components/Connect';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
+import { RoutePath } from '../lib/routes';
 import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 
@@ -74,7 +75,7 @@ const mapStateToProps = (state: IReduxState) => {
 const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
   return {
     onSelectLocation: () => {
-      props.history.show('/select-location');
+      props.history.show(RoutePath.selectLocation);
     },
     onConnect: async () => {
       try {
