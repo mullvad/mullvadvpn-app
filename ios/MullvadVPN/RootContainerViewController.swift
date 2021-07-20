@@ -562,15 +562,6 @@ class RootContainerViewController: UIViewController {
 
 }
 
-class RootContainerPushSegue: UIStoryboardSegue {
-    override func perform() {
-        let container = source.rootContainerController!
-        let animated = UIView.areAnimationsEnabled
-
-        container.pushViewController(destination, animated: animated)
-    }
-}
-
 /// A UIViewController extension that gives view controllers an access to root container
 extension UIViewController {
 
