@@ -3,10 +3,10 @@
 
 use std::{
     ffi::{OsStr, OsString},
-    io, iter, mem,
+    fs, io, iter, mem,
     os::windows::{
         ffi::{OsStrExt, OsStringExt},
-        io::RawHandle,
+        io::{AsRawHandle, RawHandle},
     },
     path::Path,
     ptr,
@@ -18,7 +18,7 @@ use winapi::{
         winerror::{ERROR_INSUFFICIENT_BUFFER, ERROR_NO_MORE_FILES},
     },
     um::{
-        fileapi::QueryDosDeviceW,
+        fileapi::{GetFinalPathNameByHandleW, QueryDosDeviceW},
         handleapi::{CloseHandle, INVALID_HANDLE_VALUE},
         processthreadsapi::{GetProcessTimes, OpenProcess},
         psapi::K32GetProcessImageFileNameW,
@@ -26,6 +26,9 @@ use winapi::{
         winnt::{HANDLE, PROCESS_QUERY_LIMITED_INFORMATION},
     },
 };
+
+/// Return path with the volume device path.
+const VOLUME_NAME_NT: u32 = 0x02;
 
 pub struct ProcessSnapshot {
     handle: HANDLE,
@@ -107,6 +110,12 @@ impl Iterator for ProcessSnapshotEntries<'_> {
 
 /// Obtains a device path without resolving links or mount points.
 pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
+    // Preferentially, use GetFinalPathNameByHandleW. If the file does not exist
+    // or cannot be opened, infer the path from the label only.
+    if let Ok(file) = fs::OpenOptions::new().read(true).open(path.as_ref()) {
+        return get_final_path_name_by_handle(file.as_raw_handle());
+    }
+
     let drive_comp = path.as_ref().components().next();
     let drive = match drive_comp {
         Some(std::path::Component::Prefix(prefix)) => prefix.as_os_str(),
@@ -126,6 +135,30 @@ pub fn get_device_path<T: AsRef<Path>>(path: T) -> Result<OsString, io::Error> {
     new_path.push(suffix);
 
     Ok(new_path)
+}
+
+pub fn get_final_path_name_by_handle(raw_handle: RawHandle) -> Result<OsString, io::Error> {
+    let buffer_size = unsafe {
+        GetFinalPathNameByHandleW(raw_handle as *mut _, ptr::null_mut(), 0u32, VOLUME_NAME_NT)
+    } as usize;
+    let mut buffer = Vec::new();
+    buffer.resize(buffer_size, 0);
+
+    let status = unsafe {
+        GetFinalPathNameByHandleW(
+            raw_handle as *mut _,
+            buffer.as_mut_ptr(),
+            buffer_size as u32,
+            VOLUME_NAME_NT,
+        )
+    } as usize;
+
+    if status == 0 {
+        return Err(io::Error::last_os_error());
+    }
+
+    buffer.resize(buffer_size - 1, 0);
+    Ok(OsStringExt::from_wide(&buffer))
 }
 
 /// Obtains the real device path for a label (such as C:).
