@@ -1,0 +1,50 @@
+/* No comment provided by engineer. */
+"ACCESSIBILITY_ANNOUNCEMENT_INVALID_KEY" = "Key is invalid.";
+
+/* No comment provided by engineer. */
+"ACCESSIBILITY_ANNOUNCEMENT_REGENERATED_KEY" = "Key is regenerated.";
+
+/* No comment provided by engineer. */
+"ACCESSIBILITY_ANNOUNCEMENT_VALID_KEY" = "Key is valid.";
+
+/* No comment provided by engineer. */
+"COPIED_TO_PASTEBOARD_LABEL" = "COPIED TO PASTEBOARD!";
+
+/* No comment provided by engineer. */
+"KEY_GENERATED_LABEL" = "Key generated";
+
+/* No comment provided by engineer. */
+"KEY_GENERATED_SINCE_FORMAT" = "%@ ago";
+
+/* No comment provided by engineer. */
+"KEY_STATUS_INVALID" = "Key is invalid";
+
+/* No comment provided by engineer. */
+"KEY_STATUS_VALID" = "Key is valid";
+
+/* No comment provided by engineer. */
+"NAVIGATION_TITLE" = "WireGuard key";
+
+/* No comment provided by engineer. */
+"PUBLIC_KEY_ACCESSIBILITY_HINT" = "Tap to copy to pasteboard.";
+
+/* No comment provided by engineer. */
+"PUBLIC_KEY_LABEL" = "Public key";
+
+/* No comment provided by engineer. */
+"REGENERATE_KEY_BUTTON_TITLE" = "Regenerate key";
+
+/* No comment provided by engineer. */
+"REGENERATE_KEY_FAILURE_ALERT_OK_ACTION" = "OK";
+
+/* No comment provided by engineer. */
+"REGENERATE_KEY_FAILURE_ALERT_TITLE" = "Cannot regenerate the key";
+
+/* No comment provided by engineer. */
+"VERIFY_KEY_BUTTON_TITLE" = "Verify key";
+
+/* No comment provided by engineer. */
+"VERIFY_KEY_FAILURE_ALERT_OK_ACTION" = "OK";
+
+/* No comment provided by engineer. */
+"VERIFY_KEY_FAILURE_ALERT_TITLE" = "Cannot verify the key";
