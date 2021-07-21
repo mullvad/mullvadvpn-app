@@ -39,7 +39,16 @@ class LoginViewController: UIViewController, RootContainment {
     }()
 
     private lazy var accountInputAccessoryLoginButton: UIBarButtonItem = {
-        let barButtonItem = UIBarButtonItem(title: NSLocalizedString("Log in", comment: ""), style: .done, target: self, action: #selector(doLogin))
+        let barButtonItem = UIBarButtonItem(
+            title: NSLocalizedString(
+                "LOGIN_ACCESSORY_TOOLBAR_BUTTON_TITLE",
+                tableName: "Login",
+                comment: "Title for 'Log in' button displayed in toolbar above keyboard on iPhone."
+            ),
+            style: .done,
+            target: self,
+            action: #selector(doLogin)
+        )
         barButtonItem.accessibilityIdentifier = "LoginBarButtonItem"
 
         return barButtonItem
@@ -270,33 +279,51 @@ private extension LoginState {
     var localizedTitle: String {
         switch self {
         case .default:
-            return NSLocalizedString("Login", comment: "")
+            return NSLocalizedString("HEADING_TITLE_DEFAULT", tableName: "Login", comment: "Default login prompt heading.")
 
         case .authenticating:
-            return NSLocalizedString("Logging in...", comment: "")
+            return NSLocalizedString("HEADING_TITLE_AUTHENTICATING", tableName: "Login", comment: "Heading displayed during authentication.")
 
         case .failure:
-            return NSLocalizedString("Login failed", comment: "")
+            return NSLocalizedString("HEADING_TITLE_FAILURE", tableName: "Login", comment: "Heading displayed upon failure to authenticate.")
 
         case .success:
-            return NSLocalizedString("Logged in", comment: "")
+            return NSLocalizedString("HEADING_TITLE_SUCCESS", tableName: "Login", comment: "Heading displayed upon successful authentication.")
         }
     }
 
     var localizedMessage: String {
         switch self {
         case .default:
-            return NSLocalizedString("Enter your account number", comment: "")
+            return NSLocalizedString(
+                "SUBHEAD_TITLE_DEFAULT",
+                tableName: "Login",
+                comment: "Default login prompt subhead."
+            )
 
         case .authenticating(let method):
             switch method {
             case .existingAccount:
-                return NSLocalizedString("Checking account number", comment: "")
+                return NSLocalizedString(
+                    "SUBHEAD_TITLE_AUTHENTICATING",
+                    tableName: "Login",
+                    comment: "Subhead displayed during authentication."
+                )
             case .newAccount:
-                return NSLocalizedString("Creating new account", comment: "")
+                return NSLocalizedString(
+                    "SUBHEAD_TITLE_CREATING_ACCOUNT",
+                    tableName: "Login",
+                    comment: "Subhead displayed when creating new account."
+                )
             }
 
         case .failure(let error):
+            let localizedUnknownInternalError = NSLocalizedString(
+                "SUBHEAD_TITLE_INTERNAL_ERROR",
+                tableName: "Login",
+                comment: "Subhead displayed in the event of internal error."
+            )
+
             switch error {
             case .createAccount(let rpcError), .verifyAccount(let rpcError):
                 return rpcError.errorChainDescription ?? ""
@@ -305,12 +332,21 @@ private extension LoginState {
                     switch pushError {
                     case .network(let urlError):
                         return String(
-                            format: NSLocalizedString("Network error: %@", comment: ""),
+                            format: NSLocalizedString(
+                                "SUBHEAD_TITLE_NETWORK_ERROR_FORMAT",
+                                tableName: "Login",
+                                value: "Network error: %@",
+                                comment: "Subhead displayed in the event of network error. Use %@ placeholder to place localized text describing network failure."
+                            ),
                             urlError.localizedDescription
                         )
 
                     case .server(let serverError):
-                        var message = serverError.errorDescription ?? NSLocalizedString("Unknown server error.", comment: "")
+                        var message = serverError.errorDescription ?? NSLocalizedString(
+                            "SUBHEAD_TITLE_UNKNOWN_SERVER_ERROR",
+                            tableName: "Login",
+                            comment: "Subhead displayed in the event of unknown server error."
+                        )
 
                         if let recoverySuggestion = serverError.recoverySuggestion {
                             message.append("\n\(recoverySuggestion)")
@@ -319,19 +355,27 @@ private extension LoginState {
                         return message
 
                     case .encodePayload, .decodeErrorResponse, .decodeSuccessResponse:
-                        return NSLocalizedString("Internal error", comment: "")
+                        return localizedUnknownInternalError
                     }
                 } else {
-                    return NSLocalizedString("Internal error", comment: "")
+                    return localizedUnknownInternalError
                 }
             }
 
         case .success(let method):
             switch method {
             case .existingAccount:
-                return NSLocalizedString("Correct account number", comment: "")
+                return NSLocalizedString(
+                    "SUBHEAD_TITLE_SUCCESS",
+                    tableName: "Login",
+                    comment: "Subhead displayed upon successful authentication using existing account token."
+                )
             case .newAccount:
-                return NSLocalizedString("Account created", comment: "")
+                return NSLocalizedString(
+                    "SUBHEAD_TITLE_CREATED_ACCOUNT",
+                    tableName: "Login",
+                    comment: "Subhead displayed upon successful authentication with newly created account token."
+                )
             }
         }
     }
