@@ -1,4 +1,5 @@
 import React from 'react';
+import { colors } from '../../config.json';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
@@ -6,6 +7,7 @@ import { LocationScope } from '../redux/userinterface/reducers';
 import BridgeLocations, { SpecialBridgeLocationType } from './BridgeLocations';
 import CustomScrollbars from './CustomScrollbars';
 import ExitLocations from './ExitLocations';
+import ImageView from './ImageView';
 import { Layout } from './Layout';
 import LocationList, { LocationSelection, LocationSelectionType } from './LocationList';
 import {
@@ -20,8 +22,12 @@ import { ScopeBarItem } from './ScopeBar';
 import {
   StyledContainer,
   StyledContent,
+  StyledFilterIconButton,
+  StyledFilterContainer,
+  StyledFilterMenu,
   StyledNavigationBarAttachment,
   StyledScopeBar,
+  StyledFilterByProviderButton,
 } from './SelectLocationStyles';
 import { HeaderSubTitle } from './SettingsHeader';
 
@@ -33,10 +39,15 @@ interface IProps {
   bridgeLocations: IRelayLocationRedux[];
   allowBridgeSelection: boolean;
   onClose: () => void;
+  onViewFilterByProvider: () => void;
   onChangeLocationScope: (location: LocationScope) => void;
   onSelectExitLocation: (location: RelayLocation) => void;
   onSelectBridgeLocation: (location: RelayLocation) => void;
   onSelectClosestToExit: () => void;
+}
+
+interface IState {
+  showFilterMenu: boolean;
 }
 
 interface ISelectLocationSnapshot {
@@ -44,7 +55,9 @@ interface ISelectLocationSnapshot {
   expandedLocations: RelayLocation[];
 }
 
-export default class SelectLocation extends React.Component<IProps> {
+export default class SelectLocation extends React.Component<IProps, IState> {
+  public state = { showFilterMenu: false };
+
   private scrollView = React.createRef<CustomScrollbars>();
   private spacePreAllocationViewRef = React.createRef<SpacePreAllocationView>();
   private selectedExitLocationRef = React.createRef<React.ReactInstance>();
@@ -54,6 +67,8 @@ export default class SelectLocation extends React.Component<IProps> {
   private bridgeLocationList = React.createRef<LocationList<SpecialBridgeLocationType>>();
 
   private snapshotByScope: { [index: number]: ISelectLocationSnapshot } = {};
+
+  private filterButtonRef = React.createRef<HTMLDivElement>();
 
   public componentDidMount() {
     this.scrollToSelectedCell();
@@ -92,7 +107,7 @@ export default class SelectLocation extends React.Component<IProps> {
 
   public render() {
     return (
-      <Layout>
+      <Layout onClick={this.onClickAnywhere}>
         <StyledContainer>
           <NavigationContainer>
             <NavigationBar alwaysDisplayBarTitle={true}>
@@ -104,6 +119,25 @@ export default class SelectLocation extends React.Component<IProps> {
                     messages.pgettext('select-location-nav', 'Select location')
                   }
                 </TitleBarItem>
+
+                <StyledFilterContainer ref={this.filterButtonRef}>
+                  <StyledFilterIconButton onClick={this.toggleFilterMenu}>
+                    <ImageView
+                      source="icon-filter-round"
+                      tintColor={colors.white60}
+                      tintHoverColor={colors.white80}
+                      height={24}
+                      width={24}
+                    />
+                  </StyledFilterIconButton>
+                  {this.state.showFilterMenu && (
+                    <StyledFilterMenu>
+                      <StyledFilterByProviderButton onClick={this.props.onViewFilterByProvider}>
+                        {messages.pgettext('select-location-view', 'Filter by provider')}
+                      </StyledFilterByProviderButton>
+                    </StyledFilterMenu>
+                  )}
+                </StyledFilterContainer>
               </NavigationItems>
               <StyledNavigationBarAttachment>
                 <HeaderSubTitle>
@@ -231,6 +265,21 @@ export default class SelectLocation extends React.Component<IProps> {
     locationRect.height += expandedContentHeight;
     this.spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
     this.scrollView.current?.scrollIntoView(locationRect);
+  };
+
+  private toggleFilterMenu = () => {
+    this.setState((state) => ({
+      showFilterMenu: !state.showFilterMenu,
+    }));
+  };
+
+  private onClickAnywhere = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (
+      this.state.showFilterMenu &&
+      !this.filterButtonRef.current?.contains(event.target as HTMLElement)
+    ) {
+      this.setState({ showFilterMenu: false });
+    }
   };
 }
 

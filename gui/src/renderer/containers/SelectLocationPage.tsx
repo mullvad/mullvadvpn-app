@@ -7,6 +7,7 @@ import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import SelectLocation from '../components/SelectLocation';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
+import { RoutePath } from '../lib/routes';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 import userInterfaceActions from '../redux/userinterface/actions';
 import { LocationScope } from '../redux/userinterface/reducers';
@@ -45,6 +46,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IApp
 
   return {
     onClose: () => props.history.dismiss(),
+    onViewFilterByProvider: () => props.history.push(RoutePath.filterByProvider),
     onChangeLocationScope: (scope: LocationScope) => {
       userInterface.setLocationScope(scope);
     },
