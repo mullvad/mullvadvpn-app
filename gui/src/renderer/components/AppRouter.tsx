@@ -25,6 +25,7 @@ import {
   VoucherVerificationSuccess,
 } from './ExpiredAccountAddTime';
 import { RoutePath } from '../lib/routes';
+import FilterByProvider from './FilterByProvider';
 
 interface IAppRoutesState {
   currentLocation: IHistoryProps['history']['location'];
@@ -94,6 +95,7 @@ class AppRouter extends React.Component<IHistoryProps, IAppRoutesState> {
                   <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
                   <Route exact path={RoutePath.support} component={SupportPage} />
                   <Route exact path={RoutePath.selectLocation} component={SelectLocationPage} />
+                  <Route exact path={RoutePath.filterByProvider} component={FilterByProvider} />
                 </Switch>
               </TransitionView>
             </TransitionContainer>

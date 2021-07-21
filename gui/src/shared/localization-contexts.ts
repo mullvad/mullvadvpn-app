@@ -14,6 +14,8 @@ export type LocalizationContexts =
   | 'account-expiry'
   | 'select-location-view'
   | 'select-location-nav'
+  | 'filter-by-provider-view'
+  | 'filter-by-provider-nav'
   | 'settings-view'
   | 'navigation-bar'
   | 'account-view'

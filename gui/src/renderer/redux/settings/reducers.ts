@@ -18,6 +18,7 @@ export type RelaySettingsRedux =
       normal: {
         tunnelProtocol: LiftedConstraint<TunnelProtocol>;
         location: LiftedConstraint<RelayLocation>;
+        providers: string[];
         openvpn: {
           port: LiftedConstraint<number>;
           protocol: LiftedConstraint<RelayProtocol>;
@@ -47,6 +48,7 @@ export type BridgeSettingsRedux =
 
 export interface IRelayLocationRelayRedux {
   hostname: string;
+  provider: string;
   ipv4AddrIn: string;
   includeInCountry: boolean;
   active: boolean;
@@ -156,6 +158,7 @@ const initialState: ISettingsReduxState = {
     normal: {
       location: 'any',
       tunnelProtocol: 'any',
+      providers: [],
       wireguard: { port: 'any' },
       openvpn: {
         port: 'any',
