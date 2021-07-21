@@ -495,10 +495,6 @@ msgctxt "generic"
 msgid "Mullvad VPN"
 msgstr ""
 
-msgctxt "generic"
-msgid "MULLVAD VPN"
-msgstr ""
-
 msgctxt "in-app-notifications"
 msgid "\"Always require VPN\" is enabled."
 msgstr ""

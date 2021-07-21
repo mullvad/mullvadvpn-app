@@ -86,7 +86,7 @@ export function Brand(props: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <BrandContainer {...props}>
       <Logo width={44} height={44} source="logo-icon" />
-      <Title>{messages.pgettext('generic', 'MULLVAD VPN')}</Title>
+      <Title>MULLVAD VPN</Title>
     </BrandContainer>
   );
 }
