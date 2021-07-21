@@ -22,11 +22,26 @@ class ProblemReportSubmissionOverlayView: UIView {
         var title: String? {
             switch self {
             case .sending:
-                return NSLocalizedString("Sending...", comment: "")
+                return NSLocalizedString(
+                    "SUBMISSION_STATUS_SENDING",
+                    tableName: "ProblemReport",
+                    value: "Sending...",
+                    comment: ""
+                )
             case .sent:
-                return NSLocalizedString("Sent", comment: "")
+                return NSLocalizedString(
+                    "SUBMISSION_STATUS_SENT",
+                    tableName: "ProblemReport",
+                    value: "Sent",
+                    comment: ""
+                )
             case .failure:
-                return NSLocalizedString("Failed to send", comment: "")
+                return NSLocalizedString(
+                    "SUBMISSION_STATUS_FAILURE",
+                    tableName: "ProblemReport",
+                    value: "Failed to send",
+                    comment: ""
+                )
             }
         }
 
@@ -35,13 +50,36 @@ class ProblemReportSubmissionOverlayView: UIView {
             case .sending:
                 return nil
             case .sent(let email):
-                let combinedAttributedString = NSMutableAttributedString(string: NSLocalizedString("Thanks!", comment: ""), attributes: [.foregroundColor: UIColor.successColor])
+                let combinedAttributedString = NSMutableAttributedString(
+                    string: NSLocalizedString(
+                        "THANKS_MESSAGE",
+                        tableName: "ProblemReport",
+                        value: "Thanks!",
+                        comment: ""
+                    ),
+                    attributes: [.foregroundColor: UIColor.successColor]
+                )
 
                 if email.isEmpty {
                     combinedAttributedString.append(NSAttributedString(string: " "))
-                    combinedAttributedString.append(NSAttributedString(string: NSLocalizedString("We will look into this.", comment: "")))
+                    combinedAttributedString.append(
+                        NSAttributedString(
+                            string: NSLocalizedString(
+                                "WE_WILL_LOOK_INTO_THIS_MESSAGE",
+                                tableName: "ProblemReport",
+                                value: "We will look into this.",
+                                comment: ""
+                            )
+                        )
+                    )
                 } else {
-                    let emailText = String(format: NSLocalizedString("If needed we will contact you on %@", comment: ""), email)
+                    let emailText = String(
+                        format: NSLocalizedString(
+                            "CONTACT_BACK_EMAIL_MESSAGE_FORMAT",
+                            tableName: "ProblemReport",
+                            value: "If needed we will contact you on %@",
+                            comment: ""
+                        ), email)
                     let emailAttributedString = NSMutableAttributedString(string: emailText)
                     if let emailRange = emailText.range(of: email) {
                         let font = UIFont.systemFont(ofSize: 17, weight: .bold)
@@ -104,7 +142,12 @@ class ProblemReportSubmissionOverlayView: UIView {
     private lazy var editMessageButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString("Edit message", comment: ""), for: .normal)
+        button.setTitle(NSLocalizedString(
+            "EDIT_MESSAGE_BUTTON",
+            tableName: "ProblemReport",
+            value: "Edit message",
+            comment: ""
+        ), for: .normal)
         button.addTarget(self, action: #selector(handleEditButton), for: .touchUpInside)
         return button
     }()
@@ -112,7 +155,12 @@ class ProblemReportSubmissionOverlayView: UIView {
     private lazy var tryAgainButton: AppButton = {
         let button = AppButton(style: .success)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle(NSLocalizedString("Try again", comment: ""), for: .normal)
+        button.setTitle(NSLocalizedString(
+            "TRY_AGAIN_BUTTON",
+            tableName: "ProblemReport",
+            value: "Try again",
+            comment: ""
+        ), for: .normal)
         button.addTarget(self, action: #selector(handleRetryButton), for: .touchUpInside)
         return button
     }()
