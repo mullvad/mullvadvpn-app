@@ -67,6 +67,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
         self.tableView = tableView
 
+        view.accessibilityElements = [tableHeaderFooterView, tableView]
         view.backgroundColor = .secondaryColor
         view.addSubview(tableView)
 
