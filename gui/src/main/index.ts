@@ -1598,19 +1598,16 @@ class ApplicationMain {
   }
 
   private async installDevTools() {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const installer = require('electron-devtools-installer');
-    const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
+    const { default: installer, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = await import(
+      'electron-devtools-installer'
+    );
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-    for (const name of extensions) {
-      try {
-        await installer.default(installer[name], {
-          forceDownload,
-          loadExtensionOptions: { allowFileAccess: true },
-        });
-      } catch (e) {
-        log.info(`Error installing ${name} extension: ${e.message}`);
-      }
+    const options = { forceDownload, loadExtensionOptions: { allowFileAccess: true } };
+    try {
+      await installer(REACT_DEVELOPER_TOOLS, options);
+      await installer(REDUX_DEVTOOLS, options);
+    } catch (e) {
+      log.info(`Error installing extension: ${e.message}`);
     }
   }
 
