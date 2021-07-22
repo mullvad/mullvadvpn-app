@@ -487,7 +487,7 @@ class ApplicationMain {
           this.installWindowsMenubarAppWindowHandlers(this.tray, this.windowController);
           break;
         case 'darwin':
-          this.installMacOsMenubarAppWindowHandlers(this.windowController);
+          await this.installMacOsMenubarAppWindowHandlers(this.windowController);
           this.setMacOsAppMenu();
           break;
         case 'linux':
@@ -1598,19 +1598,16 @@ class ApplicationMain {
   }
 
   private async installDevTools() {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const installer = require('electron-devtools-installer');
-    const extensions = ['REACT_DEVELOPER_TOOLS', 'REDUX_DEVTOOLS'];
+    const { default: installer, REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS } = await import(
+      'electron-devtools-installer'
+    );
     const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
-    for (const name of extensions) {
-      try {
-        await installer.default(installer[name], {
-          forceDownload,
-          loadExtensionOptions: { allowFileAccess: true },
-        });
-      } catch (e) {
-        log.info(`Error installing ${name} extension: ${e.message}`);
-      }
+    const options = { forceDownload, loadExtensionOptions: { allowFileAccess: true } };
+    try {
+      await installer(REACT_DEVELOPER_TOOLS, options);
+      await installer(REDUX_DEVTOOLS, options);
+    } catch (e) {
+      log.info(`Error installing extension: ${e.message}`);
     }
   }
 
@@ -1909,10 +1906,9 @@ class ApplicationMain {
 
   // setup NSEvent monitor to fix inconsistent window.blur on macOS
   // see https://github.com/electron/electron/issues/8689
-  private installMacOsMenubarAppWindowHandlers(windowController: WindowController) {
+  private async installMacOsMenubarAppWindowHandlers(windowController: WindowController) {
     if (!this.guiSettings.unpinnedWindow) {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
+      const { NSEventMonitor, NSEventMask } = await import('nseventmonitor');
       const macEventMonitor = new NSEventMonitor();
       const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;
 
