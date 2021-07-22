@@ -1,0 +1,53 @@
+/* No comment provided by engineer. */
+"ADD_TUNNEL_SETTINGS_ERROR" = "Failed to add tunnel settings";
+
+/* No comment provided by engineer. */
+"LOAD_ALL_VPN_CONFIGURATIONS_ERROR" = "Failed to load system VPN configurations: %@";
+
+/* No comment provided by engineer. */
+"MIGRATE_TUNNEL_SETTINGS_ERROR" = "Failed to migrate tunnel settings";
+
+/* No comment provided by engineer. */
+"MISSING_ACCOUNT_INTERNAL_ERROR" = "Internal error: missing account";
+
+/* No comment provided by engineer. */
+"OBTAIN_PERSISTENT_KEYCHAIN_REFERENCE_ERROR" = "Failed to obtain the persistent keychain reference for the VPN configuration";
+
+/* No comment provided by engineer. */
+"PUSH_WIREGUARD_KEY_ERROR" = "Failed to send the WireGuard key to server: %@";
+
+/* No comment provided by engineer. */
+"PUSH_WIREGUARD_KEY_RECOVERY_SUGGESTION" = "Remove unused WireGuard keys and try again";
+
+/* No comment provided by engineer. */
+"READ_TUNNEL_SETTINGS_ERROR" = "Failed to read tunnel settings";
+
+/* No comment provided by engineer. */
+"RELOAD_VPN_CONFIGURATIONS_ERROR" = "Failed to reload a VPN configuration: %@";
+
+/* No comment provided by engineer. */
+"REMOVE_INCONSISTENT_VPN_CONFIGURATION" = "Failed to remove the outdated system VPN configuration: %@";
+
+/* No comment provided by engineer. */
+"REMOVE_TUNNEL_SETTINGS_ERROR" = "Failed to remove tunnel settings";
+
+/* No comment provided by engineer. */
+"REMOVE_VPN_CONFIGURATION_ERROR" = "Failed to remove the system VPN configuration: %@";
+
+/* No comment provided by engineer. */
+"REPLACE_WIREGUARD_KEY_ERROR" = "Failed to replace the WireGuard key on server: %@";
+
+/* No comment provided by engineer. */
+"REPLACE_WIREGUARD_KEY_RECOVERY_SUGGESTION" = "Remove unused WireGuard keys and try again";
+
+/* No comment provided by engineer. */
+"SAVE_VPN_CONFIGURATION_ERROR" = "Failed to save a VPN tunnel configuration: %@";
+
+/* No comment provided by engineer. */
+"START_VPN_TUNNEL_ERROR" = "System error when starting the VPN tunnel: %@";
+
+/* No comment provided by engineer. */
+"UPDATE_TUNNEL_SETTINGS_ERROR" = "Failed to update tunnel settings";
+
+/* No comment provided by engineer. */
+"VERIFY_WIREGUARD_KEY_ERROR" = "Failed to verify the WireGuard key on server: %@";

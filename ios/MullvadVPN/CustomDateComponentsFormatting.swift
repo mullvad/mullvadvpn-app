@@ -42,7 +42,12 @@ extension CustomDateComponentsFormatting {
         let seconds = dateComponents.second ?? 0
 
         if days == 0 && hours == 0 && minutes == 0 && seconds < 60 {
-            return NSLocalizedString("Less than a minute", comment: "")
+            return NSLocalizedString(
+                "LESS_THAN_ONE_MINUTE",
+                tableName: "CustomDateComponentsFormatting",
+                value: "Less than a minute",
+                comment: "Phrase used for less than 1 minute duration."
+            )
         } else if days == 0 && hours == 23 && minutes >= 30 {
             return formatter.string(from: DateComponents(calendar: calendar, day: 1))
         } else if days >= 1 && days <= 90 {

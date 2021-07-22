@@ -1,0 +1,14 @@
+/* No comment provided by engineer. */
+"CLIENT_INVALID" = "Client is not allowed to issue the request";
+
+/* No comment provided by engineer. */
+"PAYMENT_CANCELLED" = "User cancelled the request";
+
+/* No comment provided by engineer. */
+"PAYMENT_INVALID" = "Invalid purchase identifier";
+
+/* No comment provided by engineer. */
+"PAYMENT_NOT_ALLOWED" = "This device is not allowed to make the payment";
+
+/* No comment provided by engineer. */
+"UNKNOWN_ERROR" = "Unknown error";

@@ -227,9 +227,18 @@
 		58F558E32695D1D800F630D0 /* Preferences.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558E12695D1D800F630D0 /* Preferences.strings */; };
 		58F558E62695D1F200F630D0 /* ProblemReport.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558E42695D1F200F630D0 /* ProblemReport.strings */; };
 		58F558E92695D20F00F630D0 /* SelectLocation.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558E72695D20F00F630D0 /* SelectLocation.strings */; };
+		58F558EC2695D26A00F630D0 /* MullvadRest.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558EA2695D26A00F630D0 /* MullvadRest.strings */; };
 		58F558EF2695D50D00F630D0 /* ProblemReportReview.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558ED2695D50D00F630D0 /* ProblemReportReview.strings */; };
+		58F558F92696EB1C00F630D0 /* StoreKitErrors.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558F32696EB1C00F630D0 /* StoreKitErrors.strings */; };
+		58F558FA2696EB1C00F630D0 /* TunnelManager.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558F52696EB1C00F630D0 /* TunnelManager.strings */; };
+		58F558FB2696EB1C00F630D0 /* AppStorePaymentManager.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558F72696EB1C00F630D0 /* AppStorePaymentManager.strings */; };
 		58F5590E2697002100F630D0 /* Main.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559052697002000F630D0 /* Main.strings */; };
 		58F5590F2697002100F630D0 /* ConnectionPanel.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559072697002100F630D0 /* ConnectionPanel.strings */; };
+		58F558FE2696F09100F630D0 /* KeyboardNavigation.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558FC2696F09100F630D0 /* KeyboardNavigation.strings */; };
+		58F5590B2697002100F630D0 /* CustomDateComponentsFormatting.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F558FF2697002000F630D0 /* CustomDateComponentsFormatting.strings */; };
+		58F5590C2697002100F630D0 /* AppDelegate.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559012697002000F630D0 /* AppDelegate.strings */; };
+		58F5590D2697002100F630D0 /* AccountInput.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559032697002000F630D0 /* AccountInput.strings */; };
+		58F559102697002100F630D0 /* HeaderBar.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559092697002100F630D0 /* HeaderBar.strings */; };
 		58F61F4F2692F21C00DCFC2B /* WireguardKeys.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F61F4D2692F21C00DCFC2B /* WireguardKeys.strings */; };
 		58F7CA882692E34000FC59FD /* WireguardKeysContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */; };
 		58F840AF2464382C0044E708 /* KeychainItemRevision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840AE2464382C0044E708 /* KeychainItemRevision.swift */; };
@@ -451,9 +460,18 @@
 		58F558E22695D1D800F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Preferences.strings; sourceTree = "<group>"; };
 		58F558E52695D1F200F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ProblemReport.strings; sourceTree = "<group>"; };
 		58F558E82695D20F00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/SelectLocation.strings; sourceTree = "<group>"; };
+		58F558EB2695D26A00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/MullvadRest.strings; sourceTree = "<group>"; };
 		58F558EE2695D50D00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ProblemReportReview.strings; sourceTree = "<group>"; };
+		58F558F42696EB1C00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/StoreKitErrors.strings; sourceTree = "<group>"; };
+		58F558F62696EB1C00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/TunnelManager.strings; sourceTree = "<group>"; };
+		58F558F82696EB1C00F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AppStorePaymentManager.strings; sourceTree = "<group>"; };
 		58F559062697002000F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Main.strings; sourceTree = "<group>"; };
 		58F559082697002100F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ConnectionPanel.strings; sourceTree = "<group>"; };
+		58F558FD2696F09100F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/KeyboardNavigation.strings; sourceTree = "<group>"; };
+		58F559002697002000F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/CustomDateComponentsFormatting.strings; sourceTree = "<group>"; };
+		58F559022697002000F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AppDelegate.strings; sourceTree = "<group>"; };
+		58F559042697002000F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/AccountInput.strings; sourceTree = "<group>"; };
+		58F5590A2697002100F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/HeaderBar.strings; sourceTree = "<group>"; };
 		58F61F4E2692F21C00DCFC2B /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/WireguardKeys.strings; sourceTree = "<group>"; };
 		58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardKeysContentView.swift; sourceTree = "<group>"; };
 		58F840AE2464382C0044E708 /* KeychainItemRevision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainItemRevision.swift; sourceTree = "<group>"; };
@@ -559,17 +577,26 @@
 			isa = PBXGroup;
 			children = (
 				581FC4F82695ACE100AA97BA /* Account.strings */,
+				58F559032697002000F630D0 /* AccountInput.strings */,
+				58F559012697002000F630D0 /* AppDelegate.strings */,
+				58F558F72696EB1C00F630D0 /* AppStorePaymentManager.strings */,
 				582CFEE526945FC30072883A /* AppStoreSubscriptions.strings */,
 				58F559072697002100F630D0 /* ConnectionPanel.strings */,
 				58F558DB2695B85E00F630D0 /* Consent.strings */,
+				58F558FF2697002000F630D0 /* CustomDateComponentsFormatting.strings */,
+				58F559092697002100F630D0 /* HeaderBar.strings */,
+				58F558FC2696F09100F630D0 /* KeyboardNavigation.strings */,
 				587B7543266922BF00DEF7E9 /* Localizable.strings */,
 				58F558DE2695BD3E00F630D0 /* Login.strings */,
 				58F559052697002000F630D0 /* Main.strings */,
+				58F558EA2695D26A00F630D0 /* MullvadRest.strings */,
 				58F558E12695D1D800F630D0 /* Preferences.strings */,
 				58F558E42695D1F200F630D0 /* ProblemReport.strings */,
 				58F558ED2695D50D00F630D0 /* ProblemReportReview.strings */,
 				58F558E72695D20F00F630D0 /* SelectLocation.strings */,
 				582CFEE8269463B80072883A /* Settings.strings */,
+				58F558F32696EB1C00F630D0 /* StoreKitErrors.strings */,
+				58F558F52696EB1C00F630D0 /* TunnelManager.strings */,
 				58F61F4D2692F21C00DCFC2B /* WireguardKeys.strings */,
 			);
 			name = Localizations;
@@ -978,8 +1005,10 @@
 				58F3C0A624A50157003E76BE /* relays.json in Resources */,
 				58F558DD2695B85E00F630D0 /* Consent.strings in Resources */,
 				58727283265D173C00F315B2 /* LaunchScreen.storyboard in Resources */,
+				58F558FB2696EB1C00F630D0 /* AppStorePaymentManager.strings in Resources */,
 				586ADD4723FC13F400CE9E87 /* countries.geo.json in Resources */,
 				58F5590F2697002100F630D0 /* ConnectionPanel.strings in Resources */,
+				58F558FA2696EB1C00F630D0 /* TunnelManager.strings in Resources */,
 				58F558E02695BD3E00F630D0 /* Login.strings in Resources */,
 				58CE5E6B224146210008646E /* Assets.xcassets in Resources */,
 				58F558E92695D20F00F630D0 /* SelectLocation.strings in Resources */,
@@ -989,10 +1018,17 @@
 				58F558EF2695D50D00F630D0 /* ProblemReportReview.strings in Resources */,
 				584789B8264D4A2A000E45FB /* old_le_root_cert.cer in Resources */,
 				58F558E62695D1F200F630D0 /* ProblemReport.strings in Resources */,
+				58F5590D2697002100F630D0 /* AccountInput.strings in Resources */,
+				58F559102697002100F630D0 /* HeaderBar.strings in Resources */,
+				58F558F92696EB1C00F630D0 /* StoreKitErrors.strings in Resources */,
 				584789BE264D4A2A000E45FB /* new_le_root_cert.cer in Resources */,
 				58F61F4F2692F21C00DCFC2B /* WireguardKeys.strings in Resources */,
+				58F5590B2697002100F630D0 /* CustomDateComponentsFormatting.strings in Resources */,
 				58F5590E2697002100F630D0 /* Main.strings in Resources */,
+				58F558FE2696F09100F630D0 /* KeyboardNavigation.strings in Resources */,
+				58F5590C2697002100F630D0 /* AppDelegate.strings in Resources */,
 				581FC4FA2695ACE100AA97BA /* Account.strings in Resources */,
+				58F558EC2695D26A00F630D0 /* MullvadRest.strings in Resources */,
 				582CFEEA269463B80072883A /* Settings.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1361,12 +1397,44 @@
 			name = SelectLocation.strings;
 			sourceTree = "<group>";
 		};
+		58F558EA2695D26A00F630D0 /* MullvadRest.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58F558EB2695D26A00F630D0 /* en */,
+			);
+			name = MullvadRest.strings;
+			sourceTree = "<group>";
+		};
 		58F558ED2695D50D00F630D0 /* ProblemReportReview.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
 				58F558EE2695D50D00F630D0 /* en */,
 			);
 			name = ProblemReportReview.strings;
+			sourceTree = "<group>";
+		};
+		58F558F32696EB1C00F630D0 /* StoreKitErrors.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58F558F42696EB1C00F630D0 /* en */,
+			);
+			name = StoreKitErrors.strings;
+			sourceTree = "<group>";
+		};
+		58F558F52696EB1C00F630D0 /* TunnelManager.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58F558F62696EB1C00F630D0 /* en */,
+			);
+			name = TunnelManager.strings;
+			sourceTree = "<group>";
+		};
+		58F558F72696EB1C00F630D0 /* AppStorePaymentManager.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58F558F82696EB1C00F630D0 /* en */,
+			);
+			name = AppStorePaymentManager.strings;
 			sourceTree = "<group>";
 		};
 		58F559052697002000F630D0 /* Main.strings */ = {
@@ -1383,6 +1451,46 @@
 				58F559082697002100F630D0 /* en */,
 			);
 			name = ConnectionPanel.strings;
+            sourceTree = "<group>";
+        };
+		58F558FC2696F09100F630D0 /* KeyboardNavigation.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58F558FD2696F09100F630D0 /* en */,
+			);
+			name = KeyboardNavigation.strings;
+			sourceTree = "<group>";
+		};
+		58F558FF2697002000F630D0 /* CustomDateComponentsFormatting.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58F559002697002000F630D0 /* en */,
+			);
+			name = CustomDateComponentsFormatting.strings;
+			sourceTree = "<group>";
+		};
+		58F559012697002000F630D0 /* AppDelegate.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58F559022697002000F630D0 /* en */,
+			);
+			name = AppDelegate.strings;
+			sourceTree = "<group>";
+		};
+		58F559032697002000F630D0 /* AccountInput.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58F559042697002000F630D0 /* en */,
+			);
+			name = AccountInput.strings;
+			sourceTree = "<group>";
+		};
+		58F559092697002100F630D0 /* HeaderBar.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				58F5590A2697002100F630D0 /* en */,
+			);
+			name = HeaderBar.strings;
 			sourceTree = "<group>";
 		};
 		58F61F4D2692F21C00DCFC2B /* WireguardKeys.strings */ = {
