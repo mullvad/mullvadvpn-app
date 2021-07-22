@@ -53,7 +53,7 @@ class LogStreamerViewController: UIViewController, UITextViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        navigationItem.title = NSLocalizedString("App logs", comment: "")
+        navigationItem.title = "App logs"
         navigationItem.leftBarButtonItem = autoScrollButtonItem
         navigationItem.rightBarButtonItem = dismissButtonItem
 
