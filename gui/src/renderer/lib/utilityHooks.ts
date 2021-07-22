@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef } from 'react';
-import consumePromise from '../../shared/promise';
 
 export function useMounted() {
   const mountedRef = useRef(false);
@@ -36,13 +35,11 @@ export function useAsyncEffect(
   useEffect(() => {
     const promise = effect();
     return () => {
-      consumePromise(
-        promise.then((destructor) => {
-          if (isMounted() && destructor) {
-            return destructor();
-          }
-        }),
-      );
+      void promise.then((destructor) => {
+        if (isMounted() && destructor) {
+          return destructor();
+        }
+      });
     };
   }, dependencies);
 }
