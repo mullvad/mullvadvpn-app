@@ -3,9 +3,9 @@ import { Provider } from 'react-redux';
 import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
 
+import AppRouter from './components/AppRouter';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AppContext } from './context';
-import AppRoutes from './routes';
 
 import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
@@ -46,6 +46,7 @@ import {
 } from '../shared/daemon-rpc-types';
 import { LogLevel } from '../shared/logging-types';
 import IpcOutput from './lib/logging';
+import { RoutePath } from './lib/routes';
 
 // This function wraps all IPC calls to catch errors and then rethrow them without the
 // "Uncaught Error:" prefix that's added by Electron.
@@ -264,9 +265,9 @@ export default class AppRenderer {
     return (
       <AppContext.Provider value={{ app: this }}>
         <Provider store={this.reduxStore}>
-          <Router history={this.history}>
+          <Router history={this.history.asHistory}>
             <ErrorBoundary>
-              <AppRoutes />
+              <AppRouter />
             </ErrorBoundary>
           </Router>
         </Provider>
@@ -686,11 +687,11 @@ export default class AppRenderer {
     }
   }
 
-  private getNavigationBase(connectedToDaemon: boolean, accountToken?: string): string {
+  private getNavigationBase(connectedToDaemon: boolean, accountToken?: string): RoutePath {
     if (connectedToDaemon) {
-      return accountToken ? '/main' : '/login';
+      return accountToken ? RoutePath.main : RoutePath.login;
     } else {
-      return '/';
+      return RoutePath.launch;
     }
   }
 

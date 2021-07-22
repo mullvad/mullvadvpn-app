@@ -1,13 +1,14 @@
 import { expect, spy } from 'chai';
 import { it, describe, beforeEach } from 'mocha';
 import History from '../src/renderer/lib/history';
+import { RoutePath } from '../src/renderer/lib/routes';
 
-const BASE_PATH = '/';
-const FIRST_PATH = '/first-path';
-const SECOND_PATH = '/second-path';
-const THIRD_PATH = '/third-path';
-const FOURTH_PATH = '/fourth-path';
-const FIFTH_PATH = '/fifth-path';
+const BASE_PATH = RoutePath.launch;
+const FIRST_PATH = RoutePath.main;
+const SECOND_PATH = RoutePath.settings;
+const THIRD_PATH = RoutePath.advancedSettings;
+const FOURTH_PATH = RoutePath.wireguardKeys;
+const FIFTH_PATH = RoutePath.splitTunneling;
 
 describe('History', () => {
   let history: History;

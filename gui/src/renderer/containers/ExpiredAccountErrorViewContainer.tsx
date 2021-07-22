@@ -5,6 +5,7 @@ import { IHistoryProps, withHistory } from '../lib/history';
 
 import withAppContext, { IAppContext } from '../context';
 import { IReduxState, ReduxDispatch } from '../redux/store';
+import { RoutePath } from '../lib/routes';
 
 const mapStateToProps = (state: IReduxState) => ({
   accountToken: state.account.accountToken,
@@ -31,7 +32,7 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
       }
     },
     navigateToRedeemVoucher: () => {
-      props.history.push('/main/voucher/redeem');
+      props.history.push(RoutePath.redeemVoucher);
     },
   };
 };

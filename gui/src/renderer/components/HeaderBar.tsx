@@ -9,6 +9,7 @@ import { IReduxState } from '../redux/store';
 import { FocusFallback } from './Focus';
 import { sourceSansPro } from './common-styles';
 import ImageView from './ImageView';
+import { RoutePath } from '../lib/routes';
 
 export enum HeaderBarStyle {
   default = 'default',
@@ -103,7 +104,7 @@ export function HeaderBarSettingsButton() {
   const history = useHistory();
 
   const openSettings = useCallback(() => {
-    history.show('/settings');
+    history.show(RoutePath.settings);
   }, [history]);
 
   return (
