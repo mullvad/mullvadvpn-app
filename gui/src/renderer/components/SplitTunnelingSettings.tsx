@@ -4,7 +4,6 @@ import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { IApplication, ILinuxSplitTunnelingApplication } from '../../shared/application-types';
-import consumePromise from '../../shared/promise';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { useAsyncEffect } from '../lib/utilityHooks';
@@ -142,7 +141,7 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
   const [applications, setApplications] = useState<ILinuxSplitTunnelingApplication[]>();
   const [browseError, setBrowseError] = useState<string>();
 
-  useEffect(() => consumePromise(getLinuxSplitTunnelingApplications().then(setApplications)), []);
+  useEffect(() => void getLinuxSplitTunnelingApplications().then(setApplications), []);
 
   const launchApplication = useCallback(
     async (application: ILinuxSplitTunnelingApplication | string) => {

@@ -8,7 +8,6 @@ import {
   TunnelProtocol,
 } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
-import consumePromise from '../../shared/promise';
 import { IpAddress } from '../lib/ip';
 import { WgKeyState } from '../redux/settings/reducers';
 import {
@@ -599,7 +598,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
   };
 
   private confirmPublicDnsAddress = () => {
-    consumePromise(this.addDnsAddress(this.state.publicDnsIpToConfirm!, true));
+    void this.addDnsAddress(this.state.publicDnsIpToConfirm!, true);
     this.hideCustomDnsConfirmationDialog();
   };
 
@@ -627,15 +626,13 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
 
   private removeDnsAddress = (address: string) => {
     const addresses = this.props.dns.customOptions.addresses.filter((item) => item !== address);
-    consumePromise(
-      this.props.setDnsOptions({
-        ...this.props.dns,
-        state: addresses.length > 0 && this.props.dns.state === 'custom' ? 'custom' : 'default',
-        customOptions: {
-          addresses,
-        },
-      }),
-    );
+    void this.props.setDnsOptions({
+      ...this.props.dns,
+      state: addresses.length > 0 && this.props.dns.state === 'custom' ? 'custom' : 'default',
+      customOptions: {
+        addresses,
+      },
+    });
   };
 
   private tunnelProtocolItems = (

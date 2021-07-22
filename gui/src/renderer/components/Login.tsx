@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
-import consumePromise from '../../shared/promise';
 import { messages } from '../../shared/gettext';
 import { formatAccountToken } from '../lib/account';
 import Accordion from './Accordion';
@@ -217,7 +216,7 @@ export default class Login extends React.Component<IProps, IState> {
   };
 
   private onClearAccountHistory = () => {
-    consumePromise(this.clearAccountHistory());
+    void this.clearAccountHistory();
   };
 
   private async clearAccountHistory() {

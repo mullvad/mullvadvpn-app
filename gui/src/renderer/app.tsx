@@ -21,7 +21,6 @@ import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-se
 import { messages, relayLocations } from '../shared/gettext';
 import log, { ConsoleOutput } from '../shared/logging';
 import { IRelayListPair, LaunchApplicationResult } from '../shared/ipc-schema';
-import consumePromise from '../shared/promise';
 import { Scheduler } from '../shared/scheduler';
 import History, { ITransitionSpecification, transitions } from './lib/history';
 import { loadTranslations } from './lib/load-translations';
@@ -138,7 +137,7 @@ export default class AppRenderer {
     });
 
     IpcRendererEventChannel.daemon.listenConnected(() => {
-      consumePromise(this.onDaemonConnected());
+      void this.onDaemonConnected();
     });
 
     IpcRendererEventChannel.daemon.listenDisconnected(() => {
@@ -243,7 +242,7 @@ export default class AppRenderer {
     this.setWireguardPublicKey(initialState.wireguardPublicKey);
 
     if (initialState.isConnected) {
-      consumePromise(this.onDaemonConnected());
+      void this.onDaemonConnected();
     }
 
     this.checkContentHeight();
@@ -369,7 +368,7 @@ export default class AppRenderer {
     } catch (e) {
       log.error(`Failed to get the WWW auth token: ${e.message}`);
     }
-    consumePromise(this.openUrl(`${link}?token=${token}`));
+    void this.openUrl(`${link}?token=${token}`);
   }
 
   public async setAllowLan(allowLan: boolean) {
@@ -489,7 +488,7 @@ export default class AppRenderer {
   }
 
   public removeSplitTunnelingApplication(application: IApplication | string) {
-    consumePromise(IpcRendererEventChannel.windowsSplitTunneling.removeApplication(application));
+    void IpcRendererEventChannel.windowsSplitTunneling.removeApplication(application);
   }
 
   public collectProblemReport(toRedact?: string): Promise<string> {

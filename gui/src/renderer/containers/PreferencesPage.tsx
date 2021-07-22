@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
 import { IDnsOptions } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
-import consumePromise from '../../shared/promise';
 import Preferences from '../components/Preferences';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
@@ -39,10 +38,10 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
       props.app.setAutoConnect(autoConnect);
     },
     setAllowLan: (allowLan: boolean) => {
-      consumePromise(props.app.setAllowLan(allowLan));
+      void props.app.setAllowLan(allowLan);
     },
     setShowBetaReleases: (showBetaReleases: boolean) => {
-      consumePromise(props.app.setShowBetaReleases(showBetaReleases));
+      void props.app.setShowBetaReleases(showBetaReleases);
     },
     setStartMinimized: (startMinimized: boolean) => {
       props.app.setStartMinimized(startMinimized);

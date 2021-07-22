@@ -49,7 +49,6 @@ import {
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
 } from '../shared/notifications/notification';
-import consumePromise from '../shared/promise';
 import { Scheduler } from '../shared/scheduler';
 import AccountDataCache from './account-data-cache';
 import { getOpenAtLogin, setOpenAtLogin } from './autostart';
@@ -510,7 +509,7 @@ class ApplicationMain {
 
       // disable pinch to zoom
       if (this.windowController.webContents) {
-        consumePromise(this.windowController.webContents.setVisualZoomLevelLimits(1, 1));
+        void this.windowController.webContents.setVisualZoomLevelLimits(1, 1);
       }
     }
   }
@@ -583,7 +582,7 @@ class ApplicationMain {
     }
 
     // fetch the latest version info in background
-    consumePromise(this.fetchLatestVersion());
+    void this.fetchLatestVersion();
 
     // reset the reconnect backoff when connection established.
     this.reconnectBackoff.reset();
@@ -636,7 +635,7 @@ class ApplicationMain {
   };
 
   private connectToDaemon() {
-    consumePromise(this.daemonRpc.connect());
+    void this.daemonRpc.connect();
   }
 
   private recoverFromBootstrapError(_error?: Error) {
@@ -719,7 +718,7 @@ class ApplicationMain {
   private setTunnelState(newState: TunnelState) {
     this.tunnelState = newState;
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
-    consumePromise(this.updateLocation());
+    void this.updateLocation();
 
     if (process.platform === 'linux') {
       this.tray?.setContextMenu(this.createTrayContextMenu());
@@ -751,8 +750,8 @@ class ApplicationMain {
     this.updateAccountDataOnAccountChange(oldSettings.accountToken, newSettings.accountToken);
 
     if (oldSettings.accountToken !== newSettings.accountToken) {
-      consumePromise(this.updateAccountHistory());
-      consumePromise(this.fetchWireguardKey());
+      void this.updateAccountHistory();
+      void this.fetchWireguardKey();
     }
 
     if (oldSettings.showBetaReleases !== newSettings.showBetaReleases) {
@@ -763,7 +762,7 @@ class ApplicationMain {
       IpcMainEventChannel.settings.notify(this.windowController.webContents, newSettings);
 
       if (windowsSplitTunneling) {
-        consumePromise(this.updateSplitTunnelingApplications(newSettings.splitTunnel.appsList));
+        void this.updateSplitTunnelingApplications(newSettings.splitTunnel.appsList);
       }
     }
 
@@ -1147,7 +1146,7 @@ class ApplicationMain {
     });
 
     IpcMainEventChannel.guiSettings.handleSetUnpinnedWindow((unpinnedWindow: boolean) => {
-      consumePromise(this.setUnpinnedWindow(unpinnedWindow));
+      void this.setUnpinnedWindow(unpinnedWindow);
     });
 
     IpcMainEventChannel.guiSettings.handleSetPreferredLocale((locale: string) => {
@@ -1174,7 +1173,7 @@ class ApplicationMain {
 
     IpcMainEventChannel.accountHistory.handleClear(async () => {
       await this.daemonRpc.clearAccountHistory();
-      consumePromise(this.updateAccountHistory());
+      void this.updateAccountHistory();
     });
 
     IpcMainEventChannel.wireguardKeys.handleGenerateKey(async () => {
@@ -1367,7 +1366,7 @@ class ApplicationMain {
     if (this.autoConnectOnWireguardKeyEvent) {
       this.autoConnectOnWireguardKeyEvent = false;
       this.autoConnectFallbackScheduler.cancel();
-      consumePromise(this.autoConnect());
+      void this.autoConnect();
     }
   }
 
@@ -1484,7 +1483,7 @@ class ApplicationMain {
   private updateDaemonsAutoConnect() {
     const daemonAutoConnect = this.guiSettings.autoConnect && getOpenAtLogin();
     if (daemonAutoConnect !== this.settings.autoConnect) {
-      consumePromise(this.daemonRpc.setAutoConnect(daemonAutoConnect));
+      void this.daemonRpc.setAutoConnect(daemonAutoConnect);
     }
   }
 
@@ -1682,7 +1681,7 @@ class ApplicationMain {
         // make the window visible on all workspaces and prevent the icon from showing in the dock
         // and app switcher.
         if (this.guiSettings.unpinnedWindow) {
-          consumePromise(app.dock.show());
+          void app.dock.show();
         } else {
           appWindow.setVisibleOnAllWorkspaces(true);
           app.dock.hide();
@@ -1771,16 +1770,16 @@ class ApplicationMain {
           if (this.tunnelState.state === 'disconnected') {
             // Workaround: gRPC calls are sometimes delayed by a few seconds and setImmediate
             // mitigates this. https://github.com/grpc/grpc-node/issues/882
-            setImmediate(() => consumePromise(this.daemonRpc.connectTunnel()));
+            setImmediate(() => void this.daemonRpc.connectTunnel());
           } else {
-            setImmediate(() => consumePromise(this.daemonRpc.disconnectTunnel()));
+            setImmediate(() => void this.daemonRpc.disconnectTunnel());
           }
         },
       },
       {
         label: messages.gettext('Reconnect'),
         enabled: this.tunnelState.state === 'connected' || this.tunnelState.state === 'connecting',
-        click: () => setImmediate(() => consumePromise(this.daemonRpc.reconnectTunnel())),
+        click: () => setImmediate(() => void this.daemonRpc.reconnectTunnel()),
       },
     ];
 

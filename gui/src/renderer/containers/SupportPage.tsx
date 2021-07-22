@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import consumePromise from '../../shared/promise';
 import Support from '../components/Support';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
@@ -24,7 +23,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext & IHisto
       props.history.pop();
     },
     viewLog(id: string) {
-      consumePromise(props.app.viewLog(id));
+      void props.app.viewLog(id);
     },
     saveReportForm,
     clearReportForm,
