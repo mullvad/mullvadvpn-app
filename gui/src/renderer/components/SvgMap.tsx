@@ -226,8 +226,7 @@ function SvgMap(props: IProps) {
       style={mapStyle}
       projection={
         // Workaround for incorrect type definition in @types/react-simple-maps.
-        /* @ts-ignore */
-        projection as () => GeoProjection
+        (projection as unknown) as () => GeoProjection
       }
       projectionConfig={projectionConfig}>
       <ZoomableGroup
