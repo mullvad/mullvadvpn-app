@@ -233,7 +233,7 @@ function packMac() {
           await notarizeMac(buildResult.artifactPaths[0]);
         }
         // remove the folder that contains the unpacked app
-        return fs.promises.rmdir(appOutDir, { recursive: true });
+        return fs.promises.rm(appOutDir, { recursive: true });
       },
       afterSign: noAppleNotarization
         ? undefined
