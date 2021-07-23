@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { links } from '../../config.json';
-import consumePromise from '../../shared/promise';
 import Account from '../components/Account';
 
 import withAppContext, { IAppContext } from '../context';
@@ -16,7 +15,7 @@ const mapStateToProps = (state: IReduxState) => ({
 const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
   return {
     onLogout: () => {
-      consumePromise(props.app.logout());
+      void props.app.logout();
     },
     onClose: () => {
       props.history.pop();

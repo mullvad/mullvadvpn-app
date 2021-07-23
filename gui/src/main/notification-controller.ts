@@ -13,7 +13,6 @@ import {
   SystemNotification,
   SystemNotificationProvider,
 } from '../shared/notifications/notification';
-import consumePromise from '../shared/promise';
 
 interface NotificationControllerDelegate {
   openApp(): void;
@@ -137,7 +136,7 @@ export default class NotificationController {
 
   private performAction(action?: NotificationAction) {
     if (action && action.type === 'open-url') {
-      consumePromise(this.notificationControllerDelegate.openLink(action.url, action.withAuth));
+      void this.notificationControllerDelegate.openLink(action.url, action.withAuth);
     }
   }
 

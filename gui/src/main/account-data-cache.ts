@@ -2,7 +2,6 @@ import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import { AccountToken, IAccountData, VoucherResponse } from '../shared/daemon-rpc-types';
 import { DateComponent, dateByAddingComponent } from '../shared/date-helper';
 import log from '../shared/logging';
-import consumePromise from '../shared/promise';
 import { Scheduler } from '../shared/scheduler';
 import { InvalidAccountError } from './errors';
 
@@ -50,7 +49,7 @@ export default class AccountDataCache {
 
       // Only fetch if there's no fetch for this account number in progress.
       if (!this.performingFetch) {
-        consumePromise(this.performFetch(accountToken));
+        void this.performFetch(accountToken);
       }
     } else if (watcher) {
       watcher.onFinish();
@@ -149,7 +148,7 @@ export default class AccountDataCache {
 
   private scheduleFetch(accountToken: AccountToken, delay: number) {
     this.fetchRetryScheduler.schedule(() => {
-      consumePromise(this.performFetch(accountToken));
+      void this.performFetch(accountToken);
     }, delay);
   }
 

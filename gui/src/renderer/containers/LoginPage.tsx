@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import consumePromise from '../../shared/promise';
 import Login from '../components/Login';
 import withAppContext, { IAppContext } from '../context';
 import accountActions from '../redux/account/actions';
@@ -18,7 +17,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
   const { resetLoginError, updateAccountToken } = bindActionCreators(accountActions, dispatch);
   return {
     login: (account: string) => {
-      consumePromise(props.app.login(account));
+      void props.app.login(account);
     },
     resetLoginError: () => {
       resetLoginError();
@@ -26,7 +25,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IAppContext) => {
     openExternalLink: (url: string) => props.app.openUrl(url),
     updateAccountToken,
     clearAccountHistory: () => props.app.clearAccountHistory(),
-    createNewAccount: () => consumePromise(props.app.createNewAccount()),
+    createNewAccount: () => void props.app.createNewAccount(),
   };
 };
 

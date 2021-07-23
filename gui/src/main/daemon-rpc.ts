@@ -54,7 +54,6 @@ import log from '../shared/logging';
 import * as managementInterface from './management_interface/management_interface_grpc_pb';
 import * as grpcTypes from './management_interface/management_interface_pb';
 import { CommunicationError, InvalidAccountError } from './errors';
-import consumePromise from '../shared/promise';
 
 const NETWORK_CALL_TIMEOUT = 10000;
 const CHANNEL_STATE_TIMEOUT = 1000 * 60 * 60;
@@ -585,11 +584,9 @@ export class DaemonRpc {
         this.connectionObservers.forEach((observer) => observer.onClose());
         this.isConnected = false;
         // Try and reconnect in case
-        consumePromise(
-          this.connect().catch((error) => {
-            log.error(`Failed to reconnect - ${error}`);
-          }),
-        );
+        void this.connect().catch((error) => {
+          log.error(`Failed to reconnect - ${error}`);
+        });
         this.setChannelCallback(currentState);
       } else if (!wasConnected && currentState === grpc.connectivityState.READY) {
         this.isConnected = true;
@@ -632,11 +629,9 @@ export class DaemonRpc {
         this.isConnected = false;
       }
       if (!this.isConnected) {
-        consumePromise(
-          this.connect().catch((error) => {
-            log.error(`Failed to reconnect - ${error}`);
-          }),
-        );
+        void this.connect().catch((error) => {
+          log.error(`Failed to reconnect - ${error}`);
+        });
       }
     }, 3000);
   }
