@@ -7,7 +7,7 @@ const watch = require('./tasks/watch');
 const dist = require('./tasks/distribution');
 
 task('clean', function (done) {
-  fs.rmdir('./build', { recursive: true }, done);
+  fs.rm('./build', { recursive: true, force: true }, done);
 });
 task('build-proto', scripts.buildProto);
 task('build', series('clean', parallel(assets.copyAll, scripts.buildProto), scripts.build));
