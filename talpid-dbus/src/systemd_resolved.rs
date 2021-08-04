@@ -83,6 +83,7 @@ const DNS_DOMAINS: &str = "Domains";
 const DNS_SERVERS: &str = "DNS";
 const GET_LINK_METHOD: &str = "GetLink";
 const SET_DNS_METHOD: &str = "SetDNS";
+const SET_DNS_OVER_TLS_METHOD: &str = "SetDNSOverTLS";
 const SET_DOMAINS_METHOD: &str = "SetDomains";
 const REVERT_METHOD: &str = "Revert";
 
@@ -350,6 +351,26 @@ impl SystemdResolved {
             .map_err(Error::DBusRpcError)
     }
 
+    fn link_disable_dns_over_tls<'a, 'b: 'a>(&'a self, interface_index: u32) -> Result<()> {
+        let link_object_path = self
+            .fetch_link(interface_index)
+            .map_err(|e| Error::GetLinkError(Box::new(e)))?;
+
+        let link_object = self.as_link_object(link_object_path.clone());
+
+        link_object.method_call(LINK_INTERFACE, SET_DNS_OVER_TLS_METHOD, ("no",))
+            .or_else(|error| {
+            if error.name() == Some("org.freedesktop.DBus.Error.UnknownMethod") {
+                log::debug!(
+                    "Didn't disable DNSOverTLS because systemd-resolved doesn't have 'SetDnsOverTLS' method. {}",
+                    error);
+                Ok(())
+            } else {
+                Err(error)
+            }
+        }).map_err(Error::DBusRpcError)
+    }
+
     fn get_link_dns_domains<'a, 'b: 'a>(
         &'a self,
         link_object_path: &'b dbus::Path<'static>,
@@ -530,6 +551,13 @@ impl AsyncHandle {
     pub async fn set_dns(&self, interface_index: u32, servers: Vec<IpAddr>) -> Result<DnsState> {
         let interface = self.dbus_interface.clone();
         tokio::task::spawn_blocking(move || interface.set_dns(interface_index, servers))
+            .await
+            .map_err(Error::AsyncTaskError)?
+    }
+
+    pub async fn disable_dot(&self, interface_index: u32) -> Result<()> {
+        let interface = self.dbus_interface.clone();
+        tokio::task::spawn_blocking(move || interface.link_disable_dns_over_tls(interface_index))
             .await
             .map_err(Error::AsyncTaskError)?
     }

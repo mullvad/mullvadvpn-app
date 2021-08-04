@@ -75,6 +75,11 @@ impl SystemdResolved {
         self.tunnel_index = tunnel_index;
         let mut last_result = Ok(());
 
+        if let Err(error) = self.dbus_interface.disable_dot(self.tunnel_index).await {
+            log::error!("Failed to disable DoT: {}", error.display_chain());
+        }
+
+
         {
             let mut initial_states = self.initial_states.lock().unwrap();
             for (iface_index, iface_config) in &initial_config {
@@ -112,6 +117,7 @@ impl SystemdResolved {
                 }
             }
         }
+
 
         if let Err(error) = last_result {
             let _ = self.reset();
