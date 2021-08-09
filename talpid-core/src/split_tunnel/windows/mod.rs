@@ -389,7 +389,7 @@ impl SplitTunnel {
             }
         });
 
-        Ok((tx, handle.clone()))
+        Ok((tx, handle))
     }
 
     fn send_request(&self, request: Request) -> Result<(), Error> {
