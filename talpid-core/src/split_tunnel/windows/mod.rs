@@ -17,7 +17,6 @@ use std::{
     io, mem,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::io::{AsRawHandle, RawHandle},
-    path::Path,
     ptr,
     sync::{mpsc as sync_mpsc, Arc, Mutex, Weak},
     time::Duration,
@@ -294,9 +293,8 @@ impl SplitTunnel {
         let (tx, rx): (RequestTx, _) = sync_mpsc::sync_channel(3);
         let (init_tx, init_rx) = sync_mpsc::channel();
 
-        let no_paths: [&Path; 0] = [];
         let (path_monitor, path_change_rx) =
-            path_monitor::PathMonitor::spawn(&no_paths).map_err(Error::StartPathMonitor)?;
+            path_monitor::PathMonitor::spawn().map_err(Error::StartPathMonitor)?;
 
         let last_set_paths = Arc::new(Mutex::new(vec![]));
         let last_set_paths_copy = last_set_paths.clone();
