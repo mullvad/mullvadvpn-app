@@ -127,10 +127,18 @@ fn resolve_link<T: AsRef<Path> + Copy>(path: T) -> io::Result<Option<PathBuf>> {
     match reparse_tag {
         IO_REPARSE_TAG_SYMLINK => {
             let reparse_data = unsafe { &*(data_buffer.as_mut_ptr() as *mut ReparseDataSymlink) };
+            let last_offset = memoffset::offset_of!(ReparseDataSymlink, path_buffer)
+                + reparse_data.sub_name_offset as usize
+                + reparse_data.sub_name_length as usize;
+            if last_offset > data_buffer.len() {
+                log::error!("Ignoring symlink with out-of-bounds index");
+                return Ok(None);
+            }
             let parsed_path = unsafe {
                 std::slice::from_raw_parts(
                     ((&reparse_data.path_buffer) as *const u16).offset(
-                        reparse_data.sub_name_offset as isize / std::mem::size_of::<u16>() as isize,
+                        (reparse_data.sub_name_offset as usize / std::mem::size_of::<u16>())
+                            as isize,
                     ),
                     reparse_data.sub_name_length as usize / std::mem::size_of::<u16>(),
                 )
@@ -175,10 +183,18 @@ fn resolve_link<T: AsRef<Path> + Copy>(path: T) -> io::Result<Option<PathBuf>> {
         }
         IO_REPARSE_TAG_MOUNT_POINT => {
             let reparse_data = unsafe { &*(data_buffer.as_mut_ptr() as *mut ReparseData) };
+            let last_offset = memoffset::offset_of!(ReparseData, path_buffer)
+                + reparse_data.sub_name_offset as usize
+                + reparse_data.sub_name_length as usize;
+            if last_offset > data_buffer.len() {
+                log::error!("Ignoring mount point with out-of-bounds index");
+                return Ok(None);
+            }
             let parsed_path = unsafe {
                 std::slice::from_raw_parts(
                     ((&reparse_data.path_buffer) as *const u16).offset(
-                        reparse_data.sub_name_offset as isize / std::mem::size_of::<u16>() as isize,
+                        (reparse_data.sub_name_offset as usize / std::mem::size_of::<u16>())
+                            as isize,
                     ),
                     reparse_data.sub_name_length as usize / std::mem::size_of::<u16>(),
                 )
