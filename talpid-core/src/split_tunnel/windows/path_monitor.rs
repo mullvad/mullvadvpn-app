@@ -1,4 +1,5 @@
 use std::{
+    collections::HashSet,
     ffi::OsString,
     fs, io,
     os::windows::{
@@ -201,8 +202,8 @@ fn resolve_link<T: AsRef<Path> + Copy>(path: T) -> io::Result<Option<PathBuf>> {
 }
 
 /// The same as [`resolve_all_links`] but for a set of paths.
-fn resolve_all_links_multiple<P: AsRef<Path>>(paths: &[P]) -> std::collections::HashSet<PathBuf> {
-    let mut monitored_paths = std::collections::HashSet::new();
+fn resolve_all_links_multiple<P: AsRef<Path>>(paths: &[P]) -> HashSet<PathBuf> {
+    let mut monitored_paths = HashSet::new();
     for path in paths {
         match resolve_all_links(path) {
             Ok(paths) => monitored_paths.extend(paths),
@@ -428,27 +429,19 @@ enum PathMonitorCommand {
 pub struct PathMonitor {
     port_handle: Arc<CompletionPort>,
     dir_contexts: Vec<DirContext>,
-    stripped_paths: std::collections::HashSet<StrippedPath>,
+    stripped_paths: HashSet<StrippedPath>,
 }
 
 impl PathMonitor {
-    pub fn spawn<P: AsRef<Path>>(
-        paths: &[P],
-    ) -> io::Result<(PathMonitorHandle, PathChangeNotifyRx)> {
+    pub fn spawn() -> io::Result<(PathMonitorHandle, PathChangeNotifyRx)> {
         let port_handle = Arc::new(CompletionPort::create(0)?);
-        let mut original_paths: Vec<PathBuf> =
-            paths.iter().map(|p| p.as_ref().to_path_buf()).collect();
-
-        let mut resolved_paths = resolve_all_links_multiple(&original_paths);
-        let stripped_paths = resolved_paths
-            .iter()
-            .filter_map(|p| Self::strip_path(p).ok())
-            .collect();
+        let mut original_paths: Vec<PathBuf> = vec![];
+        let mut resolved_paths = HashSet::new();
 
         let mut monitor = Self {
             port_handle: port_handle.clone(),
             dir_contexts: vec![],
-            stripped_paths,
+            stripped_paths: HashSet::new(),
         };
 
         monitor.update_directory_contexts()?;
