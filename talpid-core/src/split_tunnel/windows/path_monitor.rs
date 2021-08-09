@@ -473,7 +473,7 @@ impl PathMonitor {
                                 .filter_map(|p| Self::strip_path(p).ok())
                                 .collect();
                             if let Err(error) = monitor.update_directory_contexts() {
-                                log::error!("Failed to set open new directory handles: {}", error);
+                                log::error!("Failed to open new directory handles: {}", error);
                                 stop_monitor = true;
                                 break;
                             }
