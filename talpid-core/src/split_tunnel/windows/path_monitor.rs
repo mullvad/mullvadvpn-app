@@ -1,6 +1,6 @@
 use std::{
     collections::HashSet,
-    ffi::OsString,
+    ffi::{OsStr, OsString},
     fs, io,
     os::windows::{
         ffi::{OsStrExt, OsStringExt},
@@ -93,11 +93,7 @@ fn resolve_link<T: AsRef<Path> + Copy>(path: T) -> io::Result<Option<PathBuf>> {
     }
 
     // Note: `file_attributes()` doesn't include all attributes, so we must use GetfileAttributesW.
-    let mut u16_path: Vec<u16> = stripped_path
-        .as_os_str()
-        .encode_wide()
-        .chain(std::iter::once(0u16))
-        .collect();
+    let mut u16_path: Vec<u16> = osstr_to_wide(&stripped_path);
     let attributes = unsafe { GetFileAttributesW(u16_path.as_mut_ptr()) };
 
     if (attributes & FILE_ATTRIBUTE_REPARSE_POINT) == 0 {
@@ -143,12 +139,7 @@ fn resolve_link<T: AsRef<Path> + Copy>(path: T) -> io::Result<Option<PathBuf>> {
 
             if reparse_data.flags & SYMLINK_FLAG_RELATIVE != 0 {
                 if let Some(parent) = stripped_path.parent() {
-                    let path_buf_os: Vec<u16> = parent
-                        .join(path_buf)
-                        .into_os_string()
-                        .encode_wide()
-                        .chain(std::iter::once(0u16))
-                        .collect();
+                    let path_buf_os: Vec<u16> = osstr_to_wide(parent.join(path_buf));
 
                     let mut full_path_buffer = vec![0u16; 2048 / std::mem::size_of::<u16>()];
 
@@ -526,7 +517,7 @@ impl PathMonitor {
                         if path.prefix != monitor.dir_contexts[result.completion_key].path() {
                             continue;
                         }
-                        if path.tail.len() < file_name.len() {
+                        if path.tail.len() <= file_name.len() {
                             continue;
                         }
                         let cmp_status = unsafe {
@@ -639,7 +630,16 @@ impl PathMonitor {
 
         Ok(StrippedPath {
             prefix: prefix.clone(),
-            tail: iter.as_path().as_os_str().encode_wide().collect(),
+            tail: osstr_to_wide(iter.as_path()),
         })
     }
+}
+
+/// Converts an `OsStr` to a null-terminated UTF-16 string.
+fn osstr_to_wide<T: AsRef<OsStr>>(string: T) -> Vec<u16> {
+    string
+        .as_ref()
+        .encode_wide()
+        .chain(std::iter::once(0u16))
+        .collect()
 }
