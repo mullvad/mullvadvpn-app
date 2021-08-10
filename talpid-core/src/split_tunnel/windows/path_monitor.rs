@@ -396,7 +396,9 @@ struct CompletionStatus {
 
 #[derive(Clone, Hash, PartialEq, Eq)]
 struct StrippedPath {
+    /// The volume that the path is on. For `C:\a\b\c`, this would be for `C:\`.
     prefix: PathBuf,
+    /// The remainder of the path. For `C:\a\b\c`, this would be for `a\b\c`.
     tail: Vec<u16>,
 }
 
