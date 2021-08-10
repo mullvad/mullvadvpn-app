@@ -318,6 +318,12 @@ impl DirContext {
 unsafe impl Send for DirContext {}
 unsafe impl Sync for DirContext {}
 
+struct CompletionStatus {
+    bytes_returned: u32,
+    completion_key: usize,
+    used_overlapped: *mut OVERLAPPED,
+}
+
 struct CompletionPort {
     handle: HANDLE,
 }
@@ -387,12 +393,6 @@ impl Drop for CompletionPort {
 
 unsafe impl Send for CompletionPort {}
 unsafe impl Sync for CompletionPort {}
-
-struct CompletionStatus {
-    bytes_returned: u32,
-    completion_key: usize,
-    used_overlapped: *mut OVERLAPPED,
-}
 
 #[derive(Clone, Hash, PartialEq, Eq)]
 struct StrippedPath {
