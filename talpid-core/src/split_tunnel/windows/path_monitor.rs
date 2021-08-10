@@ -485,7 +485,6 @@ impl PathMonitor {
     pub fn spawn() -> io::Result<(PathMonitorHandle, PathChangeNotifyRx)> {
         let port_handle = Arc::new(CompletionPort::create(0)?);
         let mut original_paths: Vec<PathBuf> = vec![];
-        let mut resolved_paths = HashSet::new();
 
         let mut monitor = Self {
             port_handle: port_handle.clone(),
@@ -507,16 +506,7 @@ impl PathMonitor {
                         }
                         PathMonitorCommand::SetPaths(new_paths) => {
                             original_paths = new_paths;
-                            resolved_paths = resolve_all_links_multiple(&original_paths);
-                            monitor.stripped_paths = resolved_paths
-                                .iter()
-                                .filter_map(|p| StrippedPath::new(p).ok())
-                                .collect();
-                            if let Err(error) = monitor.update_directory_contexts() {
-                                log::error!("Failed to open new directory handles: {}", error);
-                                stop_monitor = true;
-                                break;
-                            }
+                            stop_monitor = monitor.update_paths(&original_paths).is_err();
                         }
                     }
                 }
@@ -526,19 +516,10 @@ impl PathMonitor {
 
                 match monitor.handle_next_completion_packet() {
                     Ok(true) => {
-                        let new_resolved_paths = resolve_all_links_multiple(&original_paths);
-                        if new_resolved_paths != resolved_paths {
-                            resolved_paths = new_resolved_paths;
-                            monitor.stripped_paths = resolved_paths
-                                .iter()
-                                .filter_map(|p| StrippedPath::new(p).ok())
-                                .collect();
-                            if let Err(error) = monitor.update_directory_contexts() {
-                                log::error!("Failed to set open new directory handles: {}", error);
-                                break;
-                            }
-                            let _ = notify_tx.send(());
+                        if monitor.update_paths(&original_paths).is_err() {
+                            break;
                         }
+                        let _ = notify_tx.send(());
                     }
                     Ok(false) => (),
                     Err(error) => {
@@ -557,6 +538,22 @@ impl PathMonitor {
             },
             notify_rx,
         ))
+    }
+
+    fn update_paths(&mut self, unresolved_paths: &[PathBuf]) -> Result<(), ()> {
+        let resolved_paths = resolve_all_links_multiple(unresolved_paths);
+        let new_stripped_paths = resolved_paths
+            .iter()
+            .filter_map(|p| StrippedPath::new(p).ok())
+            .collect();
+        if new_stripped_paths != self.stripped_paths {
+            self.stripped_paths = new_stripped_paths;
+            if let Err(error) = self.update_directory_contexts() {
+                log::error!("Failed to open new directory handles: {}", error);
+                return Err(());
+            }
+        }
+        Ok(())
     }
 
     fn update_directory_contexts(&mut self) -> io::Result<()> {
