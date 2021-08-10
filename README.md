@@ -50,9 +50,16 @@ state of latest master, not necessarily any existing release.
 | OpenVPN                       |    ✓    |   ✓   |   ✓   |         |     |
 | WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
-| Optional local network access |    ✓    |   ✓   |   ✓   |    ✓    |  ✓\* |
+| Split tunneling               |    ✓    |   ✓   |       |    ✓    |     |
+| Custom DNS server             |    ✓    |   ✓   |   ✓   |    ✓    |     |
+| Ad and tracker blocking       |    ✓    |   ✓   |   ✓   |    ✓[1] |  ✓  |
+| Optional local network access |    ✓    |   ✓   |   ✓   |    ✓    |  ✓[2] |
 
-\* The local network is always accessible on iOS with the current implementation
+[1] The blocking DNS IPs have to be
+[manually set as Custom DNS IPs](https://mullvad.net/en/blog/2021/5/27/how-set-ad-blocking-our-app/)
+for now.
+
+[2] The local network is always accessible on iOS with the current implementation
 
 ## Security and anonymity
 
