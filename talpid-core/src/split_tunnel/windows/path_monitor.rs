@@ -13,12 +13,15 @@ use std::{
 };
 use winapi::{
     self,
-    shared::minwindef::TRUE,
+    shared::{
+        minwindef::TRUE,
+        winerror::{ERROR_NOT_FOUND, ERROR_OPERATION_ABORTED},
+    },
     um::{
         fileapi::{GetFileAttributesW, GetFullPathNameW},
         handleapi::{CloseHandle, INVALID_HANDLE_VALUE},
         ioapiset::{
-            CreateIoCompletionPort, DeviceIoControl, GetQueuedCompletionStatus,
+            CancelIoEx, CreateIoCompletionPort, DeviceIoControl, GetQueuedCompletionStatus,
             PostQueuedCompletionStatus,
         },
         minwinbase::OVERLAPPED,
@@ -255,30 +258,23 @@ struct DirContext {
     dir_handle: fs::File,
     buffer: Vec<u32>,
     overlapped: OVERLAPPED,
+    _io_completion_port: Arc<CompletionPort>,
 }
 
 impl DirContext {
-    fn new<P: AsRef<Path>>(path: P) -> io::Result<DirContext> {
+    fn new<P: AsRef<Path>>(
+        path: P,
+        io_completion_port: Arc<CompletionPort>,
+        completion_key: usize,
+    ) -> io::Result<DirContext> {
         let dir_handle = fs::OpenOptions::new()
             .read(true)
             .custom_flags(FILE_FLAG_OVERLAPPED | FILE_FLAG_BACKUP_SEMANTICS)
             .open(&path)?;
-        Ok(DirContext {
-            path: path.as_ref().to_path_buf(),
-            dir_handle,
-            buffer: vec![0u32; 1024],
-            overlapped: unsafe { std::mem::zeroed() },
-        })
-    }
 
-    fn attach_to_io_port(
-        &self,
-        io_completion_port: &CompletionPort,
-        completion_key: usize,
-    ) -> io::Result<()> {
         let handle = unsafe {
             CreateIoCompletionPort(
-                self.dir_handle.as_raw_handle() as *mut _,
+                dir_handle.as_raw_handle() as *mut _,
                 io_completion_port.as_raw_handle() as *mut _,
                 completion_key,
                 // num of threads is ignored here
@@ -287,10 +283,16 @@ impl DirContext {
         };
 
         if handle == ptr::null_mut() {
-            Err(io::Error::last_os_error())
-        } else {
-            Ok(())
+            return Err(io::Error::last_os_error());
         }
+
+        Ok(DirContext {
+            path: path.as_ref().to_path_buf(),
+            dir_handle,
+            buffer: vec![0u32; 1024],
+            overlapped: unsafe { std::mem::zeroed() },
+            _io_completion_port: io_completion_port,
+        })
     }
 
     fn read_directory_changes(&mut self) -> io::Result<()> {
@@ -317,6 +319,19 @@ impl DirContext {
 
     fn path(&self) -> &Path {
         &self.path
+    }
+}
+
+impl Drop for DirContext {
+    fn drop(&mut self) {
+        if unsafe { CancelIoEx(self.dir_handle.as_raw_handle(), ptr::null_mut()) } == 0 {
+            match io::Error::last_os_error() {
+                error if error.raw_os_error() != Some(ERROR_NOT_FOUND as i32) => {
+                    log::error!("Failed to cancel pending file I/O request: {}", error);
+                }
+                _ => (),
+            }
+        }
     }
 }
 
@@ -513,6 +528,9 @@ impl PathMonitor {
                     Ok(result) if result.completion_key == PATH_MONITOR_COMPLETION_KEY_IGNORE => {
                         continue
                     }
+                    Err(error) if error.raw_os_error() == Some(ERROR_OPERATION_ABORTED as i32) => {
+                        continue
+                    }
                     Ok(result) => result,
                     Err(error) => {
                         log::error!(
@@ -640,7 +658,8 @@ impl PathMonitor {
                 continue;
             }
 
-            let mut ctx = match DirContext::new(&path.prefix) {
+            let index = self.dir_contexts.len();
+            let mut ctx = match DirContext::new(&path.prefix, self.port_handle.clone(), index) {
                 Ok(ctx) => ctx,
                 Err(error) if error.kind() == io::ErrorKind::NotFound => {
                     log::warn!(
@@ -651,8 +670,6 @@ impl PathMonitor {
                 }
                 Err(error) => return Err(error),
             };
-            let index = self.dir_contexts.len();
-            ctx.attach_to_io_port(&self.port_handle, index)?;
             ctx.read_directory_changes()?;
             self.dir_contexts.push(ctx);
         }
