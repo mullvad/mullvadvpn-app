@@ -13,6 +13,7 @@ use std::{
 };
 use winapi::{
     self,
+    shared::minwindef::TRUE,
     um::{
         fileapi::{GetFileAttributesW, GetFullPathNameW},
         handleapi::{CloseHandle, INVALID_HANDLE_VALUE},
@@ -296,7 +297,7 @@ impl DirContext {
                 self.dir_handle.as_raw_handle() as *mut _,
                 self.buffer.as_mut_ptr() as *mut _,
                 (self.buffer.len() * std::mem::size_of::<u32>()) as u32,
-                1,
+                TRUE,
                 FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME,
                 &mut _bytes_returned,
                 &mut self.overlapped,
@@ -542,7 +543,7 @@ impl PathMonitor {
                                 file_name.len() as i32,
                                 file_name.as_ptr(),
                                 file_name.len() as i32,
-                                1,
+                                TRUE,
                             )
                         };
                         match cmp_status {
