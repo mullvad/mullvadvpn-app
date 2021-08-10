@@ -50,6 +50,9 @@ state of latest master, not necessarily any existing release.
 | OpenVPN                       |    ✓    |   ✓   |   ✓   |         |     |
 | WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
+| Split tunneling               |    ✓    |   ✓   |       |    ✓    |     |
+| Custom DNS server             |    ✓    |   ✓   |   ✓   |    ✓    |     |
+| Ad and tracker blocking       |    ✓    |   ✓   |   ✓   |         |  ✓  |
 | Optional local network access |    ✓    |   ✓   |   ✓   |    ✓    |  ✓\* |
 
 \* The local network is always accessible on iOS with the current implementation
