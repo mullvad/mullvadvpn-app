@@ -34,9 +34,10 @@ use winapi::{
         },
         winioctl::FSCTL_GET_REPARSE_POINT,
         winnt::{
-            FILE_ATTRIBUTE_REPARSE_POINT, FILE_NOTIFY_CHANGE_DIR_NAME,
-            FILE_NOTIFY_CHANGE_FILE_NAME, FILE_NOTIFY_INFORMATION, HANDLE,
-            IO_REPARSE_TAG_MOUNT_POINT, IO_REPARSE_TAG_SYMLINK, MAXIMUM_REPARSE_DATA_BUFFER_SIZE,
+            FILE_ATTRIBUTE_REPARSE_POINT, FILE_NOTIFY_CHANGE_ATTRIBUTES,
+            FILE_NOTIFY_CHANGE_DIR_NAME, FILE_NOTIFY_CHANGE_FILE_NAME, FILE_NOTIFY_INFORMATION,
+            HANDLE, IO_REPARSE_TAG_MOUNT_POINT, IO_REPARSE_TAG_SYMLINK,
+            MAXIMUM_REPARSE_DATA_BUFFER_SIZE,
         },
     },
 };
@@ -291,7 +292,9 @@ impl DirContext {
                 self.buffer.as_mut_ptr() as *mut _,
                 self.buffer.len() as u32,
                 TRUE,
-                FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME,
+                FILE_NOTIFY_CHANGE_FILE_NAME
+                    | FILE_NOTIFY_CHANGE_DIR_NAME
+                    | FILE_NOTIFY_CHANGE_ATTRIBUTES,
                 &mut _bytes_returned,
                 &mut *self.overlapped,
                 None,
