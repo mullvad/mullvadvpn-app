@@ -402,6 +402,25 @@ struct StrippedPath {
     tail: Vec<u16>,
 }
 
+impl StrippedPath {
+    fn new(path: &PathBuf) -> io::Result<StrippedPath> {
+        let mut iter = path.components();
+        let prefix = iter.next().ok_or(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "path is missing prefix",
+        ))?;
+        let prefix = Path::new(&prefix).join(iter.next().ok_or(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "path is missing root",
+        ))?);
+
+        Ok(StrippedPath {
+            prefix: prefix.clone(),
+            tail: osstr_to_wide(iter.as_path()),
+        })
+    }
+}
+
 pub struct PathMonitorHandle {
     port_handle: Arc<CompletionPort>,
     tx: sync_mpsc::Sender<PathMonitorCommand>,
@@ -471,7 +490,7 @@ impl PathMonitor {
                             resolved_paths = resolve_all_links_multiple(&original_paths);
                             monitor.stripped_paths = resolved_paths
                                 .iter()
-                                .filter_map(|p| Self::strip_path(p).ok())
+                                .filter_map(|p| StrippedPath::new(p).ok())
                                 .collect();
                             if let Err(error) = monitor.update_directory_contexts() {
                                 log::error!("Failed to open new directory handles: {}", error);
@@ -571,7 +590,7 @@ impl PathMonitor {
                         resolved_paths = new_resolved_paths;
                         monitor.stripped_paths = resolved_paths
                             .iter()
-                            .filter_map(|p| Self::strip_path(p).ok())
+                            .filter_map(|p| StrippedPath::new(p).ok())
                             .collect();
                         if let Err(error) = monitor.update_directory_contexts() {
                             log::error!("Failed to set open new directory handles: {}", error);
@@ -634,23 +653,6 @@ impl PathMonitor {
         }
 
         Ok(())
-    }
-
-    fn strip_path(path: &PathBuf) -> io::Result<StrippedPath> {
-        let mut iter = path.components();
-        let prefix = iter.next().ok_or(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "path is missing prefix",
-        ))?;
-        let prefix = Path::new(&prefix).join(iter.next().ok_or(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "path is missing root",
-        ))?);
-
-        Ok(StrippedPath {
-            prefix: prefix.clone(),
-            tail: osstr_to_wide(iter.as_path()),
-        })
     }
 }
 
