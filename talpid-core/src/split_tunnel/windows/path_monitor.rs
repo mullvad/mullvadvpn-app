@@ -524,102 +524,26 @@ impl PathMonitor {
                     break;
                 }
 
-                let result = match monitor.port_handle.get_queued_completion_status() {
-                    Ok(result) if result.completion_key == PATH_MONITOR_COMPLETION_KEY_IGNORE => {
-                        continue
-                    }
-                    Err(error) if error.raw_os_error() == Some(ERROR_OPERATION_ABORTED as i32) => {
-                        continue
-                    }
-                    Ok(result) => result,
-                    Err(error) => {
-                        log::error!(
-                            "GetQueuedCompletionStatus failed: {:?}",
-                            error.raw_os_error()
-                        );
-                        break;
-                    }
-                };
-
-                if result.completion_key >= monitor.dir_contexts.len() {
-                    log::debug!("Ignoring out-of-bounds completion key");
-                    continue;
-                }
-
-                if result.bytes_returned == 0 {
-                    log::debug!("Change event buffer is empty");
-                }
-
-                if let Err(error) =
-                    monitor.dir_contexts[result.completion_key].read_directory_changes()
-                {
-                    log::error!("Failed to queue new directory change event: {}", error);
-                    break;
-                }
-
-                if result.bytes_returned == 0 || result.used_overlapped == ptr::null_mut() {
-                    continue;
-                }
-
-                let mut info = monitor.dir_contexts[result.completion_key].buffer.as_ptr()
-                    as *const FILE_NOTIFY_INFORMATION;
-                let mut changed = false;
-                loop {
-                    let current_field = unsafe { &*info };
-
-                    let file_name = unsafe {
-                        std::slice::from_raw_parts(
-                            current_field.FileName.as_ptr(),
-                            current_field.FileNameLength as usize / std::mem::size_of::<u16>(),
-                        )
-                    };
-
-                    for path in &monitor.stripped_paths {
-                        if path.prefix != monitor.dir_contexts[result.completion_key].path() {
-                            continue;
-                        }
-                        if path.tail.len() <= file_name.len() {
-                            continue;
-                        }
-                        let cmp_status = unsafe {
-                            CompareStringOrdinal(
-                                path.tail.as_ptr(),
-                                file_name.len() as i32,
-                                file_name.as_ptr(),
-                                file_name.len() as i32,
-                                TRUE,
-                            )
-                        };
-                        match cmp_status {
-                            CSTR_EQUAL => {
-                                changed = true;
+                match monitor.handle_next_completion_packet() {
+                    Ok(true) => {
+                        let new_resolved_paths = resolve_all_links_multiple(&original_paths);
+                        if new_resolved_paths != resolved_paths {
+                            resolved_paths = new_resolved_paths;
+                            monitor.stripped_paths = resolved_paths
+                                .iter()
+                                .filter_map(|p| StrippedPath::new(p).ok())
+                                .collect();
+                            if let Err(error) = monitor.update_directory_contexts() {
+                                log::error!("Failed to set open new directory handles: {}", error);
                                 break;
                             }
-                            0 => log::error!("Bug: CompareStringOrdinal failed"),
-                            _ => (),
+                            let _ = notify_tx.send(());
                         }
                     }
-
-                    if changed || current_field.NextEntryOffset == 0 {
+                    Ok(false) => (),
+                    Err(error) => {
+                        log::error!("handle_next_completion_packet failed: {}", error);
                         break;
-                    }
-                    info =
-                        unsafe { (info as *mut u8).offset(current_field.NextEntryOffset as isize) }
-                            as *const FILE_NOTIFY_INFORMATION;
-                }
-                if changed {
-                    let new_resolved_paths = resolve_all_links_multiple(&original_paths);
-                    if new_resolved_paths != resolved_paths {
-                        resolved_paths = new_resolved_paths;
-                        monitor.stripped_paths = resolved_paths
-                            .iter()
-                            .filter_map(|p| StrippedPath::new(p).ok())
-                            .collect();
-                        if let Err(error) = monitor.update_directory_contexts() {
-                            log::error!("Failed to set open new directory handles: {}", error);
-                            break;
-                        }
-                        let _ = notify_tx.send(());
                     }
                 }
             }
@@ -675,6 +599,89 @@ impl PathMonitor {
         }
 
         Ok(())
+    }
+
+    fn handle_next_completion_packet(&mut self) -> io::Result<bool> {
+        let result = match self.port_handle.get_queued_completion_status() {
+            Ok(result) if result.completion_key == PATH_MONITOR_COMPLETION_KEY_IGNORE => {
+                return Ok(false);
+            }
+            Err(error) if error.raw_os_error() == Some(ERROR_OPERATION_ABORTED as i32) => {
+                return Ok(false);
+            }
+            Ok(result) => result,
+            Err(error) => {
+                log::error!(
+                    "GetQueuedCompletionStatus failed: {:?}",
+                    error.raw_os_error()
+                );
+                return Err(error);
+            }
+        };
+
+        if result.completion_key >= self.dir_contexts.len() {
+            log::debug!("Ignoring out-of-bounds completion key");
+            return Ok(false);
+        }
+
+        let changed = if result.bytes_returned == 0 || result.used_overlapped == ptr::null_mut() {
+            log::debug!("Change event buffer is empty");
+            false
+        } else {
+            self.process_file_notification(result.completion_key)?
+        };
+
+        if let Err(error) = self.dir_contexts[result.completion_key].read_directory_changes() {
+            log::error!("Failed to queue new directory change event: {}", error);
+            return Err(error);
+        }
+
+        Ok(changed)
+    }
+
+    fn process_file_notification(&self, completion_key: usize) -> io::Result<bool> {
+        let mut info =
+            self.dir_contexts[completion_key].buffer.as_ptr() as *const FILE_NOTIFY_INFORMATION;
+        loop {
+            let current_field = unsafe { &*info };
+
+            let file_name = unsafe {
+                std::slice::from_raw_parts(
+                    current_field.FileName.as_ptr(),
+                    current_field.FileNameLength as usize / std::mem::size_of::<u16>(),
+                )
+            };
+
+            for path in &self.stripped_paths {
+                if path.prefix != self.dir_contexts[completion_key].path() {
+                    continue;
+                }
+                if path.tail.len() <= file_name.len() {
+                    continue;
+                }
+                let cmp_status = unsafe {
+                    CompareStringOrdinal(
+                        path.tail.as_ptr(),
+                        file_name.len() as i32,
+                        file_name.as_ptr(),
+                        file_name.len() as i32,
+                        TRUE,
+                    )
+                };
+                match cmp_status {
+                    CSTR_EQUAL => return Ok(true),
+                    0 => log::error!("Bug: CompareStringOrdinal failed"),
+                    _ => (),
+                }
+            }
+
+            if current_field.NextEntryOffset == 0 {
+                break;
+            }
+            info = unsafe { (info as *mut u8).offset(current_field.NextEntryOffset as isize) }
+                as *const FILE_NOTIFY_INFORMATION;
+        }
+        Ok(false)
     }
 }
 
