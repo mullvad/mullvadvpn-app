@@ -296,8 +296,8 @@ impl SplitTunnel {
         let (path_monitor, path_change_rx) =
             path_monitor::PathMonitor::spawn().map_err(Error::StartPathMonitor)?;
 
-        let last_set_paths = Arc::new(Mutex::new(vec![]));
-        let last_set_paths_copy = last_set_paths.clone();
+        let monitored_paths = Arc::new(Mutex::new(vec![]));
+        let monitored_paths_copy = monitored_paths.clone();
 
         std::thread::spawn(move || {
             let result = driver::DeviceHandle::new()
@@ -317,6 +317,8 @@ impl SplitTunnel {
             while let Ok((request, response_tx)) = rx.recv() {
                 let response = match request {
                     Request::SetPaths(paths) => {
+                        let mut monitored_paths_guard = monitored_paths.lock().unwrap();
+
                         let result = if paths.len() > 0 {
                             handle.set_config(&paths).map_err(Error::SetConfiguration)
                         } else {
@@ -324,14 +326,14 @@ impl SplitTunnel {
                         };
 
                         if result.is_ok() {
-                            {
-                                *last_set_paths.lock().unwrap() = paths.to_vec();
-                            }
                             if let Err(error) = path_monitor.set_paths(&paths) {
                                 log::error!(
                                     "{}",
                                     error.display_chain_with_msg("Failed to update path monitor")
                                 );
+                                monitored_paths_guard.clear();
+                            } else {
+                                *monitored_paths_guard = paths.to_vec();
                             }
                         }
 
@@ -373,12 +375,12 @@ impl SplitTunnel {
 
         std::thread::spawn(move || {
             while let Ok(()) = path_change_rx.recv() {
-                log::debug!("Re-resolving excluded paths");
-                let paths = last_set_paths_copy.lock().unwrap();
+                let paths = monitored_paths_copy.lock().unwrap();
                 let result = if paths.len() > 0 {
+                    log::debug!("Re-resolving excluded paths");
                     handle_copy.set_config(&*paths)
                 } else {
-                    handle_copy.clear_config()
+                    continue;
                 };
                 if let Err(error) = result {
                     log::error!(
