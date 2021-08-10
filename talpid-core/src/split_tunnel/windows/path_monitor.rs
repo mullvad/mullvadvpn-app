@@ -229,12 +229,14 @@ fn resolve_all_links<P: AsRef<Path>>(path: P) -> io::Result<Vec<PathBuf>> {
     let mut iter = path.as_ref().components();
 
     let mut partial_path = PathBuf::new();
-    for _ in 0..2 {
-        partial_path.push(iter.next().ok_or(io::Error::new(
-            io::ErrorKind::Other,
-            "path must be absolute",
-        ))?);
-    }
+    partial_path.push(iter.next().ok_or(io::Error::new(
+        io::ErrorKind::InvalidInput,
+        "path is missing prefix",
+    ))?);
+    partial_path.push(iter.next().ok_or(io::Error::new(
+        io::ErrorKind::InvalidInput,
+        "path is missing root",
+    ))?);
 
     for component in &mut iter {
         partial_path.push(component);
