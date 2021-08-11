@@ -356,7 +356,7 @@ mod test {
                   "enable_ipv6": true
                 }
               },
-              "settings_version": 3,
+              "settings_version": 5,
               "show_beta_releases": false
         }"#;
 
