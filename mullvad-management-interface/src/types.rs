@@ -319,6 +319,15 @@ impl From<IpVersion> for IpVersionConstraint {
     }
 }
 
+impl From<mullvad_types::relay_constraints::TransportPort> for TransportPort {
+    fn from(port: mullvad_types::relay_constraints::TransportPort) -> Self {
+        TransportPort {
+            protocol: TransportProtocol::from(port.protocol) as i32,
+            port: port.port.map(u32::from).unwrap_or(0),
+        }
+    }
+}
+
 impl
     From<
         mullvad_types::relay_constraints::Constraint<
@@ -491,14 +500,11 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
                     }),
 
                     wireguard_constraints: Some(WireguardConstraints {
-                        port: u32::from(constraints.wireguard_constraints.port.unwrap_or(0)),
-                        protocol: constraints
+                        port: constraints
                             .wireguard_constraints
-                            .protocol
-                            .as_ref()
+                            .port
                             .option()
-                            .map(|protocol| TransportProtocol::from(*protocol))
-                            .map(TransportProtocolConstraint::from),
+                            .map(TransportPort::from),
                         ip_version: constraints
                             .wireguard_constraints
                             .ip_version
@@ -892,16 +898,22 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                     } else {
                         None
                     };
-                let wireguard_transport_protocol =
+                let wireguard_transport_port =
                     if let Some(ref constraints) = settings.wireguard_constraints {
-                        match &constraints.protocol {
-                            Some(constraint) => Some(
-                                TransportProtocol::from_i32(constraint.protocol)
+                        match &constraints.port {
+                            Some(port) => {
+                                let protocol = TransportProtocol::from_i32(port.protocol)
                                     .ok_or(FromProtobufTypeError::InvalidArgument(
                                         "invalid transport protocol",
                                     ))?
-                                    .into(),
-                            ),
+                                    .into();
+                                let port = if port.port != 0 {
+                                    Constraint::Only(port.port as u16)
+                                } else {
+                                    Constraint::Any
+                                };
+                                Some(mullvad_constraints::TransportPort { protocol, port })
+                            }
                             None => None,
                         }
                     } else {
@@ -950,12 +962,7 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                         tunnel_protocol,
                         wireguard_constraints: settings.wireguard_constraints.map(|constraints| {
                             mullvad_constraints::WireguardConstraints {
-                                port: if constraints.port != 0 {
-                                    Constraint::Only(constraints.port as u16)
-                                } else {
-                                    Constraint::Any
-                                },
-                                protocol: Constraint::from(wireguard_transport_protocol),
+                                port: Constraint::from(wireguard_transport_port),
                                 ip_version: Constraint::from(ip_version),
                                 entry_location: constraints.entry_location.map(
                                     Constraint::<
