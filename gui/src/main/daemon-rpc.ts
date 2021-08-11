@@ -1154,8 +1154,12 @@ function convertFromOpenVpnConstraints(
 function convertFromWireguardConstraints(
   constraints: grpcTypes.WireguardConstraints,
 ): IWireguardConstraints {
-  const port = convertFromConstraint(constraints.getPort());
-  return { port };
+  const transportPort = convertFromConstraint(constraints.getPort());
+  if (transportPort !== 'any' && 'only' in transportPort) {
+    const port = convertFromConstraint(transportPort.only.getPort());
+    return { port };
+  }
+  return { port: 'any' };
 }
 
 function convertFromTunnelTypeConstraint(
@@ -1260,7 +1264,10 @@ function convertToWireguardConstraints(
     const wireguardConstraints = new grpcTypes.WireguardConstraints();
     const port = liftConstraint(constraint.port);
     if (port) {
-      wireguardConstraints.setPort(port);
+      const portConstraints = new grpcTypes.TransportPort();
+      portConstraints.setPort(port);
+      portConstraints.setProtocol(grpcTypes.TransportProtocol.UDP);
+      wireguardConstraints.setPort(portConstraints);
     }
     return wireguardConstraints;
   }
