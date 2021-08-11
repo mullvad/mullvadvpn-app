@@ -16,7 +16,6 @@ use mullvad_types::{
     relay_constraints::{
         BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
         OpenVpnConstraints, Providers, RelayConstraints, Set, WireguardConstraints,
-        WIREGUARD_TCP_PORTS,
     },
     relay_list::{OpenVpnEndpointData, Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
@@ -59,6 +58,7 @@ const WIREGUARD_EXIT_CONSTRAINTS: WireguardConstraints = WireguardConstraints {
     ip_version: Constraint::Only(IpVersion::V4),
     entry_location: None,
 };
+const WIREGUARD_TCP_PORTS: [(u16, u16); 3] = [(80, 80), (443, 443), (5001, 5001)];
 
 
 #[derive(err_derive::Error, Debug)]
@@ -757,6 +757,20 @@ impl RelaySelector {
         tunnels: &RelayTunnels,
         constraints: &WireguardConstraints,
     ) -> Vec<WireguardEndpointData> {
+        if constraints.protocol == Constraint::Only(TransportProtocol::Tcp) {
+            match constraints.port {
+                Constraint::Only(port) => {
+                    if !WIREGUARD_TCP_PORTS
+                        .iter()
+                        .any(|range| port >= range.0 && port <= range.1)
+                    {
+                        return vec![];
+                    }
+                }
+                _ => (),
+            }
+            return tunnels.wireguard.clone();
+        }
         tunnels
             .wireguard
             .iter()
