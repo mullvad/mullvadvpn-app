@@ -78,6 +78,23 @@ impl fmt::Display for AddressFamily {
     }
 }
 
+#[derive(err_derive::Error, Debug)]
+pub enum Error {
+    /// Unknown address family
+    #[error(display = "Unknown address family: {}", _0)]
+    UnknownAddressFamily(i32),
+}
+
+impl AddressFamily {
+    pub fn try_from_af_family(family: u16) -> Result<AddressFamily, Error> {
+        match family as i32 {
+            AF_INET => Ok(AddressFamily::Ipv4),
+            AF_INET6 => Ok(AddressFamily::Ipv6),
+            family => Err(Error::UnknownAddressFamily(family)),
+        }
+    }
+}
+
 /// Context for [`notify_ip_interface_change`]. When it is dropped,
 /// the callback is unregistered.
 pub struct IpNotifierHandle<'a> {

@@ -12,6 +12,9 @@ pub enum Error {
 
     #[error(display = "Device no longer exists")]
     NoTunnelDevice,
+
+    #[error(display = "Failed to obtain tunnel config")]
+    NoTunnelConfig,
 }
 
 /// Contains bytes sent and received through a tunnel
