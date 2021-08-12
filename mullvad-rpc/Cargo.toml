@@ -34,9 +34,3 @@ tempfile = "3.0"
 
 [target.'cfg(target_os="macos")'.dependencies]
 tokio-stream = { version = "0.1", features = ["io-util"] }
-
-[[bin]]
-name = "relay_list"
-
-[[bin]]
-name = "address_cache"
