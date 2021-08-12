@@ -2,10 +2,14 @@ use super::{
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
 };
-use crate::tunnel::{
-    tun_provider::TunProvider,
-    wireguard::logging::{clean_up_logging, initialize_logging, logging_callback, WgLogLevel},
+#[cfg(windows)]
+use crate::routing;
+#[cfg(not(windows))]
+use crate::tunnel::tun_provider::TunProvider;
+use crate::tunnel::wireguard::logging::{
+    clean_up_logging, initialize_logging, wg_go_logging_callback, WgLogLevel,
 };
+#[cfg(not(windows))]
 use ipnetwork::IpNetwork;
 use std::{
     ffi::{c_void, CStr},
@@ -56,6 +60,8 @@ pub struct WgGoTunnel {
     _tunnel_device: Tun,
     // context that maps to fs::File instance, used with logging callback
     _logging_context: LoggingContext,
+    #[cfg(target_os = "windows")]
+    _route_callback_handle: Option<crate::winnet::WinNetCallbackHandle>,
 }
 
 impl WgGoTunnel {
@@ -82,7 +88,7 @@ impl WgGoTunnel {
                 mtu,
                 wg_config_str.as_ptr() as *const i8,
                 tunnel_fd,
-                Some(logging_callback),
+                Some(wg_go_logging_callback),
                 logging_context.0 as *mut libc::c_void,
             )
         };
@@ -104,9 +110,15 @@ impl WgGoTunnel {
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        _tun_provider: &mut TunProvider,
-        _routes: impl Iterator<Item = IpNetwork>,
+        route_manager: &mut routing::RouteManager,
     ) -> Result<Self> {
+        let route_callback_handle = route_manager
+            .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ())
+            .ok();
+        if route_callback_handle.is_none() {
+            log::warn!("Failed to register default route callback");
+        }
+
         let wg_config_str = config.to_userspace_format();
         let iface_name: String = "Mullvad".to_string();
         let cstr_iface_name =
@@ -133,7 +145,7 @@ impl WgGoTunnel {
                 wg_config_str.as_ptr(),
                 &mut alias_ptr,
                 &mut interface_luid,
-                Some(logging_callback),
+                Some(wg_go_logging_callback),
                 logging_context.0 as *mut libc::c_void,
             )
         };
@@ -156,6 +168,7 @@ impl WgGoTunnel {
             interface_luid,
             handle: Some(handle),
             _logging_context: logging_context,
+            _route_callback_handle: route_callback_handle,
         })
     }
 
