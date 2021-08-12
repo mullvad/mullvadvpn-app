@@ -62,7 +62,7 @@ mnl = { version = "0.2.0", features = ["mnl-1-0-4"] }
 which = { version = "4.0", default-features = false }
 tun = "0.5.1"
 talpid-dbus = { path = "../talpid-dbus" }
-socket2 = "0.3"
+socket2 = { version = "0.4", features = ["all"] }
 internet-checksum = "0.2"
 
 
@@ -78,7 +78,7 @@ internet-checksum = "0.2"
 widestring = "0.4"
 winreg = { version = "0.7", features = ["transactions"] }
 winapi = { version = "0.3.6", features = ["combaseapi", "handleapi", "ifdef", "libloaderapi", "netioapi", "psapi", "stringapiset", "synchapi", "winbase", "winioctl", "winuser"] }
-socket2 = "0.3"
+socket2 = { version = "0.4", features = ["all"] }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 memoffset = "0.6"
 

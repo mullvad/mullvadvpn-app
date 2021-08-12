@@ -1,8 +1,6 @@
 use byteorder::{NetworkEndian, WriteBytesExt};
 use rand::Rng;
 use socket2::{Domain, Protocol, Socket, Type};
-#[cfg(target_os = "linux")]
-use std::ffi::CString;
 use std::{
     io::{self, Write},
     net::{Ipv4Addr, SocketAddr},
@@ -51,38 +49,24 @@ pub struct Pinger {
 }
 
 impl Pinger {
-    #[cfg(target_os = "windows")]
-    pub fn new(addr: Ipv4Addr, _interface_name: String) -> Result<Self> {
-        let addr = SocketAddr::new(addr.into(), 0);
-        let sock = Socket::new(Domain::ipv4(), Type::raw(), Some(Protocol::icmpv4()))
-            .map_err(Error::OpenError)?;
-        sock.set_nonblocking(true).map_err(Error::OpenError)?;
-
-        Ok(Self {
-            sock,
-            id: rand::random(),
-            addr,
-            seq: 0,
-        })
-    }
-
-    #[cfg(target_os = "linux")]
     pub fn new(addr: Ipv4Addr, interface_name: String) -> Result<Self> {
         let addr = SocketAddr::new(addr.into(), 0);
-        let sock = Socket::new(Domain::ipv4(), Type::raw(), Some(Protocol::icmpv4()))
+        let sock = Socket::new(Domain::IPV4, Type::RAW, Some(Protocol::ICMPV4))
             .map_err(Error::OpenError)?;
         sock.set_nonblocking(true).map_err(Error::OpenError)?;
 
-        let cname = CString::new(interface_name.as_bytes().to_vec())
-            .map_err(|_| Error::InterfaceNameContainsNull)?;
-        sock.bind_device(Some(&cname))
+        #[cfg(target_os = "linux")]
+        sock.bind_device(Some(interface_name.as_bytes()))
             .map_err(Error::SocketOptError)?;
+        // Just ignore the interface name on non-Linux
+        #[cfg(not(target_os = "linux"))]
+        let _ = interface_name;
 
         Ok(Self {
-            addr,
             sock,
-            seq: 0,
+            addr,
             id: rand::random(),
+            seq: 0,
         })
     }
 

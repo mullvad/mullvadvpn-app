@@ -2520,7 +2520,7 @@ dependencies = [
  "resolv-conf",
  "rtnetlink",
  "shell-escape",
- "socket2 0.3.19",
+ "socket2 0.4.0",
  "system-configuration",
  "talpid-dbus",
  "talpid-platform-metadata",
