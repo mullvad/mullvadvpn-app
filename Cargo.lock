@@ -163,12 +163,6 @@ dependencies = [
 
 [[package]]
 name = "bytes"
-version = "0.5.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e4cec68f03f32e44924783795810fa50a7035d8c8ebe78580ad7e6c703fba38"
-
-[[package]]
-name = "bytes"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b700ce4376041dcd0a327fd0097c41095743c4c8af8887265942faf1100bd040"
@@ -492,20 +486,6 @@ checksum = "449aad22b1364e927ff3bf50f55404efd705c40065fb47f73f28704de707c89e"
 
 [[package]]
 name = "err-derive"
-version = "0.2.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "22deed3a8124cff5fa835713fa105621e43bbdc46690c3a6b68328a012d350d4"
-dependencies = [
- "proc-macro-error",
- "proc-macro2",
- "quote",
- "rustversion",
- "syn",
- "synstructure",
-]
-
-[[package]]
-name = "err-derive"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dcc7f65832b62ed38939f98966824eb6294911c3629b0e9a262bfb80836d9686"
@@ -547,28 +527,6 @@ checksum = "2d2f06b9cac1506ece98fe3231e3cc9c4410ec3d5b1f24ae1c8946f0742cdefc"
 dependencies = [
  "backtrace",
  "version_check",
-]
-
-[[package]]
-name = "failure"
-version = "0.1.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d32e9bd16cc02eae7db7ef620b392808b89f6a5e16bb3497d159c6b92a0f4f86"
-dependencies = [
- "backtrace",
- "failure_derive",
-]
-
-[[package]]
-name = "failure_derive"
-version = "0.1.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aa4da3c766cd7a0db8242e326e9e4e081edd567072893ed320008189715366a4"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
- "synstructure",
 ]
 
 [[package]]
@@ -784,7 +742,7 @@ version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "825343c4eef0b63f541f8903f395dc5beb362a979b5799a84062527ef1e37726"
 dependencies = [
- "bytes 1.0.1",
+ "bytes",
  "fnv",
  "futures-core",
  "futures-sink",
@@ -843,7 +801,7 @@ version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7245cd7449cc792608c3c8a9eaf69bd4eabbabf802713748fd739c98b82f0747"
 dependencies = [
- "bytes 1.0.1",
+ "bytes",
  "fnv",
  "itoa",
 ]
@@ -854,7 +812,7 @@ version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "60daa14be0e0786db0f03a9e57cb404c9d756eed2b6c62b9ea98ec5743ec75a9"
 dependencies = [
- "bytes 1.0.1",
+ "bytes",
  "http",
  "pin-project-lite",
 ]
@@ -883,7 +841,7 @@ version = "0.14.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7728a72c4c7d72665fde02204bcbd93b247721025b222ef78606f14513e0fd03"
 dependencies = [
- "bytes 1.0.1",
+ "bytes",
  "futures-channel",
  "futures-core",
  "futures-util",
@@ -1260,7 +1218,7 @@ dependencies = [
  "chrono",
  "clap",
  "env_logger 0.8.2",
- "err-derive 0.3.0",
+ "err-derive",
  "futures",
  "itertools",
  "mullvad-management-interface",
@@ -1285,7 +1243,7 @@ dependencies = [
  "ctrlc",
  "dirs-next",
  "duct",
- "err-derive 0.3.0",
+ "err-derive",
  "fern",
  "futures",
  "ipnetwork",
@@ -1320,7 +1278,7 @@ dependencies = [
 name = "mullvad-exclude"
 version = "2021.4.0"
 dependencies = [
- "err-derive 0.3.0",
+ "err-derive",
  "nix 0.19.1",
  "talpid-types",
 ]
@@ -1329,7 +1287,7 @@ dependencies = [
 name = "mullvad-jni"
 version = "0.1.0"
 dependencies = [
- "err-derive 0.3.0",
+ "err-derive",
  "futures",
  "ipnetwork",
  "jnix",
@@ -1352,7 +1310,7 @@ dependencies = [
 name = "mullvad-management-interface"
 version = "0.1.0"
 dependencies = [
- "err-derive 0.3.0",
+ "err-derive",
  "futures",
  "lazy_static",
  "log",
@@ -1375,7 +1333,7 @@ name = "mullvad-paths"
 version = "0.1.0"
 dependencies = [
  "dirs-next",
- "err-derive 0.3.0",
+ "err-derive",
  "log",
 ]
 
@@ -1387,7 +1345,7 @@ dependencies = [
  "dirs-next",
  "duct",
  "env_logger 0.8.2",
- "err-derive 0.3.0",
+ "err-derive",
  "lazy_static",
  "mullvad-paths",
  "mullvad-rpc",
@@ -1404,9 +1362,8 @@ dependencies = [
 name = "mullvad-rpc"
 version = "0.1.0"
 dependencies = [
- "bytes 0.5.6",
  "chrono",
- "err-derive 0.3.0",
+ "err-derive",
  "filetime",
  "futures",
  "http",
@@ -1434,7 +1391,7 @@ version = "2021.4.0"
 dependencies = [
  "clap",
  "env_logger 0.8.2",
- "err-derive 0.3.0",
+ "err-derive",
  "lazy_static",
  "mullvad-daemon",
  "mullvad-management-interface",
@@ -1454,7 +1411,7 @@ name = "mullvad-types"
 version = "0.1.0"
 dependencies = [
  "chrono",
- "err-derive 0.3.0",
+ "err-derive",
  "ipnetwork",
  "jnix",
  "lazy_static",
@@ -1532,7 +1489,7 @@ version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ddd06e90449ae973fe3888c1ff85949604ef5189b4ac9a2ae39518da1e00762d"
 dependencies = [
- "bytes 1.0.1",
+ "bytes",
  "futures",
  "log",
  "netlink-packet-core",
@@ -1560,7 +1517,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2453197ab3fcf147bf0ebd193557eeffa3998e6c84670eb8c9d86393bd09011f"
 dependencies = [
  "bitflags",
- "err-derive 0.3.0",
+ "err-derive",
  "log",
  "nftnl-sys",
 ]
@@ -1941,7 +1898,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de5e2533f59d08fcf364fd374ebda0692a70bd6d7e66ef97f306f45c6c5d8020"
 dependencies = [
- "bytes 1.0.1",
+ "bytes",
  "prost-derive",
 ]
 
@@ -1951,7 +1908,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "355f634b43cdd80724ee7848f95770e7e70eefa6dcf14fea676216573b8fd603"
 dependencies = [
- "bytes 1.0.1",
+ "bytes",
  "heck",
  "itertools",
  "log",
@@ -1982,7 +1939,7 @@ version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "603bbd6394701d13f3f25aada59c7de9d35a6a5887cfc156181234a44002771b"
 dependencies = [
- "bytes 1.0.1",
+ "bytes",
  "prost",
 ]
 
@@ -2532,8 +2489,7 @@ dependencies = [
  "cfg-if 1.0.0",
  "chrono",
  "duct",
- "err-derive 0.3.0",
- "failure",
+ "err-derive",
  "futures",
  "hex",
  "internet-checksum",
@@ -2552,7 +2508,6 @@ dependencies = [
  "nftnl",
  "nix 0.19.1",
  "notify",
- "openvpn-plugin",
  "os_pipe",
  "parity-tokio-ipc",
  "parking_lot",
@@ -2565,7 +2520,7 @@ dependencies = [
  "resolv-conf",
  "rtnetlink",
  "shell-escape",
- "socket2 0.3.19",
+ "socket2 0.4.0",
  "system-configuration",
  "talpid-dbus",
  "talpid-platform-metadata",
@@ -2591,11 +2546,10 @@ name = "talpid-dbus"
 version = "0.1.0"
 dependencies = [
  "dbus",
- "err-derive 0.3.0",
+ "err-derive",
  "lazy_static",
  "libc",
  "log",
- "talpid-types",
  "tokio",
 ]
 
@@ -2604,7 +2558,7 @@ name = "talpid-openvpn-plugin"
 version = "2021.4.0"
 dependencies = [
  "env_logger 0.8.2",
- "err-derive 0.3.0",
+ "err-derive",
  "log",
  "openvpn-plugin",
  "parity-tokio-ipc",
@@ -2632,7 +2586,7 @@ name = "talpid-types"
 version = "0.1.0"
 dependencies = [
  "base64",
- "err-derive 0.3.0",
+ "err-derive",
  "ipnetwork",
  "jnix",
  "rand 0.7.3",
@@ -2718,7 +2672,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "98c8b05dc14c75ea83d63dd391100353789f5f24b8b3866542a5e85c8be8e985"
 dependencies = [
  "autocfg",
- "bytes 1.0.1",
+ "bytes",
  "libc",
  "memchr",
  "mio 0.7.13",
@@ -2779,7 +2733,7 @@ version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1caa0b0c8d94a049db56b5acf8cba99dc0623aab1b26d5b5f5e2d945846b3592"
 dependencies = [
- "bytes 1.0.1",
+ "bytes",
  "futures-core",
  "futures-sink",
  "log",
@@ -2805,7 +2759,7 @@ dependencies = [
  "async-stream",
  "async-trait",
  "base64",
- "bytes 1.0.1",
+ "bytes",
  "futures-core",
  "futures-util",
  "h2",
@@ -3204,12 +3158,12 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "windows-service"
-version = "0.3.1"
+version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fdfb0437cd780b66551aa81b466470f1159b1878ed45438b738de8bc6e5012b6"
+checksum = "0c643e10139d127d30d6d753398c8a6f0a43532e8370f6c9d29ebbff29b984ab"
 dependencies = [
  "bitflags",
- "err-derive 0.2.4",
+ "err-derive",
  "widestring",
  "winapi 0.3.9",
 ]
