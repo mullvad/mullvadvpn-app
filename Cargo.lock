@@ -2508,7 +2508,6 @@ dependencies = [
  "nftnl",
  "nix 0.19.1",
  "notify",
- "openvpn-plugin",
  "os_pipe",
  "parity-tokio-ipc",
  "parking_lot",

@@ -34,7 +34,6 @@ udp-over-tcp = { git = "https://github.com/mullvad/udp-over-tcp", rev = "1e27324
 
 
 [target.'cfg(not(target_os="android"))'.dependencies]
-openvpn-plugin = { version = "0.4", features = ["serde", "auth-failed-event"] }
 parity-tokio-ipc = "0.9"
 triggered = "0.1.1"
 tonic = "0.5"
