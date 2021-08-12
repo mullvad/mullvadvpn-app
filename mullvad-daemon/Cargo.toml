@@ -49,7 +49,7 @@ simple-signal = "1.1"
 [target.'cfg(windows)'.dependencies]
 ctrlc = "3.0"
 duct = "0.13"
-windows-service = "0.3"
+windows-service = "0.4"
 winapi = { version = "0.3", features = ["errhandlingapi", "handleapi", "libloaderapi", "ntlsa", "synchapi", "tlhelp32", "winbase", "winerror", "winuser"] }
 dirs-next = "2.0"
 
