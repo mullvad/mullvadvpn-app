@@ -2550,7 +2550,6 @@ dependencies = [
  "lazy_static",
  "libc",
  "log",
- "talpid-types",
  "tokio",
 ]
 
