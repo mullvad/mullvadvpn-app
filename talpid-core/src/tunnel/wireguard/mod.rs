@@ -167,6 +167,7 @@ impl WireguardMonitor {
         runtime: tokio::runtime::Handle,
         mut config: Config,
         log_path: Option<&Path>,
+        resource_dir: &Path,
         on_event: F,
         tun_provider: &mut TunProvider,
         route_manager: &mut routing::RouteManager,
@@ -185,7 +186,8 @@ impl WireguardMonitor {
             }
         }
 
-        let tunnel = Self::open_tunnel(&config, log_path, tun_provider, route_manager)?;
+        let tunnel =
+            Self::open_tunnel(&config, log_path, resource_dir, tun_provider, route_manager)?;
         let iface_name = tunnel.get_interface_name().to_string();
         #[cfg(windows)]
         let iface_luid = tunnel.get_interface_luid();
@@ -319,10 +321,11 @@ impl WireguardMonitor {
         Ok(monitor)
     }
 
-    #[cfg_attr(not(target_os = "linux"), allow(unused_variables))]
+    #[allow(unused_variables)]
     fn open_tunnel(
         config: &Config,
         log_path: Option<&Path>,
+        resource_dir: &Path,
         tun_provider: &mut TunProvider,
         route_manager: &mut routing::RouteManager,
     ) -> Result<Box<dyn Tunnel>> {
@@ -364,10 +367,21 @@ impl WireguardMonitor {
             }
         }
 
-        // TODO: try wireguard-nt here
+        #[cfg(target_os = "windows")]
+        match wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir) {
+            Ok(tunnel) => {
+                log::debug!("Using WireGuardNT");
+                return Ok(Box::new(tunnel));
+            }
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to setup WireGuardNT tunnel")
+                );
+            }
+        }
 
-        // TODO: Also fall back on wg-go on Windows
-        #[cfg(target_os = "linux")]
+        #[cfg(any(target_os = "linux", windows))]
         log::debug!("Using userspace WireGuard implementation");
         Ok(Box::new(
             WgGoTunnel::start_tunnel(
