@@ -41,6 +41,9 @@ const ADAPTER_GUID: GUID = GUID {
     Data4: [0x85, 0x36, 0x57, 0x6A, 0xB8, 0x6A, 0xFE, 0x9A],
 };
 
+/// Longest possible adapter name (in characters), including null terminator
+const MAX_ADAPTER_NAME: usize = 128;
+
 // type WintunOpenAdapterFn =
 //    unsafe extern "stdcall" fn(pool: *const u16, name: *const u16) -> RawHandle;
 type WireGuardCreateAdapterFn = unsafe extern "stdcall" fn(
@@ -52,11 +55,10 @@ type WireGuardCreateAdapterFn = unsafe extern "stdcall" fn(
 type WireGuardFreeAdapterFn = unsafe extern "stdcall" fn(adapter: RawHandle);
 type WireGuardDeleteAdapterFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, reboot_required: *mut BOOL) -> BOOL;
-// type WintunGetAdapterNameFn =
-//    unsafe extern "stdcall" fn(adapter: RawHandle, name: *mut u16) -> BOOL;
-// type WintunGetAdapterLuidFn = unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut
-// NET_LUID); type WintunLoggerCbFn = extern "stdcall" fn(WintunLoggerLevel, *const u16);
-// type WintunSetLoggerFn = unsafe extern "stdcall" fn(Option<WintunLoggerCbFn>);
+type WireGuardGetAdapterLuidFn =
+    unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID);
+type WireGuardGetAdapterNameFn =
+    unsafe extern "stdcall" fn(adapter: RawHandle, name: *mut u16) -> BOOL;
 
 type RebootRequired = bool;
 
@@ -160,6 +162,14 @@ impl WgNtAdapter {
     fn delete(self) -> io::Result<RebootRequired> {
         unsafe { self.dll_handle.delete_adapter(self.handle) }
     }
+
+    fn name(&self) -> io::Result<U16CString> {
+        unsafe { self.dll_handle.get_adapter_name(self.handle) }
+    }
+
+    fn luid(&self) -> NET_LUID {
+        unsafe { self.dll_handle.get_adapter_luid(self.handle) }
+    }
 }
 
 impl Drop for WgNtAdapter {
@@ -173,6 +183,8 @@ struct WgNtDll {
     func_create: WireGuardCreateAdapterFn,
     func_delete: WireGuardDeleteAdapterFn,
     func_free: WireGuardFreeAdapterFn,
+    func_get_adapter_luid: WireGuardGetAdapterLuidFn,
+    func_get_adapter_name: WireGuardGetAdapterNameFn,
 }
 
 unsafe impl Send for WgNtDll {}
@@ -224,6 +236,18 @@ impl WgNtDll {
                     CStr::from_bytes_with_nul(b"WireGuardFreeAdapter\0").unwrap(),
                 )?)
             },
+            func_get_adapter_luid: unsafe {
+                std::mem::transmute(get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WireGuardGetAdapterLUID\0").unwrap(),
+                )?)
+            },
+            func_get_adapter_name: unsafe {
+                std::mem::transmute(get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WireGuardGetAdapterName\0").unwrap(),
+                )?)
+            },
         })
     }
 
@@ -266,6 +290,22 @@ impl WgNtDll {
 
     pub unsafe fn free_adapter(&self, adapter: RawHandle) {
         (self.func_free)(adapter);
+    }
+
+    pub unsafe fn get_adapter_name(&self, adapter: RawHandle) -> io::Result<U16CString> {
+        let mut alias_buffer = vec![0u16; MAX_ADAPTER_NAME];
+        let result = (self.func_get_adapter_name)(adapter, alias_buffer.as_mut_ptr());
+        if result == 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(U16CString::from_vec_with_nul(alias_buffer)
+            .map_err(|_| io::Error::new(io::ErrorKind::Other, "missing null terminator"))?)
+    }
+
+    pub unsafe fn get_adapter_luid(&self, adapter: RawHandle) -> NET_LUID {
+        let mut luid = mem::MaybeUninit::<NET_LUID>::zeroed();
+        (self.func_get_adapter_luid)(adapter, luid.as_mut_ptr());
+        luid.assume_init()
     }
 }
 
