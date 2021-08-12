@@ -78,10 +78,16 @@ pub enum Error {
     /// Failed to delete tunnel interface
     #[error(display = "Failed to delete WireGuard device")]
     DeleteTunnelDeviceError(#[error(source)] io::Error),
+
+    /// Failed to obtain tunnel interface alias
+    #[error(display = "Failed to obtain interface name")]
+    ObtainAliasError(#[error(source)] io::Error),
 }
 
 pub struct WgNtTunnel {
     device: Option<WgNtAdapter>,
+    interface_luid: NET_LUID,
+    interface_name: String,
 }
 
 impl WgNtTunnel {
@@ -105,8 +111,24 @@ impl WgNtTunnel {
             log::warn!("You may need to reboot to finish installing WireGuardNT");
         }
 
+        let interface_luid = device.luid();
+        let interface_name = match device.name() {
+            Ok(name) => name.to_string_lossy(),
+            Err(error) => {
+                if let Err(error) = device.delete() {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to delete tunnel device")
+                    );
+                }
+                return Err(Error::ObtainAliasError(error));
+            }
+        };
+
         Ok(WgNtTunnel {
             device: Some(device),
+            interface_luid,
+            interface_name,
         })
     }
 
