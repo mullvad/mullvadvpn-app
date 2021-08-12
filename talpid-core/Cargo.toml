@@ -49,7 +49,6 @@ jnix = { version = "0.4", features = ["derive"] }
 
 
 [target.'cfg(target_os = "linux")'.dependencies]
-failure = "0.1"
 notify = "4.0"
 resolv-conf = "0.7"
 rtnetlink = "0.8"
