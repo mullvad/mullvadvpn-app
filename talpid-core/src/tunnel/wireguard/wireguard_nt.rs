@@ -1,4 +1,4 @@
-use super::{config::Config, TunnelEvent, TunnelMetadata};
+use super::{config::Config, stats::Stats, Tunnel, TunnelEvent, TunnelMetadata};
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use std::{
@@ -345,6 +345,35 @@ fn load_wg_nt_dll(resource_dir: &Path) -> Result<Arc<WgNtDll>> {
             let new_dll = Arc::new(WgNtDll::new(resource_dir).map_err(Error::DllError)?);
             *dll = Some(new_dll.clone());
             Ok(new_dll)
+        }
+    }
+}
+
+impl Tunnel for WgNtTunnel {
+    fn get_interface_name(&self) -> String {
+        self.interface_name.clone()
+    }
+
+    fn get_interface_luid(&self) -> u64 {
+        self.interface_luid.Value
+    }
+
+    fn get_tunnel_stats(&self) -> std::result::Result<Stats, super::TunnelError> {
+        Ok(Stats {
+            tx_bytes: 0,
+            rx_bytes: 0,
+        })
+    }
+
+    fn stop(mut self: Box<Self>) -> std::result::Result<(), super::TunnelError> {
+        if let Err(error) = self.stop_tunnel() {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to stop WireGuardNT tunnel")
+            );
+            Err(super::TunnelError::StopWireguardError { status: 0 })
+        } else {
+            Ok(())
         }
     }
 }
