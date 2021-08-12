@@ -68,13 +68,19 @@ pub enum Error {
     /// Failed to load WireGuardNT
     #[error(display = "Failed to load wireguard.dll")]
     DllError(#[error(source)] io::Error),
-    
-    /// Failed to create Wintun interface
+
+    /// Failed to create tunnel interface
     #[error(display = "Failed to create WireGuard device")]
     CreateTunnelDeviceError(#[error(source)] io::Error),
+
+    /// Failed to delete tunnel interface
+    #[error(display = "Failed to delete WireGuard device")]
+    DeleteTunnelDeviceError(#[error(source)] io::Error),
 }
 
-pub struct WgNtTunnel {}
+pub struct WgNtTunnel {
+    device: Option<WgNtAdapter>,
+}
 
 impl WgNtTunnel {
     pub fn start_tunnel(
@@ -97,7 +103,29 @@ impl WgNtTunnel {
             log::warn!("You may need to reboot to finish installing WireGuardNT");
         }
 
-        Ok(WgNtTunnel {})
+        Ok(WgNtTunnel {
+            device: Some(device),
+        })
+    }
+
+    fn stop_tunnel(&mut self) -> Result<()> {
+        if let Some(device) = self.device.take() {
+            if let Err(error) = device.delete() {
+                return Err(Error::DeleteTunnelDeviceError(error));
+            }
+        }
+        Ok(())
+    }
+}
+
+impl Drop for WgNtTunnel {
+    fn drop(&mut self) {
+        if let Err(error) = self.stop_tunnel() {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to stop WireGuardNT tunnel")
+            );
+        }
     }
 }
 
