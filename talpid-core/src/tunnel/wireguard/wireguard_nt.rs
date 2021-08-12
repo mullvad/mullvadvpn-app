@@ -1,3 +1,5 @@
+use super::{config::Config, TunnelEvent, TunnelMetadata};
+use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
@@ -28,9 +30,16 @@ use winapi::{
 
 lazy_static! {
     static ref WG_NT_DLL: Mutex<Option<Arc<WgNtDll>>> = Mutex::new(None);
-    static ref ADAPTER_ALIAS: U16CString = U16CString::from_str("Mullvad").unwrap();
     static ref ADAPTER_POOL: U16CString = U16CString::from_str("Mullvad").unwrap();
+    static ref ADAPTER_ALIAS: U16CString = U16CString::from_str("Mullvad").unwrap();
 }
+
+const ADAPTER_GUID: GUID = GUID {
+    Data1: 0xAFE43773,
+    Data2: 0xE1F8,
+    Data3: 0x4EBB,
+    Data4: [0x85, 0x36, 0x57, 0x6A, 0xB8, 0x6A, 0xFE, 0x9A],
+};
 
 // type WintunOpenAdapterFn =
 //    unsafe extern "stdcall" fn(pool: *const u16, name: *const u16) -> RawHandle;
@@ -59,18 +68,35 @@ pub enum Error {
     /// Failed to load WireGuardNT
     #[error(display = "Failed to load wireguard.dll")]
     DllError(#[error(source)] io::Error),
+    
+    /// Failed to create Wintun interface
+    #[error(display = "Failed to create WireGuard device")]
+    CreateTunnelDeviceError(#[error(source)] io::Error),
 }
 
 pub struct WgNtTunnel {}
 
 impl WgNtTunnel {
-    #[cfg(not(target_os = "windows"))]
     pub fn start_tunnel(
+        resource_dir: &Path,
         config: &Config,
         log_path: Option<&Path>,
-        tun_provider: &mut TunProvider,
         routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<Self> {
+        let dll = load_wg_nt_dll(resource_dir)?;
+
+        let (device, reboot_required) = WgNtAdapter::create(
+            dll,
+            &*ADAPTER_POOL,
+            &*ADAPTER_ALIAS,
+            Some(ADAPTER_GUID.clone()),
+        )
+        .map_err(Error::CreateTunnelDeviceError)?;
+
+        if reboot_required {
+            log::warn!("You may need to reboot to finish installing WireGuardNT");
+        }
+
         Ok(WgNtTunnel {})
     }
 }
