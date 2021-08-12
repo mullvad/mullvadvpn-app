@@ -221,6 +221,7 @@ impl WireguardMonitor {
         let close_sender = monitor.close_msg_sender.clone();
         let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
             gateway,
+            #[cfg(not(target_os = "windows"))]
             iface_name.clone(),
             Arc::downgrade(&monitor.tunnel),
             pinger_rx,

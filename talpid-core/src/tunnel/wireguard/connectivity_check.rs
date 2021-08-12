@@ -77,11 +77,16 @@ pub struct ConnectivityMonitor {
 impl ConnectivityMonitor {
     pub(super) fn new(
         addr: Ipv4Addr,
-        interface: String,
+        #[cfg(not(target_os = "windows"))] interface: String,
         tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
         close_receiver: mpsc::Receiver<()>,
     ) -> Result<Self, Error> {
-        let pinger = new_pinger(addr, interface).map_err(Error::PingError)?;
+        let pinger = new_pinger(
+            addr,
+            #[cfg(not(target_os = "windows"))]
+            interface,
+        )
+        .map_err(Error::PingError)?;
 
         let now = Instant::now();
 

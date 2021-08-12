@@ -20,7 +20,11 @@ pub trait Pinger: Send {
 /// Create a new pinger
 pub fn new_pinger(
     addr: std::net::Ipv4Addr,
-    interface_name: String,
+    #[cfg(not(target_os = "windows"))] interface_name: String,
 ) -> Result<Box<dyn Pinger>, Error> {
-    Ok(Box::new(imp::Pinger::new(addr, interface_name)?))
+    Ok(Box::new(imp::Pinger::new(
+        addr,
+        #[cfg(not(target_os = "windows"))]
+        interface_name,
+    )?))
 }

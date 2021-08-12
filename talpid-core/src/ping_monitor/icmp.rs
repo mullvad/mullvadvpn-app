@@ -49,7 +49,7 @@ pub struct Pinger {
 }
 
 impl Pinger {
-    pub fn new(addr: Ipv4Addr, interface_name: String) -> Result<Self> {
+    pub fn new(addr: Ipv4Addr, #[cfg(target_os = "linux")] interface_name: String) -> Result<Self> {
         let addr = SocketAddr::new(addr.into(), 0);
         let sock = Socket::new(Domain::IPV4, Type::RAW, Some(Protocol::ICMPV4))
             .map_err(Error::OpenError)?;
@@ -58,9 +58,6 @@ impl Pinger {
         #[cfg(target_os = "linux")]
         sock.bind_device(Some(interface_name.as_bytes()))
             .map_err(Error::SocketOptError)?;
-        // Just ignore the interface name on non-Linux
-        #[cfg(not(target_os = "linux"))]
-        let _ = interface_name;
 
         Ok(Self {
             sock,
