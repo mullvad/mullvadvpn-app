@@ -26,6 +26,8 @@ mod stats;
 mod wireguard_go;
 #[cfg(target_os = "linux")]
 pub(crate) mod wireguard_kernel;
+#[cfg(windows)]
+mod wireguard_nt;
 
 use self::wireguard_go::WgGoTunnel;
 
@@ -362,6 +364,9 @@ impl WireguardMonitor {
             }
         }
 
+        // TODO: try wireguard-nt here
+
+        // TODO: Also fall back on wg-go on Windows
         #[cfg(target_os = "linux")]
         log::debug!("Using userspace WireGuard implementation");
         Ok(Box::new(
