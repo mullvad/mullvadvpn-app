@@ -1,5 +1,4 @@
-use super::{config::Config, stats::Stats, Tunnel, TunnelEvent, TunnelMetadata};
-use ipnetwork::IpNetwork;
+use super::{config::Config, stats::Stats, Tunnel};
 use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
@@ -16,14 +15,9 @@ use winapi::{
         guiddef::GUID,
         ifdef::NET_LUID,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
-        netioapi::ConvertInterfaceLuidToGuid,
-        winerror::NO_ERROR,
     },
-    um::{
-        libloaderapi::{
-            FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH,
-        },
-        winreg::REGSAM,
+    um::libloaderapi::{
+        FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH,
     },
 };
 
@@ -92,10 +86,9 @@ pub struct WgNtTunnel {
 
 impl WgNtTunnel {
     pub fn start_tunnel(
-        resource_dir: &Path,
         config: &Config,
         log_path: Option<&Path>,
-        routes: impl Iterator<Item = IpNetwork>,
+        resource_dir: &Path,
     ) -> Result<Self> {
         let dll = load_wg_nt_dll(resource_dir)?;
 
