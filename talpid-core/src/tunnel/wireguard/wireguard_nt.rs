@@ -87,6 +87,14 @@ pub enum Error {
     /// Failed to obtain tunnel interface alias
     #[error(display = "Failed to obtain interface name")]
     ObtainAliasError(#[error(source)] io::Error),
+
+    /// Failed to set WireGuard tunnel config on device
+    #[error(display = "Failed to set tunnel WireGuard config")]
+    SetWireGuardConfigError(#[error(source)] io::Error),
+
+    /// Failed to set the tunnel state to up
+    #[error(display = "Failed to enable the tunnel adapter")]
+    EnableTunnelError(#[error(source)] io::Error),
 }
 
 pub struct WgNtTunnel {
@@ -202,11 +210,13 @@ impl WgNtTunnel {
             }
         };
 
-        Ok(WgNtTunnel {
+        let tunnel = WgNtTunnel {
             device: Some(device),
             interface_luid,
             interface_name,
-        })
+        };
+        tunnel.configure(config)?;
+        Ok(tunnel)
     }
 
     fn stop_tunnel(&mut self) -> Result<()> {
@@ -215,6 +225,17 @@ impl WgNtTunnel {
                 return Err(Error::DeleteTunnelDeviceError(error));
             }
         }
+        Ok(())
+    }
+
+    fn configure(&self, config: &Config) -> Result<()> {
+        let device = self.device.as_ref().unwrap();
+        device
+            .set_config(config)
+            .map_err(Error::SetWireGuardConfigError)?;
+        device
+            .set_state(WgAdapterState::Up)
+            .map_err(Error::EnableTunnelError)?;
         Ok(())
     }
 }
