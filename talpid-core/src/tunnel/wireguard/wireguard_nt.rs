@@ -681,10 +681,31 @@ impl Tunnel for WgNtTunnel {
     }
 
     fn get_tunnel_stats(&self) -> std::result::Result<Stats, super::TunnelError> {
-        Ok(Stats {
-            tx_bytes: 0,
-            rx_bytes: 0,
-        })
+        if let Some(ref device) = self.device {
+            let (_interface, peers) = device.get_config().map_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to obtain NT tunnel config")
+                );
+
+                // TODO: Improve error
+                super::TunnelError::StatsError(super::stats::Error::KeyNotFoundError)
+            })?;
+
+            let mut tx_bytes = 0;
+            let mut rx_bytes = 0;
+
+            for (peer, _allowed_ips) in &peers {
+                tx_bytes += peer.tx_bytes;
+                rx_bytes += peer.rx_bytes;
+            }
+
+            Ok(Stats { tx_bytes, rx_bytes })
+        } else {
+            Err(super::TunnelError::StatsError(
+                super::stats::Error::NoTunnelDevice,
+            ))
+        }
     }
 
     fn stop(mut self: Box<Self>) -> std::result::Result<(), super::TunnelError> {
