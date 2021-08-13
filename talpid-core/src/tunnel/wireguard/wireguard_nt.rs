@@ -60,6 +60,8 @@ type WireGuardGetAdapterLuidFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID);
 type WireGuardGetAdapterNameFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, name: *mut u16) -> BOOL;
+type WireGuardSetConfigurationFn =
+    unsafe extern "stdcall" fn(adapter: RawHandle, config: *const u8, bytes: u32) -> BOOL;
 
 type RebootRequired = bool;
 
@@ -258,6 +260,14 @@ impl WgNtAdapter {
     fn luid(&self) -> NET_LUID {
         unsafe { self.dll_handle.get_adapter_luid(self.handle) }
     }
+
+    fn set_config(&self, config: &Config) -> io::Result<()> {
+        let config_buffer = serialize_config(config);
+        unsafe {
+            self.dll_handle
+                .set_config(self.handle, config_buffer.as_ptr(), config_buffer.len())
+        }
+    }
 }
 
 impl Drop for WgNtAdapter {
@@ -273,6 +283,7 @@ struct WgNtDll {
     func_free: WireGuardFreeAdapterFn,
     func_get_adapter_luid: WireGuardGetAdapterLuidFn,
     func_get_adapter_name: WireGuardGetAdapterNameFn,
+    func_set_configuration: WireGuardSetConfigurationFn,
 }
 
 unsafe impl Send for WgNtDll {}
@@ -336,6 +347,12 @@ impl WgNtDll {
                     CStr::from_bytes_with_nul(b"WireGuardGetAdapterName\0").unwrap(),
                 )?)
             },
+            func_set_configuration: unsafe {
+                std::mem::transmute(get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WireGuardSetConfiguration\0").unwrap(),
+                )?)
+            },
         })
     }
 
@@ -394,6 +411,19 @@ impl WgNtDll {
         let mut luid = mem::MaybeUninit::<NET_LUID>::zeroed();
         (self.func_get_adapter_luid)(adapter, luid.as_mut_ptr());
         luid.assume_init()
+    }
+
+    pub unsafe fn set_config(
+        &self,
+        adapter: RawHandle,
+        config: *const u8,
+        config_size: usize,
+    ) -> io::Result<()> {
+        let result = (self.func_set_configuration)(adapter, config, config_size as u32);
+        if result == 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
     }
 }
 
