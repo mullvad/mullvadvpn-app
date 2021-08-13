@@ -13,6 +13,7 @@
 #
 
 !define WINTUN_POOL "Mullvad"
+!define WG_NT_POOL "Mullvad"
 
 # "sc" exit code
 !define SERVICE_STARTED 0
@@ -59,19 +60,20 @@
 !define PERSISTENT_BLOCK_OUTBOUND_IPV4_FILTER_GUID "{79860c64-9a5e-48a3-b5f3-d64b41659aa5}"
 
 #
-# ExtractWintun
+# ExtractWireGuard
 #
-# Extract Wintun installer into $TEMP
+# Extract Wintun and WireGuardNT installer into $TEMP
 #
-!macro ExtractWintun
+!macro ExtractWireGuard
 
 	SetOutPath "$TEMP"
 	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wintun\wintun.dll"
+	File "${BUILD_RESOURCES_DIR}\binaries\x86_64-pc-windows-msvc\wireguard-nt\wireguard.dll"
 	File "${BUILD_RESOURCES_DIR}\..\windows\driverlogic\bin\x64-Release\driverlogic.exe"
 
 !macroend
 
-!define ExtractWintun '!insertmacro "ExtractWintun"'
+!define ExtractWireGuard '!insertmacro "ExtractWireGuard"'
 
 #
 # ExtractMullvadSetup
@@ -221,6 +223,41 @@
 
 !define RemoveWintun '!insertmacro "RemoveWintun"'
 
+#
+# RemoveWireGuardNt
+#
+# Try to remove WireGuardNT
+#
+!macro RemoveWireGuardNt
+	Push $0
+	Push $1
+
+	log::Log "RemoveWireGuardNt()"
+
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wg-nt-cleanup ${WG_NT_POOL}'
+	Pop $0
+	Pop $1
+
+	${If} $0 != ${DL_GENERAL_SUCCESS}
+		IntFmt $0 "0x%X" $0
+		StrCpy $R0 "Failed to remove WireGuardNT pool: error $0"
+		log::LogWithDetails $R0 $1
+		Goto RemoveWireGuardNt_return_only
+	${EndIf}
+
+	log::Log "RemoveWireGuardNt() completed successfully"
+
+	Push 0
+	Pop $R0
+
+	RemoveWireGuardNt_return_only:
+
+	Pop $1
+	Pop $0
+
+!macroend
+
+!define RemoveWireGuardNt '!insertmacro "RemoveWireGuardNt"'
 #
 # RemoveAbandonedWintunAdapter
 #
@@ -1244,8 +1281,9 @@
 		${ClearFirewallRules}
 		${RemoveWireGuardKey}
 
-		${ExtractWintun}
+		${ExtractWireGuard}
 		${RemoveWintun}
+		${RemoveWireGuardNt}
 
 		${ExtractSplitTunnelDriver}
 		${RemoveSplitTunnelDriver}
