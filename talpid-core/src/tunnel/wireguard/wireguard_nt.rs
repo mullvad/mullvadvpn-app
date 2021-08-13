@@ -1,4 +1,5 @@
 use super::{config::Config, stats::Stats, Tunnel};
+use bitflags::bitflags;
 use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
@@ -14,7 +15,11 @@ use winapi::{
     shared::{
         guiddef::GUID,
         ifdef::NET_LUID,
-        minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
+        in6addr::IN6_ADDR,
+        inaddr::IN_ADDR,
+        minwindef::{BOOL, BYTE, FARPROC, HINSTANCE, HMODULE},
+        ws2def::ADDRESS_FAMILY,
+        ws2ipdef::SOCKADDR_INET,
     },
     um::libloaderapi::{
         FreeLibrary, GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH,
@@ -83,6 +88,72 @@ pub struct WgNtTunnel {
     interface_luid: NET_LUID,
     interface_name: String,
 }
+
+const WIREGUARD_KEY_LENGTH: usize = 32;
+
+/// See `WIREGUARD_ALLOWED_IP` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+#[repr(C, align(8))]
+union WgIpAddr {
+    v4: IN_ADDR,
+    v6: IN6_ADDR,
+}
+
+/// See `WIREGUARD_ALLOWED_IP` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+#[repr(C, align(8))]
+struct WgAllowedIp {
+    address: WgIpAddr,
+    address_family: ADDRESS_FAMILY,
+    cidr: BYTE,
+}
+
+bitflags! {
+    /// See `WIREGUARD_PEER_FLAG` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+    struct WgPeerFlag: u32 {
+        const HAS_PUBLIC_KEY = 0b00000001;
+        const HAS_PRESHARED_KEY = 0b00000010;
+        const HAS_PERSISTENT_KEEPALIVE = 0b00000100;
+        const HAS_ENDPOINT = 0b00001000;
+        const REPLACE_ALLOWED_IPS = 0b00100000;
+        const REMOVE = 0b01000000;
+        const UPDATE = 0b10000000;
+    }
+}
+
+/// See `WIREGUARD_PEER` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+#[repr(C, align(8))]
+struct WgPeer {
+    flags: WgPeerFlag,
+    reserved: u32,
+    public_key: [u8; WIREGUARD_KEY_LENGTH],
+    preshared_key: [u8; WIREGUARD_KEY_LENGTH],
+    persistent_keepalive: u16,
+    endpoint: SOCKADDR_INET,
+    tx_bytes: u64,
+    rx_bytes: u64,
+    last_handshake: u64,
+    allowed_ips_count: u32,
+}
+
+bitflags! {
+    /// See `WIREGUARD_INTERFACE_FLAG` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+    struct WgInterfaceFlag: u32 {
+        const HAS_PUBLIC_KEY = 0b00000001;
+        const HAS_PRIVATE_KEY = 0b00000010;
+        const HAS_LISTEN_PORT = 0b00000100;
+        const REPLACE_PEERS = 0b00001000;
+    }
+}
+
+/// See `WIREGUARD_INTERFACE` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+#[repr(C, align(8))]
+struct WgInterface {
+    flags: WgInterfaceFlag,
+    listen_port: u16,
+    private_key: [u8; WIREGUARD_KEY_LENGTH],
+    public_key: [u8; WIREGUARD_KEY_LENGTH],
+    peers_count: u32,
+}
+
 
 impl WgNtTunnel {
     pub fn start_tunnel(

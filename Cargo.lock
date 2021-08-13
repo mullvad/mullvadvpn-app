@@ -2485,6 +2485,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "atty",
+ "bitflags",
  "byteorder",
  "cfg-if 1.0.0",
  "chrono",

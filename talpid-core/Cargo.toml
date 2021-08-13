@@ -8,6 +8,7 @@ edition = "2018"
 publish = false
 
 [dependencies]
+bitflags = "1.2"
 async-trait = "0.1"
 atty = "0.2"
 cfg-if = "1.0"
