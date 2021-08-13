@@ -1,9 +1,11 @@
 use super::{config::Config, stats::Stats, Tunnel};
 use bitflags::bitflags;
+use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
     fmt, io, iter, mem,
+    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     os::windows::{ffi::OsStrExt, io::RawHandle},
     path::Path,
     ptr,
@@ -17,8 +19,8 @@ use winapi::{
         ifdef::NET_LUID,
         in6addr::IN6_ADDR,
         inaddr::IN_ADDR,
-        minwindef::{BOOL, BYTE, FARPROC, HINSTANCE, HMODULE},
-        ws2def::ADDRESS_FAMILY,
+        minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
+        ws2def::{ADDRESS_FAMILY, AF_INET, AF_INET6},
         ws2ipdef::SOCKADDR_INET,
     },
     um::libloaderapi::{
@@ -103,7 +105,7 @@ union WgIpAddr {
 struct WgAllowedIp {
     address: WgIpAddr,
     address_family: ADDRESS_FAMILY,
-    cidr: BYTE,
+    cidr: u8,
 }
 
 bitflags! {
@@ -413,6 +415,117 @@ fn load_wg_nt_dll(resource_dir: &Path) -> Result<Arc<WgNtDll>> {
     }
 }
 
+fn serialize_config(config: &Config) -> Vec<u8> {
+    let mut buffer = vec![];
+
+    let header = WgInterface {
+        flags: WgInterfaceFlag::HAS_PRIVATE_KEY | WgInterfaceFlag::REPLACE_PEERS,
+        listen_port: 0,
+        private_key: config.tunnel.private_key.to_bytes(),
+        public_key: [0u8; WIREGUARD_KEY_LENGTH],
+        peers_count: config.peers.len() as u32,
+    };
+
+    buffer.extend_from_slice(unsafe { as_u8_slice(&header) });
+
+    for peer in &config.peers {
+        let wg_peer = WgPeer {
+            flags: WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT,
+            reserved: 0,
+            public_key: peer.public_key.as_bytes().clone(),
+            preshared_key: [0u8; WIREGUARD_KEY_LENGTH],
+            persistent_keepalive: 0,
+            endpoint: convert_socket_address(peer.endpoint),
+            tx_bytes: 0,
+            rx_bytes: 0,
+            last_handshake: 0,
+            allowed_ips_count: peer.allowed_ips.len() as u32,
+        };
+
+        buffer.extend_from_slice(unsafe { as_u8_slice(&wg_peer) });
+
+        for allowed_ip in &peer.allowed_ips {
+            let address_family = match allowed_ip {
+                IpNetwork::V4(_) => AF_INET as u16,
+                IpNetwork::V6(_) => AF_INET6 as u16,
+            };
+            let address = match allowed_ip {
+                IpNetwork::V4(v4_network) => WgIpAddr {
+                    v4: convert_v4_address(v4_network.ip()),
+                },
+                IpNetwork::V6(v6_network) => WgIpAddr {
+                    v6: convert_v6_address(v6_network.ip()),
+                },
+            };
+
+            let wg_allowed_ip = WgAllowedIp {
+                address,
+                address_family,
+                cidr: allowed_ip.prefix() as u8,
+            };
+
+            buffer.extend_from_slice(unsafe { as_u8_slice(&wg_allowed_ip) });
+        }
+    }
+
+    buffer
+}
+
+fn convert_v4_address(addr: Ipv4Addr) -> IN_ADDR {
+    let mut in_addr: IN_ADDR = unsafe { mem::zeroed() };
+    let addr_octets = addr.octets();
+    unsafe {
+        ptr::copy_nonoverlapping(
+            &addr_octets as *const _,
+            in_addr.S_un.S_addr_mut() as *mut _ as *mut u8,
+            addr_octets.len(),
+        );
+    }
+    in_addr
+}
+
+fn convert_v6_address(addr: Ipv6Addr) -> IN6_ADDR {
+    let mut in_addr: IN6_ADDR = unsafe { mem::zeroed() };
+    let addr_octets = addr.octets();
+    unsafe {
+        ptr::copy_nonoverlapping(
+            &addr_octets as *const _,
+            in_addr.u.Byte_mut() as *mut _,
+            addr_octets.len(),
+        );
+    }
+    in_addr
+}
+
+fn convert_socket_address(addr: SocketAddr) -> SOCKADDR_INET {
+    let mut sockaddr: SOCKADDR_INET = unsafe { mem::zeroed() };
+
+    match addr {
+        SocketAddr::V4(v4_addr) => {
+            unsafe {
+                *sockaddr.si_family_mut() = AF_INET as u16;
+            }
+
+            let mut v4sockaddr = unsafe { sockaddr.Ipv4_mut() };
+            v4sockaddr.sin_family = AF_INET as u16;
+            v4sockaddr.sin_port = v4_addr.port().to_be();
+            v4sockaddr.sin_addr = convert_v4_address(*v4_addr.ip());
+        }
+        SocketAddr::V6(v6_addr) => {
+            unsafe {
+                *sockaddr.si_family_mut() = AF_INET6 as u16;
+            }
+
+            let mut v6sockaddr = unsafe { sockaddr.Ipv6_mut() };
+            v6sockaddr.sin6_family = AF_INET6 as u16;
+            v6sockaddr.sin6_port = v6_addr.port().to_be();
+            v6sockaddr.sin6_addr = convert_v6_address(*v6_addr.ip());
+        }
+    }
+
+    sockaddr
+}
+
 impl Tunnel for WgNtTunnel {
     fn get_interface_name(&self) -> String {
         self.interface_name.clone()
@@ -440,4 +553,8 @@ impl Tunnel for WgNtTunnel {
             Ok(())
         }
     }
+}
+
+unsafe fn as_u8_slice<T: Sized>(object: &T) -> &[u8] {
+    std::slice::from_raw_parts(object as *const _ as *const _, mem::size_of::<T>())
 }
