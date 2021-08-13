@@ -62,6 +62,8 @@ type WireGuardGetAdapterNameFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, name: *mut u16) -> BOOL;
 type WireGuardSetConfigurationFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, config: *const u8, bytes: u32) -> BOOL;
+type WireGuardSetStateFn =
+    unsafe extern "stdcall" fn(adapter: RawHandle, state: WgAdapterState) -> BOOL;
 
 type RebootRequired = bool;
 
@@ -156,6 +158,13 @@ struct WgInterface {
     private_key: [u8; WIREGUARD_KEY_LENGTH],
     public_key: [u8; WIREGUARD_KEY_LENGTH],
     peers_count: u32,
+}
+
+/// See `WIREGUARD_ADAPTER_LOG_STATE` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+#[repr(C)]
+enum WgAdapterState {
+    Down,
+    Up,
 }
 
 
@@ -268,6 +277,10 @@ impl WgNtAdapter {
                 .set_config(self.handle, config_buffer.as_ptr(), config_buffer.len())
         }
     }
+
+    fn set_state(&self, state: WgAdapterState) -> io::Result<()> {
+        unsafe { self.dll_handle.set_adapter_state(self.handle, state) }
+    }
 }
 
 impl Drop for WgNtAdapter {
@@ -284,6 +297,7 @@ struct WgNtDll {
     func_get_adapter_luid: WireGuardGetAdapterLuidFn,
     func_get_adapter_name: WireGuardGetAdapterNameFn,
     func_set_configuration: WireGuardSetConfigurationFn,
+    func_set_adapter_state: WireGuardSetStateFn,
 }
 
 unsafe impl Send for WgNtDll {}
@@ -353,6 +367,12 @@ impl WgNtDll {
                     CStr::from_bytes_with_nul(b"WireGuardSetConfiguration\0").unwrap(),
                 )?)
             },
+            func_set_adapter_state: unsafe {
+                std::mem::transmute(get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WireGuardSetAdapterState\0").unwrap(),
+                )?)
+            },
         })
     }
 
@@ -420,6 +440,18 @@ impl WgNtDll {
         config_size: usize,
     ) -> io::Result<()> {
         let result = (self.func_set_configuration)(adapter, config, config_size as u32);
+        if result == 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
+    }
+
+    pub unsafe fn set_adapter_state(
+        &self,
+        adapter: RawHandle,
+        state: WgAdapterState,
+    ) -> io::Result<()> {
+        let result = (self.func_set_adapter_state)(adapter, state);
         if result == 0 {
             return Err(io::Error::last_os_error());
         }
