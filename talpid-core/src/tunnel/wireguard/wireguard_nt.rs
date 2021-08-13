@@ -1,4 +1,8 @@
-use super::{config::Config, stats::Stats, Tunnel};
+use super::{
+    config::Config,
+    stats::{Stats, StatsMap},
+    Tunnel,
+};
 use bitflags::bitflags;
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
@@ -680,11 +684,31 @@ impl Tunnel for WgNtTunnel {
         self.interface_luid.Value
     }
 
-    fn get_tunnel_stats(&self) -> std::result::Result<Stats, super::TunnelError> {
-        Ok(Stats {
-            tx_bytes: 0,
-            rx_bytes: 0,
-        })
+    fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, super::TunnelError> {
+        if let Some(ref device) = self.device {
+            let mut map = StatsMap::new();
+            let (_interface, peers) = device.get_config().map_err(|error| {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to obtain wg-nt tunnel config")
+                );
+                super::TunnelError::StatsError(super::stats::Error::NoTunnelConfig)
+            })?;
+            for (peer, _allowed_ips) in &peers {
+                map.insert(
+                    peer.public_key,
+                    Stats {
+                        tx_bytes: peer.tx_bytes,
+                        rx_bytes: peer.rx_bytes,
+                    },
+                );
+            }
+            Ok(map)
+        } else {
+            Err(super::TunnelError::StatsError(
+                super::stats::Error::NoTunnelDevice,
+            ))
+        }
     }
 
     fn stop(mut self: Box<Self>) -> std::result::Result<(), super::TunnelError> {
