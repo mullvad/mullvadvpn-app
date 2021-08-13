@@ -20,6 +20,7 @@ use winapi::{
         in6addr::IN6_ADDR,
         inaddr::IN_ADDR,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
+        winerror::ERROR_MORE_DATA,
         ws2def::{ADDRESS_FAMILY, AF_INET, AF_INET6},
         ws2ipdef::SOCKADDR_INET,
     },
@@ -62,6 +63,8 @@ type WireGuardGetAdapterNameFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, name: *mut u16) -> BOOL;
 type WireGuardSetConfigurationFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, config: *const u8, bytes: u32) -> BOOL;
+type WireGuardGetConfigurationFn =
+    unsafe extern "stdcall" fn(adapter: RawHandle, config: *const u8, bytes: *mut u32) -> BOOL;
 type WireGuardSetStateFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, state: WgAdapterState) -> BOOL;
 
@@ -106,6 +109,7 @@ pub struct WgNtTunnel {
 const WIREGUARD_KEY_LENGTH: usize = 32;
 
 /// See `WIREGUARD_ALLOWED_IP` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+#[derive(Clone, Copy)]
 #[repr(C, align(8))]
 union WgIpAddr {
     v4: IN_ADDR,
@@ -113,6 +117,7 @@ union WgIpAddr {
 }
 
 /// See `WIREGUARD_ALLOWED_IP` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+#[derive(Clone, Copy)]
 #[repr(C, align(8))]
 struct WgAllowedIp {
     address: WgIpAddr,
@@ -134,6 +139,7 @@ bitflags! {
 }
 
 /// See `WIREGUARD_PEER` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+#[derive(Clone, Copy)]
 #[repr(C, align(8))]
 struct WgPeer {
     flags: WgPeerFlag,
@@ -159,6 +165,7 @@ bitflags! {
 }
 
 /// See `WIREGUARD_INTERFACE` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+#[derive(Clone, Copy)]
 #[repr(C, align(8))]
 struct WgInterface {
     flags: WgInterfaceFlag,
@@ -169,6 +176,7 @@ struct WgInterface {
 }
 
 /// See `WIREGUARD_ADAPTER_LOG_STATE` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
+#[derive(Clone, Copy)]
 #[repr(C)]
 enum WgAdapterState {
     Down,
@@ -299,6 +307,10 @@ impl WgNtAdapter {
         }
     }
 
+    fn get_config(&self) -> io::Result<(WgInterface, Vec<(WgPeer, Vec<WgAllowedIp>)>)> {
+        Ok(unsafe { deserialize_config(&self.dll_handle.get_config(self.handle)?) })
+    }
+
     fn set_state(&self, state: WgAdapterState) -> io::Result<()> {
         unsafe { self.dll_handle.set_adapter_state(self.handle, state) }
     }
@@ -318,6 +330,7 @@ struct WgNtDll {
     func_get_adapter_luid: WireGuardGetAdapterLuidFn,
     func_get_adapter_name: WireGuardGetAdapterNameFn,
     func_set_configuration: WireGuardSetConfigurationFn,
+    func_get_configuration: WireGuardGetConfigurationFn,
     func_set_adapter_state: WireGuardSetStateFn,
 }
 
@@ -386,6 +399,12 @@ impl WgNtDll {
                 std::mem::transmute(get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardSetConfiguration\0").unwrap(),
+                )?)
+            },
+            func_get_configuration: unsafe {
+                std::mem::transmute(get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WireGuardGetConfiguration\0").unwrap(),
                 )?)
             },
             func_set_adapter_state: unsafe {
@@ -465,6 +484,24 @@ impl WgNtDll {
             return Err(io::Error::last_os_error());
         }
         Ok(())
+    }
+
+    pub unsafe fn get_config(&self, adapter: RawHandle) -> io::Result<Vec<u8>> {
+        let mut config_size = 0;
+        let mut config = vec![];
+        loop {
+            let result =
+                (self.func_get_configuration)(adapter, config.as_mut_ptr(), &mut config_size);
+            if result == 0 {
+                let last_error = io::Error::last_os_error();
+                if last_error.raw_os_error() != Some(ERROR_MORE_DATA as i32) {
+                    break Err(last_error);
+                }
+                config.resize(config_size as usize, 0);
+            } else {
+                break Ok(config);
+            }
+        }
     }
 
     pub unsafe fn set_adapter_state(
@@ -552,6 +589,31 @@ fn serialize_config(config: &Config) -> Vec<u8> {
     }
 
     buffer
+}
+
+unsafe fn deserialize_config(config: &[u8]) -> (WgInterface, Vec<(WgPeer, Vec<WgAllowedIp>)>) {
+    let (head, mut tail) = config.split_at(mem::size_of::<WgInterface>());
+    let interface: WgInterface = *(head.as_ptr() as *const WgInterface);
+
+    let mut peers = vec![];
+    for _ in 0..interface.peers_count {
+        let (peer_data, new_tail) = tail.split_at(mem::size_of::<WgPeer>());
+        let peer: WgPeer = *(peer_data.as_ptr() as *const WgPeer);
+        tail = new_tail;
+
+        let mut allowed_ips = vec![];
+
+        for _ in 0..peer.allowed_ips_count {
+            let (allowed_ip_data, new_tail) = tail.split_at(mem::size_of::<WgAllowedIp>());
+            let allowed_ip: WgAllowedIp = *(allowed_ip_data.as_ptr() as *const WgAllowedIp);
+            tail = new_tail;
+            allowed_ips.push(allowed_ip);
+        }
+
+        peers.push((peer, allowed_ips));
+    }
+
+    (interface, peers)
 }
 
 fn convert_v4_address(addr: Ipv4Addr) -> IN_ADDR {
