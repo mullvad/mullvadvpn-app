@@ -5,7 +5,7 @@ use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
     fmt, io, iter, mem,
-    net::{Ipv4Addr, Ipv6Addr, SocketAddr},
+    net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     os::windows::{ffi::OsStrExt, io::RawHandle},
     path::Path,
     ptr,
@@ -102,6 +102,10 @@ pub enum Error {
     /// Failed to set the tunnel state to up
     #[error(display = "Failed to enable the tunnel adapter")]
     EnableTunnelError(#[error(source)] io::Error),
+
+    /// Unknown address family
+    #[error(display = "Unknown address family: {}", _0)]
+    UnknownAddressFamily(i32),
 }
 
 pub struct WgNtTunnel {
@@ -129,6 +133,43 @@ struct WgAllowedIp {
     cidr: u8,
 }
 
+impl PartialEq for WgAllowedIp {
+    fn eq(&self, other: &Self) -> bool {
+        if self.cidr != other.cidr {
+            return false;
+        }
+        match self.address_family as i32 {
+            AF_INET => {
+                inaddr_to_ipaddr(unsafe { self.address.v4 })
+                    == inaddr_to_ipaddr(unsafe { other.address.v4 })
+            }
+            AF_INET6 => {
+                in6addr_to_ipaddr(unsafe { self.address.v6 })
+                    == in6addr_to_ipaddr(unsafe { other.address.v6 })
+            }
+            _ => {
+                log::error!("Allowed IP uses unknown address family");
+                true
+            }
+        }
+    }
+}
+impl Eq for WgAllowedIp {}
+
+impl fmt::Debug for WgAllowedIp {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut s = f.debug_struct("WgAllowedIp");
+        match self.address_family as i32 {
+            AF_INET => s.field("address", &inaddr_to_ipaddr(unsafe { self.address.v4 })),
+            AF_INET6 => s.field("address", &in6addr_to_ipaddr(unsafe { self.address.v6 })),
+            _ => s.field("address", &"<unknown>"),
+        };
+        s.field("address_family", &self.address_family)
+            .field("cidr", &self.cidr)
+            .finish()
+    }
+}
+
 bitflags! {
     /// See `WIREGUARD_PEER_FLAG` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
     struct WgPeerFlag: u32 {
@@ -143,7 +184,7 @@ bitflags! {
 }
 
 /// See `WIREGUARD_PEER` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
-#[derive(Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 #[repr(C, align(8))]
 struct WgPeer {
     flags: WgPeerFlag,
@@ -151,11 +192,59 @@ struct WgPeer {
     public_key: [u8; WIREGUARD_KEY_LENGTH],
     preshared_key: [u8; WIREGUARD_KEY_LENGTH],
     persistent_keepalive: u16,
-    endpoint: SOCKADDR_INET,
+    endpoint: SockAddrInet,
     tx_bytes: u64,
     rx_bytes: u64,
     last_handshake: u64,
     allowed_ips_count: u32,
+}
+
+#[derive(Clone, Copy)]
+#[repr(C)]
+struct SockAddrInet {
+    addr: SOCKADDR_INET,
+}
+
+impl From<SOCKADDR_INET> for SockAddrInet {
+    fn from(addr: SOCKADDR_INET) -> Self {
+        Self { addr }
+    }
+}
+impl PartialEq for SockAddrInet {
+    fn eq(&self, other: &Self) -> bool {
+        let self_addr = match try_sockaddr_to_socket_address(self.addr) {
+            Ok(addr) => addr,
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to convert socket address")
+                );
+                return true;
+            }
+        };
+        let other_addr = match try_sockaddr_to_socket_address(other.addr) {
+            Ok(addr) => addr,
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to convert socket address")
+                );
+                return true;
+            }
+        };
+        self_addr == other_addr
+    }
+}
+impl Eq for SockAddrInet {}
+
+impl fmt::Debug for SockAddrInet {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut s = f.debug_struct("SockAddrInet");
+        let self_addr = try_sockaddr_to_socket_address(self.addr)
+            .map(|addr| addr.to_string())
+            .unwrap_or("<unknown>".to_string());
+        s.field("addr", &self_addr).finish()
+    }
 }
 
 bitflags! {
@@ -169,7 +258,7 @@ bitflags! {
 }
 
 /// See `WIREGUARD_INTERFACE` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
-#[derive(Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 #[repr(C, align(8))]
 struct WgInterface {
     flags: WgInterfaceFlag,
@@ -180,7 +269,7 @@ struct WgInterface {
 }
 
 /// See `WIREGUARD_ADAPTER_LOG_STATE` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
-#[derive(Clone, Copy)]
+#[derive(Debug, Eq, PartialEq, Clone, Copy)]
 #[repr(C)]
 enum WgAdapterState {
     Down,
@@ -585,7 +674,7 @@ fn serialize_config(config: &Config) -> Vec<u8> {
             public_key: peer.public_key.as_bytes().clone(),
             preshared_key: [0u8; WIREGUARD_KEY_LENGTH],
             persistent_keepalive: 0,
-            endpoint: convert_socket_address(peer.endpoint),
+            endpoint: convert_socket_address(peer.endpoint).into(),
             tx_bytes: 0,
             rx_bytes: 0,
             last_handshake: 0,
@@ -695,10 +784,38 @@ fn convert_socket_address(addr: SocketAddr) -> SOCKADDR_INET {
             v6sockaddr.sin6_family = AF_INET6 as u16;
             v6sockaddr.sin6_port = v6_addr.port().to_be();
             v6sockaddr.sin6_addr = convert_v6_address(*v6_addr.ip());
+            v6sockaddr.sin6_flowinfo = v6_addr.flowinfo();
+            *unsafe { v6sockaddr.u.sin6_scope_id_mut() } = v6_addr.scope_id();
         }
     }
 
     sockaddr
+}
+
+fn inaddr_to_ipaddr(addr: IN_ADDR) -> Ipv4Addr {
+    Ipv4Addr::from(unsafe { *(addr.S_un.S_addr()) }.to_be())
+}
+
+fn in6addr_to_ipaddr(addr: IN6_ADDR) -> Ipv6Addr {
+    Ipv6Addr::from(*unsafe { addr.u.Byte() })
+}
+
+fn try_sockaddr_to_socket_address(addr: SOCKADDR_INET) -> Result<SocketAddr> {
+    unsafe {
+        match *addr.si_family() as i32 {
+            AF_INET => Ok(SocketAddr::V4(SocketAddrV4::new(
+                inaddr_to_ipaddr(addr.Ipv4().sin_addr),
+                u16::from_be(addr.Ipv4().sin_port),
+            ))),
+            AF_INET6 => Ok(SocketAddr::V6(SocketAddrV6::new(
+                in6addr_to_ipaddr(addr.Ipv6().sin6_addr),
+                u16::from_be(addr.Ipv6().sin6_port),
+                addr.Ipv6().sin6_flowinfo,
+                *addr.Ipv6().u.sin6_scope_id(),
+            ))),
+            family => Err(Error::UnknownAddressFamily(family)),
+        }
+    }
 }
 
 impl Tunnel for WgNtTunnel {
@@ -753,4 +870,121 @@ impl Tunnel for WgNtTunnel {
 
 unsafe fn as_u8_slice<T: Sized>(object: &T) -> &[u8] {
     std::slice::from_raw_parts(object as *const _ as *const _, mem::size_of::<T>())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use lazy_static::lazy_static;
+    use talpid_types::net::{wireguard, TransportProtocol};
+
+    #[derive(Debug, Eq, PartialEq, Clone, Copy)]
+    #[repr(C)]
+    struct Interface {
+        interface: WgInterface,
+        p0: WgPeer,
+        p0_allowed_ip_0: WgAllowedIp,
+    }
+
+    lazy_static! {
+        static ref WG_PRIVATE_KEY: wireguard::PrivateKey = wireguard::PrivateKey::new_from_random();
+        static ref WG_PUBLIC_KEY: wireguard::PublicKey =
+            wireguard::PrivateKey::new_from_random().public_key();
+        static ref WG_CONFIG: Config = {
+            Config {
+                tunnel: wireguard::TunnelConfig {
+                    private_key: WG_PRIVATE_KEY.clone(),
+                    addresses: vec![],
+                },
+                peers: vec![wireguard::PeerConfig {
+                    public_key: WG_PUBLIC_KEY.clone(),
+                    allowed_ips: vec!["1.3.3.7/24".parse().unwrap()],
+                    endpoint: "1.2.3.4:1234".parse().unwrap(),
+                    protocol: TransportProtocol::Udp,
+                }],
+                ipv4_gateway: "0.0.0.0".parse().unwrap(),
+                ipv6_gateway: None,
+                mtu: 0,
+            }
+        };
+        static ref WG_STRUCT_CONFIG: Interface = Interface {
+            interface: WgInterface {
+                flags: WgInterfaceFlag::HAS_PRIVATE_KEY | WgInterfaceFlag::REPLACE_PEERS,
+                listen_port: 0,
+                private_key: WG_PRIVATE_KEY.to_bytes(),
+                public_key: [0; WIREGUARD_KEY_LENGTH],
+                peers_count: 1,
+            },
+            p0: WgPeer {
+                flags: WgPeerFlag::HAS_PUBLIC_KEY | WgPeerFlag::HAS_ENDPOINT,
+                reserved: 0,
+                public_key: WG_PUBLIC_KEY.as_bytes().clone(),
+                preshared_key: [0; WIREGUARD_KEY_LENGTH],
+                persistent_keepalive: 0,
+                endpoint: convert_socket_address("1.2.3.4:1234".parse().unwrap()).into(),
+                tx_bytes: 0,
+                rx_bytes: 0,
+                last_handshake: 0,
+                allowed_ips_count: 1,
+            },
+            p0_allowed_ip_0: WgAllowedIp {
+                address: WgIpAddr {
+                    v4: convert_v4_address("1.3.3.7".parse().unwrap()),
+                },
+                address_family: AF_INET as u16,
+                cidr: 24,
+            },
+        };
+    }
+
+    fn get_proc_fn(_handle: HMODULE, _symbol: &CStr) -> io::Result<FARPROC> {
+        Ok(std::ptr::null_mut())
+    }
+
+    #[test]
+    fn test_dll_imports() {
+        WgNtDll::new_inner(ptr::null_mut(), get_proc_fn).unwrap();
+    }
+
+    #[test]
+    fn test_sockaddr_v4() {
+        let addr_v4 = SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::new(1, 2, 3, 4), 1234));
+        assert_eq!(
+            addr_v4,
+            try_sockaddr_to_socket_address(convert_socket_address(addr_v4)).unwrap()
+        );
+    }
+
+    #[test]
+    fn test_sockaddr_v6() {
+        let addr_v6 = SocketAddr::V6(SocketAddrV6::new(
+            Ipv6Addr::new(1, 2, 3, 4, 5, 6, 7, 8),
+            1234,
+            0xa,
+            0xb,
+        ));
+        assert_eq!(
+            addr_v6,
+            try_sockaddr_to_socket_address(convert_socket_address(addr_v6)).unwrap()
+        );
+    }
+
+    #[test]
+    fn test_config_serialization() {
+        let serialized_data = serialize_config(&*WG_CONFIG);
+        assert_eq!(mem::size_of::<Interface>(), serialized_data.len());
+        let serialized_iface = &unsafe { *(serialized_data.as_ptr() as *const Interface) };
+        assert_eq!(&*WG_STRUCT_CONFIG, serialized_iface);
+    }
+
+    #[test]
+    fn test_config_deserialization() {
+        let (iface, peers) = unsafe { deserialize_config(as_u8_slice(&*WG_STRUCT_CONFIG)) };
+        assert_eq!(iface, WG_STRUCT_CONFIG.interface);
+        assert_eq!(peers.len(), 1);
+        let (peer, allowed_ips) = &peers[0];
+        assert_eq!(peer, &WG_STRUCT_CONFIG.p0);
+        assert_eq!(allowed_ips.len(), 1);
+        assert_eq!(allowed_ips[0], WG_STRUCT_CONFIG.p0_allowed_ip_0);
+    }
 }
