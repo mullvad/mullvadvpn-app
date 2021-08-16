@@ -32,6 +32,9 @@ Line wrap the file at 100 chars.                                              Th
 - Upgrade OpenVPN from 2.5.1 to 2.5.3.
 - Update Electron from 11.2.3 to 11.4.9.
 
+#### Windows
+- Upgrade Wintun from 0.10.4 to 0.13.
+
 ### Fixed
 - Fix link to download page not always using the beta URL when it should.
 - Fix deadlock that may occur when the API cannot be reached while entering the connecting state.
