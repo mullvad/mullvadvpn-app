@@ -46,8 +46,8 @@ const ADAPTER_GUID: GUID = GUID {
 /// Longest possible adapter name (in characters), including null terminator
 const MAX_ADAPTER_NAME: usize = 128;
 
-// type WintunOpenAdapterFn =
-//    unsafe extern "stdcall" fn(pool: *const u16, name: *const u16) -> RawHandle;
+type WireGuardOpenAdapterFn =
+    unsafe extern "stdcall" fn(pool: *const u16, name: *const u16) -> RawHandle;
 type WireGuardCreateAdapterFn = unsafe extern "stdcall" fn(
     pool: *const u16,
     name: *const u16,
@@ -277,6 +277,11 @@ unsafe impl Send for WgNtAdapter {}
 unsafe impl Sync for WgNtAdapter {}
 
 impl WgNtAdapter {
+    fn open(dll_handle: Arc<WgNtDll>, pool: &U16CStr, name: &U16CStr) -> io::Result<Self> {
+        let handle = dll_handle.open_adapter(pool, name)?;
+        Ok(Self { dll_handle, handle })
+    }
+
     fn create(
         dll_handle: Arc<WgNtDll>,
         pool: &U16CStr,
@@ -324,6 +329,7 @@ impl Drop for WgNtAdapter {
 
 struct WgNtDll {
     handle: HINSTANCE,
+    func_open: WireGuardOpenAdapterFn,
     func_create: WireGuardCreateAdapterFn,
     func_delete: WireGuardDeleteAdapterFn,
     func_free: WireGuardFreeAdapterFn,
@@ -365,6 +371,12 @@ impl WgNtDll {
     ) -> io::Result<Self> {
         Ok(WgNtDll {
             handle,
+            func_open: unsafe {
+                std::mem::transmute(get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WireGuardOpenAdapter\0").unwrap(),
+                )?)
+            },
             func_create: unsafe {
                 std::mem::transmute(get_proc_fn(
                     handle,
@@ -418,6 +430,14 @@ impl WgNtDll {
 
     unsafe fn get_proc_address(handle: HMODULE, name: &CStr) -> io::Result<FARPROC> {
         let handle = GetProcAddress(handle, name.as_ptr());
+        if handle == ptr::null_mut() {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(handle)
+    }
+
+    pub fn open_adapter(&self, pool: &U16CStr, name: &U16CStr) -> io::Result<RawHandle> {
+        let handle = unsafe { (self.func_open)(pool.as_ptr(), name.as_ptr()) };
         if handle == ptr::null_mut() {
             return Err(io::Error::last_os_error());
         }
