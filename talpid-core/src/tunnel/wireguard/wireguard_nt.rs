@@ -83,6 +83,10 @@ pub enum Error {
     #[error(display = "Failed to load wireguard.dll")]
     DllError(#[error(source)] io::Error),
 
+    /// Failed to remove tunnel interface
+    #[error(display = "Failed to remove residual tunnel device")]
+    DeleteExistingTunnelError(#[error(source)] io::Error),
+
     /// Failed to create tunnel interface
     #[error(display = "Failed to create WireGuard device")]
     CreateTunnelDeviceError(#[error(source)] io::Error),
@@ -195,6 +199,12 @@ impl WgNtTunnel {
         resource_dir: &Path,
     ) -> Result<Self> {
         let dll = load_wg_nt_dll(resource_dir)?;
+
+        {
+            if let Ok(device) = WgNtAdapter::open(dll.clone(), &*ADAPTER_POOL, &*ADAPTER_ALIAS) {
+                device.delete().map_err(Error::DeleteExistingTunnelError)?;
+            }
+        }
 
         let (device, reboot_required) = WgNtAdapter::create(
             dll,
