@@ -8,6 +8,7 @@ import SelectLocation from '../components/SelectLocation';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
+import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 import userInterfaceActions from '../redux/userinterface/actions';
 import { LocationScope } from '../redux/userinterface/reducers';
@@ -35,7 +36,10 @@ const mapStateToProps = (state: IReduxState) => {
   return {
     selectedExitLocation,
     selectedBridgeLocation,
-    relayLocations: state.settings.relayLocations,
+    relayLocations: filterLocationsByProvider(
+      state.settings.relayLocations,
+      state.settings.relaySettings,
+    ),
     bridgeLocations: state.settings.bridgeLocations,
     locationScope,
     allowBridgeSelection,
@@ -87,6 +91,28 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IApp
     },
   };
 };
+
+function filterLocationsByProvider(
+  locations: IRelayLocationRedux[],
+  relaySettings: RelaySettingsRedux,
+): IRelayLocationRedux[] {
+  const providers =
+    'normal' in relaySettings && relaySettings.normal.providers.length > 0
+      ? relaySettings.normal.providers
+      : undefined;
+
+  return locations
+    .map((country) => ({
+      ...country,
+      cities: country.cities
+        .map((city) => ({
+          ...city,
+          relays: city.relays.filter((relay) => providers?.includes(relay.provider) ?? true),
+        }))
+        .filter((city) => city.relays.length > 0),
+    }))
+    .filter((country) => country.cities.length > 0);
+}
 
 export default withAppContext(
   withHistory(connect(mapStateToProps, mapDispatchToProps)(SelectLocation)),
