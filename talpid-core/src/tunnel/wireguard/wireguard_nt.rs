@@ -271,6 +271,7 @@ struct WgInterface {
 /// See `WIREGUARD_ADAPTER_LOG_STATE` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
 #[derive(Debug, Eq, PartialEq, Clone, Copy)]
 #[repr(C)]
+#[allow(dead_code)]
 enum WgAdapterState {
     Down,
     Up,
