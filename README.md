@@ -436,7 +436,7 @@ echo "org.gradle.jvmargs=-Xmx4608M" >> ~/.gradle/gradle.properties
     * `"network-manager"`: use `NetworkManager` service through DBus
 
 * `TALPID_FORCE_USERSPACE_WIREGUARD` - Forces the daemon to use the userspace implementation of
-   WireGuard on Linux.
+   WireGuard on Linux and Windows.
 
 * `TALPID_DNS_CACHE_POLICY` - On Windows, this changes how DNS is configured:
   * `1`: The default. This sets a global list of DNS servers that `dnscache` will use instead of

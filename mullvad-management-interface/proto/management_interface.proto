@@ -69,6 +69,8 @@ service ManagementService {
 	rpc RemoveSplitTunnelApp(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 	rpc ClearSplitTunnelApps(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc SetSplitTunnelState(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
+
+	rpc SetUseWireguardNt(google.protobuf.BoolValue) returns (google.protobuf.Empty) {}
 }
 
 message RelaySettingsUpdate {
@@ -379,6 +381,7 @@ message TunnelOptions {
 	message WireguardOptions {
 		uint32 mtu = 1;
 		google.protobuf.Duration rotation_interval = 2;
+		bool use_wireguard_nt = 3;
 	}
 	message GenericOptions {
 		bool enable_ipv6 = 1;
