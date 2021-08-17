@@ -48,6 +48,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix incorrect WireGuard relay filtering when exit and entry locations overlap.
 - Fix wrong translations when switching to/from unpinned window after changing language in the
   desktop app.
+- Fix in-app notification button not working for some notifications.
 
 #### Linux
 - Make offline monitor aware of routing table changes.
