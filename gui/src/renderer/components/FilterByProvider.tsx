@@ -163,7 +163,7 @@ const StyledCheckbox = styled.div({
   borderRadius: '4px',
 });
 
-const StyledRowTitle = styled.span((props: IStyledRowTitleProps) => ({
+const StyledRowTitle = styled.label((props: IStyledRowTitleProps) => ({
   ...mediumText,
   fontSize: '16px',
   fontWeight: props.bold ? 800 : 600,
@@ -182,10 +182,12 @@ function ProviderRow(props: IProviderRowProps) {
 
   return (
     <StyledRow onClick={onCheck}>
-      <StyledCheckbox>
+      <StyledCheckbox role="checkbox" aria-label={props.provider} aria-checked={props.checked}>
         {props.checked && <ImageView source="icon-tick" width={16} tintColor={colors.green} />}
       </StyledCheckbox>
-      <StyledRowTitle bold={props.bold}>{props.provider}</StyledRowTitle>
+      <StyledRowTitle aria-hidden bold={props.bold}>
+        {props.provider}
+      </StyledRowTitle>
     </StyledRow>
   );
 }

@@ -123,7 +123,9 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                 <TitleBarItem />
 
                 <StyledFilterContainer ref={this.filterButtonRef}>
-                  <StyledFilterIconButton onClick={this.toggleFilterMenu}>
+                  <StyledFilterIconButton
+                    onClick={this.toggleFilterMenu}
+                    aria-label={messages.gettext('Filter')}>
                     <ImageView
                       source="icon-filter-round"
                       tintColor={colors.white60}
