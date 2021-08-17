@@ -5,6 +5,7 @@
 #include "log.h"
 #include "version.h"
 #include "wintun.h"
+#include "wireguard.h"
 #include "devenum.h"
 #include <string>
 #include <libcommon/error.h>
@@ -278,6 +279,32 @@ ReturnCode CommandWintunDeleteAbandonedDevice(const std::vector<std::wstring> &a
 	return GENERAL_SUCCESS;
 }
 
+ReturnCode CommandWireGuardNtCleanup(const std::vector<std::wstring> &args)
+{
+	ArgumentContext argsContext(args);
+
+	argsContext.ensureExactArgumentCount(1);
+
+	const auto poolName = argsContext.next();
+
+	WireGuardNtDll wgNt;
+
+	BOOL rebootRequired;
+
+	if (FALSE == wgNt.deletePoolDriver(poolName.c_str(), &rebootRequired))
+	{
+		throw std::runtime_error("Failed to delete WireGuardNT pool");
+	}
+
+	std::wstringstream ss;
+
+	ss << L"Successfully deleted WireGuardNT pool. Reboot required: " << rebootRequired;
+
+	Log(ss.str());
+
+	return ReturnCode::GENERAL_SUCCESS;
+}
+
 } // anonymous namespace
 
 int wmain(int argc, const wchar_t *argv[])
@@ -325,7 +352,8 @@ int wmain(int argc, const wchar_t *argv[])
 		{ L"st-force-install", CommandSplitTunnelForceInstall },
 		{ L"st-remove", CommandSplitTunnelRemove },
 		{ L"wintun-delete-pool-driver", CommandWintunDeletePool },
-		{ L"wintun-delete-abandoned-device", CommandWintunDeleteAbandonedDevice }
+		{ L"wintun-delete-abandoned-device", CommandWintunDeleteAbandonedDevice },
+		{ L"wg-nt-cleanup", CommandWireGuardNtCleanup }
 	};
 
 	//
