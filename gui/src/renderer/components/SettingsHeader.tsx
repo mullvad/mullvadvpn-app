@@ -18,11 +18,12 @@ export const HeaderSubTitle = styled.span(smallText);
 
 interface ISettingsHeaderProps {
   children?: React.ReactNode;
+  className?: string;
 }
 
 export default function SettingsHeader(props: ISettingsHeaderProps) {
   return (
-    <Container>
+    <Container className={props.className}>
       {React.Children.map(props.children, (child) => {
         return React.isValidElement(child) ? <ContentWrapper>{child}</ContentWrapper> : undefined;
       })}

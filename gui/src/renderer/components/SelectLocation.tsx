@@ -1,4 +1,5 @@
 import React from 'react';
+import { sprintf } from 'sprintf-js';
 import { colors } from '../../config.json';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
@@ -28,8 +29,12 @@ import {
   StyledNavigationBarAttachment,
   StyledScopeBar,
   StyledFilterByProviderButton,
+  StyledProvidersCount,
+  StyledProviderCountRow,
+  StyledClearProvidersButton,
+  StyledSettingsHeader,
 } from './SelectLocationStyles';
-import { HeaderSubTitle } from './SettingsHeader';
+import { HeaderTitle } from './SettingsHeader';
 
 interface IProps {
   locationScope: LocationScope;
@@ -38,12 +43,14 @@ interface IProps {
   relayLocations: IRelayLocationRedux[];
   bridgeLocations: IRelayLocationRedux[];
   allowBridgeSelection: boolean;
+  providers: string[];
   onClose: () => void;
   onViewFilterByProvider: () => void;
   onChangeLocationScope: (location: LocationScope) => void;
   onSelectExitLocation: (location: RelayLocation) => void;
   onSelectBridgeLocation: (location: RelayLocation) => void;
   onSelectClosestToExit: () => void;
+  onClearProviders: () => void;
 }
 
 interface IState {
@@ -113,12 +120,7 @@ export default class SelectLocation extends React.Component<IProps, IState> {
             <NavigationBar alwaysDisplayBarTitle={true}>
               <NavigationItems>
                 <CloseBarItem action={this.props.onClose} />
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('select-location-nav', 'Select location')
-                  }
-                </TitleBarItem>
+                <TitleBarItem />
 
                 <StyledFilterContainer ref={this.filterButtonRef}>
                   <StyledFilterIconButton onClick={this.toggleFilterMenu}>
@@ -140,17 +142,42 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                 </StyledFilterContainer>
               </NavigationItems>
               <StyledNavigationBarAttachment>
-                <HeaderSubTitle>
-                  {this.props.allowBridgeSelection
-                    ? messages.pgettext(
-                        'select-location-view',
-                        'While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server).',
-                      )
-                    : messages.pgettext(
-                        'select-location-view',
-                        'While connected, your real location is masked with a private and secure location in the selected region.',
+                <StyledSettingsHeader>
+                  <HeaderTitle>
+                    {
+                      // TRANSLATORS: Heading in select location view
+                      messages.pgettext('select-location-nav', 'Select location')
+                    }
+                  </HeaderTitle>
+                </StyledSettingsHeader>
+
+                {this.props.providers.length > 0 && (
+                  <StyledProviderCountRow>
+                    {messages.pgettext('select-location-view', 'Filtered:')}
+                    <StyledProvidersCount>
+                      {sprintf(
+                        messages.pgettext(
+                          'select-location-view',
+                          'Providers: %(numberOfProviders)d',
+                        ),
+                        {
+                          numberOfProviders: this.props.providers.length,
+                        },
                       )}
-                </HeaderSubTitle>
+                      <StyledClearProvidersButton
+                        aria-label={messages.gettext('Clear')}
+                        onClick={this.props.onClearProviders}>
+                        <ImageView
+                          height={16}
+                          width={16}
+                          source="icon-close"
+                          tintColor={colors.white60}
+                          tintHoverColor={colors.white80}
+                        />
+                      </StyledClearProvidersButton>
+                    </StyledProvidersCount>
+                  </StyledProviderCountRow>
+                )}
                 {this.props.allowBridgeSelection && (
                   <StyledScopeBar
                     defaultSelectedIndex={this.props.locationScope}

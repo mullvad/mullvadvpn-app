@@ -8,7 +8,7 @@ import SelectLocation from '../components/SelectLocation';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
-import { IRelayLocationRedux, RelaySettingsRedux } from '../redux/settings/reducers';
+import { IRelayLocationRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 import userInterfaceActions from '../redux/userinterface/actions';
 import { LocationScope } from '../redux/userinterface/reducers';
@@ -33,16 +33,17 @@ const mapStateToProps = (state: IReduxState) => {
     ? state.userInterface.locationScope
     : LocationScope.relay;
 
+  const relaySettings = state.settings.relaySettings;
+  const providers = 'normal' in relaySettings ? relaySettings.normal.providers : [];
+
   return {
     selectedExitLocation,
     selectedBridgeLocation,
-    relayLocations: filterLocationsByProvider(
-      state.settings.relayLocations,
-      state.settings.relaySettings,
-    ),
+    relayLocations: filterLocationsByProvider(state.settings.relayLocations, providers),
     bridgeLocations: state.settings.bridgeLocations,
     locationScope,
     allowBridgeSelection,
+    providers,
   };
 };
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
@@ -89,29 +90,29 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IApp
         log.error(`Failed to set the bridge location to closest to exit: ${e.message}`);
       }
     },
+    onClearProviders: async () => {
+      await props.app.updateRelaySettings({ normal: { providers: [] } });
+    },
   };
 };
 
 function filterLocationsByProvider(
   locations: IRelayLocationRedux[],
-  relaySettings: RelaySettingsRedux,
+  providers: string[],
 ): IRelayLocationRedux[] {
-  const providers =
-    'normal' in relaySettings && relaySettings.normal.providers.length > 0
-      ? relaySettings.normal.providers
-      : undefined;
-
-  return locations
-    .map((country) => ({
-      ...country,
-      cities: country.cities
-        .map((city) => ({
-          ...city,
-          relays: city.relays.filter((relay) => providers?.includes(relay.provider) ?? true),
+  return providers.length === 0
+    ? locations
+    : locations
+        .map((country) => ({
+          ...country,
+          cities: country.cities
+            .map((city) => ({
+              ...city,
+              relays: city.relays.filter((relay) => providers.includes(relay.provider)),
+            }))
+            .filter((city) => city.relays.length > 0),
         }))
-        .filter((city) => city.relays.length > 0),
-    }))
-    .filter((country) => country.cities.length > 0);
+        .filter((country) => country.cities.length > 0);
 }
 
 export default withAppContext(
