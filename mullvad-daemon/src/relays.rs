@@ -117,6 +117,18 @@ impl ParsedRelays {
                         latitude,
                         longitude,
                     });
+
+                    for wg_tunnel in &relay.tunnels.wireguard {
+                        relay_with_location
+                            .tunnels
+                            .wireguard
+                            .push(WireguardEndpointData {
+                                protocol: TransportProtocol::Tcp,
+                                port_ranges: WIREGUARD_TCP_PORTS.to_vec(),
+                                ..wg_tunnel.clone()
+                            });
+                    }
+
                     relays.push(relay_with_location);
                 }
             }
@@ -761,20 +773,6 @@ impl RelaySelector {
         tunnels: &RelayTunnels,
         constraints: &WireguardConstraints,
     ) -> Vec<WireguardEndpointData> {
-        match constraints.port {
-            Constraint::Only(port) if port.protocol == TransportProtocol::Tcp => {
-                if let Constraint::Only(port) = port.port {
-                    if !WIREGUARD_TCP_PORTS
-                        .iter()
-                        .any(|range| port >= range.0 && port <= range.1)
-                    {
-                        return vec![];
-                    }
-                }
-                return tunnels.wireguard.clone();
-            }
-            _ => (),
-        }
         tunnels
             .wireguard
             .iter()
@@ -914,13 +912,6 @@ impl RelaySelector {
         data: &WireguardEndpointData,
         constraints: &WireguardConstraints,
     ) -> Option<u16> {
-        let port_ranges = match constraints.port {
-            Constraint::Only(port) if port.protocol == TransportProtocol::Tcp => {
-                &WIREGUARD_TCP_PORTS[..]
-            }
-            _ => &data.port_ranges,
-        };
-
         match constraints
             .port
             .as_ref()
@@ -930,7 +921,7 @@ impl RelaySelector {
             Constraint::Any => {
                 let get_port_amount =
                     |range: &(u16, u16)| -> u64 { (1 + range.1 - range.0) as u64 };
-                let port_amount: u64 = port_ranges.iter().map(get_port_amount).sum();
+                let port_amount: u64 = data.port_ranges.iter().map(get_port_amount).sum();
 
                 if port_amount < 1 {
                     return None;
@@ -938,7 +929,7 @@ impl RelaySelector {
 
                 let mut port_index = self.rng.gen_range(0, port_amount);
 
-                for range in port_ranges.iter() {
+                for range in data.port_ranges.iter() {
                     let ports_in_range = get_port_amount(range);
                     if port_index < ports_in_range {
                         return Some(port_index as u16 + range.0);
@@ -949,7 +940,8 @@ impl RelaySelector {
                 None
             }
             Constraint::Only(port) => {
-                if port_ranges
+                if data
+                    .port_ranges
                     .iter()
                     .any(|range| (range.0 <= port && port <= range.1))
                 {
@@ -1204,6 +1196,7 @@ mod test {
                                                 ipv4_gateway: "10.64.0.1".parse().unwrap(),
                                                 ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
                                                 public_key: PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
+                                                protocol: TransportProtocol::Udp,
                                             },
                                         ],
                                     },
@@ -1237,6 +1230,7 @@ mod test {
                                                 ipv4_gateway: "10.64.0.1".parse().unwrap(),
                                                 ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
                                                 public_key: PublicKey::from_base64("veGD6/aEY6sMfN3Ls7YWPmNgu3AheO7nQqsFT47YSws=").unwrap(),
+                                                protocol: TransportProtocol::Udp,
                                             },
                                         ],
                                     },
