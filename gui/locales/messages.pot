@@ -60,6 +60,9 @@ msgid_plural "%d hours ago"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "Apply"
+msgstr ""
+
 msgid "Back"
 msgstr ""
 
@@ -76,6 +79,9 @@ msgid "Buy more credit"
 msgstr ""
 
 msgid "Cancel"
+msgstr ""
+
+msgid "Clear"
 msgstr ""
 
 msgid "Close"
@@ -97,6 +103,9 @@ msgid "Dismiss"
 msgstr ""
 
 msgid "FAILED TO SECURE CONNECTION"
+msgstr ""
+
+msgid "Filter"
 msgstr ""
 
 msgid "Got it!"
@@ -489,6 +498,20 @@ msgstr ""
 #. %(email)s - support email
 msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
+msgstr ""
+
+#. Title label in navigation bar
+msgctxt "filter-by-provider-nav"
+msgid "Filter by provider"
+msgstr ""
+
+#. Back button in navigation bar
+msgctxt "filter-by-provider-nav"
+msgid "Select location"
+msgstr ""
+
+msgctxt "filter-by-provider-view"
+msgid "All providers"
 msgstr ""
 
 msgctxt "generic"
@@ -911,7 +934,7 @@ msgctxt "select-location-nav"
 msgid "Exit"
 msgstr ""
 
-#. Title label in navigation bar
+#. Heading in select location view
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr ""
@@ -921,11 +944,15 @@ msgid "Closest to exit server"
 msgstr ""
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgid "Filter by provider"
 msgstr ""
 
 msgctxt "select-location-view"
-msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
+msgid "Filtered:"
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Providers: %(numberOfProviders)d"
 msgstr ""
 
 #. Navigation button to the 'Account' view
@@ -1334,6 +1361,9 @@ msgid "VPN tunnel status"
 msgstr ""
 
 msgid "Virtual adapter error"
+msgstr ""
+
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
 msgstr ""
 
 msgid "WireGuard error"
