@@ -4,9 +4,9 @@ use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::routing::{self, RequiredRoute};
 use futures::future::abortable;
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "windows"))]
 use lazy_static::lazy_static;
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "windows"))]
 use std::env;
 #[cfg(windows)]
 use std::io;
@@ -103,6 +103,14 @@ lazy_static! {
         .unwrap_or(false);
 
     static ref FORCE_NM_WIREGUARD: bool = env::var("TALPID_FORCE_NM_WIREGUARD")
+        .map(|v| v != "0")
+        .unwrap_or(false);
+}
+
+#[cfg(target_os = "windows")]
+lazy_static! {
+    /// Overrides the preference for the kernel module for WireGuard.
+    static ref FORCE_USERSPACE_WIREGUARD: bool = env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
         .map(|v| v != "0")
         .unwrap_or(false);
 }
@@ -368,16 +376,18 @@ impl WireguardMonitor {
         }
 
         #[cfg(target_os = "windows")]
-        match wireguard_nt::WgNtTunnel::start_tunnel(config, resource_dir) {
-            Ok(tunnel) => {
-                log::debug!("Using WireGuardNT");
-                return Ok(Box::new(tunnel));
-            }
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to setup WireGuardNT tunnel")
-                );
+        if !*FORCE_USERSPACE_WIREGUARD {
+            match wireguard_nt::WgNtTunnel::start_tunnel(config, resource_dir) {
+                Ok(tunnel) => {
+                    log::debug!("Using WireGuardNT");
+                    return Ok(Box::new(tunnel));
+                }
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to setup WireGuardNT tunnel")
+                    );
+                }
             }
         }
 
