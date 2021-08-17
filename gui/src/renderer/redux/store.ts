@@ -1,3 +1,4 @@
+import { useSelector as useReduxSelector } from 'react-redux';
 import { combineReducers, compose, createStore, Dispatch } from 'redux';
 
 import accountActions, { AccountAction } from './account/actions';
@@ -61,4 +62,8 @@ function composeEnhancers(): typeof compose {
     ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({ actionCreators })()
     : compose();
+}
+
+export function useSelector<R>(fn: (state: IReduxState) => R): R {
+  return useReduxSelector(fn);
 }
