@@ -52,6 +52,7 @@
 		581503A724D6F4AE00C9C50E /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581503A524D6F4AE00C9C50E /* Logging.swift */; };
 		581CBCEE229826FD00727D7F /* StaticTableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */; };
 		581FC4FA2695ACE100AA97BA /* Account.strings in Resources */ = {isa = PBXBuildFile; fileRef = 581FC4F82695ACE100AA97BA /* Account.strings */; };
+		5823FA5026CA690600283BF8 /* OSLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5823FA4F26CA690600283BF8 /* OSLogHandler.swift */; };
 		58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */; };
 		58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB025124117005D0BB5 /* CustomTextField.swift */; };
 		58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB2251241B3005D0BB5 /* CustomTextView.swift */; };
@@ -213,6 +214,7 @@
 		58CE5E81224146470008646E /* PacketTunnel.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 58CE5E79224146470008646E /* PacketTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		58D0C79E23F1CEBA00FE9BA7 /* SnapshotHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D0C79D23F1CEBA00FE9BA7 /* SnapshotHelper.swift */; };
 		58D0C7A223F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58D0C7A023F1CECF00FE9BA7 /* MullvadVPNScreenshots.swift */; };
+		58D67A0A26D7AE3300557C3C /* OSLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5823FA4F26CA690600283BF8 /* OSLogHandler.swift */; };
 		58DF28A52417CB4B00E836B0 /* AppStorePaymentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58DF28A42417CB4B00E836B0 /* AppStorePaymentManager.swift */; };
 		58E6771F24ADFE7800AA26E7 /* SettingsNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58E6771E24ADFE7800AA26E7 /* SettingsNavigationController.swift */; };
 		58EF580B25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EF580A25D69D7A00AEBA94 /* ProblemReportSubmissionOverlayView.swift */; };
@@ -336,6 +338,7 @@
 		581503A524D6F4AE00C9C50E /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticTableViewDataSource.swift; sourceTree = "<group>"; };
 		581FC4F92695ACE100AA97BA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Account.strings; sourceTree = "<group>"; };
+		5823FA4F26CA690600283BF8 /* OSLogHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogHandler.swift; sourceTree = "<group>"; };
 		58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportViewController.swift; sourceTree = "<group>"; };
 		58293FB025124117005D0BB5 /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
 		58293FB2251241B3005D0BB5 /* CustomTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextView.swift; sourceTree = "<group>"; };
@@ -569,6 +572,7 @@
 				58C3B06824EAA25000C0348E /* StringStreamIterator.swift */,
 				5815039C24D6ECE600C9C50E /* TextFileOutputStream.swift */,
 				58141EC824DAC0ED0013F79C /* TextFileStream.swift */,
+				5823FA4F26CA690600283BF8 /* OSLogHandler.swift */,
 			);
 			path = Logging;
 			sourceTree = "<group>";
@@ -1220,6 +1224,7 @@
 				58B43C1925F77DB60002C8C3 /* ConnectMainContentView.swift in Sources */,
 				58561C99239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
 				58FD5BF22424F7D700112C88 /* UserInterfaceInteractionRestriction.swift in Sources */,
+				5823FA5026CA690600283BF8 /* OSLogHandler.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
 				58141EC924DAC0ED0013F79C /* TextFileStream.swift in Sources */,
 				58C3A4B222456F1B00340BDB /* AccountInputGroupView.swift in Sources */,
@@ -1275,6 +1280,7 @@
 				584E96BD240FD4DA00D3334F /* Location.swift in Sources */,
 				58FAEDF8245088E100CB0F5B /* Keychain.swift in Sources */,
 				58F840B32464491D0044E708 /* ChainedError.swift in Sources */,
+				58D67A0A26D7AE3300557C3C /* OSLogHandler.swift in Sources */,
 				580EE20A24B3224200F9D8A1 /* RetryOperation.swift in Sources */,
 				58561C9A239A5D1500BD6B5E /* IPEndpoint.swift in Sources */,
 				580EE22524B3243100F9D8A1 /* AsyncBlockOperation.swift in Sources */,
