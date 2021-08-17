@@ -68,6 +68,29 @@ type WireGuardGetConfigurationFn =
 type WireGuardSetStateFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, state: WgAdapterState) -> BOOL;
 
+
+#[repr(C)]
+#[allow(dead_code)]
+enum WireGuardLoggerLevel {
+    Info,
+    Warn,
+    Err,
+}
+
+type WireGuardLoggerCb = extern "stdcall" fn(WireGuardLoggerLevel, timestamp: u64, *const u16);
+type WireGuardSetLoggerFn = extern "stdcall" fn(Option<WireGuardLoggerCb>);
+
+#[repr(C)]
+#[allow(dead_code)]
+enum WireGuardAdapterLogState {
+    Off,
+    On,
+    OnWithPrefix,
+}
+
+type WireGuardSetAdapterLoggingFn =
+    unsafe extern "stdcall" fn(adapter: RawHandle, state: WireGuardAdapterLogState) -> BOOL;
+
 type RebootRequired = bool;
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -109,6 +132,7 @@ pub enum Error {
 }
 
 pub struct WgNtTunnel {
+    _logger_handle: LoggerHandle,
     device: Option<WgNtAdapter>,
     interface_luid: NET_LUID,
     interface_name: String,
@@ -279,12 +303,10 @@ enum WgAdapterState {
 
 
 impl WgNtTunnel {
-    pub fn start_tunnel(
-        config: &Config,
-        log_path: Option<&Path>,
-        resource_dir: &Path,
-    ) -> Result<Self> {
+    pub fn start_tunnel(config: &Config, resource_dir: &Path) -> Result<Self> {
         let dll = load_wg_nt_dll(resource_dir)?;
+
+        let logger_handle = LoggerHandle::new(dll.clone());
 
         {
             if let Ok(device) = WgNtAdapter::open(dll.clone(), &*ADAPTER_POOL, &*ADAPTER_ALIAS) {
@@ -293,7 +315,7 @@ impl WgNtTunnel {
         }
 
         let (device, reboot_required) = WgNtAdapter::create(
-            dll,
+            dll.clone(),
             &*ADAPTER_POOL,
             &*ADAPTER_ALIAS,
             Some(ADAPTER_GUID.clone()),
@@ -319,6 +341,7 @@ impl WgNtTunnel {
         };
 
         let tunnel = WgNtTunnel {
+            _logger_handle: logger_handle,
             device: Some(device),
             interface_luid,
             interface_name,
@@ -338,6 +361,12 @@ impl WgNtTunnel {
 
     fn configure(&self, config: &Config) -> Result<()> {
         let device = self.device.as_ref().unwrap();
+        if let Err(error) = device.set_logging(WireGuardAdapterLogState::On) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to set log state on WireGuard interface")
+            );
+        }
         device
             .set_config(config)
             .map_err(Error::SetWireGuardConfigError)?;
@@ -356,6 +385,38 @@ impl Drop for WgNtTunnel {
                 error.display_chain_with_msg("Failed to stop WireGuardNT tunnel")
             );
         }
+    }
+}
+
+struct LoggerHandle(Arc<WgNtDll>);
+
+impl LoggerHandle {
+    fn new(dll: Arc<WgNtDll>) -> Self {
+        dll.set_logger(Some(Self::callback));
+        Self(dll)
+    }
+
+    extern "stdcall" fn callback(
+        level: WireGuardLoggerLevel,
+        _timestamp: u64,
+        message: *const u16,
+    ) {
+        if message.is_null() {
+            return;
+        }
+        let message = unsafe { U16CStr::from_ptr_str(message) };
+        use WireGuardLoggerLevel::*;
+        match level {
+            Info => log::debug!("[WireGuardNT] {}", message.to_string_lossy()),
+            Warn => log::warn!("[WireGuardNT] {}", message.to_string_lossy()),
+            Err => log::error!("[WireGuardNT] {}", message.to_string_lossy()),
+        }
+    }
+}
+
+impl Drop for LoggerHandle {
+    fn drop(&mut self) {
+        self.0.set_logger(None);
     }
 }
 
@@ -419,6 +480,10 @@ impl WgNtAdapter {
     fn set_state(&self, state: WgAdapterState) -> io::Result<()> {
         unsafe { self.dll_handle.set_adapter_state(self.handle, state) }
     }
+
+    fn set_logging(&self, state: WireGuardAdapterLogState) -> io::Result<()> {
+        unsafe { self.dll_handle.set_adapter_logging(self.handle, state) }
+    }
 }
 
 impl Drop for WgNtAdapter {
@@ -438,6 +503,8 @@ struct WgNtDll {
     func_set_configuration: WireGuardSetConfigurationFn,
     func_get_configuration: WireGuardGetConfigurationFn,
     func_set_adapter_state: WireGuardSetStateFn,
+    func_set_logger: WireGuardSetLoggerFn,
+    func_set_adapter_logging: WireGuardSetAdapterLoggingFn,
 }
 
 unsafe impl Send for WgNtDll {}
@@ -523,6 +590,18 @@ impl WgNtDll {
                 std::mem::transmute(get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardSetAdapterState\0").unwrap(),
+                )?)
+            },
+            func_set_logger: unsafe {
+                std::mem::transmute(get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WireGuardSetLogger\0").unwrap(),
+                )?)
+            },
+            func_set_adapter_logging: unsafe {
+                std::mem::transmute(get_proc_fn(
+                    handle,
+                    CStr::from_bytes_with_nul(b"WireGuardSetAdapterLogging\0").unwrap(),
                 )?)
             },
         })
@@ -631,6 +710,21 @@ impl WgNtDll {
     ) -> io::Result<()> {
         let result = (self.func_set_adapter_state)(adapter, state);
         if result == 0 {
+            return Err(io::Error::last_os_error());
+        }
+        Ok(())
+    }
+
+    pub fn set_logger(&self, cb: Option<WireGuardLoggerCb>) {
+        (self.func_set_logger)(cb);
+    }
+
+    pub unsafe fn set_adapter_logging(
+        &self,
+        adapter: RawHandle,
+        state: WireGuardAdapterLogState,
+    ) -> io::Result<()> {
+        if (self.func_set_adapter_logging)(adapter, state) == 0 {
             return Err(io::Error::last_os_error());
         }
         Ok(())
