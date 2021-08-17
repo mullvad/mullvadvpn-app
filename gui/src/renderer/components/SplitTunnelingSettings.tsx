@@ -534,8 +534,8 @@ function ApplicationRow<T extends IApplication>(props: IApplicationRowProps<T>) 
           width={24}
           height={24}
           onClick={onSelect}
-          tintColor={colors.white60}
-          tintHoverColor={colors.white80}
+          tintColor={colors.white40}
+          tintHoverColor={colors.white60}
         />
       )}
       {props.onRemove && (
@@ -544,8 +544,8 @@ function ApplicationRow<T extends IApplication>(props: IApplicationRowProps<T>) 
           width={24}
           height={24}
           onClick={onRemove}
-          tintColor={colors.white60}
-          tintHoverColor={colors.white80}
+          tintColor={colors.white40}
+          tintHoverColor={colors.white60}
         />
       )}
     </Cell.CellButton>

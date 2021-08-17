@@ -279,8 +279,8 @@ export function CloseBarItem(props: ICloseBarItemProps) {
         height={24}
         width={24}
         source={iconName}
-        tintColor={colors.white60}
-        tintHoverColor={colors.white80}
+        tintColor={colors.white40}
+        tintHoverColor={colors.white60}
       />
     </StyledCloseBarItemButton>
   );
@@ -294,7 +294,7 @@ interface IBackBarItemProps {
 export function BackBarItem(props: IBackBarItemProps) {
   return (
     <StyledBackBarItemButton onClick={props.action}>
-      <StyledBackBarItemIcon source="icon-back" tintColor={colors.white60} />
+      <StyledBackBarItemIcon source="icon-back" tintColor={colors.white40} />
       <StyledBackBarItemLabel>{props.children}</StyledBackBarItemLabel>
     </StyledBackBarItemButton>
   );
