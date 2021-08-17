@@ -914,7 +914,6 @@ impl RelaySelector {
         data: &WireguardEndpointData,
         constraints: &WireguardConstraints,
     ) -> Option<u16> {
-        // TODO: The relay list does not currently provide TCP ports.
         let port_ranges = match constraints.port {
             Constraint::Only(port) if port.protocol == TransportProtocol::Tcp => {
                 &WIREGUARD_TCP_PORTS[..]
