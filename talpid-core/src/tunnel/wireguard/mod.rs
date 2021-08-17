@@ -355,16 +355,18 @@ impl WireguardMonitor {
         }
 
         #[cfg(target_os = "windows")]
-        match wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir) {
-            Ok(tunnel) => {
-                log::debug!("Using WireGuardNT");
-                return Ok(Box::new(tunnel));
-            }
-            Err(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to setup WireGuardNT tunnel")
-                );
+        if config.use_wireguard_nt {
+            match wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir) {
+                Ok(tunnel) => {
+                    log::debug!("Using WireGuardNT");
+                    return Ok(Box::new(tunnel));
+                }
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to setup WireGuardNT tunnel")
+                    );
+                }
             }
         }
 

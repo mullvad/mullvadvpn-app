@@ -1058,6 +1058,7 @@ mod tests {
                 ipv4_gateway: "0.0.0.0".parse().unwrap(),
                 ipv6_gateway: None,
                 mtu: 0,
+                use_wireguard_nt: true,
             }
         };
         static ref WG_STRUCT_CONFIG: Interface = Interface {

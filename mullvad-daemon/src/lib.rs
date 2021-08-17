@@ -281,6 +281,9 @@ pub enum DaemonCommand {
     /// Disable split tunnel
     #[cfg(windows)]
     SetSplitTunnelState(ResponseTx<(), Error>, bool),
+    /// Toggle wireguard-nt on or off
+    #[cfg(target_os = "windows")]
+    UseWireGuardNt(ResponseTx<(), Error>, bool),
     /// Makes the daemon exit the main loop and quit.
     Shutdown,
     /// Saves the target tunnel state and enters a blocking state. The state is restored
@@ -1230,6 +1233,8 @@ where
             ClearSplitTunnelApps(tx) => self.on_clear_split_tunnel_apps(tx).await,
             #[cfg(windows)]
             SetSplitTunnelState(tx, enabled) => self.on_set_split_tunnel_state(tx, enabled).await,
+            #[cfg(target_os = "windows")]
+            UseWireGuardNt(tx, state) => self.on_use_wireguard_nt(tx, state).await,
             Shutdown => self.trigger_shutdown_event(),
             PrepareRestart => self.on_prepare_restart(),
             #[cfg(target_os = "android")]
@@ -1934,6 +1939,35 @@ where
             }
         } else {
             Self::oneshot_send(tx, Ok(()), "set_split_tunnel_state response");
+        }
+    }
+
+    #[cfg(windows)]
+    async fn on_use_wireguard_nt(&mut self, tx: ResponseTx<(), Error>, state: bool) {
+        let save_result = self
+            .settings
+            .set_use_wireguard_nt(state)
+            .await
+            .map_err(Error::SettingsError);
+        match save_result {
+            Ok(settings_changed) => {
+                Self::oneshot_send(tx, Ok(()), "use_wireguard_nt response");
+                if settings_changed {
+                    self.event_listener
+                        .notify_settings(self.settings.to_settings());
+                    if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
+                        info!("Initiating tunnel restart");
+                        self.reconnect_tunnel();
+                    }
+                }
+            }
+            Err(error) => {
+                error!(
+                    "{}",
+                    error.display_chain_with_msg("Unable to save settings")
+                );
+                Self::oneshot_send(tx, Err(error), "use_wireguard_nt response");
+            }
         }
     }
 
