@@ -258,8 +258,8 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                       source="icon-add"
                       width={22}
                       height={22}
-                      tintColor={colors.white60}
-                      tintHoverColor={colors.white80}
+                      tintColor={colors.white40}
+                      tintHoverColor={colors.white60}
                       tabIndex={-1}
                     />
                   </StyledAddCustomDnsButton>

@@ -112,7 +112,7 @@ function CellListItem<T>(props: ICellListItemProps<T>) {
                 source="icon-close"
                 width={22}
                 height={22}
-                tintColor={colors.white60}
+                tintColor={colors.white40}
               />
             </StyledRemoveButton>
           </AriaDescribed>
