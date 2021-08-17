@@ -11,7 +11,7 @@
                             <mask id="wzem7yftrb" fill="#fff">
                                 <use xlink:href="#lypxbt7e6a"/>
                             </mask>
-                            <g fill="#FFF" fill-opacity=".4" mask="url(#wzem7yftrb)">
+                            <g fill="#FFF" mask="url(#wzem7yftrb)">
                                 <path d="M0 0H24V24H0z"/>
                             </g>
                         </g>
