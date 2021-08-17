@@ -40,7 +40,7 @@ const mapStateToProps = (state: IReduxState) => {
     selectedExitLocation,
     selectedBridgeLocation,
     relayLocations: filterLocationsByProvider(state.settings.relayLocations, providers),
-    bridgeLocations: state.settings.bridgeLocations,
+    bridgeLocations: filterLocationsByProvider(state.settings.bridgeLocations, providers),
     locationScope,
     allowBridgeSelection,
     providers,

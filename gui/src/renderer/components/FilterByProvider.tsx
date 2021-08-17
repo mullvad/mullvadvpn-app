@@ -43,7 +43,11 @@ export default function FilterByProvider() {
   const history = useHistory();
   const { updateRelaySettings } = useAppContext();
 
-  const relayList = useSelector((state) => state.settings.relayLocations);
+  const serverList = useSelector((state) =>
+    state.settings.relayLocations.concat(
+      state.settings.bridgeState === 'on' ? state.settings.bridgeLocations : [],
+    ),
+  );
   const providerConstraint = useSelector((state) => {
     if ('normal' in state.settings.relaySettings) {
       return state.settings.relaySettings.normal.providers;
@@ -53,7 +57,7 @@ export default function FilterByProvider() {
   });
 
   const [providers, setProviders] = useState(() => {
-    const providers = relayList.flatMap((country) =>
+    const providers = serverList.flatMap((country) =>
       country.cities.flatMap((city) => city.relays.map((relay) => relay.provider)),
     );
     const uniqueProviders = removeDuplicates(providers).sort((a, b) => a.localeCompare(b));
