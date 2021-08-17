@@ -122,6 +122,14 @@ pub enum Error {
     #[error(display = "Failed to set tunnel WireGuard config")]
     SetWireGuardConfigError(#[error(source)] io::Error),
 
+    /// Failed to set MTU on tunnel device
+    #[error(display = "Failed to set tunnel IPv4 interface MTU")]
+    SetTunnelIpv4MtuError(#[error(source)] io::Error),
+
+    /// Failed to set MTU on tunnel device
+    #[error(display = "Failed to set tunnel IPv6 interface MTU")]
+    SetTunnelIpv6MtuError(#[error(source)] io::Error),
+
     /// Failed to set the tunnel state to up
     #[error(display = "Failed to enable the tunnel adapter")]
     EnableTunnelError(#[error(source)] io::Error),
@@ -370,6 +378,12 @@ impl WgNtTunnel {
         device
             .set_config(config)
             .map_err(Error::SetWireGuardConfigError)?;
+        set_interface_mtu(&device.luid(), AF_INET as u16, u32::from(config.mtu))
+            .map_err(Error::SetTunnelIpv4MtuError)?;
+        if config.tunnel.addresses.iter().any(|addr| addr.is_ipv6()) {
+            set_interface_mtu(&device.luid(), AF_INET6 as u16, u32::from(config.mtu))
+                .map_err(Error::SetTunnelIpv6MtuError)?;
+        }
         device
             .set_state(WgAdapterState::Up)
             .map_err(Error::EnableTunnelError)?;
@@ -911,6 +925,13 @@ fn try_sockaddr_to_socket_address(addr: SOCKADDR_INET) -> Result<SocketAddr> {
             family => Err(Error::UnknownAddressFamily(family)),
         }
     }
+}
+
+fn set_interface_mtu(luid: &NET_LUID, family: u16, mtu: u32) -> io::Result<()> {
+    let mut iface = crate::tunnel::windows::get_ip_interface_entry(family, luid)?;
+    iface.SitePrefixLength = 0;
+    iface.NlMtu = mtu;
+    crate::tunnel::windows::set_ip_interface_entry(&iface)
 }
 
 impl Tunnel for WgNtTunnel {
