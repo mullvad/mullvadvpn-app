@@ -3,7 +3,7 @@ use winapi::shared::{
     ifdef::NET_LUID,
     netioapi::{
         CancelMibChangeNotify2, GetIpInterfaceEntry, MibAddInstance, NotifyIpInterfaceChange,
-        MIB_IPINTERFACE_ROW,
+        SetIpInterfaceEntry, MIB_IPINTERFACE_ROW,
     },
     ntdef::FALSE,
     winerror::{ERROR_NOT_FOUND, NO_ERROR},
@@ -71,9 +71,19 @@ pub fn get_ip_interface_entry(family: u16, luid: &NET_LUID) -> io::Result<MIB_IP
     row.Family = family;
     row.InterfaceLuid = *luid;
 
-    let result = unsafe { GetIpInterfaceEntry(&mut row as *mut _) };
+    let result = unsafe { GetIpInterfaceEntry(&mut row) };
     if result == NO_ERROR {
         Ok(row)
+    } else {
+        Err(io::Error::from_raw_os_error(result as i32))
+    }
+}
+
+/// Set the properties of an IP interface.
+pub fn set_ip_interface_entry(row: &MIB_IPINTERFACE_ROW) -> io::Result<()> {
+    let result = unsafe { SetIpInterfaceEntry(row as *const _ as *mut _) };
+    if result == NO_ERROR {
+        Ok(())
     } else {
         Err(io::Error::from_raw_os_error(result as i32))
     }
