@@ -516,13 +516,16 @@ impl Match<WireguardEndpointData> for WireguardConstraints {
     fn matches(&self, endpoint: &WireguardEndpointData) -> bool {
         match self.port {
             Constraint::Any => true,
-            Constraint::Only(port) => match port.port {
-                Constraint::Any => true,
-                Constraint::Only(port) => endpoint
-                    .port_ranges
-                    .iter()
-                    .any(|range| (port >= range.0 && port <= range.1)),
-            },
+            Constraint::Only(transport_port) => {
+                transport_port.protocol == endpoint.protocol
+                    && match transport_port.port {
+                        Constraint::Any => true,
+                        Constraint::Only(port) => endpoint
+                            .port_ranges
+                            .iter()
+                            .any(|range| (port >= range.0 && port <= range.1)),
+                    }
+            }
         }
     }
 }
