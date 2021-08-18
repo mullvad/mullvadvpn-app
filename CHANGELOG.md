@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
   beta.
 - Upgrade OpenVPN from 2.5.1 to 2.5.3.
 - Update Electron from 11.2.3 to 11.4.9.
+- Move OpenVPN and WireGuard settings in the advanced settings view into separate settings views.
 
 #### Windows
 - Upgrade Wintun from 0.10.4 to 0.13.
