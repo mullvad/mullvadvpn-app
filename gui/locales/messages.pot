@@ -63,6 +63,9 @@ msgstr[1] ""
 msgid "Apply"
 msgstr ""
 
+msgid "Automatic"
+msgstr ""
+
 msgid "Back"
 msgstr ""
 
@@ -96,6 +99,9 @@ msgstr ""
 msgid "CREATING SECURE CONNECTION"
 msgstr ""
 
+msgid "Default"
+msgstr ""
+
 msgid "Disconnect"
 msgstr ""
 
@@ -126,6 +132,12 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
+msgid "Off"
+msgstr ""
+
+msgid "On"
+msgstr ""
+
 msgid "Open URL"
 msgstr ""
 
@@ -139,6 +151,12 @@ msgid "Settings"
 msgstr ""
 
 msgid "System default"
+msgstr ""
+
+msgid "TCP"
+msgstr ""
+
+msgid "UDP"
 msgstr ""
 
 msgid "UNSECURE CONNECTION"
@@ -231,15 +249,6 @@ msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr ""
 
-#. The title for the shadowsocks bridge selector section.
-msgctxt "advanced-settings-view"
-msgid "Bridge mode"
-msgstr ""
-
-msgctxt "advanced-settings-view"
-msgid "Default"
-msgstr ""
-
 msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr ""
@@ -265,46 +274,15 @@ msgid "If you disconnect or quit the app, this setting will block your internet.
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "Off"
-msgstr ""
-
-msgctxt "advanced-settings-view"
-msgid "On"
+msgid "missing key"
 msgstr ""
 
 msgctxt "advanced-settings-view"
 msgid "OpenVPN"
 msgstr ""
 
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
 msgctxt "advanced-settings-view"
-msgid "OpenVPN %(portType)s port"
-msgstr ""
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN Mssfix"
-msgstr ""
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN transport protocol"
-msgstr ""
-
-#. The hint displayed below the Mssfix input field.
-#. Available placeholders:
-#. %(max)d - the maximum possible mssfix value
-#. %(min)d - the minimum possible mssfix value
-msgctxt "advanced-settings-view"
-msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr ""
-
-#. The hint displayed below the WireGuard MTU input field.
-#. Available placeholders:
-#. %(max)d - the maximum possible wireguard mtu value
-#. %(min)d - the minimum possible wireguard mtu value
-msgctxt "advanced-settings-view"
-msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgid "OpenVPN settings"
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -312,16 +290,7 @@ msgid "Split tunneling"
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "TCP"
-msgstr ""
-
-msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
-msgstr ""
-
-#. The hint displayed below the WireGuard port selector.
-msgctxt "advanced-settings-view"
-msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr ""
 
 msgctxt "advanced-settings-view"
@@ -337,10 +306,6 @@ msgid "Tunnel protocol"
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "UDP"
-msgstr ""
-
-msgctxt "advanced-settings-view"
 msgid "Use custom DNS server"
 msgstr ""
 
@@ -349,19 +314,7 @@ msgid "WireGuard"
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "WireGuard key"
-msgstr ""
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard MTU"
-msgstr ""
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard port"
-msgstr ""
-
-msgctxt "advanced-settings-view-wireguard"
-msgid "missing key"
+msgid "WireGuard settings"
 msgstr ""
 
 msgctxt "auth-failure"
@@ -782,6 +735,43 @@ msgstr ""
 
 msgctxt "notifications"
 msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
+msgstr ""
+
+#. Title label in navigation bar
+msgctxt "openvpn-settings-nav"
+msgid "OpenVPN settings"
+msgstr ""
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "openvpn-settings-view"
+msgid "%(portType)s port"
+msgstr ""
+
+#. The title for the shadowsocks bridge selector section.
+msgctxt "openvpn-settings-view"
+msgid "Bridge mode"
+msgstr ""
+
+msgctxt "openvpn-settings-view"
+msgid "Mssfix"
+msgstr ""
+
+msgctxt "openvpn-settings-view"
+msgid "OpenVPN settings"
+msgstr ""
+
+#. The hint displayed below the Mssfix input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible mssfix value
+#. %(min)d - the minimum possible mssfix value
+msgctxt "openvpn-settings-view"
+msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr ""
+
+msgctxt "openvpn-settings-view"
+msgid "Transport protocol"
 msgstr ""
 
 #. Title label in navigation bar
@@ -1236,14 +1226,48 @@ msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr ""
 
-#. Back button in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "Advanced"
-msgstr ""
-
 #. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
+msgstr ""
+
+#. Back button in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "WireGuard settings"
+msgstr ""
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "WireGuard settings"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "MTU"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "Port"
+msgstr ""
+
+#. The hint displayed below the WireGuard MTU input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible wireguard mtu value
+#. %(min)d - the minimum possible wireguard mtu value
+msgctxt "wireguard-settings-view"
+msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgstr ""
+
+#. The hint displayed below the WireGuard port selector.
+msgctxt "wireguard-settings-view"
+msgid "The automatic setting will randomly choose from a wide range of ports."
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "WireGuard key"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
+msgid "WireGuard settings"
 msgstr ""
 
 msgid "Account authentication failed."
@@ -1364,6 +1388,9 @@ msgid "Virtual adapter error"
 msgstr ""
 
 msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr ""
+
+msgid "WireGuard MTU"
 msgstr ""
 
 msgid "WireGuard error"
