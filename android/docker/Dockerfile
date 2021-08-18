@@ -72,17 +72,10 @@ ENV PATH="${PATH}:/root/.cargo/bin" \
 
 RUN curl -sf -L https://sh.rustup.rs > /tmp/rustup.sh && \
     cd /tmp && \
-    echo "40229562d4fa60e102646644e473575bae22ff56c3a706898a47d7241c9c031e rustup.sh" | sha256sum -c && \
+    echo "a3cb081f88a6789d104518b30d4aa410009cd08c3822a1226991d6cf0442a0f8 rustup.sh" | sha256sum -c && \
     chmod +x rustup.sh && \
     ./rustup.sh -y && \
     rm rustup.sh && \
-    rustc --version | grep -q '^rustc 1[.]52[.]1 ' && \
     rustup target add x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi
-
-# Install Node.js
-RUN curl -sf -L https://deb.nodesource.com/setup_12.x > /tmp/setup-nodejs.sh && \
-    cd /tmp && \
-    echo "b018082c06206162bb03b97cf7e9463b7e63e7d4fb1024ec9591f071a0ca7a56 setup-nodejs.sh" | sha256sum -c && \
-    apt-get install -y nodejs
 
 CMD ["./build-apk.sh", "--no-docker"]
