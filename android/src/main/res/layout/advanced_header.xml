@@ -16,6 +16,8 @@
                                               android:layout_width="match_parent"
                                               android:layout_height="wrap_content"
                                               android:layout_marginTop="@dimen/vertical_space"
+                                              android:focusable="true"
+                                              android:focusableInTouchMode="true"
                                               mullvad:text="@string/wireguard_mtu" />
     <net.mullvad.mullvadvpn.ui.widget.NavigateCell android:id="@+id/wireguard_keys"
                                                    android:layout_width="match_parent"
