@@ -491,10 +491,6 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr ""
 
-msgctxt "generic"
-msgid "Mullvad VPN"
-msgstr ""
-
 msgctxt "in-app-notifications"
 msgid "\"Always require VPN\" is enabled."
 msgstr ""
@@ -1286,6 +1282,9 @@ msgid "If needed we will contact you on %s"
 msgstr ""
 
 msgid "Install Mullvad VPN (%s) to stay up to date"
+msgstr ""
+
+msgid "Mullvad VPN"
 msgstr ""
 
 msgid "Mullvad account number"
