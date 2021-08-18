@@ -361,7 +361,7 @@ export default class AppRenderer {
     return IpcRendererEventChannel.accountHistory.clear();
   }
 
-  public async openLinkWithAuth(link: string): Promise<void> {
+  public openLinkWithAuth = async (link: string): Promise<void> => {
     let token = '';
     try {
       token = await IpcRendererEventChannel.account.getWwwAuthToken();
@@ -369,7 +369,7 @@ export default class AppRenderer {
       log.error(`Failed to get the WWW auth token: ${e.message}`);
     }
     void this.openUrl(`${link}?token=${token}`);
-  }
+  };
 
   public async setAllowLan(allowLan: boolean) {
     const actions = this.reduxActions;
