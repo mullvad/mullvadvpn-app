@@ -136,6 +136,7 @@ class ApplicationMain {
       normal: {
         location: 'any',
         tunnelProtocol: 'any',
+        providers: [],
         openvpnConstraints: {
           port: 'any',
           protocol: 'any',
@@ -148,6 +149,7 @@ class ApplicationMain {
     bridgeSettings: {
       normal: {
         location: 'any',
+        providers: [],
       },
     },
     bridgeState: 'auto',

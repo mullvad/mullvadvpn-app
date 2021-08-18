@@ -81,13 +81,9 @@ function LocationRow(props: IProps, ref: React.Ref<HTMLDivElement>) {
   const hasChildren = props.children !== undefined;
   const buttonRef = useRef<HTMLButtonElement>() as React.RefObject<HTMLButtonElement>;
 
-  const toggleCollapse = useCallback(
-    (event: React.MouseEvent) => {
-      props.onExpand?.(props.location, !props.expanded);
-      event.stopPropagation();
-    },
-    [props.onExpand, props.expanded, props.location],
-  );
+  const toggleCollapse = useCallback(() => {
+    props.onExpand?.(props.location, !props.expanded);
+  }, [props.onExpand, props.expanded, props.location]);
 
   const handleClick = useCallback(() => props.onSelect?.(props.location), [
     props.onSelect,

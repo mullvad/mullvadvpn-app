@@ -1,7 +1,9 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
+import { smallText } from './common-styles';
 import { Container } from './Layout';
 import { ScopeBar } from './ScopeBar';
+import SettingsHeader from './SettingsHeader';
 
 export const StyledContainer = styled(Container)({
   backgroundColor: colors.darkBlue,
@@ -21,4 +23,72 @@ export const StyledContent = styled.div({
 export const StyledNavigationBarAttachment = styled.div({
   marginTop: '8px',
   paddingHorizontal: '4px',
+});
+
+export const StyledFilterContainer = styled.div({
+  position: 'relative',
+});
+
+export const StyledFilterIconButton = styled.button({
+  borderWidth: 0,
+  padding: 0,
+  margin: 0,
+  cursor: 'default',
+  backgroundColor: 'transparent',
+});
+
+export const StyledFilterMenu = styled.div({
+  position: 'absolute',
+  top: 'calc(100% + 4px)',
+  right: '0',
+  borderRadius: '4px',
+  backgroundColor: colors.darkBlue,
+  overflow: 'hidden',
+});
+
+export const StyledFilterByProviderButton = styled.button({
+  ...smallText,
+  borderWidth: 0,
+  margin: 0,
+  cursor: 'default',
+  color: colors.white,
+  padding: '7px 15px',
+  whiteSpace: 'nowrap',
+  borderRadius: 0,
+  backgroundColor: colors.blue,
+  ':hover': {
+    backgroundColor: colors.blue80,
+  },
+});
+
+export const StyledSettingsHeader = styled(SettingsHeader)({
+  paddingLeft: '6px',
+  paddingBottom: '11px',
+});
+
+export const StyledProviderCountRow = styled.div({
+  ...smallText,
+  color: colors.white,
+  marginLeft: '6px',
+  marginBottom: '8px',
+});
+
+export const StyledProvidersCount = styled.div({
+  ...smallText,
+  display: 'inline-flex',
+  alignItems: 'center',
+  backgroundColor: colors.blue,
+  borderRadius: '4px',
+  padding: '3px 8px',
+  marginLeft: '6px',
+  color: colors.white,
+});
+
+export const StyledClearProvidersButton = styled.div({
+  display: 'inline-block',
+  borderWidth: 0,
+  padding: 0,
+  margin: '0 0 0 6px',
+  cursor: 'default',
+  backgroundColor: 'transparent',
 });

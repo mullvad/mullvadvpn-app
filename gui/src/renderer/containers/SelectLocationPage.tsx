@@ -7,6 +7,8 @@ import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import SelectLocation from '../components/SelectLocation';
 import withAppContext, { IAppContext } from '../context';
 import { IHistoryProps, withHistory } from '../lib/history';
+import { RoutePath } from '../lib/routes';
+import { IRelayLocationRedux } from '../redux/settings/reducers';
 import { IReduxState, ReduxDispatch } from '../redux/store';
 import userInterfaceActions from '../redux/userinterface/actions';
 import { LocationScope } from '../redux/userinterface/reducers';
@@ -31,13 +33,17 @@ const mapStateToProps = (state: IReduxState) => {
     ? state.userInterface.locationScope
     : LocationScope.relay;
 
+  const relaySettings = state.settings.relaySettings;
+  const providers = 'normal' in relaySettings ? relaySettings.normal.providers : [];
+
   return {
     selectedExitLocation,
     selectedBridgeLocation,
-    relayLocations: state.settings.relayLocations,
-    bridgeLocations: state.settings.bridgeLocations,
+    relayLocations: filterLocationsByProvider(state.settings.relayLocations, providers),
+    bridgeLocations: filterLocationsByProvider(state.settings.bridgeLocations, providers),
     locationScope,
     allowBridgeSelection,
+    providers,
   };
 };
 const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IAppContext) => {
@@ -45,6 +51,7 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IApp
 
   return {
     onClose: () => props.history.dismiss(),
+    onViewFilterByProvider: () => props.history.push(RoutePath.filterByProvider),
     onChangeLocationScope: (scope: LocationScope) => {
       userInterface.setLocationScope(scope);
     },
@@ -83,8 +90,30 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IApp
         log.error(`Failed to set the bridge location to closest to exit: ${e.message}`);
       }
     },
+    onClearProviders: async () => {
+      await props.app.updateRelaySettings({ normal: { providers: [] } });
+    },
   };
 };
+
+function filterLocationsByProvider(
+  locations: IRelayLocationRedux[],
+  providers: string[],
+): IRelayLocationRedux[] {
+  return providers.length === 0
+    ? locations
+    : locations
+        .map((country) => ({
+          ...country,
+          cities: country.cities
+            .map((city) => ({
+              ...city,
+              relays: city.relays.filter((relay) => providers.includes(relay.provider)),
+            }))
+            .filter((city) => city.relays.length > 0),
+        }))
+        .filter((country) => country.cities.length > 0);
+}
 
 export default withAppContext(
   withHistory(connect(mapStateToProps, mapDispatchToProps)(SelectLocation)),

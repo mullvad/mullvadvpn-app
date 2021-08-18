@@ -595,11 +595,13 @@ export default class AppRenderer {
         openvpnConstraints,
         wireguardConstraints,
         tunnelProtocol,
+        providers,
       } = relaySettings.normal;
 
       actions.settings.updateRelay({
         normal: {
           location: liftConstraint(location),
+          providers,
           openvpn: {
             port: liftConstraint(openvpnConstraints.port),
             protocol: liftConstraint(openvpnConstraints.protocol),

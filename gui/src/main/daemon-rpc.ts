@@ -293,6 +293,12 @@ export class DaemonRpc {
         );
       }
 
+      if (settingsUpdate.providers) {
+        const providerUpdate = new grpcTypes.ProviderUpdate();
+        providerUpdate.setProvidersList(settingsUpdate.providers);
+        normalUpdate.setProviders(providerUpdate);
+      }
+
       grpcRelaySettings.setNormal(normalUpdate);
       await this.call<grpcTypes.RelaySettingsUpdate, Empty>(
         this.client.updateRelaySettings,
@@ -924,6 +930,7 @@ function convertFromRelaySettings(
           ? { only: convertFromLocation(grpcLocation.toObject()) }
           : 'any';
         const tunnelProtocol = convertFromTunnelTypeConstraint(normal.getTunnelType()!);
+        const providers = normal.getProvidersList();
         const openvpnConstraints = convertFromOpenVpnConstraints(normal.getOpenvpnConstraints()!);
         const wireguardConstraints = convertFromWireguardConstraints(
           normal.getWireguardConstraints()!,
@@ -933,6 +940,7 @@ function convertFromRelaySettings(
           normal: {
             location,
             tunnelProtocol,
+            providers,
             wireguardConstraints,
             openvpnConstraints,
           },
@@ -951,9 +959,11 @@ function convertFromBridgeSettings(
   if (normalSettings) {
     const grpcLocation = normalSettings.location;
     const location = grpcLocation ? { only: convertFromLocation(grpcLocation) } : 'any';
+    const providers = normalSettings.providersList;
     return {
       normal: {
         location,
+        providers,
       },
     };
   }
@@ -1177,6 +1187,7 @@ function convertToNormalBridgeSettings(
 ): grpcTypes.BridgeSettings.BridgeConstraints {
   const normalBridgeSettings = new grpcTypes.BridgeSettings.BridgeConstraints();
   normalBridgeSettings.setLocation(convertToLocation(liftConstraint(constraints.location)));
+  normalBridgeSettings.setProvidersList(constraints.providers);
 
   return normalBridgeSettings;
 }

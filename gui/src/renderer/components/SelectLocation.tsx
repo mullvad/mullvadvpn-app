@@ -1,4 +1,6 @@
 import React from 'react';
+import { sprintf } from 'sprintf-js';
+import { colors } from '../../config.json';
 import { LiftedConstraint, RelayLocation } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
@@ -6,6 +8,7 @@ import { LocationScope } from '../redux/userinterface/reducers';
 import BridgeLocations, { SpecialBridgeLocationType } from './BridgeLocations';
 import CustomScrollbars from './CustomScrollbars';
 import ExitLocations from './ExitLocations';
+import ImageView from './ImageView';
 import { Layout } from './Layout';
 import LocationList, { LocationSelection, LocationSelectionType } from './LocationList';
 import {
@@ -20,10 +23,18 @@ import { ScopeBarItem } from './ScopeBar';
 import {
   StyledContainer,
   StyledContent,
+  StyledFilterIconButton,
+  StyledFilterContainer,
+  StyledFilterMenu,
   StyledNavigationBarAttachment,
   StyledScopeBar,
+  StyledFilterByProviderButton,
+  StyledProvidersCount,
+  StyledProviderCountRow,
+  StyledClearProvidersButton,
+  StyledSettingsHeader,
 } from './SelectLocationStyles';
-import { HeaderSubTitle } from './SettingsHeader';
+import { HeaderTitle } from './SettingsHeader';
 
 interface IProps {
   locationScope: LocationScope;
@@ -32,11 +43,18 @@ interface IProps {
   relayLocations: IRelayLocationRedux[];
   bridgeLocations: IRelayLocationRedux[];
   allowBridgeSelection: boolean;
+  providers: string[];
   onClose: () => void;
+  onViewFilterByProvider: () => void;
   onChangeLocationScope: (location: LocationScope) => void;
   onSelectExitLocation: (location: RelayLocation) => void;
   onSelectBridgeLocation: (location: RelayLocation) => void;
   onSelectClosestToExit: () => void;
+  onClearProviders: () => void;
+}
+
+interface IState {
+  showFilterMenu: boolean;
 }
 
 interface ISelectLocationSnapshot {
@@ -44,7 +62,9 @@ interface ISelectLocationSnapshot {
   expandedLocations: RelayLocation[];
 }
 
-export default class SelectLocation extends React.Component<IProps> {
+export default class SelectLocation extends React.Component<IProps, IState> {
+  public state = { showFilterMenu: false };
+
   private scrollView = React.createRef<CustomScrollbars>();
   private spacePreAllocationViewRef = React.createRef<SpacePreAllocationView>();
   private selectedExitLocationRef = React.createRef<React.ReactInstance>();
@@ -54,6 +74,8 @@ export default class SelectLocation extends React.Component<IProps> {
   private bridgeLocationList = React.createRef<LocationList<SpecialBridgeLocationType>>();
 
   private snapshotByScope: { [index: number]: ISelectLocationSnapshot } = {};
+
+  private filterButtonRef = React.createRef<HTMLDivElement>();
 
   public componentDidMount() {
     this.scrollToSelectedCell();
@@ -92,31 +114,72 @@ export default class SelectLocation extends React.Component<IProps> {
 
   public render() {
     return (
-      <Layout>
+      <Layout onClick={this.onClickAnywhere}>
         <StyledContainer>
           <NavigationContainer>
             <NavigationBar alwaysDisplayBarTitle={true}>
               <NavigationItems>
                 <CloseBarItem action={this.props.onClose} />
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('select-location-nav', 'Select location')
-                  }
-                </TitleBarItem>
+                <TitleBarItem />
+
+                <StyledFilterContainer ref={this.filterButtonRef}>
+                  <StyledFilterIconButton
+                    onClick={this.toggleFilterMenu}
+                    aria-label={messages.gettext('Filter')}>
+                    <ImageView
+                      source="icon-filter-round"
+                      tintColor={colors.white60}
+                      tintHoverColor={colors.white80}
+                      height={24}
+                      width={24}
+                    />
+                  </StyledFilterIconButton>
+                  {this.state.showFilterMenu && (
+                    <StyledFilterMenu>
+                      <StyledFilterByProviderButton onClick={this.props.onViewFilterByProvider}>
+                        {messages.pgettext('select-location-view', 'Filter by provider')}
+                      </StyledFilterByProviderButton>
+                    </StyledFilterMenu>
+                  )}
+                </StyledFilterContainer>
               </NavigationItems>
               <StyledNavigationBarAttachment>
-                <HeaderSubTitle>
-                  {this.props.allowBridgeSelection
-                    ? messages.pgettext(
-                        'select-location-view',
-                        'While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server).',
-                      )
-                    : messages.pgettext(
-                        'select-location-view',
-                        'While connected, your real location is masked with a private and secure location in the selected region.',
+                <StyledSettingsHeader>
+                  <HeaderTitle>
+                    {
+                      // TRANSLATORS: Heading in select location view
+                      messages.pgettext('select-location-nav', 'Select location')
+                    }
+                  </HeaderTitle>
+                </StyledSettingsHeader>
+
+                {this.props.providers.length > 0 && (
+                  <StyledProviderCountRow>
+                    {messages.pgettext('select-location-view', 'Filtered:')}
+                    <StyledProvidersCount>
+                      {sprintf(
+                        messages.pgettext(
+                          'select-location-view',
+                          'Providers: %(numberOfProviders)d',
+                        ),
+                        {
+                          numberOfProviders: this.props.providers.length,
+                        },
                       )}
-                </HeaderSubTitle>
+                      <StyledClearProvidersButton
+                        aria-label={messages.gettext('Clear')}
+                        onClick={this.props.onClearProviders}>
+                        <ImageView
+                          height={16}
+                          width={16}
+                          source="icon-close"
+                          tintColor={colors.white60}
+                          tintHoverColor={colors.white80}
+                        />
+                      </StyledClearProvidersButton>
+                    </StyledProvidersCount>
+                  </StyledProviderCountRow>
+                )}
                 {this.props.allowBridgeSelection && (
                   <StyledScopeBar
                     defaultSelectedIndex={this.props.locationScope}
@@ -231,6 +294,21 @@ export default class SelectLocation extends React.Component<IProps> {
     locationRect.height += expandedContentHeight;
     this.spacePreAllocationViewRef.current?.allocate(expandedContentHeight);
     this.scrollView.current?.scrollIntoView(locationRect);
+  };
+
+  private toggleFilterMenu = () => {
+    this.setState((state) => ({
+      showFilterMenu: !state.showFilterMenu,
+    }));
+  };
+
+  private onClickAnywhere = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (
+      this.state.showFilterMenu &&
+      !this.filterButtonRef.current?.contains(event.target as HTMLElement)
+    ) {
+      this.setState({ showFilterMenu: false });
+    }
   };
 }
 
