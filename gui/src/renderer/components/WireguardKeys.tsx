@@ -103,7 +103,7 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
                 <BackBarItem action={this.props.onClose}>
                   {
                     // TRANSLATORS: Back button in navigation bar
-                    messages.pgettext('wireguard-keys-nav', 'Advanced')
+                    messages.pgettext('wireguard-keys-nav', 'WireGuard settings')
                   }
                 </BackBarItem>
                 <TitleBarItem>
