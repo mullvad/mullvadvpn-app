@@ -139,22 +139,22 @@ dependencies {
     implementation "androidx.recyclerview:recyclerview:1.2.1"
     implementation "com.google.android.material:material:1.4.0"
     implementation "commons-validator:commons-validator:1.7"
-    implementation "joda-time:joda-time:2.10.2"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"
     implementation "io.insert-koin:koin-core:$koinVersion"
     implementation "io.insert-koin:koin-core-ext:$koinVersion"
     implementation "io.insert-koin:koin-androidx-fragment:$koinVersion"
     implementation "io.insert-koin:koin-androidx-scope:$koinVersion"
     implementation "io.insert-koin:koin-androidx-viewmodel:$koinVersion"
+    implementation "joda-time:joda-time:2.10.2"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.1"
 
     /* Test dependencies */
+    testImplementation "io.insert-koin:koin-test:$koinVersion"
     testImplementation "io.mockk:mockk:$mockkVersion"
     testImplementation "junit:junit:4.13"
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1"
-    testImplementation "io.insert-koin:koin-test:$koinVersion"
 
     /* UI test dependencies */
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
