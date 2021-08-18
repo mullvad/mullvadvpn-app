@@ -920,7 +920,7 @@ msgctxt "select-location-nav"
 msgid "Exit"
 msgstr ""
 
-#. Heading in select location view
+#. Title label in navigation bar
 msgctxt "select-location-nav"
 msgid "Select location"
 msgstr ""
@@ -939,6 +939,11 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
+msgstr ""
+
+#. Heading in select location view
+msgctxt "select-location-view"
+msgid "Select location"
 msgstr ""
 
 #. Navigation button to the 'Account' view

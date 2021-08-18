@@ -21,12 +21,14 @@ interface ISettingsHeaderProps {
   className?: string;
 }
 
-export default function SettingsHeader(props: ISettingsHeaderProps) {
+function SettingsHeader(props: ISettingsHeaderProps, forwardRef: React.Ref<HTMLDivElement>) {
   return (
-    <Container className={props.className}>
+    <Container ref={forwardRef} className={props.className}>
       {React.Children.map(props.children, (child) => {
         return React.isValidElement(child) ? <ContentWrapper>{child}</ContentWrapper> : undefined;
       })}
     </Container>
   );
 }
+
+export default React.forwardRef(SettingsHeader);
