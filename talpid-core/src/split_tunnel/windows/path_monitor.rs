@@ -110,7 +110,7 @@ fn resolve_link<T: AsRef<Path> + Copy>(path: T) -> io::Result<Option<PathBuf>> {
         .custom_flags(FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS)
         .open(path)?;
 
-    let mut _bytes_returned = 0u32;
+    let mut bytes_returned = 0u32;
 
     if unsafe {
         DeviceIoControl(
@@ -120,12 +120,19 @@ fn resolve_link<T: AsRef<Path> + Copy>(path: T) -> io::Result<Option<PathBuf>> {
             0u32,
             data_buffer.as_mut_ptr() as *mut _,
             data_buffer.len() as u32,
-            &mut _bytes_returned,
+            &mut bytes_returned,
             ptr::null_mut(),
         )
     } == 0
     {
         return Err(io::Error::last_os_error());
+    }
+
+    if (bytes_returned as usize) < mem::size_of::<ReparseDataMountPoint>() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "invalid reparse point data",
+        ));
     }
 
     let reparse_tag = unsafe { &*(data_buffer.as_mut_ptr() as *mut ReparseData) }.tag;
