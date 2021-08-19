@@ -181,33 +181,7 @@ fn resolve_link<T: AsRef<Path> + Copy>(path: T) -> io::Result<Option<PathBuf>> {
 
             if is_relative {
                 if let Some(parent) = stripped_path.parent() {
-                    let path_buf_os: Vec<u16> = osstr_to_wide(parent.join(path_buf));
-
-                    let mut full_path_buffer = vec![0u16; 2048 / mem::size_of::<u16>()];
-
-                    let full_length = loop {
-                        let required_length = unsafe {
-                            GetFullPathNameW(
-                                path_buf_os.as_ptr(),
-                                full_path_buffer.len() as u32,
-                                full_path_buffer.as_mut_ptr(),
-                                ptr::null_mut(),
-                            )
-                        } as usize;
-
-                        if required_length == 0 {
-                            return Err(io::Error::last_os_error());
-                        }
-
-                        if required_length > full_path_buffer.len() {
-                            full_path_buffer.resize(required_length, 0);
-                        } else {
-                            break required_length;
-                        }
-                    };
-
-                    full_path_buffer.resize(full_length, 0);
-                    path_buf = PathBuf::from(OsString::from_wide(&full_path_buffer));
+                    path_buf = get_full_path_name(parent.join(path_buf))?;
                 }
             } else {
                 path_buf = strip_namespace(path_buf);
@@ -693,6 +667,35 @@ impl PathMonitor {
         }
         Ok(false)
     }
+}
+
+fn get_full_path_name<T: AsRef<OsStr>>(path: T) -> io::Result<PathBuf> {
+    let path_buf_os: Vec<u16> = osstr_to_wide(path);
+    let mut full_path_buffer = vec![0u16; 2048 / mem::size_of::<u16>()];
+
+    let full_length = loop {
+        let required_length = unsafe {
+            GetFullPathNameW(
+                path_buf_os.as_ptr(),
+                full_path_buffer.len() as u32,
+                full_path_buffer.as_mut_ptr(),
+                ptr::null_mut(),
+            )
+        } as usize;
+
+        if required_length == 0 {
+            return Err(io::Error::last_os_error());
+        }
+
+        if required_length > full_path_buffer.len() {
+            full_path_buffer.resize(required_length, 0);
+        } else {
+            break required_length;
+        }
+    };
+
+    full_path_buffer.resize(full_length, 0);
+    Ok(PathBuf::from(OsString::from_wide(&full_path_buffer)))
 }
 
 /// Converts an `OsStr` to a null-terminated UTF-16 string.
