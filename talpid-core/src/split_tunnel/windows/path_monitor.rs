@@ -1,7 +1,7 @@
 use std::{
     collections::HashSet,
     ffi::{OsStr, OsString},
-    fs, io,
+    fs, io, mem,
     os::windows::{
         ffi::{OsStrExt, OsStringExt},
         fs::OpenOptionsExt,
@@ -48,9 +48,18 @@ const ANYSIZE_ARRAY: usize = 1;
 const SYMLINK_FLAG_RELATIVE: u32 = 0x00000001;
 
 
-// See https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/ca069dad-ed16-42aa-b057-b6b207f447cc.
+// See https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/c3a420cb-8a72-4adf-87e8-eee95379d78f.
 #[repr(C)]
 struct ReparseData {
+    tag: u32,
+    data_length: u16,
+    reserved: u16,
+    data: [u8; ANYSIZE_ARRAY],
+}
+
+// See https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/ca069dad-ed16-42aa-b057-b6b207f447cc.
+#[repr(C)]
+struct ReparseDataMountPoint {
     tag: u32,
     data_length: u16,
     reserved: i16,
@@ -85,6 +94,32 @@ fn strip_namespace<P: AsRef<Path>>(path: P) -> PathBuf {
         .strip_prefix(r"\\??")
         .map(PathBuf::from)
         .unwrap_or(path.as_ref().to_path_buf())
+}
+
+macro_rules! get_reparse_path {
+    ($tag_type:ident, $data:ident) => {{
+        let reparse_data = &*($data.as_ptr() as *const $tag_type);
+        let last_offset = reparse_data.sub_name_offset as usize
+            + reparse_data.sub_name_length as usize
+            + memoffset::offset_of!($tag_type, path_buffer);
+
+        if last_offset > $data.len() {
+            log::error!("Ignoring mount point with out-of-bounds index");
+            Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "link indices out-of-bounds",
+            ))
+        } else {
+            let path_buffer = (&reparse_data.path_buffer) as *const u16;
+            let parsed_path = std::slice::from_raw_parts(
+                path_buffer.offset(
+                    (reparse_data.sub_name_offset as usize / mem::size_of::<u16>()) as isize,
+                ),
+                reparse_data.sub_name_length as usize / mem::size_of::<u16>(),
+            );
+            Ok::<PathBuf, io::Error>(PathBuf::from(OsString::from_wide(parsed_path)))
+        }
+    }};
 }
 
 /// Returns the target of a reparse point as an absolute path.
@@ -135,33 +170,20 @@ fn resolve_link<T: AsRef<Path> + Copy>(path: T) -> io::Result<Option<PathBuf>> {
         ));
     }
 
-    let reparse_tag = unsafe { &*(data_buffer.as_mut_ptr() as *mut ReparseData) }.tag;
+    let reparse_tag = unsafe { &*(data_buffer.as_ptr() as *const ReparseData) }.tag;
     match reparse_tag {
         IO_REPARSE_TAG_SYMLINK => {
-            let reparse_data = unsafe { &*(data_buffer.as_mut_ptr() as *mut ReparseDataSymlink) };
-            let last_offset = memoffset::offset_of!(ReparseDataSymlink, path_buffer)
-                + reparse_data.sub_name_offset as usize
-                + reparse_data.sub_name_length as usize;
-            if last_offset > data_buffer.len() {
-                log::error!("Ignoring symlink with out-of-bounds index");
-                return Ok(None);
-            }
-            let parsed_path = unsafe {
-                std::slice::from_raw_parts(
-                    ((&reparse_data.path_buffer) as *const u16).offset(
-                        (reparse_data.sub_name_offset as usize / std::mem::size_of::<u16>())
-                            as isize,
-                    ),
-                    reparse_data.sub_name_length as usize / std::mem::size_of::<u16>(),
-                )
-            };
-            let mut path_buf = PathBuf::from(OsString::from_wide(parsed_path));
+            let is_relative = unsafe { &*(data_buffer.as_ptr() as *const ReparseDataSymlink) }
+                .flags
+                & SYMLINK_FLAG_RELATIVE
+                != 0;
+            let mut path_buf = unsafe { get_reparse_path!(ReparseDataSymlink, data_buffer) }?;
 
-            if reparse_data.flags & SYMLINK_FLAG_RELATIVE != 0 {
+            if is_relative {
                 if let Some(parent) = stripped_path.parent() {
                     let path_buf_os: Vec<u16> = osstr_to_wide(parent.join(path_buf));
 
-                    let mut full_path_buffer = vec![0u16; 2048 / std::mem::size_of::<u16>()];
+                    let mut full_path_buffer = vec![0u16; 2048 / mem::size_of::<u16>()];
 
                     let full_length = loop {
                         let required_length = unsafe {
@@ -194,26 +216,8 @@ fn resolve_link<T: AsRef<Path> + Copy>(path: T) -> io::Result<Option<PathBuf>> {
             Ok(Some(path_buf))
         }
         IO_REPARSE_TAG_MOUNT_POINT => {
-            let reparse_data = unsafe { &*(data_buffer.as_mut_ptr() as *mut ReparseData) };
-            let last_offset = memoffset::offset_of!(ReparseData, path_buffer)
-                + reparse_data.sub_name_offset as usize
-                + reparse_data.sub_name_length as usize;
-            if last_offset > data_buffer.len() {
-                log::error!("Ignoring mount point with out-of-bounds index");
-                return Ok(None);
-            }
-            let parsed_path = unsafe {
-                std::slice::from_raw_parts(
-                    ((&reparse_data.path_buffer) as *const u16).offset(
-                        (reparse_data.sub_name_offset as usize / std::mem::size_of::<u16>())
-                            as isize,
-                    ),
-                    reparse_data.sub_name_length as usize / std::mem::size_of::<u16>(),
-                )
-            };
-            Ok(Some(strip_namespace(PathBuf::from(OsString::from_wide(
-                parsed_path,
-            )))))
+            let path_buf = unsafe { get_reparse_path!(ReparseDataMountPoint, data_buffer) }?;
+            Ok(Some(strip_namespace(path_buf)))
         }
         // unknown reparse tag
         _ => Ok(None),
@@ -297,7 +301,7 @@ impl DirContext {
             path: path.as_ref().to_path_buf(),
             dir_handle,
             buffer: vec![0u32; 1024],
-            overlapped: unsafe { std::mem::zeroed() },
+            overlapped: unsafe { mem::zeroed() },
             _io_completion_port: io_completion_port,
         })
     }
@@ -308,7 +312,7 @@ impl DirContext {
             ReadDirectoryChangesW(
                 self.dir_handle.as_raw_handle() as *mut _,
                 self.buffer.as_mut_ptr() as *mut _,
-                (self.buffer.len() * std::mem::size_of::<u32>()) as u32,
+                (self.buffer.len() * mem::size_of::<u32>()) as u32,
                 TRUE,
                 FILE_NOTIFY_CHANGE_FILE_NAME
                     | FILE_NOTIFY_CHANGE_DIR_NAME
@@ -654,7 +658,7 @@ impl PathMonitor {
             let file_name = unsafe {
                 std::slice::from_raw_parts(
                     current_field.FileName.as_ptr(),
-                    current_field.FileNameLength as usize / std::mem::size_of::<u16>(),
+                    current_field.FileNameLength as usize / mem::size_of::<u16>(),
                 )
             };
 
