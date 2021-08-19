@@ -67,6 +67,8 @@ Line wrap the file at 100 chars.                                              Th
   paths were excluded.
 - Fix daemon not starting when a path is excluded on a drive that has since been removed.
 
+#### Android
+- Fix erasing wireguard MTU value in some scenarious.
 
 ## [2021.4] - 2021-06-30
 This release is for desktop only.

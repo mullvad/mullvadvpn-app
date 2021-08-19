@@ -35,10 +35,10 @@ class MtuCell : Cell {
     var onSubmit: ((Int?) -> Unit)? = null
 
     var hasFocus by observable(false) { _, oldValue, newValue ->
-        if (oldValue == true && newValue == false) {
+        if (oldValue && !newValue) {
             val mtu = value
 
-            if (mtu == null || (mtu >= MIN_MTU_VALUE && mtu <= MAX_MTU_VALUE)) {
+            if (mtu == null || (mtu in MIN_MTU_VALUE..MAX_MTU_VALUE)) {
                 onSubmit?.invoke(mtu)
             }
         }
