@@ -241,7 +241,7 @@ fn resolve_all_links<P: AsRef<Path>>(path: P) -> io::Result<Vec<PathBuf>> {
 struct DirContext {
     path: PathBuf,
     dir_handle: fs::File,
-    buffer: Vec<u32>,
+    buffer: Vec<u8>,
     overlapped: OVERLAPPED,
     _io_completion_port: Arc<CompletionPort>,
 }
@@ -274,7 +274,7 @@ impl DirContext {
         Ok(DirContext {
             path: path.as_ref().to_path_buf(),
             dir_handle,
-            buffer: vec![0u32; 1024],
+            buffer: vec![0u8; 4096],
             overlapped: unsafe { mem::zeroed() },
             _io_completion_port: io_completion_port,
         })
@@ -286,7 +286,7 @@ impl DirContext {
             ReadDirectoryChangesW(
                 self.dir_handle.as_raw_handle() as *mut _,
                 self.buffer.as_mut_ptr() as *mut _,
-                (self.buffer.len() * mem::size_of::<u32>()) as u32,
+                self.buffer.len() as u32,
                 TRUE,
                 FILE_NOTIFY_CHANGE_FILE_NAME
                     | FILE_NOTIFY_CHANGE_DIR_NAME
