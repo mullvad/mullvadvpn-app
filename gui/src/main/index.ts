@@ -1761,7 +1761,7 @@ class ApplicationMain {
     const template: Electron.MenuItemConstructorOptions[] = [
       {
         label: sprintf(messages.pgettext('tray-icon-context-menu', 'Open %(mullvadVpn)s'), {
-          mullvadVpn: messages.pgettext('generic', 'Mullvad VPN'),
+          mullvadVpn: 'Mullvad VPN',
         }),
         click: () => this.windowController?.show(),
       },
