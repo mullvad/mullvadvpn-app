@@ -9,7 +9,7 @@ interface IStyledCellButtonProps extends React.HTMLAttributes<HTMLButtonElement>
   containedInSection: boolean;
 }
 
-export const StyledCellButton = styled.button({}, (props: IStyledCellButtonProps) => {
+const StyledCellButton = styled.button({}, (props: IStyledCellButtonProps) => {
   const backgroundColor = props.selected
     ? colors.green
     : props.containedInSection
@@ -47,3 +47,10 @@ export const CellButton = styled(
     );
   }),
 )({});
+
+export const CellButtonGroup = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  marginBottom: '20px',
+});

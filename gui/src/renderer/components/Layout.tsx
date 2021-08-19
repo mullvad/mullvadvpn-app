@@ -14,6 +14,10 @@ export const Container = styled.div({
   overflow: 'hidden',
 });
 
+export const SettingsContainer = styled(Container)({
+  backgroundColor: colors.darkBlue,
+});
+
 export const Layout = styled.div({
   display: 'flex',
   flexDirection: 'column',
