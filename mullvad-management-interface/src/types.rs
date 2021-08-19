@@ -691,6 +691,43 @@ pub enum FromProtobufTypeError {
     InvalidArgument(&'static str),
 }
 
+impl TryFrom<&WireguardConstraints> for mullvad_types::relay_constraints::WireguardConstraints {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(
+        constraints: &WireguardConstraints,
+    ) -> Result<mullvad_types::relay_constraints::WireguardConstraints, Self::Error> {
+        use mullvad_types::relay_constraints as mullvad_constraints;
+        use talpid_types::net;
+
+        let wireguard_transport_port = match &constraints.port {
+            Some(port) => Some(mullvad_constraints::TransportPort::try_from(port.clone())?),
+            None => None,
+        };
+        let ip_version = match &constraints.ip_version {
+            Some(constraint) => match IpVersion::from_i32(constraint.protocol) {
+                Some(IpVersion::V4) => Some(net::IpVersion::V4),
+                Some(IpVersion::V6) => Some(net::IpVersion::V6),
+                None => {
+                    return Err(FromProtobufTypeError::InvalidArgument(
+                        "invalid ip protocol version",
+                    ))
+                }
+            },
+            None => None,
+        };
+
+        Ok(mullvad_constraints::WireguardConstraints {
+            port: Constraint::from(wireguard_transport_port),
+            ip_version: Constraint::from(ip_version),
+            entry_location: constraints
+                .entry_location
+                .clone()
+                .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from),
+        })
+    }
+}
+
 impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySettingsUpdate {
     type Error = FromProtobufTypeError;
 
@@ -734,11 +771,7 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                         mullvad_types::ConnectionConfig::OpenVpn(openvpn::ConnectionConfig {
                             endpoint: net::Endpoint {
                                 address,
-                                protocol: TransportProtocol::from_i32(config.protocol)
-                                    .ok_or(FromProtobufTypeError::InvalidArgument(
-                                        "invalid transport protocol",
-                                    ))?
-                                    .into(),
+                                protocol: try_transport_protocol_from_i32(config.protocol)?,
                             },
                             username: config.username,
                             password: config.password,
@@ -831,11 +864,7 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                                 public_key: wireguard::PublicKey::from(public_key),
                                 allowed_ips,
                                 endpoint,
-                                protocol: TransportProtocol::from_i32(peer.protocol)
-                                    .ok_or(FromProtobufTypeError::InvalidArgument(
-                                        "invalid transport protocol",
-                                    ))?
-                                    .into(),
+                                protocol: try_transport_protocol_from_i32(peer.protocol)?,
                             },
                             exit_peer: None,
                             ipv4_gateway,
@@ -886,13 +915,9 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                 let openvpn_transport_protocol =
                     if let Some(ref constraints) = settings.openvpn_constraints {
                         match &constraints.protocol {
-                            Some(constraint) => Some(
-                                TransportProtocol::from_i32(constraint.protocol)
-                                    .ok_or(FromProtobufTypeError::InvalidArgument(
-                                        "invalid transport protocol",
-                                    ))?
-                                    .into(),
-                            ),
+                            Some(constraint) => {
+                                Some(try_transport_protocol_from_i32(constraint.protocol)?)
+                            }
                             None => None,
                         }
                     } else {
@@ -902,17 +927,7 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                     if let Some(ref constraints) = settings.wireguard_constraints {
                         match &constraints.port {
                             Some(port) => {
-                                let protocol = TransportProtocol::from_i32(port.protocol)
-                                    .ok_or(FromProtobufTypeError::InvalidArgument(
-                                        "invalid transport protocol",
-                                    ))?
-                                    .into();
-                                let port = if port.port != 0 {
-                                    Constraint::Only(port.port as u16)
-                                } else {
-                                    Constraint::Any
-                                };
-                                Some(mullvad_constraints::TransportPort { protocol, port })
+                                Some(mullvad_constraints::TransportPort::try_from(port.clone())?)
                             }
                             None => None,
                         }
@@ -1164,6 +1179,31 @@ impl TryFrom<DnsOptions> for mullvad_types::settings::DnsOptions {
             },
         })
     }
+}
+
+impl TryFrom<TransportPort> for mullvad_types::relay_constraints::TransportPort {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(port: TransportPort) -> Result<Self, Self::Error> {
+        Ok(mullvad_types::relay_constraints::TransportPort {
+            protocol: try_transport_protocol_from_i32(port.protocol)?,
+            port: if port.port == 0 {
+                Constraint::Any
+            } else {
+                Constraint::Only(port.port as u16)
+            },
+        })
+    }
+}
+
+fn try_transport_protocol_from_i32(
+    protocol: i32,
+) -> Result<talpid_types::net::TransportProtocol, FromProtobufTypeError> {
+    Ok(TransportProtocol::from_i32(protocol)
+        .ok_or(FromProtobufTypeError::InvalidArgument(
+            "invalid transport protocol",
+        ))?
+        .into())
 }
 
 fn convert_providers_constraint(
