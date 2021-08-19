@@ -1,22 +1,18 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
+import styled from 'styled-components';
 import { BridgeState, RelayProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
-import {
-  StyledContainer,
-  StyledInputFrame,
-  StyledNavigationScrollbars,
-  StyledSelectorContainer,
-} from './AdvancedSettingsStyles';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
-import { Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import { ModalContainer } from './Modal';
 import {
   BackBarItem,
   NavigationBar,
   NavigationContainer,
   NavigationItems,
+  NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
 import Selector, { ISelectorItem } from './cell/Selector';
@@ -34,6 +30,18 @@ type OptionalRelayProtocol = RelayProtocol | undefined;
 function mapPortToSelectorItem(value: number): ISelectorItem<number> {
   return { label: value.toString(), value };
 }
+
+export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
+  flex: 1,
+});
+
+export const StyledSelectorContainer = styled.div({
+  flex: 0,
+});
+
+export const StyledInputFrame = styled(Cell.InputFrame)({
+  flex: 0,
+});
 
 interface IProps {
   openvpn: {
@@ -101,7 +109,7 @@ export default class OpenVpnSettings extends React.Component<IProps> {
     return (
       <ModalContainer>
         <Layout>
-          <StyledContainer>
+          <SettingsContainer>
             <NavigationContainer>
               <NavigationBar>
                 <NavigationItems>
@@ -212,7 +220,7 @@ export default class OpenVpnSettings extends React.Component<IProps> {
                 </AriaInputGroup>
               </StyledNavigationScrollbars>
             </NavigationContainer>
-          </StyledContainer>
+          </SettingsContainer>
         </Layout>
       </ModalContainer>
     );

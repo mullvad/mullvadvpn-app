@@ -6,8 +6,6 @@ import { messages } from '../../shared/gettext';
 import { IpAddress } from '../lib/ip';
 import { WgKeyState } from '../redux/settings/reducers';
 import {
-  StyledButtonCellGroup,
-  StyledContainer,
   StyledNavigationScrollbars,
   StyledNoWireguardKeyError,
   StyledNoWireguardKeyErrorContainer,
@@ -23,7 +21,7 @@ import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import CellList, { ICellListItem } from './cell/List';
-import { Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';
 import {
   BackBarItem,
@@ -80,7 +78,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
     return (
       <ModalContainer>
         <Layout>
-          <StyledContainer>
+          <SettingsContainer>
             <NavigationContainer>
               <NavigationBar>
                 <NavigationItems>
@@ -159,7 +157,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                 </AriaInputGroup>
 
                 {(window.env.platform === 'linux' || window.env.platform === 'win32') && (
-                  <StyledButtonCellGroup>
+                  <Cell.CellButtonGroup>
                     <Cell.CellButton onClick={this.props.onViewSplitTunneling}>
                       <Cell.Label>
                         {window.env.platform === 'win32' && <StyledBetaLabel />}
@@ -167,7 +165,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                       </Cell.Label>
                       <Cell.Icon height={12} width={7} source="icon-chevron" />
                     </Cell.CellButton>
-                  </StyledButtonCellGroup>
+                  </Cell.CellButtonGroup>
                 )}
 
                 <AriaInputGroup>
@@ -193,7 +191,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                   </StyledTunnelProtocolContainer>
                 </AriaInputGroup>
 
-                <StyledButtonCellGroup>
+                <Cell.CellButtonGroup>
                   <Cell.CellButton
                     onClick={this.props.onViewWireguardSettings}
                     disabled={this.props.tunnelProtocol === 'openvpn'}>
@@ -211,7 +209,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                     </Cell.Label>
                     <Cell.Icon height={12} width={7} source="icon-chevron" />
                   </Cell.CellButton>
-                </StyledButtonCellGroup>
+                </Cell.CellButtonGroup>
 
                 <StyledCustomDnsSwitchContainer disabled={!this.customDnsAvailable()}>
                   <AriaInputGroup>
@@ -283,7 +281,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                 </StyledCustomDnsFooter>
               </StyledNavigationScrollbars>
             </NavigationContainer>
-          </StyledContainer>
+          </SettingsContainer>
         </Layout>
 
         {this.state.showConfirmBlockWhenDisconnectedAlert &&

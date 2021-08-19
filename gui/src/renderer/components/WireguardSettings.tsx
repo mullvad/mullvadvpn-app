@@ -1,25 +1,19 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
+import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
-import {
-  StyledButtonCellGroup,
-  StyledContainer,
-  StyledInputFrame,
-  StyledNavigationScrollbars,
-  StyledSelectorContainer,
-  StyledSelectorForFooter,
-} from './AdvancedSettingsStyles';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
-import { Layout } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import {
   BackBarItem,
   NavigationBar,
   NavigationContainer,
   NavigationItems,
+  NavigationScrollbars,
   TitleBarItem,
 } from './NavigationBar';
-import { ISelectorItem } from './cell/Selector';
+import Selector, { ISelectorItem } from './cell/Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const MIN_WIREGUARD_MTU_VALUE = 1280;
@@ -31,6 +25,22 @@ type OptionalPort = number | undefined;
 function mapPortToSelectorItem(value: number): ISelectorItem<number> {
   return { label: value.toString(), value };
 }
+
+export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
+  flex: 1,
+});
+
+export const StyledSelectorContainer = styled.div({
+  flex: 0,
+});
+
+export const StyledSelectorForFooter = (styled(Selector)({
+  marginBottom: 0,
+}) as unknown) as new <T>() => Selector<T>;
+
+export const StyledInputFrame = styled(Cell.InputFrame)({
+  flex: 0,
+});
 
 interface IProps {
   wireguard: { port?: number };
@@ -60,7 +70,7 @@ export default class WireguardSettings extends React.Component<IProps> {
   public render() {
     return (
       <Layout>
-        <StyledContainer>
+        <SettingsContainer>
           <NavigationContainer>
             <NavigationBar>
               <NavigationItems>
@@ -111,14 +121,14 @@ export default class WireguardSettings extends React.Component<IProps> {
                 </Cell.Footer>
               </AriaInputGroup>
 
-              <StyledButtonCellGroup>
+              <Cell.CellButtonGroup>
                 <Cell.CellButton onClick={this.props.onViewWireguardKeys}>
                   <Cell.Label>
                     {messages.pgettext('wireguard-settings-view', 'WireGuard key')}
                   </Cell.Label>
                   <Cell.Icon height={12} width={7} source="icon-chevron" />
                 </Cell.CellButton>
-              </StyledButtonCellGroup>
+              </Cell.CellButtonGroup>
 
               <AriaInputGroup>
                 <Cell.Container>
@@ -165,7 +175,7 @@ export default class WireguardSettings extends React.Component<IProps> {
               </AriaInputGroup>
             </StyledNavigationScrollbars>
           </NavigationContainer>
-        </StyledContainer>
+        </SettingsContainer>
       </Layout>
     );
   }

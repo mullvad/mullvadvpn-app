@@ -2,13 +2,8 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import BetaLabel from './BetaLabel';
 import * as Cell from './cell';
-import { Container } from './Layout';
 import { NavigationScrollbars } from './NavigationBar';
 import Selector from './cell/Selector';
-
-export const StyledContainer = styled(Container)({
-  backgroundColor: colors.darkBlue,
-});
 
 export const StyledInputFrame = styled(Cell.InputFrame)({
   flex: 0,
@@ -28,13 +23,6 @@ export const StyledTunnelProtocolContainer = styled(StyledSelectorContainer)({
 
 export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
   flex: 1,
-});
-
-export const StyledButtonCellGroup = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  marginBottom: '20px',
 });
 
 export const StyledNoWireguardKeyErrorContainer = styled(Cell.Footer)({
