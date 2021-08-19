@@ -691,11 +691,11 @@ pub enum FromProtobufTypeError {
     InvalidArgument(&'static str),
 }
 
-impl TryFrom<WireguardConstraints> for mullvad_types::relay_constraints::WireguardConstraints {
+impl TryFrom<&WireguardConstraints> for mullvad_types::relay_constraints::WireguardConstraints {
     type Error = FromProtobufTypeError;
 
     fn try_from(
-        constraints: WireguardConstraints,
+        constraints: &WireguardConstraints,
     ) -> Result<mullvad_types::relay_constraints::WireguardConstraints, Self::Error> {
         use mullvad_types::relay_constraints as mullvad_constraints;
         use talpid_types::net;
@@ -722,6 +722,7 @@ impl TryFrom<WireguardConstraints> for mullvad_types::relay_constraints::Wiregua
             ip_version: Constraint::from(ip_version),
             entry_location: constraints
                 .entry_location
+                .clone()
                 .map(Constraint::<mullvad_types::relay_constraints::LocationConstraint>::from),
         })
     }
