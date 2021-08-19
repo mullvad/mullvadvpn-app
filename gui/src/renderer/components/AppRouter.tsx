@@ -10,6 +10,7 @@ import TransitionContainer, { TransitionView } from './TransitionContainer';
 import AccountPage from '../containers/AccountPage';
 import AdvancedSettingsPage from '../containers/AdvancedSettingsPage';
 import LoginPage from '../containers/LoginPage';
+import OpenVPNSettingsPage from '../containers/OpenVPNSettingsPage';
 import PlatformWindowContainer from '../containers/PlatformWindowContainer';
 import PreferencesPage from '../containers/PreferencesPage';
 import SelectLanguagePage from '../containers/SelectLanguagePage';
@@ -17,6 +18,7 @@ import SelectLocationPage from '../containers/SelectLocationPage';
 import SettingsPage from '../containers/SettingsPage';
 import SupportPage from '../containers/SupportPage';
 import WireguardKeysPage from '../containers/WireguardKeysPage';
+import WireguardSettingsPage from '../containers/WireguardSettingsPage';
 import { IHistoryProps, ITransitionSpecification, transitions, withHistory } from '../lib/history';
 import {
   SetupFinished,
@@ -91,7 +93,13 @@ class AppRouter extends React.Component<IHistoryProps, IAppRoutesState> {
                   <Route exact path={RoutePath.accountSettings} component={AccountPage} />
                   <Route exact path={RoutePath.preferences} component={PreferencesPage} />
                   <Route exact path={RoutePath.advancedSettings} component={AdvancedSettingsPage} />
+                  <Route
+                    exact
+                    path={RoutePath.wireguardSettings}
+                    component={WireguardSettingsPage}
+                  />
                   <Route exact path={RoutePath.wireguardKeys} component={WireguardKeysPage} />
+                  <Route exact path={RoutePath.openVpnSettings} component={OpenVPNSettingsPage} />
                   <Route exact path={RoutePath.splitTunneling} component={SplitTunnelingSettings} />
                   <Route exact path={RoutePath.support} component={SupportPage} />
                   <Route exact path={RoutePath.selectLocation} component={SelectLocationPage} />
