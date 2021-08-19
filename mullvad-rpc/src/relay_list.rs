@@ -182,7 +182,7 @@ impl ServerRelayList {
                 port_ranges: port_ranges.clone(),
                 ipv4_gateway,
                 ipv6_gateway,
-                public_key: public_key.clone(),
+                public_key,
                 protocol: TransportProtocol::Udp,
             };
 
