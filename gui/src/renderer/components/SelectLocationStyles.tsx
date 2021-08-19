@@ -27,6 +27,7 @@ export const StyledNavigationBarAttachment = styled.div({
 
 export const StyledFilterContainer = styled.div({
   position: 'relative',
+  justifySelf: 'end',
 });
 
 export const StyledFilterIconButton = styled.button({
