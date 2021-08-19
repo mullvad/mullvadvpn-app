@@ -2,7 +2,7 @@ use crate::{location, new_rpc_client, Command, Error, Result};
 use clap::{value_t, values_t};
 use itertools::Itertools;
 use std::{
-    fmt::Write,
+    convert::TryFrom,
     io::{self, BufRead},
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     str::FromStr,
@@ -714,14 +714,6 @@ impl Relay {
         Ok(())
     }
 
-    fn format_ip_version(protocol: Option<IpVersion>) -> &'static str {
-        match protocol {
-            None => "IPv4 or IPv6",
-            Some(IpVersion::V4) => "IPv4",
-            Some(IpVersion::V6) => "IPv6",
-        }
-    }
-
     fn format_transport_protocol(protocol: Option<TransportProtocol>) -> &'static str {
         match protocol {
             None => "any transport protocol",
@@ -757,33 +749,10 @@ impl Relay {
 
     fn format_wireguard_constraints(constraints: Option<&WireguardConstraints>) -> String {
         if let Some(constraints) = constraints {
-            let mut out = format!(
-                "{} over {} over {}",
-                Self::format_port(constraints.port.as_ref().map(|port| port.port).unwrap_or(0)),
-                Self::format_transport_protocol(
-                    constraints
-                        .port
-                        .clone()
-                        .map(|port| TransportProtocol::from_i32(port.protocol).unwrap())
-                ),
-                Self::format_ip_version(
-                    constraints
-                        .ip_version
-                        .clone()
-                        .map(|protocol| IpVersion::from_i32(protocol.protocol).unwrap())
-                )
-            );
-
-            if let Some(ref entry) = constraints.entry_location {
-                write!(
-                    &mut out,
-                    " (via {})",
-                    location::format_location(Some(entry))
-                )
-                .unwrap();
-            }
-
-            out
+            let wg_constraints =
+                mullvad_types::relay_constraints::WireguardConstraints::try_from(constraints)
+                    .unwrap();
+            format!("{}", wg_constraints)
         } else {
             "any port over any protocol over IPv4 or IPv6".to_string()
         }
