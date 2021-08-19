@@ -445,6 +445,12 @@ impl Match<WireguardEndpointData> for TunnelConstraints {
     }
 }
 
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
+pub struct TransportPort {
+    pub protocol: TransportProtocol,
+    pub port: Constraint<u16>,
+}
+
 /// [`Constraint`]s applicable to OpenVPN relay servers.
 #[derive(Debug, Default, Copy, Clone, Eq, PartialEq, Deserialize, Serialize)]
 pub struct OpenVpnConstraints {
@@ -476,7 +482,7 @@ impl Match<OpenVpnEndpointData> for OpenVpnConstraints {
 #[derive(Debug, Default, Clone, Eq, PartialEq, Deserialize, Serialize)]
 #[serde(default)]
 pub struct WireguardConstraints {
-    pub port: Constraint<u16>,
+    pub port: Constraint<TransportPort>,
     pub ip_version: Constraint<IpVersion>,
     pub entry_location: Option<Constraint<LocationConstraint>>,
 }
@@ -485,7 +491,13 @@ impl fmt::Display for WireguardConstraints {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self.port {
             Constraint::Any => write!(f, "any port")?,
-            Constraint::Only(port) => write!(f, "port {}", port)?,
+            Constraint::Only(port) => {
+                match port.port {
+                    Constraint::Any => write!(f, "any port")?,
+                    Constraint::Only(port) => write!(f, "port {}", port)?,
+                }
+                write!(f, " over {}", port.protocol)?;
+            }
         }
         write!(f, " over ")?;
         match self.ip_version {
@@ -504,10 +516,16 @@ impl Match<WireguardEndpointData> for WireguardConstraints {
     fn matches(&self, endpoint: &WireguardEndpointData) -> bool {
         match self.port {
             Constraint::Any => true,
-            Constraint::Only(port) => endpoint
-                .port_ranges
-                .iter()
-                .any(|range| (port >= range.0 && port <= range.1)),
+            Constraint::Only(transport_port) => {
+                transport_port.protocol == endpoint.protocol
+                    && match transport_port.port {
+                        Constraint::Any => true,
+                        Constraint::Only(port) => endpoint
+                            .port_ranges
+                            .iter()
+                            .any(|range| (port >= range.0 && port <= range.1)),
+                    }
+            }
         }
     }
 }

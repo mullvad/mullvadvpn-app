@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Added
 - Added possibility to filter locations by provider in the desktop app.
+- Add WireGuard over TCP CLI option for all relays.
 
 ### Changed
 - Only use the account history file to store the last used account.

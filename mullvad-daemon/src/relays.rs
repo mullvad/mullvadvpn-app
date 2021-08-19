@@ -15,7 +15,7 @@ use mullvad_types::{
     location::Location,
     relay_constraints::{
         BridgeState, Constraint, InternalBridgeConstraints, LocationConstraint, Match,
-        OpenVpnConstraints, Providers, RelayConstraints, Set, WireguardConstraints,
+        OpenVpnConstraints, Providers, RelayConstraints, Set, TransportPort, WireguardConstraints,
     },
     relay_list::{OpenVpnEndpointData, Relay, RelayList, RelayTunnels, WireguardEndpointData},
 };
@@ -53,10 +53,15 @@ const EXPONENTIAL_BACKOFF_FACTOR: u32 = 8;
 
 const DEFAULT_WIREGUARD_PORT: u16 = 51820;
 const WIREGUARD_EXIT_CONSTRAINTS: WireguardConstraints = WireguardConstraints {
-    port: Constraint::Only(DEFAULT_WIREGUARD_PORT),
+    port: Constraint::Only(TransportPort {
+        protocol: TransportProtocol::Udp,
+        port: Constraint::Only(DEFAULT_WIREGUARD_PORT),
+    }),
     ip_version: Constraint::Only(IpVersion::V4),
     entry_location: None,
 };
+const WIREGUARD_TCP_PORTS: [(u16, u16); 3] = [(80, 80), (443, 443), (5001, 5001)];
+
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -112,6 +117,18 @@ impl ParsedRelays {
                         latitude,
                         longitude,
                     });
+
+                    for wg_tunnel in &relay.tunnels.wireguard {
+                        relay_with_location
+                            .tunnels
+                            .wireguard
+                            .push(WireguardEndpointData {
+                                protocol: TransportProtocol::Tcp,
+                                port_ranges: WIREGUARD_TCP_PORTS.to_vec(),
+                                ..wg_tunnel.clone()
+                            });
+                    }
+
                     relays.push(relay_with_location);
                 }
             }
@@ -385,7 +402,11 @@ impl RelaySelector {
                 }
 
                 if relay_constraints.wireguard_constraints.port.is_any() {
-                    relay_constraints.wireguard_constraints.port = preferred_port;
+                    relay_constraints.wireguard_constraints.port =
+                        Constraint::Only(TransportPort {
+                            protocol: preferred_protocol,
+                            port: preferred_port,
+                        });
                 }
 
                 relay_constraints.tunnel_protocol = Constraint::Only(preferred_tunnel);
@@ -408,10 +429,14 @@ impl RelaySelector {
                 relay_constraints.wireguard_constraints =
                     original_constraints.wireguard_constraints.clone();
                 // This ensures that if after the first 2 failed attempts the daemon does not
-                // connect, then afterwards 2 of each 4 successive attempts will try to connect on
-                // port 53.
+                // connect, then afterwards 2 of each 4 successive attempts will try to connect
+                // on port 53.
                 if retry_attempt % 4 > 1 && relay_constraints.wireguard_constraints.port.is_any() {
-                    relay_constraints.wireguard_constraints.port = Constraint::Only(53);
+                    relay_constraints.wireguard_constraints.port =
+                        Constraint::Only(TransportPort {
+                            protocol: TransportProtocol::Udp,
+                            port: Constraint::Only(53),
+                        });
                 }
             }
         }
@@ -858,7 +883,10 @@ impl RelaySelector {
             public_key: data.public_key,
             endpoint: SocketAddr::new(host, port),
             allowed_ips: all_of_the_internet(),
-            protocol: TransportProtocol::Udp,
+            protocol: constraints
+                .port
+                .map(|port| port.protocol)
+                .unwrap_or(TransportProtocol::Udp),
         };
         Some(MullvadEndpoint::Wireguard {
             peer: peer_config,
@@ -884,7 +912,12 @@ impl RelaySelector {
         data: &WireguardEndpointData,
         constraints: &WireguardConstraints,
     ) -> Option<u16> {
-        match constraints.port {
+        match constraints
+            .port
+            .as_ref()
+            .map(|port| port.port)
+            .unwrap_or(Constraint::Any)
+        {
             Constraint::Any => {
                 let get_port_amount =
                     |range: &(u16, u16)| -> u64 { (1 + range.1 - range.0) as u64 };
@@ -1163,6 +1196,7 @@ mod test {
                                                 ipv4_gateway: "10.64.0.1".parse().unwrap(),
                                                 ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
                                                 public_key: PublicKey::from_base64("BLNHNoGO88LjV/wDBa7CUUwUzPq/fO2UwcGLy56hKy4=").unwrap(),
+                                                protocol: TransportProtocol::Udp,
                                             },
                                         ],
                                     },
@@ -1196,6 +1230,7 @@ mod test {
                                                 ipv4_gateway: "10.64.0.1".parse().unwrap(),
                                                 ipv6_gateway: "fc00:bbbb:bbbb:bb01::1".parse().unwrap(),
                                                 public_key: PublicKey::from_base64("veGD6/aEY6sMfN3Ls7YWPmNgu3AheO7nQqsFT47YSws=").unwrap(),
+                                                protocol: TransportProtocol::Udp,
                                             },
                                         ],
                                     },
