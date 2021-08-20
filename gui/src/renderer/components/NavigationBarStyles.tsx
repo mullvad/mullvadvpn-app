@@ -12,9 +12,10 @@ export const StyledNavigationBarSeparator = styled.div({
 });
 
 export const StyledNavigationItems = styled.div({
-  display: 'flex',
   flex: 1,
-  flexDirection: 'row',
+  display: 'grid',
+  gridTemplateColumns: '1fr auto 1fr',
+  alignItems: 'center',
 });
 
 export const StyledNavigationBar = styled.nav((props: { unpinnedWindow: boolean }) => ({
@@ -23,49 +24,22 @@ export const StyledNavigationBar = styled.nav((props: { unpinnedWindow: boolean 
   paddingTop: window.env.platform === 'darwin' && !props.unpinnedWindow ? '24px' : '12px',
 }));
 
-export const StyledNavigationBarWrapper = styled.div({
-  display: 'flex',
-  flex: 1,
-  flexDirection: 'column',
-  overflow: 'hidden',
-});
-
-export const StyledTitleBarItemContainer = styled.div({
-  display: 'flex',
-  flex: 1,
-  minWidth: 0,
-  flexDirection: 'column',
-  justifyContent: 'center',
-  overflow: 'hidden',
-});
-
-interface ITitleBarItemLabelProps {
-  titleAdjustment: number;
-  visible?: boolean;
-}
-
-export const StyledTitleBarItemLabel = styled.h1({}, (props: ITitleBarItemLabelProps) => ({
+export const StyledTitleBarItemLabel = styled.h1({}, (props: { visible?: boolean }) => ({
   fontFamily: 'Open Sans',
   fontSize: '16px',
   fontWeight: 600,
   lineHeight: '22px',
   color: colors.white,
   padding: '0 5px',
-  textAlign: 'center',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
-  marginLeft: props.titleAdjustment + 'px',
   opacity: props.visible ? 1 : 0,
   transition: 'opacity 250ms ease-in-out',
 }));
 
-export const StyledTitleBarItemMeasuringLabel = styled(StyledTitleBarItemLabel)({
-  position: 'absolute',
-  opacity: 0,
-});
-
 export const StyledCloseBarItemButton = styled.button({
+  justifySelf: 'start',
   borderWidth: 0,
   padding: 0,
   margin: 0,
@@ -78,7 +52,7 @@ export const StyledCloseBarItemIcon = styled(ImageView)({
 });
 
 export const StyledBackBarItemButton = styled.button({
-  position: 'relative',
+  justifySelf: 'start',
   borderWidth: 0,
   padding: 0,
   margin: 0,

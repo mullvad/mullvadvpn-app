@@ -1,11 +1,10 @@
-import React, { useCallback, useContext, useLayoutEffect, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useCallback, useContext, useLayoutEffect, useRef } from 'react';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import useActions from '../lib/actionsHook';
 import { useHistory } from '../lib/history';
 import { useCombinedRefs } from '../lib/utilityHooks';
-import { IReduxState } from '../redux/store';
+import { useSelector } from '../redux/store';
 import userInterface from '../redux/userinterface/actions';
 import CustomScrollbars, { IScrollEvent } from './CustomScrollbars';
 import {
@@ -16,10 +15,7 @@ import {
   StyledCloseBarItemIcon,
   StyledNavigationBar,
   StyledNavigationBarSeparator,
-  StyledNavigationBarWrapper,
-  StyledTitleBarItemContainer,
   StyledTitleBarItemLabel,
-  StyledTitleBarItemMeasuringLabel,
 } from './NavigationBarStyles';
 
 export { StyledNavigationItems as NavigationItems } from './NavigationBarStyles';
@@ -126,7 +122,7 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
 
   const { addScrollPosition, removeScrollPosition } = useActions(userInterface);
   const scrollPosition = useSelector(
-    (state: IReduxState) => state.userInterface.scrollPosition[history.location.pathname],
+    (state) => state.userInterface.scrollPosition[history.location.pathname],
   );
 
   useLayoutEffect(() => {
@@ -161,14 +157,7 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
 });
 
 const TitleBarItemContext = React.createContext({
-  titleAdjustment: 0,
   visible: false,
-  get titleContainerRef(): React.RefObject<HTMLDivElement> {
-    throw Error('Missing TitleBarItemContext provider');
-  },
-  get measuringTitleRef(): React.RefObject<HTMLHeadingElement> {
-    throw Error('Missing TitleBarItemContext provider');
-  },
 });
 
 interface INavigationBarProps {
@@ -178,60 +167,14 @@ interface INavigationBarProps {
 
 export const NavigationBar = function NavigationBarT(props: INavigationBarProps) {
   const { showsBarSeparator, showsBarTitle } = useContext(NavigationScrollContext);
-  const unpinnedWindow = useSelector(
-    (state: IReduxState) => state.settings.guiSettings.unpinnedWindow,
-  );
-  const [titleAdjustment, setTitleAdjustment] = useState(0);
-
-  const titleContainerRef = useRef() as React.RefObject<HTMLDivElement>;
-  const measuringTitleRef = useRef() as React.RefObject<HTMLHeadingElement>;
-  const navigationBarRef = useRef() as React.RefObject<HTMLDivElement>;
-
-  useLayoutEffect(() => {
-    const titleContainerRect = titleContainerRef.current?.getBoundingClientRect();
-    const measuringTitleRect = measuringTitleRef.current?.getBoundingClientRect();
-    const navigationBarRect = navigationBarRef.current?.getBoundingClientRect();
-
-    if (titleContainerRect && measuringTitleRect && navigationBarRect) {
-      // calculate the width of the elements preceding the title view container
-      const leadingSpace = titleContainerRect.x - navigationBarRect.x;
-
-      // calculate the width of the elements succeeding the title view container
-      const trailingSpace = navigationBarRect.width - titleContainerRect.width - leadingSpace;
-
-      // calculate the adjustment needed to center the title view within navigation bar
-      const titleAdjustment = Math.floor(trailingSpace - leadingSpace);
-
-      // calculate the maximum possible adjustment that when applied should keep the text fully
-      // visible, unless the title container itself is smaller than the space needed to accommodate
-      // the text
-      const maxTitleAdjustment = Math.floor(
-        Math.max(titleContainerRect.width - measuringTitleRect.width, 0),
-      );
-
-      // cap the adjustment to remain within the allowed bounds
-      const cappedTitleAdjustment = Math.min(
-        Math.max(-maxTitleAdjustment, titleAdjustment),
-        maxTitleAdjustment,
-      );
-
-      setTitleAdjustment(cappedTitleAdjustment);
-    }
-  });
+  const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
 
   return (
     <StyledNavigationBar unpinnedWindow={unpinnedWindow}>
-      <StyledNavigationBarWrapper ref={navigationBarRef}>
-        <TitleBarItemContext.Provider
-          value={{
-            titleAdjustment: titleAdjustment,
-            visible: props.alwaysDisplayBarTitle || showsBarTitle,
-            titleContainerRef,
-            measuringTitleRef,
-          }}>
-          {props.children}
-        </TitleBarItemContext.Provider>
-      </StyledNavigationBarWrapper>
+      <TitleBarItemContext.Provider
+        value={{ visible: props.alwaysDisplayBarTitle || showsBarTitle }}>
+        {props.children}
+      </TitleBarItemContext.Provider>
       {showsBarSeparator && <StyledNavigationBarSeparator />}
     </StyledNavigationBar>
   );
@@ -242,24 +185,8 @@ interface ITitleBarItemProps {
 }
 
 export const TitleBarItem = React.memo(function TitleBarItemT(props: ITitleBarItemProps) {
-  const { measuringTitleRef, titleAdjustment, titleContainerRef, visible } = useContext(
-    TitleBarItemContext,
-  );
-
-  return (
-    <StyledTitleBarItemContainer ref={titleContainerRef}>
-      <StyledTitleBarItemLabel titleAdjustment={titleAdjustment} visible={visible}>
-        {props.children}
-      </StyledTitleBarItemLabel>
-
-      <StyledTitleBarItemMeasuringLabel
-        titleAdjustment={0}
-        ref={measuringTitleRef}
-        aria-hidden={true}>
-        {props.children}
-      </StyledTitleBarItemMeasuringLabel>
-    </StyledTitleBarItemContainer>
-  );
+  const { visible } = useContext(TitleBarItemContext);
+  return <StyledTitleBarItemLabel visible={visible}>{props.children}</StyledTitleBarItemLabel>;
 });
 
 interface ICloseBarItemProps {
@@ -269,9 +196,7 @@ interface ICloseBarItemProps {
 export function CloseBarItem(props: ICloseBarItemProps) {
   // Use the arrow down icon on Linux, to avoid confusion with the close button in the window
   // title bar.
-  const unpinnedWindow = useSelector(
-    (state: IReduxState) => state.settings.guiSettings.unpinnedWindow,
-  );
+  const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
   const iconName = unpinnedWindow ? 'icon-close-down' : 'icon-close';
   return (
     <StyledCloseBarItemButton aria-label={messages.gettext('Close')} onClick={props.action}>
