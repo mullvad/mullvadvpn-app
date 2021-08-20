@@ -1202,15 +1202,7 @@ mod test {
                                         shadowsocks: vec![],
                                     },
                                     location: None,
-                                }
-                            ],
-                        },
-                        RelayListCity {
-                            name: "Gothenburg".to_string(),
-                            code: "got".to_string(),
-                            latitude: 57.70887,
-                            longitude: 11.97456,
-                            relays: vec![
+                                },
                                 Relay {
                                     hostname: "se10-wireguard".to_string(),
                                     ipv4_addr_in: "185.213.154.69".parse().unwrap(),
@@ -1236,7 +1228,38 @@ mod test {
                                         shadowsocks: vec![],
                                     },
                                     location: None,
-                                }
+                                },
+                                Relay {
+                                    hostname: "se-got-001".to_string(),
+                                    ipv4_addr_in: "185.213.154.131".parse().unwrap(),
+                                    ipv6_addr_in: None,
+                                    include_in_country: true,
+                                    active: true,
+                                    owned: true,
+                                    provider: "31173".to_string(),
+                                    weight: 1,
+                                    tunnels: RelayTunnels {
+                                        openvpn: vec![
+                                            OpenVpnEndpointData {
+                                                port: 1194,
+                                                protocol: TransportProtocol::Udp,
+                                            },
+                                            OpenVpnEndpointData {
+                                                port: 443,
+                                                protocol: TransportProtocol::Tcp,
+                                            },
+                                            OpenVpnEndpointData {
+                                                port: 80,
+                                                protocol: TransportProtocol::Tcp,
+                                            },
+                                        ],
+                                        wireguard: vec![],
+                                    },
+                                    bridges: RelayBridges {
+                                        shadowsocks: vec![],
+                                    },
+                                    location: None,
+                                },
                             ],
                         },
                     ],
@@ -1253,6 +1276,89 @@ mod test {
             ))),
             rng: rand::thread_rng(),
             updater: None,
+        }
+    }
+
+    #[test]
+    fn test_preferred_tunnel_protocol() {
+        let mut relay_selector = new_relay_selector();
+
+        // Prefer WG if the location only supports it
+        let location = LocationConstraint::Hostname(
+            "se".to_string(),
+            "got".to_string(),
+            "se9-wireguard".to_string(),
+        );
+        let relay_constraints = RelayConstraints {
+            location: Constraint::Only(location.clone()),
+            tunnel_protocol: Constraint::Any,
+            ..RelayConstraints::default()
+        };
+
+        let preferred =
+            relay_selector.preferred_constraints(&relay_constraints, BridgeState::Off, 0, true);
+        assert_eq!(
+            preferred.tunnel_protocol,
+            Constraint::Only(TunnelType::Wireguard)
+        );
+
+        for attempt in 0..10 {
+            assert!(relay_selector
+                .get_tunnel_exit_endpoint(&relay_constraints, BridgeState::Off, attempt, true, None)
+                .is_ok());
+        }
+
+        // Prefer OpenVPN if the location only supports it
+        let location = LocationConstraint::Hostname(
+            "se".to_string(),
+            "got".to_string(),
+            "se-got-001".to_string(),
+        );
+        let relay_constraints = RelayConstraints {
+            location: Constraint::Only(location.clone()),
+            tunnel_protocol: Constraint::Any,
+            ..RelayConstraints::default()
+        };
+
+        let preferred =
+            relay_selector.preferred_constraints(&relay_constraints, BridgeState::Off, 0, true);
+        assert_eq!(
+            preferred.tunnel_protocol,
+            Constraint::Only(TunnelType::OpenVpn)
+        );
+
+        for attempt in 0..10 {
+            assert!(relay_selector
+                .get_tunnel_exit_endpoint(&relay_constraints, BridgeState::Off, attempt, true, None)
+                .is_ok());
+        }
+
+        // Prefer OpenVPN on Windows when possible
+        #[cfg(windows)]
+        {
+            let relay_constraints = RelayConstraints::default();
+            for attempt in 0..10 {
+                let preferred = relay_selector.preferred_constraints(
+                    &relay_constraints,
+                    BridgeState::Off,
+                    attempt,
+                    true,
+                );
+                assert_eq!(
+                    preferred.tunnel_protocol,
+                    Constraint::Only(TunnelType::OpenVpn)
+                );
+                match relay_selector.get_tunnel_exit_endpoint(
+                    &relay_constraints,
+                    BridgeState::Off,
+                    attempt,
+                    true,
+                    None,
+                ) {
+                    Ok((_, MullvadEndpoint::OpenVpn(_))) => (),
+                    _ => panic!("OpenVPN endpoint was not selected"),
+                }
+            }
         }
     }
 
