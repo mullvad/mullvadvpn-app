@@ -226,6 +226,8 @@ class ApplicationMain {
   private autoConnectOnWireguardKeyEvent = false;
   private autoConnectFallbackScheduler = new Scheduler();
 
+  private blurNavigationResetScheduler = new Scheduler();
+
   private rendererLog?: Logger;
   private translations: ITranslations = { locale: this.locale };
 
@@ -500,7 +502,6 @@ class ApplicationMain {
 
       this.installWindowCloseHandler(this.windowController);
       this.installTrayClickHandlers();
-      this.installGenericFocusHandlers(this.windowController);
 
       const filePath = path.resolve(path.join(__dirname, '../renderer/index.html'));
       try {
@@ -1045,6 +1046,10 @@ class ApplicationMain {
 
   private registerWindowListener(windowController: WindowController) {
     windowController.window?.on('focus', () => {
+      IpcMainEventChannel.windowFocus.notify(windowController.webContents, true);
+
+      this.blurNavigationResetScheduler.cancel();
+
       // cancel notifications when window appears
       this.notificationController.cancelPendingNotifications();
 
@@ -1058,8 +1063,19 @@ class ApplicationMain {
     });
 
     windowController.window?.on('blur', () => {
+      IpcMainEventChannel.windowFocus.notify(windowController.webContents, false);
+
       // ensure notification guard is reset
       this.notificationController.resetTunnelStateAnnouncements();
+    });
+
+    // Use hide instead of blur to prevent the navigation reset from happening when bluring an
+    // unpinned window.
+    windowController.window?.on('hide', () => {
+      this.blurNavigationResetScheduler.schedule(
+        () => IpcMainEventChannel.navigation.notifyReset(windowController.webContents),
+        120_000,
+      );
     });
   }
 
@@ -1940,15 +1956,6 @@ class ApplicationMain {
         }
       });
     }
-  }
-
-  private installGenericFocusHandlers(windowController: WindowController) {
-    windowController.window?.on('focus', () => {
-      IpcMainEventChannel.windowFocus.notify(windowController.webContents, true);
-    });
-    windowController.window?.on('blur', () => {
-      IpcMainEventChannel.windowFocus.notify(windowController.webContents, false);
-    });
   }
 
   private shouldShowWindowOnStart(): boolean {

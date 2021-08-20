@@ -105,6 +105,9 @@ export const ipcSchema = {
   windowFocus: {
     '': notifyRenderer<boolean>(),
   },
+  navigation: {
+    reset: notifyRenderer<void>(),
+  },
   daemon: {
     connected: notifyRenderer<void>(),
     disconnected: notifyRenderer<void>(),
