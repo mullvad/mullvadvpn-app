@@ -7,7 +7,7 @@ use crate::routing;
 #[cfg(not(windows))]
 use crate::tunnel::tun_provider::TunProvider;
 use crate::tunnel::wireguard::logging::{
-    clean_up_logging, initialize_logging, logging_callback, WgLogLevel,
+    clean_up_logging, initialize_logging, wg_go_logging_callback, WgLogLevel,
 };
 #[cfg(not(windows))]
 use ipnetwork::IpNetwork;
@@ -88,7 +88,7 @@ impl WgGoTunnel {
                 mtu,
                 wg_config_str.as_ptr() as *const i8,
                 tunnel_fd,
-                Some(logging_callback),
+                Some(wg_go_logging_callback),
                 logging_context.0 as *mut libc::c_void,
             )
         };
@@ -145,7 +145,7 @@ impl WgGoTunnel {
                 wg_config_str.as_ptr(),
                 &mut alias_ptr,
                 &mut interface_luid,
-                Some(logging_callback),
+                Some(wg_go_logging_callback),
                 logging_context.0 as *mut libc::c_void,
             )
         };

@@ -364,7 +364,7 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "windows")]
         if !*FORCE_USERSPACE_WIREGUARD {
-            match wireguard_nt::WgNtTunnel::start_tunnel(config, resource_dir) {
+            match wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir) {
                 Ok(tunnel) => {
                     log::debug!("Using WireGuardNT");
                     return Ok(Box::new(tunnel));

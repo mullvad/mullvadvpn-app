@@ -1,5 +1,5 @@
 use parking_lot::Mutex;
-use std::{collections::HashMap, fs, io::Write, path::Path};
+use std::{collections::HashMap, fmt, fs, io::Write, path::Path};
 
 lazy_static::lazy_static! {
     static ref LOG_MUTEX: Mutex<HashMap<u32, fs::File>> = Mutex::new(HashMap::new());
@@ -44,14 +44,58 @@ pub fn clean_up_logging(ordinal: u32) {
     map.remove(&ordinal);
 }
 
+#[allow(dead_code)]
+pub enum LogLevel {
+    Verbose,
+    Info,
+    Warning,
+    Error,
+}
+
+impl fmt::Display for LogLevel {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_ref())
+    }
+}
+
+impl AsRef<str> for LogLevel {
+    fn as_ref(&self) -> &str {
+        match self {
+            LogLevel::Verbose => "VERBOSE",
+            LogLevel::Info => "INFO",
+            LogLevel::Warning => "WARNING",
+            LogLevel::Error => "ERROR",
+        }
+    }
+}
+
+#[cfg(windows)]
+pub fn log(context: u32, level: LogLevel, tag: &str, msg: &str) {
+    let mut map = LOG_MUTEX.lock();
+    if let Some(logfile) = map.get_mut(&(context as u32)) {
+        log_inner(logfile, level, tag, msg);
+    }
+}
+
+fn log_inner(logfile: &mut fs::File, level: LogLevel, tag: &str, msg: &str) {
+    let _ = write!(
+        logfile,
+        "{}[{}][{}] {}",
+        chrono::Local::now().format("[%Y-%m-%d %H:%M:%S%.3f]"),
+        tag,
+        level,
+        msg,
+    );
+}
+
 // Callback that receives messages from WireGuard
-pub unsafe extern "system" fn logging_callback(
+pub unsafe extern "system" fn wg_go_logging_callback(
     level: WgLogLevel,
     msg: *const libc::c_char,
     context: *mut libc::c_void,
 ) {
-    let map = LOG_MUTEX.lock();
-    if let Some(mut logfile) = map.get(&(context as u32)) {
+    let mut map = LOG_MUTEX.lock();
+    if let Some(logfile) = map.get_mut(&(context as u32)) {
         let managed_msg = if !msg.is_null() {
             #[cfg(not(target_os = "windows"))]
             let m = std::ffi::CStr::from_ptr(msg).to_string_lossy().to_string();
@@ -65,23 +109,13 @@ pub unsafe extern "system" fn logging_callback(
             "Logging message from WireGuard is NULL".to_string()
         };
 
-        let level_str = match level {
-            WG_GO_LOG_VERBOSE => "VERBOSE",
-            WG_GO_LOG_ERROR | _ => "ERROR",
+        let level = match level {
+            WG_GO_LOG_VERBOSE => LogLevel::Verbose,
+            WG_GO_LOG_ERROR | _ => LogLevel::Error,
         };
-
-        let _ = write!(
-            logfile,
-            "{}[{}][{}] {}",
-            chrono::Local::now().format("[%Y-%m-%d %H:%M:%S%.3f]"),
-            "wireguard-go",
-            level_str,
-            managed_msg
-        );
+        log_inner(logfile, level, "wireguard-go", &managed_msg);
     }
 }
-
-// unsafe fn
 
 pub type WgLogLevel = u32;
 // wireguard-go supports log levels 0 through 3 with 3 being the most verbose
