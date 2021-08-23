@@ -4,6 +4,7 @@ use talpid_types::net::TransportProtocol;
 
 
 const WIREGUARD_TCP_PORTS: [u16; 3] = [80, 443, 5001];
+const OPENVPN_TCP_PORTS: [u16; 2] = [80, 443];
 
 
 pub(super) struct Migration;
@@ -55,13 +56,69 @@ impl super::SettingsMigration for Migration {
                 .remove("protocol");
         }
 
+        let openvpn_constraints = || -> Option<&serde_json::Value> {
+            settings
+                .get("relay_settings")?
+                .get("normal")?
+                .get("openvpn_constraints")
+        }();
+
+        if let Some(constraints) = openvpn_constraints {
+            let port: Constraint<u16> = if let Some(port) = constraints.get("port") {
+                serde_json::from_value(port.clone()).map_err(Error::ParseError)?
+            } else {
+                Constraint::Any
+            };
+            let transport_constraint: Constraint<TransportProtocol> =
+                if let Some(protocol) = constraints.get("protocol") {
+                    serde_json::from_value(protocol.clone()).map_err(Error::ParseError)?
+                } else {
+                    Constraint::Any
+                };
+
+            let port = match (port, transport_constraint) {
+                (Constraint::Only(port), Constraint::Any) => Constraint::Only(TransportPort {
+                    protocol: openvpn_protocol_from_port(port),
+                    port: Constraint::Only(port),
+                }),
+                (Constraint::Only(port), Constraint::Only(protocol)) => {
+                    Constraint::Only(TransportPort {
+                        protocol,
+                        port: Constraint::Only(port),
+                    })
+                }
+                (Constraint::Any, Constraint::Only(protocol)) => Constraint::Only(TransportPort {
+                    protocol,
+                    port: Constraint::Any,
+                }),
+                (Constraint::Any, Constraint::Any) => Constraint::Any,
+            };
+
+            settings["relay_settings"]["normal"]["openvpn_constraints"]["port"] =
+                serde_json::json!(port);
+            settings["relay_settings"]["normal"]["openvpn_constraints"]
+                .as_object_mut()
+                .ok_or(Error::NoMatchingVersion)?
+                .remove("protocol");
+        }
+
         settings["settings_version"] = serde_json::json!(SettingsVersion::V5);
 
         Ok(())
     }
 }
 
+fn openvpn_protocol_from_port(port: u16) -> TransportProtocol {
+    log::warn!("Inferring transport protocol from port constraint");
+    if OPENVPN_TCP_PORTS.contains(&port) {
+        TransportProtocol::Tcp
+    } else {
+        TransportProtocol::Udp
+    }
+}
+
 fn wg_protocol_from_port(port: u16) -> TransportProtocol {
+    log::warn!("Inferring transport protocol from port constraint");
     if WIREGUARD_TCP_PORTS.contains(&port) {
         TransportProtocol::Tcp
     } else {
@@ -93,11 +150,9 @@ mod test {
       },
       "openvpn_constraints": {
         "port": {
-          "only": 53
+          "only": 1195
         },
-        "protocol": {
-          "only": "udp"
-        }
+        "protocol": "any"
       }
     }
   },
@@ -165,10 +220,12 @@ mod test {
       },
       "openvpn_constraints": {
         "port": {
-          "only": 53
-        },
-        "protocol": {
-          "only": "udp"
+          "only": {
+            "protocol": "udp",
+            "port": {
+              "only": 1195
+            }
+          }
         }
       }
     }

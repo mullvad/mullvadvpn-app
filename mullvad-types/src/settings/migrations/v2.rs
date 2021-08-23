@@ -128,10 +128,12 @@ mod test {
       },
       "openvpn_constraints": {
         "port": {
-          "only": 53
-        },
-        "protocol": {
-          "only": "udp"
+          "only": {
+            "protocol": "udp",
+            "port": {
+              "only": 53
+            }
+          }
         }
       }
     }

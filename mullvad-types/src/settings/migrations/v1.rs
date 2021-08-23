@@ -1,12 +1,5 @@
-use super::{Error, Result};
-use crate::{
-    custom_tunnel::CustomTunnelEndpoint,
-    relay_constraints::{
-        Constraint, LocationConstraint, OpenVpnConstraints, RelaySettings as NewRelaySettings,
-        WireguardConstraints,
-    },
-};
-use serde::{Deserialize, Serialize};
+use super::Result;
+use crate::relay_constraints::Constraint;
 use talpid_types::net::TunnelType;
 
 
@@ -20,63 +13,50 @@ impl super::SettingsMigration for Migration {
     fn migrate(&self, settings: &mut serde_json::Value) -> Result<()> {
         log::info!("Migrating settings format to V2");
 
-        let old_relay_settings: RelaySettings =
-            serde_json::from_value(settings["relay_settings"].clone())
-                .map_err(Error::ParseError)?;
-        let new_relay_settings = migrate_relay_settings(old_relay_settings);
+        let openvpn_constraints = || -> Option<serde_json::Value> {
+            settings
+                .get("relay_settings")?
+                .get("normal")?
+                .get("tunnel")?
+                .get("only")?
+                .get("openvpn")
+                .cloned()
+        }();
+        let wireguard_constraints = || -> Option<serde_json::Value> {
+            settings
+                .get("relay_settings")?
+                .get("normal")?
+                .get("tunnel")?
+                .get("only")?
+                .get("wireguard")
+                .cloned()
+        }();
 
-        settings["relay_settings"] = serde_json::json!(new_relay_settings);
+        if let Some(relay_settings) = settings.get_mut("relay_settings") {
+            if let Some(normal_settings) = relay_settings.get_mut("normal") {
+                if let Some(openvpn_constraints) = openvpn_constraints {
+                    normal_settings["openvpn_constraints"] = openvpn_constraints;
+                    normal_settings["tunnel_protocol"] =
+                        serde_json::json!(Constraint::<TunnelType>::Any);
+                } else if let Some(wireguard_constraints) = wireguard_constraints {
+                    normal_settings["wireguard_constraints"] = wireguard_constraints;
+                    normal_settings["tunnel_protocol"] =
+                        serde_json::json!(Constraint::Only(TunnelType::Wireguard));
+                } else {
+                    normal_settings["tunnel_protocol"] =
+                        serde_json::json!(Constraint::<TunnelType>::Any);
+                }
+                if let Some(object) = normal_settings.as_object_mut() {
+                    object.remove("tunnel");
+                }
+            }
+        }
+
         settings["show_beta_releases"] = serde_json::json!(false);
         settings["settings_version"] = serde_json::json!(super::SettingsVersion::V2);
 
         Ok(())
     }
-}
-
-fn migrate_relay_settings(relay_settings: RelaySettings) -> NewRelaySettings {
-    match relay_settings {
-        RelaySettings::CustomTunnelEndpoint(endpoint) => {
-            crate::relay_constraints::RelaySettings::CustomTunnelEndpoint(endpoint)
-        }
-        RelaySettings::Normal(old_constraints) => {
-            let mut new_constraints = crate::relay_constraints::RelayConstraints {
-                location: old_constraints.location,
-                ..Default::default()
-            };
-            match old_constraints.tunnel {
-                Constraint::Any => (),
-                Constraint::Only(TunnelConstraints::OpenVpn(constraints)) => {
-                    new_constraints.openvpn_constraints = constraints;
-                }
-                Constraint::Only(TunnelConstraints::Wireguard(constraints)) => {
-                    new_constraints.wireguard_constraints = constraints;
-                    new_constraints.tunnel_protocol = Constraint::Only(TunnelType::Wireguard);
-                }
-            };
-            crate::relay_constraints::RelaySettings::Normal(new_constraints)
-        }
-    }
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
-#[serde(rename_all = "snake_case")]
-pub enum RelaySettings {
-    CustomTunnelEndpoint(CustomTunnelEndpoint),
-    Normal(RelayConstraints),
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
-pub struct RelayConstraints {
-    pub location: Constraint<LocationConstraint>,
-    pub tunnel: Constraint<TunnelConstraints>,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Deserialize, Serialize)]
-pub enum TunnelConstraints {
-    #[serde(rename = "openvpn")]
-    OpenVpn(OpenVpnConstraints),
-    #[serde(rename = "wireguard")]
-    Wireguard(WireguardConstraints),
 }
 
 #[cfg(test)]
@@ -100,10 +80,12 @@ mod test {
       },
       "openvpn_constraints": {
         "port": {
-          "only": 53
-        },
-        "protocol": {
-          "only": "udp"
+          "only": {
+            "protocol": "udp",
+            "port": {
+              "only": 53
+            }
+          }
         }
       }
     }
