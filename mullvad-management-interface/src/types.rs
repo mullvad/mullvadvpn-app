@@ -294,14 +294,6 @@ impl From<talpid_types::net::TransportProtocol> for TransportProtocol {
     }
 }
 
-impl From<TransportProtocol> for TransportProtocolConstraint {
-    fn from(protocol: TransportProtocol) -> Self {
-        Self {
-            protocol: i32::from(protocol),
-        }
-    }
-}
-
 impl From<talpid_types::net::IpVersion> for IpVersion {
     fn from(version: talpid_types::net::IpVersion) -> Self {
         match version {
@@ -518,14 +510,11 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for RelaySettings {
                     }),
 
                     openvpn_constraints: Some(OpenvpnConstraints {
-                        port: u32::from(constraints.openvpn_constraints.port.unwrap_or(0)),
-                        protocol: constraints
+                        port: constraints
                             .openvpn_constraints
-                            .protocol
-                            .as_ref()
+                            .port
                             .option()
-                            .map(|protocol| TransportProtocol::from(*protocol))
-                            .map(TransportProtocolConstraint::from),
+                            .map(TransportPort::from),
                     }),
                 })
             }
@@ -728,6 +717,23 @@ impl TryFrom<&WireguardConstraints> for mullvad_types::relay_constraints::Wiregu
     }
 }
 
+impl TryFrom<&OpenvpnConstraints> for mullvad_types::relay_constraints::OpenVpnConstraints {
+    type Error = FromProtobufTypeError;
+
+    fn try_from(
+        constraints: &OpenvpnConstraints,
+    ) -> Result<mullvad_types::relay_constraints::OpenVpnConstraints, Self::Error> {
+        use mullvad_types::relay_constraints as mullvad_constraints;
+
+        Ok(mullvad_constraints::OpenVpnConstraints {
+            port: Constraint::from(match &constraints.port {
+                Some(port) => Some(mullvad_constraints::TransportPort::try_from(port.clone())?),
+                None => None,
+            }),
+        })
+    }
+}
+
 impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySettingsUpdate {
     type Error = FromProtobufTypeError;
 
@@ -912,11 +918,11 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                     None
                 };
 
-                let openvpn_transport_protocol =
+                let openvpn_transport_port =
                     if let Some(ref constraints) = settings.openvpn_constraints {
-                        match &constraints.protocol {
-                            Some(constraint) => {
-                                Some(try_transport_protocol_from_i32(constraint.protocol)?)
+                        match &constraints.port {
+                            Some(port) => {
+                                Some(mullvad_constraints::TransportPort::try_from(port.clone())?)
                             }
                             None => None,
                         }
@@ -986,14 +992,9 @@ impl TryFrom<RelaySettingsUpdate> for mullvad_types::relay_constraints::RelaySet
                                 ),
                             }
                         }),
-                        openvpn_constraints: settings.openvpn_constraints.map(|constraints| {
+                        openvpn_constraints: settings.openvpn_constraints.map(|_constraints| {
                             mullvad_constraints::OpenVpnConstraints {
-                                port: if constraints.port != 0 {
-                                    Constraint::Only(constraints.port as u16)
-                                } else {
-                                    Constraint::Any
-                                },
-                                protocol: Constraint::from(openvpn_transport_protocol),
+                                port: Constraint::from(openvpn_transport_port),
                             }
                         }),
                     },
