@@ -389,12 +389,13 @@ impl RelaySelector {
             // If no tunnel protocol is selected, use preferred constraints
             Constraint::Any => {
                 if original_constraints.openvpn_constraints.port.is_any()
-                    && original_constraints.openvpn_constraints.protocol.is_any()
                     || bridge_state == BridgeState::On
                 {
                     relay_constraints.openvpn_constraints = OpenVpnConstraints {
-                        port: preferred_port,
-                        protocol: Constraint::Only(preferred_protocol),
+                        port: Constraint::Only(TransportPort {
+                            protocol: preferred_protocol,
+                            port: preferred_port,
+                        }),
                     };
                 } else {
                     relay_constraints.openvpn_constraints =
@@ -414,15 +415,19 @@ impl RelaySelector {
             Constraint::Only(TunnelType::OpenVpn) => {
                 let openvpn_constraints = &mut relay_constraints.openvpn_constraints;
                 *openvpn_constraints = original_constraints.openvpn_constraints;
-                if bridge_state == BridgeState::On && openvpn_constraints.protocol.is_any() {
+                if bridge_state == BridgeState::On && openvpn_constraints.port.is_any() {
                     // FIXME: This is temporary while talpid-core only supports TCP proxies
-                    openvpn_constraints.protocol = Constraint::Only(TransportProtocol::Tcp);
-                } else if openvpn_constraints.port.is_any() && openvpn_constraints.protocol.is_any()
-                {
+                    openvpn_constraints.port = Constraint::Only(TransportPort {
+                        protocol: TransportProtocol::Tcp,
+                        port: Constraint::Any,
+                    });
+                } else if openvpn_constraints.port.is_any() {
                     let (preferred_port, preferred_protocol) =
                         Self::preferred_openvpn_constraints(retry_attempt);
-                    openvpn_constraints.port = preferred_port;
-                    openvpn_constraints.protocol = Constraint::Only(preferred_protocol);
+                    openvpn_constraints.port = Constraint::Only(TransportPort {
+                        protocol: preferred_protocol,
+                        port: preferred_port,
+                    });
                 }
             }
             Constraint::Only(TunnelType::Wireguard) => {
