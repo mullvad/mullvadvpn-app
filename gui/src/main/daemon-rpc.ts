@@ -1137,18 +1137,21 @@ function convertFromKeygenEvent(data: grpcTypes.KeygenEvent): KeygenEvent {
 function convertFromOpenVpnConstraints(
   constraints: grpcTypes.OpenvpnConstraints,
 ): IOpenVpnConstraints {
-  const port = convertFromConstraint(constraints.getPort());
-  let protocol: Constraint<RelayProtocol> = 'any';
-  switch (constraints.getProtocol()?.getProtocol()) {
-    case grpcTypes.TransportProtocol.TCP:
-      protocol = { only: 'tcp' };
-      break;
-    case grpcTypes.TransportProtocol.UDP:
-      protocol = { only: 'udp' };
-      break;
+  const transportPort = convertFromConstraint(constraints.getPort());
+  if (transportPort !== 'any' && 'only' in transportPort) {
+    const port = convertFromConstraint(transportPort.only.getPort());
+    let protocol: Constraint<RelayProtocol> = 'any';
+    switch (transportPort.only.getProtocol()) {
+      case grpcTypes.TransportProtocol.TCP:
+        protocol = { only: 'tcp' };
+        break;
+      case grpcTypes.TransportProtocol.UDP:
+        protocol = { only: 'udp' };
+        break;
+    }
+    return { port, protocol };
   }
-
-  return { port, protocol };
+  return { port: 'any', protocol: 'any' };
 }
 
 function convertFromWireguardConstraints(
@@ -1241,15 +1244,15 @@ function convertToOpenVpnConstraints(
 ): grpcTypes.OpenvpnConstraints | undefined {
   const openvpnConstraints = new grpcTypes.OpenvpnConstraints();
   if (constraints) {
-    const port = liftConstraint(constraints.port);
-    if (port) {
-      openvpnConstraints.setPort(port);
-    }
     const protocol = liftConstraint(constraints.protocol);
     if (protocol) {
-      const transportConstraint = new grpcTypes.TransportProtocolConstraint();
-      transportConstraint.setProtocol(convertToTransportProtocol(protocol));
-      openvpnConstraints.setProtocol(transportConstraint);
+      const portConstraints = new grpcTypes.TransportPort();
+      const port = liftConstraint(constraints.port);
+      if (port) {
+        portConstraints.setPort(port);
+      }
+      portConstraints.setProtocol(convertToTransportProtocol(protocol));
+      openvpnConstraints.setPort(portConstraints);
     }
     return openvpnConstraints;
   }
