@@ -61,10 +61,10 @@ impl super::SettingsMigration for Migration {
 
 #[cfg(test)]
 mod test {
-    use super::super::try_migrate_settings;
+    use super::{super::SettingsMigration, Migration};
     use serde_json;
 
-    pub const NEW_SETTINGS: &str = r#"
+    pub const V2_SETTINGS: &str = r#"
 {
   "account_token": "1234",
   "relay_settings": {
@@ -75,27 +75,16 @@ mod test {
         }
       },
       "tunnel_protocol": "any",
-      "wireguard_constraints": {
-        "port": "any"
-      },
       "openvpn_constraints": {
         "port": {
-          "only": {
-            "protocol": "udp",
-            "port": {
-              "only": 53
-            }
-          }
+          "only": 53
+        },
+        "protocol": {
+          "only": "udp"
         }
       }
     }
   },
-  "bridge_settings": {
-    "normal": {
-      "location": "any"
-    }
-  },
-  "bridge_state": "auto",
   "allow_lan": true,
   "block_when_disconnected": false,
   "auto_connect": false,
@@ -110,7 +99,8 @@ mod test {
       "enable_ipv6": false
     }
   },
-  "settings_version": 5
+  "show_beta_releases": false,
+  "settings_version": 2
 }
 "#;
 
@@ -138,12 +128,6 @@ mod test {
       }
     }
   },
-  "bridge_settings": {
-    "normal": {
-      "location": "any"
-    }
-  },
-  "bridge_state": "auto",
   "allow_lan": true,
   "block_when_disconnected": false,
   "auto_connect": false,
@@ -190,8 +174,7 @@ mod test {
   "auto_connect": false,
   "tunnel_options": {
     "openvpn": {
-      "mssfix": null,
-      "proxy": null
+      "mssfix": null
     },
     "wireguard": {
       "mtu": null
@@ -206,19 +189,27 @@ mod test {
 
     #[test]
     fn test_v1_migration() {
-        let migrated_settings =
-            try_migrate_settings(V1_SETTINGS.as_bytes()).expect("Migration failed");
-        let new_settings = serde_json::from_str(NEW_SETTINGS).unwrap();
+        let mut old_settings = serde_json::from_str(V1_SETTINGS).unwrap();
 
-        assert_eq!(&migrated_settings, &new_settings);
+        let migration = Migration;
+        assert!(migration.version_matches(&mut old_settings));
+
+        migration.migrate(&mut old_settings).unwrap();
+        let new_settings: serde_json::Value = serde_json::from_str(V2_SETTINGS).unwrap();
+
+        assert_eq!(&old_settings, &new_settings);
     }
 
     #[test]
     fn test_v1_2019v3_migration() {
-        let migrated_settings =
-            try_migrate_settings(V1_SETTINGS_2019V3.as_bytes()).expect("Migration failed");
-        let new_settings = serde_json::from_str(NEW_SETTINGS).unwrap();
+        let mut old_settings = serde_json::from_str(V1_SETTINGS_2019V3).unwrap();
 
-        assert_eq!(&migrated_settings, &new_settings);
+        let migration = Migration;
+        assert!(migration.version_matches(&mut old_settings));
+
+        migration.migrate(&mut old_settings).unwrap();
+        let new_settings: serde_json::Value = serde_json::from_str(V2_SETTINGS).unwrap();
+
+        assert_eq!(&old_settings, &new_settings);
     }
 }
