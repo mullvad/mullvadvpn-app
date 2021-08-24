@@ -150,7 +150,6 @@ impl Command for Relay {
                                             .help("Port to use. Either 'any' or a specific port")
                                             .long("port")
                                             .takes_value(true)
-                                            .requires("transport protocol")
                                             .default_value("any"),
                                     )
                                     .arg(
@@ -158,7 +157,8 @@ impl Command for Relay {
                                             .help("Transport protocol")
                                             .long("protocol")
                                             .takes_value(true)
-                                            .possible_values(&["udp", "tcp"]),
+                                            .possible_values(&["any", "udp", "tcp"])
+                                            .default_value("any"),
                                     )
                             )
                             .subcommand(
@@ -169,7 +169,6 @@ impl Command for Relay {
                                             .help("Port to use. Either 'any' or a specific port")
                                             .long("port")
                                             .takes_value(true)
-                                            .requires("transport protocol")
                                             .default_value("any"),
                                     )
                                     .arg(
@@ -178,7 +177,8 @@ impl Command for Relay {
                                                    sent over TCP using a udp-over-tcp proxy")
                                             .long("protocol")
                                             .takes_value(true)
-                                            .possible_values(&["udp", "tcp"]),
+                                            .possible_values(&["any", "udp", "tcp"])
+                                            .default_value("any"),
                                     )
                                     .arg(
                                         clap::Arg::with_name("ip version")
@@ -773,10 +773,11 @@ fn parse_port_constraint(raw_port: &str) -> Result<Constraint<u16>> {
     }
 }
 
-fn parse_protocol(raw_protocol: &str) -> TransportProtocol {
+fn parse_protocol(raw_protocol: &str) -> Constraint<TransportProtocol> {
     match raw_protocol {
-        "udp" => TransportProtocol::Udp,
-        "tcp" => TransportProtocol::Tcp,
+        "any" => Constraint::Any,
+        "udp" => Constraint::Only(TransportProtocol::Udp),
+        "tcp" => Constraint::Only(TransportProtocol::Tcp),
         _ => unreachable!(),
     }
 }
@@ -807,17 +808,20 @@ fn parse_entry_location_constraint<'a, T: Iterator<Item = &'a str>>(
 }
 
 fn parse_transport_port(matches: &clap::ArgMatches<'_>) -> Result<Option<TransportPort>> {
-    let protocol = matches.value_of("transport protocol").map(parse_protocol);
-    match matches.value_of("port").map(parse_port_constraint) {
-        None => Ok(None),
-        Some(Err(error)) => Err(error),
-        Some(Ok(Constraint::Any)) => Ok(Some(TransportPort {
-            protocol: protocol.unwrap() as i32,
-            port: 0,
+    let port = parse_port_constraint(matches.value_of("port").unwrap())?;
+    let protocol = parse_protocol(matches.value_of("transport protocol").unwrap());
+    match (port, protocol) {
+        (Constraint::Any, Constraint::Any) => Ok(None),
+        (Constraint::Any, Constraint::Only(protocol)) => Ok(Some(TransportPort {
+            protocol: protocol as i32,
+            ..TransportPort::default()
         })),
-        Some(Ok(Constraint::Only(port))) => Ok(Some(TransportPort {
-            protocol: protocol.unwrap() as i32,
+        (Constraint::Only(port), Constraint::Only(protocol)) => Ok(Some(TransportPort {
+            protocol: protocol as i32,
             port: u32::from(port),
         })),
+        (Constraint::Only(_), Constraint::Any) => Err(Error::InvalidCommand(
+            "a transport protocol must be given to select a specific port",
+        )),
     }
 }
