@@ -10,7 +10,6 @@ class ApplicationsProvider(
 ) {
     private val applicationFilterPredicate: (ApplicationInfo) -> Boolean = { appInfo ->
         hasInternetPermission(appInfo.packageName) &&
-            isLaunchable(appInfo.packageName) &&
             !isSelfApplication(appInfo.packageName)
     }
 
@@ -19,7 +18,12 @@ class ApplicationsProvider(
             .asSequence()
             .filter(applicationFilterPredicate)
             .map { info ->
-                AppData(info.packageName, info.icon, info.loadLabel(packageManager).toString())
+                AppData(
+                    info.packageName,
+                    info.icon,
+                    info.loadLabel(packageManager).toString(),
+                    !isLaunchable(info.packageName)
+                )
             }
             .toList()
     }
