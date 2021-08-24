@@ -8,6 +8,7 @@ use std::{
         io::{AsRawHandle, RawHandle},
     },
     path::{Path, PathBuf},
+    pin::Pin,
     ptr,
     sync::{mpsc as sync_mpsc, Arc},
 };
@@ -242,7 +243,7 @@ struct DirContext {
     path: PathBuf,
     dir_handle: fs::File,
     buffer: Vec<u8>,
-    overlapped: OVERLAPPED,
+    overlapped: Pin<Box<OVERLAPPED>>,
     _io_completion_port: Arc<CompletionPort>,
 }
 
@@ -275,7 +276,7 @@ impl DirContext {
             path: path.as_ref().to_path_buf(),
             dir_handle,
             buffer: vec![0u8; 4096],
-            overlapped: unsafe { mem::zeroed() },
+            overlapped: Box::pin(unsafe { mem::zeroed() }),
             _io_completion_port: io_completion_port,
         })
     }
@@ -292,7 +293,7 @@ impl DirContext {
                     | FILE_NOTIFY_CHANGE_DIR_NAME
                     | FILE_NOTIFY_CHANGE_ATTRIBUTES,
                 &mut _bytes_returned,
-                &mut self.overlapped,
+                &mut *self.overlapped,
                 None,
             )
         } == 0
