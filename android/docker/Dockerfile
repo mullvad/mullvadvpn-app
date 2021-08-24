@@ -18,7 +18,7 @@ RUN apt-key add < /tmp/adopt-openjdk-apt-key.pgp && \
     rm /tmp/adopt-openjdk-apt-key.pgp && \
     add-apt-repository -y https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/ && \
     apt-get update && \
-    apt-get install -y adoptopenjdk-8-hotspot
+    apt-get install -y adoptopenjdk-11-hotspot
 
 # Install Android SDK
 RUN curl -sf https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip -L -o /tmp/tools_r26.1.1-linux.zip && \
