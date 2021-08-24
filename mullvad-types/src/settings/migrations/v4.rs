@@ -81,16 +81,9 @@ impl super::SettingsMigration for Migration {
                     protocol: openvpn_protocol_from_port(port),
                     port: Constraint::Only(port),
                 }),
-                (Constraint::Only(port), Constraint::Only(protocol)) => {
-                    Constraint::Only(TransportPort {
-                        protocol,
-                        port: Constraint::Only(port),
-                    })
+                (port, Constraint::Only(protocol)) => {
+                    Constraint::Only(TransportPort { protocol, port })
                 }
-                (Constraint::Any, Constraint::Only(protocol)) => Constraint::Only(TransportPort {
-                    protocol,
-                    port: Constraint::Any,
-                }),
                 (Constraint::Any, Constraint::Any) => Constraint::Any,
             };
 
@@ -128,7 +121,7 @@ fn wg_protocol_from_port(port: u16) -> TransportProtocol {
 
 #[cfg(test)]
 mod test {
-    use super::super::try_migrate_settings;
+    use super::{super::SettingsMigration, Migration};
     use serde_json;
 
     pub const V4_SETTINGS: &str = r#"
@@ -197,7 +190,7 @@ mod test {
 }
 "#;
 
-    pub const NEW_SETTINGS: &str = r#"
+    pub const V5_SETTINGS: &str = r#"
 {
   "account_token": "1234",
   "relay_settings": {
@@ -274,10 +267,14 @@ mod test {
 
     #[test]
     fn test_v4_migration() {
-        let migrated_settings =
-            try_migrate_settings(V4_SETTINGS.as_bytes()).expect("Migration failed");
-        let new_settings = serde_json::from_str(NEW_SETTINGS).unwrap();
+        let mut old_settings = serde_json::from_str(V4_SETTINGS).unwrap();
 
-        assert_eq!(&migrated_settings, &new_settings);
+        let migration = Migration;
+        assert!(migration.version_matches(&mut old_settings));
+
+        migration.migrate(&mut old_settings).unwrap();
+        let new_settings: serde_json::Value = serde_json::from_str(V5_SETTINGS).unwrap();
+
+        assert_eq!(&old_settings, &new_settings);
     }
 }

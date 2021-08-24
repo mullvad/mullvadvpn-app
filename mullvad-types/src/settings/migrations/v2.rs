@@ -51,6 +51,10 @@ impl super::SettingsMigration for Migration {
 
             settings["tunnel_options"]["wireguard"]["rotation_interval"] =
                 serde_json::json!(new_ivl);
+            settings["tunnel_options"]["wireguard"]
+                .as_object_mut()
+                .ok_or(Error::NoMatchingVersion)?
+                .remove("automatic_rotation");
         }
 
         settings["settings_version"] = serde_json::json!(SettingsVersion::V3);
@@ -61,7 +65,7 @@ impl super::SettingsMigration for Migration {
 
 #[cfg(test)]
 mod test {
-    use super::super::try_migrate_settings;
+    use super::{super::SettingsMigration, Migration};
     use serde_json;
 
     const V2_SETTINGS: &str = r#"
@@ -74,16 +78,16 @@ mod test {
           "country": "se"
         }
       },
-      "tunnel": {
-        "only": {
-          "openvpn": {
-            "port": {
-              "only": 53
-            },
-            "protocol": {
-              "only": "udp"
-            }
-          }
+      "tunnel_protocol": "any",
+      "wireguard_constraints": {
+        "port": "any"
+      },
+      "openvpn_constraints": {
+        "port": {
+          "only": 53
+        },
+        "protocol": {
+          "only": "udp"
         }
       }
     }
@@ -103,16 +107,18 @@ mod test {
     },
     "wireguard": {
       "mtu": null,
-      "automatic_rotation": 24
+      "automatic_rotation": 10
     },
     "generic": {
       "enable_ipv6": false
     }
-  }
+  },
+  "show_beta_releases": null,
+  "settings_version": 2
 }
 "#;
 
-    pub const NEW_SETTINGS: &str = r#"
+    pub const V3_SETTINGS: &str = r#"
 {
   "account_token": "1234",
   "relay_settings": {
@@ -128,12 +134,10 @@ mod test {
       },
       "openvpn_constraints": {
         "port": {
-          "only": {
-            "protocol": "udp",
-            "port": {
-              "only": 53
-            }
-          }
+          "only": 53
+        },
+        "protocol": {
+          "only": "udp"
         }
       }
     }
@@ -162,17 +166,21 @@ mod test {
       "enable_ipv6": false
     }
   },
-  "settings_version": 5
+  "settings_version": 3
 }
 "#;
 
 
     #[test]
     fn test_v2_migration() {
-        let migrated_settings =
-            try_migrate_settings(V2_SETTINGS.as_bytes()).expect("Migration failed");
-        let new_settings = serde_json::from_str(NEW_SETTINGS).unwrap();
+        let mut old_settings = serde_json::from_str(V2_SETTINGS).unwrap();
 
-        assert_eq!(&migrated_settings, &new_settings);
+        let migration = Migration;
+        assert!(migration.version_matches(&mut old_settings));
+
+        migration.migrate(&mut old_settings).unwrap();
+        let new_settings: serde_json::Value = serde_json::from_str(V3_SETTINGS).unwrap();
+
+        assert_eq!(&old_settings, &new_settings);
     }
 }
