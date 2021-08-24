@@ -150,15 +150,15 @@ impl Command for Relay {
                                             .help("Port to use. Either 'any' or a specific port")
                                             .long("port")
                                             .takes_value(true)
-                                            .requires("transport protocol"),
+                                            .requires("transport protocol")
+                                            .default_value("any"),
                                     )
                                     .arg(
                                         clap::Arg::with_name("transport protocol")
                                             .help("Transport protocol")
                                             .long("protocol")
                                             .takes_value(true)
-                                            .possible_values(&["udp", "tcp"])
-                                            .requires("port"),
+                                            .possible_values(&["udp", "tcp"]),
                                     )
                             )
                             .subcommand(
@@ -169,7 +169,8 @@ impl Command for Relay {
                                             .help("Port to use. Either 'any' or a specific port")
                                             .long("port")
                                             .takes_value(true)
-                                            .requires("transport protocol"),
+                                            .requires("transport protocol")
+                                            .default_value("any"),
                                     )
                                     .arg(
                                         clap::Arg::with_name("transport protocol")
@@ -177,8 +178,7 @@ impl Command for Relay {
                                                    sent over TCP using a udp-over-tcp proxy")
                                             .long("protocol")
                                             .takes_value(true)
-                                            .possible_values(&["udp", "tcp"])
-                                            .requires("port"),
+                                            .possible_values(&["udp", "tcp"]),
                                     )
                                     .arg(
                                         clap::Arg::with_name("ip version")
