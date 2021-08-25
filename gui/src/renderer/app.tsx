@@ -121,7 +121,6 @@ export default class AppRenderer {
   private tunnelState!: TunnelState;
   private settings!: ISettings;
   private guiSettings!: IGuiSettingsState;
-  private autoConnected = false;
   private doingLogin = false;
   private loginScheduler = new Scheduler();
   private connectedToDaemon = false;
@@ -646,9 +645,8 @@ export default class AppRenderer {
     }
   }
 
-  private async onDaemonConnected() {
+  private onDaemonConnected() {
     this.connectedToDaemon = true;
-    await this.autoConnect();
     this.resetNavigation();
   }
 
@@ -695,30 +693,6 @@ export default class AppRenderer {
       return accountToken ? RoutePath.main : RoutePath.login;
     } else {
       return RoutePath.launch;
-    }
-  }
-
-  private async autoConnect() {
-    if (window.env.development) {
-      log.info('Skip autoconnect in development');
-    } else if (this.autoConnected) {
-      log.info('Skip autoconnect because it was done before');
-    } else if (this.settings.accountToken) {
-      if (this.guiSettings.autoConnect) {
-        try {
-          log.info('Autoconnect the tunnel');
-
-          await this.connectTunnel();
-
-          this.autoConnected = true;
-        } catch (error) {
-          log.error(`Failed to autoconnect the tunnel: ${error.message}`);
-        }
-      } else {
-        log.info('Skip autoconnect because GUI setting is disabled');
-      }
-    } else {
-      log.info('Skip autoconnect because account token is not set');
     }
   }
 
