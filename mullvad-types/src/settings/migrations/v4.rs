@@ -4,6 +4,7 @@ use talpid_types::net::TransportProtocol;
 
 
 const WIREGUARD_TCP_PORTS: [u16; 3] = [80, 443, 5001];
+const OPENVPN_TCP_PORTS: [u16; 2] = [80, 443];
 
 
 pub(super) struct Migration;
@@ -55,13 +56,62 @@ impl super::SettingsMigration for Migration {
                 .remove("protocol");
         }
 
+        let openvpn_constraints = || -> Option<&serde_json::Value> {
+            settings
+                .get("relay_settings")?
+                .get("normal")?
+                .get("openvpn_constraints")
+        }();
+
+        if let Some(constraints) = openvpn_constraints {
+            let port: Constraint<u16> = if let Some(port) = constraints.get("port") {
+                serde_json::from_value(port.clone()).map_err(Error::ParseError)?
+            } else {
+                Constraint::Any
+            };
+            let transport_constraint: Constraint<TransportProtocol> =
+                if let Some(protocol) = constraints.get("protocol") {
+                    serde_json::from_value(protocol.clone()).map_err(Error::ParseError)?
+                } else {
+                    Constraint::Any
+                };
+
+            let port = match (port, transport_constraint) {
+                (Constraint::Only(port), Constraint::Any) => Constraint::Only(TransportPort {
+                    protocol: openvpn_protocol_from_port(port),
+                    port: Constraint::Only(port),
+                }),
+                (port, Constraint::Only(protocol)) => {
+                    Constraint::Only(TransportPort { protocol, port })
+                }
+                (Constraint::Any, Constraint::Any) => Constraint::Any,
+            };
+
+            settings["relay_settings"]["normal"]["openvpn_constraints"]["port"] =
+                serde_json::json!(port);
+            settings["relay_settings"]["normal"]["openvpn_constraints"]
+                .as_object_mut()
+                .ok_or(Error::NoMatchingVersion)?
+                .remove("protocol");
+        }
+
         settings["settings_version"] = serde_json::json!(SettingsVersion::V5);
 
         Ok(())
     }
 }
 
+fn openvpn_protocol_from_port(port: u16) -> TransportProtocol {
+    log::warn!("Inferring transport protocol from port constraint");
+    if OPENVPN_TCP_PORTS.contains(&port) {
+        TransportProtocol::Tcp
+    } else {
+        TransportProtocol::Udp
+    }
+}
+
 fn wg_protocol_from_port(port: u16) -> TransportProtocol {
+    log::warn!("Inferring transport protocol from port constraint");
     if WIREGUARD_TCP_PORTS.contains(&port) {
         TransportProtocol::Tcp
     } else {
@@ -71,7 +121,7 @@ fn wg_protocol_from_port(port: u16) -> TransportProtocol {
 
 #[cfg(test)]
 mod test {
-    use super::super::try_migrate_settings;
+    use super::{super::SettingsMigration, Migration};
     use serde_json;
 
     pub const V4_SETTINGS: &str = r#"
@@ -93,11 +143,9 @@ mod test {
       },
       "openvpn_constraints": {
         "port": {
-          "only": 53
+          "only": 1195
         },
-        "protocol": {
-          "only": "udp"
-        }
+        "protocol": "any"
       }
     }
   },
@@ -142,7 +190,7 @@ mod test {
 }
 "#;
 
-    pub const NEW_SETTINGS: &str = r#"
+    pub const V5_SETTINGS: &str = r#"
 {
   "account_token": "1234",
   "relay_settings": {
@@ -165,10 +213,12 @@ mod test {
       },
       "openvpn_constraints": {
         "port": {
-          "only": 53
-        },
-        "protocol": {
-          "only": "udp"
+          "only": {
+            "protocol": "udp",
+            "port": {
+              "only": 1195
+            }
+          }
         }
       }
     }
@@ -217,10 +267,14 @@ mod test {
 
     #[test]
     fn test_v4_migration() {
-        let migrated_settings =
-            try_migrate_settings(V4_SETTINGS.as_bytes()).expect("Migration failed");
-        let new_settings = serde_json::from_str(NEW_SETTINGS).unwrap();
+        let mut old_settings = serde_json::from_str(V4_SETTINGS).unwrap();
 
-        assert_eq!(&migrated_settings, &new_settings);
+        let migration = Migration;
+        assert!(migration.version_matches(&mut old_settings));
+
+        migration.migrate(&mut old_settings).unwrap();
+        let new_settings: serde_json::Value = serde_json::from_str(V5_SETTINGS).unwrap();
+
+        assert_eq!(&old_settings, &new_settings);
     }
 }

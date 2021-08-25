@@ -50,7 +50,7 @@ impl super::SettingsMigration for Migration {
 
 #[cfg(test)]
 mod test {
-    use super::super::try_migrate_settings;
+    use super::{super::SettingsMigration, Migration};
     use serde_json;
 
     pub const V3_SETTINGS: &str = r#"
@@ -69,7 +69,7 @@ mod test {
       },
       "openvpn_constraints": {
         "port": {
-          "only": 53
+          "only": 1195
         },
         "protocol": {
           "only": "udp"
@@ -112,7 +112,7 @@ mod test {
 }
 "#;
 
-    pub const NEW_SETTINGS: &str = r#"
+    pub const V4_SETTINGS: &str = r#"
 {
   "account_token": "1234",
   "relay_settings": {
@@ -128,7 +128,7 @@ mod test {
       },
       "openvpn_constraints": {
         "port": {
-          "only": 53
+          "only": 1195
         },
         "protocol": {
           "only": "udp"
@@ -173,17 +173,21 @@ mod test {
       }
     }
   },
-  "settings_version": 5
+  "settings_version": 4
 }
 "#;
 
 
     #[test]
     fn test_v3_migration() {
-        let migrated_settings =
-            try_migrate_settings(V3_SETTINGS.as_bytes()).expect("Migration failed");
-        let new_settings = serde_json::from_str(NEW_SETTINGS).unwrap();
+        let mut old_settings = serde_json::from_str(V3_SETTINGS).unwrap();
 
-        assert_eq!(&migrated_settings, &new_settings);
+        let migration = Migration;
+        assert!(migration.version_matches(&mut old_settings));
+
+        migration.migrate(&mut old_settings).unwrap();
+        let new_settings: serde_json::Value = serde_json::from_str(V4_SETTINGS).unwrap();
+
+        assert_eq!(&old_settings, &new_settings);
     }
 }
