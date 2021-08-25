@@ -1,5 +1,5 @@
 use std::{
-    collections::HashSet,
+    collections::{HashSet, VecDeque},
     ffi::{OsStr, OsString},
     fs, io, mem,
     os::windows::{
@@ -306,17 +306,23 @@ impl DirContext {
     fn path(&self) -> &Path {
         &self.path
     }
+
+    fn cancel_io(&mut self) -> io::Result<()> {
+        if unsafe { CancelIoEx(self.dir_handle.as_raw_handle(), ptr::null_mut()) } == 0 {
+            match io::Error::last_os_error() {
+                _error if _error.raw_os_error() == Some(ERROR_NOT_FOUND as i32) => Ok(()),
+                error => Err(error),
+            }
+        } else {
+            Ok(())
+        }
+    }
 }
 
 impl Drop for DirContext {
     fn drop(&mut self) {
-        if unsafe { CancelIoEx(self.dir_handle.as_raw_handle(), ptr::null_mut()) } == 0 {
-            match io::Error::last_os_error() {
-                error if error.raw_os_error() != Some(ERROR_NOT_FOUND as i32) => {
-                    log::error!("Failed to cancel pending file I/O request: {}", error);
-                }
-                _ => (),
-            }
+        if let Err(error) = self.cancel_io() {
+            log::error!("Failed to cancel pending file I/O request: {}", error);
         }
     }
 }
@@ -464,6 +470,7 @@ enum PathMonitorCommand {
 pub struct PathMonitor {
     port_handle: Arc<CompletionPort>,
     dir_contexts: Vec<DirContext>,
+    discarded_contexts: VecDeque<DirContext>,
     stripped_paths: HashSet<StrippedPath>,
 }
 
@@ -475,6 +482,7 @@ impl PathMonitor {
         let mut monitor = Self {
             port_handle: port_handle.clone(),
             dir_contexts: vec![],
+            discarded_contexts: VecDeque::new(),
             stripped_paths: HashSet::new(),
         };
 
@@ -558,7 +566,11 @@ impl PathMonitor {
                 .iter()
                 .any(|p| p.prefix == self.dir_contexts[i].path)
             {
-                self.dir_contexts.remove(i);
+                let mut removed_ctx = self.dir_contexts.remove(i);
+                if let Err(error) = removed_ctx.cancel_io() {
+                    log::error!("Failed to cancel pending I/O for dir context: {}", error);
+                }
+                self.discarded_contexts.push_back(removed_ctx);
             }
         }
 
@@ -597,6 +609,7 @@ impl PathMonitor {
                 return Ok(false);
             }
             Err(error) if error.raw_os_error() == Some(ERROR_OPERATION_ABORTED as i32) => {
+                self.discarded_contexts.pop_front();
                 return Ok(false);
             }
             Ok(result) => result,
