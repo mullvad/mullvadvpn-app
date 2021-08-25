@@ -45,7 +45,6 @@ import {
   StyledNoResult,
   StyledNoResultSearchTerm,
   StyledDisabledWarning,
-  StyledBetaLabel,
 } from './SplitTunnelingSettingsStyles';
 
 export default function SplitTunneling() {
@@ -398,10 +397,7 @@ export function WindowsSplitTunnelingSettings(props: IPlatformSplitTunnelingSett
   return (
     <>
       <SettingsHeader>
-        <HeaderTitle>
-          {messages.pgettext('split-tunneling-view', 'Split tunneling')}
-          <StyledBetaLabel />
-        </HeaderTitle>
+        <HeaderTitle>{messages.pgettext('split-tunneling-view', 'Split tunneling')}</HeaderTitle>
         <HeaderSubTitle>
           {messages.pgettext(
             'split-tunneling-view',

@@ -15,7 +15,6 @@ import {
   StyledCustomDnsFooter,
   StyledAddCustomDnsLabel,
   StyledAddCustomDnsButton,
-  StyledBetaLabel,
 } from './AdvancedSettingsStyles';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
@@ -160,7 +159,6 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                   <Cell.CellButtonGroup>
                     <Cell.CellButton onClick={this.props.onViewSplitTunneling}>
                       <Cell.Label>
-                        {window.env.platform === 'win32' && <StyledBetaLabel />}
                         {messages.pgettext('advanced-settings-view', 'Split tunneling')}
                       </Cell.Label>
                       <Cell.Icon height={12} width={7} source="icon-chevron" />
