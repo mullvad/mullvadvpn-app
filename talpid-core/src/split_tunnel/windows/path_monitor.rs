@@ -11,6 +11,7 @@ use std::{
     pin::Pin,
     ptr,
     sync::{mpsc as sync_mpsc, Arc},
+    time::Duration,
 };
 use winapi::{
     self,
@@ -41,6 +42,7 @@ use winapi::{
     },
 };
 
+const SHUTDOWN_POLL_TIMEOUT: Duration = Duration::from_millis(500);
 const PATH_MONITOR_COMPLETION_KEY_IGNORE: usize = usize::MAX;
 
 const CSTR_EQUAL: i32 = 2;
@@ -306,17 +308,24 @@ impl DirContext {
     fn path(&self) -> &Path {
         &self.path
     }
+
+    /// Try to cancel a request. On success, return whether a request was cancelled.
+    fn cancel_io(&mut self) -> io::Result<bool> {
+        if unsafe { CancelIoEx(self.dir_handle.as_raw_handle(), ptr::null_mut()) } == 0 {
+            match io::Error::last_os_error() {
+                _error if _error.raw_os_error() == Some(ERROR_NOT_FOUND as i32) => Ok(false),
+                error => Err(error),
+            }
+        } else {
+            Ok(true)
+        }
+    }
 }
 
 impl Drop for DirContext {
     fn drop(&mut self) {
-        if unsafe { CancelIoEx(self.dir_handle.as_raw_handle(), ptr::null_mut()) } == 0 {
-            match io::Error::last_os_error() {
-                error if error.raw_os_error() != Some(ERROR_NOT_FOUND as i32) => {
-                    log::error!("Failed to cancel pending file I/O request: {}", error);
-                }
-                _ => (),
-            }
+        if let Err(error) = self.cancel_io() {
+            log::error!("Failed to cancel pending file I/O request: {}", error);
         }
     }
 }
@@ -346,7 +355,16 @@ impl CompletionPort {
         Ok(CompletionPort { handle })
     }
 
-    fn get_queued_completion_status(&self) -> io::Result<CompletionStatus> {
+    fn get_queued_completion_status(
+        &self,
+    ) -> Result<CompletionStatus, (io::Error, CompletionStatus)> {
+        self.get_queued_completion_status_timeout(INFINITE)
+    }
+
+    fn get_queued_completion_status_timeout(
+        &self,
+        timeout: u32,
+    ) -> Result<CompletionStatus, (io::Error, CompletionStatus)> {
         let mut result = CompletionStatus {
             bytes_returned: 0,
             completion_key: 0,
@@ -359,11 +377,11 @@ impl CompletionPort {
                 &mut result.bytes_returned,
                 &mut result.completion_key,
                 &mut result.used_overlapped,
-                INFINITE,
+                timeout,
             )
         } == 0
         {
-            return Err(io::Error::last_os_error());
+            return Err((io::Error::last_os_error(), result));
         }
 
         Ok(result)
@@ -464,6 +482,7 @@ enum PathMonitorCommand {
 pub struct PathMonitor {
     port_handle: Arc<CompletionPort>,
     dir_contexts: Vec<DirContext>,
+    discarded_contexts: Vec<DirContext>,
     stripped_paths: HashSet<StrippedPath>,
 }
 
@@ -475,6 +494,7 @@ impl PathMonitor {
         let mut monitor = Self {
             port_handle: port_handle.clone(),
             dir_contexts: vec![],
+            discarded_contexts: vec![],
             stripped_paths: HashSet::new(),
         };
 
@@ -502,6 +522,8 @@ impl PathMonitor {
                 }
             }
             log::debug!("Shutting down reparse point monitor");
+
+            monitor.abort_all_requests();
         });
 
         Ok((
@@ -558,7 +580,14 @@ impl PathMonitor {
                 .iter()
                 .any(|p| p.prefix == self.dir_contexts[i].path)
             {
-                self.dir_contexts.remove(i);
+                let mut removed_ctx = self.dir_contexts.remove(i);
+                match removed_ctx.cancel_io() {
+                    Ok(true) => self.discarded_contexts.push(removed_ctx),
+                    Err(error) => {
+                        log::error!("Failed to cancel pending I/O for dir context: {}", error)
+                    }
+                    Ok(false) => (),
+                }
             }
         }
 
@@ -596,11 +625,14 @@ impl PathMonitor {
             Ok(result) if result.completion_key == PATH_MONITOR_COMPLETION_KEY_IGNORE => {
                 return Ok(false);
             }
-            Err(error) if error.raw_os_error() == Some(ERROR_OPERATION_ABORTED as i32) => {
+            Err((error, status))
+                if error.raw_os_error() == Some(ERROR_OPERATION_ABORTED as i32) =>
+            {
+                self.free_discarded_context(status.used_overlapped);
                 return Ok(false);
             }
             Ok(result) => result,
-            Err(error) => {
+            Err((error, _status)) => {
                 log::error!(
                     "GetQueuedCompletionStatus failed: {:?}",
                     error.raw_os_error()
@@ -608,6 +640,10 @@ impl PathMonitor {
                 return Err(error);
             }
         };
+
+        if self.free_discarded_context(result.used_overlapped) {
+            return Ok(false);
+        }
 
         if result.completion_key >= self.dir_contexts.len() {
             log::debug!("Ignoring out-of-bounds completion key");
@@ -627,6 +663,23 @@ impl PathMonitor {
         }
 
         Ok(changed)
+    }
+
+    /// Remove the element in `discarded_contexts` that owns the `OVERLAPPED` object, if it exists.
+    fn free_discarded_context(&mut self, overlapped: *const OVERLAPPED) -> bool {
+        if overlapped == ptr::null_mut() {
+            return false;
+        }
+        let mut was_discarded = false;
+        self.discarded_contexts.retain(|ctx| {
+            if ((&*ctx.overlapped) as *const _) != overlapped {
+                true
+            } else {
+                was_discarded = true;
+                false
+            }
+        });
+        was_discarded
     }
 
     fn process_file_notification(&self, completion_key: usize) -> io::Result<bool> {
@@ -672,6 +725,44 @@ impl PathMonitor {
                 as *const FILE_NOTIFY_INFORMATION;
         }
         Ok(false)
+    }
+
+    /// Cancel all requests and give the cancelled operations some time to complete.
+    fn abort_all_requests(&mut self) {
+        let mut contexts = vec![];
+        for mut ctx in self
+            .dir_contexts
+            .drain(..)
+            .chain(self.discarded_contexts.drain(..))
+        {
+            match ctx.cancel_io() {
+                Ok(true) => contexts.push(ctx),
+                Ok(false) => (),
+                Err(error) => log::error!("Failed to cancel pending I/O request: {}", error),
+            }
+        }
+
+        while !contexts.is_empty() {
+            let result = match self
+                .port_handle
+                .get_queued_completion_status_timeout(SHUTDOWN_POLL_TIMEOUT.as_millis() as u32)
+            {
+                Ok(result) => result,
+                Err((error, result))
+                    if error.raw_os_error() == Some(ERROR_OPERATION_ABORTED as i32) =>
+                {
+                    result
+                }
+                Err((error, _status)) => {
+                    log::error!(
+                        "GetQueuedCompletionStatus failed while shutting down: {}",
+                        error
+                    );
+                    break;
+                }
+            };
+            contexts.retain(|ctx| ((&*ctx.overlapped) as *const _) != result.used_overlapped);
+        }
     }
 }
 
