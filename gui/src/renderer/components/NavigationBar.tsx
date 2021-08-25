@@ -194,16 +194,12 @@ interface ICloseBarItemProps {
 }
 
 export function CloseBarItem(props: ICloseBarItemProps) {
-  // Use the arrow down icon on Linux, to avoid confusion with the close button in the window
-  // title bar.
-  const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
-  const iconName = unpinnedWindow ? 'icon-close-down' : 'icon-close';
   return (
     <StyledCloseBarItemButton aria-label={messages.gettext('Close')} onClick={props.action}>
       <StyledCloseBarItemIcon
         height={24}
         width={24}
-        source={iconName}
+        source={'icon-close-down'}
         tintColor={colors.white60}
         tintHoverColor={colors.white80}
       />
