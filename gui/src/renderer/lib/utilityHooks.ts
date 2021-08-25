@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 export function useMounted() {
   const mountedRef = useRef(false);
@@ -42,4 +42,14 @@ export function useAsyncEffect(
       });
     };
   }, dependencies);
+}
+
+export function useBoolean(initialValue: boolean) {
+  const [value, setValue] = useState(initialValue);
+
+  const setTrue = useCallback(() => setValue(true), []);
+  const setFalse = useCallback(() => setValue(false), []);
+  const toggle = useCallback(() => setValue((value) => !value), []);
+
+  return [value, setTrue, setFalse, toggle] as const;
 }
