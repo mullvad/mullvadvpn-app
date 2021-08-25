@@ -55,6 +55,7 @@ interface IProps {
 
 interface IState {
   showFilterMenu: boolean;
+  headingHeight: number;
 }
 
 interface ISelectLocationSnapshot {
@@ -63,7 +64,8 @@ interface ISelectLocationSnapshot {
 }
 
 export default class SelectLocation extends React.Component<IProps, IState> {
-  public state = { showFilterMenu: false };
+  // The default headingHeight value is based on a one-line heading.
+  public state = { showFilterMenu: false, headingHeight: 50 };
 
   private scrollView = React.createRef<CustomScrollbars>();
   private spacePreAllocationViewRef = React.createRef<SpacePreAllocationView>();
@@ -76,9 +78,14 @@ export default class SelectLocation extends React.Component<IProps, IState> {
   private snapshotByScope: { [index: number]: ISelectLocationSnapshot } = {};
 
   private filterButtonRef = React.createRef<HTMLDivElement>();
+  private headingRef = React.createRef<HTMLHeadingElement>();
 
   public componentDidMount() {
     this.scrollToSelectedCell();
+    this.setState((state) => ({
+      // 10 px is the margin ontop of the heading.
+      headingHeight: (this.headingRef.current?.offsetHeight ?? state.headingHeight) + 10,
+    }));
   }
 
   public componentDidUpdate(
@@ -117,10 +124,15 @@ export default class SelectLocation extends React.Component<IProps, IState> {
       <Layout onClick={this.onClickAnywhere}>
         <StyledContainer>
           <NavigationContainer>
-            <NavigationBar alwaysDisplayBarTitle={true}>
+            <NavigationBar>
               <NavigationItems>
                 <CloseBarItem action={this.props.onClose} />
-                <TitleBarItem />
+                <TitleBarItem>
+                  {
+                    // TRANSLATORS: Title label in navigation bar
+                    messages.pgettext('select-location-nav', 'Select location')
+                  }
+                </TitleBarItem>
 
                 <StyledFilterContainer ref={this.filterButtonRef}>
                   <StyledFilterIconButton
@@ -143,55 +155,60 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                   )}
                 </StyledFilterContainer>
               </NavigationItems>
-              <StyledNavigationBarAttachment>
-                <StyledSettingsHeader>
-                  <HeaderTitle>
-                    {
-                      // TRANSLATORS: Heading in select location view
-                      messages.pgettext('select-location-nav', 'Select location')
-                    }
-                  </HeaderTitle>
-                </StyledSettingsHeader>
-
-                {this.props.providers.length > 0 && (
-                  <StyledProviderCountRow>
-                    {messages.pgettext('select-location-view', 'Filtered:')}
-                    <StyledProvidersCount>
-                      {sprintf(
-                        messages.pgettext(
-                          'select-location-view',
-                          'Providers: %(numberOfProviders)d',
-                        ),
-                        {
-                          numberOfProviders: this.props.providers.length,
-                        },
-                      )}
-                      <StyledClearProvidersButton
-                        aria-label={messages.gettext('Clear')}
-                        onClick={this.props.onClearProviders}>
-                        <ImageView
-                          height={16}
-                          width={16}
-                          source="icon-close"
-                          tintColor={colors.white60}
-                          tintHoverColor={colors.white80}
-                        />
-                      </StyledClearProvidersButton>
-                    </StyledProvidersCount>
-                  </StyledProviderCountRow>
-                )}
-                {this.props.allowBridgeSelection && (
-                  <StyledScopeBar
-                    defaultSelectedIndex={this.props.locationScope}
-                    onChange={this.props.onChangeLocationScope}>
-                    <ScopeBarItem>{messages.pgettext('select-location-nav', 'Entry')}</ScopeBarItem>
-                    <ScopeBarItem>{messages.pgettext('select-location-nav', 'Exit')}</ScopeBarItem>
-                  </StyledScopeBar>
-                )}
-              </StyledNavigationBarAttachment>
             </NavigationBar>
             <NavigationScrollbars ref={this.scrollView}>
               <SpacePreAllocationView ref={this.spacePreAllocationViewRef}>
+                <StyledNavigationBarAttachment top={-this.state.headingHeight}>
+                  <StyledSettingsHeader>
+                    <HeaderTitle ref={this.headingRef}>
+                      {
+                        // TRANSLATORS: Heading in select location view
+                        messages.pgettext('select-location-view', 'Select location')
+                      }
+                    </HeaderTitle>
+                  </StyledSettingsHeader>
+
+                  {this.props.providers.length > 0 && (
+                    <StyledProviderCountRow>
+                      {messages.pgettext('select-location-view', 'Filtered:')}
+                      <StyledProvidersCount>
+                        {sprintf(
+                          messages.pgettext(
+                            'select-location-view',
+                            'Providers: %(numberOfProviders)d',
+                          ),
+                          {
+                            numberOfProviders: this.props.providers.length,
+                          },
+                        )}
+                        <StyledClearProvidersButton
+                          aria-label={messages.gettext('Clear')}
+                          onClick={this.props.onClearProviders}>
+                          <ImageView
+                            height={16}
+                            width={16}
+                            source="icon-close"
+                            tintColor={colors.white60}
+                            tintHoverColor={colors.white80}
+                          />
+                        </StyledClearProvidersButton>
+                      </StyledProvidersCount>
+                    </StyledProviderCountRow>
+                  )}
+                  {this.props.allowBridgeSelection && (
+                    <StyledScopeBar
+                      defaultSelectedIndex={this.props.locationScope}
+                      onChange={this.props.onChangeLocationScope}>
+                      <ScopeBarItem>
+                        {messages.pgettext('select-location-nav', 'Entry')}
+                      </ScopeBarItem>
+                      <ScopeBarItem>
+                        {messages.pgettext('select-location-nav', 'Exit')}
+                      </ScopeBarItem>
+                    </StyledScopeBar>
+                  )}
+                </StyledNavigationBarAttachment>
+
                 <StyledContent>
                   {this.props.locationScope === LocationScope.relay ? (
                     <ExitLocations

@@ -20,10 +20,13 @@ export const StyledContent = styled.div({
   overflow: 'visible',
 });
 
-export const StyledNavigationBarAttachment = styled.div({
-  marginTop: '8px',
-  paddingHorizontal: '4px',
-});
+export const StyledNavigationBarAttachment = styled.div({}, (props: { top: number }) => ({
+  position: 'sticky',
+  top: `${props.top}px`,
+  padding: '8px 18px 8px 16px',
+  backgroundColor: colors.darkBlue,
+  zIndex: 1,
+}));
 
 export const StyledFilterContainer = styled.div({
   position: 'relative',
@@ -45,6 +48,7 @@ export const StyledFilterMenu = styled.div({
   borderRadius: '4px',
   backgroundColor: colors.darkBlue,
   overflow: 'hidden',
+  zIndex: 2,
 });
 
 export const StyledFilterByProviderButton = styled.button({
