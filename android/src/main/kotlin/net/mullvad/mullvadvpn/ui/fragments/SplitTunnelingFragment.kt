@@ -22,6 +22,8 @@ import net.mullvad.mullvadvpn.applist.ViewIntent
 import net.mullvad.mullvadvpn.di.APPS_SCOPE
 import net.mullvad.mullvadvpn.di.SERVICE_CONNECTION_SCOPE
 import net.mullvad.mullvadvpn.model.ListItemData
+import net.mullvad.mullvadvpn.model.WidgetState.ImageState
+import net.mullvad.mullvadvpn.model.WidgetState.SwitchState
 import net.mullvad.mullvadvpn.ui.ListItemDividerDecoration
 import net.mullvad.mullvadvpn.ui.ListItemListener
 import net.mullvad.mullvadvpn.ui.ListItemsAdapter
@@ -46,10 +48,14 @@ class SplitTunnelingFragment : BaseFragment(R.layout.collapsed_title_layout) {
             ViewModelOwner.from(this, this)
         }
     )
+    private val toggleSystemAppsVisibility = Channel<Boolean>(Channel.CONFLATED)
     private val toggleExcludeChannel = Channel<ListItemData>(Channel.BUFFERED)
     private val listItemListener = object : ListItemListener {
         override fun onItemAction(item: ListItemData) {
-            toggleExcludeChannel.offer(item)
+            when (item.widget) {
+                is ImageState -> toggleExcludeChannel.offer(item)
+                is SwitchState -> toggleSystemAppsVisibility.offer(!item.widget.isChecked)
+            }
         }
     }
 
@@ -100,7 +106,8 @@ class SplitTunnelingFragment : BaseFragment(R.layout.collapsed_title_layout) {
 
     private fun intents(): Flow<ViewIntent> = merge(
         transitionFinishedFlow.map { ViewIntent.ViewIsReady },
-        toggleExcludeChannel.consumeAsFlow().map { ViewIntent.ChangeApplicationGroup(it) }
+        toggleExcludeChannel.consumeAsFlow().map { ViewIntent.ChangeApplicationGroup(it) },
+        toggleSystemAppsVisibility.consumeAsFlow().map { ViewIntent.ShowSystemApps(it) }
     )
 
     private fun tweakMargin(view: View) {
