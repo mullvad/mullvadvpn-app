@@ -57,27 +57,18 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         }
     }
 
-    func addLogFile(fileURL: URL) {
-        guard fileURL.isFileURL else {
-            addError(message: fileURL.absoluteString, error: Error.invalidLogFileURL(fileURL))
-            return
-        }
-
-        let path = fileURL.path
-        let redactedPath = redact(string: path)
-
-        switch Self.readFileLossy(path: path, maxBytes: kLogMaxReadBytes) {
-        case .success(let lossyString):
-            let redactedString = redact(string: lossyString)
-            logs.append(LogAttachment(label: redactedPath, content: redactedString))
-
-        case .failure(let error):
-            addError(message: redactedPath, error: error)
+    func addLogFile(fileURL: URL, includeLogBackup: Bool) {
+        addSingleLogFile(fileURL)
+        if includeLogBackup {
+            let oldLogFileURL = fileURL.deletingPathExtension().appendingPathExtension("old.log")
+            addSingleLogFile(oldLogFileURL)
         }
     }
 
-    func addLogFiles(fileURLs: [URL]) {
-        fileURLs.forEach(self.addLogFile)
+    func addLogFiles(fileURLs: [URL], includeLogBackups: Bool) {
+        for fileURL in fileURLs {
+            addLogFile(fileURL: fileURL, includeBackupLog: includeLogBackups)
+        }
     }
 
     func addError<ErrorType: ChainedError>(message: String, error: ErrorType) {
@@ -105,6 +96,25 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
             print(kLogDelimeter, to: &stream)
             print(attachment.content, to: &stream)
             print("", to: &stream)
+        }
+    }
+
+    private func addSingleLogFile(_ fileURL: URL) {
+        guard fileURL.isFileURL else {
+            addError(message: fileURL.absoluteString, error: Error.invalidLogFileURL(fileURL))
+            return
+        }
+
+        let path = fileURL.path
+        let redactedPath = redact(string: path)
+
+        switch Self.readFileLossy(path: path, maxBytes: kLogMaxReadBytes) {
+        case .success(let lossyString):
+            let redactedString = redact(string: lossyString)
+            logs.append(LogAttachment(label: redactedPath, content: redactedString))
+
+        case .failure(let error):
+            addError(message: redactedPath, error: error)
         }
     }
 
