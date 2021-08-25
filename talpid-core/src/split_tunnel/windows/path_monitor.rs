@@ -645,24 +645,39 @@ impl PathMonitor {
             return Ok(false);
         }
 
-        if result.completion_key >= self.dir_contexts.len() {
-            log::debug!("Ignoring out-of-bounds completion key");
-            return Ok(false);
-        }
+        let ctx_index = self
+            .find_context(result.used_overlapped)
+            .ok_or(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "received I/O completion packet without an associated DirContext",
+            ))?;
 
-        let changed = if result.bytes_returned == 0 || result.used_overlapped == ptr::null_mut() {
+        let changed = if result.bytes_returned == 0 {
             log::debug!("Change event buffer is empty");
             false
         } else {
-            self.process_file_notification(result.completion_key)?
+            self.process_file_notification(&self.dir_contexts[ctx_index])?
         };
 
-        if let Err(error) = self.dir_contexts[result.completion_key].read_directory_changes() {
+        if let Err(error) = self.dir_contexts[ctx_index].read_directory_changes() {
             log::error!("Failed to queue new directory change event: {}", error);
             return Err(error);
         }
 
         Ok(changed)
+    }
+
+    /// Find the index of the `DirContext` that owns the `OVERLAPPED` object, or None.
+    fn find_context(&self, overlapped: *const OVERLAPPED) -> Option<usize> {
+        if overlapped == ptr::null_mut() {
+            return None;
+        }
+        for i in 0..self.dir_contexts.len() {
+            if ((&*self.dir_contexts[i].overlapped) as *const _) == overlapped {
+                return Some(i);
+            }
+        }
+        None
     }
 
     /// Remove the element in `discarded_contexts` that owns the `OVERLAPPED` object, if it exists.
@@ -682,9 +697,8 @@ impl PathMonitor {
         was_discarded
     }
 
-    fn process_file_notification(&self, completion_key: usize) -> io::Result<bool> {
-        let mut info =
-            self.dir_contexts[completion_key].buffer.as_ptr() as *const FILE_NOTIFY_INFORMATION;
+    fn process_file_notification(&self, dir_context: &DirContext) -> io::Result<bool> {
+        let mut info = dir_context.buffer.as_ptr() as *const FILE_NOTIFY_INFORMATION;
         loop {
             let current_field = unsafe { &*info };
 
@@ -696,7 +710,7 @@ impl PathMonitor {
             };
 
             for path in &self.stripped_paths {
-                if path.prefix != self.dir_contexts[completion_key].path() {
+                if path.prefix != dir_context.path() {
                     continue;
                 }
                 if path.tail.len() <= file_name.len() {
