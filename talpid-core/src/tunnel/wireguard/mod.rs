@@ -110,7 +110,7 @@ lazy_static! {
     /// Overrides the preference for the kernel module for WireGuard.
     static ref FORCE_USERSPACE_WIREGUARD: bool = env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
         .map(|v| v != "0")
-        .unwrap_or(false);
+        .unwrap_or(true);
 }
 
 struct TcpProxy {
