@@ -51,6 +51,7 @@ class ApplicationsProviderTest {
         val result = testSubject.getAppsList()
         val expected = listOf(
             AppData(launchWithInternetPackageName, 0, launchWithInternetPackageName),
+            AppData(nonLaunchWithInternetPackageName, 0, nonLaunchWithInternetPackageName, true),
             AppData(leanbackLaunchWithInternetPackageName, 0, leanbackLaunchWithInternetPackageName)
         )
 
@@ -74,8 +75,7 @@ class ApplicationsProviderTest {
             listOf(
                 launchWithInternetPackageName,
                 nonLaunchWithInternetPackageName,
-                leanbackLaunchWithInternetPackageName,
-                selfPackageName
+                leanbackLaunchWithInternetPackageName
             ).forEach { packageName ->
                 mockedPackageManager.getLaunchIntentForPackage(packageName)
             }
@@ -93,7 +93,8 @@ class ApplicationsProviderTest {
         packageName: String,
         launch: Boolean = false,
         leanback: Boolean = false,
-        internet: Boolean = false
+        internet: Boolean = false,
+        systemApp: Boolean = false
     ): ApplicationInfo {
         val mockApplicationInfo = mockk<ApplicationInfo>()
 
@@ -104,14 +105,14 @@ class ApplicationsProviderTest {
 
         every {
             mockedPackageManager.getLaunchIntentForPackage(packageName)
-        } returns if (launch)
+        } returns if (launch || systemApp)
             mockk()
         else
             null
 
         every {
             mockedPackageManager.getLeanbackLaunchIntentForPackage(packageName)
-        } returns if (leanback)
+        } returns if (leanback || systemApp)
             mockk()
         else
             null
