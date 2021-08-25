@@ -93,6 +93,7 @@ class SplitTunnelingViewModelTest {
             createMainItem(R.string.exclude_applications),
             createApplicationItem(appExcluded, true),
             createDivider(1),
+            createSwitchItem(R.string.show_system_apps, false),
             createMainItem(R.string.all_applications),
             createApplicationItem(appNotExcluded, false),
         )
@@ -131,6 +132,7 @@ class SplitTunnelingViewModelTest {
         val expectedList = listOf(
             createTextItem(R.string.split_tunneling_description),
             createDivider(1),
+            createSwitchItem(R.string.show_system_apps, false),
             createMainItem(R.string.all_applications),
             createApplicationItem(app, false),
         )
@@ -156,6 +158,7 @@ class SplitTunnelingViewModelTest {
         val expectedListBeforeAction = listOf(
             createTextItem(R.string.split_tunneling_description),
             createDivider(1),
+            createSwitchItem(R.string.show_system_apps, false),
             createMainItem(R.string.all_applications),
             createApplicationItem(app, false),
         )
@@ -224,4 +227,12 @@ class SplitTunnelingViewModelTest {
     private fun createProgressItem(): ListItemData = ListItemData.build(identifier = "progress") {
         type = ListItemData.PROGRESS
     }
+
+    private fun createSwitchItem(@StringRes text: Int, checked: Boolean): ListItemData =
+        ListItemData.build(identifier = "switch_$text") {
+            type = ListItemData.ACTION
+            textRes = text
+            action = ListItemData.ItemAction(text.toString())
+            widget = WidgetState.SwitchState(checked)
+        }
 }
