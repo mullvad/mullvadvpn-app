@@ -28,6 +28,9 @@ Line wrap the file at 100 chars.                                              Th
 - Added possibility to filter locations by provider in the desktop app.
 - Add WireGuard over TCP CLI option for all relays.
 
+#### Android
+- Added toggle for Split tunneling view to be able to show system apps
+
 ### Changed
 - Only use the account history file to store the last used account.
 - Update the out of time-view and new account-view to make it more user friendly.
