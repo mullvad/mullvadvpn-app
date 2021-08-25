@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { IDnsOptions, TunnelProtocol } from '../../shared/daemon-rpc-types';
+import { TunnelProtocol } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import AdvancedSettings from '../components/AdvancedSettings';
@@ -17,7 +17,6 @@ const mapStateToProps = (state: IReduxState) => {
     enableIpv6: state.settings.enableIpv6,
     blockWhenDisconnected: state.settings.blockWhenDisconnected,
     wireguardKeyState: state.settings.wireguardKeyState,
-    dns: state.settings.dns,
     tunnelProtocol,
   };
 };
@@ -72,10 +71,6 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
       } catch (e) {
         log.error('Failed to update block when disconnected', e.message);
       }
-    },
-
-    setDnsOptions: (dns: IDnsOptions) => {
-      return props.app.setDnsOptions(dns);
     },
 
     onViewWireguardSettings: () => props.history.push(RoutePath.wireguardSettings),
