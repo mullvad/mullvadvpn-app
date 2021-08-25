@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { colors } from '../../config.json';
-import BetaLabel from './BetaLabel';
 import * as Cell from './cell';
 import { NavigationScrollbars } from './NavigationBar';
 import Selector from './cell/Selector';
@@ -59,8 +58,3 @@ export const StyledAddCustomDnsLabel = styled(Cell.Label)(
     marginRight: '25px',
   }),
 );
-
-export const StyledBetaLabel = styled(BetaLabel)({
-  marginRight: '8px',
-  verticalAlign: 'bottom',
-});
