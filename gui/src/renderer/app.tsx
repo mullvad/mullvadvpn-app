@@ -205,6 +205,8 @@ export default class AppRenderer {
       this.reduxActions.userInterface.setWindowFocused(focus);
     });
 
+    IpcRendererEventChannel.navigation.listenReset(() => this.history.dismiss(true));
+
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 
