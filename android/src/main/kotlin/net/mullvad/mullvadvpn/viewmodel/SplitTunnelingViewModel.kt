@@ -38,6 +38,7 @@ class SplitTunnelingViewModel(
         createTextItem(R.string.split_tunneling_description)
         // We will have search item in future
     )
+    private var isSystemAppsVisible = false
 
     init {
         viewModelScope.launch(dispatcher) {
@@ -73,6 +74,10 @@ class SplitTunnelingViewModel(
                 }
             }
             is ViewIntent.ViewIsReady -> isUIReady.complete(Unit)
+            is ViewIntent.ShowSystemApps -> {
+                isSystemAppsVisible = viewIntent.show
+                publishList()
+            }
         }
     }
 
@@ -112,10 +117,13 @@ class SplitTunnelingViewModel(
                 createApplicationItem(info, true)
             }
         }
-        if (notExcludedApps.isNotEmpty()) {
+        val shownNotExcludedApps =
+            notExcludedApps.filter { app -> !app.value.isSystemApp || isSystemAppsVisible }
+        if (shownNotExcludedApps.isNotEmpty()) {
             listItems += createDivider(1)
+            listItems += createSwitchItem(R.string.show_system_apps, isSystemAppsVisible)
             listItems += createMainItem(R.string.all_applications)
-            listItems += notExcludedApps.values.sortedBy { it.name }.map { info ->
+            listItems += shownNotExcludedApps.values.sortedBy { it.name }.map { info ->
                 createApplicationItem(info, false)
             }
         }
@@ -153,4 +161,12 @@ class SplitTunnelingViewModel(
     private fun createProgressItem(): ListItemData = ListItemData.build(identifier = "progress") {
         type = ListItemData.PROGRESS
     }
+
+    private fun createSwitchItem(@StringRes text: Int, checked: Boolean): ListItemData =
+        ListItemData.build(identifier = "switch_$text") {
+            type = ListItemData.ACTION
+            textRes = text
+            action = ListItemData.ItemAction(text.toString())
+            widget = WidgetState.SwitchState(checked)
+        }
 }

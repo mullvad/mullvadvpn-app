@@ -1355,6 +1355,9 @@ msgstr ""
 msgid "Secured"
 msgstr ""
 
+msgid "Show system apps"
+msgstr ""
+
 msgid "Shows current VPN tunnel status"
 msgstr ""
 
