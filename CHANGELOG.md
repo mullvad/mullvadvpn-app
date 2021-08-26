@@ -75,6 +75,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Android
 - Fix erasing wireguard MTU value in some scenarious.
+- Fix initial state of Split tunneling excluded apps list. Previously it was not notified the daemon
+properly after initialization.
 
 ## [2021.4] - 2021-06-30
 This release is for desktop only.
