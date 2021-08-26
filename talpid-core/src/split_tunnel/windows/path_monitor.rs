@@ -11,7 +11,7 @@ use std::{
     pin::Pin,
     ptr,
     sync::{mpsc as sync_mpsc, Arc},
-    time::Duration,
+    time::{Duration, Instant},
 };
 use winapi::{
     self,
@@ -43,6 +43,7 @@ use winapi::{
 };
 
 const SHUTDOWN_POLL_TIMEOUT: Duration = Duration::from_millis(500);
+const SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(2);
 const PATH_MONITOR_COMPLETION_KEY_IGNORE: usize = usize::MAX;
 
 const CSTR_EQUAL: i32 = 2;
@@ -584,7 +585,8 @@ impl PathMonitor {
                 match removed_ctx.cancel_io() {
                     Ok(true) => self.discarded_contexts.push(removed_ctx),
                     Err(error) => {
-                        log::error!("Failed to cancel pending I/O for dir context: {}", error)
+                        log::error!("Failed to cancel pending I/O for dir context: {}", error);
+                        mem::forget(removed_ctx)
                     }
                     Ok(false) => (),
                 }
@@ -625,20 +627,15 @@ impl PathMonitor {
             Ok(result) if result.completion_key == PATH_MONITOR_COMPLETION_KEY_IGNORE => {
                 return Ok(false);
             }
-            Err((error, status))
-                if error.raw_os_error() == Some(ERROR_OPERATION_ABORTED as i32) =>
-            {
+            Err((error, status)) => {
                 self.free_discarded_context(status.used_overlapped);
+                if error.raw_os_error() != Some(ERROR_OPERATION_ABORTED as i32) {
+                    log::error!("GetQueuedCompletionStatus failed: {:?}", error);
+                    return Err(error);
+                }
                 return Ok(false);
             }
             Ok(result) => result,
-            Err((error, _status)) => {
-                log::error!(
-                    "GetQueuedCompletionStatus failed: {:?}",
-                    error.raw_os_error()
-                );
-                return Err(error);
-            }
         };
 
         if self.free_discarded_context(result.used_overlapped) {
@@ -752,27 +749,34 @@ impl PathMonitor {
             match ctx.cancel_io() {
                 Ok(true) => contexts.push(ctx),
                 Ok(false) => (),
-                Err(error) => log::error!("Failed to cancel pending I/O request: {}", error),
+                Err(error) => {
+                    log::error!("Failed to cancel pending I/O request: {}", error);
+                    mem::forget(ctx);
+                }
             }
         }
 
+        let time = Instant::now();
         while !contexts.is_empty() {
+            if time.elapsed() >= SHUTDOWN_TIMEOUT {
+                log::error!("Timeout while cancelling I/O requests");
+                mem::forget(contexts);
+                return;
+            }
+
             let result = match self
                 .port_handle
                 .get_queued_completion_status_timeout(SHUTDOWN_POLL_TIMEOUT.as_millis() as u32)
             {
                 Ok(result) => result,
-                Err((error, result))
-                    if error.raw_os_error() == Some(ERROR_OPERATION_ABORTED as i32) =>
-                {
+                Err((error, result)) => {
+                    if error.raw_os_error() != Some(ERROR_OPERATION_ABORTED as i32) {
+                        log::error!("GetQueuedCompletionStatus failed: {:?}", error);
+                        if result.used_overlapped == ptr::null_mut() {
+                            continue;
+                        }
+                    }
                     result
-                }
-                Err((error, _status)) => {
-                    log::error!(
-                        "GetQueuedCompletionStatus failed while shutting down: {}",
-                        error
-                    );
-                    break;
                 }
             };
             contexts.retain(|ctx| ((&*ctx.overlapped) as *const _) != result.used_overlapped);
