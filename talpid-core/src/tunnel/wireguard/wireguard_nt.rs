@@ -538,70 +538,70 @@ impl WgNtDll {
         Ok(WgNtDll {
             handle,
             func_open: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardOpenAdapter\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_create: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardCreateAdapter\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_delete: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardDeleteAdapter\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_free: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardFreeAdapter\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_get_adapter_luid: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardGetAdapterLUID\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_get_adapter_name: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardGetAdapterName\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_set_configuration: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardSetConfiguration\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_get_configuration: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardGetConfiguration\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_set_adapter_state: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardSetAdapterState\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_set_logger: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardSetLogger\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_set_adapter_logging: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WireGuardSetAdapterLogging\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
         })
     }
