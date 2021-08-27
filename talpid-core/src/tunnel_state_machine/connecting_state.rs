@@ -409,6 +409,8 @@ fn should_retry(error: &tunnel::Error) -> bool {
     use tunnel::wireguard::TunnelError;
 
     match error {
+        tunnel::Error::WireguardTunnelMonitoringError(Error::Udp2TcpError(_)) => true,
+
         #[cfg(not(windows))]
         tunnel::Error::WireguardTunnelMonitoringError(Error::TunnelError(
             TunnelError::RecoverableStartWireguardError,
