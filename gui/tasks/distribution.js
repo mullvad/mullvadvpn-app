@@ -200,7 +200,7 @@ function packWin() {
 }
 
 function packMac() {
-  let appOutDir;
+  const appOutDirs = [];
 
   return builder.build({
     targets: builder.Platform.MAC.createTarget(),
@@ -224,24 +224,32 @@ function packMac() {
       },
       afterPack: (context) => {
         delete process.env.TARGET_TRIPLE;
-
-        appOutDir = context.appOutDir;
+        appOutDirs.push(context.appOutDir);
         return Promise.resolve();
       },
       afterAllArtifactBuild: async (buildResult) => {
         if (!noAppleNotarization) {
+          // buildResult.artifactPaths[0] contains the path to the pkg.
           await notarizeMac(buildResult.artifactPaths[0]);
         }
-        // remove the folder that contains the unpacked app
-        return fs.promises.rm(appOutDir, { recursive: true });
+
+        // Remove the folder that contains the unpacked app. Electron builder cleans up some of
+        // these directories and it's changed between versions without a mention in the changelog.
+        for (const dir of appOutDirs) {
+          try {
+            await fs.promises.rm(dir, { recursive: true });
+          } catch {}
+        }
       },
-      afterSign: noAppleNotarization
-        ? undefined
-        : (context) => {
-            const appOutDir = context.appOutDir;
-            const appName = context.packager.appInfo.productFilename;
-            return notarizeMac(path.join(appOutDir, `${appName}.app`));
-          },
+      afterSign: (context) => {
+        const appOutDir = context.appOutDir;
+        appOutDirs.push(appOutDir);
+
+        if (!noAppleNotarization) {
+          const appName = context.packager.appInfo.productFilename;
+          return notarizeMac(path.join(appOutDir, `${appName}.app`));
+        }
+      },
     },
   });
 }
