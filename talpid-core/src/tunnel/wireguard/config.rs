@@ -23,6 +23,9 @@ pub struct Config {
     /// Enable IPv6 routing rules
     #[cfg(target_os = "linux")]
     pub enable_ipv6: bool,
+    /// Temporary switch for wireguard-nt
+    #[cfg(target_os = "windows")]
+    pub use_wireguard_nt: bool,
 }
 
 const DEFAULT_MTU: u16 = 1380;
@@ -109,6 +112,8 @@ impl Config {
             fwmark: crate::linux::TUNNEL_FW_MARK,
             #[cfg(target_os = "linux")]
             enable_ipv6: generic_options.enable_ipv6,
+            #[cfg(target_os = "windows")]
+            use_wireguard_nt: wg_options.use_wireguard_nt,
         })
     }
 
