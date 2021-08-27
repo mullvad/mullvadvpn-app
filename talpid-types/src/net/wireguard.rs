@@ -86,6 +86,10 @@ pub struct TunnelOptions {
         jnix(map = "|maybe_mtu| maybe_mtu.map(|mtu| mtu as i32)")
     )]
     pub mtu: Option<u16>,
+    /// Temporary switch for wireguard-nt
+    #[cfg(windows)]
+    #[serde(default)]
+    pub use_wireguard_nt: bool,
 }
 
 /// Wireguard x25519 private key
