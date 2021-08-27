@@ -140,8 +140,8 @@ export default class SelectLocation extends React.Component<IProps, IState> {
                     aria-label={messages.gettext('Filter')}>
                     <ImageView
                       source="icon-filter-round"
-                      tintColor={colors.white60}
-                      tintHoverColor={colors.white80}
+                      tintColor={colors.white40}
+                      tintHoverColor={colors.white60}
                       height={24}
                       width={24}
                     />
