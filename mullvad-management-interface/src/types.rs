@@ -572,6 +572,10 @@ impl From<&mullvad_types::settings::TunnelOptions> for TunnelOptions {
                     .wireguard
                     .rotation_interval
                     .map(|ivl| Duration::from(std::time::Duration::from(ivl))),
+                #[cfg(windows)]
+                use_wireguard_nt: options.wireguard.options.use_wireguard_nt,
+                #[cfg(not(windows))]
+                use_wireguard_nt: false,
             }),
             generic: Some(tunnel_options::GenericOptions {
                 enable_ipv6: options.generic.enable_ipv6,

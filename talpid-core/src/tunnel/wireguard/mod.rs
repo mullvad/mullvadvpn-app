@@ -4,9 +4,9 @@ use super::tun_provider;
 use super::{tun_provider::TunProvider, TunnelEvent, TunnelMetadata};
 use crate::routing::{self, RequiredRoute};
 use futures::future::abortable;
-#[cfg(any(target_os = "linux", target_os = "windows"))]
+#[cfg(target_os = "linux")]
 use lazy_static::lazy_static;
-#[cfg(any(target_os = "linux", target_os = "windows"))]
+#[cfg(target_os = "linux")]
 use std::env;
 #[cfg(windows)]
 use std::io;
@@ -104,14 +104,6 @@ lazy_static! {
     static ref FORCE_NM_WIREGUARD: bool = env::var("TALPID_FORCE_NM_WIREGUARD")
         .map(|v| v != "0")
         .unwrap_or(false);
-}
-
-#[cfg(target_os = "windows")]
-lazy_static! {
-    /// Overrides the preference for the kernel module for WireGuard.
-    static ref FORCE_USERSPACE_WIREGUARD: bool = env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
-        .map(|v| v != "0")
-        .unwrap_or(true);
 }
 
 struct TcpProxy {
@@ -358,7 +350,7 @@ impl WireguardMonitor {
         }
 
         #[cfg(target_os = "windows")]
-        if !*FORCE_USERSPACE_WIREGUARD {
+        if config.use_wireguard_nt {
             match wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir) {
                 Ok(tunnel) => {
                     log::debug!("Using WireGuardNT");
