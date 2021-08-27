@@ -25,7 +25,7 @@ use futures::{
     SinkExt, StreamExt,
 };
 use log::{debug, error, info, warn};
-use mullvad_rpc::AccountsProxy;
+use mullvad_rpc::{availability, AccountsProxy};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     endpoint::MullvadEndpoint,
@@ -104,6 +104,9 @@ pub enum Error {
 
     #[error(display = "REST request failed")]
     RestError(#[error(source)] mullvad_rpc::rest::Error),
+
+    #[error(display = "API availability check failed")]
+    ApiCheckError(#[error(source)] mullvad_rpc::availability::Error),
 
     #[error(display = "Unable to load account history")]
     LoadAccountHistory(#[error(source)] account_history::Error),
@@ -522,6 +525,7 @@ pub struct Daemon<L: EventListener> {
     /// oneshot channel that completes once the tunnel state machine has been shut down
     tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
     cache_dir: PathBuf,
+    api_availability: availability::ApiAvailabilityHandle,
 }
 
 impl<L> Daemon<L>
@@ -571,6 +575,7 @@ where
         .await
         .map_err(Error::InitRpcFactory)?;
         let rpc_handle = rpc_runtime.mullvad_rest_handle();
+        let api_availability = rpc_runtime.availability_handle();
 
         let relay_list_listener = event_listener.clone();
         let on_relay_list_update = move |relay_list: &RelayList| {
@@ -582,6 +587,7 @@ where
             on_relay_list_update,
             &resource_dir,
             &cache_dir,
+            api_availability.clone(),
         );
 
 
@@ -594,6 +600,7 @@ where
         let app_version_info = version_check::load_cache(&cache_dir).await;
         let (version_updater, version_updater_handle) = version_check::VersionUpdater::new(
             rpc_handle.clone(),
+            api_availability.clone(),
             cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             app_version_info.clone(),
@@ -701,11 +708,18 @@ where
             }
         });
 
-        let wireguard_key_manager =
-            wireguard::KeyManager::new(internal_event_tx.clone(), rpc_handle.clone());
+        let wireguard_key_manager = wireguard::KeyManager::new(
+            internal_event_tx.clone(),
+            api_availability.clone(),
+            rpc_handle.clone(),
+        );
+
+        let accounts_proxy = AccountsProxy::new(rpc_handle.clone());
+        Self::update_account_validity_status(&settings, api_availability.clone(), &accounts_proxy)
+            .await;
 
         // Attempt to download a fresh relay list
-        relay_selector.update().await;
+        relay_selector.update_deferred().await;
 
         let mut daemon = Daemon {
             tunnel_command_tx,
@@ -722,7 +736,7 @@ where
             settings,
             account_history,
             rpc_runtime,
-            accounts_proxy: AccountsProxy::new(rpc_handle.clone()),
+            accounts_proxy,
             rpc_handle,
             wireguard_key_manager,
             version_updater_handle,
@@ -733,6 +747,7 @@ where
             shutdown_tasks: vec![],
             tunnel_state_machine_shutdown_signal,
             cache_dir,
+            api_availability,
         };
 
         daemon.ensure_wireguard_keys_for_current_account().await;
@@ -1438,11 +1453,51 @@ where
         account_token: AccountToken,
     ) {
         let expiry_fut = self.accounts_proxy.get_expiry(account_token);
-        let rpc_call = async {
-            let result = expiry_fut.await.map(|expiry| AccountData { expiry });
-            Self::oneshot_send(tx, result, "account data");
+        let api_availability = self.api_availability.clone();
+        tokio::spawn(async move {
+            let result = expiry_fut.await;
+            Self::handle_expiry_result(&result, api_availability);
+            Self::oneshot_send(
+                tx,
+                result.map(|expiry| AccountData { expiry }),
+                "account data",
+            );
+        });
+    }
+
+    fn update_account_validity_status(
+        settings: &SettingsPersister,
+        api_availability: availability::ApiAvailabilityHandle,
+        accounts_proxy: &AccountsProxy,
+    ) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
+        let token = if let Some(token) = settings.get_account_token() {
+            token
+        } else {
+            return Box::pin(async move {
+                api_availability.pause();
+            });
         };
-        tokio::spawn(rpc_call);
+
+        let expiry_fut = accounts_proxy.get_expiry(token);
+        Box::pin(async move {
+            Self::handle_expiry_result(&expiry_fut.await, api_availability)
+        })
+    }
+
+    fn handle_expiry_result(
+        result: &Result<chrono::DateTime<chrono::Utc>, mullvad_rpc::rest::Error>,
+        api_availability: availability::ApiAvailabilityHandle,
+    ) {
+        match result {
+            Ok(_expiry) if *_expiry >= chrono::Utc::now() => api_availability.resume(),
+            Ok(_expiry) => api_availability.pause(),
+            Err(mullvad_rpc::rest::Error::ApiError(_status, code)) => {
+                if code == mullvad_rpc::INVALID_ACCOUNT || code == mullvad_rpc::INVALID_AUTH {
+                    api_availability.pause();
+                }
+            }
+            Err(_) => (),
+        }
     }
 
     async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
@@ -1472,14 +1527,14 @@ where
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
             let future = self.accounts_proxy.submit_voucher(account_token, voucher);
-            let rpc_call = async {
-                Self::oneshot_send(
-                    tx,
-                    future.await.map_err(Error::RestError),
-                    "submit_voucher response",
-                );
-            };
-            tokio::spawn(rpc_call);
+            let api_handle = self.api_availability.clone();
+            tokio::spawn(async move {
+                let result = future.await.map_err(Error::RestError);
+                if result.is_ok() {
+                    api_handle.resume();
+                }
+                Self::oneshot_send(tx, result, "submit_voucher response");
+            });
         } else {
             Self::oneshot_send(tx, Err(Error::NoAccountToken), "submit_voucher response");
         }
@@ -2252,6 +2307,7 @@ where
             }
             Err(wireguard::Error::TooManyKeys) => Ok(KeygenEvent::TooManyKeys),
             Err(wireguard::Error::RestError(error)) => Err(Error::RestError(error)),
+            Err(wireguard::Error::ApiCheckError(error)) => Err(Error::ApiCheckError(error)),
         }
     }
 
@@ -2291,6 +2347,7 @@ where
             let result = match verification_rpc.await {
                 Ok(is_valid) => Ok(is_valid),
                 Err(wireguard::Error::RestError(error)) => Err(Error::RestError(error)),
+                Err(wireguard::Error::ApiCheckError(error)) => Err(Error::ApiCheckError(error)),
                 Err(wireguard::Error::TooManyKeys) => return,
             };
             Self::oneshot_send(tx, result, "verify_wireguard_key response");

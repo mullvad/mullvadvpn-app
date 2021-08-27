@@ -15,6 +15,13 @@ pub struct AccountData {
     pub expiry: DateTime<Utc>,
 }
 
+impl AccountData {
+    /// Return true if the account has no time left.
+    pub fn is_expired(&self) -> bool {
+        self.expiry >= Utc::now()
+    }
+}
+
 /// Data structure that's returned from successful invocation of the mullvad API's
 /// `/v1/submit-voucher` RPC.
 #[derive(Deserialize, Serialize, Debug)]
