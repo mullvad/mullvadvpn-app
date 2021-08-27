@@ -99,9 +99,9 @@ type WireGuardSetLoggerFn = extern "stdcall" fn(Option<WireGuardLoggerCb>);
 #[repr(C)]
 #[allow(dead_code)]
 enum WireGuardAdapterLogState {
-    Off,
-    On,
-    OnWithPrefix,
+    Off = 0,
+    On = 1,
+    OnWithPrefix = 2,
 }
 
 type WireGuardSetAdapterLoggingFn =
@@ -325,8 +325,8 @@ struct WgInterface {
 #[repr(C)]
 #[allow(dead_code)]
 enum WgAdapterState {
-    Down,
-    Up,
+    Down = 0,
+    Up = 1,
 }
 
 
