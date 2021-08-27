@@ -199,10 +199,10 @@ function packWin() {
   });
 }
 
-function packMac() {
-  let appOutDir;
+async function packMac() {
+  const appOutDirs = [];
 
-  return builder.build({
+  await builder.build({
     targets: builder.Platform.MAC.createTarget(),
     config: {
       ...config,
@@ -224,26 +224,34 @@ function packMac() {
       },
       afterPack: (context) => {
         delete process.env.TARGET_TRIPLE;
-
-        appOutDir = context.appOutDir;
+        appOutDirs.push(context.appOutDir);
         return Promise.resolve();
       },
       afterAllArtifactBuild: async (buildResult) => {
         if (!noAppleNotarization) {
           await notarizeMac(buildResult.artifactPaths[0]);
         }
-        // remove the folder that contains the unpacked app
-        return fs.promises.rm(appOutDir, { recursive: true });
       },
       afterSign: noAppleNotarization
         ? undefined
         : (context) => {
             const appOutDir = context.appOutDir;
+            appOutDirs.push(appOutDir);
+
             const appName = context.packager.appInfo.productFilename;
             return notarizeMac(path.join(appOutDir, `${appName}.app`));
           },
     },
   });
+
+  // remove the folder that contains the unpacked app
+  await Promise.all(
+    appOutDirs.map(async (dir) => {
+      try {
+        await fs.promises.rm(dir, { recursive: true });
+      } catch {}
+    }),
+  );
 }
 
 function notarizeMac(notarizePath) {
