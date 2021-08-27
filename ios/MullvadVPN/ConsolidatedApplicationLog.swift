@@ -142,7 +142,12 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         }
 
         let data = fileHandle.readData(ofLength: Int(kLogMaxReadBytes))
-        let lossyString = String(decoding: data, as: UTF8.self)
+        let replacementCharacter = Character(UTF8.decode(UTF8.encodedReplacementCharacter))
+        let lossyString = String(String(decoding: data, as: UTF8.self)
+            .drop { ch in
+                // Drop leading replacement characters produced when decoding data
+                return ch == replacementCharacter
+            })
 
         return .success(lossyString)
     }
