@@ -688,6 +688,22 @@ impl ManagementService for ManagementServiceImpl {
     async fn set_split_tunnel_state(&self, _: Request<bool>) -> ServiceResult<()> {
         Ok(Response::new(()))
     }
+
+    #[cfg(windows)]
+    async fn set_use_wireguard_nt(&self, request: Request<bool>) -> ServiceResult<()> {
+        log::debug!("set_use_wireguard_nt");
+        let state = request.into_inner();
+        let (tx, rx) = oneshot::channel();
+        self.send_command_to_daemon(DaemonCommand::UseWireGuardNt(tx, state))?;
+        self.wait_for_result(rx)
+            .await?
+            .map_err(map_daemon_error)
+            .map(Response::new)
+    }
+    #[cfg(not(windows))]
+    async fn set_use_wireguard_nt(&self, _: Request<bool>) -> ServiceResult<()> {
+        Ok(Response::new(()))
+    }
 }
 
 impl ManagementServiceImpl {
