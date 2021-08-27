@@ -1,5 +1,5 @@
 use crate::{
-    address_cache::AddressCache, https_client_with_sni::HttpsConnectorWithSni,
+    address_cache::AddressCache, availability, https_client_with_sni::HttpsConnectorWithSni,
     tcp_stream::TcpStreamHandle,
 };
 use futures::{
@@ -594,6 +594,7 @@ pub async fn handle_error_response<T>(response: Response) -> Result<T> {
 pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub factory: RequestFactory,
+    availability: availability::ApiAvailabilityHandle,
 }
 
 impl MullvadRestHandle {
@@ -601,8 +602,13 @@ impl MullvadRestHandle {
         service: RequestServiceHandle,
         factory: RequestFactory,
         address_cache: AddressCache,
+        availability: availability::ApiAvailabilityHandle,
     ) -> Self {
-        let handle = Self { service, factory };
+        let handle = Self {
+            service,
+            factory,
+            availability,
+        };
         handle.spawn_api_address_fetcher(address_cache);
 
         handle
@@ -610,10 +616,11 @@ impl MullvadRestHandle {
 
     fn spawn_api_address_fetcher(&self, address_cache: AddressCache) {
         let handle = self.clone();
+        let availability = self.availability.clone();
 
         self.service.spawn(async move {
             // always start the fetch after 15 minutes
-            let api_proxy = crate::ApiProxy { handle };
+            let api_proxy = crate::ApiProxy::new(handle);
             let mut next_check = Instant::now() + API_IP_CHECK_DELAY;
 
             let next_error_check = || Instant::now() + API_IP_CHECK_ERROR_INTERVAL;
@@ -624,6 +631,11 @@ impl MullvadRestHandle {
             loop {
                 interval.tick().await;
                 if next_check < Instant::now() {
+                    if let Err(error) = availability.wait_available().await {
+                        log::error!("Failed while waiting for API: {}", error);
+                        next_check = next_error_check();
+                        continue;
+                    }
                     match api_proxy.clone().get_api_addrs().await {
                         Ok(new_addrs) => {
                             log::debug!("Fetched new API addresses {:?}, will fetch again in {} hours", new_addrs, API_IP_CHECK_INTERVAL.as_secs() / ( 60 * 60 ));

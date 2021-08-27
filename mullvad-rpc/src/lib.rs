@@ -18,6 +18,7 @@ use std::{
 use talpid_types::{net::wireguard, ErrorExt};
 
 
+pub mod availability;
 pub mod rest;
 
 mod https_client_with_sni;
@@ -41,6 +42,9 @@ pub const INVALID_VOUCHER: &str = "INVALID_VOUCHER";
 /// Error code returned by the Mullvad API if the account token is invalid.
 pub const INVALID_ACCOUNT: &str = "INVALID_ACCOUNT";
 
+/// Error code returned by the Mullvad API if the account token is missing or invalid.
+pub const INVALID_AUTH: &str = "INVALID_AUTH";
+
 const API_HOST: &str = "api.mullvad.net";
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 const API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
@@ -51,6 +55,7 @@ const API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
 pub struct MullvadRpcRuntime {
     handle: tokio::runtime::Handle,
     pub address_cache: AddressCache,
+    api_availability: availability::ApiAvailability,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
 }
@@ -62,18 +67,24 @@ pub enum Error {
 
     #[error(display = "Failed to load address cache")]
     AddressCacheError(#[error(source)] address_cache::Error),
+
+    #[error(display = "API availability check failed")]
+    ApiCheckError(#[error(source)] availability::Error),
 }
 
 impl MullvadRpcRuntime {
     /// Create a new `MullvadRpcRuntime`.
     pub fn new(handle: tokio::runtime::Handle) -> Result<Self, Error> {
         Ok(MullvadRpcRuntime {
-            handle,
+            handle: handle.clone(),
             address_cache: AddressCache::new(
                 vec![API_ADDRESS.into()],
                 None,
                 Arc::new(Box::new(|_| Ok(()))),
             )?,
+            api_availability: availability::ApiAvailability::new(
+                availability::State::default(),
+            ),
             #[cfg(target_os = "android")]
             socket_bypass_tx: None,
         })
@@ -137,8 +148,11 @@ impl MullvadRpcRuntime {
         };
 
         Ok(MullvadRpcRuntime {
-            handle,
+            handle: handle.clone(),
             address_cache,
+            api_availability: availability::ApiAvailability::new(
+                availability::State::default(),
+            ),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })
@@ -172,7 +186,12 @@ impl MullvadRpcRuntime {
             Some("app".to_owned()),
         );
 
-        rest::MullvadRestHandle::new(service, factory, self.address_cache.clone())
+        rest::MullvadRestHandle::new(
+            service,
+            factory,
+            self.address_cache.clone(),
+            self.availability_handle(),
+        )
     }
 
     /// Returns a new request service handle
@@ -182,6 +201,10 @@ impl MullvadRpcRuntime {
 
     pub fn handle(&mut self) -> &mut tokio::runtime::Handle {
         &mut self.handle
+    }
+
+    pub fn availability_handle(&self) -> availability::ApiAvailabilityHandle {
+        self.api_availability.handle()
     }
 }
 
