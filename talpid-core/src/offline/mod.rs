@@ -1,8 +1,6 @@
 #[cfg(target_os = "linux")]
 use crate::routing::RouteManagerHandle;
-use crate::tunnel_state_machine::TunnelCommand;
 use futures::channel::mpsc::UnboundedSender;
-use std::sync::Weak;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 
@@ -43,7 +41,7 @@ impl MonitorHandle {
 }
 
 pub async fn spawn_monitor(
-    sender: Weak<UnboundedSender<TunnelCommand>>,
+    sender: UnboundedSender<bool>,
     #[cfg(target_os = "linux")] route_manager: RouteManagerHandle,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<MonitorHandle, Error> {
