@@ -3,7 +3,7 @@ use crate::{
     DaemonEventSender,
 };
 use futures::{channel::mpsc, stream::FusedStream, FutureExt, SinkExt, StreamExt, TryFutureExt};
-use mullvad_rpc::{rest::MullvadRestHandle, AppVersionProxy};
+use mullvad_rpc::{availability::ApiAvailabilityHandle, rest::MullvadRestHandle, AppVersionProxy};
 use mullvad_types::version::{AppVersionInfo, ParsedAppVersion};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -78,6 +78,9 @@ pub enum Error {
     #[error(display = "Failed to check the latest app version")]
     Download(#[error(source)] mullvad_rpc::rest::Error),
 
+    #[error(display = "API availability check failed")]
+    ApiCheck(#[error(source)] mullvad_rpc::availability::Error),
+
     #[error(display = "Clearing version check cache due to a version mismatch")]
     CacheVersionMismatch,
 }
@@ -92,6 +95,7 @@ pub(crate) struct VersionUpdater {
     next_update_time: Instant,
     show_beta_releases: bool,
     rx: Option<mpsc::Receiver<VersionUpdaterCommand>>,
+    availability_handle: ApiAvailabilityHandle,
 }
 
 #[derive(Clone)]
@@ -133,6 +137,7 @@ impl VersionUpdaterHandle {
 impl VersionUpdater {
     pub fn new(
         mut rpc_handle: MullvadRestHandle,
+        availability_handle: ApiAvailabilityHandle,
         cache_dir: PathBuf,
         update_sender: DaemonEventSender<AppVersionInfo>,
         last_app_version_info: Option<AppVersionInfo>,
@@ -154,6 +159,7 @@ impl VersionUpdater {
                 next_update_time: Instant::now(),
                 show_beta_releases,
                 rx: Some(rx),
+                availability_handle,
             },
             VersionUpdaterHandle { tx },
         )
@@ -162,15 +168,20 @@ impl VersionUpdater {
     fn create_update_future(
         &self,
     ) -> impl Future<Output = Result<mullvad_rpc::AppVersionResponse, Error>> + Send + 'static {
+        let api_handle = self.availability_handle.clone();
         let version_proxy = self.version_proxy.clone();
         let platform_version = self.platform_version.clone();
         let download_future_factory = move || {
-            let response = version_proxy.version_check(
+            let when_available = api_handle.wait_available();
+            let request = version_proxy.version_check(
                 PRODUCT_VERSION.to_owned(),
                 PLATFORM,
                 platform_version.clone(),
             );
-            response.map_err(Error::Download)
+            async move {
+                when_available.await.map_err(Error::ApiCheck)?;
+                request.await.map_err(Error::Download)
+            }
         };
 
         let should_retry = |result: &Result<_, _>| -> bool { result.is_err() };

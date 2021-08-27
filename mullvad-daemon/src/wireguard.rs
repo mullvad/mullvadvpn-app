@@ -1,6 +1,9 @@
 use crate::{DaemonEventSender, InternalDaemonEvent};
 use chrono::offset::Utc;
-use mullvad_rpc::rest::{Error as RestError, MullvadRestHandle};
+use mullvad_rpc::{
+    availability::ApiAvailabilityHandle,
+    rest::{Error as RestError, MullvadRestHandle},
+};
 use mullvad_types::account::AccountToken;
 pub use mullvad_types::wireguard::*;
 use std::{future::Future, pin::Pin, time::Duration};
@@ -31,6 +34,8 @@ const RETRY_INTERVAL_MAX: Duration = Duration::from_secs(24 * 60 * 60);
 pub enum Error {
     #[error(display = "Unexpected HTTP request error")]
     RestError(#[error(source)] mullvad_rpc::rest::Error),
+    #[error(display = "API availability check was interrupted")]
+    ApiCheckError(#[error(source)] mullvad_rpc::availability::Error),
     #[error(display = "Account already has maximum number of keys")]
     TooManyKeys,
 }
@@ -39,6 +44,7 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 pub struct KeyManager {
     daemon_tx: DaemonEventSender,
+    availability_handle: ApiAvailabilityHandle,
     http_handle: MullvadRestHandle,
     current_job: Option<AbortHandle>,
 
@@ -47,9 +53,14 @@ pub struct KeyManager {
 }
 
 impl KeyManager {
-    pub(crate) fn new(daemon_tx: DaemonEventSender, http_handle: MullvadRestHandle) -> Self {
+    pub(crate) fn new(
+        daemon_tx: DaemonEventSender,
+        availability_handle: ApiAvailabilityHandle,
+        http_handle: MullvadRestHandle,
+    ) -> Self {
         Self {
             daemon_tx,
+            availability_handle,
             http_handle,
             current_job: None,
             abort_scheduler_tx: None,
@@ -164,11 +175,22 @@ impl KeyManager {
         let mut inner_future_generator =
             self.push_future_generator(account.clone(), private_key, timeout);
 
+        let availability_handle = self.availability_handle.clone();
+
         let future_generator = move || {
+            let wait_available = availability_handle.wait_available();
             let fut = inner_future_generator();
             let error_tx = error_tx.clone();
             let error_account = error_account.clone();
             async move {
+                let error_account_copy = error_account.clone();
+                wait_available.await.map_err(|error| {
+                    let _ = error_tx.send(InternalDaemonEvent::WgKeyEvent((
+                        error_account_copy,
+                        Err(Error::ApiCheckError(error)),
+                    )));
+                    false
+                })?;
                 let response = fut.await;
                 match response {
                     Ok(addresses) => Ok(addresses),
@@ -299,6 +321,7 @@ impl KeyManager {
 
     async fn create_automatic_rotation(
         daemon_tx: DaemonEventSender,
+        availability_handle: ApiAvailabilityHandle,
         http_handle: MullvadRestHandle,
         mut public_key: PublicKey,
         rotation_interval_secs: u64,
@@ -306,14 +329,20 @@ impl KeyManager {
     ) {
         tokio::time::sleep(ROTATION_START_DELAY).await;
 
-        let rotate_key_for_account = move |old_key: &PublicKey| {
-            Self::rotate_key(
-                daemon_tx.clone(),
-                http_handle.clone(),
-                account_token.clone(),
-                old_key.clone(),
-            )
-        };
+        let rotate_key_for_account =
+            move |old_key: &PublicKey| -> Pin<Box<dyn Future<Output = Result<PublicKey>> + Send>> {
+                let wait_available = availability_handle.wait_available();
+                let rotate = Self::rotate_key(
+                    daemon_tx.clone(),
+                    http_handle.clone(),
+                    account_token.clone(),
+                    old_key.clone(),
+                );
+                Box::pin(async move {
+                    wait_available.await?;
+                    rotate.await
+                })
+            };
 
         loop {
             Self::wait_for_key_expiry(&public_key, rotation_interval_secs).await;
@@ -341,12 +370,12 @@ impl KeyManager {
         http_handle: MullvadRestHandle,
         account_token: AccountToken,
         old_key: PublicKey,
-    ) -> std::pin::Pin<Box<dyn Future<Output = Result<PublicKey>> + Send>> {
+    ) -> impl Future<Output = Result<PublicKey>> {
         let new_key = PrivateKey::new_from_random();
         let rpc_result =
             Self::replace_key_rpc(http_handle, account_token.clone(), old_key, new_key);
 
-        Box::pin(async move {
+        async move {
             match rpc_result.await {
                 Ok(data) => {
                     // Update account data
@@ -365,7 +394,7 @@ impl KeyManager {
                 }
                 Err(unknown) => Err(unknown),
             }
-        })
+        }
     }
 
     async fn rotate_key_with_retries<F>(old_key: PublicKey, rotate_key: F) -> Result<PublicKey>
@@ -403,6 +432,7 @@ impl KeyManager {
         // Schedule cancellable series of repeating rotation tasks
         let fut = Self::create_automatic_rotation(
             self.daemon_tx.clone(),
+            self.availability_handle.clone(),
             self.http_handle.clone(),
             public_key,
             self.auto_rotation_interval.as_duration().as_secs(),
