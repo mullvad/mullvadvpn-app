@@ -66,7 +66,7 @@ export const StyledBackBarItemButton = styled.button({
 export const StyledBackBarItemIcon = styled(ImageView)({
   marginRight: '8px',
   [StyledBackBarItemButton + ':hover &']: {
-    backgroundColor: colors.white80,
+    backgroundColor: colors.white60,
   },
 });
 
