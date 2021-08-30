@@ -57,27 +57,18 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         }
     }
 
-    func addLogFile(fileURL: URL) {
-        guard fileURL.isFileURL else {
-            addError(message: fileURL.absoluteString, error: Error.invalidLogFileURL(fileURL))
-            return
-        }
-
-        let path = fileURL.path
-        let redactedPath = redact(string: path)
-
-        switch Self.readFileLossy(path: path, maxBytes: kLogMaxReadBytes) {
-        case .success(let lossyString):
-            let redactedString = redact(string: lossyString)
-            logs.append(LogAttachment(label: redactedPath, content: redactedString))
-
-        case .failure(let error):
-            addError(message: redactedPath, error: error)
+    func addLogFile(fileURL: URL, includeLogBackup: Bool) {
+        addSingleLogFile(fileURL)
+        if includeLogBackup {
+            let oldLogFileURL = fileURL.deletingPathExtension().appendingPathExtension("old.log")
+            addSingleLogFile(oldLogFileURL)
         }
     }
 
-    func addLogFiles(fileURLs: [URL]) {
-        fileURLs.forEach(self.addLogFile)
+    func addLogFiles(fileURLs: [URL], includeLogBackups: Bool) {
+        for fileURL in fileURLs {
+            addLogFile(fileURL: fileURL, includeBackupLog: includeLogBackups)
+        }
     }
 
     func addError<ErrorType: ChainedError>(message: String, error: ErrorType) {
@@ -108,6 +99,25 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         }
     }
 
+    private func addSingleLogFile(_ fileURL: URL) {
+        guard fileURL.isFileURL else {
+            addError(message: fileURL.absoluteString, error: Error.invalidLogFileURL(fileURL))
+            return
+        }
+
+        let path = fileURL.path
+        let redactedPath = redact(string: path)
+
+        switch Self.readFileLossy(path: path, maxBytes: kLogMaxReadBytes) {
+        case .success(let lossyString):
+            let redactedString = redact(string: lossyString)
+            logs.append(LogAttachment(label: redactedPath, content: redactedString))
+
+        case .failure(let error):
+            addError(message: redactedPath, error: error)
+        }
+    }
+
     private static func makeMetadata() -> Metadata {
         let osVersion = ProcessInfo.processInfo.operatingSystemVersion
         let osVersionString = "iOS \(osVersion.majorVersion).\(osVersion.minorVersion).\(osVersion.patchVersion)"
@@ -132,7 +142,12 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         }
 
         let data = fileHandle.readData(ofLength: Int(kLogMaxReadBytes))
-        let lossyString = String(decoding: data, as: UTF8.self)
+        let replacementCharacter = Character(UTF8.decode(UTF8.encodedReplacementCharacter))
+        let lossyString = String(String(decoding: data, as: UTF8.self)
+            .drop { ch in
+                // Drop leading replacement characters produced when decoding data
+                return ch == replacementCharacter
+            })
 
         return .success(lossyString)
     }

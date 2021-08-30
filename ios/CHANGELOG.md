@@ -23,8 +23,16 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Changed
+- Attach log backup from previous application run to problem report.
+
+### Fixed
+- Drop leading replacement characters (`\u{FFFD}`) when decoding UTF-8 from a part of log file.
+
+## [2021.3] - 2021-08-10
 ### Added
-- Show a reminder to add more credits 3 days before account expiry via system notification and in-app message.
+- Show a reminder to add more credits 3 days before account expiry via system notification and
+  in-app message.
 - Add submit button next to account input field on login screen.
 
 ### Fixed
