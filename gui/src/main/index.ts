@@ -116,6 +116,7 @@ class ApplicationMain {
   private daemonRpc = new DaemonRpc(DAEMON_RPC_PATH);
   private daemonEventListener?: SubscriptionListener<DaemonEvent>;
   private reconnectBackoff = new ReconnectionBackoff();
+  private beforeFirstDaemonConnection = true;
   private connectedToDaemon = false;
   private quitStage = AppQuitStage.unready;
 
@@ -518,6 +519,8 @@ class ApplicationMain {
   }
 
   private onDaemonConnected = async () => {
+    const firstDaemonConnection = this.beforeFirstDaemonConnection;
+    this.beforeFirstDaemonConnection = false;
     this.connectedToDaemon = true;
 
     log.info('Connected to the daemon');
@@ -594,6 +597,10 @@ class ApplicationMain {
     // before this if-statement is reached.
     if (this.windowController && this.connectedToDaemon) {
       IpcMainEventChannel.daemon.notifyConnected(this.windowController.webContents);
+    }
+
+    if (firstDaemonConnection) {
+      void this.autoConnect();
     }
 
     // show window when account is not set
@@ -1389,13 +1396,25 @@ class ApplicationMain {
   }
 
   private async autoConnect() {
-    if (!this.accountData || !hasExpired(this.accountData.expiry)) {
-      try {
-        log.info('Auto-connecting the tunnel');
-        await this.daemonRpc.connectTunnel();
-      } catch (error) {
-        log.error(`Failed to auto-connect the tunnel: ${error.message}`);
+    if (process.env.NODE_ENV === 'development') {
+      log.info('Skip autoconnect in development');
+    } else if (
+      this.settings.accountToken &&
+      (!this.accountData || !hasExpired(this.accountData.expiry))
+    ) {
+      if (this.guiSettings.autoConnect) {
+        try {
+          log.info('Autoconnect the tunnel');
+
+          await this.daemonRpc.connectTunnel();
+        } catch (error) {
+          log.error(`Failed to autoconnect the tunnel: ${error.message}`);
+        }
+      } else {
+        log.info('Skip autoconnect because GUI setting is disabled');
       }
+    } else {
+      log.info('Skip autoconnect because account token is not set');
     }
   }
 
