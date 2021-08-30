@@ -1,9 +1,7 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
-import { colors } from '../../config.json';
-import { IDnsOptions, TunnelProtocol } from '../../shared/daemon-rpc-types';
+import { TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
-import { IpAddress } from '../lib/ip';
 import { WgKeyState } from '../redux/settings/reducers';
 import {
   StyledNavigationScrollbars,
@@ -11,15 +9,11 @@ import {
   StyledNoWireguardKeyErrorContainer,
   StyledSelectorForFooter,
   StyledTunnelProtocolContainer,
-  StyledCustomDnsSwitchContainer,
-  StyledCustomDnsFooter,
-  StyledAddCustomDnsLabel,
-  StyledAddCustomDnsButton,
 } from './AdvancedSettingsStyles';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
-import CellList, { ICellListItem } from './cell/List';
+import CustomDnsSettings from './CustomDnsSettings';
 import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';
 import {
@@ -31,8 +25,6 @@ import {
 } from './NavigationBar';
 import { ISelectorItem } from './cell/Selector';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import Accordion from './Accordion';
-import { formatMarkdown } from '../markdown-formatter';
 
 type OptionalTunnelProtocol = TunnelProtocol | undefined;
 
@@ -41,11 +33,9 @@ interface IProps {
   blockWhenDisconnected: boolean;
   tunnelProtocol?: TunnelProtocol;
   wireguardKeyState: WgKeyState;
-  dns: IDnsOptions;
   setEnableIpv6: (value: boolean) => void;
   setBlockWhenDisconnected: (value: boolean) => void;
   setTunnelProtocol: (value: OptionalTunnelProtocol) => void;
-  setDnsOptions: (dns: IDnsOptions) => Promise<void>;
   onViewWireguardSettings: () => void;
   onViewOpenVpnSettings: () => void;
   onViewSplitTunneling: () => void;
@@ -54,22 +44,12 @@ interface IProps {
 
 interface IState {
   showConfirmBlockWhenDisconnectedAlert: boolean;
-  showAddCustomDns: boolean;
-  invalidDnsIp: boolean;
-  publicDnsIpToConfirm?: string;
 }
 
 export default class AdvancedSettings extends React.Component<IProps, IState> {
   public state = {
     showConfirmBlockWhenDisconnectedAlert: false,
-    showAddCustomDns: false,
-    invalidDnsIp: false,
-    publicDnsIpToConfirm: undefined,
   };
-
-  private customDnsSwitchRef = React.createRef<HTMLDivElement>();
-  private customDnsAddButtonRef = React.createRef<HTMLButtonElement>();
-  private customDnsInputContainerRef = React.createRef<HTMLDivElement>();
 
   public render() {
     const hasWireguardKey = this.props.wireguardKeyState.type === 'key-set';
@@ -209,74 +189,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
                   </Cell.CellButton>
                 </Cell.CellButtonGroup>
 
-                <StyledCustomDnsSwitchContainer disabled={!this.customDnsAvailable()}>
-                  <AriaInputGroup>
-                    <AriaLabel>
-                      <Cell.InputLabel>
-                        {messages.pgettext('advanced-settings-view', 'Use custom DNS server')}
-                      </Cell.InputLabel>
-                    </AriaLabel>
-                    <AriaInput>
-                      <Cell.Switch
-                        ref={this.customDnsSwitchRef}
-                        isOn={this.props.dns.state === 'custom' || this.state.showAddCustomDns}
-                        onChange={this.setCustomDnsEnabled}
-                      />
-                    </AriaInput>
-                  </AriaInputGroup>
-                </StyledCustomDnsSwitchContainer>
-                <Accordion
-                  expanded={
-                    this.customDnsAvailable() &&
-                    (this.props.dns.state === 'custom' || this.state.showAddCustomDns)
-                  }>
-                  <CellList items={this.customDnsItems()} onRemove={this.removeDnsAddress} />
-
-                  {this.state.showAddCustomDns && (
-                    <div ref={this.customDnsInputContainerRef}>
-                      <Cell.RowInput
-                        placeholder={messages.pgettext('advanced-settings-view', 'Enter IP')}
-                        onSubmit={this.addDnsAddress}
-                        onChange={this.addDnsInputChange}
-                        invalid={this.state.invalidDnsIp}
-                        paddingLeft={32}
-                        onBlur={this.customDnsInputBlur}
-                        autofocus
-                      />
-                    </div>
-                  )}
-
-                  <StyledAddCustomDnsButton
-                    ref={this.customDnsAddButtonRef}
-                    onClick={this.showAddCustomDnsRow}
-                    disabled={this.state.showAddCustomDns}
-                    tabIndex={-1}>
-                    <StyledAddCustomDnsLabel tabIndex={-1}>
-                      {messages.pgettext('advanced-settings-view', 'Add a server')}
-                    </StyledAddCustomDnsLabel>
-                    <Cell.Icon
-                      source="icon-add"
-                      width={22}
-                      height={22}
-                      tintColor={colors.white40}
-                      tintHoverColor={colors.white60}
-                      tabIndex={-1}
-                    />
-                  </StyledAddCustomDnsButton>
-                </Accordion>
-
-                <StyledCustomDnsFooter>
-                  <Cell.FooterText>
-                    {this.customDnsAvailable() ? (
-                      messages.pgettext(
-                        'advanced-settings-view',
-                        'Enable to add at least one DNS server.',
-                      )
-                    ) : (
-                      <CustomDnsDisabledMessage />
-                    )}
-                  </Cell.FooterText>
-                </StyledCustomDnsFooter>
+                <CustomDnsSettings />
               </StyledNavigationScrollbars>
             </NavigationContainer>
           </SettingsContainer>
@@ -284,113 +197,9 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
 
         {this.state.showConfirmBlockWhenDisconnectedAlert &&
           this.renderConfirmBlockWhenDisconnectedAlert()}
-        {this.state.publicDnsIpToConfirm && this.renderCustomDnsConfirmationDialog()}
       </ModalContainer>
     );
   }
-
-  private customDnsAvailable(): boolean {
-    return (
-      this.props.dns.state === 'custom' ||
-      (!this.props.dns.defaultOptions.blockAds && !this.props.dns.defaultOptions.blockTrackers)
-    );
-  }
-
-  private setCustomDnsEnabled = async (enabled: boolean) => {
-    if (this.props.dns.customOptions.addresses.length > 0) {
-      await this.props.setDnsOptions({
-        ...this.props.dns,
-        state: enabled ? 'custom' : 'default',
-      });
-    }
-
-    if (enabled && this.props.dns.customOptions.addresses.length === 0) {
-      this.showAddCustomDnsRow();
-    }
-
-    if (!enabled) {
-      this.setState({ showAddCustomDns: false });
-    }
-  };
-
-  private customDnsItems(): ICellListItem<string>[] {
-    return this.props.dns.customOptions.addresses.map((address) => ({
-      label: address,
-      value: address,
-    }));
-  }
-
-  private showAddCustomDnsRow = () => {
-    this.setState({ showAddCustomDns: true });
-  };
-
-  // The input field should be hidden when it loses focus unless something on the same row or the
-  // add-button is the new focused element.
-  private customDnsInputBlur = (event?: React.FocusEvent<HTMLTextAreaElement>) => {
-    const relatedTarget = event?.relatedTarget as Node | undefined;
-    if (
-      relatedTarget &&
-      (this.customDnsSwitchRef.current?.contains(relatedTarget) ||
-        this.customDnsAddButtonRef.current?.contains(relatedTarget) ||
-        this.customDnsInputContainerRef.current?.contains(relatedTarget))
-    ) {
-      event?.target.focus();
-    } else {
-      this.hideAddCustomDnsRow();
-    }
-  };
-
-  private hideAddCustomDnsRow() {
-    if (!this.state.publicDnsIpToConfirm) {
-      this.setState({ showAddCustomDns: false });
-    }
-  }
-
-  private addDnsInputChange = (_value: string) => {
-    this.setState({ invalidDnsIp: false });
-  };
-
-  private hideCustomDnsConfirmationDialog = () => {
-    this.setState({ publicDnsIpToConfirm: undefined });
-  };
-
-  private confirmPublicDnsAddress = () => {
-    void this.addDnsAddress(this.state.publicDnsIpToConfirm!, true);
-    this.hideCustomDnsConfirmationDialog();
-  };
-
-  private addDnsAddress = async (address: string, confirmed?: boolean) => {
-    try {
-      const ipAddress = IpAddress.fromString(address);
-
-      if (ipAddress.isLocal() || confirmed) {
-        await this.props.setDnsOptions({
-          ...this.props.dns,
-          state:
-            this.props.dns.state === 'custom' || this.state.showAddCustomDns ? 'custom' : 'default',
-          customOptions: {
-            addresses: [...this.props.dns.customOptions.addresses, address],
-          },
-        });
-        this.hideAddCustomDnsRow();
-      } else {
-        this.setState({ publicDnsIpToConfirm: address });
-      }
-    } catch (e) {
-      this.setState({ invalidDnsIp: true });
-    }
-  };
-
-  private removeDnsAddress = (address: string) => {
-    const addresses = this.props.dns.customOptions.addresses.filter((item) => item !== address);
-    void this.props.setDnsOptions({
-      ...this.props.dns,
-      state: addresses.length > 0 && this.props.dns.state === 'custom' ? 'custom' : 'default',
-      customOptions: {
-        addresses,
-      },
-    });
-  };
 
   private tunnelProtocolItems = (
     hasWireguardKey: boolean,
@@ -415,26 +224,6 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
         value: 'openvpn',
       },
     ];
-  };
-
-  private renderCustomDnsConfirmationDialog = () => {
-    return (
-      <ModalAlert
-        type={ModalAlertType.info}
-        buttons={[
-          <AppButton.RedButton key="confirm" onClick={this.confirmPublicDnsAddress}>
-            {messages.pgettext('advanced-settings-view', 'Add anyway')}
-          </AppButton.RedButton>,
-          <AppButton.BlueButton key="back" onClick={this.hideCustomDnsConfirmationDialog}>
-            {messages.gettext('Back')}
-          </AppButton.BlueButton>,
-        ]}
-        close={this.hideCustomDnsConfirmationDialog}
-        message={messages.pgettext(
-          'advanced-settings-view',
-          'The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the "Tunnel protocol" (in Advanced settings) to WireGuard.',
-        )}></ModalAlert>
-    );
   };
 
   private renderConfirmBlockWhenDisconnectedAlert = () => {
@@ -488,30 +277,4 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
   private onSelectTunnelProtocol = (protocol?: TunnelProtocol) => {
     this.props.setTunnelProtocol(protocol);
   };
-}
-
-function CustomDnsDisabledMessage() {
-  const blockAdsFeatureName = messages.pgettext('preferences-view', 'Block ads');
-  const blockTrackersFeatureName = messages.pgettext('preferences-view', 'Block trackers');
-  const preferencesPageName = messages.pgettext('preferences-nav', 'Preferences');
-
-  // TRANSLATORS: This is displayed when either or both of the block ads/trackers settings are
-  // TRANSLATORS: turned on which makes the custom DNS setting disabled. The text enclosed in "**"
-  // TRANSLATORS: will appear bold.
-  // TRANSLATORS: Available placeholders:
-  // TRANSLATORS: %(blockAdsFeatureName)s - The name displayed next to the "Block ads" toggle.
-  // TRANSLATORS: %(blockTrackersFeatureName)s - The name displayed next to the "Block trackers" toggle.
-  // TRANSLATORS: %(preferencesPageName)s - The page title showed on top in the preferences page.
-  const customDnsDisabledMessage = messages.pgettext(
-    'preferences-view',
-    'Disable **%(blockAdsFeatureName)s** and **%(blockTrackersFeatureName)s** (under %(preferencesPageName)s) to activate this setting.',
-  );
-
-  return formatMarkdown(
-    sprintf(customDnsDisabledMessage, {
-      blockAdsFeatureName,
-      blockTrackersFeatureName,
-      preferencesPageName,
-    }),
-  );
 }

@@ -241,6 +241,7 @@ const StyledInputFiller = styled.div({
 });
 
 interface IRowInputProps {
+  initialValue?: string;
   onChange?: (value: string) => void;
   onSubmit: (value: string) => void;
   onFocus?: (event: React.FocusEvent<HTMLTextAreaElement>) => void;
@@ -252,7 +253,7 @@ interface IRowInputProps {
 }
 
 export function RowInput(props: IRowInputProps) {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState(props.initialValue ?? '');
   const textAreaRef = useRef() as React.RefObject<HTMLTextAreaElement>;
 
   const submit = useCallback(() => props.onSubmit(value), [props.onSubmit, value]);
@@ -284,17 +285,25 @@ export function RowInput(props: IRowInputProps) {
     [props.onBlur],
   );
 
+  const focus = useCallback(() => {
+    const input = textAreaRef.current;
+    if (input) {
+      input.focus();
+      input.selectionStart = input.selectionEnd = value.length;
+    }
+  }, [textAreaRef, value.length]);
+
   useEffect(() => {
     if (props.autofocus) {
-      textAreaRef.current?.focus();
+      focus();
     }
   }, []);
 
   useEffect(() => {
     if (props.invalid) {
-      textAreaRef.current?.focus();
+      focus();
     }
-  }, [props.invalid]);
+  }, [props.invalid, focus]);
 
   useEffect(() => {
     document.addEventListener('keydown', globalKeyListener, true);
