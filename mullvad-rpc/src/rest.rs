@@ -22,6 +22,7 @@ use std::{
     str::FromStr,
     time::{Duration, Instant},
 };
+use talpid_types::ErrorExt;
 use tokio::runtime::Handle;
 
 pub use hyper::StatusCode;
@@ -84,6 +85,7 @@ pub(crate) struct RequestService {
     handle: Handle,
     next_id: u64,
     in_flight_requests: BTreeMap<u64, AbortHandle>,
+    api_availability: availability::ApiAvailabilityHandle,
     address_cache: AddressCache,
 }
 
@@ -92,13 +94,13 @@ impl RequestService {
     pub fn new(
         mut connector: HttpsConnectorWithSni,
         handle: Handle,
+        api_availability: availability::ApiAvailabilityHandle,
         address_cache: AddressCache,
     ) -> RequestService {
         let (command_tx, command_rx) = mpsc::channel(1);
 
         connector.set_service_tx(command_tx.clone());
         let client = Client::builder().build(connector);
-
 
         Self {
             command_tx,
@@ -108,6 +110,7 @@ impl RequestService {
             in_flight_requests: BTreeMap::new(),
             next_id: 0,
             handle,
+            api_availability,
             address_cache,
         }
     }
@@ -134,6 +137,7 @@ impl RequestService {
                     abortable(self.client.request(hyper_request).map_err(Error::from));
                 let address_cache = self.address_cache.clone();
                 let handle = self.handle.clone();
+                let api_availability = self.api_availability.clone();
 
                 let future = async move {
                     let response =
@@ -146,20 +150,25 @@ impl RequestService {
                         if let Err(err) = &response {
                             match err {
                                 Error::HyperError(_) | Error::TimeoutError(_) => {
-                                    log::error!("HTTP request failed: {}", err);
-                                    let current_address = address_cache.peek_address();
-                                    if current_address == host_addr
-                                        && address_cache.has_tried_current_address()
-                                    {
-                                        handle.spawn(async move {
-                                            address_cache.select_new_address().await;
-                                            let new_address = address_cache.peek_address();
-                                            log::error!(
-                                                "Request failed using address {}. Trying next API address: {}",
-                                                current_address,
-                                                new_address,
-                                            );
-                                        });
+                                    log::error!(
+                                        "{}",
+                                        err.display_chain_with_msg("HTTP request failed")
+                                    );
+                                    if !api_availability.get_state().is_offline() {
+                                        let current_address = address_cache.peek_address();
+                                        if current_address == host_addr
+                                            && address_cache.has_tried_current_address()
+                                        {
+                                            handle.spawn(async move {
+                                                address_cache.select_new_address().await;
+                                                let new_address = address_cache.peek_address();
+                                                log::error!(
+                                                    "Request failed using address {}. Trying next API address: {}",
+                                                    current_address,
+                                                    new_address,
+                                                );
+                                            });
+                                        }
                                     }
                                 }
                                 _ => (),
