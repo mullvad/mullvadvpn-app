@@ -10,6 +10,8 @@ use lazy_static::lazy_static;
 use std::env;
 #[cfg(windows)]
 use std::io;
+#[cfg(not(target_os = "linux"))]
+use std::net::IpAddr;
 use std::{
     collections::HashSet,
     net::SocketAddr,
@@ -172,11 +174,13 @@ impl WireguardMonitor {
         route_manager: &mut routing::RouteManager,
     ) -> Result<WireguardMonitor> {
         let mut tcp_proxies = vec![];
+        let mut proxy_addrs = vec![];
 
         for peer in &mut config.peers {
             if peer.protocol == TransportProtocol::Tcp {
                 let udp2tcp = TcpProxy::new(&runtime, peer.endpoint.clone())?;
 
+                proxy_addrs.push(peer.endpoint.ip());
                 // Replace remote peer with proxy
                 peer.endpoint = udp2tcp.local_udp_addr();
 
@@ -278,7 +282,12 @@ impl WireguardMonitor {
                         .map_err(Error::SetupRoutingError)?;
 
                     route_handle
-                        .add_routes(Self::get_routes(&iface_name, &config))
+                        .add_routes(Self::get_routes(
+                            &iface_name,
+                            &config,
+                            #[cfg(not(target_os = "linux"))]
+                            &proxy_addrs,
+                        ))
                         .await
                         .map_err(Error::SetupRoutingError)
                 })
@@ -439,7 +448,11 @@ impl WireguardMonitor {
     }
 
     #[cfg(target_os = "windows")]
-    fn get_routes(iface_name: &str, config: &Config) -> HashSet<RequiredRoute> {
+    fn get_routes(
+        iface_name: &str,
+        config: &Config,
+        proxy_addrs: &[IpAddr],
+    ) -> HashSet<RequiredRoute> {
         let mut routes: HashSet<RequiredRoute> = {
             let node_v4 =
                 routing::Node::new(config.ipv4_gateway.clone().into(), iface_name.to_string());
@@ -459,10 +472,15 @@ impl WireguardMonitor {
                 .collect()
         };
 
+        let endpoint_iter: Box<dyn Iterator<Item = IpAddr>> = if proxy_addrs.is_empty() {
+            Box::new(config.peers.iter().map(|peer| peer.endpoint.ip()))
+        } else {
+            Box::new(proxy_addrs.iter().cloned())
+        };
         // route endpoints with specific routes
-        for peer in config.peers.iter() {
+        for endpoint_ip in endpoint_iter {
             routes.insert(RequiredRoute::new(
-                peer.endpoint.ip().into(),
+                endpoint_ip.into(),
                 routing::NetNode::DefaultNode,
             ));
         }
@@ -506,18 +524,26 @@ impl WireguardMonitor {
     }
 
     #[cfg(all(not(target_os = "linux"), not(windows)))]
-    fn get_routes(iface_name: &str, config: &Config) -> HashSet<RequiredRoute> {
+    fn get_routes(
+        iface_name: &str,
+        config: &Config,
+        proxy_addrs: &[IpAddr],
+    ) -> HashSet<RequiredRoute> {
         let node = routing::Node::device(iface_name.to_string());
         let mut routes: HashSet<RequiredRoute> = Self::get_tunnel_routes(config)
             .map(|network| RequiredRoute::new(network, node.clone()))
             .collect();
 
+        let endpoint_iter: Box<dyn Iterator<Item = ipnetwork::IpNetwork>> =
+            if proxy_addrs.is_empty() {
+                Box::new(config.peers.iter().map(|peer| peer.endpoint.ip().into()))
+            } else {
+                Box::new(proxy_addrs.iter().map(|ip| ipnetwork::IpNetwork::from(*ip)))
+            };
+
         // route endpoints with specific routes
-        for peer in config.peers.iter() {
-            routes.insert(RequiredRoute::new(
-                peer.endpoint.ip().into(),
-                routing::NetNode::DefaultNode,
-            ));
+        for endpoint in endpoint_iter {
+            routes.insert(RequiredRoute::new(endpoint, routing::NetNode::DefaultNode));
         }
 
         routes
