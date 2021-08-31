@@ -122,4 +122,26 @@ class PromiseTests: XCTestCase {
         wait(for: [cancelExpectation, completionExpectation], timeout: 1)
     }
 
+    func testOptionalMapNoneWithDefaultValue() {
+        let value: Int? = nil
+
+        value.asPromise()
+            .map(defaultValue: 1) { _ in
+                return 2
+            }.observe { completion in
+                XCTAssertEqual(completion.unwrappedValue, 1)
+            }
+    }
+
+    func testOptionalMapSomeWithDefaultValue() {
+        let value: Int? = 0
+
+        value.asPromise()
+            .map(defaultValue: 1) { _ in
+                return 2
+            }.observe { completion in
+                XCTAssertEqual(completion.unwrappedValue, 2)
+            }
+    }
+
 }
