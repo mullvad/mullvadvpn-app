@@ -332,6 +332,7 @@ export default class AppRenderer {
     // connect only if tunnel is disconnected or blocked.
     if (state === 'disconnecting' || state === 'disconnected' || state === 'error') {
       // switch to the connecting state ahead of time to make the app look more responsive
+      this.resetLocationToConstraints();
       this.reduxActions.connection.connecting();
 
       return IpcRendererEventChannel.tunnel.connect();
@@ -356,6 +357,7 @@ export default class AppRenderer {
     // reconnect only if tunnel is connected or connecting.
     if (state === 'connecting' || state === 'connected') {
       // switch to the connecting state ahead of time to make the app look more responsive
+      this.resetLocationToConstraints();
       this.reduxActions.connection.connecting();
 
       return IpcRendererEventChannel.tunnel.reconnect();
@@ -601,6 +603,37 @@ export default class AppRenderer {
   private setLocale(locale: string) {
     this.locale = locale;
     this.reduxActions.userInterface.updateLocale(locale);
+  }
+
+  private resetLocationToConstraints() {
+    const relaySettings = this.settings.relaySettings;
+    if ('normal' in relaySettings) {
+      const location = relaySettings.normal.location;
+      if (location !== 'any' && 'only' in location) {
+        const constraint = location.only;
+
+        const relayLocations = this.reduxStore.getState().settings.relayLocations;
+        if ('country' in constraint) {
+          const country = relayLocations.find(({ code }) => constraint.country === code);
+
+          this.reduxActions.connection.newLocation({ country: country?.name });
+        } else if ('city' in constraint) {
+          const country = relayLocations.find(({ code }) => constraint.city[0] === code);
+          const city = country?.cities.find(({ code }) => constraint.city[1] === code);
+
+          this.reduxActions.connection.newLocation({ country: country?.name, city: city?.name });
+        } else if ('hostname' in constraint) {
+          const country = relayLocations.find(({ code }) => constraint.hostname[0] === code);
+          const city = country?.cities.find((location) => location.code === constraint.hostname[1]);
+
+          this.reduxActions.connection.newLocation({
+            country: country?.name,
+            city: city?.name,
+            hostname: constraint.hostname[2],
+          });
+        }
+      }
+    }
   }
 
   private setRelaySettings(relaySettings: RelaySettings) {

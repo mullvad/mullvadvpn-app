@@ -31,7 +31,7 @@ interface IBlockedAction {
 
 interface INewLocationAction {
   type: 'NEW_LOCATION';
-  newLocation: ILocation;
+  newLocation: Partial<ILocation>;
 }
 
 interface IUpdateBlockStateAction {
@@ -82,7 +82,7 @@ function blocked(errorState: IErrorState): IBlockedAction {
   };
 }
 
-function newLocation(location: ILocation): INewLocationAction {
+function newLocation(location: Partial<ILocation>): INewLocationAction {
   return {
     type: 'NEW_LOCATION',
     newLocation: location,
