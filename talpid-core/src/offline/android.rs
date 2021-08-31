@@ -1,4 +1,3 @@
-use crate::tunnel_state_machine::TunnelCommand;
 use futures::channel::mpsc::UnboundedSender;
 use jnix::{
     jni::{
@@ -128,7 +127,7 @@ impl MonitorHandle {
         }
     }
 
-    fn set_sender(&self, sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<(), Error> {
+    fn set_sender(&self, sender: Weak<UnboundedSender<bool>>) -> Result<(), Error> {
         let sender_ptr = Box::new(sender);
         let sender_address = Box::into_raw(sender_ptr) as jlong;
 
@@ -181,10 +180,10 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyConnec
     sender_address: jlong,
 ) {
     let sender_ref = Box::leak(unsafe { get_sender_from_address(sender_address) });
-    let tunnel_command = TunnelCommand::IsOffline(is_connected == JNI_FALSE);
+    let is_offline = is_connected == JNI_FALSE;
 
     if let Some(sender) = sender_ref.upgrade() {
-        if sender.unbounded_send(tunnel_command).is_err() {
+        if sender.unbounded_send(is_offline).is_err() {
             log::warn!("Failed to send offline change event");
         }
     }
@@ -201,12 +200,12 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_destroySende
     let _ = unsafe { get_sender_from_address(sender_address) };
 }
 
-unsafe fn get_sender_from_address(address: jlong) -> Box<Weak<UnboundedSender<TunnelCommand>>> {
-    Box::from_raw(address as *mut Weak<UnboundedSender<TunnelCommand>>)
+unsafe fn get_sender_from_address(address: jlong) -> Box<Weak<UnboundedSender<bool>>> {
+    Box::from_raw(address as *mut Weak<UnboundedSender<bool>>)
 }
 
 pub async fn spawn_monitor(
-    sender: Weak<UnboundedSender<TunnelCommand>>,
+    sender: Weak<UnboundedSender<bool>>,
     android_context: AndroidContext,
 ) -> Result<MonitorHandle, Error> {
     let monitor_handle = MonitorHandle::new(android_context)?;

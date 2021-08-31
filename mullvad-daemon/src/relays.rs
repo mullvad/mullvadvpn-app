@@ -234,15 +234,8 @@ impl RelaySelector {
         }
     }
 
-    /// Download the newest relay list.
-    pub fn update_deferred(&mut self) -> impl Future<Output = ()> {
-        let mut updater = self.updater.as_ref().unwrap().clone();
-        async move {
-            updater
-                .update_relay_list_deferred()
-                .await
-                .expect("Relay list updated thread has stopped unexpectedly");
-        }
+    pub fn updater_handle(&self) -> RelayListUpdaterHandle {
+        self.updater.as_ref().unwrap().clone()
     }
 
     /// Returns all countries and cities. The cities in the object returned does not have any
@@ -1003,14 +996,14 @@ pub struct RelayListUpdaterHandle {
 }
 
 impl RelayListUpdaterHandle {
-    async fn update_relay_list(&mut self) -> Result<(), Error> {
+    pub async fn update_relay_list(&mut self) -> Result<(), Error> {
         self.tx
             .send(false)
             .await
             .map_err(|_| Error::DownloaderShutDown)
     }
 
-    async fn update_relay_list_deferred(&mut self) -> Result<(), Error> {
+    pub async fn update_relay_list_deferred(&mut self) -> Result<(), Error> {
         self.tx
             .send(true)
             .await
