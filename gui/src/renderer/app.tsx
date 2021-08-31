@@ -338,12 +338,28 @@ export default class AppRenderer {
     }
   }
 
-  public disconnectTunnel(): Promise<void> {
-    return IpcRendererEventChannel.tunnel.disconnect();
+  public async disconnectTunnel(): Promise<void> {
+    const state = this.tunnelState.state;
+
+    // disconnect only if tunnel is connected, connecting or blocked.
+    if (state === 'connecting' || state === 'connected' || state === 'error') {
+      // switch to the disconnecting state ahead of time to make the app look more responsive
+      this.reduxActions.connection.disconnecting('nothing');
+
+      return IpcRendererEventChannel.tunnel.disconnect();
+    }
   }
 
-  public reconnectTunnel(): Promise<void> {
-    return IpcRendererEventChannel.tunnel.reconnect();
+  public async reconnectTunnel(): Promise<void> {
+    const state = this.tunnelState.state;
+
+    // reconnect only if tunnel is connected or connecting.
+    if (state === 'connecting' || state === 'connected') {
+      // switch to the connecting state ahead of time to make the app look more responsive
+      this.reduxActions.connection.connecting();
+
+      return IpcRendererEventChannel.tunnel.reconnect();
+    }
   }
 
   public updateRelaySettings(relaySettings: RelaySettingsUpdate) {
