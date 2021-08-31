@@ -20,26 +20,28 @@ impl super::SettingsMigration for Migration {
         }();
 
         if let Some(options) = dns_options {
-            let new_state = if options
-                .get("custom")
-                .map(|custom| custom.as_bool().unwrap_or(false))
-                .unwrap_or(false)
-            {
-                DnsState::Custom
-            } else {
-                DnsState::Default
-            };
-            let addresses = if let Some(addrs) = options.get("addresses") {
-                serde_json::from_value(addrs.clone()).map_err(Error::ParseError)?
-            } else {
-                vec![]
-            };
+            if options.get("state").is_none() {
+                let new_state = if options
+                    .get("custom")
+                    .map(|custom| custom.as_bool().unwrap_or(false))
+                    .unwrap_or(false)
+                {
+                    DnsState::Custom
+                } else {
+                    DnsState::Default
+                };
+                let addresses = if let Some(addrs) = options.get("addresses") {
+                    serde_json::from_value(addrs.clone()).map_err(Error::ParseError)?
+                } else {
+                    vec![]
+                };
 
-            settings["tunnel_options"]["dns_options"] = serde_json::json!(DnsOptions {
-                state: new_state,
-                default_options: DefaultDnsOptions::default(),
-                custom_options: CustomDnsOptions { addresses },
-            });
+                settings["tunnel_options"]["dns_options"] = serde_json::json!(DnsOptions {
+                    state: new_state,
+                    default_options: DefaultDnsOptions::default(),
+                    custom_options: CustomDnsOptions { addresses },
+                });
+            }
         }
 
         settings["settings_version"] = serde_json::json!(SettingsVersion::V4);
