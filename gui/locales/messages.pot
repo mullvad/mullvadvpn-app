@@ -946,6 +946,10 @@ msgctxt "select-location-view"
 msgid "Select location"
 msgstr ""
 
+msgctxt "select-location-view"
+msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
+msgstr ""
+
 #. Navigation button to the 'Account' view
 msgctxt "settings-view"
 msgid "Account"
