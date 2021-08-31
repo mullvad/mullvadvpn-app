@@ -543,14 +543,15 @@ where
     ) -> Result<Self, Error> {
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
+        let runtime = tokio::runtime::Handle::current();
 
         let (internal_event_tx, internal_event_rx) = command_channel.destructure();
         let (address_change_tx, mut address_change_rx) = mpsc::channel(0);
         let address_change_tx = std::sync::Mutex::new(address_change_tx);
-        let address_change_runtime = tokio::runtime::Handle::current();
+        let address_change_runtime = runtime.clone();
 
         let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
-            tokio::runtime::Handle::current(),
+            runtime.clone(),
             Some(&resource_dir),
             &cache_dir,
             true,
@@ -580,7 +581,7 @@ where
             relay_list_listener.notify_relay_list(relay_list.clone());
         };
 
-        let mut relay_selector = relays::RelaySelector::new(
+        let relay_selector = relays::RelaySelector::new(
             rpc_handle.clone(),
             on_relay_list_update,
             &resource_dir,
@@ -672,6 +673,8 @@ where
             vec![]
         };
 
+        let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
+
         let tunnel_command_tx = tunnel_state_machine::spawn(
             settings.allow_lan,
             settings.block_when_disconnected,
@@ -682,6 +685,7 @@ where
             resource_dir,
             cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
+            offline_state_tx,
             tunnel_state_machine_shutdown_tx,
             initial_target_state != TargetState::Secured,
             #[cfg(target_os = "android")]
@@ -691,6 +695,8 @@ where
         )
         .await
         .map_err(Error::TunnelError)?;
+
+        Self::forward_offline_state(&runtime, api_availability.clone(), offline_state_rx).await;
 
         let tsm_api_address_change_tx = Arc::downgrade(&tunnel_command_tx);
         tokio::spawn(async move {
@@ -710,11 +716,24 @@ where
         );
 
         let accounts_proxy = AccountsProxy::new(rpc_handle.clone());
-        Self::update_account_validity_status(&settings, api_availability.clone(), &accounts_proxy)
-            .await;
+        let accounts_proxy_copy = accounts_proxy.clone();
 
-        // Attempt to download a fresh relay list
-        relay_selector.update_deferred().await;
+        let mut relay_handle = relay_selector.updater_handle();
+        let account_token = settings.get_account_token();
+        let api_availability_copy = api_availability.clone();
+        runtime.spawn(async move {
+            Self::update_account_validity_status(
+                account_token,
+                api_availability_copy,
+                accounts_proxy_copy,
+            )
+            .await;
+            // Attempt to download a fresh relay list
+            relay_handle
+                .update_relay_list_deferred()
+                .await
+                .expect("Relay list updated thread has stopped unexpectedly");
+        });
 
         let mut daemon = Daemon {
             tunnel_command_tx,
@@ -1461,11 +1480,11 @@ where
     }
 
     fn update_account_validity_status(
-        settings: &SettingsPersister,
+        token: Option<String>,
         api_availability: availability::ApiAvailabilityHandle,
-        accounts_proxy: &AccountsProxy,
+        accounts_proxy: AccountsProxy,
     ) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
-        let token = if let Some(token) = settings.get_account_token() {
+        let token = if let Some(token) = token {
             token
         } else {
             return Box::pin(async move {
@@ -1473,8 +1492,10 @@ where
             });
         };
 
+        let when_online = api_availability.wait_online();
         let expiry_fut = accounts_proxy.get_expiry(token);
         Box::pin(async move {
+            let _ = when_online.await;
             Self::handle_expiry_result(&expiry_fut.await, api_availability)
         })
     }
@@ -2401,6 +2422,23 @@ where
             }
         });
         Some(bypass_tx)
+    }
+
+    async fn forward_offline_state(
+        runtime: &tokio::runtime::Handle,
+        api_availability: availability::ApiAvailabilityHandle,
+        mut offline_state_rx: mpsc::UnboundedReceiver<bool>,
+    ) {
+        let initial_state = offline_state_rx
+            .next()
+            .await
+            .expect("missing initial offline state");
+        api_availability.set_offline(initial_state);
+        runtime.spawn(async move {
+            while let Some(is_offline) = offline_state_rx.next().await {
+                api_availability.set_offline(is_offline);
+            }
+        });
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to

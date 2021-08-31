@@ -19,6 +19,7 @@ pub enum Error {
 #[derive(PartialEq, Eq, Clone, Copy, Debug, Default)]
 pub struct State {
     pause_automatic: bool,
+    offline: bool,
 }
 
 impl State {
@@ -26,8 +27,12 @@ impl State {
         self.pause_automatic
     }
 
+    pub fn is_offline(&self) -> bool {
+        self.offline
+    }
+
     pub fn is_available(&self) -> bool {
-        !self.is_paused()
+        !self.is_paused() && !self.is_offline()
     }
 }
 
@@ -78,19 +83,42 @@ impl ApiAvailabilityHandle {
         }
     }
 
+    pub fn set_offline(&self, offline: bool) {
+        let mut state = self.state.lock().unwrap();
+        if state.offline != offline {
+            state.offline = offline;
+            let _ = self.tx.send(*state);
+        }
+    }
+
+    pub fn get_state(&self) -> State {
+        *self.state.lock().unwrap()
+    }
+
     pub fn wait_available(&self) -> impl Future<Output = Result<(), Error>> {
+        self.wait_for_state(|state| state.is_available())
+    }
+
+    pub fn wait_online(&self) -> impl Future<Output = Result<(), Error>> {
+        self.wait_for_state(|state| !state.is_offline())
+    }
+
+    fn wait_for_state(
+        &self,
+        state_ready: impl Fn(State) -> bool,
+    ) -> impl Future<Output = Result<(), Error>> {
         let mut rx = self.tx.subscribe();
         let state = self.state.clone();
 
         async move {
             let current_state = { *state.lock().unwrap() };
-            if current_state.is_available() {
+            if state_ready(current_state) {
                 return Ok(());
             }
 
             loop {
                 let new_state = rx.recv().await?;
-                if new_state.is_available() {
+                if state_ready(new_state) {
                     return Ok(());
                 }
             }

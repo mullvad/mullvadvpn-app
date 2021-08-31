@@ -1,4 +1,3 @@
-use crate::tunnel_state_machine::TunnelCommand;
 use futures::channel::mpsc::UnboundedSender;
 use std::{
     net::{Ipv4Addr, SocketAddr},
@@ -39,7 +38,9 @@ pub enum Error {
     InitializationError,
 }
 
-pub struct MonitorHandle;
+pub struct MonitorHandle {
+    _notify_tx: Arc<UnboundedSender<bool>>,
+}
 
 impl MonitorHandle {
     /// Host is considered to be offline if the IPv4 internet is considered to be unreachable by the
@@ -54,10 +55,10 @@ impl MonitorHandle {
     }
 }
 
-pub async fn spawn_monitor(
-    sender: Weak<UnboundedSender<TunnelCommand>>,
-) -> Result<MonitorHandle, Error> {
+pub async fn spawn_monitor(notify_tx: UnboundedSender<bool>) -> Result<MonitorHandle, Error> {
     let (result_tx, result_rx) = mpsc::channel();
+    let notify_tx = Arc::new(notify_tx);
+    let sender = Arc::downgrade(&notify_tx);
     thread::spawn(move || {
         let mut reachability_ref = SCNetworkReachability::from(ipv4_internet());
         let store = SCDynamicStoreBuilder::new("talpid-offline-watcher").build();
@@ -108,7 +109,9 @@ pub async fn spawn_monitor(
     });
 
     let _ = result_rx.recv().map_err(|_| Error::InitializationError)??;
-    Ok(MonitorHandle {})
+    Ok(MonitorHandle {
+        _notify_tx: notify_tx,
+    })
 }
 
 fn ipv4_internet() -> SocketAddr {
@@ -170,7 +173,7 @@ fn iface_is_physical(iface: &SCNetworkInterface) -> bool {
 
 #[derive(Clone)]
 struct OfflineStateContext {
-    sender: Weak<UnboundedSender<TunnelCommand>>,
+    sender: Weak<UnboundedSender<bool>>,
     is_offline: Arc<AtomicBool>,
 }
 
@@ -182,8 +185,7 @@ impl OfflineStateContext {
     fn new_state(&self, is_offline: bool) {
         if self.is_offline.swap(is_offline, Ordering::SeqCst) != is_offline {
             if let Some(sender) = self.sender.upgrade() {
-                let cmd = TunnelCommand::IsOffline(is_offline);
-                let _ = sender.unbounded_send(cmd);
+                let _ = sender.unbounded_send(is_offline);
             }
         }
     }

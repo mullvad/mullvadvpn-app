@@ -35,7 +35,7 @@ use std::{
     io,
     net::IpAddr,
     path::{Path, PathBuf},
-    sync::{mpsc as sync_mpsc, Arc},
+    sync::{mpsc as sync_mpsc, Arc, Weak},
 };
 #[cfg(target_os = "android")]
 use talpid_types::{android::AndroidContext, ErrorExt};
@@ -88,6 +88,7 @@ pub async fn spawn(
     resource_dir: PathBuf,
     cache_dir: impl AsRef<Path> + Send + 'static,
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
+    offline_state_listener: mpsc::UnboundedSender<bool>,
     shutdown_tx: oneshot::Sender<()>,
     reset_firewall: bool,
     #[cfg(target_os = "android")] android_context: AndroidContext,
@@ -114,6 +115,7 @@ pub async fn spawn(
     std::thread::spawn(move || {
         let state_machine = runtime.block_on(TunnelStateMachine::new(
             runtime.clone(),
+            offline_state_listener,
             weak_command_tx,
             allow_lan,
             block_when_disconnected,
@@ -208,7 +210,8 @@ struct TunnelStateMachine {
 impl TunnelStateMachine {
     async fn new(
         runtime: tokio::runtime::Handle,
-        command_tx: std::sync::Weak<mpsc::UnboundedSender<TunnelCommand>>,
+        offline_state_tx: mpsc::UnboundedSender<bool>,
+        command_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
         allow_lan: bool,
         block_when_disconnected: bool,
         dns_servers: Option<Vec<IpAddr>>,
@@ -246,8 +249,21 @@ impl TunnelStateMachine {
                 .map_err(Error::InitRouteManagerError)?,
         )
         .map_err(Error::InitDnsMonitorError)?;
+
+        let (offline_tx, mut offline_rx) = mpsc::unbounded();
+        let initial_offline_state_tx = offline_state_tx.clone();
+        tokio::spawn(async move {
+            while let Some(offline) = offline_rx.next().await {
+                if let Some(tx) = command_tx.upgrade() {
+                    let _ = tx.unbounded_send(TunnelCommand::IsOffline(offline));
+                } else {
+                    break;
+                }
+                let _ = offline_state_tx.unbounded_send(offline);
+            }
+        });
         let mut offline_monitor = offline::spawn_monitor(
-            command_tx,
+            offline_tx,
             #[cfg(target_os = "linux")]
             route_manager
                 .handle()
@@ -258,6 +274,7 @@ impl TunnelStateMachine {
         .await
         .map_err(Error::OfflineMonitorError)?;
         let is_offline = offline_monitor.is_offline().await;
+        let _ = initial_offline_state_tx.unbounded_send(is_offline);
 
         #[cfg(windows)]
         split_tunnel
