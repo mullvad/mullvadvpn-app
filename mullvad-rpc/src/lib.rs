@@ -82,9 +82,7 @@ impl MullvadRpcRuntime {
                 None,
                 Arc::new(Box::new(|_| Ok(()))),
             )?,
-            api_availability: availability::ApiAvailability::new(
-                availability::State::default(),
-            ),
+            api_availability: availability::ApiAvailability::new(availability::State::default()),
             #[cfg(target_os = "android")]
             socket_bypass_tx: None,
         })
@@ -150,9 +148,7 @@ impl MullvadRpcRuntime {
         Ok(MullvadRpcRuntime {
             handle: handle.clone(),
             address_cache,
-            api_availability: availability::ApiAvailability::new(
-                availability::State::default(),
-            ),
+            api_availability: availability::ApiAvailability::new(availability::State::default()),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })
@@ -170,6 +166,7 @@ impl MullvadRpcRuntime {
         let service = rest::RequestService::new(
             https_connector,
             self.handle.clone(),
+            self.api_availability.handle(),
             self.address_cache.clone(),
         );
         let handle = service.handle();
@@ -208,6 +205,7 @@ impl MullvadRpcRuntime {
     }
 }
 
+#[derive(Clone)]
 pub struct AccountsProxy {
     handle: rest::MullvadRestHandle,
 }
