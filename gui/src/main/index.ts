@@ -990,12 +990,6 @@ class ApplicationMain {
       if (tunnelState.details && tunnelState.details.location) {
         this.setLocation(tunnelState.details.location);
       }
-    } else if (tunnelState.state === 'disconnected') {
-      // It may take some time to fetch the new user location.
-      // So take the user to the last known location when disconnected.
-      if (this.lastDisconnectedLocation) {
-        this.setLocation(this.lastDisconnectedLocation);
-      }
     }
 
     if (tunnelState.state === 'connected' || tunnelState.state === 'disconnected') {
@@ -1003,21 +997,16 @@ class ApplicationMain {
         // Fetch the new user location
         const getLocationPromise = (this.getLocationPromise = this.daemonRpc.getLocation());
         const location = await getLocationPromise;
-        // If the location is currently unavailable, do nothing! This only ever
-        // happens when a custom relay is set or we are in a blocked state.
-        if (!location) {
-          return;
-        }
-
-        // Cache the user location
-        // Note: hostname is only set for relay servers.
-        if (location.hostname === null) {
-          this.lastDisconnectedLocation = location;
-        }
-
-        // Broadcast the new location if it is the result of the most recent call to getLocation.
-        if (getLocationPromise === this.getLocationPromise) {
+        // If the location is currently unavailable, do nothing! This only ever happens when a
+        // custom relay is set or we are in a blocked state. Save and broadcast the new location if
+        // it is the result of the most recent call to getLocation.
+        if (location && getLocationPromise === this.getLocationPromise) {
           this.setLocation(location);
+
+          // Cache the user location
+          if (tunnelState.state === 'disconnected') {
+            this.lastDisconnectedLocation = location;
+          }
         }
       } catch (error) {
         log.error(`Failed to update the location: ${error.message}`);
@@ -1159,7 +1148,17 @@ class ApplicationMain {
     });
 
     IpcMainEventChannel.tunnel.handleConnect(() => this.daemonRpc.connectTunnel());
-    IpcMainEventChannel.tunnel.handleDisconnect(() => this.daemonRpc.disconnectTunnel());
+    IpcMainEventChannel.tunnel.handleDisconnect(async () => {
+      // It may take some time to fetch the new user location.
+      // So take the user to the last known location when disconnected.
+      if (this.windowController && this.lastDisconnectedLocation) {
+        IpcMainEventChannel.location.notify(
+          this.windowController.webContents,
+          this.lastDisconnectedLocation,
+        );
+      }
+      return this.daemonRpc.disconnectTunnel();
+    });
     IpcMainEventChannel.tunnel.handleReconnect(() => this.daemonRpc.reconnectTunnel());
 
     IpcMainEventChannel.guiSettings.handleSetEnableSystemNotifications((flag: boolean) => {
