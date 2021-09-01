@@ -612,16 +612,25 @@ export default class AppRenderer {
       if (location !== 'any' && 'only' in location) {
         const constraint = location.only;
 
-        const relayLocations = this.reduxStore.getState().settings.relayLocations;
+        const state = this.reduxStore.getState();
+        const coordinates = {
+          longitude: state.connection.longitude,
+          latitude: state.connection.latitude,
+        };
+        const relayLocations = state.settings.relayLocations;
         if ('country' in constraint) {
           const country = relayLocations.find(({ code }) => constraint.country === code);
 
-          this.reduxActions.connection.newLocation({ country: country?.name });
+          this.reduxActions.connection.newLocation({ country: country?.name, ...coordinates });
         } else if ('city' in constraint) {
           const country = relayLocations.find(({ code }) => constraint.city[0] === code);
           const city = country?.cities.find(({ code }) => constraint.city[1] === code);
 
-          this.reduxActions.connection.newLocation({ country: country?.name, city: city?.name });
+          this.reduxActions.connection.newLocation({
+            country: country?.name,
+            city: city?.name,
+            ...coordinates,
+          });
         } else if ('hostname' in constraint) {
           const country = relayLocations.find(({ code }) => constraint.hostname[0] === code);
           const city = country?.cities.find((location) => location.code === constraint.hostname[1]);
@@ -630,6 +639,7 @@ export default class AppRenderer {
             country: country?.name,
             city: city?.name,
             hostname: constraint.hostname[2],
+            ...coordinates,
           });
         }
       }
