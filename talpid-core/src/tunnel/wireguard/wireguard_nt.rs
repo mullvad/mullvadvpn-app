@@ -69,7 +69,7 @@ type WireGuardSetStateFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, state: WgAdapterState) -> BOOL;
 
 
-type WireGuardLoggerCb = extern "stdcall" fn(logging::NtLogLevel, timestamp: u64, *const u16);
+type WireGuardLoggerCb = extern "stdcall" fn(logging::WgNtLogLevel, timestamp: u64, *const u16);
 type WireGuardSetLoggerFn = extern "stdcall" fn(Option<WireGuardLoggerCb>);
 
 #[repr(C)]
@@ -407,7 +407,7 @@ struct LoggerHandle(Arc<WgNtDll>);
 impl LoggerHandle {
     fn new(dll: Arc<WgNtDll>, log_path: Option<&Path>) -> Result<Self> {
         logging::initialize_logging(log_path).map_err(Error::InitLoggingError)?;
-        dll.set_logger(Some(logging::nt_logging_callback));
+        dll.set_logger(Some(logging::wg_nt_logging_callback));
         Ok(Self(dll))
     }
 }

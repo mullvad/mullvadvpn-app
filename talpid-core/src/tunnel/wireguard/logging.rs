@@ -113,8 +113,8 @@ const WG_GO_LOG_ERROR: WgLogLevel = 1;
 const WG_GO_LOG_VERBOSE: WgLogLevel = 2;
 
 #[cfg(windows)]
-pub extern "stdcall" fn nt_logging_callback(
-    level: NtLogLevel,
+pub extern "stdcall" fn wg_nt_logging_callback(
+    level: WgNtLogLevel,
     _timestamp: u64,
     message: *const u16,
 ) {
@@ -129,19 +129,19 @@ pub extern "stdcall" fn nt_logging_callback(
 #[cfg(windows)]
 #[repr(C)]
 #[allow(dead_code)]
-pub enum NtLogLevel {
+pub enum WgNtLogLevel {
     Info,
     Warn,
     Err,
 }
 
 #[cfg(windows)]
-impl From<NtLogLevel> for LogLevel {
-    fn from(level: NtLogLevel) -> Self {
+impl From<WgNtLogLevel> for LogLevel {
+    fn from(level: WgNtLogLevel) -> Self {
         match level {
-            NtLogLevel::Info => Self::Info,
-            NtLogLevel::Warn => Self::Warning,
-            NtLogLevel::Err => Self::Error,
+            WgNtLogLevel::Info => Self::Info,
+            WgNtLogLevel::Warn => Self::Warning,
+            WgNtLogLevel::Err => Self::Error,
         }
     }
 }
