@@ -13,7 +13,7 @@
 #
 
 !define WINTUN_POOL "Mullvad"
-!define NT_POOL "Mullvad"
+!define WG_NT_POOL "Mullvad"
 
 # "sc" exit code
 !define SERVICE_STARTED 0
@@ -234,7 +234,7 @@
 
 	log::Log "RemoveWireGuardNt()"
 
-	nsExec::ExecToStack '"$TEMP\driverlogic.exe" nt-delete-pool-driver ${NT_POOL}'
+	nsExec::ExecToStack '"$TEMP\driverlogic.exe" wg-nt-cleanup ${WG_NT_POOL}'
 	Pop $0
 	Pop $1
 

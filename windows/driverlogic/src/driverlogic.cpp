@@ -279,7 +279,7 @@ ReturnCode CommandWintunDeleteAbandonedDevice(const std::vector<std::wstring> &a
 	return GENERAL_SUCCESS;
 }
 
-ReturnCode CommandWireGuardNtDeletePool(const std::vector<std::wstring> &args)
+ReturnCode CommandWireGuardNtCleanup(const std::vector<std::wstring> &args)
 {
 	ArgumentContext argsContext(args);
 
@@ -353,7 +353,7 @@ int wmain(int argc, const wchar_t *argv[])
 		{ L"st-remove", CommandSplitTunnelRemove },
 		{ L"wintun-delete-pool-driver", CommandWintunDeletePool },
 		{ L"wintun-delete-abandoned-device", CommandWintunDeleteAbandonedDevice },
-		{ L"nt-delete-pool-driver", CommandWireGuardNtDeletePool }
+		{ L"wg-nt-cleanup", CommandWireGuardNtCleanup }
 	};
 
 	//
