@@ -163,7 +163,7 @@ export default class TunnelControl extends React.Component<ITunnelControlProps> 
         return (
           <Wrapper>
             <Body>
-              <Secured displayStyle={SecuredDisplayStyle.secured} />
+              <Secured displayStyle={SecuredDisplayStyle.unsecuring} />
               <Location>{this.renderCountry()}</Location>
             </Body>
             <Footer>
