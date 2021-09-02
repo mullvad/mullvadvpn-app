@@ -26,7 +26,6 @@ import {
   IAccountData,
   IAppVersionInfo,
   IDnsOptions,
-  ILocation,
   IRelayList,
   ISettings,
   IWireguardPublicKey,
@@ -179,10 +178,7 @@ class ApplicationMain {
     },
   };
   private guiSettings = new GuiSettings();
-  private location?: ILocation;
-  private lastDisconnectedLocation?: ILocation;
   private tunnelStateExpectation?: Expectation;
-  private getLocationPromise?: Promise<ILocation>;
 
   private relays: IRelayList = { countries: [] };
 
@@ -732,7 +728,6 @@ class ApplicationMain {
   private setTunnelState(newState: TunnelState) {
     this.tunnelState = newState;
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
-    void this.updateLocation();
 
     if (process.platform === 'linux') {
       this.tray?.setContextMenu(this.createTrayContextMenu());
@@ -796,14 +791,6 @@ class ApplicationMain {
         this.windowController.webContents,
         applications,
       );
-    }
-  }
-
-  private setLocation(newLocation: ILocation) {
-    this.location = newLocation;
-
-    if (this.windowController) {
-      IpcMainEventChannel.location.notify(this.windowController.webContents, newLocation);
     }
   }
 
@@ -981,39 +968,6 @@ class ApplicationMain {
     }
   }
 
-  private async updateLocation() {
-    const tunnelState = this.tunnelState;
-
-    if (tunnelState.state === 'connected' || tunnelState.state === 'connecting') {
-      // Location was broadcasted with the tunnel state, but it doesn't contain the relay out IP
-      // address, so it will have to be fetched afterwards
-      if (tunnelState.details && tunnelState.details.location) {
-        this.setLocation(tunnelState.details.location);
-      }
-    }
-
-    if (tunnelState.state === 'connected' || tunnelState.state === 'disconnected') {
-      try {
-        // Fetch the new user location
-        const getLocationPromise = (this.getLocationPromise = this.daemonRpc.getLocation());
-        const location = await getLocationPromise;
-        // If the location is currently unavailable, do nothing! This only ever happens when a
-        // custom relay is set or we are in a blocked state. Save and broadcast the new location if
-        // it is the result of the most recent call to getLocation.
-        if (location && getLocationPromise === this.getLocationPromise) {
-          this.setLocation(location);
-
-          // Cache the user location
-          if (tunnelState.state === 'disconnected') {
-            this.lastDisconnectedLocation = location;
-          }
-        }
-      } catch (error) {
-        log.error(`Failed to update the location: ${error.message}`);
-      }
-    }
-  }
-
   private trayIconType(tunnelState: TunnelState, blockWhenDisconnected: boolean): TrayIconType {
     switch (tunnelState.state) {
       case 'connected':
@@ -1091,7 +1045,6 @@ class ApplicationMain {
       accountHistory: this.accountHistory,
       tunnelState: this.tunnelState,
       settings: this.settings,
-      location: this.location,
       relayListPair: {
         relays: this.processRelaysForPresentation(
           this.relays,
@@ -1147,18 +1100,10 @@ class ApplicationMain {
       return this.setAutoStart(autoStart);
     });
 
+    IpcMainEventChannel.location.handleGet(() => this.daemonRpc.getLocation());
+
     IpcMainEventChannel.tunnel.handleConnect(() => this.daemonRpc.connectTunnel());
-    IpcMainEventChannel.tunnel.handleDisconnect(async () => {
-      // It may take some time to fetch the new user location.
-      // So take the user to the last known location when disconnected.
-      if (this.windowController && this.lastDisconnectedLocation) {
-        IpcMainEventChannel.location.notify(
-          this.windowController.webContents,
-          this.lastDisconnectedLocation,
-        );
-      }
-      return this.daemonRpc.disconnectTunnel();
-    });
+    IpcMainEventChannel.tunnel.handleDisconnect(() => this.daemonRpc.disconnectTunnel());
     IpcMainEventChannel.tunnel.handleReconnect(() => this.daemonRpc.reconnectTunnel());
 
     IpcMainEventChannel.guiSettings.handleSetEnableSystemNotifications((flag: boolean) => {

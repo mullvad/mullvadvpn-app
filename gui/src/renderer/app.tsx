@@ -116,7 +116,8 @@ export default class AppRenderer {
   };
 
   private locale = 'en';
-  private location?: ILocation;
+  private location?: Partial<ILocation>;
+  private lastDisconnectedLocation?: Partial<ILocation>;
   private relayListPair!: IRelayListPair;
   private tunnelState!: TunnelState;
   private settings!: ISettings;
@@ -124,6 +125,7 @@ export default class AppRenderer {
   private doingLogin = false;
   private loginScheduler = new Scheduler();
   private connectedToDaemon = false;
+  private getLocationPromise?: Promise<ILocation>;
 
   constructor() {
     log.addOutput(new ConsoleOutput(LogLevel.debug));
@@ -162,10 +164,6 @@ export default class AppRenderer {
       this.setSettings(newSettings);
       this.handleAccountChange(oldSettings.accountToken, newSettings.accountToken);
       this.updateBlockedState(this.tunnelState, newSettings.blockWhenDisconnected);
-    });
-
-    IpcRendererEventChannel.location.listen((newLocation: ILocation) => {
-      this.setLocation(newLocation);
     });
 
     IpcRendererEventChannel.relays.listen((relayListPair: IRelayListPair) => {
@@ -231,10 +229,6 @@ export default class AppRenderer {
     this.setTunnelState(initialState.tunnelState);
     this.updateBlockedState(initialState.tunnelState, initialState.settings.blockWhenDisconnected);
 
-    if (initialState.location) {
-      this.setLocation(initialState.location);
-    }
-
     this.setRelayListPair(initialState.relayListPair);
     this.setCurrentVersion(initialState.currentVersion);
     this.setUpgradeVersion(initialState.upgradeVersion);
@@ -253,6 +247,8 @@ export default class AppRenderer {
         initialState.windowsSplitTunnelingApplications,
       );
     }
+
+    void this.updateLocation();
 
     const navigationBase = this.getNavigationBase(
       initialState.isConnected,
@@ -332,7 +328,7 @@ export default class AppRenderer {
     // connect only if tunnel is disconnected or blocked.
     if (state === 'disconnecting' || state === 'disconnected' || state === 'error') {
       // switch to the connecting state ahead of time to make the app look more responsive
-      this.resetLocationToConstraints();
+      void this.updateLocation({ state: 'connecting' });
       this.reduxActions.connection.connecting();
 
       return IpcRendererEventChannel.tunnel.connect();
@@ -345,6 +341,7 @@ export default class AppRenderer {
     // disconnect only if tunnel is connected, connecting or blocked.
     if (state === 'connecting' || state === 'connected' || state === 'error') {
       // switch to the disconnecting state ahead of time to make the app look more responsive
+      void this.updateLocation({ state: 'disconnecting', details: 'nothing' });
       this.reduxActions.connection.disconnecting('nothing');
 
       return IpcRendererEventChannel.tunnel.disconnect();
@@ -357,7 +354,7 @@ export default class AppRenderer {
     // reconnect only if tunnel is connected or connecting.
     if (state === 'connecting' || state === 'connected') {
       // switch to the connecting state ahead of time to make the app look more responsive
-      this.resetLocationToConstraints();
+      void this.updateLocation({ state: 'connecting' });
       this.reduxActions.connection.connecting();
 
       return IpcRendererEventChannel.tunnel.reconnect();
@@ -605,47 +602,6 @@ export default class AppRenderer {
     this.reduxActions.userInterface.updateLocale(locale);
   }
 
-  private resetLocationToConstraints() {
-    const relaySettings = this.settings.relaySettings;
-    if ('normal' in relaySettings) {
-      const location = relaySettings.normal.location;
-      if (location !== 'any' && 'only' in location) {
-        const constraint = location.only;
-
-        const state = this.reduxStore.getState();
-        const coordinates = {
-          longitude: state.connection.longitude,
-          latitude: state.connection.latitude,
-        };
-        const relayLocations = state.settings.relayLocations;
-        if ('country' in constraint) {
-          const country = relayLocations.find(({ code }) => constraint.country === code);
-
-          this.reduxActions.connection.newLocation({ country: country?.name, ...coordinates });
-        } else if ('city' in constraint) {
-          const country = relayLocations.find(({ code }) => constraint.city[0] === code);
-          const city = country?.cities.find(({ code }) => constraint.city[1] === code);
-
-          this.reduxActions.connection.newLocation({
-            country: country?.name,
-            city: city?.name,
-            ...coordinates,
-          });
-        } else if ('hostname' in constraint) {
-          const country = relayLocations.find(({ code }) => constraint.hostname[0] === code);
-          const city = country?.cities.find((location) => location.code === constraint.hostname[1]);
-
-          this.reduxActions.connection.newLocation({
-            country: country?.name,
-            city: city?.name,
-            hostname: constraint.hostname[2],
-            ...coordinates,
-          });
-        }
-      }
-    }
-  }
-
   private setRelaySettings(relaySettings: RelaySettings) {
     const actions = this.reduxActions;
 
@@ -787,6 +743,9 @@ export default class AppRenderer {
         actions.connection.blocked(tunnelState.details);
         break;
     }
+
+    // Update the location when entering a new tunnel state since it's likely changed.
+    void this.updateLocation();
   }
 
   private setSettings(newSettings: ISettings) {
@@ -851,7 +810,7 @@ export default class AppRenderer {
     this.doingLogin = false;
   }
 
-  private setLocation(location: ILocation) {
+  private setLocation(location: Partial<ILocation>) {
     this.location = location;
     this.propagateLocationToRedux();
   }
@@ -862,7 +821,7 @@ export default class AppRenderer {
     }
   }
 
-  private translateLocation(inputLocation: ILocation): ILocation {
+  private translateLocation(inputLocation: Partial<ILocation>): Partial<ILocation> {
     const location = { ...inputLocation };
 
     if (location.city) {
@@ -942,5 +901,95 @@ export default class AppRenderer {
 
   private setWireguardPublicKey(publicKey?: IWireguardPublicKey) {
     this.reduxActions.settings.setWireguardKey(publicKey);
+  }
+
+  private async updateLocation(tunnelState = this.tunnelState) {
+    if (
+      (tunnelState.state === 'disconnected' || tunnelState.state === 'disconnecting') &&
+      this.lastDisconnectedLocation
+    ) {
+      // If we have a previous location for the disconnected state we use that when disconnecting and
+      // during the location fetch while disconnected.
+      this.setLocation(this.lastDisconnectedLocation);
+    } else if (tunnelState.state === 'disconnecting') {
+      // If there's no previous location while disconnecting we remove the location. We keep the
+      // coordinates to prevent the map from jumping around.
+      const { longitude, latitude } = this.reduxStore.getState().connection;
+      this.setLocation({ longitude, latitude });
+    }
+
+    if (
+      (tunnelState.state === 'connected' || tunnelState.state === 'connecting') &&
+      tunnelState.details?.location
+    ) {
+      this.setLocation(tunnelState.details.location);
+    } else if (tunnelState.state === 'connecting') {
+      this.setLocation(this.getLocationFromConstraints());
+    } else if (tunnelState.state === 'connected' || tunnelState.state === 'disconnected') {
+      const location = await this.fetchLocation();
+      if (location) {
+        this.setLocation(location);
+        // Cache the user location
+        if (tunnelState.state === 'disconnected') {
+          this.lastDisconnectedLocation = location;
+        }
+      }
+    }
+  }
+
+  private async fetchLocation(): Promise<ILocation | void> {
+    try {
+      // Fetch the new user location
+      const getLocationPromise = IpcRendererEventChannel.location.get();
+      this.getLocationPromise = getLocationPromise;
+      const location = await getLocationPromise;
+      // If the location is currently unavailable, do nothing! This only ever happens when a
+      // custom relay is set or we are in a blocked state.
+      if (location && getLocationPromise === this.getLocationPromise) {
+        return location;
+      }
+    } catch (error) {
+      log.error(`Failed to update the location: ${error.message}`);
+    }
+  }
+
+  private getLocationFromConstraints(): Partial<ILocation> {
+    const state = this.reduxStore.getState();
+    const coordinates = {
+      longitude: state.connection.longitude,
+      latitude: state.connection.latitude,
+    };
+
+    const relaySettings = this.settings.relaySettings;
+    if ('normal' in relaySettings) {
+      const location = relaySettings.normal.location;
+      if (location !== 'any' && 'only' in location) {
+        const constraint = location.only;
+
+        const relayLocations = state.settings.relayLocations;
+        if ('country' in constraint) {
+          const country = relayLocations.find(({ code }) => constraint.country === code);
+
+          return { country: country?.name, ...coordinates };
+        } else if ('city' in constraint) {
+          const country = relayLocations.find(({ code }) => constraint.city[0] === code);
+          const city = country?.cities.find(({ code }) => constraint.city[1] === code);
+
+          return { country: country?.name, city: city?.name, ...coordinates };
+        } else if ('hostname' in constraint) {
+          const country = relayLocations.find(({ code }) => constraint.hostname[0] === code);
+          const city = country?.cities.find((location) => location.code === constraint.hostname[1]);
+
+          return {
+            country: country?.name,
+            city: city?.name,
+            hostname: constraint.hostname[2],
+            ...coordinates,
+          };
+        }
+      }
+    }
+
+    return coordinates;
   }
 }
