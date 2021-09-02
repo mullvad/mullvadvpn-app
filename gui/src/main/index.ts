@@ -124,6 +124,9 @@ class ApplicationMain {
   private accountData?: IAccountData = undefined;
   private accountHistory?: AccountToken = undefined;
   private tunnelState: TunnelState = { state: 'disconnected' };
+  private lastIgnoredTunnelState?: TunnelState;
+  private ignoreTunnelStatesUntil?: TunnelState['state'];
+  private ignoreTunnelStateFallbackScheduler = new Scheduler();
   private settings: ISettings = {
     accountToken: undefined,
     allowLan: false,
@@ -620,6 +623,10 @@ class ApplicationMain {
     // Reset the daemon event listener since it's going to be invalidated on disconnect
     this.daemonEventListener = undefined;
 
+    this.ignoreTunnelStatesUntil = undefined;
+    this.lastIgnoredTunnelState = undefined;
+    this.autoConnectFallbackScheduler.cancel();
+
     if (wasConnected) {
       this.connectedToDaemon = false;
 
@@ -725,7 +732,28 @@ class ApplicationMain {
     this.wireguardKeygenEventAutoConnect();
   }
 
+  private setIgnoreTunnelStatesUntil(state: TunnelState['state']) {
+    this.ignoreTunnelStatesUntil = state;
+    this.ignoreTunnelStateFallbackScheduler.schedule(() => {
+      if (this.lastIgnoredTunnelState) {
+        this.ignoreTunnelStatesUntil = undefined;
+        this.setTunnelState(this.lastIgnoredTunnelState);
+        this.lastIgnoredTunnelState = undefined;
+      }
+    }, 3000);
+  }
+
   private setTunnelState(newState: TunnelState) {
+    if (this.ignoreTunnelStatesUntil) {
+      if (this.ignoreTunnelStatesUntil === newState.state) {
+        this.ignoreTunnelStatesUntil = undefined;
+        this.lastIgnoredTunnelState = undefined;
+      } else {
+        this.lastIgnoredTunnelState = newState;
+        return;
+      }
+    }
+
     this.tunnelState = newState;
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
 
@@ -1102,9 +1130,18 @@ class ApplicationMain {
 
     IpcMainEventChannel.location.handleGet(() => this.daemonRpc.getLocation());
 
-    IpcMainEventChannel.tunnel.handleConnect(() => this.daemonRpc.connectTunnel());
-    IpcMainEventChannel.tunnel.handleDisconnect(() => this.daemonRpc.disconnectTunnel());
-    IpcMainEventChannel.tunnel.handleReconnect(() => this.daemonRpc.reconnectTunnel());
+    IpcMainEventChannel.tunnel.handleConnect(() => {
+      this.setIgnoreTunnelStatesUntil('connecting');
+      return this.daemonRpc.connectTunnel();
+    });
+    IpcMainEventChannel.tunnel.handleDisconnect(() => {
+      this.setIgnoreTunnelStatesUntil('disconnecting');
+      return this.daemonRpc.disconnectTunnel();
+    });
+    IpcMainEventChannel.tunnel.handleReconnect(() => {
+      this.setIgnoreTunnelStatesUntil('connecting');
+      return this.daemonRpc.reconnectTunnel();
+    });
 
     IpcMainEventChannel.guiSettings.handleSetEnableSystemNotifications((flag: boolean) => {
       this.guiSettings.enableSystemNotifications = flag;
