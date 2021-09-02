@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Provider } from 'react-redux';
+import { batch, Provider } from 'react-redux';
 import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
 
@@ -120,6 +120,7 @@ export default class AppRenderer {
   private lastDisconnectedLocation?: Partial<ILocation>;
   private relayListPair!: IRelayListPair;
   private tunnelState!: TunnelState;
+  private optimisticTunnelState?: TunnelState['state'];
   private settings!: ISettings;
   private guiSettings!: IGuiSettingsState;
   private doingLogin = false;
@@ -323,39 +324,48 @@ export default class AppRenderer {
   }
 
   public async connectTunnel(): Promise<void> {
-    const state = this.tunnelState.state;
+    const state = this.optimisticTunnelState ?? this.tunnelState.state;
 
     // connect only if tunnel is disconnected or blocked.
     if (state === 'disconnecting' || state === 'disconnected' || state === 'error') {
       // switch to the connecting state ahead of time to make the app look more responsive
-      void this.updateLocation({ state: 'connecting' });
-      this.reduxActions.connection.connecting();
+      this.optimisticTunnelState = 'connecting';
+      batch(() => {
+        void this.updateLocation({ state: 'connecting' });
+        this.reduxActions.connection.connecting();
+      });
 
       return IpcRendererEventChannel.tunnel.connect();
     }
   }
 
   public async disconnectTunnel(): Promise<void> {
-    const state = this.tunnelState.state;
+    const state = this.optimisticTunnelState ?? this.tunnelState.state;
 
     // disconnect only if tunnel is connected, connecting or blocked.
     if (state === 'connecting' || state === 'connected' || state === 'error') {
       // switch to the disconnecting state ahead of time to make the app look more responsive
-      void this.updateLocation({ state: 'disconnecting', details: 'nothing' });
-      this.reduxActions.connection.disconnecting('nothing');
+      this.optimisticTunnelState = 'disconnecting';
+      batch(() => {
+        void this.updateLocation({ state: 'disconnecting', details: 'nothing' });
+        this.reduxActions.connection.disconnecting('nothing');
+      });
 
       return IpcRendererEventChannel.tunnel.disconnect();
     }
   }
 
   public async reconnectTunnel(): Promise<void> {
-    const state = this.tunnelState.state;
+    const state = this.optimisticTunnelState ?? this.tunnelState.state;
 
     // reconnect only if tunnel is connected or connecting.
     if (state === 'connecting' || state === 'connected') {
       // switch to the connecting state ahead of time to make the app look more responsive
-      void this.updateLocation({ state: 'connecting' });
-      this.reduxActions.connection.connecting();
+      this.optimisticTunnelState = 'connecting';
+      batch(() => {
+        void this.updateLocation({ state: 'connecting' });
+        this.reduxActions.connection.connecting();
+      });
 
       return IpcRendererEventChannel.tunnel.reconnect();
     }
