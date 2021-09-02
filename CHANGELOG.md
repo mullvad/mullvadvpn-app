@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Added possibility to filter locations by provider in the desktop app.
 - Add WireGuard over TCP CLI option for all relays.
+- New GUI environment variable `DISABLE_VERSION_CHECK` has been added. If set to `1`, latest
+  version check will be disabled in the GUI, preventing a notification from occuring when a
+  newer version is available.
 
 #### Android
 - Added toggle for Split tunneling view to be able to show system apps
