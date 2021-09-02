@@ -540,13 +540,15 @@ where
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
 
+        let runtime = tokio::runtime::Handle::current();
+
         let (internal_event_tx, internal_event_rx) = command_channel.destructure();
         let (address_change_tx, mut address_change_rx) = mpsc::channel(0);
         let address_change_tx = std::sync::Mutex::new(address_change_tx);
-        let address_change_runtime = tokio::runtime::Handle::current();
+        let address_change_runtime = runtime.clone();
 
         let mut rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
-            tokio::runtime::Handle::current(),
+            runtime.clone(),
             Some(&resource_dir),
             &cache_dir,
             true,
@@ -654,7 +656,7 @@ where
             TransportProtocol::Tcp,
         );
         #[cfg(windows)]
-        let exclude_apps = if settings.split_tunnel.enable_exclusions {
+        let exclude_paths = if settings.split_tunnel.enable_exclusions {
             settings
                 .split_tunnel
                 .apps
@@ -666,21 +668,24 @@ where
         };
 
         let tunnel_command_tx = tunnel_state_machine::spawn(
-            settings.allow_lan,
-            settings.block_when_disconnected,
-            Self::get_dns_resolvers(&settings.tunnel_options.dns_options),
-            initial_api_endpoint,
+            runtime,
+            tunnel_state_machine::InitialTunnelState {
+                allow_lan: settings.allow_lan,
+                block_when_disconnected: settings.block_when_disconnected,
+                dns_servers: Self::get_dns_resolvers(&settings.tunnel_options.dns_options),
+                allowed_endpoint: initial_api_endpoint,
+                reset_firewall: initial_target_state != TargetState::Secured,
+                #[cfg(windows)]
+                exclude_paths,
+            },
             tunnel_parameters_generator,
             log_dir,
             resource_dir,
             cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             tunnel_state_machine_shutdown_tx,
-            initial_target_state != TargetState::Secured,
             #[cfg(target_os = "android")]
             android_context,
-            #[cfg(windows)]
-            exclude_apps,
         )
         .await
         .map_err(Error::TunnelError)?;
