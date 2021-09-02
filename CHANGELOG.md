@@ -59,6 +59,7 @@ Line wrap the file at 100 chars.                                              Th
   desktop app.
 - Fix in-app notification button not working for some notifications.
 - Fix incorrectly positioned navigation bar title when navigating back to a scrolled down view.
+- Fix connection status and location information displayed in the desktop app.
 
 #### Linux
 - Make offline monitor aware of routing table changes.
