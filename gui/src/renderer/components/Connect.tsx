@@ -213,9 +213,6 @@ export default class Connect extends React.Component<IProps, IState> {
   private showMarkerOrSpinner(): MarkerOrSpinner {
     const status = this.props.connection.status;
 
-    return status.state === 'connecting' ||
-      (status.state === 'disconnecting' && status.details === 'reconnect')
-      ? 'spinner'
-      : 'marker';
+    return status.state === 'connecting' || status.state === 'disconnecting' ? 'spinner' : 'marker';
   }
 }
