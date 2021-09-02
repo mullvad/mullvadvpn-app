@@ -77,21 +77,35 @@ pub enum Error {
     SendStateChange,
 }
 
+/// Settings used to initialize the tunnel state machine.
+pub struct InitialTunnelState {
+    /// Whether to allow LAN traffic when not in the (non-blocking) disconnected state.
+    pub allow_lan: bool,
+    /// Block traffic unless connected to the VPN.
+    pub block_when_disconnected: bool,
+    /// DNS servers to use. If `None`, the tunnel gateway is used.
+    pub dns_servers: Option<Vec<IpAddr>>,
+    /// A single endpoint that is allowed to communicate outside the tunnel, i.e.
+    /// in any of the blocking states.
+    pub allowed_endpoint: Endpoint,
+    /// Whether to reset any existing firewall rules when initializing the disconnected state.
+    pub reset_firewall: bool,
+    /// Programs to exclude from the tunnel using the split tunnel driver.
+    #[cfg(windows)]
+    pub exclude_paths: Vec<OsString>,
+}
+
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
 pub async fn spawn(
-    allow_lan: bool,
-    block_when_disconnected: bool,
-    dns_servers: Option<Vec<IpAddr>>,
-    allowed_endpoint: Endpoint,
+    runtime: tokio::runtime::Handle,
+    initial_settings: InitialTunnelState,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     cache_dir: impl AsRef<Path> + Send + 'static,
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     shutdown_tx: oneshot::Sender<()>,
-    reset_firewall: bool,
     #[cfg(target_os = "android")] android_context: AndroidContext,
-    #[cfg(windows)] exclude_paths: Vec<OsString>,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
     let command_tx = Arc::new(command_tx);
@@ -100,36 +114,28 @@ pub async fn spawn(
         #[cfg(target_os = "android")]
         android_context.clone(),
         #[cfg(target_os = "android")]
-        allow_lan,
+        initial_settings.allow_lan,
         #[cfg(target_os = "android")]
-        allowed_endpoint.address.ip(),
+        initial_settings.allowed_endpoint.address.ip(),
         #[cfg(target_os = "android")]
-        dns_servers.clone(),
+        initial_settings.dns_servers.clone(),
     );
-
-    let runtime = tokio::runtime::Handle::current();
 
     let (startup_result_tx, startup_result_rx) = sync_mpsc::channel();
     let weak_command_tx = Arc::downgrade(&command_tx);
     std::thread::spawn(move || {
         let state_machine = runtime.block_on(TunnelStateMachine::new(
             runtime.clone(),
+            initial_settings,
             weak_command_tx,
-            allow_lan,
-            block_when_disconnected,
-            dns_servers,
-            allowed_endpoint,
             tunnel_parameters_generator,
             tun_provider,
             log_dir,
             resource_dir,
             cache_dir,
             command_rx,
-            reset_firewall,
             #[cfg(target_os = "android")]
             android_context,
-            #[cfg(windows)]
-            exclude_paths,
         ));
         let state_machine = match state_machine {
             Ok(state_machine) => {
@@ -208,29 +214,24 @@ struct TunnelStateMachine {
 impl TunnelStateMachine {
     async fn new(
         runtime: tokio::runtime::Handle,
+        settings: InitialTunnelState,
         command_tx: std::sync::Weak<mpsc::UnboundedSender<TunnelCommand>>,
-        allow_lan: bool,
-        block_when_disconnected: bool,
-        dns_servers: Option<Vec<IpAddr>>,
-        allowed_endpoint: Endpoint,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
         tun_provider: TunProvider,
         log_dir: Option<PathBuf>,
         resource_dir: PathBuf,
         cache_dir: impl AsRef<Path>,
         commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
-        reset_firewall: bool,
         #[cfg(target_os = "android")] android_context: AndroidContext,
-        #[cfg(windows)] exclude_paths: Vec<OsString>,
     ) -> Result<Self, Error> {
         #[cfg(windows)]
         let split_tunnel = split_tunnel::SplitTunnel::new(command_tx.clone())
             .map_err(Error::InitSplitTunneling)?;
 
         let args = FirewallArguments {
-            initialize_blocked: block_when_disconnected || !reset_firewall,
-            allow_lan,
-            allowed_endpoint: Some(allowed_endpoint),
+            initialize_blocked: settings.block_when_disconnected || !settings.reset_firewall,
+            allow_lan: settings.allow_lan,
+            allowed_endpoint: Some(settings.allowed_endpoint),
         };
 
         let firewall = Firewall::new(args).map_err(Error::InitFirewallError)?;
@@ -261,7 +262,7 @@ impl TunnelStateMachine {
 
         #[cfg(windows)]
         split_tunnel
-            .set_paths(&exclude_paths)
+            .set_paths(&settings.exclude_paths)
             .map_err(Error::InitSplitTunneling)?;
 
         let mut shared_values = SharedTunnelStateValues {
@@ -272,11 +273,11 @@ impl TunnelStateMachine {
             dns_monitor,
             route_manager,
             _offline_monitor: offline_monitor,
-            allow_lan,
-            block_when_disconnected,
+            allow_lan: settings.allow_lan,
+            block_when_disconnected: settings.block_when_disconnected,
             is_offline,
-            dns_servers,
-            allowed_endpoint,
+            dns_servers: settings.dns_servers,
+            allowed_endpoint: settings.allowed_endpoint,
             tunnel_parameters_generator: Box::new(tunnel_parameters_generator),
             tun_provider,
             log_dir,
@@ -285,7 +286,8 @@ impl TunnelStateMachine {
             connectivity_check_was_enabled: None,
         };
 
-        let (initial_state, _) = DisconnectedState::enter(&mut shared_values, reset_firewall);
+        let (initial_state, _) =
+            DisconnectedState::enter(&mut shared_values, settings.reset_firewall);
 
         Ok(TunnelStateMachine {
             current_state: Some(initial_state),
