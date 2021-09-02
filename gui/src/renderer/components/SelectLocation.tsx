@@ -34,7 +34,7 @@ import {
   StyledClearProvidersButton,
   StyledSettingsHeader,
 } from './SelectLocationStyles';
-import { HeaderTitle } from './SettingsHeader';
+import { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 
 interface IProps {
   locationScope: LocationScope;
@@ -64,8 +64,7 @@ interface ISelectLocationSnapshot {
 }
 
 export default class SelectLocation extends React.Component<IProps, IState> {
-  // The default headingHeight value is based on a one-line heading.
-  public state = { showFilterMenu: false, headingHeight: 50 };
+  public state = { showFilterMenu: false, headingHeight: 0 };
 
   private scrollView = React.createRef<CustomScrollbars>();
   private spacePreAllocationViewRef = React.createRef<SpacePreAllocationView>();
@@ -78,13 +77,12 @@ export default class SelectLocation extends React.Component<IProps, IState> {
   private snapshotByScope: { [index: number]: ISelectLocationSnapshot } = {};
 
   private filterButtonRef = React.createRef<HTMLDivElement>();
-  private headingRef = React.createRef<HTMLHeadingElement>();
+  private headerRef = React.createRef<HTMLHeadingElement>();
 
   public componentDidMount() {
     this.scrollToSelectedCell();
     this.setState((state) => ({
-      // 10 px is the margin ontop of the heading.
-      headingHeight: (this.headingRef.current?.offsetHeight ?? state.headingHeight) + 10,
+      headingHeight: this.headerRef.current?.offsetHeight ?? state.headingHeight,
     }));
   }
 
@@ -159,13 +157,20 @@ export default class SelectLocation extends React.Component<IProps, IState> {
             <NavigationScrollbars ref={this.scrollView}>
               <SpacePreAllocationView ref={this.spacePreAllocationViewRef}>
                 <StyledNavigationBarAttachment top={-this.state.headingHeight}>
-                  <StyledSettingsHeader>
-                    <HeaderTitle ref={this.headingRef}>
+                  <StyledSettingsHeader ref={this.headerRef}>
+                    <HeaderTitle>
                       {
                         // TRANSLATORS: Heading in select location view
                         messages.pgettext('select-location-view', 'Select location')
                       }
                     </HeaderTitle>
+                    <HeaderSubTitle>
+                      {this.props.allowBridgeSelection &&
+                        messages.pgettext(
+                          'select-location-view',
+                          'While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server).',
+                        )}
+                    </HeaderSubTitle>
                   </StyledSettingsHeader>
 
                   {this.props.providers.length > 0 && (
