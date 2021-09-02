@@ -509,6 +509,8 @@ to do that before starting the GUI.
 
 1. `MULLVAD_PATH` - Allows changing the path to the folder with the `mullvad-problem-report` tool
     when running in development mode. Defaults to: `<repo>/target/debug/`.
+2. `DISABLE_VERSION_CHECK` - If set to `1`, latest version check will be disabled in the GUI,
+    preventing a notification from occuring when a newer version is available.
 
 
 ## Making a release
