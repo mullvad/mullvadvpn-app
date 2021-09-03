@@ -169,6 +169,10 @@ pub enum Error {
     /// Allowed IP contains non-zero host bits
     #[error(display = "Allowed IP contains non-zero host bits")]
     InvalidAllowedIpBits,
+
+    /// Failed to parse data returned by the driver
+    #[error(display = "Failed to parse data returned by wireguard-nt")]
+    InvalidConfigData,
 }
 
 pub struct WgNtTunnel {
@@ -913,11 +917,17 @@ fn serialize_config(config: &Config) -> Result<Vec<u8>> {
 unsafe fn deserialize_config(
     config: &[u8],
 ) -> Result<(WgInterface, Vec<(WgPeer, Vec<WgAllowedIp>)>)> {
+    if config.len() < mem::size_of::<WgInterface>() {
+        return Err(Error::InvalidConfigData);
+    }
     let (head, mut tail) = config.split_at(mem::size_of::<WgInterface>());
     let interface: WgInterface = *(head.as_ptr() as *const WgInterface);
 
     let mut peers = vec![];
     for _ in 0..interface.peers_count {
+        if tail.len() < mem::size_of::<WgPeer>() {
+            return Err(Error::InvalidConfigData);
+        }
         let (peer_data, new_tail) = tail.split_at(mem::size_of::<WgPeer>());
         let peer: WgPeer = *(peer_data.as_ptr() as *const WgPeer);
         tail = new_tail;
@@ -933,6 +943,9 @@ unsafe fn deserialize_config(
         let mut allowed_ips = vec![];
 
         for _ in 0..peer.allowed_ips_count {
+            if tail.len() < mem::size_of::<WgAllowedIp>() {
+                return Err(Error::InvalidConfigData);
+            }
             let (allowed_ip_data, new_tail) = tail.split_at(mem::size_of::<WgAllowedIp>());
             let allowed_ip: WgAllowedIp = *(allowed_ip_data.as_ptr() as *const WgAllowedIp);
             if let Err(error) = WgAllowedIp::validate(
@@ -951,6 +964,10 @@ unsafe fn deserialize_config(
         }
 
         peers.push((peer, allowed_ips));
+    }
+
+    if tail.len() > 0 {
+        return Err(Error::InvalidConfigData);
     }
 
     Ok((interface, peers))
