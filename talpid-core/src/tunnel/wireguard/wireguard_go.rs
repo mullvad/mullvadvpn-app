@@ -1,4 +1,7 @@
-use super::{stats::Stats, Config, Tunnel, TunnelError};
+use super::{
+    stats::{Stats, StatsMap},
+    Config, Tunnel, TunnelError,
+};
 use crate::tunnel::{
     tun_provider::TunProvider,
     wireguard::logging::{clean_up_logging, initialize_logging, logging_callback, WgLogLevel},
@@ -307,7 +310,7 @@ impl Tunnel for WgGoTunnel {
         self.interface_luid
     }
 
-    fn get_tunnel_stats(&self) -> Result<Stats> {
+    fn get_tunnel_stats(&self) -> Result<StatsMap> {
         let config_str = unsafe {
             let ptr = wgGetConfig(self.handle.unwrap());
             if ptr.is_null() {
