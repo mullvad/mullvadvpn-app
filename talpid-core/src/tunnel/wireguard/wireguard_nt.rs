@@ -922,16 +922,30 @@ unsafe fn deserialize_config(
         let peer: WgPeer = *(peer_data.as_ptr() as *const WgPeer);
         tail = new_tail;
 
+        if let Err(error) = windows::try_socketaddr_from_inet_sockaddr(peer.endpoint.addr) {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Received invalid endpoint address")
+            );
+            return Err(Error::InvalidConfigData);
+        }
+
         let mut allowed_ips = vec![];
 
         for _ in 0..peer.allowed_ips_count {
             let (allowed_ip_data, new_tail) = tail.split_at(mem::size_of::<WgAllowedIp>());
             let allowed_ip: WgAllowedIp = *(allowed_ip_data.as_ptr() as *const WgAllowedIp);
-            WgAllowedIp::validate(
+            if let Err(error) = WgAllowedIp::validate(
                 &allowed_ip.address,
                 allowed_ip.address_family,
                 allowed_ip.cidr,
-            )?;
+            ) {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Received invalid allowed IP")
+                );
+                return Err(Error::InvalidConfigData);
+            }
             tail = new_tail;
             allowed_ips.push(allowed_ip);
         }
