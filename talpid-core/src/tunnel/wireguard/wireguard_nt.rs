@@ -4,13 +4,13 @@ use super::{
     stats::{Stats, StatsMap},
     Tunnel,
 };
+use crate::windows;
 use bitflags::bitflags;
 use ipnetwork::IpNetwork;
 use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
     fmt, io, iter, mem,
-    net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     os::windows::{ffi::OsStrExt, io::RawHandle},
     path::Path,
     ptr,
@@ -248,12 +248,12 @@ impl PartialEq for WgAllowedIp {
         }
         match self.address_family as i32 {
             AF_INET => {
-                inaddr_to_ipaddr(unsafe { self.address.v4 })
-                    == inaddr_to_ipaddr(unsafe { other.address.v4 })
+                windows::ipaddr_from_inaddr(unsafe { self.address.v4 })
+                    == windows::ipaddr_from_inaddr(unsafe { other.address.v4 })
             }
             AF_INET6 => {
-                in6addr_to_ipaddr(unsafe { self.address.v6 })
-                    == in6addr_to_ipaddr(unsafe { other.address.v6 })
+                windows::ipaddr_from_in6addr(unsafe { self.address.v6 })
+                    == windows::ipaddr_from_in6addr(unsafe { other.address.v6 })
             }
             _ => {
                 log::error!("Allowed IP uses unknown address family");
@@ -268,8 +268,14 @@ impl fmt::Debug for WgAllowedIp {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = f.debug_struct("WgAllowedIp");
         match self.address_family as i32 {
-            AF_INET => s.field("address", &inaddr_to_ipaddr(unsafe { self.address.v4 })),
-            AF_INET6 => s.field("address", &in6addr_to_ipaddr(unsafe { self.address.v6 })),
+            AF_INET => s.field(
+                "address",
+                &windows::ipaddr_from_inaddr(unsafe { self.address.v4 }),
+            ),
+            AF_INET6 => s.field(
+                "address",
+                &windows::ipaddr_from_in6addr(unsafe { self.address.v6 }),
+            ),
             _ => s.field("address", &"<unknown>"),
         };
         s.field("address_family", &self.address_family)
@@ -320,7 +326,7 @@ impl From<SOCKADDR_INET> for SockAddrInet {
 }
 impl PartialEq for SockAddrInet {
     fn eq(&self, other: &Self) -> bool {
-        let self_addr = match try_sockaddr_to_socket_address(self.addr) {
+        let self_addr = match windows::try_socketaddr_from_inet_sockaddr(self.addr) {
             Ok(addr) => addr,
             Err(error) => {
                 log::error!(
@@ -330,7 +336,7 @@ impl PartialEq for SockAddrInet {
                 return true;
             }
         };
-        let other_addr = match try_sockaddr_to_socket_address(other.addr) {
+        let other_addr = match windows::try_socketaddr_from_inet_sockaddr(other.addr) {
             Ok(addr) => addr,
             Err(error) => {
                 log::error!(
@@ -348,7 +354,7 @@ impl Eq for SockAddrInet {}
 impl fmt::Debug for SockAddrInet {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut s = f.debug_struct("SockAddrInet");
-        let self_addr = try_sockaddr_to_socket_address(self.addr)
+        let self_addr = windows::try_socketaddr_from_inet_sockaddr(self.addr)
             .map(|addr| addr.to_string())
             .unwrap_or("<unknown>".to_string());
         s.field("addr", &self_addr).finish()
@@ -881,7 +887,7 @@ fn serialize_config(config: &Config) -> Result<Vec<u8>> {
             public_key: peer.public_key.as_bytes().clone(),
             preshared_key: [0u8; WIREGUARD_KEY_LENGTH],
             persistent_keepalive: 0,
-            endpoint: convert_socket_address(peer.endpoint).into(),
+            endpoint: windows::inet_sockaddr_from_socketaddr(peer.endpoint).into(),
             tx_bytes: 0,
             rx_bytes: 0,
             last_handshake: 0,
@@ -897,10 +903,10 @@ fn serialize_config(config: &Config) -> Result<Vec<u8>> {
             };
             let address = match allowed_ip {
                 IpNetwork::V4(v4_network) => WgIpAddr {
-                    v4: convert_v4_address(v4_network.ip()),
+                    v4: windows::inaddr_from_ipaddr(v4_network.ip()),
                 },
                 IpNetwork::V6(v6_network) => WgIpAddr {
-                    v6: convert_v6_address(v6_network.ip()),
+                    v6: windows::in6addr_from_ipaddr(v6_network.ip()),
                 },
             };
 
@@ -973,96 +979,14 @@ unsafe fn deserialize_config(
     Ok((interface, peers))
 }
 
-fn convert_v4_address(addr: Ipv4Addr) -> IN_ADDR {
-    let mut in_addr: IN_ADDR = unsafe { mem::zeroed() };
-    let addr_octets = addr.octets();
-    unsafe {
-        ptr::copy_nonoverlapping(
-            &addr_octets as *const _,
-            in_addr.S_un.S_addr_mut() as *mut _ as *mut u8,
-            addr_octets.len(),
-        );
-    }
-    in_addr
-}
-
-fn convert_v6_address(addr: Ipv6Addr) -> IN6_ADDR {
-    let mut in_addr: IN6_ADDR = unsafe { mem::zeroed() };
-    let addr_octets = addr.octets();
-    unsafe {
-        ptr::copy_nonoverlapping(
-            &addr_octets as *const _,
-            in_addr.u.Byte_mut() as *mut _,
-            addr_octets.len(),
-        );
-    }
-    in_addr
-}
-
-fn convert_socket_address(addr: SocketAddr) -> SOCKADDR_INET {
-    let mut sockaddr: SOCKADDR_INET = unsafe { mem::zeroed() };
-
-    match addr {
-        SocketAddr::V4(v4_addr) => {
-            unsafe {
-                *sockaddr.si_family_mut() = AF_INET as u16;
-            }
-
-            let mut v4sockaddr = unsafe { sockaddr.Ipv4_mut() };
-            v4sockaddr.sin_family = AF_INET as u16;
-            v4sockaddr.sin_port = v4_addr.port().to_be();
-            v4sockaddr.sin_addr = convert_v4_address(*v4_addr.ip());
-        }
-        SocketAddr::V6(v6_addr) => {
-            unsafe {
-                *sockaddr.si_family_mut() = AF_INET6 as u16;
-            }
-
-            let mut v6sockaddr = unsafe { sockaddr.Ipv6_mut() };
-            v6sockaddr.sin6_family = AF_INET6 as u16;
-            v6sockaddr.sin6_port = v6_addr.port().to_be();
-            v6sockaddr.sin6_addr = convert_v6_address(*v6_addr.ip());
-            v6sockaddr.sin6_flowinfo = v6_addr.flowinfo();
-            *unsafe { v6sockaddr.u.sin6_scope_id_mut() } = v6_addr.scope_id();
-        }
-    }
-
-    sockaddr
-}
-
-fn inaddr_to_ipaddr(addr: IN_ADDR) -> Ipv4Addr {
-    Ipv4Addr::from(unsafe { *(addr.S_un.S_addr()) }.to_be())
-}
-
-fn in6addr_to_ipaddr(addr: IN6_ADDR) -> Ipv6Addr {
-    Ipv6Addr::from(*unsafe { addr.u.Byte() })
-}
-
-fn try_sockaddr_to_socket_address(addr: SOCKADDR_INET) -> Result<SocketAddr> {
-    unsafe {
-        match *addr.si_family() as i32 {
-            AF_INET => Ok(SocketAddr::V4(SocketAddrV4::new(
-                inaddr_to_ipaddr(addr.Ipv4().sin_addr),
-                u16::from_be(addr.Ipv4().sin_port),
-            ))),
-            AF_INET6 => Ok(SocketAddr::V6(SocketAddrV6::new(
-                in6addr_to_ipaddr(addr.Ipv6().sin6_addr),
-                u16::from_be(addr.Ipv6().sin6_port),
-                addr.Ipv6().sin6_flowinfo,
-                *addr.Ipv6().u.sin6_scope_id(),
-            ))),
-            family => Err(Error::UnknownAddressFamily(family)),
-        }
-    }
-}
-
 fn set_interface_mtu(luid: &NET_LUID, family: u16, mtu: u32) -> io::Result<()> {
-    let family = crate::tunnel::windows::AddressFamily::try_from_af_family(family)
-        .map_err(|error| io::Error::new(io::ErrorKind::InvalidInput, error))?;
-    let mut iface = crate::tunnel::windows::get_ip_interface_entry(family, luid)?;
+    let family = windows::AddressFamily::try_from_af_family(family).map_err(|error| {
+        io::Error::new(io::ErrorKind::InvalidInput, error)
+    })?;
+    let mut iface = windows::get_ip_interface_entry(family, luid)?;
     iface.SitePrefixLength = 0;
     iface.NlMtu = mtu;
-    crate::tunnel::windows::set_ip_interface_entry(&iface)
+    windows::set_ip_interface_entry(&iface)
 }
 
 impl Tunnel for WgNtTunnel {
@@ -1168,7 +1092,8 @@ mod tests {
                 public_key: WG_PUBLIC_KEY.as_bytes().clone(),
                 preshared_key: [0; WIREGUARD_KEY_LENGTH],
                 persistent_keepalive: 0,
-                endpoint: convert_socket_address("1.2.3.4:1234".parse().unwrap()).into(),
+                endpoint: windows::inet_sockaddr_from_socketaddr("1.2.3.4:1234".parse().unwrap())
+                    .into(),
                 tx_bytes: 0,
                 rx_bytes: 0,
                 last_handshake: 0,
@@ -1176,7 +1101,7 @@ mod tests {
             },
             p0_allowed_ip_0: WgAllowedIp {
                 address: WgIpAddr {
-                    v4: convert_v4_address("1.3.3.0".parse().unwrap()),
+                    v4: windows::inaddr_from_ipaddr("1.3.3.0".parse().unwrap()),
                 },
                 address_family: AF_INET as u16,
                 cidr: 24,
@@ -1191,29 +1116,6 @@ mod tests {
     #[test]
     fn test_dll_imports() {
         WgNtDll::new_inner(ptr::null_mut(), get_proc_fn).unwrap();
-    }
-
-    #[test]
-    fn test_sockaddr_v4() {
-        let addr_v4 = SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::new(1, 2, 3, 4), 1234));
-        assert_eq!(
-            addr_v4,
-            try_sockaddr_to_socket_address(convert_socket_address(addr_v4)).unwrap()
-        );
-    }
-
-    #[test]
-    fn test_sockaddr_v6() {
-        let addr_v6 = SocketAddr::V6(SocketAddrV6::new(
-            Ipv6Addr::new(1, 2, 3, 4, 5, 6, 7, 8),
-            1234,
-            0xa,
-            0xb,
-        ));
-        assert_eq!(
-            addr_v6,
-            try_sockaddr_to_socket_address(convert_socket_address(addr_v6)).unwrap()
-        );
     }
 
     #[test]
@@ -1241,7 +1143,7 @@ mod tests {
         // Valid: /32 prefix
         let address_family = AF_INET as u16;
         let address = WgIpAddr {
-            v4: convert_v4_address("127.0.0.1".parse().unwrap()),
+            v4: windows::inaddr_from_ipaddr("127.0.0.1".parse().unwrap()),
         };
         let cidr = 32;
         WgAllowedIp::new(address, address_family, cidr).unwrap();
@@ -1249,21 +1151,21 @@ mod tests {
         // Invalid host bits
         let cidr = 24;
         let address = WgIpAddr {
-            v4: convert_v4_address("0.0.0.1".parse().unwrap()),
+            v4: windows::inaddr_from_ipaddr("0.0.0.1".parse().unwrap()),
         };
         assert!(WgAllowedIp::new(address, address_family, cidr).is_err());
 
         // Valid host bits
         let cidr = 24;
         let address = WgIpAddr {
-            v4: convert_v4_address("255.255.255.0".parse().unwrap()),
+            v4: windows::inaddr_from_ipaddr("255.255.255.0".parse().unwrap()),
         };
         WgAllowedIp::new(address, address_family, cidr).unwrap();
 
         // 0.0.0.0/0
         let cidr = 0;
         let address = WgIpAddr {
-            v4: convert_v4_address("0.0.0.0".parse().unwrap()),
+            v4: windows::inaddr_from_ipaddr("0.0.0.0".parse().unwrap()),
         };
         WgAllowedIp::new(address, address_family, cidr).unwrap();
 
@@ -1277,7 +1179,7 @@ mod tests {
         // Valid: /128 prefix
         let address_family = AF_INET6 as u16;
         let address = WgIpAddr {
-            v6: convert_v6_address("::1".parse().unwrap()),
+            v6: windows::in6addr_from_ipaddr("::1".parse().unwrap()),
         };
         let cidr = 128;
         WgAllowedIp::new(address, address_family, cidr).unwrap();
@@ -1288,14 +1190,16 @@ mod tests {
 
         // Valid host bits
         let address = WgIpAddr {
-            v6: convert_v6_address("ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe".parse().unwrap()),
+            v6: windows::in6addr_from_ipaddr(
+                "ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe".parse().unwrap(),
+            ),
         };
         WgAllowedIp::new(address, address_family, cidr).unwrap();
 
         // ::/0
         let cidr = 0;
         let address = WgIpAddr {
-            v6: convert_v6_address("::".parse().unwrap()),
+            v6: windows::in6addr_from_ipaddr("::".parse().unwrap()),
         };
         WgAllowedIp::new(address, address_family, cidr).unwrap();
 
