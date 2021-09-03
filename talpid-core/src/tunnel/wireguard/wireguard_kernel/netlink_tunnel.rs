@@ -1,6 +1,7 @@
 use super::{
-    super::stats::Stats, wg_message::DeviceNla, Config, Error, Handle, Tunnel, TunnelError,
-    MULLVAD_INTERFACE_NAME,
+    super::stats::{Stats, StatsMap},
+    wg_message::DeviceNla,
+    Config, Error, Handle, Tunnel, TunnelError, MULLVAD_INTERFACE_NAME,
 };
 
 
@@ -97,7 +98,7 @@ impl Tunnel for NetlinkTunnel {
         })
     }
 
-    fn get_tunnel_stats(&self) -> std::result::Result<Stats, TunnelError> {
+    fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
         let mut wg = self.netlink_connections.wg_handle.clone();
         let interface_index = self.interface_index;
         let result = self.tokio_handle.block_on(async move {

@@ -1,6 +1,6 @@
 use crate::{
     ping_monitor::{new_pinger, Pinger},
-    tunnel::wireguard::stats::Stats,
+    tunnel::wireguard::stats::StatsMap,
 };
 use std::{
     net::Ipv4Addr,
@@ -110,12 +110,6 @@ impl ConnectivityMonitor {
         let start = Instant::now();
         while start.elapsed() < PING_TIMEOUT {
             if self.check_connectivity(Instant::now())? {
-                #[cfg(target_os = "linux")]
-                self.tunnel_handle.upgrade().and_then::<(), _>(|tunnel| {
-                    let tunnel = tunnel.lock().ok()?;
-                    tunnel.as_ref()?.slow_stats_refresh_rate();
-                    None
-                });
                 return Ok(true);
             }
             if self.should_shut_down(DELAY_ON_INITIAL_SETUP) {
@@ -182,7 +176,7 @@ impl ConnectivityMonitor {
 
     /// If None is returned, then the underlying tunnel has already been closed and all subsequent
     /// calls will also return None.
-    fn get_stats(&self) -> Option<Result<Stats, Error>> {
+    fn get_stats(&self) -> Option<Result<StatsMap, Error>> {
         self.tunnel_handle
             .upgrade()?
             .lock()
@@ -229,18 +223,18 @@ impl ConnectivityMonitor {
 enum ConnState {
     Connecting {
         start: Instant,
-        stats: Stats,
+        stats: StatsMap,
         tx_timestamp: Option<Instant>,
     },
     Connected {
         rx_timestamp: Instant,
         tx_timestamp: Instant,
-        stats: Stats,
+        stats: StatsMap,
     },
 }
 
 impl ConnState {
-    pub fn new(start: Instant, stats: Stats) -> Self {
+    pub fn new(start: Instant, stats: StatsMap) -> Self {
         ConnState::Connecting {
             start,
             stats,
@@ -249,14 +243,14 @@ impl ConnState {
     }
 
     /// Returns true if incoming traffic counters incremented
-    pub fn update(&mut self, now: Instant, new_stats: Stats) -> bool {
+    pub fn update(&mut self, now: Instant, new_stats: StatsMap) -> bool {
         match self {
             ConnState::Connecting {
                 start,
                 stats,
                 tx_timestamp,
             } => {
-                if new_stats.rx_bytes > 0 {
+                if !new_stats.is_empty() && new_stats.values().all(|stats| stats.rx_bytes > 0) {
                     let tx_timestamp = tx_timestamp.unwrap_or(*start);
                     let connected_state = ConnState::Connected {
                         rx_timestamp: now,
@@ -266,7 +260,9 @@ impl ConnState {
                     *self = connected_state;
                     return true;
                 }
-                if stats.tx_bytes < new_stats.tx_bytes {
+                if stats.values().map(|stats| stats.tx_bytes).sum::<u64>()
+                    < new_stats.values().map(|stats| stats.tx_bytes).sum()
+                {
                     let start = *start;
                     let stats = new_stats;
                     *self = ConnState::Connecting {
@@ -283,9 +279,16 @@ impl ConnState {
                 tx_timestamp,
                 stats,
             } => {
-                let rx_incremented = stats.rx_bytes < new_stats.rx_bytes;
+                let rx_incremented = stats.iter().all(|(key, peer_stats)| {
+                    new_stats
+                        .get(key)
+                        .map(|new_stats| new_stats.rx_bytes > peer_stats.rx_bytes)
+                        .unwrap_or(false)
+                });
                 let rx_timestamp = if rx_incremented { now } else { *rx_timestamp };
-                let tx_timestamp = if stats.tx_bytes < new_stats.tx_bytes {
+                let tx_timestamp = if stats.values().map(|stats| stats.tx_bytes).sum::<u64>()
+                    < new_stats.values().map(|stats| stats.tx_bytes).sum()
+                {
                     now
                 } else {
                     *tx_timestamp
@@ -354,7 +357,10 @@ impl ConnState {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::tunnel::wireguard::{stats, TunnelError};
+    use crate::tunnel::wireguard::{
+        stats::{self, Stats},
+        TunnelError,
+    };
     use std::{
         sync::{
             atomic::{AtomicBool, Ordering},
@@ -392,13 +398,15 @@ mod test {
     fn test_conn_state_connects() {
         let start = Instant::now().checked_sub(Duration::from_secs(2)).unwrap();
         let mut conn_state = ConnState::new(start, Default::default());
-        conn_state.update(
-            Instant::now(),
+        let mut stats = StatsMap::new();
+        stats.insert(
+            [0u8; 32],
             Stats {
                 rx_bytes: 1,
                 tx_bytes: 0,
             },
         );
+        conn_state.update(Instant::now(), stats);
 
         assert!(conn_state.connected());
         assert!(!conn_state.rx_timed_out());
@@ -415,13 +423,15 @@ mod test {
         let mut conn_state = ConnState::new(start, Default::default());
 
         let connect_time = Instant::now().checked_sub(TRAFFIC_TIMEOUT).unwrap();
-        conn_state.update(
-            connect_time,
+        let mut stats = StatsMap::new();
+        stats.insert(
+            [0u8; 32],
             Stats {
                 rx_bytes: 1,
                 tx_bytes: 0,
             },
         );
+        conn_state.update(connect_time, stats);
 
         assert!(conn_state.connected());
         assert!(!conn_state.rx_timed_out());
@@ -437,22 +447,26 @@ mod test {
             .unwrap();
         let mut conn_state = ConnState::new(start, Default::default());
 
-        conn_state.update(
-            start,
+        let mut stats = StatsMap::new();
+        stats.insert(
+            [0u8; 32],
             Stats {
                 rx_bytes: 1,
                 tx_bytes: 0,
             },
         );
+        conn_state.update(start, stats);
 
         let update_time = Instant::now().checked_sub(BYTES_RX_TIMEOUT).unwrap();
-        conn_state.update(
-            update_time,
+        let mut stats = StatsMap::new();
+        stats.insert(
+            [0u8; 32],
             Stats {
                 rx_bytes: 1,
                 tx_bytes: 1,
             },
         );
+        conn_state.update(update_time, stats);
 
         assert!(conn_state.connected());
         assert!(conn_state.rx_timed_out());
@@ -474,28 +488,36 @@ mod test {
     }
 
     struct MockTunnel {
-        on_get_stats: Box<dyn Fn() -> Result<stats::Stats, TunnelError> + Send>,
+        on_get_stats: Box<dyn Fn() -> Result<stats::StatsMap, TunnelError> + Send>,
     }
 
     impl MockTunnel {
-        fn new<F: Fn() -> Result<stats::Stats, TunnelError> + Send + 'static>(f: F) -> Self {
+        const PEER: [u8; 32] = [0u8; 32];
+
+        fn new<F: Fn() -> Result<stats::StatsMap, TunnelError> + Send + 'static>(f: F) -> Self {
             Self {
                 on_get_stats: Box::new(f),
             }
         }
 
         fn always_incrementing() -> Self {
-            let traffic = Mutex::new(stats::Stats {
-                tx_bytes: 0,
-                rx_bytes: 0,
-            });
+            let mut map = stats::StatsMap::new();
+            map.insert(
+                Self::PEER,
+                stats::Stats {
+                    tx_bytes: 0,
+                    rx_bytes: 0,
+                },
+            );
+            let peers = Mutex::new(map);
             Self {
                 on_get_stats: Box::new(move || {
-                    let mut traffic = traffic.lock().unwrap();
-                    traffic.tx_bytes += 1;
-                    traffic.rx_bytes += 1;
-
-                    Ok(*traffic)
+                    let mut peers = peers.lock().unwrap();
+                    for traffic in peers.values_mut() {
+                        traffic.tx_bytes += 1;
+                        traffic.rx_bytes += 1;
+                    }
+                    Ok(peers.clone())
                 }),
             }
         }
@@ -503,10 +525,15 @@ mod test {
         fn never_incrementing() -> Self {
             Self {
                 on_get_stats: Box::new(|| {
-                    Ok(stats::Stats {
-                        tx_bytes: 0,
-                        rx_bytes: 0,
-                    })
+                    let mut map = stats::StatsMap::new();
+                    map.insert(
+                        Self::PEER,
+                        stats::Stats {
+                            tx_bytes: 0,
+                            rx_bytes: 0,
+                        },
+                    );
+                    Ok(map)
                 }),
             }
         }
@@ -538,7 +565,7 @@ mod test {
             Ok(())
         }
 
-        fn get_tunnel_stats(&self) -> Result<stats::Stats, TunnelError> {
+        fn get_tunnel_stats(&self) -> Result<stats::StatsMap, TunnelError> {
             (self.on_get_stats)()
         }
     }
@@ -560,13 +587,19 @@ mod test {
     }
 
     fn connected_state(timestamp: Instant) -> ConnState {
-        ConnState::Connected {
-            rx_timestamp: timestamp,
-            tx_timestamp: timestamp,
-            stats: stats::Stats {
+        const PEER: [u8; 32] = [0u8; 32];
+        let mut stats = stats::StatsMap::new();
+        stats.insert(
+            PEER,
+            stats::Stats {
                 tx_bytes: 0,
                 rx_bytes: 0,
             },
+        );
+        ConnState::Connected {
+            rx_timestamp: timestamp,
+            tx_timestamp: timestamp,
+            stats,
         }
     }
 
@@ -654,18 +687,27 @@ mod test {
         let should_stop = Arc::new(AtomicBool::new(false));
         let should_stop_inner = should_stop.clone();
 
-        let tunnel_stats = Mutex::new(stats::Stats {
-            rx_bytes: 0,
-            tx_bytes: 0,
-        });
+        let mut map = stats::StatsMap::new();
+        map.insert(
+            [0u8; 32],
+            stats::Stats {
+                tx_bytes: 0,
+                rx_bytes: 0,
+            },
+        );
+        let tunnel_stats = Mutex::new(map);
 
         let pinger = MockPinger::default();
         let (_tunnel_anchor, tunnel) = MockTunnel::new(move || {
             let mut tunnel_stats = tunnel_stats.lock().unwrap();
             if !should_stop_inner.load(Ordering::SeqCst) {
-                tunnel_stats.rx_bytes += 1;
+                for traffic in tunnel_stats.values_mut() {
+                    traffic.rx_bytes += 1;
+                }
             }
-            tunnel_stats.tx_bytes += 1;
+            for traffic in tunnel_stats.values_mut() {
+                traffic.tx_bytes += 1;
+            }
             Ok(tunnel_stats.clone())
         })
         .into_locked();
