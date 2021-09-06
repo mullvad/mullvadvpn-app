@@ -26,7 +26,6 @@ import {
   IAccountData,
   IAppVersionInfo,
   IDnsOptions,
-  ILocation,
   IRelayList,
   ISettings,
   IWireguardPublicKey,
@@ -125,6 +124,9 @@ class ApplicationMain {
   private accountData?: IAccountData = undefined;
   private accountHistory?: AccountToken = undefined;
   private tunnelState: TunnelState = { state: 'disconnected' };
+  private lastIgnoredTunnelState?: TunnelState;
+  private ignoreTunnelStatesUntil?: TunnelState['state'];
+  private ignoreTunnelStateFallbackScheduler = new Scheduler();
   private settings: ISettings = {
     accountToken: undefined,
     allowLan: false,
@@ -179,10 +181,7 @@ class ApplicationMain {
     },
   };
   private guiSettings = new GuiSettings();
-  private location?: ILocation;
-  private lastDisconnectedLocation?: ILocation;
   private tunnelStateExpectation?: Expectation;
-  private getLocationPromise?: Promise<ILocation>;
 
   private relays: IRelayList = { countries: [] };
 
@@ -624,6 +623,10 @@ class ApplicationMain {
     // Reset the daemon event listener since it's going to be invalidated on disconnect
     this.daemonEventListener = undefined;
 
+    this.ignoreTunnelStatesUntil = undefined;
+    this.lastIgnoredTunnelState = undefined;
+    this.autoConnectFallbackScheduler.cancel();
+
     if (wasConnected) {
       this.connectedToDaemon = false;
 
@@ -729,10 +732,30 @@ class ApplicationMain {
     this.wireguardKeygenEventAutoConnect();
   }
 
+  private setIgnoreTunnelStatesUntil(state: TunnelState['state']) {
+    this.ignoreTunnelStatesUntil = state;
+    this.ignoreTunnelStateFallbackScheduler.schedule(() => {
+      if (this.lastIgnoredTunnelState) {
+        this.ignoreTunnelStatesUntil = undefined;
+        this.setTunnelState(this.lastIgnoredTunnelState);
+        this.lastIgnoredTunnelState = undefined;
+      }
+    }, 3000);
+  }
+
   private setTunnelState(newState: TunnelState) {
+    if (this.ignoreTunnelStatesUntil) {
+      if (this.ignoreTunnelStatesUntil === newState.state) {
+        this.ignoreTunnelStatesUntil = undefined;
+        this.lastIgnoredTunnelState = undefined;
+      } else {
+        this.lastIgnoredTunnelState = newState;
+        return;
+      }
+    }
+
     this.tunnelState = newState;
     this.updateTrayIcon(newState, this.settings.blockWhenDisconnected);
-    void this.updateLocation();
 
     if (process.platform === 'linux') {
       this.tray?.setContextMenu(this.createTrayContextMenu());
@@ -796,14 +819,6 @@ class ApplicationMain {
         this.windowController.webContents,
         applications,
       );
-    }
-  }
-
-  private setLocation(newLocation: ILocation) {
-    this.location = newLocation;
-
-    if (this.windowController) {
-      IpcMainEventChannel.location.notify(this.windowController.webContents, newLocation);
     }
   }
 
@@ -981,50 +996,6 @@ class ApplicationMain {
     }
   }
 
-  private async updateLocation() {
-    const tunnelState = this.tunnelState;
-
-    if (tunnelState.state === 'connected' || tunnelState.state === 'connecting') {
-      // Location was broadcasted with the tunnel state, but it doesn't contain the relay out IP
-      // address, so it will have to be fetched afterwards
-      if (tunnelState.details && tunnelState.details.location) {
-        this.setLocation(tunnelState.details.location);
-      }
-    } else if (tunnelState.state === 'disconnected') {
-      // It may take some time to fetch the new user location.
-      // So take the user to the last known location when disconnected.
-      if (this.lastDisconnectedLocation) {
-        this.setLocation(this.lastDisconnectedLocation);
-      }
-    }
-
-    if (tunnelState.state === 'connected' || tunnelState.state === 'disconnected') {
-      try {
-        // Fetch the new user location
-        const getLocationPromise = (this.getLocationPromise = this.daemonRpc.getLocation());
-        const location = await getLocationPromise;
-        // If the location is currently unavailable, do nothing! This only ever
-        // happens when a custom relay is set or we are in a blocked state.
-        if (!location) {
-          return;
-        }
-
-        // Cache the user location
-        // Note: hostname is only set for relay servers.
-        if (location.hostname === null) {
-          this.lastDisconnectedLocation = location;
-        }
-
-        // Broadcast the new location if it is the result of the most recent call to getLocation.
-        if (getLocationPromise === this.getLocationPromise) {
-          this.setLocation(location);
-        }
-      } catch (error) {
-        log.error(`Failed to update the location: ${error.message}`);
-      }
-    }
-  }
-
   private trayIconType(tunnelState: TunnelState, blockWhenDisconnected: boolean): TrayIconType {
     switch (tunnelState.state) {
       case 'connected':
@@ -1102,7 +1073,6 @@ class ApplicationMain {
       accountHistory: this.accountHistory,
       tunnelState: this.tunnelState,
       settings: this.settings,
-      location: this.location,
       relayListPair: {
         relays: this.processRelaysForPresentation(
           this.relays,
@@ -1158,9 +1128,20 @@ class ApplicationMain {
       return this.setAutoStart(autoStart);
     });
 
-    IpcMainEventChannel.tunnel.handleConnect(() => this.daemonRpc.connectTunnel());
-    IpcMainEventChannel.tunnel.handleDisconnect(() => this.daemonRpc.disconnectTunnel());
-    IpcMainEventChannel.tunnel.handleReconnect(() => this.daemonRpc.reconnectTunnel());
+    IpcMainEventChannel.location.handleGet(() => this.daemonRpc.getLocation());
+
+    IpcMainEventChannel.tunnel.handleConnect(() => {
+      this.setIgnoreTunnelStatesUntil('connecting');
+      return this.daemonRpc.connectTunnel();
+    });
+    IpcMainEventChannel.tunnel.handleDisconnect(() => {
+      this.setIgnoreTunnelStatesUntil('disconnecting');
+      return this.daemonRpc.disconnectTunnel();
+    });
+    IpcMainEventChannel.tunnel.handleReconnect(() => {
+      this.setIgnoreTunnelStatesUntil('connecting');
+      return this.daemonRpc.reconnectTunnel();
+    });
 
     IpcMainEventChannel.guiSettings.handleSetEnableSystemNotifications((flag: boolean) => {
       this.guiSettings.enableSystemNotifications = flag;

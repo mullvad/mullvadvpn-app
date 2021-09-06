@@ -8,11 +8,13 @@ export enum SecuredDisplayStyle {
   blocked,
   securing,
   unsecured,
+  unsecuring,
   failedToSecure,
 }
 
 const securedDisplayStyleColorMap = {
   [SecuredDisplayStyle.securing]: colors.white,
+  [SecuredDisplayStyle.unsecuring]: colors.white,
   [SecuredDisplayStyle.secured]: colors.green,
   [SecuredDisplayStyle.blocked]: colors.green,
   [SecuredDisplayStyle.unsecured]: colors.red,
@@ -20,6 +22,8 @@ const securedDisplayStyleColorMap = {
 };
 
 const StyledSecuredLabel = styled.span((props: { displayStyle: SecuredDisplayStyle }) => ({
+  display: 'inline-block',
+  minHeight: '22px',
   color: securedDisplayStyleColorMap[props.displayStyle],
 }));
 
@@ -49,6 +53,9 @@ function getLabelText(displayStyle: SecuredDisplayStyle) {
 
     case SecuredDisplayStyle.unsecured:
       return messages.gettext('UNSECURE CONNECTION');
+
+    case SecuredDisplayStyle.unsecuring:
+      return '';
 
     case SecuredDisplayStyle.failedToSecure:
       return messages.gettext('FAILED TO SECURE CONNECTION');

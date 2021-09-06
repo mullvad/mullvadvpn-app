@@ -46,7 +46,6 @@ export interface IAppStateSnapshot {
   accountHistory?: AccountToken;
   tunnelState: TunnelState;
   settings: ISettings;
-  location?: ILocation;
   relayListPair: IRelayListPair;
   currentVersion: ICurrentAppVersionInfo;
   upgradeVersion: IAppVersionInfo;
@@ -112,9 +111,6 @@ export const ipcSchema = {
     connected: notifyRenderer<void>(),
     disconnected: notifyRenderer<void>(),
   },
-  location: {
-    '': notifyRenderer<ILocation>(),
-  },
   relays: {
     '': notifyRenderer<IRelayListPair>(),
   },
@@ -128,6 +124,9 @@ export const ipcSchema = {
     quit: send<void>(),
     openUrl: invoke<string, void>(),
     showOpenDialog: invoke<Electron.OpenDialogOptions, Electron.OpenDialogReturnValue>(),
+  },
+  location: {
+    get: invoke<void, ILocation>(),
   },
   tunnel: {
     '': notifyRenderer<TunnelState>(),
