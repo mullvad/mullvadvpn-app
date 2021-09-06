@@ -70,6 +70,19 @@ impl RouteManagerHandle {
             .map_err(Error::PlatformError)
     }
 
+    /// Removes previously applied routes.
+    #[cfg(target_os = "linux")]
+    pub async fn remove_routes(&self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::DelRoutes(routes, response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        response_rx
+            .await
+            .map_err(|_| Error::ManagerChannelDown)?
+            .map_err(Error::PlatformError)
+    }
+
     /// Ensure that packets are routed using the correct tables.
     #[cfg(target_os = "linux")]
     pub async fn create_routing_rules(&self, enable_ipv6: bool) -> Result<(), Error> {
@@ -135,6 +148,11 @@ impl RouteManagerHandle {
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
     AddRoutes(
+        HashSet<RequiredRoute>,
+        oneshot::Sender<Result<(), PlatformError>>,
+    ),
+    #[cfg(target_os = "linux")]
+    DelRoutes(
         HashSet<RequiredRoute>,
         oneshot::Sender<Result<(), PlatformError>>,
     ),
@@ -212,6 +230,27 @@ impl RouteManager {
             let (result_tx, result_rx) = oneshot::channel();
             if tx
                 .unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
+                .is_err()
+            {
+                return Err(Error::RouteManagerDown);
+            }
+
+            result_rx
+                .await
+                .map_err(|_| Error::ManagerChannelDown)?
+                .map_err(Error::PlatformError)
+        } else {
+            Err(Error::RouteManagerDown)
+        }
+    }
+
+    /// Removes the given routes.
+    #[cfg(target_os = "linux")]
+    pub async fn remove_routes(&mut self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
+        if let Some(tx) = &self.manage_tx {
+            let (result_tx, result_rx) = oneshot::channel();
+            if tx
+                .unbounded_send(RouteManagerCommand::DelRoutes(routes, result_tx))
                 .is_err()
             {
                 return Err(Error::RouteManagerDown);
