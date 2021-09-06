@@ -46,6 +46,9 @@ Line wrap the file at 100 chars.                                              Th
 - Move OpenVPN and WireGuard settings in the advanced settings view into separate settings views.
 - Return to main view in desktop app after being hidden/closed for two minutes.
 
+#### Linux
+- Always send DNS requests inside the tunnel for excluded processes when using public custom DNS.
+
 #### Windows
 - Upgrade Wintun from 0.10.4 to 0.13.
 
@@ -70,6 +73,7 @@ Line wrap the file at 100 chars.                                              Th
 - Make offline monitor aware of routing table changes.
 - Assign local DNS servers to more appropriate interfaces when using systemd-resolved.
 - Disable DNS over TLS for tunnel's DNS config when using systemd-resolved.
+- Fix DNS when combining a static resolv.conf with ad blocking DNS.
 
 #### Windows
 - Fix failure to restart the daemon when resuming from "fast startup" hibernation.
