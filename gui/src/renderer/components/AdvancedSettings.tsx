@@ -206,7 +206,7 @@ export default class AdvancedSettings extends React.Component<IProps, IState> {
   ): Array<ISelectorItem<OptionalTunnelProtocol>> => {
     return [
       {
-        label: messages.pgettext('advanced-settings-view', 'Automatic'),
+        label: messages.gettext('Automatic'),
         value: undefined,
       },
       {
