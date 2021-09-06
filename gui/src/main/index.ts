@@ -88,7 +88,7 @@ const GUI_VERSION = app.getVersion().replace('.0', '');
 /// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
 const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
 
-const VERSION_CHECK_DISABLED = process.env.DISABLE_VERSION_CHECK === '1';
+const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICATION === '1';
 
 const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
 
@@ -590,7 +590,7 @@ class ApplicationMain {
     }
 
     // fetch the latest version info in background
-    if (!VERSION_CHECK_DISABLED) {
+    if (!UPDATE_NOTIFICATION_DISABLED) {
       void this.fetchLatestVersion();
     }
 
@@ -933,7 +933,7 @@ class ApplicationMain {
   }
 
   private setLatestVersion(latestVersionInfo: IAppVersionInfo) {
-    if (VERSION_CHECK_DISABLED) {
+    if (UPDATE_NOTIFICATION_DISABLED) {
       return;
     }
 
