@@ -43,7 +43,7 @@ Some definitions of terms used later to describe behavior:
 *: On platforms where we have custom firewall integration. This is currently on desktop operating
   systems, and not mobile.
 
-### Windows
+### Windows and Linux
 
 | In-app DNS setting | Normal & Excluded app |
 |-|-|
@@ -51,24 +51,13 @@ Some definitions of terms used later to describe behavior:
 | **Private custom DNS** (e.g. 10.0.1.1) | LAN (to 10.0.1.1) |
 | **Public custom DNS** (e.g. 8.8.8.8) | In tunnel (to 8.8.8.8) |
 
-In other words: Normal and excluded processes always behave the same. This is due to the
-Windows DNS cache service is the single origin for all DNS requests.
+In other words: Normal and excluded processes always behave the same. This is because DNS is
+typically handled by a service, e.g. DNS cache on Windows or systemd-resolved's resolver on Linux,
+which is not an excluded process.
 
-### Linux
-
-| In-app DNS setting | Normal app | Excluded app |
-|-|-|-|
-| **Default DNS** | In tunnel (to relay) | In tunnel (to relay) |
-| **Private custom DNS** (e.g. 10.0.1.1) | LAN (to 10.0.1.1) | LAN (to 10.0.1.1) |
-| **Public custom DNS** (e.g. 8.8.8.8) | In tunnel (to 8.8.8.8) | Outside tunnel* (to 8.8.8.8) |
-
-*: Only if a local DNS resolver, such as systemd-resolved is **not in use**. Because if a
-local DNS resolver is in use the requests will go there and that resolver in turn will then
-send requests in the tunnel.
-
-In other words: Normal and excluded processes behave the same in all cases except when Custom DNS
-is enabled, pointed to a publicly available IP and the system is not set up to use a localhost DNS
-resolver.
+For the sake of simplicity and consistency, public custom DNS is also sent *in tunnel* when using a
+plain old static `resolv.conf`, even though it is technically possible to exclude public custom DNS
+in that case.
 
 ### Android
 
