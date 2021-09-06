@@ -216,16 +216,14 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "注意：この設定を有効化すると、インターネットにアクセスするために常にMullvad VPNへの接続が必要になります。"
 
-msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "自動"
 
 #. The title for the shadowsocks bridge selector section.
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "ブリッジモード"
 
-msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "デフォルト"
 
@@ -253,11 +251,9 @@ msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "アプリを接続解除したり終了したりすると、この設定によってインターネットアクセスがブロックされます。"
 
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr "オフ"
 
-msgctxt "advanced-settings-view"
 msgid "On"
 msgstr "オン"
 
@@ -284,7 +280,7 @@ msgstr "OpenVPN転送プロトコル"
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "OpenVPN MSS の値を設定します。有効範囲：%(min)d ～ %(max)d。"
 
@@ -292,7 +288,7 @@ msgstr "OpenVPN MSS の値を設定します。有効範囲：%(min)d ～ %(max)
 #. Available placeholders:
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "WireGuard MTU の値を設定します。有効範囲：%(min)d ～ %(max)d"
 
@@ -300,7 +296,6 @@ msgctxt "advanced-settings-view"
 msgid "Split tunneling"
 msgstr "スプリットトンネリング"
 
-msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr "TCP"
 
@@ -309,7 +304,7 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr "アプリに組み込まれているキルスイッチは常にオンになっています。この設定を有効にすると、「接続解除」または「終了」をクリックした場合にインターネットが補助的にブロックされます。"
 
 #. The hint displayed below the WireGuard port selector.
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "自動設定では、さまざまなポートからランダムに選択されます。"
 
@@ -325,7 +320,6 @@ msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
 msgstr "トンネルプロトコル"
 
-msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
 
@@ -337,7 +331,7 @@ msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "WireGuard key"
 msgstr "WireGuard鍵"
 

@@ -208,16 +208,14 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "သတိပြုရန်- ၎င်းကို ဖွင့်ခြင်းဖြင့် အင်တာနက် သုံးရန်အတွက် Mullvad VPN ချိတ်ဆက်မှုကို အမြဲ လိုအပ်ပါမည်။"
 
-msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "အော်တိုမက်တစ်"
 
 #. The title for the shadowsocks bridge selector section.
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "ပေါင်းကူး မုဒ်"
 
-msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "မူလအတိုင်း"
 
@@ -245,11 +243,9 @@ msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "ဤအက်ပ်နှင့် ချိတ်ဆက်မှုပြတ်သွားပါက သို့မဟုတ် ထွက်လိုက်ပါက ဤဆက်တင်သည် သင့်အင်တာနက်ကို ပိတ်ဆို့သွားပါလိမ့်မည်။"
 
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr "ပိတ်"
 
-msgctxt "advanced-settings-view"
 msgid "On"
 msgstr "ဖွင့်"
 
@@ -276,7 +272,7 @@ msgstr "OpenVPN ပို့ဆောင်ရေး ပရိုတိုကေ
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "OpenVPN MSS တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %(min)d - %(max)d"
 
@@ -284,7 +280,7 @@ msgstr "OpenVPN MSS တန်ဖိုးကို သတ်မှတ်ပါ�
 #. Available placeholders:
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %(min)d - %(max)d"
 
@@ -292,7 +288,6 @@ msgctxt "advanced-settings-view"
 msgid "Split tunneling"
 msgstr "Split Tunneling"
 
-msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr "TCP"
 
@@ -301,7 +296,7 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr "ဤအက်ပ်၏ မူလပါရှိသော Kill Switch ကို အမြဲဖွင့်ထားပါ။ ထို့အပြင် ချိတ်ဆက်မှုဖြုတ်ရန် သို့မဟုတ် ထွက်ရန်ကို နှိပ်ခြင်းဖြင့် ဤဆက်တင်သည် အင်တာနက်ကို ပိတ်ဆို့သွားပါလိမ့်မည်။"
 
 #. The hint displayed below the WireGuard port selector.
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "အော်တိုဆက်တင်သည် ပို့တ်များစွာမှ ကျပန်းရွေးသွားပါလိမ့်မည်။"
 
@@ -317,7 +312,6 @@ msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
 msgstr "Tunnel ပရိုတိုကောလ်"
 
-msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
 
@@ -329,7 +323,7 @@ msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "WireGuard key"
 msgstr "WireGuard ကီး"
 

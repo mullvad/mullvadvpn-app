@@ -208,16 +208,14 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "주의: 이 기능을 사용하려면 인터넷 연결을 위해 항상 Mullvad VPN 연결이 필요합니다."
 
-msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "자동"
 
 #. The title for the shadowsocks bridge selector section.
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "브리지 모드"
 
-msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "기본값"
 
@@ -245,11 +243,9 @@ msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "앱 연결을 끊거나 종료하면 이 설정으로 인해 인터넷이 차단됩니다."
 
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr "끄기"
 
-msgctxt "advanced-settings-view"
 msgid "On"
 msgstr "켜기"
 
@@ -276,7 +272,7 @@ msgstr "OpenVPN 전송 프로토콜"
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "OpenVPN MSS 값을 설정하세요. 유효 범위: %(min)d ~ %(max)d."
 
@@ -284,7 +280,7 @@ msgstr "OpenVPN MSS 값을 설정하세요. 유효 범위: %(min)d ~ %(max)d."
 #. Available placeholders:
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %(min)d ~ %(max)d."
 
@@ -292,7 +288,6 @@ msgctxt "advanced-settings-view"
 msgid "Split tunneling"
 msgstr "분할 터널링"
 
-msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr "TCP"
 
@@ -301,7 +296,7 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr "앱에서 기본 제공되는 중단 스위치는 항상 켜져 있습니다. 연결 끊기 또는 종료를 클릭하면 이 설정으로 인해 인터넷이 추가로 차단됩니다."
 
 #. The hint displayed below the WireGuard port selector.
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "자동 설정은 다양한 포트에서 임의로 선택합니다."
 
@@ -317,7 +312,6 @@ msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
 msgstr "터널 프로토콜"
 
-msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
 
@@ -329,7 +323,7 @@ msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "WireGuard key"
 msgstr "WireGuard 키"
 

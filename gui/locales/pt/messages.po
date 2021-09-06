@@ -219,16 +219,14 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Atenção: ativar esta opção exige sempre uma ligação através de Mullvad VPN para aceder à Internet."
 
-msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "Automático"
 
 #. The title for the shadowsocks bridge selector section.
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "Modo de ponte"
 
-msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "Padrão"
 
@@ -256,11 +254,9 @@ msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "Se o utilizador se desligar ou sair da aplicação, esta configuração bloqueará a sua Internet."
 
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr "Desligado"
 
-msgctxt "advanced-settings-view"
 msgid "On"
 msgstr "Ligado"
 
@@ -287,7 +283,7 @@ msgstr "Protocolo de transporte OpenVPN"
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "Definir o valor OpenVPN MSS. Intervalo válido: %(min)d - %(max)d."
 
@@ -295,7 +291,7 @@ msgstr "Definir o valor OpenVPN MSS. Intervalo válido: %(min)d - %(max)d."
 #. Available placeholders:
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "Definir o valor WireGuard MTU. Intervalo válido: %(min)d - %(max)d."
 
@@ -303,7 +299,6 @@ msgctxt "advanced-settings-view"
 msgid "Split tunneling"
 msgstr "Divisão do túnel"
 
-msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr "TCP"
 
@@ -312,7 +307,7 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr "O kill switch integrado da aplicação está sempre ligado. Esta configuração bloqueará adicionalmente a Internet caso o utilizador se desligue ou saia da aplicação."
 
 #. The hint displayed below the WireGuard port selector.
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "As definições automáticas escolhem aleatoriamente a partir de uma vasta gama de portas."
 
@@ -328,7 +323,6 @@ msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
 msgstr "Protocolo do túnel"
 
-msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
 
@@ -340,7 +334,7 @@ msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "WireGuard key"
 msgstr "Chave WireGuard"
 

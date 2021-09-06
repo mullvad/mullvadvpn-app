@@ -219,16 +219,14 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Huomio: jos tämä otetaan käyttöön, verkkoon yhdistäminen vaatii aina Mullvad VPN -yhteyden."
 
-msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "Automaattinen"
 
 #. The title for the shadowsocks bridge selector section.
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "Siltaus"
 
-msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "Oletus"
 
@@ -256,11 +254,9 @@ msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "Jos katkaiset sovellusyhteyden tai suljet sovelluksen, tämä asetus estää verkkoyhteyden."
 
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr "Pois"
 
-msgctxt "advanced-settings-view"
 msgid "On"
 msgstr "Päällä"
 
@@ -287,7 +283,7 @@ msgstr "OpenVPN-siirtoprotokolla"
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "Aseta OpenVPN MSS -arvo asteikolla %(min)d - %(max)d."
 
@@ -295,7 +291,7 @@ msgstr "Aseta OpenVPN MSS -arvo asteikolla %(min)d - %(max)d."
 #. Available placeholders:
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "Aseta WireGuardin MTU-arvo väliltä %(min)d - %(max)d."
 
@@ -303,7 +299,6 @@ msgctxt "advanced-settings-view"
 msgid "Split tunneling"
 msgstr "Sovelluskohtainen yhdistäminen"
 
-msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr "TCP"
 
@@ -312,7 +307,7 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr "Sovelluksen sisäänrakennettu tappokytkin on aina käytössä. Tämä asetus estää lisäksi verkkoyhteyden, jos katkaiset sovellusyhteyden tai suljet sovelluksen."
 
 #. The hint displayed below the WireGuard port selector.
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "Automaattinen asetus valitsee satunnaisesti laajasta määrästä portteja."
 
@@ -328,7 +323,6 @@ msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
 msgstr "Tunneliprotokolla"
 
-msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
 
@@ -340,7 +334,7 @@ msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "WireGuard key"
 msgstr "WireGuard-avain"
 

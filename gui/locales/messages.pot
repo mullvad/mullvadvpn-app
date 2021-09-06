@@ -246,10 +246,6 @@ msgid "Attention: enabling this will always require a Mullvad VPN connection in 
 msgstr ""
 
 msgctxt "advanced-settings-view"
-msgid "Automatic"
-msgstr ""
-
-msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr ""
 

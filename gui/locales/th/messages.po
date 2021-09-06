@@ -208,16 +208,14 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "โปรดทราบ: การเปิดใช้งานสิ่งนี้จะทำให้คุณจำเป็นต้องเชื่อมต่อ Mullvad VPN ไว้ตลอดเวลา เพื่อที่จะเข้าถึงอินเทอร์เน็ต"
 
-msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "อัตโนมัติ"
 
 #. The title for the shadowsocks bridge selector section.
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "โหมดบริดจ์"
 
-msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "ค่าเริ่มต้น"
 
@@ -245,11 +243,9 @@ msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "หากคุณตัดการเชื่อมต่อหรือออกจากแอป การตั้งค่านี้จะบล็อกการเข้าถึงอินเทอร์เน็ตของคุณ"
 
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr "ปิด"
 
-msgctxt "advanced-settings-view"
 msgid "On"
 msgstr "เปิด"
 
@@ -276,7 +272,7 @@ msgstr "โพรโทคอลการส่งผ่าน OpenVPN"
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "ตั้งค่า OpenVPN MSS ช่วงที่ใช้ได้: %(min)d - %(max)d"
 
@@ -284,7 +280,7 @@ msgstr "ตั้งค่า OpenVPN MSS ช่วงที่ใช้ได�
 #. Available placeholders:
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "ตั้งค่า WireGuard MTU ช่วงที่ใช้ได้: %(min)d - %(max)d"
 
@@ -292,7 +288,6 @@ msgctxt "advanced-settings-view"
 msgid "Split tunneling"
 msgstr "แยกช่องทาง"
 
-msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr "TCP"
 
@@ -301,7 +296,7 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr "คิลสวิตช์ภายในแอปจะเปิดใช้งานอยู่เสมอ การตั้งค่านี้จะบล็อกการเข้าถึงอินเทอร์เน็ต หากคุณคลิกไปที่ตัดการเชื่อมต่อ หรือออก"
 
 #. The hint displayed below the WireGuard port selector.
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากพอร์ตต่างๆ"
 
@@ -317,7 +312,6 @@ msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
 msgstr "โพรโทคอลช่องทางการเชื่อมต่อ"
 
-msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
 
@@ -329,7 +323,7 @@ msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "WireGuard key"
 msgstr "คีย์ WireGuard"
 
