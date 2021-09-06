@@ -1,6 +1,6 @@
 use super::{
-    super::stats::{Error as StatsError, Stats},
-    Config, Error as WgKernelError, Tunnel, TunnelError, MULLVAD_INTERFACE_NAME,
+    super::stats::{Stats, StatsMap},
+    Config, Error as WgKernelError, Handle, Tunnel, TunnelError, MULLVAD_INTERFACE_NAME,
 };
 use std::collections::HashMap;
 use talpid_dbus::{
@@ -10,7 +10,6 @@ use talpid_dbus::{
         WireguardTunnel,
     },
 };
-use talpid_types::ErrorExt;
 
 
 #[derive(err_derive::Error, Debug)]
@@ -22,17 +21,20 @@ pub enum Error {
     NetworkManager(#[error(source)] NetworkManagerError),
 }
 
-const TRAFFIC_STATS_REFRESH_RATE_MS: u32 = 1000;
-const INITIAL_TRAFFIC_STATS_REFRESH_RATE_MS: u32 = 10;
-
 pub struct NetworkManagerTunnel {
     network_manager: NetworkManager,
     tunnel: Option<WireguardTunnel>,
+    netlink_connections: Handle,
+    tokio_handle: tokio::runtime::Handle,
+    interface_name: String,
 }
 
 
 impl NetworkManagerTunnel {
-    pub fn new(config: &Config) -> std::result::Result<Self, WgKernelError> {
+    pub fn new(
+        tokio_handle: tokio::runtime::Handle,
+        config: &Config,
+    ) -> std::result::Result<Self, WgKernelError> {
         let network_manager = NetworkManager::new()
             .map_err(Error::NetworkManager)
             .map_err(WgKernelError::NetworkManager)?;
@@ -41,29 +43,28 @@ impl NetworkManagerTunnel {
             .create_wg_tunnel(&config_map)
             .map_err(|err| WgKernelError::NetworkManager(err.into()))?;
 
-        network_manager
-            .set_stats_refresh_rate(&tunnel, INITIAL_TRAFFIC_STATS_REFRESH_RATE_MS)
-            .map_err(|err| WgKernelError::NetworkManager(err.into()))?;
-
+        let interface_name = match network_manager.get_interface_name(&tunnel) {
+            Ok(name) => name,
+            Err(error) => {
+                log::error!("Failed to fetch interface name from NM: {}", error);
+                MULLVAD_INTERFACE_NAME.to_string()
+            }
+        };
+        let netlink_connections = tokio_handle.block_on(Handle::connect())?;
 
         Ok(NetworkManagerTunnel {
             network_manager,
             tunnel: Some(tunnel),
+            netlink_connections,
+            tokio_handle,
+            interface_name,
         })
     }
 }
 
 impl Tunnel for NetworkManagerTunnel {
     fn get_interface_name(&self) -> String {
-        if let Some(tunnel) = self.tunnel.as_ref() {
-            match self.network_manager.get_interface_name(tunnel) {
-                Ok(name) => {
-                    return name;
-                }
-                Err(error) => log::error!("Failed to fetch interface name from NM: {}", error),
-            }
-        }
-        MULLVAD_INTERFACE_NAME.to_string()
+        self.interface_name.clone()
     }
 
     fn stop(mut self: Box<Self>) -> std::result::Result<(), TunnelError> {
@@ -79,31 +80,18 @@ impl Tunnel for NetworkManagerTunnel {
         }
     }
 
-    fn get_tunnel_stats(&self) -> std::result::Result<Stats, TunnelError> {
-        let tunnel = self
-            .tunnel
-            .as_ref()
-            .ok_or(TunnelError::StatsError(StatsError::NoTunnelDevice))?;
-        let (tx_bytes, rx_bytes) = self
-            .network_manager
-            .get_tunnel_stats(tunnel)
-            .map_err(|_| TunnelError::StatsError(StatsError::KeyNotFoundError))?;
-
-        Ok(Stats { tx_bytes, rx_bytes })
-    }
-
-    fn slow_stats_refresh_rate(&self) {
-        if let Some(tunnel) = self.tunnel.as_ref() {
-            if let Err(err) = self
-                .network_manager
-                .set_stats_refresh_rate(tunnel, TRAFFIC_STATS_REFRESH_RATE_MS)
-            {
-                log::error!(
-                    "{}",
-                    err.display_chain_with_msg("Failed to reset stats refresh rate: ")
-                );
-            }
-        }
+    fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
+        let mut wg = self.netlink_connections.wg_handle.clone();
+        self.tokio_handle.block_on(async move {
+            let device = wg
+                .get_by_name(self.interface_name.clone())
+                .await
+                .map_err(|err| {
+                    log::error!("Failed to fetch WireGuard device config: {}", err);
+                    TunnelError::GetConfigError
+                })?;
+            Ok(Stats::parse_device_message(&device))
+        })
     }
 }
 

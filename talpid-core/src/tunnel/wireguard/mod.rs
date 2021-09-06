@@ -327,7 +327,10 @@ impl WireguardMonitor {
         #[cfg(target_os = "linux")]
         if !*FORCE_USERSPACE_WIREGUARD {
             if crate::dns::will_use_nm() {
-                match wireguard_kernel::NetworkManagerTunnel::new(config) {
+                match wireguard_kernel::NetworkManagerTunnel::new(
+                    route_manager.runtime_handle(),
+                    config,
+                ) {
                     Ok(tunnel) => {
                         log::debug!("Using NetworkManager to use kernel WireGuard implementation");
                         return Ok(Box::new(tunnel));
@@ -559,9 +562,7 @@ pub(crate) trait Tunnel: Send {
     #[cfg(target_os = "windows")]
     fn get_interface_luid(&self) -> u64;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
-    fn get_tunnel_stats(&self) -> std::result::Result<stats::Stats, TunnelError>;
-    #[cfg(target_os = "linux")]
-    fn slow_stats_refresh_rate(&self) {}
+    fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait

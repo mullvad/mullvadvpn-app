@@ -61,6 +61,7 @@ Line wrap the file at 100 chars.                                              Th
   desktop app.
 - Fix in-app notification button not working for some notifications.
 - Fix incorrectly positioned navigation bar title when navigating back to a scrolled down view.
+- Fix connectivity check for WireGuard multihop when the exit hop is down.
 
 #### Linux
 - Make offline monitor aware of routing table changes.
