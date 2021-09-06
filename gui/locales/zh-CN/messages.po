@@ -208,16 +208,14 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "注意：启用此选项后，将始终需要 Mullvad VPN 才能连接到网络。"
 
-msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "自动"
 
 #. The title for the shadowsocks bridge selector section.
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "桥接模式"
 
-msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "默认"
 
@@ -245,11 +243,9 @@ msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "如果断开连接或退出应用，此设置将阻止您的网络连接。"
 
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr "关"
 
-msgctxt "advanced-settings-view"
 msgid "On"
 msgstr "开"
 
@@ -276,7 +272,7 @@ msgstr "OpenVPN 传输协议"
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "设置 OpenVPN MSS 值。值范围：%(min)d - %(max)d。"
 
@@ -284,7 +280,7 @@ msgstr "设置 OpenVPN MSS 值。值范围：%(min)d - %(max)d。"
 #. Available placeholders:
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "设置 WireGuard MTU 值。有效范围：%(min)d - %(max)d。"
 
@@ -292,7 +288,6 @@ msgctxt "advanced-settings-view"
 msgid "Split tunneling"
 msgstr "拆分隧道"
 
-msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr "TCP"
 
@@ -301,7 +296,7 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr "应用的内置切断开关始终处于开启状态。如果点击“断开连接”或“退出”，此设置还将阻止您的网络连接。"
 
 #. The hint displayed below the WireGuard port selector.
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "自动设置将从一系列端口中随机选择。"
 
@@ -317,7 +312,6 @@ msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
 msgstr "隧道协议"
 
-msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
 
@@ -329,7 +323,7 @@ msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "WireGuard key"
 msgstr "WireGuard 密钥"
 

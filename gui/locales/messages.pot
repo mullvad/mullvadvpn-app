@@ -227,16 +227,14 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr ""
 
-msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr ""
 
 #. The title for the shadowsocks bridge selector section.
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr ""
 
-msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr ""
 
@@ -264,11 +262,9 @@ msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr ""
 
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr ""
 
-msgctxt "advanced-settings-view"
 msgid "On"
 msgstr ""
 
@@ -295,7 +291,7 @@ msgstr ""
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr ""
 
@@ -303,7 +299,7 @@ msgstr ""
 #. Available placeholders:
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr ""
 
@@ -311,7 +307,6 @@ msgctxt "advanced-settings-view"
 msgid "Split tunneling"
 msgstr ""
 
-msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr ""
 
@@ -320,7 +315,7 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr ""
 
 #. The hint displayed below the WireGuard port selector.
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr ""
 
@@ -336,7 +331,6 @@ msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
 msgstr ""
 
-msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr ""
 
@@ -348,7 +342,7 @@ msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr ""
 
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "WireGuard key"
 msgstr ""
 

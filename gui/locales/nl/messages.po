@@ -219,16 +219,14 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Opgelet: dit inschakelen vereist altijd een Mullvad VPN-verbinding om het internet te bereiken."
 
-msgctxt "advanced-settings-view"
 msgid "Automatic"
 msgstr "Automatisch"
 
 #. The title for the shadowsocks bridge selector section.
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "Bridge-modus"
 
-msgctxt "advanced-settings-view"
 msgid "Default"
 msgstr "Standaard"
 
@@ -256,11 +254,9 @@ msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "Als u de verbinding verbreekt of de app verlaat, blokkeert deze instelling uw internet."
 
-msgctxt "advanced-settings-view"
 msgid "Off"
 msgstr "Uit"
 
-msgctxt "advanced-settings-view"
 msgid "On"
 msgstr "Aan"
 
@@ -287,7 +283,7 @@ msgstr "OpenVPN transportprotocol"
 #. Available placeholders:
 #. %(max)d - the maximum possible mssfix value
 #. %(min)d - the minimum possible mssfix value
-msgctxt "advanced-settings-view"
+msgctxt "openvpn-settings-view"
 msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
 msgstr "Stel OpenVPN MMS-waarde in. Geldig bereik: %(min)d - %(max)d."
 
@@ -295,7 +291,7 @@ msgstr "Stel OpenVPN MMS-waarde in. Geldig bereik: %(min)d - %(max)d."
 #. Available placeholders:
 #. %(max)d - the maximum possible wireguard mtu value
 #. %(min)d - the minimum possible wireguard mtu value
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
 msgstr "Stel de WireGuard MTU-waarde in. Geldig bereik: %(min)d - %(max)d."
 
@@ -303,7 +299,6 @@ msgctxt "advanced-settings-view"
 msgid "Split tunneling"
 msgstr "Split tunneling"
 
-msgctxt "advanced-settings-view"
 msgid "TCP"
 msgstr "TCP"
 
@@ -312,7 +307,7 @@ msgid "The app’s built-in kill switch is always on. This setting will addition
 msgstr "De ingebouwde killswitch van de app staat altijd aan. Deze instelling blokkeert het internet bovendien als men op Verbinding verbreken of Afsluiten klikt."
 
 #. The hint displayed below the WireGuard port selector.
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from a wide range of ports."
 msgstr "De automatische instelling kiest willekeurig uit een ruim aantal poorten."
 
@@ -328,7 +323,6 @@ msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
 msgstr "Tunnelprotocol"
 
-msgctxt "advanced-settings-view"
 msgid "UDP"
 msgstr "UDP"
 
@@ -340,7 +334,7 @@ msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
-msgctxt "advanced-settings-view"
+msgctxt "wireguard-settings-view"
 msgid "WireGuard key"
 msgstr "WireGuard-sleutel"
 
