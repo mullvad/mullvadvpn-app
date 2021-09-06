@@ -325,6 +325,39 @@ impl<'a> PolicyBatch<'a> {
     }
 
     fn add_split_tunneling_rules(&mut self, policy: &FirewallPolicy) -> Result<()> {
+        // Send select DNS requests in the tunnel
+        if let FirewallPolicy::Connected {
+            tunnel,
+            dns_servers,
+            ..
+        } = policy
+        {
+            for server in dns_servers
+                .iter()
+                .filter(|server| !is_local_dns_address(&tunnel, server))
+            {
+                let chain = if server.is_ipv4() {
+                    &self.mangle_chain_v4
+                } else {
+                    &self.mangle_chain_v6
+                };
+                let allow_rule = allow_tunnel_dns_rule(
+                    chain,
+                    &tunnel.interface,
+                    TransportProtocol::Udp,
+                    *server,
+                )?;
+                self.batch.add(&allow_rule, nftnl::MsgType::Add);
+                let allow_rule = allow_tunnel_dns_rule(
+                    chain,
+                    &tunnel.interface,
+                    TransportProtocol::Tcp,
+                    *server,
+                )?;
+                self.batch.add(&allow_rule, nftnl::MsgType::Add);
+            }
+        }
+
         let mangle_chains = [&self.mangle_chain_v4, &self.mangle_chain_v6];
         for chain in &mangle_chains {
             let mut rule = Rule::new(chain);
@@ -343,36 +376,6 @@ impl<'a> PolicyBatch<'a> {
             rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
-        }
-
-        // Allow some DNS requests to pass through the tunnel
-        if let FirewallPolicy::Connected {
-            tunnel,
-            dns_servers,
-            ..
-        } = policy
-        {
-            let gateway = IpAddr::V4(tunnel.ipv4_gateway);
-            if dns_servers.contains(&gateway) {
-                self.add_nat_tunnel_dns_rule(&tunnel.interface, TransportProtocol::Udp, gateway)?;
-                self.add_nat_tunnel_dns_rule(&tunnel.interface, TransportProtocol::Tcp, gateway)?;
-            }
-
-            if let Some(ref gateway) = tunnel.ipv6_gateway {
-                let gateway = IpAddr::V6(*gateway);
-                if dns_servers.contains(&gateway) {
-                    self.add_nat_tunnel_dns_rule(
-                        &tunnel.interface,
-                        TransportProtocol::Udp,
-                        gateway,
-                    )?;
-                    self.add_nat_tunnel_dns_rule(
-                        &tunnel.interface,
-                        TransportProtocol::Tcp,
-                        gateway,
-                    )?;
-                }
-            }
         }
 
         let nat_chains = [&self.nat_chain_v4, &self.nat_chain_v6];
@@ -421,36 +424,6 @@ impl<'a> PolicyBatch<'a> {
             self.batch.add(&prerouting_rule, nftnl::MsgType::Add);
         }
 
-        Ok(())
-    }
-
-    fn add_nat_tunnel_dns_rule(
-        &mut self,
-        interface: &str,
-        protocol: TransportProtocol,
-        host: IpAddr,
-    ) -> Result<()> {
-        let mut allow_rule = match host {
-            IpAddr::V4(_) => Rule::new(&self.nat_chain_v4),
-            IpAddr::V6(_) => Rule::new(&self.nat_chain_v6),
-        };
-        let daddr = match host {
-            IpAddr::V4(_) => nft_expr!(payload ipv4 daddr),
-            IpAddr::V6(_) => nft_expr!(payload ipv6 daddr),
-        };
-
-        check_iface(&mut allow_rule, Direction::Out, interface)?;
-        check_port(&mut allow_rule, protocol, End::Dst, 53);
-
-        allow_rule.add_expr(&daddr);
-        allow_rule.add_expr(&nft_expr!(cmp == host));
-
-        allow_rule.add_expr(&nft_expr!(ct mark));
-        allow_rule.add_expr(&nft_expr!(cmp == split_tunnel::MARK));
-
-        add_verdict(&mut allow_rule, &Verdict::Accept);
-
-        self.batch.add(&allow_rule, nftnl::MsgType::Add);
         Ok(())
     }
 
@@ -692,15 +665,9 @@ impl<'a> PolicyBatch<'a> {
         dns_servers: &[IpAddr],
         protocol: TransportProtocol,
     ) -> Result<()> {
-        let (local_resolvers, remote_resolvers): (Vec<IpAddr>, Vec<IpAddr>) =
-            dns_servers.iter().partition(|server| {
-                super::is_local_address(server)
-                    && *server != &tunnel.ipv4_gateway
-                    && !tunnel
-                        .ipv6_gateway
-                        .map(|ref gateway| *server == gateway)
-                        .unwrap_or(false)
-            });
+        let (local_resolvers, remote_resolvers): (Vec<IpAddr>, Vec<IpAddr>) = dns_servers
+            .iter()
+            .partition(|server| is_local_dns_address(tunnel, server));
 
         for resolver in &local_resolvers {
             self.add_allow_local_dns_rule(&tunnel.interface, protocol, *resolver)?;
@@ -720,23 +687,9 @@ impl<'a> PolicyBatch<'a> {
         host: IpAddr,
     ) -> Result<()> {
         for chain in &[&self.out_chain, &self.forward_chain] {
-            let mut allow_rule = Rule::new(chain);
-            let daddr = match host {
-                IpAddr::V4(_) => nft_expr!(payload ipv4 daddr),
-                IpAddr::V6(_) => nft_expr!(payload ipv6 daddr),
-            };
-
-            check_iface(&mut allow_rule, Direction::Out, interface)?;
-            check_port(&mut allow_rule, protocol, End::Dst, 53);
-            check_l3proto(&mut allow_rule, host);
-
-            allow_rule.add_expr(&daddr);
-            allow_rule.add_expr(&nft_expr!(cmp == host));
-            add_verdict(&mut allow_rule, &Verdict::Accept);
-
+            let allow_rule = allow_tunnel_dns_rule(chain, interface, protocol, host)?;
             self.batch.add(&allow_rule, nftnl::MsgType::Add);
         }
-
         Ok(())
     }
 
@@ -893,6 +846,37 @@ impl<'a> PolicyBatch<'a> {
             self.batch.add(&in_v4, nftnl::MsgType::Add);
         }
     }
+}
+
+fn is_local_dns_address(tunnel: &tunnel::TunnelMetadata, server: &IpAddr) -> bool {
+    super::is_local_address(server)
+        && server != &tunnel.ipv4_gateway
+        && Some(server) != tunnel.ipv6_gateway.map(IpAddr::from).as_ref()
+}
+
+fn allow_tunnel_dns_rule<'a>(
+    chain: &'a Chain<'_>,
+    iface: &str,
+    protocol: TransportProtocol,
+    host: IpAddr,
+) -> Result<Rule<'a>> {
+    let mut rule = Rule::new(chain);
+    check_iface(&mut rule, Direction::Out, iface)?;
+    check_port(&mut rule, protocol, End::Dst, 53);
+
+    let daddr = match host {
+        IpAddr::V4(_) => nft_expr!(payload ipv4 daddr),
+        IpAddr::V6(_) => nft_expr!(payload ipv6 daddr),
+    };
+    if chain.get_table().get_family() == ProtoFamily::Inet {
+        check_l3proto(&mut rule, host);
+    }
+
+    rule.add_expr(&daddr);
+    rule.add_expr(&nft_expr!(cmp == host));
+    add_verdict(&mut rule, &Verdict::Accept);
+
+    Ok(rule)
 }
 
 fn allow_interface_rule<'a>(
