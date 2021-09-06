@@ -88,6 +88,8 @@ const GUI_VERSION = app.getVersion().replace('.0', '');
 /// Mirrors the beta check regex in the daemon. Matches only well formed beta versions
 const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
 
+const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICATION === '1';
+
 const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
 
 enum AppQuitStage {
@@ -588,7 +590,9 @@ class ApplicationMain {
     }
 
     // fetch the latest version info in background
-    void this.fetchLatestVersion();
+    if (!UPDATE_NOTIFICATION_DISABLED) {
+      void this.fetchLatestVersion();
+    }
 
     // reset the reconnect backoff when connection established.
     this.reconnectBackoff.reset();
@@ -929,6 +933,10 @@ class ApplicationMain {
   }
 
   private setLatestVersion(latestVersionInfo: IAppVersionInfo) {
+    if (UPDATE_NOTIFICATION_DISABLED) {
+      return;
+    }
+
     const suggestedIsBeta =
       latestVersionInfo.suggestedUpgrade !== undefined &&
       IS_BETA.test(latestVersionInfo.suggestedUpgrade);

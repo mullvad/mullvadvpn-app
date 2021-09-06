@@ -27,6 +27,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Added possibility to filter locations by provider in the desktop app.
 - Add WireGuard over TCP CLI option for all relays.
+- Add GUI environment variable `MULLVAD_DISABLE_UPDATE_NOTIFICATION`. If set to `1`, GUI
+  notification will be disabled when an update is available.
 
 #### Android
 - Added toggle for Split tunneling view to be able to show system apps
