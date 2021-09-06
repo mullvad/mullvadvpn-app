@@ -345,33 +345,23 @@ impl<'a> PolicyBatch<'a> {
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
 
-        // Allow some DNS requests to pass through the tunnel
+        // Allow select DNS requests to pass through the tunnel
         if let FirewallPolicy::Connected {
             tunnel,
             dns_servers,
             ..
         } = policy
         {
-            let gateway = IpAddr::V4(tunnel.ipv4_gateway);
-            if dns_servers.contains(&gateway) {
-                self.add_nat_tunnel_dns_rule(&tunnel.interface, TransportProtocol::Udp, gateway)?;
-                self.add_nat_tunnel_dns_rule(&tunnel.interface, TransportProtocol::Tcp, gateway)?;
-            }
-
-            if let Some(ref gateway) = tunnel.ipv6_gateway {
-                let gateway = IpAddr::V6(*gateway);
-                if dns_servers.contains(&gateway) {
-                    self.add_nat_tunnel_dns_rule(
-                        &tunnel.interface,
-                        TransportProtocol::Udp,
-                        gateway,
-                    )?;
-                    self.add_nat_tunnel_dns_rule(
-                        &tunnel.interface,
-                        TransportProtocol::Tcp,
-                        gateway,
-                    )?;
-                }
+            for server in dns_servers.iter().filter(|server| {
+                !super::is_local_address(server)
+                    || *server == &tunnel.ipv4_gateway
+                    || tunnel
+                        .ipv6_gateway
+                        .map(|ref gateway| *server == gateway)
+                        .unwrap_or(false)
+            }) {
+                self.add_nat_tunnel_dns_rule(&tunnel.interface, TransportProtocol::Udp, *server)?;
+                self.add_nat_tunnel_dns_rule(&tunnel.interface, TransportProtocol::Tcp, *server)?;
             }
         }
 

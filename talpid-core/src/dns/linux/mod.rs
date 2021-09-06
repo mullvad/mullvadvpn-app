@@ -8,8 +8,12 @@ use self::{
     network_manager::NetworkManager, resolvconf::Resolvconf, static_resolv_conf::StaticResolvConf,
     systemd_resolved::SystemdResolved,
 };
-use crate::routing::RouteManagerHandle;
-use std::{env, fmt, net::IpAddr, path::Path};
+use crate::{
+    firewall::is_local_address,
+    routing::{Node, RequiredRoute, RouteManagerHandle},
+};
+use ipnetwork::IpNetwork;
+use std::{collections::HashSet, env, fmt, net::IpAddr, path::Path};
 
 
 const RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
@@ -38,12 +42,21 @@ pub enum Error {
     /// No suitable DNS monitor implementation detected
     #[error(display = "No suitable DNS monitor implementation detected")]
     NoDnsMonitor,
+
+    /// Invalid DNS servers?
+    #[error(display = "Failed to construct routes for DNS servers")]
+    IpNetworkError(#[error(source)] ipnetwork::IpNetworkError),
+
+    /// Failed to add or remove routes for DNS servers
+    #[error(display = "Failed to update DNS server routes")]
+    RoutingError(crate::routing::Error),
 }
 
 pub struct DnsMonitor {
     route_manager: RouteManagerHandle,
     handle: tokio::runtime::Handle,
     inner: Option<DnsMonitorHolder>,
+    dns_routes: Option<HashSet<RequiredRoute>>,
 }
 
 impl super::DnsMonitorT for DnsMonitor {
@@ -58,11 +71,19 @@ impl super::DnsMonitorT for DnsMonitor {
             route_manager,
             handle,
             inner: None,
+            dns_routes: None,
         })
     }
 
     fn set(&mut self, interface: &str, servers: &[IpAddr]) -> Result<()> {
         self.reset()?;
+
+        let routes = get_dns_routes(interface, servers)?;
+        self.handle
+            .block_on(self.route_manager.add_routes(routes.clone()))
+            .map_err(Error::RoutingError)?;
+        self.dns_routes = Some(routes);
+
         // Creating a new DNS monitor for each set, in case the system changed how it manages DNS.
         let mut inner = DnsMonitorHolder::new()?;
         inner.set(&self.handle, &self.route_manager, interface, servers)?;
@@ -71,6 +92,12 @@ impl super::DnsMonitorT for DnsMonitor {
     }
 
     fn reset(&mut self) -> Result<()> {
+        if let Some(routes) = self.dns_routes.take() {
+            self.handle
+                .block_on(self.route_manager.remove_routes(routes.clone()))
+                .map_err(Error::RoutingError)?;
+        }
+
         if let Some(mut inner) = self.inner.take() {
             inner.reset(&self.handle)?;
         }
@@ -172,4 +199,26 @@ impl DnsMonitorHolder {
 pub fn will_use_nm() -> bool {
     crate::dns::imp::SystemdResolved::new().is_err()
         && crate::dns::imp::NetworkManager::new().is_ok()
+}
+
+fn get_dns_routes(interface: &str, dns_ips: &[IpAddr]) -> Result<HashSet<RequiredRoute>> {
+    let mut routes = HashSet::new();
+    for destination in dns_ips {
+        if !is_local_address(destination) {
+            let prefix = match destination {
+                IpAddr::V4(_) => 32,
+                IpAddr::V6(_) => 128,
+            };
+            routes.insert(
+                crate::routing::RequiredRoute::new(
+                    IpNetwork::new(*destination, prefix)?,
+                    Node::device(interface.to_string()),
+                )
+                .table(u32::from(
+                    netlink_packet_route::rtnl::constants::RT_TABLE_MAIN,
+                )),
+            );
+        }
+    }
+    Ok(routes)
 }
