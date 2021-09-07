@@ -563,6 +563,9 @@ impl<'a> PolicyBatch<'a> {
 
                 if let Some(tunnel) = tunnel {
                     self.add_allow_tunnel_rules(&tunnel.interface)?;
+                    if *allow_lan {
+                        self.add_block_cve_2019_14899(tunnel);
+                    }
                 }
                 *allow_lan
             }
