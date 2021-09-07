@@ -724,19 +724,18 @@ where
         let mut relay_handle = relay_selector.updater_handle();
         let account_token = settings.get_account_token();
         let api_availability_copy = api_availability.clone();
-        runtime.spawn(async move {
-            Self::update_account_validity_status(
-                account_token,
-                api_availability_copy,
-                accounts_proxy_copy,
-            )
-            .await;
-            // Attempt to download a fresh relay list
-            relay_handle
-                .update_relay_list_deferred()
-                .await
-                .expect("Relay list updated thread has stopped unexpectedly");
-        });
+        api_availability_copy.pause();
+        runtime.spawn(Self::update_account_validity_status(
+            account_token,
+            api_availability_copy,
+            accounts_proxy_copy,
+        ));
+
+        // Attempt to download a fresh relay list
+        relay_handle
+            .update_relay_list_deferred()
+            .await
+            .expect("Relay list updated thread has stopped unexpectedly");
 
         let mut daemon = Daemon {
             tunnel_command_tx,
@@ -1487,6 +1486,12 @@ where
         api_availability: availability::ApiAvailabilityHandle,
         accounts_proxy: AccountsProxy,
     ) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
+        use talpid_core::future_retry::{retry_future_with_backoff, ExponentialBackoff, Jittered};
+
+        const RETRY_INTERVAL_INITIAL: Duration = Duration::from_secs(4);
+        const RETRY_INTERVAL_FACTOR: u32 = 5;
+        const RETRY_INTERVAL_MAX: Duration = Duration::from_secs(24 * 60 * 60);
+
         let token = if let Some(token) = token {
             token
         } else {
@@ -1495,27 +1500,48 @@ where
             });
         };
 
-        let when_online = api_availability.wait_online();
-        let expiry_fut = accounts_proxy.get_expiry(token);
+        let retry_strategy = Jittered::jitter(
+            ExponentialBackoff::new(RETRY_INTERVAL_INITIAL, RETRY_INTERVAL_FACTOR)
+                .max_delay(RETRY_INTERVAL_MAX),
+        );
+        let future_generator = move || {
+            let wait_online = api_availability.wait_online();
+            let expiry_fut = accounts_proxy.get_expiry(token.clone());
+            let api_availability_copy = api_availability.clone();
+            async move {
+                let _ = wait_online.await;
+                !Self::handle_expiry_result(&expiry_fut.await, api_availability_copy)
+            }
+        };
+        let should_retry = move |state_was_updated: &bool| -> bool { *state_was_updated };
+        let retry_future =
+            retry_future_with_backoff(future_generator, should_retry, retry_strategy);
         Box::pin(async move {
-            let _ = when_online.await;
-            Self::handle_expiry_result(&expiry_fut.await, api_availability)
+            retry_future.await;
         })
     }
 
     fn handle_expiry_result(
         result: &Result<chrono::DateTime<chrono::Utc>, mullvad_rpc::rest::Error>,
         api_availability: availability::ApiAvailabilityHandle,
-    ) {
+    ) -> bool {
         match result {
-            Ok(_expiry) if *_expiry >= chrono::Utc::now() => api_availability.resume(),
-            Ok(_expiry) => api_availability.pause(),
+            Ok(_expiry) if *_expiry >= chrono::Utc::now() => {
+                api_availability.resume();
+                true
+            }
+            Ok(_expiry) => {
+                api_availability.pause();
+                true
+            }
             Err(mullvad_rpc::rest::Error::ApiError(_status, code)) => {
                 if code == mullvad_rpc::INVALID_ACCOUNT || code == mullvad_rpc::INVALID_AUTH {
                     api_availability.pause();
+                    return true;
                 }
+                false
             }
-            Err(_) => (),
+            Err(_) => false,
         }
     }
 
