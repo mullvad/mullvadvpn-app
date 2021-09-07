@@ -148,6 +148,7 @@ class ApplicationMain {
         },
         wireguardConstraints: {
           port: 'any',
+          ipVersion: 'any',
         },
       },
     },

@@ -1157,12 +1157,24 @@ function convertFromOpenVpnConstraints(
 function convertFromWireguardConstraints(
   constraints: grpcTypes.WireguardConstraints,
 ): IWireguardConstraints {
-  const transportPort = convertFromConstraint(constraints.getPort());
-  if (transportPort !== 'any' && 'only' in transportPort) {
-    const port = convertFromConstraint(transportPort.only.getPort());
-    return { port };
+  const result: IWireguardConstraints = { port: 'any', ipVersion: 'any' };
+
+  const port = constraints.getPort()?.getPort();
+  if (port) {
+    result.port = { only: port };
   }
-  return { port: 'any' };
+
+  const ipVersion = constraints.getIpVersion()?.getProtocol();
+  switch (ipVersion) {
+    case grpcTypes.IpVersion.V4:
+      result.ipVersion = { only: 'ipv4' };
+      break;
+    case grpcTypes.IpVersion.V6:
+      result.ipVersion = { only: 'ipv6' };
+      break;
+  }
+
+  return result;
 }
 
 function convertFromTunnelTypeConstraint(
@@ -1265,6 +1277,7 @@ function convertToWireguardConstraints(
 ): grpcTypes.WireguardConstraints | undefined {
   if (constraint) {
     const wireguardConstraints = new grpcTypes.WireguardConstraints();
+
     const port = liftConstraint(constraint.port);
     if (port) {
       const portConstraints = new grpcTypes.TransportPort();
@@ -1272,6 +1285,16 @@ function convertToWireguardConstraints(
       portConstraints.setProtocol(grpcTypes.TransportProtocol.UDP);
       wireguardConstraints.setPort(portConstraints);
     }
+
+    const ipVersion = liftConstraint(constraint.ipVersion);
+    if (ipVersion) {
+      const ipVersionProtocol =
+        ipVersion === 'ipv4' ? grpcTypes.IpVersion.V4 : grpcTypes.IpVersion.V6;
+      const ipVersionConstraints = new grpcTypes.IpVersionConstraint();
+      ipVersionConstraints.setProtocol(ipVersionProtocol);
+      wireguardConstraints.setIpVersion(ipVersionConstraints);
+    }
+
     return wireguardConstraints;
   }
   return undefined;
