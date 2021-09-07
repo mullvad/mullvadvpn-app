@@ -288,20 +288,6 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    async fn remove_required_routes(
-        &mut self,
-        required_routes: HashSet<RequiredRoute>,
-    ) -> Result<()> {
-        let routes = required_routes.into_iter().map(|route| match route.node {
-            NetNode::RealNode(node) => Route::new(node, route.prefix).table(route.table_id),
-        });
-        for route in routes {
-            self.delete_route_if_exists(&route).await?;
-            self.added_routes.remove(&route);
-        }
-        Ok(())
-    }
-
     async fn initialize_link_map(
         handle: &rtnetlink::Handle,
     ) -> Result<BTreeMap<u32, NetworkInterface>> {
@@ -368,11 +354,7 @@ impl RouteManagerImpl {
             }
             RouteManagerCommand::AddRoutes(routes, result_tx) => {
                 log::debug!("Adding routes: {:?}", routes);
-                let _ = result_tx.send(self.add_required_routes(routes).await);
-            }
-            RouteManagerCommand::DelRoutes(routes, result_tx) => {
-                log::debug!("Removing routes: {:?}", routes);
-                let _ = result_tx.send(self.remove_required_routes(routes).await);
+                let _ = result_tx.send(self.add_required_routes(routes.clone()).await);
             }
             RouteManagerCommand::CreateRoutingRules(enable_ipv6, result_tx) => {
                 let _ = result_tx.send(self.create_routing_rules(enable_ipv6).await);
