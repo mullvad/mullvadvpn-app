@@ -67,7 +67,7 @@ Line wrap the file at 100 chars.                                              Th
 - Make offline monitor aware of routing table changes.
 - Assign local DNS servers to more appropriate interfaces when using systemd-resolved.
 - Disable DNS over TLS for tunnel's DNS config when using systemd-resolved.
-- Fix DNS when combining static resolv.conf with ad blocking DNS.
+- Fix DNS when combining a static resolv.conf with ad blocking DNS.
 
 #### Windows
 - Fix failure to restart the daemon when resuming from "fast startup" hibernation.
