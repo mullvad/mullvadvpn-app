@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { IpVersion } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import RelaySettingsBuilder from '../../shared/relay-settings-builder';
 import WireguardSettings from '../components/WireguardSettings';
@@ -21,7 +22,13 @@ const mapStateToProps = (state: IReduxState) => {
 const mapRelaySettingsToProtocolAndPort = (relaySettings: RelaySettingsRedux) => {
   if ('normal' in relaySettings) {
     const port = relaySettings.normal.wireguard.port;
-    return { wireguard: { port: port === 'any' ? undefined : port } };
+    const ipVersion = relaySettings.normal.wireguard.ipVersion;
+    return {
+      wireguard: {
+        port: port === 'any' ? undefined : port,
+        ipVersion: ipVersion === 'any' ? undefined : ipVersion,
+      },
+    };
     // since the GUI doesn't display custom settings, just display the default ones.
     // If the user sets any settings, then those will be applied.
   } else if ('customTunnelEndpoint' in relaySettings) {
@@ -39,13 +46,19 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
       props.history.pop();
     },
 
-    setWireguardRelayPort: async (port?: number) => {
+    setWireguardRelayPortAndIpVersion: async (port?: number, ipVersion?: IpVersion) => {
       const relayUpdate = RelaySettingsBuilder.normal()
         .tunnel.wireguard((wireguard) => {
           if (port) {
             wireguard.port.exact(port);
           } else {
             wireguard.port.any();
+          }
+
+          if (ipVersion) {
+            wireguard.ipVersion.exact(ipVersion);
+          } else {
+            wireguard.ipVersion.any();
           }
         })
         .build();
