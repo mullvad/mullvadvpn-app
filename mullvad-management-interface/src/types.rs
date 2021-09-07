@@ -1215,3 +1215,11 @@ fn convert_providers_constraint(
         Constraint::Only(providers) => Vec::from(providers.clone()),
     }
 }
+
+impl From<FromProtobufTypeError> for crate::Status {
+    fn from(err: FromProtobufTypeError) -> Self {
+        match err {
+            FromProtobufTypeError::InvalidArgument(err) => crate::Status::invalid_argument(err),
+        }
+    }
+}
