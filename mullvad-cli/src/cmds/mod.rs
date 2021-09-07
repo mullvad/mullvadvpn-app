@@ -28,6 +28,9 @@ pub use self::dns::Dns;
 mod lan;
 pub use self::lan::Lan;
 
+mod obfuscation;
+pub use self::obfuscation::Obfuscation;
+
 mod reconnect;
 pub use self::reconnect::Reconnect;
 
@@ -64,6 +67,7 @@ pub fn get_commands() -> HashMap<&'static str, Box<dyn Command>> {
         Box::new(Dns),
         Box::new(Reconnect),
         Box::new(Lan),
+        Box::new(Obfuscation),
         Box::new(Relay),
         Box::new(Reset),
         #[cfg(any(target_os = "linux", windows))]

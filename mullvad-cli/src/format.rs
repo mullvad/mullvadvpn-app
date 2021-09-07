@@ -5,7 +5,8 @@ use mullvad_management_interface::types::{
     },
     tunnel_state,
     tunnel_state::State::*,
-    ErrorState, ProxyType, TransportProtocol, TunnelEndpoint, TunnelState, TunnelType,
+    ErrorState, ObfuscationType, ProxyType, TransportProtocol, TunnelEndpoint, TunnelState,
+    TunnelType,
 };
 use mullvad_types::auth_failed::AuthFailed;
 use std::fmt::Write;
@@ -78,6 +79,24 @@ fn format_endpoint(endpoint: &TunnelEndpoint) -> String {
                     entry_endpoint.address,
                     format_protocol(
                         TransportProtocol::from_i32(entry_endpoint.protocol)
+                            .expect("invalid transport protocol")
+                    )
+                )
+                .unwrap();
+            }
+            if let Some(ref obfuscation) = endpoint.obfuscation {
+                write!(
+                    &mut out,
+                    " via {} {}:{} over {}",
+                    match ObfuscationType::from_i32(obfuscation.obfuscation_type)
+                        .expect("invalid obfuscation type")
+                    {
+                        ObfuscationType::Udp2tcp => "Udp2Tcp",
+                    },
+                    obfuscation.address,
+                    obfuscation.port,
+                    format_protocol(
+                        TransportProtocol::from_i32(obfuscation.protocol)
                             .expect("invalid transport protocol")
                     )
                 )
