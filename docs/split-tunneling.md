@@ -28,7 +28,7 @@ excluded, DNS lookups **will fail** in the connecting, disconnecting, and error
 Some definitions of terms used later to describe behavior:
 
 * **In tunnel** - DNS requests are sent in the VPN tunnel. Firewall rules ensure they
-    are not allowed outside the tunnel*.
+    are not allowed outside the tunnel for non-excluded apps*.
 * **Outside tunnel** - DNS requests are sent outside the VPN tunnel. Firewall rules ensure
     they cannot go inside the tunnel*.
 * **LAN** - Same as **Outside tunnel** with the addition that the firewall rules ensure
@@ -55,9 +55,9 @@ In other words: Normal and excluded processes always behave the same. This is be
 typically handled by a service, e.g. DNS cache on Windows or systemd-resolved's resolver on Linux,
 which is not an excluded process.
 
-For the sake of simplicity and consistency, public custom DNS is also sent *in tunnel* when using a
-plain old static `resolv.conf`, even though it is technically possible to exclude public custom DNS
-in that case.
+For the sake of simplicity and consistency, requests to public custom DNS resolvers are also sent
+inside the tunnel when using a plain old static `resolv.conf`, even though it is technically
+possible to exclude public custom DNS in that case.
 
 ### Android
 
