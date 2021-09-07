@@ -169,11 +169,7 @@ impl ManagementService for ManagementServiceImpl {
         log::debug!("update_relay_settings");
         let (tx, rx) = oneshot::channel();
         let constraints_update =
-            RelaySettingsUpdate::try_from(request.into_inner()).map_err(|error| match error {
-                types::FromProtobufTypeError::InvalidArgument(error) => {
-                    Status::invalid_argument(error)
-                }
-            })?;
+            RelaySettingsUpdate::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
 
         let message = DaemonCommand::UpdateRelaySettings(tx, constraints_update);
         self.send_command_to_daemon(message)?;
@@ -229,11 +225,7 @@ impl ManagementService for ManagementServiceImpl {
         request: Request<types::BridgeSettings>,
     ) -> ServiceResult<()> {
         let settings =
-            BridgeSettings::try_from(request.into_inner()).map_err(|error| match error {
-                types::FromProtobufTypeError::InvalidArgument(error) => {
-                    Status::invalid_argument(error)
-                }
-            })?;
+            BridgeSettings::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
 
         log::debug!("set_bridge_settings({:?})", settings);
 
@@ -247,11 +239,7 @@ impl ManagementService for ManagementServiceImpl {
 
     async fn set_bridge_state(&self, request: Request<types::BridgeState>) -> ServiceResult<()> {
         let bridge_state =
-            BridgeState::try_from(request.into_inner()).map_err(|error| match error {
-                types::FromProtobufTypeError::InvalidArgument(error) => {
-                    Status::invalid_argument(error)
-                }
-            })?;
+            BridgeState::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
 
         log::debug!("set_bridge_state({:?})", bridge_state);
         let (tx, rx) = oneshot::channel();
@@ -362,9 +350,7 @@ impl ManagementService for ManagementServiceImpl {
 
     #[cfg(not(target_os = "android"))]
     async fn set_dns_options(&self, request: Request<types::DnsOptions>) -> ServiceResult<()> {
-        let options = DnsOptions::try_from(request.into_inner()).map_err(|error| match error {
-            types::FromProtobufTypeError::InvalidArgument(error) => Status::invalid_argument(error),
-        })?;
+        let options = DnsOptions::try_from(request.into_inner()).map_err(map_protobuf_type_err)?;
         log::debug!("set_dns_options({:?})", options);
 
         let (tx, rx) = oneshot::channel();
@@ -949,5 +935,11 @@ fn map_account_history_error(error: account_history::Error) -> Status {
         account_history::Error::Serialize(..) | account_history::Error::WriteCancelled(..) => {
             Status::new(Code::Internal, error.to_string())
         }
+    }
+}
+
+fn map_protobuf_type_err(err: types::FromProtobufTypeError) -> Status {
+    match err {
+        types::FromProtobufTypeError::InvalidArgument(err) => Status::invalid_argument(err),
     }
 }
