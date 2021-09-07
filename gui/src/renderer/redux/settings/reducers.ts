@@ -8,6 +8,7 @@ import {
   RelayProtocol,
   TunnelProtocol,
   IDnsOptions,
+  IpVersion,
 } from '../../../shared/daemon-rpc-types';
 import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import log from '../../../shared/logging';
@@ -25,6 +26,7 @@ export type RelaySettingsRedux =
         };
         wireguard: {
           port: LiftedConstraint<number>;
+          ipVersion: LiftedConstraint<IpVersion>;
         };
       };
     }
@@ -159,7 +161,7 @@ const initialState: ISettingsReduxState = {
       location: 'any',
       tunnelProtocol: 'any',
       providers: [],
-      wireguard: { port: 'any' },
+      wireguard: { port: 'any', ipVersion: 'any' },
       openvpn: {
         port: 'any',
         protocol: 'any',
