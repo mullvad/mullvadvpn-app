@@ -130,9 +130,12 @@ export interface IOpenVpnConstraints {
 
 export interface IWireguardConstraints {
   port: Constraint<number>;
+  ipVersion: Constraint<IpVersion>;
 }
 
 export type TunnelProtocol = 'wireguard' | 'openvpn';
+
+export type IpVersion = 'ipv4' | 'ipv6';
 
 interface IRelaySettingsNormal<OpenVpn, Wireguard> {
   location: Constraint<RelayLocation>;
