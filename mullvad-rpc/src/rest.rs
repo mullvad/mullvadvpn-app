@@ -1,6 +1,6 @@
 use crate::{
-    address_cache::AddressCache, availability, https_client_with_sni::HttpsConnectorWithSni,
-    tcp_stream::TcpStreamHandle,
+    address_cache::AddressCache, availability::ApiAvailabilityHandle,
+    https_client_with_sni::HttpsConnectorWithSni, tcp_stream::TcpStreamHandle,
 };
 use futures::{
     channel::{mpsc, oneshot},
@@ -85,7 +85,7 @@ pub(crate) struct RequestService {
     handle: Handle,
     next_id: u64,
     in_flight_requests: BTreeMap<u64, AbortHandle>,
-    api_availability: availability::ApiAvailabilityHandle,
+    api_availability: ApiAvailabilityHandle,
     address_cache: AddressCache,
 }
 
@@ -94,7 +94,7 @@ impl RequestService {
     pub fn new(
         mut connector: HttpsConnectorWithSni,
         handle: Handle,
-        api_availability: availability::ApiAvailabilityHandle,
+        api_availability: ApiAvailabilityHandle,
         address_cache: AddressCache,
     ) -> RequestService {
         let (command_tx, command_rx) = mpsc::channel(1);
@@ -603,7 +603,7 @@ pub async fn handle_error_response<T>(response: Response) -> Result<T> {
 pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub factory: RequestFactory,
-    availability: availability::ApiAvailabilityHandle,
+    availability: ApiAvailabilityHandle,
 }
 
 impl MullvadRestHandle {
@@ -611,7 +611,7 @@ impl MullvadRestHandle {
         service: RequestServiceHandle,
         factory: RequestFactory,
         address_cache: AddressCache,
-        availability: availability::ApiAvailabilityHandle,
+        availability: ApiAvailabilityHandle,
     ) -> Self {
         let handle = Self {
             service,
