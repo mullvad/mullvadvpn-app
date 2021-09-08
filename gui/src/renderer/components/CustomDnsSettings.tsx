@@ -58,17 +58,20 @@ export default function CustomDnsSettings() {
     setConfirmAction(undefined);
   }, [confirmAction]);
 
-  const setCustomDnsEnabled = useCallback(async (enabled: boolean) => {
-    if (dns.customOptions.addresses.length > 0) {
-      await setDnsOptions({ ...dns, state: enabled ? 'custom' : 'default' });
-    }
-    if (enabled && dns.customOptions.addresses.length === 0) {
-      showInput();
-    }
-    if (!enabled) {
-      hideInput();
-    }
-  }, []);
+  const setCustomDnsEnabled = useCallback(
+    async (enabled: boolean) => {
+      if (dns.customOptions.addresses.length > 0) {
+        await setDnsOptions({ ...dns, state: enabled ? 'custom' : 'default' });
+      }
+      if (enabled && dns.customOptions.addresses.length === 0) {
+        showInput();
+      }
+      if (!enabled) {
+        hideInput();
+      }
+    },
+    [dns],
+  );
 
   // The input field should be hidden when it loses focus unless something on the same row or the
   // add-button is the new focused element.
