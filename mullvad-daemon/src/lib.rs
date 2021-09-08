@@ -25,7 +25,7 @@ use futures::{
     SinkExt, StreamExt,
 };
 use log::{debug, error, info, warn};
-use mullvad_rpc::{availability, AccountsProxy};
+use mullvad_rpc::{availability::ApiAvailabilityHandle, AccountsProxy};
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     endpoint::MullvadEndpoint,
@@ -525,7 +525,7 @@ pub struct Daemon<L: EventListener> {
     /// oneshot channel that completes once the tunnel state machine has been shut down
     tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
     cache_dir: PathBuf,
-    api_availability: availability::ApiAvailabilityHandle,
+    api_availability: ApiAvailabilityHandle,
 }
 
 impl<L> Daemon<L>
@@ -1483,7 +1483,7 @@ where
 
     fn update_account_validity_status(
         token: Option<String>,
-        api_availability: availability::ApiAvailabilityHandle,
+        api_availability: ApiAvailabilityHandle,
         accounts_proxy: AccountsProxy,
     ) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
         use talpid_core::future_retry::{retry_future_with_backoff, ExponentialBackoff, Jittered};
@@ -1523,7 +1523,7 @@ where
 
     fn handle_expiry_result(
         result: &Result<chrono::DateTime<chrono::Utc>, mullvad_rpc::rest::Error>,
-        api_availability: availability::ApiAvailabilityHandle,
+        api_availability: ApiAvailabilityHandle,
     ) -> bool {
         match result {
             Ok(_expiry) if *_expiry >= chrono::Utc::now() => {
@@ -2455,7 +2455,7 @@ where
 
     async fn forward_offline_state(
         runtime: &tokio::runtime::Handle,
-        api_availability: availability::ApiAvailabilityHandle,
+        api_availability: ApiAvailabilityHandle,
         mut offline_state_rx: mpsc::UnboundedReceiver<bool>,
     ) {
         let initial_state = offline_state_rx
