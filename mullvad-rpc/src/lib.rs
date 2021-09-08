@@ -19,6 +19,7 @@ use talpid_types::{net::wireguard, ErrorExt};
 
 
 pub mod availability;
+use availability::{ApiAvailability, ApiAvailabilityHandle};
 pub mod rest;
 
 mod https_client_with_sni;
@@ -82,7 +83,7 @@ impl MullvadRpcRuntime {
                 None,
                 Arc::new(Box::new(|_| Ok(()))),
             )?,
-            api_availability: availability::ApiAvailability::new(availability::State::default()),
+            api_availability: ApiAvailability::new(availability::State::default()),
             #[cfg(target_os = "android")]
             socket_bypass_tx: None,
         })
@@ -148,7 +149,7 @@ impl MullvadRpcRuntime {
         Ok(MullvadRpcRuntime {
             handle: handle.clone(),
             address_cache,
-            api_availability: availability::ApiAvailability::new(availability::State::default()),
+            api_availability: ApiAvailability::new(availability::State::default()),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })
@@ -200,7 +201,7 @@ impl MullvadRpcRuntime {
         &mut self.handle
     }
 
-    pub fn availability_handle(&self) -> availability::ApiAvailabilityHandle {
+    pub fn availability_handle(&self) -> ApiAvailabilityHandle {
         self.api_availability.handle()
     }
 }
