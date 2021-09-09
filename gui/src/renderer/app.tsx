@@ -935,7 +935,9 @@ export default class AppRenderer {
       this.setLocation(tunnelState.details.location);
     } else if (tunnelState.state === 'connecting') {
       this.setLocation(this.getLocationFromConstraints());
-    } else if (tunnelState.state === 'connected' || tunnelState.state === 'disconnected') {
+    }
+
+    if (tunnelState.state === 'connected' || tunnelState.state === 'disconnected') {
       const location = await this.fetchLocation();
       if (location) {
         this.setLocation(location);
