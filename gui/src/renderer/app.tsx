@@ -731,6 +731,9 @@ export default class AppRenderer {
     log.debug(`Tunnel state: ${tunnelState.state}`);
 
     this.tunnelState = tunnelState;
+    // The main process doesn't notify the tunnel state while waiting for a new one (unless it times
+    // out). Therefore the first tunnel state update will be the one we're waiting for.
+    this.optimisticTunnelState = undefined;
 
     switch (tunnelState.state) {
       case 'connecting':
