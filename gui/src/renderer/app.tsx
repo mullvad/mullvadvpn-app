@@ -917,35 +917,40 @@ export default class AppRenderer {
   }
 
   private async updateLocation(tunnelState = this.tunnelState) {
-    if (
-      (tunnelState.state === 'disconnected' || tunnelState.state === 'disconnecting') &&
-      this.lastDisconnectedLocation
-    ) {
-      // If we have a previous location for the disconnected state we use that when disconnecting and
-      // during the location fetch while disconnected.
-      this.setLocation(this.lastDisconnectedLocation);
-    } else if (tunnelState.state === 'disconnecting') {
-      // If there's no previous location while disconnecting we remove the location. We keep the
-      // coordinates to prevent the map from jumping around.
-      const { longitude, latitude } = this.reduxStore.getState().connection;
-      this.setLocation({ longitude, latitude });
-    }
-
-    if (
-      (tunnelState.state === 'connected' || tunnelState.state === 'connecting') &&
-      tunnelState.details?.location
-    ) {
-      this.setLocation(tunnelState.details.location);
-    } else if (tunnelState.state === 'connecting') {
-      this.setLocation(this.getLocationFromConstraints());
-    } else if (tunnelState.state === 'connected' || tunnelState.state === 'disconnected') {
-      const location = await this.fetchLocation();
-      if (location) {
-        this.setLocation(location);
-        // Cache the user location
-        if (tunnelState.state === 'disconnected') {
+    switch (tunnelState.state) {
+      case 'disconnected': {
+        if (this.lastDisconnectedLocation) {
+          this.setLocation(this.lastDisconnectedLocation);
+        }
+        const location = await this.fetchLocation();
+        if (location) {
+          this.setLocation(location);
           this.lastDisconnectedLocation = location;
         }
+        break;
+      }
+      case 'disconnecting':
+        if (this.lastDisconnectedLocation) {
+          this.setLocation(this.lastDisconnectedLocation);
+        } else {
+          // If there's no previous location while disconnecting we remove the location. We keep the
+          // coordinates to prevent the map from jumping around.
+          const { longitude, latitude } = this.reduxStore.getState().connection;
+          this.setLocation({ longitude, latitude });
+        }
+        break;
+      case 'connecting':
+        this.setLocation(tunnelState.details?.location ?? this.getLocationFromConstraints());
+        break;
+      case 'connected': {
+        if (tunnelState.details?.location) {
+          this.setLocation(tunnelState.details.location);
+        }
+        const location = await this.fetchLocation();
+        if (location) {
+          this.setLocation(location);
+        }
+        break;
       }
     }
   }
