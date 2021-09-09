@@ -68,6 +68,8 @@ Line wrap the file at 100 chars.                                              Th
 - Fix incorrect location and connection status while disconnecting and incorrect location in the
   beginning while connecting in the desktop app.
 - Improve responsiveness of the controls and status text in the main view in the desktop app.
+- Read macOS scrollbar visibility settings to decide wheter or not the scrollbars should hide when
+  not scrolling.
 
 #### Linux
 - Make offline monitor aware of routing table changes.
