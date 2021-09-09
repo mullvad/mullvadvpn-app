@@ -1,3 +1,4 @@
+import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
 import { LocationScope } from './reducers';
 
 export interface IUpdateLocaleAction {
@@ -35,6 +36,11 @@ export interface IRemoveScrollPosition {
   path: string;
 }
 
+export interface ISetMacOsScrollbarVisibility {
+  type: 'SET_MACOS_SCROLLBAR_VISIBILITY';
+  visibility: MacOsScrollbarVisibility;
+}
+
 export type UserInterfaceAction =
   | IUpdateLocaleAction
   | IUpdateWindowArrowPositionAction
@@ -42,7 +48,8 @@ export type UserInterfaceAction =
   | ISetLocationScopeAction
   | ISetWindowFocusedAction
   | IAddScrollPosition
-  | IRemoveScrollPosition;
+  | IRemoveScrollPosition
+  | ISetMacOsScrollbarVisibility;
 
 function updateLocale(locale: string): IUpdateLocaleAction {
   return {
@@ -93,6 +100,15 @@ function removeScrollPosition(path: string): IRemoveScrollPosition {
   };
 }
 
+function setMacOsScrollbarVisibility(
+  visibility: MacOsScrollbarVisibility,
+): ISetMacOsScrollbarVisibility {
+  return {
+    type: 'SET_MACOS_SCROLLBAR_VISIBILITY',
+    visibility,
+  };
+}
+
 export default {
   updateLocale,
   updateWindowArrowPosition,
@@ -101,4 +117,5 @@ export default {
   setWindowFocused,
   addScrollPosition,
   removeScrollPosition,
+  setMacOsScrollbarVisibility,
 };
