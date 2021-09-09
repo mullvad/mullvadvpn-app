@@ -6,7 +6,7 @@ import { messages } from '../../shared/gettext';
 import { IRelayLocationRedux } from '../redux/settings/reducers';
 import { LocationScope } from '../redux/userinterface/reducers';
 import BridgeLocations, { SpecialBridgeLocationType } from './BridgeLocations';
-import CustomScrollbars from './CustomScrollbars';
+import { CustomScrollbarsRef } from './CustomScrollbars';
 import ExitLocations from './ExitLocations';
 import ImageView from './ImageView';
 import { Layout } from './Layout';
@@ -66,7 +66,7 @@ interface ISelectLocationSnapshot {
 export default class SelectLocation extends React.Component<IProps, IState> {
   public state = { showFilterMenu: false, headingHeight: 0 };
 
-  private scrollView = React.createRef<CustomScrollbars>();
+  private scrollView = React.createRef<CustomScrollbarsRef>();
   private spacePreAllocationViewRef = React.createRef<SpacePreAllocationView>();
   private selectedExitLocationRef = React.createRef<React.ReactInstance>();
   private selectedBridgeLocationRef = React.createRef<React.ReactInstance>();
