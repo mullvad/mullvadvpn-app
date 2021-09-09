@@ -1,3 +1,4 @@
+import { MacOsScrollbarVisibility } from '../../../shared/ipc-schema';
 import { ReduxAction } from '../store';
 
 export enum LocationScope {
@@ -12,6 +13,7 @@ export interface IUserInterfaceReduxState {
   locationScope: LocationScope;
   windowFocused: boolean;
   scrollPosition: Record<string, [number, number]>;
+  macOsScrollbarVisibility?: MacOsScrollbarVisibility;
 }
 
 const initialState: IUserInterfaceReduxState = {
@@ -20,6 +22,7 @@ const initialState: IUserInterfaceReduxState = {
   locationScope: LocationScope.relay,
   windowFocused: false,
   scrollPosition: {},
+  macOsScrollbarVisibility: undefined,
 };
 
 export default function (
@@ -53,6 +56,9 @@ export default function (
       delete scrollPosition[action.path];
       return { ...state, scrollPosition };
     }
+
+    case 'SET_MACOS_SCROLLBAR_VISIBILITY':
+      return { ...state, macOsScrollbarVisibility: action.visibility };
 
     default:
       return state;

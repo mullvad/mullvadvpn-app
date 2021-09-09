@@ -4,6 +4,7 @@ import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
 
 import AppRouter from './components/AppRouter';
+import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AppContext } from './context';
 
@@ -203,6 +204,10 @@ export default class AppRenderer {
       this.reduxActions.userInterface.setWindowFocused(focus);
     });
 
+    IpcRendererEventChannel.window.listenMacOsScrollbarVisibility((visibility) => {
+      this.reduxActions.userInterface.setMacOsScrollbarVisibility(visibility);
+    });
+
     IpcRendererEventChannel.navigation.listenReset(() => this.history.dismiss(true));
 
     // Request the initial state from the main process
@@ -236,6 +241,12 @@ export default class AppRenderer {
     this.setGuiSettings(initialState.guiSettings);
     this.storeAutoStart(initialState.autoStart);
     this.setWireguardPublicKey(initialState.wireguardPublicKey);
+
+    if (initialState.macOsScrollbarVisibility !== undefined) {
+      this.reduxActions.userInterface.setMacOsScrollbarVisibility(
+        initialState.macOsScrollbarVisibility,
+      );
+    }
 
     if (initialState.isConnected) {
       void this.onDaemonConnected();
