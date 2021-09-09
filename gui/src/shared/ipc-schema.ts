@@ -39,6 +39,12 @@ export interface IRelayListPair {
 
 export type LaunchApplicationResult = { success: true } | { error: string };
 
+export enum MacOsScrollbarVisibility {
+  always,
+  whenScrolling,
+  automatic,
+}
+
 export interface IAppStateSnapshot {
   isConnected: boolean;
   autoStart: boolean;
@@ -53,6 +59,7 @@ export interface IAppStateSnapshot {
   wireguardPublicKey?: IWireguardPublicKey;
   translations: ITranslations;
   windowsSplitTunnelingApplications?: IApplication[];
+  macOsScrollbarVisibility?: MacOsScrollbarVisibility;
 }
 
 // The different types of requests are:
@@ -101,6 +108,7 @@ export const ipcSchema = {
   window: {
     shape: notifyRenderer<IWindowShapeParameters>(),
     focus: notifyRenderer<boolean>(),
+    macOsScrollbarVisibility: notifyRenderer<MacOsScrollbarVisibility>(),
   },
   navigation: {
     reset: notifyRenderer<void>(),
