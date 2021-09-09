@@ -276,6 +276,7 @@ export default class AppRenderer {
           <Router history={this.history.asHistory}>
             <ErrorBoundary>
               <AppRouter />
+              {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
             </ErrorBoundary>
           </Router>
         </Provider>
