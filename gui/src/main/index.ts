@@ -1032,7 +1032,7 @@ class ApplicationMain {
 
   private registerWindowListener(windowController: WindowController) {
     windowController.window?.on('focus', () => {
-      IpcMainEventChannel.windowFocus.notify(windowController.webContents, true);
+      IpcMainEventChannel.window.notifyFocus(windowController.webContents, true);
 
       this.blurNavigationResetScheduler.cancel();
 
@@ -1049,7 +1049,7 @@ class ApplicationMain {
     });
 
     windowController.window?.on('blur', () => {
-      IpcMainEventChannel.windowFocus.notify(windowController.webContents, false);
+      IpcMainEventChannel.window.notifyFocus(windowController.webContents, false);
 
       // ensure notification guard is reset
       this.notificationController.resetTunnelStateAnnouncements();

@@ -132,7 +132,7 @@ export default class AppRenderer {
     log.addOutput(new ConsoleOutput(LogLevel.debug));
     log.addOutput(new IpcOutput(LogLevel.debug));
 
-    IpcRendererEventChannel.windowShape.listen((windowShapeParams) => {
+    IpcRendererEventChannel.window.listenShape((windowShapeParams) => {
       if (typeof windowShapeParams.arrowPosition === 'number') {
         this.reduxActions.userInterface.updateWindowArrowPosition(windowShapeParams.arrowPosition);
       }
@@ -199,7 +199,7 @@ export default class AppRenderer {
       this.reduxActions.settings.setSplitTunnelingApplications(applications);
     });
 
-    IpcRendererEventChannel.windowFocus.listen((focus: boolean) => {
+    IpcRendererEventChannel.window.listenFocus((focus: boolean) => {
       this.reduxActions.userInterface.setWindowFocused(focus);
     });
 

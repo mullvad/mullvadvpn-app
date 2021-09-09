@@ -98,11 +98,9 @@ export const ipcSchema = {
   state: {
     get: invokeSync<void, IAppStateSnapshot>(),
   },
-  windowShape: {
-    '': notifyRenderer<IWindowShapeParameters>(),
-  },
-  windowFocus: {
-    '': notifyRenderer<boolean>(),
+  window: {
+    shape: notifyRenderer<IWindowShapeParameters>(),
+    focus: notifyRenderer<boolean>(),
   },
   navigation: {
     reset: notifyRenderer<void>(),
