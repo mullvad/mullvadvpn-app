@@ -6,7 +6,7 @@ import { useHistory } from '../lib/history';
 import { useCombinedRefs } from '../lib/utilityHooks';
 import { useSelector } from '../redux/store';
 import userInterface from '../redux/userinterface/actions';
-import CustomScrollbars, { IScrollEvent } from './CustomScrollbars';
+import CustomScrollbars, { CustomScrollbarsRef, IScrollEvent } from './CustomScrollbars';
 import {
   StyledBackBarItemButton,
   StyledBackBarItemIcon,
@@ -112,12 +112,12 @@ interface INavigationScrollbarsProps {
 
 export const NavigationScrollbars = React.forwardRef(function NavigationScrollbarsT(
   props: INavigationScrollbarsProps,
-  forwardedRef?: React.Ref<CustomScrollbars>,
+  forwardedRef?: React.Ref<CustomScrollbarsRef>,
 ) {
   const history = useHistory();
   const { onScroll } = useContext(NavigationScrollContext);
 
-  const ref = useRef<CustomScrollbars>();
+  const ref = useRef<CustomScrollbarsRef>();
   const combinedRefs = useCombinedRefs(forwardedRef, ref);
 
   const { addScrollPosition, removeScrollPosition } = useActions(userInterface);

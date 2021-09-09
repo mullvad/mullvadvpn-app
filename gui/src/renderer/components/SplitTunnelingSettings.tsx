@@ -11,7 +11,7 @@ import { IReduxState } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import CustomScrollbars from './CustomScrollbars';
+import { CustomScrollbarsRef } from './CustomScrollbars';
 import ImageView from './ImageView';
 import { Layout } from './Layout';
 import { ModalContainer, ModalAlert, ModalAlertType } from './Modal';
@@ -50,7 +50,7 @@ import {
 export default function SplitTunneling() {
   const { pop } = useHistory();
   const [browsing, setBrowsing] = useState(false);
-  const scrollbarsRef = useRef() as React.RefObject<CustomScrollbars>;
+  const scrollbarsRef = useRef() as React.RefObject<CustomScrollbarsRef>;
 
   const scrollToTop = useCallback(() => scrollbarsRef.current?.scrollToTop(true), [scrollbarsRef]);
 
