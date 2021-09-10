@@ -5,7 +5,7 @@
 extern crate serde;
 
 
-mod account_check;
+mod account;
 pub mod account_history;
 pub mod exception_logging;
 mod geoip;
@@ -26,7 +26,7 @@ use futures::{
     SinkExt, StreamExt,
 };
 use log::{debug, error, info, warn};
-use mullvad_rpc::{availability::ApiAvailabilityHandle, AccountsProxy};
+use mullvad_rpc::availability::ApiAvailabilityHandle;
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     endpoint::MullvadEndpoint,
@@ -513,8 +513,7 @@ pub struct Daemon<L: EventListener> {
     event_listener: L,
     settings: SettingsPersister,
     account_history: account_history::AccountHistory,
-    accounts_proxy: AccountsProxy,
-    account_checker: account_check::AccountCheckerHandle,
+    account: account::AccountHandle,
     rpc_runtime: mullvad_rpc::MullvadRpcRuntime,
     rpc_handle: mullvad_rpc::rest::MullvadRestHandle,
     wireguard_key_manager: wireguard::KeyManager,
@@ -527,7 +526,6 @@ pub struct Daemon<L: EventListener> {
     /// oneshot channel that completes once the tunnel state machine has been shut down
     tunnel_state_machine_shutdown_signal: oneshot::Receiver<()>,
     cache_dir: PathBuf,
-    api_availability: ApiAvailabilityHandle,
 }
 
 impl<L> Daemon<L>
@@ -720,14 +718,11 @@ where
             rpc_handle.clone(),
         );
 
-        let accounts_proxy = AccountsProxy::new(rpc_handle.clone());
-
-        let account_token = settings.get_account_token();
-        let account_checker = account_check::AccountChecker::new(
+        let account = account::Account::new(
             runtime,
-            account_token,
+            rpc_handle.clone(),
+            settings.get_account_token(),
             api_availability.clone(),
-            accounts_proxy.clone(),
         );
 
         // Attempt to download a fresh relay list
@@ -751,9 +746,8 @@ where
             event_listener,
             settings,
             account_history,
-            account_checker,
+            account,
             rpc_runtime,
-            accounts_proxy,
             rpc_handle,
             wireguard_key_manager,
             version_updater_handle,
@@ -764,7 +758,6 @@ where
             shutdown_tasks: vec![],
             tunnel_state_machine_shutdown_signal,
             cache_dir,
-            api_availability,
         };
 
         daemon.ensure_wireguard_keys_for_current_account().await;
@@ -1450,7 +1443,7 @@ where
 
     async fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
         let daemon_tx = self.tx.clone();
-        let future = self.accounts_proxy.create_account();
+        let future = self.account.proxy.create_account();
 
         tokio::spawn(async move {
             match future.await {
@@ -1469,11 +1462,9 @@ where
         tx: ResponseTx<AccountData, mullvad_rpc::rest::Error>,
         account_token: AccountToken,
     ) {
-        let expiry_fut = self.accounts_proxy.get_expiry(account_token);
-        let account_checker = self.account_checker.clone();
+        let account = self.account.clone();
         tokio::spawn(async move {
-            let result = expiry_fut.await;
-            account_checker.handle_expiry_result(&result);
+            let result = account.check_expiry(account_token).await;
             Self::oneshot_send(
                 tx,
                 result.map(|expiry| AccountData { expiry }),
@@ -1484,7 +1475,7 @@ where
 
     async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
         if let Some(account_token) = self.settings.get_account_token() {
-            let future = self.accounts_proxy.get_www_auth_token(account_token);
+            let future = self.account.proxy.get_www_auth_token(account_token);
             let rpc_call = async {
                 Self::oneshot_send(
                     tx,
@@ -1508,14 +1499,16 @@ where
         voucher: String,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
-            let future = self.accounts_proxy.submit_voucher(account_token, voucher);
-            let api_handle = self.api_availability.clone();
+            let mut account = self.account.clone();
             tokio::spawn(async move {
-                let result = future.await.map_err(Error::RestError);
-                if result.is_ok() {
-                    api_handle.resume();
-                }
-                Self::oneshot_send(tx, result, "submit_voucher response");
+                Self::oneshot_send(
+                    tx,
+                    account
+                        .submit_voucher(account_token, voucher)
+                        .await
+                        .map_err(Error::RestError),
+                    "submit_voucher response",
+                );
             });
         } else {
             Self::oneshot_send(tx, Err(Error::NoAccountToken), "submit_voucher response");
