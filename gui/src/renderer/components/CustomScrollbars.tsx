@@ -4,12 +4,55 @@ import { MacOsScrollbarVisibility } from '../../shared/ipc-schema';
 import { Scheduler } from '../../shared/scheduler';
 import { useSelector } from '../redux/store';
 
-const ScrollableContent = styled.div({
+const StyledScrollableContent = styled.div({
   display: 'flex',
   flexDirection: 'column',
   minHeight: '100%',
   height: 'max-content',
 });
+
+const StyledCustomScrollbars = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  position: 'relative',
+  overflow: 'hidden',
+});
+
+const StyledScrollable = styled.div((props: { fillContainer?: boolean }) => ({
+  flex: props.fillContainer ? '1' : undefined,
+  width: '100%',
+  overflow: 'auto',
+  '::-webkit-scrollbar': {
+    display: 'none',
+  },
+}));
+
+const StyledTrack = styled.div({}, (props: { show: boolean }) => ({
+  position: 'absolute',
+  top: 0,
+  right: 0,
+  bottom: 0,
+  width: '16px',
+  backgroundColor: 'rgba(0, 0, 0, 0.1)',
+  opacity: props.show ? 1 : 0,
+  transition: 'width 0.1s ease-in-out, opacity 0.25s ease-in-out',
+  zIndex: 98,
+  pointerEvents: props.show ? 'all' : 'none',
+}));
+
+const StyledThumb = styled.div({}, (props: { show: boolean; active: boolean; wide: boolean }) => ({
+  position: 'absolute',
+  top: 0,
+  right: 0,
+  backgroundColor: props.active ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.2)',
+  borderRadius: props.wide ? '6px' : '4px',
+  width: props.wide ? '12px' : '8px',
+  transition:
+    'width 0.25s ease-in-out, border-radius 0.25s ease-in-out, height 0.25s ease-in-out, opacity 0.25s ease-in-out, background-color 0.1s ease-in-out',
+  opacity: props.show ? 1 : 0,
+  zIndex: 99,
+  pointerEvents: 'none',
+}));
 
 const AUTOHIDE_TIMEOUT = 1000;
 
@@ -216,34 +259,28 @@ class CustomScrollbars extends React.Component<IProps, IState> {
       onScroll: _onScroll,
       fillContainer,
       children,
-      className,
       ...otherProps
     } = this.props;
     const showScrollbars = this.state.canScroll && this.state.showScrollIndicators;
-    const thumbAnimationClass = showScrollbars ? ' custom-scrollbars__thumb--visible' : '';
-    const thumbActiveClass =
-      this.state.isTrackHovered || this.state.isDragging ? ' custom-scrollbars__thumb--active' : '';
-    const thumbWideClass = this.state.isWide ? ' custom-scrollbars__thumb--wide' : '';
-    const trackClass =
-      showScrollbars && this.state.showTrack ? ' custom-scrollbars__track--visible' : '';
-    const classNames = className ? `${className} custom-scrollbars` : 'custom-scrollbars';
 
     return (
-      <div {...otherProps} className={classNames}>
-        <div className={`custom-scrollbars__track ${trackClass}`} ref={this.trackRef} />
-        <div
-          className={`custom-scrollbars__thumb ${thumbWideClass} ${thumbActiveClass} ${thumbAnimationClass}`}
-          style={{ position: 'absolute', top: 0, right: 0 }}
+      <StyledCustomScrollbars {...otherProps}>
+        <StyledTrack ref={this.trackRef} show={showScrollbars && this.state.showTrack} />
+        <StyledThumb
           ref={this.thumbRef}
+          show={showScrollbars}
+          active={this.state.isTrackHovered || this.state.isDragging}
+          wide={this.state.isWide}
         />
-        <div
-          className="custom-scrollbars__scrollable"
-          style={{ overflow: 'auto', flex: fillContainer ? '1' : undefined }}
+        <StyledScrollable
+          fillContainer={fillContainer}
           onScroll={this.onScroll}
           ref={this.scrollableRef}>
-          <ScrollableContent ref={this.scrollableContentRef}>{children}</ScrollableContent>
-        </div>
-      </div>
+          <StyledScrollableContent ref={this.scrollableContentRef}>
+            {children}
+          </StyledScrollableContent>
+        </StyledScrollable>
+      </StyledCustomScrollbars>
     );
   }
 
