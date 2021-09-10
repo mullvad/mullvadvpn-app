@@ -5,6 +5,7 @@
 extern crate serde;
 
 
+mod account_check;
 pub mod account_history;
 pub mod exception_logging;
 mod geoip;
@@ -513,6 +514,7 @@ pub struct Daemon<L: EventListener> {
     settings: SettingsPersister,
     account_history: account_history::AccountHistory,
     accounts_proxy: AccountsProxy,
+    account_checker: account_check::AccountCheckerHandle,
     rpc_runtime: mullvad_rpc::MullvadRpcRuntime,
     rpc_handle: mullvad_rpc::rest::MullvadRestHandle,
     wireguard_key_manager: wireguard::KeyManager,
@@ -719,19 +721,17 @@ where
         );
 
         let accounts_proxy = AccountsProxy::new(rpc_handle.clone());
-        let accounts_proxy_copy = accounts_proxy.clone();
 
-        let mut relay_handle = relay_selector.updater_handle();
         let account_token = settings.get_account_token();
-        let api_availability_copy = api_availability.clone();
-        api_availability_copy.pause();
-        runtime.spawn(Self::update_account_validity_status(
+        let account_checker = account_check::AccountChecker::new(
+            runtime,
             account_token,
-            api_availability_copy,
-            accounts_proxy_copy,
-        ));
+            api_availability.clone(),
+            accounts_proxy.clone(),
+        );
 
         // Attempt to download a fresh relay list
+        let mut relay_handle = relay_selector.updater_handle();
         relay_handle
             .update_relay_list_deferred()
             .await
@@ -751,6 +751,7 @@ where
             event_listener,
             settings,
             account_history,
+            account_checker,
             rpc_runtime,
             accounts_proxy,
             rpc_handle,
@@ -1469,80 +1470,16 @@ where
         account_token: AccountToken,
     ) {
         let expiry_fut = self.accounts_proxy.get_expiry(account_token);
-        let api_availability = self.api_availability.clone();
+        let account_checker = self.account_checker.clone();
         tokio::spawn(async move {
             let result = expiry_fut.await;
-            Self::handle_expiry_result(&result, api_availability);
+            account_checker.handle_expiry_result(&result);
             Self::oneshot_send(
                 tx,
                 result.map(|expiry| AccountData { expiry }),
                 "account data",
             );
         });
-    }
-
-    fn update_account_validity_status(
-        token: Option<String>,
-        api_availability: ApiAvailabilityHandle,
-        accounts_proxy: AccountsProxy,
-    ) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
-        use talpid_core::future_retry::{retry_future_with_backoff, ExponentialBackoff, Jittered};
-
-        const RETRY_INTERVAL_INITIAL: Duration = Duration::from_secs(4);
-        const RETRY_INTERVAL_FACTOR: u32 = 5;
-        const RETRY_INTERVAL_MAX: Duration = Duration::from_secs(24 * 60 * 60);
-
-        let token = if let Some(token) = token {
-            token
-        } else {
-            return Box::pin(async move {
-                api_availability.pause();
-            });
-        };
-
-        let retry_strategy = Jittered::jitter(
-            ExponentialBackoff::new(RETRY_INTERVAL_INITIAL, RETRY_INTERVAL_FACTOR)
-                .max_delay(RETRY_INTERVAL_MAX),
-        );
-        let future_generator = move || {
-            let wait_online = api_availability.wait_online();
-            let expiry_fut = accounts_proxy.get_expiry(token.clone());
-            let api_availability_copy = api_availability.clone();
-            async move {
-                let _ = wait_online.await;
-                Self::handle_expiry_result(&expiry_fut.await, api_availability_copy)
-            }
-        };
-        let should_retry = move |state_was_updated: &bool| -> bool { !*state_was_updated };
-        let retry_future =
-            retry_future_with_backoff(future_generator, should_retry, retry_strategy);
-        Box::pin(async move {
-            retry_future.await;
-        })
-    }
-
-    fn handle_expiry_result(
-        result: &Result<chrono::DateTime<chrono::Utc>, mullvad_rpc::rest::Error>,
-        api_availability: ApiAvailabilityHandle,
-    ) -> bool {
-        match result {
-            Ok(_expiry) if *_expiry >= chrono::Utc::now() => {
-                api_availability.resume();
-                true
-            }
-            Ok(_expiry) => {
-                api_availability.pause();
-                true
-            }
-            Err(mullvad_rpc::rest::Error::ApiError(_status, code)) => {
-                if code == mullvad_rpc::INVALID_ACCOUNT || code == mullvad_rpc::INVALID_AUTH {
-                    api_availability.pause();
-                    return true;
-                }
-                false
-            }
-            Err(_) => false,
-        }
     }
 
     async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
