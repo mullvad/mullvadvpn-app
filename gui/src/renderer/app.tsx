@@ -4,6 +4,7 @@ import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
 
 import AppRouter from './components/AppRouter';
+import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
 import ErrorBoundary from './components/ErrorBoundary';
 import { AppContext } from './context';
 
@@ -132,7 +133,7 @@ export default class AppRenderer {
     log.addOutput(new ConsoleOutput(LogLevel.debug));
     log.addOutput(new IpcOutput(LogLevel.debug));
 
-    IpcRendererEventChannel.windowShape.listen((windowShapeParams) => {
+    IpcRendererEventChannel.window.listenShape((windowShapeParams) => {
       if (typeof windowShapeParams.arrowPosition === 'number') {
         this.reduxActions.userInterface.updateWindowArrowPosition(windowShapeParams.arrowPosition);
       }
@@ -199,8 +200,12 @@ export default class AppRenderer {
       this.reduxActions.settings.setSplitTunnelingApplications(applications);
     });
 
-    IpcRendererEventChannel.windowFocus.listen((focus: boolean) => {
+    IpcRendererEventChannel.window.listenFocus((focus: boolean) => {
       this.reduxActions.userInterface.setWindowFocused(focus);
+    });
+
+    IpcRendererEventChannel.window.listenMacOsScrollbarVisibility((visibility) => {
+      this.reduxActions.userInterface.setMacOsScrollbarVisibility(visibility);
     });
 
     IpcRendererEventChannel.navigation.listenReset(() => this.history.dismiss(true));
@@ -237,6 +242,12 @@ export default class AppRenderer {
     this.storeAutoStart(initialState.autoStart);
     this.setWireguardPublicKey(initialState.wireguardPublicKey);
 
+    if (initialState.macOsScrollbarVisibility !== undefined) {
+      this.reduxActions.userInterface.setMacOsScrollbarVisibility(
+        initialState.macOsScrollbarVisibility,
+      );
+    }
+
     if (initialState.isConnected) {
       void this.onDaemonConnected();
     }
@@ -265,6 +276,7 @@ export default class AppRenderer {
           <Router history={this.history.asHistory}>
             <ErrorBoundary>
               <AppRouter />
+              {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
             </ErrorBoundary>
           </Router>
         </Provider>

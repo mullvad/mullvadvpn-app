@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { AriaInputGroup } from './AriaGroup';
-import CustomScrollbars from './CustomScrollbars';
+import { CustomScrollbarsRef } from './CustomScrollbars';
 import { Container, Layout } from './Layout';
 import {
   BackBarItem,
@@ -40,7 +40,7 @@ const StyledSelector = (styled(Selector)({
 }) as unknown) as new <T>() => Selector<T>;
 
 export default class SelectLanguage extends React.Component<IProps, IState> {
-  private scrollView = React.createRef<CustomScrollbars>();
+  private scrollView = React.createRef<CustomScrollbarsRef>();
   private selectedCellRef = React.createRef<HTMLButtonElement>();
 
   constructor(props: IProps) {

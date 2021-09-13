@@ -230,7 +230,7 @@ export default class WindowController {
     if (this.window) {
       const shapeParameters = this.windowPositioning.getWindowShapeParameters(this.window);
 
-      IpcMainEventChannel.windowShape.notify(this.webContentsValue, shapeParameters);
+      IpcMainEventChannel.window.notifyShape(this.webContentsValue, shapeParameters);
     }
   }
 

@@ -1,4 +1,4 @@
-import { execFile } from 'child_process';
+import { exec, execFile } from 'child_process';
 import {
   app,
   BrowserWindow,
@@ -8,11 +8,13 @@ import {
   screen,
   session,
   shell,
+  systemPreferences,
   Tray,
 } from 'electron';
 import os from 'os';
 import * as path from 'path';
 import { sprintf } from 'sprintf-js';
+import util from 'util';
 import * as uuid from 'uuid';
 import config from '../config.json';
 import { closeToExpiry, hasExpired } from '../shared/account-expiry';
@@ -72,7 +74,9 @@ import { resolveBin } from './proc';
 import ReconnectionBackoff from './reconnection-backoff';
 import TrayIconController, { TrayIconType } from './tray-icon-controller';
 import WindowController from './window-controller';
-import { ITranslations } from '../shared/ipc-schema';
+import { ITranslations, MacOsScrollbarVisibility } from '../shared/ipc-schema';
+
+const execAsync = util.promisify(exec);
 
 // Only import split tunneling library on correct OS.
 const linuxSplitTunneling = process.platform === 'linux' && require('./linux-split-tunneling');
@@ -234,6 +238,8 @@ class ApplicationMain {
   private translations: ITranslations = { locale: this.locale };
 
   private windowsSplitTunnelingApplications?: IApplication[];
+
+  private macOsScrollbarVisibility?: MacOsScrollbarVisibility;
 
   public run() {
     // Remove window animations to combat window flickering when opening window. Can be removed when
@@ -436,6 +442,13 @@ class ApplicationMain {
       new ConnectionObserver(this.onDaemonConnected, this.onDaemonDisconnected),
     );
     this.connectToDaemon();
+
+    if (process.platform === 'darwin') {
+      await this.updateMacOsScrollbarVisibility();
+      systemPreferences.subscribeNotification('AppleShowScrollBarsSettingChanged', async () => {
+        await this.updateMacOsScrollbarVisibility();
+      });
+    }
 
     const window = await this.createWindow();
     const tray = this.createTray();
@@ -1032,7 +1045,7 @@ class ApplicationMain {
 
   private registerWindowListener(windowController: WindowController) {
     windowController.window?.on('focus', () => {
-      IpcMainEventChannel.windowFocus.notify(windowController.webContents, true);
+      IpcMainEventChannel.window.notifyFocus(windowController.webContents, true);
 
       this.blurNavigationResetScheduler.cancel();
 
@@ -1049,7 +1062,7 @@ class ApplicationMain {
     });
 
     windowController.window?.on('blur', () => {
-      IpcMainEventChannel.windowFocus.notify(windowController.webContents, false);
+      IpcMainEventChannel.window.notifyFocus(windowController.webContents, false);
 
       // ensure notification guard is reset
       this.notificationController.resetTunnelStateAnnouncements();
@@ -1087,6 +1100,7 @@ class ApplicationMain {
       wireguardPublicKey: this.wireguardPublicKey,
       translations: this.translations,
       windowsSplitTunnelingApplications: this.windowsSplitTunnelingApplications,
+      macOsScrollbarVisibility: this.macOsScrollbarVisibility,
     }));
 
     IpcMainEventChannel.settings.handleSetAllowLan((allowLan: boolean) =>
@@ -1993,6 +2007,31 @@ class ApplicationMain {
 
   private getProblemReportPath(id: string): string {
     return path.join(app.getPath('temp'), `${id}.log`);
+  }
+
+  private async updateMacOsScrollbarVisibility(): Promise<void> {
+    const command =
+      'defaults read kCFPreferencesAnyApplication AppleShowScrollBars || echo Automatic';
+    const { stdout } = await execAsync(command);
+    switch (stdout.trim()) {
+      case 'WhenScrolling':
+        this.macOsScrollbarVisibility = MacOsScrollbarVisibility.whenScrolling;
+        break;
+      case 'Always':
+        this.macOsScrollbarVisibility = MacOsScrollbarVisibility.always;
+        break;
+      case 'Automatic':
+      default:
+        this.macOsScrollbarVisibility = MacOsScrollbarVisibility.automatic;
+        break;
+    }
+
+    if (this.windowController?.webContents) {
+      IpcMainEventChannel.window.notifyMacOsScrollbarVisibility(
+        this.windowController.webContents,
+        this.macOsScrollbarVisibility,
+      );
+    }
   }
 }
 
