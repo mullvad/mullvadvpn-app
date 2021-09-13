@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 - Add WireGuard over TCP CLI option for all relays.
 - Add GUI environment variable `MULLVAD_DISABLE_UPDATE_NOTIFICATION`. If set to `1`, GUI
   notification will be disabled when an update is available.
+- Add setting for changing between IPv4 and IPv6 for the connection to WireGuard servers on desktop.
 
 #### Android
 - Added toggle for Split tunneling view to be able to show system apps

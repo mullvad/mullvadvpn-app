@@ -120,6 +120,12 @@ msgstr ""
 msgid "Invalid account number"
 msgstr ""
 
+msgid "IPv4"
+msgstr ""
+
+msgid "IPv6"
+msgstr ""
+
 msgid "less than a day"
 msgstr ""
 
@@ -1243,6 +1249,10 @@ msgid "WireGuard settings"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
+msgid "IP version"
+msgstr ""
+
+msgctxt "wireguard-settings-view"
 msgid "MTU"
 msgstr ""
 
@@ -1261,6 +1271,11 @@ msgstr ""
 #. The hint displayed below the WireGuard port selector.
 msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from a wide range of ports."
+msgstr ""
+
+#. The hint displayed below the WireGuard IP version selector.
+msgctxt "wireguard-settings-view"
+msgid "This allows access to WireGuard for devices that only support IPv6."
 msgstr ""
 
 msgctxt "wireguard-settings-view"

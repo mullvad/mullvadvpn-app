@@ -1,6 +1,7 @@
 import {
   Constraint,
   IOpenVpnConstraints,
+  IpVersion,
   IWireguardConstraints,
   RelayProtocol,
   RelaySettingsNormalUpdate,
@@ -21,6 +22,7 @@ interface IOpenVPNConfigurator {
 
 interface IWireguardConfigurator {
   port: IExactOrAny<number, IWireguardConfigurator>;
+  ipVersion: IExactOrAny<IpVersion, IWireguardConfigurator>;
 }
 
 interface ITunnelProtocolConfigurator {
@@ -122,6 +124,16 @@ class NormalRelaySettingsBuilder {
             };
             return {
               exact: (value: number) => apply({ only: value }),
+              any: () => apply('any'),
+            };
+          },
+          get ipVersion() {
+            const apply = (ipVersion: Constraint<IpVersion>) => {
+              updateWireguard({ ipVersion });
+              return this;
+            };
+            return {
+              exact: (value: IpVersion) => apply({ only: value }),
               any: () => apply('any'),
             };
           },

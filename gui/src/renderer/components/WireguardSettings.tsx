@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
+import { IpVersion } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
@@ -21,6 +22,7 @@ const MAX_WIREGUARD_MTU_VALUE = 1420;
 const WIREUGARD_UDP_PORTS = [51820, 53];
 
 type OptionalPort = number | undefined;
+type OptionalIpVersion = IpVersion | undefined;
 
 function mapPortToSelectorItem(value: number): ISelectorItem<number> {
   return { label: value.toString(), value };
@@ -43,16 +45,17 @@ export const StyledInputFrame = styled(Cell.InputFrame)({
 });
 
 interface IProps {
-  wireguard: { port?: number };
+  wireguard: { port?: number; ipVersion?: IpVersion };
   wireguardMtu?: number;
   setWireguardMtu: (value: number | undefined) => void;
-  setWireguardRelayPort: (port?: number) => void;
+  setWireguardRelayPortAndIpVersion: (port?: number, ipVersion?: IpVersion) => void;
   onViewWireguardKeys: () => void;
   onClose: () => void;
 }
 
 export default class WireguardSettings extends React.Component<IProps> {
   private wireguardPortItems: Array<ISelectorItem<OptionalPort>>;
+  private wireguardIpVersionItems: Array<ISelectorItem<OptionalIpVersion>>;
 
   constructor(props: IProps) {
     super(props);
@@ -65,6 +68,21 @@ export default class WireguardSettings extends React.Component<IProps> {
     this.wireguardPortItems = [automaticPort].concat(
       WIREUGARD_UDP_PORTS.map(mapPortToSelectorItem),
     );
+
+    this.wireguardIpVersionItems = [
+      {
+        label: messages.gettext('Automatic'),
+        value: undefined,
+      },
+      {
+        label: messages.gettext('IPv4'),
+        value: 'ipv4',
+      },
+      {
+        label: messages.gettext('IPv6'),
+        value: 'ipv6',
+      },
+    ];
   }
 
   public render() {
@@ -99,7 +117,7 @@ export default class WireguardSettings extends React.Component<IProps> {
               <AriaInputGroup>
                 <StyledSelectorContainer>
                   <StyledSelectorForFooter
-                    // TRANSLATORS: The title for the shadowsocks bridge selector section.
+                    // TRANSLATORS: The title for the WireGuard port selector.
                     title={messages.pgettext('wireguard-settings-view', 'Port')}
                     values={this.wireguardPortItems}
                     value={this.props.wireguard.port}
@@ -114,6 +132,31 @@ export default class WireguardSettings extends React.Component<IProps> {
                         messages.pgettext(
                           'wireguard-settings-view',
                           'The automatic setting will randomly choose from a wide range of ports.',
+                        )
+                      }
+                    </Cell.FooterText>
+                  </AriaDescription>
+                </Cell.Footer>
+              </AriaInputGroup>
+
+              <AriaInputGroup>
+                <StyledSelectorContainer>
+                  <StyledSelectorForFooter
+                    // TRANSLATORS: The title for the WireGuard IP version selector.
+                    title={messages.pgettext('wireguard-settings-view', 'IP version')}
+                    values={this.wireguardIpVersionItems}
+                    value={this.props.wireguard.ipVersion}
+                    onSelect={this.onSelectWireguardIpVersion}
+                  />
+                </StyledSelectorContainer>
+                <Cell.Footer>
+                  <AriaDescription>
+                    <Cell.FooterText>
+                      {
+                        // TRANSLATORS: The hint displayed below the WireGuard IP version selector.
+                        messages.pgettext(
+                          'wireguard-settings-view',
+                          'This allows access to WireGuard for devices that only support IPv6.',
                         )
                       }
                     </Cell.FooterText>
@@ -181,7 +224,11 @@ export default class WireguardSettings extends React.Component<IProps> {
   }
 
   private onSelectWireguardPort = (port?: number) => {
-    this.props.setWireguardRelayPort(port);
+    this.props.setWireguardRelayPortAndIpVersion(port, this.props.wireguard.ipVersion);
+  };
+
+  private onSelectWireguardIpVersion = (ipVersion?: IpVersion) => {
+    this.props.setWireguardRelayPortAndIpVersion(this.props.wireguard.port, ipVersion);
   };
 
   private static removeNonNumericCharacters(value: string) {

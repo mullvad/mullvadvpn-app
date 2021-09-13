@@ -644,7 +644,10 @@ export default class AppRenderer {
             port: liftConstraint(openvpnConstraints.port),
             protocol: liftConstraint(openvpnConstraints.protocol),
           },
-          wireguard: { port: liftConstraint(wireguardConstraints.port) },
+          wireguard: {
+            port: liftConstraint(wireguardConstraints.port),
+            ipVersion: liftConstraint(wireguardConstraints.ipVersion),
+          },
           tunnelProtocol: liftConstraint(tunnelProtocol),
         },
       });
