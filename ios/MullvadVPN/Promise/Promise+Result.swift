@@ -96,7 +96,7 @@ extension Promise where Value: AnyResult {
     /// Map failure to Result. Passes successful result downstream.
     func flatMapError<NewFailure>(_ transform: @escaping (Failure) -> Result<Success, NewFailure>) -> Result<Success, NewFailure>.Promise {
         return then { result in
-            result.asConcreteType().flatMapError(transform)
+            return result.asConcreteType().flatMapError(transform)
         }
     }
 }
