@@ -208,13 +208,22 @@ final class Promise<Value> {
 }
 
 final class PromiseCancellationToken {
-    private let handler: () -> Void
+    private var handler: (() -> Void)?
+    private let lock = NSLock()
+
     fileprivate init(_ handler: @escaping () -> Void) {
         self.handler = handler
     }
 
+    func cancel() {
+        lock.withCriticalBlock {
+            self.handler?()
+            self.handler = nil
+        }
+    }
+
     deinit {
-        handler()
+        cancel()
     }
 }
 
