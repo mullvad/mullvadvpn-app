@@ -10,7 +10,7 @@ import Foundation
 
 /// Asynchronous block operation
 class AsyncBlockOperation: AsyncOperation {
-    private let block: (@escaping () -> Void) -> Void
+    private let block: ((@escaping () -> Void) -> Void)
 
     init(_ block: @escaping (@escaping () -> Void) -> Void) {
         self.block = block
@@ -18,9 +18,8 @@ class AsyncBlockOperation: AsyncOperation {
     }
 
     override func main() {
-        self.block { [weak self] in
+        block { [weak self] in
             self?.finish()
         }
     }
 }
-
