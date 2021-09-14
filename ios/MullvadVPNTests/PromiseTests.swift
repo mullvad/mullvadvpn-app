@@ -112,7 +112,9 @@ class PromiseTests: XCTestCase {
             }
 
             DispatchQueue.main.async(execute: work)
-        }.observe { completion in
+        }
+
+        promise.observe { completion in
             XCTAssertEqual(completion, .cancelled)
             completionExpectation.fulfill()
         }
@@ -142,6 +144,53 @@ class PromiseTests: XCTestCase {
             }.observe { completion in
                 XCTAssertEqual(completion.unwrappedValue, 2)
             }
+    }
+
+    func testRunOnOperationQueue() {
+        let operationQueue = OperationQueue()
+        operationQueue.name = "SerialOperationQueue"
+        operationQueue.maxConcurrentOperationCount = 1
+
+        let expect1 = expectation(description: "Wait for the first promise")
+        let expect2 = expectation(description: "Wait for the second promise")
+
+        Promise(value: 1)
+            .receive(on: .main, after: .milliseconds(100), timerType: .deadline)
+            .run(on: operationQueue)
+            .observe { completion in
+                expect1.fulfill()
+            }
+
+        Promise(value: 2)
+            .run(on: operationQueue)
+            .observe { completion in
+                expect2.fulfill()
+            }
+
+        wait(for: [expect1, expect2], timeout: 1)
+    }
+
+    func testRunOnOperationQueueWithExcusiveCategory() {
+        let operationQueue = OperationQueue()
+        operationQueue.name = "ConcurrentOperationQueue"
+
+        let expect1 = expectation(description: "Wait for the first promise")
+        let expect2 = expectation(description: "Wait for the second promise")
+
+        Promise(value: 1)
+            .receive(on: .main, after: .milliseconds(100), timerType: .deadline)
+            .run(on: operationQueue, categories: ["MutuallyExclusive"])
+            .observe { completion in
+                expect1.fulfill()
+            }
+
+        Promise(value: 2)
+            .run(on: operationQueue, categories: ["MutuallyExclusive"])
+            .observe { completion in
+                expect2.fulfill()
+            }
+
+        wait(for: [expect1, expect2], timeout: 1)
     }
 
 }
