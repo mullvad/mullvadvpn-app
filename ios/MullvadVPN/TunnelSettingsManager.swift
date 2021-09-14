@@ -12,9 +12,6 @@ import Security
 /// Service name used for keychain items
 private let kServiceName = "Mullvad VPN"
 
-/// Maximum number of attempts to perform when updating the Keychain entry "atomically"
-private let kMaxAtomicUpdateRetryLimit = 20
-
 enum TunnelSettingsManager {}
 
 extension TunnelSettingsManager {
@@ -31,9 +28,6 @@ extension TunnelSettingsManager {
 
         /// A failure to update the existing entry in Keychain
         case updateEntry(Keychain.Error)
-
-        /// A failure to atomically update a Keychain entry after multiple attempts
-        case updateEntryAtomicallyRetryLimitExceeded
 
         /// A failure to remove an entry in Keychain
         case removeEntry(Keychain.Error)
@@ -106,9 +100,6 @@ extension TunnelSettingsManager {
                 // Store value
                 attributes.valueData = data
 
-                // Add revision
-                KeychainItemRevision.firstRevision().store(in: &attributes)
-
                 return Keychain.add(attributes)
                     .mapError { .addEntry($0) }
                     .map { _ in () }
@@ -136,11 +127,6 @@ extension TunnelSettingsManager {
                 let searchAttributes = searchTerm.makeKeychainAttributes()
                 var updateAttributes = Keychain.Attributes()
 
-                // Add revision if it's missing
-                if KeychainItemRevision(attributes: itemAttributes) == nil {
-                    KeychainItemRevision.firstRevision().store(in: &updateAttributes)
-                }
-
                 // Fix the accessibility permission for the Keychain entry
                 if itemAttributes.accessible != Self.keychainAccessibleLevel {
                     updateAttributes.accessible = Self.keychainAccessibleLevel
@@ -163,68 +149,43 @@ extension TunnelSettingsManager {
     /// The given block may run multiple times if Keychain entry was changed between read and write
     /// operations.
     static func update(searchTerm: KeychainSearchTerm,
-                       using changeConfiguration: (inout TunnelSettings) -> Void)
-        -> Result<TunnelSettings>
+                       using changeConfiguration: (inout TunnelSettings) -> Void) -> Result<TunnelSettings>
     {
-        for _ in (0 ..< kMaxAtomicUpdateRetryLimit) {
-            var searchQuery = searchTerm.makeKeychainAttributes()
-            searchQuery.return = [.attributes, .data]
+        var searchQuery = searchTerm.makeKeychainAttributes()
+        searchQuery.return = [.attributes, .data]
 
-            let result = Keychain.findFirst(query: searchQuery)
-                .mapError { .lookupEntry($0) }
-                .flatMap { (itemAttributes) -> Result<TunnelSettings> in
-                    let itemAttributes = itemAttributes!
-                    let serializedData = itemAttributes.valueData!
-                    let account = itemAttributes.account!
+        let result = Keychain.findFirst(query: searchQuery)
+            .mapError { .lookupEntry($0) }
+            .flatMap { (itemAttributes) -> Result<TunnelSettings> in
+                let itemAttributes = itemAttributes!
+                let serializedData = itemAttributes.valueData!
+                let account = itemAttributes.account!
 
-                    // Parse the current revision from Keychain attributes
-                    let currentRevision = KeychainItemRevision(attributes: itemAttributes)
+                return Self.decode(data: serializedData)
+                    .flatMap { (tunnelConfig) -> Result<TunnelSettings> in
+                        var tunnelConfig = tunnelConfig
+                        changeConfiguration(&tunnelConfig)
 
-                    // Pick the next revision in sequence
-                    let nextRevision = currentRevision?.nextRevision
-                        ?? KeychainItemRevision.firstRevision()
+                        return Self.encode(tunnelConfig: tunnelConfig)
+                            .flatMap { (newData) -> Result<TunnelSettings> in
+                                // `SecItemUpdate` does not accept query parameters when using
+                                // persistent reference, so constraint the query to account
+                                // token instead now when we know it
+                                let updateQuery = KeychainSearchTerm
+                                    .accountToken(account)
+                                    .makeKeychainAttributes()
 
-                    return Self.decode(data: serializedData)
-                        .flatMap { (tunnelConfig) -> Result<TunnelSettings> in
-                            var tunnelConfig = tunnelConfig
-                            changeConfiguration(&tunnelConfig)
+                                var updateAttributes = Keychain.Attributes()
+                                updateAttributes.valueData = newData
 
-                            return Self.encode(tunnelConfig: tunnelConfig)
-                                .flatMap { (newData) -> Result<TunnelSettings> in
-                                    // `SecItemUpdate` does not accept query parameters when using
-                                    // persistent reference, so constraint the query to account
-                                    // token instead now when we know it
-                                    var updateQuery = KeychainSearchTerm
-                                        .accountToken(account)
-                                        .makeKeychainAttributes()
-
-                                    // Provide the last known revision via generic field to prevent
-                                    // overwriting the item if it was modified in the meanwhile.
-                                    // This field can be missing for the existing apps on AppStore
-                                    currentRevision?.store(in: &updateQuery)
-
-                                    var updateAttributes = Keychain.Attributes()
-                                    updateAttributes.valueData = newData
-
-                                    // Add the next revision number
-                                    nextRevision.store(in: &updateAttributes)
-
-                                    return Keychain.update(query: updateQuery, update: updateAttributes)
-                                        .mapError { .updateEntry($0) }
-                                        .map { tunnelConfig }
+                                return Keychain.update(query: updateQuery, update: updateAttributes)
+                                    .mapError { .updateEntry($0) }
+                                    .map { tunnelConfig }
                             }
-                        }
+                    }
             }
 
-            // Retry if Keychain reported that the item was not found when updating
-            if case .failure(.updateEntry(.itemNotFound)) = result  {
-                continue
-            } else {
-                return result
-            }
-        }
-
-        return .failure(.updateEntryAtomicallyRetryLimitExceeded)
+        return result
     }
 
     static func remove(searchTerm: KeychainSearchTerm) -> Result<()> {
