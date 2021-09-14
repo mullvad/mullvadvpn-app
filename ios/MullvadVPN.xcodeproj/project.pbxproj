@@ -731,13 +731,7 @@
 				5840250022B1124600E4CFEC /* IPAddress+Codable.swift */,
 				5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */,
 				58561C98239A5D1500BD6B5E /* IPEndpoint.swift */,
-				58FAEDF6245088E100CB0F5B /* Keychain.swift */,
-				58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */,
-				58FAEE0024533A9C00CB0F5B /* KeychainClass.swift */,
-				58AEEF642344A36000C9BBD5 /* KeychainError.swift */,
-				58F840AE2464382C0044E708 /* KeychainItemRevision.swift */,
-				58FAEDFC24533A5500CB0F5B /* KeychainMatchLimit.swift */,
-				58FAEDFE24533A7000CB0F5B /* KeychainReturn.swift */,
+				58FB865626E8C06800F188BC /* Keychain */,
 				58727282265D173C00F315B2 /* LaunchScreen.storyboard */,
 				58A1AA8623F43901009F7EA6 /* Location.swift */,
 				583DA21325FA4B5C00318683 /* LocationDataSource.swift */,
@@ -855,6 +849,19 @@
 				58F3C0A524A50155003E76BE /* relays.json */,
 			);
 			path = Assets;
+			sourceTree = "<group>";
+		};
+		58FB865626E8C06800F188BC /* Keychain */ = {
+			isa = PBXGroup;
+			children = (
+				58FAEDF6245088E100CB0F5B /* Keychain.swift */,
+				58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */,
+				58FAEE0024533A9C00CB0F5B /* KeychainClass.swift */,
+				58AEEF642344A36000C9BBD5 /* KeychainError.swift */,
+				58FAEDFC24533A5500CB0F5B /* KeychainMatchLimit.swift */,
+				58FAEDFE24533A7000CB0F5B /* KeychainReturn.swift */,
+			);
+			path = Keychain;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1298,6 +1305,7 @@
 				58B93A1826C54D7E00A55733 /* Locking.swift in Sources */,
 				58FAEE0224533ABB00CB0F5B /* KeychainMatchLimit.swift in Sources */,
 				5860392A26DCE7AB00554C79 /* PromiseCompletion.swift in Sources */,
+				58FAEE0224533ABB00CB0F5B /* KeychainMatchLimit.swift in Sources */,
 				58FAEE0324533ABE00CB0F5B /* KeychainReturn.swift in Sources */,
 				58BFA5CD22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
 				5850368D25A49E2200A43E93 /* PrivateKeyWithMetadata.swift in Sources */,
