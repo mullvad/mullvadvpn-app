@@ -33,7 +33,12 @@ enum AppStoreReceipt {
     }
 
     /// An operation queue used to run receipt refresh requests
-    private static let operationQueue = OperationQueue()
+    private static let operationQueue: OperationQueue = {
+        let queue = OperationQueue()
+        queue.name = "AppStoreReceiptQueue"
+        queue.maxConcurrentOperationCount = 1
+        return queue
+    }()
 
     /// Read AppStore receipt from disk
     static func readFromDisk() -> Result<Data, Error> {
