@@ -26,6 +26,13 @@ final class Promise<Value> {
         return Self.init(value: value)
     }
 
+    /// Returns Promise with lazily resolved value.
+    class func deferred(_ producer: @escaping () -> Value) -> Self {
+        return Self.init { resolver in
+            resolver.resolve(value: producer())
+        }
+    }
+
     /// Initialize Promise with the execution block.
     init(body: @escaping (PromiseResolver<Value>) -> Void) {
         state = .pending(body, nil)
