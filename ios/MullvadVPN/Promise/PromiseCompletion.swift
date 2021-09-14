@@ -37,6 +37,13 @@ enum PromiseCompletion<Value> {
     }
 }
 
+extension PromiseCompletion where Value: AnyOptional {
+    /// Same as `unwrappedValue` except it flattens `T??` producing single Optional (`T?`)
+    var flattenUnwrappedValue: Value.Wrapped? {
+        return unwrappedValue?.asConcreteType().flatMap { $0 }
+    }
+}
+
 extension PromiseCompletion: Equatable where Value: Equatable {
     static func == (lhs: PromiseCompletion<Value>, rhs: PromiseCompletion<Value>) -> Bool {
         switch (lhs, rhs) {
