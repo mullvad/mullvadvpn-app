@@ -143,23 +143,6 @@ class SettingsViewController: UITableViewController, AccountObserver {
         middleSection.addRows([versionRow])
         staticDataSource.addSections([middleSection])
 
-        #if DEBUG
-        let logStreamerRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (_, cell) in
-            let cell = cell as! SettingsCell
-
-            cell.titleLabel.text =  "App logs"
-        }
-        logStreamerRow.actionBlock = { [weak self] (indexPath) in
-            let logController = LogStreamerViewController(fileURLs: ApplicationConfiguration.logFileURLs)
-            let navController = UINavigationController(rootViewController: logController)
-
-            navController.modalPresentationStyle = .fullScreen
-
-            self?.present(navController, animated: true)
-        }
-        middleSection.addRows([logStreamerRow])
-        #endif
-
         let bottomSection = StaticTableViewSection()
 
         let problemReportRow = StaticTableViewRow(reuseIdentifier: CellIdentifier.basicCell.rawValue) { (indexPath, cell) in
