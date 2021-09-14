@@ -28,6 +28,7 @@
 		581FC4FA2695ACE100AA97BA /* Account.strings in Resources */ = {isa = PBXBuildFile; fileRef = 581FC4F82695ACE100AA97BA /* Account.strings */; };
 		5820674926E63EC900655B05 /* Promise+BackgroundTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820674826E63EC800655B05 /* Promise+BackgroundTask.swift */; };
 		5823FA5026CA690600283BF8 /* OSLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5823FA4F26CA690600283BF8 /* OSLogHandler.swift */; };
+		5820675E26E6839900655B05 /* PresentAlertOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5820675D26E6839900655B05 /* PresentAlertOperation.swift */; };
 		58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */; };
 		58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB025124117005D0BB5 /* CustomTextField.swift */; };
 		58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58293FB2251241B3005D0BB5 /* CustomTextView.swift */; };
@@ -319,6 +320,7 @@
 		581CBCED229826FD00727D7F /* StaticTableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StaticTableViewDataSource.swift; sourceTree = "<group>"; };
 		581FC4F92695ACE100AA97BA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Account.strings; sourceTree = "<group>"; };
 		5820674826E63EC800655B05 /* Promise+BackgroundTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Promise+BackgroundTask.swift"; sourceTree = "<group>"; };
+		5820675D26E6839900655B05 /* PresentAlertOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PresentAlertOperation.swift; sourceTree = "<group>"; };
 		5823FA4F26CA690600283BF8 /* OSLogHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OSLogHandler.swift; sourceTree = "<group>"; };
 		58293FAC2510CA58005D0BB5 /* ProblemReportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportViewController.swift; sourceTree = "<group>"; };
 		58293FB025124117005D0BB5 /* CustomTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomTextField.swift; sourceTree = "<group>"; };
@@ -533,6 +535,7 @@
 				58E973DD24850EB600096F90 /* AsyncOperation.swift */,
 				580EE20524B3222200F9D8A1 /* ExclusivityController.swift */,
 				5846226926E0E6FA0035F7C2 /* ReceiptRefreshOperation.swift */,
+				5820675D26E6839900655B05 /* PresentAlertOperation.swift */,
 			);
 			path = Operations;
 			sourceTree = "<group>";
@@ -1193,6 +1196,7 @@
 				5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */,
 				58FEEB46260A028D00A621A8 /* GeoJSON.swift in Sources */,
 				5815039724D6ECAE00C9C50E /* CustomFormatLogHandler.swift in Sources */,
+				5820675E26E6839900655B05 /* PresentAlertOperation.swift in Sources */,
 				5815039D24D6ECE600C9C50E /* TextFileOutputStream.swift in Sources */,
 				581CBCEE229826FD00727D7F /* StaticTableViewDataSource.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
