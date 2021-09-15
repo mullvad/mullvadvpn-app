@@ -65,7 +65,8 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
       try {
         await props.app.updateRelaySettings(relayUpdate);
       } catch (e) {
-        log.error('Failed to update relay settings', e.message);
+        const error = e as Error;
+        log.error('Failed to update relay settings', error.message);
       }
     },
 
@@ -73,7 +74,8 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
       try {
         await props.app.setWireguardMtu(mtu);
       } catch (e) {
-        log.error('Failed to update mtu value', e.message);
+        const error = e as Error;
+        log.error('Failed to update mtu value', error.message);
       }
     },
 

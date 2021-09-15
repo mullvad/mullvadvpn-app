@@ -297,7 +297,8 @@ export default class AppRenderer {
       actions.account.updateAccountToken(accountToken);
       actions.account.loggedIn();
       this.redirectToConnect();
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       actions.account.loginFailed(error);
     }
   }
@@ -306,7 +307,8 @@ export default class AppRenderer {
     try {
       await IpcRendererEventChannel.account.logout();
     } catch (e) {
-      log.info('Failed to logout: ', e.message);
+      const error = e as Error;
+      log.info('Failed to logout: ', error.message);
     }
   }
 
@@ -322,7 +324,8 @@ export default class AppRenderer {
       const accountExpiry = new Date().toISOString();
       actions.account.accountCreated(accountToken, accountExpiry);
       this.redirectToConnect();
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       actions.account.createAccountFailed(error);
     }
   }
@@ -404,7 +407,8 @@ export default class AppRenderer {
     try {
       token = await IpcRendererEventChannel.account.getWwwAuthToken();
     } catch (e) {
-      log.error(`Failed to get the WWW auth token: ${e.message}`);
+      const error = e as Error;
+      log.error(`Failed to get the WWW auth token: ${error.message}`);
     }
     void this.openUrl(`${link}?token=${token}`);
   };
@@ -483,7 +487,8 @@ export default class AppRenderer {
     try {
       const valid = await IpcRendererEventChannel.wireguardKeys.verifyKey();
       actions.settings.completeWireguardKeyVerification(valid);
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to verify WireGuard key - ${error.message}`);
       actions.settings.completeWireguardKeyVerification(undefined);
     }
@@ -981,7 +986,8 @@ export default class AppRenderer {
       if (location && getLocationPromise === this.getLocationPromise) {
         return location;
       }
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to update the location: ${error.message}`);
     }
   }

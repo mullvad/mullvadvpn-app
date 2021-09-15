@@ -50,7 +50,8 @@ export default class ClipboardLabel extends React.Component<IProps, IState> {
       await navigator.clipboard.writeText(this.props.value);
       this.scheduler.schedule(() => this.setState({ showsMessage: false }), this.props.delay);
       this.setState({ showsMessage: true });
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to copy to clipboard: ${error.message}`);
     }
   };

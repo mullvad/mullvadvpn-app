@@ -37,7 +37,8 @@ export async function launchApplication(
   try {
     excludeArguments = await getLaunchCommand(app);
   } catch (e) {
-    return { error: e.message };
+    const error = e as Error;
+    return { error: error.message };
   }
 
   return new Promise((resolve, _reject) => {

@@ -111,7 +111,8 @@ export default class AccountDataCache {
         this.waitStrategy.reset();
         this.performingFetch = false;
       }
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       if (this.currentAccount === accountToken) {
         this.handleFetchError(accountToken, error);
         this.performingFetch = false;
