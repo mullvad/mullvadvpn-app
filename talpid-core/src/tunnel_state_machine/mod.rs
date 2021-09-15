@@ -104,6 +104,7 @@ pub async fn spawn(
     resource_dir: PathBuf,
     cache_dir: impl AsRef<Path> + Send + 'static,
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
+    offline_state_listener: mpsc::UnboundedSender<bool>,
     shutdown_tx: oneshot::Sender<()>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
 ) -> Result<Arc<mpsc::UnboundedSender<TunnelCommand>>, Error> {
@@ -128,6 +129,7 @@ pub async fn spawn(
             runtime.clone(),
             initial_settings,
             weak_command_tx,
+            offline_state_listener,
             tunnel_parameters_generator,
             tun_provider,
             log_dir,
@@ -216,6 +218,7 @@ impl TunnelStateMachine {
         runtime: tokio::runtime::Handle,
         settings: InitialTunnelState,
         command_tx: std::sync::Weak<mpsc::UnboundedSender<TunnelCommand>>,
+        offline_state_tx: mpsc::UnboundedSender<bool>,
         tunnel_parameters_generator: impl TunnelParametersGenerator,
         tun_provider: TunProvider,
         log_dir: Option<PathBuf>,
@@ -247,8 +250,21 @@ impl TunnelStateMachine {
                 .map_err(Error::InitRouteManagerError)?,
         )
         .map_err(Error::InitDnsMonitorError)?;
+
+        let (offline_tx, mut offline_rx) = mpsc::unbounded();
+        let initial_offline_state_tx = offline_state_tx.clone();
+        tokio::spawn(async move {
+            while let Some(offline) = offline_rx.next().await {
+                if let Some(tx) = command_tx.upgrade() {
+                    let _ = tx.unbounded_send(TunnelCommand::IsOffline(offline));
+                } else {
+                    break;
+                }
+                let _ = offline_state_tx.unbounded_send(offline);
+            }
+        });
         let mut offline_monitor = offline::spawn_monitor(
-            command_tx,
+            offline_tx,
             #[cfg(target_os = "linux")]
             route_manager
                 .handle()
@@ -259,6 +275,7 @@ impl TunnelStateMachine {
         .await
         .map_err(Error::OfflineMonitorError)?;
         let is_offline = offline_monitor.is_offline().await;
+        let _ = initial_offline_state_tx.unbounded_send(is_offline);
 
         #[cfg(windows)]
         split_tunnel

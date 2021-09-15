@@ -5,6 +5,7 @@
 extern crate serde;
 
 
+mod account;
 pub mod account_history;
 pub mod exception_logging;
 mod geoip;
@@ -25,7 +26,7 @@ use futures::{
     SinkExt, StreamExt,
 };
 use log::{debug, error, info, warn};
-use mullvad_rpc::AccountsProxy;
+use mullvad_rpc::availability::ApiAvailabilityHandle;
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
     endpoint::MullvadEndpoint,
@@ -104,6 +105,9 @@ pub enum Error {
 
     #[error(display = "REST request failed")]
     RestError(#[error(source)] mullvad_rpc::rest::Error),
+
+    #[error(display = "API availability check failed")]
+    ApiCheckError(#[error(source)] mullvad_rpc::availability::Error),
 
     #[error(display = "Unable to load account history")]
     LoadAccountHistory(#[error(source)] account_history::Error),
@@ -509,7 +513,7 @@ pub struct Daemon<L: EventListener> {
     event_listener: L,
     settings: SettingsPersister,
     account_history: account_history::AccountHistory,
-    accounts_proxy: AccountsProxy,
+    account: account::AccountHandle,
     rpc_runtime: mullvad_rpc::MullvadRpcRuntime,
     rpc_handle: mullvad_rpc::rest::MullvadRestHandle,
     wireguard_key_manager: wireguard::KeyManager,
@@ -539,7 +543,6 @@ where
     ) -> Result<Self, Error> {
         let (tunnel_state_machine_shutdown_tx, tunnel_state_machine_shutdown_signal) =
             oneshot::channel();
-
         let runtime = tokio::runtime::Handle::current();
 
         let (internal_event_tx, internal_event_rx) = command_channel.destructure();
@@ -571,17 +574,19 @@ where
         .await
         .map_err(Error::InitRpcFactory)?;
         let rpc_handle = rpc_runtime.mullvad_rest_handle();
+        let api_availability = rpc_runtime.availability_handle();
 
         let relay_list_listener = event_listener.clone();
         let on_relay_list_update = move |relay_list: &RelayList| {
             relay_list_listener.notify_relay_list(relay_list.clone());
         };
 
-        let mut relay_selector = relays::RelaySelector::new(
+        let relay_selector = relays::RelaySelector::new(
             rpc_handle.clone(),
             on_relay_list_update,
             &resource_dir,
             &cache_dir,
+            api_availability.clone(),
         );
 
 
@@ -594,6 +599,7 @@ where
         let app_version_info = version_check::load_cache(&cache_dir).await;
         let (version_updater, version_updater_handle) = version_check::VersionUpdater::new(
             rpc_handle.clone(),
+            api_availability.clone(),
             cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             app_version_info.clone(),
@@ -667,8 +673,10 @@ where
             vec![]
         };
 
+        let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
+
         let tunnel_command_tx = tunnel_state_machine::spawn(
-            runtime,
+            runtime.clone(),
             tunnel_state_machine::InitialTunnelState {
                 allow_lan: settings.allow_lan,
                 block_when_disconnected: settings.block_when_disconnected,
@@ -683,12 +691,15 @@ where
             resource_dir,
             cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
+            offline_state_tx,
             tunnel_state_machine_shutdown_tx,
             #[cfg(target_os = "android")]
             android_context,
         )
         .await
         .map_err(Error::TunnelError)?;
+
+        Self::forward_offline_state(&runtime, api_availability.clone(), offline_state_rx).await;
 
         let tsm_api_address_change_tx = Arc::downgrade(&tunnel_command_tx);
         tokio::spawn(async move {
@@ -701,11 +712,25 @@ where
             }
         });
 
-        let wireguard_key_manager =
-            wireguard::KeyManager::new(internal_event_tx.clone(), rpc_handle.clone());
+        let wireguard_key_manager = wireguard::KeyManager::new(
+            internal_event_tx.clone(),
+            api_availability.clone(),
+            rpc_handle.clone(),
+        );
+
+        let account = account::Account::new(
+            runtime,
+            rpc_handle.clone(),
+            settings.get_account_token(),
+            api_availability.clone(),
+        );
 
         // Attempt to download a fresh relay list
-        relay_selector.update().await;
+        let mut relay_handle = relay_selector.updater_handle();
+        relay_handle
+            .update_relay_list_deferred()
+            .await
+            .expect("Relay list updated thread has stopped unexpectedly");
 
         let mut daemon = Daemon {
             tunnel_command_tx,
@@ -721,8 +746,8 @@ where
             event_listener,
             settings,
             account_history,
+            account,
             rpc_runtime,
-            accounts_proxy: AccountsProxy::new(rpc_handle.clone()),
             rpc_handle,
             wireguard_key_manager,
             version_updater_handle,
@@ -1418,7 +1443,7 @@ where
 
     async fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
         let daemon_tx = self.tx.clone();
-        let future = self.accounts_proxy.create_account();
+        let future = self.account.proxy.create_account();
 
         tokio::spawn(async move {
             match future.await {
@@ -1437,17 +1462,20 @@ where
         tx: ResponseTx<AccountData, mullvad_rpc::rest::Error>,
         account_token: AccountToken,
     ) {
-        let expiry_fut = self.accounts_proxy.get_expiry(account_token);
-        let rpc_call = async {
-            let result = expiry_fut.await.map(|expiry| AccountData { expiry });
-            Self::oneshot_send(tx, result, "account data");
-        };
-        tokio::spawn(rpc_call);
+        let account = self.account.clone();
+        tokio::spawn(async move {
+            let result = account.check_expiry(account_token).await;
+            Self::oneshot_send(
+                tx,
+                result.map(|expiry| AccountData { expiry }),
+                "account data",
+            );
+        });
     }
 
     async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
         if let Some(account_token) = self.settings.get_account_token() {
-            let future = self.accounts_proxy.get_www_auth_token(account_token);
+            let future = self.account.proxy.get_www_auth_token(account_token);
             let rpc_call = async {
                 Self::oneshot_send(
                     tx,
@@ -1471,15 +1499,17 @@ where
         voucher: String,
     ) {
         if let Some(account_token) = self.settings.get_account_token() {
-            let future = self.accounts_proxy.submit_voucher(account_token, voucher);
-            let rpc_call = async {
+            let mut account = self.account.clone();
+            tokio::spawn(async move {
                 Self::oneshot_send(
                     tx,
-                    future.await.map_err(Error::RestError),
+                    account
+                        .submit_voucher(account_token, voucher)
+                        .await
+                        .map_err(Error::RestError),
                     "submit_voucher response",
                 );
-            };
-            tokio::spawn(rpc_call);
+            });
         } else {
             Self::oneshot_send(tx, Err(Error::NoAccountToken), "submit_voucher response");
         }
@@ -2252,6 +2282,7 @@ where
             }
             Err(wireguard::Error::TooManyKeys) => Ok(KeygenEvent::TooManyKeys),
             Err(wireguard::Error::RestError(error)) => Err(Error::RestError(error)),
+            Err(wireguard::Error::ApiCheckError(error)) => Err(Error::ApiCheckError(error)),
         }
     }
 
@@ -2291,6 +2322,7 @@ where
             let result = match verification_rpc.await {
                 Ok(is_valid) => Ok(is_valid),
                 Err(wireguard::Error::RestError(error)) => Err(Error::RestError(error)),
+                Err(wireguard::Error::ApiCheckError(error)) => Err(Error::ApiCheckError(error)),
                 Err(wireguard::Error::TooManyKeys) => return,
             };
             Self::oneshot_send(tx, result, "verify_wireguard_key response");
@@ -2349,6 +2381,23 @@ where
             }
         });
         Some(bypass_tx)
+    }
+
+    async fn forward_offline_state(
+        runtime: &tokio::runtime::Handle,
+        api_availability: ApiAvailabilityHandle,
+        mut offline_state_rx: mpsc::UnboundedReceiver<bool>,
+    ) {
+        let initial_state = offline_state_rx
+            .next()
+            .await
+            .expect("missing initial offline state");
+        api_availability.set_offline(initial_state);
+        runtime.spawn(async move {
+            while let Some(is_offline) = offline_state_rx.next().await {
+                api_availability.set_offline(is_offline);
+            }
+        });
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to

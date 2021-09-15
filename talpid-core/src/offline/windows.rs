@@ -1,4 +1,4 @@
-use crate::{logging::windows::log_sink, tunnel_state_machine::TunnelCommand, winnet};
+use crate::{logging::windows::log_sink, winnet};
 use futures::channel::mpsc::UnboundedSender;
 use parking_lot::Mutex;
 use std::{
@@ -49,16 +49,18 @@ pub struct BroadcastListener {
     thread_handle: RawHandle,
     thread_id: DWORD,
     _system_state: Arc<Mutex<SystemState>>,
+    _notify_tx: Arc<UnboundedSender<bool>>,
 }
 
 unsafe impl Send for BroadcastListener {}
 
 impl BroadcastListener {
-    pub fn start(sender: Weak<UnboundedSender<TunnelCommand>>) -> Result<Self, Error> {
+    pub fn start(notify_tx: UnboundedSender<bool>) -> Result<Self, Error> {
+        let notify_tx = Arc::new(notify_tx);
         let mut system_state = Arc::new(Mutex::new(SystemState {
             network_connectivity: None,
             suspended: false,
-            daemon_channel: sender,
+            notify_tx: Arc::downgrade(&notify_tx),
         }));
 
         let power_broadcast_state_ref = system_state.clone();
@@ -95,6 +97,7 @@ impl BroadcastListener {
             thread_handle: real_handle,
             thread_id: unsafe { GetThreadId(real_handle) },
             _system_state: system_state,
+            _notify_tx: notify_tx,
         })
     }
 
@@ -229,7 +232,7 @@ enum StateChange {
 struct SystemState {
     network_connectivity: Option<bool>,
     suspended: bool,
-    daemon_channel: Weak<UnboundedSender<TunnelCommand>>,
+    notify_tx: Weak<UnboundedSender<bool>>,
 }
 
 impl SystemState {
@@ -247,10 +250,8 @@ impl SystemState {
 
         let new_state = self.is_offline_currently();
         if old_state != new_state {
-            if let Some(daemon_channel) = self.daemon_channel.upgrade() {
-                if let Err(e) = daemon_channel
-                    .unbounded_send(TunnelCommand::IsOffline(new_state.unwrap_or(false)))
-                {
+            if let Some(notify_tx) = self.notify_tx.upgrade() {
+                if let Err(e) = notify_tx.unbounded_send(new_state.unwrap_or(false)) {
                     log::error!("Failed to send new offline state to daemon: {}", e);
                 }
             }
@@ -264,9 +265,7 @@ impl SystemState {
 
 pub type MonitorHandle = BroadcastListener;
 
-pub async fn spawn_monitor(
-    sender: Weak<UnboundedSender<TunnelCommand>>,
-) -> Result<MonitorHandle, Error> {
+pub async fn spawn_monitor(sender: UnboundedSender<bool>) -> Result<MonitorHandle, Error> {
     BroadcastListener::start(sender)
 }
 
