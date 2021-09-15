@@ -54,6 +54,7 @@
 		5845F843236CBDAB00B2D93C /* PacketTunnelIpc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */; };
 		5846226726E0DF960035F7C2 /* Promise+OperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846226626E0DF960035F7C2 /* Promise+OperationQueue.swift */; };
 		5846226826E0DF960035F7C2 /* Promise+OperationQueue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846226626E0DF960035F7C2 /* Promise+OperationQueue.swift */; };
+		5846226A26E0E6FA0035F7C2 /* ReceiptRefreshOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5846226926E0E6FA0035F7C2 /* ReceiptRefreshOperation.swift */; };
 		584789B8264D4A2A000E45FB /* old_le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 584789B4264D4A2A000E45FB /* old_le_root_cert.cer */; };
 		584789B9264D4A2A000E45FB /* old_le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 584789B4264D4A2A000E45FB /* old_le_root_cert.cer */; };
 		584789BE264D4A2A000E45FB /* new_le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 584789B7264D4A2A000E45FB /* new_le_root_cert.cer */; };
@@ -339,6 +340,7 @@
 		584592602639B4A200EF967F /* ConsentContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsentContentView.swift; sourceTree = "<group>"; };
 		5845F841236CBACD00B2D93C /* PacketTunnelIpc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelIpc.swift; sourceTree = "<group>"; };
 		5846226626E0DF960035F7C2 /* Promise+OperationQueue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Promise+OperationQueue.swift"; sourceTree = "<group>"; };
+		5846226926E0E6FA0035F7C2 /* ReceiptRefreshOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiptRefreshOperation.swift; sourceTree = "<group>"; };
 		584789B4264D4A2A000E45FB /* old_le_root_cert.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = old_le_root_cert.cer; sourceTree = "<group>"; };
 		584789B7264D4A2A000E45FB /* new_le_root_cert.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = new_le_root_cert.cer; sourceTree = "<group>"; };
 		584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSLPinningURLSessionDelegate.swift; sourceTree = "<group>"; };
@@ -530,6 +532,7 @@
 				580EE22324B3243100F9D8A1 /* AsyncBlockOperation.swift */,
 				58E973DD24850EB600096F90 /* AsyncOperation.swift */,
 				580EE20524B3222200F9D8A1 /* ExclusivityController.swift */,
+				5846226926E0E6FA0035F7C2 /* ReceiptRefreshOperation.swift */,
 			);
 			path = Operations;
 			sourceTree = "<group>";
@@ -1135,6 +1138,7 @@
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
 				58FAEDEF245069C700CB0F5B /* KeychainAttributes.swift in Sources */,
 				58CB0EE024B86751001EF0D8 /* MullvadRest.swift in Sources */,
+				5846226A26E0E6FA0035F7C2 /* ReceiptRefreshOperation.swift in Sources */,
 				58E1337526D2BEC400CC316B /* Promise+Optional.swift in Sources */,
 				58293FB125124117005D0BB5 /* CustomTextField.swift in Sources */,
 				582AE3102440A6CA00E6733A /* AccountTokenInput.swift in Sources */,
