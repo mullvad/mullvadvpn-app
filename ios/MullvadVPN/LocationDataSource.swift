@@ -79,7 +79,7 @@ class LocationDataSource: NSObject, UITableViewDataSource {
     }
 
 
-    func setRelays(_ response: ServerRelaysResponse) {
+    func setRelays(_ response: REST.ServerRelaysResponse) {
         let rootNode = Self.makeRootNode()
         var nodeByLocation = [RelayLocation: Node]()
         let dataSourceWasEmpty = locationList.isEmpty

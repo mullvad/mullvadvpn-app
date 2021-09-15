@@ -11,12 +11,12 @@ import Network
 
 struct RelaySelectorResult {
     var endpoint: MullvadEndpoint
-    var relay: ServerRelay
+    var relay: REST.ServerRelay
     var location: Location
 }
 
 private struct RelayWithLocation {
-    var relay: ServerRelay
+    var relay: REST.ServerRelay
     var location: Location
 }
 
@@ -33,9 +33,9 @@ extension RelaySelectorResult {
 
 struct RelaySelector {
 
-    private let relays: ServerRelaysResponse
+    private let relays: REST.ServerRelaysResponse
 
-    init(relays: ServerRelaysResponse) {
+    init(relays: REST.ServerRelaysResponse) {
         self.relays = relays
     }
 
@@ -97,7 +97,7 @@ struct RelaySelector {
         }
     }
 
-    private static func parseRelaysResponse(_ response: ServerRelaysResponse) -> [RelayWithLocation] {
+    private static func parseRelaysResponse(_ response: REST.ServerRelaysResponse) -> [RelayWithLocation] {
         return response.wireguard.relays.compactMap { (serverRelay) -> RelayWithLocation? in
             guard let serverLocation = response.locations[serverRelay.location] else { return nil }
 

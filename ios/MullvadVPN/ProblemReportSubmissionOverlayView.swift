@@ -17,7 +17,7 @@ class ProblemReportSubmissionOverlayView: UIView {
     enum State {
         case sending
         case sent(_ email: String)
-        case failure(RestError)
+        case failure(REST.Error)
 
         var title: String? {
             switch self {

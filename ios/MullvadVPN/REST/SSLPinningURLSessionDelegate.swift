@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import Security
 import Logging
 
 class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
@@ -68,6 +69,4 @@ class SSLPinningURLSessionDelegate: NSObject, URLSessionDelegate {
 
         return "\(message) (code: \(code))"
     }
-
-
 }

@@ -54,10 +54,10 @@ class Account {
 
     enum Error: ChainedError {
         /// A failure to create the new account token
-        case createAccount(RestError)
+        case createAccount(REST.Error)
 
         /// A failure to verify the account token
-        case verifyAccount(RestError)
+        case verifyAccount(REST.Error)
 
         /// A failure to configure a tunnel
         case tunnelConfiguration(TunnelManager.Error)

@@ -40,33 +40,33 @@ class RelaySelectorTests: XCTestCase {
 
 }
 
-private let sampleRelays = ServerRelaysResponse(
+private let sampleRelays = REST.ServerRelaysResponse(
     locations: [
-        "es-mad": ServerLocation(
+        "es-mad": REST.ServerLocation(
             country: "Spain",
             city: "Madrid",
             latitude: 40.408566,
             longitude: -3.69222
         ),
-        "se-got": ServerLocation(
+        "se-got": REST.ServerLocation(
             country: "Sweden",
             city: "Gothenburg",
             latitude: 57.70887,
             longitude: 11.97456
         ),
-        "se-sto": ServerLocation(
+        "se-sto": REST.ServerLocation(
             country: "Sweden",
             city: "Stockholm",
             latitude: 59.3289,
             longitude: 18.0649
         )
     ],
-    wireguard: ServerWireguardTunnels(
+    wireguard: REST.ServerWireguardTunnels(
         ipv4Gateway: .loopback,
         ipv6Gateway: .loopback,
         portRanges: [53...53],
         relays: [
-            ServerRelay(
+            REST.ServerRelay(
                 hostname: "es1-wireguard",
                 active: true,
                 owned: true,
@@ -78,7 +78,7 @@ private let sampleRelays = ServerRelaysResponse(
                 publicKey: Data(),
                 includeInCountry: true
             ),
-            ServerRelay(
+            REST.ServerRelay(
                 hostname: "se10-wireguard",
                 active: true,
                 owned: true,
@@ -90,7 +90,7 @@ private let sampleRelays = ServerRelaysResponse(
                 publicKey: Data(),
                 includeInCountry: true
             ),
-            ServerRelay(
+            REST.ServerRelay(
                 hostname: "se2-wireguard",
                 active: true,
                 owned: true,
@@ -102,7 +102,7 @@ private let sampleRelays = ServerRelaysResponse(
                 publicKey: Data(),
                 includeInCountry: true
             ),
-            ServerRelay(
+            REST.ServerRelay(
                 hostname: "se6-wireguard",
                 active: true,
                 owned: true,
