@@ -53,7 +53,8 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
       try {
         await props.app.updateRelaySettings(relayUpdate);
       } catch (e) {
-        log.error('Failed to update tunnel protocol constraints', e.message);
+        const error = e as Error;
+        log.error('Failed to update tunnel protocol constraints', error.message);
       }
     },
 
@@ -61,7 +62,8 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
       try {
         await props.app.setEnableIpv6(enableIpv6);
       } catch (e) {
-        log.error('Failed to update enable IPv6', e.message);
+        const error = e as Error;
+        log.error('Failed to update enable IPv6', error.message);
       }
     },
 
@@ -69,7 +71,8 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
       try {
         await props.app.setBlockWhenDisconnected(blockWhenDisconnected);
       } catch (e) {
-        log.error('Failed to update block when disconnected', e.message);
+        const error = e as Error;
+        log.error('Failed to update block when disconnected', error.message);
       }
     },
 

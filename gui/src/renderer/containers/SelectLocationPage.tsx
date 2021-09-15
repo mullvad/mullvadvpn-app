@@ -65,7 +65,8 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IApp
         await props.app.updateRelaySettings(relayUpdate);
         await props.app.connectTunnel();
       } catch (e) {
-        log.error(`Failed to select the exit location: ${e.message}`);
+        const error = e as Error;
+        log.error(`Failed to select the exit location: ${error.message}`);
       }
     },
     onSelectBridgeLocation: async (bridgeLocation: RelayLocation) => {
@@ -77,7 +78,8 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IApp
           new BridgeSettingsBuilder().location.fromRaw(bridgeLocation).build(),
         );
       } catch (e) {
-        log.error(`Failed to select the bridge location: ${e.message}`);
+        const error = e as Error;
+        log.error(`Failed to select the bridge location: ${error.message}`);
       }
     },
     onSelectClosestToExit: async () => {
@@ -87,7 +89,8 @@ const mapDispatchToProps = (dispatch: ReduxDispatch, props: IHistoryProps & IApp
       try {
         await props.app.updateBridgeSettings(new BridgeSettingsBuilder().location.any().build());
       } catch (e) {
-        log.error(`Failed to set the bridge location to closest to exit: ${e.message}`);
+        const error = e as Error;
+        log.error(`Failed to set the bridge location to closest to exit: ${error.message}`);
       }
     },
     onClearProviders: async () => {

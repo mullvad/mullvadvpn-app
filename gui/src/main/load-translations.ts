@@ -51,7 +51,8 @@ function parseTranslation(
 
   try {
     contents = fs.readFileSync(filename, { encoding: 'utf8' });
-  } catch (error) {
+  } catch (e) {
+    const error = e as NodeJS.ErrnoException;
     if (error.code !== 'ENOENT') {
       log.error(`Cannot read the gettext file "${filename}": ${error.message}`);
     }
@@ -61,7 +62,8 @@ function parseTranslation(
   let translations: GetTextTranslations;
   try {
     translations = po.parse(contents);
-  } catch (error) {
+  } catch (e) {
+    const error = e as Error;
     log.error(`Cannot parse the gettext file "${filename}": ${error.message}`);
     return undefined;
   }

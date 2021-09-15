@@ -1,6 +1,7 @@
 import { app } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
+import { isErrorWithStringCode } from '../shared/error-helpers';
 import { IGuiSettingsState, SYSTEM_PREFERRED_LOCALE_KEY } from '../shared/gui-settings-state';
 import log from '../shared/logging';
 
@@ -104,7 +105,7 @@ export default class GuiSettings {
       };
     } catch (error) {
       // Read settings if the file exists, otherwise write the default settings to it.
-      if (error.code === 'ENOENT') {
+      if (isErrorWithStringCode(error) && error.code === 'ENOENT') {
         log.debug('Creating gui-settings file and writing the default settings to it');
         this.store();
       } else {

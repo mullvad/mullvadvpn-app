@@ -20,7 +20,8 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
     onDisconnect: async () => {
       try {
         await props.app.disconnectTunnel();
-      } catch (error) {
+      } catch (e) {
+        const error = e as Error;
         log.error(`Failed to disconnect the tunnel: ${error.message}`);
       }
     },
@@ -28,7 +29,8 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
       try {
         await props.app.setBlockWhenDisconnected(blockWhenDisconnected);
       } catch (e) {
-        log.error('Failed to update block when disconnected', e.message);
+        const error = e as Error;
+        log.error('Failed to update block when disconnected', error.message);
       }
     },
     navigateToRedeemVoucher: () => {

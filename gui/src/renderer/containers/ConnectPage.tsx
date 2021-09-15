@@ -80,21 +80,24 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
     onConnect: async () => {
       try {
         await props.app.connectTunnel();
-      } catch (error) {
+      } catch (e) {
+        const error = e as Error;
         log.error(`Failed to connect the tunnel: ${error.message}`);
       }
     },
     onDisconnect: async () => {
       try {
         await props.app.disconnectTunnel();
-      } catch (error) {
+      } catch (e) {
+        const error = e as Error;
         log.error(`Failed to disconnect the tunnel: ${error.message}`);
       }
     },
     onReconnect: async () => {
       try {
         await props.app.reconnectTunnel();
-      } catch (error) {
+      } catch (e) {
+        const error = e as Error;
         log.error(`Failed to reconnect the tunnel: ${error.message}`);
       }
     },
