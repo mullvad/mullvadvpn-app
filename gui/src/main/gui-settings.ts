@@ -102,7 +102,8 @@ export default class GuiSettings {
         ...defaultSettings,
         ...this.validateSettings(rawJson),
       };
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error & { code?: string };
       // Read settings if the file exists, otherwise write the default settings to it.
       if (error.code === 'ENOENT') {
         log.debug('Creating gui-settings file and writing the default settings to it');

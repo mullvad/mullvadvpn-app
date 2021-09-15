@@ -334,7 +334,8 @@ class ApplicationMain {
         log.addOutput(new FileOutput(LogLevel.debug, mainLogPath));
         this.rendererLog.addOutput(new FileOutput(LogLevel.debug, rendererLogPath));
       } catch (e) {
-        console.error('Failed to initialize logging:', e);
+        const error = e as Error;
+        console.error('Failed to initialize logging:', error);
       }
     }
 
@@ -378,7 +379,8 @@ class ApplicationMain {
         await this.daemonRpc.disconnectTunnel();
         log.info('Disconnected the tunnel');
       } catch (e) {
-        log.error(`Failed to disconnect the tunnel: ${e.message}`);
+        const error = e as Error;
+        log.error(`Failed to disconnect the tunnel: ${error.message}`);
       }
     } else {
       log.info('Cannot close the tunnel because there is no active connection to daemon.');
@@ -392,7 +394,8 @@ class ApplicationMain {
         log.info('Unsubscribed from the daemon events');
       }
     } catch (e) {
-      log.error(`Failed to unsubscribe from daemon events: ${e.message}`);
+      const error = e as Error;
+      log.error(`Failed to unsubscribe from daemon events: ${error.message}`);
     }
 
     // The window is not closable on macOS to be able to hide the titlebar and workaround
@@ -410,7 +413,8 @@ class ApplicationMain {
       try {
         logger?.dispose();
       } catch (e) {
-        console.error('Failed to dispose logger:', e);
+        const error = e as Error;
+        console.error('Failed to dispose logger:', error);
       }
     }
   }
@@ -522,7 +526,8 @@ class ApplicationMain {
       const filePath = path.resolve(path.join(__dirname, '../renderer/index.html'));
       try {
         await this.windowController.window.loadFile(filePath);
-      } catch (error) {
+      } catch (e) {
+        const error = e as Error;
         log.error(`Failed to load index file: ${error.message}`);
       }
 
@@ -543,7 +548,8 @@ class ApplicationMain {
     // subscribe to events
     try {
       this.daemonEventListener = this.subscribeEvents();
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to subscribe: ${error.message}`);
 
       return this.recoverFromBootstrapError(error);
@@ -552,7 +558,8 @@ class ApplicationMain {
     // fetch account history
     try {
       this.setAccountHistory(await this.daemonRpc.getAccountHistory());
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to fetch the account history: ${error.message}`);
 
       return this.recoverFromBootstrapError(error);
@@ -561,7 +568,8 @@ class ApplicationMain {
     // fetch the tunnel state
     try {
       this.setTunnelState(await this.daemonRpc.getState());
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to fetch the tunnel state: ${error.message}`);
 
       return this.recoverFromBootstrapError(error);
@@ -570,7 +578,8 @@ class ApplicationMain {
     // fetch settings
     try {
       this.setSettings(await this.daemonRpc.getSettings());
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to fetch settings: ${error.message}`);
 
       return this.recoverFromBootstrapError(error);
@@ -587,7 +596,8 @@ class ApplicationMain {
         this.settings.relaySettings,
         this.settings.bridgeState,
       );
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to fetch relay locations: ${error.message}`);
 
       return this.recoverFromBootstrapError(error);
@@ -596,7 +606,8 @@ class ApplicationMain {
     // fetch the daemon's version
     try {
       this.setDaemonVersion(await this.daemonRpc.getCurrentVersion());
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to fetch the daemon's version: ${error.message}`);
 
       return this.recoverFromBootstrapError(error);
@@ -1005,7 +1016,8 @@ class ApplicationMain {
   private async fetchLatestVersion() {
     try {
       this.setLatestVersion(await this.daemonRpc.getVersionInfo());
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to request the version info: ${error.message}`);
     }
   }
@@ -1354,7 +1366,8 @@ class ApplicationMain {
   private async createNewAccount(): Promise<string> {
     try {
       return await this.daemonRpc.createNewAccount();
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to create account: ${error.message}`);
       throw error;
     }
@@ -1378,7 +1391,8 @@ class ApplicationMain {
           AUTO_CONNECT_FALLBACK_DELAY,
         );
       }
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to login: ${error.message}`);
 
       this.autoConnectOnWireguardKeyEvent = false;
@@ -1411,7 +1425,8 @@ class ApplicationMain {
           log.info('Autoconnect the tunnel');
 
           await this.daemonRpc.connectTunnel();
-        } catch (error) {
+        } catch (e) {
+          const error = e as Error;
           log.error(`Failed to autoconnect the tunnel: ${error.message}`);
         }
       } else {
@@ -1428,7 +1443,8 @@ class ApplicationMain {
 
       this.autoConnectFallbackScheduler.cancel();
       this.accountExpiryNotificationScheduler.cancel();
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.info(`Failed to logout: ${error.message}`);
 
       throw error;
@@ -1508,7 +1524,8 @@ class ApplicationMain {
   private async updateAccountHistory(): Promise<void> {
     try {
       this.setAccountHistory(await this.daemonRpc.getAccountHistory());
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to fetch the account history: ${error.message}`);
     }
   }
@@ -1516,7 +1533,8 @@ class ApplicationMain {
   private async fetchWireguardKey(): Promise<void> {
     try {
       this.setWireguardKey(await this.daemonRpc.getWireguardKey());
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to fetch wireguard key: ${error.message}`);
     }
   }
@@ -1537,7 +1555,8 @@ class ApplicationMain {
       }
 
       this.updateDaemonsAutoConnect();
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(
         `Failed to update the autostart to ${autoStart.toString()}. ${error.message.toString()}`,
       );
@@ -1647,7 +1666,8 @@ class ApplicationMain {
       await installer(REACT_DEVELOPER_TOOLS, options);
       await installer(REDUX_DEVTOOLS, options);
     } catch (e) {
-      log.info(`Error installing extension: ${e.message}`);
+      const error = e as Error;
+      log.info(`Error installing extension: ${error.message}`);
     }
   }
 
@@ -1998,7 +2018,8 @@ class ApplicationMain {
       try {
         token = await this.daemonRpc.getWwwAuthToken();
       } catch (e) {
-        log.error(`Failed to get the WWW auth token: ${e.message}`);
+        const error = e as Error;
+        log.error(`Failed to get the WWW auth token: ${error.message}`);
       }
       return shell.openExternal(`${url}?token=${token}`);
     } else {

@@ -15,7 +15,8 @@ export function getOpenAtLogin() {
       fs.accessSync(autostartFilePath);
 
       return true;
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to check autostart file: ${error.message}`);
       return false;
     }
@@ -37,7 +38,8 @@ export async function setOpenAtLogin(openAtLogin: boolean) {
       } else {
         await fs.promises.unlink(autostartFilePath);
       }
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to set auto-start: ${error.message}`);
     }
   } else {
@@ -59,7 +61,7 @@ const createDirIfNecessary = async (directory: string) => {
   let stat;
   try {
     stat = await fs.promises.stat(directory);
-  } catch (error) {
+  } catch {
     // Path doesn't exist, so it has to be created
     return fs.promises.mkdir(directory);
   }
@@ -69,7 +71,8 @@ const createDirIfNecessary = async (directory: string) => {
     // Try to remove existing file and replace it with a new directory
     try {
       await fs.promises.unlink(directory);
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       log.error(`Failed to remove path before creating a directory for it: ${error.message}`);
     }
 

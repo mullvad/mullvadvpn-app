@@ -183,7 +183,8 @@ export class DaemonRpc {
       );
       const expiry = response.getExpiry()!.toDate().toISOString();
       return { expiry };
-    } catch (error) {
+    } catch (e) {
+      const error = e as grpc.ServiceError;
       if (error.code) {
         switch (error.code) {
           case grpc.status.UNAUTHENTICATED:
@@ -223,7 +224,8 @@ export class DaemonRpc {
         secondsAdded,
         newExpiry,
       };
-    } catch (error) {
+    } catch (e) {
+      const error = e as grpc.ServiceError;
       if (error.code) {
         switch (error.code) {
           case grpc.status.NOT_FOUND:
@@ -405,8 +407,9 @@ export class DaemonRpc {
       try {
         const daemonEvent = convertFromDaemonEvent(data);
         listener.onEvent(daemonEvent);
-      } catch (err) {
-        listener.onError(err);
+      } catch (e) {
+        const error = e as Error;
+        listener.onError(error);
       }
     });
 
@@ -557,7 +560,8 @@ export class DaemonRpc {
       subscription.removeAllListeners('error');
       try {
         subscription.cancel();
-      } catch (error) {
+      } catch (e) {
+        const error = e as grpc.ServiceError;
         if (error.code !== grpc.status.CANCELLED) {
           throw error;
         }

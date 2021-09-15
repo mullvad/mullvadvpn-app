@@ -180,7 +180,8 @@ function handle<T, R>(event: string, ipcMain: EIpcMain): Handler<T, Promise<R>> 
     ipcMain.handle(event, async (_ipcEvent, arg: T) => {
       try {
         return { type: 'success', value: await fn(arg) };
-      } catch (error) {
+      } catch (e) {
+        const error = e as Error;
         return { type: 'error', message: error.message || '' };
       }
     });

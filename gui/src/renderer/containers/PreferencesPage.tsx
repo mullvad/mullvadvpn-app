@@ -30,7 +30,8 @@ const mapDispatchToProps = (_dispatch: ReduxDispatch, props: IHistoryProps & IAp
     setAutoStart: async (autoStart: boolean) => {
       try {
         await props.app.setAutoStart(autoStart);
-      } catch (error) {
+      } catch (e) {
+        const error = e as Error;
         log.error(`Cannot set auto-start: ${error.message}`);
       }
     },
