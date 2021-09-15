@@ -1,8 +1,8 @@
 use std::{
     ffi::OsStr,
     fmt, io, mem,
-    os::windows::{ffi::OsStrExt, io::RawHandle},
     net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
+    os::windows::{ffi::OsStrExt, io::RawHandle},
     ptr,
     sync::Mutex,
     time::{Duration, Instant},

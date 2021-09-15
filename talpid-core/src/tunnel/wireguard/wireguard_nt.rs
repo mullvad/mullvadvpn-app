@@ -25,6 +25,8 @@ use winapi::{
         in6addr::IN6_ADDR,
         inaddr::IN_ADDR,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
+        nldef::RouterDiscoveryDisabled,
+        ntdef::FALSE,
         winerror::ERROR_MORE_DATA,
         ws2def::{ADDRESS_FAMILY, AF_INET, AF_INET6},
         ws2ipdef::SOCKADDR_INET,
@@ -462,10 +464,10 @@ impl WgNtTunnel {
             );
         }
         device.set_config(config)?;
-        set_interface_mtu(&device.luid(), AF_INET as u16, u32::from(config.mtu))
+        prepare_interface(&device.luid(), AF_INET as u16, u32::from(config.mtu))
             .map_err(Error::SetTunnelIpv4MtuError)?;
         if config.tunnel.addresses.iter().any(|addr| addr.is_ipv6()) {
-            set_interface_mtu(&device.luid(), AF_INET6 as u16, u32::from(config.mtu))
+            prepare_interface(&device.luid(), AF_INET6 as u16, u32::from(config.mtu))
                 .map_err(Error::SetTunnelIpv6MtuError)?;
         }
         device
@@ -979,13 +981,16 @@ unsafe fn deserialize_config(
     Ok((interface, peers))
 }
 
-fn set_interface_mtu(luid: &NET_LUID, family: u16, mtu: u32) -> io::Result<()> {
-    let family = windows::AddressFamily::try_from_af_family(family).map_err(|error| {
-        io::Error::new(io::ErrorKind::InvalidInput, error)
-    })?;
+fn prepare_interface(luid: &NET_LUID, family: u16, mtu: u32) -> io::Result<()> {
+    let family = windows::AddressFamily::try_from_af_family(family)
+        .map_err(|error| io::Error::new(io::ErrorKind::InvalidInput, error))?;
     let mut iface = windows::get_ip_interface_entry(family, luid)?;
     iface.SitePrefixLength = 0;
     iface.NlMtu = mtu;
+    iface.RouterDiscoveryBehavior = RouterDiscoveryDisabled;
+    iface.DadTransmits = 0;
+    iface.ManagedAddressConfigurationSupported = FALSE;
+    iface.OtherStatefulConfigurationSupported = FALSE;
     windows::set_ip_interface_entry(&iface)
 }
 
