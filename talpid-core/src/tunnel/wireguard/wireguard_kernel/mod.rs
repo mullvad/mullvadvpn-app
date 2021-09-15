@@ -93,7 +93,6 @@ pub struct Handle {
     route_handle: rtnetlink::Handle,
     wg_abort_handle: AbortHandle,
     route_abort_handle: AbortHandle,
-    message_type: u16,
 }
 
 
@@ -117,7 +116,6 @@ impl Handle {
         Ok(Self {
             wg_handle,
             route_handle,
-            message_type,
             wg_abort_handle,
             route_abort_handle,
         })

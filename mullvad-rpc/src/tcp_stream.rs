@@ -45,11 +45,9 @@ pub struct TcpStream {
 impl TcpStream {
     pub fn new(
         stream: TokioTcpStream,
-        id: usize,
         shutdown_tx: Option<oneshot::Sender<()>>,
     ) -> (Self, TcpStreamHandle) {
         let inner = Arc::new(Mutex::new(Some(StreamInner {
-            id,
             stream,
             shutdown_tx,
         })));
@@ -138,7 +136,6 @@ impl Connection for TcpStream {
 
 #[derive(Debug)]
 struct StreamInner {
-    id: usize,
     stream: TokioTcpStream,
     shutdown_tx: Option<oneshot::Sender<()>>,
 }

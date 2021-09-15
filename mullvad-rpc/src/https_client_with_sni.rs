@@ -225,7 +225,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
 
 
             let (tcp_stream, socket_handle) =
-                TcpStream::new(tokio_connection, socket_id, Some(socket_shutdown_tx));
+                TcpStream::new(tokio_connection, Some(socket_shutdown_tx));
             if let Some(mut service_tx) = service_tx {
                 if service_tx
                     .send(RequestCommand::SocketOpened(socket_id, socket_handle))

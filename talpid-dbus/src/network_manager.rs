@@ -27,7 +27,6 @@ const CONNECTIVITY_CHECK_KEY: &str = "ConnectivityCheckEnabled";
 const NM_DNS_MANAGER: &str = "org.freedesktop.NetworkManager.DnsManager";
 const NM_DNS_MANAGER_PATH: &str = "/org/freedesktop/NetworkManager/DnsManager";
 const NM_DEVICE: &str = "org.freedesktop.NetworkManager.Device";
-const NM_DEVICE_STATISTICS: &str = "org.freedesktop.NetworkManager.Device.Statistics";
 
 const NM_IP4_CONFIG: &str = "org.freedesktop.NetworkManager.IP4Config";
 const NM_IP6_CONFIG: &str = "org.freedesktop.NetworkManager.IP6Config";
@@ -274,25 +273,6 @@ impl NetworkManager {
                 (settings_map,),
             )
             .map_err(Error::Dbus)
-    }
-
-    pub fn set_stats_refresh_rate(
-        &self,
-        tunnel: &WireguardTunnel,
-        refresh_rate: u32,
-    ) -> Result<()> {
-        tunnel
-            .device_proxy(&*self.connection)
-            .set(NM_DEVICE_STATISTICS, "RefreshRateMs", refresh_rate)
-            .map_err(Error::Dbus)
-    }
-
-    pub fn get_tunnel_stats(&self, tunnel: &WireguardTunnel) -> Result<(u64, u64)> {
-        let device = tunnel.device_proxy(&*self.connection);
-        let tx_bytes = device.get(NM_DEVICE_STATISTICS, "TxBytes")?;
-        let rx_bytes = device.get(NM_DEVICE_STATISTICS, "RxBytes")?;
-
-        Ok((tx_bytes, rx_bytes))
     }
 
     fn wait_until_device_is_ready(&self, device: &dbus::Path<'_>) -> Result<()> {
@@ -676,16 +656,16 @@ impl NetworkManager {
 #[derive(Debug)]
 struct DeviceStateChange {
     new_state: u32,
-    old_state: u32,
-    reason: u32,
+    _old_state: u32,
+    _reason: u32,
 }
 
 impl arg::ReadAll for DeviceStateChange {
     fn read(i: &mut arg::Iter<'_>) -> std::result::Result<Self, arg::TypeMismatchError> {
         Ok(DeviceStateChange {
             new_state: i.read()?,
-            old_state: i.read()?,
-            reason: i.read()?,
+            _old_state: i.read()?,
+            _reason: i.read()?,
         })
     }
 }
