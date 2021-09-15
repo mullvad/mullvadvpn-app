@@ -28,4 +28,11 @@ extension Promise where Value: AnyOptional {
             return value.asConcreteType().map(producePromise) ?? .resolved(defaultValue)
         }
     }
+
+    /// Map contained value to result providing failure when the value is `nil`.
+    func some<Failure: Error>(or failure: Failure) -> Result<Value.Wrapped, Failure>.Promise {
+        return then { value -> Result<Value.Wrapped, Failure> in
+            return value.asConcreteType().map { .success($0) } ?? .failure(failure)
+        }
+    }
 }

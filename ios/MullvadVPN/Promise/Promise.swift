@@ -26,6 +26,13 @@ final class Promise<Value> {
         return Self.init(value: value)
     }
 
+    /// Returns Promise with lazily resolved value.
+    class func deferred(_ producer: @escaping () -> Value) -> Self {
+        return Self.init { resolver in
+            resolver.resolve(value: producer())
+        }
+    }
+
     /// Initialize Promise with the execution block.
     init(body: @escaping (PromiseResolver<Value>) -> Void) {
         state = .pending(body, nil)
@@ -38,17 +45,16 @@ final class Promise<Value> {
 
     deinit {
         switch state {
-        case .resolved, .cancelled:
+        case .resolved, .cancelled, .pending:
             break
-        case .pending, .executing:
+        case .executing:
             preconditionFailure("\(Self.self) is deallocated in \(state) state without being resolved or cancelled.")
         }
     }
 
     /// Observe the result of Promise.
     /// This method starts the promise execution if it hasn't started yet.
-    @discardableResult
-    func observe(_ receiveCompletion: @escaping (PromiseCompletion<Value>) -> Void) -> Self {
+    func observe(_ receiveCompletion: @escaping (PromiseCompletion<Value>) -> Void) {
         return lock.withCriticalBlock {
             switch state {
             case .resolved(let value, let queue):
@@ -65,7 +71,6 @@ final class Promise<Value> {
             case .executing:
                 observers.append(AnyPromiseObserver<Value>(receiveCompletion))
             }
-            return self
         }
     }
 
@@ -90,10 +95,10 @@ final class Promise<Value> {
     /// Trasform the value by producing a promise.
     func then<NewValue>(_ onResolve: @escaping (Value) -> Promise<NewValue>) -> Promise<NewValue> {
         return Promise<NewValue> { resolver in
-            _ = self.observe { completion in
+            self.observe { completion in
                 switch completion {
                 case .finished(let value):
-                    _ = onResolve(value).observe { completion in
+                    onResolve(value).observe { completion in
                         resolver.resolve(completion: completion)
                     }
                 case .cancelled:
@@ -106,7 +111,7 @@ final class Promise<Value> {
     /// Transform the value.
     func then<NewValue>(_ onResolve: @escaping (Value) -> NewValue) -> Promise<NewValue> {
         return Promise<NewValue> { resolver in
-            _ = self.observe { completion in
+            self.observe { completion in
                 resolver.resolve(completion: completion.map(onResolve))
             }
         }
@@ -152,7 +157,7 @@ final class Promise<Value> {
         defer { condition.unlock() }
 
         var returnValue: PromiseCompletion<Value>!
-        _ = observe { completion in
+        observe { completion in
             returnValue = completion
             condition.signal()
         }
@@ -203,17 +208,27 @@ final class Promise<Value> {
 }
 
 final class PromiseCancellationToken {
-    private let handler: () -> Void
+    private var handler: (() -> Void)?
+    private let lock = NSLock()
+
     fileprivate init(_ handler: @escaping () -> Void) {
         self.handler = handler
     }
 
+    func cancel() {
+        lock.withCriticalBlock {
+            self.handler?()
+            self.handler = nil
+        }
+    }
+
     deinit {
-        handler()
+        cancel()
     }
 }
 
 struct PromiseResolver<Value> {
+    /// Target promise.
     private let promise: Promise<Value>
 
     /// Private initializer.
@@ -250,7 +265,7 @@ struct PromiseResolver<Value> {
 
     /// Set cancellation handler.
     func setCancelHandler(_ cancellation: @escaping () -> Void) {
-        _ = promise.observe { completion in
+        promise.observe { completion in
             switch completion {
             case .finished:
                 break

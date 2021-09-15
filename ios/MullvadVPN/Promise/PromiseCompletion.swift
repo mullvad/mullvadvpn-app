@@ -26,6 +26,16 @@ enum PromiseCompletion<Value> {
         }
     }
 
+    /// Returns `true` when the completion is `.cancelled`.
+    var isCancelled: Bool {
+        switch self {
+        case .cancelled:
+            return true
+        case .finished:
+            return false
+        }
+    }
+
     /// Map the contained value, producing new `PromiseCompletion` type.
     func map<NewValue>(_ transform: (Value) throws -> NewValue) rethrows -> PromiseCompletion<NewValue> {
         switch self {
@@ -34,6 +44,13 @@ enum PromiseCompletion<Value> {
         case .cancelled:
             return .cancelled
         }
+    }
+}
+
+extension PromiseCompletion where Value: AnyOptional {
+    /// Same as `unwrappedValue` except it flattens `T??` producing single Optional (`T?`)
+    var flattenUnwrappedValue: Value.Wrapped? {
+        return unwrappedValue?.asConcreteType().flatMap { $0 }
     }
 }
 

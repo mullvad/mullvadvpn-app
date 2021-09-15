@@ -51,21 +51,19 @@ extension Promise where Value: AnyResult {
         }
     }
 
-    /// Perform actiion on success.
-    func onSuccess(_ onResolve: @escaping (Success) -> Void) -> Self {
-        return observe { completion in
-            if case .success(let value) = completion.unwrappedValue?.asConcreteType() {
-                onResolve(value)
-            }
+    /// Perform action on success.
+    func onSuccess(_ onResolve: @escaping (Success) -> Void) -> Result<Success, Failure>.Promise {
+        return map { value -> Success in
+            onResolve(value)
+            return value
         }
     }
 
     /// Perform action on failure.
-    func onFailure(_ onResolve: @escaping (Failure) -> Void) -> Self {
-        return observe { completion in
-            if case .failure(let error) = completion.unwrappedValue?.asConcreteType() {
-                onResolve(error)
-            }
+    func onFailure(_ onResolve: @escaping (Failure) -> Void) -> Result<Success, Failure>.Promise {
+        return mapError { error -> Failure in
+            onResolve(error)
+            return error
         }
     }
 
@@ -98,7 +96,19 @@ extension Promise where Value: AnyResult {
     /// Map failure to Result. Passes successful result downstream.
     func flatMapError<NewFailure>(_ transform: @escaping (Failure) -> Result<Success, NewFailure>) -> Result<Success, NewFailure>.Promise {
         return then { result in
-            result.asConcreteType().flatMapError(transform)
+            return result.asConcreteType().flatMapError(transform)
+        }
+    }
+
+    /// Map failure to Result producing Promise. Passes successful result downstream.
+    func flatMapErrorThen<NewFailure>(_ transform: @escaping (Failure) -> Result<Success, NewFailure>.Promise) -> Result<Success, NewFailure>.Promise {
+        return then { result in
+            switch result.asConcreteType() {
+            case .success(let value):
+                return .success(value)
+            case .failure(let error):
+                return transform(error)
+            }
         }
     }
 }
@@ -132,5 +142,12 @@ extension Result {
         case .failure:
             return nil
         }
+    }
+}
+
+extension Result where Success: AnyOptional {
+    /// Same as `value` except it flattens `T??` producing single Optional (`T?`)
+    var flattenValue: Success.Wrapped? {
+        return value?.asConcreteType().flatMap { $0 }
     }
 }
