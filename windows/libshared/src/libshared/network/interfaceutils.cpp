@@ -99,6 +99,7 @@ void InterfaceUtils::AddDeviceIpAddresses(NET_LUID device, const std::vector<SOC
 
 		row.InterfaceLuid = device;
 		row.Address = address;
+		row.DadState = IpDadStatePreferred;
 
 		const auto status = CreateUnicastIpAddressEntry(&row);
 
