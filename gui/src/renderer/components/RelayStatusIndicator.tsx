@@ -1,4 +1,3 @@
-import * as React from 'react';
 import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as Cell from './cell';

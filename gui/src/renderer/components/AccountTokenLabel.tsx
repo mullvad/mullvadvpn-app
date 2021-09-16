@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { formatAccountToken } from '../lib/account';
 import ClipboardLabel from './ClipboardLabel';
 

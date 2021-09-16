@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { batch, Provider } from 'react-redux';
 import { Router } from 'react-router';
 import { bindActionCreators } from 'redux';
