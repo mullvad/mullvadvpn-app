@@ -41,7 +41,6 @@ const config = {
     'build/src/renderer/index.html',
     'build/src/renderer/bundle.js',
     'build/src/renderer/preloadBundle.js',
-    'build/src/renderer/components/CustomScrollbars.css',
     'node_modules/',
     '!**/*.tsbuildinfo',
   ],
