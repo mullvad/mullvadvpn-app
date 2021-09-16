@@ -124,8 +124,8 @@ play {
 }
 
 repositories {
-    jcenter()
     google()
+    mavenCentral()
 }
 
 dependencies {
@@ -142,18 +142,18 @@ dependencies {
     implementation "joda-time:joda-time:2.10.2"
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3"
-    implementation "org.koin:koin-core:$koinVersion"
-    implementation "org.koin:koin-core-ext:$koinVersion"
-    implementation "org.koin:koin-androidx-fragment:$koinVersion"
-    implementation "org.koin:koin-androidx-scope:$koinVersion"
-    implementation "org.koin:koin-androidx-viewmodel:$koinVersion"
+    implementation "io.insert-koin:koin-core:$koinVersion"
+    implementation "io.insert-koin:koin-core-ext:$koinVersion"
+    implementation "io.insert-koin:koin-androidx-fragment:$koinVersion"
+    implementation "io.insert-koin:koin-androidx-scope:$koinVersion"
+    implementation "io.insert-koin:koin-androidx-viewmodel:$koinVersion"
 
     /* Test dependencies */
     testImplementation "io.mockk:mockk:$mockkVersion"
     testImplementation "junit:junit:4.13"
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.3"
-    testImplementation "org.koin:koin-test:$koinVersion"
+    testImplementation "io.insert-koin:koin-test:$koinVersion"
 
     /* UI test dependencies */
     debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
@@ -161,7 +161,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
     androidTestImplementation "androidx.test.ext:junit:1.1.2"
     androidTestImplementation "io.mockk:mockk-android:$mockkVersion"
-    androidTestImplementation "org.koin:koin-test:$koinVersion"
+    androidTestImplementation "io.insert-koin:koin-test:$koinVersion"
     androidTestImplementation "org.jetbrains.kotlin:kotlin-test:$kotlinVersion"
     // debugImplementation because LeakCanary should only run in debug builds.
     // debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.6'
@@ -173,11 +173,11 @@ buildscript {
         fragmentVersion = "1.3.2"
         koinVersion = '2.2.2'
         kotlinVersion = '1.4.31'
-        mockkVersion = '1.10.6'
+        mockkVersion = '1.12.0'
     }
     repositories {
-        jcenter()
         google()
+        mavenCentral()
 
         maven {
             url "https://plugins.gradle.org/m2/"
