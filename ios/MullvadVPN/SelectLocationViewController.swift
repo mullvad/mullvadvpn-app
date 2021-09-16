@@ -25,7 +25,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
     private let logger = Logger(label: "SelectLocationController")
     private var dataSource: LocationDataSource?
-    private var setCachedRelaysOnViewDidLoad: CachedRelays?
+    private var setCachedRelaysOnViewDidLoad: RelayCache.CachedRelays?
     private var setRelayLocationOnViewDidLoad: RelayLocation?
     private var setScrollPositionOnViewDidLoad: UITableView.ScrollPosition = .none
     private var isViewAppeared = false
@@ -203,7 +203,7 @@ class SelectLocationViewController: UIViewController, UITableViewDelegate {
 
     // MARK: - Public
 
-    func setCachedRelays(_ cachedRelays: CachedRelays) {
+    func setCachedRelays(_ cachedRelays: RelayCache.CachedRelays) {
         guard isViewLoaded else {
             self.setCachedRelaysOnViewDidLoad = cachedRelays
             return
