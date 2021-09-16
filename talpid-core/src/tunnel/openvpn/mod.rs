@@ -275,6 +275,7 @@ trait WintunContext: Send + Sync {
     fn luid(&self) -> NET_LUID;
     fn ipv6(&self) -> bool;
     async fn wait_for_interfaces(&self) -> io::Result<()>;
+    fn disable_unused_features(&self) {}
 }
 
 #[cfg(windows)]
@@ -311,6 +312,10 @@ impl WintunContext for WintunContextImpl {
     async fn wait_for_interfaces(&self) -> io::Result<()> {
         let luid = self.adapter.adapter().luid();
         super::windows::wait_for_interfaces(luid, true, self.wait_v6_interface).await
+    }
+
+    fn disable_unused_features(&self) {
+        self.adapter.adapter().try_disable_unused_features();
     }
 }
 
@@ -580,6 +585,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         {
             log::debug!("Wait for IP interfaces");
             wintun.wait_for_interfaces().await?;
+            wintun.disable_unused_features();
         }
         cmd.start()
     }
