@@ -1,3 +1,4 @@
+use crate::tunnel::windows::{get_ip_interface_entry, set_ip_interface_entry};
 use std::{
     ffi::CStr,
     fmt, io, iter, mem,
@@ -14,7 +15,10 @@ use winapi::{
         ifdef::NET_LUID,
         minwindef::{BOOL, FARPROC, HINSTANCE, HMODULE},
         netioapi::ConvertInterfaceLuidToGuid,
+        nldef::RouterDiscoveryDisabled,
+        ntdef::FALSE,
         winerror::NO_ERROR,
+        ws2def::{AF_INET, AF_INET6},
     },
     um::{
         libloaderapi::{
@@ -152,6 +156,28 @@ impl WintunAdapter {
     ) -> io::Result<(Self, RebootRequired)> {
         let (handle, restart_required) = dll_handle.create_adapter(pool, name, requested_guid)?;
         Ok((Self { dll_handle, handle }, restart_required))
+    }
+
+    pub fn try_disable_unused_features(&self) {
+        // Disable DAD, DHCP, and router discovery
+        let luid = self.luid();
+        for family in &[AF_INET, AF_INET6] {
+            if let Ok(mut row) = get_ip_interface_entry(*family as u16, &luid) {
+                row.SitePrefixLength = 0;
+                row.RouterDiscoveryBehavior = RouterDiscoveryDisabled;
+                row.DadTransmits = 0;
+                row.ManagedAddressConfigurationSupported = FALSE;
+                row.OtherStatefulConfigurationSupported = FALSE;
+
+                if let Err(error) = set_ip_interface_entry(&row) {
+                    log::error!(
+                        "{} (family: {})",
+                        error.display_chain_with_msg("Failed to update Wintun interface"),
+                        family,
+                    );
+                }
+            }
+        }
     }
 
     pub fn delete(self, force_close_sessions: bool) -> io::Result<RebootRequired> {
