@@ -1,6 +1,6 @@
 use std::{
     ffi::OsStr,
-    io, mem,
+    fmt, io, mem,
     os::windows::{ffi::OsStrExt, io::RawHandle},
     sync::Mutex,
 };
@@ -15,6 +15,22 @@ use winapi::shared::{
     winerror::{ERROR_NOT_FOUND, NO_ERROR},
     ws2def::{AF_INET, AF_INET6, AF_UNSPEC},
 };
+
+/// Address family. These correspond to the `AF_*` constants.
+#[derive(Debug, Clone, Copy)]
+pub enum AddressFamily {
+    Ipv4 = AF_INET as isize,
+    Ipv6 = AF_INET6 as isize,
+}
+
+impl fmt::Display for AddressFamily {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match *self {
+            AddressFamily::Ipv4 => write!(f, "IPv4 (AF_INET)"),
+            AddressFamily::Ipv6 => write!(f, "IPv6 (AF_INET6)"),
+        }
+    }
+}
 
 /// Context for [`notify_ip_interface_change`]. When it is dropped,
 /// the callback is unregistered.
@@ -47,7 +63,7 @@ unsafe extern "system" fn inner_callback(
 /// or changed.
 pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, u32) + Send + 'a>(
     callback: T,
-    family: u16,
+    family: Option<AddressFamily>,
 ) -> io::Result<Box<IpNotifierHandle<'a>>> {
     let mut context = Box::new(IpNotifierHandle {
         callback: Mutex::new(Box::new(callback)),
@@ -56,7 +72,7 @@ pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, u32) + Send
 
     let status = unsafe {
         NotifyIpInterfaceChange(
-            family,
+            af_family_from_family(family),
             Some(inner_callback),
             &mut *context as *mut _ as *mut _,
             FALSE,
@@ -72,9 +88,12 @@ pub fn notify_ip_interface_change<'a, T: FnMut(&MIB_IPINTERFACE_ROW, u32) + Send
 }
 
 /// Returns information about a network IP interface.
-pub fn get_ip_interface_entry(family: u16, luid: &NET_LUID) -> io::Result<MIB_IPINTERFACE_ROW> {
+pub fn get_ip_interface_entry(
+    family: AddressFamily,
+    luid: &NET_LUID,
+) -> io::Result<MIB_IPINTERFACE_ROW> {
     let mut row: MIB_IPINTERFACE_ROW = unsafe { mem::zeroed() };
-    row.Family = family;
+    row.Family = family as u16;
     row.InterfaceLuid = *luid;
 
     let result = unsafe { GetIpInterfaceEntry(&mut row) };
@@ -95,7 +114,7 @@ pub fn set_ip_interface_entry(row: &MIB_IPINTERFACE_ROW) -> io::Result<()> {
     }
 }
 
-fn ip_interface_entry_exists(family: u16, luid: &NET_LUID) -> io::Result<bool> {
+fn ip_interface_entry_exists(family: AddressFamily, luid: &NET_LUID) -> io::Result<bool> {
     match get_ip_interface_entry(family, luid) {
         Ok(_) => Ok(true),
         Err(error) if error.raw_os_error() == Some(ERROR_NOT_FOUND as i32) => Ok(false),
@@ -134,12 +153,12 @@ pub async fn wait_for_interfaces(luid: NET_LUID, ipv4: bool, ipv6: bool) -> io::
                 }
             }
         },
-        AF_UNSPEC as u16,
+        None,
     )?;
 
     // Make sure they don't already exist
-    if (!ipv4 || ip_interface_entry_exists(AF_INET as u16, &luid)?)
-        && (!ipv6 || ip_interface_entry_exists(AF_INET6 as u16, &luid)?)
+    if (!ipv4 || ip_interface_entry_exists(AddressFamily::Ipv4, &luid)?)
+        && (!ipv6 || ip_interface_entry_exists(AddressFamily::Ipv6, &luid)?)
     {
         return Ok(());
     }
@@ -148,12 +167,16 @@ pub async fn wait_for_interfaces(luid: NET_LUID, ipv4: bool, ipv6: bool) -> io::
     Ok(())
 }
 
-/// Returns the unicast IP address table.
-pub fn get_unicast_table(family: u16) -> io::Result<Vec<MIB_UNICASTIPADDRESS_ROW>> {
+/// Returns the unicast IP address table. If `family` is `None`, then addresses for all families are
+/// returned.
+pub fn get_unicast_table(
+    family: Option<AddressFamily>,
+) -> io::Result<Vec<MIB_UNICASTIPADDRESS_ROW>> {
     let mut unicast_rows = vec![];
     let mut unicast_table: *mut MIB_UNICASTIPADDRESS_TABLE = std::ptr::null_mut();
 
-    let status = unsafe { GetUnicastIpAddressTable(family, &mut unicast_table) };
+    let status =
+        unsafe { GetUnicastIpAddressTable(af_family_from_family(family), &mut unicast_table) };
     if status != NO_ERROR {
         return Err(io::Error::from_raw_os_error(status as i32));
     }
@@ -179,4 +202,10 @@ pub fn luid_from_alias<T: AsRef<OsStr>>(alias: T) -> io::Result<NET_LUID> {
         return Err(io::Error::from_raw_os_error(status as i32));
     }
     Ok(luid)
+}
+
+fn af_family_from_family(family: Option<AddressFamily>) -> u16 {
+    family
+        .map(|family| family as u16)
+        .unwrap_or(AF_UNSPEC as u16)
 }

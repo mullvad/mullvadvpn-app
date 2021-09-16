@@ -41,7 +41,6 @@ use winapi::shared::{
     netioapi::{GetUnicastIpAddressEntry, MIB_UNICASTIPADDRESS_ROW},
     nldef::{IpDadStatePreferred, IpDadStateTentative, NL_DAD_STATE},
     winerror::NO_ERROR,
-    ws2def::AF_UNSPEC,
 };
 #[cfg(windows)]
 use winreg::enums::{KEY_READ, KEY_WRITE};
@@ -1244,7 +1243,7 @@ fn wait_for_ready_device(alias: &str) -> Result<()> {
 
     // Obtain unicast IP addresses
     let mut unicast_rows: Vec<MIB_UNICASTIPADDRESS_ROW> =
-        crate::tunnel::windows::get_unicast_table(AF_UNSPEC as u16)
+        crate::tunnel::windows::get_unicast_table(None)
             .map_err(Error::ObtainUnicastAddress)?
             .into_iter()
             .filter(|row| row.InterfaceLuid.Value == luid.Value)

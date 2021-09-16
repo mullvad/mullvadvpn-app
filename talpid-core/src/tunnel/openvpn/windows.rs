@@ -1,4 +1,4 @@
-use crate::tunnel::windows::{get_ip_interface_entry, set_ip_interface_entry};
+use crate::tunnel::windows::{get_ip_interface_entry, set_ip_interface_entry, AddressFamily};
 use std::{
     ffi::CStr,
     fmt, io, iter, mem,
@@ -18,7 +18,6 @@ use winapi::{
         nldef::RouterDiscoveryDisabled,
         ntdef::FALSE,
         winerror::NO_ERROR,
-        ws2def::{AF_INET, AF_INET6},
     },
     um::{
         libloaderapi::{
@@ -161,8 +160,8 @@ impl WintunAdapter {
     pub fn try_disable_unused_features(&self) {
         // Disable DAD, DHCP, and router discovery
         let luid = self.luid();
-        for family in &[AF_INET, AF_INET6] {
-            if let Ok(mut row) = get_ip_interface_entry(*family as u16, &luid) {
+        for family in &[AddressFamily::Ipv4, AddressFamily::Ipv6] {
+            if let Ok(mut row) = get_ip_interface_entry(*family, &luid) {
                 row.SitePrefixLength = 0;
                 row.RouterDiscoveryBehavior = RouterDiscoveryDisabled;
                 row.DadTransmits = 0;
