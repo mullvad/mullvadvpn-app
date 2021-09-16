@@ -56,8 +56,9 @@ export class Logger {
           try {
             await maybePromise;
           } catch (e) {
+            const error = e as Error;
             console.error(
-              `${output.constructor.name}.write: ${e.message}. Original message: ${message}`,
+              `${output.constructor.name}.write: ${error.message}. Original message: ${message}`,
             );
           }
         }

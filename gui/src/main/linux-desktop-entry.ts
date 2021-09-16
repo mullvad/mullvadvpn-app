@@ -149,7 +149,7 @@ async function getDesktopEntriesInDirectory(
         );
       }
     }
-  } catch (e) {
+  } catch {
     // no-op
   }
 
@@ -289,7 +289,8 @@ async function findIcon(
     let contents: string[] | undefined;
     try {
       contents = await fs.promises.readdir(directory);
-    } catch (error) {
+    } catch (e) {
+      const error = e as NodeJS.ErrnoException;
       // Non-existent directories and files (not a directory) are expected.
       if (error.code !== 'ENOENT' && error.code !== 'ENOTDIR') {
         log.error(`Failed to open directory while searching for ${name} icon`, error);
