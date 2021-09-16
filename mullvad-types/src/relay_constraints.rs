@@ -566,8 +566,13 @@ pub struct BridgeConstraints {
 impl fmt::Display for BridgeConstraints {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self.location {
-            Constraint::Any => write!(f, "any location"),
-            Constraint::Only(ref location_constraint) => location_constraint.fmt(f),
+            Constraint::Any => write!(f, "any location")?,
+            Constraint::Only(ref location_constraint) => location_constraint.fmt(f)?,
+        }
+        write!(f, " using ")?;
+        match self.providers {
+            Constraint::Any => write!(f, "any provider"),
+            Constraint::Only(ref constraint) => constraint.fmt(f),
         }
     }
 }
