@@ -1,9 +1,15 @@
-use std::{io, mem, os::windows::io::RawHandle, sync::Mutex};
+use std::{
+    ffi::OsStr,
+    io, mem,
+    os::windows::{ffi::OsStrExt, io::RawHandle},
+    sync::Mutex,
+};
 use winapi::shared::{
     ifdef::NET_LUID,
     netioapi::{
-        CancelMibChangeNotify2, GetIpInterfaceEntry, MibAddInstance, NotifyIpInterfaceChange,
-        MIB_IPINTERFACE_ROW,
+        CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, FreeMibTable, GetIpInterfaceEntry,
+        GetUnicastIpAddressTable, MibAddInstance, NotifyIpInterfaceChange, MIB_IPINTERFACE_ROW,
+        MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE,
     },
     ntdef::FALSE,
     winerror::{ERROR_NOT_FOUND, NO_ERROR},
@@ -130,4 +136,37 @@ pub async fn wait_for_interfaces(luid: NET_LUID, ipv4: bool, ipv6: bool) -> io::
 
     let _ = rx.await;
     Ok(())
+}
+
+/// Returns the unicast IP address table.
+pub fn get_unicast_table(family: u16) -> io::Result<Vec<MIB_UNICASTIPADDRESS_ROW>> {
+    let mut unicast_rows = vec![];
+    let mut unicast_table: *mut MIB_UNICASTIPADDRESS_TABLE = std::ptr::null_mut();
+
+    let status = unsafe { GetUnicastIpAddressTable(family, &mut unicast_table) };
+    if status != NO_ERROR {
+        return Err(io::Error::from_raw_os_error(status as i32));
+    }
+    let first_row = unsafe { &(*unicast_table).Table[0] } as *const MIB_UNICASTIPADDRESS_ROW;
+    for i in 0..unsafe { *unicast_table }.NumEntries {
+        unicast_rows.push(unsafe { *(first_row.offset(i as isize)) });
+    }
+    unsafe { FreeMibTable(unicast_table as *mut _) };
+
+    Ok(unicast_rows)
+}
+
+/// Returns the LUID of an interface given its alias.
+pub fn luid_from_alias<T: AsRef<OsStr>>(alias: T) -> io::Result<NET_LUID> {
+    let alias_wide: Vec<u16> = alias
+        .as_ref()
+        .encode_wide()
+        .chain(std::iter::once(0u16))
+        .collect();
+    let mut luid: NET_LUID = unsafe { std::mem::zeroed() };
+    let status = unsafe { ConvertInterfaceAliasToLuid(alias_wide.as_ptr(), &mut luid) };
+    if status != NO_ERROR {
+        return Err(io::Error::from_raw_os_error(status as i32));
+    }
+    Ok(luid)
 }

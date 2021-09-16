@@ -15,11 +15,7 @@ use lazy_static::lazy_static;
 #[cfg(target_os = "linux")]
 use std::collections::{HashMap, HashSet};
 #[cfg(windows)]
-use std::{
-    ffi::{OsStr, OsString},
-    os::windows::ffi::OsStrExt,
-    time::Instant,
-};
+use std::{ffi::OsString, time::Instant};
 use std::{
     fs,
     io::{self, Write},
@@ -42,10 +38,7 @@ use widestring::U16CString;
 use winapi::shared::{
     guiddef::GUID,
     ifdef::NET_LUID,
-    netioapi::{
-        ConvertInterfaceAliasToLuid, FreeMibTable, GetUnicastIpAddressEntry,
-        GetUnicastIpAddressTable, MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE,
-    },
+    netioapi::{GetUnicastIpAddressEntry, MIB_UNICASTIPADDRESS_ROW},
     nldef::{IpDadStatePreferred, IpDadStateTentative, NL_DAD_STATE},
     winerror::NO_ERROR,
     ws2def::AF_UNSPEC,
@@ -1241,44 +1234,17 @@ mod event_server {
 #[cfg(windows)]
 fn wait_for_ready_device(alias: &str) -> Result<()> {
     // Obtain luid for alias
-    let alias_wide: Vec<u16> = OsStr::new(alias)
-        .encode_wide()
-        .chain(std::iter::once(0u16))
-        .collect();
-
-    let mut luid: NET_LUID = unsafe { std::mem::zeroed() };
-    let status = unsafe { ConvertInterfaceAliasToLuid(alias_wide.as_ptr(), &mut luid) };
-    if status != NO_ERROR {
-        return Err(Error::NoDeviceLuid(io::Error::last_os_error()));
-    }
+    let luid = crate::tunnel::windows::luid_from_alias(alias).map_err(Error::NoDeviceLuid)?;
 
     // Obtain unicast IP addresses
-    let mut unicast_rows = vec![];
-
-    unsafe {
-        let mut unicast_table: *mut MIB_UNICASTIPADDRESS_TABLE = std::ptr::null_mut();
-
-        let status = GetUnicastIpAddressTable(AF_UNSPEC as u16, &mut unicast_table);
-        if status != NO_ERROR {
-            return Err(Error::ObtainUnicastAddress(io::Error::last_os_error()));
-        }
-
-        if (*unicast_table).NumEntries == 0 {
-            FreeMibTable(unicast_table as *mut _);
-            return Err(Error::NoUnicastAddress);
-        }
-
-        let first_row = &(*unicast_table).Table[0] as *const MIB_UNICASTIPADDRESS_ROW;
-
-        for i in 0..(*unicast_table).NumEntries {
-            let row = first_row.offset(i as isize);
-            if (*row).InterfaceLuid.Value != luid.Value {
-                continue;
-            }
-            unicast_rows.push(*row);
-        }
-
-        FreeMibTable(unicast_table as *mut _);
+    let mut unicast_rows: Vec<MIB_UNICASTIPADDRESS_ROW> =
+        crate::tunnel::windows::get_unicast_table(AF_UNSPEC as u16)
+            .map_err(Error::ObtainUnicastAddress)?
+            .into_iter()
+            .filter(|row| row.InterfaceLuid.Value == luid.Value)
+            .collect();
+    if unicast_rows.is_empty() {
+        return Err(Error::NoUnicastAddress);
     }
 
     // Poll DAD status using GetUnicastIpAddressEntry
@@ -1289,9 +1255,11 @@ fn wait_for_ready_device(alias: &str) -> Result<()> {
         let mut ready = true;
 
         for row in &mut unicast_rows {
-            let status = unsafe { GetUnicastIpAddressEntry(row as *mut _) };
+            let status = unsafe { GetUnicastIpAddressEntry(row) };
             if status != NO_ERROR {
-                return Err(Error::ObtainUnicastAddress(io::Error::last_os_error()));
+                return Err(Error::ObtainUnicastAddress(io::Error::from_raw_os_error(
+                    status as i32,
+                )));
             }
             if row.DadState == IpDadStateTentative {
                 ready = false;
