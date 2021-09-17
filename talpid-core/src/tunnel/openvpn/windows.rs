@@ -198,7 +198,7 @@ impl WintunAdapter {
         let mut guid = mem::MaybeUninit::zeroed();
         let result = unsafe { ConvertInterfaceLuidToGuid(&self.luid(), guid.as_mut_ptr()) };
         if result != NO_ERROR {
-            return Err(io::Error::last_os_error());
+            return Err(io::Error::from_raw_os_error(result as i32));
         }
         Ok(unsafe { guid.assume_init() })
     }
