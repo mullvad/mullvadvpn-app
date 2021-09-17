@@ -32,7 +32,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private var connectController: ConnectViewController?
     private weak var settingsNavController: SettingsNavigationController?
 
-    private var cachedRelays: CachedRelays? {
+    private var cachedRelays: RelayCache.CachedRelays? {
         didSet {
             if let cachedRelays = cachedRelays {
                 self.selectLocationViewController?.setCachedRelays(cachedRelays)
@@ -75,23 +75,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         launchController.view.backgroundColor = .primaryColor
         self.window?.rootViewController = launchController
 
-        // Update relays
-        RelayCache.shared.addObserver(self)
-        RelayCache.shared.updateRelays()
+        // Add relay cache observer
+        RelayCache.Tracker.shared.addObserver(self)
 
         // Load initial relays
-        self.logger?.debug("Load relays")
-        RelayCache.shared.read { (result) in
-            DispatchQueue.main.async {
+        RelayCache.Tracker.shared.read()
+            .receive(on: .main)
+            .observe { completion in
+                guard let result = completion.unwrappedValue else { return }
+
                 switch result {
                 case .success(let cachedRelays):
                     self.cachedRelays = cachedRelays
-                    self.logger?.debug("Loaded relays")
 
                 case .failure(let error):
                     self.logger?.error(chainedError: error, message: "Failed to load initial relays")
                 }
-            }
         }
 
         // Load tunnels
@@ -134,6 +133,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         TunnelManager.shared.refreshTunnelState(completionHandler: nil)
+
+        // Start periodic relays updates
+        RelayCache.Tracker.shared.startPeriodicUpdates()
+    }
+
+    func applicationWillResignActive(_ application: UIApplication) {
+        // Stop periodic relays updates
+        RelayCache.Tracker.shared.stopPeriodicUpdates()
     }
 
     // MARK: - Private
@@ -701,7 +708,7 @@ extension AppDelegate: UIAdaptivePresentationControllerDelegate {
 
 extension AppDelegate: RelayCacheObserver {
 
-    func relayCache(_ relayCache: RelayCache, didUpdateCachedRelays cachedRelays: CachedRelays) {
+    func relayCache(_ relayCache: RelayCache.Tracker, didUpdateCachedRelays cachedRelays: RelayCache.CachedRelays) {
         DispatchQueue.main.async {
             self.cachedRelays = cachedRelays
         }
