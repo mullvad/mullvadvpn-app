@@ -75,26 +75,17 @@ impl WgGoTunnel {
             .map_err(TunnelError::LoggingError)?;
 
         #[cfg(not(target_os = "android"))]
+        let mtu = config.mtu as isize;
         let handle = unsafe {
             wgTurnOn(
-                config.mtu as isize,
+                #[cfg(not(target_os = "android"))]
+                mtu,
                 wg_config_str.as_ptr() as *const i8,
                 tunnel_fd,
                 Some(logging_callback),
                 logging_context.0 as *mut libc::c_void,
             )
         };
-
-        #[cfg(target_os = "android")]
-        let handle = unsafe {
-            wgTurnOn(
-                wg_config_str.as_ptr() as *const i8,
-                tunnel_fd,
-                Some(logging_callback),
-                logging_context.0 as *mut libc::c_void,
-            )
-        };
-
         check_wg_status(handle)?;
 
         #[cfg(target_os = "android")]
