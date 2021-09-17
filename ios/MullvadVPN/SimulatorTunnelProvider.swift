@@ -225,7 +225,7 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
     func stopVPNTunnel() {
         status = .disconnecting
 
-        SimulatorTunnelProvider.shared.delegate.stopTunnel(with: .none) {
+        SimulatorTunnelProvider.shared.delegate.stopTunnel(with: .userInitiated) {
             self.status = .disconnected
         }
     }
