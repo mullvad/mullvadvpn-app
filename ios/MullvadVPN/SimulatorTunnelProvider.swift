@@ -116,7 +116,7 @@ class SimulatorTunnelProviderDelegate {
         }
     }
 
-    func startTunnel(options: [String: Any]?, completionHandler: @escaping (Error?) -> Void) {
+    func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
         completionHandler(nil)
     }
 
