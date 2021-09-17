@@ -6,7 +6,6 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-
 import Foundation
 import NetworkExtension
 
@@ -165,7 +164,9 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
     private var _status: NEVPNStatus = .disconnected
     private(set) var status: NEVPNStatus {
         get {
-            lock.withCriticalBlock { _status }
+            return lock.withCriticalBlock {
+                return _status
+            }
         }
         set {
             lock.withCriticalBlock {
