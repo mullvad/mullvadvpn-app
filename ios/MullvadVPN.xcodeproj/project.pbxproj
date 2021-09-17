@@ -266,8 +266,6 @@
 		58F559102697002100F630D0 /* HeaderBar.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F559092697002100F630D0 /* HeaderBar.strings */; };
 		58F61F4F2692F21C00DCFC2B /* WireguardKeys.strings in Resources */ = {isa = PBXBuildFile; fileRef = 58F61F4D2692F21C00DCFC2B /* WireguardKeys.strings */; };
 		58F7CA882692E34000FC59FD /* WireguardKeysContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */; };
-		58F840AF2464382C0044E708 /* KeychainItemRevision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840AE2464382C0044E708 /* KeychainItemRevision.swift */; };
-		58F840B02464382C0044E708 /* KeychainItemRevision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840AE2464382C0044E708 /* KeychainItemRevision.swift */; };
 		58F840B22464491D0044E708 /* ChainedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840B12464491D0044E708 /* ChainedError.swift */; };
 		58F840B32464491D0044E708 /* ChainedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F840B12464491D0044E708 /* ChainedError.swift */; };
 		58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */; };
@@ -518,7 +516,6 @@
 		58F5590A2697002100F630D0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/HeaderBar.strings; sourceTree = "<group>"; };
 		58F61F4E2692F21C00DCFC2B /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/WireguardKeys.strings; sourceTree = "<group>"; };
 		58F7CA872692E34000FC59FD /* WireguardKeysContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WireguardKeysContentView.swift; sourceTree = "<group>"; };
-		58F840AE2464382C0044E708 /* KeychainItemRevision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainItemRevision.swift; sourceTree = "<group>"; };
 		58F840B12464491D0044E708 /* ChainedError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainedError.swift; sourceTree = "<group>"; };
 		58F8AC0D25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportReviewViewController.swift; sourceTree = "<group>"; };
 		58FAEDEB245059F000CB0F5B /* KeychainAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainAttributes.swift; sourceTree = "<group>"; };
@@ -1356,7 +1353,6 @@
 				5875960A26F371FC00BF6711 /* TunnelIPCSession.swift in Sources */,
 				58FB865E26EA284E00F188BC /* LogFormatting.swift in Sources */,
 				587AD7CA2342283900E93A53 /* Account.swift in Sources */,
-				58F840AF2464382C0044E708 /* KeychainItemRevision.swift in Sources */,
 				585DA88726B0277200B8C587 /* RESTError.swift in Sources */,
 				58293FB725138B88005D0BB5 /* CustomNavigationController.swift in Sources */,
 				587425C12299833500CA2045 /* RootContainerViewController.swift in Sources */,
@@ -1396,7 +1392,6 @@
 				58FAEE0324533ABE00CB0F5B /* KeychainReturn.swift in Sources */,
 				58BFA5CD22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
 				5850368D25A49E2200A43E93 /* PrivateKeyWithMetadata.swift in Sources */,
-				58F840B02464382C0044E708 /* KeychainItemRevision.swift in Sources */,
 				5820675826E652AF00655B05 /* RelayCacheIO.swift in Sources */,
 				5820675726E652A600655B05 /* REST.swift in Sources */,
 				58E1337A26D2BEDD00CC316B /* Promise+ReceiveOn.swift in Sources */,
