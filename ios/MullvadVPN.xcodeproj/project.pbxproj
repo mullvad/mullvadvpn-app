@@ -142,6 +142,8 @@
 		587B753D2666468F00DEF7E9 /* NotificationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B753C2666468F00DEF7E9 /* NotificationController.swift */; };
 		587B753F2668E5A700DEF7E9 /* NotificationContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B753E2668E5A700DEF7E9 /* NotificationContainerView.swift */; };
 		587B75412668FD7800DEF7E9 /* AccountExpiryNotificationProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587B75402668FD7700DEF7E9 /* AccountExpiryNotificationProvider.swift */; };
+		587C575326D2615F005EF767 /* PacketTunnelOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587C575226D2615F005EF767 /* PacketTunnelOptions.swift */; };
+		587C575426D2615F005EF767 /* PacketTunnelOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587C575226D2615F005EF767 /* PacketTunnelOptions.swift */; };
 		587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587CBFE222807F530028DED3 /* UIColor+Helpers.swift */; };
 		5883A09E266A5AF7003EFFCB /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 587B7543266922BF00DEF7E9 /* Localizable.strings */; };
 		588534BF246193D90018B744 /* AutomaticKeyRotationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 588534BD246193C00018B744 /* AutomaticKeyRotationManager.swift */; };
@@ -432,6 +434,7 @@
 		587B753E2668E5A700DEF7E9 /* NotificationContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationContainerView.swift; sourceTree = "<group>"; };
 		587B75402668FD7700DEF7E9 /* AccountExpiryNotificationProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountExpiryNotificationProvider.swift; sourceTree = "<group>"; };
 		587B7544266922BF00DEF7E9 /* en */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		587C575226D2615F005EF767 /* PacketTunnelOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelOptions.swift; sourceTree = "<group>"; };
 		587CBFE222807F530028DED3 /* UIColor+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Helpers.swift"; sourceTree = "<group>"; };
 		588534BD246193C00018B744 /* AutomaticKeyRotationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutomaticKeyRotationManager.swift; sourceTree = "<group>"; };
 		5888AD82227B11080051EB06 /* SelectLocationCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationCell.swift; sourceTree = "<group>"; };
@@ -612,6 +615,14 @@
 				5815039C24D6ECE600C9C50E /* TextFileOutputStream.swift */,
 			);
 			path = Logging;
+			sourceTree = "<group>";
+		};
+		5823FA5726CE4A4100283BF8 /* TunnelManager */ = {
+			isa = PBXGroup;
+			children = (
+				587C575226D2615F005EF767 /* PacketTunnelOptions.swift */,
+			);
+			path = TunnelManager;
 			sourceTree = "<group>";
 		};
 		582CFEE1269448160072883A /* Localizations */ = {
@@ -1238,6 +1249,7 @@
 				5820675B26E6576800655B05 /* RelayCache.swift in Sources */,
 				585DA87D26B0254000B8C587 /* RelayCacheIO.swift in Sources */,
 				58BA693123EADA6A009DC256 /* SimulatorTunnelProvider.swift in Sources */,
+				587C575326D2615F005EF767 /* PacketTunnelOptions.swift in Sources */,
 				58E1336D26D2BE7500CC316B /* AnyResult.swift in Sources */,
 				587B753B2666467500DEF7E9 /* NotificationBannerView.swift in Sources */,
 				58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */,
@@ -1389,6 +1401,7 @@
 				58FAEE0224533ABB00CB0F5B /* KeychainMatchLimit.swift in Sources */,
 				58FB865F26EA2E6D00F188BC /* LogFormatting.swift in Sources */,
 				585DA89726B0328000B8C587 /* TunnelIPCResponse.swift in Sources */,
+				587C575426D2615F005EF767 /* PacketTunnelOptions.swift in Sources */,
 				58FAEE0324533ABE00CB0F5B /* KeychainReturn.swift in Sources */,
 				58BFA5CD22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
 				5850368D25A49E2200A43E93 /* PrivateKeyWithMetadata.swift in Sources */,
