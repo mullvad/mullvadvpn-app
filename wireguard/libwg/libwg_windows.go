@@ -13,6 +13,7 @@ import (
 	"bufio"
 	"fmt"
 	"strings"
+	"time"
 	"unsafe"
 
 	"golang.org/x/sys/windows"
@@ -24,6 +25,10 @@ import (
 
 	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/logging"
 	"github.com/mullvad/mullvadvpn-app/wireguard/libwg/tunnelcontainer"
+)
+
+const (
+	MAX_WINTUN_CREATION_ATTEMPTS = 3
 )
 
 // Redefined here because otherwise the compiler doesn't realize it's a type alias for a type that's safe to export.
@@ -68,11 +73,23 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, c
 		tun.WintunPool = MullvadPool
 	}
 
-	wintun, err := tun.CreateTUNWithRequestedGUID(ifaceName, &networkId, mtu)
-	if err != nil {
-		logger.Errorf("Failed to create tunnel\n")
-		logger.Errorf("%s\n", err)
-		return ERROR_GENERAL_FAILURE
+	var wintun tun.Device
+	var wintunErr error
+
+	attempt := 0
+	for {
+		attempt += 1
+		wintun, wintunErr = tun.CreateTUNWithRequestedGUID(ifaceName, &networkId, mtu)
+		if wintunErr != nil {
+			logger.Errorf("Failed to create tunnel\n")
+			logger.Errorf("%s\n", wintunErr)
+			if attempt == MAX_WINTUN_CREATION_ATTEMPTS {
+				return ERROR_GENERAL_FAILURE
+			}
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		break
 	}
 
 	nativeTun := wintun.(*tun.NativeTun)
