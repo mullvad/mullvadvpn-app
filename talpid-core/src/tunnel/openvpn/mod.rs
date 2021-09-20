@@ -82,8 +82,6 @@ const ADAPTER_GUID: GUID = GUID {
 const DEVICE_READY_TIMEOUT: Duration = Duration::from_secs(5);
 #[cfg(windows)]
 const DEVICE_CHECK_INTERVAL: Duration = Duration::from_millis(100);
-#[cfg(windows)]
-const MAX_WINTUN_CREATION_ATTEMPTS: u32 = 3;
 
 
 /// Results from fallible operations on the OpenVPN tunnel.
@@ -122,7 +120,7 @@ pub enum Error {
     /// cannot create a wintun interface
     #[cfg(windows)]
     #[error(display = "Failed to create Wintun adapter")]
-    WintunError(#[error(source)] io::Error),
+    WintunCreateAdapterError(#[error(source)] io::Error),
 
     /// cannot determine adapter name
     #[cfg(windows)]
@@ -380,30 +378,13 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 }
             }
 
-            let mut attempt = 0;
-            let (adapter, reboot_required) = loop {
-                let error = match windows::TemporaryWintunAdapter::create(
-                    dll.clone(),
-                    &*ADAPTER_ALIAS,
-                    &*ADAPTER_POOL,
-                    Some(ADAPTER_GUID.clone()),
-                ) {
-                    Ok(result) => break result,
-                    Err(error) => error,
-                };
-
-                attempt += 1;
-                if attempt == MAX_WINTUN_CREATION_ATTEMPTS {
-                    return Err(Error::WintunError(error));
-                }
-                log::error!(
-                    "{} (attempt {})",
-                    error.display_chain_with_msg("Failed to create Wintun interface"),
-                    attempt
-                );
-                std::thread::sleep(std::time::Duration::from_secs(1));
-            };
-
+            let (adapter, reboot_required) = windows::TemporaryWintunAdapter::create(
+                dll.clone(),
+                &*ADAPTER_ALIAS,
+                &*ADAPTER_POOL,
+                Some(ADAPTER_GUID.clone()),
+            )
+            .map_err(Error::WintunCreateAdapterError)?;
             if reboot_required {
                 log::warn!("You may need to restart Windows to complete the install of Wintun");
             }
