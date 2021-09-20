@@ -1303,7 +1303,7 @@ fn try_transport_protocol_from_i32(
         .into())
 }
 
-fn try_providers_constraint_from_proto(
+pub fn try_providers_constraint_from_proto(
     providers: &[String],
 ) -> Result<Constraint<mullvad_types::relay_constraints::Providers>, FromProtobufTypeError> {
     if !providers.is_empty() {
