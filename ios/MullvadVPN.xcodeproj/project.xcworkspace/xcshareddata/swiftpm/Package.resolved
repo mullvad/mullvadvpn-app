@@ -11,7 +11,7 @@
         }
       },
       {
-        "package": "wireguard-apple",
+        "package": "WireGuardKit",
         "repositoryURL": "https://git.zx2c4.com/wireguard-apple",
         "state": {
           "branch": null,
