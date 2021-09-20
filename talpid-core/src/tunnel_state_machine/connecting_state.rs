@@ -41,6 +41,8 @@ pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause
 #[cfg(target_os = "android")]
 const MAX_ATTEMPTS_WITH_SAME_TUN: u32 = 5;
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
+#[cfg(target_os = "windows")]
+const MAX_ADAPTER_FAIL_RETRIES: u32 = 4;
 
 /// The tunnel has been started, but it is not established/functional.
 pub struct ConnectingState {
@@ -118,7 +120,8 @@ impl ConnectingState {
             route_manager,
         )?;
         let close_handle = Some(monitor.close_handle());
-        let tunnel_close_event = Self::spawn_tunnel_monitor_wait_thread(Some(monitor));
+        let tunnel_close_event =
+            Self::spawn_tunnel_monitor_wait_thread(Some(monitor), retry_attempt);
 
         Ok(ConnectingState {
             tunnel_events: event_rx.fuse(),
@@ -130,14 +133,17 @@ impl ConnectingState {
         })
     }
 
-    fn spawn_tunnel_monitor_wait_thread(tunnel_monitor: Option<TunnelMonitor>) -> TunnelCloseEvent {
+    fn spawn_tunnel_monitor_wait_thread(
+        tunnel_monitor: Option<TunnelMonitor>,
+        retry_attempt: u32,
+    ) -> TunnelCloseEvent {
         let (tunnel_close_event_tx, tunnel_close_event_rx) = oneshot::channel();
 
         thread::spawn(move || {
             let start = Instant::now();
 
             let block_reason = if let Some(monitor) = tunnel_monitor {
-                let reason = Self::wait_for_tunnel_monitor(monitor);
+                let reason = Self::wait_for_tunnel_monitor(monitor, retry_attempt);
                 debug!("Tunnel monitor exited with block reason: {:?}", reason);
                 reason
             } else {
@@ -160,7 +166,10 @@ impl ConnectingState {
         tunnel_close_event_rx.fuse()
     }
 
-    fn wait_for_tunnel_monitor(tunnel_monitor: TunnelMonitor) -> Option<ErrorStateCause> {
+    fn wait_for_tunnel_monitor(
+        tunnel_monitor: TunnelMonitor,
+        retry_attempt: u32,
+    ) -> Option<ErrorStateCause> {
         match tunnel_monitor.wait() {
             Ok(_) => None,
             Err(error) => match error {
@@ -171,7 +180,7 @@ impl ConnectingState {
                     None
                 }
                 error @ tunnel::Error::WireguardTunnelMonitoringError(..)
-                    if !should_retry(&error) =>
+                    if !should_retry(&error, retry_attempt) =>
                 {
                     error!(
                         "{}",
@@ -403,10 +412,11 @@ impl ConnectingState {
     }
 }
 
-fn should_retry(error: &tunnel::Error) -> bool {
-    use tunnel::wireguard::Error;
-    #[cfg(not(windows))]
-    use tunnel::wireguard::TunnelError;
+#[cfg_attr(not(target_os = "windows"), allow(unused_variables))]
+fn should_retry(error: &tunnel::Error, retry_attempt: u32) -> bool {
+    #[cfg(windows)]
+    use tunnel::openvpn;
+    use tunnel::wireguard::{Error, TunnelError};
 
     match error {
         tunnel::Error::WireguardTunnelMonitoringError(Error::Udp2TcpError(_)) => true,
@@ -425,6 +435,16 @@ fn should_retry(error: &tunnel::Error) -> bool {
         tunnel::Error::WireguardTunnelMonitoringError(Error::SetupRoutingError(error)) => {
             is_recoverable_routing_error(error)
         }
+
+        #[cfg(windows)]
+        tunnel::Error::WireguardTunnelMonitoringError(Error::TunnelError(
+            TunnelError::RecoverableStartWireguardError,
+        )) if retry_attempt < MAX_ADAPTER_FAIL_RETRIES => true,
+
+        #[cfg(windows)]
+        tunnel::Error::OpenVpnTunnelMonitoringError(openvpn::Error::WintunCreateAdapterError(
+            _,
+        )) if retry_attempt < MAX_ADAPTER_FAIL_RETRIES => true,
 
         _ => false,
     }
@@ -510,7 +530,7 @@ impl TunnelState for ConnectingState {
                             )
                         }
                         Err(error) => {
-                            if should_retry(&error) {
+                            if should_retry(&error, retry_attempt) {
                                 log::warn!(
                                     "{}",
                                     error.display_chain_with_msg(
@@ -521,7 +541,7 @@ impl TunnelState for ConnectingState {
                                     shared_values,
                                     (
                                         None,
-                                        Self::spawn_tunnel_monitor_wait_thread(None),
+                                        Self::spawn_tunnel_monitor_wait_thread(None, retry_attempt),
                                         AfterDisconnect::Reconnect(retry_attempt + 1),
                                     ),
                                 )
