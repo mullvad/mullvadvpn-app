@@ -2,7 +2,7 @@
   "compilerOptions": {
     "alwaysStrict": true,
     "esModuleInterop": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "module": "commonjs",
     "noImplicitReturns": true,
     "noUnusedLocals": true,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { hasExpired } from '../../shared/account-expiry';
 import { IReduxState } from '../redux/store';

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';

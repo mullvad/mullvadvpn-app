@@ -41,7 +41,14 @@ function makeWatchCompiler(onFirstSuccess, onSuccess) {
         }
       }),
     );
-    watch.start('--noClear', '--sourceMap', '--inlineSources', '--incremental', '--project', '.');
+    watch.start(
+      '--noClear',
+      '--sourceMap',
+      '--inlineSources',
+      '--incremental',
+      '--project',
+      './tsconfig.dev.json',
+    );
     return watch.tsc;
   };
   compileScripts.displayName = 'compile-scripts-watch';
