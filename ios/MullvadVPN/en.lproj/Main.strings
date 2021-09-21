@@ -35,7 +35,16 @@
 "TUNNEL_STATE_DISCONNECTED_ACCESSIBILITY_LABEL" = "Unsecured connection";
 
 /* No comment provided by engineer. */
+"TUNNEL_STATE_DISCONNECTING" = "Disconnecting";
+
+/* No comment provided by engineer. */
 "TUNNEL_STATE_DISCONNECTING_ACCESSIBILITY_LABEL" = "Disconnecting";
+
+/* No comment provided by engineer. */
+"TUNNEL_STATE_PENDING_RECONNECT" = "Reconnecting";
+
+/* No comment provided by engineer. */
+"TUNNEL_STATE_PENDING_RECONNECT_ACCESSIBILITY_LABEL" = "Pending reconnect";
 
 /* No comment provided by engineer. */
 "TUNNEL_STATE_RECONNECTING_ACCESSIBILITY_LABEL" = "Reconnecting to %1$@, %2$@";

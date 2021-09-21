@@ -9,25 +9,23 @@
 import Foundation
 import NetworkExtension
 
-extension NEVPNStatus: CustomDebugStringConvertible {
-    public var debugDescription: String {
-        var output = "NEVPNStatus."
+extension NEVPNStatus: CustomStringConvertible {
+    public var description: String {
         switch self {
         case .connected:
-            output += "connected"
+            return "connected"
         case .connecting:
-            output +=  "connecting"
+            return "connecting"
         case .disconnected:
-            output +=  "disconnected"
+            return "disconnected"
         case .disconnecting:
-            output +=  "disconnecting"
+            return "disconnecting"
         case .invalid:
-            output +=  "invalid"
+            return  "invalid"
         case .reasserting:
-            output +=  "reasserting"
+            return "reasserting"
         @unknown default:
-            output += "\(self.rawValue)"
+            return  "unknown value (\(self.rawValue))"
         }
-        return output
     }
 }

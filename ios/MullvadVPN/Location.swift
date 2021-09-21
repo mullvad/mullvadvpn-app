@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import CoreLocation
+import struct CoreLocation.CLLocationCoordinate2D
 
 struct Location: Codable, Equatable {
     var country: String
