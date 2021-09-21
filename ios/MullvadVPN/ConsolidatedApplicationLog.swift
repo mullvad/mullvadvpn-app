@@ -67,7 +67,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
 
     func addLogFiles(fileURLs: [URL], includeLogBackups: Bool) {
         for fileURL in fileURLs {
-            addLogFile(fileURL: fileURL, includeBackupLog: includeLogBackups)
+            addLogFile(fileURL: fileURL, includeLogBackup: includeLogBackups)
         }
     }
 
