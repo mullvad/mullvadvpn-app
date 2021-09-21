@@ -155,7 +155,11 @@ export class DaemonRpc {
 
   public disconnect() {
     this.isConnected = false;
-    this.subscriptions.clear();
+
+    for (const subscriptionId of this.subscriptions.keys()) {
+      this.removeSubscription(subscriptionId);
+    }
+
     this.client.close();
     if (this.reconnectionTimeout) {
       clearTimeout(this.reconnectionTimeout);
@@ -558,14 +562,14 @@ export class DaemonRpc {
       this.subscriptions.delete(id);
       subscription.removeAllListeners('data');
       subscription.removeAllListeners('error');
-      try {
-        subscription.cancel();
-      } catch (e) {
+
+      subscription.on('error', (e) => {
         const error = e as grpc.ServiceError;
         if (error.code !== grpc.status.CANCELLED) {
           throw error;
         }
-      }
+      });
+      subscription.cancel();
     }
   }
 
