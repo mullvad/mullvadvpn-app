@@ -120,7 +120,7 @@ pub enum Error {
     /// cannot create a wintun interface
     #[cfg(windows)]
     #[error(display = "Failed to create Wintun adapter")]
-    WintunError(#[error(source)] io::Error),
+    WintunCreateAdapterError(#[error(source)] io::Error),
 
     /// cannot determine adapter name
     #[cfg(windows)]
@@ -265,7 +265,7 @@ pub struct OpenVpnMonitor<C: OpenVpnBuilder = OpenVpnCommand> {
     server_join_handle: Option<task::JoinHandle<std::result::Result<(), event_server::Error>>>,
 
     #[cfg(windows)]
-    wintun: Arc<Box<dyn WintunContext>>,
+    _wintun: Arc<Box<dyn WintunContext>>,
 }
 
 #[cfg(windows)]
@@ -384,8 +384,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
                 &*ADAPTER_POOL,
                 Some(ADAPTER_GUID.clone()),
             )
-            .map_err(Error::WintunError)?;
-
+            .map_err(Error::WintunCreateAdapterError)?;
             if reboot_required {
                 log::warn!("You may need to restart Windows to complete the install of Wintun");
             }
@@ -572,7 +571,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
             server_join_handle: Some(server_join_handle),
 
             #[cfg(windows)]
-            wintun,
+            _wintun: wintun,
         })
     }
 

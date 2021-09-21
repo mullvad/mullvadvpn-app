@@ -72,7 +72,7 @@ func wgTurnOn(cIfaceName *C.char, mtu int, waitOnIpv6 bool, cSettings *C.char, c
 	if err != nil {
 		logger.Errorf("Failed to create tunnel\n")
 		logger.Errorf("%s\n", err)
-		return ERROR_GENERAL_FAILURE
+		return ERROR_INTERMITTENT_FAILURE
 	}
 
 	nativeTun := wintun.(*tun.NativeTun)

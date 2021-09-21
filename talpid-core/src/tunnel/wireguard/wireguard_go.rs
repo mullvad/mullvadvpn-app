@@ -75,34 +75,18 @@ impl WgGoTunnel {
             .map_err(TunnelError::LoggingError)?;
 
         #[cfg(not(target_os = "android"))]
+        let mtu = config.mtu as isize;
         let handle = unsafe {
             wgTurnOn(
-                config.mtu as isize,
+                #[cfg(not(target_os = "android"))]
+                mtu,
                 wg_config_str.as_ptr() as *const i8,
                 tunnel_fd,
                 Some(logging_callback),
                 logging_context.0 as *mut libc::c_void,
             )
         };
-
-        #[cfg(target_os = "android")]
-        let handle = unsafe {
-            wgTurnOn(
-                wg_config_str.as_ptr() as *const i8,
-                tunnel_fd,
-                Some(logging_callback),
-                logging_context.0 as *mut libc::c_void,
-            )
-        };
-
-        if handle < 0 {
-            // Error values returned from the wireguard-go library
-            return match handle {
-                -1 => Err(TunnelError::FatalStartWireguardError),
-                -2 => Err(TunnelError::RecoverableStartWireguardError),
-                _ => unreachable!("Unknown status code returned from wireguard-go"),
-            };
-        }
+        check_wg_status(handle)?;
 
         #[cfg(target_os = "android")]
         Self::bypass_tunnel_sockets(&mut tunnel_device, handle)
@@ -153,10 +137,7 @@ impl WgGoTunnel {
                 logging_context.0 as *mut libc::c_void,
             )
         };
-
-        if handle < 0 {
-            return Err(TunnelError::FatalStartWireguardError);
-        }
+        check_wg_status(handle)?;
 
         let actual_iface_name = {
             let actual_iface_name_c = unsafe { CStr::from_ptr(alias_ptr) };
@@ -343,6 +324,18 @@ impl Tunnel for WgGoTunnel {
     }
 }
 
+fn check_wg_status(wg_code: i32) -> Result<()> {
+    match wg_code {
+        ERROR_GENERAL_FAILURE => Err(TunnelError::FatalStartWireguardError),
+        ERROR_INTERMITTENT_FAILURE => Err(TunnelError::RecoverableStartWireguardError),
+        0.. => Ok(()),
+        _ => {
+            log::error!("Unknown status code returned from wireguard-go");
+            Err(TunnelError::FatalStartWireguardError)
+        }
+    }
+}
+
 #[cfg(unix)]
 pub type Fd = std::os::unix::io::RawFd;
 
@@ -351,6 +344,9 @@ pub type LoggingCallback = unsafe extern "system" fn(
     msg: *const libc::c_char,
     context: *mut libc::c_void,
 );
+
+const ERROR_GENERAL_FAILURE: i32 = -1;
+const ERROR_INTERMITTENT_FAILURE: i32 = -2;
 
 extern "C" {
     /// Creates a new wireguard tunnel, uses the specific interface name, MTU and file descriptors
