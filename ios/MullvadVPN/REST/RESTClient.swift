@@ -8,7 +8,8 @@
 
 import Foundation
 import Network
-import WireGuardKit
+import class WireGuardKit.PublicKey
+import struct WireGuardKit.IPAddressRange
 
 extension REST {
 
