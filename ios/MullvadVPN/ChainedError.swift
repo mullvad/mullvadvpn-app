@@ -14,6 +14,18 @@ protocol ChainedError: LocalizedError {
     var source: Error? { get }
 }
 
+final class AnyChainedError: ChainedError {
+    private let wrappedError: Error
+
+    init(_ error: Error) {
+        wrappedError = error
+    }
+
+    var errorDescription: String? {
+        return wrappedError.localizedDescription
+    }
+}
+
 extension ChainedError {
 
     var source: Error? {

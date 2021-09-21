@@ -9,7 +9,7 @@
 import Foundation
 import Network
 
-struct RelaySelectorResult {
+struct RelaySelectorResult: Codable {
     var endpoint: MullvadEndpoint
     var relay: REST.ServerRelay
     var location: Location
@@ -31,16 +31,12 @@ extension RelaySelectorResult {
     }
 }
 
-struct RelaySelector {
+enum RelaySelector {}
 
-    private let relays: REST.ServerRelaysResponse
+extension RelaySelector {
 
-    init(relays: REST.ServerRelaysResponse) {
-        self.relays = relays
-    }
-
-    func evaluate(with constraints: RelayConstraints) -> RelaySelectorResult? {
-        let filteredRelays = Self.applyConstraints(constraints, relays: Self.parseRelaysResponse(self.relays))
+    static func evaluate(relays: REST.ServerRelaysResponse, constraints: RelayConstraints) -> RelaySelectorResult? {
+        let filteredRelays = Self.applyConstraints(constraints, relays: Self.parseRelaysResponse(relays))
         let totalWeight = filteredRelays.reduce(0) { $0 + $1.relay.weight }
 
         guard totalWeight > 0 else { return nil }

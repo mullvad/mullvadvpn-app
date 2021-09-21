@@ -9,48 +9,46 @@
 import Foundation
 import NetworkExtension
 
-extension NEProviderStopReason: CustomDebugStringConvertible {
-    public var debugDescription: String {
-        var output = "NEProviderStopReason."
+extension NEProviderStopReason: CustomStringConvertible {
+    public var description: String {
         switch self {
         case .none:
-            output += "none"
+            return  "none"
         case .userInitiated:
-            output += "userInitiated"
+            return  "user initiated"
         case .providerFailed:
-            output += "providerFailed"
+            return  "provider failed"
         case .noNetworkAvailable:
-            output += "noNetworkAvailable"
+            return  "no network available"
         case .unrecoverableNetworkChange:
-            output += "unrecoverableNetworkChange"
+            return  "unrecoverable network change"
         case .providerDisabled:
-            output += "providerDisabled"
+            return  "provider disabled"
         case .authenticationCanceled:
-            output += "authenticationCanceled"
+            return  "authentication cancelled"
         case .configurationFailed:
-            output += "configurationFailed"
+            return  "configuration failed"
         case .idleTimeout:
-            output += "idleTimeout"
+            return  "idle timeout"
         case .configurationDisabled:
-            output += "configurationDisabled"
+            return  "configuration disabled"
         case .configurationRemoved:
-            output += "configurationRemoved"
+            return  "configuration removed"
         case .superceded:
-            output += "superceded"
+            return  "superceded"
         case .userLogout:
-            output += "userLogout"
+            return  "user logout"
         case .userSwitch:
-            output += "userSwitch"
+            return  "user switch"
         case .connectionFailed:
-            output += "connectionFailed"
+            return  "connection failed"
         case .sleep:
-            output += "sleep"
+            return  "sleep"
         case .appUpdate:
-            output += "appUpdate"
+            return  "app update"
         @unknown default:
-            output += "\(self.rawValue)"
+            return  "unknown value (\(self.rawValue))"
         }
-        return output
     }
 }
 

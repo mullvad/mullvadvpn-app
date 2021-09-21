@@ -12,28 +12,24 @@ import Network
 class RelaySelectorTests: XCTestCase {
 
     func testCountryConstraint() {
-        let relaySelector = RelaySelector(relays: sampleRelays)
         let constraints = RelayConstraints(location: .only(.country("es")))
 
-        let result = relaySelector.evaluate(with: constraints)
+        let result = RelaySelector.evaluate(relays: sampleRelays, constraints: constraints)
 
         XCTAssertEqual(result?.relay.hostname, "es1-wireguard")
     }
 
     func testCityConstraint() {
-        let relaySelector = RelaySelector(relays: sampleRelays)
         let constraints = RelayConstraints(location: .only(.city("se", "got")))
-
-        let result = relaySelector.evaluate(with: constraints)
+        let result = RelaySelector.evaluate(relays: sampleRelays, constraints: constraints)
 
         XCTAssertEqual(result?.relay.hostname, "se10-wireguard")
     }
 
     func testHostnameConstraint() {
-        let relaySelector = RelaySelector(relays: sampleRelays)
         let constraints = RelayConstraints(location: .only(.hostname("se", "sto", "se6-wireguard")))
 
-        let result = relaySelector.evaluate(with: constraints)
+        let result = RelaySelector.evaluate(relays: sampleRelays, constraints: constraints)
 
         XCTAssertEqual(result?.relay.hostname, "se6-wireguard")
     }

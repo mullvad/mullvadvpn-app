@@ -6,7 +6,6 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-
 import Foundation
 import NetworkExtension
 
@@ -46,6 +45,56 @@ extension NEVPNConnection: VPNConnectionProtocol {}
 extension NETunnelProviderSession: VPNTunnelProviderSessionProtocol {}
 extension NETunnelProviderManager: VPNTunnelProviderManagerProtocol {}
 
+extension VPNTunnelProviderManagerProtocol {
+    static func loadAllFromPreferences() -> Result<[SelfType]?, Error>.Promise {
+        return Result<[SelfType]?, Error>.Promise { resolver in
+            Self.loadAllFromPreferences { tunnels, error in
+                if let error = error {
+                    resolver.resolve(value: .failure(error))
+                } else {
+                    resolver.resolve(value: .success(tunnels))
+                }
+            }
+        }
+    }
+
+    func loadFromPreferences() -> Result<(), Error>.Promise {
+        return Result<(), Error>.Promise { resolver in
+            loadFromPreferences { error in
+                if let error = error {
+                    resolver.resolve(value: .failure(error))
+                } else {
+                    resolver.resolve(value: .success(()))
+                }
+            }
+        }
+    }
+
+    func saveToPreferences() -> Result<(), Error>.Promise {
+        return Result<(), Error>.Promise { resolver in
+            saveToPreferences { error in
+                if let error = error {
+                    resolver.resolve(value: .failure(error))
+                } else {
+                    resolver.resolve(value: .success(()))
+                }
+            }
+        }
+    }
+
+    func removeFromPreferences() -> Result<(), Error>.Promise {
+        return Result<(), Error>.Promise { resolver in
+            removeFromPreferences { error in
+                if let error = error {
+                    resolver.resolve(value: .failure(error))
+                } else {
+                    resolver.resolve(value: .success(()))
+                }
+            }
+        }
+    }
+}
+
 #if targetEnvironment(simulator)
 
 // MARK: - NEPacketTunnelProvider stubs
@@ -66,7 +115,7 @@ class SimulatorTunnelProviderDelegate {
         }
     }
 
-    func startTunnel(options: [String: Any]?, completionHandler: @escaping (Error?) -> Void) {
+    func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
         completionHandler(nil)
     }
 
@@ -115,7 +164,9 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
     private var _status: NEVPNStatus = .disconnected
     private(set) var status: NEVPNStatus {
         get {
-            lock.withCriticalBlock { _status }
+            return lock.withCriticalBlock {
+                return _status
+            }
         }
         set {
             lock.withCriticalBlock {
@@ -174,7 +225,7 @@ class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
     func stopVPNTunnel() {
         status = .disconnecting
 
-        SimulatorTunnelProvider.shared.delegate.stopTunnel(with: .none) {
+        SimulatorTunnelProvider.shared.delegate.stopTunnel(with: .userInitiated) {
             self.status = .disconnected
         }
     }
