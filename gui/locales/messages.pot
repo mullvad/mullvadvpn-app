@@ -165,7 +165,7 @@ msgstr ""
 msgid "UDP"
 msgstr ""
 
-msgid "UNSECURE CONNECTION"
+msgid "UNSECURED CONNECTION"
 msgstr ""
 
 msgctxt "accessibility"
@@ -1389,9 +1389,6 @@ msgid "This device is offline, no tunnels can be established"
 msgstr ""
 
 msgid "Too many WireGuard keys registered to account"
-msgstr ""
-
-msgid "UNSECURED CONNECTION"
 msgstr ""
 
 msgid "Unsecured"
