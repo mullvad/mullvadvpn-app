@@ -1452,8 +1452,7 @@ where
 
     async fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
         let daemon_tx = self.tx.clone();
-        let future = self.account.proxy.create_account();
-
+        let future = self.account.create_account();
         tokio::spawn(async move {
             match future.await {
                 Ok(account_token) => {
@@ -1484,7 +1483,7 @@ where
 
     async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
         if let Some(account_token) = self.settings.get_account_token() {
-            let future = self.account.proxy.get_www_auth_token(account_token);
+            let future = self.account.get_www_auth_token(account_token);
             let rpc_call = async {
                 Self::oneshot_send(
                     tx,
