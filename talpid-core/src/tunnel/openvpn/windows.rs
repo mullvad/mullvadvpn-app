@@ -239,46 +239,46 @@ impl WintunDll {
         Ok(WintunDll {
             handle,
             func_open: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunOpenAdapter\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_create: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunCreateAdapter\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_delete: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunDeleteAdapter\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_free: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunFreeAdapter\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_get_adapter_name: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunGetAdapterName\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_get_adapter_luid: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunGetAdapterLUID\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
             func_set_logger: unsafe {
-                std::mem::transmute(get_proc_fn(
+                *((&get_proc_fn(
                     handle,
                     CStr::from_bytes_with_nul(b"WintunSetLogger\0").unwrap(),
-                )?)
+                )?) as *const _ as *const _)
             },
         })
     }
