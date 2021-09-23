@@ -179,7 +179,7 @@ async fn remove_wireguard_key() -> Result<(), Error> {
             let mut key_proxy =
                 mullvad_rpc::WireguardKeyProxy::new(rpc_runtime.mullvad_rest_handle());
             key_proxy
-                .remove_wireguard_key(token, &wg_data.private_key.public_key())
+                .remove_wireguard_key(token, wg_data.private_key.public_key())
                 .await
                 .map_err(Error::RemoveKeyError)?;
             settings
