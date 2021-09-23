@@ -92,6 +92,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix daemon not starting when a path is excluded on a drive that has since been removed.
 - Prefer WireGuard if the constraints preclude OpenVPN and the tunnel protocol is "auto", instead
   of failing due to "no matching relays".
+- Retry tunnel device creation multiple times to work around issues early after boot or hibernation.
 
 #### Android
 - Fix erasing wireguard MTU value in some scenarious.
