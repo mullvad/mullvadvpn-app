@@ -492,14 +492,13 @@ impl WireguardKeyProxy {
         rest::deserialize_body(response).await
     }
 
-    pub async fn remove_wireguard_key(
+    pub fn remove_wireguard_key(
         &mut self,
         account_token: AccountToken,
-        key: &wireguard::PublicKey,
-    ) -> Result<(), rest::Error> {
+        key: wireguard::PublicKey,
+    ) -> impl Future<Output = Result<(), rest::Error>> {
         let service = self.handle.service.clone();
-
-        let _ = rest::send_request(
+        let future = rest::send_request(
             &self.handle.factory,
             service,
             &format!(
@@ -509,9 +508,11 @@ impl WireguardKeyProxy {
             Method::DELETE,
             Some(account_token),
             StatusCode::NO_CONTENT,
-        )
-        .await?;
-        Ok(())
+        );
+        async move {
+            let _ = future.await?;
+            Ok(())
+        }
     }
 }
 

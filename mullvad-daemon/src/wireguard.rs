@@ -9,8 +9,10 @@ pub use mullvad_types::wireguard::*;
 use std::{future::Future, pin::Pin, time::Duration};
 
 use futures::future::{abortable, AbortHandle};
+#[cfg(not(target_os = "android"))]
+use talpid_core::future_retry::constant_interval;
 use talpid_core::{
-    future_retry::{retry_future, ExponentialBackoff, Jittered},
+    future_retry::{retry_future, retry_future_n, ExponentialBackoff, Jittered},
     mpsc::Sender,
 };
 
@@ -29,6 +31,11 @@ const KEY_CHECK_INTERVAL: Duration = Duration::from_secs(60);
 const RETRY_INTERVAL_INITIAL: Duration = Duration::from_secs(4);
 const RETRY_INTERVAL_FACTOR: u32 = 5;
 const RETRY_INTERVAL_MAX: Duration = Duration::from_secs(24 * 60 * 60);
+
+#[cfg(not(target_os = "android"))]
+const SHORT_RETRY_INTERVAL: Duration = Duration::from_millis(500);
+
+const MAX_KEY_REMOVAL_RETRIES: usize = 2;
 
 #[derive(err_derive::Error, Debug)]
 pub enum Error {
@@ -138,17 +145,56 @@ impl KeyManager {
     }
 
     /// Removes a key from an account
+    #[cfg(not(target_os = "android"))]
     pub fn remove_key(
         &self,
         account: AccountToken,
         key: talpid_types::net::wireguard::PublicKey,
     ) -> impl Future<Output = Result<()>> {
+        self.remove_key_inner(account, key, constant_interval(SHORT_RETRY_INTERVAL), false)
+    }
+
+    /// Removes a key from an account
+    pub fn remove_key_with_backoff(
+        &self,
+        account: AccountToken,
+        key: talpid_types::net::wireguard::PublicKey,
+    ) -> impl Future<Output = Result<()>> {
+        let retry_strategy = Jittered::jitter(
+            ExponentialBackoff::new(RETRY_INTERVAL_INITIAL, RETRY_INTERVAL_FACTOR)
+                .max_delay(RETRY_INTERVAL_MAX),
+        );
+        self.remove_key_inner(account, key, retry_strategy, true)
+    }
+
+    fn remove_key_inner<D: Iterator<Item = Duration> + 'static>(
+        &self,
+        account: AccountToken,
+        key: talpid_types::net::wireguard::PublicKey,
+        retry_strategy: D,
+        offline_check: bool,
+    ) -> impl Future<Output = Result<()>> {
         let mut rpc = mullvad_rpc::WireguardKeyProxy::new(self.http_handle.clone());
-        async move {
-            rpc.remove_wireguard_key(account, &key)
-                .await
-                .map_err(Self::map_rpc_error)
-        }
+        let api_handle = self.availability_handle.clone();
+        let future = retry_future_n(
+            move || {
+                let remove_key = rpc.remove_wireguard_key(account.clone(), key.clone());
+                let wait_future = api_handle.wait_online();
+                async move {
+                    if offline_check {
+                        let _ = wait_future.await;
+                    }
+                    remove_key.await
+                }
+            },
+            move |result| match result {
+                Ok(_) => false,
+                Err(error) => Self::should_retry(error),
+            },
+            retry_strategy,
+            MAX_KEY_REMOVAL_RETRIES,
+        );
+        async move { future.await.map_err(Self::map_rpc_error) }
     }
 
     fn should_retry(error: &RestError) -> bool {

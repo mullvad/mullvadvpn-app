@@ -1591,7 +1591,7 @@ where
                 {
                     let remove_key = self
                         .wireguard_key_manager
-                        .remove_key(previous_token, previous_key);
+                        .remove_key_with_backoff(previous_token, previous_key);
                     tokio::spawn(async move {
                         if let Err(error) = remove_key.await {
                             log::error!(
