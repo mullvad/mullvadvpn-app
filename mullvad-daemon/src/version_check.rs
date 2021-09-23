@@ -232,7 +232,7 @@ impl VersionUpdater {
             }
         };
 
-        Box::pin(talpid_core::future_retry::retry_future_with_backoff(
+        Box::pin(talpid_core::future_retry::retry_future(
             download_future_factory,
             |result| result.is_err(),
             std::iter::repeat(UPDATE_INTERVAL_ERROR),
