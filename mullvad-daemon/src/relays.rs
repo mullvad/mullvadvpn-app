@@ -29,7 +29,7 @@ use std::{
     sync::Arc,
     time::{self, Duration, Instant, SystemTime},
 };
-use talpid_core::future_retry::{retry_future_with_backoff, ExponentialBackoff, Jittered};
+use talpid_core::future_retry::{retry_future, ExponentialBackoff, Jittered};
 use talpid_types::{
     net::{
         all_of_the_internet, openvpn::ProxySettings, wireguard, IpVersion, TransportProtocol,
@@ -1141,7 +1141,7 @@ impl RelayListUpdater {
             ExponentialBackoff::new(EXPONENTIAL_BACKOFF_INITIAL, EXPONENTIAL_BACKOFF_FACTOR)
                 .max_delay(UPDATE_INTERVAL * 2);
 
-        let download_future = retry_future_with_backoff(
+        let download_future = retry_future(
             download_futures,
             |result| result.is_err(),
             Jittered::jitter(exponential_backoff),

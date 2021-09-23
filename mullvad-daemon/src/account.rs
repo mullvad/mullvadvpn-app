@@ -8,7 +8,7 @@ use mullvad_rpc::{
 use mullvad_types::account::{AccountToken, VoucherSubmission};
 use std::{future::Future, time::Duration};
 use talpid_core::future_retry::{
-    constant_interval, retry_future_n, retry_future_with_backoff, ExponentialBackoff, Jittered,
+    constant_interval, retry_future, retry_future_n, ExponentialBackoff, Jittered,
 };
 
 const RETRY_ACTION_INTERVAL: Duration = Duration::from_millis(500);
@@ -138,9 +138,7 @@ impl Account {
                 }
             };
             let should_retry = move |state_was_updated: &bool| -> bool { !*state_was_updated };
-            let retry_future =
-                retry_future_with_backoff(future_generator, should_retry, retry_strategy);
-            retry_future.await;
+            retry_future(future_generator, should_retry, retry_strategy).await;
         });
         runtime.spawn(future);
 

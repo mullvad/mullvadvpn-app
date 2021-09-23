@@ -5,7 +5,7 @@ use std::{future::Future, time::Duration};
 /// required - run a timer for 60 seconds until a delay is shorter than 5 minutes.
 const MAX_SINGLE_DELAY: Duration = Duration::from_secs(5 * 60);
 
-/// Convenience function that works like [`retry_future_with_backoff`] but limits the number
+/// Convenience function that works like [`retry_future`] but limits the number
 /// of retries to `max_retries`.
 pub async fn retry_future_n<
     F: FnMut() -> O + 'static,
@@ -19,12 +19,12 @@ pub async fn retry_future_n<
     delays: D,
     max_retries: usize,
 ) -> T {
-    retry_future_with_backoff(factory, should_retry, delays.take(max_retries)).await
+    retry_future(factory, should_retry, delays.take(max_retries)).await
 }
 
 /// Retries a future until it should stop as determined by the retry function, or when
 /// the iterator returns `None`.
-pub async fn retry_future_with_backoff<
+pub async fn retry_future<
     F: FnMut() -> O + 'static,
     R: FnMut(&T) -> bool + 'static,
     D: Iterator<Item = Duration> + 'static,
