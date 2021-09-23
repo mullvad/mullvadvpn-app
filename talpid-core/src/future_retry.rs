@@ -22,6 +22,8 @@ pub async fn retry_future_with_backoff<
         if should_retry(&current_result) {
             if let Some(delay) = delays.next() {
                 sleep(delay).await;
+            } else {
+                return current_result;
             }
         } else {
             return current_result;
