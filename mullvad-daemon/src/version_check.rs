@@ -186,7 +186,7 @@ impl VersionUpdater {
 
         let should_retry = |result: &Result<_, _>| -> bool { result.is_err() };
 
-        Box::pin(talpid_core::future_retry::retry_future_with_backoff(
+        Box::pin(talpid_core::future_retry::retry_future(
             download_future_factory,
             should_retry,
             std::iter::repeat(UPDATE_INTERVAL_ERROR),

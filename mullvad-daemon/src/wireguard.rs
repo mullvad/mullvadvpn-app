@@ -10,7 +10,7 @@ use std::{future::Future, pin::Pin, time::Duration};
 
 use futures::future::{abortable, AbortHandle};
 use talpid_core::{
-    future_retry::{retry_future_with_backoff, ExponentialBackoff, Jittered},
+    future_retry::{retry_future, ExponentialBackoff, Jittered},
     mpsc::Sender,
 };
 
@@ -218,8 +218,7 @@ impl KeyManager {
             }
         };
 
-        let upload_future =
-            retry_future_with_backoff(future_generator, should_retry, retry_strategy);
+        let upload_future = retry_future(future_generator, should_retry, retry_strategy);
 
 
         let (cancellable_upload, abort_handle) = abortable(Box::pin(upload_future));
@@ -417,7 +416,7 @@ impl KeyManager {
             }
         };
 
-        retry_future_with_backoff(
+        retry_future(
             move || rotate_key.clone()(&old_key),
             should_retry,
             retry_strategy,
