@@ -22,9 +22,6 @@ pub mod wireguard;
 /// A module for low level platform specific tunnel device management.
 pub(crate) mod tun_provider;
 
-#[cfg(target_os = "windows")]
-mod windows;
-
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 

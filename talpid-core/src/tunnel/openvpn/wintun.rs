@@ -1,11 +1,12 @@
-use crate::tunnel::windows::{get_ip_interface_entry, set_ip_interface_entry, AddressFamily};
+use crate::windows::{get_ip_interface_entry, set_ip_interface_entry, AddressFamily};
+use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
     fmt, io, iter, mem,
     os::windows::{ffi::OsStrExt, io::RawHandle},
     path::Path,
     ptr,
-    sync::Arc,
+    sync::{Arc, Mutex},
 };
 use talpid_types::ErrorExt;
 use widestring::{U16CStr, U16CString};
@@ -26,8 +27,15 @@ use winapi::{
         winreg::REGSAM,
     },
 };
-use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
+use winreg::{
+    enums::{HKEY_LOCAL_MACHINE, KEY_READ, KEY_WRITE},
+    RegKey,
+};
 
+lazy_static! {
+    /// Shared `WintunDll` instance
+    static ref WINTUN_DLL: Mutex<Option<Arc<WintunDll>>> = Mutex::new(None);
+}
 
 /// Longest possible adapter name (in characters), including null terminator
 const MAX_ADAPTER_NAME: usize = 128;
@@ -153,8 +161,28 @@ impl WintunAdapter {
         name: &U16CStr,
         requested_guid: Option<GUID>,
     ) -> io::Result<(Self, RebootRequired)> {
+        {
+            if let Ok(adapter) = Self::open(dll_handle.clone(), name, pool) {
+                // Delete existing adapter in case it has residual config
+                adapter.delete(false).map_err(|error| {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to delete existing Wintun adapter")
+                    );
+                    error
+                })?;
+            }
+        }
+
         let (handle, restart_required) = dll_handle.create_adapter(pool, name, requested_guid)?;
-        Ok((Self { dll_handle, handle }, restart_required))
+
+        if restart_required {
+            log::warn!("You may need to restart Windows to complete the install of Wintun");
+        }
+
+        let adapter = Self { dll_handle, handle };
+        adapter.restore_missing_component_id();
+        Ok((adapter, restart_required))
     }
 
     pub fn try_disable_unused_features(&self) {
@@ -202,6 +230,50 @@ impl WintunAdapter {
         }
         Ok(unsafe { guid.assume_init() })
     }
+
+    fn restore_missing_component_id(&self) {
+        let assigned_guid = match self.guid() {
+            Ok(guid) => guid,
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Cannot identify adapter guid")
+                );
+                return;
+            }
+        };
+        let assigned_guid_string = string_from_guid(&assigned_guid);
+
+        // Workaround: OpenVPN looks up "ComponentId" to identify tunnel devices.
+        // If Wintun fails to create this registry value, create it here.
+        let adapter_key = find_adapter_registry_key(&assigned_guid_string, KEY_READ | KEY_WRITE);
+        match adapter_key {
+            Ok(adapter_key) => {
+                let component_id: io::Result<String> = adapter_key.get_value("ComponentId");
+                match component_id {
+                    Ok(_) => (),
+                    Err(error) => {
+                        if error.kind() == io::ErrorKind::NotFound {
+                            if let Err(error) = adapter_key.set_value("ComponentId", &"wintun") {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg(
+                                        "Failed to set ComponentId registry value"
+                                    )
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            Err(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to find network adapter registry key")
+                );
+            }
+        }
+    }
 }
 
 impl Drop for WintunAdapter {
@@ -211,7 +283,19 @@ impl Drop for WintunAdapter {
 }
 
 impl WintunDll {
-    pub fn new(resource_dir: &Path) -> io::Result<Self> {
+    pub fn instance(resource_dir: &Path) -> io::Result<Arc<Self>> {
+        let mut dll = (*WINTUN_DLL).lock().expect("Wintun mutex poisoned");
+        match &*dll {
+            Some(dll) => Ok(dll.clone()),
+            None => {
+                let new_dll = Arc::new(Self::new(resource_dir)?);
+                *dll = Some(new_dll.clone());
+                Ok(new_dll)
+            }
+        }
+    }
+
+    fn new(resource_dir: &Path) -> io::Result<Self> {
         let wintun_dll: Vec<u16> = resource_dir
             .join("wintun.dll")
             .as_os_str()
@@ -407,7 +491,7 @@ impl Drop for WintunLoggerHandle {
 }
 
 /// Obtain a string representation for a GUID object.
-pub fn string_from_guid(guid: &GUID) -> String {
+fn string_from_guid(guid: &GUID) -> String {
     use std::{ffi::OsString, os::windows::ffi::OsStringExt};
     use winapi::um::combaseapi::StringFromGUID2;
 
@@ -425,7 +509,7 @@ pub fn string_from_guid(guid: &GUID) -> String {
 }
 
 /// Returns the registry key for a network device identified by its GUID.
-pub fn find_adapter_registry_key(find_guid: &str, permissions: REGSAM) -> io::Result<RegKey> {
+fn find_adapter_registry_key(find_guid: &str, permissions: REGSAM) -> io::Result<RegKey> {
     let net_devs = RegKey::predef(HKEY_LOCAL_MACHINE).open_subkey_with_flags(
         r"SYSTEM\CurrentControlSet\Control\Class\{4d36e972-e325-11ce-bfc1-08002be10318}",
         permissions,
