@@ -1,7 +1,7 @@
 use crate::routing::{self, RouteManagerHandle};
 use futures::{channel::mpsc::UnboundedSender, StreamExt};
 use std::{
-    net::{IpAddr, Ipv4Addr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
     sync::Arc,
 };
 use talpid_types::ErrorExt;
@@ -20,9 +20,9 @@ pub struct MonitorHandle {
     _notify_tx: Arc<UnboundedSender<bool>>,
 }
 
-// Mullvad API's public IP address, correct at the time of writing, but any public IP address will
-// work.
-const PUBLIC_INTERNET_ADDRESS: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
+const PUBLIC_INTERNET_ADDRESS_V4: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
+const PUBLIC_INTERNET_ADDRESS_V6: IpAddr =
+    IpAddr::V6(Ipv6Addr::new(0x2001, 0xdb8, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6));
 
 impl MonitorHandle {
     pub async fn is_offline(&mut self) -> bool {
@@ -86,8 +86,13 @@ pub async fn spawn_monitor(
 
 async fn public_ip_unreachable(handle: &RouteManagerHandle) -> Result<bool> {
     Ok(handle
-        .get_destination_route(PUBLIC_INTERNET_ADDRESS, true)
+        .get_destination_route(PUBLIC_INTERNET_ADDRESS_V4, true)
         .await
         .map_err(Error::RouteManagerError)?
-        .is_none())
+        .is_none()
+        && handle
+            .get_destination_route(PUBLIC_INTERNET_ADDRESS_V6, true)
+            .await
+            .unwrap_or(None)
+            .is_none())
 }
