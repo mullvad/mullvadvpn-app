@@ -53,7 +53,7 @@ use std::{
     path::{Path, PathBuf},
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Weak},
-    time::Duration,
+    time::{Duration, Instant},
 };
 #[cfg(any(target_os = "linux", windows))]
 use talpid_core::split_tunnel;
@@ -509,7 +509,7 @@ pub struct Daemon<L: EventListener> {
     exclude_pids: split_tunnel::PidManager,
     rx: mpsc::UnboundedReceiver<InternalDaemonEvent>,
     tx: DaemonEventSender,
-    reconnection_job: Option<AbortHandle>,
+    reconnection_job: Option<(AbortHandle, Instant)>,
     event_listener: L,
     settings: SettingsPersister,
     account_history: account_history::AccountHistory,
@@ -1148,20 +1148,37 @@ where
     }
 
     async fn schedule_reconnect(&mut self, delay: Duration) {
+        let completion_time = match Instant::now().checked_add(delay) {
+            Some(time) => time,
+            None => {
+                error!("Failed to calculate time for reconnect");
+                return;
+            }
+        };
+        if let Some((_job, prev_time)) = self.reconnection_job.as_ref() {
+            if prev_time > &completion_time {
+                self.unschedule_reconnect();
+            } else {
+                return;
+            }
+        }
+
         let tunnel_command_tx = self.tx.to_specialized_sender();
         let (future, abort_handle) = abortable(Box::pin(async move {
             tokio::time::sleep(delay).await;
             log::debug!("Attempting to reconnect");
-            let (tx, _) = oneshot::channel();
+            let (tx, rx) = oneshot::channel();
             let _ = tunnel_command_tx.send(DaemonCommand::Reconnect(tx));
+            // suppress "unable to send" warning:
+            let _ = rx.await;
         }));
 
         tokio::spawn(future);
-        self.reconnection_job = Some(abort_handle);
+        self.reconnection_job = Some((abort_handle, completion_time));
     }
 
     fn unschedule_reconnect(&mut self) {
-        if let Some(job) = self.reconnection_job.take() {
+        if let Some((job, _completion_time)) = self.reconnection_job.take() {
             job.abort();
         }
     }
