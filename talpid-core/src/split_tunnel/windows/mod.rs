@@ -10,7 +10,6 @@ use crate::{
     },
 };
 use futures::channel::mpsc;
-use lazy_static::lazy_static;
 use std::{
     convert::TryFrom,
     ffi::{OsStr, OsString},
@@ -34,10 +33,7 @@ use winapi::{
 };
 
 const DRIVER_EVENT_BUFFER_SIZE: usize = 2048;
-
-lazy_static! {
-    static ref RESERVED_IP_V4: Ipv4Addr = "192.0.2.123".parse().unwrap();
-}
+const RESERVED_IP_V4: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 123);
 
 /// Errors that may occur in [`SplitTunnel`].
 #[derive(err_derive::Error, Debug)]
@@ -452,7 +448,7 @@ impl SplitTunnel {
             .map_err(Error::LuidToIp)?
             .flatten();
 
-        let tunnel_ipv4 = Some(tunnel_ipv4.unwrap_or(*RESERVED_IP_V4));
+        let tunnel_ipv4 = Some(tunnel_ipv4.unwrap_or(RESERVED_IP_V4));
         let internet_ipv4 = internet_ipv4
             .map(|addr| Ipv4Addr::try_from(addr).map_err(|_| Error::IpParseError))
             .transpose()?;
