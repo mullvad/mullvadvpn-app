@@ -39,7 +39,9 @@ jobs:
 
             - name: Build and test
               run: |
-                  xcodebuild test -project MullvadVPN.xcodeproj \
+                  xcodebuild test \
+                      -quiet \
+                      -project MullvadVPN.xcodeproj \
                       -scheme MullvadVPNTests \
                       -destination "${destination}" \
                       -clonedSourcePackagesDirPath "${SOURCE_PACKAGES_PATH}" \
