@@ -3,23 +3,69 @@ use std::{
     fmt, io, mem,
     os::windows::{ffi::OsStrExt, io::RawHandle},
     sync::Mutex,
+    time::{Duration, Instant},
 };
 use winapi::shared::{
     ifdef::NET_LUID,
     netioapi::{
         CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, FreeMibTable, GetIpInterfaceEntry,
-        GetUnicastIpAddressTable, MibAddInstance, NotifyIpInterfaceChange, SetIpInterfaceEntry,
-        MIB_IPINTERFACE_ROW, MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE,
+        GetUnicastIpAddressEntry, GetUnicastIpAddressTable, MibAddInstance,
+        NotifyIpInterfaceChange, SetIpInterfaceEntry, MIB_IPINTERFACE_ROW,
+        MIB_UNICASTIPADDRESS_ROW, MIB_UNICASTIPADDRESS_TABLE,
     },
+    nldef::{IpDadStatePreferred, IpDadStateTentative, NL_DAD_STATE},
     ntdef::FALSE,
     winerror::{ERROR_NOT_FOUND, NO_ERROR},
     ws2def::{AF_INET, AF_INET6, AF_UNSPEC},
 };
 
+/// Result type for this module.
+pub type Result<T> = std::result::Result<T, Error>;
+
+const DAD_CHECK_TIMEOUT: Duration = Duration::from_secs(5);
+const DAD_CHECK_INTERVAL: Duration = Duration::from_millis(100);
+
+/// Errors returned by some functions in this module.
+#[derive(err_derive::Error, Debug)]
+#[error(no_from)]
+pub enum Error {
+    /// Error returned from `ConvertInterfaceAliasToLuid`
+    #[cfg(windows)]
+    #[error(display = "Cannot find LUID for virtual adapter")]
+    NoDeviceLuid(#[error(source)] io::Error),
+
+    /// Error returned from `GetUnicastIpAddressTable`/`GetUnicastIpAddressEntry`
+    #[cfg(windows)]
+    #[error(display = "Failed to obtain unicast IP address table")]
+    ObtainUnicastAddress(#[error(source)] io::Error),
+
+    /// `GetUnicastIpAddressTable` contained no addresses for the interface
+    #[cfg(windows)]
+    #[error(display = "Found no addresses for the given adapter")]
+    NoUnicastAddress,
+
+    /// Unexpected DAD state returned for a unicast address
+    #[cfg(windows)]
+    #[error(display = "Unexpected DAD state")]
+    DadStateError(#[error(source)] DadStateError),
+
+    /// DAD check failed.
+    #[cfg(windows)]
+    #[error(display = "Timed out waiting on tunnel device")]
+    DeviceReadyTimeout,
+
+    /// Unicast DAD check fail.
+    #[cfg(windows)]
+    #[error(display = "Unicast channel sender was unexpectedly dropped")]
+    UnicastSenderDropped,
+}
+
 /// Address family. These correspond to the `AF_*` constants.
 #[derive(Debug, Clone, Copy)]
 pub enum AddressFamily {
+    /// IPv4 address family
     Ipv4 = AF_INET as isize,
+    /// IPv6 address family
     Ipv6 = AF_INET6 as isize,
 }
 
@@ -165,6 +211,92 @@ pub async fn wait_for_interfaces(luid: NET_LUID, ipv4: bool, ipv6: bool) -> io::
 
     let _ = rx.await;
     Ok(())
+}
+
+/// Handles cases where there DAD state is neither tentative nor preferred.
+#[cfg(windows)]
+#[derive(err_derive::Error, Debug)]
+pub enum DadStateError {
+    /// Invalid DAD state.
+    #[error(display = "Invalid DAD state")]
+    Invalid,
+
+    /// Duplicate unicast address.
+    #[error(display = "A duplicate IP address was detected")]
+    Duplicate,
+
+    /// Deprecated unicast address.
+    #[error(display = "The IP address has been deprecated")]
+    Deprecated,
+
+    /// Unknown DAD state constant.
+    #[error(display = "Unknown DAD state: {}", _0)]
+    Unknown(u32),
+}
+
+#[cfg(windows)]
+#[allow(non_upper_case_globals)]
+impl From<NL_DAD_STATE> for DadStateError {
+    fn from(state: NL_DAD_STATE) -> DadStateError {
+        use winapi::shared::nldef::*;
+        match state {
+            IpDadStateInvalid => DadStateError::Invalid,
+            IpDadStateDuplicate => DadStateError::Duplicate,
+            IpDadStateDeprecated => DadStateError::Deprecated,
+            other => DadStateError::Unknown(other),
+        }
+    }
+}
+
+/// Wait for addresses to be usable on an network adapter.
+pub async fn wait_for_addresses(luid: NET_LUID) -> Result<()> {
+    // Obtain unicast IP addresses
+    let mut unicast_rows: Vec<MIB_UNICASTIPADDRESS_ROW> = get_unicast_table(None)
+        .map_err(Error::ObtainUnicastAddress)?
+        .into_iter()
+        .filter(|row| row.InterfaceLuid.Value == luid.Value)
+        .collect();
+    if unicast_rows.is_empty() {
+        return Err(Error::NoUnicastAddress);
+    }
+
+    let (tx, rx) = futures::channel::oneshot::channel();
+    let mut addr_check_thread = move || {
+        // Poll DAD status using GetUnicastIpAddressEntry
+        // https://docs.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-createunicastipaddressentry
+
+        let deadline = Instant::now() + DAD_CHECK_TIMEOUT;
+        while Instant::now() < deadline {
+            let mut ready = true;
+
+            for row in &mut unicast_rows {
+                let status = unsafe { GetUnicastIpAddressEntry(row) };
+                if status != NO_ERROR {
+                    return Err(Error::ObtainUnicastAddress(io::Error::from_raw_os_error(
+                        status as i32,
+                    )));
+                }
+                if row.DadState == IpDadStateTentative {
+                    ready = false;
+                    break;
+                }
+                if row.DadState != IpDadStatePreferred {
+                    return Err(Error::DadStateError(DadStateError::from(row.DadState)));
+                }
+            }
+
+            if ready {
+                return Ok(());
+            }
+            std::thread::sleep(DAD_CHECK_INTERVAL);
+        }
+
+        Err(Error::DeviceReadyTimeout)
+    };
+    std::thread::spawn(move || {
+        let _ = tx.send(addr_check_thread());
+    });
+    rx.await.map_err(|_| Error::UnicastSenderDropped)?
 }
 
 /// Returns the unicast IP address table. If `family` is `None`, then addresses for all families are

@@ -13,6 +13,10 @@ mod ffi;
 #[cfg(windows)]
 mod winnet;
 
+/// Windows API wrappers and utilities
+#[cfg(target_os = "windows")]
+pub mod windows;
+
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 /// Working with IP interface devices
 pub mod network_interface;

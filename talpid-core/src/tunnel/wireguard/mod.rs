@@ -243,7 +243,7 @@ impl WireguardMonitor {
                     use futures::future::FutureExt;
                     use winapi::shared::ifdef::NET_LUID;
                     let luid = NET_LUID { Value: iface_luid };
-                    let setup_future = super::windows::wait_for_interfaces(luid, true, enable_ipv6);
+                    let setup_future = crate::windows::wait_for_interfaces(luid, true, enable_ipv6);
 
                     futures::select! {
                         result = setup_future.fuse() => {
