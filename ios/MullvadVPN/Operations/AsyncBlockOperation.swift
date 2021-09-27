@@ -18,6 +18,11 @@ class AsyncBlockOperation: AsyncOperation {
     }
 
     override func main() {
+        guard !isCancelled else {
+            finish()
+            return
+        }
+
         block { [weak self] in
             self?.finish()
         }

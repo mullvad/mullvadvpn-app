@@ -36,15 +36,10 @@ class AsyncOperation: Operation {
     }
 
     final override func start() {
-        stateLock.lock()
-        if _isCancelled {
-            finish()
-            stateLock.unlock()
-        } else {
+        stateLock.withCriticalBlock {
             setExecuting(true)
-            stateLock.unlock()
-            main()
         }
+        main()
     }
 
     override func main() {

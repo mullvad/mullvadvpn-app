@@ -11,36 +11,59 @@ import StoreKit
 
 class ReceiptRefreshOperation: AsyncOperation, SKRequestDelegate {
     private let request: SKReceiptRefreshRequest
-    private let completionHandler: (Result<(), Error>) -> Void
+    private var completionHandler: ((Result<(), Error>) -> Void)?
 
-    init(receiptProperties: [String: Any]?, completionHandler: @escaping (Result<(), Error>) -> Void) {
+    struct OperationCancelledError: LocalizedError {
+        var errorDescription: String? {
+            return "Operation is cancelled"
+        }
+    }
+
+    init(receiptProperties: [String: Any]?, completionHandler completion: @escaping (Result<(), Error>) -> Void) {
         request = SKReceiptRefreshRequest(receiptProperties: receiptProperties)
-        self.completionHandler = completionHandler
-
-        super.init()
-
-        request.delegate = self
+        completionHandler = completion
     }
 
     override func main() {
-        request.start()
+        DispatchQueue.main.async {
+            guard !self.isCancelled else {
+                self.finish(with: .failure(OperationCancelledError()))
+                return
+            }
+
+            self.request.delegate = self
+            self.request.start()
+        }
     }
 
     override func cancel() {
-        super.cancel()
+        DispatchQueue.main.async {
+            super.cancel()
 
-        request.cancel()
+            self.request.cancel()
+        }
     }
 
     // - MARK: SKRequestDelegate
 
     func requestDidFinish(_ request: SKRequest) {
-        completionHandler(.success(()))
-        finish()
+        DispatchQueue.main.async {
+            self.finish(with: .success(()))
+        }
     }
 
     func request(_ request: SKRequest, didFailWithError error: Error) {
-        completionHandler(.failure(error))
+        DispatchQueue.main.async {
+            self.finish(with: .failure(error))
+        }
+    }
+
+    private func finish(with result: Result<(), Error>) {
+        assert(Thread.isMainThread)
+
+        completionHandler?(result)
+        completionHandler = nil
+
         finish()
     }
 }
