@@ -1,14 +1,16 @@
 use crate::{location, new_rpc_client, Command, Error, Result};
 use clap::{value_t, values_t};
 
-use mullvad_management_interface::types::{
-    bridge_settings::{Type as BridgeSettingsType, *},
-    bridge_state::State as BridgeStateType,
-    BridgeSettings, BridgeState, RelayLocation,
+use mullvad_management_interface::types;
+use mullvad_types::relay_constraints::{
+    BridgeConstraints, BridgeSettings, BridgeState, Constraint, LocationConstraint,
 };
-use talpid_types::net::openvpn::SHADOWSOCKS_CIPHERS;
+use talpid_types::net::openvpn::{self, SHADOWSOCKS_CIPHERS};
 
-use std::net::{IpAddr, SocketAddr};
+use std::{
+    convert::TryFrom,
+    net::{IpAddr, SocketAddr},
+};
 
 pub struct Bridge;
 
@@ -199,19 +201,23 @@ impl Bridge {
     async fn handle_get() -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let settings = rpc.get_settings(()).await?.into_inner();
-        Self::print_state(settings.bridge_state.unwrap());
-        match settings.bridge_settings.unwrap().r#type.unwrap() {
-            BridgeSettingsType::Local(local_proxy) => Self::print_local_proxy(&local_proxy),
-            BridgeSettingsType::Remote(remote_proxy) => Self::print_remote_proxy(&remote_proxy),
-            BridgeSettingsType::Shadowsocks(shadowsocks_proxy) => {
-                Self::print_shadowsocks_proxy(&shadowsocks_proxy)
-            }
-            BridgeSettingsType::Normal(constraints) => {
-                println!(
-                    "Bridge constraints - {}, {}",
-                    location::format_location(constraints.location.as_ref()),
-                    location::format_providers(&constraints.providers)
-                );
+        let bridge_settings = BridgeSettings::try_from(settings.bridge_settings.unwrap()).unwrap();
+        println!(
+            "Bridge state - {}",
+            BridgeState::try_from(settings.bridge_state.unwrap()).unwrap()
+        );
+        match bridge_settings {
+            BridgeSettings::Custom(proxy) => match proxy {
+                openvpn::ProxySettings::Local(local_proxy) => Self::print_local_proxy(&local_proxy),
+                openvpn::ProxySettings::Remote(remote_proxy) => {
+                    Self::print_remote_proxy(&remote_proxy)
+                }
+                openvpn::ProxySettings::Shadowsocks(shadowsocks_proxy) => {
+                    Self::print_shadowsocks_proxy(&shadowsocks_proxy)
+                }
+            },
+            BridgeSettings::Normal(constraints) => {
+                println!("Bridge constraints - {}", constraints)
             }
         };
         Ok(())
@@ -234,56 +240,58 @@ impl Bridge {
     }
 
     async fn update_bridge_settings(
-        location: Option<RelayLocation>,
+        location: Option<types::RelayLocation>,
         providers: Option<Vec<String>>,
     ) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
         let settings = rpc.get_settings(()).await?.into_inner();
 
-        let bridge_settings = settings.bridge_settings.unwrap();
-        let constraints = match bridge_settings.r#type.unwrap() {
-            BridgeSettingsType::Normal(mut constraints) => {
+        let bridge_settings = BridgeSettings::try_from(settings.bridge_settings.unwrap()).unwrap();
+        let constraints = match bridge_settings {
+            BridgeSettings::Normal(mut constraints) => {
                 if let Some(new_location) = location {
-                    constraints.location = Some(new_location);
+                    constraints.location = Constraint::<LocationConstraint>::from(new_location);
                 }
                 if let Some(new_providers) = providers {
-                    constraints.providers = new_providers;
+                    constraints.providers =
+                        types::try_providers_constraint_from_proto(&new_providers).unwrap();
                 }
                 constraints
             }
             _ => {
-                let location = location.unwrap_or_default();
-                let providers = providers.unwrap_or_default();
+                let location = Constraint::<LocationConstraint>::from(location.unwrap_or_default());
+                let providers =
+                    types::try_providers_constraint_from_proto(&providers.unwrap_or_default())
+                        .unwrap();
 
                 BridgeConstraints {
-                    location: Some(location),
+                    location,
                     providers,
                 }
             }
         };
 
-        rpc.set_bridge_settings(BridgeSettings {
-            r#type: Some(BridgeSettingsType::Normal(constraints)),
-        })
+        rpc.set_bridge_settings(
+            types::BridgeSettings::try_from(BridgeSettings::Normal(constraints)).unwrap(),
+        )
         .await?;
         Ok(())
     }
 
     async fn handle_set_bridge_state(matches: &clap::ArgMatches<'_>) -> Result<()> {
         let state = match matches.value_of("policy").unwrap() {
-            "auto" => BridgeStateType::Auto as i32,
-            "on" => BridgeStateType::On as i32,
-            "off" => BridgeStateType::Off as i32,
+            "auto" => BridgeState::Auto,
+            "on" => BridgeState::On,
+            "off" => BridgeState::Off,
             _ => unreachable!(),
         };
         let mut rpc = new_rpc_client().await?;
-        rpc.set_bridge_state(BridgeState { state }).await?;
+        rpc.set_bridge_state(types::BridgeState::from(state))
+            .await?;
         Ok(())
     }
 
     async fn handle_bridge_set_custom_settings(matches: &clap::ArgMatches<'_>) -> Result<()> {
-        use talpid_types::net::openvpn;
-
         if let Some(args) = matches.subcommand_matches("local") {
             let local_port =
                 value_t!(args.value_of("local-port"), u16).unwrap_or_else(|e| e.exit());
@@ -296,19 +304,15 @@ impl Bridge {
                 port: local_port,
                 peer: SocketAddr::new(remote_ip, remote_port),
             };
-            let prost_proxy = LocalProxySettings {
-                port: local_proxy.port as u32,
-                peer: local_proxy.peer.to_string(),
-            };
             let packed_proxy = openvpn::ProxySettings::Local(local_proxy);
             if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
                 panic!("{}", error);
             }
 
             let mut rpc = new_rpc_client().await?;
-            rpc.set_bridge_settings(BridgeSettings {
-                r#type: Some(BridgeSettingsType::Local(prost_proxy)),
-            })
+            rpc.set_bridge_settings(types::BridgeSettings::from(BridgeSettings::Custom(
+                packed_proxy,
+            )))
             .await?;
         } else if let Some(args) = matches.subcommand_matches("remote") {
             let remote_ip =
@@ -325,29 +329,19 @@ impl Bridge {
                 }),
                 _ => None,
             };
-            let prost_auth = auth.clone().map(|auth| RemoteProxyAuth {
-                username: auth.username.clone(),
-                password: auth.password.clone(),
-            });
-
             let proxy = openvpn::RemoteProxySettings {
                 address: SocketAddr::new(remote_ip, remote_port),
                 auth,
             };
-            let prost_proxy = RemoteProxySettings {
-                address: proxy.address.to_string(),
-                auth: prost_auth,
-            };
-
             let packed_proxy = openvpn::ProxySettings::Remote(proxy);
             if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
                 panic!("{}", error);
             }
 
             let mut rpc = new_rpc_client().await?;
-            rpc.set_bridge_settings(BridgeSettings {
-                r#type: Some(BridgeSettingsType::Remote(prost_proxy)),
-            })
+            rpc.set_bridge_settings(types::BridgeSettings::from(BridgeSettings::Custom(
+                packed_proxy,
+            )))
             .await?;
         } else if let Some(args) = matches.subcommand_matches("shadowsocks") {
             let remote_ip =
@@ -362,21 +356,15 @@ impl Bridge {
                 password,
                 cipher,
             };
-            let prost_proxy = ShadowsocksProxySettings {
-                peer: proxy.peer.to_string(),
-                password: proxy.password.clone(),
-                cipher: proxy.cipher.clone(),
-            };
-
             let packed_proxy = openvpn::ProxySettings::Shadowsocks(proxy);
             if let Err(error) = openvpn::validate_proxy_settings(&packed_proxy) {
                 panic!("{}", error);
             }
 
             let mut rpc = new_rpc_client().await?;
-            rpc.set_bridge_settings(BridgeSettings {
-                r#type: Some(BridgeSettingsType::Shadowsocks(prost_proxy)),
-            })
+            rpc.set_bridge_settings(types::BridgeSettings::from(BridgeSettings::Custom(
+                packed_proxy,
+            )))
             .await?;
         } else {
             unreachable!("unhandled proxy type");
@@ -386,22 +374,13 @@ impl Bridge {
         Ok(())
     }
 
-    fn print_state(state: BridgeState) {
-        let state = match BridgeStateType::from_i32(state.state).expect("unknown bridge state") {
-            BridgeStateType::Auto => "auto",
-            BridgeStateType::On => "on",
-            BridgeStateType::Off => "off",
-        };
-        println!("Bridge state - {}", state);
-    }
-
-    fn print_local_proxy(proxy: &LocalProxySettings) {
+    fn print_local_proxy(proxy: &openvpn::LocalProxySettings) {
         println!("proxy: local");
         println!("  local port: {}", proxy.port);
         println!("  peer address: {}", proxy.peer);
     }
 
-    fn print_remote_proxy(proxy: &RemoteProxySettings) {
+    fn print_remote_proxy(proxy: &openvpn::RemoteProxySettings) {
         println!("proxy: remote");
         println!("  server address: {}", proxy.address);
 
@@ -413,7 +392,7 @@ impl Bridge {
         }
     }
 
-    fn print_shadowsocks_proxy(proxy: &ShadowsocksProxySettings) {
+    fn print_shadowsocks_proxy(proxy: &openvpn::ShadowsocksProxySettings) {
         println!("proxy: Shadowsocks");
         println!("  peer address: {}", proxy.peer);
         println!("  password: {}", proxy.password);

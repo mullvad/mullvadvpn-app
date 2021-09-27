@@ -223,7 +223,6 @@ message BridgeSettings {
 	}
 	message RemoteProxySettings {
 		string address = 1;
-		// NOTE: optional
 		RemoteProxyAuth auth = 2;
 	}
 	message RemoteProxyAuth {
@@ -364,7 +363,6 @@ message ConnectionConfig {
 		TunnelConfig tunnel = 1;
 		PeerConfig peer = 2;
 		string ipv4_gateway = 3;
-		// NOTE: optional
 		string ipv6_gateway = 4;
 	}
 
@@ -376,11 +374,9 @@ message ConnectionConfig {
 
 message TunnelOptions {
 	message OpenvpnOptions {
-		// NOTE: optional
 		uint32 mssfix = 1;
 	}
 	message WireguardOptions {
-		// NOTE: optional
 		uint32 mtu = 1;
 		google.protobuf.Duration rotation_interval = 2;
 	}

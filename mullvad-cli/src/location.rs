@@ -68,30 +68,6 @@ pub fn get_constraint<T: AsRef<str>>(
     }
 }
 
-pub fn format_location(location: Option<&RelayLocation>) -> String {
-    if let Some(location) = location {
-        if !location.hostname.is_empty() {
-            return format!(
-                "city {}, {}, hostname {}",
-                location.city, location.country, location.hostname
-            );
-        } else if !location.city.is_empty() {
-            return format!("city {}, {}", location.city, location.country);
-        } else if !location.country.is_empty() {
-            return format!("country {}", location.country);
-        }
-    }
-    "any location".to_string()
-}
-
-pub fn format_providers(providers: &Vec<String>) -> String {
-    if !providers.is_empty() {
-        format!("provider(s) {}", providers.join(", "))
-    } else {
-        "any provider".to_string()
-    }
-}
-
 pub fn country_code_validator<T: AsRef<str>>(code: T) -> std::result::Result<(), String> {
     if code.as_ref().len() == 2 || code.as_ref() == "any" {
         Ok(())
