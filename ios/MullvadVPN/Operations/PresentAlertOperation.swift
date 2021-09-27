@@ -26,6 +26,9 @@ class PresentAlertOperation: AsyncOperation {
             // Guard against executing cancellation more than once.
             guard !self.isCancelled else { return }
 
+            // Call super implementation to toggle isCancelled flag
+            super.cancel()
+
             // Guard against trying to dismiss the alert when operation hasn't started yet.
             guard self.isExecuting else { return }
 
@@ -33,14 +36,16 @@ class PresentAlertOperation: AsyncOperation {
             if !self.alertController.isBeingPresented && !self.alertController.isBeingDismissed {
                 self.dismissAndFinish()
             }
-
-            // Call super implementation to toggle isCancelled flag
-            super.cancel()
         }
     }
 
     override func main() {
         DispatchQueue.main.async {
+            guard !self.isCancelled else {
+                self.finish()
+                return
+            }
+
             NotificationCenter.default.addObserver(
                 self,
                 selector: #selector(self.alertControllerDidDismiss(_:)),

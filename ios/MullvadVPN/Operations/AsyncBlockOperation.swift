@@ -10,16 +10,13 @@ import Foundation
 
 /// Asynchronous block operation
 class AsyncBlockOperation: AsyncOperation {
-    private let block: ((@escaping () -> Void) -> Void)
+    private let block: ((AsyncBlockOperation) -> Void)
 
-    init(_ block: @escaping (@escaping () -> Void) -> Void) {
+    init(block: @escaping (AsyncBlockOperation) -> Void) {
         self.block = block
-        super.init()
     }
 
     override func main() {
-        block { [weak self] in
-            self?.finish()
-        }
+        block(self)
     }
 }
