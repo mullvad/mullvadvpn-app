@@ -75,6 +75,15 @@ pub enum Error {
     UriError(#[error(source)] http::uri::InvalidUri),
 }
 
+impl Error {
+    pub fn is_network_error(&self) -> bool {
+        match self {
+            Error::HyperError(_) | Error::TimeoutError(_) => true,
+            _ => false,
+        }
+    }
+}
+
 /// A service that executes HTTP requests, allowing for on-demand termination of all in-flight
 /// requests
 pub(crate) struct RequestService {
@@ -148,30 +157,27 @@ impl RequestService {
                     let response = flatten_result(flatten_result(response));
                     if let Some(host_addr) = host_addr {
                         if let Err(err) = &response {
-                            match err {
-                                Error::HyperError(_) | Error::TimeoutError(_) => {
-                                    log::error!(
-                                        "{}",
-                                        err.display_chain_with_msg("HTTP request failed")
-                                    );
-                                    if !api_availability.get_state().is_offline() {
-                                        let current_address = address_cache.peek_address();
-                                        if current_address == host_addr
-                                            && address_cache.has_tried_current_address()
-                                        {
-                                            handle.spawn(async move {
-                                                address_cache.select_new_address().await;
-                                                let new_address = address_cache.peek_address();
-                                                log::error!(
-                                                    "Request failed using address {}. Trying next API address: {}",
-                                                    current_address,
-                                                    new_address,
-                                                );
-                                            });
-                                        }
+                            if err.is_network_error() {
+                                log::error!(
+                                    "{}",
+                                    err.display_chain_with_msg("HTTP request failed")
+                                );
+                                if !api_availability.get_state().is_offline() {
+                                    let current_address = address_cache.peek_address();
+                                    if current_address == host_addr
+                                        && address_cache.has_tried_current_address()
+                                    {
+                                        handle.spawn(async move {
+                                            address_cache.select_new_address().await;
+                                            let new_address = address_cache.peek_address();
+                                            log::error!(
+                                                "Request failed using address {}. Trying next API address: {}",
+                                                current_address,
+                                                new_address,
+                                            );
+                                        });
                                     }
                                 }
-                                _ => (),
                             }
                         }
                     }

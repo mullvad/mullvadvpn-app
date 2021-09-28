@@ -11,7 +11,7 @@ use talpid_core::future_retry::{
     constant_interval, retry_future, retry_future_n, ExponentialBackoff, Jittered,
 };
 
-const RETRY_ACTION_INTERVAL: Duration = Duration::from_millis(500);
+const RETRY_ACTION_INTERVAL: Duration = Duration::ZERO;
 const RETRY_ACTION_MAX_RETRIES: usize = 2;
 
 const RETRY_EXPIRY_CHECK_INTERVAL_INITIAL: Duration = Duration::from_secs(4);
@@ -31,9 +31,10 @@ pub struct AccountHandle {
 impl AccountHandle {
     pub fn create_account(&self) -> impl Future<Output = Result<AccountToken, rest::Error>> {
         let mut proxy = self.proxy.clone();
+        let api_handle = self.api_availability.clone();
         retry_future_n(
             move || proxy.create_account(),
-            Self::should_retry,
+            move |result| Self::should_retry(result, &api_handle),
             constant_interval(RETRY_ACTION_INTERVAL),
             RETRY_ACTION_MAX_RETRIES,
         )
@@ -44,9 +45,10 @@ impl AccountHandle {
         account: AccountToken,
     ) -> impl Future<Output = Result<String, rest::Error>> {
         let proxy = self.proxy.clone();
+        let api_handle = self.api_availability.clone();
         retry_future_n(
             move || proxy.get_www_auth_token(account.clone()),
-            Self::should_retry,
+            move |result| Self::should_retry(result, &api_handle),
             constant_interval(RETRY_ACTION_INTERVAL),
             RETRY_ACTION_MAX_RETRIES,
         )
@@ -54,9 +56,10 @@ impl AccountHandle {
 
     pub async fn check_expiry(&self, token: AccountToken) -> Result<DateTime<Utc>, rest::Error> {
         let proxy = self.proxy.clone();
+        let api_handle = self.api_availability.clone();
         let result = retry_future_n(
             move || proxy.get_expiry(token.clone()),
-            Self::should_retry,
+            move |result| Self::should_retry(result, &api_handle),
             constant_interval(RETRY_ACTION_INTERVAL),
             RETRY_ACTION_MAX_RETRIES,
         )
@@ -73,9 +76,10 @@ impl AccountHandle {
         voucher: String,
     ) -> Result<VoucherSubmission, rest::Error> {
         let mut proxy = self.proxy.clone();
+        let api_handle = self.api_availability.clone();
         let result = retry_future_n(
             move || proxy.submit_voucher(account_token.clone(), voucher.clone()),
-            Self::should_retry,
+            move |result| Self::should_retry(result, &api_handle),
             constant_interval(RETRY_ACTION_INTERVAL),
             RETRY_ACTION_MAX_RETRIES,
         )
@@ -87,15 +91,10 @@ impl AccountHandle {
         result
     }
 
-    fn should_retry<T>(result: &Result<T, RestError>) -> bool {
+    fn should_retry<T>(result: &Result<T, RestError>, api_handle: &ApiAvailabilityHandle) -> bool {
         match result {
-            Ok(_) => false,
-            Err(RestError::ApiError(_status, code)) => {
-                code != mullvad_rpc::INVALID_ACCOUNT
-                    && code != mullvad_rpc::INVALID_AUTH
-                    && code != mullvad_rpc::VOUCHER_USED
-            }
-            _ => true,
+            Err(error) if error.is_network_error() => !api_handle.get_state().is_offline(),
+            _ => false,
         }
     }
 }

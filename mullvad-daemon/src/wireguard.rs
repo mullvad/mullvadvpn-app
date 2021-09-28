@@ -33,7 +33,7 @@ const RETRY_INTERVAL_FACTOR: u32 = 5;
 const RETRY_INTERVAL_MAX: Duration = Duration::from_secs(24 * 60 * 60);
 
 #[cfg(not(target_os = "android"))]
-const SHORT_RETRY_INTERVAL: Duration = Duration::from_millis(500);
+const SHORT_RETRY_INTERVAL: Duration = Duration::ZERO;
 
 const MAX_KEY_REMOVAL_RETRIES: usize = 2;
 
@@ -176,6 +176,7 @@ impl KeyManager {
     ) -> impl Future<Output = Result<()>> {
         let mut rpc = mullvad_rpc::WireguardKeyProxy::new(self.http_handle.clone());
         let api_handle = self.availability_handle.clone();
+        let api_handle_2 = api_handle.clone();
         let future = retry_future_n(
             move || {
                 let remove_key = rpc.remove_wireguard_key(account.clone(), key.clone());
@@ -189,12 +190,16 @@ impl KeyManager {
             },
             move |result| match result {
                 Ok(_) => false,
-                Err(error) => Self::should_retry(error),
+                Err(error) => Self::should_retry_removal(error, &api_handle_2),
             },
             retry_strategy,
             MAX_KEY_REMOVAL_RETRIES,
         );
         async move { future.await.map_err(Self::map_rpc_error) }
+    }
+
+    fn should_retry_removal(error: &RestError, api_handle: &ApiAvailabilityHandle) -> bool {
+        error.is_network_error() && !api_handle.get_state().is_offline()
     }
 
     fn should_retry(error: &RestError) -> bool {

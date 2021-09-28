@@ -188,7 +188,10 @@ async fn remove_wireguard_key() -> Result<(), Error> {
                 move || {
                     key_proxy.remove_wireguard_key(token.clone(), wg_data.private_key.public_key())
                 },
-                move |result| result.is_err(),
+                move |result| match result {
+                    Err(error) => error.is_network_error(),
+                    _ => false,
+                },
                 constant_interval(KEY_RETRY_INTERVAL),
                 KEY_RETRY_MAX_RETRIES,
             )

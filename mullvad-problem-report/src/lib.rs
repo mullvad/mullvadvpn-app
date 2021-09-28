@@ -10,7 +10,6 @@ use std::{
     fs::{self, File},
     io::{self, BufWriter, Read, Seek, SeekFrom, Write},
     path::{Path, PathBuf},
-    time::Duration,
 };
 use talpid_types::ErrorExt;
 
@@ -35,7 +34,6 @@ const LINE_SEPARATOR: &str = "\n";
 const LINE_SEPARATOR: &str = "\r\n";
 
 const MAX_SEND_ATTEMPTS: usize = 3;
-const RETRY_INTERVAL: Duration = Duration::from_millis(500);
 
 /// Custom macro to write a line to an output formatter that uses platform-specific newline
 /// character sequences.
@@ -306,10 +304,12 @@ pub fn send_problem_report(
                     eprintln!(
                         "{}",
                         error.display_chain_with_msg("Failed to send problem report")
-                    )
+                    );
+                    if !error.is_network_error() {
+                        break;
+                    }
                 }
             }
-            tokio::time::sleep(RETRY_INTERVAL).await;
         }
         Err(Error::SendProblemReportError)
     })
