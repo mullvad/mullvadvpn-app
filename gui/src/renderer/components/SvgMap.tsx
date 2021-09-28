@@ -31,8 +31,10 @@ const mapStyle = {
   height: '100%',
   backgroundColor: '#192e45',
 };
-const zoomableGroupStyle = {
+const zoomableGroupStyle: React.CSSProperties = {
   transition: `transform ${MOVE_SPEED}ms ease-out`,
+  // Workaround to prevent map blurryness in Electron 13+
+  zoom: '100.01%',
 };
 
 function getMarkerImageStyle(zoom: number) {
