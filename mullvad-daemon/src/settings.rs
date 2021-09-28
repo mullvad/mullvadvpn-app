@@ -330,6 +330,20 @@ impl SettingsPersister {
         self.update(should_save).await
     }
 
+    #[cfg(windows)]
+    pub async fn set_use_wireguard_nt(&mut self, state: bool) -> Result<bool, Error> {
+        let should_save = Self::update_field(
+            &mut self
+                .settings
+                .tunnel_options
+                .wireguard
+                .options
+                .use_wireguard_nt,
+            state,
+        );
+        self.update(should_save).await
+    }
+
     fn update_field<T: Eq>(field: &mut T, new_value: T) -> bool {
         if *field != new_value {
             *field = new_value;

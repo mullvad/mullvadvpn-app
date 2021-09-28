@@ -26,6 +26,8 @@ mod stats;
 mod wireguard_go;
 #[cfg(target_os = "linux")]
 pub(crate) mod wireguard_kernel;
+#[cfg(windows)]
+mod wireguard_nt;
 
 use self::wireguard_go::WgGoTunnel;
 
@@ -89,8 +91,6 @@ pub struct WireguardMonitor {
     stop_setup_tx: Option<futures::channel::oneshot::Sender<()>>,
     pinger_stop_sender: mpsc::Sender<()>,
     _tcp_proxies: Vec<TcpProxy>,
-    #[cfg(target_os = "windows")]
-    _callback_handle: Option<crate::winnet::WinNetCallbackHandle>,
 }
 
 #[cfg(target_os = "linux")]
@@ -165,6 +165,7 @@ impl WireguardMonitor {
         runtime: tokio::runtime::Handle,
         mut config: Config,
         log_path: Option<&Path>,
+        resource_dir: &Path,
         on_event: F,
         tun_provider: &mut TunProvider,
         route_manager: &mut routing::RouteManager,
@@ -183,19 +184,11 @@ impl WireguardMonitor {
             }
         }
 
-        let tunnel = Self::open_tunnel(&config, log_path, tun_provider, route_manager)?;
+        let tunnel =
+            Self::open_tunnel(&config, log_path, resource_dir, tun_provider, route_manager)?;
         let iface_name = tunnel.get_interface_name().to_string();
         #[cfg(windows)]
         let iface_luid = tunnel.get_interface_luid();
-
-        #[cfg(target_os = "windows")]
-        let callback_handle = route_manager
-            .add_default_route_callback(Some(WgGoTunnel::default_route_changed_callback), ())
-            .ok();
-        #[cfg(target_os = "windows")]
-        if callback_handle.is_none() {
-            log::warn!("Failed to register default route callback");
-        }
 
         let event_callback = Box::new(on_event.clone());
         let (close_msg_sender, close_msg_receiver) = mpsc::channel();
@@ -212,8 +205,6 @@ impl WireguardMonitor {
             stop_setup_tx: Some(stop_setup_tx),
             pinger_stop_sender: pinger_tx,
             _tcp_proxies: tcp_proxies,
-            #[cfg(target_os = "windows")]
-            _callback_handle: callback_handle,
         };
 
         let gateway = config.ipv4_gateway;
@@ -317,10 +308,11 @@ impl WireguardMonitor {
         Ok(monitor)
     }
 
-    #[cfg_attr(not(target_os = "linux"), allow(unused_variables))]
+    #[allow(unused_variables)]
     fn open_tunnel(
         config: &Config,
         log_path: Option<&Path>,
+        resource_dir: &Path,
         tun_provider: &mut TunProvider,
         route_manager: &mut routing::RouteManager,
     ) -> Result<Box<dyn Tunnel>> {
@@ -362,14 +354,34 @@ impl WireguardMonitor {
             }
         }
 
-        #[cfg(target_os = "linux")]
+        #[cfg(target_os = "windows")]
+        if config.use_wireguard_nt {
+            match wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir) {
+                Ok(tunnel) => {
+                    log::debug!("Using WireGuardNT");
+                    return Ok(Box::new(tunnel));
+                }
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to setup WireGuardNT tunnel")
+                    );
+                }
+            }
+        }
+
+        #[cfg(any(target_os = "linux", windows))]
         log::debug!("Using userspace WireGuard implementation");
         Ok(Box::new(
             WgGoTunnel::start_tunnel(
                 &config,
                 log_path,
+                #[cfg(not(windows))]
                 tun_provider,
+                #[cfg(not(windows))]
                 Self::get_tunnel_destinations(config),
+                #[cfg(windows)]
+                route_manager,
             )
             .map_err(Error::TunnelError)?,
         ))

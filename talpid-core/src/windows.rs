@@ -1,12 +1,16 @@
 use std::{
     ffi::OsStr,
     fmt, io, mem,
+    net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     os::windows::{ffi::OsStrExt, io::RawHandle},
+    ptr,
     sync::Mutex,
     time::{Duration, Instant},
 };
 use winapi::shared::{
     ifdef::NET_LUID,
+    in6addr::IN6_ADDR,
+    inaddr::IN_ADDR,
     netioapi::{
         CancelMibChangeNotify2, ConvertInterfaceAliasToLuid, FreeMibTable, GetIpInterfaceEntry,
         GetUnicastIpAddressEntry, GetUnicastIpAddressTable, MibAddInstance,
@@ -17,6 +21,7 @@ use winapi::shared::{
     ntdef::FALSE,
     winerror::{ERROR_NOT_FOUND, NO_ERROR},
     ws2def::{AF_INET, AF_INET6, AF_UNSPEC},
+    ws2ipdef::SOCKADDR_INET,
 };
 
 /// Result type for this module.
@@ -58,6 +63,10 @@ pub enum Error {
     #[cfg(windows)]
     #[error(display = "Unicast channel sender was unexpectedly dropped")]
     UnicastSenderDropped,
+
+    /// Unknown address family
+    #[error(display = "Unknown address family: {}", _0)]
+    UnknownAddressFamily(i32),
 }
 
 /// Address family. These correspond to the `AF_*` constants.
@@ -74,6 +83,17 @@ impl fmt::Display for AddressFamily {
         match *self {
             AddressFamily::Ipv4 => write!(f, "IPv4 (AF_INET)"),
             AddressFamily::Ipv6 => write!(f, "IPv6 (AF_INET6)"),
+        }
+    }
+}
+
+impl AddressFamily {
+    /// Convert an [`AddressFamily`] to one of the `AF_*` constants.
+    pub fn try_from_af_family(family: u16) -> Result<AddressFamily> {
+        match family as i32 {
+            AF_INET => Ok(AddressFamily::Ipv4),
+            AF_INET6 => Ok(AddressFamily::Ipv6),
+            family => Err(Error::UnknownAddressFamily(family)),
         }
     }
 }
@@ -340,4 +360,121 @@ fn af_family_from_family(family: Option<AddressFamily>) -> u16 {
     family
         .map(|family| family as u16)
         .unwrap_or(AF_UNSPEC as u16)
+}
+
+/// Converts an `Ipv4Addr` to `IN_ADDR`
+pub fn inaddr_from_ipaddr(addr: Ipv4Addr) -> IN_ADDR {
+    let mut in_addr: IN_ADDR = unsafe { mem::zeroed() };
+    let addr_octets = addr.octets();
+    unsafe {
+        ptr::copy_nonoverlapping(
+            &addr_octets as *const _,
+            in_addr.S_un.S_addr_mut() as *mut _ as *mut u8,
+            addr_octets.len(),
+        );
+    }
+    in_addr
+}
+
+/// Converts an `Ipv6Addr` to `IN6_ADDR`
+pub fn in6addr_from_ipaddr(addr: Ipv6Addr) -> IN6_ADDR {
+    let mut in_addr: IN6_ADDR = unsafe { mem::zeroed() };
+    let addr_octets = addr.octets();
+    unsafe {
+        ptr::copy_nonoverlapping(
+            &addr_octets as *const _,
+            in_addr.u.Byte_mut() as *mut _,
+            addr_octets.len(),
+        );
+    }
+    in_addr
+}
+
+/// Converts an `IN_ADDR` to `Ipv4Addr`
+pub fn ipaddr_from_inaddr(addr: IN_ADDR) -> Ipv4Addr {
+    Ipv4Addr::from(unsafe { *(addr.S_un.S_addr()) }.to_be())
+}
+
+/// Converts an `IN6_ADDR` to `Ipv6Addr`
+pub fn ipaddr_from_in6addr(addr: IN6_ADDR) -> Ipv6Addr {
+    Ipv6Addr::from(*unsafe { addr.u.Byte() })
+}
+
+/// Converts a `SocketAddr` to `SOCKADDR_INET`
+pub fn inet_sockaddr_from_socketaddr(addr: SocketAddr) -> SOCKADDR_INET {
+    let mut sockaddr: SOCKADDR_INET = unsafe { mem::zeroed() };
+
+    match addr {
+        SocketAddr::V4(v4_addr) => {
+            unsafe {
+                *sockaddr.si_family_mut() = AF_INET as u16;
+            }
+
+            let mut v4sockaddr = unsafe { sockaddr.Ipv4_mut() };
+            v4sockaddr.sin_family = AF_INET as u16;
+            v4sockaddr.sin_port = v4_addr.port().to_be();
+            v4sockaddr.sin_addr = inaddr_from_ipaddr(*v4_addr.ip());
+        }
+        SocketAddr::V6(v6_addr) => {
+            unsafe {
+                *sockaddr.si_family_mut() = AF_INET6 as u16;
+            }
+
+            let mut v6sockaddr = unsafe { sockaddr.Ipv6_mut() };
+            v6sockaddr.sin6_family = AF_INET6 as u16;
+            v6sockaddr.sin6_port = v6_addr.port().to_be();
+            v6sockaddr.sin6_addr = in6addr_from_ipaddr(*v6_addr.ip());
+            v6sockaddr.sin6_flowinfo = v6_addr.flowinfo();
+            *unsafe { v6sockaddr.u.sin6_scope_id_mut() } = v6_addr.scope_id();
+        }
+    }
+
+    sockaddr
+}
+
+/// Converts a `SOCKADDR_INET` to `SocketAddr`. Returns an error if the address family is invalid.
+pub fn try_socketaddr_from_inet_sockaddr(addr: SOCKADDR_INET) -> Result<SocketAddr> {
+    unsafe {
+        match *addr.si_family() as i32 {
+            AF_INET => Ok(SocketAddr::V4(SocketAddrV4::new(
+                ipaddr_from_inaddr(addr.Ipv4().sin_addr),
+                u16::from_be(addr.Ipv4().sin_port),
+            ))),
+            AF_INET6 => Ok(SocketAddr::V6(SocketAddrV6::new(
+                ipaddr_from_in6addr(addr.Ipv6().sin6_addr),
+                u16::from_be(addr.Ipv6().sin6_port),
+                addr.Ipv6().sin6_flowinfo,
+                *addr.Ipv6().u.sin6_scope_id(),
+            ))),
+            family => Err(Error::UnknownAddressFamily(family)),
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_sockaddr_v4() {
+        let addr_v4 = SocketAddr::V4(SocketAddrV4::new(Ipv4Addr::new(1, 2, 3, 4), 1234));
+        assert_eq!(
+            addr_v4,
+            try_socketaddr_from_inet_sockaddr(inet_sockaddr_from_socketaddr(addr_v4)).unwrap()
+        );
+    }
+
+    #[test]
+    fn test_sockaddr_v6() {
+        let addr_v6 = SocketAddr::V6(SocketAddrV6::new(
+            Ipv6Addr::new(1, 2, 3, 4, 5, 6, 7, 8),
+            1234,
+            0xa,
+            0xb,
+        ));
+        assert_eq!(
+            addr_v6,
+            try_socketaddr_from_inet_sockaddr(inet_sockaddr_from_socketaddr(addr_v6)).unwrap()
+        );
+    }
 }

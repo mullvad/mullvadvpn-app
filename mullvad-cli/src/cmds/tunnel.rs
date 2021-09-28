@@ -34,11 +34,19 @@ impl Command for Tunnel {
 }
 
 fn create_wireguard_subcommand() -> clap::App<'static, 'static> {
-    clap::SubCommand::with_name("wireguard")
+    let subcmd = clap::SubCommand::with_name("wireguard")
         .about("Manage options for Wireguard tunnels")
         .setting(clap::AppSettings::SubcommandRequiredElseHelp)
         .subcommand(create_wireguard_mtu_subcommand())
-        .subcommand(create_wireguard_keys_subcommand())
+        .subcommand(create_wireguard_keys_subcommand());
+    #[cfg(windows)]
+    {
+        subcmd.subcommand(create_wireguard_use_wg_nt_subcommand())
+    }
+    #[cfg(not(windows))]
+    {
+        subcmd
+    }
 }
 
 fn create_wireguard_mtu_subcommand() -> clap::App<'static, 'static> {
@@ -59,6 +67,22 @@ fn create_wireguard_keys_subcommand() -> clap::App<'static, 'static> {
         .subcommand(clap::SubCommand::with_name("check"))
         .subcommand(clap::SubCommand::with_name("regenerate"))
         .subcommand(create_wireguard_keys_rotation_interval_subcommand())
+}
+
+#[cfg(windows)]
+fn create_wireguard_use_wg_nt_subcommand() -> clap::App<'static, 'static> {
+    clap::SubCommand::with_name("use-wireguard-nt")
+        .about("Enable or disable wireguard-nt")
+        .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+        .subcommand(clap::SubCommand::with_name("get"))
+        .subcommand(
+            clap::SubCommand::with_name("set").arg(
+                clap::Arg::with_name("policy")
+                    .required(true)
+                    .takes_value(true)
+                    .possible_values(&["on", "off"]),
+            ),
+        )
 }
 
 fn create_wireguard_keys_rotation_interval_subcommand() -> clap::App<'static, 'static> {
@@ -147,6 +171,13 @@ impl Tunnel {
                 _ => unreachable!("unhandled command"),
             },
 
+            #[cfg(windows)]
+            ("use-wireguard-nt", Some(matches)) => match matches.subcommand() {
+                ("get", _) => Self::process_wireguard_use_wg_nt_get().await,
+                ("set", Some(matches)) => Self::process_wireguard_use_wg_nt_set(matches).await,
+                _ => unreachable!("unhandled command"),
+            },
+
             _ => unreachable!("unhandled command"),
         }
     }
@@ -177,6 +208,26 @@ impl Tunnel {
         let mut rpc = new_rpc_client().await?;
         rpc.set_wireguard_mtu(0).await?;
         println!("Wireguard MTU has been unset");
+        Ok(())
+    }
+
+    #[cfg(windows)]
+    async fn process_wireguard_use_wg_nt_get() -> Result<()> {
+        let tunnel_options = Self::get_tunnel_options().await?;
+        if tunnel_options.wireguard.unwrap().use_wireguard_nt {
+            println!("enabled");
+        } else {
+            println!("disabled");
+        }
+        Ok(())
+    }
+
+    #[cfg(windows)]
+    async fn process_wireguard_use_wg_nt_set(matches: &clap::ArgMatches<'_>) -> Result<()> {
+        let new_state = matches.value_of("policy").unwrap() == "on";
+        let mut rpc = new_rpc_client().await?;
+        rpc.set_use_wireguard_nt(new_state).await?;
+        println!("Updated wireguard-nt setting");
         Ok(())
     }
 
