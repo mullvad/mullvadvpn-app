@@ -31,7 +31,7 @@
   },
   "optionalDependencies": {
     "grpc-tools": "^1.10.0",
-    "nseventmonitor": "^1.0.0"
+    "nseventmonitor": "^1.0.1"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
