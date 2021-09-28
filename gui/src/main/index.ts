@@ -1,4 +1,5 @@
 import { exec, execFile } from 'child_process';
+import { randomUUID } from 'crypto';
 import {
   app,
   BrowserWindow,
@@ -15,7 +16,6 @@ import os from 'os';
 import * as path from 'path';
 import { sprintf } from 'sprintf-js';
 import util from 'util';
-import * as uuid from 'uuid';
 import config from '../config.json';
 import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import { IApplication } from '../shared/application-types';
@@ -1289,7 +1289,7 @@ class ApplicationMain {
     });
 
     IpcMainEventChannel.problemReport.handleCollectLogs((toRedact) => {
-      const id = uuid.v4();
+      const id = randomUUID();
       const reportPath = this.getProblemReportPath(id);
       const executable = resolveBin('mullvad-problem-report');
       const args = ['collect', '--output', reportPath];
