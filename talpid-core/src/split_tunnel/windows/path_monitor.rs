@@ -278,7 +278,7 @@ impl DirContext {
         Ok(DirContext {
             path: path.as_ref().to_path_buf(),
             dir_handle,
-            buffer: vec![0u8; 4096],
+            buffer: vec![0u8; 16 * 1024],
             overlapped: Box::pin(unsafe { mem::zeroed() }),
             _io_completion_port: io_completion_port,
         })
@@ -650,7 +650,7 @@ impl PathMonitor {
             ))?;
 
         let changed = if result.bytes_returned == 0 {
-            log::debug!("Change event buffer is empty");
+            log::trace!("Change event buffer is empty");
             false
         } else {
             self.process_file_notification(&self.dir_contexts[ctx_index])?
