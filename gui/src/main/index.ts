@@ -1721,7 +1721,6 @@ class ApplicationMain {
         nodeIntegration: false,
         nodeIntegrationInWorker: false,
         nodeIntegrationInSubFrames: false,
-        enableRemoteModule: false,
         sandbox: !SANDBOX_DISABLED,
         contextIsolation: true,
         spellcheck: false,
