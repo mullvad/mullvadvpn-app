@@ -204,10 +204,11 @@ impl VersionUpdater {
                 .map_err(Error::Download)
         };
 
-        Box::pin(talpid_core::future_retry::retry_future_with_backoff(
+        Box::pin(talpid_core::future_retry::retry_future_n(
             download_future_factory,
             move |result| result.is_err() && !api_handle.get_state().is_offline(),
-            std::iter::repeat(IMMEDIATE_UPDATE_INTERVAL_ERROR).take(IMMEDIATE_UPDATE_MAX_RETRIES),
+            std::iter::repeat(IMMEDIATE_UPDATE_INTERVAL_ERROR),
+            IMMEDIATE_UPDATE_MAX_RETRIES,
         ))
     }
 
