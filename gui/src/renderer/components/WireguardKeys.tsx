@@ -68,7 +68,7 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
 
   public componentDidMount() {
     this.verifyKey();
-    this.keyAgeUpdateInterval = setInterval(this.setAgeOfKeyStringState, 60 * 1000);
+    this.keyAgeUpdateInterval = window.setInterval(this.setAgeOfKeyStringState, 60 * 1000);
   }
 
   public componentWillUnmount() {
