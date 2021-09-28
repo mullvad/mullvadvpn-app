@@ -1659,14 +1659,29 @@ where
         if self.app_version_info.is_none() {
             log::debug!("No version cache found. Fetching new info");
             let mut handle = self.version_updater_handle.clone();
-            handle.run_version_check().await;
+            tokio::spawn(async move {
+                Self::oneshot_send(
+                    tx,
+                    handle
+                        .run_version_check()
+                        .await
+                        .map_err(|error| {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg("Error running version check")
+                            )
+                        })
+                        .ok(),
+                    "get_version_info response",
+                );
+            });
+        } else {
+            Self::oneshot_send(
+                tx,
+                self.app_version_info.clone(),
+                "get_version_info response",
+            );
         }
-
-        Self::oneshot_send(
-            tx,
-            self.app_version_info.clone(),
-            "get_version_info response",
-        );
     }
 
     fn on_get_current_version(&mut self, tx: oneshot::Sender<AppVersion>) {
