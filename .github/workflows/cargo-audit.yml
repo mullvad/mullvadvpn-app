@@ -3,6 +3,7 @@ on:
     push:
         paths:
             - .github/workflows/cargo-audit.yml
+            - '**/*.rs'
             - Cargo.lock
     # Check if requested manually from the Actions tab
     workflow_dispatch:
