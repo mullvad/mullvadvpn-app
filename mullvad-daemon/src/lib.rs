@@ -1151,12 +1151,16 @@ where
     }
 
     async fn schedule_reconnect(&mut self, delay: Duration) {
+        self.unschedule_reconnect();
+
         let tunnel_command_tx = self.tx.to_specialized_sender();
         let (future, abort_handle) = abortable(Box::pin(async move {
             tokio::time::sleep(delay).await;
             log::debug!("Attempting to reconnect");
-            let (tx, _) = oneshot::channel();
+            let (tx, rx) = oneshot::channel();
             let _ = tunnel_command_tx.send(DaemonCommand::Reconnect(tx));
+            // suppress "unable to send" warning:
+            let _ = rx.await;
         }));
 
         tokio::spawn(future);
