@@ -33,7 +33,7 @@ const RETRY_INTERVAL_FACTOR: u32 = 5;
 const RETRY_INTERVAL_MAX: Duration = Duration::from_secs(24 * 60 * 60);
 
 #[cfg(not(target_os = "android"))]
-const SHORT_RETRY_INTERVAL: Duration = Duration::from_millis(500);
+const SHORT_RETRY_INTERVAL: Duration = Duration::ZERO;
 
 const MAX_KEY_REMOVAL_RETRIES: usize = 2;
 

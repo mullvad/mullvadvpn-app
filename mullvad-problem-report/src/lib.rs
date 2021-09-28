@@ -35,7 +35,7 @@ const LINE_SEPARATOR: &str = "\n";
 const LINE_SEPARATOR: &str = "\r\n";
 
 const MAX_SEND_ATTEMPTS: usize = 3;
-const RETRY_INTERVAL: Duration = Duration::from_millis(500);
+const RETRY_INTERVAL: Duration = Duration::ZERO;
 
 /// Custom macro to write a line to an output formatter that uses platform-specific newline
 /// character sequences.
