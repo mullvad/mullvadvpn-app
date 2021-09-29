@@ -2,6 +2,9 @@
 "ADD_TUNNEL_SETTINGS_ERROR" = "Failed to add tunnel settings";
 
 /* No comment provided by engineer. */
+"CANNOT_SATISFY_RELAY_CONSTRAINTS_ERROR" = "Failed to satisfy relay constraints.";
+
+/* No comment provided by engineer. */
 "LOAD_ALL_VPN_CONFIGURATIONS_ERROR" = "Failed to load system VPN configurations: %@";
 
 /* No comment provided by engineer. */
@@ -18,6 +21,9 @@
 
 /* No comment provided by engineer. */
 "PUSH_WIREGUARD_KEY_RECOVERY_SUGGESTION" = "Remove unused WireGuard keys and try again";
+
+/* No comment provided by engineer. */
+"READ_RELAYS_ERROR" = "Failed to read relays.";
 
 /* No comment provided by engineer. */
 "READ_TUNNEL_SETTINGS_ERROR" = "Failed to read tunnel settings";
@@ -48,6 +54,3 @@
 
 /* No comment provided by engineer. */
 "UPDATE_TUNNEL_SETTINGS_ERROR" = "Failed to update tunnel settings";
-
-/* No comment provided by engineer. */
-"VERIFY_WIREGUARD_KEY_ERROR" = "Failed to verify the WireGuard key on server: %@";
