@@ -13,6 +13,7 @@ class ConnectMainContentView: UIView {
     enum ActionButton {
         case connect
         case disconnect
+        case cancel
         case selectLocation
     }
 
@@ -60,6 +61,13 @@ class ConnectMainContentView: UIView {
         return button
     }()
 
+    lazy var cancelButton: AppButton = {
+        let button = AppButton(style: .translucentDanger)
+        button.accessibilityIdentifier = "CancelButton"
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
+
     lazy var selectLocationButton: AppButton = {
         let button = AppButton(style: .translucentNeutral)
         button.accessibilityIdentifier = "SelectLocationButton"
@@ -69,6 +77,10 @@ class ConnectMainContentView: UIView {
 
     lazy var selectLocationBlurView: TranslucentButtonBlurView = {
         return TranslucentButtonBlurView(button: selectLocationButton)
+    }()
+
+    lazy var cancelButtonBlurView: TranslucentButtonBlurView = {
+        return TranslucentButtonBlurView(button: cancelButton)
     }()
 
     let splitDisconnectButton: DisconnectSplitButton = {
@@ -220,6 +232,8 @@ class ConnectMainContentView: UIView {
             return connectButton
         case .disconnect:
             return splitDisconnectButton
+        case .cancel:
+            return cancelButtonBlurView
         case .selectLocation:
             return selectLocationBlurView
         }

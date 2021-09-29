@@ -7,15 +7,18 @@
 //
 
 import Foundation
-import Network
-import NetworkExtension
-import WireGuardKit
+import class WireGuardKit.PublicKey
+import struct WireGuardKit.IPAddressRange
 
 /// A struct that holds a tun interface configuration.
 struct InterfaceSettings: Codable, Equatable {
     var privateKey: PrivateKeyWithMetadata
     var addresses: [IPAddressRange]
     var dnsSettings: DNSSettings
+
+    var publicKey: PublicKey {
+        return privateKey.publicKeyWithMetadata.publicKey
+    }
 
     private enum CodingKeys: String, CodingKey {
         case privateKey, addresses, dnsSettings

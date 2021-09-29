@@ -9,8 +9,7 @@
 #if targetEnvironment(simulator)
 
 import Foundation
-import Network
-import NetworkExtension
+import enum NetworkExtension.NEProviderStopReason
 import Logging
 
 class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {

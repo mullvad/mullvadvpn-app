@@ -7,7 +7,8 @@
 //
 
 import Foundation
-import WireGuardKit
+import class WireGuardKit.PrivateKey
+import class WireGuardKit.PublicKey
 
 /// A struct holding a private WireGuard key with associated metadata
 struct PrivateKeyWithMetadata: Equatable {
@@ -21,6 +22,11 @@ struct PrivateKeyWithMetadata: Equatable {
     /// Public key metadata
     var publicKeyWithMetadata: PublicKeyWithMetadata {
         return PublicKeyWithMetadata(publicKey: privateKey.publicKey, createdAt: creationDate)
+    }
+
+    /// Public key
+    var publicKey: PublicKey {
+        return privateKey.publicKey
     }
 
     /// Initialize the new private key

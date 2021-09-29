@@ -236,19 +236,6 @@ extension TunnelManager.Error: DisplayChainedError {
             // This error is never displayed anywhere
             return nil
 
-        case .verifyWireguardKey(let restError):
-            let reason = restError.errorChainDescription ?? ""
-
-            return String(
-                format: NSLocalizedString(
-                    "VERIFY_WIREGUARD_KEY_ERROR",
-                    tableName: "TunnelManager",
-                    value: "Failed to verify the WireGuard key on server: %@",
-                    comment: ""
-                ),
-                reason
-            )
-
         case .missingAccount:
             return NSLocalizedString(
                 "MISSING_ACCOUNT_INTERNAL_ERROR",
@@ -256,6 +243,24 @@ extension TunnelManager.Error: DisplayChainedError {
                 value: "Internal error: missing account",
                 comment: ""
             )
+        case .readRelays:
+            return NSLocalizedString(
+                "READ_RELAYS_ERROR",
+                tableName: "TunnelManager",
+                value: "Failed to read relays.",
+                comment: ""
+            )
+        case .cannotSatisfyRelayConstraints:
+            return NSLocalizedString(
+                "CANNOT_SATISFY_RELAY_CONSTRAINTS_ERROR",
+                tableName: "TunnelManager",
+                value: "Failed to satisfy relay constraints.",
+                comment: ""
+            )
+
+        case .backgroundTaskScheduler:
+            // This error is never displayed anywhere
+            return nil
         }
     }
 }

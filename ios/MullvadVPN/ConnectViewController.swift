@@ -20,9 +20,6 @@ class CustomOverlayRenderer: MKOverlayRenderer {
 
 protocol ConnectViewControllerDelegate: AnyObject {
     func connectViewControllerShouldShowSelectLocationPicker(_ controller: ConnectViewController)
-    func connectViewControllerShouldConnectTunnel(_ controller: ConnectViewController)
-    func connectViewControllerShouldDisconnectTunnel(_ controller: ConnectViewController)
-    func connectViewControllerShouldReconnectTunnel(_ controller: ConnectViewController)
 }
 
 class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainment, TunnelObserver, AccountObserver {
@@ -54,7 +51,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         case .connecting, .reconnecting, .connected:
             return HeaderBarPresentation(style: .secured, showsDivider: false)
 
-        case .disconnecting, .disconnected:
+        case .disconnecting, .disconnected, .pendingReconnect:
             return HeaderBarPresentation(style: .unsecured, showsDivider: false)
         }
     }
@@ -81,6 +78,7 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         super.viewDidLoad()
 
         mainContentView.connectButton.addTarget(self, action: #selector(handleConnect(_:)), for: .touchUpInside)
+        mainContentView.cancelButton.addTarget(self, action: #selector(handleDisconnect(_:)), for: .touchUpInside)
         mainContentView.splitDisconnectButton.primaryButton.addTarget(self, action: #selector(handleDisconnect(_:)), for: .touchUpInside)
         mainContentView.splitDisconnectButton.secondaryButton.addTarget(self, action: #selector(handleReconnect(_:)), for: .touchUpInside)
 
@@ -144,13 +142,15 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
     // MARK: - TunnelObserver
 
-    func tunnelStateDidChange(tunnelState: TunnelState) {
-        DispatchQueue.main.async {
-            self.tunnelState = tunnelState
-        }
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelSettings tunnelInfo: TunnelInfo?) {
+        // no-op
     }
 
-    func tunnelSettingsDidChange(tunnelSettings: TunnelSettings?) {
+    func tunnelManager(_ manager: TunnelManager, didUpdateTunnelState tunnelState: TunnelState) {
+        self.tunnelState = tunnelState
+    }
+
+    func tunnelManager(_ manager: TunnelManager, didFailWithError error: TunnelManager.Error) {
         // no-op
     }
 
@@ -160,9 +160,30 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
         mainContentView.secureLabel.text = tunnelState.localizedTitleForSecureLabel.uppercased()
         mainContentView.secureLabel.textColor = tunnelState.textColorForSecureLabel
 
-        mainContentView.connectButton.setTitle(tunnelState.localizedTitleForConnectButton, for: .normal)
+        mainContentView.connectButton.setTitle(
+            NSLocalizedString(
+                "CONNECT_BUTTON_TITLE",
+                tableName: "Main",
+                value: "Secure connection",
+                comment: ""
+            ), for: .normal
+        )
         mainContentView.selectLocationButton.setTitle(tunnelState.localizedTitleForSelectLocationButton, for: .normal)
-        mainContentView.splitDisconnectButton.primaryButton.setTitle(tunnelState.localizedTitleForDisconnectButton, for: .normal)
+        mainContentView.cancelButton.setTitle(
+            NSLocalizedString(
+                "CANCEL_BUTTON_TITLE",
+                tableName: "Main",
+                value: "Cancel",
+                comment: ""
+            ), for: .normal)
+        mainContentView.splitDisconnectButton.primaryButton.setTitle(
+            NSLocalizedString(
+                "DISCONNECT_BUTTON_TITLE",
+                tableName: "Main",
+                value: "Disconnect",
+                comment: ""
+            ), for: .normal
+        )
         mainContentView.splitDisconnectButton.secondaryButton.accessibilityLabel = NSLocalizedString(
             "RECONNECT_BUTTON_ACCESSIBILITY_LABEL",
             tableName: "Main",
@@ -187,8 +208,21 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
     private func updateTunnelConnectionInfo() {
         switch tunnelState {
-        case .connected(let connectionInfo),
-             .reconnecting(let connectionInfo):
+        case .connecting(let connectionInfo):
+            setConnectionInfo(connectionInfo)
+
+        case .connected(let connectionInfo), .reconnecting(let connectionInfo):
+            setConnectionInfo(connectionInfo)
+
+        case .disconnected, .disconnecting, .pendingReconnect:
+            setConnectionInfo(nil)
+        }
+
+        mainContentView.locationContainerView.accessibilityLabel = tunnelState.localizedAccessibilityLabel
+    }
+
+    private func setConnectionInfo(_ connectionInfo: TunnelConnectionInfo?) {
+        if let connectionInfo = connectionInfo {
             mainContentView.cityLabel.attributedText = attributedStringForLocation(string: connectionInfo.location.city)
             mainContentView.countryLabel.attributedText = attributedStringForLocation(string: connectionInfo.location.country)
 
@@ -198,15 +232,12 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
             )
             mainContentView.connectionPanel.isHidden = false
             mainContentView.connectionPanel.connectedRelayName = connectionInfo.hostname
-
-        case .connecting, .disconnected, .disconnecting:
+        } else {
             mainContentView.countryLabel.attributedText = attributedStringForLocation(string: " ")
             mainContentView.cityLabel.attributedText = attributedStringForLocation(string: " ")
             mainContentView.connectionPanel.dataSource = nil
             mainContentView.connectionPanel.isHidden = true
         }
-
-        mainContentView.locationContainerView.accessibilityLabel = tunnelState.localizedAccessibilityLabel
     }
 
     private func locationMarkerOffset() -> CGPoint {
@@ -243,38 +274,48 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
 
     private func updateLocation(animated: Bool) {
         switch tunnelState {
-        case .connected(let connectionInfo),
-             .reconnecting(let connectionInfo):
-            let coordinate = connectionInfo.location.geoCoordinate
-            if let lastLocation = self.lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
-                return
+        case .connecting(let connectionInfo):
+            if let connectionInfo = connectionInfo {
+                setLocation(coordinate: connectionInfo.location.geoCoordinate, animated: animated)
+            } else {
+                unsetLocation(animated: animated)
             }
 
-            let markerOffset = locationMarkerOffset()
-            let region = computeCoordinateRegion(centerCoordinate: coordinate, centerOffsetInPoints: markerOffset)
+        case .connected(let connectionInfo), .reconnecting(let connectionInfo):
+            setLocation(coordinate: connectionInfo.location.geoCoordinate, animated: animated)
 
-            locationMarker.coordinate = coordinate
-            mainContentView.mapView.addAnnotation(locationMarker)
-            mainContentView.mapView.setRegion(region, animated: animated)
-
-            self.lastLocation = coordinate
-
-        case .disconnected, .disconnecting:
-            let coordinate = CLLocationCoordinate2D(latitude: 0, longitude: 0)
-            if let lastLocation = self.lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
-                return
-            }
-
-            let span = MKCoordinateSpan(latitudeDelta: 90, longitudeDelta: 90)
-            let region = MKCoordinateRegion(center: coordinate, span: span)
-            mainContentView.mapView.removeAnnotation(locationMarker)
-            mainContentView.mapView.setRegion(region, animated: animated)
-
-            self.lastLocation = coordinate
-
-        case .connecting:
-            break
+        case .disconnected, .disconnecting, .pendingReconnect:
+            unsetLocation(animated: animated)
         }
+    }
+
+    private func setLocation(coordinate: CLLocationCoordinate2D, animated: Bool) {
+        if let lastLocation = self.lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
+            return
+        }
+
+        let markerOffset = locationMarkerOffset()
+        let region = computeCoordinateRegion(centerCoordinate: coordinate, centerOffsetInPoints: markerOffset)
+
+        locationMarker.coordinate = coordinate
+        mainContentView.mapView.addAnnotation(locationMarker)
+        mainContentView.mapView.setRegion(region, animated: animated)
+
+        self.lastLocation = coordinate
+    }
+
+    private func unsetLocation(animated: Bool) {
+        let coordinate = CLLocationCoordinate2D(latitude: 0, longitude: 0)
+        if let lastLocation = self.lastLocation, coordinate.approximatelyEqualTo(lastLocation) {
+            return
+        }
+
+        let span = MKCoordinateSpan(latitudeDelta: 90, longitudeDelta: 90)
+        let region = MKCoordinateRegion(center: coordinate, span: span)
+        mainContentView.mapView.removeAnnotation(locationMarker)
+        mainContentView.mapView.setRegion(region, animated: animated)
+
+        self.lastLocation = coordinate
     }
 
     private func addNotificationController() {
@@ -296,15 +337,15 @@ class ConnectViewController: UIViewController, MKMapViewDelegate, RootContainmen
     // MARK: - Actions
 
     @objc func handleConnect(_ sender: Any) {
-        delegate?.connectViewControllerShouldConnectTunnel(self)
+        TunnelManager.shared.startTunnel()
     }
 
     @objc func handleDisconnect(_ sender: Any) {
-        delegate?.connectViewControllerShouldDisconnectTunnel(self)
+        TunnelManager.shared.stopTunnel()
     }
 
     @objc func handleReconnect(_ sender: Any) {
-        delegate?.connectViewControllerShouldReconnectTunnel(self)
+        TunnelManager.shared.reconnectTunnel()
     }
 
     @objc func handleSelectLocation(_ sender: Any) {
@@ -405,7 +446,7 @@ private extension TunnelState {
         case .connected:
             return .successColor
 
-        case .disconnecting, .disconnected:
+        case .disconnecting, .disconnected, .pendingReconnect:
             return .dangerColor
         }
     }
@@ -428,7 +469,22 @@ private extension TunnelState {
                 comment: ""
             )
 
-        case .disconnecting, .disconnected:
+        case .disconnecting(.nothing):
+            return NSLocalizedString(
+                "TUNNEL_STATE_DISCONNECTING",
+                tableName: "Main",
+                value: "Disconnecting",
+                comment: ""
+            )
+        case .disconnecting(.reconnect), .pendingReconnect:
+            return NSLocalizedString(
+                "TUNNEL_STATE_PENDING_RECONNECT",
+                tableName: "Main",
+                value: "Reconnecting",
+                comment: ""
+            )
+
+        case .disconnected:
             return NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTED",
                 tableName: "Main",
@@ -440,7 +496,15 @@ private extension TunnelState {
 
     var localizedTitleForSelectLocationButton: String? {
         switch self {
-        case .disconnected, .disconnecting:
+        case .disconnecting(.reconnect), .pendingReconnect:
+            return NSLocalizedString(
+                "SWITCH_LOCATION_BUTTON_TITLE",
+                tableName: "Main",
+                value: "Select location",
+                comment: ""
+            )
+
+        case .disconnected, .disconnecting(.nothing):
             return NSLocalizedString(
                 "SELECT_LOCATION_BUTTON_TITLE",
                 tableName: "Main",
@@ -452,34 +516,6 @@ private extension TunnelState {
                 "SWITCH_LOCATION_BUTTON_TITLE",
                 tableName: "Main",
                 value: "Switch location",
-                comment: ""
-            )
-        }
-    }
-
-    var localizedTitleForConnectButton: String {
-        return NSLocalizedString(
-            "CONNECT_BUTTON_TITLE",
-            tableName: "Main",
-            value: "Secure connection",
-            comment: ""
-        )
-    }
-
-    var localizedTitleForDisconnectButton: String {
-        switch self {
-        case .connecting:
-            return NSLocalizedString(
-                "CANCEL_BUTTON_TITLE",
-                tableName: "Main",
-                value: "Cancel",
-                comment: ""
-            )
-        case .connected, .reconnecting, .disconnecting, .disconnected:
-            return NSLocalizedString(
-                "DISCONNECT_BUTTON_TITLE",
-                tableName: "Main",
-                value: "Disconnect",
                 comment: ""
             )
         }
@@ -527,11 +563,19 @@ private extension TunnelState {
                 tunnelInfo.location.country
             )
 
-        case .disconnecting:
+        case .disconnecting(.nothing):
             return NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTING_ACCESSIBILITY_LABEL",
                 tableName: "Main",
                 value: "Disconnecting",
+                comment: ""
+            )
+
+        case .disconnecting(.reconnect), .pendingReconnect:
+            return NSLocalizedString(
+                "TUNNEL_STATE_PENDING_RECONNECT_ACCESSIBILITY_LABEL",
+                tableName: "Main",
+                value: "Reconnecting",
                 comment: ""
             )
         }
@@ -541,17 +585,23 @@ private extension TunnelState {
         switch (traitCollection.userInterfaceIdiom, traitCollection.horizontalSizeClass) {
         case (.phone, _), (.pad, .compact):
             switch self {
-            case .disconnected, .disconnecting:
+            case .disconnected, .disconnecting(.nothing):
                 return [.selectLocation, .connect]
 
-            case .connecting, .connected, .reconnecting:
+            case .connecting, .pendingReconnect, .disconnecting(.reconnect):
+                return [.selectLocation, .cancel]
+
+            case .connected, .reconnecting:
                 return [.selectLocation, .disconnect]
             }
 
         case (.pad, .regular):
             switch self {
-            case .disconnected, .disconnecting:
+            case .disconnected, .disconnecting(.nothing):
                 return [.connect]
+
+            case .disconnecting(.reconnect), .pendingReconnect:
+                return [.cancel]
 
             case .connecting, .connected, .reconnecting:
                 return [.disconnect]

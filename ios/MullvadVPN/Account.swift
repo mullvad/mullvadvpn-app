@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import NetworkExtension
 import StoreKit
 import Logging
 
@@ -98,13 +97,7 @@ class Account {
         }
     }
 
-    private enum ExclusivityCategory {
-        case exclusive
-    }
-
-    private let rest = MullvadRest()
-    private let operationQueue = OperationQueue()
-    private lazy var exclusivityController = ExclusivityController<ExclusivityCategory>(operationQueue: operationQueue)
+    private let dispatchQueue = DispatchQueue(label: "AccountQueue")
 
     var isLoggedIn: Bool {
         return token != nil
@@ -115,147 +108,111 @@ class Account {
         UserDefaults.standard.set(true, forKey: UserDefaultsKeys.isAgreedToTermsOfService.rawValue)
     }
 
-    func loginWithNewAccount(completionHandler: @escaping (Result<AccountResponse, Error>) -> Void) {
-        let operation = rest.createAccount().operation(payload: EmptyPayload())
-
-        operation.addDidFinishBlockObserver(queue: .main) { (operation, result) in
-            switch result {
-            case .success(let response):
-                self.setupTunnel(accountToken: response.token, expiry: response.expires) { (result) in
-                    if case .success = result {
+    func loginWithNewAccount() -> Result<REST.AccountResponse, Account.Error>.Promise {
+        return REST.Client.shared.createAccount()
+            .mapError { error in
+                return Error.createAccount(error)
+            }
+            .receive(on: .main)
+            .mapThen { response in
+                return self.setupTunnel(accountToken: response.token, expiry: response.expires)
+                    .map { _ in
                         self.observerList.forEach { (observer) in
                             observer.account(self, didLoginWithToken: response.token, expiry: response.expires)
                         }
+                        return response
                     }
-                    completionHandler(result.map { response })
-                }
-
-            case .failure(let error):
-                completionHandler(.failure(.createAccount(error)))
             }
-        }
-
-        exclusivityController.addOperation(operation, categories: [.exclusive])
+            .block(on: dispatchQueue)
+            .receive(on: .main)
     }
 
     /// Perform the login and save the account token along with expiry (if available) to the
     /// application preferences.
-    func login(with accountToken: String, completionHandler: @escaping (Result<AccountResponse, Error>) -> Void) {
-        let operation = rest.getAccountExpiry()
-            .operation(payload: .init(token: accountToken, payload: EmptyPayload()))
-
-        operation.addDidFinishBlockObserver(queue: .main) { (operation, result) in
-            switch result {
-            case .success(let response):
-                self.setupTunnel(accountToken: response.token, expiry: response.expires) { (result) in
-                    if case .success = result {
+    func login(with accountToken: String) -> Result<REST.AccountResponse, Account.Error>.Promise {
+        return REST.Client.shared.getAccountExpiry(token: accountToken)
+            .mapError { error in
+                return Account.Error.verifyAccount(error)
+            }
+            .mapThen { response in
+                return self.setupTunnel(accountToken: response.token, expiry: response.expires)
+                    .map { _ in
                         self.observerList.forEach { (observer) in
                             observer.account(self, didLoginWithToken: response.token, expiry: response.expires)
                         }
+                        return response
                     }
-                    completionHandler(result.map { response })
-                }
-
-            case .failure(let error):
-                completionHandler(.failure(.verifyAccount(error)))
             }
-        }
-
-        exclusivityController.addOperation(operation, categories: [.exclusive])
+            .block(on: dispatchQueue)
+            .receive(on: .main)
     }
 
     /// Perform the logout by erasing the account token and expiry from the application preferences.
-    func logout(completionHandler: @escaping (Result<(), Error>) -> Void) {
-        let operation = ResultOperation<(), Error> { (finish) in
-            TunnelManager.shared.unsetAccount { (result) in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success:
-                        self.removeFromPreferences()
-                        self.observerList.forEach { (observer) in
-                            observer.accountDidLogout(self)
-                        }
-
-                        finish(.success(()))
-
-                    case .failure(let error):
-                        finish(.failure(.tunnelConfiguration(error)))
-                    }
-                }
+    func logout() -> Result<(), Account.Error>.Promise {
+        return TunnelManager.shared.unsetAccount()
+            .mapError { error in
+                return Account.Error.tunnelConfiguration(error)
             }
-        }
-
-        operation.addDidFinishBlockObserver(queue: .main) { (operation, result) in
-            completionHandler(result)
-        }
-
-        exclusivityController.addOperation(operation, categories: [.exclusive])
-    }
-
-    /// Forget that user was logged in, but do not attempt to unset account in `TunnelManager`.
-    /// This function is used in cases where the tunnel or tunnel settings are corrupt.
-    func forget(completionHandler: @escaping () -> Void) {
-        let operation = AsyncBlockOperation { (finish) in
-            DispatchQueue.main.async {
+            .receive(on: .main)
+            .onSuccess { _ in
                 self.removeFromPreferences()
                 self.observerList.forEach { (observer) in
                     observer.accountDidLogout(self)
                 }
-                finish()
             }
-        }
+            .block(on: dispatchQueue)
+            .receive(on: .main)
+    }
 
-        operation.addDidFinishBlockObserver(queue: .main) { (operation) in
-            completionHandler()
+    /// Forget that user was logged in, but do not attempt to unset account in `TunnelManager`.
+    /// This function is used in cases where the tunnel or tunnel settings are corrupt.
+    func forget() -> Promise<Void> {
+        return Promise<Void> { resolver in
+            self.removeFromPreferences()
+            self.observerList.forEach { (observer) in
+                observer.accountDidLogout(self)
+            }
+            resolver.resolve(value: ())
         }
-
-        exclusivityController.addOperation(operation, categories: [.exclusive])
+        .schedule(on: .main)
+        .block(on: dispatchQueue)
+        .receive(on: .main)
     }
 
     func updateAccountExpiry() {
-        let makeRequest = ResultOperation { () -> TokenPayload<EmptyPayload>? in
-            return self.token.flatMap { (token) in
-                return TokenPayload(token: token, payload: EmptyPayload())
+        Promise<String?>.deferred { self.token }
+            .mapThen(defaultValue: nil) { token in
+                return REST.Client.shared.getAccountExpiry(token: token)
+                    .onFailure { error in
+                        self.logger.error(chainedError: error, message: "Failed to update account expiry")
+                    }
+                    .success()
             }
-        }
+            .schedule(on: .main)
+            .block(on: dispatchQueue)
+            .receive(on: .main)
+            .observe { completion in
+                guard let response = completion.flattenUnwrappedValue else { return }
 
-        let sendRequest = rest.getAccountExpiry()
-            .operation(payload: nil)
-            .injectResult(from: makeRequest)
-
-        sendRequest.addDidFinishBlockObserver(queue: .main) { (operation, result) in
-            switch result {
-            case .success(let response):
                 if self.expiry != response.expires {
                     self.expiry = response.expires
                     self.observerList.forEach { (observer) in
                         observer.account(self, didUpdateExpiry: response.expires)
                     }
                 }
-
-            case .failure(let error):
-                self.logger.error(chainedError: error, message: "Failed to update account expiry")
             }
-        }
-
-        exclusivityController.addOperations([makeRequest, sendRequest], categories: [.exclusive])
     }
 
-    private func setupTunnel(accountToken: String, expiry: Date, completionHandler: @escaping (Result<(), Error>) -> Void) {
-        TunnelManager.shared.setAccount(accountToken: accountToken) { (managerResult) in
-            DispatchQueue.main.async {
-                switch managerResult {
-                case .success:
-                    self.token = accountToken
-                    self.expiry = expiry
-
-                    completionHandler(.success(()))
-
-                case .failure(let error):
-                    completionHandler(.failure(.tunnelConfiguration(error)))
-                }
+    private func setupTunnel(accountToken: String, expiry: Date) -> Result<(), Error>.Promise {
+        return TunnelManager.shared.setAccount(accountToken: accountToken)
+            .receive(on: .main)
+            .mapError { error in
+                return Error.tunnelConfiguration(error)
             }
-        }
+            .onSuccess { _ in
+                self.token = accountToken
+                self.expiry = expiry
+            }
     }
 
     private func removeFromPreferences() {
@@ -286,23 +243,17 @@ extension Account: AppStorePaymentObserver {
         // no-op
     }
 
-    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: CreateApplePaymentResponse) {
-        let newExpiry = response.newExpiry
+    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: REST.CreateApplePaymentResponse) {
+        dispatchQueue.async {
+            let newExpiry = response.newExpiry
 
-        let operation = AsyncBlockOperation { (finish) in
-            DispatchQueue.main.async {
-                // Make sure that payment corresponds to the active account token
-                if self.token == accountToken, self.expiry != newExpiry {
-                    self.expiry = newExpiry
-                    self.observerList.forEach { (observer) in
-                        observer.account(self, didUpdateExpiry: newExpiry)
-                    }
+            // Make sure that payment corresponds to the active account token
+            if self.token == accountToken, self.expiry != newExpiry {
+                self.expiry = newExpiry
+                self.observerList.forEach { (observer) in
+                    observer.account(self, didUpdateExpiry: newExpiry)
                 }
-
-                finish()
             }
         }
-
-        exclusivityController.addOperation(operation, categories: [.exclusive])
     }
 }
