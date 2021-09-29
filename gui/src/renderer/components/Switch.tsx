@@ -17,6 +17,9 @@ interface IProps {
 interface IState {
   isOn: boolean;
   isPressed: boolean;
+  // gRPC calls cause the transition to glitch for some reason. Waiting with the onchange event
+  // until after the transition prevents the visual glitch from happening.
+  notifyOnTransitionEnd: boolean;
 }
 
 const PAN_DISTANCE = 10;
@@ -56,6 +59,7 @@ export default class Switch extends React.PureComponent<IProps, IState> {
   public state: IState = {
     isOn: this.props.isOn,
     isPressed: false,
+    notifyOnTransitionEnd: false,
   };
 
   private containerRef = React.createRef<HTMLDivElement>();
@@ -93,6 +97,7 @@ export default class Switch extends React.PureComponent<IProps, IState> {
           isOn={this.state.isOn}
           isPressed={this.state.isPressed}
           onMouseDown={this.handleMouseDown}
+          onTransitionEnd={this.onTransitionEnd}
         />
       </SwitchContainer>
     );
@@ -103,13 +108,19 @@ export default class Switch extends React.PureComponent<IProps, IState> {
     assignToRef(element, this.props.forwardedRef);
   };
 
+  private onTransitionEnd = (event: React.TransitionEvent) => {
+    if (this.state.notifyOnTransitionEnd && event.propertyName === 'left') {
+      this.notify();
+    }
+  };
+
   private handleClick = () => {
     if (this.props.disabled) {
       return;
     }
 
     if (!this.changedDuringPan) {
-      this.setState((state) => ({ isOn: !state.isOn }), this.notify);
+      this.setState((state) => ({ isOn: !state.isOn, notifyOnTransitionEnd: true }));
     }
 
     // Needs to be reset to allow clicks on container after panning.
@@ -161,7 +172,7 @@ export default class Switch extends React.PureComponent<IProps, IState> {
       if (this.state.isOn !== nextOn) {
         this.startPos = event.clientX;
         this.changedDuringPan = true;
-        this.setState({ isOn: nextOn });
+        this.setState({ isOn: nextOn, notifyOnTransitionEnd: false });
       }
     }
   };
