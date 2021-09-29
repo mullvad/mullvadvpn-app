@@ -265,7 +265,7 @@ storePassword = keystore-password
 
 1. *This can be skipped for Android builds*.
 
-   Get the latest version 14 release of Node.js and the latest version of npm. After installing
+   Get the latest version 16 release of Node.js and the latest version of npm. After installing
    Node.js the latest version of npm can be installed by running:
    ```
    npm install -g npm
@@ -276,7 +276,7 @@ storePassword = keystore-password
    ```
 
    #### Linux
-   Just download and unpack the `node-v14.xxxx.tar.xz` tarball and add its `bin` directory to your
+   Just download and unpack the `node-v16.xxxx.tar.xz` tarball and add its `bin` directory to your
    `PATH`.
 
    #### Windows
