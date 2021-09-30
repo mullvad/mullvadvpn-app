@@ -118,6 +118,7 @@ extension RelayCache {
                 }
             }
             .block(on: updateQueue)
+            .requestBackgroundTime(taskName: "RelayCacheTracker.updateRelays")
         }
 
         func read() -> Result<CachedRelays, RelayCache.Error>.Promise {
