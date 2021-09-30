@@ -83,6 +83,13 @@ class NotificationManager: NotificationProviderDelegate {
         willSet {
             assert(Thread.isMainThread)
         }
+
+        didSet {
+            // Pump in-app notifications when changing delegate.
+            if !inAppNotificationDescriptors.isEmpty {
+                delegate?.notificationManagerDidUpdateInAppNotifications(self, notifications: inAppNotificationDescriptors)
+            }
+        }
     }
 
     func updateNotifications() {
