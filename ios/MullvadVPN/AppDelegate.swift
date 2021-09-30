@@ -154,7 +154,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         notificationManager.notificationProviders = [
-            AccountExpiryNotificationProvider()
+            AccountExpiryNotificationProvider(),
+            TunnelErrorNotificationProvider()
         ]
         notificationManager.updateNotifications()
 

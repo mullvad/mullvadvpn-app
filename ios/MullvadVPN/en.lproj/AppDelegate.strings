@@ -1,8 +1,0 @@
-/* No comment provided by engineer. */
-"START_VPN_TUNNEL_ERROR_ALERT_TITLE" = "Failed to start the VPN tunnel";
-
-/* No comment provided by engineer. */
-"STOP_VPN_TUNNEL_ERROR_ALERT_TITLE" = "Failed to stop the VPN tunnel";
-
-/* Dismiss button in tunnel error alert. */
-"TUNNEL_ERROR_ALERT_OK_BUTTON" = "OK";

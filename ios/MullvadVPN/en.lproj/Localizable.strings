@@ -9,3 +9,6 @@
 
 /* Title for system account expiry notification, fired 3 days prior to account expiry. */
 "ACCOUNT_EXPIRY_SYSTEM_NOTIFICATION_TITLE" = "Account credit expires soon";
+
+/* No comment provided by engineer. */
+"TUNNEL_ERROR_INAPP_NOTIFICATION_TITLE" = "Tunnel error";
