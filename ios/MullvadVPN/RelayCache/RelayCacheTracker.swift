@@ -6,6 +6,7 @@
 //  Copyright © 2019 Mullvad VPN AB. All rights reserved.
 //
 
+import BackgroundTasks
 import Foundation
 import Logging
 
@@ -244,4 +245,86 @@ extension RelayCache {
         }
     }
 
+}
+
+// MARK: - Background tasks
+
+@available(iOS 13.0, *)
+extension RelayCache.Tracker {
+
+    /// Register app refresh task with scheduler.
+    func registerAppRefreshTask() {
+        let taskIdentifier = ApplicationConfiguration.appRefreshTaskIdentifier
+
+        let isRegistered = BGTaskScheduler.shared.register(forTaskWithIdentifier: taskIdentifier, using: nil) { task in
+            self.handleAppRefreshTask(task as! BGAppRefreshTask)
+        }
+
+        if isRegistered {
+            logger.debug("Registered app refresh task")
+        } else {
+            logger.error("Failed to register app refresh task")
+        }
+    }
+
+    /// Schedules app refresh task relative to the last relays update.
+    func scheduleAppRefreshTask() -> Result<(), RelayCache.Error>.Promise {
+        return self.read().flatMap { cachedRelays in
+            let beginDate = cachedRelays.updatedAt.addingTimeInterval(Self.relayUpdateInterval)
+
+            return self.submitAppRefreshTask(at: beginDate)
+        }
+    }
+
+    /// Create and submit task request to scheduler.
+    private func submitAppRefreshTask(at beginDate: Date) -> Result<(), RelayCache.Error> {
+        let taskIdentifier = ApplicationConfiguration.appRefreshTaskIdentifier
+
+        let request = BGAppRefreshTaskRequest(identifier: taskIdentifier)
+        request.earliestBeginDate = beginDate
+
+        return Result { try BGTaskScheduler.shared.submit(request) }
+            .mapError { error in
+                return .backgroundTaskScheduler(error)
+            }
+    }
+
+    /// Background task handler
+    private func handleAppRefreshTask(_ task: BGAppRefreshTask) {
+        var cancellationToken: PromiseCancellationToken?
+
+        self.logger.debug("Start app refresh task")
+
+        self.updateRelays()
+            .storeCancellationToken(in: &cancellationToken)
+            .observe { completion in
+                switch completion {
+                case .finished(.success(let fetchResult)):
+                    self.logger.debug("Finished updating relays in app refresh task: \(fetchResult)")
+
+                case .finished(.failure(let error)):
+                    self.logger.error(chainedError: error, message: "Failed to update relays in app refresh task")
+
+                case .cancelled:
+                    self.logger.debug("App refresh task was cancelled")
+                }
+
+                task.setTaskCompleted(success: !completion.isCancelled)
+            }
+
+        task.expirationHandler = {
+            cancellationToken?.cancel()
+        }
+
+        // Schedule next refresh
+        let scheduleDate = Date(timeIntervalSinceNow: Self.relayUpdateInterval)
+
+        switch self.submitAppRefreshTask(at: scheduleDate) {
+        case .success:
+            self.logger.debug("Scheduled next app refresh task at \(scheduleDate.logFormatDate())")
+
+        case .failure(let error):
+            self.logger.error(chainedError: error, message: "Failed to schedule next app refresh task")
+        }
+    }
 }

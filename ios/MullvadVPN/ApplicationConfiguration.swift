@@ -37,4 +37,13 @@ extension ApplicationConfiguration {
     static var logFileURLs: [URL] {
         return [mainApplicationLogFileURL, packetTunnelLogFileURL].compactMap { $0 }
     }
+
+    /// Background fetch minimum interval
+    static let minimumBackgroundFetchInterval: TimeInterval = 3600
+
+    /// App refresh background task identifier
+    static let appRefreshTaskIdentifier = "net.mullvad.MullvadVPN.AppRefresh"
+
+    /// Key rotation background task identifier
+    static let privateKeyRotationTaskIdentifier = "net.mullvad.MullvadVPN.PrivateKeyRotation"
 }
