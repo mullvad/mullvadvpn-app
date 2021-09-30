@@ -11,7 +11,7 @@ import StoreKit
 
 class ProductsRequestOperation: AsyncOperation, SKProductsRequestDelegate {
     private let productIdentifiers: Set<String>
-    private let completionHandler: (Result<SKProductsResponse, Error>) -> Void
+    private var completionHandler: ((Result<SKProductsResponse, Error>) -> Void)?
 
     private let maxRetryCount = 10
     private let retryDelay: DispatchTimeInterval = .seconds(2)
@@ -19,6 +19,12 @@ class ProductsRequestOperation: AsyncOperation, SKProductsRequestDelegate {
     private var retryCount = 0
     private var retryTimer: DispatchSourceTimer?
     private var request: SKProductsRequest?
+
+    struct OperationCancelledError: LocalizedError {
+        var errorDescription: String? {
+            return "Operation is cancelled"
+        }
+    }
 
     init(productIdentifiers: Set<String>, completionHandler: @escaping (Result<SKProductsResponse, Error>) -> Void) {
         self.productIdentifiers = productIdentifiers
@@ -29,6 +35,11 @@ class ProductsRequestOperation: AsyncOperation, SKProductsRequestDelegate {
 
     override func main() {
         DispatchQueue.main.async {
+            guard !self.isCancelled else {
+                self.finish(with: .failure(OperationCancelledError()))
+                return
+            }
+
             self.startRequest()
         }
     }
@@ -89,7 +100,11 @@ class ProductsRequestOperation: AsyncOperation, SKProductsRequestDelegate {
     }
 
     private func finish(with result: Result<SKProductsResponse, Error>) {
-        completionHandler(result)
+        assert(Thread.isMainThread)
+
+        completionHandler?(result)
+        completionHandler = nil
+
         finish()
     }
 }

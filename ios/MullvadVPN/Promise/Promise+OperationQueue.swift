@@ -13,10 +13,10 @@ extension Promise {
     /// Returns a promise that adds operation that finishes along with the upstream.
     func run(on operationQueue: OperationQueue) -> Promise<Value> {
         return Promise { resolver in
-            let operation = AsyncBlockOperation { finish in
+            let operation = AsyncBlockOperation { operation in
                 self.observe { completion in
                     resolver.resolve(completion: completion)
-                    finish()
+                    operation.finish()
                 }
             }
 
@@ -31,10 +31,10 @@ extension Promise {
     /// Returns a promise that adds a mutually exclusive operation that finishes along with the upstream.
     func run(on operationQueue: OperationQueue, categories: [String]) -> Promise<Value> {
         return Promise { resolver in
-            let operation = AsyncBlockOperation { finish in
+            let operation = AsyncBlockOperation { operation in
                 self.observe { completion in
                     resolver.resolve(completion: completion)
-                    finish()
+                    operation.finish()
                 }
             }
 
