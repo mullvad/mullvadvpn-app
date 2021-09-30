@@ -153,7 +153,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             fatalError()
         }
 
-        notificationManager.delegate = connectController?.notificationController
         notificationManager.notificationProviders = [
             AccountExpiryNotificationProvider()
         ]
@@ -245,6 +244,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func makeConnectViewController() -> ConnectViewController {
         let connectController = ConnectViewController()
         connectController.delegate = self
+        notificationManager.delegate = connectController.notificationController
 
         return connectController
     }
