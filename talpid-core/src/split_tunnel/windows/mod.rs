@@ -570,7 +570,7 @@ unsafe extern "system" fn split_tunnel_default_route_change_handler(
 
     let result = match event_type {
         winnet::WinNetDefaultRouteChangeEventType::DefaultRouteChanged => {
-            match interface_luid_to_ip(address_family.clone(), default_route.interface_luid) {
+            match interface_luid_to_ip(address_family, default_route.interface_luid) {
                 Ok(Some(ip)) => match IpAddr::from(ip) {
                     IpAddr::V4(addr) => ctx.internet_ipv4 = Some(addr),
                     IpAddr::V6(addr) => ctx.internet_ipv6 = Some(addr),
