@@ -95,6 +95,8 @@ const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICA
 
 const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
 
+const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
+
 enum AppQuitStage {
   unready,
   initiated,
@@ -1597,7 +1599,9 @@ class ApplicationMain {
     session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => {
       callback(false);
     });
-    session.defaultSession.setPermissionCheckHandler(() => false);
+    session.defaultSession.setPermissionCheckHandler((_webContents, permission) =>
+      ALLOWED_PERMISSIONS.includes(permission),
+    );
   }
 
   // Since the app frontend never performs any network requests, all requests originating from the
