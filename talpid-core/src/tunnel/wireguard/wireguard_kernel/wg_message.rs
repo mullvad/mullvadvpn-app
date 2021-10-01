@@ -386,12 +386,13 @@ impl Nla for PeerNla {
             Flags(value) | ProtocolVersion(value) => NativeEndian::write_u32(buffer, *value),
             Endpoint(endpoint) => match &endpoint {
                 InetAddr::V4(sockaddr_in) => {
-                    let slice = unsafe { struct_as_slice(sockaddr_in) };
+                    // SAFETY: `sockaddr_in` has no padding bytes
                     buffer
-                        .write(slice)
+                        .write(unsafe { struct_as_slice(sockaddr_in) })
                         .expect("Buffer too small for sockaddr_in");
                 }
                 InetAddr::V6(sockaddr_in6) => {
+                    // SAFETY: `sockaddr_in` has no padding bytes
                     buffer
                         .write(unsafe { struct_as_slice(sockaddr_in6) })
                         .expect("Buffer too small for sockaddr_in6");
@@ -402,6 +403,7 @@ impl Nla for PeerNla {
             }
             LastHandshakeTime(last_handshake) => {
                 let timespec: &libc::timespec = last_handshake.as_ref();
+                // SAFETY: `timespec` has no padding bytes
                 buffer
                     .write(unsafe { struct_as_slice(timespec) })
                     .expect("Buffer too small for timespec");
@@ -562,10 +564,19 @@ impl<'a, T: AsRef<[u8]> + 'a + ?Sized> Parseable<NlaBuffer<&'a T>> for AllowedIp
     }
 }
 
+/// Returns a byte slice over the memory used by `t`.
+///
+/// # Safety
+///
+/// The returned slice includes any padding bytes of `t`. Padding bytes are uninitialized
+/// data and it is undefined behavior for a `u8` to be uninitialized. Only call this method
+/// on `T`s without padding.
 unsafe fn struct_as_slice<T: Sized>(t: &T) -> &[u8] {
-    let s = mem::size_of::<T>();
+    let size = mem::size_of::<T>();
     let ptr = t as *const T as *const u8;
-    std::slice::from_raw_parts(ptr, s)
+    // SAFETY: The memory from `ptr` and `size` bytes forward is always the same as the struct.
+    // The caller is responsible for not using this with structs containing padding.
+    std::slice::from_raw_parts(ptr, size)
 }
 
 fn ip_addr_to_bytes(addr: &IpAddr) -> Vec<u8> {
