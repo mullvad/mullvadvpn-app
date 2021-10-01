@@ -101,8 +101,11 @@ build_ref() {
   git submodule update
   git clean -df
 
-  # Make sure we have the latest Rust toolchain before the build
+  # Make sure we have the latest Rust and Node toolchains before the build
   rustup update
+  if command -v nvm > /dev/null; then
+      nvm install --latest-npm
+  fi
 
   ./build.sh || return 0
   case "$(uname -s)" in
