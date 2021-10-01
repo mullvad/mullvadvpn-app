@@ -11,13 +11,23 @@ import Foundation
 extension Promise {
     /// Delay observing the upstream by the given interval.
     func delay(by timeInterval: DispatchTimeInterval, timerType: TimerType, queue: DispatchQueue? = nil) -> Promise<Value> {
-        return Promise<Value> { resolver in
+        return Promise<Value>(parent: self) { resolver in
             let timer = DispatchSource.makeTimerSource(flags: [], queue: queue)
+
+            let timerCancelHandler = DispatchWorkItem {
+                resolver.resolve(completion: .cancelled, queue: queue)
+            }
+
             timer.setEventHandler {
+                // Prevent potential further invocation of cancel handler
+                timerCancelHandler.cancel()
+
                 self.observe { completion in
-                    resolver.resolve(completion: completion, queue: nil)
+                    resolver.resolve(completion: completion, queue: queue)
                 }
             }
+
+            timer.setCancelHandler(handler: timerCancelHandler)
 
             resolver.setCancelHandler {
                 timer.cancel()
@@ -26,7 +36,6 @@ extension Promise {
             switch timerType {
             case .deadline:
                 timer.schedule(deadline: .now() + timeInterval)
-
             case .walltime:
                 timer.schedule(wallDeadline: .now() + timeInterval)
             }
