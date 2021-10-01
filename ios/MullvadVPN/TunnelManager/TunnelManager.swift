@@ -916,6 +916,7 @@ class TunnelManager {
                     DispatchQueue.main.async {
                         releaseObserver()
                         ipcToken = nil
+                        resolver.resolve(completion: .cancelled)
                     }
                 }
 

@@ -57,6 +57,58 @@ class PromiseTests: XCTestCase {
         wait(for: [expect], timeout: 1)
     }
 
+    func testReceiveOnCancellation() {
+        let expect = expectation(description: "Wait for promise to complete")
+
+        let promise = Promise(value: 1)
+            .receive(on: .main)
+
+        promise.observe { completion in
+            XCTAssertEqual(completion, .cancelled)
+            expect.fulfill()
+        }
+
+        promise.cancel()
+
+        wait(for: [expect], timeout: 1)
+    }
+
+    func testDelay() throws {
+        let expect = expectation(description: "Wait for promise")
+        let queue = DispatchQueue(label: "TestQueue")
+
+        let startDate = Date()
+        Promise.deferred { () -> Int in
+            let elapsed = startDate.timeIntervalSinceNow * -1000
+            XCTAssertGreaterThanOrEqual(elapsed, 100)
+            dispatchPrecondition(condition: .onQueue(queue))
+            expect.fulfill()
+            return 1
+        }
+        .delay(by: .milliseconds(100), timerType: .walltime, queue: queue)
+        .observe { _ in }
+
+        wait(for: [expect], timeout: 1)
+    }
+
+    func testDelayCancellation() throws {
+        let expect = expectation(description: "Should never fulfill")
+        expect.isInverted = true
+
+        let promise = Promise.deferred { () -> Int in
+            expect.fulfill()
+            return 1
+        }.delay(by: .milliseconds(100), timerType: .walltime)
+
+        promise.observe { completion in
+            XCTAssertEqual(completion, .cancelled)
+        }
+
+        promise.cancel()
+
+        wait(for: [expect], timeout: 1)
+    }
+
     func testScheduleOn() throws {
         let expect = expectation(description: "Wait for promise")
         let queue = DispatchQueue(label: "TestQueue")
@@ -94,34 +146,6 @@ class PromiseTests: XCTestCase {
         }
 
         wait(for: [expect1, expect2], timeout: 1, enforceOrder: true)
-    }
-
-    func testCancellation() throws {
-        let cancelExpectation = expectation(description: "Expect cancellation handler to trigger")
-        let completionExpectation = expectation(description: "Expect promise to complete")
-
-        let promise = Promise<Int> { resolver in
-            let work = DispatchWorkItem {
-                XCTFail()
-                resolver.resolve(value: 1)
-            }
-
-            resolver.setCancelHandler {
-                work.cancel()
-                cancelExpectation.fulfill()
-            }
-
-            DispatchQueue.main.async(execute: work)
-        }
-
-        promise.observe { completion in
-            XCTAssertEqual(completion, .cancelled)
-            completionExpectation.fulfill()
-        }
-
-        promise.cancel()
-
-        wait(for: [cancelExpectation, completionExpectation], timeout: 1)
     }
 
     func testOptionalMapNoneWithDefaultValue() {
@@ -167,7 +191,7 @@ class PromiseTests: XCTestCase {
                 expect2.fulfill()
             }
 
-        wait(for: [expect1, expect2], timeout: 1)
+        wait(for: [expect1, expect2], timeout: 1, enforceOrder: true)
     }
 
     func testRunOnOperationQueueWithExcusiveCategory() {
@@ -190,7 +214,119 @@ class PromiseTests: XCTestCase {
                 expect2.fulfill()
             }
 
-        wait(for: [expect1, expect2], timeout: 1)
+        wait(for: [expect1, expect2], timeout: 1, enforceOrder: true)
+    }
+
+    func testExecutingPromiseCancellation() throws {
+        let cancelExpectation = expectation(description: "Expect cancellation handler to trigger")
+        let completionExpectation = expectation(description: "Expect promise to complete")
+
+        let promise = Promise<Int> { resolver in
+            let work = DispatchWorkItem {
+                XCTFail()
+                resolver.resolve(value: 1)
+            }
+
+            resolver.setCancelHandler {
+                work.cancel()
+                cancelExpectation.fulfill()
+
+                // Resolve promise since `work` is cancelled now.
+                resolver.resolve(completion: .cancelled)
+            }
+
+            DispatchQueue.main.async(execute: work)
+        }
+
+        promise.observe { completion in
+            XCTAssertEqual(completion, .cancelled)
+            completionExpectation.fulfill()
+        }
+
+        promise.cancel()
+
+        wait(for: [cancelExpectation, completionExpectation], timeout: 1, enforceOrder: true)
+    }
+
+    func testPendingPromiseCancellation() {
+        let completionExpectation = expectation(description: "Expect promise to complete")
+
+        let promise = Promise.deferred { () -> Int in
+            XCTFail()
+            return 1
+        }
+
+        promise.cancel()
+
+        promise.observe { completion in
+            XCTAssertEqual(completion, .cancelled)
+            completionExpectation.fulfill()
+        }
+
+        wait(for: [completionExpectation], timeout: 1)
+    }
+
+    func testUnhandledCancellation() {
+        let expectObserve = expectation(description: "Wait for observer")
+        let expectCancelHandler = expectation(description: "Wait for cancellation handler")
+        let expectResolve = expectation(description: "Wait for resolver")
+
+        let promise = Promise<Bool> { resolver in
+            resolver.setCancelHandler {
+                expectCancelHandler.fulfill()
+                // Do nothing and let the promise continue execution.
+            }
+
+            DispatchQueue.main.async {
+                expectResolve.fulfill()
+
+                // Resolve the cancelling promise. This should yield the `.cancelled` completion anyway.
+                resolver.resolve(value: true)
+            }
+        }
+
+        promise.observe { completion in
+            XCTAssertEqual(completion, .cancelled)
+            expectObserve.fulfill()
+        }
+
+        promise.cancel()
+
+        wait(for: [expectCancelHandler, expectResolve, expectObserve], timeout: 1, enforceOrder: true)
+    }
+
+    func testShouldNotPropagateCancellation() {
+        let expectParentCancel = expectation(description: "Parent cancellation handler should never trigger")
+        expectParentCancel.isInverted = true
+
+        let expectChildCompletion = expectation(description: "Wait for child to complete")
+
+        let parent = Promise<Int> { resolver in
+            resolver.setCancelHandler {
+                expectParentCancel.fulfill()
+            }
+
+            DispatchQueue.main.async {
+                resolver.resolve(value: 1)
+            }
+        }
+
+        let child = Promise<Int>(parent: parent) { resolver in
+            parent.observe { completion in
+                resolver.resolve(completion: completion)
+            }
+        }
+
+        _ = child.setShouldPropagateCancellation(false)
+
+        child.observe { completion in
+            XCTAssertEqual(completion, .cancelled)
+            expectChildCompletion.fulfill()
+        }
+
+        child.cancel()
+
+        wait(for: [expectParentCancel, expectChildCompletion], timeout: 1)
     }
 
 }

@@ -12,7 +12,7 @@ extension Promise {
 
     /// Start the background task for the duration of the upstream execution.
     func requestBackgroundTime(taskName: String? = nil) -> Promise<Value> {
-        return Promise<Value> { resolver in
+        return Promise<Value>(parent: self) { resolver in
             var backgroundTaskIdentifier: UIBackgroundTaskIdentifier?
 
             let beginBackgroundTask = {
@@ -29,28 +29,20 @@ extension Promise {
                 backgroundTaskIdentifier = nil
             }
 
-            let endBackgroundTaskOnMainQueue = {
-                if Thread.isMainThread {
-                    endBackgroundTask()
-                } else {
-                    DispatchQueue.main.async(execute: endBackgroundTask)
-                }
-            }
-
             if Thread.isMainThread {
                 beginBackgroundTask()
             } else {
                 DispatchQueue.main.async(execute: beginBackgroundTask)
             }
 
-            resolver.setCancelHandler {
-                endBackgroundTaskOnMainQueue()
-            }
-
             self.observe { completion in
                 resolver.resolve(completion: completion)
 
-                endBackgroundTaskOnMainQueue()
+                if Thread.isMainThread {
+                    endBackgroundTask()
+                } else {
+                    DispatchQueue.main.async(execute: endBackgroundTask)
+                }
             }
         }
     }
