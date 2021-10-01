@@ -86,7 +86,7 @@ pub fn ensure_best_metric_for_interface(interface_alias: &str) -> Result<bool, E
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 #[allow(dead_code)]
 #[repr(u32)]
 pub enum WinNetAddrFamily {
