@@ -47,6 +47,7 @@ Line wrap the file at 100 chars.                                              Th
 - Update Electron from 11.2.3 to 11.4.9.
 - Move OpenVPN and WireGuard settings in the advanced settings view into separate settings views.
 - Return to main view in desktop app after being hidden/closed for two minutes.
+- Update Electron from 11.4.9 to 15.0.0.
 
 #### Linux
 - Always send DNS requests inside the tunnel for excluded processes when using public custom DNS.

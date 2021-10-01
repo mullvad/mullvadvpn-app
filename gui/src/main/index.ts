@@ -1,4 +1,5 @@
 import { exec, execFile } from 'child_process';
+import { randomUUID } from 'crypto';
 import {
   app,
   BrowserWindow,
@@ -15,7 +16,6 @@ import os from 'os';
 import * as path from 'path';
 import { sprintf } from 'sprintf-js';
 import util from 'util';
-import * as uuid from 'uuid';
 import config from '../config.json';
 import { closeToExpiry, hasExpired } from '../shared/account-expiry';
 import { IApplication } from '../shared/application-types';
@@ -94,6 +94,8 @@ const IS_BETA = /^(\d{4})\.(\d+)-beta(\d+)$/;
 const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICATION === '1';
 
 const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
+
+const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
 
 enum AppQuitStage {
   unready,
@@ -438,8 +440,8 @@ class ApplicationMain {
     this.blockPermissionRequests();
     // Blocks any http(s) and file requests that aren't supposed to happen.
     this.blockRequests();
-    // Blocks navigation since it's not needed.
-    this.blockNavigation();
+    // Blocks navigation and window.open since it's not needed.
+    this.blockNavigationAndWindowOpen();
 
     this.updateCurrentLocale();
 
@@ -1289,7 +1291,7 @@ class ApplicationMain {
     });
 
     IpcMainEventChannel.problemReport.handleCollectLogs((toRedact) => {
-      const id = uuid.v4();
+      const id = randomUUID();
       const reportPath = this.getProblemReportPath(id);
       const executable = resolveBin('mullvad-problem-report');
       const args = ['collect', '--output', reportPath];
@@ -1597,7 +1599,9 @@ class ApplicationMain {
     session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) => {
       callback(false);
     });
-    session.defaultSession.setPermissionCheckHandler(() => false);
+    session.defaultSession.setPermissionCheckHandler((_webContents, permission) =>
+      ALLOWED_PERMISSIONS.includes(permission),
+    );
   }
 
   // Since the app frontend never performs any network requests, all requests originating from the
@@ -1648,11 +1652,11 @@ class ApplicationMain {
     );
   }
 
-  private blockNavigation() {
+  // Blocks navigation and window.open since it's not needed.
+  private blockNavigationAndWindowOpen() {
     app.on('web-contents-created', (_event, contents) => {
-      contents.on('will-navigate', (event) => {
-        event.preventDefault();
-      });
+      contents.on('will-navigate', (event) => event.preventDefault());
+      contents.setWindowOpenHandler(() => ({ action: 'deny' }));
     });
   }
 
@@ -1721,7 +1725,6 @@ class ApplicationMain {
         nodeIntegration: false,
         nodeIntegrationInWorker: false,
         nodeIntegrationInSubFrames: false,
-        enableRemoteModule: false,
         sandbox: !SANDBOX_DISABLED,
         contextIsolation: true,
         spellcheck: false,

@@ -67,6 +67,8 @@ export const StyledTransitionView = styled.div({
   display: 'flex',
   flex: 1,
   flexDirection: 'column',
+  height: '100%',
+  width: '100%',
 });
 
 export class TransitionView extends React.Component<ITransitioningViewProps> {
