@@ -5,8 +5,26 @@ use std::{future::Future, time::Duration};
 /// required - run a timer for 60 seconds until a delay is shorter than 5 minutes.
 const MAX_SINGLE_DELAY: Duration = Duration::from_secs(5 * 60);
 
-/// Retries a future until it should stop as determined by the retry function.
-pub async fn retry_future_with_backoff<
+/// Convenience function that works like [`retry_future`] but limits the number
+/// of retries to `max_retries`.
+pub async fn retry_future_n<
+    F: FnMut() -> O + 'static,
+    R: FnMut(&T) -> bool + 'static,
+    D: Iterator<Item = Duration> + 'static,
+    O: Future<Output = T>,
+    T,
+>(
+    factory: F,
+    should_retry: R,
+    delays: D,
+    max_retries: usize,
+) -> T {
+    retry_future(factory, should_retry, delays.take(max_retries)).await
+}
+
+/// Retries a future until it should stop as determined by the retry function, or when
+/// the iterator returns `None`.
+pub async fn retry_future<
     F: FnMut() -> O + 'static,
     R: FnMut(&T) -> bool + 'static,
     D: Iterator<Item = Duration> + 'static,
@@ -22,13 +40,16 @@ pub async fn retry_future_with_backoff<
         if should_retry(&current_result) {
             if let Some(delay) = delays.next() {
                 sleep(delay).await;
-            } else {
-                return current_result;
+                continue;
             }
-        } else {
-            return current_result;
         }
+        return current_result;
     }
+}
+
+/// Returns an iterator that repeats the same interval.
+pub fn constant_interval(interval: Duration) -> impl Iterator<Item = Duration> {
+    std::iter::repeat(interval)
 }
 
 async fn sleep(mut delay: Duration) {

@@ -38,7 +38,7 @@ const UPDATE_INTERVAL: Duration = Duration::from_secs(60 * 60 * 24);
 /// Wait this long until next try if an update failed
 const UPDATE_INTERVAL_ERROR: Duration = Duration::from_secs(60 * 60 * 6);
 /// Retry interval for `RunVersionCheck`.
-const IMMEDIATE_UPDATE_INTERVAL_ERROR: Duration = Duration::from_secs(1);
+const IMMEDIATE_UPDATE_INTERVAL_ERROR: Duration = Duration::ZERO;
 const IMMEDIATE_UPDATE_MAX_RETRIES: usize = 2;
 
 #[cfg(target_os = "linux")]
@@ -204,11 +204,24 @@ impl VersionUpdater {
                 .map_err(Error::Download)
         };
 
-        Box::pin(talpid_core::future_retry::retry_future_with_backoff(
+        Box::pin(talpid_core::future_retry::retry_future_n(
             download_future_factory,
-            move |result| result.is_err() && !api_handle.get_state().is_offline(),
-            std::iter::repeat(IMMEDIATE_UPDATE_INTERVAL_ERROR).take(IMMEDIATE_UPDATE_MAX_RETRIES),
+            move |result| Self::should_retry_immediate(result, &api_handle),
+            std::iter::repeat(IMMEDIATE_UPDATE_INTERVAL_ERROR),
+            IMMEDIATE_UPDATE_MAX_RETRIES,
         ))
+    }
+
+    fn should_retry_immediate<T>(
+        result: &Result<T, Error>,
+        api_handle: &ApiAvailabilityHandle,
+    ) -> bool {
+        match result {
+            Err(Error::Download(error)) if error.is_network_error() => {
+                !api_handle.get_state().is_offline()
+            }
+            _ => false,
+        }
     }
 
     fn create_update_background_future(
@@ -232,7 +245,7 @@ impl VersionUpdater {
             }
         };
 
-        Box::pin(talpid_core::future_retry::retry_future_with_backoff(
+        Box::pin(talpid_core::future_retry::retry_future(
             download_future_factory,
             |result| result.is_err(),
             std::iter::repeat(UPDATE_INTERVAL_ERROR),

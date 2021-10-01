@@ -2,8 +2,11 @@ use clap::{crate_authors, crate_description, crate_name, SubCommand};
 use mullvad_management_interface::new_rpc_client;
 use mullvad_rpc::MullvadRpcRuntime;
 use mullvad_types::version::ParsedAppVersion;
-use std::{path::PathBuf, process};
-use talpid_core::firewall::{self, Firewall, FirewallArguments};
+use std::{path::PathBuf, process, time::Duration};
+use talpid_core::{
+    firewall::{self, Firewall, FirewallArguments},
+    future_retry::{constant_interval, retry_future_n},
+};
 use talpid_types::ErrorExt;
 
 pub const PRODUCT_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
@@ -12,6 +15,9 @@ lazy_static::lazy_static! {
     static ref APP_VERSION: ParsedAppVersion = ParsedAppVersion::from_str(PRODUCT_VERSION).unwrap();
     static ref IS_DEV_BUILD: bool = APP_VERSION.is_dev();
 }
+
+const KEY_RETRY_INTERVAL: Duration = Duration::ZERO;
+const KEY_RETRY_MAX_RETRIES: usize = 2;
 
 #[repr(i32)]
 enum ExitStatus {
@@ -178,10 +184,19 @@ async fn remove_wireguard_key() -> Result<(), Error> {
             .map_err(Error::RpcInitializationError)?;
             let mut key_proxy =
                 mullvad_rpc::WireguardKeyProxy::new(rpc_runtime.mullvad_rest_handle());
-            key_proxy
-                .remove_wireguard_key(token, &wg_data.private_key.public_key())
-                .await
-                .map_err(Error::RemoveKeyError)?;
+            retry_future_n(
+                move || {
+                    key_proxy.remove_wireguard_key(token.clone(), wg_data.private_key.public_key())
+                },
+                move |result| match result {
+                    Err(error) => error.is_network_error(),
+                    _ => false,
+                },
+                constant_interval(KEY_RETRY_INTERVAL),
+                KEY_RETRY_MAX_RETRIES,
+            )
+            .await
+            .map_err(Error::RemoveKeyError)?;
             settings
                 .set_wireguard(None)
                 .await
