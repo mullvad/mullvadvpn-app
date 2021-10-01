@@ -1040,6 +1040,83 @@ extension TunnelManager {
     }
 }
 
+// MARK: - Background tasks
+
+@available(iOS 13.0, *)
+extension TunnelManager {
+
+    /// Register background task with scheduler.
+    func registerBackgroundTask() {
+        let taskIdentifier = ApplicationConfiguration.privateKeyRotationTaskIdentifier
+
+        let isRegistered = BGTaskScheduler.shared.register(forTaskWithIdentifier: taskIdentifier, using: nil) { task in
+            self.handleBackgroundTask(task as! BGProcessingTask)
+        }
+
+        if isRegistered {
+            logger.debug("Registered private key rotation task")
+        } else {
+            logger.error("Failed to register private key rotation task")
+        }
+    }
+
+    /// Schedule background task relative to the private key creation date.
+    func scheduleBackgroundTask() -> Result<(), TunnelManager.Error>.Promise {
+        return Promise.deferred { self.tunnelInfo }
+            .some(or: .missingAccount)
+            .flatMap { tunnelInfo -> Result<(), TunnelManager.Error> in
+                let creationDate = tunnelInfo.tunnelSettings.interface.privateKey.creationDate
+                let beginDate = Date(timeInterval: Self.privateKeyRotationInterval, since: creationDate)
+
+                return self.submitBackgroundTask(at: beginDate)
+            }
+            .schedule(on: stateQueue)
+    }
+
+    /// Create and submit task request to scheduler.
+    private func submitBackgroundTask(at beginDate: Date) -> Result<(), TunnelManager.Error> {
+        let taskIdentifier = ApplicationConfiguration.privateKeyRotationTaskIdentifier
+
+        let request = BGProcessingTaskRequest(identifier: taskIdentifier)
+        request.earliestBeginDate = beginDate
+        request.requiresNetworkConnectivity = true
+
+        return Result { try BGTaskScheduler.shared.submit(request) }
+            .mapError { error in
+                return .backgroundTaskScheduler(error)
+            }
+    }
+
+    /// Background task handler.
+    private func handleBackgroundTask(_ task: BGProcessingTask) {
+        var cancellationToken: PromiseCancellationToken?
+
+        self.logger.debug("Start private key rotation task")
+
+        self.rotatePrivateKey()
+            .storeCancellationToken(in: &cancellationToken)
+            .observe { completion in
+                if let scheduleDate = self.handlePrivateKeyRotationCompletion(completion: completion) {
+                    // Schedule next background task
+                    switch self.submitBackgroundTask(at: scheduleDate) {
+                    case .success:
+                        self.logger.debug("Scheduled next private key rotation task at \(scheduleDate.logFormatDate())")
+
+                    case .failure(let error):
+                        self.logger.error(chainedError: error, message: "Failed to schedule next private key rotation task")
+                    }
+                }
+
+                // Complete current task
+                task.setTaskCompleted(success: !completion.isCancelled)
+            }
+
+        task.expirationHandler = {
+            cancellationToken?.cancel()
+        }
+    }
+}
+
 extension TunnelManager {
     fileprivate func handlePrivateKeyRotationCompletion(completion: PromiseCompletion<Result<KeyRotationResult, TunnelManager.Error>>) -> Date? {
         switch completion {

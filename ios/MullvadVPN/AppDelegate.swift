@@ -10,6 +10,7 @@ import UIKit
 import StoreKit
 import UserNotifications
 import Logging
+import BackgroundTasks
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -51,6 +52,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Configure mock tunnel provider on simulator
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProvider
         #endif
+
+        if #available(iOS 13.0, *) {
+            // Register background tasks on iOS 13
+            RelayCache.Tracker.shared.registerAppRefreshTask()
+            TunnelManager.shared.registerBackgroundTask()
+        } else {
+            // Set background refresh interval on iOS 12
+            application.setMinimumBackgroundFetchInterval(ApplicationConfiguration.minimumBackgroundFetchInterval)
+        }
 
         // Assign user notification center delegate
         UNUserNotificationCenter.current().delegate = self
@@ -131,9 +141,73 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Stop periodic private key rotation
         TunnelManager.shared.stopPeriodicPrivateKeyRotation()
     }
+
+    func applicationDidEnterBackground(_ application: UIApplication) {
+        if #available(iOS 13, *) {
+            scheduleBackgroundTasks()
+        }
+    }
+
+    func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        logger?.info("Start background refresh")
+
+        RelayCache.Tracker.shared.updateRelays()
+            .then { fetchRelaysResult -> Promise<UIBackgroundFetchResult> in
+                switch fetchRelaysResult {
+                case .success(let result):
+                    self.logger?.debug("Finished updating relays: \(result)")
+                case .failure(let error):
+                    self.logger?.error(chainedError: error, message: "Failed to update relays")
+                }
+
+                return TunnelManager.shared.rotatePrivateKey()
+                    .then { rotationResult -> UIBackgroundFetchResult in
+                        switch rotationResult {
+                        case .success(let result):
+                            self.logger?.debug("Finished rotating the key: \(result)")
+                        case .failure(let error):
+                            self.logger?.error(chainedError: error, message: "Failed to rotate the key")
+                        }
+
+                        return fetchRelaysResult.backgroundFetchResult.combine(with: rotationResult.backgroundFetchResult)
+                    }
+            }
+            .receive(on: .main)
+            .observe { completion in
+                switch completion {
+                case .finished(let backgroundFetchResult):
+                    self.logger?.info("Finish background refresh with \(backgroundFetchResult)")
+                    completionHandler(backgroundFetchResult)
+
+                case .cancelled:
+                    self.logger?.info("Finish background refresh with cancelled promise")
+                    completionHandler(.failed)
+                }
+            }
     }
 
     // MARK: - Private
+
+    @available(iOS 13.0, *)
+    private func scheduleBackgroundTasks() {
+        if case .finished(let result) = RelayCache.Tracker.shared.scheduleAppRefreshTask().await() {
+            switch result {
+            case .success:
+                self.logger?.debug("Scheduled app refresh task")
+            case .failure(let error):
+                self.logger?.error(chainedError: error, message: "Could not schedule app refresh task")
+            }
+        }
+
+        if case .finished(let result) = TunnelManager.shared.scheduleBackgroundTask().await() {
+            switch result {
+            case .success:
+                self.logger?.debug("Scheduled private key rotation task")
+            case .failure(let error):
+                self.logger?.error(chainedError: error, message: "Could not schedule private key rotation task")
+            }
+        }
+    }
 
     private func didFinishInitialization() {
         self.logger?.debug("Finished initialization. Show user interface.")
