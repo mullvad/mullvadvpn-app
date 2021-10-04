@@ -206,8 +206,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
     }
 
     private func showTimeAddedConfirmationAlert(
-        with response: CreateApplePaymentResponse,
-        context: CreateApplePaymentResponse.Context)
+        with response: REST.CreateApplePaymentResponse,
+        context: REST.CreateApplePaymentResponse.Context)
     {
         let alertController = UIAlertController(
             title: response.alertTitle(context: context),
@@ -461,7 +461,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
 }
 
-private extension CreateApplePaymentResponse {
+private extension REST.CreateApplePaymentResponse {
 
     enum Context {
         case purchase
@@ -515,7 +515,7 @@ private extension CreateApplePaymentResponse {
                         value: "%@ have been added to your account",
                         comment: "Message displayed upon successful restoration of existing purchases, containing the time duration credited to user account. Use %@ placeholder to position the localized text with duration added (i.e '30 days')"
                     ),
-                    self.formattedTimeAdded ?? ""
+                    formattedTimeAdded ?? ""
                 )
             }
         }
