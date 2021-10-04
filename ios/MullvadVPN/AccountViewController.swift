@@ -286,43 +286,51 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         let alertController = UIAlertController(
             title: nil,
             message: message,
-            preferredStyle: .alert)
+            preferredStyle: .alert
+        )
 
         alertPresenter.enqueue(alertController, presentingController: self) {
-            Account.shared.logout { (result) in
-                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-                    alertController.dismiss(animated: true) {
-                        switch result {
-                        case .failure(let error):
-                            self.logger.error(chainedError: error, message: "Failed to log out")
-
-                            let errorAlertController = UIAlertController(
-                                title: NSLocalizedString(
-                                    "LOGOUT_FAILURE_ALERT_TITLE",
-                                    tableName: "Account",
-                                    value: "Failed to log out",
-                                    comment: "Title for logout failure alert"
-                                ),
-                                message: error.errorChainDescription,
-                                preferredStyle: .alert
-                            )
-                            errorAlertController.addAction(
-                                UIAlertAction(title: NSLocalizedString(
-                                    "LOGOUT_FAILURE_ALERT_OK_ACTION",
-                                    tableName: "Account",
-                                    value: "OK",
-                                    comment: "Message for logout failure alert"
-                                ), style: .cancel)
-                            )
-                            self.alertPresenter.enqueue(errorAlertController, presentingController: self)
-
-                        case .success:
-                            self.delegate?.accountViewControllerDidLogout(self)
+            Account.shared.logout()
+                .receive(on: .main, after: .seconds(1), timerType: .deadline)
+                .then { result in
+                    return Promise { resolver in
+                        alertController.dismiss(animated: true) {
+                            resolver.resolve(value: result)
                         }
                     }
                 }
-            }
+                .onSuccess { _ in
+                    self.delegate?.accountViewControllerDidLogout(self)
+                }
+                .onFailure { error in
+                    self.logger.error(chainedError: error, message: "Failed to log out")
+
+                    self.showLogoutFailure(error)
+                }
+                .observe { _ in }
         }
+    }
+
+    private func showLogoutFailure(_ error: Account.Error) {
+        let errorAlertController = UIAlertController(
+            title: NSLocalizedString(
+                "LOGOUT_FAILURE_ALERT_TITLE",
+                tableName: "Account",
+                value: "Failed to log out",
+                comment: "Title for logout failure alert"
+            ),
+            message: error.errorChainDescription,
+            preferredStyle: .alert
+        )
+        errorAlertController.addAction(
+            UIAlertAction(title: NSLocalizedString(
+                "LOGOUT_FAILURE_ALERT_OK_ACTION",
+                tableName: "Account",
+                value: "OK",
+                comment: "Message for logout failure alert"
+            ), style: .cancel)
+        )
+        alertPresenter.enqueue(errorAlertController, presentingController: self)
     }
 
     // MARK: - AccountObserver
