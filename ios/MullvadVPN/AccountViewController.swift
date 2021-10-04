@@ -22,7 +22,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         return contentView
     }()
 
-    private var copyToPasteboardWork: DispatchWorkItem?
+    private var copyToPasteboardCancellationToken: PromiseCancellationToken?
 
     private var pendingPayment: SKPayment?
     private let alertPresenter = AlertPresenter()
@@ -406,14 +406,14 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
             comment: "Message, temporarily displayed in place account token, after copying the account token to pasteboard on tap."
         )
 
-        let dispatchWork = DispatchWorkItem { [weak self] in
-            self?.contentView.accountTokenRowView.value = Account.shared.formattedToken
-        }
+        Promise.deferred { Account.shared.formattedToken }
+            .delay(by: .seconds(3), timerType: .walltime, queue: .main)
+            .storeCancellationToken(in: &copyToPasteboardCancellationToken)
+            .observe { [weak self] completion in
+                guard let formattedToken = completion.unwrappedValue else { return }
 
-        DispatchQueue.main.asyncAfter(wallDeadline: .now() + .seconds(3), execute: dispatchWork)
-
-        self.copyToPasteboardWork?.cancel()
-        self.copyToPasteboardWork = dispatchWork
+                self?.contentView.accountTokenRowView.value = formattedToken
+            }
     }
 
     @objc private func doPurchase() {
