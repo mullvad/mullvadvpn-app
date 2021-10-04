@@ -342,43 +342,39 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
     // MARK: - AppStorePaymentObserver
 
     func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String?, didFailWithError error: AppStorePaymentManager.Error) {
-        DispatchQueue.main.async {
-            let alertController = UIAlertController(
+        let alertController = UIAlertController(
+            title: NSLocalizedString(
+                "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
+                tableName: "Account",
+                value: "Cannot complete the purchase",
+                comment: "Title for purchase failure dialog"
+            ),
+            message: error.errorChainDescription,
+            preferredStyle: .alert
+        )
+
+        alertController.addAction(
+            UIAlertAction(
                 title: NSLocalizedString(
-                    "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
+                    "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION",
                     tableName: "Account",
-                    value: "Cannot complete the purchase",
-                    comment: "Title for purchase failure dialog"
-                ),
-                message: error.errorChainDescription,
-                preferredStyle: .alert
-            )
+                    value: "OK",
+                    comment: "Title for OK button in purchase failure dialog"
+                ), style: .cancel)
+        )
 
-            alertController.addAction(
-                UIAlertAction(
-                    title: NSLocalizedString(
-                        "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION",
-                        tableName: "Account",
-                        value: "OK",
-                        comment: "Title for OK button in purchase failure dialog"
-                    ), style: .cancel)
-            )
+        alertPresenter.enqueue(alertController, presentingController: self)
 
-            self.alertPresenter.enqueue(alertController, presentingController: self)
-
-            if transaction.payment == self.pendingPayment {
-                self.compoundInteractionRestriction.decrease(animated: true)
-            }
+        if transaction.payment == pendingPayment {
+            compoundInteractionRestriction.decrease(animated: true)
         }
     }
 
-    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: CreateApplePaymentResponse) {
-        DispatchQueue.main.async {
-            self.showTimeAddedConfirmationAlert(with: response, context: .purchase)
+    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: REST.CreateApplePaymentResponse) {
+        showTimeAddedConfirmationAlert(with: response, context: .purchase)
 
-            if transaction.payment == self.pendingPayment {
-                self.compoundInteractionRestriction.decrease(animated: true)
-            }
+        if transaction.payment == self.pendingPayment {
+            compoundInteractionRestriction.decrease(animated: true)
         }
     }
 
