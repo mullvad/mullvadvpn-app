@@ -42,7 +42,7 @@ use winapi::{
 const DRIVER_SYMBOLIC_NAME: &str = "\\\\.\\MULLVADSPLITTUNNEL";
 const ST_DEVICE_TYPE: u32 = 0x8000;
 
-const DRIVER_IO_TIMEOUT: Duration = Duration::from_secs(3);
+const DEFAULT_DRIVER_IO_TIMEOUT: Duration = Duration::from_secs(5);
 
 const fn ctl_code(device_type: u32, function: u32, method: u32, access: u32) -> u32 {
     device_type << 16 | access << 14 | function << 2 | method
@@ -159,7 +159,7 @@ impl DeviceHandle {
         }
 
         log::trace!("Clearing any existing exclusion config");
-        device.clear_config()?;
+        device.clear_config(Some(DEFAULT_DRIVER_IO_TIMEOUT))?;
 
         Ok(device)
     }
@@ -170,7 +170,7 @@ impl DeviceHandle {
             DriverIoctlCode::Initialize as u32,
             None,
             0,
-            Some(DRIVER_IO_TIMEOUT),
+            Some(DEFAULT_DRIVER_IO_TIMEOUT),
         )?;
         Ok(())
     }
@@ -182,7 +182,7 @@ impl DeviceHandle {
             DriverIoctlCode::RegisterProcesses as u32,
             Some(&process_tree_buffer),
             0,
-            Some(DRIVER_IO_TIMEOUT),
+            Some(DEFAULT_DRIVER_IO_TIMEOUT),
         )?;
         Ok(())
     }
@@ -244,7 +244,7 @@ impl DeviceHandle {
             DriverIoctlCode::RegisterIpAddresses as u32,
             Some(buffer),
             0,
-            Some(DRIVER_IO_TIMEOUT),
+            Some(DEFAULT_DRIVER_IO_TIMEOUT),
         )?;
 
         Ok(())
@@ -256,14 +256,18 @@ impl DeviceHandle {
             DriverIoctlCode::GetState as u32,
             None,
             size_of::<u64>() as u32,
-            Some(DRIVER_IO_TIMEOUT),
+            Some(DEFAULT_DRIVER_IO_TIMEOUT),
         )?
         .unwrap();
 
         Ok(unsafe { deserialize_buffer(&buffer) })
     }
 
-    pub fn set_config<T: AsRef<OsStr>>(&self, apps: &[T]) -> io::Result<()> {
+    pub fn set_config<T: AsRef<OsStr>>(
+        &self,
+        apps: &[T],
+        io_timeout: Option<Duration>,
+    ) -> io::Result<()> {
         let mut device_paths = Vec::with_capacity(apps.len());
         for app in apps.as_ref() {
             match get_device_path(app.as_ref()) {
@@ -292,19 +296,19 @@ impl DeviceHandle {
             DriverIoctlCode::SetConfiguration as u32,
             Some(&config),
             0,
-            Some(DRIVER_IO_TIMEOUT),
+            io_timeout,
         )?;
 
         Ok(())
     }
 
-    pub fn clear_config(&self) -> io::Result<()> {
+    pub fn clear_config(&self, io_timeout: Option<Duration>) -> io::Result<()> {
         device_io_control(
             self.handle.as_raw_handle(),
             DriverIoctlCode::ClearConfiguration as u32,
             None,
             0,
-            Some(DRIVER_IO_TIMEOUT),
+            io_timeout,
         )?;
 
         Ok(())
