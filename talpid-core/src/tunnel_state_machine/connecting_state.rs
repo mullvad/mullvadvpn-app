@@ -326,7 +326,7 @@ impl ConnectingState {
             }
             #[cfg(windows)]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
+                shared_values.split_tunnel.set_paths(&paths, result_tx);
                 SameState(self.into())
             }
         }

@@ -42,8 +42,6 @@ use winapi::{
 const DRIVER_SYMBOLIC_NAME: &str = "\\\\.\\MULLVADSPLITTUNNEL";
 const ST_DEVICE_TYPE: u32 = 0x8000;
 
-const DRIVER_IO_TIMEOUT: Duration = Duration::from_secs(3);
-
 const fn ctl_code(device_type: u32, function: u32, method: u32, access: u32) -> u32 {
     device_type << 16 | access << 14 | function << 2 | method
 }
@@ -170,7 +168,7 @@ impl DeviceHandle {
             DriverIoctlCode::Initialize as u32,
             None,
             0,
-            Some(DRIVER_IO_TIMEOUT),
+            None,
         )?;
         Ok(())
     }
@@ -182,7 +180,7 @@ impl DeviceHandle {
             DriverIoctlCode::RegisterProcesses as u32,
             Some(&process_tree_buffer),
             0,
-            Some(DRIVER_IO_TIMEOUT),
+            None,
         )?;
         Ok(())
     }
@@ -244,7 +242,7 @@ impl DeviceHandle {
             DriverIoctlCode::RegisterIpAddresses as u32,
             Some(buffer),
             0,
-            Some(DRIVER_IO_TIMEOUT),
+            None,
         )?;
 
         Ok(())
@@ -256,7 +254,7 @@ impl DeviceHandle {
             DriverIoctlCode::GetState as u32,
             None,
             size_of::<u64>() as u32,
-            Some(DRIVER_IO_TIMEOUT),
+            None,
         )?
         .unwrap();
 
@@ -292,7 +290,7 @@ impl DeviceHandle {
             DriverIoctlCode::SetConfiguration as u32,
             Some(&config),
             0,
-            Some(DRIVER_IO_TIMEOUT),
+            None,
         )?;
 
         Ok(())
@@ -304,7 +302,7 @@ impl DeviceHandle {
             DriverIoctlCode::ClearConfiguration as u32,
             None,
             0,
-            Some(DRIVER_IO_TIMEOUT),
+            None,
         )?;
 
         Ok(())

@@ -9,7 +9,7 @@ use crate::{
         self, get_best_default_route, interface_luid_to_ip, WinNetAddrFamily, WinNetCallbackHandle,
     },
 };
-use futures::channel::mpsc;
+use futures::channel::{mpsc, oneshot};
 use std::{
     convert::TryFrom,
     ffi::{OsStr, OsString},
@@ -17,7 +17,10 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::io::{AsRawHandle, RawHandle},
     ptr,
-    sync::{mpsc as sync_mpsc, Arc, Mutex, Weak},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        mpsc as sync_mpsc, Arc, Mutex, Weak,
+    },
     time::Duration,
 };
 use talpid_types::{tunnel::ErrorStateCause, ErrorExt};
@@ -86,15 +89,21 @@ pub enum Error {
     /// Failed to start the NTFS reparse point monitor
     #[error(display = "Failed to start path monitor")]
     StartPathMonitor(#[error(source)] io::Error),
+
+    /// A previous path update has not yet completed
+    #[error(display = "A previous update is not yet complete")]
+    AlreadySettingPaths,
 }
 
 /// Manages applications whose traffic to exclude from the tunnel.
 pub struct SplitTunnel {
+    runtime: tokio::runtime::Handle,
     request_tx: RequestTx,
     event_thread: Option<std::thread::JoinHandle<()>>,
     quit_event: RawHandle,
     _route_change_callback: Option<WinNetCallbackHandle>,
     daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
+    async_path_update_in_progress: Arc<AtomicBool>,
 }
 
 enum Request {
@@ -107,7 +116,7 @@ enum Request {
     ),
 }
 type RequestResponseTx = sync_mpsc::Sender<Result<(), Error>>;
-type RequestTx = sync_mpsc::SyncSender<(Request, RequestResponseTx)>;
+type RequestTx = sync_mpsc::Sender<(Request, RequestResponseTx)>;
 
 const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -120,7 +129,10 @@ unsafe impl Send for EventThreadContext {}
 
 impl SplitTunnel {
     /// Initialize the driver.
-    pub fn new(daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>) -> Result<Self, Error> {
+    pub fn new(
+        runtime: tokio::runtime::Handle,
+        daemon_tx: Weak<mpsc::UnboundedSender<TunnelCommand>>,
+    ) -> Result<Self, Error> {
         let (request_tx, handle) = Self::spawn_request_thread()?;
 
         let mut event_overlapped: OVERLAPPED = unsafe { mem::zeroed() };
@@ -277,16 +289,18 @@ impl SplitTunnel {
         });
 
         Ok(SplitTunnel {
+            runtime,
             request_tx,
             event_thread: Some(event_thread),
             quit_event,
             _route_change_callback: None,
             daemon_tx,
+            async_path_update_in_progress: Arc::new(AtomicBool::new(false)),
         })
     }
 
     fn spawn_request_thread() -> Result<(RequestTx, Arc<driver::DeviceHandle>), Error> {
-        let (tx, rx): (RequestTx, _) = sync_mpsc::sync_channel(3);
+        let (tx, rx): (RequestTx, _) = sync_mpsc::channel();
         let (init_tx, init_rx) = sync_mpsc::channel();
 
         let (path_monitor, path_change_rx) =
@@ -398,11 +412,8 @@ impl SplitTunnel {
         let (response_tx, response_rx) = sync_mpsc::channel();
 
         request_tx
-            .try_send((request, response_tx))
-            .map_err(|error| match error {
-                sync_mpsc::TrySendError::Disconnected(_) => Error::RequestThreadDown,
-                sync_mpsc::TrySendError::Full(_) => Error::RequestThreadStuck,
-            })?;
+            .send((request, response_tx))
+            .map_err(|_| Error::RequestThreadDown)?;
 
         response_rx
             .recv_timeout(REQUEST_TIMEOUT)
@@ -410,13 +421,48 @@ impl SplitTunnel {
     }
 
     /// Set a list of applications to exclude from the tunnel.
-    pub fn set_paths<T: AsRef<OsStr>>(&self, paths: &[T]) -> Result<(), Error> {
+    pub fn set_paths_sync<T: AsRef<OsStr>>(&self, paths: &[T]) -> Result<(), Error> {
         self.send_request(Request::SetPaths(
             paths
                 .iter()
                 .map(|path| path.as_ref().to_os_string())
                 .collect(),
         ))
+    }
+
+    /// Set a list of applications to exclude from the tunnel.
+    pub fn set_paths<T: AsRef<OsStr>>(
+        &self,
+        paths: &[T],
+        result_tx: oneshot::Sender<Result<(), Error>>,
+    ) {
+        let busy = self
+            .async_path_update_in_progress
+            .swap(true, Ordering::SeqCst);
+        if busy {
+            let _ = result_tx.send(Err(Error::AlreadySettingPaths));
+            return;
+        }
+        let (response_tx, response_rx) = sync_mpsc::channel();
+        let request = Request::SetPaths(
+            paths
+                .iter()
+                .map(|path| path.as_ref().to_os_string())
+                .collect(),
+        );
+        let request_tx = self.request_tx.clone();
+
+        let wait_task = move || {
+            request_tx
+                .send((request, response_tx))
+                .map_err(|_| Error::RequestThreadDown)?;
+            response_rx.recv().map_err(|_| Error::RequestThreadDown)?
+        };
+        let in_progress = self.async_path_update_in_progress.clone();
+        self.runtime.spawn_blocking(move || {
+            let _ = result_tx.send(wait_task());
+            in_progress.store(false, Ordering::SeqCst);
+        });
     }
 
     /// Instructs the driver to redirect traffic from sockets bound to 0.0.0.0, ::, or the
@@ -482,7 +528,7 @@ impl Drop for SplitTunnel {
         }
 
         let paths: [&OsStr; 0] = [];
-        if let Err(error) = self.set_paths(&paths) {
+        if let Err(error) = self.set_paths_sync(&paths) {
             log::error!("{}", error.display_chain());
         }
     }
