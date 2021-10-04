@@ -228,7 +228,7 @@ impl TunnelStateMachine {
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         #[cfg(windows)]
-        let split_tunnel = split_tunnel::SplitTunnel::new(command_tx.clone())
+        let split_tunnel = split_tunnel::SplitTunnel::new(runtime.clone(), command_tx.clone())
             .map_err(Error::InitSplitTunneling)?;
 
         let args = FirewallArguments {
@@ -279,7 +279,7 @@ impl TunnelStateMachine {
 
         #[cfg(windows)]
         split_tunnel
-            .set_paths(&settings.exclude_paths)
+            .set_paths_sync(&settings.exclude_paths)
             .map_err(Error::InitSplitTunneling)?;
 
         let mut shared_values = SharedTunnelStateValues {
