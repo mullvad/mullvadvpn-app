@@ -116,24 +116,26 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
         purchaseButtonInteractionRestriction.increase(animated: true)
 
-        AppStorePaymentManager.shared.requestProducts(with: [inAppPurchase]) { [weak self] (result) in
-            DispatchQueue.main.async {
+        AppStorePaymentManager.shared.requestProducts(with: [inAppPurchase])
+            .receive(on: .main)
+            .observe { [weak self] completion in
                 guard let self = self else { return }
 
-                switch result {
-                case .success(let response):
-                    if let product = response.products.first {
-                        self.setProduct(product, animated: true)
-                    }
+                if let result = completion.unwrappedValue {
+                    switch result {
+                    case .success(let response):
+                        if let product = response.products.first {
+                            self.setProduct(product, animated: true)
+                        }
 
-                case .failure(let error):
-                    self.didFailLoadingProducts(with: error)
+                    case .failure(let error):
+                        self.didFailLoadingProducts(with: error)
+                    }
                 }
 
                 self.contentView.purchaseButton.isLoading = false
                 self.purchaseButtonInteractionRestriction.decrease(animated: true)
             }
-        }
     }
 
     private func setProduct(_ product: SKProduct, animated: Bool) {
@@ -414,8 +416,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         guard let product = product, let accountToken = Account.shared.token else { return }
 
         let payment = SKPayment(product: product)
-        self.pendingPayment = payment
 
+        pendingPayment = payment
         compoundInteractionRestriction.increase(animated: true)
 
         AppStorePaymentManager.shared.addPayment(payment, for: accountToken)
@@ -426,37 +428,35 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
         compoundInteractionRestriction.increase(animated: true)
 
-        AppStorePaymentManager.shared.restorePurchases(for: accountToken) { (result) in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let response):
-                    self.showTimeAddedConfirmationAlert(with: response, context: .restoration)
-
-                case .failure(let error):
-                    let alertController = UIAlertController(
-                        title: NSLocalizedString(
-                            "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
-                            tableName: "Account",
-                            value: "Cannot restore purchases",
-                            comment: "Title for failure dialog when restoring purchases"
-                        ),
-                        message: error.errorChainDescription,
-                        preferredStyle: .alert
-                    )
-                    alertController.addAction(
-                        UIAlertAction(title: NSLocalizedString(
-                            "RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION",
-                            tableName: "Account",
-                            value: "OK",
-                            comment: "Title for 'OK' button in failure dialog when restoring purchases"
-                        ), style: .cancel)
-                    )
-                    self.alertPresenter.enqueue(alertController, presentingController: self)
-                }
-
+        AppStorePaymentManager.shared.restorePurchases(for: accountToken)
+            .receive(on: .main)
+            .onSuccess { response in
+                self.showTimeAddedConfirmationAlert(with: response, context: .restoration)
+            }
+            .onFailure { error in
+                let alertController = UIAlertController(
+                    title: NSLocalizedString(
+                        "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
+                        tableName: "Account",
+                        value: "Cannot restore purchases",
+                        comment: "Title for failure dialog when restoring purchases"
+                    ),
+                    message: error.errorChainDescription,
+                    preferredStyle: .alert
+                )
+                alertController.addAction(
+                    UIAlertAction(title: NSLocalizedString(
+                        "RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION",
+                        tableName: "Account",
+                        value: "OK",
+                        comment: "Title for 'OK' button in failure dialog when restoring purchases"
+                    ), style: .cancel)
+                )
+                self.alertPresenter.enqueue(alertController, presentingController: self)
+            }
+            .observe { _ in
                 self.compoundInteractionRestriction.decrease(animated: true)
             }
-        }
     }
 
 }
