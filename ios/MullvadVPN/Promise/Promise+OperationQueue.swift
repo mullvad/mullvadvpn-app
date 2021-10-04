@@ -9,32 +9,20 @@
 import Foundation
 
 extension Promise {
-
-    /// Returns a promise that adds operation that finishes along with the upstream.
-    func run(on operationQueue: OperationQueue) -> Promise<Value> {
-        return Promise { resolver in
-            let operation = AsyncBlockOperation { operation in
-                self.observe { completion in
-                    resolver.resolve(completion: completion)
-                    operation.finish()
-                }
-            }
-
-            resolver.setCancelHandler {
-                operation.cancel()
-            }
-
-            operationQueue.addOperation(operation)
-        }
-    }
-
     /// Returns a promise that adds a mutually exclusive operation that finishes along with the upstream.
-    func run(on operationQueue: OperationQueue, categories: [String]) -> Promise<Value> {
-        return Promise { resolver in
+    func run(on operationQueue: OperationQueue, categories: [String] = []) -> Promise<Value> {
+        return Promise(parent: self) { resolver in
             let operation = AsyncBlockOperation { operation in
-                self.observe { completion in
-                    resolver.resolve(completion: completion)
+                let completionQueue = operationQueue.underlyingQueue
+
+                if operation.isCancelled {
+                    resolver.resolve(completion: .cancelled, queue: completionQueue)
                     operation.finish()
+                } else {
+                    self.observe { completion in
+                        resolver.resolve(completion: completion, queue: completionQueue)
+                        operation.finish()
+                    }
                 }
             }
 
@@ -42,7 +30,10 @@ extension Promise {
                 operation.cancel()
             }
 
-            ExclusivityController.shared.addOperation(operation, categories: categories)
+            if !categories.isEmpty {
+                ExclusivityController.shared.addOperation(operation, categories: categories)
+            }
+
             operationQueue.addOperation(operation)
         }
     }
