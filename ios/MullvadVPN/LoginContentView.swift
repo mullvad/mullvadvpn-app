@@ -25,6 +25,7 @@ class LoginContentView: UIView {
         textLabel.font = UIFont.systemFont(ofSize: 17)
         textLabel.textColor = UIColor.white.withAlphaComponent(0.6)
         textLabel.translatesAutoresizingMaskIntoConstraints = false
+        textLabel.numberOfLines = 0
         return textLabel
     }()
 
