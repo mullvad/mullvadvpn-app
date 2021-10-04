@@ -215,6 +215,7 @@ class TunnelManager {
             .schedule(on: stateQueue)
             .run(on: operationQueue, categories: [OperationCategory.manageTunnelProvider, OperationCategory.changeTunnelSettings])
             .requestBackgroundTime(taskName: "TunnelManager.loadAccount")
+            .doNotPropagateCancellation()
     }
 
     func startTunnel() {
@@ -342,6 +343,7 @@ class TunnelManager {
             .schedule(on: stateQueue)
             .run(on: operationQueue, categories: [OperationCategory.manageTunnelProvider, OperationCategory.changeTunnelSettings])
             .requestBackgroundTime(taskName: "TunnelManager.setAccount")
+            .doNotPropagateCancellation()
     }
 
     /// Remove the account token and remove the active tunnel
@@ -404,6 +406,7 @@ class TunnelManager {
             .schedule(on: stateQueue)
             .run(on: operationQueue, categories: [OperationCategory.manageTunnelProvider, OperationCategory.changeTunnelSettings])
             .requestBackgroundTime(taskName: "TunnelManager.unsetAccount")
+            .doNotPropagateCancellation()
     }
 
     func regeneratePrivateKey() -> Result<(), TunnelManager.Error>.Promise {
@@ -430,6 +433,7 @@ class TunnelManager {
             .schedule(on: stateQueue)
             .run(on: operationQueue, categories: [OperationCategory.changeTunnelSettings])
             .requestBackgroundTime(taskName: "TunnelManager.regeneratePrivateKey")
+            .doNotPropagateCancellation()
     }
 
     func rotatePrivateKey() -> Result<KeyRotationResult, TunnelManager.Error>.Promise {
@@ -461,6 +465,7 @@ class TunnelManager {
             .schedule(on: stateQueue)
             .run(on: operationQueue, categories: [OperationCategory.changeTunnelSettings])
             .requestBackgroundTime(taskName: "TunnelManager.rotatePrivateKey")
+            .doNotPropagateCancellation()
     }
 
     func setRelayConstraints(_ newConstraints: RelayConstraints) -> Result<(), TunnelManager.Error>.Promise {
@@ -479,6 +484,7 @@ class TunnelManager {
             .schedule(on: stateQueue)
             .run(on: operationQueue, categories: [OperationCategory.changeTunnelSettings])
             .requestBackgroundTime(taskName: "TunnelManager.setRelayConstraints")
+            .doNotPropagateCancellation()
     }
 
     func setDNSSettings(_ newDNSSettings: DNSSettings) -> Result<(), TunnelManager.Error>.Promise {
@@ -497,6 +503,7 @@ class TunnelManager {
             .schedule(on: stateQueue)
             .run(on: operationQueue, categories: [OperationCategory.changeTunnelSettings])
             .requestBackgroundTime(taskName: "TunnelManager.setDNSSettings")
+            .doNotPropagateCancellation()
     }
 
     // MARK: - Tunnel observeration

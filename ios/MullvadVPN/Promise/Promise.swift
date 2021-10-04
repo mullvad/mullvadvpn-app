@@ -35,9 +35,6 @@ final class Promise<Value>: Cancellable {
     /// Cancellation handler.
     private var cancelHandler: (() -> Void)?
 
-    /// Whether to propagate cancellation to the parent promise.
-    private var shouldPropagateCancellation = true
-
     /// Returns Promise resolved with the given value.
     class func resolved(_ value: Value) -> Self {
         return Self.init(value: value)
@@ -108,10 +105,7 @@ final class Promise<Value>: Cancellable {
             case .executing:
                 state = .cancelling
 
-                if shouldPropagateCancellation {
-                    parent?.cancel()
-                }
-
+                parent?.cancel()
                 triggerCancelHandler()
 
             case .cancelling, .cancelled, .resolved:
@@ -161,11 +155,12 @@ final class Promise<Value>: Cancellable {
         return self
     }
 
-    /// Switch the cancellation propagation behaviour
-    func setShouldPropagateCancellation(_ propagateCancellation: Bool) -> Self {
-        return lock.withCriticalBlock {
-            shouldPropagateCancellation = propagateCancellation
-            return self
+    /// Returns a Promise that does not propagate cancellation to the parent.
+    func doNotPropagateCancellation() -> Promise<Value> {
+        return Promise { resolver in
+            self.observe { completion in
+                resolver.resolve(completion: completion)
+            }
         }
     }
 

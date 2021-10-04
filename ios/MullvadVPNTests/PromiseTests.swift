@@ -295,38 +295,4 @@ class PromiseTests: XCTestCase {
         wait(for: [expectCancelHandler, expectResolve, expectObserve], timeout: 1, enforceOrder: true)
     }
 
-    func testShouldNotPropagateCancellation() {
-        let expectParentCancel = expectation(description: "Parent cancellation handler should never trigger")
-        expectParentCancel.isInverted = true
-
-        let expectChildCompletion = expectation(description: "Wait for child to complete")
-
-        let parent = Promise<Int> { resolver in
-            resolver.setCancelHandler {
-                expectParentCancel.fulfill()
-            }
-
-            DispatchQueue.main.async {
-                resolver.resolve(value: 1)
-            }
-        }
-
-        let child = Promise<Int>(parent: parent) { resolver in
-            parent.observe { completion in
-                resolver.resolve(completion: completion)
-            }
-        }
-
-        _ = child.setShouldPropagateCancellation(false)
-
-        child.observe { completion in
-            XCTAssertEqual(completion, .cancelled)
-            expectChildCompletion.fulfill()
-        }
-
-        child.cancel()
-
-        wait(for: [expectParentCancel, expectChildCompletion], timeout: 1)
-    }
-
 }
