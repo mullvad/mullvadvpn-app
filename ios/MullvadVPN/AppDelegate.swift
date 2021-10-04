@@ -474,40 +474,42 @@ extension AppDelegate: RootContainerViewControllerDelegate {
 
 extension AppDelegate: LoginViewControllerDelegate {
 
-    func loginViewController(_ controller: LoginViewController, loginWithAccountToken accountToken: String, completion: @escaping (Result<AccountResponse, Account.Error>) -> Void) {
+    func loginViewController(_ controller: LoginViewController, loginWithAccountToken accountToken: String, completion: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void) {
         self.rootContainer?.setEnableSettingsButton(false)
 
-        Account.shared.login(with: accountToken) { (result) in
-            switch result {
-            case .success:
+        Account.shared.login(with: accountToken)
+            .onSuccess { _ in
                 self.logger?.debug("Logged in with existing token")
                 // RootContainer's settings button will be re-enabled in `loginViewControllerDidLogin`
-
-            case .failure(let error):
+            }
+            .onFailure { error in
                 self.logger?.error(chainedError: error, message: "Failed to log in with existing account")
                 self.rootContainer?.setEnableSettingsButton(true)
             }
+            .observe { promiseCompletion in
+                guard let result = promiseCompletion.unwrappedValue else { return }
 
-            completion(result)
-        }
+                completion(result)
+            }
     }
 
-    func loginViewControllerLoginWithNewAccount(_ controller: LoginViewController, completion: @escaping (Result<AccountResponse, Account.Error>) -> Void) {
+    func loginViewControllerLoginWithNewAccount(_ controller: LoginViewController, completion: @escaping (Result<REST.AccountResponse, Account.Error>) -> Void) {
         self.rootContainer?.setEnableSettingsButton(false)
 
-        Account.shared.loginWithNewAccount { (result) in
-            switch result {
-            case .success:
+        Account.shared.loginWithNewAccount()
+            .onSuccess { _ in
                 self.logger?.debug("Logged in with new account token")
                 // RootContainer's settings button will be re-enabled in `loginViewControllerDidLogin`
-
-            case .failure(let error):
+            }
+            .onFailure { error in
                 self.logger?.error(chainedError: error, message: "Failed to log in with new account")
                 self.rootContainer?.setEnableSettingsButton(true)
             }
+            .observe { promiseCompletion in
+                guard let result = promiseCompletion.unwrappedValue else { return }
 
-            completion(result)
-        }
+                completion(result)
+            }
     }
 
     func loginViewControllerDidLogin(_ controller: LoginViewController) {
