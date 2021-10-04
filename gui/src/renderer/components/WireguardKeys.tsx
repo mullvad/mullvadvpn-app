@@ -279,7 +279,9 @@ export default class WireguardKeys extends React.Component<IProps, IState> {
     switch (keyState.type) {
       case 'key-set':
       case 'being-verified': {
-        return formatRelativeDate(new Date(), keyState.key.created, true);
+        const createdDate =
+          new Date(keyState.key.created) > new Date() ? Date.now() : keyState.key.created;
+        return formatRelativeDate(new Date(), createdDate, true);
       }
       default:
         return '-';
