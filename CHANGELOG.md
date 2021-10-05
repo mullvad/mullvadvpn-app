@@ -80,6 +80,7 @@ Line wrap the file at 100 chars.                                              Th
 - Disable DNS over TLS for tunnel's DNS config when using systemd-resolved.
 - Fix DNS when combining a static resolv.conf with ad blocking DNS.
 - Check connectivity correctly on IPv6-only networks.
+- Disable Electron renderer sandbox to make app work with newer versions of glibc.
 
 #### Windows
 - Fix failure to restart the daemon when resuming from "fast startup" hibernation.
