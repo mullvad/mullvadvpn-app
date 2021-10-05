@@ -103,6 +103,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix initial state of Split tunneling excluded apps list. Previously it was not notified the daemon
 properly after initialization.
 
+#### macOS
+- Prevent app from showing when dragging tray icon on macOS.
+
 ## [2021.4] - 2021-06-30
 This release is for desktop only.
 
