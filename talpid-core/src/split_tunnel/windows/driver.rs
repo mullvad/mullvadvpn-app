@@ -2,6 +2,7 @@ use super::windows::{
     get_device_path, get_process_creation_time, get_process_device_path, open_process,
     ProcessAccess, ProcessSnapshot,
 };
+use crate::windows::as_uninit_byte_slice;
 use memoffset::offset_of;
 use std::{
     cell::RefCell,
@@ -9,7 +10,7 @@ use std::{
     ffi::{OsStr, OsString},
     fs::{self, OpenOptions},
     io,
-    mem::{self, size_of},
+    mem::{self, size_of, MaybeUninit},
     net::{Ipv4Addr, Ipv6Addr},
     os::windows::{
         ffi::{OsStrExt, OsStringExt},
@@ -233,9 +234,7 @@ impl DeviceHandle {
             }
         }
 
-        let buffer = &addresses as *const _ as *const u8;
-        let buffer =
-            unsafe { std::slice::from_raw_parts(buffer, size_of::<SplitTunnelAddresses>()) };
+        let buffer = as_uninit_byte_slice(&addresses);
 
         device_io_control(
             self.handle.as_raw_handle(),
@@ -315,6 +314,7 @@ impl AsRawHandle for DeviceHandle {
     }
 }
 
+#[derive(Clone, Copy)]
 #[repr(C)]
 struct SplitTunnelAddresses {
     tunnel_ipv4: IN_ADDR,
@@ -324,6 +324,7 @@ struct SplitTunnelAddresses {
 }
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 struct ConfigurationHeader {
     // Number of entries immediately following the header.
     num_entries: usize,
@@ -332,6 +333,7 @@ struct ConfigurationHeader {
 }
 
 #[repr(C)]
+#[derive(Clone, Copy)]
 struct ConfigurationEntry {
     // Offset into buffer region that follows all entries.
     // The image name uses the physical path.
@@ -342,7 +344,7 @@ struct ConfigurationEntry {
 
 /// Create a buffer containing a `ConfigurationHeader` and number of `ConfigurationEntry`s,
 /// followed by the same number of paths to those entries.
-fn make_process_config<T: AsRef<OsStr>>(apps: &[T]) -> Vec<u8> {
+fn make_process_config<T: AsRef<OsStr>>(apps: &[T]) -> Vec<MaybeUninit<u8>> {
     let apps: Vec<Vec<u16>> = apps
         .iter()
         .map(|app| app.as_ref().encode_wide().collect())
@@ -354,8 +356,8 @@ fn make_process_config<T: AsRef<OsStr>>(apps: &[T]) -> Vec<u8> {
         + size_of::<ConfigurationEntry>() * apps.len()
         + total_string_size;
 
-    let mut buffer = Vec::<u8>::new();
-    buffer.resize(total_buffer_size, 0);
+    let mut buffer = Vec::<MaybeUninit<u8>>::new();
+    buffer.resize(total_buffer_size, MaybeUninit::new(0));
 
     let (header, tail) = buffer.split_at_mut(size_of::<ConfigurationHeader>());
 
@@ -364,7 +366,7 @@ fn make_process_config<T: AsRef<OsStr>>(apps: &[T]) -> Vec<u8> {
         num_entries: apps.len(),
         total_length: total_buffer_size,
     };
-    header.copy_from_slice(unsafe { as_u8_slice(&header_struct) });
+    header.copy_from_slice(as_uninit_byte_slice(&header_struct));
 
     // Serialize configuration entries and strings
     let (entries, string_data) = tail.split_at_mut(apps.len() * size_of::<ConfigurationEntry>());
@@ -379,8 +381,9 @@ fn make_process_config<T: AsRef<OsStr>>(apps: &[T]) -> Vec<u8> {
             name_length: app_bytelen as u16,
         };
         let entry_offset = size_of::<ConfigurationEntry>() * i;
+
         entries[entry_offset..entry_offset + size_of::<ConfigurationEntry>()]
-            .copy_from_slice(unsafe { as_u8_slice(&entry) });
+            .copy_from_slice(as_uninit_byte_slice(&entry));
 
         string_offset += app_bytelen;
     }
@@ -462,6 +465,7 @@ fn build_process_tree() -> io::Result<Vec<ProcessInfo>> {
         .collect())
 }
 
+#[derive(Clone, Copy)]
 #[repr(C)]
 struct ProcessRegistryHeader {
     // Number of entries immediately following the header.
@@ -470,6 +474,7 @@ struct ProcessRegistryHeader {
     total_length: usize,
 }
 
+#[derive(Clone, Copy)]
 #[repr(C)]
 struct ProcessRegistryEntry {
     pid: RawHandle,
@@ -480,7 +485,7 @@ struct ProcessRegistryEntry {
     image_name_size: u16,
 }
 
-fn serialize_process_tree(processes: Vec<ProcessInfo>) -> Result<Vec<u8>, io::Error> {
+fn serialize_process_tree(processes: Vec<ProcessInfo>) -> Result<Vec<MaybeUninit<u8>>, io::Error> {
     // Construct a buffer:
     //  ProcessRegistryHeader
     //  ProcessRegistryEntry..
@@ -494,15 +499,15 @@ fn serialize_process_tree(processes: Vec<ProcessInfo>) -> Result<Vec<u8>, io::Er
         + size_of::<ProcessRegistryEntry>() * processes.len()
         + total_string_size;
 
-    let mut buffer = Vec::<u8>::new();
-    buffer.resize(total_buffer_size, 0);
+    let mut buffer = Vec::new();
+    buffer.resize(total_buffer_size, MaybeUninit::new(0u8));
 
     let (header, tail) = buffer.split_at_mut(size_of::<ProcessRegistryHeader>());
     let header_struct = ProcessRegistryHeader {
         num_entries: processes.len(),
         total_length: total_buffer_size,
     };
-    header.copy_from_slice(unsafe { as_u8_slice(&header_struct) });
+    header.copy_from_slice(as_uninit_byte_slice(&header_struct));
 
     let (entries, string_data) =
         tail.split_at_mut(size_of::<ProcessRegistryEntry>() * processes.len());
@@ -528,7 +533,7 @@ fn serialize_process_tree(processes: Vec<ProcessInfo>) -> Result<Vec<u8>, io::Er
 
         let entry_offset = size_of::<ProcessRegistryEntry>() * i;
         entries[entry_offset..entry_offset + size_of::<ProcessRegistryEntry>()]
-            .copy_from_slice(unsafe { as_u8_slice(&out_entry) });
+            .copy_from_slice(as_uninit_byte_slice(&out_entry));
     }
 
     Ok(buffer)
@@ -702,7 +707,7 @@ pub fn parse_event_buffer(buffer: &Vec<u8>) -> Option<(EventId, EventBody)> {
 pub fn device_io_control(
     device: RawHandle,
     ioctl_code: u32,
-    input: Option<&[u8]>,
+    input: Option<&[MaybeUninit<u8>]>,
     output_size: u32,
     timeout: Option<Duration>,
 ) -> Result<Option<Vec<u8>>, io::Error> {
@@ -749,7 +754,7 @@ pub fn device_io_control(
 pub fn device_io_control_buffer(
     device: RawHandle,
     ioctl_code: u32,
-    input: Option<&[u8]>,
+    input: Option<&[MaybeUninit<u8>]>,
     mut output: Option<&mut Vec<u8>>,
     overlapped: &OVERLAPPED,
     timeout: Option<Duration>,
@@ -886,16 +891,12 @@ pub unsafe fn deserialize_buffer<T: Sized>(buffer: &Vec<u8>) -> T {
     instance
 }
 
-fn write_string_to_buffer(buffer: &mut [u8], byte_offset: usize, string: &[u16]) {
+fn write_string_to_buffer(buffer: &mut [MaybeUninit<u8>], byte_offset: usize, string: &[u16]) {
     for (i, byte) in string
         .iter()
         .flat_map(|word| std::array::IntoIter::new(word.to_ne_bytes()))
         .enumerate()
     {
-        buffer[byte_offset + i] = byte;
+        buffer[byte_offset + i] = MaybeUninit::new(byte);
     }
-}
-
-unsafe fn as_u8_slice<T: Sized>(object: &T) -> &[u8] {
-    std::slice::from_raw_parts(object as *const _ as *const _, size_of::<T>())
 }
