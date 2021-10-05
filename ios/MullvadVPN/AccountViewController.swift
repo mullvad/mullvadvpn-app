@@ -22,7 +22,7 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         return contentView
     }()
 
-    private var copyToPasteboardWork: DispatchWorkItem?
+    private var copyToPasteboardCancellationToken: PromiseCancellationToken?
 
     private var pendingPayment: SKPayment?
     private let alertPresenter = AlertPresenter()
@@ -116,24 +116,26 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
         purchaseButtonInteractionRestriction.increase(animated: true)
 
-        AppStorePaymentManager.shared.requestProducts(with: [inAppPurchase]) { [weak self] (result) in
-            DispatchQueue.main.async {
+        AppStorePaymentManager.shared.requestProducts(with: [inAppPurchase])
+            .receive(on: .main)
+            .observe { [weak self] completion in
                 guard let self = self else { return }
 
-                switch result {
-                case .success(let response):
-                    if let product = response.products.first {
-                        self.setProduct(product, animated: true)
-                    }
+                if let result = completion.unwrappedValue {
+                    switch result {
+                    case .success(let response):
+                        if let product = response.products.first {
+                            self.setProduct(product, animated: true)
+                        }
 
-                case .failure(let error):
-                    self.didFailLoadingProducts(with: error)
+                    case .failure(let error):
+                        self.didFailLoadingProducts(with: error)
+                    }
                 }
 
                 self.contentView.purchaseButton.isLoading = false
                 self.purchaseButtonInteractionRestriction.decrease(animated: true)
             }
-        }
     }
 
     private func setProduct(_ product: SKProduct, animated: Bool) {
@@ -204,8 +206,8 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
     }
 
     private func showTimeAddedConfirmationAlert(
-        with response: CreateApplePaymentResponse,
-        context: CreateApplePaymentResponse.Context)
+        with response: REST.CreateApplePaymentResponse,
+        context: REST.CreateApplePaymentResponse.Context)
     {
         let alertController = UIAlertController(
             title: response.alertTitle(context: context),
@@ -284,43 +286,51 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
         let alertController = UIAlertController(
             title: nil,
             message: message,
-            preferredStyle: .alert)
+            preferredStyle: .alert
+        )
 
         alertPresenter.enqueue(alertController, presentingController: self) {
-            Account.shared.logout { (result) in
-                DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
-                    alertController.dismiss(animated: true) {
-                        switch result {
-                        case .failure(let error):
-                            self.logger.error(chainedError: error, message: "Failed to log out")
-
-                            let errorAlertController = UIAlertController(
-                                title: NSLocalizedString(
-                                    "LOGOUT_FAILURE_ALERT_TITLE",
-                                    tableName: "Account",
-                                    value: "Failed to log out",
-                                    comment: "Title for logout failure alert"
-                                ),
-                                message: error.errorChainDescription,
-                                preferredStyle: .alert
-                            )
-                            errorAlertController.addAction(
-                                UIAlertAction(title: NSLocalizedString(
-                                    "LOGOUT_FAILURE_ALERT_OK_ACTION",
-                                    tableName: "Account",
-                                    value: "OK",
-                                    comment: "Message for logout failure alert"
-                                ), style: .cancel)
-                            )
-                            self.alertPresenter.enqueue(errorAlertController, presentingController: self)
-
-                        case .success:
-                            self.delegate?.accountViewControllerDidLogout(self)
+            Account.shared.logout()
+                .receive(on: .main, after: .seconds(1), timerType: .deadline)
+                .then { result in
+                    return Promise { resolver in
+                        alertController.dismiss(animated: true) {
+                            resolver.resolve(value: result)
                         }
                     }
                 }
-            }
+                .onSuccess { _ in
+                    self.delegate?.accountViewControllerDidLogout(self)
+                }
+                .onFailure { error in
+                    self.logger.error(chainedError: error, message: "Failed to log out")
+
+                    self.showLogoutFailure(error)
+                }
+                .observe { _ in }
         }
+    }
+
+    private func showLogoutFailure(_ error: Account.Error) {
+        let errorAlertController = UIAlertController(
+            title: NSLocalizedString(
+                "LOGOUT_FAILURE_ALERT_TITLE",
+                tableName: "Account",
+                value: "Failed to log out",
+                comment: "Title for logout failure alert"
+            ),
+            message: error.errorChainDescription,
+            preferredStyle: .alert
+        )
+        errorAlertController.addAction(
+            UIAlertAction(title: NSLocalizedString(
+                "LOGOUT_FAILURE_ALERT_OK_ACTION",
+                tableName: "Account",
+                value: "OK",
+                comment: "Message for logout failure alert"
+            ), style: .cancel)
+        )
+        alertPresenter.enqueue(errorAlertController, presentingController: self)
     }
 
     // MARK: - AccountObserver
@@ -340,43 +350,39 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
     // MARK: - AppStorePaymentObserver
 
     func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String?, didFailWithError error: AppStorePaymentManager.Error) {
-        DispatchQueue.main.async {
-            let alertController = UIAlertController(
+        let alertController = UIAlertController(
+            title: NSLocalizedString(
+                "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
+                tableName: "Account",
+                value: "Cannot complete the purchase",
+                comment: "Title for purchase failure dialog"
+            ),
+            message: error.errorChainDescription,
+            preferredStyle: .alert
+        )
+
+        alertController.addAction(
+            UIAlertAction(
                 title: NSLocalizedString(
-                    "CANNOT_COMPLETE_PURCHASE_ALERT_TITLE",
+                    "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION",
                     tableName: "Account",
-                    value: "Cannot complete the purchase",
-                    comment: "Title for purchase failure dialog"
-                ),
-                message: error.errorChainDescription,
-                preferredStyle: .alert
-            )
+                    value: "OK",
+                    comment: "Title for OK button in purchase failure dialog"
+                ), style: .cancel)
+        )
 
-            alertController.addAction(
-                UIAlertAction(
-                    title: NSLocalizedString(
-                        "CANNOT_COMPLETE_PURCHASE_ALERT_OK_ACTION",
-                        tableName: "Account",
-                        value: "OK",
-                        comment: "Title for OK button in purchase failure dialog"
-                    ), style: .cancel)
-            )
+        alertPresenter.enqueue(alertController, presentingController: self)
 
-            self.alertPresenter.enqueue(alertController, presentingController: self)
-
-            if transaction.payment == self.pendingPayment {
-                self.compoundInteractionRestriction.decrease(animated: true)
-            }
+        if transaction.payment == pendingPayment {
+            compoundInteractionRestriction.decrease(animated: true)
         }
     }
 
-    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: CreateApplePaymentResponse) {
-        DispatchQueue.main.async {
-            self.showTimeAddedConfirmationAlert(with: response, context: .purchase)
+    func appStorePaymentManager(_ manager: AppStorePaymentManager, transaction: SKPaymentTransaction, accountToken: String, didFinishWithResponse response: REST.CreateApplePaymentResponse) {
+        showTimeAddedConfirmationAlert(with: response, context: .purchase)
 
-            if transaction.payment == self.pendingPayment {
-                self.compoundInteractionRestriction.decrease(animated: true)
-            }
+        if transaction.payment == self.pendingPayment {
+            compoundInteractionRestriction.decrease(animated: true)
         }
     }
 
@@ -400,22 +406,22 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
             comment: "Message, temporarily displayed in place account token, after copying the account token to pasteboard on tap."
         )
 
-        let dispatchWork = DispatchWorkItem { [weak self] in
-            self?.contentView.accountTokenRowView.value = Account.shared.formattedToken
-        }
+        Promise.deferred { Account.shared.formattedToken }
+            .delay(by: .seconds(3), timerType: .walltime, queue: .main)
+            .storeCancellationToken(in: &copyToPasteboardCancellationToken)
+            .observe { [weak self] completion in
+                guard let formattedToken = completion.unwrappedValue else { return }
 
-        DispatchQueue.main.asyncAfter(wallDeadline: .now() + .seconds(3), execute: dispatchWork)
-
-        self.copyToPasteboardWork?.cancel()
-        self.copyToPasteboardWork = dispatchWork
+                self?.contentView.accountTokenRowView.value = formattedToken
+            }
     }
 
     @objc private func doPurchase() {
         guard let product = product, let accountToken = Account.shared.token else { return }
 
         let payment = SKPayment(product: product)
-        self.pendingPayment = payment
 
+        pendingPayment = payment
         compoundInteractionRestriction.increase(animated: true)
 
         AppStorePaymentManager.shared.addPayment(payment, for: accountToken)
@@ -426,42 +432,40 @@ class AccountViewController: UIViewController, AppStorePaymentObserver, AccountO
 
         compoundInteractionRestriction.increase(animated: true)
 
-        AppStorePaymentManager.shared.restorePurchases(for: accountToken) { (result) in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let response):
-                    self.showTimeAddedConfirmationAlert(with: response, context: .restoration)
-
-                case .failure(let error):
-                    let alertController = UIAlertController(
-                        title: NSLocalizedString(
-                            "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
-                            tableName: "Account",
-                            value: "Cannot restore purchases",
-                            comment: "Title for failure dialog when restoring purchases"
-                        ),
-                        message: error.errorChainDescription,
-                        preferredStyle: .alert
-                    )
-                    alertController.addAction(
-                        UIAlertAction(title: NSLocalizedString(
-                            "RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION",
-                            tableName: "Account",
-                            value: "OK",
-                            comment: "Title for 'OK' button in failure dialog when restoring purchases"
-                        ), style: .cancel)
-                    )
-                    self.alertPresenter.enqueue(alertController, presentingController: self)
-                }
-
+        AppStorePaymentManager.shared.restorePurchases(for: accountToken)
+            .receive(on: .main)
+            .onSuccess { response in
+                self.showTimeAddedConfirmationAlert(with: response, context: .restoration)
+            }
+            .onFailure { error in
+                let alertController = UIAlertController(
+                    title: NSLocalizedString(
+                        "RESTORE_PURCHASES_FAILURE_ALERT_TITLE",
+                        tableName: "Account",
+                        value: "Cannot restore purchases",
+                        comment: "Title for failure dialog when restoring purchases"
+                    ),
+                    message: error.errorChainDescription,
+                    preferredStyle: .alert
+                )
+                alertController.addAction(
+                    UIAlertAction(title: NSLocalizedString(
+                        "RESTORE_PURCHASES_FAILURE_ALERT_OK_ACTION",
+                        tableName: "Account",
+                        value: "OK",
+                        comment: "Title for 'OK' button in failure dialog when restoring purchases"
+                    ), style: .cancel)
+                )
+                self.alertPresenter.enqueue(alertController, presentingController: self)
+            }
+            .observe { _ in
                 self.compoundInteractionRestriction.decrease(animated: true)
             }
-        }
     }
 
 }
 
-private extension CreateApplePaymentResponse {
+private extension REST.CreateApplePaymentResponse {
 
     enum Context {
         case purchase
@@ -515,7 +519,7 @@ private extension CreateApplePaymentResponse {
                         value: "%@ have been added to your account",
                         comment: "Message displayed upon successful restoration of existing purchases, containing the time duration credited to user account. Use %@ placeholder to position the localized text with duration added (i.e '30 days')"
                     ),
-                    self.formattedTimeAdded ?? ""
+                    formattedTimeAdded ?? ""
                 )
             }
         }
