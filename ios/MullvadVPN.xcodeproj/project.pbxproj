@@ -98,6 +98,8 @@
 		584789BE264D4A2A000E45FB /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 584789B7264D4A2A000E45FB /* le_root_cert.cer */; };
 		584789E026529D72000E45FB /* SSLPinningURLSessionDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */; };
 		584789EC2652A1A2000E45FB /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 584789EB2652A1A2000E45FB /* Logging */; };
+		584D26BF270C550B004EA533 /* AnyIPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26BE270C550B004EA533 /* AnyIPAddress.swift */; };
+		584D26C0270C550E004EA533 /* AnyIPAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584D26BE270C550B004EA533 /* AnyIPAddress.swift */; };
 		584E96BC240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		584E96BD240FD4DA00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
 		584E96BE240FD4DB00D3334F /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58A1AA8623F43901009F7EA6 /* Location.swift */; };
@@ -394,6 +396,7 @@
 		584789B7264D4A2A000E45FB /* le_root_cert.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = le_root_cert.cer; sourceTree = "<group>"; };
 		584789DF26529D72000E45FB /* SSLPinningURLSessionDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSLPinningURLSessionDelegate.swift; sourceTree = "<group>"; };
 		584B26F3237434D00073B10E /* RelaySelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorTests.swift; sourceTree = "<group>"; };
+		584D26BE270C550B004EA533 /* AnyIPAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyIPAddress.swift; sourceTree = "<group>"; };
 		5850366725A47AC700A43E93 /* IPAddressRange+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IPAddressRange+Codable.swift"; sourceTree = "<group>"; };
 		58561C98239A5D1500BD6B5E /* IPEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPEndpoint.swift; sourceTree = "<group>"; };
 		5857F24224C8662600CF6F47 /* SelectLocationHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationHeaderView.swift; sourceTree = "<group>"; };
@@ -786,6 +789,7 @@
 				582AE30F2440A6CA00E6733A /* AccountTokenInput.swift */,
 				58CCA01722426713004F3011 /* AccountViewController.swift */,
 				58B9EB122488ED2100095626 /* AlertPresenter.swift */,
+				584D26BE270C550B004EA533 /* AnyIPAddress.swift */,
 				5868585424054096000B8131 /* AppButton.swift */,
 				58CE5E63224146200008646E /* AppDelegate.swift */,
 				58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */,
@@ -1337,6 +1341,7 @@
 				5820674926E63EC900655B05 /* Promise+BackgroundTask.swift in Sources */,
 				58B9EB132488ED2100095626 /* AlertPresenter.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
+				584D26BF270C550B004EA533 /* AnyIPAddress.swift in Sources */,
 				5862805422428EF100F5A6E1 /* TranslucentButtonBlurView.swift in Sources */,
 				580EE20624B3222200F9D8A1 /* ExclusivityController.swift in Sources */,
 				5888AD83227B11080051EB06 /* SelectLocationCell.swift in Sources */,
@@ -1421,6 +1426,7 @@
 				58BFA5CD22A7CE1F00A6173D /* ApplicationConfiguration.swift in Sources */,
 				5850368D25A49E2200A43E93 /* PrivateKeyWithMetadata.swift in Sources */,
 				5820675826E652AF00655B05 /* RelayCacheIO.swift in Sources */,
+				584D26C0270C550E004EA533 /* AnyIPAddress.swift in Sources */,
 				5820675726E652A600655B05 /* REST.swift in Sources */,
 				585DA88F26B031E200B8C587 /* TunnelIPCCoding.swift in Sources */,
 				5806767C27048E9B00C858CB /* PacketTunnelProvider.swift in Sources */,
