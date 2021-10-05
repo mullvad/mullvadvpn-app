@@ -737,7 +737,12 @@ export default class AppRenderer {
         break;
 
       case 'disconnecting':
-        actions.connection.disconnecting(tunnelState.details);
+        if (tunnelState.details === 'reconnect') {
+          this.optimisticTunnelState = 'connecting';
+          this.reduxActions.connection.connecting();
+        } else {
+          actions.connection.disconnecting(tunnelState.details);
+        }
         break;
 
       case 'disconnected':
@@ -750,7 +755,9 @@ export default class AppRenderer {
     }
 
     // Update the location when entering a new tunnel state since it's likely changed.
-    void this.updateLocation();
+    void this.updateLocation(
+      this.optimisticTunnelState === undefined ? undefined : { state: this.optimisticTunnelState },
+    );
   }
 
   private setSettings(newSettings: ISettings) {
