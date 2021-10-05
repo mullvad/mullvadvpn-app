@@ -65,3 +65,6 @@ mod linux;
 
 /// A pair of functions to monitor and establish connectivity with ICMP
 pub mod ping_monitor;
+
+#[cfg(any(target_os = "linux", target_os = "windows"))]
+pub(crate) mod slice;
