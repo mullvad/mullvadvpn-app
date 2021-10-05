@@ -102,6 +102,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix erasing wireguard MTU value in some scenarious.
 - Fix initial state of Split tunneling excluded apps list. Previously it was not notified the daemon
 properly after initialization.
+- Fix reconnect on app resume.
 
 #### macOS
 - Prevent app from showing when dragging tray icon on macOS.
