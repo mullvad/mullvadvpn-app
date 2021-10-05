@@ -95,6 +95,7 @@ function generate() {
 
     # Windows white
     generate_ico "$white_svg_source_path" "$WINDOWS_DIR/${icon_name}_white.ico"
+    generate_ico "$black_svg_source_path" "$WINDOWS_DIR/${icon_name}_black.ico"
 
     rm "$black_svg_source_path" "$white_svg_source_path"
 }
