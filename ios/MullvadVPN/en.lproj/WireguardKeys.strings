@@ -44,6 +44,9 @@
 "VERIFY_KEY_BUTTON_TITLE" = "Verify key";
 
 /* No comment provided by engineer. */
+"VERIFY_KEY_FAILURE_ALERT_MESSAGE" = "Failed to verify the WireGuard key on server: %@";
+
+/* No comment provided by engineer. */
 "VERIFY_KEY_FAILURE_ALERT_OK_ACTION" = "OK";
 
 /* No comment provided by engineer. */
