@@ -81,7 +81,6 @@ impl SystemdResolved {
 
 
         {
-            let mut initial_states = self.initial_states.lock().unwrap();
             for (iface_index, iface_config) in &initial_config {
                 let initial_state = match self.dbus_interface.get_dns(*iface_index).await {
                     Ok(state) => state,
@@ -98,7 +97,12 @@ impl SystemdResolved {
                     last_result = Err(Error::SystemdResolvedError(error));
                     break;
                 }
-                initial_states.insert(*iface_index, initial_state);
+                {
+                    self.initial_states
+                        .lock()
+                        .unwrap()
+                        .insert(*iface_index, initial_state);
+                }
             }
         }
 
@@ -293,8 +297,13 @@ impl SystemdResolved {
             let _ = join_handle.await;
         }
 
-        let mut initial_states = self.initial_states.lock().unwrap();
-        for (iface, state) in &*initial_states {
+        let initial_states = {
+            let mut initial_states = self.initial_states.lock().unwrap();
+            let states = initial_states.clone();
+            initial_states.clear();
+            states
+        };
+        for (iface, state) in &initial_states {
             let result = if *iface == self.tunnel_index {
                 self.dbus_interface.revert_link(state.clone()).await
             } else {
@@ -307,7 +316,6 @@ impl SystemdResolved {
                 );
             }
         }
-        initial_states.clear();
 
         self.current_config.lock().unwrap().clear();
 
