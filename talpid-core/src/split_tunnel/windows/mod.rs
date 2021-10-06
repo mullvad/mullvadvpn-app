@@ -118,7 +118,7 @@ enum Request {
 type RequestResponseTx = sync_mpsc::Sender<Result<(), Error>>;
 type RequestTx = sync_mpsc::Sender<(Request, RequestResponseTx)>;
 
-const REQUEST_TIMEOUT: Duration = Duration::from_secs(6);
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(5);
 
 struct EventThreadContext {
     handle: Arc<driver::DeviceHandle>,
@@ -330,11 +330,9 @@ impl SplitTunnel {
                         let mut monitored_paths_guard = monitored_paths.lock().unwrap();
 
                         let result = if paths.len() > 0 {
-                            handle
-                                .set_config(&paths, None)
-                                .map_err(Error::SetConfiguration)
+                            handle.set_config(&paths).map_err(Error::SetConfiguration)
                         } else {
-                            handle.clear_config(None).map_err(Error::SetConfiguration)
+                            handle.clear_config().map_err(Error::SetConfiguration)
                         };
 
                         if result.is_ok() {
@@ -390,7 +388,7 @@ impl SplitTunnel {
                 let paths = monitored_paths_copy.lock().unwrap();
                 let result = if paths.len() > 0 {
                     log::debug!("Re-resolving excluded paths");
-                    handle_copy.set_config(&*paths, None)
+                    handle_copy.set_config(&*paths)
                 } else {
                     continue;
                 };
