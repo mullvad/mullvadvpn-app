@@ -39,8 +39,8 @@
     <string name="creating_new_account">Luodaan tiliä...</string>
     <string name="creating_secure_connection">LUODAAN SUOJATTU YHTEYS</string>
     <string name="critical_error">Vakava virhe (vaatii huomiotasi)</string>
-    <string name="custom_dns_example">esim. 10.0.0.4</string>
     <string name="custom_dns_footer">Ota käyttöön lisätäksesi vähintään yhden DNS-palvelimen.</string>
+    <string name="custom_dns_hint">Anna IP-osoite</string>
     <string name="custom_tunnel_host_resolution_error">Mukautetun palvelimen isäntänimen selvittäminen epäonnistui</string>
     <string name="disconnect">Katkaise yhteys</string>
     <string name="disconnecting">Katkaistaan yhteyttä</string>

@@ -39,8 +39,8 @@
     <string name="creating_new_account">계정 생성 중...</string>
     <string name="creating_secure_connection">보안 연결 생성 중</string>
     <string name="critical_error">심각한 오류(주의가 필요함)</string>
-    <string name="custom_dns_example">예: 10.0.0.4</string>
     <string name="custom_dns_footer">하나 이상의 DNS 서버를 추가할 수 있습니다.</string>
+    <string name="custom_dns_hint">IP 입력</string>
     <string name="custom_tunnel_host_resolution_error">사용자 지정 서버의 호스트 이름을 확인하지 못했습니다.</string>
     <string name="disconnect">연결 끊기</string>
     <string name="disconnecting">연결 해제 중</string>

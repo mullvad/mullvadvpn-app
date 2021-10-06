@@ -39,8 +39,8 @@
     <string name="creating_new_account">Konto wird erstellt ...</string>
     <string name="creating_secure_connection">SICHERE VERBINDUNG WIRD ERSTELLT</string>
     <string name="critical_error">Kritischer Fehler (Ihre Aufmerksamkeit wird erfordert)</string>
-    <string name="custom_dns_example">z. B. 10.0.0.4</string>
     <string name="custom_dns_footer">Aktivieren, um mindestens einen DNS-Server hinzuzufügen.</string>
+    <string name="custom_dns_hint">IP eingeben</string>
     <string name="custom_tunnel_host_resolution_error">Der Hostname des benutzerdefinierten Servers konnte nicht aufgelöst werden</string>
     <string name="disconnect">Verbindung trennen</string>
     <string name="disconnecting">Verbindung wird getrennt</string>
