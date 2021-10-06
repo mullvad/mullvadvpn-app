@@ -136,6 +136,10 @@ MullvadGuids::DetailedIdentityRegistry MullvadGuids::DetailedRegistry(IdentityQu
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnelService_Ipv6()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitNdp_Outbound_Router_Solicitation()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitNdp_Inbound_Router_Advertisement()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitNdp_Outbound_Neighbor_Solicitation()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitNdp_Inbound_Neighbor_Solicitation()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitNdp_Outbound_Neighbor_Advertisement()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitNdp_Inbound_Neighbor_Advertisement()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitNdp_Inbound_Redirect()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitDns_Outbound_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitDns_Outbound_Ipv6()));
@@ -735,6 +739,62 @@ const GUID &MullvadGuids::Filter_Baseline_PermitNdp_Inbound_Router_Advertisement
 		0x4915,
 		0x4a6a,
 		{ 0xbd, 0xf5, 0xb5, 0x1a, 0x2d, 0xbc, 0xb8, 0xe9 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitNdp_Outbound_Neighbor_Solicitation()
+{
+	static const GUID g =
+	{
+		0x8cc5348a,
+		0xf736,
+		0x4ec4,
+		{ 0x8e, 0x8f, 0xd7, 0x13, 0x17, 0xd4, 0xc2, 0xb8 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitNdp_Inbound_Neighbor_Solicitation()
+{
+	static const GUID g =
+	{
+		0x0c95bb19,
+		0x40a2,
+		0x48ee,
+		{ 0xa7, 0xca, 0x5b, 0x61, 0x2c, 0xab, 0x5f, 0x9d }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitNdp_Outbound_Neighbor_Advertisement()
+{
+	static const GUID g =
+	{
+		0x932042c4,
+		0x2275,
+		0x4c3e,
+		{ 0x85, 0xe8, 0xf9, 0xa2, 0x77, 0x18, 0x19, 0x5c }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitNdp_Inbound_Neighbor_Advertisement()
+{
+	static const GUID g =
+	{
+		0xc0e39478,
+		0x7920,
+		0x4632,
+		{ 0x82, 0x12, 0x2a, 0xe5, 0xd2, 0x6f, 0x39, 0x5c }
 	};
 
 	return g;
