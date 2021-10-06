@@ -1,0 +1,16 @@
+<resources>
+    <string name="login_hint"
+            translatable="false">0000 0000 0000 0000</string>
+    <string name="voucher_hint"
+            translatable="false">XXXX-XXXX-XXXX-XXXX</string>
+    <string name="account_url"
+            translatable="false">https://mullvad.net/account</string>
+    <string name="wg_key_url"
+            translatable="false">https://mullvad.net/account/ports</string>
+    <string name="create_account_url"
+            translatable="false">https://mullvad.net/account/create</string>
+    <string name="download_url"
+            translatable="false">https://mullvad.net/download</string>
+    <string name="faqs_and_guides_url"
+            translatable="false">https://mullvad.net/help/tag/mullvad-app/</string>
+</resources>
