@@ -544,6 +544,104 @@ impl<'a> PolicyBatch<'a> {
             add_verdict(&mut rule, &Verdict::Accept);
             self.batch.add(&rule, nftnl::MsgType::Add);
         }
+        // Outgoing Neighbor solicitation (part of NDP)
+        for chain in &[&self.out_chain, &self.forward_chain] {
+            let mut rule = Rule::new(chain);
+            check_net(&mut rule, End::Dst, *super::SOLICITED_NODE_MULTICAST);
+
+            rule.add_expr(&nft_expr!(meta l4proto));
+            rule.add_expr(&nft_expr!(cmp == libc::IPPROTO_ICMPV6 as u8));
+
+            rule.add_expr(&Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Type),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 135u8));
+            rule.add_expr(&nftnl::expr::Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Code),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 0u8));
+
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
+        for chain in &[&self.out_chain, &self.forward_chain] {
+            let mut rule = Rule::new(chain);
+            check_net(&mut rule, End::Dst, *super::IPV6_LINK_LOCAL);
+
+            rule.add_expr(&nft_expr!(meta l4proto));
+            rule.add_expr(&nft_expr!(cmp == libc::IPPROTO_ICMPV6 as u8));
+
+            rule.add_expr(&Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Type),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 135u8));
+            rule.add_expr(&nftnl::expr::Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Code),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 0u8));
+
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
+        // Incoming Neighbor solicitation (part of NDP)
+        for chain in &[&self.in_chain, &self.forward_chain] {
+            let mut rule = Rule::new(chain);
+            check_net(&mut rule, End::Src, *super::IPV6_LINK_LOCAL);
+
+            rule.add_expr(&nft_expr!(meta l4proto));
+            rule.add_expr(&nft_expr!(cmp == libc::IPPROTO_ICMPV6 as u8));
+
+            rule.add_expr(&Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Type),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 135u8));
+            rule.add_expr(&nftnl::expr::Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Code),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 0u8));
+
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
+        // Outgoing Neighbor advertisement (part of NDP)
+        for chain in &[&self.out_chain, &self.forward_chain] {
+            let mut rule = Rule::new(chain);
+            check_net(&mut rule, End::Dst, *super::IPV6_LINK_LOCAL);
+
+            rule.add_expr(&nft_expr!(meta l4proto));
+            rule.add_expr(&nft_expr!(cmp == libc::IPPROTO_ICMPV6 as u8));
+
+            rule.add_expr(&Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Type),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 136u8));
+            rule.add_expr(&nftnl::expr::Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Code),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 0u8));
+
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
+        // Incoming Neighbor advertisement (part of NDP)
+        for chain in &[&self.in_chain, &self.forward_chain] {
+            let mut rule = Rule::new(chain);
+
+            rule.add_expr(&nft_expr!(meta l4proto));
+            rule.add_expr(&nft_expr!(cmp == libc::IPPROTO_ICMPV6 as u8));
+
+            rule.add_expr(&Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Type),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 136u8));
+            rule.add_expr(&nftnl::expr::Payload::Transport(
+                nftnl::expr::TransportHeaderField::Icmpv6(nftnl::expr::Icmpv6HeaderField::Code),
+            ));
+            rule.add_expr(&nft_expr!(cmp == 0u8));
+
+            add_verdict(&mut rule, &Verdict::Accept);
+            self.batch.add(&rule, nftnl::MsgType::Add);
+        }
     }
 
     fn add_policy_specific_rules(&mut self, policy: &FirewallPolicy) -> Result<()> {
