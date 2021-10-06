@@ -78,6 +78,8 @@ Line wrap the file at 100 chars.                                              Th
 - Read macOS scrollbar visibility settings to decide wheter or not the scrollbars should hide when
   not scrolling.
 - Fix desktop app showing a future date for when WireGuard key was generated.
+- Fix IPv6 connections to WireGuard servers by not dropping select neighbor advertisements and
+  solicitations.
 
 #### Linux
 - Make offline monitor aware of routing table changes.
