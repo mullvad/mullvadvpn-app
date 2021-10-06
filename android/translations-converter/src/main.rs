@@ -50,11 +50,10 @@ fn main() {
     let string_resources: android::StringResources =
         serde_xml_rs::from_reader(strings_file).expect("Failed to read string resources file");
 
-    let (known_urls, known_strings): (HashMap<_, _>, HashMap<_, _>) = string_resources
+    let known_strings: HashMap<_, _> = string_resources
         .into_iter()
-        .filter(|resource| resource.translatable)
         .map(|resource| (resource.value.normalize(), resource.name))
-        .partition(|(string, _id)| string.starts_with("https://mullvad.net/en/"));
+        .collect();
 
     let plurals_file = File::open(resources_dir.join("values/plurals.xml"))
         .expect("Failed to open plurals resources file");
@@ -102,8 +101,6 @@ fn main() {
             .expect("Failed to load translations for a locale");
 
         generate_translations(
-            locale,
-            known_urls.clone(),
             known_strings.clone(),
             known_plurals.clone(),
             translations,
@@ -220,16 +217,10 @@ fn android_locale_directory(locale: &str) -> String {
 /// match known Android string resource values, and obtains the string resource ID for the
 /// translation. An Android string resource XML file is created with the translated strings.
 ///
-/// URL strings are treated differently. The "translated" URLs have a locale specified in them. If
-/// mapping from the translation locale to a website locale fails, the "translated" URL is not
-/// generated, and the app falls back to the original URL value with the english locale.
-///
 /// The missing translations map is updated to only contain the strings that aren't present in the
 /// current locale, which means that in the end the map contains only the translations that aren't
 /// present in any locale.
 fn generate_translations(
-    locale: &str,
-    known_urls: HashMap<String, String>,
     mut known_strings: HashMap<String, String>,
     mut known_plurals: HashMap<String, String>,
     translations: gettext::Messages,
@@ -268,17 +259,6 @@ fn generate_translations(
         }
     }
 
-    if let Some(web_locale) = website_locale(locale) {
-        let locale_path = format!("/{}/", web_locale);
-
-        for (url, android_key) in known_urls {
-            localized_strings.push(android::StringResource::new(
-                android_key,
-                &url.replacen("/en/", &locale_path, 1),
-            ));
-        }
-    }
-
     localized_strings.sort();
 
     fs::write(strings_output_path, localized_strings.to_string())
@@ -304,19 +284,4 @@ fn android_plural_quantities_from_gettext_plural_form(
         PluralForm::Polish | PluralForm::Russian => vec![One, Few, Many, Other],
     }
     .into_iter()
-}
-
-/// Tries to map a translation locale to a locale used on the Mullvad website.
-///
-/// The mapping is trivial if no region is specified. Otherwise the region code must be manually
-/// converted.
-fn website_locale(locale: &str) -> Option<&str> {
-    match locale {
-        locale if !locale.contains("-") => Some(locale),
-        "zh-TW" => Some("zh-hant"),
-        unknown_locale => {
-            eprintln!("Unknown locale: {}", unknown_locale);
-            None
-        }
-    }
 }
