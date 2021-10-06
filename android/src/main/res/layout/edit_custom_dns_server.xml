@@ -17,7 +17,7 @@
               android:textColorHint="@color/blue60"
               android:textColor="@color/blue"
               android:textSize="@dimen/text_medium"
-              android:hint="@string/custom_dns_example" />
+              android:hint="@string/custom_dns_hint" />
     <ImageButton android:id="@+id/save"
                  android:layout_width="wrap_content"
                  android:layout_height="match_parent"

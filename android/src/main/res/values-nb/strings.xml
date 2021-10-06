@@ -39,8 +39,8 @@
     <string name="creating_new_account">Oppretter konto ...</string>
     <string name="creating_secure_connection">OPPRETTER SIKKER TILKOBLING</string>
     <string name="critical_error">Kritisk feil (krever din oppmerksomhet)</string>
-    <string name="custom_dns_example">f.eks. 10.0.0.4</string>
     <string name="custom_dns_footer">Aktiver for å legge til minst én DNS-server.</string>
+    <string name="custom_dns_hint">Angi IP</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vertsnavnet til den egendefinerte serveren</string>
     <string name="disconnect">Koble fra</string>
     <string name="disconnecting">Kobler fra</string>
