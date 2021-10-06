@@ -7,7 +7,6 @@
     <string name="account_number">계정 번호</string>
     <string name="account_time_notification_channel_description">계정 시간이 만료되려고 할 때 알림 표시</string>
     <string name="account_time_notification_channel_name">계정 시간 알림</string>
-    <string name="account_url">https://mullvad.net/ko/account</string>
     <string name="add_a_server">서버 추가</string>
     <string name="add_anyway">추가</string>
     <string name="add_time_to_account">웹 사이트에서 크레딧을 구매하거나 바우처를 사용하세요.</string>
@@ -35,7 +34,6 @@
     <string name="copied_to_clipboard">클립보드에 복사됨</string>
     <string name="copied_wireguard_public_key">WireGuard 공개 키가 클립보드에 복사됨</string>
     <string name="create_account">계정 생성</string>
-    <string name="create_account_url">https://mullvad.net/ko/account/create</string>
     <string name="creating_new_account">계정 생성 중...</string>
     <string name="creating_secure_connection">보안 연결 생성 중</string>
     <string name="critical_error">심각한 오류(주의가 필요함)</string>
@@ -46,7 +44,6 @@
     <string name="disconnecting">연결 해제 중</string>
     <string name="dismiss">해제</string>
     <string name="dont_have_an_account">계정 번호가 없으신가요?</string>
-    <string name="download_url">https://mullvad.net/ko/download</string>
     <string name="edit_message">메시지 편집</string>
     <string name="enable">사용</string>
     <string name="enable_custom_dns">사용자 지정 DNS 서버 사용</string>
@@ -60,7 +57,6 @@
     <string name="failed_to_send">전송하지 못함</string>
     <string name="failed_to_send_details">다시 시도하기 전에 앱의 기본 화면으로 돌아가 연결 해제를 클릭해야 할 수 있습니다. 걱정하지 마세요. 입력한 정보는 양식에 남아 있습니다.</string>
     <string name="faqs_and_guides">FAQ 및 가이드</string>
-    <string name="faqs_and_guides_url">https://mullvad.net/ko/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">현재 VPN 터널 상태 표시</string>
     <string name="foreground_notification_channel_name">VPN 터널 상태</string>
     <string name="here_is_your_account_number">계정 번호는 다음과 같습니다. 저장하세요!</string>
@@ -135,7 +131,6 @@
     <string name="voucher_already_used">이미 사용된 바우처 코드입니다.</string>
     <string name="vpn_permission_denied_error">터널을 만드는 동안 VPN 사용 권한이 거부되었습니다. 다시 연결해 보세요.</string>
     <string name="we_will_look_into_this">조사해보겠습니다.</string>
-    <string name="wg_key_url">https://mullvad.net/ko/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard 오류</string>
     <string name="wireguard_generate_key">키 생성</string>

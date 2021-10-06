@@ -7,7 +7,6 @@
     <string name="account_number">Tilin numero</string>
     <string name="account_time_notification_channel_description">Näyttää muistutuksia, kun tilin käyttöaika on umpeutumassa</string>
     <string name="account_time_notification_channel_name">Muistutukset tilin käyttöajasta</string>
-    <string name="account_url">https://mullvad.net/fi/account</string>
     <string name="add_a_server">Lisää palvelin</string>
     <string name="add_anyway">Lisää silti</string>
     <string name="add_time_to_account">Osta käyttöaikaa verkkosivustoltamme tai lunasta kuponki.</string>
@@ -35,7 +34,6 @@
     <string name="copied_to_clipboard">Kopioitu leikepöydälle</string>
     <string name="copied_wireguard_public_key">Julkinen WireGuard-avain kopioitu leikepöydälle</string>
     <string name="create_account">Luo tili</string>
-    <string name="create_account_url">https://mullvad.net/fi/account/create</string>
     <string name="creating_new_account">Luodaan tiliä...</string>
     <string name="creating_secure_connection">LUODAAN SUOJATTU YHTEYS</string>
     <string name="critical_error">Vakava virhe (vaatii huomiotasi)</string>
@@ -46,7 +44,6 @@
     <string name="disconnecting">Katkaistaan yhteyttä</string>
     <string name="dismiss">Jätä huomiotta</string>
     <string name="dont_have_an_account">Eikö sinulla ole tilinumeroa?</string>
-    <string name="download_url">https://mullvad.net/fi/download</string>
     <string name="edit_message">Muokkaa viestiä</string>
     <string name="enable">Ota käyttöön</string>
     <string name="enable_custom_dns">Käytä mukautettua DNS-palvelinta</string>
@@ -60,7 +57,6 @@
     <string name="failed_to_send">Lähetys epäonnistui</string>
     <string name="failed_to_send_details">Ennen kuin yrität uudelleen, sinun on ehkä palattava sovelluksen päänäytölle ja napsautettava yhteyden katkaisua. Älä huoli – syöttämäsi tiedot säilyvät lomakkeella.</string>
     <string name="faqs_and_guides">UKK:t ja oppaat</string>
-    <string name="faqs_and_guides_url">https://mullvad.net/fi/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Näyttää VPN-tunnelin nykyisen tilan</string>
     <string name="foreground_notification_channel_name">VPN-tunnelin tila</string>
     <string name="here_is_your_account_number">Tässä tulee tilisi numero. Laita se talteen!</string>
@@ -135,7 +131,6 @@
     <string name="voucher_already_used">Kuponkikoodi on jo käytetty.</string>
     <string name="vpn_permission_denied_error">VPN-lupa evättiin tunnelia luotaessa. Yritä muodostaa yhteys uudelleen.</string>
     <string name="we_will_look_into_this">Tutkimme asiaa.</string>
-    <string name="wg_key_url">https://mullvad.net/fi/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard-virhe</string>
     <string name="wireguard_generate_key">Luo avain</string>

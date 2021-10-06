@@ -7,7 +7,6 @@
     <string name="account_number">Kontonummer</string>
     <string name="account_time_notification_channel_description">Viser påmindelser, når kontotiden er ved at udløbe</string>
     <string name="account_time_notification_channel_name">Påmindelser om kontotid</string>
-    <string name="account_url">https://mullvad.net/da/account</string>
     <string name="add_a_server">Tilføj en server</string>
     <string name="add_anyway">Tilføj alligevel</string>
     <string name="add_time_to_account">Køb enten kredit på vores hjemmeside, eller indløs en kupon.</string>
@@ -35,7 +34,6 @@
     <string name="copied_to_clipboard">Kopieret til udklipsholder</string>
     <string name="copied_wireguard_public_key">Kopierede offentlig WireGuard-nøgle til udklipsholder</string>
     <string name="create_account">Opret konto</string>
-    <string name="create_account_url">https://mullvad.net/da/account/create</string>
     <string name="creating_new_account">Opretter konto...</string>
     <string name="creating_secure_connection">OPRETTER SIKKER FORBINDELSE</string>
     <string name="critical_error">Kritisk fejl (som kræver din opmærksomhed)</string>
@@ -46,7 +44,6 @@
     <string name="disconnecting">Afbryder</string>
     <string name="dismiss">Afvis</string>
     <string name="dont_have_an_account">Har du ikke noget kontonummer?</string>
-    <string name="download_url">https://mullvad.net/da/download</string>
     <string name="edit_message">Rediger meddelelse</string>
     <string name="enable">Aktiver</string>
     <string name="enable_custom_dns">Brug brugerdefineret DNS-server</string>
@@ -60,7 +57,6 @@
     <string name="failed_to_send">Kunne ikke sende</string>
     <string name="failed_to_send_details">Du skal muligvis vende tilbage til appens hovedskærm og klikke på Afbryd forbindelse, før du prøver igen. Bare rolig, de angivne oplysninger bliver ikke slettet fra formularen.</string>
     <string name="faqs_and_guides">Ofte stillede spørgsmål og vejledninger</string>
-    <string name="faqs_and_guides_url">https://mullvad.net/da/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Viser den aktuelle VPN-tunnelstatus</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="here_is_your_account_number">Her er dit kontonummer. Gem det!</string>
@@ -135,7 +131,6 @@
     <string name="voucher_already_used">Kuponkode er allerede brugt.</string>
     <string name="vpn_permission_denied_error">VPN-tilladelse blev nægtet, da tunnelen blev oprettet. Prøv at oprette forbindelse igen.</string>
     <string name="we_will_look_into_this">Vi vil undersøge dette.</string>
-    <string name="wg_key_url">https://mullvad.net/da/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard-fejl</string>
     <string name="wireguard_generate_key">Generer nøgle</string>

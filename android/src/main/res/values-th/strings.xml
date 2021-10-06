@@ -7,7 +7,6 @@
     <string name="account_number">หมายเลขบัญชี</string>
     <string name="account_time_notification_channel_description">แสดงการแจ้งเตือน ในขณะที่เวลาบัญชีใกล้หมดอายุ</string>
     <string name="account_time_notification_channel_name">การแจ้งเตือนเวลาบัญชี</string>
-    <string name="account_url">https://mullvad.net/th/account</string>
     <string name="add_a_server">เพิ่มเซิร์ฟเวอร์</string>
     <string name="add_anyway">เพิ่มต่อไป</string>
     <string name="add_time_to_account">ซื้อเครดิตบนเว็บไซต์ของเรา หรือแลกรับบัตรกำนัล</string>
@@ -35,7 +34,6 @@
     <string name="copied_to_clipboard">คัดลอกไปยังคลิปบอร์ดแล้ว</string>
     <string name="copied_wireguard_public_key">คัดลอกคีย์สาธารณะของ WireGuard ไปยังคลิปบอร์ด</string>
     <string name="create_account">สร้างบัญชี</string>
-    <string name="create_account_url">https://mullvad.net/th/account/create</string>
     <string name="creating_new_account">กำลังสร้างบัญชี...</string>
     <string name="creating_secure_connection">กำลังสร้างการเชื่อมต่อที่ปลอดภัย</string>
     <string name="critical_error">ข้อผิดพลาดร้ายแรง (คุณจำเป็นต้องตรวจสอบ)</string>
@@ -46,7 +44,6 @@
     <string name="disconnecting">กำลังตัดการเชื่อมต่อ</string>
     <string name="dismiss">ละทิ้ง</string>
     <string name="dont_have_an_account">ยังไม่มีหมายเลขบัญชีใช่ไหม</string>
-    <string name="download_url">https://mullvad.net/th/download</string>
     <string name="edit_message">แก้ไขข้อความ</string>
     <string name="enable">เปิดใช้งาน</string>
     <string name="enable_custom_dns">ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง</string>
@@ -60,7 +57,6 @@
     <string name="failed_to_send">ไม่สามารถส่งได้</string>
     <string name="failed_to_send_details">คุณอาจจำเป็นต้องย้อนกลับไปที่หน้าจอหลักของแอป และคลิกตัดการเชื่อมต่อ ก่อนที่จะลองใหม่อีกครั้ง และไม่ต้องกังวลไป เพราะข้อมูลที่คุณป้อนไว้จะยังคงอยู่ในแบบฟอร์มเหมือนเดิม</string>
     <string name="faqs_and_guides">FAQ และคำแนะนำ</string>
-    <string name="faqs_and_guides_url">https://mullvad.net/th/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">แสดงสถานะช่องทาง VPN ในปัจจุบัน</string>
     <string name="foreground_notification_channel_name">สถานะช่องทาง VPN</string>
     <string name="here_is_your_account_number">นี่คือหมายเลขบัญชีของคุณ จดบันทึกไว้ด้วยนะ!</string>
@@ -135,7 +131,6 @@
     <string name="voucher_already_used">รหัสบัตรกำนัลถูกใช้ไปแล้ว</string>
     <string name="vpn_permission_denied_error">การให้สิทธิ์ VPN ถูกปฏิเสธ ในขณะที่สร้างช่องทาง โปรดลองเชื่อมต่อใหม่อีกครั้ง</string>
     <string name="we_will_look_into_this">เราจะตรวจสอบปัญหานี้</string>
-    <string name="wg_key_url">https://mullvad.net/th/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">ข้อผิดพลาด WireGuard</string>
     <string name="wireguard_generate_key">สร้างคีย์</string>

@@ -7,7 +7,6 @@
     <string name="account_number">アカウント番号</string>
     <string name="account_time_notification_channel_description">アカウントの期限切れが迫っているときにリマインダーを表示します</string>
     <string name="account_time_notification_channel_name">アカウント時間のリマインダー</string>
-    <string name="account_url">https://mullvad.net/ja/account</string>
     <string name="add_a_server">サーバーを追加</string>
     <string name="add_anyway">追加を続ける</string>
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
@@ -35,7 +34,6 @@
     <string name="copied_to_clipboard">クリップボードにコピーしました</string>
     <string name="copied_wireguard_public_key">WireGuard公開鍵をクリップボードにコピーしました</string>
     <string name="create_account">アカウントを作成する</string>
-    <string name="create_account_url">https://mullvad.net/ja/account/create</string>
     <string name="creating_new_account">アカウントを作成中...</string>
     <string name="creating_secure_connection">セキュリティ保護接続を確立中</string>
     <string name="critical_error">重大なエラー (ご注意ください)</string>
@@ -46,7 +44,6 @@
     <string name="disconnecting">接続解除中</string>
     <string name="dismiss">閉じる</string>
     <string name="dont_have_an_account">アカウント番号を持っていませんか？</string>
-    <string name="download_url">https://mullvad.net/ja/download</string>
     <string name="edit_message">メッセージを編集する</string>
     <string name="enable">有効化する</string>
     <string name="enable_custom_dns">カスタムDNSサーバーを使う</string>
@@ -60,7 +57,6 @@
     <string name="failed_to_send">送信に失敗しました</string>
     <string name="failed_to_send_details">再試行する前に、アプリのメイン画面に戻って [接続解除] をクリックする必要があるかもしれません。すでにフォームに入力された情報が失われることはありませんので、ご安心ください。</string>
     <string name="faqs_and_guides">よくある質問とガイド</string>
-    <string name="faqs_and_guides_url">https://mullvad.net/ja/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">現在のVPNトンネルのステータスを表示します</string>
     <string name="foreground_notification_channel_name">VPNトンネルのステータス</string>
     <string name="here_is_your_account_number">これがあなたのアカウント番号です。保存してください！</string>
@@ -135,7 +131,6 @@
     <string name="voucher_already_used">バウチャーコードはすでに使用されています。</string>
     <string name="vpn_permission_denied_error">トンネルを作成中にVPN許可が拒否されました。もう一度接続してみてください。</string>
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
-    <string name="wg_key_url">https://mullvad.net/ja/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuardエラー</string>
     <string name="wireguard_generate_key">鍵を生成</string>

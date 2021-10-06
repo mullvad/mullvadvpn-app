@@ -7,7 +7,6 @@
     <string name="account_number">Numéro de compte</string>
     <string name="account_time_notification_channel_description">Affiche des rappels lorsque le temps du compte va expirer</string>
     <string name="account_time_notification_channel_name">Rappels de temps pour le compte</string>
-    <string name="account_url">https://mullvad.net/fr/account</string>
     <string name="add_a_server">Ajouter un serveur</string>
     <string name="add_anyway">Ajouter quand même</string>
     <string name="add_time_to_account">Achetez du crédit sur notre site web ou échangez un bon.</string>
@@ -35,7 +34,6 @@
     <string name="copied_to_clipboard">Copié dans le presse-papiers</string>
     <string name="copied_wireguard_public_key">Clé WireGuard publique copiée dans le presse-papiers</string>
     <string name="create_account">Créer un compte</string>
-    <string name="create_account_url">https://mullvad.net/fr/account/create</string>
     <string name="creating_new_account">Création du compte…</string>
     <string name="creating_secure_connection">CRÉATION D\'UNE CONNEXION SÉCURISÉE</string>
     <string name="critical_error">Erreur critique (votre attention est requise)</string>
@@ -46,7 +44,6 @@
     <string name="disconnecting">Déconnexion en cours</string>
     <string name="dismiss">Ignorer</string>
     <string name="dont_have_an_account">Vous n\'avez pas de numéro de compte ?</string>
-    <string name="download_url">https://mullvad.net/fr/download</string>
     <string name="edit_message">Modifier le message</string>
     <string name="enable">Activer</string>
     <string name="enable_custom_dns">Utiliser un serveur DNS personnalisé</string>
@@ -60,7 +57,6 @@
     <string name="failed_to_send">Échec de l\'envoi</string>
     <string name="failed_to_send_details">Vous allez peut-être devoir retourner à l\'écran principal de l\'application pour cliquer sur Déconnexion avant de réessayer. Ne vous inquiétez pas, les informations saisies resteront dans le formulaire.</string>
     <string name="faqs_and_guides">FAQ et guides</string>
-    <string name="faqs_and_guides_url">https://mullvad.net/fr/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Affiche l\'état actuel du tunnel VPN</string>
     <string name="foreground_notification_channel_name">État du tunnel VPN</string>
     <string name="here_is_your_account_number">Voici votre numéro de compte. Gardez-le !</string>
@@ -135,7 +131,6 @@
     <string name="voucher_already_used">Le code du bon a déjà été utilisé.</string>
     <string name="vpn_permission_denied_error">La permission VPN a été refusée lors de la création du tunnel. Veuillez essayer de vous reconnecter.</string>
     <string name="we_will_look_into_this">Nous allons nous pencher dessus.</string>
-    <string name="wg_key_url">https://mullvad.net/fr/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">Erreur WireGuard</string>
     <string name="wireguard_generate_key">Générer la clé</string>

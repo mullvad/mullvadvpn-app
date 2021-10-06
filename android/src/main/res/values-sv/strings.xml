@@ -7,7 +7,6 @@
     <string name="account_number">Kontonummer</string>
     <string name="account_time_notification_channel_description">Visar påminnelser när kontots tidsgräns uppnås</string>
     <string name="account_time_notification_channel_name">Påminnelser om kontotid</string>
-    <string name="account_url">https://mullvad.net/sv/account</string>
     <string name="add_a_server">Lägg till en server</string>
     <string name="add_anyway">Lägg till ändå</string>
     <string name="add_time_to_account">Du kan antingen köpa kredit på vår webbplats eller lösa in en kupong.</string>
@@ -35,7 +34,6 @@
     <string name="copied_to_clipboard">Kopierat till urklipp</string>
     <string name="copied_wireguard_public_key">Kopierade offentlig nyckel för WireGuard till urklipp</string>
     <string name="create_account">Skapa konto</string>
-    <string name="create_account_url">https://mullvad.net/sv/account/create</string>
     <string name="creating_new_account">Skapar konto...</string>
     <string name="creating_secure_connection">SKAPAR SÄKER ANSLUTNING</string>
     <string name="critical_error">Kritiskt fel (kräver din uppmärksamhet)</string>
@@ -46,7 +44,6 @@
     <string name="disconnecting">Kopplar från</string>
     <string name="dismiss">Ignorera</string>
     <string name="dont_have_an_account">Har du inget kontonummer?</string>
-    <string name="download_url">https://mullvad.net/sv/download</string>
     <string name="edit_message">Redigera meddelande</string>
     <string name="enable">Aktivera</string>
     <string name="enable_custom_dns">Använd anpassad DNS-server</string>
@@ -60,7 +57,6 @@
     <string name="failed_to_send">Det gick inte att skicka</string>
     <string name="failed_to_send_details">Du kan behöva gå tillbaka till appens huvudskärm och klicka på Koppla från innan du försöker igen. Oroa dig inte, den information du angett i formuläret kommer att bli kvar där.</string>
     <string name="faqs_and_guides">Vanliga frågor och guider</string>
-    <string name="faqs_and_guides_url">https://mullvad.net/sv/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Visar nuvarande status för VPN-tunnel</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="here_is_your_account_number">Här är ditt kontonummer. Spara det!</string>
@@ -135,7 +131,6 @@
     <string name="voucher_already_used">Kupongkoden har redan använts.</string>
     <string name="vpn_permission_denied_error">VPN-behörighet nekades när tunneln skapades. Försök att ansluta igen.</string>
     <string name="we_will_look_into_this">Vi kommer att undersöka detta.</string>
-    <string name="wg_key_url">https://mullvad.net/sv/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard-fel</string>
     <string name="wireguard_generate_key">Generera nyckel</string>

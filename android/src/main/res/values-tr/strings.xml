@@ -7,7 +7,6 @@
     <string name="account_number">Hesap Kimliği</string>
     <string name="account_time_notification_channel_description">Hesap süresinin dolmasına kısa süre kala hatırlatıcıları gösterir</string>
     <string name="account_time_notification_channel_name">Hesap süresi hatırlatıcıları</string>
-    <string name="account_url">https://mullvad.net/tr/account</string>
     <string name="add_a_server">Sunucu ekle</string>
     <string name="add_anyway">Yine de ekle</string>
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
@@ -35,7 +34,6 @@
     <string name="copied_to_clipboard">Panoya kopyalandı</string>
     <string name="copied_wireguard_public_key">WireGuard genel anahtarı panoya kopyalandı</string>
     <string name="create_account">Hesap oluştur</string>
-    <string name="create_account_url">https://mullvad.net/tr/account/create</string>
     <string name="creating_new_account">Hesap oluşturuluyor...</string>
     <string name="creating_secure_connection">GÜVENLİ BAĞLANTI OLUŞTURULUYOR</string>
     <string name="critical_error">Kritik hata (lütfen dikkatli olun)</string>
@@ -46,7 +44,6 @@
     <string name="disconnecting">Bağlantı kesiliyor</string>
     <string name="dismiss">Reddet</string>
     <string name="dont_have_an_account">Hesap numaranız yok mu?</string>
-    <string name="download_url">https://mullvad.net/tr/download</string>
     <string name="edit_message">Mesajı düzenle</string>
     <string name="enable">Etkinleştir</string>
     <string name="enable_custom_dns">Özel DNS sunucusu kullanın</string>
@@ -60,7 +57,6 @@
     <string name="failed_to_send">Gönderme başarısız</string>
     <string name="failed_to_send_details">Yeniden denemeden önce uygulamanın ana ekranına dönüp Bağlantıyı Kes\'e tıklamanız gerekebilir. Endişelenmeyin, girdiğiniz bilgiler formda kalacaktır.</string>
     <string name="faqs_and_guides">SSS ve Kılavuzlar</string>
-    <string name="faqs_and_guides_url">https://mullvad.net/tr/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Mevcut VPN tünelinin durumunu gösterir</string>
     <string name="foreground_notification_channel_name">VPN tüneli durumu</string>
     <string name="here_is_your_account_number">İşte hesap numaranız. Kaydedin!</string>
@@ -135,7 +131,6 @@
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>
     <string name="vpn_permission_denied_error">Tünel oluşturulurken VPN izni reddedildi. Lütfen tekrar bağlanmayı deneyin.</string>
     <string name="we_will_look_into_this">Bunu araştıracağız.</string>
-    <string name="wg_key_url">https://mullvad.net/tr/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard hatası</string>
     <string name="wireguard_generate_key">Anahtar oluştur</string>
