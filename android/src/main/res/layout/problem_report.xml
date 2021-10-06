@@ -58,6 +58,7 @@
                                   android:textSize="@dimen/text_small"
                                   android:text="@string/problem_report_description" />
                         <EditText android:id="@+id/user_email"
+                                  android:inputType="textEmailAddress"
                                   android:layout_width="match_parent"
                                   android:layout_height="wrap_content"
                                   android:layout_weight="0"
