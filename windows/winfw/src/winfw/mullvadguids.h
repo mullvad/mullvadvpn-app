@@ -79,6 +79,10 @@ public:
 
 	static const GUID &Filter_Baseline_PermitNdp_Outbound_Router_Solicitation();
 	static const GUID &Filter_Baseline_PermitNdp_Inbound_Router_Advertisement();
+	static const GUID &Filter_Baseline_PermitNdp_Outbound_Neighbor_Solicitation();
+	static const GUID &Filter_Baseline_PermitNdp_Inbound_Neighbor_Solicitation();
+	static const GUID &Filter_Baseline_PermitNdp_Outbound_Neighbor_Advertisement();
+	static const GUID &Filter_Baseline_PermitNdp_Inbound_Neighbor_Advertisement();
 	static const GUID &Filter_Baseline_PermitNdp_Inbound_Redirect();
 
 	static const GUID &Filter_Baseline_PermitDns_Outbound_Ipv4();
