@@ -1737,9 +1737,9 @@ dependencies = [
 
 [[package]]
 name = "pfctl"
-version = "0.4.1"
+version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26d091ecb01c905b5a31757cd43a6d00b484c835831e41e8b20385dec08514fc"
+checksum = "eb195e54f73dcb88739addcc799fffba83781010a559ca403c26b5d268406e79"
 dependencies = [
  "derive_builder",
  "errno",

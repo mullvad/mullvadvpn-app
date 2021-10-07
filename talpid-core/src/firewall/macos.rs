@@ -438,6 +438,17 @@ impl Firewall {
         rules.push(allow_router_solicitation);
         rules.push(allow_router_advertisement_and_redirect);
 
+        // NDP incoming neigbor advertisement
+        let allow_incoming_neighbor_advertisement = self
+            .create_rule_builder(FilterRuleAction::Pass)
+            .direction(pfctl::Direction::In)
+            .quick(true)
+            .af(pfctl::AddrFamily::Ipv6)
+            .proto(pfctl::Proto::IcmpV6)
+            .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrAdv))
+            .build()?;
+        rules.push(allow_incoming_neighbor_advertisement);
+
         Ok(rules)
     }
 
