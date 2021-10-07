@@ -68,7 +68,7 @@ internet-checksum = "0.2"
 
 
 [target.'cfg(target_os = "macos")'.dependencies]
-pfctl = "0.4.1"
+pfctl = "0.4.4"
 system-configuration = "0.4"
 tun = "0.5.1"
 

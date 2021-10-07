@@ -420,23 +420,93 @@ impl Firewall {
             .build()?;
         rules.push(allow_incoming_dhcp_v6);
 
-        // NDP (router solicitation, advertisement and redirect)
-        let allow_router_solicitation = self
-            .create_rule_builder(FilterRuleAction::Pass)
-            .quick(true)
-            .proto(pfctl::Proto::IcmpV6)
-            .direction(pfctl::Direction::Out)
-            .to(*super::ROUTER_SOLICITATION_OUT_DST_ADDR)
-            .build()?;
-        let allow_router_advertisement_and_redirect = self
-            .create_rule_builder(FilterRuleAction::Pass)
-            .quick(true)
-            .proto(pfctl::Proto::IcmpV6)
-            .direction(pfctl::Direction::In)
-            .from(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
-            .build()?;
-        rules.push(allow_router_solicitation);
-        rules.push(allow_router_advertisement_and_redirect);
+        // Outgoing router solicitation to `ff02::2`
+        rules.push(
+            self.create_rule_builder(FilterRuleAction::Pass)
+                .direction(pfctl::Direction::Out)
+                .quick(true)
+                .proto(pfctl::Proto::IcmpV6)
+                .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::RouterSol))
+                .to(*super::ROUTER_SOLICITATION_OUT_DST_ADDR)
+                .build()?,
+        );
+
+        // Incoming router advertisement from `fe80::/10`
+        rules.push(
+            self.create_rule_builder(FilterRuleAction::Pass)
+                .direction(pfctl::Direction::In)
+                .quick(true)
+                .proto(pfctl::Proto::IcmpV6)
+                .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::RouterAdv))
+                .from(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
+                .build()?,
+        );
+
+        // Incoming Redirect from `fe80::/10`
+        rules.push(
+            self.create_rule_builder(FilterRuleAction::Pass)
+                .direction(pfctl::Direction::In)
+                .quick(true)
+                .proto(pfctl::Proto::IcmpV6)
+                .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::Redir))
+                .from(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
+                .build()?,
+        );
+
+        // Outgoing neighbor solicitation to `ff02::1:ff00:0/104` and `fe80::/10`
+        rules.push(
+            self.create_rule_builder(FilterRuleAction::Pass)
+                .direction(pfctl::Direction::Out)
+                .quick(true)
+                .proto(pfctl::Proto::IcmpV6)
+                .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrSol))
+                .to(pfctl::Ip::from(IpNetwork::V6(
+                    *super::SOLICITED_NODE_MULTICAST,
+                )))
+                .build()?,
+        );
+        rules.push(
+            self.create_rule_builder(FilterRuleAction::Pass)
+                .direction(pfctl::Direction::Out)
+                .quick(true)
+                .proto(pfctl::Proto::IcmpV6)
+                .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrSol))
+                .to(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
+                .build()?,
+        );
+
+        // Incoming neighbor solicitation from `fe80::/10`
+        rules.push(
+            self.create_rule_builder(FilterRuleAction::Pass)
+                .direction(pfctl::Direction::In)
+                .quick(true)
+                .proto(pfctl::Proto::IcmpV6)
+                .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrSol))
+                .from(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
+                .build()?,
+        );
+
+        // Outgoing neigbor advertisement to fe80::/10`
+        rules.push(
+            self.create_rule_builder(FilterRuleAction::Pass)
+                .direction(pfctl::Direction::Out)
+                .quick(true)
+                .proto(pfctl::Proto::IcmpV6)
+                .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrAdv))
+                .to(pfctl::Ip::from(IpNetwork::V6(*super::IPV6_LINK_LOCAL)))
+                .build()?,
+        );
+
+        // Incoming neigbor advertisement from anywhere
+        rules.push(
+            self.create_rule_builder(FilterRuleAction::Pass)
+                .direction(pfctl::Direction::In)
+                .quick(true)
+                .af(pfctl::AddrFamily::Ipv6)
+                .proto(pfctl::Proto::IcmpV6)
+                .icmp_type(pfctl::IcmpType::Icmp6(pfctl::Icmp6Type::NeighbrAdv))
+                .build()?,
+        );
 
         Ok(rules)
     }
