@@ -7,7 +7,6 @@
     <string name="account_number">帳戶編號</string>
     <string name="account_time_notification_channel_description">在帳戶時間即將到期時顯示提醒</string>
     <string name="account_time_notification_channel_name">帳戶時間提醒</string>
-    <string name="account_url">https://mullvad.net/zh-hant/account</string>
     <string name="add_a_server">新增伺服器</string>
     <string name="add_anyway">仍要新增</string>
     <string name="add_time_to_account">在我們網站上購買點數或兌換憑證。</string>
@@ -35,7 +34,6 @@
     <string name="copied_to_clipboard">已複製到剪貼簿</string>
     <string name="copied_wireguard_public_key">已將 WireGuard 公開金鑰複製到剪貼簿</string>
     <string name="create_account">建立帳戶</string>
-    <string name="create_account_url">https://mullvad.net/zh-hant/account/create</string>
     <string name="creating_new_account">正在建立帳戶…</string>
     <string name="creating_secure_connection">建立安全連線</string>
     <string name="critical_error">嚴重錯誤 (需注意)</string>
@@ -46,7 +44,6 @@
     <string name="disconnecting">正在中斷連線</string>
     <string name="dismiss">取消</string>
     <string name="dont_have_an_account">沒有帳號？</string>
-    <string name="download_url">https://mullvad.net/zh-hant/download</string>
     <string name="edit_message">編輯訊息</string>
     <string name="enable">啟用</string>
     <string name="enable_custom_dns">使用自訂 DNS 伺服器</string>
@@ -60,7 +57,6 @@
     <string name="failed_to_send">無法傳送</string>
     <string name="failed_to_send_details">在重試之前，您可能需要返回應用程式的主畫面，然後按一下「中斷連線」。請不用擔心，您輸入的資訊將保留在表單中。</string>
     <string name="faqs_and_guides">常見問題集與指南</string>
-    <string name="faqs_and_guides_url">https://mullvad.net/zh-hant/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">顯示目前的 VPN 通道狀態</string>
     <string name="foreground_notification_channel_name">VPN 通道狀態</string>
     <string name="here_is_your_account_number">以下是您的帳號。請妥善保管！</string>
@@ -135,7 +131,6 @@
     <string name="voucher_already_used">此憑證兌換碼已有人用過。</string>
     <string name="vpn_permission_denied_error">建立通道時，VPN 權限被拒絕。請嘗試重新連線。</string>
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
-    <string name="wg_key_url">https://mullvad.net/zh-hant/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard 錯誤</string>
     <string name="wireguard_generate_key">產生金鑰</string>

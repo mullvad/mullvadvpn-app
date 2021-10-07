@@ -7,7 +7,6 @@
     <string name="account_number">Accountnummer</string>
     <string name="account_time_notification_channel_description">Toont herinneringen wanneer de accounttijd op het punt staat te verlopen</string>
     <string name="account_time_notification_channel_name">Accounttijdsherinneringen</string>
-    <string name="account_url">https://mullvad.net/nl/account</string>
     <string name="add_a_server">Server toevoegen</string>
     <string name="add_anyway">Toch toevoegen</string>
     <string name="add_time_to_account">Koop krediet op onze website of wissel een voucher in.</string>
@@ -35,7 +34,6 @@
     <string name="copied_to_clipboard">Gekopieerd naar klembord</string>
     <string name="copied_wireguard_public_key">Openbare WireGuard-sleutel gekopieerd naar klembord</string>
     <string name="create_account">Account aanmaken</string>
-    <string name="create_account_url">https://mullvad.net/nl/account/create</string>
     <string name="creating_new_account">Account aanmaken...</string>
     <string name="creating_secure_connection">BEVEILIGDE VERBINDING AANMAKEN</string>
     <string name="critical_error">Kritieke fout (uw aandacht is vereist)</string>
@@ -46,7 +44,6 @@
     <string name="disconnecting">Verbinding wordt verbroken</string>
     <string name="dismiss">Negeren</string>
     <string name="dont_have_an_account">Hebt u geen accountnummer?</string>
-    <string name="download_url">https://mullvad.net/nl/download</string>
     <string name="edit_message">Bericht bewerken</string>
     <string name="enable">Inschakelen</string>
     <string name="enable_custom_dns">Aangepaste DNS-server gebruiken</string>
@@ -60,7 +57,6 @@
     <string name="failed_to_send">Verzenden mislukt</string>
     <string name="failed_to_send_details">Voordat u het opnieuw probeert, moet u mogelijk terugkeren naar het hoofdscherm van de app en klikken op Verbinding verbreken. De in het formulier ingevoerde gegevens blijven bewaard.</string>
     <string name="faqs_and_guides">Veelgestelde vragen en gidsen</string>
-    <string name="faqs_and_guides_url">https://mullvad.net/nl/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">Toont huidige status van VPN-tunnel</string>
     <string name="foreground_notification_channel_name">Status VPN-tunnel</string>
     <string name="here_is_your_account_number">Hier is uw accountnummer. Sla het op!</string>
@@ -135,7 +131,6 @@
     <string name="voucher_already_used">Vouchercode is al gebruikt.</string>
     <string name="vpn_permission_denied_error">VPN-toestemming is geweigerd tijdens opzetten van de tunnel. Probeer opnieuw te verbinden.</string>
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
-    <string name="wg_key_url">https://mullvad.net/nl/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard-fout</string>
     <string name="wireguard_generate_key">Sleutel genereren</string>

@@ -7,7 +7,6 @@
     <string name="account_number">အကောင့် နံပါတ်</string>
     <string name="account_time_notification_channel_description">အကောင့်အချိန် သက်တမ်းကုန်ခါနီးချိန်၌ သတိပေးချက်များ ပြသပေးပါသည်</string>
     <string name="account_time_notification_channel_name">အကောင့်အချိန် သတိပေးချက်များ</string>
-    <string name="account_url">https://mullvad.net/my/account</string>
     <string name="add_a_server">ဆာဗာ ပေါင်းထည့်ရန်</string>
     <string name="add_anyway">မည်သို့ပင်ဖြစ်စေ ပေါင်းထည့်ရန်</string>
     <string name="add_time_to_account">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။</string>
@@ -35,7 +34,6 @@
     <string name="copied_to_clipboard">ကလစ်ဘုတ်တွင် ကူးယူပြီး</string>
     <string name="copied_wireguard_public_key">WireGuard အများသုံး ကီးကို ကလစ်ဘုတ်တွင် ကူးထားပါသည်</string>
     <string name="create_account">အကောင့် ဖန်တီးရန်</string>
-    <string name="create_account_url">https://mullvad.net/my/account/create</string>
     <string name="creating_new_account">အကောင့် ဖန်တီးနေဆဲ...</string>
     <string name="creating_secure_connection">လုံခြုံသည့် ချိတ်ဆက်မှုကို ဖန်တီးနေပါသည်</string>
     <string name="critical_error">အလွန်အရေးပါသည့် ချို့ယွင်းချက် (သင့်အာရုံစိုက်မှု လိုအပ်ပါသည်)</string>
@@ -46,7 +44,6 @@
     <string name="disconnecting">ချိတ်ဆက်မှုဖြုတ်နေပါသည်</string>
     <string name="dismiss">ဖယ်ပစ်ရန်</string>
     <string name="dont_have_an_account">အကောင့်နံပါတ် မရှိ ဖြစ်နေပါသလား။</string>
-    <string name="download_url">https://mullvad.net/my/download</string>
     <string name="edit_message">မက်ဆေ့ချ် တည်းဖြတ်ရန်</string>
     <string name="enable">ဖွင့်ရန်</string>
     <string name="enable_custom_dns">စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်</string>
@@ -60,7 +57,6 @@
     <string name="failed_to_send">ပို့ရန် မအောင်မြင်ခဲ့ပါ</string>
     <string name="failed_to_send_details">သင်သည် အက်ပ်၏ ပင်မ စာမျက်နှာသို့ ပြန်သွားရန် လိုပြီး ထပ်မကြိုးစားမီ ချိတ်ဆက်မှုဖြုတ်ရန်ကို နှိပ်ပါ။ စိတ်မပူပါနှင့်၊ သင်ဖြည့်သွင်းထားသည့် အချက်အလက်များသည် ဖောင်တွင် ကျန်ရှိနေပါမည်။</string>
     <string name="faqs_and_guides">မေးလေ့ရှိသည့် မေးခွန်းများနှင့် လမ်းညွှန်များ</string>
-    <string name="faqs_and_guides_url">https://mullvad.net/my/help/tag/mullvad-app/</string>
     <string name="foreground_notification_channel_description">လက်ရှိ VPN Tunnel အခြေအနေကို ပြသပေးပါသည်</string>
     <string name="foreground_notification_channel_name">VPN Tunnel အခြေအနေ</string>
     <string name="here_is_your_account_number">ဤသည်မှာ သင့်အကောင့်နံပါတ် ဖြစ်ပါသည်။ သိမ်းမှတ်ထားပါ။</string>
@@ -135,7 +131,6 @@
     <string name="voucher_already_used">ဘောက်ချာကုဒ် သုံးထားပြီးသား ဖြစ်ပါသည်။</string>
     <string name="vpn_permission_denied_error">Tunnel ဖန်တီးနေစဉ် VPN ခွင့်ပြုချက်ကို ပယ်ချခဲ့ပါသည်။ ထပ်မံချိတ်ဆက်ပေးပါ။</string>
     <string name="we_will_look_into_this">ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။</string>
-    <string name="wg_key_url">https://mullvad.net/my/account/ports</string>
     <string name="wireguard">WireGuard</string>
     <string name="wireguard_error">WireGuard ချို့ယွင်းချက်</string>
     <string name="wireguard_generate_key">ကီး ထုတ်ရန်</string>
