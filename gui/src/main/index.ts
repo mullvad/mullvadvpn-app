@@ -419,6 +419,8 @@ class ApplicationMain {
         console.error('Failed to dispose logger:', error);
       }
     }
+
+    this.trayIconController?.dispose();
   }
 
   private detectLocale(): string {
