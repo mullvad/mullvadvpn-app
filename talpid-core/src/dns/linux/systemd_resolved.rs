@@ -299,9 +299,7 @@ impl SystemdResolved {
 
         let initial_states = {
             let mut initial_states = self.initial_states.lock().unwrap();
-            let states = initial_states.clone();
-            initial_states.clear();
-            states
+            std::mem::take(&mut *initial_states)
         };
         for (iface, state) in &initial_states {
             let result = if *iface == self.tunnel_index {
