@@ -61,7 +61,7 @@ impl DisconnectingState {
                 }
                 #[cfg(windows)]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
+                    shared_values.split_tunnel.set_paths(&paths, result_tx);
                     AfterDisconnect::Nothing
                 }
             },
@@ -103,7 +103,7 @@ impl DisconnectingState {
                 }
                 #[cfg(windows)]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
+                    shared_values.split_tunnel.set_paths(&paths, result_tx);
                     AfterDisconnect::Block(reason)
                 }
                 None => AfterDisconnect::Block(reason),
@@ -146,7 +146,7 @@ impl DisconnectingState {
                 }
                 #[cfg(windows)]
                 Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    let _ = result_tx.send(shared_values.split_tunnel.set_paths(&paths));
+                    shared_values.split_tunnel.set_paths(&paths, result_tx);
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
             },
