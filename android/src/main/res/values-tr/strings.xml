@@ -39,8 +39,8 @@
     <string name="creating_new_account">Hesap oluşturuluyor...</string>
     <string name="creating_secure_connection">GÜVENLİ BAĞLANTI OLUŞTURULUYOR</string>
     <string name="critical_error">Kritik hata (lütfen dikkatli olun)</string>
-    <string name="custom_dns_example">ör. 10.0.0.4</string>
     <string name="custom_dns_footer">En az bir DNS sunucusu eklemek için etkinleştirin.</string>
+    <string name="custom_dns_hint">IP\'yi girin</string>
     <string name="custom_tunnel_host_resolution_error">Özel sunucu ana bilgisayar adı çözülemiyor</string>
     <string name="disconnect">Bağlantıyı Kes</string>
     <string name="disconnecting">Bağlantı kesiliyor</string>

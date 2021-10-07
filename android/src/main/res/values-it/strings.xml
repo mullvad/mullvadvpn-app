@@ -39,8 +39,8 @@
     <string name="creating_new_account">Creazione account...</string>
     <string name="creating_secure_connection">CREAZIONE CONNESSIONE PROTETTA</string>
     <string name="critical_error">Errore critico (è necessario intervenire)</string>
-    <string name="custom_dns_example">esempio 10.0.0.4</string>
     <string name="custom_dns_footer">Abilita per aggiungere almeno un server DNS.</string>
+    <string name="custom_dns_hint">Inserisci IP</string>
     <string name="custom_tunnel_host_resolution_error">Impossibile risolvere il nome host del server personalizzato</string>
     <string name="disconnect">Disconnetti</string>
     <string name="disconnecting">Disconnessione</string>

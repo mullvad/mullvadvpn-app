@@ -39,8 +39,8 @@
     <string name="creating_new_account">アカウントを作成中...</string>
     <string name="creating_secure_connection">セキュリティ保護接続を確立中</string>
     <string name="critical_error">重大なエラー (ご注意ください)</string>
-    <string name="custom_dns_example">例: 10.0.0.4</string>
     <string name="custom_dns_footer">1つ以上のDNSサーバーを追加できるようにします。</string>
+    <string name="custom_dns_hint">IP を入力</string>
     <string name="custom_tunnel_host_resolution_error">カスタムサーバーのホスト名を解決できませんでした</string>
     <string name="disconnect">接続解除</string>
     <string name="disconnecting">接続解除中</string>
