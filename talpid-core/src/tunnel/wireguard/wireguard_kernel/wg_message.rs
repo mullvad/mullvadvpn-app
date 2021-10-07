@@ -387,11 +387,15 @@ impl Nla for PeerNla {
             Flags(value) | ProtocolVersion(value) => NativeEndian::write_u32(buffer, *value),
             Endpoint(endpoint) => match &endpoint {
                 InetAddr::V4(sockaddr_in) => {
-                    ptr::write_struct(&mut buffer, sockaddr_in)
+                    // SAFETY: sockaddr_in has no padding
+                    buffer
+                        .write(unsafe { ptr::as_byte_slice(sockaddr_in) })
                         .expect("Buffer too small for sockaddr_in");
                 }
                 InetAddr::V6(sockaddr_in6) => {
-                    ptr::write_struct(&mut buffer, sockaddr_in6)
+                    // SAFETY: sockaddr_in6 has no padding
+                    buffer
+                        .write(unsafe { ptr::as_byte_slice(sockaddr_in6) })
                         .expect("Buffer too small for sockaddr_in6");
                 }
             },
@@ -400,7 +404,10 @@ impl Nla for PeerNla {
             }
             LastHandshakeTime(last_handshake) => {
                 let timespec: &libc::timespec = last_handshake.as_ref();
-                ptr::write_struct(&mut buffer, timespec).expect("Buffer too small for timespec");
+                // SAFETY: timespec has no padding
+                buffer
+                    .write(unsafe { ptr::as_byte_slice(timespec) })
+                    .expect("Buffer too small for timespec");
             }
             RxBytes(num_bytes) | TxBytes(num_bytes) => NativeEndian::write_u64(buffer, *num_bytes),
             AllowedIps(ips) => ips.as_slice().emit(buffer),
