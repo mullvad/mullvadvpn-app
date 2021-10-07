@@ -12,7 +12,6 @@
     <string name="add_time_to_account">웹 사이트에서 크레딧을 구매하거나 바우처를 사용하세요.</string>
     <string name="all_applications">모든 애플리케이션</string>
     <string name="allow_lan_footer">공유, 인쇄 등을 위해 동일한 네트워크의 다른 장치에 액세스할 수 있습니다.</string>
-    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">앱 버전</string>
     <string name="auth_failed">계정 인증에 실패했습니다.</string>
     <string name="auto_connect">자동 연결</string>

@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">Mullvad VPN</string>
     <string name="connecting">Connecting</string>
     <string name="reconnecting">Reconnecting</string>
     <string name="disconnecting">Disconnecting</string>

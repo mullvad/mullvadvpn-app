@@ -12,7 +12,6 @@
     <string name="add_time_to_account">ကျွန်ုပ်တို့၏ ဝက်ဘ်ဆိုက်တွင် ခရက်ဒစ် ဝယ်ယူပါ သို့မဟုတ် ဘောက်ချာဖြင့် လဲယူပါ။</string>
     <string name="all_applications">အပလီကေးရှင်း အားလုံး</string>
     <string name="allow_lan_footer">ဝေမျှရန်၊ ပရင့်ထုတ်ရန်စသည်တို့အတွက် တူညီသည့် ကွန်ရက်ရှိ အခြားစက်များ ရယူသုံးစွဲခွင့်ပြုပေးပါသည်။</string>
-    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">အက်ပ်ဗားရှင်း</string>
     <string name="auth_failed">အကောင့် စစ်မှန်ကြောင်း သက်သေပြမှု မအောင်မြင်ပါ။</string>
     <string name="auto_connect">အော်တို ချိတ်ဆက်မှု</string>

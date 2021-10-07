@@ -12,7 +12,6 @@
     <string name="add_time_to_account">ซื้อเครดิตบนเว็บไซต์ของเรา หรือแลกรับบัตรกำนัล</string>
     <string name="all_applications">แอปพลิเคชันทั้งหมด</string>
     <string name="allow_lan_footer">อนุญาตให้เข้าถึงอุปกรณ์อื่นบนเครือข่ายเดียวกันเพื่อแชร์ พิมพ์ ฯลฯ</string>
-    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">เวอร์ชันแอป</string>
     <string name="auth_failed">ไม่สามารถรับรองความถูกต้องของบัญชีได้</string>
     <string name="auto_connect">เชื่อมต่ออัตโนมัติ</string>

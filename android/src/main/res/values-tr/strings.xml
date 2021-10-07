@@ -12,7 +12,6 @@
     <string name="add_time_to_account">Web sitemizden kredi satın alın veya kupon kullanın.</string>
     <string name="all_applications">Tüm uygulamalar</string>
     <string name="allow_lan_footer">Paylaşım, yazdırma vb. için aynı ağdaki diğer cihazlara erişime izin verir.</string>
-    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">Uygulama sürümü</string>
     <string name="auth_failed">Hesap kimlik doğrulaması başarısız oldu.</string>
     <string name="auto_connect">Otomatik Bağlan</string>

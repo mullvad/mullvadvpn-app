@@ -12,7 +12,6 @@
     <string name="add_time_to_account">Osta käyttöaikaa verkkosivustoltamme tai lunasta kuponki.</string>
     <string name="all_applications">Kaikki sovellukset</string>
     <string name="allow_lan_footer">Sallii jakamisen, tulostuksen ym. saman verkon muille laitteille.</string>
-    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">Sovelluksen versio</string>
     <string name="auth_failed">Tilin todentaminen epäonnistui.</string>
     <string name="auto_connect">Automaattinen yhteys</string>
