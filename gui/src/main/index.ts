@@ -6,6 +6,7 @@ import {
   dialog,
   Menu,
   nativeImage,
+  nativeTheme,
   screen,
   session,
   shell,
@@ -463,12 +464,21 @@ class ApplicationMain {
     const tray = this.createTray();
 
     const windowController = new WindowController(window, tray, this.guiSettings.unpinnedWindow);
-    this.tunnelStateExpectation = new Expectation(() => {
+    this.tunnelStateExpectation = new Expectation(async () => {
       this.trayIconController = new TrayIconController(
         tray,
         this.trayIconType(this.tunnelState, this.settings.blockWhenDisconnected),
         this.guiSettings.monochromaticIcon,
       );
+      await this.trayIconController.updateTheme();
+
+      if (process.platform === 'win32') {
+        nativeTheme.on('updated', async () => {
+          if (this.guiSettings.monochromaticIcon) {
+            await this.trayIconController?.updateTheme();
+          }
+        });
+      }
     });
 
     this.registerIpcListeners();
@@ -476,10 +486,10 @@ class ApplicationMain {
     this.windowController = windowController;
     this.tray = tray;
 
-    this.guiSettings.onChange = (newState, oldState) => {
+    this.guiSettings.onChange = async (newState, oldState) => {
       if (oldState.monochromaticIcon !== newState.monochromaticIcon) {
         if (this.trayIconController) {
-          this.trayIconController.useMonochromaticIcon = newState.monochromaticIcon;
+          await this.trayIconController.setUseMonochromaticIcon(newState.monochromaticIcon);
         }
       }
 
