@@ -319,7 +319,13 @@ pub(crate) enum InternalDaemonEvent {
     NewAppVersionInfo(AppVersionInfo),
     /// The split tunnel paths or state were updated.
     #[cfg(target_os = "windows")]
-    ExcludedPathsEvent(bool, HashSet<PathBuf>, oneshot::Sender<Result<(), Error>>),
+    ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
+}
+
+#[cfg(target_os = "windows")]
+pub(crate) enum ExcludedPathsUpdate {
+    SetState(bool),
+    SetPaths(HashSet<PathBuf>),
 }
 
 impl From<TunnelStateTransition> for InternalDaemonEvent {
@@ -913,9 +919,7 @@ where
                 self.handle_new_app_version_info(app_version_info)
             }
             #[cfg(windows)]
-            ExcludedPathsEvent(state, paths, tx) => {
-                self.handle_new_excluded_paths(state, paths, tx).await
-            }
+            ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
         }
     }
 
@@ -1361,44 +1365,50 @@ where
     #[cfg(windows)]
     async fn handle_new_excluded_paths(
         &mut self,
-        state: bool,
-        paths: HashSet<PathBuf>,
+        update: ExcludedPathsUpdate,
         tx: ResponseTx<(), Error>,
     ) {
-        let save_result = self
-            .settings
-            .set_split_tunnel_state(state)
-            .await
-            .map_err(Error::SettingsError);
-        match save_result {
-            Ok(true) => {
-                let _ = tx.send(Ok(()));
-                self.event_listener
-                    .notify_settings(self.settings.to_settings());
-                return;
+        match update {
+            ExcludedPathsUpdate::SetState(state) => {
+                let save_result = self
+                    .settings
+                    .set_split_tunnel_state(state)
+                    .await
+                    .map_err(Error::SettingsError);
+                match save_result {
+                    Ok(true) => {
+                        let _ = tx.send(Ok(()));
+                        self.event_listener
+                            .notify_settings(self.settings.to_settings());
+                    }
+                    Ok(false) => {
+                        let _ = tx.send(Ok(()));
+                    }
+                    Err(error) => {
+                        let _ = tx.send(Err(error));
+                    }
+                }
             }
-            Err(error) => {
-                let _ = tx.send(Err(error));
-                return;
+            ExcludedPathsUpdate::SetPaths(paths) => {
+                let save_result = self
+                    .settings
+                    .set_split_tunnel_apps(paths)
+                    .await
+                    .map_err(Error::SettingsError);
+                match save_result {
+                    Ok(true) => {
+                        let _ = tx.send(Ok(()));
+                        self.event_listener
+                            .notify_settings(self.settings.to_settings());
+                    }
+                    Ok(false) => {
+                        let _ = tx.send(Ok(()));
+                    }
+                    Err(error) => {
+                        let _ = tx.send(Err(error));
+                    }
+                }
             }
-            Ok(false) => (),
-        }
-
-        let save_result = self
-            .settings
-            .set_split_tunnel_apps(paths)
-            .await
-            .map_err(Error::SettingsError);
-        match save_result {
-            Ok(true) => {
-                let _ = tx.send(Ok(()));
-                self.event_listener
-                    .notify_settings(self.settings.to_settings());
-            }
-            Err(error) => {
-                let _ = tx.send(Err(error));
-            }
-            Ok(false) => (),
         }
     }
 
@@ -1850,19 +1860,32 @@ where
         tx: ResponseTx<(), Error>,
         response_msg: &'static str,
         settings: Settings,
-        new_state: bool,
-        new_list: HashSet<PathBuf>,
+        update: ExcludedPathsUpdate,
     ) {
-        if new_list == settings.split_tunnel.apps
-            && new_state == settings.split_tunnel.enable_exclusions
-        {
-            Self::oneshot_send(tx, Ok(()), response_msg);
-            return;
-        }
+        let new_list = match update {
+            ExcludedPathsUpdate::SetPaths(ref paths) => {
+                if *paths == settings.split_tunnel.apps {
+                    Self::oneshot_send(tx, Ok(()), response_msg);
+                    return;
+                }
+                paths.iter()
+            }
+            ExcludedPathsUpdate::SetState(_) => settings.split_tunnel.apps.iter(),
+        };
+        let new_state = match update {
+            ExcludedPathsUpdate::SetPaths(_) => settings.split_tunnel.enable_exclusions,
+            ExcludedPathsUpdate::SetState(state) => {
+                if state == settings.split_tunnel.enable_exclusions {
+                    Self::oneshot_send(tx, Ok(()), response_msg);
+                    return;
+                }
+                state
+            }
+        };
 
         if new_state || new_state != settings.split_tunnel.enable_exclusions {
             let tunnel_list = if new_state {
-                new_list.iter().map(|s| OsString::from(s)).collect()
+                new_list.map(|s| OsString::from(s)).collect()
             } else {
                 vec![]
             };
@@ -1888,14 +1911,12 @@ where
                     }
                 }
 
-                let _ = daemon_tx.send(InternalDaemonEvent::ExcludedPathsEvent(
-                    new_state, new_list, tx,
-                ));
+                let _ = daemon_tx.send(InternalDaemonEvent::ExcludedPathsEvent(update, tx));
             });
         } else {
-            let _ = self.tx.send(InternalDaemonEvent::ExcludedPathsEvent(
-                new_state, new_list, tx,
-            ));
+            let _ = self
+                .tx
+                .send(InternalDaemonEvent::ExcludedPathsEvent(update, tx));
         }
     }
 
@@ -1905,14 +1926,12 @@ where
 
         let mut new_list = settings.split_tunnel.apps.clone();
         new_list.insert(path);
-        let state = settings.split_tunnel.enable_exclusions;
 
         self.set_split_tunnel_paths(
             tx,
             "add_split_tunnel_app response",
             settings,
-            state,
-            new_list,
+            ExcludedPathsUpdate::SetPaths(new_list),
         )
         .await;
     }
@@ -1923,14 +1942,12 @@ where
 
         let mut new_list = settings.split_tunnel.apps.clone();
         new_list.remove(&path);
-        let state = settings.split_tunnel.enable_exclusions;
 
         self.set_split_tunnel_paths(
             tx,
             "remove_split_tunnel_app response",
             settings,
-            state,
-            new_list,
+            ExcludedPathsUpdate::SetPaths(new_list),
         )
         .await;
     }
@@ -1939,13 +1956,11 @@ where
     async fn on_clear_split_tunnel_apps(&mut self, tx: ResponseTx<(), Error>) {
         let settings = self.settings.to_settings();
         let new_list = HashSet::new();
-        let state = settings.split_tunnel.enable_exclusions;
         self.set_split_tunnel_paths(
             tx,
             "clear_split_tunnel_apps response",
             settings,
-            state,
-            new_list,
+            ExcludedPathsUpdate::SetPaths(new_list),
         )
         .await;
     }
@@ -1953,9 +1968,13 @@ where
     #[cfg(windows)]
     async fn on_set_split_tunnel_state(&mut self, tx: ResponseTx<(), Error>, state: bool) {
         let settings = self.settings.to_settings();
-        let list = settings.split_tunnel.apps.clone();
-        self.set_split_tunnel_paths(tx, "set_split_tunnel_state response", settings, state, list)
-            .await;
+        self.set_split_tunnel_paths(
+            tx,
+            "set_split_tunnel_state response",
+            settings,
+            ExcludedPathsUpdate::SetState(state),
+        )
+        .await;
     }
 
     #[cfg(windows)]
