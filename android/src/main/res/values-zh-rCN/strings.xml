@@ -12,7 +12,6 @@
     <string name="add_time_to_account">在我们的网站上购买额度或兑换优惠券。</string>
     <string name="all_applications">所有应用程序</string>
     <string name="allow_lan_footer">允许访问同一个网络上的其他设备以进行共享和打印等。</string>
-    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">应用版本</string>
     <string name="auth_failed">帐户身份验证失败。</string>
     <string name="auto_connect">自动连接</string>

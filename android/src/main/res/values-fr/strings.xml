@@ -12,7 +12,6 @@
     <string name="add_time_to_account">Achetez du crédit sur notre site web ou échangez un bon.</string>
     <string name="all_applications">Toutes les applications</string>
     <string name="allow_lan_footer">Autorise l\'accès aux autres appareils sur le même réseau pour partager, imprimer, etc.</string>
-    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">Version de l\'application</string>
     <string name="auth_failed">Connexion au compte échouée.</string>
     <string name="auto_connect">Connexion automatique</string>

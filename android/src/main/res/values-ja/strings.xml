@@ -12,7 +12,6 @@
     <string name="add_time_to_account">当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。</string>
     <string name="all_applications">すべてのアプリケーション</string>
     <string name="allow_lan_footer">共有や印刷のため、同一ネットワーク上の他のデバイスへのアクセスを許可します。</string>
-    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">アプリのバージョン</string>
     <string name="auth_failed">アカウントの認証に失敗しました。</string>
     <string name="auto_connect">自動接続</string>

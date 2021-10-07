@@ -12,7 +12,6 @@
     <string name="add_time_to_account">Køb enten kredit på vores hjemmeside, eller indløs en kupon.</string>
     <string name="all_applications">Alle applikationer</string>
     <string name="allow_lan_footer">Giver adgang til andre enheder på det samme netværk til deling, udskrivning osv.</string>
-    <string name="app_name">Mullvad VPN</string>
     <string name="app_version">App-version</string>
     <string name="auth_failed">Kontogodkendelse mislykkedes.</string>
     <string name="auto_connect">Auto-tilslutning</string>

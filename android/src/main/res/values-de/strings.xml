@@ -12,7 +12,6 @@
     <string name="add_time_to_account">Kaufen Sie entweder Guthaben über unsere Seite oder lösen Sie einen Gutschein ein.</string>
     <string name="all_applications">Alle Anwendungen</string>
     <string name="allow_lan_footer">Ermöglicht den Zugriff auf andere Geräte im selben Netzwerk zum Teilen von Dateien, Drucken etc.</string>
-    <string name="app_name">Mullvad-VPN</string>
     <string name="app_version">App-Version</string>
     <string name="auth_failed">Konto-Authentifizierung fehlgeschlagen.</string>
     <string name="auto_connect">Automatische Verbindung</string>
