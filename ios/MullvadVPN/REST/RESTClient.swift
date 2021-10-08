@@ -27,10 +27,9 @@ extension REST {
 
         /// Returns array of trusted root certificates
         private static var trustedRootCertificates: [SecCertificate] {
-            let oldRootCertificate = Bundle.main.path(forResource: "old_le_root_cert", ofType: "cer")!
-            let newRootCertificate = Bundle.main.path(forResource: "new_le_root_cert", ofType: "cer")!
+            let rootCertificate = Bundle.main.path(forResource: "le_root_cert", ofType: "cer")!
 
-            return [oldRootCertificate, newRootCertificate].map { (path) -> SecCertificate in
+            return [rootCertificate].map { (path) -> SecCertificate in
                 let data = FileManager.default.contents(atPath: path)!
                 return SecCertificateCreateWithData(nil, data as CFData)!
             }
