@@ -17,16 +17,22 @@
               android:layout_marginHorizontal="@dimen/side_margin"
               android:text="@string/view_logs"
               style="@style/SettingsExpandedHeader" />
-    <EditText android:id="@+id/log_area"
-              android:layout_width="match_parent"
-              android:layout_height="0dp"
-              android:layout_weight="1"
-              android:layout_marginTop="@dimen/vertical_space"
-              android:layout_marginHorizontal="@dimen/side_margin"
-              android:layout_marginBottom="@dimen/screen_vertical_margin"
-              android:editable="false"
-              android:textIsSelectable="true"
-              android:singleLine="false"
-              android:gravity="top"
-              style="@style/InputText" />
+    <ScrollView android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:layout_marginTop="@dimen/vertical_space"
+                android:layout_marginHorizontal="@dimen/side_margin"
+                android:layout_marginBottom="@dimen/screen_vertical_margin"
+                android:scrollbarThumbVertical="@color/blue"
+                android:background="@drawable/input_text_background">
+        <EditText android:id="@+id/log_area"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:editable="false"
+                  android:textIsSelectable="true"
+                  android:singleLine="false"
+                  android:gravity="top"
+                  android:background="@null"
+                  style="@style/InputText" />
+    </ScrollView>
 </LinearLayout>
