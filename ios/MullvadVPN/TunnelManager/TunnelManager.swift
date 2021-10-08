@@ -207,8 +207,10 @@ class TunnelManager {
             }.mapThen { tunnels in
                 return Result.Promise { resolver in
                     self.initializeManager(accountToken: accountToken, tunnels: tunnels) { result in
-                        self.updatePrivateKeyRotationTimer()
-                        resolver.resolve(value: result)
+                        self.stateQueue.async {
+                            self.updatePrivateKeyRotationTimer()
+                            resolver.resolve(value: result)
+                        }
                     }
                 }
             }
