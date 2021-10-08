@@ -1368,47 +1368,23 @@ where
         update: ExcludedPathsUpdate,
         tx: ResponseTx<(), Error>,
     ) {
-        match update {
-            ExcludedPathsUpdate::SetState(state) => {
-                let save_result = self
-                    .settings
-                    .set_split_tunnel_state(state)
-                    .await
-                    .map_err(Error::SettingsError);
-                match save_result {
-                    Ok(true) => {
-                        let _ = tx.send(Ok(()));
-                        self.event_listener
-                            .notify_settings(self.settings.to_settings());
-                    }
-                    Ok(false) => {
-                        let _ = tx.send(Ok(()));
-                    }
-                    Err(error) => {
-                        let _ = tx.send(Err(error));
-                    }
-                }
-            }
-            ExcludedPathsUpdate::SetPaths(paths) => {
-                let save_result = self
-                    .settings
-                    .set_split_tunnel_apps(paths)
-                    .await
-                    .map_err(Error::SettingsError);
-                match save_result {
-                    Ok(true) => {
-                        let _ = tx.send(Ok(()));
-                        self.event_listener
-                            .notify_settings(self.settings.to_settings());
-                    }
-                    Ok(false) => {
-                        let _ = tx.send(Ok(()));
-                    }
-                    Err(error) => {
-                        let _ = tx.send(Err(error));
-                    }
-                }
-            }
+        let save_result = match update {
+            ExcludedPathsUpdate::SetState(state) => self
+                .settings
+                .set_split_tunnel_state(state)
+                .await
+                .map_err(Error::SettingsError),
+            ExcludedPathsUpdate::SetPaths(paths) => self
+                .settings
+                .set_split_tunnel_apps(paths)
+                .await
+                .map_err(Error::SettingsError),
+        };
+        let changed = *save_result.as_ref().unwrap_or(&false);
+        let _ = tx.send(save_result.map(|_| ()));
+        if changed {
+            self.event_listener
+                .notify_settings(self.settings.to_settings());
         }
     }
 
