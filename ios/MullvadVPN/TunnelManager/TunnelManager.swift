@@ -585,6 +585,7 @@ class TunnelManager {
                 self.logger.error(chainedError: verificationError, message: "Failed to verify the tunnel and load tunnel settings. Removing the tunnel.")
 
                 tunnelProvider.removeFromPreferences()
+                    .receive(on: self.stateQueue)
                     .mapError { error in
                         return .removeInconsistentVPNConfiguration(error)
                     }
@@ -600,6 +601,7 @@ class TunnelManager {
                 self.logger.error(chainedError: settingsReadError, message: "Failed to load tunnel settings. Removing the tunnel.")
 
                 tunnelProvider.removeFromPreferences()
+                    .receive(on: self.stateQueue)
                     .mapError { error in
                         return .removeInconsistentVPNConfiguration(error)
                     }
@@ -615,6 +617,7 @@ class TunnelManager {
         // Remove the orphaned tunnel.
         case (.some(let tunnelProvider), .none):
             tunnelProvider.removeFromPreferences()
+                .receive(on: self.stateQueue)
                 .mapError { error in
                     return .removeInconsistentVPNConfiguration(error)
                 }
