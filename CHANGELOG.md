@@ -56,6 +56,9 @@ Line wrap the file at 100 chars.                                              Th
 - Upgrade Wintun from 0.10.4 to 0.13.
 - Reduce tunnel setup time for OpenVPN by disabling DAD.
 
+#### Android
+- Drop support for Android 7/7.1 (Android 8/API level 26 or later is now required).
+
 ### Fixed
 - Fix link to download page not always using the beta URL when it should.
 - Fix deadlock that may occur when the API cannot be reached while entering the connecting state.
