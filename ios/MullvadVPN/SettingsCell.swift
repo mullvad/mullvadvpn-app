@@ -16,7 +16,6 @@ class SettingsCell: BasicTableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        tintColor = .white
         backgroundView?.backgroundColor = UIColor.Cell.backgroundColor
         selectedBackgroundView?.backgroundColor = UIColor.Cell.selectedAltBackgroundColor
         separatorInset = .zero
@@ -51,8 +50,6 @@ class SettingsCell: BasicTableViewCell {
             detailTitleLabel.topAnchor.constraint(equalTo: contentView.layoutMarginsGuide.topAnchor),
             detailTitleLabel.bottomAnchor.constraint(equalTo: contentView.layoutMarginsGuide.bottomAnchor),
         ])
-
-        enableDisclosureViewTintColorFix()
     }
 
     required init?(coder: NSCoder) {
@@ -69,21 +66,8 @@ class SettingsCell: BasicTableViewCell {
         super.didAddSubview(subview)
 
         if let button = subview as? UIButton {
-            updateDisclosureButtonBackgroundImageRenderingMode(button)
+            updateDisclosureIndicatorTintColor(button)
         }
-    }
-
-    /// `UITableViewCell` resets the disclosure view image when the app goes in background
-    /// This fix ensures that the image is tinted when the app becomes active again.
-    private func enableDisclosureViewTintColorFix() {
-        appDidBecomeActiveObserver = NotificationCenter.default.addObserver(
-            forName: UIApplication.didBecomeActiveNotification,
-            object: nil,
-            queue: nil) { [weak self] (note) in
-                self?.updateDisclosureViewTintColor()
-        }
-
-        updateDisclosureViewTintColor()
     }
 
     private func setLayoutMargins() {
@@ -94,17 +78,23 @@ class SettingsCell: BasicTableViewCell {
         contentView.layoutMargins = UIMetrics.settingsCellLayoutMargins
     }
 
-    /// For some reason the `tintColor` is not applied to standard accessory views.
-    /// Fix this by looking for the accessory button and changing the image rendering mode
-    private func updateDisclosureViewTintColor() {
-        for case let button as UIButton in subviews {
-            updateDisclosureButtonBackgroundImageRenderingMode(button)
-        }
-    }
+    /// Standard disclosure views do not provide customization of a tint color.
+    /// This method adjusts a disclosure tint color by replacing the button image rendering mode on iOS 12 and by
+    /// switching graphics on iOS 13 or newer.
+    private func updateDisclosureIndicatorTintColor(_ button: UIButton) {
+        guard accessoryType == .disclosureIndicator else { return }
 
-    private func updateDisclosureButtonBackgroundImageRenderingMode(_ button: UIButton) {
-        if let image = button.backgroundImage(for: .normal)?.withRenderingMode(.alwaysTemplate) {
-            button.setBackgroundImage(image, for: .normal)
+        if #available(iOS 13, *) {
+            let configuration = UIImage.SymbolConfiguration(pointSize: 11, weight: .bold)
+            let chevron = UIImage(systemName: "chevron.right", withConfiguration: configuration)?
+                .withTintColor(.white, renderingMode: .alwaysOriginal)
+
+            button.setImage(chevron, for: .normal)
+        } else {
+            if let image = button.backgroundImage(for: .normal)?.withRenderingMode(.alwaysTemplate) {
+                button.setBackgroundImage(image, for: .normal)
+                button.tintColor = .white
+            }
         }
     }
 }
