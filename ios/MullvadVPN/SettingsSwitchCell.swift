@@ -21,8 +21,6 @@ class SettingsSwitchCell: SettingsCell {
 
         switchContainer.control.addTarget(self, action: #selector(switchValueDidChange), for: .valueChanged)
 
-        // Use UISwitch traits to make the entire cell behave as "Switch button"
-        accessibilityTraits = switchContainer.control.accessibilityTraits
         isAccessibilityElement = true
     }
 
@@ -30,8 +28,18 @@ class SettingsSwitchCell: SettingsCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func setEnabled(_ isEnabled: Bool) {
+        switchContainer.isEnabled = isEnabled
+    }
+
     func setOn(_ isOn: Bool, animated: Bool) {
         switchContainer.control.setOn(isOn, animated: animated)
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        setEnabled(true)
     }
 
     // MARK: - Actions
@@ -41,6 +49,16 @@ class SettingsSwitchCell: SettingsCell {
     }
 
     // MARK: -  Accessibility
+
+    override var accessibilityTraits: UIAccessibilityTraits {
+        set {
+            super.accessibilityTraits = newValue
+        }
+        get {
+            // Use UISwitch traits to make the entire cell behave as "Switch button"
+            return switchContainer.control.accessibilityTraits
+        }
+    }
 
     override var accessibilityLabel: String? {
         set {
@@ -79,6 +97,8 @@ class SettingsSwitchCell: SettingsCell {
     }
 
     override func accessibilityActivate() -> Bool {
+        guard switchContainer.isEnabled else { return false }
+
         let newValue = !self.switchContainer.control.isOn
 
         setOn(newValue, animated: true)
