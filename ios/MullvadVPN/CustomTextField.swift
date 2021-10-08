@@ -9,9 +9,19 @@
 import Foundation
 import UIKit
 
-private let kTextFieldCornerRadius = CGFloat(4)
-
 class CustomTextField: UITextField {
+
+    var cornerRadius: CGFloat = 4 {
+        didSet {
+            layer.cornerRadius = cornerRadius
+        }
+    }
+
+    var textMargins = UIEdgeInsets(top: 12, left: 14, bottom: 12, right: 14) {
+        didSet {
+            setNeedsLayout()
+        }
+    }
 
     var placeholderTextColor: UIColor = UIColor.TextField.placeholderTextColor {
         didSet {
@@ -29,7 +39,7 @@ class CustomTextField: UITextField {
         super.init(frame: frame)
 
         textColor = UIColor.TextField.textColor
-        layer.cornerRadius = kTextFieldCornerRadius
+        layer.cornerRadius = cornerRadius
         clipsToBounds = true
     }
 
@@ -48,7 +58,7 @@ class CustomTextField: UITextField {
     }
 
     override func textRect(forBounds bounds: CGRect) -> CGRect {
-        return bounds.insetBy(dx: 14, dy: 12)
+        return bounds.inset(by: textMargins)
     }
 
     override func editingRect(forBounds bounds: CGRect) -> CGRect {
