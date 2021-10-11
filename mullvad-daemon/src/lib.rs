@@ -4,9 +4,9 @@
 #[macro_use]
 extern crate serde;
 
-mod account;
 pub mod account_history;
 mod api;
+pub mod device;
 pub mod exception_logging;
 #[cfg(target_os = "macos")]
 pub mod exclusion_gid;
@@ -36,6 +36,7 @@ use mullvad_rpc::{
 };
 use mullvad_types::{
     account::{AccountData, AccountToken, VoucherSubmission},
+    device::{Device, DeviceData, DeviceEvent, DeviceId},
     endpoint::MullvadEndpoint,
     location::{Coordinates, GeoIpLocation},
     relay_constraints::{
@@ -46,7 +47,7 @@ use mullvad_types::{
     settings::{DnsOptions, DnsState, Settings},
     states::{TargetState, TunnelState},
     version::{AppVersion, AppVersionInfo},
-    wireguard::{KeygenEvent, RotationInterval},
+    wireguard::{KeygenEvent, PublicKey, RotationInterval},
 };
 use settings::SettingsPersister;
 #[cfg(target_os = "android")]
@@ -75,7 +76,8 @@ use talpid_types::android::AndroidContext;
 use talpid_types::{
     net::{
         openvpn::{self, ProxySettings},
-        TransportProtocol, TunnelEndpoint, TunnelParameters, TunnelType,
+        wireguard, TransportProtocol, TunnelEndpoint, TunnelParameters,
+        TunnelType,
     },
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
     ErrorExt,
@@ -83,12 +85,6 @@ use talpid_types::{
 #[cfg(not(target_os = "android"))]
 use tokio::fs;
 use tokio::io;
-
-#[path = "wireguard.rs"]
-mod wireguard;
-
-/// Timeout for first WireGuard key pushing
-const FIRST_KEY_PUSH_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// Delay between generating a new WireGuard key and reconnecting
 const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
@@ -124,12 +120,27 @@ pub enum Error {
     #[error(display = "Unable to load account history")]
     LoadAccountHistory(#[error(source)] account_history::Error),
 
+    #[error(display = "Failed to start account manager")]
+    LoadAccountManager(#[error(source)] device::Error),
+
+    #[error(display = "Failed to log in to account")]
+    LoginError(#[error(source)] device::Error),
+
+    #[error(display = "Failed to log out of account")]
+    LogoutError(#[error(source)] device::Error),
+
+    #[error(display = "Failed to rotate WireGuard key")]
+    KeyRotationError(#[error(source)] device::Error),
+
+    #[error(display = "Failed to list devices")]
+    ListDevicesError(#[error(source)] device::Error),
+
+    #[error(display = "Failed to remove device")]
+    RemoveDeviceError(#[error(source)] device::Error),
+
     #[cfg(target_os = "linux")]
     #[error(display = "Unable to initialize split tunneling")]
     InitSplitTunneling(#[error(source)] split_tunnel::Error),
-
-    #[error(display = "The account has too many wireguard keys")]
-    TooManyKeys,
 
     #[cfg(windows)]
     #[error(display = "Split tunneling error")]
@@ -226,8 +237,16 @@ pub enum DaemonCommand {
     /// Trigger an asynchronous relay list update. This returns before the relay list is actually
     /// updated.
     UpdateRelayLocations,
-    /// Set which account token to use for subsequent connection attempts.
-    SetAccount(ResponseTx<(), settings::Error>, Option<AccountToken>),
+    /// Log in with a given account and create a new device.
+    LoginAccount(ResponseTx<(), Error>, AccountToken),
+    /// Log out of the current account and remove the device, if they exist.
+    LogoutAccount(ResponseTx<(), Error>),
+    /// Return the current device configuration, if there is one.
+    GetDevice(ResponseTx<Option<DeviceData>, Error>),
+    /// Return all the devices for a given account token.
+    ListDevices(ResponseTx<Vec<Device>, Error>, AccountToken),
+    /// Remove device from a given account.
+    RemoveDevice(ResponseTx<(), Error>, AccountToken, DeviceId),
     /// Place constraints on the type of tunnel and relay
     UpdateRelaySettings(ResponseTx<(), settings::Error>, RelaySettingsUpdate),
     /// Set the allow LAN setting.
@@ -256,11 +275,9 @@ pub enum DaemonCommand {
     /// Get the daemon settings
     GetSettings(oneshot::Sender<Settings>),
     /// Generate new wireguard key
-    GenerateWireguardKey(ResponseTx<wireguard::KeygenEvent, Error>),
+    RotateWireguardKey(ResponseTx<(), Error>),
     /// Return a public key of the currently set wireguard private key, if there is one
-    GetWireguardKey(ResponseTx<Option<wireguard::PublicKey>, Error>),
-    /// Verify if the currently set wireguard key is valid.
-    VerifyWireguardKey(ResponseTx<bool, Error>),
+    GetWireguardKey(ResponseTx<Option<PublicKey>, Error>),
     /// Get information about the currently running and latest app versions
     GetVersionInfo(oneshot::Sender<Option<AppVersionInfo>>),
     /// Get current version of the app
@@ -320,19 +337,14 @@ pub(crate) enum InternalDaemonEvent {
     Command(DaemonCommand),
     /// Daemon shutdown triggered by a signal, ctrl-c or similar.
     TriggerShutdown,
-    /// Wireguard key generation event
-    WgKeyEvent(
-        (
-            AccountToken,
-            Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
-        ),
-    ),
     /// New Account created
     NewAccountEvent(AccountToken, oneshot::Sender<Result<String, Error>>),
     /// The background job fetching new `AppVersionInfo`s got a new info object.
     NewAppVersionInfo(AppVersionInfo),
     /// Request from REST client to use a different API endpoint.
     GenerateApiConnectionMode(api::ApiConnectionModeRequest),
+    /// Sent when a device key is rotated.
+    DeviceKeyEvent(device::DeviceKeyEvent),
     /// The split tunnel paths or state were updated.
     #[cfg(target_os = "windows")]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
@@ -365,6 +377,12 @@ impl From<AppVersionInfo> for InternalDaemonEvent {
 impl From<api::ApiConnectionModeRequest> for InternalDaemonEvent {
     fn from(request: api::ApiConnectionModeRequest) -> Self {
         InternalDaemonEvent::GenerateApiConnectionMode(request)
+    }
+}
+
+impl From<device::DeviceKeyEvent> for InternalDaemonEvent {
+    fn from(event: device::DeviceKeyEvent) -> Self {
+        InternalDaemonEvent::DeviceKeyEvent(event)
     }
 }
 
@@ -529,8 +547,8 @@ pub trait EventListener {
     /// Or some flag about the currently running version is changed.
     fn notify_app_version(&self, app_version_info: AppVersionInfo);
 
-    /// Notify clients of a key generation event.
-    fn notify_key_event(&self, key_event: KeygenEvent);
+    /// Notify that device changed (login, logout, or key rotation).
+    fn notify_device_event(&self, event: DeviceEvent);
 }
 
 pub struct Daemon<L: EventListener> {
@@ -546,10 +564,9 @@ pub struct Daemon<L: EventListener> {
     event_listener: L,
     settings: SettingsPersister,
     account_history: account_history::AccountHistory,
-    account: account::AccountHandle,
+    account_manager: device::AccountManager,
     rpc_runtime: mullvad_rpc::MullvadRpcRuntime,
     rpc_handle: mullvad_rpc::rest::MullvadRestHandle,
-    wireguard_key_manager: wireguard::KeyManager,
     version_updater_handle: version_check::VersionUpdaterHandle,
     relay_selector: relays::RelaySelector,
     last_generated_relay: Option<Relay>,
@@ -584,8 +601,6 @@ where
 
         mullvad_rpc::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
 
-        let runtime = tokio::runtime::Handle::current();
-
         let (internal_event_tx, internal_event_rx) = command_channel.destructure();
 
         if let Err(error) = migrations::migrate_all(&cache_dir, &settings_dir).await {
@@ -596,29 +611,8 @@ where
         }
         let settings = SettingsPersister::load(&settings_dir).await;
 
-        let target_state = if settings.get_account_token().is_none() {
-            PersistentTargetState::force(&cache_dir, TargetState::Unsecured).await
-        } else if settings.auto_connect {
-            log::info!("Automatically connecting since auto-connect is turned on");
-            PersistentTargetState::force(&cache_dir, TargetState::Secured).await
-        } else {
-            PersistentTargetState::new(&cache_dir).await
-        };
-
         let tunnel_parameters_generator = MullvadTunnelParametersGenerator {
             tx: internal_event_tx.clone(),
-        };
-
-        #[cfg(windows)]
-        let exclude_paths = if settings.split_tunnel.enable_exclusions {
-            settings
-                .split_tunnel
-                .apps
-                .iter()
-                .map(|s| OsString::from(s))
-                .collect()
-        } else {
-            vec![]
         };
 
         let rpc_runtime = mullvad_rpc::MullvadRpcRuntime::with_cache(
@@ -632,6 +626,59 @@ where
 
         let api_availability = rpc_runtime.availability_handle();
         api_availability.suspend();
+
+        let endpoint_updater = api::ApiEndpointUpdaterHandle::new();
+
+        let proxy_provider = api::create_api_config_provider(
+            internal_event_tx.to_specialized_sender(),
+            ApiConnectionMode::Direct,
+        );
+        let rpc_handle = rpc_runtime
+            .mullvad_rest_handle(proxy_provider, endpoint_updater.callback())
+            .await;
+
+        let mut account_manager = device::AccountManager::new(
+            runtime.clone(),
+            rpc_handle.clone(),
+            api_availability.clone(),
+            &settings_dir,
+            internal_event_tx.to_specialized_sender(),
+        )
+        .await
+        .map_err(Error::LoadAccountManager)?;
+        if let Some(rotation_interval) = settings.tunnel_options.wireguard.rotation_interval {
+            account_manager
+                .set_rotation_interval(rotation_interval)
+                .await;
+        }
+
+        let account_history = account_history::AccountHistory::new(
+            &settings_dir,
+            account_manager.get().map(|device| device.token),
+        )
+        .await
+        .map_err(Error::LoadAccountHistory)?;
+
+        let target_state = if !account_manager.is_some() {
+            PersistentTargetState::force(&cache_dir, TargetState::Unsecured).await
+        } else if settings.auto_connect {
+            log::info!("Automatically connecting since auto-connect is turned on");
+            PersistentTargetState::force(&cache_dir, TargetState::Secured).await
+        } else {
+            PersistentTargetState::new(&cache_dir).await
+        };
+
+        #[cfg(windows)]
+        let exclude_paths = if settings.split_tunnel.enable_exclusions {
+            settings
+                .split_tunnel
+                .apps
+                .iter()
+                .map(|s| OsString::from(s))
+                .collect()
+        } else {
+            vec![]
+        };
 
         let initial_api_endpoint =
             api::get_allowed_endpoint(rpc_runtime.address_cache.get_address().await);
@@ -664,16 +711,7 @@ where
         .await
         .map_err(Error::TunnelError)?;
 
-        let endpoint_updater = api::ApiEndpointUpdaterHandle::new();
         endpoint_updater.set_tunnel_command_tx(Arc::downgrade(&tunnel_command_tx));
-
-        let proxy_provider = api::create_api_config_provider(
-            internal_event_tx.to_specialized_sender(),
-            ApiConnectionMode::Direct,
-        );
-        let rpc_handle = rpc_runtime
-            .mullvad_rest_handle(proxy_provider, endpoint_updater.callback())
-            .await;
 
         Self::forward_offline_state(api_availability.clone(), offline_state_rx).await;
 
@@ -700,28 +738,11 @@ where
             settings.show_beta_releases,
         );
         tokio::spawn(version_updater.run());
-        let account_history =
-            account_history::AccountHistory::new(&settings_dir, settings.get_account_token())
-                .await
-                .map_err(Error::LoadAccountHistory)?;
-
-        let wireguard_key_manager = wireguard::KeyManager::new(
-            internal_event_tx.clone(),
-            api_availability.clone(),
-            rpc_handle.clone(),
-        );
-
-        let account = account::Account::new(
-            runtime,
-            rpc_handle.clone(),
-            settings.get_account_token(),
-            api_availability.clone(),
-        );
 
         // Attempt to download a fresh relay list
         relay_selector.update().await;
 
-        let mut daemon = Daemon {
+        let daemon = Daemon {
             tunnel_command_tx,
             tunnel_state: TunnelState::Disconnected,
             target_state,
@@ -734,10 +755,9 @@ where
             event_listener,
             settings,
             account_history,
-            account,
+            account_manager,
             rpc_runtime,
             rpc_handle,
-            wireguard_key_manager,
             version_updater_handle,
             relay_selector,
             last_generated_relay: None,
@@ -750,8 +770,6 @@ where
             #[cfg(target_os = "windows")]
             volume_update_tx,
         };
-
-        daemon.ensure_wireguard_keys_for_current_account().await;
 
         api_availability.unsuspend();
 
@@ -881,7 +899,6 @@ where
             }
             Command(command) => self.handle_command(command).await,
             TriggerShutdown => self.trigger_shutdown_event(),
-            WgKeyEvent(key_event) => self.handle_wireguard_key_event(key_event).await,
             NewAccountEvent(account_token, tx) => {
                 self.handle_new_account_event(account_token, tx).await
             }
@@ -891,6 +908,7 @@ where
             GenerateApiConnectionMode(request) => {
                 self.handle_generate_api_connection_mode(request).await
             }
+            DeviceKeyEvent(event) => self.handle_device_key_event(event).await,
             #[cfg(windows)]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
         }
@@ -967,7 +985,7 @@ where
         >,
         retry_attempt: u32,
     ) {
-        if let Some(account_token) = self.settings.get_account_token() {
+        if let Some(device) = self.account_manager.get() {
             let result = match self.settings.get_relay_settings() {
                 RelaySettings::CustomTunnelEndpoint(custom_relay) => {
                     self.last_generated_relay = None;
@@ -987,7 +1005,6 @@ where
                             &constraints,
                             self.settings.get_bridge_state(),
                             retry_attempt,
-                            self.settings.get_wireguard().is_some(),
                         )
                         .ok();
                     if let Some(relays::RelaySelectorResult {
@@ -1000,7 +1017,7 @@ where
                             .create_tunnel_parameters(
                                 &exit_relay,
                                 endpoint,
-                                account_token,
+                                device.token,
                                 retry_attempt,
                             )
                             .await;
@@ -1111,7 +1128,11 @@ where
                 .into())
             }
             MullvadEndpoint::Wireguard(endpoint) => {
-                let wg_data = self.settings.get_wireguard().ok_or(Error::NoKeyAvailable)?;
+                let wg_data = self
+                    .account_manager
+                    .get()
+                    .map(|device| device.wg_data)
+                    .ok_or(Error::NoKeyAvailable)?;
                 let tunnel = wireguard::TunnelConfig {
                     private_key: wg_data.private_key,
                     addresses: vec![
@@ -1175,7 +1196,13 @@ where
             SubmitVoucher(tx, voucher) => self.on_submit_voucher(tx, voucher).await,
             GetRelayLocations(tx) => self.on_get_relay_locations(tx),
             UpdateRelayLocations => self.on_update_relay_locations().await,
-            SetAccount(tx, account_token) => self.on_set_account(tx, account_token).await,
+            LoginAccount(tx, account_token) => self.on_login_account(tx, account_token).await,
+            LogoutAccount(tx) => self.on_logout_account(tx).await,
+            GetDevice(tx) => self.on_get_device(tx).await,
+            ListDevices(tx, account_token) => self.on_list_devices(tx, account_token).await,
+            RemoveDevice(tx, account_token, device_id) => {
+                self.on_remove_device(tx, account_token, device_id).await
+            }
             GetAccountHistory(tx) => self.on_get_account_history(tx),
             ClearAccountHistory(tx) => self.on_clear_account_history(tx).await,
             UpdateRelaySettings(tx, update) => self.on_update_relay_settings(tx, update).await,
@@ -1198,9 +1225,8 @@ where
                 self.on_set_wireguard_rotation_interval(tx, interval).await
             }
             GetSettings(tx) => self.on_get_settings(tx),
-            GenerateWireguardKey(tx) => self.on_generate_wireguard_key(tx).await,
+            RotateWireguardKey(tx) => self.on_rotate_wireguard_key(tx).await,
             GetWireguardKey(tx) => self.on_get_wireguard_key(tx).await,
-            VerifyWireguardKey(tx) => self.on_verify_wireguard_key(tx).await,
             GetVersionInfo(tx) => self.on_get_version_info(tx).await,
             GetCurrentVersion(tx) => self.on_get_current_version(tx),
             #[cfg(not(target_os = "android"))]
@@ -1232,86 +1258,6 @@ where
         }
     }
 
-    async fn handle_wireguard_key_event(
-        &mut self,
-        event: (
-            AccountToken,
-            Result<mullvad_types::wireguard::WireguardData, wireguard::Error>,
-        ),
-    ) {
-        let (account, result) = event;
-        // If the account has been reset whilst a key was being generated, the event should be
-        // dropped even if a new key was generated.
-        if self
-            .settings
-            .get_account_token()
-            .map(|current_account| current_account != account)
-            .unwrap_or(true)
-        {
-            log::info!("Dropping wireguard key event since account has been changed");
-            return;
-        }
-
-        match result {
-            Ok(data) => {
-                let public_key = data.get_public_key();
-                let is_first_key = self.settings.get_wireguard().is_none();
-                match self.settings.set_wireguard(Some(data)).await {
-                    Ok(_) => {
-                        if let Some(TunnelType::Wireguard) = self.get_connected_tunnel_type() {
-                            self.schedule_reconnect(WG_RECONNECT_DELAY).await;
-                        }
-                        self.event_listener
-                            .notify_key_event(KeygenEvent::NewKey(public_key));
-                        if is_first_key {
-                            self.ensure_key_rotation().await;
-                        }
-                    }
-                    Err(e) => {
-                        log::error!(
-                            "{}",
-                            e.display_chain_with_msg(
-                                "Failed to add new wireguard key to account data"
-                            )
-                        );
-                        self.event_listener
-                            .notify_key_event(KeygenEvent::GenerationFailure)
-                    }
-                }
-            }
-            Err(wireguard::Error::TooManyKeys) => {
-                self.event_listener
-                    .notify_key_event(KeygenEvent::TooManyKeys);
-            }
-            Err(e) => {
-                log::error!(
-                    "{}",
-                    e.display_chain_with_msg("Failed to generate wireguard key")
-                );
-                self.event_listener
-                    .notify_key_event(KeygenEvent::GenerationFailure);
-            }
-        }
-    }
-
-    async fn ensure_key_rotation(&mut self) {
-        let token = match self.settings.get_account_token() {
-            Some(token) => token,
-            None => return,
-        };
-        let public_key = match self.settings.get_wireguard() {
-            Some(data) => data.get_public_key(),
-            None => return,
-        };
-        self.wireguard_key_manager
-            .set_rotation_interval(
-                public_key,
-                token,
-                self.settings.tunnel_options.wireguard.rotation_interval,
-            )
-            .await;
-    }
-
     async fn handle_new_account_event(
         &mut self,
         new_token: AccountToken,
@@ -1322,12 +1268,12 @@ where
                 self.set_target_state(TargetState::Unsecured).await;
                 let _ = tx.send(Ok(new_token));
             }
-            Err(err) => {
+            Err(error) => {
                 log::error!(
                     "{}",
-                    err.display_chain_with_msg("Failed to save new account")
+                    error.display_chain_with_msg("Handling new account failed")
                 );
-                let _ = tx.send(Err(Error::SettingsError(err)));
+                let _ = tx.send(Err(error));
             }
         };
     }
@@ -1407,6 +1353,25 @@ where
             );
         }
         let _ = request.response_tx.send(config);
+    }
+
+    async fn handle_device_key_event(&mut self, event: device::DeviceKeyEvent) {
+        let device_id = &event.0.device.id;
+        if Some(device_id)
+            != self
+                .account_manager
+                .get()
+                .map(|device| device.device.id)
+                .as_ref()
+        {
+            // Stale config
+            return;
+        }
+        if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
+            self.schedule_reconnect(WG_RECONNECT_DELAY).await;
+        }
+        self.event_listener
+            .notify_device_event(DeviceEvent(Some(Device::from(event.0))));
     }
 
     #[cfg(windows)]
@@ -1541,7 +1506,7 @@ where
 
     async fn on_create_new_account(&mut self, tx: ResponseTx<String, Error>) {
         let daemon_tx = self.tx.clone();
-        let future = self.account.create_account();
+        let future = self.account_manager.account_service().create_account();
         tokio::spawn(async move {
             match future.await {
                 Ok(account_token) => {
@@ -1559,7 +1524,7 @@ where
         tx: ResponseTx<AccountData, mullvad_rpc::rest::Error>,
         account_token: AccountToken,
     ) {
-        let account = self.account.clone();
+        let account = self.account_manager.account_service();
         tokio::spawn(async move {
             let result = account.check_expiry(account_token).await;
             Self::oneshot_send(
@@ -1571,8 +1536,11 @@ where
     }
 
     async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
-        if let Some(account_token) = self.settings.get_account_token() {
-            let future = self.account.get_www_auth_token(account_token);
+        if let Some(device) = self.account_manager.get() {
+            let future = self
+                .account_manager
+                .account_service()
+                .get_www_auth_token(device.token);
             let rpc_call = async {
                 Self::oneshot_send(
                     tx,
@@ -1595,13 +1563,13 @@ where
         tx: ResponseTx<VoucherSubmission, Error>,
         voucher: String,
     ) {
-        if let Some(account_token) = self.settings.get_account_token() {
-            let mut account = self.account.clone();
+        if let Some(device) = self.account_manager.get() {
+            let mut account = self.account_manager.account_service();
             tokio::spawn(async move {
                 Self::oneshot_send(
                     tx,
                     account
-                        .submit_voucher(account_token, voucher)
+                        .submit_voucher(device.token, voucher)
                         .await
                         .map_err(Error::RestError),
                     "submit_voucher response",
@@ -1620,90 +1588,103 @@ where
         self.relay_selector.update().await;
     }
 
-    async fn on_set_account(
-        &mut self,
-        tx: ResponseTx<(), settings::Error>,
-        account_token: Option<String>,
-    ) {
-        match self.set_account(account_token.clone()).await {
+    async fn on_login_account(&mut self, tx: ResponseTx<(), Error>, account_token: String) {
+        match self.set_account(Some(account_token)).await {
             Ok(account_changed) => {
                 if account_changed {
-                    match account_token {
-                        Some(_) => {
-                            log::info!(
-                                "Initiating tunnel restart because the account token changed"
-                            );
-                            self.reconnect_tunnel();
-                        }
-                        None => {
-                            log::info!("Disconnecting because account token was cleared");
-                            self.set_target_state(TargetState::Unsecured).await;
-                        }
-                    };
+                    log::info!("Initiating tunnel restart because the account token changed");
+                    self.reconnect_tunnel();
                 }
-                Self::oneshot_send(tx, Ok(()), "set_account response");
+                Self::oneshot_send(tx, Ok(()), "login_account response");
             }
             Err(error) => {
-                log::error!("{}", error.display_chain_with_msg("Failed to set account"));
-                Self::oneshot_send(tx, Err(error), "set_account response");
+                log::error!("{}", error.display_chain_with_msg("Login failed"));
+                Self::oneshot_send(tx, Err(error), "login_account response");
             }
         }
     }
 
-    async fn set_account(
-        &mut self,
-        account_token: Option<String>,
-    ) -> Result<bool, settings::Error> {
-        let previous_token = self.settings.get_account_token();
-        let account_changed = self
-            .settings
-            .set_account_token(account_token.clone())
-            .await?;
-        if account_changed {
-            self.event_listener
-                .notify_settings(self.settings.to_settings());
+    async fn on_logout_account(&mut self, tx: ResponseTx<(), Error>) {
+        match self.set_account(None).await {
+            Ok(account_changed) => {
+                if account_changed {
+                    log::info!("Disconnecting because account token was cleared");
+                    self.set_target_state(TargetState::Unsecured).await;
+                }
+                Self::oneshot_send(tx, Ok(()), "logout_account response");
+            }
+            Err(error) => {
+                log::error!("{}", error.display_chain_with_msg("Logout failed"));
+                Self::oneshot_send(tx, Err(error), "logout_account response");
+            }
+        }
+    }
 
-            let history_token = match account_token {
-                Some(token) => token,
-                None => previous_token.clone().unwrap_or("".to_string()),
-            };
-            if let Err(error) = self.account_history.set(history_token).await {
+    async fn set_account(&mut self, account_token: Option<String>) -> Result<bool, Error> {
+        let previous_token = self.account_manager.get().map(|device| device.token);
+        if previous_token == account_token {
+            return Ok(false);
+        }
+
+        match account_token.clone() {
+            Some(token) => {
+                let device_data = self
+                    .account_manager
+                    .login(token)
+                    .await
+                    .map_err(Error::LoginError)?;
+                self.event_listener
+                    .notify_device_event(DeviceEvent(Some(Device::from(device_data))));
+            }
+            None => {
+                self.account_manager.logout();
+                self.event_listener.notify_device_event(DeviceEvent(None));
+            }
+        }
+
+        if let Some(token) = account_token.or(previous_token) {
+            if let Err(error) = self.account_history.set(token).await {
                 log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to update account history")
                 );
             }
-
-            if let Some(previous_token) = previous_token {
-                if let Some(previous_key) = self
-                    .settings
-                    .get_wireguard()
-                    .map(|data| data.private_key.public_key())
-                {
-                    let remove_key = self
-                        .wireguard_key_manager
-                        .remove_key_with_backoff(previous_token, previous_key);
-                    tokio::spawn(async move {
-                        if let Err(error) = remove_key.await {
-                            log::error!(
-                                "{}",
-                                error.display_chain_with_msg(
-                                    "Failed to remove WireGuard key for previous account"
-                                )
-                            );
-                        }
-                    });
-                }
-            }
-            if let Err(error) = self.settings.set_wireguard(None).await {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Error resetting WireGuard key")
-                );
-            }
-            self.ensure_wireguard_keys_for_current_account().await;
         }
-        Ok(account_changed)
+
+        Ok(true)
+    }
+
+    async fn on_get_device(&mut self, tx: ResponseTx<Option<DeviceData>, Error>) {
+        Self::oneshot_send(tx, Ok(self.account_manager.get()), "get_device response");
+    }
+
+    async fn on_list_devices(&mut self, tx: ResponseTx<Vec<Device>, Error>, token: AccountToken) {
+        Self::oneshot_send(
+            tx,
+            self.account_manager
+                .device_service()
+                .list_devices(token)
+                .await
+                .map_err(Error::ListDevicesError),
+            "list_devices response",
+        );
+    }
+
+    async fn on_remove_device(
+        &mut self,
+        tx: ResponseTx<(), Error>,
+        token: AccountToken,
+        device_id: DeviceId,
+    ) {
+        Self::oneshot_send(
+            tx,
+            self.account_manager
+                .device_service()
+                .remove_device(token, device_id)
+                .await
+                .map_err(Error::RemoveDeviceError),
+            "remove_device response",
+        );
     }
 
     fn on_get_account_history(&mut self, tx: oneshot::Sender<Option<AccountToken>>) {
@@ -1721,37 +1702,6 @@ where
             .await
             .map_err(Error::AccountHistory);
         Self::oneshot_send(tx, result, "clear_account_history response");
-    }
-
-    // Remove the key associated with the current account, if there is one.
-    // This does not modify settings or account history.
-    #[cfg(not(target_os = "android"))]
-    fn remove_current_key_rpc(&self) -> impl std::future::Future<Output = Result<(), Error>> {
-        let remove_key = if let Some(token) = self.settings.get_account_token() {
-            if let Some(wg_data) = self.settings.get_wireguard() {
-                Some(
-                    self.wireguard_key_manager
-                        .remove_key(token, wg_data.private_key.public_key()),
-                )
-            } else {
-                None
-            }
-        } else {
-            None
-        };
-
-        async move {
-            if let Some(task) = remove_key {
-                match task.await {
-                    Err(wireguard::Error::RestError(error)) => Err(Error::RestError(error)),
-                    // This result should never occur
-                    Err(wireguard::Error::TooManyKeys) => Err(Error::TooManyKeys),
-                    _ => Ok(()),
-                }
-            } else {
-                Ok(())
-            }
-        }
     }
 
     async fn on_get_version_info(&mut self, tx: oneshot::Sender<Option<AppVersionInfo>>) {
@@ -1795,17 +1745,13 @@ where
     async fn on_factory_reset(&mut self, tx: ResponseTx<(), Error>) {
         let mut last_error = Ok(());
 
-        let remove_key = self.remove_current_key_rpc();
-        tokio::spawn(async move {
-            if let Err(error) = remove_key.await {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg(
-                        "Failed to remove WireGuard key for previous account"
-                    )
-                );
-            }
-        });
+        if let Err(error) = self.account_manager.logout_wait().await {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to clear device cache")
+            );
+            last_error = Err(Error::LogoutError(error));
+        }
 
         if let Err(error) = self.account_history.clear().await {
             log::error!(
@@ -2315,7 +2261,9 @@ where
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_wireguard_rotation_interval response");
                 if settings_changed {
-                    self.ensure_key_rotation().await;
+                    self.account_manager
+                        .set_rotation_interval(interval.unwrap_or_default())
+                        .await;
                     self.event_listener
                         .notify_settings(self.settings.to_settings());
                 }
@@ -2327,126 +2275,23 @@ where
         }
     }
 
-    async fn ensure_wireguard_keys_for_current_account(&mut self) {
-        if let Some(account) = self.settings.get_account_token() {
-            if self.settings.get_wireguard().is_none() {
-                log::info!("Generating new WireGuard key for account");
-                self.wireguard_key_manager
-                    .spawn_key_generation_task(account, Some(FIRST_KEY_PUSH_TIMEOUT))
-                    .await;
-            } else {
-                log::info!("Account already has WireGuard key");
-                self.ensure_key_rotation().await;
-            }
+    async fn on_rotate_wireguard_key(&mut self, tx: ResponseTx<(), Error>) {
+        let result = self.account_manager.rotate_key().await;
+        if let Ok(ref _wg_data) = result {
+            let device = self.account_manager.get().map(Device::from);
+            self.event_listener
+                .notify_device_event(DeviceEvent(device.clone()));
         }
+        let _ = tx.send(result.map(|_| ()).map_err(Error::KeyRotationError));
     }
 
-    async fn on_generate_wireguard_key(&mut self, tx: ResponseTx<KeygenEvent, Error>) {
-        match self.on_generate_wireguard_key_inner().await {
-            Ok(key_event) => {
-                Self::oneshot_send(tx, Ok(key_event), "generate_wireguard_key");
-            }
-            Err(e) => {
-                log::error!(
-                    "{}",
-                    e.display_chain_with_msg("Failed to generate new wireguard key")
-                );
-                Self::oneshot_send(tx, Err(e), "generate_wireguard_key");
-            }
-        }
-    }
-
-    async fn on_generate_wireguard_key_inner(&mut self) -> Result<KeygenEvent, Error> {
-        let account_token = self
-            .settings
-            .get_account_token()
-            .ok_or(Error::NoAccountToken)?;
-        let wireguard_data = self.settings.get_wireguard();
-
-        let gen_result = match &wireguard_data {
-            Some(wireguard_data) => {
-                self.wireguard_key_manager
-                    .replace_key(account_token.clone(), wireguard_data.get_public_key())
-                    .await
-            }
-            None => {
-                self.wireguard_key_manager
-                    .generate_key_sync(account_token.clone())
-                    .await
-            }
-        };
-
-        match gen_result {
-            Ok(new_data) => {
-                let public_key = new_data.get_public_key();
-                self.settings
-                    .set_wireguard(Some(new_data))
-                    .await
-                    .map_err(Error::SettingsError)?;
-                if let Some(TunnelType::Wireguard) = self.get_target_tunnel_type() {
-                    self.schedule_reconnect(WG_RECONNECT_DELAY).await;
-                }
-                let keygen_event = KeygenEvent::NewKey(public_key.clone());
-                self.event_listener.notify_key_event(keygen_event.clone());
-
-                // update automatic rotation
-                self.wireguard_key_manager
-                    .set_rotation_interval(
-                        public_key,
-                        account_token,
-                        self.settings.tunnel_options.wireguard.rotation_interval,
-                    )
-                    .await;
-
-                Ok(keygen_event)
-            }
-            Err(wireguard::Error::TooManyKeys) => Ok(KeygenEvent::TooManyKeys),
-            Err(wireguard::Error::RestError(error)) => Err(Error::RestError(error)),
-            Err(wireguard::Error::ApiCheckError(error)) => Err(Error::ApiCheckError(error)),
-        }
-    }
-
-    async fn on_get_wireguard_key(&mut self, tx: ResponseTx<Option<wireguard::PublicKey>, Error>) {
-        let result = if self.settings.get_account_token().is_some() {
-            Ok(self
-                .settings
-                .get_wireguard()
-                .map(|data| data.get_public_key()))
+    async fn on_get_wireguard_key(&mut self, tx: ResponseTx<Option<PublicKey>, Error>) {
+        let result = if let Some(device) = self.account_manager.get() {
+            Ok(Some(device.wg_data.get_public_key()))
         } else {
             Err(Error::NoAccountToken)
         };
         Self::oneshot_send(tx, result, "get_wireguard_key response");
-    }
-
-    async fn on_verify_wireguard_key(&mut self, tx: ResponseTx<bool, Error>) {
-        let account = match self.settings.get_account_token() {
-            Some(account) => account,
-            None => {
-                Self::oneshot_send(tx, Ok(false), "verify_wireguard_key response");
-                return;
-            }
-        };
-        let public_key = match self.settings.get_wireguard() {
-            Some(wg_data) => wg_data.private_key.public_key(),
-            None => {
-                Self::oneshot_send(tx, Ok(false), "verify_wireguard_key response");
-                return;
-            }
-        };
-
-        let verification_rpc = self
-            .wireguard_key_manager
-            .verify_wireguard_key(account, public_key);
-
-        tokio::spawn(async move {
-            let result = match verification_rpc.await {
-                Ok(is_valid) => Ok(is_valid),
-                Err(wireguard::Error::RestError(error)) => Err(Error::RestError(error)),
-                Err(wireguard::Error::ApiCheckError(error)) => Err(Error::ApiCheckError(error)),
-                Err(wireguard::Error::TooManyKeys) => return,
-            };
-            Self::oneshot_send(tx, result, "verify_wireguard_key response");
-        });
     }
 
     fn on_get_settings(&self, tx: oneshot::Sender<Settings>) {

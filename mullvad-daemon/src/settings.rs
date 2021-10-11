@@ -3,7 +3,7 @@ use futures::TryFutureExt;
 use mullvad_types::{
     relay_constraints::{BridgeSettings, BridgeState, RelaySettingsUpdate},
     settings::{DnsOptions, Settings},
-    wireguard::{RotationInterval, WireguardData},
+    wireguard::RotationInterval,
 };
 #[cfg(target_os = "windows")]
 use std::collections::HashSet;
@@ -189,21 +189,6 @@ impl SettingsPersister {
             settings.show_beta_releases = true;
         }
         settings
-    }
-
-    /// Changes account number to the one given. Also saves the new settings to disk.
-    /// The boolean in the Result indicates if the account token changed or not
-    pub async fn set_account_token(
-        &mut self,
-        account_token: Option<String>,
-    ) -> Result<bool, Error> {
-        let should_save = self.settings.set_account_token(account_token);
-        self.update(should_save).await
-    }
-
-    pub async fn set_wireguard(&mut self, wireguard: Option<WireguardData>) -> Result<bool, Error> {
-        let should_save = self.settings.set_wireguard(wireguard);
-        self.update(should_save).await
     }
 
     pub async fn update_relay_settings(

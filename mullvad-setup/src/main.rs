@@ -72,8 +72,11 @@ pub enum Error {
     #[error(display = "Failed to obtain cache directory path")]
     CachePathError(#[error(source)] mullvad_paths::Error),
 
-    #[error(display = "Failed to update the settings")]
-    SettingsError(#[error(source)] mullvad_daemon::settings::Error),
+    #[error(display = "Failed to read the device cache")]
+    ReadDeviceCacheError(#[error(source)] mullvad_daemon::device::Error),
+
+    #[error(display = "Failed to write the device cache")]
+    WriteDeviceCacheError(#[error(source)] mullvad_daemon::device::Error),
 
     #[error(display = "Cannot parse the version string")]
     ParseVersionStringError,
@@ -161,41 +164,40 @@ async fn reset_firewall() -> Result<(), Error> {
 
 async fn remove_wireguard_key() -> Result<(), Error> {
     let (cache_path, settings_path) = get_paths()?;
-    let mut settings = mullvad_daemon::settings::SettingsPersister::load(&settings_path).await;
-
-    if let Some(token) = settings.get_account_token() {
-        if let Some(wg_data) = settings.get_wireguard() {
-            let rpc_runtime = MullvadRpcRuntime::with_cache(&cache_path, false)
-                .await
-                .map_err(Error::RpcInitializationError)?;
-            let mut key_proxy = mullvad_rpc::WireguardKeyProxy::new(
-                rpc_runtime
-                    .mullvad_rest_handle(
-                        ApiConnectionMode::try_from_cache(&cache_path)
-                            .await
-                            .into_repeat(),
-                        |_| async { true },
-                    )
-                    .await,
-            );
-            retry_future_n(
-                move || {
-                    key_proxy.remove_wireguard_key(token.clone(), wg_data.private_key.public_key())
-                },
-                move |result| match result {
-                    Err(error) => error.is_network_error(),
-                    _ => false,
-                },
-                constant_interval(KEY_RETRY_INTERVAL),
-                KEY_RETRY_MAX_RETRIES,
-            )
+    let (mut cacher, data) = mullvad_daemon::device::DeviceCacher::new(&settings_path)
+        .await
+        .map_err(Error::ReadDeviceCacheError)?;
+    if let Some(device) = data {
+        let rpc_runtime = MullvadRpcRuntime::with_cache(&cache_path, false)
             .await
-            .map_err(Error::RemoveKeyError)?;
-            settings
-                .set_wireguard(None)
-                .await
-                .map_err(Error::SettingsError)?;
-        }
+            .map_err(Error::RpcInitializationError)?;
+
+        let proxy = mullvad_rpc::DevicesProxy::new(
+            rpc_runtime
+                .mullvad_rest_handle(
+                    ApiConnectionMode::try_from_cache(&cache_path)
+                        .await
+                        .into_repeat(),
+                    |_| async { true },
+                )
+                .await,
+        );
+        retry_future_n(
+            move || proxy.remove(device.token.clone(), device.device.id.clone()),
+            move |result| match result {
+                Err(error) => error.is_network_error(),
+                _ => false,
+            },
+            constant_interval(KEY_RETRY_INTERVAL),
+            KEY_RETRY_MAX_RETRIES,
+        )
+        .await
+        .map_err(Error::RemoveKeyError)?;
+
+        cacher
+            .write(None)
+            .await
+            .map_err(Error::WriteDeviceCacheError)?;
     }
 
     Ok(())

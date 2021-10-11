@@ -16,23 +16,17 @@ impl Command for Account {
         clap::App::new(self.name())
             .about("Control and display information about your Mullvad account")
             .setting(clap::AppSettings::SubcommandRequiredElseHelp)
+            .subcommand(clap::App::new("create").about("Create and log in to a new account"))
             .subcommand(
-                clap::App::new("set").about("Change account").arg(
+                clap::App::new("login").about("Log in to an account").arg(
                     clap::Arg::new("token")
                         .help("The Mullvad account token to configure the client with")
                         .required(false),
                 ),
             )
+            .subcommand(clap::App::new("logout").about("Log out of the current account"))
             .subcommand(
-                clap::App::new("get")
-                    .about("Display information about the currently configured account"),
-            )
-            .subcommand(
-                clap::App::new("unset").about("Removes the account number from the settings"),
-            )
-            .subcommand(
-                clap::App::new("create")
-                    .about("Creates a new account and sets it as the active one"),
+                clap::App::new("get").about("Display information about the current account"),
             )
             .subcommand(
                 clap::App::new("redeem").about("Redeems a voucher").arg(
@@ -44,7 +38,9 @@ impl Command for Account {
     }
 
     async fn run(&self, matches: &clap::ArgMatches) -> Result<()> {
-        if let Some(set_matches) = matches.subcommand_matches("set") {
+        if let Some(_matches) = matches.subcommand_matches("create") {
+            self.create().await
+        } else if let Some(set_matches) = matches.subcommand_matches("login") {
             let mut token = match set_matches.value_of("token") {
                 Some(token) => token.to_string(),
                 None => {
@@ -60,13 +56,11 @@ impl Command for Account {
                 }
             };
             token = token.split_whitespace().join("").to_string();
-            self.set(Some(token)).await
+            self.login(token).await
+        } else if let Some(_matches) = matches.subcommand_matches("logout") {
+            self.logout().await
         } else if let Some(_matches) = matches.subcommand_matches("get") {
             self.get().await
-        } else if let Some(_matches) = matches.subcommand_matches("unset") {
-            self.set(None).await
-        } else if let Some(_matches) = matches.subcommand_matches("create") {
-            self.create().await
         } else if let Some(matches) = matches.subcommand_matches("redeem") {
             let voucher = matches.value_of_t_or_exit("voucher");
             self.redeem_voucher(voucher).await
@@ -77,24 +71,35 @@ impl Command for Account {
 }
 
 impl Account {
-    async fn set(&self, token: Option<AccountToken>) -> Result<()> {
+    async fn create(&self) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        rpc.set_account(token.clone().unwrap_or_default()).await?;
-        if let Some(token) = token {
-            println!("Mullvad account \"{}\" set", token);
-        } else {
-            println!("Mullvad account removed");
-        }
+        rpc.create_new_account(()).await?;
+        println!("New account created!");
+        self.get().await
+    }
+
+    async fn login(&self, token: AccountToken) -> Result<()> {
+        let mut rpc = new_rpc_client().await?;
+        rpc.login_account(token.clone()).await?;
+        println!("Mullvad account \"{}\" set", token);
+        Ok(())
+    }
+
+    async fn logout(&self) -> Result<()> {
+        let mut rpc = new_rpc_client().await?;
+        rpc.logout_account(()).await?;
+        println!("Removed device from Mullvad account");
         Ok(())
     }
 
     async fn get(&self) -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        let settings = rpc.get_settings(()).await?.into_inner();
-        if settings.account_token != "" {
-            println!("Mullvad account: {}", settings.account_token);
+        let device = rpc.get_device(()).await?.into_inner();
+        if !device.account_token.is_empty() {
+            println!("Mullvad account: {}", device.account_token);
+            println!("Device name    : {}", device.device.unwrap().name);
             let expiry = rpc
-                .get_account_data(settings.account_token)
+                .get_account_data(device.account_token)
                 .await
                 .map_err(|error| Error::RpcFailedExt("Failed to fetch account data", error))?
                 .into_inner();
@@ -106,13 +111,6 @@ impl Account {
             println!("No account configured");
         }
         Ok(())
-    }
-
-    async fn create(&self) -> Result<()> {
-        let mut rpc = new_rpc_client().await?;
-        rpc.create_new_account(()).await?;
-        println!("New account created!");
-        self.get().await
     }
 
     async fn redeem_voucher(&self, mut voucher: String) -> Result<()> {

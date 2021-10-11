@@ -74,10 +74,9 @@ impl Command for Status {
                             println!("New app version info: {:#?}", app_version_info);
                         }
                     }
-                    EventType::KeyEvent(key_event) => {
+                    EventType::Device(device) => {
                         if verbose {
-                            print!("Key event: ");
-                            print_keygen_event(&key_event);
+                            println!("Device event: {:#?}", device);
                         }
                     }
                 }

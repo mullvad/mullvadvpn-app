@@ -1,6 +1,7 @@
 #[cfg(target_os = "android")]
 pub use crate::https_client_with_sni::SocketBypassRequest;
 use crate::{
+    access::AccessTokenProxy,
     address_cache::AddressCache,
     availability::ApiAvailabilityHandle,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
@@ -17,6 +18,7 @@ use hyper::{
     header::{self, HeaderValue},
     Method, Uri,
 };
+use mullvad_types::account::AccountToken;
 use std::{
     future::Future,
     str::FromStr,
@@ -302,11 +304,11 @@ impl RestRequest {
         })
     }
 
-    /// Set the auth header with the following format: `Token $auth`.
+    /// Set the auth header with the following format: `Bearer $auth`.
     pub fn set_auth(&mut self, auth: Option<String>) -> Result<()> {
         let header = match auth {
             Some(auth) => Some(
-                HeaderValue::from_str(&format!("Token {}", auth))
+                HeaderValue::from_str(&format!("Bearer {}", auth))
                     .map_err(Error::InvalidHeaderError)?,
             ),
             None => None,
@@ -399,7 +401,16 @@ impl RequestFactory {
     }
 
     pub fn post_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<RestRequest> {
-        let mut request = self.hyper_request(path, Method::POST)?;
+        self.json_request(Method::POST, path, body)
+    }
+
+    fn json_request<S: serde::Serialize>(
+        &self,
+        method: Method,
+        path: &str,
+        body: &S,
+    ) -> Result<RestRequest> {
+        let mut request = self.hyper_request(path, method)?;
 
         let json_body = serde_json::to_string(&body)?;
         let body_length = json_body.as_bytes().len() as u64;
@@ -468,33 +479,52 @@ pub fn send_request(
     service: RequestServiceHandle,
     uri: &str,
     method: Method,
-    auth: Option<String>,
+    auth: Option<(AccessTokenProxy, AccountToken)>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
     let request = factory.request(uri, method);
 
     async move {
         let mut request = request?;
-        request.set_auth(auth)?;
+        if let Some((store, account)) = &auth {
+            let access_token = store.get_token(&account).await?;
+            request.set_auth(Some(access_token))?;
+        }
         let response = service.request(request).await?;
-        parse_rest_response(response, expected_statuses).await
+        let result = parse_rest_response(response, expected_statuses).await;
+
+        if let Some((store, account)) = &auth {
+            store.check_response(&account, &result);
+        }
+
+        result
     }
 }
 
-pub fn post_request_with_json<B: serde::Serialize>(
+pub fn send_json_request<B: serde::Serialize>(
     factory: &RequestFactory,
     service: RequestServiceHandle,
     uri: &str,
+    method: Method,
     body: &B,
-    auth: Option<String>,
+    auth: Option<(AccessTokenProxy, AccountToken)>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
-    let request = factory.post_json(uri, body);
+    let request = factory.json_request(method, uri, body);
     async move {
         let mut request = request?;
-        request.set_auth(auth)?;
+        if let Some((store, account)) = &auth {
+            let access_token = store.get_token(&account).await?;
+            request.set_auth(Some(access_token))?;
+        }
         let response = service.request(request).await?;
-        parse_rest_response(response, expected_statuses).await
+        let result = parse_rest_response(response, expected_statuses).await;
+
+        if let Some((store, account)) = &auth {
+            store.check_response(&account, &result);
+        }
+
+        result
     }
 }
 
@@ -554,6 +584,7 @@ pub struct MullvadRestHandle {
     pub(crate) service: RequestServiceHandle,
     pub factory: RequestFactory,
     availability: ApiAvailabilityHandle,
+    pub token_store: AccessTokenProxy,
 }
 
 impl MullvadRestHandle {
@@ -563,10 +594,13 @@ impl MullvadRestHandle {
         address_cache: AddressCache,
         availability: ApiAvailabilityHandle,
     ) -> Self {
+        let token_store = AccessTokenProxy::new(service.clone(), factory.clone());
+
         let handle = Self {
             service,
             factory,
             availability,
+            token_store,
         };
         if !super::API.disable_address_cache {
             handle.spawn_api_address_fetcher(address_cache);
