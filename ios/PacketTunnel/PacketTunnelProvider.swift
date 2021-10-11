@@ -323,15 +323,19 @@ extension PacketTunnelConfiguration {
         let mullvadEndpoint = selectorResult.endpoint
         let dnsSettings = tunnelSettings.interface.dnsSettings
 
-        switch (dnsSettings.blockAdvertising, dnsSettings.blockTracking) {
-        case (true, false):
-            return [IPv4Address("100.64.0.1")!]
-        case (false, true):
-            return [IPv4Address("100.64.0.2")!]
-        case (true, true):
-            return [IPv4Address("100.64.0.3")!]
-        case (false, false):
-            return [mullvadEndpoint.ipv4Gateway, mullvadEndpoint.ipv6Gateway]
+        if dnsSettings.effectiveEnableCustomDNS {
+            return dnsSettings.customDNSDomains
+        } else {
+            switch (dnsSettings.blockAdvertising, dnsSettings.blockTracking) {
+            case (true, false):
+                return [IPv4Address("100.64.0.1")!]
+            case (false, true):
+                return [IPv4Address("100.64.0.2")!]
+            case (true, true):
+                return [IPv4Address("100.64.0.3")!]
+            case (false, false):
+                return [mullvadEndpoint.ipv4Gateway, mullvadEndpoint.ipv6Gateway]
+            }
         }
     }
 }
