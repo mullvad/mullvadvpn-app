@@ -46,6 +46,9 @@ pub const INVALID_ACCOUNT: &str = "INVALID_ACCOUNT";
 /// Error code returned by the Mullvad API if the account token is missing or invalid.
 pub const INVALID_AUTH: &str = "INVALID_AUTH";
 
+pub const MAX_DEVICES_REACHED: &str = "MAX_DEVICES_REACHED";
+pub const PUBKEY_IN_USE: &str = "PUBKEY_IN_USE";
+
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 
 lazy_static::lazy_static! {

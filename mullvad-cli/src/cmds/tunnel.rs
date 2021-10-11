@@ -246,20 +246,13 @@ impl Tunnel {
             println!("No key is set");
             return Ok(());
         }
-
-        let is_valid = rpc
-            .verify_wireguard_key(())
-            .await
-            .map_err(|error| Error::RpcFailedExt("Failed to verify key", error))?
-            .into_inner();
-        println!("Key is valid for use with current account: {}", is_valid);
         Ok(())
     }
 
     async fn process_wireguard_key_generate() -> Result<()> {
         let mut rpc = new_rpc_client().await?;
-        let keygen_event = rpc.generate_wireguard_key(()).await?;
-        print_keygen_event(&keygen_event.into_inner());
+        let keygen_event = rpc.rotate_wireguard_key(()).await?;
+        println!("Rotated WireGuard key");
         Ok(())
     }
 

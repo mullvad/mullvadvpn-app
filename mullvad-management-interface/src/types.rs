@@ -197,6 +197,43 @@ impl From<mullvad_types::states::TunnelState> for TunnelState {
     }
 }
 
+impl From<mullvad_types::device::Device> for Device {
+    fn from(device: mullvad_types::device::Device) -> Self {
+        Device {
+            id: device.id,
+            name: device.name,
+        }
+    }
+}
+
+impl From<mullvad_types::device::DeviceEvent> for DeviceEvent {
+    fn from(event: mullvad_types::device::DeviceEvent) -> Self {
+        DeviceEvent {
+            device: event.0.map(|device| Device::from(device)),
+        }
+    }
+}
+
+impl From<mullvad_types::device::DeviceData> for DeviceConfig {
+    fn from(device: mullvad_types::device::DeviceData) -> Self {
+        DeviceConfig {
+            account_token: device.token,
+            device: Some(Device::from(device.device)),
+        }
+    }
+}
+
+impl From<Vec<mullvad_types::device::Device>> for DeviceList {
+    fn from(devices: Vec<mullvad_types::device::Device>) -> Self {
+        DeviceList {
+            devices: devices
+                .into_iter()
+                .map(|device| Device::from(device))
+                .collect(),
+        }
+    }
+}
+
 impl From<mullvad_types::wireguard::KeygenEvent> for KeygenEvent {
     fn from(event: mullvad_types::wireguard::KeygenEvent) -> Self {
         use keygen_event::KeygenEvent as Event;
@@ -387,7 +424,6 @@ impl From<&mullvad_types::settings::Settings> for Settings {
         let split_tunnel = None;
 
         Self {
-            account_token: settings.get_account_token().unwrap_or_default(),
             relay_settings: Some(RelaySettings::from(settings.get_relay_settings())),
             bridge_settings: Some(BridgeSettings::from(settings.bridge_settings.clone())),
             bridge_state: Some(BridgeState::from(settings.get_bridge_state())),
