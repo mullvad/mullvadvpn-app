@@ -73,6 +73,8 @@ Line wrap the file at 100 chars.                                              Th
 - Improve responsiveness of the controls and status text in the main view in the desktop app.
 - Read macOS scrollbar visibility settings to decide wheter or not the scrollbars should hide when
   not scrolling.
+- Fix IPv6 connections to WireGuard servers by not dropping select neighbor advertisements and
+  solicitations.
 
 #### Linux
 - Make offline monitor aware of routing table changes.
