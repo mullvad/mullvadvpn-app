@@ -35,7 +35,6 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
         dataSource.delegate = self
 
         navigationItem.title = NSLocalizedString("NAVIGATION_TITLE", tableName: "Preferences", comment: "Navigation title")
-        navigationItem.largeTitleDisplayMode = .always
         navigationItem.rightBarButtonItem = editButtonItem
 
         TunnelManager.shared.addObserver(self)
