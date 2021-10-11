@@ -64,10 +64,14 @@ The following network traffic is allowed or blocked independent of state:
      server)
    * Incoming UDP from `[fe80::]/10:547` to `[fe80::]/10:546` (server to client)
 
-1. Router solicitation, advertisement and redirects (subset of NDP) is always allowed:
+1. A subset of NDP is allowed:
    * Outgoing to `ff02::2`, but only ICMPv6 with type 133 and code 0 (Router solicitation)
-   * Incoming from `[fe80::]/10`, but only ICMPv6 type 134 and code 0 (Router advertisement)
-   * Incoming from `[fe80::]/10`, but only ICMPv6 type 137 and code 0 (Redirect)
+   * Incoming from `fe80::/10`, but only ICMPv6 type 134 and code 0 (Router advertisement)
+   * Incoming from `fe80::/10`, but only ICMPv6 type 137 and code 0 (Redirect)
+   * Outgoing to `ff02::1:ff00:0/104` and `fe80::/10`, but only ICMPv6 with type 135 and code 0 (Neighbor solicitation).
+   * Incoming from `fe80::/10`, but only ICMPv6 with type 135 and code 0 (Neighbor solicitation).
+   * Outgoing to `fe80::/10`, but only ICMPv6 with type 136 and code 0 (Neighbor advertisement).
+   * Incoming from `*`, but only ICMPv6 with type 136 and code 0 (Neighbor advertisement).
 
 1. If the "Allow LAN" setting is enabled, the following is also allowed:
    * Outgoing to, and incoming from, any IP in an unroutable network, that means:
@@ -94,11 +98,6 @@ The following network traffic is allowed or blocked independent of state:
 
 On Linux, any situation that permits incoming or outgoing traffic also allows that traffic to be
 forwarded. All other forward traffic is rejected.
-
-#### macOS deviations
-
-* The app does not look at ICMPv6 type and code headers. So all ICMPv6 is allowed between the
-  specified IP networks.
 
 ### Disconnected
 
