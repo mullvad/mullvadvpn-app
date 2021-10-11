@@ -430,7 +430,16 @@ impl RequestFactory {
     }
 
     pub fn post_json<S: serde::Serialize>(&self, path: &str, body: &S) -> Result<RestRequest> {
-        let mut request = self.hyper_request(path, Method::POST)?;
+        self.json_request(Method::POST, path, body)
+    }
+
+    pub fn json_request<S: serde::Serialize>(
+        &self,
+        method: Method,
+        path: &str,
+        body: &S,
+    ) -> Result<RestRequest> {
+        let mut request = self.hyper_request(path, method)?;
 
         let json_body = serde_json::to_string(&body)?;
         let body_length = json_body.as_bytes().len() as u64;
@@ -535,15 +544,16 @@ pub fn send_request(
     }
 }
 
-pub fn post_request_with_json<B: serde::Serialize>(
+pub fn send_json_request<B: serde::Serialize>(
     factory: &RequestFactory,
     service: RequestServiceHandle,
     uri: &str,
+    method: Method,
     body: &B,
     auth: Option<String>,
     expected_statuses: &'static [hyper::StatusCode],
 ) -> impl Future<Output = Result<Response>> {
-    let request = factory.post_json(uri, body);
+    let request = factory.json_request(method, uri, body);
     async move {
         let mut request = request?;
         request.set_auth(auth)?;

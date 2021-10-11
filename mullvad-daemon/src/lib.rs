@@ -6,6 +6,7 @@ extern crate serde;
 
 mod account;
 pub mod account_history;
+mod device;
 pub mod exception_logging;
 #[cfg(target_os = "macos")]
 pub mod exclusion_gid;
