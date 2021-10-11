@@ -73,6 +73,11 @@ struct DNSSettings: Codable, Equatable {
     /// Custom DNS domains.
     var customDNSDomains: [AnyIPAddress] = []
 
+    /// Effective state of the custom DNS setting.
+    var effectiveEnableCustomDNS: Bool {
+        return !blockAdvertising && !blockTracking && enableCustomDNS && !customDNSDomains.isEmpty
+    }
+
     private enum CodingKeys: String, CodingKey {
         case blockAdvertising, blockTracking, enableCustomDNS, customDNSDomains
     }
