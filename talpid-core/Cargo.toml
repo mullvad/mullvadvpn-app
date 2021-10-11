@@ -41,7 +41,7 @@ tonic = "0.5"
 prost = "0.8"
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.19"
+nix = "0.22.2"
 
 
 [target.'cfg(target_os = "android")'.dependencies]
@@ -54,7 +54,7 @@ resolv-conf = "0.7"
 rtnetlink = "0.8"
 netlink-packet-core = "0.2"
 netlink-packet-utils = "0.4"
-netlink-packet-route = "0.7"
+netlink-packet-route = "0.8"
 netlink-proto = "0.7"
 netlink-sys = "0.7"
 byteorder = "1"
