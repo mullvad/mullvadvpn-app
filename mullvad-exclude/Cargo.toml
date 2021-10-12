@@ -7,6 +7,6 @@ edition = "2018"
 publish = false
 
 [target.'cfg(target_os = "linux")'.dependencies]
-nix = "0.19"
+nix = "0.22.2"
 err-derive = "0.3.0"
 talpid-types = { path = "../talpid-types" }

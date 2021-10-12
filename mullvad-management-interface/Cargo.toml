@@ -23,7 +23,7 @@ triggered = "0.1.1"
 log = "0.4"
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.19"
+nix = "0.22.2"
 lazy_static = "1.0"
 
 [build-dependencies]

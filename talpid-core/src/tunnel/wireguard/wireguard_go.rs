@@ -274,8 +274,8 @@ impl WgGoTunnel {
             match nix::unistd::dup(tunnel_device.as_raw_fd()) {
                 Ok(fd) => return Ok((tunnel_device, fd)),
                 #[cfg(not(target_os = "macos"))]
-                Err(error @ nix::Error::Sys(nix::errno::Errno::EBADFD)) => last_error = Some(error),
-                Err(error @ nix::Error::Sys(nix::errno::Errno::EBADF)) => last_error = Some(error),
+                Err(error @ nix::errno::Errno::EBADFD) => last_error = Some(error),
+                Err(error @ nix::errno::Errno::EBADF) => last_error = Some(error),
                 Err(error) => return Err(TunnelError::FdDuplicationError(error)),
             }
         }
