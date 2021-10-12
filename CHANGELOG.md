@@ -24,6 +24,8 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+
+## [2021.5-beta1] - 2021-10-12
 ### Added
 - Added possibility to filter locations by provider in the desktop app.
 - Add WireGuard over TCP CLI option for all relays.
@@ -102,6 +104,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix erasing wireguard MTU value in some scenarious.
 - Fix initial state of Split tunneling excluded apps list. Previously it was not notified the daemon
 properly after initialization.
+
 
 ## [2021.4] - 2021-06-30
 This release is for desktop only.
