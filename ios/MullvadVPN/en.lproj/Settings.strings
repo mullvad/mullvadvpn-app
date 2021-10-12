@@ -10,6 +10,9 @@
 /* No comment provided by engineer. */
 "APP_VERSION_CELL_LABEL" = "App version";
 
+/* No comment provided by engineer. */
+"DNS_TEXT_CELL_PLACEHOLDER" = "Enter IP";
+
 /* Navigation title */
 "NAVIGATION_TITLE" = "Settings";
 
@@ -18,6 +21,12 @@
 
 /* No comment provided by engineer. */
 "REPORT_PROBLEM_CELL_LABEL" = "Report a problem";
+
+/* No comment provided by engineer. */
+"SETTINGS_STATUS_CELL_DISABLED" = "Disabled";
+
+/* No comment provided by engineer. */
+"SETTINGS_STATUS_CELL_ENABLED" = "Enabled";
 
 /* No comment provided by engineer. */
 "WIREGUARD_KEY_CELL_LABEL" = "WireGuard key";
