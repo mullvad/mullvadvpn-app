@@ -47,10 +47,20 @@ export const StyledIcon = styled(Cell.UntintedIcon)(disabledApplication, {
   marginRight: '12px',
 });
 
+export const StyledActionIcon = styled(ImageView)({
+  marginLeft: '6px',
+});
+
+export const StyledCellWarningIcon = styled(Cell.Icon)({
+  marginLeft: '6px',
+});
+
 export const StyledCellLabel = styled(Cell.Label)(disabledApplication, {
   fontFamily: 'Open Sans',
   fontWeight: 'normal',
   fontSize: '16px',
+  wordWrap: 'break-word',
+  overflow: 'hidden',
 });
 
 export const StyledIconPlaceholder = styled.div({

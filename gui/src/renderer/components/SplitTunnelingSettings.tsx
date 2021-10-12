@@ -45,6 +45,8 @@ import {
   StyledNoResult,
   StyledNoResultSearchTerm,
   StyledDisabledWarning,
+  StyledActionIcon,
+  StyledCellWarningIcon,
 } from './SplitTunnelingSettingsStyles';
 
 export default function SplitTunneling() {
@@ -280,7 +282,9 @@ function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
           <StyledIconPlaceholder />
         )}
         <StyledCellLabel lookDisabled={disabled}>{props.application.name}</StyledCellLabel>
-        {props.application.warning && <Cell.Icon source="icon-alert" tintColor={warningColor} />}
+        {props.application.warning && (
+          <StyledCellWarningIcon source="icon-alert" tintColor={warningColor} />
+        )}
       </StyledCellButton>
       {showWarning && (
         <ModalAlert
@@ -525,7 +529,7 @@ function ApplicationRow<T extends IApplication>(props: IApplicationRowProps<T>) 
       )}
       <StyledCellLabel>{props.application.name}</StyledCellLabel>
       {props.onSelect && (
-        <ImageView
+        <StyledActionIcon
           source="icon-add"
           width={24}
           height={24}
@@ -535,7 +539,7 @@ function ApplicationRow<T extends IApplication>(props: IApplicationRowProps<T>) 
         />
       )}
       {props.onRemove && (
-        <ImageView
+        <StyledActionIcon
           source="icon-remove"
           width={24}
           height={24}
