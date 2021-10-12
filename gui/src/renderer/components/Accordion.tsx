@@ -26,6 +26,7 @@ const Content = styled.div({
   flexDirection: 'column',
   flex: 1,
   height: 'fit-content',
+  width: '100%',
 });
 
 export default class Accordion extends React.Component<IProps, IState> {
