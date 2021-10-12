@@ -4,5 +4,14 @@
 /* No comment provided by engineer. */
 "BLOCK_TRACKERS_CELL_LABEL" = "Block trackers";
 
+/* No comment provided by engineer. */
+"CUSTOM_DNS_CELL_DISABLED_ACCESSIBILITY_HINT" = "Disable Block Ads and Block trackers to activate this setting.";
+
+/* No comment provided by engineer. */
+"CUSTOM_DNS_CELL_DISABLED_FOOTER_LABEL" = "Disable Block Ads and Block trackers to activate this setting.";
+
+/* No comment provided by engineer. */
+"CUSTOM_DNS_CELL_LABEL" = "Use custom DNS";
+
 /* Navigation title */
 "NAVIGATION_TITLE" = "Preferences";
