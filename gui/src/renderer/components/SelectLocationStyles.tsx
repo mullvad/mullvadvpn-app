@@ -29,6 +29,7 @@ export const StyledNavigationBarAttachment = styled.div({}, (props: { top: numbe
 }));
 
 export const StyledFilterContainer = styled.div({
+  display: 'flex',
   position: 'relative',
   justifySelf: 'end',
 });
