@@ -1,6 +1,6 @@
 [package]
 name = "mullvad-cli"
-version = "2021.4.0"
+version = "2021.5.0-beta1"
 authors = ["Mullvad VPN"]
 description = "Manage the Mullvad VPN daemon via a convenient CLI"
 license = "GPL-3.0"
