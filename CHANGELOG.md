@@ -23,14 +23,38 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [Unreleased]
+### Added
+#### Windows
+- Add black monochromatic tray icon for Windows when using light color for tray.
 
+### Changed
+- Update Electron from 11.4.9 to 15.0.0.
+
+#### Android
+- Drop support for Android 7/7.1 (Android 8/API level 26 or later is now required).
+
+### Fixed
+- Fix desktop app showing a future date for when WireGuard key was generated.
+
+#### Android
+- Fix reconnect on app resume.
+- Fix invalid URLs. Rely on browser locale rather than app/system language.
+
+#### macOS
+- Prevent app from showing when dragging tray icon on macOS.
+
+
+## [2021.5-beta1] - 2021-10-12
 ### Added
 - Added possibility to filter locations by provider in the desktop app.
-- Add WireGuard over TCP CLI option for all relays.
+- Add ability to use WireGuard over TCP towards all relays via the desktop CLI. However,
+  this service is not yet available on all relays. At the time of writing, this only
+  works towards `se6-wireguard`, `se9-wireguard` and `se17-wireguard`.
 - Add GUI environment variable `MULLVAD_DISABLE_UPDATE_NOTIFICATION`. If set to `1`, GUI
-  notification will be disabled when an update is available.
-- Add setting for changing between IPv4 and IPv6 for the connection to WireGuard servers on desktop.
-- Add black monochromatic tray icon for Windows when using light color for tray.
+  notification will be disabled when an update is available. This is not intended to be set by
+  normal users.
+- Add setting for changing between IPv4 and IPv6 for the connection to WireGuard servers on
+  desktop.
 
 #### Android
 - Added toggle for Split tunneling view to be able to show system apps
@@ -38,7 +62,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Resolve symbolic links and junctions for excluded apps.
 - Add opt-in support for NT kernel WireGuard driver. It can be enabled in the CLI.
-- Add monochromatic black icon on Windows for use with light themes.
+  Should give better performance. Especially over Wi-Fi.
 
 ### Changed
 - Only use the account history file to store the last used account.
@@ -49,7 +73,6 @@ Line wrap the file at 100 chars.                                              Th
 - Update Electron from 11.2.3 to 11.4.9.
 - Move OpenVPN and WireGuard settings in the advanced settings view into separate settings views.
 - Return to main view in desktop app after being hidden/closed for two minutes.
-- Update Electron from 11.4.9 to 15.0.0.
 
 #### Linux
 - Always send DNS requests inside the tunnel for excluded processes when using public custom DNS.
@@ -57,9 +80,6 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Upgrade Wintun from 0.10.4 to 0.13.
 - Reduce tunnel setup time for OpenVPN by disabling DAD.
-
-#### Android
-- Drop support for Android 7/7.1 (Android 8/API level 26 or later is now required).
 
 ### Fixed
 - Fix link to download page not always using the beta URL when it should.
@@ -79,7 +99,6 @@ Line wrap the file at 100 chars.                                              Th
 - Improve responsiveness of the controls and status text in the main view in the desktop app.
 - Read macOS scrollbar visibility settings to decide wheter or not the scrollbars should hide when
   not scrolling.
-- Fix desktop app showing a future date for when WireGuard key was generated.
 - Fix IPv6 connections to WireGuard servers by not dropping select neighbor advertisements and
   solicitations.
 
@@ -109,11 +128,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix erasing wireguard MTU value in some scenarious.
 - Fix initial state of Split tunneling excluded apps list. Previously it was not notified the daemon
 properly after initialization.
-- Fix reconnect on app resume.
-- Fix invalid URLs. Rely on browser locale rather than app/system language.
 
-#### macOS
-- Prevent app from showing when dragging tray icon on macOS.
 
 ## [2021.4] - 2021-06-30
 This release is for desktop only.
