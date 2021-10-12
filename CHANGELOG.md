@@ -38,6 +38,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Resolve symbolic links and junctions for excluded apps.
 - Add opt-in support for NT kernel WireGuard driver. It can be enabled in the CLI.
+- Add monochromatic black icon on Windows for use with light themes.
 
 ### Changed
 - Only use the account history file to store the last used account.
