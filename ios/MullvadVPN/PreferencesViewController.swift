@@ -47,6 +47,8 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     override func setEditing(_ editing: Bool, animated: Bool) {
         dataSource.setEditing(editing, animated: animated)
 
+        navigationItem.setHidesBackButton(editing, animated: animated)
+
         if #available(iOS 13.0, *) {
             // Disable swipe to dismiss when editing
             isModalInPresentation = editing
