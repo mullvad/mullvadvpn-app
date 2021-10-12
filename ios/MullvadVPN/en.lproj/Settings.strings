@@ -10,6 +10,9 @@
 /* No comment provided by engineer. */
 "APP_VERSION_CELL_LABEL" = "App version";
 
+/* No comment provided by engineer. */
+"DNS_TEXT_CELL_PLACEHOLDER" = "Enter IP";
+
 /* Navigation title */
 "NAVIGATION_TITLE" = "Settings";
 
