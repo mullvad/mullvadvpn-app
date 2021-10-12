@@ -45,6 +45,8 @@ class PreferencesViewController: UITableViewController, PreferencesDataSourceDel
     }
 
     override func setEditing(_ editing: Bool, animated: Bool) {
+        navigationItem.setHidesBackButton(editing, animated: animated)
+
         dataSource.setEditing(editing)
 
         if #available(iOS 13.0, *) {
