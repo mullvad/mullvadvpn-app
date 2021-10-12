@@ -28,8 +28,8 @@ class CustomSwitch: UISwitch {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        self.tintColor = .clear
-        self.onTintColor = .clear
+        tintColor = .clear
+        onTintColor = .clear
 
         updateThumbColor(isOn: self.isOn, animated: false)
 
@@ -61,7 +61,7 @@ class CustomSwitch: UISwitch {
 
     @objc private func valueChanged(_ sender: Any) {
         if #available(iOS 13, *) {
-            self.updateThumbColor(isOn: self.isOn, animated: true)
+            updateThumbColor(isOn: isOn, animated: true)
         } else {
             // Wait for animations to finish before changing the thumb color to prevent the jumpy behaviour.
             CATransaction.setCompletionBlock {
