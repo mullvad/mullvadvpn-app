@@ -53,11 +53,10 @@ class SelectLocationCell: BasicTableViewCell {
 
     var didCollapseHandler: CollapseHandler?
 
-    private let preferredMargins = UIEdgeInsets(top: 16, left: 28, bottom: 16, right: 12)
-
     override var indentationLevel: Int {
         didSet {
             updateBackgroundColor()
+            setLayoutMargins()
         }
     }
 
@@ -71,17 +70,13 @@ class SelectLocationCell: BasicTableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
+    private func setLayoutMargins() {
+        let indentation = CGFloat(indentationLevel) * indentationWidth
 
-        let indentPoints = CGFloat(indentationLevel) * indentationWidth
+        var contentMargins = UIMetrics.selectLocationCellLayoutMargins
+        contentMargins.left += indentation
 
-        contentView.frame = CGRect(
-            x: indentPoints,
-            y: contentView.frame.origin.y,
-            width: contentView.frame.size.width - indentPoints,
-            height: contentView.frame.size.height
-        )
+        contentView.layoutMargins = contentMargins
     }
 
     override func setHighlighted(_ highlighted: Bool, animated: Bool) {
@@ -98,10 +93,9 @@ class SelectLocationCell: BasicTableViewCell {
     }
 
     private func setupCell() {
-        indentationWidth = 16
+        indentationWidth = UIMetrics.cellIndentationWidth
 
         backgroundColor = .clear
-        contentView.layoutMargins = preferredMargins
 
         locationLabel.font = UIFont.systemFont(ofSize: 17)
         locationLabel.textColor = .white
@@ -122,6 +116,7 @@ class SelectLocationCell: BasicTableViewCell {
         updateAccessibilityCustomActions()
         updateDisabled()
         updateBackgroundColor()
+        setLayoutMargins()
 
         NSLayoutConstraint.activate([
             tickImageView.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
