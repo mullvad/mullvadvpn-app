@@ -11,7 +11,7 @@ import UIKit
 private let kCollapseButtonWidth: CGFloat = 24
 private let kRelayIndicatorSize: CGFloat = 16
 
-class SelectLocationCell: BasicTableViewCell {
+class SelectLocationCell: UITableViewCell {
     typealias CollapseHandler = (SelectLocationCell) -> Void
 
     let locationLabel = UILabel()
@@ -96,6 +96,13 @@ class SelectLocationCell: BasicTableViewCell {
         indentationWidth = UIMetrics.cellIndentationWidth
 
         backgroundColor = .clear
+        contentView.backgroundColor = .clear
+
+        backgroundView = UIView()
+        backgroundView?.backgroundColor = UIColor.Cell.backgroundColor
+
+        selectedBackgroundView = UIView()
+        selectedBackgroundView?.backgroundColor = UIColor.Cell.selectedBackgroundColor
 
         locationLabel.font = UIFont.systemFont(ofSize: 17)
         locationLabel.textColor = .white
