@@ -300,6 +300,10 @@ msgstr "New Zealand"
 msgid "Nis"
 msgstr "Nis"
 
+#. MK
+msgid "North Macedonia"
+msgstr ""
+
 #. NO
 msgid "Norway"
 msgstr "Norge"
@@ -307,6 +311,10 @@ msgstr "Norge"
 #. US OKC
 msgid "Oklahoma City, OK"
 msgstr "Oklahoma City, OK"
+
+#. JP OSA
+msgid "Osaka"
+msgstr ""
 
 #. NO OSL
 msgid "Oslo"
@@ -404,6 +412,10 @@ msgstr "Singapore"
 msgid "Sioux Falls, SD"
 msgstr "Sioux Falls, SD"
 
+#. MK SKP
+msgid "Skopje"
+msgstr ""
+
 #. BG SOF
 msgid "Sofia"
 msgstr "Sofia"
@@ -499,4 +511,3 @@ msgstr "Wien"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zürich"
-
