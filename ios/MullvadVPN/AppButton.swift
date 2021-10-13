@@ -353,6 +353,20 @@ class CustomButton: UIButton {
             titleRect.origin.x = contentRect.midX - titleRect.width * 0.5
             imageRect.origin.x = titleRect.maxX + inlineImageSpacing
 
+        case (.right, .left):
+            titleRect.origin.x = contentRect.maxX - titleRect.width
+            imageRect.origin.x = titleRect.minX - imageRect.width - inlineImageSpacing
+
+        case (.right, .leftFixed):
+            imageRect.origin.x = contentRect.minX
+            titleRect.origin.x = contentRect.maxX - titleRect.width
+
+        case (.right, .rightFixed):
+            imageRect.origin.x = contentRect.maxX - imageRect.width
+            titleRect.origin.x = imageRect.width > 0
+                ? imageRect.minX - inlineImageSpacing - titleRect.width
+                : contentRect.maxX - titleRect.width
+
         default:
             fatalError()
         }
