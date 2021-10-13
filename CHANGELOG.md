@@ -28,10 +28,14 @@ Line wrap the file at 100 chars.                                              Th
 ## [2021.5-beta1] - 2021-10-12
 ### Added
 - Added possibility to filter locations by provider in the desktop app.
-- Add WireGuard over TCP CLI option for all relays.
+- Add ability to use WireGuard over TCP towards all relays via the desktop CLI. However,
+  this service is not yet available on all relays. At the time of writing, this only
+  works towards `se6-wireguard`, `se9-wireguard` and `se17-wireguard`.
 - Add GUI environment variable `MULLVAD_DISABLE_UPDATE_NOTIFICATION`. If set to `1`, GUI
-  notification will be disabled when an update is available.
-- Add setting for changing between IPv4 and IPv6 for the connection to WireGuard servers on desktop.
+  notification will be disabled when an update is available. This is not intended to be set by
+  normal users.
+- Add setting for changing between IPv4 and IPv6 for the connection to WireGuard servers on
+  desktop.
 
 #### Android
 - Added toggle for Split tunneling view to be able to show system apps
@@ -39,6 +43,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Resolve symbolic links and junctions for excluded apps.
 - Add opt-in support for NT kernel WireGuard driver. It can be enabled in the CLI.
+  Should give better performance. Especially over Wi-Fi.
 
 ### Changed
 - Only use the account history file to store the last used account.
