@@ -29,7 +29,7 @@ security.
 
 | OS/Platform | Supported versions |
 |-------------|--------------------|
-| Windows     | 7, 8.1 and 10      |
+| Windows     | 7, 8.1, 10 and 11  |
 | macOS       | The three latest major releases |
 | Linux (Ubuntu)| The two latest LTS releases and the latest non-LTS releases |
 | Linux (Fedora) | The versions that are not yet [EOL](https://fedoraproject.org/wiki/End_of_life) |
