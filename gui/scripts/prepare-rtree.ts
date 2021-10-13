@@ -23,16 +23,17 @@ function main() {
 
     try {
       processGeometry(source, destination);
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       console.error(`Failed to process ${name}: ${error.message}`);
     }
   }
 }
 
 function processGeometry(source: string, destination: string) {
-  const collection = JSON.parse(fs.readFileSync(source, { encoding: 'utf8' })) as Topology<
-    GeometryTopologyObjects
-  >;
+  const collection = JSON.parse(
+    fs.readFileSync(source, { encoding: 'utf8' }),
+  ) as Topology<GeometryTopologyObjects>;
 
   const { geometry } = collection.objects;
   const treeData = geometry.geometries.map((object, i) => {
