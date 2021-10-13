@@ -181,6 +181,44 @@ std::wstring GetWindowsVersion()
 
 	return version;
 }
+
+//
+// FixupWindows11ProductName()
+//
+// Patch product name based on Windows version.
+// The registry value that holds the product name seems to be deprecated in Win11.
+//
+std::wstring FixupWindows11ProductName(const std::wstring &productName, const std::wstring &version)
+{
+	const auto versionTokens = common::string::Tokenize(version, L".");
+
+	if (versionTokens.size() < 3)
+	{
+		return productName;
+	}
+
+	const auto major = common::string::LexicalCast<uint32_t>(versionTokens[0]);
+	const auto minor = common::string::LexicalCast<uint32_t>(versionTokens[1]);
+	const auto build = common::string::LexicalCast<uint32_t>(versionTokens[2]);
+
+	if (major != 10 || minor != 0 || build < 22000)
+	{
+		return productName;
+	}
+
+	auto productTokens = common::string::Tokenize(productName, L" ");
+
+	for (auto &token : productTokens)
+	{
+		if (0 == token.compare(L"10"))
+		{
+			token = L"11";
+		}
+	}
+
+	return common::string::Join(productTokens, L" ");
+}
+
 } // anonymous namespace
 
 //
@@ -374,7 +412,7 @@ void __declspec(dllexport) NSISCALL LogWindowsVersion
 		std::wstringstream ss;
 
 		ss	<< L"Windows version: "
-			<< productName
+			<< FixupWindows11ProductName(productName, version)
 			<< L", "
 			<< version;
 

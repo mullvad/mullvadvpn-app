@@ -81,7 +81,13 @@ impl WindowsVersion {
             (6, 1) => "7".into(),
             (6, 2) => "8".into(),
             (6, 3) => "8.1".into(),
-            (10, 0) => "10".into(),
+            (10, 0) => {
+                if self.build_number() < 22000 {
+                    "10".into()
+                } else {
+                    "11".into()
+                }
+            }
             (major, minor) => format!("{}.{}", major, minor),
         }
     }
