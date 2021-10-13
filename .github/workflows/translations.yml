@@ -5,8 +5,8 @@ on:
         paths:
             - .github/workflows/translations.yml
             - android/translations-converter/**
-            - android/src/**/plurals.xml
-            - android/src/**/strings.xml
+            - android/app/src/**/plurals.xml
+            - android/app/src/**/strings.xml
             - gui/**
     # Check if requested manually from the Actions tab
     workflow_dispatch:

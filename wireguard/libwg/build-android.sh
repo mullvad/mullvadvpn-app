@@ -52,7 +52,7 @@ for arch in ${ARCHITECTURES:-armv7 aarch64 x86_64 i686}; do
 
     # Strip and copy the libray to `android/build/extraJni/$ANDROID_ABI` to be able to build the APK
     UNSTRIPPED_LIB_PATH="../../build/lib/$RUST_TARGET_TRIPLE/libwg.so"
-    STRIPPED_LIB_PATH="../../android/build/extraJni/$ANDROID_ABI/libwg.so"
+    STRIPPED_LIB_PATH="../../android/app/build/extraJni/$ANDROID_ABI/libwg.so"
 
     # Create the directories with RWX permissions for all users so that the build server can clean
     # the directories afterwards
