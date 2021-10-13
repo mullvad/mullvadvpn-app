@@ -7,15 +7,15 @@ where the app is distributed.
 
 The `Android-feature-graphics.psd` file should be used to generate a PNG image to be used as the
 feature graphics in the app's Google Play Store listing. The PNG image should be placed in the
-`android/src/main/play/listings/en-US/graphics/feature-graphics/` directory.
+`android/app/src/main/play/listings/en-US/graphics/feature-graphics/` directory.
 
 The `icon-square.svg` is used to generate Android's square icon used in the app's Google Play Store
 listing. The resulting 512x512 PNG image should be placed in the
-`android/src/main/play/listings/en-US/graphics/icon/` directory. The file can be generate with the
+`android/app/src/main/play/listings/en-US/graphics/icon/` directory. The file can be generate with the
 following command:
 
 ```
-rsvg-convert ./icon-square.svg -w 512 -h 512 -o ../android/src/main/play/listings/en-US/graphics/icon/icon.png
+rsvg-convert ./icon-square.svg -w 512 -h 512 -o ../android/app/src/main/play/listings/en-US/graphics/icon/icon.png
 ```
 
 The icon `adaptive-icon-source.svg` is used for Android adaptive icon. The icon converted to
