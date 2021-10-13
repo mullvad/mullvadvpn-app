@@ -50,7 +50,7 @@ private extension UIControl.State {
 }
 
 /// A subclass that implements the button that visually look like URL links on the web
-@IBDesignable class LinkButton: CustomButton {
+class LinkButton: CustomButton {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -97,7 +97,7 @@ private extension UIControl.State {
 }
 
 /// A subclass that implements action buttons used across the app
-@IBDesignable class AppButton: CustomButton {
+class AppButton: CustomButton {
 
     var defaultContentInsets: UIEdgeInsets {
         switch traitCollection.userInterfaceIdiom {
@@ -145,7 +145,7 @@ private extension UIControl.State {
         }
     }
 
-    @IBInspectable var interfaceBuilderStyle: Int {
+    var interfaceBuilderStyle: Int {
         get {
             return self.style.rawValue
         }
@@ -228,7 +228,7 @@ private extension UIControl.State {
 }
 
 /// A custom `UIButton` subclass that implements additional layouts for the image
-@IBDesignable class CustomButton: UIButton {
+class CustomButton: UIButton {
 
     var imageAlignment: ButtonImageAlignment = .leading {
         didSet {
