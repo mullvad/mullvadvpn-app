@@ -8,7 +8,7 @@
 
 import UIKit
 
-class SettingsCell: BasicTableViewCell {
+class SettingsCell: UITableViewCell {
 
     let titleLabel = UILabel()
     let detailTitleLabel = UILabel()
@@ -16,9 +16,15 @@ class SettingsCell: BasicTableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
+        backgroundView = UIView()
         backgroundView?.backgroundColor = UIColor.Cell.backgroundColor
+
+        selectedBackgroundView = UIView()
         selectedBackgroundView?.backgroundColor = UIColor.Cell.selectedAltBackgroundColor
+
         separatorInset = .zero
+        backgroundColor = .clear
+        contentView.backgroundColor = .clear
 
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = UIFont.systemFont(ofSize: 17)
