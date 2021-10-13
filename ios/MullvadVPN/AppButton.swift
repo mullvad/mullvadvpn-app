@@ -132,9 +132,9 @@ class AppButton: CustomButton {
             case .translucentNeutral:
                 return UIImage(named: "TranslucentNeutralButton")
             case .translucentDangerSplitLeft:
-                return UIImage(named: "TranslucentDangerSplitLeftButton")
+                return UIImage(named: "TranslucentDangerSplitLeftButton")?.imageFlippedForRightToLeftLayoutDirection()
             case .translucentDangerSplitRight:
-                return UIImage(named: "TranslucentDangerSplitRightButton")
+                return UIImage(named: "TranslucentDangerSplitRightButton")?.imageFlippedForRightToLeftLayoutDirection()
             }
         }
     }

@@ -42,7 +42,7 @@ class DisconnectSplitButton: UIView {
         stackView.alignment = .fill
         stackView.spacing = 1
 
-        secondaryButton.setImage(UIImage(named: "IconReload"), for: .normal)
+        secondaryButton.setImage(UIImage(named: "IconReload")?.imageFlippedForRightToLeftLayoutDirection(), for: .normal)
 
         primaryButton.overrideContentEdgeInsets = true
         secondaryButtonWidthConstraint = secondaryButton.widthAnchor.constraint(equalToConstant: 0)
@@ -86,8 +86,16 @@ class DisconnectSplitButton: UIView {
 
     private func adjustTitleLabelPosition() {
         var contentInsets = primaryButton.defaultContentInsets
-        contentInsets.left = stackView.spacing + self.secondaryButtonSize.width
-        contentInsets.right = 0
+
+        let offset = stackView.spacing + self.secondaryButtonSize.width
+
+        if case .leftToRight = effectiveUserInterfaceLayoutDirection {
+            contentInsets.left = offset
+            contentInsets.right = 0
+        } else {
+            contentInsets.left = 0
+            contentInsets.right = offset
+        }
 
         primaryButton.contentEdgeInsets = contentInsets
     }
