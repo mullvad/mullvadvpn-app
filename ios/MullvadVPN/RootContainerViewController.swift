@@ -404,6 +404,7 @@ class RootContainerViewController: UIViewController {
             if let targetViewController = targetViewController, sourceViewController != targetViewController {
                 beginChildControllerTransition(targetViewController, isAppearing: true, animated: shouldAnimate)
             }
+            setNeedsStatusBarAppearanceUpdate()
         }
 
         if shouldAnimate {
