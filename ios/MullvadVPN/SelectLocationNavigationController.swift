@@ -14,7 +14,8 @@ class SelectLocationNavigationController: UINavigationController {
     init(contentController: SelectLocationViewController) {
         super.init(navigationBarClass: CustomNavigationBar.self, toolbarClass: nil)
 
-        self.viewControllers = [contentController]
+        viewControllers = [contentController]
+        navigationBar.tintColor = .white
     }
 
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
