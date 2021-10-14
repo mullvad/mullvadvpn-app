@@ -71,6 +71,7 @@ internet-checksum = "0.2"
 pfctl = "0.4.4"
 system-configuration = "0.4"
 tun = "0.5.1"
+subslice = "0.2"
 
 
 [target.'cfg(windows)'.dependencies]
