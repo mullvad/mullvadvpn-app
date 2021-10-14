@@ -51,7 +51,7 @@ state of latest master, not necessarily any existing release.
 | WireGuard                     |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
 | Split tunneling               |    ✓    |   ✓   |       |    ✓    |     |
-| Custom DNS server             |    ✓    |   ✓   |   ✓   |    ✓    |     |
+| Custom DNS server             |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | Ad and tracker blocking       |    ✓    |   ✓   |   ✓   |         |  ✓  |
 | Optional local network access |    ✓    |   ✓   |   ✓   |    ✓    |  ✓\* |
 
