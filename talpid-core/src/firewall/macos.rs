@@ -5,6 +5,7 @@ use std::{
     env,
     net::{IpAddr, Ipv4Addr},
 };
+use subslice::SubsliceExt;
 use talpid_types::net;
 
 pub use pfctl::Error;
@@ -551,9 +552,24 @@ impl Firewall {
 
     fn enable(&mut self) -> Result<()> {
         if self.pf_was_enabled.is_none() {
-            self.pf_was_enabled = Some(self.pf.is_enabled()?);
+            self.pf_was_enabled = Some(self.is_enabled());
         }
         Ok(self.pf.try_enable()?)
+    }
+
+    fn is_enabled(&self) -> bool {
+        let cmd = duct::cmd!("/sbin/pfctl", "-s", "info");
+        const EXPECTED_OUTPUT: &'static [u8] = b"Status: Enabled";
+        match cmd.run() {
+            Ok(output) => output.stdout.as_slice().find(&EXPECTED_OUTPUT).is_some(),
+            Err(err) => {
+                log::error!(
+                    "Failed to execute pfctl, assuming pf is not enabled: {}",
+                    err
+                );
+                false
+            }
+        }
     }
 
     fn restore_state(&mut self) -> Result<()> {

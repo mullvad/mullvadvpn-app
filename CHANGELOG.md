@@ -42,6 +42,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### macOS
 - Prevent app from showing when dragging tray icon on macOS.
+- Fix issue with getting PF status due to an ABI change on macOS 12 Beta 9.
 
 
 ## [2021.5-beta1] - 2021-10-12
