@@ -25,6 +25,12 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2021.5-beta2] - 2021-10-19
+### Fixed
+#### macOS
+- Fix issue with getting PF status due to an ABI change on macOS 12 Beta 9.
+
+
 ## [2021.5-beta1] - 2021-10-12
 ### Added
 - Added possibility to filter locations by provider in the desktop app.

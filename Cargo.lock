@@ -2419,6 +2419,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "subslice"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e0a8e4809a3bb02de01f1f7faf1ba01a83af9e8eabcd4d31dd6e413d14d56aae"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "subtle"
 version = "2.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2511,6 +2520,7 @@ dependencies = [
  "rtnetlink",
  "shell-escape",
  "socket2",
+ "subslice",
  "system-configuration",
  "talpid-dbus",
  "talpid-platform-metadata",
