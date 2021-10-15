@@ -33,7 +33,7 @@ const StyledTrack = styled.div({}, (props: { show: boolean }) => ({
   right: 0,
   bottom: 0,
   width: '16px',
-  backgroundColor: 'rgba(0, 0, 0, 0.1)',
+  backgroundColor: 'rgba(0, 0, 0, 0.2)',
   opacity: props.show ? 1 : 0,
   transition: 'width 0.1s ease-in-out, opacity 0.25s ease-in-out',
   zIndex: 98,
@@ -44,7 +44,7 @@ const StyledThumb = styled.div({}, (props: { show: boolean; active: boolean; wid
   position: 'absolute',
   top: 0,
   right: 0,
-  backgroundColor: props.active ? 'rgba(255, 255, 255, 0.4)' : 'rgba(255, 255, 255, 0.2)',
+  backgroundColor: props.active ? 'rgba(255, 255, 255, 0.65)' : 'rgba(255, 255, 255, 0.4)',
   borderRadius: props.wide ? '6px' : '4px',
   width: props.wide ? '12px' : '8px',
   transition:
