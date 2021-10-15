@@ -10,6 +10,7 @@ use mullvad_types::{
 };
 use std::{
     collections::BTreeMap,
+    env,
     future::Future,
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::Path,
@@ -51,6 +52,15 @@ pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 const API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
 const API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
 
+// Override the hostname and IP used to reach the API.
+lazy_static::lazy_static! {
+    static ref API_HOST_OVERRIDE: Option<String> = std::env::var("MULLVAD_API_HOST").ok();
+    static ref API_ADDRESS_OVERRIDE: Option<SocketAddr> = std::env::var("MULLVAD_API_ADDRESS")
+        .map(|addr| addr.parse().ok())
+        .ok()
+        .flatten();
+}
+
 
 /// A type that helps with the creation of RPC connections.
 pub struct MullvadRpcRuntime {
@@ -76,16 +86,27 @@ pub enum Error {
 impl MullvadRpcRuntime {
     /// Create a new `MullvadRpcRuntime`.
     pub fn new(handle: tokio::runtime::Handle) -> Result<Self, Error> {
+        Self::new_inner(
+            handle,
+            #[cfg(target_os = "android")]
+            None,
+        )
+    }
+
+    fn new_inner(
+        handle: tokio::runtime::Handle,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+    ) -> Result<Self, Error> {
         Ok(MullvadRpcRuntime {
             handle,
             address_cache: AddressCache::new(
-                vec![API_ADDRESS.into()],
+                vec![Self::api_address()],
                 None,
                 Arc::new(Box::new(|_| Ok(()))),
             )?,
             api_availability: ApiAvailability::new(availability::State::default()),
             #[cfg(target_os = "android")]
-            socket_bypass_tx: None,
+            socket_bypass_tx,
         })
     }
 
@@ -100,6 +121,14 @@ impl MullvadRpcRuntime {
         address_change_listener: impl Fn(SocketAddr) -> Result<(), ()> + Send + Sync + 'static,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
+        if API_ADDRESS_OVERRIDE.is_some() {
+            return Self::new_inner(
+                handle,
+                #[cfg(target_os = "android")]
+                socket_bypass_tx,
+            );
+        }
+
         let cache_file = cache_dir.join(API_IP_CACHE_FILENAME);
         let write_file = if write_changes {
             Some(cache_file.clone().into_boxed_path())
@@ -177,9 +206,11 @@ impl MullvadRpcRuntime {
 
     /// Returns a request factory initialized to create requests for the master API
     pub fn mullvad_rest_handle(&mut self) -> rest::MullvadRestHandle {
-        let service = self.new_request_service(Some(API_HOST.to_owned()));
+        let api_host = Self::api_host();
+
+        let service = self.new_request_service(Some(api_host.to_string()));
         let factory = rest::RequestFactory::new(
-            API_HOST.to_owned(),
+            api_host,
             Box::new(self.address_cache.clone()),
             Some("app".to_owned()),
         );
@@ -203,6 +234,32 @@ impl MullvadRpcRuntime {
 
     pub fn availability_handle(&self) -> ApiAvailabilityHandle {
         self.api_availability.handle()
+    }
+
+    fn api_host() -> String {
+        #[cfg(feature = "api-override")]
+        let api_host = if let Some(hostname) = &*API_HOST_OVERRIDE {
+            log::debug!("Overriding API hostname: {}", hostname);
+            hostname.clone()
+        } else {
+            API_HOST.to_string()
+        };
+        #[cfg(not(feature = "api-override"))]
+        let api_host = API_HOST.to_string();
+        api_host
+    }
+
+    fn api_address() -> SocketAddr {
+        #[cfg(feature = "api-override")]
+        let api_address = if let Some(address) = &*API_ADDRESS_OVERRIDE {
+            log::debug!("Overriding API address: {}", address);
+            address.clone()
+        } else {
+            API_ADDRESS.into()
+        };
+        #[cfg(not(feature = "api-override"))]
+        let api_address = API_ADDRESS.into();
+        api_address
     }
 }
 

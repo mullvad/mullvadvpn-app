@@ -24,6 +24,7 @@ tokio = { version = "1.8", features = [ "macros", "time", "rt-multi-thread", "ne
 tokio-rustls = "0.22"
 urlencoding = "1"
 webpki = { version = "0.21", features =  [] }
+lazy_static = "1.1.0"
 
 mullvad-types = { path = "../mullvad-types" }
 talpid-types = { path = "../talpid-types" }
