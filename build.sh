@@ -23,7 +23,10 @@ NPM_PACK_ARGS=()
 BUILD_MODE="release"
 while [[ "$#" -gt 0 ]]; do
     case $1 in
-        --dev-build) BUILD_MODE="dev" ;;
+        --dev-build)
+            BUILD_MODE="dev"
+            CARGO_ARGS+=(--features api-override)
+            ;;
         --target)
             TARGET=("$2")
             shift

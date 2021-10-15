@@ -1357,6 +1357,7 @@ dependencies = [
  "hyper",
  "hyper-rustls",
  "ipnetwork",
+ "lazy_static",
  "log",
  "mullvad-types",
  "rand 0.7.3",
