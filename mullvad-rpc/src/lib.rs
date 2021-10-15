@@ -10,7 +10,6 @@ use mullvad_types::{
 };
 use std::{
     collections::BTreeMap,
-    env,
     future::Future,
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::Path,
@@ -53,9 +52,10 @@ const API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
 const API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
 
 // Override the hostname and IP used to reach the API.
+#[cfg(feature = "api-override")]
 lazy_static::lazy_static! {
-    static ref API_HOST_OVERRIDE: Option<String> = env::var("MULLVAD_API_HOSTNAME").ok();
-    static ref API_ADDRESS_OVERRIDE: Option<SocketAddr> = env::var("MULLVAD_API_ADDR")
+    static ref API_HOST_OVERRIDE: Option<String> = std::env::var("MULLVAD_API_HOSTNAME").ok();
+    static ref API_ADDRESS_OVERRIDE: Option<SocketAddr> = std::env::var("MULLVAD_API_ADDR")
         .map(|addr| addr.parse().ok())
         .ok()
         .flatten();
@@ -97,12 +97,15 @@ impl MullvadRpcRuntime {
         handle: tokio::runtime::Handle,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
+        #[cfg(feature = "api-override")]
         let api_address = if let Some(address) = &*API_ADDRESS_OVERRIDE {
             log::debug!("Overriding API address: {}", address);
             address.clone()
         } else {
             API_ADDRESS.into()
         };
+        #[cfg(not(feature = "api-override"))]
+        let api_address = API_ADDRESS.into();
         Ok(MullvadRpcRuntime {
             handle,
             address_cache: AddressCache::new(
@@ -127,6 +130,7 @@ impl MullvadRpcRuntime {
         address_change_listener: impl Fn(SocketAddr) -> Result<(), ()> + Send + Sync + 'static,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
+        #[cfg(feature = "api-override")]
         if API_ADDRESS_OVERRIDE.is_some() {
             return Self::new_inner(
                 handle,
@@ -212,12 +216,15 @@ impl MullvadRpcRuntime {
 
     /// Returns a request factory initialized to create requests for the master API
     pub fn mullvad_rest_handle(&mut self) -> rest::MullvadRestHandle {
+        #[cfg(feature = "api-override")]
         let api_host = if let Some(hostname) = &*API_HOST_OVERRIDE {
             log::debug!("Overriding API hostname: {}", hostname);
             hostname.clone()
         } else {
             API_HOST.to_string()
         };
+        #[cfg(not(feature = "api-override"))]
+        let api_host = API_HOST.to_string();
 
         let service = self.new_request_service(Some(api_host.to_string()));
         let factory = rest::RequestFactory::new(
