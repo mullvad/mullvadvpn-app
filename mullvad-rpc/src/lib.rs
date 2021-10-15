@@ -10,7 +10,6 @@ use mullvad_types::{
 };
 use std::{
     collections::BTreeMap,
-    env,
     future::Future,
     net::{IpAddr, Ipv4Addr, SocketAddr},
     path::Path,
@@ -53,6 +52,7 @@ const API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
 const API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
 
 // Override the hostname and IP used to reach the API.
+#[cfg(feature = "api-override")]
 lazy_static::lazy_static! {
     static ref API_HOST_OVERRIDE: Option<String> = std::env::var("MULLVAD_API_HOST").ok();
     static ref API_ADDRESS_OVERRIDE: Option<SocketAddr> = std::env::var("MULLVAD_API_ADDRESS")
@@ -121,6 +121,7 @@ impl MullvadRpcRuntime {
         address_change_listener: impl Fn(SocketAddr) -> Result<(), ()> + Send + Sync + 'static,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
+        #[cfg(feature = "api-override")]
         if API_ADDRESS_OVERRIDE.is_some() {
             return Self::new_inner(
                 handle,

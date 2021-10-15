@@ -7,6 +7,10 @@ license = "GPL-3.0"
 edition = "2018"
 publish = false
 
+[features]
+# Allow the API server to use to be configured via MULLVAD_API_HOST and MULLVAD_API_ADDRESS.
+api-override = []
+
 [dependencies]
 chrono = { version = "0.4", features = ["serde"] }
 err-derive = "0.3.0"
