@@ -164,7 +164,6 @@ def extract_relay_locations_pot(countries):
       comment=country_code.upper()
     )
     pot.append(entry)
-    print("{} ({})".format(country["name"], country.get("code")))
 
     cities = country["cities"]
     for city_code in cities:
@@ -178,8 +177,6 @@ def extract_relay_locations_pot(countries):
         pot.append(entry)
       except ValueError as err:
         print(c.orange("Cannot add an entry: {}".format(err)))
-
-        print("{} ({})".format(city["name"], city["code"]))
 
   pot.save(output_path)
 
@@ -258,19 +255,12 @@ def translate_single_relay_locations(country_translator, city_translator, countr
     country_name = country["name"]
 
     translated_country_name = country_translator.translate(locale, country_code)
-    found_country_translation = translated_country_name is not None
     # Default to empty string if no translation was found
-    if found_country_translation:
+    if translated_country_name is not None:
       hits += 1
     else:
       translated_country_name = ""
       misses += 1
-
-    log_message = "{} ({}) -> \"{}\"".format(country_name, country_code, translated_country_name)
-    if found_country_translation:
-      print(c.green(log_message))
-    else:
-      print(c.orange(log_message))
 
     # translate country
     entry = POEntry(
@@ -302,12 +292,6 @@ def translate_single_relay_locations(country_translator, city_translator, countr
       else:
         translated_name = ""
         misses += 1
-
-      log_message = "{} ({}) -> \"{}\"".format(city_name, city_code, translated_name)
-      if found_translation:
-        print(c.green(log_message))
-      else:
-        print(c.orange(log_message))
 
       entry = POEntry(
         msgid=city_name,
@@ -348,13 +332,7 @@ class CountryTranslator:
 
     if props is not None:
       name_key = "name_" + map_locale(locale)
-      value = props.get(name_key)
-
-      if value is None:
-        print(c.orange("Missing translation for {} ({}) under the {} key"
-          .format(iso_a2, locale, name_key)))
-      else:
-        return value
+      return props.get(name_key)
 
     return None
 
@@ -401,13 +379,7 @@ class CityTranslator:
 
     if props is not None:
       name_key = "name_" + map_locale(locale)
-      value = props.get(name_key)
-
-      if value is None:
-        print(c.orange("Missing translation for {} ({}) under the {} key"
-          .format(english_name, locale, name_key)))
-      else:
-        return value
+      return props.get(name_key)
 
     return None
 
