@@ -11,6 +11,7 @@ use lazy_static::lazy_static;
 use std::{
     ffi::CStr,
     fmt, io, iter, mem,
+    mem::MaybeUninit,
     os::windows::{ffi::OsStrExt, io::RawHandle},
     path::Path,
     ptr,
@@ -68,10 +69,16 @@ type WireGuardGetAdapterLuidFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, luid: *mut NET_LUID);
 type WireGuardGetAdapterNameFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, name: *mut u16) -> BOOL;
-type WireGuardSetConfigurationFn =
-    unsafe extern "stdcall" fn(adapter: RawHandle, config: *const u8, bytes: u32) -> BOOL;
-type WireGuardGetConfigurationFn =
-    unsafe extern "stdcall" fn(adapter: RawHandle, config: *const u8, bytes: *mut u32) -> BOOL;
+type WireGuardSetConfigurationFn = unsafe extern "stdcall" fn(
+    adapter: RawHandle,
+    config: *const MaybeUninit<u8>,
+    bytes: u32,
+) -> BOOL;
+type WireGuardGetConfigurationFn = unsafe extern "stdcall" fn(
+    adapter: RawHandle,
+    config: *const MaybeUninit<u8>,
+    bytes: *mut u32,
+) -> BOOL;
 type WireGuardSetStateFn =
     unsafe extern "stdcall" fn(adapter: RawHandle, state: WgAdapterState) -> BOOL;
 
@@ -795,7 +802,7 @@ impl WgNtDll {
     pub unsafe fn set_config(
         &self,
         adapter: RawHandle,
-        config: *const u8,
+        config: *const MaybeUninit<u8>,
         config_size: usize,
     ) -> io::Result<()> {
         let result = (self.func_set_configuration)(adapter, config, config_size as u32);
@@ -805,7 +812,7 @@ impl WgNtDll {
         Ok(())
     }
 
-    pub unsafe fn get_config(&self, adapter: RawHandle) -> io::Result<Vec<u8>> {
+    pub unsafe fn get_config(&self, adapter: RawHandle) -> io::Result<Vec<MaybeUninit<u8>>> {
         let mut config_size = 0;
         let mut config = vec![];
         loop {
@@ -816,7 +823,7 @@ impl WgNtDll {
                 if last_error.raw_os_error() != Some(ERROR_MORE_DATA as i32) {
                     break Err(last_error);
                 }
-                config.resize(config_size as usize, 0);
+                config.resize(config_size as usize, MaybeUninit::new(0u8));
             } else {
                 break Ok(config);
             }
@@ -869,7 +876,7 @@ fn load_wg_nt_dll(resource_dir: &Path) -> Result<Arc<WgNtDll>> {
     }
 }
 
-fn serialize_config(config: &Config) -> Result<Vec<u8>> {
+fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
     let mut buffer = vec![];
 
     let header = WgInterface {
@@ -880,7 +887,7 @@ fn serialize_config(config: &Config) -> Result<Vec<u8>> {
         peers_count: config.peers.len() as u32,
     };
 
-    buffer.extend_from_slice(unsafe { as_u8_slice(&header) });
+    buffer.extend(windows::as_uninit_byte_slice(&header));
 
     for peer in &config.peers {
         let wg_peer = WgPeer {
@@ -896,7 +903,7 @@ fn serialize_config(config: &Config) -> Result<Vec<u8>> {
             allowed_ips_count: peer.allowed_ips.len() as u32,
         };
 
-        buffer.extend_from_slice(unsafe { as_u8_slice(&wg_peer) });
+        buffer.extend(windows::as_uninit_byte_slice(&wg_peer));
 
         for allowed_ip in &peer.allowed_ips {
             let address_family = match allowed_ip {
@@ -915,7 +922,7 @@ fn serialize_config(config: &Config) -> Result<Vec<u8>> {
             let wg_allowed_ip =
                 WgAllowedIp::new(address, address_family, allowed_ip.prefix() as u8)?;
 
-            buffer.extend_from_slice(unsafe { as_u8_slice(&wg_allowed_ip) });
+            buffer.extend(windows::as_uninit_byte_slice(&wg_allowed_ip));
         }
     }
 
@@ -923,7 +930,7 @@ fn serialize_config(config: &Config) -> Result<Vec<u8>> {
 }
 
 unsafe fn deserialize_config(
-    config: &[u8],
+    config: &[MaybeUninit<u8>],
 ) -> Result<(WgInterface, Vec<(WgPeer, Vec<WgAllowedIp>)>)> {
     if config.len() < mem::size_of::<WgInterface>() {
         return Err(Error::InvalidConfigData);
@@ -1043,10 +1050,6 @@ impl Tunnel for WgNtTunnel {
     }
 }
 
-unsafe fn as_u8_slice<T: Sized>(object: &T) -> &[u8] {
-    std::slice::from_raw_parts(object as *const _ as *const _, mem::size_of::<T>())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1133,8 +1136,8 @@ mod tests {
 
     #[test]
     fn test_config_deserialization() {
-        let (iface, peers) =
-            unsafe { deserialize_config(as_u8_slice(&*WG_STRUCT_CONFIG)) }.unwrap();
+        let config_buffer = windows::as_uninit_byte_slice(&*WG_STRUCT_CONFIG);
+        let (iface, peers) = unsafe { deserialize_config(config_buffer) }.unwrap();
         assert_eq!(iface, WG_STRUCT_CONFIG.interface);
         assert_eq!(peers.len(), 1);
         let (peer, allowed_ips) = &peers[0];
