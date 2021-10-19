@@ -10,8 +10,6 @@ import UIKit
 
 class EmptyTableViewHeaderFooterView: UITableViewHeaderFooterView {
 
-    static var reuseIdentifier = "EmptyTableViewHeaderFooterView"
-
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
 
