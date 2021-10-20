@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 """
 This module forms a geo json of highly populated cities in the world
 """
@@ -108,16 +107,46 @@ def extract_relay_translations():
     print(c.red("Failed to fetch the relays list: {}".format(e)))
     raise
 
-  result = response.get("result")
-  if result is not None:
-    countries = result.get("countries")
-    if countries is None:
-      raise Exception("Missing the countries field.")
-  else:
-    raise Exception("Missing the result field.")
+  locations = response.get("locations")
+  countries = structure_locations(locations)
 
   extract_relay_locations_pot(countries)
   translate_relay_locations(countries)
+
+
+def structure_locations(locations):
+  countries = {}
+
+  for location_key in locations:
+    location = locations.get(location_key)
+    country_name = location.get("country")
+    city_name = location.get("city")
+
+    if not "-" in location_key:
+      print("Location key incorrectly formatted: {}".format(location_key))
+      continue
+
+    country_code, city_code = location_key.split("-")
+
+    if country_name is None:
+      print("Country name missing for {}".format(location_key))
+      continue
+
+    if city_name is None:
+      print("City name missing for {}".format(location_key))
+      continue
+
+    if country_code not in countries:
+      countries[country_code] = {"name": country_name, "cities": {}}
+
+    country = countries[country_code]
+    cities = country["cities"]
+    if city_code not in cities:
+      cities[city_code] = city_name
+    else:
+      print("There are multiple entries for {} in {}".format(city_name, country_name))
+
+  return countries
 
 
 def extract_relay_locations_pot(countries):
@@ -127,34 +156,27 @@ def extract_relay_locations_pot(countries):
 
   print("Generating {}".format(output_path))
 
-  for country in countries:
-    country_name = country.get("name")
-    if country_name is not None:
+  for country_code in countries:
+    country = countries[country_code]
+    entry = POEntry(
+      msgid=country["name"],
+      msgstr="",
+      comment=country_code.upper()
+    )
+    pot.append(entry)
+
+    cities = country["cities"]
+    for city_code in cities:
       entry = POEntry(
-        msgid=country_name,
+        msgid=cities[city_code],
         msgstr="",
-        comment=country.get("code").upper()
+        comment="{} {}".format(country_code.upper(), city_code.upper())
       )
-      pot.append(entry)
-      print("{} ({})".format(country_name, country.get("code")))
 
-    cities = country.get("cities")
-    if cities is not None:
-      for city in cities:
-        city_name = city.get("name")
-        if city_name is not None:
-          entry = POEntry(
-            msgid=city_name,
-            msgstr="",
-            comment="{} {}".format(country.get("code").upper(), city.get("code").upper())
-          )
-
-          try:
-            pot.append(entry)
-          except ValueError as err:
-            print(c.orange("Cannot add an entry: {}".format(err)))
-
-          print("{} ({})".format(city_name, city.get("code")))
+      try:
+        pot.append(entry)
+      except ValueError as err:
+        print(c.orange("Cannot add an entry: {}".format(err)))
 
   pot.save(output_path)
 
@@ -228,24 +250,17 @@ def translate_single_relay_locations(country_translator, city_translator, countr
   if not path.exists(locale_out_dir):
     os.makedirs(locale_out_dir)
 
-  for country in countries:
-    country_name = country.get("name")
-    country_code = country.get("code")
+  for country_code in countries:
+    country = countries[country_code]
+    country_name = country["name"]
 
     translated_country_name = country_translator.translate(locale, country_code)
-    found_country_translation = translated_country_name is not None
     # Default to empty string if no translation was found
-    if found_country_translation:
+    if translated_country_name is not None:
       hits += 1
     else:
       translated_country_name = ""
       misses += 1
-
-    log_message = "{} ({}) -> \"{}\"".format(country_name, country_code, translated_country_name)
-    if found_country_translation:
-      print(c.green(log_message))
-    else:
-      print(c.orange(log_message))
 
     # translate country
     entry = POEntry(
@@ -256,17 +271,9 @@ def translate_single_relay_locations(country_translator, city_translator, countr
     po.append(entry)
 
     # translate cities
-    cities = country.get("cities")
-    if cities is None:
-      print(c.orange("Skip {} ({}) because no cities were found."
-        .format(country_name, country_code)))
-      continue
-
-    for city in cities:
-      city_name = city.get("name")
-      city_code = city.get("code")
-      if city_name is None:
-        raise ValueError("Missing the name field in city record.")
+    cities = country["cities"]
+    for city_code in cities:
+      city_name = cities[city_code]
 
       # Make sure to append the US state back to the translated name of the city
       if country_code == "us":
@@ -285,12 +292,6 @@ def translate_single_relay_locations(country_translator, city_translator, countr
       else:
         translated_name = ""
         misses += 1
-
-      log_message = "{} ({}) -> \"{}\"".format(city_name, city_code, translated_name)
-      if found_translation:
-        print(c.green(log_message))
-      else:
-        print(c.orange(log_message))
 
       entry = POEntry(
         msgid=city_name,
@@ -331,13 +332,7 @@ class CountryTranslator:
 
     if props is not None:
       name_key = "name_" + map_locale(locale)
-      value = props.get(name_key)
-
-      if value is None:
-        print(c.orange("Missing translation for {} ({}) under the {} key"
-          .format(iso_a2, locale, name_key)))
-      else:
-        return value
+      return props.get(name_key)
 
     return None
 
@@ -384,13 +379,7 @@ class CityTranslator:
 
     if props is not None:
       name_key = "name_" + map_locale(locale)
-      value = props.get(name_key)
-
-      if value is None:
-        print(c.orange("Missing translation for {} ({}) under the {} key"
-          .format(english_name, locale, name_key)))
-      else:
-        return value
+      return props.get(name_key)
 
     return None
 
@@ -457,9 +446,7 @@ def map_locale(locale_ident):
 
 
 def request_relays():
-  data = json.dumps({"jsonrpc": "2.0", "id": "0", "method": "relay_list_v3"}).encode()
-  request = urllib.request.Request("https://api.mullvad.net/rpc/", data=data)
-  request.add_header("Content-Type", "application/json")
+  request = urllib.request.Request("https://api.mullvad.net/app/v1/relays")
   with urllib.request.urlopen(request) as connection:
     return json.load(connection)
 
