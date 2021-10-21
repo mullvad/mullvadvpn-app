@@ -1,5 +1,5 @@
 use super::Result;
-use crate::relay_constraints::Constraint;
+use mullvad_types::{relay_constraints::Constraint, settings::SettingsVersion};
 use talpid_types::net::TunnelType;
 
 
@@ -53,7 +53,7 @@ impl super::SettingsMigration for Migration {
         }
 
         settings["show_beta_releases"] = serde_json::json!(false);
-        settings["settings_version"] = serde_json::json!(super::SettingsVersion::V2);
+        settings["settings_version"] = serde_json::json!(SettingsVersion::V2);
 
         Ok(())
     }

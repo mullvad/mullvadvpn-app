@@ -932,10 +932,13 @@ fn map_settings_error(error: settings::Error) -> Status {
     match error {
         settings::Error::DeleteError(..)
         | settings::Error::WriteError(..)
+        | settings::Error::ReadError(..)
         | settings::Error::SetPermissions(..) => {
             Status::new(Code::FailedPrecondition, error.to_string())
         }
-        settings::Error::SerializeError(..) => Status::new(Code::Internal, error.to_string()),
+        settings::Error::SerializeError(..) | settings::Error::ParseError(..) => {
+            Status::new(Code::Internal, error.to_string())
+        }
     }
 }
 

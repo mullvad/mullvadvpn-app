@@ -12,6 +12,7 @@ mod geoip;
 pub mod logging;
 #[cfg(not(target_os = "android"))]
 pub mod management_interface;
+mod migrations;
 mod relays;
 #[cfg(not(target_os = "android"))]
 pub mod rpc_uniqueness_check;
@@ -602,6 +603,12 @@ where
         );
 
 
+        if let Err(error) = migrations::migrate_all(&settings_dir).await {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to migrate settings")
+            );
+        }
         let mut settings = SettingsPersister::load(&settings_dir).await;
 
         if version::is_beta_version() {
