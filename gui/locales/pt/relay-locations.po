@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Portuguese\n"
 "Language: pt_PT\n"
-"PO-Revision-Date: 2021-06-28 11:50\n"
+"PO-Revision-Date: 2021-10-22 12:27\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -302,7 +302,7 @@ msgstr "Niš"
 
 #. MK
 msgid "North Macedonia"
-msgstr "República da Macedónia do Norte"
+msgstr "Macedónia do Norte"
 
 #. NO
 msgid "Norway"
@@ -511,3 +511,4 @@ msgstr "Viena"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zurique"
+

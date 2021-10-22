@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2021-06-28 11:50\n"
+"PO-Revision-Date: 2021-10-22 12:27\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -302,7 +302,7 @@ msgstr "နိစ်"
 
 #. MK
 msgid "North Macedonia"
-msgstr ""
+msgstr "မြောက်မက်ဆီဒိုးနီးယား"
 
 #. NO
 msgid "Norway"
@@ -314,7 +314,7 @@ msgstr "အိုကလာဟိုးမားစီးတီး၊ အို�
 
 #. JP OSA
 msgid "Osaka"
-msgstr ""
+msgstr "အိုဆာကာ"
 
 #. NO OSL
 msgid "Oslo"
@@ -414,7 +414,7 @@ msgstr "ဆူးဖော၊ တောင်ဒါကိုတာ"
 
 #. MK SKP
 msgid "Skopje"
-msgstr ""
+msgstr "စကော့ပ်ရာ"
 
 #. BG SOF
 msgid "Sofia"
@@ -511,3 +511,4 @@ msgstr "ဗင်း"
 #. CH ZRH
 msgid "Zurich"
 msgstr "ဇူးရစ်ချ်"
+

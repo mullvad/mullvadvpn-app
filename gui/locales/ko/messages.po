@@ -10,7 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2021-06-28 11:50\n"
+"PO-Revision-Date: 2021-10-22 12:27\n"
+
+msgid "%(duration)s was added to your account."
+msgstr "%(duration)s이(가) 귀하의 계정에 추가되었습니다."
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -56,6 +59,12 @@ msgid "an hour ago"
 msgid_plural "%d hours ago"
 msgstr[0] "%d시간 전"
 
+msgid "Apply"
+msgstr "적용"
+
+msgid "Automatic"
+msgstr "자동"
+
 msgid "Back"
 msgstr "뒤로"
 
@@ -74,6 +83,9 @@ msgstr "추가 크레딧 구매"
 msgid "Cancel"
 msgstr "취소"
 
+msgid "Clear"
+msgstr "지우기"
+
 msgid "Close"
 msgstr "닫기"
 
@@ -86,6 +98,9 @@ msgstr "클립보드에 복사됨!"
 msgid "CREATING SECURE CONNECTION"
 msgstr "보안 연결 생성 중"
 
+msgid "Default"
+msgstr "기본값"
+
 msgid "Disconnect"
 msgstr "연결 끊기"
 
@@ -95,8 +110,20 @@ msgstr "해제"
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "보안 연결 실패"
 
+msgid "Filter"
+msgstr "필터"
+
+msgid "Got it!"
+msgstr "확인!"
+
 msgid "Invalid account number"
 msgstr "유효하지 않은 계정 번호"
+
+msgid "IPv4"
+msgstr "IPv4"
+
+msgid "IPv6"
+msgstr "IPv6"
 
 msgid "less than a day"
 msgstr "1일 미만"
@@ -106,6 +133,15 @@ msgstr "1일 이내"
 
 msgid "less than a minute ago"
 msgstr "1분 이내"
+
+msgid "Next"
+msgstr "다음"
+
+msgid "Off"
+msgstr "끄기"
+
+msgid "On"
+msgstr "켜기"
 
 msgid "Open URL"
 msgstr "URL 열기"
@@ -122,8 +158,14 @@ msgstr "설정"
 msgid "System default"
 msgstr "시스템 기본값"
 
-msgid "UNSECURE CONNECTION"
-msgstr "안전하지 않은 연결"
+msgid "TCP"
+msgstr "TCP"
+
+msgid "UDP"
+msgstr "UDP"
+
+msgid "UNSECURED CONNECTION"
+msgstr "비보안 연결"
 
 msgctxt "accessibility"
 msgid "%(title)s, View loaded"
@@ -208,17 +250,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "주의: 이 기능을 사용하려면 인터넷 연결을 위해 항상 Mullvad VPN 연결이 필요합니다."
 
-msgid "Automatic"
-msgstr "자동"
-
-#. The title for the shadowsocks bridge selector section.
-msgctxt "openvpn-settings-view"
-msgid "Bridge mode"
-msgstr "브리지 모드"
-
-msgid "Default"
-msgstr "기본값"
-
 msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "그래도 사용"
@@ -243,62 +274,25 @@ msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "앱 연결을 끊거나 종료하면 이 설정으로 인해 인터넷이 차단됩니다."
 
-msgid "Off"
-msgstr "끄기"
-
-msgid "On"
-msgstr "켜기"
+msgctxt "advanced-settings-view"
+msgid "missing key"
+msgstr "키 없음"
 
 msgctxt "advanced-settings-view"
 msgid "OpenVPN"
 msgstr "OpenVPN"
 
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
 msgctxt "advanced-settings-view"
-msgid "OpenVPN %(portType)s port"
-msgstr "OpenVPN %(portType)s 포트"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN Mssfix"
-msgstr "OpenVPN Mssfix"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN transport protocol"
-msgstr "OpenVPN 전송 프로토콜"
-
-#. The hint displayed below the Mssfix input field.
-#. Available placeholders:
-#. %(max)d - the maximum possible mssfix value
-#. %(min)d - the minimum possible mssfix value
-msgctxt "openvpn-settings-view"
-msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr "OpenVPN MSS 값을 설정하세요. 유효 범위: %(min)d ~ %(max)d."
-
-#. The hint displayed below the WireGuard MTU input field.
-#. Available placeholders:
-#. %(max)d - the maximum possible wireguard mtu value
-#. %(min)d - the minimum possible wireguard mtu value
-msgctxt "wireguard-settings-view"
-msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
-msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %(min)d ~ %(max)d."
+msgid "OpenVPN settings"
+msgstr "OpenVPN 설정"
 
 msgctxt "advanced-settings-view"
 msgid "Split tunneling"
 msgstr "분할 터널링"
 
-msgid "TCP"
-msgstr "TCP"
-
 msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "앱에서 기본 제공되는 중단 스위치는 항상 켜져 있습니다. 연결 끊기 또는 종료를 클릭하면 이 설정으로 인해 인터넷이 추가로 차단됩니다."
-
-#. The hint displayed below the WireGuard port selector.
-msgctxt "wireguard-settings-view"
-msgid "The automatic setting will randomly choose from a wide range of ports."
-msgstr "자동 설정은 다양한 포트에서 임의로 선택합니다."
 
 msgctxt "advanced-settings-view"
 msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
@@ -312,9 +306,6 @@ msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
 msgstr "터널 프로토콜"
 
-msgid "UDP"
-msgstr "UDP"
-
 msgctxt "advanced-settings-view"
 msgid "Use custom DNS server"
 msgstr "사용자 지정 DNS 서버 사용"
@@ -323,21 +314,9 @@ msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
-msgctxt "wireguard-settings-view"
-msgid "WireGuard key"
-msgstr "WireGuard 키"
-
 msgctxt "advanced-settings-view"
-msgid "WireGuard MTU"
-msgstr "WireGuard MTU"
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard port"
-msgstr "WireGuard 포트"
-
-msgctxt "advanced-settings-view-wireguard"
-msgid "missing key"
-msgstr "키 없음"
+msgid "WireGuard settings"
+msgstr "WireGuard 설정"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -381,8 +360,20 @@ msgid "Either buy credit on our website or redeem a voucher."
 msgstr "웹 사이트에서 크레딧을 구매하거나 바우처를 사용하세요."
 
 msgctxt "connect-view"
+msgid "Enter voucher code"
+msgstr "바우처 코드 입력"
+
+msgctxt "connect-view"
+msgid "Go ahead and start using the app to begin reclaiming your online privacy."
+msgstr "계속해서 앱을 사용하고 온라인 개인정보 보호를 시작하세요."
+
+msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
 msgstr "계정 번호는 다음과 같습니다. 저장하세요!"
+
+msgctxt "connect-view"
+msgid "Learn about privacy"
+msgstr "개인정보 보호에 대해 알아보기"
 
 msgctxt "connect-view"
 msgid "Out of time"
@@ -397,12 +388,28 @@ msgid "Remember, turning it off will allow network traffic while the VPN is disc
 msgstr "이 기능을 끄면 고급 설정에서 다시 켤 때까지, VPN 연결이 끊어진 동안에 네트워크 트래픽이 허용됩니다."
 
 msgctxt "connect-view"
+msgid "Start using the app"
+msgstr "앱 사용 시작"
+
+msgctxt "connect-view"
+msgid "Time was successfully added"
+msgstr "시간이 성공적으로 추가되었습니다."
+
+msgctxt "connect-view"
 msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
 msgstr "더 추가하려면 연결을 끊고 안전하지 않은 연결로 인터넷에 액세스해야 합니다."
 
 msgctxt "connect-view"
+msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
+msgstr "개인정보 보호 닌자로서 여정을 계속하려면 당사 웹 사이트를 방문하여 다른 개인정보 보호 습관과 도구를 찾아보세요."
+
+msgctxt "connect-view"
 msgid "To start using the app, you first need to add time to your account."
 msgstr "앱 사용을 시작하려면, 먼저 계정에 시간을 추가해야 합니다."
+
+msgctxt "connect-view"
+msgid "Voucher was successfully redeemed"
+msgstr "바우처가 성공적으로 사용되었습니다."
 
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account."
@@ -411,6 +418,10 @@ msgstr "이 계정에 더 이상 VPN 시간이 없습니다."
 msgctxt "connect-view"
 msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
 msgstr "인터넷에 액세스하여 시간을 추가하려면, \"항상 VPN 필요\"를 비활성화해야 합니다."
+
+msgctxt "connect-view"
+msgid "You're all set!"
+msgstr "준비가 완료되었습니다!"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -443,13 +454,19 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "문제가 발생했습니다. %(email)s(으)로 연락주세요."
 
-msgctxt "generic"
-msgid "Mullvad VPN"
-msgstr "Mullvad VPN"
+#. Title label in navigation bar
+msgctxt "filter-by-provider-nav"
+msgid "Filter by provider"
+msgstr "제공업체별 필터링"
 
-msgctxt "generic"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
+#. Back button in navigation bar
+msgctxt "filter-by-provider-nav"
+msgid "Select location"
+msgstr "위치 선택"
+
+msgctxt "filter-by-provider-view"
+msgid "All providers"
+msgstr "모든 제공업체"
 
 msgctxt "in-app-notifications"
 msgid "\"Always require VPN\" is enabled."
@@ -468,9 +485,14 @@ msgid "APP IS OUT OF SYNC"
 msgstr "앱이 동기화되지 않음"
 
 msgctxt "in-app-notifications"
+msgid "BETA UPDATE AVAILABLE"
+msgstr "베타 업데이트 사용 가능"
+
+msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "인터넷 차단"
 
+#. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
 msgstr "최신 앱 버전을 설치하여 최신 상태로 유지하세요."
@@ -486,6 +508,14 @@ msgstr "네트워크 트래픽이 유출될 수 있음"
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "앱을 종료한 후 다시 시작하세요."
+
+#. The in-app banner displayed to the user when the app beta update is
+#. available.
+#. Available placeholders:
+#. %(version)s - The version number of the new beta version.
+msgctxt "in-app-notifications"
+msgid "Try out the newest beta version (%(version)s)."
+msgstr "최신 베타 버전(%(version)s)을 사용해 보세요."
 
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
@@ -588,6 +618,14 @@ msgstr "계정 시간 초과"
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "앱이 동기화되지 않았습니다. 종료한 후 다시 시작하세요."
+
+#. The system notification that notifies the user when a beta update is
+#. available.
+#. Available placeholders:
+#. %(version)s - The version number of the new beta version.
+msgctxt "notifications"
+msgid "Beta update available. Try out the newest beta version (%(version)s)."
+msgstr "베타 업데이트를 이용할 수 있습니다. 최신 베타 버전(%(version)s)을 사용해 보세요."
 
 msgctxt "notifications"
 msgid "Buy more"
@@ -695,6 +733,43 @@ msgstr "지원되지 않는 이 앱 버전으로 인해 개인 정보가 위험�
 msgctxt "notifications"
 msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
 msgstr "선택한 서버와 터널 프로토콜이 일치하지 않습니다. 설정을 조정하세요."
+
+#. Title label in navigation bar
+msgctxt "openvpn-settings-nav"
+msgid "OpenVPN settings"
+msgstr "OpenVPN 설정"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "openvpn-settings-view"
+msgid "%(portType)s port"
+msgstr "%(portType)s 포트"
+
+#. The title for the shadowsocks bridge selector section.
+msgctxt "openvpn-settings-view"
+msgid "Bridge mode"
+msgstr "브리지 모드"
+
+msgctxt "openvpn-settings-view"
+msgid "Mssfix"
+msgstr "Mssfix"
+
+msgctxt "openvpn-settings-view"
+msgid "OpenVPN settings"
+msgstr "OpenVPN 설정"
+
+#. The hint displayed below the Mssfix input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible mssfix value
+#. %(min)d - the minimum possible mssfix value
+msgctxt "openvpn-settings-view"
+msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr "OpenVPN MSS 값을 설정하세요. 유효 범위: %(min)d - %(max)d."
+
+msgctxt "openvpn-settings-view"
+msgid "Transport protocol"
+msgstr "전송 프로토콜"
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -818,6 +893,10 @@ msgid "Redeem"
 msgstr "사용"
 
 msgctxt "redeem-voucher-view"
+msgid "Verifying voucher..."
+msgstr "바우처를 확인하는 중..."
+
+msgctxt "redeem-voucher-view"
 msgid "Voucher code has already been used."
 msgstr "이미 사용된 바우처 코드입니다."
 
@@ -852,8 +931,21 @@ msgid "Closest to exit server"
 msgstr "가장 가까운 종료 서버"
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region."
-msgstr "연결되어 있는 동안 실제 위치는 선택한 지역의 안전한 비공개 위치로 마스킹됩니다."
+msgid "Filter by provider"
+msgstr "제공업체별 필터링"
+
+msgctxt "select-location-view"
+msgid "Filtered:"
+msgstr "필터링됨:"
+
+msgctxt "select-location-view"
+msgid "Providers: %(numberOfProviders)d"
+msgstr "제공업체: %(numberOfProviders)d"
+
+#. Heading in select location view
+msgctxt "select-location-view"
+msgid "Select location"
+msgstr "위치 선택"
 
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
@@ -1140,15 +1232,58 @@ msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "키 확인"
 
-#. Back button in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "Advanced"
-msgstr "고급"
-
 #. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard 키"
+
+#. Back button in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "WireGuard settings"
+msgstr "WireGuard 설정"
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "WireGuard settings"
+msgstr "WireGuard 설정"
+
+msgctxt "wireguard-settings-view"
+msgid "IP version"
+msgstr "IP 버전"
+
+msgctxt "wireguard-settings-view"
+msgid "MTU"
+msgstr "MTU"
+
+msgctxt "wireguard-settings-view"
+msgid "Port"
+msgstr "포트"
+
+#. The hint displayed below the WireGuard MTU input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible wireguard mtu value
+#. %(min)d - the minimum possible wireguard mtu value
+msgctxt "wireguard-settings-view"
+msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %(min)d - %(max)d."
+
+#. The hint displayed below the WireGuard port selector.
+msgctxt "wireguard-settings-view"
+msgid "The automatic setting will randomly choose from a wide range of ports."
+msgstr "자동 설정은 다양한 포트에서 임의로 선택합니다."
+
+#. The hint displayed below the WireGuard IP version selector.
+msgctxt "wireguard-settings-view"
+msgid "This allows access to WireGuard for devices that only support IPv6."
+msgstr "이를 통해 IPv6만 지원하는 장치에서 WireGuard에 액세스할 수 있습니다."
+
+msgctxt "wireguard-settings-view"
+msgid "WireGuard key"
+msgstr "WireGuard 키"
+
+msgctxt "wireguard-settings-view"
+msgid "WireGuard settings"
+msgstr "WireGuard 설정"
 
 msgid "Account authentication failed."
 msgstr "계정 인증에 실패했습니다."
@@ -1219,6 +1354,9 @@ msgstr "필요한 경우 %s(으)로 연락드리겠습니다."
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Mullvad VPN(%s)을 설치하여 최신 상태로 유지하세요."
 
+msgid "Mullvad VPN"
+msgstr "Mullvad VPN"
+
 msgid "Mullvad account number"
 msgstr "Mullvad 계정 번호"
 
@@ -1230,6 +1368,9 @@ msgstr "현재 설정과 일치하는 릴레이 서버가 없습니다."
 
 msgid "Secured"
 msgstr "안전함"
+
+msgid "Show system apps"
+msgstr "시스템 앱 표시"
 
 msgid "Shows current VPN tunnel status"
 msgstr "현재 VPN 터널 상태 표시"
@@ -1249,9 +1390,6 @@ msgstr "장치가 오프라인 상태이며, 터널을 설정할 수 없습니�
 msgid "Too many WireGuard keys registered to account"
 msgstr "계정에 너무 많은 WireGuard 키가 등록됨"
 
-msgid "UNSECURED CONNECTION"
-msgstr "비보안 연결"
-
 msgid "Unsecured"
 msgstr "안전하지 않음"
 
@@ -1266,6 +1404,12 @@ msgstr "VPN 터널 상태"
 
 msgid "Virtual adapter error"
 msgstr "가상 어댑터 오류"
+
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr "연결되어 있는 동안 실제 위치는 선택한 지역의 안전한 비공개 위치로 마스킹됩니다."
+
+msgid "WireGuard MTU"
+msgstr "WireGuard MTU"
 
 msgid "WireGuard error"
 msgstr "WireGuard 오류"

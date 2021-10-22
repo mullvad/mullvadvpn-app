@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2021-06-28 11:50\n"
+"PO-Revision-Date: 2021-10-22 12:27\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -414,7 +414,7 @@ msgstr "Sioux Falls, SD"
 
 #. MK SKP
 msgid "Skopje"
-msgstr "Üsküp"
+msgstr "Skopje"
 
 #. BG SOF
 msgid "Sofia"
@@ -511,3 +511,4 @@ msgstr "Viyana"
 #. CH ZRH
 msgid "Zurich"
 msgstr "Zürih"
+
