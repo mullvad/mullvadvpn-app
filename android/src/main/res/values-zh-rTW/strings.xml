@@ -46,7 +46,7 @@
     <string name="edit_message">編輯訊息</string>
     <string name="enable">啟用</string>
     <string name="enable_custom_dns">使用自訂 DNS 伺服器</string>
-    <string name="enter_voucher_code">輸入憑證兌換碼</string>
+    <string name="enter_voucher_code">輸入優惠券兌換碼</string>
     <string name="error_occurred">發生錯誤了。</string>
     <string name="error_state">保護連線失敗</string>
     <string name="exclude_applications">已排除的應用程式</string>
@@ -93,8 +93,8 @@
     <string name="report_a_problem">回報問題</string>
     <string name="secure_connection">安全連線</string>
     <string name="secured">安全</string>
-    <string name="select_location">選擇位置</string>
-    <string name="select_location_description">連線時，會以所選區域中的一個私密安全位置，將您的真實位置遮住。</string>
+    <string name="select_location">選取位置</string>
+    <string name="select_location_description">連線時，會使用所選區域的一個私密安全位置，將您的真實位置遮住。</string>
     <string name="send">傳送</string>
     <string name="send_anyway">仍要傳送</string>
     <string name="sending">傳送中...</string>
@@ -107,6 +107,7 @@
     <string name="settings_account">帳戶</string>
     <string name="settings_advanced">進階</string>
     <string name="settings_preferences">喜好設定</string>
+    <string name="show_system_apps">顯示系統應用程式</string>
     <string name="split_tunneling">分割通道</string>
     <string name="split_tunneling_description">利用拆分通道，您可以選擇哪些應用程式不應透過 VPN 通道進行路由。</string>
     <string name="start_tunnel_error">無法啟動通道連線</string>

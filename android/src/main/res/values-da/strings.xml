@@ -107,6 +107,7 @@
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Avanceret</string>
     <string name="settings_preferences">Indstillinger</string>
+    <string name="show_system_apps">Vis systemapps</string>
     <string name="split_tunneling">Split tunneling</string>
     <string name="split_tunneling_description">Split tunneling gør det muligt at vælge, hvilke applikationer der ikke skal dirigeres gennem VPN-tunnelen.</string>
     <string name="start_tunnel_error">Kunne ikke starte tunnelforbindelsen</string>

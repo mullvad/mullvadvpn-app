@@ -107,6 +107,7 @@
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Avancerat</string>
     <string name="settings_preferences">Inställningar</string>
+    <string name="show_system_apps">Visa systemappar</string>
     <string name="split_tunneling">Delade tunnlar</string>
     <string name="split_tunneling_description">Delade tunnlar gör det möjligt att välja vilka applikationer som inte ska dirigeras genom VPN-tunneln.</string>
     <string name="start_tunnel_error">Det gick inte att starta tunnelanslutning</string>
@@ -141,7 +142,7 @@
     <string name="wireguard_key_verification_failure">Det gick inte att verifiera nyckel</string>
     <string name="wireguard_manage_keys">Hantera nycklar</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_mtu_footer">Ange WireGuard MTU-värde. Giltigt intervall: %1$d - %2$d.</string>
+    <string name="wireguard_mtu_footer">Ange WireGuard MTU-värde. Giltigt intervall: %1$d–%2$d.</string>
     <string name="wireguard_public_key">Offentlig nyckel för WireGuard</string>
     <string name="wireguard_replace_key">Generera om nyckel</string>
     <string name="wireguard_verify_key">Verifiera nyckel</string>

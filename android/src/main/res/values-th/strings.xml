@@ -94,7 +94,7 @@
     <string name="secure_connection">การเชื่อมต่อที่ปลอดภัย</string>
     <string name="secured">ปลอดภัย</string>
     <string name="select_location">เลือกตำแหน่งที่ตั้ง</string>
-    <string name="select_location_description">ในขณะที่เชื่อมต่อ ตำแหน่งที่ตั้งจริงของคุณจะถูกปิดบังโดยตำแหน่งที่ตั้งที่เป็นส่วนตัว และปลอดภัยในภูมิภาคที่เลือก</string>
+    <string name="select_location_description">ในขณะที่เชื่อมต่อ ตำแหน่งที่ตั้งจริงของคุณจะถูกปิดบัง โดยตำแหน่งที่ตั้งที่เป็นส่วนตัวและปลอดภัย ในภูมิภาคที่เลือก</string>
     <string name="send">ส่ง</string>
     <string name="send_anyway">ส่งต่อไป</string>
     <string name="sending">กำลังส่ง...</string>
@@ -107,6 +107,7 @@
     <string name="settings_account">บัญชี</string>
     <string name="settings_advanced">ขั้นสูง</string>
     <string name="settings_preferences">การกำหนดค่า</string>
+    <string name="show_system_apps">แสดงแอประบบ</string>
     <string name="split_tunneling">แยกช่องทาง</string>
     <string name="split_tunneling_description">การแยกช่องทางทำให้คุณสามารถเลือกได้ว่า แอปพลิเคชันใดไม่ควรได้รับการกำหนดเส้นทางผ่านช่องทาง VPN</string>
     <string name="start_tunnel_error">ไม่สามารถเริ่มการเชื่อมต่อช่องทางได้</string>

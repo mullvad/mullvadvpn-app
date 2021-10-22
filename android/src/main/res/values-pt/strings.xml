@@ -107,6 +107,7 @@
     <string name="settings_account">Conta</string>
     <string name="settings_advanced">Avançadas</string>
     <string name="settings_preferences">Preferências</string>
+    <string name="show_system_apps">Mostrar aplicações do sistema</string>
     <string name="split_tunneling">Divisão do túnel</string>
     <string name="split_tunneling_description">A divisão do túnel permite selecionar quais as aplicações que devem ser direcionadas através do túnel VPN.</string>
     <string name="start_tunnel_error">Erro ao iniciar a ligação de túnel</string>
