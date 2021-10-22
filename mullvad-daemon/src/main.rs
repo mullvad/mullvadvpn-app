@@ -26,6 +26,8 @@ fn main() {
         std::process::exit(1)
     });
 
+    info!("Using configuration: {:?}", config);
+
     let runtime = new_runtime_builder().build().unwrap_or_else(|error| {
         eprintln!("{}", error.display_chain());
         std::process::exit(1);
