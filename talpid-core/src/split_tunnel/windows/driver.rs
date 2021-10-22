@@ -129,8 +129,15 @@ pub struct DeviceHandle {
 unsafe impl Sync for DeviceHandle {}
 unsafe impl Send for DeviceHandle {}
 
+pub enum DeviceHandleError {
+    ConnectionFailed,
+    ConnectionDenied,
+    ConnectionError(io::Error),
+    InitializationError(io::Error),
+}
+
 impl DeviceHandle {
-    pub fn new() -> io::Result<Self> {
+    pub fn new() -> Result<Self, DeviceHandleError> {
         // Connect to the driver
         log::trace!("Connecting to the driver");
         let handle = OpenOptions::new()
@@ -139,26 +146,41 @@ impl DeviceHandle {
             .share_mode(0)
             .custom_flags(FILE_FLAG_OVERLAPPED)
             .attributes(0)
-            .open(DRIVER_SYMBOLIC_NAME)?;
+            .open(DRIVER_SYMBOLIC_NAME)
+            .map_err(|e| match e.raw_os_error() {
+                Some(2) => DeviceHandleError::ConnectionFailed,
+                Some(5) => DeviceHandleError::ConnectionDenied,
+                _ => DeviceHandleError::ConnectionError(e),
+            })?;
 
         let device = Self { handle };
 
         // Initialize the driver
-        let state = device.get_driver_state()?;
+        let state = device
+            .get_driver_state()
+            .map_err(|e| DeviceHandleError::InitializationError(e))?;
         if state == DriverState::Started {
             log::trace!("Initializing driver");
-            device.initialize()?;
+            device
+                .initialize()
+                .map_err(|e| DeviceHandleError::InitializationError(e))?;
         }
 
         // Initialize process tree
-        let state = device.get_driver_state()?;
+        let state = device
+            .get_driver_state()
+            .map_err(|e| DeviceHandleError::InitializationError(e))?;
         if state == DriverState::Initialized {
             log::trace!("Registering processes");
-            device.register_processes()?;
+            device
+                .register_processes()
+                .map_err(|e| DeviceHandleError::InitializationError(e))?;
         }
 
         log::trace!("Clearing any existing exclusion config");
-        device.clear_config()?;
+        device
+            .clear_config()
+            .map_err(|e| DeviceHandleError::InitializationError(e))?;
 
         Ok(device)
     }
