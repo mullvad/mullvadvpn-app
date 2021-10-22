@@ -26,6 +26,8 @@ fn main() {
         std::process::exit(1)
     });
 
+    log_environment(config);
+
     let runtime = new_runtime_builder().build().unwrap_or_else(|error| {
         eprintln!("{}", error.display_chain());
         std::process::exit(1);
@@ -40,6 +42,14 @@ fn main() {
     };
     debug!("Process exiting with code {}", exit_code);
     std::process::exit(exit_code);
+}
+
+fn log_environment(config: &cli::Config) {
+    info!(
+        "Arguments passed to Daemon: {}",
+        std::env::args().collect::<Vec<String>>().join(" ")
+    );
+    info!("Using log level {:?}", config.log_level);
 }
 
 fn init_logging(config: &cli::Config) -> Result<Option<PathBuf>, String> {
