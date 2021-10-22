@@ -45,7 +45,9 @@ trait SettingsMigration {
 
 pub async fn migrate_all(settings_dir: &Path) -> Result<()> {
     #[cfg(windows)]
-    windows::migrate_after_windows_update(settings_dir).map_err(Error::WinMigrationError)?;
+    windows::migrate_after_windows_update(settings_dir)
+        .await
+        .map_err(Error::WinMigrationError)?;
 
     let path = settings_dir.join(SETTINGS_FILE);
 
@@ -107,8 +109,9 @@ pub async fn migrate_all(settings_dir: &Path) -> Result<()> {
 
 #[cfg(windows)]
 mod windows {
-    use std::{ffi::OsStr, fs, io, os::windows::ffi::OsStrExt, path::Path, ptr};
+    use std::{ffi::OsStr, io, os::windows::ffi::OsStrExt, path::Path, ptr};
     use talpid_types::ErrorExt;
+    use tokio::fs;
     use winapi::{
         shared::{minwindef::TRUE, winerror::ERROR_SUCCESS},
         um::{
@@ -146,7 +149,9 @@ mod windows {
     /// Attempts to restore the Mullvad settings from `C:\windows.old` after an update of Windows.
     /// Upon success, it returns `Ok(true)` if the migration succeeded, and `Ok(false)` if no
     /// migration was needed.
-    pub fn migrate_after_windows_update(destination_settings_dir: &Path) -> Result<bool, Error> {
+    pub async fn migrate_after_windows_update(
+        destination_settings_dir: &Path,
+    ) -> Result<bool, Error> {
         let system_appdata_dir = dirs_next::data_local_dir().ok_or(Error::FindAppData)?;
         if !destination_settings_dir.starts_with(system_appdata_dir) {
             return Ok(false);
@@ -188,7 +193,9 @@ mod windows {
         }
 
         if !destination_settings_dir.exists() {
-            fs::create_dir_all(&destination_settings_dir).map_err(Error::IoError)?;
+            fs::create_dir_all(destination_settings_dir)
+                .await
+                .map_err(Error::IoError)?;
         }
 
         let mut result = Ok(true);
@@ -199,9 +206,9 @@ mod windows {
 
             log::debug!("Migrating {} to {}", from.display(), to.display());
 
-            match fs::copy(&from, &to) {
+            match fs::copy(&from, &to).await {
                 Ok(_) => {
-                    let _ = fs::remove_file(from);
+                    let _ = fs::remove_file(from).await;
                 }
                 Err(error) => {
                     log::error!(
@@ -219,7 +226,7 @@ mod windows {
             }
         }
 
-        if let Err(error) = fs::remove_dir(source_settings_dir) {
+        if let Err(error) = fs::remove_dir(source_settings_dir).await {
             log::trace!(
                 "{}",
                 error.display_chain_with_msg("Failed to delete backup directory")
