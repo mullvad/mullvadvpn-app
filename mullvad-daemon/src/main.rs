@@ -1,6 +1,6 @@
 #![deny(rust_2018_idioms)]
 
-use log::{debug, error, info, warn};
+use log::{debug, error, info, trace, warn};
 use mullvad_daemon::{
     logging,
     management_interface::{ManagementInterfaceEventBroadcaster, ManagementInterfaceServer},
@@ -25,6 +25,8 @@ fn main() {
         eprintln!("{}", error);
         std::process::exit(1)
     });
+
+    trace!("Using configuration: {:?}", config);
 
     let runtime = new_runtime_builder().build().unwrap_or_else(|error| {
         eprintln!("{}", error.display_chain());
