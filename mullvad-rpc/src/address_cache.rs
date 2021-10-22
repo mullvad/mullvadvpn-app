@@ -96,12 +96,12 @@ impl AddressCache {
 
     fn get_address_inner(inner: &AddressCacheInner) -> SocketAddr {
         if inner.addresses.is_empty() {
-            return API_ADDRESS.into();
+            return *API_ADDRESS;
         }
         *inner
             .addresses
             .get(inner.choice % inner.addresses.len())
-            .unwrap_or(&API_ADDRESS.into())
+            .unwrap_or(&API_ADDRESS)
     }
 
     pub fn has_tried_current_address(&self) -> bool {

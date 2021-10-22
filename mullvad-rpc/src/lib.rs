@@ -46,19 +46,37 @@ pub const INVALID_ACCOUNT: &str = "INVALID_ACCOUNT";
 /// Error code returned by the Mullvad API if the account token is missing or invalid.
 pub const INVALID_AUTH: &str = "INVALID_AUTH";
 
-const API_HOST: &str = "api.mullvad.net";
+const API_HOST_DEFAULT: &str = "api.mullvad.net";
 pub const API_IP_CACHE_FILENAME: &str = "api-ip-address.txt";
 const API_IP: IpAddr = IpAddr::V4(Ipv4Addr::new(193, 138, 218, 78));
-const API_ADDRESS: (IpAddr, u16) = (crate::API_IP, 443);
 
 // Override the hostname and IP used to reach the API.
 #[cfg(feature = "api-override")]
 lazy_static::lazy_static! {
-    static ref API_HOST_OVERRIDE: Option<String> = std::env::var("MULLVAD_API_HOST").ok();
-    static ref API_ADDRESS_OVERRIDE: Option<SocketAddr> = std::env::var("MULLVAD_API_ADDRESS")
-        .map(|addr| addr.parse().ok())
+    static ref API_HOST: String = std::env::var("MULLVAD_API_HOST")
         .ok()
-        .flatten();
+        .map(|host| {
+            log::debug!("Overriding API hostname: {}", host);
+            host
+        })
+        .unwrap_or(API_HOST_DEFAULT.to_string());
+    static ref API_ADDRESS: SocketAddr = std::env::var("MULLVAD_API_ADDRESS")
+        .map(|addr| {
+            let addr = addr.parse().ok();
+            if let Some(addr) = &addr {
+                log::debug!("Overriding API address: {}", addr);
+            }
+            addr
+        })
+        .ok()
+        .flatten()
+        .unwrap_or(SocketAddr::new(crate::API_IP, 443));
+    static ref DISABLE_ADDRESS_ROTATION: bool = std::env::var("MULLVAD_API_ADDRESS").ok().is_some();
+}
+#[cfg(not(feature = "api-override"))]
+lazy_static::lazy_static! {
+    static ref API_HOST: String = API_HOST_DEFAULT.to_string();
+    static ref API_ADDRESS: SocketAddr = SocketAddr::new(crate::API_IP, 443);
 }
 
 
@@ -100,7 +118,7 @@ impl MullvadRpcRuntime {
         Ok(MullvadRpcRuntime {
             handle,
             address_cache: AddressCache::new(
-                vec![Self::api_address()],
+                vec![API_ADDRESS.clone()],
                 None,
                 Arc::new(Box::new(|_| Ok(()))),
             )?,
@@ -122,7 +140,7 @@ impl MullvadRpcRuntime {
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
         #[cfg(feature = "api-override")]
-        if API_ADDRESS_OVERRIDE.is_some() {
+        if *DISABLE_ADDRESS_ROTATION {
             return Self::new_inner(
                 handle,
                 #[cfg(target_os = "android")]
@@ -207,11 +225,9 @@ impl MullvadRpcRuntime {
 
     /// Returns a request factory initialized to create requests for the master API
     pub fn mullvad_rest_handle(&mut self) -> rest::MullvadRestHandle {
-        let api_host = Self::api_host();
-
-        let service = self.new_request_service(Some(api_host.to_string()));
+        let service = self.new_request_service(Some(API_HOST.clone()));
         let factory = rest::RequestFactory::new(
-            api_host,
+            API_HOST.clone(),
             Box::new(self.address_cache.clone()),
             Some("app".to_owned()),
         );
@@ -235,32 +251,6 @@ impl MullvadRpcRuntime {
 
     pub fn availability_handle(&self) -> ApiAvailabilityHandle {
         self.api_availability.handle()
-    }
-
-    fn api_host() -> String {
-        #[cfg(feature = "api-override")]
-        let api_host = if let Some(hostname) = &*API_HOST_OVERRIDE {
-            log::debug!("Overriding API hostname: {}", hostname);
-            hostname.clone()
-        } else {
-            API_HOST.to_string()
-        };
-        #[cfg(not(feature = "api-override"))]
-        let api_host = API_HOST.to_string();
-        api_host
-    }
-
-    fn api_address() -> SocketAddr {
-        #[cfg(feature = "api-override")]
-        let api_address = if let Some(address) = &*API_ADDRESS_OVERRIDE {
-            log::debug!("Overriding API address: {}", address);
-            address.clone()
-        } else {
-            API_ADDRESS.into()
-        };
-        #[cfg(not(feature = "api-override"))]
-        let api_address = API_ADDRESS.into();
-        api_address
     }
 }
 
