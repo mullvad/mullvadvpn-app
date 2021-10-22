@@ -108,6 +108,7 @@
     <string name="settings_account">帐户</string>
     <string name="settings_advanced">高级</string>
     <string name="settings_preferences">偏好设置</string>
+    <string name="show_system_apps">显示系统应用</string>
     <string name="split_tunneling">拆分隧道</string>
     <string name="split_tunneling_description">利用拆分隧道，您可以选择哪些应用程序不应通过 VPN 隧道进行路由。</string>
     <string name="start_tunnel_error">无法启动隧道连接</string>

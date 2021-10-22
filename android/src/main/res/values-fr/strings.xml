@@ -50,7 +50,7 @@
     <string name="edit_message">Modifier le message</string>
     <string name="enable">Activer</string>
     <string name="enable_custom_dns">Utiliser un serveur DNS personnalisé</string>
-    <string name="enter_voucher_code">Saisissez un code de bon</string>
+    <string name="enter_voucher_code">Saisir un code de bon</string>
     <string name="error_occurred">Une erreur est survenue.</string>
     <string name="error_state">ÉCHEC DE LA SÉCURISATION DE LA CONNEXION</string>
     <string name="exclude_applications">Applications exclues</string>
@@ -112,6 +112,7 @@
     <string name="settings_account">Compte</string>
     <string name="settings_advanced">Avancé</string>
     <string name="settings_preferences">Préférences</string>
+    <string name="show_system_apps">Afficher les applications système</string>
     <string name="split_tunneling">Split tunneling</string>
     <string name="split_tunneling_description">Le split tunneling permet de sélectionner quelles applications ne doivent pas passer par le tunnel VPN.</string>
     <string name="start_tunnel_error">Échec du démarrage de la connexion tunnel</string>

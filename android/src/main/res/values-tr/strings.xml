@@ -99,7 +99,7 @@
     <string name="secure_connection">GÜVENLİ BAĞLANTI</string>
     <string name="secured">Güvenli</string>
     <string name="select_location">Konum seçin</string>
-    <string name="select_location_description">Bağlıyken gerçek konumunuz seçilen bölgedeki özel ve gizli bir konumla maskelenir.</string>
+    <string name="select_location_description">Bağlıyken, gerçek konumunuz seçilen bölgedeki özel ve gizli bir konumla maskelenir.</string>
     <string name="send">Gönder</string>
     <string name="send_anyway">Yine de gönder</string>
     <string name="sending">Gönderiliyor...</string>
@@ -112,6 +112,7 @@
     <string name="settings_account">Hesap</string>
     <string name="settings_advanced">Gelişmiş</string>
     <string name="settings_preferences">Tercihler</string>
+    <string name="show_system_apps">Sistem uygulamalarını göster</string>
     <string name="split_tunneling">Bölünmüş tünelleme</string>
     <string name="split_tunneling_description">Bölünmüş tünelleme, VPN tüneli üzerinden yönlendirilmemesi gereken uygulamaları seçmenize olanak tanır.</string>
     <string name="start_tunnel_error">Tünel bağlantısı başlatılamıyor</string>
