@@ -10,7 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: German\n"
 "Language: de_DE\n"
-"PO-Revision-Date: 2021-06-28 11:50\n"
+"PO-Revision-Date: 2021-10-22 12:27\n"
+
+msgid "%(duration)s was added to your account."
+msgstr "%(duration)s wurden zu Ihrem Konto hinzugefügt."
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -67,6 +70,12 @@ msgid_plural "%d hours ago"
 msgstr[0] "vor einer Stunde"
 msgstr[1] "vor %d Stunden"
 
+msgid "Apply"
+msgstr "Anwenden"
+
+msgid "Automatic"
+msgstr "Automatisch"
+
 msgid "Back"
 msgstr "Zurück"
 
@@ -85,6 +94,9 @@ msgstr "Mehr Guthaben erwerben"
 msgid "Cancel"
 msgstr "Abbrechen"
 
+msgid "Clear"
+msgstr "Löschen"
+
 msgid "Close"
 msgstr "Schließen"
 
@@ -97,6 +109,9 @@ msgstr "IN DIE ZWISCHENABLAGE KOPIERT!"
 msgid "CREATING SECURE CONNECTION"
 msgstr "SICHERE VERBINDUNG WIRD ERSTELLT"
 
+msgid "Default"
+msgstr "Standard"
+
 msgid "Disconnect"
 msgstr "Verbindung trennen"
 
@@ -106,8 +121,20 @@ msgstr "Ausblenden"
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "SICHERE VERBINDUNG KONNTE NICHT HERGESTELLT WERDEN"
 
+msgid "Filter"
+msgstr "Filter"
+
+msgid "Got it!"
+msgstr "Verstanden!"
+
 msgid "Invalid account number"
 msgstr "Ungültige Kontonummer"
+
+msgid "IPv4"
+msgstr "IPv4"
+
+msgid "IPv6"
+msgstr "IPv6"
 
 msgid "less than a day"
 msgstr "weniger als ein Tag"
@@ -117,6 +144,15 @@ msgstr "weniger als ein Tag übrig"
 
 msgid "less than a minute ago"
 msgstr "vor weniger als einer Minute"
+
+msgid "Next"
+msgstr "Weiter"
+
+msgid "Off"
+msgstr "Aus"
+
+msgid "On"
+msgstr "Ein"
 
 msgid "Open URL"
 msgstr "URL öffnen"
@@ -133,7 +169,13 @@ msgstr "Einstellungen"
 msgid "System default"
 msgstr "Systemstandard"
 
-msgid "UNSECURE CONNECTION"
+msgid "TCP"
+msgstr "TCP"
+
+msgid "UDP"
+msgstr "UDP"
+
+msgid "UNSECURED CONNECTION"
 msgstr "UNGESICHERTE VERBINDUNG"
 
 msgctxt "accessibility"
@@ -219,17 +261,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Achtung: Wenn Sie diese Einstellung aktivieren, wird immer eine Mullvad VPN-Verbindung erfordert, um das Internet zu erreichen."
 
-msgid "Automatic"
-msgstr "Automatisch"
-
-#. The title for the shadowsocks bridge selector section.
-msgctxt "openvpn-settings-view"
-msgid "Bridge mode"
-msgstr "Brückenmodus"
-
-msgid "Default"
-msgstr "Standard"
-
 msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "Trotzdem aktivieren"
@@ -254,62 +285,25 @@ msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "Wenn Sie die Verbindung trennen oder die App beenden, wird diese Einstellung Ihr Internet sperren."
 
-msgid "Off"
-msgstr "Aus"
-
-msgid "On"
-msgstr "Ein"
+msgctxt "advanced-settings-view"
+msgid "missing key"
+msgstr "fehlender Schlüssel"
 
 msgctxt "advanced-settings-view"
 msgid "OpenVPN"
 msgstr "OpenVPN"
 
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
 msgctxt "advanced-settings-view"
-msgid "OpenVPN %(portType)s port"
-msgstr "OpenVPN %(portType)s Port"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN Mssfix"
-msgstr "OpenVPN Mssfix"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN transport protocol"
-msgstr "OpenVPN-Transportprotokoll"
-
-#. The hint displayed below the Mssfix input field.
-#. Available placeholders:
-#. %(max)d - the maximum possible mssfix value
-#. %(min)d - the minimum possible mssfix value
-msgctxt "openvpn-settings-view"
-msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr "OpenVPN MSS-Wert einstellen. Gültiger Bereich: %(min)d - %(max)d."
-
-#. The hint displayed below the WireGuard MTU input field.
-#. Available placeholders:
-#. %(max)d - the maximum possible wireguard mtu value
-#. %(min)d - the minimum possible wireguard mtu value
-msgctxt "wireguard-settings-view"
-msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
-msgstr "WireGuard MTU-Wert einstellen. Gültiger Bereich: %(min)d - %(max)d."
+msgid "OpenVPN settings"
+msgstr "OpenVPN-Einstellungen"
 
 msgctxt "advanced-settings-view"
 msgid "Split tunneling"
 msgstr "Split Tunneling"
 
-msgid "TCP"
-msgstr "TCP"
-
 msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "Der integrierte Killswitch der App ist immer an. Diese Einstellung wird außerdem das Internet sperren, wenn Sie auf Trennen oder Beenden klicken."
-
-#. The hint displayed below the WireGuard port selector.
-msgctxt "wireguard-settings-view"
-msgid "The automatic setting will randomly choose from a wide range of ports."
-msgstr "Die automatische Einstellung wählt willkürlich aus einer Vielzahl von Ports."
 
 msgctxt "advanced-settings-view"
 msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
@@ -323,9 +317,6 @@ msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
 msgstr "Tunnelprotokoll"
 
-msgid "UDP"
-msgstr "UDP"
-
 msgctxt "advanced-settings-view"
 msgid "Use custom DNS server"
 msgstr "Benutzerdefinierten DNS-Server verwenden"
@@ -334,21 +325,9 @@ msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
-msgctxt "wireguard-settings-view"
-msgid "WireGuard key"
-msgstr "WireGuard-Schlüssel"
-
 msgctxt "advanced-settings-view"
-msgid "WireGuard MTU"
-msgstr "WireGuard MTU"
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard port"
-msgstr "WireGuard-Port"
-
-msgctxt "advanced-settings-view-wireguard"
-msgid "missing key"
-msgstr "fehlender Schlüssel"
+msgid "WireGuard settings"
+msgstr "WireGuard-Einstellungen"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -392,8 +371,20 @@ msgid "Either buy credit on our website or redeem a voucher."
 msgstr "Kaufen Sie entweder Guthaben über unsere Seite oder lösen Sie einen Gutschein ein."
 
 msgctxt "connect-view"
+msgid "Enter voucher code"
+msgstr "Gutscheincode eingeben"
+
+msgctxt "connect-view"
+msgid "Go ahead and start using the app to begin reclaiming your online privacy."
+msgstr "Legen Sie los und erobern Sie Ihre Online-Privatsphäre mit dieser App zurück!"
+
+msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
 msgstr "Hier ist Ihre Kontonummer. Verlieren Sie sie nicht!"
+
+msgctxt "connect-view"
+msgid "Learn about privacy"
+msgstr "Mehr über Privatsphäre erfahren"
 
 msgctxt "connect-view"
 msgid "Out of time"
@@ -408,12 +399,28 @@ msgid "Remember, turning it off will allow network traffic while the VPN is disc
 msgstr "Vergessen Sie nicht: Das Ausschalten erlaubt Netzverkehr während das VPN nicht verbunden ist, bis Sie es unter den erweiterten Einstellungen wieder einschalten."
 
 msgctxt "connect-view"
+msgid "Start using the app"
+msgstr "Mit dem Benutzen der App anfangen"
+
+msgctxt "connect-view"
+msgid "Time was successfully added"
+msgstr "Zeit erfolgreich hinzugefügt"
+
+msgctxt "connect-view"
 msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
 msgstr "Um mehr hinzuzufügen, müssen Sie Ihre Verbindung trennen und mit einer unsicheren Verbindung auf das Internet zugreifen."
 
 msgctxt "connect-view"
+msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
+msgstr "Besuchen Sie unsere Website, um mehr über datenschutzfreundliche Gewohnheiten & Tools zu erfahren und Ihre Reise als Datenschutz-Ninja fortzufahren."
+
+msgctxt "connect-view"
 msgid "To start using the app, you first need to add time to your account."
 msgstr "Um mit der Nutzung dieser App zu beginnen, müssen Sie erst einmal Zeit zu Ihrem Konto hinzufügen."
+
+msgctxt "connect-view"
+msgid "Voucher was successfully redeemed"
+msgstr "Der Gutschein wurde erfolgreich eingelöst"
 
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account."
@@ -422,6 +429,10 @@ msgstr "Sie haben keine VPN-Zeit mehr auf diesem Konto."
 msgctxt "connect-view"
 msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
 msgstr "Sie müssen „Immer VPN erfordern“ deaktivieren, um auf das Internet zuzugreifen und Zeit hinzuzufügen."
+
+msgctxt "connect-view"
+msgid "You're all set!"
+msgstr "Sie sind startklar!"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -454,13 +465,19 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Es ist etwas schiefgegangen. Bitte kontaktieren Sie uns unter %(email)s"
 
-msgctxt "generic"
-msgid "Mullvad VPN"
-msgstr "Mullvad-VPN"
+#. Title label in navigation bar
+msgctxt "filter-by-provider-nav"
+msgid "Filter by provider"
+msgstr "Nach Provider filtern"
 
-msgctxt "generic"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD-VPN"
+#. Back button in navigation bar
+msgctxt "filter-by-provider-nav"
+msgid "Select location"
+msgstr "Ort auswählen"
+
+msgctxt "filter-by-provider-view"
+msgid "All providers"
+msgstr "Alle Provider"
 
 msgctxt "in-app-notifications"
 msgid "\"Always require VPN\" is enabled."
@@ -479,9 +496,14 @@ msgid "APP IS OUT OF SYNC"
 msgstr "APP IST NICHT SYNCHRONISIERT"
 
 msgctxt "in-app-notifications"
+msgid "BETA UPDATE AVAILABLE"
+msgstr "BETA-UPDATE VERFÜGBAR"
+
+msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "INTERNET SPERREN"
 
+#. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
 msgstr "Installieren Sie die neueste Version der App, um auf dem neuesten Stand zu sein."
@@ -497,6 +519,14 @@ msgstr "ES KÖNNTE NETZWERK-TRAFFIC LEAKEN"
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Bitte schließen Sie die App und starten Sie sie neu."
+
+#. The in-app banner displayed to the user when the app beta update is
+#. available.
+#. Available placeholders:
+#. %(version)s - The version number of the new beta version.
+msgctxt "in-app-notifications"
+msgid "Try out the newest beta version (%(version)s)."
+msgstr "Testen Sie unsere neuste Beta-Version (%(version)s)."
 
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
@@ -599,6 +629,14 @@ msgstr "Die Zeit auf dem Konto ist ausgelaufen"
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Die App ist nicht synchronisiert. Bitte verlassen Sie die App und starten Sie sie neu."
+
+#. The system notification that notifies the user when a beta update is
+#. available.
+#. Available placeholders:
+#. %(version)s - The version number of the new beta version.
+msgctxt "notifications"
+msgid "Beta update available. Try out the newest beta version (%(version)s)."
+msgstr "Beta-Update verfügbar. Testen Sie unsere neuste Beta-Version (%(version)s)."
 
 msgctxt "notifications"
 msgid "Buy more"
@@ -706,6 +744,43 @@ msgstr "Ihre Privatsphäre könnte mit dieser nicht unterstützen Version der Ap
 msgctxt "notifications"
 msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
 msgstr "Ihr ausgewählter Server und das ausgewählte Tunnelprotokoll stimmen nicht überein. Bitte passen Sie Ihre Einstellungen an."
+
+#. Title label in navigation bar
+msgctxt "openvpn-settings-nav"
+msgid "OpenVPN settings"
+msgstr "OpenVPN-Einstellungen"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "openvpn-settings-view"
+msgid "%(portType)s port"
+msgstr "%(portType)s Port"
+
+#. The title for the shadowsocks bridge selector section.
+msgctxt "openvpn-settings-view"
+msgid "Bridge mode"
+msgstr "Brückenmodus"
+
+msgctxt "openvpn-settings-view"
+msgid "Mssfix"
+msgstr "Mssfix"
+
+msgctxt "openvpn-settings-view"
+msgid "OpenVPN settings"
+msgstr "OpenVPN-Einstellungen"
+
+#. The hint displayed below the Mssfix input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible mssfix value
+#. %(min)d - the minimum possible mssfix value
+msgctxt "openvpn-settings-view"
+msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr "Stellen Sie den OpenVPN MSS-Wert ein. Gültiger Bereich: %(min)d – %(max)d."
+
+msgctxt "openvpn-settings-view"
+msgid "Transport protocol"
+msgstr "Transport-Protokoll"
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -829,6 +904,10 @@ msgid "Redeem"
 msgstr "Einlösen"
 
 msgctxt "redeem-voucher-view"
+msgid "Verifying voucher..."
+msgstr "Gutschein wird verifiziert ..."
+
+msgctxt "redeem-voucher-view"
 msgid "Voucher code has already been used."
 msgstr "Der Gutscheincode wurde bereits verwendet."
 
@@ -863,8 +942,21 @@ msgid "Closest to exit server"
 msgstr "Am nächsten zum Ausgangsserver"
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region."
-msgstr "Wenn Sie verbunden sind, wird Ihr tatsächlicher Standort mit einem privaten und sicheren Standort in der ausgewählten Region maskiert."
+msgid "Filter by provider"
+msgstr "Nach Provider filtern"
+
+msgctxt "select-location-view"
+msgid "Filtered:"
+msgstr "Gefiltert:"
+
+msgctxt "select-location-view"
+msgid "Providers: %(numberOfProviders)d"
+msgstr "Provider: %(numberOfProviders)d"
+
+#. Heading in select location view
+msgctxt "select-location-view"
+msgid "Select location"
+msgstr "Ort auswählen"
 
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
@@ -1152,15 +1244,58 @@ msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "Schlüssel verifizieren"
 
-#. Back button in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "Advanced"
-msgstr "Erweitert"
-
 #. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard-Schlüssel"
+
+#. Back button in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "WireGuard settings"
+msgstr "WireGuard-Einstellungen"
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "WireGuard settings"
+msgstr "WireGuard-Einstellungen"
+
+msgctxt "wireguard-settings-view"
+msgid "IP version"
+msgstr "IP-Version"
+
+msgctxt "wireguard-settings-view"
+msgid "MTU"
+msgstr "MTU"
+
+msgctxt "wireguard-settings-view"
+msgid "Port"
+msgstr "Port"
+
+#. The hint displayed below the WireGuard MTU input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible wireguard mtu value
+#. %(min)d - the minimum possible wireguard mtu value
+msgctxt "wireguard-settings-view"
+msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgstr "WireGuard MTU-Wert einstellen. Gültiger Bereich: %(min)d – %(max)d."
+
+#. The hint displayed below the WireGuard port selector.
+msgctxt "wireguard-settings-view"
+msgid "The automatic setting will randomly choose from a wide range of ports."
+msgstr "Die automatische Einstellung wählt willkürlich aus einer Vielzahl von Ports."
+
+#. The hint displayed below the WireGuard IP version selector.
+msgctxt "wireguard-settings-view"
+msgid "This allows access to WireGuard for devices that only support IPv6."
+msgstr "Dies ermöglicht den Zugriff auf WireGuard für Geräte, welche ausschließlich IPv6 unterstützen."
+
+msgctxt "wireguard-settings-view"
+msgid "WireGuard key"
+msgstr "WireGuard-Schlüssel"
+
+msgctxt "wireguard-settings-view"
+msgid "WireGuard settings"
+msgstr "WireGuard-Einstellungen"
 
 msgid "Account authentication failed."
 msgstr "Konto-Authentifizierung fehlgeschlagen."
@@ -1231,6 +1366,9 @@ msgstr "Bei Bedarf werden wir Sie über %s kontaktieren"
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Installieren Sie Mullvad VPN (%s), um auf dem neuesten Stand zu bleiben"
 
+msgid "Mullvad VPN"
+msgstr "Mullvad-VPN"
+
 msgid "Mullvad account number"
 msgstr "Mullvad-Kontonummer"
 
@@ -1242,6 +1380,9 @@ msgstr "Kein Relay-Server stimmt mit den aktuellen Einstellungen überein"
 
 msgid "Secured"
 msgstr "Gesichert"
+
+msgid "Show system apps"
+msgstr "Systemapps anzeigen"
 
 msgid "Shows current VPN tunnel status"
 msgstr "Zeigt den aktuellen Status des VPN Tunnels an"
@@ -1261,9 +1402,6 @@ msgstr "Diese Gerät ist offline, es können keine Tunnel aufgebaut werden"
 msgid "Too many WireGuard keys registered to account"
 msgstr "Zu viele WireGuard-Schlüssel wurden auf das Konto registriert"
 
-msgid "UNSECURED CONNECTION"
-msgstr "UNGESICHERTE VERBINDUNG"
-
 msgid "Unsecured"
 msgstr "Ungesichert"
 
@@ -1278,6 +1416,12 @@ msgstr "Status des VPN-Tunnels"
 
 msgid "Virtual adapter error"
 msgstr "Virtueller Adapterfehler"
+
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr "Wenn Sie verbunden sind, wird Ihr tatsächlicher Standort durch einem privaten und sicheren Standort in der ausgewählten Region maskiert."
+
+msgid "WireGuard MTU"
+msgstr "WireGuard-MTU"
 
 msgid "WireGuard error"
 msgstr "WireGuard Fehler"

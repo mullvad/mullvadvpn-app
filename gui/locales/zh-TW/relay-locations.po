@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2021-06-28 11:50\n"
+"PO-Revision-Date: 2021-10-22 12:27\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -302,7 +302,7 @@ msgstr "尼斯"
 
 #. MK
 msgid "North Macedonia"
-msgstr ""
+msgstr "北馬其頓"
 
 #. NO
 msgid "Norway"
@@ -314,7 +314,7 @@ msgstr "奧克拉荷馬州，奧克拉荷馬市"
 
 #. JP OSA
 msgid "Osaka"
-msgstr ""
+msgstr "大阪"
 
 #. NO OSL
 msgid "Oslo"
@@ -414,7 +414,7 @@ msgstr "南達科他州，蘇瀑"
 
 #. MK SKP
 msgid "Skopje"
-msgstr ""
+msgstr "斯高彼亞"
 
 #. BG SOF
 msgid "Sofia"
@@ -511,3 +511,4 @@ msgstr "維也納"
 #. CH ZRH
 msgid "Zurich"
 msgstr "蘇黎世"
+

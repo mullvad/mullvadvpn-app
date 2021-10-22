@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2021-06-28 11:50\n"
+"PO-Revision-Date: 2021-10-22 12:27\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -314,7 +314,7 @@ msgstr "오클라호마 시티, OK"
 
 #. JP OSA
 msgid "Osaka"
-msgstr "오사카 시"
+msgstr "오사카"
 
 #. NO OSL
 msgid "Oslo"
@@ -511,3 +511,4 @@ msgstr "빈"
 #. CH ZRH
 msgid "Zurich"
 msgstr "취리히"
+

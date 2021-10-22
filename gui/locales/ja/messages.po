@@ -10,7 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2021-06-28 11:50\n"
+"PO-Revision-Date: 2021-10-22 12:27\n"
+
+msgid "%(duration)s was added to your account."
+msgstr "%(duration)sがアカウントに追加されました。"
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -64,6 +67,12 @@ msgid_plural "%d hours ago"
 msgstr[0] "1時間前\n\n"
 "%d時間前"
 
+msgid "Apply"
+msgstr "適用"
+
+msgid "Automatic"
+msgstr "自動"
+
 msgid "Back"
 msgstr "戻る"
 
@@ -82,6 +91,9 @@ msgstr "追加クレジットを購入"
 msgid "Cancel"
 msgstr "キャンセル"
 
+msgid "Clear"
+msgstr "クリア"
+
 msgid "Close"
 msgstr "閉じる"
 
@@ -94,6 +106,9 @@ msgstr "クリップボードにコピーしました！"
 msgid "CREATING SECURE CONNECTION"
 msgstr "セキュリティ保護接続を確立中"
 
+msgid "Default"
+msgstr "デフォルト"
+
 msgid "Disconnect"
 msgstr "接続解除"
 
@@ -103,8 +118,20 @@ msgstr "閉じる"
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "セキュリティ保護接続を確立できませんでした"
 
+msgid "Filter"
+msgstr "絞り込み"
+
+msgid "Got it!"
+msgstr "了解"
+
 msgid "Invalid account number"
 msgstr "アカウント番号が正しくありません"
+
+msgid "IPv4"
+msgstr "IPv4"
+
+msgid "IPv6"
+msgstr "IPv6"
 
 msgid "less than a day"
 msgstr "1 日未満"
@@ -114,6 +141,15 @@ msgstr "残り1日未満"
 
 msgid "less than a minute ago"
 msgstr "1分未満前"
+
+msgid "Next"
+msgstr "次へ"
+
+msgid "Off"
+msgstr "オフ"
+
+msgid "On"
+msgstr "オン"
 
 msgid "Open URL"
 msgstr "URLを開く"
@@ -130,7 +166,13 @@ msgstr "設定"
 msgid "System default"
 msgstr "システムデフォルト"
 
-msgid "UNSECURE CONNECTION"
+msgid "TCP"
+msgstr "TCP"
+
+msgid "UDP"
+msgstr "UDP"
+
+msgid "UNSECURED CONNECTION"
 msgstr "セキュリティ保護されていない接続"
 
 msgctxt "accessibility"
@@ -216,17 +258,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "注意：この設定を有効化すると、インターネットにアクセスするために常にMullvad VPNへの接続が必要になります。"
 
-msgid "Automatic"
-msgstr "自動"
-
-#. The title for the shadowsocks bridge selector section.
-msgctxt "openvpn-settings-view"
-msgid "Bridge mode"
-msgstr "ブリッジモード"
-
-msgid "Default"
-msgstr "デフォルト"
-
 msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "それでも有効化する"
@@ -251,62 +282,25 @@ msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "アプリを接続解除したり終了したりすると、この設定によってインターネットアクセスがブロックされます。"
 
-msgid "Off"
-msgstr "オフ"
-
-msgid "On"
-msgstr "オン"
+msgctxt "advanced-settings-view"
+msgid "missing key"
+msgstr "見つからない鍵"
 
 msgctxt "advanced-settings-view"
 msgid "OpenVPN"
 msgstr "OpenVPN"
 
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
 msgctxt "advanced-settings-view"
-msgid "OpenVPN %(portType)s port"
-msgstr "OpenVPN %(portType)s ポート"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN Mssfix"
-msgstr "OpenVPN Mssfix"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN transport protocol"
-msgstr "OpenVPN転送プロトコル"
-
-#. The hint displayed below the Mssfix input field.
-#. Available placeholders:
-#. %(max)d - the maximum possible mssfix value
-#. %(min)d - the minimum possible mssfix value
-msgctxt "openvpn-settings-view"
-msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr "OpenVPN MSS の値を設定します。有効範囲：%(min)d ～ %(max)d。"
-
-#. The hint displayed below the WireGuard MTU input field.
-#. Available placeholders:
-#. %(max)d - the maximum possible wireguard mtu value
-#. %(min)d - the minimum possible wireguard mtu value
-msgctxt "wireguard-settings-view"
-msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
-msgstr "WireGuard MTU の値を設定します。有効範囲：%(min)d ～ %(max)d"
+msgid "OpenVPN settings"
+msgstr "OpenVPN設定"
 
 msgctxt "advanced-settings-view"
 msgid "Split tunneling"
 msgstr "スプリットトンネリング"
 
-msgid "TCP"
-msgstr "TCP"
-
 msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "アプリに組み込まれているキルスイッチは常にオンになっています。この設定を有効にすると、「接続解除」または「終了」をクリックした場合にインターネットが補助的にブロックされます。"
-
-#. The hint displayed below the WireGuard port selector.
-msgctxt "wireguard-settings-view"
-msgid "The automatic setting will randomly choose from a wide range of ports."
-msgstr "自動設定では、さまざまなポートからランダムに選択されます。"
 
 msgctxt "advanced-settings-view"
 msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
@@ -320,9 +314,6 @@ msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
 msgstr "トンネルプロトコル"
 
-msgid "UDP"
-msgstr "UDP"
-
 msgctxt "advanced-settings-view"
 msgid "Use custom DNS server"
 msgstr "カスタムDNSサーバーを使う"
@@ -331,21 +322,9 @@ msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
-msgctxt "wireguard-settings-view"
-msgid "WireGuard key"
-msgstr "WireGuard鍵"
-
 msgctxt "advanced-settings-view"
-msgid "WireGuard MTU"
-msgstr "WireGuard MTU"
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard port"
-msgstr "WireGuardポート"
-
-msgctxt "advanced-settings-view-wireguard"
-msgid "missing key"
-msgstr "見つからない鍵"
+msgid "WireGuard settings"
+msgstr "WireGuard設定"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -389,8 +368,20 @@ msgid "Either buy credit on our website or redeem a voucher."
 msgstr "当社ウェブサイトでクレジットを購入するか、バウチャーを使用してください。"
 
 msgctxt "connect-view"
+msgid "Enter voucher code"
+msgstr "バウチャーコードを入力"
+
+msgctxt "connect-view"
+msgid "Go ahead and start using the app to begin reclaiming your online privacy."
+msgstr "続行してこのアプリの使用を開始し、オンラインプライバシーを取り戻しましょう。"
+
+msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
 msgstr "これがあなたのアカウント番号です。保存してください！"
+
+msgctxt "connect-view"
+msgid "Learn about privacy"
+msgstr "プライバシーに関する詳細"
 
 msgctxt "connect-view"
 msgid "Out of time"
@@ -405,12 +396,28 @@ msgid "Remember, turning it off will allow network traffic while the VPN is disc
 msgstr "この設定をオフにすると、「詳細」設定で再びオンに戻すまで、VPN接続が解除されている間もネットワーク通信が許可されます。"
 
 msgctxt "connect-view"
+msgid "Start using the app"
+msgstr "アプリの使用を開始"
+
+msgctxt "connect-view"
+msgid "Time was successfully added"
+msgstr "時間を正常に追加しました"
+
+msgctxt "connect-view"
 msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
 msgstr "時間を追加するには、いったん接続を解除し、セキュリティ保護されていない接続でインターネットにアクセスする必要があります。"
 
 msgctxt "connect-view"
+msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
+msgstr "プライバシー忍者であり続けるため、当社ウェブサイトにアクセスしてプライバシーに配慮したその他の習慣やツールをご覧ください。"
+
+msgctxt "connect-view"
 msgid "To start using the app, you first need to add time to your account."
 msgstr "アプリを使い始めるには、まずはアカウントに時間を追加する必要があります。"
+
+msgctxt "connect-view"
+msgid "Voucher was successfully redeemed"
+msgstr "バウチャーを正常に使用しました"
 
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account."
@@ -419,6 +426,10 @@ msgstr "このアカウントには、もう残っているVPN時間がありま
 msgctxt "connect-view"
 msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
 msgstr "インターネットにアクセスして時間を追加するには、「常にVPNを要求する」を無効にする必要があります。"
+
+msgctxt "connect-view"
+msgid "You're all set!"
+msgstr "準備完了！"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -451,13 +462,19 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "何か問題が生じたようです。 %(email)s までご連絡ください。"
 
-msgctxt "generic"
-msgid "Mullvad VPN"
-msgstr "Mullvad VPN"
+#. Title label in navigation bar
+msgctxt "filter-by-provider-nav"
+msgid "Filter by provider"
+msgstr "プロバイダで絞り込む"
 
-msgctxt "generic"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
+#. Back button in navigation bar
+msgctxt "filter-by-provider-nav"
+msgid "Select location"
+msgstr "場所を選択"
+
+msgctxt "filter-by-provider-view"
+msgid "All providers"
+msgstr "すべてのプロバイダ"
 
 msgctxt "in-app-notifications"
 msgid "\"Always require VPN\" is enabled."
@@ -476,9 +493,14 @@ msgid "APP IS OUT OF SYNC"
 msgstr "アプリが同期していません"
 
 msgctxt "in-app-notifications"
+msgid "BETA UPDATE AVAILABLE"
+msgstr "ベータ版のアップデートを入手できます"
+
+msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "インターネットをブロック中"
 
+#. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
 msgstr "アプリの最新バージョンをインストールして、最新の状態を維持してください。"
@@ -494,6 +516,14 @@ msgstr "ネットワークトラフィックが漏れている可能性があり
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "アプリをいったん終了して、再起動してください。"
+
+#. The in-app banner displayed to the user when the app beta update is
+#. available.
+#. Available placeholders:
+#. %(version)s - The version number of the new beta version.
+msgctxt "in-app-notifications"
+msgid "Try out the newest beta version (%(version)s)."
+msgstr "最新のベータ版 (%(version)s) をお試しください。"
 
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
@@ -596,6 +626,14 @@ msgstr "アカウントが時間切れです"
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "アプリが同期していません。いったん終了して、再起動してください。"
+
+#. The system notification that notifies the user when a beta update is
+#. available.
+#. Available placeholders:
+#. %(version)s - The version number of the new beta version.
+msgctxt "notifications"
+msgid "Beta update available. Try out the newest beta version (%(version)s)."
+msgstr "ベータ版のアップデートを入手できます。最新のベータ版 (%(version)s) をお試しください。"
 
 msgctxt "notifications"
 msgid "Buy more"
@@ -703,6 +741,43 @@ msgstr "このアプリバージョンはサポートされていないため、
 msgctxt "notifications"
 msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
 msgstr "選択したサーバーとトンネルのプロトコルが一致していません。設定を調整してください。"
+
+#. Title label in navigation bar
+msgctxt "openvpn-settings-nav"
+msgid "OpenVPN settings"
+msgstr "OpenVPN設定"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "openvpn-settings-view"
+msgid "%(portType)s port"
+msgstr "%(portType)sポート"
+
+#. The title for the shadowsocks bridge selector section.
+msgctxt "openvpn-settings-view"
+msgid "Bridge mode"
+msgstr "ブリッジモード"
+
+msgctxt "openvpn-settings-view"
+msgid "Mssfix"
+msgstr "Mssfix"
+
+msgctxt "openvpn-settings-view"
+msgid "OpenVPN settings"
+msgstr "OpenVPN設定"
+
+#. The hint displayed below the Mssfix input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible mssfix value
+#. %(min)d - the minimum possible mssfix value
+msgctxt "openvpn-settings-view"
+msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr "OpenVPN MSSの値を設定します。有効範囲: %(min)d ～ %(max)d。"
+
+msgctxt "openvpn-settings-view"
+msgid "Transport protocol"
+msgstr "転送プロトコル"
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -826,6 +901,10 @@ msgid "Redeem"
 msgstr "使用する"
 
 msgctxt "redeem-voucher-view"
+msgid "Verifying voucher..."
+msgstr "バウチャーを検証しています..."
+
+msgctxt "redeem-voucher-view"
 msgid "Voucher code has already been used."
 msgstr "バウチャーコードはすでに使用されています。"
 
@@ -860,8 +939,21 @@ msgid "Closest to exit server"
 msgstr "最寄りの出口サーバー"
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region."
-msgstr "接続中、あなたの実際の場所は、選択した地域内の非公開かつセキュリティ保護された場所で隠蔽されています。"
+msgid "Filter by provider"
+msgstr "プロバイダで絞り込む"
+
+msgctxt "select-location-view"
+msgid "Filtered:"
+msgstr "絞り込み結果:"
+
+msgctxt "select-location-view"
+msgid "Providers: %(numberOfProviders)d"
+msgstr "プロバイダ数: %(numberOfProviders)d"
+
+#. Heading in select location view
+msgctxt "select-location-view"
+msgid "Select location"
+msgstr "場所を選択"
 
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
@@ -1148,15 +1240,58 @@ msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "鍵を検証"
 
-#. Back button in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "Advanced"
-msgstr "詳細"
-
 #. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard鍵"
+
+#. Back button in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "WireGuard settings"
+msgstr "WireGuard設定"
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "WireGuard settings"
+msgstr "WireGuard設定"
+
+msgctxt "wireguard-settings-view"
+msgid "IP version"
+msgstr "IPバージョン"
+
+msgctxt "wireguard-settings-view"
+msgid "MTU"
+msgstr "MTU"
+
+msgctxt "wireguard-settings-view"
+msgid "Port"
+msgstr "ポート"
+
+#. The hint displayed below the WireGuard MTU input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible wireguard mtu value
+#. %(min)d - the minimum possible wireguard mtu value
+msgctxt "wireguard-settings-view"
+msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgstr "WireGuardのMTU値を設定します。有効範囲: %(min)d ～ %(max)d。"
+
+#. The hint displayed below the WireGuard port selector.
+msgctxt "wireguard-settings-view"
+msgid "The automatic setting will randomly choose from a wide range of ports."
+msgstr "自動設定では、さまざまなポートからランダムに選択されます。"
+
+#. The hint displayed below the WireGuard IP version selector.
+msgctxt "wireguard-settings-view"
+msgid "This allows access to WireGuard for devices that only support IPv6."
+msgstr "これにより、IPv6のみをサポートするデバイスでもWireGuardにアクセスできるようになります。"
+
+msgctxt "wireguard-settings-view"
+msgid "WireGuard key"
+msgstr "WireGuard鍵"
+
+msgctxt "wireguard-settings-view"
+msgid "WireGuard settings"
+msgstr "WireGuard設定"
 
 msgid "Account authentication failed."
 msgstr "アカウントの認証に失敗しました。"
@@ -1227,6 +1362,9 @@ msgstr "必要に応じて %s 宛にご連絡します"
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Mullvad VPN (%s) をインストールして常に最新の状態を保ちましょう"
 
+msgid "Mullvad VPN"
+msgstr "Mullvad VPN"
+
 msgid "Mullvad account number"
 msgstr "Mullvadアカウント番号"
 
@@ -1238,6 +1376,9 @@ msgstr "現在の設定に一致する中継サーバーはありません"
 
 msgid "Secured"
 msgstr "セキュリティ保護されています"
+
+msgid "Show system apps"
+msgstr "システムアプリの表示"
 
 msgid "Shows current VPN tunnel status"
 msgstr "現在のVPNトンネルのステータスを表示します"
@@ -1257,9 +1398,6 @@ msgstr "このデバイスはオフラインであるため、トンネルを作
 msgid "Too many WireGuard keys registered to account"
 msgstr "アカウントに登録されているWireGuard鍵が多すぎます"
 
-msgid "UNSECURED CONNECTION"
-msgstr "セキュリティ保護されていない接続"
-
 msgid "Unsecured"
 msgstr "セキュリティ保護されていません"
 
@@ -1274,6 +1412,12 @@ msgstr "VPNトンネルのステータス"
 
 msgid "Virtual adapter error"
 msgstr "仮想アダプタエラー"
+
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr "接続中、あなたの実際の場所は、選択した地域内の非公開かつセキュリティ保護された場所で隠蔽されています。"
+
+msgid "WireGuard MTU"
+msgstr "WireGuard MTU"
 
 msgid "WireGuard error"
 msgstr "WireGuardエラー"
