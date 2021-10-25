@@ -27,7 +27,9 @@ use winapi::{
         inaddr::IN_ADDR,
         minwindef::{FALSE, TRUE},
         ntdef::NTSTATUS,
-        winerror::{ERROR_INVALID_PARAMETER, ERROR_IO_PENDING},
+        winerror::{
+            ERROR_ACCESS_DENIED, ERROR_FILE_NOT_FOUND, ERROR_INVALID_PARAMETER, ERROR_IO_PENDING,
+        },
     },
     um::{
         handleapi::CloseHandle,
@@ -147,9 +149,9 @@ impl DeviceHandle {
             .custom_flags(FILE_FLAG_OVERLAPPED)
             .attributes(0)
             .open(DRIVER_SYMBOLIC_NAME)
-            .map_err(|e| match e.raw_os_error() {
-                Some(2) => DeviceHandleError::ConnectionFailed,
-                Some(5) => DeviceHandleError::ConnectionDenied,
+            .map_err(|e| match e.raw_os_error().map(|raw| raw as u32) {
+                Some(ERROR_FILE_NOT_FOUND) => DeviceHandleError::ConnectionFailed,
+                Some(ERROR_ACCESS_DENIED) => DeviceHandleError::ConnectionDenied,
                 _ => DeviceHandleError::ConnectionError(e),
             })?;
 
