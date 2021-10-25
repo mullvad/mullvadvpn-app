@@ -48,3 +48,7 @@ jobs:
               run: |
                 git diff
                 ! git status -s | grep .
+
+            - name: Check if format specifiers are correct
+              working-directory: gui/scripts
+              run: npm exec ts-node verify-format-specifiers.ts
