@@ -42,9 +42,9 @@ const RESERVED_IP_V4: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 123);
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    /// Failed to identify or initialize the driver
-    #[error(display = "Failed to find or initialize driver")]
-    InitializationFailed(#[error(source)] io::Error),
+    /// Failed to initialize the driver
+    #[error(display = "Failed to initialize driver")]
+    InitializationError(#[error(source)] driver::DeviceHandleError),
 
     /// Failed to set paths to excluded applications
     #[error(display = "Failed to set list of excluded applications")]
@@ -312,7 +312,7 @@ impl SplitTunnel {
         std::thread::spawn(move || {
             let result = driver::DeviceHandle::new()
                 .map(Arc::new)
-                .map_err(Error::InitializationFailed);
+                .map_err(Error::InitializationError);
             let handle = match result {
                 Ok(handle) => {
                     let _ = init_tx.send(Ok(handle.clone()));
