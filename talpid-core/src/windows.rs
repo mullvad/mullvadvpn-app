@@ -1,9 +1,9 @@
+use socket2::SockAddr;
 use std::{
     ffi::OsStr,
     fmt, io, mem,
     net::{Ipv4Addr, Ipv6Addr, SocketAddr, SocketAddrV4, SocketAddrV6},
     os::windows::{ffi::OsStrExt, io::RawHandle},
-    ptr,
     sync::Mutex,
     time::{Duration, Instant},
 };
@@ -20,8 +20,11 @@ use winapi::shared::{
     nldef::{IpDadStatePreferred, IpDadStateTentative, NL_DAD_STATE},
     ntdef::FALSE,
     winerror::{ERROR_NOT_FOUND, NO_ERROR},
-    ws2def::{AF_INET, AF_INET6, AF_UNSPEC},
-    ws2ipdef::SOCKADDR_INET,
+    ws2def::{
+        AF_INET, AF_INET6, AF_UNSPEC, SOCKADDR_IN as sockaddr_in,
+        SOCKADDR_STORAGE as sockaddr_storage,
+    },
+    ws2ipdef::{SOCKADDR_IN6_LH as sockaddr_in6, SOCKADDR_INET},
 };
 
 /// Result type for this module.
@@ -364,35 +367,19 @@ fn af_family_from_family(family: Option<AddressFamily>) -> u16 {
 
 /// Converts an `Ipv4Addr` to `IN_ADDR`
 pub fn inaddr_from_ipaddr(addr: Ipv4Addr) -> IN_ADDR {
-    let mut in_addr: IN_ADDR = unsafe { mem::zeroed() };
-    let addr_octets = addr.octets();
-    unsafe {
-        ptr::copy_nonoverlapping(
-            &addr_octets as *const _,
-            in_addr.S_un.S_addr_mut() as *mut _ as *mut u8,
-            addr_octets.len(),
-        );
-    }
-    in_addr
+    let sockaddr = SockAddr::from(SocketAddr::V4(SocketAddrV4::new(addr, 0)));
+    (&unsafe { *(sockaddr.as_ptr() as *const sockaddr_in) }).sin_addr
 }
 
 /// Converts an `Ipv6Addr` to `IN6_ADDR`
 pub fn in6addr_from_ipaddr(addr: Ipv6Addr) -> IN6_ADDR {
-    let mut in_addr: IN6_ADDR = unsafe { mem::zeroed() };
-    let addr_octets = addr.octets();
-    unsafe {
-        ptr::copy_nonoverlapping(
-            &addr_octets as *const _,
-            in_addr.u.Byte_mut() as *mut _,
-            addr_octets.len(),
-        );
-    }
-    in_addr
+    let sockaddr = SockAddr::from(SocketAddr::V6(SocketAddrV6::new(addr, 0, 0, 0)));
+    (&unsafe { *(sockaddr.as_ptr() as *const sockaddr_in6) }).sin6_addr
 }
 
 /// Converts an `IN_ADDR` to `Ipv4Addr`
 pub fn ipaddr_from_inaddr(addr: IN_ADDR) -> Ipv4Addr {
-    Ipv4Addr::from(unsafe { *(addr.S_un.S_addr()) }.to_be())
+    Ipv4Addr::from(unsafe { *(addr.S_un.S_addr()) }.to_ne_bytes())
 }
 
 /// Converts an `IN6_ADDR` to `Ipv6Addr`
@@ -403,52 +390,31 @@ pub fn ipaddr_from_in6addr(addr: IN6_ADDR) -> Ipv6Addr {
 /// Converts a `SocketAddr` to `SOCKADDR_INET`
 pub fn inet_sockaddr_from_socketaddr(addr: SocketAddr) -> SOCKADDR_INET {
     let mut sockaddr: SOCKADDR_INET = unsafe { mem::zeroed() };
-
     match addr {
-        SocketAddr::V4(v4_addr) => {
-            unsafe {
-                *sockaddr.si_family_mut() = AF_INET as u16;
-            }
-
-            let mut v4sockaddr = unsafe { sockaddr.Ipv4_mut() };
-            v4sockaddr.sin_family = AF_INET as u16;
-            v4sockaddr.sin_port = v4_addr.port().to_be();
-            v4sockaddr.sin_addr = inaddr_from_ipaddr(*v4_addr.ip());
-        }
-        SocketAddr::V6(v6_addr) => {
-            unsafe {
-                *sockaddr.si_family_mut() = AF_INET6 as u16;
-            }
-
-            let mut v6sockaddr = unsafe { sockaddr.Ipv6_mut() };
-            v6sockaddr.sin6_family = AF_INET6 as u16;
-            v6sockaddr.sin6_port = v6_addr.port().to_be();
-            v6sockaddr.sin6_addr = in6addr_from_ipaddr(*v6_addr.ip());
-            v6sockaddr.sin6_flowinfo = v6_addr.flowinfo();
-            *unsafe { v6sockaddr.u.sin6_scope_id_mut() } = v6_addr.scope_id();
-        }
+        // SAFETY: `*const sockaddr` may be treated as `*const sockaddr_in` since we know it's a v4
+        // address.
+        SocketAddr::V4(_) => unsafe {
+            *sockaddr.Ipv4_mut() = *(SockAddr::from(addr).as_ptr() as *const _)
+        },
+        // SAFETY: `*const sockaddr` may be treated as `*const sockaddr_in6` since we know it's a v6
+        // address.
+        SocketAddr::V6(_) => unsafe {
+            *sockaddr.Ipv6_mut() = *(SockAddr::from(addr).as_ptr() as *const _)
+        },
     }
-
     sockaddr
 }
 
 /// Converts a `SOCKADDR_INET` to `SocketAddr`. Returns an error if the address family is invalid.
 pub fn try_socketaddr_from_inet_sockaddr(addr: SOCKADDR_INET) -> Result<SocketAddr> {
+    let family = unsafe { *addr.si_family() } as i32;
     unsafe {
-        match *addr.si_family() as i32 {
-            AF_INET => Ok(SocketAddr::V4(SocketAddrV4::new(
-                ipaddr_from_inaddr(addr.Ipv4().sin_addr),
-                u16::from_be(addr.Ipv4().sin_port),
-            ))),
-            AF_INET6 => Ok(SocketAddr::V6(SocketAddrV6::new(
-                ipaddr_from_in6addr(addr.Ipv6().sin6_addr),
-                u16::from_be(addr.Ipv6().sin6_port),
-                addr.Ipv6().sin6_flowinfo,
-                *addr.Ipv6().u.sin6_scope_id(),
-            ))),
-            family => Err(Error::UnknownAddressFamily(family)),
-        }
+        let mut storage: sockaddr_storage = mem::zeroed();
+        *(&mut storage as *mut _ as *mut SOCKADDR_INET) = addr;
+        SockAddr::new(storage, mem::size_of_val(&addr) as i32)
     }
+    .as_socket()
+    .ok_or(Error::UnknownAddressFamily(family))
 }
 
 /// Casts a struct to a slice of possibly uninitialized bytes.

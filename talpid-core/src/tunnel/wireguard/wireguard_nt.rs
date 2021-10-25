@@ -12,6 +12,7 @@ use std::{
     ffi::CStr,
     fmt, io, iter, mem,
     mem::MaybeUninit,
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::{ffi::OsStrExt, io::RawHandle},
     path::Path,
     ptr,
@@ -199,6 +200,31 @@ const WIREGUARD_KEY_LENGTH: usize = 32;
 union WgIpAddr {
     v4: IN_ADDR,
     v6: IN6_ADDR,
+}
+
+impl From<IpAddr> for WgIpAddr {
+    fn from(address: IpAddr) -> Self {
+        match address {
+            IpAddr::V4(addr) => WgIpAddr::from(addr),
+            IpAddr::V6(addr) => WgIpAddr::from(addr),
+        }
+    }
+}
+
+impl From<Ipv6Addr> for WgIpAddr {
+    fn from(address: Ipv6Addr) -> Self {
+        Self {
+            v6: windows::in6addr_from_ipaddr(address),
+        }
+    }
+}
+
+impl From<Ipv4Addr> for WgIpAddr {
+    fn from(address: Ipv4Addr) -> Self {
+        Self {
+            v4: windows::inaddr_from_ipaddr(address),
+        }
+    }
 }
 
 /// See `WIREGUARD_ALLOWED_IP` at https://git.zx2c4.com/wireguard-nt/tree/api/wireguard.h.
@@ -911,12 +937,8 @@ fn serialize_config(config: &Config) -> Result<Vec<MaybeUninit<u8>>> {
                 IpNetwork::V6(_) => AF_INET6 as u16,
             };
             let address = match allowed_ip {
-                IpNetwork::V4(v4_network) => WgIpAddr {
-                    v4: windows::inaddr_from_ipaddr(v4_network.ip()),
-                },
-                IpNetwork::V6(v6_network) => WgIpAddr {
-                    v6: windows::in6addr_from_ipaddr(v6_network.ip()),
-                },
+                IpNetwork::V4(v4_network) => WgIpAddr::from(v4_network.ip()),
+                IpNetwork::V6(v6_network) => WgIpAddr::from(v6_network.ip()),
             };
 
             let wg_allowed_ip =
@@ -1108,9 +1130,7 @@ mod tests {
                 allowed_ips_count: 1,
             },
             p0_allowed_ip_0: WgAllowedIp {
-                address: WgIpAddr {
-                    v4: windows::inaddr_from_ipaddr("1.3.3.0".parse().unwrap()),
-                },
+                address: WgIpAddr::from("1.3.3.0".parse::<Ipv4Addr>().unwrap()),
                 address_family: AF_INET as u16,
                 cidr: 24,
             },
@@ -1150,31 +1170,23 @@ mod tests {
     fn test_wg_allowed_ip_v4() {
         // Valid: /32 prefix
         let address_family = AF_INET as u16;
-        let address = WgIpAddr {
-            v4: windows::inaddr_from_ipaddr("127.0.0.1".parse().unwrap()),
-        };
+        let address = WgIpAddr::from("127.0.0.1".parse::<Ipv4Addr>().unwrap());
         let cidr = 32;
         WgAllowedIp::new(address, address_family, cidr).unwrap();
 
         // Invalid host bits
         let cidr = 24;
-        let address = WgIpAddr {
-            v4: windows::inaddr_from_ipaddr("0.0.0.1".parse().unwrap()),
-        };
+        let address = WgIpAddr::from("0.0.0.1".parse::<Ipv4Addr>().unwrap());
         assert!(WgAllowedIp::new(address, address_family, cidr).is_err());
 
         // Valid host bits
         let cidr = 24;
-        let address = WgIpAddr {
-            v4: windows::inaddr_from_ipaddr("255.255.255.0".parse().unwrap()),
-        };
+        let address = WgIpAddr::from("255.255.255.0".parse::<Ipv4Addr>().unwrap());
         WgAllowedIp::new(address, address_family, cidr).unwrap();
 
         // 0.0.0.0/0
         let cidr = 0;
-        let address = WgIpAddr {
-            v4: windows::inaddr_from_ipaddr("0.0.0.0".parse().unwrap()),
-        };
+        let address = WgIpAddr::from("0.0.0.0".parse::<Ipv4Addr>().unwrap());
         WgAllowedIp::new(address, address_family, cidr).unwrap();
 
         // Invalid CIDR
@@ -1186,9 +1198,7 @@ mod tests {
     fn test_wg_allowed_ip_v6() {
         // Valid: /128 prefix
         let address_family = AF_INET6 as u16;
-        let address = WgIpAddr {
-            v6: windows::in6addr_from_ipaddr("::1".parse().unwrap()),
-        };
+        let address = WgIpAddr::from("::1".parse::<Ipv6Addr>().unwrap());
         let cidr = 128;
         WgAllowedIp::new(address, address_family, cidr).unwrap();
 
@@ -1197,18 +1207,16 @@ mod tests {
         assert!(WgAllowedIp::new(address, address_family, cidr).is_err());
 
         // Valid host bits
-        let address = WgIpAddr {
-            v6: windows::in6addr_from_ipaddr(
-                "ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe".parse().unwrap(),
-            ),
-        };
+        let address = WgIpAddr::from(
+            "ffff:ffff:ffff:ffff:ffff:ffff:ffff:fffe"
+                .parse::<Ipv6Addr>()
+                .unwrap(),
+        );
         WgAllowedIp::new(address, address_family, cidr).unwrap();
 
         // ::/0
         let cidr = 0;
-        let address = WgIpAddr {
-            v6: windows::in6addr_from_ipaddr("::".parse().unwrap()),
-        };
+        let address = WgIpAddr::from("::".parse::<Ipv6Addr>().unwrap());
         WgAllowedIp::new(address, address_family, cidr).unwrap();
 
         // Invalid CIDR
