@@ -1,18 +1,16 @@
-use mullvad_types::settings::{Settings, CURRENT_SETTINGS_VERSION};
 use std::path::Path;
-use talpid_types::ErrorExt;
 use tokio::{
     fs,
     io::{self, AsyncWriteExt},
 };
 
+mod account_history;
 mod v1;
 mod v2;
 mod v3;
 mod v4;
 
 const SETTINGS_FILE: &str = "settings.json";
-const ACCOUNT_HISTORY_FILE: &str = "account-history.json";
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -32,6 +30,15 @@ pub enum Error {
     #[error(display = "Unable to write new settings")]
     WriteError(#[error(source)] io::Error),
 
+    #[error(display = "Failed to read the account history")]
+    ReadHistoryError(#[error(source)] io::Error),
+
+    #[error(display = "Failed to write new account history")]
+    WriteHistoryError(#[error(source)] io::Error),
+
+    #[error(display = "Failed to parse account history")]
+    ParseHistoryError,
+
     #[cfg(windows)]
     #[error(display = "Failed to restore Windows update backup")]
     WinMigrationError(#[error(source)] windows::Error),
@@ -45,8 +52,6 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
     windows::migrate_after_windows_update(settings_dir)
         .await
         .map_err(Error::WinMigrationError)?;
-
-    migrate_account_history_location(cache_dir, settings_dir).await;
 
     let path = settings_dir.join(SETTINGS_FILE);
 
@@ -63,18 +68,13 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
         return Err(Error::NoMatchingVersion);
     }
 
-    {
-        let settings: Settings =
-            serde_json::from_slice(&settings_bytes[..]).map_err(Error::ParseError)?;
-        if settings.get_settings_version() == CURRENT_SETTINGS_VERSION {
-            return Ok(());
-        }
-    }
-
     v1::migrate(&mut settings)?;
     v2::migrate(&mut settings)?;
     v3::migrate(&mut settings)?;
     v4::migrate(&mut settings)?;
+
+    account_history::migrate_location(cache_dir, settings_dir).await;
+    account_history::migrate_formats(settings_dir, &mut settings).await?;
 
     let buffer = serde_json::to_string_pretty(&settings).map_err(Error::SerializeError)?;
 
@@ -93,25 +93,7 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
     file.write_all(&buffer.into_bytes())
         .await
         .map_err(Error::WriteError)?;
-
     Ok(())
-}
-
-async fn migrate_account_history_location(old_dir: &Path, new_dir: &Path) {
-    let old_path = old_dir.join(ACCOUNT_HISTORY_FILE);
-    let new_path = new_dir.join(ACCOUNT_HISTORY_FILE);
-    if !old_path.exists() || new_path.exists() || new_path == old_path {
-        return;
-    }
-
-    if let Err(error) = fs::copy(&old_path, &new_path).await {
-        log::error!(
-            "{}",
-            error.display_chain_with_msg("Failed to migrate account history file location")
-        );
-    } else {
-        let _ = fs::remove_file(old_path).await;
-    }
 }
 
 #[cfg(windows)]
