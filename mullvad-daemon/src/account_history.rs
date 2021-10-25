@@ -1,6 +1,7 @@
 use mullvad_types::account::AccountToken;
 use regex::Regex;
 use std::path::Path;
+use talpid_types::ErrorExt;
 use tokio::{
     fs,
     io::{self, AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
@@ -64,19 +65,25 @@ impl AccountHistory {
             .map_err(Error::Read)?;
 
         let mut buffer = String::new();
-        let token: Option<AccountToken> = match reader.read_to_string(&mut buffer).await {
-            Ok(_) if ACCOUNT_REGEX.is_match(&buffer) => Some(buffer),
-            Ok(0) => current_token,
-            Ok(_) | Err(_) => {
-                log::warn!("Failed to parse account history");
-                current_token
-            }
-        };
+        let (token, should_save): (Option<AccountToken>, bool) =
+            match reader.read_to_string(&mut buffer).await {
+                Ok(_) if ACCOUNT_REGEX.is_match(&buffer) => (Some(buffer), false),
+                Ok(0) => (current_token, true),
+                Ok(_) | Err(_) => {
+                    log::warn!("Failed to parse account history");
+                    (current_token, true)
+                }
+            };
 
         let file = io::BufWriter::new(reader.into_inner());
         let mut history = AccountHistory { file, token };
-        if let Err(e) = history.save_to_disk().await {
-            log::error!("Failed to save account cache after opening it: {}", e);
+        if should_save {
+            if let Err(error) = history.save_to_disk().await {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to save account history after opening it")
+                );
+            }
         }
         Ok(history)
     }
