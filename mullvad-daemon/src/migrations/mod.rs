@@ -40,11 +40,6 @@ pub enum Error {
 pub type Result<T> = std::result::Result<T, Error>;
 
 
-trait SettingsMigration {
-    fn version_matches(&self, settings: &mut serde_json::Value) -> bool;
-    fn migrate(&self, settings: &mut serde_json::Value) -> Result<()>;
-}
-
 pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
     #[cfg(windows)]
     windows::migrate_after_windows_update(settings_dir)
@@ -76,19 +71,10 @@ pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
         }
     }
 
-    let migrations: Vec<Box<dyn SettingsMigration>> = vec![
-        Box::new(v1::Migration),
-        Box::new(v2::Migration),
-        Box::new(v3::Migration),
-        Box::new(v4::Migration),
-    ];
-
-    for migration in &migrations {
-        if !migration.version_matches(&mut settings) {
-            continue;
-        }
-        migration.migrate(&mut settings)?;
-    }
+    v1::migrate(&mut settings)?;
+    v2::migrate(&mut settings)?;
+    v3::migrate(&mut settings)?;
+    v4::migrate(&mut settings)?;
 
     let buffer = serde_json::to_string_pretty(&settings).map_err(Error::SerializeError)?;
 

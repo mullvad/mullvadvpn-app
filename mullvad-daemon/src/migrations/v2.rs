@@ -4,69 +4,68 @@ use mullvad_types::settings::SettingsVersion;
 use std::time::Duration;
 
 
-pub(super) struct Migration;
+pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
+    if !version_matches(settings) {
+        return Ok(());
+    }
 
-impl super::SettingsMigration for Migration {
-    fn version_matches(&self, settings: &mut serde_json::Value) -> bool {
+    log::info!("Migrating settings format to V3");
+
+    // `show_beta_releases` used to be nullable
+    if settings
+        .get_mut("show_beta_releases")
+        .map(|val| val.is_null())
+        .unwrap_or(false)
+    {
         settings
-            .get("settings_version")
-            .map(|version| version == SettingsVersion::V2 as u64)
-            .unwrap_or(false)
+            .as_object_mut()
+            .ok_or(Error::NoMatchingVersion)?
+            .remove("show_beta_releases");
     }
 
-    fn migrate(&self, settings: &mut serde_json::Value) -> Result<()> {
-        log::info!("Migrating settings format to V3");
+    let automatic_rotation = || -> Option<u64> {
+        settings
+            .get("tunnel_options")?
+            .get("wireguard")?
+            .get("automatic_rotation")
+            .map(|ivl| ivl.as_u64())?
+    }();
 
-        // `show_beta_releases` used to be nullable
-        if settings
-            .get_mut("show_beta_releases")
-            .map(|val| val.is_null())
-            .unwrap_or(false)
-        {
-            settings
-                .as_object_mut()
-                .ok_or(Error::NoMatchingVersion)?
-                .remove("show_beta_releases");
-        }
+    if let Some(interval) = automatic_rotation {
+        let new_ivl = match Duration::from_secs(60 * 60 * interval) {
+            ivl if ivl < MIN_ROTATION_INTERVAL => {
+                log::warn!("Increasing key rotation interval since it is below minimum");
+                MIN_ROTATION_INTERVAL
+            }
+            ivl if ivl > MAX_ROTATION_INTERVAL => {
+                log::warn!("Decreasing key rotation interval since it is above maximum");
+                MAX_ROTATION_INTERVAL
+            }
+            ivl => ivl,
+        };
 
-        let automatic_rotation = || -> Option<u64> {
-            settings
-                .get("tunnel_options")?
-                .get("wireguard")?
-                .get("automatic_rotation")
-                .map(|ivl| ivl.as_u64())?
-        }();
-
-        if let Some(interval) = automatic_rotation {
-            let new_ivl = match Duration::from_secs(60 * 60 * interval) {
-                ivl if ivl < MIN_ROTATION_INTERVAL => {
-                    log::warn!("Increasing key rotation interval since it is below minimum");
-                    MIN_ROTATION_INTERVAL
-                }
-                ivl if ivl > MAX_ROTATION_INTERVAL => {
-                    log::warn!("Decreasing key rotation interval since it is above maximum");
-                    MAX_ROTATION_INTERVAL
-                }
-                ivl => ivl,
-            };
-
-            settings["tunnel_options"]["wireguard"]["rotation_interval"] =
-                serde_json::json!(new_ivl);
-            settings["tunnel_options"]["wireguard"]
-                .as_object_mut()
-                .ok_or(Error::NoMatchingVersion)?
-                .remove("automatic_rotation");
-        }
-
-        settings["settings_version"] = serde_json::json!(SettingsVersion::V3);
-
-        Ok(())
+        settings["tunnel_options"]["wireguard"]["rotation_interval"] = serde_json::json!(new_ivl);
+        settings["tunnel_options"]["wireguard"]
+            .as_object_mut()
+            .ok_or(Error::NoMatchingVersion)?
+            .remove("automatic_rotation");
     }
+
+    settings["settings_version"] = serde_json::json!(SettingsVersion::V3);
+
+    Ok(())
+}
+
+fn version_matches(settings: &mut serde_json::Value) -> bool {
+    settings
+        .get("settings_version")
+        .map(|version| version == SettingsVersion::V2 as u64)
+        .unwrap_or(false)
 }
 
 #[cfg(test)]
 mod test {
-    use super::{super::SettingsMigration, Migration};
+    use super::{migrate, version_matches};
     use serde_json;
 
     const V2_SETTINGS: &str = r#"
@@ -176,10 +175,9 @@ mod test {
     fn test_v2_migration() {
         let mut old_settings = serde_json::from_str(V2_SETTINGS).unwrap();
 
-        let migration = Migration;
-        assert!(migration.version_matches(&mut old_settings));
+        assert!(version_matches(&mut old_settings));
 
-        migration.migrate(&mut old_settings).unwrap();
+        migrate(&mut old_settings).unwrap();
         let new_settings: serde_json::Value = serde_json::from_str(V3_SETTINGS).unwrap();
 
         assert_eq!(&old_settings, &new_settings);
