@@ -1,5 +1,6 @@
 use mullvad_types::settings::{Settings, CURRENT_SETTINGS_VERSION};
 use std::path::Path;
+use talpid_types::ErrorExt;
 use tokio::{
     fs,
     io::{self, AsyncWriteExt},
@@ -11,6 +12,7 @@ mod v3;
 mod v4;
 
 const SETTINGS_FILE: &str = "settings.json";
+const ACCOUNT_HISTORY_FILE: &str = "account-history.json";
 
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
@@ -43,11 +45,13 @@ trait SettingsMigration {
     fn migrate(&self, settings: &mut serde_json::Value) -> Result<()>;
 }
 
-pub async fn migrate_all(settings_dir: &Path) -> Result<()> {
+pub async fn migrate_all(cache_dir: &Path, settings_dir: &Path) -> Result<()> {
     #[cfg(windows)]
     windows::migrate_after_windows_update(settings_dir)
         .await
         .map_err(Error::WinMigrationError)?;
+
+    migrate_account_history_location(cache_dir, settings_dir).await;
 
     let path = settings_dir.join(SETTINGS_FILE);
 
@@ -105,6 +109,23 @@ pub async fn migrate_all(settings_dir: &Path) -> Result<()> {
         .map_err(Error::WriteError)?;
 
     Ok(())
+}
+
+async fn migrate_account_history_location(old_dir: &Path, new_dir: &Path) {
+    let old_path = old_dir.join(ACCOUNT_HISTORY_FILE);
+    let new_path = new_dir.join(ACCOUNT_HISTORY_FILE);
+    if !old_path.exists() || new_path.exists() || new_path == old_path {
+        return;
+    }
+
+    if let Err(error) = fs::copy(&old_path, &new_path).await {
+        log::error!(
+            "{}",
+            error.display_chain_with_msg("Failed to migrate account history file location")
+        );
+    } else {
+        let _ = fs::remove_file(old_path).await;
+    }
 }
 
 #[cfg(windows)]

@@ -41,12 +41,9 @@ lazy_static::lazy_static! {
 
 impl AccountHistory {
     pub async fn new(
-        cache_dir: &Path,
         settings_dir: &Path,
         settings: &mut SettingsPersister,
     ) -> Result<AccountHistory> {
-        Self::migrate_from_old_file_location(cache_dir, settings_dir).await;
-
         let mut options = fs::OpenOptions::new();
         #[cfg(unix)]
         {
@@ -113,25 +110,6 @@ impl AccountHistory {
             log::error!("Failed to save account cache after opening it: {}", e);
         }
         Ok(history)
-    }
-
-    async fn migrate_from_old_file_location(old_dir: &Path, new_dir: &Path) {
-        use tokio::fs;
-
-        let old_path = old_dir.join(ACCOUNT_HISTORY_FILE);
-        let new_path = new_dir.join(ACCOUNT_HISTORY_FILE);
-        if !old_path.exists() || new_path.exists() || new_path == old_path {
-            return;
-        }
-
-        if let Err(error) = fs::copy(&old_path, &new_path).await {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to migrate account history file location")
-            );
-        } else {
-            let _ = fs::remove_file(old_path).await;
-        }
     }
 
     fn try_format_v1(reader: &mut io::BufReader<fs::File>) -> Result<Option<AccountToken>> {
