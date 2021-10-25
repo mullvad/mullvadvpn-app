@@ -107,6 +107,7 @@
     <string name="settings_account">Konto</string>
     <string name="settings_advanced">Zaawansowane</string>
     <string name="settings_preferences">Preferencje</string>
+    <string name="show_system_apps">Pokaż aplikacje systemowe</string>
     <string name="split_tunneling">Dzielone tunelowanie</string>
     <string name="split_tunneling_description">Dzielone tunelowanie umożliwia wybranie aplikacji, które nie powinny być kierowane przez tunel VPN.</string>
     <string name="start_tunnel_error">Niepowodzenie uruchomienia połączenia tunelowego</string>
@@ -141,7 +142,7 @@
     <string name="wireguard_key_verification_failure">Błąd weryfikacji klucza</string>
     <string name="wireguard_manage_keys">Zarządzaj kluczami</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
-    <string name="wireguard_mtu_footer">Ustaw wartość MTU WireGuard. Prawidłowy zakres: %1$d - %2$d.</string>
+    <string name="wireguard_mtu_footer">Ustaw wartość MTU WireGuard. Prawidłowy zakres: %1$d–%2$d.</string>
     <string name="wireguard_public_key">Klucz publiczny WireGuard</string>
     <string name="wireguard_replace_key">Ponownie wygeneruj klucz</string>
     <string name="wireguard_verify_key">Zweryfikuj klucz</string>

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Portuguese\n"
 "Language: pt_PT\n"
-"PO-Revision-Date: 2021-06-28 11:50\n"
+"PO-Revision-Date: 2021-10-22 12:27\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -300,6 +300,10 @@ msgstr "Nova Zelândia"
 msgid "Nis"
 msgstr "Niš"
 
+#. MK
+msgid "North Macedonia"
+msgstr "Macedónia do Norte"
+
 #. NO
 msgid "Norway"
 msgstr "Noruega"
@@ -307,6 +311,10 @@ msgstr "Noruega"
 #. US OKC
 msgid "Oklahoma City, OK"
 msgstr "Oklahoma City, OK"
+
+#. JP OSA
+msgid "Osaka"
+msgstr "Osaka"
 
 #. NO OSL
 msgid "Oslo"
@@ -403,6 +411,10 @@ msgstr "Singapura"
 #. US FSD
 msgid "Sioux Falls, SD"
 msgstr "Sioux Falls, SD"
+
+#. MK SKP
+msgid "Skopje"
+msgstr "Skopje"
 
 #. BG SOF
 msgid "Sofia"

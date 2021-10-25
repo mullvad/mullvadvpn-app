@@ -10,7 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2021-06-28 11:50\n"
+"PO-Revision-Date: 2021-10-22 12:27\n"
+
+msgid "%(duration)s was added to your account."
+msgstr "Hesabınıza %(duration)s eklendi."
 
 msgid "1 day"
 msgid_plural "%d days"
@@ -67,6 +70,12 @@ msgid_plural "%d hours ago"
 msgstr[0] "bir saat önce"
 msgstr[1] "%d saat önce"
 
+msgid "Apply"
+msgstr "Uygula"
+
+msgid "Automatic"
+msgstr "Otomatik"
+
 msgid "Back"
 msgstr "Geri"
 
@@ -85,6 +94,9 @@ msgstr "Daha fazla kredi satın alın"
 msgid "Cancel"
 msgstr "İptal et"
 
+msgid "Clear"
+msgstr "Temizle"
+
 msgid "Close"
 msgstr "Kapat"
 
@@ -97,6 +109,9 @@ msgstr "PANOYA KOPYALANDI!"
 msgid "CREATING SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI OLUŞTURULUYOR"
 
+msgid "Default"
+msgstr "Varsayılan"
+
 msgid "Disconnect"
 msgstr "Bağlantıyı Kes"
 
@@ -106,8 +121,20 @@ msgstr "Reddet"
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI OLUŞTURULAMADI"
 
+msgid "Filter"
+msgstr "Filtrele"
+
+msgid "Got it!"
+msgstr "Anladım!"
+
 msgid "Invalid account number"
 msgstr "Geçersiz hesap numarası"
+
+msgid "IPv4"
+msgstr "IPv4"
+
+msgid "IPv6"
+msgstr "IPv6"
 
 msgid "less than a day"
 msgstr "bir günden az"
@@ -117,6 +144,15 @@ msgstr "bir günden az kaldı"
 
 msgid "less than a minute ago"
 msgstr "bir dakikadan az"
+
+msgid "Next"
+msgstr "Sonraki"
+
+msgid "Off"
+msgstr "Kapalı"
+
+msgid "On"
+msgstr "Açık"
 
 msgid "Open URL"
 msgstr "URL'yi aç"
@@ -133,7 +169,13 @@ msgstr "Ayarlar"
 msgid "System default"
 msgstr "Sistem varsayılanı"
 
-msgid "UNSECURE CONNECTION"
+msgid "TCP"
+msgstr "TCP"
+
+msgid "UDP"
+msgstr "UDP"
+
+msgid "UNSECURED CONNECTION"
 msgstr "GÜVENLİ OLMAYAN BAĞLANTI"
 
 msgctxt "accessibility"
@@ -219,17 +261,6 @@ msgctxt "advanced-settings-view"
 msgid "Attention: enabling this will always require a Mullvad VPN connection in order to reach the internet."
 msgstr "Dikkat: bu seçeneğin etkinleştirilmesi, internete erişim için her zaman bir Mullvad VPN bağlantısı gerektirir."
 
-msgid "Automatic"
-msgstr "Otomatik"
-
-#. The title for the shadowsocks bridge selector section.
-msgctxt "openvpn-settings-view"
-msgid "Bridge mode"
-msgstr "Köprü modu"
-
-msgid "Default"
-msgstr "Varsayılan"
-
 msgctxt "advanced-settings-view"
 msgid "Enable anyway"
 msgstr "Yine de etkinleştir"
@@ -254,62 +285,25 @@ msgctxt "advanced-settings-view"
 msgid "If you disconnect or quit the app, this setting will block your internet."
 msgstr "Uygulamanın bağlantısını keserseniz veya uygulamadan çıkarsanız, bu ayar İnternet'e bağlanmanızı engeller."
 
-msgid "Off"
-msgstr "Kapalı"
-
-msgid "On"
-msgstr "Açık"
+msgctxt "advanced-settings-view"
+msgid "missing key"
+msgstr "eksik anahtar"
 
 msgctxt "advanced-settings-view"
 msgid "OpenVPN"
 msgstr "OpenVPN"
 
-#. The title for the port selector section.
-#. Available placeholders:
-#. %(portType)s - a selected protocol (either TCP or UDP)
 msgctxt "advanced-settings-view"
-msgid "OpenVPN %(portType)s port"
-msgstr "OpenVPN %(portType)s portu"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN Mssfix"
-msgstr "OpenVPN Mssfix"
-
-msgctxt "advanced-settings-view"
-msgid "OpenVPN transport protocol"
-msgstr "OpenVPN taşıma protokolü"
-
-#. The hint displayed below the Mssfix input field.
-#. Available placeholders:
-#. %(max)d - the maximum possible mssfix value
-#. %(min)d - the minimum possible mssfix value
-msgctxt "openvpn-settings-view"
-msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
-msgstr "OpenVPN MSS değerini belirleyin. Geçerli aralık: %(min)d - %(max)d."
-
-#. The hint displayed below the WireGuard MTU input field.
-#. Available placeholders:
-#. %(max)d - the maximum possible wireguard mtu value
-#. %(min)d - the minimum possible wireguard mtu value
-msgctxt "wireguard-settings-view"
-msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
-msgstr "WireGuard MTU değerini ayarlayın. Geçerli aralık: %(min)d - %(max)d."
+msgid "OpenVPN settings"
+msgstr "OpenVPN ayarları"
 
 msgctxt "advanced-settings-view"
 msgid "Split tunneling"
 msgstr "Bölünmüş tünelleme"
 
-msgid "TCP"
-msgstr "TCP"
-
 msgctxt "advanced-settings-view"
 msgid "The app’s built-in kill switch is always on. This setting will additionally block the internet if clicking Disconnect or Quit."
 msgstr "Uygulamanın dahili Kill Switch seçeneği her zaman açıktır. Bu ayar, Bağlantıyı Kes veya Çık seçeneklerini tıklamanız durumunda ayrıca İnternet'i de engeller."
-
-#. The hint displayed below the WireGuard port selector.
-msgctxt "wireguard-settings-view"
-msgid "The automatic setting will randomly choose from a wide range of ports."
-msgstr "Otomatik ayar, çeşitli bağlantı noktaları arasından rastgele seçim yapacaktır."
 
 msgctxt "advanced-settings-view"
 msgid "The DNS server you want to add is public and will only work with WireGuard. To ensure that it always works, set the \"Tunnel protocol\" (in Advanced settings) to WireGuard."
@@ -323,9 +317,6 @@ msgctxt "advanced-settings-view"
 msgid "Tunnel protocol"
 msgstr "Tünel protokolü"
 
-msgid "UDP"
-msgstr "UDP"
-
 msgctxt "advanced-settings-view"
 msgid "Use custom DNS server"
 msgstr "Özel DNS sunucusu kullanın"
@@ -334,21 +325,9 @@ msgctxt "advanced-settings-view"
 msgid "WireGuard"
 msgstr "WireGuard"
 
-msgctxt "wireguard-settings-view"
-msgid "WireGuard key"
-msgstr "WireGuard anahtarı"
-
 msgctxt "advanced-settings-view"
-msgid "WireGuard MTU"
-msgstr "WireGuard MTU"
-
-msgctxt "advanced-settings-view"
-msgid "WireGuard port"
-msgstr "WireGuard portu"
-
-msgctxt "advanced-settings-view-wireguard"
-msgid "missing key"
-msgstr "eksik anahtar"
+msgid "WireGuard settings"
+msgstr "WireGuard ayarları"
 
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
@@ -392,8 +371,20 @@ msgid "Either buy credit on our website or redeem a voucher."
 msgstr "Web sitemizden kredi satın alın veya kupon kullanın."
 
 msgctxt "connect-view"
+msgid "Enter voucher code"
+msgstr "Kupon kodunu girin"
+
+msgctxt "connect-view"
+msgid "Go ahead and start using the app to begin reclaiming your online privacy."
+msgstr "Devam edin ve çevrimiçi gizliliğinizi geri kazanmak için uygulamayı kullanmaya başlayın."
+
+msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
 msgstr "İşte hesap numaranız. Kaydedin!"
+
+msgctxt "connect-view"
+msgid "Learn about privacy"
+msgstr "Gizlilik hakkında bilgi edinin"
 
 msgctxt "connect-view"
 msgid "Out of time"
@@ -408,12 +399,28 @@ msgid "Remember, turning it off will allow network traffic while the VPN is disc
 msgstr "Devre dışı bırakmanın, Gelişmiş ayarlar altında tekrar etkinleştirene kadar VPN bağlantısını keserek ağ trafiğine izin verdiğini unutmayın."
 
 msgctxt "connect-view"
+msgid "Start using the app"
+msgstr "Uygulamayı kullanmaya başlayın"
+
+msgctxt "connect-view"
+msgid "Time was successfully added"
+msgstr "Süre başarıyla eklendi"
+
+msgctxt "connect-view"
 msgid "To add more, you will need to disconnect and access the Internet with an unsecure connection."
 msgstr "Daha fazla süre eklemek için, bağlantıyı keserek güvenli olmayan bir bağlantıyla internete erişmeniz gerekir."
 
 msgctxt "connect-view"
+msgid "To continue your journey as a privacy ninja, visit our website to pick up other privacy-friendly habits and tools."
+msgstr "Yolculuğunuza bir gizlilik ninjası olarak devam etmek için web sitemizi ziyaret edin ve diğer gizlilik dostu alışkanlıklar ve araçlar hakkında bilgi edinin."
+
+msgctxt "connect-view"
 msgid "To start using the app, you first need to add time to your account."
 msgstr "Uygulamayı kullanmaya başlamak için önce hesabınıza süre eklemeniz gerekir."
+
+msgctxt "connect-view"
+msgid "Voucher was successfully redeemed"
+msgstr "Kupon başarıyla kullanıldı"
 
 msgctxt "connect-view"
 msgid "You have no more VPN time left on this account."
@@ -422,6 +429,10 @@ msgstr "Bu hesap için artık VPN süreniz kalmadı."
 msgctxt "connect-view"
 msgid "You need to disable \"Always require VPN\" in order to access the Internet to add time."
 msgstr "Süre eklemek amacıyla İnternet'e erişmek için “VPN her zaman açık” seçeneğini devre dışı bırakmanız gerekir."
+
+msgctxt "connect-view"
+msgid "You're all set!"
+msgstr "Hazırsınız!"
 
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
@@ -454,13 +465,19 @@ msgctxt "error-boundary-view"
 msgid "Something went wrong. Please contact us at %(email)s"
 msgstr "Bir sorun oluştu. Lütfen bizimle %(email)s adresinden iletişime geçin"
 
-msgctxt "generic"
-msgid "Mullvad VPN"
-msgstr "Mullvad VPN"
+#. Title label in navigation bar
+msgctxt "filter-by-provider-nav"
+msgid "Filter by provider"
+msgstr "Hizmet sağlayıcıya göre filtrele"
 
-msgctxt "generic"
-msgid "MULLVAD VPN"
-msgstr "MULLVAD VPN"
+#. Back button in navigation bar
+msgctxt "filter-by-provider-nav"
+msgid "Select location"
+msgstr "Konum seçin"
+
+msgctxt "filter-by-provider-view"
+msgid "All providers"
+msgstr "Tüm hizmet sağlayıcılar"
 
 msgctxt "in-app-notifications"
 msgid "\"Always require VPN\" is enabled."
@@ -479,9 +496,14 @@ msgid "APP IS OUT OF SYNC"
 msgstr "UYGULAMA SENKRONİZE DEĞİL"
 
 msgctxt "in-app-notifications"
+msgid "BETA UPDATE AVAILABLE"
+msgstr "BETA GÜNCELLEME MEVCUT"
+
+msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "İNTERNET ENGELLENİYOR"
 
+#. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
 msgstr "Güncel kalmak için en son uygulama sürümünü yükleyin."
@@ -497,6 +519,14 @@ msgstr "AĞ BAĞLANTISI TRAFİĞİNDE SIZINTI OLABİLİR"
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
 msgstr "Lütfen uygulamadan çıkış yapın ve yeniden başlatın."
+
+#. The in-app banner displayed to the user when the app beta update is
+#. available.
+#. Available placeholders:
+#. %(version)s - The version number of the new beta version.
+msgctxt "in-app-notifications"
+msgid "Try out the newest beta version (%(version)s)."
+msgstr "En yeni beta sürümü (%(version)s) deneyin."
 
 msgctxt "in-app-notifications"
 msgid "UNSUPPORTED VERSION"
@@ -599,6 +629,14 @@ msgstr "Hesabın süresi doldu"
 msgctxt "notifications"
 msgid "App is out of sync. Please quit and restart."
 msgstr "Uygulama senkronize değil. Lütfen çıkış yapın ve yeniden başlatın."
+
+#. The system notification that notifies the user when a beta update is
+#. available.
+#. Available placeholders:
+#. %(version)s - The version number of the new beta version.
+msgctxt "notifications"
+msgid "Beta update available. Try out the newest beta version (%(version)s)."
+msgstr "Beta güncelleme mevcut. En yeni beta sürümü (%(version)s) deneyin."
 
 msgctxt "notifications"
 msgid "Buy more"
@@ -706,6 +744,43 @@ msgstr "Bu desteklenmeyen uygulama sürümüyle gizliliğiniz risk altında olab
 msgctxt "notifications"
 msgid "Your selected server and tunnel protocol don't match. Please adjust your settings."
 msgstr "Seçtiğiniz sunucu ve tünel protokolünüz eşleşmiyor. Lütfen ayarlarınızı yapın."
+
+#. Title label in navigation bar
+msgctxt "openvpn-settings-nav"
+msgid "OpenVPN settings"
+msgstr "OpenVPN ayarları"
+
+#. The title for the port selector section.
+#. Available placeholders:
+#. %(portType)s - a selected protocol (either TCP or UDP)
+msgctxt "openvpn-settings-view"
+msgid "%(portType)s port"
+msgstr "%(portType)s portu"
+
+#. The title for the shadowsocks bridge selector section.
+msgctxt "openvpn-settings-view"
+msgid "Bridge mode"
+msgstr "Köprü modu"
+
+msgctxt "openvpn-settings-view"
+msgid "Mssfix"
+msgstr "Mssfix"
+
+msgctxt "openvpn-settings-view"
+msgid "OpenVPN settings"
+msgstr "OpenVPN ayarları"
+
+#. The hint displayed below the Mssfix input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible mssfix value
+#. %(min)d - the minimum possible mssfix value
+msgctxt "openvpn-settings-view"
+msgid "Set OpenVPN MSS value. Valid range: %(min)d - %(max)d."
+msgstr "OpenVPN MSS değerini ayarlayın. Geçerli aralık: %(min)d - %(max)d."
+
+msgctxt "openvpn-settings-view"
+msgid "Transport protocol"
+msgstr "Taşıma protokolü"
 
 #. Title label in navigation bar
 msgctxt "preferences-nav"
@@ -829,6 +904,10 @@ msgid "Redeem"
 msgstr "Kullan"
 
 msgctxt "redeem-voucher-view"
+msgid "Verifying voucher..."
+msgstr "Kupon doğrulanıyor..."
+
+msgctxt "redeem-voucher-view"
 msgid "Voucher code has already been used."
 msgstr "Kupon kodu zaten kullanılmış."
 
@@ -863,8 +942,21 @@ msgid "Closest to exit server"
 msgstr "Çıkış sunucusuna en yakın"
 
 msgctxt "select-location-view"
-msgid "While connected, your real location is masked with a private and secure location in the selected region."
-msgstr "Bağlıyken gerçek konumunuz seçilen bölgedeki özel ve gizli bir konumla maskelenir."
+msgid "Filter by provider"
+msgstr "Hizmet sağlayıcıya göre filtrele"
+
+msgctxt "select-location-view"
+msgid "Filtered:"
+msgstr "Filtrelendi:"
+
+msgctxt "select-location-view"
+msgid "Providers: %(numberOfProviders)d"
+msgstr "Hizmet sağlayıcılar: %(numberOfProviders)d"
+
+#. Heading in select location view
+msgctxt "select-location-view"
+msgid "Select location"
+msgstr "Konum seçin"
 
 msgctxt "select-location-view"
 msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
@@ -1151,15 +1243,58 @@ msgctxt "wireguard-key-view"
 msgid "Verify key"
 msgstr "Anahtarı doğrula"
 
-#. Back button in navigation bar
-msgctxt "wireguard-keys-nav"
-msgid "Advanced"
-msgstr "Gelişmiş"
-
 #. Title label in navigation bar
 msgctxt "wireguard-keys-nav"
 msgid "WireGuard key"
 msgstr "WireGuard anahtarı"
+
+#. Back button in navigation bar
+msgctxt "wireguard-keys-nav"
+msgid "WireGuard settings"
+msgstr "WireGuard ayarları"
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "WireGuard settings"
+msgstr "WireGuard ayarları"
+
+msgctxt "wireguard-settings-view"
+msgid "IP version"
+msgstr "IP sürümü"
+
+msgctxt "wireguard-settings-view"
+msgid "MTU"
+msgstr "MTU"
+
+msgctxt "wireguard-settings-view"
+msgid "Port"
+msgstr "Port"
+
+#. The hint displayed below the WireGuard MTU input field.
+#. Available placeholders:
+#. %(max)d - the maximum possible wireguard mtu value
+#. %(min)d - the minimum possible wireguard mtu value
+msgctxt "wireguard-settings-view"
+msgid "Set WireGuard MTU value. Valid range: %(min)d - %(max)d."
+msgstr "WireGuard MTU değerini ayarlayın. Geçerli aralık: %(min)d - %(max)d."
+
+#. The hint displayed below the WireGuard port selector.
+msgctxt "wireguard-settings-view"
+msgid "The automatic setting will randomly choose from a wide range of ports."
+msgstr "Otomatik ayar, çeşitli bağlantı noktaları arasından rastgele seçim yapacaktır."
+
+#. The hint displayed below the WireGuard IP version selector.
+msgctxt "wireguard-settings-view"
+msgid "This allows access to WireGuard for devices that only support IPv6."
+msgstr "Bu, sadece IPv6'yı destekleyen cihazlar için WireGuard'a erişim izni sağlar."
+
+msgctxt "wireguard-settings-view"
+msgid "WireGuard key"
+msgstr "WireGuard anahtarı"
+
+msgctxt "wireguard-settings-view"
+msgid "WireGuard settings"
+msgstr "WireGuard ayarları"
 
 msgid "Account authentication failed."
 msgstr "Hesap kimlik doğrulaması başarısız oldu."
@@ -1230,6 +1365,9 @@ msgstr "Gerektiğinde sizinle %s üzerinden iletişime geçeceğiz"
 msgid "Install Mullvad VPN (%s) to stay up to date"
 msgstr "Güncel kalmak için Mullvad VPN'in (%s) sürümünü yükleyin"
 
+msgid "Mullvad VPN"
+msgstr "Mullvad VPN"
+
 msgid "Mullvad account number"
 msgstr "Mullvad hesap numarası"
 
@@ -1241,6 +1379,9 @@ msgstr "Geçerli ayarlara uyan aktarma sunucusu yok"
 
 msgid "Secured"
 msgstr "Güvenli"
+
+msgid "Show system apps"
+msgstr "Sistem uygulamalarını göster"
 
 msgid "Shows current VPN tunnel status"
 msgstr "Mevcut VPN tünelinin durumunu gösterir"
@@ -1260,9 +1401,6 @@ msgstr "Bu cihaz çevrimdışı, tünel oluşturulamaz"
 msgid "Too many WireGuard keys registered to account"
 msgstr "Hesaba kayıtlı çok fazla WireGuard anahtarı"
 
-msgid "UNSECURED CONNECTION"
-msgstr "GÜVENLİ OLMAYAN BAĞLANTI"
-
 msgid "Unsecured"
 msgstr "Güvenli Değil"
 
@@ -1277,6 +1415,12 @@ msgstr "VPN tüneli durumu"
 
 msgid "Virtual adapter error"
 msgstr "Sanal adaptör hatası"
+
+msgid "While connected, your real location is masked with a private and secure location in the selected region."
+msgstr "Bağlıyken, gerçek konumunuz seçilen bölgedeki özel ve gizli bir konumla maskelenir."
+
+msgid "WireGuard MTU"
+msgstr "WireGuard MTU"
 
 msgid "WireGuard error"
 msgstr "WireGuard hatası"

@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2021-06-28 11:50\n"
+"PO-Revision-Date: 2021-10-22 12:27\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -300,6 +300,10 @@ msgstr "Новая Зеландия"
 msgid "Nis"
 msgstr "Ниш"
 
+#. MK
+msgid "North Macedonia"
+msgstr "Северная Македония"
+
 #. NO
 msgid "Norway"
 msgstr "Норвегия"
@@ -307,6 +311,10 @@ msgstr "Норвегия"
 #. US OKC
 msgid "Oklahoma City, OK"
 msgstr "Оклахома-Сити, OK"
+
+#. JP OSA
+msgid "Osaka"
+msgstr "Осака"
 
 #. NO OSL
 msgid "Oslo"
@@ -403,6 +411,10 @@ msgstr "Сингапур"
 #. US FSD
 msgid "Sioux Falls, SD"
 msgstr "Су-Фолс, SD"
+
+#. MK SKP
+msgid "Skopje"
+msgstr "Скопье"
 
 #. BG SOF
 msgid "Sofia"
