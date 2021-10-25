@@ -25,6 +25,12 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [2021.5] - 2021-10-25
+This release is for desktop only.
+
+This release is identical to 2021.5-beta2 except that it has translations for new texts in the UI.
+
+
 ## [2021.5-beta2] - 2021-10-19
 ### Fixed
 #### macOS
