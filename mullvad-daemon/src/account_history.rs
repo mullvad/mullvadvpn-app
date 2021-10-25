@@ -1,10 +1,9 @@
 use mullvad_types::account::AccountToken;
 use regex::Regex;
-use std::{
+use std::path::Path;
+use tokio::{
     fs,
-    io::{self, Read, Seek, Write},
-    path::Path,
-    sync::{Arc, Mutex},
+    io::{self, AsyncReadExt, AsyncSeekExt, AsyncWriteExt},
 };
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -28,7 +27,7 @@ pub enum Error {
 static ACCOUNT_HISTORY_FILE: &str = "account-history.json";
 
 pub struct AccountHistory {
-    file: Arc<Mutex<io::BufWriter<fs::File>>>,
+    file: io::BufWriter<fs::File>,
     token: Option<AccountToken>,
 }
 
@@ -45,12 +44,10 @@ impl AccountHistory {
         let mut options = fs::OpenOptions::new();
         #[cfg(unix)]
         {
-            use std::os::unix::fs::OpenOptionsExt;
             options.mode(0o600);
         }
         #[cfg(windows)]
         {
-            use std::os::windows::fs::OpenOptionsExt;
             // a share mode of zero ensures exclusive access to the file to *this* process
             options.share_mode(0);
         }
@@ -62,11 +59,12 @@ impl AccountHistory {
             .create(true)
             .read(true)
             .open(path)
+            .await
             .map(io::BufReader::new)
             .map_err(Error::Read)?;
 
         let mut buffer = String::new();
-        let token: Option<AccountToken> = match reader.read_to_string(&mut buffer) {
+        let token: Option<AccountToken> = match reader.read_to_string(&mut buffer).await {
             Ok(_) if ACCOUNT_REGEX.is_match(&buffer) => Some(buffer),
             Ok(0) => current_token,
             Ok(_) | Err(_) => {
@@ -76,10 +74,7 @@ impl AccountHistory {
         };
 
         let file = io::BufWriter::new(reader.into_inner());
-        let mut history = AccountHistory {
-            file: Arc::new(Mutex::new(file)),
-            token,
-        };
+        let mut history = AccountHistory { file, token };
         if let Err(e) = history.save_to_disk().await {
             log::error!("Failed to save account cache after opening it: {}", e);
         }
@@ -104,20 +99,18 @@ impl AccountHistory {
     }
 
     async fn save_to_disk(&mut self) -> Result<()> {
-        let file = self.file.clone();
-        let token = self.token.clone();
-
-        tokio::task::spawn_blocking(move || {
-            let mut file = file.lock().unwrap();
-            file.get_mut().set_len(0).map_err(Error::Write)?;
-            file.seek(io::SeekFrom::Start(0)).map_err(Error::Write)?;
-            if let Some(token) = token {
-                write!(&mut file, "{}", token).map_err(Error::Write)?;
-            }
-            file.flush().map_err(Error::Write)?;
-            file.get_mut().sync_all().map_err(Error::Write)
-        })
-        .await
-        .map_err(Error::WriteCancelled)?
+        self.file.get_mut().set_len(0).await.map_err(Error::Write)?;
+        self.file
+            .seek(io::SeekFrom::Start(0))
+            .await
+            .map_err(Error::Write)?;
+        if let Some(ref token) = self.token {
+            self.file
+                .write_all(token.as_bytes())
+                .await
+                .map_err(Error::Write)?;
+        }
+        self.file.flush().await.map_err(Error::Write)?;
+        self.file.get_mut().sync_all().await.map_err(Error::Write)
     }
 }
