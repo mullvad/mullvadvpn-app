@@ -60,14 +60,7 @@ pub async fn migrate_formats(settings_dir: &Path, settings: &mut serde_json::Val
         return Ok(());
     }
 
-    let token = if let Some((token, wg_data)) = try_format_v2(&bytes) {
-        settings["wireguard"] = serde_json::json!(wg_data);
-        token
-    } else if let Some(token) = try_format_v1(&bytes) {
-        token
-    } else {
-        return Err(Error::ParseHistoryError);
-    };
+    let token = migrate_formats_inner(&bytes, settings)?;
 
     file.set_len(0).await.map_err(Error::WriteHistoryError)?;
     file.seek(io::SeekFrom::Start(0))
@@ -80,6 +73,20 @@ pub async fn migrate_formats(settings_dir: &Path, settings: &mut serde_json::Val
     file.sync_all().await.map_err(Error::WriteHistoryError)?;
 
     Ok(())
+}
+
+fn migrate_formats_inner(
+    account_bytes: &[u8],
+    settings: &mut serde_json::Value,
+) -> Result<AccountToken> {
+    if let Some((token, wg_data)) = try_format_v2(account_bytes) {
+        settings["wireguard"] = serde_json::json!(wg_data);
+        Ok(token)
+    } else if let Some(token) = try_format_v1(account_bytes) {
+        Ok(token)
+    } else {
+        Err(Error::ParseHistoryError)
+    }
 }
 
 fn is_format_v3(bytes: &[u8]) -> bool {
@@ -112,4 +119,227 @@ fn try_format_v1(bytes: &[u8]) -> Option<AccountToken> {
     serde_json::from_slice(bytes)
         .map(|old_format: OldFormat| old_format.accounts.first().cloned())
         .unwrap_or(None)
+}
+
+#[cfg(test)]
+mod test {
+    use serde_json;
+
+    pub const ACCOUNT_HISTORY_V1: &str = r#"
+{
+  "accounts": ["1234", "4567"]
+}
+"#;
+    pub const ACCOUNT_HISTORY_V2: &str = r#"
+[
+  {
+  "account": "1234",
+    "wireguard": {
+      "private_key": "mAdSb4AfQOsAD5O/5+zG1oIhk3cUl0jUsyOeaOMFu3o=",
+      "addresses": {
+        "ipv4_address": "109.111.108.101/32",
+        "ipv6_address": "ffff::ffff/128"
+      },
+      "created": "1970-01-01T00:00:00Z"
+    }
+  },
+  {
+    "account": "4567",
+    "wireguard": {
+      "private_key": "mAdSb4AfQOsAD5O/5+zG1oIhk3cUl0jUsyOeaOMFu3o=",
+      "addresses": {
+        "ipv4_address": "109.111.108.101/32",
+        "ipv6_address": "ffff::ffff/128"
+      },
+      "created": "1970-01-01T00:00:00Z"
+    }
+  }
+]"#;
+    pub const ACCOUNT_HISTORY_V3: &str = r#"123456"#;
+
+    pub const OLD_SETTINGS: &str = r#"
+{
+  "account_token": "1234",
+  "relay_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "country": "se"
+        }
+      },
+      "tunnel_protocol": "any",
+      "wireguard_constraints": {
+        "port": {
+          "only": {
+            "protocol": "tcp",
+            "port": {
+              "only": 80
+            }
+          }
+        }
+      },
+      "openvpn_constraints": {
+        "port": {
+          "only": {
+            "protocol": "udp",
+            "port": {
+              "only": 1195
+            }
+          }
+        }
+      }
+    }
+  },
+  "bridge_settings": {
+    "normal": {
+      "location": "any"
+    }
+  },
+  "bridge_state": "auto",
+  "allow_lan": true,
+  "block_when_disconnected": false,
+  "auto_connect": false,
+  "tunnel_options": {
+    "openvpn": {
+      "mssfix": null
+    },
+    "wireguard": {
+      "mtu": null,
+      "rotation_interval": {
+          "secs": 86400,
+          "nanos": 0
+      }
+    },
+    "generic": {
+      "enable_ipv6": false
+    },
+    "dns_options": {
+      "state": "default",
+      "default_options": {
+        "block_ads": false,
+        "block_trackers": false
+      },
+      "custom_options": {
+        "addresses": [
+          "1.1.1.1",
+          "1.2.3.4"
+        ]
+      }
+    }
+  },
+  "settings_version": 5
+}
+"#;
+
+    pub const NEW_SETTINGS: &str = r#"
+{
+  "account_token": "1234",
+  "wireguard": {
+    "private_key": "mAdSb4AfQOsAD5O/5+zG1oIhk3cUl0jUsyOeaOMFu3o=",
+    "addresses": {
+      "ipv4_address": "109.111.108.101/32",
+      "ipv6_address": "ffff::ffff/128"
+    },
+    "created": "1970-01-01T00:00:00Z"
+  },
+  "relay_settings": {
+    "normal": {
+      "location": {
+        "only": {
+          "country": "se"
+        }
+      },
+      "tunnel_protocol": "any",
+      "wireguard_constraints": {
+        "port": {
+          "only": {
+            "protocol": "tcp",
+            "port": {
+              "only": 80
+            }
+          }
+        }
+      },
+      "openvpn_constraints": {
+        "port": {
+          "only": {
+            "protocol": "udp",
+            "port": {
+              "only": 1195
+            }
+          }
+        }
+      }
+    }
+  },
+  "bridge_settings": {
+    "normal": {
+      "location": "any"
+    }
+  },
+  "bridge_state": "auto",
+  "allow_lan": true,
+  "block_when_disconnected": false,
+  "auto_connect": false,
+  "tunnel_options": {
+    "openvpn": {
+      "mssfix": null
+    },
+    "wireguard": {
+      "mtu": null,
+      "rotation_interval": {
+          "secs": 86400,
+          "nanos": 0
+      }
+    },
+    "generic": {
+      "enable_ipv6": false
+    },
+    "dns_options": {
+      "state": "default",
+      "default_options": {
+        "block_ads": false,
+        "block_trackers": false
+      },
+      "custom_options": {
+        "addresses": [
+          "1.1.1.1",
+          "1.2.3.4"
+        ]
+      }
+    }
+  },
+  "settings_version": 5
+}
+"#;
+
+
+    // Test whether the current format is parsed correctly
+    #[test]
+    fn test_v3() {
+        assert!(!super::is_format_v3(ACCOUNT_HISTORY_V1.as_bytes()));
+        assert!(!super::is_format_v3(ACCOUNT_HISTORY_V2.as_bytes()));
+        assert!(super::is_format_v3(ACCOUNT_HISTORY_V3.as_bytes()));
+    }
+
+    #[test]
+    fn test_v2() {
+        assert!(super::try_format_v2(ACCOUNT_HISTORY_V1.as_bytes()).is_none());
+
+        let mut old_settings = serde_json::from_str(OLD_SETTINGS).unwrap();
+        let new_settings: serde_json::Value = serde_json::from_str(NEW_SETTINGS).unwrap();
+
+        // Test whether the wireguard data is moved to the settings correctly
+        let token =
+            super::migrate_formats_inner(ACCOUNT_HISTORY_V2.as_bytes(), &mut old_settings).unwrap();
+
+        assert_eq!(&old_settings, &new_settings);
+        assert_eq!(token, "1234");
+    }
+
+    #[test]
+    fn test_v1() {
+        let token = super::try_format_v1(ACCOUNT_HISTORY_V1.as_bytes());
+        assert_eq!(token, Some("1234".to_string()));
+    }
 }
