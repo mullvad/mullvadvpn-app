@@ -3,6 +3,7 @@ use log;
 
 use crate::version;
 
+#[derive(Debug)]
 pub struct Config {
     pub log_level: log::LevelFilter,
     pub log_to_file: bool,
