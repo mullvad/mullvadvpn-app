@@ -10,30 +10,23 @@ const WIREGUARD_TCP_PORTS: [u16; 3] = [80, 443, 5001];
 const OPENVPN_TCP_PORTS: [u16; 2] = [80, 443];
 
 
-pub(super) struct Migration;
-
-impl super::SettingsMigration for Migration {
-    fn version_matches(&self, settings: &mut serde_json::Value) -> bool {
-        settings
-            .get("settings_version")
-            .map(|version| version == SettingsVersion::V4 as u64)
-            .unwrap_or(false)
+pub fn migrate(settings: &mut serde_json::Value) -> Result<()> {
+    if !version_matches(settings) {
+        return Ok(());
     }
 
-    fn migrate(&self, settings: &mut serde_json::Value) -> Result<()> {
-        log::info!("Migrating settings format to V5");
+    log::info!("Migrating settings format to V5");
 
-        let wireguard_constraints = || -> Option<&serde_json::Value> {
-            settings
-                .get("relay_settings")?
-                .get("normal")?
-                .get("wireguard_constraints")
-        }();
+    let wireguard_constraints = || -> Option<&serde_json::Value> {
+        settings
+            .get("relay_settings")?
+            .get("normal")?
+            .get("wireguard_constraints")
+    }();
 
-        if let Some(constraints) = wireguard_constraints {
-            let (port, protocol): (Constraint<u16>, TransportProtocol) = if let Some(port) =
-                constraints.get("port")
-            {
+    if let Some(constraints) = wireguard_constraints {
+        let (port, protocol): (Constraint<u16>, TransportProtocol) =
+            if let Some(port) = constraints.get("port") {
                 let port_constraint =
                     serde_json::from_value(port.clone()).map_err(Error::ParseError)?;
                 match port_constraint {
@@ -44,64 +37,70 @@ impl super::SettingsMigration for Migration {
                 (Constraint::Any, TransportProtocol::Udp)
             };
 
-            settings["relay_settings"]["normal"]["wireguard_constraints"]["port"] = match port {
-                Constraint::Any => {
-                    serde_json::json!(Constraint::<TransportPort>::Any)
-                }
-                Constraint::Only(_) => {
-                    serde_json::json!(Constraint::Only(TransportPort { protocol, port }))
-                }
-            };
+        settings["relay_settings"]["normal"]["wireguard_constraints"]["port"] = match port {
+            Constraint::Any => {
+                serde_json::json!(Constraint::<TransportPort>::Any)
+            }
+            Constraint::Only(_) => {
+                serde_json::json!(Constraint::Only(TransportPort { protocol, port }))
+            }
+        };
 
-            settings["relay_settings"]["normal"]["wireguard_constraints"]
-                .as_object_mut()
-                .ok_or(Error::NoMatchingVersion)?
-                .remove("protocol");
-        }
+        settings["relay_settings"]["normal"]["wireguard_constraints"]
+            .as_object_mut()
+            .ok_or(Error::NoMatchingVersion)?
+            .remove("protocol");
+    }
 
-        let openvpn_constraints = || -> Option<&serde_json::Value> {
-            settings
-                .get("relay_settings")?
-                .get("normal")?
-                .get("openvpn_constraints")
-        }();
+    let openvpn_constraints = || -> Option<&serde_json::Value> {
+        settings
+            .get("relay_settings")?
+            .get("normal")?
+            .get("openvpn_constraints")
+    }();
 
-        if let Some(constraints) = openvpn_constraints {
-            let port: Constraint<u16> = if let Some(port) = constraints.get("port") {
-                serde_json::from_value(port.clone()).map_err(Error::ParseError)?
+    if let Some(constraints) = openvpn_constraints {
+        let port: Constraint<u16> = if let Some(port) = constraints.get("port") {
+            serde_json::from_value(port.clone()).map_err(Error::ParseError)?
+        } else {
+            Constraint::Any
+        };
+        let transport_constraint: Constraint<TransportProtocol> =
+            if let Some(protocol) = constraints.get("protocol") {
+                serde_json::from_value(protocol.clone()).map_err(Error::ParseError)?
             } else {
                 Constraint::Any
             };
-            let transport_constraint: Constraint<TransportProtocol> =
-                if let Some(protocol) = constraints.get("protocol") {
-                    serde_json::from_value(protocol.clone()).map_err(Error::ParseError)?
-                } else {
-                    Constraint::Any
-                };
 
-            let port = match (port, transport_constraint) {
-                (Constraint::Only(port), Constraint::Any) => Constraint::Only(TransportPort {
-                    protocol: openvpn_protocol_from_port(port),
-                    port: Constraint::Only(port),
-                }),
-                (port, Constraint::Only(protocol)) => {
-                    Constraint::Only(TransportPort { protocol, port })
-                }
-                (Constraint::Any, Constraint::Any) => Constraint::Any,
-            };
+        let port = match (port, transport_constraint) {
+            (Constraint::Only(port), Constraint::Any) => Constraint::Only(TransportPort {
+                protocol: openvpn_protocol_from_port(port),
+                port: Constraint::Only(port),
+            }),
+            (port, Constraint::Only(protocol)) => {
+                Constraint::Only(TransportPort { protocol, port })
+            }
+            (Constraint::Any, Constraint::Any) => Constraint::Any,
+        };
 
-            settings["relay_settings"]["normal"]["openvpn_constraints"]["port"] =
-                serde_json::json!(port);
-            settings["relay_settings"]["normal"]["openvpn_constraints"]
-                .as_object_mut()
-                .ok_or(Error::NoMatchingVersion)?
-                .remove("protocol");
-        }
-
-        settings["settings_version"] = serde_json::json!(SettingsVersion::V5);
-
-        Ok(())
+        settings["relay_settings"]["normal"]["openvpn_constraints"]["port"] =
+            serde_json::json!(port);
+        settings["relay_settings"]["normal"]["openvpn_constraints"]
+            .as_object_mut()
+            .ok_or(Error::NoMatchingVersion)?
+            .remove("protocol");
     }
+
+    settings["settings_version"] = serde_json::json!(SettingsVersion::V5);
+
+    Ok(())
+}
+
+fn version_matches(settings: &mut serde_json::Value) -> bool {
+    settings
+        .get("settings_version")
+        .map(|version| version == SettingsVersion::V4 as u64)
+        .unwrap_or(false)
 }
 
 fn openvpn_protocol_from_port(port: u16) -> TransportProtocol {
@@ -124,7 +123,7 @@ fn wg_protocol_from_port(port: u16) -> TransportProtocol {
 
 #[cfg(test)]
 mod test {
-    use super::{super::SettingsMigration, Migration};
+    use super::{migrate, version_matches};
     use serde_json;
 
     pub const V4_SETTINGS: &str = r#"
@@ -272,10 +271,9 @@ mod test {
     fn test_v4_migration() {
         let mut old_settings = serde_json::from_str(V4_SETTINGS).unwrap();
 
-        let migration = Migration;
-        assert!(migration.version_matches(&mut old_settings));
+        assert!(version_matches(&mut old_settings));
 
-        migration.migrate(&mut old_settings).unwrap();
+        migrate(&mut old_settings).unwrap();
         let new_settings: serde_json::Value = serde_json::from_str(V5_SETTINGS).unwrap();
 
         assert_eq!(&old_settings, &new_settings);
