@@ -33,11 +33,24 @@ Line wrap the file at 100 chars.                                              Th
 #### Android
 - Drop support for Android 7/7.1 (Android 8/API level 26 or later is now required).
 
+### Removed
+- Remove the old Let's encrypt root certificate from the API REST client. Only bundle and
+  use the latest certificate.
+
 ### Fixed
 - Fix desktop app showing a future date for when WireGuard key was generated.
+- Fix desktop app split tunneling view to not overflow on very long application names.
+
+#### Windows
+- Fix detection of Windows 11. Problem reports will now correctly report Windows 11 instead
+  of Windows 10.
+- Fix race condition in split tunneling initialization. Listen to route changes before reading
+  out the default route.
+- Fix bug in split tunneling code that could make the kernel driver and mullvad-daemon out of
+  sync around which programs should be excluded when the driver took longer to respond.
 
 #### Android
-- Fix reconnect on app resume.
+- Fix reconnect on app resume. Don't reconnect the tunnel every time the app is opened.
 - Fix invalid URLs. Rely on browser locale rather than app/system language.
 
 #### macOS
