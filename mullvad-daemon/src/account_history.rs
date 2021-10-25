@@ -1,5 +1,4 @@
-use crate::settings::SettingsPersister;
-use mullvad_types::{account::AccountToken, wireguard::WireguardData};
+use mullvad_types::account::AccountToken;
 use regex::Regex;
 use std::{
     fs,
@@ -7,7 +6,6 @@ use std::{
     path::Path,
     sync::{Arc, Mutex},
 };
-use talpid_types::ErrorExt;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -42,7 +40,7 @@ lazy_static::lazy_static! {
 impl AccountHistory {
     pub async fn new(
         settings_dir: &Path,
-        settings: &mut SettingsPersister,
+        current_token: Option<AccountToken>,
     ) -> Result<AccountHistory> {
         let mut options = fs::OpenOptions::new();
         #[cfg(unix)]
@@ -56,52 +54,28 @@ impl AccountHistory {
             // a share mode of zero ensures exclusive access to the file to *this* process
             options.share_mode(0);
         }
+
         let path = settings_dir.join(ACCOUNT_HISTORY_FILE);
-        let (file, token) = if path.is_file() {
-            log::info!("Opening account history file in {}", path.display());
-            let mut reader = options
-                .write(true)
-                .read(true)
-                .open(path)
-                .map(io::BufReader::new)
-                .map_err(Error::Read)?;
+        log::info!("Opening account history file in {}", path.display());
+        let mut reader = options
+            .write(true)
+            .create(true)
+            .read(true)
+            .open(path)
+            .map(io::BufReader::new)
+            .map_err(Error::Read)?;
 
-            let mut buffer = String::new();
-            let token: Option<AccountToken> = match reader.read_to_string(&mut buffer) {
-                Ok(0) => None,
-                Ok(_) if ACCOUNT_REGEX.is_match(&buffer) => Some(buffer),
-                Ok(_) | Err(_) => {
-                    log::warn!("Failed to parse account history. Trying old formats",);
-                    match Self::try_format_v2(&mut reader)? {
-                        Some((token, migrated_data)) => {
-                            if let Err(error) = settings.set_wireguard(migrated_data).await {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg(
-                                        "Failed to migrate WireGuard key from account history"
-                                    )
-                                );
-                            }
-                            Some(token)
-                        }
-                        None => Self::try_format_v1(&mut reader)?,
-                    }
-                }
-            };
-
-            (reader.into_inner(), token)
-        } else {
-            log::info!("Creating account history file in {}", path.display());
-            (
-                options
-                    .write(true)
-                    .create(true)
-                    .open(path)
-                    .map_err(Error::Read)?,
-                settings.get_account_token(),
-            )
+        let mut buffer = String::new();
+        let token: Option<AccountToken> = match reader.read_to_string(&mut buffer) {
+            Ok(_) if ACCOUNT_REGEX.is_match(&buffer) => Some(buffer),
+            Ok(0) => current_token,
+            Ok(_) | Err(_) => {
+                log::warn!("Failed to parse account history");
+                current_token
+            }
         };
-        let file = io::BufWriter::new(file);
+
+        let file = io::BufWriter::new(reader.into_inner());
         let mut history = AccountHistory {
             file: Arc::new(Mutex::new(file)),
             token,
@@ -110,35 +84,6 @@ impl AccountHistory {
             log::error!("Failed to save account cache after opening it: {}", e);
         }
         Ok(history)
-    }
-
-    fn try_format_v1(reader: &mut io::BufReader<fs::File>) -> Result<Option<AccountToken>> {
-        #[derive(Deserialize)]
-        struct OldFormat {
-            accounts: Vec<AccountToken>,
-        }
-        reader.seek(io::SeekFrom::Start(0)).map_err(Error::Read)?;
-        Ok(serde_json::from_reader(reader)
-            .map(|old_format: OldFormat| old_format.accounts.first().cloned())
-            .unwrap_or_else(|_| None))
-    }
-
-    fn try_format_v2(
-        reader: &mut io::BufReader<fs::File>,
-    ) -> Result<Option<(AccountToken, Option<WireguardData>)>> {
-        #[derive(Serialize, Deserialize, Clone, Debug)]
-        pub struct AccountEntry {
-            pub account: AccountToken,
-            pub wireguard: Option<WireguardData>,
-        }
-        reader.seek(io::SeekFrom::Start(0)).map_err(Error::Read)?;
-        Ok(serde_json::from_reader(reader)
-            .map(|entries: Vec<AccountEntry>| {
-                entries
-                    .first()
-                    .map(|entry| (entry.account.clone(), entry.wireguard.clone()))
-            })
-            .unwrap_or_else(|_| None))
     }
 
     /// Gets the account token in the history
