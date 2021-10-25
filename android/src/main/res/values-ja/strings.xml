@@ -98,7 +98,7 @@
     <string name="report_a_problem">問題を報告する</string>
     <string name="secure_connection">セキュリティ保護された接続</string>
     <string name="secured">セキュリティ保護されています</string>
-    <string name="select_location">場所を選択する</string>
+    <string name="select_location">場所を選択</string>
     <string name="select_location_description">接続中、あなたの実際の場所は、選択した地域内の非公開かつセキュリティ保護された場所で隠蔽されています。</string>
     <string name="send">送信</string>
     <string name="send_anyway">とにかく送信する</string>
@@ -112,6 +112,7 @@
     <string name="settings_account">アカウント</string>
     <string name="settings_advanced">詳細</string>
     <string name="settings_preferences">環境設定</string>
+    <string name="show_system_apps">システムアプリの表示</string>
     <string name="split_tunneling">スプリットトンネリング</string>
     <string name="split_tunneling_description">スプリットトンネリングを使用すると、VPNトンネルを介してルーティングするべきでないアプリケーションを選択できます。</string>
     <string name="start_tunnel_error">トンネル接続の開始に失敗しました</string>
@@ -147,7 +148,7 @@
     <string name="wireguard_key_verification_failure">鍵の検証に失敗しました</string>
     <string name="wireguard_manage_keys">鍵を管理</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_mtu_footer">WireGuard MTU の値を設定します。有効範囲：%1$d ～ %2$d</string>
+    <string name="wireguard_mtu_footer">WireGuardのMTU値を設定します。有効範囲: %1$d ～ %2$d。</string>
     <string name="wireguard_public_key">WireGuard公開鍵</string>
     <string name="wireguard_replace_key">鍵を生成</string>
     <string name="wireguard_verify_key">鍵を検証</string>

@@ -112,6 +112,7 @@
     <string name="settings_account">계정</string>
     <string name="settings_advanced">고급</string>
     <string name="settings_preferences">환경 설정</string>
+    <string name="show_system_apps">시스템 앱 표시</string>
     <string name="split_tunneling">분할 터널링</string>
     <string name="split_tunneling_description">분할 터널링을 사용하면 VPN 터널을 통해 라우팅되지 않아야 하는 애플리케이션을 선택할 수 있습니다.</string>
     <string name="start_tunnel_error">터널 연결을 시작하지 못했습니다.</string>
@@ -147,7 +148,7 @@
     <string name="wireguard_key_verification_failure">키 확인 실패</string>
     <string name="wireguard_manage_keys">키 관리</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
-    <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d ~ %2$d.</string>
+    <string name="wireguard_mtu_footer">WireGuard MTU 값을 설정하세요. 유효 범위: %1$d - %2$d.</string>
     <string name="wireguard_public_key">WireGuard 공개 키</string>
     <string name="wireguard_replace_key">키 다시 생성</string>
     <string name="wireguard_verify_key">키 확인</string>

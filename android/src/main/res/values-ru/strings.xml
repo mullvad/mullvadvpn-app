@@ -98,7 +98,7 @@
     <string name="report_a_problem">Сообщить о проблеме</string>
     <string name="secure_connection">ЗАЩИЩЕННОЕ ПОДКЛЮЧЕНИЕ</string>
     <string name="secured">Подключение защищено</string>
-    <string name="select_location">Выбор местоположения</string>
+    <string name="select_location">Выбрать местоположение</string>
     <string name="select_location_description">При подключении реальное местоположение маскируется защищенным конфиденциальным местоположением в выбранном регионе.</string>
     <string name="send">Отправить</string>
     <string name="send_anyway">Все равно отправить</string>
@@ -112,6 +112,7 @@
     <string name="settings_account">Учетная запись</string>
     <string name="settings_advanced">Дополнительные</string>
     <string name="settings_preferences">Параметры</string>
+    <string name="show_system_apps">Показывать системные приложения</string>
     <string name="split_tunneling">Раздельное туннелирование</string>
     <string name="split_tunneling_description">Раздельное туннелирование позволяет выбрать, какие приложения не должны маршрутизироваться через VPN-туннель.</string>
     <string name="start_tunnel_error">Не удалось запустить подключение к туннелю</string>
@@ -147,7 +148,7 @@
     <string name="wireguard_key_verification_failure">Ошибка проверки ключа</string>
     <string name="wireguard_manage_keys">Управление ключами</string>
     <string name="wireguard_mtu">MTU для WireGuard</string>
-    <string name="wireguard_mtu_footer">Установить значение MTU для WireGuard. Диапазон значений: %1$d–%2$d.</string>
+    <string name="wireguard_mtu_footer">Значение MTU для WireGuard. Допустимый диапазон: %1$d–%2$d.</string>
     <string name="wireguard_public_key">Открытый ключ WireGuard</string>
     <string name="wireguard_replace_key">Повторно сгенерировать ключ</string>
     <string name="wireguard_verify_key">Проверка ключа</string>

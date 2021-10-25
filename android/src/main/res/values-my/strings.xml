@@ -64,7 +64,7 @@
     <string name="foreground_notification_channel_description">လက်ရှိ VPN Tunnel အခြေအနေကို ပြသပေးပါသည်</string>
     <string name="foreground_notification_channel_name">VPN Tunnel အခြေအနေ</string>
     <string name="here_is_your_account_number">ဤသည်မှာ သင့်အကောင့်နံပါတ် ဖြစ်ပါသည်။ သိမ်းမှတ်ထားပါ။</string>
-    <string name="hint_default">မူလအတိုင်း</string>
+    <string name="hint_default">ပုံသေ</string>
     <string name="in_address">အဝင်</string>
     <string name="invalid_dns_servers">စိတ်ကြိုက် DNS ဆာဗာလိပ်စာများ %1$s မှားနေပါသည်</string>
     <string name="invalid_voucher">ဘောက်ချာကုဒ် မှားနေပါသည်။</string>
@@ -112,6 +112,7 @@
     <string name="settings_account">အကောင့်</string>
     <string name="settings_advanced">အဆင့်မြင့်</string>
     <string name="settings_preferences">လိုလားမှုများ</string>
+    <string name="show_system_apps">စနစ်အက်ပ်များ ပြရန်</string>
     <string name="split_tunneling">Split Tunneling</string>
     <string name="split_tunneling_description">Split Tunneling သည် VPN Tunnel မှတစ်ဆင့် လမ်းကြောင်းအတိုင်း မပို့သင့်သည့် အက်ပ်များကို ရွေးချယ်နိုင်ပါသည်။</string>
     <string name="start_tunnel_error">Tunnel ချိတ်ဆက်မှုကို စတင်ရန် မအောင်မြင်ခဲ့ပါ</string>

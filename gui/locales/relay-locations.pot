@@ -290,12 +290,20 @@ msgstr ""
 msgid "Nis"
 msgstr ""
 
+#. MK
+msgid "North Macedonia"
+msgstr ""
+
 #. NO
 msgid "Norway"
 msgstr ""
 
 #. US OKC
 msgid "Oklahoma City, OK"
+msgstr ""
+
+#. JP OSA
+msgid "Osaka"
 msgstr ""
 
 #. NO OSL
@@ -392,6 +400,10 @@ msgstr ""
 
 #. US FSD
 msgid "Sioux Falls, SD"
+msgstr ""
+
+#. MK SKP
+msgid "Skopje"
 msgstr ""
 
 #. BG SOF
