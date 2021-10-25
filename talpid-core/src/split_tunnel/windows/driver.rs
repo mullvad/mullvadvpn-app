@@ -160,29 +160,29 @@ impl DeviceHandle {
         // Initialize the driver
         let state = device
             .get_driver_state()
-            .map_err(|e| DeviceHandleError::InitializationError(e))?;
+            .map_err(DeviceHandleError::InitializationError)?;
         if state == DriverState::Started {
             log::trace!("Initializing driver");
             device
                 .initialize()
-                .map_err(|e| DeviceHandleError::InitializationError(e))?;
+                .map_err(DeviceHandleError::InitializationError)?;
         }
 
         // Initialize process tree
         let state = device
             .get_driver_state()
-            .map_err(|e| DeviceHandleError::InitializationError(e))?;
+            .map_err(DeviceHandleError::InitializationError)?;
         if state == DriverState::Initialized {
             log::trace!("Registering processes");
             device
                 .register_processes()
-                .map_err(|e| DeviceHandleError::InitializationError(e))?;
+                .map_err(DeviceHandleError::InitializationError)?;
         }
 
         log::trace!("Clearing any existing exclusion config");
         device
             .clear_config()
-            .map_err(|e| DeviceHandleError::InitializationError(e))?;
+            .map_err(DeviceHandleError::InitializationError)?;
 
         Ok(device)
     }
