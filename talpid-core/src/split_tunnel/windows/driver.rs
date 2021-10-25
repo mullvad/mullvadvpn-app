@@ -131,11 +131,38 @@ pub struct DeviceHandle {
 unsafe impl Sync for DeviceHandle {}
 unsafe impl Send for DeviceHandle {}
 
+#[derive(err_derive::Error, Debug)]
+#[error(no_from)]
 pub enum DeviceHandleError {
+    /// Failed to connect because there's no such device
+    #[error(display = "Failed to connect to driver, no such device. \
+            The driver is probably not loaded")]
     ConnectionFailed,
+
+    /// Failed to connect because the connection was denied
+    #[error(display = "Failed to connect to driver, connection denied. \
+            The exclusive connection is probably hogged")]
     ConnectionDenied,
-    ConnectionError(io::Error),
-    InitializationError(io::Error),
+
+    /// Failed to connect to driver
+    #[error(display = "Failed to connect to driver")]
+    ConnectionError(#[error(source)] io::Error),
+
+    /// Failed to inquire about driver state
+    #[error(display = "Failed to inquire about driver state")]
+    GetStateError(#[error(source)] io::Error),
+
+    /// Failed to initialize driver
+    #[error(display = "Failed to initialize driver")]
+    InitializationError(#[error(source)] io::Error),
+
+    /// Failed to register process tree with driver
+    #[error(display = "Failed to register process tree with driver")]
+    RegisterProcessesError(#[error(source)] io::Error),
+
+    /// Failed to clear configuration in driver
+    #[error(display = "Failed to clear configuration in driver")]
+    ClearConfigError(#[error(source)] io::Error),
 }
 
 impl DeviceHandle {
@@ -160,7 +187,7 @@ impl DeviceHandle {
         // Initialize the driver
         let state = device
             .get_driver_state()
-            .map_err(DeviceHandleError::InitializationError)?;
+            .map_err(DeviceHandleError::GetStateError)?;
         if state == DriverState::Started {
             log::trace!("Initializing driver");
             device
@@ -171,18 +198,18 @@ impl DeviceHandle {
         // Initialize process tree
         let state = device
             .get_driver_state()
-            .map_err(DeviceHandleError::InitializationError)?;
+            .map_err(DeviceHandleError::GetStateError)?;
         if state == DriverState::Initialized {
             log::trace!("Registering processes");
             device
                 .register_processes()
-                .map_err(DeviceHandleError::InitializationError)?;
+                .map_err(DeviceHandleError::RegisterProcessesError)?;
         }
 
         log::trace!("Clearing any existing exclusion config");
         device
             .clear_config()
-            .map_err(DeviceHandleError::InitializationError)?;
+            .map_err(DeviceHandleError::ClearConfigError)?;
 
         Ok(device)
     }

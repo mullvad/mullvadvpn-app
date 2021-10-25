@@ -9,7 +9,6 @@ use crate::{
         self, get_best_default_route, interface_luid_to_ip, WinNetAddrFamily, WinNetCallbackHandle,
     },
 };
-use driver::DeviceHandleError;
 use futures::channel::{mpsc, oneshot};
 use std::{
     convert::TryFrom,
@@ -43,25 +42,9 @@ const RESERVED_IP_V4: Ipv4Addr = Ipv4Addr::new(192, 0, 2, 123);
 #[derive(err_derive::Error, Debug)]
 #[error(no_from)]
 pub enum Error {
-    /// Connection failed because there's no such device
-    #[error(
-        display = "Failed to connect to driver, no such device. The driver is probably not loaded"
-    )]
-    ConnectionFailed,
-
-    /// Connection failed because the connection was denied
-    #[error(
-        display = "Failed to connect to driver, connection denied. The exclusive connection is probably hogged"
-    )]
-    ConnectionDenied,
-
-    /// Failed to connect to driver
-    #[error(display = "Failed to connect to driver")]
-    ConnectionError(#[error(source)] io::Error),
-
     /// Failed to initialize the driver
     #[error(display = "Failed to initialize driver")]
-    InitializationError(#[error(source)] io::Error),
+    InitializationError(#[error(source)] driver::DeviceHandleError),
 
     /// Failed to set paths to excluded applications
     #[error(display = "Failed to set list of excluded applications")]
@@ -329,12 +312,7 @@ impl SplitTunnel {
         std::thread::spawn(move || {
             let result = driver::DeviceHandle::new()
                 .map(Arc::new)
-                .map_err(|e| match e {
-                    DeviceHandleError::ConnectionFailed => Error::ConnectionFailed,
-                    DeviceHandleError::ConnectionDenied => Error::ConnectionDenied,
-                    DeviceHandleError::ConnectionError(ee) => Error::ConnectionError(ee),
-                    DeviceHandleError::InitializationError(ee) => Error::InitializationError(ee),
-                });
+                .map_err(Error::InitializationError);
             let handle = match result {
                 Ok(handle) => {
                     let _ = init_tx.send(Ok(handle.clone()));
