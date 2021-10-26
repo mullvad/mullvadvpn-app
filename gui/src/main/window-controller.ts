@@ -170,7 +170,6 @@ export default class WindowController {
       : new AttachedToTrayWindowPositioning(this.tray);
 
     this.updatePosition();
-    this.notifyUpdateWindowShape();
   }
 
   public show(whenReady = true) {
@@ -201,6 +200,15 @@ export default class WindowController {
     this.windowPositioningScheduler.cancel();
   }
 
+  public updatePosition() {
+    if (this.window) {
+      const { x, y } = this.windowPositioning.getPosition(this.window);
+      this.window.setPosition(x, y, false);
+    }
+
+    this.notifyUpdateWindowShape();
+  }
+
   private showImmediately() {
     const window = this.window;
 
@@ -216,20 +224,11 @@ export default class WindowController {
       window?.focus();
 
       this.updatePosition();
-      this.notifyUpdateWindowShape();
     } else {
       this.updatePosition();
-      this.notifyUpdateWindowShape();
 
       window?.show();
       window?.focus();
-    }
-  }
-
-  private updatePosition() {
-    if (this.window) {
-      const { x, y } = this.windowPositioning.getPosition(this.window);
-      this.window.setPosition(x, y, false);
     }
   }
 
@@ -272,7 +271,6 @@ export default class WindowController {
 
   private onWorkAreaSizeChange() {
     this.updatePosition();
-    this.notifyUpdateWindowShape();
   }
 
   private forceResizeWindow() {
